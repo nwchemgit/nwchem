@@ -1,7 +1,7 @@
 
- MOLECULAR DYNAMICS                                                                                          00/06/01  21:54:26  
+ MOLECULAR DYNAMICS                                                                                          00/10/25  11:44:24  
 
- Title   NWChem:MD input                                                                                     00/06/01  21:54:26  
+ Title   NWChem:MD input                                                                                     00/10/25  11:44:24  
                                                                                          
                                                                                          
 
@@ -12,7 +12,7 @@
  Initial simulation
 
  Number of equilibration steps       0
- Number of data gathering steps    100
+ Number of data gathering steps  50000
 
  Cutoff radius     0.900000 nm
 
@@ -26,12 +26,12 @@
  Maximum number of solvent SHAKE iterations   100, solvent SHAKE tolerance     0.000001 nm
  Maximum number of solute SHAKE iterations    100, solute SHAKE tolerance      0.000001 nm
 
- Frequency update pair lists                              1
+ Frequency update pair lists                             10
  Frequency removal overall motion                         0
  Frequency solute centering                               0
- Frequency printing step information                     10
- Frequency printing statistical information             100
- Frequency recording restart file                         0
+ Frequency printing step information                    500
+ Frequency printing statistical information            5000
+ Frequency recording restart file                      1000
  Frequency recording system coordinates                   0
  Frequency recording solute coordinates                   0
  Frequency recording system velocities                    0
@@ -39,7 +39,8 @@
 
  LOAD BALANCING
 
- None
+ Redistribution of inter-processor box pairs: retry    10
+ Resizing of processor domains: smallest scaling     0.750000
 
  Load balancing based on last synchronization time
 
@@ -72,68 +73,710 @@
     2    0.423800    0.423800    0.423800       0.000000    0.000000    0.000000
     3    0.000000    0.000000    0.000000       0.000000    0.000000    0.000000
 
+ SOLUTE
+
+
+ Total solute charge is         0.0000000000
+
+
  DOMAIN DECOMPOSITION
 
- Processor count     1 =    1 x    1 x    1
+ Processor count     2 =    1 x    1 x    2
  Box count           8 =    2 x    2 x    2
 
  Initial distribution p:b(w+s)
 
-      0:    8(    648+      0)
+      0:    4(    324+      0)      1:    4(    324+      0)
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  21:54:26  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:44:40  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.01000  307.66-3.37E+07     6.384 0.9999 0.9999 1.0000-1.1100E+04 1.9655E+03-9.1340E+03 1.6576E+03-7.4764E+03
-    0.02000  301.10-4.21E+07     6.381 0.9999 0.9999 1.0000-1.1044E+04 1.9361E+03-9.1074E+03 1.6223E+03-7.4852E+03
-    0.03000  295.48-2.39E+07     6.379 1.0001 1.0001 1.0000-1.1014E+04 1.9374E+03-9.0769E+03 1.5920E+03-7.4849E+03
-    0.04000  305.57-2.37E+07     6.378 0.9999 0.9999 1.0000-1.1093E+04 1.9570E+03-9.1362E+03 1.6463E+03-7.4898E+03
-    0.05000  294.11-1.71E+06     6.377 1.0001 1.0001 1.0000-1.1026E+04 1.9507E+03-9.0753E+03 1.5846E+03-7.4907E+03
-    0.06000  301.63-5.08E+07     6.376 1.0000 1.0000 1.0000-1.1023E+04 1.9155E+03-9.1076E+03 1.6251E+03-7.4825E+03
-    0.07000  297.91-6.53E+07     6.372 1.0000 1.0000 0.9999-1.0995E+04 1.9030E+03-9.0916E+03 1.6051E+03-7.4866E+03
-    0.08000  295.34-4.58E+07     6.369 1.0001 1.0001 1.0000-1.0997E+04 1.9275E+03-9.0699E+03 1.5912E+03-7.4786E+03
-    0.09000  307.21-3.17E+07     6.367 0.9999 0.9999 1.0000-1.1094E+04 1.9579E+03-9.1365E+03 1.6552E+03-7.4814E+03
-    0.10000  302.88-6.24E+06     6.366 0.9999 0.9999 1.0000-1.1096E+04 1.9703E+03-9.1255E+03 1.6318E+03-7.4937E+03
+    0.50000  306.09 1.34E+08     6.549 0.9998 0.9998 1.0001-1.1289E+04 2.1982E+03-9.0910E+03 1.6491E+03-7.4419E+03
+    1.00000  321.84 5.68E+06     6.554 0.9996 0.9996 1.0000-1.1135E+04 2.0266E+03-9.1080E+03 1.7340E+03-7.3741E+03
+    1.50000  292.23 2.54E+07     6.618 1.0001 1.0001 1.0000-1.1055E+04 2.0488E+03-9.0065E+03 1.5745E+03-7.4320E+03
+    2.00000  279.40-7.20E+07     6.537 1.0004 1.0004 0.9999-1.0824E+04 1.8862E+03-8.9374E+03 1.5053E+03-7.4321E+03
+    2.50000  305.09-7.40E+07     6.426 0.9999 0.9999 0.9999-1.0753E+04 1.8238E+03-8.9292E+03 1.6437E+03-7.2855E+03
+    3.00000  299.27 9.53E+07     6.477 1.0000 1.0000 1.0001-1.0967E+04 2.0318E+03-8.9356E+03 1.6124E+03-7.3232E+03
+    3.50000  298.27 8.61E+07     6.483 1.0000 1.0000 1.0001-1.1048E+04 2.0710E+03-8.9766E+03 1.6070E+03-7.3695E+03
+    4.00000  305.20-3.54E+07     6.514 0.9999 0.9999 1.0000-1.0957E+04 1.9441E+03-9.0132E+03 1.6443E+03-7.3689E+03
+    4.50000  298.01 5.86E+07     6.553 1.0000 1.0000 1.0001-1.0926E+04 2.0179E+03-8.9078E+03 1.6056E+03-7.3022E+03
+    5.00000  303.27-7.16E+07     6.473 0.9999 0.9999 0.9999-1.1024E+04 1.9187E+03-9.1050E+03 1.6339E+03-7.4710E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  21:54:31  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:47:07  
 
-                                           Statistics over last      100 steps     Statistics over last      100 steps
+                                           Statistics over last     5000 steps     Statistics over last     5000 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
 
- Step                                    5.05000E+01  2.88661E+01  1.00000E+03   5.05000E+01  2.88661E+01  1.00000E+03             
- Time                                    5.05000E-02  2.88661E-02  1.00000E+00   5.05000E-02  2.88661E-02  1.00000E+00           ps
- Number solvent-solvent interactions SR  1.10914E+04  1.23334E+01 -1.19070E+02   1.10914E+04  1.23334E+01 -1.19070E+02             
- Number of solvent SHAKE iterations      2.28000E+01  4.00000E-01 -5.28053E+00   2.28000E+01  4.00000E-01 -5.28053E+00             
- Volume                                  6.37577E+00  5.82384E-03 -1.98821E-01   6.37577E+00  5.82384E-03 -1.98821E-01        nm**3
- Mass density                            1.01350E+03  9.26028E-01  3.16108E+01   1.01350E+03  9.26028E-01  3.16108E+01      kg/m**3
- Pressure                               -3.24355E+07  1.84256E+07 -1.69959E+08  -3.24355E+07  1.84256E+07 -1.69959E+08           Pa
- Pressure scaling                        9.99971E-01  1.66936E-05 -1.53983E-04   9.99971E-01  1.66936E-05 -1.53983E-04             
- Temperature                             3.00967E+02  4.77765E+00 -3.13060E+00   3.00967E+02  4.77765E+00 -3.13060E+00            K
- Temperature solvent                     3.00967E+02  4.77765E+00 -3.13060E+00   3.00967E+02  4.77765E+00 -3.13060E+00            K
- Temperature translations                0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99955E-01  7.89110E-05  5.97673E-05   9.99955E-01  7.89110E-05  5.97673E-05             
- Energy electrostatic                   -1.10477E+04  4.05083E+01  1.88936E+02  -1.10477E+04  4.05083E+01  1.88936E+02       kJ/mol
- Energy van der Waals                    1.94304E+03  2.27639E+01 -2.53177E+02   1.94304E+03  2.27639E+01 -2.53177E+02       kJ/mol
- Energy potential                       -9.10464E+03  2.49534E+01 -6.42414E+01  -9.10464E+03  2.49534E+01 -6.42414E+01       kJ/mol
- Energy kinetic                          1.62153E+03  2.57407E+01 -1.68668E+01   1.62153E+03  2.57407E+01 -1.68668E+01       kJ/mol
- Energy total                           -7.48310E+03  6.47347E+00 -8.11082E+01  -7.48310E+03  6.47347E+00 -8.11082E+01       kJ/mol
- Energy solvent intra electrostatic      1.12752E+03  3.66211E-05  1.09150E-11   1.12752E+03  3.66211E-05  1.09150E-11       kJ/mol
+ Step                                    2.50050E+03  1.44338E+03  1.00000E+03   2.50050E+03  1.44338E+03  1.00000E+03             
+ Time                                    2.50050E+00  1.44338E+00  1.00000E+00   2.50050E+00  1.44338E+00  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08337E+04  8.33620E+01  1.04934E+01   1.08337E+04  8.33620E+01  1.04934E+01             
+ Number of solvent SHAKE iterations      2.28936E+01  3.13495E-01 -2.27242E-03   2.28936E+01  3.13495E-01 -2.27242E-03             
+ Volume                                  6.51260E+00  4.87727E-02 -5.51657E-03   6.51260E+00  4.87727E-02 -5.51657E-03        nm**3
+ Mass density                            9.92255E+02  7.45584E+00  8.33943E-01   9.92255E+02  7.45584E+00  8.33943E-01      kg/m**3
+ Pressure                               -1.79135E+05  5.97196E+07 -2.90177E+06  -1.79135E+05  5.97196E+07 -2.90177E+06           Pa
+ Pressure scaling                        1.00000E+00  5.41060E-05 -2.62901E-06   1.00000E+00  5.41060E-05 -2.62901E-06             
+ Temperature                             2.99719E+02  9.22517E+00  4.40339E-01   2.99719E+02  9.22517E+00  4.40339E-01            K
+ Temperature solvent                     2.99719E+02  9.22517E+00  4.40339E-01   2.99719E+02  9.22517E+00  4.40339E-01            K
+ Temperature scaling solvent             9.99979E-01  1.54220E-04 -7.02551E-06   9.99979E-01  1.54220E-04 -7.02551E-06             
+ Energy electrostatic                   -1.09595E+04  1.19845E+02  1.34862E+01  -1.09595E+04  1.19845E+02  1.34862E+01       kJ/mol
+ Energy van der Waals                    1.96380E+03  8.01825E+01 -6.76109E+00   1.96380E+03  8.01825E+01 -6.76109E+00       kJ/mol
+ Energy potential                       -8.99573E+03  7.07458E+01  6.72513E+00  -8.99573E+03  7.07458E+01  6.72513E+00       kJ/mol
+ Energy kinetic                          1.61481E+03  4.97028E+01  2.37243E+00   1.61481E+03  4.97028E+01  2.37243E+00       kJ/mol
+ Energy total                           -7.38092E+03  4.77052E+01  9.09756E+00  -7.38092E+03  4.77052E+01  9.09756E+00       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  1.22130E-10   1.12752E+03  4.49006E-04  1.22130E-10       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.21752E+04  4.05083E+01  1.88936E+02  -1.21752E+04  4.05083E+01  1.88936E+02       kJ/mol
- Energy solvent inter van der Waals      1.94304E+03  2.27639E+01 -2.53177E+02   1.94304E+03  2.27639E+01 -2.53177E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.20870E+04  1.19845E+02  1.34862E+01  -1.20870E+04  1.19845E+02  1.34862E+01       kJ/mol
+ Energy solvent inter van der Waals      1.96380E+03  8.01825E+01 -6.76109E+00   1.96380E+03  8.01825E+01 -6.76109E+00       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.62153E+03  2.57407E+01 -1.68668E+01   1.62153E+03  2.57407E+01 -1.68668E+01       kJ/mol
- Mean square displacement solvent /6     1.29908E-02  9.10692E-05  3.13301E-03   1.29908E-02  9.10692E-05  3.13301E-03        nm**2
- Diffusion constant solvent * e9         6.68641E-07  1.49931E-06 -2.49331E-05   6.68641E-07  1.49931E-06 -2.49331E-05       m**2/s
- Synchronization time                    4.20400E-05  7.42558E-05 -3.93879E-04   4.20400E-05  7.42558E-05 -3.93879E-04            s
- Efficiency load balancing               9.99249E-01  1.23693E-03  6.66169E-03   9.99249E-01  1.23693E-03  6.66169E-03             
- Time per step                           5.51551E-02  1.82602E-03  8.01510E-03   5.51551E-02  1.82602E-03  8.01510E-03            s
+ Energy solvent kinetic                  1.61481E+03  4.97028E+01  2.37243E+00   1.61481E+03  4.97028E+01  2.37243E+00       kJ/mol
+ Mean square displacement solvent /6     3.01321E-01  2.63996E-03  1.58604E-03   3.01321E-01  2.63996E-03  1.58604E-03        nm**2
+ Diffusion constant solvent * e9         5.42455E-07  5.36073E-06 -5.06443E-07   5.42455E-07  5.36073E-06 -5.06443E-07       m**2/s
+ Synchronization time                    3.01320E-03  3.89977E-03  1.43680E-04   3.01320E-03  3.89977E-03  1.43680E-04            s
+ Efficiency load balancing               9.54341E-01  4.13252E-02 -6.08690E-04   9.54341E-01  4.13252E-02 -6.08690E-04             
+ Time per step                           2.81788E-02  5.76293E-03  3.41213E-04   2.81788E-02  5.76293E-03  3.41213E-04            s
+ Prof: replicated data interactions      3.69864E-05  1.37104E-04 -9.18283E-07   3.69864E-05  1.37104E-04 -9.18283E-07            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.32134E-04  1.26181E-04  4.96194E-07   2.32134E-04  1.26181E-04  4.96194E-07            s
+ Prof: local force calculation           2.64630E-02  3.18389E-03  1.07282E-04   2.64630E-02  3.18389E-03  1.07282E-04            s
+ Prof: local force accumulation          2.11890E-04  2.27584E-04 -8.73005E-08   2.11890E-04  2.27584E-04 -8.73005E-08            s
+ Prof: remote coordinate retrieval       4.99710E-04  3.18934E-04 -6.73954E-07   4.99710E-04  3.18934E-04 -6.73954E-07            s
+ Prof: remote force calculation          1.56631E-02  2.48271E-03  1.35909E-04   1.56631E-02  2.48271E-03  1.35909E-04            s
+ Prof: remote force accumulation         7.05113E-04  5.38912E-04  1.18990E-05   7.05113E-04  5.38912E-04  1.18990E-05            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   3.01320E-03  3.89977E-03  1.43680E-04   3.01320E-03  3.89977E-03  1.43680E-04            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:47:23  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+    5.50000  280.49 1.13E+08     6.505 1.0003 1.0003 1.0001-1.1067E+04 2.0915E+03-8.9755E+03 1.5112E+03-7.4643E+03
+    6.00000  302.24-7.37E+07     6.590 0.9999 0.9999 0.9999-1.1050E+04 1.9387E+03-9.1115E+03 1.6284E+03-7.4831E+03
+    6.50000  294.03-6.79E+07     6.546 1.0001 1.0001 0.9999-1.0981E+04 1.9105E+03-9.0701E+03 1.5841E+03-7.4859E+03
+    7.00000  303.42-3.53E+07     6.562 0.9999 0.9999 1.0000-1.1018E+04 1.9581E+03-9.0595E+03 1.6348E+03-7.4247E+03
+    7.50000  303.89-1.25E+07     6.449 0.9999 0.9999 1.0000-1.1008E+04 1.9581E+03-9.0497E+03 1.6373E+03-7.4125E+03
+    8.00000  311.67 4.73E+07     6.452 0.9998 0.9998 1.0000-1.1041E+04 2.0049E+03-9.0365E+03 1.6792E+03-7.3573E+03
+    8.50000  293.91-1.05E+07     6.340 1.0000 1.0000 1.0000-1.0848E+04 1.9066E+03-8.9418E+03 1.5835E+03-7.3583E+03
+    9.00000  302.95 2.80E+07     6.382 0.9999 0.9999 1.0000-1.0977E+04 1.9760E+03-9.0012E+03 1.6322E+03-7.3689E+03
+    9.50000  287.94 7.43E+07     6.345 1.0002 1.0002 1.0001-1.0907E+04 1.9665E+03-8.9407E+03 1.5513E+03-7.3894E+03
+   10.00000  310.56-8.41E+07     6.364 0.9998 0.9998 0.9999-1.0868E+04 1.8410E+03-9.0271E+03 1.6732E+03-7.3539E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:49:50  
+
+                                           Statistics over last     5000 steps     Statistics over last    10000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    7.50050E+03  1.44338E+03  1.00000E+03   5.00050E+03  2.88675E+03  1.00000E+03             
+ Time                                    7.50050E+00  1.44338E+00  1.00000E+00   5.00050E+00  2.88675E+00  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.09282E+04  1.53380E+02  8.19671E+01   1.08810E+04  1.32164E+02  2.57244E+01             
+ Number of solvent SHAKE iterations      2.29154E+01  2.86082E-01 -6.90926E-03   2.29045E+01  3.00299E-01  2.12229E-03             
+ Volume                                  6.45799E+00  9.14841E-02 -4.93867E-02   6.48530E+00  7.82284E-02 -1.50548E-02        nm**3
+ Mass density                            1.00079E+03  1.41820E+01  7.67980E+00   9.96523E+02  1.21068E+01  2.34456E+00      kg/m**3
+ Pressure                               -3.64481E+06  5.77988E+07 -3.24139E+06  -1.91197E+06  5.87926E+07 -1.28775E+06           Pa
+ Pressure scaling                        9.99997E-01  5.23657E-05 -2.93670E-06   9.99998E-01  5.32661E-05 -1.16670E-06             
+ Temperature                             2.99474E+02  8.34760E+00  1.49281E-01   2.99596E+02  8.79818E+00  3.70452E-02            K
+ Temperature solvent                     2.99474E+02  8.34760E+00  1.49281E-01   2.99596E+02  8.79818E+00  3.70452E-02            K
+ Temperature scaling solvent             9.99982E-01  1.38807E-04 -2.47970E-06   9.99980E-01  1.46724E-04 -7.07803E-07             
+ Energy electrostatic                   -1.09889E+04  1.28562E+02  5.86306E+01  -1.09742E+04  1.25147E+02  4.60308E+00       kJ/mol
+ Energy van der Waals                    1.95858E+03  8.56674E+01 -3.17721E+01   1.96119E+03  8.30114E+01 -5.60008E+00       kJ/mol
+ Energy potential                       -9.03036E+03  6.95653E+01  2.68585E+01  -9.01304E+03  7.22635E+01 -9.97000E-01       kJ/mol
+ Energy kinetic                          1.61349E+03  4.49747E+01  8.04288E-01   1.61415E+03  4.74023E+01  1.99590E-01       kJ/mol
+ Energy total                           -7.41687E+03  5.41255E+01  2.76628E+01  -7.39890E+03  5.40904E+01 -7.97410E-01       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  3.65496E-10   1.12752E+03  9.48523E-04  1.64419E-10       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.21165E+04  1.28562E+02  5.86306E+01  -1.21018E+04  1.25147E+02  4.60308E+00       kJ/mol
+ Energy solvent inter van der Waals      1.95858E+03  8.56674E+01 -3.17721E+01   1.96119E+03  8.30114E+01 -5.60008E+00       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61349E+03  4.49747E+01  8.04288E-01   1.61415E+03  4.74023E+01  1.99590E-01       kJ/mol
+ Mean square displacement solvent /6     3.08267E-01  2.95893E-03  1.47657E-03   3.04794E-01  4.46381E-03  1.42479E-03        nm**2
+ Diffusion constant solvent * e9         4.26801E-08  8.38783E-09 -5.69014E-09   2.92568E-07  3.79884E-06 -1.38983E-07       m**2/s
+ Synchronization time                    3.01129E-03  3.27784E-03  4.71322E-05   3.01225E-03  3.60225E-03  2.35646E-05            s
+ Efficiency load balancing               9.53728E-01  3.99617E-02 -4.27334E-04   9.54034E-01  4.06503E-02 -2.21408E-04             
+ Time per step                           2.83215E-02  4.29540E-03  2.01585E-04   2.82501E-02  5.08291E-03  8.92425E-05            s
+ Prof: replicated data interactions      3.48048E-05  1.91144E-05 -1.19262E-07   3.58956E-05  9.78909E-05 -4.56933E-07            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.42962E-04  2.90648E-04  1.87416E-06   2.37548E-04  2.24116E-04  1.92049E-06            s
+ Prof: local force calculation           2.67459E-02  3.12259E-03  1.80397E-04   2.66045E-02  3.15656E-03  7.83996E-05            s
+ Prof: local force accumulation          2.07169E-04  1.29293E-04  1.08052E-06   2.09529E-04  1.85098E-04 -5.83967E-07            s
+ Prof: remote coordinate retrieval       4.98806E-04  3.75394E-04  1.27677E-06   4.99258E-04  3.48310E-04 -6.02474E-08            s
+ Prof: remote force calculation          1.57846E-02  2.41204E-03  1.25973E-04   1.57238E-02  2.44838E-03  5.09574E-05            s
+ Prof: remote force accumulation         6.84458E-04  3.90844E-04 -5.20972E-06   6.94786E-04  4.70849E-04 -2.26200E-06            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   3.01129E-03  3.27784E-03  4.71322E-05   3.01225E-03  3.60225E-03  2.35646E-05            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:50:06  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   10.50000  289.58 7.47E+07     6.364 1.0001 1.0001 1.0001-1.0885E+04 1.9914E+03-8.8939E+03 1.5602E+03-7.3337E+03
+   11.00000  297.25 1.06E+08     6.410 1.0000 1.0000 1.0001-1.1011E+04 2.0523E+03-8.9583E+03 1.6015E+03-7.3568E+03
+   11.50000  303.04-3.69E+07     6.509 0.9999 0.9999 1.0000-1.0924E+04 1.9230E+03-9.0007E+03 1.6327E+03-7.3680E+03
+   12.00000  288.20 1.03E+08     6.465 1.0002 1.0002 1.0001-1.1102E+04 2.1059E+03-8.9964E+03 1.5527E+03-7.4437E+03
+   12.50000  296.59 1.18E+08     6.519 1.0000 1.0000 1.0001-1.1191E+04 2.1319E+03-9.0594E+03 1.5980E+03-7.4614E+03
+   13.00000  302.25 5.12E+07     6.524 0.9999 0.9999 1.0000-1.1086E+04 2.0638E+03-9.0225E+03 1.6285E+03-7.3940E+03
+   13.50000  292.88-2.04E+07     6.570 1.0001 1.0001 1.0000-1.0853E+04 1.9159E+03-8.9372E+03 1.5780E+03-7.3593E+03
+   14.00000  306.37-3.70E+07     6.557 0.9998 0.9998 1.0000-1.0886E+04 1.8941E+03-8.9922E+03 1.6506E+03-7.3416E+03
+   14.50000  302.78 3.36E+07     6.484 0.9999 0.9999 1.0000-1.1036E+04 2.0012E+03-9.0347E+03 1.6313E+03-7.4034E+03
+   15.00000  312.73 9.84E+06     6.477 0.9998 0.9998 1.0000-1.1091E+04 1.9871E+03-9.1043E+03 1.6849E+03-7.4194E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:52:33  
+
+                                           Statistics over last     5000 steps     Statistics over last    15000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    1.25005E+04  1.44338E+03  1.00000E+03   7.50050E+03  4.33013E+03  1.00000E+03             
+ Time                                    1.25005E+01  1.44338E+00  1.00000E+00   7.50050E+00  4.33013E+00  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08916E+04  1.09664E+02 -5.60142E+01   1.08845E+04  1.25214E+02  6.48881E+00             
+ Number of solvent SHAKE iterations      2.28762E+01  3.31773E-01  1.41538E-03   2.28951E+01  3.11431E-01 -1.83431E-03             
+ Volume                                  6.48329E+00  6.52637E-02  3.22454E-02   6.48463E+00  7.41652E-02 -3.44484E-03        nm**3
+ Mass density                            9.96787E+02  1.00931E+01 -5.00083E+00   9.96611E+02  1.14756E+01  5.32945E-01      kg/m**3
+ Pressure                                4.00164E+06  5.53602E+07 -5.15861E+06   5.92305E+04  5.77385E+07 -4.69600E+04           Pa
+ Pressure scaling                        1.00000E+00  5.01563E-05 -4.67370E-06   1.00000E+00  5.23112E-05 -4.25457E-08             
+ Temperature                             3.00018E+02  8.06108E+00 -9.85967E-03   2.99737E+02  8.56184E+00  4.80769E-02            K
+ Temperature solvent                     3.00018E+02  8.06108E+00 -9.85967E-03   2.99737E+02  8.56184E+00  4.80769E-02            K
+ Temperature scaling solvent             9.99972E-01  1.34921E-04  2.70640E-07   9.99978E-01  1.42944E-04 -8.82363E-07             
+ Energy electrostatic                   -1.09633E+04  1.05321E+02 -9.38267E+00  -1.09706E+04  1.19017E+02  1.98522E+00       kJ/mol
+ Energy van der Waals                    1.96287E+03  7.50559E+01  2.99061E+00   1.96175E+03  8.04509E+01 -1.39854E+00       kJ/mol
+ Energy potential                       -9.00046E+03  6.27162E+01 -6.39206E+00  -9.00885E+03  6.94813E+01  5.86678E-01       kJ/mol
+ Energy kinetic                          1.61642E+03  4.34310E+01 -5.31213E-02   1.61490E+03  4.61290E+01  2.59026E-01       kJ/mol
+ Energy total                           -7.38404E+03  4.74961E+01 -6.44518E+00  -7.39394E+03  5.24550E+01  8.45704E-01       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  6.15120E-10   1.12752E+03  1.02696E-03  1.32773E-10       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.20909E+04  1.05321E+02 -9.38267E+00  -1.20981E+04  1.19017E+02  1.98522E+00       kJ/mol
+ Energy solvent inter van der Waals      1.96287E+03  7.50559E+01  2.99061E+00   1.96175E+03  8.04509E+01 -1.39854E+00       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61642E+03  4.34310E+01 -5.31213E-02   1.61490E+03  4.61290E+01  2.59026E-01       kJ/mol
+ Mean square displacement solvent /6     3.20203E-01  6.27862E-03  4.22048E-03   3.09930E-01  8.89868E-03  1.94815E-03        nm**2
+ Diffusion constant solvent * e9         2.59079E-08  2.55605E-09 -1.75610E-09   2.03681E-07  3.10429E-06 -6.49483E-08       m**2/s
+ Synchronization time                    3.12478E-03  3.84985E-03  1.74120E-05   3.04976E-03  3.68702E-03  1.76296E-05            s
+ Efficiency load balancing               9.52469E-01  4.23412E-02 -4.15564E-04   9.53513E-01  4.12283E-02 -2.20114E-04             
+ Time per step                           2.82104E-02  4.52906E-03 -1.61072E-05   2.82369E-02  4.90528E-03  2.23156E-05            s
+ Prof: replicated data interactions      3.62516E-05  8.96841E-05 -4.91591E-07   3.60143E-05  9.52340E-05 -1.21950E-07            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.36260E-04  2.38967E-04 -1.11960E-06   2.37118E-04  2.29174E-04  4.13080E-07            s
+ Prof: local force calculation           2.66326E-02  3.21432E-03 -6.64567E-06   2.66138E-02  3.17596E-03  2.54886E-05            s
+ Prof: local force accumulation          2.14076E-04  2.29686E-04 -4.87638E-07   2.11045E-04  2.01074E-04  2.13036E-07            s
+ Prof: remote coordinate retrieval       4.96155E-04  3.64997E-04  6.31919E-07   4.98223E-04  3.53963E-04 -2.70216E-07            s
+ Prof: remote force calculation          1.58002E-02  2.57149E-03 -7.73145E-05   1.57493E-02  2.49036E-03  1.90202E-05            s
+ Prof: remote force accumulation         6.83586E-04  3.77197E-04  5.36770E-06   6.91052E-04  4.41874E-04 -1.46694E-06            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   3.12478E-03  3.84985E-03  1.74120E-05   3.04976E-03  3.68702E-03  1.76296E-05            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:52:49  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   15.50000  285.30 1.99E+06     6.537 1.0002 1.0002 1.0000-1.0860E+04 1.9308E+03-8.9292E+03 1.5371E+03-7.3921E+03
+   16.00000  297.58-1.16E+08     6.450 1.0000 1.0000 0.9999-1.0612E+04 1.7245E+03-8.8872E+03 1.6033E+03-7.2839E+03
+   16.50000  308.04 3.14E+06     6.401 0.9999 0.9999 1.0000-1.0815E+04 1.8897E+03-8.9255E+03 1.6596E+03-7.2659E+03
+   17.00000  302.56 8.74E+07     6.472 0.9999 0.9999 1.0001-1.0927E+04 2.0188E+03-8.9086E+03 1.6301E+03-7.2785E+03
+   17.50000  283.05 1.00E+08     6.488 1.0003 1.0003 1.0001-1.1000E+04 2.0698E+03-8.9304E+03 1.5250E+03-7.4054E+03
+   18.00000  307.99 2.03E+07     6.450 0.9998 0.9998 1.0000-1.1026E+04 1.9681E+03-9.0576E+03 1.6594E+03-7.3982E+03
+   18.50000  296.39-6.82E+07     6.505 1.0000 1.0000 0.9999-1.0942E+04 1.8953E+03-9.0468E+03 1.5968E+03-7.4500E+03
+   19.00000  307.83 2.38E+06     6.451 0.9998 0.9998 1.0000-1.0973E+04 1.9584E+03-9.0145E+03 1.6585E+03-7.3560E+03
+   19.50000  307.31 1.55E+07     6.469 0.9998 0.9998 1.0000-1.0968E+04 1.9641E+03-9.0040E+03 1.6557E+03-7.3482E+03
+   20.00000  290.28-6.21E+07     6.516 1.0001 1.0001 0.9999-1.0825E+04 1.8821E+03-8.9430E+03 1.5639E+03-7.3790E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:55:28  
+
+                                           Statistics over last     5000 steps     Statistics over last    20000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    1.75005E+04  1.44338E+03  1.00000E+03   1.00005E+04  5.77350E+03  1.00000E+03             
+ Time                                    1.75005E+01  1.44338E+00  1.00000E+00   1.00005E+01  5.77350E+00  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08754E+04  5.54399E+01 -5.14911E+00   1.08822E+04  1.11995E+02  2.14383E+00             
+ Number of solvent SHAKE iterations      2.29108E+01  2.89212E-01 -1.54104E-02   2.28990E+01  3.06103E-01 -1.29636E-04             
+ Volume                                  6.48515E+00  2.96662E-02  1.36291E-03   6.48476E+00  6.59198E-02 -1.40266E-03        nm**3
+ Mass density                            9.96421E+02  4.56437E+00 -2.14358E-01   9.96564E+02  1.01971E+01  2.10771E-01      kg/m**3
+ Pressure                                1.42226E+06  5.65231E+07  9.26717E+05   3.99989E+05  5.74401E+07  7.13394E+04           Pa
+ Pressure scaling                        1.00000E+00  5.12099E-05  8.39605E-07   1.00000E+00  5.20408E-05  6.46335E-08             
+ Temperature                             2.99856E+02  8.18622E+00  2.67593E-01   2.99767E+02  8.46966E+00  3.11698E-02            K
+ Temperature solvent                     2.99856E+02  8.18622E+00  2.67593E-01   2.99767E+02  8.46966E+00  3.11698E-02            K
+ Temperature scaling solvent             9.99975E-01  1.35934E-04 -4.54310E-06   9.99977E-01  1.41228E-04 -5.80162E-07             
+ Energy electrostatic                   -1.09213E+04  1.15618E+02 -2.02761E+01  -1.09583E+04  1.20092E+02  3.29602E+00       kJ/mol
+ Energy van der Waals                    1.94562E+03  7.48880E+01  8.91634E+00   1.95772E+03  7.94045E+01 -1.35770E+00       kJ/mol
+ Energy potential                       -8.97563E+03  6.83736E+01 -1.13598E+01  -9.00054E+03  7.06847E+01  1.93831E+00       kJ/mol
+ Energy kinetic                          1.61555E+03  4.41052E+01  1.44172E+00   1.61506E+03  4.56323E+01  1.67935E-01       kJ/mol
+ Energy total                           -7.36009E+03  5.27289E+01 -9.91806E+00  -7.38548E+03  5.45312E+01  2.10625E+00       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  8.61168E-10   1.12752E+03  8.92901E-04  1.08227E-10       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.20488E+04  1.15618E+02 -2.02761E+01  -1.20858E+04  1.20092E+02  3.29602E+00       kJ/mol
+ Energy solvent inter van der Waals      1.94562E+03  7.48880E+01  8.91634E+00   1.95772E+03  7.94045E+01 -1.35770E+00       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61555E+03  4.41052E+01  1.44172E+00   1.61506E+03  4.56323E+01  1.67935E-01       kJ/mol
+ Mean square displacement solvent /6     3.38887E-01  4.27056E-03  2.62804E-03   3.17170E-01  1.48717E-02  2.49176E-03        nm**2
+ Diffusion constant solvent * e9         1.94800E-08  1.41117E-09 -9.70380E-10   1.57631E-07  2.68957E-06 -3.77765E-08       m**2/s
+ Synchronization time                    4.61109E-03  9.00392E-03  1.04705E-03   3.44009E-03  5.56060E-03  1.11623E-04            s
+ Efficiency load balancing               9.42740E-01  6.16202E-02 -6.60716E-03   9.50819E-01  4.73904E-02 -8.02084E-04             
+ Time per step                           3.04198E-02  1.20596E-02  1.43683E-03   2.87826E-02  7.43628E-03  1.54654E-04            s
+ Prof: replicated data interactions      3.46868E-05  1.08689E-05  2.75777E-07   3.56824E-05  8.26559E-05 -1.21809E-07            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.41884E-04  3.55216E-04  4.82190E-06   2.38310E-04  2.66345E-04  5.17683E-07            s
+ Prof: local force calculation           2.72360E-02  5.38350E-03  4.22551E-04   2.67694E-02  3.85786E-03  5.23533E-05            s
+ Prof: local force accumulation          2.17944E-04  3.82790E-04  8.96854E-06   2.12769E-04  2.58774E-04  6.18096E-07            s
+ Prof: remote coordinate retrieval       5.09284E-04  4.56584E-04 -6.25960E-06   5.00989E-04  3.82240E-04  4.10374E-07            s
+ Prof: remote force calculation          1.63277E-02  3.74822E-03  2.76848E-04   1.58939E-02  2.86818E-03  4.48882E-05            s
+ Prof: remote force accumulation         7.16843E-04  8.42990E-04  1.37998E-05   6.97500E-04  5.69406E-04  1.04747E-06            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   4.61109E-03  9.00392E-03  1.04705E-03   3.44009E-03  5.56060E-03  1.11623E-04            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:55:48  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   20.50000  299.23-6.12E+07     6.489 1.0000 1.0000 0.9999-1.0790E+04 1.8519E+03-8.9385E+03 1.6122E+03-7.3264E+03
+   21.00000  284.27 1.41E+07     6.356 1.0002 1.0002 1.0000-1.0723E+04 1.8818E+03-8.8413E+03 1.5316E+03-7.3097E+03
+   21.50000  298.27-9.80E+06     6.377 1.0000 1.0000 1.0000-1.1061E+04 1.9786E+03-9.0822E+03 1.6070E+03-7.4752E+03
+   22.00000  293.41-8.77E+07     6.472 1.0001 1.0001 0.9999-1.0802E+04 1.8188E+03-8.9828E+03 1.5808E+03-7.4020E+03
+   22.50000  302.27-2.55E+07     6.482 0.9999 0.9999 1.0000-1.0967E+04 1.9340E+03-9.0326E+03 1.6286E+03-7.4040E+03
+   23.00000  294.44 2.10E+07     6.471 1.0001 1.0001 1.0000-1.1033E+04 1.9939E+03-9.0392E+03 1.5863E+03-7.4528E+03
+   23.50000  291.56 5.55E+07     6.569 1.0001 1.0001 1.0001-1.1130E+04 2.0683E+03-9.0621E+03 1.5708E+03-7.4912E+03
+   24.00000  304.10 2.83E+07     6.556 0.9999 0.9999 1.0000-1.1002E+04 2.0187E+03-8.9834E+03 1.6384E+03-7.3450E+03
+   24.50000  305.39 8.46E+07     6.605 0.9999 0.9999 1.0001-1.1168E+04 2.1106E+03-9.0575E+03 1.6454E+03-7.4122E+03
+   25.00000  299.14 6.32E+04     6.513 1.0000 1.0000 1.0000-1.1054E+04 1.9814E+03-9.0726E+03 1.6117E+03-7.4609E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:58:29  
+
+                                           Statistics over last     5000 steps     Statistics over last    25000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    2.25005E+04  1.44338E+03  1.00000E+03   1.25005E+04  7.21688E+03  1.00000E+03             
+ Time                                    2.25005E+01  1.44338E+00  1.00000E+00   1.25005E+01  7.21688E+00  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08588E+04  1.29077E+02 -6.61379E+01   1.08775E+04  1.15992E+02 -3.30228E-01             
+ Number of solvent SHAKE iterations      2.28854E+01  3.30253E-01 -4.74514E-03   2.28963E+01  3.11130E-01 -6.26575E-04             
+ Volume                                  6.49282E+00  7.22977E-02  3.49641E-02   6.48637E+00  6.73211E-02 -1.28947E-04        nm**3
+ Mass density                            9.95347E+02  1.11284E+01 -5.36166E+00   9.96320E+02  1.04015E+01  1.82999E-02      kg/m**3
+ Pressure                               -7.25346E+03  5.70152E+07  1.77621E+06   3.18541E+05  5.73556E+07  3.50973E+04           Pa
+ Pressure scaling                        1.00000E+00  5.16558E-05  1.60924E-06   1.00000E+00  5.19643E-05  3.17982E-08             
+ Temperature                             2.99982E+02  8.47774E+00  1.59229E-01   2.99810E+02  8.47171E+00  2.55038E-02            K
+ Temperature solvent                     2.99982E+02  8.47774E+00  1.59229E-01   2.99810E+02  8.47171E+00  2.55038E-02            K
+ Temperature scaling solvent             9.99973E-01  1.40598E-04 -2.66971E-06   9.99976E-01  1.41110E-04 -4.54632E-07             
+ Energy electrostatic                   -1.09886E+04  1.23233E+02 -3.38838E+01  -1.09643E+04  1.21337E+02  2.50122E-01       kJ/mol
+ Energy van der Waals                    1.97008E+03  8.09991E+01  1.89504E+01   1.96019E+03  7.98791E+01 -6.88331E-02       kJ/mol
+ Energy potential                       -9.01856E+03  6.97778E+01 -1.49334E+01  -9.00415E+03  7.08714E+01  1.81289E-01       kJ/mol
+ Energy kinetic                          1.61622E+03  4.56758E+01  8.57882E-01   1.61530E+03  4.56434E+01  1.37408E-01       kJ/mol
+ Energy total                           -7.40233E+03  5.19922E+01 -1.40755E+01  -7.38885E+03  5.44518E+01  3.18697E-01       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  1.09434E-09   1.12752E+03  8.01781E-04  9.06372E-11       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.21162E+04  1.23233E+02 -3.38838E+01  -1.20919E+04  1.21337E+02  2.50122E-01       kJ/mol
+ Energy solvent inter van der Waals      1.97008E+03  8.09991E+01  1.89504E+01   1.96019E+03  7.98791E+01 -6.88331E-02       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61622E+03  4.56758E+01  8.57882E-01   1.61530E+03  4.56434E+01  1.37408E-01       kJ/mol
+ Mean square displacement solvent /6     3.53416E-01  3.57475E-03  2.37165E-03   3.24419E-01  1.97409E-02  2.68663E-03        nm**2
+ Diffusion constant solvent * e9         1.57623E-08  8.63707E-10 -5.96844E-10   1.29257E-07  2.40630E-06 -2.47941E-08       m**2/s
+ Synchronization time                    5.15014E-03  1.04900E-02  7.64828E-04   3.78210E-03  6.87109E-03  1.28935E-04            s
+ Efficiency load balancing               9.40639E-01  6.53328E-02 -3.70092E-03   9.48783E-01  5.16424E-02 -8.31217E-04             
+ Time per step                           3.13873E-02  1.51787E-02  1.28909E-03   2.93036E-02  9.56048E-03  1.89516E-04            s
+ Prof: replicated data interactions      3.88028E-05  1.68380E-04  1.29043E-07   3.63065E-05  1.05534E-04  5.84896E-08            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.56162E-04  6.73002E-04  2.56299E-06   2.41880E-04  3.83913E-04  9.71086E-07            s
+ Prof: local force calculation           2.75707E-02  5.81471E-03  3.65434E-04   2.69297E-02  4.33260E-03  6.05004E-05            s
+ Prof: local force accumulation          2.21985E-04  4.32898E-04  5.18164E-06   2.14613E-04  3.01770E-04  7.11801E-07            s
+ Prof: remote coordinate retrieval       5.27245E-04  8.76401E-04  7.87186E-06   5.06240E-04  5.20204E-04  1.28132E-06            s
+ Prof: remote force calculation          1.63511E-02  4.27654E-03  3.96157E-05   1.59853E-02  3.20505E-03  4.08548E-05            s
+ Prof: remote force accumulation         7.13175E-04  6.49802E-04  1.21083E-05   7.00635E-04  5.86401E-04  1.23510E-06            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   5.15014E-03  1.04900E-02  7.64828E-04   3.78210E-03  6.87109E-03  1.28935E-04            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:58:53  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   25.50000  305.43 1.32E+08     6.559 0.9999 0.9999 1.0001-1.1321E+04 2.1962E+03-9.1251E+03 1.6456E+03-7.4795E+03
+   26.00000  308.42-8.59E+07     6.560 0.9998 0.9998 0.9999-1.0928E+04 1.8947E+03-9.0329E+03 1.6617E+03-7.3712E+03
+   26.50000  297.41 6.80E+07     6.507 1.0000 1.0000 1.0001-1.1032E+04 2.0300E+03-9.0021E+03 1.6024E+03-7.3998E+03
+   27.00000  305.31-7.15E+07     6.455 0.9999 0.9999 0.9999-1.0891E+04 1.8612E+03-9.0298E+03 1.6449E+03-7.3849E+03
+   27.50000  317.77-6.33E+07     6.432 0.9997 0.9997 0.9999-1.1018E+04 1.8934E+03-9.1246E+03 1.7121E+03-7.4125E+03
+   28.00000  288.15 1.27E+07     6.411 1.0002 1.0002 1.0000-1.0944E+04 1.9411E+03-9.0026E+03 1.5525E+03-7.4501E+03
+   28.50000  296.82 5.74E+07     6.422 1.0000 1.0000 1.0001-1.1103E+04 2.0470E+03-9.0561E+03 1.5992E+03-7.4570E+03
+   29.00000  296.18-7.63E+07     6.489 1.0000 1.0000 0.9999-1.0885E+04 1.8739E+03-9.0111E+03 1.5958E+03-7.4153E+03
+   29.50000  282.12 7.85E+07     6.485 1.0003 1.0003 1.0001-1.0973E+04 2.0263E+03-8.9467E+03 1.5200E+03-7.4267E+03
+   30.00000  307.68-9.70E+07     6.461 0.9999 0.9999 0.9999-1.0930E+04 1.8586E+03-9.0710E+03 1.6577E+03-7.4133E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  12:01:35  
+
+                                           Statistics over last     5000 steps     Statistics over last    30000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    2.75005E+04  1.44338E+03  1.00000E+03   1.50005E+04  8.66025E+03  1.00000E+03             
+ Time                                    2.75005E+01  1.44338E+00  1.00000E+00   1.50005E+01  8.66025E+00  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08645E+04  1.06967E+02  4.05898E+01   1.08754E+04  1.14641E+02 -3.66142E-01             
+ Number of solvent SHAKE iterations      2.29126E+01  2.85939E-01 -3.31109E-03   2.28990E+01  3.07136E-01  7.54031E-05             
+ Volume                                  6.48532E+00  5.42355E-02 -2.06642E-02   6.48620E+00  6.53236E-02 -1.99400E-04        nm**3
+ Mass density                            9.96443E+02  8.27312E+00  3.14625E+00   9.96341E+02  1.00781E+01  2.85510E-02      kg/m**3
+ Pressure                               -1.66567E+06  5.31029E+07  1.16414E+05  -1.21619E+04  5.66738E+07 -3.42672E+04           Pa
+ Pressure scaling                        9.99998E-01  4.81113E-05  1.05472E-07   1.00000E+00  5.13466E-05 -3.10460E-08             
+ Temperature                             2.99698E+02  8.84973E+00  8.93526E-02   2.99791E+02  8.53598E+00  1.20562E-02            K
+ Temperature solvent                     2.99698E+02  8.84973E+00  8.93526E-02   2.99791E+02  8.53598E+00  1.20562E-02            K
+ Temperature scaling solvent             9.99979E-01  1.47113E-04 -1.34579E-06   9.99977E-01  1.42130E-04 -2.06923E-07             
+ Energy electrostatic                   -1.09910E+04  1.01004E+02  7.60224E-01  -1.09688E+04  1.18607E+02 -5.91372E-01       kJ/mol
+ Energy van der Waals                    1.96402E+03  7.13282E+01 -4.63331E+00   1.96083E+03  7.85317E+01  4.51182E-02       kJ/mol
+ Energy potential                       -9.02694E+03  5.93159E+01 -3.87308E+00  -9.00795E+03  6.96003E+01 -5.46254E-01       kJ/mol
+ Energy kinetic                          1.61469E+03  4.76800E+01  4.81409E-01   1.61520E+03  4.59896E+01  6.49557E-02       kJ/mol
+ Energy total                           -7.41225E+03  3.57873E+01 -3.39168E+00  -7.39275E+03  5.25390E+01 -4.81298E-01       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  1.34754E-09   1.12752E+03  9.22322E-04  7.18700E-11       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.21185E+04  1.01004E+02  7.60224E-01  -1.20963E+04  1.18607E+02 -5.91372E-01       kJ/mol
+ Energy solvent inter van der Waals      1.96402E+03  7.13282E+01 -4.63331E+00   1.96083E+03  7.85317E+01  4.51182E-02       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61469E+03  4.76800E+01  4.81409E-01   1.61520E+03  4.59896E+01  6.49557E-02       kJ/mol
+ Mean square displacement solvent /6     3.65161E-01  3.37221E-03  2.11573E-03   3.31209E-01  2.36048E-02  2.69627E-03        nm**2
+ Diffusion constant solvent * e9         1.33092E-08  5.91959E-10 -4.08018E-10   1.09932E-07  2.19706E-06 -1.75711E-08       m**2/s
+ Synchronization time                    5.53172E-03  1.11157E-02 -1.85770E-03   4.07370E-03  7.76927E-03  1.14616E-04            s
+ Efficiency load balancing               9.40115E-01  7.02524E-02  1.12576E-02   9.47338E-01  5.52761E-02 -6.69703E-04             
+ Time per step                           3.23968E-02  1.77067E-02 -3.06086E-03   2.98191E-02  1.13909E-02  1.81426E-04            s
+ Prof: replicated data interactions      3.99168E-05  2.94532E-04 -4.43633E-06   3.69082E-05  1.54082E-04  1.13596E-07            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.54250E-04  8.32741E-04 -1.60951E-05   2.43942E-04  4.88284E-04  8.31052E-07            s
+ Prof: local force calculation           2.81673E-02  6.73180E-03 -1.16545E-03   2.71359E-02  4.83823E-03  6.39957E-05            s
+ Prof: local force accumulation          2.24030E-04  5.93301E-04 -1.18138E-05   2.16182E-04  3.66834E-04  6.18833E-07            s
+ Prof: remote coordinate retrieval       5.19034E-04  5.72878E-04 -9.22460E-06   5.08372E-04  5.29368E-04  1.05420E-06            s
+ Prof: remote force calculation          1.64341E-02  4.55570E-03 -4.61397E-04   1.60601E-02  3.47093E-03  3.39713E-05            s
+ Prof: remote force accumulation         7.36776E-04  9.83964E-04 -3.56626E-05   7.06659E-04  6.69403E-04  1.55358E-06            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   5.53172E-03  1.11157E-02 -1.85770E-03   4.07370E-03  7.76927E-03  1.14616E-04            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  12:01:51  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   30.50000  301.39-5.60E+07     6.459 0.9999 0.9999 0.9999-1.0954E+04 1.9030E+03-9.0511E+03 1.6238E+03-7.4273E+03
+   31.00000  302.31-4.04E+07     6.487 0.9999 0.9999 1.0000-1.0981E+04 1.9425E+03-9.0380E+03 1.6288E+03-7.4092E+03
+   31.50000  294.57 8.19E+06     6.493 1.0001 1.0001 1.0000-1.0976E+04 1.9712E+03-9.0046E+03 1.5871E+03-7.4175E+03
+   32.00000  299.92-2.32E+07     6.486 1.0000 1.0000 1.0000-1.0852E+04 1.8881E+03-8.9639E+03 1.6159E+03-7.3480E+03
+   32.50000  290.14-6.99E+07     6.409 1.0002 1.0002 0.9999-1.0546E+04 1.7552E+03-8.7913E+03 1.5632E+03-7.2281E+03
+   33.00000  304.57-7.81E+07     6.459 0.9999 0.9999 0.9999-1.0756E+04 1.8054E+03-8.9511E+03 1.6409E+03-7.3102E+03
+   33.50000  299.96 5.11E+06     6.533 0.9999 0.9999 1.0000-1.0973E+04 1.9885E+03-8.9847E+03 1.6161E+03-7.3686E+03
+   34.00000  304.27-5.94E+07     6.448 0.9999 0.9999 0.9999-1.0834E+04 1.8546E+03-8.9792E+03 1.6393E+03-7.3399E+03
+   34.50000  296.35-7.83E+07     6.470 1.0001 1.0001 0.9999-1.0805E+04 1.8438E+03-8.9610E+03 1.5966E+03-7.3644E+03
+   35.00000  288.65-2.91E+07     6.441 1.0001 1.0001 1.0000-1.0817E+04 1.8882E+03-8.9285E+03 1.5552E+03-7.3733E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  12:04:15  
+
+                                           Statistics over last     5000 steps     Statistics over last    35000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    3.25005E+04  1.44338E+03  1.00000E+03   1.75005E+04  1.01036E+04  1.00000E+03             
+ Time                                    3.25005E+01  1.44338E+00  1.00000E+00   1.75005E+01  1.01036E+01  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08848E+04  7.57215E+01 -1.60274E+01   1.08767E+04  1.09978E+02 -7.82109E-02             
+ Number of solvent SHAKE iterations      2.29076E+01  2.93023E-01  9.12029E-03   2.29002E+01  3.05174E-01  2.54599E-04             
+ Volume                                  6.46962E+00  3.97178E-02  8.51095E-03   6.48383E+00  6.25825E-02 -4.48679E-04        nm**3
+ Mass density                            9.98829E+02  6.14773E+00 -1.32228E+00   9.96696E+02  9.65484E+00  6.63620E-02      kg/m**3
+ Pressure                               -5.67256E+05  6.02681E+07 -1.53657E+06  -9.14610E+04  5.72014E+07 -3.77112E+04           Pa
+ Pressure scaling                        9.99999E-01  5.46029E-05 -1.39213E-06   1.00000E+00  5.18247E-05 -3.41664E-08             
+ Temperature                             2.99635E+02  8.89984E+00  1.30343E-01   2.99769E+02  8.58908E+00  4.69904E-03            K
+ Temperature solvent                     2.99635E+02  8.89984E+00  1.30343E-01   2.99769E+02  8.58908E+00  4.69904E-03            K
+ Temperature scaling solvent             9.99980E-01  1.48509E-04 -2.06834E-06   9.99977E-01  1.43063E-04 -7.58101E-08             
+ Energy electrostatic                   -1.09230E+04  1.30869E+02  1.88445E+01  -1.09622E+04  1.21496E+02  6.43546E-01       kJ/mol
+ Energy van der Waals                    1.94068E+03  8.10062E+01 -4.87680E+00   1.95795E+03  7.92045E+01 -4.08853E-01       kJ/mol
+ Energy potential                       -8.98232E+03  7.86158E+01  1.39677E+01  -9.00429E+03  7.15229E+01  2.34693E-01       kJ/mol
+ Energy kinetic                          1.61436E+03  4.79500E+01  7.02251E-01   1.61508E+03  4.62757E+01  2.53172E-02       kJ/mol
+ Energy total                           -7.36796E+03  6.02685E+01  1.46700E+01  -7.38921E+03  5.44072E+01  2.60010E-01       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  1.59359E-09   1.12752E+03  2.78962E-04 -2.73924E-11       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.20505E+04  1.30869E+02  1.88445E+01  -1.20898E+04  1.21496E+02  6.43546E-01       kJ/mol
+ Energy solvent inter van der Waals      1.94068E+03  8.10062E+01 -4.87680E+00   1.95795E+03  7.92045E+01 -4.08853E-01       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61436E+03  4.79500E+01  7.02251E-01   1.61508E+03  4.62757E+01  2.53172E-02       kJ/mol
+ Mean square displacement solvent /6     3.73008E-01  4.07541E-03  2.45434E-03   3.37180E-01  2.63418E-02  2.58250E-03        nm**2
+ Diffusion constant solvent * e9         1.14949E-08  4.07999E-10 -2.78945E-10   9.58700E-08  2.03438E-06 -1.31323E-08       m**2/s
+ Synchronization time                    2.74285E-03  2.85110E-03 -2.27510E-05   3.88358E-03  7.28811E-03  4.41750E-05            s
+ Efficiency load balancing               9.56590E-01  3.63233E-02  1.77420E-04   9.48660E-01  5.30841E-02 -2.27015E-04             
+ Time per step                           2.78202E-02  3.83596E-03 -7.28032E-05   2.95336E-02  1.06681E-02  7.20800E-05            s
+ Prof: replicated data interactions      3.48872E-05  5.87488E-05  1.71492E-07   3.66195E-05  1.44372E-04  2.96125E-08            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.28293E-04  2.47792E-05  1.95253E-07   2.41706E-04  4.52194E-04  1.95432E-07            s
+ Prof: local force calculation           2.65140E-02  2.78382E-03 -8.06669E-05   2.70471E-02  4.60639E-03  2.70108E-05            s
+ Prof: local force accumulation          2.07217E-04  9.10479E-05 -1.31659E-06   2.14902E-04  3.41376E-04  1.97676E-07            s
+ Prof: remote coordinate retrieval       5.03074E-04  3.74652E-04  2.54381E-06   5.07615E-04  5.10150E-04  5.60059E-07            s
+ Prof: remote force calculation          1.55675E-02  2.24120E-03 -3.92109E-05   1.59897E-02  3.32770E-03  1.09369E-05            s
+ Prof: remote force accumulation         6.93451E-04  3.11497E-04  1.86717E-06   7.04772E-04  6.30848E-04  7.06542E-07            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   2.74285E-03  2.85110E-03 -2.27510E-05   3.88358E-03  7.28811E-03  4.41750E-05            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  12:04:31  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   35.50000  291.74-4.50E+07     6.512 1.0001 1.0001 1.0000-1.0889E+04 1.9132E+03-8.9756E+03 1.5718E+03-7.4038E+03
+   36.00000  295.97-5.53E+07     6.476 1.0000 1.0000 0.9999-1.0836E+04 1.8782E+03-8.9581E+03 1.5946E+03-7.3635E+03
+   36.50000  295.54 2.83E+07     6.495 1.0001 1.0001 1.0000-1.1045E+04 1.9877E+03-9.0571E+03 1.5923E+03-7.4648E+03
+   37.00000  295.12 1.24E+08     6.438 1.0000 1.0000 1.0001-1.1016E+04 2.0736E+03-8.9426E+03 1.5900E+03-7.3526E+03
+   37.50000  301.54 8.74E+07     6.514 0.9999 0.9999 1.0001-1.0999E+04 2.0275E+03-8.9714E+03 1.6246E+03-7.3468E+03
+   38.00000  297.82 6.48E+07     6.494 1.0000 1.0000 1.0001-1.0986E+04 2.0014E+03-8.9848E+03 1.6046E+03-7.3802E+03
+   38.50000  301.03 5.61E+07     6.437 1.0000 1.0000 1.0001-1.1044E+04 1.9903E+03-9.0535E+03 1.6219E+03-7.4316E+03
+   39.00000  303.65-6.07E+07     6.432 0.9999 0.9999 0.9999-1.1039E+04 1.9287E+03-9.1103E+03 1.6360E+03-7.4743E+03
+   39.50000  300.65 6.52E+07     6.316 0.9999 0.9999 1.0001-1.1076E+04 2.0149E+03-9.0611E+03 1.6198E+03-7.4413E+03
+   40.00000  294.11 1.10E+08     6.399 1.0000 1.0000 1.0001-1.1114E+04 2.0865E+03-9.0279E+03 1.5846E+03-7.4434E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  12:07:07  
+
+                                           Statistics over last     5000 steps     Statistics over last    40000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    3.75005E+04  1.44338E+03  1.00000E+03   2.00005E+04  1.15470E+04  1.00000E+03             
+ Time                                    3.75005E+01  1.44338E+00  1.00000E+00   2.00005E+01  1.15470E+01  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.09097E+04  9.57871E+01  4.39809E+01   1.08808E+04  1.08854E+02  5.75005E-01             
+ Number of solvent SHAKE iterations      2.29248E+01  2.69713E-01 -1.68038E-03   2.29033E+01  3.01080E-01  5.70404E-04             
+ Volume                                  6.45635E+00  5.03936E-02 -2.19035E-02   6.48039E+00  6.18630E-02 -7.94198E-04        nm**3
+ Mass density                            1.00091E+03  7.86901E+00  3.41943E+00   9.97222E+02  9.55210E+00  1.20206E-01      kg/m**3
+ Pressure                               -1.35012E+06  6.20661E+07 -2.99325E+06  -2.48794E+05  5.78334E+07 -5.17597E+04           Pa
+ Pressure scaling                        9.99999E-01  5.62319E-05 -2.71188E-06   1.00000E+00  5.23972E-05 -4.68943E-08             
+ Temperature                             2.99756E+02  8.67258E+00 -6.84214E-02   2.99767E+02  8.59956E+00  2.80359E-03            K
+ Temperature solvent                     2.99756E+02  8.67258E+00 -6.84214E-02   2.99767E+02  8.59956E+00  2.80359E-03            K
+ Temperature scaling solvent             9.99977E-01  1.44081E-04  1.13188E-06   9.99977E-01  1.43190E-04 -4.35390E-08             
+ Energy electrostatic                   -1.09789E+04  1.10962E+02 -1.07715E+01  -1.09643E+04  1.20355E+02  1.37335E-01       kJ/mol
+ Energy van der Waals                    1.95721E+03  7.96661E+01 -5.27038E+00   1.95786E+03  7.92627E+01 -2.96283E-01       kJ/mol
+ Energy potential                       -9.02165E+03  6.53782E+01 -1.60419E+01  -9.00646E+03  7.10165E+01 -1.58948E-01       kJ/mol
+ Energy kinetic                          1.61501E+03  4.67256E+01 -3.68636E-01   1.61507E+03  4.63322E+01  1.51050E-02       kJ/mol
+ Energy total                           -7.40664E+03  4.81855E+01 -1.64105E+01  -7.39139E+03  5.39777E+01 -1.43843E-01       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  1.81961E-09   1.12752E+03  7.08530E-04 -8.26120E-11       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.21064E+04  1.10962E+02 -1.07715E+01  -1.20918E+04  1.20355E+02  1.37335E-01       kJ/mol
+ Energy solvent inter van der Waals      1.95721E+03  7.96661E+01 -5.27038E+00   1.95786E+03  7.92627E+01 -2.96283E-01       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61501E+03  4.67256E+01 -3.68636E-01   1.61507E+03  4.63322E+01  1.51050E-02       kJ/mol
+ Mean square displacement solvent /6     3.83923E-01  3.70381E-03  2.38989E-03   3.43023E-01  2.91177E-02  2.50161E-03        nm**2
+ Diffusion constant solvent * e9         1.02495E-08  3.04385E-10 -2.09586E-10   8.51674E-08  1.90320E-06 -1.02028E-08       m**2/s
+ Synchronization time                    4.24603E-03  8.34363E-03  4.14302E-04   3.92889E-03  7.42923E-03  3.63495E-05            s
+ Efficiency load balancing               9.45826E-01  5.80902E-02 -3.22191E-03   9.48306E-01  5.37436E-02 -2.04869E-04             
+ Time per step                           2.97451E-02  1.12692E-02  5.23239E-04   2.95600E-02  1.07453E-02  5.27797E-05            s
+ Prof: replicated data interactions      3.43696E-05  8.53685E-06  1.35574E-07   3.63383E-05  1.35083E-04 -1.68093E-08            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.40054E-04  2.80455E-04  2.39431E-07   2.41500E-04  4.34455E-04  1.04291E-07            s
+ Prof: local force calculation           2.69848E-02  4.72272E-03  1.90833E-04   2.70393E-02  4.62114E-03  1.74454E-05            s
+ Prof: local force accumulation          2.13647E-04  2.44348E-04  3.45717E-06   2.14745E-04  3.30808E-04  1.18594E-07            s
+ Prof: remote coordinate retrieval       5.05835E-04  4.50434E-04  2.61212E-06   5.07393E-04  5.03074E-04  3.51085E-07            s
+ Prof: remote force calculation          1.60979E-02  3.47068E-03  1.72245E-04   1.60033E-02  3.34610E-03  9.43863E-06            s
+ Prof: remote force accumulation         7.04343E-04  6.13626E-04  5.65511E-06   7.04718E-04  6.28721E-04  4.77335E-07            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   4.24603E-03  8.34363E-03  4.14302E-04   3.92889E-03  7.42923E-03  3.63495E-05            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  12:07:23  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   40.50000  292.83-9.49E+06     6.442 1.0001 1.0001 1.0000-1.0925E+04 1.9320E+03-8.9926E+03 1.5777E+03-7.4149E+03
+   41.00000  310.62 6.37E+07     6.475 0.9998 0.9998 1.0001-1.1213E+04 2.0817E+03-9.1317E+03 1.6736E+03-7.4582E+03
+   41.50000  300.60-5.02E+07     6.516 1.0000 1.0000 1.0000-1.1032E+04 1.9398E+03-9.0919E+03 1.6195E+03-7.4724E+03
+   42.00000  304.30-1.77E+07     6.433 0.9999 0.9999 1.0000-1.1006E+04 1.9485E+03-9.0576E+03 1.6395E+03-7.4181E+03
+   42.50000  309.29-2.47E+07     6.516 0.9998 0.9998 1.0000-1.1168E+04 1.9906E+03-9.1777E+03 1.6663E+03-7.5113E+03
+   43.00000  308.66-1.85E+07     6.516 0.9998 0.9998 1.0000-1.1194E+04 2.0337E+03-9.1607E+03 1.6630E+03-7.4977E+03
+   43.50000  305.58-9.93E+07     6.457 0.9999 0.9999 0.9999-1.0982E+04 1.8760E+03-9.1063E+03 1.6464E+03-7.4599E+03
+   44.00000  292.34 2.18E+07     6.492 1.0001 1.0001 1.0000-1.1169E+04 2.0643E+03-9.1047E+03 1.5751E+03-7.5297E+03
+   44.50000  292.61-5.42E+07     6.541 1.0001 1.0001 1.0000-1.0996E+04 1.9436E+03-9.0528E+03 1.5765E+03-7.4763E+03
+   45.00000  284.70 2.45E+07     6.503 1.0002 1.0002 1.0000-1.1025E+04 2.0088E+03-9.0162E+03 1.5339E+03-7.4823E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  12:09:52  
+
+                                           Statistics over last     5000 steps     Statistics over last    45000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    4.25005E+04  1.44338E+03  1.00000E+03   2.25005E+04  1.29904E+04  1.00000E+03             
+ Time                                    4.25005E+01  1.44338E+00  1.00000E+00   2.25005E+01  1.29904E+01  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08633E+04  6.95416E+01 -2.18265E+01   1.08789E+04  1.05358E+02  1.43648E-01             
+ Number of solvent SHAKE iterations      2.28676E+01  3.42447E-01 -1.73931E-02   2.28993E+01  3.06158E-01 -9.33692E-05             
+ Volume                                  6.48638E+00  3.93380E-02  1.82841E-02   6.48106E+00  5.98104E-02 -4.53872E-04        nm**3
+ Mass density                            9.96247E+02  6.01990E+00 -2.79823E+00   9.97114E+02  9.23174E+00  6.77469E-02      kg/m**3
+ Pressure                                3.66176E+06  5.76266E+07 -2.93319E+06   1.85712E+05  5.78235E+07  1.11209E+04           Pa
+ Pressure scaling                        1.00000E+00  5.22097E-05 -2.65747E-06   1.00000E+00  5.23882E-05  1.00755E-08             
+ Temperature                             2.99865E+02  8.33284E+00 -3.11906E-01   2.99778E+02  8.57039E+00  2.82963E-03            K
+ Temperature solvent                     2.99865E+02  8.33284E+00 -3.11906E-01   2.99778E+02  8.57039E+00  2.82963E-03            K
+ Temperature scaling solvent             9.99975E-01  1.38033E-04  5.27881E-06   9.99977E-01  1.42628E-04 -4.86578E-08             
+ Energy electrostatic                   -1.10967E+04  9.97469E+01 -2.59899E+01  -1.09790E+04  1.25346E+02 -1.68221E+00       kJ/mol
+ Energy van der Waals                    2.00629E+03  7.35987E+01  9.74147E+00   1.96324E+03  8.01126E+01  4.43037E-01       kJ/mol
+ Energy potential                       -9.09039E+03  5.71977E+01 -1.62484E+01  -9.01578E+03  7.44460E+01 -1.23917E+00       kJ/mol
+ Energy kinetic                          1.61559E+03  4.48951E+01 -1.68047E+00   1.61513E+03  4.61750E+01  1.52453E-02       kJ/mol
+ Energy total                           -7.47479E+03  3.72761E+01 -1.79289E+01  -7.40066E+03  5.85770E+01 -1.22393E+00       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  2.06852E-09   1.12752E+03  9.76128E-04 -1.13844E-10       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.22242E+04  9.97469E+01 -2.59899E+01  -1.21065E+04  1.25346E+02 -1.68221E+00       kJ/mol
+ Energy solvent inter van der Waals      2.00629E+03  7.35987E+01  9.74147E+00   1.96324E+03  8.01126E+01  4.43037E-01       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61559E+03  4.48951E+01 -1.68047E+00   1.61513E+03  4.61750E+01  1.52453E-02       kJ/mol
+ Mean square displacement solvent /6     3.90791E-01  5.13443E-03  3.21882E-03   3.48331E-01  3.13357E-02  2.39042E-03        nm**2
+ Diffusion constant solvent * e9         9.20192E-09  2.12177E-10 -1.41649E-10   7.67268E-08  1.79451E-06 -8.16628E-09       m**2/s
+ Synchronization time                    3.22680E-03  5.09356E-03  4.09907E-04   3.85088E-03  7.21056E-03  1.68461E-05            s
+ Efficiency load balancing               9.53328E-01  4.50243E-02 -3.14136E-03   9.48864E-01  5.28694E-02 -8.20633E-05             
+ Time per step                           2.86663E-02  6.61838E-03  6.01103E-04   2.94607E-02  1.03720E-02  2.61244E-05            s
+ Prof: replicated data interactions      3.51608E-05  2.22334E-05 -1.31549E-07   3.62074E-05  1.27574E-04 -2.74917E-08            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.33553E-04  1.33030E-04  3.08324E-06   2.40617E-04  4.12009E-04 -2.71693E-08            s
+ Prof: local force calculation           2.67079E-02  3.54433E-03  2.36682E-04   2.70025E-02  4.51540E-03  8.21327E-06            s
+ Prof: local force accumulation          2.17706E-04  2.67501E-04  1.96311E-06   2.15074E-04  3.24386E-04  1.24987E-07            s
+ Prof: remote coordinate retrieval       5.05232E-04  3.25013E-04  5.59184E-06   5.07153E-04  4.86519E-04  2.25799E-07            s
+ Prof: remote force calculation          1.59184E-02  2.83115E-03  2.00155E-04   1.59938E-02  3.29297E-03  5.78627E-06            s
+ Prof: remote force accumulation         7.12126E-04  5.51683E-04  7.76827E-06   7.05541E-04  6.20638E-04  4.43461E-07            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   3.22680E-03  5.09356E-03  4.09907E-04   3.85088E-03  7.21056E-03  1.68461E-05            s
+
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  12:10:10  
+
+    Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
+     ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
+
+   45.50000  289.33 8.09E+07     6.515 1.0002 1.0002 1.0001-1.1010E+04 2.0620E+03-8.9484E+03 1.5588E+03-7.3895E+03
+   46.00000  296.81 4.74E+07     6.547 1.0000 1.0000 1.0000-1.1036E+04 2.0343E+03-9.0019E+03 1.5991E+03-7.4027E+03
+   46.50000  300.02-5.25E+07     6.483 1.0000 1.0000 1.0000-1.0893E+04 1.8971E+03-8.9963E+03 1.6165E+03-7.3798E+03
+   47.00000  304.92 3.37E+07     6.511 0.9999 0.9999 1.0000-1.1143E+04 2.0350E+03-9.1085E+03 1.6428E+03-7.4656E+03
+   47.50000  295.18-6.99E+07     6.496 1.0000 1.0000 0.9999-1.0947E+04 1.8946E+03-9.0527E+03 1.5903E+03-7.4624E+03
+   48.00000  314.06-2.46E+07     6.500 0.9997 0.9997 1.0000-1.1180E+04 1.9860E+03-9.1941E+03 1.6921E+03-7.5021E+03
+   48.50000  302.63 2.58E+07     6.456 0.9999 0.9999 1.0000-1.1172E+04 2.0332E+03-9.1389E+03 1.6305E+03-7.5084E+03
+   49.00000  296.02-6.83E+07     6.473 1.0001 1.0001 0.9999-1.0920E+04 1.9021E+03-9.0176E+03 1.5949E+03-7.4227E+03
+   49.50000  287.94 6.90E+07     6.397 1.0002 1.0002 1.0001-1.1007E+04 2.0263E+03-8.9803E+03 1.5513E+03-7.4289E+03
+   50.00000  303.32-7.33E+07     6.411 0.9999 0.9999 0.9999-1.1017E+04 1.9122E+03-9.1051E+03 1.6342E+03-7.4709E+03
+
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  12:13:21  
+
+                                           Statistics over last     5000 steps     Statistics over last    50000 steps
+                                           Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
+
+ Step                                    4.75005E+04  1.44338E+03  1.00000E+03   2.50005E+04  1.44338E+04  1.00000E+03             
+ Time                                    4.75005E+01  1.44338E+00  1.00000E+00   2.50005E+01  1.44338E+01  1.00000E+00           ps
+ Number solvent-solvent interactions SR  1.08687E+04  5.87410E+01  2.55358E+01   1.08779E+04  1.01708E+02  2.00538E-02             
+ Number of solvent SHAKE iterations      2.28978E+01  3.06847E-01 -7.41019E-03   2.28992E+01  3.06228E-01 -9.20363E-05             
+ Volume                                  6.49001E+00  3.18111E-02 -1.54094E-02   6.48195E+00  5.76885E-02 -2.49625E-04        nm**3
+ Mass density                            9.95678E+02  4.89924E+00  2.37183E+00   9.96970E+02  8.90440E+00  3.62497E-02      kg/m**3
+ Pressure                               -3.03460E+06  5.90412E+07 -2.73145E+06  -1.36320E+05  5.79545E+07 -2.94037E+04           Pa
+ Pressure scaling                        9.99997E-01  5.34913E-05 -2.47470E-06   1.00000E+00  5.25068E-05 -2.66398E-08             
+ Temperature                             2.99772E+02  8.54544E+00  2.69394E-01   2.99777E+02  8.56790E+00  2.26110E-03            K
+ Temperature solvent                     2.99772E+02  8.54544E+00  2.69394E-01   2.99777E+02  8.56790E+00  2.26110E-03            K
+ Temperature scaling solvent             9.99977E-01  1.42798E-04 -4.39180E-06   9.99977E-01  1.42645E-04 -3.80106E-08             
+ Energy electrostatic                   -1.10537E+04  9.87590E+01 -5.74186E+00  -1.09865E+04  1.24973E+02 -2.03900E+00       kJ/mol
+ Energy van der Waals                    1.98851E+03  7.50501E+01 -7.20726E+00   1.96577E+03  7.99811E+01  5.88746E-01       kJ/mol
+ Energy potential                       -9.06522E+03  5.92338E+01 -1.29491E+01  -9.02073E+03  7.45576E+01 -1.45026E+00       kJ/mol
+ Energy kinetic                          1.61509E+03  4.60406E+01  1.45143E+00   1.61512E+03  4.61616E+01  1.21822E-02       kJ/mol
+ Energy total                           -7.45013E+03  3.73854E+01 -1.14977E+01  -7.40560E+03  5.87215E+01 -1.43808E+00       kJ/mol
+ Energy solvent intra electrostatic      1.12752E+03  4.49006E-04  2.32315E-09   1.12752E+03  1.14620E-03 -1.31561E-10       kJ/mol
+ Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent inter electrostatic     -1.21813E+04  9.87590E+01 -5.74186E+00  -1.21140E+04  1.24973E+02 -2.03900E+00       kJ/mol
+ Energy solvent inter van der Waals      1.98851E+03  7.50501E+01 -7.20726E+00   1.96577E+03  7.99811E+01  5.88746E-01       kJ/mol
+ Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent angles                   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
+ Energy solvent kinetic                  1.61509E+03  4.60406E+01  1.45143E+00   1.61512E+03  4.61616E+01  1.21822E-02       kJ/mol
+ Mean square displacement solvent /6     4.04544E-01  2.56841E-03  1.44396E-03   3.53952E-01  3.41875E-02  2.35116E-03        nm**2
+ Diffusion constant solvent * e9         8.52316E-09  2.16987E-10 -1.48926E-10   6.99064E-08  1.70254E-06 -6.68997E-09       m**2/s
+ Synchronization time                    8.60124E-03  1.49871E-02  4.06149E-03   4.32591E-03  8.44306E-03  6.76462E-05            s
+ Efficiency load balancing               9.19976E-01  8.95645E-02 -2.30858E-02   9.45975E-01  5.82490E-02 -3.94900E-04             
+ Time per step                           3.66315E-02  2.07863E-02  5.56251E-03   3.01778E-02  1.20273E-02  1.02052E-04            s
+ Prof: replicated data interactions      4.77980E-05  5.90610E-04  1.21428E-05   3.73665E-05  2.22580E-04  1.17280E-07            s
+ Prof: pme charge grid calculation       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 1      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: reverse fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme reciprocal work               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme subset synchronization 2      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: forward fft                       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: i/o                               0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: local coordinate retrieval        2.70017E-04  8.33276E-04  1.39269E-05   2.43557E-04  4.71475E-04  3.11645E-07            s
+ Prof: local force calculation           2.96754E-02  8.19842E-03  1.84558E-03   2.72698E-02  5.07093E-03  3.67005E-05            s
+ Prof: local force accumulation          2.48510E-04  8.02551E-04  2.12580E-05   2.18417E-04  3.99015E-04  4.73489E-07            s
+ Prof: remote coordinate retrieval       5.79720E-04  1.25252E-03  4.39118E-05   5.14409E-04  6.08593E-04  9.92241E-07            s
+ Prof: remote force calculation          1.74638E-02  6.20760E-03  9.72294E-04   1.61408E-02  3.71580E-03  2.10656E-05            s
+ Prof: remote force accumulation         7.77051E-04  1.22537E-03  3.85610E-05   7.12692E-04  7.05185E-04  1.13415E-06            s
+ Prof: pme wait                          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: pme forces calculation            0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00            s
+ Prof: synchronization                   8.60124E-03  1.49871E-02  4.06149E-03   4.32591E-03  8.44306E-03  6.76462E-05            s
 
  TIMING ANALYSIS
 
@@ -141,4 +784,4 @@
 
                                                Wall            CPU
 
- MD step                  100                 0.055          0.054
+ MD step                50000                 0.035          0.031
