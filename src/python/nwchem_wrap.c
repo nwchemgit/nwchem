@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.10 1999-10-26 23:35:23 d3g681 Exp $
+ $Id: nwchem_wrap.c,v 1.11 1999-10-27 18:30:31 d3g681 Exp $
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -178,7 +178,7 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
 	    PyArg_Parse(PyList_GetItem(obj, i), "s", &char_array); 
 	  else 
 	    PyArg_Parse(obj, "s", &char_array); 
-	  printf("PROCESSED %s\n", char_array);
+	  printf("PROCESSED '%s'\n", char_array);
 	  if ((ptr+strlen(char_array)) >= (cbuf+sizeof(cbuf))) {
 	     PyErr_SetString(PyExc_MemoryError,"rtdb_put too many strings");
 	     return NULL;
@@ -201,18 +201,18 @@ static PyObject *wrap_rtdb_put(PyObject *self, PyObject *args)
       
       if (!(rtdb_put(rtdb_handle, name, ma_type, list_len, array))) {
 	PyErr_SetString(NwchemError, "rtdb_put failed");
-	if (array) free(array);
+	if ((ma_type != MT_CHAR) && array) free(array);
 	return NULL;
       }
       
     } else {
       PyErr_SetString(PyExc_TypeError, 
 		      "Usage: rtdb_put(value or values,[optional type])");
-      if (array) free(array);
+      if ((ma_type != MT_CHAR) && array) free(array);
       return NULL;
     }
     Py_INCREF(Py_None);
-    if (array) free(array);
+    if ((ma_type != MT_CHAR) && array) free(array);
     return Py_None;
 }
 
@@ -223,7 +223,7 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
    char *name;
 #define MAXPTRS 2048
    char *ptrs[MAXPTRS];
-   char *format_str=0, format_char, *next;
+   char *format_str=0, format_char;
    PyObject *returnObj = 0;
    void *array=0;
    int ma_handle, ind;
@@ -267,11 +267,31 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
 
        /* For character string need to build an array of pointers */
 
-       nelem = 0;
-       for (next=strtok((char *)array, "\n");
-	    next;
-	    next=strtok((char *) 0, "\n")) {
-	 if (strlen(next)) {
+       if (ma_type == MT_CHAR) {
+	 char *ptr, *next;
+	 nelem = 0;
+	 next = ptr = array;
+         while (1) {		/* Replace strtok to handle consectutive separators */
+	   int eos = (*ptr == 0);
+	   if (*ptr == '\n') *ptr = 0;
+           if (*ptr == 0) {
+	     if (nelem >= MAXPTRS) {
+	       PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
+	       (void) MA_free_heap(ma_handle);
+	       return NULL;
+	     }
+	     ptrs[nelem] = next;
+	     nelem++;
+	     if (!eos) next = ptr+1;
+	   }
+	   if (eos) break;
+           ptr++;
+	 }
+           
+	 /*
+	 for (next=strtok((char *)array, "\n");
+	      next;
+	      next=strtok((char *) 0, "\n")) {
 	   if (nelem >= MAXPTRS) {
 	     PyErr_SetString(PyExc_MemoryError,"rtdb_get too many strings");
 	     (void) MA_free_heap(ma_handle);
@@ -280,6 +300,7 @@ PyObject *wrap_rtdb_get(PyObject *self, PyObject *args)
 	   ptrs[nelem] = next;
 	   nelem++;
 	 }
+	 */
        }
 
        ind = 0;
