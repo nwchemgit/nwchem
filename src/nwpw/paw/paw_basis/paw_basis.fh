@@ -101,6 +101,6 @@
       external   paw_basis_i_rgrid
       external   paw_basis_max_mult_l
 
-      double precision dabsmax
-      external dabsamx
+c      double precision dabsmax
+c      external dabsamx
 

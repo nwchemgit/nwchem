@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.10 2003-01-30 19:08:55 edo Exp $
+! $Id: paw_basis_data.F,v 1.11 2003-02-04 01:00:29 marat Exp $
 
 !**************************************************
 !
@@ -15,11 +15,9 @@
       integer ng(nt)
 
 #include "paw_basis_data.fh"
-#include "myma.fh"
+#include "mafdecls.fh"      
+#include "paw_ma.fh"
 
-
-      logical my_alloc
-      external my_alloc
 
       logical ok
       integer it
@@ -226,7 +224,6 @@
       implicit none
       integer it
    
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
 
@@ -246,9 +243,8 @@
         implicit none
         integer it
      
-#include "myma.fh"
 #include "paw_basis_data.fh"
-  
+#include "mafdecls.fh"
   
         paw_basis_nbasis = int_mb(nbasis(1) +  it-1)
         return
@@ -267,7 +263,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_ngrid = ngrid(1) +  it-1
@@ -286,7 +281,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
 
@@ -306,7 +300,7 @@
       implicit none
       integer it
     
-#include "myma.fh"
+#include "mafdecls.fh"      
 #include "paw_basis_data.fh"
 
 
@@ -326,7 +320,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_r1 = r1(1) +  it-1
@@ -345,7 +338,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
 
@@ -365,7 +357,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_i_cut = i_cut(1) +  it-1
@@ -384,7 +375,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_sigma = sigma(1) +  it-1
@@ -403,7 +393,6 @@
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_log_amesh = log_amesh(1) +  it-1
@@ -423,11 +412,11 @@
       integer ia
       double precision q
 
-#include "myma.fh"
 #include "paw_basis_data.fh"
 #include "integrate.fh"
 #include "paw_basis.fh"
-
+#include "mafdecls.fh"
+      
       !*** local variables ***
       real*8 core,fourpi
 
@@ -461,7 +450,6 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer it
 
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_core_charge = core_charge(1) +  it-1
@@ -480,8 +468,8 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer it
 
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_core_charge = dbl_mb(core_charge(1) +  it-1)
       return
@@ -500,7 +488,6 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_ion_charge = ion_charge(1) +  it-1
@@ -520,8 +507,8 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_ion_charge = dbl_mb(ion_charge(1) +  it-1)
       return
@@ -540,8 +527,8 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer ia
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
 
       !*** external functions ***
@@ -566,8 +553,8 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer ia
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_sigma
@@ -593,8 +580,6 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ii
       integer l
     
-#include "myma.fh"
-c#include "paw_basis.fh"
 #include "paw_geom.fh"
 
       !*** external functions ***
@@ -626,8 +611,8 @@ c#include "paw_basis.fh"
       integer ii
       integer l
     
-#include "myma.fh"
 #include "paw_geom.fh"
+#include "mafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_orb_l,paw_basis_nbasis
@@ -655,8 +640,8 @@ c#include "paw_basis.fh"
       implicit none
       integer ii,ia
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_pr_n
@@ -678,8 +663,8 @@ c#include "paw_basis.fh"
       implicit none
       integer ii,ia
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_pr_n_ps
@@ -701,8 +686,8 @@ c#include "paw_basis.fh"
       implicit none
       integer ii,ia
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_orb_l
@@ -725,8 +710,8 @@ c#include "paw_basis.fh"
       implicit none
       integer ii,ia
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_eig
@@ -751,7 +736,6 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
 
       paw_basis_i_core_kin_energy = core_kin_energy(1) +  it-1
@@ -770,8 +754,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_pr_n = pr_n(1) + int_mb(i_nb(1) + it-1)
       return
@@ -789,8 +773,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_pr_n_ps = pr_n_ps(1) + int_mb(i_nb(1) + it-1)
       return
@@ -808,8 +792,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_orb_l = orb_l(1) + int_mb(i_nb(1) + it-1)
       return
@@ -827,8 +811,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_eig = eig(1) + int_mb(i_nb(1) + it-1)
       return
@@ -846,8 +830,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_core_density = core_density(1) +
      +     int_mb(i_ng(1) + it-1)
@@ -866,8 +850,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_ps_core_density = ps_core_density(1) 
      >                      + int_mb(i_ng(1) + it-1)
@@ -886,8 +870,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_v_ps = v_ps(1) + int_mb(i_ng(1) + it-1)
       return
@@ -905,8 +889,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_rgrid = rgrid(1) + int_mb(i_ng(1) + it-1)
       return
@@ -924,8 +908,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_phi_ae = phi_ae(1) + int_mb(i_ngb(1) + it-1)
       return
@@ -944,8 +928,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_phi_ps = phi_ps(1) + int_mb(i_ngb(1) + it-1)
       return
@@ -964,8 +948,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
    
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_phi_ae_prime = phi_ae_prime(1) + 
      +     int_mb(i_ngb(1) + it-1)
@@ -984,8 +968,8 @@ c#include "paw_basis.fh"
       implicit none
       integer it
 
-#include "myma.fh"
 #include "paw_basis_data.fh"
+#include "mafdecls.fh"      
 
       paw_basis_i_phi_ps_prime = phi_ps_prime(1) + 
      +     int_mb(i_ngb(1) + it-1)
@@ -1004,9 +988,9 @@ c#include "paw_basis.fh"
       implicit none
       integer it
  
-#include "myma.fh"
 #include "paw_basis_data.fh"
-
+#include "mafdecls.fh"
+      
       paw_basis_i_prj_ps = prj_ps(1) + int_mb(i_ngb(1) + it-1)
       return
       END 
@@ -1023,7 +1007,7 @@ c#include "paw_basis.fh"
       implicit none
       integer it
     
-#include "myma.fh"
+#include "mafdecls.fh"      
 #include "paw_basis_data.fh"
 
       paw_basis_i_prj_ps0 = prj_ps0(1) + int_mb(i_ngb(1) + it-1)

@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis_data.fh,v 1.6 2003-01-24 19:35:43 marat Exp $
+* $Id: paw_basis_data.fh,v 1.7 2003-02-04 01:00:29 marat Exp $
 *
 
       integer tot_ntype
@@ -36,26 +36,12 @@
       integer prj_ps0(4)
       integer rgrid(4)
 
-
-      integer i_pr_n(4)
-      integer i_pr_n_ps(4)
-      integer i_eig(4)
-      integer i_orb_l(4)
-      integer i_phi_ae(4)
-      integer i_phi_ps(4)
-      integer i_phi_ae_prime(4)
-      integer i_phi_ps_prime(4)
-      integer i_prj_ps(4)
-      integer i_core_density(4)
-      integer i_ps_core_density(4)
-      integer i_v_ps(4)
-      integer i_prj_ps0(4)
-      integer i_rgrid(4)
       integer i_nb(4)
       integer i_ng(4)
       integer i_ngb(4)
+                                    
 
-
+    
       COMMON /paw_basis_data/ max_mult_l,
      >                      tot_ntype,
      >                      tot_ngrid,

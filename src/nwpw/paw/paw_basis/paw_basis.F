@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.11 2003-01-30 21:10:00 bylaska Exp $
+* $Id: paw_basis.F,v 1.12 2003-02-04 01:00:29 marat Exp $
 *
 
 !**************************************************
@@ -14,7 +14,8 @@
       implicit none
 
       include "paw_basis.fh"
-      include "myma.fh"
+#include "mafdecls.fh"
+c      include "myma.fh"
   
 *     !*** local variables ***
       integer it, ir, nt
