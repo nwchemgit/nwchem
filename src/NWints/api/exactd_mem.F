@@ -1,5 +1,5 @@
       subroutine exactd_mem(bases,nbas)
-c $Id: exactd_mem.F,v 1.5 1994-08-05 19:39:12 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.6 1994-08-05 20:06:09 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -174,7 +174,7 @@ c
       ket_geom  = ibs_geom(ket)
       if (bra_geom.ne.ket_geom) then
         write(6,*)'emem_d1e: two different geometries for',
-     &         ' derivatives??'
+     &         ' derivatives?'
         call errquit('emem_d2e4c: geom error ',911)
       endif
 c
