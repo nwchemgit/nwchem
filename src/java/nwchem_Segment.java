@@ -11,10 +11,12 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     String ffield = "unknown";
     String dir_s = " ";
     String dir_x = " ";
+    String dir_q = " ";
     String dir_u = " ";
     String dir_t = " ";
+    String dir_c = " ";
 
-    char[] file_type = { 's', 'x', 'u', 't'};
+    char[] file_type = { 's', 'x', 'q', 'u', 't', 'c'};
 
     JPanel header = new JPanel();
 
@@ -27,7 +29,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
     JScrollPane atmPane = new JScrollPane(atmList);
 
     File[] files;
-    String[] dirs = {" ", " ", " ", " "};
+    String[] dirs = {" ", " ", " ", " ", " ", "./"};
     SegmentDefinition[] sgmDef;
     
     JFileChooser chooser;
@@ -152,15 +154,17 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		if(card.startsWith("ffield")) {ffield=card.substring(7,12).trim();};
 		if(card.startsWith(ffield+"_s")) {dirs[0]=card.substring(card.indexOf(" ")+1,card.length());};
 		if(card.startsWith(ffield+"_x")) {dirs[1]=card.substring(card.indexOf(" ")+1,card.length());};
-		if(card.startsWith(ffield+"_u")) {dirs[2]=card.substring(card.indexOf(" ")+1,card.length());};
-		if(card.startsWith(ffield+"_t")) {dirs[3]=card.substring(card.indexOf(" ")+1,card.length());};
+		if(card.startsWith(ffield+"_q")) {dirs[2]=card.substring(card.indexOf(" ")+1,card.length());};
+		if(card.startsWith(ffield+"_u")) {dirs[3]=card.substring(card.indexOf(" ")+1,card.length());};
+		if(card.startsWith(ffield+"_t")) {dirs[4]=card.substring(card.indexOf(" ")+1,card.length());};
+		if(card.startsWith(ffield+"_c")) {dirs[5]=card.substring(card.indexOf(" ")+1,card.length());};
 	    };
 	    br.close();
 	} catch(Exception e) {e.printStackTrace();};
 	
 	int sgmNumber=0;
 	
-	for(int idir=0; idir<4; idir++){
+	for(int idir=0; idir<6; idir++){
 	    if(dirs[idir]!=" "){
 		File dir = new File(dirs[idir]);
 		File[] files = dir.listFiles();
@@ -174,7 +178,7 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 
 	sgmDef = new SegmentDefinition[sgmNumber];
 	sgmNumber=0;
-	for(int idir=0; idir<4; idir++){
+	for(int idir=0; idir<6; idir++){
 	    if(dirs[idir]!=" "){
 		File dir = new File(dirs[idir]);
 		File[] files = dir.listFiles();
