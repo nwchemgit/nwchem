@@ -1,7 +1,20 @@
 c
-c $Id: paw_spher_func.F,v 1.5 2003-03-18 01:00:17 marat Exp $
+c $Id: paw_spher_func.F,v 1.6 2003-03-25 22:22:20 edo Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.2.2.2  2003/03/25 22:21:03  edo
+c bug fix in paw_spher_func.F (uninitialized variable)
+c
+c files copied over from main branch
+c
+c Revision 1.2.2.1  2003/03/24 02:15:29  bylaska
+c PAW added to release 4.5 tree....EJB
+c
+c Revision 1.5  2003/03/18 01:00:17  marat
+c fixed error in evaluating legendre function
+c for |m|>l
+c MV
+c
 c Revision 1.4  2003/02/21 19:27:11  bylaska
 c find_Y_lm_deriv subourine added...EJB
 c
@@ -124,7 +137,6 @@ c
       INTEGER L
       INTEGER M
       DOUBLE PRECISION X
-      DOUBLE PRECISION F
  
  
 !    *** local variables ***
@@ -142,7 +154,7 @@ c
      1   'parameter ot of range in legendre_lm',0)
  
       IF (MOD_M .GT. L) THEN
-         LEGENDRE_LM = ZERO
+         LEGENDRE_LM = 0d0
          RETURN 
       ENDIF
  
@@ -401,7 +413,7 @@ c
      >       *m*dcmplx(0.0d0,1.0d0)
       end if
 
-      !*** cartesian derivatives (see Ashkroft p.108, 3rd. ed)
+      !*** cartesian derivatives (see Ashcroft p.108, 3rd. ed)
       Y_lm_x =  f1*cos_theta*COS(angle_phi)-sin(angle_phi)*f2
       Y_lm_y =  f1*cos_theta*SIN(angle_phi)+cos(angle_phi)*f2
       Y_lm_z = -f1*dsqrt(1.0d0-cos_theta**2)
