@@ -1,12 +1,18 @@
-# $Id: GNUmakefile,v 1.17 1997-04-16 16:53:28 d3g681 Exp $
+# $Id: GNUmakefile,v 1.18 1999-07-21 18:46:08 d3e129 Exp $
 
 include ../config/makefile.h
 
          LIBRARY = libutil.a
 
+
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
-
+ifeq ($(TARGET),LINUX)
+ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
+    OBJ = rtdb_seq.o
+    OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o context.o context_f2c.o
+endif
+endif
          HEADERS = context.h rtdb.h rtdb.fh context.fh rtdb.cray.h
 
      LIB_TARGETS = test test.o rtdbtest rtdbtest.o interact context davetest \
