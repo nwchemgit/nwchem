@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.22 1996-05-10 15:52:54 gg502 Exp $
+c $Id: bas_input.F,v 1.23 1996-07-17 16:26:37 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -469,7 +469,7 @@ c
       call inp_save_state()     ! Save state for unit 5.
 
       call inp_init(33,6)
- 33   if (inp_search(.false., 'basis')) then
+ 33   if (inp_search(.false., 'basis', 1)) then
          status = inp_a(field)
          if (inp_a(field)) then
             if (inp_compare(.false., string, field)) goto 34
