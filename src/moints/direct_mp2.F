@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.8 1995-04-19 00:43:30 rg240 Exp $
+C$Id: direct_mp2.F,v 1.9 1995-04-21 18:51:00 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -39,7 +39,6 @@ c
 c
 c
        data g_coul,g_exch/-1,-1/
-       data algo/'twofold'/
        data charge/0.d0/
 c
 c
@@ -96,6 +95,11 @@ c
      $      call errquit('direct_mp2: cannot get basis info',0)
        if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
      $      scf_energy = 0.0d0
+c
+c Get algorithm choice
+c
+       if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
+     $      algo = 'twofold'
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -212,7 +216,15 @@ c
      $        10x,'Active occupied range:',11x,i3,1x,'-',i3,/,
      $        10x,'Active virtual range:',12x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
-     $        10x,'Operator matrices in core:',10x,i5,/)
+     $        10x,'Operator matrices in core:',10x,i5)
+         if (algo.eq.'sixfold') then
+           write(6,975) 
+ 975       format(10x,'Sixfold algorithm used')
+         else
+           write(6,976) 
+ 976       format(10x,'Twofold algorithm used')
+         endif
+         write(6,*)
          call util_flush(6)
        endif
 c

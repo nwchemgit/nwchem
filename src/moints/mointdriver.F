@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.28 1995-04-19 22:41:43 rg240 Exp $
+C$Id: mointdriver.F,v 1.29 1995-04-21 18:51:06 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,7 +43,6 @@ c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./
        data ohalf/.true./
-       data algo/'sixfold'/
        data charge/0.d0/
 c
 c
@@ -80,6 +79,11 @@ c
        status = status.and.bas_numcont(basis,nsh)
        if (.not. status)
      $   call errquit('moint_driver: failed to get info', 0)
+c
+c Get algorithm choice
+c
+       if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
+     $      algo = 'twofold'
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
