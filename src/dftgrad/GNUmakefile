@@ -2,14 +2,14 @@
          getdexc.o       grad1_dft.o     grad2_dft.o \
          grad_dft.o      quaddexc0.o     \
          get_coul_den.o  \
-         bal_sum.o
+         dft_bal_sum.o
    OBJ_OPTIMIZE = grad_cdfit.o grad_xc.o  
 ifeq ($(NWCHEM_TARGET),SGITFP)
    OBJ = grad_cdfit.o  dft_grad_top.o  force_dft.o \
          getdexc.o       grad1_dft.o     grad2_dft.o \
          grad_dft.o      quaddexc0.o     \
          get_coul_den.o  \
-         bal_sum.o
+         dft_bal_sum.o
    OBJ_OPTIMIZE = grad_xc.o  
 endif
    USES_BLAS = force_dft.F quaddexc0.F grad_cdfit.F grad_xc.F
