@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.12 1998-09-15 00:01:29 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.13 1998-09-18 21:22:31 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -127,7 +127,7 @@ c
       if(nlnk.gt.mlnk) call errquit('pdbseq: increase mlnk',9999)
       read(card,2011)
      + clnk(1,nlnk),llnk(1,nlnk),clnk(2,nlnk),llnk(2,nlnk)
- 2011 format(12x,a4,6x,i4,17x,a4,6x,i4)
+ 2011 format(12x,a4,6x,i4,16x,a4,6x,i4)
       llnk(3,nlnk)=0
       llnk(4,nlnk)=0
       goto 1
