@@ -5,6 +5,7 @@
   CPU definitions and machine precision definitions
   */
 
+#ifndef CRAY_T3D
 #ifdef ALPHA
 
 #define DLAMCHE        (DoublePrecision ) 2.22044604925031308E-16
@@ -25,6 +26,7 @@
  dbase      2.0000000000000000E+00
  dsafeulp      1.1754943508222875E-38
  */
+#endif
 #endif
 
 #ifdef HPPA
