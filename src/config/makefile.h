@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.384 2002-03-16 02:08:17 edo Exp $
+# $Id: makefile.h,v 1.385 2002-04-19 00:44:57 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1329,8 +1329,11 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      endif
 
     ifeq ($(_CPU),ia64)
-# Itanium cross compiled on i386 with Intel Compilers 
-# i4 (need for g77) not working 
+# Itanium  
+# only working decent compiler: efc 6.0  release 127
+# Version 6.0 Beta, Build 20020215   
+# g77 not working 
+# i4 not working 
 #
       FC=efc
       CC=gcc
@@ -1338,14 +1341,14 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-        FOPTIONS   =  -auto -align  -132   -w  -vec_report3 -ftz 
+        FOPTIONS   =  -auto -align  -132   -w  -ftz  
+        FDEBUG = -g -O2
         DEFINES  +=   -DIFCLINUX
-        FVECTORIZE = -O3 -hlo -pad
-        FOPTIMIZE =  -O3 -hlo -unroll
-#        FOPTIMIZE =  -O2 #-hlo -unroll
+        FVECTORIZE =  -O2 -hlo -pad -mP2OPT_hlo_level=2 
+        FOPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  -mP2OPT_align_array_to_cache_line=TRUE 
         LDOPTIONS =   -Qoption,link,--relax  -Qoption,link,-Bstatic  
         LINK.f = efc  -g -Qoption,link,-v  $(LDFLAGS)  
-        EXTRA_LIBS +=  -ml   -Vaxlib 
+        EXTRA_LIBS +=     -Vaxlib 
       endif
       ifeq ($(FC),g77)
         FOPTIONS  += -Wno-globals
@@ -1353,8 +1356,12 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         FOPTIONS  += -fno-second-underscore  -g
         LDOPTIONS =   -Wl,--relax  -Wl,-Bstatic  
       endif
-      ifeq ($(FC),ecc)
-        COPTIONS   =   -vec_report3 -ftz
+      ifeq ($(CC),ecc)
+        COPTIONS   =   -ftz 
+        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
+      endif
+      ifeq ($(CC),gcc)
+        COPTIONS   =   -O3 -funroll-loops
       endif
      ifdef USE_INTEGER4
        FOPTIONS += -i4
