@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.15 2000-08-23 00:50:31 windus Exp $
+C $Id: hess_cphf.F,v 1.16 2000-08-23 18:37:32 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -27,7 +27,7 @@ c
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
       logical hf_job, dbug, out
-      double precision jfact, kfact, tol2e
+      double precision jfact, kfact, tol2e, dmax
       double precision pt5, one, two, four, eight
       data pt5,one,two         /0.5d+00, 1.0d+00, 2.0d+00/
       data four, eight         /4.0d+00, 8.0d+00/
@@ -273,6 +273,9 @@ c adds to g_aa and g_wax.  Ta needs to be transformed back into the AO
 c basis, combined with the integrals, and then transformed back into the
 c MO basis.
 c
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) then
+        tol2e = 1.0d-9
+      endif 
       g_tmp =ga_create_atom_blocked ( geom, basis, 'temp' )
       do ndns = 1, ndens
       do ind = 1, nc
@@ -290,12 +293,11 @@ c Set up some parameters for the fock_2e call.  Note that I am not
 c sure if jfact and kfact should stay the same for DFT!  This needs to
 c be dependent on the jfac and kfac in hess_info.fh.
 c
+        call ga_maxelt(g_rhs(ind),dmax)
+        if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
         nfock = 1
         jfact =  8.0d+00
         kfact = -4.0d+00
-        if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) then
-          tol2e = 1.0d-9
-        endif 
 
         call ga_copy(g_rhs(ind),g_modx)  ! copy Ta to g_modx
         call ga_zero(g_rhs(ind))   ! zeroed to get the "new" fock matrices
@@ -346,6 +348,7 @@ c
         call ga_add_patch(one,g_aa(ind), 1,nocc(ndns),1,nocc(ndns),
      $                    one,g_rhs(ind),1,nocc(ndns),1,nocc(ndns),
      $                        g_aa(ind), 1,nocc(ndns),1,nocc(ndns))
+        endif
         call ga_copy(g_tmp,g_rhs(ind))  ! copy temp to Ta
       enddo
       enddo
@@ -442,6 +445,8 @@ c
         write(6,*) 'g_wax_tr ',ind
         call flush(6)
         call ga_print(g_tmp)
+        call ga_maxelt(g_tmp,dmax)
+        if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
         if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
      $    ('hess_cphf:could not write cphf_rhs',ind)
 c
@@ -474,6 +479,7 @@ c
       call ga_print(g_sol)
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
+        endif
       enddo
         if (.not.ga_destroy(g_tmp)) call errquit
      $    ('cannot destroy g_tmp ',555)
