@@ -3,7 +3,7 @@
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
 c
-c $Id: pre_atype.F,v 1.11 1998-07-14 15:47:26 d3j191 Exp $
+c $Id: pre_atype.F,v 1.12 1999-06-28 16:46:19 d3j191 Exp $
 c
       implicit none
 c
@@ -220,7 +220,7 @@ c
    16 continue
       read(lfnpar,1000,end=17,err=9999) card
  1000 format(a)
-      if(card(1:1).eq.'#') goto 16
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 16
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
@@ -250,7 +250,7 @@ c
       endif
   116 continue
       read(lfnpar,1000,end=117,err=9999) card
-      if(card(1:1).eq.'#') goto 116
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 116
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
@@ -278,7 +278,7 @@ c
       endif
   216 continue
       read(lfnpar,1000,end=217,err=9999) card
-      if(card(1:1).eq.'#') goto 216
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 216
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
@@ -306,7 +306,7 @@ c
       endif
   316 continue
       read(lfnpar,1000,end=317,err=9999) card
-      if(card(1:1).eq.'#') goto 316
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 316
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
