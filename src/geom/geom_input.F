@@ -122,6 +122,10 @@ c
       if (.not. geom_rtdb_store(rtdb, geom, name))
      $     call errquit('geom_input: geom_rtdb_store failed', 0)
 c
+      if(.not. geom_verify_coords(geom))
+     &    call errquit
+     &    ('geom_input: geom_verify_coords failed',911)
+c
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
 c

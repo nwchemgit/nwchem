@@ -993,3 +993,58 @@ c
 10000 continue
       geom_create_copy = .false.
       end
+c
+      logical function geom_verify_coords(geom)
+      implicit none
+c
+c::functions      
+      logical geom_ncent
+      logical geom_cent_get
+      external geom_ncent
+      external geom_cent_get
+c::passed
+      integer geom ! geometry handle
+c::local
+      integer nat, iat, jat, num2compare, atomi, atomj
+      integer i,j
+      parameter (num2compare = 2)
+      character*16 name(num2compare)
+      double precision xyz(3,num2compare)
+      double precision chg(num2compare)
+      double precision dist_min
+      double precision dist_thresh
+      parameter (dist_thresh = 1.0d-03)
+      double precision dist2
+c
+      dist2(i,j) = (xyz(1,i)-xyz(1,j))**2 +
+     &    (xyz(2,i)-xyz(2,j))**2 +
+     &    (xyz(3,i)-xyz(3,j))**2
+c
+      if(.not.geom_ncent(geom, nat))
+     &    call errquit('geom_verify_coords: geom_ncent failed',911)
+c
+      atomi = 1
+      atomj = 2
+      dist_min = 56565.89d00
+      do 00100 iat = 1,nat
+        do 00200 jat = 1,iat
+          if (jat.lt.iat) then
+            if(.not.geom_cent_get
+     &          (geom,iat,name(atomi),xyz(1,atomi),chg(atomi)))
+     &          call errquit
+     &          ('geom_verify_coords: geom_cent_get<1> failed',911)
+            if(.not. geom_cent_get
+     &          (geom,jat,name(atomj),xyz(1,atomj),chg(atomj)))
+     &          call errquit
+     &          ('geom_verify_coords: geom_cent_get<2> failed',911)
+            dist_min = min(dist_min, dist2(atomi,atomj))
+          endif
+00200   continue
+00100 continue
+      dist_min = sqrt(dist_min)
+      geom_verify_coords = dist_min.gt.dist_thresh
+*      write(6,*)' distance minimum =',
+*     &    dist_min, geom_verify_coords
+c
+      end
+      
