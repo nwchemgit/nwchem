@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.136 2002-02-19 20:29:30 windus Exp $
+c     $Id: nwchem.F,v 1.137 2002-03-02 01:20:52 edo Exp $
 *---------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002  *
 *              Pacific Northwest National Laboratory,                 * 
@@ -175,6 +175,10 @@ c
 *     to affect the final results
       oldact = fsigctl('IGNORE','SIGFPE',0)
 #endif
+#ifdef LINUX
+c      uncommenting this line turns on sigfpe trapping under linux
+!      call linux_trapfpe()
+#endif
 c
 c     Hard fail is good for development but means that we cannot
 c     respond to allocation problems. Disable by default.
@@ -212,6 +216,7 @@ c!!! BGJ
 c!!! BGJ
 c
 c
+      
       if (ostartup.or.ocontinue) then
         orestart = .false.
       else
@@ -361,7 +366,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 4.0',
+     $     'Northwest Computational Chemistry Package (NWChem) 4.1',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
