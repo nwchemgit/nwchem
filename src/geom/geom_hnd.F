@@ -369,7 +369,7 @@ c
       enddo
       if (odebug) then
          write(6,*) ' C'
-         call output(y, 1, nzvar, 1, nzvar, 1, nzvar, nzvar, 1)
+         call output(y, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
       endif
 c
 c     Now have P in x, C in y.  Form CPC and then do generalized
@@ -1187,7 +1187,7 @@ c     read in zcoord data from -rtdb-
 c     cvr_scaling,ijbond,ijkang,ijklto,ijklop,ijklnb
 c     
       if (.not. geom_autoz_info_get(geom,
-     $     cvr_scaling, maxtor_per_bond,
+     $     cvr_scaling, max_tor_per_bond,
      $     ijbond,ijkang,ijklto,ijklop,ijklnb,
      $     ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
      $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
@@ -1540,7 +1540,7 @@ c
          enddo
 c
          if (.not.geom_autoz_info_get(geom,
-     $        cvr_scaling, maxtor_per_bond,
+     $        cvr_scaling, max_tor_per_bond,
      $        ijbond,ijkang,ijklto,ijklop,ijklnb,
      $        ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
      $        ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
@@ -2377,8 +2377,8 @@ c
       logical     dbug
       logical     linijk,linjkl
       logical odoit
-      logical zdone, oprint
-      logical geom_add_tor
+      logical zdone, oprint, oopb, oi3d, oj3d
+      logical geom_add_tor, bonds_span3d
       integer iw
       parameter (iw=6)
       dimension c(3,*)
@@ -2420,7 +2420,10 @@ c
          nibond(iat)=nibnds(iat)
       enddo
 c     
-      ntor=numtor
+      oopb = .false.            ! Initially don't do oopb
+c
+55555 ntor=numtor               ! Jump to here to redo everything
+      ntornonlin = 0            ! No. torsions not fudged for linearity
       if(numatom.le.3) return
 c     
       if (max_tor_per_bond .eq. 0) return
@@ -2473,13 +2476,14 @@ c
 c     both bonds are linear.  go fishing for ilmn.  also add ijml
 c     which is needed for h-c-c-h-X (x not colinear)
 c     
-*                           write(6,*) ' four colinear centers ',
+*     write(6,*) ' four colinear centers ',
 *     $                          iat, jat, kat, lat
                            do lmbnd=iibond(lat)+1,
      $                          iibond(lat)+nibond(lat)
                               mat=ijbond(2,lmbnd)
                               if (mat.ne.iat .and. mat.ne.jat
      $                             .and. mat.ne.kat) then
+*     write(6,*) ' IJML ',iat,jat,mat,lat
                                  if (.not. geom_add_tor(
      $                                iat,jat,mat,lat,
      $                                ntor, ijklto, mxtors, 
@@ -2536,6 +2540,7 @@ c
 c     
 c     nothing is linear.  wow.
 c     
+                           ntornonlin = ntornonlin + 1
                            if (.not. geom_add_tor(iat,jat,kat,lat,
      $                          ntor, ijklto, mxtors, ntor_for_ij))
      $                          goto 8000
@@ -2548,7 +2553,10 @@ c
                endif            ! if (kat.ne.iat)
             enddo               ! do jkbnd
 c     
-            if (ntor_for_ij.eq.0 .and. numatom.gt.3) then
+            oi3d = bonds_span3d(iat,c,nibond,iibond,ijbond)
+            oj3d = bonds_span3d(jat,c,nibond,iibond,ijbond)
+            if (ntor_for_ij.eq.0 .and. numatom.gt.3 .and. oopb .and.
+     $           (.not. (oi3d .or. oj3d))) then 
 c     
 c     sigh.  we have not found a valid torsion for this bond.
 c     this can happen because of linear angles or even for
@@ -2583,6 +2591,7 @@ c
                      linijk = sin(acos(min(1d0,abs(cosbj)))) .le. tol
                      if (.not. linijk) then
                         do jlbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
+*                        do jlbnd=jkbnd+1,iibond(jat)+nibond(jat)
                            lat=ijbond(2,jlbnd)
                            if(lat.ne.iat .and. lat.ne.kat) then
                               rkl=sqrt(distsq(kat,lat))
@@ -2608,6 +2617,12 @@ c
  1212       continue            ! jump here for next ij
          enddo                  ! do ijbnd
       enddo                     ! do iat
+c
+      if (numatom.gt.3 .and. (.not. oopb) .and. (ntornonlin.eq.0)) then
+         if (oprint) write(6,*) ' Looking for out-of-plane bends'
+         oopb = .true.
+         goto 55555
+      endif
 c     
       if(dbug) then
          if(ntor.gt.1) then
@@ -2724,10 +2739,10 @@ c$$$  endif
             nizmat=nizmat+5
             nzvar =nzvar +1
          else
-*            write(6,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
+*     write(6,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
 *     $           linijk, ijklto(2,itor), ijklto(3,itor), ijklto(4,itor),
 *     $           linjkl
-* 303        format(' rejecting torsion due to linear angle ',
+*     303        format(' rejecting torsion due to linear angle ',
 *     $           2(2x,3i4,2x,l1))
          endif
       endif
@@ -3101,7 +3116,7 @@ c
 c     ----- exponent -----
 c
       ie2=i2
-      do ie=i1,i2
+      do ie=i1+1,i2
          if(a(ie:ie).eq.char(14).or.a(ie:ie).eq.char(15).or. 
      1      a(ie:ie).eq.char(16).or.a(ie:ie).eq.char(17)) go to 10
       enddo
@@ -4970,5 +4985,64 @@ c
 *      call output(cmat, 1, nzvar, 1, nzvar, nzvar, nzvar, 1)
 c
       call geom_hnd_put_data('c',cmat, nzvar**2)
+c
+      end
+      logical function bonds_span3d(iat,x,nibond,iibond,ijbond)
+      implicit none
+      integer iat, nibond(*), iibond(*), ijbond(2,*)
+      double precision x(3,*)
+c
+c     Return true if the bonds connecting to iat have strong
+c     components in all 3D.  (use to determine if need to 
+c     add out-of-plane bends for a bond.
+c
+c     A tetrahedral bond is 50 degrees out of plane
+c     Ammonia is 34 degrees.  
+c
+      integer jat, kat, lat, ijbnd, ikbnd, ilbnd, i
+      double precision out_of_plane_angle
+      double precision a(3), b(3), c(3), angle
+c
+      bonds_span3d = .false.
+      if (nibond(iat).lt.3) return
+c      
+      do ijbnd=iibond(iat)+1,iibond(iat)+nibond(iat)
+         jat=ijbond(2,ijbnd)
+         do ikbnd=ijbnd+1,iibond(iat)+nibond(iat)
+            kat=ijbond(2,ikbnd)
+            do ilbnd=ikbnd+1,iibond(iat)+nibond(iat)
+               lat=ijbond(2,ilbnd)
+               do i = 1, 3
+                  a(i) = x(i,iat) - x(i,jat)
+                  b(i) = x(i,iat) - x(i,kat)
+                  c(i) = x(i,iat) - x(i,lat)
+               enddo
+               angle = out_of_plane_angle(a,b,c)
+               if (angle .gt. 15d0) then
+                  bonds_span3d = .true.
+                  return
+               endif
+            enddo
+         enddo
+      enddo
+c
+      end
+      double precision function out_of_plane_angle(a,b,c)
+      implicit none
+      double precision a(3),b(3),c(3)
+c
+c     a, b, & c are three position vectors from the origin.
+c     Return the angle in degrees that c makes with the plane 
+c     containing a and b.  The sign is determined in a left-handed
+c     sense ... so that if a=x, b=y then for c=+z angle=+90.
+c
+      double precision ddot, d(3), abc, theta
+c
+      call cross_product(a,b,d)
+      abc = ddot(3,c,1,d,1)/sqrt(
+     $     ddot(3,a,1,a,1)*ddot(3,b,1,b,1)*ddot(3,c,1,c,1))
+      theta = 90d0 - acos(min(1d0,abs(abc)))*45d0/atan(1d0)
+      if (abc .lt. 0d0) theta = -theta
+      out_of_plane_angle = theta
 c
       end

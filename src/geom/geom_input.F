@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.119 1999-06-29 20:01:00 d3g681 Exp $
+C     $Id: geom_input.F,v 1.120 1999-07-04 00:03:19 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1332,6 +1332,8 @@ c
 #include "global.fh"
       integer nzvar
       double precision s(nzvar), c(3,*)
+c
+c     THIS ROUTINE IS NO LONGER USED
 c
 c     Return the cartesians corresponding to the given internals.
 c
