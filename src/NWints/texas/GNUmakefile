@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.49 2003-08-14 03:23:32 edo Exp $
+# $Id: GNUmakefile,v 1.50 2004-05-14 15:55:12 edo Exp $
  
 include ../../config/makefile.h
 
@@ -57,7 +57,7 @@ else
 endif
 
       USES_BLAS = amshift.f \
-                  big_service.f \
+                  big_service.F \
                   trobsa.F  getmem.F
 
        LIBRARY = libnwints.a
