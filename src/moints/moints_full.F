@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.14 1996-08-29 17:19:44 d3g681 Exp $
+C     $Id: moints_full.F,v 1.15 1996-10-23 05:09:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -762,7 +762,7 @@ c     !! irs(*) assumed to be in the range 0,..,7
 c
 c     sort the MO vectors in the range (lo:hi) by symmetry.
 c
-c     map(lo:hi) returns the map from input to output orbtials
+c     map(lo:hi) returns the map from input to output orbitals
 c     
 c     irs(lo:hi) are permuted to reflect the output order
 c
