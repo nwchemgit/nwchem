@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.79 2000-10-25 18:22:22 d3g270 Exp $
+# $Id: DEFS,v 1.80 2001-01-03 23:40:42 d3g270 Exp $
 #
 #======================================================================
 #
@@ -298,10 +298,10 @@ peigs_CODEOBJ = DBLE
 peigs_CPU = RS6000
 # -qarch=pwr (for peril) com (for any) , pwr2  or ppc
 peigs_COMM =TCGMSG
-peigs_CC  += -qarch=auto -qtune=auto -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O -qinline
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O -qinline
 # -O3 -qstrict -qinline -qfloat=rsqrt:fltint:hssngl -qinline
 
-peigs_FC  += -qarch=auto -qtune=auto -d -I$(peigs_HDIR) -O3 -qstrict \
+peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl -qinline
 
@@ -317,8 +317,8 @@ ifeq ($(peigs_TARGET),IBM64)
 peigs_CODEOBJ = DBLE
 peigs_CPU = RS600064
 peigs_COMM =TCGMSG
-peigs_CC  += -D$(peigs_CPU) -qarch=auto -qtune=auto -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
-peigs_FC  += -qarch=auto -qtune=auto -d -I$(peigs_HDIR) -O3 -qstrict \
+peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
+peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl -qinline
 
@@ -381,13 +381,13 @@ peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict \
 peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
 
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
-peigs_FC += -qarch=pwr2 -qtune=pwr2
+peigs_FC += -qarch=p2sc -qtune=p2sc
 
 # -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 # -qcache=type=i:level=1:size=32:line=128 \
 
 
-peigs_CC += -qarch=pwr2 -qtune=pwr2
+peigs_CC += -qarch=p2sc -qtune=p2sc
 endif
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
@@ -402,10 +402,10 @@ ifeq ($(peigs_TARGET),LAPI)
 peigs_COMM =TCGMSG
 peigs_CPU = RS6000
 peigs_CODEOBJ=DBLE
-peigs_CC  += -qarch=auto -qtune=auto -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
+peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
 -I$(peigs_HDIR) -qfloat=rsqrt:fltint:hssngl  -qinline
 
-peigs_FC  += -qarch=auto -qtune=auto -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
+peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl  -NQ40000 -NT80000 -qinline
 
