@@ -1,8 +1,8 @@
-Start esp
+Start  esp_uhf
 
 echo
 
-geometry units angstrom noautosym
+geometry units angstrom
  C                       -0.13679785    -0.00481189    -0.80451624
  H                        0.62578531    -0.32160812    -1.51482880
  H                       -1.10127411    -0.29207360    -1.22130351
@@ -23,7 +23,7 @@ basis "ao basis" cartesian print
 end
 
 scf
-  RHF
+  uhf
   nopen 0
 end
 
@@ -36,7 +36,6 @@ esp
  restrain hyperbolic
  constrain equal 2 3 4
  constrain equal 6 7
- factor 1.45d0
 end
 
 task esp
