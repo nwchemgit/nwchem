@@ -208,6 +208,19 @@
 *
       INFO = 0
 c
+*$PL$ CMCHAR=' '
+CDIR$          NEXTSCALAR
+C$DIR          SCALAR
+CDIR$          NEXT SCALAR
+CVD$L          NOVECTOR
+CDEC$          NOVECTOR
+CVD$           NOVECTOR
+*VDIR          NOVECTOR
+*VOCL          LOOP,SCALAR
+CIBM           PREFER SCALAR
+*$PL$ CMCHAR='*'
+
+c
       if ( range1 .eq. 1 ) range = 'A'
       if ( range1 .eq. 2 ) range = 'V'
       if ( range1 .eq. 3 ) range = 'I'
