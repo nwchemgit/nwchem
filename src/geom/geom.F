@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.47 1996-05-14 18:00:47 d3g681 Exp $
+C$Id: geom.F,v 1.48 1996-06-27 22:43:41 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1253,7 +1253,7 @@ c
      $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
      $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
      $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
-     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
+     $     'Thorium', 'Protactinium', 'Uranium', 'Neptunium',
      $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
      $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
      $     'Nobelium', 'Lawrencium'/
