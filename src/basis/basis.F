@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.48 1996-10-18 17:14:08 d3e129 Exp $
+c $Id: basis.F,v 1.49 1996-10-25 22:11:13 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1101,6 +1101,7 @@ c
      $             bs_name(basis)(1:inp_strlen(bs_name(basis)))
  11           format(/'WARNING: geometry tag ',i4, ' ', a,
      $             ' not found in basis "',a,'"'/)
+              int_mb(mb_ibs_ce2uce(i,basis)) = 0
               call util_flush(6)
            endif
         endif
