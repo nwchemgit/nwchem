@@ -1,4 +1,4 @@
-#     $Id: GNUmakefile,v 2.11 1997-05-29 16:42:57 gg502 Exp $
+#     $Id: GNUmakefile,v 2.12 1997-06-05 17:46:28 gg502 Exp $
 
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
@@ -9,6 +9,9 @@
 		ccsd_sortmo.o \
 		geaxpy.o \
 		moints_trp.o \
+		ccden_2pdma.o \
+		ccden_2pdmb.o \
+		ccsd_mktau_ga.o \
 		ccden_interm4.o
 
  OBJ_OPTIMIZE = aoccsd2.o \

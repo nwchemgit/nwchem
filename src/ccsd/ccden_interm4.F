@@ -3,7 +3,7 @@ C NAME
 C     ccden_interm4 -- Form four-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm4.F,v 2.2 1997-04-14 06:34:51 gg502 Exp $
+C     $Id: ccden_interm4.F,v 2.3 1997-06-05 17:46:27 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm4(NOcc, NVir,
@@ -55,7 +55,7 @@ C
 C
 C     Figure out which patch of Scr1 this processor has
 C
-      Call CCSD_T2_MyIJ(NVir, G_Scr1, ILo, IHi, JLo, JHi)
+      Call CCSD_T2_MyIJ(GA_NodeID(), NVir, G_Scr1, ILo, IHi, JLo, JHi)
 C
       Write (LuOut, *) 'CCDen_Interm4 ', GA_NodeID(),
      $     ': Scr1 region (', ILo, ':', IHi, ', ', JLo, ':', JHi, ')'

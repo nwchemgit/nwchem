@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.3 1997-04-17 05:57:54 d3e129 Exp $
+C     $Id: ccden_interm2.F,v 2.4 1997-06-05 17:46:27 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
@@ -66,7 +66,8 @@ C     * Local patch of T2 & Z2? *
 C     ***************************
 C     Note:  Not local in the scrictest sense (as required for ga_access)
 C
-      Call CCSD_T2_MyIJ(NVir, G_T2, T2_ILo, T2_IHi, T2_JLo, T2_JHi)
+      Call CCSD_T2_MyIJ(GA_NodeID(), NVir, G_T2, T2_ILo, T2_IHi,
+     $     T2_JLo, T2_JHi)
       If (.NOT. GA_Compare_Distr(g_T2, g_Z2) ) Call ErrQuit(
      $   'CCDen_Interm2: T2 and Z2 must have same dist.', 0)
 C
@@ -240,17 +241,17 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.3 1997-04-17 05:57:54 d3e129 Exp $
+C     $Id: ccden_interm2.F,v 2.4 1997-06-05 17:46:27 gg502 Exp $
 C SYNOPSIS
-      Subroutine CCSD_T2_MyIJ(NVir, g_T2, ILo, IHi, JLo, JHi)
+      Subroutine CCSD_T2_MyIJ(Node, NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE
-      Integer NVir
+      Integer Node, NVir
       Integer g_T2
       Integer ILo, IHi, JLo, JHi
 C
 C ARGUMENTS
 C DESCRIPTION
-C     Determines the range of i and j indices local to the calling
+C     Determines the range of i and j indices local to the specified
 C     process for a T2-like global array of size NVir*NOcc x NVir*NOcc,
 C     with the NVir dimension running fastest in both directions.
 C
@@ -259,7 +260,7 @@ C     complete block for this process, and the lower and right edges
 C     (IHi,JLo:JHi) and (ILo:IHi,JHi) reside partly (but not necessarily 
 C     completely) on this process.
 C
-C     Consequently, the ranges returned by this routine are immediately
+C     Consequently, the ranges returned by this routine are NOT
 C     suitable for use with ga_access!
 C
 C INCLUDE FILES
@@ -270,7 +271,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer IALo, IAHi, JBLo, JBHi
 C
-      Call GA_Distribution(G_T2, GA_NodeID(), IALo, IAHi, JBLo, JBHi)
+      Call GA_Distribution(G_T2, Node, IALo, IAHi, JBLo, JBHi)
 C
       If ( IALo .eq. 0 .AND. IAHi .eq. -1) then
          ILo = 0
