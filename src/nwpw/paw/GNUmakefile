@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.14 2003-02-11 23:43:14 bylaska Exp $
+# $Id: GNUmakefile,v 1.15 2003-02-13 20:23:47 marat Exp $
 #
-      SUBDIRS = paw_geometry  paw_ma paw_utils paw_basis paw_proj paw_matrix paw_ovlp \
+      SUBDIRS = paw_geometry paw_ma paw_utils paw_basis paw_proj paw_matrix paw_ovlp \
                 paw_comp_charge paw_special_functions paw_gaunt paw_kinetic paw_vloc \
-                paw_ion_potential paw_core \
+                paw_ion_potential paw_core paw_hartree \
 		paw_psi cpsd
 
           OBJ = task_paw.o
