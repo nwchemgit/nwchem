@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.7 2001-12-21 16:50:29 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.8 2001-12-27 20:54:54 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -81,7 +81,8 @@ c     $Id: cgsd_energy.F,v 1.7 2001-12-21 16:50:29 bylaska Exp $
 
          deltae_old = deltae
          if (minimizer.eq.1) then
-           call cgminimize(E,deltae,deltac)
+           bfgscount = bfgscount + 1
+           call cgminimize(E,deltae,deltac,bfgscount)
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
            call bfgsminimize(E,deltae,deltac,bfgscount)

@@ -1,4 +1,4 @@
-c     $Id: cgminimize.F,v 1.6 2001-12-25 22:54:09 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.7 2001-12-27 20:54:54 bylaska Exp $                       
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -8,10 +8,11 @@ c     $Id: cgminimize.F,v 1.6 2001-12-25 22:54:09 bylaska Exp $
 *  *                                                          *
 *  ************************************************************
   
-      subroutine cgminimize(E,deltae,deltac)
+      subroutine cgminimize(E,deltae,deltac,current_iteration)
       implicit none
       real*8     E(*)
       real*8     deltae,deltac
+      integer    current_iteration
 
 #include "mafdecls.fh"
 
@@ -23,6 +24,9 @@ c     $Id: cgminimize.F,v 1.6 2001-12-25 22:54:09 bylaska Exp $
 c      complex*16 H0(nfft3d,nemax)
 c      complex*16 G1(nfft3d,nemax)
       integer H0(2),G0(2),G1(2)
+
+      logical    precondition
+      common / cgsd_block2 / precondition
 
       real*8     sum0,sum1,sum3,scale,tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
@@ -87,7 +91,8 @@ c      complex*16 G1(nfft3d,nemax)
       external pspw_qmmm_Energy_vib
       external pspw_qmmm_Energy_cav
 
-
+      logical  control_precondition
+      external control_precondition
        
   
       call Pack_npack(1,npack1)
@@ -106,11 +111,17 @@ c      complex*16 G1(nfft3d,nemax)
       if (.not. value) call errquit('cgminimize:out of heap memory',0)
 
       Estart = Enew
-
-
+      if (current_iteration.eq.1) then
+         precondition = control_precondition()
+      end if
 
 *     ***** get the initial gradient and direction ****
-      call psi_1get_Tgradient(dcpl_mb(G1(1)))
+      if (precondition) then
+         call psi_1get_TMgradient(dcpl_mb(G1(1)))
+      else
+         call psi_1get_Tgradient(dcpl_mb(G1(1)))
+      end if
+
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(G1(1)),sum1)
@@ -137,7 +148,7 @@ c        Eold= psi_geodesic_energy(0.0d0)
 c        write(*,*) "Eold:", Eold,max_sigma
 
 *        ******* line search *********
-         if (tmin.gt.0.0d0) then
+         if (tmin.gt.deltat_min) then
             deltat = tmin
          else
             deltat = deltat_min
@@ -149,12 +160,12 @@ c        Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
          call psi_geodesic_final(tmin)
          deltac = rho_error()
-         write(*,*) "tmin:",tmin
 
 *        **** exit loop early ****
-         if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) 
-     >      go to 30
-     
+         if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
+            if (.not.precondition)  go to 30
+            precondition = .false.
+         end if
    
 
 *        **** transport the previous search directions ****
@@ -171,7 +182,11 @@ c        call rho_2to1()
 c        call dng_2to1()
 
 *        **** get the new gradient - also updates densities****
-         call psi_1get_Tgradient(dcpl_mb(G1(1)))
+         if (precondition) then
+           call psi_1get_TMgradient(dcpl_mb(G1(1)))
+         else
+           call psi_1get_Tgradient(dcpl_mb(G1(1)))
+         end if
 
          call Grsm_ggg_Sub(npack1,neall,
      >                       dcpl_mb(G1(1)),
@@ -192,7 +207,8 @@ c        write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
 c        write(*,*) "Enew:",Enew
 
 *        **** the new direction using Fletcher-Reeves ****
-         if (dabs(deltae).le.(1.0d-2).and.(tmin.gt.0.0d0)) then
+         if ( (dabs(deltae).le.(1.0d-2)).and.
+     >        (tmin.gt.deltat_min)) then
 
            if (sum0.gt.1.0d-15) then
 c              scale = sum3/sum0
@@ -227,7 +243,7 @@ c              scale = sum3/sum0
       call geodesic_start(dcpl_mb(H0(1)),max_sigma)
 
 *     ******* line search *********
-      if (tmin.gt.0.0d0) then
+      if (tmin.gt.deltat_min) then
          deltat = tmin
       else
          deltat = deltat_min
@@ -240,7 +256,6 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
-      write(*,*) "final tmin:",tmin
 
  30   call psi_2to1()
       call psi_1toelectron() 

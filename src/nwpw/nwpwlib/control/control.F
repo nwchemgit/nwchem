@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.12 2001-12-21 16:50:29 bylaska Exp $
+* $Id: control.F,v 1.13 2001-12-27 20:54:54 bylaska Exp $
 *
 
 *     ***********************************
@@ -1259,6 +1259,59 @@
       end if
 
       control_minimizer = minimizer
+      return
+      end
+
+*     *****************************
+*     *                	 		  *
+*     *    	control_lmbfgs_size   *
+*     *                 	 	  *
+*     *****************************
+      integer function control_lmbfgs_size()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer lmbfgs_size
+
+      if (.not.rtdb_get(rtdb,'nwpw:lmbfgs_size',mt_int,1,lmbfgs_size)) 
+     >  then
+         lmbfgs_size = 5
+      end if
+
+      control_lmbfgs_size = lmbfgs_size
+      return
+      end
+
+*     *****************************
+*     *                	 		  *
+*     *    	control_precondition  *
+*     *                 	 	  *
+*     *****************************
+      logical function control_precondition()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical precondition
+
+      if (.not.rtdb_get(rtdb,'nwpw:precondition',
+     >                  mt_int,1,precondition)) 
+     >  then
+         precondition = .false.
+      end if
+
+      control_precondition = precondition
       return
       end
 

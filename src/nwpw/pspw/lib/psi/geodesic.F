@@ -211,7 +211,7 @@ c         end do
 
          do i=1,n
             if (dabs(dbl_mb(S(1)+i-1+shift1)).gt.max_sigma) 
-     >        max_sigma = dbl_mb(S(1)+i-1+shift1)
+     >        max_sigma = dabs(dbl_mb(S(1)+i-1+shift1))
 
          end do
 

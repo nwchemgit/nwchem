@@ -221,6 +221,35 @@ c         end do
       return
       end
 
+*     ****************************
+*     *                		 *
+*     *    	Grsm_gmg_daxpy   	 *
+*     *                		 *
+*     ****************************
+*
+*     C = C + A*MM
+*     uses - Pack_c_SMul, Pack_cc_daxpy
+
+      subroutine Grsm_gmg_daxpy(nfft3d,n,A,MM,C)
+      implicit none
+      integer nfft3d,n
+      complex*16 A(nfft3d,n)
+      real*8     MM(n,n)
+      complex*16 C(nfft3d,n)
+
+*     **** local variables ****
+      integer j,k
+
+      do k=1,n
+         do j=1,n
+           call Pack_cc_daxpy(1,MM(j,k),A(1,j),C(1,k))
+         end do
+      end do
+
+      return
+      end
+
+
 
 *     ****************************
 *     *                		 *

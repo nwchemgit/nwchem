@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.3 2001-12-25 22:54:02 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.4 2001-12-27 20:54:54 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -19,9 +19,10 @@ c
 *     **** local variables ****
 
       real*8  deltat_min
-      parameter (deltat_min=1.0d-3)
+      parameter (deltat_min=1.0d-2)
        
       integer G0(2),S0(2)
+
 
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
@@ -91,14 +92,16 @@ c
 
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
+      integer  control_lmbfgs_size
+      external control_lmbfgs_size
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
 c     dte = dsqrt(control_fake_mass())/dt
-      dte = 1.0d0
+c     dte = 1.0d0
 
 
-      write(*,*) "start,tmin:",tmin,dte
+c     write(*,*) "start,tmin:",tmin,dte
        
   
       call Pack_npack(1,npack1)
@@ -116,19 +119,18 @@ c     dte = dsqrt(control_fake_mass())/dt
 
 
 *     ***** get the initial direction ****
-      call psi_1get_Tgradient(dcpl_mb(G0(1)))
-      call Grsm_gg_dScale(npack1,neall,dte,
-     >                    dcpl_mb(G0(1)),dcpl_mb(G0(1)))
 
       if (current_iteration.eq.1) then
+         call psi_1get_Tgradient(dcpl_mb(G0(1)))
 
 *        ***** use the initial gradient for the direction ****
+         call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
          call Grsm_gg_Copy(npack1,neall,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
-
-         call pspw_lmbfgs_init(4,dcpl_mb(G0(1)))
+         tmin  = 10*deltat_min
       else
+         call psi_1get_Tgradient(dcpl_mb(G0(1)))
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
       end if
 
@@ -140,35 +142,42 @@ c     dte = dsqrt(control_fake_mass())/dt
       it_in = control_it_in()
       tole  = control_tole()
       tolc  = control_tolc()
-      tmin  = deltat_min
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
+c        call Grsm_gg_trace(npack1,neall,
+c    >                   dcpl_mb(S0(1)),
+c    >                   dcpl_mb(S0(1)),
+c    >                   dte)
+c        call Grsm_gg_trace(npack1,neall,
+c    >                   dcpl_mb(G0(1)),
+c    >                   dcpl_mb(G0(1)),
+c    >                   dt)
          call geodesic_start(dcpl_mb(S0(1)),max_sigma)
+c        write(*,*) "<s|s>, <g|g>, sigma:",dte,dt,max_sigma
 
 *        ******* line search *********
-         if (tmin.gt.0.0d0) then
+         if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
             deltat = tmin
          else
             deltat = deltat_min
          end if
-         deltat = 1.0d0
          Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        tole,tmin,deltae)
          call psi_geodesic_final(tmin)
-      write(*,*) "tmin:",tmin,dte
+c     write(*,*) "tmin:",tmin,tmin/max_sigma,max_sigma
+c     write(*,*) 
          deltac = rho_error()
 
 *        **** exit loop early ****
-         if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) 
-     >      go to 30
+         if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
+            go to 30
+         end if
      
 *        **** get the new gradient - also updates densities****
          call psi_2get_Tgradient(dcpl_mb(G0(1)))
-         call Grsm_gg_dScale(npack1,neall,dte,
-     >                       dcpl_mb(G0(1)),dcpl_mb(G0(1)))
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
 
@@ -183,12 +192,11 @@ c        call dng_2to1()
       call geodesic_start(dcpl_mb(S0(1)),max_sigma)
 
 *     ******* line search *********
-      if (tmin.gt.0.0d0) then
+      if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
          deltat = tmin
       else
          deltat = deltat_min
       end if
-      deltat = 1.0d0
 c      Eold = psi_geodesic_energy(0.0d0)
       Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
@@ -196,7 +204,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
-      write(*,*) "END,tmin:",tmin,dte
+c     write(*,*) "END,tmin:",tmin,tmin/max_sigma,max_sigma
 
 *     **** free memory ****
  30   value = MA_pop_stack(G0(2))

@@ -734,6 +734,95 @@ c     >                       sum)
       return
       end
 
+
+
+*     ***********************************
+*     *									*
+*     *	    electron_get_TMgradient 	*
+*     *									*
+*     ***********************************
+
+      subroutine electron_get_TMgradient(psi_k,THpsi_k)
+      implicit none
+      complex*16 psi_k(*)
+      complex*16 THpsi_k(*)
+
+#include "mafdecls.fh"
+
+*     ***** electron common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer Hpsi_k(2)
+      integer psi_r(2)
+      integer vl(2)
+      integer vl_lr(2)
+      integer vc(2)
+      integer xcp(2)
+      integer xce(2)
+      common / electron_block / Hpsi_k,psi_r,
+     >                          vl,vl_lr,vc,xcp,xce,
+     >                          ne,ispin,nfft3d,npack1,npack0
+
+*     ***** local variables ****
+      logical value
+      integer ms,n,n1(2),shift,mhml(2)
+     
+
+      n1(1) = 1
+      n1(2) = ne(1)+1
+
+      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'mhml',mhml(2),mhml(1))
+      if (.not. value)
+     >   call errquit('electron_get_Tgradient: push stack',0)
+
+
+
+*     **** generate M*H|psi> *****
+      call Grsm_gg_Copy(npack1,(ne(1)+ne(2)),
+     >                  dcpl_mb(Hpsi_k(1)),
+     >                  THpsi_k)
+      call ke_precondition(npack1,(ne(1)+ne(2)),
+     >                  psi_k,
+     >                  THpsi_k)
+
+
+*     **** generate mhml = <psi|M*H|psi> ****
+      do ms=1,ispin
+         shift = (ms-1)*ne(1)*ne(1)
+         n     = ne(ms)
+         call Grsm_ggm_dot(npack1,n,
+     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+     >                     dbl_mb(mhml(1)+shift))
+      end do
+
+*     **** mhml = -mhml ****
+      call dscal(2*ne(1)*ne(1),(-1.0d0),dbl_mb(mhml(1)),1)
+
+
+*     **** generate TMG = M*H|psi> - |psi>*mhml ****
+      do ms=1,ispin
+            shift = (ms-1)*ne(1)*ne(1)
+            n     = ne(ms)
+            call Grsm_gmg_daxpy(npack1,n,
+     >                        psi_k(1+(ms-1)*ne(1)*npack1),
+     >                        dbl_mb(mhml(1)+shift),
+     >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
+      end do
+
+      call Grsm_gg_dScale(npack1,(ne(1)+ne(2)),
+     >                    (-1.0d0),
+     >                    THpsi_k,
+     >                    THpsi_k)
+
+
+      value = MA_pop_stack(mhml(2))
+      if (.not. value)
+     > call errquit('electron_get_Tradient: popping stack',0)
+
+      return
+      end
+
+
 *     ***************************
 *     *				*
 *     *	    electron_gen_hml 	*

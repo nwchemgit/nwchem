@@ -750,6 +750,91 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
+*     ***********************************
+*     *					*
+*     *		psi_1get_TMgradient	*
+*     *					*
+*     ***********************************
+      subroutine psi_1get_TMgradient(THpsi)
+      implicit none
+      real*8 THpsi(*)
+
+#include "mafdecls.fh"
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+ 
+
+      call electron_run(dcpl_mb(psi1(1)),
+     >                   dbl_mb(rho1(1)),
+     >                  dcpl_mb(dng1(1)),
+     >                   dbl_mb(rho1_all(1)))
+
+      call electron_get_TMgradient(dcpl_mb(psi1(1)),
+     >                            THpsi)
+      
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *		psi_2get_TMgradient	*
+*     *					*
+*     ***********************************
+      subroutine psi_2get_TMgradient(THpsi)
+      implicit none
+      complex*16 THpsi(*)
+
+#include "mafdecls.fh"
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+
+      call electron_run(dcpl_mb(psi2(1)),
+     >                   dbl_mb(rho2(1)),
+     >                  dcpl_mb(dng2(1)),
+     >                   dbl_mb(rho2_all(1)))
+
+      call electron_get_TMgradient(dcpl_mb(psi2(1)),
+     >                             THpsi)
+      
+      return
+      end
+
 
 *     ***********************************
 *     *					*
