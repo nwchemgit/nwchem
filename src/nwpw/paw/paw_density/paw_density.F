@@ -1,6 +1,10 @@
-!$Id: paw_density.F,v 1.4 2003-02-17 05:58:08 marat Exp $
+!$Id: paw_density.F,v 1.5 2003-02-18 01:58:33 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.4  2003/02/17 05:58:08  marat
+!added lmax as an argument to init_paw_density
+!MV
+!
 !Revision 1.3  2003/02/17 05:53:40  marat
 !fixed bug in deallocation
 !MV
@@ -49,7 +53,6 @@
       do in=1,nion
         ia = ion_katm(in)
         int_mb(i_paw_rho(1) + in - 1) = paw_rho_size
-        write(*,*) "paw_density:",paw_rho_size
         paw_rho_size = paw_rho_size + paw_basis_i_cut(ia)*
      >                                (paw_rho_lmax+1)**2
       end do
@@ -192,28 +195,28 @@
  
       end do!in
 
-      write(*,*) "final in paw density"
-      do in=1,nion
-        ia = ion_katm(in)
-        ng = paw_basis_ngrid(ia)
-        ic = paw_basis_i_cut(ia)
-        i_rho0 = int_mb(i_paw_rho(1) + in - 1)
-        nlmi = 0
-        do l=0,paw_rho_lmax
-        do m=-l,l
-          write(*,*) "na,l,m",in,l,m
-          do ig=1,ic
-
-          i_rho   = i_rho0-1+ig+
-     >            (nlmi+l+m)*ic
-                     
-            write(*,*) ig,dcpl_mb(paw_rho_u_ps(1)+i_rho),i_rho
-          end do
-
-          end do !m
-          nlmi = nlmi + 2*l+1
-          end do !l
-      end do!in
+c      write(*,*) "final in paw density"
+c      do in=1,nion
+c        ia = ion_katm(in)
+c        ng = paw_basis_ngrid(ia)
+c        ic = paw_basis_i_cut(ia)
+c        i_rho0 = int_mb(i_paw_rho(1) + in - 1)
+c        nlmi = 0
+c        do l=0,paw_rho_lmax
+c        do m=-l,l
+c          write(*,*) "na,l,m",in,l,m
+c          do ig=1,ic
+c
+c          i_rho   = i_rho0-1+ig+
+c     >            (nlmi+l+m)*ic
+c                     
+c            write(*,*) ig,dcpl_mb(paw_rho_u_ps(1)+i_rho),i_rho
+c          end do
+c
+c          end do !m
+c          nlmi = nlmi + 2*l+1
+c          end do !l
+c      end do!in
 
       end
 
