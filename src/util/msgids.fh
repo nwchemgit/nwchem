@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.21 1995-12-07 23:04:02 vg038 Exp $
+C$Id: msgids.fh,v 1.22 1995-12-13 03:07:01 og845 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -50,6 +50,7 @@ C
       Integer Msg_Trace_Diag
       Integer Msg_grad_nquad
       Integer Msg_grad_finished
+      integer Msg_mxovl_1,Msg_mxovl_2
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -175,4 +176,7 @@ C
 C
       Parameter (Msg_grad_nquad = MSG_Ftn_Base - 88)     ! GRADIENTS: grad_store
       Parameter (Msg_grad_finished = MSG_Ftn_Base - 89)  ! GRADIENTS: grad_finished
+c
+      Parameter (Msg_mxovl_1 = MSG_Ftn_Base - 90)     ! DFT: max_ovl
+      Parameter (Msg_mxovl_2 = MSG_Ftn_Base - 91)  ! DFT: max_ovl
 
