@@ -168,15 +168,15 @@ c
       natomsj=0
       do 211 k=1,lgroup(ipmf(i,3))
       natomsj=natomsj+1
-      itemp(natomsj)=igroup(ipmf(i,3),k)
-      if(iequi(ismol(itemp(natomsj)),3).ne.0)
+      jtemp(natomsj)=igroup(ipmf(i,3),k)
+      if(iequi(ismol(jtemp(natomsj)),3).ne.0)
      + call errquit('pmf combine not on first equivalent molecule',0)
   211 continue
       do 212 im=1,nsm
       do 213 k=1,lgroup(ipmf(i,3))
       if(iequi(im,3).eq.ismol(igroup(ipmf(i,3),k))) then
       natomsj=natomsj+1
-      itemp(natomsj)=igroup(ipmf(i,3),k)+
+      jtemp(natomsj)=igroup(ipmf(i,3),k)+
      + iequi(im,4)-iequi(ismol(igroup(ipmf(i,3),k)),4)
       endif
   213 continue
