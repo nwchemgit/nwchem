@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.41 2003-07-14 18:13:49 edo Exp $
+* $Id: geom_hnd.F,v 1.42 2003-08-08 22:15:00 edo Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -3579,6 +3579,10 @@ c                    READ (PRSVAR(3,JVAR),*) ZLST(2,IAT)
          WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(ZVAL(I,IAT),I=1,3)
          CALL HND_HNDERR(3,ERRMSG)
       ENDIF
+c
+c     this avoid weird rounding problems
+c
+      if(abs(zval(2,iat)-pideg).lt.1d-8) zval(2,iat)=pideg
       IF(ZVAL(2,IAT).LT.ZERO.OR.ZVAL(2,IAT).GT.PIDEG) THEN
          WRITE(IW,9986) ZVAL(2,IAT),IAT
          WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(ZVAL(I,IAT),I=1,3)
