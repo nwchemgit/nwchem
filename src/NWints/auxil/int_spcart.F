@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.29 2000-02-04 20:21:20 mg201 Exp $
+c $Id: int_spcart.F,v 1.30 2000-04-19 16:47:17 edo Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -3096,7 +3096,7 @@ c
 * scr(sphrk,cartj,carti) --> buf(sphrk,sphrj,carti)
         dimk = nbfsk*ngenk
         dimi = nbfxi*ngeni
-        call spcart_a_s_b(buf,scr,dimk,dimi,typej,ngenj,FF,printit)
+        call spcart_a_s_b(scr,buf,dimk,dimi,typej,ngenj,FF,printit)
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       elseif (trani) then
