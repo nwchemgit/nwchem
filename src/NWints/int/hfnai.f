@@ -1,5 +1,5 @@
       Subroutine hfnai(E,R0,IJK,Vab,Nints,NPP,La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai.f,v 1.7 2000-05-20 04:43:20 edo Exp $
+c $Id: hfnai.f,v 1.8 2000-05-22 17:29:28 mg201 Exp $
       
       Implicit none
       
@@ -247,7 +247,7 @@ c Contract over A shell
 
       k = 1
       do i = 1,NA
-        do j = 1,NB
+        do j = 1,i
           k = k+1
           Vcanon(k) = Vsquare(j,i)
         end do
