@@ -81,44 +81,43 @@ c
       character*80 key
       character*20 test, space
       integer mlen
-      integer maxlist
-      parameter (maxlist=1024)
-      integer list(maxlist)
-      integer n, i
-      logical status
+      integer n
 c
       mlen = inp_strlen(module)
-      space = 'core'
+      space = 'frozen core'
+c
+c     Remove previous entries so empty directive forces freeze nothing.
+c
+      key = ' '
+      write(key,'(a,'':'',a)') module(1:mlen),'frozen core'
+      call rtdb_clean(rtdb,key)
+      key = ' '
+      write(key,'(a,'':'',a,'':'')') module(1:mlen),'frozen virtual'
+      call rtdb_clean(rtdb,key)
 c
  10   if (.not. inp_a(test)) return
 c
       if (inp_compare(.false.,test,'core')) then
-         space = 'core'
+         space = 'frozen core'
       else if (inp_compare(.false.,test,'virtual')) then
-         space = 'virtual'
+         space = 'frozen virtual'
       else if (inp_compare(.false.,test,'atomic')) then
          key = ' '
          write(key,'(a,'':'',a,'':'',a)') module(1:mlen),
      $        space(1:inp_strlen(space)), 'freeze by atoms'
-         write(6,*) ' THE KEY IS ', key
          if (.not. rtdb_put(rtdb, key, mt_log, 1, .true.))
      $        call errquit('freeze_input: failed writing rtbd',0)
-         space = 'core'         ! restore default
+         space = 'frozen core'         ! restore default
       else 
          call inp_prev_field()
-         status = inp_ilist(maxlist, list, n)
-         if (n .eq. 0) then
-            call errquit('freeze_input: failed reading list',0)
-         else if (n.le.maxlist) then
-            key = ' '
-            write(key, '(a,'':'',a)') module(1:mlen),
+	 if (.not. inp_i(n)) call errquit
+     $      ('freeze_input: looking for nfzc/v',0)
+         key = ' '
+         write(key, '(a,'':'',a)') module(1:mlen),
      $           space(1:inp_strlen(space))
-            write(6,*) ' KEY ', key, (list(i),i=1,n)
-            if (.not. rtdb_put(rtdb, key, mt_int, n, list))
-     $           call errquit('freeze_input: failed writing rtdb',0)
-         else
-            call errquit('freeze_input: too many frozen',n)
-         endif
+         if (.not. rtdb_put(rtdb, key, mt_int, 1, n))
+     $        call errquit('freeze_input: failed writing rtdb',0)
+         space = 'frozen core'         ! restore default
       endif
 c      
       goto 10
