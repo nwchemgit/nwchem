@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.75 2000-09-13 19:22:26 d3j191 Exp $
+c $Id: cf_main.F,v 1.76 2000-09-13 19:31:26 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2121,7 +2121,6 @@ c
       if(me.eq.0) then
       read(lfn,2000) string
  2000 format(a80)
-      write(*,2000) string
       endif
       call util_char_ga_brdcst(mrg_d47,string,0)
 c
