@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.17 2000-03-22 03:04:02 edo Exp $
+* $Id: task_energy.F,v 1.18 2000-04-17 22:32:48 zzhang Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -36,7 +36,7 @@ c
       logical status
       double precision energy, cpu, wall, dipole(3)
       character*80 key, prefix
-      character*32 theory
+      character*80 theory
 c
       call ecce_print_module_entry('task energy')
 c
@@ -63,7 +63,9 @@ c
          status = scf(rtdb)
       else if (theory .eq. 'dft') then
          status = nwdft(rtdb)
-c     cleanup any grid parameters
+         call grid_cleanup(rtdb)
+      else if (theory .eq. 'sodft')then 
+         status = nwdft(rtdb) 
          call grid_cleanup(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
