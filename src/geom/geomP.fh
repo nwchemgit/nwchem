@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.29 1999-07-14 00:28:57 d3e129 Exp $
+* $Id: geomP.fh,v 1.30 1999-10-26 21:23:16 mg201 Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -27,6 +27,7 @@ c     ncenter(1:max_geom) = no. of centers in this geometry
 c     coords(1:3,1:max_cent,1:max_geom) = cartesian coords of this geometry
 c     charge(1:max_cent,1:max_geom) = charges associated with centers
 c     geom_mass(1:max_cent,1:max_geom) = mass associated with centers
+c     geom_invnucexp(1:max_cent,1:max_geom) = inverse of nuclear exponent
 c     dipole ... not yet
 c     quadrupole ... not yet
 c     pseudopotential ... not yet
@@ -112,7 +113,7 @@ c
       parameter (max_sym_ops   = 192)
       parameter (max_geom      = nw_max_geoms)
       parameter (max_geom_rtdb = 100)
-      parameter (nelements     = 103)
+      parameter (nelements     = 109)
       parameter (max_cent      = nw_max_atom)
       parameter (max_nzvar     = 3*max_cent)
       parameter (max_izmat     = 4*max_nzvar)
@@ -133,7 +134,7 @@ c
       double precision coords, charge, efield, latvec, ndipole, erep,
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
-     $     recip_lat_angles, sym_ops, angstrom_to_au,
+     $     recip_lat_angles, sym_ops, angstrom_to_au, geom_invnucexp,
      $     geom_mass,bmatrix, velocities, zmt_varsign, zmt_cvr_scaling,
      $     zmt_ijbond_val, zmt_ijkang_val, zmt_ijklto_val,
      $     zmt_ijklop_val, zmt_ijklnb_val, zmt_izfrz_val
@@ -144,6 +145,7 @@ c
      $     velocities(3,max_cent,max_geom),
      $     charge(max_cent,max_geom),
      $     geom_mass(max_cent,max_geom),
+     $     geom_invnucexp(max_cent,max_geom),
      $     efield(3, max_geom),
      $     latvec(3,3, max_geom), ! Obsolete ?
      $     erep(max_geom),
