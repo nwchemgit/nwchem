@@ -9,14 +9,14 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.150 2001-08-30 02:05:24 edo Exp $
+# $Id: make_nwchem_config,v 1.151 2001-08-31 22:44:15 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
+	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 \
         property gapss nwpw fft rimp2_grad nbo python analyz nwmd cafe space \
         drdy vscf uccsdt qmmm qmd mcstep
@@ -28,7 +28,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
-                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
+                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lpspw -lnwpwlib -lcafe -lspace -lanalyze\
                     -lpfft -ldplot -loimp2 -lnbo -lpython -ldrdy -lvscf -lqmmm -lqmd -lmcstep
 
@@ -63,7 +63,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md argos alldev pnnl pnnldev
 
-EXP_all = $(filter-out uccsdt python develop gapss oimp2 ideaz scfaux plane_wave rimp2_grad mcstep vscf,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out uccsdt python develop gapss oimp2 scfaux plane_wave rimp2_grad mcstep vscf,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -185,7 +185,6 @@ MOD_LIBS := $(patsubst rimp2_grad,-lrimp2g,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst oimp2,-loimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst stepper,-lstepper,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst symmetry,-lnwcutil,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst ideaz,-lideaz,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cphf,-lcphf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
@@ -233,7 +232,6 @@ STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst stepper,stpr_walk stpr_walk_task stpr_walk_reset stepper_input stpr_gen_hess_at stpr_gen_hess_atc,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst symmetry,,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst ideaz,mdmain ideaz_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst cphf,cphf tddft_scale cphf_poliz mjdtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst scfaux,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vib,vib_vib freq_vib_input,$(STUBROUTINES) )
