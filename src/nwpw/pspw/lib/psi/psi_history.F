@@ -1,5 +1,5 @@
 *
-* $Id: psi_history.F,v 1.2 2002-01-01 01:19:49 bylaska Exp $
+* $Id: psi_history.F,v 1.3 2002-01-01 01:20:39 bylaska Exp $
 *
 
 *     *******************************
@@ -35,6 +35,7 @@
         size = psi_history_size()
         call psi_history_generate_coef(coef)
 
+        call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
         write(*,*)
         write(*,*) "Number of psi histories used:",size
