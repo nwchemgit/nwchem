@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.124 2003-10-21 22:46:25 edo Exp $
+c $Id: basis.F,v 1.125 2004-04-29 03:33:55 edo Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3821,7 +3821,6 @@ c
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"
       character*(*) msg
@@ -3838,7 +3837,8 @@ c
       do inode = 0,(nproc-1)
         inode_use = inode
         call ga_sync()
-        call ga_brdcst(1234,inode_use,mitob(1),0)
+        call ga_brdcst(1234,inode_use,
+     &    ma_sizeof(mt_int, 1, mt_byte),0)
         call ga_sync()
         if (inode_use.eq.me) then
           write(luout,*)' msg: ',msg,me
