@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
-     &                      nactive, s34, rdens_atom, cetobfr)
+     &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.24 2000-07-25 21:26:38 edo Exp $
+* $Id: dftg_getxc.F,v 1.25 2000-07-26 01:48:20 edo Exp $
 *
       implicit none
 c      
@@ -10,7 +10,7 @@ c
       integer rtdb
       integer natom
       integer iga_dens(2)
-      double precision force(3*natom), s34(natom)
+      double precision force(3*natom)
       integer nactive
       logical oactive(natom)
 c!!! BGJ test !!!
@@ -90,6 +90,7 @@ c
          call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom, cetobfr)
       endif
+      call ga_sync
 
 c!!! BGJ test !!!
 c

@@ -1,5 +1,5 @@
-      Subroutine dftg_cdfit(rtdb, geom, AO_bas_han, CD_bas_han,
-     &                      nbf_ao, nbf_cd, nat, tol2e, scr, 
+      Subroutine dftg_cdfit(AO_bas_han, CD_bas_han,
+     &                      nbf_cd, nat, tol2e, scr, 
      &                      lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                      iga_dens, force, CD_coef,
      &                      oskel)
@@ -9,10 +9,10 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.18 2000-02-09 22:27:45 edo Exp $
+* $Id: dftg_cdfit.F,v 1.19 2000-07-26 01:48:20 edo Exp $
 *
-      integer rtdb, geom, AO_bas_han, CD_bas_han
-      integer nbf_ao, nbf_cd, nat, max_sh_bf
+      integer  AO_bas_han, CD_bas_han
+      integer nbf_cd, nat, max_sh_bf
       integer iga_dens, lbuf, lscr
       double precision scr(lscr), buf(lbuf)
       double precision vec(*),
@@ -22,8 +22,8 @@ c
       double precision tol2e
       logical oskel
 c
-      call dftg_cdfit_gen(rtdb, geom, AO_bas_han, CD_bas_han,
-     &                    nbf_ao, nbf_cd, nat, tol2e, scr, 
+      call dftg_cdfit_gen( AO_bas_han, CD_bas_han,
+     &                    nbf_cd, nat, tol2e, scr, 
      &                    lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                    iga_dens, force, 0d0, 0, 0d0,
      &                    CD_coef, oskel, 1)
@@ -36,15 +36,14 @@ c     matrices and hessian as well as fitted J forces
 c
 c     BGJ - 3/99
 c
-      Subroutine dftg_cdfit_gen(rtdb, geom, AO_bas_han, CD_bas_han,
-     &                          nbf_ao, nbf_cd, nat, tol2e, scr, 
+      Subroutine dftg_cdfit_gen( AO_bas_han, CD_bas_han,
+     &                           nbf_cd, nat, tol2e, scr, 
      &                          lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                          iga_dens, force, hess,
      &                          g_dj, db, CD_coef, oskel_in, calc_type)
       implicit none
 c
 #include "mafdecls.fh"
-#include "rtdb.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -52,8 +51,8 @@ c
 #include "util.fh"
 #include "sym.fh"
 c
-      integer rtdb, geom, AO_bas_han, CD_bas_han
-      integer nbf_ao, nbf_cd, nat, max_sh_bf
+      integer  AO_bas_han, CD_bas_han
+      integer  nbf_cd, nat, max_sh_bf
       integer iga_dens, lbuf, lscr, calc_type
 c
 c     scratch arrays for calls to integrals package

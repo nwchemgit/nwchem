@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.12 2000-06-09 19:11:55 edo Exp $
+* $Id: dft_gradients.F,v 1.13 2000-07-26 01:48:20 edo Exp $
 *
       implicit none
 c      
@@ -398,8 +398,8 @@ c
      $        call errquit('dftg_force: could not alloc svec',0)
          ippp=k_wdens
 c     
-         call  dftg_cdfit(rtdb, geom, ao_bas_han, cd_bas_han,
-     $        nbf_ao, nbf_cd, nat, tol2e, dbl_mb(k_scr), 
+         call  dftg_cdfit(ao_bas_han, cd_bas_han,
+     $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
      $        iga_dens, dbl_mb(k_frc_2el), 
@@ -435,7 +435,7 @@ c$$$      write(LuOut,*) (int_mb(icntoce+i),i=0,nshells_ao-1)
 c$$$      write(LuOut,*) (int_mb(icntobfr+i),i=0,2*nshells_ao-1)
 c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
       call dftg_getxc(rtdb, nat, iga_dens, dbl_mb(k_frc_xc), 
-     $     log_mb(k_act), nactive, dbl_mb(i_s34),
+     $     log_mb(k_act), nactive, 
      $     dbl_mb(irdens_atom),  int_mb(icetobfr))
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
 c     
