@@ -62,7 +62,7 @@ peigs_FC = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
 # this is needed because -DCRAY-T3E cannot be a macro definition it should be -DCRAY_T3E
 #
 peigs_TARGET_definition = $(peigs_TARGET)
-peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU)
+peigs_CC = $(CC) $(COPTIONS) -I$(peigs_HDIR) -D$(peigs_TARGET_definition) -D$(peigs_CPU) -DPSCALE
 peigs_LINK = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
 peigs_COMM = TCGMSG
 peigs_CPP  = $(CPP) -I$(peigs_HDIR) -D$(peigs_CPU) -D$(peigs_COMM) -D$(peigs_TARGET_definition) -P
@@ -332,11 +332,11 @@ ifeq ($(peigs_TARGET),SP1)
 ## IBM SP-1, sp-2 or cluster of rs6000 wt tcgmsg ( using xlf instead of mpxlf )
 peigs_COMM =TCGMSG
 peigs_CPU = RS6000
-peigs_CODEOBJ = DBLE
+peigs_CODEOBJ=DBLE
 peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
--I$(HDIR) -qfloat=rsqrt:fltint:hssngl -qinline
+-I$(HDIR) -qfloat=rsqrt:fltint:hssngl 
 
-peigs_FC  += -I$(peigs_HDIR) -DIBM -O3 -qstrict \
+peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl -qinline -NQ40000 -NT80000
 
@@ -344,15 +344,19 @@ peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HD
 
 ifeq ($(NWCHEM_TARGET_CPU),P2SC)
 peigs_FC += -qarch=pwr2 -qtune=pwr2
+
 # -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
 # -qcache=type=i:level=1:size=32:line=128 \
 
 
 peigs_CC += -qarch=pwr2 -qtune=pwr2
 endif
+
 ifeq ($(NWCHEM_TARGET_CPU),604)
+
 peigs_FC += -qarch=604 -qtune=604
 peigs_CC += -qarch=ppc -qtune=604
+
 endif
 
 
@@ -365,11 +369,11 @@ peigs_COMM =TCGMSG
 peigs_CPU = RS6000
 peigs_CODEOBJ = DBLE
 peigs_CC  += -DSTD_INT -DSTD_DBL -DIBM  -DRS6000 -O3 -qstrict \
--I$(HDIR) -qfloat=rsqrt:fltint:hssngl -qinline
+-I$(HDIR) -qfloat=rsqrt:fltint:hssngl  -qinline
 
-peigs_FC  += -I$(peigs_HDIR) -DIBM -O3 -qstrict \
+peigs_FC  += -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_INT,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) \
--qfloat=rsqrt:fltint:hssngl -qinline -NQ40000 -NT80000
+-qfloat=rsqrt:fltint:hssngl  -NQ40000 -NT80000 -qinline
 
 peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
 
