@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.76 2000-09-13 19:31:26 d3j191 Exp $
+c $Id: cf_main.F,v 1.77 2000-09-13 19:32:32 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2129,7 +2129,6 @@ c
       read(string(6:28),'(i3,2i10)') ifix,ifr,ito
       target=string(29:80)
       len=index(target,' ')-1
-      write(*,'(i3,2i10)') ifix,ifr,ito
 c
 c     solvent
 c
