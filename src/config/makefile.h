@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.172 1996-09-26 00:02:31 d3g681 Exp $
+# $Id: makefile.h,v 1.173 1996-09-26 00:25:22 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -262,9 +262,9 @@ ifeq ($(TARGET),SOLARIS)
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
 
-#ifdef PURECOV
+ifdef PURECOV
 #
-# Sun runningS olaris 2.4 or later
+# Sun running Solaris 2.4 or later
 #
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
@@ -296,7 +296,10 @@ ifeq ($(TARGET),SOLARIS)
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
-#endif
+#end of purecov
+endif
+
+#end of solaris
 endif
 
 
