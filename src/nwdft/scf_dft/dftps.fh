@@ -1,0 +1,10 @@
+C$Id: dftps.fh,v 1.1 2003-06-11 02:24:31 edo Exp $
+c
+c     pstat handles for the DFT code
+c
+      integer ps_dft,ps_xc,ps_diag,ps_dgemm,ps_fitcd,ps_vcoul
+
+      logical odftps            ! True if gathering stats
+      common /cdftps/ odftps,
+     $     ps_dft,ps_xc,ps_diag,ps_dgemm,ps_fitcd,ps_vcoul
+c
