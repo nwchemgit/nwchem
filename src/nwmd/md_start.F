@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.73 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: md_start.F,v 1.74 2000-07-14 23:20:20 d3j191 Exp $
 c
       implicit none
 c
@@ -123,7 +123,6 @@ c
       else
       if(.not.ma_push_get(mt_dbl,2*nsa,'esa',l_esa,i_esa))
      + call errquit('Failed to allocate memory for esa',0)
-      print*,'2*nsa=',2*nsa
       endif
       if(ipolt.gt.0) then
       if(.not.ma_push_get(mt_dbl,6*mwa*mwm,'pw',l_pw,i_pw))
