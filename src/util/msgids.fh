@@ -72,6 +72,7 @@ c
       integer mrg_b12
       integer mrg_b13
       integer mrg_b15
+      integer mrg_b16
       integer mrg_i01
       integer mrg_i05
       integer mrg_d01
@@ -273,6 +274,7 @@ c
       parameter (mrg_b12=msg_ftn_base-112) ! arg_memor1
       parameter (mrg_b13=msg_ftn_base-113) ! arg_memor1
       parameter (mrg_b15=msg_ftn_base-115) ! arg_pscale
+      parameter (mrg_b16=msg_ftn_base-116) ! arg_dymcti
       parameter (mrg_i01=msg_ftn_base-121) ! arg_wrtinp
       parameter (mrg_i05=msg_ftn_base-125) ! arg_param2
       parameter (mrg_d01=msg_ftn_base-131) ! arg_memor1
