@@ -1,9 +1,9 @@
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                   wght_GA, rho_n, rdens_atom,
-     &                   cetobfr, natoms)
+     &                   cetobfr, natoms, g_oep)   ! Qin
 c
-C$Id: xc_getv.F,v 1.50 2002-05-15 16:43:03 edo Exp $
+C$Id: xc_getv.F,v 1.51 2003-06-12 22:43:00 edo Exp $
 c
       implicit none
 c      
@@ -20,9 +20,11 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "cdft.fh"
+#include "oep.fh"
 #include "dftpara.fh"
 #include "util.fh"
 #include "sym.fh"
+#include "stdio.fh"
 c
       integer cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
@@ -31,6 +33,10 @@ c
       logical havehfxc
 c     
       integer  ga_create_atom_blocked
+      integer  noc(2)                         ! Qin
+      integer g_oep(nbf_xc)       ! Qin
+      double precision nel              ! Qin
+      double precision fixvc(nbf_ao, nbf_ao)       ! Qin
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
@@ -62,7 +68,8 @@ c
       integer me,nTrows,nTcols
       integer lTmat,iTmat,g_truevxc(2)
       double precision zero,one,onem
-      logical oprint_intermediate_xc, oprint_time, grid_on_file
+      logical oprint_intermediate_xc, oprint_time, grid_on_file,
+     ,     oprint_oep
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e
 c******************************************************************************
@@ -72,18 +79,43 @@ c
       oprint_intermediate_xc = util_print('intermediate XC matrix',
      $     print_debug)
       oprint_time = util_print('dft timings', print_high)
+      oprint_oep = util_print('oep', print_high)
       Exc(1)=0.d0
       Exc(2)=0.d0
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
+c
+cQin
+c
+      if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
+     &   call errquit('xc_getv: failed to get loep', 0)
+      IF (LOEP) THEN
+c
+      if (.not.rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep))
+     &   call errquit('xc_getv: failed to get ioep', 0)
+      if (ioep .eq. 2) xcfit = .false.
+cc
+      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
+     &   call errquit('xc_getvc: rtdb_get of noc failed', 0)
+      nel = 2.0d0*noc(1)
+      if (ipol .eq. 2) nel = noc(1) + noc(2)
+c
+      END IF
+c
+      if(oprint_oep) then
+      write(luout,*) 'in xc_getv ioep = ', ioep
+      write(luout,*) 'havehfxc = ', havehfxc, '  xfac(1) = ', xfac(1)
+      write(luout,*) 'xcfit = ', xcfit
+      endif
+c end Qin
 c      nproc=ga_nnodes()
 c
       if (oprint_intermediate_xc)then
-         write(*,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
+         write(luout,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
      &               rtdb, Exc, nExc, iVxc_opt, g_xcinv
-         write(*,*)' g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA: ',
+       write(luout,*)'g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA:',
      &               g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA
-         write(*,*)' Fock XC matrix entering xc_getv: '
+       write(luout,*)' Fock XC matrix entering xc_getv: '
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
          call ga_print(g_dens(1))
@@ -106,11 +138,34 @@ c
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
               call ga_zero(g_vxc(2))
               g_dens(2)=g_dens(1)
-                 call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &                tol2e, oskel, g_dens, g_vxc, .false.)
+c
+cQin
+              if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
+                 if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
+     $               nbf_ao*nbf_ao, fixvc)) call errquit(
+     $                'fixvc : rtdb_get failed', 911)
+                 call ga_put(g_vxc(2),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+              else
+c
+cc !! The following call is in original code.
+c
+              call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &             tol2e, oskel, g_dens, g_vxc, .false.)
+              endif
+c end Qin
+c
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
               call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
+cQin
+              if (ioep .eq. 3 .and. .not.xcfit) then
+                 call ga_dscal(g_vxc(2), (nel-1d0)/nel)
+                 call ga_get(g_vxc(2),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+                 if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
+     $                nbf_ao*nbf_ao,fixvc)) call errquit(
+     $                'fixvc : rtdb_put failed', 911)
+              end if
+c end Qin
               if (.not. ga_destroy(g_vxc(2))) call errquit
      $             ('xc_getv: ga corrupt?',0)
             else
@@ -147,8 +202,8 @@ c
                g_d(2)  = g_dens(1)
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
-                  call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &                 tol2e, oskel, g_d(1), g_jk(1), .false.)
+               call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
+     &              tol2e, oskel, g_d(1), g_jk(1), .false.)
                ecoul = 0.5d0*( ! Alpha coulomb energy
      $              ga_ddot(g_dens(1),g_jk(1)) + 
      $              ga_ddot(g_dens(1),g_jk(3)))
@@ -159,6 +214,27 @@ c
      $              ga_ddot(g_dens(1),g_jk(2)) +
      $              ga_ddot(g_dens(2),g_jk(4)))
                call ga_dadd(1.0d0, g_jk(1), 1.0d0, g_jk(3), g_jk(1))
+c
+c Qin / for oep
+c
+               if (ioep.eq.3 .and. .not.xcfit) then
+                  call ga_dscal(g_jk(1), (nel-1d0)/nel)
+                  call ga_get(g_jk(1),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+                  if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
+     $                 nbf_ao*nbf_ao,fixvc)) call errquit(
+     $                 'fixvc : rtdb_put failed', 912)
+c                  call ga_print(g_jk(1))
+               end if
+               if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
+                  if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
+     $               nbf_ao*nbf_ao, fixvc)) call errquit(
+     $                'fixvc : rtdb_get failed', 912)
+                  call ga_put(g_jk(1),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
+c                  call ga_print(g_jk(1))
+               end if
+c
+c Qin /end
+c
                call ga_copy(g_jk(1), g_jk(3))
                call ga_dadd(1.0d0, g_jk(1), -xfac(1), g_jk(2),
      $              g_jk(1))
@@ -179,7 +255,7 @@ c
          grid_on_file = .false.
       endif
 c
-      if (xc_gotxc()) then
+      if (xc_gotxc() .or. xcfit) then  ! Qin add xcfit for pure OEP or ZMP
          if(xcfit) then       
             nTrows = nbf_xc
             nTcols = ipol
@@ -201,8 +277,12 @@ c
                g_truevxc(1)=g_vxc(1)
                g_truevxc(2)=g_vxc(2)
             endif
-            call grid_quadv0(rtdb, g_dens, g_truevxc, 
+c
+            if(xc_gotxc())            !! Qin, to skip the call when only HF EX used
+     $      call grid_quadv0(rtdb, g_dens, g_truevxc, 
      ,           nexc,rho_n,  Exc, dbl_mb(itmat))
+c
+c
             if(havehfxc.or.(.not.cdfit)) then
                call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
                if (.not. ga_destroy(g_truevxc(1))) call errquit(
@@ -225,8 +305,8 @@ c
      &                    Dbl_MB(iTmat+nbf_xc))
                endif
             endif
-            call xc_fitv(Dbl_MB(iTmat), nTrows, nTcols,
-     &           g_vxc, g_xcinv, IOLGC)
+            call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
+     &           g_vxc, g_xcinv,g_oep, IOLGC)   ! Qin
             if (.not.ma_pop_stack(lTmat))
      &           call errquit('xc_getv: cannot pop stack',0)
 c     
@@ -238,7 +318,7 @@ c
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
       endif
-c     
+c
 c     
       return
       end

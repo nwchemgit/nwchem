@@ -1,6 +1,7 @@
-      Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
+      Subroutine xc_fitv(rtdb,Tmat,nTrows,nTcols,g_vxc,g_xcinv,
+     $                    g_oep,IOLGC)                          ! Qin
 c
-C$Id: xc_fitv.F,v 1.16 2002-08-16 00:39:54 edo Exp $
+C$Id: xc_fitv.F,v 1.17 2003-06-12 22:43:00 edo Exp $
 c
       implicit none
 c
@@ -8,13 +9,16 @@ c
       double precision Tmat(nTrows, nTcols)
       integer  g_vxc(4), g_xcinv
       Logical IOLGC
+      integer rtdb                       ! Qin
 c
 #include "bas.fh"
 #include "mafdecls.fh"
+#include "rtdb.fh"                    
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "cdft.fh"
+#include "oep.fh"
 #include "sym.fh"
 c
 #if defined(DFT_TIMER)
@@ -60,6 +64,11 @@ c
 c           nTcols = ipol + nExc
 c
 c
+c Qin
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+      integer  g_oep(nbf_xc)             ! Qin
+      integer ngoep       ! Qin
       integer me, nproc, MXnshbf_ao, MXnshbf_XC
       integer ndbl
       integer lxc_coef, ixc_coef, lscr, iscr, lmiss
@@ -93,6 +102,11 @@ c
       if ( .not. LResult) then
         call errquit('Exit from xc_fitv',1)
       endif 
+c
+c Qin
+      if (.not.rtdb_get(rtdb,'dft:oep',mt_int,1,ioep))
+     $    call errquit('xc_fitv : failed to get ioep',911)
+c end/ Qin
 c
 c     Compute the XC fitting coefficients.
 c
@@ -132,6 +146,8 @@ c
 c
       next=nxtval(nproc)+1
 c
+      if(ioep.eq.1) goto 111  ! Qin
+c
       do k=1,nbf_xc
          if (k.eq.next) then
             next=nxtval(nproc)+1
@@ -145,6 +161,8 @@ c            call ga_get(g_xcinv, 1, nbf_xc, k, k, Dbl_MB(iscr), 1)
             enddo
          endif
       enddo
+c
+ 111   continue   ! Qin
 c
       if (.not.ma_pop_stack(lscr))
      &   call errquit('xc_fitv: cannot pop stack',0)
@@ -165,6 +183,23 @@ c
       call tcllct(t_sub(1,2),ts2,ts1)
       call dft_second(ts1)
 #endif
+c
+cQin
+c      if (ioep.eq.3) then
+c         if (.not. rtdb_put(rtdb, 'dft:xccoef',mt_dbl, nbf_xc*ipol,
+c     $     DBL_MB(ixc_coef)))
+c     $      call errquit( 'xccoef : rtdb_put failed', 911)
+c      endif
+      if (ioep.eq.1 .or. ioep.eq.3) then
+         if (.not. rtdb_get(rtdb, 'dft:xccoef',mt_dbl, nbf_xc*ipol,
+     $     DBL_MB(ixc_coef)))
+     $      call errquit( 'xccoef : rtdb_get failed', 911)
+      endif
+c         write(*,*) 'xc coef'
+c         do ii = 1, nbf_xc*ipol
+c            write(*,*) DBL_MB(ixc_coef-1+ii)
+c         enddo
+c end Qin
 c
 c     Compute the fitted Vxc.
 c
@@ -233,9 +268,16 @@ c                       expansion coefficients.
 c
                         do ii = 0, nTcols-1
                            nxc=ixc_coef+ii*nbf_xc+iixc
+                           ngoep=1+ii*nbf_xc+iixc    ! Qin
                            npint=i3OI
                            istart=ivvxc+ii*Nao2
                            do ia = 0, nshbfa-1
+cc Qin
+                            if(ioep.eq.3.and.ii.eq.0) 
+     &                        call sca_lab_mat(AO_bas_han,ishb,ishc,
+     &                          nshbfb, nshbfc, g_oep(ngoep+ia), 
+     &                          DBL_MB(npint), dbl_mb(ivec2),'acc') 
+cc Qin /end
                               fact=DBL_MB(nxc+ia)
                               if(abs(fact).gt.toll)
      /                         call daxpy(Nao2, fact, DBL_MB(npint), 1, 
@@ -255,10 +297,17 @@ c                    Multiply the matrix of 3-ctr OIs by the XC
 c                    expansion coefficients.
 c
                      do ii = 0, nTcols-1
+                        ngoep=1+ii*nbf_xc+iixc    ! Qin
                         nxc=ixc_coef+ii*nbf_xc+iixc
                         npint=i3OI
                         istart=ivvxc+ii*Nao2
                         do ia = 0, nshbfa-1
+cc Qin
+                          if(ioep.eq.3.and.ii.eq.0) 
+     &                      call sca_lab_mat(AO_bas_han,ishb,ishc,
+     &                        nshbfb, nshbfc, g_oep(ngoep+ia), 
+     &                        DBL_MB(npint), dbl_mb(ivec2),'acc') 
+cc Qin /end
                            fact=DBL_MB(nxc+ia)
                            if(abs(fact).gt.toll)
      .                          call daxpy(Nao2, fact, DBL_MB(npint), 1, 
