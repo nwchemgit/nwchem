@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.17 2002-02-19 02:06:40 edo Exp $
+* $Id: xc_chkgrad.F,v 1.18 2002-04-05 21:37:45 sohirata Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -13,7 +13,7 @@ c
       tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) + xfac(7) +
      + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
      + xfac(14)+xfac(15)+xfac(16)+xfac(17)+
-     +     cfac(2) + cfac(4) + cfac(5) +cfac(12)+cfac(13)+
+     +     cfac(2) + cfac(4) + cfac(5) +cfac(13)+
      +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
      + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23)
       if (abs(tot).gt.eps)then
@@ -76,10 +76,7 @@ c     hcth functionals
      .     cfac(20).ne.0d0.or.
      .     cfac(21).ne.0d0.or.
 c     cperdew91
-     .     cfac(5).ne.0d0.or.
-c     cpbe
-     .     cfac(12).ne.0d0
-     .     )
+     .     cfac(5).ne.0d0)
 
       return
       end
