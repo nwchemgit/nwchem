@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.32 2005-02-15 00:53:07 marat Exp $
+c $Id: qmmm_main.F,v 1.33 2005-02-16 08:21:25 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,6 +27,7 @@ c
 c
       character*32 tag
       character*32 interface
+      character*32 optimization
       character*255 theory
       logical qmmm_init
       character*32 pname
@@ -71,6 +72,9 @@ c     -----------------------------------
         energy = 0
         return
       end if
+
+      if (.not. rtdb_cget(inrtdb, 'qmmm:optimization', 1, optimization))
+     $     call errquit(pname//'failed to get optimization flag',0,0)
      
 c 
 c     get other options from rtdb
@@ -144,7 +148,7 @@ c     --------------------------------------------------
       if (.not. rtdb_cget(inrtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
       write(*,*) "debug 0 ",nqm-nlink+1,ntot
-      if(interface.eq."mm") 
+      if(optimization.eq."mm") 
      > call qmmm_set_actlist(nqm-nlink+1,ntot,inrtdb)
       if(ignore_qm) then
         energy = 0.0d0
