@@ -18,8 +18,8 @@ c     Assumes integrals and AO schwarz already initialized
 c
       integer nbf, nmo, nsh
       integer nshblock, shlist(2,nw_max_shells)
-      integer k_mos, k_tmp1, k_tmp2, k_ints
-      integer l_mos, l_tmp1, l_tmp2, l_ints
+      integer k_mos, k_tmp1, k_tmp2, k_tmp3, k_ints
+      integer l_mos, l_tmp1, l_tmp2, l_tmp3, l_ints
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
       integer ish, jsh, kshlo, kshhi, lshlo, lshhi
       integer idim, jdim, kdim, ldim, maxshblock, intdim
@@ -63,7 +63,10 @@ c
       if (.not. ma_push_get(mt_dbl, nmo*nmo, 'tmp2',
      $     l_tmp2, k_tmp2)) call errquit
      $     ('moints_screen: allocating tmp?',nmo*nmo)
-      call dfill(nmo*nmo, 0d0, dbl_mb(k_tmp2), 1)
+      if (.not. ma_push_get(mt_dbl, nmo*nmo, 'tmp2',
+     $     l_tmp3, k_tmp3)) call errquit
+     $     ('moints_screen: allocating tmp?',nmo*nmo)
+      call dfill(nmo*nmo, 0d0, dbl_mb(k_tmp3), 1)
 c
 c     Block the shells for the inner loops
 c
@@ -121,7 +124,7 @@ c     a time.
 c
                      call moints_scr2(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
      $                    dbl_mb(k_ints), dbl_mb(k_mos), nbf, nmo,
-     $                    dbl_mb(k_tmp1), dbl_mb(k_tmp2))
+     $                    dbl_mb(k_tmp1),dbl_mb(k_tmp2),dbl_mb(k_tmp3))
                   end do
                end do
                next = nxtval(nproc)
@@ -133,10 +136,10 @@ c
       next = nxtval(-nproc)
       call ga_sync()
 c
-      call ga_dgop(1, dbl_mb(k_tmp2), nmo*nmo, '+')
-      call moints_scr3(nmo, dbl_mb(k_tmp2), occlo, occhi)
+      call ga_dgop(1, dbl_mb(k_tmp3), nmo*nmo, '+')
+      call moints_scr3(nmo, dbl_mb(k_tmp3), occlo, occhi)
       if (ga_nodeid() .eq. 0) then
-         call ga_put(g_mosc, 1, nmo, 1, nmo, dbl_mb(k_tmp2), nmo)
+         call ga_put(g_mosc, 1, nmo, 1, nmo, dbl_mb(k_tmp3), nmo)
       endif
       call ga_sync()
       if (.not. ma_chop_stack(l_mos)) call errquit
@@ -242,12 +245,12 @@ c
 c
       end
       subroutine moints_scr2(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,
-     $     ints, mos, nbf, nmo, tmp1, tmp2)
+     $     ints, mos, nbf, nmo, tmp1, tmp2, tmp3)
       implicit none
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi, nbf, nmo
       double precision ints(llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
       double precision mos(nbf,nmo)
-      double precision tmp1(llo:lhi,nmo), tmp2(nmo,nmo)
+      double precision tmp1(llo:lhi,nmo), tmp2(nmo,nmo), tmp3(nmo,nmo)
       integer kdim, ldim, i, j, p, q
 c
       kdim = khi-klo+1
@@ -274,14 +277,14 @@ c$$$            call output(tmp1,1,ldim,1,nmo,ldim,nmo,1)
 c$$$            write(6,*) ' tmp2 '
 c$$$            call output(tmp2,1,nmo,1,nmo,nmo,nmo,1)
             call dgemm('t', 'n', nmo, nmo, ldim, 1.0d0,
-     $           mos(llo,1), nbf, tmp1(llo,1), ldim,  1.0d0, 
+     $           mos(llo,1), nbf, tmp1(llo,1), ldim,  0.0d0, 
      $           tmp2(1,1), nmo)
 c
 c     Transform ij also
 c
             do q = 1, nmo
                do p = 1, nmo
-                  tmp2(p,q) = tmp2(p,q)*
+                  tmp3(p,q) = tmp3(p,q) + tmp2(p,q)*
      $                 (mos(j,p)*mos(i,q)+mos(i,p)*mos(j,q))
                end do
             end do
