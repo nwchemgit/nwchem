@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.19 2003-08-01 22:59:51 sohirata Exp $
+#$Id: GNUmakefile,v 1.20 2003-08-01 23:01:13 sohirata Exp $
 
-OBJ = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
+OBJ_OPTIMIZE = tce_energy.o tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o \
       get_block.o put_block.o add_block.o tce_tidy.o sf_test.o \
       tce_mo2e.o tce_mo1e_offset.o tce_mo2e_offset.o \
