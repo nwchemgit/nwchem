@@ -54,8 +54,8 @@ is also described in detail.
 
 The structure of an input file reflects the internal structure of
 NWChem.  At the beginning of a calculation, NWChem needs to determine
-how much memory to use, the name of the database, whether it is a new,
-restarted, or continuing job, where to put scratch/permanent files,
+how much memory to use, the name of the database, whether it is a new or
+restarted job, where to put scratch/permanent files,
 etc..  It is not necessary to put this information at the top of the
 input file, however.  NWChem will read through the {\em entire} input
 file looking for the start-up directives.  In this first pass, all other
@@ -64,7 +64,6 @@ directives are ignored.
 The start-up directives are
 \begin{itemize}
 \item \verb+START+
-\item \verb+CONTINUE+
 \item \verb+RESTART+
 \item \verb+SCRATCH_DIR+
 \item \verb+PERMANENT_DIR+

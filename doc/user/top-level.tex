@@ -15,11 +15,11 @@ directives are ignored.
 The following sections describe each of the top-level directives in
 detail, noting all keywords, options, required input, and defaults.
 
-\section{{\tt START}, {\tt CONTINUE} and {\tt RESTART} --- Start-up mode}
+\section{{\tt START} and {\tt RESTART} --- Start-up mode}
 \label{sec:start}
 
-A {\tt START},  {\tt CONTINUE}, or {\tt RESTART} directive is
-optional.  If one of these three directives is not specified
+A {\tt START} or {\tt RESTART} directive is
+optional.  If one of these two directives is not specified
 explicitly, the code will infer one, based upon the name of the
 input file and the availability of the database.  When allowing NWChem
 to infer the start-up directive, the user must be quite certain that
@@ -28,7 +28,7 @@ is usually more prudent to specify the directive explicitly, using the
 following format:
 
 \begin{verbatim}
-(RESTART || CONTINUE || START)   \
+(RESTART || START)   \
             [<string file_prefix default $input_file_prefix$>] \
             [rtdb <string rtdb_file_name default $file_prefix$.db>]
 \end{verbatim}
@@ -62,8 +62,8 @@ specifying a unique name for the database, using the keyword {\tt
 \verb+$<file_prefix>$.db+ in the directory for permanent files.
 
 If a calculation is to start from a previous calculation and go on
-using the existing database, the \verb+RESTART+ directive or the
-\verb+CONTINUE+ directive must be used.  In such a case, the previous
+using the existing database, the \verb+RESTART+ directive 
+must be used.  In such a case, the previous
 database must already exist.  The name specified for {\tt <file\_prefix>} 
 usually should
 not be changed when restarting a calculation.  If it is changed, NWChem 
@@ -71,7 +71,7 @@ will not
 be able to find needed files when going on with the
 calculation.
 
-There are two ways to restart a previous calculation.  In the most common
+In the most common
 situation, the previous calculation was completed (with or without an error
 condition), and it is desired to perform a new task or restart the
 previous one, perhaps with some input changes.  In these instances,
@@ -79,22 +79,11 @@ the \verb+RESTART+ directive should be used.  This reuses the previous
 database and associated files, and reads the input file for new input
 and task information.
 
-Less commonly, if the last task of the previous job terminated in such
-a way that  it can be continued with no additional
-input (e.g., from an automatic
-checkpoint in the molecular dynamics program), then the 
-\verb+CONTINUE+ directive should be used.  This reuses
-the previous database and associated files, continues the previous
-task, and then reads the input file for additional input and task
-information.
-
-The \verb+CONTINUE+ directive tells NWChem to finish the previous
-task, and then perform any new tasks that are specified by the input.
 The \verb+RESTART+ directive looks immediately for new input and task
 information, deleting information about previous incomplete tasks.
 
 To summarize the default options for this start-up directive, if the 
-input file does {\em not} contain a \verb+START+ or a \verb+CONTINUE+ or a
+input file does {\em not} contain a \verb+START+ or a
 \verb+RESTART+ directive, then
 \begin{itemize}
   \item the variable {\tt <file\_prefix>} is assigned the name of the 
@@ -118,7 +107,7 @@ by typing the UNIX command line,
 \end{verbatim}
 
 If the NWChem input file \verb+water.nw+ does not contain
-a \verb+START+, \verb+RESTART+, or \verb+CONTINUE+ directive, the code
+a \verb+START+  or \verb+RESTART+ directive, the code
 sets the variable {\tt <file\_prefix>} to {\tt water}.  Files created
 by the job will have this prefix, and the database will be named
 {\tt water.db}.  If the database \verb+water.db+ does {\em not} exist already,
