@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.69 1997-11-07 23:18:16 d3e129 Exp $
+C$Id: geom.F,v 1.70 1997-11-14 21:58:38 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -896,8 +896,10 @@ c
          return
       end if
 c
+      if (ncenter(geom).ne.ncent) then
+         ncenter_unique(geom) = ncent ! Assume symmetry is unchanged !!!!!
+      endif
       ncenter(geom) = ncent
-      ncenter_unique(geom) = ncent
       do i = 1, ncent
          tags(i,geom) = t(i)
          charge(i,geom) = q(i)
