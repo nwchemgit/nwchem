@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.51 2001-10-05 20:39:43 edo Exp $
+c     $Id: dft_main0d.F,v 1.52 2001-11-01 01:26:49 edo Exp $
 c     
       implicit none
 c
@@ -34,7 +34,7 @@ c
       double precision Enuc, Etold
       integer iter
       integer iVxc_opt, lmiss, ivcoul_opt
-      integer isvals, lsvals,  idum, i
+      integer isvals, lsvals,  idum
       double precision toll_s
       logical dft_scf,l1ecache
       external dft_scf

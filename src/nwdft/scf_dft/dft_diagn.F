@@ -1,10 +1,10 @@
       subroutine dft_diagn(levelshifting,
-     ,     nmo,ncanorg, g_xij,
+     ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.5 2001-10-09 02:04:34 edo Exp $
+c     $Id: dft_diagn.F,v 1.6 2001-11-01 01:26:49 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -52,6 +52,9 @@ c
 c     get xij through canonical orthog
 c
       if(ncanorg.eq.0) then
+         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
+     &        nbf, 0, g_xij)) 
+     .        call errquit(' ddftdiagn: ga_create failed ',0)
          call dft_canorg(nmo, svals, g_svecs, g_xij)
       else
          g_xij=g_movecs
