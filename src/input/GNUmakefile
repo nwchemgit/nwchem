@@ -1,11 +1,12 @@
-#$Id: GNUmakefile,v 1.14 1995-03-23 00:58:28 gg502 Exp $
+#$Id: GNUmakefile,v 1.15 1995-07-27 17:44:56 rg240 Exp $
  LIBRARY = libutil.a
 #LIBRARY = libinput.a
 
      OBJ = input_parse.o input_mem_size.o memory_input.o input_set.o \
            input_start_opt.o input_title.o task_input.o scf_input.o \
            get_input_filename.o vectors_input.o stepper_input.o input_echo.o \
-	   dft_input.o md_input.o gradients_input.o memory_defaults.o
+	   dft_input.o md_input.o gradients_input.o memory_defaults.o \
+	   ccsd_input.o
 
 include ../config/makefile.h
 include ../config/makelib.h

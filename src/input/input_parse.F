@@ -1,5 +1,5 @@
       subroutine input_parse(rtdb)
-C     $Id: input_parse.F,v 1.17 1995-03-31 01:41:14 d3g681 Exp $
+C     $Id: input_parse.F,v 1.18 1995-07-27 17:44:54 rg240 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -13,14 +13,14 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       logical status, echo
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 23)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
      $     'memory',   'rtdb',     'geometry', 'basis',    'scf',
      $     'task',     'time',     'set'     , 'enter',    'stop',
      $     'title',    'start',    'restart' , 'stepper',  'echo',
-     $     'charge',   'dft',      'md',       'gradient',
+     $     'charge',   'dft',      'md',       'gradient', 'ccsd',
      $     'print',    'noprint',  'unset'/
       data echo /.false./
 c     
@@ -146,16 +146,21 @@ c
  1900    call gradients_input(rtdb)
          goto 10
 c     
+c     CCSD
+c     
+ 2000    call ccsd_input(rtdb)
+         goto 10
+c     
 c     Print and noprint
 c     
- 2000    continue
  2100    continue
+ 2200    continue
          call util_print_input(rtdb,' ')
          goto 10
 c
 c     unset <name>
 c
- 2200    call input_unset(rtdb)
+ 2300    call input_unset(rtdb)
          goto 10
 c     
       endif
