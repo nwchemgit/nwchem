@@ -1,7 +1,7 @@
       logical function pre_frgsiz(lfnfrg,filfrg,lfnout,
      + natm,nbnd,nzmat)
 c
-c $Id: pre_frgsiz.F,v 1.6 2000-09-15 22:21:53 d3j191 Exp $
+c $Id: pre_frgsiz.F,v 1.7 2000-09-16 02:38:42 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
@@ -24,6 +24,7 @@ c
 c
       natm=0
       nbnd=0
+      nzmat=0
 c
       length=index(filfrg,' ')-1
 c
@@ -65,7 +66,6 @@ c
       goto 3
       endif
 c
-      nzmat=0
       read(lfnfrg,1000,end=9,err=9999) card
       if(card(1:8).eq.'z-matrix') then
     5 continue
@@ -73,6 +73,7 @@ c
  1003 format(i5)
       if(i.gt.0) then
       nzmat=nzmat+1
+      print*,nzmat
       goto 5
       endif
       endif

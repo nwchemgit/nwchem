@@ -1,7 +1,7 @@
       logical function pre_mksgm(lfnout,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.11 2000-09-15 22:21:54 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.12 2000-09-16 02:38:42 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -101,9 +101,9 @@ c
 c
       if(mzmat.gt.0) then
       if(.not.ma_push_get(mt_int,4*mzmat,'izmat',l_izmat,i_izmat))
-     + call errquit('mksgm: Memory allocation failed for izmat',9999)
+     + call errquit('mksgm: Memory allocation failed for izmat',mzmat)
       if(.not.ma_push_get(mt_dbl,3*mzmat,'zmat',l_zmat,i_zmat))
-     + call errquit('mksgm: Memory allocation failed for zmat',9999)
+     + call errquit('mksgm: Memory allocation failed for zmat',mzmat)
       endif
 c
 c     read atom list and bond list from fragment file
