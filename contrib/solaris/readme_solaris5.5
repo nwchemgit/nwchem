@@ -1,0 +1,35 @@
+NWChem compiles and links successfully for solaris 5.4 here at PNL.
+
+Running NWChem:
+
+There are a couple of caveats for execution on Solaris.  If you do not
+have a fortran compiler you will need to have access to the runtime
+libraries from FORTRAN.  This path must be in your LD_LIBRARY_PATH for
+execution.  
+
+Furthermore, since some functionality is distinguesed as the standard
+system V environment and the BSD compatable environment you must also
+include /usr/ucblib for the BSD functionality used in NWChem and
+associated tools.  Again, this path must be in your LD_LIBRARY_PATH.  
+
+On PNL's solaris configured suns add
+
+setenv LD_LIBRARY_PATH /msrc/apps/SUNWspro/lib:/usr/ucblib:$LD_LIBRARY_PATH
+
+to your .cshrc or equivalent to .profile etc.  
+
+Building NWChem: 
+
+To build NWChem you must have gcc, gnu make, and standard SUN f77 3.0
+or later for Solaris.  You will most likely want to add the following 
+to your path at PNL  (Offsite users must ask their system
+administrator for proper information):
+
+set path=(/msrc/apps/SUNWspro/bin /afs/msrc/sun4m_54/apps/SUNWspro/bin $path)
+setenv LD_LIBRARY_PATH /msrc/apps/SUNWspro/lib:/usr/ucblib:$LD_LIBRARY_PATH
+setenv LM_LICENSE_FILE /msrc/share/etc/license.dat
+
+This will allow the compilation, link, and execution of NWChem. 
+
+
+Any problems should be directed to nwchem-support@emsl.pnl.gov
