@@ -104,7 +104,7 @@ c get real coulomb energy
 c
       call ga_zero(g_j_real)
       call rhf_fock_2e(geom,basis,g_dens_dumm,g_j_real,
-     &       1.0d-09,.true.,.false.)
+     &       1.0d-09,.true.,.false., .false.)
 c$$$      write(6,*)' real coulomb matrix'
 c$$$      call ga_print(g_j_real)
       Call GA_Sync
