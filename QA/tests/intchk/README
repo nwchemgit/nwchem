@@ -1,4 +1,11 @@
 This output has been verified via external chemistry codes.  The
 energies and gradients are correct.
 
+This test case does the energy and gradient of H2CO in a dz+++ like
+basis set.  The goal of this test case is that all valid integral and
+integral derivative paths are checked.  As integral pathways open up
+new specific test cases should be added to the input/output.  The
+input file preamble describes the options covered by this input deck.
+
+
 Ricky A. Kendall, HPCCG, TM&S, EMSL, PNNL, June 1997

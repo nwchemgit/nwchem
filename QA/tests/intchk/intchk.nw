@@ -1,3 +1,11 @@
+#
+# June 1997; RAK
+# This test case does the energy and gradient of H2CO in a dz+++ like
+# basis set.  The goal of this test case is that all valid integral and
+# integral derivative paths are checked.  As integral pathways open up
+# new specific test cases should be added to the input/output.  
+#
+#
 #  What works in NWCHEM
 #                         energy                      derivatives 
 #                 1e     2e(McDav)   2e(texas)  1e   2e(McDav)  2e(texas)
