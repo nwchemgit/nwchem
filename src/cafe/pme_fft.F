@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.12 2000-02-20 15:59:33 d3j191 Exp $
+c $Id: pme_fft.F,v 1.13 2000-04-21 17:39:48 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -51,7 +51,9 @@ c
       ip(22)=nd1
       ip(23)=nd2
 c
+      call timer_start(5)
       if(lpnode) call pdcft3(x1,x2,nd1,nd2,nd3,isign,scale,icntxt,ip)
+      call timer_stop(5)
 c
       return
       endif
