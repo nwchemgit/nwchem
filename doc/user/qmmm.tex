@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.4 1997-06-13 20:00:02 d3j191 Exp $
+% $Id: qmmm.tex,v 1.5 1997-06-24 06:41:35 d3e129 Exp $
 
 \label{sec:qmmm}
 
@@ -19,17 +19,19 @@ appropriate results\footnote{c.f., Singh and Kollman, J. Comp. Chem.
 
 The QM/MM module in NWChem is driven by the molecular dynamics module
 (nwARGOS).  This module currently works for any QM method that has
-analytic gradients.  The input for this requires the definition of
-chemical system via the same interface that is used by the nwARGOS
-module (c.f. Section \ref{sec:nwARGOS}).  The extensions to this
-interface include the definition of ``Quantum'' atoms and ``Link''
-where appropriate.  The QM information must be present in the
-traditional NWChem input deck except for the geometry\footnote{Any
-  geometry information in the traditional form will be ignored}.  The
-geometrical information will be constructed automatically by nwARGOS.
-For dynamics and free energy simulations the input is again identical
-to that for nwARGOS with limitations on the kinds of simulations that
-can be done.
+analytic gradients\footnote{The QM/MM method will work with numerical
+  gradients available in NWChem, but it is expected that the
+  performance will not allow any substantive simulations}.  The input
+for this requires the definition of chemical system via the same
+interface that is used by the nwARGOS module (c.f. Section
+\ref{sec:nwARGOS}).  The extensions to this interface include the
+definition of ``Quantum'' atoms and ``Link'' where appropriate.  The
+QM information must be present in the traditional NWChem input deck
+except for the geometry\footnote{Any geometry information in the
+  traditional form will be ignored}.  The geometrical information will
+be constructed automatically by nwARGOS.  For dynamics and free energy
+simulations the input is again identical to that for nwARGOS with
+limitations on the kinds of simulations that can be done.
 
 The QM/MM module is invoked with the task directive where the
 ``theory'' is QMMM.  The recognized operations on the QM/MM theory
@@ -39,22 +41,44 @@ directive are energy, optimize, and dynamics.
   TASK QMMM (energy || optimize || dynamics)
 \end{verbatim}
 
-The compound input directive to set the scope of the QM/MM simulation
-is: 
+Tasks \verb+gradient+, \verb+saddle+, \verb+frequencies+ and
+\verb+thermodynamics+ are currently not available in the QM/MM mode.  
+
+
+The QM/MM input consists of the standard NWChem input block:
 \begin{verbatim}
   QMMM
     ...
   END
 \end{verbatim}
 
-and \verb+QMMM+ includes the additional sub-directives that the user
-may specify for the particular simulation.  These options are:
+The \verb+QMMM+ has the following the additional sub-directive that the user
+may specify for the particular simulation.  These options currently are:
 
-\section{QM method}
+\section{EATOMS}
+There is one compound input directive that must exist for the QM/MM
+simulation to proceed.  This sets the relative zero of energy for the
+QM component of the system.  It is not incorrect to leave this value as
+zero but the energetics of the QM system will likely over shadow the
+MM component of the system.  Properties based on energy fluctuations
+of the system will be overly sensitive to the energy of the QM
+component of the system.  The zero of energy for the MM system is by
+definition of most parameterized force fields the separated atom
+energy.  The zero of energy for QM systems by definition of most QM
+methods is the vacuum.  The {\it a priori} determination of the
+separated atom energy for a particular QM method is not well defined
+and thus leads to a number of assumptions or guess work depending upon
+the particular QM method being utilized.  Therefor, the determination
+of the QM separated atom energy (``eatoms'') is left to the user.  The
+input takes the form:
+
 \begin{verbatim}
-  QMETH <string (SCF || DFT || MP2 || MCSCF) default SCF>
+  EATOMS <real eatoms>
 \end{verbatim}
 
+There is no default for this and the input {\bf must} be present for a
+QM/MM simulation.  
 
-
+All other parameters that control the QM/MM simulation are set via the
+input to nwARGOS (see chapter \ref{sec:nwARGOS}).
 
