@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.9 2003-08-05 00:37:53 sohirata Exp $
+c $Id: sf_test.F,v 1.10 2003-08-05 21:55:45 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -65,22 +65,24 @@ c
 c
 c     Performance
 c
-c     if (nodezero) write(LuOut,9020)
-c     do i = 1,4
-c       size = sizes(i)
-c       cpu  = -util_cpusec()
-c       wall = -util_wallsec()
-c       call tce_filename('filetest',filename)
-c       call createfile(filename,d_test,size)
-c       call reconcilefile(d_test,size)
-c       call deletefile(d_test)
-c       cpu  = cpu  + util_cpusec()
-c       wall = wall + util_wallsec()
-c       if (nodezero) then
-c         write(LuOut,9030) cpu, wall, size
-c         call util_flush(LuOut)
-c       endif
-c     enddo
+      if (util_print('performance',print_debug)) then
+        if (nodezero) write(LuOut,9020)
+        do i = 1,4
+          size = sizes(i)
+          cpu  = -util_cpusec()
+          wall = -util_wallsec()
+          call tce_filename('filetest',filename)
+          call createfile(filename,d_test,size)
+          call reconcilefile(d_test,size)
+          call deletefile(d_test)
+          cpu  = cpu  + util_cpusec()
+          wall = wall + util_wallsec()
+          if (nodezero) then
+            write(LuOut,9030) cpu, wall, size
+            call util_flush(LuOut)
+          endif
+        enddo
+      endif
  9000 format(/,1x,
      1 'Global files accessible by all nodes assumed')
  9100 format(/,1x,
