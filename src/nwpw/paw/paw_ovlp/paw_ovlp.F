@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.39 2003-02-25 20:01:53 marat Exp $
+* $Id: paw_ovlp.F,v 1.40 2003-02-26 02:32:03 bylaska Exp $
 *
 
 !**************************************************
@@ -146,6 +146,7 @@ c           !-- set sign coeff as (-1)**m --
       value = value.and.MA_free_heap(paw_ovlp_w_u(2))
       value = value.and.MA_free_heap(paw_ovlp_w_d(2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
+
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
       end
@@ -598,4 +599,22 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
       return
       end
+
+**************************************************
+!
+!	Name: paw_ovlp_coeff_ptr
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_coeff_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_ovlp_data.fh"
+
+      ptr = coeff(1)
+      return
+      end 
 
