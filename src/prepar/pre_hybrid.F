@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm)
 c
-c $Id: pre_hybrid.F,v 1.2 1999-12-16 23:55:45 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.3 1999-12-17 05:07:39 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -16,7 +16,7 @@ c
       real*8 xatm(3,matm)
       integer latm(5,matm)
 c
-      integer i,j,k,nn,nl(10),ia,ib,ic,id,ie,ig
+      integer i,j,k,l,m,nn,nl(10),ia,ib,ic,id,ie,ig
       real*8 dist,angle1,angle2,angle3,angle4,angle5,angle6
 c
       do 1 i=1,natm
@@ -35,7 +35,9 @@ c
       endif
     2 continue
       latm(3,i)=0
-      if(nn.eq.2) then
+      if(nn.eq.1) then
+      if(latm(2,i).eq.7) latm(3,i)=4
+      elseif(nn.eq.2) then
       angle1=angl(xatm(1,nl(1)),xatm(1,i),xatm(1,nl(2)))
       ia=0
       if(angle1.ge.1.48d0.and.angle1.lt.1.66d0) ia=6
@@ -108,10 +110,52 @@ c
       if(latm(2,i).eq.6) latm(3,i)=4
       endif
       endif
-      write(88,'(8i5)') i,latm(2,i),nn,latm(3,i),latm(4,i),latm(5,i)
     1 continue
+c
+c     sanity checks
+c     -------------
+c
+      do 3 i=1,natm
+      if(latm(2,i).gt.0) then
+      nn=0
+      do 4 j=1,natm
+      if(latm(2,j).gt.0.and.i.ne.j) then
+      dist=sqrt((xatm(1,j)-xatm(1,i))*(xatm(1,j)-xatm(1,i))+
+     + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
+     + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
+      if(dist.gt.0.05d0.and.
+     + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i))) then
+      nn=nn+1
+      nl(nn)=j
+      endif
+      endif
+    4 continue
+      endif
+c
+c     c attached to peptide c should be methyl group
+c
+      if(latm(2,i).eq.6.and.nn.eq.3) then
+      l=0
+      m=0
+      do 5 k=1,3
+      if(latm(2,nl(k)).eq.8.and.latm(3,nl(k)).eq.1) l=l+1
+      if(latm(2,nl(k)).eq.7.and.latm(3,nl(k)).eq.3) l=l+1
+      if(latm(2,nl(k)).eq.6.and.latm(3,nl(k)).eq.0) then
+      l=l+1
+      m=k
+      endif
+    5 continue
+      if(l.eq.3.and.m.ne.0) latm(3,nl(m))=4
+      endif
+    3 continue
 c
       pre_hybrid=.true.
       return
       end
+
+
+
+
+
+
 
