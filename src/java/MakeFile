@@ -1,5 +1,5 @@
 #
-# $Id: MakeFile,v 1.1 2000-07-27 16:15:55 bjohnson Exp $
+# $Id: MakeFile,v 1.2 2000-08-02 01:27:07 bjohnson Exp $
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
@@ -14,7 +14,7 @@ OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \
         nwchem_Prepare.class \
 	IntegerField.class DoubleField.class Graph.class
 
-CLASS_PATH = .:$(PTPLOT):$(SWING)
+CLASS_PATH = .:$(PTPLOT)
 
 .SUFFIXES:	.f .o .java .class
 
