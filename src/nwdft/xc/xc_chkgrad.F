@@ -1,6 +1,6 @@
       logical function xc_chkgrad(xfac,cfac)
 *
-* $Id: xc_chkgrad.F,v 1.8 1999-11-02 02:38:09 edo Exp $
+* $Id: xc_chkgrad.F,v 1.9 2000-07-21 20:40:42 edo Exp $
 *
       implicit none
       double precision xfac(*) ! Exchange functional coeffs [input]
@@ -12,9 +12,11 @@ c
       double precision tot,eps
       parameter(eps=1.d-10)
       tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) + xfac(7) +
-     + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+
-     +     cfac(2) + cfac(4) + cfac(5) +cfac(12)+
-     +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)
+     + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
+     + xfac(14)+
+     +     cfac(2) + cfac(4) + cfac(5) +cfac(12)+cfac(13)+
+     +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
+     + cfac(19) + cfac(20)
       if (abs(tot).gt.eps)then
          xc_chkgrad = .true.
       else
