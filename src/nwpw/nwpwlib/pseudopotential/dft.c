@@ -1,5 +1,5 @@
 /*
- $Id: dft.c,v 1.1 2001-08-30 16:58:35 bylaska Exp $
+ $Id: dft.c,v 1.2 2003-01-25 02:12:05 edo Exp $
    dft.c - 
    Author - Eric Bylaska
 
@@ -194,7 +194,7 @@ char	*exchange_Name_DFT()
    if (Exchange_Type==Exchange_Dirac)
      s = "Dirac";
    else if (Exchange_Type==Exchange_PBE96)
-     s = "PBE96 (Perdew, Kurke, and Ernzerhof) parameterization";
+     s = "PBE96 (Perdew, Burke, and Ernzerhof) parameterization";
    else
      s = "No Exchange";
 
@@ -209,7 +209,7 @@ char	*correlation_Name_DFT()
     else if (Correlation_Type==Correlation_Perdew_Zunger)
        s = "Perdew and Zunger parameterization";
     else if (Correlation_Type==Correlation_PBE96)
-       s = "PBE96 (Perdew, Kurke, and Ernzerhof) parameterization";
+       s = "PBE96 (Perdew, Burke, and Ernzerhof) parameterization";
     else if (Correlation_Type==Correlation_Perdew_Wang)
        s = "Perdew and Wang parameterization";
     else
