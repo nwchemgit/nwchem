@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.7 2000-03-15 00:17:57 d3j191 Exp $
+c $Id: cf_finish.F,v 1.8 2000-04-04 23:03:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -100,6 +100,9 @@ c
 c
       if(.not.ma_pop_stack(l_ias))
      + call errquit('Failed to deallocate ias',0)
+c
+      if(.not.ma_pop_stack(l_typ))
+     + call errquit('Failed to deallocate typ',0)
 c
       if(.not.ma_pop_stack(l_num))
      + call errquit('Failed to deallocate num',0)

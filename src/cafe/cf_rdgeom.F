@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.4 2000-04-04 18:08:29 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.5 2000-04-04 23:03:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -156,7 +156,9 @@ c
 c
 c     broadcast force field parameters
 c
-      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
+c      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
+c
+      call ga_brdcst(mcf_02,int_mb(i_typ),3*mat,0)
       call ga_brdcst(mcf_03,dbl_mb(i_mas),6*mat*numbd,0)
       call ga_brdcst(mcf_04,int_mb(i_num),3*mat*numbi,0)
       call ga_brdcst(mcf_05,dbl_mb(i_vdw),6*mat*mat*map*numbd,0)
@@ -188,7 +190,9 @@ c
       call ga_brdcst(mcf_31,ip2,24*numbl,0)
       call ga_brdcst(mcf_32,ip3,24*numbl,0)
       call ga_brdcst(mcf_56,qfac,numbd,0)
-      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
+c
+c      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
+c
       if(lanal) then
       call ana_select(byte_mb(i_snam))
       call ana_initx()

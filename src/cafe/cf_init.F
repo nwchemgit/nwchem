@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.41 2000-03-29 17:47:05 d3j191 Exp $
+c $Id: cf_init.F,v 1.42 2000-04-04 23:03:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -422,6 +422,13 @@ c
       if(.not.ma_push_get(mt_int,mat*3,'num',l_num,i_num))
      + call errquit('Allocation failed for num',0)
 c
+c     for special type    1 : type in set 1
+c                         2 : type in set 2
+c                         3 : type in set 3
+c
+      if(.not.ma_push_get(mt_int,mat*3,'typ',l_typ,i_typ))
+     + call errquit('Allocation failed for typ',0)
+c
       if(.not.ma_push_get(mt_int,mat*mat,'ias',l_ias,i_ias))
      + call errquit('Allocation failed for ias',0)
 c
@@ -447,7 +454,7 @@ c
       if(ia.lt.1.or.ia.gt.mat) call errquit('Error in para',0)
 c
       call cf_copya(ia,nam,wgt,num,byte_mb(i_nam),
-     + dbl_mb(i_mas),int_mb(i_num))
+     + dbl_mb(i_mas),int_mb(i_num),int_mb(i_typ))
 c
       if(abs(wgt(1)-wgt(2)).gt.tiny) ip2(13)=.true.
       if(abs(wgt(1)-wgt(3)).gt.tiny) ip3(13)=.true.
@@ -456,7 +463,7 @@ c
       return
       end
 c
-      subroutine cf_copya(ia,nami,wgti,numa,nam,wgt,num)
+      subroutine cf_copya(ia,nami,wgti,numa,nam,wgt,num,ityp)
 c
       implicit none
 c
@@ -466,7 +473,7 @@ c
       integer ia
       character*6 nami(3),nam(mat,3)
       real*8 wgti(3),wgt(mat,6)
-      integer numa(3),num(mat,3)
+      integer numa(3),num(mat,3),ityp(mat,3)
 c
       integer i
 c
@@ -474,6 +481,8 @@ c
       nam(ia,i)=nami(i)
       wgt(ia,i)=wgti(i)
       num(ia,i)=numa(i)
+      ityp(ia,i)=0
+      if(nam(ia,i)(6:6).eq.'Q') ityp(ia,i)=1
     1 continue
       wgt(ia,4)=wgti(3)-wgti(2)
       wgt(ia,5)=wgti(2)

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.37 2000-04-04 18:08:28 d3j191 Exp $
+c $Id: cf_main.F,v 1.38 2000-04-04 23:03:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2034,16 +2034,16 @@ c
 c
       return
       end
-      subroutine cf_atotyp(nam,ia,at)
+      integer function cf_atotyp(ityp,ia)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       integer ia
-      character*6 at,nam(mat,3)
+      integer ityp(mat,3)
 c
-      at=nam(ia,iset)
+      cf_atotyp=ityp(ia,iset)
 c
       return
       end
@@ -2070,12 +2070,15 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
+      integer cf_atotyp
+      external cf_atotyp
+c
       integer i
 c
       character*6 at
 c
-      call cf_atotyp(byte_mb(i_nam),i,at)
-      cf_quantuma=at(6:6).eq.'Q'
+      cf_quantuma=cf_atotyp(int_mb(i_typ),i).eq.1
+      write(*,'(i4,1x,l1)') i,cf_atotyp(int_mb(i_typ),i).eq.1
 c
       return
       end
