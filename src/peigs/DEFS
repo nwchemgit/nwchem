@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.85 2001-05-07 20:02:37 edo Exp $
+# $Id: DEFS,v 1.86 2001-05-08 22:54:15 edo Exp $
 #
 #======================================================================
 #
@@ -428,11 +428,17 @@ peigs_CODEOBJ = DBLE
 peigs_CPU = RS600064
 peigs_COMM =TCGMSG
 peigs_CC  += -D$(peigs_CPU) -DSTD_DBL -DIBM  -O -qinline -qmaxmem=8192
-peigs_FC  += -d -I$(peigs_HDIR) -O3 -qstrict \
 -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) \
 -qfloat=rsqrt:fltint:hssngl -qinline
-
 peigs_CPP +=   -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
+  ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
+  else
+     peigs_FC  += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-D$(peigs_CPU),-D$(peigs_COMM) 
+  endif
+
 peigs_BLASLIB   = -lessl_r
 peigs_LAPACKLIB = -llapack -lessl_r
 endif
