@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.56 1997-11-12 22:20:48 d3e129 Exp $
+#$Id: GNUmakefile,v 1.57 1997-11-13 10:42:47 d3e129 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(TARGET),SGITFP)
 ifeq ($(TARGET),CRAY-T3D)
@@ -30,12 +30,12 @@ else
 	dft_second.o	\
 	dft_tstamp.o	\
 	new_eval_gb.o \
-	bas_ncnmax.o		ga_chol_seq.o	\
+	ga_chol_seq.o	\
 	ga_inv_seq.o 	\
 	nbf_to_mbf.o dft_mpole.o movecs_log.o
 endif
 else
-#	OBJ = bas_ncnmax.o 	nbf_to_mbf.o new_eval_gb.o         dft_eval_bas.o        dft_eval_fns.o   \
+#	OBJ = nbf_to_mbf.o new_eval_gb.o         dft_eval_bas.o        dft_eval_fns.o   \
 #        dft_eval_grd.o        dft_eval_hss.o dft_mpole.o
 #
 #
@@ -56,7 +56,6 @@ else
 #
 
 	OBJ_OPTIMIZE=  \
-	bas_ncnmax.o \
 	dft_gather.o \
 	dft_header.o \
 	dft_invio.o \
