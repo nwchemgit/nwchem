@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.97 1999-02-16 17:49:09 d3j191 Exp $
+# $Id: GNUmakefile,v 1.98 1999-03-16 17:57:14 d3j191 Exp $
 
 include ../config/makefile.h
 
@@ -85,7 +85,7 @@ endif
 	      input_echo.o util_transpose.o \
               ga_iter_diag.o \
               ga_maxelt.o ga_pcg_min.o line_search.o \
-              ga_orth_vec.o ga_ran_fill.o ga_mix.o \
+              ga_orth_vec.o ga_ran_fill.o ga_mix.o ga_list.o\
               ga_it_proj.o ga_screen.o ga_get_diag.o \
 	      fortchar.o seq_output.o ga_mat2col.o \
               util_ch_brd.o two_ind_trn.o \
