@@ -1,7 +1,7 @@
       logical function pre_mksgm(lfnout,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.9 1998-08-24 17:28:14 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.10 2000-07-13 23:13:02 edo Exp $
 c
 c     function to make segment file
 c
@@ -127,7 +127,7 @@ c
 c     select dihedrals
 c     ----------------
 c
-      if(.not.pre_dihsel(ffield,int_mb(i_catm),matm,natm,
+      if(.not.pre_dihsel(ffield,byte_mb(i_catm),matm,natm,
      + int_mb(i_dih),mdih,ndih))
      + call errquit('mksgm: pre_dihsel failed',9999)
 c
