@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.93 1997-11-18 18:21:08 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.94 1997-11-20 00:18:00 d3h449 Exp $
 c     
       implicit none
 c
@@ -1033,7 +1033,7 @@ c
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
      &                converged, diising)
-      if (delta.lt.1.d-4)then
+      if (delta.lt.1.d-3)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
 c        (note, may also require re-initializing DIIS)

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.19 1997-10-31 23:20:38 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.20 1997-11-20 00:17:58 d3h449 Exp $
 c     
       implicit none
 c
@@ -182,7 +182,7 @@ c
          CDFIT      = .TRUE.
       endif
 
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2a'
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2a'
       if (CDFIT)then
 c     
 c        Determine the characteristics of the CD Gaussian basis set.
@@ -214,7 +214,7 @@ c
             endif
          endif
          call ga_brdcst(Msg_CD_Ex, lmiss, mitob(1), 0)
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2f'
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2f'
          if (lmiss.eq.1) then
             call ga_zero(g_cdinv)
             info = 0
@@ -232,8 +232,8 @@ c            enddo
                   write(LuOut,*)' decomposition of the 2-ctr ERI '
                   write(LuOut,*)' matrix using CD fitting basis. '
                   write(LuOut,*)' Attempting a diag/inverse. '
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2g'
-                  call errquit(' temp stop this should not happen',0)
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2g'
+c                  call errquit(' temp stop this should not happen',0)
                endif
             endif
             if (info.eq.0) then
@@ -370,7 +370,7 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
+c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
       dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                     iter, g_dens, g_evecs, g_vxc, g_fock, 
      &                     g_svecs, isvals, g_cdinv, g_xcinv, g_2ceri)
