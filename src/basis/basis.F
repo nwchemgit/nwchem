@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.61 1997-04-02 22:44:17 d3e129 Exp $
+c $Id: basis.F,v 1.62 1997-04-09 00:03:12 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -671,6 +671,7 @@ c::-local
       character*16 dum_tag
       character*255 dum_stdtag
       character*12 polynomial  ! string for spherical/cartesian
+      character*80 dum_type, dum_string
       integer basis   ! lexical index
       integer i_tag   ! loop counter
       integer i_cont  ! loop counter
@@ -680,6 +681,10 @@ c::-local
       integer mycont  ! number of contractions
       integer mynbf   ! number of functions
       integer tmp1, tmp2
+      integer mytype
+      integer jtype
+      character*1 ctype(0:6)
+      integer cnt_type(0:6)
 *
 #include "ecp_sfnP.fh"
 *
@@ -690,6 +695,14 @@ c::-local
         bas_summary_print = .true.
         return
       endif
+*
+      ctype(0)='s'
+      ctype(1)='p'
+      ctype(2)='d'
+      ctype(3)='f'
+      ctype(4)='g'
+      ctype(5)='h'
+      ctype(6)='i'
 *
       basis = basisin + Basis_Handle_Offset
 *      
@@ -705,12 +718,21 @@ c::-local
      &    polynomial
       mytags = infbs_head(Head_Ntags,basis)
       do i_tag = 1,mytags
+        call ifill(7,0,cnt_type,1)
         myfcont = infbs_tags(Tag_Fcont,i_tag,basis)
         mylcont = infbs_tags(Tag_Lcont,i_tag,basis)
         mycont  = mylcont - myfcont + 1
         mynbf   = 0 
         do i_cont = myfcont, mylcont
           mynbf = mynbf + nbf_from_ucont(i_cont,basisin)
+          mytype = infbs_cont(Cont_Type,i_cont,basis)
+          if (mytype.ge.0) then
+            cnt_type(mytype) = cnt_type(mytype) + 1
+          else 
+            do jtype = 0,abs(mytype)
+              cnt_type(jtype) = cnt_type(jtype) + 1
+            enddo
+          endif
         enddo
         dum_tag = bs_tags(i_tag,basis)
         tmp1 = inp_strlen(bs_stdname(i_tag,basis))
@@ -721,11 +743,36 @@ c::-local
         endif
         dum_stdtag = ' '
         dum_stdtag(tmp2:) = bs_stdname(i_tag,basis)
+        dum_type = ' '
+        dum_string = ' '
+        do jtype = 0,6
+          dum_type = dum_string
+          tmp1 = inp_strlen(dum_type)
+          if (tmp1.lt.1) tmp1 = 1
+          if (cnt_type(jtype).gt.0) then
+            write(dum_string,'(a,i5,a)')dum_type(1:tmp1),
+     &        cnt_type(jtype),ctype(jtype)
+          endif
+        enddo
+        tmp1 = 0
+        dum_type = dum_string
+        do jtype = 1,inp_strlen(dum_type)
+          if (dum_type(jtype:jtype).ne.char(0).and.
+     &        dum_type(jtype:jtype).ne.' ') then
+            tmp1 = tmp1 + 1
+            dum_string(tmp1:tmp1) = dum_type(jtype:jtype)
+          endif
+        enddo
+        tmp1 = tmp1 + 1
+        do jtype = tmp1,len(dum_string)
+          dum_string(jtype:jtype) = ' '
+        enddo
+        tmp1 = inp_strlen(dum_string)
         write(luout,10001)
      &      dum_tag,
      &      dum_stdtag(1:30),
      &      mycont,
-     &      mynbf
+     &      mynbf,dum_string(1:tmp1)
       enddo
       write(luout,'(/)')
       call util_flush(luout)
@@ -733,12 +780,12 @@ c::-local
 *
 10000 format(' Summary of "',a,'" -> "',a,'"',a/
      $    ' -------------------------------------------------',
-     &    '-----------------'/
+     &    '---------------------------------'/
      $    '       Tag                 Description            ',
-     &    'Shells  Functions'/
+     &    'Shells    Functions and Types'/
      $    ' ---------------- ------------------------------  ',
-     &    '------  ---------')
-10001 format(1x,a16,1x,a30,2x,i4,5x,i4)
+     &    '------  -------------------------')
+10001 format(1x,a16,1x,a30,2x,i4,5x,i4,3x,a)
 *
       end
 *.....................................................................
