@@ -430,7 +430,6 @@ c     ----- matrices tran. from hondo to nwchem shell order-----
 c
       do j=1,ndim
         do i=1,ndim
-
            dnwc(ihnd_to_nw(i),ihnd_to_nw(j))=
      &     dhnd(i,j)*(
      &     1.0d+00/(fac_nwthnd(ihnd_to_nw(i))*
@@ -1860,7 +1859,6 @@ C
 C     ----- MEMORY BLOCK   -----
 C
       CALL HND_DDER1_INIT2(RTDB)
-
 C
 C     ----- DENSITY FORCES -----
 C
@@ -1898,10 +1896,11 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      logical status
-      integer g_dens, g_wdens
+c*    logical status
+c*    integer g_dens, g_wdens
       integer rtdb 
 c 
+      common/hnd_iofile/ir,iw,ip
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_dder1_mem/i_init,init
       common/hnd_basnum/num
@@ -1920,7 +1919,7 @@ c
 c     
       need1 = nc*nc+num2*nc+num2+num2
      &        +num2+num2+num2
-     &        +num3+num3+num3+num3
+c*   &        +num3+num3+num3+num3
 
 c     ----- extra memory to hold temporary de, fc, and df -----
 
@@ -1930,8 +1929,13 @@ c
 c
 c     ----- memory pointers -----
 c
-      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
-     & call errquit('hnd_dder1_init, malloc of init  failed',911)
+c*     if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+c*    & call errquit('hnd_dder1_init, malloc of init  failed',911)
+      if(.not.ma_push_get(mt_dbl,need ,'mem init',i_init,init)) then
+         write(iw,*)'The totoal number of basis functions=', num 
+         write(iw,*)'The stack memory for dder_1e =', need 
+         call errquit('hnd_dder1_init, malloc of init  failed',911)
+      endif
 c
       i00=init
       i01=i00+ nc  *nc
@@ -1943,10 +1947,14 @@ c
       i50=i40+ num2
       i60=i50+ num2
 c
-      i70=i60+ num3
-      i80=i70+ num3
-      i90=i80+ num3
-      i95=i90+ num3
+c*    i70=i60+ num3
+c*    i80=i70+ num3
+c*    i90=i80+ num3
+c*    i95=i90+ num3
+      i70=i60+ 0
+      i80=i70+ 0
+      i90=i80+ 0
+      i95=i90+ 0
 c
       i96=i95+ nc
       i97=i96+ nc*nc
@@ -1955,26 +1963,30 @@ c
       do 10 i=1,need
    10 x(i+init-1)=zero
 c
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
+c*    call hnd_dens_path1(rtdb,g_dens,g_wdens)
 c
-      call ga_get(g_dens(1),1,num,1,num, x(i60),num)
+c*    call ga_get(g_dens(1),1,num,1,num, x(i60),num)
 c
-      call ga_get(g_wdens  ,1,num,1,num, x(i80),num)
+c*    call ga_get(g_wdens  ,1,num,1,num, x(i80),num)
 
-      call hnd_nwhnd_tran(x(i60),x(i70),num)
+c*    call hnd_nwhnd_tran(x(i60),x(i70),num)
 
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i10 +ij-1) = x(i70 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
+c*    ij = 0
+c*    do i = 1,num
+c*       do j = 1,i
+c*          ij = ij + 1
+c*          x(i10 +ij-1) = x(i70 + (j-1)*(num)+(i-1))
+c*       enddo
+c*    enddo
+c%%%
+c*    call hnd_prtr(x(i10),num)
+      call hnd_get_dens(rtdb,x(i10),num)
+c%%%
 c
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
+c*    status = ga_destroy ( g_wdens )
+c*    do i=1, 3
+c*      status = ga_destroy ( g_dens(i) )
+c*    enddo
 c
       return
       end
@@ -2009,20 +2021,25 @@ c
       i50=i40+ num2
       i60=i50+ num2
 c
-      i70=i60+ num3
-      i80=i70+ num3
-      i90=i80+ num3
-      i95=i90+ num3
+c*    i70=i60+ num3
+c*    i80=i70+ num3
+c*    i90=i80+ num3
+c*    i95=i90+ num3
+      i70=i60+ 0
+      i80=i70+ 0
+      i90=i80+ 0
+      i95=i90+ 0
 c
-      call hnd_nwhnd_tran(x(i80),x(i90),num)
+c*    call hnd_nwhnd_tran(x(i80),x(i90),num)
 c
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i10 +ij-1) = x(i90 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
+c*    ij = 0
+c*     do i = 1,num
+c*       do j = 1,i
+c*          ij = ij + 1
+c*          x(i10 +ij-1) = x(i90 + (j-1)*(num)+(i-1))
+c*       enddo
+c*    enddo
+      call hnd_get_wdens(rtdb,x(i10),num)
 c
       return
       end
@@ -2599,10 +2616,14 @@ C
       I50=I40+ NUM2
       I60=I50+ NUM2
 C
-      I70=I60+ NUM*NUM
-      I80=I70+ NUM*NUM
-      I90=I80+ NUM*NUM
-      I95=I90+ NUM*NUM
+c*    I70=I60+ NUM*NUM
+c*    I80=I70+ NUM*NUM
+c*    I90=I80+ NUM*NUM
+c*    I95=I90+ NUM*NUM
+      I70=I60+ 0
+      I80=I70+ 0
+      I90=I80+ 0
+      I95=I90+ 0
 C
       I96=I95+ NC
       I97=I96+ NC*NC
@@ -3192,10 +3213,14 @@ C
       I50=I40+ NUM2
       I60=I50+ NUM2
 C
-      I70=I60+ NUM*NUM
-      I80=I70+ NUM*NUM
-      I90=I80+ NUM*NUM
-      I95=I90+ NUM*NUM
+c*    I70=I60+ NUM*NUM
+c*    I80=I70+ NUM*NUM
+c*    I90=I80+ NUM*NUM
+c*    I95=I90+ NUM*NUM
+      I70=I60+ 0
+      I80=I70+ 0
+      I90=I80+ 0
+      I95=I90+ 0
 C
       I96=I95+ NC
       I97=I96+ NC*NC
@@ -3682,10 +3707,14 @@ C
       I50=I40+ NUM2
       I60=I50+ NUM2
 C
-      I70=I60+ NUM*NUM
-      I80=I70+ NUM*NUM
-      I90=I80+ NUM*NUM
-      I95=I90+ NUM*NUM
+c*    I70=I60+ NUM*NUM
+c*    I80=I70+ NUM*NUM
+c*    I90=I80+ NUM*NUM
+c*    I95=I90+ NUM*NUM
+      I70=I60+ 0
+      I80=I70+ 0
+      I90=I80+ 0
+      I95=I90+ 0
 C
       I96=I95+ NC
       I97=I96+ NC*NC
@@ -4443,10 +4472,14 @@ C
       I60=I50+ NUM2
 C     I31=I20+ NUM* NUM
 C
-      I70=I60+ NUM*NUM
-      I80=I70+ NUM*NUM
-      I90=I80+ NUM*NUM
-      I95=I90+ NUM*NUM
+c*    I70=I60+ NUM*NUM
+c*    I80=I70+ NUM*NUM
+c*    I90=I80+ NUM*NUM
+c*    I95=I90+ NUM*NUM
+      I70=I60+ 0
+      I80=I70+ 0
+      I90=I80+ 0
+      I95=I90+ 0
 C
       I96=I95+ NC
       I97=I96+ NC*NC
@@ -5367,6 +5400,7 @@ c
       common/ hnd_mcpar/nfzc,ncorbs,nci
       common/ hnd_needm/needm
       common/hnd_dder2_mem/i_init2,init2
+      common/hnd_iofile/ir,iw,ip
 c
       dimension g_dens(3) ! max # of density matrices
       dimension x(1)
@@ -5391,8 +5425,9 @@ c
 
 c     ----- memory blocks -----
 
-      need = 0
-      needa = num*num + num*num
+      need =  0
+c*    needa = num*num + num*num
+      needa = 0
       need  = needm + needa
    
 c     ----- memory block to store 1-e results fc + df -----
@@ -5400,8 +5435,13 @@ c     ----- memory block to store 1-e results fc + df -----
       needc = nc*nc +nc*l2
       need  = need + needc
 c
-      if(.not.ma_push_get(mt_dbl,need , 'mem init2',i_init2,init2))
-     & call errquit('hnd_dder2_init, malloc of init2  failed',911)
+c*     if(.not.ma_push_get(mt_dbl,need , 'mem init2',i_init2,init2))
+c*   & call errquit('hnd_dder2_init, malloc of init2  failed',911)
+      if(.not.ma_push_get(mt_dbl,need,'mem init2',i_init2,init2)) then
+         write(iw,*)'The total number of basis functions =',num
+         write(iw,*)'The stack memory for dder_2e =',need
+         call errquit('hnd_dder2_init, malloc of init2  failed',911)
+      endif
 c
       return
       end
@@ -5445,7 +5485,8 @@ c
 
 c     ----- memory block of density matrix -----
 
-      needa = num*num + num*num
+c*    needa = num*num + num*num
+      needa = 0       + 0
 
 c     ----- total memory block -----
 
@@ -5457,34 +5498,35 @@ c
       i10=i02
 c
       inita = init2 + needm
-      i40   = inita + num*num
-      i50   = i40   + num*num
+c*    i40   = inita + num*num
+c*    i50   = i40   + num*num
 c
       do 10 i=1,need
    10 x(i+init2-1)=zero
 c
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
+c*    call hnd_dens_path1(rtdb,g_dens,g_wdens)
 
 c      ----- check g_dens(1),g_dens(2),g_dens(3) -----
 
-      call ga_get(g_dens(1),1,num,1,num, x(inita),num)
+c*    call ga_get(g_dens(1),1,num,1,num, x(inita),num)
 
 c     ----- shell order from nwchem to hondo -----
 
-      call hnd_nwhnd_tran(x(inita),x(i40),num)
+c*    call hnd_nwhnd_tran(x(inita),x(i40),num)
 c     
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i10 +ij-1) = x(i40 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
+c*    ij = 0
+c*    do i = 1,num
+c*       do j = 1,i
+c*          ij = ij + 1
+c*          x(i10 +ij-1) = x(i40 + (j-1)*(num)+(i-1))
+c*       enddo
+c*    enddo
 c
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
+c*    status = ga_destroy ( g_wdens )
+c*    do i=1, 3
+c*      status = ga_destroy ( g_dens(i) )
+c*    enddo
+      call hnd_get_dens(rtdb,x(i10),num)
 c
       return
       end
@@ -5690,8 +5732,10 @@ C     ----- POINTERS OF MEMORY BLOCK -----
 
 C     ----- MEMORY BLOCK FOR DENSITY MATRIX -----
 
-      I40   = INITA + NUM*NUM
-      I50   = I40   + NUM*NUM
+c*    I40   = INITA + NUM*NUM
+c*    I50   = I40   + NUM*NUM
+      I40   = INITA + 0
+      I50   = I40   + 0
 C
 C     ----- STORE AWAY 1E-FORCE CONSTANT -----
 C
@@ -15642,7 +15686,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.6 1997-02-13 03:57:19 bmeng Exp $
+c$Id: rhf_hessian.F,v 1.7 1997-02-18 19:21:56 bmeng Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -16052,7 +16096,7 @@ c
 #include "cfock.fh"
 c#include "pstat.fh"
       integer  rtdb,geom,basis
-c*      integer  g_fc
+c*    integer  g_fc
       integer  g_aodf(3*mxatom), g_modf(3*mxatom)
       integer  g_aods(3*mxatom), g_mods(3*mxatom)
       integer  g_dsta(3*mxatom), g_tmpta(3*mxatom)
@@ -16089,7 +16133,7 @@ c
       logical out
       logical out_grad
       common/hnd_iofile/ir,iw,ip
-C     common/hnd_iofile/ir,iw
+c*    common/hnd_iofile/ir,iw
       common/hnd_dafile/idaf,nav,ioda(255)
       common/hnd_grad12/de(3,mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -16351,7 +16395,7 @@ c     ----- load ds/dq from disk to local memory x(i70) -----
 c     ----- expand from triangular matrix to squre matrix ----
 
          x(i60+num*(j-1)+i-1) = x(i70+ij-1)
-c        x(i60+num*(j-1)+i-1) = x(i70+(in-1)*num2+ij-1)
+c*       x(i60+num*(j-1)+i-1) = x(i70+(in-1)*num2+ij-1)
         enddo
        enddo
 
@@ -16783,7 +16827,7 @@ c     ----- for info only, print gradient -----
 c     ----- symmetrixe -fcm- -----
 
 c     if (ga_nodeid().eq.0) call hnd_cpfcm(x(i00),nat)
-      if (ga_nodeid().eq.0) call hnd_hssprt(x(i00),nat)
+      if (ga_nodeid().eq.0) call hnd_hssprt(x(i00),nc)
 
 c$$$c     ------ create ga block for force constant matrix -----
 c$$$
@@ -17127,3 +17171,209 @@ c::   -- write information
 99991 write(6,*)' could not open <',fname,'> as new file'
       call errquit('hnd_cphf: fatal error', 911)
       end
+      subroutine hnd_get_dens(rtdb,dens,num)
+c
+c     only RHF(close shell) is considered 
+c
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer           mxatom
+      parameter        (mxatom=500)
+      integer           num
+c
+      integer          rtdb
+      double precision dens(num*num) 
+      integer          g_dens(3) ! max no. of density matrix 
+      integer          g_wdens   
+      logical          status
+c 
+c*    double precision c, zan
+c*    integer          nat
+c*    integer          num
+c
+      integer          i_init,init,need 
+      integer          num3
+      integer          i,j,ij
+      integer          i00,i10,i20
+c
+      double precision x
+      double precision zero
+c
+c     common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c     common/hnd_basnum/num
+c
+      dimension    x(1)
+      equivalence (x(1),dbl_mb(1))
+c
+      data zero   /0.0d+00/
+c
+      logical debug
+      debug=.false.
+c
+      do i = 1,3
+         g_dens(i) = 0
+      enddo 
+c
+      num3=num*num
+c     
+      need=num3+num3
+
+c
+c     allocate memory block
+c
+      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+     & call errquit('hnd_get_dens, malloc of init  failed',911)
+c
+      i00=init
+      i10=i00+ num3
+      i20=i10+ num3
+c
+      do 10 i=1,need
+   10 x(i+init-1)=zero
+c
+c     get density matrices from eigen-v and occ. no. of nwchem
+c
+      call hnd_dens_path1(rtdb,g_dens,g_wdens)
+c
+      call ga_get(g_dens(1),1,num,1,num, x(i00),num)
+c
+c     tranform density matrix from nwchem to hondo shell order
+c
+      call hnd_nwhnd_tran(x(i00),x(i10),num)
+c
+c     transform to lower triangle matrix of hondo format
+c
+
+      ij = 0
+      do i = 1,num
+        do j = 1,i
+           ij = ij + 1
+           dens(1+ij-1) = x(i10 + (j-1)*(num)+(i-1))
+        enddo
+      enddo
+c
+      if (debug) call hnd_prtr(dens,num)
+c
+c     destry ga handles (created in ...) 
+c
+      do i=1, 3
+        status = ga_destroy ( g_dens(i) )
+      enddo
+        status = ga_destroy ( g_wdens   )
+c 
+c     release memory block         
+c
+      if (.not.ma_pop_stack(i_init))
+     & call errquit('hnd_get_dens, ma_pop_stack of init
+     & failed',911)
+c
+      return
+      end
+c
+      subroutine hnd_get_wdens(rtdb,wdens,num)
+c
+c     only RHF(close shell) is considered 
+c
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer           mxatom
+      parameter        (mxatom=500)
+      integer           num
+c
+      integer          rtdb
+      double precision wdens(num*num) 
+      integer          g_dens(3) ! max no. of density matrix 
+      integer          g_wdens
+      logical          status   
+c 
+c*    double precision c, zan
+c*    integer          nat
+c     integer          num
+c
+      integer          i_init,init,need
+      integer          num3
+      integer          i,j,ij
+      integer          i00,i10,i20 
+c
+      double precision x
+      double precision zero
+c    
+c     common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c     common/hnd_basnum/num
+c
+      dimension    x(1)
+      equivalence (x(1),dbl_mb(1))
+c
+      data zero    /0.0d+00/
+c
+      logical debug
+      debug=.false.
+c
+      do i = 1,3
+         g_dens(i) = 0
+      enddo 
+c
+      num3= num*num
+c     
+      need=num3+num3
+
+c
+c     allocate memory block
+c
+      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+     & call errquit('hnd_get_wdens, malloc of init  failed',911)
+c
+      i00=init
+      i10=i00+ num3
+      i20=i10+ num3
+c
+      do 10 i=1,need
+   10 x(i+init-1)=zero
+c
+c     get density matrices from eigen-v and occ. no. of nwchem
+c
+      call hnd_dens_path1(rtdb,g_dens,g_wdens)
+c
+      call ga_get(g_wdens  ,1,num,1,num, x(i00),num)
+c
+c     tranform density matrix from nwchem to hondo shell order
+c
+      call hnd_nwhnd_tran(x(i00),x(i10),num)
+c
+c     transform to lower triangle matrix of hondo format
+c
+
+      ij = 0
+      do i = 1,num
+        do j = 1,i
+           ij = ij + 1
+           wdens(1+ij-1) = x(i10 + (j-1)*(num)+(i-1))
+        enddo
+      enddo
+c
+      if (debug) call hnd_prtr(wdens,num)
+c
+c     destry ga handles (created in ...) 
+c
+      do i=1, 3
+        status = ga_destroy ( g_dens(i) )
+      enddo
+        status = ga_destroy ( g_wdens   )
+c 
+c     release memory block         
+c
+      if (.not.ma_pop_stack(i_init))
+     & call errquit('hnd_get_wdens, ma_pop_stack of init
+     & failed',911)
+c
+      return
+      end
+
+
+
+
+
