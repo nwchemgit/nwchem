@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.30 2004-04-27 22:27:43 edo Exp $
+# $Id: GNUmakefile,v 1.31 2004-08-26 23:25:28 edo Exp $
 # 
 
 HEADERS   = ecp_nwc.fh
@@ -71,8 +71,8 @@ OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD) $(OBJ_HESS)
 HEADERS = ecp_nwc.fh
 
 USES_BLAS = ecp_bess_pow.f \
-      ecp_cart_xpd.f \
-      ecp_cstrans.f  \
+      ecp_cart_xpd.F \
+      ecp_cstrans.F  \
       ecp_grad_a.F   \
       ecp_grad_b.F   \
       ecp_gradient.F \
