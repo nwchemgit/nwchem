@@ -1,6 +1,6 @@
       Subroutine hf2QStoCD(dQ,dS,dC,dD,alpha,ipair,ff,NPP,NPQ,Nint,
      &       ictrc,ictrd)
-c $Id: hf2QStoCD.f,v 1.3 1994-06-07 00:31:17 d3e129 Exp $
+c $Id: hf2QStoCD.f,v 1.4 1995-06-27 21:01:04 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -21,6 +21,8 @@ c--> Exponents & Pair Index
 c--> Scratch space
 
       Dimension ff(2,(NPQ*NPP))
+c--> local
+      double precision sumC, sumD
 c
 c Transform derivative integrals wrt (Q,S) to (C,D).
 c
@@ -33,17 +35,15 @@ c*******************************************************************************
 
 c Initialize derivative integrals wrt to (C,D).
 
-      do 10 nn = 1,Nint
-       dC(nn) = 0.D0
-       dD(nn) = 0.D0
-   10 continue
-
       if (ictrc.eq.ictrd) then
         do 00100 nn = 1,Nint
+          sumC = 0.0d00
           do 00200 mr = 1,(NPQ*NPP)
-            dC(nn) = dC(nn) + dQ(mr,nn)
+            sumC = sumC + dQ(mr,nn)
 00200     continue
+          dC(nn) = sumC
 00100   continue
+	call dlaset(' ',nint,1,0.0d00,0.0d00,dD,nint)
       else
 c Compute exponent ratios.
 
@@ -67,11 +67,14 @@ c Transform.
         
         do 40 nn = 1,Nint
           
+          sumC = 0.0d00
+          sumD = 0.0d00
           do 30 mr = 1,(NPQ*NPP)
-            dC(nn) = dC(nn) + (ff(1,mr)*dQ(mr,nn) + dS(mr,nn))
-            dD(nn) = dD(nn) + (ff(2,mr)*dQ(mr,nn) - dS(mr,nn))
+            sumC = sumC + (ff(1,mr)*dQ(mr,nn) + dS(mr,nn))
+            sumD = sumD + (ff(2,mr)*dQ(mr,nn) - dS(mr,nn))
 30        continue
-          
+            dC(nn) = sumC
+            dD(nn) = sumD
 40      continue
         
       endif

@@ -1,6 +1,6 @@
       Subroutine hf2PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,NPQ,Nint3,
      &       ictra,ictrb)
-c $Id: hf2PRtoAB.f,v 1.4 1994-06-07 00:31:15 d3e129 Exp $
+c $Id: hf2PRtoAB.f,v 1.5 1995-06-27 21:01:03 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -21,7 +21,8 @@ c--> Exponents & Pair Index
 c--> Scratch space
 
       Dimension ff(2,(NPQ*NPP))
-
+c--> local
+      double precision sumA, sumB
 c
 c Transform derivative integrals wrt (P,R) to (A,B).
 c
@@ -34,17 +35,16 @@ c*******************************************************************************
 
 c Initialize derivative integrals wrt to (A,B).
 
-      do 10 nn = 1,Nint3
-       dA(nn) = 0.D0
-       dB(nn) = 0.D0
-   10 continue
 
       if (ictra.eq.ictrb) then
         do 00100 nn=1,Nint3
+          sumA = 0.0d00
           do 00200 mr = 1,(NPQ*NPP)
-            dA(nn) = dA(nn) + dP(mr,nn)
+            sumA = sumA + dP(mr,nn)
 00200     continue
+          dA(nn) = sumA
 00100   continue
+	call dlaset(' ',nint3,1,0.0d00,0.0d00,dB,nint3)
       else
 c Compute exponent ratios.
 
@@ -70,11 +70,14 @@ c Transform.
         
         do 40 nn = 1,Nint3
           
+          sumA = 0.0d00
+          sumB = 0.0d00
           do 30 mr = 1,(NPQ*NPP)
-            dA(nn) = dA(nn) + (ff(1,mr)*dP(mr,nn) + dR(mr,nn))
-            dB(nn) = dB(nn) + (ff(2,mr)*dP(mr,nn) - dR(mr,nn))
+            sumA = sumA + (ff(1,mr)*dP(mr,nn) + dR(mr,nn))
+            sumB = sumB + (ff(2,mr)*dP(mr,nn) - dR(mr,nn))
 30        continue
-          
+            dA(nn) = sumA
+            dB(nn) = sumB
 40      continue
       endif
       end
