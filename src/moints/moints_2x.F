@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.16 1996-07-15 18:46:48 rg240 Exp $
+c  $Id: moints_2x.F,v 1.17 1996-07-16 17:21:42 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -233,14 +233,6 @@ c
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               kbflo, kbfhi, lbflo, lbfhi,
      $                               dbl_mb(k_ssbb), osym, oblk )
-
-c$$$                   call moints_gblk( basis, ish, jsh, kshlo, kshhi,
-c$$$     $                               lshlo, lshhi, schw_ij, tol2e,
-c$$$     $                               max2e, dbl_mb(k_eri), mem2,
-c$$$     $                               dbl_mb(k_iscr), ilen, jlen,
-c$$$     $                               kbflo, kbfhi, lbflo, lbfhi,
-c$$$     $                               dbl_mb(k_ssbb), osym )
-
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    if (lb.ne.kb) then
