@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.55 1997-04-09 22:15:12 d3j191 Exp $
+# $Id: GNUmakefile,v 1.56 1997-04-25 01:33:50 d3e129 Exp $
 
 include config/makefile.h
 
@@ -142,6 +142,15 @@ ifeq ($(NWCHEM_MODULES),)
 else
 	$(MAKE) -C config -f make_nwchem_config NWCHEM_MODULES="$(NWCHEM_MODULES)"
 endif
+
+#
+# This is a convenience target that will make the TAGS file for current 
+# checked out source tree.  This is only useful if you know something 
+# about emacs.  Note: find, grep and etags must be in your path.
+#
+tags_file:
+	find . \( -name "*.[cfFh]" -o -name "*.fh" \) -print | grep -v "\./include" | etags -
+
 
 # This is a convenience target that will make sure all subdirectories
 # listed in $(SUBDIRS) exist. Useful because CVS will only update
