@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.15 2000-05-25 06:59:39 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.16 2000-05-25 21:56:34 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -214,38 +214,6 @@ c
 c
         call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad,
      $                    rtdb)
-c
-c     ----- add cosmo energy contribution -----
-c
-        odbug=.false.
-        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-           if(odbug) then
-              write(6,*) '-cosmo- ... found in rohf_diis_solve',
-     $                   ocosmo,ga_nodeid()
-           endif
-           if(ocosmo) then
-              energy=energy+ecosmo
-c
-              osome=.false.
-              osome=osome.and.ga_nodeid().eq.0 
-              if(osome) then
-                 write(6,9999) (energy-ecosmo),ecosmo,energy
- 9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
-     $       ' energy = ',f20.10)
-              endif
-           else
-              if(odbug) then
-                 write(6,*) '-cosmo- ... found but .false.',
-     $                      ga_nodeid()
-              endif
-           endif
-        else
-           if(odbug) then
-              write(6,*) '-cosmo- not found in rohf_diis_solve',
-     $                   ga_nodeid()
-           endif
-        endif
-        call ga_sync()
 c
 c   Check convergence
 c
