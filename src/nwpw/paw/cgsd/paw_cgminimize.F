@@ -1,5 +1,5 @@
 c
-c     $Id: paw_cgminimize.F,v 1.1 2004-08-12 18:39:40 bylaska Exp $                       
+c     $Id: paw_cgminimize.F,v 1.2 2004-08-13 01:16:42 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -118,6 +118,7 @@ c      complex*16 G1(nfft3d,nemax)
 
 *     ***** get the initial gradient and direction ****
       call paw_psi_1get_residual(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
+c      call ke_Precondition(npack1,neall,dcpl_mb(G1(1)),dcpl_mb(R1(1)))
       call paw_psi_1gen_Tangent(dcpl_mb(R1(1)),dcpl_mb(G1(1)))
 
 
@@ -173,6 +174,7 @@ c      complex*16 G1(nfft3d,nemax)
 
 *        **** get the new gradient - also updates densities****
          call paw_psi_1get_residual(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
+c        call ke_Precondition(npack1,neall,dcpl_mb(G1(1)),dcpl_mb(R1(1)))
          call paw_psi_1gen_Tangent(dcpl_mb(R1(1)),dcpl_mb(G1(1)))
       
 

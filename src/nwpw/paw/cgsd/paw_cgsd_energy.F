@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.1 2004-08-12 18:39:40 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.2 2004-08-13 01:16:42 bylaska Exp $                       
 
 
 *     ***************************
@@ -309,11 +309,11 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
    
       end
 
-*     *******************************
-*     *				    *
+*     ***********************************
+*     *				  	*
 *     *	    paw_cgsd_energy_gradient    *
-*     *				    *
-*     *******************************
+*     *				    	*
+*     ***********************************
 
       subroutine paw_cgsd_energy_gradient(G1)
       implicit none
@@ -332,46 +332,22 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       real*8  fmx2,fmy2,fmz2
 
 *     **** external functions ****
-      logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
       logical     control_allow_translation,ion_q_FixIon,control_print
-      character*2 ion_aname,pspw_qmmm_aname,pspw_charge_aname
+      character*2 ion_aname
       integer     ion_katm,ion_nion,control_version
-      integer     pspw_qmmm_nion,pspw_charge_nion
-      real*8      ion_rion,pspw_qmmm_rion,pspw_charge_rion
-      external psp_semicore,pspw_qmmm_found,pspw_charge_found
+      real*8      ion_rion
       external control_allow_translation,ion_q_FixIon,control_print
-      external ion_aname,pspw_qmmm_aname,pspw_charge_aname
+      external ion_aname
       external ion_katm,ion_nion,control_version
-      external pspw_qmmm_nion,pspw_charge_nion
-      external ion_rion,pspw_qmmm_rion,pspw_charge_rion
+      external ion_rion
 
 
-      allow_translation = control_allow_translation()
       nion = ion_nion()
-      if (pspw_charge_found()) nion = nion + pspw_charge_nion()
-      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
-
       call dcopy(3*nion,0.0d0,0,G1,1)
-
-      call psi_1force(G1)
-      if (psp_semicore(0)) call electron_semicoreforce(G1)
-
-      if (control_version().eq.3) call ewald_f(G1)
-      if (control_version().eq.4) call ion_ion_f(G1)
-
-      if (pspw_charge_found()) then
-         nion1 = ion_nion()
-         call pspw_charge_Fion_Fcharge(G1,G1(1,nion1+1))
-         call pspw_charge_Fcharge(G1(1,nion1+1))
-         call rho_1Fcharge(G1(1,nion1+1))
-      end if
-
-      if (pspw_qmmm_found()) then
-         nion1 = ion_nion() + pspw_charge_nion()
-         call rho_1_Fion_Fmm(G1,G1(1,nion1+1))
-      end if
+      call paw_psi_1force(G1)
 
 *     **** remove ion forces using ion_FixIon ****
+      allow_translation = control_allow_translation()
       call ion_FixIon(G1)
 
       if (.not.allow_translation) then
@@ -416,35 +392,6 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
            write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3)
           end if
         end do
-    
-
-*       **** print out charge positions ***
-        if (pspw_charge_found()) then
-          do i=1,pspw_charge_nion()
-            i1 = ion_nion() + i
-            if (ion_q_FixIon(i1)) then
-            write(luout,1191) i1,pspw_charge_aname(i),
-     >                    (pspw_charge_rion(K,i),K=1,3)
-            else
-            write(luout,1190) i1,pspw_charge_aname(i),
-     >                    (pspw_charge_rion(K,i),K=1,3)
-            end if
-          end do
-        end if
-
-*       **** print out mm positions ***
-        if (pspw_qmmm_found()) then
-          do i=1,pspw_qmmm_nion()
-            i1 = ion_nion() + pspw_charge_nion() + i
-            if (ion_q_FixIon(i1)) then
-            write(luout,1191) i1,pspw_qmmm_aname(i),
-     >                    (pspw_qmmm_rion(K,i),K=1,3)
-            else
-            write(luout,1190) i1,pspw_qmmm_aname(i),
-     >                    (pspw_qmmm_rion(K,i),K=1,3)
-            end if
-          end do
-        end if
         end if
 
         if (lprint) then
@@ -452,23 +399,6 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
         write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
 
-*       **** print out charge forces ***
-        if (pspw_charge_found()) then
-          do i=1,pspw_charge_nion()
-            i1 = ion_nion() + i
-            write(luout,1190) i1,pspw_charge_aname(i),
-     >                    (G1(K,i1),K=1,3)
-          end do
-        end if
-
-*       **** print out mm forces ***
-        if (pspw_qmmm_found()) then
-          do i=1,pspw_qmmm_nion()
-            i1 = ion_nion() + pspw_charge_nion() + i
-            write(luout,1190) i1,pspw_qmmm_aname(i),
-     >                    (G1(K,i1),K=1,3)
-          end do
-        end if
 
         write(luout,1210) fmx2,fmy2,fmz2  
         write(luout,1425)

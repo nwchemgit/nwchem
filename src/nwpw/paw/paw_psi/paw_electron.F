@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.1 2004-08-12 18:39:41 bylaska Exp $
+* $Id: paw_electron.F,v 1.2 2004-08-13 01:16:43 bylaska Exp $
 *
 
 
@@ -1797,19 +1797,19 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     *					*
 *     ***********************************
 
-      subroutine paw_electron_force(psi1,fion)
+      subroutine paw_electron_force(psi1,dng1,fion)
       implicit none
       complex*16 psi1(*)
+      complex*16 dng1(*)
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
 #include "paw_electron.fh"
 
-
+       call paw_vloc_force(dng1,fion)
        call paw_mult_pw_force(dcpl_mb(vh(1)),
      >                        dcpl_mb(vcomp(1)),
      >                        fion)
-
        call paw_force_solve(psi1,fion)
 
        return

@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.3 2004-08-12 18:39:41 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.4 2004-08-13 01:16:42 bylaska Exp $
 *
 
 ***********************************************************************
@@ -427,7 +427,13 @@ c     end if
       
 *     ****  calculate gradient ***
       if (flag.gt.0) then
+        nion = ion_nion()
+        value = MA_push_get(mt_dbl,(3*nion),
+     >                       'fion',fion(2),fion(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call paw_force_init()
+        call paw_cgsd_energy_gradient(dbl_mb(fion(1)))
+        call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
         call paw_force_end()
       end if
 
