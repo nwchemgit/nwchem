@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.116 2000-01-06 00:48:49 edo Exp $
+c     $Id: msgids.fh,v 1.117 2000-01-31 18:11:53 edo Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -428,6 +428,9 @@ C
       integer msg_DRDY_OPCODE
       integer msg_gop_rdens ! dft: dgop for rdens_atom
       integer msg_igop_tru ! dft: igop for rad_trunc
+      integer msg_igop_tru1 ! dft: igop for rad_trunc
+      integer msg_igop_tru2 ! dft: igop for rad_trunc
+      integer msg_igop_tru3 ! dft: igop for rad_trunc
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -981,3 +984,6 @@ c
       parameter(msg_DRDY_OPCODE = msg_ftn_base-704)
       parameter(msg_gop_rdens = msg_ftn_base-705)! dft: dgop for rdens_atom
       parameter(msg_igop_tru = msg_ftn_base-706)! dft: igop for trun
+      parameter(msg_igop_tru1 = msg_ftn_base-707)! dft: igop for trun
+      parameter(msg_igop_tru2 = msg_ftn_base-708)! dft: igop for trun
+      parameter(msg_igop_tru3 = msg_ftn_base-709)! dft: igop for trun
