@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.134 2002-06-25 23:15:01 d3j191 Exp $
+c $Id: md_main.F,v 1.135 2002-06-25 23:16:41 d3j191 Exp $
 c
       implicit none
 c
@@ -1452,8 +1452,7 @@ c
 c     periodic boundary conditions
 c
       call md_fold(int_mb(i_iw),int_mb(i_is),
-     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm),
-     + dbl_mb(i_xsmp))
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
       call timer_stop(11)
 c
@@ -2452,7 +2451,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.134 2002-06-25 23:15:01 d3j191 Exp $
+c $Id: md_main.F,v 1.135 2002-06-25 23:16:41 d3j191 Exp $
 c
       implicit none
 c
