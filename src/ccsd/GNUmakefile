@@ -1,4 +1,4 @@
-#     $Id: GNUmakefile,v 2.13 1997-11-14 19:25:49 d3g681 Exp $
+#     $Id: GNUmakefile,v 2.14 1998-08-21 18:22:57 d3g270 Exp $
 
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
@@ -66,7 +66,8 @@
 	      ccsd_zsig2.F \
 	      ccden_interm2.F \
 	      ccden_1pdm.F \
-	      geaxpy.f
+	      geaxpy.f \
+		ccsd_mktau_ga.F
 
 LIB_DEFINES =
 
