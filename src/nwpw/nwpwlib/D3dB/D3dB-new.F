@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.32 2004-05-16 18:17:51 edo Exp $
+* $Id: D3dB-new.F,v 1.33 2004-07-29 00:33:05 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -951,6 +951,7 @@ c      end
 
 *     *** local variables ***
       integer i,j,k,q,indx,ierr
+      integer nxh,nxhy,nxhz,indx0,indx1
 
       
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -968,6 +969,9 @@ c      end
      >      MA_push_get(mt_dbl,(n2ft3d(nb)),'ffttmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+       nxh = (nx(nb)/2+1)
+       nxhz = nxh*nz(nb)
+       nxhy = nxh*ny(nb)
       
       !**********************
       !**** slab mapping ****
@@ -1003,18 +1007,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #else
       !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      indx0 = 0
       do q=1,nq(nb)
-      do i=1,(nx(nb)/2+1)
+      do i=1,nxh
+         indx  = i + indx0
+         indx1 = indx
          do k=1,nz(nb)
-            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
+            indx = indx + nxh
          end do
          call dcfftb(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
-            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
-            A(indx) = dcpl_mb(tmp2(1)+k-1)
+            A(indx1) = dcpl_mb(tmp2(1)+k-1)
+            indx1 = indx1 + nxh
          end do
       end do
+      indx0 = indx0 + nxhz
       end do
 #endif
 
@@ -1047,18 +1055,22 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(ny(nb)),A,1)
 #else
       !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
+      indx0 = 0
       do q=1,nq(nb)
       do i=1,(nx(nb)/2+1)
+         indx  = i + indx0
+         indx1 = indx
          do j=1,ny(nb)
-            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+j-1) = A(indx)
+            indx = indx + nxh
          end do
          call dcfftb(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
-            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            A(indx) = dcpl_mb(tmp2(1)+j-1)
+            A(indx1) = dcpl_mb(tmp2(1)+j-1)
+            indx1 = indx1 + nxh
          end do
       end do
+      indx0 = indx0 + nxhy
       end do
 #endif
 
@@ -1096,10 +1108,12 @@ c      end do
 c      end do
 
       call cshift1_fftb(nx(nb),ny(nb),nq(nb),1,A)
+      indx = 1
       do q=1,nq(nb)
       do j=1,ny(nb)
-         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+         !indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
          call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+         indx = indx + nxh
       end do
       end do
       call zeroend_fftb(nx(nb),ny(nb),nq(nb),1,A)
@@ -1117,14 +1131,18 @@ c      end do
 *     ***   A(nz(nb),kx,ky) <- fft1d^(-1)[A(kz,kx,ky)]  ***
 *     *************************************************
 #ifdef MLIB
+      indx = 1
       do q=1,nq3(nb)
-         indx = 1 + (q-1)*nz(nb)
+         !indx = 1 + (q-1)*nz(nb)
          call z1dfft(A(indx),nz(nb),dcpl_mb(tmpz(1,nb)),-2,ierr)
+         indx = indx + nz(nb)
       end do
 #else
+      indx = 1
       do q=1,nq3(nb)
-         indx = 1 + (q-1)*nz(nb)
+         !indx = 1 + (q-1)*nz(nb)
          call dcfftb(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
+         indx = indx + nz(nb)
       end do
 #endif
 
@@ -1135,14 +1153,18 @@ c      end do
 *     ***   A(ny(nb),nz(nb),kx) <- fft1d^(-1)[A(ky,nz(nb),kx)]  ***
 *     *************************************************
 #ifdef MLIB
+      indx = 1
       do q=1,nq2(nb)
-         indx = 1 + (q-1)*ny(nb)
+         !indx = 1 + (q-1)*ny(nb)
          call z1dfft(A(indx),ny(nb),dcpl_mb(tmpy(1,nb)),-2,ierr)
+         indx = indx + ny(nb)
       end do
 #else
+      indx = 1
       do q=1,nq2(nb)
-         indx = 1 + (q-1)*ny(nb)
+         !indx = 1 + (q-1)*ny(nb)
          call dcfftb(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
+         indx = indx + ny(nb)
       end do
 #endif
 
@@ -1153,15 +1175,19 @@ c      end do
 *     ***   A(nx(nb),ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ny(nb),nz(nb))]  ***
 *     *************************************************
 #ifdef MLIB
+      indx = 1
       do q=1,nq1(nb)
-         indx = 1 + (q-1)*(nx(nb)/2+1)
+         !indx = 1 + (q-1)*(nx(nb)/2+1)
          call drc1ft(A(indx),nx(nb),dcpl_mb(tmpx(1,nb)),-2,ierr)
+         indx = indx + nxh
       end do
 #else
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
+      indx = 1
       do q=1,nq1(nb)
-         indx = 1 + (q-1)*(nx(nb)/2+1)
+         !indx = 1 + (q-1)*(nx(nb)/2+1)
          call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+         indx = indx + nxh
       end do
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
 #endif
@@ -1187,35 +1213,40 @@ c      end do
       real*8 A(*)
 
       integer i,j,q,n,indx
-      do n=1,ne
-      do q=1,nq
-      do j=1,ny
-         indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
-     >            + (n-1)*(nx+2)*ny*nq
+c     do n=1,ne
+c     do q=1,nq
+
+      indx = 1
+      do j=1,(ny*nq*ne)
+c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+c    >            + (n-1)*(nx+2)*ny*nq
          do i=2,nx
             A(indx+i-1) = A(indx+i)
          end do
+         indx = indx + (nx+2)
       end do
-      end do
-      end do
+
+c     end do
+c     end do
+
+
+
       return
       end 
+
       subroutine zeroend_fftb(nx,ny,nq,ne,A)
       implicit none
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,q,n,indx
-      do n=1,ne
-      do q=1,nq
-      do j=1,ny
-         indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
-     >            + (n-1)*(nx+2)*ny*nq
-         A(indx+nx)   = 0.0d0
-         A(indx+nx+1) = 0.0d0
+      integer i,indx
+      indx  = nx+1
+      do i=1,(ny*nq*ne)
+         A(indx)   = 0.0d0
+         A(indx+1) = 0.0d0
+         indx      = indx + (nx+2)
       end do
-      end do
-      end do
+
       return
       end 
 
@@ -1462,7 +1493,8 @@ c      end
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
 *     *** local variables ***
-      integer i,j,k,q,indx,ierr
+      integer i,j,k,q,indx,indx1,ierr
+      integer nxh
 
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
@@ -1479,6 +1511,7 @@ c      end
      >        MA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+      nxh = (nx(nb)/2+1)
 
       !**********************
       !**** slab mapping ****
@@ -1500,9 +1533,10 @@ c     end do
 
 #else
       !call drffti(nx(nb),dcpl_mb(tmp1(1)))
+      indx = 1
       do q=1,nq(nb)
       do j=1,ny(nb)
-         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+c         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
 
 c        call dcopy((nx(nb)+2),A(indx),1,dbl_mb(tmp3(1)),1)
 c        call drfftf(nx(nb),dbl_mb(tmp3(1)),dcpl_mb(tmp1(1)))
@@ -1514,6 +1548,7 @@ c        dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
 c        call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
 
          call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+         indx = indx + nxh
       end do
       end do
       call cshift_fftf(nx(nb),ny(nb),nq(nb),1,A)
@@ -1551,18 +1586,25 @@ c     >           (nx(nb)/2+1)*nq(nb),1,ierr)
 c      end do
 #else
       !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
+      do i=1,nxh
+      indx = i
+      indx1= i
       do q=1,nq(nb)
-      do i=1,(nx(nb)/2+1)
          do j=1,ny(nb)
-            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+            !indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+j-1) = A(indx)
+            indx = indx + nxh
          end do
+
          call dcfftf(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
+
          do j=1,ny(nb)
-            indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            A(indx) = dcpl_mb(tmp2(1)+j-1)
+            !indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+            A(indx1) = dcpl_mb(tmp2(1)+j-1)
+            indx1 = indx1 + nxh
          end do
       end do
+      
       end do
 #endif
 
@@ -1595,16 +1637,20 @@ c      end do
       end do
 #else
       !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      do i=1,nxh
+      indx  = i
+      indx1 = i
       do q=1,nq(nb)
-      do i=1,(nx(nb)/2+1)
          do k=1,nz(nb)
-            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+            !indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
+            indx = indx + nxh
          end do
          call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
-            indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            A(indx) = dcpl_mb(tmp2(1)+k-1)
+            !indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+            A(indx1) = dcpl_mb(tmp2(1)+k-1)
+            indx1 = indx1 + nxh
          end do
       end do
       end do
@@ -1634,10 +1680,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call drcfts(A,nx(nb),1,nq1(nb),
      >                  nx(nb)+2,1,ierr)
 #else
+      indx = 1
       do q=1,nq1(nb)
-         indx = 1 + (q-1)*(nx(nb)/2+1)
-
+         !indx = 1 + (q-1)*(nx(nb)/2+1)
          call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+         indx = indx + nxh
       end do
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #endif
@@ -1649,15 +1696,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***   A(ky,nz(nb),kx) <- fft1d[A(ny(nb),nz(nb),kx)]  ***
 *     ********************************************
 #ifdef MLIB
+      indx = 1
       do q=1,nq2(nb)
-         indx = 1 + (q-1)*ny(nb)
-
+         !indx = 1 + (q-1)*ny(nb)
          call z1dfft(A(indx),ny(nb),dcpl_mb(tmpy(1,nb)),1,ierr)
+         indx = indx + ny(nb)
       end do
 #else
+      indx = 1
       do q=1,nq2(nb)
-         indx = 1 + (q-1)*ny(nb)
+         !indx = 1 + (q-1)*ny(nb)
          call dcfftf(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
+         indx = indx + ny(nb)
       end do
 #endif
 
@@ -1668,14 +1718,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***   A(kz,kx,ky) <- fft1d[A(nz(nb),kx,ky)]  ***
 *     ********************************************
 #ifdef MLIB
+      indx = 1
       do q=1,nq3(nb)
-         indx = 1 + (q-1)*nz(nb)
+         !indx = 1 + (q-1)*nz(nb)
          call z1dfft(A(indx),nz(nb),dcpl_mb(tmpz(1,nb)),1,ierr)
+         indx = indx + nz(nb)
       end do
 #else
+      indx = 1
       do q=1,nq3(nb)
-         indx = 1 + (q-1)*nz(nb)
+         !indx = 1 + (q-1)*nz(nb)
          call dcfftf(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
+         indx = indx + nz(nb)
       end do
 #endif
 
@@ -1697,20 +1751,19 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,q,n,indx
+      integer i,j,indx
 
-      do n=1,ne
-      do q=1,nq
-      do j=1,ny
-         indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
-     >        + (n-1)*(nx+2)*ny*nq
+      indx = 1
+      do j=1,(ny*nq*ne)
+c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+c    >        + (n-1)*(nx+2)*ny*nq
+
          do i=nx,2,-1
             A(indx+i) = A(indx+i-1)
          end do
          A(indx+1)    = 0.0d0
          A(indx+nx+1) = 0.0d0
-      end do
-      end do
+         indx = indx + (nx+2)
       end do
 
       return
