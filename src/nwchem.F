@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.150 2004-11-29 22:30:17 edo Exp $
+c     $Id: nwchem.F,v 1.151 2004-11-30 01:32:27 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003, 2004                      *
@@ -82,7 +82,6 @@ c
 #ifdef USE_SUBGROUPS
       logical util_sgstart
       external util_sgstart
-      character*256 rtdb_fname
 #endif
 c
 c     Create parallel processes and initialize IPC layer
@@ -258,12 +257,7 @@ c
 c     Parse input data, shove into the database and execute tasks
 c
 #ifdef USE_SUBGROUPS
-      if (.not. rtdb_getfname(rtdb, rtdb_fname)) call 
-     *     errquit('rtdb_fname call failed',0,0)
-      if (.not. rtdb_close(rtdb, 'keep')) call errquit(
-     *     ' failed to close rtdb for sg ',0,0)
-      if(util_sgstart()) then
-         call util_sgrtdb(rtdb,rtdb_fname)
+      if(util_sgstart(rtdb)) then
 #endif
  10   if (input_parse(rtdb)) then ! while (tasks to do)
          call util_print_rtdb_load(rtdb,' ') ! High level print
@@ -277,7 +271,7 @@ c
       endif
 #ifdef USE_SUBGROUPS
       endif
-      call util_sgend(rtdb,rtdb_fname)
+      call util_sgend(rtdb)
 #endif
 c
 c     Close the RTDB
