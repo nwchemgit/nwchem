@@ -6,7 +6,7 @@
      $                  rtdb, geom, basis, 
      $                  nproc, nat, scr, lscr, buf, lbuf, tol2e,
      $                  s34, oactive, oskel, scftype, omp2)
-c$Id: grad2.F,v 1.17 1996-09-19 16:58:07 vg038 Exp $
+c$Id: grad2.F,v 1.18 1996-09-20 23:31:52 vg038 Exp $
 
       implicit none
 
@@ -264,7 +264,7 @@ C            get density matrix blocks
                   do 75, ish1 = iac1f, iac1l
                     if ( oij ) iac2l = ish1
                     do 70, ish2 = iac2f, iac2l
-                      if ( schwarz_shell(ish1,ish2)*schwarz_max()
+                      if ( schwarz_shell(ish1,ish2)*schwarz_max()*q4
      $                     .ge. tol2e ) then
                         itop3 = iac3l
                         if ( iat1.eq.iat3 .and. iat2.eq.iat4 ) 
@@ -275,7 +275,8 @@ C            get density matrix blocks
                           if ( oikjl .and. ish1.eq.ish3 ) itop4 = ish2
                           do 60, ish4 = iac4f, itop4
                             if (schwarz_shell(ish1,ish2)
-     $                           *schwarz_shell(ish3,ish4) .ge. tol2e ) 
+     $                           * schwarz_shell(ish3,ish4) 
+     $                           * q4 .ge. tol2e ) 
      $                           then
 C---------------------------------------------------------------------
 

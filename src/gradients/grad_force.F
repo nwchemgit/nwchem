@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom )
-c$Id: grad_force.F,v 1.8 1996-09-19 16:58:09 vg038 Exp $
+c$Id: grad_force.F,v 1.9 1996-09-20 23:31:54 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -327,8 +327,10 @@ C     free temporary arrays
 
 c
 C  initialize for integral gradients
-      call intd_init(rtdb,1,basis)
-      call schwarz_init (geom, basis)
+      call int_init ( rtdb, 1, basis )
+      call schwarz_init ( geom, basis )
+      call int_terminate()
+      call intd_init ( rtdb, 1, basis )
       call dfill ( lforce, 0.0D0, dbl_mb(k_force), 1 )
       call dfill ( lforce, 0.0D0, dbl_mb(k_frc_nuc), 1 )
       call dfill ( lforce, 0.0D0, dbl_mb(k_frc_kin), 1 )
