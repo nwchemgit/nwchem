@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.3 1999-12-29 23:31:18 windus Exp $
+C $Id: onedd_cont.F,v 1.4 2000-04-25 22:17:38 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -17,6 +17,7 @@ c
 c
       integer rtdb  ! [input] RTDB handle
 c
+      integer i
       integer g_wdens, ndens
       integer g_eigen_diag
       integer max1e, max2e, mscratch_1e, mscratch_2e
@@ -110,10 +111,20 @@ c
 c
 c  Call the actual routine to add the S, V and T contributions
 c
+
+c  first print out the rhs values (should be all zeroes)!
+      write(6,*) 'g_rhs before going into onedd_calc'
+      do i = 1, ncent*3
+        call ga_print(g_rhs(i))
+      enddo
+c
+c     write(6,*) 'before onedd_calc'
+c     call flush(6)
+c
       doS = .true.
       doV = .true.
       doT = .true.
-      call onedd_calc(dbl_mb(k_exy),ncent*3,g_rhs,ncent*3,dbl_mb(k_buf),
+      call onedd_calc(dbl_mb(k_exy),ncent*3,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,dbl_mb(k_dens),
      *  dbl_mb(k_wdens),matb)
@@ -130,11 +141,34 @@ c
      *  call errquit('onedd_cont: failed to pop l_wdens',555)
       if (.not. ma_pop_stack(l_dens)) 
      *  call errquit('onedd_cont: failed to pop l_dens',555)
+      if (.not. ga_destroy(g_wdens)) 
+     *  call errquit('onedd_cont: failed to free g_wdens',555)
+c
+c Now handle the Hx and Sx terms for the rhs
+c
+
+      doS = .false.
+      doV = .true.
+      doT = .true.
+c  first print out the rhs values 
+      write(6,*) 'g_rhs before oned_calc'
+      do i = 1, ncent*3
+        call ga_print(g_rhs(i))
+      enddo
+      call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
+     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
+     *  doS,doT,doV,geom,basis,ncent)
+c  first print out the rhs values 
+      write(6,*) 'g_rhs after oned_calc'
+      do i = 1, ncent*3
+        call ga_print(g_rhs(i))
+      enddo
+c
+c  Get rid of the temporary buffers for the integrals
+c
       if (.not. ma_pop_stack(l_scr)) 
      *  call errquit('onedd_cont: failed to pop l_scr',555)
       if (.not. ma_pop_stack(l_buf)) 
      *  call errquit('onedd_cont: failed to pop l_buf',555)
-      if (.not. ga_destroy(g_wdens)) 
-     *  call errquit('onedd_cont: failed to free g_wdens',555)
 c
       end

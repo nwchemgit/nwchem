@@ -1,7 +1,7 @@
 c
-c $Id: onedd_calc.F,v 1.5 2000-01-04 19:25:48 windus Exp $
+c $Id: onedd_calc.F,v 1.6 2000-04-25 22:17:37 windus Exp $
 c
-      subroutine onedd_calc(Hxy,nxyz,g_rhs,nrhs,Ibuf,lbuf,Iscr,lscr,
+      subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
      *      g_wdens,g_dens,geom,basis,nat,dens,wdens,matb)
 c
@@ -14,8 +14,6 @@ c
       integer nat                  ! [input] the number of atoms
       double precision Hxy(3,nat,3,nat) ! [output] the hessian matrix
       integer nxyz                 ! [input] 3*number of atoms
-      integer nrhs                 ! [input] number of RHSs
-      integer g_rhs(nrhs)          ! [output] handles for the RHSs
       integer lbuf                 ! [input] length of the integral buffer
       double precision Ibuf(lbuf)  ! [input] Buffer for integrals
       integer lscr                 ! [input] length of the scratch buffer
