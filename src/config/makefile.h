@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.346 2000-11-17 02:19:12 edo Exp $
+# $Id: makefile.h,v 1.347 2000-11-20 18:04:30 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -668,8 +668,11 @@ FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
 
 #optimization flags for R12000 (IP27)
 # FOPTIMIZE_12K = -O   -r12000  -TARG:platform=ip27  -LNO:cs2=8M -TENV:X=3
- FOPTIMIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
- FVECTORIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+# FOPTIMIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+# FVECTORIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+# The above options are some Edo used to optimize for a particular machine
+ FOPTIMIZE_12K = -O3 -OPT:const_copy_limit=20000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC 
+FVECTORIZE_12K = -O3 -TENV:X=1 -WK,-dr=AKC
 
  FOPTIMIZE = -O3
  COPTIMIZE = -O2
