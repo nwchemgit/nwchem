@@ -1780,7 +1780,7 @@ c
       k_ilab = k_lab       
       k_jlab = k_lab + leneri  
       k_klab = k_lab + leneri*2
-      k_llab = l_lab + leneri*3
+      k_llab = k_lab + leneri*3
 c
       nq = 0
       q4 = 1.0d0                ! If not using symmetry

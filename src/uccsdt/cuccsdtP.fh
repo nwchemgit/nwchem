@@ -53,6 +53,7 @@ c
       integer ncblock, cblock(1:3,nw_max_nbf)
       integer noblock(1:2), oblock(1:3,nw_max_nbf,1:2)
       integer oblock_max, vblock_max ! Maximum size of any occ/virt block
+      integer e_block_max, m_block_max ! largest no. of virt/occ in any irrep
 c
 c     1 = length of pointer array = #block triplets/quartets
 c     2 = MA index for pointer array
@@ -85,6 +86,7 @@ c
      $     nablock, nbblock, ncblock, noblock,
      $     ablock, bblock, cblock, oblock,
      $     oblock_max, vblock_max, 
+     $     e_block_max, m_block_max, 
      $     listinfo
 c
 c     characters

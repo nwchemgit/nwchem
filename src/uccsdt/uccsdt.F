@@ -460,6 +460,7 @@ c
 #include "cuccsdtP.fh"
 #include "util.fh"
 #include "global.fh"
+#include "mafdecls.fh"
       double precision t1a(*)
 c     
       integer ablk, alo, ahi, syma
@@ -474,19 +475,31 @@ c
 c     
       double precision energy
 c     
-      double precision int_abij(5000),
-     $     int_abjk(5000),
-     $     int_abik(5000),
-     $     int_bcij(5000),
-     $     int_acij(5000),
-     $     int_bcjk(5000),
-     $     int_acjk(5000),
-     $     int_bcik(5000),
-     $     int_acik(5000)
+c      double precision int_abij(5000),
+c     $     int_abjk(5000),
+c     $     int_abik(5000),
+c     $     int_bcij(5000),
+c     $     int_acij(5000),
+c     $     int_bcjk(5000),
+c     $     int_acjk(5000),
+c     $     int_bcik(5000),
+c     $     int_acik(5000)
 c     
-      double precision int_buf(5000), t_buf(5000), w(100000)
+c      double precision int_buf(5000), t_buf(5000), w(100000)
       integer btop, ctop, ktop, vlo, vhi, olo, ohi
-      integer lentbuf, lenibuf
+      integer lentbuf, l_tbuf, k_tbuf
+      integer lenibuf, l_ibuf, k_ibuf
+      integer lenwbuf, l_wbuf, k_wbuf
+      integer len9ibuf, l_ibuf_abij, k_ibuf_abij,
+     $                  l_ibuf_abjk, k_ibuf_abjk,
+     $                  l_ibuf_abik, k_ibuf_abik,
+     $                  l_ibuf_bcij, k_ibuf_bcij,
+     $                  l_ibuf_acij, k_ibuf_acij,
+     $                  l_ibuf_bcjk, k_ibuf_bcjk,
+     $                  l_ibuf_acjk, k_ibuf_acjk,
+     $                  l_ibuf_bcik, k_ibuf_bcik,
+     $                  l_ibuf_acik, k_ibuf_acik
+c  
       logical oprint
       integer nxtval, next, count, me, nproc
       external nxtval
@@ -503,9 +516,45 @@ c
      $     .and. ga_nodeid().eq.0
 c     
       energy = 0.0d0
-      lentbuf = 5000
-      lenibuf = 5000
-c     
+c
+      lentbuf = max(e_block_max*vblock_max*oblock_max**2,
+     &              m_block_max*oblock_max*vblock_max**2)
+      if (.not.ma_push_get(mt_dbl,lentbuf,'tbuf',l_tbuf,k_tbuf))
+     $   call errquit('uccsdt: tbuf?',lentbuf)
+c
+      lenibuf = max(e_block_max*oblock_max*vblock_max**2,
+     &              m_block_max*vblock_max*oblock_max**2)
+      if (.not.ma_push_get(mt_dbl,lenibuf,'ibuf',l_ibuf,k_ibuf))
+     $   call errquit('uccsdt: ibuf?',lenibuf)
+c
+      lenwbuf = (vblock_max*oblock_max)**3
+      if (.not.ma_push_get(mt_dbl,lenwbuf,'wbuf',l_wbuf,k_wbuf))
+     $   call errquit('uccsdt: wbuf?',lenwbuf)
+c
+      len9ibuf = (vblock_max*oblock_max)**2
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_abij',l_ibuf_abij,
+     $   k_ibuf_abij))call errquit('uccsdt: ibuf_abij?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_abjk',l_ibuf_abjk,
+     $   k_ibuf_abjk))call errquit('uccsdt: ibuf_abjk?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_abik',l_ibuf_abik,
+     $   k_ibuf_abik))call errquit('uccsdt: ibuf_abik?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_bcij',l_ibuf_bcij,
+     $   k_ibuf_bcij))call errquit('uccsdt: ibuf_bcij?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acij',l_ibuf_acij,
+     $   k_ibuf_acij))call errquit('uccsdt: ibuf_acij?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_bcjk',l_ibuf_bcjk,
+     $   k_ibuf_bcjk))call errquit('uccsdt: ibuf_bcjk?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acjk',l_ibuf_acjk,
+     $   k_ibuf_acjk))call errquit('uccsdt: ibuf_acjk?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_bcik',l_ibuf_bcik,
+     $   k_ibuf_bcik))call errquit('uccsdt: ibuf_bcik?',len9ibuf)
+      if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acik',l_ibuf_acik,
+     $   k_ibuf_acik))call errquit('uccsdt: ibuf_acik?',len9ibuf)
+      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
+     &            lentbuf, lenibuf, lenwbuf, len9ibuf
+c
+c note t1 is still dummy memory
+c
       me = ga_nodeid()
       nproc = ga_nnodes()
       next = nxtval(nproc)
@@ -582,7 +631,8 @@ c
      $                             'TSB:kblk, klo, khi, symk ',
      $                             kblk, klo, khi, symk
 c     
-                              call dfill (100000, 0.0d0, w, 1)
+                              call dfill (lenwbuf, 0.0d0, 
+     $                                    dbl_mb(k_wbuf),1)
 c     
 c     Now that we are testing on sym(ijkabc) above we don't
 c     need to test on esym.eq.test_sym below
@@ -596,11 +646,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(14, 1, 
-     $                                cblk, jblk, iblk, t_buf, lentbuf)
+     $                                cblk, jblk, iblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(1, 1, 
-     $                                kblk,ablk,bblk,int_buf,lenibuf)
+     $                                kblk, ablk, bblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_ecji_int_ekab
-     $                                (w, t_buf, int_buf,
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf),
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -616,11 +669,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(14, 1,
-     $                                cblk, jblk, kblk, t_buf, lentbuf)
+     $                                cblk, jblk, kblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(1, 1,
-     $                                iblk,ablk,bblk,int_buf,lenibuf)
+     $                                iblk, ablk, bblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_ecjk_int_eiab
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -636,11 +692,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(14, 1,
-     $                                cblk, iblk, kblk, t_buf, lentbuf)
+     $                                cblk, iblk, kblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(1, 1,
-     $                                jblk,ablk,bblk,int_buf,lenibuf)
+     $                                jblk, ablk, bblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_ecik_int_ejab
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -656,11 +715,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(15, 1,
-     $                                ablk, jblk, iblk, t_buf, lentbuf)
+     $                                ablk, jblk, iblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(3, 1,
-     $                                kblk,bblk,cblk,int_buf,lenibuf)
+     $                                kblk, bblk, cblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_eaji_int_ekbc
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -676,11 +738,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(16, 1,
-     $                                bblk, jblk, iblk, t_buf, lentbuf)
+     $                                bblk, jblk, iblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(2, 1,
-     $                                kblk,ablk,cblk,int_buf,lenibuf)
+     $                                kblk, ablk, cblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_ebji_int_ekac
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -696,11 +761,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(17, 1,
-     $                                ablk, kblk, jblk, t_buf, lentbuf)
+     $                                ablk, kblk, jblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(5, 1,
-     $                                iblk,cblk,bblk,int_buf,lenibuf)
+     $                                iblk, cblk, bblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_eakj_int_eicb
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -716,11 +784,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(18, 1,
-     $                                bblk, kblk, jblk, t_buf, lentbuf)
+     $                                bblk, kblk, jblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(4, 1,
-     $                                iblk,cblk,ablk,int_buf,lenibuf)
+     $                                iblk, cblk, ablk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_ebkj_int_eica
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -736,11 +807,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(17, 1,
-     $                                ablk, kblk, iblk, t_buf, lentbuf)
+     $                                ablk, kblk, iblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(5, 1,
-     $                                jblk,cblk,bblk,int_buf,lenibuf)
+     $                                jblk, cblk, bblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_eaki_int_ejcb
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -756,11 +830,14 @@ c
                                  elo = v_sym(1,esym,spine)
                                  ehi = v_sym(2,esym,spine)
                                  call uccsdt_triples_get_list(18, 1,
-     $                                bblk, kblk, iblk, t_buf, lentbuf)
+     $                                bblk, kblk, iblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(4, 1,
-     $                                jblk,cblk,ablk,int_buf,lenibuf)
+     $                                jblk, cblk, ablk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_ebki_int_ejca
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi, elo, ehi,
      $                                ilo, ihi, jlo, jhi, 
@@ -777,11 +854,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(19, 1,
-     $                                kblk, ablk, bblk, t_buf, lentbuf)
+     $                                kblk, ablk, bblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(6, 1,
-     $                                cblk,jblk,iblk,int_buf,lenibuf)
+     $                                cblk, jblk, iblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mkab_int_mcji
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -797,11 +877,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(19, 1,
-     $                                iblk, ablk, bblk, t_buf, lentbuf)
+     $                                iblk, ablk, bblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(6, 1,
-     $                                cblk,jblk,kblk,int_buf,lenibuf)
+     $                                cblk, jblk, kblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_miab_int_mcjk
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -817,11 +900,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(19, 1,
-     $                                jblk, ablk, bblk, t_buf, lentbuf)
+     $                                jblk, ablk, bblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(6, 1,
-     $                                cblk,iblk,kblk,int_buf,lenibuf)
+     $                                cblk, iblk, kblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mjab_int_mcik
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -837,11 +923,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(21, 1,
-     $                                kblk, bblk, cblk, t_buf, lentbuf)
+     $                                kblk, bblk, cblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(7, 1,
-     $                                ablk,jblk,iblk,int_buf,lenibuf)
+     $                                ablk, jblk, iblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mkbc_int_maji
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -857,11 +946,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(20, 1,
-     $                                kblk, ablk, cblk, t_buf, lentbuf)
+     $                                kblk, ablk, cblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(8, 1,
-     $                                bblk,jblk,iblk,int_buf,lenibuf)
+     $                                bblk, jblk, iblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mkac_int_mbji
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -877,11 +969,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(23, 1,
-     $                                iblk, cblk, bblk, t_buf, lentbuf)
+     $                                iblk, cblk, bblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(9, 1,
-     $                                ablk,kblk,jblk,int_buf,lenibuf)
+     $                                ablk, kblk, jblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_micb_int_makj
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -897,11 +992,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(22, 1,
-     $                                iblk, cblk, ablk, t_buf, lentbuf)
+     $                                iblk, cblk, ablk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(10, 1,
-     $                                bblk,kblk,jblk,int_buf,lenibuf)
+     $                                bblk, kblk, jblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mica_int_mbkj
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -917,11 +1015,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(23, 1,
-     $                                jblk, cblk, bblk, t_buf, lentbuf)
+     $                                jblk, cblk, bblk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(9, 1,
-     $                                ablk,kblk,iblk,int_buf,lenibuf)
+     $                                ablk, kblk, iblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mjcb_int_maki
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -937,11 +1038,14 @@ c
                                  mlo = o_sym(1,msym,spinm)
                                  mhi = o_sym(2,msym,spinm)
                                  call uccsdt_triples_get_list(22, 1,
-     $                                jblk, cblk, ablk, t_buf, lentbuf)
+     $                                jblk, cblk, ablk, dbl_mb(k_tbuf), 
+     $                                lentbuf)
                                  call uccsdt_triples_get_list(10, 1,
-     $                                bblk,kblk,iblk,int_buf,lenibuf)
+     $                                bblk, kblk, iblk, dbl_mb(k_ibuf), 
+     $                                lenibuf)
                                  call w_t2_mjca_int_mbki
-     $                                (w, t_buf, int_buf, 
+     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
+     $                                dbl_mb(k_ibuf), 
      $                                alo, ahi, blo, bhi, 
      $                                clo, chi,
      $                                ilo, ihi, jlo, jhi, 
@@ -953,85 +1057,94 @@ c
                               t1_sym = ieor(symc, symk)
                               if ( int_sym.eq.0 .and. t1_sym.eq.0) then
                                  call uccsdt_triples_get_list(11, 
-     $                                ablk, bblk, iblk, jblk, int_abij,
-     $                                lenibuf)
+     $                                ablk, bblk, iblk, jblk, 
+     $                                dbl_mb(k_ibuf_abij), len9ibuf)
                               else
-                                 call dfill(lenibuf,0.0d0,int_abij,1)
+                                 call dfill(len9ibuf, 0.0d0,
+     $                                   dbl_mb(k_ibuf_abij), 1)
                               end if
                               if (spin .eq. spinck) then
                                  int_sym = sym4(syma, symb, symj, symk)
                                  t1_sym = ieor(symc, symi)
                                  if (int_sym.eq.0.and.t1_sym.eq.0) then
                                     call uccsdt_triples_get_list(11,
-     $                                   ablk,bblk,jblk,kblk,int_abjk,
-     $                                   lenibuf)
+     $                                   ablk, bblk, jblk, kblk,
+     $                                   dbl_mb(k_ibuf_abjk), len9ibuf)
                                  else
-                                    call dfill(lenibuf,0d0,int_abjk,1)
+                                    call dfill(len9ibuf, 0d0,
+     $                                   dbl_mb(k_ibuf_abjk), 1)
                                  endif
                                  int_sym = sym4(syma, symb, symi, symk)
                                  t1_sym = ieor(symc, symj)
                                  if (int_sym.eq.0.and.t1_sym.eq.0) then
                                     call uccsdt_triples_get_list(11,
-     $                                   ablk,bblk,iblk,kblk,int_abik,
-     $                                   lenibuf)
+     $                                   ablk, bblk, iblk, kblk,
+     $                                   dbl_mb(k_ibuf_abik), len9ibuf)
                                  else
-                                    call dfill(lenibuf,0d0,int_abik,1)
+                                    call dfill(len9ibuf, 0d0,
+     $                                   dbl_mb(k_ibuf_abik), 1)
                                  endif
                                  int_sym = sym4(symb, symc, symi, symj)
                                  t1_sym = ieor(syma, symk)
                                  if (int_sym.eq.0.and.t1_sym.eq.0) then
                                     call uccsdt_triples_get_list(13,
-     $                                   bblk,cblk,iblk,jblk,int_bcij,
-     $                                   lenibuf)
+     $                                   bblk, cblk, iblk, jblk,
+     $                                   dbl_mb(k_ibuf_bcij), len9ibuf)
                                  else
-                                    call dfill(lenibuf,0d0,int_bcij,1)
+                                    call dfill(len9ibuf, 0d0,
+     $                                   dbl_mb(k_ibuf_bcij), 1)
                                  endif
                                  int_sym = sym4(syma, symc, symi, symj)
                                  t1_sym = ieor(symb, symk)
                                  if (int_sym.eq.0.and.t1_sym.eq.0) then
                                     call uccsdt_triples_get_list(12,
-     $                                   ablk,cblk,iblk,jblk,int_acij,
-     $                                   lenibuf)
+     $                                   ablk, cblk, iblk, jblk,
+     $                                   dbl_mb(k_ibuf_acij), len9ibuf)
                                  else
-                                    call dfill(lenibuf,0d0,int_acij,1)
+                                    call dfill(len9ibuf, 0d0,
+     $                                   dbl_mb(k_ibuf_acij), 1)
                                  endif
                               end if
                               int_sym = sym4(symb, symc, symj, symk)
                               t1_sym = ieor(syma, symi)
                               if (int_sym.eq.0 .and. t1_sym.eq.0) then
                                  call uccsdt_triples_get_list(13,
-     $                                bblk,cblk,jblk,kblk,int_bcjk, 
-     $                                lenibuf)
+     $                                bblk, cblk, jblk, kblk,
+     $                                dbl_mb(k_ibuf_bcjk), len9ibuf)
                               else
-                                 call dfill(lenibuf, 0d0, int_bcjk, 1)
+                                 call dfill(len9ibuf, 0d0, 
+     $                                dbl_mb(k_ibuf_bcjk), 1)
                               end if
 c     
                               int_sym = sym4(syma, symc, symj, symk)
                               t1_sym = ieor(symb, symi)
                               if (int_sym.eq.0 .and. t1_sym.eq.0) then
                                  call uccsdt_triples_get_list(12,
-     $                                ablk, cblk, jblk, kblk, int_acjk,
-     $                                lenibuf)
+     $                                ablk, cblk, jblk, kblk, 
+     $                                dbl_mb(k_ibuf_acjk), len9ibuf)
                               else
-                                 call dfill(lenibuf, 0d0, int_acjk, 1)
+                                 call dfill(len9ibuf, 0d0, 
+     $                                dbl_mb(k_ibuf_acjk), 1)
                               endif
                               int_sym = sym4(symb, symc, symi, symk)
                               t1_sym = ieor(syma, symj)
                               if (int_sym.eq.0 .and. t1_sym.eq.0) then
                                  call uccsdt_triples_get_list(13,
-     $                                bblk, cblk, iblk, kblk, int_bcik,
-     $                                lenibuf)
+     $                                bblk, cblk, iblk, kblk, 
+     $                                dbl_mb(k_ibuf_bcik), len9ibuf)
                               else
-                                 call dfill(lenibuf, 0d0, int_bcik, 1)
+                                 call dfill(len9ibuf, 0d0, 
+     $                                dbl_mb(k_ibuf_bcik), 1)
                               endif
                               int_sym = sym4(syma, symc, symi, symk)
                               t1_sym = ieor(symb, symj)
                               if (int_sym.eq.0 .and. t1_sym.eq.0) then
                                  call uccsdt_triples_get_list(12,
-     $                                ablk, cblk, iblk, kblk, int_acik,
-     $                                lenibuf)
+     $                                ablk, cblk, iblk, kblk, 
+     $                                dbl_mb(k_ibuf_acik), len9ibuf)
                               else
-                                 call dfill(lenibuf, 0d0, int_acik, 1)
+                                 call dfill(len9ibuf, 0d0, 
+     $                                dbl_mb(k_ibuf_acik), 1)
                               endif
 c     
                               vlo = nc(spin) + no(spin) + 1
@@ -1039,10 +1152,16 @@ c
                               olo = nc(spin) + 1
                               ohi = nc(spin) + no(spin)
                               call uccsdt_w_t1a_int_energy
-     $                             (w, t1a, eps, energy,
-     $                             int_abij,int_abjk,int_abik,int_bcij,
-     $                             int_acij,int_bcjk,int_acjk,int_bcik,
-     $                             int_acik,
+     $                             (dbl_mb(k_wbuf), t1a, eps, energy,
+     $                             dbl_mb(k_ibuf_abij),
+     $                             dbl_mb(k_ibuf_abjk),
+     $                             dbl_mb(k_ibuf_abik),
+     $                             dbl_mb(k_ibuf_bcij),
+     $                             dbl_mb(k_ibuf_acij),
+     $                             dbl_mb(k_ibuf_bcjk),
+     $                             dbl_mb(k_ibuf_acjk),
+     $                             dbl_mb(k_ibuf_bcik),
+     $                             dbl_mb(k_ibuf_acik),
      $                             alo, ahi, blo, bhi, 
      $                             clo, chi,
      $                             ilo, ihi, jlo, jhi, 
@@ -1061,7 +1180,9 @@ c
             end do
          end do
       end do
-c     
+c
+      if (.not. ma_chop_stack(l_tbuf)) call errquit('ma tbuf chop?',0)
+c
       next = nxtval(-nproc)
       call ga_sync()
 c     
@@ -1259,6 +1380,14 @@ c
             do ir = 0, nir-1
                e_block_max = max(e_block_max,nv_sym(ir,spina),
      $              nv_sym(ir,spinc))
+            end do
+c
+c     M_BLOCK_MAX is just the largest no. of occupied in any irrep
+c
+            m_block_max = 0
+            do ir = 0, nir-1
+               m_block_max = max(m_block_max,no_sym(ir,spina),
+     $              no_sym(ir,spinc))
             end do
 c
 c     local memory required by first part of 4-index does
@@ -2243,14 +2372,18 @@ c
                      call uccsdt_triples_sub_blocking
      $                    (alo, ahi, blo, bhi, clo, chi, spina, spinc,
      $                    oprint_sub, .false., ma_used, ga_used)
+                     write(6,*)' after sub_blocking before moints '
                      call uccsdt_triples_moints()
+                     write(6,*)' after moints before dummy amps '
 c
                      call uccsdt_triples_dummy_amplitudes()
                      call dfill(5000, 0.0d0, dummy, 1)
 c
+                     write(6,*)' after dummy amps before sub_blocked '
                      energy(spina,spinc) = energy(spina,spinc) + 
      $                    uccsdt_triples_sub_blocked(dummy)
 c     
+                     write(6,*)' after sub_blocked before end '
                      call uccsdt_triples_sub_blocking_end()
 c     
 *                     write(6,*) ' SUPERBLOCK: ', 
