@@ -3,7 +3,7 @@
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale,altloc,chain,icyren)
 c
-c $Id: pre_mkseq.F,v 1.20 1998-09-15 00:01:28 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.21 1998-09-18 22:59:43 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -52,7 +52,7 @@ c
       character*1 altloc,chain
 c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp
-      integer igeom,numslv
+      integer igeom,numslv,nlnkf
 c
       if(util_print('sequence',print_high)) then
       write(lfnout,1000)
@@ -218,7 +218,7 @@ c
       if(.not.pre_links(lfnout,ffield,
      + dbl_mb(i_xatm),byte_mb(i_catm),int_mb(i_latm),
      + matm,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,int_mb(i_llnk),
-     + byte_mb(i_clnk),mlnk,nlnk))
+     + byte_mb(i_clnk),mlnk,nlnk,nlnkf))
      + call errquit('pre_links failed',9999)
 c
 c     comply with force field segment names
@@ -344,7 +344,7 @@ c
       if(.not.pre_wrtseq(lfnseq,filseq,
      + byte_mb(i_cseq),int_mb(i_lseq),mseq,nseq,
      + int_mb(i_lssb),mssb,nssb,
-     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,slvmdl))
+     + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,nlnkf,slvmdl))
      + call errquit('pre_wrtseq failed',9999)
 c
       if(util_print('where',print_debug)) then

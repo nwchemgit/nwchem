@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.8 1998-09-15 00:01:30 d3j191 Exp $
+c $Id: pre_term.F,v 1.9 1998-09-18 22:59:44 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
@@ -41,11 +41,17 @@ c
       endif
 c
       if(.not.pre_sgmfil(cseq(isgm),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_u,dir_t))
-     + call errquit('pre_sgmfil failed',9999)
+     + dir_s,dir_x,dir_u,dir_t)) then
+      write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
+ 1001 format('Segment ',a,' not found')
+      call errquit('pre_sgmfil failed',9999)
+      endif
 c
-      if(.not.pre_atmscn(lfnsgm,filsgm,clnk(1,i),num,link))
-     + call errquit('pre_atmscn failed',9999)
+      if(.not.pre_atmscn(lfnsgm,filsgm,clnk(1,i),num,link)) then
+      write(lfnout,1002) clnk(1,i),filsgm(1:index(filsgm,' ')-1)
+ 1002 format('Atom ',a4,'not found in segment ',a)
+      call errquit('pre_atmscn failed',9999)
+      endif
 c
       if(link.eq.1) then
 cx      if(lseq(2,isgm).ge.0)  call errquit('multiple links',9999)
@@ -60,11 +66,16 @@ cx      if(lseq(2,isgm).eq.0)  call errquit('multiple links',9999)
       endif
 c
       if(.not.pre_sgmfil(cseq(jsgm),lfnsgm,filsgm,
-     + dir_s,dir_x,dir_u,dir_t))
-     + call errquit('pre_sgmfil failed',9999)
+     + dir_s,dir_x,dir_u,dir_t)) then
+      write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
+      call errquit('pre_sgmfil failed',9999)
+      endif
 c
-      if(.not.pre_atmscn(lfnsgm,filsgm,clnk(2,i),num,link))
-     + call errquit('pre_atmscn failed',9999)
+      if(.not.pre_atmscn(lfnsgm,filsgm,clnk(2,i),num,link)) then
+      write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
+      write(lfnout,1002) clnk(2,i),filsgm(1:index(filsgm,' ')-1)
+      call errquit('pre_atmscn failed',9999)
+      endif
 c
       if(link.eq.1) then
 cx      if(lseq(2,jsgm).ge.0)  call errquit('multiple links',9999)

@@ -1,14 +1,14 @@
       logical function pre_wrtseq(lfnseq,filseq,
-     + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,
+     + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,nlnkf,
      + slvmdl)
 c
-c $Id: pre_wrtseq.F,v 1.6 1998-07-14 15:47:30 d3j191 Exp $
+c $Id: pre_wrtseq.F,v 1.7 1998-09-18 22:59:44 d3j191 Exp $
 c
 c     function to write the sequence file
 c
       implicit none
 c
-      integer lfnseq,mseq,nseq,mssb,nssb,mlnk,nlnk
+      integer lfnseq,mseq,nseq,mssb,nssb,mlnk,nlnk,nlnkf
       integer lseq(4,mseq),lssb(2,mssb),llnk(4,mlnk)
       character*4 clnk(2,mlnk)
       character*5 cseq(2,mseq)
@@ -40,17 +40,23 @@ c      write(lfnseq,1002) lssb(1,i),3,lssb(2,i),3
 c    2 continue
 c
       do 3 i=1,nlnk
+      if(i.le.nlnkf) then
       write(lfnseq,1002) lseq(1,llnk(1,i)),clnk(1,i),
      + lseq(1,llnk(2,i)),clnk(2,i)
- 1002 format('link ',i5,a4,i5,a4)
+ 1002 format('LINK ',i5,a4,i5,a4)
+      else
+      write(lfnseq,1003) lseq(1,llnk(1,i)),clnk(1,i),
+     + lseq(1,llnk(2,i)),clnk(2,i)
+ 1003 format('link ',i5,a4,i5,a4)
+      endif
     3 continue
 c
 c     solvent model
 c     -------------
 c
       if(slvmdl(1:1).ne.' ') then
-      write(lfnseq,1003) 0,slvmdl
- 1003 format('solvent',/,i5,a)
+      write(lfnseq,1004) 0,slvmdl
+ 1004 format('solvent',/,i5,a)
       endif
 c
       write(lfnseq,1009)

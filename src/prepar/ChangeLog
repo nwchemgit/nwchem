@@ -94,3 +94,4 @@ Sep 16 1998	 Count LINK's to get dimension mlnk in seqsiz
 		 bonded interactions
 Sep 17 1998	 Add modify commands for bonded interaction parameters
 		 Corrected missing atom algorithm
+Sep 18 1998	 Make links on pdb files forced

@@ -1,8 +1,8 @@
       logical function pre_links(lfnout,ffield,xatm,catm,latm,matm,
      + lseq,cseq,mseq,nseq,
-     + llnk,clnk,mlnk,nlnk)
+     + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.8 1998-09-15 00:01:27 d3j191 Exp $
+c $Id: pre_links.F,v 1.9 1998-09-18 22:59:43 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -19,7 +19,7 @@ c
       logical pre_short,pre_protein
       external pre_short,pre_protein
 c
-      integer lfnout,matm,mseq,nseq,mlnk,nlnk
+      integer lfnout,matm,mseq,nseq,mlnk,nlnk,nlnkf
       real*8 xatm(3,matm)
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -30,7 +30,7 @@ c
       integer ishort,jshort
       real*8 rshort
 c
-      integer i,j,iu,k,l
+      integer i,j,iu,k,l,nlnko,nlnkp
       integer link1,link2,link3,mol
 c
       if(util_print('where',print_debug)) then
@@ -42,18 +42,22 @@ c     get atom index for links input from pdb
 c     ---------------------------------------
 c
       if(nlnk.gt.0) then
-      do 21 j=1,nseq
-      do 22 i=1,nlnk
+      do 21 i=1,nlnk
+      do 22 j=1,nseq
       if(llnk(1,i).eq.lseq(1,j)) then
-      llnk(1,i)=i
-      goto 21
-      endif
-      if(llnk(2,i).eq.lseq(1,j)) then
-      llnk(2,i)=i
-      goto 21
+      llnk(1,i)=j
+      goto 121
       endif
    22 continue
-      call errquit('Illegal link on pdb',9999)
+      call errquit('Illegal link on pdb',i)
+  121 continue
+      do 212 j=1,nseq
+      if(llnk(2,i).eq.lseq(1,j)) then
+      llnk(2,i)=j
+      goto 21
+      endif
+  212 continue
+      call errquit('Illegal link on pdb',i)
    21 continue
       do 23 i=1,nlnk
       do 24 j=lseq(3,llnk(1,i)),lseq(3,llnk(1,i)+1)-1
@@ -65,6 +69,8 @@ c
    23 continue
       endif
 c
+      nlnkf=0
+      nlnkp=nlnk
       mol=0
 c
 c     check main chain links
@@ -123,51 +129,77 @@ c
 cx      write(*,'(5i5,2a4)')
 cx     +  nlnk,i,j,ishort,jshort,clnk(1,nlnk),clnk(2,nlnk)
       l=lseq(4,j)
-      do 10 k=1,nseq
+      do 4 k=1,nseq
       if(lseq(4,k).eq.l) lseq(4,k)=lseq(4,i)
-   10 continue
+    4 continue
       endif
     3 continue
     2 continue
 c
-      do 4 i=1,nseq
+c     remove duplicate links
+c     ----------------------
+c
+      if(nlnk.gt.0) then
+      nlnko=nlnk
+      nlnk=1
+      do 5 i=2,nlnko
+      do 6 j=1,nlnk
+      if(llnk(1,i).eq.llnk(1,j).and.llnk(2,i).eq.llnk(2,j).and.
+     + llnk(3,i).eq.llnk(3,j).and.llnk(4,i).eq.llnk(4,j).and.
+     + clnk(1,i).eq.clnk(1,j).and.clnk(2,i).eq.clnk(2,j)) goto 5
+      if(llnk(1,i).eq.llnk(2,j).and.llnk(2,i).eq.llnk(1,j).and.
+     + llnk(3,i).eq.llnk(4,j).and.llnk(4,i).eq.llnk(3,j).and.
+     + clnk(1,i).eq.clnk(2,j).and.clnk(2,i).eq.clnk(1,j)) goto 5
+    6 continue
+      nlnk=nlnk+1
+      llnk(1,nlnk)=llnk(1,i)
+      llnk(2,nlnk)=llnk(2,i)
+      llnk(3,nlnk)=llnk(3,i)
+      llnk(4,nlnk)=llnk(4,i)
+      clnk(1,nlnk)=clnk(1,i)
+      clnk(2,nlnk)=clnk(2,i)
+      if(i.le.nlnkp) nlnkf=nlnk
+    5 continue
+      endif
+c
+      do 7 i=1,nseq
       link1=0
       link2=0
-      do 5 k=lseq(3,i),lseq(3,i+1)-1
+      do 8 k=lseq(3,i),lseq(3,i+1)-1
       if(latm(5,k).eq.1) link1=k
       if(latm(5,k).eq.2) link2=k
-    5 continue
-      do 6 j=1,nseq
+    8 continue
+      do 9 j=1,nseq
       if(cseq(1,i).eq.cseq(1,j)) then
-      do 7 l=lseq(3,j),lseq(3,j+1)-1
+      do 10 l=lseq(3,j),lseq(3,j+1)-1
       if(latm(5,l).ge.3) then
       if(catm(1,l).eq.catm(1,link1)) latm(5,l)=1
       if(catm(1,l).eq.catm(1,link2)) latm(5,l)=2
       endif
-    7 continue
+   10 continue
       endif
-    6 continue
-    4 continue   
+    9 continue
+    7 continue   
 c     
 c     change amino acid segment names based on links
 c     ----------------------------------------------
 c
-      do 8 i=1,nseq
-      if(pre_protein(ffield,cseq(1,i))) goto 11
-      do 12 j=lseq(3,i),lseq(3,i+1)-1
+      do 11 i=1,nseq
+      if(pre_protein(ffield,cseq(1,i))) goto 14
+      do 15 j=lseq(3,i),lseq(3,i+1)-1
       if(latm(5,j).eq.1) latm(5,j)=3
       if(latm(5,j).eq.2) latm(5,j)=3
-   12 continue
-      goto 8
-   11 continue
+   15 continue
+      goto 11
+   14 continue
       link1=0
       link2=0
       link3=0
-      do 9 j=lseq(3,i),lseq(3,i+1)-1
+      do 12 j=lseq(3,i),lseq(3,i+1)-1
       if(latm(5,j).eq.1) link1=link1+1
       if(latm(5,j).eq.2) link2=link2+1
       if(latm(5,j).ge.3) link3=link3+1
-    9 continue
+   12 continue
       iu=index(cseq(1,i),'_')
       if(iu.eq.0) iu=index(cseq(1,i),' ')
       if(link1.gt.0) then
@@ -179,7 +211,7 @@ c
       cseq(1,i)(iu:iu+1)='_M'
       endif
       endif
-    8 continue
+   11 continue
 c
 c     assign molecule number
 c     ----------------------

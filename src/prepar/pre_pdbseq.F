@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: pre_pdbseq.F,v 1.13 1998-09-18 21:22:31 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.14 1998-09-18 22:59:43 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
@@ -43,6 +43,7 @@ c
       nchain=0
       iatm=0
       nssb=0
+      nlnk=0
 c
       length=index(filnam,' ')-1
 c
@@ -123,8 +124,12 @@ c
 c     LINK
 c
       if(card(1:6).eq.'LINK  ') then
-      nlnk=nlnk+1
       if(nlnk.gt.mlnk) call errquit('pdbseq: increase mlnk',9999)
+      if(card(22:22).ne.' '.and.
+     + card(22:22).ne.chain.and.chain.ne.'*') goto 1
+      if(card(52:52).ne.' '.and.
+     + card(52:52).ne.chain.and.chain.ne.'*') goto 1
+      nlnk=nlnk+1
       read(card,2011)
      + clnk(1,nlnk),llnk(1,nlnk),clnk(2,nlnk),llnk(2,nlnk)
  2011 format(12x,a4,6x,i4,16x,a4,6x,i4)
