@@ -1910,7 +1910,6 @@ c
 c
       integer lfntrj,nb
       logical lxw,lvw,lxs,lvs
-      character*255 filrst
       real*8 stime,pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)

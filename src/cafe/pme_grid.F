@@ -234,7 +234,7 @@ c
       external mxcombv1,pme_synop
       integer mxcombv1,pme_synop
 c
-      integer node,ires
+      integer ires
       real*8 datum,buffer
 c
       datum=0.0d0

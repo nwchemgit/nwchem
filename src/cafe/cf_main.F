@@ -443,7 +443,7 @@ c
       integer iwat(mwa)
       real*8 wgt(mat,6)
 c
-      integer iwa,iwm,isa,ix
+      integer iwa,iwm,isa
       real*8 factor
 c
 c      write(70,7000) (iwgmn(iwm),(xw(iwm,ix,1),ix=1,3),
@@ -873,8 +873,6 @@ c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
-      integer i
-c
       vol=volume
       tmp=temp
       tmpw=tempw
@@ -1002,7 +1000,7 @@ c
       integer ixmul(mmuli),imul(mmult,4)
       real*8 xmul(mmult,3),fmul(mmult,3),ess(msf,msf,mpe,2)
 c
-      integer i,j,k,ix
+      integer i,j,ix
 c
       do 1 i=1,nmul
       fmul(i,1)=zero
@@ -1179,7 +1177,7 @@ c
 #include "util.fh"
 #include "msgids.fh"
 c
-      real*8 tgauss,frgaus
+      real*8 tgauss
       integer numw,nums
       real*8 vw(mwm,3,mwa),vs(msa,3),wgt(mat,6)
       integer iwdt(mwm),isdt(msa),iwat(mwa),isat(msa)
