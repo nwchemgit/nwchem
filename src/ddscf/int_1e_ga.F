@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.13 1996-01-10 15:58:30 d3g681 Exp $
+C$Id: int_1e_ga.F,v 1.14 1996-01-11 07:44:50 d3g681 Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -42,6 +42,7 @@ c
       double precision q2
       double precision tol
       parameter (tol = 1.0d-10)
+      external block_int1e      ! For T3D
 c     
       call ga_sync()
       if (oscfps) call pstat_on(ps_int_1e)
@@ -175,6 +176,8 @@ c
       if (.not. bas_geom(basis, geom)) call errquit
      $   ('int_1e_cache_ga: basis corrupt?', 0)
 c
+**      write(6,*) ' Enabling caching of 1-e integrals '
+c
       g_cache(1) = ga_create_atom_blocked(geom, basis,'int1e: t')
       g_cache(2) = ga_create_atom_blocked(geom, basis,'int1e: v')
       g_cache(3) = ga_create_atom_blocked(geom, basis,'int1e: s')
@@ -192,6 +195,8 @@ c
       implicit none
 #include "cint1cache.fh"
       logical ga_destroy
+c
+**      write(6,*) ' Disabling caching of 1-e integrals '
 c
       if (.not. ocache) return
       if (.not. ga_destroy(g_cache(1))) call errquit('i1ega: gad?',0)

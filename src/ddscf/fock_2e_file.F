@@ -7,7 +7,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_file.F,v 1.2 1996-01-10 15:58:28 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.3 1996-01-11 07:44:46 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -33,7 +33,7 @@ c
       integer vg_fock(nfock)
 c
       integer maxints
-      parameter (maxints = 16384)
+      parameter (maxints = 16381) ! A nice prime number
       integer i(maxints), j(maxints), k(maxints), l(maxints)
       double precision g(maxints)
       double precision den_tol, denmax, dtol2e
@@ -69,6 +69,7 @@ c
 c
 c     Get matrices for this block of labels
 c
+         call fock_init_cmul(ihi-ilo+1,jhi-jlo+1,lhi-llo+1)
          call fock_2e_cache_dens_fock(
      $        ilo, jlo, klo, llo,
      $        ihi, jhi, khi, lhi,

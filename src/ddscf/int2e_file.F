@@ -429,7 +429,7 @@ c
 c     Return true if success, false if no more integrals in the
 c     block (nints also returned as zero), hard fail for any other errors.
 c
-      integer loop, ncopy, nfree
+      integer loop, ncopy, nfree, nv4
       integer ibase, jbase, kbase, lbase
       logical int2e_buf_read
       external int2e_buf_read
@@ -450,12 +450,19 @@ c
 	 kbase = range(3,1)
 	 lbase = range(4,1)
          ncopy = min(nfree,nleft_in_range)
+         call dcopy(ncopy, values(next_value), 1, g(1+nints), 1)
+         nv4 = (next_value-1)*4 + 1
          do loop = 1, ncopy
-            i(loop+nints) = labels(1,next_value+loop-1) + ibase
-            j(loop+nints) = labels(2,next_value+loop-1) + jbase
-            k(loop+nints) = labels(3,next_value+loop-1) + kbase
-            l(loop+nints) = labels(4,next_value+loop-1) + lbase
-            g(loop+nints) = values(next_value+loop-1)
+            i(loop+nints) = labels4(  nv4) + ibase
+            j(loop+nints) = labels4(1+nv4) + jbase
+            k(loop+nints) = labels4(2+nv4) + kbase
+            l(loop+nints) = labels4(3+nv4) + lbase
+            nv4= nv4 + 4
+**            i(loop+nints) = labels(1,next_value+loop-1) + ibase
+**            j(loop+nints) = labels(2,next_value+loop-1) + jbase
+**            k(loop+nints) = labels(3,next_value+loop-1) + kbase
+**            l(loop+nints) = labels(4,next_value+loop-1) + lbase
+**            g(loop+nints) = values(next_value+loop-1)
          enddo
          nints = nints + ncopy
          nfree = nfree - ncopy

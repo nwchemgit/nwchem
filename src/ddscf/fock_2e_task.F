@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.13 1996-01-10 15:58:29 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.14 1996-01-11 07:44:48 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -79,6 +79,8 @@ c
      $        call errquit('should not happen', 0)
       end if
 c     
+      call fock_init_cmul(ihi-ilo+1,jhi-jlo+1,lhi-llo+1)
+c
       call fock_2e_cache_dens_fock(
      $     ilo, jlo, klo, llo,
      $     ihi, jhi, khi, lhi,
@@ -206,15 +208,10 @@ c
       double precision sij(max_sh*max_sh) ! Should be just max shell block
 c
       integer max_q, max_at
-      parameter (max_q = 100001, max_at=20) ! For debug only
+      parameter (max_q = 110001, max_at=20) ! For debug only
       integer ijkl(max_q,4)
       double precision q4(max_q), q4_at(max_at,max_at,max_at,max_at)
       double precision denmax(max_at,max_at,max_at,max_at)
-c
-      integer lscr, leri
-      parameter (lscr=16000000,leri=1000000)  ! 129600 = 100*(dd|dd)
-      integer labels(leri,4)
-      double precision scr(lscr), eri(leri)
 c
       integer i, j, k, l
       integer ia,ja,ka,la
@@ -286,10 +283,9 @@ c
       do it = 1, i_nt
          do jt = 1, j_nt
 c     
-c     Gather ij screening information and also determine if there
-c     are ANY ij shells to do.  Unfortunately, the blocking means
-c     that we cannot test on symmetry of the ij pairs since some
-c     quartets will not be canonical (i.e., kl can be > ij)
+c     Gather ij screening information. Unfortunately, we cannot test
+c     on symmetry of the ij pairs since some quartets will not be 
+c     canonical (i.e., kl can be > ij)
 c
             nij = 0
             do i = i_sh_r(1,it),i_sh_r(2,it)
@@ -374,13 +370,12 @@ c     kl diagonal
                         if (okl .and. ksh.eq.lsh) qq4 = qq4*0.5d0
 c     do it!
                         if (nq .eq. max_q) then
-                           call fock_txs(basis, 
-     $                          nfock, vg_dens, vg_fock, jfac, kfac, 
+                           call fock_txs(basis, nfock, vg_dens, vg_fock,
      $                          ilo, jlo, klo, llo, ihi, jhi,khi,lhi,
      $                          dij, dik, dli, djk, dlj, dlk,
      $                          fij, fik, fli, fjk, flj, flk,
-     $                          tol2e, nq, max_q, ijkl, q4,
-     $                          lscr, scr, leri, labels, eri)
+     $                          tol2e, nq, ijkl(1,1),ijkl(1,2),
+     $                          ijkl(1,3),ijkl(1,4), q4)
                            nq = 0
                         endif
                         nq = nq + 1
@@ -400,48 +395,44 @@ c
          enddo
       enddo
 c                              
-      call fock_txs(basis, 
-     $     nfock, vg_dens, vg_fock, jfac, kfac, 
-     $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
+      call fock_txs(basis, nfock, vg_dens, vg_fock,
+     $     ilo, jlo, klo, llo, ihi, jhi,khi,lhi,
      $     dij, dik, dli, djk, dlj, dlk,
      $     fij, fik, fli, fjk, flj, flk,
-     $     tol2e, nq, max_q, ijkl, q4,
-     $     lscr, scr, leri, labels, eri)
-c
+     $     tol2e, nq, ijkl(1,1),ijkl(1,2),
+     $     ijkl(1,3),ijkl(1,4), q4)
+c     
       end
-      subroutine fock_txs(
-     $     basis, 
-     $     nfock, vg_dens, vg_fock, jfac, kfac, 
+      subroutine fock_txs(basis, nfock, vg_dens, vg_fock,
      $     ilo, jlo, klo, llo, ihi, jhi, khi, lhi,
      $     dij, dik, dli, djk, dlj, dlk,
      $     fij, fik, fli, fjk, flj, flk,
-     $     tol2e,
-     $     nq, max_q, ijkl, q4, lscr, scr, leri, labels, eri)
+     $     tol2e, nq, iq, jq, kq, lq, q4)
       implicit none
-#include "schwarz.fh"
-#include "bas.fh"
+#include "mafdecls.fh"
 #include "cfock.fh"
-#include "cscfps.fh"
-#include "sym.fh"
 c
       double precision ncomputed
-      common/crap/ncomputed
+      common /crap/ ncomputed
 c
       integer basis
       integer nfock
       integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
-c
       integer vg_dens(nfock), vg_fock(nfock)
-      double precision jfac(nfock), kfac(nfock)
       double precision dij(nfock,*), dik(nfock,*), dli(nfock,*),
      $     djk(nfock,*), dlj(nfock,*), dlk(nfock,*)
       double precision fij(nfock,*), fik(nfock,*), fli(nfock,*),
      $     fjk(nfock,*), flj(nfock,*), flk(nfock,*)
-      double precision tol2e, den_tol
+      double precision tol2e
+      integer nq
+      integer iq(*), jq(*), kq(*), lq(*)
+      double precision q4(*)
 c
-      integer nq, max_q, lscr, leri
-      integer ijkl(max_q,4), labels(leri,4)
-      double precision scr(lscr), eri(leri), q4(nq)
+      integer lenscr, leneri, lenlab
+      parameter (lenscr=8000000, leneri=1000003) ! Eventually dynamic
+      parameter (lenlab=4*leneri)
+      integer l_eri, k_eri, l_lab, k_lab, l_scr, k_scr
+      integer k_i, k_j, k_k, k_l
 c
       integer neri
       double precision block_eff
@@ -453,41 +444,54 @@ c
       if (nq .le. 0) return
       write(6,*) ' fock_txs : ', nq
 c
-      if (.not. intb_init4c(
-     $     basis, ijkl(1,1), ijkl(1,2),
-     $     basis, ijkl(1,3), ijkl(1,4),
-     $     nq, lscr, scr, leri, block_eff))
+      if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
+     $     call errquit('fock_txs: no room for eri',leneri)
+      if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))
+     $     call errquit('fock_txs: no room for scr',lenscr)
+      if (.not. ma_push_get(mt_int, lenlab, 'lab', l_lab, k_lab))
+     $     call errquit('fock_txs: no room for lab',lenlab)
+c
+      k_i = k_lab
+      k_j = k_i   + leneri
+      k_k = k_j   + leneri
+      k_l = k_k   + leneri
+c
+      if (.not. intb_init4c(basis, iq, jq, basis, kq, lq,
+     $     nq, lenscr, dbl_mb(k_scr), leneri, block_eff))
      $     call errquit('intb_init?',nq)
 c     
- 50   more = intb_2e4c(
-     $     basis, ijkl(1,1), ijkl(1,2),
-     $     basis, ijkl(1,3), ijkl(1,4),
+ 50   more = intb_2e4c(basis, iq, jq, basis, kq, lq,
      $     nq, q4, .true., tol2e, .false.,
-     $     labels(1,1), labels(1,2),
-     $     labels(1,3), labels(1,4),
-     $     eri, leri, neri, lscr, scr)
+     $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $     dbl_mb(k_eri), leneri, neri, lenscr, dbl_mb(k_scr))
 c
-      if (neri .eq. 0) return
+      if (neri .eq. 0) goto 100 ! Free memory before going home
+c
       ncomputed = ncomputed + neri
 c
 c     Cache integrals if desired
 c
       if (owritefile) then
          if (.not. int2e_file_write(neri,
-     $        labels(1,1), labels(1,2),
-     $        labels(1,3), labels(1,4),
-     $        eri)) call errquit('Arrgggghh',0)
+     $        int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $        dbl_mb(k_eri))) call errquit('Arrgggghh',0)
       end if
 c     
       call fock_2e_label(nfock, tol2e, neri,
-     $     labels(1,1), labels(1,2),
-     $     labels(1,3), labels(1,4),
-     $     eri, 
+     $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
+     $     dbl_mb(k_eri),
      $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
      $     dij, dik, dli, djk, dlj, dlk,
      $     fij, fik, fli, fjk, flj, flk )
 c     
       if (more) goto 50
+c
+ 100  if (.not. ma_pop_stack(l_lab))
+     $     call errquit('fock_txs: cannot free lab',lenlab)
+      if (.not. ma_pop_stack(l_scr))
+     $     call errquit('fock_txs: cannot free scr',lenlab)
+      if (.not. ma_pop_stack(l_eri))
+     $     call errquit('fock_txs: cannot free eri',lenlab)
 c
       end
       subroutine fock_2e_sh_list(basis, iatlo, iathi,
@@ -567,47 +571,47 @@ c
 *      enddo
 c
       end
-      logical function fock_shell_logic(oij, okl, oikjl,
-     $     ish, jsh, ksh, lsh, qq4)
-      implicit none
-      logical oij, okl, oikjl
-      integer ish, jsh, ksh, lsh
-      double precision qq4
-c
-c     Not used, but it makes explicit the tests and scaling
-c
-      qq4 = 1.0d0
-      if (oij) then
-         if (ish.lt.jsh) then
-            fock_shell_logic = .false.
-            return
-         else if (ish.eq.jsh) then
-            qq4 = qq4 * 0.5d0
-         endif
-      endif
-      if (okl) then
-         if (ksh.lt.lsh) then
-            fock_shell_logic = .false.
-            return
-         else if (ksh.eq.lsh) then
-            qq4 = qq4 * 0.5d0
-         endif
-      endif
-      if (oikjl) then
-         if (ish.lt.ksh) then
-            fock_shell_logic = .false.
-            return
-         else if (ish.eq.ksh) then
-            if (jsh.lt.lsh) then
-               fock_shell_logic = .false.
-               return
-            else if (jsh.eq.lsh) then
-               qq4 = qq4 * 0.5d0
-            endif
-         endif
-      endif
-c
-      fock_shell_logic = .true.
-c
-      end
+c$$$      logical function fock_shell_logic(oij, okl, oikjl,
+c$$$     $     ish, jsh, ksh, lsh, qq4)
+c$$$      implicit none
+c$$$      logical oij, okl, oikjl
+c$$$      integer ish, jsh, ksh, lsh
+c$$$      double precision qq4
+c$$$c
+c$$$c     Not used, but it makes explicit the tests and scaling
+c$$$c
+c$$$      qq4 = 1.0d0
+c$$$      if (oij) then
+c$$$         if (ish.lt.jsh) then
+c$$$            fock_shell_logic = .false.
+c$$$            return
+c$$$         else if (ish.eq.jsh) then
+c$$$            qq4 = qq4 * 0.5d0
+c$$$         endif
+c$$$      endif
+c$$$      if (okl) then
+c$$$         if (ksh.lt.lsh) then
+c$$$            fock_shell_logic = .false.
+c$$$            return
+c$$$         else if (ksh.eq.lsh) then
+c$$$            qq4 = qq4 * 0.5d0
+c$$$         endif
+c$$$      endif
+c$$$      if (oikjl) then
+c$$$         if (ish.lt.ksh) then
+c$$$            fock_shell_logic = .false.
+c$$$            return
+c$$$         else if (ish.eq.ksh) then
+c$$$            if (jsh.lt.lsh) then
+c$$$               fock_shell_logic = .false.
+c$$$               return
+c$$$            else if (jsh.eq.lsh) then
+c$$$               qq4 = qq4 * 0.5d0
+c$$$            endif
+c$$$         endif
+c$$$      endif
+c$$$c
+c$$$      fock_shell_logic = .true.
+c$$$c
+c$$$      end
 #endif

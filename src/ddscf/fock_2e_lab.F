@@ -1,3 +1,20 @@
+      subroutine fock_init_cmul(idim,jdim,ldim)
+      implicit none
+#include "cfockmul.fh"
+      integer idim, jdim, ldim
+c
+c     Initialize array to eliminate integer multiplication in
+c     Fock-build kernels
+c
+      integer i
+c
+      do i = 0,255
+         lm(i) = ldim*i
+         jm(i) = jdim*i
+         im(i) = idim*i
+      enddo
+c
+      end
       subroutine fock_2e_label(nfock, tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
      $     ilo, ihi, jlo, jhi,
@@ -5,9 +22,10 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.2 1996-01-04 21:28:58 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.3 1996-01-11 07:44:47 d3g681 Exp $
 c     
       implicit none
+#include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
 c     symmetrization will be needed later.  It is ASSUMED that
@@ -78,12 +96,18 @@ c
                k = klab(ind) - klo
                l = llab(ind) - llo
 c     
-               ij = i + j*idim
-               lk = l + k*ldim
-               ik = i + k*idim
-               li = l + i*ldim
-               lj = l + j*ldim
-               jk = j + k*jdim
+*     ij = i + j*idim
+*     lk = l + k*ldim
+*     ik = i + k*idim
+*     li = l + i*ldim
+*     lj = l + j*ldim
+*     jk = j + k*jdim
+               ij = i + im(j)
+               lk = l + lm(k)
+               ik = i + im(k)
+               li = l + lm(i)
+               lj = l + lm(j)
+               jk = j + jm(k)
                do v = 1, nfock
                   fij(v,ij) = fij(v,ij) + g*dlk(v,lk)
                   flk(v,lk) = flk(v,lk) + g*dij(v,ij)
@@ -104,9 +128,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.2 1996-01-04 21:28:58 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.3 1996-01-11 07:44:47 d3g681 Exp $
 c     
       implicit none
+#include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
 c     symmetrization will be needed later.  It is ASSUMED that
@@ -135,77 +160,38 @@ c
       double precision g
       integer idim, jdim, ldim
       integer ij, lk, ik, li, lj, jk
-*
-*      integer kdim
 c
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1
       ldim = lhi - llo + 1
-c
-* True paranoia
-*
-*      kdim = khi - klo + 1
-*      write(6,*) ' Input fock matrices '
-*      call output(fij,1,idim,1,jdim,idim,jdim,1)
-*      call output(fik,1,idim,1,kdim,idim,kdim,1)
-*      call output(fli,1,ldim,1,idim,ldim,idim,1)
-*      call output(flj,1,ldim,1,jdim,ldim,jdim,1)
-*      call output(flk,1,ldim,1,kdim,ldim,kdim,1)
-*      call output(fjk,1,jdim,1,kdim,jdim,kdim,1)
-c
-*      write(6,*) ' Input density matrices '
-*      call output(dij,1,idim,1,jdim,idim,jdim,1)
-*      call output(dik,1,idim,1,kdim,idim,kdim,1)
-*      call output(dli,1,ldim,1,idim,ldim,idim,1)
-*      call output(dlj,1,ldim,1,jdim,ldim,jdim,1)
-*      call output(dlk,1,ldim,1,kdim,ldim,kdim,1)
-*      call output(djk,1,jdim,1,kdim,jdim,kdim,1)
-c
+c     
       do ind = 1, neri
          g = eri(ind)
-*
-*     if paranoid
-*
-*         if ( ilab(ind).lt.ilo .or. ilab(ind).gt.ihi .or.
-*     $        jlab(ind).lt.jlo .or. jlab(ind).gt.jhi .or.
-*     $        klab(ind).lt.klo .or. klab(ind).gt.khi .or.
-*     $        llab(ind).lt.llo .or. llab(ind).gt.lhi ) then
-*            write(6,*) ' Out of range ',
-*     $           ilab(ind),jlab(ind),klab(ind),llab(ind)
-*            write(6,*) ' lo ', ilo, jlo, klo, llo
-*            write(6,*) ' hi ', ihi, jhi, khi, lhi
-*            call errquit(' bad indices ', 0)
-*         endif
-*
-         if (abs(g) .gt. tol2e) then
-            i = ilab(ind) - ilo
-            j = jlab(ind) - jlo
-            k = klab(ind) - klo
-            l = llab(ind) - llo
-c
-            ij = i + j*idim
-            lk = l + k*ldim
-            ik = i + k*idim
-            li = l + i*ldim
-            lj = l + j*ldim
-            jk = j + k*jdim
-            fij(ij) = fij(ij) + g*dlk(lk)
-            flk(lk) = flk(lk) + g*dij(ij)
-            fik(ik) = fik(ik) + g*dlj(lj)
-            fli(li) = fli(li) + g*djk(jk)
-            flj(lj) = flj(lj) + g*dik(ik)
-            fjk(jk) = fjk(jk) + g*dli(li)
-         end if
+         i = ilab(ind) - ilo
+         j = jlab(ind) - jlo
+         k = klab(ind) - klo
+         l = llab(ind) - llo
+c     
+*      ij = i + j*idim
+*      lk = l + k*ldim
+*      ik = i + k*idim
+*      li = l + i*ldim
+*      lj = l + j*ldim
+*      jk = j + k*jdim
+         ij = i + im(j)
+         lk = l + lm(k)
+         ik = i + im(k)
+         li = l + lm(i)
+         lj = l + lm(j)
+         jk = j + jm(k)
+         fij(ij) = fij(ij) + g*dlk(lk)
+         flk(lk) = flk(lk) + g*dij(ij)
+         fik(ik) = fik(ik) + g*dlj(lj)
+         fli(li) = fli(li) + g*djk(jk)
+         flj(lj) = flj(lj) + g*dik(ik)
+         fjk(jk) = fjk(jk) + g*dli(li)
       end do
-c
-*      write(6,*) ' Output fock matrices ', tol2e
-*      call output(fij,1,idim,1,jdim,idim,jdim,1)
-*      call output(fik,1,idim,1,kdim,idim,kdim,1)
-*      call output(fli,1,ldim,1,idim,ldim,idim,1)
-*      call output(flj,1,ldim,1,jdim,ldim,jdim,1)
-*      call output(flk,1,ldim,1,kdim,ldim,kdim,1)
-*      call output(fjk,1,jdim,1,kdim,jdim,kdim,1)
-c
+c     
       end
       subroutine fock_2e_2_label(tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
@@ -214,9 +200,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.2 1996-01-04 21:28:58 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.3 1996-01-11 07:44:47 d3g681 Exp $
 c     
       implicit none
+#include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
 c     symmetrization will be needed later.  It is ASSUMED that
@@ -258,12 +245,18 @@ c
             k = klab(ind) - klo
             l = llab(ind) - llo
 c
-            ij = i + j*idim
-            lk = l + k*ldim
-            ik = i + k*idim
-            li = l + i*ldim
-            lj = l + j*ldim
-            jk = j + k*jdim
+*            ij = i + j*idim
+*            lk = l + k*ldim
+*            ik = i + k*idim
+*            li = l + i*ldim
+*            lj = l + j*ldim
+*            jk = j + k*jdim
+            ij = i + im(j)
+            lk = l + lm(k)
+            ik = i + im(k)
+            li = l + lm(i)
+            lj = l + lm(j)
+            jk = j + jm(k)
             fij(1,ij) = fij(1,ij) + g*dlk(1,lk)
             flk(1,lk) = flk(1,lk) + g*dij(1,ij)
             fik(1,ik) = fik(1,ik) + g*dlj(1,lj)
@@ -287,9 +280,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.2 1996-01-04 21:28:58 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.3 1996-01-11 07:44:47 d3g681 Exp $
 c     
       implicit none
+#include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
 c     symmetrization will be needed later.  It is ASSUMED that
@@ -331,12 +325,18 @@ c
             k = klab(ind) - klo
             l = llab(ind) - llo
 c
-            ij = i + j*idim
-            lk = l + k*ldim
-            ik = i + k*idim
-            li = l + i*ldim
-            lj = l + j*ldim
-            jk = j + k*jdim
+*            ij = i + j*idim
+*            lk = l + k*ldim
+*            ik = i + k*idim
+*            li = l + i*ldim
+*            lj = l + j*ldim
+*            jk = j + k*jdim
+            ij = i + im(j)
+            lk = l + lm(k)
+            ik = i + im(k)
+            li = l + lm(i)
+            lj = l + lm(j)
+            jk = j + jm(k)
             fij(1,ij) = fij(1,ij) + g*dlk(1,lk)
             flk(1,lk) = flk(1,lk) + g*dij(1,ij)
             fik(1,ik) = fik(1,ik) + g*dlj(1,lj)
@@ -366,9 +366,10 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.2 1996-01-04 21:28:58 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.3 1996-01-11 07:44:47 d3g681 Exp $
 c     
       implicit none
+#include "cfockmul.fh"
 c     
 c     Add scaled labelled integrals into fock matrix blocks ... 
 c     symmetrization will be needed later.  It is ASSUMED that
@@ -410,12 +411,18 @@ c
             k = klab(ind) - klo
             l = llab(ind) - llo
 c
-            ij = i + j*idim
-            lk = l + k*ldim
-            ik = i + k*idim
-            li = l + i*ldim
-            lj = l + j*ldim
-            jk = j + k*jdim
+*            ij = i + j*idim
+*            lk = l + k*ldim
+*            ik = i + k*idim
+*            li = l + i*ldim
+*            lj = l + j*ldim
+*            jk = j + k*jdim
+            ij = i + im(j)
+            lk = l + lm(k)
+            ik = i + im(k)
+            li = l + lm(i)
+            lj = l + lm(j)
+            jk = j + jm(k)
             fij(1,ij) = fij(1,ij) + g*dlk(1,lk)
             flk(1,lk) = flk(1,lk) + g*dij(1,ij)
             fik(1,ik) = fik(1,ik) + g*dlj(1,lj)
