@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot.F,v 1.6 2002-01-18 23:23:41 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.7 2002-01-18 23:29:51 bylaska Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
@@ -421,7 +421,7 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
         ind = index(filename,' ') - 1
         if (add_tag) then
           ind2 = index(tag,' ') - 1
-          filename = filename(1:ind)//tag(1:ind2)
+          filename = filename(1:ind)//tag(1:ind2)//'.cube'
           ind = index(filename,' ') - 1
         end if
 
