@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.18 1997-03-21 02:00:50 d3g681 Exp $
+c     $Id: grad_force.F,v 1.19 1997-04-03 01:48:49 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -102,6 +102,8 @@ c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer k_pdm2, k_pdm2a, k_pdm2b, k_pdm2c, k_pdm2d ! MCSCF 2-pdm
       integer l_coeff, k_coeff  ! MCSCF local copy of Active space MOs
       integer maxsh
+
+      integer ma_type
 
       integer ld_ij, ld_kl, lh_ik, ld_ik, lh_jl, ld_jl, lh_il, ld_il,
      $     lh_jk, ld_jk, 
@@ -234,45 +236,38 @@ C     energy weighted density(NxN)
       g_wdens = ga_create_atom_blocked(geom, basis, 'weighted density')
 
 C     forces on atoms(3xnat)
-      status = ga_create(MT_DBL, 3, nat, 'forces', 3, 1, g_force)
+      if (.not. ga_create(MT_DBL, 3, nat, 'forces', 3, 1, g_force))
+     $     call errquit('gradients: failed to create force GA',0)
       call ga_zero(g_force)
 
 C     local replication(separate for the different pieces)
       lforce = nat * 3
-      status = MA_alloc_get(MT_DBL, lforce, 'forces', l_force, k_force)
-      if (.not.status) call errquit('could not allocate l_force',1)
-      status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_nuc, 
-     $     k_frc_nuc)
-      if (.not.status) call errquit('could not allocate l_force',1)
-      status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_kin, 
-     $     k_frc_kin)
-      if (.not.status) call errquit('could not allocate l_force',1)
-      status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_wgh, 
-     $     k_frc_wgh)
-      if (.not.status) call errquit('could not allocate l_force',1)
-      status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_2el, 
-     $     k_frc_2el)
-      if (.not.status) call errquit('could not allocate l_force',1)
+      if (.not. MA_alloc_get(MT_DBL,lforce,'forces',l_force,k_force))
+     $     call errquit('could not allocate l_force',1)
+      if (.not. MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_nuc, 
+     $     k_frc_nuc)) call errquit('could not allocate l_force',1)
+      if (.not. MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_kin, 
+     $     k_frc_kin)) call errquit('could not allocate l_force',1)
+      if (.not. MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_wgh, 
+     $     k_frc_wgh)) call errquit('could not allocate l_force',1)
+      if (.not. MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_2el, 
+     $     k_frc_2el)) call errquit('could not allocate l_force',1)
       if (omp2) then
-         status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_mp2, 
-     $        k_frc_mp2)
-         if (.not.status) call errquit('could not allocate l_force',1)
+         if (.not. MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_mp2, 
+     $        k_frc_mp2)) call errquit('could not allocate l_force',1)
       endif
 
 C     eigenvalue diagonal matrix for forming energy weighted density
       nocc = nopen + nclosed
-      status = ga_create(MT_DBL, nocc, nocc,'eigen_diag', 1, nocc, 
-     $     g_eigen_diag)
+      if (.not. ga_create(MT_DBL, nocc, nocc,'eigen_diag', 1, nocc, 
+     $     g_eigen_diag)) call errquit('gradients: ga diags?',0)
       call ga_zero(g_eigen_diag)
-
 C     eigenvalues
-      status = MA_alloc_get(MT_DBL, nbf2,'MO evals', l_evals, k_evals)
-      if (.not.status) 
+      if (.not. MA_alloc_get(MT_DBL, nbf2,'MO evals', l_evals, k_evals))
      $     call errquit('grad: could not allocate l_evals',1)
       
 C     occupation numbers
-      status = MA_alloc_get(MT_DBL, nbf2,'occ. numbers', l_occ, k_occ)
-      if (.not.status) 
+      if (.not. MA_alloc_get(MT_DBL, nbf2,'occ. numbers', l_occ, k_occ))
      $     call errquit('grad: could not allocate l_occ',1)
 
 C     global density
@@ -314,14 +309,15 @@ c
      $     ('gradient:failed allocating pdm2d',maxsh**4)
 
 C     scratch array for Schwarz screening
-      status = MA_alloc_get(MT_DBL, nat, 'schwarz limits', l_sch, k_sch)
-      if (.not.status) 
+      if (.not. MA_alloc_get(MT_DBL,nat,'schwarz limits',l_sch,k_sch))
      $     call errquit('grad: could not allocate l_sch',1)
 
 C     lookup table and list of active atoms
-      status = MA_alloc_get(MT_LOG, nat, 'active atoms', l_act, k_act)
-      if (.not.status) 
+      if (.not. MA_alloc_get(MT_LOG,nat,'active atoms',l_act,k_act))
      $     call errquit('grad: could not allocate l_act',1)
+      do i = 0, nat-1
+         log_mb(k_act+i) = .true.
+      enddo
 
 C     symmetry or not
       if (.not. rtdb_get(rtdb, 'gradients:use symmetry', mt_log, 1,
@@ -337,31 +333,27 @@ c
          write(luout,*) ' Using symmetry'
          call util_flush(luout)
       endif
-c     
-      status = rtdb_get(rtdb, 'geometry:nactive', MT_INT, 1, nactive)
-      if (status) then        ! there is a list of active atoms
+c
+      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
+     $     nactive, l_actlist)) then
+         if (.not. ma_get_index(l_actlist, k_actlist))
+     $        call errquit('gradients: ma_get_inded failed ',l_actlist)
+
          if (nactive.le.0 .or. nactive.gt.nat)
      $        call errquit('invalid number of active atoms',110)
-         status = MA_alloc_get(MT_INT,nactive,'active list',l_actlist, 
-     $        k_actlist)
-         if (.not.status) 
-     $        call errquit('grad: could not allocate l_act',1)
-         status = rtdb_get(rtdb, 'geometry:actlist', MT_INT, nactive, 
-     $        int_mb(k_actlist))
-         if (.not.status) 
-     $        call errquit('active atom list missing',110)
+
 C     fill lookup table
-         do 10, i=0, nat-1
+         do i=0, nat-1
             log_mb(k_act+i) = .false.
- 10      continue
-         do 12, i=0, nactive-1
+         enddo
+         do i=0, nactive-1
+            if (int_mb(k_actlist+1).le.0 .or. 
+     $           int_mb(k_actlist+1).gt.nat) call errquit
+     $           ('gradients: invalid active atom',int_mb(k_actlist+1))
             log_mb(k_act + int_mb(k_actlist + i) - 1) = .true.
- 12      continue
-         status = MA_free_heap(l_actlist)
-      else                      ! all atoms are active
-         do 15, i=0, nat-1
-            log_mb(k_act+i) = .true.
- 15      continue
+         enddo
+         if (.not. MA_free_heap(l_actlist)) call errquit
+     $        ('gradients: free of actlist?',0)
       endif
 
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
@@ -370,13 +362,10 @@ C     fill lookup table
      $     dbl_mb(k_pdm2), dbl_mb(k_coeff))
 
 C     free temporary arrays
-      status = ga_destroy(g_eigen_diag)
-      if (.not.status) 
+      if (.not. ga_destroy(g_eigen_diag))
      $     call errquit('grad: could not destroy g_eigen_diag',1)
-      status = MA_free_heap(l_occ)
-      status = MA_free_heap(l_evals)
-
-c     
+      if (.not.MA_free_heap(l_occ))call errquit('grad:ma free occ',1)
+      if (.not.MA_free_heap(l_evals))call errquit('grad:ma free eval',1)
 C     initialize for integral gradients
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom, basis)
@@ -393,20 +382,17 @@ C     initialize for integral gradients
 
 C     one-electron contribution
 C     buffers for one electron integral derivatives
-      status = MA_alloc_get(MT_DBL, lbuf, 'deriv buffer', l_buf, k_buf)
-      if (.not.status) call errquit('could not allocate buffer',1)
-      status = MA_alloc_get(MT_DBL, lscratch, 'deriv scratch', 
-     $     l_scr, k_scr)
-      if (.not.status) 
-     $     call errquit('grad: could not allocate scratch',1)
+      if (.not. MA_alloc_get(MT_DBL,lbuf,'deriv buffer',l_buf,k_buf))
+     $     call errquit('could not allocate buffer',1)
+      if (.not. MA_alloc_get(MT_DBL,lscratch,'deriv scratch', 
+     $     l_scr, k_scr))call errquit('grad: scratch alloc failed',1)
 
 C     local density matrix block
       lsqa = max_at_bf * max_at_bf
-      status = MA_alloc_get(MT_DBL,lsqa,'local_density',l_dens,k_dens)
-      if (.not.status) call errquit('could not allocate l_dens',1)
-      status = MA_alloc_get(MT_DBL,lsqa,'local_w_density',l_wdens, 
-     $     k_wdens)
-      if (.not.status) call errquit('could not allocate l_wdens',1)
+      if (.not. MA_alloc_get(MT_DBL,lsqa,'local_density',l_dens,k_dens))
+     $     call errquit('could not allocate l_dens',1)
+      if (.not. MA_alloc_get(MT_DBL,lsqa,'local_w_density',l_wdens, 
+     $     k_wdens)) call errquit('could not allocate l_wdens',1)
 
 #ifdef OLDTIMERS
 #ifdef SUN
@@ -450,58 +436,58 @@ C     blocks of density matrix:
 
       ld_ij = k_dens
       ld_kl = k_wdens
-      status = MA_alloc_get(MT_DBL, lsqa, 'ld_ik', lh_ik, ld_ik)
-      if (.not.status) call errquit('could not allocate ld_ik',1)
-      status = MA_alloc_get(MT_DBL, lsqa, 'ld_jl', lh_jl, ld_jl)
-      if (.not.status) call errquit('could not allocate ld_jl',1)
-      status = MA_alloc_get(MT_DBL, lsqa, 'ld_il', lh_il, ld_il)
-      if (.not.status) call errquit('could not allocate ld_il',1)
-      status = MA_alloc_get(MT_DBL, lsqa, 'ld_jk', lh_jk, ld_jk)
-      if (.not.status) call errquit('could not allocate ld_jk',1)
-
+      if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_ik', lh_ik, ld_ik))
+     $     call errquit('could not allocate ld_ik',1)
+      if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jl', lh_jl, ld_jl))
+     $     call errquit('could not allocate ld_jl',1)
+      if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_il', lh_il, ld_il))
+     $     call errquit('could not allocate ld_il',1)
+      if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jk', lh_jk, ld_jk))
+     $     call errquit('could not allocate ld_jk',1)
+c
       if (scftype .eq. 'UHF' .or. 
      $     scftype .eq. 'ROHF' .or. omp2) then ! UHF or ROHF or MP2
          if (scftype .eq. 'ROHF' .or. omp2) then
-            status = MA_alloc_get(MT_DBL, lsqa, 'ld_ij2',lh_ij2,ld_ij2)
-            if (.not.status) call errquit('could not allocate ld_ij2',1)
-            status = MA_alloc_get(MT_DBL, lsqa, 'ld_kl2',lh_kl2,ld_kl2)
-            if (.not.status) call errquit('could not allocate ld_kl2',1)
+            if (.not. MA_alloc_get(MT_DBL,lsqa,'ld_ij2',lh_ij2,ld_ij2))
+     $           call errquit('could not allocate ld_ij2',1)
+            if (.not. MA_alloc_get(MT_DBL,lsqa,'ld_kl2',lh_kl2,ld_kl2))
+     $           call errquit('could not allocate ld_kl2',1)
          endif          
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_ik2', lh_ik2, ld_ik2)
-         if (.not.status) call errquit('could not allocate ld_ik2',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_jl2', lh_jl2, ld_jl2)
-         if (.not.status) call errquit('could not allocate ld_jl2',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_il2', lh_il2, ld_il2)
-         if (.not.status) call errquit('could not allocate ld_il2',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_jk2', lh_jk2, ld_jk2)
-         if (.not.status) call errquit('could not allocate ld_jk2',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_ik2', lh_ik2, ld_ik2))
+     $        call errquit('could not allocate ld_ik2',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jl2', lh_jl2, ld_jl2))
+     $        call errquit('could not allocate ld_jl2',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_il2', lh_il2, ld_il2))
+     $        call errquit('could not allocate ld_il2',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jk2', lh_jk2, ld_jk2))
+     $        call errquit('could not allocate ld_jk2',1)
       endif
 
       if (scftype .eq. 'UHF' .and. omp2) then
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_ij3', lh_ij3, ld_ij3)
-         if (.not.status) call errquit('could not allocate ld_ij3',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_kl3', lh_kl3, ld_kl3)
-         if (.not.status) call errquit('could not allocate ld_jl3',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_ik3', lh_ik3, ld_ik3)
-         if (.not.status) call errquit('could not allocate ld_ik3',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_jl3', lh_jl3, ld_jl3)
-         if (.not.status) call errquit('could not allocate ld_jl3',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_il3', lh_il3, ld_il3)
-         if (.not.status) call errquit('could not allocate ld_il3',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_jk3', lh_jk3, ld_jk3)
-         if (.not.status) call errquit('could not allocate ld_jk3',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_ij4', lh_ij4, ld_ij4)
-         if (.not.status) call errquit('could not allocate ld_ij4',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_kl4', lh_kl4, ld_kl4)
-         if (.not.status) call errquit('could not allocate ld_kl4',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_ik4', lh_ik4, ld_ik4)
-         if (.not.status) call errquit('could not allocate ld_ik4',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_jl4', lh_jl4, ld_jl4)
-         if (.not.status) call errquit('could not allocate ld_jl4',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_il4', lh_il4, ld_il4)
-         if (.not.status) call errquit('could not allocate ld_il4',1)
-         status = MA_alloc_get(MT_DBL, lsqa, 'ld_jk4', lh_jk4, ld_jk4)
-         if (.not.status) call errquit('could not allocate ld_jk4',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_ij3', lh_ij3, ld_ij3))
+     $        call errquit('could not allocate ld_ij3',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_kl3', lh_kl3, ld_kl3))
+     $        call errquit('could not allocate ld_jl3',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_ik3', lh_ik3, ld_ik3))
+     $        call errquit('could not allocate ld_ik3',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jl3', lh_jl3, ld_jl3))
+     $        call errquit('could not allocate ld_jl3',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_il3', lh_il3, ld_il3))
+     $        call errquit('could not allocate ld_il3',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jk3', lh_jk3, ld_jk3))
+     $        call errquit('could not allocate ld_jk3',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_ij4', lh_ij4, ld_ij4))
+     $        call errquit('could not allocate ld_ij4',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_kl4', lh_kl4, ld_kl4))
+     $        call errquit('could not allocate ld_kl4',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_ik4', lh_ik4, ld_ik4))
+     $        call errquit('could not allocate ld_ik4',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jl4', lh_jl4, ld_jl4))
+     $        call errquit('could not allocate ld_jl4',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_il4', lh_il4, ld_il4))
+     $        call errquit('could not allocate ld_il4',1)
+         if (.not. MA_alloc_get(MT_DBL, lsqa, 'ld_jk4', lh_jk4, ld_jk4))
+     $        call errquit('could not allocate ld_jk4',1)
       endif
 
 C     define threshold for Schwarz screening(same as in SCF)
@@ -639,10 +625,9 @@ C     store in rtdb
          else
             rtdb_string = 'scf:gradient'
          endif
-         status = rtdb_put(rtdb, rtdb_string, MT_DBL, 3*nat, 
-     $        dbl_mb(k_force))
-         if (.not. status) 
-     $        call errquit('could not store gradients',1)
+         if (.not. rtdb_put(rtdb, rtdb_string, MT_DBL, 3*nat, 
+     $        dbl_mb(k_force)))call errquit
+     $        ('gradients: could not store gradients',1)
       endif
       status = rtdb_parallel(.true.)
 
@@ -652,7 +637,8 @@ C     default: print the total forces
          write(luout,1000) theory(1:inp_strlen(theory)),
      $        'x','y','z','x','y','z'
          do 30, i=1, nat
-            status = geom_cent_get(geom, i, tag, crd, q)
+            if (.not. geom_cent_get(geom, i, tag, crd, q)) call errquit
+     $           ('gradients: geometry corrupt?',0)
             write(luout,2000) i, tag,(crd(j),j=1,3),
      $          (dbl_mb(k_force+3*(i-1)+j),j=0,2)
  30      continue
@@ -701,65 +687,64 @@ C     print timing information
 
 C     free memory
 
-      status = MA_free_heap(l_act)
+      if (.not. MA_free_heap(l_act)) call errquit('grad: MA?',0)
       if ((scftype .eq. 'UHF') .or. (scftype.eq.'ROHF') .or. omp2) then
          if (scftype .eq. 'ROHF' .or. omp2) then
-            status = MA_free_heap(lh_kl2)
-            status = MA_free_heap(lh_ij2)
+            if (.not. MA_free_heap(lh_kl2)) call errquit('grad: MA?',0)
+            if (.not. MA_free_heap(lh_ij2)) call errquit('grad: MA?',0)
          endif
-         status = MA_free_heap(lh_jk2)
-         status = MA_free_heap(lh_il2)
-         status = MA_free_heap(lh_jl2)
-         status = MA_free_heap(lh_ik2)
+         if (.not. MA_free_heap(lh_jk2)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_il2)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_jl2)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_ik2)) call errquit('grad: MA?',0)
       endif
       if (scftype .eq. 'UHF' .and. omp2) then
-         status = MA_free_heap(lh_ij3)
-         status = MA_free_heap(lh_kl3)
-         status = MA_free_heap(lh_ik3)
-         status = MA_free_heap(lh_jl3)
-         status = MA_free_heap(lh_il3)
-         status = MA_free_heap(lh_jk3)
-         status = MA_free_heap(lh_ij4)
-         status = MA_free_heap(lh_kl4)
-         status = MA_free_heap(lh_ik4)
-         status = MA_free_heap(lh_jl4)
-         status = MA_free_heap(lh_il4)
-         status = MA_free_heap(lh_jk4)
+         if (.not. MA_free_heap(lh_ij3)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_kl3)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_ik3)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_jl3)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_il3)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_jk3)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_ij4)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_kl4)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_ik4)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_jl4)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_il4)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(lh_jk4)) call errquit('grad: MA?',0)
       endif
-      status = MA_free_heap(lh_jk)
-      status = MA_free_heap(lh_il)
-      status = MA_free_heap(lh_jl)
-      status = MA_free_heap(lh_ik)
-      status = MA_free_heap(l_wdens)
-      status = MA_free_heap(l_dens)
-      status = MA_free_heap(l_scr)
-      status = MA_free_heap(l_buf)
+      if (.not. MA_free_heap(lh_jk)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(lh_il)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(lh_jl)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(lh_ik)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_wdens)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_dens)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_scr)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_buf)) call errquit('grad: MA?',0)
 c
-      status = MA_free_heap(l_pdm2d)
+      if (.not. MA_free_heap(l_pdm2d)) call errquit('grad: MA?',0)
       if (scftype .eq. 'MCSCF') then
-         status = MA_free_heap(l_coeff)
-         status = MA_free_heap(l_pdm2c)
-         status = MA_free_heap(l_pdm2b)
-         status = MA_free_heap(l_pdm2a)
-         status = MA_free_heap(l_pdm2)
+         if (.not. MA_free_heap(l_coeff)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(l_pdm2c)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(l_pdm2b)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(l_pdm2a)) call errquit('grad: MA?',0)
+         if (.not. MA_free_heap(l_pdm2)) call errquit('grad: MA?',0)
       endif
-      status = MA_free_heap(l_sch)
-      status = MA_free_heap(l_frc_2el)
-      status = MA_free_heap(l_frc_wgh)
-      status = MA_free_heap(l_frc_kin)
-      status = MA_free_heap(l_frc_nuc)
-      status = MA_free_heap(l_force)
+      if (.not. MA_free_heap(l_sch)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_frc_2el)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_frc_wgh)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_frc_kin)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_frc_nuc)) call errquit('grad: MA?',0)
+      if (.not. MA_free_heap(l_force)) call errquit('grad: MA?',0)
       if (omp2) then
-         status = MA_free_heap(l_frc_mp2)
+         if (.not. MA_free_heap(l_frc_mp2)) call errquit('grad: MA?',0)
       endif
       call ga_sync()
-      status = ga_destroy(g_force)
-      status = ga_destroy(g_wdens)
+      if (.not. ga_destroy(g_force)) call errquit('grad: GA?',0)
+      if (.not. ga_destroy(g_wdens)) call errquit('grad: GA?',0)
       do i=1, ndens
          if (.not. ga_destroy(g_dens(i))) call errquit 
      $       ('error destroying density', 1)
       enddo
-
 
 *      call MA_summarize_allocated_blocks()
 
