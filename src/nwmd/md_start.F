@@ -39,7 +39,7 @@ c
 c     print topology information
 c     --------------------------
 c
-      call cf_print(lfnout)
+      call cf_print_top(lfnout)
 c
 c     start the property API
 c
@@ -106,6 +106,12 @@ c
       call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
      + dbl_mb(i_vw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
+c
+c     fix or unfix
+c     ------------
+c
+      call cf_fix(ifix,iunfix,int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),nsaloc)
 c
 c     spacial decomposition
 c     ---------------------
@@ -958,21 +964,6 @@ c
       if(nfoutp.lt.0) nfoutp=mdacq/100
       if(nfstat.lt.0) nfstat=mdacq/10
 c
-c     separation shifted scaling
-c
-      shift0(1)=zero
-      shift0(2)=zero
-      shift0(3)=ssshft
-      shift0(4)=ssshft
-      shift0(5)=zero
-      shift0(6)=ssshft
-      shift1(1)=ssshft
-      shift1(2)=ssshft
-      shift1(3)=zero
-      shift1(4)=-ssshft
-      shift1(5)=ssshft
-      shift1(6)=zero
-c
 c     square SHAKE tolerances
 c
       tlwsha=tlwsha*tlwsha
@@ -1080,6 +1071,9 @@ c
 c
       write(lfnout,1001) titinp(1),datinp,timinp,titinp(2),titinp(3)
  1001 format(/,' Title ',t10,a,t110,2a10,/,t10,a,/,t10,a)
+c
+      write(lfnout,1002) filnam(1:index(filnam,' ')-1)
+ 1002 format(/,' System ',a)
 c
       endif
 c

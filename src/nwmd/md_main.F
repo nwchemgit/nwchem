@@ -12,12 +12,14 @@ c
       call md_sp()
 c
       elseif(ntype.eq.1) then
+c
 c     energy minimization
 c     -------------------
 c
       call md_em()
 c
       elseif(ntype.eq.2) then
+c
 c     molecular dynamics
 c     ------------------
 c
@@ -43,6 +45,8 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      real*8 epot
+c
       lpair=.true.
       llong=ltwin
 c
@@ -62,6 +66,15 @@ c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
+      call prp_proper(0,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),eskin,epme,epot)
+c
+      call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
+c
+c     print energies
+c
+      call cf_print_energy(lfnout)
+c
       return
       end
       subroutine md_em()
@@ -71,7 +84,7 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
-      integer i_pcgw,l_pcgw,i_pcgs,l_pcgs
+      integer i_pcgw,l_pcgw,i_pcgs,l_pcgs,i_wws,l_wws
 c
       llong=ltwin
 c
@@ -92,23 +105,38 @@ c
      + int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + int_mb(i_is),nsaloc)
 c
-      if(msdit.gt.0) call md_stdesc()
+      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
+     + call errquit('Failed to allocate memory for wws',me)
+c
+      call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
+     + int_mb(i_is+(lsatt-1)*msa),nsaloc)
+c
+      if(msdit.gt.0) call md_stdesc(int_mb(i_iw+(lwdyn-1)*mwm),
+     + dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + int_mb(i_is+(lsdyn-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_vs),dbl_mb(i_fs),dbl_mb(i_wws),
+     + dbl_mb(i_wws+mwa))
 c
       if(mcgit.gt.0) then
       if(.not.ma_push_get(mt_dbl,3*mwa*mwm,'pcgw',l_pcgw,i_pcgw))
      + call errquit('Failed to allocate memory for pcgw',me)
       if(.not.ma_push_get(mt_dbl,3*msa,'pcgs',l_pcgs,i_pcgs))
      + call errquit('Failed to allocate memory for pcgs',me)
-      call md_congra(dbl_mb(i_pcgw),dbl_mb(i_pcgs))
+      call md_congra(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
+     + dbl_mb(i_fw),dbl_mb(i_pcgw),dbl_mb(i_xs),dbl_mb(i_ys),
+     + dbl_mb(i_vs),dbl_mb(i_fs),dbl_mb(i_pcgs),dbl_mb(i_wws),
+     + dbl_mb(i_wws+mwa))
       if(.not.ma_pop_stack(l_pcgs))
      + call errquit('Failed to deallocate memory for pcgs',me)
       if(.not.ma_pop_stack(l_pcgw))
      + call errquit('Failed to deallocate memory for pcgw',me)
       endif
 c
+      if(.not.ma_pop_stack(l_wws))
+     + call errquit('Failed to deallocate memory for wws',me)
       return
       end
-      subroutine md_stdesc()
+      subroutine md_stdesc(iwdt,xw,yw,vw,fw,isdt,xs,ys,vs,fs,ww,ws)
 c
       implicit none
 c
@@ -118,8 +146,21 @@ c
       logical frequency
       external frequency
 c
-      real*8 epot,edif,epsd,dx,dxf,dxmax
+      integer iwdt(mwm),isdt(msa)
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
+      real*8 pw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
+      real*8 ww(mwa),ws(msa)
+c
+      integer i,j
+      real*8 epot,edif,epsd,dx,dxf,dxmax,factor,dxstep
       character*1 cqrs
+c
+      if(me.eq.0) write(lfnout,1000)
+ 1000 format(/,' STEEPEST DESCENT MINIMIZATION',//,
+     + '   Step File     Energy       Energy     Largest  ',/,
+     + '        wrt     gradient               displacement',/,
+     + '                 kJ/mol       kJ/mol        nm',/)
 c
       isdit=1
 c
@@ -144,10 +185,56 @@ c
 c
       dxf=dx/fmax
 c
-      call cf_sdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
-     + dbl_mb(i_yw),dbl_mb(i_fw),dbl_mb(i_vw),nwmloc,
-     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),dbl_mb(i_vs),nsaloc,dxf)
+      if(nwmloc.gt.0) then
+      do 2 j=1,nwa
+      do 3 i=1,nwmloc
+      yw(i,1,j)=xw(i,1,j)
+      yw(i,2,j)=xw(i,2,j)
+      yw(i,3,j)=xw(i,3,j)
+      vw(i,1,j)=fw(i,1,j)
+      vw(i,2,j)=fw(i,2,j)
+      vw(i,3,j)=fw(i,3,j)
+    3 continue
+      factor=one/ww(j)
+      do 4 i=1,nwmloc
+      if(iand(iwdt(i),mfixed).ne.lfixed) then
+      dxstep=factor*dxf*fw(i,1,j)
+      xw(i,1,j)=xw(i,1,j)+dxstep
+      dxstep=factor*dxf*fw(i,2,j)
+      xw(i,2,j)=xw(i,2,j)+dxstep
+      dxstep=factor*dxf*fw(i,3,j)
+      xw(i,3,j)=xw(i,3,j)+dxstep
+      endif
+    4 continue
+    2 continue
+      endif
+c
+      if(nsaloc.gt.0) then
+      do 5 i=1,nsaloc
+      ys(i,1)=xs(i,1)
+      ys(i,2)=xs(i,2)
+      ys(i,3)=xs(i,3)
+      vs(i,1)=fs(i,1)
+      vs(i,2)=fs(i,2)
+      vs(i,3)=fs(i,3)
+    5 continue
+      do 6 i=1,nsaloc
+      if(iand(isdt(i),mfixed).ne.lfixed) then
+      factor=one/ws(i)
+      dxstep=factor*dxf*fs(i,1)
+      xs(i,1)=xs(i,1)+dxstep
+      dxstep=factor*dxf*fs(i,2)
+      xs(i,2)=xs(i,2)+dxstep
+      dxstep=factor*dxf*fs(i,3)
+      xs(i,3)=xs(i,3)+dxstep
+      endif
+    6 continue
+      endif
+c
+c      call cf_sdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
+c     + dbl_mb(i_yw),dbl_mb(i_fw),dbl_mb(i_vw),nwmloc,
+c     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
+c     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),dbl_mb(i_vs),nsaloc,dxf)
 c
 c     shake
 c
@@ -189,13 +276,13 @@ c
 c
       cqrs=' '
       if(frequency(isdit,nfqrs)) then
-      call md_wrtrst(lfnqrs,filqrs)
+      call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
       endif
 c
       if(me.eq.0) then
       write(lfnout,600) isdit,cqrs,edif,epsd,dxmax
-  600 format(' sd',i7,1x,a1,3x,2(1pe13.5),0pf12.8)
+  600 format(i7,1x,a1,3x,2(1pe13.5),0pf12.8)
       endif
 c
       dx=min(1.2d0*dx,dxmsd)
@@ -204,23 +291,37 @@ c
 
       return
       end
-      subroutine md_congra(pcgw,pcgs)
+      subroutine md_congra(xw,yw,vw,fw,pcgw,xs,ys,vs,fs,pcgs,ww,ws)
 c
       implicit none
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
       logical frequency
       external frequency
 c
-      real*8 pcgw(mwm,3,mwa),pcgs(msa,3)
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
+      real*8 pw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3),ps(msa,3)
+      real*8 pcgw(mwm,3,mwa),pcgs(msa,3),ww(mwa),ws(msa)
 c
-      real*8 epot,epcg,dx,fnorm1,fnorm2,dxf,dxfi,dxmax
+      integer iwa,iwm,isa,ix,inner
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
-      real*8 ypa,ypb,pnorm
-      integer inner
+      real*8 epot,dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif,espt
+      real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
+      real*8 dxmax,dxfi,ecg0,ecg1,ecg2
+      character*1 cqrs
 c
+      if(me.eq.0) write(lfnout,1000)
+ 1000 format(/,' CONJUGATE GRADIENT MINIMIZATION',//,
+     + '   Step File     Energy       Energy     Largest  ',/,
+     + '        wrt     gradient               displacement',/,
+     + '                 kJ/mol       kJ/mol        nm',/)
+c
+      dx=dx0cg
+      beta1=zero
       icgit=1
 c
 c     initialize cf
@@ -236,52 +337,158 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),eskin,epme,epot)
 c
-      dxf=dx/fmax
+      ecgnew=epot
+      eqrs=epot
+      ecgold=ecgnew
+      ecgdif=zero
+      edt=zero
 c
-c     initialize search direction
 c
-      call cf_cginit(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
-     + dbl_mb(i_fw),pcgw,nwmloc,int_mb(i_is+(lsatt-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_fs),pcgs,nsaloc,
-     + dxf)
+c     copy initial coordinates into vw and vs
+c     initialize search direction vectors pcgw and pcgs to zero
+c
+      if(nwmloc.gt.0) then
+      do 1 iwa=1,nwa
+      do 2 ix=1,3
+      do 3 iwm=1,nwmloc
+      vw(iwm,ix,iwa)=xw(iwm,ix,iwa)
+      pcgw(iwm,ix,iwa)=zero
+    3 continue
+    2 continue
+    1 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 4 ix=1,3
+      do 5 isa=1,nsaloc
+      vs(isa,ix)=xs(isa,ix)
+      pcgs(isa,ix)=zero
+    5 continue
+    4 continue
+      endif
+c
+c     take one steepest descent step to get initial search direction
+c
+      dxf=half*dx/fmax
+      if(nwmloc.gt.0) then
+      do 6 iwa=1,nwa
+      do 7 ix=1,3
+      do 8 iwm=1,nwmloc
+      yw(iwm,ix,iwa)=xw(iwm,ix,iwa)
+      xw(iwm,ix,iwa)=xw(iwm,ix,iwa)+dxf*fw(iwm,ix,iwa)/ww(iwa)
+    8 continue
+    7 continue
+    6 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 9 ix=1,3
+      do 10 isa=1,nsaloc
+      ys(isa,ix)=xs(isa,ix)
+      xs(isa,ix)=xs(isa,ix)+dxf*fs(isa,ix)/ws(isa)
+   10 continue
+    9 continue
+      endif
 c
 c     shake
 c
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
 c
-c     get initial norm of forces
-c
+      fnorm1=zero
       dxfi=one/dxf
-      call cf_cg_fnorm(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
-     + nwmloc,int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
-     + dbl_mb(i_fs),nsaloc,dxfi,fnorm1)
+      if(nwmloc.gt.0) then
+      do 11 iwa=1,nwa
+      do 12 ix=1,3
+      do 13 iwm=1,nwmloc
+      fw(iwm,ix,iwa)=(xw(iwm,ix,iwa)-yw(iwm,ix,iwa))*dxfi*ww(iwa)
+      fnorm1=fnorm1+fw(iwm,ix,iwa)**2
+   13 continue
+   12 continue
+   11 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 14 ix=1,3
+      do 15 isa=1,nsaloc
+      fs(isa,ix)=(xs(isa,ix)-ys(isa,ix))*dxfi*ws(isa)
+      fnorm1=fnorm1+fs(isa,ix)**2
+   15 continue
+   14 continue
+      endif
 c
-      epcg=epot
-      dx=dx0cg
-      beta1=zero
-      mdstep=0
+c     global sum fnorm1
 c
-    1 continue
+      call ga_dgop(mrg_d08,fnorm1,1,'+')
 c
-      mdstep=mdstep+1
-      if(frequency(mdstep,ncgcy)) beta1=zero
-      lpair=frequency(mdstep,nfpair)
+      ecg0=ecgnew
+      ecg1=ecgnew
+      ecg2=ecgnew
+      icgit=0
 c
-      call cf_cg_search(dbl_mb(i_fw),pcgw,nwmloc,dbl_mb(i_fs),
-     + pcgs,nsaloc,beta1,ypa,pnorm)
+c     outer loop
+c
+  100 continue
+c
+      if(icgit.eq.(icgit/ncgcy)*ncgcy) beta1=zero
+      icgit=icgit+1
+      if(.not.lpair) lpair=frequency(icgit,nfpair)
+c
+      ypa=zero
+      pnorm=zero
+      if(nwmloc.gt.0) then
+      do 16 iwa=1,nwa
+      do 17 ix=1,3
+      do 18 iwm=1,nwmloc
+      pcgw(iwm,ix,iwa)=fw(iwm,ix,iwa)+beta1*pcgw(iwm,ix,iwa)
+      pnorm=pnorm+pcgw(iwm,ix,iwa)**2
+      ypa=ypa+pcgw(iwm,ix,iwa)*fw(iwm,ix,iwa)
+   18 continue
+   17 continue
+   16 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 19 ix=1,3
+      do 20 isa=1,nsaloc
+      pcgs(isa,ix)=fs(isa,ix)+beta1*pcgs(isa,ix)
+      pnorm=pnorm+pcgs(isa,ix)**2
+      ypa=ypa+pcgs(isa,ix)*fs(isa,ix)
+   20 continue
+   19 continue
+      endif
+c
+c     accumulate pnorm
+c
+      call ga_dgop(mrg_d09,ypa,1,'+')
+      call ga_dgop(mrg_d10,pnorm,1,'+')
+c
+      if(pnorm.lt.zero) call errquit('congra: pnorm<zero',0)
+      pnorm=sqrt(pnorm)
 c
       alpha=zero
+      ecg1=ecg2
       beta2=dx/pnorm
       inner=0
 c
-    2 continue
+c     inner loop
+c
+  200 continue
 c
       inner=inner+1
 c
-      call cf_cgstep(dbl_mb(i_xw),dbl_mb(i_vw),pcgw,nwmloc,
-     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_vs),pcgs,
-     + nsaloc,beta2)
+      if(nwmloc.gt.0) then
+      do 21 iwa=1,nwa
+      do 22 ix=1,3
+      do 23 iwm=1,nwmloc
+      xw(iwm,ix,iwa)=vw(iwm,ix,iwa)+beta2*pcgw(iwm,ix,iwa)/ww(iwa)
+   23 continue
+   22 continue
+   21 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 24 ix=1,3
+      do 25 isa=1,nsaloc
+      xs(isa,ix)=vs(isa,ix)+beta2*pcgs(isa,ix)/ws(isa)
+   25 continue
+   24 continue
+      endif
 c
 c     initialize cf
 c
@@ -293,46 +500,115 @@ c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
+      lpair=.false.
+c
       beta3=beta2*pnorm/fnorm
 c
-      call cf_cgstep2(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),nwmloc,
-     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
-     + dbl_mb(i_fs),nsaloc,beta3,dxmax)
+      if(nwmloc.gt.0) then
+      do 26 iwa=1,nwa
+      do 27 ix=1,3
+      do 28 iwm=1,nwmloc
+      yw(iwm,ix,iwa)=xw(iwm,ix,iwa)
+      dxstep=beta3*fw(iwm,ix,iwa)/ww(iwa)
+      xw(iwm,ix,iwa)=yw(iwm,ix,iwa)+dxstep
+   28 continue
+   27 continue
+   26 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 29 ix=1,3
+      do 30 isa=1,nsaloc
+      ys(isa,ix)=xs(isa,ix)
+      dxstep=beta3*fs(isa,ix)/ws(isa)
+      xs(isa,ix)=ys(isa,ix)+dxstep
+   30 continue
+   29 continue
+      endif
 c
 c     shake
 c
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
 c
-      call cf_cgforce(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),pcgw,
-     + nwmloc,int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
-     + dbl_mb(i_fs),pcgs,nsaloc,beta3,ypb)
+c     find constrained forces
+c
+      ypb=zero
+      if(nwmloc.gt.0) then
+      do 34 iwa=1,nwa
+      do 35 ix=1,3
+      do 36 iwm=1,nwmloc
+      fw(iwm,ix,iwa)=(xw(iwm,ix,iwa)-yw(iwm,ix,iwa))*ww(iwa)/beta3
+      ypb=ypb+pcgw(iwm,ix,iwa)*fw(iwm,ix,iwa)
+   36 continue
+   35 continue
+   34 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 37 ix=1,3
+      do 38 isa=1,nsaloc
+      fs(isa,ix)=(xs(isa,ix)-ys(isa,ix))*ws(isa)/beta3
+      ypb=ypb+pcgs(isa,ix)*fs(isa,ix)
+   38 continue
+   37 continue
+      endif
+      call ga_dgop(mrg_d11,ypb,1,'+')
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),eskin,epme,epot)
 c
-      if(ypb.gt.zero.and.epot.lt.epcg) then
+      ecg2=epot
+      ecgdif=ecg2-ecgold
+      edt=ecg2-ecg0
+c
+c     check if interval is appropriate
+c
+      if(ypb.ge.zero.and.ecg2.lt.ecg1) then
       alpha=beta2
-      epcg=epot
+      ecg1=ecg2
       ypa=ypb
       beta2=two*beta2
-      goto 2
+      goto 200
       endif
 c
-      zeta=three*(epcg-epot)/(beta2-alpha)-ypa-ypb
-      gamma=zeta*zeta-ypa*ypb
+c     find interpolation in interval
+c
+      zeta=three*(ecg1-ecg2)/(beta2-alpha)-ypa-ypb
+      gamma=zeta**2-ypa*ypb
+c
       if(gamma.lt.zero) then
       gamma=zero
       else
       gamma=sqrt(gamma)
       endif
+c
       beta4=beta2-(gamma-zeta-ypb)*(beta2-alpha)/(ypa-ypb+two*gamma)
 c
 c     advance coordinates to interpolated point
 c
-      call cf_cg_interp(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),pcgw,
-     + nwmloc,int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
-     + dbl_mb(i_vs),pcgs,nsaloc,beta4,dxmax)
+      dxmax=zero
+      if(nwmloc.gt.0) then
+      do 39 iwa=1,nwa
+      do 40 ix=1,3
+      do 41 iwm=1,nwmloc
+      yw(iwm,ix,iwa)=vw(iwm,ix,iwa)
+      dxstep=beta4*pcgw(iwm,ix,iwa)/ww(iwa)
+      xw(iwm,ix,iwa)=vw(iwm,ix,iwa)+dxstep
+      if(abs(dxstep).gt.dxmax) dxmax=abs(dxstep)
+   41 continue
+   40 continue
+   39 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 42 ix=1,3
+      do 43 isa=1,nsaloc
+      ys(isa,ix)=vs(isa,ix)
+      dxstep=beta4*pcgs(isa,ix)/ws(isa)
+      xs(isa,ix)=vs(isa,ix)+dxstep
+      if(abs(dxstep).gt.dxmax) dxmax=abs(dxstep)
+   43 continue
+   42 continue
+      endif
+      call ga_dgop(mrg_d12,dxmax,1,'max')
 c
 c     shake
 c
@@ -352,33 +628,146 @@ c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),eskin,epme,epot)
 c
+      dxmax=zero
+      dxwmax=zero
+      dxsmax=zero
+c
       beta5=beta4*pnorm/fnorm
 c
-      call cf_cgstep2(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),nwmloc,
-     + int_mb(i_is+(lsatt-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
-     + dbl_mb(i_fs),nsaloc,beta5,dxmax)
+c     advance coordinates with these forces
+c
+      if(nwmloc.gt.0) then
+      do 44 iwa=1,nwa
+      do 45 ix=1,3
+      do 46 iwm=1,nwmloc
+      yw(iwm,ix,iwa)=xw(iwm,ix,iwa)
+      dxstep=beta5*fw(iwm,ix,iwa)/ww(iwa)
+      xw(iwm,ix,iwa)=yw(iwm,ix,iwa)+dxstep
+      if(abs(dxstep).gt.dxwmax) dxwmax=abs(dxstep)
+   46 continue
+   45 continue
+   44 continue
+      if(dxwmax.gt.dxmax) dxmax=dxwmax
+      endif
+      if(nsaloc.gt.0) then
+      do 47 ix=1,3
+      do 48 isa=1,nsaloc
+      ys(isa,ix)=xs(isa,ix)
+      dxstep=beta5*fs(isa,ix)/ws(isa)
+      xs(isa,ix)=ys(isa,ix)+dxstep
+      if(abs(dxstep).gt.dxsmax) dxsmax=abs(dxstep)
+   48 continue
+   47 continue
+      if(dxsmax.gt.dxmax) dxmax=dxsmax
+      endif
+      call ga_dgop(mrg_d12,dxmax,1,'max')
 c
 c     shake
 c
       call md_shake(dbl_mb(i_xw),dbl_mb(i_yw),int_mb(i_iw),
      + dbl_mb(i_xs),dbl_mb(i_ys),int_mb(i_is),dxmax)
 c
-      call cf_cgstep3(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),
-     + dbl_mb(i_fw),pcgw,nwmloc,int_mb(i_is+(lsatt-1)*msa),
-     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_fs),pcgs,nsaloc,
-     + beta4,beta5,fnorm2)
+      fnorm2=zero
+c
+      if(nwmloc.gt.0) then
+      do 52 iwa=1,nwa
+      do 53 ix=1,3
+      do 54 iwm=1,nwmloc
+      fw(iwm,ix,iwa)=(xw(iwm,ix,iwa)-yw(iwm,ix,iwa))*ww(iwa)/beta5
+      pcgw(iwm,ix,iwa)=(yw(iwm,ix,iwa)-vw(iwm,ix,iwa))*ww(iwa)/beta4
+      vw(iwm,ix,iwa)=yw(iwm,ix,iwa)
+      fnorm2=fnorm2+fw(iwm,ix,iwa)**2
+   54 continue
+   53 continue
+   52 continue
+      endif
+      if(nsaloc.gt.0) then
+      do 55 ix=1,3
+      do 56 isa=1,nsaloc
+      fs(isa,ix)=(xs(isa,ix)-ys(isa,ix))*ws(isa)/beta5
+      pcgs(isa,ix)=(ys(isa,ix)-vs(isa,ix))*ws(isa)/beta4
+      vs(isa,ix)=ys(isa,ix)
+      fnorm2=fnorm2+fs(isa,ix)**2
+   56 continue
+   55 continue
+      endif
+c
+c     global sum fnorm2
+c
+      call ga_dgop(mrg_d13,fnorm2,1,'+')
 c
       beta1=sqrt(fnorm2/fnorm1)
       fnorm1=fnorm2
 c
-      epcg=epot
+      ecg2=epot
 c
-      if(me.eq.0) then
-      write(*,1111) epcg
- 1111 format('Ecg=',f12.6)
+      ecgdif=ecg2-ecgold
+      ecgold=ecg2
+      edt=ecg2-ecg0
+      ecg1=ecg2
+      ecgnew=ecg2
+c
+c     record to lfnemt
+c
+c     recording properties and coordinates
+c
+c      if(icgit.eq.(icgit/nfem)*nfem) then
+c      lupdat=1
+c      call arg_record(g,lfnemt)
+c      endif
+c      if(icgit.eq.(icgit/nfprop)*nfprop) then
+c      call arg_record(g,lfnprp)
+c      endif
+cc
+cc     rewrite restart file
+cc
+c      lqrs=.false.
+c      if(icgit.eq.(icgit/nfqrs)*nfqrs.or.icgit.gt.mcgit-2.or.
+c     + dxmax.lt.dxcgmx.or.ecgdif.ge.zero) then
+c      lqrs=epot.lt.eqrs
+c      if(lqrs) then
+c      lupdat=1
+c      call arg_record(g,lfnqrs)
+c      ipairi=-1
+c      eqrs=epot
+c      endif
+c      endif
+c
+c     write restart file
+c
+      cqrs=' '
+      if(frequency(icgit,nfqrs)) then
+      call md_wrtrst(lfnqrs,filqrs,.false.)
+      cqrs='*'
+      lpair=.true.
       endif
 c
-      if(mdstep.lt.mcgit.and.dxmax.gt.dxcgmx) goto 1
+c     print minimization step data to output
+c
+      if(me.eq.0) then
+      write(lfnout,600) icgit,cqrs,ecgdif,ecg1,dxmax
+  600 format(i7,1x,a1,3x,2(1pe13.5),0pf12.8)
+      endif
+c
+c      if(me.eq.0.and.ntype.ne.3) then
+c      cqrs=' '
+c      if(lqrs) cqrs='*'
+c      if(npstep.ne.0) write(lfnout,601) nemit,cqrs,icgit,inner,
+c     + zero,ecgdif,edt,espi,two*(espt-espi),ewp-(espt-espi),ewp+espt,
+c     + dxmax
+c  601 format(i7,1x,a1,8x,2i5,7e13.5,f12.8)
+c      call util_flush(lfnout)
+c      if(npxpct.gt.0) call arg_expect
+c      if(itest.gt.0) call arg_test
+c      endif
+c
+c     check convergence and repeat if not done
+c
+      if(icgit.lt.mcgit.and.dxmax.gt.dxcgmx.and.ecgdif.lt.zero)
+     + goto 100
+c
+      ecgdif=edt
+      edif=edif+edt
 c
       return
       end
@@ -413,7 +802,7 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
-      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
 c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
@@ -509,7 +898,7 @@ c
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_esk),epme)
 c
-      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst)
+      if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
 c
       call timer_stop(1)
 c
@@ -823,7 +1212,7 @@ c
 c
       return
       end
-      subroutine md_wrtrst(lfn,fil)
+      subroutine md_wrtrst(lfn,fil,lveloc)
 c
       implicit none
 c
@@ -832,13 +1221,14 @@ c
 c
       integer lfn
       character*255 fil
+      logical lveloc
 c
       if(me.eq.0) then
       open(unit=lfn,file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown',err=9999)
       endif
 c
-      call sp_wrtrst(lfn,fil,pres,temp,tempw,temps,
+      call sp_wrtrst(lfn,fil,lveloc,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
 c
