@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.6 2004-05-05 19:42:38 edo Exp $
+* $Id: D3dB-mpi.F,v 1.7 2004-05-24 18:05:07 bylaska Exp $
 *
 
 #ifdef MPI
@@ -30,7 +30,8 @@
       complex*16  tmp1(*),tmp2(*)
 
 #include "mafdecls.fh"
-
+#include "errquit.fh"
+#include "mpif.h"
 #include "D3dB.fh"
 
 
@@ -46,21 +47,31 @@ c     integer i2_start(NFFT3+1)
       common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
 
-#include "mpif.h"
-      integer mpierr
 
 *     **** local variables ***
+      logical value
       integer i,q
       integer proc_to,proc_from,it
       integer size,msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
-      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer status(2),request(2),reqcnt
       integer taskid,np
+      integer mpierr
       
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                     'status',status(2),status(1))
+      value = value.and.
+     >        MA_push_get(mt_int,np,
+     >                     'request',request(2),request(1))
+      if (.not. value)
+     > call errquit(' D3dB_c_transpose_jk:out of stack',0,MA_ERR)
 
 *     **** pack A(i) array ****
 #ifndef CRAY
@@ -100,7 +111,7 @@ c     integer msgid
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,type,MPI_COMM_WORLD,
-     >                    request(reqcnt),mpierr) 
+     >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
       end do
@@ -124,7 +135,8 @@ c     integer msgid
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call MPI_WAITALL(reqcnt,request,status,mpierr)
+      call MPI_WAITALL(reqcnt,int_mb(request(1)),
+     >                        int_mb(status(1)),mpierr)
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
@@ -134,6 +146,13 @@ c     integer msgid
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
       
+
+      !*** deallocate memory ***
+      value =           MA_pop_stack(request(2))
+      value = value.and.MA_pop_stack(status(2))
+      if (.not. value)
+     > call errquit(' D3dB_c_transpose_jk:popping stack',0,MA_ERR)
+
       return
       end
 
@@ -164,7 +183,8 @@ c     integer msgid
       complex*16  tmp2(*)
 
 #include "mafdecls.fh"
-
+#include "errquit.fh"
+#include "mpif.h"
 #include "D3dB.fh"
 
 
@@ -180,22 +200,31 @@ c     integer i2_start(NFFT3+1)
       common / timereverse_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
 
-#include "mpif.h"
-         integer mpierr
-
 *     **** local variables ***
+      logical value
       integer  rcv_len,rcv_proc
       integer i,c
       integer it
       integer source
       integer msglen,msgtype,type
       integer proc_from,proc_to
-      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer status(2),request(2),reqcnt
       integer taskid,np
       integer index1,index2
+      integer mpierr
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                     'status',status(2),status(1))
+      value = value.and.
+     >        MA_push_get(mt_int,np,
+     >                     'request',request(2),request(1))
+      if (.not. value)
+     > call errquit(' D3dB_c_timereverse:out of stack',0,MA_ERR)
 
 
 *     **** pack A(i) array ****
@@ -237,7 +266,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,type,MPI_COMM_WORLD,
-     >                    request(reqcnt),mpierr)
+     >                    int_mb(request(1)+reqcnt-1),mpierr)
          end if
 
       end do
@@ -262,7 +291,8 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** wait for completion of mp_send, also do a sync ****
-      call MPI_WAITALL(reqcnt,request,status,mpierr)
+      call MPI_WAITALL(reqcnt,int_mb(request(1)),
+     >                        int_mb(status(1)),mpierr)
 
 
 *     **** unpack A(i) array ****
@@ -273,6 +303,13 @@ c     integer i2_start(NFFT3+1)
      >         (int_mb(i2_start(1,nb)+np+1-1)-1)
         A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
       end do
+
+
+      !*** deallocate memory ***
+      value =           MA_pop_stack(request(2))
+      value = value.and.MA_pop_stack(status(2))
+      if (.not. value)
+     > call errquit(' D3dB_c_timereverse:popping stack',0,MA_ERR)
 
 
       return
@@ -312,7 +349,8 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
 
 #include "mafdecls.fh"
-
+#include "errquit.fh"
+#include "mpif.h"
 #include "D3dB.fh"
 
 
@@ -327,21 +365,31 @@ c     integer i2_start(NFFT3+1)
      >                         h_i2_start
 
 
-#include "mpif.h"
-      integer mpierr
 
 *     **** local variables ***
+      logical value
       integer i,q,nnfft3d
       integer proc_to,proc_from,it
       integer size,msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
-      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer status(2),request(2),reqcnt
       integer taskid,np
+      integer mpierr
       
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                     'status',status(2),status(1))
+      value = value.and.
+     >        MA_push_get(mt_int,np,
+     >                     'request',request(2),request(1))
+      if (.not. value) 
+     > call errquit(' D3dB_c_transpose_ijk:out of stack',0,MA_ERR)
 
 
 *     **** pack A(i) array ****
@@ -386,7 +434,7 @@ c     integer msgid
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,type,MPI_COMM_WORLD,
-     >                    request(reqcnt),mpierr) 
+     >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
       end do
@@ -410,7 +458,8 @@ c     integer msgid
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call MPI_WAITALL(reqcnt,request,status,mpierr)
+      call MPI_WAITALL(reqcnt,int_mb(request(1)),
+     >                        int_mb(status(1)),mpierr)
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
@@ -421,7 +470,13 @@ c     integer msgid
 #endif
       do i=1,nnfft3d
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
-      end do
+      end do 
+
+      !*** deallocate memory ***
+      value =           MA_pop_stack(request(2))
+      value = value.and.MA_pop_stack(status(2))
+      if (.not. value) 
+     > call errquit(' D3dB_c_transpose_ijk:popping stack',0,MA_ERR)
       
       return
       end
@@ -456,7 +511,8 @@ c     integer msgid
       real*8  tmp1(*),tmp2(*)
 
 #include "mafdecls.fh"
-
+#include "errquit.fh"
+#include "mpif.h"
 #include "D3dB.fh"
 
 
@@ -471,22 +527,32 @@ c     integer msgid
      >                         h_i2_start
 
 
-#include "mpif.h"
-      integer mpierr
 
 *     **** local variables ***
+      logical value
       integer i,q,nnfft3d
       integer proc_to,proc_from,it
       integer size,msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
-      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer status(2),request(2),reqcnt
       integer taskid,np
+      integer mpierr
       
       call Parallel_taskid(taskid)
       call Parallel_np(np)
 
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                     'status',status(2),status(1))
+      value = value.and.
+     >        MA_push_get(mt_int,np,
+     >                     'request',request(2),request(1))
+      if (.not. value)
+     > call errquit(' D3dB_t_transpose_ijk:out of stack',0,MA_ERR)
       
 
 *     **** pack A(i) array ****
@@ -531,7 +597,7 @@ c     integer msgid
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,type,MPI_COMM_WORLD,
-     >                    request(reqcnt),mpierr) 
+     >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
       end do
@@ -555,7 +621,8 @@ c     integer msgid
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      call MPI_WAITALL(reqcnt,request,status,mpierr)
+      call MPI_WAITALL(reqcnt,int_mb(request(1)),
+     >                        int_mb(status(1)),mpierr)
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = (nx(nb)/2+1)*nq1(nb)
@@ -568,6 +635,13 @@ c     integer msgid
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
       end do
       
+
+      !*** deallocate memory ***
+      value =           MA_pop_stack(request(2))
+      value = value.and.MA_pop_stack(status(2))
+      if (.not. value)
+     > call errquit(' D3dB_t_transpose_ijk:popping stack',0,MA_ERR)
+
       return
       end
 #endif
