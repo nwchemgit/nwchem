@@ -29,9 +29,7 @@ COBJ  = mgscs.o \
          mdiff2.o \
          memreq.o \
          memreq_f.o \
-	mgs4.o \
-	mgs1b.o \
-	mgs2.o \
+	mgs5.o \
          mxm25.o \
          mxm5x.o \
          mxm88.o \
