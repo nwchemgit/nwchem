@@ -8,9 +8,6 @@
 #include "cscfps.fh"
       double precision junk
 c
-      if (.not. pstat_init(20, 1, ' ')) call errquit
-     $     ('scf_pstat_init: pstat_init failed', 0)
-c
       if (.not. pstat_allocate('scf: solve', pstat_qstat, 0,junk,
      $     ps_solve)) call errquit('scf: scf_pstat_init', 0)
 c
@@ -52,8 +49,20 @@ c
       if (oscfps) then
          call pstat_off(ps_total)
          call pstat_print_all
-         status = pstat_terminate()
          oscfps = .false.
+c
+c     delete the SCF timers
+c
+         if (.not. pstat_free(ps_solve))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_search))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_fock_2e))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_int_1e))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_int_2e))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_fock_add))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_matexp))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_diag))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
+c
       endif
 c
       end
