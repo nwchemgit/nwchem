@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.46 2003-10-27 02:35:27 edo Exp $
+* $Id: mp2_grad_doit.F,v 1.47 2004-04-22 06:00:22 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -23,6 +23,7 @@
 #include "cmp2ps.fh"
 #include "eaf.fh"
 #include "util.fh"
+#include "rtdb.fh"
       integer rtdb, g_vecs_a,g_vecs_b
       integer passab            ! 1 on first call (aa+ab) 2 on second (bb+ba)
       integer noa_lo,noa_hi,nob_lo,nob_hi
@@ -119,7 +120,12 @@ c
       endif
 c     
       call util_file_name('kh',.true.,.true.,fnamek)
-      avail_file=util_scratch_dir_avail_for_me()*128.0d0
+      if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
+         avail_file=avail_file*1024d0*128d0
+         write(0,*) ' #avail ',avail_file
+      else
+         avail_file=util_scratch_dir_avail_for_me()*128.0d0
+      endif
 c
       if (task .eq. 'gradient') then
         call intd_init(rtdb,1,basis) ! int_init allocates some memory

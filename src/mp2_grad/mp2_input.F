@@ -1,6 +1,6 @@
       subroutine mp2_input(rtdb)
 *
-* $Id: mp2_input.F,v 1.8 2003-10-17 22:55:29 carlfahl Exp $
+* $Id: mp2_input.F,v 1.9 2004-04-22 06:00:22 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -21,12 +21,14 @@ c     .  [VECTORS <string filename default scf-output-vectors> \
 c     .    [swap [(alpha||beta)] <integer pair-list>] ]
 c     .  [RIAPPROX <string riapprox default V>]
 c     .  [FILE3C <string filename default "$file_prefix$.mo3cint">]
+c     .  [SCRATCHDISK <integer>]
 c     END
 c
       character*20 test, riapprox
       character*255 rifile
       double precision aotol2e, motol2e, scfthresh, cphfthresh, backtol
       logical status
+      integer scrdisk
 c
  10   if (.not. inp_read()) 
      $     call errquit('mp2_input: failed reading input',0, INPUT_ERR)
@@ -96,6 +98,13 @@ c
      $        ('mp2_input: failed reading ri 3c file',0, INPUT_ERR)
          if (.not. rtdb_cput(rtdb,'mp2:mo 3-center integral file', 1, 
      $        rifile)) 
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+      else if (inp_compare(.false.,test,'scratchdisk')) then
+         if (.not. inp_i(scrdisk)) call errquit
+     $        ('mp2_input: failed reading scrdisk',0, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'mp2:scratchdisk', mt_dbl, 1,
+     $        dble(scrdisk))) 
      $        call errquit('mp2_input: failed writing to rtdb',0,
      &       RTDB_ERR)
       else if (inp_compare(.false.,test,'end')) then

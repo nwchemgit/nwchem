@@ -1,5 +1,5 @@
 %
-% $Id: mp2.tex,v 1.21 2004-04-22 04:50:28 edo Exp $
+% $Id: mp2.tex,v 1.22 2004-04-22 06:00:01 edo Exp $
 %
 \label{sec:mp2}
 \label{sec:rimp2}
@@ -52,6 +52,7 @@ All three MP2 tasks share the same input block.
       [swap [(alpha||beta)] <integer pair-list>] ]
     [RIAPPROX <string riapprox default V>]
     [FILE3C <string filename default $file_prefix$.mo3cint">]
+    [SCRATCHDISK <integer>]
   END
 \end{verbatim}
 
@@ -158,6 +159,18 @@ frequencies, greater precision may be desirable.
 $10^{-6}$ to $10^{-8}$) and CPHF (from $10^{-4}$ to $10^{-6}$) are
 solved, and also tightens thresholds for computation of the AO and MO
 integrals (from $10^{-9}$ to $10^{-11}$) within the MP2 code.
+
+\section{{\tt SCRATCHDISK} --- Limiting I/O usage}
+
+This directive -- used only in the semi-direct algorithm -- allows to
+limit the per process disk usage. Mandatory argument for this keyword
+is the maximum number of MBytes.
+For example, the following input line
+\begin{verbatim}
+  scratchdisk 512
+\end{verbatim}
+puts an upper limit of 512 MBytes to the semi-direct MP2 usage of disk
+(again, on a per process base).
 
 \section{{\tt PRINT} and {\tt NOPRINT}}
 
