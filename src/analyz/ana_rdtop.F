@@ -1,4 +1,4 @@
-      subroutine ana_rdtop(sgmnam,qs,iram,imol)
+      subroutine ana_rdtop(sgmnam,qs,iram,imol,ibnd)
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 c
       character*16 sgmnam(msa)
       real*8 qs(msa)
-      integer iram(msgm,7),imol(msa)
+      integer iram(msgm,7),imol(msa),ibnd(msb,2)
 c
       character*1 cdummy
       integer i,j,nat,naq,i_tmp,l_tmp,i_itmp,l_itmp
@@ -102,6 +102,8 @@ c
     6 continue
       do 8 i=1,nbs
       read(lfntop,1006) j,num
+      ibnd(i,1)=j
+      ibnd(i,2)=num
       read(lfntop,1000) cdummy
  1006 format(2i7)
       write(44,2005) j,num
@@ -191,6 +193,7 @@ c
       read(lfntop,1003) naw,nbw,nhw,ndw,now,ntw,nnw
  1003 format(5i7,2i10)
       read(lfntop,1003) nas,nbs
+      msb=nbs
       do 7 i=1,naw
       read(lfntop,1005) sname,aname,num,j
  2004 format(2a5,i6)

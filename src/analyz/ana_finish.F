@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.20 2001-11-21 03:29:33 d3j191 Exp $
+c $Id: ana_finish.F,v 1.21 2002-07-20 19:17:38 d3j191 Exp $
 c
       implicit none
 c
@@ -68,6 +68,8 @@ c
      + call errquit('Failed to deallocate ssel',0)
       if(.not.ma_pop_stack(l_isel))
      + call errquit('Failed to deallocate isel',0)
+      if(.not.ma_pop_stack(l_hbnd))
+     + call errquit('Failed to deallocate hbnd',0)
 c
       return
       end

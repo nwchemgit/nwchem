@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.81 2002-07-18 01:55:16 d3j191 Exp $
+c $Id: ana_task.F,v 1.82 2002-07-20 19:17:38 d3j191 Exp $
 c
       implicit none
 c
@@ -39,6 +39,7 @@ c
 c
       lfncmd=69
       lfnloc=70
+      lfnhba=71
       lfnref=76
       lfntrj=77
       lfncop=78
@@ -100,6 +101,7 @@ c
       lrama=.false.
       lesd=.false.
       lloc=.false.
+      lhbond=.false.
 c
       nave=0
       ndata=0
@@ -201,8 +203,10 @@ c
      + call errquit('Could not allocate iram',0)
       if(.not.ma_push_get(mt_int,msa,'imol',l_imol,i_imol))
      + call errquit('Could not allocate imol',0)
+      if(.not.ma_push_get(mt_int,2*msb,'sbnd',l_sbnd,i_sbnd))
+     + call errquit('Could not allocate sbnd',0)
       call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram),
-     + int_mb(i_imol))
+     + int_mb(i_imol),int_mb(i_sbnd))
 c
       if(me.eq.0) then
       if(ltop) then
@@ -328,8 +332,8 @@ c
       goto 1
       endif
 c
-c     set hydrgen bond criteria
-c     -------------------------
+c     set hydrogen bond criteria
+c     --------------------------
 c
       if(card(1:6).eq.'hbdist ') then
       read(card(7:30),'(2f12.6)') rhbmin,rhbmax
@@ -341,6 +345,12 @@ c
       endif
       if(card(1:6).eq.'hbaang ') then
       read(card(7:30),'(2f12.6)') hbamin,hbamax
+      goto 1
+      endif
+      if(card(1:6).eq.'hbond  ') then
+      lhbond=.true.
+      call ana_hbond_init(byte_mb(i_snam),int_mb(i_sbnd),
+     + int_mb(i_isel),int_mb(i_hbnd))
       goto 1
       endif
 c
@@ -819,6 +829,7 @@ c
       filgrp=string(1:index(string,' ')-1)//'.grp'
       filord=string(1:index(string,' ')-1)//'.ord'
       filloc=string(1:index(string,' ')-1)//'.loc'
+      filhba=string(1:index(string,' ')-1)//'.hba'
       time=0.0d0
 c
 c     read file header
@@ -842,6 +853,12 @@ c
       if(lrms) then
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
      + form='formatted',status='unknown')
+      endif
+      if(lhbond) then
+      open(unit=lfnhba,file=filhba(1:index(filhba,' ')-1),
+     + form='formatted',status='unknown')
+      call ana_hbond_header(byte_mb(i_snam),int_mb(i_isel),
+     + int_mb(i_hbnd))
       endif
       if(ngroups.gt.0) then
       open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
@@ -940,6 +957,12 @@ c
       call ana_rmsdev(dbl_mb(i_xdat),int_mb(i_idat),nsa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms))
       endif
+      endif
+c
+c     hydrogen bond analysis
+c
+      if(lhbond) then
+      call ana_hbond(dbl_mb(i_xdat),int_mb(i_hbnd))
       endif
 c
       if(ngroup.gt.0) then
@@ -1333,6 +1356,8 @@ c
 c
       if(active) call ana_edfinal()
 c
+      if(.not.ma_pop_stack(l_sbnd))
+     + call errquit('Could not deallocate sbnd',0)
       if(.not.ma_pop_stack(l_imol))
      + call errquit('Could not deallocate imol',0)
       if(.not.ma_pop_stack(l_iram))

@@ -1,6 +1,6 @@
       subroutine ana_define(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_define.F,v 1.4 2002-07-18 01:23:07 d3j191 Exp $
+c $Id: ana_define.F,v 1.5 2002-07-20 19:17:38 d3j191 Exp $
 c
       implicit none
 c
@@ -15,9 +15,8 @@ c
       integer isel(nsa)
       real*8 x(nsa,3)
 c
-      integer i,j,k,l
-      integer id,is,js,it
-      character*5 cs,ct
+      integer i,k,l
+      integer id
       real*8 rtag,rtag2,r2
       character*80 card,target
       integer l_list,i_list

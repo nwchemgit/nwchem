@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.59 2002-07-18 01:23:07 d3j191 Exp $
+c $Id: ana_input.F,v 1.60 2002-07-20 19:17:38 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,6 @@ c
       integer iopt,ivctr,iorder
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
-      integer irota
       real*8 arota
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx,icent,jcent
@@ -672,7 +671,7 @@ c     set hydrogen bond criteria
 c     --------------------------
 c
       if(inp_compare(.false.,'hbond',item)) then
-      if(.not.inp_a(item)) call errquit('Error in hbond',0)
+      if(inp_a(item)) then
  6644 continue
       if(inp_compare(.false.,'distance',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
@@ -683,7 +682,6 @@ c
       write(lfncmd,1066) rmin,rmax
  1066 format('hbdist ',2f12.6)
       if(inp_a(item)) goto 6644
-      goto 2
       elseif(inp_compare(.false.,'donorangle',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
       if(.not.inp_f(rmax)) then
@@ -692,7 +690,6 @@ c
       write(lfncmd,1067) rmin,rmax
  1067 format('hbdang ',2f12.6)
       if(inp_a(item)) goto 6644
-      goto 2
       elseif(inp_compare(.false.,'acceptorangle',item)) then
       if(.not.inp_f(rmin)) call errquit('Error in hbond',0)
       if(.not.inp_f(rmax)) then
@@ -701,10 +698,11 @@ c
       write(lfncmd,1068) rmin,rmax
  1068 format('hbaang ',2f12.6)
       if(inp_a(item)) goto 6644
-      goto 2
-      else
-      call errquit('Error in hbond',0)
       endif
+      endif
+      write(lfncmd,1069)
+ 1069 format('hbond  ')
+      goto 2
       endif
 c
 c     average structure

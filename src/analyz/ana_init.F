@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.14 2001-07-17 23:23:46 d3j191 Exp $
+c $Id: ana_init.F,v 1.15 2002-07-20 19:17:38 d3j191 Exp $
 c
       implicit none
 c
@@ -49,6 +49,8 @@ c
 c
 c     allocate memory
 c
+      if(.not.ma_push_get(mt_int,nsa,'hbnd',l_hbnd,i_hbnd))
+     + call errquit('Failed to allocate memory for hbnd',me)
       if(.not.ma_push_get(mt_int,nsa,'isel',l_isel,i_isel))
      + call errquit('Failed to allocate memory for isel',me)
       if(.not.ma_push_get(mt_int,nsa,'ssel',l_ssel,i_ssel))
