@@ -1,6 +1,74 @@
       logical function task_energy(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+      integer rtdb
+c
+c     Fortran does not like recursive calls, so for ease of coding
+c     ONIOM do ONIOM out here so that it call call task_energy_doit().
+c
+      logical status, ignore
+      character*32 theory
+      double precision cpu, wall, energy, dipole(3)
+      logical task_energy_doit, oniom_energy
+      external task_energy_doit, oniom_energy
+c
+      cpu  = util_cpusec()
+      wall = util_wallsec()
+c
+      ignore = rtdb_delete(rtdb, 'task:energy')
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
+     $     call errquit('task_energy: failed to invalidate status',0)
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:energy: theory not specified',0)
+c
+      if (theory .ne. 'oniom') then
+         status = task_energy_doit(rtdb,theory,energy)
+      else
+         status = oniom_energy(rtdb)
+         if (status) then
+            if (.not. rtdb_get(rtdb, 'oniom:energy', mt_dbl, 1, energy))
+     $           call errquit('task_energy: no energy in rtdb?',0)
+            if (rtdb_get(rtdb, 'oniom:dipole', mt_dbl, 3, dipole)) then
+               if (.not. rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole))
+     $              call errquit('task_energy: failed storing dipole',0)
+            else
+               ignore = rtdb_delete(rtdb, 'task:dipole')
+            endif
+         endif
+      endif
+      if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
+     $     call errquit('task_energy: failed storing energy',0)
+c
+      cpu  = util_cpusec() - cpu
+      wall = util_wallsec() - wall
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
+     $     call errquit('task_energy: failed to store status',0)
+      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
+     $     call errquit('task_energy: failed storing cputime',0)
+      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
+     $     call errquit('task_energy: failed storing walltime',0)
+c
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
+      if (status) then
+         if (theory .ne. 'md') call geom_print_rtdb_ecce(rtdb)
+         call ecce_print1('total energy', mt_dbl, energy, 1)
+         call ecce_print_module_exit('task energy', 'ok')
+      else
+         call ecce_print_module_exit('task energy', 'failed')
+      endif
+c         
+      task_energy = status
+c
+      end
+      logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.23 2000-10-19 01:27:34 edo Exp $
+* $Id: task_energy.F,v 1.24 2000-11-04 03:28:52 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -9,6 +77,8 @@
 #include "util.fh"
 #include "global.fh"
       integer rtdb
+      character*(*) theory
+      double precision energy
 c
 c     Generic NWChem interface to compute the energy.  Currently
 c     only the QM components are supported.
@@ -28,34 +98,28 @@ c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
-      logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
+      logical  scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
+      external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       logical semi_dir_mp2, nwargos, rimp2g,nwmd,pspw_energy
       external semi_dir_mp2, nwargos, rimp2g,nwmd,pspw_energy
+      logical dft_energy, sodft_energy
+      external dft_energy, sodft_energy
 c
       logical status
-      double precision energy, cpu, wall, dipole(3)
+      double precision dipole(3)
       character*80 key, prefix
-      character*80 theory
-      integer ipol_dft
 c
       call ecce_print_module_entry('task energy')
 c
-      task_energy = .false.
+      task_energy_doit = .false.
 c
-      cpu  = util_cpusec()
-      wall = util_wallsec()
+c     Set the theory in the database so that all is consistent for
+c     the lower level modules.  Should not really have to do this,
+c     but this value is used (appropriately and inappropriately) and
+c     things are not yet disentangled.
 c
-c     Right now only have a QM component
-c
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
-c
-c     Set output parameters as if failed
-c
-      status = rtdb_delete(rtdb, 'task:energy')
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_energy: failed to invalidate status',0)
+      if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task_energy: setting theory?',0)
 c
 c     Actually do the deed
 c
@@ -63,20 +127,9 @@ c
       if (theory .eq. 'scf') then
          status = scf(rtdb)
       else if (theory .eq. 'dft') then
-         status = nwdft(rtdb)
-         call grid_cleanup(rtdb,.true.)
+         status = dft_energy(rtdb)
       else if (theory .eq. 'sodft')then 
-c     setup ipol=2: spin unrestricted DFT, but save current setting
-         ipol_dft = 1
-         status = rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol_dft)
-         if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, 2))
-     &        call errquit('task_energy: rtdb_put failed', 1)
-         status = nwdft(rtdb)
-c     restore ipol value
-         if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol_dft))
-     &       call errquit('task_energy: rtdb_put failed', 1)
-c     cleanup any grid parameters
-         call grid_cleanup(rtdb,.true.)
+         status = sodft_energy(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
       else if (theory .eq. 'rimp2_grad') then
@@ -122,19 +175,15 @@ c     cleanup any grid parameters
          call errquit('task_energy: unknown theory',0)
       endif
 c
-      cpu  = util_cpusec() - cpu
-      wall = util_wallsec() - wall
-c
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $   call errquit('task_energy: failed to set status',0)
-c
       if (status) then
+c
+c     ENERGY is returned via the subroutine interface.
+c     DIPOLE is currently quietly stored.
+c
          key = ' '
          write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
          if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy))
      $        call errquit('task_energy: no energy in rtdb?',0)
-         if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
-     $        call errquit('task_energy: failed storing energy',0)
 c
          key = ' '
          write(key,'(a,'':dipole'')') prefix(1:inp_strlen(prefix))
@@ -142,25 +191,9 @@ c
            if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 3, dipole))
      $          call errquit('task_energy: failed storing dipole',0)
 	 endif
-c
-         if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $        call errquit('task_energy: failed storing cputime',0)
-         if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $        call errquit('task_energy: failed storing walltime',0)
-c
-         if (theory .ne. 'md') call geom_print_rtdb_ecce(rtdb)
-         call ecce_print1('total energy', mt_dbl, energy, 1)
       endif
 c
-      call ecce_print1('cpu time', mt_dbl, cpu, 1)
-      call ecce_print1('wall time', mt_dbl, wall, 1)
-      if (status) then
-         call ecce_print_module_exit('task energy', 'ok')
-      else
-         call ecce_print_module_exit('task energy', 'failed')
-      endif
-c         
-      task_energy = status
+      task_energy_doit = status
 c
       end
       subroutine rtdb_clean(rtdb, prefix)
