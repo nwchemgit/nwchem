@@ -117,6 +117,11 @@ cjvl
          if (ndim.eq.0) call errquit('error in atom scf',0)
 cjvl
          maxitr = 100
+c
+c     debug output of exponents/coeffs/...
+c
+c         if (oprin) call printbasis
+c
 c..
 c..     calculate 1-electron ints
 c..

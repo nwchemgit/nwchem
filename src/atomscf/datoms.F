@@ -202,7 +202,7 @@ c...  get contraction coeff's as we are used to
                      if (ispdf.eq.2) then
                         fac = 0.5d0*fac/ee
                      else if (ispdf.eq.3) then
-                        fac = 0.75d0*fac/(ee*ee)
+                        fac = (1.0d0/3.0d0)  *  0.75d0*fac/(ee*ee)
                      else if (ispdf.eq.4) then
                         fac = 1.875d0*fac/(ee**3)
                      end if

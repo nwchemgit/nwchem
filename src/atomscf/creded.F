@@ -78,6 +78,7 @@ c.......................................................................
             kpoint = kmone*(kmone+1)*(((6*kmone+24)*kmone+26)*kmone+4)
      +               /120
             factor = 1.d0/(k+k-1)
+            if (k .eq. 3) factor = factor / 3.0d0
             call pdfded(k,kdim,g_dens,dt,factor,dmult(kpoint),lm,nbci,
      +                  iiloc(1,k))
          end if

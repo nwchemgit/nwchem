@@ -12,8 +12,8 @@ c
       integer nosh              ! No. of open ...
       integer nsht              ! No. of open+closed shells of each sym
       integer nccup             ! No. of open-shell electrons of each sym ??
-      integer nitscf            ! CUrrent/final no. of SCF iterations
-      integer n1                ! No. of contracted orbitals in symm
+      integer nitscf            ! Current/final no. of SCF iterations
+      integer n1                ! nbas(i) * (nbas(i) + 1 ) / 2
       integer nconv             ! =1 if SCF is converged
       integer nbc               ! No. of cont. orbitals in symmetry i
       integer nbct              ! Total number of cont. basis functions
