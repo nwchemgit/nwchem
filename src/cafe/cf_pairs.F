@@ -1,4 +1,4 @@
-      subroutine pairs(lself,xw,xwm,iwdt,iwz,
+      subroutine pairs(lself,lpbcs,xw,xwm,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr)
@@ -30,7 +30,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_pairs.F,v 1.8 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: cf_pairs.F,v 1.9 2000-02-10 22:54:36 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -43,7 +43,7 @@ c
       integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
-      logical lself,lpbc
+      logical lself,lpbc,lpbcs
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs,mpairs
       integer lptr,lptrn
@@ -95,7 +95,8 @@ c
       npairs=0
       mpairs=maxl-(lptr-i_list)-4*nsloc-1
       if(nsloc.gt.0.and.nwnon.gt.0) then
-      call cf_lsw(lpbc,xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,jwfr,jwto,
+      call cf_lsw(lpbc,lpbcs,
+     + xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,jwfr,jwto,
      + nsloc,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsloc),
      + int_mb(lptr+1+4*nsloc),
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1))
@@ -113,7 +114,8 @@ c
       npairs=0
       mpairs=maxl-(lptr-i_list)-4*nsnon-1
       if(nsnon.gt.0.and.nwloc.gt.0.and..not.lself) then
-      call cf_lsw(lpbc,xs,isdt,isgr,jsfr,jsto,xwm,iwdt,iwz,iwfr,iwto,
+      call cf_lsw(lpbc,lpbcs,
+     + xs,isdt,isgr,jsfr,jsto,xwm,iwdt,iwz,iwfr,iwto,
      + nsnon,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsnon),
      + int_mb(lptr+1+4*nsnon),
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1))
@@ -131,7 +133,8 @@ c
       npairs=0
       mpairs=maxl-(lptr-i_list)-4*nsloc-1
       if(nsloc.gt.0.and.nsnon.gt.0) then
-      call cf_lss(lself,lpbc,xs,isga,isdt,isgr,isz,isfr,isto,
+      call cf_lss(lself,lpbc,lpbcs,
+     + xs,isga,isdt,isgr,isz,isfr,isto,
      + jsfr,jsto,
      + nsloc,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsloc),
      + int_mb(lptr+1+4*nsloc),

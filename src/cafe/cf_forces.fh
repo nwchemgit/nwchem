@@ -1,11 +1,13 @@
-c $Id: cf_forces.fh,v 1.8 1999-11-02 19:32:55 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.9 2000-02-10 22:54:36 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
-      subroutine forcep(lself,xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
+      subroutine forcep(lself,lpbcs,
+     + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,ps,psp,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess)
 #elif defined(CAFE_FORCES)
-      subroutine forces(lself,xw,xwm,fw,zwi,rtos,iwdt,iwz,
+      subroutine forces(lself,lpbcs,
+     + xw,xwm,fw,zwi,rtos,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,fs,zs,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr,lupden,eww,esw,ess)
@@ -78,7 +80,7 @@ c
       integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
-      logical lself,lpbc,lupden
+      logical lself,lpbc,lupden,lpbcs
       real*8 rtos(mwm),zs(msf,2)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
 c
@@ -127,7 +129,7 @@ c
 c     pairlists
 c     ---------
 c
-      if(lpair) call pairs(lself,xw,xwm,iwdt,iwz,
+      if(lpair) call pairs(lself,lpbcs,xw,xwm,iwdt,iwz,
      + iwfr,iwto,jwfr,jwto,xs,xsm,
      + isga,isat,isdt,isgr,ismf,isml,isss,isq1,isq2,isq3,isz,
      + isfr,isto,jsfr,jsto,lpbc,lstptr)
@@ -187,7 +189,7 @@ c
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,isfr,nsloc,
-     + xw,xwm,fw,rtos,iwdt,lpbc,esw,
+     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -209,7 +211,7 @@ c
 #elif defined(CAFE_FORCES)
       call cf_fsw(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
      + isq1,jsfr,nsnon,
-     + xw,xwm,fw,rtos,iwdt,lpbc,esw,
+     + xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
      + dbl_mb(i_vdw),dbl_mb(i_chg),int_mb(i_iwa),int_mb(i_iwq),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsnon),int_mb(lptr+1+4*nsnon),
@@ -230,7 +232,7 @@ c
 #if defined(CAFE_POLARIZATION)   
 #elif defined(CAFE_FORCES)
       call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-     + isq2,isq3,isfr,nsloc,lpbc,ess,
+     + isq2,isq3,isfr,nsloc,lpbc,lpbcs,ess,
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + int_mb(i_ias),int_mb(i_s2i1),
      + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -252,7 +254,7 @@ c
       call cf_fsb(npairs,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,ess,lpbc,lupden)
+     + xs,fs,ess,lpbc,lpbcs,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -265,7 +267,7 @@ c
       call cf_fsh(npairs,int_mb(lptr+1),mht(2),mhp(2),
      + int_mb(i_iang(2)),dbl_mb(i_ang(2)),dbl_mb(i_rang(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,isq1,dbl_mb(i_chg),
-     + xs,fs,ess,lpbc,lupden)
+     + xs,fs,ess,lpbc,lpbcs,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -278,7 +280,7 @@ c
       call cf_fsd(npairs,int_mb(lptr+1),mdt(2),mdp(2),
      + int_mb(i_idih(2)),dbl_mb(i_dih(2)),dbl_mb(i_rdih(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
-     + xs,fs,ess,lpbc,lupden)
+     + xs,fs,ess,lpbc,lpbcs,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -291,7 +293,7 @@ c
       call cf_fso(npairs,int_mb(lptr+1),mit(2),mip(2),
      + int_mb(i_iimp(2)),dbl_mb(i_imp(2)),dbl_mb(i_rimp(2)),
      + max(isto,jsto),msa,isga,ismf,isdt,
-     + xs,fs,ess,lpbc,lupden)
+     + xs,fs,ess,lpbc,lpbcs,lupden)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1
@@ -304,7 +306,7 @@ c
       call cf_fst(npairs,int_mb(lptr+1),mtt(2),int_mb(i_itrd(2)),
      + dbl_mb(i_vdw),dbl_mb(i_chg),
      + max(isto,jsto),msa,isat,isga,ismf,isdt,isq3,
-     + xs,fs,ess,lpbc)
+     + xs,fs,ess,lpbc,lpbcs)
       lptr=lptr+1+npairs
       else
       lptr=lptr+1

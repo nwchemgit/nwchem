@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.7 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: cf_list.F,v 1.8 2000-02-10 22:54:36 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -108,7 +108,7 @@ c
 c
       return
       end
-      subroutine cf_lsw(lpbc,xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,
+      subroutine cf_lsw(lpbc,lpbcs,xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,
      + iwfr,iwto,ndim,mpairs,npairs,lswjpt,lswin,lswj,list,rwx,rw)
 c
       implicit none
@@ -127,7 +127,7 @@ c
       integer mpairs,npairs,isa,iwm,nlist,ilist,isa0,iisa
 c
       integer nswi1,nswi2
-      logical lpbc
+      logical lpbc,lpbcs
 c
 c     this subroutine evaluates the solute-solvent pairlist
 c
@@ -149,7 +149,7 @@ c
       rwx(iwm,2)=xs(isa,2)-xwm(iwm,2)
       rwx(iwm,3)=xs(isa,3)-xwm(iwm,3)
     3 continue
-      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
+      if(lpbc.or.lpbcs) call cf_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
       do 8 iwm=iwmfr,iwmto
       rw(iwm)=rwx(iwm,1)**2+rwx(iwm,2)**2+rwx(iwm,3)**2
     8 continue
@@ -232,7 +232,7 @@ c
       rwx(iwm,2)=xs(isa,2)-xwm(iwm,2)
       rwx(iwm,3)=xs(isa,3)-xwm(iwm,3)
    11 continue
-      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
+      if(lpbc.or.lpbcs) call cf_pbc(1,rwx,mscr,rwx,mscr,0,iwmfr,iwmto)
       do 13 iwm=iwmfr,iwmto
       rw(iwm)=rwx(iwm,1)**2+rwx(iwm,2)**2+rwx(iwm,3)**2
    13 continue
@@ -348,7 +348,7 @@ c
 c
       return
       end
-      subroutine cf_lss(lself,lpbc,xs,iga,idt,igr,isz,isfr,isto,
+      subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,isz,isfr,isto,
      + jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,rwx,rw,
      + ndxt,nt,ndxx,nx)
 c
@@ -364,7 +364,7 @@ c
 c
       integer lssj(*),lssjpt(nlocs,2),lssin(nlocs,2)
       integer list(msa,3),iga(msa),igr(msa),idt(msa),isz(msa)
-      logical lself,lpbc
+      logical lself,lpbc,lpbcs
 c
       integer isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
       integer mpairs,npairs,isa,jsa,nlist1,nlist2
@@ -396,7 +396,7 @@ c
       rwx(jsa,2)=xs(isa,2)-xs(jsa,2)
       rwx(jsa,3)=xs(isa,3)-xs(jsa,3)
     2 continue
-      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
+      if(lpbc.or.lpbcs) call cf_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
       do 3 jsa=jsafr,jsato
       rw(jsa)=rwx(jsa,1)**2+rwx(jsa,2)**2+rwx(jsa,3)**2
     3 continue
@@ -502,7 +502,7 @@ c
       rwx(jsa,2)=xs(isa,2)-xs(jsa,2)
       rwx(jsa,3)=xs(isa,3)-xs(jsa,3)
    16 continue
-      if(lpbc) call cf_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
+      if(lpbc.or.lpbcs) call cf_pbc(1,rwx,mscr,rwx,mscr,0,jsafr,jsato)
       do 17 jsa=jsafr,jsato
       rw(jsa)=rwx(jsa,1)**2+rwx(jsa,2)**2+rwx(jsa,3)**2
    17 continue

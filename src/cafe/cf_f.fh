@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
       implicit none
 c
@@ -492,14 +492,14 @@ c
 #if defined(CAFE_POLARIZATION)
       subroutine cf_fpsw(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq1,
-     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,esw,
+     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
      + rw,isal,isrx,list)
 #elif defined(CAFE_FORCES)
       subroutine cf_fsw(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq1,
-     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,esw,
+     + isfrom,nums,xw,xwm,fw,rtos,iwdt,lpbc,lpbcs,esw,
      + vdw,chg,iwatm,iwq,iass,lswndx,lswjpt,lswin,lswj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
      + rw,isal,isrx,list)
@@ -512,7 +512,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
       implicit none
 c
@@ -527,7 +527,7 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),rtos(mwm)
       integer iwdt(mwm)
       integer isfrom,nsloc
-      logical lpbc
+      logical lpbc,lpbcs
 c
       real*8 vdw(mat,mat,map,6),chg(mqt,mqp,6)
       integer iass(mat,mat),iwatm(mwa),iwq(mwa)
@@ -606,7 +606,8 @@ c
       rwc(nax+ismn,3)=xs(isfr+isa,3)-xwm(lswptr,3)
       isrx(nax+ismn)=0
     7 continue
-      if(lpbc) call cf_pbc(0,rwc,mscr,rwx,mscr,nax,1,lswin(isa,ipsw))
+      if(lpbc.or.lpbcs)
+     + call cf_pbc(0,rwc,mscr,rwx,mscr,nax,1,lswin(isa,ipsw))
       endif
       if(ism.gt.0) then
       do 8 ismn=1,lswin(isa,ipsw)
@@ -1173,7 +1174,7 @@ c
 #if defined(CAFE_POLARIZATION)
       subroutine cf_fpss(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
-     + isfrom,nums,lpbc,ess,
+     + isfrom,nums,lpbc,lpbcs,ess,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
@@ -1181,7 +1182,7 @@ c
 #elif defined(CAFE_FORCES)
       subroutine cf_fss(xs,xsm,fs,zs,
      + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
-     + isfrom,nums,lpbc,ess,
+     + isfrom,nums,lpbc,lpbcs,ess,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
@@ -1190,7 +1191,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
       implicit none
 c
@@ -1202,7 +1203,7 @@ c
       integer isml(msa),isss(msa),isq2(msa),isq3(msa)
 c
       real*8 vdw(mat,mat,map,6),chg(mqt,mqp,6)
-      logical lpbc
+      logical lpbc,lpbcs
 c
       real*8 xi(mscr,3),xj(mscr,3),rwx(mscr,3),rwi1(mscr)
       real*8 rwi2(mscr),rwi6(mscr),rwc(mscr,3),rw(mscr)
@@ -1289,7 +1290,7 @@ c
       do 14 isa=lssndx(isslen-1,ipss)+1,lssndx(isslen,ipss)
       jsaptr=lssjpt(isa,ipss)-1
       ism=isml(isfr+isa)
-      if(lpbc) then
+      if(lpbc.or.lpbcs) then
       do 15 jnum=1,lssin(isa,ipss)
       lssptr=lssj(jsaptr+jnum)
       rwc(nax+jnum,1)=xs(isfr+isa,1)-xs(lssptr,1)
@@ -1367,7 +1368,7 @@ c
      + iand(isdt(lssptr),mdynam).eq.ldynam)) facu(nax+jnum)=half
    17 continue
 c
-      if(.not.lpbc) then
+      if(.not.lpbc.and..not.lpbcs) then
       do 18 jnum=1,lssin(isa,ipss)
       lssptr=lssj(jsaptr+jnum)
       xi(nax+jnum,1)=xs(isfr+isa,1)
@@ -2052,9 +2053,9 @@ c
       return
       end
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
-     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
+     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2098,7 +2099,7 @@ c
       integer nbonds
       integer indexl(nbonds)
 c
-      logical lpbc,lupden
+      logical lpbc,lpbcs,lupden
 c
       integer natoms,ndim
       integer igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
@@ -2155,7 +2156,7 @@ c
 c
 c     periodic boundary conditions
 c
-      if(lpbc) then
+      if(lpbc.or.lpbcs) then
       dx(1)=xs1
       dx(2)=xs2
       dx(3)=xs3
@@ -2325,9 +2326,9 @@ c
       return
       end
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
-     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
+     + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2381,7 +2382,7 @@ c
       real*8 chg(mqt,mqp,6)
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
-      logical lpbc,lupden
+      logical lpbc,lpbcs,lupden
 c
 c     declaration of local variables
 c     ------------------------------
@@ -2456,7 +2457,7 @@ c
 c
 c     periodic boundary conditions
 c
-      if(lpbc) then
+      if(lpbc.or.lpbcs) then
       dx(1)=xsijx
       dx(2)=xsijy
       dx(3)=xsijz
@@ -2584,9 +2585,9 @@ c
       return
       end
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
-     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
+     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2637,7 +2638,7 @@ c
       integer igan(ndim),imol(ndim),idyn(ndim)
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
-      logical lpbc,lupden
+      logical lpbc,lpbcs,lupden
 c
 c     declaration of local variables
 c     ------------------------------
@@ -2730,7 +2731,7 @@ c
 c
 c     periodic boundary conditions
 c
-      if(lpbc) then
+      if(lpbc.or.lpbcs) then
       dx(1)=xsijx
       dx(2)=xsijy
       dx(3)=xsijz
@@ -2910,9 +2911,9 @@ c
       return
       end
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
-     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
+     + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -2963,7 +2964,7 @@ c
       integer igan(ndim),imol(ndim),idyn(ndim)
       real*8 xs(ndim,3),fs(ndim,3),ess(msf,msf,mpe,2)
 c
-      logical lpbc,lupden
+      logical lpbc,lpbcs,lupden
 c
 c     declaration of local variables
 c     -----------------------------
@@ -3048,7 +3049,7 @@ c
 c
 c     periodic boundary conditions
 c
-      if(lpbc) then
+      if(lpbc.or.lpbcs) then
       dx(1)=xsijx
       dx(2)=xsijy
       dx(3)=xsijz
@@ -3221,9 +3222,9 @@ c
       return
       end
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
-     + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
+     + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3277,7 +3278,7 @@ c
       real*8 xs(ndim,3),fs(ndim,3)
       real*8 ess(msf,msf,mpe,2)
 c
-      logical lpbc
+      logical lpbc,lpbcs
 c
 c     declaration of local variables
 c     ------------------------------
@@ -3352,7 +3353,7 @@ c
 c
 c     periodic boundary conditions
 c
-      if(lpbc) then
+      if(lpbc.or.lpbcs) then
       dx(1)=rxx
       dx(2)=rxy
       dx(3)=rxz
@@ -3539,7 +3540,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.14 2000-02-10 22:54:35 d3j191 Exp $
 c
       implicit none
 c
