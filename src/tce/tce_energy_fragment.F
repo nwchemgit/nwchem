@@ -1,6 +1,6 @@
       logical function tce_energy_fragment(rtdb)
 c
-c $Id: tce_energy_fragment.F,v 1.3 2004-03-17 23:24:50 sohirata Exp $
+c $Id: tce_energy_fragment.F,v 1.4 2004-03-23 21:14:21 sohirata Exp $
 c
 c Wrapper for tce_energy for fragment MO calculations.
 c
@@ -24,33 +24,39 @@ c
       integer k_efragpairs, l_efragpairs
       logical dipole
       logical scf_only
+      logical mp2_only
       logical binding
       integer iter
       double precision r
       integer maxiter
-      parameter (maxiter = 10)
+      parameter (maxiter = 40)
       double precision residual
       double precision max_residual
+      double precision damping
       double precision thresh
       parameter (thresh = 1.0d-4)
       double precision radius
-      double precision default_radius
-      parameter (default_radius = 1.0d99)
       logical nodezero
       logical tce_energy
       external tce_energy
       logical scf
       external scf
+      logical semi_dir_mp2
+      external semi_dir_mp2
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.rtdb_get(rtdb,'fragment:dipole',mt_log,1,dipole))
      1  dipole = .true.
       if (.not.rtdb_get(rtdb,'fragment:scf_only',mt_log,1,scf_only))
      1  scf_only = .false.
+      if (.not.rtdb_get(rtdb,'fragment:mp2_only',mt_log,1,mp2_only))
+     1  mp2_only = .false.
       if (.not.rtdb_get(rtdb,'fragment:binding',mt_log,1,binding))
      1  binding = .false.
       if (.not.rtdb_get(rtdb,'fragment:radius',mt_dbl,1,radius))
-     1  radius = default_radius
+     1  radius = 1.0d99
+      if (.not.rtdb_get(rtdb,'fragment:damping',mt_dbl,1,damping))
+     1  damping = 1.0d0
       if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
      1  call errquit('tce_energy_fragment',0,RTDB_ERR)
       if (fragment.eq.-1) then
@@ -85,8 +91,14 @@ c
             dbl_mb(k_fdipole+(ifrag-1)*3+2) = 0.0d0
           enddo
           do iter = 1, maxiter
-            call dcopy(3*nfrags,dbl_mb(k_fdipole),  1,
-     1                          dbl_mb(k_fdipole_2),1) 
+            do ifrag = 1, nfrags
+              dbl_mb(k_fdipole_2+(ifrag-1)*3)
+     1        = dbl_mb(k_fdipole  +(ifrag-1)*3)
+              dbl_mb(k_fdipole_2+(ifrag-1)*3+1)
+     1        = dbl_mb(k_fdipole  +(ifrag-1)*3+1)
+              dbl_mb(k_fdipole_2+(ifrag-1)*3+2)
+     1        = dbl_mb(k_fdipole  +(ifrag-1)*3+2)
+            enddo
             do ifrag = 1, nfrags
               call select_fragment(rtdb,ifrag,dbl_mb(k_fdipole))
               if (.not.scf(rtdb)) call errquit
@@ -122,6 +134,17 @@ c
             enddo
             if (nodezero) write(LuOut,9050) max_residual
             if (max_residual.lt.thresh) goto 10
+            do ifrag = 1, nfrags
+              dbl_mb(k_fdipole  +(ifrag-1)*3)
+     1        = dbl_mb(k_fdipole  +(ifrag-1)*3)*damping
+     2        + dbl_mb(k_fdipole_2+(ifrag-1)*3)*(1.0d0-damping)
+              dbl_mb(k_fdipole  +(ifrag-1)*3+1)
+     1        = dbl_mb(k_fdipole  +(ifrag-1)*3+1)*damping
+     2        + dbl_mb(k_fdipole_2+(ifrag-1)*3+1)*(1.0d0-damping)
+              dbl_mb(k_fdipole  +(ifrag-1)*3+2)
+     1        = dbl_mb(k_fdipole  +(ifrag-1)*3+2)*damping
+     2        + dbl_mb(k_fdipole_2+(ifrag-1)*3+2)*(1.0d0-damping)
+            enddo
           enddo
           call errquit('tce_energy_fragment: failed to converge',
      1                 0,CALC_ERR)
@@ -133,18 +156,37 @@ c
             do ifrag = 1, nfrags
               call select_fragment(rtdb,ifrag,dbl_mb(k_fdipole))
               if (fragment.eq.0) then
+                if (.not.mp2_only) then
                 if (.not.tce_energy(rtdb,.false.)) call errquit
      1            ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
                 if (.not.rtdb_get(rtdb,'tce:energy',mt_dbl,1,energy))
      1            call errquit('tce_energy_fragment: tce energy',
      2            0,RTDB_ERR)
+                else
+                if(.not.rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
+     1            call errquit('tce_energy_fragment',0, RTDB_ERR)
+                if (.not.semi_dir_mp2(rtdb)) call errquit
+     1            ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
+                if (.not.rtdb_get(rtdb,'mp2:energy',mt_dbl,1,energy))
+     1            call errquit('tce_energy_fragment: mp2 energy',
+     2            0,RTDB_ERR)
+                endif
                 dbl_mb(k_efrags+ifrag-1) = energy
                 if (nodezero) write(LuOut,9010) ifrag,
      1            dbl_mb(k_efrags+ifrag-1)
               else if (fragment.eq.ifrag) then
+                if (.not.mp2_only) then
                 if (.not.tce_energy(rtdb,.true.)) call errquit
      1            ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
+                else
+                if(.not.rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
+     1            call errquit('tce_energy_fragment',0, RTDB_ERR)
+                if (.not.semi_dir_mp2(rtdb)) call errquit
+     1            ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
+                endif
                 if (.not.binding) then
+                  if (mp2_only) call errquit
+     1              ('tce_energy_fragment: mp2_only',1,UNKNOWN_ERR)
                   if (.not.rtdb_get(rtdb,'tce:omega',mt_dbl,1,energy))
      1              call errquit('tce_energy_fragment: tce omega',
      2              1,RTDB_ERR)
@@ -152,9 +194,15 @@ c
                   if (nodezero) write(LuOut,9110) ifrag,
      1              dbl_mb(k_efrags+ifrag-1)
                 else
+                  if (.not.mp2_only) then
                   if (.not.rtdb_get(rtdb,'tce:energy',mt_dbl,1,energy))
      1              call errquit('tce_energy_fragment: tce energy',
      2              1,RTDB_ERR)
+                  else
+                  if (.not.rtdb_get(rtdb,'mp2:energy',mt_dbl,1,energy))
+     1              call errquit('tce_energy_fragment: mp2 energy',
+     2              1,RTDB_ERR)
+                  endif
                   dbl_mb(k_efrags+ifrag-1) = energy
                   if (nodezero) write(LuOut,9010) ifrag,
      1              dbl_mb(k_efrags+ifrag-1)
@@ -177,6 +225,7 @@ c
                   int_mb(k_fcount+ifrag-1) = int_mb(k_fcount+ifrag-1)+1
                   int_mb(k_fcount+jfrag-1) = int_mb(k_fcount+jfrag-1)+1
                   if (.not.scf_only) then
+                    if (.not.mp2_only) then
                     if (.not.tce_energy(rtdb,.false.)) call errquit
      1                ('tce_energy_fragment: fragment pair',0,
      2                UNKNOWN_ERR)
@@ -184,6 +233,17 @@ c
      1                energy))
      2                call errquit('tce_energy_fragment: tce energy',
      3                3,RTDB_ERR)
+                    else
+                    if(.not.rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
+     1                call errquit('tce_energy_fragment',0, RTDB_ERR)
+                    if (.not.semi_dir_mp2(rtdb)) call errquit
+     1                ('tce_energy_fragment: fragment pair',0,
+     2                UNKNOWN_ERR)
+                    if (.not.rtdb_get(rtdb,'mp2:energy',mt_dbl,1,
+     1                energy))
+     2                call errquit('tce_energy_fragment: mp2 energy',
+     3                3,RTDB_ERR)
+                    endif
                   else
                     if (.not.scf(rtdb)) call errquit
      1                ('tce_energy_fragment: scf',0,
@@ -200,6 +260,8 @@ c
      1                   (fragment.eq.jfrag)) then
                   int_mb(k_fcount+ifrag-1) = int_mb(k_fcount+ifrag-1)+1
                   int_mb(k_fcount+jfrag-1) = int_mb(k_fcount+jfrag-1)+1
+                  if (mp2_only) call errquit
+     1              ('tce_energy_fragment: mp2_only',1,UNKNOWN_ERR)
                   if (.not.binding) then
                     if (.not.tce_energy(rtdb,.true.)) call errquit
      1                ('tce_energy_fragment: tce',0,
@@ -213,6 +275,7 @@ c
      1              dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
                   else
                     if (.not.scf_only) then
+                      if (.not.mp2_only) then
                       if (.not.tce_energy(rtdb,.false.)) call errquit
      1                  ('tce_energy_fragment: tce',0,
      2                  UNKNOWN_ERR)
@@ -220,6 +283,17 @@ c
      1                  energy))
      2                  call errquit('tce_energy_fragment: tce energy',
      3                  1,RTDB_ERR)
+                      else
+                      if(.not.rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
+     1                  call errquit('tce_energy_fragment',0, RTDB_ERR)
+                      if (.not.semi_dir_mp2(rtdb,.false.)) call errquit
+     1                  ('tce_energy_fragment: mp2',0,
+     2                  UNKNOWN_ERR)
+                      if (.not.rtdb_get(rtdb,'mp2:energy',mt_dbl,1,
+     1                  energy))
+     2                  call errquit('tce_energy_fragment: mp2 energy',
+     3                  1,RTDB_ERR)
+                      endif
                     else
                       if (.not.scf(rtdb)) call errquit
      1                  ('tce_energy_fragment: scf',0,
