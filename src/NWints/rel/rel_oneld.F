@@ -1,14 +1,16 @@
-C $Id: rel_oneld.F,v 1.1 1999-04-20 18:16:44 mg201 Exp $
+C $Id: rel_oneld.F,v 1.2 1999-04-20 18:25:33 mg201 Exp $
 ************************************************************************
-c:tex-\subsection{rel\_onel}
-c:tex-This routine generates the modified one-electron integrals for
-c:tex-a relativistic basis set. These are the modified kinetic energy,
-c:tex-the modified (scalar) potential energy and the modified overlap,
+c:tex-\subsection{rel\_oneld}
+c:tex-This routine generates the modified one-electron gradient integrals
+c:tex-for a relativistic basis set. These are the gradients of the modified 
+c:tex-kinetic energy, the modified potential energy and the modified overlap,
 c:tex-\begin{eqnarray}
 c:tex-&& \tilde{T}_{ab} = T_{ab}^{LS} + T_{ab}^{SL} - T_{ab}^{SS} 
 c:tex- \nonumber \\ 
-c:tex-&& \tilde{V}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
+c:tex-&& \tilde{V}^{sf}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
 c:tex-   \nabla_A\cdot\nabla_B V_{ab}^{SS}
+c:tex-&& \tilde{V}^{so}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
+c:tex-   \nabla_A\times\nabla_B V_{ab}^{SS}
 c:tex- \nonumber \\ 
 c:tex-&& \tilde{S}_{ab} = S_{ab}^{LL} + {{\alpha^2}\over{2}} T_{ab}^{SS} 
 c:tex- \nonumber 
@@ -18,7 +20,7 @@ c:tex-\noindent Author: K. G. Dyall
 c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
-      subroutine rel_onel (
+      subroutine rel_oneld (
      &       Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &       Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
      &       Cxyz,zan,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
@@ -78,6 +80,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       integer n_all_b   ! n_cart_b*n_cont_b
       integer n_all_a   ! n_cart_a*n_cont_a
       integer n_ab      ! number of integrals
+      integer n_ab3     ! 3*n_ab, number of gradient integrals
       integer n_cartp_a ! cartesian components for l_A+1
       integer n_cartp_b ! cartesian components for l_B+1
       integer n_cartm_a ! cartesian components for l_A-1

@@ -1,14 +1,16 @@
-C $Id: rel_onel.F,v 1.5 1999-04-20 18:15:15 mg201 Exp $
+C $Id: rel_onel.F,v 1.6 1999-04-20 18:25:32 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
 c:tex-a relativistic basis set. These are the modified kinetic energy,
-c:tex-the modified (scalar) potential energy and the modified overlap,
+c:tex-the modified potential energy and the modified overlap,
 c:tex-\begin{eqnarray}
 c:tex-&& \tilde{T}_{ab} = T_{ab}^{LS} + T_{ab}^{SL} - T_{ab}^{SS} 
 c:tex- \nonumber \\ 
-c:tex-&& \tilde{V}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
+c:tex-&& \tilde{V}^{sf}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
 c:tex-   \nabla_A\cdot\nabla_B V_{ab}^{SS}
+c:tex-&& \tilde{V}^{so}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
+c:tex-   \nabla_A\times\nabla_B V_{ab}^{SS}
 c:tex- \nonumber \\ 
 c:tex-&& \tilde{S}_{ab} = S_{ab}^{LL} + {{\alpha^2}\over{2}} T_{ab}^{SS} 
 c:tex- \nonumber 
