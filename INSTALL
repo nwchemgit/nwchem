@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.41 2001-12-17 21:23:10 bert Exp $
+$Id: INSTALL,v 1.42 2002-02-13 00:03:54 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -137,7 +137,7 @@ BASIC BUILD INSTRUCTIONS:
     IBM            IBM RS/6000     ***      AIX 4.X        double
     DECOSF         DEC AXP         ***      Tru64 4.0-5.0  double
     SGI_N32        SGI 64 bit os   ***      IRIX 6.5       double 
-                   using 32 ints			       
+                   using 32 pointers			       
     SGITFP         SGI 64 bit os   ***      IRIX 6.5       double
     CRAY-T3D       Cray T3D                 UNICOS         single
     CRAY-T3E       Cray T3E        ***      UNICOS         single
