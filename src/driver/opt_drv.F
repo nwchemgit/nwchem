@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.86 1999-07-28 00:41:52 d3e129 Exp $
+* $Id: opt_drv.F,v 1.87 1999-09-21 22:15:04 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -34,8 +34,8 @@ c
 c
 c     Iterative loop
 c
-      start = util_wallsec()
       do istep = 1, nptopt+1    ! +1 since first pass thru loop is not a step
+         start = util_wallsec()
          if (oprint) write(6,1) istep-1
  1       format(/,10x,'--------',/,10x,'Step',i4,/,10x,'--------')
          if ((ga_nodeid() .eq. 0) .and.
@@ -82,15 +82,12 @@ c
          call driver_compute_info()
          call driver_print(geom,istep)
 c     
-c     Check for convergence and time remaining
+c     Check for convergence
 c     
          if (istep.gt.1 .and. driver_converged()) then
             converged = .true.
             goto 100
          endif
-         required = int(1.2d0*(util_wallsec() - start)) + 1
-         if (.not. util_test_time_remaining(rtdb,required)) goto 200
-         start = util_wallsec()
 c
 c     Generate a new search direction
 c
@@ -116,6 +113,11 @@ c     This is only significant if big steps are being taken
 c     (e.g., saves 30 iterations in h2o5 test case).
 c     
          call driver_compute_actual_step(geom)
+c
+c     Check time before next iteration
+c
+         required = int(1.2d0*(util_wallsec() - start)) + 1
+         if (.not. util_test_time_remaining(rtdb,required)) goto 200
 c
       enddo                     ! End of iterative loop
       istep = istep - 1         ! Since we fell out
@@ -861,7 +863,7 @@ c
       integer i, j, num, ma_type, nactive_atoms, l_actlist
       logical ignore
       character*80 title
-      character*8 source, test
+      character*8 source, test, theory
       logical geom_zmt_get_source, geom_zmtmak, geom_zmt_get_nizmat,
      $     geom_zmt_get_nzvar, geom_zmt_get_nzfrz, geom_compute_zmatrix,
      $     geom_zmt_get_izfrz, geom_zmt_get_varinfo
@@ -938,8 +940,15 @@ c
       endif
       if (.not. rtdb_cget(rtdb,'driver:xyz',1,xyz))
      $     xyz = ' '
-      if (.not. rtdb_get(rtdb,'driver:eprec',mt_dbl,1,eprec)) 
-     $     eprec=1d-7
+      if (.not. rtdb_get(rtdb,'driver:eprec',mt_dbl,1,eprec)) then
+         if (.not. rtdb_cget(rtdb,'task:theory',1,theory))
+     $        theory = ' '
+         if (inp_compare(.false.,theory,'dft')) then
+            eprec = 5e-6
+         else
+            eprec = 1e-7
+         endif
+      endif
       if (.not. rtdb_get(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
      $     gmax_tol = 0.00045d0
       if (.not. rtdb_get(rtdb,'driver:grms_tol',mt_dbl,1,grms_tol))
