@@ -86,7 +86,7 @@ c     Now have in g_k an approximation to exp(K/scale)
 c     
 c     Make this unitary and then scale as necessary
 c     
-      call iter_orthog(basis, g_k, .false.)
+      call ga_iter_orthog(basis, g_k, .false.)
 c     
       if (power .ne. 1) then
          if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp1',
@@ -101,7 +101,7 @@ c
 c     
 c     Make sure the final result is also unitary
 c     
-         call iter_orthog(basis, g_k, .false.)
+         call ga_iter_orthog(basis, g_k, .false.)
       endif
 c     
       end

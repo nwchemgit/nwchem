@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 1994-07-28 08:01:22 d3g681 Exp $
+# $Id: GNUmakefile,v 1.9 1994-08-15 17:28:25 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -8,9 +8,8 @@
         dabsmax.o                 rhf_fock_2e_c.o \
         rhf_do_canon.o            rhf_get_param.o \
         rhf_fock_2e.o             \
-        ga_conform.o              rhf_precond.o \
         ga_create_atom_blocked.o  scf.o \
-        ga_maxelt.o               schwarz_atom.o \
+                                  schwarz_atom.o \
         get_atom_block.o          schwarz_init.o \
         rhf_hessv.o               schwarz_max.o \
         int_1e_ga.o               schwarz_print.o \
@@ -22,7 +21,7 @@
 	ri_invert_v.o             ga_create_cont_blocked.o \
         ri_v_fit_cd.o             ri_v_fit_j.o \
         ri_drive.o                dabssum.o \
-        iter_orthog.o             matrix_exp.o
+        matrix_exp.o
       
 
     LIBRARY = libddscf.a
@@ -37,19 +36,4 @@ include ../config/makelib.h
 
 rhf.o:		schwarz.fh
 schwarz.o:	schwarz.fh cschwarz.fh
-context.o:      context.fh
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+rhf_hessv.o rhf_nr_solve.o:	crhf.fh
