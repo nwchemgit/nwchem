@@ -46,11 +46,14 @@ c triples
       double precision eccsdt,escf,eccsd,empt(2),tx(3),rx(2)
       Integer Nodes, IAm
 C
+      double precision zip
+      integer ii,jj
+
+* data must follow all delcarations 
+
       data oexch,ocoul/.true.,.true./
       data ohalf/.false./
-      double precision zip
       data zip/0.0d00/
-      integer ii,jj
 c$$$      double precision rtc
 c$$$      external rtc
 c

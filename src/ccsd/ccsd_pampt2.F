@@ -21,9 +21,6 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      double precision tol2e
-      data tol2e/1.d-12/
-c
       integer i,j,a,b,av,bv,ad1,ad2,ixyz,offt2,icnt,nvp1,ilo,ihi,
      &        jlo,jhi,x,y,ish,jsh,inode,next,aold
       integer l_eri2,k_eri2,l_sc1,k_sc1,l_sc2,k_sc2,lsc1,maxbfsh
@@ -35,8 +32,11 @@ c
       integer ibflo,ibfhi,jbflo,jbfhi
       integer max2e,mem2,max1e,mem1
       logical ocoul,oexch
-      data oexch,ocoul/.true.,.true./
       double precision zip,one,half,two
+      double precision tol2e
+c
+      data oexch,ocoul/.true.,.true./
+      data tol2e/1.d-12/
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 c
       Nodes = GA_NNodes()

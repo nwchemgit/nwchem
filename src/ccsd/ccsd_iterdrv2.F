@@ -25,10 +25,12 @@ c
       integer max2e,mem2,max1e,mem1
       double precision eold,thre,dabs,tx(4),rx(2),rms,deccsd,
      &                 tstart,tend
-      double precision zip,one,half,two,ten
-      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
+
       integer ii,jj
       Integer Nodes, IAm
+
+      double precision zip,one,half,two,ten
+      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"

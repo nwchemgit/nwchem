@@ -15,14 +15,14 @@ c
       integer a,b,c,i,j,k,aold,av,inode,t2j,eintc,eintx,
      &        dint,t2x,t2c,fintc,fintx,len,ad1,ad2,ad3,
      &        next,nxtval
-c
-      double precision zip,one,half,two
-      data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 C
       Integer Nodes, IAm
 C
 #include "ccsd_len.fh"
 #include "global.fh"
+c
+      double precision zip,one,half,two
+      data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 c
 capr      call ga_print(g_coul)
 capr      call ga_print(g_exch)

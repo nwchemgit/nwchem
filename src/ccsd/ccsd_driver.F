@@ -54,23 +54,6 @@ c
      &         l_scr,k_scr
 capr
 c
-c
-c
-       data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
-       data oprint/.true./
-       data ohalf/.true./
-       Data OUseSym /.FALSE./
-capr
-       data algo/'twofold'/
-capr
-       data charge/0.d0/
-       double precision zip,one,two
-       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
-c
-c
-c
-c
        logical movecs_read_header, movecs_read
        external movecs_read_header, movecs_read
        integer ga_create_atom_blocked
@@ -82,7 +65,18 @@ c
        integer moints_occrange
        external moints_occrange
 c
+       double precision zip,one,two
+       data zip/0.0d00/,one/1.0d00/,two/2.0d00/
 c
+       data g_coul,g_exch/-1,-1/
+       data oexch,ocoul/.true.,.true./
+       data oprint/.true./
+       data ohalf/.true./
+       Data OUseSym /.FALSE./
+capr
+       data algo/'twofold'/
+capr
+       data charge/0.d0/
 c
        Me = GA_NodeID()
        status = ma_set_hard_fail(.true.)

@@ -6,11 +6,11 @@ C
       Integer N, I
       Double Precision Tcp1, Tio1
 C
-      double precision zip
-      data zip/0.0d00/
 C
 #include "qdata.fh"
 c
+      double precision zip
+      data zip/0.0d00/
 *
       call cputime(tcp1)
       tio1=zip
@@ -71,11 +71,12 @@ C
       Double Precision Tcp1, Tio1
       Integer M, N
 C
-      double precision zip
-      data zip/0.0d00/
 C
 #include "qdata.fh"
 *
+      double precision zip
+      data zip/0.0d00/
+c
       call cputime(tcp1)
       tio1=zip
       if(level.eq.0) then
@@ -119,11 +120,12 @@ C
       Double Precision Tcp2, Tcp3, Tio2, Tio3, TcpTot, TioTot
       Integer Nodes, IAm, I, NDe
 C
-      double precision zip
-      data zip/0.0d00/
 C
 #include "qdata.fh"
 #include "global.fh"
+*
+      double precision zip
+      data zip/0.0d00/
 *
       call cputime(tcp2)
       tio2=zip
