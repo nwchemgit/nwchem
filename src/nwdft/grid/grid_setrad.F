@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.27 2000-03-29 22:36:53 edo Exp $
+c$Id: grid_setrad.F,v 1.28 2000-04-07 16:34:26 edo Exp $
 c
       implicit none
 c      
@@ -15,7 +15,7 @@ c
       double precision eps
       parameter (eps = 1.d-20)
       logical oprint, oprint_grid
-      logical tol_reset, mul_reset,llind,check_s
+      logical tol_reset, llind,check_s
 c
       integer i, itype, ir, nr, irsh
       double precision r, r_max

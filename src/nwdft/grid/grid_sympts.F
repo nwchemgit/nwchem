@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.5 2000-04-07 01:54:17 edo Exp $
+c$Id: grid_sympts.F,v 1.6 2000-04-07 16:34:26 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -17,7 +17,7 @@ c
 c     
       nops = sym_number_ops(geom)
       if(nops.ne.0) then
-         if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symops',
+         if (.not.MA_alloc_Get(MT_Dbl,nops*3*4,'symops',
      ,        l_symops,k_symops)) call errquit(
      '        '     grid_sympt: malloc get failed',1)
          call sym_ops_get(geom,nops,dbl_mb(k_symops))
@@ -44,7 +44,7 @@ c
       if (.not.MA_free_heap(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
       if(l_symops.ne.-999) then
-      if (.not.MA_pop_stack(l_symops)) call errquit(
+      if (.not.MA_free_heap(l_symops)) call errquit(
      '     '     grid_sympt: free stack failed',2)
       endif
       return
@@ -70,7 +70,7 @@ c
       double precision ops(3,nops,4)
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
-      double precision aqbuf(4,*), qwght_nq ! quadr pts and wght
+      double precision aqbuf(4,*) ! quadr pts and wght
       integer fnxyz      ! [in] cube def
       integer nx,ny,nz      !  cube def
       double precision r ! [in]
@@ -170,8 +170,8 @@ cedo                  write(6,*) ' no equiv found ???',222
                   enddo
                   gridscr(4,k)=n_equiv*gridscr(4,k)
 
-cedo            write(6,'(2(A,I4),f20.12)') 
-cedo     ,           ' k ',k,' equiv = ',n_equiv,gridscr(4,k)
+!            write(6,'(2(A,I4),f20.12)') 
+!     ,           ' k ',k,' equiv = ',n_equiv,gridscr(4,k)
                endif
             enddo
          endif

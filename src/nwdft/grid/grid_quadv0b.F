@@ -10,7 +10,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0b.F,v 1.6 2000-04-06 01:25:44 edo Exp $
+c$Id: grid_quadv0b.F,v 1.7 2000-04-07 16:34:26 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -25,7 +25,7 @@ c
       double precision acc_AO_gauss, rad, dummy(1),rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, nscr
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao, iscr, lscr
-      integer ldmat,idmat,i, grid_nbfm,ntot_cube,iii
+      integer ldmat,idmat,i, grid_nbfm,ntot_cube
       integer max_elem_ang_scr, max_component
       double precision dabsmax,wmax
       external dabsmax
@@ -179,11 +179,11 @@ c
       double precision tol_rho
       logical grad
 c
-      double precision dabsmax,tol
+      double precision dabsmax
       external dabsmax
 c
       integer k_iscr,l_iscr,k_dscr,l_dscr
-      integer nzero,i,j
+      integer nzero,i
       double precision pmax,funcmax,ff,delmax
 c
       nzero=0
@@ -237,7 +237,7 @@ c     .           (nzero*100d0)/nqpts,nzero,tol_rho
       logical grad
       double precision toll ![input]
 c
-      integer nsign,i,q,j,x
+      integer nsign,i,q,j
 c        
 c       compress grid
 c
