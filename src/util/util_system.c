@@ -1,5 +1,5 @@
 /*
- $Id: util_system.c,v 1.7 2000-08-29 15:55:39 d3j191 Exp $
+ $Id: util_system.c,v 1.8 2001-04-25 22:38:38 windus Exp $
  */
 
 #include <stdio.h>
@@ -16,7 +16,7 @@ extern int system(const char *);
 #ifdef WIN32
 #include "typesf2c.h"
 #endif
-#ifdef LINUX
+#if defined (LINUX) || defined (DECOSF)
 #define __USE_BSD
 #include <signal.h>
 #undef __USE_BSD
@@ -40,7 +40,7 @@ Integer FATR UTIL_SYSTEM(_fcd input)
 Integer util_system_(const char *input, int lin)
 {
 #endif
-#if defined(LINUX)
+#if defined(LINUX) || defined(DECOSF)
     int i;
 	void (*Siginit)();
 #endif
@@ -48,7 +48,7 @@ Integer util_system_(const char *input, int lin)
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
 	ga_error("util_system: fortchar_to_string failed for in",0);
 
-#if defined(LINUX)
+#if defined(LINUX) || defined(DECOSF)
 	Siginit = signal(SIGCHLD,SIG_IGN);
 	i = system(in);
 	Siginit = signal(SIGCHLD,Siginit);
