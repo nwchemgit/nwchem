@@ -1,14 +1,27 @@
-# $Id: GNUmakefile,v 1.24 1997-03-06 23:24:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.25 1997-03-20 21:35:00 d3h449 Exp $
 ifeq ($(TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o dft_n3c.o
       OBJ =  dft_3cincor.o\
 	dft_fitcd.o				   dft_fitvc.o	\
 	dft_get2eri.o		dft_genspm.o dft_getspm.o 
 else
-      OBJ = dft_genspm.o dft_getspm.o 
-      OBJ_OPTIMIZE = dft_fitcd.o dft_3cincor.o dft_n3c.o \
-	dft_fitvc.o	\
-	dft_get2eri.o			   dft_getvc.o	
+#      OBJ = dft_genspm.o dft_getspm.o 
+#      OBJ_OPTIMIZE = dft_fitcd.o dft_3cincor.o dft_n3c.o \
+#	dft_fitvc.o	\
+#	dft_get2eri.o			   dft_getvc.o	
+#
+
+	OBJ_OPTIMIZE = \
+	dft_3cincor.o \
+	dft_fitcd.o \
+	dft_fitvc.o \
+	dft_genspm.o \
+	dft_get2eri.o \
+	dft_getspm.o \
+	dft_getvc.o \
+	dft_n3c.o
+
+
 endif
 
       LIBRARY = libnwdft.a

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 1997-02-17 20:52:23 d3g681 Exp $
+# $Id: GNUmakefile,v 1.41 1997-03-20 21:35:10 d3h449 Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -10,20 +10,56 @@ ifeq ($(TARGET),SGITFP)
 	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o \
         xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o
 else
-      OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o xc_perdew91.o 
+#      OBJ = xc_getv.o  xc_quadv1.o  qpts.o  xc_quadv0.o xc_quadv0_a.o xc_perdew91.o 
+#
+#
+#      OBJ_OPTIMIZE = xc_rhogen.o		xc_pw91lda.o   	\
+#	a_dist.o	xc_beckew.o 	 xc_neighb.o\
+#	xc_perdew86.o	xc_dirac.o	\
+#	xc_becke88.o	xc_lyp88.o	xc_vwn_5.o \
+#	eumac.o	\
+#	xc_fitv.o			   xc_get2oi.o	\
+#	gausquad.o	xc_lebedev.o		   \
+#	qdist.o	\
+#	setACmat.o		xc_tabcd.o	\
+#	gat_mat.o		   scat_mat.o xc_delleyw.o \
+#        xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o
+#
 
+	OBJ_OPTIMIZE = \
+	a_dist.o \
+	eumac.o \
+	gat_mat.o \
+	gausquad.o \
+	qdist.o \
+	qpts.o \
+	scat_mat.o \
+	setACmat.o \
+	xc_becke88.o \
+	xc_beckew.o \
+	xc_delleyw.o \
+	xc_dirac.o \
+	xc_fitv.o \
+	xc_get2oi.o \
+	xc_getv.o \
+	xc_lebedev.o \
+	xc_lyp88.o \
+	xc_neighb.o \
+	xc_perdew86.o \
+	xc_perdew91.o \
+	xc_pw91lda.o \
+	xc_quadv0.o \
+	xc_quadv0_a.o \
+	xc_quadv1.o \
+	xc_rhogen.o \
+	xc_tabcd.o \
+	xc_vwn_1.o \
+	xc_vwn_1_rpa.o \
+	xc_vwn_2.o \
+	xc_vwn_3.o \
+	xc_vwn_4.o \
+	xc_vwn_5.o
 
-      OBJ_OPTIMIZE = xc_rhogen.o		xc_pw91lda.o   	\
-	a_dist.o	  xc_beckew.o 	 xc_neighb.o\
-	xc_perdew86.o	 xc_dirac.o	\
-	xc_becke88.o 	xc_lyp88.o	xc_vwn_5.o \
-	eumac.o	\
-	xc_fitv.o			   xc_get2oi.o	\
-	gausquad.o	xc_lebedev.o		   \
-	qdist.o	\
-	setACmat.o		xc_tabcd.o	\
-	gat_mat.o		   scat_mat.o xc_delleyw.o \
-        xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o
 endif
 
      LIBRARY = libnwdft.a

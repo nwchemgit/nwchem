@@ -1,12 +1,33 @@
-# $Id: GNUmakefile,v 1.32 1997-02-17 20:52:21 d3g681 Exp $
+# $Id: GNUmakefile,v 1.33 1997-03-20 21:35:05 d3h449 Exp $
+#
+#      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
+#      OBJ_OPTIMIZE = \
+#	diis_driver.o	diis_bsolve.o	\
+#	diis_core.o	diis_bld12.o diis_hamwgt.o diis_refvec.o	\
+#	dft_dencvg.o dft_scfcvg.o	dft_densm.o	\
+#	dft_invdiag.o	dft_init_guess.o \
+#	dft_mxovl.o  dft_mxspin_ovlp.o
+#
 
-      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
-      OBJ_OPTIMIZE = \
-	diis_driver.o	diis_bsolve.o	\
-	diis_core.o	diis_bld12.o diis_hamwgt.o diis_refvec.o	\
-	dft_dencvg.o dft_scfcvg.o	dft_densm.o	\
-	dft_invdiag.o	dft_init_guess.o \
-	dft_mxovl.o  dft_mxspin_ovlp.o
+	OBJ_OPTIMIZE = \
+	dft_dencvg.o \
+	dft_densm.o \
+	dft_init_guess.o \
+	dft_invdiag.o \
+	dft_main0d.o \
+	dft_mxovl.o \
+	dft_mxspin_ovlp.o \
+	dft_s2_value.o \
+	dft_scf.o \
+	dft_scfcvg.o \
+	diis_bld12.o \
+	diis_bsolve.o \
+	diis_core.o \
+	diis_driver.o \
+	diis_hamwgt.o \
+	diis_refvec.o
+
+
 
      LIBRARY = libnwdft.a
 
