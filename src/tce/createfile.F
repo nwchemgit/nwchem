@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.8 2002-11-11 18:25:53 sohirata Exp $
+c $Id: createfile.F,v 1.9 2002-11-13 16:23:22 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -21,6 +21,7 @@ c
       logical used
 c
       cpusecs(1) = cpusecs(1) - util_cpusec()
+      cpusecs(51) = cpusecs(51) - util_wallsec()
       nodezero = (ga_nodeid().eq.0)
       parallel = (ga_nnodes().gt.1)
       if (ioalg.eq.0) then
@@ -129,6 +130,7 @@ c
         call tce_zero(d_sf,size)
       endif
       cpusecs(1) = cpusecs(1) + util_cpusec()
+      cpusecs(51) = cpusecs(51) + util_wallsec()
  9000 format(1x,'create a file: size = ',i10,' file name = ',a)
  9030 format(1x,'create a file: node',i3,' size = ',i10,
      1          ' file name = ',a)

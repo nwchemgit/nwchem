@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.6 2002-11-11 18:25:49 sohirata Exp $
+c $Id: add_block.F,v 1.7 2002-11-13 16:23:22 sohirata Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -30,6 +30,7 @@ c
       logical parallel
 c
       cpusecs(4) = cpusecs(4) - util_cpusec()
+      cpusecs(54) = cpusecs(54) - util_wallsec()
       parallel = (ga_nnodes().gt.1)
       if (util_print('add_block',print_debug)) then
          write(LuOut,9000) ga_nodeid(),d_file,size,offset
@@ -145,5 +146,6 @@ c
  9000 format(1x,'node',i3,' add_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)
       cpusecs(4) = cpusecs(4) + util_cpusec()
+      cpusecs(54) = cpusecs(54) + util_wallsec()
       return
       end

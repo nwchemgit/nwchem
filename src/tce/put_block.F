@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.7 2002-11-11 18:25:54 sohirata Exp $
+c $Id: put_block.F,v 1.8 2002-11-13 16:23:22 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -21,6 +21,7 @@ c
       logical parallel
 c
       cpusecs(3) = cpusecs(3) - util_cpusec()
+      cpusecs(53) = cpusecs(53) - util_wallsec()
       parallel = (ga_nnodes().gt.1)
       if (util_print('put_block',print_debug)) then
          write(LuOut,9000) ga_nodeid(),d_file,size,offset
@@ -97,5 +98,6 @@ c
  9000 format(1x,'node',i3,' put_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)
       cpusecs(3) = cpusecs(3) + util_cpusec()
+      cpusecs(53) = cpusecs(53) + util_wallsec()
       return
       end

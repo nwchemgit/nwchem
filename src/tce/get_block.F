@@ -1,6 +1,6 @@
       subroutine get_block(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.7 2002-11-11 18:25:53 sohirata Exp $
+c $Id: get_block.F,v 1.8 2002-11-13 16:23:22 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -21,6 +21,7 @@ c
       character*255 filename
 c
       cpusecs(5) = cpusecs(5) - util_cpusec()
+      cpusecs(55) = cpusecs(55) - util_wallsec()
       parallel = (ga_nnodes().gt.1)
       if (util_print('get_block',print_debug)) then
          write(LuOut,9000) ga_nodeid(),d_file,size,offset
@@ -94,5 +95,6 @@ c
  9000 format(1x,'node',i3,' get_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)
       cpusecs(5) = cpusecs(5) + util_cpusec()
+      cpusecs(55) = cpusecs(55) + util_wallsec()
       return
       end

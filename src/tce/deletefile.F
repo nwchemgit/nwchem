@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.6 2002-11-11 18:25:53 sohirata Exp $
+c $Id: deletefile.F,v 1.7 2002-11-13 16:23:22 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -21,6 +21,7 @@ c
       external sf_unlink
 c
       cpusecs(2) = cpusecs(2) - util_cpusec()
+      cpusecs(52) = cpusecs(52) - util_wallsec()
       nodezero = (ga_nodeid().eq.0)
       parallel = (ga_nnodes().gt.1)
       if (nodezero.and.util_print('files',print_debug))
@@ -139,6 +140,7 @@ c
         endif
       endif
       cpusecs(2) = cpusecs(2) + util_cpusec()
+      cpusecs(52) = cpusecs(52) + util_wallsec()
  9000 format(1x,'delete a file: file handle = ',i3)
  9010 format(1x,'file handle = ',i3,' file name = ',a)
       return
