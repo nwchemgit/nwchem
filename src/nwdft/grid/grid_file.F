@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.55 2003-10-17 22:55:37 carlfahl Exp $
+* $Id: grid_file.F,v 1.56 2003-12-20 00:29:34 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -242,12 +242,6 @@ c
          endif
       endif
 c
-      if (l_cache .ne. -1) then
-         if (.not. ma_free_heap(l_cache)) then
-             call MA_summarize_allocated_blocks()
-             call errquit('grid_file_close: free heap?',0, MA_ERR)
-          endif
-      end if
       if(okeep) then
          if(filedump_opened) then
             write(gr_unit,99,err=199) max_file_rec
@@ -337,6 +331,8 @@ c
 #include "stdio.fh"
 #include "global.fh"
       logical oend           ! [input]
+      logical grid_opencache
+      external grid_opencache
 c
 c     Write the grid_pts buffer to disk.  For all but the
 c     end record it is called with oend=.false. meaning
@@ -388,15 +384,7 @@ c
             file_opened = .true.
          endif
        if (cur_rec .le. max_cache_rec) then
-         if (l_cache .eq. -1) then
-            if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
-     $           'grid', l_cache, k_cache)) then
-               write(LuOut,*) ' grid_file: Failed to allocate cache '//
-     $              '... halving'
-               max_cache_rec = max_cache_rec/2
-               goto 10          ! Dirty ... go back and try again
-            end if
-         end if
+          if(.not.grid_opencache()) goto 10 ! Dirty ... go back and try again
          call util_memcpy(
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), buf,
      .        rec_len_in_dbl*8)

@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(rtdb,okeep)
 c
-c$Id: grid_cleanup.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_cleanup.F,v 1.9 2003-12-20 00:29:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,7 +27,7 @@ c
       endif
       if (grid_on_file)then
 c
-cedo         write(0,*) ' grinfo ',grinfo
+         call grid_closecache
          if(.not.grid_file_close(okeep)) call
      .        errquit(' grclup: file_close failed',0, DISK_ERR)
          if(.not.okeep) then
@@ -35,11 +35,39 @@ cedo         write(0,*) ' grinfo ',grinfo
             close(unit=gr_unit,status='delete')
          endif
 c
-!         if (.not.MA_Free_Heap(lrchi))
-!     &      call errquit('grid_cleanup: cannot free heap?',0)
-!         if (.not.MA_Free_Heap(lrdelchi))
-!     &      call errquit('grid_cleanup: cannot free heap?',0)
+      endif
+      return
+      end
+      subroutine grid_closecache()
+      implicit none
+#include "mafdecls.fh"
+#include "cgridfile.fh"
+#include "errquit.fh"
+      if (l_cache .ne. -1) then
+         if (.not. ma_free_heap(l_cache)) then
+             call MA_summarize_allocated_blocks()
+             call errquit('grid_file_close: free heap?',0, MA_ERR)
+          endif
+      end if
+      l_cache=-1
+      return
+      end
+      logical function grid_opencache()
+      implicit none
+#include "mafdecls.fh"
+#include "cgridfile.fh"
+#include "errquit.fh"
+#include "stdio.fh"
 c
+      grid_opencache=.true.
+      if (l_cache .eq. -1) then
+         if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
+     $        'grid', l_cache, k_cache)) then
+            write(LuOut,*) ' grid_file: Failed to allocate cache '//
+     $           '... halving'
+            max_cache_rec = max_cache_rec/2
+            grid_opencache=.false.
+         endif
       endif
       return
       end

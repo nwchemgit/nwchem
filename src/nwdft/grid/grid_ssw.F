@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.19 2003-10-17 22:55:37 carlfahl Exp $
+C$Id: grid_ssw.F,v 1.20 2003-12-20 00:29:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -32,7 +32,7 @@ c
       double precision  toll_scr,rag 
       logical inotA
 c
-      integer iw,n,n1,n2
+      integer n,n1,n2
       double precision ass,distnc,distnn,wsum
       parameter (toll_scr=1d-13)
 #include "xc_erftab.fh"
@@ -44,17 +44,7 @@ c     multi-center quadrature weight.
 c     The following 2 lines are to satisfy compiler warnings.
 c
       NN = 1
-      iw = 0
-      if(whichfunc.eq.'ssf ') then
-        ass=ass_ssf
-        iw=0
-      elseif(whichfunc.eq.'erf1') then
-        ass=ass_erf1
-        iw=1
-      elseif(whichfunc.eq.'erf2') then
-        ass=ass_erf2
-        iw=2
-      endif
+      ass=ass_erf1
 c      toll=max((tol_rho*1d-5),1d-33)
       do  i = 1, nctrs_pruned
 
