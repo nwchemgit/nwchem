@@ -27,12 +27,14 @@ the \verb+ECP+ directive is as follows;
         [spherical || cartesian default cartesian] \
         [segment || nosegment default segment] \
         [print || noprint default print]
+\end{verbatim}
 
 %     <string tag> library [<string tag_in_lib>] \
 %                  <string standard set> [file <filename>]
 %
 %         or
 %
+\begin{verbatim}
      <string tag> [nelec] <integer number_of_electrons_replaced>
  
         ...
@@ -84,8 +86,8 @@ in the database for a calculation.  If no name is specified explicitly, the
 default name is  \verb+"ecp basis"+  The various modules in the code expect 
 to find the
 basis set in the database under the name \verb+"ao basis"+.  The user can
-assign the string \verb+name+ (or /verb+"ecp basis"+, if the default name 
-is used) to \verb+"ao basis"+ using the verb+SET+
+assign the string \verb+name+ (or \verb+"ecp basis"+, if the default name 
+is used) to \verb+"ao basis"+ using the \verb+SET+
 directive (see Section \ref{sec:set}), in the same manner as that in
 which standard basis sets of some (non-default) \verb+name+ 
 are assigned the default name \verb+"ao basis"+ 
@@ -96,17 +98,29 @@ the course of the same job.  Only one ECP basis set can be active for a
 given task, although any number of such basis sets can be defined in the
 input under names other than \verb+"ecp basis"+.
 
-The keyword pairs \verb+spherical || cartesian+,
- \verb+segment || nosegment+, and \verb+print || noprint+ are interpreted
+The keyword pairs
+
+\begin{verbatim}
+spherical || cartesian
+segment || nosegment
+print || noprint
+\end{verbatim}
+
+are interpreted
 in the \verb+ECP+ directive in the same manner as for the \verb+BASIS+
-directive.  The basis functions can be specified in either spherical or 
-cartesian coordinates, segmented or unsegmented, and the descriptions of
-the functions are printed or not printed by the input module, at the users
-discretion.  However, only the defaults are currently available for
+directive, but only the defaults are currently available for
 the coordinate system and segmentation in the \verb+ECP+ directive.   
 NWChem assumes
-that all basis sets are segmented and cartesian, whether specified by the 
-user or defined in the standard library sets.
+that all ecp basis sets are segmented and cartesian.  
+The keywords are included in the directive, however, because it is
+expected that eventually the code will include the options for the
+user to specify basis functions in either spherical or 
+cartesian coordinates, segmented or unsegmented.  The print keyword is
+currently active, and can be used to specify that the descriptions of
+the functions will be printed or not printed by the input module, at the user's
+discretion.  
+% , whether specified by the 
+% user or defined in the standard library sets.
 
 As with the input for the standard basis sets using the \verb+BASIS+
 directive, the input specified for the \verb+ECP+ directive in lines 
@@ -130,13 +144,15 @@ angular momentum
 functions specified in the literature for most ecp basis sets.  The
 standard entries (\verb+s, p, d+, etc.) for \verb+shell_type+ delineate 
 the angular momentum projector onto the local function.  The shell type 
-label of verb+s+ indicates the \verb+ul-s+ projector input, \verb+p+ 
+label of \verb+s+ indicates the \verb+ul-s+ projector input, \verb+p+ 
 indicates the \verb+ul-p+, etc.
 
 An application of the \verb+ECP+ directive is illustrated in the following 
 example using the molecule  H$_2$CO.  This input defines an ECP basis set 
 for the  carbon and oxygen atoms in the molecule.
+\Large
 (*****What about the hydrogen molecule?  What basis set does it use?******)
+\normalsize
 
 % The following example illustrate the input of an ECP for H$_2$CO.
 
@@ -179,6 +195,6 @@ generation for ECP centers.  Therefore, it may not be possible to obtain
 an initial set of orbitals for either the SCF or DFT when using an ECP
 basis set.  It may be necessary to use a smaller basis set and then
 project those orbitals to the
-basis set that will be used, (c.f. \ref{sec:vectors}).  Convergence
+basis set that will be used, (refer to Section \ref{sec:vectors}).  Convergence
 and starting orbital guesses are being addressed in ongoing development
 work with the code.
