@@ -125,6 +125,12 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
     edit.add(frgmnt = new JMenuItem("fragment"));
     edit.add(segmnt = new JMenuItem("segment"));
     edit.add(param  = new JMenuItem("parameter"));
+    param.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	System.out.println("Parameter Database Editor");
+	nwchem_Param param_View = new nwchem_Param();
+	param_View.setVisible(true); 
+      }});
     edit.add(seqnce = new JMenuItem("sequence"));
     edit.add(topol  = new JMenuItem("topology"));
 
