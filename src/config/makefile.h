@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.134 1995-12-12 23:55:47 d3j191 Exp $
+# $Id: makefile.h,v 1.135 1996-01-10 16:07:32 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -15,7 +15,7 @@ ifndef NWCHEM_TOP
 error1:
 	@echo You must define NWCHEM_TOP in your environment to be the path
 	@echo of the top level nwchem directory ... something like
-	@echo     setenv NWCHEM_TOP /msrc/home/orrin_hatch/nwchem
+	@echo     setenv NWCHEM_TOP /msrc/home/hillary_clinton/nwchem
 	@exit 1
 endif
 
@@ -423,6 +423,7 @@ ifeq ($(TARGET),IBM)
 #
 
     CORE_SUBDIRS_EXTRA = lapack
+#blas
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
@@ -430,8 +431,9 @@ ifeq ($(TARGET),IBM)
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-   FOPTIONS = -qEXTNAME
-   COPTIONS =
+   FOPTIONS = -qEXTNAME -qalign=4k -qnosave
+# -qinitauto=FF
+   COPTIONS = 
   FOPTIMIZE = -O3 -NQ40000 -NT80000 -qstrict
   COPTIMIZE = -O
 
@@ -459,7 +461,11 @@ endif
 	      -brename:.dscal_,.dscal \
 	      -brename:.dspsvx_,.dspsvx \
 	      -brename:.idamax_,.idamax \
-	      -brename:.times_,.times 
+	      -brename:.dswap_,.dswap \
+	      -brename:.dger_,.dger \
+	      -brename:.dtrsm_,.dtrsm 
+
+#	      -brename:.times_,.times 
 ifdef USE_ESSL
        CORE_LIBS += -lessl
 endif
