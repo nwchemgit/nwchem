@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.82 1998-07-28 21:16:35 d3g681 Exp $
+C     $Id: geom_input.F,v 1.83 1998-07-29 22:04:46 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -12,6 +12,7 @@ c
       character*255 name        ! for name of geometry
       character*12 units        ! holds units of coordinates
       integer ncenter           ! counts no. of centers as input
+      integer ncenter_before_auto
       integer geom              ! handle for geometry
       integer nata              ! num. of unique atoms 
       logical status            ! scratch for return codes
@@ -307,6 +308,7 @@ c     ----- detect symmetry -----
 c
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_get failed', 0)
+         ncenter_before_auto = ncenter
          call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
      $        threquiv,groupname)
          if (geom_group_set(geom,groupname)) then
@@ -323,6 +325,17 @@ c     unique centers build mapping tables set up coord lists
 c     
       nata=ncenter
       call sym_nwc(geom,rtdb,nata,oprint_sym,scale)
+c
+c     Check that if we used autosym that we ended up with the 
+c     same no. of atoms ... if we don't then autosym and nwchemsym
+c     don't agree on the orientation of point group elements
+c
+      if (oautosym) then
+         if (.not. geom_ncent(geom,ncenter)) call errquit
+     $        ('geom_input: geom_cent?',0)
+         if (ncenter_before_auto .ne. ncenter) call errquit
+     $        ('geom_input: autosym bug : too many atoms',ncenter)
+      endif
 c
       if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
      $     .true.,.true.,.true.,.true.,.true.)
@@ -6135,7 +6148,6 @@ C
       PARAMETER (MXBNDS= 8*MXATOM)
       PARAMETER (MXTORS= 8*MXATOM)
       LOGICAL     DBUG
-      LOGICAL     DOLINB
       LOGICAL     LINIJK,LINJKL
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -7501,8 +7513,6 @@ c
       close(ift,status='keep')
 c
       geom_lst_put_coord=.true.
-      return
-c
       return
 c
   911 call errquit('geom_lst_put_coord : open failed',0)
@@ -9292,7 +9302,6 @@ C
       LOGICAL     OUT
       LOGICAL     SOME
       LOGICAL     ONLY
-      LOGICAL     WRONG
       LOGICAL     GOTX,GOTY,GOTZ
       LOGICAL     NOSYM
       LOGICAL     PROPER
@@ -10538,7 +10547,7 @@ C           OF SYMMETRIC 3X3 MATRIX A  IN TRIANGULAR FORM
 C
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
-      DIMENSION A(3,3),VEC(3,3),EIG(3),B(3,2)
+      DIMENSION A(3,3),VEC(3,3),EIG(3)
       DIMENSION AA(6),IA(3)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLAXS-'/
@@ -10751,7 +10760,6 @@ C
       CHARACTER*8   ERRMSG
       LOGICAL       OUT
       LOGICAL       ALIGN
-      CHARACTER*255 INPUT
       CHARACTER*8   GRPCHR
       CHARACTER*8   DRCCHR
       CHARACTER*8   CHRGRP

@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.73 1998-07-28 21:16:33 d3g681 Exp $
+C$Id: geom.F,v 1.74 1998-07-29 22:04:44 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -878,7 +878,6 @@ c
       character*(*) group       ! [input]
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
-      logical status
 c
       geom_group_set = geom_check_handle(geom, 'geom_group_set')
       if (.not. geom_group_set) return
