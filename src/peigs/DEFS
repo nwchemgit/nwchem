@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.86 2001-05-08 22:54:15 edo Exp $
+# $Id: DEFS,v 1.87 2001-08-07 01:59:28 edo Exp $
 #
 #======================================================================
 #
@@ -207,6 +207,11 @@ peigs_CC += -DSTD_DBL -O -D$(peigs_CPU)
 peigs_FC += -DSTD_DBL -dalign -D$(peigs_CPU) -O4  -D$(peigs_COMM)
 peigs_CPP +=  -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+ifdef USE_INTEGER4
+     peigs_CPP += -DSTD_INT
+     peigs_CC  += -DSTD_INT
+     peigs_FC  += -DSTD_INT
+endif
 #
 #	this is the worst to find for any machine
 #	for the SUN we have c calling fortran library
