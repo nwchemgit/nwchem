@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.3 2002-03-03 22:50:23 bylaska Exp $
+c $Id: truncating_function.F,v 1.4 2002-03-03 22:57:04 bylaska Exp $
 c
 
 ***********************************************************
@@ -168,6 +168,12 @@ c
         end if
 
         if (.not.found) then
+
+          if (taskid.eq.MASTER) then
+            write(*,1164) ion_atom(ia)
+          end if
+ 1164     FORMAT(5X,A2,' - generating trunctation function')
+
           do i = 1,nfft3d
             gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
      >          + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
