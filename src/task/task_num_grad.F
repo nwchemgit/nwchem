@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.32 2004-04-29 21:31:53 edo Exp $
+* $Id: task_num_grad.F,v 1.33 2004-06-28 19:37:20 edo Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -438,20 +438,10 @@ c
       enddo
       call sym_grad_symmetrize(geom, ncoords) ! Paranoid enforcement
 c
-c     Apply system and symmetry info to the list of
-c     unique centers build mapping tables set up coord lists
-c     
-      if (.not. geom_get_user_scale(geom,scale))
-     $     call errquit('tnumgr: failed getting user scale',0,
-     &       GEOM_ERR)
+c      this screws up the list of unique atoms
 c
-      nops = sym_number_ops(geom)
-      call sym_nwc(geom,rtdb,natoms3,.false.,scale,1d-2,nops,
-     &     .false.)
-
-c
-      if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
-     $     call errquit('num_grad: bad geom',0, GEOM_ERR)
+!      if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
+!     $     call errquit('num_grad: bad geom',0, GEOM_ERR)
       if (.not. geom_rtdb_store(rtdb, geom, 'num. grad. geometry')) 
      $     call errquit('num_grad: store of geom failed',0, RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'geometry', 1, 'num. grad. geometry'))
