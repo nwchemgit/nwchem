@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.34 2002-02-19 20:44:07 edo Exp $
+C $Id: twodd_cont.F,v 1.35 2002-03-06 20:57:27 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -135,6 +135,11 @@ c
         call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
      *    dbl_mb(k_exy),1)
       endif
+c
+c  Release the global fock derivative matrices
+c
+      if (.not.ga_destroy(g_rhs_xc)) 
+     *  call errquit('twodd_cont: problem destroying g_rhs_xc',1)
 c
 c Print out the hessian before adding anything else
 c

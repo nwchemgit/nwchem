@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.10 2002-01-19 01:05:02 windus Exp $
+C $Id: hess_tidy.F,v 1.11 2002-03-06 20:57:27 windus Exp $
 C
       subroutine hess_tidy()
 c
@@ -35,11 +35,6 @@ c
      *   call errquit('hess_tidy: cannot deallocate hess_xc',555)
       if (.not.ma_pop_stack(l_exy))
      *   call errquit('hess_tidy: cannot deallocate Exy',555)
-c
-c  Release the global fock derivative matrices (Qs or RHS).
-c
-      if (.not.ga_destroy(g_rhs_xc)) 
-     *  call errquit('hess_tidy: problem destroying g_rhs_xc',1)
 c
 c  Get rid of temporary DRAs and terminate DRA interface
 c

@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.7 2002-03-06 19:50:58 windus Exp $
+C $Id: hess_restart.F,v 1.8 2002-03-06 20:57:27 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -88,6 +88,12 @@ c
       integer i
       logical oprint
 c
+      if (ga_nodeid().eq.0) then
+        write(LuOut,*)
+        write(LuOut,*) 'Getting restart information'
+        write(LuOut,*)
+      endif
+c
 c  Read hessian and dipole derivative from disk and broadcast
 c
       if(ga_nodeid().eq.0) then
@@ -132,6 +138,11 @@ c
         if (.not.ga_destroy(g_rhs_xc))
      &    call errquit('hess_getrestart: failed to delete g_rhs_xc',
      &                  555)
+         if (.not.ga_destroy(g_wdens))
+     &   call errquit('hess_getrestart: failed to delete wdensity',
+     &                 555)
+        call schwarz_tidy()
+        call intdd_terminate()
       endif
 c
       return
