@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.186 2001-08-19 21:32:13 bjohnson Exp $
+c     $Id: dft_scf.F,v 1.187 2001-10-05 09:23:00 edo Exp $
 c     
       implicit none
 c
@@ -152,8 +152,10 @@ c
       double precision ecosmo,dft_cosmoe,dft_cosmoadde
       external dft_cosmoe,dft_cosmoadde
 
+
       integer itype_wfn,g_focks(2)
-      integer nel_fon(2),nmo_fon(2)
+      integer nel_fon(2),nmo_fon(2),g_movad,g_xij,
+     ,     ncanorg
 c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
@@ -209,7 +211,7 @@ c
          fon=.false.
       endif
       if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
-     &   reorth))reorth=.true.
+     &   reorth))reorth=.false.
 c
 c     see if levelshifting monitoring is desired
 c
@@ -335,6 +337,10 @@ c
 c     SCF energy convergence criterion. 
 c     
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
+      ncanorg=0
+      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
+     &     nbf, 0, g_xij)) 
+     . call errquit(' ddftdiagn: ga_create failed ',0)
       g_focks(1)=g_fock
 c     
 c     Set up local convergence parameters
@@ -440,6 +446,8 @@ c
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
       endif
+
+
       if(ldmix) then
          tdots=0.d0
          call dft_densm(g_dens, g_movecs, 
@@ -521,11 +529,6 @@ c
          tol_rho = max(tol_rho_min,tol_rho_max)
       endif
 c     
-      tol2e = 10.d0**(-itol_max)
-c 
-c     Restore SCF parameters
-c
-      call scf_get_fock_param(rtdb, tol2e)
 #ifdef BETTIS
 c     Screened exchange works only with direct SCF
       if (screened_exchange()) then
@@ -533,6 +536,11 @@ c     Screened exchange works only with direct SCF
          call fock_force_direct(rtdb)
       endif
 #endif
+      tol2e = 10.d0**(-itol_max)
+c 
+c     Restore SCF parameters
+c
+      call scf_get_fock_param(rtdb, tol2e)
 c     
 c     If open shell put the total density matrix in g_dens(1)
 c
@@ -725,8 +733,9 @@ c
 #if defined(DFT_TIMER)
          call dft_second(tp3)
 #endif
-         call dft_diag(levelshifting,
-     ,        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
+         call dft_diagn(levelshifting,
+     ,        nmo(ispin),ncanorg,g_xij,
+     .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
      ,        dbl_mb(k_eval(ispin)),dbl_mb(isvals),noc(ispin),
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
@@ -752,12 +761,29 @@ c
 c        symmetry adapt vectors?
 c
          if (oadapt)then
+            if(nmo(ispin).ne.0) then
+               if (.not. ga_create(mt_dbl, nbf_ao, nmo(ispin),
+     ,              'movad', nbf_ao, 0, g_movad)) call errquit(
+     '              'dft_scf: gacreate failed ',0)
+               call ga_copy_patch('n', g_movecs(ispin), 1, nbf_ao, 
+     .              1, nmo(ispin),
+     ,              g_movad, 1,nbf_ao,1,nmo(ispin))
+            else
+               g_movad=g_movecs(ispin)
+            endif
             if(ispin.eq.1)name = '- alpha'
             if(ispin.eq.2)name = '- beta'
-            call scf_movecs_sym_adapt(ao_bas_han, g_movecs(ispin),
-     &                                oprint_syma, nbf_ao, name,
-     &                                .true., 
+            call scf_movecs_sym_adapt(ao_bas_han, g_movad,
+     &           oprint_syma, nmo, name,
+     &           .true., 
      &                                int_mb(k_ir+nbf_ao*(ispin-1)))
+            if(nmo(ispin).ne.0) then
+               call ga_copy_patch('n', 
+     ,              g_movad, 1,nbf_ao,1,nmo(ispin),
+     .              g_movecs(ispin), 1, nbf_ao, 1, nmo(ispin))
+               if (.not. ga_destroy(g_movad)) call errquit(
+     &              'dft_scf: could not destroy g_movad', 0)
+            endif
          endif      
 c
 c        occasionally (every 5 iterations) clean up (by orthogonalizing
@@ -1349,6 +1375,9 @@ c
       if (.not. ga_destroy(g_s12m)) call errquit
      &   ('dft_scf: could not destroy g_s12m', 0)
       endif
+      if (.not. ga_destroy(g_xij)) call errquit
+     &     ('dft_scf: could not destroy g_scr', 0)
+     
 c
       call fock_2e_tidy(rtdb)
 c     

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.49 2001-06-27 01:49:44 edo Exp $
+# $Id: GNUmakefile,v 1.50 2001-10-05 09:23:00 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -31,7 +31,9 @@
 	dft_scfutil.o \
 	dft_symbr.o \
 	dft_cosmo.o \
-        fukui.o
+	dft_killspd.o \
+	dft_dampf.o \
+        fukui.o dft_canorg.o dft_diagn.o
 
 
      LIBRARY = libnwdft.a
