@@ -16,7 +16,6 @@ c
 c     
 c>>>  original NWdft includes ...
 c     
-#include "handles.fh"
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -67,8 +66,8 @@ c
       elseif(itype.eq.3) then
         if(.not. geom_ncent(geom,ncent))
      &     call errquit('nwdft: ncent get failed',0)
-        call main3d(geom,rtdt,ncent)
-      else
+C        call main3d(geom,rtdt,ncent)
+C      else
         call errquit('nwdft: problem with system type',0)
       endif
 c
@@ -81,6 +80,7 @@ c
       call flush(lwr)
 
       nwdft = .true.
+      close(7)
       return
       end
  
