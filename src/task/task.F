@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.55 2004-03-11 15:42:29 bylaska Exp $
+* $Id: task.F,v 1.56 2004-03-13 00:19:35 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -45,7 +45,11 @@ c
       logical task_pspw,task_band
       logical task_drdy
       logical task_et
+      logical qmmm_init
+      logical qmmm_end
 c
+      external qmmm_init
+      external qmmm_end
       external jantest, uccsdtest, mcstep_main
       external rjhtest, raktest, atwtest, task_check_sum, cphf
       external property, dplot, gapss, task_shell, moints_full
@@ -64,6 +68,7 @@ c
       task_wall = -util_wallsec()
       task_cpu  = -util_cpusec()
 *
+
       if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
      $     call util_debug(rtdb)
 *
@@ -82,25 +87,29 @@ c
 c for qmmm, nwmd will call appropriate task routines
 c
       if (task_qmmm) then
-        if (theory.eq.'nwmd'.or.theory.eq.'md')
-     + call errquit('task:theory must be a QM method for QMMM',911,
-     &       INPUT_ERR)
-        status = nwmd(rtdb)
+c        if (theory.eq.'nwmd'.or.theory.eq.'md')
+c     + call errquit('task:theory must be a QM method for QMMM',911,
+c     &       INPUT_ERR)
+c        status = nwmd(rtdb)
+        status = qmmm_init(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
-          errmsg = ' '
-          write(errmsg,'(''QMMM '',a,'' failed '')')
-     &        theory(1:inp_strlen(theory))
-          if (ga_nodeid().eq.0) then
-            if (ignore) then
-              write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
-              call util_flush(6)
-            else
-              call errquit(errmsg, 0, CALC_ERR)
-            endif
-          endif
-        endif
-        call ga_sync()
-        goto 99999
+              call errquit("failed qmmm_init", 0, CALC_ERR)
+        end if
+c        if ((ga_nodeid().eq.0) .and. (.not. status)) then
+c          errmsg = ' '
+c          write(errmsg,'(''QMMM '',a,'' failed '')')
+c     &        theory(1:inp_strlen(theory))
+c          if (ga_nodeid().eq.0) then
+c            if (ignore) then
+c              write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
+c              call util_flush(6)
+c            else
+c              call errquit(errmsg, 0, CALC_ERR)
+c            endif
+c          endif
+c        endif
+c        call ga_sync()
+c        goto 99999
       endif
 c
 c Look for speciallized routine tasks here 
@@ -239,6 +248,16 @@ c     *** task_paw handles paw specific "operations" ***
             endif
          endif
       endif
+      if (task_qmmm) then
+        status = qmmm_end(rtdb)
+
+        if ((ga_nodeid().eq.0) .and. (.not. status)) then
+              call errquit("failed qmmm_end", 0, CALC_ERR)
+        end if
+        status=rtdb_delete(rtdb, 'task:QMMM')
+
+       endif
+c
       call ga_sync()
 99999 continue
 c
