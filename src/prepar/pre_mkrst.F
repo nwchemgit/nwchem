@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.78 2002-03-29 22:59:28 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.79 2002-04-04 22:12:53 d3j191 Exp $
 c
       implicit none
 c
@@ -23,8 +23,8 @@ c
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       logical pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
       external pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
-      logical pre_rot
-      external pre_rot
+      logical pre_rot,pre_crop
+      external pre_rot,pre_crop
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
       integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov,lfnmrg
@@ -971,6 +971,14 @@ c
       read(card(8:53),'(2i5,4f12.6)',err=9999) irot,jrot,arot,xrot
       if(.not.pre_rot(irot,jrot,arot,xrot,
      + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_rot failed',9999)
+      endif
+c
+c     crop atom
+c     ---------
+c
+      if(card(1:4).eq.'crop') then
+      if(.not.pre_crop(dbl_mb(i_xs),msa,nsa,lfnout))
      + call errquit('pre_rot failed',9999)
       endif
 c

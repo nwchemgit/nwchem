@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.98 2002-04-04 15:19:01 d3j191 Exp $
+c $Id: pre_input.F,v 1.99 2002-04-04 22:12:53 d3j191 Exp $
 c
       implicit none
 c
@@ -955,6 +955,16 @@ c
       write(68,6801) touch
  6801 format('touch ',f12.6)
       ltouch=.true.
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     crop
+c     -----
+c
+      if(inp_compare(.false.,'crop',item)) then
+      write(68,6876)
+ 6876 format('crop   ')
       numcmd=numcmd+1
       goto 2
       endif
