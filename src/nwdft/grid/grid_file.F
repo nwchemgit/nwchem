@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.45 2001-12-27 19:20:07 edo Exp $
+* $Id: grid_file.F,v 1.46 2002-01-08 00:30:19 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -258,7 +258,7 @@ c
             close(gr_unit)
          endif
       else
-!         close(gr_unit,status='delete')
+         close(gr_unit,status='delete')
       endif
 c
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
