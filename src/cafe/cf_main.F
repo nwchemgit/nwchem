@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.168 2003-12-04 20:56:16 d3j191 Exp $
+c $Id: cf_main.F,v 1.169 2004-03-09 18:33:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -284,7 +284,7 @@ c
 c
       return
       end
-      subroutine cf_scmfor(ismol,isatt,vs,fs,nums,fcm)
+      subroutine cf_scmfor(icmopt,ismol,isatt,vs,fs,nums,fcm)
 c
       implicit none
 c
@@ -292,14 +292,14 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer ismol(msa),isatt(msa),nums
+      integer icmopt,ismol(msa),isatt(msa),nums
       real*8 vs(msa,3),fs(msa,3),fcm(msm,5)
 c
-      call cf_scmf(ismol,isatt,vs,fs,nums,fcm,dbl_mb(i_mas))
+      call cf_scmf(icmopt,ismol,isatt,vs,fs,nums,fcm,dbl_mb(i_mas))
 c
       return
       end
-      subroutine cf_scmf(ismol,isatt,vs,fs,nums,fcm,wgt)
+      subroutine cf_scmf(icmopt,ismol,isatt,vs,fs,nums,fcm,wgt)
 c
       implicit none
 c
@@ -307,7 +307,7 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      integer ismol(msa),isatt(msa),nums
+      integer icmopt,ismol(msa),isatt(msa),nums
       real*8 vs(msa,3),fs(msa,3),fcm(msm,3)
       real*8 wgt(mat,mset)
 c
@@ -347,11 +347,19 @@ c
       fcm(ismol(i),3)=fcm(ismol(i),3)+one
     5 continue
       if(np.gt.1) call ga_dgop(mcf_83,fcm,3*msm,'+')
+      if(icmopt.eq.1) then
       do 6 i=1,nums
       if(fcm(ismol(i),3).gt.one) then
       fs(i,3)=fs(i,3)-wgt(isatt(i),iset)*fcm(ismol(i),1)/fcm(ismol(i),2)
       endif
     6 continue
+      else
+      do 7 i=1,nums
+      if(fcm(ismol(i),3).gt.one) then
+      fs(i,3)=1.0d-01*fs(i,3)
+      endif
+    7 continue
+      endif
 c
       return
       end

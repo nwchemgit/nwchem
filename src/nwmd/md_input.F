@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.83 2004-02-24 06:24:52 d3j191 Exp $
+c $Id: md_input.F,v 1.84 2004-03-09 18:32:57 d3j191 Exp $
 c
       implicit none
 c
@@ -693,7 +693,7 @@ c
 c     solute center of mass options
 c
       if(inp_compare(.false.,'scmxy',item)) then
-      icmopt=1
+      if(.not.inp_i(icmopt)) icmopt=1
       goto 2
       endif
 c

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.189 2004-02-24 06:24:52 d3j191 Exp $
+c $Id: md_main.F,v 1.190 2004-03-09 18:32:57 d3j191 Exp $
 c
       implicit none
 c
@@ -2190,7 +2190,7 @@ c
       real*8 vs(msa,3),fs(msa,3,2),fcm(msm,5)
       integer ismol(msa),isatt(msa)
 c
-      call cf_scmfor(ismol,isatt,vs,fs,nsaloc,fcm)
+      call cf_scmfor(icmopt,ismol,isatt,vs,fs,nsaloc,fcm)
 c
       return
       end
@@ -2771,7 +2771,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.189 2004-02-24 06:24:52 d3j191 Exp $
+c $Id: md_main.F,v 1.190 2004-03-09 18:32:57 d3j191 Exp $
 c
       implicit none
 c
