@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.6 1998-10-17 00:38:43 og845 Exp $
+c$Id: xc_hcth.F,v 1.7 1998-10-17 19:28:33 d3e129 Exp $
 c
       Implicit none
 c
@@ -512,6 +512,9 @@ C     DOUBLE PRECISION d2F_xs_by_drhos_dzs, d2F_xs_by_dzs_dzs
       DOUBLE PRECISION F_xs,dF_xs_by_drhos, dF_xs_by_dzs
       integer n1
       double precision x1,x2,x3,x4
+      double precision e_crs1
+      double precision drsbydrh
+      double precision decrsdrs
 C
 C     F_xs computes HCTH contribution to exchange Energy
 C     using Dirac functional as LDA part
@@ -558,15 +561,12 @@ c
 c     usage
 c     e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
 c
-      double precision e_crs1
       e_crs1(x1,x2,x3,x4) = -0.03108999999999999d0*
      *  log(1.d0 + 32.16468317787069d0/
      /     (14.1189d0*x1+6.1977d0*x2 + 3.3662d0*x3 +
      +     0.6251699999999999d0*x4))*(1.d0 + 0.20548d0*x2)
-      double precision drsbydrh
       drsbydrh(x1) = -((1.d0/x1)**(4.D0/3.D0)/
      -    (6.d0**(2.D0/3.D0)*Pi**(1.D0/3.D0)))
-      double precision decrsdrs
 c     usage decrsdrs(rsa,rsa12,rsa21,rsa32)
       decrsdrs(x1,x2,x3,x4) = ((1.d0 + 0.20548d0*x1)*
      -     (6.1977d0 + 7.05945d0/x2 + 1.25034d0*x1+5.0493d0*x2))/
