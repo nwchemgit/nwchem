@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.83 1998-02-12 20:55:39 d3e129 Exp $
+# $Id: GNUmakefile,v 1.84 1998-02-27 06:31:02 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -56,8 +56,11 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DHAVE_FORTRAN_INTEGER2,-DHAVE_FORTRAN_BYTE
 endif
 
+ifeq ($(TARGET),SGITFP)
+       BLAS = dfill.o ifill.o mabyte_fill.o
+else
        BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
-
+endif
    LIB_TARGETS = testsolve testecce
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS) \
@@ -94,6 +97,9 @@ endif
 		ga_normf.o \
               $(EXTRA_OBJ)
 
+ifeq ($(TARGET),SGITFP)
+	OBJ += rsg.o
+endif
 #nxtval_ga.o 
 
     LIBRARY = libutil.a
