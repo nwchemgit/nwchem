@@ -1,7 +1,6 @@
 *
-* $Id: pack.F,v 1.14 2003-10-17 22:56:44 carlfahl Exp $
+* $Id: pack.F,v 1.15 2003-10-26 23:47:01 bylaska Exp $
 *
-
 
 *     ***********************************
 *     *					*
@@ -1498,7 +1497,7 @@ c      end do
       integer i
 
       do i=1,(nida(nb)+nidb(nb))
-        C(i) = A(i)*B(i)
+        C(i) = B(i)*A(i)
       end do
 
       return

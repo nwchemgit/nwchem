@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.31 2003-10-17 22:57:10 carlfahl Exp $
+* $Id: cgsdv5.F,v 1.32 2003-10-26 23:47:01 bylaska Exp $
 *
 
 ***********************************************************************
@@ -222,6 +222,7 @@ c     value = psi_initialize()
       end if
       value = psi_initialize()
 
+      call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
 
 *     **** electron and geodesic data structures ****
       call electron_init()
@@ -464,6 +465,7 @@ c     end if
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
+      call D3dB_n_fft_end(1)
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
