@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.13 2002-06-25 19:51:27 bylaska Exp $
+* $Id: pspw_sic.F,v 1.14 2002-12-10 01:37:26 bylaska Exp $
 *
 
 *     *************************
@@ -222,7 +222,7 @@
            index  = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
            index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
 
-*          **** generate dn ****
+*          **** generate dn for Vxc and VH ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
            call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
@@ -289,8 +289,12 @@ c             if (ispin.eq.1)
 c     >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
 c     >                            dbl_mb(dn(1)),
 c     >                            dbl_mb(dn(1)))
+
+*             ** perform shift here? ***
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
               call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(tmp1(1)),eh)
+*             ** perform reverse shift here? ***
+
               eh = 0.5d0*eh*dv
               if (ispin.eq.1) eh = eh + eh
               ph = 2.0d0*eh

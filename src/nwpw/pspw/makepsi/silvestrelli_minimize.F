@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.1 2002-10-15 21:24:01 bylaska Exp $
+* $Id: silvestrelli_minimize.F,v 1.2 2002-12-10 01:37:28 bylaska Exp $
 *
 
 
@@ -24,7 +24,7 @@
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value
+      logical value,oprint
       integer i,j,k,sign,iter
 
       integer At(2),Att(2)
@@ -37,6 +37,7 @@
 
 
       call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
 
       one  = dcmplx(1.0d0,0.0d0)
       zero = dcmplx(0.0d0,0.0d0)
@@ -65,7 +66,7 @@
       end do
 
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
         write(6,*) 
         write(6,*) '------------------------------------------'
       end if
@@ -192,7 +193,7 @@
             omega = omega + (wx+wy+wz)
          end do
 
-         if (taskid.eq.MASTER) then
+         if (oprint) then
          write(6,*) iter, omega, maxgrad
          end if
       end do ! end do while

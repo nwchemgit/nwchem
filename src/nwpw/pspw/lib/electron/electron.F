@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.15 2002-10-15 21:24:00 bylaska Exp $
+* $Id: electron.F,v 1.16 2002-12-10 01:37:23 bylaska Exp $
 *
 
 
@@ -58,6 +58,9 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d,
      >                     'v_field',v_field(2),v_field(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d,
+     >                     'vall',vall(2),vall(1))
 
       if (control_version().eq.3) then
         value = value.and.
@@ -108,6 +111,8 @@
      >        MA_free_heap(vl_lr(2))
       value = value.and.
      >        MA_free_heap(v_field(2))
+      value = value.and.
+     >        MA_free_heap(vall(2))
       value = value.and.
      >        MA_free_heap(vc(2))
       value = value.and.
@@ -163,6 +168,21 @@
       return
       end
 
+*     ***********************************
+*     *					*
+*     *		electron_run_orb	*
+*     *					*
+*     ***********************************
+      subroutine electron_run_orb(i,psi_k)
+      implicit none
+      integer    i
+      complex*16 psi_k(*)
+
+      call electron_gen_psi_r_orb(i,psi_k)
+      call electron_gen_Hpsi_k_orb(i,psi_k)
+
+      return
+      end
 
 *     ***********************************
 *     *					*
@@ -692,6 +712,26 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       end
 
 
+*     ***********************************
+*     *					*
+*     *	    electron_get_gradient_orb 	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_get_gradient_orb(i,Horb)
+      implicit none
+      integer i
+      complex*16 Horb(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+      call Pack_c_Copy(1,dcpl_mb(Hpsi_k(1)+(i-1)*npack1),Horb) 
+      
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -908,6 +948,61 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
       return
       end
 
+
+
+*     ***********************************
+*     *					*
+*     *     electron_gen_Hpsi_k_orb	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_gen_Hpsi_k_orb(n,psi_k)
+      implicit none
+      integer n
+      complex*16 psi_k(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer nne(2)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+
+
+     
+      if (n.le.ne(1)) then
+        nne(1) = 1
+        nne(2) = 0
+      else
+        nne(1) = 0
+        nne(2) = 1
+      end if 
+
+*     ******************
+*     **** get Hpsi ****
+*     ******************
+      if (control_version().eq.3)
+     >  call psi_Horb(ispin,nne,psi_k(1+(n-1)*npack1),
+     >             dbl_mb(psi_r(1)+(n-1)*2*nfft3d),
+     >             dbl_mb(vall(1)),
+     >             dbl_mb(xcp(1)),
+     >             dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+
+      if (control_version().eq.4)
+     >  call psi_Horbv4(ispin,nne,psi_k(1+(n-1)*npack1),
+     >             dbl_mb(psi_r(1)+(n-1)*2*nfft3d),
+     >             dbl_mb(vall(1)),
+     >             dbl_mb(xcp(1)),
+     >             dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+
+      return
+      end
+
+
 *     ***************************
 *     *				*
 *     *	    electron_gen_psi_r	*
@@ -940,6 +1035,35 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       return
       end
 
+*     ***********************************
+*     *				        *
+*     *	    electron_gen_psi_r_orb	*
+*     *				        *
+*     ***********************************
+
+      subroutine electron_gen_psi_r_orb(n,psi_k)
+      implicit none
+      integer    n
+      complex*16 psi_k(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+*     **** local variables ****
+      integer n2ft3d
+
+      n2ft3d = 2*nfft3d
+
+      call Pack_c_Copy(1,psi_k(1+(n-1)*npack1),
+     >                        dbl_mb(psi_r(1)+(n-1)*n2ft3d))
+     
+      call Pack_c_unpack(1,   dbl_mb(psi_r(1)+(n-1)*n2ft3d))
+      call D3dB_cr_fft3b(1,   dbl_mb(psi_r(1)+(n-1)*n2ft3d)) 
+      call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
+
+      return
+      end
+
 
 *     ***************************
 *     *				*
@@ -962,7 +1086,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       integer i
       integer ms,nx,ny,nz,n2ft3d
       integer n,n1(2),n2(2)
-      real*8  scal1,scal2
+      real*8  scal2
       integer tmp1(2)
       logical value
 
@@ -978,10 +1102,6 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       n2(2) = ne(1) + ne(2)
 
       n2ft3d = 2*nfft3d
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
-      scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
 
 
@@ -1000,32 +1120,60 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
       end do
 
-c      write(*,*) "density"
-c      do k=1,nz
-c      do j=1,ny
-c      do i=1,nx
-c        indx = i + (j-1)*(nx+2) + (k-1)*(nx+2)*ny
-c        write(*,*) "i,j,k,dn:",i,j,k,dn(indx)
-c      end do
-c      end do
-c      end do
+*     **** generate dng and dnall ****
+      call electron_gen_dng_dnall(dn,dng,dnall)
 
-      
+      return
+      end
+
+
+
+*     ***************************
+*     *				*
+*     *	 electron_gen_dng_dnall	*
+*     *				*
+*     ***************************
+
+      subroutine electron_gen_dng_dnall(dn,dng,dnall)
+      implicit none
+      real*8     dn(*)
+      complex*16 dng(*)
+      real*8     dnall(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+     
+*     **** local variables ****
+      integer i
+      integer ms,nx,ny,nz,n2ft3d
+      integer n,n1(2),n2(2)
+      real*8  scal1
+      integer tmp1(2)
+      logical value
+
+*     ***** external functions *****
+      logical  psp_semicore
+      external psp_semicore
+
+      n2ft3d = 2*nfft3d
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
         
 *     **********************
 *     **** generate dng ****
 *     **********************
       value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
-     >     'electron_gen_densities: out of stack memory',0)
+     >     'electron_gen_dng_dnall: out of stack memory',0)
 
       call D3dB_rr_Sum(1,dn,dn(1+(ispin-1)*n2ft3d),dbl_mb(tmp1(1)))
       call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
       call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
       call Pack_c_pack(0,dbl_mb(tmp1(1)))
       call Pack_c_Copy(0,dbl_mb(tmp1(1)),dng)
-
-
 
 *       ********************************************************
 *       **** generate dnall - used for semicore corrections ****
@@ -1043,16 +1191,85 @@ c      end do
         end do
 
 
-
       value = MA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
-     >     'electron_gen_densities: error popping stack memory',0)
+     >     'electron_gen_dng_dnall: poping stack',1)
 
 
       return
       end
 
 
+*     ***********************************
+*     *			 		*
+*     *        electron_gen_vall        *
+*     *					*
+*     ***********************************
+
+      subroutine electron_gen_vall()
+      implicit none
+   
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+     
+*     **** local variables ****
+      real*8 scal2
+      
+*     **** external functions ****
+      integer  control_version
+      real*8   lattice_omega
+      external control_version
+      external lattice_omega
+      
+
+      scal2 = 1.0d0/lattice_omega()
+
+      if (control_version().eq.3) then
+
+*       **** add up k-space potentials, vall = scal2*vl + vc  ****
+        call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                           dbl_mb(vall(1)))
+        call Pack_cc_Sum(0,dbl_mb(vall(1)),
+     >                     dcpl_mb(vc(1)),
+     >                     dbl_mb(vall(1)))
+      
+*       **** fourier transform k-space potentials ****
+        call Pack_c_unpack(0,dbl_mb(vall(1)))
+        call D3dB_cr_fft3b(1,dbl_mb(vall(1)))
+
+*       **** add v_field to vall ****
+        if (field_exist)
+     >    call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+     >                       dbl_mb(v_field(1)),
+     >                       dbl_mb(vall(1)))
+
+      else
+
+*       **** add up k-space potentials, vall = scal2*vsr_l    ****
+        call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
+     >                           dbl_mb(vall(1)))
+      
+*        **** fourier transform k-space potentials ****
+         call Pack_c_unpack(0,dbl_mb(vall(1)))
+         call D3dB_cr_fft3b(1,dbl_mb(vall(1)))
+
+*        **** add vlr_l, vc and v_field to vall ****
+         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+     >                      dbl_mb(vl_lr(1)),
+     >                      dbl_mb(vall(1)))
+         call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+     >                      dcpl_mb(vc(1)),   
+     >                      dbl_mb(vall(1)))
+         if (field_exist)
+     >     call D3dB_rr_Sum(1,dbl_mb(vall(1)),
+     >                        dbl_mb(v_field(1)),
+     >                        dbl_mb(vall(1)))
+
+      end if
+
+      return
+      end
 
 *     ***********************************
 *     *			 		*

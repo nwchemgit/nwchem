@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.5 2002-06-29 12:42:57 bylaska Exp $
+c $Id: pspw_dplot_input.F,v 1.6 2002-12-10 01:37:23 bylaska Exp $
 c
       subroutine pspw_dplot_input(rtdb)
       implicit none
@@ -10,13 +10,15 @@ c
       integer rtdb
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 6)
+      parameter (num_dirs = 8)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
      >            'orbital',
      >            'position_tolerance',
      >            'elf',
+     >            '2d_grid',
+     >            '3d_grid',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -48,6 +50,8 @@ c
       character*30  wavefunction_filename
       character*255 test
       real*8        position_tolerance
+      real*8        o(3),x(3),y(3),z(3)
+      real*8        sizex(2),sizey(2),sizez(2)
 c
 c
 *     *** initializations ****
@@ -72,7 +76,7 @@ c
      >           'pspw_dplot_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 300, 400, 500,
+      goto ( 100,  200, 300, 400, 500, 600,700,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind)
@@ -218,6 +222,103 @@ c
      >     call errquit(
      >     'pspw_dplot_input: rtdb_put failed for ELF', 0)
 
+
+      goto 10
+
+c     
+c 2d_grid
+c     
+*     **** read o,x,sizex,y,sizey ****
+ 600  value =            inp_read()
+      value =  value.and.inp_f(o(1))
+      value =  value.and.inp_f(o(2))
+      value =  value.and.inp_f(o(3))
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(x(1))
+      value =  value.and.inp_f(x(2))
+      value =  value.and.inp_f(x(3))
+      value =  value.and.inp_f(sizex(1))
+      value =  value.and.inp_f(sizex(2))
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(y(1))
+      value =  value.and.inp_f(y(2))
+      value =  value.and.inp_f(y(3))
+      value =  value.and.inp_f(sizey(1))
+      value =  value.and.inp_f(sizey(2))
+      
+
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:2d_grid:o',
+     >                           mt_dbl,3,o)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:2d_grid:x',
+     >                           mt_dbl,3,x)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:2d_grid:y',
+     >                           mt_dbl,3,y)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw_dplot:2d_grid:sizex',
+     >                  mt_dbl,2,sizex)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw_dplot:2d_grid:sizey',
+     >                  mt_dbl,2,sizey)
+
+      if (.not. value)
+     >   call errquit(
+     >    'pspw_dplot_input: 2d_grid failed to read', 0)
+
+      goto 10
+
+c     
+c 3d_grid
+c     
+*     **** read o,x,sizex,y,sizey,y,sizez ****
+ 700  value =            inp_read()
+      value =  value.and.inp_f(o(1))
+      value =  value.and.inp_f(o(2))
+      value =  value.and.inp_f(o(3))
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(x(1))
+      value =  value.and.inp_f(x(2))
+      value =  value.and.inp_f(x(3))
+      value =  value.and.inp_f(sizex(1))
+      value =  value.and.inp_f(sizex(2))
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(y(1))
+      value =  value.and.inp_f(y(2))
+      value =  value.and.inp_f(y(3))
+      value =  value.and.inp_f(sizey(1))
+      value =  value.and.inp_f(sizey(2))
+
+      value =  value.and.inp_read()
+      value =  value.and.inp_f(z(1))
+      value =  value.and.inp_f(z(2))
+      value =  value.and.inp_f(z(3))
+      value =  value.and.inp_f(sizez(1))
+      value =  value.and.inp_f(sizez(2))
+
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:3d_grid:o',
+     >                           mt_dbl,3,o)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:3d_grid:x',
+     >                           mt_dbl,3,x)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:3d_grid:y',
+     >                           mt_dbl,3,y)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:3d_grid:z',
+     >                           mt_dbl,3,z)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw_dplot:3d_grid:sizex',
+     >                  mt_dbl,2,sizex)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw_dplot:3d_grid:sizey',
+     >                  mt_dbl,2,sizey)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw_dplot:3d_grid:sizez',
+     >                  mt_dbl,2,sizez)
+
+      if (.not. value)
+     >   call errquit(
+     >    'pspw_dplot_input: 3d_grid failed to read', 0)
 
       goto 10
 

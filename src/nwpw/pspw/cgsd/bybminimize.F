@@ -1,13 +1,12 @@
 c
-c     $Id: bybminimize.F,v 1.1 2002-08-14 19:23:33 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.2 2002-12-10 01:37:22 bylaska Exp $                       
 c
 
 *  ************************************************************
-*  *                MPI cgminimize routine                    *
-*  *               (Fletcher-Reeves' steps)                   *
 *  *                                                          *
-*  *  This is a developing cgsdv3 parallel code wrtten for    *
-*  *  NWChem                                                  *
+*  *             Band by Band Kohn-Sham Minimizer             *
+*  *                                                          *
+*  *                                                          *
 *  *                                                          *
 *  ************************************************************
   
@@ -33,25 +32,21 @@ c
       real*8     Enew,Eold,Estart
       common / cgsd_block / Enew,Eold,Estart
 
-      integer it,it_in
+      integer it,it_in,i
       real*8 tmin,deltat
       real*8 max_sigma
 
-      logical value
+      logical value,precondition
       integer neall,npack1
       real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       
 
 
-
-
 *     **** external functions ****
       integer  control_it_in,psi_ne,control_version
       real*8   control_tole,control_tolc
-      real*8   psi_geodesic_energy
-      real*8   psi_geodesic_denergy
-      real*8   rho_error
+      real*8   rho_error,psi_1energy
       real*8   dng_1ehartree
       real*8   psi_1ke
       real*8   psi_1vl,psi_1v_field
@@ -64,9 +59,7 @@ c
    
       external control_it_in,psi_ne,control_version
       external control_tole,control_tolc
-      external psi_geodesic_energy
-      external psi_geodesic_denergy
-      external rho_error
+      external rho_error,psi_1energy
       external dng_1ehartree
       external psi_1ke
       external psi_1vl,psi_1v_field
@@ -96,162 +89,39 @@ c
       external pspw_qmmm_Energy_cav
 
 *     ***** pspw_charge external functions ****
-      logical  pspw_charge_found
+      logical  pspw_charge_found,control_precondition
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
-      external pspw_charge_found
+      external pspw_charge_found,control_precondition
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
-      logical  control_precondition
-      external control_precondition
-       
-  
-      call Pack_npack(1,npack1)
+
+      it_in = control_it_in()
+      Eold = E(1)
+      precondition = control_precondition()
+
+*     **********************
+*     **** bybminimizer ****
+*     **********************
       neall = psi_ne(1)+psi_ne(2)
 
-
-*     **** allocate H0, G0, and G1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall,
-     >                     'H0',H0(2),H0(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
-     >                     'G0',G0(2),G0(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
-     >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('cgminimize:out of heap memory',0)
-
-      Estart = Enew
-   
-
-*     ***** get the initial gradient and direction ****
-      call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
-     
-      call Grsm_gg_trace(npack1,neall,
-     >                   dcpl_mb(G1(1)),
-     >                   dcpl_mb(G1(1)),sum1)
-
-      call Grsm_gg_Copy(npack1,neall,
-     >                   dcpl_mb(G1(1)),
-     >                   dcpl_mb(H0(1)))
-
-*     ******************************************
-*     ****                                  ****
-*     **** Start of conjugate gradient loop ****
-*     ****                                  ****
-*     ******************************************
-      it_in = control_it_in()
-      tole  = control_tole()
-      tolc  = control_tolc()
-      tmin  = deltat_min
-      do it=2,it_in
-
-*        **** initialize the geoedesic line data structure ****
-         call geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
-c        Eold= psi_geodesic_energy(0.0d0)
-c        write(*,*) "Eold:", Eold,max_sigma
-
-*        ******* line search *********
-         if (tmin.gt.deltat_min) then
-            deltat = tmin
-         else
-            deltat = deltat_min
-         end if
-         Enew = linesearch(0.0d0,E0,dE0,deltat,
-     >                        psi_geodesic_energy,
-     >                        psi_geodesic_denergy,
-     >                        tole,tmin,deltae,1)
-         call psi_geodesic_final(tmin)
-         deltac = rho_error()
-
-*        **** exit loop early ****
-         if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
-            go to 30
-         end if
-   
-
-*        **** transport the previous search directions ****
-         call Grsm_gg_Copy(npack1,neall,
-     >                     dcpl_mb(G1(1)),
-     >                     dcpl_mb(G0(1)))
-
-         call psi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
-         call psi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
-
-*        **** make psi1 <--- psi2(tmin) ****
-         call psi_2to1()
-
-*        **** get the new gradient - also updates densities****
-         call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
-         
-         call Grsm_ggg_Sub(npack1,neall,
-     >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(G0(1)),
-     >                       dcpl_mb(G0(1)))
-
-         sum0  = sum1
-         call Grsm_gg_trace(npack1,neall,
-     >                        dcpl_mb(G1(1)),
-     >                        dcpl_mb(G1(1)),
-     >                        sum1)
-         call Grsm_gg_trace(npack1,neall,
-     >                        dcpl_mb(G0(1)),
-     >                        dcpl_mb(G1(1)),
-     >                        sum3)
-
-c        write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
-c        write(*,*) "Enew:",Enew
-
-*        **** the new direction using Fletcher-Reeves ****
-         if ( (dabs(deltae).le.(1.0d-2)).and.
-     >        (tmin.gt.deltat_min)) then
-
-           if (sum0.gt.1.0d-15) then
-c              scale = sum3/sum0
-              scale = sum1/sum0
-           else
-              scale = 0.0d0
-           end if
-
-           call Grsm_gg_dScale(npack1,neall,scale,
-     >                         dcpl_mb(H0(1)),
-     >                         dcpl_mb(H0(1)))
-           call Grsm_ggg_Sum(npack1,neall,
-     >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(H0(1)),
-     >                       dcpl_mb(H0(1)))
-
-
-*        **** the new direction using steepest-descent ****
-         else
-              call Grsm_gg_Copy(npack1,neall,
-     >                          dcpl_mb(G1(1)),
-     >                          dcpl_mb(H0(1)))
-         end if
-
+      do it=1,it_in
+         call psi_1toelectron()
+         call electron_gen_vall() 
+         do i=neall,1,-1
+           call psi_1KS_update_orb(precondition,5,
+     >                             control_tole(),
+     >                             0.3d0,i)
+         end do
       end do
 
-*     **** initialize the geoedesic line data structure ****
-      call geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
-
-*     ******* line search *********
-      if (tmin.gt.deltat_min) then
-         deltat = tmin
-      else
-         deltat = deltat_min
-      end if
-
-      Enew = linesearch(0.0d0,E0,dE0,deltat,
-     >                        psi_geodesic_energy,
-     >                        psi_geodesic_denergy,
-     >                        tole,tmin,deltae,1)
-
-      call psi_geodesic_final(tmin)
-      deltac = rho_error()
-
- 30   call psi_2to1()
-      call psi_1toelectron() 
+      Enew = psi_1energy() 
       call psi_check()
 
+      deltac=0.0d0
+
+*     *****************************
+*     **** set return energies **** - This is duplicate code
+*     *****************************
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()
       if (control_version().eq.4) eion = ion_ion_e()
@@ -310,13 +180,7 @@ c              scale = sum3/sum0
          E(1)   = E(1) + E(20) + E(21)
       end if
 
-      value = MA_free_heap(G1(2))
-      value = value.and.MA_free_heap(G0(2))
-      value = value.and.MA_free_heap(H0(2))
-      if (.not. value) 
-     >  call errquit('cgminimize:error freeing heap memory',0)
-
-  
+      deltae = E(1)-Eold
       return
       end
  

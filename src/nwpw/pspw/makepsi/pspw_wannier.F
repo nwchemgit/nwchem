@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.2 2002-10-24 22:55:44 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.3 2002-12-10 01:37:27 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -14,7 +14,7 @@
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value
+      logical value,oprint
       integer version
       integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
       integer nfft3d,n2ft3d,npack1
@@ -55,8 +55,10 @@
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
+      oprint = (taskid.eq.MASTER)
+
 *     ***** print out header ****
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(6,1000)
          write(6,1010)
          write(6,1020)
@@ -82,7 +84,7 @@
 
 
       if ((np.gt.(control_ngrid(3)))) then
-        if (taskid.eq.MASTER)
+        if (oprint)
      >     write(6,*) 'Error: the number of processors must ',
      >                 ' be in the range ( 1 ...',
      >                   control_ngrid(3),')'
@@ -123,7 +125,7 @@
       call psi_read(ispin,ne,dcpl_mb(psi(1)))
 
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
   
          write(6,109) control_input_psi()
          write(6,110) control_output_psi()
@@ -214,51 +216,47 @@
      >                  dcpl_mb(Z(1)+(ms-1)*ne(1)*ne(1)))
 
 
-        if (taskid.eq.MASTER) then       
-          write(*,*)
-          write(*,*) "X:"
-          do j=1,ne(ms)
-             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(X(1)
-     >                          +(ms-1)*ne(1)*ne(1)
-     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-          end do
-          write(*,*)
-          write(*,*)
-          write(*,*) "Y:"
-          do j=1,ne(ms)
-             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(Y(1)
-     >                          +(ms-1)*ne(1)*ne(1)
-     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-          end do
-          write(*,*)      
-          write(*,*)
-          write(*,*) "Z:"
-          do j=1,ne(ms)
-             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(Z(1)
-     >                          +(ms-1)*ne(1)*ne(1)
-     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-          end do
-          write(*,*)
+c        if (oprint) then       
+c          write(*,*)
+c          write(*,*) "X:"
+c          do j=1,ne(ms)
+c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(X(1)
+c     >                          +(ms-1)*ne(1)*ne(1)
+c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
+c          end do
+c          write(*,*)
+c          write(*,*)
+c          write(*,*) "Y:"
+c          do j=1,ne(ms)
+c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(Y(1)
+c     >                          +(ms-1)*ne(1)*ne(1)
+c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
+c          end do
+c          write(*,*)      
+c          write(*,*)
+c          write(*,*) "Z:"
+c          do j=1,ne(ms)
+c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(Z(1)
+c     >                          +(ms-1)*ne(1)*ne(1)
+c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
+c          end do
+c          write(*,*)
+c        end if
 
-  
+        if (oprint) then       
           write(6,*) "Initial Wannier Centers"
-
           do i=1,ne(ms)
             wx = dcpl_mb(X(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
             wy = dcpl_mb(Y(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
             wz = dcpl_mb(Z(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
 
-            write(6,*) "psi=", i,
+            write(6,'(A,i3,a3,f8.3,a3,f8.3,a3,f8.3)') 
+     >      "psi=", i,
      >      "x=", datan(dimag(wx)/dble(wx))/lattice_unitg(1,1),
      >      "y=", datan(dimag(wy)/dble(wy))/lattice_unitg(2,2),
      >      "z=", datan(dimag(wz)/dble(wz))/lattice_unitg(3,3)
           end do	
-
-
-
-
         end if
-
 
         call silvestrelli_minimize(ne(ms),
      >                             dcpl_mb(X(1)+(ms-1)*ne(1)*ne(1)),
@@ -268,16 +266,16 @@
    
 
 
-        if (taskid.eq.MASTER) then       
-          write(*,*)
-          write(*,*) "A:"
-          do j=1,ne(ms)
-             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(A(1)
-     >                          +(ms-1)*ne(1)*ne(1)
-     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
-          end do
-          write(*,*)
-        end if
+c        if (oprint) then       
+c          write(*,*)
+c          write(*,*) "A:"
+c          do j=1,ne(ms)
+c             write(*,'(20("[",E10.3," + i",E10.3,"]"))') (dcpl_mb(A(1)
+c     >                          +(ms-1)*ne(1)*ne(1)
+c     >                          + (j-1) + (i-1)*ne(ms)),i=1,ne(ms))
+c          end do
+c          write(*,*)
+c        end if
 
 
 
@@ -338,9 +336,9 @@
  1030 FORMAT(10X,'*     [        Silvestrelli Algorithm      ]       *')
  1035 FORMAT(10x,'*     [ NorthWest Chemistry implementation ]       *')
  1040 FORMAT(10X,'*            version #5.00   10/01/02              *')
- 1041 FORMAT(10X,'*    Developed by Eric J. Bylaska, based on        *')
- 1042 FORMAT(10X,'*    code developed by Eric C. Brown and Kiril     *')
- 1043 FORMAT(10X,'*    Tsemekhman (Jonsson group, U. Washington)     *')
+ 1041 FORMAT(10X,'*    Developed by Eric C. Brown, Kiril Tsemekhman  *')
+ 1042 FORMAT(10X,'*    (Jonsson group, U. Washington), and Eric J.   *')
+ 1043 FORMAT(10X,'*    Bylaska                                       *')
  1100 FORMAT(//)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
