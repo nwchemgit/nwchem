@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.57 1996-09-24 22:30:14 d3e129 Exp $
+c $Id: raktest.F,v 1.58 1996-10-01 18:51:13 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -2750,47 +2750,48 @@ c
 #include "bas.fh"
 #include "rtdb.fh"
       integer rtdb
-*ecp:c
-*ecp:      integer geom, basis, ecpid
-*ecp:c
-*ecp:      logical int_normalize, int_ecp_init
-*ecp:      external int_normalize, int_ecp_init
-*ecp:c
-*ecp:*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
-*ecp:c
-*ecp:      if (.not.geom_create(geom,'geometry'))
-*ecp:     &    call errquit('raktest_geomwrt: geom_create failed?',911)
-*ecp:      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-*ecp:     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
-*ecp:      if (.not.geom_print(geom)) stop ' print error'
-*ecp:c
-*ecp:      if (.not.bas_create(basis,'ao basis')) call errquit
-*ecp:     &      ('bas_create failed',911)
-*ecp:      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
-*ecp:     &    call errquit
-*ecp:     &      ('bas_rtdb_load failed',911)
-*ecp:      if (.not.bas_print(basis)) stop ' print error'
-*ecp:*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 2?'
-*ecp:c
+c
+      integer geom, basis, ecpid
+c
+      logical int_normalize, int_ecp_init
+      external int_normalize, int_ecp_init
+c
+*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+      if (.not.geom_print(geom)) stop ' print error'
+c
+      if (.not.bas_create(basis,'ao basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+     &    call errquit
+     &      ('bas_rtdb_load failed',911)
+      if (.not.bas_print(basis)) stop ' print error'
+*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 2?'
+c
+      if (.not.bas_get_ecp_handle(basis,ecpid)) stop 'get/ecp/handle'
 *ecp:      if (.not.bas_create(ecpid,'ecp basis')) call errquit
 *ecp:     &      ('bas_create failed',911)
 *ecp:      if (.not.bas_rtdb_load(rtdb,geom,ecpid,'ecp basis'))
 *ecp:     &    call errquit
 *ecp:     &      ('bas_rtdb_load failed',911)
-*ecp:      if (.not.bas_print(ecpid)) stop ' print error'
-*ecp:c
-*ecp:      if (.not.int_normalize(basis)) stop ' norm error 1'
-*ecp:      if (.not.bas_print(basis)) stop ' print error'
-*ecp:      if (.not.gbs_map_print(basis)) stop ' gbs map print error'
-*ecp:      if (.not.bas_print(ecpid)) stop ' print error'
-*ecp:      if (.not.gbs_map_print(basis)) stop ' gbs map print error'
-*ecp:c
-*ecp:      if (.not.int_ecp_init(ecpid)) stop ' error in int_ecp_init'
-*ecp:      call int_ecp_terminate()
-*ecp:c
-*ecp:      if (.not.bas_destroy(basis)) stop ' bas_dest error 1'
-*ecp:      if (.not.bas_destroy(ecpid)) stop ' bas_dest error 2'
-*ecp:      if (.not.geom_destroy(geom)) stop ' geom_dest error 1'
-*ecp:      if (.not.bas_version()) stop ' bas_version error'
-*ecp:c
+      if (.not.bas_print(ecpid)) stop ' print error'
+c
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.bas_print(basis)) stop ' print error'
+      if (.not.gbs_map_print(basis)) stop ' gbs map print error'
+      if (.not.bas_print(ecpid)) stop ' print error'
+      if (.not.gbs_map_print(basis)) stop ' gbs map print error'
+c
+      if (.not.int_ecp_init(ecpid)) stop ' error in int_ecp_init'
+      call int_ecp_terminate()
+c
+      if (.not.bas_destroy(basis)) stop ' bas_dest error 1'
+      if (.not.bas_destroy(ecpid)) stop ' bas_dest error 2'
+      if (.not.geom_destroy(geom)) stop ' geom_dest error 1'
+      if (.not.bas_version()) stop ' bas_version error'
+c
       end
