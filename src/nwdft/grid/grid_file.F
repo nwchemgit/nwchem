@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.25 2000-07-18 01:22:31 edo Exp $
+* $Id: grid_file.F,v 1.26 2000-07-25 22:50:16 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -32,7 +32,7 @@ c
       character*20 fstype
       character*255 grinfo
       character*(nw_max_path_len) scratchdir
-      integer util_scratch_dir_avail_for_me,me
+      integer util_scratch_dir_avail_for_me,me,ioserr
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
       external grid_file_rewind
@@ -144,7 +144,8 @@ c
          write(gr_unit,'(1E20.12)') enuc_in
       else
          grid_file_open=.false.
-         open(unit=gr_unit,file=grinfo,status='unknown',err=199)
+         open(unit=gr_unit,file=grinfo,status='unknown',iostat=ioserr,
+     ,        err=199)
          filedump_opened=.true.
          read(gr_unit,'(1E20.12)',err=199) enuc
          if(abs(enuc-enuc_in).gt.1d-4) return
@@ -156,6 +157,7 @@ c
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1)
          if(file_opened) then
+            write(0,*) ' got to open filepts'
             file_opened=.false.
             filedump_opened=.false.
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
@@ -163,7 +165,10 @@ c
             file_opened = .true.
           endif
       endif
- 199  return
+      return
+ 199  continue
+cedo  write(0,*) ' cannot open grinfo ioerr',ioserr
+      return
 c
 c
       end
@@ -197,12 +202,14 @@ c
              call errquit('grid_file_close: free heap?',0)
           endif
       end if
+      if(filedump_opened) then
          write(gr_unit,'(I)',err=199) max_file_rec
          write(gr_unit,'(I)',err=199) max_cache_rec
          write(gr_unit,'(I)',err=199) n_rec_in_file
          write(gr_unit,'(I)',err=199) file_opened
-      rewind(gr_unit)
-      close(gr_unit)
+         rewind(gr_unit)
+         close(gr_unit)
+      endif
 c
       if (file_opened .or. l_cache.ne.-1) then
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
