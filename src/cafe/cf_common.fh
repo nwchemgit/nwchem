@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.14 1999-09-20 20:14:52 d3j191 Exp $
+c $Id: cf_common.fh,v 1.15 1999-09-20 21:14:34 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -111,8 +111,8 @@ c
       real*8 q14fac,pi,twopi,qfac,alpha,pmetol,temp,tempw,temps,pres
       real*8 tstep,tstepi,wbox,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,epmf
       real*8 factmp,factmw,factms,scalew,scales,ewk,ek,ewkc,eskc,edrs
-      integer llww,lsww,llsw,lssw,llss,lsss,lanal
-      logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc
+      integer llww,lsww,llsw,lssw,llss,lsss
+      logical llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal
       logical ithint,ith(24),ipert2,ipert3,ip2(24),ip3(24)
       common/cf_box/box,boxh,vlat,vlati,rshrt,rlong,rrest,rqmmm,rshrt2,
      + rlong2,rrest2,rqmmm2,deriv,ep2,ep3,dfrdf,ewwl,zw,rffww,ewwr,drdf,
@@ -126,6 +126,11 @@ c
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,
      + itscal,ipscal,islow,mdalgo,ntest,numpmf,npmfa,
-     + llww,lsww,llsw,lssw,llss,lsss,lanal,
-     + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,
+     + llww,lsww,llsw,lssw,llss,lsss,
+     + llist,lpair,ltwin,llong,lssscl,lpmf,lpmfc,lanal,
      + ithint,ith,ipert2,ipert3,ip2,ip3
+
+
+
+
+
