@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.36 2004-07-22 16:31:41 edo Exp $
+c $Id: int_spcart.F,v 1.37 2004-08-02 07:27:49 edo Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -1989,7 +1989,7 @@ c: passed
       integer ndima  ! [input] leading dimension of block
       integer ngls   ! [input] general contraction length of ls block
       double precision blockin (ndima,21,ngls)   ! [input] matrix 
-      double precision blockout(ndima,-5:5,ngls) ! [output] matrix 
+      double precision blockout(-5:5,ndima,ngls) ! [output] matrix 
       logical in_place  ! [input] true if blockin and block out are the same pointer
       logical print_info ! [input] print info
 c: local
