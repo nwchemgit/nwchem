@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_diis.F,v 1.3 2003-06-27 23:23:36 bylaska Exp $                       
+*     $Id: nwpw_diis.F,v 1.4 2003-06-30 18:40:02 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -67,10 +67,11 @@
 *     *                                       *
 *     *****************************************
 
-      subroutine nwpw_diis(rho_in,rho_out,diis_error)
+      subroutine nwpw_diis(rho_in,v_in,v_out,diis_error)
       implicit none
       real*8 rho_in(*)
-      real*8 rho_out(*)
+      real*8 v_in(*)
+      real*8 v_out(*)
       real*8 diis_error
 
 
@@ -95,7 +96,7 @@
       call nwpw_list_ptr(2*m,rr_ptr)
       call daxpy(nsize,(-1.0d0),rho_in,1,dbl_mb(rr_ptr),1)
       call dscal(nsize,(-1.0d0),dbl_mb(rr_ptr),1)
-      call nwpw_list_store(2*m-1,rho_in)
+      call nwpw_list_store(2*m-1,v_in)
 
 *     **** update B matrix ****
       sum = ddot(nsize,dbl_mb(rr_ptr),1,dbl_mb(rr_ptr),1)
@@ -206,15 +207,15 @@ c    >           "   info=",info,"   rcond=",rcond
 
 
 *     **** s = sum(i) c(i) * gg(i) ****
-      call dcopy(nsize,0.0d0,0,rho_out,1)
-      call daxpy(nsize,c(m+1),rho_in,1,rho_out,1)
+      call dcopy(nsize,0.0d0,0,v_out,1)
+      call daxpy(nsize,c(m+1),v_in,1,v_out,1)
 
       sum = c(m+1)
       do i=1,m-1
          sum = sum + c(i+1)
          !write(*,*) i+1,c(i+1),sum
          call nwpw_list_ptr(2*i-1, gg_ptr)
-         call daxpy(nsize,c(i+1),dbl_mb(gg_ptr),1,rho_out,1)
+         call daxpy(nsize,c(i+1),dbl_mb(gg_ptr),1,v_out,1)
       end do
 
 *     **** shift B and diis list ****
