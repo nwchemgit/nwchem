@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.111 1998-08-26 00:27:40 d3e129 Exp $
+c     $Id: nwchem.F,v 1.112 1998-09-04 18:04:04 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -312,6 +312,7 @@ c
 c
       character*80 hostname, compiled, batchid
       character*(nw_max_path_len) executable, srcdir, file_prefix
+      character*(nw_max_path_len) branch
       character*26 date
 #if defined(CRAY)
       integer ilen,ierror
@@ -369,9 +370,12 @@ c
       endif
       call util_file_prefix(' ',file_prefix)
 c
-      compiled = COMPILATION_DATE
+      compiled =
+     & COMPILATION_DATE
       srcdir   = 
      $ COMPILATION_DIR
+      branch =
+     & NWCHEM_BRANCH   
 C
 C     See if we can get the batch system id.  We understand NQS and
 C     LoadLeveler at present
@@ -389,6 +393,7 @@ C
      $     date(1:inp_strlen(date)),
      $     compiled(1:inp_strlen(compiled)),
      $     srcdir(1:inp_strlen(srcdir)),
+     &     branch(1:inp_strlen(branch)),
      $     input_filename(1:inp_strlen(input_filename)),
      $     file_prefix(1:inp_strlen(file_prefix)),
      $     rtdb_name(1:inp_strlen(rtdb_name)),
@@ -408,6 +413,7 @@ C
      $     '    date          = ', a/
      $     '    compiled      = ', a/
      $     '    source        = ', a/
+     $     '    nwchem branch = ', a/
      $     '    input         = ', a/
      $     '    prefix        = ', a/
      $     '    data base     = ', a/

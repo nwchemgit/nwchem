@@ -1,15 +1,17 @@
 
-# $Id: GNUmakefile,v 1.70 1998-07-13 22:45:46 d3g681 Exp $
+# $Id: GNUmakefile,v 1.71 1998-09-04 18:04:04 d3e129 Exp $
 
 include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)
 
   LIB_DEFINES =  -DCOMPILATION_DATE="'`date`'" \
-                 -DCOMPILATION_DIR="'$(TOPDIR)'"
+                 -DCOMPILATION_DIR="'$(TOPDIR)'" \
+                 -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
 ifeq ($(TARGET),FUJITSU_VPP)
   LIB_DEFINES =  -Wp,-DCOMPILATION_DATE="'`date`'" \
-                 -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'"
+                 -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'" \
+                 -Wp,-DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
 endif
 
 NWBINNAME = nwchem

@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.268 1998-09-02 22:26:04 d3e129 Exp $
+# $Id: makefile.h,v 1.269 1998-09-04 18:04:14 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -68,12 +68,14 @@ endif
      TARGET := $(NWCHEM_TARGET)
 ifeq (,$(RELEASE))
      TOPDIR := $(NWCHEM_TOP)
+     CODE_BRANCH := Development
 else
 ifeq (,$(findstring $(RELEASE),$(NWCHEM_TOP)))
      TOPDIR := $(NWCHEM_TOP)-$(RELEASE)
 else
      TOPDIR := $(NWCHEM_TOP)
 endif
+     CODE_BRANCH := $(RELEASE)
 endif
 
 #dummy:
@@ -330,7 +332,6 @@ ifdef PURECOV
   COPTIMIZE = -g -O1
    LIBPATH += -L/usr/ucblib
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
-   DEFINES = -DSOLARIS
    OPTIONS = -xildoff -Bstatic
    CORE_LIBS = -lutil -lglobal -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
