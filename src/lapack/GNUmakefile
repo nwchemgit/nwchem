@@ -15,6 +15,9 @@ endif
 ifeq ($(TARGET),SGITFP)
        PRECISION = double
 endif
+ifeq ($(TARGET),SGI)
+       PRECISION = double
+endif
 ifeq ($(TARGET),IBM)
        PRECISION = double
 endif
