@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi,
      + nodpme)
 c
-c $Id: prp_init.F,v 1.53 2002-05-14 21:41:33 d3j191 Exp $
+c $Id: prp_init.F,v 1.54 2002-05-20 18:49:28 d3j191 Exp $
 c
       implicit none
 c
@@ -552,6 +552,8 @@ c
       ixp(nprop)=i
       endif
     2 continue
+c
+      maxp=it
 c
       call prp_init()
 c

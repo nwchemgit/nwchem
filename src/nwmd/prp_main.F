@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.79 2002-05-14 21:41:33 d3j191 Exp $
+c $Id: prp_main.F,v 1.80 2002-05-20 18:49:28 d3j191 Exp $
 c
       implicit none
 c
@@ -977,17 +977,17 @@ c
       integer i
 c
       if(me.eq.0) then
-      write(lfnmro) nderiv,nda,nprop,nsum,nsumt,ndec
+      write(lfnmro) nderiv,nda,nprop,nsum,nsumt,ndec,maxp
       write(lfnmro) deriv
       write(lfnmro) (dfr(i),i=1,nda)
       write(lfnmro) (dfrm(i),i=1,nda)
       write(lfnmro) tsum,t2sum,tsumt,t2sumt
-      write(lfnmro) (psum(i),i=1,nprop)
-      write(lfnmro) (p2sum(i),i=1,nprop)
-      write(lfnmro) (pslop(i),i=1,nprop)
-      write(lfnmro) (psumt(i),i=1,nprop)
-      write(lfnmro) (p2sumt(i),i=1,nprop)
-      write(lfnmro) (pslopt(i),i=1,nprop)
+      write(lfnmro) (psum(i),i=1,maxp)
+      write(lfnmro) (p2sum(i),i=1,maxp)
+      write(lfnmro) (pslop(i),i=1,maxp)
+      write(lfnmro) (psumt(i),i=1,maxp)
+      write(lfnmro) (p2sumt(i),i=1,maxp)
+      write(lfnmro) (pslopt(i),i=1,maxp)
       endif
       if(ndec.gt.0) call cf_wrtmro(lfnmro)
 c
@@ -1005,22 +1005,25 @@ c
       integer lfnmri,ndec
       real*8 dfr(mda),dfrm(mda)
 c
-      integer i,nprp
+      integer i,nprp,nmxp
 c
-      read(lfnmri,err=9,end=9) nderiv,nda,nprp,nsum,nsumt,ndec
+      read(lfnmri,err=9,end=9) nderiv,nda,nprp,nsum,nsumt,ndec,nmxp
       if(nprop.ne.nprp) then
-      call errquit('Number of properties changed',0)
+      call errquit('Number of properties nprop changed',0)
+      endif
+      if(maxp.ne.nmxp) then
+      call errquit('Number of properties maxp changed',0)
       endif
       read(lfnmri,err=9,end=9) deriv
       read(lfnmri,err=9,end=9) (dfr(i),i=1,nda)
       read(lfnmri,err=9,end=9) (dfrm(i),i=1,nda)
       read(lfnmri,err=9,end=9) tsum,t2sum,tsumt,t2sumt
-      read(lfnmri,err=9,end=9) (psum(i),i=1,nprop)
-      read(lfnmri,err=9,end=9) (p2sum(i),i=1,nprop)
-      read(lfnmri,err=9,end=9) (pslop(i),i=1,nprop)
-      read(lfnmri,err=9,end=9) (psumt(i),i=1,nprop)
-      read(lfnmri,err=9,end=9) (p2sumt(i),i=1,nprop)
-      read(lfnmri,err=9,end=9) (pslopt(i),i=1,nprop)
+      read(lfnmri,err=9,end=9) (psum(i),i=1,maxp)
+      read(lfnmri,err=9,end=9) (p2sum(i),i=1,maxp)
+      read(lfnmri,err=9,end=9) (pslop(i),i=1,maxp)
+      read(lfnmri,err=9,end=9) (psumt(i),i=1,maxp)
+      read(lfnmri,err=9,end=9) (p2sumt(i),i=1,maxp)
+      read(lfnmri,err=9,end=9) (pslopt(i),i=1,maxp)
       if(ndec.gt.0) then
       prp_rmri=cf_rdmri(lfnmri)
       else
