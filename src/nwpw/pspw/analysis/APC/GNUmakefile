@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2004-03-02 00:09:59 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2004-05-14 17:32:02 edo Exp $
 #
  OBJ_OPTIMIZE = \
 				pspw_APC.o \
@@ -9,7 +9,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS =  pspw_APC.F pspw_Efield.o
+    USES_BLAS =  pspw_APC.F pspw_Efield.F
 
   LIB_DEFINES = 
 
