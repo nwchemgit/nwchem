@@ -7,6 +7,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlabrd.f,v 1.2 1995-02-02 23:15:54 d3g681 Exp $
       INTEGER            LDA, LDX, LDY, M, N, NB
 *     ..
 *     .. Array Arguments ..

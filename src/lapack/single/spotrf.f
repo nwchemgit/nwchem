@@ -6,6 +6,7 @@
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
+C$Id: spotrf.f,v 1.2 1995-02-02 23:18:04 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..

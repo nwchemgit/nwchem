@@ -1,6 +1,7 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      + cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
+C$Id: datoms.F,v 1.11 1995-02-02 23:08:52 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

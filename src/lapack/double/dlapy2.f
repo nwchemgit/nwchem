@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlapy2.f,v 1.2 1995-02-02 23:16:07 d3g681 Exp $
       DOUBLE PRECISION   X, Y
 *     ..
 *

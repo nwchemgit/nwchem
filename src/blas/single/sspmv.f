@@ -1,5 +1,6 @@
       SUBROUTINE SSPMV ( UPLO, N, ALPHA, AP, X, INCX, BETA, Y, INCY )
 *     .. Scalar Arguments ..
+C$Id: sspmv.f,v 1.2 1995-02-02 23:10:21 d3g681 Exp $
       REAL               ALPHA, BETA
       INTEGER            INCX, INCY, N
       CHARACTER*1        UPLO

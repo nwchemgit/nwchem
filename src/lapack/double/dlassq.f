@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlassq.f,v 1.2 1995-02-02 23:16:19 d3g681 Exp $
       INTEGER            INCX, N
       DOUBLE PRECISION   SCALE, SUMSQ
 *     ..

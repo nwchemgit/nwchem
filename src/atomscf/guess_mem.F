@@ -1,4 +1,5 @@
       subroutine guess_mem(memscr)
+C$Id: guess_mem.F,v 1.3 1995-02-02 23:08:58 d3g681 Exp $
       implicit none
 #include "cguess.fh"
 c

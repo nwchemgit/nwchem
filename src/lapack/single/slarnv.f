@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slarnv.f,v 1.2 1995-02-02 23:17:43 d3g681 Exp $
       INTEGER            IDIST, N
 *     ..
 *     .. Array Arguments ..

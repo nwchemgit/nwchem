@@ -7,6 +7,7 @@
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
+C$Id: sspcon.f,v 1.2 1995-02-02 23:18:06 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, N
       REAL               ANORM, RCOND

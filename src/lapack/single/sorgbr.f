@@ -6,6 +6,7 @@
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
+C$Id: sorgbr.f,v 1.2 1995-02-02 23:17:54 d3g681 Exp $
       CHARACTER          VECT
       INTEGER            INFO, K, LDA, LWORK, M, N
 *     ..

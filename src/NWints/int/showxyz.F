@@ -1,4 +1,5 @@
       program showxyz
+C$Id: showxyz.F,v 1.3 1995-02-02 23:08:42 d3g681 Exp $
       implicit none
       integer Lvalm,Lval
       integer nxyz(3)

@@ -56,6 +56,7 @@ c                                        9/13/93
 c***********************************************************************
       subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
      $     group_name)
+C$Id: gensym.f,v 1.5 1995-02-02 23:23:08 d3g681 Exp $
       implicit real*8 (a-h,o-z) 
       parameter(maxops=192,tol=1.0d-07)
       character*1 let(5)

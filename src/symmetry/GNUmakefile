@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.8 1995-02-02 23:23:10 d3g681 Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a

@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.13 1995-02-02 23:15:20 d3g681 Exp $
  LIBRARY = libutil.a
 #LIBRARY = libinput.a
 

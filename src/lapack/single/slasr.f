@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slasr.f,v 1.2 1995-02-02 23:17:48 d3g681 Exp $
       CHARACTER          DIRECT, PIVOT, SIDE
       INTEGER            LDA, M, N
 *     ..

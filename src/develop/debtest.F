@@ -1,4 +1,5 @@
       Subroutine DEBTest(RTDB)
+C$Id: debtest.F,v 1.3 1995-02-02 23:12:34 d3g681 Exp $
       Implicit NONE
       Integer RTDB
       Logical Status

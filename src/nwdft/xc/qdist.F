@@ -1,5 +1,6 @@
       Subroutine qdist(rq0,rq,qxyz,xyz,nq,ncenters)
 
+C$Id: qdist.F,v 1.3 1995-02-02 23:20:38 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 

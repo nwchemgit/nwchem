@@ -6,6 +6,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlacon.f,v 1.2 1995-02-02 23:15:55 d3g681 Exp $
       INTEGER            KASE, N
       DOUBLE PRECISION   EST
 *     ..

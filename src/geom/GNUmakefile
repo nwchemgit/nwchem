@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.7 1995-02-02 23:12:46 d3g681 Exp $
 
  LIBRARY = libutil.a
 #LIBRARY = libgeom.a

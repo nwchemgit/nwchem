@@ -10,6 +10,7 @@
 ***** see: .F and makefile files in LAPACK/INSTALL
 *
 *     .. Scalar Arguments ..
+C$Id: dlamch.f,v 1.2 1995-02-02 23:16:01 d3g681 Exp $
       CHARACTER          CMACH
 *     ..
 *

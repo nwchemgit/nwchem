@@ -7,6 +7,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dspcon.f,v 1.2 1995-02-02 23:16:38 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, N
       DOUBLE PRECISION   ANORM, RCOND

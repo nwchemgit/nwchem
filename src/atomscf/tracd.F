@@ -1,5 +1,6 @@
       subroutine tracd(c, cc, nsqt, nsym, nbas, ncsh, nosh, nbc,
      +      nstrt, cont)
+C$Id: tracd.F,v 1.2 1995-02-02 23:09:16 d3g681 Exp $
       implicit none
 c.......................................................................
 c

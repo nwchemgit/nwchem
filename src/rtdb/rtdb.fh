@@ -79,6 +79,7 @@ c
       logical rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
+C$Id: rtdb.fh,v 1.3 1995-02-02 23:22:06 d3g681 Exp $
       external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info,
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel

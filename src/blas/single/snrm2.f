@@ -1,4 +1,5 @@
       real function snrm2 ( n, sx, incx)
+C$Id: snrm2.f,v 1.2 1995-02-02 23:10:18 d3g681 Exp $
       integer i, incx, ix, j, n, next
       real   sx(1),  cutlo, cuthi, hitest, sum, xmax, zero, one
       data   zero, one /0.0e0, 1.0e0/

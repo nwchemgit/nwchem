@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlaswp.f,v 1.2 1995-02-02 23:16:21 d3g681 Exp $
       INTEGER            INCX, K1, K2, LDA, N
 *     ..
 *     .. Array Arguments ..

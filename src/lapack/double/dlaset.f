@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlaset.f,v 1.2 1995-02-02 23:16:17 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            LDA, M, N
       DOUBLE PRECISION   ALPHA, BETA

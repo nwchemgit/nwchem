@@ -1,4 +1,5 @@
       subroutine geom_input(rtdb)
+C$Id: geom_input.F,v 1.16 1995-02-02 23:12:45 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"

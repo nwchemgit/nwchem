@@ -6,6 +6,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: slas2.f,v 1.2 1995-02-02 23:17:45 d3g681 Exp $
       REAL               F, G, H, SSMAX, SSMIN
 *     ..
 *

@@ -4,6 +4,7 @@ c     constant times a vector plus a vector.
 c     uses unrolled loop for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: saxpy.f,v 1.2 1995-02-02 23:10:12 d3g681 Exp $
       real sx(1),sy(1),sa
       integer i,incx,incy,ix,iy,m,mp1,n
 c

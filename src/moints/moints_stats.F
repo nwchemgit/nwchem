@@ -1,4 +1,5 @@
        subroutine moints_stats_print( algo )
+C$Id: moints_stats.F,v 1.3 1995-02-02 23:18:50 d3g681 Exp $
        implicit none
 #include "global.fh"
        character*(*) algo

@@ -1,4 +1,5 @@
       program test
+C$Id: test.F,v 1.4 1995-02-02 23:22:14 d3g681 Exp $
       implicit none
 c
 #include "rtdb.fh"

@@ -1,4 +1,5 @@
       subroutine input_set(rtdb)
+C$Id: input_set.F,v 1.5 1995-02-02 23:15:17 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"

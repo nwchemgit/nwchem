@@ -1,3 +1,4 @@
+/*$Id: interact.c,v 1.4 1995-02-02 23:22:02 d3g681 Exp $*/
 #include <stdio.h>
 #include "macdecls.h"
 #include "rtdb.h"

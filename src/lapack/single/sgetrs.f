@@ -6,6 +6,7 @@
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
+C$Id: sgetrs.f,v 1.2 1995-02-02 23:17:26 d3g681 Exp $
       CHARACTER          TRANS
       INTEGER            INFO, LDA, LDB, N, NRHS
 *     ..

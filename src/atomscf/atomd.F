@@ -1,6 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
+C$Id: atomd.F,v 1.6 1995-02-02 23:08:47 d3g681 Exp $
       implicit none
 #include "inp.fh"
 c

@@ -1,4 +1,5 @@
       logical function scf(rtdb)
+C$Id: scf.F,v 1.22 1995-02-02 23:12:07 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -145,6 +146,12 @@ c
          endif
          call util_flush(6)
       endif
+c
+c     Overwrite the input movecs option with where the final movecs
+c     will end up so that a restart automatically picks them up
+c
+      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_out))
+     $     call errquit('scf:rtdb_cput failed scf:input vectors',0)
 c     
 c     When do other than RHF need to check that WFN type is valid
 c     in case have inherited the wavefunction description from
@@ -168,12 +175,6 @@ c
      $     ('scf: context_prefix failed', 0)
       if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) call errquit
      $     ('scf: failed to store converged in rtdb', 0)
-c
-c     Overwrite the input movecs option with where the final movecs
-c     ended up so that a restart automatically picks them up
-c
-      if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_out))
-     $     call errquit('scf:rtdb_cput failed scf:input vectors',0)
 c
 c     SCF is done destroy basis and geometry handles  
 c

@@ -1,4 +1,5 @@
       subroutine input_title(rtdb)
+C$Id: input_title.F,v 1.3 1995-02-02 23:15:19 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"

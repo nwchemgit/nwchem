@@ -1,4 +1,5 @@
        subroutine direct_mp2(rtdb)
+C$Id: direct_mp2.F,v 1.4 1995-02-02 23:18:38 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

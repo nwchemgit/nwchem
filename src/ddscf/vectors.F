@@ -1,5 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
+C$Id: vectors.F,v 1.11 1995-02-02 23:12:17 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"

@@ -7,6 +7,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dsprfs.f,v 1.2 1995-02-02 23:16:39 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDB, LDX, N, NRHS
 *     ..

@@ -1,4 +1,5 @@
       subroutine ga_inv_seq(g_a, g_s)
+C$Id: ga_inv_seq.F,v 1.4 1995-02-02 23:19:53 d3g681 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"

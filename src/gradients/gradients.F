@@ -1,4 +1,5 @@
       logical function gradients(rtdb)
+C$Id: gradients.F,v 1.10 1995-02-02 23:14:52 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

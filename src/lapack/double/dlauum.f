@@ -6,6 +6,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlauum.f,v 1.2 1995-02-02 23:16:23 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N
 *     ..

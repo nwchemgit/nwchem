@@ -2,6 +2,7 @@ c
 c
 c
        double precision mi_npass
+C$Id: moints_stats.fh,v 1.3 1995-02-02 23:18:51 d3g681 Exp $
        double precision mi_ttotal
        double precision mi_thalf
        double precision mi_tint

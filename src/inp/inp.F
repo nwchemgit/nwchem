@@ -1,4 +1,5 @@
       block data inp_data
+C$Id: inp.F,v 1.16 1995-02-02 23:15:01 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c

@@ -6,6 +6,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dlas2.f,v 1.2 1995-02-02 23:16:15 d3g681 Exp $
       DOUBLE PRECISION   F, G, H, SSMAX, SSMIN
 *     ..
 *

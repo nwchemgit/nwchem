@@ -1,4 +1,5 @@
       Logical Function PStat_Init(Max_Timers, NAcc, AccNames)
+C$Id: pstat_init.F,v 1.3 1995-02-02 23:20:56 d3g681 Exp $
       Implicit NONE
       Integer Max_Timers, NAcc
       Character*(80) AccNames

@@ -1,4 +1,5 @@
       subroutine teigd(pcap,qcap,u,t,dt,dos)
+C$Id: teigd.F,v 1.2 1995-02-02 23:09:14 d3g681 Exp $
       implicit none
       logical klnemn
       real *8  pcap(*),qcap(*),u(*),t(*),dos(*),dt(*)

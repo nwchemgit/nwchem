@@ -1,4 +1,5 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
+C$Id: put_3cints.F,v 1.4 1995-02-02 23:21:16 d3g681 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C

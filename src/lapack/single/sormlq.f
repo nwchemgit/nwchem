@@ -7,6 +7,7 @@
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
+C$Id: sormlq.f,v 1.2 1995-02-02 23:18:01 d3g681 Exp $
       CHARACTER          SIDE, TRANS
       INTEGER            INFO, K, LDA, LDC, LWORK, M, N
 *     ..

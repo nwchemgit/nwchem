@@ -3,6 +3,7 @@
 c
 c routine to calculate labels for 3 center overlap integrals 
 c
+C$Id: int_l1e3ov.F,v 1.4 1995-02-02 23:08:36 d3g681 Exp $
       implicit none 
 #include "basP.fh"
 #include "geobasmapP.fh"

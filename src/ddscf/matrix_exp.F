@@ -1,4 +1,5 @@
       subroutine matrix_exp(basis, g_k)
+C$Id: matrix_exp.F,v 1.6 1995-02-02 23:11:47 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

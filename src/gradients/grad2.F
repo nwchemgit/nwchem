@@ -1,6 +1,7 @@
       subroutine grad2(d_ij,d_kl,d_ik,d_jl,d_il,d_jk,frc,g_dens,ldim,
      $                 basis,nproc,nat, scr, lscr, buf, lbuf, tol2e )
 
+C$Id: grad2.F,v 1.8 1995-02-02 23:14:51 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 
 #include "mafdecls.h"

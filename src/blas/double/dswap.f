@@ -4,6 +4,7 @@ c     interchanges two vectors.
 c     uses unrolled loops for increments equal one.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: dswap.f,v 1.2 1995-02-02 23:09:51 d3g681 Exp $
       double precision dx(1),dy(1),dtemp
       integer i,incx,incy,ix,iy,m,mp1,n
 c

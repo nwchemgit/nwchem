@@ -1,9 +1,12 @@
 
-# $Id: GNUmakefile,v 1.19 1994-11-30 18:57:58 vg422 Exp $
+# $Id: GNUmakefile,v 1.20 1995-02-02 23:08:17 d3g681 Exp $
 
 include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)
+
+  LIB_DEFINES =  -DCOMPILATION_DATE="'`date`'" \
+                 -DCOMPILATION_DIR="'$(NWCHEM_TOP)'"
 
 #
 # This should be the first target so that a simple make builds
@@ -23,12 +26,14 @@ $(BINDIR)/nwchem nwchem:	directories libraries
 
 link nwchem_link:    nwchem.o stubs.o
 	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 #
 # This for linking test version
 #
-nwchem_test:	
+nwchem_test:	nwchem.o stubs.o
 	$(LINK.f) -o $@ nwchem.o stubs.o $(LIBS)
+	/bin/rm -f nwchem.o
 	$(INSTALL)
 
 # This dependency so that includes which are made by libraries rule
@@ -66,7 +71,7 @@ sngl_to_dbl dbl_to_sngl:
 directories:
 	test -d $(LIBDIR) || $(MKDIR) $(LIBDIR)
 	test -d $(BINDIR) || $(MKDIR) $(BINDIR)
-	
+
 # This target will change config/nwchem_config.h include file which
 # controls what we're going to build.
 nwchem_config:

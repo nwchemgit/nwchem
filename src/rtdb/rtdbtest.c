@@ -1,3 +1,4 @@
+/*$Id: rtdbtest.c,v 1.4 1995-02-02 23:22:13 d3g681 Exp $*/
 #include <stdio.h>
 #include "rtdb.h"
 #include "misc.h"

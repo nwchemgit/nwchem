@@ -7,6 +7,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dormbr.f,v 1.2 1995-02-02 23:16:31 d3g681 Exp $
       CHARACTER          SIDE, TRANS, VECT
       INTEGER            INFO, K, LDA, LDC, LWORK, M, N
 *     ..

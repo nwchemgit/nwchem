@@ -1,4 +1,5 @@
       double precision function dnrm2 ( n, dx, incx)
+C$Id: dnrm2.f,v 1.2 1995-02-02 23:09:46 d3g681 Exp $
       integer i, incx, ix, j, n, next
       double precision   dx(1), cutlo, cuthi, hitest, sum, xmax,zero,one
       data   zero, one /0.0d0, 1.0d0/

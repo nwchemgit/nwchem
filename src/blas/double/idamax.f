@@ -4,6 +4,7 @@ c     finds the index of element having max. absolute value.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c
+C$Id: idamax.f,v 1.2 1995-02-02 23:09:57 d3g681 Exp $
       double precision dx(1),dmax
       integer i,incx,ix,n
 c

@@ -1,3 +1,4 @@
+/*$Id: output.h,v 1.2 1995-02-02 23:21:15 d3g681 Exp $*/
 #ifndef _OUTPUT_
 #define _OUTPUT_
 

@@ -1,5 +1,6 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
+C$Id: scat_mat.F,v 1.2 1995-02-02 23:20:42 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       dimension T(mi,mj),TT(Ni,Nj),ibf(mi),jbf(mj)

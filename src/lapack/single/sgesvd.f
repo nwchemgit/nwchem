@@ -7,6 +7,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: sgesvd.f,v 1.2 1995-02-02 23:17:21 d3g681 Exp $
       CHARACTER          JOBU, JOBVT
       INTEGER            INFO, LDA, LDU, LDVT, LWORK, M, N
 *     ..

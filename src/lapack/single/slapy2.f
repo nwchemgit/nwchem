@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slapy2.f,v 1.2 1995-02-02 23:17:38 d3g681 Exp $
       REAL               X, Y
 *     ..
 *

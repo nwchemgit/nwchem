@@ -1,5 +1,6 @@
       SUBROUTINE DTRMV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *     .. Scalar Arguments ..
+C$Id: dtrmv.f,v 1.2 1995-02-02 23:09:55 d3g681 Exp $
       INTEGER            INCX, LDA, N
       CHARACTER*1        DIAG, TRANS, UPLO
 *     .. Array Arguments ..

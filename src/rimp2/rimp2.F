@@ -1,4 +1,5 @@
       Logical Function RIMP2( RTDB )
+C$Id: rimp2.F,v 1.15 1995-02-02 23:21:17 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C

@@ -1,4 +1,5 @@
       program test
+C$Id: test.F,v 1.2 1995-02-02 23:15:07 d3g681 Exp $
       implicit none
 #include "inp.fh"
       character*30 aval

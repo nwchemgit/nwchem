@@ -1,4 +1,5 @@
       double precision function schwarz_atom(iat, jat)
+C$Id: schwarz_atom.F,v 1.4 1995-02-02 23:12:10 d3g681 Exp $
       implicit none
 #include "cschwarz.fh"
 #include "mafdecls.fh"

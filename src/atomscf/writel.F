@@ -1,4 +1,5 @@
       subroutine writel(p,newbas,oprint)
+C$Id: writel.F,v 1.2 1995-02-02 23:09:19 d3g681 Exp $
       implicit none
 c
       logical oprint

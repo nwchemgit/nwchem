@@ -1,5 +1,6 @@
       subroutine rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
      &       ocoul, oexch, oskel)
+C$Id: rhf_fock_2e.F,v 1.11 1995-02-02 23:11:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

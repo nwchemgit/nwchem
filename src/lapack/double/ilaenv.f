@@ -7,6 +7,7 @@
 *     February 20, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: ilaenv.f,v 1.2 1995-02-02 23:16:44 d3g681 Exp $
       CHARACTER*( * )    NAME, OPTS
       INTEGER            ISPEC, N1, N2, N3, N4
 *     ..

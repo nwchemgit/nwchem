@@ -1,5 +1,6 @@
       SUBROUTINE SGER  ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *     .. Scalar Arguments ..
+C$Id: sger.f,v 1.2 1995-02-02 23:10:17 d3g681 Exp $
       REAL               ALPHA
       INTEGER            INCX, INCY, LDA, M, N
 *     .. Array Arguments ..

@@ -1,4 +1,5 @@
       Logical Function Get_3cInts(LU, G_I, NA, ILo, IHi)
+C$Id: get_3cints.F,v 1.4 1995-02-02 23:21:09 d3g681 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C

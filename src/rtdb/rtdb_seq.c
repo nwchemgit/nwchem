@@ -1,3 +1,4 @@
+/*$Id: rtdb_seq.c,v 1.8 1995-02-02 23:22:12 d3g681 Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>

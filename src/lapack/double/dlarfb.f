@@ -7,6 +7,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlarfb.f,v 1.2 1995-02-02 23:16:09 d3g681 Exp $
       CHARACTER          DIRECT, SIDE, STOREV, TRANS
       INTEGER            K, LDC, LDT, LDV, LDWORK, M, N
 *     ..

@@ -1,3 +1,4 @@
+/*$Id: context_f2c.c,v 1.3 1995-02-02 23:22:00 d3g681 Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

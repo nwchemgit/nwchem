@@ -3,6 +3,7 @@ c
 c     applies a plane rotation.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: srot.f,v 1.2 1995-02-02 23:10:19 d3g681 Exp $
       real sx(1),sy(1),stemp,c,s
       integer i,incx,incy,ix,iy,n
 c

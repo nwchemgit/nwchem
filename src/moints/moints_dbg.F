@@ -1,5 +1,6 @@
 #ifdef DEBUG_PRINT
        subroutine moints_print_opermatrix(noper,nbf,g_a)
+C$Id: moints_dbg.F,v 1.8 1995-02-02 23:18:46 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"       

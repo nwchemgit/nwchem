@@ -6,6 +6,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slarf.f,v 1.2 1995-02-02 23:17:39 d3g681 Exp $
       CHARACTER          SIDE
       INTEGER            INCV, LDC, M, N
       REAL               TAU

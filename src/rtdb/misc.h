@@ -1,3 +1,4 @@
+/*$Id: misc.h,v 1.2 1995-02-02 23:22:03 d3g681 Exp $*/
 #define error(format,data) \
   {(void) fflush(stdout); \
    (void) fprintf(stderr,format,data); \

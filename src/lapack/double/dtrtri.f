@@ -6,6 +6,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dtrtri.f,v 1.2 1995-02-02 23:16:43 d3g681 Exp $
       CHARACTER          DIAG, UPLO
       INTEGER            INFO, LDA, N
 *     ..

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.30 1995-02-02 17:51:30 d3g681 Exp $
+# $Id: GNUmakefile,v 1.31 1995-02-02 23:26:46 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -38,7 +38,8 @@ OBJ_OPTIMIZE=  ga_matpow.o
 include ../config/makelib.h
 
 util_version.f:	../config/nwchem_config.h
-		catsrc config nwchem.F $(NW_MODULE_SUBDIRS) | awk -f ids.awk > $@
+		catsrc nwchem.F config $(NWSUBDIRS) | \
+			awk -f ids.awk > $@
 
 testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)

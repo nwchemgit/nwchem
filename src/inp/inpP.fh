@@ -6,6 +6,7 @@ c
 **      implicit character *4 (y)
 c
       integer max_width         ! Maximum input width of an input line
+C$Id: inpP.fh,v 1.4 1995-02-02 23:15:06 d3g681 Exp $
       integer max_field         ! Maximum no. of fields in an input line
       parameter (max_width = 256)
       parameter (max_field = max_width/2 + 1)

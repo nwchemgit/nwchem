@@ -1,4 +1,5 @@
       double precision sch_max  ! Maximum value of any entry
+C$Id: cschwarz.fh,v 1.2 1995-02-02 23:11:33 d3g681 Exp $
       integer nb_per_i          ! No. of bytes per integer
       integer l_csh, k_csh      ! MA handle & index to shell array
       integer l_cat, k_cat      ! MA handle & index to atom array

@@ -7,6 +7,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dbdsqr.f,v 1.2 1995-02-02 23:15:36 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            INFO, LDC, LDU, LDVT, N, NCC, NCVT, NRU
 *     ..

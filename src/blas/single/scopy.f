@@ -4,6 +4,7 @@ c     copies a vector, x, to a vector, y.
 c     uses unrolled loops for increments equal to 1.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: scopy.f,v 1.2 1995-02-02 23:10:13 d3g681 Exp $
       real sx(1),sy(1)
       integer i,incx,incy,ix,iy,m,mp1,n
 c

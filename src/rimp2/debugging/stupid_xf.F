@@ -1,4 +1,5 @@
       Subroutine Stupid_XF(G_C, G_V, AOBas, FitBas)
+C$Id: stupid_xf.F,v 1.2 1995-02-02 23:21:26 d3g681 Exp $
       Implicit NONE
 C
       Integer G_C, G_V, AOBas, FitBas

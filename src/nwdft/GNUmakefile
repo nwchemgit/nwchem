@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.10 1995-02-02 23:18:58 d3g681 Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o

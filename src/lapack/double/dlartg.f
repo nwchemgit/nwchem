@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlartg.f,v 1.2 1995-02-02 23:16:13 d3g681 Exp $
       DOUBLE PRECISION   CS, F, G, R, SN
 *     ..
 *

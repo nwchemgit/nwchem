@@ -6,6 +6,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slascl.f,v 1.2 1995-02-02 23:17:46 d3g681 Exp $
       CHARACTER          TYPE
       INTEGER            INFO, KL, KU, LDA, M, N
       REAL               CFROM, CTO

@@ -1,5 +1,6 @@
       Subroutine a_dist(xyz, Rij, ncenter)
 
+C$Id: a_dist.F,v 1.3 1995-02-02 23:20:22 d3g681 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 

@@ -1,4 +1,5 @@
       Subroutine RIMP2_PStat_Init
+C$Id: rimp2_timers.F,v 1.3 1995-02-02 23:21:19 d3g681 Exp $
       Implicit NONE
 C
 #include "pstat.fh"

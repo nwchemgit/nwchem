@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slassq.f,v 1.2 1995-02-02 23:17:49 d3g681 Exp $
       INTEGER            INCX, N
       REAL               SCALE, SUMSQ
 *     ..

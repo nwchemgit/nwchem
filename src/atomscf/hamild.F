@@ -1,5 +1,6 @@
       subroutine hamild(pcap, qcap, fc, fo, s, u, t, h, dos, dt,
      +                  c, smin, qmin, nbb)
+C$Id: hamild.F,v 1.2 1995-02-02 23:08:59 d3g681 Exp $
       implicit none
 c.......................................................................
 c

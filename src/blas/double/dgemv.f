@@ -1,6 +1,7 @@
       SUBROUTINE DGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *     .. Scalar Arguments ..
+C$Id: dgemv.f,v 1.2 1995-02-02 23:09:43 d3g681 Exp $
       DOUBLE PRECISION   ALPHA, BETA
       INTEGER            INCX, INCY, LDA, M, N
       CHARACTER*1        TRANS

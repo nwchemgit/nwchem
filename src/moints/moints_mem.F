@@ -6,6 +6,7 @@ c
 c
        integer function moints_numoper( basis, algo, nbf, nocc,
      $                                  nvir, blen )
+C$Id: moints_mem.F,v 1.2 1995-02-02 23:18:48 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

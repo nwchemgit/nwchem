@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slange.f,v 1.2 1995-02-02 23:17:35 d3g681 Exp $
       CHARACTER          NORM
       INTEGER            LDA, M, N
 *     ..

@@ -5,6 +5,7 @@
 c
 *       write(6,*)
 *       write(6,*) ' zn=', zn, 'nbct=', nbct, ' nsym=', nsym, ' nsht=', nsht
+C$Id: printbasis.F,v 1.3 1995-02-02 23:09:09 d3g681 Exp $
         lobas =  1
 	do isym = 1, nsym
            write(6,*) ' isym ', isym

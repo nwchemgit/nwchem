@@ -1,6 +1,7 @@
       SUBROUTINE SSYRK ( UPLO, TRANS, N, K, ALPHA, A, LDA,
      $                   BETA, C, LDC )
 *     .. Scalar Arguments ..
+C$Id: ssyrk.f,v 1.3 1995-02-02 23:10:24 d3g681 Exp $
       CHARACTER*1        UPLO, TRANS
       INTEGER            N, K, LDA, LDC
       REAL               ALPHA, BETA

@@ -1,4 +1,5 @@
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
+C$Id: int_1e_ga.F,v 1.11 1995-02-02 23:11:43 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

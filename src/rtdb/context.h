@@ -1,3 +1,4 @@
+/*$Id: context.h,v 1.3 1995-02-02 23:21:59 d3g681 Exp $*/
 extern int context_set(const char *);
 extern char *context_get(void);
 extern int context_rtdb_store(int);

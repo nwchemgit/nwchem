@@ -16,6 +16,7 @@ c
 c     The lattice constants are input and stored in Angstroms and Degrees
 c***********************************************************************
       subroutine geom_3d(geom)
+C$Id: geom_3d.F,v 1.3 1995-02-02 23:12:44 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"

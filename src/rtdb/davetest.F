@@ -1,4 +1,5 @@
       program dumpdb
+C$Id: davetest.F,v 1.4 1995-02-02 23:22:01 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"

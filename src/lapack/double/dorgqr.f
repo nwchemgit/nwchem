@@ -6,6 +6,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dorgqr.f,v 1.2 1995-02-02 23:16:29 d3g681 Exp $
       INTEGER            INFO, K, LDA, LWORK, M, N
 *     ..
 *     .. Array Arguments ..

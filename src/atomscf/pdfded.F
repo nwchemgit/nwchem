@@ -2,6 +2,7 @@
 
 
       subroutine pdfded(k,kdim,g_dens,dhelp,factor,dmult,lm,nbci,iiloc)
+C$Id: pdfded.F,v 1.2 1995-02-02 23:09:08 d3g681 Exp $
       implicit none
 c.......................................................................
 c

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.20 1995-01-30 15:49:09 d3g681 Exp $
+# $Id: GNUmakefile,v 1.21 1995-02-02 23:11:46 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -29,9 +29,7 @@
 
   USES_BLAS = ga_conform.F ga_mxv.F k2cf.F matrix_exp.F rhf_dens_to_mo.F \
               rhf_do_canon.F \
-              rhf_energy.F rhf_fock_2e.F rhf_hessv.F rhf_nr_solve.F \
-              ri_invert_v.F \
-              ri_v_fit_cd.F ri_v_fit_j.F
+              rhf_energy.F rhf_fock_2e.F rhf_hessv.F rhf_nr_solve.F 
 
 HEADERS = schwarz.fh
 

@@ -1,5 +1,6 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
      $     overify)
+C$Id: memory_input.F,v 1.5 1995-02-02 23:15:25 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"

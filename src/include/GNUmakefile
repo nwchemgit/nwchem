@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.8 1995-02-02 23:14:58 d3g681 Exp $
 #
 # This directory is a central repository for all include
 # files.  The makefile in each subdirectory should contain

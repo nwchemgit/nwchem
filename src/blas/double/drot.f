@@ -3,6 +3,7 @@ c
 c     applies a plane rotation.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: drot.f,v 1.2 1995-02-02 23:09:47 d3g681 Exp $
       double precision dx(1),dy(1),dtemp,c,s
       integer i,incx,incy,ix,iy,n
 c

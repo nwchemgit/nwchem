@@ -2,6 +2,7 @@
      $                        lshlo, lshhi, schw_ij, tol2e,
      $                        max2e, eri, mem2, iscr, ilen,
      $                        jlen, kblo, kbhi, lblo, lbhi, ssbb )
+C$Id: moints_aux2.F,v 1.2 1995-02-02 23:18:45 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"

@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.11 1995-02-02 23:09:31 d3g681 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a

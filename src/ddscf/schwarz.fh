@@ -8,6 +8,7 @@ c     iscreen(4) counts rejects in inner ijkl shell loop
 c     iscreen(5) counts accepts in inner ijkl shell loop
 c
       integer iscreen, nscreen
+C$Id: schwarz.fh,v 1.2 1995-02-02 23:12:09 d3g681 Exp $
       parameter (nscreen=5)
       common/cscreen/iscreen(nscreen)
       double precision schwarz_max, schwarz_atom, schwarz_shell

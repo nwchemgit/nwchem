@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slaset.f,v 1.2 1995-02-02 23:17:47 d3g681 Exp $
       CHARACTER          UPLO
       INTEGER            LDA, M, N
       REAL               ALPHA, BETA

@@ -1,6 +1,6 @@
 #!/bin/csh
 
-# $Id: addids,v 1.2 1995-02-02 18:09:15 d3g681 Exp $
+# $Id: addids,v 1.3 1995-02-02 23:26:43 d3g681 Exp $
 
 # Given a list of files as arguments loop 
 # thru them and determine which do not already
@@ -13,20 +13,27 @@
 # insert them after the first complete statement
 # including (ugh) comment lines
 
+set path = ($NWCHEM_TOP/src/util $path)
+rehash
 
 foreach file ($*)
   grep '$Id' $file >& /dev/null
 
   set action = $status
 
-  set filetype = `echo $file | awk -f filetype.awk`
+  set filetype = `echo $file | awk -f $NWCHEM_TOP/src/util/filetype.awk`
+
+  if ($status != 0) then
+    echo Filetype failed completely on $file
+    continue
+  endif
 
   if ($filetype == "Unknown") then
     continue
   endif
 
   if ($action == 0) then
-    echo $filetype $file already contains a CVS Id
+#   echo $filetype $file already contains a CVS Id
     continue
   else if ($action == 1) then
     echo $filetype $file does not contain a CVS Id
@@ -41,12 +48,12 @@ foreach file ($*)
   endif
 
   if ($filetype == "Fortran" || $filetype == "Fortran-header") then
-    awk -f fortranid.awk < $file > tmp.$$
+    awk -f $NWCHEM_TOP/src/util/fortranid.awk < $file > tmp.$$
   else if ($filetype == "C"  || $filetype == "C-header") then
-    echo '/*$Id: addids,v 1.2 1995-02-02 18:09:15 d3g681 Exp $*/' > tmp.$$
+    echo '/*$Id: addids,v 1.3 1995-02-02 23:26:43 d3g681 Exp $*/' > tmp.$$
     cat $file >> tmp.$$
   else if ($filetype == "Makefile") then
-    echo '#$Id: addids,v 1.2 1995-02-02 18:09:15 d3g681 Exp $' > tmp.$$
+    echo '#$Id: addids,v 1.3 1995-02-02 23:26:43 d3g681 Exp $' > tmp.$$
     cat $file >> tmp.$$
   else
     echo Don\'t know how to put a comment in a $filetype file

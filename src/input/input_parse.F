@@ -1,4 +1,5 @@
       subroutine input_parse(rtdb)
+C$Id: input_parse.F,v 1.13 1995-02-02 23:15:16 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"

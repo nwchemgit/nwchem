@@ -20,6 +20,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint)
+C$Id: sym_nwc.F,v 1.6 1995-02-02 23:23:25 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)

@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.40 1995-02-02 03:05:41 d3g681 Exp $
+c     $Id: nwchem.F,v 1.41 1995-02-02 23:08:18 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -100,6 +100,8 @@ c
      $        call ma_summarize_allocated_blocks()
          if (util_print('ma stats', print_default))
      $        call ma_print_stats()
+         if (util_print('version', print_debug))
+     $        call util_version
       endif
 c
 c     Tidy up the global memory
@@ -310,7 +312,7 @@ c     Print a banner at the top of the output to identify the origin
 c     of the code along with hostname, no. of processors, date, ...
 c
       character*(*) input_filename
-      character*80 hostname
+      character*80 hostname, compiled, srcdir
       character*256 executable
       character*26 date
 #if defined(CRAY)
@@ -357,16 +359,23 @@ c
       stack = ma_inquire_stack(mt_dbl)
       nproc = ga_nnodes()
 c
+      compiled = COMPILATION_DATE
+      srcdir   = 
+     $COMPILATION_DIR
       call util_print_centered(6, 'Job information', 20, .true.)
       write(6,2) 
      $     hostname(1:inp_strlen(hostname)),
      $     executable(1:inp_strlen(executable)),
      $     date(1:inp_strlen(date)),
+     $     compiled(1:inp_strlen(compiled)),
+     $     srcdir(1:inp_strlen(srcdir)),
      $     input_filename(1:inp_strlen(input_filename)), nproc
  2    format(/
      $     '    hostname = ', a/
      $     '    program  = ', a/
      $     '    date     = ', a/
+     $     '    compiled = ', a/
+     $     '    source   = ', a/
      $     '    input    = "',a,'"'/
      $     '    nproc    = ', i4//)
 c

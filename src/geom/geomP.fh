@@ -95,6 +95,7 @@ c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $     max_sym_ops
+C$Id: geomP.fh,v 1.7 1995-02-02 23:12:42 d3g681 Exp $
       parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
       parameter (max_cent=500)

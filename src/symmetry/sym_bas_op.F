@@ -1,4 +1,5 @@
       subroutine sym_bas_op(geom, op, r, maxf, ang_max)
+C$Id: sym_bas_op.F,v 1.4 1995-02-02 23:23:19 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"

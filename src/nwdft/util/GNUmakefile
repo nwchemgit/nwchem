@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.20 1995-02-02 23:20:06 d3g681 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = bas_ncontr_cn_max.o 	nbf_to_mbf.o \

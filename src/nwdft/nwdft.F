@@ -2,6 +2,7 @@
 c     
 c>>>  driver 
 c     
+C$Id: nwdft.F,v 1.12 1995-02-02 23:18:59 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult,converged
       logical ok

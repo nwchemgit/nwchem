@@ -1,4 +1,5 @@
       subroutine starcd(c,ss,nbci,ncshi,noshi)
+C$Id: starcd.F,v 1.2 1995-02-02 23:09:13 d3g681 Exp $
       implicit none
       integer nbci, ncshi, noshi
       real *8 ss(*), c(nbci,nbci)

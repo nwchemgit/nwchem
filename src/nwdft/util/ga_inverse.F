@@ -1,4 +1,5 @@
       subroutine ga_inverse(g_a, g_s)
+C$Id: ga_inverse.F,v 1.3 1995-02-02 23:19:54 d3g681 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"

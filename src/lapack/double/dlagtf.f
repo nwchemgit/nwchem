@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: dlagtf.f,v 1.2 1995-02-02 23:15:58 d3g681 Exp $
       INTEGER            INFO, N
       DOUBLE PRECISION   LAMBDA, TOL
 *     ..

@@ -1,4 +1,5 @@
        integer function moints_numgr( basis, blocklen )
+C$Id: moints_gsh1.F,v 1.2 1995-02-02 23:18:47 d3g681 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen

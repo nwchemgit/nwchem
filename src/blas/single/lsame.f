@@ -6,6 +6,7 @@
 *     February 29, 1992 
 *
 *     .. Scalar Arguments ..
+C$Id: lsame.f,v 1.2 1995-02-02 23:10:10 d3g681 Exp $
       CHARACTER          CA, CB
 *     ..
 *

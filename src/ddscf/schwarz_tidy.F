@@ -1,4 +1,5 @@
       subroutine schwarz_tidy()
+C$Id: schwarz_tidy.F,v 1.3 1995-02-02 23:12:15 d3g681 Exp $
       implicit none
 #include "cschwarz.fh"
 #include "mafdecls.fh"

@@ -1,3 +1,4 @@
+/*$Id: rtdb.cray.h,v 1.2 1995-02-02 23:22:05 d3g681 Exp $*/
 #ifdef CRAY
 #define  context_pop_              CONTEXT_POP 
 #define  context_prefix_            CONTEXT_PREFIX 

@@ -1,3 +1,4 @@
+/*$Id: context.c,v 1.5 1995-02-02 23:21:57 d3g681 Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

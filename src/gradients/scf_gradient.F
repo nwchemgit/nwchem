@@ -1,4 +1,5 @@
       subroutine scf_gradient(rtdb)
+C$Id: scf_gradient.F,v 1.2 1995-02-02 23:14:54 d3g681 Exp $
       implicit none
 c
       integer rtdb

@@ -4,6 +4,7 @@ c     print the matrix representations of the operators
 c     
 c***********************************************************************
       subroutine opprint(symops,rotoop,maxops,nops,itype)
+C$Id: opprint.f,v 1.3 1995-02-02 23:23:12 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       character*2 rotoop(maxops)
       dimension symops(maxops*3,4)

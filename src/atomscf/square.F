@@ -1,4 +1,5 @@
       subroutine square(r,a,mrowr,n)
+C$Id: square.F,v 1.2 1995-02-02 23:09:11 d3g681 Exp $
       implicit none
       integer mrowr, n
       real *8  r(*),a(*)

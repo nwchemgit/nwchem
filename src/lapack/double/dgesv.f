@@ -6,6 +6,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dgesv.f,v 1.2 1995-02-02 23:15:44 d3g681 Exp $
       INTEGER            INFO, LDA, LDB, N, NRHS
 *     ..
 *     .. Array Arguments ..

@@ -4,6 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
+C$Id: moints_mp2.F,v 1.15 1995-02-02 23:18:49 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"

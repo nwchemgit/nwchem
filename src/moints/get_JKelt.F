@@ -1,4 +1,5 @@
        double precision function get_JKelt( g_a, nbf, i, j, a, b )
+C$Id: get_JKelt.F,v 1.2 1995-02-02 23:18:42 d3g681 Exp $
        implicit none
 #include "global.fh"
        integer g_a

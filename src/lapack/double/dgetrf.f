@@ -6,6 +6,7 @@
 *     March 31, 1993
 *
 *     .. Scalar Arguments ..
+C$Id: dgetrf.f,v 1.2 1995-02-02 23:15:52 d3g681 Exp $
       INTEGER            INFO, LDA, M, N
 *     ..
 *     .. Array Arguments ..

@@ -6,6 +6,7 @@
 *     February 29, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slarft.f,v 1.2 1995-02-02 23:17:42 d3g681 Exp $
       CHARACTER          DIRECT, STOREV
       INTEGER            K, LDT, LDV, N
 *     ..

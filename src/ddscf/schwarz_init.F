@@ -1,4 +1,5 @@
       subroutine schwarz_init(geom, basis)
+C$Id: schwarz_init.F,v 1.13 1995-02-02 23:12:11 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"

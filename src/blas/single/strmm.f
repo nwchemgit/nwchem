@@ -1,6 +1,7 @@
       SUBROUTINE STRMM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
 *     .. Scalar Arguments ..
+C$Id: strmm.f,v 1.2 1995-02-02 23:10:25 d3g681 Exp $
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG
       INTEGER            M, N, LDA, LDB
       REAL               ALPHA

@@ -1,4 +1,5 @@
       block data geom_data
+C$Id: geom.F,v 1.31 1995-02-02 23:12:40 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     

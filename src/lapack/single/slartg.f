@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slartg.f,v 1.2 1995-02-02 23:17:44 d3g681 Exp $
       REAL               CS, F, G, R, SN
 *     ..
 *

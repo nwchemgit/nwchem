@@ -3,6 +3,7 @@
 c
 c routine to calculate the 3 center overlap integrals
 c
+C$Id: int_1e3ov.F,v 1.5 1995-02-02 23:08:35 d3g681 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"

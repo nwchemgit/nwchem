@@ -1,3 +1,4 @@
+/*$Id: rtdb_f2c.c,v 1.8 1995-02-02 23:22:11 d3g681 Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"

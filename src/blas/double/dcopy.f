@@ -4,6 +4,7 @@ c     copies a vector, x, to a vector, y.
 c     uses unrolled loops for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: dcopy.f,v 1.2 1995-02-02 23:09:40 d3g681 Exp $
       double precision dx(1),dy(1)
       integer i,incx,incy,ix,iy,m,mp1,n
 c

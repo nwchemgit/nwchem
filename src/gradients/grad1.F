@@ -2,6 +2,7 @@
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb )
 
+C$Id: grad1.F,v 1.6 1995-02-02 23:14:50 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 
 #include "mafdecls.h"

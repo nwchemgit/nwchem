@@ -6,6 +6,7 @@
 *     October 31, 1992
 *
 *     .. Scalar Arguments ..
+C$Id: slasv2.f,v 1.2 1995-02-02 23:17:50 d3g681 Exp $
       REAL               CSL, CSR, F, G, H, SNL, SNR, SSMAX, SSMIN
 *     ..
 *

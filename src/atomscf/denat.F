@@ -1,4 +1,5 @@
       subroutine guess_dens(geom, basis, g_dens)
+C$Id: denat.F,v 1.7 1995-02-02 23:08:54 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"

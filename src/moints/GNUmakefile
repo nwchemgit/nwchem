@@ -1,3 +1,4 @@
+#$Id: GNUmakefile,v 1.28 1995-02-02 23:18:43 d3g681 Exp $
 
         OBJ = atwtest.o \
               brdcst_vec.o \

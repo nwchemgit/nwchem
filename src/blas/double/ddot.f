@@ -4,6 +4,7 @@ c     forms the dot product of two vectors.
 c     uses unrolled loops for increments equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c
+C$Id: ddot.f,v 1.2 1995-02-02 23:09:41 d3g681 Exp $
       double precision dx(1),dy(1),dtemp
       integer i,incx,incy,ix,iy,m,mp1,n
 c

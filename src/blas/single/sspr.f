@@ -1,5 +1,6 @@
       SUBROUTINE SSPR  ( UPLO, N, ALPHA, X, INCX, AP )
 *     .. Scalar Arguments ..
+C$Id: sspr.f,v 1.2 1995-02-02 23:10:22 d3g681 Exp $
       REAL               ALPHA
       INTEGER            INCX, N
       CHARACTER*1        UPLO

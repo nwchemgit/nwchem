@@ -26,6 +26,7 @@ c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
      &     acord, oprint,ilbl)
+C$Id: sym_map.F,v 1.4 1995-02-02 23:23:23 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 c     
       integer maxops

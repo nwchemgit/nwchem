@@ -6,6 +6,7 @@
 *     March 31, 1993 
 *
 *     .. Scalar Arguments ..
+C$Id: sgelqf.f,v 1.2 1995-02-02 23:17:16 d3g681 Exp $
       INTEGER            INFO, LDA, LWORK, M, N
 *     ..
 *     .. Array Arguments ..
