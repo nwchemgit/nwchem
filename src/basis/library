@@ -23709,7 +23709,7 @@ end
 #
 #
 # basis set: (5s) -> [2s]                                      
-basis h_dzvp-dgauss-dft-cartesian
+basis h_dzvp-dgauss-dft
 h    s
        50.99917800      0.00966050
         7.48321810      0.07372890
@@ -23720,7 +23720,7 @@ h    s
 end
 #
 # basis set: (6s) -> [2s]                                      
-basis he_dzvp-dgauss-dft-cartesian
+basis he_dzvp-dgauss-dft
 he   s
        33.26196600      0.02086580
         7.56165490      0.09705880
@@ -23732,7 +23732,7 @@ he   s
 end
 #
 # basis set: (9s,1p,1d) -> [3s,1p,1d]                          
-basis li_dzvp-dgauss-dft-cartesian
+basis li_dzvp-dgauss-dft
 li   s
       605.70539000     -0.00228700
        90.86090700     -0.01745280
@@ -23750,7 +23750,7 @@ li   p
 end
 #
 # basis set: (9s,1p,1d) -> [3s,1p,1d]                          
-basis be_dzvp-dgauss-dft-cartesian
+basis be_dzvp-dgauss-dft
 be   s
      1203.41410000      0.00205040
       180.24571000      0.01570780
@@ -23770,7 +23770,7 @@ be   d
 end
 #
 # basis set: (9s,5p,1d) -> [3s,2p,1d]                          
-basis b_dzvp-dgauss-dft-cartesian
+basis b_dzvp-dgauss-dft
 b    s
      1915.16660000     -0.00203950
       287.18311000     -0.01559660
@@ -23795,7 +23795,7 @@ b    d
 end
 #
 # basis set: (9s,5p,1d) -> [3s,2p,1d]                          
-basis c_dzvp-dgauss-dft-cartesian
+basis c_dzvp-dgauss-dft
 c    s
      2808.06450000      0.00201780
       421.13828000      0.01543320
@@ -23820,7 +23820,7 @@ c    d
 end
 #
 # basis set: (9s,5p,1d) -> [3s,2p,1d]                          
-basis n_dzvp-dgauss-dft-cartesian
+basis n_dzvp-dgauss-dft
 n    s
      3845.41490000      0.00201860
       577.53323000      0.01540780
@@ -23845,7 +23845,7 @@ n    d
 end
 #
 # basis set: (9s,5p,1d) -> [3s,2p,1d]                          
-basis o_dzvp-dgauss-dft-cartesian
+basis o_dzvp-dgauss-dft
 o    s
      5222.90220000     -0.00193640
       782.53994000     -0.01485070
@@ -23870,7 +23870,7 @@ o    d
 end
 #
 # basis set: (9s,3p,1d) -> [3s,2p,1d]                          
-basis f_dzvp-dgauss-dft-cartesian
+basis f_dzvp-dgauss-dft
 f    s
      6384.71440000     -0.00203020
       958.88652000     -0.01549810
@@ -23893,7 +23893,7 @@ f    d
 end
 #
 # basis set: (12s, 8p,1d) -> [4s,3p,1d]                        
-basis al_dzvp-dgauss-dft-cartesian
+basis al_dzvp-dgauss-dft
 al   s
     14724.45100000      0.00181820
      2205.46340000      0.01395810
@@ -23926,7 +23926,7 @@ al   d
 end
 #
 # basis set: (12s, 8p,1d) -> [4s,3p,1d]                        
-basis si_dzvp-dgauss-dft-cartesian
+basis si_dzvp-dgauss-dft
 si   s
     17268.57700000     -0.00179740
      2586.65090000     -0.01379700
@@ -23959,7 +23959,7 @@ si   d
 end
 #
 # basis set: (12s, 8p,1d) -> [4s,3p,1d]                        
-basis p_dzvp-dgauss-dft-cartesian
+basis p_dzvp-dgauss-dft
 p    s
     20024.93600000     -0.00177870
      2999.44100000     -0.01365410
@@ -23992,7 +23992,7 @@ p    d
 end
 #
 # basis set: (12s, 8p,1d) -> [4s,3p,1d]                        
-basis s_dzvp-dgauss-dft-cartesian
+basis s_dzvp-dgauss-dft
 s    s
     23050.06700000     -0.00175670
      3451.86630000     -0.01348940
@@ -24025,7 +24025,7 @@ s    d
 end
 #
 # basis set: (12s, 8p,1d) -> [4s,3p,1d]                        
-basis cl_dzvp-dgauss-dft-cartesian
+basis cl_dzvp-dgauss-dft
 cl   s
     26351.45800000      0.00173240
      3945.05670000      0.01331090
@@ -24058,7 +24058,7 @@ cl   d
 end
 #
 # basis set: (12s, 8p,1d) -> [4s,3p,1d]                        
-basis ar_dzvp-dgauss-dft-cartesian
+basis ar_dzvp-dgauss-dft
 ar   s
     29505.77400000     -0.00173750
      4419.21620000     -0.01333810
@@ -24091,7 +24091,7 @@ ar   d
 end
 #
 # basis set: (15s,9p,5d) -> [5s,3p,2d]                         
-basis sc_dzvp-dgauss-dft-cartesian
+basis sc_dzvp-dgauss-dft
 sc   s
     40355.90900000      0.00173330
      6050.51540000      0.01327890
@@ -24134,7 +24134,7 @@ sc   d
 end
 #
 # basis set: (15s,9p,5d) -> [5s,3p,2d]                         
-basis ti_dzvp-dgauss-dft-cartesian
+basis ti_dzvp-dgauss-dft
 ti   s
     44446.89600000     -0.00172760
      6664.41460000     -0.01323290
@@ -24177,7 +24177,7 @@ ti   d
 end
 #
 # basis set: (15s,9p,5d) -> [5s,3p,2d]                         
-basis v_dzvp-dgauss-dft-cartesian
+basis v_dzvp-dgauss-dft
 v    s
     49145.25800000     -0.00170490
      7366.10090000     -0.01306850
@@ -24220,7 +24220,7 @@ v    d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis cr_dzvp-dgauss-dft-cartesian
+basis cr_dzvp-dgauss-dft
 cr   s
     52778.74500000      0.00173540
      7918.30170000      0.01327750
@@ -24263,7 +24263,7 @@ cr   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis mn_dzvp-dgauss-dft-cartesian
+basis mn_dzvp-dgauss-dft
 mn   s
     58745.69200000      0.00168350
      8803.03930000      0.01291030
@@ -24306,7 +24306,7 @@ mn   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis fe_dzvp-dgauss-dft-cartesian
+basis fe_dzvp-dgauss-dft
 fe   s
     61430.22700000      0.00175590
      9222.17600000      0.01341690
@@ -24349,7 +24349,7 @@ fe   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis co_dzvp-dgauss-dft-cartesian
+basis co_dzvp-dgauss-dft
 co   s
     67981.04200000     -0.00170240
     10193.42800000     -0.01303860
@@ -24392,7 +24392,7 @@ co   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis ni_dzvp-dgauss-dft-cartesian
+basis ni_dzvp-dgauss-dft
 ni   s
     72509.04200000     -0.00172080
     10879.17600000     -0.01316370
@@ -24435,7 +24435,7 @@ ni   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis cu_dzvp-dgauss-dft-cartesian
+basis cu_dzvp-dgauss-dft
 cu   s
     80289.62000000     -0.00165620
     12027.33800000     -0.01270930
@@ -24478,7 +24478,7 @@ cu   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,3p,2d]                        
-basis zn_dzvp-dgauss-dft-cartesian
+basis zn_dzvp-dgauss-dft
 zn   s
     82904.22000000     -0.00173130
     12444.23200000     -0.01323280
@@ -24521,7 +24521,7 @@ zn   d
 end
 #
 # basis set: (15s,11p,5d) -> [5s,4p,2d]                        
-basis ga_dzvp-dgauss-dft-cartesian
+basis ga_dzvp-dgauss-dft
 ga   s
     88374.04500000      0.00173580
     13268.90500000      0.01326050
@@ -24567,7 +24567,7 @@ ga   d
 end
 #
 # basis set: (15s,11p,5d) -> [5s,4p,2d]                        
-basis ge_dzvp-dgauss-dft-cartesian
+basis ge_dzvp-dgauss-dft
 ge   s
    100666.23000000     -0.00160060
     15061.97300000     -0.01230940
@@ -24613,7 +24613,7 @@ ge   d
 end
 #
 # basis set: (15s,11p,5d) -> [5s,4p,2d]                        
-basis as_dzvp-dgauss-dft-cartesian
+basis as_dzvp-dgauss-dft
 as   s
    107365.86000000     -0.00159570
     16064.05300000     -0.01227220
@@ -24659,7 +24659,7 @@ as   d
 end
 #
 # basis set: (15s,11p,5d) -> [5s,4p,2d]                        
-basis se_dzvp-dgauss-dft-cartesian
+basis se_dzvp-dgauss-dft
 se   s
    114288.76000000     -0.00159100
     17099.74000000     -0.01223620
@@ -24705,7 +24705,7 @@ se   d
 end
 #
 # basis set: (15s,11p,5d) -> [5s,4p,2d]                        
-basis br_dzvp-dgauss-dft-cartesian
+basis br_dzvp-dgauss-dft
 br   s
    115354.10000000      0.00168940
     17308.39000000      0.01292180
@@ -24751,7 +24751,7 @@ br   d
 end
 #
 # basis set: (15s,11p,5d) -> [5s,4p,2d]                        
-basis kr_dzvp-dgauss-dft-cartesian
+basis kr_dzvp-dgauss-dft
 kr   s
    121095.87000000     -0.00170620
     18179.49900000     -0.01303720
@@ -24797,7 +24797,7 @@ kr   d
 end
 #
 # basis set: (18s,12p,6d) -> [6s,5p,2d]                        
-basis rb_dzvp-dgauss-dft-cartesian
+basis rb_dzvp-dgauss-dft
 rb   s
    131515.06000000     -0.00164990
     19719.21700000     -0.01263720
@@ -24850,7 +24850,7 @@ rb   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis sr_dzvp-dgauss-dft-cartesian
+basis sr_dzvp-dgauss-dft
 sr   s
    139600.84000000     -0.00163780
     20926.65900000     -0.01254990
@@ -24907,7 +24907,7 @@ sr   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis y_dzvp-dgauss-dft-cartesian
+basis y_dzvp-dgauss-dft
 y    s
    147196.99000000      0.00163640
     22066.57400000      0.01253720
@@ -24964,7 +24964,7 @@ y    d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis zr_dzvp-dgauss-dft-cartesian
+basis zr_dzvp-dgauss-dft
 zr   s
    154759.61000000      0.00163800
     23203.44800000      0.01254620
@@ -25021,7 +25021,7 @@ zr   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis nb_dzvp-dgauss-dft-cartesian
+basis nb_dzvp-dgauss-dft
 nb   s
    161518.44000000      0.00165190
     24228.12500000      0.01264130
@@ -25078,7 +25078,7 @@ nb   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis mo_dzvp-dgauss-dft-cartesian
+basis mo_dzvp-dgauss-dft
 mo   s
    170343.94000000     -0.00164230
     25548.85900000     -0.01257100
@@ -25135,7 +25135,7 @@ mo   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis tc_dzvp-dgauss-dft-cartesian
+basis tc_dzvp-dgauss-dft
 tc   s
    179686.19000000     -0.00163020
     26943.26300000     -0.01248390
@@ -25192,7 +25192,7 @@ tc   d
 end
 #
 # basis set: (18s,11p) -> [6s,5p]                              
-basis ru_dzvp-dgauss-dft-cartesian
+basis ru_dzvp-dgauss-dft
 ru   s
     88363.70000000     -0.00162830
     28246.15400000     -0.01246800
@@ -25249,7 +25249,7 @@ ru   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis rh_dzvp-dgauss-dft-cartesian
+basis rh_dzvp-dgauss-dft
 rh   s
    194399.54000000     -0.00165570
     29173.20200000     -0.01265920
@@ -25306,7 +25306,7 @@ rh   d
 end
 #
 # basis set: (18s,11p) -> [6s,5p]                              
-basis pd_dzvp-dgauss-dft-cartesian
+basis pd_dzvp-dgauss-dft
 pd   s
    207193.10000000      0.00161660
     31063.77200000      0.01238220
@@ -25363,7 +25363,7 @@ pd   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis ag_dzvp-dgauss-dft-cartesian
+basis ag_dzvp-dgauss-dft
 ag   s
    215086.06000000     -0.00162820
     32258.58800000     -0.01246210
@@ -25420,7 +25420,7 @@ ag   d
 end
 #
 # basis set: (18s,12p,9d) -> [6s,5p,3d]                        
-basis cd_dzvp-dgauss-dft-cartesian
+basis cd_dzvp-dgauss-dft
 cd   s
    225379.46000000      0.00161940
     33798.15800000      0.01239760
@@ -25477,7 +25477,7 @@ cd   d
 end
 #
 # basis set: (18s,14p,9d) -> [6s,5p,3d]                        
-basis in_dzvp-dgauss-dft-cartesian
+basis in_dzvp-dgauss-dft
 in   s
    235861.12000000     -0.00161140
     35365.28300000     -0.01233990
@@ -25536,7 +25536,7 @@ in   d
 end
 #
 # basis set: (18s,14p,9d) -> [6s,5p,3d]                        
-basis sn_dzvp-dgauss-dft-cartesian
+basis sn_dzvp-dgauss-dft
 sn   s
    245047.36000000     -0.00161620
     36750.02600000     -0.01237110
@@ -25595,7 +25595,7 @@ sn   d
 end
 #
 # basis set: (18s,14p,9d) -> [6s,5p,3d]                        
-basis sb_dzvp-dgauss-dft-cartesian
+basis sb_dzvp-dgauss-dft
 sb   s
    256073.33000000      0.00160780
     38397.81700000      0.01231080
@@ -25654,7 +25654,7 @@ sb   d
 end
 #
 # basis set: (18s,14p,9d) -> [6s,5p,3d]                        
-basis te_dzvp-dgauss-dft-cartesian
+basis te_dzvp-dgauss-dft
 te   s
    265467.04000000     -0.00161370
     39815.85700000     -0.01235020
@@ -25713,7 +25713,7 @@ te   d
 end
 #
 # basis set: (18s,14p,9d) -> [6s,5p,3d]                        
-basis i_dzvp-dgauss-dft-cartesian
+basis i_dzvp-dgauss-dft
 i    s
    274845.46000000     -0.00162070
     41233.18800000     -0.01239760
@@ -25772,7 +25772,7 @@ i    d
 end
 #
 # basis set: (18s,14p,9d) -> [6s,5p,3d]                        
-basis xe_dzvp-dgauss-dft-cartesian
+basis xe_dzvp-dgauss-dft
 xe   s
    287346.87000000      0.00160710
     43095.30100000      0.01230010
@@ -25836,7 +25836,7 @@ end
 #
 #
 # basis set: (5s,1p) -> [2s,1p]                                
-basis h_dzvp2-dgauss-dft-cartesian
+basis h_dzvp2-dgauss-dft
 h    s
        50.99917800      0.00966050
         7.48321810      0.07372890
@@ -25849,7 +25849,7 @@ h    p
 end
 #
 # basis set: (6s,1p) -> [2s,1p]                                
-basis he_dzvp2-dgauss-dft-cartesian
+basis he_dzvp2-dgauss-dft
 he   s
        33.26196600      0.02086580
         7.56165490      0.09705880
@@ -25863,7 +25863,7 @@ he   p
 end
 #
 # basis set: (10s,1p,1d) -> [3s,1p,1d]                         
-basis li_dzvp2-dgauss-dft-cartesian
+basis li_dzvp2-dgauss-dft
 li   s
      1455.81970000     -0.00077220
       214.45374000     -0.00611310
@@ -25884,7 +25884,7 @@ li   d
 end
 #
 # basis set: (10s,1p,1d) -> [3s,1p,1d]                         
-basis be_dzvp2-dgauss-dft-cartesian
+basis be_dzvp2-dgauss-dft
 be   s
      2692.37950000      0.00075060
       403.72786000      0.00580460
@@ -25905,7 +25905,7 @@ be   d
 end
 #
 # basis set: (10s,6p,1d) -> [3s,2p,1d]                         
-basis b_dzvp2-dgauss-dft-cartesian
+basis b_dzvp2-dgauss-dft
 b    s
      3862.59880000      0.00084930
       581.45071000      0.00650810
@@ -25932,7 +25932,7 @@ b    d
 end
 #
 # basis set: (10s,6p,1d) -> [3s,2p,1d]                         
-basis c_dzvp2-dgauss-dft-cartesian
+basis c_dzvp2-dgauss-dft
 c    s
      5784.15710000      0.00081900
       869.30350000      0.00629350
@@ -25959,7 +25959,7 @@ c    d
 end
 #
 # basis set: (10s,6p,1d) -> [3s,2p,1d]                         
-basis n_dzvp2-dgauss-dft-cartesian
+basis n_dzvp2-dgauss-dft
 n    s
      8104.17610000      0.00079690
      1217.31380000      0.00612890
@@ -25986,7 +25986,7 @@ n    d
 end
 #
 # basis set: (10s, 6p,1d) -> [3s,2p,1d]                        
-basis o_dzvp2-dgauss-dft-cartesian
+basis o_dzvp2-dgauss-dft
 o    s
     10814.40200000      0.00078090
      1623.75320000      0.00601020
@@ -26013,7 +26013,7 @@ o    d
 end
 #
 # basis set: (10s, 6p,1d) -> [3s,2p,1d]                        
-basis f_dzvp2-dgauss-dft-cartesian
+basis f_dzvp2-dgauss-dft
 f    s
     13652.10100000      0.00078730
      2050.28700000      0.00605500
@@ -26040,7 +26040,7 @@ f    d
 end
 #
 # basis set: (13s, 9p,1d) -> [4s,3p,1d]                        
-basis al_dzvp2-dgauss-dft-cartesian
+basis al_dzvp2-dgauss-dft
 al   s
     36088.15200000      0.00059760
      5334.36200000      0.00470910
@@ -26075,7 +26075,7 @@ al   d
 end
 #
 # basis set: (13s, 9p,1d) -> [4s,3p,1d]                        
-basis si_dzvp2-dgauss-dft-cartesian
+basis si_dzvp2-dgauss-dft
 si   s
     42393.92700000     -0.00058950
      6264.11290000     -0.00464830
@@ -26110,7 +26110,7 @@ si   d
 end
 #
 # basis set: (13s, 9p,1d) -> [4s,3p,1d]                        
-basis p_dzvp2-dgauss-dft-cartesian
+basis p_dzvp2-dgauss-dft
 p    s
     48863.35400000     -0.00058650
      7253.04570000     -0.00460080
@@ -26145,7 +26145,7 @@ p    d
 end
 #
 # basis set: (13s, 7p,1d) -> [4s,3p,1d]                        
-basis s_dzvp2-dgauss-dft-cartesian
+basis s_dzvp2-dgauss-dft
 s    s
     56415.58000000     -0.00057780
      8345.26890000     -0.00455130
@@ -26178,7 +26178,7 @@ s    d
 end
 #
 # basis set: (13s, 9p,1d) -> [4s,3p,1d]                        
-basis cl_dzvp2-dgauss-dft-cartesian
+basis cl_dzvp2-dgauss-dft
 cl   s
     63923.62600000     -0.00057410
      9525.98700000     -0.00448510
@@ -26213,7 +26213,7 @@ cl   d
 end
 #
 # basis set: (13s, 9p,1d) -> [4s,3p,1d]                        
-basis ar_dzvp2-dgauss-dft-cartesian
+basis ar_dzvp2-dgauss-dft
 ar   s
     71235.46300000     -0.00057860
     10643.43300000     -0.00450440
@@ -26248,7 +26248,7 @@ ar   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis sc_dzvp2-dgauss-dft-cartesian
+basis sc_dzvp2-dgauss-dft
 sc   s
     40355.90900000      0.00173330
      6050.51540000      0.01327890
@@ -26292,7 +26292,7 @@ sc   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis ti_dzvp2-dgauss-dft-cartesian
+basis ti_dzvp2-dgauss-dft
 ti   s
     44446.89600000     -0.00172760
      6664.41460000     -0.01323290
@@ -26336,7 +26336,7 @@ ti   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis v_dzvp2-dgauss-dft-cartesian
+basis v_dzvp2-dgauss-dft
 v    s
     49145.25800000     -0.00170490
      7366.10090000     -0.01306850
@@ -26380,7 +26380,7 @@ v    d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis cr_dzvp2-dgauss-dft-cartesian
+basis cr_dzvp2-dgauss-dft
 cr   s
     52778.74500000      0.00173540
      7918.30170000      0.01327750
@@ -26424,7 +26424,7 @@ cr   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis mn_dzvp2-dgauss-dft-cartesian
+basis mn_dzvp2-dgauss-dft
 mn   s
     58745.69200000      0.00168350
      8803.03930000      0.01291030
@@ -26468,7 +26468,7 @@ mn   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis fe_dzvp2-dgauss-dft-cartesian
+basis fe_dzvp2-dgauss-dft
 fe   s
     61430.22700000      0.00175590
      9222.17600000      0.01341690
@@ -26512,7 +26512,7 @@ fe   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis co_dzvp2-dgauss-dft-cartesian
+basis co_dzvp2-dgauss-dft
 co   s
     67981.04200000     -0.00170240
     10193.42800000     -0.01303860
@@ -26556,7 +26556,7 @@ co   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis ni_dzvp2-dgauss-dft-cartesian
+basis ni_dzvp2-dgauss-dft
 ni   s
     72509.04200000     -0.00172080
     10879.17600000     -0.01316370
@@ -26600,7 +26600,7 @@ ni   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis cu_dzvp2-dgauss-dft-cartesian
+basis cu_dzvp2-dgauss-dft
 cu   s
     80289.62000000     -0.00165620
     12027.33800000     -0.01270930
@@ -26644,7 +26644,7 @@ cu   d
 end
 #
 # basis set: (15s, 9p,5d) -> [5s,4p,2d]                        
-basis zn_dzvp2-dgauss-dft-cartesian
+basis zn_dzvp2-dgauss-dft
 zn   s
     82904.22000000     -0.00173130
     12444.23200000     -0.01323280
@@ -26693,7 +26693,7 @@ end
 #
 #
 # basis set: (5s,1p) -> [3s,1p]                                
-basis h_tzvp-dgauss-dft-cartesian
+basis h_tzvp-dgauss-dft
 h    s
        50.99917800      0.00966050
         7.48321810      0.07372890
@@ -26707,7 +26707,7 @@ h    p
 end
 #
 # basis set: (10s,6p,1d) -> [4s,3p,1d]                         
-basis c_tzvp-dgauss-dft-cartesian
+basis c_tzvp-dgauss-dft
 c    s
      5784.15710000      0.00081900
       869.30350000      0.00629350
@@ -26733,9 +26733,10 @@ c    p
         0.08926050      1.00000000
 c    d
         0.60000000      1.00000000
+end
 #
 # basis set: (10s,6p,1d) -> [4s,3p,1d]                         
-basis n_tzvp-dgauss-dft-cartesian
+basis n_tzvp-dgauss-dft
 n    s
      8104.17610000      0.00079690
      1217.31380000      0.00612890
@@ -26764,7 +26765,7 @@ n    d
 end
 #
 # basis set: (10s,6p,1d) -> [4s,3p,1d]                         
-basis o_tzvp-dgauss-dft-cartesian
+basis o_tzvp-dgauss-dft
 o    s
     10814.40200000      0.00078090
      1623.75320000      0.00601020
@@ -26793,7 +26794,7 @@ o    d
 end
 #
 # basis set: (10s,6p,1d) -> [4s,3p,1d]                         
-basis f_tzvp-dgauss-dft-cartesian
+basis f_tzvp-dgauss-dft
 f    s
     13652.10100000      0.00078730
      2050.28700000      0.00605500
@@ -26822,7 +26823,7 @@ f    d
 end
 #
 # basis set: (13s,9p,1d) -> [5s,4p,1d]                         
-basis al_tzvp-dgauss-dft-cartesian
+basis al_tzvp-dgauss-dft
 al   s
     36088.15200000      0.00059760
      5334.36200000      0.00470910
@@ -26859,7 +26860,7 @@ al   d
 end
 #
 # basis set: (13s,9p,1d) -> [5s,4p,1d]                         
-basis si_tzvp-dgauss-dft-cartesian
+basis si_tzvp-dgauss-dft
 si   s
     42393.92700000     -0.00058950
      6264.11290000     -0.00464830
@@ -26896,7 +26897,7 @@ si   d
 end
 #
 # basis set: (13s,9p,1d) -> [5s,4p,1d]                         
-basis p_tzvp-dgauss-dft-cartesian
+basis p_tzvp-dgauss-dft
 p    s
     48863.35400000     -0.00058650
      7253.04570000     -0.00460080
@@ -26933,7 +26934,7 @@ p    d
 end
 #
 # basis set: (13s,9p,1d) -> [5s,4p,1d]                         
-basis s_tzvp-dgauss-dft-cartesian
+basis s_tzvp-dgauss-dft
 s    s
     56415.58000000     -0.00057780
      8345.26890000     -0.00455130
@@ -26970,7 +26971,7 @@ s    d
 end
 #
 # basis set: (13s,9p,1d) -> [5s,4p,1d]                         
-basis cl_tzvp-dgauss-dft-cartesian
+basis cl_tzvp-dgauss-dft
 cl   s
     63923.62600000     -0.00057410
      9525.98700000     -0.00448510
@@ -27007,7 +27008,7 @@ cl   d
 end
 #
 # basis set: (13s,9p,1d) -> [5s,4p,1d]                         
-basis ar_tzvp-dgauss-dft-cartesian
+basis ar_tzvp-dgauss-dft
 ar   s
     71235.46300000     -0.00057860
     10643.43300000     -0.00450440
