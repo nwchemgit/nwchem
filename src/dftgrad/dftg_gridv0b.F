@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.13 2000-10-17 21:21:39 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.14 2000-10-26 21:11:26 bjohnson Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -105,6 +105,7 @@ c
 c
       integer ncuratoms
       logical donewbf           !!! !!!! *** temp
+      integer l_Acof2, k_Acof2, l_Ccof2, k_Ccof2
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
@@ -268,14 +269,23 @@ c
 c
                else if (do_hess) then
 c
-c
 c     Note that k_d2scr is passed in three times, since it is also
 c     used for the scratch arrays ff and s.  This is ok since by the
 c     time ff and s are used, the routine is done with the array scr.
-c -- what about using Bmat? !!!
-                  call xc_d2expl(tol_rho, d2scr, Amat, Amat2,
-     &                 Bmat, Cmat, Cmat2, Dmat, Fmat, Pmat,
-     &                 d2scr, d2scr(3*nqpts+1),
+c
+c     Allocate scratch space to use with xc_cpks_coeff in xc_d2expl
+c
+                  if (.not.MA_push_get(MT_DBL, ipol*nqpts*3,
+     &                 'Acof2', l_Acof2, k_Acof2)) call
+     &                 errquit('dftg_gridv0b: cannot allocate Acof2',1)
+                  if (grad) then
+                     if (.not.MA_push_get(MT_DBL, ipol*9*nqpts, 'CCof2',
+     &                    l_Ccof2, k_Ccof2)) call
+     &                    errquit('dftg_gridv0b: cant alloc Ccof2',1)
+                  endif
+                  call xc_d2expl(tol_rho, d2scr(3*nqpts+1), Amat, Amat2,
+     &                 dbl_mb(k_Acof2), Cmat, Cmat2, dbl_mb(k_Ccof2),
+     &                 Fmat, Pmat, d2scr, d2scr(3*nqpts+1),
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), dbl_mb(id3chi_ao),
      &                 curatoms, ncuratoms, ipol, nqpts,
@@ -284,6 +294,13 @@ c -- what about using Bmat? !!!
      &                 delrho, iga_dens, hess, ibf_ao,
      &                 rchi_atom, rdelchi_atom,
      &                 rdens_atom, cetobfr)
+                  if (grad) then
+                     if (.not.ma_pop_stack(l_Ccof2))
+     &                    call errquit('dftg_gridv0b: cannot pop CCof2',
+     &                    0)
+                  endif
+                  if (.not.ma_pop_stack(l_Acof2))
+     &                 call errquit('dftg_gridv0b: cannot pop Acof2',0)
 c
                else if (do_cpks_r) then
 c
