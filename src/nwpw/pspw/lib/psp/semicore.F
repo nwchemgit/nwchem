@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.3 2002-08-25 00:13:47 bylaska Exp $
+* $Id: semicore.F,v 1.4 2002-08-26 23:45:25 bylaska Exp $
 *
 
 #define TCGMSG
@@ -433,24 +433,6 @@ c     logical semicore(0:nkatmx)
       end do
       end do
 
-      do v=1,3
-      do u=1,3
-        tstress(u,v) = VV*hm(u,v)
-      end do
-      end do
-      call write_stress(tstress,'xc2 a')
-
-      do v=1,3
-      do u=1,3
-         tstress(u,v) = 0.0d0
-         do s=1,3
-           tstress(u,v) = tstress(u,v) + WW(u,s)*hm(s,v)
-         end do
-      end do 
-      end do
-      call write_stress(tstress,'xc2 b')
-
-
 *     **** stress(u,v) = V*hm(u,v) + Sum(s){W(u,s)*hm(s,v) }  ****   
       do v=1,3
       do u=1,3
@@ -528,7 +510,7 @@ c     logical semicore(0:nkatmx)
       call Pack_t_pack(0,dcpl_mb(Gu))
       call Pack_t_pack(0,dcpl_mb(Gs))
 
- 
+
 *     **** tmp3(G) = Gu*Gs/G **** 
       fourpi = 16.0d0*datan(1.0d0)
       ss     = 1.0d0/fourpi

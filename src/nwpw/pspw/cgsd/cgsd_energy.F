@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.31 2002-08-25 00:13:43 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.32 2002-08-26 23:45:24 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -589,12 +589,12 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       call dcopy(9,0.0d0,0,xcstress,1)
       call rho_1exc_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,xcstress,1)
-      call write_stress(tstress,"xc1")
+      !call write_stress(tstress,"xc1")
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
       if (psp_semicore(0)) then
         call rho_1semicore_stress(tstress)
-        call write_stress(tstress,"xc2")
+        !call write_stress(tstress,"xc2")
         call daxpy(9,1.0d0,tstress,1,xcstress,1)
       end if
 
