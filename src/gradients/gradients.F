@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.12 1995-03-31 01:39:31 d3g681 Exp $
+c$Id: gradients.F,v 1.13 1995-10-30 20:58:53 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -129,7 +129,7 @@ c
 c
 c terminate integral scope
 c
-      call int_terminate()
+      call intd_terminate()
 c
       call util_print_pop
       if (.not. context_pop('gradients')) 
