@@ -1,5 +1,5 @@
 %
-% $Id: pspw.tex,v 1.39 2004-05-17 20:19:29 edo Exp $
+% $Id: pspw.tex,v 1.40 2004-05-19 22:45:04 bylaska Exp $
 %
 \label{sec:pspw}
 
@@ -17,10 +17,8 @@
 The NWChem plane-wave (NWPW) module uses pseudopotentials and
 plane-wave basis sets to perform Density Functional Theory
 calculations.  This module complements the capabilities of the more
-traditional Gaussian function based approaches (i.e. DFT module and
-GAPPS Module) by having an accuracy at least as good as the
-traditional Gaussian function based approaches for many applications,
-yet is still fast enough to treat systems containing hundreds of
+traditional Gaussian function based approaches by having an accuracy at least as good 
+for many applications, yet is still fast enough to treat systems containing hundreds of
 atoms.  Another significant advantage is its ability to simulate
 dynamics on a ground state potential surface directly at run-time
 using the Car-Parrinello algorithm.  This method's efficiency and
@@ -181,11 +179,14 @@ The following list describes the keywords contained in the PSPW input block.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Ernzerhof GGA functional.
+        \item MULT - optional keyword which if specified allows the user to define the spin multiplicity
+                     of the system
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
-                         the end of the simulation.  The angular momentum
-                         weights for each kind of atom can be modified using 
-                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}).
+                         the end of the simulation.  
+        \item ALLOW\_TRANSLATION - By default the the center of mass forces are projected out of the 
+                                  computed forces. This optional keyword if specified allows the 
+                                  center of mass forces to not be zero.
 
         \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
         \item DPLOT (see section \ref{sec:pspw_dplot})
@@ -243,7 +244,7 @@ PSPW
 ...
 END
 \end{verbatim}
-Basically, the user needs to enter the dimensions, gridding and boundry
+Basically, the user needs to enter the dimensions, gridding and boundary
 conditions of the simulation cell.  The following list describes the 
 input in detail.
 \begin{itemize}
@@ -262,7 +263,71 @@ input in detail.
                                 along lattice vector directions.
 \end{itemize}
 
-\subsection(\tt Unit Cell Optimization}
+Alternatively, instead of explicitly entering lattice vectors, users can
+enter the unit cell using the standard cell parameters, a, b, c, $\alpha$, 
+$\beta$, and $\gamma$, by using the LATTICE block.  The format for input
+is as follows:
+\begin{verbatim}
+PSPW
+...
+   SIMULATION_CELL
+      ...
+      LATTICE
+        [lat_a <real a default 20.0>]
+        [lat_b <real b default 20.0>]
+        [lat_c <real c default 20.0>]
+        [alpha <real alpha default 90.0>]
+        [beta  <real beta  default 90.0>]
+        [gamma <real gamma default 90.0>]
+      END
+      ...
+   END
+...
+END
+\end{verbatim}
+
+
+The user can also enter the lattice vectors of standard unit cells using the
+keywords SC, FCC, BCC, for simple cubic, face-centered cubic, and body-centered cubic
+respectively.  Listed below is an example of the format of this type of input.
+\begin{verbatim}
+PSPW
+...
+   SIMULATION_CELL
+      SC 20.0
+      ....
+   END
+...
+END
+\end{verbatim}
+
+Finally, the lattice vectors from the unit cell can also be defined using
+the fractional coordinate input in the GEOMETRY input (see section \ref{sec:latticeparam}).   
+Listed below is an example of the format of this type of input for an 8 atom silicon carbide unit cell.
+\begin{verbatim}
+geometry units au 
+  system crystal
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+\end{verbatim}
+
+
+
+\subsection{\tt Unit Cell Optimization}
 \label{sec:pspw_cell_optimization}
 
 The PSPW module using the DRIVER geometry optimizer can optimize a crystal unit cell.
@@ -301,25 +366,54 @@ Listed below is the format of a DPLOT sub-block.
 PSPW
 ... 
    DPLOT
-     VECTORS <string input_wavefunctions  default input_movecs>  
+     VECTORS <string input_wavefunctions  default input_movecs>
      DENSITY [total||difference||alpha||beta||laplacian||potential default total] <string density_name no default>
      ELF [restricted|alpha|beta] <string elf_name no default>
      ORBITAL <integer orbital_number no default> <string orbital_name no default>
+
+
+     [LIMITXYZ [units <string Units default angstroms>]
+     <real X_From> <real X_To> <integer No_Of_Spacings_X>
+     <real Y_From> <real Y_To> <integer No_Of_Spacings_Y>
+     <real Z_From> <real Z_To> <integer No_Of_Spacings_Z>]
+
    END
+
 ...
 END
 \end{verbatim}
+
 The following list describes the input for the DPLOT
 sub-block.
-\begin{itemize}
-        \item $<$input\_wavefunctions$>$ - name of pspw wavefunction file.
-        \item $<$density\_name$>$ - filename containing Gaussian Cube file of
-                                    density plot.
-        \item $<$elf\_name$>$ - filename containing Gaussian Cube file of and
-                                ELF plot 
-        \item $<$orbital\_name$>$ - filename containing Gaussian Cube file of 
-                                    orbital plot.
-\end{itemize}
+
+\begin{verbatim}
+     VECTORS <string input_wavefunctions  default input_movecs>  
+\end{verbatim}
+ This sub-directive specifies the name of the molecular orbital file. If the second file is optionally given the density is computed as the difference between the corresponding electron densities. The vector files have to match. 
+
+\begin{verbatim}
+     DENSITY [total||difference||alpha||beta||laplacian||potential default total] <string density_name no default>
+\end{verbatim}
+This sub-directive specifies, what kind of density is to be plotted. The known names for total, difference, alpha, beta, laplacian, and potential. 
+
+\begin{verbatim}
+     ELF [restricted|alpha|beta] <string elf_name no default>
+\end{verbatim}
+This sub-directive specifies that an electron localization function (ELF) is to be plotted.
+
+\begin{verbatim}
+     ORBITAL <integer orbital_number no default> <string orbital_name no default>
+\end{verbatim}
+This sub-directive specifies the molecular orbital number that is to be plotted.
+
+\begin{verbatim}
+     LIMITXYZ [units <string Units default angstroms>]
+     <real X_From> <real X_To> <integer No_Of_Spacings_X>
+     <real Y_From> <real Y_To> <integer No_Of_Spacings_Y>
+     <real Z_From> <real Z_To> <integer No_Of_Spacings_Z>
+\end{verbatim}
+By default the grid spacing and the limits of the cell to be plotted are defined by the input wavefunctions.  Alternatively the user can use the LIMITXYZ sub-directive to specify other limits.   The grid is generated using No\_Of\_Spacings + 1 points along each direction. The known names for Units are angstroms, au and bohr. 
+
 
 
 \subsection{\tt Wannier}
@@ -583,11 +677,7 @@ sub-block.
         \item $<$ion\_motion\_filename$>$ - name that points to the ion\_motion motion file
                                 generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
-       \item MULLIKEN - optional keyword which if specified
-                         causes an omotion motion file to be created.  For this option
-                         to work angular momentum weights for each kind
-                         of atom have to be entered into the RTDB using
-                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
+       \item MULLIKEN - optional keyword which if specified causes an omotion motion file to be created. 
         \item $<$omotion\_filename$>$ - name that points to the omotion motion file
                                 generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
@@ -607,6 +697,57 @@ For example, the following directive specifies that at the
 \begin{verbatim}
 set pspw_dplot:iteration_list 3,10:15,50
 \end{verbatim}
+
+\subsection{\tt Adding Geometry Constraints To A Car-Parrinello Simulation}
+\label{sec:pspw_CP_constraint}
+The Car-Parrinello module allows users to freeze the cartesian coordinates 
+in a simulation (Note - the Car-Parrinello code reconginizes Cartesian
+constraints, but it does not recognize internal coordinate constraints).  
+The \verb+SET+ directive (Section \ref{sec:activeatoms}) is used to freeze
+atoms, by specifying a directive of the form:
+\begin{verbatim}
+  set geometry:actlist <integer list_of_center_numbers>
+\end{verbatim}
+This defines only the centers in the list as active.  All other
+centers will have zero force assigned to them, and will remain frozen
+at their starting coordinates during a Car-Parrinello simulation.
+
+For example, the following directive specifies that atoms numbered 1,
+5, 6, 7, 8, and 15 are active and all other atoms are frozen:
+\begin{verbatim}
+  set geometry:actlist 1 5:8 15
+\end{verbatim}
+or equivalently,
+\begin{verbatim}
+  set geometry:actlist 1 5 6 7 8 15
+\end{verbatim}
+
+If this option is not specified by entering a \verb+SET+ directive,
+the default behavior in the code is to treat all atoms as active.  To
+revert to this default behavior after the option to define frozen
+atoms has been invoked, the \verb+UNSET+ directive must be used (since
+the database is persistent, see Section \ref{sec:persist}).  The form
+of the \verb+UNSET+ directive is as follows:
+\begin{verbatim}
+  unset geometry:actlist
+\end{verbatim}
+
+
+In addition, the Car-Parrinello module allows users to freeze bond
+lengths via a Shake algorithm.  The following \verb+SET+ directive 
+shows how to do this.
+\begin{verbatim}
+  set nwpw:shake_constraint "2 6 L 6.9334"
+\end{verbatim}
+This input fixes the bond length between atoms 2 and 6 to be
+6.9334 bohrs.  Note that this input only recognizes bohrs.  
+
+When using constraints it is usually necessary to turn off
+center of mass shifting. This can be done by the following \verb+SET+ directive.
+\begin{verbatim}
+  set nwpw:com_shift .false.
+\end{verbatim}
+
 
 
 \subsection{\tt PSP\_GENERATOR}
@@ -930,6 +1071,9 @@ sub-block.
 
 \subsection{\tt WAVEFUNCTION\_EXPANDER}
 \label{sec:pspw_wavefunction_expander}
+The functionality of this task is now performed automatically. For backwards
+compatibility, we provide a description of the input to this task.
+
 The wavefunction\_expander task is used to convert a new wavefunction
 file that spans a larger grid space from an old wavefunction file.
 Input to the WAVEFUNCTION\_EXPANDER task is contained
@@ -1070,10 +1214,7 @@ sub-block.
                                and Erzherhoff GGA functional.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
-                         the end of the simulation.  For this option
-                         to work angular momentum weights for each kind
-                         of atom have to be entered into the RTDB using
-                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
+                         the end of the simulation.  
 \end{itemize}
 
 
@@ -1116,6 +1257,7 @@ NWPW
   
   SIMULATION_CELL ... (see input description) END
   BRILLOUIN_ZONE  ... (see input description) END
+  MONKHORST-PACK <real n1 n2 n3 default 1 1 1>
 
 END 
 \end{verbatim}
@@ -1159,6 +1301,9 @@ The following list describes these keywords.
                                parameterization or the Perdew, Burke, 
         \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
         \item BRILLOUIN\_ZONE  (see section \ref{sec:band_brillouin_zone})
+        \item MONKHORST-PACK - Alternatively, the MONKHORST-PACK keyword can be used 
+                               to enter a MONKHORST-PACK sampling of the Brillouin zone.
+
 \end{itemize}
 
 
@@ -1282,7 +1427,7 @@ The following list describes these keywords.
 
 A library of pseudopotentials used by PSPW and BAND is currently available  in the
 directory \\
-\verb+ $NWCHEM_TOP/src/nwpw/libraryps/library1+
+\verb+ $NWCHEM_TOP/src/nwpw/libraryps/pspw_default+
 
 The elements listed in the following table are present:
 
@@ -1291,21 +1436,48 @@ The elements listed in the following table are present:
  -------
   Li Be                               B  C  N  O
  -------                             ------------------
-                                      Al Si P  S     
+  Na Mg                               Al Si P  S Cl   
  ------------------------------------------------------
-                                   Zn Ga               
+  K          Ti          Fe     Cu Zn Ga Ge As            
+ ------------------------------------------------------
+    Sr
+ ------------------------------------------------------
+                             Pt Au       Pb
  ------------------------------------------------------
 \end{verbatim}
-
+The pseudopotential libraries are continually being tested
+and added.   Also,  a stand-alone code is available that allows users 
+to convert certain pseudopotentials generated with the OPIUM package of Rappe et al.
+The user can request additional pseudopotentials as well as the conversion
+code from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).  
 
 Similary, a library of PAW basis used by PAW is currently available in the
 directory \\
-\verb+ $NWCHEM_TOP/src/nwpw/libraryps/library2+
+\verb+ $NWCHEM_TOP/src/nwpw/libraryps/paw_default+
 
 Currently there are not very many elements available for PAW.  However,
-the user can request additional basis sets from Eric J. Bylaska at
-(nwchem-users@emsl.pnl.gov or eric.bylaska@pnl.gov)  
+the user can request additional basis sets from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).
 The elements available are: H, O Al, Sc, V, and Fe.  
+
+A preliminary implementation of the HGH pseudopotentials (Hartwigsen, Goedecker, and Hutter)
+has been implemented into the PSPW module.  To access
+the pseudopotentials the pseudopotentials input block is used.  For
+example, to redirect the code to use HGH pseudopotentials for carbon
+and hydrogen, the following input would be used.
+\begin{verbatim}
+nwpw
+   ...
+   pseudopotentials
+    C  library  HGH_LDA
+    H  library  HGH_LDA
+   end
+   ...
+end
+\end{verbatim}
+The implementation oif HGH pseudopotentials is rather limited in this release.
+HGH pseudopotentials cannot be used to optimize unit cells, and they
+do not work with the MULLIKEN option.  They also have not yet been implemented 
+into the BAND structure code.
 
 If you wish to redirect the code to a different directory other than
 the default one, 
@@ -1333,28 +1505,6 @@ in the RTDB and must be specified  using the GEOMETRY directive.
 The velocities of the ions are stored in the default geometry structure
 in the RTDB, and must be specified using the GEOMETRY directive.
 
-
-\subsection{{\tt ANALYSIS}: Mulliken RTDB data}
-\label{sec:pspw_analysis}
-
-To perform Mulliken analysis information is needed from one-dimensional
-pseudopotential files.  In-order to facilitate the transfer of this information
-to the simulation the ANALYSIS sub-block is used to exract the necessary information
-and put it into the RTDB.
-\begin{verbatim}
-PSPW
-...
-   ANALYSIS
-      (psp_filename: <string psp_name> \
-       ...)
-   END
-...
-END
-\end{verbatim}
-Basically, the user needs to enter each pseudopotential used in the simulation.
-\begin{itemize}
-        \item $<$psp\_name$>$ - name that ponts to a one-dimensional pseudopotential file.
-\end{itemize}
 
 
 \subsection{Wavefunction Datafile}
@@ -1776,14 +1926,9 @@ task pspw energy
 task pspw Car-Parrinello
 \end{verbatim}
 
-\normalsize
-\section{PSPW Tutorial 3: Running a Simulated Annealing Car-Parrinello Simulation}
-\label{sec:pspw_annealing}
-
-
 
 \normalsize
-\section{PSPW Tutorial 4: optimizing a unit cell and geometry for Silicon-Carbide}
+\section{PSPW Tutorial 3: optimizing a unit cell and geometry for Silicon-Carbide}
 \label{sec:pspw_unitcell_optimization}
 
 The following example demonstrates how to uses the PSPW module to optimize the unit cell
@@ -1946,8 +2091,6 @@ task paw steepest_descent
 \item The second and third dimensions of the FFT grid must be the same 
   (i.e. the parameters na2 and na3 must be the same for each simulation cell).
 \item Wannier orbital generation only works with cubic unit cells ($\alpha=\beta=\gamma=90^o$)
-\item A default Brillouin zone has not been defined for Band simulations.
-\item PAW only works with units cells that have periodic boundary conditions.
 \item PAW is not interfaced to driver, stepper, and vib modules.
 \end{itemize}
 
