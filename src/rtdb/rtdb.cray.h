@@ -1,6 +1,6 @@
 
-/*$Id: rtdb.cray.h,v 1.3 1995-04-11 04:37:28 og845 Exp $*/
-#ifdef CRAY
+/*$Id: rtdb.cray.h,v 1.4 1999-11-13 03:03:14 bjohnson Exp $*/
+#if defined(CRAY) || defined(WIN32)
 #define  context_pop_              CONTEXT_POP 
 #define  context_prefix_            CONTEXT_PREFIX 
 #define  context_push_              CONTEXT_PUSH 
@@ -22,7 +22,7 @@
 #define  rtdb_parallel_             RTDB_PARALLEL
 #define  rtdb_put_                  RTDB_PUT
 #define  rtdb_print_                RTDB_PRINT
-#define  rtdb_print_usage           RTDB_PRINT_USAGE
+#define  rtdb_print_usage_          RTDB_PRINT_USAGE
 #endif
 
 
