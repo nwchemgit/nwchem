@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.62 2004-12-06 20:20:02 bert Exp $
+* $Id: prp.F,v 1.63 2004-12-08 23:57:39 bert Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -10,25 +10,13 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "int_nbf.fh"
-      integer     rtdb, basis, geom
+      integer     rtdb
       logical     status
       logical     some
       logical     out 
-      character*8 wfntyp,scftyp
-      character*8 scf,rhf
-      character*8 runtyp
-      character*8 prop
-      character*8 blank
-      character*4 iblk 
-      data scf     /'scf     '/
-      data rhf     /'rhf     '/
-      data blank   /'        '/
       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
      2     nogiao,noston
-c    3    /  0,    1,    1,    0,    1,    1,    1,    1,    1,
-c    4       1,    1,    1,    1,    1,    1,    1,    1,
-c    5       1,    1/
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      4       1,    1,    1,    1,    1,    1,    1,    1, 
      5       1,    1/
@@ -50,19 +38,10 @@ c
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)   !done
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
-      status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,nospinspin)
-c
-      runtyp=blank
-      wfntyp=scf  
-      scftyp=rhf       
+      status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,nospinspin)     !done
 c
       if(nodhp.eq.0.or.nod2hp.eq.0) nodpl=0
       if(nofhp.eq.0.or.nof2hp.eq.0) nofpl=0
-      if(some) write(luout,9999) nodip,noqdp,nootp,nopop,nospin,noloc,
-     1                        nodpl,nodhp,nod2hp,nofpl,nofhp,nof2hp,
-     2                        nosos,noelp,noelf,noelfg,noden,nogiao,
-     3                        noston
-      if(out ) write(luout,9998) runtyp,scftyp
       if(nospinspin.eq.0) call hnd_spinspin(rtdb,basis,geom)
 c
 c     ----- dipole moment -----
@@ -121,7 +100,6 @@ c
 c
 c     ----- atomic spin density -----
 c
-      runtyp=blank
       if(nospin.eq.0) call hnd_spind(rtdb,basis,geom)
 c
 c     ----- electrostatic potential -----
@@ -156,12 +134,4 @@ c
 !     if(noloc.eq.0) call hnd_mulken(rtdb,basis,geom)
 c
       return
- 9999 format(/,' ----- property selection -----',/,
-     1 ' nodip =',I2,' noqdp =',I2,' nootp =',I2,
-     2 ' nopop =',I2,' nospin=',I2,
-     3 ' noloc =',I2,' nodpl =',I2,/,' nodhp =',I2,' nod2hp=',I2,
-     4 ' nofpl =',I2,' nofhp =',I2,' nof2hp=',I2,' nosos =',I2,
-     5 ' noelp =',I2,/,' noelf =',I2,' noelfg=',I2,' noden =',I2,
-     6 ' nogiao=',I2,' noston=',I2)
- 9998 format(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       end

@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.14 2004-07-21 17:28:27 bert Exp $
+* $Id: hnd_property.F,v 1.15 2004-12-08 23:57:39 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -12,6 +12,7 @@
 #include "util.fh"
 #include "stdio.fh"
 #include "cfock.fh"
+#include "prop.fh"
 c
 c     property module.
 c
@@ -24,8 +25,17 @@ c
 
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
-      logical status
-      character*255 title
+      logical status, usec1
+      character*255 title, vectors_in
+      character*3 theory
+      character*8 gridtype
+      integer giao, spinspin, geomold
+      double precision ithresh, tthresh, e_conv, tol_rho, tol_rho_rd
+      double precision job_grid_acc
+c
+      logical grid_clinit, task_energy
+      external grid_clinit, task_energy
+      integer nopen,mult,ipol
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push
@@ -34,16 +44,49 @@ c     Extract high level info from the data-base setting defaults
 c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
-      if (.not. geom_create(geom, 'geometry'))
+c
+c     Get theory type
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('hnd_property: theory not specified',555,
+     &       INPUT_ERR)
+      if (theory.eq.'hyb') theory = 'dft'
+      use_theory = theory
+c
+c     Check if we are running spinspin or shielding. In that case we
+c     have to remove symmetry from the geometry.
+c
+      giao = 0
+      spinspin = 0
+      status=rtdb_get(rtdb,'prop:giao',MT_INT,1,giao)             
+      status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,spinspin)     
+      usec1 = giao.eq.0 .or. spinspin.eq.0
+c
+c     Get geometry and make C1 if necessary
+c
+      if (.not. geom_create(geomold, 'geometry'))
      $     call errquit('property: geom_create?', 0, GEOM_ERR)
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+      if (.not. geom_rtdb_load(rtdb, geomold, 'geometry'))
      $     call errquit('property: no geometry ', 0, RTDB_ERR)
+      if (usec1) then
+         if (.not. geom_makec1(geomold, geom)) call
+     $    errquit('hnd_spinspin: failed decrease symmetry',555,GEOM_ERR)
+         if (.not.geom_rtdb_store(rtdb,geom,'geometry')) call
+     &    errquit('hnd_spinspin: geom_rtdb_store failed',555,RTDB_ERR)
+      else
+         geom = geomold
+      endif
+c
+c     Get the basis set
+c
       if (.not. bas_create(basis, 'ao basis'))
      $     call errquit('property: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('property: no ao basis ', 0, RTDB_ERR)
       if (.not. int_normalize(rtdb,basis))
      $     call errquit('property: normalization failed',911, INT_ERR)
+c
+c     Some printout
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
@@ -72,6 +115,118 @@ c
          endif
       endif
 c
+c     Set up SCF and DFT stuff for shielding and spinspin CPHF
+c
+      ithresh = 1.0d-6
+      if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
+     $    tthresh = 1.0d-4
+      if (tthresh.lt.ithresh) ithresh = tthresh
+      if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
+     $    call errquit('hnd_property: rtdb_put failed',ithresh,
+     &                 RTDB_ERR)
+      if (theory.eq.'dft') then
+         ithresh = 1.0d-8
+         if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
+     $       tthresh = 1.0d-4
+         if (tthresh.lt.ithresh) ithresh = tthresh
+         if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
+     $       call errquit('hnd_property: rtdb_put failed',ithresh,
+     &                    RTDB_ERR)
+c
+c     set grid to fine or leave the user to set it to xfine
+c
+         if (rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype)) then
+            if(gridtype.eq.'coarse'.or.gridtype.eq.'xcoarse'.
+     $         or.gridtype.eq.'medium') gridtype='fine'
+         else
+            gridtype='fine'
+         endif
+c
+         if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
+     $       call errquit('hnd_property:rtdbcput failed',0, RTDB_ERR)
+c
+c     set grid_acc consistent with fine (at least), ie 1d-7
+c
+         if (.not. rtdb_get(rtdb,'dft:job_grid_acc', mt_dbl, 1,
+     &      job_grid_acc)) then
+            job_grid_acc = 1d-7
+         else
+            job_grid_acc = min(job_grid_acc,1d-7)
+         endif
+         if (.not. rtdb_put(rtdb,'dft:job_grid_acc', mt_dbl, 1,
+     &       job_grid_acc))call errquit('hnd_property:rtdbput failed',
+     &       1,RTDB_ERR)
+c
+c     weight derivatives bit turned off
+c
+         if (.not. rtdb_put(rtdb,'dft:weight derivatives', mt_log,1,
+     &       .false.)) call errquit('hnd_property:rtdbput failed',2,
+     &                               RTDB_ERR)
+c
+c     set tol_rho to at least 1d-11 (it is 1d-10 otherwise)
+c
+         tol_rho=1d-11
+         if (rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho_rd))
+     .       tol_rho=min(tol_rho,tol_rho_rd)
+         if (.not.rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho))
+     .        call errquit(' hnd_property: rtdbput failed ',11,0)
+c
+c     kill symmetry for XC grid build
+c
+         if (usec1) then
+           if (.not. rtdb_put(rtdb, 'dft:gridsym',
+     $         MT_LOG, 1, .false.)) call errquit(
+     $         ' hnd_property: rtdb_put failed',0, RTDB_ERR)
+         endif
+c
+c     get xfac for doing xc_gotxc right on restart
+c     but ignore the status since there are not xfac
+c     on rtdb when we are in start mode
+c
+         status=grid_clinit(rtdb)
+         call grid_cleanup(.false.)
+c
+c     set deltaE at least to 1d-7
+c
+         if (.not.rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,e_conv))then
+             e_conv=1d-7
+         else
+             e_conv=min(e_conv,1d-7)
+         endif
+         if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
+     &       call errquit('hnd_property: rtdb_put failed', 100,
+     &                    RTDB_ERR)
+c
+         call dft_inpanae(rtdb)
+      endif
+c
+c     Make sure the energy and vectors have been calculated
+c
+      if(.not.task_energy(rtdb)) call errquit
+     *  ('hnd_property: energy failure', 555, CALC_ERR)
+c
+c     Making sure scf_init realizes that ODFT is UHF
+c
+      if (theory.eq.'dft') then
+         if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, 'UHF')) call
+     &       errquit('hnd_property: rtdb_cput failed',100,RTDB_ERR)
+      endif
+c
+c     Depending on calculation write prop:input vectors to rtdb
+c
+      if (theory.eq.'dft') then
+         if (.not. rtdb_cget(rtdb,'dft:input vectors',1,vectors_in))
+     &       call errquit('hnd_property: rtdb_cget failed', 100,
+     &                    RTDB_ERR)
+      elseif (theory.eq.'scf') then
+         if (.not. rtdb_cget(rtdb,'scf:input vectors',1,vectors_in))
+     &       call errquit('hnd_property: rtdb_cget failed', 100,
+     &                    RTDB_ERR)
+      endif
+      if (.not. rtdb_cput(rtdb,'prop:input vectors',1,vectors_in))
+     &    call errquit('hnd_property: rtdb_cput failed', 100,
+     &                 RTDB_ERR)
+c
 c     call hondo property calculation routines
 c
       if (.not.bas_any_gcorsp(basis)) then
@@ -86,8 +241,17 @@ c
      &    (geom_destroy(geom))
      &    ))
      &    call errquit
-     &    ('property:error destroying geom and basis handles',911,
+     &    ('hnd_property:error destroying geom and basis handles',911,
      &       GEOM_ERR)
+c
+c     Reset geometry if necessary
+c
+      if (usec1) then
+         if (.not.geom_rtdb_store(rtdb,geomold,'geometry')) call
+     &    errquit('hnd_property: geom_rtdb_store failed',555,RTDB_ERR)
+         if (.not.geom_destroy(geomold)) call
+     &    errquit('hnd_property: geom_destroy failed',555,RTDB_ERR)
+      endif
 c
       call util_print_pop
 c

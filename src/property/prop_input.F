@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.12 2004-12-06 21:49:28 bert Exp $
+* $Id: prop_input.F,v 1.13 2004-12-08 23:57:39 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -96,10 +96,7 @@ c
 
       if (inp_a(test)) then
 c             
-      if ( inp_compare(.false., 'vectors', test)) then
-           call vectors_input(rtdb,'prop')
-c             
-      elseif ( inp_compare(.false., 'hyperfine', test)) then
+      if ( inp_compare(.false., 'hyperfine', test)) then
          hyperfine = 0
       elseif ( inp_compare(.false., 'spinspin', test)) then
          spinspin = 0

@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.3 2004-12-06 21:46:47 bert Exp $
+c $Id: hnd_spinspin.F,v 1.4 2004-12-08 23:57:39 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -67,15 +67,8 @@ c
       if (ga_nodeid().eq.0) write(luout,9999)
 c
 c     Current CPHF does not handle symmetry 
-c     Making C1 geometry and store it on rtdb
 c     
       oskel = .false.
-      if (.not. geom_makec1(geom, geomnew)) call
-     $    errquit('hnd_spinspin: failed decrease symmetry',555,GEOM_ERR)
-      if (.not.geom_rtdb_store(rtdb,geomnew,'geometry')) call
-     &    errquit('hnd_spinspin: geom_rtdb_store failed',555,RTDB_ERR)
-      if (.not.geom_destroy(geomnew)) call
-     &    errquit('hnd_spinspin: geom_destroy failed',555, GEOM_ERR)
 c
 c     Find out from rtdb for which atom combinations we need to calculate the spin-spin couplings
 c     Get number of atoms (all or number from rtdb)
@@ -307,12 +300,6 @@ c
 c
       if (.not.ma_chop_stack(l_pr)) call
      &    errquit('hnd_spinspin: ma_pop_stack failed l_tmp',0,MA_ERR)
-c
-c     Current CPHF does not handle symmetry 
-c     Had put C1 symmetry molecule on rtdb, will put original one back
-c
-      if (.not.geom_rtdb_store(rtdb,geom,'geometry')) call
-     &    errquit('hnd_spinspin: geom_rtdb_store failed',555,RTDB_ERR)
 c
       return
  7000 format(/,10x,'Indirect spin-spin coupling not calculated for RHF',

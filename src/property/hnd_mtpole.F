@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.6 2004-12-06 20:20:02 bert Exp $
+c $Id: hnd_mtpole.F,v 1.7 2004-12-08 23:57:39 bert Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -96,7 +96,6 @@ c     Nuclear contribution
 c
       do 60 icomp = 1, ncomp
       mptval(icomp,1) = -mptval(icomp,1)
-      print*,'electronic',mptval(icomp,1)
       call getNxyz(mpole,icomp,Nxyz)
       do 60 iat = 1, nat
          cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)

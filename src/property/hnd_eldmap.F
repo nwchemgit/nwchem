@@ -1,6 +1,6 @@
       subroutine hnd_eldmap(rtdb,basis,geom)
 c
-c $Id: hnd_eldmap.F,v 1.4 2004-12-06 20:20:02 bert Exp $
+c $Id: hnd_eldmap.F,v 1.5 2004-12-08 23:57:39 bert Exp $
 c
 c     This routine calculates the electron density and spin
 c     density for a given density at the atomic positions.
@@ -112,9 +112,9 @@ c
 c
 c     ----- spin density now -----
 c
-      write(luout,9992)
-      write(luout,9997)
       if (spindens) then
+         write(luout,9992)
+         write(luout,9997)
          do 230  iat=1,nat
             if(.not. geom_cent_tag(geom,iat,at_tag)) call
      &         errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)

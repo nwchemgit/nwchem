@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.6 2004-12-06 21:46:47 bert Exp $
+c $Id: hnd_giaox.F,v 1.7 2004-12-08 23:57:39 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -28,7 +28,7 @@ c
       integer vectors(2), geomnew, i, j, ij
       double precision atn, tol2e, val, isotr, aniso
       double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3)
-      character*8 scftyp
+      character*3 scftyp
       character*16 tag
       character*32 element
       character*256 cphf_rhs, cphf_sol
@@ -48,12 +48,6 @@ c     Current CPHF does not handle symmetry
 c     Making C1 geometry and store it on rtdb
 c     
       oskel = .false.
-      if (.not. geom_makec1(geom, geomnew)) call
-     $    errquit('hnd_giaox: failed to decrease symmetry',555,GEOM_ERR)
-      if (.not.geom_rtdb_store(rtdb,geomnew,'geometry')) call
-     &    errquit('hnd_giaox: geom_rtdb_store failed',555,RTDB_ERR)
-      if (.not.geom_destroy(geomnew)) call
-     &    errquit('hnd_giaox: geom_destroy failed',555, GEOM_ERR)
 c
 c     Integral initialization
 c
@@ -100,9 +94,9 @@ c     First allocate some memory for occupation numbers and eigenvalues
 c
       if (.not. bas_numbf(basis,nbf)) call
      &    errquit('hnd_giaox: could not get nbf',0, BASIS_ERR)
-      if (.not. ma_push_get(mt_dbl,nbf,'occ num',l_occ,k_occ)) call
+      if (.not. ma_push_get(mt_dbl,2*nbf,'occ num',l_occ,k_occ)) call
      &    errquit('hnd_giaox: ma_push_get failed k_occ',0,MA_ERR)
-      if (.not. ma_push_get(mt_dbl,nbf,'eigenval',l_eval,k_eval)) call
+      if (.not. ma_push_get(mt_dbl,2*nbf,'eigenval',l_eval,k_eval)) call
      &    errquit('hnd_giaox: ma_push_get failed k_eval',0,MA_ERR)
       call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
      &                      nvirt,scftyp,vectors,dbl_mb(k_occ),
@@ -656,13 +650,14 @@ c
 c
 c     Clean up all remaining memory
 c
- 911  if (.not.ga_destroy(vectors(1))) call 
-     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
-c
       if (.not.ma_pop_stack(l_dia)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_dia',0,MA_ERR)
       if (.not.ma_pop_stack(l_para)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_para',0,MA_ERR)
+c
+ 911  if (.not.ga_destroy(vectors(1))) call 
+     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
+c
       if (.not.ma_pop_stack(l_zan)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_zan',0,MA_ERR)
       if (.not.ma_pop_stack(l_xyz)) call
@@ -671,12 +666,6 @@ c
      &    errquit('hnd_giaox: ma_pop_stack failed l_tmp',0,MA_ERR)
       call schwarz_tidy()
       call int_terminate()
-c
-c     Current CPHF does not handle symmetry 
-c     Had put C1 symmetry molecule on rtdb, will put original one back
-c
-      if (.not.geom_rtdb_store(rtdb,geom,'geometry')) call
-     &    errquit('hnd_giaox: geom_rtdb_store failed',555,RTDB_ERR)
 c
       return
  7000 format(/,10x,'NMR shielding cannot be calculated for UHF',

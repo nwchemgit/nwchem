@@ -1,7 +1,7 @@
       subroutine hnd_sdfc(rtdb,geom,basis,vectors,nclosed,nopen,nvirt,
      &                    nbf,nmo,pairlist,translate,ipairs,unique,
      &                    i_pert,i_resp,tensor,coords,nfc,nsd,nsdfc)
-c $Id: hnd_sdfc.F,v 1.2 2004-12-06 20:15:36 bert Exp $
+c $Id: hnd_sdfc.F,v 1.3 2004-12-08 23:57:39 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -379,23 +379,23 @@ c
          i = unique(translate(ixy))
          j = unique(translate(ixy+ipairs))
 c        RAW contributions for reference
-         do ix = 1, 3
-            do iy = 1, 3 
-               alo(3) = i_pert + (i-1)*6 + ilist(ix,iy)
-               ahi(3) = i_pert + (i-1)*6 + ilist(ix,iy)
-               blo(3) = (j-1)*6 + ilist(ix,iy)
-               bhi(3) = (j-1)*6 + ilist(ix,iy)
-               valuea = nga_ddot_patch(g_sda,'n',blo,bhi,
-     &                                 g_d1(1),'n',alo,ahi)
-               valueb = nga_ddot_patch(g_sda,'n',blo,bhi,
-     &                                 g_d1(2),'n',alo,ahi)
-               if (ga_nodeid().eq.0) 
-     &            write(6,'(A,4I4,5F12.6)') 'SD raw i j com',
-     &            pairlist(ixy),pairlist(ixy+ipairs),ix,iy,
-     &            (valuea-valueb)*nsd*0.5d0,
-     &             valuea,valueb,nsd
-            enddo
-         enddo
+c        do ix = 1, 3
+c           do iy = 1, 3 
+c              alo(3) = i_pert + (i-1)*6 + ilist(ix,iy)
+c              ahi(3) = i_pert + (i-1)*6 + ilist(ix,iy)
+c              blo(3) = (j-1)*6 + ilist(ix,iy)
+c              bhi(3) = (j-1)*6 + ilist(ix,iy)
+c              valuea = nga_ddot_patch(g_sda,'n',blo,bhi,
+c    &                                 g_d1(1),'n',alo,ahi)
+c              valueb = nga_ddot_patch(g_sda,'n',blo,bhi,
+c    &                                 g_d1(2),'n',alo,ahi)
+c              if (ga_nodeid().eq.0) 
+c    &            write(6,'(A,4I4,5F12.6)') 'SD raw i j com',
+c    &            pairlist(ixy),pairlist(ixy+ipairs),ix,iy,
+c    &            (valuea-valueb)*nsd*0.5d0,
+c    &             valuea,valueb,nsd
+c           enddo
+c        enddo
          do ix = 1, 3
             do iy = 1, 3 
                valuea = 0.0d0
