@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.38 2000-11-08 00:43:26 d3g681 Exp $
+* $Id: geom_hnd.F,v 1.39 2001-03-15 19:40:50 windus Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -309,7 +309,7 @@ c     take the reciprocal of the eigenvalue, zero out small ones.
 c
       nindep = 0
       do i = 1, nzvar
-         if (abs(e(i)) .gt. 1d-3) then
+         if (abs(e(i)) .gt. 1d-4) then
             nindep = nindep + 1
             e(i) = 1d0 / e(i)
          else
