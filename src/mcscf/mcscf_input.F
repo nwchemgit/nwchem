@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.6 1997-02-27 23:51:12 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.7 1997-03-21 01:55:10 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -12,7 +12,7 @@ c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       integer num_profopt       ! No. of known profiling options
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 16)
       parameter (num_profopt = 1)
       character*12 dirs(num_dirs)
       character*12 prof_opt(num_profopt)
@@ -34,6 +34,7 @@ c
      $            'hessian',
      $            'print',
      $            'noprint',
+     $            'lock',
      $            'end'/
       data prof_opt/ 'fock' /
 c
@@ -52,7 +53,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $      1100, 1200, 1300, 1400,
+     $      1100, 1200, 1300, 1400, 1500,
      $      9999) ind
       call errquit('mcscf_input: unimplemented directive', ind)
 c     
@@ -166,6 +167,12 @@ c
  1300 continue
  1400 continue
       call util_print_input(rtdb,'mcscf')
+      goto 1001
+c
+c     lock
+c
+ 1500 if (.not. rtdb_put(rtdb,'mcscf:movecs lock',mt_log, 1, .true.))
+     $     call errquit('mcscf_input: failed putting lock',0)
       goto 1001
 c
 c

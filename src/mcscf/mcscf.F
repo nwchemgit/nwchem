@@ -59,7 +59,7 @@ c
       cputime = util_cpusec()
       walltime= util_wallsec()
 c     
-      mcscf = .true.
+      mcscf = .false.
       oconverged = .false.
 c     
       call util_print_push
@@ -233,6 +233,9 @@ c
      $     call errquit('mcscf: cannot allocate MO vectors',0)
       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_movecs )
+
+      if (.not.rtdb_cput(rtdb,'mcscf:input vectors',1,movecs_in))
+     $     call errquit('mcscf: rtdb corrupt?',0)
 c     
 c     Orbital irreps
 c     
@@ -406,14 +409,8 @@ c
          endif
       endif
 c     
+      oconverged = gnorm .le. thresh
       mcscf = oconverged
-c     
-*     if (gnorm .gt. thresh) then
-*     mcscf = .false.
-*     else
-*     mcscf = .true.
-*     endif
-c     
 c     
 c     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c     
