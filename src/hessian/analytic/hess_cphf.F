@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.16 2000-08-23 18:37:32 windus Exp $
+C $Id: hess_cphf.F,v 1.17 2000-08-25 17:04:12 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -296,8 +296,8 @@ c
         call ga_maxelt(g_rhs(ind),dmax)
         if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
         nfock = 1
-        jfact =  8.0d+00
-        kfact = -4.0d+00
+        jfact =  8.0d+00*jfac(ndns)
+        kfact = -4.0d+00*kfac(ndns)
 
         call ga_copy(g_rhs(ind),g_modx)  ! copy Ta to g_modx
         call ga_zero(g_rhs(ind))   ! zeroed to get the "new" fock matrices
