@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.42 2004-05-03 18:46:39 sohirata Exp $
+# $Id: doqmtests,v 1.43 2004-05-13 16:31:14 bylaska Exp $
 #
 #---   small tests
 ./runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
@@ -42,6 +42,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix pspw_md
 ./runtests.unix paw
 ./runtests.unix pspw_polarizability
+./runtests.unix pspw_stress
 ./runtests.unix band
 ./runtests.unix tddft_h2o
 ./runtests.unix tddft_n2+
