@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.37 2000-08-25 23:26:08 edo Exp $
+* $Id: grid_file.F,v 1.38 2000-10-19 01:26:32 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -30,7 +30,6 @@ c
       double precision enuc
       integer availkb, sdlen
       character*20 fstype
-      character*255 grinfo
       character*(nw_max_path_len) scratchdir
       integer util_scratch_dir_avail_for_me,me,ioserr,ierr
       character*80 errmsg
@@ -145,20 +144,44 @@ c
          write(gr_unit,'(1E20.12)') enuc_in
       else
          grid_file_open=.false.
-         open(unit=gr_unit,file=grinfo,status='unknown',iostat=ioserr,
+         if (otrace) then
+            write(LuOut,*) ' grid_file: grinfo opening ',grinfo
+            call util_flush(LuOut)
+         end if
+         open(unit=gr_unit,file=grinfo,status='old',iostat=ioserr,
      ,        err=199)
          filedump_opened=.true.
+         if (otrace) then
+            write(LuOut,*) ' readin enuc from ',grinfo
+            call util_flush(LuOut)
+         end if
          read(gr_unit,'(1E20.12)',err=199) enuc
          if(abs(enuc-enuc_in).gt.1d-4) then
            write(6,*) ' enucs ',enuc,enuc_in
            return
 	 endif
+         if (otrace) then
+            write(LuOut,*) ' readin mxfilerec from ',grinfo
+            call util_flush(LuOut)
+         end if
          read(gr_unit,99,err=199) max_file_rec
  99      format(I72) 
+         if (otrace) then
+            write(LuOut,*) ' readin mxcacherec from ',grinfo
+            call util_flush(LuOut)
+         end if
          read(gr_unit,99,err=199) max_cache_rec
          read(gr_unit,99,err=199) n_rec_in_file
          read(gr_unit,'(L1)',err=199) file_opened
          rewind(gr_unit)
+         if (otrace) then
+            write(LuOut,*) ' INFO readin  from ',grinfo
+            write(LuOut,*) '      enuc',enuc
+            write(LuOut,*) '      mxcrec',max_cache_rec
+            write(LuOut,*) '      nrecfil',n_rec_in_file
+            write(LuOut,*) '      flopend',file_opened
+            call util_flush(LuOut)
+         endif
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1)

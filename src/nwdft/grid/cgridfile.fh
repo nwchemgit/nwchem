@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.20 2000-07-27 22:24:18 edo Exp $
+* $Id: cgridfile.fh,v 1.21 2000-10-19 01:26:31 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -20,7 +20,7 @@ c
       integer n_per_rec         ! No. of grid_pts a buffer can hold
       integer rec_len_in_dbl    ! Size of total record in doubles
       character*256 actualname  ! Name of file
-      character*256 actualgrinfo  ! Name of info file
+      character*256 grinfo  ! Name of info file
       logical otrace            ! True if debugging enabled
       logical oinfo             ! True if to print brief info
       integer l_cache, k_cache  ! MA space for grid_pt cache
@@ -102,6 +102,6 @@ c     doubles
 c     .     radsub
 c
       common/ccgridinfo/
-     $     actualname,actualgrinfo
+     $     actualname,grinfo
 c
 

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.47 2000-10-17 21:21:21 edo Exp $
+c     $Id: dft_main0d.F,v 1.48 2000-10-19 01:26:36 edo Exp $
 c     
       implicit none
 c
@@ -54,7 +54,8 @@ c
       oprint = util_print('dft info', print_default)
       oprint_time = util_print('dft timings', print_high)
       oprint_ioinfo = util_print('io info', print_debug)
-      if(ga_nodeid().eq.0) then
+      if(ga_nodeid().eq.0.and.
+     .     util_print('geometry', print_high)) then
         if(.not.geom_print(geom)) call errquit(
      .       ' dftmain0d: geom print failed',0)
       endif
