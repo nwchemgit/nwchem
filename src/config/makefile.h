@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.431 2003-10-23 01:42:40 edo Exp $
+# $Id: makefile.h,v 1.432 2003-10-23 19:45:15 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1523,13 +1523,13 @@ LINK.f = /home/eapra/bin/ld   -L/home/eapra/nwchem/lib/LINUX64 -L/home/eapra/nwc
         COPTIONS  +=  -q64 -qlanglvl=extended
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif
 
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS += -lpthread -ldl
 endif
-EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90 -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
 
 endif
 
