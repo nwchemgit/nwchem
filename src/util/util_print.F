@@ -9,15 +9,18 @@
 c     
       data depth /1/, print_level(1)/print_default/ ! In common
       data n_print(1) /0/, n_no_print(1) /0/
+      data oprint_print /.false./
 c     
       if (n_print(depth) .gt. 0) then
          if (inp_match(n_print(depth), .false., name, 
      $        print_names(1,depth), ind)) then
             util_print = .true.
-*            write(6,*) ' up: explicit on for: ', name
+            if (oprint_print) then
+               write(6,*) ' up: explicit on for: ', name
+            endif
             goto 10
          else if (ind .eq. 0) then
-*            write(6,*) ' util_print: ambiguous print option: ', name
+            write(6,*) ' util_print: ambiguous print option: ', name
             call util_flush(6)
          endif
       endif
@@ -26,20 +29,26 @@ c
          if (inp_match(n_no_print(depth), .false., name, 
      $        no_ print_names(1,depth), ind)) then
             util_print = .false.
-*            write(6,*) ' up: explicit off for: ', name
+            if (oprint_print) then
+               write(6,*) ' up: explicit off for: ', name
+            endif
             goto 10
          else if (ind .eq. 0) then
-*            write(6,*) ' util_print: ambiguous print option: ', name
+            write(6,*) ' util_print: ambiguous print option: ', name
             call util_flush(6)
          endif
       endif
 c     
-*      write(6,*) ' up: general rule for: ', name
+      if (oprint_print) then
+         write(6,*) ' up: general rule for: ', name
+      endif
       util_print = level .le. print_level(depth)
 
  10   continue
-*      write(6,*) ' up: ', name, ' ', level, print_level(depth), 
-*     $     util_print
+      if (oprint_print) then
+         write(6,*) ' up: ', name, ' ', level, print_level(depth), 
+     $        util_print
+      endif
 c     
       end
       subroutine util_print_set_level(level)
@@ -87,9 +96,15 @@ c
          call errquit('util_print_enable: too many names', 
      $        n_print(depth))
       else
-         n_print(depth) = n_print(depth) + 1
-         print_names(n_print(depth), depth) = name
-*         write(6,*) ' up: enabling: ', name
+         if (name(1:5) .eq. 'print') then
+            oprint_print = .true.
+         else
+            n_print(depth) = n_print(depth) + 1
+            print_names(n_print(depth), depth) = name
+         endif
+         if (oprint_print) then
+            write(6,*) ' up: enabling: ', name
+         endif
       endif
 c
       end
@@ -105,7 +120,9 @@ c
       else
          n_no_print(depth) = n_no_print(depth) + 1
          no_print_names(n_no_print(depth), depth) = name
-*         write(6,*) ' up: disabling: ', name
+         if (oprint_print) then
+            write(6,*) ' up: disabling: ', name
+         endif
       endif
 c
       end
