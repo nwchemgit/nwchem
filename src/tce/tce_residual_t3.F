@@ -1,6 +1,6 @@
       subroutine tce_residual_t3(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_residual_t3.F,v 1.3 2002-10-25 17:31:20 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -35,7 +35,7 @@ c     =====================
 c
       nodezero = (ga_nodeid().eq.0)
       if (.not.ga_create(mt_dbl,1,1,'residual',1,1,g_residual))
-     1  call errquit('tce_residual_t1: GA problem',0)
+     1  call errquit('tce_residual_t3: GA problem',0)
       residual = 0.0d0
       call ga_put(g_residual,1,1,1,1,residual,1)
       call ga_sync()

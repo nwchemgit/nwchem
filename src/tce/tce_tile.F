@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.6 2002-10-23 22:44:33 sohirata Exp $
+c $Id: tce_tile.F,v 1.7 2002-10-25 17:31:20 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -104,6 +104,11 @@ c
         size = dfloat(available)
         size = size / 2.0d0
         size = size ** (1.0d0/6.0d0)
+        isize = min(isize,int(size))
+      else if (model.eq."ccsdtq") then
+        size = dfloat(available)
+        size = size / 2.0d0
+        size = size ** (1.0d0/8.0d0)
         isize = min(isize,int(size))
       else
         call errquit("tce_tile: the model NYI",0)

@@ -1,7 +1,7 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
 #
-# $Id: tce.py,v 1.3 2002-10-23 01:38:52 sohirata Exp $
+# $Id: tce.py,v 1.4 2002-10-25 17:31:16 sohirata Exp $
 #
 
 import string
@@ -361,6 +361,29 @@ def expand(nestedlist):
    else:
       return result
 
+def createasmallfactor(before,after,all):
+   """Creates a factor of 1 + P(before -> after)"""
+   beforeandafter = copy.deepcopy(all)
+   parity = 0.5
+   for i in range(len(all)):
+      foundinbefore = -1
+      foundinafter = -1
+      for j in range(len(before)):
+         if (before[j].isidenticalto(all[i])):
+            foundinbefore = j 
+         if (after[j].isidenticalto(all[i])):
+            foundinafter = j 
+      if (foundinbefore != -1):
+         beforeandafter.append(after[foundinbefore])
+         parity = - parity
+      elif (foundinafter != -1):
+         beforeandafter.append(before[foundinafter])
+      else:
+         beforeandafter.append(all[i])
+   factor = Factor([0.5],[[]])
+   factor.add(Factor([parity],[beforeandafter]))
+   return factor
+
 def createfactor(permutables,all):
    """Creates a factor object with all possible permutations of indexes in the given permutable list"""
    factor = Factor([0.0],[[]])
@@ -636,7 +659,7 @@ class Factor:
                      if (indexa.isgreaterthan(indexb)):
                         another.permutations[nfactor][nindexb] = copy.deepcopy(indexa)
                         another.permutations[nfactor][nindexa] = copy.deepcopy(indexb)
-                        another.coefficients[nfactor] = (-1.0) * coefficient
+                        another.coefficients[nfactor] = (-1.0) * another.coefficients[nfactor]
                         done = 0
       return another
 
@@ -1425,9 +1448,9 @@ class TensorContraction:
       """Prints the content"""
       return self.show()
 
-   def show(self):
+   def show(self,verbose=1):
       """Returns a human-friendly string of the content"""
-      show = self.factor.show()
+      show = self.factor.show(verbose)
       if (self.summation):
          if (len(self.summation.indexes) > 0):
             show = string.join([show, "*", self.summation.show()])
@@ -1756,8 +1779,7 @@ class TensorContraction:
             print " ... the suggested decomposition of the permutation operator is valid"
          else:
             factorisbrokendown = 0
-            print " ************ WARNING! ************"
-            print " ... the permutation operator cannot be broken down"
+            raise RuntimeError, "Cannot breakdown permutation operator"
 
          # breakdown of a multiple tensor contraction
          tensorone = another.tensors[order[0]-1]
@@ -1840,42 +1862,86 @@ class TensorContraction:
                targetsub.append(tensor.indexes[nindex])
 
       # identify equivalent tensors
+#     another = self.duplicate()
+#     for itensora in range(len(another.tensors)):
+#        tensora = another.tensors[itensora]
+#        super = []
+#        sub = []
+#        for itensorb in range(len(another.tensors)):
+#           tensorb = another.tensors[itensorb]
+#           if (itensorb <= itensora):
+#              continue
+#           if (tensora.isequivalentto(tensorb,another)):
+#              if ((not super) and (not sub)):
+#                 for nindex in range(len(tensora.indexes)/2):
+#                    index = tensora.indexes[nindex]
+#                    if (not another.summation.hastheindex(index)):
+#                       super.append(index)
+#                 for nindex in range(len(tensora.indexes)/2,len(tensora.indexes)):
+#                    index = tensora.indexes[nindex]
+#                    if (not another.summation.hastheindex(index)):
+#                       sub.append(index)
+#              for nindex in range(len(tensorb.indexes)/2):
+#                 index = tensorb.indexes[nindex]
+#                 if (not another.summation.hastheindex(index)):
+#                    super.append(index)
+#              for nindex in range(len(tensorb.indexes)/2,len(tensorb.indexes)):
+#                 index = tensorb.indexes[nindex]
+#                 if (not another.summation.hastheindex(index)):
+#                    sub.append(index)
+#        # multiply permutation operator of norm unity
+#        if (super):
+#           symmetrized = 1
+#           factor = createfactor(super,targetsuper+targetsub)
+#           if (verbose):
+#              print factor.show()," will be multiplied"
+#           another.factor = factor.product(another.factor)
+#        if (sub):
+#           symmetrized = 1
+#           factor = createfactor(sub,targetsuper+targetsub)
+#           if (verbose):
+#              print factor.show()," will be multiplied"
+#           another.factor = factor.product(another.factor)
+
+      # identify equivalent tensors
       another = self.duplicate()
       for itensora in range(len(another.tensors)):
          tensora = another.tensors[itensora]
-         super = []
-         sub = []
+         before = []
+         for nindex in range(len(tensora.indexes)/2):
+            index = tensora.indexes[nindex]
+            if (another.summation):
+               if (not another.summation.hastheindex(index)):
+                  before.append(index)
+         for nindex in range(len(tensora.indexes)/2,len(tensora.indexes)):
+            index = tensora.indexes[nindex]
+            if (another.summation):
+               if (not another.summation.hastheindex(index)):
+                  before.append(index)
          for itensorb in range(len(another.tensors)):
             tensorb = another.tensors[itensorb]
             if (itensorb <= itensora):
                continue
             if (tensora.isequivalentto(tensorb,another)):
-               if ((not super) and (not sub)):
-                  for nindex in range(len(tensora.indexes)/2):
-                     index = tensora.indexes[nindex]
-                     if (not another.summation.hastheindex(index)):
-                        super.append(index)
-                  for nindex in range(len(tensora.indexes)/2,len(tensora.indexes)):
-                     index = tensora.indexes[nindex]
-                     if (not another.summation.hastheindex(index)):
-                        sub.append(index)
+               after = []
                for nindex in range(len(tensorb.indexes)/2):
                   index = tensorb.indexes[nindex]
-                  if (not another.summation.hastheindex(index)):
-                     super.append(index)
+                  if (another.summation):
+                     if (not another.summation.hastheindex(index)):
+                        after.append(index)
                for nindex in range(len(tensorb.indexes)/2,len(tensorb.indexes)):
                   index = tensorb.indexes[nindex]
-                  if (not another.summation.hastheindex(index)):
-                     sub.append(index)
-         # multiply permutation operator of norm unity
-         if (super):
-            symmetrized = 1
-            factor = createfactor(super,targetsuper+targetsub)
-            another.factor = factor.product(another.factor)
-         if (sub):
-            symmetrized = 1
-            factor = createfactor(sub,targetsuper+targetsub)
-            another.factor = factor.product(another.factor)
+                  if (another.summation):
+                     if (not another.summation.hastheindex(index)):
+                        after.append(index)
+
+               # multiply permutation operator of norm unity
+               if (before):
+                  symmetrized = 1
+                  factor = createasmallfactor(before,after,targetsuper+targetsub)
+                  if (verbose):
+                     print factor.show()," will be multiplied"
+                  another.factor = factor.product(another.factor)
 
       if (symmetrized):
          print " ... expression has been symmetrized"
@@ -1900,11 +1966,11 @@ class ListTensorContractions:
          print line
       return ""
  
-   def show(self):
+   def show(self,verbose=1):
       """Prints the tensor contractions"""
       show = []
       for tensorcontraction in self.list:
-         show.append(tensorcontraction.show())
+         show.append(tensorcontraction.show(verbose))
       return show
 
    def findthebestbreakdown(self,verbose=0):
@@ -5059,7 +5125,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.3 2002-10-23 01:38:52 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.4 2002-10-25 17:31:16 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.5 2002-10-24 22:32:00 sohirata Exp $
+c $Id: tce_init.F,v 1.6 2002-10-25 17:31:20 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -162,6 +162,9 @@ c
         ctype='Linearized coupled-cluster singles & doubles (LCCSD)'
       else if (model.eq.'ccsdt') then
         ctype='Coupled-cluster singles, doubles, & triples (CCSDT)'
+      else if (model.eq.'ccsdtq') then
+        ctype=
+     1'Coupled-cluster singles, doubles, triples, & quadruples (CCSDTQ)'
       else
         call errquit('tce_init: specified CC model not implemented',0)
       endif
