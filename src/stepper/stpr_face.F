@@ -4,7 +4,7 @@
      &       CONVGG, NATD, NMODE,
      &       TRACK, BCKSTP, RPATH , rtdb, step_number)
 c
-c $Id: stpr_face.F,v 1.3 1994-09-25 07:51:47 d3e129 Exp $
+c $Id: stpr_face.F,v 1.4 1994-10-26 22:26:09 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       integer rtdb, him, kim, step_number, maxiter
@@ -47,6 +47,7 @@ C     SWFIR - switch to first derivatives; then bomb
 C
 C     Set default values.
 C
+*      write(6,*)' nat3 = ',nat3
       oselect = .false.
       osetmass = .false.
       call stpr_set_defaults(OMIN,TS,STD,TROT,TRTR,MWC,SECO,SWFIR,
@@ -337,6 +338,7 @@ C
       DO 9 I = 1, NAT3
         GRAD(I) = G(I)
     9 CONTINUE
+*      write(6,*)' grad ',(grad(i), i=1,nat3)
       IF (ICALC .EQ. 2) THEN
         WRITE(6,*)' STEPPER| Second derivatives NOT available. '
         call errquit('stepper:face fatal error',911)
