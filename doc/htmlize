@@ -84,7 +84,8 @@ foreach document ($1)
 #
 # At same time eliminate references to http://www.emsl.pnl.gov since we
 # need to reference files from the root in order for them to work on 
-# both the public and private side
+# both the public and private side.
+# With DFS WEB now must also remove // from file paths used in images
 
   echo "   Munging backgrounds and http paths"
 
@@ -94,7 +95,9 @@ foreach document ($1)
     if ($document == "prog") then
       sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/rainier1_1.jpg" BGCOLOR="FAEBD7">/' -e 's,http://www.emsl.pnl.gov,,g' < $file > $TMP
     else if ($document == "user") then
-      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/mt_st_helens_4.jpg" BGCOLOR="FAEBD7">/' -e 's,http://www.emsl.pnl.gov,,g' < $file > $TMP
+      sed -e 's/<BODY>/<BODY BACKGROUND="..\/..\/backgrounds\/mt_st_helens_4.jpg" BGCOLOR="FAEBD7">/' \
+          -e 's,http://www.emsl.pnl.gov,,g' \
+          -e 's/\/images\/latex2html\//\/images\/latex2html/g' < $file > $TMP
     else
       echo htmlize: unknown document in background munge ... $document
       exit 1

@@ -1,5 +1,5 @@
 
- SUBDIRS = prog user nwchem_func
+ SUBDIRS = prog user
 
 MAKESUBDIRS = @for dir in $(SUBDIRS); do \
 			echo Making $@ in $$dir; \
