@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2002-08-15 23:23:34 bylaska Exp $
+# $Id: GNUmakefile,v 1.12 2002-08-15 23:43:39 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -12,7 +12,6 @@
 		Grassman.o \
 		psi_read.o \
 		psi_write.o \
-		psi_marat_write.o \
 		v_psi_read.o \
 		v_psi_write.o \
 		psi_new.o \
