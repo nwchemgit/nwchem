@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.20 1999-01-29 21:12:43 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.21 1999-07-21 21:13:31 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -63,7 +63,9 @@ c
       integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
       integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
-c      
+c  
+      pre_mkfrg=.true.
+c    
       if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_mkfrg ')
@@ -184,35 +186,8 @@ c
       if(.not.pre_atype(lfnout,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,int_mb(i_ltyp),mtyp,lring,aring,mring,
-     + nring3,nring4,nring5,nring6))
-     + call errquit('pre_atype failed',9999)
-c
-      found=.true.
-      do 16 j=ilo,ihi
-      if(latm(2,j).gt.0) then
-      if(catm(3,j)(1:1).eq.' ') found=.false.
-      endif
-   16 continue
-      if(.not.found) then
-      length=index(csgm(i),' ')-1
-      if(length.le.0) length=5
-      write(lfnout,3002) csgm(i)(1:length)
-      do 17 j=ilo,ihi
-      if(latm(2,j).gt.0) then
-      write(lfnout,2003) j+1-ilo,catm(2,j),catm(3,j),
-     + latm(5,j),latm(4,j),1,1,qatm(j),0.0
-      endif
-   17 continue
-      do 117 ibnd=1,nbnd
-      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
-     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi) then
-      write(lfnout,3104) lbnd(1,ibnd)-ilo+1,lbnd(2,ibnd)-ilo+1
- 3104 format(i5,'-',i5)
-      endif
-  117 continue
-      write(lfnout,3009) csgm(i)(1:length)
- 3009 format(a)
-      call errquit('Unable to determine atom types',0)
+     + nring3,nring4,nring5,nring6)) then
+      call errquit('pre_atype failed',9999)
       endif
 c
 c     memory deallocation
@@ -221,13 +196,50 @@ c
       if(.not.ma_pop_stack(l_ltyp))
      + call errquit('Memory deallocation failed for ltyp',9999)
 c
+c     check if all atom types could be determined
+c     -------------------------------------------
+c
+      found=.true.
+      do 16 j=ilo,ihi
+      if(latm(2,j).gt.0) then
+      if(catm(3,j)(1:1).eq.' ') found=.false.
+      endif
+   16 continue
 c
 c     guestimate partial charges
 c     --------------------------
 c
+      if(found) then
       if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
+      else
+      if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
+     + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,0,qscale))
+     + call errquit('pre_charge failed',9999)
+      endif
+c
+c      if(.not.found) then
+c      length=index(csgm(i),' ')-1
+c      if(length.le.0) length=5
+c      write(lfnout,3002) csgm(i)(1:length)
+c      do 17 j=ilo,ihi
+c      if(latm(2,j).gt.0) then
+c      write(lfnout,2003) j+1-ilo,catm(2,j),catm(3,j),
+c     + latm(5,j),latm(4,j),1,1,qatm(j),0.0
+c      endif
+c   17 continue
+c      do 117 ibnd=1,nbnd
+c      if(lbnd(1,ibnd).ge.ilo.and.lbnd(1,ibnd).le.ihi.and.
+c     + lbnd(2,ibnd).ge.ilo.and.lbnd(2,ibnd).le.ihi) then
+c      write(lfnout,3104) lbnd(1,ibnd)-ilo+1,lbnd(2,ibnd)-ilo+1
+c 3104 format(i5,'-',i5)
+c      endif
+c  117 continue
+c      write(lfnout,3009) csgm(i)(1:length)
+c 3009 format(/,a,': Unable to determine atom types')
+cc      call errquit('Unable to determine atom types',0)
+c      endif
 c
 c     write the fragment file
 c     -----------------------
@@ -236,13 +248,15 @@ c
       if(length.le.0) length=5
       filnam=dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
       len_f=index(filnam,' ')-1
+      if(.not.found) filnam=filnam(1:len_f)//'_TMP'
+      len_f=index(filnam,' ')-1
 c
       if(util_print('where',print_debug)) then
       write(lfnout,'(a,a)') 'Writing new fragment file ',
      + filnam(1:len_f)
       endif
       open(unit=iunit,file=filnam(1:len_f),form='formatted',
-     + status='new',err=9999)
+     + status='unknown',err=9999)
 c
       write(iunit,2001)
  2001 format('# This is an automatically generated fragment file',/,
@@ -309,8 +323,9 @@ c
 c
       if(.not.found.and.util_print('sequence',print_none)) then
       write(lfnout,3008) csgm(i)(1:length)
- 3008 format(' Unresolved atom types in fragment',a,/)
-      call errquit('Unresolved atom types',0)
+ 3008 format(' Unresolved atom types in fragment ',a,/)
+      pre_mkfrg=.false.
+c      call errquit('Unresolved atom types',0)
       endif
 c
       lsgm(2,i)=-4
@@ -318,7 +333,7 @@ c
       endif
     1 continue
 c
-      pre_mkfrg=.true.
+c      pre_mkfrg=.true.
       return
 c
  9999 continue
