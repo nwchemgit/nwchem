@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.9 1999-11-10 03:47:33 edo Exp $
+* $Id: dplot.F,v 1.10 1999-11-10 21:44:54 edo Exp $
 *
       Implicit None
 *     
@@ -220,7 +220,8 @@ c
 *---- Write the title and the format to the output file
       If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          Write(Out_Unit,*)Title(1:Lth_Tit)
-         Write(Out_Unit,*)'(1F15.10)'
+         Write(Out_Unit,115)
+ 115     format('(1F15.10)')
 !         Write(Out_Unit,*)'(1D20.10)'
       End If
 *
