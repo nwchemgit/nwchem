@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.113 2000-05-11 19:44:23 edo Exp $
+# $Id: GNUmakefile,v 1.114 2000-05-18 02:10:46 edo Exp $
 
 include ../config/makefile.h
 
@@ -10,6 +10,10 @@ else
    LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
 endif
 
+ifeq ($(TARGET),SOLARIS64)
+  EXTRA_OBJ = ieeetrap.o
+  LIB_DEFINES += -DHAVE_FORTRAN_INTEGER2 -DHAVE_FORTRAN_BYTE
+endif
 ifeq ($(TARGET),SOLARIS)
   EXTRA_OBJ = ieeetrap.o
 #  SPEECH = YES
