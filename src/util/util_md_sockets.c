@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.3 1999-08-18 18:43:05 d3j191 Exp $
+ $Id: util_md_sockets.c,v 1.4 1999-08-19 17:58:25 d3j191 Exp $
  */
 
 #include <sys/types.h>
@@ -77,7 +77,7 @@ int create_client_socket_(char *s, int *port)
 }
 
 
-long write_socket_(int *sockfd, char *value, int *vlen)
+long client_socket_write_(int *sockfd, char *value, int *vlen)
 {
   return write(*sockfd,value,*vlen);
 }
