@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.11 1994-08-31 23:35:10 d3g681 Exp $
+# $Id: makelib.h,v 1.12 1994-09-01 17:33:19 d3g681 Exp $
 
 #
 # A makefile for a library should
@@ -78,6 +78,8 @@
 ####################################################################
 
 LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
+
+.PRECIOUS:	$(LIBRARY_PATH) 
 
 OBJECTS := $(OBJ) $(OBJ_OPTIMIZE)
 
