@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.3 2001-01-19 17:43:11 windus Exp $
+C $Id: drdy_input.F,v 1.4 2001-01-26 00:59:05 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -100,15 +100,31 @@ C $Id: drdy_input.F,v 1.3 2001-01-19 17:43:11 windus Exp $
      &            call errquit(
      &            'drdy_input: cput of theory failed',911)
             goto 00100
+          elseif(inp_compare(.false.,'sptheory',field(1:8))) then
+            if (.not.inp_a(field)) call errquit(
+     &            'drdy_input: no sptheory on line',911)
+            if (.not.rtdb_cput(rtdb,'drdy:sptheory',1,field))
+     &            call errquit(
+     &            'drdy_input: cput of sptheory failed',911)
+            goto 00100
           elseif(inp_compare(.false.,'*',field(1:1))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'species',field(1:7))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
-          elseif(inp_compare(.false.,'re-start',field(1:8))) then
-            call drdy_input_add_line(rtdb,count)  ! count incremented
-            goto 00100
+c         elseif(inp_compare(.false.,'re-start',field(1:8))) then
+c           call drdy_input_add_line(rtdb,count)  ! count incremented
+c           goto 00100
+c restarts are handled through the normal NWChem restart mechanism:
+c see Input_for_drdy.F
+c
+          elseif(inp_compare(.false.,'restart',field(1:7))) then
+            write(luout,*) 'RESTART inside the drdy input block is ',
+     &         'not valid as NWChem input.'
+            write(luout,*) 'Please use the normal NWChem restart ',
+     &         'mechanism.'
+            call errquit('drdy_input: RESTART is not valid',555)
           elseif(inp_compare(.false.,'scalemass',field(1:9))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
