@@ -150,6 +150,8 @@ c
       dimension npar(*)
       dimension mxsize(*),mxpair(*)   ! (nbl4)
 c
+      double precision nquart_all
+c
 c-----------------------------------------------------
 c total memory allowed for texas (limxmem) should be
 c decreased here by an amount needed latter in 
@@ -308,8 +310,9 @@ c
 c maximum block-size according to the current task
 c i.e. to the number of quartets of the same type
 c
-            nquart_all=ijpar_all*klpar_all
-            if(ibl.eq.kbl) nquart_all=ijpar_all*(ijpar_all+1)/2
+            nquart_all=dble(ijpar_all)*dble(klpar_all)
+            if(ibl.eq.kbl) nquart_all=
+     $           dble(ijpar_all)*dble(ijpar_all+1)/2
 c
 c>>>>>>     maxsize=min(nquart_all,nquart_cache,nquart_inp)
 c
@@ -321,8 +324,7 @@ c
             if(nquart_all.le.maxsize) then
                xblks_txs=xblks_txs+1.d0
             else
-               xpart=dble(nquart_all/maxsize)
-               if(mod(nquart_all,maxsize).gt.0) xpart=xpart+1.d0
+               xpart=int((nquart_all-1.0d0)/dble(maxsize)) + 1
                xblks_txs=xblks_txs+xpart
             endif
 c-------------------------------------------------
@@ -509,7 +511,7 @@ c
 c for memory,however,use min(nquart_all,nquart) & min(npairs_all,npairs)
 c
       npairs_4_mem=min(npairs_all,npairs)
-      nquart_4_mem=min(nquart_all,nquart)
+      nquart_4_mem=min(nquart_all,dble(nquart))
 c
       memory_mem=memor_const + npairs_4_mem*(memor2ij + memor2kl)
      *                   + nquart_4_mem*memor4
