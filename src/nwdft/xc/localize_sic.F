@@ -1,13 +1,17 @@
-      Subroutine localize_sic(g_movecs, noc) 
+      Subroutine localize_sic(g_movecs, noc, evals)
 c
-C$Id: localize_sic.F,v 1.3 2000-04-28 17:54:38 jolguin Exp $
+C$Id: localize_sic.F,v 1.4 2000-05-18 18:14:43 jolguin Exp $
 c
       implicit none
 c      
-      integer noc(2),isp,i,x,me
+      integer noc(2), isp, x, me, i_degen(2), n_levels(2), evals(2),
+     &        ij, ik, n_orbitals, i_level, i_orb, j, aux_levels
+      double precision start
+     
       integer g_movecs(2)
       integer g_uc(4),g_sc,g_over,l_sc,k_sc,l_c,k_c,nocc
-      integer ncore,nloc,liloc,iiloc
+c     integer ncore,nloc,liloc,iiloc,i
+      integer nloc,liloc,iiloc
       logical geom_num_core
       external geom_num_core
 c
@@ -33,13 +37,29 @@ c
      &   call errquit('localize_sic:push_get failed', 911)
 c
       do isp=1,ipol
-         if (me.eq.0) 
-     $    call util_print_centered(6,
-     $    'Foster-Boys orbital localization for the SIC approximation',
-     &         40, .true.)
+c
+         if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
+         if (noc(isp).ne.0) then
+           aux_levels = 1
+           n_orbitals = 1
+           Int_MB(i_degen(isp) + aux_levels - 1) = n_orbitals
+           do j = noc(isp),2,-1
+             start = (dbl_mb(evals(isp) + j - 1) -
+     &                dbl_mb(evals(isp) + j - 2))
+             if (start.le.1.0d-04) then
+               n_orbitals = n_orbitals + 1
+             else
+               n_orbitals = 1
+               aux_levels = aux_levels + 1
+             end if
+             Int_MB(i_degen(isp) + aux_levels - 1) = n_orbitals
+           end do
+           n_levels(isp) = aux_levels
+         else
+           n_levels(isp) = 0
+         end if
+c
          nocc=noc(isp)
-         if (me.eq.0.and.oprint_sic) write(LuOut,*) 
-     $                         ' Number of Orbitals to localize',nocc
          if (nocc.gt.0) then
            do x= 1, 4
              if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
@@ -71,26 +91,46 @@ c
 c
 c     Localize the occupied orbitals
 c
-           if (.not. geom_num_core(geom,ncore)) ncore = 0
-           if (ncore .gt. 0) then
-              do i = 1, ncore
-                 int_mb(iiloc+i-1) = i
-              end do
-              nloc = ncore
-              call localizeFB(AO_bas_han, dbl_mb(k_c), dbl_mb(k_sc), 
-     $                        nloc, int_mb(iiloc), nbf, nbf, 
-     $                        g_movecs(isp), g_uc)
-           end if
+c          if (.not. geom_num_core(geom,ncore)) ncore = 0
+c          if (ncore .gt. 0) then
+c             do i = 1, ncore
+c                int_mb(iiloc+i-1) = i
+c             end do
+c             nloc = ncore
+c             call localizeFB(AO_bas_han, dbl_mb(k_c), dbl_mb(k_sc), 
+c    $                        nloc, int_mb(iiloc), nbf, nbf, 
+c    $                        g_movecs(isp), g_uc)
+c          end if
 c
 c     Localized the occupied
 c
-           do i = ncore+1, nocc
-              int_mb(iiloc + i - ncore - 1) = i
-           end do
-           nloc = nocc - ncore
-           call localizeFB(AO_bas_han, dbl_mb(k_c), dbl_mb(k_sc),
-     $                     nloc, int_mb(iiloc), nbf, nbf, 
-     $                     g_movecs(isp), g_uc)
+c          do i = ncore+1, nocc
+c             int_mb(iiloc + i - ncore - 1) = i
+c          end do
+c          nloc = nocc - ncore
+ 
+           ik = noc(isp) -  Int_MB(i_degen(isp)) + 1
+           ij = 0
+           do 100 i_level = 2,n_levels(isp)
+             n_orbitals = Int_MB(i_degen(isp) + i_level - 1)
+             do 200 i_orb = 1,n_orbitals
+               ik = ik - 1
+               ij = ij + 1
+               int_mb(iiloc + ij - 1) = ik
+  200        continue
+  100      continue
+           nloc = ij
+           if (nloc.gt.0) then
+             if (me.eq.0) 
+     $        call util_print_centered(6,
+     $    'Foster-Boys orbital localization for the SIC approximation',
+     &         40, .true.)
+             if (me.eq.0.and.oprint_sic) write(LuOut,*) 
+     $                         ' Number of Orbitals to localize',nloc
+             call localizeFB(AO_bas_han, dbl_mb(k_c), dbl_mb(k_sc),
+     $                       nloc, int_mb(iiloc), nbf, nbf, 
+     $                       g_movecs(isp), g_uc)
+           end if
 c
            do x=1,4
              if (.not. ga_destroy(g_uc(x))) call errquit
