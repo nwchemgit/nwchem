@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.21 2000-10-25 22:50:06 windus Exp $
+c $Id: hf2.F,v 1.22 2002-07-20 03:14:48 edo Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -156,8 +156,10 @@ c Assign pointers to scratch space.
 c Zero out integral block. Return if NPR = 0, i.e. no integrals
 
       NPR = NPP*NPQ
+      if (NPR .eq. 0) then 
       if (.not.DryRun) call dfill(Nints,0.0d00,beri,1)
-      if (NPR .eq. 0) go to 99
+         go to 99
+      endif
 
 c Define cartesian components for shells, bra and ket length and 
 c number of integrals.
@@ -171,6 +173,7 @@ c number of integrals.
       lszq = Lc2*Ld2*NCQ
 
       ninti = lszp*lszq
+      if (.not.DryRun) call dfill(Ninti,0.0d00,beri,1)
 
 c Define the Hermite linear expansion coefficients.
 
