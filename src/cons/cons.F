@@ -8,6 +8,7 @@ c $I#d: cons.F,v 1.1 2004/01/28 01:30:59 marat Exp $
 #include "geom.fh"
 #include "cons_params.fh"
 #include "cons.fh"
+#include "global.fh"
       integer rtdb
 c
       logical old_style
@@ -25,16 +26,32 @@ c
       character(255) tag_id
       character(255) tag_n
       character(255) namespace
+      logical oprint
+      logical oqmmm
 c
+      call util_print_push()
+      call util_print_rtdb_load(rtdb,'cons')
+      oprint = util_print('information', print_debug)
+      oprint = oprint .and. cons_print()
+
+      if(oprint) 
+     >    write(*,*) "entered cons_init"
       if(.not. rtdb_cget(rtdb,"constraints" , 1, namespace)) then
          namespace=cons_default
       end if
+
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
+     &    oqmmm = .false.
+         if(ga_nodeid())
+     > write(*,*) "cons_init 1:oqmmm",oqmmm
+
 
       if(.not.cons_activate(namespace,rtdb)) then
         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
         if(.not.status)
      &  call errquit('cons_init',0,RTDB_ERR) 
-        write(*,*) "cons_init:no namespace found"//namespace
+        write(*,*) "cons_init:no constraints found "//namespace
+        write(*,*) "cons_init: constraints will be deactivated"
         return
       end if
 c
@@ -116,8 +133,30 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
 
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
+     &    oqmmm = .false.
+         if(ga_nodeid())
+     > write(*,*) "cons_init 2:oqmmm",oqmmm
+
+
       call cons_load_fixed_atoms(namespace,rtdb)
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
+     &    oqmmm = .false.
+         if(ga_nodeid())
+     > write(*,*) "cons_init 3:oqmmm",oqmmm
+
       call cons_print_gen_info(rtdb)
+c
+      if(oprint) 
+     >    write(*,*) "finished cons_init"
+c
+      call util_print_pop()
+
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
+     &    oqmmm = .false.
+         if(ga_nodeid())
+     > write(*,*) "cons_init 4:oqmmm",oqmmm
+
 
       return
       end
@@ -140,7 +179,6 @@ c
 c
 c     load geometry 
 c     -------------
-      write(*,*) " loading geometry"
       if (.not. geom_create(geom, 'geometry'))
      &     call errquit('cons_load_geom',0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
@@ -410,7 +448,9 @@ c
           end if
         end do
         
-      write(*,*) "cons_load_fixed_atoms",j,(int_mb(i_tmp_id1-i+1),i=1,j)
+      if(cons_print())
+     > write(*,*) "cons_load_fixed_atoms",
+     > j,(int_mb(i_tmp_id1-i+1),i=1,j)
 
       status = rtdb_put(rtdb,'geometry:actlist',
      >     mt_int,nat-nfa,int_mb(i_tmp_id1))
@@ -536,7 +576,6 @@ c
 c
       call cons_load_geom(rtdb)
       call cons_get_namespace(namespace)
-      write(*,*) "cons_add_energy:namespace=",namespace
       call cons_load_hbonds(namespace,rtdb)
       call cons_get_hbond_nhb(nhb)
       if(nhb .gt. 0 ) then
@@ -581,9 +620,6 @@ c
       i_khb  = cons_get_i_hbond_k()
       i_rhb  = cons_get_i_hbond_r()
 
-      write(*,*) "cons_add_hbond_energy",(dbl_mb(i_c+i-1),i=1,9)
-
-      write(*,*)"cons_add_hbond_energy"
       e=0.0d0
       do inb=1,nhb
        iat=int_mb(i_ijhb+2*(inb-1))
@@ -828,8 +864,6 @@ c
 c
       integer i
 c
-      write(*,*) "cons_spring_energy r1",(r1(i),i=1,3)
-      write(*,*) "cons_spring_energy r2",(r2(i),i=1,3)
        r=(r1(1)-r2(1))**2+
      >   (r1(2)-r2(2))**2+
      >   (r1(3)-r2(3))**2
