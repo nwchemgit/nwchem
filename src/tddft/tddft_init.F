@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.12 2003-10-17 22:58:29 carlfahl Exp $
+c $Id: tddft_init.F,v 1.13 2004-10-27 21:18:42 edo Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -107,6 +107,10 @@ c ---------------------
      1  call errquit('tddft_init: geom_create failed',0, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
      1  call errquit('tddft_init: no geometry found',0, RTDB_ERR)
+      if (.not.sym_abelian_group(geom))
+     1  call errquit('tddft_init: non-Abelian symmetry not permitted',0,
+     2  GEOM_ERR)
+
       if (.not.rtdb_get(rtdb,'dft:skeleton',mt_log,1,oskel)) then
         oskel=.false.
       endif
