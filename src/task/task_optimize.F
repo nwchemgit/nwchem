@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.20 2000-01-05 00:25:53 windus Exp $
+c     $Id: task_optimize.F,v 1.21 2000-02-29 19:18:03 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -122,7 +122,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.20 2000-01-05 00:25:53 windus Exp $
+c     $Id: task_optimize.F,v 1.21 2000-02-29 19:18:03 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -249,7 +249,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.20 2000-01-05 00:25:53 windus Exp $
+c     $Id: task_optimize.F,v 1.21 2000-02-29 19:18:03 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -284,6 +284,7 @@ c
       character*32 theory
 c
       call errquit('lst broken by rjh ',0)
+      task_lst = .false.
 c$$$      logical  drv_lst 
 c$$$      external drv_lst
 c$$$c
