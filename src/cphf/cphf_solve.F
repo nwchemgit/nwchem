@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.28 2001-06-12 20:08:46 zzhang Exp $
+* $Id: cphf_solve.F,v 1.29 2001-06-12 20:10:13 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -31,7 +31,7 @@ c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
       external rohf_hessv_precond,rohf_hessv
       external uhf_precond,uhf_hessv
-      external tddft_precond
+c      external tddft_precond
       logical oprint, oprint_conv
 c     
       character*(nw_max_path_len) cphf_rhs
@@ -52,7 +52,7 @@ c
       integer nroot, leval, ieval
       logical cphf_tddft
 c      cphf_tddft = .true. 
-      cphf_tddft = .false. 
+c      cphf_tddft = .false. 
 c
       hf_job = .not. bgj_have_xc()      
 c
