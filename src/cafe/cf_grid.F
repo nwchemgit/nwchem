@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.9 2000-09-01 19:26:40 d3j191 Exp $
+c $Id: cf_grid.F,v 1.10 2001-12-03 23:57:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -122,6 +122,8 @@ c
       do 5 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
+      if(j.gt.ngy) j=j-ngy
+      if(j.lt.1) j=j+ngy
       prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(iwq(iwa),1,ipset)
       i0=int(yw(iwm,1,iwa))-morder
       if(j.lt.miny) miny=j
@@ -129,6 +131,8 @@ c
       do 6 ith1=1,morder
       i0=i0+1
       i=i0+1+(ngx-isign(ngx,i0))/2
+      if(i.gt.ngx) i=i-ngx
+      if(i.lt.1) i=i+ngx
       if(i.lt.minx) minx=i
       if(i.gt.maxx) maxx=i
       grid(i,j,k)=grid(i,j,k)+theta(ith1,1,indx)*prod
@@ -156,6 +160,8 @@ c
       do 9 ith2=1,morder
       j0=j0+1
       j=j0+1+(ngy-isign(ngy,j0))/2
+      if(j.gt.ngy) j=j-ngy
+      if(j.lt.1) j=j+ngy
       prod=theta(ith2,2,indx)*theta(ith3,3,indx)*chg(isq(isa),1,ipset)
       i0=int(ys(isa,1))-morder
       if(j.lt.miny) miny=j
@@ -163,6 +169,8 @@ c
       do 10 ith1=1,morder
       i0=i0+1
       i=i0+1+(ngx-isign(ngx,i0))/2
+      if(i.gt.ngx) i=i-ngx
+      if(i.lt.1) i=i+ngx
       if(i.lt.minx) minx=i
       if(i.gt.maxx) maxx=i
       grid(i,j,k)=grid(i,j,k)+theta(ith1,1,indx)*prod
