@@ -189,7 +189,7 @@ c
          if (active(geom)) then
             write(6,2) ngeom, info, names(geom)(1:lenn(geom)),
      $           trans(geom)(1:lent(geom))
- 2          format(' ',i2,' ',a,': "'a, '" -> "', a,'"')
+ 2          format(' ',i2,' ',a,': "',a, '" -> "', a,'"')
          endif
       enddo
       if (ngeom_rtdb .gt. 0) then
