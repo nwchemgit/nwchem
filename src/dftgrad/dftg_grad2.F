@@ -7,8 +7,8 @@ c**** exchange density matrices removed from call list for DFT
 c**** coulomb-only term.
 c****
 
-      implicit real*8 (a-h,o-z)
-
+      implicit none
+      
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -16,11 +16,27 @@ c****
 #include "tcgmsg.fh"
 
       integer g_dens(2), basis, nactive
+      integer ldim
+      integer nat
+      integer nproc
+      integer lbuf
+      integer lscr
+      double precision tol2e
 
       logical status, oij, okl,oikjl, oactive(nat)
 
-      dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4)
-      dimension d_ija(ldim,ldim),d_kla(ldim,ldim)
+      double precision scr(lscr), buf(lbuf), frc ( 3, nat )
+      integer idatom(4)
+      double precision d_ija(ldim,ldim),d_kla(ldim,ldim)
+c
+      integer iproc,iat3,iat1,iat2,iat4,ihi4,ijatom,next,
+     ,     iab1f,iab1l,iab2f,iab2l,iab3f,iab3l,iab4f,iab4l,
+     ,     iac2f,iac2l,iac3f,iac3l,iac4f,iac4l,
+     ,     ish1,ish2,ish3,ish4,iac1l,itop3,itop4,
+     ,     if1,il1,if2,il2,if3,il3,if4,il4,iac1f,
+     ,     nshbfp,nshbfq,Nint,icount,i,icart,ip1,ip2,ip3,ip4
+      double precision dE,den2
+c
 
       iproc = ga_nodeid()
 
