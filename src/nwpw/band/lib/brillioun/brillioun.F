@@ -1,5 +1,5 @@
 *
-* $Id: brillioun.F,v 1.1 2001-12-13 03:49:51 bylaska Exp $
+* $Id: brillioun.F,v 1.2 2002-01-11 22:47:09 edo Exp $
 *
 
 *     ***********************************
@@ -100,9 +100,9 @@
 *     *		brillioun_nbrillioun 		*
 *     *									*
 *     ***********************************
-      integer function brillioun_nbrillioun(nb)
+      integer function brillioun_nbrillioun()
       implicit none
-      integer nb
+!      integer nb
 
 #include "mafdecls.fh"
 #include "brillioun_common.fh"
