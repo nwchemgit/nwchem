@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.42 1999-06-17 13:55:30 d3e129 Exp $
+#$Id: GNUmakefile,v 1.43 1999-07-02 18:40:13 d3e129 Exp $
 
        OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o raktestc.o \
              rak18.o rak19.o rak20.o rak21.o rak22.o rak23.o rak24.o \
@@ -8,7 +8,7 @@
 
    LIBRARY = libtest.a
 
-USES_BLAS =     raktest.F rak20.F rak21.F rak22.F rak23.F jvltest.F rjhtrans.F cct_UHF.F rak25.F rak26.F rak27.F rak30.F
+USES_BLAS =     raktest.F rak20.F rak21.F rak22.F rak23.F jvltest.F rjhtrans.F cct_UHF.F rak25.F rak26.F rak27.F rak29.F rak30.F
 
 include ../config/makefile.h
 include ../config/makelib.h
