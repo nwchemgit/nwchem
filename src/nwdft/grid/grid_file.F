@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.24 2000-07-18 01:12:45 edo Exp $
+* $Id: grid_file.F,v 1.25 2000-07-18 01:22:31 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -440,8 +440,7 @@ c
             ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
             if (ierr.ne.0) then
                call eaf_errmsg(ierr,errmsg)
-               write(LuOut,*) ga_nodeid(),errmsg,
-     ,              ' EOF ',eaf_eof(ierr)
+               write(LuOut,*) ga_nodeid(),errmsg
                grid_packed_buf_read = .false.
 !               call errquit('grid_buf_read:premature end of file',
 !     $              cur_rec)
