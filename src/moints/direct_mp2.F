@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.14 1995-10-18 22:28:37 rg240 Exp $
+C$Id: direct_mp2.F,v 1.15 1995-10-27 23:25:05 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -8,6 +8,7 @@ C$Id: direct_mp2.F,v 1.14 1995-10-18 22:28:37 rg240 Exp $
 #include "geom.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "sym.fh"
 #include "util.fh"
 c
 c
@@ -31,7 +32,7 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, nocct
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
-       logical oprint, status, omemprint
+       logical oprint, osym, status, omemprint
        logical ohalf
        double precision emp2, e2pair
        double precision tpass, ttotal, scf_energy
@@ -167,6 +168,10 @@ c
      $                     vir_frozen)) vir_frozen = 0
        endif
 c
+c Symmetry toggle
+c
+       osym = (sym_number_ops(geom) .gt. 0) 
+c
 c Set index ranges
 c
        occ_lo = occ_frozen + 1
@@ -263,12 +268,13 @@ c
 c J & K build routines: two algorithm choices
 c
        if (algo.eq.'sixfold') then
-         call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
+         call moints_build_6x(basis, osym, occ_lo,
+     $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,
      $                        blen )
        else
-         call moints_build_2x(basis, ohalf, occ_lo,
+         call moints_build_2x(basis, ohalf, osym, occ_lo,
      $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,

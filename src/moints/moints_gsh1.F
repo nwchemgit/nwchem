@@ -1,5 +1,5 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.4 1995-10-19 00:24:01 d3g681 Exp $
+C$Id: moints_gsh1.F,v 1.5 1995-10-27 23:25:32 rg240 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen
@@ -129,7 +129,7 @@ C$Id: moints_gsh1.F,v 1.4 1995-10-19 00:24:01 d3g681 Exp $
           endif
         enddo
       enddo
-*#ifdef DEBUG
+#ifdef DEBUG
       if (ga_nodeid().eq.0) then
         write(6,900)
  900    format(/,'Shell map:')
@@ -137,7 +137,7 @@ C$Id: moints_gsh1.F,v 1.4 1995-10-19 00:24:01 d3g681 Exp $
  901    format(16i5)
         write(6,*)
       endif
-*#endif
+#endif
       return
       end
 

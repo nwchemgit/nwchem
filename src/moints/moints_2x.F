@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.11 1995-10-26 06:26:21 rg240 Exp $
+c  $Id: moints_2x.F,v 1.12 1995-10-27 23:25:12 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -20,8 +20,7 @@ c
 c
 c
 c
-
-       subroutine moints_build_2x(basis, ohalf,
+       subroutine moints_build_2x(basis, ohalf, osym,
      $                            occ_start, mo1_lo, mo1_hi,
      $                            mo2_lo, mo2_hi,
      $                            g_movecs,
@@ -42,6 +41,7 @@ c  Arguments
 c
        integer basis                          ! Basis handle
        logical ohalf                          ! Toggle alternative algorithm for half-ints intermediates
+       logical osym                           ! Symmetry toggle
        integer occ_start                      ! Offset from frozen core
        integer mo1_lo, mo1_hi                 ! 1st Pair Index range
        integer mo2_lo, mo2_hi                 ! 2nd Pair Index range
@@ -80,7 +80,7 @@ c
        integer tottask
        integer geom
        logical status, oprint
-       logical osym, odoit
+       logical odoit
 c
 #include "moints_stats.fh"
 c
@@ -100,8 +100,6 @@ c
        num_nodes = ga_nnodes()
        if (.not. bas_geom(basis, geom)) call errquit
      $      ('moints: cannot get geometry', 0)
-       osym = (sym_number_ops(geom) .gt. 0) 
-       OSYM = .FALSE.
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
@@ -121,8 +119,12 @@ c
           do i =0, nbf-1
              int_mb(k_sym+i) = int_mb(k_sym+i) - 1
           enddo
-          write(6,*) ' Symmetry of MOs in MP2'
-          write(6,'(40i2)') (int_mb(k_sym+i),i=0,nbf-1)
+          if (util_print('orbital symmetry',print_debug)) then
+            write(6,887) 
+ 887        format('Symmetry of MOs')
+            write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
+ 888        format(16i3)
+          endif
        endif
 c
 c  Local MO coefficients

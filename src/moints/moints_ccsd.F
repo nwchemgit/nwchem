@@ -44,9 +44,10 @@ c
        integer l_eri, k_eri, l_iscr,k_iscr
        integer l_mo,k_mo
        integer l_shmap, k_shmap
+       integer l_sym, k_sym
        integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2
-       integer mem2, max2e
-       integer n_ijni
+       integer mem2, max2e, n_ijni
+       integer nmixed, i
        integer num_nodes, ploop, next
        double precision tol2e, scale, schw_ij
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
@@ -56,6 +57,7 @@ c
        integer tottask
        logical status
        logical oprint
+       logical osym
 #ifdef MOINTS_STATS
 #include "moints_stats.fh"
 #endif
@@ -72,6 +74,7 @@ c
 c
        data tol2e/1.d-12/
        data oprint/.true./
+       data osym/.false./
 c
 c
 c  General basis info
@@ -84,6 +87,22 @@ c
        if (.not.status) call errquit('moints: cannot get basis info',0)
        nmo1 = mo1_hi - occ_start + 1
        nmo2 = mo2_hi - mo2_lo + 1
+c     
+c  Symmetry adapt the MOs and renumber irreps to start at zero
+c     
+       if (osym) then
+          if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
+     $         call errquit('moints_2x: no memory for syms?',0)
+          call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
+     $                          nmixed)
+          if (nmixed .ne. 0)
+     $         call errquit('moints_2x: symmetry contamination', nmixed)
+          do i =0, nbf-1
+             int_mb(k_sym+i) = int_mb(k_sym+i) - 1
+          enddo
+          write(6,*) ' Symmetry of MOs in MP2'
+          write(6,'(40i2)') (int_mb(k_sym+i),i=0,nbf-1)
+       endif
 c
 c  Local MO coefficients
 c
@@ -179,7 +198,7 @@ c
      $                               max2e, dbl_mb(k_eri), mem2,
      $                               dbl_mb(k_iscr), ilen, jlen,
      $                               kbflo, kbfhi, lbflo, lbfhi,
-     $                               dbl_mb(k_ssbb), .false. )
+     $                               dbl_mb(k_ssbb), osym )
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    if (lb.ne.kb) then
@@ -285,8 +304,6 @@ c Half transformed ints could be optionally dumped here
 c or go ahead and transform the last 2 indices
 c
 c
-c$$$          call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                             nmo2, g_exch)
            call moints_Ktrf34z( g_exch, g_int1t, .true., occ_start,
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
      $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp) )
@@ -295,8 +312,6 @@ c$$$     $                             nmo2, g_exch)
      $                           mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                           dbl_mb(k_hlp) )
            t4kidx = t4kidx + tcgtime() - tz
-c$$$          call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                             nmo2, g_exch)
          endif
        endif
 c
@@ -306,9 +321,7 @@ c
          tz = tcgtime()
          call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
-     $                       dbl_mb(k_hlp) )
-c$$$         call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                            nmo2, g_coul)
+     $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          t34jidx = tcgtime() - tz
        endif
        call ga_sync()
@@ -319,6 +332,10 @@ c
      $     call errquit('moints: failed to pop', l_hlp)
        if (.not. ma_pop_stack(l_mo))
      $     call errquit('moints: failed to pop', l_mo)
+       if (osym) then
+          if (.not. ma_pop_stack(l_sym))
+     $         call errquit('moints: memory corrupt',0)
+       endif
 c
 c
 c

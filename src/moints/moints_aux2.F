@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.7 1995-10-26 06:26:22 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.8 1995-10-27 23:25:23 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -345,7 +345,7 @@ c
       integer ieor
       intrinsic ieor
 c
-      write(6,*) ' moints_sym_zero ', i, j
+C      write(6,*) ' moints_sym_zero ', i, j
 c
       symij = ieor(syms(i),syms(j))
       do p = vlo, vhi

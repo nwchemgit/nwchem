@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.35 1995-10-26 06:26:20 rg240 Exp $
+C$Id: mointdriver.F,v 1.36 1995-10-27 23:25:07 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -9,6 +9,7 @@ C$Id: mointdriver.F,v 1.35 1995-10-26 06:26:20 rg240 Exp $
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "context.fh"
+#include "sym.fh"
 #include "util.fh"
 c
 c
@@ -34,7 +35,7 @@ c
        integer noper_core
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
-       logical oexch, ocoul, oprint, status, ohalf, omemprint
+       logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
        double precision emp2, e2pair
        double precision tpass
        double precision tol2e
@@ -208,6 +209,10 @@ c
      $      'epair',1,1,g_epair))
      $      call errquit('cannot create epair array',0)
 c
+c Symmetry toggle
+c
+       osym = (sym_number_ops(geom) .gt. 0) 
+c
 c Print info
 c
        if ((ga_nodeid().eq.0).and.(oprint)) then
@@ -262,15 +267,17 @@ c
 c  J & K build routines
 c
        if (algo.eq.'sixfold') then
-         call moints_build_6x(basis,  occ_lo, oseg_lo, oseg_hi,
-     $                        vir_lo, vir_hi, g_vecs,
-     $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen )
+         call moints_build_6x( basis, osym, occ_lo,
+     $                         oseg_lo, oseg_hi,
+     $                         vir_lo, vir_hi, g_vecs,
+     $                         g_coul, ocoul, g_exch, oexch,
+     $                         blen )
        else
-         call moints_build_2x(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
-     $                        vir_lo, vir_hi, g_vecs,
-     $                        g_coul, ocoul, g_exch, oexch,
-     $                        blen )
+         call moints_build_2x( basis,  ohalf, osym, occ_lo,
+     $                         oseg_lo, oseg_hi,
+     $                         vir_lo, vir_hi, g_vecs,
+     $                         g_coul, ocoul, g_exch, oexch,
+     $                         blen )
        endif
 c
 c Evaluate and store pair energies

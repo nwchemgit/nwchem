@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.7 1995-10-25 00:59:35 rg240 Exp $
+c  $Id: moints_6x.F,v 1.8 1995-10-27 23:25:18 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -27,7 +27,7 @@ c -----------------
 c
 c
 c
-       subroutine moints_build_6x(basis,
+       subroutine moints_build_6x(basis, osym,
      $                            occ_start, mo1_lo, mo1_hi,
      $                            mo2_lo, mo2_hi,
      $                            g_movecs,
@@ -46,6 +46,7 @@ c
 c Arguments
 c
        integer basis                          ! Basis handle
+       logical osym                           ! Symmetry toggle
        integer occ_start                      ! Offset from frozen core
        integer mo1_lo, mo1_hi                 ! 1st Pair Index range
        integer mo2_lo, mo2_hi                 ! 2nd Pair Index range
@@ -95,7 +96,6 @@ c
 c
        data tol2e/1.d-12/
        data oprint/.true./
-       data osym/.false./
 c
 c
 c  General basis info
@@ -121,8 +121,12 @@ c
           do i =0, nbf-1
              int_mb(k_sym+i) = int_mb(k_sym+i) - 1
           enddo
-          WRITE(6,*) ' SYMMETRY OF MOS IN MOINTS_6X'
-          WRITE(6,'(40I2)') (INT_MB(K_SYM+I),I=0,NBF-1)
+          if (util_print('orbital symmetry',print_debug)) then
+            write(6,887) 
+ 887        format('Symmetry of MOs')
+            write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
+ 888        format(16i3)
+          endif
        endif
 c
 c  Local MO coefficients
@@ -258,13 +262,11 @@ c
 c
 c
 c
-       if (ocoul) then
-         if (util_print('exchange half integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
-         endif
-       endif
-c
-
+c$$$       if (oexch) then
+c$$$         if (util_print('exchange half integral',print_debug)) then
+c$$$           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
+c$$$         endif
+c$$$       endif
 c
 c  Coulomb part
 c  4-fold shell loop
@@ -347,13 +349,11 @@ c
        endif
 c
 c
-       if (ocoul) then
-         if (util_print('coulomb half integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
-         endif
-       endif
-
-
+c$$$       if (ocoul) then
+c$$$         if (util_print('coulomb half integral',print_debug)) then
+c$$$           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
+c$$$         endif
+c$$$       endif
 c
 c Synchronize
 c
@@ -394,7 +394,7 @@ c
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          t34kidx = tcgtime() - tz
          if (util_print('exchange integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
          endif
        endif
 c
@@ -406,18 +406,22 @@ c
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          if (util_print('coulomb integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
          endif
          t34jidx = tcgtime() - tz
        endif
        call ga_sync()
 c
-c
+c  Clean-up
 c
        if (.not. ma_pop_stack(l_hlp))
      $     call errquit('moints: failed to pop', l_hlp)
        if (.not. ma_pop_stack(l_mo))
      $     call errquit('moints: failed to pop', l_mo)
+       if (osym) then
+          if (.not. ma_pop_stack(l_sym))
+     $         call errquit('moints_2x: memory corrupt',0)
+       endif
 c
 c
 c
