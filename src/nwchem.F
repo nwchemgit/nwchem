@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.146 2004-09-09 17:23:12 edo Exp $
+c     $Id: nwchem.F,v 1.147 2004-10-07 21:50:27 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003, 2004                      *
@@ -182,7 +182,7 @@ c
 #endif
 #ifdef LINUX
 c      uncommenting this line turns on sigfpe trapping under linux
-      call linux_trapfpe()
+!      call linux_trapfpe()
 #endif
 c
 c     Hard fail is good for development but means that we cannot
