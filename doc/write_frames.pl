@@ -6,7 +6,7 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.4 1999-08-02 23:18:29 d3e129 Exp $
+# $Id: write_frames.pl,v 1.5 2000-12-05 01:57:17 bert Exp $
 #
 # remove nwchem banner stuff 3/23/98
 #
@@ -97,8 +97,15 @@ close(FSEARCH);
 if (!(open(FHTMLCONT,">$document/contents.html"))){
     die "write_frames.pl: could not open $document/contents.html for writing\n";
 }
-if (!(open(FCONT,"$document/node2.html"))){
+if ($document eq "user") {
+  if (!(open(FCONT,"$document/node2.html"))){
     die "write_frames.pl: could not open $document/node2.html for reading(2)\n";
+  }
+}
+if ($document eq "prog") {
+  if (!(open(FCONT,"$document/node4.html"))){
+    die "write_frames.pl: could not open $document/node2.html for reading(2)\n";
+  }
 }
 print FHTMLCONT "<HTML>\n<HEAD>\n<TITLE><B>Contents of $title </B></TITLE>\n";
 print FHTMLCONT "<BASE TARGET=\"main\">\n</HEAD>\n";
