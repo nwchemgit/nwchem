@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.8 1997-10-03 17:11:02 mg201 Exp $
+C $Id: ecp_integral.F,v 1.9 1998-04-01 02:28:19 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -174,8 +174,6 @@ C $Id: ecp_integral.F,v 1.8 1997-10-03 17:11:02 mg201 Exp $
 *
 *     Set up relative cartesian coordinates
 *
-        if (debug_gen) write (LuOut,*) '   Maximum angular momentum',l
-
         X_AC = xyz_C(1,i)-xyz_A(1)
         Y_AC = xyz_C(2,i)-xyz_A(2)
         Z_AC = xyz_C(3,i)-xyz_A(3)
@@ -224,15 +222,15 @@ C        if (debug_arrays) then
 C          write (LuOut,*) 'Parameters of ECP'
 C          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
 C     &        'n_prim_C',81,15)
-C          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+C          call ecp_matpi (ind_C,-1,l_ecp_max,1,2*n_C,0,l_C,1,2*n_C,
 C     &        'ind_C',81,15)
-C          call ecp_matpi (n_colc_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+C          call ecp_matpi (n_colc_C,-1,l_ecp_max,1,2*n_C,0,l_C,1,2*n_C,
 C     &        'n_colc_C',81,15)
 C          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'zeta_C','E',81,5)
 C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'coef_C','E',81,5)
-C        end if
+        end if
         if (.not.DryRun) call dfill (n_intt*n_blk,zero,scr,1)
         if ((i_c_A .eq. i_c_C) .and. (i_c_B .eq. i_c_C)) then
 *
@@ -243,8 +241,8 @@ C        end if
      &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
      &        l_C(i),n_prim_C(0,-1,i),n_colc_C(-1,i),ind_z(-1,i),
-     &        ind_c(-1,i),n_zeta_C,n_coef_C,n_C,zeta_C,coef_C,0,2,
-     &        tol,sphcart,
+     &        ind_c(-1,i),n_zeta_C,n_coef_C,l_ecp_max,n_C,
+     &        zeta_C,coef_C,0,2,tol,sphcart,
      &        scr(i_scr),memscr,csco,lcsco,
      &        scr,n_blk,ibug/10)
           if (DryRun) max_type0 = max(mem,max_type0)
