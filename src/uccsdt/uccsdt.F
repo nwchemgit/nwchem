@@ -611,8 +611,12 @@ c
      $   k_ibuf_bcik))call errquit('uccsdt: ibuf_bcik?',len9ibuf)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acik',l_ibuf_acik,
      $   k_ibuf_acik))call errquit('uccsdt: ibuf_acik?',len9ibuf)
-c      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
-c     &            lentbuf, lenibuf, lenwbuf, len9ibuf
+c
+      write(6,*)' e_block_max, m_block_max, oblock_max, vblock_max: ',
+     &            e_block_max, m_block_max, oblock_max, vblock_max
+
+      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
+     &            lentbuf, lenibuf, lenwbuf, len9ibuf
 c
 c note t1 is still dummy memory
 c
@@ -690,8 +694,8 @@ c
      $                       sym3(syma,symb,symc))
                         if (test_sym .eq. 0) then
                            if (next .eq. count) then
-*                              write(6,*) ga_nodeid(), ' doing ',
-*     $                             iblk, jblk, kblk, ablk, bblk, cblk
+                              write(6,*) ga_nodeid(), ' doing ',
+     $                             iblk, jblk, kblk, ablk, bblk, cblk
                               call util_flush(6)
                               if (oprint) write(6,*)
      $                             'TSB:kblk, klo, khi, symk ',
@@ -2236,7 +2240,7 @@ c
 c
       ptr = 1
       do j = 1, njblock
-         dimj = jblock(2,j) - iblock(1,j) + 1
+         dimj = jblock(2,j) - jblock(1,j) + 1
          symj = jblock(3,j)
          do i = 1, niblock
             dimi = iblock(2,i) - iblock(1,i) + 1
