@@ -4,7 +4,7 @@
       implicit none
       double precision volume
       double precision angle(3),spread(3),step(3)
-      double precision const_m(3),const_p(3)
+      integer const_m(3),const_p(3)
       double precision cooto(3),coofrom(3) ! [in]
       integer ngridxyz(3) ! [in]
 c
