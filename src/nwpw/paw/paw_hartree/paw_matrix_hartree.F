@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_hartree.F,v 1.4 2003-10-21 02:05:16 marat Exp $
+* $Id: paw_matrix_hartree.F,v 1.5 2003-10-21 15:16:43 edo Exp $
 *
 
 !*************************************************
@@ -160,8 +160,8 @@
       ok = ok.and.
      >     my_alloc(mt_int,tot_ntype,"s_paw_hartree_matrix",
      >              s_paw_hartree_matrix)
-      if (.not.ok)
-     > call errquit("init_paw_paw_hartree_matrix: out of heap memory",0,0)
+      if (.not.ok) call errquit(
+     > 'init_paw_paw_hartree_matrix: out of heap memory',0,0)
   
       !*** determine matrix size ***
       matr_size = 0
