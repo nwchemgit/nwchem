@@ -1,8 +1,9 @@
       logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
+     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box,
+     + lpdbbx)
 c
-c $Id: pre_rdpdb.F,v 1.21 2002-02-02 04:29:26 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.22 2002-07-30 21:12:17 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +28,7 @@ c
       character*3 namr
       character*4 nama
       character*6 hdr
-      logical lsolut
+      logical lsolut,lpdbbx
       character*1 alocal,achain,pchain
 c
       lnames=lnams
@@ -38,6 +39,7 @@ c
       ioff=0
       pchain=' '
       lrgpdb=0
+      lpdbbx=.false.
 c
       length=index(filpdb,' ')-1
       if(util_print('where',print_debug)) then
@@ -100,6 +102,7 @@ c
       box(1)=0.1d0*box(1)
       box(2)=0.1d0*box(2)
       box(3)=0.1d0*box(3)
+      lpdbbx=.true.
       goto 100
       endif
 c

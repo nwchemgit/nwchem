@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.101 2002-05-07 16:50:42 d3j191 Exp $
+c $Id: pre_input.F,v 1.102 2002-07-30 21:12:17 d3j191 Exp $
 c
       implicit none
 c
@@ -123,7 +123,8 @@ c
      + form='formatted',status='unknown',err=9999)
       rewind(unit=68)
       write(68,7801)
- 7801 format('rdcoor ',/,'center',/,'boxsiz')
+c 7801 format('rdcoor ',/,'center',/,'boxsiz')
+ 7801 format('rdcoor ')
       numcmd=numcmd+1
       lrdcoo=.true.
       numcmd=0
@@ -966,6 +967,16 @@ c
       if(inp_compare(.false.,'crop',item)) then
       write(68,6876)
  6876 format('crop   ')
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     boxsiz
+c     ------
+c
+      if(inp_compare(.false.,'boxsize',item)) then
+      write(68,6877)
+ 6877 format('boxsiz ')
       numcmd=numcmd+1
       goto 2
       endif

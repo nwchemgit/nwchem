@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.84 2002-07-09 10:08:45 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.85 2002-07-30 21:12:17 d3j191 Exp $
 c
       implicit none
 c
@@ -54,7 +54,7 @@ c
       integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
       integer l_wat,i_wat,l_lang,i_lang
 c
-      logical lslvnt,ldistr,lsolva,lcryst,lnames
+      logical lslvnt,ldistr,lsolva,lcryst,lnames,lpdbbx
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater,irenum
       integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang,lrgpdb
       real*8 xtran(3),xrot(3),arot
@@ -63,6 +63,7 @@ c
       integer iskip(3,100),nskip
 c
       irrep=0
+      lpdbbx=.false.
 c
       if(util_print('restart',print_debug)) then
       write(lfnout,1000)
@@ -279,7 +280,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain,model,box))
+     + chain,model,box,lpdbbx))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('restart',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
@@ -299,6 +300,7 @@ c
       endif
       endif
 c
+      if(.not.lpdbbx) then
       if(nsa.gt.0) then
 c
 c     center the solute
@@ -311,9 +313,9 @@ c
 c     orient the solute
 c     -----------------
 c
-      if(.not.pre_orient(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
-     + call errquit('pre_orient failed',9999)
+cx      if(.not.pre_orient(lfnout,dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+cx     + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
+cx     + call errquit('pre_orient failed',9999)
 c
       endif
 c
@@ -326,6 +328,7 @@ c
       if(util_print('restart',print_medium)) then
       write(lfnout,1007) box
  1007 format(/,' Boxsize determined to ',t40,3f12.6,/)
+      endif
       endif
 c
 c     write the restart file
@@ -498,7 +501,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain,model,box))
+     + chain,model,box,lpdbbx))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('restart',print_default)) then
       write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
@@ -589,7 +592,7 @@ c
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_rdrst failed',9999)
-
+      lpdbbx=.true.
       endif
 c
 c     read restart file
@@ -648,6 +651,7 @@ c
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
      + int_mb(i_inoe),dbl_mb(i_dnoe),mnoe,noe,msm,nsm))
      + call errquit('pre_rdrst failed',9999)
+      lpdbbx=.true.
       endif
 c
 c     write pdb file
@@ -796,7 +800,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
-     + chain,model,box))
+     + chain,model,box,lpdbbx))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('restart',print_default)) then
       write(lfnout,1011) filpdb(1:index(filpdb,' ')-1),nmis,nsa
@@ -821,12 +825,14 @@ c
 c     determine the boxsize
 c     ---------------------
 c
+      if(.not.lpdbbx) then
       if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
      + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,0))
      + call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1012) box
  1012 format(/,' Boxsize determined to ',t40,3f12.6,/)
+      endif
       endif
       endif
 c
@@ -1168,6 +1174,7 @@ c
 c     set minimum box size
 c     --------------------
 c
+c      if(.not.lpdbbx) then
       if(card(1:6).eq.'boxsiz') then
       if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
      + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,0))
@@ -1177,6 +1184,7 @@ c
  1033 format(/,' Boxsize determined to ',t40,3f12.6,/)
       endif
       endif
+c      endif
 c
 c     set cubic box
 c     -------------
