@@ -123,6 +123,7 @@ c
       integer ii, jj, kk, ll, ksh, lsh
       integer ilen, jlen, klen
       logical more
+      logical odoit
       logical sym_shell_quartet
       external sym_shell_quartet
 c
@@ -141,8 +142,10 @@ c
       do ksh=kshlo,kshhi
         do lsh=lshlo,lshhi
           if (schwarz_shell(ksh,lsh)*schw_ij.ge.tol2e) then
-            if ((.not.(osym)).or.
-     $         (sym_shell_quartet(basis, ish, jsh, ksh, lsh, q4))) then
+            odoit = .true.
+            if (osym) odoit = sym_shell_quartet(basis, ish, jsh,
+     $                                          ksh, lsh, q4)
+            if (odoit) then
               nshq = nshq + 1
               kshv(nshq) = ksh
               lshv(nshq) = lsh
@@ -215,7 +218,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -429,7 +432,7 @@ c
       integer nshq,  neri, neritotal, ieri, nblksiz
       integer ii, jj, kk, ll, ksh, lsh
       integer ilen, jlen, klen
-      logical more
+      logical more, odoit
       logical sym_shell_quartet
       external sym_shell_quartet
 c
@@ -450,9 +453,11 @@ c
         do ll=lshlo,lshhi
           lsh = shmap(ll)
           if (schwarz_shell(ksh,lsh)*schw_ij.ge.tol2e) then
-            if ((.not.(osym)).or.
-     $         (sym_shell_quartet(basis, ish, jsh, max(ksh,lsh),
-     $                            min(ksh,lsh), q4))) then
+            odoit = .true.
+            if (osym) odoit = sym_shell_quartet(basis, ish, jsh,
+     $                                          max(ksh,lsh),
+     $                                          min(ksh,lsh), q4)
+            if (odoit) then
               nshq = nshq + 1
               kshv(nshq) = ksh
               lshv(nshq) = lsh
@@ -497,8 +502,7 @@ c
       klen = kbhi  - kblo + 1
       ilen = ibfhi - ibflo + 1
       jlen = jbfhi - jbflo + 1
-      if ((kshlo.eq.lshlo).and.(osym))
-     $   call eriblktr(ilen, jlen, klen, ssbb )
+C      if (kshlo.eq.lshlo) call eriblktr(ilen, jlen, klen, ssbb )
 
 c$$$      LL = (LBHI - LBLO + 1)
 c$$$      KK = (KBHI - KBLO + 1)
@@ -524,7 +528,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -540,7 +544,7 @@ c
       integer ilen, jlen, kblen, lblen
       integer ksh, lsh, kbflo, kbfhi, lbflo, lbfhi, ltop
       integer kk, ll, bsize
-      logical status
+      logical status, odoit
       double precision q4
       logical sym_shell_quartet
       external sym_shell_quartet
@@ -562,16 +566,19 @@ c
         do ll=lshlo,ltop
           lsh = shmap(ll)
           if ((schwarz_shell(ksh,lsh)*schw_ij).ge.tol2e) then
-            if ((.not.(osym)).or.
-     $        (sym_shell_quartet(basis, ish, jsh, max(ksh,lsh),
-     $                           min(ksh,lsh), q4))) then
+            odoit = .true.
+            if (osym) odoit = sym_shell_quartet(basis, ish, jsh,
+     $                                         max(ksh,lsh),
+     $                                         min(ksh,lsh), q4 )
+            if (odoit) then
               status = bas_cn2bfr(basis, lsh, lbflo, lbfhi)
               call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                      scrlen, iscr, erilen, eri )
               call eri2blkx(rbfmap, ilen, jlen,
-     $                      kblo, kbhi, lblo, lbhi,
+     $                      kblo,  kbhi,  lblo,  lbhi,
      $                      kbflo, kbfhi, lbflo, lbfhi,
      $                      eri, q4, ssbb )
+
             endif
           endif
         enddo
@@ -581,9 +588,11 @@ c
 c$$$      WRITE(6,881) ISH, JSH
 c$$$ 881  FORMAT(/,'+++',2I5)
 c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
+      
 
       return
       end
+
 
 
 
@@ -642,22 +651,26 @@ c
 
 
 
-
-
-
+c
+c  Pack shell quartet ERI into bigger blocks
+c  with remapped K,L indices of a contigious range
+c
       subroutine eri2blkx( rbfmap, ilen, jlen,
      $                     kblo, kbhi, lblo, lbhi,
      $                     kbflo, kbfhi, lbflo, lbfhi, 
      $                     eri, q4, blk )
       implicit none
-      integer rbfmap(*)
-      integer ilen, jlen
-      integer kblo, kbhi, lblo, lbhi
-      integer kbflo, kbfhi, lbflo, lbfhi
-      double precision q4
-      double precision blk(lblo:lbhi,kblo:kbhi,jlen,ilen)
-      double precision eri(lbflo:lbfhi,kbflo:kbfhi,jlen,ilen)
+      integer rbfmap(*)                                          ! [input] basis map orig -> new
+      integer ilen, jlen                                         ! [input] ij shell lengths
+      integer kblo, kbhi                                         ! [input] k range in new order
+      integer lblo, lbhi                                         ! [input] l range in new order
+      integer kbflo, kbfhi                                       ! [input] original basis indices
+      integer lbflo, lbfhi                                       ! [input] original basis indices
+      double precision q4                                        ! [input] symmetry scale
+      double precision eri(lbflo:lbfhi,kbflo:kbfhi,jlen,ilen)    ! [input] eri shell quartet
+      double precision blk(lblo:lbhi,kblo:kbhi,jlen,ilen)        ! [output] eri block
       integer k,l,i,j,kk,ll
+
 
       do i=1,ilen
         do j=1,jlen
@@ -1080,7 +1093,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1124,7 +1137,7 @@ C$Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.21 1996-10-22 08:42:31 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.22 1997-03-12 17:35:34 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
