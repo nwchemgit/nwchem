@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.8 2001-12-28 23:17:54 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.9 2001-12-31 22:52:59 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -24,6 +24,8 @@ c
       integer G0(2),S0(2)
       real*8  E0,dE0
 
+      logical    precondition
+      common / cgsd_block2 / precondition
 
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
@@ -95,12 +97,17 @@ c
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
+      logical  control_precondition
+      external control_precondition
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
 c     dte = dsqrt(control_fake_mass())/dt
 c     dte = 1.0d0
 
+      if (current_iteration.eq.1) then
+         precondition = control_precondition()
+      end if
 
   
       call Pack_npack(1,npack1)
@@ -118,9 +125,13 @@ c     dte = 1.0d0
 
 
 *     ***** get the initial direction ****
+      if (precondition) then
+         call psi_1get_TMgradient(dcpl_mb(G0(1)),E0)
+      else
+         call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
+      end if
 
       if (current_iteration.eq.1) then
-         call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
 
 *        ***** use the initial gradient for the direction ****
          call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
@@ -130,7 +141,6 @@ c        call pspw_diis_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
      >                      dcpl_mb(S0(1)))
          tmin  = 10*deltat_min
       else
-         call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
       end if
@@ -163,11 +173,17 @@ c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
 *        **** exit loop early ****
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
-            go to 30
+            if (.not.precondition) go to 30
+            precondition = .false.
          end if
      
 *        **** get the new gradient - also updates densities****
-         call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+         if (precondition) then
+           call psi_2get_TMgradient(2,dcpl_mb(G0(1)),E0)
+         else
+           call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+         end if
+
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 c        call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 

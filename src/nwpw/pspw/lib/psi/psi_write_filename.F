@@ -1,15 +1,16 @@
 *
-* $Id: psi_write.F,v 1.2 2001-12-31 22:53:00 bylaska Exp $
+* $Id: psi_write_filename.F,v 1.1 2001-12-31 22:53:00 bylaska Exp $
 *
 
 *     ***********************************
-*     *             			*
-*     *           psi_write		*
-*     *             			*
+*     *             					*
+*     *           psi_write_filename	*
+*     *             					*
 *     ***********************************
 
-      subroutine psi_write(ispin,ne,psi2)
+      subroutine psi_write_filename(filename,ispin,ne,psi2)
       implicit none 
+      character*(*) filename
       integer ispin,ne(2)
       double complex psi2(*)
 
@@ -21,7 +22,6 @@
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
       character*255 full_filename
 
       integer MASTER,taskid
@@ -33,8 +33,6 @@ c     complex*16 tmp(*)
       logical value
 
 *     ***** local functions ****
-      character*30 control_output_psi
-      external     control_output_psi
       double precision control_unita
       external         control_unita
       integer  control_ngrid
@@ -66,7 +64,6 @@ c     complex*16 tmp(*)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
-         filename = control_output_psi()
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                       full_filename)

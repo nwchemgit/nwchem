@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.5 2001-12-28 19:04:25 bylaska Exp $
+* $Id: ke.F,v 1.6 2001-12-31 22:52:59 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -158,7 +158,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.5 2001-12-28 19:04:25 bylaska Exp $
+* $Id: ke.F,v 1.6 2001-12-31 22:52:59 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
@@ -306,17 +306,20 @@ c     real*8 tg(nfft3d)
 
       sum = lattice_wggcut()
       do n=1,neall
-c        call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
-c        call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
+         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
+         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
          do k=1,npack
-           x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
+           x = dbl_mb(tg_indx+k-1)
+           x = x*dconjg(psi(k,n))*psi(k,n)
+           x = x/sum
 
-c          cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-c          dm = (cm + 16.0d0* x**4)
-c          cm = cm/dm
+           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+           dm = (cm + 16.0d0* x**4)
+           cm = cm/dm
 
+c          x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
 c          cm = dexp(-0.15d0*x*x) 
-           cm = dexp(-0.5d0*(x-0.5)**2) 
+c          cm = dexp(-0.5d0*(x-0.5)**2) 
 
            gradk(k,n) = gradk(k,n)*(cm)
          end do

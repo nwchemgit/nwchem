@@ -833,8 +833,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_2get_TMgradient	*
 *     *					*
 *     ***********************************
-      subroutine psi_2get_TMgradient(THpsi,Eout)
+      subroutine psi_2get_TMgradient(option,THpsi,Eout)
       implicit none
+      integer    option
       complex*16 THpsi(*)
       real*8     Eout
 
@@ -862,10 +863,12 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external electron_energy
 
 
-      call electron_run(dcpl_mb(psi2(1)),
-     >                   dbl_mb(rho2(1)),
-     >                  dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+      if (option.le.1) then
+        call electron_run(dcpl_mb(psi2(1)),
+     >                    dbl_mb(rho2(1)),
+     >                    dcpl_mb(dng2(1)),
+     >                    dbl_mb(rho2_all(1)))
+      end if
 
       Eout =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
@@ -877,6 +880,40 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       
       return
       end
+
+*     ***********************************
+*     *									*
+*     *		psi_1ke_Precondition		*
+*     *									*
+*     ***********************************
+      subroutine psi_1ke_Precondition(Hpsi)
+      implicit none
+      complex*16 Hpsi(*)
+
+#include "mafdecls.fh"
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+*     **** local variables ****
+      integer neall
+
+      neall = ne(1)+ne(2)
+      call ke_Precondition(npack1,neall,
+     >                      dcpl_mb(psi1(1)),
+     >                      Hpsi)
+      return
+      end
+
 
 
 *     ***********************************
@@ -1982,6 +2019,12 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     *****  read initial wavefunctions into psi1  ****
       call psi_read(ispin,ne,dcpl_mb(psi1(1)))
 
+      call psi_history_read(ispin,ne,
+     >                      dcpl_mb(psi1(1)),
+     >                      dcpl_mb(psi2(1)))
+     
+
+
 *     **** Ortho Check ****
       call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
      >                        dcpl_mb(psi1(1)),
@@ -2049,6 +2092,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     ***** write psi1 wavefunctions ****
       call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
     
       value = MA_free_heap(eig(2))
       value = MA_free_heap(hml(2))

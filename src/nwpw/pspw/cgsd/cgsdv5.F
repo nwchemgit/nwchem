@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.12 2001-12-21 01:49:29 bylaska Exp $
+* $Id: cgsdv5.F,v 1.13 2001-12-31 22:52:59 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -394,12 +394,13 @@ c     end if
 
 *     **** calculate Mulliken Populations ***
 
+*     **** write wavefunctions to file and finalize psi ****
+      value = psi_finalize()
+
 *     **** write geometry to rtdb ****
       call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
-*     **** write wavefunctions to file and finalize psi ****
-      value = psi_finalize()
 
 *     **** deallocate heap memory ****
       call electron_finalize()
