@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.28 1997-09-17 23:01:11 d3g681 Exp $
+c     $Id: grad2.F,v 1.29 1997-09-28 17:17:45 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -287,7 +287,7 @@ c
                      if (.not. intbd_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
-     $                    nq, q4, .true., lscr, scr, 12*leri, 
+     $                    nq, q4, .true., lscr, scr, leri, 
      $                    block_eff)) call errquit('grad2:txs init?',nq)
 c     
  10                  omore = intbd_2e4c(
@@ -296,7 +296,7 @@ c
      $                    nq, q4, .true., tol2e, .false.,
      $                    labels(1,1),labels(1,2), 
      $                    labels(1,3), labels(1,4), 
-     $                    eri, 12*leri, nint, lscr, scr)
+     $                    eri, leri, nint, lscr, scr)
 c     
 *     write(6,*) ' nint ', nint, omore
 c     
