@@ -22,14 +22,14 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.129 2000-08-01 19:50:14 d3g681 Exp $
-*------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
-*         Pacific Northwest National Laboratory, * 
-*         Battelle Memorial Institute.           *
-*------------------------------------------------*
-*------------> All Rights Reserved <-------------*
-*------------------------------------------------*
+c     $Id: nwchem.F,v 1.130 2000-10-13 20:54:31 d3g681 Exp $
+*------------------------------------------------------------*
+* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000     *
+*         Pacific Northwest National Laboratory,             * 
+*         Battelle Memorial Institute.                       *
+*------------------------------------------------------------*
+*------------------> All Rights Reserved <-------------------*
+*------------------------------------------------------------*
 c
 *--------------------------------------------------------------------*
 *                             DISCLAIMER                             *
@@ -133,6 +133,15 @@ C
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911)
         call ga_set_memory_limit(ma_sizeof(mt_dbl,global,mt_byte))
       endif
+c
+*
+*     More for amusement then efficiency force all MA allocated entities 
+*     to be aligned at the beginning of a 128 byte cache line
+*
+      if (.not. ma_set_numalign(7))
+     $     call errquit('nwchem.F: ma_set_numalign failed',911)
+*
+*
 *old:------------------------------------------------------- START ---------
 *old:C     GA allocations come out of MA space, so lump them together
 *old:C     and let MA impose the limits on GA sizes instead of actually
@@ -157,7 +166,7 @@ c
 c
 c     Trap SIGFPE after GA to override handler
 c
-******      call ieeetrap()
+*****      call ieeetrap()
 #ifdef DECOSF
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
 #endif
@@ -166,7 +175,7 @@ c
 *     to affect the final results
       oldact = fsigctl('IGNORE','SIGFPE',0)
 #endif
-C
+c
 c     Hard fail is good for development but means that we cannot
 c     respond to allocation problems. Disable by default.
 c
@@ -201,6 +210,7 @@ c
 c!!! BGJ
       bgj_rtdb = rtdb
 c!!! BGJ
+c
 c
       if (ostartup.or.ocontinue) then
         orestart = .false.
@@ -350,7 +360,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 3.3.1',
+     $     'Northwest Computational Chemistry Package (NWChem) 4.0',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
