@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.40 1998-11-02 15:49:09 bernhold Exp $
+C$Id: rimp2.F,v 1.41 1999-07-15 22:33:59 edo Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -176,9 +176,9 @@ C
       Status = Status .AND. Bas_Name(AOBas, AOName, AONameT)
       Status = Status .AND. Bas_Name(FitBas, FitName, FitNameT)
 C
-      Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, RefNAO, TopSpin, NCorBF,
-     $     G_AOXF, MinChunk, MinChunk, MaxSpin, H_Occ, H_EVal,
-     $     NFrzOcc, NFrzVir, .False.)
+      Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, AOBas, .false.,
+     . RefNAO, TopSpin, NCorBF,G_AOXF, MinChunk, MinChunk, MaxSpin, 
+     .     H_Occ, H_EVal, NFrzOcc, NFrzVir, .False.)
 C
       If (RefNAO .ne. NAOBF) Call ErrQuit(
      $     'RIMP2: Incompatible reference AO basis size', RefNAO-NAOBF)
