@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.12 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_groups.F,v 1.13 2003-12-15 20:25:40 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.12 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_groups.F,v 1.13 2003-12-15 20:25:40 d3j191 Exp $
 c
       implicit none
 c
@@ -93,7 +93,7 @@ c
       real*8 x(nsa,3)
 c
       integer igrp,jgrp
-      integer i,j,ito,jfrom,ia,ja,number
+      integer i,j,jfrom,ia,ja,number
       real*8 dist,dx,dy,dz
 c
       igrp=igroups(igr,1)
@@ -155,7 +155,7 @@ c
       character*16 sgmnam(nsa)
       integer imol(msa),isel(nsa)
 c
-      integer i,num,igrp,ito,ia,j
+      integer i,num,igrp,ia,j
 c
       num=0
       do 1 i=1,nsa
@@ -199,7 +199,7 @@ c
       integer isel(nsa),igr,imol(msa),iwrk(mxdef,mxnum,maxgrp)
       real*8 x(nsa,3)
 c
-      integer i,j,igrp,ia,ja,ito,k,ntmp
+      integer i,j,igrp,ia,ja,k,ntmp
       real*8 dx,dy,dz,dist
 c
       integer num,ndx(100)
@@ -288,7 +288,7 @@ c
       integer ih
       real*8 x(nsa,3),w(mwm,mwa,3)
 c
-      integer i,ia,ito,j,ndx
+      integer i,ia,j,ndx
 c
       dhis=1.2d0*box(3)/real(idhis(ih,2))
 c
