@@ -655,11 +655,11 @@ c
       if (.not.ma_push_get(mt_dbl,lenxbuf,'xbuf',l_xbuf,k_xbuf))
      $   call errquit('uccsdt: xbuf?',lenxbuf)
 c
-      write(6,*)' e_block_max, m_block_max, oblock_max, vblock_max: ',
-     &            e_block_max, m_block_max, oblock_max, vblock_max
+**      write(6,*)' e_block_max, m_block_max, oblock_max, vblock_max: ',
+**     &            e_block_max, m_block_max, oblock_max, vblock_max
 
-      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
-     &            lentbuf, lenibuf, lenwbuf, len9ibuf
+**      write(6,*)' lentbuf, lenibuf, lenwbuf, len9ibuf: ',
+**     &            lentbuf, lenibuf, lenwbuf, len9ibuf
 c
 c note t1 is still dummy memory
 c
@@ -732,8 +732,8 @@ c
      $                       sym3(syma,symb,symc))
                         if (test_sym .eq. 0) then
                            if (next .eq. count) then
-                              write(6,*) ga_nodeid(), ' doing ',
-     $                             iblk, jblk, kblk, ablk, bblk, cblk
+**                              write(6,*) ga_nodeid(), ' doing ',
+**     $                             iblk, jblk, kblk, ablk, bblk, cblk
                               call util_flush(6)
                               if (oprint) write(6,*)
      $                             'TSB:kblk, klo, khi, symk ',
@@ -1565,6 +1565,11 @@ c     Does it fit in memory?
 c     If it fits & uses the fewest integral passes then record it
 c
             call util_ma_ga_test(ma_max, ga_max/ga_nnodes(), ok)
+****c
+****c temp force multiple super blocks
+****c
+****            if (numasuper.eq.1.or.numcsuper.eq.1)ok=.false.            
+c
             if (ok .and. npass.lt.npass_best) then
                npass_best = npass
                numasuper_best = numasuper
@@ -1687,10 +1692,13 @@ c     recompute their actual values.
 c
 c      oblock_max = 20
 c
-c tmp set oblock to 4 for testing multiple blocks.
+c tmp set oblock for testing multiple blocks.
 c
       oblock_max = 4
-      vblock_max = 20
+c
+c tmp set vblock for testing multiple blocks.
+c
+      vblock_max = 10
 c
 c     Sub-block the 'a' super-block ... sub-blocks will be restricted
 c     to orbitals of the same symmetry whereas super-blocks can contain
@@ -2225,7 +2233,11 @@ c
      $              listname(list), 0, 0, listinfo(5,list))) 
      $              call errquit
      $              ('uccsdt_triples_set_super_block: ga_create', list)
-               call ga_zero(listinfo(5,list))
+               if (list .lt. 14) then
+                 call ga_zero(listinfo(5,list))
+               else
+                 call ga_fill(listinfo(5,list), 1d300)
+               endif
             else
                listinfo(5,list) = 99999999 ! invalid handle for empty array
             endif
@@ -2623,14 +2635,8 @@ c                     write(6,*)' after sub_blocking before moints '
                      call uccsdt_triples_moints()
 c                     write(6,*)' after moints before dummy amps '
 c
-c
-c  here now load g_t2 and and fill t2 lists 
-c  do this as many times as required to fill all lists
-c
-c                     call uccsdt_load_g_t2_superblock
-c     $                    (alo, ahi, blo, bhi, clo, chi, spina, spinc)
-c
-                     call uccsdt_triples_dummy_amplitudes()
+c                     call uccsdt_triples_dummy_amplitudes()
+                     call uccsdt_triples_amplitudes(d_amp, spina, spinc)
                      call dfill(5000, 0.0d0, dummy, 1)
 c
 c                     write(6,*)' after dummy amps before sub_blocked '

@@ -69,7 +69,7 @@ c     .   and note that ov_off() is dimensioned (max_nmo+1,0:7,2,2)
 c     .   so it is OK to compute differences using ov_off(a+1,...)
 c
 c     .   double precision packed(1:*), unpacked(nocc,nvirt)
-c     .   packed(1 + i-o_sym(symi,spini) + ov_off(a,symia,spini,spina))
+c     .   packed(1 + i-o_sym(1,symi,spini) + ov_off(a,symia,spini,spina))
 c     .        = unpacked(i,a)
 c
 c     - dimension information
@@ -415,7 +415,7 @@ c
      $        ('uccsdt_ampfile_read_t2: ga_create failed?',0)
       end if
 c
-      write(6,*) ' OFFSET ', offset+1, offset + lenia*lenjb
+**      write(6,*) ' OFFSET ', offset+1, offset + lenia*lenjb
       uccsdt_ampfile_read_t2 = dra_read_section(.false., 
      $     g_t2, 1, lenia, 1, lenjb,
      $     d_amp, offset+1, offset + lenia*lenjb, 1,1,
@@ -828,7 +828,7 @@ c
                do spini = 1, 2
                   if ((spini+spinj).eq.(spina+spinb)) then
                      spinsum = spinb + spinj + spina + spini
-c                     write(6,*) ' SPINS ', spini,spina,spinj,spinb
+                     write(6,*) ' SPINS ', spini,spina,spinj,spinb
                      do symjb = 0, 7
                         symia = symjb
 c                        write(6,*) '        symjb', symjb, 
@@ -899,23 +899,31 @@ c     &                                      lenia, lenjb
      &                         lenia, lenjb, symjb,
      &                         oloa, ohia, vloa, vhia, 
      &                         oloa, ohia, vloa, vhia,
-     &                         spina, spinb, spini, spinj)
+     &                         spina, spinb, spini, spinj,.false.)
                         elseif (spinsum.eq.8)then
                           write(6,*)' packing t2bb buffer '
                           call pack_t2buf(t2bb, dbl_mb(k_t2buf),
      &                         lenia, lenjb, symjb,
      &                         olob, ohib, vlob, vhib, 
      &                         olob, ohib, vlob, vhib,
-     &                         spina, spinb, spini, spinj)
+     &                         spina, spinb, spini, spinj,.false.)
                         else
                           write(6,*)' packing t2ab buffer '
                           if ((spinj.gt.spini).and.
-     &                        (spinb.gt.spina))
-     &                         call pack_t2buf(t2ab, dbl_mb(k_t2buf),
-     &                         lenia, lenjb, symjb,
-     &                         oloa, ohia, vloa, vhia, 
-     &                         olob, ohib, vlob, vhib,
-     &                         spina, spinb, spini, spinj)
+     &                        (spinb.gt.spina))then
+                            call pack_t2buf(t2ab, dbl_mb(k_t2buf),
+     &                           lenia, lenjb, symjb,
+     &                           oloa, ohia, vloa, vhia, 
+     &                           olob, ohib, vlob, vhib,
+     &                           spina, spinb, spini, spinj,.false.)
+                          elseif ((spinj.lt.spini).and.
+     &                           (spinb.lt.spina))then
+                            call pack_t2buf(t2ab, dbl_mb(k_t2buf),
+     &                           lenia, lenjb, symjb,
+     &                           oloa, ohia, vloa, vhia, 
+     &                           olob, ohib, vlob, vhib,
+     &                           spina, spinb, spini, spinj,.true.)
+                          endif
                         endif
 c
                         call ga_put(g_t2, 1, lenia, 1, lenjb, 
@@ -1222,23 +1230,31 @@ c
      &                         lenia, lenjb, symjb,
      &                         oloa, ohia, vloa, vhia, 
      &                         oloa, ohia, vloa, vhia,
-     &                         spina, spinb, spini, spinj)
+     &                         spina, spinb, spini, spinj,.false.)
                         elseif (spinsum.eq.8)then
                           write(6,*)' unpacking t2bb buffer '
                           call unpack_t2buf(t2bb, dbl_mb(k_t2buf),
      &                         lenia, lenjb, symjb,
      &                         olob, ohib, vlob, vhib, 
      &                         olob, ohib, vlob, vhib,
-     &                         spina, spinb, spini, spinj)
+     &                         spina, spinb, spini, spinj,.false.)
                         else
                           write(6,*)' unpacking t2ab buffer '
                           if ((spinj.gt.spini).and.
-     &                        (spinb.gt.spina))
-     &                         call unpack_t2buf(t2ab, dbl_mb(k_t2buf),
-     &                         lenia, lenjb, symjb,
-     &                         oloa, ohia, vloa, vhia, 
-     &                         olob, ohib, vlob, vhib,
-     &                         spina, spinb, spini, spinj)
+     &                        (spinb.gt.spina))then
+                            call unpack_t2buf(t2ab, dbl_mb(k_t2buf),
+     &                           lenia, lenjb, symjb,
+     &                           oloa, ohia, vloa, vhia, 
+     &                           olob, ohib, vlob, vhib,
+     &                           spina, spinb, spini, spinj,.false.)
+                          elseif ((spinj.lt.spini).and.
+     &                           (spinb.lt.spina))then
+                            call unpack_t2buf(t2ab, dbl_mb(k_t2buf),
+     &                           lenia, lenjb, symjb,
+     &                           oloa, ohia, vloa, vhia, 
+     &                           olob, ohib, vlob, vhib,
+     &                           spina, spinb, spini, spinj,.true.)
+                          endif
                         endif
 c
                         if (.not. ga_destroy(g_t2)) call errquit
@@ -1267,7 +1283,7 @@ c     &                                    oloa, ohia, olob, ohib)
      &                        lenia, lenjb, symjb,
      &                        olo1, ohi1, vlo1, vhi1, 
      &                        olo2, ohi2, vlo2, vhi2,
-     &                        spina, spinb, spini, spinj)
+     &                        spina, spinb, spini, spinj, oflip)
       implicit none
 c
 #include "cuccsdtP.fh"
@@ -1282,6 +1298,7 @@ c
       integer olo1, ohi1, olo2, ohi2, vlo1, vhi1, vlo2, vhi2
       double precision t2(vlo1:vhi1,vlo2:vhi2,olo1:ohi1,olo2:ohi2)
       double precision t2buf(lenia,lenjb)
+      logical oflip
 c      call output(t2buf, 1, lenia, 1, lenjb, lenia, lenjb, 1)
       symia = symjb
       jb = 0
@@ -1308,7 +1325,12 @@ c
                   ia = ia + 1
 c                  write(6,*)' ia, jb, a, b, i, j, t2buf(ia,jb) ',
 c     &                        ia, jb, a, b, i, j, t2buf(ia,jb)
-                  t2(a,b,i,j) = t2buf(ia,jb)
+                  if(oflip)then
+                    t2(b,a,j,i) = t2buf(ia,jb)
+                  else
+                    t2(a,b,i,j) = t2buf(ia,jb)
+                  endif
+c
                 end do
               end do
             end do
@@ -1321,7 +1343,7 @@ c     &                        ia, jb, a, b, i, j, t2buf(ia,jb)
      &                      lenia, lenjb, symjb,
      &                      olo1, ohi1, vlo1, vhi1, 
      &                      olo2, ohi2, vlo2, vhi2,
-     &                      spina, spinb, spini, spinj)
+     &                      spina, spinb, spini, spinj, oflip)
       implicit none
 c
 #include "cuccsdtP.fh"
@@ -1336,6 +1358,7 @@ c
       integer olo1, ohi1, olo2, ohi2, vlo1, vhi1, vlo2, vhi2
       double precision t2(vlo1:vhi1,vlo2:vhi2,olo1:ohi1,olo2:ohi2)
       double precision t2buf(lenia,lenjb)
+      logical oflip
       call dfill (lenia*lenjb, 0.0d0, t2buf,1)
       symia = symjb
       jb = 0
@@ -1362,7 +1385,11 @@ c
                   ia = ia + 1
 c                  write(6,*)' ia, jb, a, b, i, j, t2(a,b,i,j) ',
 c     &                        ia, jb, a, b, i, j, t2(a,b,i,j)
-                  t2buf(ia,jb) = t2(a,b,i,j)
+                  if(oflip)then
+                    t2buf(ia,jb) = t2(b,a,j,i)
+                  else
+                    t2buf(ia,jb) = t2(a,b,i,j)
+                  endif
                 end do
               end do
             end do

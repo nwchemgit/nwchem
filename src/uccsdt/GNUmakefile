@@ -2,8 +2,7 @@ LIBRARY = libccsd.a
 
 LIB_DEFINES = -DLONGINTEGER=integer
 
-OBJ = uccsdt.o amplitudes.o 
-OBJ_OPTIMIZE = moints_shpair.o soints.o triples_kernels.o moscreen.o
+OBJ_OPTIMIZE = moints_shpair.o soints.o triples_kernels.o moscreen.o uccsdt.o amplitudes.o draftt2s.o
 
 #ga_long1d.o 
 
