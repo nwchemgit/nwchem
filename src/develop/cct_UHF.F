@@ -42,11 +42,16 @@ c       do sij=1,nirr
 c        do sa=1,nirr
 c        for "symmetric" batch of c,a ; all e,f in core
 c        within summation bk/ij may be batched (saves space)
+c
+c      storage
+c      bk,ea, so for one a all e's and then bk's
+c      The result is (ae,cf) / (af,ce)
+c      in each column/row the e/f are the fastest running indices
 c         
 c
       double precision r_a2a,r_a2b,r_b2b,r_a3a,r_a3b,r_b3b
       double precision r_a4a,r_a4b,r_b4b
-      double precision cct_uhf_D
+      double precision cct_uhf_T2
 c
       integer ncase_a2a,ncase_a2b,ncase_b2b
       integer ncase_a3a,ncase_a3b,ncase_b3b
@@ -184,17 +189,17 @@ c                     b m j n  a k  c i
      1               'T(ij,ab)(aibj)','<ba||ek>(bkea)'/
 c======================================================================
 c
-      r_a2a = cct_uhf_D(a2a,occ_a2a,cases_a2a,ncase_a2a,type_a2a)
-      r_a2b = cct_uhf_D(a2b,occ_a2b,cases_a2b,ncase_a2b,type_a2b)
-      r_b2b = cct_uhf_D(b2b,occ_b2b,cases_b2b,ncase_b2b,type_b2b)
+      r_a2a = cct_uhf_T2(a2a,occ_a2a,cases_a2a,ncase_a2a,type_a2a)
+      r_a2b = cct_uhf_T2(a2b,occ_a2b,cases_a2b,ncase_a2b,type_a2b)
+      r_b2b = cct_uhf_T2(b2b,occ_b2b,cases_b2b,ncase_b2b,type_b2b)
 c
-      r_a3a = cct_uhf_D(a3a,occ_a3a,cases_a3a,ncase_a3a,type_a3a)
-      r_a3b = cct_uhf_D(a3b,occ_a3b,cases_a3b,ncase_a3b,type_a3b)
-      r_b3b = cct_uhf_D(b3b,occ_b3b,cases_b3b,ncase_b3b,type_b3b)
+      r_a3a = cct_uhf_T2(a3a,occ_a3a,cases_a3a,ncase_a3a,type_a3a)
+      r_a3b = cct_uhf_T2(a3b,occ_a3b,cases_a3b,ncase_a3b,type_a3b)
+      r_b3b = cct_uhf_T2(b3b,occ_b3b,cases_b3b,ncase_b3b,type_b3b)
 c
-      r_a4a = cct_uhf_D(a4a,occ_a4a,cases_a4a,ncase_a4a,type_a4a)
-      r_a4b = cct_uhf_D(a4b,occ_a4b,cases_a4b,ncase_a4b,type_a4b)
-      r_b4b = cct_uhf_D(b4b,occ_b4b,cases_b4b,ncase_b4b,type_b4b)
+      r_a4a = cct_uhf_T2(a4a,occ_a4a,cases_a4a,ncase_a4a,type_a4a)
+      r_a4b = cct_uhf_T2(a4b,occ_a4b,cases_a4b,ncase_a4b,type_a4b)
+      r_b4b = cct_uhf_T2(b4b,occ_b4b,cases_b4b,ncase_b4b,type_b4b)
 c
       return
       end
@@ -390,9 +395,16 @@ c
 c
       return
       end 
-      double precision function cct_uhf_D(diagram,occ,cases,ncase,type)
+      double precision function cct_uhf_T2
+     1       (diagram,occupation,cases,ncase,type,
+     2        value_X1X)
 c
-c...  CCT diagram evaluator; modelled for A3A
+c...  CCT T2 diagram evaluator; modelled for A3A
+c
+c...  if diagram is A2A,A2B or B2B we can generate the 
+c...  corresponding A1A,A1B and B1B simultaneously => value_X1X
+c
+      implicit none
 c
 c     (ij)t(ij,ce)*t(ij,af)  *  (bk) <ba||ek><bc||fk>
 c        T(ij)(ceaf)  (Y)           I(bk)(aecf) (X)
@@ -413,11 +425,11 @@ c...   symbolic matrix element (for A3A)
 c
 c...   output : accumulated value
 c...   input : diagram : text string to identify diagram
-c...           occ,cases,ncase,type : diagram definition (see below)
+c...           occuption,cases,ncase,type:diagram definition (see below)
 c
 c     integer ncase,case
 c     parameter (ncase=5)
-c     integer cases(9,ncase),occ(9)
+c     integer cases(9,ncase),occupation(9)
 c     integer c,e,a,f,i,j,b,k
 c...    (occupations of these)
 c     character*20 type(2,2)
@@ -431,7 +443,7 @@ c    1            2,2,2,2, 0,0, 2,2,  1,
 c    2            1,2,1,2, 2,1, 1,2,  2,
 c    3            2,1,2,1, 1,2, 1,2,  2,
 c    4            2,1,1,2, 0,0, 1,2,  4/
-c     data occ  / 2,2,2,2, 1,2, 1,1,  2/
+c     data occupation  / 2,2,2,2, 1,2, 1,1,  2/
 c     data type /'<ba||ek>(bkea)','<ba||ek>(bkea)',
 c    1           'T(ij,ce)(ijec)','T(ij,ce)(ijec)'/
 c
@@ -446,23 +458,34 @@ c     e,f (2,4)  are the  unweighted
 c     --------------------------------------------------------
 c
 c
-      integer occ(9),ncase,cases(9,ncase)
+      integer occupation(9),ncase,cases(9,ncase)
+      double precision value_X1X
       character*(*) diagram,type(2,2)
 c
 #include "mafdecls.fh"
+#include "cct_table_uhf.fh"
 c
       logical ga_create,ga_destroy
-      integer spinc,spine,spina,spinf,spini,spinj,spinb,spink
-      double precision factor
+      integer avail_ga,ga_memory_avail,ga_memory,ga_nnodes
+      integer g_RESULT,g_TESULT
 c
+      integer spinc,spine,spina,spinf,spini,spinj,spinb,spink,spin
+      integer a,e,c,f,b,k,i,j
+      integer eb,fb,bb,kb,ab,ae,cb,ce,ib,jb
+      integer na,nc,ne,nf
+      integer nae,ncf,naf,nce
+      integer sbk,sij,sa,se,sf,sc
+      integer case,nbatch,nbcha,nbchc,size,size_1
+      logical symmetry,a2a,a1a
+      double precision factor,cct_sum,sum,cct_sum_a1a
 c
-c...   symbolic matrix element
-c
-      integer case
-      integer c,e,a,f,i,j,b,k
-c...    (occupations of these)
+      sum = 0.0d0
+      a2a = diagram.eq.'A2A'.or.diagram.eq.'A2B'.or.diagram.eq.'B2B'
+c..    (could deduce this from fact that both c and a are occupied)
+      if (a2a) value_X1X = 0.0d0
 c
 c...   get available global memory
+c...   be sure to have 2 local ne arrays per processor in final stage
 c
        avail_ga = ga_memory_avail()/8
        call ga_igop(13,avail_ga,1,'min')
@@ -471,14 +494,16 @@ c...    remember that there is overhead (in space) as well
 c     
 c                 1 2 3 4  5 6  7 8
 c                 a e c f  b k  i j  fac 
-      a = occ(1)
-      e = occ(2)
-      c = occ(3)
-      f = occ(4)
-      b = occ(5)
-      k = occ(6)
-      i = occ(7)
-      j = occ(8)
+      a = occupation(1)
+      e = occupation(2)
+      c = occupation(3)
+      f = occupation(4)
+      b = occupation(5)
+      k = occupation(6)
+      i = occupation(7)
+      j = occupation(8)
+c
+      if (a2a.and.(a.eq.2.or.c.eq.2)) call errquit('A2A error',0)
 c
       do  case=1,ncase
 c
@@ -491,11 +516,10 @@ c
        spini = cases(7,case)
        spinj = cases(8,case)
 c
-       factor = cases(9,case)/(occ(9)*1.0D0)
-
+       factor = cases(9,case)/(occupation(9)*1.0D0)
 c
-       bbe = s_occ_virt(1,spine,e)
-       bbf = s_occ_virt(1,spinf,f)
+       eb = s_occ_virt(1,spine,e)
+       fb = s_occ_virt(1,spinf,f)
 c
        do sbk=1,nirr
         do sij=1,nirr
@@ -508,26 +532,33 @@ c
           ne = n_occ_virt(se,spine,e)
           nf = n_occ_virt(sf,spinf,f)
 c
-c...   prepare batches over c and a
+          a1a = a2a.and.spina.eq.spinc.and.se.eq.sf
+          size_1 = 0
+          if (a1a) size_1 = 2*ne**2
 c
           symmetry = (se.eq.sf).and.spin.eq.spin 
-          size = ne*nf*n_occ_virt(sa,a)*n_occ_virt(sc,c) 
+          size = ne*nf*n_occ_virt(sa,spina,a)*n_occ_virt(sc,spinc,c) 
 c         if (.not.symmetry) size = size * 2 ????????
-          nbatch = ga_memory/size 
-c...   'squares' for now 
-          na = dsqrt((nbatch-1)*1.0d0) + 1.00001d0 
-          nc = (nbatch-1)/nbatcha + 1 
-          na = (n_occ_virt(sa,a)-1)/na+1 
-          nc = (n_occ_virt(sc,c)-1)/nc+1 
+          nbatch = (ga_memory-size_1)/size 
+c...   'squares' for now  CHECK !!!
+          nbcha = dsqrt((nbatch-1)*1.0d0) + 1.00001d0 
+          nbcha = (nbatch-1)/nbcha + 1 
+          nbcha = (n_occ_virt(sa,spina,a)-1)/nbcha+1 
+          nbchc = (n_occ_virt(sc,spinc,c)-1)/nbcha+1 
 c
-          do ab=s_occ_virt(sa,nspin,a),s_occ_virt(sa+1,nspin,a)-1,na
-           ae = min0(ab+na,s_occ_virt(sa+1),a)-1
-           do cb=s_occ_virt(sc,nspin,c),s_occ_virt(sc+1,nspin,c)-1,nc
-            ce = min0(cb+nc,s_occ_virt(sc+1),c)-1
+          do ab=s_occ_virt(sa,spina,a),s_occ_virt(sa+1,spina,a)-1,nbcha
+           ae = min(ab+na,s_occ_virt(sa+1,spina,a))-1
+           na = ae-ab+1
+           do cb=s_occ_virt(sc,spina,c),s_occ_virt(sc+1,spinc,c)-1,nbchc
+            ce = min(cb+nc,s_occ_virt(sc+1,spinc,c))-1
+            nc = ce-cb+1
 c
-            lae = (ae-ab+1)*ne
-            lcf = (ce-cb+1)*nf
-            if (.not.ga_create(MT_DBL,lae,lcf,'Result',0,0,g_RESULT))
+            nae = na*ne
+            ncf = nc*nf
+            naf = na*nf
+            nce = nc*ne
+c
+            if (.not.ga_create(MT_DBL,nae,ncf,'Result',0,0,g_RESULT))
      1          call errquit('RESULT',0)
             call ga_zero(g_RESULT)
 c
@@ -541,7 +572,7 @@ c
 5           bb = s_occ_virt(sbk,spinb,b)
             kb = s_occ_virt(sbk,spink,k)
 c...   * I(aa+bb)(aaaa)
-            call mult_cct(bb,kb,bbe,bbf,
+            call mult_cct(bb,kb,eb,fb,
      1                    type(1,1),ab,ae,
      1                    type(2,1),cb,ce,
      1                    g_RESULT)
@@ -551,19 +582,30 @@ c...   * I(aa+bb)(aaaa)
              spink = 2
              go to 5
             end if
+c
+            call cct_scale_ac(g_RESULT,ab,ne,cb,nf)
+c
+c...    check if the I and the T are actually identical (A4A)
+c
+            if (ab.eq.cb.and.ae.eq.ce.and.bb.eq.ib.and.kb.eq.jb.and.
+     1         type(1,1).eq.type(1,2).and.type(2,1).eq.type(2,2)) then
+             sum = sum + cct_sum(g_RESULT,g_RESULT,na,nc,ne,nf)
+             go to  9
+            end if
+c
 c      * T(aa)(aaaa)
-            if (.not.ga_create(MT_DBL,laf,lce,'Tesult',0,0,g_TESULT))
+            if (.not.ga_create(MT_DBL,naf,nce,'Tesult',0,0,g_TESULT))
      1          call errquit('TESULt',0)
             call ga_zero(g_TESULT)
 c
             spin = spini
             if (spin.eq.0.and.spinj.ne.0) 
-     1          call errqui('whats this spini',0)
+     1          call errquit('whats this spini',0)
             spini = max(spini,1)
             spinj = max(spinj,1)
 6           ib = s_occ_virt(sbk,spini,i)
             jb = s_occ_virt(sbk,spinj,j)
-            call mult_cct(ib,jb,bbe,bbf,
+            call mult_cct(ib,jb,eb,fb,
      1                    type(1,2),ab,ae,
      1                    type(2,2),cb,ce,
      1                     g_TESULT)
@@ -573,13 +615,19 @@ c
              spinj = 2
              go to 6 
             end if
+c
+            call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
 c           
-            sum = sum + cct_com(g_RESULT,g_TESULT,ab,ae,cb,ce,
-     1                          bbe,bbf,'N')
+            sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
+c
+            if (a1a.and.ab.eq.cb) then
+             value_X1X = value_X1X +  
+     1                   cct_sum_a1a(g_RESULT,g_TESULT,na,ne)
+            end if
+ 
 c
             if (cb.eq.ab) then
-             sum = sum + cct_com(g_RESULT,g_TESULT,ab,ae,cb,ce,
-     1                           bbe,bbf,'T')
+             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
             else
              call ga_zero(g_TESULT)
              spin = spini
@@ -587,7 +635,7 @@ c
              spinj = max(spinj,1)
 7            ib = s_occ_virt(sbk,spini,i)
              jb = s_occ_virt(sbk,spinj,j)
-             call mult_cct(ib,jb,bbe,bbf,
+             call mult_cct(ib,jb,eb,fb,
      1                     type(1,2),cb,ce,
      1                     type(2,2),ab,ae,
      1                      g_TESULT)
@@ -598,8 +646,9 @@ c
               go to 7 
              end if
 c
-             sum = sum + cct_com(g_RESULT,g_TESULT,ab,ae,cb,ce,
-     1                           bbe,bbf,'N')
+            call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
+c
+             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
             end if
 c
             if (.not.ga_destroy(g_TESULT)) 
@@ -607,12 +656,14 @@ c
             if (.not.ga_destroy(g_RESULT)) 
      1          call errquit('destroy RESULT',0)
 c
-           end do
+9          end do
           end do
 10       end do
         end do
        end do
       end do
+c
+      cct_uhf_T2 = sum
 c
       return
       end
@@ -630,7 +681,7 @@ c
 c...   the first bb and bk are used to denote the full range
 c...   of that spin/space/occupation "symmetry" => bbb,bbk
 c...   the first be and bf are used to denote full range of
-c...   that  spin/occupation "symmetry"  => bbbe,bbbf
+c...   that  spin/occupation "symmetry"  => eb,fb
 c
 c...   IS SYMMETRY FULLY EXPLOITED ????????????
 c
@@ -736,161 +787,519 @@ c
 c
       return
       end
-      double precision function cct_uhf_a4a(rint,t2,res1,res2,niabc)
+      subroutine cct_scale_ac(g_R,ab,ne,cb,nf)
 c
-c     niabc has to be calculated so that the corresponding
-c     t2 and rint fit also
+c...  subroutine to add scaling factors to the intermediates
+c...  in the global array g_result
+c...  the a/c are always the slower changing indices
+c...  ae and cf are pairs
+c...  template taken from ga_screen (from 1995) and RJH
 c
-c     terms A4A 
-c       t(ij,ce) <ab||ek> t(kj,af) <cb||fi>            raa_aa*raa_aa
-c       t(ij,ce) (ae|bk)-ab t(jk,af)-ab (ci|bf)-ab     raa_ab*rab_ab
-c       t(ij,ce) (ak|be)-ba t(jk,fa)-ab <cb||fi>       rab_aa*rab_ba
-c      -t(ij,ec)-ab <ab||ek> t(kj,af)-ab (cf|bi)-ba    rab_ba*rab_aa
-c       t(ij,ce)-ab (ak|be)-ab t(kj,af) (ci|bf)-ab     rab_aa*raa_ab
-c      -t(ij,ce)-ab (ae|bk)-ba t(kj,fa)-ba <cb||fi>    rab_aa*rba_ba
-c      -t(ji,ec)-ab <ab||ek> t(kj,af) (ci|bf)-ba       rab_ba*raa_aa
-c       t(ji,ce)-ab (ak|be)-ab t(kj,af) (cf|bi)-ab     rab_ab*raa_ab
+       implicit none
 c
-c       and all b(eta),a(lpha) interchanged
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
-c       reorder and relabel (running index always ia)
-c       (order 1-4,2-3 ; in 1-4 ic=>ia in 2-3 ka=>ia)
-c        e=b,b=c,f=d summation is always (ia)
-c        (note left ia is not *really* right ia)
+       integer g_R,ab,cb,ne,nf
 c
-c   t(ij,ab)    <ac||di>   t(ij,ad)    <ac||bi>      raa_aa*raa_aa
-c   t(ij,ab)    (ai|cd)-ab t(ji,ad)-ab (ab|ci)-ab    raa_ab*rab_ab
-c   t(ij,ab)    <ac||di>   t(ji,da)-ab (ai|cb)-ba    rab_aa*rab_ba
-c  -t(ij,ba)-ab (ad|ci)-ba t(ij,ad)-ab <ac||bi>      rab_ba*rab_aa
-c   t(ij,ab)-ab (ai|cd)-ab t(ij,ad)    (ai|cb)-ab    rab_aa*raa_ab
-c  -t(ij,ab)-ab <ac||di>   t(ij,da)-ba (ab|ci)-ba    rab_aa*rba_ba
-c  -t(ji,ba)-ab (ai|cd)-ba t(ij,ad)    <ac||bi>      rab_ba*raa_aa
-c   t(ji,ab)-ab (ad|ci)-ab t(ij,ad)    (ai|cb)-ab    rab_ab*raa_ab
-c+beta
-c   t(ij,ab)    <ac||di>   t(ij,ad)    <ac||bi>      raa_aa*raa_aa
-c   t(ij,ab)    (ai|cd)-ba t(ji,ad)-ba (ab|ci)-ba    raa_ab*rab_ab
-c   t(ij,ab)    <ac||di>   t(ji,da)-ba (ai|cb)-ab    rab_aa*rab_ba
-c  -t(ij,ba)-ba (ad|ci)-ab t(ij,ad)-ba <ac||bi>      rab_ba*rab_aa
-c   t(ij,ab)-ba (ai|cd)-ba t(ij,ad)    (ai|cb)-ba    rab_aa*raa_ab
-c  -t(ij,ab)-ba <ac||di>   t(ij,da)-ab (ab|ci)-ab    rab_aa*rba_ba
-c  -t(ji,ba)-ba (ai|cd)-ab t(ij,ad)    <ac||bi>      rab_ba*raa_aa
-c   t(ji,ab)-ba (ad|ci)-ba t(ij,ad)    (ai|cb)-ba    rab_ab*raa_ab
-c ====   = bb
-c   t(ij,ab)    <ac||di>   t(ij,ad)    <ac||bi>      raa_aa*raa_aa
-c   t(ij,ab)    (ai|cd)-ba t(ij,da)-ab (ab|ci)-ba    raa_ab*rab_ab
-c   t(ij,ab)    <ac||di>   t(ij,ad)-ab (ai|cb)-ab    rab_aa*rab_ba
-c  -t(ji,ab)-ab (ad|ci)-ab t(ji,da)-ab <ac||bi>      rab_ba*rab_aa
-c   t(ji,ba)-ab (ai|cd)-ba t(ij,ad)    (ai|cb)-ba    rab_aa*raa_ab
-c  -t(ji,ba)-ab <ac||di>   t(ij,da)-ab (ab|ci)-ab    rab_aa*rba_ba
-c  -t(ij,ab)-ab (ai|cd)-ab t(ij,ad)    <ac||bi>      rab_ba*raa_aa
-c   t(ij,ba)-ab (ad|ci)-ba t(ij,ad)    (ai|cb)-ba    rab_ab*raa_ab
-c...    group for ia (internal indices)
+       integer ilo, ihi, jlo, jhi, idim, jdim, ld, ind
 c
-c      pure spin case : coul-exch 
-c       t(ij,ce) (ab||ek) t(kj,af) (cb||fi)
-c     = t(ij,ce) (cb||fi) t(kj,af) (ab||ek)
-c        (ic)=>(ia)  / (ka)=>(ia)
-c     = (ia) t(ij,ae) (ab||fi) * (ia) t(ij,af) (ab||ei)
-c        (e=b,b=c,f=d)
-c     = (ia) t(ij,ab) (ac||di) * (ia) t(ij,ad) (ac||bi)
-c     sym : ia=jb=cd and b=d
+       call ga_sync()
+c
+       call ga_distribution(g_R, ga_nodeid(), ilo, ihi, jlo, jhi)
+       if (ihi.gt.0 .and. jhi.gt.0) then
+          idim = ihi - ilo + 1
+          jdim = jhi - jlo + 1
+          call ga_access(g_R, ilo, ihi, jlo, jhi, ind, ld)
+          call cct_do_scale(dbl_mb(ind), ld, ilo, ihi, jlo, jhi,
+     1                      ab,ne,cb,nf)
+          call ga_release_update(g_R, ilo, ihi, jlo, jhi)
+       endif
+c
+       call ga_sync()
+c
+       end
+      subroutine cct_do_scale(a, ld, ilo, ihi, jlo, jhi,
+     1                        ab,ne,cb,nf)
+c
+c...  apply scaling factors to intermediate in part of 
+c...  global array a; Note the the scaling is sqrt(scale)
+c
       implicit none
 c
-      integer niabc
-      double precision rint(*),t2(*),res1(niabc),res2(*)
-c
 #include "cct_table_uhf.fh"
-      double precision sum,jbcd_jdcb
-      integer spin
-      integer c,sc,sbd,sb,sd,scd,sj,jb,je,bb,db
 c
-c...  loop over symmetries
+      integer ld, ilo, ihi, jlo, jhi, ab,cb,ne,nf,i,j
+      double precision a(ilo:ilo+ld-1,jlo:jhi),facj
 c
-c...  t2 * integral (ic) t(ij,ce) (cf,bi) => (j,e,b,f)
-c...  t2 * integral (ia) t(ij,ab) (ia|cd) => (j,b,c,d) (coul-exch)
-c     (ia) t(ij,ab) (ac||di) * (ia) t(ij,ad) (ac||bi)
-c         => (jbcd) * (jdcb) so keep all b,d
-c
-c...   could batch over c
-c
-       spin = 1
-       do c=occ(spin)+1,virt(spin)
-        sc = iro(c)
-        do sbd =1,nirr
-         do sb=1,nirr
-          bb = svirt(sb,spin)
-          sd = mult(sbd,sb)
-          db = svirt(sd,spin)
-          scd = mult(sc,sd)
-          if (sd.lt.sb) go to 100
-          sj = mult(scd,sb)
-          jb = socc(sj,spin)
-          je = jb-1 + nocc(sj,spin)
-c
-c     type = '<id||ca>'
-c
-c     = (ia) t(ij,ae) (ab||fi) * (ia) t(ij,af) (ab||ei)
-c     sym : ia=jb=cd
-c         => (jebf) * (jfbe) so keep all e,f
-c            (jbcd) * (jdcb)
-c...  ia aa
-          call cct_mult_ia(t2,rint,jb,je,bb,c,c,db,
-     1                     res1, '<id||ca>','ia',
-     2                     1,1,1,1,1,1)
-c...  ia bb
-          call cct_mult_ia(t2,rint,jb,je,bb,c,c,db,
-     1                     res1, '<id||ca>','ia',
-     2                     1,1,1,1,2,2)
-          if (sb.ne.sd) then
-c...  ia aa
-           call cct_mult_ia(t2,rint,jb,je,db,c,c,bb,
-     1                      res2, '<id||ca>','ia',
-     2                      1,1,1,1,1,1)
-c...  ia bb
-           call cct_mult_ia(t2,rint,jb,je,db,c,c,bb,
-     1                      res2, '<id||ca>','ia',
-     2                      1,1,1,1,2,2)
-          end if
-          if (sb.eq.sd) then
-            sum = sum + jbcd_jdcb(res1,res1,
-     1               svirt(sb,1),nvirt(sb,1),jb,je-jb+1,nvirt(sd,1),1)
-          else
-            sum = sum + 2.0d0*jbcd_jdcb(res1,res2,
-     1               svirt(sb,1),nvirt(sb,1),jb,je-jb+1,nvirt(sd,1),1)
-          end if
-c
-        end do
-100    end do
+      do j = jlo, jhi
+         facj = fac((j-1)/nf+cb)
+         do i = ilo, ihi
+            a(i,j) = a(i,j)*fac((i-1)/ne+ab)*facj
+         end do
       end do
 c
-      cct_uhf_a4a = sum
+      end
+      double precision function cct_sum(g_R,g_T,na,nc,ne,nf)
 c
-      return
-      end 
-      double precision function jbcd_jdcb(res1,res2,bb,nb,nd,jb,nc,nj)
+      implicit none
 c
-c...  result is nb(rows) * nd(columns) ordered as result(b,d,c,j)
-c...  do part of jbcd + jbdc summation
-c...  this is a place-holder (but n**4)
+c...  function to sum the partial contributions in global arrays R,T
+c...  sum R(ae,cf)*T(af,ce)
+c...  e and f are the fastest moving indices (and are "complete")
+c...  this uses a bit of ma_memory (routine above should be aware)
 c
-      double precision res1(nb,nd,nc,nj),res2(nd,nb,nc,nj)
-      integer bj,bb,nj,nb,nc,nd
-#include "cct_table_uhf.fh"
+      integer g_R,g_T,na,nc,ne,nf
+      integer a,c,f
+      integer ihi_R,ilo_R,jlh_R,ilh_T,jlo_T,jhi_T
+      integer l_R,k_R,l_T,k_T,ga_node_id,ga_nnodes
+      integer type_cct_sum
+      data type_cct_sum/42/
+      double precision sum,ddot
 c
-      integer j,b,c,d
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
 c
-      jbcd_jdcb = 0.0d0
-      do j=1,nj
+      if (.not. ma_push_get(mt_dbl, ne,'R',l_R, k_R))
+     1    call errquit('R in cct_sum',0)
+      if (.not. ma_push_get(mt_dbl, ne,'T',l_T, k_T))
+     1    call errquit('T in cct_sum',0)
+
+      sum = 0.0d0
+      do a=1,na
        do c=1,nc
-        do d=1,nd
-         do b=1,nb
-          jbcd_jdcb = jbcd_jdcb + res1(b,j,d,c)*res2(d,j,b,c)*
-     1                            fac(j+bj-1)*fac(b+bb-1)
-         end do
+        do f=ga_node_id()+1,nf,ga_nnodes()
+c...     get all e's
+         ilo_R = (a-1)*ne+1
+         ihi_R = ilo_R+ne-1
+         jlh_R = (c-1)*nf+f
+         jlo_T = (c-1)*ne+1
+         jhi_T = jlo_T+ne-1
+         ilh_T = (a-1)*nf+f
+c
+         call ga_get(g_R,ilo_R,ihi_R,jlh_R,jlh_R,dbl_mb(k_R),ne)
+         call ga_get(g_T,ilh_T,ilh_T,jlo_T,jhi_T,dbl_mb(k_T),ne)
+         sum = sum + ddot(ne,dbl_mb(k_R),1,dbl_mb(k_T),1)
+c
         end do
        end do
       end do
 c
+      if (.not. ma_pop_stack(l_R)) call errquit('mapop R in cct_sum',0)
+      if (.not. ma_pop_stack(l_T)) call errquit('mapop T in cct_sum',0)
+c
+      call ga_dgop(type_cct_sum,sum,1,'+')
+c
+      cct_sum = sum
+c
       return
       end
+      double precision function cct_sum_a1a(g_R,g_T,na,ne)
 c
+      implicit none
+c
+c...  function to sum the partial contributions in global arrays R,T
+c...  for "diagonal" A1A case  (so a=c)
+c...  sum R(ae,cf)*T(af,ce)
+c...  e and f are the fastest moving indices (and are "complete")
+c...  this uses a bit of ga_memory which should be availabele
+c
+      integer g_R,g_T,na,ne
+      integer g_RR,g_TT,a,ihi,ilo
+      logical ga_create,ga_destroy
+      double precision ga_ddot
+c
+#include "mafdecls.fh"
+c
+      if (.not.ga_create(MT_DBL,ne,ne,'A1A-aaRR',0,0,g_RR))
+     1   call errquit('A1A-RR',0)
+      if (.not.ga_create(MT_DBL,ne,ne,'A1A-aaTT',0,0,g_TT))
+     1   call errquit('A1A-TT',0)
+      call ga_zero(g_RR)
+      call ga_zero(g_TT)
+c
+      do a=1,na
+       ilo = (a-1)*ne+1
+       ihi = ilo+ne-1
+       call ga_add_patch(1.0d0,g_R,ilo,ihi,ilo,ihi,
+     1                   1.0d0,g_RR,1,ne,1,ne,
+     2                   1.0d0,g_RR,1,ne,1,ne)
+       call ga_add_patch(1.0d0,g_T,ilo,ihi,ilo,ihi,
+     1                   1.0d0,g_TT,1,ne,1,ne,
+     2                   1.0d0,g_TT,1,ne,1,ne)
+      end do
+c
+      cct_sum_a1a = ga_ddot(g_RR,g_TT)
+c
+      if (.not.ga_destroy(g_RR)) call errquit('destroy RR',0)
+      if (.not.ga_destroy(g_TT)) call errquit('destroy TT',0)
+c
+      return
+      end
+      double precision function cct_uhf_T1
+     1       (diagram,occupation,cases,ncase,type,
+     2        value_X1X)
+c
+c...  CCT T1 diagram evaluator; modelled after the T2 version
+c
+      implicit none
+c
+c     examples:
+c
+c     (c)T(k,c)*T<in||cb>  *  (aj)<ab||ij><an||kj>  (14B)
+c                        or
+c     (kc)T(k,c)T(kj,cf)  *  (ab)<ij||ab><fi||ab>  (12A)
+c...  the kc contractions are sort of the diagonal of the c
+c
+c     the 4-4 contraction is always first
+c     so the T1's follow ...
+c
+c     map to CCT T2 diagram evaluator; modelled for A3A
+c     (ij)t(ij,ce)*t(ij,af)  *  (bk) <ba||ek><bc||fk>
+c        T(ij)(ceaf)  (Y)           I(bk)(aecf) (X)
+c
+c     (j<=>k,a<=>b
+c     (c)T(j,c)*T<in||ca>  *  (bk)<ba||ik><bn||jk>  (14B)
+c     i=>e,n<=>c,j=>f (watch weighting)
+c     (n)T(f,n)*T<ec||na>  *  (bk)<ba||ek><bc||fk>  (14B)
+c     (and of course occupations not intended)
+c
+c     *note*
+c     b,k are running indices for first contraction type(*,1)
+c     a,e are on same and c,f are on same "integral" for ,1
+c     i,j are running indices for second contraction type(*,2)
+c     a,f are on same and c,e are on same "integral" for ,2
+c     --------------------------------------------------------
+c     e,f are complete ranges / a,c get batched
+c     e,f (2,4)  are the  unweighted
+c     --------------------------------------------------------
+c
+c
+      integer occupation(9),ncase,cases(9,ncase)
+      double precision value_X1X
+      character*(*) diagram,type(2,2)
+c
+#include "mafdecls.fh"
+#include "cct_table_uhf.fh"
+c
+      logical ga_create,ga_destroy
+      integer avail_ga,ga_memory_avail,ga_memory,ga_nnodes
+      integer g_RESULT,g_TESULT
+c
+      integer spinc,spine,spina,spinf,spini,spinj,spinb,spink,spin
+      integer a,e,c,f,b,k,i,j
+      integer eb,fb,bb,kb,ab,ae,cb,ce,ib,jb
+      integer na,nc,ne,nf
+      integer nae,ncf,naf,nce
+      integer sbk,sij,sa,se,sf,sc
+      integer case,nbatch,nbcha,nbchc,size,size_1
+      logical symmetry,a2a,a1a
+      double precision factor,cct_sum,sum,cct_sum_a1a
+c
+      sum = 0.0d0
+      a2a = diagram.eq.'A2A'.or.diagram.eq.'A2B'.or.diagram.eq.'B2B'
+c..    (could deduce this from fact that both c and a are occupied)
+      if (a2a) value_X1X = 0.0d0
+c
+c...   get available global memory
+c...   be sure to have 2 local ne arrays per processor in final stage
+c
+       avail_ga = ga_memory_avail()/8
+       call ga_igop(13,avail_ga,1,'min')
+c...    remember that there is overhead (in space) as well
+       ga_memory = ga_nnodes()*avail_ga*0.9
+c     
+c                 1 2 3 4  5 6  7 8
+c                 a e c f  b k  i j  fac 
+      a = occupation(1)
+      e = occupation(2)
+      c = occupation(3)
+      f = occupation(4)
+      b = occupation(5)
+      k = occupation(6)
+      i = occupation(7)
+      j = occupation(8)
+c
+      if (a2a.and.(a.eq.2.or.c.eq.2)) call errquit('A2A error',0)
+c
+      do  case=1,ncase
+c
+       spina = cases(1,case)
+       spine = cases(2,case)
+       spinc = cases(3,case)
+       spinf = cases(4,case)
+       spinb = cases(5,case)
+       spink = cases(6,case)
+       spini = cases(7,case)
+       spinj = cases(8,case)
+c
+       factor = cases(9,case)/(occupation(9)*1.0D0)
+c
+       eb = s_occ_virt(1,spine,e)
+       fb = s_occ_virt(1,spinf,f)
+c
+       do sbk=1,nirr
+        do sij=1,nirr
+         do sa=1,nirr
+          sf = mult(sij,sa)
+          se = mult(sbk,sa)
+          sc = mult(sbk,sf)
+          if (sc.lt.sa.or.sf.lt.se) go to 10
+c
+          ne = n_occ_virt(se,spine,e)
+          nf = n_occ_virt(sf,spinf,f)
+c
+          a1a = a2a.and.spina.eq.spinc.and.se.eq.sf
+          size_1 = 0
+          if (a1a) size_1 = 2*ne**2
+c
+          symmetry = (se.eq.sf).and.spin.eq.spin 
+          size = ne*nf*n_occ_virt(sa,spina,a)*n_occ_virt(sc,spinc,c) 
+c         if (.not.symmetry) size = size * 2 ????????
+          nbatch = (ga_memory-size_1)/size 
+c...   'squares' for now  CHECK !!!
+          nbcha = dsqrt((nbatch-1)*1.0d0) + 1.00001d0 
+          nbcha = (nbatch-1)/nbcha + 1 
+          nbcha = (n_occ_virt(sa,spina,a)-1)/nbcha+1 
+          nbchc = (n_occ_virt(sc,spinc,c)-1)/nbcha+1 
+c
+          do ab=s_occ_virt(sa,spina,a),s_occ_virt(sa+1,spina,a)-1,nbcha
+           ae = min(ab+na,s_occ_virt(sa+1,spina,a))-1
+           na = ae-ab+1
+           do cb=s_occ_virt(sc,spina,c),s_occ_virt(sc+1,spinc,c)-1,nbchc
+            ce = min(cb+nc,s_occ_virt(sc+1,spinc,c))-1
+            nc = ce-cb+1
+c
+            nae = na*ne
+            ncf = nc*nf
+            naf = na*nf
+            nce = nc*ne
+c
+            if (.not.ga_create(MT_DBL,nae,ncf,'Result',0,0,g_RESULT))
+     1          call errquit('RESULT',0)
+            call ga_zero(g_RESULT)
+c
+c...    loop over bk spin if sbk = 0 
+c
+            spin = spinb
+            if (spin.eq.0.and.spink.ne.0) 
+     1          call errquit('whats this spin',0)
+            spinb = max(spinb,1)
+            spink = max(spink,1)
+5           bb = s_occ_virt(sbk,spinb,b)
+            kb = s_occ_virt(sbk,spink,k)
+c...   * I(aa+bb)(aaaa)
+            call mult_cct(bb,kb,eb,fb,
+     1                    type(1,1),ab,ae,
+     1                    type(2,1),cb,ce,
+     1                    g_RESULT)
+            if (spin.eq.0) then
+             spin = 1
+             spinb = 2
+             spink = 2
+             go to 5
+            end if
+c
+            call cct_scale_ac(g_RESULT,ab,ne,cb,nf)
+c
+c...    check if the I and the T are actually identical (A4A)
+c
+            if (ab.eq.cb.and.ae.eq.ce.and.bb.eq.ib.and.kb.eq.jb.and.
+     1         type(1,1).eq.type(1,2).and.type(2,1).eq.type(2,2)) then
+             sum = sum + cct_sum(g_RESULT,g_RESULT,na,nc,ne,nf)
+             go to  9
+            end if
+c
+c      * T(aa)(aaaa)
+            if (.not.ga_create(MT_DBL,naf,nce,'Tesult',0,0,g_TESULT))
+     1          call errquit('TESULt',0)
+            call ga_zero(g_TESULT)
+c
+            spin = spini
+            if (spin.eq.0.and.spinj.ne.0) 
+     1          call errquit('whats this spini',0)
+            spini = max(spini,1)
+            spinj = max(spinj,1)
+6           ib = s_occ_virt(sbk,spini,i)
+            jb = s_occ_virt(sbk,spinj,j)
+            call mult_cct(ib,jb,eb,fb,
+     1                    type(1,2),ab,ae,
+     1                    type(2,2),cb,ce,
+     1                     g_TESULT)
+            if (spin.eq.0) then
+             spin = 1
+             spini = 2
+             spinj = 2
+             go to 6 
+            end if
+c
+            call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
+c           
+            sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
+c
+            if (a1a.and.ab.eq.cb) then
+             value_X1X = value_X1X +  
+     1                   cct_sum_a1a(g_RESULT,g_TESULT,na,ne)
+            end if
+ 
+c
+            if (cb.eq.ab) then
+             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
+            else
+             call ga_zero(g_TESULT)
+             spin = spini
+             spini = max(spini,1)
+             spinj = max(spinj,1)
+7            ib = s_occ_virt(sbk,spini,i)
+             jb = s_occ_virt(sbk,spinj,j)
+             call mult_cct(ib,jb,eb,fb,
+     1                     type(1,2),cb,ce,
+     1                     type(2,2),ab,ae,
+     1                      g_TESULT)
+             if (spin.eq.0) then
+              spin = 1
+              spini = 2
+              spinj = 2
+              go to 7 
+             end if
+c
+            call cct_scale_ac(g_TESULT,ab,ne,cb,nf)
+c
+             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf)
+            end if
+c
+            if (.not.ga_destroy(g_TESULT)) 
+     1          call errquit('destroy TESULT',0)
+            if (.not.ga_destroy(g_RESULT)) 
+     1          call errquit('destroy RESULT',0)
+c
+9          end do
+          end do
+10       end do
+        end do
+       end do
+      end do
+c
+      cct_uhf_T1 = sum
+c
+      return
+      end
+      subroutine mult_cct_t1(bb,kb,ke,eb,fb,
+     1                    typeA,ab,ae, typeB,cb,ce,
+     1                    g_RESULT)
+c
+      implicit none
+c*********************** incomplete develop
+c
+c...   general (:)) routine to do t1*t or t1*int (asymmetric)
+c...   notation taken from 11A T1*T2 but translated a bit 
+c...                  (c)T(k,c)*T(ij,cf) =>
+c...                  (b)T(k,b)*T(ij,bf)
+c...   should be able to do as well
+c...                  (bk)T(k,b)*T(kj,bf)
+c
+c
+#include "mafdecls.fh"
+#include "cct_table_uhf.fh"
+c
+      integer g_RESULT
+c
+      integer bb,kb,ke,eb,fb,ab,ae,cb,ce
+      character*(*) typeA,typeB
+c
+      logical ga_create,ga_destroy
+      integer ga_memory_avail,ga_nnodes,avail_ga,avail_ga
+      integer g_MATA,g_MATB,size
+      integer se,sf,sbk,eb,ee,fb,fe,la,lc,lea,lcf,lbk,llbk,len
+      integer batch,nbatch,bkb,bke
+      integer spina,spine,spinc,spinf,spinb,spink
+      integer occe,occf,occb,occk
+      logical symmetric
+c
+c...   get available global memory
+c
+       avail_ga = ga_memory_avail()/8
+       call ga_igop(13,avail_ga,1,'min')
+c...    remember that there is overhead (in space) as well
+        avail_ga = ga_nnodes()*avail_ga*0.9
+c
+c...  figure out spins
+c
+      spina = ispin(ab)
+      spinc = ispin(cb)
+      spine = ispin(eb)
+      spinf = ispin(fb)
+      spinb = ispin(bb)
+      spink = ispin(kb)
+c...  figure occupations (1=occ,2-virt)
+      occe = iocc(eb)
+      occf = iocc(fb)
+      occb = iocc(bb)
+      occk = iocc(kb)
+c
+      symmetric = (ab.eq.ae.and.cb.eq.ce.and.typeA.eq.typeB.and.
+     1             spine.eq.spinf.and.spine.eq.spinf)
+      size = avail_ga
+      if (.not.symmetric) size = size/2
+c
+c...  can use symmetry to save a get; we have to use sqrt(fac) then
+c
+      if (iro(ae).ne.iro(ab)) call errquit('sym',0)
+      if (iro(ce).ne.iro(cb)) call errquit('sym',0)
+c
+      sbk = mult(iro(bb),iro(kb))
+      se = mult(iro(ab),sbk)
+      sf = mult(iro(cb),sbk)
+      eb = s_occ_virt(se,spine,occe)
+      ee = s_occ_virt(se+1,spine,occe)-1
+      fb = s_occ_virt(sf,spinf,occf)
+      fe = s_occ_virt(sf+1,spinf,occf)-1
+      la = ae-ab+1
+      lc = ce-cb+1
+      lea = (ee-eb+1)*la
+      lcf = (fe-fb+1)*lc
+      lbk = lenxy(sbk,spinb,spink,occb+occk)
+      llbk = lbk
+      len = lbk*(la+lc)*(ee-eb+1)*(fe-fb+1)
+      nbatch = (size-1)/len + 1
+      len = (lbk-1)/nbatch + 1
+c
+c...  get global integral array's
+c
+      if (.not.ga_create(MT_DBL,len,lea,'matA(a,e)',0,0,g_MATA))
+     1   call errquit('matA',0)
+      if (.not.symmetric) then
+       if (.not.ga_create(MT_DBL,len,lcf,'matA(c,f)',0,0,g_MATB))
+     1     call errquit('matB',0)
+      end if
+c
+c
+      bke = 0
+      do batch=1,nbatch
+       bkb = bke + 1
+       bke = min(bke+len,llbk)
+       lbk = (bke-bkb+1)
+       call get_cct(g_MATA,typeA,bkb,bke,spinb,spink,
+     1              eb,ee,spine,ab,ae,spina)
+       if (.not.symmetric)
+     1 call get_cct(g_MATB,typeB,bkb,bke,spinb,spink,
+     2              fb,fe,spinf,ab,ae,spina)
+c
+c...  weigth mata (with sqrt(fac) if symmetric)
+c
+       call cct_weigth(g_MATA,bkb,bke,sbk,spinb,spink,symmetric)
+c   
+       call ga_dgemm('T','N',lea,lcf,lbk,1.0d0,g_MATA,g_MATB,
+     1               1.0d0,g_RESULT)
+c
+      end do
+c
+      if (symmetric) then
+       if (.not.ga_destroy(g_MATB)) call errquit('destroy MATB',0)
+      end if
+      if (.not.ga_destroy(g_MATA)) call errquit('destroy MATA',0)
+c
+      return
+      end
