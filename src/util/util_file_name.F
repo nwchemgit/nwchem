@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.21 2002-01-09 23:55:11 edo Exp $
+C$Id: util_file_name.F,v 1.22 2002-02-12 01:55:10 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -516,7 +516,7 @@ c
          istart=util_getblnk(envscr,1024)
          if(istart.ne.0) then
             lencrd=index(envscr(istart:1024),' ')-1
-            scratch_dir=envscr(istart:istart+lencrd)
+            dir=envscr(istart:istart+lencrd)
          else
          if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
             if (.not. util_file_parse_dir(
