@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.5 1996-01-23 19:03:14 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.6 1996-01-25 22:51:28 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -54,8 +54,8 @@ c
       double precision chars(maxireps*maxireps)
       character*8 group_name
       double precision v(maxireps), vnorm
-      integer isamax
-      external isamax
+      integer idamax
+      external idamax
 c
       logical odebug            ! True if debugging
       logical owarn             ! True if to print warning messages
@@ -151,7 +151,7 @@ c
             call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), 1)
             call ga_get(g_q,    1, nbf, i, i, dbl_mb(k_q), 1)
             ioff = k_c + ii*nir + class - 1
-            trace = sdot(nbf, dbl_mb(k_v), 1, dbl_mb(k_q), 1)
+            trace = ddot(nbf, dbl_mb(k_v), 1, dbl_mb(k_q), 1)
             dbl_mb(ioff) = dbl_mb(ioff) + trace
          enddo
       enddo
@@ -190,7 +190,7 @@ c
                v(ir) = 0.0d0
                v(ir-1) = v(ir-1)*2.0d0
             else
-               v(ir) = sdot(nir,dbl_mb(ioff),1,chars((ir-1)*nir+1),1)
+               v(ir) = ddot(nir,dbl_mb(ioff),1,chars((ir-1)*nir+1),1)
                scale = dble(irrep_dim) / dble(nop)
                v(ir) = v(ir) * scale
             endif
@@ -217,7 +217,7 @@ c
             endif
          enddo
 c
-         i1 = isamax(nir, v, 1)
+         i1 = idamax(nir, v, 1)
          v1 = v(i1)
          if (v1 .lt. thresh) call errquit
      $        ('sym_movecs_adapt: no significant component?', 0)
@@ -227,7 +227,7 @@ c
          v2 = 0.0d0
          if (nir .gt. 1) then
             v(i1) = 0.0d0
-            i2 = isamax(nir, v, 1)
+            i2 = idamax(nir, v, 1)
             v2 = v(i2)
             v(i1) = v1
          endif
@@ -259,15 +259,15 @@ c
 c     
 c     Identity
 c     
-           call scopy(nbf, dbl_mb(k_v), 1, dbl_mb(k_q), 1)
-           call sscal(nbf, chars((ir-1)*nir+1), dbl_mb(k_q), 1)
+           call dcopy(nbf, dbl_mb(k_v), 1, dbl_mb(k_q), 1)
+           call dscal(nbf, chars((ir-1)*nir+1), dbl_mb(k_q), 1)
 c     
            do op = 1, nop-1
               class = op_class_index(op)
               call dfill(nbf, 0.0d0, dbl_mb(k_t), 1)
               call sym_movecs_apply_op(basis, op, dbl_mb(k_v),
      $             dbl_mb(k_t))
-              call saxpy(nbf, chars((ir-1)*nir+class), dbl_mb(k_t), 1,
+              call daxpy(nbf, chars((ir-1)*nir+class), dbl_mb(k_t), 1,
      $             dbl_mb(k_q), 1)
            enddo
            irrep_dim = nint(chars((ir-1)*nir+1))
@@ -279,7 +279,7 @@ c
            if (ir .ne. nir) then
               if (chars(ir*nir + 1).eq.0.0d0) scale = scale*2.0d0
            endif
-           call sscal(nbf, scale, dbl_mb(k_q), 1)
+           call dscal(nbf, scale, dbl_mb(k_q), 1)
 c       
            if (odebug) then
               write(6,2) i, ir
