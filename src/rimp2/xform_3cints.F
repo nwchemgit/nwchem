@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.12 1995-10-30 22:01:52 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.13 1996-04-18 16:36:02 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -298,6 +298,8 @@ C
  9020    Format( 1x, 'XForm_3cInts: Error occurred in integral block ',
      $      I5, ':', I5, ' of requested ', I5, ':', I5, '.')
 C
+         If ( Util_Print('2/3 ints', Print_Debug) ) Call GA_Print(G_Int)
+C
 C        Transform fitting basis & write out the result
 C
          If ( TransFit ) then
@@ -339,6 +341,9 @@ C
                   EndIf
                   Call PStat_Off( PS_Wr_3ci)
                EndIf
+C
+               If ( Util_Print('mo ints', Print_Debug) )
+     $            Call GA_Print(G_Out)
             EndDo               ! KLo
 C
 C           If we are skipping the final 1/3-transformation, we
@@ -355,6 +360,9 @@ C
                EndIf
                Call PStat_Off( PS_Wr_3ci)
             EndIf
+C
+            If ( Util_Print('mo ints', Print_Debug) )
+     $         Call GA_Print(G_Out)
 C
          EndIf
  9030    Format( 1X, 'XForm_3cInts: Error occurred in output block ',

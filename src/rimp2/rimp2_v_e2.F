@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.23 1995-10-30 22:01:49 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.24 1996-04-18 16:36:00 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(D_Int, FNInt, TopSpin, NMO,
@@ -244,6 +244,9 @@ C
             EndIf
             Call PStat_Off( PS_Rd_3ci)
 C
+            If ( Util_Print('3c ints', Print_Debug) )
+     $         Call GA_Print( G_bigI )
+C
 C           *************************
 C           * Second occupied index *
 C           *************************
@@ -336,6 +339,9 @@ C
                      Call PStat_Off( PS_Rd_3ci)
                   EndIf
 C
+                  If ( Util_Print('3c ints', Print_Debug) )
+     $               Call GA_Print( G_bigJ )
+C
 C                 ******************************************************
 C                 * Form a block of four-center two-electron integrals *
 C                 ******************************************************
@@ -360,6 +366,9 @@ C
  9210                Format('RIMP2_V_E2: Approx. ints. done (',
      $                  I5, ':', I5, ',', I5, ':', I5, ')')
                   EndIf
+C
+                  If ( Util_Print('4c ints', Print_Debug) )
+     $               Call GA_Print( G_bigA )
 C
 C                 The J integral block is no longer needed and can
 C                 now be freed.  This alows us to reuse the space
@@ -469,6 +478,9 @@ C
      $                  I5, ':', I5, ',', I5, ':', I5, ')')
                   EndIf
 C
+                  If ( Util_Print('4c ints b', Print_Debug) )
+     $               Call GA_Print( G_bigB )
+C
 C                 ***************************
 C                 * Apply denominators to B *
 C                 ***************************
@@ -491,6 +503,9 @@ C
  9230                Format('RIMP2_V_E2: Denominators done (',
      $                  I5, ':', I5, ',', I5, ':', I5, ')')
                   EndIf
+C
+                  If ( Util_Print('amplitudes', Print_Debug) )
+     $               Call GA_Print( G_bigB )
 C
 C                 ***********************
 C                 * Form IJ pair energy *
@@ -537,6 +552,10 @@ C
                      EndDo
                   EndDo
                   Call PStat_Off(PS_PrEn)
+C
+                  If ( Util_Print('partial pair energies', Print_Debug))
+     $               Call GA_Print(
+     $                        Int_MB( IH_PairE + ISpin + JSpin - 2) )
 C
 C                 Free up these matrices -- the space can be reused for
 C                 the J integral matrix, and their sizes may change when

@@ -4,7 +4,7 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.1 1995-12-13 01:36:59 d3g681 Exp $
+C     $Id: rimp2_xf.F,v 1.2 1996-04-18 16:36:01 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 
@@ -51,6 +51,7 @@ C INCLUDE FILES
 #include "geom.fh"
 #include "rimp2_timers.fh"
 #include "msgids.fh"
+#include "util.fh"
 C
 C EXTERNAL ROUTINES
       Logical MOVecs_Read, GA_Create_One_By_Shells,
@@ -104,6 +105,8 @@ C
       If (.NOT. Status )
      $   Call ErrQuit('Failed to compute V^{-1/2}', 0)
       Call PStat_Off( PS_Fit_xf )
+C
+      If ( Util_Print('fit xf', Print_Debug) ) Call GA_Print(G_V)
 C
 C     *************************************
 C     * Initialize for integral screening *
