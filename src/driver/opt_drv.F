@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.19 1997-04-06 20:57:58 d3g681 Exp $
+C$Id: opt_drv.F,v 1.20 1997-04-09 21:17:12 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -596,6 +596,7 @@ c
       implicit double precision (a-h,o-z)
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "geom.fh"
 #include "global.fh"
       integer  rtdb
       integer  geom
@@ -618,11 +619,13 @@ c
 c
       if( ga_nodeid().eq.0.or.dbug) then
          write(iw,9999) nserch,npts
-         write(iw,9996)
-         do iat=1,nat
-            write(iw,9995) iat,(c(i,iat),i=1,3)
-         enddo
-         write(iw,9997)
+c        write(iw,9996)
+c        do iat=1,nat
+c           write(iw,9995) iat,(c(i,iat),i=1,3)
+c        enddo
+c        write(iw,9997)
+         if(.not.geom_print(geom)) 
+     1     call errquit('hnd_opt_energy: print error',911)
       endif
 c
       if(nzmat.gt.0) then
@@ -1232,6 +1235,7 @@ C
      3           TOANGS=0.52917724924D+00)
       PARAMETER (MXATOM=500)
       LOGICAL OUT 
+      LOGICAL SOME
       LOGICAL DBUG
       LOGICAL BADZ
       LOGICAL NATURL 
