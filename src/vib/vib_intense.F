@@ -2,6 +2,7 @@
      &    intensity,first_pass)
       implicit none
 #include "stdio.fh"
+#include "mafdecls.fh"
 #include "util.fh"
       integer nat
       double precision eigvec(3,nat,3,nat)  ! (cart,q)
@@ -134,6 +135,20 @@ c
         write(luout,*)' '
         write(luout,*)' '
         call util_flush(luout)
+      endif
+c
+*... print information to ecce file
+c      
+      if (first_pass) then
+        call ecce_print1('intensities',
+     &      mt_dbl,intensity(1,1,1),(3*nat))
+        call ecce_print1('intensities (debye/ang)2',
+     &      mt_dbl,intensity(1,1,2),(3*nat))
+      else
+        call ecce_print1('projected intensities',
+     &      mt_dbl,intensity(1,1,1),(3*nat))
+        call ecce_print1('projected intensities (debye/ang)2',
+     &      mt_dbl,intensity(1,1,2),(3*nat))
       endif
 c
 10000 format(1x,'Intensity for eigenvalue ',i3,' [',f10.3,
