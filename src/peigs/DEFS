@@ -332,7 +332,11 @@ ifeq ($(peigs_TARGET),LINUX)
 #
 peigs_CPU = PENTIUM
 peigs_CODEOBJ = DBLE
-peigs_CPP += -P -C
+#
+# on the hpcc? laptops add /usr/lib/gcc-lib/i486-linux/2.7.0 to your path
+# or make link from /usr/bin
+#
+peigs_CPP = cpp -P -C
 endif
 
 export peigs_COMM
