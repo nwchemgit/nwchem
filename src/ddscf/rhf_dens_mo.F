@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.10 1998-08-29 00:39:21 d3g681 Exp $
+C     $Id: rhf_dens_mo.F,v 1.11 1999-07-21 05:56:48 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -147,6 +147,19 @@ c
      $        ' 2-e energy   = ',f14.6/
      $        ' HOMO         = ',f14.6)
  9011    format(' LUMO         = ',f14.6)
+c
+         if ( oskel .and. nmo.ne.nocc .and. 
+     $        (abs(evals(nocc)-evals(nocc+1)) .lt. 1e-3)) then
+            write(6,902) 
+ 902        format(/,1x,70('!'),/,
+     $           ' Warning - the HOMO and LUMO are degenerate and you',
+     $           ' are using symmetry.',/,
+     $           ' This can lead to non-variational energies and poor',
+     $           ' convergence.',/,
+     $           ' Modify the initial guess, or use an open-shell',
+     $           ' wavefunction, or turn',/,
+     $           ' off symmetry.',/,1x,70('!'),/)
+         endif
 c     
          call util_flush(6)
       endif
