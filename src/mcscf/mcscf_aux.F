@@ -474,9 +474,79 @@ c
 
 
 
+      subroutine mcscf_movecs_write( rtdb, basis, nbf, occ,
+     $                               evals, g_movecs )
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "util.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+c
+c  Save MCSCF MO vectors
+c
+      integer rtdb
+      integer basis
+      integer nbf
+      double precision occ(nbf)
+      double precision evals(nbf)
+      integer g_movecs
+c
+c     local variables
+c
+      character*255 title_vecs                 ! Title
+      character*255 trans, name                ! Basis names from rtdb
+      character*255 v_out                 ! Output filename
+      integer nset, nmo
+c
+c     externals
+c
+      logical movecs_write
+      external movecs_write
+c
+c  Get filenames
+c
+      if (.not.rtdb_cget(rtdb,'mcscf:output vectors',1,v_out)) then
+        if (.not.rtdb_cget(rtdb,'scf:output vectors',1,v_out)) then
+          if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,v_out)) then
+            if (.not.rtdb_cget(rtdb,'scf:input vectors',1,v_out)) then
+              call util_file_prefix('movecs', v_out)
+            endif
+          endif
+        endif
+      endif
+c
+c
+c
+      if (.not. rtdb_cget(rtdb, 'title', 1, title_vecs))
+     $     title_vecs = ' '
+      if (.not. bas_name(basis, name, trans))
+     $     call errquit('scf_init: bas_name?', 0)
+c
+c
+c
+      nset = 1
+      nmo = nbf
+c
+c
+c
+      if (.not. movecs_write(v_out, title_vecs, trans,
+     $   nbf, nset, nmo, occ, nbf, evals, nbf, g_movecs ))
+     $   call errquit('mcscf_movecs_write: movecs_write failed', 0)
+      return
+      end
+
+
+
+
+
+
+
+
+
 
 c
-c  $Id: mcscf_aux.F,v 1.4 1996-02-13 23:00:29 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.5 1996-02-15 01:25:27 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -567,7 +637,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.4 1996-02-13 23:00:29 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.5 1996-02-15 01:25:27 rg240 Exp $
 c
 c Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c partially occupied orbitals (trivially)

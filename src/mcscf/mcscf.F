@@ -313,6 +313,11 @@ c
      $                     dbl_mb(k_dm1), dbl_mb(k_dm2), .false.,
      $                     .true. )
 c
+c  Save natural orbitals to disk
+c
+      call mcscf_movecs_write( rtdb, basis, nbf, dbl_mb(k_occ),
+     $                         dbl_mb(k_evals), g_movecs )
+c
 c  Free temporaries
 c
        if (.not.ga_destroy(g_hcore))
