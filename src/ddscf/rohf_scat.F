@@ -122,12 +122,12 @@ c
      &   call errquit('rohf_scat: basis set error:', 86)
       nscat = nbf_all - nbf
       if(.not.bas_print(all_bas_han))
-     &     call errquit('can't print basis, rohf_sct', 1)
+     &     call errquit('cant print basis in rohf_sct', 1)
       if (.not. int_normalize(rtdb,all_bas_han))
      &     call errquit('rohf_scat: int_normalize failed', 86)
       call int_init(rtdb,1,all_bas_han)
       if(.not.bas_print(all_bas_han))
-     &     call errquit('can't print basis, rohf_sct', 1)
+     &     call errquit('cant print basis in rohf_sct', 1)
       call schwarz_init(geom, all_bas_han)
 c     
 c     Read the converged scf movecs
@@ -152,7 +152,7 @@ c     Project the mo's to the whole orbital space
 c
       if(.not.ga_create(MT_DBL, nbf_all, nbf_all, 'Total MO',
      &     nbf_all, 0, g_all))
-     &     call errquit('rohf_scat: can't create g_all', nbf_all)
+     &     call errquit('rohf_scat: cant create g_all', nbf_all)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'rohf:tran',
      &     nbf_all,0,g_tran))
      &     call errquit('can not create transformation matrix',0)
