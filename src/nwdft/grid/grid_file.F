@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.34 2000-08-09 23:04:12 edo Exp $
+* $Id: grid_file.F,v 1.35 2000-08-11 17:59:48 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -33,6 +33,7 @@ c
       character*255 grinfo
       character*(nw_max_path_len) scratchdir
       integer util_scratch_dir_avail_for_me,me,ioserr,ierr
+      character*80 errmsg
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
       external grid_file_rewind
@@ -163,9 +164,14 @@ c
      $        call errquit('grfile: rewinding gridpts?',1)
          file_opened=.false.
          filedump_opened=.false.
+!         if (eaf_close(fd) .ne. 0) 
+!     $        write(0,*)'grid_file_close: eaf_close failed',0
          ierr=eaf_open(actualname, eaf_rw, fd)
-         if (ierr .ne. 0)
-     $        call errquit('grid_file_open: eaf_open failed', ierr)
+         if (ierr .ne. 0) then
+            call eaf_errmsg(ierr,errmsg)
+            write(LuOut,*) ga_nodeid(),errmsg
+            call errquit('grid_file_open: eaf_open failed', ierr)
+         endif
          file_opened = .true.
       endif
       return
