@@ -71,6 +71,7 @@ c
       integer mrg_b11
       integer mrg_b12
       integer mrg_b13
+      integer mrg_b14
       integer mrg_b15
       integer mrg_b16
       integer mrg_b17
@@ -281,6 +282,7 @@ c
       parameter (mrg_b11=msg_ftn_base-111) ! arg_memor1
       parameter (mrg_b12=msg_ftn_base-112) ! arg_memor1
       parameter (mrg_b13=msg_ftn_base-113) ! arg_memor1
+      parameter (mrg_b14=msg_ftn_base-114) ! arg_memor1
       parameter (mrg_b15=msg_ftn_base-115) ! arg_pscale
       parameter (mrg_b16=msg_ftn_base-116) ! arg_dymcti
       parameter (mrg_b17=msg_ftn_base-117) ! arg_pscale
