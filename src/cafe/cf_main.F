@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.90 2001-02-12 21:52:39 d3j191 Exp $
+c $Id: cf_main.F,v 1.91 2001-05-10 16:14:43 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2681,8 +2681,8 @@ c
       endif
       if(nsatot.gt.0) then
       do 2 i=1,nsatot
-      write(iunit,1005) snam(i)
- 1005 format(a16)
+      write(iunit,1005) snam(i),i,1
+ 1005 format(a16,i10,i5)
     2 continue
       endif
       if(numb(1).gt.0) then
