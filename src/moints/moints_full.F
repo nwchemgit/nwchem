@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.4 1996-02-02 06:20:33 d3g681 Exp $
+C     $Id: moints_full.F,v 1.5 1996-02-08 08:50:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -17,15 +17,48 @@ c
 c     
 c     Rather inefficient use of the partial 4-index transformation
 c     to do the complete 4-index transformation.
+c
+c     Currently collect all integrals and write out a single moints
+c     file in various formats, however it would be easy to write
+c     out parallel files.
+c
+c     Ascii format
+c
+c         title             ! from movecs file
+c         norbs,nfzc        ! no. of active MOs, no. of frozen core
+c         (map(i)=1,norbs)  ! map from current to old MO order
+c         (sym(i)=1,norbs)  ! symmetry of orbitals (0-7 suitable for ieor)
+c         (eval(i)=1,norbs) ! eigenvalues of orbitals
+c         (occ(i)=1,norbs)  ! occupation numbers of orbitals from movecs
+c         g i j k l         ! two-electron integral (one per line)
+c         h i j 0 0         ! one-electron integral (one per line)
+c         e 0 0 0 0         ! effective nuclear repulsion energy
+c         0 -1 -1 -1 -1     ! EOF
+c
+c     Binary format (variable record length file)
+c
+c         title             ! c*80
+c         norbs,nfzc        ! 
+c         (map(i)=1,norbs)  !
+c         (sym(i)=1,norbs)  !
+c         (eval(i)=1,norbs) !
+c         (occ(i)=1,norbs)  !
+c         (h(ij),ij=1,norbs*(norbs+1)/2)
+c         (g(1:512),ijkl(1:512),ninrec) ! See common moints_buff
+c         
+c
+c     COLUMBUS format
+c
+c         coming soon
 c     
       character*255 movecs_in, moints_file
       integer moints_unit
       parameter (moints_unit=1)
       integer geom, basis
-      character*255 title_vecs, basis_vecs
+      character*255 title_vecs, basis_vecs, title
       integer nbf_vecs, nmo(2), nsets
       integer k_occ, l_occ, k_evals, l_evals, g_vecs, k_g, l_g
-      integer k_irs, l_irs, k_map, l_map
+      integer k_irs, l_irs, k_map, l_map, l_work, k_work
       integer g_mofock, g_aofock, g_aodens, g_tmp, g_hcore
       integer i, nmixed
       integer nbf, nsh, lo, hi
@@ -92,6 +125,8 @@ c
      $     ('moints: number of basis fun does not match input',0)
       if (nsets .ne. 1) call errquit('moints: cannot do UHF?',0)
 c     
+      if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_work, k_work))
+     $     call errquit('moints: failed to alloc work ',nbf)
       if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals))
      $     call errquit('moints: failed to alloc evals ',nbf)
       if (.not. ma_push_get(MT_DBL, nbf, 'Occs', l_occ, k_occ))
@@ -123,6 +158,8 @@ c
      $     algo = 'twofold'
       if (.not.rtdb_cget(rtdb,'fourindex:moints file',1,moints_file))
      $     call util_file_prefix('moints',moints_file)
+      if (.not. rtdb_cget(rtdb, 'title', 1, title))
+     $     title = ' '
 c
 c     Set index ranges
 c     
@@ -168,6 +205,8 @@ c
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
      $        30,.true.)
+         write(6,*)
+         call util_print_centered(6,title,30,.false.)
          write(6,*)
          if (algo.eq.'sixfold') then
             write(6,975) 
@@ -220,33 +259,65 @@ c
 c
 c     Keep track of where the MOs will end up
 c
-      do i = lo, hi
+      do i = 1,nmo(1)
          int_mb(k_map+i-1) = i
       enddo
       if (osymblock) then
          call moints_vecs_sym_sort(g_vecs, nbf, lo, hi,
-     $        int_mb(k_irs), int_mb(k_map), dbl_mb(k_occ),
+     $        int_mb(k_irs), int_mb(k_map), dbl_mb(k_work),
      $        nsym, sym_lo, sym_hi)
          if (oprint) then
             write(6,31) nsym
  31         format(/10x, 'Output MOs are blocked by symmetry: ', 8i3)
             call util_flush(6)
          endif
-      else
       endif
+c
+c     Offset so active MOs are counted from one and form the inverse map
+c     which is actually what we want.
+c
+      do i = lo,hi              ! Offset to be in the active range
+         int_mb(k_map+i-1) = int_mb(k_map+i-1) - lo + 1
+         dbl_mb(k_work-1+int_mb(k_map+i-1)) = i
+      enddo
       if (oprint) then
          write(6,*)
          write(6,*) '          Map from input to output MO order'
          write(6,*) 
          if (nbf .lt. 100) then
-            write(6,223) (i,int_mb(k_map+i-1)-lo+1,i=lo,hi)
+            write(6,223) (i,int_mb(k_map+i-1),i=lo,hi)
  223        format(10(i2,'->',i2,2x))
          else
-            write(6,224) (i,int_mb(k_map+i-1)-lo+1,i=lo,hi)
+            write(6,224) (i,int_mb(k_map+i-1),i=lo,hi)
  224        format(9(i3,'->',i3,2x))
+         endif
+      endif
+      do i = 1, nact
+         int_mb(k_map+i-1) = nint(dbl_mb(k_work+i-1))
+      enddo
+      if (oprint) then
+         write(6,*)
+         write(6,*) '          Map from output to input MO order'
+         write(6,*) 
+         if (nbf .lt. 100) then
+            write(6,223) (i,int_mb(k_map+i-1),i=1,nact)
+         else
+            write(6,224) (i,int_mb(k_map+i-1),i=1,nact)
          endif
          call util_flush(6)
       endif
+c
+c     Reorder the occupation, eigenvalues to match the active orbitals
+c
+      call dcopy(nmo(1), dbl_mb(k_occ), 1, dbl_mb(k_work), 1)
+      call gather(nact, dbl_mb(k_occ), dbl_mb(k_work), int_mb(k_map))
+      call dcopy(nmo(1), dbl_mb(k_evals), 1, dbl_mb(k_work), 1)
+      call gather(nact, dbl_mb(k_evals), dbl_mb(k_work), int_mb(k_map))
+c
+      if (ga_nodeid() .eq. 0) call moints_header_output(moints_unit,
+     $     title_vecs, nact, occ_frozen, 
+     $     int_mb(k_map), int_mb(k_irs+occ_frozen),
+     $     dbl_mb(k_evals), dbl_mb(k_occ))
 c
 c     Two index transformation of effective core hamiltonian
 c
@@ -389,6 +460,8 @@ c
      $     call errquit('moints: ma failed',0)
       if (.not. ma_pop_stack(l_evals))
      $     call errquit('moints: ma failed',0)
+      if (.not. ma_pop_stack(l_work))
+     $     call errquit('moints: ma failed',0)
       if (.not. ga_destroy(g_vecs))
      $     call errquit('moints: ga_destroy failed',0)
 c     
@@ -486,7 +559,7 @@ c
       double precision efzc
 c
       write(moints_unit,1) efzc, 0, 0, 0, 0
- 1    format(f18.12,4i4)
+ 1    format(f18.12,4i4,5x,'! effective nuclear-repulsion energy')
 c
       end
       subroutine moints_close(moints_unit)
@@ -581,5 +654,39 @@ c
       enddo
 c
       if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0)
+c
+      end
+      subroutine moints_header_output(moints_unit, title,
+     $     nact, occ_frozen, map, irs, evals, occ)
+      implicit none
+      integer moints_unit
+      character*(*) title
+      integer nact
+      integer occ_frozen
+      integer map(1:nact)
+      integer irs(1:nact)
+      double precision evals(1:nact)
+      double precision occ(1:nact)
+c
+      character*80 fmt
+c
+      write(moints_unit,'(a)') title(1:80)
+      write(moints_unit,'(2i6,5x,a)') nact, occ_frozen, '! nmo nfzc'
+      fmt = ' '
+      write(fmt,1) nact
+ 1    format('(',i4,'i4,5x,''! map'')')
+      write(moints_unit,fmt) map
+      fmt = ' '
+      write(fmt,2) nact
+ 2    format('(',i4,'i4,5x,''! irs'')')
+      write(moints_unit,fmt) irs
+      fmt = ' '
+      write(fmt,3) nact
+ 3    format('(1p,',i4,'d16.8,5x,''! evals'')')
+      write(moints_unit,fmt) evals
+      fmt = ' '
+      write(fmt,4) nact
+ 4    format('(1p,',i4,'d16.8,5x,''! occ'')')
+      write(moints_unit,fmt) occ
 c
       end
