@@ -1,6 +1,6 @@
       logical function pre_slvsiz(lfnslv,filslv,nwm,nwa)
 c
-c $Id: pre_slvsiz.F,v 1.2 1998-04-29 18:35:26 d3j191 Exp $
+c $Id: pre_slvsiz.F,v 1.3 2000-01-10 19:47:39 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,7 @@ c
     1 continue
       read(lfnslv,1001) npbtyp
  1001 format(i5)
-      do 2 i=1,2
+      do 2 i=1,5
       read(lfnslv,1000) cdummy
     2 continue
 c
