@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.106 2001-08-15 22:06:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.107 2001-08-23 15:22:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2397,7 +2397,7 @@ c
       if(ifr.eq.0.or.ito.eq.0) then
       if(ifix.eq.0) then
       do 2 i=1,numw
-      iwdt(i)=iand(iwdt(i),not(lfixed))
+      iwdt(i)=iand(iwdt(i),not(mfixed))
     2 continue
       endif
       if(ifix.eq.1) then
@@ -2409,7 +2409,7 @@ c
       if(ifr.gt.0) then
       do 4 i=1,numw
       if(iwgmn(i).ge.ifr.and.iwgmn(i).le.ito) then
-      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(mfixed))
       if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
       endif
     4 continue
@@ -2419,10 +2419,10 @@ c
       dist2=(xwm(i,1)-xtarget(1))**2+(xwm(i,2)-xtarget(2))**2+
      + (xwm(i,3)-xtarget(3))**2
       if(ito.eq.-1.and.dist2.le.rfix2) then
-      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(mfixed))
       if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
       elseif(ito.eq.-2.and.dist2.ge.rfix2) then
-      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(mfixed))
       if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
       endif
    41 continue
@@ -2444,7 +2444,7 @@ c
    51 continue
       if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
      + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
-      isdt(i)=iand(isdt(i),not(lfixed))
+      isdt(i)=iand(isdt(i),not(mfixed))
       number=number+1
       endif
     5 continue
@@ -2473,7 +2473,7 @@ c
       if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
      + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       number=number+1
-      if(ifix.eq.0) isdt(i)=ior(isdt(i),not(lfixed))
+      if(ifix.eq.0) isdt(i)=ior(isdt(i),not(mfixed))
       if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
       endif
       endif
@@ -2484,10 +2484,10 @@ c
       dist2=(xs(i,1)-xtarget(1))**2+(xs(i,2)-xtarget(2))**2+
      + (xs(i,3)-xtarget(3))**2
       if(ito.eq.-1.and.dist2.le.rfix2) then
-      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(lfixed))
+      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(mfixed))
       if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
       elseif(ito.eq.-2.and.dist2.ge.rfix2) then
-      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(lfixed))
+      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(mfixed))
       if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
       endif
    72 continue
@@ -2510,7 +2510,7 @@ c
       if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
      + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
-     + isdt(i)=iand(isdt(i),not(lfixed))
+     + isdt(i)=iand(isdt(i),not(mfixed))
       number=number+1
       endif
     8 continue
@@ -2539,7 +2539,7 @@ c
       if((target(1:2).eq.'  '.or.target(1:len).eq.tag(6:len+5)).and.
      + (residu(1:1).eq.' '.or.residu(1:3).eq.tag(1:3))) then
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1) then
-      if(ifix.eq.0) isdt(i)=ior(isdt(i),not(lfixed))
+      if(ifix.eq.0) isdt(i)=ior(isdt(i),not(mfixed))
       if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
       endif
       number=number+1
