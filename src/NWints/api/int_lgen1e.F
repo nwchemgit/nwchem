@@ -1,4 +1,4 @@
-c $Id: int_lgen1e.F,v 1.11 1996-10-11 10:10:17 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.12 1996-10-11 23:20:21 d3j191 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines
 c:tex-This routine generates labels for general 2 index one 
@@ -31,9 +31,9 @@ c::passed
       integer j_basis ! [input] ket basis set handle
       integer jsh     ! [input] ket shell lexical index
       double precision zerotol ! [input] zero threshold
+      integer l1e       ! [input] length of buffers for integrals
       integer ilab(l1e) ! [output] i bas func labels array
       integer jlab(l1e) ! [output] j bas func labels array
-      integer l1e       ! [input] length of buffers for integrals
       double precision Gen1e(l1e) ! [input/output] 1 electron integrals
       integer lscr ! [input] length of scratch array
       double precision scr(lscr) ! [scratch] array
