@@ -1,9 +1,14 @@
       SUBROUTINE vib_PRNTPD(A,NAD,M,IOUT2)
-* $Id: vib_prntpd.F,v 1.1 1995-07-29 23:19:39 d3e129 Exp $
-      IMPLICIT REAL*8 (A-H,O-Z)
+* $Id: vib_prntpd.F,v 1.2 1995-10-21 09:16:18 d3e129 Exp $
+      IMPLICIT none ! REAL*8 (A-H,O-Z)
 C
+      integer nad, m, iout2
+      double precision A(NAD)
+c
+      integer i, j, i1, i2
+      integer iout, ii, jj, kk, nn, mm, ll
+c
       CHARACTER*5 LINE
-      DIMENSION A(NAD)
       DATA LINE /'-----'/
     1 FORMAT(3X,10(7X,I5))
     2 FORMAT(2X,21A6)

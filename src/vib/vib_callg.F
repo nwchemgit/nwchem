@@ -1,19 +1,28 @@
       SUBROUTINE vib_CALLG(G,IGDIM,SCR,fv1,fv2,
      &    ROOT,ALPH,LVAL,NROOTS)
-* $Id: vib_callg.F,v 1.2 1995-07-29 23:38:47 d3e129 Exp $
+* $Id: vib_callg.F,v 1.3 1995-10-21 09:16:01 d3e129 Exp $
 C
 C Routine to set up actual spaces for call to GIVENS
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION G(IGDIM),ALPH(LVAL,NROOTS) ! matrix,eigenvectors
-*      DIMENSION SCR(LVAL*5),ROOT(NROOTS)   ! scratch,eigenvalues
-      DIMENSION SCR(nroots,nroots),ROOT(NROOTS)   ! scratch,eigenvalues
-      dimension fv1(nroots),fv2(nroots)
+      IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+      integer igdim, lval, nroots
+      double precision g(igdim)
+      double precision alph(lval,nroots)
+      double precision root(nroots)
+      double precision scr(nroots, nroots)
+      double precision fv1(nroots), fv2(nroots)
+*rak:      DIMENSION G(IGDIM),ALPH(LVAL,NROOTS) ! matrix,eigenvectors
+*rak:*      DIMENSION SCR(LVAL*5),ROOT(NROOTS)   ! scratch,eigenvalues
+*rak:      DIMENSION SCR(nroots,nroots),ROOT(NROOTS)   ! scratch,eigenvalues
+*rak:      dimension fv1(nroots),fv2(nroots)
+c
+      integer ii, ierr
+c
 *
       call dfill(lval*nroots,0.0d00,alph,1)
       call dfill(nroots*nroots,0.0d00,scr,1)
 C
-      do ii = 1,nat3
+      do ii = 1,nroots
         scr(ii,ii)=1.0d00
       enddo
 *      call rsg(nroots,nroots,g,scr,root,1,alph,fv1,fv2,ierr)
@@ -24,8 +33,7 @@ C
       RETURN
       END
       subroutine vib_sjacobi(nm,n,a,w,eivr,ierr)
-      IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
-      dimension a(n*(n+1)/2),w(n),eivr(nm,n)
+      IMPLICIT  none ! REAL*8(A-H,O-Z), INTEGER(I-N)
 c
 c     use jacobi method to emulate eispack rs
 c     this routine uses a variable threshold jacobi method
@@ -33,6 +41,16 @@ c     it gives very good eigenvalues and eigenvectors
 c     the routine is much faster than the old hdiag routine written
 c     at m.i.t. that uses the jacobi method but not the variable
 c     threshold technique that is applied here
+c
+c
+      integer nm, n, ierr
+      double precision a(n*(n+1)/2),w(n),eivr(nm,n)
+c
+      double precision sq2inv, t1, t2
+      double precision avgf, d, atop, dstop, thrsh, aij, daij
+      double precision aii, ajj, ds, s, c, u, t, temp
+      integer i, j, ij, k, jcol, irow, jcol1, iflag, jcoltr, indxa
+      integer irowtr, i2, itr, jtr, idiag, isort
 c
 c-----parameters---------------
       sq2inv = 1.d0/sqrt(2.d0)
@@ -65,7 +83,7 @@ c
       do 40 i=1,n
         do 30 j=1,i
           ij = ij + 1
-          if(atop.lt.dabs(a(ij)))atop = dabs(a(ij))
+          if(atop.lt.abs(a(ij)))atop = abs(a(ij))
    30   continue
    40 continue
       if(atop.le.0.0d0) then

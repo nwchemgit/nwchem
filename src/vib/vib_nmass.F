@@ -1,15 +1,21 @@
       SUBROUTINE vib_NMASS(VECTOR,ATMASS)
-* $Id: vib_nmass.F,v 1.1 1995-07-29 23:19:34 d3e129 Exp $
+* $Id: vib_nmass.F,v 1.2 1995-10-21 09:16:13 d3e129 Exp $
 C
 C  This routine unmass weights the normal mode vectors.
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION VECTOR(NAT3,NAT3) ! matrix of normal mode eigenvectors
-      DIMENSION ATMASS(NATOM) ! mass of the atoms
-      COMMON /HESS/ NATOM,NAT3,NHESS,NHESST   ! Hessian information
+      IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+      INTEGER NATOM, NAT3, NHESS, NHESST
+      COMMON /cvib_HESS/ NATOM,NAT3,NHESS,NHESST   ! Hessian information
+      
+      double precision VECTOR(NAT3,NAT3) ! matrix of normal mode eigenvectors
+      double precision ATMASS(NATOM) ! mass of the atoms
+c
+      DOUBLE PRECISION FACT
+      INTEGER II, JJ, IATII
 C
 C      set up function for locating i,j elements packed canonically as ij
 C
+      integer iatom, i
       IATOM(I)  = (I+2)/3   ! function for coordinate I is on atom IATOM
 C
       DO 00100 II = 1,NAT3  ! loop over coordinates

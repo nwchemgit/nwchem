@@ -1,8 +1,14 @@
       SUBROUTINE vib_setup
-* $Id: vib_setup.F,v 1.1 1995-07-29 23:19:43 d3e129 Exp $
-      IMPLICIT REAL*8 (A-H,O-Z)
-      COMMON /SETCON/ AMS(36),WAVE,NUMANS      ! setup parameters
+* $Id: vib_setup.F,v 1.2 1995-10-21 09:16:24 d3e129 Exp $
+      IMPLICIT NONE! REAL*8 (A-H,O-Z)
+c
+      double precision ams, wave
+      integer numans
+      COMMON /cvib_SETCON/ AMS(36),WAVE,NUMANS      ! setup parameters
+      double precision d1, d2
       PARAMETER(D1=1.0D00,D2=2.0D00)
+c
+      double precision e, a0, c, e0, xl, pi, fact1
 C
 C This subroutine sets up constants and masses for use by the other
 C      routines

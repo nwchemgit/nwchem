@@ -1,17 +1,23 @@
       SUBROUTINE vib_HMASS(HESST,ATMASS)
-* $Id: vib_hmass.F,v 1.1 1995-07-29 23:19:32 d3e129 Exp $
+* $Id: vib_hmass.F,v 1.2 1995-10-21 09:16:10 d3e129 Exp $
 C
 C  This routine mass weights and scales the Hessian matrix
 C       The scaling is done to avoid numerical problems in the
 C       diagonalization routine
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION HESST(NHESST) ! lower triangular Hessian
-      DIMENSION ATMASS(NATOM) ! mass of the atoms
-      COMMON /HESS/ NATOM,NAT3,NHESS,NHESST   ! Hessian information
+      IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+      INTEGER NAT, NAT3, NHESS, NHESST
+      COMMON /CVIB_HESS/ NAT,NAT3,NHESS,NHESST   ! HESSIAN INFORMATION
+c
+      double precision HESST(NHESST) ! lower triangular Hessian
+      double precision ATMASS(NAT) ! mass of the atoms
+c
+      double precision fact, scale
+      integer ii, jj, jjend, iatii, iatjj, idum
 C
 C      set up function for locating i,j elements packed canonically as ij
 C
+      integer i, j, isym2, iatom
       ISYM2(I,J)=MAX(I,J)*((MAX(I,J))-1)/2 + MIN(I,J)
       IATOM(I)  = (I+2)/3   ! function for coordinate I is on atom IATOM
 C

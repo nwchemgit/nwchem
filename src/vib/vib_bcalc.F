@@ -1,23 +1,42 @@
        SUBROUTINE vib_BCALC(IZMAT,BMTRX,HINT,ZMAT,SCR,
      &                 HESSIAN,EIGVEC,EIGVAL)
 C*MODULE VIB  *DECK BCALC
-* $Id: vib_bcalc.F,v 1.2 1995-07-29 23:38:41 d3e129 Exp $
+* $Id: vib_bcalc.F,v 1.3 1995-10-21 09:15:54 d3e129 Exp $
 C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      LOGICAL LINEAR
+      IMPLICIT none
+c
+      
 C
+      INTEGER MXATM
       PARAMETER (MXATM=50)
-      COMMON /INFOA /  ZAN(MXATM),C(3,MXATM)
-      COMMON /ZMAT  / NZMAT,NZVAR,NVAR,LINEAR
-      COMMON /VBDCMP/ NROW,NDEG
-      COMMON /HESS/   NATOM,NAT3,NHESS,NHESST
-      DIMENSION IZMAT(NZMAT),BMTRX(NAT3,NAT3),HINT(NAT3,NAT3),
-     &          ZMAT(8*NAT3),SCR(1)
-      DIMENSION HESSIAN(NAT3,NAT3),EIGVEC(NAT3,NAT3),EIGVAL(NAT3)
+      double precision zan,c
+      COMMON /cvib_INFOA /  ZAN(MXATM),C(3,MXATM)
+c
+      LOGICAL LINEAR
+      integer nzmat, nzvar, nvar
+      COMMON /cvib_ZMAT  / NZMAT,NZVAR,NVAR,LINEAR
+c
+      integer nrow, ndeg
+      COMMON /cvib_VBDCMP/ NROW,NDEG
+c
+      integer nat, nat3, nhess, nhesst
+      COMMON /cvib_HESS/   NAT,NAT3,NHESS,NHESST
+c
+      integer izmat(nzmat)
+      double precision bmtrx(nat3, nat3)
+      double precision hint(nat3, nat3)
+      double precision zmat(8*nat3)
+      double precision scr(*)
+      double precision hessian(nat3, nat3)
+      double precision eigvec(nat3, nat3)
+      double precision eigval(nat3)
+c:old      DIMENSION IZMAT(NZMAT),BMTRX(NAT3,NAT3),HINT(NAT3,NAT3),
+c:old     &          ZMAT(8*NAT3),SCR(1)
+c:old      DIMENSION HESSIAN(NAT3,NAT3),EIGVEC(NAT3,NAT3),EIGVAL(NAT3)
 C
 C
-*      CALL GETARRAY(10,ZAN,INTOWP(NATOM),301,IDUM)
-*      CALL GETARRAY(10,C,INTOWP(3*NATOM),342,IDUM)
+*      CALL GETARRAY(10,ZAN,INTOWP(NAT),301,IDUM)
+*      CALL GETARRAY(10,C,INTOWP(3*NAT),342,IDUM)
 C
 C     ----- CALCULATE THE B MATRIX -----
 C

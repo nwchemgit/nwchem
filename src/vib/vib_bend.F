@@ -1,8 +1,8 @@
       SUBROUTINE vib_BEND(EQVAL,NOINT,I,J,K,C,B,NDIM)
-* $Id: vib_bend.F,v 1.1 1995-07-29 23:19:17 d3e129 Exp $
+* $Id: vib_bend.F,v 1.2 1995-10-21 09:15:56 d3e129 Exp $
 C*MODULE VIB  *DECK BEND
 C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT NONE
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS OF A
 C          VALENCE ANGLE BENDING COORDINATE AS DEFINED BY WILSON.
@@ -13,10 +13,22 @@ C     -----I AND K ARE THE NUMBERS OF THE END ATOMS.  J IS THE
 C          NUMBER OF THE CENTRAL ATOM -----
 C
 C
-      DIMENSION C(3,1),B(NDIM,1)
-      DIMENSION RJI(3),RJK(3),EJI(3),EJK(3)
+      integer noint, i, j, k, ndim
+      double precision eqval
+      double precision C(3,*),B(NDIM,*)
+c:old      DIMENSION C(3,1),B(NDIM,1)
+c:old      DIMENSION RJI(3),RJK(3),EJI(3),EJK(3)
 C
+      DOUBLE PRECISION ZERO, ONE, TOL
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00, TOL=1.0D-07)
+c
+      double precision RJI(3),RJK(3),EJI(3),EJK(3)
+      double precision pi
+      double precision djisq, djksq
+      double precision dji  , djk
+      double precision dotj, sinj, b1, b2, dotval
+      integer m, nocol1, nocol2, nocol3
+c
 C
 C
       PI = ACOS(-ONE)
@@ -49,10 +61,10 @@ C
          B(NOINT,NOCOL2+M) = B2
          B(NOINT,NOCOL3+M) = -(B1+B2)
   160 CONTINUE
-      DOT = ZERO
+      DOTVAL = ZERO
       DO 180 M = 1,3
-  180 DOT = DOT+EJI(M)*EJK(M)
-      EQVAL =   ACOS(DOT)
+  180 DOTVAL = DOTVAL+EJI(M)*EJK(M)
+      EQVAL =   ACOS(DOTVAL)
       IF(ABS(EQVAL).LT.TOL) EQVAL=ZERO
       IF(ABS(EQVAL-PI).LT.TOL) EQVAL=PI
       RETURN

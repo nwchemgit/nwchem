@@ -1,5 +1,5 @@
       SUBROUTINE vib_BDIHA5(NOINT,NDIM,IZMAT,CARTC,DIHANG,BMAT)
-* $Id: vib_bdiha5.F,v 1.2 1995-07-29 23:38:43 d3e129 Exp $
+* $Id: vib_bdiha5.F,v 1.3 1995-10-21 09:15:55 d3e129 Exp $
 C*MODULE VIB  *DECK BDIHA5
 C* 21 MAR 1983 - STE * 9 MAR 1983 - STE
 C********************************************************************
@@ -35,12 +35,29 @@ C********************************************************************
 C
 C                    DECLARATIONS
 C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT NONE 
 C
-      DIMENSION IZMAT(5), CARTC(3,1), BMAT(NDIM,NDIM)
-     *         ,A(3),B(3),C(3),D(3),E1(3),E2(3),E3(3)
+      integer noint, ndim
+      integer izmat(5)
+      double precision cartc(3,*)
+      double precision bmat(ndim,ndim)
+      double precision dihang
+c
+c:old      DIMENSION IZMAT(5), CARTC(3,1), BMAT(NDIM,NDIM)
+c:old     *         ,A(3),B(3),C(3),D(3),E1(3),E2(3),E3(3)
 C
+      double precision one, zero
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00)
+c
+      double precision A(3),B(3),C(3),D(3)
+      double precision E1(3), E2(3), E3(3)
+      double precision adote2, cdote1, e1de2, sindi
+      double precision axbmag, cxdmag, axbmi, cxdmi
+      double precision f1, f2, f4, f5
+      double precision b1, b2, b3, b4, b5
+      integer iatom, jatom, katom, latom, matom, ixyz
+      integer i, j, k, l, m, n
+      
 C
 C---------------------------------------------------------------------
 C

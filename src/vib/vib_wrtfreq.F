@@ -1,17 +1,40 @@
       SUBROUTINE vib_WRTFREQ(EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.1 1995-07-29 23:19:49 d3e129 Exp $
+* $Id: vib_wrtfreq.F,v 1.2 1995-10-21 09:16:37 d3e129 Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT none
+c
+#include "stdio.fh"
+c
+      integer nat3
       LOGICAL ZEROPE
-      PARAMETER (MAXFRQ = 200)
+      integer npri
+      double precision EIGVAL(NAT3)    ! eigenvalues
+c
+      integer maxfrq
+      PARAMETER (MAXFRQ = 2000)
+      double precision d1, d2
       PARAMETER(D1=1.0D00,D2=2.0D00)
-      COMMON /SETCON/ AMS(36),WAVE,NUMANS      ! setup parameters
-      DIMENSION EIGVAL(NAT3)    ! eigenvalues
-      DIMENSION PRFREQ(MAXFRQ)    ! freqencies to be written to tape10
+      double precision ams, wave
+      integer numans
+      COMMON /cvib_SETCON/ AMS(36),WAVE,NUMANS      ! setup parameters
+      double precision PRFREQ(MAXFRQ)    ! freqencies to be written to tape10
+c
+      double precision scale, dd1, zero, sumfreq, rate, xdum, freq, zpe
+      integer i
+c
 *rak:      ITAP96 = 96
+c: error check :
+      if (nat3.gt.maxfrq) then
+c        dimension problems
+        write(luout,*)' maxfrq = ',maxfrq
+        write(luout,*)' nat3   = ',nat3
+        write(luout,*)' increase maxfrq to ',nat3
+        call errquit('vib_wrtfreq:',nat3)
+        stop ' error'
+      endif
 C
 C Scale eigenvalues down by 1000
 C

@@ -1,12 +1,11 @@
-# $Id: GNUmakefile,v 1.3 1995-10-17 08:56:39 d3g681 Exp $
+# $Id: GNUmakefile,v 1.4 1995-10-21 09:15:52 d3e129 Exp $
        HEADERS = 
-  OBJ_OPTIMIZE = 
+  OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \
                  vib_bdiha5.o \
                  vib_bend.o \
                  vib_bmat.o \
                  vib_bstr.o \
-                 vib_callg.o \
                  vib_cebdab.o \
                  vib_chkhess.o \
                  vib_clean.o \
@@ -45,5 +44,9 @@ include ../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 vib_chkhess.o :	 $(INCDIR)/stdio.fh 
+vib_prdata.o :	 $(INCDIR)/stdio.fh 
 vib_rdinp.o :	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
+vib_tors.o :	 $(INCDIR)/util.fh 
 vib_vib.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 
+vib_wmatrix.o :	 $(INCDIR)/stdio.fh 
+vib_wrtfreq.o :	 $(INCDIR)/stdio.fh 

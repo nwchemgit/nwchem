@@ -1,8 +1,12 @@
       SUBROUTINE vib_TRANSP(A,NDIM,N)
 C*MODULE VIB  *DECK TRANSP
-* $Id: vib_transp.F,v 1.1 1995-07-29 23:19:45 d3e129 Exp $
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      DIMENSION A(NDIM,NDIM)
+* $Id: vib_transp.F,v 1.2 1995-10-21 09:16:28 d3e129 Exp $
+      IMPLICIT NONE
+      integer ndim, n
+      double precision A(NDIM,NDIM)
+c
+      double precision temp
+      integer i, j
 C
 C  TRANSPOSE MATRIX A, STORE RESULT IN A.
 C

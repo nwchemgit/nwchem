@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.2 1995-07-31 06:09:04 d3e129 Exp $
+* $Id: vib_vib.F,v 1.3 1995-10-21 09:16:31 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995n      
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -20,10 +20,11 @@
 *utah:C   by J. Anchell (12-DEC-1990).  Subroutines which generate the Cartesian
 *utah:C   to internal coordinate transformation matrix was lifted from GAMESS.
 *utah:C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE ! REAL*8 (A-H,O-Z)
       LOGICAL PROJEC,ZEROPE,HESOUT,INTERN
 *      CHARACTER*7 INPFIL
-      COMMON /HESS/ NATOM,NAT3,NHESS,NHESST    ! hessian information
+      INTEGER NATOM, NAT3, NHESS, NHESST
+      COMMON /cvib_HESS/ NATOM,NAT3,NHESS,NHESST    ! hessian information
 #include "stdio.fh"
 #include "mafdecls.fh"
 c:: passed
@@ -37,6 +38,11 @@ c:: passed
       integer natomin          ! [input] number of atoms
 c
       logical status
+c
+      integer i_core, h_core, iii, idum, ivc, itot
+      integer nels, npri, ihess, icoord, ihesst, ihessp, iegval, iegvec
+      integer imass, iscr, i10, i20, i30, i40
+      double precision dbl_tmp
 c
       WRITE(luout,*)' Vibrational analysis via the FX method '
       WRITE(luout,*)
@@ -71,7 +77,7 @@ C
       NAT3   =  NATOM*3         ! 3-N (as in degrees of freedom)
       NHESS  =  NAT3*NAT3       ! dimension of hessian
       NHESST =  NAT3*(NAT3+1)/2 ! dimension of lower triangular hessian
-      NELS   =  7*MAX(3*NAT-6,1)
+      NELS   =  7*MAX(3*NATOM-6,1)
       NPRI = 0
 C
 C Calculate pointers

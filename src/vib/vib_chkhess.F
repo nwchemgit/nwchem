@@ -1,13 +1,18 @@
       SUBROUTINE vib_CHKHESS(HESS,NAT3)
-* $Id: vib_chkhess.F,v 1.1 1995-07-29 23:19:23 d3e129 Exp $
+* $Id: vib_chkhess.F,v 1.2 1995-10-21 09:16:04 d3e129 Exp $
 C
 C  This routine checks to make sure the analytic Hessian is symmetric
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE ! REAL*8 (A-H,O-Z)
 #include "stdio.fh"
       LOGICAL LSYM
+      double precision thresh
       PARAMETER(THRESH = 1.0D-5)
-      DIMENSION HESS(NAT3,NAT3) ! full square Hessian
+      integer nat3
+      double precision HESS(NAT3,NAT3) ! full square Hessian
+c
+      double precision xdiff
+      integer iii,  jjj, jjjend
 C
       DO 00100 III = 2,NAT3  ! loop over size-1
          JJJEND = III-1

@@ -1,19 +1,26 @@
       subroutine vib_wmatrix(A,MR,MC,NR,NC)
-* $Id: vib_wmatrix.F,v 1.1 1995-07-29 23:19:47 d3e129 Exp $
+* $Id: vib_wmatrix.F,v 1.2 1995-10-21 09:16:34 d3e129 Exp $
 C*****************************************************************
 C                   SUBROUTINE WMATRIX
 C*****************************************************************
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      DIMENSION A(MR,MC)
-      lfnpr=6
+      IMPLICIT none
+c
+#include "stdio.fh"
+c
+      integer mr, mc, nr, nc
+      double precision A(MR,MC)
+c
+      integer i, j, l
+      integer ncl, ncu, nloops
+c
       NCL=1
       NCU=10
       NLOOPS=NC/10+1
       DO 20 L=1,NLOOPS
       IF (NCU.GT.NC)NCU=NC
-      WRITE(LFNPR,1100)(J,J=NCL,NCU)
+      WRITE(LUOUT,1100)(J,J=NCL,NCU)
       DO 10 I=1,NR
-   10 WRITE(LFNPR,1200)I,(A(I,J),J=NCL,NCU)
+   10 WRITE(LUOUT,1200)I,(A(I,J),J=NCL,NCU)
       IF(NCU.GE.NC)RETURN
       NCL=NCU+1
    20 NCU=NCU+10

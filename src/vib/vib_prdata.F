@@ -1,10 +1,18 @@
       SUBROUTINE vib_PRDATA(ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI)
-* $Id: vib_prdata.F,v 1.1 1995-07-29 23:19:38 d3e129 Exp $
+* $Id: vib_prdata.F,v 1.2 1995-10-21 09:16:16 d3e129 Exp $
 C*MODULE VIB  *DECK PRDATA
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      DIMENSION ARRAY(NR,NC), VECT(NR)
+c
+      IMPLICIT NONE ! DOUBLE PRECISION(A-H,O-Z)
+#include "stdio.fh"
+c
+      integer nr, nc, nrp, ncp, npri
+      double precision ARRAY(NR,NC), VECT(NR)
       CHARACTER*9 FREQ
       LOGICAL PVEC
+c
+      integer i, j, l
+      integer ncl, ncu, nloops
+c
       FREQ = 'Frequency'
 *      ITAP96=96
 C
@@ -17,18 +25,18 @@ C
       DO 20 L=1,NLOOPS
         IF (NCU.GT.NCP)NCU=NCP
 C
-           WRITE(6,9110)(J,J=NCL,NCU)
+           WRITE(luout,9110)(J,J=NCL,NCU)
 *           IF (NPRI.EQ.0) WRITE(ITAP96,9110)(J,J=NCL,NCU)
            IF(PVEC) THEN
-             WRITE(6,9210)FREQ,(VECT(J),J=NCL,NCU)
+             WRITE(luout,9210)FREQ,(VECT(J),J=NCL,NCU)
              IF (NPRI.EQ.0) THEN
 *               WRITE(ITAP96,9210)FREQ,(VECT(J),J=NCL,NCU)
 *               WRITE(ITAP96,9300)
              ENDIF
            ENDIF
-           WRITE(6,9300)
+           WRITE(luout,9300)
            DO 12 I=1,NRP
-              WRITE(6,9402)I,(ARRAY(I,J),J=NCL,NCU)
+              WRITE(luout,9402)I,(ARRAY(I,J),J=NCL,NCU)
               IF(NPRI.EQ.0) THEN
 *                WRITE (ITAP96,9402) I,(ARRAY(I,J),J=NCL,NCU)
               ENDIF

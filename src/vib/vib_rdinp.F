@@ -2,13 +2,13 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb)
-* $Id: vib_rdinp.F,v 1.1 1995-07-29 23:19:41 d3e129 Exp $
+* $Id: vib_rdinp.F,v 1.2 1995-10-21 09:16:22 d3e129 Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
 C      masses and to read the analytic hessian from tape 10.
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE ! REAL*8 (A-H,O-Z)
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
@@ -16,13 +16,14 @@ C
 *      CHARACTER*7 UNITNM,NAME
 *      CHARACTER*6 USEROP         ! user input option
       CHARACTER*10 ULABEL        ! label to locate program input
+      INTEGER NELS
       LOGICAL UPDATE,SETMAS,PROJEC,ZEROPE,HESOUT,INTERN
       logical dum_log
-      DIMENSION HESS(NAT3,NAT3)  ! Hessian matrix
-      DIMENSION HESST(NHESST)    ! Lower triangle of hessian matrix
-      DIMENSION COORD(3,NATOM)   ! Atom x,y,z coordinates
-      DIMENSION ATMASS(NATOM)    ! Atoms mass
-      DIMENSION ZAN(NATOM)       ! Nuclear charge (i.e. atomic number)
+      DOUBLE PRECISION HESS(NAT3,NAT3)  ! Hessian matrix
+      DOUBLE PRECISION HESST(NHESST)    ! Lower triangle of hessian matrix
+      DOUBLE PRECISION COORD(3,NATOM)   ! Atom x,y,z coordinates
+      DOUBLE PRECISION ATMASS(NATOM)    ! Atoms mass
+      DOUBLE PRECISION ZAN(NATOM)       ! Nuclear charge (i.e. atomic number)
       INTEGER OLDLBLAT(2,NATOM)     ! Atom character labels
       INTEGER IZMAT(NELS)
       character*16 tag
@@ -30,10 +31,17 @@ C
       character*2 symbol
       double precision q
       double precision xyz(3)
-      COMMON /HESS/ NATOM,NAT3,NHESS,NHESST   ! Hessian information
-      COMMON /SETCON/ AMS(36),WAVE,NUMANS     ! setup parameters
+      integer natom, nat3, nhess, nhesst
+      COMMON /cvib_HESS/ NATOM,NAT3,NHESS,NHESST   ! Hessian information
+      integer numans
+      double precision ams, wave
+      COMMON /cvib_SETCON/ AMS(36),WAVE,NUMANS     ! setup parameters
+c
+      integer h_lblb, i_lblb, geom
+      integer il_cnt, iii, ijunk, idum
+c
       integer rtdb
-      DATA ITAP11 /11/
+*rak:      DATA ITAP11 /11/
       DATA ULABEL/'U:VIB  '/   ! program input locator label
       DATA SETMAS/.TRUE./         ! logical USE default masses
       UPDATE = .FALSE.            ! logical READ update Hessian
@@ -163,7 +171,7 @@ C
 *rak: ENDIF
       call vib_chkhess(hess,nat3)
 * set labels, zan and coords information
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c
       if (.not.ma_push_get(MT_BYTE,(2*natom),' labels for vib',
      &    h_lblb,i_lblb))
      &    call errquit('vib_rdinp ma_get for labels failed',911)

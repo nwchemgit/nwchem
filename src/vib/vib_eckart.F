@@ -1,20 +1,30 @@
       SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC )
-* $Id: vib_eckart.F,v 1.2 1995-07-29 23:38:50 d3e129 Exp $
-      IMPLICIT REAL*8 (A-H,O-Z)
+* $Id: vib_eckart.F,v 1.3 1995-10-21 09:16:07 d3e129 Exp $
+      IMPLICIT none ! REAL*8 (A-H,O-Z)
+c
+      double precision zero, one
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
-      COMMON /HESS/ NATOM,NAT3,NHESS,NHESST
-      DIMENSION HESS(NAT3,NAT3), COORD(3,NATOM), VC(NAT3,6),
-     &  UNIVEC(3), HESST(NAT3*(NAT3+1)/2), TEST(6,6),
-     &  HESSP(NAT3,NAT3)
+c
+      integer nat, nat3, nhess, nhesst
+      COMMON /cvib_HESS/ NAT,NAT3,NHESS,NHESST
+c
+      double precision HESS(NAT3,NAT3)
+      double precision HESSP(NAT3,NAT3)
+      double precision HESST(NAT3*(NAT3+1)/2)
+      double precision COORD(3,NAT)
+      double precision VC(NAT3,6)
+c
+      DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
+      integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
 C****
 C**** construct translation unit vectors;  these are stored in the
 C**** first three columns of array VC, the rotation vectors will
 C**** be stored in the other 3 columns
 C****
       CALL Dfill (6*NAT3,0.0d00,VC,1)
-      VNORM = ONE/SQRT(dble(NATOM))
+      VNORM = ONE/SQRT(dble(NAT))
       DO 10 I=1,3 ! unit translation vector for x-, y-, and z-directions
-        DO 20 IATOM=1,NATOM
+        DO 20 IATOM=1,NAT
           DO 30 IAXIS=1,3
             IF( IAXIS.NE.I ) THEN
               VC(3*(IATOM-1)+IAXIS,I) = ZERO
@@ -35,7 +45,7 @@ C****
             UNIVEC(J) = ZERO
           END IF
    50   CONTINUE
-        DO 60 IATOM=1,NATOM       ! loop over atoms
+        DO 60 IATOM=1,NAT       ! loop over atoms
           CALL vib_CROSS(COORD(1,IATOM),UNIVEC,
      &      VC(3*(IATOM-1)+1,IAXIS+3))
    60   CONTINUE
@@ -45,12 +55,12 @@ C****   Schmidt orthogonalize the constraint vectors
 C****
       DO 70 I=2,6     ! orthogonalize vector I to each of vectors J
         DO 80 J=1,I-1
-          DOT = ZERO
+          DOTVAL = ZERO
           DO 90 K=1,NAT3
-            DOT = DOT+VC(K,J)*VC(K,I)
+            DOTVAL = DOTVAL+VC(K,J)*VC(K,I)
    90     CONTINUE
           DO 100 K=1,NAT3
-            VC(K,I) = VC(K,I)-DOT*VC(K,J)
+            VC(K,I) = VC(K,I)-DOTVAL*VC(K,J)
   100     CONTINUE
    80   CONTINUE
         RNORM = ZERO  ! normalize vector I
