@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.31 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.32 2003-12-03 05:04:04 d3j191 Exp $
 c
       implicit none
 c
@@ -20,6 +20,7 @@ c
       logical succes
       real*8 timp
       integer inwm,inwa
+      integer flags(7)
 c
       lxw=.false.
       lvw=.false.
@@ -182,6 +183,25 @@ c
       call ga_brdcst(mag_d03,succes,ma_sizeof(mt_log,1,mt_byte),0)
       call ga_brdcst(mag_d04,ix,msa*ma_sizeof(mt_int,1,mt_byte),0)
       call ga_brdcst(mag_d05,x,3*msa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d06,w,3*mwm*mwa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      do 234 i=1,6
+      flags(i)=0
+  234 continue
+      if(lxw) flags(1)=1
+      if(lvw) flags(2)=1
+      if(lfw) flags(3)=1
+      if(lsx) flags(4)=1
+      if(lsv) flags(5)=1
+      if(lfs) flags(6)=1
+      flags(7)=nwm
+      call ga_brdcst(mag_d07,flags,7*ma_sizeof(mt_int,1,mt_byte),0)
+      lxw=flags(1).ne.0
+      lvw=flags(2).ne.0
+      lfw=flags(3).ne.0
+      lsx=flags(4).ne.0
+      lsv=flags(5).ne.0
+      lfs=flags(6).ne.0
+      nwm=flags(7)
       endif
 c
       ana_rdfram=succes

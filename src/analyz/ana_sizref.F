@@ -1,6 +1,6 @@
-      subroutine ana_sizref(nsai,msai)
+      subroutine ana_sizref(nsai,msai,nwmi,mwmi,nwai,mwai)
 c
-c $Id: ana_sizref.F,v 1.5 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_sizref.F,v 1.6 2003-12-03 05:04:05 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "msgids.fh"
 c
       character*1 cdum
-      integer i,nsai,msai,nsm
+      integer i,nsai,msai,nwmi,mwmi,nwai,mwai,nsm
 c
       integer ibroad(10),nhist
       logical lforces
@@ -46,15 +46,27 @@ c
       endif
 c
       msai=nsai
+      nwmi=nwm
+      mwmi=nwm
+      nwai=nwa
+      mwai=nwa
 c
 c     broadcast options to all nodes
 c
       if(np.gt.1) then
       ibroad(1)=nsai
       ibroad(2)=msai
-      call ga_brdcst(mag_d01,ibroad,2*ma_sizeof(mt_int,1,mt_byte),0)
+      ibroad(3)=nwmi
+      ibroad(4)=mwmi
+      ibroad(5)=nwai
+      ibroad(6)=mwai
+      call ga_brdcst(mag_d01,ibroad,6*ma_sizeof(mt_int,1,mt_byte),0)
       nsai=ibroad(1)
       msai=ibroad(2)
+      nwmi=ibroad(3)
+      mwmi=ibroad(4)
+      nwai=ibroad(5)
+      mwai=ibroad(6)
       endif
 c
       return

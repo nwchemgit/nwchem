@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.19 2002-07-20 19:17:36 d3j191 Exp $
+# $Id: GNUmakefile,v 1.20 2003-12-03 05:04:04 d3j191 Exp $
 #
  OBJ_OPTIMIZE = ana_angle.o\
                 ana_atrad.o\
@@ -7,6 +7,7 @@
                 ana_chgdst.o\
                 ana_data.o\
                 ana_define.o\
+                ana_diel.o\
                 ana_finish.o\
                 ana_groups.o\
                 ana_hbond.o\

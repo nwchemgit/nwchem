@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.23 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_finish.F,v 1.24 2003-12-03 05:04:04 d3j191 Exp $
 c
       implicit none
 c
@@ -33,6 +33,8 @@ c
      + call md_abort('Failed to deallocate ndxw',0)
       if(.not.ma_pop_stack(l_wsel))
      + call md_abort('Failed to deallocate wsel',0)
+      if(.not.ma_pop_stack(l_qwdat))
+     + call md_abort('Failed to deallocate qwdat',0)
       if(.not.ma_pop_stack(l_wdat))
      + call md_abort('Failed to deallocate wdat',0)
       if(.not.ma_pop_stack(l_idat))

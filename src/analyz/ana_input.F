@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.66 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_input.F,v 1.67 2003-12-03 05:04:04 d3j191 Exp $
 c
       implicit none
 c
@@ -659,6 +659,16 @@ c
       numcmd=numcmd+1
       goto 2
       endif
+      endif
+c
+c     ramachandran analysis
+c     ---------------------
+c
+      if(inp_compare(.false.,'dielectric',item)) then
+      write(lfncmd,1089)
+ 1089 format('diel   ')
+      numcmd=numcmd+1
+      goto 2
       endif
 c
 c     ramachandran analysis

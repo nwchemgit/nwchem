@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x,numsel)
 c
-c $Id: ana_select.F,v 1.12 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_select.F,v 1.13 2003-12-03 05:04:05 d3j191 Exp $
 c
       implicit none
 c
@@ -131,10 +131,10 @@ c
 c
       range2=range*range
 c
-      if(me.eq.0) then
+c      if(me.eq.0) then
       do 1 i=1,nwm
       if(iwsel(i).eq.0) then
-      do 2 j=1,nsa
+      do 2 j=ifr,ito
       if(isel(j).ne.0) then
       do 3 k=1,nwa
       if((xw(i,k,1)-xs(j,1))**2+(xw(i,k,2)-xs(j,2))**2+
@@ -154,8 +154,11 @@ c
       ndxw(nwsel)=i
       endif
     4 continue
-
+c
+      if(np.gt.1) then
+      call ga_igop(mag_d14,nwsel,1,'+')
       endif
+c      endif
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.93 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_task.F,v 1.94 2003-12-03 05:04:05 d3j191 Exp $
 c
       implicit none
 c
@@ -18,8 +18,8 @@ c
       character*255 filcmd,fil,string
 c
       character*80 card
-      integer nsai,msai,it
-      integer nframe,nread,ifr,ito,num,i,j,k,ivec,ia,ja
+      integer nsai,msai,nwmi,mwmi,nwai,mwai,it
+      integer nframe,nread,num,i,j,k,ivec,ia,ja
       real*8 rms0,rms1,val,value,range
       character*3 fmt
       logical active
@@ -62,6 +62,7 @@ c
       lfngrp=94
       lfnord=95
       lfnsel=96
+      lfndie=97
 c
       ltop=.false.
 c
@@ -161,11 +162,11 @@ c
 c
 c     get the size from the reference file
 c
-      call ana_sizref(nsai,msai)
+      call ana_sizref(nsai,msai,nwmi,mwmi,nwai,mwai)
 c
 c     allocate memory and initialize
 c
-      call ana_init(nsai,msai,.true.)
+      call ana_init(nsai,msai,nwmi,mwmi,nwai,mwai,.true.)
 c
 c     read the reference coordinates
 c
@@ -208,8 +209,8 @@ c
      + call md_abort('Could not allocate imol',0)
       if(.not.ma_push_get(mt_int,2*msb,'sbnd',l_sbnd,i_sbnd))
      + call md_abort('Could not allocate sbnd',0)
-      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),int_mb(i_iram),
-     + int_mb(i_imol),int_mb(i_sbnd))
+      call ana_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),dbl_mb(i_qwdat),
+     + int_mb(i_iram),int_mb(i_imol),int_mb(i_sbnd))
 c
       if(me.eq.0) then
       if(ltop) then
@@ -399,6 +400,7 @@ c
       endif
       nframe=nframe+1
       if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 20
+      call ga_igop(mag_d13,int_mb(i_wsel),mwm,'+')
       endif
       if(me.eq.0) then
       close(unit=lfntrj)
@@ -505,6 +507,14 @@ c
       if(card(1:6).eq.'rmsdev') then
       lrms=.true.
       ndata=0
+      goto 1
+      endif
+c
+c     ramachandran analysis
+c     ---------------------
+c
+      if(card(1:6).eq.'diel  ') then
+      ldiel=.true.
       goto 1
       endif
 c
@@ -849,6 +859,7 @@ c
       filord=string(1:index(string,' ')-1)//'.ord'
       filloc=string(1:index(string,' ')-1)//'.loc'
       filhba=string(1:index(string,' ')-1)//'.hba'
+      fildie=string(1:index(string,' ')-1)//'.die'
       time=0.0d0
 c
 c     read file header
@@ -869,6 +880,10 @@ c
       open(unit=lfnram,file=filram(1:index(filram,' ')-1),
      + form='formatted',status='unknown')
       call ana_ramhdr(byte_mb(i_snam),int_mb(i_iram))
+      endif
+      if(ldiel) then
+      open(unit=lfndie,file=fildie(1:index(fildie,' ')-1),
+     + form='formatted',status='unknown')
       endif
       if(lrms) then
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
@@ -969,6 +984,13 @@ c
       call ana_rama(dbl_mb(i_xdat),int_mb(i_iram))
       endif
 c
+c     dielectric analysis
+c
+      if(ldiel) then
+      call ana_diel(dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_isel),
+     + dbl_mb(i_wdat),dbl_mb(i_qwdat),int_mb(i_wsel))
+      endif
+c
 c     root mean square deviation
 c
       if(lrms) then
@@ -1050,6 +1072,7 @@ c
      + filana(1:index(filana,' ')-1)
       endif
       if(lrama) close(unit=lfnram)
+      if(ldiel) close(unit=lfndie)
       if(lrms) then
       write(*,'(a)') ' Closing scn file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',

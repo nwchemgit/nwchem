@@ -1,6 +1,6 @@
-      subroutine ana_init(nsai,msai,ltask)
+      subroutine ana_init(nsai,msai,nwmi,mwmi,nwai,mwai,ltask)
 c
-c $Id: ana_init.F,v 1.17 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_init.F,v 1.18 2003-12-03 05:04:04 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-      integer nsai,msai
+      integer nsai,msai,nwmi,mwmi,nwai,mwai
       logical ltask
 c
 c     determine me and np
@@ -24,8 +24,10 @@ c
 c
       nsa=nsai
       msa=msai
-      mwm=nwm
-      mwa=nwa
+      nwm=nwmi
+      mwm=mwmi
+      nwa=nwai
+      mwa=mwai
 c
 c     read rtdb if on-the-fly
 c     for analysis task calls this has already been done
@@ -105,6 +107,8 @@ c
      + call md_abort('Failed to allocate memory for idat',me)
       if(.not.ma_push_get(mt_dbl,3*mwm*mwa,'wdat',l_wdat,i_wdat))
      + call md_abort('Failed to allocate memory for wdat',me)
+      if(.not.ma_push_get(mt_dbl,nwa,'qwdat',l_qwdat,i_qwdat))
+     + call md_abort('Failed to allocate memory for qwdat',me)
       if(.not.ma_push_get(mt_int,mwm,'wdat',l_wsel,i_wsel))
      + call md_abort('Failed to allocate memory for wsel',me)
       if(.not.ma_push_get(mt_int,mwm,'ndxw',l_ndxw,i_ndxw))
