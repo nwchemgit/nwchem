@@ -1,8 +1,5 @@
 start h2o
 
-#scratch_dir    /scratch
-#permanent_dir  /scratch
-
 geometry units au
  O 0       0        0
  H 0       1.430   -1.107
