@@ -6,7 +6,7 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD )
-c $Id: stpr_driver.F,v 1.1 1994-06-24 20:42:19 d3e129 Exp $
+c $Id: stpr_driver.F,v 1.2 1994-10-16 06:19:40 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
@@ -62,10 +62,18 @@ C
      &            ATMASS, CMASS, TENIN, ENERGY,
      &            CONVGE, CONVGG,
      &            NINTER, NMODE, RPATH, TRACK, BCKSTP)
+*      write(6,*)' step after partit '
+*      do jjjj = 1,nat3
+*      write(6,'(1x,i5,1x,f20.10)')jjjj,step(jjjj)
+*      enddo
       IF(NINTER.NE.0)THEN
         CALL stpr_mkstep(HIEIGS,GISR,VC,STEP,SELECT,SCRSQ,ATMASS,ENERGY,
      &              CONVGE, CONVGG,
      &              E2NEW,NINTER,NAT3,NMODE,TRUST,BCKSTP,CNVGRD)
+*      write(6,*)' step after mkstep '
+*      do jjjj = 1,nat3
+*      write(6,'(1x,i5,1x,f20.10)')jjjj,step(jjjj)
+*      enddo
       ELSE
        CNVGRD = .TRUE.
        WRITE(6,*)' STEPPER| ENERGY = ',ENERGY
