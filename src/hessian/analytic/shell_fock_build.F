@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.4 2000-08-15 00:07:05 windus Exp $
+c $Id: shell_fock_build.F,v 1.5 2001-05-18 21:52:18 windus Exp $
 c
       subroutine shell_fock_build(geom, basis, nder, nfock, jfac, 
      $     kfac, tol2e, g_dens, g_fock, oactive)
@@ -180,15 +180,19 @@ c        call ga_dscal(g_fock(i), 4.0d0)
       do i = 1, nfock
          ilo(2) = i
          ihi(2) = i
+         if (ga_nodeid().eq.0) then
          call nga_get(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
          call ga_put(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
 c        write(6,*) 'before ga_symmetrize'
+         endif
 c        call ga_print(g_tfock)
          call ga_symmetrize(g_tfock)
 c        write(6,*) 'after ga_symmetrize'
 c        call ga_print(g_tfock)
+         if (ga_nodeid().eq.0) then
          call ga_get(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
          call nga_put(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
+         endif
       end do
       end do
       if (.not. ga_destroy(g_tfock)) call errquit
