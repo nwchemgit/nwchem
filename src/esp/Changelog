@@ -41,3 +41,5 @@ Jan 27 1999	Write xyz and plt file
 		Bug fix in esp_grid.F
 
 Jan 29 1999	Calls to Robert's fast esp routines
+
+Feb 16 1999	Call utilities from util/util_md

@@ -1,6 +1,6 @@
       subroutine esp_plt(x,q,g,t)
 c
-c $Id: esp_plt.F,v 1.3 1999-02-14 22:28:28 d3j191 Exp $
+c $Id: esp_plt.F,v 1.4 1999-02-16 17:50:53 d3j191 Exp $
 c
       implicit none
 c
@@ -53,7 +53,7 @@ c
       yc=xmin(2)-rcut+dble(iy)*spac
       do 3 ix=0,mgrid(1)+1
 c      if(me.eq.0) then
-c      call arg_swatch(today,now)
+c      call swatch(today,now)
 c      write(*,1005) today,now,ix,iy,iz
 c 1005 format(2a10,': plot point ',3i10)
 c      endif
@@ -69,7 +69,7 @@ c      endif
     3 continue
       if(np.gt.1) call ga_dgop(mre_003,g,mgrid(1)+2,'+')
       if(me.eq.0) then
-      call esp_swatch(today,now)
+      call swatch(today,now)
       write(lfnplt,1003) (g(ix),ix=1,mgrid(1)+2)
  1003 format(2e20.12)
 c      write(*,1004) today,now,iy,iz
