@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.17 2001-05-23 17:44:43 windus Exp $
+C $Id: hess_init.F,v 1.18 2001-06-21 19:10:03 zzhang Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -154,6 +154,8 @@ c
       endif
 c
       if (scftype.eq.'UHF') then
+         if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, scftype))
+     &        call errquit("hess_init: cannot put scftype", 0)
          nvirt(1) = nmo-nalpha
          nvirt(2) = nmo-nbeta
          vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
