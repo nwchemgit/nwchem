@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_orb.F,v 1.18 1996-06-19 01:13:35 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.19 1996-07-02 01:21:02 rg240 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -75,8 +75,9 @@ c
        logical ocoul, oexch, ohalf
        logical oe2approx
        logical odelta_core
-       logical oinfoprint, olsrchprint, ociprint, oprcndprint
-       double precision citol
+       logical oinfoprint, olsrchprint, ociprint
+       logical ocivecprint, oprcndprint
+       double precision micro_citol, citol
        double precision lshift, bshift
        double precision e0, ecore, eci
        save lshift
@@ -93,7 +94,7 @@ c
        data ohalf/.true./
        data ocoul/.true./
 c
-c
+c  Retrieve info from the database
 c
        oinfoprint = util_print('info',print_default).and.
      $              (ga_nodeid().eq.0)
@@ -111,7 +112,7 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:e2approx',MT_LOG,1,oe2approx))
      $   oe2approx = .true.
        if (.not. rtdb_get(rtdb,'mcscf:citol',MT_DBL,1,citol))
-     $   citol = 1.d-8
+     $   citol = 1.d-5
        if (.not. rtdb_get(rtdb,'mcscf:line_search_tol',MT_DBL,
      $                    1,lsrch_tol)) lsrch_tol = 1.d-1
        if (.not.geom_nuc_rep_energy( geom, enrep ))
@@ -170,7 +171,7 @@ c
        gnorm0 = gnorm
        energy = enrep + eone + etwo
        if (oinfoprint) write(6,922) energy,gnorm
- 922   format(11x,'>>>| Trace energy:',4x,f22.12,/,
+ 922   format(11x,'>>>| Fock energy:',5x,f22.12,/,
      $        11x,'>>>| Gradient norm:',3x,d22.9)
        oconverged = (gnorm.lt.gnorm_tol)
        if (oconverged) goto 555                              ! jump to clean-up and return
@@ -207,7 +208,7 @@ c  Precondition accuracy (same as rohf code)
 c
        ndigit = 2.d0
        if (pflg .eq. 2) then
-         ndigit = 1.d0
+         ndigit = 1.5d0
          if (lshift .eq. 0.0d0) ndigit =
      $     min((1+abs(log10(gnorm/gnorm_tol))),abs(log10(gnorm)))
        endif
@@ -235,14 +236,16 @@ c
          call mcscf_conj( g_grad, g_gradold, g_conj, g_srch )
        else if (ocjrst) then
          if (oinfoprint) write(6,723)
- 723     format(/,12x,'-- conjugacy reset --')
+ 723     format(5x,'--- Conjugacy reset ---')
        endif
 c
 c  Info print
 c
        olsrchprint = .false.
-       ociprint = util_print('ci relax',print_high)
-       if ((ga_nodeid().eq.0).and.(util_print('einfo',print_high)))
+       ociprint = util_print('microci',print_high)
+       ocivecprint = util_print('civec',print_debug).and.ociprint
+       if ((ga_nodeid().eq.0).and.
+     $     (util_print('converge info',print_high)))
      $   write(6,966) hmin,hmax,(snorm/gnorm), lshift, bshift
  966   format(/,'Min/Max Hessian diags:',2x,2e10.1,
      $        /,'Scaled search norm:',5x,e12.2,
@@ -260,6 +263,8 @@ c$$$       CALL GA_ROWPRINT('step vector',G_KVEC)
        gsv(0) = ga_ddot(g_grad, g_srch)
        av(0) = 0.d0
        eprec = max(gnorm0*0.01d0, tol2e*100.0d0)
+       micro_citol = gnorm0*0.1d0*lsrch_tol
+       micro_citol = min(citol, (gnorm*0.05d0))
        do iter=1,maxlinsrch
          iter1 = iter - 1
          nstep = iter
@@ -296,8 +301,8 @@ c
      $                               g_u, odelta_core, g_tmp )
              call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                           nsym, orbsym, e0, orbe, g_tmp,
-     $                           g_actints, citol, .true., ociprint,
-     $                           .false., dm1, dm2, eci )
+     $                           g_actints, micro_citol, .true.,
+     $                           ociprint, ocivecprint, dm1, dm2, eci )
            endif
          else
            oexch = ocirelax
@@ -312,8 +317,8 @@ c
      $                         g_coul, g_exch, g_hcore )
              call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                           nsym, orbsym, e0, orbe, g_hcore,
-     $                           g_coul, citol, .true., ociprint,
-     $                           .false., dm1, dm2, eci )
+     $                           g_coul, micro_citol, .true.,
+     $                           ociprint, ocivecprint, dm1, dm2, eci )
            endif
          endif
 c
@@ -338,8 +343,9 @@ c$$$           CALL GA_PRINT_X(G_TMP)
          else
            call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $                      oskel, tol2e, dm1, dm2,
-     $                      g_newvecs, g_coul, eone, etwo, e0,
+     $                      g_newvecs, g_coul, eone, etwo, ecore,
      $                      g_ifock, g_afock, g_gfock )
+           e0 = ecore + enrep                               ! update core energy valid for previous macro
 c$$$           PRINT*,' Generalized Fock matrix'
 c$$$           CALL GA_PRINT_X(G_GFOCK)
            call mcscf_gfock2grad( nbf, nclosed, nact, g_gfock, g_grad )
@@ -365,7 +371,7 @@ c
 c  MO Info
 c
        gnorm = sqrt(ga_ddot(g_grad, g_grad))
-       if (util_print('mo vectors',print_debug)) then
+       if (util_print('new movecs',print_debug)) then
          if (ga_nodeid().eq.0) write(6,330) 
  330     format('New MO vectors')
          call ga_print(g_newvecs)
@@ -790,10 +796,10 @@ c
            enddo
          endif
          call ga_sync()
-         call ga_igop(Msg_ChkMO,ismall,1,'+')
+         call ga_igop(msg_mcscf_chkhess,ismall,1,'+')
          if ((ga_nodeid().eq.0).and.(ismall.gt.0)) then
            write(6,112) ismall
- 112       format('Warning:',i5,' Hessian diagonals < 0.05d0')
+ 112       format(5x,'--- Warning:',i5,' Hessian diagonals < 0.05 ---')
          endif
        else
          do i=ga_nodeid()+1,vlen,ga_nnodes()

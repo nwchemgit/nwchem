@@ -123,6 +123,7 @@ c
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
 #include "rtdb.fh"
 #include "bas.fh"
 #include "util.fh"
@@ -136,9 +137,6 @@ c
        integer g_movecs                               ! [input] MO coefficients
        double precision eone, etwo, ecore             ! [output] Energy components
        integer g_ifock                                ! [output] Inactive Fock matrix
-c
-       integer Msg_Ifock_Trace
-       parameter(Msg_Ifock_Trace=1976)
 c
        integer nset
        parameter(nset=1)
@@ -202,7 +200,7 @@ c
          ecore = ecore + 2.d0*xx
        enddo
        call ga_sync()
-       call ga_dgop(Msg_Ifock_Trace,ecore,1,'+')
+       call ga_dgop(msg_mcscf_ifocktrace,ecore,1,'+')
        ecore = ecore - 0.5d0*e2ii
 c
 c  Clean up

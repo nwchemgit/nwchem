@@ -1,4 +1,3 @@
-
 c
 c   MCSCF Secular solution front-end
 c
@@ -60,7 +59,6 @@ c
       character*20 vstr
       character*255 civec_in
       logical civec_saved
-      logical odebugpr
 c
       external dummy_mxv
       external dummy_precon
@@ -74,13 +72,9 @@ c
 C      data civec_in/'civec'/
 c
 c
-      call util_print_push
-      call util_print_rtdb_load(rtdb, 'ci')
       iprint = 1
       if (hasprint.ne.0) iprint = 0
       hasprint = hasprint + 1
-      odebugpr = (ga_nodeid().eq.0).and.
-     $           (util_print('mcscfci',print_debug))
       if (.not.rtdb_get(rtdb,'mcscf:cimaxiter',MT_INT,1,maxiter))
      $  maxiter = 30
 c
@@ -170,7 +164,7 @@ c
         guess_coeff(1) = 1.d0
         call detci_guess( nguesscfg, guess_cfg, guess_coeff,
      $                    g_civec, g_wvec(1) )
-        if (util_print('ci guess',print_high)) then
+        if (util_print('ci guess',print_debug)) then
           if (ga_nodeid().eq.0) write(6,222)
  222      format(/,'Spin-adapted guess vector')
           call detci_print(g_civec,1.d-2)
@@ -201,7 +195,7 @@ c
 c
 c   Print out converged ground state CI vector
 c
-      if ((ociprint).or.(odebugpr)) then
+      if (ociprint) then
         if (ga_nodeid().eq.0) write(6,885) 
  885    format(/,10x,'Converged CI vector')
         call detci_print( g_civec, 2.d-2 )
@@ -225,11 +219,6 @@ c
       if ((omcscfprof).and.(ociprof)) call pstat_on(ps_cidens)
       call detci_density( g_civec, dm1, dm2 )
       if ((omcscfprof).and.(ociprof)) call pstat_off(ps_cidens)
-      if (odebugpr) then
-        write(6,771)
- 771    format(/,5x,'One particle density matrix')
-        call moints_matprintx(nact,nact,dm1)
-      endif
 c
 c   Save CI vector for restart
 c
@@ -251,7 +240,6 @@ c
      $  call errquit('mcscf_cisolve: cannot pop stack',0)
       if (.not.ma_pop_stack(l_h1))
      $  call errquit('mcscf_cisolve: cannot pop stack',0)
-      call util_print_pop
 c
 c
       return

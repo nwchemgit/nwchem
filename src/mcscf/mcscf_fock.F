@@ -1,6 +1,6 @@
 c
 c  %A%
-c  $Id: mcscf_fock.F,v 1.6 1996-06-17 18:59:03 rg240 Exp $
+c  $Id: mcscf_fock.F,v 1.7 1996-07-02 01:20:59 rg240 Exp $
 c
 c Compute the MCSCF MO-Fock matrices;
 c inactive, active and generalized
@@ -13,6 +13,7 @@ c
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
 #include "rtdb.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -56,8 +57,6 @@ c
        integer g_afock                                ! [output] Active Fock
        integer g_gfock                                ! [output] Generalized Fock
 c
-       integer Msg_Ifock_Trace
-       parameter(Msg_Ifock_Trace=1976)
 c
        integer g_cdens, g_adens, g_tmp, g_tmp2, g_tmp3
        double precision e2ii, e2ia, e2ai, e2aa, xx
@@ -168,7 +167,7 @@ c
          ecore = ecore + xx*2.d0
        enddo
        call ga_sync()
-       call ga_dgop(Msg_Ifock_Trace,ecore,1,'+')
+       call ga_dgop(msg_mcscf_ifocktrace2,ecore,1,'+')
        ecore = ecore - e2ii*0.5d0
 c
 c  Sum 2e-energy components
@@ -407,7 +406,7 @@ c
          enddo
        enddo
        call ga_sync()
-       call ga_dgop(Msg_Act_Energy,xx,1,'+')
+       call ga_dgop(msg_mcscf_actenergy,xx,1,'+')
        mcscf_act_ener = xx
        return
        end

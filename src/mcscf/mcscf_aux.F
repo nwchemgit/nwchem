@@ -629,7 +629,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.11 1996-06-17 18:58:55 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.12 1996-07-02 01:20:47 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -720,7 +720,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.11 1996-06-17 18:58:55 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.12 1996-07-02 01:20:47 rg240 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)
@@ -1086,14 +1086,13 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
       integer nbf, nclosed, nact
       integer g_ifock, g_afock, g_gfock
       double precision eps(*)
       integer g_movecs
       integer nflip
 c
-      integer Msg_Sum_Flip
-      parameter(Msg_Sum_Flip=1968)
       integer g_tmp, g_u, g_v, g_z
       integer i, aoff, aend, nvir
       integer l_cc, k_cc
@@ -1199,7 +1198,7 @@ c
           nflip = nflip + 1
         endif
       enddo
-      call ga_igop(Msg_Sum_Flip, nflip, 1, '+')
+      call ga_igop(msg_mcscf_sumflip, nflip, 1, '+')
       if (.not.ma_pop_stack(l_cc))
      $  call errquit('mcscf_canonical: cannot pop stack',0)
 c
@@ -1301,6 +1300,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"      
+#include "msgids.fh"
       integer n
       integer irreps(n)
       integer g_a
@@ -1308,8 +1308,6 @@ c
       double precision tol
       integer nmixed
 c
-      integer Msg_Sym_Matrix_Check
-      parameter(Msg_Sym_Matrix_Check=1210)
       integer l_t, k_t
       integer i, j
 c
@@ -1328,7 +1326,7 @@ c
           endif
         enddo
       enddo
-      call ga_igop(Msg_Sym_Matrix_Check,nmixed,1,'+')
+      call ga_igop(msg_mcscf_symcheck,nmixed,1,'+')
 
       if (.not.ma_pop_stack(l_t))
      $  call errquit('sym_matrix_check: failed pop stack',0)

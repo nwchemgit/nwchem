@@ -209,8 +209,9 @@ C         CALL GA_ROWPRINT( 'NEW BASIS', G_XV )
 c
 c Maximum iterations exhausted
 c
-       if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,961) 
- 961   format(/,30x,'Convergence not achieved')
+       if (ga_nodeid().eq.0) write(6,961) pconvg, acc
+ 961   format(5x,'--- Warning: Precondition failed to converge:',
+     $        'Residue: current=',d8.1,' required=',d8.1,'---')
        goto 120
 c
 c

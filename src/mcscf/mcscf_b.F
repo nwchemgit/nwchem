@@ -31,8 +31,6 @@ c
       integer g_u                                      ! [input] Unitrary transformation
       integer g_b                                      ! [output] B matrix (gradient response)
 c
-c
-c
       integer g_t, g_tmp, g_tmp2, g_tmp3
       integer i, nocc, aoff, aend, voff
 c
@@ -551,16 +549,16 @@ c
 
 
 c
-c  Return the new inactive Fock matrix
-c  for a given unitrary rotation
+c   Return the new inactive Fock matrix
+c   for a given unitrary rotation
 c
-c  To a good approximation, if the inactive
-c  is frozen, just do a two-index
-c  transformation, Fnew = U.Fold.U
+c   To a good approximation, if the inactive
+c   is frozen, just do a two-index
+c   transformation, Fnew = U.Fold.U
 c  
-c  Must use the correct form if inactive orbitals 
-c  have changed significantly, odelta_core = .true.
-c  Requires a Fock build.
+c   Must use the correct form if inactive orbitals 
+c   have changed significantly, odelta_core = .true.
+c   Requires a Fock build.
 c
 c
       subroutine mcscf_b_trf_ifock( geom, basis, nbf, nclosed, nact,

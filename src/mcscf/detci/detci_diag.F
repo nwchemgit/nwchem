@@ -183,7 +183,8 @@ c$$$      rnorm = dnrm2(n,q,1)
         call flush(6)
       endif
       eold = ee(1)
-      if ((rnormscal.lt.tol).or.(iter.ge.maxiter)) goto 101
+      if ((rnorm.lt.tol).or.(iter.ge.maxiter)) goto 101
+C      if ((rnormscal.lt.tol).or.(iter.ge.maxiter)) goto 101
 c
 c  Preconditioning with normalization
 c      
@@ -266,11 +267,12 @@ c
 c
 c  Initialize
 c
+
       odebugpr = (ga_nodeid().eq.0).and.
      $           (util_print('davidson',print_debug))
-      if ((ga_nodeid().eq.0).and.(oprint)) write(6,880)
- 880  format(/,4x,'iter',10x,'energy',12x,'edelta',5x,'rnormscal',
-     $       6x,'time',/,3x,65('-'))
+      if ((ga_nodeid().eq.0).and.(oprint)) write(6,880) tol
+ 880  format(/,4x,'iter',10x,'energy',12x,'edelta',3x,'rnorm/req=',
+     $       e7.1,7x,'time',/,3x,70('-'))
       tx = util_cpusec()
       iter = 0
       eold = e0
@@ -313,12 +315,13 @@ c
       tx = util_cpusec() - tx
       energy = e(1) + e0
       if ((ga_nodeid().eq.0).and.(oprint)) then
-        write(6,881) iter,energy,(energy-eold),rnormscal,util_cpusec()
- 881    format(5x,i3,5x,f15.10,5x,2(d10.2,2x),f10.1)
+        write(6,881) iter,energy,(energy-eold),rnorm,util_cpusec()
+ 881    format(5x,i3,5x,f15.10,5x,d10.2,5x,d10.2,5x,f10.1)
         call util_flush(6)
       endif
       tx = util_cpusec()
-      if (rnormscal.lt.tol) goto 199
+      if (rnorm.lt.tol) goto 199
+C      if (rnormscal.lt.tol) goto 199
 c
 c  Contract basis (if necessary)
 c
