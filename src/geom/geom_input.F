@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.29 1996-09-26 22:19:39 mdupuis Exp $
+C     $Id: geom_input.F,v 1.30 1996-09-27 20:59:11 mdupuis Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -16,6 +16,7 @@ c
       logical status            ! scratch for return codes
       logical oprint
       logical ozmatrix
+      logical oautoz
       logical include_bqbq
       logical oprint_sym
       integer max_center        ! parameter for local array dimension
@@ -68,7 +69,8 @@ c
       units = 'atomic units'
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
-      ozmatrix = .false.        ! default is cartesian input
+      ozmatrix = .false.        ! Default is cartesian input
+      oautoz   = .true.         ! Default is try -autoz-
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.
@@ -79,6 +81,10 @@ c
          else if (inp_compare(.false.,'zmt', field)) then
             ozmatrix = .true.
             units    = 'angstrom    '
+         else if (inp_compare(.false.,'autoz',field)) then
+            oautoz = .true.  
+         else if (inp_compare(.false.,'noautoz',field)) then
+            oautoz = .false.
          else if (inp_compare(.false.,'print', field)) then
             oprint = .true.
 c     
@@ -281,7 +287,9 @@ c
 c     
       call geom_compute_values(geom)
 c
-      if(ozmatrix) then
+      if(oautoz) then
+         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
+     $        call errquit('geom_input: geom_cart_set failed', 0)
 c
 c     ----- call auto-z-matrix generation -----
 c
@@ -291,6 +299,10 @@ c     ----- get internal coordinates -----
 c
          call geom_zmt_icoord
 c
+      else
+         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
+     $        call errquit('geom_input: geom_cart_set failed', 0)
+         call geom_no_autoz(geom,coords,charge,tags,ncenter)
       endif
 c     
       if (old_format_input) write(6,77)
@@ -470,6 +482,7 @@ c
       subroutine  geom_zmt_input(geom,
      1                           coords,tags,oecp,charge,mass,ncenter)
       implicit none
+#include "stdio.fh"
       integer      mxizmt
       integer      mxatom
       integer      mxbfn
@@ -479,11 +492,8 @@ c
       integer      i
       integer      nizmat
       integer      izmat
-      integer      iread
-      integer      iwrite
       integer      ir
       integer      iw
-      integer      ip
       integer      ncenter
       integer      icenter
       integer      atn
@@ -501,8 +511,7 @@ c
       logical      geom_zmt_put_izmat          
       logical      dbug 
       logical      some 
-      common/inp_file/iread,iwrite
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
       double precision coords(3,*)
       double precision charge(*)
@@ -514,9 +523,8 @@ c
       some=.true.
       dbug=.false.
 c
-      ir=iread
-      iw=iwrite
-      ip=7
+      ir=LuIn
+      iw=LuOUT 
       if(dbug) then
          write(iw,9999)
       endif
@@ -634,7 +642,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       double precision bmat(mcart,*)
 c
       dbug=.false.
@@ -674,7 +682,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       double precision bmat(mcart,*)
 c
       dbug=.false.
@@ -714,7 +722,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       double precision zsym(mzvar,*)
 c
       dbug=.false.
@@ -754,7 +762,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       double precision zsym(mzvar,*)
 c
       dbug=.false.
@@ -795,7 +803,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       double precision binv(mcart,*)
 c
       dbug=.false.
@@ -836,7 +844,7 @@ c
       integer iw
       integer ip
       logical dbug
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       double precision binv(mcart,*)
 c
       dbug=.false.
@@ -864,8 +872,9 @@ c
       geom_zmt_get_binv=.true.
       return
       end
-      subroutine  geom_zmt_autoz(geom,coords,charge,tags,ncenter)
+      subroutine  geom_no_autoz(geom,coords,charge,tags,ncenter)
       implicit none
+#include "stdio.fh"
       integer      mxbfn
       integer      mxizmt
       integer      mxzmat
@@ -878,11 +887,8 @@ c
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
       parameter    (mxcoor=max(mxcart,mxzmat))
-      integer      iread
-      integer      iwrite
       integer      ir
       integer      iw
-      integer      ip
       integer      i
       integer      nizmat
       integer      izmat
@@ -906,8 +912,7 @@ c
       character*16 atmlab
       character*8  bflab 
       character*8  errmsg
-      common/inp_file/iread,iwrite
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
@@ -922,9 +927,93 @@ c
       some=.false.
       dbug=.false.
 c
-      ir=iread
-      iw=iwrite
-      ip=7
+      ir=LuIN 
+      iw=LuOut 
+      if(some) then
+         write(iw,9999)
+      endif
+c
+      nat=ncenter
+      do i=1,ncenter
+         atmlab(i)=tags(i)
+         nuc(i)=nint(charge(i))
+         c(1,i)=coords(1,i)
+         c(2,i)=coords(2,i)
+         c(3,i)=coords(3,i)
+      enddo
+      if(dbug) then
+         do i=1,nat    
+            write(iw,9998) i,nuc(i),c(1,i),c(2,i),c(3,i)
+         enddo
+      endif
+c
+c     ----- no z-matrix data -----
+c
+      nzmat=0
+      nzvar=0
+      nvar =3*nat
+c
+      return
+ 9999 format(' in -geom_no_autoz- ')
+ 9998 format(1x,i5,i5,3f10.6)
+      end
+      subroutine  geom_zmt_autoz(geom,coords,charge,tags,ncenter)
+      implicit none
+#include "stdio.fh"
+      integer      mxbfn
+      integer      mxizmt
+      integer      mxzmat
+      integer      mxatom
+      integer      mxcart
+      integer      mxcoor
+      parameter    (mxbfn=3072)
+      parameter    (mxizmt=750)
+      parameter    (mxzmat=1500)
+      parameter    (mxatom=500)
+      parameter    (mxcart=3*mxatom)
+      parameter    (mxcoor=max(mxcart,mxzmat))
+      integer      ir
+      integer      iw
+      integer      i
+      integer      nizmat
+      integer      izmat
+      integer      nzmat
+      integer      nzvar
+      integer      nvar 
+      integer      ncenter
+      integer      nuc
+      integer      nat
+      integer      geom
+      logical      geom_zmt_put_izmat          
+      logical      zdone
+      logical      dbug 
+      logical      some 
+      double precision coords
+      double precision charge
+      double precision zmat  
+      double precision c
+      double precision zan
+      character*16 tags
+      character*16 atmlab
+      character*8  bflab 
+      character*8  errmsg
+      common/hnd_iofile/ir,iw
+      common/hnd_molnuc/nuc(mxatom)
+      common/hnd_mollab/atmlab(mxatom),bflab(mxbfn) 
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_zmtpar/nzmat,nzvar,nvar
+      common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
+      dimension coords(3,*)
+      dimension charge(  *)
+      dimension   tags(  *)
+      dimension errmsg(3)
+      data errmsg /'program ','stop in ','-auto_z-'/
+c
+      some=.false.
+      dbug=.false.
+c
+      ir=LuIN 
+      iw=LuOut 
       if(some) then
          write(iw,9999)
       endif
@@ -974,6 +1063,7 @@ c
       end
       subroutine geom_zmt_icoord
       implicit none
+#include "stdio.fh"
       integer      mxizmt
       integer      mxzmat
       integer      mxatom
@@ -984,11 +1074,8 @@ c
       parameter    (mxatom=500)
       parameter    (mxcart=3*mxatom)
       parameter    (mxcoor=max(mxcart,mxzmat))
-      integer      iread
-      integer      iwrite
       integer      ir
       integer      iw
-      integer      ip
       integer      i
       integer      nprint
       integer      list    
@@ -1010,10 +1097,9 @@ c
       double precision c
       double precision zan
       character*8  errmsg
-      common/inp_file/iread,iwrite
       common/hnd_output/nprint
       common/hnd_listng/list
-      common/hnd_iofile/IR,IW
+      common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_zmtpar/nzmat,nzvar,nvar
@@ -1027,9 +1113,8 @@ c
 c
       nprint=0
       list  =0
-      ir    =iread
-      iw    =iwrite
-      ip    =7
+      ir    =LuIn 
+      iw    =LuOut 
       if(some) then
          write(iw,9999)
       endif
@@ -3721,11 +3806,12 @@ C
      2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
 C
-      SOME=.TRUE.
-      OUT =.FALSE. 
       DBUG=.FALSE.
       DBUG=DBUG.OR.OUT
-      SOME=SOME.OR.DBUG
+      OUT =.FALSE. 
+      OUT =OUT.OR.DBUG
+      SOME=.TRUE.
+      SOME=SOME.OR.OUT
       IF(SOME) THEN
          WRITE(IW,8888)
       ENDIF
