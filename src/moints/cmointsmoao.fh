@@ -2,7 +2,8 @@ c
 c
 c     
       integer moao_ipass                                ! count of passes
-      integer moao_lun                                  ! unit number
+      double precision moao_fptr                        ! current file pointer
+      integer moao_fd                                   ! file descriptor
       character*(1024) moao_fname                       ! filename for this PE
       integer moao_tasknum                              ! current task number
       integer moao_reclen                               ! length of current record read
@@ -20,12 +21,13 @@ c
       DOUBLE PRECISION MOAO_CUMUL
       INTEGER MOAO_NREC
 c
-      integer moao_fd
-      integer moao_fptr
 c
 c
-      common/moints_moao/moao_ipass,
-     $                   moao_lun,
+      common/moints_moao/
+     $                   moao_fptr,
+     $                   MOAO_CUMUL,
+     $                   moao_ipass,
+     $                   moao_fd,
      $                   moao_tasknum,
      $                   moao_reclen,
      $                   moao_issparse,
@@ -38,13 +40,8 @@ c
      $                   moao_klabrec,
      $                   moao_lwidth,
      $                   MOAO_NREC,
-     $                   MOAO_CUMUL,
      $                   moao_touch,
      $                   moao_eof,
-     $                   moao_fname,
-     &                   moao_fd,
-     &                   moao_fptr
-
-
+     $                   moao_fname
       
       
