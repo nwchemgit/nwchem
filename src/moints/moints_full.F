@@ -1,5 +1,5 @@
       subroutine moints_full(rtdb)
-C     $Id: moints_full.F,v 1.5 1996-02-08 08:50:21 d3g681 Exp $
+C     $Id: moints_full.F,v 1.6 1996-05-14 18:03:27 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -38,14 +38,15 @@ c
 c     Binary format (variable record length file)
 c
 c         title             ! c*80
-c         norbs,nfzc        ! 
+c         norbs,nfzc,buflen ! 
+c         efzc              ! effective nuclear repulsion energy
 c         (map(i)=1,norbs)  !
 c         (sym(i)=1,norbs)  !
 c         (eval(i)=1,norbs) !
 c         (occ(i)=1,norbs)  !
 c         (h(ij),ij=1,norbs*(norbs+1)/2)
-c         (g(1:512),ijkl(1:512),ninrec) ! See common moints_buff
-c         
+c         (g(1:buflen),ijkl(1:buflen),ninrec,pad) ! See moints_write_buf
+c         (record with ninrec=0) ! EOF
 c
 c     COLUMBUS format
 c
@@ -66,10 +67,13 @@ c
       integer occ_frozen, vir_frozen
       integer noper, oseg_lo, oseg_hi, npass, blen, max_noper
       integer g_coul, nsym(8), sym_lo(8), sym_hi(8)
-      logical osym, oprint,  ohalf, omemprint, osymblock
+      logical osym, oprint,  ohalf, omemprint, osymblock, ocontam
       double precision tpass, efzc, eone, etwo
-      double precision tol2e, tol_out
+      double precision tol2e, tol_out, tol_sym
       character*7 algo
+      character*10 intfmt
+      integer buflen
+      parameter (buflen = 1024)
 c     
       logical movecs_read_header, movecs_read, movecs_write
       external movecs_read_header, movecs_read, movecs_write
@@ -85,7 +89,6 @@ c
       data g_coul/-1/
       data ohalf/.true./
       data tol2e/1.d-12/
-      data tol_out/1.d-9/
 c     
 c     Print settings
 c     
@@ -136,10 +139,14 @@ c
       if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_map, k_map))
      $     call errquit('moints: failed to alloc map ',nmo)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'MOs',
-     $     1, 1, g_vecs)) call errquit('rohf_nr_solve: ga_cre grad', 0)
+     $     1, 1, g_vecs)) call errquit('moints: ga failed', 0)
       if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_vecs))
      $     call errquit('moints: cannot read MO vectors',0)
+c
+c     Apply swaps of movecs
+c
+      call movecs_swap(rtdb,'ROHF',g_vecs,dbl_mb(k_occ),dbl_mb(k_evals))
 c     
 c     Get other parameters from data base
 c     ... frozen core & virtual offsets, block
@@ -152,6 +159,11 @@ c
      $     blen)) blen = 10
       if (.not. rtdb_get(rtdb,'fourindex:osym',MT_LOG,1,
      $     osym)) osym = (sym_number_ops(geom) .gt. 0) 
+      if (.not. rtdb_get(rtdb,'fourindex:ignore contamination',MT_LOG,1,
+     $     ocontam)) ocontam = .false.
+      if (.not. rtdb_get(rtdb,'fourindex:tol', MT_DBL,1,
+     $     tol_out)) tol_out = 1.0d-9
+      tol_sym = max(tol_out*0.01d0,1d-12)
       if (.not. rtdb_get(rtdb,'fourindex:osymblock',MT_LOG,1,
      $     osymblock)) osymblock = .false.
       if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
@@ -160,6 +172,15 @@ c
      $     call util_file_prefix('moints',moints_file)
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
+      if (.not. rtdb_cget(rtdb,'fourindex:file format',1, intfmt))
+     $     intfmt = 'ascii'
+      if (intfmt .eq. 'ascii') then
+      else if (intfmt .eq. 'nwchem') then
+      else if (intfmt .eq. 'columbus') then
+         osymblock = .true.
+      else
+         call errquit('moints: bad intfmt',0)
+      endif
 c
 c     Set index ranges
 c     
@@ -216,7 +237,7 @@ c
  976        format(10x,'Twofold algorithm used')
          endif
          write(6,966) nbf,nsh,nmo(1),nact,lo,hi,blen,noper,npass,
-     $        osym, osymblock,
+     $        osym, osymblock,intfmt,
      $        moints_file(1:inp_strlen(moints_file))
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
@@ -228,6 +249,7 @@ c
      $        10x,'Number of passes:',19x,i5,/,
      $        10x,'Use symmetry:    ',23x,l1,/,
      $        10x,'Symmetry block MOs:',21x,l1,/,
+     $        10x,'File format:     ',19x,a10,/,
      $        10x,'MO integrals file:',18x,a)
          write(6,9661) movecs_in(1:inp_strlen(movecs_in)),
      $        title_vecs(1:inp_strlen(title_vecs))
@@ -235,15 +257,38 @@ c
          write(6,*)
          call util_flush(6)
 c
-         call moints_open(moints_unit, moints_file)
+         call moints_open(moints_unit, moints_file, intfmt)
       endif
 c
 c     Symmetrize the MOs and reblock as requested
 c
       if (osym .or. osymblock) then
-         call sym_movecs_adapt(basis,1.d-9,g_vecs,int_mb(k_irs),nmixed)
-         if (nmixed .ne. 0) call errquit
-     $        ('moints: MOs are symmetry contaminated',0)
+         call sym_movecs_adapt(basis,tol_sym,g_vecs,int_mb(k_irs),
+     $        nmixed)
+         if (nmixed .ne. 0) then
+            if (.not. ocontam) call errquit
+     $           ('moints: MOs are symmetry contaminated',0)
+c     If forced to ignore contamination must orthog and 
+c     repeat projection to be sure
+            if (oprint) then
+               write(6,911) nmixed
+ 911           format(/' Symmetry contamination of',i3,
+     $              ' vectors ignored ... ',/,
+     $                 '          repeating projection',
+     $              ' and orthogonalization'/)
+               call util_flush(6)
+            endif
+            call ga_orthog_mos(basis, g_vecs)
+            call sym_movecs_adapt(basis,tol_sym,g_vecs,int_mb(k_irs),
+     $           nmixed)
+            if (nmixed .gt. 0) then
+               write(6,912) nmixed
+ 912           format(/' Still have symmetry contamination of',i3,
+     $              ' vectors ... cannot proceed')
+               call util_flush(6)
+               call errquit('moints: symmetry contamination',0)
+            endif
+         endif
          if (oprint) then
             write(6,*) '          Symmetry of input active orbitals '
             write(6,*)
@@ -314,11 +359,6 @@ c
       call dcopy(nmo(1), dbl_mb(k_evals), 1, dbl_mb(k_work), 1)
       call gather(nact, dbl_mb(k_evals), dbl_mb(k_work), int_mb(k_map))
 c
-      if (ga_nodeid() .eq. 0) call moints_header_output(moints_unit,
-     $     title_vecs, nact, occ_frozen, 
-     $     int_mb(k_map), int_mb(k_irs+occ_frozen),
-     $     dbl_mb(k_evals), dbl_mb(k_occ))
-c
 c     Two index transformation of effective core hamiltonian
 c
       tpass = -tcgtime()
@@ -376,9 +416,12 @@ c
       call two_index_transf(g_hcore, g_vecs, g_vecs, g_tmp, g_mofock)
       if (util_print('MO FZC fock',print_debug)) call ga_print(g_mofock)
       if (ga_nodeid() .eq. 0) then
-         call moints_efzc_output(moints_unit, efzc)
+         call moints_header_output(moints_unit,
+     $        title_vecs, nact, occ_frozen, buflen, nsym,
+     $        int_mb(k_map), int_mb(k_irs+occ_frozen),
+     $        dbl_mb(k_evals), dbl_mb(k_occ), efzc, intfmt)
          call moints_one_output(moints_unit,
-     $     g_mofock, lo, hi, tol_out,osym, int_mb(k_irs))
+     $     g_mofock, lo, hi, tol_out,osym, int_mb(k_irs), intfmt)
       endif
 c
       if (.not. ga_destroy(g_tmp)) call errquit
@@ -416,12 +459,11 @@ c
      $        g_coul, .true., -1, .false., blen )
       endif
 c     
-c     Write the MO integrals to disk ... right now just the
-c     old ascii full-ci format
+c     Write the MO integrals to disk
 c     
       if (ga_nodeid() .eq. 0) call moints_two_output(moints_unit,
      $     g_coul, lo, hi, oseg_lo, oseg_hi, tol_out,
-     $     dbl_mb(k_g), osym, int_mb(k_irs))
+     $     dbl_mb(k_g), osym, int_mb(k_irs), intfmt)
 c     
       tpass = tcgtime() - tpass
       if ((ga_nodeid().eq.0).and.
@@ -436,7 +478,7 @@ c
       if (util_print('statistics',print_high))
      $     call moints_stats_print(algo)
 c     
-      if (ga_nodeid().eq.0) call moints_close(moints_unit)
+      if (ga_nodeid().eq.0) call moints_close(moints_unit, intfmt)
 c
       call ga_sync()
 c     
@@ -471,7 +513,7 @@ c
       end
       subroutine moints_two_output(moints_unit,
      $     g_coul,lo, hi, oseg_lo, oseg_hi,
-     $     tol2e, g, osym, irs)
+     $     tol2e, g, osym, irs, intfmt)
       implicit none
 c
       integer moints_unit
@@ -481,14 +523,34 @@ c
       double precision tol2e, g(lo:hi,lo:hi)
       logical osym
       integer irs(*)
+      character*(*) intfmt
 c
-      integer i, j, k, l, ltop, ij, lo1
+c     buffer for nwchem binary format
+c
+      integer buflen
+      parameter (buflen=1024)   ! MUST MATCH MAIN PROGRAM
+      double precision buf(buflen)
+      integer labels(4,buflen)
+      integer n_in_buf
+c
+      integer i, j, k, l, ltop, ij, lo1, itype
       integer nact2, ijkl, nact
 #include "bitops.fh"
 c
       lo1 = lo - 1
       nact = hi-lo+1
       nact2 = nact**2
+c
+      if (intfmt .eq. 'ascii') then
+         itype = 1
+      else if (intfmt .eq. 'nwchem') then
+         n_in_buf = 0
+         itype = 2
+      else if (intfmt .eq. 'columbus') then
+         itype = 3
+      else
+         call errquit('moints_two: bad intfmt',0)
+      endif
 c
       ij = 1
       do i = oseg_lo, oseg_hi
@@ -510,9 +572,25 @@ c
      $                          ('moints: integral zero by symmetry',0)
                         endif
                      endif
-                     write(moints_unit,1) g(l,k), 
-     $                    i-lo1, j-lo1, k-lo1, l-lo1
- 1                   format(f18.12,4i4)
+                     if (itype .eq. 1) then
+                        write(moints_unit,1) g(l,k), 
+     $                       i-lo1, j-lo1, k-lo1, l-lo1
+ 1                      format(f18.12,4i4)
+                     else if (itype .eq. 2) then
+                        n_in_buf = n_in_buf + 1
+                        buf(n_in_buf) = g(l,k)
+                        labels(1,n_in_buf) = i - lo1
+                        labels(2,n_in_buf) = j - lo1
+                        labels(3,n_in_buf) = k - lo1
+                        labels(4,n_in_buf) = l - lo1
+                        if (n_in_buf .eq. buflen) then
+                           call moints_wrt_buf(moints_unit,
+     $                          n_in_buf, buf, labels)
+                           n_in_buf = 0
+                        endif
+                     else
+                        call errquit('moints: bad itype', itype)
+                     endif
                   endif
                enddo
             enddo
@@ -520,10 +598,14 @@ c
          enddo
       enddo
 c
+      if (itype.eq.2 .and. n_in_buf.gt.0) 
+     $     call moints_wrt_buf(moints_unit, n_in_buf, buf, labels)
+c
       end
       subroutine moints_one_output(moints_unit,
-     $     g_mofock, lo, hi, tol_out, osym, irs)
+     $     g_mofock, lo, hi, tol_out, osym, irs, intfmt)
       implicit none
+#include "mafdecls.fh"
 c
       integer moints_unit
       integer g_mofock
@@ -531,58 +613,123 @@ c
       double precision tol_out
       logical osym
       integer irs(*)
+      character*(*) intfmt
 c
       double precision buf(1024)
       integer i, j, lo1
+      integer k_buf, l_buf, nact, nacttri
 c
-      lo1 = lo - 1
-      do i = lo, hi
-         call ga_get(g_mofock, 1, hi, i, i, buf, 1)
-         do j = lo, i
-            if (abs(buf(j)) .gt. tol_out) then
-               if (osym) then
+c     First check that symmetry is obeyed
+c
+      if (osym) then
+         do i = lo, hi
+            call ga_get(g_mofock, 1, hi, i, i, buf, 1)
+            do j = lo, i
+               if (abs(buf(j)) .gt. tol_out) then
                   if (irs(i).ne.irs(j)) then
                      write(6,*) i, j, irs(i), irs(j), buf(j)
-                     call errquit('moints: integral zero by symmetry',0)
+                     call errquit('moints: integral zero by sym',0)
                   endif
                endif
-               write(moints_unit,1) buf(j), i-lo1, j-lo1, 0, 0
- 1             format(f18.12,4i4)
-            endif
+            enddo
          enddo
-      enddo
+      endif
+c
+      if (intfmt .eq. 'ascii') then
+         lo1 = lo - 1
+         do i = lo, hi
+            call ga_get(g_mofock, 1, hi, i, i, buf, 1)
+            do j = lo, i
+               if (abs(buf(j)) .gt. tol_out) then
+                  write(moints_unit,1) buf(j), i-lo1, j-lo1, 0, 0
+ 1                format(f18.12,4i4)
+               endif
+            enddo
+         enddo
+      else if (intfmt .eq. 'nwchem') then
+c
+c     Get triangle local and write out
+c
+         nact = hi - lo + 1
+         nacttri = nact*(nact+1)/2
+         if (.not. ma_push_get(mt_dbl, nacttri, 'moints_one',
+     $        l_buf, k_buf)) call errquit('moints: ma ', nacttri)
+         lo1 = k_buf
+         do i = lo, hi
+            call ga_get(g_mofock, lo, i, i, i, dbl_mb(lo1), 1)
+            lo1 = lo1 + i - lo + 1
+         enddo
+         write(moints_unit) (dbl_mb(k_buf+i-1),i=1,nacttri)
+         if (.not. ma_pop_stack(l_buf))
+     $        call errquit('moints: ma corrupt',0)
+      else if (intfmt .eq. 'columbus') then
+c
+c     Get triangle local and write out
+c
+         nact = hi - lo + 1
+         nacttri = nact*(nact+1)/2
+         if (.not. ma_push_get(mt_dbl, nacttri, 'moints_one',
+     $        l_buf, k_buf)) call errquit('moints: ma ', nacttri)
+         lo1 = k_buf
+         do i = lo, hi
+            call ga_get(g_mofock, lo, i, i, i, dbl_mb(lo1), 1)
+            lo1 = lo1 + i - lo + 1
+         enddo
+         write(moints_unit) (dbl_mb(k_buf+i-1),i=1,nacttri)
+         if (.not. ma_pop_stack(l_buf))
+     $        call errquit('moints: ma corrupt',0)
+      else
+         call errquit('moints_one: bad integral format',0)
+
+      endif
 c
       end
-      subroutine moints_efzc_output(moints_unit, efzc)
+      subroutine moints_close(moints_unit, intfmt)
       implicit none
       integer moints_unit
-      double precision efzc
+      character*(*) intfmt
+      double precision buf      ! Not used
+      integer labels(4)         ! Not used
 c
-      write(moints_unit,1) efzc, 0, 0, 0, 0
- 1    format(f18.12,4i4,5x,'! effective nuclear-repulsion energy')
+      if (intfmt .eq. 'ascii') then
+         write(moints_unit,1) 0.0d0, -1, -1, -1, -1
+ 1       format(f18.12,4i4)
+         close(moints_unit, status='keep', err=1000)
+      else if (intfmt .eq. 'nwchem') then
+         call moints_wrt_buf(moints_unit, 0, buf, labels)
+         close(moints_unit, status='keep', err=1000)
+      else if (intfmt .eq. 'columbus') then
+         close(moints_unit, status='keep', err=1000)
+      else
+         call errquit('moints: unknown integral format',0)
+      endif
 c
-      end
-      subroutine moints_close(moints_unit)
-      implicit none
-      integer moints_unit
-c
-      write(moints_unit,1) 0.0d0, -1, -1, -1, -1
- 1    format(f18.12,4i4)
-c
-      close(moints_unit, status='keep', err=1000)
       return
 c
  1000 call errquit('moints_close: close failed',0)
 c
       end
-      subroutine moints_open(moints_unit, moints_file)
+      subroutine moints_open(moints_unit, moints_file, intfmt)
       implicit none
       integer moints_unit
       character*(*) moints_file
+      character*(*) intfmt
 c
-      open(moints_unit,file=moints_file,
-     $     form='formatted',status='unknown',
-     $     err=1000)
+      if (intfmt .eq. 'ascii') then
+         open(moints_unit,file=moints_file,
+     $        form='formatted',status='unknown',
+     $        err=1000)
+      else if (intfmt .eq. 'nwchem') then
+         open(moints_unit,file=moints_file,
+     $        form='unformatted',status='unknown',
+     $        err=1000)
+      else if (intfmt .eq. 'columbus') then
+         open(moints_unit,file=moints_file,
+     $        form='unformatted',status='unknown',
+     $        err=1000)
+      else
+         call errquit('moints: unknown file format',0)
+      endif
 c
       return
 c
@@ -657,36 +804,167 @@ c
 c
       end
       subroutine moints_header_output(moints_unit, title,
-     $     nact, occ_frozen, map, irs, evals, occ)
+     $     nact, occ_frozen, buflen, nsym,
+     $     map, irs, evals, occ, efzc, intfmt)
       implicit none
       integer moints_unit
       character*(*) title
       integer nact
       integer occ_frozen
+      integer buflen
+      integer nsym(8)
       integer map(1:nact)
       integer irs(1:nact)
       double precision evals(1:nact)
       double precision occ(1:nact)
+      double precision efzc
+      character*(*) intfmt
 c
       character*80 fmt
 c
-      write(moints_unit,'(a)') title(1:80)
-      write(moints_unit,'(2i6,5x,a)') nact, occ_frozen, '! nmo nfzc'
-      fmt = ' '
-      write(fmt,1) nact
- 1    format('(',i4,'i4,5x,''! map'')')
-      write(moints_unit,fmt) map
-      fmt = ' '
-      write(fmt,2) nact
- 2    format('(',i4,'i4,5x,''! irs'')')
-      write(moints_unit,fmt) irs
-      fmt = ' '
-      write(fmt,3) nact
- 3    format('(1p,',i4,'d16.8,5x,''! evals'')')
-      write(moints_unit,fmt) evals
-      fmt = ' '
-      write(fmt,4) nact
- 4    format('(1p,',i4,'d16.8,5x,''! occ'')')
-      write(moints_unit,fmt) occ
+c     Junk for columbus
+c
+      character*4 slabel(255)
+      character*8 bfnlab(255)
+      integer numsym
+c
+      integer ifmt1,l1rec,n1max,ifmt1,ifmt2,l2rec,n2max,info,ierr,i
+      common/cmointssifs/info(5)
+c
+      if (intfmt .eq. 'ascii') then
+         write(moints_unit,'(a)') title(1:80)
+         write(moints_unit,'(2i6,5x,a)') nact, occ_frozen, '! nmo nfzc'
+         fmt = ' '
+         write(fmt,1) nact
+ 1       format('(',i4,'i4,5x,''! map'')')
+         write(moints_unit,fmt) map
+         fmt = ' '
+         write(fmt,2) nact
+ 2       format('(',i4,'i4,5x,''! irs'')')
+         write(moints_unit,fmt) irs
+         fmt = ' '
+         write(fmt,3) nact
+ 3       format('(1p,',i4,'d16.8,5x,''! evals'')')
+         write(moints_unit,fmt) evals
+         fmt = ' '
+         write(fmt,4) nact
+ 4       format('(1p,',i4,'d16.8,5x,''! occ'')')
+         write(moints_unit,fmt) occ
+         write(moints_unit,5) efzc, 0, 0, 0, 0
+ 5       format(f18.12,4i4,5x,'! effective nuclear-repulsion energy')
+      else if (intfmt .eq. 'nwchem') then
+         write(moints_unit) title(1:80)
+         write(moints_unit) nact, occ_frozen, buflen
+         write(moints_unit) efzc
+         write(moints_unit) map
+         write(moints_unit) irs
+         write(moints_unit) evals
+         write(moints_unit) occ
+      else if (intfmt .eq. 'columbus') then
+c
+c     Initialize SIFS record-sizes etc.
+c
+         call sifcfg( 1, -1, nact, 0, ifmt1, l1rec, n1max, ierr)
+         if ( ierr .ne. 0 ) call errquit('moitns: sifcfg1 ', ierr)
+         call sifcfg( 2, -1, nact, 0, ifmt2, l2rec, n2max, ierr)
+         if ( ierr .ne. 0 ) call errquit('moitns: sifcfg2 ', ierr)
+c
+c     Fill up the header and stuff it out there
+c
+         info(1) = 1
+         info(2) = l1rec
+         info(3) = n1max
+         info(4) = l2rec
+         info(5) = n2max
+c     
+         numsym = 0             ! Figure out no. of symmetry types
+         do i = 1, 8
+            if (nsym(i).ne.0) numsym = i
+         enddo
+         if (numsym .le. 2) then
+            continue
+         else if (numsym .le. 4) then
+            numsym = 4
+         else if (numsym .le. 8) then
+            numsym = 8
+         else
+            call errquit('moints_columbus symmetry nonsense',numsym)
+         endif
+c     
+         do i = 1,numsym
+            write(slabel(i),'(a3,i1)')'sym',i
+         enddo
+         do i = 1,nact
+            write(bfnlab(i),'(a4,i4.4)')'MO  ',i
+         enddo
+c     
+         call sifwh(moints_unit, 1, numsym, nact,
+     &        5, 1, 0, title,
+     &        nsym, slabel, info, bfnlab,
+     &        -1, efzc, 0, 0, ierr )
+         if( ierr.ne.0 ) call errquit('moints: sifwh failed', ierr)
+      else
+         call errquit('moints header: unknown intfmt',0)
+      endif
+      end
+      subroutine moints_wrt_buf(moints_unit, n, buf, labels)
+      implicit none
+      integer moints_unit
+      integer n
+      double precision buf(*)
+      integer labels(*)
+c
+      integer buflen
+      parameter (buflen = 1024) ! MUST MATCH MAIN PROGRAM
+      double precision fbuf
+      integer plab
+      integer n_in_rec, pad
+      common/cmointsbuf/fbuf(buflen),plab(buflen),n_in_rec,pad
+      double precision fred(buflen*2+1)
+      equivalence (fred(1),fbuf(1))
+#ifdef SOLARIS
+c     needed for -stackvar option
+      save fred
+#endif
+c
+c     DIMENSIONING OF PLAB ASSUMES 32 BIT MACHINE!!!!!!
+c
+      call util_pack_8(buflen, plab, labels)
+      n_in_rec = n
+      write(moints_unit,err=10) fred
+      return
+c
+ 10   call errquit('moints_wrt_buf: err', moints_unit)
+      end
+      subroutine moints_read_buf(moints_unit, n, buf, labels)
+      implicit none
+      integer moints_unit
+      integer n
+      double precision buf(*)
+      integer labels(*)
+c
+      integer buflen
+      parameter (buflen = 1024) ! MUST MATCH MAIN PROGRAM
+      double precision fbuf
+      integer plab
+      integer n_in_rec, pad
+      common/cmointsbuf/fbuf(buflen),plab(buflen),n_in_rec,pad
+      double precision fred(buflen*2+1)
+      equivalence (fred(1),fbuf(1))
+#ifdef SOLARIS
+c     needed for -stackvar option
+      save fred
+#endif
+c
+c     DIMENSIONING OF PLAB ASSUMES 32 BIT MACHINE!!!!!!
+c
+      read(moints_unit,err=10,end=10) fred
+      n = n_in_rec
+      call util_unpack_8(buflen, plab, labels)
+      return
+c
+ 10   call errquit('moints_read_buf: eof/err', moints_unit)
 c
       end
+
+      

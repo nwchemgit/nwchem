@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.19 1996-02-16 06:37:52 rg240 Exp $
+C$Id: direct_mp2.F,v 1.20 1996-05-14 18:03:25 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -342,6 +342,10 @@ c
        ttotal = tcgtime() - ttotal
        if ((ga_nodeid().eq.0).and.(oprint)) write(6,823) ttotal
  823   format(/,10x,'Total MP2 time:',5x,f10.2)
+c
+       if (.not. rtdb_put(rtdb, 'mp2:energy', mt_dbl, 1,
+     $      scf_energy+emp2)) call errquit
+     $      ('direct_mp2: failed storing energy in database', 0)
 c
 c Cleanup
 c
