@@ -3,7 +3,7 @@
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.6 2002-01-08 18:19:21 edo Exp $
+c     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -45,7 +45,7 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.6 2002-01-08 18:19:21 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -112,7 +112,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.6 2002-01-08 18:19:21 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.7 2002-01-11 20:30:40 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -142,9 +142,7 @@ c
       integer g_tmp1, g_tmp2, g_tmp3
 c
       integer ivec, nvec, gtype, vlen
-      integer nset, max_nvec
-      parameter(nset=3, max_nvec=300)
-      double precision jfac(nset*max_nvec),kfac(nset*max_nvec)
+      integer k_jfac,l_jfac,k_kfac,l_kfac
 c
       integer g_dcv,  g_dcp,  g_dpv, g_dens, g_fock
       double precision tol2e
@@ -181,8 +179,6 @@ c
      $     ('rohf_h2e2: does not work for open shells',nopen)
 c
       call ga_inquire(g_x,gtype,vlen,nvec)
-      if (nvec .gt. max_nvec) call errquit
-     $     ('rohf_h2e: too many vectors',nvec)
       odebug = util_print('rohf_hessv', print_debug)
 c     
       tol2e = min(max(acc,itol_floor),itol_ceil)
@@ -190,7 +186,16 @@ c
       voff = nclosed + nopen + 1
       ooff = nclosed + 1
       oend = nclosed + nopen
-c     
+c
+c     allocate Mas for jfacs
+c
+      if (.not.MA_Push_Get(mt_dbl,nvec*2,'hessv jfacs',
+     &     l_jfac,k_jfac))
+     &     call errquit('hessv2: cannot allocate jfac',nvec*2)
+      if (.not.MA_Push_Get(mt_dbl,nvec*2,'hessv kfacs',
+     &     l_kfac,k_kfac))
+     &     call errquit('hessv2: cannot allocate kfac',nvec*2)
+
 c     Allocate global for work space
 c     
       g_tmp1 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp1')
@@ -228,19 +233,19 @@ c
       nfock = 0
       do ivec = 1, nvec
          nfock          = nfock + 1
-         jfac(nfock)    =  1.0d0   ! CV
-         kfac(nfock)    = -0.5d0*xc_xfac1   ! CV
+         dbl_mb(k_jfac+nfock-1)    =  1.0d0   ! CV
+         dbl_mb(k_kfac+nfock-1)    = -0.5d0*xc_xfac1   ! CV
 c        jfac(nfock)    =  1.0d0   ! CV
 c        kfac(nfock)    = 1.0d0   ! CV
 c        jfac(nfock)    =  4.0d0   ! CV
 c        kfac(nfock)    = -1.0d0   ! CV
          if (nopen .gt. 0) then
             nfock          = nfock + 1
-            jfac(nfock)    =  1.0d0 ! CP
-            kfac(nfock)    = -0.5d0*xc_xfac1 ! CP
+            dbl_mb(k_jfac+nfock-1)    =  1.0d0 ! CP
+            dbl_mb(k_kfac+nfock-1)    = -0.5d0*xc_xfac1 ! CP
             nfock          = nfock + 1
-            jfac(nfock) =  0.0d0 ! PV
-            kfac(nfock) =  0.5d0*xc_xfac1 ! PV
+            dbl_mb(k_jfac+nfock-1) =  0.0d0 ! PV
+            dbl_mb(k_kfac+nfock-1) =  0.5d0*xc_xfac1 ! PV
          endif
 c     
 c     Compute CV, PV & CP "densities" from argument vector
@@ -346,7 +351,8 @@ c
       write(6,*) 'after the zero of g_fock'
       call flush(6)
 c
-      call shell_fock_build(geom, basis, 0, nfock, jfac, kfac,
+      call shell_fock_build(geom, basis, 0, nfock, 
+     $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens, g_fock,.true.)
       write(6,*) 'after the shell_fock_build'
       call flush(6)
@@ -482,6 +488,8 @@ c
 *     $           g_ax, xoff, xend, ivec, ivec)
          endif
       enddo
+      if (.not.ma_chop_stack(l_jfac))
+     &   call errquit('hessv2: cannot chop stack',0)
 c
       if (.not. ga_destroy(g_dens)) call errquit('rohf_h2e: GA?',0)
       if (.not. ga_destroy(g_fock)) call errquit('rohf_h2e: GA?',0)
