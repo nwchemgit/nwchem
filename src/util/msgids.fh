@@ -128,7 +128,7 @@ c
       integer msg_gapss_ltp
       integer msg_direct_mp2_emp2
       integer msg_gapss_b_ijr
-      
+      integer msg_gapss_vppcalc      
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -343,4 +343,5 @@ c
       parameter (msg_gapss_ltp     = msg_ftn_base - 189 )    ! gapss: gap_vcoul
       parameter (msg_direct_mp2_emp2 = msg_ftn_base - 190 ) ! direct_mp2
       parameter (mrg_b21 = msg_ftn_base - 191 ) ! arg_checkStatus
-      parameter (msg_gapss_b_ijr     = msg_ftn_base - 192 )    ! gapss: gap_bijr
+      parameter (msg_gapss_b_ijr   = msg_ftn_base - 192 )    ! gapss: gap_bijr
+      parameter (msg_gapss_vppcalc = msg_ftn_base - 193 )    ! gapss: gap_vppcalc
