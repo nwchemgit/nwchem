@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.8 1997-04-06 21:01:05 d3g681 Exp $
+C$Id: ga_it_lsolve.F,v 1.9 1999-01-31 17:21:33 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -86,15 +86,16 @@ c
      $     ('ga_iter_lsolve: maxsub > maxdim', maxdim)
 c
 c     Required precision in matrix-vector products is about the maximum
-c     element in the rhs vector * the tolerance + 2 extra guard digit
+c     element in the rhs vector * the tolerance + 3 extra guard digits
 c     (1 digit only causes allied test to have problems)
+c     (2 digits causes 6-31g* zolite clusters to have problems)
 c
 c     Experiment with rms value rather than max
 c
       bnorm = sqrt(ga_ddot(g_b, g_b))
       prod_acc = bnorm / sqrt(dble(n))
 *     call ga_maxelt(g_b, prod_acc)
-      prod_acc = prod_acc * tol * 0.01d0
+      prod_acc = prod_acc * tol * 0.001d0
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,1) tol, prod_acc

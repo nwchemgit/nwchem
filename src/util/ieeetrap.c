@@ -1,4 +1,4 @@
-/*$Id: ieeetrap.c,v 1.5 1998-10-29 23:30:27 d3e129 Exp $*/
+/*$Id: ieeetrap.c,v 1.6 1999-01-31 17:21:32 d3g681 Exp $*/
 #include <floatingpoint.h>
 #include <stdio.h>
 #include <signal.h>
@@ -28,7 +28,7 @@ static void catchinvalid(int sig, siginfo_t *sip, ucontext_t *uap)
 
 void ieeetrap_()
 {
-    /* (void) ieee_handler("set","common", SIGFPE_ABORT); */
+    (void) ieee_handler("set","common", SIGFPE_ABORT); 
 
 /*
   (void) ieee_handler("set","inexact", SIGFPE_IGNORE);
@@ -41,7 +41,7 @@ void ieeetrap_()
 
  /* (void) ieee_handler("set","division", SIGFPE_ABORT);*/
 
- (void) ieee_handler("set","underflow", catchunderflow); 
+    /* (void) ieee_handler("set","underflow", catchunderflow); */
 
 }
 
