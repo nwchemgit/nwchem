@@ -2,11 +2,16 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.12 1999-11-30 02:59:18 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.13 1999-11-30 03:54:16 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
+c
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      integer arg_nint
+      external arg_nint
+#endif
 c
       integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
       integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp
