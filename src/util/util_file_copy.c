@@ -1,10 +1,11 @@
 /*
- $Id: util_file_copy.c,v 1.5 1999-11-13 03:17:13 bjohnson Exp $
+ $Id: util_file_copy.c,v 1.6 1999-11-16 20:51:02 edo Exp $
  */
 
 #include <stdio.h>
 #ifdef CRAY
 #include <fortran.h>
+#define FATR
 #endif
 #include "global.h"
 

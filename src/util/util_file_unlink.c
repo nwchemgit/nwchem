@@ -1,5 +1,5 @@
 /*
- $Id: util_file_unlink.c,v 1.4 1999-11-13 03:18:17 bjohnson Exp $
+ $Id: util_file_unlink.c,v 1.5 1999-11-16 20:51:02 edo Exp $
  */
 
 /*
@@ -18,6 +18,7 @@
 #endif
 #ifdef CRAY
 #include <fortran.h>
+#define FATR
 #endif
 #include "eaf.h"
 

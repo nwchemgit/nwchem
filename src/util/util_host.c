@@ -1,7 +1,8 @@
-/*$Id: util_host.c,v 1.3 1999-11-13 03:18:47 bjohnson Exp $*/
+/*$Id: util_host.c,v 1.4 1999-11-16 20:51:03 edo Exp $*/
 #include <stdio.h>
 #ifdef CRAY
 #include <fortran.h>
+#define FATR
 #endif
 #ifdef WIN32
 #include <winsock2.h>

@@ -1,4 +1,4 @@
-/*$Id: fortchar.c,v 1.6 1999-11-13 03:15:13 bjohnson Exp $*/
+/*$Id: fortchar.c,v 1.7 1999-11-16 20:51:02 edo Exp $*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
 #if (defined(CRAY_T3D) || defined(ARDENT) || defined(WIN32))
 #   define FCSND_  FCSND
@@ -19,6 +19,7 @@
 #include "sndrcv.h"
 #include <string.h>
 #ifdef CRAY_T3D
+#define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif /* CRAY_T3D */
 #ifdef WIN32

@@ -1,4 +1,4 @@
-/*$Id: util_date.c,v 1.6 1999-11-13 03:16:46 bjohnson Exp $*/
+/*$Id: util_date.c,v 1.7 1999-11-16 20:51:02 edo Exp $*/
 #include <sys/types.h>
 #include <time.h>
 #if !defined(IPSC) && !defined(WIN32)
@@ -8,6 +8,7 @@
 #ifdef CRAY
 #define util_date_ UTIL_DATE
 #include <fortran.h>
+#define FATR
 #endif
 #ifdef WIN32
 #define util_date_ UTIL_DATE

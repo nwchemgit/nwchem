@@ -1,11 +1,12 @@
 /*
- $Id: ecce_print.c,v 1.14 1999-11-13 03:14:41 bjohnson Exp $
+ $Id: ecce_print.c,v 1.15 1999-11-16 20:51:02 edo Exp $
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #if defined(CRAY) || defined(CRAY_T3D)
+#define FATR
 #include <fortran.h>
 #endif
 #include "typesf2c.h"

@@ -1,5 +1,5 @@
 /*
- $Id: util_system.c,v 1.4 1999-11-13 03:22:42 bjohnson Exp $
+ $Id: util_system.c,v 1.5 1999-11-16 20:51:03 edo Exp $
  */
 
 #include <stdio.h>
@@ -11,6 +11,7 @@ extern int system(const char *);
 
 #ifdef CRAY
 #include <fortran.h>
+#define FATR
 #endif
 #ifdef WIN32
 #include "typesf2c.h"
