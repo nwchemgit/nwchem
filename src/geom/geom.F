@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.96 1999-12-03 19:54:47 d3g681 Exp $
+C$Id: geom.F,v 1.97 1999-12-08 21:20:36 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -378,7 +378,7 @@ c
      $     geom_mass(1,geom))
 Cnew
       tmp(k:) = ':inv nuc expon'
-      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_invnucexp(1,geom))
 Cend
       tmp(k:) = ':efield'
