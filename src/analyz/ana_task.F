@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.64 2001-05-09 18:45:48 d3j191 Exp $
+c $Id: ana_task.F,v 1.65 2001-05-16 15:56:20 d3j191 Exp $
 c
       implicit none
 c
@@ -58,6 +58,7 @@ c
       lfnepz=93
       lfngrp=94
       lfnord=95
+      lfnsel=96
 c
       ltop=.false.
 c
@@ -265,6 +266,22 @@ c
  3003 format(' Selected',i5,' out of',i5,' atoms')
       endif
       goto 1
+      endif
+c
+c     save atom selection
+c     -------------------
+c
+      if(card(1:6).eq.'savsel') then
+      filsel=card(8:80)
+      call ana_savsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+      endif
+c
+c     read atom selection
+c     -------------------
+c
+      if(card(1:5).eq.'rdsel') then
+      filsel=card(8:80)
+      call ana_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
       endif
 c
 c     index

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.47 2001-05-09 18:14:54 d3j191 Exp $
+c $Id: ana_input.F,v 1.48 2001-05-16 15:56:20 d3j191 Exp $
 c
       implicit none
 c
@@ -302,6 +302,20 @@ c
       if(.not.inp_f(rsel)) call errquit('No range specified',0)
       write(lfncmd,1206) rsel
  1206 format('wselct ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(atom(1:4).eq.'save') then
+      if(.not.inp_a(atom)) call errquit('No file specified',0)
+      write(lfncmd,1208) atom(1:index(atom,' ')-1)
+ 1208 format('savsel ',a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(atom(1:4).eq.'read') then
+      if(.not.inp_a(atom)) call errquit('No file specified',0)
+      write(lfncmd,1209) atom(1:index(atom,' ')-1)
+ 1209 format('rdsel  ',a)
       numcmd=numcmd+1
       goto 2
       endif

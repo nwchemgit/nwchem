@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_select.F,v 1.7 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_select.F,v 1.8 2001-05-16 15:56:20 d3j191 Exp $
 c
       implicit none
 c
@@ -176,4 +176,51 @@ c
 c
       return
       end
-
+      subroutine ana_savsel(lfn,fil,iwsel,isel)
+c
+      implicit none
+c
+#include "ana_common.fh"
+c
+      integer lfn,iwsel(mwm),isel(msa)
+      character*255 fil
+c
+      integer i
+c
+      if(me.eq.0) then
+      open(unit=lfn,file=fil(1:index(fil,' ')-1),
+     + form='formatted',status='unknown')
+      rewind(lfn)
+      write(lfn,1000) (iwsel(i),i=1,nwm)
+      write(lfn,1000) (isel(i),i=1,nsa)
+ 1000 format(40i2)
+      close(unit=lfn)
+      write(*,'(/,a,a)') ' Selection saved to ',fil(1:index(fil,' ')-1)
+      endif
+c
+      return
+      end
+      subroutine ana_readsel(lfn,fil,iwsel,isel)
+c
+      implicit none
+c
+#include "ana_common.fh"
+c
+      integer lfn,iwsel(mwm),isel(msa)
+      character*255 fil
+c
+      integer i
+c
+      if(me.eq.0) then
+      open(unit=lfn,file=fil(1:index(fil,' ')-1),
+     + form='formatted',status='old')
+      rewind(lfn)
+      read(lfn,1000) (iwsel(i),i=1,nwm)
+      read(lfn,1000) (isel(i),i=1,nsa)
+ 1000 format(40i2)
+      close(unit=lfn)
+      write(*,'(/,a,a)') ' Selection read from ',fil(1:index(fil,' ')-1)
+      endif
+c
+      return
+      end
