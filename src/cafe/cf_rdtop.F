@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.15 2000-03-17 05:30:27 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.16 2000-04-04 21:50:00 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -262,7 +262,10 @@ c
 c
 c     broadcast force field parameters
 c
-c      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#else
+      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
+#endif
       call ga_brdcst(mcf_03,dbl_mb(i_mas),6*mat*numbd,0)
       call ga_brdcst(mcf_04,int_mb(i_num),3*mat*numbi,0)
       call ga_brdcst(mcf_05,dbl_mb(i_vdw),6*mat*mat*map*numbd,0)
@@ -294,7 +297,10 @@ c      call ga_brdcst(mcf_02,byte_mb(i_nam),16*mat,0)
       call ga_brdcst(mcf_31,ip2,24*numbl,0)
       call ga_brdcst(mcf_32,ip3,24*numbl,0)
       call ga_brdcst(mcf_56,qfac,numbd,0)
-c      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+#else
+      call ga_brdcst(mcf_66,byte_mb(i_snam),16*nsatot,0)
+#endif
       if(lanal) then
       call ana_select(byte_mb(i_snam))
       call ana_initx()
