@@ -1,0 +1,161 @@
+      Subroutine dftg_loop(
+     ,     ncu,nq_out,iqsh,irsh,rad_sh,dosympts,
+     ,     fnxyz,nxyz,nops,grad,
+     ,     nq_cube,nqtotc,symfact,
+     ,     iang_done,nwrbuf,
+     ,     gridscr,
+     ,     iscr_loc,symops,gops,
+     ,     qsh,aqbuf,rij, 
+     ,     g_dens, ncoef_max, natoms, 
+     &     rho_int, nqtot, 
+     &     iniz, ifin, rho, delrho, 
+     &     hess, qwght, qxyz, xyz,iscr,nscr,
+     &     expo, ccoef, Bmat, Fmat, 
+     &     Pmat, rq,  rdens_atom, cetobfr, 
+     ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
+     ,     Ex, Ec, amat,cmat,g_vxc,
+     ,     Amat2, Cmat2,
+     ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+     ,     l3d,triplet, tau, kske,Mmat,
+     D     func,d_qwght,Dmat,rq0,hh,ppp,ff,zzz,
+     D     drhonuc,ddelrhonuc,d2scr,force,
+     D     acc_ao_gauss,
+     L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,
+     I     iandex,max_at_bf,curatoms,g_rhs,
+     I     nbf_ao_mxnbf_ce2,nactive)
+c
+c$Id: dftg_loop.F,v 1.1 2004-03-25 00:38:11 edo Exp $
+c
+      implicit none
+#define USE_BP
+#include "cgridfile.fh"
+#include "stdio.fh"
+#include "cdft.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "errquit.fh"
+#include "bas.fh"
+#include "grid_quad.fh"
+#include "grid_cube.fh"
+      double precision rad_sh  ! [in]
+      integer irsh,iqsh ! [in]
+      logical dosympts ! [in]
+      double precision  gridscr(*)
+      integer iscr_loc(*)
+      integer nxyz , fnxyz ![in]
+      double precision symops(*),gops(*)
+      integer qsh(3,*)! [in]
+      double precision aqbuf(4,*) ! [scr]
+      integer nops              ! [in]
+      integer iang_done ![in/out]
+      double precision symfact ![in]
+      double precision rij ! [scr] for ssw
+      integer nqtotc,nq_cube ! [in/out]
+c
+      integer nq_left ! [local]
+      integer ntot_cube,npts_per_ang
+      integer iang,ictr,nq,ncu
+      integer nq_out,nwrbuf
+      integer grid_nxyz
+      external grid_nxyz
+      logical l3d
+      logical triplet
+
+      logical kske
+      double precision tau(*), Mmat(*)
+CA
+      double precision func(*),d_qwght(*),dmat(*),
+     D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
+      double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
+     ,     acc_ao_gauss
+      integer iandex(*),max_at_bf,curatoms(*),g_rhs(*)
+      logical do_force,do_hess,ldew,gradchi,hesschi,der3chi,
+     ,     oactive(*)
+      integer nbf_ao_mxnbf_ce2,nactive
+c
+      integer lbas_cent_info, ibas_cent_info,
+     &        lbas_cset_info, ibas_cset_info,
+     &        ldocset, idocset
+      integer ncontrset,n
+
+
+c
+      save nq_left
+c
+      npts_per_ang=nqmax
+      ictr = qsh(2,iqsh)
+      iang = qsh(3,iqsh)
+      nq = npts_per_ang
+c
+      call grid_finpts(dosympts,
+     .        rad_sh,xyz, ictr, 
+     .        irsh, iang, iang_done,nq_left,
+     ,        aqbuf, nq, fnxyz,nxyz,
+     ,        gridscr,nops,symops,gops,
+     .        iscr_loc,
+     .     ncenters, rij,
+     .     rq,bp,expo,
+     .     oskel,symfact)
+!      nwrbuf=nwrbuf+1
+!      nq_out=nq_out+1
+      do n=1,nq
+         qxyz(1,n) = aqbuf(1,n)
+         qxyz(2,n) = aqbuf(2,n)
+         qxyz(3,n) = aqbuf(3,n)
+         qwght(n) = aqbuf(4,n)
+      enddo
+      if(nq.ne.0) then
+      if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &     call errquit('Exiting in dftg_gridv0a',0, BASIS_ERR)
+      if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
+     &     ldocset, idocset))
+     &     call errquit('dftg_gridv0a: cannot allocate docset',
+     ,     ncontrset,0)
+      if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
+     &     lbas_cent_info, ibas_cent_info))
+     &     call errquit('dftg_gridv0a: cannot allocate bas_cent_info',0,
+     &       MA_ERR)
+      if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
+     &     lbas_cset_info, ibas_cset_info))
+     &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0,
+     &       MA_ERR)
+      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+     &     int_mb(ibas_cset_info), natoms)
+c     
+c     copy to buffer for XC stuff and compute if needed
+c     
+         nqtotc=nqtotc+nq
+         nq_cube=nq_cube+nq
+         nq_out=nq
+         call dftg_gridv0b(nq_out,rad_sh,ictr,g_dens,
+     &                         max_at_bf,
+     &                         rho_int, nq, iniz, ifin, rho, delrho,
+     &                         func, d_qwght, qwght, qxyz, xyz, bp,
+     &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
+     &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
+     &                         rq0, hh, 
+     .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
+     .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,
+     .     ff,zzz,drhonuc,ddelrhonuc,d2scr,nscr,
+     ,     force, hess, g_rhs, do_force,
+     ,     nbf_ao_mxnbf_ce2,
+     ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
+     &                         do_hess, do_cpks_r, natoms, oactive,
+     &                         nactive, rdens_atom, 
+     &                         cetobfr,
+     &                         tau,kske,Mmat )
+         
+         if (.not.MA_Pop_Stack(lbas_cset_info))
+     &        call errquit('dftg_gridv0a: pop stack failed.',2, MA_ERR)
+         if (.not.MA_Pop_Stack(lbas_cent_info))
+     &        call errquit('dftg_gridv0a: pop stack failed.',3, MA_ERR)
+      if (.not.MA_Pop_Stack(ldocset))
+     &     call errquit('dftg_gridv0a: pop stack failed.',4, MA_ERR)
+      endif
+      return
+      end
+
+
+
