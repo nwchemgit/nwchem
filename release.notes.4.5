@@ -30,8 +30,8 @@ Additional major additions to the capabilities include:
   o SIC (Self-Interaction Correction) in the PSPW module
   o Stress calculations in the PSPW module
   o Wannier orbitals generations in the PSPW module
-  o simulated annealing for Car-Parrinello
-  o analytic hessian calculation with ECP basis sets
+  o Simulated annealing for Car-Parrinello
+  o Analytic hessian calculation with ECP basis sets
 
 Again, for each of these capabilities, the user is referred to the User Manual 
 for more information. 
@@ -42,34 +42,34 @@ information is generally available in the User Manual.
 
 Basis Sets: 
 
+  o The basis set is printed if the "*" tag input is used
   o BUG FIX: re-introduced cc-pcvqz and its polarization functions.
-  o basis set is printed if the "*" tag input is used
   o BUG FIX: improper detection of basis libraries directory on HP Tru64
   o BUG FIX: wrong dimension for temporary array used when detecting
     atom types.  
 
 Geometry: 
   
-  o added option to freeze number of orbitals in the molecule
+  o Added option to freeze number of orbitals in the molecule
   o BUG FIX: xyz_print is now printing angstroms instead of fractional
     coordinates for 3-d geometries.
   o BUG FIX: z-matrix input modified to  digest
-    symbols bq"atomic symbol" x"atomic symbol" needed for DFT BSSE
+    symbols bq"atomic symbol" and x"atomic symbol" needed for DFT BSSE
   o BUG FIX: wrong power of complex number in autosym
-  o BUG FIX: when bqbq option is set  the geometry was shifted
+  o BUG FIX: when bqbq option is set the geometry was shifted
     a large amount.
 
 DFT: 
 
   o New GGA density functionals: MPW91, MPW91K, FT97 
-  o introduced framework for meta-GGA functional (requiring computation
+  o Introduced framework for meta-GGA functional (requiring computation
     of the kinetic energy density tau). Coded energy term for
-    the XPKBZ99 functional
-  o BUG FIX in  the spin-orbit initial guess
-  o removed old XC grid integration scheme in used prior the 4.0
-  o introduced limited replicated-data capability in XC build; it bypasses
+    the XPKBZ99 functional.
+  o Removed old XC grid integration scheme in used prior to 4.0
+  o Introduced limited replicated-data capability in XC build; it bypasses
     the costly ga_acc. Activated by set dft:xcreplicated t
   o performance improvements in the grid and XC build part
+  o BUG FIX: the spin-orbit initial guess is now working
   o BUG FIX: XC grid part now correctly handles bq"atomic symbol"
     and x"atomic symbol" input terms
   o BUG FIX: open shell HCTH (and B97-98) series of functionals did
@@ -80,31 +80,30 @@ DFT:
 
 SCF: 
 
-  o routine to rotate movecs to a new geometry (keyword "rotate" in
+  o Routine to rotate movecs to a new geometry (keyword "rotate" in
     vectors input)
 
 RIMP2
 
-  o Fortran Direct I/O have been converted to EAF calls: this allows
-    to overcome the 2GB filesize limit.
+  o Fortran Direct I/O has been converted to EAF calls: this allows
+    the code to overcome the 2GB filesize limit.
 
 COSMO:
   
   o SCF and DFT interfaces made more consistent
-  o set default value of ifscr parameter to 2
+  o Set default value of ifscr parameter to 2
 
 Driver: 
 
-  o BUG FIX: fractional coordinates optimizer
   o NEB (Nudged Elastic Band) method added (still under development)
   o ONIOM calculations can be performed with the PSPW module
-  o BUG FIX: fractional	coordinates optimizer
+  o BUG FIX: fractional coordinates optimizer
 
 Properties: 
 
+  o Mulliken population analysis in full matrix output
   o BUG FIX: GIAO integral accuracy set to 10**-15 to make more consistent
     cutoff strategies.
-  o Mulliken population analysis in full matrix output
 
 MP2: 
 
@@ -113,32 +112,30 @@ MP2:
 
 Hessian and Frequencies: 
 
+  o Analytic hessian calculation with ECP basis sets can now performed
   o BUG FIX: improved detection of conditions when analytic hessian
     cannot be performed (e.g. opens shell DFT, fitted-coulomb DFT)
-  o analytic hessian calculation with ECP basis sets can now performed
+  o BUG FIX: Linear dependencies are correctly handled
 
 NBO:
-  o static memory allocation increased 6x to allow run on larger systems
-  o BUG FIX: use of OPEN(STATUS="REPLACE") (on fortran compiler that 
-    allows it)  to avoid a fatal error when a file exists because a
-    job  with the same name was carried out in the same
-    directory before
-  o BUG FIX: normalization factors for f orbitals transformation
+  o static memory allocation increased 6x to allow runs on larger systems
+  o BUG FIX: use of OPEN(STATUS="REPLACE") (on fortran compilers that 
+    allow it)  to avoid a fatal error when a file exists because a
+    job with the same name was carried out in the same directory before
+  o BUG FIX: normalization factors for f orbitals transformation are correct
 
 Vib:
-
   o Partial canonical partition thermodynamical analysis added
 
 PSPW:
-
   o CIF output changed
   o new elements added to PS library: Au Cu Fe Ge Pb Sr Ti
   o SIC (Self-Interaction Correction)
   o band by band minimizer added
   o Wannier functions
   o Car-Parrinello: added simulated annealing strategy
-  o added Becke's ELF
-  o added calculation of stress forces
+  o Added Becke's ELF
+  o Added calculation of stress forces
 
 
 MD: 
@@ -146,31 +143,26 @@ MD:
   o ...
 
 Integrals: 
-
+  o Performance improvements in Texas integrals (especially for 2nd
+    derivatives) 
   o Default value for integral internal screening threshold has been
     raised from 1E-15 to 1E-12 (set int:acc_std).
   o ECP: activated 2nd derivative code
   o BUG FIX: numerical problems in some CRENBS ecps
-  o performance improvements in Texas integrals (especially for 2nd
-    derivatives) 
 
 DPLOT:
-
-  o rewrite of the code to reduce memory requirements
+  o Rewrite of the code to reduce memory requirements
 
 ESP
-
-  o factor value changed from 1.45 to 1.00
+  o Factor value changed from 1.45 to 1.00
 
 General Utilities:
-
+  o Introduction of wall time remaining mechanism for LSF and PBS,
+    activated by typing make LSF=y and make PBS=y, respectively.
   o BUG FIX: determination of how many processes are simultaneously
     using the scratch directory
-  o introduction of wall time remaining mechanism for LSF and PBS,
-    activated by typing make LSF=y and make PBS=y, respectively.
 
 Tests, manuals and miscellaneous script changes: 
-
   o Updated User's Manual to reflect new and modified functionality in
     NWChem. 
   o QA tests have been updated to reflect the new functionality.
