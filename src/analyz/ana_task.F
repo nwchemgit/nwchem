@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.90 2002-10-18 17:56:21 d3j191 Exp $
+c $Id: ana_task.F,v 1.91 2002-12-13 18:24:03 d3j191 Exp $
 c
       implicit none
 c
@@ -76,7 +76,7 @@ c
       lsuper=.false.
 c
       ifrfr=1
-      ifrto=1
+      ifrto=0
       ifrsk=1
       ifrst=0
       ilast=0
