@@ -633,7 +633,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.15 1996-09-03 01:12:37 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.16 1996-09-27 06:36:19 d3j191 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -724,7 +724,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.15 1996-09-03 01:12:37 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.16 1996-09-27 06:36:19 d3j191 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)
@@ -1305,6 +1305,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"      
 #include "msgids.fh"
+#include "bitops.fh"
       integer n
       integer irreps(n)
       integer g_a
