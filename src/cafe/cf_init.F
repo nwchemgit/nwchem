@@ -1297,13 +1297,13 @@ c
  1000 format(/,' SOLUTE',//)
       return
       end
-      subroutine cf_lambda(rlam)
+      subroutine cf_lambda(lambda)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
-      real*8 rlam
+      integer lambda
 c
       return
       end
