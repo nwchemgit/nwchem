@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.18 1996-10-22 01:32:13 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.19 1996-10-22 06:00:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -34,8 +34,6 @@ c
       Logical int_normalize
       Logical int_norm_2c
 c     
-c     XC functionals coefficients
-c     
       External int_normalize
       External int_norm_2c
 c
@@ -59,7 +57,7 @@ c****
       endif 
       ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
 c     
-c>>>  Get logical parameters from rtdb. If not available, set
+c>>>  Get parameters from rtdb. If not available, set
 c     default and put in the rtdb as well as loading in common.
 c     
       if (.not. rtdb_get(rtdb, 'dft:nodamping', mt_log, 1,
@@ -125,8 +123,6 @@ c
      &      mt_log, 1, ldelley ))
      &      call errquit('dft_input: rtdb_put failed', 8)
       endif
-c     
-c>>>  Get integer parameters from rtdb.
 c     
       if (.not. rtdb_get(rtdb, 'dft:itrscf', mt_int, 1,
      &   itrscf))then
@@ -296,8 +292,6 @@ c
      &      call errquit('dft_input: rtdb_put failed', 129)
       endif
 c     
-c>>>  Get real parameters from rtdb.
-c     
       if (.not. rtdb_get(rtdb, 'dft:dampon', mt_dbl, 1,
      &   dampon))then
          dampon = 1.d8
@@ -385,29 +379,34 @@ c
      &      mt_dbl, 1,rm))
      &      call errquit('dft_input: rtdb_put failed', 215)
       endif
-c     
-c>>>  Get character parameters from rtdb.
-c     
+c
       if (.not. rtdb_cget(rtdb, 'dft:gridtype', 1,
      &   gridtype))then
 c     
 c        set default grid to  'MEDIUM'
 c     
          gridtype='medium'
-         nagrid = 8
-         do n = 1,dft_ntags_bsmx
-           nrad(n) = 40
-         enddo 
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 
      &      1, gridtype))
      &      call errquit('dft_input: rtdb_put failed', 301) 
+      endif
+c
+      if (.not. rtdb_get(rtdb, 'dft:nagrid',
+     &   mt_int, 1, nagrid))then
+         nagrid = 8
          if (.not. rtdb_put(rtdb, 'dft:nagrid',
      &      mt_int, 1, nagrid))
      &      call errquit('dft_input: rtdb_put failed', 116)
+      endif
+c
+      if (.not. rtdb_get(rtdb,'dft:nrad',
+     &   mt_int, dft_ntags_bsmx, nrad))then
+         do n = 1,dft_ntags_bsmx
+           nrad(n) = 40
+         enddo 
          if (.not. rtdb_put(rtdb,'dft:nrad',
      &      mt_int, dft_ntags_bsmx, nrad))
      &      call errquit('dft_input: rtdb_put failed', 115)
-c
       endif
 c
 c     Get/set/put XC info.
@@ -508,7 +507,6 @@ c
      &     call errquit('rdinput: geom_create?',70)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72)
-c
 c
       itype = 1
 c****

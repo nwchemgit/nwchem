@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.4 1996-10-15 01:21:27 d3h449 Exp $
+C$Id: cdft.fh,v 1.5 1996-10-22 06:00:35 d3h449 Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -9,8 +9,7 @@ c
       character*40 xname, cname, xcname
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
-     &     rcharge, rscale, cdist, cang, cfac, xfac,
-     &     TOLL, radius, rm
+     &     rcharge, rscale, cfac, xfac, TOLL, radius, rm
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
@@ -19,7 +18,7 @@ c
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
      &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
-     &     nrinc, nrmax, igeotype, numgrp, numset, geom, ncenters, nbf,
+     &     nrinc, nrmax, geom, ncenters, nbf,
      &     nbf_ao, nbf_cd, nbf_xc, 
 c
 c     old common handles 
@@ -31,7 +30,7 @@ c
 c     Doubles
 c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
-     &     rcharge, rscale, cdist(3), cang(3), cfac(10), xfac(10),
+     &     rcharge, rscale, cfac(10), xfac(10),
      &     TOLL, radius, rm,
 c
 c     Logicals
@@ -45,7 +44,7 @@ c
      &     iAOacc, iXCacc, irqmax, itol2e, imull, iangquad, itrscf, 
      &     iscfcon, iguess, mult, ipol, igcon, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
-     &     nrinc, nrmax, igeotype, numgrp, numset, geom, ncenters, nbf,
+     &     nrinc, nrmax, geom, ncenters, nbf,
      &     nbf_ao, nbf_cd, nbf_xc, 
 c
 c     old common handles 

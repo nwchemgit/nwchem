@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.40 1996-10-18 21:50:07 d3h449 Exp $
+C$Id: dft_scf.F,v 1.41 1996-10-22 06:00:55 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -84,7 +84,8 @@ c
       Logical LResult,IOLGC,mulliken,do_gradients,lSPM
       logical converged,wght_GA
       logical oprint_parm,oprint_conv,oprint_vecs,
-     ,     oprint_eval ,oprint_syma,oprint_time
+     ,     oprint_eval ,oprint_syma,oprint_time,
+     ,     oprint_info
       integer itol_min,iAOacc_min
       double precision scfcon
       double precision zero,onem,one
@@ -99,6 +100,7 @@ c
 #endif      
 c-----------------------------------------------------------------------
       oprint = util_print('information',print_low)
+      oprint_info = util_print('common',print_debug)
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
       oprint_vecs = util_print('intermediate vectors', print_debug)
@@ -406,7 +408,7 @@ c****
 c
 c     Dump DFT parameters to see if they make sense
 c
-c      call dft_dump_info
+      if(me.eq.0.and.oprint_info)call dft_dump_info
 c
 c     Get initial density.
 c
@@ -1241,9 +1243,6 @@ c
       write(*,*)' nagrid = ', nagrid
       write(*,*)' nrinc = ', nrinc
       write(*,*)' nrmax = ', nrmax
-      write(*,*)' igeotype = ', igeotype
-      write(*,*)' numgrp = ', numgrp
-      write(*,*)' numset = ', numset
       write(*,*)' geom = ', geom
       write(*,*)' ncenters = ', ncenters
       write(*,*)' nbf = ', nbf
@@ -1283,8 +1282,6 @@ c
       write(*,*)' TOLL = ', TOLL
       write(*,*)' radius = ', radius
       write(*,*)' rscale = ', rscale
-      write(*,*)' cdist = ', (cdist(i),i=1,3)
-      write(*,*)' cang =', (cang(i),i=1,3)
       write(*,*)' cfac = ', (cfac(i),i=1,10)
       write(*,*)' xfac =', (xfac(i),i=1,10)
 c
