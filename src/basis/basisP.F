@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.22 2000-01-14 20:00:59 d3g681 Exp $
+c $Id: basisP.F,v 1.23 2003-10-07 00:17:38 edo Exp $
 #include "nwc_const.fh"
 #include "basP.fh"
       character *(*) msg
@@ -408,7 +408,7 @@ c
           nbf_from_ucont = ngen*(type+1)*(type+2)/2
         endif
       else if (type.eq.-1) then
-        nbf_from_ucont = ngen*4/2
+        nbf_from_ucont = ngen*2
       else if (type.eq.-2) then
         if (bas_spherical(basis)) then
           nbf_from_ucont = ngen*9/3
