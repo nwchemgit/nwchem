@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.9 1997-12-09 02:09:37 d3e129 Exp $
+* $Id: util_legal.F,v 1.10 1998-01-07 16:52:02 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -118,6 +118,7 @@ c
       implicit none
 c
 #include "stdio.fh"
+#include "util.fh"
 c
       integer center_pt
       logical FF, FT
@@ -134,10 +135,12 @@ c
       call util_print_centered(luout, 'REFERENCES', center_pt, FT)
       write(luout,10002)
       write(luout,10101) 1
-      write(luout,10102) 2
-      write(luout,10103) 3
-      write(luout,10104) 4
-      write(luout,10105) 5
+      if (util_print('references',print_high)) then
+        write(luout,10102) 2
+        write(luout,10103) 3
+        write(luout,10104) 4
+        write(luout,10105) 5
+      endif
 10000 format(
      &    /,12x,
      &    'Please use the following acknowledgement where appropriate ',
@@ -182,24 +185,19 @@ c
      &    /,/)
 10002 format(
      &    /,12x,
-     &    'Where appropriate, please cite the following references ',
+     &    'Where appropriate, please cite the following reference(s) ',
      &    /,12x,
      &    'when publishing results obtained with NWChem:'
      &    /,/,12x)
 10101 format(1x,i5,'.',1x,
-     &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
+     &    'D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, ',
      &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
-     &    'J. B. Nicholas, J. A. Nichols, M. S. Stave,',
-     &    /,8x,'A. T. Wong, R. J. Littlefield and J. Nieplocha, ',
-     &    '"High Performance ',/,8x,'Computational Chemistry: ',
-     &    'Towards Fully Distributed Parallel Algorithms",',
-     &    /,8x,'in High Performance Computing: Symposium 1995, ',
-     &    'Grand Challenges in ',/,8x,'Computer Simulation, ',
-     &    'Adrian M. Tentner, Editor, Proceedings of the 1995 ',/,8x,
-     &    'Simulation Multiconference, April 9-13, 1995, Phoenix, ',
-     &    'Arizona, ',/,8x,'Simulation Councils, Inc., The Society',
-     &    ' for Computer Simulation, ',/,8x,
-     &    'San Diego, CA, 1995. pp. 511-521.',
+     &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
+     &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefi',
+     &    'eld and J. Nieplocha,',/,8x,'"Parallel Computational ',
+     &    'Chemistry Made Easier: The Development of NWChem,"',/,8x,
+     &    'Int. J. Quantum Chem. Symposium  29, 475-483 ',
+     &    '(1995).'
      &    /,/)
 10102 format(1x,i5,'.',1x,
      &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
@@ -215,14 +213,19 @@ c
      &    '(Elsevier Science B. V. pp. 395-427, 1995).'
      &    /,/)
 10103 format(1x,i5,'.',1x,
-     &    'D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, ',
+     &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
      &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
-     &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
-     &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefi',
-     &    'eld and J. Nieplocha,',/,8x,'"Parallel Computational ',
-     &    'Chemistry Made Easier: The Development of NWChem,"',/,8x,
-     &    'Int. J. Quantum Chem. Symposium  29, 475-483 ',
-     &    '(1995).'
+     &    'J. B. Nicholas, J. A. Nichols, M. S. Stave,',
+     &    /,8x,'A. T. Wong, R. J. Littlefield and J. Nieplocha, ',
+     &    '"High Performance ',/,8x,'Computational Chemistry: ',
+     &    'Towards Fully Distributed Parallel Algorithms",',
+     &    /,8x,'in High Performance Computing: Symposium 1995, ',
+     &    'Grand Challenges in ',/,8x,'Computer Simulation, ',
+     &    'Adrian M. Tentner, Editor, Proceedings of the 1995 ',/,8x,
+     &    'Simulation Multiconference, April 9-13, 1995, Phoenix, ',
+     &    'Arizona, ',/,8x,'Simulation Councils, Inc., The Society',
+     &    ' for Computer Simulation, ',/,8x,
+     &    'San Diego, CA, 1995. pp. 511-521.',
      &    /,/)
 10104 format(1x,i5,'.',1x,
      &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
