@@ -3,7 +3,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam)
 c
-c $Id: pre_wrtpdb.F,v 1.7 1998-09-22 21:35:30 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.8 1998-09-23 19:32:05 d3j191 Exp $
 c
       implicit none
 c
@@ -69,7 +69,7 @@ c
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
      + i+nums,(1.0d1*xw(k,j,i-nwmc),k=1,3)
       endif
- 1003 format('ATOM',i7,1x,a4,1x,a3,2x,i4,4x,3f8.3)
+ 1003 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3)
     3 continue
     2 continue
       endif
