@@ -3,13 +3,28 @@
       double precision acc
       integer g_x, g_Ax
 c
-      integer g_a
-      common /testme/ g_A
+      integer g_a, g_b
+      common /testme/ g_A, g_B
       integer n, nvec, type
 c
       call ga_inquire(g_x, type, n, nvec)
       call ga_zero(g_Ax)
       call ga_dgemm('n', 'n', n, nvec, n, 1.0d0, g_A, g_x, 0.0d0, g_Ax)
+c
+      end
+      subroutine test_nlproduct(acc,g_x, g_Ax)
+      implicit none
+      double precision acc
+      integer g_x, g_Ax
+c
+      integer g_a, g_b
+      common /testme/ g_A, g_B
+      integer n, nvec, type
+c
+      call ga_inquire(g_x, type, n, nvec)
+      call ga_zero(g_Ax)
+      call ga_dgemm('n', 'n', n, nvec, n, 1.0d0, g_A, g_x, 0.0d0, g_Ax)
+      call ga_add(1.0d0, g_AX, -1.0d0, g_B, g_AX)
 c
       end
       subroutine test_precond(g_x,shift)
@@ -39,12 +54,12 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
       integer n, nvec, maxsub, maxiter
-      parameter (n=5000, nvec=100)
-      integer g_x, g_b
-      external test_precond, test_product
+      parameter (n=300, nvec=1)
+      integer g_x
+      external test_precond, test_product, test_nlproduct
 c
-      integer g_a
-      common /testme/ g_a
+      integer g_a, g_b
+      common /testme/ g_a, g_b
 c
       integer i
 ****      integer info
@@ -80,6 +95,27 @@ c
 c
       call ga_lkain(g_x, g_b, test_product, test_precond, 1d-6, maxsub, 
      $     maxiter,.true.,.true.)
+      call ga_summarize(0)
+      call ma_summarize_allocated_blocks()
+c
+      write(6,*)
+      write(6,*)
+      write(6,*)
+      write(6,*) ' DOING NON LINEAR '
+      write(6,*)
+      write(6,*)
+      write(6,*)
+      call ga_copy(g_b, g_x)
+      call test_precond(g_x,0.0d0)
+      maxsub = 10
+c
+      call ga_kain(g_x, 
+     $     test_nlproduct, test_precond, 
+     $     1d-6, 
+     $     10.0d0, 10.0d0,
+     $     maxsub, maxiter, 
+     $     .true.)
+c
       call ga_summarize(0)
       call ma_summarize_allocated_blocks()
       call errquit('done',0)
@@ -241,7 +277,7 @@ c     realistic examples (maxsub << n) there is only a little
 c     advantage and in the precence of real noise in the products
 c     screening with a realistic threshold is important.
 c
-         call ga_svd_solve_seq(g_a,g_bb,g_c,acc)
+         call ga_svd_solve_seq(g_a,g_bb,g_c,1d-14)
          if (odebug) call ga_print(g_c)
 c
 c     Form and add the correction, in parts, onto the solution
@@ -266,7 +302,7 @@ c
 c     Reduce the subspace as necessary
 c
          if (nsub .eq. maxsub) then
-            do isub = nsub+1, maxsub, nvec
+            do isub = nvec+1, maxsub, nvec
                call ga_copy_patch('n', 
      $              g_Ay, 1, n, isub, isub+nvec-1, 
      $              g_Ax, 1, n, 1, nvec)
@@ -297,6 +333,219 @@ c
       if (.not. ga_destroy(g_r)) call errquit('lkain: destroy',5)
 c
       if (.not. converged) call errquit('lkain: not converged',0)
+c
+      end
+      subroutine ga_kain(
+     $     g_x, 
+     $     product, precond, 
+     $     tol, 
+     $     trustmin, trustmax, 
+     $     maxsub, maxiter, 
+     $     oprint)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "util.fh"
+c
+      integer g_x               ! [input/output] Initial guess/solution
+      external product          ! [input] product routine
+      external precond          ! [input] preconditioner routine
+      double precision tol      ! [input] convergence threshold
+      double precision trustmin, trustmax ! [input] range to constrain trust radius
+      integer maxsub           ! [input] maximum subspace dimension
+      integer maxiter           ! [input] maximum no. of iterations
+      logical oprint            ! [input] print flag
+c
+c     Solves the non-linear equations f(X)=0 for multiple vectors.
+c
+c     call product(acc, g_x, g_Ax)
+c     . acc is the accuracy trequired for each element of the product
+c     . g_x contains the vectors and g_Ax should be filled
+c     .     with the product vectors.  The no. of vectors (columns) in
+c     . g_x might differ from the no. of vectors input to ga_kain().
+c
+c     call precond(g_x,shift)
+c     . apply preconditioning directly to the vectors in g_x with the
+c     . optional shift (not used here but used by the diagonalizer)
+c
+c     On input g_x should contain an initial guess.  It returns the
+c     solution.
+c
+      integer maxmaxsub
+      parameter (maxmaxsub = 20)
+      integer iter, n, nvec, nsub, isub, jsub, type
+      integer g_y, g_Ay, g_Ax, g_delta, g_a, g_b, g_c
+      double precision rmax, acc, trust
+      double precision a(maxmaxsub,maxmaxsub), b(maxmaxsub), 
+     $     c(maxmaxsub), csum
+      logical converged
+      logical odebug
+c
+      trust = trustmin
+      acc = 0.01d0*tol
+      if (maxsub .gt. maxmaxsub) maxsub = maxmaxsub
+      odebug = util_print('debug lsolve', print_never) .and. 
+     $     ga_nodeid().eq.0
+c
+      call ga_inquire(g_x, type, n, nvec)
+      if (nvec .ne. 1) call errquit('kain: nvec?', nvec)
+c
+      if (oprint .and. ga_nodeid().eq.0) then
+         write(6,1) n, maxsub, tol, trustmin, trustmax, util_wallsec()
+ 1       format(//,'Iterative solution of non-linear equations',/,
+     $        '  No. of variables', i9,/,
+     $        '  Maximum subspace', i9,/,
+     $        '       Convergence', 1p,d9.1,/,
+     $        '     Trust min/max', 0p,2f6.2,
+     $        '        Start time', 0p,f9.1,/)
+         call util_flush(6)
+      end if
+c
+      if (.not. ga_create(MT_DBL, n, maxsub, 'kain: Y', 
+     $     0, 0, g_y))
+     $     call errquit('kain: failed allocating subspace', maxsub)
+      if (.not. ga_create(MT_DBL, n, maxsub, 'kain: Ay', 
+     $     0, 0, g_Ay))
+     $     call errquit('kain: failed allocating subspace2', maxsub)
+      if (.not. ga_create(MT_DBL, n, 1, 'kain: Ax',
+     $     0, 0, g_Ax))
+     $     call errquit('kain: failed allocating subspace3', 1)
+      call ga_zero(g_y)
+      call ga_zero(g_Ay)
+c
+      nsub = 0
+      converged = .false.
+      do iter = 1, maxiter
+         call ga_zero(g_Ax)
+         call product(acc, g_x, g_Ax)
+         call ga_maxelt(g_Ax, rmax)
+         if (oprint .and. ga_nodeid().eq.0) then
+            write(6,2) iter, nsub+1, rmax, util_wallsec()
+ 2          format(/
+     $           '   iter   nsub   residual    time',/,
+     $           '   ----  ------  --------  ---------',/,
+     $           ' ', i5, i7, 3x,1p,d9.2,0p,f10.1/)
+         end if
+         if (rmax .lt. tol) then
+            converged = .true.
+            goto 100
+         end if
+c
+c     Copy the vectors to the subspace work area
+c
+         call precond(g_Ax,0.0d0)
+         call ga_copy_patch('n', 
+     $        g_Ax, 1, n, 1, 1, 
+     $        g_Ay, 1, n, nsub+1, nsub+1)
+         call ga_copy_patch('n', 
+     $        g_x, 1, n, 1, 1, 
+     $        g_y, 1, n, nsub+1, nsub+1)
+         nsub = nsub + 1
+c
+c     Not converged ... make the update
+c
+         g_delta = g_Ax         ! A reminder that these two are aliased
+         call ga_scale(g_delta, -1.0d0)
+c
+         if (iter .gt. 1) then
+c
+c     Form the reduced space matrix and RHS
+c
+            call ga_local_mdot(n, nsub, nsub, a, maxmaxsub, g_y, g_Ay)
+            do isub = 1, nsub-1
+               b(isub) = -(a(isub,nsub) - a(nsub,nsub))
+            end do
+            do isub = 1, nsub-1
+               do jsub = 1, nsub-1
+                  a(isub,jsub) = a(isub,jsub)
+     $                 - a(nsub,jsub) - a(isub,nsub) + a(nsub,nsub)
+               end do
+            end do
+c
+c     Solve the subspace equations (lazily using existing GA routine)
+c     
+            if (.not. ga_create(MT_DBL,nsub-1,nsub-1,'kain: A',
+     $           nsub-1,nsub-1,g_a))
+     $           call errquit('kain: allocating g_a?', nsub)
+            if (.not. ga_create(MT_DBL,nsub-1,1,'kain: B',nsub-1,1,g_b))
+     $           call errquit('kain: allocating g_bb?', nsub)
+            if (.not. ga_create(MT_DBL,nsub-1,1,'kain: C',nsub-1,1,g_c))
+     $           call errquit('kain: allocating g_c?', nsub)
+            if (ga_nodeid() .eq. 0) then
+               call ga_put(g_a, 1, nsub-1, 1, nsub-1, a, maxmaxsub)
+               call ga_put(g_b, 1, nsub-1, 1, 1, b, 1)
+            end if
+            call ga_sync
+c
+            call ga_svd_solve_seq(g_a,g_b,g_c,1d-14)
+c
+            if (odebug) call ga_print(g_c)
+            if (ga_nodeid() .eq. 0) 
+     $           call ga_get(g_c, 1, nsub-1, 1, 1, c, 1)
+            call ga_brdcst(1, c, mdtob(nsub-1), 0)
+            write(6,*) ' KAIN SUBSPACE COEFFS'
+            call output(c, 1, nsub-1, 1, 1, nsub-1, 1, 1)
+            call ga_sync
+            if (.not. ga_destroy(g_a)) call errquit('kain: a',0)
+            if (.not. ga_destroy(g_b)) call errquit('kain: b',0)
+            if (.not. ga_destroy(g_c)) call errquit('kain: c',0)
+c     
+c     Form the correction
+c     
+            csum = 0.0d0
+            do isub = 1, nsub-1
+               csum = csum + c(isub)
+               call ga_add_patch( c(isub),  g_y, 1, n, isub, isub, 
+     $              1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+               call ga_add_patch(-c(isub), g_Ay, 1, n, isub, isub, 
+     $              1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+            end do
+            call ga_add_patch(-csum,  g_y, 1, n, nsub, nsub, 
+     $           1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+            call ga_add_patch( csum,  g_Ay, 1, n, nsub, nsub, 
+     $           1.0d0, g_delta, 1, n, 1, 1, g_delta, 1, n, 1, 1)
+         endif
+c
+c     Step restriction
+c
+         call ga_maxelt(g_delta, rmax)
+         if (rmax .gt. trust) then
+            if (oprint) write(6,*) ' RESTRICTION ', rmax, trust
+            call ga_scale(g_delta, trust/rmax)
+         end if
+c
+         call ga_add(1.0d0, g_delta, 1.0d0, g_x, g_x)
+c     
+c     Reduce the subspace as necessary (note g_delta=g_Ax destroyed)
+c     
+         if (nsub .eq. maxsub) then
+            do isub = 2, maxsub
+               call ga_copy_patch('n', 
+     $              g_Ay, 1, n, isub, isub, 
+     $              g_Ax, 1, n, 1, 1)
+               call ga_copy_patch('n', 
+     $              g_Ax, 1, n, 1, 1,
+     $              g_Ay, 1, n, isub-1, isub-1)
+c     
+               call ga_copy_patch('n', 
+     $              g_y, 1, n, isub, isub, 
+     $              g_Ax, 1, n, 1, 1)
+               call ga_copy_patch('n', 
+     $              g_Ax, 1, n, 1, 1,
+     $              g_y, 1, n, isub-1, isub-1)
+            end do
+            nsub = nsub - 1
+         end if
+c
+      end do
+ 100  continue
+c
+      if (.not. ga_destroy(g_Ax)) call errquit('kain: destroy',20)
+      if (.not. ga_destroy(g_Ay)) call errquit('kain: destroy',3)
+      if (.not. ga_destroy(g_y)) call errquit('kain: destroy',4)
+c
+      if (.not. converged) call errquit('kain: not converged',0)
 c
       end
       subroutine ga_lu_solve_seq(op, g_a, g_b)
