@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.9 1999-11-09 22:21:52 bert Exp $
+c $Id: int_1edk_ga.F,v 1.10 1999-11-11 00:41:17 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -225,9 +225,9 @@ c
 c
 c     At this point we have the basic integrals for the free-particle projection
 c     operators. The remaining terms come from the external potential. Skip and 
-c     construct final integrals if form_type=1 (see header).
+c     construct final integrals if dk_form_type=1 (see header).
 c 
-      if (form_type .eq. 1) goto 100
+      if (dk_form_type .eq. 1) goto 100
 c
 c     Scale U^tVU (in Vg_a) and U^tp.VpU (in Vdg_a) with 1/(Ep+Ep') for W terms
 c
@@ -478,9 +478,9 @@ c     operators without the pxVp type terms. These remaining pxVp terms come fro
 c     are needed for the full Douglas-Kroll set of integrals. If we neglect these 
 c     terms we get an incomplete Douglas-Kroll transformation a la Haberlen&Rosch 
 c     (CPL, 199, 491, 1992) denoted vn2.
-c     Skip and construct final integrals if form_type=2 (see header).
+c     Skip and construct final integrals if dk_form_type=2 (see header).
 c 
-      if (form_type .eq. 2) then
+      if (dk_form_type .eq. 2) then
          if (.not. ma_pop_stack(tempm_a))
      $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
          goto 100
