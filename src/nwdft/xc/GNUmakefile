@@ -1,16 +1,16 @@
-# $Id: GNUmakefile,v 1.6 1994-11-24 04:40:45 og845 Exp $
-
+# $Id: GNUmakefile,v 1.7 1994-11-27 10:38:40 og845 Exp $
+      OBJ = getvxc.o
       OBJ_OPTIMIZE = \
 	a_dist.o			   becke.o	\
 	becke88.o			   \
 	dirac.o				   eumac.o	\
 	fitvxc.o			   gaget2oi.o	\
-	gausquad.o			   getvxc.o	\
+	gausquad.o			   \
 	lyp88.o				   qdist.o	\
 	qpts.o				   quadvxc0.o	\
 	quadvxc1.o			   rho_gen.o	\
 	setACmat.o			   tabcd.o	\
-	vwn.o				   vx_exact.o	scat_mat.o 
+	vwn.o				   scat_mat.o 
 
      LIBRARY = libnwdft.a
 
