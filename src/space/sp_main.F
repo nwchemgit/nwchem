@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.55 2001-03-23 00:31:40 d3j191 Exp $
+c $Id: sp_main.F,v 1.56 2001-06-07 20:36:23 d3j191 Exp $
 c
       implicit none
 c
@@ -2572,6 +2572,7 @@ c
       write(lfnsyn,3001) nod(i),dlb(nod(i)+1)
  3001 format(i5,f12.6)
    16 continue
+      call sp_wrtbxsz(lfnsyn,dbl_mb(i_boxs))
       endif
       ipairf=-3
       ipairt=-4
@@ -2846,6 +2847,24 @@ c
       if(lbbl(i,1).eq.me) nbbloc=i
     8 continue
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
+c
+      return
+      end
+      subroutine sp_prtbxsz(lfn,boxsiz)
+c
+      implicit none
+c
+#include "sp_common.fh"
+c
+      real*8 boxsiz(maxbox,3)
+      integer lfn
+c
+      integer i
+c
+      write(lfn,1000) 1,nbx,(boxsiz(i,1),i=1,nbx)
+      write(lfn,1000) 2,nby,(boxsiz(i,2),i=1,nby)
+      write(lfn,1000) 3,nbz,(boxsiz(i,3),i=1,nbz)
+ 1000 format(i3,i5,5f10.5,/,(8x,5f10.5))
 c
       return
       end
