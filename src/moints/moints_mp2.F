@@ -1,106 +1,107 @@
 c
 c
+c     This routine seems to be dead, and it's call to moints_epair_eval
+c     is incorrect.  What else in this file is dead?
 c
 c
-c
-       subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.26 1997-05-15 22:13:06 rg240 Exp $
-       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-       integer nocc, nvir
-       double precision orbe(nocc+nvir), emp2, epair(*)
-       integer g_k
-       integer k_exch,ld_exch
-       integer i,j,ij,vstart,nnt,nbf,ndim
-       integer ilo,ihi,jlo,jhi,my_id
-       integer g_epair
-       double precision xx,denom
-       double precision moints_epair_eval
-
-       nnt = (nocc*(nocc+1))/2
-       if (.not.ga_create(MT_DBL,nnt,1,'epair',1,1,g_epair)) call
-     $      errquit('moints_mp2_eval: cannot allocate',0)
-       nbf = nocc + nvir
-       my_id = ga_nodeid()
-       call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
-
-#ifdef DEBUG
-       if (ga_nodeid().eq.0) write(6,944)
-       do i=0,ga_nnodes()-1
-         if (i.eq.my_id) then
-           write(6,923) i,ilo,ihi,jlo,jhi
- 923       format('moints_mp2_eval: distribution','[',i5,']',3x,
-     $            2(2i5,3x))
-           call util_flush(6)
-	 endif
-         call ga_sync()
-       enddo
-       if (ga_nodeid().eq.0) write(6,944)
- 944   format(/,'===================================================',/)
-#endif
-c
-c Check if this node has any data
-c
-       if ((ilo.ne.1).and.(ihi.ne.-1)) call 
-     $ errquit('moints_mp2_eval: wrong distribution for exchange',my_id)
-c
-c Set to handle different exchange matrix sizes
-c
-       if (ihi.eq.(nbf*nbf)) then
-         ndim = nocc+nvir
-         vstart = nocc
-       else if ((ihi.eq.(nvir*nvir)).or.(ihi.eq.(nvir*nbf))) then
-         ndim = nvir
-         vstart = 0
-       else if (ihi.ne.-1) then
-         call errquit('moints_mp2_eval: odd exchange matrix size',ihi)
-       endif
-c
-c Loop over occupied orbital pairs
-c
-       do i=1,nocc
-         do j=1,i
-           ij = (i*(i-1))/2 + j
-           if ((ij.ge.jlo).and.(ij.le.jhi)) then
-             denom = orbe(i) + orbe(j)
-             call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
-             xx = moints_epair_eval(ndim,vstart,nvir,
-     $                             dbl_mb(k_exch),orbe(nocc+1),
-     $                             denom)
-             call ga_release(g_k,1,ihi,ij,ij)
-             if (i.eq.j) xx = xx/2.d0
-             call ga_put(g_epair,ij,ij,1,1,xx,1)
-           endif
-         enddo
-       enddo
-c
-c Get global pair-energies into local array
-c
-       call ga_sync()
-       emp2 = 0.d0
-       do ij=1,nnt
-         call ga_get(g_epair,ij,ij,1,1,xx,1)
-         epair(ij) = xx
-         emp2 = emp2 + xx
-       enddo
-c
-c Clean and print
-c
-       if (.not.ga_destroy(g_epair)) call
-     $      errquit('moints_mp2_eval_a: cannot destroy global',0)
-       if (ga_nodeid().eq.0) then
-C         write(6,*)
-C         call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
-         write(6,901) emp2
- 901     format(//,15x,'MP2 correction:',f15.10,/)
-C         write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,nocc)
-C 902     format(4(f13.8,1x,'(',2i3,')',2x))
-       endif
-         
-       return
-       end
-
+c$$$       subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
+c$$$C$Id: moints_mp2.F,v 1.27 1998-08-27 06:23:33 d3g681 Exp $
+c$$$       implicit none
+c$$$#include "global.fh"
+c$$$#include "mafdecls.fh"
+c$$$       integer nocc, nvir
+c$$$       double precision orbe(nocc+nvir), emp2, epair(*)
+c$$$       integer g_k
+c$$$       integer k_exch,ld_exch
+c$$$       integer i,j,ij,vstart,nnt,nbf,ndim
+c$$$       integer ilo,ihi,jlo,jhi,my_id
+c$$$       integer g_epair
+c$$$       double precision xx,denom
+c$$$       double precision moints_epair_eval
+c$$$
+c$$$       nnt = (nocc*(nocc+1))/2
+c$$$       if (.not.ga_create(MT_DBL,nnt,1,'epair',1,1,g_epair)) call
+c$$$     $      errquit('moints_mp2_eval: cannot allocate',0)
+c$$$       nbf = nocc + nvir
+c$$$       my_id = ga_nodeid()
+c$$$       call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
+c$$$
+c$$$#ifdef DEBUG
+c$$$       if (ga_nodeid().eq.0) write(6,944)
+c$$$       do i=0,ga_nnodes()-1
+c$$$         if (i.eq.my_id) then
+c$$$           write(6,923) i,ilo,ihi,jlo,jhi
+c$$$ 923       format('moints_mp2_eval: distribution','[',i5,']',3x,
+c$$$     $            2(2i5,3x))
+c$$$           call util_flush(6)
+c$$$	 endif
+c$$$         call ga_sync()
+c$$$       enddo
+c$$$       if (ga_nodeid().eq.0) write(6,944)
+c$$$ 944   format(/,'===================================================',/)
+c$$$#endif
+c$$$c
+c$$$c Check if this node has any data
+c$$$c
+c$$$       if ((ilo.ne.1).and.(ihi.ne.-1)) call 
+c$$$     $ errquit('moints_mp2_eval: wrong distribution for exchange',my_id)
+c$$$c
+c$$$c Set to handle different exchange matrix sizes
+c$$$c
+c$$$       if (ihi.eq.(nbf*nbf)) then
+c$$$         ndim = nocc+nvir
+c$$$         vstart = nocc
+c$$$       else if ((ihi.eq.(nvir*nvir)).or.(ihi.eq.(nvir*nbf))) then
+c$$$         ndim = nvir
+c$$$         vstart = 0
+c$$$       else if (ihi.ne.-1) then
+c$$$         call errquit('moints_mp2_eval: odd exchange matrix size',ihi)
+c$$$       endif
+c$$$c
+c$$$c Loop over occupied orbital pairs
+c$$$c
+c$$$       do i=1,nocc
+c$$$         do j=1,i
+c$$$           ij = (i*(i-1))/2 + j
+c$$$           if ((ij.ge.jlo).and.(ij.le.jhi)) then
+c$$$             denom = orbe(i) + orbe(j)
+c$$$             call ga_access(g_k,1,ihi,ij,ij,k_exch,ld_exch)
+c$$$             xx = moints_epair_eval(ndim,vstart,nvir,
+c$$$     $                             dbl_mb(k_exch),orbe(nocc+1),
+c$$$     $                             denom)
+c$$$             call ga_release(g_k,1,ihi,ij,ij)
+c$$$             if (i.eq.j) xx = xx/2.d0
+c$$$             call ga_put(g_epair,ij,ij,1,1,xx,1)
+c$$$           endif
+c$$$         enddo
+c$$$       enddo
+c$$$c
+c$$$c Get global pair-energies into local array
+c$$$c
+c$$$       call ga_sync()
+c$$$       emp2 = 0.d0
+c$$$       do ij=1,nnt
+c$$$         call ga_get(g_epair,ij,ij,1,1,xx,1)
+c$$$         epair(ij) = xx
+c$$$         emp2 = emp2 + xx
+c$$$       enddo
+c$$$c
+c$$$c Clean and print
+c$$$c
+c$$$       if (.not.ga_destroy(g_epair)) call
+c$$$     $      errquit('moints_mp2_eval_a: cannot destroy global',0)
+c$$$       if (ga_nodeid().eq.0) then
+c$$$C         write(6,*)
+c$$$C         call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
+c$$$         write(6,901) emp2
+c$$$ 901     format(//,15x,'MP2 correction:',f15.10,/)
+c$$$C         write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,nocc)
+c$$$C 902     format(4(f13.8,1x,'(',2i3,')',2x))
+c$$$       endif
+c$$$         
+c$$$       return
+c$$$       end
+c$$$
 
 
 
