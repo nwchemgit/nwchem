@@ -13,6 +13,8 @@ tcsh runtests.unix dft_feco5
 tcsh runtests.unix dft_ozone 
 tcsh runtests.unix dft_siosi3
 tcsh runtests.unix dft_x
+tcsh runtests.unix dft_mpw1k
+tcsh runtests.unix dft_li2freq
 tcsh runtests.unix dielsalder
 tcsh runtests.unix grad_ozone
 tcsh runtests.unix hess_c6h6
