@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.99 1995-02-07 00:18:48 d3g681 Exp $
+# $Id: makefile.h,v 1.100 1995-02-13 23:54:38 rg240 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -442,7 +442,7 @@ ifeq ($(TARGET),SP1)
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 2
+  MAKEFLAGS = -j 1
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
