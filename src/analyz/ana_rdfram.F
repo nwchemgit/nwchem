@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.24 2001-07-17 23:54:08 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.25 2001-11-15 04:32:02 d3j191 Exp $
 c
       implicit none
 c
@@ -23,8 +23,10 @@ c
 c
       lxw=.false.
       lvw=.false.
+      lfw=.false.
       lsx=.false.
       lsv=.false.
+      lfs=.false.
 c
       if(me.eq.0) then
   100 continue
@@ -48,7 +50,7 @@ c
       read(lfntrj,1022) box(2),box(3)
  1022 format(12x,f12.6,/,24x,f12.6)
       endif
-      read(lfntrj,1003) lxw,lvw,lsx,lsv,inwm,inwa,nsa
+      read(lfntrj,1003) lxw,lvw,lsx,lsv,inwm,inwa,nsa,lfw,lfs
       if(inwm.gt.0) then
       nwm=inwm
       nwa=inwa
@@ -59,8 +61,7 @@ c
       write(*,'(a,f12.6,3i10,1x,4l1)')
      + ' Frame read:',time,inwm,inwa,nsa,lxw,lvw,lsx,lsv
       endif
-c      read(lfntrj,1003) lxw,lvw,lsx,lsv
- 1003 format(4l1,3i10)
+ 1003 format(4l1,3i10,2l1)
       if(nsa.gt.msa) call errquit('Error in trj 1',0)
       if((lxw.or.lvw).and.nwm.gt.0) then
       do 2 i=1,nwm

@@ -2,9 +2,9 @@
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
-     + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc)
+     + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.39 2001-08-02 16:13:26 d3j191 Exp $
+c $Id: prp_init.F,v 1.40 2001-11-15 04:31:43 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer nserie,ntyp,lfn,iout,iprp,igib,iprf,ndistr
+      integer nserie,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbc
@@ -46,6 +46,7 @@ c
       msm=msmi
       nsm=nsmi
       nsa=nsai
+      nbias=nbiasi
 c
       iset=ipset
       ipset1=isetp1
@@ -149,6 +150,7 @@ c
       pronam( 48)='Energy solvent restraints                   kJ/mol'
       pronam( 49)='Energy solute restraints                    kJ/mol'
       pronam( 50)='Energy solute umbrella potential            kJ/mol'
+      lp(50)=nbias.gt.0
       pronam( 51)='Free energy solute umbrella potential       kJ/mol'
       pronam( 52)='Energy solvent intra electrostatic          kJ/mol'
       lp(52)=nwm.gt.0

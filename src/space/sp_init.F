@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.92 2001-11-09 23:40:18 d3j191 Exp $
+c $Id: sp_init.F,v 1.93 2001-11-15 04:31:31 d3j191 Exp $
 c
       implicit none
 c
@@ -2586,8 +2586,8 @@ c
       sp_rrest=.false.
       return
       end
-      subroutine sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
-     + stime,pres,temp,tempw,temps,iwl,xw,vw,xwcr,isl,xs,vs)
+      subroutine sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+     + stime,pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs)
 c
       implicit none
 c
@@ -2596,21 +2596,23 @@ c
 #include "global.fh"
 c
       integer lfntrj
-      logical lxw,lvw,lxs,lvs
+      logical lxw,lvw,lfw,lxs,lvs,lfs
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 stime,pres,temp,tempw,temps
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
-      real*8 xs(msa,3),vs(msa,3)
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
+      real*8 xs(msa,3),vs(msa,3),fs(msa,3)
 c
       integer lenscr
 c
       lenscr=ma_inquire_avail(mt_byte)/
-     + ((6*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
+     + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
      + call errquit('Failed to allocate bx',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
      + call errquit('Failed to allocate bv',0)
+      if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
+     + call errquit('Failed to allocate bf',0)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
      + call errquit('Failed to allocate br',0)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
@@ -2618,11 +2620,12 @@ c
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
      + call errquit('Failed to allocate n',0)
 c
-      call sp_wttrj(lfntrj,lxw,lvw,lxs,lvs,
+      call sp_wttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
-     + iwl,int_mb(i_packw),xw,vw,xwcr,isl,int_mb(i_pack),xs,vs,
+     + iwl,int_mb(i_packw),xw,vw,fw,xwcr,isl,int_mb(i_pack),xs,vs,fs,
      + int_mb(i_ipl),lenscr,int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
-     + dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv))
+     + dbl_mb(i_bf),dbl_mb(i_br),int_mb(i_bi),dbl_mb(i_bx),dbl_mb(i_bv),
+     + dbl_mb(i_bf))
 c
       if(.not.ma_pop_stack(l_n))
      + call errquit('Failed to deallocate n',0)
@@ -2630,6 +2633,8 @@ c
      + call errquit('Failed to deallocate bi',0)
       if(.not.ma_pop_stack(l_br))
      + call errquit('Failed to deallocate br',0)
+      if(.not.ma_pop_stack(l_bf))
+     + call errquit('Failed to deallocate bf',0)
       if(.not.ma_pop_stack(l_bv))
      + call errquit('Failed to deallocate bv',0)
       if(.not.ma_pop_stack(l_bx))
@@ -2637,9 +2642,9 @@ c
 c
       return
       end
-      subroutine sp_wttrj(lfntrj,lxw,lvw,lxs,lvs,
-     + stime,pres,temp,tempw,temps,iwl,iwlp,xw,vw,xwcr,isl,islp,xs,vs,
-     + ipl,nb,ibw,bxw,bvw,brw,ibs,bxs,bvs)
+      subroutine sp_wttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+     + stime,pres,temp,tempw,temps,iwl,iwlp,xw,vw,fw,xwcr,
+     + isl,islp,xs,vs,fs,ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
 c
       implicit none
 c
@@ -2648,15 +2653,15 @@ c
 #include "global.fh"
 c
       integer lfntrj,nb
-      logical lxw,lvw,lxs,lvs
+      logical lxw,lvw,lfw,lxs,lvs,lfs
       real*8 stime,pres,temp,tempw,temps
       integer iwl(mwm,miw2),isl(msa,mis2)
       integer iwlp(mwm,npackw),islp(msa,npack)
-      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),xwcr(mwm,3)
-      real*8 xs(msa,3),vs(msa,3)
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa),xwcr(mwm,3)
+      real*8 xs(msa,3),vs(msa,3),fs(msa,3)
       integer ipl(mbox,mip2),ibw(nb),ibs(nb)
-      real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),brw(nb,3)
-      real*8 bxs(nb,3),bvs(nb,3)
+      real*8 bxw(nb,3,mwa),bvw(nb,3,mwa),bfw(nb,3,mwa),brw(nb,3)
+      real*8 bxs(nb,3),bvs(nb,3),bfs(nb,3)
 c
       integer i,j,k,node,ncyc,icyc,numw,nums,number,nwmn,nsan
       integer ilp,ihp,jlp,jhp,ili,ihi,jli,jhi,ilw,ihw,jlw,jhw
@@ -2673,10 +2678,10 @@ c
  1001 format(2f12.6,1pe12.5,1x,2a10)
       write(lfntrj,1002) ((vlat(i,j),j=1,3),i=1,3)
  1002 format(3f12.6)
-      write(lfntrj,1003) lxw,lvw,lxs,lvs,nwm,nwa,nsa
- 1003 format(4l1,3i10)
+      write(lfntrj,1003) lxw,lvw,lxs,lvs,nwm,nwa,nsa,lfw,lfs
+ 1003 format(4l1,3i10,2l1)
 c
-      if((lxw.or.lvw).and.nwm.gt.0) then
+      if((lxw.or.lvw.or.lfw).and.nwm.gt.0) then
       number=0
       ncyc=nwm/nb+1
       numw=nb
@@ -2706,8 +2711,10 @@ c
       endif
       call ga_distribution(ga_w,node,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmn-1,jlw,jlw+3*mwa-1,xw,mwm)
-      if(lvw) 
+      if(lvw)
      + call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+3*mwa,jlw+6*mwa-1,vw,mwm)
+      if(lfw)
+     + call ga_get(ga_w,ilw,ilw+nwmn-1,jlw+6*mwa+3,jlw+9*mwa+2,fw,mwm)
       do 3 i=1,nwmn
       j=iwl(i,lwgmn)-number
       if(j.gt.0.and.j.le.numw) then
@@ -2723,45 +2730,53 @@ c
       bvw(j,3,k)=vw(i,3,k)
     5 continue
       endif
+      if(lfw) then
+      do 51 k=1,nwa
+      bfw(j,1,k)=fw(i,1,k)
+      bfw(j,2,k)=fw(i,2,k)
+      bfw(j,3,k)=fw(i,3,k)
+   51 continue
+      endif
       ibw(j)=iwl(i,lwdyn)
       endif
     3 continue
       endif
     2 continue
+      if(lfw) then
+      if(lvw) then
+      do 61 i=1,numw
+      write(lfntrj,1014) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),
+     + (bfw(i,j,k),j=1,3),k=1,nwa)
+ 1014 format(6f8.3,3f8.1)
+      if(ibw(i).lt.0) call errquit('Missing solvent in wttrj',i)
+   61 continue
+      else
+      do 71 i=1,numw
+      write(lfntrj,1015) ((bxw(i,j,k),j=1,3),(bfw(i,j,k),j=1,3),k=1,nwa)
+ 1015 format(3f8.3,3f8.1)
+      if(ibw(i).lt.0) call errquit('Missing solvent in wtrst',i)
+   71 continue
+      endif
+      else
       if(lvw) then
       do 6 i=1,numw
       write(lfntrj,1004) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
  1004 format(6f8.3)
-c
-c     begin test code 10/31/2001
-c     check if al atoms have been received
-c
-      if(ibw(i).lt.0)
-     + call errquit('Missing solvent in wttrj',i)
-c
-c     end test code
-c
+      if(ibw(i).lt.0) call errquit('Missing solvent in wttrj',i)
     6 continue
       else
       do 7 i=1,numw
       write(lfntrj,1005) ((bxw(i,j,k),j=1,3),k=1,nwa)
  1005 format(3f8.3)
-c
-c     begin test code 10/31/2001
-c     check if al atoms have been received
-c
-      if(ibw(i).lt.0)
-     + call errquit('Missing solvent in wtrst',i)
-c
-c     end test code
-c
+      if(ibw(i).lt.0) call errquit('Missing solvent in wtrst',i)
     7 continue
+      endif
       endif
       number=number+numw
     1 continue
       endif
 c
-      if((lxs.or.lvs).and.nsa.gt.0) then
+      if((lxs.or.lvs.or.lfs).and.nsa.gt.0) then
       number=0
       ncyc=nsa/nb+1
       nums=nb
@@ -2792,6 +2807,7 @@ c
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       if(lvs) call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
+      if(lfs) call ga_get(ga_s,ils,ils+nsan-1,jls+6,jls+8,fs,msa)
       do 10 i=1,nsan
       j=isl(i,lsgan)-number
       if(j.gt.0.and.j.le.nums) then
@@ -2803,39 +2819,45 @@ c
       bvs(j,2)=vs(i,2)
       bvs(j,3)=vs(i,3)
       endif
+      if(lfs) then
+      bfs(j,1)=fs(i,1)
+      bfs(j,2)=fs(i,2)
+      bfs(j,3)=fs(i,3)
+      endif
       ibs(j)=isl(i,lsdyn)
       endif
    10 continue
       endif
     9 continue
+      if(lfs) then
+      if(lvs) then
+      do 111 i=1,nums
+      write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
+     + (bfs(i,j),j=1,3)
+ 1016 format(6f8.3,3f8.1)
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
+  111 continue
+      else
+      do 121 i=1,nums
+      write(lfntrj,1007) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
+ 1017 format(3f8.3,3f8.1)
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
+  121 continue
+      endif
+      else
       if(lvs) then
       do 11 i=1,nums
       write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
  1006 format(6f8.3)
-c
-c     begin test code 10/31/2001
-c     check if al atoms have been received
-c
-      if(ibs(i).lt.0)
-     + call errquit('Missing solute atom in wtrst',i)
-c
-c     end test code
-c
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
    11 continue
       else
       do 12 i=1,nums
       write(lfntrj,1007) (bxs(i,j),j=1,3)
  1007 format(3f8.3)
-c
-c     begin test code 10/31/2001
-c     check if al atoms have been received
-c
-      if(ibs(i).lt.0)
-     + call errquit('Missing solute atom in wtrst',i)
-c
-c     end test code
-c
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
    12 continue
+      endif
       endif
       number=number+nums
     8 continue

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.104 2001-11-14 04:11:30 d3j191 Exp $
+c $Id: md_start.F,v 1.105 2001-11-15 04:31:43 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
      + tmprlx,tmsrlx,prsrlx,scaleq,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener,icntrl)
+     + npener,icntrl,nbias)
 c
 c     print topology information
 c     --------------------------
@@ -63,7 +63,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc)
+     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc,nbias)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -483,6 +483,8 @@ c
       nfprop=0
       nfvelo=0
       nfsvel=0
+      nfforc=0
+      nfsfor=0
       nfpold=0
       nrwrec=0
       nfindu=0
@@ -756,6 +758,10 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',52)
       if(.not.rtdb_get(irtdb,'md:nfsvel',mt_int,1,nfsvel))
      + call errquit('md_rtdbin: rtdb_get failed',53)
+      if(.not.rtdb_get(irtdb,'md:nfforc',mt_int,1,nfforc))
+     + call errquit('md_rtdbin: rtdb_get failed',50)
+      if(.not.rtdb_get(irtdb,'md:nfsfor',mt_int,1,nfsfor))
+     + call errquit('md_rtdbin: rtdb_get failed',51)
       if(.not.rtdb_get(irtdb,'md:nfprop',mt_int,1,nfprop))
      + call errquit('md_rtdbin: rtdb_get failed',54)
       if(.not.rtdb_get(irtdb,'md:nffree',mt_int,1,nffree))
@@ -1470,6 +1476,10 @@ c
  1015 format(' Frequency recording system velocities ',t55,i5)
       write(lfnout,1016) nfsvel
  1016 format(' Frequency recording solute velocities ',t55,i5)
+      write(lfnout,1115) nfforc
+ 1115 format(' Frequency recording system forces ',t55,i5)
+      write(lfnout,1116) nfsfor
+ 1116 format(' Frequency recording solute forces ',t55,i5)
       endif
 c
       write(lfnout,2000)
@@ -1557,7 +1567,7 @@ c
       read(lfn,1009) nfoutp,nfstat,nfprop
  1009 format(11i7)
       read(lfn,1009) ibinar,iformt
-      read(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel
+      read(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel,nfforc,nfsfor
       read(lfn,1009) nffree
       read(lfn,1009) nfcntr,nfslow
       read(lfn,1010) nfrdf,numrdf,ngc,ngr,ngl,ngrww,ngrsw,ngrss
@@ -1621,7 +1631,7 @@ c
       write(lfn,1009) nfoutp,nfstat,nfprop
  1009 format(11i7)
       write(lfn,1009) ibinar,iformt
-      write(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel
+      write(lfn,1009) nfcoor,nfscoo,nfvelo,nfsvel,nfforc,nfsfor
       write(lfn,1009) nffree
       write(lfn,1009) nfcntr,nfslow
       write(lfn,1010) nfrdf,numrdf,ngc,ngr,ngl,ngrww,ngrsw,ngrss

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.48 2001-11-14 04:11:29 d3j191 Exp $
+c $Id: md_common.fh,v 1.49 2001-11-15 04:31:42 d3j191 Exp $
 c
 c     parameters
 c
@@ -124,9 +124,10 @@ c
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
      + macfl,ixcl,iapprx,krun,mrun,mropt,ldacq,mdopt,msplit,mintyp,nem,
-     + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,
+     + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
+     + nfforc,nfsfor,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivropt,iint,
@@ -153,9 +154,10 @@ c
      + ntype,mdtype,iset,mdordr,nserie,ipolt,mpolit,iswtch,mdstep,
      + kequi,mequi,kdacq,mdacq,npgdrv,npgdec,iffdrv,isaltb,maxlam,
      + macfl,ixcl,iapprx,krun,mrun,mropt,ldacq,mdopt,msplit,mintyp,nem,
-     + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,
+     + nemcrt,nfqrs,msdit,mcgit,ncgcy,mshitw,mshits,ifss,nbias,
      + nfoutp,nfstat,nfrest,nffree,nfcoor,nfscoo,nfprop,nfvelo,
      + nfsvel,nfpold,nrwrec,nfindu,nfsind,nfcntr,nfslow,nfshkw,
+     + nfforc,nfsfor,
      + nfshks,nfrdf,nfdip,nfkirk,nkirk,nfhbo,nfsync,ngl,ngr,ngc,
      + ngrww,ngrsw,ngrss,ndip,numhis,numdis,lnghis,lngdis,nfacfa,
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivropt,iint,
@@ -172,9 +174,9 @@ c
      + isload,ncoll,ipopt,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
-     + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack,lequi
+     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi
       common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
-     + lpert2,lpert3,lxw,lvw,lxs,lvs,lpack,lequi
+     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,

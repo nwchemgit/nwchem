@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.46 2001-11-14 04:11:29 d3j191 Exp $
+c $Id: md_input.F,v 1.47 2001-11-15 04:31:42 d3j191 Exp $
 c
       implicit none
 c
@@ -21,6 +21,7 @@ c
       integer ipolt,mshitw,mshits,npstep,npener,npdist,nptmng,nfpair
       integer nfrdf,nfcntr,nfoutp,nfstat,nfrest,keepr,nfcoor,nfscoo
       integer nfvelo,nfsvel,nfprop,nffree,nfsync,iformt,madbox,loadb
+      integer nfforc,nfwfor,nfsfor
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
       integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
       integer ngx,ngy,ngz,numfix,ifix,noshak,nfslow,nfefld,nfsfld
@@ -107,6 +108,9 @@ c
       nfvelo=-1
       nfwvel=-1
       nfsvel=-1
+      nfforc=-1
+      nfwfor=-1
+      nfsfor=-1
       nfprop=0
       nffree=1
       nfsync=0
@@ -1183,6 +1187,18 @@ c
       if(.not.inp_i(nfsvel)) call errquit('md_input: error svelo',20)
       goto 600
       endif
+      if(inp_compare(.false.,'force',item)) then
+      if(.not.inp_i(nfforc)) call errquit('md_input: error force',20)
+      goto 600
+      endif
+      if(inp_compare(.false.,'wforc',item)) then
+      if(.not.inp_i(nfwfor)) call errquit('md_input: error sforc',20)
+      goto 600
+      endif
+      if(inp_compare(.false.,'sforc',item)) then
+      if(.not.inp_i(nfsfor)) call errquit('md_input: error sforc',20)
+      goto 600
+      endif
       if(inp_compare(.false.,'prop',item)) then
       if(.not.inp_i(nfprop)) call errquit('md_input: error prop',20)
       goto 600
@@ -1341,12 +1357,16 @@ c
 c
       if(nfscoo.lt.0) nfscoo=nfcoor
       if(nfsvel.lt.0) nfsvel=nfvelo
+      if(nfsfor.lt.0) nfsfor=nfforc
       if(nfwcoo.lt.0) nfwcoo=nfcoor
       if(nfwvel.lt.0) nfwvel=nfvelo
+      if(nfwfor.lt.0) nfwfor=nfforc
       if(nfscoo.lt.0) nfscoo=0
       if(nfsvel.lt.0) nfsvel=0
+      if(nfsfor.lt.0) nfsfor=0
       if(nfwcoo.lt.0) nfwcoo=0
       if(nfwvel.lt.0) nfwvel=0
+      if(nfwfor.lt.0) nfwfor=0
 c
       numcmd=numfix
 c
@@ -1474,6 +1494,10 @@ c
       if(.not.rtdb_put(irtdb,'md:nfvelo',mt_int,1,nfwvel))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfsvel',mt_int,1,nfsvel))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nfforc',mt_int,1,nfwfor))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nfsfor',mt_int,1,nfsfor))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfprop',mt_int,1,nfprop))
      + call errquit('md_input: rtdb_put failed',0)

@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.60 2001-08-10 14:52:58 d3j191 Exp $
+c $Id: prp_main.F,v 1.61 2001-11-15 04:31:43 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
 c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
-      real*8 epot,epotw,epotsw,epots,vol,ekin,etot,epmec
+      real*8 epot,epotw,epotsw,epots,vol,ekin,etot,epmec,ubias
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm,box(3)
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
@@ -97,7 +97,7 @@ c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
      + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3,
-     + edrs,epmf,virial,prest,virt,ekct)
+     + edrs,epmf,virial,prest,virt,ekct,ubias)
       endif
 c
 c     if using space get properties from it
@@ -162,6 +162,7 @@ c
       p(36)=ep2
       p(37)=ep3
       if(me.eq.0) p(40)=dfree
+      if(me.eq.0) p(50)=ubias
       p(52)=eww(6,1)
       p(53)=eww(5,1)
       p(54)=eww(8,1)
@@ -331,21 +332,23 @@ c
       p(80)=(p(80)-p(79))/p(80)
       endif
 c
-      if(temp.eq.0d0) then
-      p(38)=0d0
-      p(39)=0d0
+      if(temp.eq.zero.or.me.ne.0) then
+      p(38)=zero
+      p(39)=zero
+      p(51)=zero
       else
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
+      p(51)=exp(-p(50)/(rgas*temp))
       endif
 c
       if(nwm.gt.0) then
       dwr=p(69)/dble(6*nwm)
       p(69)=dwr
       if(stime.ne.0) then
-         p(70)=1.0d-6*dwr/stime
+      p(70)=1.0d-6*dwr/stime
       else
-         p(70)=0d0
+      p(70)=zero
       endif
       endif
 c

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.112 2001-11-02 16:06:13 d3j191 Exp $
+c $Id: md_main.F,v 1.113 2001-11-15 04:31:42 d3j191 Exp $
 c
       implicit none
 c
@@ -387,10 +387,11 @@ c
      + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfntrj,lxw,.false.,lxs,.false.,
+      call sp_wrttrj(lfntrj,lxw,.false.,.false.,lxs,.false.,.false.,
      + stime,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
       endif
       endif
 c
@@ -884,10 +885,11 @@ c
      + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfntrj,lxw,.false.,lxs,.false.,
+      call sp_wrttrj(lfntrj,lxw,.false.,.false.,lxs,.false.,.false.,
      + stime,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
       endif
       endif
 c
@@ -972,8 +974,14 @@ c
 c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
+      lfw=frequency(mdstep,nfforc)
       lxs=frequency(mdstep,nfscoo)
       lvs=frequency(mdstep,nfsvel)
+      lfs=frequency(mdstep,nfsfor)
+c
+      if(lfw.or.lfs) then
+      call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
+      endif
 c
       if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
@@ -981,10 +989,11 @@ c
      + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
+      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
       endif
       endif
 c
@@ -1105,8 +1114,14 @@ c
 c
       lxw=frequency(mdstep,nfcoor)
       lvw=frequency(mdstep,nfvelo)
+      lfw=frequency(mdstep,nfforc)
       lxs=frequency(mdstep,nfscoo)
       lvs=frequency(mdstep,nfsvel)
+      lfs=frequency(mdstep,nfsfor)
+c
+      if(lfw.or.lfs) then
+      call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
+      endif
 c
       if(me.eq.0.and.idacq.eq.mdacq.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
@@ -1114,10 +1129,11 @@ c
      + .true.,.false.,.true.,.false.,box,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
+      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
       endif
       endif
 c
@@ -1279,6 +1295,15 @@ c
       call md_addref(.false.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
      + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
+      if(lfw.or.lfs) then
+      call sp_gaputf(me,dbl_mb(i_fw),nwmloc,dbl_mb(i_fs),nsaloc)
+      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
+     + stime-tstep,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
+      endif
+c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -1293,10 +1318,13 @@ c
      + temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfntrj,lxw,lvw,lxs,lvs,
+      if(.not.lfw.and..not.lfs) then
+      call sp_wrttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime-tstep,pres,temp,tempw,temps,
-     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
+      endif
       endif
 c
       call timer_stop(17)
@@ -2165,7 +2193,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.112 2001-11-02 16:06:13 d3j191 Exp $
+c $Id: md_main.F,v 1.113 2001-11-15 04:31:42 d3j191 Exp $
 c
       implicit none
 c
