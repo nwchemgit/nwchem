@@ -1,4 +1,4 @@
-C $Id: rel_SSSS.F,v 1.5 2000-01-25 21:46:17 mg201 Exp $
+C $Id: rel_SSSS.F,v 1.6 2000-02-03 20:26:39 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSSS}
 c:tex-This routine generates the SSSS-type two-electron integrals for
@@ -214,6 +214,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_A-1, l_B+1
 *
       if (l_A .gt. 0) then
+        memscr = lscr-i_scr+1
         call rel_LLSS (
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A-1,
      &      Bxyz,zeta_B,scr(i_xcb),NPB,NCB,l_B+1,
@@ -227,6 +228,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_A+1, l_B-1
 *
       if (l_B .gt. 0) then
+        memscr = lscr-i_scr+1
         call rel_LLSS (
      &      Axyz,zeta_A,scr(i_xca),NPA,NCA,l_A+1,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B-1,
@@ -239,6 +241,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_A-1, l_B-1
 *
         if (l_A .gt. 0) then
+          memscr = lscr-i_scr+1
           call rel_LLSS (
      &        Axyz,zeta_A,coef_A,NPA,NCA,l_A-1,
      &        Bxyz,zeta_B,coef_B,NPB,NCB,l_B-1,
@@ -252,6 +255,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
 *     Call routine to generate the integrals.
 *
+      memscr = lscr-i_scr+1
       call rel_pot2 (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
      &    rel_ints,n_ints,ntypAB,n_cd,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,NCA*ntypCD,
