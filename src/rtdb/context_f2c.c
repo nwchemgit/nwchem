@@ -1,8 +1,8 @@
-/*$Id: context_f2c.c,v 1.8 2001-05-04 19:53:45 edo Exp $*/
+/*$Id: context_f2c.c,v 1.9 2003-08-13 17:11:35 edo Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #endif
 #ifdef WIN32
@@ -24,7 +24,7 @@ typedef int integer;		/* Equivalent C type to FORTRAN integer */
 #endif
 
 #define MAX_CLEN 4096
-#if defined(CRAY) || defined(USE_FCD) 
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 static int fortchar_to_string(_fcd f, int flen, char *buf, 
 			      const int buflen)
 #else
@@ -32,7 +32,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 			      const int buflen)
 #endif
 {
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD))&& !defined(__crayx1)
   char *fstring = _fcdtocp(f);
   flen = _fcdlen(f);
 
@@ -65,21 +65,21 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 static int string_to_fortchar( f, flen, buf)
   int flen;
   char *buf;
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   _fcd f;
 #else
   char *f;
 #endif
 {
   int len = strlen(buf), i;
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   flen = _fcdlen(f);
 #endif
 
   if (len > flen) 
     return 0;			/* Won't fit */
 
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   for (i=0; i<len; i++)
     _fcdtocp(f)[i] = buf[i];
   for (i=len; i<flen; i++)
@@ -93,7 +93,7 @@ static int string_to_fortchar( f, flen, buf)
   return 1;
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 logical context_set_(_fcd  string, int len)
 #else
 logical context_set_(const char *string, int len)
@@ -112,7 +112,7 @@ logical context_set_(const char *string, int len)
     return FORTRAN_FALSE;
 }
 
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 logical FATR context_get_(_fcd string, int len)
 #else
 logical context_get_(const char *string, int len)
@@ -143,13 +143,13 @@ logical context_rtdb_load_(integer *prtdb)
   else
     return FORTRAN_FALSE;
 }
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 logical FATR context_push_(_fcd string)
 #else
 logical context_push_(const char *string, int len)
 #endif
 {
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   int len = _fcdlen(string);
 #endif
   char buf[MAX_CLEN];
@@ -164,13 +164,13 @@ logical context_push_(const char *string, int len)
   else
     return FORTRAN_FALSE;
 }
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 logical FATR context_pop_(_fcd string)
 #else
 logical context_pop_(const char *string, int len)
 #endif
 {
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   int len = _fcdlen(string);
 #endif
   char buf[MAX_CLEN];
@@ -185,13 +185,13 @@ logical context_pop_(const char *string, int len)
   else
     return FORTRAN_FALSE;
 }
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 logical FATR context_prefix_(_fcd name, _fcd result)
 #else
 logical context_prefix_(const char *name, char *result, int nlen, int rlen)
 #endif
 {
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   int nlen = _fcdlen(name);
   int rlen = _fcdlen(result);
 #endif
@@ -210,14 +210,14 @@ logical context_prefix_(const char *name, char *result, int nlen, int rlen)
 
     return FORTRAN_TRUE;
 }
-#if defined(CRAY) || defined(USE_FCD)  
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 logical FATR context_rtdb_match_(integer *prtdb, _fcd name, _fcd result)
 #else
 logical context_rtdb_match_(integer *prtdb, const char *name, char *result,
 			    int nlen, int rlen)
 #endif
 {
-#if defined(CRAY) || defined(USE_FCD)
+#if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
   int nlen = _fcdlen(name);
   int rlen = _fcdlen(result);
 #endif
