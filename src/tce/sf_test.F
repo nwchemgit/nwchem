@@ -1,12 +1,13 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.6 2002-11-11 18:25:54 sohirata Exp $
+c $Id: sf_test.F,v 1.7 2003-01-31 04:36:43 sohirata Exp $
 c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "sf.fh"
+#include "eaf.fh"
 #include "stdio.fh"
 #include "tce.fh"
       integer d_test

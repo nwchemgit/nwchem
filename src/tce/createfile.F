@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.10 2002-11-14 02:05:52 sohirata Exp $
+c $Id: createfile.F,v 1.11 2003-01-31 04:36:42 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "util.fh"
 #include "sf.fh"
+#include "eaf.fh"
 #include "tce.fh"
       character*(*) filename
       integer d_sf
@@ -81,9 +82,10 @@ c
           enddo
           call errquit('createfile: file problem',0)
   110     continue
-          d_f = f_create(filename)
-          if (f_close(d_f).ne.0)
-     1      call errquit('createfile: file problem',1)
+          if (eaf_open(filename, EAF_RW, d_f).ne.0)
+     1      call errquit('createfile: eaf problem',0)
+          if (eaf_close(d_f).ne.0)
+     1      call errquit('createfile: eaf problem',1)
           if (nodezero.and.util_print('files',print_debug)) then
             do i = 1,nfiles
               write(LuOut,9010) filehandles(i),filenames(i)(1:40)
@@ -92,7 +94,8 @@ c
         else
           if (nfiles.eq.max_files)
      1      call errquit('createfile: exceeded max_files',nfiles)
-          d_sf = f_create(filename)
+          if (eaf_open(filename, EAF_RW, d_sf).ne.0)
+     1      call errquit('createfile: eaf problem',0)
           nfiles = nfiles + 1
           filehandles(nfiles) = d_sf
           filenames(nfiles) = filename
@@ -123,7 +126,8 @@ c
      1    write(LuOut,9030) ga_nodeid(),size,filename(1:40)
         if (nfiles.eq.max_files)
      1    call errquit('createfile: exceeded max_files',nfiles)
-        d_sf = f_create(filename)
+        if (eaf_open(filename, EAF_RW, d_sf).ne.0)
+     1    call errquit('createfile: eaf problem',0)
         nfiles = nfiles + 1
         filehandles(nfiles) = d_sf
         filenames(nfiles) = filename

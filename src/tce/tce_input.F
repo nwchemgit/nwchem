@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.12 2003-01-29 17:36:25 sohirata Exp $
+c $Id: tce_input.F,v 1.13 2003-01-31 04:36:43 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -16,7 +16,7 @@ c          MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
-c        [IO (fortran||c||ga||sf||replicated) default ga]
+c        [IO (fortran||eaf||ga||sf||replicated) default ga]
 c        [DIIS <integer diis 5>]
 c     END
 c
@@ -302,7 +302,7 @@ c
         else
           if (ioalgchar.eq.'fortran') then
             ioalg=0
-          else if (ioalgchar.eq.'c') then
+          else if (ioalgchar.eq.'eaf') then
             ioalg=1
           else if (ioalgchar.eq.'ga') then
             ioalg=2

@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.8 2002-11-14 02:05:52 sohirata Exp $
+c $Id: add_block.F,v 1.9 2003-01-31 04:36:42 sohirata Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -13,6 +13,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "sf.fh"
+#include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "tce.fh"
@@ -71,27 +72,30 @@ c
           enddo
           filename = filenames(j)
           call ga_lock(0)
-          d_f = f_open(filename)
-          if (f_read(d_f,bytes*offset,bytes*size,dbl_mb(k_temp)).ne.0)
-     1      call errquit('add_block: file problem',0)
+          if (eaf_open(filename, EAF_RW, d_f).ne.0)
+     1      call errquit('add_block: eaf problem',2)
+          if (eaf_read(d_f,dfloat(bytes)*dfloat(offset),
+     1      dbl_mb(k_temp),bytes*size).ne.0)
+     2      call errquit('add_block: eaf problem',2)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
-          if (f_write(d_f,bytes*offset,bytes*size,dbl_mb(k_temp)).ne.0)
-     1      call errquit('add_block: file problem',2)
-          if (f_close(d_f).ne.0)
-     1      call errquit('add_block: file problem',0)
+          if (eaf_write(d_f,dfloat(bytes)*dfloat(offset),
+     1      dbl_mb(k_temp),bytes*size).ne.0)
+     2      call errquit('add_block: eaf problem',2)
+          if (eaf_close(d_f).ne.0)
+     1      call errquit('add_block: eaf problem',0)
           call ga_unlock(0)
         else
-          if (f_read(d_file,bytes*offset,bytes*size,
-     1      dbl_mb(k_temp)).ne.0)
-     2      call errquit('add_block: file problem',0)
+          if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
+     1      dbl_mb(k_temp),bytes*size).ne.0)
+     2      call errquit('add_block: eaf problem',2)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
-          if (f_write(d_file,bytes*offset,bytes*size,
-     1      dbl_mb(k_temp)).ne.0)
-     2      call errquit('add_block: file problem',2)
+          if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
+     1      dbl_mb(k_temp),bytes*size).ne.0)
+     2      call errquit('add_block: eaf problem',2)
         endif
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('add_block: MA problem',0)
@@ -131,15 +135,15 @@ c
         if (.not.ma_push_get(mt_dbl,size,'temporary',
      1    l_temp,k_temp))
      2    call errquit('add_block: MA problem',0)
-        if (f_read(d_file,bytes*offset,bytes*size,
-     1    dbl_mb(k_temp)).ne.0)
-     2    call errquit('add_block: file problem',0)
+        if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
+     1    dbl_mb(k_temp),bytes*size).ne.0)
+     2    call errquit('add_block: eaf problem',2)
         do i = 1,size
           dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
         enddo
-        if (f_write(d_file,bytes*offset,bytes*size,
-     1    dbl_mb(k_temp)).ne.0)
-     2    call errquit('add_block: file problem',2)
+        if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
+     1    dbl_mb(k_temp),bytes*size).ne.0)
+     2    call errquit('add_block: eaf problem',2)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('add_block: MA problem',0)
       endif

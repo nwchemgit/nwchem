@@ -1,11 +1,12 @@
       subroutine get_block(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.9 2002-11-14 02:05:52 sohirata Exp $
+c $Id: get_block.F,v 1.10 2003-01-31 04:36:43 sohirata Exp $
 c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "sf.fh"
+#include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "tce.fh"
@@ -59,15 +60,18 @@ c
           enddo
           filename = filenames(j)
           call ga_lock(0)
-          d_f = f_open(filename)
-          if (f_read(d_f,bytes*offset,bytes*size,array).ne.0)
-     1      call errquit('get_block: file problem',0)
-          if (f_close(d_f).ne.0)
-     1      call errquit('get_block: file problem',1)
+          if (eaf_open(filename, EAF_RW, d_f).ne.0)
+     1      call errquit('get_block: eaf problem',1)
+          if (eaf_read(d_f,dfloat(bytes)*dfloat(offset),
+     1      array,bytes*size).ne.0)
+     2      call errquit('get_block: eaf problem',2)
+          if (eaf_close(d_f).ne.0)
+     1      call errquit('get_block: eaf problem',4)
           call ga_unlock(0)
         else
-          if (f_read(d_file,bytes*offset,bytes*size,array).ne.0)
-     1      call errquit('get_block: file problem',0)
+          if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
+     1      array,bytes*size).ne.0)
+     2      call errquit('get_block: eaf problem',5)
         endif
       else if (ioalg.eq.2) then
         call ga_get(d_file,offset+1,offset+size,1,1,
@@ -89,8 +93,9 @@ c
           call ga_unlock(0)
         endif
       else if (ioalg.eq.4) then
-        if (f_read(d_file,bytes*offset,bytes*size,array).ne.0)
-     1    call errquit('get_block: file problem',0)
+        if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
+     1    array,bytes*size).ne.0)
+     2    call errquit('get_block: eaf problem',7)
       endif
  9000 format(1x,'node',i3,' get_block request to file:',i10,
      1  ' size:',i10,' offset:',i10)

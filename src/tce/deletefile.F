@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.7 2002-11-13 16:23:22 sohirata Exp $
+c $Id: deletefile.F,v 1.8 2003-01-31 04:36:42 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -10,6 +10,7 @@ c
 #include "stdio.fh"
 #include "util.fh"
 #include "sf.fh"
+#include "eaf.fh"
 #include "tce.fh"
       integer d_sf
       logical nodezero
@@ -17,8 +18,6 @@ c
       integer i,j
       logical used
       character*255 filename
-      integer sf_unlink
-      external sf_unlink
 c
       cpusecs(2) = cpusecs(2) - util_cpusec()
       cpusecs(52) = cpusecs(52) - util_wallsec()
@@ -49,8 +48,7 @@ c
         close(d_sf)
         if (parallel) call ga_sync()
         if (nodezero) then
-          if (sf_unlink(filename).ne.0)
-     1      call errquit('deletefile: cannot delete a file',0)
+          call util_file_unlink(filename)
         endif
         nfiles = nfiles - 1
         if (nodezero.and.util_print('files',print_debug)) then
@@ -81,15 +79,13 @@ c
         if (parallel) then
           call ga_sync()
           if (nodezero) then
-            if (sf_unlink(filename).ne.0)
-     1        call errquit('deletefile: cannot delete a file',0)
+            call util_file_unlink(filename)
           endif
           call ga_sync()
         else
-          if (f_close(d_sf).ne.0)
-     1      call errquit('deletefile: file problem',0)
-          if (sf_unlink(filename).ne.0)
-     1      call errquit('deletefile: cannot delete a file',0)
+          if (eaf_close(d_sf).ne.0)
+     1      call errquit('deletefile: eaf problem',0)
+          call util_file_unlink(filename)
         endif
         nfiles = nfiles - 1
         if (nodezero.and.util_print('files',print_debug)) then
@@ -128,10 +124,9 @@ c
             filenames(i-1) = filenames(i)
           enddo
         endif
-        if (f_close(d_sf).ne.0)
-     1    call errquit('deletefile: file problem',0)
-        if (sf_unlink(filename).ne.0)
-     1    call errquit('deletefile: cannot delete a file',0)
+        if (eaf_close(d_sf).ne.0)
+     1    call errquit('deletefile: eaf problem',0)
+        call util_file_unlink(filename)
         nfiles = nfiles - 1
         if (nodezero.and.util_print('files',print_debug)) then
           do i = 1,nfiles
