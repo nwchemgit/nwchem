@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.6 2001-05-09 17:51:06 d3j191 Exp $
+* $Id: task_dynamics.F,v 1.7 2003-04-09 15:53:30 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -30,7 +30,6 @@ c
 c
       logical status
       double precision cpu,wall
-      character*80 prefix
       character*32 theory
 c
       call ecce_print_module_entry('task dynamics')
@@ -53,12 +52,7 @@ c
 c
 c     Actually do the deed
 c
-      prefix=theory           ! Most common scenario
-      if(theory.eq.'md'.or.theory.eq.'scf'.or.theory.eq.'dft') then
       status=nwmd(rtdb)
-      else
-      call errquit('task_dynamics: unknown theory',0)
-      endif
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
