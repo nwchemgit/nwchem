@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.55 2000-05-24 20:22:00 d3j191 Exp $
+c $Id: cf_main.F,v 1.56 2000-05-25 20:37:35 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2136,7 +2136,7 @@ c
 c
       implicit none
 c
-      integer nb,ia,ndb
+      integer ia,ndb
       integer idb(ndb,4)
 c
       integer i,number
