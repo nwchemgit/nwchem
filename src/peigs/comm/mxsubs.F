@@ -312,7 +312,7 @@ c      stop 999
       mxread = kxread (data,isize,iproc,itype)
 #endif
 #ifdef TCGMSG
-      integer icopy
+*defined above in all code     integer icopy
 c     icopy = mxmynd() + 100*iproc
 c     icopy = mod(icopy, 32767) + 1
 c     
