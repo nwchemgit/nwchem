@@ -4,7 +4,7 @@ c     to create derivative J matrices and J hessian (without fitting)
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.2 1998-09-25 11:46:00 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.3 1998-09-29 19:43:56 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -43,7 +43,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.2 1998-09-25 11:46:00 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.3 1998-09-29 19:43:56 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -53,13 +53,13 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "cdft.fh"
-c!!! BGJ
+c!!! Start BGJ temp test code
 #include "bgj.fh"
 #include "global.fh"
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-c!!! BGJ
+c!!! End BGJ temp test code
 c
       integer g_dens            ! [input] handle to total density
       integer nactive           ! [input] number of active atoms
@@ -81,10 +81,10 @@ c
       integer i, nproc
       double precision tol2e
       integer g_t
-c !!! BGJ test
+c !!! Start BGJ temp test code
       integer l_ti_hess, k_ti_hess, g_ti(3)
       integer j
-c !!! BGJ test
+c !!! End BGJ temp test code
 c
       if (bgj_print() .gt. 0)
      &     write(*,*)'--------Entered j_deriv_gen-------------'
@@ -95,11 +95,8 @@ c
       if (bgj_print() .gt. 0)
      &     write(*,*)'logicals ', do_hess, do_cpks_r
       rtdb = bgj_get_rtdb_handle()
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'rtdb geom',rtdb,geom
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('j_deriv_gen: geom_ncent failed',1)
-c      write(*,*)'natoms',natoms
 c
 c     Initialize output quantities
 c
@@ -117,9 +114,6 @@ c
 c
 c     Set up temporary arrays needed by dftg_grad2_gen
 c
-      if (calc_type.eq.2) then
-         write(*,*)'*** j_nucder_alloc: is hess buf big enough?'
-      endif
       call j_nucder_alloc(l_d_ija, k_d_ija, l_d_kla, k_d_kla,
      &                    ldim, l_scr, k_scr, lscr, l_buf, k_buf,
      &                    lbuf, l_s34, k_s34, natoms)
@@ -160,6 +154,9 @@ c
       endif
 c
 c !!! BGJ test !!!
+c All the code from here to the next !!! BGJ test !!! can be removed once
+c the code is stable
+
       if (bgj_print() .gt. 0) then
          if (do_hess) then
 c
