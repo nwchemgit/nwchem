@@ -1,18 +1,24 @@
       subroutine solver(g, nx, ny, nz, poles, depth, lmax, 
-     $     xlo, xhi, ylo, yhi, zlo, zhi)
+     $     xlo, xhi, ylo, yhi, zlo, zhi, offt1done)
       implicit none
 #include "mafdecls.fh"
+#include "util.fh"
       integer nx, ny, nz        ! [input] Grid dimension
       integer depth, lmax       ! [input] FMM parameters
       double precision g(nx,ny,nz)
       double precision 
      $     poles(1:(lmax+1)**2,0:2**depth-1,0:2**depth-1,0:2**depth-1)
       double precision xlo, xhi, ylo, yhi, zlo, zhi
+      logical offt1done
 c
 c     Given as input a function that is zero at the boundary
 c     tabulated on a grid (zero boundary not included) and
 c     a set of multipole moments in the volume solve the
 c     free space Poisson equation
+c
+c     if (offt1done) then
+c     .  the first sine transform has already been done
+c     endif
 c     
       integer i, j, k
       double precision pi, kx, ky, kz, scale
@@ -22,11 +28,15 @@ c
 c
       pi = 4.0d0*atan(1.0d0)
 
-      start = etime(tt)
-      call vsint3d(nx,ny,nz,g)
-      write(6,*) ' First FFT ', etime(tt)-start
-      start = etime(tt)
+      if (.not. offt1done) then
+         start = etime(tt)
+         call vsint3d(nx,ny,nz,g)
+         if (util_print('fastjtime',print_debug))
+     $        write(6,12) etime(tt)-start
+ 12      format(' fastj: First FFT ', f6.2)
+      endif
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',3)
+      start = etime(tt)
 c     
       scale = 4.0d0*pi*0.125d0/(dble(nx+1)*dble(ny+1)*dble(nz+1))
 c
@@ -42,11 +52,15 @@ c
       end do
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',4)
 c
-      write(6,*) ' Scaling ', etime(tt)-start
+      if (util_print('fastjtime',print_debug))
+     $     write(6,13) etime(tt)-start
+ 13   format(' fastj: Scaling ', f6.2)
       start = etime(tt)
 c
       call vsint3d(nx,ny,nz,g)
-      write(6,*) ' Second FFT ', etime(tt) - start
+      if (util_print('fastjtime',print_debug))
+     $     write(6,14) etime(tt) - start
+ 14   format(' fastj: Second FFT ', f6.2)
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',5)
 c
@@ -59,20 +73,26 @@ c
       call boundary_layer_multipoles(g,nx,ny,nz,
      $     xlo,xhi,ylo,yhi,zlo,zhi,poles,lmax,depth,dbl_mb(k_work),
      $     'poles')
-      write(6,*) ' Boundary poles ', etime(tt) - start
+      if (util_print('fastjtime',print_debug))
+     $     write(6,15) etime(tt) - start
+ 15   format(' fastj: Boundary poles ', f6.2)
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',6)
 c
       call fmm(lmax, depth, xhi-xlo, yhi-ylo, zhi-zlo, poles,
      $     poles0, dbl_mb(k_work), lenwork)
-      write(6,*) ' FMM ', etime(tt) - start
+      if (util_print('fastjtime',print_debug))
+     $     write(6,16) etime(tt) - start
+ 16   format(' fastj: FMM ', f6.2)
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',7)
 c
       call boundary_layer_multipoles(g,nx,ny,nz,
      $     xlo,xhi,ylo,yhi,zlo,zhi,poles,lmax,depth,dbl_mb(k_work),
      $     'near')
-      write(6,*) ' Boundary potentials ', etime(tt) - start
+      if (util_print('fastjtime',print_debug))
+     $     write(6,17) etime(tt) - start
+ 17   format(' fastj: Boundary potentials ', f6.2)
       start = etime(tt)
       if (.not. ma_verify_allocator_stuff()) call errquit('fred',8)
 c
@@ -649,26 +669,13 @@ c
       if (ny .gt. maxn) call errquit('sint3d: ny>maxn', ny)
       if (nz .gt. maxn) call errquit('sint3d: nz>maxn', nz)
 c
-      scale = sqrt(2.0d0*dble(nx+1))
-      call vsinti(nx,wsave)
+      call sinti(nx,wsave)
       do k = 1, nz
-         do jlo = 1, ny, ncol
-            jhi = min(ny,jlo+ncol-1)
-            do j = jlo, jhi
-               do i = 1, nx
-                  x(j-jlo+1,i) = g(i,j,k)
-               enddo
-            enddo
-            call vsint(jhi-jlo+1,nx,x,xt,ncol,wsave)
-            do j = jlo, jhi
-               do i = 1, nx
-                  g(i,j,k) = x(j-jlo+1,i) * scale
-               enddo
-            enddo
-         end do
+         do j = 1, ny
+            call sint(nx,g(1,j,k),wsave)
+         enddo
       end do
 c
-      scale = sqrt(2.0d0*dble(ny+1))
       call vsinti(ny,wsave)
       do k = 1, nz
          do ilo = 1, nx, ncol
@@ -681,14 +688,14 @@ c
             call vsint(ihi-ilo+1,ny,x,xt,ncol,wsave)
             do j = 1, ny
                do i = ilo, ihi
-                  g(i,j,k) = x(i-ilo+1,j)*scale
+                  g(i,j,k) = x(i-ilo+1,j)
                enddo
             enddo
          end do
       end do
 c
-      scale = sqrt(2.0d0*dble(nz+1))
-      call vsinti(nz,wsave)
+      scale = sqrt(4.0d0*dble(ny+1)*dble(nz+1))
+      if (nz .ne. ny) call vsinti(nz,wsave)
       do j = 1, ny
          do ilo = 1, nx, ncol
             ihi = min(nx,ilo+ncol-1)
@@ -775,7 +782,7 @@ c
 c
       order = lmax + 2          ! Order of interpolation
       ng    = (order-1)/2 + 2   ! Order of quadrature
-      npt   = 1.5*order         ! Min no. of points for interpolation
+      npt   = order + 3         ! Min no. of points for interpolation
       if (ng .gt. maxng) call errquit
      $     ('surf_2d_cart_mpole: maxng too small',ng)
 c
@@ -939,7 +946,7 @@ c
       double precision scale
       integer i, j, k
 c
-      call sint3d(nx,ny,nz,g)
+      call vsint3d(nx,ny,nz,g)
       scale = 0.125d0/(dble(nx+1)*dble(ny+1)*dble(nz+1))
       call dfill(nnx*nny*nnz,0.0d0,gg,1)
       do k = 1, nz
@@ -950,6 +957,6 @@ c
          enddo
       enddo
 c
-      call sint3d(nnx,nny,nnz,gg)
+      call vsint3d(nnx,nny,nnz,gg)
 c
       end
