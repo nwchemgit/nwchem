@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.19 2002-01-31 20:52:24 windus Exp $
+C     $Id: memory_def.F,v 1.20 2002-12-17 22:24:14 nwchem Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -116,7 +116,12 @@ C     by default.  This is (should be) an empirical estimate of what
 C     distribution of memory will serve most applications.
 C
       Double Precision Heap_Frc, Stack_Frc, Global_Frc
+#ifdef ELAN3HACK
+      Parameter (Heap_Frc=7d0/18d0,Stack_Frc=7d0/18d0,
+     ,     Global_Frc=4d0/18d0)
+#else
       Parameter (Heap_Frc = 0.25, Stack_Frc = 0.25, Global_Frc = 0.50 )
+#endif
 C
 C LOCAL VARIABLES
       Integer NSet, Missing, Borrow

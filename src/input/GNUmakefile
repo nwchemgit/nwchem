@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.48 2002-02-01 00:31:14 windus Exp $
+#$Id: GNUmakefile,v 1.49 2002-12-17 22:24:13 nwchem Exp $
 
 # Put into task library so that it occurs at the front of the link path
 
@@ -25,6 +25,14 @@ ifeq ($(HOSTNAME),mcurie)
 # 180 MB              = 23592960
 # 200 MB on NERSC T3E = 26214400
   LIB_DEFINES += -DDFLT_TOT_MEM=22282240
+endif
+ifeq ($(HOSTNAME),ng126)
+# 1800 MB = 700 + 700 + 400
+ LIB_DEFINES += -DDFLT_TOT_MEM=235929600 -DELAN3HACK
+endif
+ifeq ($(HOSTNAME),ng127)
+# 1800 MB = 700 + 700 + 400
+ LIB_DEFINES += -DDFLT_TOT_MEM=235929600 -DELAN3HACK
 endif
 
 ifeq ($(HOSTSUFFIX),nwmpp1.emsl.pnl.gov)
