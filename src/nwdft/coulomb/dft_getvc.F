@@ -3,7 +3,7 @@
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
      &                     n_semi_bufs, fd, IOLGC)
 
-C$Id: dft_getvc.F,v 1.11 1997-04-11 23:42:06 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.12 1997-04-18 07:27:26 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -14,9 +14,6 @@ c
 #include "tcgmsg.fh"
 #include "cdft.fh"
 c
-      double precision CD_coef(nbf_cd)
-      double precision i3c_ERI(n3c_dbl)
-      double precision Ecoul
       integer rtdb
       integer g_vc
       integer iVcoul_opt
@@ -31,6 +28,9 @@ c
       integer fd
       logical IOLGC
 c
+      double precision CD_coef(nbf_cd)
+      double precision i3c_ERI(n3c_dbl)
+      double precision Ecoul
       double precision Ecoul2
       double precision tol2e
 c     

@@ -1,7 +1,9 @@
       Subroutine dft_fitcd(CD_coef, i3c_ERI, Ecoul1, rtdb, g_cdinv,
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC)
-c      
+*
+* $Id: dft_fitcd.F,v 1.19 1997-04-18 07:27:25 d3e129 Exp $
+*
       implicit none
 c
 #include "bas.fh"
@@ -18,9 +20,6 @@ c
 #include "sym.fh"
 #include "geom.fh"
 c
-      double precision CD_coef(nbf_cd)
-      double precision i3c_ERI(n3c_dbl)
-      double precision Ecoul1
       integer rtdb
       integer g_cdinv
       integer g_dens         ! GA DM handle
@@ -32,6 +31,11 @@ c
       integer iwhat_max
       integer n_semi_bufs
       integer fd
+c
+      double precision CD_coef(nbf_cd)
+      double precision i3c_ERI(n3c_dbl)
+      double precision Ecoul1
+c
       Logical IOLGC
 c
       integer current_nbuf, n3c_b, n_batch_read

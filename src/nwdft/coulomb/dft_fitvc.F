@@ -1,24 +1,9 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc, 
      &                     g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC)
-c     $Id: dft_fitvc.F,v 1.16 1997-03-06 20:01:32 d3h449 Exp $
+c     $Id: dft_fitvc.F,v 1.17 1997-04-18 07:27:26 d3e129 Exp $
       implicit none
 c      
-      double precision CD_coef(nbf_cd)
-      double precision i3c_ERI(n3c_dbl)
-      double precision Ecoul2 ! [output]
-      integer rtdb
-      integer g_vc    ! GA handle for V Coulomb [output]
-      integer g_2ceri ! GA handle for repulsion int. [input]
-      integer n_batch        ! no. batches computed by this node [out]
-      integer n_bmax  ! max no. batches
-      integer iwhat(n_bmax) ! what batches have been computed [out]
-      integer n3c_dbl
-      integer iwhat_max
-      integer n_semi_bufs
-      integer fd
-      Logical IOLGC
-      
 #include "bas.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
@@ -35,6 +20,23 @@ c
 #if defined(DFT_TIMER)
 #include "timer.fh"
 #endif
+c      
+      integer rtdb
+      integer g_vc    ! GA handle for V Coulomb [output]
+      integer g_2ceri ! GA handle for repulsion int. [input]
+      integer n_batch        ! no. batches computed by this node [out]
+      integer n_bmax  ! max no. batches
+      integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n3c_dbl
+      integer iwhat_max
+      integer n_semi_bufs
+      integer fd
+c
+      double precision CD_coef(nbf_cd)
+      double precision i3c_ERI(n3c_dbl)
+      double precision Ecoul2 ! [output]
+c
+      Logical IOLGC
 c     
 c     Compute the fitted Coulomb potential. The fitting coefficients are
 c     obtained by solving the normal equations for a standard linear least
