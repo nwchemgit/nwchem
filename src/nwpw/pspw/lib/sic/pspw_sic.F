@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.20 2003-07-18 00:57:46 bylaska Exp $
+* $Id: pspw_sic.F,v 1.21 2003-07-19 20:46:31 bylaska Exp $
 *
 
 *     *************************
@@ -621,9 +621,10 @@ c    >                        Hpsi_k(index2))
       logical value
       integer i,j,n2ft3d,nx,ny,nz,npack,n1(2),n2(2)
       integer index,index1,indext,ms
+      integer indexi,indexj
       integer dn(2),xcp(2),xce(2),tmp1(2),vsic(2),rhoi(2)
       integer M(2),b(2),ipv(2),info
-      real*8  scal1,scal2,dv,exc,pxc,eh,ph
+      real*8  scal1,scal2,dv,exc,pxc,eh,ph,xmax(2)
 
 *     **** external functions ****
       integer  control_gga
@@ -665,6 +666,7 @@ c    >                        Hpsi_k(index2))
      >    call errquit('pspw_potential_SIC_OEP:out of stack memory',0)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
+
         scal1 = 1.0d0/dble(nx*ny*nz)
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
@@ -678,16 +680,19 @@ c    >                        Hpsi_k(index2))
      >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d),
      >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
            call D3dB_r_Zero_Ends(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d))
+           call dcopy(n2ft3d,dbl_mb(rhoi(1)+(i-1)*n2ft3d),1,
+     >                        dbl_mb(dn(1)),1)
 
 
 *          **** generate exchange-correlation potential ****
            if (control_gga().eq.0) then
-             call vxc(n2ft3d,2,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+             call vxc(n2ft3d,2,
+     >                      dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dbl_mb(tmp1(1)))
            else
-             call v_bwexc(n2ft3d,2,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
+             call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
            end if
@@ -729,9 +734,13 @@ c    >                        Hpsi_k(index2))
      >                      dbl_mb(tmp1(1)),
      >                      dbl_mb(tmp1(1)))
 
+
 *          **** generate vsic(i) = (Vcoul+Vxc) ***
            call D3dB_rr_Sum(1,dbl_mb(tmp1(1)),
      >                        dbl_mb(xcp(1)),
+     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
+           call D3dB_r_SMul(1,(-1.0d0),
+     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
      >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
 
 
@@ -739,51 +748,58 @@ c    >                        Hpsi_k(index2))
 
         !**** define Vs  ****
         call dcopy(ispin*n2ft3d,0.0d0,0,v_oep,1)
+
         do ms=1,ispin
         do i=n1(ms),n2(ms)
+
            call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
      >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
      >                        dbl_mb(tmp1(1)))
-           call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d),
+           call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
      >                        dbl_mb(tmp1(1)),
-     >                        v_oep((ms-1)*n2ft3d))
+     >                        v_oep((ms-1)*n2ft3d+1))
         end do
-        end do
-        do ms=1,ispin
-          call D3dB_rr_Divide(1,  v_oep((ms-1)*n2ft3d),
-     >                          dntotal((ms-1)*n2ft3d),
-     >                            v_oep((ms-1)*n2ft3d))
         end do
 
-        !**** define M  ****
         do ms=1,ispin
-        do i=n1(ms),n2(ms)
-        do j=i,n2(ms)
-           call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
-     >                        dbl_mb(rhoi(1)+(j-1)*n2ft3d),
+          call D3dB_rr_Divide(1,  v_oep((ms-1)*n2ft3d+1),
+     >                          dntotal((ms-1)*n2ft3d+1),
+     >                            v_oep((ms-1)*n2ft3d+1))
+        end do
+
+        !**** define (-M)  ****
+        do ms=1,ispin
+        do i=1,ne(ms)
+        do j=i,ne(ms)
+           indexi = (i-1 + (ms-1)*ne(1))*n2ft3d
+           indexj = (j-1 + (ms-1)*ne(1))*n2ft3d
+           call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+indexi),
+     >                        dbl_mb(rhoi(1)+indexj),
      >                        dbl_mb(tmp1(1)))
            call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
-     >                          dntotal((ms-1)*n2ft3d),
+     >                          dntotal((ms-1)*n2ft3d+1),
      >                           dbl_mb(tmp1(1)))
 
            call D3dB_r_dsum(1,dbl_mb(tmp1(1)),eh)
-           index = (i-1) + (j-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-           index = (j-1) + (i-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-           dbl_mb(M(1)+index)  = eh*dv
-           dbl_mb(M(1)+indext) = eh*dv
+           index  = (i-1) + (j-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+           indext = (j-1) + (i-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
+           dbl_mb(M(1)+index)  = -eh*dv
+           dbl_mb(M(1)+indext) = -eh*dv
+        
+        end do
+        end do
+        end do
 
-        end do
-        end do
-        end do
 
         !**** M = I-M ****
         do ms=1,ispin
-        do i=n1(ms),n2(ms)
+        do i=1,ne(ms)
 
            index = (i-1) + (i-1)*ne(ms) + (ms-1)*ne(1)*ne(1)
-           dbl_mb(M(1)+index)  = 1.0d0 - dbl_mb(M(1)+index)
+           dbl_mb(M(1)+index)  = 1.0d0 + dbl_mb(M(1)+index)
         end do
         end do
+
 
 
         !**** define b=(vs-vsic)  ****
@@ -794,20 +810,22 @@ c    >                        Hpsi_k(index2))
      >                       dbl_mb(vsic(1)+(i-1)*n2ft3d),
      >                       exc)
           call D3dB_rr_dot(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
-     >                       v_oep((ms-1)*n2ft3d),
+     >                       v_oep((ms-1)*n2ft3d+1),
      >                       pxc)
-          index = (i-1) + (ms-1)*ne(1)
+          index = (i-1) 
           dbl_mb(b(1)+index) = (exc-pxc)*dv
         end do
         end do
 
+
         !*** solve Ax = b ***
-        value = MA_push_get(mt_int,(ne(1)+ne(2)),'ipiv',ipv(2),ipv(1))
+        value = MA_push_get(mt_int,(ne(1)+ne(2)),
+     >                      'ipiv',ipv(2),ipv(1))
         if (.not. value) 
      >    call errquit('pspw_potential_SIC_OEP:out of stack memory',1)
         do ms=1,ispin
           call DGESV(ne(ms),1, 
-     >             dbl_mb(M(1)+(ms-1)*ne(1)*ne(1)),ne(ms),
+     >             dbl_mb(M(1)+ (ms-1)*ne(1)*ne(1)), ne(ms),
      >             int_mb(ipv(1)),
      >             dbl_mb(b(1)+(ms-1)*ne(1)),ne(ms),
      >             info)
@@ -816,27 +834,44 @@ c    >                        Hpsi_k(index2))
         if (.not. value) 
      >    call errquit('pspw_potential_SIC_OEP:popping stack memory',2)
 
+        do ms=1,ispin
+        do i=1,ne(ms)
+          write(*,*) "x:",ms,i,dbl_mb(b(1)+i-1+(ms-1)*ne(1))
+        end do
+        write(*,*)
+        end do
 
-        !***** tmp = (1/rho)* Sum(i=2,N) rhoi * (xi - x1) *****
+        !*** determine xmax ***
+        do ms=1,ispin
+         xmax(ms) = dbl_mb(b(1)+ (ms-1)*ne(1))
+         do i=2,ne(ms)
+           if (dbl_mb(b(1)+i-1+(ms-1)*ne(1)).gt.xmax(ms))
+     >       xmax(ms) = dbl_mb(b(1)+i-1+(ms-1)*ne(1))
+         end do
+        end do
+
+
+        !***** tmp = (1/rho)* Sum(i=2,N) rhoi * (xi - xmax) *****
         do ms=1,ispin
           call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
-          do i=n1(ms)+1,n2(ms)
-           index  = (i-1) + (ms-1)*ne(1)
+          do i=n1(ms),n2(ms)
+           index  = (i-1) 
            index1 = (ms-1)*ne(1)
-           eh     = dbl_mb(b(1)+index) - dbl_mb(b(1)+index1) 
+           eh     = dbl_mb(b(1)+index) - xmax(ms)
            call D3dB_rr_daxpy(1,eh,
      >                        dbl_mb(rhoi(1)+(i-1)*n2ft3d),
      >                        dbl_mb(tmp1(1)))
 
           end do
           call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
-     >                        dntotal((ms-1)*n2ft3d),
+     >                        dntotal((ms-1)*n2ft3d+1),
      >                          dbl_mb(tmp1(1)))
-          call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d),
+          call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
      >                       dbl_mb(tmp1(1)),
-     >                       v_oep((ms-1)*n2ft3d))
+     >                       v_oep((ms-1)*n2ft3d+1))
         end do
-        
+
+      
         value =           MA_pop_stack(b(2))
         value = value.and.MA_pop_stack(M(2))
         value = value.and.MA_pop_stack(vsic(2))
