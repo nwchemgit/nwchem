@@ -1,6 +1,6 @@
       logical function pre_hybrid(xatm,latm,matm,natm,lbnd,mbnd,nbnd)
 c
-c $Id: pre_hybrid.F,v 1.9 2000-05-04 06:48:23 d3j191 Exp $
+c $Id: pre_hybrid.F,v 1.10 2000-06-21 03:48:16 d3j191 Exp $
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers
@@ -165,6 +165,19 @@ c
       if(latm(2,i).eq.6.and.nn.eq.2) then
       if(latm(2,nl(1)).eq.6.and.latm(3,nl(1)).eq.4.and.
      + latm(2,nl(2)).eq.6.and.latm(3,nl(2)).eq.4) latm(3,i)=4
+      endif
+c
+c     NH2-C(sp2)
+c
+      if(latm(2,i).eq.7.and.nn.eq.1) then
+      if(latm(2,nl(1)).eq.6.and.latm(3,nl(1)).eq.3) latm(3,i)=3
+      endif
+c
+c     N(sp2)-CH-N(sp2)
+c
+      if(latm(2,i).eq.6.and.nn.eq.2) then
+      if(latm(2,nl(1)).eq.7.and.latm(3,nl(1)).eq.3.and.
+     + latm(2,nl(2)).eq.7.and.latm(3,nl(2)).eq.3) latm(3,i)=3
       endif
 c
     3 continue

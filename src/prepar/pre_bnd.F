@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.14 2000-05-01 18:43:16 d3j191 Exp $
+c $Id: pre_bnd.F,v 1.15 2000-06-21 03:48:15 d3j191 Exp $
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]
@@ -30,7 +30,7 @@ c
       integer latm(5,matm),lato(5,mato),lbnd(2,mbnd),itmp(12,mato)
       character*6 catm(3,matm),cato(3,mato)
       integer ilo,ihi
-      integer i,j,k,nn,nl(10),nadd,ndx,neigh
+      integer i,j,k,l,nn,nl(10),nadd,ndx,neigh
       integer mlnk,nlnk
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
@@ -53,10 +53,10 @@ c
      + (xatm(2,j)-xatm(2,i))*(xatm(2,j)-xatm(2,i))+
      + (xatm(3,j)-xatm(3,i))*(xatm(3,j)-xatm(3,i)))
       linker=.false.
-      do 13 k=1,nlnk
+      do 23 k=1,nlnk
       if(i.eq.llnk(3,k).and.j.eq.llnk(4,k)) linker=.true.
       if(j.eq.llnk(3,k).and.i.eq.llnk(4,k)) linker=.true.
-   13 continue
+   23 continue
       if(linker.or.(dist.gt.0.05d0.and.
      + dist.le.pre_atrad(latm(2,j))+pre_atrad(latm(2,i)))) then
       nn=nn+1
@@ -130,6 +130,7 @@ c
       nadd=4
       elseif(nn.eq.1) then
       nadd=3
+      if(lato(3,i).eq.3) nadd=2
       elseif(nn.eq.2) then
       nadd=1
       if(lato(4,i).eq.6) nadd=0
@@ -146,14 +147,44 @@ c
       endif
 c
       lato(1,i)=nadd
+c
+c     if atoms are added ther are no coordinates to do 
+c     an scf/esp calculation
+c
       if(nadd.gt.0) maxscf=0
    20 continue
+c
+c     make corrections based on the aromitic ring information
+c     -------------------------------------------------------
+c
+      do 21 i=1,nato
+      nn=itmp(11,i)
+      do 42 j=1,nn
+      nl(j)=itmp(j,i)
+   42 continue
+      if(lato(2,i).eq.6) then
+      if(nn.eq.2.and.lato(4,i).eq.5) then
+      if(lato(2,nl(1)).eq.7.and.lato(4,nl(1)).eq.5.and.
+     + lato(2,nl(2)).eq.7.and.lato(4,nl(2)).eq.5) then
+      if(itmp(11,nl(1)).eq.3.and.itmp(11,nl(2)).eq.3)
+     + call errquit('N(3)-C(3)-N(3) in 5R',0)
+      lato(1,nl(2))=0
+      if(itmp(11,nl(1)).eq.2.and.itmp(11,nl(2)).eq.3) then
+      lato(1,nl(1))=0
+      elseif(itmp(11,nl(1)).eq.3.and.itmp(11,nl(2)).eq.2) then
+      lato(1,nl(1))=0
+      elseif(itmp(11,nl(1)).eq.2.and.itmp(11,nl(2)).eq.2) then
+      lato(1,nl(1))=1
+      endif
+      endif
+      endif
+      endif
+   21 continue
       endif
 c
       do 30 i=1,nato
       lato(3,i)=itmp(12,i)
    30 continue
-c
 c
 c     add hydrogens
 c     -------------
@@ -161,13 +192,17 @@ c
       ndx=1
       do 6 i=1,nato
       do 7 j=1,nbnd
-      if(lbnd(1,j).eq.i) lbnd(1,j)=ndx
-      if(lbnd(2,j).eq.i) lbnd(2,j)=ndx
+      if(lbnd(1,j).eq.i) lbnd(1,j)=-ndx
+      if(lbnd(2,j).eq.i) lbnd(2,j)=-ndx
     7 continue
       nadd=lato(1,i)
       lato(1,i)=ndx
       ndx=ndx+nadd+1
     6 continue
+      do 77 i=1,nbnd
+      lbnd(1,i)=abs(lbnd(1,i))
+      lbnd(2,i)=abs(lbnd(2,i))
+   77 continue
 c
       do 8 i=nato,1,-1
       if(lato(1,i).ne.i) then
@@ -195,7 +230,6 @@ c
       j=i
       k=1
       else
-      k=k+1
       lato(1,i)=0
       lato(2,i)=1
       lato(3,i)=0
@@ -207,24 +241,30 @@ c
       cato(1,i)=' H'//cato(1,j)(3:5)
       cato(2,i)=' H'//cato(2,j)(3:5)
       cato(3,i)='     '
+   11 continue
+      k=k+1
+      if(k.ge.10) call errquit('Too many hydrogens',0)
       write(cato(1,i)(1:1),'(i1)') k
       write(cato(2,i)(1:1),'(i1)') k
+      do 10 l=1,i-1
+      if(cato(1,i).eq.cato(1,l)) goto 11
+   10 continue
       nbnd=nbnd+1
       lbnd(1,nbnd)=j
       lbnd(2,nbnd)=i
       endif
     9 continue
 c
-      do 10 i=1,nbnd
+      do 12 i=1,nbnd
       if(lbnd(1,i).gt.lbnd(2,i)) then
       j=lbnd(1,i)
       lbnd(1,i)=lbnd(2,i)
       lbnd(2,i)=j
       endif
-   10 continue
+   12 continue
 c
-      do 11 i=1,nbnd-1
-      do 12 j=i+1,nbnd
+      do 13 i=1,nbnd-1
+      do 14 j=i+1,nbnd
       if(lbnd(1,i).gt.lbnd(1,j).or.
      + (lbnd(1,i).eq.lbnd(1,j).and.lbnd(2,i).gt.lbnd(2,j))) then
       k=lbnd(1,i)
@@ -234,8 +274,8 @@ c
       lbnd(2,i)=lbnd(2,j)
       lbnd(2,j)=k
       endif
-   12 continue
-   11 continue
+   14 continue
+   13 continue
 c
       pre_bnd=.true.
       return

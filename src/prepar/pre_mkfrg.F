@@ -6,7 +6,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.33 2000-04-26 22:48:35 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.34 2000-06-21 03:48:16 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -67,7 +67,7 @@ c
       integer mtyp,i_ltyp,l_ltyp
       integer nring3,nring4,nring5,nring6
 c
-      integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist
+      integer i,j,natoms,ilo,ihi,iseq,jlo,jhi,ilist,k
       integer ibnd,nbnd,nang,ndih,nconn,linkid
       logical found
 c
@@ -160,7 +160,6 @@ c
      + call errquit('pre_bnd failed',9999)
       if(.not.ma_pop_stack(l_wrk))
      + call errquit('Unable to deallocate wrk array',0)
-
 c
 c     redetermine hydrogen names
 c     --------------------------
@@ -181,7 +180,7 @@ c     --------------------------------------------
 c
       ndih=0
       if(.not.pre_dih(lang,mang,nang,ldih,mdih,ndih))
-     + call errquit('pre_dih failed',9999)
+     + call errquit('pre_dih failed in pre_mkfrg',9999)
 c
 c     count number of bonds for each atom
 c     -----------------------------------

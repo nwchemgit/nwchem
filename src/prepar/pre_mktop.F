@@ -2,7 +2,7 @@
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + lfnmod,filmod,dir_s,dir_x,dir_u,dir_t,ignore)
 c
-c $Id: pre_mktop.F,v 1.20 2000-06-15 19:58:46 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.21 2000-06-21 03:48:16 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -84,6 +84,7 @@ c
  1000 format('TOPOLOGY GENERATION')
       endif
 c
+      call timer_init()
       if(.not.pre_seqsiz(lfnout,lfnseq,filseq,nseq,nlnk))
      + call errquit('pre_seqsize failed',9999)
 c
@@ -395,7 +396,7 @@ c
       n3rd=0
       if(.not.ma_push_get(mt_int,2*m3rd,'l3rd',l_l3rd,i_l3rd))
      + call errquit('Memory allocation failed for l3rd',9999)
-      nval=max(m3rd,1)
+      nval=max(m3rd,matm,1)
       if(.not.ma_push_get(mt_int,nval,'ival',l_ival,i_ival))
      + call errquit('Memory allocation failed for ival',9999)
       if(.not.ma_push_get(mt_int,nval,'ndx',l_ndx,i_ndx))
@@ -406,14 +407,14 @@ c     -----------------------------
 c
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbnd,int_mb(i_lang),
      + mang,nang,int_mb(i_l3rd),m3rd,n3rd,1,1,1,
-     + nval,int_mb(i_ival),int_mb(i_ndx)))
+     + nval,int_mb(i_ival),int_mb(i_ndx),natm))
      + call errquit('pre_third failed',9999)
 c
       n3rdt=n3rd
       if(nbndt.gt.nbnd.and.nangt.gt.nang) then
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbndt,int_mb(i_lang),
      + mang,nangt,int_mb(i_l3rd),m3rd,n3rdt,nbnd+1,nang+1,n3rd+1,
-     + nval,int_mb(i_ival),int_mb(i_ndx)))
+     + nval,int_mb(i_ival),int_mb(i_ndx),natm))
      + call errquit('pre_third failed',9999)
       endif
       if(.not.ma_pop_stack(l_ndx))

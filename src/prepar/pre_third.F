@@ -1,71 +1,138 @@
       logical function pre_third(lbnd,mbnd,nbnd,lang,mang,nang,
-     + l3rd,m3rd,n3rd,ib,ia,i3,nval,ival,ndx)
+     + l3rd,m3rd,n3rd,ib,ia,i3,nval,ival,ndx,natm)
 c
-c $Id: pre_third.F,v 1.5 2000-06-15 07:16:25 d3j191 Exp $
+c $Id: pre_third.F,v 1.6 2000-06-21 03:48:16 d3j191 Exp $
 c
       implicit none
 c
       integer mbnd,nbnd,mang,nang,m3rd,n3rd
       integer ia,ib,i3
       integer lbnd(4,mbnd),lang(5,mang),l3rd(2,m3rd)
-      integer nval
+      integer nval,natm
       integer ival(nval),ndx(nval)
 c
       integer i,j,k,l,it,jt,in,jn,ln,ir,itmp
+      integer ii,ij,ik
 c
-      do 1 i=ia,nang-1
-      do 2 j=i+1,nang
-      if(lang(2,i).eq.lang(1,j).and.lang(3,i).eq.lang(2,j)) then
-      it=lang(1,i)
-      jt=lang(3,j)
-      else
-      if(lang(2,i).eq.lang(3,j).and.lang(3,i).eq.lang(2,j)) then
-      it=lang(1,i)
-      jt=lang(1,j)
-      else
-      if(lang(2,i).eq.lang(1,j).and.lang(1,i).eq.lang(2,j)) then
-      it=lang(3,i)
-      jt=lang(3,j)
-      else
-      if(lang(2,i).eq.lang(3,j).and.lang(1,i).eq.lang(2,j)) then
-      it=lang(3,i)
-      jt=lang(1,j)
-      else
-      goto 2
-      endif
-      endif
-      endif
-      endif
-      if(it.gt.jt) then
-      l=it
-      it=jt
-      jt=l
-      endif
-      do 3 k=i3,n3rd
-      if(l3rd(1,k).eq.it.and.l3rd(2,k).eq.jt) goto 2
-    3 continue
-      do 4 k=ib,nbnd
-      if(lbnd(1,k).eq.it.and.lbnd(2,k).eq.jt) goto 2
-      if(lbnd(1,k).eq.jt.and.lbnd(2,k).eq.it) goto 2
-    4 continue
-      do 5 k=ia,nang
-      if(lang(1,k).eq.it.and.lang(3,k).eq.jt) goto 2
-      if(lang(1,k).eq.jt.and.lang(3,k).eq.it) goto 2
-    5 continue
-      n3rd=n3rd+1
-      if(n3rd.gt.m3rd) call errquit('increase m3rd',9999)
-      l3rd(1,n3rd)=it
-      l3rd(2,n3rd)=jt
-    2 continue
+      call timer_start(1)
+      do 1 i=1,natm
+      ival(i)=0
+      ndx(i)=0
     1 continue
-c
-      if(n3rd.gt.0) then
-      do 6 i=1,n3rd
-      ndx(i)=i
+      do 2 i=ia,nang
+      j=lang(2,i)
+      if(ival(j).eq.0) ival(j)=i
+      ndx(j)=i
+    2 continue
+      do 3 i=ia,nang
+      ii=lang(1,i)
+      ij=lang(2,i)
+      ik=lang(3,i)
+      if(ival(ii).gt.0) then
+      do 4 j=ival(ii),ndx(ii)
+      if(j.lt.i) then
+      if(lang(1,j).eq.ij) then
+      if(lang(3,j).ne.ik) then
+      it=ik
+      jt=lang(3,j)
+      goto 5
+      endif
+      endif
+      if(lang(3,j).eq.ij) then
+      if(lang(1,j).ne.ik) then
+      it=ik
+      jt=lang(1,j)
+      goto 5
+      endif
+      endif
+      endif
+      goto 4
+    5 continue
+      if(ival(it).gt.0) then
+      do 6 k=ival(it),ndx(it)
+      if(lang(1,k).eq.jt) goto 4
+      if(lang(3,k).eq.jt) goto 4
     6 continue
+      endif
+      if(ival(jt).gt.0) then
+      do 7 k=ival(jt),ndx(jt)
+      if(lang(1,k).eq.it) goto 4
+      if(lang(3,k).eq.it) goto 4
+    7 continue
+      if(ival(it).gt.0) then
+      do 8 k=ival(it),ndx(it)
+      do 9 l=ival(jt),ndx(jt)
+      if(lang(1,k).eq.lang(1,l)) goto 4
+      if(lang(1,k).eq.lang(3,l)) goto 4
+      if(lang(3,k).eq.lang(1,l)) goto 4
+      if(lang(3,k).eq.lang(3,l)) goto 4
+    9 continue
+    8 continue
+      endif
+      endif
+      n3rd=n3rd+1
+      l3rd(1,n3rd)=min(it,jt)
+      l3rd(2,n3rd)=max(it,jt)
+    4 continue
+      endif
+      if(ival(ik).gt.0) then
+      do 10 j=ival(ik),ndx(ik)
+      if(j.lt.i) then
+      if(lang(1,j).eq.ij) then
+      if(lang(3,j).ne.ii) then
+      it=ii
+      jt=lang(3,j)
+      goto 11
+      endif
+      endif
+      if(lang(3,j).eq.ij) then
+      if(lang(1,j).ne.ii) then
+      it=ii
+      jt=lang(1,j)
+      goto 11
+      endif
+      endif
+      endif
+      goto 10
+   11 continue
+      if(ival(it).gt.0) then
+      do 12 k=ival(it),ndx(it)
+      if(lang(1,k).eq.jt) goto 10
+      if(lang(3,k).eq.jt) goto 10
+   12 continue
+      endif
+      if(ival(jt).gt.0) then
+      do 13 k=ival(jt),ndx(jt)
+      if(lang(1,k).eq.it) goto 10
+      if(lang(3,k).eq.it) goto 10
+   13 continue
+      if(ival(it).gt.0) then
+      do 14 k=ival(it),ndx(it)
+      do 15 l=ival(jt),ndx(jt)
+      if(lang(1,k).eq.lang(1,l)) goto 10
+      if(lang(1,k).eq.lang(3,l)) goto 10
+      if(lang(3,k).eq.lang(1,l)) goto 10
+      if(lang(3,k).eq.lang(3,l)) goto 10
+   15 continue
+   14 continue
+      endif
+      endif
+      n3rd=n3rd+1
+      l3rd(1,n3rd)=min(it,jt)
+      l3rd(2,n3rd)=max(it,jt)
+   10 continue
+      endif
+    3 continue
+c
+      if(n3rd.gt.nval)
+     + call errquit('pre_third: increase dimension nval',n3rd)
+      if(n3rd.gt.0) then
+      do 16 i=1,n3rd
+      ndx(i)=i
+   16 continue
       ln=n3rd/2+1
       ir=n3rd
-    7 continue
+   17 continue
       if(ln.gt.1) then
       ln=ln-1
       itmp=ndx(ln)
@@ -75,12 +142,12 @@ c
       ir=ir-1
       if(ir.eq.1) then
       ndx(1)=itmp
-      goto 8
+      goto 18
       endif
       endif
       in=ln
       jn=ln+ln
-    9 continue
+   19 continue
       if(jn.le.ir) then
       if(jn.lt.ir) then
       if(l3rd(1,ndx(jn)).gt.l3rd(1,ndx(jn+1)).or.
@@ -99,20 +166,32 @@ c
       in=jn
       jn=jn+jn
       endif
-      goto 9
+      goto 19
       endif
       ndx(in)=itmp
-      goto 7
-    8 continue
+      goto 17
+   18 continue
 c
-      do 10 k=1,2
-      do 11 i=1,n3rd
+      do 20 k=1,2
+      do 21 i=1,n3rd
       ival(i)=l3rd(k,i)
-   11 continue
-      do 12 i=1,n3rd
+   21 continue
+      do 22 i=1,n3rd
       l3rd(k,i)=ival(ndx(i))
-   12 continue
-   10 continue
+   22 continue
+   20 continue
+      endif
+c
+      if(n3rd.gt.1) then
+      l=n3rd
+      n3rd=1
+      do 23 i=2,l
+      if(l3rd(1,i).ne.l3rd(1,n3rd).or.l3rd(2,i).ne.l3rd(2,n3rd)) then
+      n3rd=n3rd+1
+      l3rd(1,n3rd)=l3rd(1,i)
+      l3rd(2,n3rd)=l3rd(2,i)
+      endif
+   23 continue
       endif
 c
       pre_third=.true.
