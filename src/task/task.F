@@ -54,7 +54,11 @@ c
             status = rtdb_print(rtdb,.true.)
          else if (inp_compare(.false.,'checksum', theory)) then
             status = task_check_sum(rtdb)
+         else if (inp_compare(.false.,'nwargos', theory)) then
+            status = nwargos(rtdb)
          else if (inp_compare(.false.,'md', theory)) then
+            status = nwargos(rtdb)
+         else if (inp_compare(.false.,'md_ideaz', theory)) then
             status = mdmain(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
@@ -94,7 +98,7 @@ c
          status = task_optimize(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
-      else if (inp_compare(.false.,'nwargos', operation)) then
+      else if (inp_compare(.false.,'dynamics', operation)) then
          status = nwargos(rtdb)
       else
          call errquit('task: unknown generic operation',0)
