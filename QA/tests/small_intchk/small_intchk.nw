@@ -48,7 +48,7 @@ start small_intchk
 
 memory heap 30 mb stack 60 mb global 20 mb
 
-basis "nsp_cart_ngc" print segment cartesian
+basis "nsp_cart_ngc" segment cartesian
 C  S
   0.1675097360D+02   0.56376    -0.14469 
   0.2888377460D+01   0.69771    -0.31014 
@@ -97,7 +97,7 @@ H  P
   0.6401216923D+00 1.0
 end
 
-basis "nsp_cart_gc" print nosegment cartesian
+basis "nsp_cart_gc" nosegment cartesian
 C  S
   0.1675097360D+02   0.56376    -0.14469 
   0.2888377460D+01   0.69771    -0.31014 
@@ -146,7 +146,7 @@ H  P
   0.6401216923D+00 1.0
 end
 
-basis "nsp_sph_ngc" print segment spherical
+basis "nsp_sph_ngc" segment spherical
 C  S
   0.1675097360D+02   0.56376    -0.14469 
   0.2888377460D+01   0.69771    -0.31014 
@@ -196,7 +196,7 @@ H  P
 end
 
 
-basis "nsp_sph_gc" print nosegment spherical
+basis "nsp_sph_gc" nosegment spherical
 C  S
   0.1675097360D+02   0.56376    -0.14469 
   0.2888377460D+01   0.69771    -0.31014 
@@ -245,7 +245,7 @@ H  P
   0.6401216923D+00 1.0
 end
 
-basis "sp_cart_ngc" print nosegment cartesian
+basis "sp_cart_ngc" nosegment cartesian
 C  SP
   0.1675097360D+02   0.56376  0.01728
   0.2888377460D+01   0.69771  0.12274
@@ -299,7 +299,7 @@ H  S
 H  P
   0.6401216923D+00 1.0
 end
-basis "sp_sph_ngc" print nosegment spherical
+basis "sp_sph_ngc" nosegment spherical
 C  SP
   0.1675097360D+02   0.56376  0.01728
   0.2888377460D+01   0.69771  0.12274
@@ -354,7 +354,7 @@ H  P
   0.6401216923D+00 1.0
 end
 
-geometry print
+geometry 
 C   0.00000000     0.00000000    -0.49605616
 O   0.00000000     0.00000000     0.68022911
 H   0.00000000     0.92724885    -1.08515798
