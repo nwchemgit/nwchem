@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.38 2000-06-09 17:08:05 edo Exp $
+C$Id: xc_getv.F,v 1.39 2000-06-09 17:11:23 edo Exp $
 c
       implicit none
 c      
@@ -191,10 +191,12 @@ c
          
          if (grid_on_file)then
             if(havehfxc.or.(.not.cdfit)) then
-               call ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1')
+               if(.not.ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1'))
+     .         call errquit('xcgetv: gaduplicate failed',1)
                call ga_zero(g_truevxc(1))
                if(ipol.eq.2) then
-                  call ga_duplicate(g_vxc(2),g_truevxc(2),'g vxc 21')
+                  if(.not.ga_duplicate(g_vxc(2),g_truevxc(2),'gv21'))
+     .         call errquit('xcgetv: gaduplicate failed',1)
                   call ga_zero(g_truevxc(2))
                endif
             else
