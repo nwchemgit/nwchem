@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.8 2003-01-27 01:56:37 marat Exp $
+* $Id: paw_ovlp.F,v 1.9 2003-01-27 02:32:25 marat Exp $
 *
 
 !**************************************************
@@ -28,9 +28,11 @@
       external psi_ne
       external ion_nion,ion_natm,ion_nkatm,ion_katm
 
-c     !*** total number of (n,l,m) projectors  ***
+c     !*** calculate total number of (n,l,m) projectors  ***
       total_nbasis = 0
+c     !-- loop over diff kinds of atoms --
       do ia=1,ion_nkatm()
+c        !-- ion_natm(ia) is number of atoms of kind ia --
          total_nbasis = total_nbasis 
      >                + paw_proj_nbasis(ia)*ion_natm(ia)
       end do
@@ -49,18 +51,26 @@ c     !*** total number of electron states ***
      >                               'sgn',sgn(2),sgn(1))
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
+c    !    atom=1                        atom=2
+c    !l : 0  1  1  1  2  2  2  2  2 ... 0  1  1  1 ... 
+c    !m : 0 -1  0  1 -2 -1  0  1  1 ... 0 -1  0  1 ...
+c    !
+c    !
 
-
-      !*** set unsrcramble arrays ***
+c     !*** set unsrcrambled arrays ***
       nion = ion_nion()
       nlmii = 0
+c     !-- loop over total number of ions --
       do ii=1,nion
+c        !-- the atom kind is ia --
          ia = ion_katm(ii)
          nbasis = paw_proj_nbasis(ia)
+c        !-- loop over projectors for atom of kind ia --
          do nlm=1,nbasis
             nlmii = nlmii + 1
             m = paw_proj_m(nlm,ia)
             mabs = abs(m)
+c           !-- set sign coeff as (-1)**m --
             if (mod(mabs,2).eq.0) then
               isgn = 1
             else
@@ -69,14 +79,12 @@ c     !*** total number of electron states ***
             do n=1,neall
               i1 = (nlmii-1)*neall + (n-1)
               i2 = i1 - 2*m*neall
-              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
-              int_mb(indx2(1)+i1) = i2     ! conjugate array
-              int_mb(sgn(1)  +i1) = isgn   ! sign array
+c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
+              int_mb(indx2(1)+i1) = i2     ! location of -m elements
+              int_mb(sgn(1)  +i1) = isgn   ! sign array=(-1)**m 
             end do
          end do 
       end do    
-
-      write(*,*) "paw_ovlp_init 3"
 
       return
       end
