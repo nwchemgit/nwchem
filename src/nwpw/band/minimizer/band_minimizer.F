@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.22 2003-06-26 21:22:24 bylaska Exp $
+* $Id: band_minimizer.F,v 1.23 2003-06-26 23:34:11 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -415,6 +415,7 @@
       call C3dB_end(1)
       IF (control_gga().eq.1) THEN
       call mask_end()
+      call G_end()
       call D3dB_end(1)
       end if
 
