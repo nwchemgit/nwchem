@@ -65,7 +65,15 @@ c
 c
 c     Must reorthog if mixing was present
 c
-      if (nmixed .gt. 0) call ga_orthog_mos(basis, g_movecs)
+      if (nmixed .gt. 0) then 
+*         write(6,*) ' after sym, before ortho '
+*         call util_flush(6)
+*         call ga_print(g_movecs)
+         call ga_orthog_mos(basis, g_movecs)
+*         write(6,*) ' after sym, after ortho '
+*         call util_flush(6)
+*         call ga_print(g_movecs)
+      endif
 c
       if (oprint .and. ga_nodeid() .eq. 0) then
          if (.not. bas_geom(basis, geom)) 

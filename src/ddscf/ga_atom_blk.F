@@ -1,5 +1,5 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.2 1996-07-02 19:25:03 d3g681 Exp $
+C$Id: ga_atom_blk.F,v 1.3 1996-08-19 15:18:06 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -18,7 +18,7 @@ c
       parameter (max_nproc = 1024)
       integer map1(max_nproc), map2(max_nproc)
       integer chunk1, chunk2, n_in_proc1, n_in_proc2, nblock1, nblock2
-      integer iat, ihi, ilo, min_chunk, g_a, nchunk
+      integer iat, ihi, ilo, min_chunk, g_a
       integer natoms, nbf
       parameter (min_chunk = 10)
       logical status
@@ -64,14 +64,7 @@ c
             n_in_proc2 = n_in_proc2 + (ihi-ilo) + 1
          endif
       enddo
-      nchunk = nblock1*nblock2
       if (nblock1*nblock2 .gt. ga_nnodes()) then
-*         if (ga_nodeid() .eq. 0) then
-*            write(6,*) ' P, c1, c2, nc ', ga_nnodes(), chunk1, chunk2, 
-*     $           nchunk
-*            write(6,*) ' nb1, nb2 ', nblock1, nblock2
-*            call ffflush(6)
-*         endif
          if (chunk1.eq.nbf .and. chunk2.eq.nbf)
      $        call errquit('ga_create_atom_blocked: chunking', 0)
          if (chunk1 .lt. nbf) then

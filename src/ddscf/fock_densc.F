@@ -4,7 +4,7 @@
      $     dij, dik, dli, djk, dlj, dlk, denmax)
       implicit none
 c     
-c     $Id: fock_densc.F,v 1.2 1996-06-27 22:42:34 d3g681 Exp $
+c     $Id: fock_densc.F,v 1.3 1996-08-19 15:18:06 d3g681 Exp $
 c     
       integer nfock
       integer i1, j1, k1, l1, i2, j2, k2, l2
@@ -21,9 +21,14 @@ c
       integer ifock, i, j, k, l
       double precision sum
 c     
+c     OLD code was
 c     Return the maximum value over the density matrices
 c     of the sum of absolute values within the specified
 c     range of each block
+c
+c     CURRENT code is
+c     Return the max of sqrt(sum of squares) over the density in the specified 
+c     blocks (which is rotationally invariant).
 c     
 c     Should put in better code for nfock != 1 (but it usually is)
 c
@@ -32,49 +37,60 @@ c
          sum = 0.0d0
          do j = jlo, jhi
             do i = ilo, ihi
-               sum = sum + abs(dij(ifock,i,j))
+               sum = sum + dij(ifock,i,j)**2
             enddo
          enddo
+         sum = sqrt(sum)
          denmax = max(denmax, sum)
 c     
          sum = 0.0d0
          do k = klo, khi
             do i = ilo, ihi
-               sum = sum + abs(dik(ifock,i,k))
+               sum = sum + dik(ifock,i,k)**2
+*               sum = sum + abs(dik(ifock,i,k))
             enddo
          enddo
+         sum = sqrt(sum)
          denmax = max(denmax, sum)
 c     
          sum = 0.0d0
          do i = ilo, ihi
             do l = llo, lhi
-               sum = sum + abs(dli(ifock,l,i))
+               sum = sum + dli(ifock,l,i)**2
+*               sum = sum + abs(dli(ifock,l,i))
             enddo
          enddo
+         sum = sqrt(sum)
          denmax = max(denmax, sum)
 c     
          sum = 0.0d0
          do k = klo, khi
             do j = jlo, jhi
-               sum = sum + abs(djk(ifock,j,k))
+               sum = sum + djk(ifock,j,k)**2
+*               sum = sum + abs(djk(ifock,j,k))
             enddo
          enddo
+         sum = sqrt(sum)
          denmax = max(denmax, sum)
 c     
          sum = 0.0d0
          do j = jlo, jhi
             do l = llo, lhi
-               sum = sum + abs(dlj(ifock,l,j))
+               sum = sum + dlj(ifock,l,j)**2
+*               sum = sum + abs(dlj(ifock,l,j))
             enddo
          enddo
+         sum = sqrt(sum)
          denmax = max(denmax, sum)
 c     
          sum = 0.0d0
          do k = klo, khi
             do l = llo, lhi
-               sum = sum + abs(dlk(ifock,l,k))
+               sum = sum + dlk(ifock,l,k)**2
+*               sum = sum + abs(dlk(ifock,l,k))
             enddo
          enddo
+         sum = sqrt(sum)
          denmax = max(denmax, sum)
 c     
       enddo

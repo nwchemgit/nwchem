@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.8 1996-08-06 05:33:09 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.9 1996-08-19 15:18:13 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -99,13 +99,21 @@ c
 c
       else if (movecs_in .eq. 'project') then
          if (nmo .ne. nbf) call errquit
-     $        ('projection not yet working with linear dependcy ',0)
+     $        ('projection not yet working with linear dependence ',0)
 c
 c     Project from a smaller basis set ... must orthog before
-c     the symmetry adaption
+c     the symmetry adaption. Also, sym adapt thoroughly
+c     since the strong linear dependence in the 
+c     random vectors may cause loss of precision.
 c
          call movecs_project(rtdb, geom, basis, g_movecs)
          call ga_orthog_mos(basis, g_movecs)
+         if (oadapt) then
+           call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     $          0, '- projected ', .true.,int_mb(k_irs))
+           call scf_movecs_sym_adapt(basis, g_movecs, .false.,
+     $          0, '- projected ', .true.,int_mb(k_irs))
+         endif
          if (scftype .eq. 'UHF') then
             call ga_copy(g_movecs(1),g_movecs(2))
             call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),1)

@@ -96,7 +96,7 @@ c
          call ga_igop(555, n_rec_in_file, 1, '+')
          if (oinfo) then
             write(6,1020) n_rec_in_file
- 1020       format(/' Opened integral file with',i6,' records'/)
+ 1020       format(/' Opened integral file with',i8,' records'/)
             call util_flush(6)
          end if
       end if
@@ -155,23 +155,27 @@ c
       endif
 c
       end
-      logical function int2e_file_close()
+      logical function int2e_file_close(okeep)
       implicit none
 #include "cint2efile.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "cint2esave.fh"
+      logical okeep  ! [input] If true keep, otherwise delete
 c
-      if (file_opened) close(unitno)
+      if (file_opened) then
+        close(unitno)
+        if (.not. okeep) call util_file_unlink(actualname)
+      endif
 c
       call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
       call ga_igop(msg_int2e_stat2, nlarge, 1, '+')
       if (oinfo) then
          write(6,1) n_rec_in_file, nlarge
  1       format(/
-     $        ' Closing integral file ... used ',i6,' records with ',
-     $        i6,' large values'/)
+     $        ' Closing integral file ... used',i8,' records with',
+     $        i8,' large values'/)
          call util_flush(6)
       end if
       cur_rec = 0

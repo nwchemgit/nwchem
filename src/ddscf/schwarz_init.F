@@ -1,5 +1,5 @@
       subroutine schwarz_init(geom, basis)
-C$Id: schwarz_init.F,v 1.16 1996-06-27 22:42:54 d3g681 Exp $
+C$Id: schwarz_init.F,v 1.17 1996-08-19 15:18:13 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -108,10 +108,18 @@ c
 c     
                      sh_max = 0.0d0
                      numint = idim*jdim*idim*jdim
+* this for old max method
+*                     do integ = 0, numint-1
+*                        sh_max = max(sh_max, abs(dbl_mb(k_g+integ)))
+*                     enddo
+*                     sh_max = sqrt(sh_max)
+* this for new rms method
                      do integ = 0, numint-1
-                        sh_max = max(sh_max, abs(dbl_mb(k_g+integ)))
+                        sh_max = sh_max + dbl_mb(k_g+integ)**2
                      enddo
-                     sh_max = sqrt(sh_max)
+                     sh_max = sqrt(sqrt(sh_max))
+*
+c
                      at_max = max(at_max, sh_max)
 c     
 c     insert sh_max into the compressed shell array

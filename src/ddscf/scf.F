@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.37 1996-03-13 22:23:04 d3g681 Exp $
+C$Id: scf.F,v 1.38 1996-08-19 15:18:09 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -211,7 +211,7 @@ c
 c
 c     SCF is done ... tidy up memory etc.
 c
-      call scf_tidy
+      call scf_tidy(rtdb)
       if (nriscf.ne.0) then
         call riscf_tidy ( geom, basis, riscf_basis )
       endif

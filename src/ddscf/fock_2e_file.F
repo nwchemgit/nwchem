@@ -7,7 +7,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_file.F,v 1.5 1996-05-14 17:59:56 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.6 1996-08-19 15:18:05 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -32,17 +32,11 @@ c
       integer vg_dens(nfock)
       integer vg_fock(nfock)
 c
-*      integer maxints
-*      parameter (maxints = 16381) ! A nice prime number
-*      integer i(maxints), j(maxints), k(maxints), l(maxints)
-*      double precision g(maxints)
       double precision den_tol, denmax, dtol2e
       integer ilo, jlo, klo, llo
       integer ihi, jhi, khi, lhi
       integer ijk_prev(3,2)
       integer blklen
-*      logical more
-*      integer nints
 c
       logical int2e_get_bf_range, int2e_file_read
       external int2e_get_bf_range, int2e_file_read
@@ -94,27 +88,6 @@ c
      $           dij, dik, dli, djk, dlj, dlk,
      $           fij, fik, fli, fjk, flj, flk)
 c
-c$$$ 20      if (oscfps) call pstat_on(ps_intio)
-c$$$         more = int2e_file_read(maxints, nints, i, j, k, l, g)
-c$$$         if (oscfps) call pstat_off(ps_intio)
-c$$$c
-c$$$         if (more) then
-c$$$c
-c$$$            if (util_print('int2efile read', print_never))
-c$$$     $           call print_integ_list(nints, i, j, k, l, g)
-c$$$c
-c$$$            if (oscfps) call pstat_on(ps_fock_add)
-c$$$            call fock_2e_label(nfock, dtol2e,
-c$$$     $           nints, i, j, k, l, g,
-c$$$     $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
-c$$$     $           dij, dik, dli, djk, dlj, dlk,
-c$$$     $           fij, fik, fli, fjk, flj, flk)
-c$$$            if (oscfps) call pstat_off(ps_fock_add)
-c$$$c
-c$$$            goto 20
-c$$$c
-c$$$         end if
-c     
 c     Update F blocks
 c     
          call fock_upd_blk(nfock, vg_fock,
@@ -172,6 +145,8 @@ c
       end do
       denmax = denmax*5.0       ! Reproduce atomic screening for water!
       den_tol = min(1d-5,tol2e/denmax) ! Threshold to screen integs only
+*      den_tol = min(1d-7,tol2e*0.01)
+c
       call fock_init_cmul(nbf,nbf,nbf) ! lookup table for f build
 c
 c     Loop over blocks of integral labels

@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.8 1996-08-06 05:32:55 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.9 1996-08-19 15:18:04 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -277,7 +277,7 @@ c
       call dfill(natom*natom,0.0d0,rdens,1)
       do imat = 1, nfock
          call util_mat_reduce(nbf, natom, cetobfr, dens(imat,1), 
-     $        nfock, rdens, 'abssum')
+     $        nfock, rdens, 'rms')
       end do
 *      write(6,*) ' RDENS'
 *      call output(rdens,1,natom,1,natom,natom,natom,1)
@@ -845,7 +845,7 @@ c
 c     
 c     R(i,j) <= R(i,j) op A(map(1,i):map(2,i),map(1,j):map(2,j))
 c     
-c     where op is one of 'abssum', 'absmax' (extend as necessary)
+c     where op is one of 'abssum', 'absmax', 'rms' (extend as necessary)
 c     
       integer ir, jr, i, j
       double precision sum
@@ -855,7 +855,7 @@ c
 c     
       do jr = 1, nr
          do ir = 1, nr
-            sum = abs(r(ir,jr))
+            sum = 0.0d0
             if (op .eq. 'abssum') then
                do j = map(1,jr), map(2,jr)
                   do i = map(1,ir), map(2,ir)
@@ -865,13 +865,20 @@ c
             else if (op .eq. 'absmax') then
                do j = map(1,jr), map(2,jr)
                   do i = map(1,ir), map(2,ir)
-                     sum = max(sum , abs(a(1,i,j)))
+                     sum = max(sum, abs(a(1,i,j)))
                   end do
                end do
+            else if (op .eq. 'rms') then
+               do j = map(1,jr), map(2,jr)
+                  do i = map(1,ir), map(2,ir)
+                     sum = sum + a(1,i,j)*a(1,i,j)
+                  end do
+               enddo
+               sum = sqrt(sum)
             else
                call errquit('util_mat_reduce: unknown op', 0)
             end if
-            r(ir,jr) = sum
+            r(ir,jr) = max(r(ir,jr),sum)
          end do
       end do
 c     

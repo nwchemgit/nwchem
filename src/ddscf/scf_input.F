@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C $Id: scf_input.F,v 1.1 1996-07-26 16:24:31 d3g681 Exp $
+C $Id: scf_input.F,v 1.2 1996-08-19 15:18:11 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -10,8 +10,8 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 31)
-      character*8 dirs(num_dirs)
+      parameter (num_dirs = 32)
+      character*10 dirs(num_dirs)
       character*255 test
       character*5 scftype(1)
       double precision conv, shifts(6), tolnr, tol2e
@@ -21,7 +21,7 @@ c
      $     'noadapt', 'nopen', 'uhf', 'rohf', 'rhf', 
      $     'singlet', 'doublet', 'triplet', 'quartet', 'quintet',
      $     'chunk', 'nosym', 'ri', 'maxsub', 'lagrang', 'taskbf',
-     $     'diis', 'diisbas', 'sym', 'adapt',
+     $     'diis', 'diisbas', 'sym', 'adapt', 'lagrangian',
      $     'end'/
 c
       call context_push('scf')
@@ -40,7 +40,7 @@ c
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700,
-     $     2800, 2900, 3000,
+     $     2800, 2900, 3000, 2500,
      $     9999) ind
       call errquit('scf_input: unimplemented directive', ind)
 c     
@@ -230,7 +230,7 @@ c
      $     call errquit('scf_input: failed to store maxsub',0)
         goto 10
 c
-c     dump lagrangian
+c     lagrang or lagrangian dump lagrangian
 c
  2500 if (.not. rtdb_put(rtdb,'scf:lagrangian',MT_LOG, 1, .true.))
      $     call errquit('scf_input: failed to store lagrangian',0)

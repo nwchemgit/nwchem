@@ -209,7 +209,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.30 1996-08-06 05:33:05 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.31 1996-08-19 15:18:10 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -357,11 +357,13 @@ c
 #include "geom.fh"
 #include "bas.fh"
 #include "cfock.fh"
+#include "rtdb.fh"
       integer rtdb
 c
       logical status
       logical int2e_file_close
       external int2e_file_close
+      logical okeep
 c
       if (oinitialized) then
          if (.not. geom_destroy(geom)) call errquit
@@ -385,7 +387,9 @@ c
       endif
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
-         if (.not. int2e_file_close())
+        if (.not. rtdb_get(rtdb, 'int2e:keep',
+     $       MT_LOG, 1, okeep)) okeep = .false.
+         if (.not. int2e_file_close(okeep))
      $        call errquit('scf_tidy: closing aoints?', 0)
       endif
 c
