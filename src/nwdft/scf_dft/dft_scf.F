@@ -5,12 +5,12 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.11 1995-10-25 18:41:15 og845 Exp $
+C$Id: dft_scf.F,v 1.12 1995-10-29 21:43:18 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
-      logical lfrac,lfocka,lfockb,lunpol
+      logical lfrac,lfocka,lfockb
       parameter(itol_min=6,iAOacc_min=15)
       
 c**** 
@@ -934,10 +934,6 @@ c
         if(lfockb) then
         If ( .NOT. MA_Free_Heap(l_bfshift) ) Call ErrQuit(
      $       'dft_scf: Unable to free MA handle', l_afshift)
-        endif
-        if(lunpol) then
-        If ( .NOT. MA_Free_Heap(l_unpol) ) Call ErrQuit(
-     $       'dft_scf: Unable to free MA handle', l_unpol)
         endif
 c-----------------------------------------------------------------------
 c
