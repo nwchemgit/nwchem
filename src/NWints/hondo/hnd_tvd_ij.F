@@ -1,5 +1,5 @@
 c
-c $Id: hnd_tvd_ij.F,v 1.2 1999-04-28 22:48:09 windus Exp $
+c $Id: hnd_tvd_ij.F,v 1.3 1999-12-07 21:51:09 windus Exp $
 c
 c Taken from HONDO
 c
@@ -67,9 +67,8 @@ c
       integer ni, nj, maxrys, minprim, maxprim, i1, i2, lit
       integer mini, maxi, litder, j1, j2, ljt, minj, maxj 
       integer ljtder, ljtmod, ig, jg, ij, i, j, ix, iy, iz
-      integer jx, jy, jz, kat, znuc, iroot, ijtemp
+      integer jx, jy, jz, kat, znuc, iroot
 c
-      character*8 errmsg
       common/hnd_xyzder/xint,yint,zint,tx,x0,y0,z0,xi,yi,zi,xj,yj,zj,
      1                             ni,nj,cx,cy,cz
       dimension ditij(nint,3),djtij(nint,3)
@@ -97,8 +96,6 @@ c
       dimension dxvdjj(5,5,5),dyvdjj(5,5,5),dzvdjj(5,5,5)
       dimension dxvdij(5,5,5),dyvdij(5,5,5),dzvdij(5,5,5)
       dimension minprim(5), maxprim(5)
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','- tvd  -'/
       data maxrys /5/
       data rln10  /2.30258d+00/
       data zero   /0.0d+00/
@@ -480,12 +477,12 @@ c
       jx=ijx(j)
       jy=ijy(j)
       jz=ijz(j)
+      ij=ij+1
 c
       if (nder.eq.1) then
 c
 c first do the derivative wrt to the first atom
 c
-      ijtemp = ij
       dumx=zero
       dumy=zero
       dumz=zero
@@ -500,14 +497,12 @@ c
       dumx=dumx*aa1*pi212
       dumy=dumy*aa1*pi212
       dumz=dumz*aa1*pi212
-      ij=ij+1
       divij(ij,1)=divij(ij,1)+dumx*pij(ij)
       divij(ij,2)=divij(ij,2)+dumy*pij(ij)
       divij(ij,3)=divij(ij,3)+dumz*pij(ij)
 c
 c first do the derivative wrt to the second atom
 c
-      ij = ijtemp
       dumx=zero
       dumy=zero
       dumz=zero
@@ -522,7 +517,6 @@ c
       dumx=dumx*aa1*pi212
       dumy=dumy*aa1*pi212
       dumz=dumz*aa1*pi212
-      ij=ij+1
       djvij(ij,1)=djvij(ij,1)+dumx*pij(ij)
       djvij(ij,2)=djvij(ij,2)+dumy*pij(ij)
       djvij(ij,3)=djvij(ij,3)+dumz*pij(ij)
