@@ -41,6 +41,7 @@ c
 
 
 
+
 c
 c  Wrapper around nxtval so we can save task numbers
 c  with the IO records and emulate task scheduling
@@ -55,6 +56,7 @@ c
       
       if (moao_ipass.gt.0) then
         moints_nxttask = moao_tasknum
+        if (numnodes.lt.0) call ga_sync()
       else
         moints_nxttask = nxtval( numnodes )
         if (moao_ipass.eq.0) then
@@ -92,8 +94,6 @@ c
       integer recnum, ssbblen
       logical moints_iorec_next
       external moints_iorec_next
-      DOUBLE PRECISION DABSSUM
-      EXTERNAL DABSSUM
 
       moints_gblk_fromdisk = .false.
       if (moao_ipass.lt.0) return
@@ -148,6 +148,7 @@ c
       logical sparse                    ! for the moment only sparse case
       data sparse/.true./
 c
+
       moints_gblk_todisk = .false.
       if (moao_ipass.lt.0) return
       if ((moao_lun.gt.0).and.(moao_ipass.eq.0)) then
@@ -162,9 +163,10 @@ c
         else
           call errquit('moints_gblk_todisk: dense read not ready',0)
         endif
-        moints_gblk_todisk = .true.
-C        SSBBLEN = (IHI-ILO+1)*(JHI-JLO+1)*(KBHI-KBLO+1)*(LBHI-LBLO+1)
+       moints_gblk_todisk = .true.
+c
 C        MOAO_CUMUL = MOAO_CUMUL + DABSSUM( SSBBLEN, SSBB )
+c
       endif
       return
       end
@@ -190,6 +192,9 @@ c
 c
       logical fexist
       integer stat
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      external moints_moao_block
+#endif
 c
 c  first time through --- enable caching TO disk
 c  otherwise must be caching FROM disk

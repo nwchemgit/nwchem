@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.34 1997-03-26 20:19:04 rg240 Exp $
+C$Id: direct_mp2.F,v 1.35 1997-03-28 23:35:49 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -68,7 +68,7 @@ c
 c
        direct_mp2 = .true.
 c
-       ttotal = tcgtime()
+       ttotal = util_cpusec()
        status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
 c Print settings
@@ -297,7 +297,7 @@ c
        npass = 0
        oseg_hi = occ_lo - 1
  22    continue
-       tpass = tcgtime()
+       tpass = util_cpusec()
        npass = npass + 1
        oseg_lo = oseg_hi + 1
        oseg_hi = moints_occrange( noper, occ_lo, oseg_lo, occ_hi )
@@ -326,7 +326,7 @@ c
 c
 c Print progress of this pass
 c
-       tpass = tcgtime() - tpass
+       tpass = util_cpusec() - tpass
        if ((ga_nodeid().eq.0).and.
      $     (util_print('progress reports',print_default))) then
          write(6,772) npass, oseg_lo, oseg_hi, tpass
@@ -338,17 +338,6 @@ c
 c End multipass loop
 c
        if (oseg_hi.lt.occ_hi) goto 22
-       CALL GA_ZERO(G_EXCH)
-       CALL MOINTS_BUILD_2X(BASIS, OHALF, OSYM, OCC_LO,
-     $                      OSEG_LO, OSEG_HI,
-     $                      VIR_LO, VIR_HI, G_VECS,
-     $                      G_COUL, .FALSE., G_EXCH, .TRUE.,
-     $                      BLEN, OBLK )
-       CALL MOINTS_E2PAIR( NOCC, OCC_LO, OSEG_LO, OSEG_HI, NMO2,
-     $                     NMO2, NBF, G_EXCH, DBL_MB(K_EVALS),
-     $                     G_EPAIR )
-
-
        call moints_aodisk_close( oaokeep )
 c
 c Print statistics
@@ -393,7 +382,7 @@ c
        endif
        call ga_sync()
        call ga_brdcst(msg_direct_mp2_emp2, emp2, mdtob(1), 0 )
-       ttotal = tcgtime() - ttotal
+       ttotal = util_cpusec() - ttotal
        if ((ga_nodeid().eq.0).and.(oprint)) then
          write(6,823) ttotal
  823     format(/,10x,'Total MP2 time:',5x,f10.2)
