@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.46 1996-11-22 19:08:38 d3h449 Exp $
+C$Id: dft_scf.F,v 1.47 1996-11-23 00:50:50 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -39,7 +39,7 @@ c
       double precision Exc(2), rms(2), derr(2)
       integer noc(2),nmo(2),icall(2)
       integer n3c_dbl,n3c_int,n_batch
-      integer avail
+      integer avail, availm
       integer iwhat_max
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
       integer dft_n3cdbl,dft_n3cint
@@ -206,14 +206,15 @@ c
 c
 c        - (minimum) amount available on stack (all nodes):
 c        
+        call ga_sync
         avail = MA_inquire_stack(mt_dbl)
-        call ga_igop(msg_int2e_file, avail, 1, 'min')
+        call ga_igop(msg_min_stack_avail, avail, 1, 'min')
 c
 c        - subtract off a few bits for later use, e.g., quadrature
 c
-        avail = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 
-     &                  125000
-        n3c_dbl=min(avail,n3c_dbl)
+        availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
+        n3c_dbl=min(availm,n3c_dbl)
+        if(me.eq.0)write(LuOut,3228)avail, availm, n3c_dbl
 c
         if( .not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao) )then
           call errquit('Exiting in dft_scf.',1)
@@ -221,8 +222,11 @@ c
         nao2_max = mxshbf_ao**2
         batch_max = nao2_max*nbf_cd
 c
-        if(n3c_dbl.lt.batch_max)incore = .false.
-c
+        if(n3c_dbl.lt.batch_max.or.(.not.incore))then
+          incore = .false.
+          n3c_dbl = 1
+          n3c_int = 1
+        endif
         if( .not.MA_Push_Get(
      &    MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
      &    call errquit('dft_scf: push_get failed', 12)
@@ -231,14 +235,23 @@ c
      &    MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
      &    call errquit('dftscf:push_get failed', 13)
 c
-        if(me.eq.0)write(LuOut,3230)n3c_dbl*1.d-6
- 3230   format(/,10x,f6.3,' MW buffer allocated for incore 3-center '
-     &       /,10x,'2e- integral storage on stack. ')
-        call dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
-     &    nbf_cd, itol_max,n_batch,n3c_int,
-     &    int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
-     &    iwhat_max)
+        if(incore)then
+          if(me.eq.0)write(LuOut,3229)n3c_dbl*1.d-6
+          call dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
+     &      nbf_cd, itol_max,n_batch,n3c_int,
+     &      int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
+     &      iwhat_max)
+        else
+          if(me.eq.0)write(LuOut,3230)
+        endif
       endif
+ 3228 format(10x,'Minimum dble words available (all nodes) is: ',i15,
+     &     /,10x,'         This is reduced (for later use) to: ',i15,
+     &     /,10x,'                   Suggested buffer size is: ',i15)
+ 3229 format(/,10x,f6.3,' MW buffer allocated for incore 3-center '
+     &       /,10x,'2e- integral storage on stack. ')
+ 3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
+     &             'turned off. ')
 c
 c     set initial coulomb acc to 1e-5
 c
