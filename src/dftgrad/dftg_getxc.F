@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.19 2000-03-27 19:19:24 edo Exp $
+* $Id: dftg_getxc.F,v 1.20 2000-04-13 17:12:09 hvd Exp $
 *
       implicit none
 c      
@@ -26,6 +26,7 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "sym.fh"
+#include "stdio.fh"
 #include "cdft.fh"
 c!!! BGJ test !!!
 #include "bgj.fh"
@@ -85,7 +86,7 @@ c
      &         call errquit('dftg_getxc: could not allocate xc hessian',
      &                      1)
             if (bgj_print() .gt. 0)
-     &           write(6,*)'*** In dftg_getxc: calling xc_hessian'
+     &           write(LuOut,*)'*** In dftg_getxc: calling xc_hessian'
             call xc_hessian(iga_dens, oactive, nactive, dbl_mb(k_hess))
             status = MA_pop_stack(l_hess)
             if (.not.status) call
@@ -138,7 +139,7 @@ c
             enddo
 
             if (bgj_print() .gt. 0)
-     &           write(6,*)'*** In dftg_getxc: calling xc_cpks_rhs'
+     &           write(LuOut,*)'*** In dftg_getxc: calling xc_cpks_rhs'
             call xc_cpks_rhs(iga_dens, oactive, nactive, g_rhs)
 
             do i = 1, natom

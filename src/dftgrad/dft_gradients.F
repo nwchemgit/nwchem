@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.9 2000-03-22 03:02:15 edo Exp $
+* $Id: dft_gradients.F,v 1.10 2000-04-13 17:12:08 hvd Exp $
 *
       implicit none
 c      
@@ -213,7 +213,7 @@ c
      $     scftype_vecs, nbf_vecs, nsets, nmo, 2)
 c     
       if (ipol .ne. nsets)then  ! 1 for RHF, 2 for UHF
-         write (6,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
+         write (LuOut,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
          call errquit('dft_gradient:  ERROR ipol, nsets disagree',2)
       endif 
 c     
@@ -223,7 +223,7 @@ c
 c     get mo eigevectors
 c     
       if (nbf_ao .ne. nbf_vecs)then
-         write(6,*)'dft_gradient movecs output = ',movecs_in
+         write(LuOut,*)'dft_gradient movecs output = ',movecs_in
          call errquit('dft_gradient: could not read mo vectors',911)
       else 
          status = .true.
@@ -236,7 +236,7 @@ c
       endif
 c     
       if (.not.status)then
-         write(6,*)'dft_gradient movecs output = ',movecs_in
+         write(LuOut,*)'dft_gradient movecs output = ',movecs_in
          call errquit('dft_gradient: could not read mo vectors',917)
       endif
 c
@@ -422,14 +422,14 @@ c
 c     
       if (.not. ma_push_get(mt_dbl, nat, 's34', l_s34, i_s34))
      $     call errquit('dft_gradient: could not alloc s34',0)
-c$$$      write(6,*) ' BEFORE CALL TO GETXC'
+c$$$      write(LuOut,*) ' BEFORE CALL TO GETXC'
 c$$$      call ga_print(iga_dens(1))
 c$$$      call ga_print(iga_dens(2))
-c$$$      write(6,*) ' nactive '
+c$$$      write(LuOut,*) ' nactive '
 c$$$      call output(dbl_mb(irdens_atom), 1, nat, 1, nat, nat, nat, 1)
-c$$$      write(6,*) (int_mb(icntoce+i),i=0,nshells_ao-1)
-c$$$      write(6,*) (int_mb(icntobfr+i),i=0,2*nshells_ao-1)
-c$$$      write(6,*) (int_mb(icetobfr+i),i=0,2*nat-1)
+c$$$      write(LuOut,*) (int_mb(icntoce+i),i=0,nshells_ao-1)
+c$$$      write(LuOut,*) (int_mb(icntobfr+i),i=0,2*nshells_ao-1)
+c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
       call dftg_getxc(rtdb, nat, iga_dens, dbl_mb(k_frc_xc), 
      $     log_mb(k_act), nactive, dbl_mb(i_s34),
      $     dbl_mb(irdens_atom), int_mb(icntoce), 
@@ -502,7 +502,7 @@ c
      &        call errquit('dft_gradients: could not alloc j hessian',
      &        1)
          if (bgj_print() .gt. 0)
-     &        write(6,*)'*** In dft_gradients: calling j_hessian'
+     &        write(LuOut,*)'*** In dft_gradients: calling j_hessian'
          call j_hessian(iga_dens, log_mb(k_act), nactive,
      &        dbl_mb(k_hess))
          status = MA_pop_stack(l_hess)
@@ -556,7 +556,7 @@ c
          enddo
 
          if (bgj_print() .gt. 0)
-     &        write(6,*)'*** In dft_gradients: calling j_cpks_rhs'
+     &        write(LuOut,*)'*** In dft_gradients: calling j_cpks_rhs'
          call j_cpks_rhs(iga_dens, log_mb(k_act), nactive, g_rhs)
 
          do i = 1, nat

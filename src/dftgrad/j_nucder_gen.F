@@ -5,7 +5,7 @@ c     dftg_cdfit_gen for fitted J quantities
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.7 1999-11-13 02:18:34 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.8 2000-04-13 17:12:09 hvd Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,7 +44,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.7 1999-11-13 02:18:34 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.8 2000-04-13 17:12:09 hvd Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -54,6 +54,7 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "cdft.fh"
 c!!! Start BGJ temp test code
 #include "bgj.fh"
@@ -238,7 +239,7 @@ c
       if (bgj_print() .gt. 0) then
          if (do_hess) then
 c
-            write(6,*) 'j_deriv_gen: j hessian'
+            write(LuOut,*) 'j_deriv_gen: j hessian'
             call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
 c
 c     TI check
