@@ -3,8 +3,19 @@ title "SiC 8 atom cubic cell"
 start SiC
 
 memory global 22 mb stack 22 mb heap 25 mb
+#**** define a simulation cell ****
+PSPW
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         8.277d0  0.000d0  0.0d0 
+         0.000d0  8.277d0  0.000d0
+         0.000d0  0.000d0  8.277d0
+      ngrid: 8 8 8
+   END
+END
 
-#geometry units au noautosym noprint
 geometry units au center autosym print
   system crystal 
     lat_a 8.277d0
@@ -86,19 +97,6 @@ PSPW
 END
 
 
- #**** define a simulation cell ****
-PSPW
-   SIMULATION_CELL
-      cell_name: small
-      boundry_conditions: periodic
-      lattice_vectors:
-         8.277d0  0.000d0  0.0d0 
-         0.000d0  8.277d0  0.000d0
-         0.000d0  0.000d0  8.277d0
-      ngrid: 8 8 8
-   END
-   #FRACTIONAL_TO_CARTESIAN: small
-END
 
 
 #******* Generate a Formmatted pseudopotential for silicon *****
