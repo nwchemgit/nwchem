@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.18 2003-02-16 07:33:19 marat Exp $
+* $Id: paw_comp_charge.F,v 1.19 2003-02-17 00:53:26 bylaska Exp $
 *
 
 
@@ -40,8 +40,9 @@
       nkatm = ion_nkatm()
 
       !*** calculate size of comp. charge array ***
-      ok = my_alloc(mt_int,nion,"i_paw_qlm",
-     >                                i_paw_qlm)
+      ok = my_alloc(mt_int,nion,"i_paw_qlm",i_paw_qlm)
+      if (.not.ok)
+     > call errquit("paw_comp_charge_init:out of heap memory",0)
 
       qlm_size = 0
       do in=1,nion
@@ -52,11 +53,12 @@
       end do
 
       !*** allocate comp. charge arrays ***
-      ok = .TRUE.
-      ok = ok .AND. my_alloc(MT_DCPL,qlm_size,"paw_qlm",paw_qlm)
-      ok = ok .AND. my_alloc(MT_INT,qlm_size,"paw_qlm_l",paw_qlm_l)
-      ok = ok .AND. my_alloc(MT_INT,qlm_size,"paw_qlm_m",paw_qlm_m)
-      ok = ok .AND. my_alloc(MT_DBL,nkatm,"paw_q00",paw_q00)
+      ok =          my_alloc(MT_DCPL,qlm_size,"paw_qlm",paw_qlm)
+      ok = ok.and.my_alloc(MT_INT,qlm_size,"paw_qlm_l",paw_qlm_l)
+      ok = ok.and.my_alloc(MT_INT,qlm_size,"paw_qlm_m",paw_qlm_m)
+      ok = ok.and.my_alloc(MT_DBL,nkatm,"paw_q00",paw_q00)
+      if (.not.ok)
+     > call errquit("paw_comp_charge_init:out of heap memory",1)
 
       i = 0
       do in=1,nion
@@ -77,7 +79,9 @@
         dbl_mb(paw_q00(1)+ia-1)=q00_tmp
       end do
 
+      return
       end
+
 
       subroutine paw_comp_charge_update()
         implicit none
@@ -183,6 +187,8 @@ c       !*** set values for l=0 m=0 elements ***
           nlmi = nlmi + 2*l+1
           end do
          end do 
+
+      return
       end !subroutine
 
 
@@ -195,10 +201,13 @@ c       !*** set values for l=0 m=0 elements ***
 
       logical ok
 
-      ok =        my_dealloc(paw_qlm)
+      ok =        my_dealloc(i_paw_qlm)
+      ok = ok.and.my_dealloc(paw_qlm)
+      ok = ok.and.my_dealloc(paw_qlm_l)
+      ok = ok.and.my_dealloc(paw_qlm_m)
       ok = ok.and.my_dealloc(paw_q00)
       if (.not.ok)
-     > call errquit("paw_comp_charge_init: error freeing heap",0)
+     > call errquit("paw_comp_charge_end: error freeing heap",0)
 
       return
       end !subroutine
