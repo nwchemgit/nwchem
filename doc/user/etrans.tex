@@ -1,21 +1,31 @@
 \label{sec:etrans}
 
-The NWChem ET module uses the method of Corresponding Orbital Transformation to calculate the
-electron transfer matrix element (or coupling) between ET reactants and product states,
-$V_{rp}$ (sometimes called $H_{AB}$ or $V_{AB}$ in the literature). According to Marcus' two-state model $V_{rp}$ appears in the
-expression for the electron transfer rate:
+The NWChem ET module uses the method of {\em Corresponding Orbital Transformation} to calculate the
+electron transfer matrix element between ET reactant and product states,
+$V_{RP}$ ($H_{AB}$ or $V_{AB}$ in the literature). The only input required for the ET module is the
+name of the files containing the open-shell (UHF or ODFT) MO vectors for the localized ET reactant and product states ($R$ and $P$).
+
+The basis set used in the calculation of $V_{RP}$ must be the same as the basis set used to calculate the MO vectors of
+$R$ and $P$.  The magnitude of $V_{RP}$ depends on the amount of overlap between $R$ and $P$,
+which is important to consider when choosing the basis set.  Diffuse functions may be
+necessary to fill in the overlap, particularly when the ET distance is long.
+
+The magnitude of $V_{RP}$ is a measurement of the degree of coupling between $R$ and $P$ and,
+therefore, the facility of the electron transfer.  It's natural then that $V_{RP}$ is an important component in the expression for
+the electron transfer rate: 
 
 \begin{equation} 
 {k_{ET}}=
 \frac{2\pi}{\hbar}
-V_{rp}^{2}
+V_{RP}^{2}
 \frac{1}{\sqrt{4\pi \lambda k_{B}T}}
 \exp \left( \frac{- \Delta G^{*}}{k_{B} T} \right)
 \end{equation}
-
+where $\lambda$ is the nuclear relaxation energy associated with the attachment of the electron and $\Delta G^{*}$ is the
+free energy activation barrier between the ET reactant and product states (in the simplest case, $\Delta G^{*} \approx \lambda / 4$).
 
 Suggested references are listed below.  The first reference gives a good basic description 
-of the two-state model, and the appendix of the second reference details the method used
+of Marcus' two-state ET model, and the appendix of the second reference details the method used
 in the ET module.
 
 \begin{enumerate}
@@ -30,46 +40,46 @@ J.~Am.~Chem.~Soc., 112, 4206 (1990).
 
 
 \begin{verbatim}
-  VECTORS [reactants] <string reactants_vectors_filename>
-  VECTORS [products ] <string products_vectors_filename>
+  VECTORS [reactants] <string reactants_filename>
+  VECTORS [products ] <string products_filename>
 \end{verbatim}
 
 The \verb+VECTORS+ directive allows the user to specify the source 
 of the molecular orbital vectors for the ET reactant and product states. 
 This is required input, as no default filename will be set by the program.
 In fact, this is the only required input in the ET module, although there are
-other optional keywords.
+other optional keywords described below.
 
 
 
-\section{{\tt FOCK/NOFOCK} --- method for calculating the 2e contribution to the coupling}
+\section{{\tt FOCK/NOFOCK} --- method for calculating the two-electron contribution to the ET Hamiltonian}
 \label{sec:fock}
 
  \begin{verbatim}
    <string (FOCK||NOFOCK) default FOCK>
  \end{verbatim}
 
-This directive enables/disables the use of the SCF Fock matrix 
-routine in the calculation of the two-electron portion of the Hamiltonian.
+This directive enables/disables the use of the NWChem's Fock matrix 
+routine in the calculation of the two-electron portion of the ET Hamiltonian.
 Since the Fock matrix routine has been optimized for speed, accuracy and parallel performance,
 it is the most efficient choice.
 
 The user can calculate the two-electron contribution to the ET Hamiltonian
-with another algorithm which may be more accurate for systems with a small
+with another subroutine which may be more accurate for systems with a small
 number of basis functions, although it is slower.
 
 \section{{\tt TOL2E} --- integral screening threshold}
 \label{sec:tol2e}
 
 \begin{verbatim}
-  TOL2E <real tol2e default max(10e-12,min(10e-7 , S(rp)*10e-7 )> 
+  TOL2E <real tol2e default max(10e-12,min(10e-7, S(RP)*10e-7 )> 
 \end{verbatim}
 
 The variable \verb+tol2e+ is used in determining the integral
 screening threshold for the evaluation of the two-electron contribution to the Hamiltonian
 between the electron transfer reactant and product states.
 As a default, \verb+tol2e+ is set depending on the magnitude
-of the overlap between the ET reactant and product states ($S_{rp}$), within the range 1.0d-12 $\rightarrow$ 1.0d-7.
+of the overlap between the ET reactant and product states ($S_{RP}$), within the range 1.0d-12 $\rightarrow$ 1.0d-7.
 
 The input to specify the threshold explicitly within the \verb+ET+
 directive is, for example:
@@ -80,12 +90,11 @@ directive is, for example:
 
 \section{{\tt INPUT/OUTPUT EXAMPLE}}
 
-The following example is for a simple electron transfer system, $He_{}$ $\rightarrow$ $He^{ +}$.
-It is crucial that the transferring electron be localized in the ET reactant and product
-wavefunctions resulting from their respective open-shell SCF or DFT calculations. This can be accomplished
-using either a fragment guess (shown in the example, see \ref{sec:fragguess}), or a scaled density 
-guess in which the charges on the atoms
-are set in the atomic density (see \ref{sec:atomscf}).
+The following example is for a simple electron transfer reaction, $He_{}$ $\rightarrow$ $He^{ +}$.
+The ET calculation is easy to execute, but it is crucial ET reactant and product
+wavefunctions reflect {\em localized states}. This can be accomplished
+using either a fragment guess (shown in the example, see \ref{sec:fragguess}), or a charged atomic
+density guess (see \ref{sec:atomscf}).
 
 Example input :
 \begin{verbatim}
@@ -95,57 +104,41 @@ echo
 
 geometry he
  He 0.0 0.0 0.0
- symmetry C1
 end
 
 geometry he2
  He 0.0 0.0  2.0
  He 0.0 0.0 -2.0
- symmetry C1
 end
 
-basis
- He   library 3-21G
-end
+basis ;  He   library 3-21G ; end
 
-set geometry he
+set geometry he      ! He(+) fragment
 charge 1
-scf
- doublet; uhf; vectors input atomic output hep.mo
-end
-task scf energy
+scf ;  doublet; uhf; vectors input atomic output hep.mo ; end ; task scf
 
-set geometry he
+set geometry he      ! neutral He fragment
 charge 0
-scf
- singlet; uhf; vectors input atomic output he.mo
-end
-task scf energy
+scf ; singlet; uhf; vectors input atomic output he.mo ; end ; task scf
 
-set geometry he2
+set geometry he2     ! ET reactants
 charge 1
-scf
- doublet; uhf; vectors input fragment hep.mo he.mo output hea.mo
-end
-task scf energy 
+scf ; doublet; uhf; vectors input fragment hep.mo he.mo output hea.mo ; end ; task scf
 
-set geometry he2
+set geometry he2     ! ET products
 charge 1
-scf
- doublet; uhf; vectors input fragment he.mo hep.mo output heb.mo
-end
-task scf energy
+scf ; doublet; uhf; vectors input fragment he.mo hep.mo output heb.mo ; end ; task scf
 
 et
  vectors reactants hea.mo 
  vectors products heb.mo
 end
-task scf et
+task scf et          ! Calculate V(RP)
 
 \end{verbatim}
 It is important to verify the localization of the electron in the calculation 
-of the vectors in \verb+hea.mo+ and \verb+heb.mo+. To do this, carefully examine the Mulliken population
-analysis.  For instance, for the ET reactant state in the He example, the Mulliken population
+of the vectors \verb+hea.mo+ and \verb+heb.mo+. To do this, carefully examine the Mulliken population
+analysis.  For the ET product state in the helium example, the Mulliken population
 analysis looks like this:
 
 \begin{verbatim}
@@ -158,36 +151,15 @@ analysis looks like this:
     1 He   2     1.00   0.56  0.44
     2 He   2     2.00   0.78  1.22
 
-  Mulliken analysis of the alpha density
-  --------------------------------------
-
-    Atom       Charge   Shell Charges
- -----------   ------   -------------------------------------------------------
-    1 He   2     1.00   0.56  0.44
-    2 He   2     1.00   0.39  0.61
-
-   Mulliken analysis of the beta density
-   -------------------------------------
-
-    Atom       Charge   Shell Charges
- -----------   ------   -------------------------------------------------------
-    1 He   2     0.00   0.00  0.00
-    2 He   2     1.00   0.39  0.61
-
-   Mulliken analysis of the spin density
-   -------------------------------------
-
     Atom       Charge   Shell Charges
  -----------   ------   -------------------------------------------------------
     1 He   2     1.00   0.56  0.44
     2 He   2     0.00   0.00  0.00
 \end{verbatim}
-Clearly the electron is localized on the first He atom, and it has beta spin. If the fragment guess
-or scaled atomic guess were not used, the spin density would be 0.5 on both He atoms, the overlap between
-the ET reactant and product states would be \verb+100 %+ and an infinite
-$V_{rp}$ would result.
+The Mulliken population analyses of the total and spin densities show that there is a single electron on
+the first helium and a pair of electrons on the second helium.  
 
-Here is what the ET output looks like for this example:
+Here is what the output looks like for this example:
 \begin{verbatim}
                            Electron Transfer Calculation
                            -----------------------------
@@ -195,24 +167,31 @@ Here is what the ET output looks like for this example:
  MO vectors for reactants: hea.mo
  MO vectors for products : heb.mo
 
- Electronic energy of reactants     H(rr)      -5.3402392824
- Electronic energy of products      H(pp)      -5.3402392824
+ Electronic energy of reactants     H(RR)      -5.3402392824
+ Electronic energy of products      H(PP)      -5.3402392824
 
- Reactants/Products overlap         S(rp)      -0.0006033839
+ Reactants/Products overlap         S(RP)      -0.0006033839
 
  Reactants/Products interaction energy:
  -------------------------------------
- One-electron contribution         H1(rp)       0.0040314092
- Two-electron contribution         H2(rp)      -0.0007837138
- Total interaction energy           H(rp)       0.0032476955
+ One-electron contribution         H1(RP)       0.0040314092
 
- Electron Transfer Coupling Energy, |Vrp|       0.0000254810
+ Beginning calculation of 2e contribution
+ Two-electron integral screening (tol2e) : 6.03E-11
+
+ Two-electron contribution         H2(RP)      -0.0007837138
+ Total interaction energy           H(RP)       0.0032476955
+
+ Electron Transfer Coupling Energy |V(RP)|      0.0000254810
                                                        5.592 cm-1
                                                     0.000693 eV
                                                        0.016 kcal/mol
+
 \end{verbatim}
 
-The overlap between the ET reactant and product states ($S_{rp}$) is very small,
+The overlap between the ET reactant and product states ($S_{RP}$) is small,
 so the magnitude of the coupling between the states is also small. 
-
-
+If the fragment guess
+or charged atomic density guess were not used, the spin density would be 0.5 on both He atoms, the overlap between
+the ET reactant and product states would be \verb+100 %+ and an infinite
+$V_{RP}$ would result.
