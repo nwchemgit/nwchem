@@ -1,5 +1,5 @@
       subroutine ga_inv_seq(g_a, g_s)
-C$Id: ga_inv_seq.F,v 1.7 1995-10-17 08:55:17 d3g681 Exp $
+C$Id: ga_inv_seq.F,v 1.8 1996-07-09 00:04:26 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -65,7 +65,8 @@ c
 c****
 c****   allocate local storage
 c****
-        status = ma_push_get(mt_dbl,n*n,'a_in',l_a_in,i_a_in)        
+        if(.not.ma_push_get(mt_dbl,n*n,'a_in',l_a_in,i_a_in))
+     &    call errquit('ga_inv_seq: cannot allocate a_in',0)
 c****
 c****   collect matrix from global array
 c****
@@ -94,7 +95,8 @@ c****
 c****
 c****   deallocate local storage
 c****
-        status = ma_pop_stack(l_a_in)
+        if(.not.ma_pop_stack(l_a_in))
+     &    call errquit('ga_inv_seq: cannot pop stack',0)
       endif 
       call ga_sync()
       return 

@@ -1,5 +1,5 @@
       subroutine ga_inverse(g_a, g_s)
-C$Id: ga_inverse.F,v 1.4 1995-10-17 08:55:18 d3g681 Exp $
+C$Id: ga_inverse.F,v 1.5 1996-07-09 00:04:26 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -78,7 +78,8 @@ c
 c     
 c        allocate map arrays
 c
-         status = ma_push_get(mt_int,n,'mapa',hma,adrma)
+         if(.not.ma_push_get(mt_int,n,'mapa',hma,adrma))
+     &     call errquit('ga_inverse: cannot allocate mapa',0)
 c         
 c        determine distribution of a and z
 c     
@@ -135,7 +136,8 @@ c
 c
 c***     allocate a and s arrays
 c     
-         status = ma_push_get(mt_dbl,elems,'s',hs,adrs)
+         if(.not.ma_push_get(mt_dbl,elems,'s',hs,adrs))
+     &     call errquit('ga_inverse: cannot allocate s',0)
 c
 c***     load the fock (A) matrix to (S)
 c
@@ -152,10 +154,11 @@ c
 c***     allocate some memory 
 c
 
-         if(.not. ma_push_get(mt_int,(6*n),'iwork',his,adris))
-     &        call ga_error('ga_inverse allocator',1)
-         if(.not. ma_push_get(mt_dbl,(6*n+1),'work',hip,adrip))
-     &        call ga_error('ga_inverse allocator',3)
+         if(.not.ma_push_get(mt_int,(6*n),'iwork',his,adris))
+     &     call errquit('ga_inverse: cannot allocate iwork',0)
+
+         if(.not.ma_push_get(mt_dbl,(6*n+1),'work',hip,adrip))
+     &     call errquit('ga_inverse: cannot allocate work',0)
      
       endif
 c
@@ -191,10 +194,17 @@ c              call ga_put(g_s,k,k,k,n,dbl_mb(adrs+istart),1)
 c     
 c***     deallocate work arrays 
 c     
-         status = ma_pop_stack(hip) 
-         status = ma_pop_stack(his) 
-         status = ma_pop_stack(hs) 
-         status = ma_pop_stack(hma) 
+         if(.not.ma_pop_stack(hip))
+     &     call errquit('ga_inverse: cannot pop stack',0)
+
+         if(.not.ma_pop_stack(his))
+     &     call errquit('ga_inverse: cannot pop stack',0)
+
+         if(.not.ma_pop_stack(hs))
+     &     call errquit('ga_inverse: cannot pop stack',0)
+
+         if(.not.ma_pop_stack(hma))
+     &     call errquit('ga_inverse: cannot pop stack',0)
       endif
 c
       call ga_sync()

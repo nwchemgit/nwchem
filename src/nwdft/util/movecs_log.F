@@ -1,7 +1,7 @@
       logical function movecs_to_logfile( rtdb, n_homo, n_lumo,
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
-C$Id: movecs_log.F,v 1.2 1995-12-16 07:26:28 d3g681 Exp $
+C$Id: movecs_log.F,v 1.3 1996-07-09 00:04:27 d3h449 Exp $
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -74,8 +74,9 @@ c****   n_homo = min(n_homo,nbf)
 c****   n_lumo = min(n_lumo,nbf)
 
 c****   array to store one orbital
-        if (.not. ma_push_get(mt_dbl, nbf, 'movecs', l_vecs, k_vecs))
-     &       call errquit('movecs_write_logfile: ma failed', nbf)
+
+        if(.not. ma_push_get(mt_dbl, nbf, 'movecs', l_vecs, k_vecs))
+     &    call errquit('movecs_log: cannot allocate movecs', 0)
 
 c****   write header to logfile
         write(LuOut,*)'<MO coefficients> start'
@@ -127,9 +128,8 @@ c****     output LUMOs
 c****   write footer to logfile
         write(luout,*)'<MO coefficients> end'
 
-        if (.not. ma_pop_stack(l_vecs))
-     &       call errquit('movecs_write_logfile: ma pop failed',
-     &       l_vecs)
+        if(.not. ma_pop_stack(l_vecs))
+     &    call errquit('movecs_log: cannot pop stack',0)
 
 c****   ok = 1
       endif

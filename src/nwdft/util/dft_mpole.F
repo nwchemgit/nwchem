@@ -1,6 +1,6 @@
       subroutine dft_mpole( geom, i_basis, j_basis, lmax_pole, 
      &     iga_dens, ndens, rmoments, len_rmoments)
-C     $Id: dft_mpole.F,v 1.6 1995-10-17 08:55:13 d3g681 Exp $
+C     $Id: dft_mpole.F,v 1.7 1996-07-09 00:04:24 d3h449 Exp $
       implicit none
 
 #include "mafdecls.fh"
@@ -161,17 +161,17 @@ c****
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
-      if (.not. MA_push_get( MT_DBL, lmpmax,'dft_mpole:MP_reord',
-     &     l_MP_reord, k_MP_reord))
-     &     call errquit('dft_mpole: ma failed', lmpmax)
+      if(.not. MA_push_get( MT_DBL, lmpmax,'dft_mpole:MP_reord',
+     &  l_MP_reord, k_MP_reord))
+     &  call errquit('dft_mpole: cannot allocate MP_reord', 0)
 
-      if (.not. MA_push_get( MT_DBL, lmpmax,'dft_mpole:MP',
-     &     l_MP, k_MP))
-     &     call errquit('dft_mpole: ma failed', lmpmax)
+      if(.not. MA_push_get( MT_DBL, lmpmax,'dft_mpole:MP',
+     &  l_MP, k_MP))
+     &  call errquit('dft_mpole: cannot allocate MP', 0)
 
-      if (.not. MA_push_get( MT_DBL, mscratch_3ov,'dft_mpole:scr30v',
-     &     l_scr, k_scr))
-     &     call errquit('dft_mpole: ma failed', mscratch_3ov)
+      if(.not. MA_push_get( MT_DBL, mscratch_3ov,'dft_mpole:scr30v',
+     &  l_scr, k_scr))
+     &  call errquit('dft_mpole: cannot allocate scr30v', 0)
 c     
 c     Loop thru shells with static parallel work decomposition
 c     
@@ -269,14 +269,14 @@ c****
 c**** 
 c**** clean up stack
 c**** 
-      if (.not. MA_pop_stack(l_scr)) call errquit
-     &     ('dft_mpole: pop failed', 0)
+      if (.not. MA_pop_stack(l_scr))
+     &  call errquit('dft_mpole: cannot pop stack',0)
 c     
-      if (.not. MA_pop_stack(l_MP)) call errquit
-     &     ('dft_mpole: pop failed', 0)
+      if (.not. MA_pop_stack(l_MP))
+     &  call errquit('dft_mpole: cannot pop stack',0)
 c     
-      if (.not. MA_pop_stack(l_MP_reord)) call errquit
-     &     ('dft_mpole: pop failed', 0)
+      if (.not. MA_pop_stack(l_MP_reord))
+     &  call errquit('dft_mpole: cannot pop stack',0)
 c     
       call ga_sync() ! So that no nasty races can result
 c     

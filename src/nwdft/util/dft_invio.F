@@ -1,6 +1,6 @@
       Subroutine dft_invio(name,iga_inv,nbf,ioop,lmiss)
 
-C     $Id: dft_invio.F,v 1.4 1995-12-22 22:45:16 og845 Exp $
+C     $Id: dft_invio.F,v 1.5 1996-07-09 00:04:23 d3h449 Exp $
       implicit none
       
       character*10 fname
@@ -28,20 +28,21 @@ C     $Id: dft_invio.F,v 1.4 1995-12-22 22:45:16 og845 Exp $
       inquire(file=fname,exist=doesit,opened=isit)
       if(ioop.eq.'KILL'.and.doesit) then
         if(.not.isit)
-     &       open(unit=iunit,file=fname,access='sequential',
-     &       form='unformatted',status='old')
+     &    open(unit=iunit,file=fname,access='sequential',
+     &    form='unformatted',status='old')
         close(iunit,status='delete')
         return
       endif
-      LResult = MA_Push_Get(MT_Dbl,nbf,'inv i/o',linv,iinv)
+      if(.not.ma_push_get(MT_Dbl,nbf,'inv i/o',linv,iinv))
+     &  call errquit('dft_invio: cannot allocate inv i/o',0)
       
       if(.not.isit)then
         if(.not.doesit)then
           open(unit=iunit,file=fname,access='sequential',
-     &         form='unformatted',status='new')
+     &      form='unformatted',status='new')
         else
           open(unit=iunit,file=fname,access='sequential',
-     &         form='unformatted',status='old')
+     &      form='unformatted',status='old')
         endif
       endif
 
@@ -55,11 +56,13 @@ C     $Id: dft_invio.F,v 1.4 1995-12-22 22:45:16 og845 Exp $
         write(LuOut,*) ' READ file ',fname
         rewind iunit
         lmiss=0
-        LResult = MA_Pop_Stack(linv)
+        if(.not.ma_pop_stack(linv))
+     &    call errquit('dft_invio: cannot pop stack',0)
         close(iunit)
         return
    27   lmiss=1
-        LResult = MA_Pop_Stack(linv)
+        if(.not.ma_pop_stack(linv))
+     &    call errquit('dft_invio: cannot pop stack',0)
         rewind iunit
 C       close(iunit)
         return
@@ -70,7 +73,8 @@ C       close(iunit)
           call get_col(iga_inv,nbf,j,Dbl_MB(istart))
           write(iunit)(Dbl_MB(iinv+i-1),i=1,nbf)
         enddo
-        LResult = MA_Pop_Stack(linv)
+        if(.not.ma_pop_stack(linv))
+     &    call errquit('dft_invio: cannot pop stack',0)
         rewind iunit
 C       close(iunit)
         return

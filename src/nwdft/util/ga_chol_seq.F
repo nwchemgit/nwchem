@@ -1,5 +1,5 @@
       subroutine ga_chol_seq(g_a, g_s,info)
-C$Id: ga_chol_seq.F,v 1.7 1995-10-17 08:55:16 d3g681 Exp $
+C$Id: ga_chol_seq.F,v 1.8 1996-07-09 00:04:25 d3h449 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -65,7 +65,8 @@ c
 c****
 c****   allocate local storage
 c****
-        status = ma_push_get(mt_dbl,n*n,'a_in',l_a_in,i_a_in)        
+        if(.not.ma_push_get(mt_dbl,n*n,'a_in',l_a_in,i_a_in))
+     &    call errquit('ga_chol_seq: cannot allocate a_in',0)
 c****
 c****   collect matrix from global array
 c****
@@ -86,7 +87,8 @@ c****
 c****
 c****   deallocate local storage
 c****
-        status = ma_pop_stack(l_a_in)
+        if(.not.ma_pop_stack(l_a_in))
+     &    call errquit('ga_chol_seq: cannot pop stack',0)
       endif 
       call ga_brdcst(Msg_ga_chol, info, mitob(1), 0)
       call ga_sync()
