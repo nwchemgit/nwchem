@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.13 1997-05-19 19:11:18 d3g681 Exp $
+c     $Id: mcscf_fock.F,v 1.14 1997-05-20 16:28:23 d3e129 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -484,7 +484,7 @@ c
 c
       integer l_buf, k_buf, p, q, r, s, nocc
       logical odebug
-      logical ga_create_atom_blocked
+      integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
       nocc = nclosed+nact
