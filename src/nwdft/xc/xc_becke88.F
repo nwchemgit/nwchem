@@ -1,7 +1,7 @@
-      Subroutine xc_becke88(fac,lfac,nlfac,
+      Subroutine xc_becke88(tol_rho,fac,lfac,nlfac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ex,qwght)
 
-C$Id: xc_becke88.F,v 1.6 1996-10-18 21:50:17 d3h449 Exp $
+C$Id: xc_becke88.F,v 1.7 1997-02-14 07:37:07 gutowski Exp $
       implicit none
       
       double precision fac,Ex
@@ -32,7 +32,7 @@ c Compute the partial derivatives of the exchange functional of Becke.
 c
 c--> Becke Empirical Parameter
 
-      double precision BETA,TOLL,P2,
+      double precision BETA,TOLL,tol_rho,P2,
      ,     ONE,TWO,SIX,ONEHALF,FOURTHIRDS
 
       Parameter (BETA = 0.0042D0,TOLL=1.E-20)
@@ -66,14 +66,14 @@ c      if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
 c                      ======> SPIN-RESTRICTED <======
 
        do 10 n = 1,nq
-       if(rho(1,n).lt.TOLL) goto 10
+       if(rho(1,n).lt.tol_rho) goto 10
 c Spin alpha:
         CD13a = (0.5d0*rho(1,n))**(1.d0/3.d0)
         CD43a = CD13a**4 
         gamma=delrho(1,1,n)*delrho(1,1,n)+
      +       delrho(1,2,n)*delrho(1,2,n)+
      +       delrho(1,3,n)*delrho(1,3,n)
-        if(dsqrt(gamma).gt.TOLL) then
+        if(dsqrt(gamma).gt.tol_rho) then
           GNa = dsqrt( 0.25D0*gamma )
           Xa = GNa/CD43a
         else
@@ -109,7 +109,7 @@ c
           Ex      = Ex + TWO*CD43a*Ca*qwght(n)*fac
         endif
 c
-        if(Gna.gt.TOLL)  then
+        if(Gna.gt.tol_rho)  then
           g         = .5d0*Pa/Gna*fac
           Cmat(1,1,n) = Cmat(1,1,n) + g*delrho(1,1,n)
           Cmat(1,2,n) = Cmat(1,2,n) + g*delrho(1,2,n)
@@ -121,7 +121,7 @@ c
       else
 c                      ======> SPIN-UNRESTRICTED <======
        do 20 n = 1,nq
-         if(dabs(rho(1,n)).lt.TOLL) goto 20
+         if(dabs(rho(1,n)).lt.tol_rho) goto 20
 
 c Spin alpha:
 
@@ -182,13 +182,13 @@ c
           Ex      = Ex + (CD43a*Ca + CD43b*Cb)*qwght(n)*fac
         endif
 c
-        if(GNa.gt.TOLL) then
+        if(GNa.gt.tol_rho) then
           gaa = Pa/GNa*fac
           Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n) 
           Cmat(1,2,n) = Cmat(1,2,n) + gaa*delrho(1,2,n) 
           Cmat(1,3,n) = Cmat(1,3,n) + gaa*delrho(1,3,n) 
         endif
-        if(GNb.gt.TOLL) then
+        if(GNb.gt.tol_rho) then
           gbb = Pb/GNb*fac
           Cmat(2,1,n) = Cmat(2,1,n) + gbb*delrho(2,1,n) 
           Cmat(2,2,n) = Cmat(2,2,n) + gbb*delrho(2,2,n) 

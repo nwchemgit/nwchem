@@ -1,4 +1,4 @@
-      Subroutine xc_vwn_1_rpa(fac,lfac,nlfac,rho,Amat,nq,ipol,
+      Subroutine xc_vwn_1_rpa(tol_rho,fac,lfac,nlfac,rho,Amat,nq,ipol,
      &           Ec,qwght,ldew,func)
 c
       implicit none
@@ -14,7 +14,7 @@ c
       double precision zero,one,two,four,
      * onethird,fourthirds,onesixth,pi,
      * a1,a2,a3,b1,b2,b3,c1,c2,c3,
-     * d1,d2,d3,TOLL
+     * d1,d2,d3,tol_rho
       Parameter (zero=0.D0,one=1.D0,two=2.D0,four=4.D0)
       Parameter (onethird=1.D0/3.D0,fourthirds=4.D0/3.D0)
       Parameter (onesixth=1.0d0/6.D0)
@@ -23,7 +23,6 @@ c
       Parameter (b1=1.06835D0,b2=13.0720D0,b3=20.1231D0)
       Parameter (c1=11.4813D0,c2=42.7198D0,c3=101.578D0)
       Parameter (d1=-0.228344D0,d2=-0.409286D0,d3=-0.743294D0)
-      parameter(TOLL=1.D-40)
 
 c--> Charge Density & Its Cubed Root
 
@@ -134,7 +133,7 @@ c
 c
 c        Compute the interpolation variable.
 c
-         if(rho(1,n).lt.TOLL) goto 100
+         if(rho(1,n).lt.tol_rho) goto 100
         rho3=rho(1,n)**onethird
         xs = sqrt(p0/rho3)
 c
@@ -165,7 +164,7 @@ c
 c                      ======> SPIN-UNRESTRICTED <======
 c
        do 200 n = 1,nq
-         if(dabs(rho(1,n)).lt.TOLL) goto 200
+         if(dabs(rho(1,n)).lt.tol_rho) goto 200
 c
 c Compute the interpolation variable.
 c

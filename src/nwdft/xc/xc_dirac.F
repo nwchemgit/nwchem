@@ -1,7 +1,7 @@
-      Subroutine xc_dirac(fac,lfac,nlfac,rho,Amat,nq,ipol,
+      Subroutine xc_dirac(tol_rho,fac,lfac,nlfac,rho,Amat,nq,ipol,
      &                    Ex,qwght,ldew,func)
 
-C$Id: xc_dirac.F,v 1.4 1996-10-18 00:53:26 d3h449 Exp $
+C$Id: xc_dirac.F,v 1.5 1997-02-14 07:37:08 gutowski Exp $
       Implicit none
 
       integer nq,ipol
@@ -23,7 +23,7 @@ c--> Partial Derivatives of the Exchange Energy Functional
 c
 c Compute the partial derivatives of the exchange functional of Dirac.
 c
-      double precision P1,P2,P3,P4,TOLL
+      double precision P1,P2,P3,P4,tol_rho
 c--> P1 =       -(3/PI)**(1/3)
 c--> P2 = -(3/4)*(3/PI)**(1/3)
 c--> P3 =       -(6/PI)**(1/3)
@@ -33,7 +33,6 @@ c--> P4 = -(3/4)*(6/PI)**(1/3)
       Parameter (P2 = -0.7385587663820219D+00)
       Parameter (P3 = -0.1240700981798799D+01)
       Parameter (P4 = -0.9305257363490993D+00)
-      parameter(TOLL=1.D-15)
       double precision rho13,rho32,rho33,Exp
       integer n
 c***************************************************************************
@@ -43,7 +42,7 @@ c***************************************************************************
 
 c                      ======> SPIN-RESTRICTED <======
        do 10 n = 1,nq
-         if(rho(1,n).gt.TOLL) then
+         if(rho(1,n).gt.tol_rho) then
            rho13=rho(1,n)**(1.d0/3.d0)
            Amat(1,n) = Amat(1,n) + rho13
            Exp      = Exp + rho(1,n)*rho13*qwght(n)
@@ -58,7 +57,7 @@ c                      ======> SPIN-RESTRICTED <======
 c                      ======> SPIN-UNRESTRICTED <======
 
        do 20 n = 1,nq
-         if(abs(rho(1,n)).lt.TOLL) goto 20
+         if(abs(rho(1,n)).lt.tol_rho) goto 20
         rho32=rho(2,n)**(1.d0/3.d0)
         rho33=rho(3,n)**(1.d0/3.d0)
         Amat(1,n) = Amat(1,n) + P3*rho32*fac
