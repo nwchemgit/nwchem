@@ -1,6 +1,6 @@
       logical function drdy_nwchem(rtdb)
 *
-* $Id: drdy.F,v 1.1 1999-08-16 22:54:33 d3e129 Exp $
+* $Id: drdy.F,v 1.2 1999-08-19 19:39:59 d3e129 Exp $
 *
 C
 C DRDYNWChem - DiRect DYnamics with the NWChem electronic structure code
@@ -32,10 +32,12 @@ C
 #include "drdyP.fh"
 #include "nwc_drdyP.fh"
 #include "global.fh"
+#include "rtdb.fh"
 C
 *::passed:
       Integer rtdb ! [input] RTDB handle
 *::local:
+      Logical status_rtdb
       Logical lhead,lsad,lskip
       integer jop
       integer ns
@@ -45,9 +47,12 @@ C
 *
       me_drdy = ga_nodeid()
       my_rtdb = rtdb
+*      call setdbg(1)
+      
+      status_rtdb = rtdb_parallel(.false.)
       if (me_drdy.ne.0) then
         i_dummy = 0
-        call drdy_synch(i_dummy)
+        call drdy_synch(i_dummy,'drdy')
         goto 99999
       endif
 C
@@ -129,8 +134,11 @@ C
         Call drdy_sort(lhead,jop,lsad,ns,1)
       endif
       write (luout,*) 'drdy_NWChem has finished corretly, bye !'
+      call drdy_synch(DRDY_CODE_DONE,'drdy 2')
 99999 continue
+*      call setdbg(0)
       call ga_sync()
+      status_rtdb = rtdb_parallel(status_rtdb)
       drdy_nwchem = .true.
       End
       

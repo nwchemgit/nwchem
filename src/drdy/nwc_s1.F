@@ -77,7 +77,7 @@ C Transform to cartesian coordinates
           if (ncenter_B4_autosym.ne.ncenter) call errquit
      &          ('nwc_s1: sym_nwc failed ',911)
           call sym_geom_project(geom, threquiv)
-          write(luout,*)' autosym worked'
+*          write(luout,*)' autosym worked'
         endif
       else
         call errquit('nwc_s1: logic error in copy_{c1|sym}',911)
@@ -88,7 +88,7 @@ C Transform to cartesian coordinates
      &      call errquit('nwc_s1: geom_destroy failed',911)
       call util_print_set_level(current_print_level)
 *      write(6,*)' x after  ',x
-      call drdy_synch(DRDY_CODE_GRADIENT)
+      call drdy_synch(DRDY_CODE_GRADIENT,'nwc_s1')
       call drdy_nwc_get_energy(my_rtdb,v)
       call drdy_nwc_get_coords(my_rtdb,xs)
       call drdy_nwc_get_gradient(my_rtdb,dx)
