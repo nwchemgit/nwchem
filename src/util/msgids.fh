@@ -143,6 +143,9 @@ C
      $   msg_cc_diis1, msg_cc_diis2, msg_cc_term1, msg_cc_term2,
      $   msg_cc_term3, msg_cc_term4, msg_cc_term5, msg_cc_term6,
      $   msg_cc_t1a, msg_cc_t1b
+c
+      integer msg_qmmm_node, msg_qmmm_nat, msg_qmmm_solute,
+     &    msg_qmmm_solvent
 
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
@@ -387,5 +390,9 @@ c
       parameter (msg_cc_term6  = msg_ftn_base - 218) ! ccsd
       parameter (msg_cc_t1a    = msg_ftn_base - 219) ! ccsd
       parameter (msg_cc_t1b    = msg_ftn_base - 220) ! ccsd
-
+c
+      parameter (msg_qmmm_node    = msg_ftn_base - 221) ! nwargos/qmmm
+      parameter (msg_qmmm_nat     = msg_ftn_base - 222) ! nwargos/qmmm
+      parameter (msg_qmmm_solute  = msg_ftn_base - 223) ! nwargos/qmmm
+      parameter (msg_qmmm_solvent = msg_ftn_base - 224) ! nwargos/qmmm
 
