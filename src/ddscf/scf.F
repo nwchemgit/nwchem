@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.49 1997-03-25 18:02:43 d3e129 Exp $
+C$Id: scf.F,v 1.50 1997-04-02 19:40:09 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -104,7 +104,10 @@ c
          if (olock) write(6,124) olock
  124     format('  lock orbitals   = ', l1)
          write(6,*)
-         if (oadapt .and. util_print('char table', print_debug)) then
+         if (.not.bas_summary_print(basis))
+     &        call errquit('scf: basis summary print failed',911)
+         write(6,*)
+         if (oadapt .and. util_print('char table', print_high)) then
             call sym_print_char_table(geom)
          endif
          if (oadapt .and. util_print('basis sym', print_default)) then
