@@ -1,5 +1,5 @@
       Logical Function Get_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: get_3cints.F,v 1.8 1996-09-22 18:40:39 d3g681 Exp $
+C$Id: get_3cints.F,v 1.9 1997-04-01 03:43:32 gg502 Exp $
       Implicit NONE
       Integer LU, G_I, NA, ILo, IHi
 C
@@ -34,7 +34,7 @@ C
 C LOCAL VARIABLES
       Logical Status
       Integer AILo, AIHi, SLo, SHi, NS, H_Local, Local_Idx, I, LocalI
-      Integer Junk, Dim1, Dim2
+      Integer Junk
 C
       Call GA_Distribution( G_I, GA_NodeID(), AIlo, AIhi, Slo, Shi)
       NS = SHi-SLo+1

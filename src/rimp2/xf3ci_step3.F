@@ -4,7 +4,7 @@ C     XF3cI_Step3 -- Do the last step of the three-center integral
 C     transformation
 C
 C REVISION
-C     $Id: xf3ci_step3.F,v 1.3 1995-10-17 08:55:57 d3g681 Exp $
+C     $Id: xf3ci_step3.F,v 1.4 1997-04-01 03:43:35 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step3(G_In, NAIn, NIIn,
@@ -15,7 +15,6 @@ C SYNOPSIS
       Integer NAIn, NIIn, AInLo, AInHi, IInLo, IInHi, SInlo, SInHi
       Integer SOutLo, SOutHi, NAOut, NIOut, AOut, IOut, SOut
       Integer G_In, G_C, G_Out
-      Integer H_In, H_C, H_Out, LDIn, LDC, LDOut
 C
 C ARGUMENTS
 C     G_In     GA handle for incoming (ia|s) integrals [IN]
@@ -67,10 +66,9 @@ C INCLUDE FILES
 #include "rimp2_timers.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer NAXF, NIXF, NSXFIn, NSXFOut, Dim1In, Dim1Out, Type,
+      Integer NAXF, NIXF, NSXFOut, Dim1In, Dim1Out, Type,
      $  NCRow, NCCol, NSIn, NSOut
       Logical Status
-      Character*80 Name
 C
 C     This routine is essentially synchronous anyway because GA_DGEMM
 C     is SIMD, so to be fair, we should include only the time after
@@ -83,7 +81,6 @@ C     For convenience, determine the size of the region to be transformed
 C
       NAXF = AInHi - AInLo + 1
       NIXF = IInHi - IInLo + 1
-      NSXFIn = SInHi - SInLo + 1
       NSXFOut = SOutHi - SOutLo + 1
 c$$$C
 c$$$      Write (LuOut, *) 'Step3 inputs ', GA_NodeID(), NAIn, NIIn,
@@ -163,17 +160,6 @@ C
 C     *****************************************
 C     * A very straightforward operation here *
 C     *****************************************
-C     This works until we have to worry about crazy submatrix thingies.
-C
-c$$$      Call GA_Access( G_In, 1, NAXF*NIXF, 1, NSIn, H_In, LDIn)
-c$$$      Call GA_Access( G_C,  1, NSIn, 1, NSOut, H_C, LDC)
-c$$$      Call GA_Access( G_Out, 1, NAXF*NIXF, 1, NSOut, H_Out, LDOut)
-c$$$      Call DGEMM('N', 'N', NAXF*NIXF, NSOut, NSIn,
-c$$$     $   FP_One, Dbl_MB(H_In), LDIn, Dbl_MB( H_C), LDC,
-c$$$     $   FP_Zero, Dbl_MB( H_Out), LDOut)
-c$$$      Call GA_Release( G_In, 1, NAXF*NIXF, 1, NSIn)
-c$$$      Call GA_Release( G_C,  1, NSIn, 1, NSOut)
-c$$$      Call GA_Release_Update( G_Out, 1, NAXF*NIXF, 1, NSOut)
 C
       Call GA_DGEMM('N', 'N', NAXF*NIXF, NSOut, NSIn, FP_One, G_In, G_C,
      $   FP_Zero, G_Out)

@@ -1,5 +1,5 @@
       subroutine int_2c_ga(ibas, jbas, g, integ_type, Alpha)
-C$Id: int_2c_ga.F,v 1.3 1996-10-06 20:15:41 d3g681 Exp $
+C$Id: int_2c_ga.F,v 1.4 1997-04-01 03:43:42 gg502 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -30,7 +30,7 @@ c
 c     local variables
 c
       integer nshell_i, nshell_j
-      integer ishell, jshell, iproc, nproc, mem1, max1e, Next
+      integer ishell, jshell, nproc, mem1, max1e, Next
       integer ijshell, ilo, ihi, jlo, jhi, jdim
       integer l_buf, l_scr
       integer k_buf, k_scr
@@ -77,7 +77,6 @@ c
 c     Loop thru shells with static parallel work decomposition
 c
       call ga_sync
-      iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
       Next = NxTask( nproc, Task_Chunk)

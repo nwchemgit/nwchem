@@ -1,13 +1,12 @@
       Subroutine RIMP2_PStat_Init
-C$Id: rimp2_timers.F,v 1.5 1995-06-20 20:12:30 gg502 Exp $
+C$Id: rimp2_timers.F,v 1.6 1997-04-01 03:43:33 gg502 Exp $
       Implicit NONE
 C
 #include "pstat.fh"
 #include "rimp2_timers.fh"
 C
       Logical Status
-      Integer NAcc, Accum(1)
-      Character*1 Names(1)
+      Integer Accum(1)
 C
       Status = .TRUE.
       Status = Status .AND. PStat_Allocate('Overall',

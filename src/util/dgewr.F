@@ -1,14 +1,14 @@
       Subroutine DGeWr (N, M, A, LDA, N0, M0, LUN, Label, LinWid,
      $   EFmt)
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgewr.F,v 1.1 1997-03-24 02:00:36 gg502 Exp $
+C $Id: dgewr.F,v 1.2 1997-04-01 03:43:41 gg502 Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgewr -- Write a general matrix nicely formatted 
 C
 C SYNOPSIS
       Implicit NONE
-      Integer N, M, LDA, N0, M0, LinWid, IErr, LUN
+      Integer N, M, LDA, N0, M0, LinWid, LUN
       Double precision A(LDA,*)
       Character*(*) Label, EFmt
 C

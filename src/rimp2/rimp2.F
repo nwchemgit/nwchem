@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.34 1997-02-17 22:17:30 gg502 Exp $
+C$Id: rimp2.F,v 1.35 1997-04-01 03:43:33 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -53,7 +53,7 @@ C
       Integer NMO(MaxSpin), RefNMO(MaxSpin),I, Me, SpinMap(MaxSpin)
       Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
-      Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
+      Character*(80) Title, SCFBasNam, FNVec, FNInt, Approx
       character*20 scftype
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status

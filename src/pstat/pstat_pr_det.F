@@ -1,5 +1,5 @@
       Subroutine PStat_Print_Detail(handles,n_handles)
-c $Id: pstat_pr_det.F,v 1.1 1995-12-13 01:36:32 d3g681 Exp $
+c $Id: pstat_pr_det.F,v 1.2 1997-04-01 03:43:25 gg502 Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
@@ -15,7 +15,6 @@ c
       Parameter ( Stdout = 6 )
 C
       Integer I, Off, N, H_Collect, I_Collect
-      Logical Status
 C
       Call GA_Sync()
 C
@@ -74,7 +73,8 @@ C
          call util_flush(stdout)
       EndIf
 C
-      Status = MA_Pop_Stack( H_Collect)
+      If ( .NOT. MA_Pop_Stack( H_Collect) ) Call ErrQuit(
+     $   'PStat_Print_Detail: unable to free memory', 0)
 C
  9010 Format(1X, A20, 1X, I5, 1X, I10, 1X, F13.3, 1X, F13.3)
 C

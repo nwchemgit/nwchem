@@ -4,7 +4,7 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.3 1997-02-17 22:17:31 gg502 Exp $
+C     $Id: rimp2_xf.F,v 1.4 1997-04-01 03:43:34 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 
@@ -82,10 +82,8 @@ C
       Logical Status
       Integer ISpin, NA, NI
       Integer G_V, G_Out
-      Integer H_Occ, Occ_Idx
-      Integer I, G_Scr1, G_Scr2, NFit
+      Integer H_Occ
       Double precision MyMaxV, Thresh
-      Integer NCent, NSh
       Integer Initial_Avail, Final_Avail, Block_Size, NBlocks
       Integer LInt, LScr, H_Int, H_Scr, I_Int, I_Scr
 C

@@ -1,5 +1,5 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out)
-C$Id: open_3ci.F,v 1.3 1996-09-22 18:40:40 d3g681 Exp $
+C$Id: open_3ci.F,v 1.4 1997-04-01 03:43:32 gg502 Exp $
       Implicit NONE
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
@@ -66,8 +66,7 @@ C
       Integer LNBlnk
       External LNBlnk
 C
-      Integer RecL, Code, IALo, IAHi, SLo, SHi, NS, Proc, RecLB
-      Character*4 PID
+      Integer RecL, Code, IALo, IAHi, SLo, SHi, NS, RecLB
       Character*1 Sp
       Character*256 FilNam, String, tmpname
 C

@@ -3,7 +3,7 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.13 1996-04-18 16:36:02 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.14 1997-04-01 03:43:35 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
@@ -84,7 +84,7 @@ C LOCAL VARIABLES
       Logical Status, TransFit, Disk
       Integer Dim1, Dim2, GAType, NFit, G_Int
       Integer IBlkSiz, OutBlkSiz, NA, NI, NJ, NK, JLo, JHi, KLo, KHi
-      Character*256 String1, String2
+      Character*256 String1
 C
 C     Since we'll synchronize pretty soon on the GA creations,
 C     let's do it here to make the timings look right
@@ -215,58 +215,12 @@ C     Provide some info to the user
 C
       If ( Util_Print('information', Print_Low)
      $   .AND. GA_NodeID() .eq. 0) then
-c$$$         Call Banner(LuOut, 'Three-Center Integral Transformation',
-c$$$     $      '-', .TRUE., .TRUE., .FALSE.)
-c$$$         If ( LSame( Type3ci, 'E') ) then
-c$$$            Write (LuOut, 9100) 'ERIs', Alo, AHi, ILo, IHi, '|',
-c$$$     $         1, NFit
-c$$$         ElseIf ( LSame( Type3ci, 'O') ) then
-c$$$            Write (LuOut, 9100) 'overlaps', Alo, AHi, ILo, IHi, ',',
-c$$$     $         1, NFit
-c$$$         Else
-c$$$            Write (LuOut, 9100) 'integrals of unknown type',
-c$$$     $         Alo, AHi, ILo, IHi, ',', 1, NFit
-c$$$         EndIf
 C
          Write (LuOut, 9110) IBlkSiz, (NI + IBlkSiz - 1) / IBlkSiz
-C
-c$$$         Status = Bas_Name( AOBas, String1, String2)
-c$$$         Write( LuOut, '(1X, A, 1X, A)')
-c$$$     $      'Bra basis:', String1(:LNBlnk(String1))
-c$$$C
-c$$$         Status = Bas_Name( FitBas, String1, String2)
-c$$$         Write( LuOut, '(1X, A, 1X, A)')
-c$$$     $      'Ket basis:', String1(:LNBlnk(String1))
-c$$$C
-c$$$         Write (LuOut, 9120) Neglect
-c$$$C
-c$$$         Call GA_Inquire_Name( G_C, String1)
-c$$$         Write( LuOut, '(1X, A, 1X, A)')
-c$$$     $      'Bra transformation:', String1(:LNBlnk(String1))
-c$$$         If ( TransFit ) then
-c$$$            Call GA_Inquire_Name( G_V, String1)
-c$$$            Write( LuOut, '(1X, A, 1X, A)')
-c$$$     $         'Ket transformation:', String1(:LNBlnk(String1))
-c$$$         Else
-c$$$            Write( LuOut, '(1X, A)') 'Ket is not transformed.'
-c$$$         EndIf            
-c$$$C
-c$$$         If ( Disk ) then
-c$$$            Write ( LuOut, '(1X, A)')
-c$$$     $         'Transformed integrals stored on disk.'
-c$$$         Else
-c$$$            Write ( LuOut, '(1X, A)')
-c$$$     $         'Transformed integrals stored in memory.'
-c$$$         EndIf
-C
       EndIf
 C
  9110 Format(1X, 'Transformation block size', I5, ', requiring ',
      $   I5, ' integral passes.')
-c$$$ 9100 Format(1X, 'Generating three-center ', A,
-c$$$     $   ' (', I5, ':', I5, ',', I5, ':', I5, A, I5, ':', I5, ')')
-c$$$ 9110 Format(1X, 'in ', I5, ' passes through the integrals.')
-c$$$ 9120 Format(1X, 'Integrals < ', E10.3, ' will be neglected.')
 C
 C     ****************************************************
 C     * Cover the requested range of I in several passes *

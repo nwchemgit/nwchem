@@ -3,7 +3,7 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.4 1995-11-03 20:44:08 d3g681 Exp $
+C     $Id: mk_fit_xf.F,v 1.5 1997-04-01 03:43:42 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)
@@ -58,7 +58,7 @@ C CONSTANTS
 C
 C LOCAL VARIABLES
       Logical Status, DoSplit
-      Integer NBF, NSh, Type, G_Tmp, G_S
+      Integer NBF, Type, G_Tmp, G_S
 C
       If ( Inp_Compare(.FALSE., Approx, 'SVS') ) then
          Type = 1
@@ -86,7 +86,6 @@ C     * Get basis set parameters *
 C     ****************************
 C
       Status = .TRUE.
-      Status = Status .AND. Bas_NumCont( Basis, NSh)
       Status = Status .AND. Bas_NumBF( Basis, NBF)
       If (.NOT. Status )
      $   Call ErrQuit('Mk_Fit_XF: Failed to get expansion basis info',

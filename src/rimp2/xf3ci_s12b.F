@@ -5,7 +5,7 @@ c     accumulating the result for a complete pass through the innermost
 c     index.
 C
 C REVISION
-C     $Id: xf3ci_s12b.F,v 1.1 1995-12-13 01:37:02 d3g681 Exp $
+C     $Id: xf3ci_s12b.F,v 1.2 1997-04-01 03:43:34 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine XF3cI_Step12b(UseERI, AOBas, PShLo, PShHi, PDim,
@@ -83,10 +83,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer P, Q, S, QShLo, QShHi, QBFLo, QBFHi, NQXF, Low, High, MaxQ
       Integer PCenLo, PCenHi, QCenLo, QCenHi
-      Integer Count
       Logical Status, MustDo
-C
-      Count = 1
 C
       NQXF = QXFHi - QXFLo + 1
       Status = Bas_NumBF( AOBas, MaxQ)

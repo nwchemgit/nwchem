@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.6 1997-02-18 18:20:32 gg502 Exp $
+C     $Id: ga_matpow.F,v 1.7 1997-04-01 03:43:42 gg502 Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -57,7 +57,6 @@ C LOCAL VARIABLES
       Integer G_EV, G_Tmp
       Integer I, J, G_Junk, VType, Rows, Cols, ILo, IHi, JLo, JHi
       Double precision Elem
-      Integer Junk
 C
 C     ***************************
 C     * Check inputs for sanity *
@@ -151,8 +150,6 @@ C
                Write (LuOut, '(1X, I5, 4(1X, E15.6) )') I,
      $            (Dbl_MB(Eval_Idx + J - 1), J=I,Min(I+3, Rows) )
             EndDo
-c$$$            Call DGeWr(1, Rows, Dbl_MB(Eval_Idx), 1, 0, 0, LuOut,
-c$$$     $         'GA_MatPow Eigenvalues', 80, 'E15.6', Junk)
          EndIf
          Call GA_Sync
       EndIf
