@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.24 1995-11-16 20:38:03 d3g681 Exp $
+# $Id: GNUmakefile,v 1.25 1995-11-21 19:35:34 gg502 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
@@ -10,11 +10,11 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 txs:
-	rm -f $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/$(LIBRARY)
+	rm -f $(LIBRARY_PATH)
 	rm -f api/cando_sp.o texas/texas_stubs.o
 	$(MAKE) "USE_TEXAS=YEP"
 fix:
-	rm -f $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/$(LIBRARY)
+	rm -f $(LIBRARY_PATH)
 	rm -f api/cando_sp.o texas/*.o
 	$(MAKE)
 
@@ -22,7 +22,7 @@ nocan:
 	rm -f api/cando_sp.o
 
 nolib:
-	rm -i $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/$(LIBRARY)
+	rm -i $(LIBRARY_PATH)
 
 tasks tasks.ps:	tasks.tex
 	latex tasks
