@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1_er.F,v 1.1 1999-08-20 18:40:33 d3e129 Exp $
+c $Id: hf1_er.F,v 1.2 1999-10-26 21:52:25 mg201 Exp $
       implicit none
 
       integer NPA,NCA,NPB,NCB
@@ -33,7 +33,7 @@ C
 C     local
 C
       integer MXD,NCP,Li,Lp,Lp3,NPP
-      integer i_ALPHAp,i_IPAIRp,i_left,i_ESp,i_right
+      integer i_ALPHAp,i_IPAIRp,i_left,i_ESp,i_right, i_exinv
       integer i_rs,i_p,i_ijk,i_ff,i_pc,i_r0c,i_pf,i_ep
       integer lprod,nd,i_r0,i_top,i_ti,i_rj
       integer MaxMem
@@ -81,7 +81,8 @@ c Define the prefactor of the overlap distribution "P".
 
 c Assign pointers to scratch space.
  
-      i_ALPHAp = 1
+      i_exinv = 1
+      i_ALPHAp = i_exinv+ncenters
       i_IPAIRp = i_ALPHAp + 2*(NPA*NPB)
       i_left   = i_IPAIRp + 2*(NPA*NPB) - 1
  
@@ -248,7 +249,8 @@ c Assign scratch space.
 
        else
 
-        call hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
+        call dfill (ncenters,0.0d0,W0(i_exinv),1)
+        call hf1mkr(Axyz,Bxyz,Cxyz,zan,W0(i_exinv),ncenters,
      &              W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
      &              W0(i_Rj),W0(i_R0),W0(i_R0C),W0(i_IJK),
      &              NPP,Lp,Lp3,.TRUE.)

@@ -1,9 +1,9 @@
       Subroutine hf1(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
-     &               Cxyz,zan,ncenters,
+     &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.14 1997-11-07 01:46:09 d3e129 Exp $
+c $Id: hf1.F,v 1.15 1999-10-26 21:52:25 mg201 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -16,9 +16,9 @@ c--> Cartesian Coordinates, Primitives & Contraction Coefficients
       Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
       Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
 
-c--> Nuclear Cartesian Coordinates & Charges
+c--> Nuclear Cartesian Coordinates, Charges and Inverse Exponents
 
-      Dimension Cxyz(3,ncenters),zan(ncenters)
+      Dimension Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
 
 c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 
@@ -348,7 +348,7 @@ c Assign scratch space.
 
        else
 
-        call hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
+        call hf1mkr(Axyz,Bxyz,Cxyz,zan,exinv,ncenters,
      &              W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
      &              W0(i_Rj),W0(i_R0),W0(i_R0),W0(i_IJK),
      &              NPP,Lp,Lp3,.FALSE.)
