@@ -2,15 +2,19 @@
      $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
-     $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4,
+     $     d_ik5, d_jl5, d_il5, d_jk5,
+     $     d_ik6, d_jl6, d_il6, d_jk6,
+     $     d_ik7, d_jl7, d_il7, d_jk7,
+     $     d_ik8, d_jl8, d_il8, d_jk8,
      $     frc, g_dens, g_force, blen, geom, basis, 
-     $     nproc, nat, lscr, scr, leri, eri, labels, 
+     $     nproc, nat, lscr, scr, leri, eri, labels,    
      $     maxq, list, q4, tol2e,
      $     nsh, oactive, oskel, scftype, omp2,
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
-     $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: grad2.F,v 1.31 1999-02-14 17:53:02 d3g681 Exp $
+     $     bftoat, shbflo, shbfhi, jfac, kfac, exso)
+c     $Id: grad2.F,v 1.32 2000-05-24 22:07:49 zzhang Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -27,7 +31,15 @@ C-----------------------parameters---------------------------------
      $     d_ij3(blen,blen), d_kl3(blen,blen), d_ik3(blen,blen), 
      $     d_jl3(blen,blen), d_il3(blen,blen), d_jk3(blen,blen),
      $     d_ij4(blen,blen), d_kl4(blen,blen), d_ik4(blen,blen), 
-     $     d_jl4(blen,blen), d_il4(blen,blen), d_jk4(blen,blen)
+     $     d_jl4(blen,blen), d_il4(blen,blen), d_jk4(blen,blen),
+     $     d_ik5(blen,blen), 
+     $     d_jl5(blen,blen), d_il5(blen,blen), d_jk5(blen,blen),
+     $     d_ik6(blen,blen), 
+     $     d_jl6(blen,blen), d_il6(blen,blen), d_jk6(blen,blen),
+     $     d_ik7(blen,blen), 
+     $     d_jl7(blen,blen), d_il7(blen,blen), d_jk7(blen,blen),
+     $     d_ik8(blen,blen), 
+     $     d_jl8(blen,blen), d_il8(blen,blen), d_jk8(blen,blen)
 c     
       integer nat               ! [input] no. of atoms
       double precision frc(3, nat) ! [input/output] 2-e piece of gradient
@@ -93,7 +105,7 @@ C-------------------------local variables-----------------------------
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
-      logical oij, okl, oikjl, ouhf, orohf, omcscf, omore
+      logical oij, okl, oikjl, ouhf, orohf, omcscf, omore, exso
       logical intbd_init4c, intbd_2e4c
       external intbd_init4c, intbd_2e4c
 c     
@@ -169,11 +181,15 @@ c
      $                    d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $                    d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
      $                    d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $                    d_ik5, d_jl5, d_il5, d_jk5,
+     $                    d_ik6, d_jl6, d_il6, d_jk6, 
+     $                    d_ik7, d_jl7, d_il7, d_jk7, 
+     $                    d_ik8, d_jl8, d_il8, d_jk8, 
      $                    blen, 
      $                    ibflo, ibfhi, jbflo, jbfhi, 
      $                    kbflo, kbfhi, lbflo, lbfhi, 
      $                    ibflo_prev, jbflo_prev, kbflo_prev,
-     $                    g_dens)
+     $                    g_dens, exso)
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
 c     
@@ -260,10 +276,14 @@ c
      $                                d_jl3, d_il3, d_jk3, 
      $                                d_ij4, d_kl4, d_ik4,
      $                                d_jl4, d_il4, d_jk4, 
+     $                                d_ik5, d_jl5, d_il5, d_jk5,                                 
+     $                                d_ik6, d_jl6, d_il6, d_jk6,                                 
+     $                                d_ik7, d_jl7, d_il7, d_jk7,                                 
+     $                                d_ik8, d_jl8, d_il8, d_jk8,                                 
      $                                blen, 
      $                                iilo, jjlo, kklo, lllo,
      $                                iihi, jjhi, kkhi, llhi,
-     $                                pdm2d, psum, jfac, kfac)
+     $                                pdm2d, psum, jfac, kfac, exso)
 c     
 c     Final screening including magnitude of the density
 c     
@@ -525,11 +545,15 @@ c
      $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk,
      $     d_ij2, d_kl2, d_ik2, d_jl2, d_il2, d_jk2, 
      $     d_ij3, d_kl3, d_ik3, d_jl3, d_il3, d_jk3, 
-     $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4, 
+     $     d_ij4, d_kl4, d_ik4, d_jl4, d_il4, d_jk4,
+     &     d_ik5, d_jl5, d_il5, d_jk5, 
+     &     d_ik6, d_jl6, d_il6, d_jk6, 
+     &     d_ik7, d_jl7, d_il7, d_jk7, 
+     &     d_ik8, d_jl8, d_il8, d_jk8, 
      $     blen, ilo, jlo, klo, llo, ihi, jhi, khi, lhi, pdm2d, psum,
-     $     jfac, kfac)
+     $     jfac, kfac, exso)
       implicit none
-      logical omp2,ouhf,orohf,omcscf   ! [input] Wavefunction info
+      logical omp2,ouhf,orohf,omcscf,exso   ! [input] Wavefunction info
       integer blen
       double precision          ! [input] AO density blocks
      $     d_ij(blen,blen),d_kl(blen,blen),d_ik(blen,blen),
@@ -542,7 +566,16 @@ c
      $     d_il3(blen,blen), d_jk3(blen,blen),
      $     d_ij4(blen,blen), d_kl4(blen,blen),
      $     d_ik4(blen,blen), d_jl4(blen,blen),
-     $     d_il4(blen,blen), d_jk4(blen,blen)
+     $     d_il4(blen,blen), d_jk4(blen,blen),
+     $     d_ik5(blen,blen), d_jl5(blen,blen),
+     $     d_il5(blen,blen), d_jk5(blen,blen),
+     $     d_ik6(blen,blen), d_jl6(blen,blen),
+     $     d_il6(blen,blen), d_jk6(blen,blen),
+     $     d_ik7(blen,blen), d_jl7(blen,blen),
+     $     d_il7(blen,blen), d_jk7(blen,blen),
+     $     d_ik8(blen,blen), d_jl8(blen,blen),
+     $     d_il8(blen,blen), d_jk8(blen,blen)
+
       double precision pdm2d(blen,blen,blen,blen) ! [output] 2pdm
       double precision psum     ! [output] Norm of this block of twopdm
       integer ilo, jlo, klo, llo, ihi, jhi, khi, lhi
@@ -611,6 +644,27 @@ c
      $                       +  d_il(i,l) * d_jk(j,k)
      $                       +  d_ik2(i,k) * d_jl2(j,l)
      $                       +  d_il2(i,l) * d_jk2(j,k))
+c
+                        if(exso)then  !d_lj=-d_jl, d_kj=-d_jk, i*i=-1
+                           den2 = den2 + eigth*kfac*(
+     &                          -  d_ik3(i,k) * d_jl3(j,l) ! Im(aa) and Im(bb)
+     $                          -  d_il3(i,l) * d_jk3(j,k)
+     $                          -  d_ik4(i,k) * d_jl4(j,l)
+     $                          -  d_il4(i,l) * d_jk4(j,k))
+c     
+                           den2 = den2 - eigth*kfac*(
+     &                          -  d_ik5(i,k) * d_jl5(j,l) ! Re(ab) and Re(ba)
+     $                          -  d_il5(i,l) * d_jk5(j,k)
+     $                          +  d_ik6(i,k) * d_jl6(j,l)
+     $                          +  d_il6(i,l) * d_jk6(j,k))
+c     
+                           den2 = den2 + eigth*kfac*(
+     &                          -  d_ik7(i,k) * d_jl7(j,l) ! Im(ab) and Im(ba)
+     $                          -  d_il7(i,l) * d_jk7(j,k)
+     $                          +  d_ik8(i,k) * d_jl8(j,l)
+     $                          +  d_il8(i,l) * d_jk8(j,k))
+                        endif
+c     
                         pdm2d(l,k,j,i) = den2
                      end do
                   end do
