@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.19 2000-05-26 00:05:56 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.20 2000-05-30 06:36:56 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -37,7 +37,7 @@ c
       integer l_x, l_df, l_delta, k_x, k_df, k_delta, nvar
       integer iter, i
       logical converged, t2_rd_test, t2_mp2
-      double precision xxx
+      double precision xxx, shift
 c
       double precision energyaaa, energybbb, energyaab, energybba
       double precision uccsdtest_triples_pure, uccsdtest_triples_mixed
@@ -45,7 +45,7 @@ c
       double precision uccsdtest_triples_mixed_blocked
       logical int_normalize
       external int_normalize
-c     
+c
 c     load the geometry/basis set and get info
 c
       if (.not. geom_create(geom, 'geometry'))
@@ -140,6 +140,18 @@ c
       call output(dbl_mb(k_aeval),1,nmo,1,1,nmo,1,1)
       write(6,*) ' Beta  eigenvalues '
       call output(dbl_mb(k_beval),1,nmo,1,1,nmo,1,1)
+c
+      if (.not. rtdb_get(rtdb, 'uccsdtest:shift', mt_dbl, 1, shift))then
+c
+c     Shift is added to the denominators in the preconditioner
+c     ... default is to make the smallest denominator 0.3
+c
+         shift = 2d0 * min(
+     $        dbl_mb(k_aeval+nalpha)-dbl_mb(k_aeval+nalpha-1),
+     $        dbl_mb(k_beval+nbeta)-dbl_mb(k_beval+nbeta-1))
+         shift = 0.3d0 - shift
+      end if
+      write(6,*) ' Preconditioner denominator shift ', shift
 c$$$      write(6,*) ' Alpha MOs'
 c$$$      call output(dbl_mb(k_amos),1,nbf,1,nmo,nbf,nmo,1)
 c$$$      write(6,*) ' Beta  MOs'
@@ -281,12 +293,12 @@ c     Space for the new solver
 c
       nvar = noa*noa*nva*nva + nob*nob*nvb*nvb + noa*nob*nva*nvb + 
      $     noa*nva + nob*nvb
-      if (.not. ma_push_get(mt_dbl, nvar*30, 'x', l_x, k_x))
-     $     call errquit(' ma x ', 0)
-      if (.not. ma_push_get(mt_dbl, nvar*30, 'x', l_df, k_df))
-     $     call errquit(' ma x ', 0)
+      if (.not. ma_push_get(mt_dbl, nvar*10, 'x', l_x, k_x))
+     $     call errquit(' ma x4 ', 0)
+      if (.not. ma_push_get(mt_dbl, nvar*10, 'x', l_df, k_df))
+     $     call errquit(' ma x5 ', 0)
       if (.not. ma_push_get(mt_dbl, nvar, 'x', l_delta, k_delta))
-     $     call errquit(' ma x ', 0)
+     $     call errquit(' ma x6 ', 0)
 c
 c     if t1 and t2 on disk jump and read
 c
@@ -302,7 +314,7 @@ c$$$      call dfill((noa*nva)*(nob*nvb),0.0d0,dbl_mb(k_t2ab),1)
 c$$$      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
 c$$$      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
 c
-      do iter = 1, 30           ! NOTE DIMENSIONS OF X/DF
+      do iter = 1, 10           ! NOTE DIMENSIONS OF X/DF
 c
 c     Transform the MO coefficients with the particle and hole matrices
 c
@@ -466,7 +478,7 @@ c
      $        dbl_mb(k_r2aa),dbl_mb(k_r2bb),dbl_mb(k_r2ab),
      $        dbl_mb(k_aeval), dbl_mb(k_beval), converged,
      $        dbl_mb(k_x), dbl_mb(k_df), dbl_mb(k_delta),
-     $        nvar, iter)
+     $        nvar, iter, shift)
 c
 c$$$         call jan_debug_print('T1a',dbl_mb(k_t1a),  nva, noa, 1, 1)
 c$$$         call jan_debug_print('T1b',dbl_mb(k_t1b),  nvb, nob, 1, 1)
@@ -1182,7 +1194,7 @@ c
      $     t2aa,t2bb,t2ab,
      $     r1a, r1b,
      $     r2aa,r2bb,r2ab, ea, eb, converged,
-     $     x, df, delta, nvar, iter)
+     $     x, df, delta, nvar, iter, shift)
       implicit none
       integer nmo, noa, nob, nva, nvb
       double precision fa(nmo,nmo), fb(nmo,nmo)
@@ -1202,6 +1214,7 @@ c
       double precision ea(nmo), eb(nmo)
       integer nvar, iter           ! #variables, iteration number
       double precision x(nvar,*), df(nvar,*), delta(nvar)
+      double precision shift
       logical converged
 c
 c     t1 = t1 + R(e,m)/(em-ee)
@@ -1223,14 +1236,14 @@ c
       do m = 1, noa
          do e = 1, nva
             x(ind,iter) = t1a(e,m)
-            df(ind,iter) = -r1a(e,m) / (ea(m) - ea(e+noa))
+            df(ind,iter) = -r1a(e,m) / (ea(m) - ea(e+noa) - shift*0.5d0)
             ind = ind + 1
          end do
       end do
       do m = 1, nob
          do e = 1, nvb
             x(ind,iter) = t1b(e,m)
-            df(ind,iter) = -r1b(e,m) / (eb(m) - eb(e+nob))
+            df(ind,iter) = -r1b(e,m) / (eb(m) - eb(e+nob) - shift*0.5d0)
             ind = ind + 1
          end do
       end do
@@ -1243,7 +1256,7 @@ c
                do e = 1, nva
                   x(ind,iter) = t2aa(e,f,m,n)
                   df(ind,iter) = -r2aa(e,f,m,n) / 
-     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f))
+     $                 (ea(m)+ea(n)-ea(noa+e)-ea(noa+f) - shift)
                   ind = ind + 1
                end do
             end do
@@ -1258,7 +1271,7 @@ c
                do e = 1, nvb
                   x(ind,iter) = t2bb(e,f,m,n)
                   df(ind,iter) = -r2bb(e,f,m,n) / 
-     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f))
+     $                 (eb(m)+eb(n)-eb(nob+e)-eb(nob+f) - shift)
                   ind = ind + 1
                end do
             end do
@@ -1273,7 +1286,7 @@ c
                do e = 1, nva
                   x(ind,iter) = t2ab(e,f,m,n)
                   df(ind,iter) = -r2ab(e,f,m,n) /
-     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f))
+     $                 (ea(m)+eb(n)-ea(noa+e)-eb(nob+f) - shift)
                   ind = ind + 1
                end do
             end do
@@ -3007,6 +3020,7 @@ c
      &                 int_acik(5000)
 c
       double precision int_buf(5000), t_buf(5000), w(100000)
+      double precision tmpr(20*20*20*20)
 c
       call output(evalsa,1,nmo,1,1,nmo,1,1)
       call output(evalsb,1,nmo,1,1,nmo,1,1)
@@ -3148,7 +3162,7 @@ c
      &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
      &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
      &                     k_blk_lo, k_blk_hi,
-     &                     spin, spinck)
+     &                     spin, spinck, tmpr)
 c
                         call uccsdt_get_t3x(b_blk, k_blk, j_blk,
      &                     spin, spinck, spin, t_buf)
@@ -4434,6 +4448,10 @@ c
       double precision t2_ecji(elo:ehi,clo:chi,jlo:jhi,ilo:ihi)
       double precision int_ekab(elo:ehi,klo:khi,alo:ahi,blo:bhi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4455,12 +4473,15 @@ c
      &                             int_ekab(e,k,a,b)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(1, flopcount)
+c
       end
       subroutine w_t2_ecjk_int_eiab
      &  (w, t2_ecjk, int_eiab,
@@ -4478,6 +4499,10 @@ c
       double precision t2_ecjk(elo:ehi,clo:chi,jlo:jhi,klo:khi)
       double precision int_eiab(elo:ehi,ilo:ihi,alo:ahi,blo:bhi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4501,12 +4526,15 @@ c
      &                             int_eiab(e,i,a,b)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(2,flopcount)
+c
       end
       subroutine w_t2_ecik_int_ejab
      &  (w, t2_ecik, int_ejab,
@@ -4524,6 +4552,10 @@ c
       double precision t2_ecik(elo:ehi,clo:chi,ilo:ihi,klo:khi)
       double precision int_ejab(elo:ehi,jlo:jhi,alo:ahi,blo:bhi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4545,12 +4577,15 @@ c
      &                             int_ejab(e,j,a,b)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(3, flopcount)
+c
       end
       subroutine w_t2_eaji_int_ekbc
      &  (w, t2_eaji, int_ekbc,
@@ -4568,6 +4603,10 @@ c
       double precision t2_eaji(elo:ehi,alo:ahi,jlo:jhi,ilo:ihi)
       double precision int_ekbc(elo:ehi,klo:khi,blo:bhi,clo:chi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4589,12 +4628,15 @@ c
      &                             int_ekbc(e,k,b,c)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(4, flopcount)
+c
       end
       subroutine w_t2_ebji_int_ekac
      &  (w, t2_ebji, int_ekac,
@@ -4612,6 +4654,10 @@ c
       double precision t2_ebji(elo:ehi,blo:bhi,jlo:jhi,ilo:ihi)
       double precision int_ekac(elo:ehi,klo:khi,alo:ahi,clo:chi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4633,18 +4679,21 @@ c
      &                             int_ekac(e,k,a,c)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(5, flopcount)
+c      
       end
       subroutine w_t2_eakj_int_eicb
      &  (w, t2_eakj, int_eicb,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
      &   ilo, ihi, jlo, jhi, klo, khi,
-     &   spin, spinck)
+     &   spin, spinck, r)
 c
       implicit none
       integer alo, ahi, blo, bhi, clo, chi,
@@ -4655,34 +4704,250 @@ c
      &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2_eakj(elo:ehi,alo:ahi,klo:khi,jlo:jhi)
       double precision int_eicb(elo:ehi,ilo:ihi,clo:chi,blo:bhi)
-      integer i, j, k, a, b, c, e, cend, kend
+      double precision r(ilo:ihi,alo:ahi,clo:chi,klo:khi)
+      integer i, j, k, a, b, c, e, cend, kend, abegin, ibegin, cend4
+      integer ihi4
+      double precision sum, sum0, sum1, sum2, sum3
+      double precision flopcount
 c
-      do a = alo, ahi
-         do b = blo, min(bhi,a-1)
+      flopcount = 0d0
+      call uccsdt_flops_enter()
+c
+c     Near original code with re-ordered loops
+c
+c     jbkcaie = 124 Mflop
+c     bacjkie = slower
+c
+      do j = jlo, jhi
+         kend = khi
+         if (spin.eq.spinck) kend = min(khi,j-1)
+         ibegin = max(j+1,ilo)
+         do b = blo, bhi
             cend = chi
             if (spin.eq.spinck)cend = min(chi,b-1)
-            do c = clo, cend
-               do i = ilo, ihi
-                  do j = jlo, min(jhi,i-1)
-                     kend = khi
-                     if (spin.eq.spinck)kend = min(khi,j-1)
-                     do k = klo, kend
+            abegin = max(b+1,alo)
+            do k = klo, kend
+               do c = clo, cend
+                  do a = abegin, ahi
+                     do i = ibegin, ihi
+                        sum = 0d0
                         do e = elo, ehi
-c
-c                        write(6,*)' a,b,c,i,j,k,e: ',
-c     &                              a,b,c,i,j,k,e
-c
-                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
-     &                           - t2_eakj(e,a,k,j)*
-     &                             int_eicb(e,i,c,b)
+                           sum = sum + t2_eakj(e,a,k,j)* 
+     $                          int_eicb(e,i,c,b)
                         end do
+                        w(k,j,i,c,b,a) = w(k,j,i,c,b,a) - sum
                      end do
                   end do
                end do
             end do
+            flopcount = flopcount + 2d0*dble(kend-klo+1)*
+     $           dble(ahi-abegin+1)*dble(cend-clo+1)*
+     $           dble(ihi-ibegin+1)*dble(ehi-elo+1)
          end do
       end do
-      return
+c
+c     Near original code with re-ordered loops and buffer for sum
+c
+c$$$      do j = jlo, jhi
+c$$$         kend = khi
+c$$$         if (spin.eq.spinck) kend = min(khi,j-1)
+c$$$         ibegin = max(j+1,ilo)
+c$$$         do b = blo, bhi
+c$$$            cend = chi
+c$$$            if (spin.eq.spinck)cend = min(chi,b-1)
+c$$$            abegin = max(b+1,alo)
+c$$$            do k = klo, kend
+c$$$               do c = clo, cend
+c$$$                  do a = abegin, ahi
+c$$$                     do i = ibegin, ihi
+c$$$                        sum = 0d0
+c$$$                        do e = elo, ehi
+c$$$                           sum = sum + t2_eakj(e,a,k,j)* 
+c$$$     $                          int_eicb(e,i,c,b)
+c$$$                        end do
+c$$$                        r(i,a,c,k) = sum
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end do
+c$$$            do a = abegin, ahi
+c$$$               do c = clo, cend
+c$$$                  do k = klo, kend
+c$$$                     do i = ibegin, ihi
+c$$$                        w(k,j,i,c,b,a) = w(k,j,i,c,b,a) - r(i,a,c,k)
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end do
+c$$$            flopcount = flopcount + 2d0*dble(kend-klo+1)*
+c$$$     $           dble(ahi-abegin+1)*dble(cend-clo+1)*
+c$$$     $           dble(ihi-ibegin+1)*dble(ehi-elo+1)
+c$$$         end do
+c$$$      end do
+c
+c     4-way unrolled code using i and buffer for sum
+c
+c$$$      do j = jlo, jhi
+c$$$         kend = khi
+c$$$         if (spin.eq.spinck) kend = min(khi,j-1)
+c$$$         ibegin = max(j+1,ilo)
+c$$$         ihi4 = ibegin + ((ihi-ibegin+1)/4)*4 - 1
+c$$$         do b = blo, bhi
+c$$$            cend = chi
+c$$$            if (spin.eq.spinck)cend = min(chi,b-1)
+c$$$            abegin = max(b+1,alo)
+c$$$            do k = klo, kend
+c$$$               do c = clo, cend
+c$$$                  do a = abegin, ahi
+c$$$                     do i = ibegin, ihi4, 4
+c$$$                        sum0 = 0d0
+c$$$                        sum1 = 0d0
+c$$$                        sum2 = 0d0
+c$$$                        sum3 = 0d0
+c$$$                        do e = elo, ehi
+c$$$                           sum0 = sum0 + t2_eakj(e,a,k,j)*
+c$$$     $                          int_eicb(e,i  ,c,b)
+c$$$                           sum1 = sum1 + t2_eakj(e,a,k,j)*
+c$$$     $                          int_eicb(e,i+1,c,b)
+c$$$                           sum2 = sum2 + t2_eakj(e,a,k,j)*
+c$$$     $                          int_eicb(e,i+2,c,b)
+c$$$                           sum3 = sum3 + t2_eakj(e,a,k,j)*
+c$$$     $                          int_eicb(e,i+3,c,b)
+c$$$                        end do
+c$$$                        r(i  ,a,c,k) = sum0
+c$$$                        r(i+1,a,c,k) = sum1
+c$$$                        r(i+2,a,c,k) = sum2
+c$$$                        r(i+3,a,c,k) = sum3
+c$$$c$$$                        w(k,j,i  ,c,b,a) = w(k,j,i  ,c,b,a) - sum0
+c$$$c$$$                        w(k,j,i+1,c,b,a) = w(k,j,i+1,c,b,a) - sum1
+c$$$c$$$                        w(k,j,i+2,c,b,a) = w(k,j,i+2,c,b,a) - sum2
+c$$$c$$$                        w(k,j,i+3,c,b,a) = w(k,j,i+3,c,b,a) - sum3
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end do
+c$$$            if (ihi4 .lt. ihi) then
+c$$$               do i = ihi4+1, ihi
+c$$$                  do k = klo, kend
+c$$$                     do c = clo, cend
+c$$$                        do a = abegin, ahi
+c$$$                           sum = 0d0
+c$$$                           do e = elo, ehi
+c$$$                              sum = sum + t2_eakj(e,a,k,j)* 
+c$$$     $                             int_eicb(e,i,c,b)
+c$$$                           end do
+c$$$                           r(i,a,c,k) = sum
+c$$$c$$$                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a) - sum
+c$$$                        end do
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end if
+c$$$            do a = abegin, ahi
+c$$$               do c = clo, cend
+c$$$                  do k = klo, kend
+c$$$                     do i = ibegin, ihi
+c$$$                        w(k,j,i,c,b,a) = w(k,j,i,c,b,a) - r(i,a,c,k)
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end do
+c$$$            flopcount = flopcount + 2d0*dble(kend-klo+1)*
+c$$$     $           dble(ahi-abegin+1)*dble(cend-clo+1)*
+c$$$     $           dble(ihi-ibegin+1)*dble(ehi-elo+1)
+c$$$         end do
+c$$$      end do
+c
+c     4-way unrolled code using C
+c
+c$$$      do j = jlo, jhi
+c$$$         kend = khi
+c$$$         if (spin.eq.spinck) kend = min(khi,j-1)
+c$$$         ibegin = max(j+1,ilo)
+c$$$         do b = blo, bhi
+c$$$            cend = chi
+c$$$            if (spin.eq.spinck)cend = min(chi,b-1)
+c$$$            abegin = max(b+1,alo)
+c$$$            cend4 = clo + ((cend-clo+1)/4)*4 - 1
+c$$$            do k = klo, kend
+c$$$               do c = clo, cend4, 4
+c$$$                  do a = abegin, ahi
+c$$$                     do i = ibegin, ihi
+c$$$                        sum0 = 0d0
+c$$$                        sum1 = 0d0
+c$$$                        sum2 = 0d0
+c$$$                        sum3 = 0d0
+c$$$                        do e = elo, ehi
+c$$$                           sum0 = sum0 + t2_eakj(e,a,k,j)*
+c$$$     $                          int_eicb(e,i,c  ,b)
+c$$$                           sum1 = sum1 + t2_eakj(e,a,k,j)* 
+c$$$     $                          int_eicb(e,i,c+1,b)
+c$$$                           sum2 = sum2 + t2_eakj(e,a,k,j)* 
+c$$$     $                          int_eicb(e,i,c+2,b)
+c$$$                           sum3 = sum3 + t2_eakj(e,a,k,j)* 
+c$$$     $                          int_eicb(e,i,c+3,b)
+c$$$                        end do
+c$$$                        w(k,j,i,c  ,b,a) = w(k,j,i,c  ,b,a) - sum0
+c$$$                        w(k,j,i,c+1,b,a) = w(k,j,i,c+1,b,a) - sum1
+c$$$                        w(k,j,i,c+2,b,a) = w(k,j,i,c+2,b,a) - sum2
+c$$$                        w(k,j,i,c+3,b,a) = w(k,j,i,c+3,b,a) - sum3
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end do
+c$$$            if (cend .gt. cend4) then
+c$$$               do k = klo, kend
+c$$$                  do c = cend4+1, cend
+c$$$                     do a = abegin, ahi
+c$$$                        do i = ibegin, ihi
+c$$$                           sum = 0d0
+c$$$                           do e = elo, ehi
+c$$$                              sum = sum + t2_eakj(e,a,k,j)* 
+c$$$     $                             int_eicb(e,i,c,b)
+c$$$                           end do
+c$$$                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a) - sum
+c$$$                        end do
+c$$$                     end do
+c$$$                  end do
+c$$$               end do
+c$$$            end if
+c$$$            flopcount = flopcount + 2d0*dble(kend-klo+1)*
+c$$$     $           dble(ahi-abegin+1)*dble(cend-clo+1)*
+c$$$     $           dble(ihi-ibegin+1)*dble(ehi-elo+1)
+c$$$         end do
+c$$$      end do
+c
+c     Original code
+c
+c$$$      do a = alo, ahi
+c$$$         do b = blo, min(bhi,a-1)
+c$$$            cend = chi
+c$$$            if (spin.eq.spinck)cend = min(chi,b-1)
+c$$$            do c = clo, cend
+c$$$               do i = ilo, ihi
+c$$$                  do j = jlo, min(jhi,i-1)
+c$$$                     kend = khi
+c$$$                     if (spin.eq.spinck)kend = min(khi,j-1)
+c$$$                     do k = klo, kend
+c$$$                        do e = elo, ehi
+c$$$c
+c$$$c                        write(6,*)' a,b,c,i,j,k,e: ',
+c$$$c     &                              a,b,c,i,j,k,e
+c$$$c
+c$$$                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
+c$$$     &                           - t2_eakj(e,a,k,j)*
+c$$$     &                             int_eicb(e,i,c,b)
+c$$$                        end do
+c$$$                     end do
+c$$$                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
+c$$$                  end do
+c$$$               end do
+c$$$            end do
+c$$$         end do
+c$$$      end do
+c
+      call uccsdt_flops_exit(6, flopcount)
+c
       end
       subroutine w_t2_ebkj_int_eica
      &  (w, t2_ebkj, int_eica,
@@ -4700,6 +4965,10 @@ c
       double precision t2_ebkj(elo:ehi,blo:bhi,klo:khi,jlo:jhi)
       double precision int_eica(elo:ehi,ilo:ihi,clo:chi,alo:ahi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4721,12 +4990,15 @@ c
      &                             int_eica(e,i,c,a)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(7, flopcount)
+c
       end
       subroutine w_t2_eaki_int_ejcb
      &  (w, t2_eaki, int_ejcb,
@@ -4744,6 +5016,10 @@ c
       double precision t2_eaki(elo:ehi,alo:ahi,klo:khi,ilo:ihi)
       double precision int_ejcb(elo:ehi,jlo:jhi,clo:chi,blo:bhi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4765,12 +5041,15 @@ c
      &                             int_ejcb(e,j,c,b)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(8, flopcount)
+c
       end
       subroutine w_t2_ebki_int_ejca
      &  (w, t2_ebki, int_ejca,
@@ -4788,6 +5067,10 @@ c
       double precision t2_ebki(elo:ehi,blo:bhi,klo:khi,ilo:ihi)
       double precision int_ejca(elo:ehi,jlo:jhi,clo:chi,alo:ahi)
       integer i, j, k, a, b, c, e, cend, kend
+      double precision flopcount
+c
+      flopcount = 0d0
+      call uccsdt_flops_enter()
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4809,12 +5092,15 @@ c
      &                             int_ejca(e,j,c,a)
                         end do
                      end do
+                     flopcount = flopcount + 2*(ehi-elo+1)*(kend-klo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(9, flopcount)
+c
       end
       subroutine w_t2_mkab_int_mcji
      &  (w, t2_mkab, int_mcji,
@@ -4832,6 +5118,10 @@ c
       double precision t2_mkab(mlo:mhi,klo:khi,alo:ahi,blo:bhi)
       double precision int_mcji(mlo:mhi,clo:chi,jlo:jhi,ilo:ihi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4853,12 +5143,15 @@ c
      &                             int_mcji(m,c,j,i)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(10,flopcnt)
+c
       end
       subroutine w_t2_miab_int_mcjk
      &  (w, t2_miab, int_mcjk,
@@ -4876,6 +5169,10 @@ c
       double precision t2_miab(mlo:mhi,ilo:ihi,alo:ahi,blo:bhi)
       double precision int_mcjk(mlo:mhi,clo:chi,jlo:jhi,klo:khi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4897,12 +5194,15 @@ c
      &                             int_mcjk(m,c,j,k)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(11,flopcnt)
+c
       end
       subroutine w_t2_mjab_int_mcik
      &  (w, t2_mjab, int_mcik,
@@ -4920,6 +5220,10 @@ c
       double precision t2_mjab(mlo:mhi,jlo:jhi,alo:ahi,blo:bhi)
       double precision int_mcik(mlo:mhi,clo:chi,ilo:ihi,klo:khi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4941,12 +5245,15 @@ c
      &                             int_mcik(m,c,i,k)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(12,flopcnt)
+c
       end
       subroutine w_t2_mkbc_int_maji
      &  (w, t2_mkbc, int_maji,
@@ -4964,6 +5271,10 @@ c
       double precision t2_mkbc(mlo:mhi,klo:khi,blo:bhi,clo:chi)
       double precision int_maji(mlo:mhi,alo:ahi,jlo:jhi,ilo:ihi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4985,12 +5296,15 @@ c
      &                             int_maji(m,a,j,i)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(13,flopcnt)
+c
       end
       subroutine w_t2_mkac_int_mbji
      &  (w, t2_mkac, int_mbji,
@@ -5008,6 +5322,10 @@ c
       double precision t2_mkac(mlo:mhi,klo:khi,alo:ahi,clo:chi)
       double precision int_mbji(mlo:mhi,blo:bhi,jlo:jhi,ilo:ihi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -5029,12 +5347,15 @@ c
      &                             int_mbji(m,b,j,i)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(14,flopcnt)
+c
       end
       subroutine w_t2_micb_int_makj
      &  (w, t2_micb, int_makj,
@@ -5052,6 +5373,10 @@ c
       double precision t2_micb(mlo:mhi,ilo:ihi,clo:chi,blo:bhi)
       double precision int_makj(mlo:mhi,alo:ahi,klo:khi,jlo:jhi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -5073,12 +5398,15 @@ c
      &                             int_makj(m,a,k,j)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(15,flopcnt)
+c
       end
       subroutine w_t2_mica_int_mbkj
      &  (w, t2_mica, int_mbkj,
@@ -5096,6 +5424,10 @@ c
       double precision t2_mica(mlo:mhi,ilo:ihi,clo:chi,alo:ahi)
       double precision int_mbkj(mlo:mhi,blo:bhi,klo:khi,jlo:jhi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -5117,12 +5449,15 @@ c
      &                             int_mbkj(m,b,k,j)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(16,flopcnt)
+c
       end
       subroutine w_t2_mjcb_int_maki
      &  (w, t2_mjcb, int_maki,
@@ -5140,6 +5475,10 @@ c
       double precision t2_mjcb(mlo:mhi,jlo:jhi,clo:chi,blo:bhi)
       double precision int_maki(mlo:mhi,alo:ahi,klo:khi,ilo:ihi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -5161,12 +5500,15 @@ c
      &                             int_maki(m,a,k,i)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(17,flopcnt)
+c
       end
       subroutine w_t2_mjca_int_mbki
      &  (w, t2_mjca, int_mbki,
@@ -5184,6 +5526,10 @@ c
       double precision t2_mjca(mlo:mhi,jlo:jhi,clo:chi,alo:ahi)
       double precision int_mbki(mlo:mhi,blo:bhi,klo:khi,ilo:ihi)
       integer i, j, k, m, a, b, c, cend, kend
+      double precision flopcnt
+c
+      call uccsdt_flops_enter()
+      flopcnt = 0d0
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -5205,12 +5551,15 @@ c
      &                             int_mbki(m,b,k,i)
                         end do
                      end do
+                     flopcnt = flopcnt + (kend-klo+1)*(mhi-mlo+1)
                   end do
                end do
             end do
          end do
       end do
-      return
+c
+      call uccsdt_flops_exit(18,flopcnt)
+c
       end
       subroutine w_t1a_int_abij
      &  (v, t1a, int_abij,
