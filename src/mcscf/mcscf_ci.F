@@ -70,7 +70,6 @@ c
       save hasprint
       data hasprint/0/
       data citol/1.e-8/
-      data maxiter/30/
       data civec_in/'civec'/
 c
 c
@@ -81,6 +80,8 @@ c
       hasprint = hasprint + 1
       odebugpr = (ga_nodeid().eq.0).and.
      $           (util_print('mcscfci',print_debug))
+      if (.not.rtdb_get(rtdb,'mcscf:cimaxiter',MT_INT,1,maxiter))
+     $  maxiter = 30
 c
 c   Retrieve spin-related info from database
 c
