@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.177 2004-02-02 19:51:51 sohirata Exp $
+# $Id: make_nwchem_config,v 1.178 2004-03-13 19:32:47 marat Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -264,7 +264,7 @@ STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst qmmm,qmmm_input qmmm_forces,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst qmmm,qmmm_input qmmm_forces qmmm_init qmmm_end qmmm_energy qmmm_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran cosmo_tidy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
