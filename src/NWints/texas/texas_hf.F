@@ -1006,7 +1006,14 @@ c
                leri_size=leri/integ1
 c
                if(leri_size.eq.0) then
-                  call errquit('texas: supblks_split',1009)
+c23456789.123456789.123456789.123456789.123456789.123456789.123456789.12
+                  write(6,*)' buffer size too small; leri=',leri,
+     *            ' needed=',integ1,' =',n_times,'*',integ1/n_times
+                  write(6,*)' shell sizes=',
+     *            inx(3,ics1),inx(3,jcs1),inx(3,kcs1),inx(3,lcs1),
+     *            ', shell g.con=',inx(4,ics1)+1,inx(4,jcs1)+1,
+     *                            inx(4,kcs1)+1,inx(4,lcs1)+1
+                  call errquit('texas: supblks_split',1016)
                endif
 c
                maxsize(isupb)=min(leri_size,maxm_size)
