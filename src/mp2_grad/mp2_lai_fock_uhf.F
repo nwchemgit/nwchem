@@ -102,6 +102,6 @@ c
       if (.not. ga_destroy(g_dens(2))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
-C
+*
       end
 
