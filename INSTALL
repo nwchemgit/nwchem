@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.18 1999-08-02 21:44:16 d3e129 Exp $
+$Id: INSTALL,v 1.19 1999-08-02 21:48:05 d3e129 Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -92,7 +92,7 @@ BUILDING NWCHEM:
         - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
           If you are familiar with building NWChem you 
           can be more selective with the modules you 
-          really nead.  If you are a novice at this then
+          really need.  If you are a novice at this then
           use only one of the three above!
         - - - - - - - - - - - - - - - - - - - - - - - - -
 	ddscf       RHF and UHF SCF energies
@@ -174,7 +174,7 @@ ALTERNATIVE BUILD MODE:
 
      make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM NWCHEM_MODULES=qm
 
-   Sometimes but infrequently the GNU make program fails with a singlye
+   Sometimes but infrequently the GNU make program fails with a single
    line specification.  If this happens try
      make NWCHEM_TOP=/home/nwchem NWCHEM_MODULES=qm nwchem_config
      make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM 
@@ -184,8 +184,8 @@ POINT OF CONTACT USERS:
    If you are the NWChem point-of-contact for a given site please
 build and use the java tool in $NWCHEM_TOP/contrib/javasupport.  The
 java class files and images are already built and available at the
-binary download site.  If you have access to the source code you also
-have access to the binary download site.  You need java 1.1.1 or
+binary down load site.  If you have access to the source code you also
+have access to the binary down load site.  You need java 1.1.1 or
 higher to use the tool.  This form formats information and allows the
 attachment of input and output files via a simple browsing mechanism.
 Use of this tool will greatly facilitate any support you may need for
@@ -247,7 +247,7 @@ NOTE TO MPI USERS:
 
    NWChem can be compiled to use MPI instead of TCGMSG for message
    passing on many systems. Although this is still somewhat
-   experimental and not particulary tested it can be done.  Please
+   experimental and not particularly tested it can be done.  Please
    contact nwchem-support@emsl.pnl.gov to get assistance with this
    procedure.  
 
