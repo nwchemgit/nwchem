@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.24 1996-07-26 16:32:31 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.25 1996-08-15 17:37:57 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -9,6 +9,7 @@ C$Id: direct_mp2.F,v 1.24 1996-07-26 16:32:31 d3g681 Exp $
 #include "rtdb.fh"
 #include "sym.fh"
 #include "util.fh"
+#include "msgids.fh"
 c
 c
 c
@@ -291,12 +292,12 @@ c Print progress of this pass
 c
        tpass = tcgtime() - tpass
        if ((ga_nodeid().eq.0).and.
-     $     (util_print('progress reports',print_default)))
-     $     write(6,772) npass, oseg_lo, oseg_hi, tpass
- 772   format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
-     $        5x,'Time:',f10.2)
-c
-c
+     $     (util_print('progress reports',print_default))) then
+         write(6,772) npass, oseg_lo, oseg_hi, tpass
+ 772     format(5x,'Pass:',i5,5x,'Index range:',i5,2x,'-',i5,
+     $          5x,'Time:',f10.2)
+         call util_flush(6)
+       endif
 c
 c End multipass loop
 c
@@ -340,15 +341,20 @@ c
      $          /,10x,'Total MP2 energy   ',f24.12,
      $          /,10x,43('-'),/)
          status = ma_pop_stack(l_epair)
+         call util_flush(6)
        endif
        call ga_sync()
+       call ga_brdcst(msg_direct_mp2_emp2, emp2, mitob(1), 0 )
        ttotal = tcgtime() - ttotal
-       if ((ga_nodeid().eq.0).and.(oprint)) write(6,823) ttotal
- 823   format(/,10x,'Total MP2 time:',5x,f10.2)
+       if ((ga_nodeid().eq.0).and.(oprint)) then
+         write(6,823) ttotal
+ 823     format(/,10x,'Total MP2 time:',5x,f10.2)
+         call util_flush(6)
+       endif
 c
-       if (.not. rtdb_put(rtdb, 'mp2:energy', mt_dbl, 1,
-     $      scf_energy+emp2)) call errquit
-     $      ('direct_mp2: failed storing energy in database', 0)
+       emp2 = scf_energy + emp2
+       if (.not. rtdb_put(rtdb, 'mp2:energy', mt_dbl, 1, emp2))
+     $   call errquit('direct_mp2: failed storing energy in rtdb', 0)
 c
 c Cleanup
 c
