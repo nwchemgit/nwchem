@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.2 2002-02-27 19:05:22 bylaska Exp $
+c $Id: switching_charge.F,v 1.3 2002-02-27 19:46:42 bylaska Exp $
 c
 
 ***********************************************************
@@ -29,6 +29,12 @@ c
 #include "rtdb.fh"
 #include "switching_charge.fh"
 
+*       **** local variables ****
+        integer MASTER,taskid
+        parameter (MASTER=0)
+
+        call Parallel_taskid(taskid)
+
         if (.not.rtdb_get(rtdb,
      >      'nwpw:charge_dielectric_d',mt_dbl,1,s_d))
      >    s_d = 0.5d0/0.529177d0
@@ -40,6 +46,14 @@ c
         if (.not.rtdb_get(rtdb,
      >      'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >    s_sigma = 0.8d0/0.529177d0
+
+      if (taskid.eq.MASTER) then
+          write(*,1170)
+          write(*,1171) s_d,s_rho,s_sigma
+      end if
+
+ 1170 FORMAT(/' Switching charges used:')
+ 1171 FORMAT(5X, '(d,rho,sigma) = (',3E11.3,' )  ')
 
       return
       end
