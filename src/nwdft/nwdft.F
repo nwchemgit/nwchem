@@ -2,9 +2,8 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.20 1995-11-03 00:09:33 og845 Exp $
+C$Id: nwdft.F,v 1.21 1996-01-09 17:56:27 og845 Exp $
       implicit none
-      logical LResult
       logical CDFIT,XCFIT
 c****
 c**** nwchem handles
@@ -28,10 +27,13 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 #include "cdft.fh"
+#include "util.fh"
 c     
 c     local declarations
 c
+      character*255 title
       integer iproc,itype,ncent,ickcon,lckcon
+      logical LResult,oprint
 c>>>  
 c     
 
@@ -41,6 +43,22 @@ c     Push context down to DFT (copied from scf.F)
 c
       if (.not. context_push('dft'))
      $     call errquit('dft: context_push failed', 0)
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'dft')
+      oprint = util_print('information', print_low)
+      if (iproc.eq.0 .and. oprint) then
+        if (.not. rtdb_cget(rtdb, 'title', 1, title))
+     $       title = ' '
+        call util_print_centered(
+     .       LuOut, 'NWCHEM DFT Module', 40, .true.)
+        write(6,*)
+        write(6,*)
+        if (title .ne. ' ') then
+          call util_print_centered(6, title, 40, .false.)
+          write(6,*)
+          write(6,*)
+        endif
+      endif
 c
 c
 c-->  Allocate memory for checkpoint file constants.
@@ -106,6 +124,7 @@ c
       if(iproc.eq.0) call flush(LuOut)
 
       nwdft = .true.
+      call util_print_pop
       if (.not. context_pop('dft')) 
      &     call errquit('context_pop failed',0)
       close(7)
