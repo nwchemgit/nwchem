@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.144 2000-03-17 00:29:14 edo Exp $
+c     $Id: dft_scf.F,v 1.145 2000-03-30 03:06:45 edo Exp $
 c     
       implicit none
 c
@@ -1041,15 +1041,11 @@ c
 #endif
 c
          g_scr = ga_create_atom_blocked(geom, AO_bas_han, 'ga scr')
-         if(.not.lkeeps) then
 c     
-c     Put s-1/2 in g_scr.
+c        Put s-1/2 in g_scr.
 c     
-            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
-     &           g_tmp, 2)
-         else
-            call ga_copy(g_s12m,g_scr)
-         endif
+         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+     &                   g_tmp, 2)
 c     
 c        Transform Fock matrix.
 c     
@@ -1074,13 +1070,8 @@ c           back-transform, and shift the current Fock matrix
 c     
 c           Use S^+1/2 * old movecs (as a transform).
 c     
-            if(.not.lkeeps) then
-               call diis_bld12(toll_s, dbl_mb(isvals), g_svecs,
-     .              g_scr,  g_tmp,  3)
-            else
-               call ga_copy(g_s12p,g_scr)
-            endif
-                  
+            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+     &                      g_tmp, 3)
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_scr, g_movecs(ispin), zero, g_tmp)
             call ga_copy(g_tmp,  g_movecs(ispin))
@@ -1141,12 +1132,8 @@ c
 c     
 c           Put S^-1/2 back in g_scr (use g_fock as temp scr).
 c     
-            if(.not.lkeeps) then
-               call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, 
-     .              g_scr, g_fock, 2)
-            else
-               call ga_copy(g_s12m,g_scr)
-            endif
+            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
+     &                      g_fock, 2)
 c     
 c           Put old-movecs back.
 c     
@@ -1440,7 +1427,7 @@ c            nstdis=1
 c            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
 c     &                       nbf_ao, geom, ao_bas_han, g_fock, 
 c     &                       g_dens(1), g_tmp, g_svecs, isvals, 
-c     &                       diising, nodiis,lkeeps,g_s12m,g_s12p)
+c     &                       diising, nodiis)
 c            icall(1) = 0
 c            icall(2) = 0
 c         endif

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.41 1999-08-10 21:21:12 jolguin Exp $
+# $Id: GNUmakefile,v 1.42 2000-03-30 03:06:45 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -36,7 +36,7 @@
 # LIB_DEFINES = -DDFT_TIMER
  LIB_DEFINES =
 
-LIB_INCLUDES = -I../include
+LIB_INCLUDES = -I../include -I../grid
 
    USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F 
 

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.33 2000-03-17 00:29:13 edo Exp $
+c     $Id: dft_main0d.F,v 1.34 2000-03-30 03:06:45 edo Exp $
 c     
       implicit none
 c
@@ -367,14 +367,14 @@ c      lkeeps=.false.
 c
 c     keeps hardwired right now ... better something smarter
 c
-      lkeeps=.true.
+      lkeeps=.false.
       if(lkeeps) then
 c
 c     get s-12 and s+12
 c
-         call diis_gets12pm(geom,ao_bas_han,toll_s,dbl_mb(isvals), 
-     ,        g_svecs,g_s12m, g_s12p)
-         call ga_copy(g_s12m,g_evecs(1))
+cnso         call diis_gets12pm(geom,ao_bas_han,toll_s,dbl_mb(isvals), 
+cnos     ,        g_svecs,g_s12m, g_s12p)
+cnos         call ga_copy(g_s12m,g_evecs(1))
       else
 c     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
