@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.12 2000-04-13 18:19:09 hvd Exp $
+* $Id: movecs_pr_anal.F,v 1.13 2002-01-07 19:28:11 d3k958 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -81,12 +81,14 @@ c
          endif
 c     
          call bas_vec_info(basis, byte_mb(k_tags))
-c
+c 
+c if there is no title sent, don't print it.
+         if(title.eq.' ') goto 110
          write(LuOut,*)
          call util_print_centered(LuOut,title, 40, .true.)
          write(LuOut,*)
 c
-
+ 110  continue
          do i = ilo, ihi
 c
             call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
