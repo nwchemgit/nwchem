@@ -1,0 +1,11 @@
+*
+* $Id: cstrfac_common.fh,v 1.1 2002-01-12 00:50:16 bylaska Exp $
+*
+
+*     **** local common block ****
+      integer ex1(2),ex2(2),ex3(2)
+      common / cstrfac_block / ex1,ex2,ex3
+
+      integer cxr(2)
+      common / cstrfac_k_block / cxr
+

@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.3 2002-01-02 20:48:58 bylaska Exp $
+* $Id: strfac.F,v 1.4 2002-01-12 00:50:16 bylaska Exp $
 *
 
 *     ***********************************
@@ -11,14 +11,8 @@
       subroutine strfac_init()
       implicit none
 
-#include	"mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
+#include "mafdecls.fh"
+#include "strfac_common.fh"
 
       integer nion,nx,ny,nz
       logical value
@@ -53,13 +47,7 @@ C     ***********************************
       implicit none
 
 #include "mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
+#include "strfac_common.fh"
 
       logical value
 
@@ -88,16 +76,8 @@ C
       subroutine phafac()
       implicit none
 
-#include	"mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
-
-
+#include "mafdecls.fh"
+#include "strfac_common.fh"
 
 *     *** local variables
       integer    i,k
@@ -112,20 +92,8 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       external ion_nion
       external lattice_unitg,ion_rion
 
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - L_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
-      call current_second(tim1)
+      call nwpw_timing_start(8)
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -189,8 +157,7 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
 
-      call current_second(tim2)
-      times(8) = times(8) + (tim2-tim1)
+      call nwpw_timing_end(8)
 
       return
       end
@@ -216,15 +183,7 @@ C
       real*8 ion_rion(3,*)
 
 #include	"mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
-
-
+#include "strfac_common.fh"
 
 *     *** local variables
       integer    i,k
@@ -239,20 +198,7 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       external ion_nion
       external lattice_unitg
 
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - L_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
+      call nwpw_timing_start(8)
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -316,8 +262,7 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
 
-      call current_second(tim2)
-      times(8) = times(8) + (tim2-tim1)
+      call nwpw_timing_end(8)
 
       return
       end
@@ -348,37 +293,15 @@ C
       complex*16 exi(*)
 
 #include "mafdecls.fh"
+#include "strfac_common.fh"
    
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / strfac_block / ex1,ex2,ex3
-
-
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - L_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-
-
 *     **** local variables ****
       integer i,j,k,index
       integer nx,ny,nz
       integer nxh
       integer p,q,taskid
 
-      call current_second(tim1)
+      call nwpw_timing_start(8)
 
       call Parallel_taskid(taskid)
       call D3dB_nx(1,nx)
@@ -403,8 +326,7 @@ c     complex*16 ex3(0:nfft3-1,natmx)
          end if
       end do
 
-      call current_second(tim2)
-      times(8) = times(8) + (tim2-tim1)
+      call nwpw_timing_end(8)
 
 
       return

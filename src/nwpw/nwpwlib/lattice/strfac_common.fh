@@ -1,0 +1,8 @@
+*
+* $Id: strfac_common.fh,v 1.1 2002-01-12 00:50:17 bylaska Exp $
+*
+
+*     **** local common block ****
+      integer ex1(2),ex2(2),ex3(2)
+      common / strfac_block / ex1,ex2,ex3
+

@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.8 2002-01-08 23:45:36 bylaska Exp $
+* $Id: cram.F,v 1.9 2002-01-12 00:50:16 bylaska Exp $
 *
 
 *     ***********************************
@@ -190,23 +190,7 @@
       integer tmp1(2)
       integer nidb,pack
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
-
+      call nwpw_timing_start(9)
       nidb = int_mb(nidb_list(1)+nb)
       pack = int_mb(pack_list(1)+2*nb)
 
@@ -226,8 +210,7 @@
 
       call Balance_c_balance(nb,A)
 
-      call current_second(tim2)
-      times(9) = times(9) + (tim2-tim1)
+      call nwpw_timing_end(9)
 
       return
       end
@@ -253,22 +236,7 @@
       integer tmp1(2)
       integer nidb,pack
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
+      call nwpw_timing_start(9)
       nidb = int_mb(nidb_list(1)+nb)
       pack = int_mb(pack_list(1)+2*nb)
 
@@ -289,9 +257,7 @@
 
       call Balance_t_balance(nb,A)
 
-      call current_second(tim2)
-      times(9) = times(9) + (tim2-tim1)
-
+      call nwpw_timing_end(9)
       return
       end
 
@@ -317,23 +283,7 @@
       integer tmp1(2)
       integer nidb,pack
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
-
+      call nwpw_timing_start(9)
       nidb = int_mb(nidb_list(1)+nb)
       pack = int_mb(pack_list(1)+2*nb)
 
@@ -355,11 +305,7 @@
       if (.not.value) 
      >  call errquit('Cram_c_unpack:error popping stack',0)
 
-
-
-      call current_second(tim2)
-      times(9) = times(9) + (tim2-tim1)
-  
+      call nwpw_timing_end(9)
       return
       end
 
@@ -469,21 +415,8 @@
       complex*16 zdotc
       external   zdotc
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
       call Parallel_np(np)
       call C3dB_nfft3d(1,nfft3d)
 
@@ -500,8 +433,7 @@
          call ga_sync()
       end if
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
 
       return
       end 
@@ -528,26 +460,11 @@
       complex*16 zdotc
       external   zdotc
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
       sum = zdotc(int_mb(nidb2_list(1)+nb),A,1,B,1)
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
 
       return
       end
@@ -576,21 +493,7 @@
       complex*16   zdotc
       external     zdotc
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
       call Parallel_np(np)
 
@@ -598,8 +501,7 @@
 
       if (np.gt.1) call C3dB_Vector_SumAll(2,sum)
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
 
       return
       end 
@@ -629,21 +531,8 @@
       real*8   ddot
       external ddot
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
 
       call Parallel_np(np)
@@ -652,8 +541,7 @@
 
 c     if (np.gt.1) call C3dB_SumAll(sum)
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
 
       return
       end 
@@ -684,31 +572,15 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       real*8   ddot
       external ddot
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
-      call current_second(tim1)
-
-
+      call nwpw_timing_start(2)
       call Parallel_np(np)
 
       sum = ddot(2*int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
       if (np.gt.1) call C3dB_SumAll(sum)
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
       return
       end 
 
@@ -733,28 +605,11 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       real*8   ddot
       external ddot
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
+      call nwpw_timing_start(2)
 
       sum = ddot(int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
 
-
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
       return
       end 
 
@@ -785,22 +640,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       real*8   ddot
       external ddot
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
+      call nwpw_timing_start(2)
 
       call Parallel_np(np)
 
@@ -808,8 +648,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
 
       if (np.gt.1) call C3dB_SumAll(sum)
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
       return
       end 
 
@@ -836,31 +675,14 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       real*8   dsum
       external dsum
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
-
+      call nwpw_timing_start(2)
       call Parallel_np(np)
 
       sum = dsum(int_mb(nidb2_list(1)+nb),A(1),1)
 
       if (np.gt.1) call C3dB_SumAll(sum)
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
       return
       end
 

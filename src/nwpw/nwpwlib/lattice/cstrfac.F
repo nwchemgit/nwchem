@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.4 2002-01-11 18:26:00 bylaska Exp $
+* $Id: cstrfac.F,v 1.5 2002-01-12 00:50:16 bylaska Exp $
 *
 
 *     ***********************************
@@ -11,17 +11,8 @@
       subroutine cstrfac_init()
       implicit none
 
-#include	"mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / cstrfac_block / ex1,ex2,ex3
-
-      integer cxr(2)
-      common / cstrfac_k_block / cxr
+#include "mafdecls.fh"
+#include "cstrfac_common.fh"
 
       integer nion,nx,ny,nz,nbrillioun
       logical value
@@ -60,16 +51,7 @@ C     ***********************************
       implicit none
 
 #include "mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / cstrfac_block / ex1,ex2,ex3
-
-      integer cxr(2)
-      common / cstrfac_k_block / cxr
+#include "cstrfac_common.fh"
 
       logical value
 
@@ -99,15 +81,7 @@ C
       implicit none
 
 #include	"mafdecls.fh"
-
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / cstrfac_block / ex1,ex2,ex3
-
-
+#include "cstrfac_common.fh"
 
 *     *** local variables
       integer    i,k
@@ -122,20 +96,7 @@ c     complex*16 ex3(0:nfft3-1,natmx)
       external ion_nion
       external lattice_unitg,ion_rion
 
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - L_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
+      call nwpw_timing_start(8)
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -199,8 +160,7 @@ c       ex3(nz/2,i)=dcmplx(0.0d0, 0.0d0)
         dcpl_mb(ex3(1)+nz/2+(i-1)*nz)=dcmplx(0.0d0, 0.0d0)
       end do
 
-      call current_second(tim2)
-      times(8) = times(8) + (tim2-tim1)
+      call nwpw_timing_end(8)
 
       return
       end
@@ -231,37 +191,15 @@ C
       complex*16 exi(*)
 
 #include "mafdecls.fh"
+#include "cstrfac_common.fh"
    
-*     **** local common block ****
-c     complex*16 ex1(0:nfft1-1,natmx)
-c     complex*16 ex2(0:nfft2-1,natmx)
-c     complex*16 ex3(0:nfft3-1,natmx)
-      integer ex1(2),ex2(2),ex3(2)
-      common / cstrfac_block / ex1,ex2,ex3
-
-
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - L_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-
-
 *     **** local variables ****
       integer i,j,k,index
       integer nx,ny,nz
       integer nxh
       integer p,q,taskid
 
-      call current_second(tim1)
+      call nwpw_timing_start(8)
 
       call Parallel_taskid(taskid)
       call C3dB_nx(1,nx)
@@ -286,8 +224,8 @@ c     complex*16 ex3(0:nfft3-1,natmx)
          end if
       end do
 
-      call current_second(tim2)
-      times(8) = times(8) + (tim2-tim1)
+      call nwpw_timing_end(8)
+
 
 
       return
@@ -316,10 +254,7 @@ C ... End STRFAC ....
       complex*16 ck
 
 #include "mafdecls.fh"
-
-*     **** local common block ****
-      integer cxr(2)
-      common / strfac_k_block / cxr
+#include "cstrfac_common.fh"
 
       integer  nion
       integer  ion_nion
@@ -338,13 +273,8 @@ C ... End STRFAC ....
       subroutine cphafac_k()
       implicit none
 
-
 #include "mafdecls.fh"
-
-*     **** local common block ****
-      integer cxr(2)
-      common / strfac_k_block / cxr
-
+#include "cstrfac_common.fh"
 
 *     *** local variables
       integer    i,nb,nion
@@ -374,13 +304,8 @@ C ... End STRFAC ....
       subroutine cstrfac_k_print()
       implicit none
 
-
 #include "mafdecls.fh"
-
-*     **** local common block ****
-      integer cxr(2)
-      common / strfac_k_block / cxr
-
+#include "cstrfac_common.fh"
 
 *     *** local variables
       integer    i,nb,nion

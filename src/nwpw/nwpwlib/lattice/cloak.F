@@ -1,5 +1,5 @@
 *
-* $Id: cloak.F,v 1.4 2001-12-12 02:42:26 bylaska Exp $
+* $Id: cloak.F,v 1.5 2002-01-12 00:50:16 bylaska Exp $
 *
 
 *     *******************************
@@ -146,31 +146,14 @@
 *     **** local variables ****
       integer i,nfft3d
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-*     3 - ABC_time
-*     4 - vxc_time
-*     5 - vlocal_time
-*     6 - vnl_time
-*     7 - vh_time
-*     8 - strfac_time
-*     9 - maskC_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
-
+      call nwpw_timing_start(9)
 
       call C3dB_nfft3d(1,nfft3d)
       do i=1,nfft3d
          if (log_mb(masker(1)+i-1)) A(i) = dcmplx(0.0d0,0.0d0)
       end do
 
-      call current_second(tim2)
-      times(9) = times(9) + (tim2-tim1)
-
+      call nwpw_timing_end(9)
       return 
       end
 
