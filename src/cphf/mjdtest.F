@@ -1,6 +1,6 @@
        subroutine mjdtest(rtdb)
 *
-* $Id: mjdtest.F,v 1.5 2003-10-17 22:54:30 carlfahl Exp $
+* $Id: mjdtest.F,v 1.6 2003-12-12 22:52:23 marat Exp $
 *
        implicit none
  #include "errquit.fh"
@@ -15,7 +15,8 @@ c
        integer geom, basis
        logical status
        character*255 movecs_in, movecs_out
-       double precision charge,energy
+c       double precision charge,energy
+       double precision energy
 c
        if (.not. context_push('mjdtest'))
      $      call errquit('mjdtest: context_push failed',0, UNKNOWN_ERR)
@@ -31,8 +32,8 @@ c
 c     
       call mjd_get_db_handles( rtdb, geom, basis, movecs_in,
      $     movecs_out )
-      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
-     $     charge = 0.0d0
+c      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
+c     $     charge = 0.0d0
 c
       call cphf_poliz(rtdb, geom, basis, movecs_in )
 c
