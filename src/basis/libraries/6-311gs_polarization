@@ -1,0 +1,93 @@
+# $Id: 6-311gs_polarization,v 1.1 2002-01-03 23:36:48 mhackler Exp $
+basis "Li_6-311G*_Polarization" CARTESIAN
+  Li   D
+         0.200000000      1.00000000
+end
+basis "Be_6-311G*_Polarization" CARTESIAN
+  Be   D
+         0.255000000      1.00000000
+end
+basis "B_6-311G*_Polarization" CARTESIAN
+  B    D
+         0.401000000      1.00000000
+end
+basis "C_6-311G*_Polarization" CARTESIAN
+  C    D
+         0.626000000      1.00000000
+end
+basis "N_6-311G*_Polarization" CARTESIAN
+  N    D
+         0.913000000      1.00000000
+end
+basis "O_6-311G*_Polarization" CARTESIAN
+  O    D
+         1.292000000      1.00000000
+end
+basis "F_6-311G*_Polarization" CARTESIAN
+  F    D
+         1.750000000      1.00000000
+end
+basis "Ne_6-311G*_Polarization" CARTESIAN
+  Ne   D
+         2.304000000      1.00000000
+end
+basis "Na_6-311G*_Polarization" CARTESIAN
+  Na   D
+         0.175000000      1.00000000
+end
+basis "Mg_6-311G*_Polarization" CARTESIAN
+  Mg   D
+         0.175000000      1.00000000
+end
+basis "Al_6-311G*_Polarization" CARTESIAN
+  Al   D
+         0.325000000      1.00000000
+end
+basis "Si_6-311G*_Polarization" CARTESIAN
+  Si   D
+         0.450000000      1.00000000
+end
+basis "P_6-311G*_Polarization" CARTESIAN
+  P    D
+         0.550000000      1.00000000
+end
+basis "S_6-311G*_Polarization" CARTESIAN
+  S    D
+         0.650000000      1.00000000
+end
+basis "Cl_6-311G*_Polarization" CARTESIAN
+  Cl   D
+         0.750000000      1.00000000
+end
+basis "Ar_6-311G*_Polarization" CARTESIAN
+  Ar   D
+         0.850000000      1.00000000
+end
+basis "Ga_6-311G*_Polarization" CARTESIAN
+  Ga   D
+         0.169000000      1.00000000
+end
+basis "Ge_6-311G*_Polarization" CARTESIAN
+  Ge   D
+         0.228000000      1.00000000
+end
+basis "As_6-311G*_Polarization" CARTESIAN
+  As   D
+         0.264000000      1.00000000
+end
+basis "Se_6-311G*_Polarization" CARTESIAN
+  Se   D
+         0.305000000      1.00000000
+end
+basis "Br_6-311G*_Polarization" CARTESIAN
+  Br   D
+         0.451000000      1.00000000
+end
+basis "Kr_6-311G*_Polarization" CARTESIAN
+  Kr   D
+         0.395000000      1.00000000
+end
+basis "I_6-311G*_Polarization" CARTESIAN
+  I    D
+         0.302000000      1.00000000
+end

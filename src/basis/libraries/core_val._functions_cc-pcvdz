@@ -1,0 +1,81 @@
+# $Id: core_val._functions_cc-pcvdz,v 1.1 2002-01-03 23:40:38 mhackler Exp $
+basis "Li_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Li   S
+         0.906000000      1.00000000
+  Li   P
+         3.242000000      1.00000000
+end
+basis "Be_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Be   S
+         1.860000000      1.00000000
+  Be   P
+         6.163000000      1.00000000
+end
+basis "B_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  B    S
+         3.066000000      1.00000000
+  B    P
+         9.940000000      1.00000000
+end
+basis "C_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  C    S
+         4.530000000      1.00000000
+  C    P
+        14.557000000      1.00000000
+end
+basis "N_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  N    S
+         6.233000000      1.00000000
+  N    P
+        19.977000000      1.00000000
+end
+basis "O_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  O    S
+         8.215000000      1.00000000
+  O    P
+        26.056000000      1.00000000
+end
+basis "F_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  F    S
+        10.426000000      1.00000000
+  F    P
+        32.830000000      1.00000000
+end
+basis "Ne_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Ne   S
+        12.854000000      1.00000000
+  Ne   P
+        40.184000000      1.00000000
+end
+basis "Na_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Na   S
+         0.704000000      1.00000000
+  Na   P
+         0.761000000      1.00000000
+  Na   D
+         2.949000000      1.00000000
+end
+basis "Mg_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Mg   S
+         3.422000000      1.00000000
+  Mg   P
+         8.279000000      1.00000000
+  Mg   D
+         3.704000000      1.00000000
+end
+basis "Si_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Si   S
+         4.960000000      1.00000000
+  Si   P
+         1.998000000      1.00000000
+  Si   D
+         5.807000000      1.00000000
+end
+basis "Cl_Core/val._Functions_(cc-pCVDZ)" SPHERICAL
+  Cl   S
+         8.273000000      1.00000000
+  Cl   P
+         3.697000000      1.00000000
+  Cl   D
+         9.844000000      1.00000000
+end

@@ -1,0 +1,69 @@
+# $Id: hondo7_polarization,v 1.1 2002-01-03 23:42:10 mhackler Exp $
+basis "H_HONDO7_Polarization" CARTESIAN
+  H    P
+         1.000000000      1.00000000
+end
+basis "He_HONDO7_Polarization" CARTESIAN
+  He   P
+         1.000000000      1.00000000
+end
+basis "Be_HONDO7_Polarization" CARTESIAN
+  Be   D
+         0.320000000      1.00000000
+end
+basis "B_HONDO7_Polarization" CARTESIAN
+  B    D
+         0.500000000      1.00000000
+end
+basis "C_HONDO7_Polarization" CARTESIAN
+  C    D
+         0.720000000      1.00000000
+end
+basis "N_HONDO7_Polarization" CARTESIAN
+  N    D
+         0.980000000      1.00000000
+end
+basis "O_HONDO7_Polarization" CARTESIAN
+  O    D
+         1.280000000      1.00000000
+end
+basis "F_HONDO7_Polarization" CARTESIAN
+  F    D
+         1.620000000      1.00000000
+end
+basis "Ne_HONDO7_Polarization" CARTESIAN
+  Ne   D
+         2.000000000      1.00000000
+end
+basis "Na_HONDO7_Polarization" CARTESIAN
+  Na   D
+         0.157000000      1.00000000
+end
+basis "Mg_HONDO7_Polarization" CARTESIAN
+  Mg   D
+         0.234000000      1.00000000
+end
+basis "Al_HONDO7_Polarization" CARTESIAN
+  Al   D
+         0.311000000      1.00000000
+end
+basis "Si_HONDO7_Polarization" CARTESIAN
+  Si   D
+         0.388000000      1.00000000
+end
+basis "P_HONDO7_Polarization" CARTESIAN
+  P    D
+         0.465000000      1.00000000
+end
+basis "S_HONDO7_Polarization" CARTESIAN
+  S    D
+         0.542000000      1.00000000
+end
+basis "Cl_HONDO7_Polarization" CARTESIAN
+  Cl   D
+         0.619000000      1.00000000
+end
+basis "Ar_HONDO7_Polarization" CARTESIAN
+  Ar   D
+         0.696000000      1.00000000
+end

@@ -1,0 +1,39 @@
+# $Id: dunning-hay_diffuse,v 1.1 2002-01-03 23:41:34 mhackler Exp $
+basis "H_Dunning-Hay_Diffuse" CARTESIAN
+  H    S
+         0.048273000      1.00000000
+end
+basis "Li_Dunning-Hay_Diffuse" CARTESIAN
+  Li   S
+         0.010700000      1.00000000
+  Li   P
+         0.007800000      1.00000000
+end
+basis "Be_Dunning-Hay_Diffuse" CARTESIAN
+  Be   P
+         0.017342000      1.00000000
+end
+basis "B_Dunning-Hay_Diffuse" CARTESIAN
+  B    P
+         0.019000000      1.00000000
+end
+basis "C_Dunning-Hay_Diffuse" CARTESIAN
+  C    P
+         0.034000000      1.00000000
+end
+basis "N_Dunning-Hay_Diffuse" CARTESIAN
+  N    P
+         0.048000000      1.00000000
+end
+basis "O_Dunning-Hay_Diffuse" CARTESIAN
+  O    P
+         0.059000000      1.00000000
+end
+basis "F_Dunning-Hay_Diffuse" CARTESIAN
+  F    P
+         0.074000000      1.00000000
+end
+basis "Ne_Dunning-Hay_Diffuse" CARTESIAN
+  Ne   P
+         0.089000000      1.00000000
+end

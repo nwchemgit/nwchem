@@ -1,0 +1,9 @@
+# $Id: blaudeau_polarization,v 1.1 2002-01-03 23:38:17 mhackler Exp $
+basis "K_Blaudeau_Polarization" CARTESIAN
+  K    D
+         0.235000000      1.00000000
+end
+basis "Ca_Blaudeau_Polarization" CARTESIAN
+  Ca   D
+         0.216000000      1.00000000
+end

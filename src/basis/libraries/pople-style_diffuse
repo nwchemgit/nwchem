@@ -1,0 +1,77 @@
+# $Id: pople-style_diffuse,v 1.1 2002-01-03 23:46:31 mhackler Exp $
+basis "H_Pople-style_Diffuse" CARTESIAN
+  H    S
+         0.036000000      1.00000000
+end
+basis "Li_Pople-style_Diffuse" CARTESIAN
+  Li  SP
+         0.007400000      1.00000000      1.00000000
+end
+basis "Be_Pople-style_Diffuse" CARTESIAN
+  Be  SP
+         0.020700000      1.00000000      1.00000000
+end
+basis "B_Pople-style_Diffuse" CARTESIAN
+  B   SP
+         0.031500000      1.00000000      1.00000000
+end
+basis "C_Pople-style_Diffuse" CARTESIAN
+  C   SP
+         0.043800000      1.00000000      1.00000000
+end
+basis "N_Pople-style_Diffuse" CARTESIAN
+  N   SP
+         0.063900000      1.00000000      1.00000000
+end
+basis "O_Pople-style_Diffuse" CARTESIAN
+  O   SP
+         0.084500000      1.00000000      1.00000000
+end
+basis "F_Pople-style_Diffuse" CARTESIAN
+  F   SP
+         0.107600000      1.00000000      1.00000000
+end
+basis "Ne_Pople-style_Diffuse" CARTESIAN
+  Ne  SP
+         0.130000000      1.00000000      1.00000000
+end
+basis "Na_Pople-style_Diffuse" CARTESIAN
+  Na  SP
+         0.007600000      1.00000000      1.00000000
+end
+basis "Mg_Pople-style_Diffuse" CARTESIAN
+  Mg  SP
+         0.014600000      1.00000000      1.00000000
+end
+basis "Al_Pople-style_Diffuse" CARTESIAN
+  Al  SP
+         0.031800000      1.00000000      1.00000000
+end
+basis "Si_Pople-style_Diffuse" CARTESIAN
+  Si  SP
+         0.033100000      1.00000000      1.00000000
+end
+basis "P_Pople-style_Diffuse" CARTESIAN
+  P   SP
+         0.034800000      1.00000000      1.00000000
+end
+basis "S_Pople-style_Diffuse" CARTESIAN
+  S   SP
+         0.040500000      1.00000000      1.00000000
+end
+basis "Cl_Pople-style_Diffuse" CARTESIAN
+  Cl  SP
+         0.048300000      1.00000000      1.00000000
+end
+basis "Ar_Pople-style_Diffuse" CARTESIAN
+  Ar  SP
+         0.060000000      1.00000000      1.00000000
+end
+basis "K_Pople-style_Diffuse" CARTESIAN
+  K   SP
+         0.004700000      1.00000000      1.00000000
+end
+basis "Ca_Pople-style_Diffuse" CARTESIAN
+  Ca  SP
+         0.007100000      1.00000000      1.00000000
+end

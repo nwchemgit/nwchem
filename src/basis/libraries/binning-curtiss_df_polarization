@@ -1,0 +1,37 @@
+# $Id: binning-curtiss_df_polarization,v 1.1 2002-01-03 23:38:11 mhackler Exp $
+basis "Ga_Binning-Curtiss_(df)_Polarization" SPHERICAL
+  Ga   D
+         0.141000000      1.00000000
+  Ga   F
+         0.167000000      1.00000000
+end
+basis "Ge_Binning-Curtiss_(df)_Polarization" SPHERICAL
+  Ge   D
+         0.202000000      1.00000000
+  Ge   F
+         0.267000000      1.00000000
+end
+basis "As_Binning-Curtiss_(df)_Polarization" SPHERICAL
+  As   D
+         0.273000000      1.00000000
+  As   F
+         0.372000000      1.00000000
+end
+basis "Se_Binning-Curtiss_(df)_Polarization" SPHERICAL
+  Se   D
+         0.315000000      1.00000000
+  Se   F
+         0.400000000      1.00000000
+end
+basis "Br_Binning-Curtiss_(df)_Polarization" SPHERICAL
+  Br   D
+         0.338000000      1.00000000
+  Br   F
+         0.401000000      1.00000000
+end
+basis "Kr_Binning-Curtiss_(df)_Polarization" SPHERICAL
+  Kr   D
+         0.318000000      1.00000000
+  Kr   F
+         0.401000000      1.00000000
+end
