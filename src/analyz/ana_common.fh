@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.25 2000-06-29 19:39:26 d3j191 Exp $
+c $Id: ana_common.fh,v 1.26 2000-07-06 17:32:48 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -15,7 +15,7 @@ c
      + lfnvec,lfntop,lfnhis
 c
       real*8 time,timr,timoff,box(3),spac(3),rcut,xmax(3),xmin(3)
-      real*8 temp,pres,xsmin,xsmax,scale
+      real*8 temp,pres,xsmin,xsmax,scale,cpk
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz,iesppb,mgrd,ldist
@@ -29,7 +29,7 @@ c
       real*8 rimps(mxtors)
       real*8 valmin,valmax
       common/ana_inp/time,timr,timoff,box,spac,rcut,xmax,xmin,temp,pres,
-     + rbnds,rangs,rtors,rimps,valmin,valmax,xsmin,xsmax,scale,
+     + rbnds,rangs,rtors,rimps,valmin,valmax,xsmin,xsmax,scale,cpk,
      + irmsd,lcop,lsup,ifrfr,ifrto,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz,iesppb,mgrd,ldist,

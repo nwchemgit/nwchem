@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.28 2000-06-29 19:39:26 d3j191 Exp $
+c $Id: ana_task.F,v 1.29 2000-07-06 17:32:49 d3j191 Exp $
 c
       implicit none
 c
@@ -74,6 +74,7 @@ c
       timr=0.0d0
       ldist=0
       scale=1.0d0
+      cpk=1.0d0
 c
       ifr=1
 c
@@ -181,6 +182,11 @@ c
 c
       if(card(1:6).eq.'scale ') then
       read(card(7:18),'(f12.6)') scale
+      goto 1
+      endif
+c
+      if(card(1:6).eq.'cpk   ') then
+      read(card(7:18),'(f12.6)') cpk
       goto 1
       endif
 c

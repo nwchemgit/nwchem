@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.22 2000-06-29 19:39:26 d3j191 Exp $
+c $Id: ana_input.F,v 1.23 2000-07-06 17:32:48 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
-      real*8 timoff,rsel,rtag,rcut,scale
+      real*8 timoff,rsel,rtag,rcut,scale,cpk
       logical lref,lfil,lsol
       integer iesppb,lent
 c
@@ -34,6 +34,7 @@ c
 c
       timoff=0.0d0
       scale=1.0d0
+      cpk=1.0d0
 c
     1 continue
 c
@@ -147,6 +148,17 @@ c
       if(.not.inp_f(scale)) call errquit('Error in scale',0)
       write(lfncmd,1303) scale
  1303 format('scale ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     define scale (for povray output only)
+c     -------------------------------------
+c
+      if(inp_compare(.false.,'cpk',item)) then
+      if(.not.inp_f(cpk)) call errquit('Error in scale',0)
+      write(lfncmd,1304) cpk
+ 1304 format('cpk   ',f12.6)
       numcmd=numcmd+1
       goto 2
       endif
