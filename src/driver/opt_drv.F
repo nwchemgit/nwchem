@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.52 1998-08-04 18:40:33 mdupuis Exp $
+C$Id: opt_drv.F,v 1.53 1998-08-13 15:59:13 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -3535,7 +3535,9 @@ C
             WRITE(IW,*) 'ENOUGH TIME REMAINING FOR ENERGY = ? ',STATUS
          ENDIF
          IF(.NOT.STATUS) THEN
-            WRITE(IW,*) 'NOT ENOUGH TIME REMAINING, SHUTTING DOWN ... '
+            if (ga_nodeid().eq.0) 
+     $           WRITE(IW,*) 'Not enough time remaining,',
+     $           ' shutting down ... '
             NPTOPT=NPTS-1
             EXCESS=.TRUE.
             RETURN
@@ -3716,7 +3718,9 @@ C
             WRITE(IW,*) 'ENOUGH TIME REMAINING FOR GRADIENT = ? ',STATUS
          ENDIF
          IF(.NOT.STATUS) THEN
-            WRITE(IW,*) 'NOT ENOUGH TIME REMAINING, SHUTTING DOWN ... '
+            if (ga_nodeid().eq.0) 
+     $           WRITE(IW,*) 'Not enough time remaining,',
+     $           ' shutting down ... '
             NPTOPT=NPTS-1
             EXCESS=.TRUE.
             RETURN
