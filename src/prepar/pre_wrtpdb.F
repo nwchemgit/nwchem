@@ -5,7 +5,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,nxrep,nyrep,nzrep,drep,
      + msb,nsb,idsb,rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.26 2000-09-11 17:21:51 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.27 2001-01-04 23:57:00 d3j191 Exp $
 c
       implicit none
 c
@@ -72,7 +72,7 @@ c
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
       if(dist.gt.pre_atsiz(num(isat(j)))+pre_atsiz(num(isat(i)))) then
-      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i),' ',
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),' ',isgm(i),
      + csa(j)(11:14),csa(j)(1:3),isgm(j)
  1101 format('LINK',t13,a4,1x,a3,1x,a1,i4,16x,a4,1x,a3,2x,i4)
       endif
@@ -149,8 +149,8 @@ c
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
       if(dist.gt.pre_atsiz(num(isat(j)))+pre_atsiz(num(isat(i)))) then
-      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i)+isoff,
-     + char(icharr),csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),char(icharr),
+     + isgm(i)+isoff,csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
       endif
       endif
   111 continue
@@ -230,8 +230,8 @@ c
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
       if(dist.gt.pre_atsiz(num(isat(j)))+pre_atsiz(num(isat(i)))) then
-      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i)+isoff,
-     + char(icharr),csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),char(icharr),
+     + isgm(i)+isoff,csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
       endif
       endif
       else
@@ -240,8 +240,8 @@ c
      + (xs(2,j)-xs(2,i))*(xs(2,j)-xs(2,i))+
      + (xs(3,j)-xs(3,i))*(xs(3,j)-xs(3,i)))
       if(dist.gt.pre_atsiz(num(isat(j)))+pre_atsiz(num(isat(i)))) then
-      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),isgm(i)+isoff,
-     + char(icharr),csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
+      write(lfnpdb,1101) csa(i)(11:14),csa(i)(1:3),char(icharr),
+     + isgm(i)+isoff,csa(j)(11:14),csa(j)(1:3),isgm(j)+isoff
       endif
       endif
       endif
