@@ -11,10 +11,6 @@
       logical geom_cent_set
       logical geom_ncent
       logical geom_cent_tag
-      logical geom_set_latvec
-      logical geom_get_latvec
-      logical geom_set_efield
-      logical geom_get_efield
       logical geom_print
       logical geom_tag_to_element
       logical geom_charge_center
@@ -24,13 +20,15 @@
       logical geom_set_user_units
 cnew ones
       logical geom_systype_get
-      logical geom_latvec_get
       logical geom_latang_get
       logical geom_amatrix_get
       logical geom_amatinv_get
       logical geom_recipvec_get
       logical geom_recipang_get
       logical geom_volume_get
+      logical geom_efield_set
+      logical geom_efield_get
+      logical geom_latvec_get
 c
       external geom_check_handle
       external geom_check_cent
@@ -45,10 +43,6 @@ c
       external geom_cent_set
       external geom_ncent
       external geom_cent_tag
-      external geom_set_latvec
-      external geom_get_latvec
-      external geom_set_efield
-      external geom_get_efield
       external geom_print
       external geom_tag_to_element
       external geom_charge_center
@@ -58,7 +52,6 @@ c
       external geom_set_user_units
 cnew ones
       external geom_systype_get
-      external geom_latvec_get
       external geom_latang_get
       external geom_amatrix_get
       external geom_amatinv_get
@@ -68,3 +61,6 @@ cnew ones
 c
 
 
+      external geom_efield_set
+      external geom_efield_get
+      external geom_latvec_get
