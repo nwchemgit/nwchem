@@ -1,8 +1,12 @@
 c
-c $Id: paw_mult_data.fh,v 1.3 2003-02-21 19:44:22 bylaska Exp $
+c $Id: paw_mult_data.fh,v 1.4 2003-02-21 22:37:26 bylaska Exp $
 c
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.3  2003/02/21 19:44:22  bylaska
+c Routines for computing the mult_energy_coeff have been added to paw_mult
+c ...EJB
+c
       
       real*8    sigma_smooth  ! defined in nwpw to be the same as ewald_rcut
       integer   ncut          ! defined in nwpw to be the same as ewald_ncut
@@ -16,8 +20,9 @@ c $Log: not supported by cvs2svn $
       integer    g_lm(4)       ! g_lm(k, lm=1:(max_mult_l+1)**2) = Ylm(k) * (-i)**l * |k|**l /(2l+1)!!
 
 
-      integer    v_mult(4)   ! (v_q^a)^lm coefficients
-      integer    i_v_mult(4) !
+      integer    v_mult(4)       ! (v_q^a)^lm coefficients
+      integer    comp_coeff(4)   ! ??vcomp coefficients??
+      integer    i_v_mult(4)     ! index array for v_mult and comp_coeff
 
 
       integer    mult_energy_coeff(4) ! multipole energy coefficients
@@ -25,7 +30,7 @@ c $Log: not supported by cvs2svn $
 
       common / paw_mult_common / sigma_smooth,ncut,nshl3d,rcell,
      >                           gk,gk_smooth,g_lm,
-     >                           v_mult,i_v_mult,
+     >                           v_mult,comp_coeff,i_v_mult,
      >                           mult_energy_coeff,
      >                           self_energy_coeff
      

@@ -1,8 +1,12 @@
 *
-* $Id: paw_mult.F,v 1.9 2003-02-21 19:44:22 bylaska Exp $
+* $Id: paw_mult.F,v 1.10 2003-02-21 22:37:26 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.9  2003/02/21 19:44:22  bylaska
+* Routines for computing the mult_energy_coeff have been added to paw_mult
+* ...EJB
+*
 
 !**************************************************
 !
@@ -24,7 +28,7 @@
       !**** local variables ***
       logical ok
       integer i,j,k,nfft3d,npack0,nion,nkatm
-      integer lm_size
+      integer lm_size,lmax,v_mult_size
       integer ia,ii,jj
       integer l,m
       integer Gx(2),Gy(2),Gz(2),Ylm(2)
@@ -48,6 +52,7 @@
       nion = ion_nion()
       nkatm = ion_nkatm()
       call Pack_npack(0,npack0)
+      lmax    = paw_basis_max_mult_l()
       lm_size = (paw_basis_max_mult_l()+1)**2
 
       !*** allocate gk_smooth,gk,and glm ***
@@ -60,26 +65,35 @@
       if (.not.ok) 
      > call errquit("paw_mult_init: out of heap memory",0)
 
-      lm_size = 0
+      v_mult_size = 0
       do ii=1,nion
         ia = ion_katm(ii)
 
-        int_mb(i_v_mult(1) + ii - 1) = lm_size
-        lm_size = lm_size + (paw_basis_mult_l(ia) + 1)**2
+        int_mb(i_v_mult(1) + ii - 1) = v_mult_size
+        v_mult_size = v_mult_size 
+     >              + (paw_basis_mult_l(ia)+1)**2
       end do
-      ok = my_alloc(mt_dcpl,lm_size,"v_mult",v_mult)
+      ok = my_alloc(mt_dcpl,v_mult_size,"v_mult",v_mult)
+      ok = ok.and.
+     >     my_alloc(mt_dcpl,v_mult_size,"comp_coeff",comp_coeff)
       if (.not.ok) 
      > call errquit("paw_mult_init: out of heap memory",1)
 
-      !*** allocate self_energy_coeff and mult_energy_coeff arrays ***
-      lm_size  = paw_basis_max_mult_l()
-      ok = my_alloc(mt_dcpl,lm_size,"self_energy_coeff",
-     >              self_energy_coeff)
 
-      lm_size  = (paw_basis_max_mult_l()+1)**2
+      !*** allocate self_energy_coeff and mult_energy_coeff arrays ***
+      ok = my_alloc(mt_dbl,(lmax+1)*nkatm,
+     >              'self_energy_coeff',self_energy_coeff)
+
+      lm_size  = (lmax+1)**2
       ok = ok.and.
-     >     my_alloc(mt_dcpl,lm_size,"mult_energy_coeff",
-     >              mult_energy_coeff)
+     >     my_alloc(mt_dcpl,nion*lm_size*nion*lm_size,
+     >              'mult_energy_coeff',mult_energy_coeff)
+      if (.not.ok) 
+     > call errquit("paw_mult_init: out of heap memory",2)
+
+
+      !*** intitalize self_energy_coeff ****
+      call find_self_energy_coeff(lmax,nkatm,self_energy_coeff)
 
 
       !**** initialize sigma_smooth and ncut***
@@ -216,6 +230,7 @@
 
       ok =        my_dealloc(i_v_mult)
       ok = ok.and.my_dealloc(v_mult)
+      ok = ok.and.my_dealloc(comp_coeff)
       ok = ok.and.my_dealloc(g_lm)
       ok = ok.and.my_dealloc(gk)
       ok = ok.and.my_dealloc(gk_smooth)
@@ -517,3 +532,118 @@
       return
       end
 
+
+  !*************************************************
+  !
+  !   Name    : find_self_energy_coeff
+  !
+  !   Purpose :
+  !
+  !   Created :
+  !*************************************************
+      subroutine find_self_energy_coeff(lmax,nkatm,coeff)
+      implicit none
+      integer lmax,nkatm
+      real*8 coeff(lmax,nkatm)
+
+#include "paw_basis.fh"
+
+      !*** local variables ***
+      integer ia,l,mult_l
+      real*8 sigma_tmp,twopi
+
+      !*** external functions ***
+      real*8   paw_double_factorial
+      external paw_double_factorial
+
+      twopi = 8.0d0*datan(1.0d0)
+      call dcopy(lmax*nkatm,0.0d0,0,coeff,1)
+
+      do ia=1,nkatm
+        sigma_tmp = paw_basis_sigma(ia)
+        mult_l    = paw_basis_mult_l(ia)
+        do l=0,mult_l
+
+          coeff(l+1,ia) =  4.0d0*dsqrt(twopi)
+     >              /((2*l+1)
+     >                *paw_double_factorial(2*l+1)
+     >                *sigma_tmp**(2*l+1) )
+        end do
+      end do
+
+      return
+      end 
+
+  !*************************************************
+  !
+  !   Name    : find_comp_coeff
+  !
+  !   Purpose :
+  !
+  !   Created :
+  !*************************************************
+      subroutine find_comp_coeff()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_gaunt.fh"
+#include "paw_geom.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_mult_data.fh"
+#include "paw_matrix_comp_pot.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh"
+
+
+      !*** local variables **
+      integer i,j,ii,ia,jj
+      integer l,m,li,mi,lj,mj,mult_l
+      integer indx,indx_2,mtrx_ptr,mtrx_ptr2
+      integer nion,nbasis
+
+
+      call dcopy(2*comp_coeff(3),0.0d0,0,
+     >           dcpl_mb(comp_coeff(1)),1)
+
+      do ii=1,nion
+        ia = ion_katm(ii)
+        mult_l = paw_basis_mult_l(ia)
+        nbasis = paw_proj_nbasis(ia)
+       
+        jj        = int_mb(i_v_mult(1)+ii-1)
+        mtrx_ptr  = int_mb(i_paw_comp_pot_matrix(1)+ia-1)
+        mtrx_ptr2 = int_mb(i_paw_ovlp_w(1)+ii-1)
+        do l=0,mult_l
+        do m=-l,l
+
+          do j=1,nbasis
+            lj=paw_proj_l(j,ia)
+            mj=paw_proj_m(j,ia)
+
+            do i=1,nbasis
+              li=paw_proj_l(i,ia)
+              mi=paw_proj_m(i,ia)
+
+              indx = mtrx_ptr + (i-1) 
+     >                        + (j-1)*nbasis 
+     >                        + l*nbasis**2
+              indx_2 = mtrx_ptr2 + (i-1) 
+     >                        + (j-1)*nbasis 
+
+              dcpl_mb(comp_coeff(1)+jj)
+     >          = dcpl_mb(comp_coeff(1)+jj)
+     >          + gen_gaunt_coeff(l,m,li,mi,lj,mj)
+     >           *dcpl_mb(paw_comp_pot_matrix(1)+indx)
+     >           *dcpl_mb(paw_ovlp_w(1)+indx_2)
+
+            end do !*i*
+          end do !*j*
+
+          jj = jj + 1
+        end do !*m*
+        end do !*l*
+
+      end do !*ii*
+
+      return
+      end 
