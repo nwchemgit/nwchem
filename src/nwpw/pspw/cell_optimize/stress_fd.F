@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.2 2002-04-25 00:34:38 bylaska Exp $
+* $Id: stress_fd.F,v 1.3 2002-04-26 20:37:41 bylaska Exp $
 *
       logical function stress_fd(rtdb)
       implicit none
@@ -25,6 +25,9 @@
       double precision hartree_stress(3,3)
       double precision local_stress(3,3)
       double precision nonlocal_stress(3,3)
+      double precision alpha_stress(3,3)
+      double precision RIJ_stress(3,3)
+      double precision ewaldG_stress(3,3)
 
 *     *** external functions ****
       logical  pspw_noit_energy
@@ -151,12 +154,14 @@
       call dscal(9,(0.5d0/alpha),ewald_stress,1)
       call dscal(9,(0.5d0/alpha),local_stress,1)
       call dscal(9,(0.5d0/alpha),nonlocal_stress,1)
+
       call write_stress(ke_stress,"ke FD")
       call write_stress(xc_stress,"xc FD")
       call write_stress(hartree_stress,"hartree FD")
       call write_stress(ewald_stress,"ewald FD")
       call write_stress(local_stress,"local FD")
       call write_stress(nonlocal_stress,"nonlocal FD")
+
       call dcopy(9,ke_stress,1,stress,1)
       call daxpy(9,1.0d0,xc_stress,1,stress,1)
       call daxpy(9,1.0d0,hartree_stress,1,stress,1)

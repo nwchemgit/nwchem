@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.25 2002-04-25 00:34:38 bylaska Exp $
+* $Id: cgsdv5.F,v 1.26 2002-04-26 20:37:41 bylaska Exp $
 *
 
 ***********************************************************************
@@ -34,6 +34,7 @@
 
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
+      real*8  a,b,c,alpha,beta,gamma
     
 
 *     ***** energy variables ****
@@ -316,6 +317,8 @@ c         ENDIF
          write(6,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
+         call lattice_abc_abg(a,b,c,alpha,beta,gamma)
+         write(6,1232) a,b,c,alpha,beta,gamma
          write(6,1231) lattice_omega()
          write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(0),pack_nwave(0)
@@ -540,6 +543,8 @@ c     end if
      >        '  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
+ 1232 FORMAT(/5x,' lattice:    a=',f8.3,'    b=',f8.3,'     c=',f8.3,
+     >       /5x,'         alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')

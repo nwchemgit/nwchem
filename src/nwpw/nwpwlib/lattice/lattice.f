@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.3 2002-01-04 23:20:00 bylaska Exp $
+* $Id: lattice.f,v 1.4 2002-04-26 20:37:41 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -321,6 +321,59 @@ c               r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
 *     volume of a unit cell
 *     ---------------------
       volume=dabs(volume)
+
+      return
+      end
+
+*     *******************************
+*     *                             *
+*     *     lattice_abc_abg         *
+*     *                             *
+*     *******************************
+*
+*     This routine computes a,b,c,alpha,beta,gamma.
+*
+      subroutine lattice_abc_abg(a,b,c,alpha,beta,gamma)
+      implicit none
+      real*8 a,b,c
+      real*8 alpha,beta,gamma
+
+*     *** local variables ****
+      real*8 d2,pi
+
+*     **** external functions ****
+      real*8   lattice_unita
+      external lattice_unita
+
+*     **** determine a,b,c,alpha,beta,gmma ***
+      pi = 4.0d0*datan(1.0d0)
+      a = dsqrt(lattice_unita(1,1)**2 
+     >        + lattice_unita(2,1)**2 
+     >        + lattice_unita(3,1)**2)
+      b = dsqrt(lattice_unita(1,2)**2 
+     >        + lattice_unita(2,2)**2 
+     >        + lattice_unita(3,2)**2)
+      c = dsqrt(lattice_unita(1,3)**2 
+     >        + lattice_unita(2,3)**2 
+     >        + lattice_unita(3,3)**2)
+ 
+      d2 = (lattice_unita(1,2)-lattice_unita(1,3))**2 
+     >   + (lattice_unita(2,2)-lattice_unita(2,3))**2 
+     >   + (lattice_unita(3,2)-lattice_unita(3,3))**2
+      alpha = (b*b + c*c - d2)/(2.0d0*b*c)
+      alpha = dacos(alpha)*180.0d0/pi
+ 
+      d2 = (lattice_unita(1,3)-lattice_unita(1,1))**2 
+     >   + (lattice_unita(2,3)-lattice_unita(2,1))**2 
+     >   + (lattice_unita(3,3)-lattice_unita(3,1))**2
+      beta = (c*c + a*a - d2)/(2.0d0*c*a)
+      beta = dacos(beta)*180.0d0/pi
+ 
+      d2 = (lattice_unita(1,1)-lattice_unita(1,2))**2 
+     >   + (lattice_unita(2,1)-lattice_unita(2,2))**2 
+     >   + (lattice_unita(3,1)-lattice_unita(3,2))**2
+      gamma = (a*a + b*b - d2)/(2.0d0*a*b)
+      gamma = dacos(gamma)*180.0d0/pi
 
       return
       end

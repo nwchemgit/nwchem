@@ -1,7 +1,7 @@
+*
+* $Id: ewald.F,v 1.4 2002-04-26 20:37:41 bylaska Exp $
+*
       integer function ewald_ncut()
-*
-* $Id: ewald.F,v 1.3 2002-04-26 01:00:08 bylaska Exp $
-*
       implicit none 
 
 

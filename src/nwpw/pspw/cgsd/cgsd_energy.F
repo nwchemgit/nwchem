@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.22 2002-04-25 00:34:38 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.23 2002-04-26 20:37:41 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -494,6 +494,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** local variables ****
       integer u,v,s
       real*8  tstress(3,3),ht(3,3),scal
+      real*8  sigma(3,3)
 
 *     **** external functions ****
       real*8   lattice_omega,lattice_unita
@@ -541,27 +542,27 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       call write_stress(tstress,"ewald")
 
 **     **** define ht ****
-*      do v=1,3
-*      do u=1,3
-*         ht(u,v)=lattice_unita(v,u)
-*      end do
-*      end do
-*
+       do v=1,3
+       do u=1,3
+          ht(u,v)=lattice_unita(v,u)
+       end do
+       end do
+ 
 **     **** define stress tensor ****
-*      call dcopy(9,0.0d0,0,tstress,1)
-*      scal = -1.0d0/lattice_omega()
-*      do v=1,3
-*      do u=1,3
-*         do s=1,3
-*            tstress(u,v) = tstress(u,v) + scal*stress(u,s)*ht(s,v)
-*         end do
-*      end do
-*      end do
-*      call dcopy(9,tstress,1,stress,1)
+       call dcopy(9,0.0d0,0,sigma,1)
+       scal = -1.0d0/lattice_omega()
+       do v=1,3
+       do u=1,3
+          do s=1,3
+             sigma(u,v) = sigma(u,v) + scal*stress(u,s)*ht(s,v)
+          end do
+       end do
+       end do
 
       call dscal(9,-1.0d0,stress,1)
-      call write_stress(stress,"-1*total")
+      call write_stress(stress,"-1*total gradient")
 
+      call write_stress(sigma,"Internal Stress Tensor")
       return
       end
 
@@ -572,6 +573,10 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
       integer MASTER,taskid
       parameter (MASTER=0)
+      real*8 pressure,autoMbar,autoGPa,autoatm
+      parameter (autoMbar=294.214239071d0)
+      parameter (autoGPa=autoMbar*100.0d0)
+      parameter (autoatm =290.360032539d6)
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
@@ -579,8 +584,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
          write(*,1901)
          write(*,1902)
          write(*,1904)
-         write(*,1909) name
-         write(*,1910)
+         write(*,1910) name
          write(*,1911) stress(1,1),stress(1,2),stress(1,3)
          write(*,1912) stress(2,1),stress(2,2),stress(2,3)
          write(*,1912) stress(3,1),stress(3,2),stress(3,3)
@@ -589,17 +593,25 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
      >                  stress(1,1)**2+stress(1,2)**2+stress(1,3)**2
      >                 +stress(2,1)**2+stress(2,2)**2+stress(2,3)**2
      >                 +stress(3,1)**2+stress(3,2)**2+stress(3,3)**2)
+         pressure = (stress(1,1) + stress(2,2) + stress(3,3))/3.0d0
+         write(*,1917) pressure,
+     >                 pressure*autoMbar,
+     >                 pressure*autoGPa,
+     >                 pressure*autoatm
 
  1900 FORMAT(//'======================')
  1901 FORMAT(  '= Stress calculation =')
  1902 FORMAT(  '======================')
  1904 FORMAT(/)
- 1909 FORMAT(10X,A)
- 1910 FORMAT(10X,'=============  Stress Tensor =================')
+ 1910 FORMAT(10X,'============= ',A,' ==============')
  1911 FORMAT(5X,' S = ',' (',3F11.5,' )')
  1912 FORMAT(5X,'     ',' (',3F11.5,' )')
- 1915 FORMAT(10X,'==============================================')
- 1916 FORMAT(10X,'|S| = ',E11.5)
+ 1915 FORMAT(10X,'===================================================')
+ 1916 FORMAT(10X,'|S|      = ',E11.5)
+ 1917 FORMAT(10X,'pressure = ',E9.3,' au',
+     >      /10X,'         = ',E9.3,' Mbar'
+     >      /10X,'         = ',E9.3,' GPa',
+     >      /10X,'         = ',E9.3,' atm')
       end if
 
       return
