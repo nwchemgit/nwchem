@@ -72,6 +72,6 @@ source:
 	
 depend:
 	@echo No dependency analysis here
-dbl_to_sngl:
+sngl_to_dbl dbl_to_sngl:
 	@echo No blas conversion done here
 
