@@ -1,6 +1,6 @@
       subroutine pre_wrtpmf(lfntop,filtop,numpmf,maxpmf,ipmf,rpmf,iopt,
      + maxgrp,maxatm,igroup,lgroup,mgroup,npmfr,ipmfr,
-     + nsarep,msa,nsa,isegm,ismol,csa,iequi,msm,nsm,itemp)
+     + nsarep,msa,nsa,isegm,ismol,csa,iequi,msm,nsm,itemp,jtemp)
 c
       implicit none
 c
@@ -15,11 +15,12 @@ c
       integer ipmf(maxpmf,5),iopt(maxpmf,3)
       real*8 rpmf(maxpmf,4)
       integer igroup(maxgrp,maxatm),lgroup(maxgrp),mgroup(maxgrp)
-      integer isegm(msa),ismol(msa),iequi(msm,4),itemp(msa)
+      integer isegm(msa),ismol(msa),iequi(msm,4),itemp(msa),jtemp(msa)
       character*16 csa(msa)
       character*80 target
 c
-      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nume,nump,im,natoms
+      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nume,nump,im
+      integer natoms,natomsj
       character*3 string
 c
       if(npmfr.le.0) npmfr=1
@@ -135,6 +136,7 @@ c
 c     distance pmf
 c
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.9) then
+      if(iopt(i,1).ne.2) then
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
      + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,3)
  1001 format(3i5,2f12.6,2e12.5,4i5)
@@ -144,6 +146,48 @@ c
       write(lfntop,1002) (igroup(ipmf(i,k),j)+io,j=1,lgroup(ipmf(i,k)))
  1002 format(10i7)
     2 continue
+      else
+      natoms=0
+      do 111 k=1,lgroup(ipmf(i,2))
+      natoms=natoms+1
+      itemp(natoms)=igroup(ipmf(i,2),k)
+      if(iequi(ismol(itemp(natoms)),3).ne.0)
+     + call errquit('pmf combine not on first equivalent molecule',0)
+  111 continue
+      do 112 im=1,nsm
+      do 113 k=1,lgroup(ipmf(i,2))
+      if(iequi(im,3).eq.ismol(igroup(ipmf(i,2),k))) then
+      natoms=natoms+1
+      itemp(natoms)=igroup(ipmf(i,2),k)+
+     + iequi(im,4)-iequi(ismol(igroup(ipmf(i,2),k)),4)
+      endif
+  113 continue
+  112 continue
+      if(natoms.le.0)
+     + call errquit('No atoms selected in group',ipmf(i,2))
+      natomsj=0
+      do 211 k=1,lgroup(ipmf(i,3))
+      natomsj=natomsj+1
+      itemp(natomsj)=igroup(ipmf(i,3),k)
+      if(iequi(ismol(itemp(natomsj)),3).ne.0)
+     + call errquit('pmf combine not on first equivalent molecule',0)
+  211 continue
+      do 212 im=1,nsm
+      do 213 k=1,lgroup(ipmf(i,3))
+      if(iequi(im,3).eq.ismol(igroup(ipmf(i,3),k))) then
+      natomsj=natomsj+1
+      itemp(natomsj)=igroup(ipmf(i,3),k)+
+     + iequi(im,4)-iequi(ismol(igroup(ipmf(i,3),k)),4)
+      endif
+  213 continue
+  212 continue
+      if(natoms.le.0)
+     + call errquit('No atoms selected in group',ipmf(i,3))
+      write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
+     + (rpmf(i,j),j=1,4),natoms,natomsj
+      write(lfntop,1002) (itemp(im),im=1,natoms)
+      write(lfntop,1002) (jtemp(im),im=1,natomsj)
+      endif
       endif
 c
 c     angle pmf

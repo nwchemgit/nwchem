@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.30 2002-04-04 15:19:03 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.31 2002-06-25 19:32:35 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
       integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_qwa,i_qwa,l_wat,i_wat,l_sfr,i_sfr
       integer l_isb,i_isb,l_csb,i_csb,l_eq,i_eq
-      integer l_temp,i_temp
+      integer l_temp,i_temp,l_tempj,i_tempj
 c
       integer maxgrp,maxatm,maxpmf
       parameter(maxgrp=500)
@@ -234,10 +234,14 @@ c
       if(numpmf.gt.0) then
       if(.not.ma_push_get(mt_int,msa,'temp',l_temp,i_temp))
      + call errquit('Memory allocation failed for temp',9999)
+      if(.not.ma_push_get(mt_int,msa,'tempj',l_tempj,i_tempj))
+     + call errquit('Memory allocation failed for tempj',9999)
       call pre_wrtpmf(lfntop,filtop,numpmf,
      + maxpmf,ipmf,rpmf,iopt,maxgrp,maxatm,igroup,lgroup,mgroup,npmfr,
      + ipmfr,nsarep,msa,nsa,int_mb(i_sgm),int_mb(i_sml),byte_mb(i_csa),
-     + int_mb(i_eq),msm,nsm,int_mb(i_temp))
+     + int_mb(i_eq),msm,nsm,int_mb(i_temp),int_mb(i_tempj))
+      if(.not.ma_pop_stack(l_tempj))
+     + call errquit('Memory deallocation failed for tempj',9999)
       if(.not.ma_pop_stack(l_temp))
      + call errquit('Memory deallocation failed for temp',9999)
       write(lfnout,1005)
