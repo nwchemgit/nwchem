@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.8 2000-05-23 19:06:16 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.9 2000-05-31 18:27:45 d3j191 Exp $
 c
       implicit none
 c
@@ -98,7 +98,7 @@ c
       read(card(25:36),'(f12.9)') polar
       if(util_print('where',print_default)) then
       write(lfnout,2001) isgm,aname,mset,polar
- 2001 format('modify atom ',i5,':',a6,' set',i2,' polar ',f12.9)
+ 2001 format(' modify atom ',i5,':',a6,' set',i2,' polar ',f12.9)
       endif
       do 4 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
@@ -112,7 +112,7 @@ c
       type=card(25:29)
       if(util_print('where',print_default)) then
       write(lfnout,2002) isgm,aname,mset,type
- 2002 format('modify atom ',i5,':',a6,' set',i2,' type ',a5)
+ 2002 format(' modify atom ',i5,':',a6,' set',i2,' type ',a5)
       endif
       do 6 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
@@ -125,7 +125,7 @@ c
       if(card(21:23).eq.'dum') then
       if(util_print('where',print_default)) then
       write(lfnout,2003) isgm,aname,mset
- 2003 format('modify atom ',i5,':',a6,' set',i2,' dummy ')
+ 2003 format(' modify atom ',i5,':',a6,' set',i2,' dummy ')
       endif
       do 8 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
@@ -138,7 +138,7 @@ c
       if(card(21:23).eq.'ego') then
       if(util_print('where',print_default)) then
       write(lfnout,2004) isgm,aname,mset
- 2004 format('modify atom ',i5,':',a6,' set',i2,' self ')
+ 2004 format(' modify atom ',i5,':',a6,' set',i2,' self ')
       endif
       do 10 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
@@ -151,7 +151,7 @@ c
       if(card(21:23).eq.'qtm') then
       if(util_print('where',print_default)) then
       write(lfnout,2005) isgm,aname,mset
- 2005 format('modify atom ',i5,':',a6,' set',i2,' quantum ')
+ 2005 format(' modify atom ',i5,':',a6,' set',i2,' quantum ')
       endif
       do 12 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
@@ -172,7 +172,7 @@ c
       if(card(21:23).eq.'dum') then
       if(util_print('where',print_default)) then
       write(lfnout,2006) isgm,mset
- 2006 format('modify segment ',i5,' set',i2,' dummy ')
+ 2006 format(' modify segment ',i5,' set',i2,' dummy ')
       endif
       do 14 i=1,natm
       if(latm(5,i).eq.isgm) then
@@ -185,7 +185,7 @@ c
       if(card(21:23).eq.'ego') then
       if(util_print('where',print_default)) then
       write(lfnout,2007) isgm,mset
- 2007 format('modify segment ',i5,' set',i2,' self ')
+ 2007 format(' modify segment ',i5,' set',i2,' self ')
       endif
       do 16 i=1,natm
       if(latm(5,i).eq.isgm) then
@@ -198,7 +198,7 @@ c
       if(card(21:23).eq.'qtm') then
       if(util_print('where',print_default)) then
       write(lfnout,2008) isgm,mset
- 2008 format('modify segment ',i5,' set',i2,' quantum ')
+ 2008 format(' modify segment ',i5,' set',i2,' quantum ')
       endif
       do 18 i=1,natm
       if(latm(5,i).eq.isgm) then
