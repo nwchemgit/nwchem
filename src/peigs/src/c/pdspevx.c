@@ -850,15 +850,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #endif
       
       /*
-	 mgs looks cluster
+	 mgs loose cluster
 	 */
 
-      ga_sync_();
-      
-      /*
-	loose cluster
-	*/
-      
 #ifdef DEBUG7
       printf(" me = %d just before pstein4 %d \n", me, *info );
 #endif
@@ -866,9 +860,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
-      
-      ga_sync_();
-      
 #ifdef DEBUG7
       printf(" me = %d just after pstein4 %d \n", me, *info );
       fflush(stderr);

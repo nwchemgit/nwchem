@@ -574,7 +574,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    i1split = 0;
    work[*n-1] = 0.;
    dummy = ulp*ulp;
-   
    for ( j = 1; j < *n; j++ ){
      tmp1 = e[j]*e[j];
      if ( (ffabs(d[j]*d[j-1])*dummy+safemn) > tmp1 ) {
@@ -582,7 +581,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
        i1split++;
      }
    }
-
    isplit[i1split] = *n;
    *nsplit = i1split+1;
    
@@ -692,12 +690,12 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      but LPLUS * DPLUS * LPLUS'
      */
 
-/*
+   /*
      for ( m = 0; m < *n; m++ )
-       printf(" before split m = %d d %g e %g \n", m, d[m], e[m]);
+     printf(" before split m = %d d %g e %g \n", m, d[m], e[m]);
 */
-     
-     i1split = 0;
+   
+   i1split = 0;
      for ( iii = 0; iii < *nsplit; iii++ ){
        jsplit = isplit[iii];
        blksz = jsplit-i1split;
