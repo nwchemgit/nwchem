@@ -1,4 +1,4 @@
-C $Id: ecp_contract.f,v 1.1 1996-09-30 19:29:21 d3e129 Exp $
+C $Id: ecp_contract.f,v 1.2 1996-10-11 16:47:49 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_contract (n_ab,n_c,m_count,Qk,coeff_c,Q)
@@ -24,7 +24,7 @@ C $Id: ecp_contract.f,v 1.1 1996-09-30 19:29:21 d3e129 Exp $
 *
       do m = 1,m_count
         do i_ab = 1,n_ab
-          Q(i_ab,m) = 0
+          Q(i_ab,m) = 0.0d00
         end do
         do i_c = 1,n_c
 C          write (6,'(1p4e20.10)') (Qk(i_ab,i_c,m),i_ab = 1,n_ab),

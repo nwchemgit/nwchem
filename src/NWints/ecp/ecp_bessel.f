@@ -1,4 +1,4 @@
-C $Id: ecp_bessel.f,v 1.1 1996-09-30 19:29:19 d3e129 Exp $
+C $Id: ecp_bessel.f,v 1.2 1996-10-11 16:47:47 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_bessel (n,m,x,bessel,temp,ind,tol)
@@ -22,7 +22,7 @@ C $Id: ecp_bessel.f,v 1.1 1996-09-30 19:29:19 d3e129 Exp $
       implicit none
       integer n,m,i,na,np,ind(n)
       double precision x(n),bessel(n),temp(n,5),tol,two,cut0,cutoff
-      parameter (two = 2, cut0 = 0.106d0)
+      parameter (two = 2.0d00, cut0 = 0.106d0)
 *
 *   Determine cutoff for division between power and asymptotic series
 *

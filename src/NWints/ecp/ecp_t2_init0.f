@@ -33,7 +33,8 @@
       double precision ai(n),bi(n),alpha(n),beta(n),gamma(n),
      &    prefactor(n),temp(n,18),Q(ldQ,m_min:m_max,2),
      &    tol,one,two,cutoff,big,afac,bfac
-      parameter (one = 1, two = 2, cutoff = 25, big = 75)
+      parameter (one = 1.0d00, two = 2.0d00,
+     &    cutoff = 25.0d00, big = 75.0d00)
 *
       if (n .eq. 0) return
 C      write (6,'(/A,/)') 'p0_start_values'

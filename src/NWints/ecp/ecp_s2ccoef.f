@@ -1,4 +1,4 @@
-C$Id: ecp_s2ccoef.f,v 1.1 1996-09-30 19:29:28 d3e129 Exp $
+C$Id: ecp_s2ccoef.f,v 1.2 1996-10-11 16:47:54 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_s2ccoef (n,Xc2s,Xs2c,tmp,nc,df)
@@ -38,7 +38,7 @@ C$Id: ecp_s2ccoef.f,v 1.1 1996-09-30 19:29:28 d3e129 Exp $
      &            (mod(kk,2) .eq. 0)) then
                 tmp(i) = df(ii/2)*df(jj/2)*df(kk/2)/d
               else
-                tmp(i) = 0
+                tmp(i) = zero
               end if
             end do
           end do

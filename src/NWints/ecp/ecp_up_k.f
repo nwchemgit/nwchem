@@ -1,4 +1,4 @@
-C $Id: ecp_up_k.f,v 1.1 1996-09-30 19:29:36 d3e129 Exp $
+C $Id: ecp_up_k.f,v 1.2 1996-10-11 16:48:00 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_up_k (m_min,m_max,k,j,l,n,ldQ,alpha,beta,
@@ -35,7 +35,7 @@ C $Id: ecp_up_k.f,v 1.1 1996-09-30 19:29:36 d3e129 Exp $
      &    Q_lo(ldQ,m_min:m_max),Q_mid(ldQ,m_min:m_max+1),
      &    Q_hi(ldQ,m_min:m_max)
 *
-      parameter (two = 2)
+      parameter (two = 2.0d00)
 *
       fac = k-j
       fac = fac/two

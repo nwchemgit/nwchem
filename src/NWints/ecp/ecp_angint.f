@@ -1,4 +1,4 @@
-C $Id: ecp_angint.f,v 1.1 1996-09-30 19:29:17 d3e129 Exp $
+C $Id: ecp_angint.f,v 1.2 1996-10-11 16:47:46 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_angint (angint,lambda,k,l,G_kq)
@@ -19,10 +19,10 @@ C      write (6,*) loc(angint(-l,-lambda))
 C      write (0,*) lambda,k,l
       do m = 1,l
         do mu = 1,lambda
-          angint(m,mu) = 0
-          angint(m,-mu) = 0
-          angint(-m,mu) = 0
-          angint(-m,-mu) = 0
+          angint(m,mu) = 0.0d00
+          angint(m,-mu) = 0.0d00
+          angint(-m,mu) = 0.0d00
+          angint(-m,-mu) = 0.0d00
           q = m+mu
           if (q .le. k) then
             call ecp_3j_prod (lambda,l,k,mu,m,wa)
@@ -53,8 +53,8 @@ C            write (6,'(1P2E15.7)') angint(m,mu),angint(m,-mu)
 C            write (6,'(1P2E15.7)') angint(-m,mu),angint(-m,-mu)
           end if
         end do
-        angint(m,0) = 0
-        angint(-m,0) = 0
+        angint(m,0) = 0.0d00
+        angint(-m,0) = 0.0d00
         q = m
         if (q .le. k) then
           call ecp_3j_prod (lambda,l,k,0,m,wa)
@@ -68,8 +68,8 @@ C          write (6,'(1PE15.7)') angint(-m,0)
         end if
       end do
       do mu = 1,lambda
-        angint(0,mu) = 0
-        angint(0,-mu) = 0
+        angint(0,mu) = 0.0d00
+        angint(0,-mu) = 0.0d00
         q = mu
         if (q .le. k) then
           call ecp_3j_prod (lambda,l,k,mu,0,wa)

@@ -1,4 +1,4 @@
-C $Id: ecp_bess_pow.f,v 1.1 1996-09-30 19:29:18 d3e129 Exp $
+C $Id: ecp_bess_pow.f,v 1.2 1996-10-11 16:47:47 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_bess_pow (n,m,x,bess,term,xt,test,tol)
@@ -26,17 +26,17 @@ C $Id: ecp_bess_pow.f,v 1.1 1996-09-30 19:29:18 d3e129 Exp $
       integer n,m,i,idamax
       double precision x(n),bess(n),term(n),xt(n),test(n),
      &    tol,fac0,fac1,fac2,one,two
-      parameter (one = 1, two = 2)
+      parameter (one = 1.0d00, two = 2.0d00)
 *
       if (n .le. 0) return
 *
       do i = 1,n
         xt(i) = x(i)*x(i)
-        bess(i) = 0
+        bess(i) = 0.0d00
         term(i) = exp(-x(i))
-        test(i) = 1
+        test(i) = one
       end do
-      fac2 = 0
+      fac2 = 0.0d00
       fac1 = m+m+1
 *
     1 fac1 = fac1+two
@@ -55,7 +55,7 @@ C $Id: ecp_bess_pow.f,v 1.1 1996-09-30 19:29:18 d3e129 Exp $
       end if
       if (m .eq. 0) return
 *
-      fac0 = 1
+      fac0 = one
       do i = 3,m+m+1,2
         fac1 = i
         fac0 = fac0/fac1

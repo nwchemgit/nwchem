@@ -1,4 +1,4 @@
-C $Id: ecp_sph_tens.f,v 1.1 1996-09-30 19:29:29 d3e129 Exp $
+C $Id: ecp_sph_tens.f,v 1.2 1996-10-11 16:47:54 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_sph_tens (l,n_n,n_t,R,X,Y,Z,xn,yn,zn,tmp,G_kq,
@@ -30,9 +30,9 @@ Cold     &    c_to_s,s_to_c,ldt,lstart)
 *
 *   Set up monomials in X, Y and Z
 *
-      xn(0) = 1
-      yn(0) = 1
-      zn(0) = 1
+      xn(0) = 1.0d00
+      yn(0) = 1.0d00
+      zn(0) = 1.0d00
       xr = -X/R
       yr = -Y/R
       zr = -Z/R

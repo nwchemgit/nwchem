@@ -1,4 +1,4 @@
-C$Id: ecp_3j_prod.f,v 1.1 1996-09-30 19:29:16 d3e129 Exp $
+C$Id: ecp_3j_prod.f,v 1.2 1996-10-11 16:47:45 d3e129 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_3j_prod (l1,l2,l3,m1,m2,result)
@@ -24,7 +24,7 @@ C$Id: ecp_3j_prod.f,v 1.1 1996-09-30 19:29:16 d3e129 Exp $
       integer i,j,k,l,m,n,phase
       double precision result,wa,wb,wc
 *
-      result = 0
+      result = 0.0d00
       m3 = -(m1+m2)
 C      write (6,'(3I4)') l1,l2,l3
 C      write (6,'(3I4)') m1,m2,m3
