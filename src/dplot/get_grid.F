@@ -1,5 +1,5 @@
       SubRoutine Get_Grid(Grid,nGrid,CooFrom,CooTo,nGridXYZ,
-     &                    Volume,Out_Unit,iProc)
+     &                    Volume,Out_Unit,iProc,Where)
       Implicit None
 *
 ************************************************************************
@@ -11,6 +11,7 @@
       Double Precision Volume
       Double Precision Grid(3,nGrid)
       Double Precision CooFrom(3), CooTo(3)
+      Character*8 Where
 *---- Define local variables
       Double Precision Step(3),Spread(3),Angle(3),Scale,Frac_P
       Integer i,iGrid,iX,iY,iZ,Const_M(3),Const_P(3),iFast
@@ -52,7 +53,7 @@
             Call ErrQuit('Get_Grid: Negative no_of_spacings', 0)
          End If
       End Do
-      If (iProc.eq.0) Then
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          Write(Out_Unit,'(3(1x,f10.5),3(3x,f5.2))')
      &        (Spread(i),i=1,3),(Angle(i),i=1,3)
          Write(Out_Unit,'(3(2x,i4))')(nGridXYZ(i),i=1,3)
