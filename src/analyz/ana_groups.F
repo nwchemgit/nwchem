@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.1 2000-09-07 19:46:53 d3j191 Exp $
+c $Id: ana_groups.F,v 1.2 2000-10-06 05:36:13 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,6 @@ c
       real*8 x(nsa,3)
 c
       integer i
-      real*8 r1,r2
 c
       ngroup=ngroup+1
       if(ngroup.gt.maxgrp) call errquit('Increase maxgrp',maxgrp)
@@ -52,7 +51,7 @@ c
       real*8 x(nsa,3)
 c
       integer igrp,jgrp
-      integer i,j,ito,jfrom,jto,ia,ja,number
+      integer i,j,ito,jfrom,ia,ja,number
       real*8 dist,dx,dy,dz
 c
       igrp=igroup(igr,1)
@@ -97,3 +96,28 @@ c
 c
       return
       end
+      subroutine ana_histo(x,ih)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer ih
+      real*8 x(nsa,3)
+c
+      integer i,ia,ito,ndx
+c
+      dhis=1.2d0*box(3)/real(idhis(ih,2))
+c
+      ito=ldef(idhis(ih,1))
+      do 1 i=1,ito
+      ia=idef(idhis(ih,1),i)
+      ndx=(x(ia,3)-rhis)/dhis
+      ihis(ndx,ih)=ihis(ndx,ih)+1
+    1 continue
+c
+      return
+      end      

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.36 2000-09-22 16:30:59 d3j191 Exp $
+c $Id: ana_input.F,v 1.37 2000-10-06 05:36:14 d3j191 Exp $
 c
       implicit none
 c
@@ -343,6 +343,31 @@ c
       endif
       ksel=0
       if(inp_compare(.false.,'distances',item)) ksel=1
+      if(inp_compare(.false.,'zcoordinate',item)) ksel=2
+      if(.not.inp_f(rsel)) rsel=0.0d0
+      if(.not.inp_f(rval)) rval=rsel
+      if(.not.inp_a(item)) item=' '
+      write(lfncmd,1022) isel,jsel,ksel,ipbc,rsel,rval,
+     + item(1:index(item,' ')-1)
+ 1022 format('group  ',2i7,i5,i3,2f12.6,a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     do things with groups of atoms on the trajectory
+c     ------------------------------------------------
+c
+      if(inp_compare(.false.,'histogram',item)) then
+      if(.not.inp_i(isel)) call errquit('No group specified',0)
+      if(.not.inp_i(jsel)) jsel=0
+      if(.not.inp_a(item)) call errquit('No group function',0)
+      ipbc=0
+      if(inp_compare(.false.,'periodic',item)) then
+      if(.not.inp_i(ipbc)) ipbc=3
+      if(.not.inp_a(item)) call errquit('No group function',0)
+      endif
+      ksel=0
+      if(inp_compare(.false.,'zcoordinate',item)) ksel=1
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_f(rval)) rval=rsel
       if(.not.inp_a(item)) item=' '

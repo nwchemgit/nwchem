@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint)
 c
-c $Id: ana_pltgrd.F,v 1.16 2000-09-12 19:41:22 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.17 2000-10-06 05:36:14 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,6 @@ c
 #include "mafdecls.fh"
 c
       logical lprint
-      integer i
 c
       ngrd(1)=ngrid
       ngrd(2)=ngrid

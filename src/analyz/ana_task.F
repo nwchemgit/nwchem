@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.49 2000-09-29 00:08:13 d3j191 Exp $
+c $Id: ana_task.F,v 1.50 2000-10-06 05:36:14 d3j191 Exp $
 c
       implicit none
 c
@@ -56,6 +56,11 @@ c
       lfnhis=92
       lfnepz=93
       lfngrp=94
+c
+      do 44 i=1,mhis
+      idhis(i,3)=40+i
+   44 continue
+c
       lsonly=.false.
       lsuper=.false.
 c
@@ -71,6 +76,9 @@ c
       nimps=0
 c
       ndef=0
+c
+      nhis=0
+      lhis=0
 c
       lsel=.false.
       active=.false.
@@ -325,6 +333,28 @@ c
       if(card(1:6).eq.'groups') then
       call ana_groups(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref))
+      goto 1
+      endif
+c
+c     atom groups directives
+c     ----------------------
+c
+      if(card(1:6).eq.'histo ') then
+      if(card(22:26).eq.'    1') then
+      nhis=nhis+1
+      rhis=-0.6d0*box(3)
+      if(nhis.gt.mhis)
+     + call errquit('Too many histogram directives ',nhis)
+      read(card(8:14),'(2i7)') idhis(nhis,1),idhis(nhis,2)
+      do 45 i=1,mlhis
+      ihis(i,nhis)=0
+   45 continue
+      fil=card(54:80)
+      if(filhis(1:1).eq.' ')
+     + call errquit('No histogram filename given',nhis)
+      open(unit=idhis(nhis,3),file=fil(1:index(fil,' ')-1),
+     + form='formatted',status='unknown')
+      endif
       goto 1
       endif
 c
@@ -723,6 +753,12 @@ c
  3301 continue
       endif
 c
+      if(nhis.gt.0) then
+      do 3302 i=1,nhis
+      call ana_histo(dbl_mb(i_xdat),i)
+ 3302 continue
+      endif
+c
       ndata=ndata+1
 c
       endif
@@ -756,6 +792,16 @@ c
       write(*,'(a)') ' Closing grp file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
      + filgrp(1:index(filgrp,' ')-1)
+      endif
+      if(nhis.gt.0) then
+      do 3304 i=1,nhis
+      dhis=1.2d0*box(3)/real(idhis(i,2))
+      do 3305 j=1,idhis(i,2)
+      write(idhis(i,3),3306) rhis+(j-1)*dhis,real(ihis(j,i))
+ 3306 format(2f12.6)
+ 3305 continue
+      close(unit=idhis(i,3))
+ 3304 continue
       endif
       endif
 c

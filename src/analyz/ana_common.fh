@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.40 2000-09-29 00:08:13 d3j191 Exp $
+c $Id: ana_common.fh,v 1.41 2000-10-06 05:36:13 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -13,6 +13,10 @@ c
 c
       integer maxgrp
       parameter(maxgrp=20)
+c
+      integer mhis,mlhis
+      parameter(mhis=10)
+      parameter(mlhis=1000)
 c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
@@ -87,4 +91,7 @@ c
       integer ndef,ldef(mxdef),idef(mxdef,mxnum),
      + ngroup,igroup(maxgrp,4)
       real*8 rgroup(maxgrp,2)
-      common/ana_def/ndef,ldef,idef,ngroup,igroup,rgroup
+      integer nhis,lhis,ihis(mhis,mlhis),idhis(mhis,3)
+      real*8 rhis,dhis
+      common/ana_def/ndef,ldef,idef,ngroup,igroup,nhis,lhis,ihis,idhis,
+     + rgroup,rhis,dhis
