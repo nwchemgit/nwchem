@@ -5,7 +5,7 @@ c     Useful macros for DFT 2nd derivatives
 c
 c     BGJ - 8/97
 c
-c     $Id: dft2drv.fh,v 1.1 1998-09-09 13:26:07 bjohnson Exp $
+c     $Id: dft2drv.fh,v 1.2 1998-09-15 15:45:36 bjohnson Exp $
 c
 c     Array columns for XC functional 2nd partial derivatives
 c
@@ -15,6 +15,45 @@ c
 #define D2_RA_RB    2
 #define D2_RB_RB    3
 c
-#define NCOL_CMAT2 12
+#define NCOL_CMAT2 33
+c
+#define D2_RA_RAX   1
+#define D2_RB_RAX   2
+#define D2_RAX_RAX  3
+c
+#define D2_RA_RAY   4
+#define D2_RB_RAY   5
+#define D2_RAX_RAY  6
+#define D2_RAY_RAY  7
+c
+#define D2_RA_RAZ   8
+#define D2_RB_RAZ   9
+#define D2_RAX_RAZ 10
+#define D2_RAY_RAZ 11
+#define D2_RAZ_RAZ 12
+c
+#define D2_RA_RBX  13
+#define D2_RB_RBX  14
+#define D2_RAX_RBX 15
+#define D2_RAY_RBX 16
+#define D2_RAZ_RBX 17
+#define D2_RBX_RBX 18
+c
+#define D2_RA_RBY  19
+#define D2_RB_RBY  20
+#define D2_RAX_RBY 21
+#define D2_RAY_RBY 22
+#define D2_RAZ_RBY 23
+#define D2_RBX_RBY 24
+#define D2_RBY_RBY 25
+c
+#define D2_RA_RBZ  26
+#define D2_RB_RBZ  27
+#define D2_RAX_RBZ 28
+#define D2_RAY_RBZ 29
+#define D2_RAZ_RBZ 30
+#define D2_RBX_RBZ 31
+#define D2_RBY_RBZ 32
+#define D2_RBZ_RBZ 33
 c
 #endif
