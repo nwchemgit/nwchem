@@ -249,7 +249,7 @@ given list of directories;
  SGI multi-processor machines (node names {\it coho} and {\it bohr});
 \begin{verbatim}
       scratch_dir coho:/xfs1/rjh coho:/xfs2/rjh coho:/xfs3/rjh \
-                  bohr:/disk01/rjh bohr/rjh:/disk02/rjh bohr:/disk13/rjh
+          bohr:/disk01/rjh bohr/rjh:/disk02/rjh bohr:/disk13/rjh
 \end{verbatim}
 \end{itemize}
 
@@ -728,7 +728,7 @@ execute UNIX commands on machines having a Bourne shell.  The input options,
 keywords, and defaults for each of these three forms for the \verb+TASK+
 directive are discussed in the following subsections.
 
-\subsubsection{Task Directive for Electronic Structure Calculations}
+\subsubsection{TASK Directive for Electronic Structure Calculations}
 
 This is the most commonly used version of the \verb+TASK+ directive, and
 it has the following form;
@@ -759,12 +759,14 @@ choices and gives the string input to identify each selection.
  \item \verb+MD_IDEAZ+ --- Molecular dynamics simulation using IDEAZ
 \end{itemize}
 
+
 The string \verb+operation+ is used to specify the calculation that will
 be performed in the task.  The default operation is a single point energy
 evaluation.  The following list gives the selection of operations currently
 available in NWChem, and the string entry for \verb+operation+ for each one.
 
-\item Operation \newline
+
+\item \verb+operation+ \newline
 \begin{itemize}
  \item \verb+ENERGY+ --- single point energy evaluation
  \item \verb+GRADIENT+ --- evaluate the derivative of the energy with respect to\
@@ -783,7 +785,7 @@ available in NWChem, and the string entry for \verb+operation+ for each one.
 The user should be aware that some of these operations require
 computation of derivatives of the energy.
 %Shall we tell them which ones, or was everyone born knowing this?
-If analytical derivatives are not available, then they must be
+If analytical derivatives are not available, they must be
 computed numerically, which can be very expensive.
 
 Here are some examples of the \verb+TASK+ directive, to illustrate
@@ -818,7 +820,7 @@ When a \verb+TASK+ directive includes the keyword \verb+IGNORE+,
 task failure results in only a warning message being printed, and 
 code execution continues with the next task.
 
-\subsubsection{Task Directive for Special Operations}
+\subsubsection{TASK Directive for Special Operations}
 
 This form of the \verb+TASK+ directive is used in instances where 
 the task to be performed does not fit the model of the previous 
@@ -846,7 +848,7 @@ below, with the corresponding string entry for \verb+task+.
 This directive also recognizes the keyword \verb+IGNORE+, which allows
 execution to continue after a task has failed.
 
-\subsubsection{Task Directive for the Bourne Shell}
+\subsubsection{TASK Directive for the Bourne Shell}
 
 This form of the \verb+TASK+ directive is supported only on machines 
 with a fully UNIX-style operating system.  This directive causes specified
