@@ -1,6 +1,6 @@
       subroutine geom_print_rtdb_ecce(rtdb)
 *
-* $Id: geom_print_ecce.F,v 1.4 1999-07-14 00:28:59 d3e129 Exp $
+* $Id: geom_print_ecce.F,v 1.5 1999-09-22 19:00:16 d3g681 Exp $
 *
 #include "geom.fh"
       integer rtdb, geom
@@ -39,6 +39,7 @@ c
 c
       call ecce_print1('atomic charges', mt_dbl, charge(1,geom), nat)
       call ecce_print1_char('atomic tags', tags(1,geom), nat)
+      call ecce_print1_char('group name', group_name(geom), 1)
 c
       end
 
