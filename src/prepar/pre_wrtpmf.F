@@ -1,6 +1,6 @@
       subroutine pre_wrtpmf(lfntop,filtop,numpmf,maxpmf,ipmf,rpmf,iopt,
      + maxgrp,maxatm,igroup,lgroup,mgroup,npmfr,ipmfr,
-     + nsarep,msa,nsa,isegm,csa,iequi,msm,nsm)
+     + nsarep,msa,nsa,isegm,ismol,csa,iequi,msm,nsm,itemp)
 c
       implicit none
 c
@@ -15,11 +15,11 @@ c
       integer ipmf(maxpmf,5),iopt(maxpmf)
       real*8 rpmf(maxpmf,4)
       integer igroup(maxgrp,maxatm),lgroup(maxgrp),mgroup(maxgrp)
-      integer isegm(msa),iequi(msm,4)
+      integer isegm(msa),ismol(msa),iequi(msm,4),itemp(msa)
       character*16 csa(msa)
       character*80 target
 c
-      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nump,im
+      integer i,j,k,l,m,n,io,ibase,jbase,idatom,nump,im,natoms
       character*3 string
 c
       if(npmfr.le.0) npmfr=1
@@ -159,6 +159,7 @@ c
 c     planar  pmf
 c
       if(ipmf(i,1).eq.6) then
+      if(iopt(i).ne.2) then
       do 8 k=1,lgroup(ipmf(i,2))
       write(lfntop,1001) 6,(rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
       if(lgroup(ipmf(i,2)).le.0)
@@ -166,6 +167,31 @@ c
       write(lfntop,1002) igroup(ipmf(i,2),k)+io
       write(lfntop,1002) (igroup(ipmf(i,2),j)+io,j=1,lgroup(ipmf(i,2)))
     8 continue
+      else
+      natoms=0
+      do 81 k=1,lgroup(ipmf(i,2))
+      natoms=natoms+1
+      itemp(natoms)=igroup(ipmf(i,2),k)
+      if(iequi(ismol(itemp(natoms)),3).ne.0)
+     + call errquit('pmf combine not on first equivalent molecules',0)
+   81 continue
+      do 82 im=1,nsm
+      do 83 k=1,lgroup(ipmf(i,2))
+      if(iequi(im,3).eq.ismol(igroup(ipmf(i,2),k))) then
+      natoms=natoms+1
+      itemp(natoms)=igroup(ipmf(i,2),k)+
+     + iequi(im,4)-iequi(ismol(igroup(ipmf(i,2),k)),4)
+      endif
+   83 continue
+   82 continue
+      if(natoms.le.0)
+     + call errquit('No atoms selected in group',ipmf(i,2))
+      do 84 k=1,natoms
+      write(lfntop,1001) 6,(rpmf(i,j),j=1,4),1,natoms
+      write(lfntop,1002) itemp(k)
+      write(lfntop,1002) (itemp(im),im=1,natoms)
+   84 continue
+      endif
       endif
 c
 c     base pair pmf
