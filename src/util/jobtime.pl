@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl5
 #
-# $Id: jobtime.pl,v 1.6 2002-01-24 02:50:40 edo Exp $
+# $Id: jobtime.pl,v 1.7 2002-10-17 16:50:18 edo Exp $
 #
 
 # ON THE IBM SP DETERMINE THE TIME LEFT TO A LL BATCH JOB
@@ -13,8 +13,14 @@ sub walltosec {
 
     use integer;
  $date = shift(@_); 
+    @days = split(/[ +:]/,$date);
+    if($days[0] eq '00') {
     @fields = split(/[ +:]/,$date);
-    $walltosec = $fields[0]*3600+$fields[1]*60+$fields[2]; 
+    } else{
+    @fields = split(/[ +:]/,$days[1]);
+    }
+#    print "days |$days[0]| fld1 $fields[0]  fld2 $fields[1] fld3 $fields[2]\n";
+    $walltosec = $days[0]*24*3600+$fields[0]*3600+$fields[1]*60+$fields[2]; 
 }
 sub wallcheck {
 
@@ -23,6 +29,9 @@ sub wallcheck {
     @fields = split(/[ +:]/,$date);
     $wallcheck=0;
     if($fields[4] eq 'seconds)') {
+      $wallcheck=1;
+    }
+    if($fields[5] eq 'seconds)') {
       $wallcheck=1;
     }
 }
@@ -123,9 +132,9 @@ $wcheck = &wallcheck($walllimit) ;
 $left = $walllimit - $used;
 if ($wcheck eq "1") {
 $wsec = &walltosec($walllimit) ;
-#print "wsec = $wsec\n";
 $left = $wsec - $used;
 }
+#print "wsec = $wsec\n";
 
 #print "The job has been running for $used seconds and has $left seconds remaining.\n";
 
