@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_vloc.F,v 1.3 2003-02-27 00:16:50 bylaska Exp $
+* $Id: paw_matrix_vloc.F,v 1.4 2003-03-06 01:46:40 bylaska Exp $
 *
 
 !**************************************************
@@ -133,6 +133,9 @@
 
       !*** temporary array for calculations ***
       ok = ma_push_get(mt_dbl,ic, "tmp_array",l_f,i_f)
+      if (.not.ok)
+     > call errquit('find_paw_vloc_matrix: out of stack memory',0)
+
 
       do i=1,nbasis
         l = orb_l(i)
@@ -158,7 +161,9 @@
         end do
       end do
 
-      ok = ma_chop_stack(l_f)
+      ok = ma_pop_stack(l_f)
+      if (.not.ok)
+     > call errquit('find_paw_vloc_matrix:error popping stack',0)
 
       return
       end !subroutine find_paw_vloc_matrix

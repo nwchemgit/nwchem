@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_core_atom.F,v 1.3 2003-02-23 23:16:58 marat Exp $
+* $Id: paw_energy_core_atom.F,v 1.4 2003-03-06 01:46:39 bylaska Exp $
 *
 
 
@@ -91,7 +91,11 @@
 
       !*** temporary array for calculations ***
       max_ic = paw_basis_max_i_cut()
-      ok = ma_push_get(mt_dbl,max_ic,"tmp_array",l_f1,i_f1)
+      ok = ma_push_get(mt_dbl,max_ic,"tmp_array_core",l_f1,i_f1)
+      if (.not.ok)
+     > call errquit(
+     >  'paw_energy_core_ion_atom: out of stack memory',0)
+
       ecore = 0.D0
       i_w = 0
       do in=1,ion_nion()
@@ -114,7 +118,10 @@
 
       end do
  
-      ok = ma_chop_stack(l_f1)
+      ok = ma_pop_stack(l_f1)
+      if (.not.ok)
+     > call errquit(
+     >  'paw_energy_core_ion_atom:error popping stack memory',1)
       paw_energy_core_ion_atom = ecore*fourpi
  
       end
@@ -155,7 +162,11 @@
 
       !*** temporary array for calculations ***
       max_ic = paw_basis_max_i_cut()
-      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f1,i_f1)
+      ok = ma_push_get(mt_dbl,max_ic,"tmp_array",l_f1,i_f1)
+      if (.not.ok)
+     > call errquit(
+     >  'paw_energy_core_self_atom: out of stack memory',0)
+
       ecore = 0.0d0
       i_w = 0
       do in=1,ion_nion()
@@ -178,7 +189,11 @@
 
       end do
  
-      ok = ma_chop_stack(l_f1)
+      ok = ma_pop_stack(l_f1)
+      if (.not.ok)
+     > call errquit(
+     >  'paw_energy_core_self_atom: error popping stack',1)
+
       paw_energy_core_self_atom = 0.5d0*ecore*fourpi
  
       end      

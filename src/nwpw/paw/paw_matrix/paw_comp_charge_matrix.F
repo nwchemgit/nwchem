@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.6 2003-02-25 02:40:52 bylaska Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.7 2003-03-06 01:46:40 bylaska Exp $
 *
 !**************************************************
 !
@@ -151,6 +151,9 @@
 
       !*** temporary array for calculatcomp_charges ***
       ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f,i_f)
+      if (.not.ok)
+     > call errquit('find_comp_charge_matrix:out of stack memory',0)
+
 
       do i=1,nbasis
         do j=1,i
@@ -173,7 +176,9 @@
         end do
       end do
 
-      ok = ma_chop_stack(l_f)
+      ok = ma_pop_stack(l_f)
+      if (.not.ok)
+     > call errquit('find_comp_charge_matrix:error popping stack',0)
 
       return
       end !subroutine find_comp_charge_matrix

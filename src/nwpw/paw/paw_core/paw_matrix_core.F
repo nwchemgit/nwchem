@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_core.F,v 1.3 2003-03-05 23:16:31 bylaska Exp $
+* $Id: paw_matrix_core.F,v 1.4 2003-03-06 01:46:39 bylaska Exp $
 *
 
 !**************************************************
@@ -142,10 +142,13 @@
       power_r = 0
 
       !*** temporary array for calculations ***
-      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f1,i_f1)
-      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f2,i_f2)
-      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f3,i_f3)
-      ok = ma_push_get(mt_dbl,ic,"tmp_array",l_f4,i_f4)
+      ok =        ma_push_get(mt_dbl,ic,"tmp_array1",l_f1,i_f1)
+      ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array2",l_f2,i_f2)
+      ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array3",l_f3,i_f3)
+      ok = ok.and.ma_push_get(mt_dbl,ic,"tmp_array4",l_f4,i_f4)
+      if (.not.ok)
+     > call errquit('find_core_matrix: out of stack memory',0)
+
 
       do ii=1,ic
       dbl_mb(i_f3+ii-1) = core_density(ii)*r(ii)**2
@@ -181,7 +184,12 @@
         end do
       end do
 
-      ok = ma_chop_stack(l_f1)
+      ok =        ma_pop_stack(l_f4)
+      ok = ok.and.ma_pop_stack(l_f3)
+      ok = ok.and.ma_pop_stack(l_f2)
+      ok = ok.and.ma_pop_stack(l_f1)
+      if (.not.ok)
+     > call errquit('find_core_matrix:error popping stack',1)
 
       return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.7 2003-03-05 23:16:32 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.8 2003-03-06 01:46:40 bylaska Exp $
 c
 
 !**************************************************
@@ -184,7 +184,7 @@ c
          end do
        end do
 
-       ok = ma_chop_stack(l_f)
+       ok = ma_pop_stack(l_f)
        if (.not.ok)
      >  call errquit("find_overlap_matrix: error popping stack",1)
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_ion.F,v 1.4 2003-02-27 00:16:49 bylaska Exp $
+* $Id: paw_matrix_ion.F,v 1.5 2003-03-06 01:46:40 bylaska Exp $
 *
 
 !**************************************************
@@ -129,6 +129,9 @@
 
       !*** temporary array for calculations ***
       ok = ma_push_get(mt_dbl,ic, "tmp_array",l_f,i_f)
+      if (.not.ok)
+     > call errquit('find_ion_matrix: out of stack memory',0)
+
 
       do i=1,nbasis
         power_f = 2*orb_l(i)+2
@@ -152,7 +155,9 @@
         end do
       end do
 
-      ok = ma_chop_stack(l_f)
+      ok = ma_pop_stack(l_f)
+      if (.not.ok)
+     > call errquit('find_ion_matrix:error popping',1)
 
 !  write(*,*) "ion matrix"
 !  write(*,*) matrix

@@ -1,8 +1,13 @@
 *
-* $Id: paw_inner_loop.F,v 1.27 2003-03-05 23:16:31 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.28 2003-03-06 01:46:39 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.27  2003/03/05 23:16:31  bylaska
+* Commented out write statements and other minor fixes.....
+* self-consistent loop looks like it is working.....
+* ....EJB
+*
 * Revision 1.26  2003/03/04 00:04:03  marat
 * added printouts for atomic potenitials
 * for debug purposes
@@ -386,39 +391,40 @@
         call paw_psi_lmbda(ispin,ne,nemax,npack1,psi_r,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
 
-*        ***** debug ***
-         do ms=1,ispin
-           write(23,*)
-           write(23,*)
-           write(23,*) "DEBUG: iteration=",it
-           write(23,*) "DEBUG: overlap matrix"
-           call paw_overlap_matrix_gen(ne(ms),ne(ms),
-     >                                 psi1(1,n1(ms)),
-     >                                 psi1(1,n1(ms)),
-     >                                 dbl_mb(tmp_L(1)))
-           write(23,*) "Overlap matrix, spin:",ms
-           do i=1,ne(ms) 
-             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
-     >                   j=1,ne(ms))
-           end do
+!*        ***** debug ***
+!         do ms=1,ispin
+!           write(23,*)
+!           write(23,*)
+!           write(23,*) "DEBUG: iteration=",it
+!           write(23,*) "DEBUG: overlap matrix"
+!           call paw_overlap_matrix_gen(ne(ms),ne(ms),
+!     >                                 psi1(1,n1(ms)),
+!     >                                 psi1(1,n1(ms)),
+!     >                                 dbl_mb(tmp_L(1)))
+!           write(23,*) "Overlap matrix, spin:",ms
+!           do i=1,ne(ms) 
+!             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+!     >                   j=1,ne(ms))
+!           end do
+!
+!         end do
+!!*        ***** debug2 ***
+!         do ms=1,ispin
+!           write(23,*)
+!           write(23,*) "Testing paw_ovlp_S...."
+!           write(23,*) "DEBUG2: overlap matrix2"
+!           call paw_ovlp_S(ne(ms),psi1(1,n1(ms)),psi_r(1,n1(ms))) 
+!           call Grsm_ggm_dot(npack1,ne,
+!     >                  psi1(1,n1(ms)),psi_r(1,n1(ms)),
+!     >                  dbl_mb(tmp_L(1)))
+!           write(23,*) "Overlap matrix2, spin:",ms
+!           do i=1,ne(ms) 
+!             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
+!     >                   j=1,ne(ms))
+!           end do
+!
+!         end do
 
-         end do
-*        ***** debug2 ***
-         do ms=1,ispin
-           write(23,*)
-           write(23,*) "Testing paw_ovlp_S...."
-           write(23,*) "DEBUG2: overlap matrix2"
-           call paw_ovlp_S(ne(ms),psi1(1,n1(ms)),psi_r(1,n1(ms))) 
-           call Grsm_ggm_dot(npack1,ne,
-     >                  psi1(1,n1(ms)),psi_r(1,n1(ms)),
-     >                  dbl_mb(tmp_L(1)))
-           write(23,*) "Overlap matrix2, spin:",ms
-           do i=1,ne(ms) 
-             write(23,*) (dbl_mb(tmp_L(1)+(i-1) +(j-1)*ne(ms)),
-     >                   j=1,ne(ms))
-           end do
-
-         end do
 
       end do
 
