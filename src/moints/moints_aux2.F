@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.5 1995-10-19 00:24:00 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.6 1995-10-25 00:59:36 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -332,6 +332,11 @@ c
       return
       end
 
+
+
+
+
+
       subroutine moints_sym_zero(nbf, vlo, vhi, syms, i, j, x)
       implicit none
       integer nbf
@@ -393,14 +398,18 @@ c
 
 
 
-
+c
+c ** symmetry ignored **
+c
       subroutine moints_Jtrf34( g_coul, ostart, olo, ohi, vlo, vhi,
-     $                          nbf, c, tmp )
+     $                          nbf, c, tmp, osym, syms )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_coul
       integer ostart, olo, ohi, vlo, vhi, nbf
+      logical osym
+      integer syms(nbf)
       double precision c(nbf,nbf)
       double precision tmp(nbf,nbf)
 
@@ -459,6 +468,11 @@ c
 
       return
       end
+
+
+
+
+
 
 
       subroutine print_shell_block(basis, eri, ish, jsh, ksh, lsh)

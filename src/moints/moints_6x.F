@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.6 1995-10-17 08:54:19 d3g681 Exp $
+c  $Id: moints_6x.F,v 1.7 1995-10-25 00:59:35 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -64,12 +64,13 @@ c
        integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
-       integer kb, lb
+       integer kb, lb, i, nmixed
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_eri, k_eri, l_iscr,k_iscr
        integer l_mo, k_mo
        integer l_shmap, k_shmap
+       integer l_sym, k_sym
        integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_ijni
        integer mem2, max2e
        integer num_nodes, ploop, next
@@ -82,6 +83,7 @@ c
        integer tottaskJ, tottaskK
        logical status
        logical oprint
+       logical osym
 #include "moints_stats.fh"
 c
 c
@@ -93,6 +95,7 @@ c
 c
        data tol2e/1.d-12/
        data oprint/.true./
+       data osym/.false./
 c
 c
 c  General basis info
@@ -105,6 +108,22 @@ c
        if (.not.status) call errquit('moints: cannot get basis info',0)
        nmo1 = mo1_hi - occ_start + 1
        nmo2 = mo2_hi - mo2_lo + 1
+c     
+c     Symmetry adapt the MOs and renumber irreps to start at zero
+c     
+       if (osym) then
+          if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
+     $         call errquit('moints_6x: no memory for syms?',0)
+          call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
+     $                          nmixed)
+          if (nmixed .ne. 0)
+     $         call errquit('moints_6x: symmetry contamination', nmixed)
+          do i =0, nbf-1
+             int_mb(k_sym+i) = int_mb(k_sym+i) - 1
+          enddo
+          WRITE(6,*) ' SYMMETRY OF MOS IN MOINTS_6X'
+          WRITE(6,'(40I2)') (INT_MB(K_SYM+I),I=0,NBF-1)
+       endif
 c
 c  Local MO coefficients
 c
@@ -206,7 +225,7 @@ c
      $                                  dbl_mb(k_iscr), ilen, jlen,
      $                                  kbflo, kbfhi, lbflo, lbfhi,
      $                                  dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt), .false. )
+     $                                  dbl_mb(k_ssbbt) )
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    tz = tcgtime()
@@ -281,7 +300,7 @@ c
      $                                 max2e, dbl_mb(k_eri), mem2,
      $                                 dbl_mb(k_iscr), ilen, jlen,
      $                                 kbflo, kbfhi, lbflo, lbfhi,
-     $                                 dbl_mb(k_ssbb) )
+     $                                 dbl_mb(k_ssbb), osym )
                      tint = tint + tcgtime() - tz
                      flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                      if (lb.ne.kb) then
@@ -372,7 +391,7 @@ c
          tz = tcgtime()
          call moints_Ktrf34(g_exch, .false., occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
-     $                       dbl_mb(k_hlp) )
+     $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          t34kidx = tcgtime() - tz
          if (util_print('exchange integral',print_debug)) then
            call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
@@ -385,7 +404,7 @@ c
          tz = tcgtime()
          call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
-     $                       dbl_mb(k_hlp) )
+     $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          if (util_print('coulomb integral',print_debug)) then
            call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
          endif
