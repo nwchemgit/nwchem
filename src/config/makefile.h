@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.178 1996-10-07 18:54:24 d3e129 Exp $
+# $Id: makefile.h,v 1.179 1996-10-08 05:18:00 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -241,7 +241,7 @@ ifeq ($(TARGET),SOLARIS)
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -669,7 +669,7 @@ ifeq ($(TARGET),SP1)
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 2 --no-print-directory
+  MAKEFLAGS = -j 25 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
