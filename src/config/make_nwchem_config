@@ -9,15 +9,16 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.72 1998-03-19 06:14:10 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.73 1998-04-14 18:15:59 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos esp\
-	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss fft 
+	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
+        nwargos esp hessian plane_wave selci dplot mp2_grad nwaprep oimp2 \
+        property gapss fft 
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -27,7 +28,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos -lesp\
-                    -lpfft -ldplot -loimp2 -lproperty 
+                    -lpfft -ldplot -loimp2 -lproperty -lprepar
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -61,10 +62,10 @@ EXPANSIONS = all qm md qmmd argos
 EXP_all = $(filter-out develop gapss oimp2 ideaz scfaux plane_wave,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints hessian nwdft rimp2 \
           stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp
-EXP_ver2 = nwaprep nwargos gradients mp2_grad dftgrad stepper vib mcscf \
+EXP_ver2 = nwaprep prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver
 #plane_wave ... broken? RJH
-EXP_argos = nwaprep nwargos
+EXP_argos = nwaprep prepar nwargos
 EXP_md  = ideaz
 EXP_qmmd = gradients ideaz
 
@@ -165,6 +166,7 @@ MOD_LIBS := $(patsubst scfaux,-lscfaux,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwaprep,-lnwaprep,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwargos,-lnwargos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
