@@ -1,6 +1,6 @@
       subroutine reconcilefile(d_sf,size)
 c
-c $Id: reconcilefile.F,v 1.4 2002-11-20 05:03:06 sohirata Exp $
+c $Id: reconcilefile.F,v 1.5 2002-12-17 00:03:10 sohirata Exp $
 c
 c     Accumulate local distributed files and update all files
 c     with the one accumulated file
@@ -20,7 +20,7 @@ c
       integer i
       logical nodezero
       logical parallel
-c
+c 
       nodezero = (ga_nodeid().eq.0)
       parallel = (ga_nnodes().gt.1)
       if (.not. parallel) return
@@ -33,15 +33,15 @@ c
       if (util_print('files',print_debug))
      1  write(LuOut,9190) ga_nodeid(),d_sf,size
       nblocks = size/buffer_size + 1
-      blocksize = max(size/nblocks,1)
+      blocksize = size/nblocks + 1
       if (.not.ga_create(mt_dbl,blocksize,1,'temporary',
      1  -1,1,g_temp))
      2  call errquit('reconcilefile: GA problem',0)
-      call ga_zero(g_temp)
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1  l_temp,k_temp))
      2  call errquit('reconcilefile: MA problem',0)
       do i = 1,nblocks
+        call ga_zero(g_temp)
         call get_block(d_sf,dbl_mb(k_temp),
      1    min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
         call ga_acc(g_temp,1,blocksize,1,1,dbl_mb(k_temp),1,1.0d0)

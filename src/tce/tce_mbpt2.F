@@ -1,7 +1,7 @@
       subroutine tce_mbpt2(d_mo2e,k_2e_offset,
      1                     d_t2,k_t2_offset,mbpt2)
 c
-c $Id: tce_mbpt2.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_mbpt2.F,v 1.3 2002-12-17 00:03:10 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -52,36 +52,45 @@ c
           do h3b = 1,noab
             do h4b = h3b,noab
               if (next.eq.count) then
+                if ((.not.restricted).or.
+     1             (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)
+     2             +int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8))
+     3             then
                 if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
      1            .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
                 if (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),
      1            ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
      2            .eq. 0) then
-                    factor = 0.25d0
-                    if (p2b .gt. p1b) factor = factor * 2.0d0
-                    if (h4b .gt. h3b) factor = factor * 2.0d0
-                    size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
-     1                   * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
-                    if (.not.ma_push_get(mt_dbl,size,'v2',l_v2,k_v2))
-     1                call errquit('tce_mbpt2: MA problem',0)
-                    call get_block(d_mo2e,dbl_mb(k_v2),size,
-     1                int_mb(k_2e_offset+(((p1b-1)*(noab+nvab)+p2b-1)
-     2                *(noab+nvab)+h3b-1)*(noab+nvab)+h4b-1))
-                    if (.not.ma_push_get(mt_dbl,size,'t2',l_t2,k_t2))
-     1                call errquit('tce_mbpt2: MA problem',1)
-                    call get_block(d_t2,dbl_mb(k_t2),size,
-     1                int_mb(k_t2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
-     2                *noab+h3b-1)*noab+h4b-1))
-                    mbpt2 = ddot(size,dbl_mb(k_t2),1,dbl_mb(k_v2),1)
-                    if (util_print('mbpt2',print_debug))
-     1                write(LuOut,9200) ga_nodeid(),p1b,p2b,h3b,h4b,
-     2                mbpt2 * factor
-                    call ga_acc(g_mbpt2,1,1,1,1,mbpt2,1,factor)
-                    if (.not.ma_pop_stack(l_t2))
-     1                call errquit('tce_mbpt2: MA problem',2)
-                    if (.not.ma_pop_stack(l_v2))
-     1                call errquit('tce_mbpt2: MA problem',3)
-                  endif
+                  factor = 0.25d0
+                  if (p2b .gt. p1b) factor = factor * 2.0d0
+                  if (h4b .gt. h3b) factor = factor * 2.0d0
+                if ((restricted).and.
+     1             (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)
+     2             +int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).eq.4))
+     3             factor = factor * 2.0d0
+                  size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
+     1                 * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
+                  if (.not.ma_push_get(mt_dbl,size,'v2',l_v2,k_v2))
+     1              call errquit('tce_mbpt2: MA problem',0)
+                  call get_block(d_mo2e,dbl_mb(k_v2),size,
+     1              int_mb(k_2e_offset+(((p1b-1)*(noab+nvab)+p2b-1)
+     2              *(noab+nvab)+h3b-1)*(noab+nvab)+h4b-1))
+                  if (.not.ma_push_get(mt_dbl,size,'t2',l_t2,k_t2))
+     1              call errquit('tce_mbpt2: MA problem',1)
+                  call get_block(d_t2,dbl_mb(k_t2),size,
+     1              int_mb(k_t2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
+     2              *noab+h3b-1)*noab+h4b-1))
+                  mbpt2 = ddot(size,dbl_mb(k_t2),1,dbl_mb(k_v2),1)
+                  if (util_print('mbpt2',print_debug))
+     1              write(LuOut,9200) ga_nodeid(),p1b,p2b,h3b,h4b,
+     2              mbpt2 * factor
+                  call ga_acc(g_mbpt2,1,1,1,1,mbpt2,1,factor)
+                  if (.not.ma_pop_stack(l_t2))
+     1              call errquit('tce_mbpt2: MA problem',2)
+                  if (.not.ma_pop_stack(l_v2))
+     1              call errquit('tce_mbpt2: MA problem',3)
+                endif
+                endif
                 endif
                 next = nxtval(nprocs)
               endif

@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.6 2002-11-11 18:25:55 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.7 2002-12-17 00:03:10 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -188,7 +188,7 @@ c
               enddo
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
-     1        call errquit('tcc_ao2e: MA problem',16)
+     1        call errquit('tce_ao2e: MA problem',16)
             next = nxtval(nprocs)
           endif
           count = count + 1
