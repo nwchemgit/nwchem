@@ -1,4 +1,4 @@
-c $Id: freeze_input.F,v 1.2 2003-02-20 01:15:30 mhackler Exp $
+c $Id: freeze_input.F,v 1.3 2003-02-20 17:23:54 edo Exp $
       subroutine freeze_input(rtdb, module)
       implicit none
 #include "inp.fh"
@@ -14,9 +14,6 @@ c
 c     Freeze directive has already been detected.  Just process
 c     this line
 c     External Routines
-
-      logical geom_tag_to_element
-      external geom_tag_to_element
 
       character*80 key
       character*20 test, space
