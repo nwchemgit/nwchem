@@ -155,51 +155,51 @@ END
 The following list describes the input for the STEEPEST\_DESCENT
 sub-block.
 \begin{itemize}
-	\item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name that points to the
               the simulation\_cell named $<$cell\_name$>$. See section \ref{sec:pspw_cell}.
-	\item GEOMETRY\_OPTIMIZE - optional keyword which if specified
-	      turns on geometry optimization. 	
-	\item $<$formatted\_name$>$ - name that points
+        \item GEOMETRY\_OPTIMIZE - optional keyword which if specified
+              turns on geometry optimization.   
+        \item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
-	\item $<$input\_wavefuncitons$>$ - name that points
+        \item $<$input\_wavefuncitons$>$ - name that points
               to a file containing one-electron orbitals
-	\item $<$output\_wavefunctions$>$ - name that will
+        \item $<$output\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbitals at the
               end of the run. 
-	\item $<$fake\_mass$>$ - value for the electronic
+        \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$).
-	\item $<$time\_step$>$ - value for the time step ($\Delta t$).
-	\item $<$inner\_iteration$>$ - number of iterations between the 
+        \item $<$time\_step$>$ - value for the time step ($\Delta t$).
+        \item $<$inner\_iteration$>$ - number of iterations between the 
               printing out of energies and tolerances
-	\item $<$outer\_iteration$>$ - number of outer iterations
- 	\item $<$tole$>$ - value for the energy tolerance.
-	\item $<$tolc$>$ - value for the one-electron orbital tolerance.
-	\item $<$tolr$>$ - value for the ion position tolerance.
-	\item $<$ecut$>$ - value for the cutoff energy used
+        \item $<$outer\_iteration$>$ - number of outer iterations
+        \item $<$tole$>$ - value for the energy tolerance.
+        \item $<$tolc$>$ - value for the one-electron orbital tolerance.
+        \item $<$tolr$>$ - value for the ion position tolerance.
+        \item $<$ecut$>$ - value for the cutoff energy used
                            to define the density.  Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
-	\item $<$wcut$>$ - value for the cutoff energy used
- 			   to define the one-electron orbitals. Default is set
+        \item $<$wcut$>$ - value for the cutoff energy used
+                           to define the one-electron orbitals. Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
-	\item $<$ncut$>$ - value for the number of unit cells
- 			  to sum over (in each direction) for the real space
-			  part of the Ewald summation.  Note Ewald summation
+        \item $<$ncut$>$ - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation.  Note Ewald summation
                           is only used if the simulation\_cell is periodic.
-	\item $<$rcut$>$ - value for the cutoff radius used
-			  in the Ewald summation.  Note Ewald summation
+        \item $<$rcut$>$ - value for the cutoff radius used
+                          in the Ewald summation.  Note Ewald summation
                           is only used if the simulation\_cell is periodic. \\
                           Default set to be
-		          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
+                          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
                          the end of the simulation.  For this option
-	                 to work angular momentum weights for each kind
+                         to work angular momentum weights for each kind
                          of atom have to be entered into the RTDB using
                          the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
 \end{itemize}
@@ -259,50 +259,50 @@ END
 The following list describes the input for the CONJUGATE\_GRADIENT
 sub-block.
 \begin{itemize}
-	\item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name that points to the
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-	\item $<$formatted\_name$>$ - name that points
+        \item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
-	\item $<$input\_wavefuncitons$>$ - name that points
+        \item $<$input\_wavefuncitons$>$ - name that points
               to a file containing one-electron orbitals
-	\item $<$output\_wavefunctions$>$ - name that will
+        \item $<$output\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbitals at the
               end of the run. 
-	\item $<$fake\_mass$>$ - value for the electronic
+        \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$). This parameter is not presently used in a 
               conjugate gradient simulation
-	\item $<$time\_step$>$ - value for the time step ($\Delta t$).  This
+        \item $<$time\_step$>$ - value for the time step ($\Delta t$).  This
               parameter is not presently used in a conjugate gradient simulation.
-	\item $<$inner\_iteration$>$ - number of iterations between the 
+        \item $<$inner\_iteration$>$ - number of iterations between the 
               printing out of energies and tolerances
-	\item $<$outer\_iteration$>$ - number of outer iterations
- 	\item $<$tole$>$ - value for the energy tolerance.
-	\item $<$tolc$>$ - value for the one-electron orbital tolerance.
-	\item $<$ecut$>$ - value for the cutoff energy used
+        \item $<$outer\_iteration$>$ - number of outer iterations
+        \item $<$tole$>$ - value for the energy tolerance.
+        \item $<$tolc$>$ - value for the one-electron orbital tolerance.
+        \item $<$ecut$>$ - value for the cutoff energy used
                            to define the density. Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
-	\item $<$wcut$>$ - value for the cutoff energy used
- 			   to define the one-electron orbitals.
+        \item $<$wcut$>$ - value for the cutoff energy used
+                           to define the one-electron orbitals.
                            Default is set to be the maximum value that 
                            will fix within the simulation\_cell $<$cell\_name$>$.
-	\item $<$ncut$>$ - value for the number of unit cells
- 			  to sum over (in each direction) for the real space
-			  part of the Ewald summation. Note Ewald summation
+        \item $<$ncut$>$ - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation. Note Ewald summation
                           is only used if the simulation\_cell is periodic.
-	\item $<$rcut$>$ - value for the cutoff radius used
-			  in the Ewald summation. Note Ewald summation
+        \item $<$rcut$>$ - value for the cutoff radius used
+                          in the Ewald summation. Note Ewald summation
                           is only used if the simulation\_cell is periodic. \\
                            Default set to be
-		          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
+                          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken anaysis to be performed at
                          the end of the simulation.  For this option
-	                 to work angular momentum weights for each kind
+                         to work angular momentum weights for each kind
                          of atom have to be entered into the RTDB using
                          the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
 \end{itemize}
@@ -375,49 +375,49 @@ END
 The following list describes the input for the Car-Parrinello
 sub-block.
 \begin{itemize}
-	\item $<$cell\_name$>$ - name that points to the
+        \item $<$cell\_name$>$ - name that points to the
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-	\item $<$formatted\_name$>$ - name that points
+        \item $<$formatted\_name$>$ - name that points
               to a formatted\_pseudopotential file.  A file must
               be specified for each kind of ion in the simulation.
-	\item $<$input\_wavefunctions$>$ - name that points
+        \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
-	\item $<$output\_wavefunctions$>$ - name that will
+        \item $<$output\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbitals at the
               end of the run. 
-	\item $<$input\_v\_wavefunctions$>$ - name that points
+        \item $<$input\_v\_wavefunctions$>$ - name that points
               to a file containing one-electron orbital velocities.
-	\item $<$output\_v\_wavefunctions$>$ - name that will
+        \item $<$output\_v\_wavefunctions$>$ - name that will
               point to file containing the one-electron orbital velocities
-	      at the end of the run. 
-	\item $<$fake\_mass$>$ - value for the electronic
+              at the end of the run. 
+        \item $<$fake\_mass$>$ - value for the electronic
               fake mass ($\mu$).
-	\item $<$time\_step$>$ - value for the Verlet integration 
+        \item $<$time\_step$>$ - value for the Verlet integration 
                time step ($\Delta t$).
-	\item $<$inner\_iteration$>$ - number of iterations between the
+        \item $<$inner\_iteration$>$ - number of iterations between the
               printing out of energies.
-	\item $<$outer\_iteration$>$ - number of outer iterations
- 	\item $<$scale\_c$>$ - value for the initial velocity
-			      scaling of the one-electron orbital velocities.
-	\item $<$scale\_r$>$ - value for the initial velocity
-			      scaling of the ion velocities.
-	\item $<$ecut$>$ - value for the cutoff energy used
+        \item $<$outer\_iteration$>$ - number of outer iterations
+        \item $<$scale\_c$>$ - value for the initial velocity
+                              scaling of the one-electron orbital velocities.
+        \item $<$scale\_r$>$ - value for the initial velocity
+                              scaling of the ion velocities.
+        \item $<$ecut$>$ - value for the cutoff energy used
                            to define the density.  Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
-	\item $<$wcut$>$ - value for the cutoff energy used
- 			   to define the one-electron orbitals.  Default is set
+        \item $<$wcut$>$ - value for the cutoff energy used
+                           to define the one-electron orbitals.  Default is set
                            to be the maximum value that will fit
                            within the simulation\_cell $<$cell\_name$>$.
-	\item $<$ncut$>$ - value for the number of unit cells
- 			  to sum over (in each direction) for the real space
-			  part of the Ewald summation. Note Ewald summation
+        \item $<$ncut$>$ - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation. Note Ewald summation
                           is only used if the simulation\_cell is periodic.
-	\item $<$rcut$>$ - value for the cutoff radius used
-			  in the Ewald summation.  Note Ewald summation
+        \item $<$rcut$>$ - value for the cutoff radius used
+                          in the Ewald summation.  Note Ewald summation
                           is only used if the simulation\_cell is periodic. \\
                           Default set to be
-		          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
+                          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
         \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
                                parameterization or the Perdew, Burke, 
                                and Erzherhoff GGA functional.
@@ -436,27 +436,27 @@ sub-block.
                              \item $<$Temperature\_ion$>$ $\equiv$ $T_{ion}$ 
                                     - temperature for ion motion
                          \end{itemize}
-	\item $<$xyz\_filename$>$ - name that points to the XYZ motion file
-				generated
+        \item $<$xyz\_filename$>$ - name that points to the XYZ motion file
+                                generated
         \item $<$emotion\_filename$>$ - name that points to the emotion motion file
-				generated. See section \ref{sec:pspw_cp_data} for a 
+                                generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
         \item $<$hmotion\_filename$>$ - name that points to the hmotion motion file
-				generated. See section \ref{sec:pspw_cp_data} for a 
+                                generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
         \item $<$eigmotion\_filename$>$ - name that points to the eigmotion motion file
-				generated. See section \ref{sec:pspw_cp_data} for a 
+                                generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
         \item $<$ion\_motion\_filename$>$ - name that points to the ion\_motion motion file
-				generated. See section \ref{sec:pspw_cp_data} for a 
+                                generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
        \item MULLIKEN - optional keyword which if specified
                          causes an omotion motion file to be created.  For this option
-	                 to work angular momentum weights for each kind
+                         to work angular momentum weights for each kind
                          of atom have to be entered into the RTDB using
                          the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
         \item $<$omotion\_filename$>$ - name that points to the omotion motion file
-				generated. See section \ref{sec:pspw_cp_data} for a 
+                                generated. See section \ref{sec:pspw_cp_data} for a 
                                 description of the datafile.
 \end{itemize}
 
@@ -501,17 +501,17 @@ END
 The following list describes the input for the PSP\_FORMATTER
 sub-block.
 \begin{itemize}
-	\item $<$cell\_name$>$ - name that points 
-		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-	\item $<$psp\_name$>$ - name that points
+        \item $<$cell\_name$>$ - name that points 
+                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$psp\_name$>$ - name that points
               to a one-dimensional pseudopotential datafile.
-	\item $<$formatted\_name$>$ -  
- 	      name that points to a formatted\_pseudopotential datafile.
+        \item $<$formatted\_name$>$ -  
+              name that points to a formatted\_pseudopotential datafile.
         \item LMAX (s$||$p$||$d$||$f$||$g) - used to specify the maximum number
               of angular potentials to use. The default is set to the maximum
               angular momentum in $<$psp\_name$>$.
         \item LOCP (s$||$p$||$d$||$f$||$g) - used to specify which angular potential
-	      is to used as the local potential.  The default is is set to LMAX.
+              is to used as the local potential.  The default is is set to LMAX.
 \end{itemize}
 
 
@@ -561,13 +561,13 @@ END
 The following list describes the input for the WAVEFUNCTION\_INITIALIZER
 sub-block.
 \begin{itemize}
-	\item $<$cell\_name$>$ - name that points 
-		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-	\item $<$wavefunction\_name$>$ - name that will point
+        \item $<$cell\_name$>$ - name that points 
+                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$wavefunction\_name$>$ - name that will point
               to a wavefunction file.
-	\item RESTRICTED - keyword specifying that the calculation is restricted.
+        \item RESTRICTED - keyword specifying that the calculation is restricted.
         \item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
-	\item $<$up\_filling$>$ - number of restricted molecular orbitals if
+        \item $<$up\_filling$>$ - number of restricted molecular orbitals if
               RESTRICTED and number of spin-up molecular orbitals if 
               UNRESTRICTED.
         \item $<$down\_filling$>$ - number of spin-down moleclar orbitals if
@@ -613,14 +613,14 @@ END
 The following list describes the input for the V\_WAVEFUNCTION\_INITIALIZER
 sub-block.
 \begin{itemize}
-	\item $<$cell\_name$>$ - name that points 
-		to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-	\item $<$wavefunction\_name$>$ - name that will point
+        \item $<$cell\_name$>$ - name that points 
+                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
+        \item $<$wavefunction\_name$>$ - name that will point
               to a velocity wavefunction file.
-	\item RESTRICTED - keyword specifying that the calculation is restricted.
-	\item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
-	\item $<$up\_filling$>$ - number of restricted velocity molecular 
-	      orbitals if RESTRICTED and number of spin-up velocity molecular 
+        \item RESTRICTED - keyword specifying that the calculation is restricted.
+        \item UNRESTRICTED - keyword specifying that the calculation is unrestricted.
+        \item $<$up\_filling$>$ - number of restricted velocity molecular 
+              orbitals if RESTRICTED and number of spin-up velocity molecular 
               orbitals if UNRESTRICTED.
         \item $<$down\_filling$>$ - number of spin-down velocity moleclar 
               orbitals if UNRESTRICTED.  Not used if a RESTRICTED calculation.
@@ -663,11 +663,11 @@ END
 The following list describes the input for the WAVEFUNCTION\_EXPANDER
 sub-block.
 \begin{itemize}
-	\item $<$old\_wavefunction\_name$>$ - name that points
+        \item $<$old\_wavefunction\_name$>$ - name that points
               to a wavefunction file.
-	\item $<$new\_wavefunction\_name$>$ - name that will 
+        \item $<$new\_wavefunction\_name$>$ - name that will 
               point to a wavefunction file.
-	\item $<$na1 na2 na3$>$ - number of grid points in each dimension
+        \item $<$na1 na2 na3$>$ - number of grid points in each dimension
               for the new wavefunction file. 
 \end{itemize}
 
@@ -725,15 +725,15 @@ The following list describes the input for the PSP\_GENERATOR
 sub-block.
 \begin{itemize}
 
-	\item $<$psp\_name$>$ - name that points to a.
-	\item $<$element$>$ - Atomic symbol.
+        \item $<$psp\_name$>$ - name that points to a.
+        \item $<$element$>$ - Atomic symbol.
         \item $<$charge$>$ - charge of the atom
         \item $<$mass$>$ - mass number for the atom
         \item $<$ncore$>$ - number of core states
         \item $<$nvalence$>$ - number of valence states.
         \item ATOMIC\_FILLING:.....(see below)
         \item CUTOFF:....(see below) 
-	\item $<$rcore$>$ - value for the semicore radius (see below) 
+        \item $<$rcore$>$ - value for the semicore radius (see below) 
 \end{itemize}
 
 
@@ -865,19 +865,19 @@ Basically, the user needs to enter the dimensions, gridding and boundry
 conditions of the simulation cell.  The following list describes the 
 input in detail.
 \begin{itemize}
-	\item $<$name$>$ - user-supplied name for the simulation block.
-	\item periodic - keyword specifying that the simulation cell 
-	                 has periodic boundary conditions. 	
-	\item aperiodic - keyword specifying that the simulation cell
-		          has free-space boundary conditions. 
-	\item $<$a1.x a1.y a1.z$>$ - user-supplied values for the first 
-				   lattice vector 
-	\item $<$a2.x a2.y a2.z$>$ - user-supplied values for the second 
-				   lattice vector
-	\item $<$a3.x a3.y a3.z$>$ - user-supplied values for the third 
-				   lattice vector
-	\item $<$na1 na2 na3$>$ - user-supplied values for discretization 
-				along lattice vector directions.
+        \item $<$name$>$ - user-supplied name for the simulation block.
+        \item periodic - keyword specifying that the simulation cell 
+                         has periodic boundary conditions.      
+        \item aperiodic - keyword specifying that the simulation cell
+                          has free-space boundary conditions. 
+        \item $<$a1.x a1.y a1.z$>$ - user-supplied values for the first 
+                                   lattice vector 
+        \item $<$a2.x a2.y a2.z$>$ - user-supplied values for the second 
+                                   lattice vector
+        \item $<$a3.x a3.y a3.z$>$ - user-supplied values for the third 
+                                   lattice vector
+        \item $<$na1 na2 na3$>$ - user-supplied values for discretization 
+                                along lattice vector directions.
 \end{itemize}
 
 \subsection{Analysis: Mulliken RTDB data}
@@ -898,7 +898,7 @@ END
 \end{verbatim}
 Basically, the user needs to enter each pseudopotential used in the simulation.
 \begin{itemize}
-	\item $<$psp\_name$>$ - name that ponts to a one-dimensional pseudopotential file.
+        \item $<$psp\_name$>$ - name that ponts to a one-dimensional pseudopotential file.
 \end{itemize}
 
 
@@ -945,7 +945,7 @@ The data stored in the one-dimensional pseudopotential file is
 \end{verbatim}
 and the format of it is:
 \begin{verbatim}
-[line 1:     ] element	
+[line 1:     ] element  
 [line 2:     ] charge mass lmax
 [line 3:     ] (rcut(l), l=1,lmax)
 [line 4:     ] nr dr
@@ -1530,7 +1530,8 @@ of a more sophisticated density-functional energy that accounts
 for low-lying excited electronic states.
 
 
-\subsection{Verlet Algorithm for Integrating Eqs.~\ref{eq:b3}-\ref{eq:b4}}
+\subsection{Verlet Algorithm for Integration}
+%\subsection{Verlet Algorithm for Integrating Eqs. \ref{eq:b3} - \ref{eq:b4} }
 
 Eqs.~\ref{eq:b3}-\ref{eq:b4} integrated using the Verlet algorithm
 results in
