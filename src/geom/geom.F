@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.57 1997-02-08 00:12:25 d3g681 Exp $
+C$Id: geom.F,v 1.58 1997-02-27 19:12:49 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2803,5 +2803,83 @@ c
       geom_print_dihedrals = ma_pop_stack(h_printed)
 *      if (num_prt.gt.0) goto 00001
       end
-      
-
+      logical function geom_get_def_rcov(atn,rcoval)
+      implicit none
+c
+c routine to return the default covalent radii (in a.u.) for the given
+c   atomic number.   
+c
+c Written by: R. A. Kendall, PNNL, December 1996
+c
+#include "stdio.fh"
+#include "geomP.fh"
+      integer atn ! [input] atomic number of element
+      double precision rcoval ! [output] estimate of covalent 
+                              !          radii for atom
+c
+      integer i
+      double precision def_rcov(nelements)
+C
+C data provided by M. Dupuis, PNNL, December 1996
+C      COVALENT RADII FROM J.EMSLEY, "THE ELEMENTS", 2ND EDITION, 1991
+C      EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
+C      AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
+C data for 87-103 RA Kendall 
+* Guess = 1.2*atomic: Fr<87>, Ra<88>, Ac<89>, Th<90>, Pa<91>, 
+*                      U<92>, Np<93>, Pu<94>, Am<95>
+*
+* Guess = 1.3*largest cation radii: Cm<96>, Bk<97>, Cf<98>, Es<99>, 
+*                                   Fm<100>, Md<101>, No<102>, Lr<103>
+*
+*  Note: values in data structure are in Angstroms.
+*
+      data (def_rcov(i), i=1,2)
+     &    /0.30D+00,1.22D+00/
+      data (def_rcov(i),i=3,10)
+     &    /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
+     &     0.70D+00,0.66D+00,0.58D+00,1.60D+00/
+      data (def_rcov(i),i=11,18)
+     &    /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
+     &     1.10D+00,1.04D+00,0.99D+00,1.91D+00/
+      data (def_rcov(i),i=19,36)
+     &    /2.03D+00,1.74D+00,
+     &     1.44D+00,1.32D+00,1.22D+00,1.19D+00,1.17D+00,
+     &     1.165D+00,1.16D+00,1.15D+00,1.17D+00,1.25D+00,
+     &     1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.98D+00/
+      data (def_rcov(i),i=37,54)
+     &    /2.22D+00,1.92D+00,
+     &     1.62D+00,1.45D+00,1.34D+00,1.29D+00,1.27D+00,
+     &     1.24D+00,1.25D+00,1.28D+00,1.34D+00,1.41D+00,
+     &     1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,2.09D+00/
+      data (def_rcov(i),i=55,86)
+     &    /2.35D+00,1.98D+00,
+     &     1.69D+00,1.65D+00,1.65D+00,1.64D+00,1.65D+00,
+     &     1.66D+00,1.65D+00,
+     &     1.61D+00,1.59D+00,1.59D+00,1.58D+00,1.57D+00,
+     &     1.56D+00,1.56D+00,
+     &     1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
+     &     1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
+     &     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
+      data (def_rcov(i),i=87,103) /
+     &     3.24d00, 2.68d00,  2.25d00, 2.16d00, 1.93d00,
+     &     1.66d00, 1.57d00, 1.81d00, 2.21d00, 1.43d00,
+     &     1.42d00, 1.40d00, 1.39d00, 1.38d00, 1.37d00,
+     &     1.36d00, 1.34d00/
+      geom_get_def_rcov = .false.
+      if (atn.eq.0) then
+        rcoval = 0.0d00
+      elseif (atn.gt.0.and.atn.le.nelements) then
+        if  (atn.gt.87) then
+          write(luout,*)'geom_get_def_rcov:',
+     &        ' default covalent radii not know for atomic number:',atn
+          write(luout,*)' using 0.0'
+        endif
+        rcoval = def_rcov(atn)
+      else
+        write(luout,*)' geom_get_def_rcov: atomic number:',atn
+        write(luout,*)' out of range 0 -> ',nelements
+        call errquit('geom_get_def_rcov: fatal error',911)
+      endif
+      rcoval = rcoval*angstrom_to_au
+      geom_get_def_rcov = .true.
+      end
