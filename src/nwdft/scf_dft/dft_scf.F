@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.52 1997-01-16 17:59:27 d3h449 Exp $
+C$Id: dft_scf.F,v 1.53 1997-01-27 23:27:36 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -86,7 +86,8 @@ c
       logical converged,wght_GA
       logical oprint_parm,oprint_conv,oprint_vecs,
      ,     oprint_eval ,oprint_syma,oprint_time,
-     ,     oprint_info
+     ,     oprint_info,oprint_tol,oprint_final_vecs,
+     ,     oprint_energy_step, oprint_intermediate_fock
       integer itol_min,iAOacc_min
       double precision scfcon
       double precision zero,onem,one
@@ -98,7 +99,7 @@ c
       logical movecs_to_logfile
       integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
       integer stat1, stat2, l_ir, k_ir
-      logical status, last_time
+      logical status, last_time, last_time_vecs, last_time_energy
 
       call ecce_print_module_entry('dft')
 
@@ -110,8 +111,14 @@ c-----------------------------------------------------------------------
       oprint_vecs = util_print('intermediate vectors', print_debug)
       oprint_eval = util_print('intermediate evals', print_debug)
       oprint_syma = util_print('intermediate vector symmetries',
-     ,     print_debug)
-      oprint_time=util_print('dft timings',print_high)
+     &     print_debug)
+      oprint_time = util_print('dft timings',print_high)
+      oprint_tol = util_print('screening parameters',print_high)
+      oprint_energy_step = util_print('intermediate energy info',
+     &     print_high)
+      oprint_intermediate_fock = util_print('intermediate fock matrix',
+     &     print_high)
+      oprint_final_vecs = util_print('final vectors',print_high)
 C
 C     oadapt true to get symm analysis
 C
@@ -456,8 +463,13 @@ c****
 c**** Top of infinite SCF iteration loop
 c**** 
       last_time = .false.
+      last_time_vecs = .false.
+      last_time_energy = .false.
 
  1000 continue
+
+      if(me.eq.0.and.oprint_tol)write(LuOut,3234)itol2e,iAOacc,iXCacc
+ 3234 format(10x,'itol2e=',i2,' iAOacc=',i2,' iXCacc=',i2)
 
       Ecoul  = ZERO
       Exc(1) = ZERO
@@ -587,6 +599,19 @@ c
       else
         Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       end if
+c
+      if(last_time_energy)then
+c     
+c       If open shell put the total density matrix back in 
+c       g_dens(1) and quit.
+c     
+        if( ipol.eq.2 )then
+          call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
+        end if
+        goto 2000
+      endif
+      call ga_sync
+c
       delta=abs(etold-etnew)
       call ga_sync
       rms(1) = 0.d0
@@ -689,7 +714,11 @@ c          call ga_print(g_fock)
         call ga_sync
 c     
 c       Solve for the eigenvalues and eigenvectors of the Hamiltonian.
-c     
+c
+        if(oprint_intermediate_fock)then     
+          write(*,*)' Fock matrix before diagonalization: '
+          call ga_print(g_fock)
+        endif
 #if defined(PARALLEL_DIAG)
         call ga_diag_std(g_fock,g_tmp,Dbl_MB(k_eval(ispin)))
 #else   
@@ -777,24 +806,21 @@ c
 c        write(*,*)' New ',ispin,' density '
 c        call ga_print(g_dens(ispin))
 c
+c       Check convergence on Density.
+c
+        rms(ispin) = dft_dencvg(g_dens(ispin),g_tmp,nbf_ao)
+        call ga_sync
+c
 c       Damping implemented here.
 c
-        call ga_sync
         if(damping)then
-          pp=ndamp*1.d-2
+          pp=dble(ndamp)*1.d-2
           onempp=1.0d0 - pp
           call ga_dadd(pp,g_tmp,onempp,g_dens(ispin),g_dens(ispin))
         else
           ndamp = 0
         endif
-c
-c       Check convergence on Density.
-c
         call ga_sync
-        rms(ispin) = rms(ispin) +
-     &               dft_dencvg(g_dens(ispin),g_tmp,nbf_ao)
-        call ga_sync
-c
       enddo     ! end loop over ispin
 c
       if(oprint.and.iter.eq.1.and.me.eq.0)then
@@ -894,207 +920,215 @@ c
 c      
 c     Check for SCF convergence.
 c     
-      if(itrscf.eq.0) then
-c       
-        call ga_sync
-c       
-c       
-c       Compute the contribution to the total energy from the core Hamiltonian.
-c       
-        Ecore = ga_ddot(g_dens(1),g_fock)
-        if(oprint_conv.and.me.eq.0) write(LuOut,1111) Ecore
+      call ga_sync
+      if(.not.last_time)call dft_scfcvg(rms,
+     &     Etold,Etnew,Enuc,
+     &     scfcon,ipol,igcon,iter,itrscf,idone,converged,rtdb)
+      if(delta.lt.1.d-4) then
+c
+c       Set coulomb acc to max (e.g., input parameter).
+c       (note, may also require re-initializing DIIS)
+c
+        itol2e=itol_max
+        iAOacc=iAOacc_max
+        iswitc=iswitc+1
+      endif
+c
+      if(.not.last_time)iter = iter + 1
+c
+c     Check convergence parameters.
+c
+      if((delta.lt.dampon.and.delta.gt.dampoff).or.iter.le.ncydp)then
+        damping = .true.
+        ndamp = ndamp_input
       else
-        call ga_sync
-        if(.not.last_time)call dft_scfcvg(rms,
-     &       Etold,Etnew,Enuc,
-     &       scfcon,ipol,igcon,iter,itrscf,idone,converged,rtdb)
-        if(delta.lt.1.d-4) then
+        damping = .false.
+        ndamp = ndamp_def
+      endif
 c
-c         Set coulomb acc to max (e.g., input parameter).
-c         (note, may also require re-initializing DIIS)
-c
-          itol2e=itol_max
-          iAOacc=iAOacc_max
-          iswitc=iswitc+1
-        endif
-c
-        if(.not.last_time)iter = iter + 1
-c
-c       Check convergence parameters.
-c
-        if((delta.lt.dampon.and.delta.gt.dampoff).or.iter.le.ncydp)then
-          damping = .true.
-          ndamp = ndamp_input
-        else
-          damping = .false.
-          ndamp = ndamp_def
-        endif
-c
-        if((delta.lt.levlon.and.delta.gt.levloff).or.
-     &     (iter.le.ncysh))then
-c          write(*,*)' homo_lumo_gap, hl_tol: ',homo_lumo_gap, hl_tol
-          if(homo_lumo_gap.lt.hl_tol)then
-            levelshifting = .true.
-            rlshift = rlshift_input
-          else
-            levelshifting = .false.
-            rlshift = rlshift_def
-          endif 
-c          write(*,*)' 3: levelshifting = ',levelshifting
+      if((delta.lt.levlon.and.delta.gt.levloff).or.
+     &   (iter.le.ncysh))then
+c        write(*,*)' homo_lumo_gap, hl_tol: ',homo_lumo_gap, hl_tol
+        if(homo_lumo_gap.lt.hl_tol)then
+          levelshifting = .true.
+          rlshift = rlshift_input
         else
           levelshifting = .false.
           rlshift = rlshift_def
-        endif
-c        write(*,*)' 4: levelshifting = ',levelshifting
+        endif 
+c        write(*,*)' 3: levelshifting = ',levelshifting
+      else
+        levelshifting = .false.
+        rlshift = rlshift_def
+      endif
+c      write(*,*)' 4: levelshifting = ',levelshifting
 c
-        if((delta.lt.diison.and.delta.gt.diisoff).or.
-     &    iter.le.ncyds.or.keep_diis_on)then
-          diising = .true.
+      if((delta.lt.diison.and.delta.gt.diisoff).or.
+     &  iter.le.ncyds.or.keep_diis_on)then
+        diising = .true.
 c
-c         Once started, keep DIIS on until diisoff threshold.
+c       Once started, keep DIIS on until diisoff threshold.
 c
-          keep_diis_on = .true.
+        keep_diis_on = .true.
+      else
+        diising = .false.
+      endif
+      if(delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
+        diising = .false.
+        keep_diis_on = .false.
+      endif
+c
+      if(nodamping)damping = .false.
+      if(nolevelshifting)levelshifting = .false.
+      if(nodiis)diising = .false.
+c
+      Etold = Etnew
+c
+c      write(*,*)'homo,lumo,lumo-homo,-hl_tol: ',
+c     &           homo,lumo,lumo-homo,-hl_tol
+      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
+        lmaxov = .false.
+        if(me.eq.0)write(LuOut,224)homo, lumo
+  224   format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &   /,10x,'Significant orbital reordering with maximum overlap',
+     &   /,10x,'turned ON.  Turning max_ovl OFF.')
+      endif
+c
+      if(oprint_energy_step.and.me.eq.0)then         
+        if(nexc.le.1)then
+          write(LuOut,222) etnew+enuc, ecore, Ecoul,Exc(1), enuc, 
+     $                     util_cpusec()
         else
-          diising = .false.
+          write(LuOut,223) etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
+     $                    enuc, util_cpusec()
         endif
-        if(delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
-          diising = .false.
-          keep_diis_on = .false.
-        endif
+      endif
 c
-        if(nodamping)damping = .false.
-        if(nolevelshifting)levelshifting = .false.
-        if(nodiis)diising = .false.
+      if( idone.eq.0.or.
+     & (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
+      if(idone.eq.1.and.(.not.last_time_vecs))then
+        last_time_vecs = .true.
+        last_time = .true.
+        if(me.eq.0)write(LuOut,225)
+  225   format(/,10x,'Done. Constructing final Fock matrix, orbitals',
+     &             ' and orbital energies.',/)
+        diising = .false.
+        levelshifting = .false.
+        damping = .false.
+        go to 1000 ! build final orbitals/energies
+      endif
+      if(idone.eq.1.and.(.not.last_time_energy))then
+        last_time_energy = .true.
+        last_time = .true.
+        if(me.eq.0)write(LuOut,226)
+  226   format(/,10x,'      Constructing final total energies.',/)
+        diising = .false.
+        levelshifting = .false.
+        damping = .false.
+        go to 1000 ! build final orbitals/energies
+      endif
 c
-        Etold = Etnew
+ 2000 continue
 c
-c        write(*,*)'homo,lumo,lumo-homo,-hl_tol: ',
-c     &             homo,lumo,lumo-homo,-hl_tol
-        if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-          lmaxov = .false.
-          if(me.eq.0)write(LuOut,224)homo, lumo
-  224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &     /,10x,'Significant orbital reordering with maximum overlap',
-     &     /,10x,'turned ON.  Turning max_ovl OFF.')
+      if(me.eq.0.and.oprint)then
+        if(.not.converged)then
+          write(LuOut,*)
+          call util_print_centered(LuOut,
+     $       'Calculation failed to converge', 20, .true.)
+          write(LuOut,*)
         endif
-c         
-        if( idone.eq.0.or.
-     &   (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
-        if(idone.eq.1.and.(.not.last_time))then
-          last_time = .true.
-          if(me.eq.0)write(LuOut,225)
-  225     format(/,10x,'Done. Constructing final Fock matrix, orbitals',
-     &               ' and orbital energies.',/)
-          diising = .false.
-          levelshifting = .false.
-          damping = .false.
-          go to 1000 ! build final orbitals/energies
+        dft_time=dft_time+util_cpusec()
+        if(nexc.le.1)then
+          write(LuOut,222) etnew+enuc, ecore, Ecoul,Exc(1), enuc, 
+     $                     dft_time
+        else
+          write(LuOut,223) etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
+     $                      enuc, dft_time
         endif
-c
-        if(me.eq.0.and.oprint)then
-          if(.not.converged)then
-            write(LuOut,*)
-            call util_print_centered(LuOut,
-     $         'Calculation failed to converge', 20, .true.)
-            write(LuOut,*)
-          endif
-          dft_time=dft_time+util_cpusec()
-          if(nexc.le.1)then
-            write(LuOut,222) etnew+enuc, ecore, Ecoul,Exc(1), enuc, 
-     $                       dft_time
-          else
-            write(LuOut,223) etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
-     $                        enuc, dft_time
-          endif
- 222      format(//
-     $        '          Final results '/
-     $        '       ------------------ '//
-     $        '         Total DFT energy =', f20.12/
-     $        '      One electron energy =', f20.12/
-     $        '           Coulomb energy =', f20.12/
-     $        '    Exchange-Corr. energy =', f20.12/
-     $        ' Nuclear repulsion energy =', f20.12//
-     $        '        Time for solution =', f9.1,'s'//)
- 223      format(//
-     $        '          Final results '/
-     $        '       ------------------ '//
-     $        '         Total DFT energy =', f20.12/
-     $        '      One electron energy =', f20.12/
-     $        '           Coulomb energy =', f20.12/
-     $        '          Exchange energy =', f20.12/
-     $        '       Correlation energy =', f20.12/
-     $        ' Nuclear repulsion energy =', f20.12//
-     $        '        Time for solution =', f9.1,'s'//)
-          call util_flush(LuOut)
-        endif
+ 222    format(//
+     $      '         Total DFT energy =', f20.12/
+     $      '      One electron energy =', f20.12/
+     $      '           Coulomb energy =', f20.12/
+     $      '    Exchange-Corr. energy =', f20.12/
+     $      ' Nuclear repulsion energy =', f20.12//
+     $      '        Time for solution =', f9.1,'s'//)
+ 223    format(//
+     $      '         Total DFT energy =', f20.12/
+     $      '      One electron energy =', f20.12/
+     $      '           Coulomb energy =', f20.12/
+     $      '          Exchange energy =', f20.12/
+     $      '       Correlation energy =', f20.12/
+     $      ' Nuclear repulsion energy =', f20.12//
+     $      '        Time for solution =', f9.1,'s'//)
+        call util_flush(LuOut)
+      endif
 c     
-c       call to Mulliken Pop Ananlysis
+c     call to Mulliken Pop Ananlysis
 c     
-        if(mulliken) then
-          call gacrea(geom,ao_bas_han,
-     &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-          call ga_zero(g_s)
-          call int_1e_ga(ao_bas_han,ao_bas_han,
-     &         g_s,'overlap',.false.)
-          if(me.eq.0)
-     &      call dft_header(
-     &       ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
-          if(ipol.eq.2) then
-c         
-c           analysis of spin density
-c         
-            if(me.eq.0) call dft_header(
-     &        ' Spin Density - Mulliken Population Analysis')
-            call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
-            call mull_pop(geom,ao_bas_han,g_dens(2),g_s) 
-            call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
-            call ga_dscal(g_dens(2),0.5d0)
-          endif
-          call gadest(g_s)
+      if(mulliken) then
+        call gacrea(geom,ao_bas_han,
+     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+        call ga_zero(g_s)
+        call int_1e_ga(ao_bas_han,ao_bas_han,
+     &       g_s,'overlap',.false.)
+        if(me.eq.0)
+     &    call dft_header(
+     &     ' Total Density - Mulliken Population Analysis')
+        call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
+        if(ipol.eq.2) then
+c       
+c         analysis of spin density
+c       
+          if(me.eq.0) call dft_header(
+     &      ' Spin Density - Mulliken Population Analysis')
+          call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
+          call mull_pop(geom,ao_bas_han,g_dens(2),g_s) 
+          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
+          call ga_dscal(g_dens(2),0.5d0)
         endif
+        call gadest(g_s)
+      endif
 c****   
-c****   end infinite loop for SCF iterations
+c**** end infinite loop for SCF iterations
 c****   
 c****   
-c****   (if gradients to be calculated) output energies and eigenvectors
-c****   to disk
+c**** (if gradients to be calculated) output energies and eigenvectors
+c**** to disk
 c****   
-        do_gradients = .true.
-        if ( do_gradients ) then
+      do_gradients = .true.
+      if ( do_gradients ) then
 c-----------------------------------------------------------------------
 c****     
-c****     Save the mo vectors (this code from ddscf, generalized for
-c****     spin-unrestricted case)
+c****   Save the mo vectors (this code from ddscf, generalized for
+c****   spin-unrestricted case)
 c****     
-c****     collect the eigenvectors from global storage; output
-c****     to disk, allowing for RHF and UHF cases
+c****   collect the eigenvectors from global storage; output
+c****   to disk, allowing for RHF and UHF cases
 c****     
-c****     logical function movecs_write(filename, title, basis_name, 
-c****     $     nbf_ao, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
-c****     occ is an occupation vector (not used here)
+c****   logical function movecs_write(filename, title, basis_name, 
+c****   $     nbf_ao, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
+c****   occ is an occupation vector (not used here)
 c****     
-c****     Should distinguish occupied and virtual here...
+c****   Should distinguish occupied and virtual here...
 c****     
-          if (.not.
-     &         movecs_write(movecs_out, 'Kohn-Sham orbitals',
-     &         'ao basis',
-     &         nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &         dbl_mb(k_eval(1)), nbf_ao, g_movecs))
-     &         call errquit('rhf: movec_write failed', 0)
-          call ga_sync()
-        endif 
+        if (.not.
+     &       movecs_write(movecs_out, 'Kohn-Sham orbitals',
+     &       'ao basis',
+     &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
+     &       dbl_mb(k_eval(1)), nbf_ao, g_movecs))
+     &       call errquit('rhf: movec_write failed', 0)
+        call ga_sync()
+      endif 
 c
-c       Shut down DIIS.
+c     Shut down DIIS.
 c         
-        if(icall(1).gt.0) then
-          icall(1) = -1
-          call diis_driver(derr(1),1,ipol,icall,
-     &         nfock,nbf_ao,geom,ao_bas_han,
-     &         g_fock,g_dens(1),g_tmp,
-     &         g_svecs,isvals,diising,nodiis)
-        end if
-      endif
+      if(icall(1).gt.0) then
+        icall(1) = -1
+        call diis_driver(derr(1),1,ipol,icall,
+     &       nfock,nbf_ao,geom,ao_bas_han,
+     &       g_fock,g_dens(1),g_tmp,
+     &       g_svecs,isvals,diising,nodiis)
+      end if
 c
       if(ipol.gt.1) then
         call gadest(g_fockt)
@@ -1181,7 +1215,7 @@ C
           endif
           call util_flush(6)
         endif
-        if (util_print('final vectors', print_high)) then
+        if (oprint_final_vecs) then
           write(LuOut,*)
           call util_print_centered(
      (         LuOut,'Final MO vectors',40,.true.)
@@ -1202,7 +1236,7 @@ C
      $         oprint_sym, nprint, '- beta', .false., 1)
         endif
       endif
-      if (util_print('final vectors', print_debug)) then
+      if (oprint_final_vecs) then
         call ga_print(g_movecs)
         if(ipol.eq.2) call ga_print(g_movecs(2))
       end if
