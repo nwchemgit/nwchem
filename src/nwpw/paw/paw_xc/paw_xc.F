@@ -1,6 +1,9 @@
-!$Id: paw_xc.F,v 1.8 2003-02-20 18:19:26 edo Exp $
+!$Id: paw_xc.F,v 1.9 2003-02-21 21:09:38 marat Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.8  2003/02/20 18:19:26  edo
+!removed f90-isms
+!
 !Revision 1.7  2003/02/19 01:10:46  marat
 !fixed vosko
 !
@@ -731,3 +734,29 @@ c            write(*,*) "xc_pot",dcpl_mb(paw_xc_pot_u(1)+i_pot)
 
 
       end 
+
+
+**********************************
+*
+*
+*
+*
+*
+**********************************
+      function paw_energy_xc_atom()
+      implicit none
+
+      double precision paw_energy_xc_atom
+
+#include "paw_xc_data.fh"
+#include "mafdecls.fh"
+
+      integer in
+
+      paw_energy_xc_atom = 0
+      do in=1,paw_xc_e(3)
+       paw_energy_xc_atom = paw_energy_xc_atom + 
+     >                      dbl_mb(paw_xc_e(1)+in-1)  
+      end do
+
+      end
