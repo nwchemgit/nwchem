@@ -58,6 +58,7 @@ clean:
 		-rm -f *.s
 		-rm -f dgetavec.f dlasq1.f dspevx2.f dstebz3.f \
 			 neblw2.f sneblw2.f sstebz3.f
+		-rm -f F*.f
 
 realclean:
 		clean
@@ -66,13 +67,26 @@ dgetavec.o:	dgetavec.F
 		$(peigs_CPP) < dgetavec.F >  dgetavec.f
 		$(peigs_FC) -c $(F77NFLAGS) dgetavec.f
 
+dlasrt.o:	dlasrt.F
+		$(peigs_CPP) < dlasrt.F >  dlasrt.f
+		$(peigs_FC) -c $(F77NFLAGS) dlasrt.f
+
+
 dlasq1.o:	dlasq1.F
 		$(peigs_CPP) < dlasq1.F >  dlasq1.f
 		$(peigs_FC) -c $(F77NFLAGS) dlasq1.f
 
+dlasq2.o:	dlasq2.F
+		$(peigs_CPP) < dlasq2.F >  dlasq2.f
+		$(peigs_FC) -c $(F77NFLAGS) dlasq2.f
+
 dlasq3.o:	dlasq3.F
 		$(peigs_CPP) < dlasq3.F >  dlasq3.f
 		$(peigs_FC) -c $(F77NFLAGS) dlasq3.f
+
+dlasq4.o:	dlasq4.F
+		$(peigs_CPP) < dlasq4.F >  dlasq4.f
+		$(peigs_FC) -c $(F77NFLAGS) dlasq4.f
 
 dspevx2.o:	dspevx2.F
 		$(peigs_CPP) < dspevx2.F >  dspevx2.f
