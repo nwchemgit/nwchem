@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.4 2004-05-06 21:11:52 edo Exp $
+* $Id: xyz.F,v 1.5 2004-05-07 02:19:02 edo Exp $
 *
       implicit none 
 
@@ -15,7 +15,6 @@
 
       logical found
       integer taskid
-      character dum
       character*30 filename
       character*255 full_filename
 
@@ -38,10 +37,10 @@
            open(unit=18,file=full_filename,form='formatted',
      >          status='old')
            do while (found)
-             read(18,*,end=100) dum
+             read(18,*,end=100) 
            end do
   100      continue
-#ifdef FUJITSU_SOLARIS
+#if defined(FUJITSU_SOLARIS) 
            backspace 18
 #endif
          else
@@ -99,11 +98,17 @@
       external    ion_aname
       external    ion_nion, pspw_qmmm_nion
       external    ion_rion, ion_vion
+      integer ierr
 
       call Parallel_taskid(taskid)
     
       if (taskid.eq.MASTER) then
-         write(18,110) (ion_nion()+pspw_qmmm_nion())
+#if defined(PSCALE)
+       write(18,110,IOSTAT=ierr) (ion_nion()+pspw_qmmm_nion())
+       if(ierr.ne.0)  backspace 18
+#else
+       write(18,110) (ion_nion()+pspw_qmmm_nion())
+#endif
          do i=1,ion_nion()
             write(18,111) ion_aname(i),
      >                  ion_rion(1,i)*AACONV,
