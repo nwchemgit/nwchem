@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.21 1997-02-17 20:51:26 d3g681 Exp $
+# $Id: GNUmakefile,v 1.22 1997-02-27 09:09:50 d3e129 Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -42,7 +42,8 @@
 
 
   USES_BLAS = atomd.F \
-              atscf_atscf.F
+              atscf_atscf.F \
+              atscf_ecp.F
 
   LIBRARY = libguess.a
 
