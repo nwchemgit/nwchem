@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.120 2003-07-29 21:21:36 edo Exp $
+C$Id: geom.F,v 1.121 2003-07-30 00:55:16 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -5260,7 +5260,7 @@ c
          ai(2,3)=ai(3,2)
          ai(3,3)=ai(3,3)+mass*(x*x+y*y)
       enddo
-      if(.true.) then
+      if(oprint) then
          write(luout,9999)
          write(luout,9998) (ci(i),i=1,3)
          write(luout,9997)
