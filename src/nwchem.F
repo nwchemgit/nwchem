@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.105 1997-12-08 18:33:49 d3g681 Exp $
+c     $Id: nwchem.F,v 1.106 1998-03-07 01:30:15 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, * 
@@ -219,6 +219,7 @@ c
 c
 c     Close the RTDB
 c
+      call util_print_rtdb_load(rtdb,' ') ! High level print
       if (util_print('rtdbvalues', print_debug)) then
          if (.not. rtdb_print(rtdb, .true.))
      $     call errquit('control: rtdb_print failed', 0)
