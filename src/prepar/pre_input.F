@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.61 2000-07-10 20:05:29 d3j191 Exp $
+c $Id: pre_input.F,v 1.62 2000-07-11 16:12:21 windus Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       real*8 rfix
       character*1 altloc,chain
       integer ires,jres,kres,i,j,k,ignore,igroup,jgroup,kgroup,lgroup
-      integer nxrep,nyrep,nzrep,itran,jtran,j,nkeepw
+      integer nxrep,nyrep,nzrep,itran,jtran,nkeepw
       real*8 rrep,rdist,xtran(3)
       real*8 value1,value2
       character*4 scount(mcount)
