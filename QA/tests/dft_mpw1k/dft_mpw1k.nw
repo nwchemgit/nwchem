@@ -15,7 +15,7 @@ basis
 end
 
 dft
-xc  mpw91 0.572d0 hfexch .428d0 perdew91
+xc mpw1k
 mult 2
 end
 
