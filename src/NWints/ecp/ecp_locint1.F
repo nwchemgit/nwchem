@@ -1,8 +1,8 @@
-C $Id: ecp_locint1.F,v 1.1 1999-03-04 19:48:47 mg201 Exp $
+C $Id: ecp_locint1.F,v 1.2 1999-03-08 23:21:05 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_locint1 (p_min,p_max,l_max,n_prim_a,n_prim_b,
-     &    n_c,n_prim_c,coeff_c,ai,a_sqrt,x,prefactor,tol,
+     &    n_c,n_prim_c,coeff_c,bi,a_sqrt,x,prefactor,tol,
      &    n_ab,n_abc,n_int,temp,ind,Qabc,Qa,Q_int,ibug)
 *                                                                      *
 *   Calculate Type 1 radial integrals Q^k_m for a given ECP centre to  *
@@ -19,8 +19,8 @@ C $Id: ecp_locint1.F,v 1.1 1999-03-04 19:48:47 mg201 Exp $
 *   n_prim_c (inp) - number of primitive functions for each power of r *
 *                    in ECP expansion                                  *
 *   coeff_c - contraction coefficients of potential on centre c        *
-*   ai (inp) - values of 1/alpha                                       *
-*   a_sqrt (inp) - values of sqrt(ai)                                  *
+*   bi (inp) - values of 1/beta                                        *
+*   a_sqrt (inp) - values of 1/sqrt(alpha)                             *
 *   x (inp) - values of alpha/2*sqrt(beta)                             *
 *   prefactor (inp) - exp[x^2-zeta_a*R_ac^2]                           *
 *   tol (inp) - maximum relative error in bessel functions             *
@@ -28,12 +28,11 @@ C $Id: ecp_locint1.F,v 1.1 1999-03-04 19:48:47 mg201 Exp $
 *   n_abc (inp) - n_prim_a*n_prim_b*n_c                                *
 *   n_int - number of integral blocks to be generated                  *
 *   temp - work array                                                  *
-*   work - work array                                                  *
+*   ind - index array                                                  *
 *   Qabc - uncontracted Q integrals                                    *
-*   Qa - Qabc integrals contracted over core potential and on-centre   *
-*        basis functions.                                              *
-*   Q_int - final fully contracted Q integrals                         *
-*   transpose - logical flag for transposition of the final integrals  *
+*   Qa - Qabc integrals contracted over core potential, used in down-  *
+*        ward recursion                                                *
+*   Q_int - final Q integrals                                          *
 *   ibug - debug flag. 0 for no debug, 1 for address printing, 2 for   *
 *          array printing, 3 for both.                                 *
 *                                                                      *
@@ -43,17 +42,17 @@ C $Id: ecp_locint1.F,v 1.1 1999-03-04 19:48:47 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
-      integer i,ibug,ind_l,ind_p,l,l_max,
+      integer i,ibug,ind_l,ind_p,j,l,l_max,
      &    m,mm,m_hi,m_count,n_prim_a,n_prim_b,
      &    n_ab,n_abc,n_abp,n_c,n_int,n_p,
      &    p,p_max,p_min
       integer ind(n_abc),n_prim_c(p_min:p_max)
       logical debug_gen,debug_addresses,debug_arrays
-      double precision ai(n_abc),a_sqrt(n_abc),x(n_abc),
+      double precision bi(n_abc),a_sqrt(n_abc),x(n_abc),
      &    prefactor(n_abc),temp(n_abc,6),Qabc(n_abc),
      &    Qa(n_ab,0:l_max),
      &    Q_int(n_prim_a*n_prim_b,n_int),
-     &    coeff_c(n_c),tol
+     &    coeff_c(n_c),tol,wa
 *
 Cbug
 C      debug_gen = .true.
@@ -109,7 +108,7 @@ Cend
         ind_l = ind_l+l/2+1
       end do
 *
-*   Perform recursion to obtain values Q_{L-2n}^{L+p},
+*   Perform recursion to obtain values Q_{L-2n}^{L+p}
 *
       m_hi = l_max-1
       ind_l = 1
@@ -119,7 +118,7 @@ Cend
         if (debug_addresses) write (LuOut,*) 'm,mm,m_hi',m,mm,m_hi
         if (debug_arrays) call ecp_matpr (Qa(1,0),1,n_ab,0,
      &      l_max,1,n_ab,mm-1,l_max,'Qa before recursion','E',81,5)
-        call ecp_down_m (1,m_hi,n_ab,ai,Qa(1,mm),Qa(1,mm-1),
+        call ecp_down_m (1,m_hi,n_ab,bi,Qa(1,mm),Qa(1,mm-1),
      &      Qa(1,mm))
         if (debug_arrays) call ecp_matpr (Qa(1,0),1,n_ab,0,
      &      l_max,1,n_ab,mm,l_max,'Qa after recursion','E',81,5)
@@ -134,6 +133,35 @@ Cend
         m_hi = m_hi-2
         mm = mm+2
       end do
+*
+*   Special code if beta = 0
+*
+      do j = 1,n_ab
+        if (x(j) .eq. zero) then
+          do l = 2,n_int
+            Q_int(j,l) = zero
+          end do
+          do m = 1,m_count
+            l = (m+1)**2
+            ind_l = j
+            ind_p = 0
+            do p = p_min,p_max
+              n_p = n_prim_c(p)
+              wa = m+m+p-1
+              wa = wa*half
+              do i = 1,n_p
+                Qabc(ind_l) = Qabc(ind_l)*wa*(a_sqrt(ind_l)**2)
+                Q_int(j,l) = Q_int(j,l)+Qabc(ind_l)*coeff_c(ind_p+i)
+                ind_l = ind_l+n_ab
+              end do
+              ind_p = ind_p+n_p
+            end do
+            if (debug_arrays) call ecp_matpr (Qabc(j),1,n_ab,
+     &          1,n_c,1,1,1,n_c,'Primitive integrals','E',78,4)
+          end do
+        end if
+      end do
+*
       if (debug_arrays) call ecp_matpr (Q_int(1,1),1,n_ab,1,n_int,
      &    1,n_ab,1,n_int,'ECP radial integrals','E',81,5)
       if (debug_gen) write (LuOut,*) 'Exiting ecp_locint1'
