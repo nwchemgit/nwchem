@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.15 2002-03-06 19:50:58 windus Exp $
+C $Id: hess_anal.F,v 1.16 2002-05-06 22:37:25 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -187,5 +187,12 @@ c
       if (oprintsome) write(LuOut,*) 'HESSIAN: the Hessian ',
      $  'is done'
       hess_anal = .true.
+c
+c  Reset restart info so that future calculations don't get
+c  confused.
+c
+      if (.not. rtdb_delete(rtdb,'hessian:restart'))
+     *  call errquit('hess_anal: could not delete restart',555)
+c
       return 
       end
