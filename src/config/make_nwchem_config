@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.15 1995-05-17 16:35:12 mg650 Exp $
+# $Id: make_nwchem_config,v 1.16 1995-05-18 21:05:22 rg240 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -66,7 +66,7 @@ MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 
 
 MODULES := $(patsubst ccsd,ccsd moints ddscf,$(MODULES) )
-MODULES := $(patsubst moints,moints NWints,$(MODULES) )
+MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
