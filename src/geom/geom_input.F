@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C$Id: geom_input.F,v 1.18 1995-03-01 19:56:49 d3g681 Exp $
+C$Id: geom_input.F,v 1.19 1995-10-10 06:13:33 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -56,6 +56,8 @@ c       angles
 c       lengths
 c
 c     symmetry group_number setting_number
+c
+c     systype must precede symmetry
 c
 c     
       units = 'atomic units'
@@ -217,7 +219,7 @@ c
             write(6,*)
             call util_flush(6)
          endif
-**         call sym_test(geom)
+*         call sym_print_all(geom, .true., .true., .true., .true.,.true.)
       end if
 c
       if (.not. geom_rtdb_store(rtdb, geom, name))
@@ -333,6 +335,8 @@ c
 c     symmetry [[group] (<string group_name>|<integer group_number>)] \
 c              [setting <integer setting>]
 c
+      logical status
+c
       if (.not. geom_check_handle(geom,'geom_sym_input'))
      $     call errquit('geom_sym_input: geom handle invalid', 0)
 c     
@@ -354,14 +358,17 @@ c
             call inp_prev_field()
             if (.not. inp_i(group_number(geom))) then
                if (inp_a(test)) then
-                  if (.not. inp_match(230,.false.,test,sym_spgnames,
-     $                 group_number(geom))) then
-                     if (.not. inp_match(46,.false.,test,sym_molgnames,
-     $                    group_number(geom))) then
-                        call errquit('geom_sym_input: unknown group '//
-     $                       'name/number', 0)
-                     endif
+                  status = .false.
+                  if (isystype(geom).eq.0) then
+                     status = inp_match(46,.false.,test,sym_molgnames,
+     $                    group_number(geom))
+                  else
+                     status = inp_match(230,.false.,test,sym_spgnames,
+     $                 group_number(geom))
                   endif
+                  if (.not. status)
+     $                 call errquit('geom_sym_input: unknown group '//
+     $                 'name/number', 0)
                endif
             endif
             goto 10

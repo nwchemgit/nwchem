@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.35 1995-03-12 21:04:53 d3g681 Exp $
+C$Id: geom.F,v 1.36 1995-10-10 06:13:32 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -395,7 +395,7 @@ c
 *         call ga_sync
 *         if (ga_nodeid() .eq. node) then
 *            write(6,*) ' node ', ga_nodeid()
-*            call sym_print_all(geom, .true., .true., .true., .true.)
+*            call sym_print_all(geom, .true., .true., .true., .true., .true.)
 *            call util_flush(6)
 *         endif
 *         call ga_sync
@@ -485,6 +485,7 @@ c
       geom_set_bqbq = geom_check_handle(geom, 'geom_set_bqbq')
       if (.not. geom_set_bqbq) return
       include_bqbq(geom) = value
+      call geom_compute_values(geom)
 c
       end
       logical function geom_rtdb_store(rtdb, geom, name)
@@ -1126,7 +1127,8 @@ c
          write(6,*)
       end if
 c
-      call sym_print_all(geom, .true., .true., .false., .false.)
+      call sym_print_all(geom, .true., .true., .false., .false.,
+     $     .false.)
 c
       geom_print = .true.
 c
@@ -1451,7 +1453,7 @@ c
       logical function geom_recipang_get(geom,rangles)
       implicit none
 #include "geomP.fh"
-c     
+c
       integer geom,i               ! [input]
       double precision rangles(3) ! [output]
       logical geom_check_handle
@@ -1459,7 +1461,6 @@ c
 c
       geom_recipang_get = geom_check_handle(geom, 'geom_recipang_get')
       if (.not. geom_recipang_get) return
-
       do i=1,3
         rangles(i)=recip_lat_angles(i,geom)
       end do
