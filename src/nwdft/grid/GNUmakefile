@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.37 2000-10-26 19:34:40 edo Exp $
+# $Id: GNUmakefile,v 1.38 2002-01-14 20:37:32 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -42,6 +42,7 @@
 	grid_neighb.o \
 	grid_cleanup.o \
         grid_gaussq.o \
+        grid_cckohn.o \
         grid_xcfit.o 
 
      LIBRARY = libnwdft.a

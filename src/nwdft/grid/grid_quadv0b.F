@@ -17,7 +17,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d)
 c
-c$Id: grid_quadv0b.F,v 1.25 2001-11-16 22:12:17 edo Exp $
+c$Id: grid_quadv0b.F,v 1.26 2002-01-14 20:37:32 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -128,11 +128,12 @@ c
       if(grad) 
      .     call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
-      
+      if(.not.l3d) then
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
      ,     ipol,iscratch)
+      endif
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)

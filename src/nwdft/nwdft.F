@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.58 2001-12-27 19:20:05 edo Exp $
+C$Id: nwdft.F,v 1.59 2002-01-14 20:37:30 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -204,6 +204,7 @@ c
 c
 !      if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
+!      call errquit(' bailing out ',0)
 c
 c     get 1-el in cache
 c

@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.7 2000-04-18 00:33:12 edo Exp $
+* $Id: dft_utilmap.F,v 1.8 2002-01-14 20:37:32 edo Exp $
 *
       implicit none
       integer basis, natoms, nshells
@@ -53,7 +53,15 @@ c
       integer ir, jr, i, j, k, ielems, jelems
       double precision sum
       integer me,nproc,itask
+      integer ityp, ndim, dims(3)
 c     
+      call nga_inquire(g_a, ityp, ndim, dims)
+      if(ndim.gt.2) then
+#ifdef DEBUG
+         write(6,*) ' matreduce: ndim gt 2!, =',ndim
+#endif
+         return
+      endif
       me=ga_nodeid()
       nproc=ga_nnodes()
       itask=0
