@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icntoce, icntobfr, icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.8 2000-03-08 01:57:47 edo Exp $
+c     $Id: fukui.F,v 1.9 2000-04-11 10:51:38 hvd Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -308,9 +308,9 @@ c
          write(LuOut,'("      Coulomb Integral = ",f10.4)') e_coul
          write(LuOut,'("      XC Integral = ",f10.4)') e_xc
          write(LuOut,'("      XC Diff. Energy = ",f10.4)') diff_Exc
-         write(6,'("      Ionization potential = ",f7.4," a.u.")') 
+         write(LuOut,'("      Ionization potential = ",f7.4," a.u.")') 
      &                                           ion_pot
-         write(6,'("                           = ",f7.2," eV")') 
+         write(LuOut,'("                           = ",f7.2," eV")') 
      &                                           ion_pot*27.211
       end if
 c
@@ -361,9 +361,9 @@ c
          write(LuOut,'("      Coulomb Integral = ",f10.4)') e_coul
          write(LuOut,'("      XC Integral = ",f10.4)') e_xc
          write(LuOut,'("      XC Diff. Energy = ",f10.4)') diff_Exc
-         write(6,'("      Electron Affinity = ",f7.4," a.u.")')
+         write(LuOut,'("      Electron Affinity = ",f7.4," a.u.")')
      &                                        ele_afi
-         write(6,'("                        = ",f7.2," eV")')
+         write(LuOut,'("                        = ",f7.2," eV")')
      &                                        ele_afi*27.211
       end if
 c
@@ -406,9 +406,9 @@ c
            write(LuOut,'("      Coulomb Integrals = ",f10.4)') e_coul
            write(LuOut,'("      XC Integrals = ",f10.4)') e_xc
            write(LuOut,'("      XC Diff. Energy = ",f10.4)') diff_Exc
-           write(6,'("      High Multiplicity = ",f7.4," a.u.")')
+           write(LuOut,'("      High Multiplicity = ",f7.4," a.u.")')
      &                                          high_mult
-           write(6,'("                        = ",f7.2," eV")')
+           write(LuOut,'("                        = ",f7.2," eV")')
      &                                          high_mult*27.211
         end if
       end if
@@ -456,9 +456,9 @@ c
            write(LuOut,'("      Coulomb Integrals = ",f10.4)') e_coul
            write(LuOut,'("      XC Integrals = ",f10.4)') e_xc
            write(LuOut,'("      XC Diff. Energy = ",f10.4)') diff_Exc
-           write(6,'("      Low Multiplicity = ",f7.4," a.u.")')
+           write(LuOut,'("      Low Multiplicity = ",f7.4," a.u.")')
      &                                         low_mult
-           write(6,'("                       = ",f7.2," eV")')
+           write(LuOut,'("                       = ",f7.2," eV")')
      &                                         low_mult*27.211
            write(LuOut,*) ' ------------------------------------'
         end if
@@ -499,7 +499,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s, string)
 
-C$Id: fukui.F,v 1.8 2000-03-08 01:57:47 edo Exp $
+C$Id: fukui.F,v 1.9 2000-04-11 10:51:38 hvd Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -659,9 +659,10 @@ c
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.8 2000-03-08 01:57:47 edo Exp $
+C$Id: fukui.F,v 1.9 2000-04-11 10:51:38 hvd Exp $
 c
       implicit none
+#include "stdio.fh"
 c      
       integer nExc
       integer iVxc_opt
@@ -866,7 +867,7 @@ c
      &                     cntobfr, cetobfr, natoms)
 !            if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
             endif
-c      write(6,*)'from xc_getv; Exc(1), Exc(2): ',Exc(1), Exc(2)
+c      write(LuOut,*)'from xc_getv; Exc(1), Exc(2): ',Exc(1), Exc(2)
 c
 c           Symmetrize Vxc?
 c

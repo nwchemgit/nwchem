@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.38 2000-04-11 02:28:28 zzhang Exp $
+c     $Id: dft_main0d.F,v 1.39 2000-04-11 10:51:38 hvd Exp $
 c     
       implicit none
 c
@@ -115,7 +115,7 @@ c              try to read old XC matrix on disk; use if appropriate
 c
                call dft_invio('XC', g_xcinv, nbf_xc, 'READ', lmiss)
                if (lmiss.ne.0)then
-                  if (oprint_ioinfo)write(6,*)
+                  if (oprint_ioinfo)write(LuOut,*)
      &            ' old XC READ miss; constructing new matrix. '
                endif
             endif
@@ -270,7 +270,7 @@ c                  call errquit(' temp stop this should not happen',0)
                if (lmiss.ne.0)call errquit
      &         (' dft_main0d; dft_invio - abnormal write of CDI ', 0)
                if (oprint_ioinfo)then
-                 write(6,*)' g_cdinv = ', g_cdinv
+                 write(LuOut,*)' g_cdinv = ', g_cdinv
                  call ga_print(g_cdinv)
                endif
                lmiss = 0
@@ -278,7 +278,7 @@ c                  call errquit(' temp stop this should not happen',0)
                if (lmiss.ne.0)call errquit
      &         (' dft_main0d; dft_invio - abnormal write of CD ', 0)
                if (oprint_ioinfo)then
-                 write(6,*)' g_2ceri = ',  g_2ceri
+                 write(LuOut,*)' g_2ceri = ',  g_2ceri
                  call ga_print(g_2ceri)
                endif
             endif

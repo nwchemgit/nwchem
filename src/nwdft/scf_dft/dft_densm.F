@@ -2,7 +2,7 @@
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,mult,check_deg)
-C$Id: dft_densm.F,v 1.16 2000-03-23 20:20:21 edo Exp $
+C$Id: dft_densm.F,v 1.17 2000-04-11 10:51:37 hvd Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -151,6 +151,7 @@ C 1723       format(' Foccs ',(
       implicit none
 #include "global.fh"
 #include "msgids.fh"
+#include "stdio.fh"
       integer ipol
       integer nbf
       double precision evals(nbf*ipol) 
@@ -210,10 +211,10 @@ c
       attempts=attempts+1
       if(attempts.gt.mx_attem) then
          if(ga_nodeid().eq.0) then
-         write(6,*) ' efermi emax emin ',
+         write(LuOut,*) ' efermi emax emin ',
      ,        efermi,emax,emin
-         write(6,*) ' fmed fmax fmin ',fmed,fmax,fmin
-         write(6,*) 'ZERO could no reach required accuracy'
+         write(LuOut,*) ' fmed fmax fmin ',fmed,fmax,fmin
+         write(LuOut,*) 'ZERO could no reach required accuracy'
          endif
 C         call errquit('dft_zero: too many attempts',mx_attem)     
          goto 1999
@@ -246,7 +247,7 @@ C         endif
       fmed=fzero(
      *     ipol,efermi,evals,nbf,ntotel,ssmear,attempts)
       if(abs(fmed).gt.toll.and.abs(emin-emax).gt.toll*0.1d0) goto 1
-1999  if(ga_nodeid().eq.0) write(6,*) ' fmed emin-emax ',abs(fmed),
+1999  if(ga_nodeid().eq.0) write(LuOut,*) ' fmed emin-emax ',abs(fmed),
      *abs(emin-emax)
 
       return
@@ -315,7 +316,7 @@ c
       parameter(zero=0.d0)
          me = ga_nodeid()
          nproc = ga_nnodes()
-         if(me.eq.0) write(6,*) ' got deg'
+         if(me.eq.0) write(LuOut,*) ' got deg'
          nocold=noc
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &        call errquit('dftdensm: failed to alloc tmpm',0)
@@ -351,6 +352,7 @@ c      call dfill(noc, rhfuhf, focc, 1)
      , me,mult)
       implicit none
 #include "global.fh"
+#include "stdio.fh"
       integer ipol
       integer nbf
       double precision evals(ipol*nbf)
@@ -438,7 +440,7 @@ c
       if(nint(nck).ne.ntotel) then
         if(me.eq.0) then
           do i=1,nbf*ipol
-             write(6,1964) ' i focc ',i,focc(i),evals(i)
+             write(LuOut,1964) ' i focc ',i,focc(i),evals(i)
  1964        format(A,i4,2f20.13)
           enddo
              write(0,*) ' ntot ntotel',nck,ntotel
