@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.162 2000-05-26 06:19:17 mdupuis Exp $
+c     $Id: dft_scf.F,v 1.163 2000-06-08 18:42:25 edo Exp $
 c     
       implicit none
 c
@@ -303,32 +303,6 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before 3c-2e initialize.')
 c
-#if defined(DFT_TIMER)
-      call dft_second(tp3)
-#endif
-c
-      if (CDFIT)then
-         if(dft_mem3c(
-     I     natoms,npol,oprint_parm,oprint_3c2e,
-     O     n3c_int,n3c_dbl,n_semi_bufs,
-     O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
-            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
-     &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
-     &                       n_semi_bufs, fd)
-            incore=.true.
-         else
-            if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
-            incore=.false.
-         endif
-      endif
- 3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
-     &     'turned off. ')
-#if defined(DFT_TIMER)
-      call dft_second(tp4)
-      pgmsect(4) = ' 3c-2e Ints'
-      call tcllct(t_pgm(1,4),tp4,tp3)
-      call dft_second(tp3)
-#endif
       mulliken = .false.
       if (imull.eq.1)mulliken = .true.
       IOLGC = .TRUE.
@@ -476,6 +450,32 @@ c
 c     Tidy up SCF
 c
       call fock_2e_tidy(rtdb)
+#if defined(DFT_TIMER)
+      call dft_second(tp3)
+#endif
+c
+      if (CDFIT)then
+         if(dft_mem3c(
+     I     natoms,npol,oprint_parm,oprint_3c2e,
+     O     n3c_int,n3c_dbl,n_semi_bufs,
+     O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
+            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
+     &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
+     &                       n_semi_bufs, fd)
+            incore=.true.
+         else
+            if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
+            incore=.false.
+         endif
+      endif
+ 3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
+     &     'turned off. ')
+#if defined(DFT_TIMER)
+      call dft_second(tp4)
+      pgmsect(4) = ' 3c-2e Ints'
+      call tcllct(t_pgm(1,4),tp4,tp3)
+      call dft_second(tp3)
+#endif
 c
 c     set initial coulomb acc
 c
