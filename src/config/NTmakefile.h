@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.5 2000-08-08 23:33:55 bjohnson Exp $
+#	$Id: NTmakefile.h,v 1.6 2000-08-13 19:38:47 bjohnson Exp $
 #
 
 #
@@ -34,7 +34,7 @@ LIBDIR = $(TOPDIR)\lib\win32
 !ENDIF
 # !!! This is called LIB_DISTRIB in prev NT makefiles
 LIB_DISTRIB = $(LIBDIR)
-#BINDIR = $(TOPDIR)\bin\win32
+BINDIR = $(TOPDIR)\bin\win32
 INCDIR = $(TOPDIR)\src\include
 CNFDIR = $(TOPDIR)\src\config
 OBJDIR = .\obj
