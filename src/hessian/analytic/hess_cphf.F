@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.28 2001-10-23 20:27:41 windus Exp $
+C $Id: hess_cphf.F,v 1.29 2001-11-07 21:29:04 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -286,7 +286,7 @@ c
       if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
      $  tol2e = 1.0d-9
 c
-      call hess_motoao(g_rhs_x, g_vecs, g_modx,
+      call hess_moootoao(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
       call hess_modfock(g_rhs_x, g_vecs, g_modx, ndens, n3xyz,
@@ -447,6 +447,7 @@ c       endif
         endif
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
+        index = index + 1
       enddo
       enddo
       if (.not.ga_destroy(g_tmp)) call errquit
@@ -520,7 +521,7 @@ c
      $          'Transformed RHS before symmetrization',ind
           call ga_print(g_rhs_x(ind))
         endif
-        call ga_symmetrize(g_rhs_x(ind))
+c        call ga_symmetrize(g_rhs_x(ind))
         if (ocphf) then
           if(ga_nodeid().eq.0) write(LuOut,*) 
      $          'Transformed RHS after symmetrization',ind
@@ -533,7 +534,7 @@ c
       return
       end
 c
-      subroutine hess_motoao(g_rhs_x, g_vecs, g_modx,
+      subroutine hess_moootoao(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphf,
      $          nocc, nvirt, ndens, n3xyz, num)
 c
@@ -638,7 +639,6 @@ c
        do in =1,n3xyz
          ind = ind + 1
          do i = 1, nocc(ndns)
-           write(6,*) 'evals',evals((ndns-1)*num+i),(ndns-1)*num+i
            call ga_add_patch(one,g_wax(ind),i,i,1,nvirt(ndns),
      $       eight*evals((ndns-1)*num+i),g_rhs_x(ind),i,i,
      $       nocc(ndns)+1, num,g_wax(ind),i,i,1,nvirt(ndns))
@@ -748,7 +748,6 @@ c     Activate XC contribution to OO derivative Fock matrix
      $       call errquit('hess_cphf: rtdb_put of xc_active failed',1)
         if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
      $       call errquit('hess_cphf: rtdb_put of calc_type failed',0)
-        call fock_2e_tidy(rtdb)
         call int_terminate()
         call schwarz_tidy()
 c       if(skelsym) call 
@@ -787,6 +786,103 @@ c
       return
       end
 c
+      subroutine hess_modfock2(g_rhs_x, g_vecs, g_tmp, ndens, n3xyz,
+     $                        tol2e, rtdb, geom, basis, jfac, kfac,
+     $                        num, ocphfprint)
+c
+      implicit none
+c
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+c
+      integer ndens, n3xyz, rtdb, geom, basis, num
+      integer g_rhs_x, g_vecs(ndens), g_tmp
+      integer ind, ndns, in, nfock
+      double precision tol2e, jfac(ndens), kfac(ndens)
+      double precision jfact, kfact, dmax
+      logical ocphfprint
+c
+c
+c Set up some parameters for the fock_2e call.  Note that I am not
+c sure if jfact and kfact should stay the same for DFT!  This needs to
+c be dependent on the jfac and kfac in hess_info.fh.
+c
+      call ga_maxelt(g_rhs_x,dmax)
+c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
+      nfock = 1
+c     jfact =  8.0d+00*jfac(ndns)
+c     kfact = -4.0d+00*kfac(ndns)
+      jfact =  8.0d+00*jfac(1)
+      kfact = -4.0d+00*kfac(1)
+
+      call ga_copy(g_rhs_x,g_tmp)  ! copy Ta to g_tmp
+      call ga_zero(g_rhs_x)   ! zeroed to get the "new" fock matrices
+
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*) 'Before the fock_2e call for ind ',ind
+          write(LuOut,*) 'nfock, jfact, kfact ',nfock, jfact, kfact
+          write(LuOut,*) 'density like matrix before fock_2e'
+        endif
+        call ga_print(g_tmp)
+      endif
+      call int_init(rtdb,1,basis)
+      call schwarz_init(geom,basis)
+      call scf_get_fock_param(rtdb,tol2e) ! need to change for DFT?
+c     Activate XC contribution to OO derivative Fock matrix
+      if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $     call errquit('hess_cphf: rtdb_put of xc_active failed',0)
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
+     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0)
+      if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
+c
+      call fock_2e(geom,basis,nfock,jfact,kfact,tol2e,.false.,
+     &            g_tmp,g_rhs_x, .false.)
+c
+      if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $     call errquit('hess_cphf: rtdb_put of xc_active failed',1)
+      if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
+     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0)
+      call int_terminate()
+      call schwarz_tidy()
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*)
+          write(LuOut,*) 'fock matrix after fock_2e',ind
+        endif
+        call ga_print(g_rhs_x)
+      endif
+
+      ind = 0
+      do ndns = 1, ndens
+      do in = 1, n3xyz
+        ind = ind+1
+        call ga_zero(g_tmp) ! prepare for transformation
+        write(LuOut,*) 'before first ga_matmul_patch'
+        call ga_matmul_patch ('t','n', 1.D0, 0.D0,
+     $                         g_vecs(1),    1, num,    1, num,
+     $                         g_rhs_x,   1, num,    1, num,
+     $                         g_tmp,       1, num,    1, num )
+ 
+        write(LuOut,*) 'before second ga_matmul_patch'
+        call ga_matmul_patch ('n','n', 1.D0, 0.D0,
+     $                         g_tmp,       1, num,    1, num,
+     $                         g_vecs(1),    1, num,    1, num,
+     $                         g_rhs_x,   1, num,    1, num ) 
+      enddo
+      enddo
+      if (ocphfprint) then
+        if(ga_nodeid().eq.0)
+     $    write(LuOut,*) 'after transformation back to MO basis',ind
+        call ga_print(g_rhs_x)
+      endif
+c
+      return
+      end
+c
       subroutine hess_fxwaxaa(g_rhs_x, g_wax, g_aa, nocc, nvirt,
      $                        ndens, n3xyz)
 c
@@ -806,7 +902,7 @@ c
       ind = 0
       do ndns = 1, ndens
       do in = 1, n3xyz
-         ind = ind+1
+        ind = ind+1
         call ga_add_patch(one,g_wax(ind),1,nocc(ndns),1,nvirt(ndns),
      $                    two,g_rhs_x(ind),1,nocc(ndns),nocc(ndns)+1,
      $                        nocc(ndns)+nvirt(ndns),
