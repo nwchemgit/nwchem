@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.4 1997-10-18 20:14:41 d3g681 Exp $
+C     $Id: ccsd_z2pm.F,v 2.5 1997-11-14 19:25:46 d3g681 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
@@ -249,7 +249,7 @@ c
                 do a=nocc+1,nbf
                   do b=nocc+1,nbf
                     ad3=ad3+1
-                    scrb(ad3)=scra((a-1)*nbf+b)
+                    scrb(ad3)=-scra((a-1)*nbf+b)
                   enddo
                 enddo
                 call ga_acc(g_nhz2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,

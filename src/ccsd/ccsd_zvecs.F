@@ -3,7 +3,7 @@
      $                      scra,scrb,z1,hiu,hia,habe,giu,gabe,
      $                      g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,
      $                      g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_zvecs.F,v 2.6 1997-10-18 20:14:43 d3g681 Exp $
+C     $Id: ccsd_zvecs.F,v 2.7 1997-11-14 19:25:48 d3g681 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,g_ncoul,g_nexch,
@@ -158,7 +158,7 @@ c
       do a=ncor+nocc+1,ncor+nocc+nvir
        do i=ncor+1,ncor+nocc
         icnt=icnt+1
-        hz1(icnt)=hz1(icnt)/(eorb(i)-eorb(a))
+        hz1(icnt)=-hz1(icnt)/(eorb(i)-eorb(a))
        enddo
       enddo
       call daxpy(lnov,-one,hz1,1,z1,1)
@@ -167,19 +167,6 @@ c
        call ga_put(g_hz2,offt2+1,offt2+lnov,nvp1,nvp1,z1,1)
       endif
 c
-      call ga_sync()
-c
-c     if (iprt.gt.50.and.iam.eq.0)then
-      if (iam.eq.0)then
-       print *,' sym hz1 '
-       write(6,189)(hz1(i),i=1,lnov)
-       do bv=1,nvir
-        call ga_get(g_hz2,offt2+1,offt2+lhoov,bv,bv,scra,1)
-        print *,'sym sig2 for bv ',bv
-        write(6,189)(scra(i),i=1,lhoov)
-  189   format(4e14.4)
-       enddo
-      endif
       call ga_sync()
 c
       do b=ncor+nocc+1,ncor+nocc+nvir
@@ -194,7 +181,7 @@ c -- parallel task --
          do i=ncor+1,ncor+nocc
           do j=ncor+1,i
            icnt=icnt+1
-           scrb(icnt)=scrb(icnt)/(eorb(i)+eorb(j)-eorb(a)-eorb(b))
+           scrb(icnt)=-scrb(icnt)/(eorb(i)+eorb(j)-eorb(a)-eorb(b))
           enddo
          enddo
         enddo
@@ -207,6 +194,21 @@ c -- end parallel task --
 c
       enddo
       call ga_sync()
+c
+c     if (iprt.gt.50.and.iam.eq.0)then
+      if (iam.eq.0)then
+       print *,' sym hz1 '
+       write(6,189)(hz1(i),i=1,lnov)
+       do bv=1,nvir
+        call ga_get(g_z2,offt2+1,offt2+lhoov,bv,bv,scra,1)
+        print *,'sym sig2 for bv ',bv
+        write(6,189)(scra(i),i=1,lhoov)
+  189   format(4e14.4)
+       enddo
+      endif
+c
+      call ga_sync()
+c
       call qexit('zvecs',0)
       return
       end

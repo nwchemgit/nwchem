@@ -1,13 +1,13 @@
       subroutine ccsd_tzintb(nocc,nvir,nbf,t1,tzoo,scra,scrb,scrc,
-     &                       g_nt2,g_nz2,g_nexch,g_x,g_sht2,g_aitm,
-     &                       g_tz3,iprt)
-C     $Id: ccsd_tzintb.F,v 2.3 1997-05-29 16:42:55 gg502 Exp $
+     &                       g_nt2,g_nz2,g_ncoul,g_nexch,g_c,g_x,
+     &                       g_sht2,g_aitm,g_qitm,g_tz3,iprt)
       implicit none
-      integer nocc,nvir,nbf,lnoo,lnov,g_nt2,g_nz2,g_nexch,g_x,g_sht2,
-     &        g_aitm,g_tz3,g_tmp,iprt
-      integer i,j,k,l,a,b,ij,kl,ad1,ad2,ad3,ad4,g_jlo,g_jhi,g_ilo,g_ihi
+      integer nocc,nvir,nbf,lnoo,lnov,lnvv,g_nt2,g_nz2,g_ncoul,g_nexch,
+     &        g_c,g_x,g_sht2,g_aitm,g_qitm,g_tz3,g_tmp,iprt
+      integer i,j,k,l,a,b,c,d,ij,kl,ad1,ad2,ad3,ad4,
+     &        g_jlo,g_jhi,g_ilo,g_ihi
       double precision t1(nocc,nvir),tzoo(nocc,nocc),scra(nbf*nbf),
-     &                 scrb(nbf*nbf),scrc(nocc*nocc)
+     &                 scrb(nbf*nbf),scrc(nbf*nbf)
       Integer IAm
 #include "mafdecls.fh"
 #include "global.fh"
@@ -17,6 +17,7 @@ c
 C
       lnoo=nocc*nocc
       lnov=nocc*nvir
+      lnvv=nvir*nvir
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
@@ -46,6 +47,16 @@ c
 c
       if (.not.ga_destroy(g_tmp))
      &    call errquit('ga_dest g_tmp fail',0)
+c
+      if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
+     &                   nocc,nocc,g_aitm))
+     &     call errquit('ga_create g_aitm failed',0)
+      if (.not.ga_create(MT_DBL,lnov,lnov,'qitm',
+     &                   nvir,nvir,g_qitm))
+     &     call errquit('ga_create g_qitm failed',0)
+      if (.not.ga_create(MT_DBL,lnoo,lnoo,'tz3',
+     &                   nocc,nocc,g_tz3))
+     &     call errquit('ga_create g_tz3 failed',0)
 c
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -95,6 +106,106 @@ c A1
         enddo
       enddo
 c
+c-----------------------------------------------------------------------
+c  Q intermediate
+c-----------------------------------------------------------------------
+c
+      call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      do i=1,nocc
+        ad1=(i-1)*nbf
+        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
+          do k=1,nocc
+            ad2=(k-1)*nbf
+            if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+              call ga_get(g_ncoul,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
+     &                    scra,nbf)
+              call ga_get(g_nexch,ad2+1,ad2+nbf,ad1+1,ad1+nbf,
+     &                    scrb,nbf)
+              call dfill(lnvv,0.0d0,scrc,1)
+              do c=1,nvir
+              do a=1,nvir
+                scrc((c-1)*nvir+a)=scrc((c-1)*nvir+a)
+     &          -(2.0d0*scrb((nocc+c-1)*nbf+nocc+a)
+     &                             -scra((nocc+c-1)*nbf+nocc+a))
+              enddo
+              enddo
+              do c=1,nvir
+              do a=1,nvir
+              do l=1,nocc
+                scrc((c-1)*nvir+a)=scrc((c-1)*nvir+a)
+     &          +(2.0d0*scrb((nocc+c-1)*nbf+l)
+     &                             -scra((nocc+c-1)*nbf+l))*t1(l,a)
+              enddo
+              enddo
+              enddo
+              ad3=(i-1)*nvir
+              ad4=(k-1)*nvir
+              call ga_put(g_qitm,ad4+1,ad4+nvir,ad3+1,ad3+nvir,
+     &                    scrc,nvir)
+            endif
+          enddo
+        endif
+      enddo
+      call ga_sync()
+c
+      call ga_distribution(g_c,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      do i=1,nocc
+      do k=1,nocc
+        ad1=(i-1)*nocc+k
+        if (ad1.ge.g_ilo.and.ad1.le.g_ihi)then
+c
+          call ga_get(g_c,1,nbf*nbf,ad1,ad1,scra,nbf*nbf)
+          call ga_get(g_x,1,nbf*nbf,ad1,ad1,scrb,nbf*nbf)
+c
+              do c=1,nvir
+              do a=1,nvir
+                scrc((a-1)*nvir+c)=-(2.0d0*scrb((nocc+c-1)*nbf+nocc+a)
+     &                             -scra((nocc+c-1)*nbf+nocc+a))
+              enddo
+              enddo
+              ad3=(i-1)*nvir
+              ad4=(k-1)*nvir
+              call ga_acc(g_qitm,ad3+1,ad3+nvir,ad4+1,ad4+nvir,
+     &                    scrc,nvir,1.0d0)
+            endif
+          enddo
+      enddo
+c
+      call ga_distribution(g_qitm,iam,g_jlo,g_jhi,g_ilo,g_ihi)
+      do k=1,nocc
+        ad1=(k-1)*nvir
+        if (ad1+1.ge.g_ilo.and.ad1+1.le.g_ihi)then
+          do i=1,nocc
+            ad2=(i-1)*nvir
+            if (ad2+1.ge.g_jlo.and.ad2+1.le.g_jhi)then
+              call dfill(lnvv,0.0d0,scrc,1)
+              do l=1,nocc
+              ad3=(k-1)*nbf
+              ad4=(l-1)*nbf
+              call ga_get(g_nexch,ad4+1,ad4+nbf,ad3+1,ad3+nbf,
+     &                    scra,nbf)
+              ad4=(l-1)*nvir
+              call ga_get(g_nt2,ad4+1,ad4+nvir,ad2+1,ad2+nvir,
+     &                    scrb,nvir)
+              do c=1,nvir
+              do d=1,nvir
+              do a=1,nvir
+           scrc((c-1)*nvir+a)=scrc((c-1)*nvir+a)
+     &                  +(2.0d0*scra((nocc+c-1)*nbf+nocc+d)
+     &                    -scra((nocc+d-1)*nbf+nocc+c))
+     &               *(scrb((d-1)*nvir+a)+t1(i,d)*t1(l,a)
+     &               -2.0d0*scrb((a-1)*nvir+d))
+              enddo
+              enddo
+              enddo
+              enddo
+              call ga_acc(g_qitm,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
+     &                    scrc,nvir,1.0d0)
+            endif
+          enddo
+        endif
+      enddo
+c
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
         ad1=(i-1)*nvir
@@ -128,5 +239,6 @@ c
         endif
       enddo
 c
+      call ga_sync()
       return
       end

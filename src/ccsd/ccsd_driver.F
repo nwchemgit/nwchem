@@ -1,5 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.21 1997-10-18 20:14:33 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.22 1997-11-14 19:25:44 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -422,11 +422,11 @@ c
       ncor=occ_frozen
       ndel=vir_frozen
 c
-      lnobj=nbf*nbf+nmo2*nmo2
+      lnobj=nmo2*nmo2+nmo2*nmo2
       status=status.and.ma_push_get(MT_DBL,lnobj,'scr',l_scr,k_scr)
       if (.not.status)call errquit('error before ccsd_sortmo',0)
       call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nmo2,nbf,
-     $                 dbl_mb(k_scr),dbl_mb(k_scr+nbf*nbf),g_coul,
+     $                 dbl_mb(k_scr),dbl_mb(k_scr+nmo2*nmo2),g_coul,
      $                 g_exch,g_ncoul,g_nexch,iprt)
           status=status.and.ga_destroy(g_coul)
           status=status.and.ga_destroy(g_exch)

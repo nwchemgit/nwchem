@@ -1,14 +1,11 @@
-#     $Id: GNUmakefile,v 2.12 1997-06-05 17:46:28 gg502 Exp $
+#     $Id: GNUmakefile,v 2.13 1997-11-14 19:25:49 d3g681 Exp $
 
  OBJ = 		ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
-		ccsd_pampt2.o \
-		ccsd_trpdrv.o \
 		ccsd_driver.o \
 		ccsd_sortmo.o \
 		geaxpy.o \
-		moints_trp.o \
 		ccden_2pdma.o \
 		ccden_2pdmb.o \
 		ccsd_mktau_ga.o \
@@ -17,7 +14,10 @@
  OBJ_OPTIMIZE = aoccsd2.o \
 		ccsd_itm.o \
 		ccsd_t2pm.o \
+		ccsd_pampt2.o \
 		ccsd_pampt3.o \
+		ccsd_trpdrv.o \
+		moints_trp.o \
 		ccsd.o \
 		ccsd_aux.o \
 		ccsd_fsig1.o \

@@ -3,7 +3,7 @@
      &                       hia,t1,z1,hz1,idiis,g_nt2,g_nz2,
      &                       g_nhz2,g_ncoul,g_nexch,tklst)
       implicit none
-C     $Id: ccsd_pzamp.F,v 2.4 1997-06-05 17:39:33 gg502 Exp $
+C     $Id: ccsd_pzamp.F,v 2.5 1997-11-14 19:25:45 d3g681 Exp $
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,idiis,g_nt2,g_nz2,g_nhz2,g_aitm,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
@@ -27,8 +27,8 @@ c
      &        l_tz1,k_tz1,l_tz2,k_tz2
       integer maxbfsh,max1e,mem1,max2e,mem2,lscr,lssni,
      &        g_x,g_c,g_st2,g_sht2,g_zx,g_zc,g_sz2,g_shz2,
-     &        g_tz1,g_tz2,g_tz3
-      integer lnoo,lnov
+     &        g_tz1,g_tz2,g_tz3,g_qitm
+      integer lnoo,lnov,lnvv
       logical stat
 c
       Integer Nodes, IAm
@@ -37,7 +37,9 @@ c
 c
       lnoo=nocc*nocc
       lnov=nocc*nvir
+      lnvv=nvir*nvir
 c
+c     write(6,*)'entering pzamp'
       stat = bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
       if (.not. stat)
@@ -232,34 +234,12 @@ c
       stat=stat.and.ma_pop_stack(l_offsh)
 c
 c ------------------------------------------------------------
-c  Form more TZ intermediates
-c ------------------------------------------------------------
-c
-      if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
-     &                   nocc,nocc,g_aitm))
-     &     call errquit('ga_create g_aitm failed',0)
-c
-      if (.not.ga_create(MT_DBL,lnoo,lnoo,'tz3',
-     &                   nocc,nocc,g_tz3))
-     &     call errquit('ga_create g_tz3 failed',0)
-      lscr=nbf*nbf
-      stat=.true.
-      stat=stat.and.ma_push_get(MT_DBL,lnoo,'tzoo',l_tz2, k_tz2)
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      stat=stat.and.ma_push_get(MT_DBL,lnoo,'scrc',l_sc3, k_sc3)
-      call ccsd_tzintb(nocc,nvir,nbf,t1,dbl_mb(k_tz2),dbl_mb(k_sc1),
-     &                dbl_mb(k_sc2),dbl_mb(k_sc3),g_nt2,g_nz2,g_nexch,
-     &                g_x,g_sht2,g_aitm,g_tz3,iprt)
-      stat=stat.and.ma_pop_stack(l_sc3)
-      stat=stat.and.ma_pop_stack(l_sc2)
-      stat=stat.and.ma_pop_stack(l_sc1)
-c
-c ------------------------------------------------------------
 c Z vector routines
 c ------------------------------------------------------------
 c
+      lscr=nbf*nbf
       stat=.true.
+      stat=stat.and.ma_push_get(MT_DBL,lnoo,'tzoo',l_tz2, k_tz2)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scre',l_sc3, k_sc3)
@@ -269,14 +249,14 @@ c
      &                dbl_mb(k_sc1),dbl_mb(k_sc2),dbl_mb(k_sc1),
      &                dbl_mb(k_sc2),dbl_mb(k_sc3),dbl_mb(k_sc4),
      &                g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,
-     &                g_sht2,g_zx,g_zc,g_shz2,g_aitm,g_tz1,g_tz2,g_tz3,
-     &                iprt)
+     &                g_sht2,g_zx,g_zc,g_shz2,g_aitm,g_qitm,
+     &                g_tz1,g_tz2,g_tz3,iprt)
       call ccsd_zsig2(nocc,nvir,nbf,hiu,giu,habe,gabe,hia,t1,
      &                z1,dbl_mb(k_tz1),dbl_mb(k_tz2),
      &                dbl_mb(k_sc1),dbl_mb(k_sc2),dbl_mb(k_sc1),
      &                dbl_mb(k_sc2),dbl_mb(k_sc3),dbl_mb(k_sc4),
      &                g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
-     &                g_sht2,g_zx,g_zc,g_aitm,g_tz1,g_tz2,g_tz3,iprt)
+     &                g_sht2,g_zx,g_zc,g_aitm,g_qitm,g_tz3,iprt)
       stat=.true.
       stat=stat.and.ma_pop_stack(l_sc4)
       stat=stat.and.ma_pop_stack(l_sc3)
@@ -288,12 +268,6 @@ c
 c ------------------------------------------------------------
 c remove global arrays associated with B intermediate
 c ------------------------------------------------------------
-      if (.not.ga_destroy(g_tz3))
-     &    call errquit('ga_dest g_tz3 fail',0)
-      if (.not.ga_destroy(g_tz2))
-     &    call errquit('ga_dest g_tz2 fail',0)
-      if (.not.ga_destroy(g_tz1))
-     &    call errquit('ga_dest g_tz1 fail',0)
       if (.not.ga_destroy(g_shz2))
      &    call errquit('ga_dest g_shz2 fail',0)
       if (.not.ga_destroy(g_sht2))

@@ -3,7 +3,7 @@
      &                      mem2,max2e,tol2e,g_nt2,g_nz2,g_nhz2,g_tz1,
      &                      g_tz2)
       implicit none
-C     $Id: ccsd_aosig.F,v 2.5 1997-10-23 15:56:41 d3g681 Exp $
+C     $Id: ccsd_aosig.F,v 2.6 1997-11-14 19:25:43 d3g681 Exp $
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi
@@ -284,7 +284,7 @@ C
       do q=jlo,jhi
       do r=klo,khi
       do s=llo,lhi
-      hzao(r,s)=hzao(r,s)+2.0d0*(2.0d0*eri1(s,r,q,p)-eri2(q,r,s,p))
+      hzao(r,s)=hzao(r,s)-(2.0d0*eri1(s,r,q,p)-eri2(q,r,s,p))
      &   *tzao(q,p)
       enddo
       enddo
@@ -302,7 +302,7 @@ c
               do r=klo,khi
               do s=llo,lhi
               do c=1,nvir
-                hz1(j,c)=hz1(j,c)+2.0d0*eri2(q,r,s,p)*cmo(r,i)
+                hz1(j,c)=hz1(j,c)-eri2(q,r,s,p)*cmo(r,i)
      &                            *cmo(s,nocc+c)*scra(q,p)
               enddo
               enddo
@@ -323,7 +323,7 @@ c
               do r=klo,khi
               do s=llo,lhi
               do c=1,nvir
-                hz1(j,c)=hz1(j,c)-2.0d0*eri1(s,r,q,p)*cmo(r,i)
+                hz1(j,c)=hz1(j,c)+eri1(s,r,q,p)*cmo(r,i)
      &                            *cmo(s,nocc+c)*scra(q,p)
               enddo
               enddo
@@ -344,7 +344,7 @@ c
               do q=jlo,jhi
               do r=klo,khi
               do s=llo,lhi
-                scrb(r,s)=scrb(r,s)-eri2(q,r,s,p)*scra(p,q)
+                scrb(r,s)=scrb(r,s)+eri2(q,r,s,p)*scra(p,q)
               enddo
               enddo
               enddo
