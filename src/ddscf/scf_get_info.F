@@ -279,6 +279,7 @@ c
 c
 c     ----- cosmo initialization ----
 c
+      cosmo_last = .false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
             osome = util_print('information', print_low)
@@ -291,6 +292,7 @@ c
 c           Turn cosmo on, we want to run the calculation
 c           Start with gas_phase run
 c
+            cosmo_last = .true.
             cosmo_on = .true.
             cosmo_phase = 1
          endif
@@ -299,7 +301,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.59 2004-01-30 21:53:39 yuri Exp $
+C$Id: scf_get_info.F,v 1.60 2004-07-23 20:47:04 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
