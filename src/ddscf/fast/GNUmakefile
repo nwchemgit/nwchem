@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 1999-07-29 00:53:57 d3e129 Exp $
+# $Id: GNUmakefile,v 1.14 2000-08-02 01:21:22 bjohnson Exp $
 #
 
  LIBRARY = libddscf.a
@@ -8,16 +8,15 @@
 
   OBJ = 
 
-  OPTIM := xlm_poles.o cheby.o dposv.o fastj.o anlfit.o cart_trans.o \
+  OBJ_OPTIMIZE = xlm_poles.o cheby.o dposv.o fastj.o anlfit.o cart_trans.o \
            gauleg.o solver.o vsint.o dgels.o pot_shell.o  fastj_direct.o \
            fastj_range.o newfmm.o potential.o sint.o
 
 LIB_DEFINES = -DFMM_LMAX=30
 
 ifdef TESTING
-  OBJ += $(OPTIM)
-else
-  OBJ_OPTIMIZE := $(OPTIM)
+  OBJ += $(OBJ_OPTIMIZE)
+  OBJ_OPTIMIZE = 
 endif
 
  USES_BLAS = potential.F pot_shell.F dgels.f fmm.F newfmm.F testfmm.F cart_trans.f
