@@ -35,6 +35,9 @@ c
          goto 10001
 10000    call errquit('nwchem: failed to open the input file', 0)
 10001    continue
+c
+         call nwchem_banner
+c
       else
 #ifndef KSR
          close(5)
@@ -211,4 +214,36 @@ c     effect.
 c
       status = rtdb_delete(rtdb, 'task') ! quietly discard the status
 c     
+      end
+      subroutine nwchem_banner
+      implicit none
+c
+c     Print a banner at the top of the output to make
+c     clear that this code originated at PNL as part of EMSL
+c
+      call util_print_centered(6,
+     $     '                                                          ',
+     $     40, .true.)
+      write(6,*)
+      write(6,*)
+      call util_print_centered(6, 'North West CHEM (NWCHEM)',
+     $     40, .true.)
+      write(6,*)
+      write(6,*)
+      call util_print_centered(6,
+     $      'Environmental and Molecular Sciences Laboratory',
+     $     40, .false.)
+      call util_print_centered(6,'Pacific Northwest Laboratory',
+     $     40, .false.)
+      call util_print_centered(6,'Richland, WA 99352',
+     $     40, .false.)
+      write(6,*)
+      call util_print_centered(6,
+     $     '                                                          ',
+     $     40, .true.)
+      write(6,*)
+      write(6,*)
+c
+      call util_flush(6)
+c
       end
