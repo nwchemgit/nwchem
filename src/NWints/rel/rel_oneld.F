@@ -1,4 +1,4 @@
-C $Id: rel_oneld.F,v 1.3 1999-10-26 19:47:16 mg201 Exp $
+C $Id: rel_oneld.F,v 1.4 2000-01-25 19:56:57 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_oneld}
 c:tex-This routine generates the modified one-electron gradient integrals
@@ -24,7 +24,7 @@ c:tex-\begin{verbatim}
      &    Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &    Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
      &    Cxyz,zan,exinv,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
-     &    nonrel,DryRun,scr,lscr,ibug,ntyp)
+     &    do_nw,do_hnd,nonrel,DryRun,scr,lscr,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
@@ -64,6 +64,8 @@ c:tex-\begin{verbatim}
       logical doTtil     ! [input] compute modified kinetic (True/False)
       logical doVtil     ! [input] compute modified potential (True/False)
       logical canAB   ! [input] compute only canonical ints (false only)
+      logical do_nw   ! [input] can do NW integrals
+      logical do_hnd  ! [input] can do HONDO integrals
       logical nonrel  ! [input] true if either centre is nonrelativistic
       logical DryRun  ! [input] true means only compute required memory
 c:tex-\end{verbatim}
@@ -126,7 +128,11 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       debug_arrays = (mod(ibug,10)/2 .eq. 1) .and. .not.DryRun
       max_mem = 0
 *
+      if (.not.(do_nw .or. do_hnd)) call errquit
+     &    ('rel_oneld: can''t do NW or HONDO integrals',99)
+*
       if (debug_gen) then
+        write (LuOut,*) 'Beginning rel_oneld'
         write (LuOut,*) 'l_A',l_A
         write (LuOut,*) 'n_prim_A',n_prim_A
         write (LuOut,*) 'n_cont_A',n_cont_A
@@ -135,6 +141,9 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         write (LuOut,*) 'n_prim_B',n_prim_B
         write (LuOut,*) 'n_cont_B',n_cont_B
         write (LuOut,*) 'ictr_B',ictr_B
+        if (doStil) write (LuOut,*) 'Doing overlaps'
+        if (doTtil) write (LuOut,*) 'Doing kinetic energy'
+        if (doVtil) write (LuOut,*) 'Doing potential energy'
         call util_flush(LuOut)
       end if
 *
@@ -148,7 +157,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       n_ab6 = n_ab*6
       n_ab3at = n_ab*3*nat
       if (lstv .lt. n_ab .and. .not.DryRun) call errquit (
-     &      'Integral buffer length too small in rel_onel',99)
+     &      'Integral buffer length too small in rel_oneld',99)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -177,11 +186,18 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       doT = doTtil.and.nonrel
       doV = doVtil
       memscr = lscr
-      call hf1d(
-     &       Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &       Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &       DryRun,scr,memscr)
+      if (do_nw) then
+        call hf1d(
+     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &      Cxyz,zan,exinv,nat,S,T,V,n_ab,doS,doT,doV,canAB,
+     &      DryRun,scr,memscr)
+      else
+        call hnd_stvintd(
+     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &      Cxyz,zan,nat,S,T,V,n_ab,doS,doT,doV,scr,memscr)
+      end if
       if (debug_arrays) then
         i = 1
         do j = 1,3
@@ -197,6 +213,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         end do
       end if
       if (DryRun) max_mem = max(max_mem,memscr)
+      if (debug_gen) write (LuOut,*) 'Large component done'
       if (nonrel) return
 *
 *   Calculate kinetic energy integrals, correction to overlaps
@@ -206,11 +223,19 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         doT = .true.
         doV = .false.
         memscr = lscr-n_ab6
-        call hf1d(
-     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab6+1),memscr)
+        if (do_nw) then
+          call hf1d(
+     &        Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &        Cxyz,zan,exinv,nat,S,T,V,n_ab,doS,doT,doV,canAB,
+     &        DryRun,scr(n_ab6+1),memscr)
+        else
+          call hnd_stvintd(
+     &        Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &        Cxyz,zan,nat,S,T,V,n_ab,doS,doT,doV,
+     &        scr(n_ab6+1),memscr)
+        end if
         if (DryRun) max_mem = max(max_mem,memscr)
         if (debug_arrays) then
           i = 1
@@ -223,11 +248,19 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
           end do
         end if
         memscr = lscr-n_ab6
-        call hf1d(
-     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,scr,V,lstv,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab6+1),memscr)
+        if (do_nw) then
+          call hf1d(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &        Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &        Cxyz,zan,exinv,nat,S,scr,V,n_ab,doS,doT,doV,canAB,
+     &        DryRun,scr(n_ab6+1),memscr)
+        else
+          call hnd_stvintd(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &        Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &        Cxyz,zan,nat,S,scr,V,n_ab,doS,doT,doV,
+     &        scr(n_ab6+1),memscr)
+        end if
         if (debug_arrays) then
           i = 1
           do j = 1,3
@@ -259,24 +292,32 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
         doT = .true.
         doV = .false.
         memscr = lscr-n_ab6
-        call hf1d(
-     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,scr,V,lstv,doS,doT,doV,canAB,
-     &      DryRun,scr(n_ab6+1),memscr)
-        if (debug_arrays) then
-          i = 1
-          do j = 1,3
-            write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
-            call ecp_matpr(scr(i),1,n_all_b,1,n_all_a,
-     &          1,n_all_b,1,n_all_a,'SS kinetic','E',120,6)
-            i = i+lstv
-          end do
-          call util_flush(LuOut)
+        if (do_nw) then
+          call hf1d(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &        Cxyz,zan,exinv,nat,S,scr,V,n_ab,doS,doT,doV,canAB,
+     &        DryRun,scr(n_ab6+1),memscr)
+        else
+          call hnd_stvintd(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &        Cxyz,zan,nat,S,scr,V,n_ab,doS,doT,doV,
+     &        scr(n_ab6+1),memscr)
         end if
         if (DryRun) then
           max_mem = max(max_mem,memscr+n_ab6)
         else
+          if (debug_arrays) then
+            i = 1
+            do j = 1,3
+              write (LuOut,'(1x,2A)') xyz(j),' component of derivatives'
+              call ecp_matpr(scr(i),1,n_all_b,1,n_all_a,
+     &            1,n_all_b,1,n_all_a,'SS kinetic','E',120,6)
+              i = i+n_ab
+            end do
+            call util_flush(LuOut)
+          end if
           if (doTtil) call daxpy (n_ab6,-one,scr,1,T,1)
           if (doStil) call daxpy (n_ab6,halsq,scr,1,S,1)
           if (debug_arrays) then
@@ -287,20 +328,20 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
      &            1,n_all_b,1,n_all_a,'LS+SL-SS kinetic','E',120,6)
               if (doStil) call ecp_matpr(S(i),1,n_all_b,1,n_all_a,
      &            1,n_all_b,1,n_all_a,'LL+SS overlap','E',120,6)
-              i = i+lstv
+              i = i+n_ab
               call util_flush(LuOut)
             end do
           end if
         end if
+        if (debug_gen) write (LuOut,*) 'KE & overlap done'
       end if
+      if (.not.doVtil) return
 *
 *   Generate small component potential arrays
 *
 *
 *   Set up pointers to scratch space for coefficients multiplied by 
 *   exponents and for integrals with shifted l values
-*
-      if (.not.doVtil) return
 *
       n_cartp_a = n_cart_a+l_A+2
       n_cartp_b = n_cart_b+l_B+2
@@ -316,11 +357,11 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       n_allm_a = n_cartm_a*n_cont_a
       i_xca = 1
       i_xcb = i_xca+n_prim_A*n_cont_A
-      i_pp = max(i_xca+n_ab,i_xcb+n_prim_B*n_cont_B)
+      i_pp = i_xcb+n_prim_B*n_cont_B
       i_pm = i_pp+n_intpp*3*nat
       i_mp = i_pm+n_intpm*3*nat
       i_mm = i_mp+n_intmp*3*nat
-      i_scr = i_mm+n_intmm*3*nat
+      i_scr = max(i_xca+n_ab3at*ntyp,i_mm+n_intmm*3*nat)
       memscr = lscr-i_scr+1
 
       if (debug_addresses) then
@@ -343,7 +384,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       memscr = lscr-i_scr+1
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_onel',99)
+     &      'Insufficient scratch memory in rel_oneld',99)
         k = i_xca-1
         do j = 1,n_cont_a
           do i = 1,n_prim_A
@@ -365,11 +406,19 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
 *
 *         Calculate integrals for l_A+1, l_B+1
 *
-      call hf1d(
-     &    Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
-     &    Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &    Cxyz,zan,exinv,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
-     &    canAB,DryRun,scr(i_scr),memscr)
+      if (do_nw) then
+        call hf1d(
+     &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
+     &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
+     &      Cxyz,zan,exinv,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
+     &      canAB,DryRun,scr(i_scr),memscr)
+      else
+        call hnd_stvintd(
+     &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
+     &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
+     &      Cxyz,zan,nat,S,T,scr(i_pp),n_intpp,doS,doT,doV,
+     &      scr(i_scr),memscr)
+      end if
       if (debug_arrays) then
         k = i_pp
         do i = 1,nat
@@ -391,11 +440,19 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
 *         Calculate integrals for l_A-1, l_B+1
 *
       if (l_A .gt. 0) then
-        call hf1d(
-     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
-     &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
-     &      canAB,DryRun,scr(i_scr),memscr)
+        if (do_nw) then
+          call hf1d(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
+     &        Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
+     &        Cxyz,zan,exinv,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
+     &        canAB,DryRun,scr(i_scr),memscr)
+        else
+          call hnd_stvintd(
+     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
+     &        Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
+     &        Cxyz,zan,nat,S,T,scr(i_pm),n_intpm,doS,doT,doV,
+     &        scr(i_scr),memscr)
+        end if
         if (DryRun) then
           max_mem = max(max_mem,i_scr+memscr-1)
           memscr = lscr-i_scr+1
@@ -418,11 +475,19 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
 *         Calculate integrals for l_A+1, l_B-1
 *
       if (l_B .gt. 0) then
-        call hf1d(
-     &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
-     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &      Cxyz,zan,exinv,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
-     &      canAB,DryRun,scr(i_scr),memscr)
+        if (do_nw) then
+          call hf1d(
+     &        Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
+     &        Cxyz,zan,exinv,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
+     &        canAB,DryRun,scr(i_scr),memscr)
+        else
+          call hnd_stvintd(
+     &        Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
+     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
+     &        Cxyz,zan,nat,S,T,scr(i_mp),n_intmp,doS,doT,doV,
+     &        scr(i_scr),memscr)
+        end if
         if (debug_arrays) then
           k = i_mp
           do i = 1,nat
@@ -444,11 +509,19 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
 *         Calculate integrals for l_A-1, l_B-1
 *
         if (l_A .gt. 0) then
-          call hf1d(
-     &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
-     &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &        Cxyz,zan,exinv,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
-     &        canAB,DryRun,scr(i_scr),memscr)
+          if (do_nw) then
+            call hf1d(
+     &          Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
+     &          Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
+     &          Cxyz,zan,exinv,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
+     &          canAB,DryRun,scr(i_scr),memscr)
+          else
+            call hnd_stvintd(
+     &          Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
+     &          Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
+     &          Cxyz,zan,nat,S,T,scr(i_mm),n_intmm,doS,doT,doV,
+     &          scr(i_scr),memscr)
+          end if
           if (debug_arrays) then
             k = i_mm
             do i = 1,nat
@@ -513,7 +586,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
           i = i+n_ab3at
         end do
       end if
+      if (debug_gen) write (LuOut,*) 'Exiting rel_oneld'
 *
       return
       end
-
