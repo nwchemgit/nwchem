@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.27 1997-10-15 16:22:20 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.28 1997-12-08 19:44:09 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -655,12 +655,11 @@ c     suitable non-zero number.  The scratch space defaults to zero
 c     in which case int_mem_2e4c is used, otherwise the user input
 c     is taken.
 c
-      if (maxscr .eq. 0) then
-         call intb_mem_2e4c(maxg, lenscr) ! blocking algorithm
-      else
+      call intb_mem_2e4c(maxg, lenscr) ! blocking algorithm
+      if (maxscr .ne. 0) then
          lenscr = maxscr
       end if
-      leneri = maxeri
+      leneri = max(maxeri,maxg)
       lenlab = 4*maxeri
 c
       if (util_print('fock_rep_txs', print_never)) then

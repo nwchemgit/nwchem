@@ -2371,7 +2371,7 @@ c returned in ordered vector
 c
 
        subroutine brdcst_ivec( value, v )
-C$Id: graveyard,v 1.5 1995-05-17 16:30:33 mg650 Exp $
+C$Id: graveyard,v 1.6 1997-12-08 19:47:07 d3g681 Exp $
        implicit none
        integer intlen
 #ifdef KSR
@@ -2427,3 +2427,92 @@ C$Id: graveyard,v 1.5 1995-05-17 16:30:33 mg650 Exp $
        return
        end
 #endif
+
+
+
+      subroutine moints_trf2Kynew
+     $     ( nbf, qlo, qhi, oseglo, oseghi, 
+     $     vlo, vhi, ilo, ihi, jlo, jhi, gloc,
+     $     ssni, h, h2, ct, g_buf )
+      implicit none
+#include "global.fh"
+      integer nbf, qlo, qhi, oseglo, oseghi, vlo, vhi
+      integer ilo, ihi, jlo, jhi
+      integer gloc(nbf,nbf)
+      double precision ssni(nbf,jlo:jhi,ilo:ihi,oseglo:oseghi)
+      double precision h(vlo:vhi,jlo:jhi,ilo:ihi),h2(*)
+      double precision ct(qlo:qhi,nbf),s, sum
+      integer g_buf
+      integer ilen, jlen, ijlen, vlen, qlen
+      integer glo, ghi, i, j, ij,k, jtop, klo, khi
+      integer o, v, vo, vtop, vbot
+      integer kchunk, vchunk
+      parameter (kchunk=32, vchunk=96) ! For cache reuse
+
+*      integer ilen, jlen, ijlen
+*      integer glo, ghi, i, j, ij,k
+*      integer o, v, vo, jtop
+
+c
+      ilen = ihi - ilo + 1
+      jlen = jhi - jlo + 1
+      vlen = vhi - vlo + 1
+      qlen = qhi - qlo + 1
+      glo  = gloc(ilo,jlo)
+      ghi  = gloc(ihi,jhi)
+      ijlen = ilen*jlen
+
+      do o = oseglo, oseghi
+*     call dgemm('n','n',vlen,ijlen,nbf,1.0d0,ct(vlo,1),qlen,
+*     $        ssni(1,1,1,o),nbf,0.0d0,h,vlen)
+c     
+c     Following is the same as the above dgemm but using
+c     sparsity of the integrals and restricting diagonal where possible
+c     
+         call dfill((vhi-vlo+1)*ilen*jlen,0.0d0,h,1)
+         do klo = 1, nbf, kchunk ! Blocking for cache
+            khi = min(nbf,klo+kchunk-1)
+            do vbot = vlo, vhi, vchunk ! Blocking for cache
+               vtop = min(vhi,vbot+vchunk-1)
+               do i = ilo, ihi
+                  jtop = jhi
+                  if (ilo .eq. jlo) jtop = i
+                  do j = jlo, jtop
+                     do k = klo, khi
+                        s = ssni(k,j,i,o)
+                        if (abs(s) .gt. 1d-12) then
+                           do v = vbot,vtop
+                              h(v,j,i) = h(v,j,i) + s*ct(v,k)
+                           enddo
+                        endif
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+         do v=vlo,vhi
+            vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
+            ij = 0
+            sum = 0.0d0
+            do i=ilo,ihi
+               jtop = jhi
+               if (ihi.eq.jhi) jtop = i
+               do j=jlo,jtop
+                  ij =   ij + 1
+                  h2(ij) = h(v,j,i) 
+                  sum = sum + h(v,j,i)*h(v,j,i)
+               enddo
+            enddo
+c     Note that sum is the sum of squares hence test against tol**2
+            if (sum .gt. 1d-20) call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
+         enddo
+      enddo
+c
+      return
+      end
+
+
+
+
+
+

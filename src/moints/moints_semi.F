@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.52 1997-10-15 19:18:23 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.53 1997-12-08 19:47:12 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -393,7 +393,7 @@ c  Integrals and temporary arrays sizes
 c
 *     call int_mem_2e4c(max2e, mem2)  ! For non-blocking code
        call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
-       max2e = min(50*maxbfsh**4,21**4) ! Enuf room for 1 cartesian H shell
+       max2e = max(max2e,min(50*maxbfsh**4,21**4)) ! Enuf room for 1 cartesian H shell
 c
        bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
@@ -1086,7 +1086,7 @@ c
        ngrp = moints_numgr( basis, blen )
 
        call intb_mem_2e4c(imax2e, imem2)
-       imax2e = min(50*maxbfsh**4,21**4) ! Enuf room for 1 cartesian H shell
+       imax2e = max(imax2e,min(50*maxbfsh**4,21**4)) ! Enuf room for 1 cartesian H shell
        
 *      call int_mem_2e4c(imax2e, imem2) For non-blocking integrals
        memi = nsh + 4*ngrp + nbf*nbf + nsh*(nsh+1) +

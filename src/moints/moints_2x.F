@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.32 1997-10-28 18:52:41 d3g681 Exp $
+c  $Id: moints_2x.F,v 1.33 1997-12-08 19:47:09 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -155,7 +155,7 @@ c  AO ints allocation
 c
        if (oblk) then
          call intb_mem_2e4c( max2e, mem2 )
-         max2e = min( max2e, maxbfsh*maxbfsh*blen*blen )
+         max2e = max( max2e, maxbfsh*maxbfsh*blen*blen )
        else
          call int_mem_2e4c( max2e, mem2)
        endif

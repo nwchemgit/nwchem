@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.47 1997-11-07 11:35:12 d3e129 Exp $
+* $Id: int2e_file.F,v 1.48 1997-12-08 19:44:11 d3g681 Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -1263,7 +1263,7 @@ c
 *      write(6,*) ' avail 2 ', avail
          call intb_mem_2e4c(max2e, mem2)
 *      write(6,*) ' avail 3 ', avail
-         avail = avail - 5*maxeri - mem2
+         avail = avail - 5*max(max2e,maxeri) - mem2
 *      write(6,*) ' avail 4 ', avail
          avail = avail - 100000
 *      write(6,*) ' avail 5 ', avail

@@ -18,7 +18,7 @@ c
       if (.not.status) call errquit('moints: cannot get basis info',0)
       bsize = max(blen,maxbfsh)
       call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
-      max2e = min(50*maxbfsh**4,21**4) ! Enuf room for 1 cartesian H shell
+      max2e = max(max2e,min(50*maxbfsh**4,21**4)) ! Enuf room for 1 cartesian H shell
       n_integ = max2e+mem2+ma_sizeof(mt_int, 4*max2e, mt_dbl)
       n_ssbb = maxbfsh*maxbfsh*bsize*bsize
       n_ssni = maxbfsh*maxbfsh*nbf*nmo1
@@ -31,7 +31,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.9 1997-10-22 16:40:57 d3g681 Exp $
+c  $Id: moints_trp.F,v 2.10 1997-12-08 19:47:17 d3g681 Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -154,7 +154,7 @@ c  Integrals allocation
 c
 *      call int_mem_2e4c(max2e, mem2)
        call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
-       max2e = min(50*maxbfsh**4,21**4) ! Enuf room for 1 cartesian H shell
+       max2e = max(max2e,min(50*maxbfsh**4,21**4)) ! Enuf room for 1 cartesian H shell
 c
 c  Reorder shells by descending shell-length
 c

@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task,scftype)
 *     
-*     $Id: mp2_memory.F,v 1.17 1997-10-15 19:20:24 d3g681 Exp $
+*     $Id: mp2_memory.F,v 1.18 1997-12-08 19:47:43 d3g681 Exp $
 *     
       implicit none
 #include "mafdecls.fh"
@@ -93,7 +93,7 @@ c
 *      endif
 c
       call intb_mem_2e4c(max2e, mem2) ! Determine mem2 = scratch space
-      max2e = min(50*shmax**4,21**4) ! Enuf room for 1 cartesian H shell
+      max2e = max(max2e,min(50*shmax**4,21**4)) ! Enuf room for 1 cartesian H shell
 c
       call schwarz_tidy()
       call int_terminate()
@@ -101,7 +101,7 @@ c
       if (task .eq. 'gradient') then
          call intd_init(rtdb,1,basis)
          call intb_mem_2e4c(lengd, lenscrd) ! blocking algorithm
-         lengd = 15**4          ! MUST MATCH MP_NONSEP
+         lengd = max(lengd,15**4)          ! MUST MATCH MP_NONSEP
          call int_terminate
       endif
 c
