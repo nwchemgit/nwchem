@@ -1,5 +1,5 @@
       Subroutine xc_rhogen(TOLL,
-     &     basis,iga_dens,
+     &     basis,g_dens,
      &     max_at_bf,natoms,ipol,nq,nbf,mbf,
      &     ldelley,GRAD,
      &     F,Pmat,ff,zz,
@@ -7,46 +7,54 @@
      &     rho,delrho,gamma,
      &     rhoat)
 c
-c$Id: xc_rhogen.F,v 1.5 1995-10-17 08:55:36 d3g681 Exp $
+c$Id: xc_rhogen.F,v 1.6 1995-11-03 00:08:05 og845 Exp $
 c
-      Implicit double precision (a-h,o-z)
-      Implicit integer (i-n)
-
+      implicit none
 #include "bas.fh"
-      Logical GRAD,ldelley
-      Integer basis
 
-    
-c--> Density Matrix
-      Dimension iga_dens(*)
-      Dimension Pmat(max_at_bf*max_at_bf),F(max_at_bf*max_at_bf)
-      Dimension ibf(mbf),iniz(natoms),ifin(natoms)
+      Logical GRAD         ! true when use grad corrected funct.[input]
+      logical ldelley      ! true when Delley weights are used [input]
+      integer basis        ! basis handle           [input]
+      integer ipol         ! no. of spin states     [input]
+      integer nbf          ! no. of basis functions [input]
+      integer mbf          ! "restricted" no. of basis functions [input]
+      integer max_at_bf    ! max no. bf per atom [input]
+      integer nq           ! no. of quadrature points [input]
+      integer natoms       ! no. of atoms [input]
+      integer g_dens(*)    ! GA handle for DM [input]
+      integer ibf(mbf)     ! 
+      integer iniz(natoms) !
+      integer ifin(natoms) !
+      double precision TOLL ! accuracy for rho evaluation [input]
+      double precision chi(nq,mbf)     ! function values [input]
+      double precision delchi(3,nq,mbf)! function gradients [input]
 
-c--> Basis Functions & Gradients
+      double precision rhoat(nq,natoms) ! atomic density values [output]
+      double precision delrho(ipol,3,nq) ! density gradients [output]
+      double precision gamma(ipol*(ipol+1)/2,nq) ! gradients square moduli [output]
 
-      Dimension chi(nq,mbf),delchi(3,nq,mbf)
+      double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
+      double precision F(max_at_bf*max_at_bf)    ! scratch vector
+      double precision zz(3,nq,max_at_bf) ! scratch array
+      double precision ff(nq,max_at_bf)   ! scratch array
 
-c--> Sampling Matrices for [Products of] Basis Functions & Gradients
+      double precision rho(ipol*(ipol+1)/2,nq) ! density values [output]
+C
+C     local declarations
+C
+      double precision rho_tol0,rho_tol1
+      integer i0,ii,mu,mu1,n
+      integer iat,inizia,ifirst,ilast,nbfia,nnia,idim
+      integer jat,inizja,jfirst,jlast,nbfja,nnja,jdim
+      double precision FUNC_MAX,FUNC_MAXI,FUNC_MAX2,P_MAX
+      double precision aaa
+      double precision dabsmax
+      external dabsmax
 
-      Dimension zz(3,nq,max_at_bf)
-      Dimension ff(nq,max_at_bf)
-
-c--> Charge Density & Its Cube Root
-
-      Dimension rho(ipol*(ipol+1)/2,nq),rhoat(nq,natoms)
-
-c--> Charge Density Gradient
-
-      Dimension delrho(ipol,3,nq)
-
-c--> Charge Density Gradient Dot Products
-
-      Dimension gamma(ipol*(ipol+1)/2,nq)
 c
 c Evaluate the charge density and its gradient at each of the sampling 
-c points and then compute its cube root.
+c points 
 c
-c***************************************************************************
 c
 c     tolerance setting
 c
@@ -77,7 +85,7 @@ c     Loop over products of AO basis functions to define the matrix bands.
      &           call errquit('Exiting in rho_gen',14)
               do 215 ii=1,ipol
 
-                call get_atom_block(iga_dens(ii), basis,
+                call get_atom_block(g_dens(ii), basis,
      $               iat, jat, Pmat, idim, jdim)
                 
                 P_MAX=dabsmax(idim*jdim,Pmat)
@@ -201,10 +209,17 @@ cdir$ UNROLL 3
       end
       
       Subroutine cut_tol(n,vec,inc,tol)
-
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      dimension vec(n)
+      implicit none
+      integer n,inc           ! [input]
+      double precision vec(n) ! [input/ouput]
+      double precision tol    ! [input]
+C
+C     local
+C
+      integer ii,i
+C
+C     zeroes array elements under a given threshold
+C
       i=1
 cdir$ UNROLL 3
       do ii=1,n

@@ -1,11 +1,10 @@
       Subroutine a_dist(xyz, Rij, ncenters)
 
-C$Id: a_dist.F,v 1.6 1995-10-19 02:08:04 og845 Exp $
-      Implicit double precision (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: a_dist.F,v 1.7 1995-11-03 00:07:59 og845 Exp $
+      implicit none
 
 #include "quad.fh"
-      integer i,j,ncenters
+      integer ncenters
 c--> Cartesian Coordinates
 
       double precision xyz(3,ncenters)
@@ -14,7 +13,7 @@ c--> Internuclear Distances
 
       double precision Rij((ncenters*(ncenters+1))/2)
 
-
+      integer i,j,ij
 c
 c Evaluate the distance between each pair of centers.
 c
