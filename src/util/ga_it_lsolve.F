@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.13 2000-10-25 22:50:16 windus Exp $
+C$Id: ga_it_lsolve.F,v 1.14 2001-03-08 21:46:00 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -202,7 +202,7 @@ c
          call dgesv(nsub, 1, aa, maxdim, temp, bb, maxdim, info)
          if (info .ne. 0) call errquit
      $        ('ga_iter_lsolve: dgesv failed', info)
-         call dcopy(maxdim, bb, 1, yy, 1)
+         call dcopy(nsub, bb, 1, yy, 1)
          if (odebug .and. ga_nodeid().eq.0) then
             write(6,*) ' ga_iter_lsolve: Reduced space solution '
             call output(yy, 1, nsub, 1, 1, nsub, 1, 1)
