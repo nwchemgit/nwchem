@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:24 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2004-05-14 16:39:49 edo Exp $
 #
 
           OBJ_OPTIMIZE =  paw_energy_vloc_atom.o paw_matrix_vloc.o paw_vloc.o
@@ -9,7 +9,7 @@
 
       LIBRARY =	libpaw.a
 
-   USES_BLAS = 
+   USES_BLAS =  paw_vloc.F
 
   LIB_INCLUDES =
 
