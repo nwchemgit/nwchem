@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.74 2000-07-14 23:20:20 d3j191 Exp $
+c $Id: md_start.F,v 1.75 2000-07-24 17:46:15 d3j191 Exp $
 c
       implicit none
 c
@@ -222,6 +222,10 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "constants.fh"
+#if defined(NEED_LOC)
+      external loc
+      integer loc
+#endif
 c
       character*20 operat
       character*32 theory
