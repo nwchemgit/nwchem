@@ -34,7 +34,7 @@ c
      + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
-     + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2)
+     + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,issscl,delta)
 c
 c     print topology information
 c     --------------------------
@@ -103,7 +103,7 @@ c
 c     retrieve current coordinates for this node
 c     ------------------------------------------
 c
-      call sp_getixv(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
+      call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
      + dbl_mb(i_vw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
 c

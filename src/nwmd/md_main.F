@@ -481,6 +481,12 @@ c
      + int_mb(i_is+(lsfrc-1)*msa),dbl_mb(i_zs),
      + dbl_mb(i_esk),nsaloc,box,vlat,pres,temp,tempw,temps)
 c
+c     center solute in box
+c
+      if(frequency(mdstep,nfcntr)) then
+      call cf_center(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),nsaloc)
+      endif
+c
 c     center of mass coordinates
 c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
