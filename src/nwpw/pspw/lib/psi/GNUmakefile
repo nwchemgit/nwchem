@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.12 2002-08-15 23:43:39 bylaska Exp $
+# $Id: GNUmakefile,v 1.13 2003-04-07 21:12:53 windus Exp $
 #
 
  OBJ_OPTIMIZE = \
 		dipole.o \
-		check.o \
+		orthocheck.o \
 		psi.o \
 		psi_spin2.o \
 		geodesic.o \
