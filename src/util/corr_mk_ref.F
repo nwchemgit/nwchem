@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.4 1998-11-09 17:45:19 bernhold Exp $
+C     $Id: corr_mk_ref.F,v 1.5 1998-11-09 22:41:32 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -55,14 +55,32 @@ C
 C     If DoSCF is .TRUE. the SCF module will be invoked under these
 C     conditions:
 C     1) SCF reference does not exist
-C     2) SCF reference exists, but is not converged to SCFThresh
-C     If DoSCF is .FALSE. the SCF module will not be invoked, even if
-C     the reference is not converged to SCFThresh.
+C     2) SCF reference exists, but does not satisfy the requirements
+C        of movecs_converged (basis & geometry checksums, scftype, and
+C        date of movecs file must match current RTDB and active
+C        calculation)
 C
-C NOTES
-C     The DoSCF/SCFThresh mechanism is somewhat of a kludge and can be
-C     fooled.  In particular, it assumes that the last SCF calculation
-C     for which information appears in the RTDB is the one used to
+C     Note that this mechanism is imperfect:
+C     1) Input decks for which the SCF module inputs don't match those
+C        for the correlated module (primarily w.r.t. movecs filenames)
+C        will probably run the SCF then fail.
+C     2) No check is make of the convergence threshold to insure it is
+C        appropriate for a correlated calculation.  Some modules which
+C        do NOT use corr_mk_ref check the convergence threshold, and may
+C        even invoke the SCF if they consider the threshold inadequate.
+C
+C RTDB ENTRIES USED
+C <Mod>:input vectors, scf:output vectors
+C     Used to figure out what movecs file to read
+C
+C Entries understood by movecs_swap
+C     Reorder vectors prior to freezing
+C
+C <Mod>:frozen core, <Mod>:frozen virtual
+C     Determines which orbitals to freeze
+C
+C <Mod>:reference spin mapping
+C     Allows switching or cloning of references by spin case
 C
 C PRINT CONTROLS
 C 'reference info' (low)
