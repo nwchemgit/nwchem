@@ -4,7 +4,7 @@
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.11 1998-04-29 18:35:17 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.12 1998-04-30 06:06:23 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -202,6 +202,10 @@ c
       filnam=dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
       len_f=index(filnam,' ')-1
 c
+      if(lprint.ge.5) then
+      write(lfnout,'(a,a)') 'Writing new fragment file ',
+     + filnam(1:len_f)
+      endif
       open(unit=iunit,file=filnam(1:len_f),form='formatted',
      + status='new',err=9999)
 c

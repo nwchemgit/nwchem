@@ -1,7 +1,7 @@
       logical function pre_mksgm(lfnout,lprint,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.5 1998-04-29 18:35:18 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.6 1998-04-30 06:06:23 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -143,7 +143,7 @@ c
 c     write segment file
 c     ------------------
 c
-      if(.not.pre_wrtsgm(lfnout,lprint,lfnsgm,filsgm,
+      if(.not.pre_wrtsgm(lfnout,lprint,ffield,lfnsgm,filsgm,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp))

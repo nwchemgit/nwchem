@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.8 1998-04-29 18:35:18 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.9 1998-04-30 06:06:23 d3j191 Exp $
 c
       implicit none
 c
@@ -67,7 +67,7 @@ c
 c     append the atom and bonded lists
 c     --------------------------------
 c
-      if(.not.pre_rdsgm(lfnout,lprint,lseq(4,i),i,igrp,ipgrp,
+      if(.not.pre_rdsgm(lfnout,lprint,ffield,lseq(4,i),i,igrp,ipgrp,
      + lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
@@ -568,8 +568,8 @@ c
       if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_sgmfil failed',9999)
-      if(.not.pre_rdsgm(lfnout,lprint,0,0,igrp,ipgrp,lfnsgm,filsgm,
-     + latm,catm,qatm,matm,natmt,
+      if(.not.pre_rdsgm(lfnout,lprint,ffield,0,0,igrp,ipgrp,lfnsgm,
+     + filsgm,latm,catm,qatm,matm,natmt,
      + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,
      + ldih,kdih,rdih,mdih,ndiht,limp,rimp,mimp,nimpt,wcorr))
      + call errquit('pre_rdsgm failed',9999)

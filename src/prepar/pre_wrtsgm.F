@@ -1,8 +1,8 @@
-      logical function pre_wrtsgm(lfnout,lprint,lfnsgm,filsgm,
+      logical function pre_wrtsgm(lfnout,lprint,ffield,lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_wrtsgm.F,v 1.6 1998-04-29 23:00:13 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.7 1998-04-30 06:06:25 d3j191 Exp $
 c
       implicit none
 c
@@ -14,6 +14,7 @@ c
       real*8 qatm(2,matm)
       character*255 filsgm
       integer lprint
+      character*80 ffield
 c
       integer i,j,length
 c
@@ -50,7 +51,12 @@ c
     4 continue
 c
       do 5 i=1,nimp
+      if(ffield(1:5).eq.'amber') then
+      write(lfnsgm,2006) i,limp(2,i),limp(3,i),limp(1,i),limp(4,i),
+     + 0,0,(0,0.0d0,0.0d0,j=1,3)
+      else
       write(lfnsgm,2006) i,(limp(j,i),j=1,4),0,0,(0,0.0d0,0.0d0,j=1,3)
+      endif
  2006 format(i5,6i5,/,3(i3,f10.6,e12.5))
     5 continue
 c

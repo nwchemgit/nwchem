@@ -2,7 +2,7 @@
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
      + newtop,newseq,newrst,mgrid,gdist,mnoe,maxscf,qscale)
 c
-c $Id: pre_rtdbin.F,v 1.8 1998-04-29 18:35:23 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.9 1998-04-30 06:06:24 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -110,6 +110,7 @@ c
       if(util_nwchemrc_get(key,value))
      + dir_t=value(1:index(value,' '))
       endif
+      if(dir_t(1:1).eq.' ') dir_t='./ '
 c
       pre_rtdbin=.true.
       return

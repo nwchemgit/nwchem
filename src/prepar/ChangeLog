@@ -24,3 +24,6 @@ Apr 28 1998      Add remaining options
 Apr 29 1998      Bug fixes and Id's in all files
 		 No constraints in esp when intergal molecule
 		 Make sgm format identical to previous format
+		 Apply amber improper format to sgm file
+		 Make current directory ffield_t if not specified
+	

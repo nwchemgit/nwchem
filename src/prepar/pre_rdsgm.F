@@ -1,14 +1,15 @@
-      logical function pre_rdsgm(lfnout,lprint,imol,isgm,igrp,ipgrp,
-     + lfnsgm,filsgm,latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
+      logical function pre_rdsgm(lfnout,lprint,ffield,imol,isgm,igrp,
+     + ipgrp,lfnsgm,filsgm,latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
-c $Id: pre_rdsgm.F,v 1.7 1998-04-29 23:00:13 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.8 1998-04-30 06:06:24 d3j191 Exp $
 c
       implicit none
 c
       integer lfnout,lprint,lfnsgm,imol,isgm,igrp,ipgrp
       character*255 filsgm
+      character*80 ffield
       integer matm,natm
       integer latm(8,matm)
       character*6 catm(4,matm)
@@ -169,7 +170,12 @@ c     ------------------------------
 c
       do 6 i=1,nsimp
       nimp=nimp+1
+      if(ffield(1:5).eq.'amber') then
+      read(lfnsgm,1010) limp(2,nimp),limp(3,nimp),limp(1,nimp),
+     + (limp(j,nimp),j=4,6)
+      else
       read(lfnsgm,1010) (limp(j,nimp),j=1,6)
+      endif
  1010 format(5x,6i5)
       read(lfnsgm,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
      + rimp(2*j,nimp),j=1,3)
