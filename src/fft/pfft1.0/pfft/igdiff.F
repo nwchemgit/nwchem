@@ -1,5 +1,5 @@
 *
-* $Id: igdiff.F,v 1.3 1997-11-04 10:07:38 d3e129 Exp $
+* $Id: igdiff.F,v 1.4 1998-11-26 22:57:31 d3g270 Exp $
 *
 *======================================================================
 *
@@ -142,14 +142,17 @@ c
       NEXTPR = MOD( MYINDX + 1, NPROC ) + 1
       NEXTPR = PRCLST( NEXTPR )
       
-	nn = n*nbytei
-      IF ( MOD( MYINDX, 2 ) .EQ. 0 ) THEN
-         IVAL = MXWRIT( DATA, nn, NEXTPR, 1 )
-         IVAL = MXREAD(	WORK, nn, LASTPR, 2 )
-      ELSE	         
-         IVAL = MXREAD( WORK, nn, LASTPR, 1 )
-         IVAL = MXWRIT( DATA, nn, NEXTPR, 2 )
-      ENDIF
+      nn = n*nbytei
+      IVAL = MXWRIT( DATA, nn, NEXTPR, 1 )
+      IVAL = MXREAD( WORK, nn, LASTPR, 1 )
+
+c      IF ( MOD( MYINDX, 2 ) .EQ. 0 ) THEN
+c         IVAL = MXWRIT( DATA, nn, NEXTPR, 1 )
+c         IVAL = MXREAD(	WORK, nn, LASTPR, 2 )
+c      ELSE	         
+c         IVAL = MXREAD( WORK, nn, LASTPR, 1 )
+c         IVAL = MXWRIT( DATA, nn, NEXTPR, 2 )
+c      ENDIF
       
       NDIFF = 0
       DO 10 I = 1, N
