@@ -30,18 +30,28 @@ names should be specified exactly as provided below.  A good method is
 just to cut/paste from the WWW pages since they were generated
 electronically from the library source.
 
-Relativistic contractions of standard basis sets for use with the
-Dyall-modified-Dirac method have also been included in the library. These
-are identified by tags following the standard basis set name.  The first is
-a tag for the nuclear model, which can be \verb+pt+ or \verb+fi+ for a point
-or a finite Gaussian model (see Section\ref{sec:geom}).  The second is a tag
-for the relativistic Hamiltonian: \verb+sf+ is for the spin-free modified
-Dirac Hamiltonian. The third tags the component type, \verb+fw+ for the
-atomic FW transformed large component, \verb+lc+ for the large component and
-\verb+sc+ for the small component. At present, the correlation consistent
-dz, tz, qz and 5z basis sets are the only ones which have have been
-recontracted for relativistic effects, and these are available for H, He,
-Li--Ne, Al--Ar and Ga--Kr.
+Relativistic contractions of standard basis sets for use in the Douglas-Kroll 
+and Dyall-modified-Dirac method have also been included in the library. These
+are identified by tags following the standard basis set name.  \newline
+For the Douglas-Kroll method the tag \verb+dk+ should be specified: 
+\begin{verbatim}
+  oxygen library cc-pVDZ_DK
+\end {verbatim}
+For the Dyall-modified-Dirac (DMD) method three tags should be specified. The 
+first is a tag for the nuclear model, which can be \verb+pt+ or \verb+fi+ for 
+a point or a finite Gaussian model (see Section\ref{sec:geom}).  The second 
+is a tag for the relativistic Hamiltonian: \verb+sf+ is for the spin-free 
+modified Dirac Hamiltonian. The third tags the component type, \verb+fw+ for 
+the atomic FW transformed large component, \verb+lc+ for the large component 
+and \verb+sc+ for the small component: 
+\begin{verbatim}
+    oxygen library cc-pvdz_pt_sf_fw
+    oxygen library cc-pvdz_pt_sf_lc
+\end{verbatim} 
+At present, the correlation consistent dz, tz, qz and 5z basis sets are the 
+only ones which have have been recontracted to incorporate relativistic 
+effects of the Douglas-Kroll and DMD method, and these are available for 
+H, He, B--Ne, Al--Ar and Ga--Kr.
 
 \sloppy
 Here is a list of known basis sets and effective core potentials along
