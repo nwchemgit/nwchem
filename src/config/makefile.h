@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.297 1999-09-24 21:23:53 d3g681 Exp $
+# $Id: makefile.h,v 1.298 1999-09-24 21:25:37 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -295,7 +295,7 @@ ifeq ($(TARGET),SOLARIS)
    COPTIONS = 
   COPTIMIZE = -fast
      RANLIB = echo
-  MAKEFLAGS = -j 4 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = echo $@ is built
 # -fast introduces many options that must be applied to all files
 # -stackvar puts locals on the stack which seems a good thing
@@ -306,9 +306,8 @@ ifeq ($(TARGET),SOLARIS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring ... now implicit in -fast?
 # -xvector requires -mvec library
-  FOPTIMIZE = -O5 -fsimple=2 -depend -xtarget=native -xarch=v8plusa -xsafe=mem -xvector=yes 
-# 
-# This for ultra-2 
+  FOPTIMIZE = -O3 -fsimple=2 -depend -xvector=yes 
+# This for ultra-2 -xarch=v8plusa
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability.
 # -fast now turns on -depend so must turn it off
@@ -320,9 +319,9 @@ ifeq ($(TARGET),SOLARIS)
 
   LDOPTIONS = -xildoff
 
-       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -lsunperf -lmvec -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
-      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
+      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lmvec -ldl 
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
