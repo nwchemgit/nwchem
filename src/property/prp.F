@@ -1,10 +1,12 @@
 *
-* $Id: prp.F,v 1.14 1997-06-11 16:44:55 mdupuis Exp $
+* $Id: prp.F,v 1.15 1997-06-24 16:56:34 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "mafdecls.fh"
 #include "rtdb.fh"
-      integer rtdb, basis, geom
+      integer     rtdb, basis, geom
+      logical     status
       LOGICAL     SOME
       LOGICAL     OUT 
       CHARACTER*8 WFNTYP,SCFTYP
@@ -12,12 +14,14 @@
       CHARACTER*8 RUNTYP
       CHARACTER*8 PROP
       CHARACTER*8 BLANK
-      CHARACTER*8 SCFTYPE
+      CHARACTER*4 IBLK 
+      CHARACTER*4 IEFC 
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_RESTAR/NREST
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_RUNOPT/RUNTYP
       COMMON/HND_SYMTRY/INVT(48),NT,NTMAX,NTWD,NOSYM
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_MMTDIP/DIPOL,DMX,DMY,DMZ
       COMMON/HND_DATDPL/DPOL( 6)
       COMMON/HND_DATDHP/HPOL(10)
@@ -31,32 +35,38 @@
       DATA ZERO    /0.0D+00/
       DATA PROP    /'PROPTY  '/
       DATA BLANK   /'        '/
+      DATA IBLK    /'   '/
       DATA NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,NODPL,NODHP,NOD2HP,
      1     NOFPL,NOFHP,NOF2HP,NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
      2     NOSTON
 C    3    /  0,    1,    1,    0,    1,    1,    1,    1,    1,
 C    4       1,    1,    1,    1,    1,    1,    1,    1,    1,
 C    5       1/
-     3    /  0,    0,    0,    0,    1,    1,    1,    1,    1,
-     4       1,    1,    1,    1,    0,    0,    0,    1,    1,
+     3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
+     4       1,    1,    1,    1,    1,    1,    1,    1,    1,
      5       1/
 C
-      OUT   =.TRUE.
+      OUT   =.FALSE.
       SOME  =.TRUE.        
       SOME  =SOME.OR.OUT
+C
+      status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)
+      status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)
+      status=rtdb_get(rtdb,'prop:octupole',MT_INT,1,nootp)
+      status=rtdb_get(rtdb,'prop:mulliken',MT_INT,1,nopop)
+      status=rtdb_get(rtdb,'prop:spinpopulation',MT_INT,1,nospin)
+      status=rtdb_get(rtdb,'prop:boyslocalization',MT_INT,1,noloc)
+      status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)
+      status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)
+      status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)
+      status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)
+      status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
+C
+      NEFC  =0
+      IEFC  =IBLK
       RUNTYP=BLANK
-c
-      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
-     $     call errquit('prp: scftype not defined',0)
-      call inp_ucase(scftype)
-      if ( scftype .eq. 'RHF' ) then
-           scftyp = rhf     
-      elseif ( scftype .eq. 'ROHF' ) then
-           scftyp = rhf     
-      elseif ( scftype .eq. 'UHF' ) then
-           scftyp = uhf     
-      endif
-c
+      SCFTYP=RHF       
+C
       IF(NODHP.EQ.0.OR.NOD2HP.EQ.0) NODPL=0
       IF(NOFHP.EQ.0.OR.NOF2HP.EQ.0) NOFPL=0
       IF(SOME) WRITE(IW,9999) NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
@@ -67,9 +77,9 @@ c
 C
 C     ----- INTERFACE OF NWCHEM AND HONDO -----
 C
-      CALL HND_DER_INIT(GEOM,BASIS)
-      CALL HND_NW_HND
-      CALL HND_ATLABL(rtdb,geom,basis)
+      CALL HND_PRP_INIT(GEOM,BASIS)
+      CALL HND_PRP_NW_HND
+      CALL HND_ATLABL(RTDB,GEOM,BASIS)
 C
 C     ----- DIPOLE MOMENT -----
 C
@@ -78,18 +88,18 @@ C
       DMY  =ZERO
       DMZ  =ZERO
       IF(NODIP.EQ.0.OR.NOLOC.EQ.0.OR.NODPL.EQ.0) 
-     &  CALL HND_DIPOLE(RTDB)
+     &  CALL HND_DIPOLE(RTDB,BASIS,GEOM)
 C
 C     ----- QUADRUPLOLE MOMENT -----
 C
       IF(RUNTYP.NE.PROP.AND.NOQDP.EQ.0) 
-     &  CALL HND_QDPOLE(RTDB)
+     &  CALL HND_QDPOLE(RTDB,BASIS,GEOM)
 
 C
 C     ----- OCTUPOLE MOMENT -----
 C
       IF(RUNTYP.NE.PROP.AND.NOOTP.EQ.0) 
-     &  CALL HND_OTPOLE(RTDB)
+     &  CALL HND_OTPOLE(RTDB,BASIS,GEOM)
 C
 C     ----- (HYPER)POLARIZABILITIES BY -SOS- -----
 C
@@ -141,23 +151,27 @@ C
 C
 C     ----- ATOMIC SPIN DENSITY -----
 C
-      IF(RUNTYP.NE.PROP.AND.NOSPIN.EQ.0) CALL HND_SPIND
+c--   IF(RUNTYP.NE.PROP.AND.NOSPIN.EQ.0) 
+c--  1    CALL HND_SPIND(RTDB,BASIS,GEOM)
 C
 C     ----- ELECTROSTATIC POTENTIAL -----
 C
-      IF(RUNTYP.NE.PROP.AND.NOELP.EQ.0) CALL HND_ELPMAP(rtdb)
+      IF(RUNTYP.NE.PROP.AND.NOELP.EQ.0) CALL 
+     1               HND_ELPMAP(RTDB,BASIS,GEOM)
 C
 C     ----- ELECTRIC FIELD -----
 C
-      IF(RUNTYP.NE.PROP.AND.NOELF.EQ.0) CALL HND_ELFMAP(rtdb)
+      IF(RUNTYP.NE.PROP.AND.NOELF.EQ.0) CALL 
+     1               HND_ELFMAP(RTDB,BASIS,GEOM)
 C
 C     ----- ELECTRIC FIELD GRADIENT -----
 C
-      IF(RUNTYP.NE.PROP.AND.NOELFG.EQ.0) CALL HND_EFGMAP(rtdb)
+      IF(RUNTYP.NE.PROP.AND.NOELFG.EQ.0) CALL 
+     1               HND_EFGMAP(RTDB,BASIS,GEOM)
 C
 C     ----- ELECTRON AND SPIN DENSITIES -----
 C
-      IF(NODEN.EQ.0) CALL HND_ELDMAP(rtdb,geom,basis)
+      IF(NODEN.EQ.0) CALL HND_ELDMAP(RTDB,BASIS,GEOM)
 C
 C     ----- -NMR- CHEMICAL SHIFTS -----
 C
@@ -186,7 +200,7 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       RETURN
       END
-      SUBROUTINE HND_PRPDEN(DA,DB,L)
+      SUBROUTINE hnd_PRPDEN(DA,DB,L)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXIODA=255)
       CHARACTER*8 WFNTYP, SCFTYP
@@ -207,7 +221,7 @@ C
 C
       RETURN
       END
-      FUNCTION HND_PRPDOT(A,B,N)
+      FUNCTION hnd_prpDOT(A,B,N)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DIMENSION A(1),B(1)
       DATA ZERO,TWO /0.0D+00,2.0D+00/
@@ -218,25 +232,23 @@ C
       M=M+1
    10 DUM=DUM+A(M)*B(M)*TWO
    20 DUM=DUM-A(M)*B(M)
-      HND_PRPDOT=DUM
+      hnd_prpDOT=DUM
       RETURN
       END
-
-      SUBROUTINE HND_DIPOLE(RTDB)
+      SUBROUTINE HND_DIPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb
-      integer g_dens(3),g_wdens
+      integer rtdb,basis,geom
       logical status
-      PARAMETER (MXIODA=255)
-      PARAMETER (MXATOM=500)
+      PARAMETER   (MXIODA=255)
+      PARAMETER   (MXATOM=500)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 SCF, UHF, MP2, PROP
-      LOGICAL SOME,OUT
+      LOGICAL     SOME,OUT
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_EFCPAR/EFCC(3,1000),EFCZ(1000),EFCLAB(1000),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_IOFILE/IR,IW,IP
@@ -244,7 +256,7 @@ C
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
-      COMMON/HND_PRPOPT/NOPROP
+      COMMON/hnd_prpOPT/NOPROP
       COMMON/HND_RUNOPT/RUNTYP
       COMMON/HND_MMTDIP/DIPOL,DMX,DMY,DMZ
       DIMENSION X(1)
@@ -260,8 +272,9 @@ C
       DATA PROP    /'PROPTY  '/
       DATA KEYEFC  /4H EFC/
 C
-      OUT =NPRINT.EQ.6
+      OUT =.FALSE.
       SOME=.TRUE.
+      SOME=SOME.OR.OUT
       IF(RUNTYP.EQ.PROP) SOME=.FALSE.
       L1= NUM
       L2=(NUM*(NUM+1))/2
@@ -270,9 +283,9 @@ C
 C     ----- ALLOCATE MEMORY BLOCK -----
 C
       NEED = L2+L2+L2+L2+L2+L3+L3
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED , 'MEM INIT',I_INIT,INIT))
+      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,'MEM INIT',I_INIT,INIT))
      & CALL ERRQUIT('HND_DIPOLE, MALLOC OF INIT  FAILED',911)
-
+C
       DO I=1,NEED
          X(I+INIT-1)=ZERO
       ENDDO
@@ -320,46 +333,23 @@ C
 C
 C     ----- ELECTRONIC CONTRIBUTION TO DIPOLE MOMENT -----
 C
-C     ----- DENSITY MATRIX FOR X(I40)=DA,X(I50)=DB(0?) -----
-C     CALL HND_PRPDEN(X(I40),X(I50),L2)
-
+C     ----- DENSITY MATRIX FOR X(I40)=DA,X(I50)=DB -----
+C           CALL hnd_prpDEN(X(I40),X(I50),L2)
+C
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i60),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i60),x(i70),num)
-
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i40 +ij-1) = x(i70 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
-c     ----- destroy g_dens(i) and g_wdens -----
-
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
-
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i40),x(i50),x(i60),x(i70),
+     2                      scftyp)
 C
-      DMX=-HND_PRPDOT(X(I40),X(I10),L1)
-      DMY=-HND_PRPDOT(X(I40),X(I20),L1)
-      DMZ=-HND_PRPDOT(X(I40),X(I30),L1)
+      DMX=-hnd_prpDOT(X(I40),X(I10),L1)
+      DMY=-hnd_prpDOT(X(I40),X(I20),L1)
+      DMZ=-hnd_prpDOT(X(I40),X(I30),L1)
       IF((WFNTYP.NE.SCF.OR.SCFTYP.NE.UHF).AND.
      1   (WFNTYP.NE.MP2.OR.SCFTYP.NE.UHF)     ) GO TO 50
-      DMX=-HND_PRPDOT(X(I50),X(I10),L1)+DMX
-      DMY=-HND_PRPDOT(X(I50),X(I20),L1)+DMY
-      DMZ=-HND_PRPDOT(X(I50),X(I30),L1)+DMZ
+      DMX=-hnd_prpDOT(X(I50),X(I10),L1)+DMX
+      DMY=-hnd_prpDOT(X(I50),X(I20),L1)+DMY
+      DMZ=-hnd_prpDOT(X(I50),X(I30),L1)+DMZ
    50 CONTINUE
 C
 C     ----- NUCLEAR CONTRIBUTION
@@ -428,8 +418,7 @@ C
 C     ----- RELEASE MEMORY BLOCK -----
 C
       IF(.NOT.MA_POP_STACK(I_INIT))
-     & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT
-     & FAILED',911)
+     & CALL ERRQUIT('HND_DIPOLE, MA_POP_STACK OF INIT FAILED',911)
 C
       RETURN
 C
@@ -1120,12 +1109,11 @@ C
  9002 FORMAT(1X)
       END
 C
-      SUBROUTINE HND_QDPOLE(RTDB)
+      SUBROUTINE HND_QDPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb
-      integer g_dens(3),g_wdens
+      integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=500)
@@ -1134,7 +1122,7 @@ C
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL OUT,QDPOUT
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_EFCPAR/EFCC(3,1000),EFCZ(1000),EFCLAB(1000),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_IOFILE/IR,IW,IP
@@ -1158,7 +1146,7 @@ C
 C
       QDPOUT=.TRUE.
       IF(.NOT.QDPOUT) RETURN
-      OUT=NPRINT.EQ.6
+      OUT=.FALSE.      
 C
       L1= NUM
       L2=(NUM*(NUM+1))/2
@@ -1210,57 +1198,35 @@ C
 C
 C     ----- CALCULATE SECOND MOMENT INTEGRALS -----
 C
-      CALL HND_QDPINT(X(I10),X(I20),X(I30),X(I40),X(I50),X(I60),
-     1 CM,L1)
+      CALL HND_QDPINT(X(I10),X(I20),X(I30),
+     1                X(I40),X(I50),X(I60),CM,L1)
 C
 C     ----- ELECTRONIC CONTRIBUTION TO SECOND MOMENTS -----
 C
-C*    CALL HND_PRPDEN(X(I70),X(I80),L2)
+C*    CALL hnd_prpDEN(X(I70),X(I80),L2)
 C     
-C     ----- DENSITY MATRIX FOR X(I70)=DA,X(I80)=DB(0?) -----
+C     ----- DENSITY MATRIX FOR X(I70)=DA,X(I80)=DB -----
 
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i90),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i90),x(i91),num)
-
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i70 +ij-1) = x(i91 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
-c     ----- destroy g_dens(i) and g_wdens -----
-
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i70),x(i80),x(i90),x(i91),
+     2                      scftyp)
 C
-      QMXX=-HND_PRPDOT(X(I70),X(I10),L1)
-      QMYY=-HND_PRPDOT(X(I70),X(I20),L1)
-      QMZZ=-HND_PRPDOT(X(I70),X(I30),L1)
-      QMXY=-HND_PRPDOT(X(I70),X(I40),L1)
-      QMXZ=-HND_PRPDOT(X(I70),X(I50),L1)
-      QMYZ=-HND_PRPDOT(X(I70),X(I60),L1)
+      QMXX=-hnd_prpDOT(X(I70),X(I10),L1)
+      QMYY=-hnd_prpDOT(X(I70),X(I20),L1)
+      QMZZ=-hnd_prpDOT(X(I70),X(I30),L1)
+      QMXY=-hnd_prpDOT(X(I70),X(I40),L1)
+      QMXZ=-hnd_prpDOT(X(I70),X(I50),L1)
+      QMYZ=-hnd_prpDOT(X(I70),X(I60),L1)
       IF((WFNTYP.NE.SCF.OR.SCFTYP.NE.UHF).AND.
      1   (WFNTYP.NE.MP2.OR.SCFTYP.NE.UHF)     ) GO TO 50
-      QMXX=-HND_PRPDOT(X(I80),X(I10),L1)+QMXX
-      QMYY=-HND_PRPDOT(X(I80),X(I20),L1)+QMYY
-      QMZZ=-HND_PRPDOT(X(I80),X(I30),L1)+QMZZ
-      QMXY=-HND_PRPDOT(X(I80),X(I40),L1)+QMXY
-      QMXZ=-HND_PRPDOT(X(I80),X(I50),L1)+QMXZ
-      QMYZ=-HND_PRPDOT(X(I80),X(I60),L1)+QMYZ
+      QMXX=-hnd_prpDOT(X(I80),X(I10),L1)+QMXX
+      QMYY=-hnd_prpDOT(X(I80),X(I20),L1)+QMYY
+      QMZZ=-hnd_prpDOT(X(I80),X(I30),L1)+QMZZ
+      QMXY=-hnd_prpDOT(X(I80),X(I40),L1)+QMXY
+      QMXZ=-hnd_prpDOT(X(I80),X(I50),L1)+QMXZ
+      QMYZ=-hnd_prpDOT(X(I80),X(I60),L1)+QMYZ
    50 CONTINUE
 C
 C     ----- < R**2 > = DIAMAGNETIC SUSCEPTIBILITY -----
@@ -1405,7 +1371,6 @@ C
      1 ' ( 1 a.u. = 0.280023 10**(-16) cm**2 ) ',/,
      2 ' ( also called diamagnetic susceptibility ) ')
       END
-C
       SUBROUTINE HND_QDPINT(XXS,YYS,ZZS,XYS,XZS,YZS,CM,L1)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXATOM=500)
@@ -1903,12 +1868,11 @@ C
  9996 FORMAT(' No atomic mass tabulated for  -nucz.gt.104-  . stop')
       END
 C
-      SUBROUTINE HND_OTPOLE(RTDB)
+      SUBROUTINE HND_OTPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb
-      integer g_dens(3),g_wdens
+      integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=500)
@@ -1917,7 +1881,7 @@ C
       CHARACTER*8 SCF, UHF, MP2
       LOGICAL OUT,OTPOUT
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_EFCPAR/EFCC(3,1000),EFCZ(1000),EFCLAB(1000),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_IOFILE/IR,IW,IP
@@ -1941,9 +1905,9 @@ C
       DATA FIVE    /5.0D+00/
       DATA KEYEFC  /4H EFC/
 C
-      OTPOUT=NPRINT.NE.-5
+      OTPOUT=.TRUE. 
       IF(.NOT.OTPOUT) RETURN
-      OUT=NPRINT.EQ.6
+      OUT=.FALSE.       
       L1= NUM
       L2=(NUM*(NUM+1))/2
       L3= NUM*NUM
@@ -1999,64 +1963,42 @@ C
 C     ----- CALCULATE THIRD MOMENT INTEGRALS -----
 C
       CALL HND_OTPINT(X(I10),X(I20),X(I30),X(I40),X(I50),X(I60),
-     1            X(I70),X(I80),X(I90),X(I100),
-     2            CM,L1)
+     1                X(I70),X(I80),X(I90),X(I100),
+     2                CM,L1)
 C
 C     ----- ELECTRONIC CONTRIBUTION TO THIRD MOMENTS -----
 C
 C     ----- DENSITY MATRIX FOR X(I110)=DA,X(I120)=DB(0?) -----
-C*    CALL HND_PRPDEN(X(I110),X(I120),L2)
+C*    CALL hnd_prpDEN(X(I110),X(I120),L2)
 
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i130),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i130),x(i140),num)
-
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i110 +ij-1) = x(i140 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
-c     ----- destroy g_dens(i) and g_wdens -----
-
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
+      call hnd_prp_get_dens(rtdb,basis,geom, 
+     1                      x(i110),x(i120),x(i130),x(i140),
+     2                      scftyp)
 C
-      RXXX=-HND_PRPDOT(X(I110),X(I10),L1)
-      RYYY=-HND_PRPDOT(X(I110),X(I20),L1)
-      RZZZ=-HND_PRPDOT(X(I110),X(I30),L1)
-      RXXY=-HND_PRPDOT(X(I110),X(I40),L1)
-      RXXZ=-HND_PRPDOT(X(I110),X(I50),L1)
-      RYYX=-HND_PRPDOT(X(I110),X(I60),L1)
-      RYYZ=-HND_PRPDOT(X(I110),X(I70),L1)
-      RZZX=-HND_PRPDOT(X(I110),X(I80),L1)
-      RZZY=-HND_PRPDOT(X(I110),X(I90),L1)
-      RXYZ=-HND_PRPDOT(X(I110),X(I100),L1)
+      RXXX=-hnd_prpDOT(X(I110),X(I10),L1)
+      RYYY=-hnd_prpDOT(X(I110),X(I20),L1)
+      RZZZ=-hnd_prpDOT(X(I110),X(I30),L1)
+      RXXY=-hnd_prpDOT(X(I110),X(I40),L1)
+      RXXZ=-hnd_prpDOT(X(I110),X(I50),L1)
+      RYYX=-hnd_prpDOT(X(I110),X(I60),L1)
+      RYYZ=-hnd_prpDOT(X(I110),X(I70),L1)
+      RZZX=-hnd_prpDOT(X(I110),X(I80),L1)
+      RZZY=-hnd_prpDOT(X(I110),X(I90),L1)
+      RXYZ=-hnd_prpDOT(X(I110),X(I100),L1)
       IF((WFNTYP.NE.SCF.OR.SCFTYP.NE.UHF).AND.
      1   (WFNTYP.NE.MP2.OR.SCFTYP.NE.UHF)     ) GO TO 50
-      RXXX=-HND_PRPDOT(X(I120),X(I10),L1)+RXXX
-      RYYY=-HND_PRPDOT(X(I120),X(I20),L1)+RYYY
-      RZZZ=-HND_PRPDOT(X(I120),X(I30),L1)+RZZZ
-      RXXY=-HND_PRPDOT(X(I120),X(I40),L1)+RXXY
-      RXXZ=-HND_PRPDOT(X(I120),X(I50),L1)+RXXZ
-      RYYX=-HND_PRPDOT(X(I120),X(I60),L1)+RYYX
-      RYYZ=-HND_PRPDOT(X(I120),X(I70),L1)+RYYZ
-      RZZX=-HND_PRPDOT(X(I120),X(I80),L1)+RZZX
-      RZZY=-HND_PRPDOT(X(I120),X(I90),L1)+RZZY
-      RXYZ=-HND_PRPDOT(X(I120),X(I100),L1)+RXYZ
+      RXXX=-hnd_prpDOT(X(I120),X(I10),L1)+RXXX
+      RYYY=-hnd_prpDOT(X(I120),X(I20),L1)+RYYY
+      RZZZ=-hnd_prpDOT(X(I120),X(I30),L1)+RZZZ
+      RXXY=-hnd_prpDOT(X(I120),X(I40),L1)+RXXY
+      RXXZ=-hnd_prpDOT(X(I120),X(I50),L1)+RXXZ
+      RYYX=-hnd_prpDOT(X(I120),X(I60),L1)+RYYX
+      RYYZ=-hnd_prpDOT(X(I120),X(I70),L1)+RYYZ
+      RZZX=-hnd_prpDOT(X(I120),X(I80),L1)+RZZX
+      RZZY=-hnd_prpDOT(X(I120),X(I90),L1)+RZZY
+      RXYZ=-hnd_prpDOT(X(I120),X(I100),L1)+RXYZ
    50 CONTINUE
 C
 C     ----- NUCLEAR CONTRIBUTION -----
@@ -2814,16 +2756,15 @@ C
  9997 FORMAT(I5,5X,A8,A2,F15.5)
  9996 FORMAT(' No atomic mass tabulated for  -nucz.gt.104-  . stop')
       END
-C
       SUBROUTINE HND_MULKEN(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb, basis, geom
-      integer g_dens(3),g_wdens
-      logical status
-      integer g_s
+      integer  rtdb, basis, geom
+      logical  status
+      integer  g_s
+      integer  g_dens(3)
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
       PARAMETER (MXIODA=255)
@@ -2843,7 +2784,7 @@ C
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_WFNOPT/WFNTYP
       COMMON/HND_SCFOPT/SCFTYP
-      COMMON/HND_PRPOPT/NOPROP
+      COMMON/hnd_prpOPT/NOPROP
       COMMON/HND_RUNOPT/RUNTYP
       COMMON/HND_BASSPH/ISPHER
       COMMON/HND_MOLSPH/SPHLAB(MXBFN)
@@ -2867,10 +2808,9 @@ C
       DATA NORB           /0/
       DATA MOFLG          /0/
 C
-      POPOUT=NPRINT.NE.-5
+      POPOUT=.TRUE.          
       IF(.NOT.POPOUT) RETURN
       OUT=.FALSE.
-      OUT=OUT.OR.NPRINT.EQ.6
 C
 C     ----- READ NAMELIST /MLK/ -----
 C
@@ -2886,10 +2826,10 @@ c
       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
      $     call errquit ('hnd_elddec: nopen > nelec ', nopen)
 
-       na = nclosed + nopen
-       nb = nopen
-       NORB  = nclosed + nopen
-       MOFLG = 1
+      na = nclosed + nopen
+      nb = nopen
+      NORB  = nclosed + nopen
+      MOFLG = 1
 C
       L1= NUM
       L2=(NUM*(NUM+1))/2
@@ -2953,7 +2893,10 @@ C
 
 c     ----- calculate density matrix -----
 
-         call hnd_dens_path1(rtdb,g_dens,g_wdens)
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i40),x(i50),x(i60),x(i70),
+     2                      scftyp)
+
 
 c     ----- get density matrix from ga to local memory ----- 
 
@@ -2963,9 +2906,8 @@ c     ----- transform DA from nwchem to hnd format -----
  
          call hnd_nwhnd_tran(x(i95),x(i96),num)
 
-c     ----- destroy g_dens(i) and g_wdens -----
+c     ----- destroy g_dens(i) -----
 
-         status = ga_destroy ( g_wdens )
          do i=1, 3
            status = ga_destroy ( g_dens(i) )
          enddo
@@ -3081,7 +3023,7 @@ C
          IFTSP= 1
 
 C*       CALL HND_SPHMAT(X(I00),L1,IFINV,IFTSP)
-C*       CALL HND_PRPDEN(X(I41),X(I52),L2)
+C*       CALL hnd_prpDEN(X(I41),X(I52),L2)
 C     
 C     ----- DENSITY MATRIX FOR X(I41)=DA,X(I52)=DB(0?) -----
 
@@ -3105,7 +3047,7 @@ C*          CALL HND_TFTR(X(I41),X(I52),X(I00),X(I50),IA,L1,L1,L1)
          ENDIF
       ELSE
 
-C*       CALL HND_PRPDEN(X(I40),X(I41),L2)
+C*       CALL hnd_prpDEN(X(I40),X(I41),L2)
 
 c     ----- transform DA from square to triangular format -----
 
@@ -3261,7 +3203,7 @@ c     ----- transform DA from square to triangular format -----
          enddo
       enddo
 C
-C*    CALL HND_PRPDEN(X(I40),X(I41),L2)
+C*    CALL hnd_prpDEN(X(I40),X(I41),L2)
 C
 c%% open shell is not considered at the present.
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
@@ -3581,30 +3523,10 @@ C
       L3=L1*L1
 C     CALL HND_DAREAD(IDAF,IODA,V,L3,NDAF)
 
-c     ----- get mo vectors from file -----
-
-c*     g_vecs=ga_create_atom_blocked (geom, basis, 'mo vectors')
-
 c     ----- figure output input/output MO vectors -----
-
-c*     if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
-c*   $      movecs_in = 'atomic'
-c*     if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
-c*   $      movecs_out = ' '
-c*     if (movecs.eq.' ') then
-c*       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-c*           movecs_out = 'movecs'
-c*       else 
-c*           movecs_out = movecs_in
-c*       endif
-c*     endif
-c*     movecs = movecs_out
 
 c      ----- read eig-vec; eng-val in t for tmp. -----
 
-c*     status = movecs_read (movecs, 1, occ, e, g_vecs)
-c*     call ga_get(g_vecs, 1, num, 1, num, v, num)
-c*     status = ga_destroy ( g_vecs )
        call hnd_get_eigens(rtdb,geom,basis,v,e,num)
 c*     call hnd_prevl(v,e,norb,num,ndim)
 C
@@ -4500,12 +4422,11 @@ C
       RETURN
       END
 C
-      SUBROUTINE HND_ELPMAP(rtdb)
+      SUBROUTINE HND_ELPMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb
-      integer g_dens(3),g_wdens
+      integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
@@ -4525,8 +4446,7 @@ C     INTEGER SPIND
      1                  XYZG0(3)
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
-      COMMON/HND_EFCPAR/EFCC(3,1000),EFCZ(1000),EFCLAB(1000),
-     1                  NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_WFNOPT/WFNTYP
@@ -4578,7 +4498,7 @@ C
       if (ga_nodeid().eq.0) WRITE(IW,9999)
       if (ga_nodeid().eq.0) WRITE(IW,9994)
       SOME=.TRUE.
-      OUT =NPRINT.EQ.6
+      OUT =.FALSE.     
 C
 C     ----- SET POINTERS FOR PARTITIONING OF MEMORY -----
 C
@@ -4622,28 +4542,14 @@ C     ----- MEMORY BLOCK FOR DA IN NWCHEM FORMAT -----
 C     ----- MOMORY BLOCK FOR DA IN HONDO  FORMAT-----
       I60 = I50+L3
 C
-C     ----- DENSITY MATRIX FOR X(I20)=DA,X(I30)=DB(0?) -----
+C     ----- DENSITY MATRIX FOR X(I20)=DA,X(I30)=DB -----
 C
 
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i40),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i40),x(i50),num)
-
-c     ----- destroy g_dens(i) and g_wdens -----
-
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
-
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i20),x(i30),x(i40),x(i50),
+     2                      scftyp)
 C
 C     ----- DEFINE POINTS FOR CALCULATION -----
 C           1. GRID POINTS
@@ -4657,9 +4563,8 @@ c%%
 *    1            XRANGE,YRANGE,ZRANGE,XVEC,YVEC,ZVEC,
 *    2            ORIGIN,IATOM,IUNIT)
 
-C     NPTMAX=NPTMAX+NPTGRD
       NPTGRD=0
-      NPTMAX=NPTMAX+0
+      NPTMAX=NPTMAX+NPTGRD
 c%%
 C
       IF(NPTGRD.GT.0.and.ga_nodeid().eq.0) THEN
@@ -4718,21 +4623,9 @@ C
 C     ----- GET TOTAL DENSITY MATRIX -----
 C
 C     CALL HND_DAREAD(IDAF,IODA,X(I20),L2,16)
-
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i20 +ij-1) = x(i50 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
-
-c%%% the uhf is not considered at the moment
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
-         CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
+C        CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
          DO 120 I=1,L2
             X(I+I20-1)=X(I+I20-1)+X(I+I30-1)
   120    CONTINUE
@@ -5181,12 +5074,11 @@ C
    16 CONTINUE
       RETURN
       END
-      SUBROUTINE HND_ELFMAP(rtdb)
+      SUBROUTINE HND_ELFMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb
-      integer g_dens(3),g_wdens
+      integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
@@ -5204,7 +5096,7 @@ C     INTEGER SPIND
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
-      COMMON/HND_EFCPAR/EFCC(3,1000),EFCZ(1000),EFCLAB(1000),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_WFNOPT/WFNTYP
       DIMENSION X(1)
@@ -5222,7 +5114,7 @@ C
       if (ga_nodeid().eq.0) WRITE(IW,9999)
       if (ga_nodeid().eq.0) WRITE(IW,9994)
       SOME=.TRUE.
-      OUT =NPRINT.EQ.6
+      OUT =.FALSE.       
 C
 C     ----- SET BLOCK FOR PARTITIONING OF MEMORY -----
 C
@@ -5234,7 +5126,6 @@ C
       I10    = I00    + NPTMAX*3
       I20    = I10    + NPTMAX*3
       I30    = I20    + (NUM*(NUM+1))/2
-C     LAST   = I30    + (NUM*(NUM+1))/2
       I40    = I30    + (NUM*(NUM+1))/2
       I50    = I40    + L3
       I60    = I50    + L3
@@ -5263,57 +5154,32 @@ C
 C     ----- DEFINE POINTS FOR CALCULATION -----
 C           1. NUCLEI
 C
-c%%
-*     NPTMAX=0
+      NPTMAX=0
 C
-*     NPTMAX=NPTMAX+NAT
+      NPTMAX=NPTMAX+NAT
       DO 30 IAT=1,NAT
          X(INIT  +3*(IAT-1))=C(1,IAT)
          X(INIT+1+3*(IAT-1))=C(2,IAT)
          X(INIT+2+3*(IAT-1))=C(3,IAT)
    30 CONTINUE
 C
-C     ----- DENSITY MATRIX FOR X(I20)=DA,X(I30)=DB(0?) -----
+C     ----- DENSITY MATRIX FOR X(I20)=DA,X(I30)=DB -----
 C
 
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i40),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i40),x(i50),num)
-
-c     ----- destroy g_dens(i) and g_wdens -----
-
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i20),x(i30),x(i40),x(i50),
+     2                      scftyp)
 
 C
 C     ----- GET TOTAL DENSITY MATRIX -----
 C
 C     CALL HND_DAREAD(IDAF,IODA,X(I20),L2,16)
 
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i20 +ij-1) = x(i50 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
-
-c%%% the uhf is not considered at the moment
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
-         CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
+C        CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
          DO 120 I=1,L2
             X(I+I20-1)=X(I+I20-1)+X(I+I30-1)
   120    CONTINUE
@@ -5687,13 +5553,11 @@ C
      1       ' BEYOND -NROOTS- = ',I3,/,
      2       ' LIT,LJT,NROOTS= ',3I3)
       END
-C
-      SUBROUTINE HND_EFGMAP(rtdb)
+      SUBROUTINE HND_EFGMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
 #include "mafdecls.fh"
-      integer rtdb
-      integer g_dens(3),g_wdens
+      integer rtdb,basis,geom
       logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXBFN=3072)
@@ -5710,7 +5574,7 @@ C
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
       COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
-      COMMON/HND_EFCPAR/EFCC(3,1000),EFCZ(1000),EFCLAB(1000),NEFC,IEFC
+      COMMON/HND_EFCPAR/EFCC(3,10),EFCZ(10),EFCLAB(10),NEFC,IEFC
       COMMON/HND_SCFOPT/SCFTYP
       COMMON/HND_WFNOPT/WFNTYP
       DIMENSION X(1)
@@ -5732,7 +5596,7 @@ C
       if (ga_nodeid().eq.0) WRITE(IW,9999)
       if (ga_nodeid().eq.0) WRITE(IW,9994)
       SOME=.TRUE.
-      OUT =NPRINT.EQ.6
+      OUT =.FALSE.
 C
       PI  = ACOS(-ONE)
       DEG = ANGLE/PI
@@ -5775,8 +5639,8 @@ C
 C     ----- DEFINE POINTS FOR CALCULATION -----
 C           1. NUCLEI
 C
-*     NPTMAX=0
-*     NPTMAX=NPTMAX+NAT
+      NPTMAX=0
+      NPTMAX=NPTMAX+NAT
       DO 30 IAT=1,NAT
          X(INIT  +3*(IAT-1))=C(1,IAT)
          X(INIT+1+3*(IAT-1))=C(2,IAT)
@@ -5788,39 +5652,15 @@ C
 
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
-
-c     ----- get density matrix from ga to local memory ----- 
-
-      call ga_get(g_dens(1),1,num,1,num,x(i40),num)
-
-c     ----- transform DA from nwchem to hnd format -----
- 
-      call hnd_nwhnd_tran(x(i40),x(i50),num)
-
-c     ----- destroy g_dens(i) and g_wdens -----
-
-      status = ga_destroy ( g_wdens )
-      do i=1, 3
-        status = ga_destroy ( g_dens(i) )
-      enddo
+      call hnd_prp_get_dens(rtdb,basis,geom,
+     1                      x(i20),x(i30),x(i40),x(i50),
+     2                      scftyp)
 
 C
 C     ----- GET TOTAL DENSITY MATRIX -----
 C
 C     CALL HND_DAREAD(IDAF,IODA,X(I20),L2,16)
 
-c     ----- transform DA from square to triangular format -----
-
-      ij = 0
-      do i = 1,num
-         do j = 1,i
-            ij = ij + 1
-            x(i20 +ij-1) = x(i50 + (j-1)*(num)+(i-1))
-         enddo
-      enddo
-
-c%%% the uhf is not considered at the moment
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
          CALL HND_DAREAD(IDAF,IODA,X(I30),L2,20)
@@ -6344,7 +6184,7 @@ C
      1       ' BEYOND -NROOTS- = ',I3,/,
      2       ' LIT,LJT,NROOTS = ',3I3)
       END
-      SUBROUTINE HND_ELDMAP(rtdb,geom,basis)
+      SUBROUTINE HND_ELDMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "rtdb.fh"
 #include "global.fh"
@@ -6353,7 +6193,7 @@ C
       PARAMETER (MXATOM=500)
       PARAMETER (MXBFN=3072)
       integer rtdb,geom,basis
-      integer g_dens(3),g_wdens
+      integer g_dens(3)
       logical status
 c*    integer  g_vecs
 c*    character*255 movecs_in,movecs_out
@@ -6516,7 +6356,7 @@ C
 
 c     ----- calculate density matrix -----
 
-      call hnd_dens_path1(rtdb,g_dens,g_wdens)
+      call hnd_prp_get_dens(rtdb,basis,geom,g_dens)
 
 c     ----- get density matrix from ga to local memory ----- 
 
@@ -6526,9 +6366,8 @@ c     ----- transform DA from nwchem to hnd format -----
  
       call hnd_nwhnd_tran(x(i40),x(i50),num)
 
-c     ----- destroy g_dens(i) and g_wdens -----
+c     ----- destroy g_dens(i) -----
 
-      status = ga_destroy ( g_wdens )
       do i=1, 3
         status = ga_destroy ( g_dens(i) )
       enddo
@@ -7397,8 +7236,12 @@ C
    14 CONTINUE
       RETURN
       END
-      SUBROUTINE HND_SPIND
+      SUBROUTINE HND_SPIND(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "global.fh"
+#include "mafdecls.fh"
+      integer rtdb,basis,geom
+      logical status
       PARAMETER (MXIODA=255)
       PARAMETER (MXATOM=500)
       CHARACTER*8 ERRMSG
@@ -7443,7 +7286,7 @@ C
       DATA ISOTOP / 1, 3, 7, 9,11,13,14,17,19,
      1             21,23,25,27,29,31,33,35,39/
 C
-      NOSPIN=NPRINT.EQ.-5
+      NOSPIN=.FALSE.
       IF(NOSPIN) RETURN
       NOSPIN=(WFNTYP.NE.SCF.OR.SCFTYP.NE.UHF).AND.
      1       (WFNTYP.NE.MP2.OR.SCFTYP.NE.UHF)
@@ -9957,7 +9800,6 @@ C
  9348 FORMAT(5(I5,1X,A8,F11.5))
       END
       SUBROUTINE HND_JACOBI(A,V,D,N,NP,NROT,B,Z)
-c     call errquit('hnd_jacobi: this routine must be replaced',0)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(NP,NP),V(NP,NP),D(NP),B(NP),Z(NP)
       DATA ZERO   /0.0D+00/
@@ -11021,111 +10863,107 @@ C
  9348 FORMAT(5(I5,F11.5))
       END
       SUBROUTINE HND_LUDCMP(A,LDA,N,IB,VV,D,IERR)
-c
-      call errquit('hnd_ludcmp: this routine must be replaced',0)
-c$$$      IMPLICIT REAL*8 (A-H,O-Z)
-c$$$C
-c$$$      CHARACTER*8 ERRMSG
-c$$$      DIMENSION A(LDA,1),IB(N),VV(N)
-c$$$      DIMENSION ERRMSG(3)
-c$$$      DATA ERRMSG   /'PROGRAM ','STOP IN ','-LUDCMP-'/
-c$$$      DATA TINY     /1.0D-20/
-c$$$      DATA ZERO,ONE /0.0D+00,1.0D+00/
-c$$$C
-c$$$      IERR=0
-c$$$      D=ONE
-c$$$      DO 12 I=1,N
-c$$$         AAMAX=ZERO
-c$$$         DO 11 J=1,N
-c$$$            IF( ABS(A(I,J)).GT.AAMAX) AAMAX= ABS(A(I,J))
-c$$$   11    CONTINUE
-c$$$         IF(AAMAX.EQ.ZERO) THEN
-c$$$            IERR=1
-c$$$            RETURN
-c$$$         ENDIF
-c$$$         VV(I)=ONE/AAMAX
-c$$$   12 CONTINUE
-c$$$      DO 19 J=1,N
-c$$$         IF(J.GT.1) THEN
-c$$$            DO 14 I=1,J-1
-c$$$               SUM=A(I,J)
-c$$$               IF(I.GT.1) THEN
-c$$$                  DO 13 K=1,I-1
-c$$$                     SUM=SUM-A(I,K)*A(K,J)
-c$$$   13             CONTINUE
-c$$$                  A(I,J)=SUM
-c$$$               ENDIF
-c$$$   14       CONTINUE
-c$$$         ENDIF
-c$$$         AAMAX=ZERO
-c$$$         DO 16 I=J,N
-c$$$            SUM=A(I,J)
-c$$$            IF(J.GT.1) THEN
-c$$$               DO 15 K=1,J-1
-c$$$                  SUM=SUM-A(I,K)*A(K,J)
-c$$$   15          CONTINUE
-c$$$               A(I,J)=SUM
-c$$$            ENDIF
-c$$$            DUM=VV(I)* ABS(SUM)
-c$$$            IF(DUM.GE.AAMAX) THEN
-c$$$               IMAX=I
-c$$$               AAMAX=DUM
-c$$$            ENDIF
-c$$$   16    CONTINUE
-c$$$         IF(J.NE.IMAX) THEN
-c$$$            DO 17 K=1,N
-c$$$               DUM=A(IMAX,K)
-c$$$               A(IMAX,K)=A(J,K)
-c$$$               A(J,K)=DUM
-c$$$   17       CONTINUE
-c$$$            D=-D
-c$$$            VV(IMAX)=VV(J)
-c$$$         ENDIF
-c$$$         IB(J)=IMAX
-c$$$         IF(J.NE.N) THEN
-c$$$            IF(A(J,J).EQ.ZERO) A(J,J)=TINY
-c$$$            DUM=ONE/A(J,J)
-c$$$            DO 18 I=J+1,N
-c$$$               A(I,J)=A(I,J)*DUM
-c$$$   18       CONTINUE
-c$$$         ENDIF
-c$$$   19 CONTINUE
-c$$$      IF(A(N,N).EQ.ZERO) A(N,N)=TINY
-c$$$      RETURN
+      IMPLICIT REAL*8 (A-H,O-Z)
+C
+      CHARACTER*8 ERRMSG
+      DIMENSION A(LDA,1),IB(N),VV(N)
+      DIMENSION ERRMSG(3)
+      DATA ERRMSG   /'PROGRAM ','STOP IN ','-LUDCMP-'/
+      DATA TINY     /1.0D-20/
+      DATA ZERO,ONE /0.0D+00,1.0D+00/
+C
+      IERR=0
+      D=ONE
+      DO 12 I=1,N
+         AAMAX=ZERO
+         DO 11 J=1,N
+            IF( ABS(A(I,J)).GT.AAMAX) AAMAX= ABS(A(I,J))
+   11    CONTINUE
+         IF(AAMAX.EQ.ZERO) THEN
+            IERR=1
+            RETURN
+         ENDIF
+         VV(I)=ONE/AAMAX
+   12 CONTINUE
+      DO 19 J=1,N
+         IF(J.GT.1) THEN
+            DO 14 I=1,J-1
+               SUM=A(I,J)
+               IF(I.GT.1) THEN
+                  DO 13 K=1,I-1
+                     SUM=SUM-A(I,K)*A(K,J)
+   13             CONTINUE
+                  A(I,J)=SUM
+               ENDIF
+   14       CONTINUE
+         ENDIF
+         AAMAX=ZERO
+         DO 16 I=J,N
+            SUM=A(I,J)
+            IF(J.GT.1) THEN
+               DO 15 K=1,J-1
+                  SUM=SUM-A(I,K)*A(K,J)
+   15          CONTINUE
+               A(I,J)=SUM
+            ENDIF
+            DUM=VV(I)* ABS(SUM)
+            IF(DUM.GE.AAMAX) THEN
+               IMAX=I
+               AAMAX=DUM
+            ENDIF
+   16    CONTINUE
+         IF(J.NE.IMAX) THEN
+            DO 17 K=1,N
+               DUM=A(IMAX,K)
+               A(IMAX,K)=A(J,K)
+               A(J,K)=DUM
+   17       CONTINUE
+            D=-D
+            VV(IMAX)=VV(J)
+         ENDIF
+         IB(J)=IMAX
+         IF(J.NE.N) THEN
+            IF(A(J,J).EQ.ZERO) A(J,J)=TINY
+            DUM=ONE/A(J,J)
+            DO 18 I=J+1,N
+               A(I,J)=A(I,J)*DUM
+   18       CONTINUE
+         ENDIF
+   19 CONTINUE
+      IF(A(N,N).EQ.ZERO) A(N,N)=TINY
+      RETURN
       END
       SUBROUTINE HND_LUBKSB(A,LDA,N,IB,B)
-      call errquit('hnd_lubksb: this routine must be replaced',0)
-c$$$      IMPLICIT REAL*8 (A-H,O-Z)
-c$$$C
-c$$$      DIMENSION A(LDA,1),IB(N),B(N)
-c$$$      DATA ZERO /0.0D+00/
-c$$$C
-c$$$      II=0
-c$$$      DO 12 I=1,N
-c$$$         LL=IB(I)
-c$$$         SUM=B(LL)
-c$$$         B(LL)=B(I)
-c$$$         IF(II.NE.0) THEN
-c$$$            DO 11 J=II,I-1
-c$$$               SUM=SUM-A(I,J)*B(J)
-c$$$   11       CONTINUE
-c$$$         ELSE IF (SUM.NE.ZERO) THEN
-c$$$            II=I
-c$$$         ENDIF
-c$$$         B(I)=SUM
-c$$$   12 CONTINUE
-c$$$      DO 14 I=N,1,-1
-c$$$         SUM=B(I)
-c$$$         IF(I.LT.N) THEN
-c$$$            DO 13 J=I+1,N
-c$$$               SUM=SUM-A(I,J)*B(J)
-c$$$   13       CONTINUE
-c$$$         ENDIF
-c$$$         B(I)=SUM/A(I,I)
-c$$$   14 CONTINUE
-c$$$      RETURN
-      END
+      IMPLICIT REAL*8 (A-H,O-Z)
 C
+      DIMENSION A(LDA,1),IB(N),B(N)
+      DATA ZERO /0.0D+00/
+C
+      II=0
+      DO 12 I=1,N
+         LL=IB(I)
+         SUM=B(LL)
+         B(LL)=B(I)
+         IF(II.NE.0) THEN
+            DO 11 J=II,I-1
+               SUM=SUM-A(I,J)*B(J)
+   11       CONTINUE
+         ELSE IF (SUM.NE.ZERO) THEN
+            II=I
+         ENDIF
+         B(I)=SUM
+   12 CONTINUE
+      DO 14 I=N,1,-1
+         SUM=B(I)
+         IF(I.LT.N) THEN
+            DO 13 J=I+1,N
+               SUM=SUM-A(I,J)*B(J)
+   13       CONTINUE
+         ENDIF
+         B(I)=SUM/A(I,I)
+   14 CONTINUE
+      RETURN
+      END
       SUBROUTINE HND_ATLABL(rtdb,geom,basis)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "stdio.fh"
@@ -11422,4 +11260,779 @@ c
       enddo
 c
       return 
+      end
+      subroutine hnd_prp_get_dens(rtdb,basis,geom,
+     1                            da,db,d1nw,d2nw,scftyp)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "context.fh"
+#include "schwarz.fh"
+#include "util.fh"
+c
+c     Assumes energy has been completed, MO vectors stored
+c     and all information is still in the RTDB
+c
+      double precision da,db,d1nw,d2nw
+c
+      logical  int_normalize
+      external int_normalize
+
+      integer       rtdb              ! [input] database handle
+      integer       geom, basis       ! handles
+      logical       status
+      integer       g_dens
+      character*255 title
+      character*255 movecs_in, movecs_out
+      character*8   scftyp 
+      dimension     g_dens(3)         ! max # of density matrices
+      dimension     da(*),db(*),d1nw(*),d2nw(*)
+c
+c     Extract high level info from the data-base setting defaults
+c     
+      if (.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
+c
+c     Figure output input/output MO vectors ... all this should be
+c     context sensitive but that design is incomplete.
+c
+      if (.not. rtdb_cget(rtdb, 'prop:input vectors',  1, 
+     $     movecs_in )) then
+           call util_file_name('movecs', .false.,.false.,movecs_in )
+      endif
+      call util_file_name_resolve(movecs_in , .false.)
+      if (.not. rtdb_cget(rtdb, 'prop:output vectors',  1,
+     $     movecs_out)) then
+           call util_file_name('movecs', .false.,.false.,movecs_out)
+      endif
+      call util_file_name_resolve(movecs_out, .false.)
+c
+      call hnd_prp_dens_read(rtdb,basis,geom,movecs_in,
+     $                       da,db,d1nw,d2nw,scftyp)
+c
+      return
+      end
+      subroutine hnd_prp_dens_read(rtdb,basis,geom,movecs,
+     $                             da,db,d1nw,d2nw,scftyp)
+      implicit none
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "util.fh"
+#include "sym.fh"
+#include "stdio.fh"
+
+      logical       status
+      integer       rtdb, basis, geom
+      character*(*) movecs
+      character*4   scftype
+      character*8   scftyp 
+c
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+
+      logical  movecs_read_header, movecs_read
+      external movecs_read_header, movecs_read
+
+      integer g_dens,     ! density matrices (up to 3)
+     $        g_molec 
+  
+      integer max_sh_bf, max_at_bf 
+      integer nat, nbf, nopen , nclosed , nvirt 
+      integer           nopenu, nclosedu, nvirtu  
+      integer ndens, nbf2, nocc, i, iset
+      character*255 title_molec, basis_name_molec
+      character*20  scftype_molec
+      integer       nbf_molec, nsets_molec, nmo_molec(2)
+      integer                               nmo
+c
+      integer   l_eval, k_eval, l_occ, k_occ
+      dimension g_dens(3) ! max # of density matrices
+c
+      double precision da(*),db(*),d1nw(*),d2nw(*)
+c
+      logical dbug
+      dbug=.false.
+c
+c     get information about basis set
+c
+      status = geom_ncent(geom,nat)
+      if ( .not.status )
+     & call errquit('dens_read: could not get natoms',0)
+      status = bas_numbf(basis,nbf)
+      if ( .not.status ) 
+     & call errquit('dens_read: could not get nbf',0)
+      status = bas_nbf_cn_max(basis,max_sh_bf)
+      if ( .not.status )
+     & call errquit('dens_read: could not get max_sh_bf',0)
+      status = bas_nbf_ce_max(basis,max_at_bf)
+      if ( .not.status )
+     & call errquit('dens_read: could not get max_at_bf',0)
+c
+c     read vector file header
+c
+      if (.not. movecs_read_header(movecs, title_molec,
+     &    basis_name_molec, scftype_molec, nbf_molec,
+     &    nsets_molec, nmo_molec, 2))
+     &    call errquit('dens_read: failed to read header', 911)
+      if(dbug) then
+         write(6,9999)
+     1     movecs
+     2   ,title_molec
+     3   ,basis_name_molec
+     4   ,scftype_molec
+     5   ,nbf_molec
+     6   ,nsets_molec
+     7   ,nmo_molec
+      endif
+c
+      if (nsets_molec.eq.1) then
+         scftype = 'RHF'
+         scftyp  = 'RHF     '
+      else
+         scftype = 'UHF'
+         scftyp  = 'UHF     '
+      endif
+      call inp_ucase(scftype)
+
+C     # of eigenvalues and density matrices
+      if ( scftype .eq. 'UHF' ) then
+        nbf2  = 2 * nbf
+        ndens = 3
+        nmo   = max(nmo_molec(1),nmo_molec(2))
+      else if ( scftype .eq. 'RHF' ) then
+        nbf2  = nbf
+        ndens = 1
+        nmo   =     nmo_molec(1)
+      endif
+
+C     allocate and initialize global and local memory
+
+C     occupation numbers
+      status = MA_push_get(MT_DBL, nbf2,'occ. numbers', l_occ, 
+     $                                                  k_occ)
+      if (.not.status) 
+     $     call errquit('property: could not allocate l_occ',911)
+C     eigenvalues
+      status = MA_push_get(MT_DBL, nbf2,'MO eval', l_eval, k_eval)
+      if (.not.status) 
+     $     call errquit('property: could not allocate l_eval',911)
+      
+      status = ga_create(MT_DBL, nbf_molec, nmo,' molec MOs',
+     $                           nbf_molec, nmo,g_molec)
+      if (.not.status)
+     $     call errquit('property: GA for molecular MOs',911)
+c
+c     read ( alpha ) orbitals
+c
+      iset=1
+      status = movecs_read(movecs,iset,
+     $         dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
+      if (.not.status)
+     $  call errquit('property: could not read molecular MOs',911)
+       
+      nclosed = 0
+      nopen   = 0
+      nvirt   = 0
+      do i=1,nmo_molec(1)
+         if(dbl_mb(k_occ+i-1).eq.2.0d0) then
+            nclosed=nclosed+1
+         elseif(dbl_mb(k_occ+i-1).ne.0.0d0) then
+            nopen=nopen+1
+         else
+            nvirt=nvirt+1
+         endif
+      enddo
+      if(dbug) then
+         write(6,9998) nclosed , nopen , nvirt
+      endif
+c
+c     read ( beta ) orbitals
+c
+      if( nsets_molec.gt.1 ) then
+            iset=2
+         status = movecs_read(movecs,iset,
+     $            dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
+         if (.not.status)
+     $     call errquit('property: could not read molecular MOs',911)
+
+         nclosedu= 0
+         nopenu  = 0
+         nvirtu  = 0
+         do i=1,nmo_molec(2)
+            if(dbl_mb(k_occ+i-1).eq.2.0d0) then
+               nclosedu=nclosedu+1
+            elseif(dbl_mb(k_occ+i-1).ne.0.0d0) then
+               nopenu=nopenu+1
+            else
+               nvirtu=nvirtu+1
+            endif
+         enddo
+         if(dbug) then
+            write(6,9997) nclosedu, nopenu, nvirtu
+         endif
+      endif
+
+      status = ga_destroy ( g_molec )
+c     global density
+      do i=1, ndens
+        g_dens(i) = ga_create_atom_blocked ( geom, basis, 
+     $              'density matrix' )
+      enddo
+
+c
+      call hnd_prop_dens_make (geom, basis, g_dens, 
+     $     dbl_mb(k_eval), dbl_mb(k_occ), ndens, nbf, nbf2, 
+     $     nclosed, nopen, nclosedu, nopenu, scftype, movecs,
+     $     da, db, d1nw, d2nw)
+
+c
+c     free temporary arrays
+c
+      status = MA_pop_stack ( l_eval)
+      status = MA_pop_stack ( l_occ )
+
+      return
+ 9999 format(
+     1   /,'movecs             = ',a24,
+     2   /,'title_molec        = ',a24,
+     3   /,'basis_name_molec   = ',a24,
+     4   /,'scftype_molec      = ',a24,
+     5   /,'nbf_molec          = ',i12,
+     6   /,'nsets_molec        = ',i12,
+     7   /,'nmo_molec          = ',i12,i12
+     8      )
+ 9998 format(' nclosed , nopen , nvirt  = ',3i10)
+ 9997 format(' nclosedu, nopenu, nvirtu = ',3i10)
+      end
+      subroutine hnd_prop_dens_make (geom, basis, g_dens, 
+     $     evals, occ, ndens, nbf, nbf2, 
+     $     nclosed, nopen, nclosedu, nopenu, scftype, movecs,
+     $     da, db, d1nw, d2nw )
+
+c     calculate the density matrices from the movecs 
+
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer geom, basis, g_dens, ndens
+      integer nbf, nbf2, nclosed, nopen, nclosedu, nopenu
+      double precision evals, occ
+      double precision da, db, d1nw, d2nw
+      character*4 scftype
+      character*(*) movecs
+
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+      logical  movecs_read, file_read_ga
+      external movecs_read, file_read_ga
+
+      dimension evals(nbf2), occ(nbf2), g_dens(ndens)
+      dimension da(*), db(*), d1nw(*), d2nw(*)
+
+C     local variables
+      integer nocc, l_ind, k_ind, l_ind2, k_ind2, g_vecs, g_vecs2
+      integer i, j, ij
+      logical status
+      logical dbug
+      dbug=.false.
+
+C  get MO vectors from file 
+
+      g_vecs = ga_create_atom_blocked ( geom, basis, 'mo vectors' )
+      if ( scftype.eq. 'UHF' ) then
+        g_vecs2 = ga_create_atom_blocked (geom, basis, 'uhf mo vectors')
+      endif
+
+      status = movecs_read (movecs, 1, occ, evals, g_vecs)
+      if (.not.status) then
+        call errquit('prop_dens_make: could not read mo vectors', 110)
+      endif
+
+      if (scftype .eq. 'UHF') then
+        if (.not. movecs_read(movecs, 2, occ(nbf+1), evals(nbf+1),
+     $       g_vecs2)) then
+        call errquit('prop_dens_make: could not read uhf vectors', 110)
+        endif
+      endif
+      
+      if (scftype .eq. 'RHF') then
+c       density matrix
+
+        call ga_matmul_patch('n', 't', 2.0d0, 0.0d0,
+     $       g_vecs,    1, nbf, 1, nclosed,
+     $       g_vecs,    1, nclosed, 1, nbf,
+     $       g_dens(1), 1, nbf, 1, nbf)
+        call ga_symmetrize(g_dens(1))
+
+        call ga_get(g_dens(1),1,nbf,1,nbf,d1nw,nbf)
+ 
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       square to triangular format
+
+        ij=0
+        do i=1,nbf
+           do j=1,i
+              ij=ij+1
+              da(ij)=d2nw(i+nbf*(j-1))
+           enddo
+        enddo
+
+      else  ! UHF
+c       density matrix  D_up and D_down
+
+        call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
+     $    g_vecs,    1, nbf,             1, nopen +nclosed ,
+     $    g_vecs,    1, nopen +nclosed , 1, nbf,
+     $    g_dens(1), 1, nbf,             1, nbf)
+        call ga_matmul_patch('n', 't', 1.0d0, 0.0d0,
+     $    g_vecs2,   1, nbf,             1, nopenu+nclosedu,
+     $    g_vecs2,   1, nopenu+nclosedu, 1, nbf,
+     $    g_dens(2), 1, nbf,             1, nbf)
+
+C       density total
+
+        call ga_dadd ( 1.D0, g_dens(1), 1.D0, g_dens(2), g_dens(3) )
+        call ga_symmetrize(g_dens(1))
+        call ga_symmetrize(g_dens(2))
+        call ga_symmetrize(g_dens(3))
+
+        call ga_get(g_dens(1),1,nbf,1,nbf,d1nw,nbf)
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       square to triangular format
+
+        ij=0
+        do i=1,nbf
+           do j=1,i
+              ij=ij+1
+              da(ij)=d2nw(i+nbf*(j-1))
+           enddo
+        enddo
+        if(dbug) then
+           call hnd_prtr(da,nbf)
+        endif
+
+        call ga_get(g_dens(2),1,nbf,1,nbf,d1nw,nbf)
+c       hondo to nwchem mapping
+
+        call hnd_nwhnd_tran(d1nw,d2nw,nbf)
+
+c       square to triangular format
+
+        ij=0
+        do i=1,nbf
+           do j=1,i
+              ij=ij+1
+              db(ij)=d2nw(i+nbf*(j-1))
+           enddo
+        enddo
+        if(dbug) then
+           call hnd_prtr(da,nbf)
+        endif
+
+c       
+      endif
+
+c
+
+      status = ga_destroy ( g_vecs )
+      if ( scftype .eq. 'UHF' ) then
+        status = ga_destroy ( g_vecs2 )
+      endif
+      do i=1,3
+         status = ga_destroy ( g_dens(i) )
+      enddo
+      return
+      end
+      subroutine hnd_prp_init(geom,basis)
+      implicit double precision (a-h,o-z)
+c 
+      parameter (zero=0.0d+00)
+      parameter (mxatom=500)
+      parameter (mxprim=2048)
+      parameter (mxshel=512)
+      parameter (mxnbf =2048)
+      parameter (mxtype=5)
+      logical  status
+      integer  geom 
+      integer  basis
+      integer  num
+      logical  geom_ncent
+      external geom_ncent
+      logical  geom_create
+      external geom_create
+      logical  geom_rtdb_load
+      external geom_rtdb_load
+      logical  geom_cart_get
+      external geom_cart_get
+      logical  bas_numcont
+      external bas_numcont
+      logical  bas_numbf
+      external bas_numbf
+      logical  bas_ce2cnr
+      external bas_ce2cnr
+      logical  bas_cn2bfr
+      external bas_cn2bfr
+      character*16 atom_tags
+c
+      logical dbug
+      logical out
+      dimension atom_tags(mxatom)
+      dimension mini(mxtype),maxi(mxtype)
+c
+c     ----- routine initializes HONDO common blocks -----
+c
+      common/inp_file/iread,iwrite
+      common/hnd_iofile/ir,iw,ip
+      common/hnd_baspar/normf,normp,itol
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+      common/hnd_basnum/num
+      common/hnd_ijpair/ia(mxnbf)
+      common/hnd_nshel/ex(mxprim),cs(mxprim),cp(mxprim),
+     1                 cd(mxprim),cf(mxprim),cg(mxprim),
+     2                 kstart(mxshel),katom(mxshel),ktype(mxshel),
+     3                 kng(mxshel),kloc(mxshel),kmin(mxshel),
+     4                 kmax(mxshel),nshell
+      common/hnd_shlord/modshl(mxshel),invshl(mxshel)
+      common/hnd_lcapid/nap,iap
+      common/hnd_symtry/invt(48),nt,ntmax,ntwd,nosym
+      common/hnd_symshl/mapshl(mxshel,48),mapctr(mxatom,48)
+c
+#include "global.fh"
+#include "basdeclsP.fh"
+#include "basP.fh"
+#include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+
+      data mini / 1, 2, 5,11,21/
+      data maxi / 1, 4,10,20,35/
+
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      dbug=.false.
+      out =.false.
+      ir=iread
+      iw=iwrite
+      ip=7
+c
+      if(out.and.ga_nodeid().eq.0) then
+         write(iw,*) ' in routine ... hnd_prp_init ... '
+      endif
+      if(dbug) then
+         write(iw,*) ' ... geom  = ',geom
+         write(iw,*) ' ... basis = ',basis
+      endif
+c
+c     ----- get basis set info + parameters -----
+c
+      if (.not. geom_ncent (geom , natoms)) call errquit
+     $     ('hnd_prp_init: geom_ncent  failed for geom', geom)
+      if(dbug) then
+         write(iw,*) ' ... natoms = ', natoms
+      endif
+      if (.not. bas_numcont(basis, nshell)) call errquit
+     $     ('hnd_prp_init: bas_numcont failed for basis', basis)
+
+      if (.not. bas_numbf(basis, num)) call errquit
+     $     ('hnd_prp_init: bas_numbf failed for basis', basis)
+      if(dbug) then
+         write(iw,*) ' ... nshell = ', nshell
+         write(iw,*) ' ... num    = ', num
+      endif
+
+      do i=1,mxnbf
+         ia(i) = i*(i-1)/2 
+      enddo
+c
+c     ----- loop over atoms -----
+c
+      istart=1
+      do iat=1,natoms
+         status=bas_ce2cnr(basis,iat,ishlo,ishhi)
+         if(.not.status) call errquit
+     $       ('hnd_prp_init: bas_ce to cnr/bfr failed', iat)
+         if(dbug) then
+            write(iw,*) ' ... iat, ishlo, ishhi = ',iat,ishlo,ishhi
+         endif
+c 
+c     ----- loop over shells on atoms -----
+c
+         do ish=ishlo,ishhi
+            status=bas_cn2bfr(basis,ish,ishbflo,ishbfhi)
+            if(.not.status) call errquit
+     $          ('hnd_prp_init: bas_cn to bfr failed', ish)
+            ioff=basis+BASIS_HANDLE_OFFSET
+            ishu=sf_ibs_cn2ucn(ish,ioff)
+            ityp=infbs_cont(CONT_TYPE ,ishu,ioff)
+            ngi =infbs_cont(CONT_NPRIM,ishu,ioff)
+            icon=infbs_cont(CONT_ICFP ,ishu,ioff)
+            iexp=infbs_cont(CONT_IEXP ,ishu,ioff)
+c
+            katom(ish) =iat
+            kloc(ish)  =ishbflo
+            ktype(ish) =ityp+1
+            kmin(ish)  =mini(ityp+1)
+            kmax(ish)  =maxi(ityp+1)
+            kng(ish)   =ngi
+            kstart(ish)=istart
+c
+c     ----- loop over primitives in shells -----
+c
+            do ig=1,ngi
+               ex(ig+istart-1)=zero
+               cs(ig+istart-1)=zero
+               cp(ig+istart-1)=zero
+               cd(ig+istart-1)=zero
+               cf(ig+istart-1)=zero
+               cg(ig+istart-1)=zero
+               cont_expo     =dbl_mb(mb_exndcf(ig+iexp-1,ioff))
+               cont_coeff    =dbl_mb(mb_exndcf(ig+icon-1,ioff))
+               ex(ig+istart-1)=cont_expo
+               if(ityp.eq.0) then
+                  cs(ig+istart-1)=cont_coeff
+               elseif(ityp.eq.1) then
+                  cp(ig+istart-1)=cont_coeff
+               elseif(ityp.eq.2) then
+                  cd(ig+istart-1)=cont_coeff
+               elseif(ityp.eq.3) then
+                  cf(ig+istart-1)=cont_coeff
+               elseif(ityp.eq.4) then
+                  cg(ig+istart-1)=cont_coeff
+               else
+                  call errquit('hnd_prp_init: illegal -ityp- ', ityp)
+               endif
+               if(dbug) then
+                  write(iw,*) ' ish,ig,ityp,exp,con= ',ish,ig,ityp,
+     $                         cont_expo,cont_coeff
+               endif
+            enddo
+            istart=istart+ngi
+c
+         enddo
+c
+      enddo
+c
+c     ----- print /nshel/ -----
+c
+      if(dbug) then
+         write(iw,*) ' ... kstart= ',(kstart(ish),ish=1,nshell)
+         write(iw,*) ' ... katom = ',( katom(ish),ish=1,nshell)
+         write(iw,*) ' ... ktype = ',( ktype(ish),ish=1,nshell)
+         write(iw,*) ' ... kng   = ',(   kng(ish),ish=1,nshell)
+         write(iw,*) ' ... kloc  = ',(  kloc(ish),ish=1,nshell)
+         write(iw,*) ' ... kmin  = ',(  kmin(ish),ish=1,nshell)
+         write(iw,*) ' ... kmax  = ',(  kmax(ish),ish=1,nshell)
+      endif
+c
+c     ----- /baspar/ -----
+c
+      normf=0
+      normp=0
+      itol=15
+      if(dbug) then
+         write(iw,*) ' ... normf,normp,itol = ',normf,normp,itol
+      endif
+c
+c     ----- /molxyz/ -----
+c
+      status=geom_ncent(geom,nat)
+      status=geom_cart_get(geom,nat,atom_tags,c,zan)
+      if(.not.status) call errquit
+     $    (' int_1e_ga_hnd_init: geom_cart_get failed.',911)
+      if(dbug) then
+         do iat=1,nat
+            write(iw,*) ' ... i,Z,c = ',iat,zan(iat),c(1,iat),c(2,iat),
+     $                                               c(3,iat)
+         enddo
+      endif
+c
+c     ----- initialization for 2e integral derivatives -----
+c
+      do i=1,mxshel
+         modshl(i)=i
+         invshl(i)=i
+      enddo
+c
+c     nap = 1
+c     iap = 1
+      nap = ga_nnodes()
+      iap = ga_nodeid() + 1
+c
+      nt=1
+      do i=1,mxshel
+         mapshl(i,1)=i
+      enddo
+c
+      do i=1,mxatom
+         mapctr(i,1)=i
+      enddo
+c
+c     ----- load Hermite's roots and weights -----
+c
+      call hnd_whermt
+c
+      return
+      end
+      subroutine hnd_prp_nw_hnd
+      implicit double precision (a-h,o-z)
+c
+c     ----- order of components in shells in HONDO -----
+c
+c            x    / 1, 2, 1, 1, 3, 1, 1, 2, 2, 1,
+c    1              4, 1, 1, 3, 3, 2, 1, 2, 1, 2,
+c    2              5, 1, 1, 4, 4, 2, 1, 2, 1, 3,
+c    3              3, 1, 3, 2, 2/
+c            y    / 1, 1, 2, 1, 1, 3, 1, 2, 1, 2,
+c    1              1, 4, 1, 2, 1, 3, 3, 1, 2, 2,
+c    2              1, 5, 1, 2, 1, 4, 4, 1, 2, 3,
+c    3              1, 3, 2, 3, 2/
+c            z    / 1, 1, 1, 2, 1, 1, 3, 1, 2, 2,
+c    1              1, 1, 4, 1, 2, 1, 2, 3, 3, 2,
+c    2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
+c    3              3, 3, 2, 2, 3/
+c
+c     ----- order of components in shells in NWCHEM -----
+c
+c            x    / 1, 2, 1, 1, 3, 2, 2, 1, 1, 1,
+c    1              4, 3, 3, 2, 2, 2, 1, 1, 1, 1,
+c    2              5, 4, 4, 3, 3, 3, 2, 2, 2, 2,
+c    3              1, 1, 1, 1, 1/
+c            y    / 1, 1, 2, 1, 1, 2, 1, 3, 2, 1,
+c    1              1, 2, 1, 3, 2, 1, 4, 3, 2, 1,
+c    2              1, 2, 1, 3, 2, 1, 4, 3, 2, 1,
+c    3              5, 4, 3, 2, 1/
+c            z    / 1, 1, 1, 2, 1, 1, 2, 1, 2, 3,
+c    1              1, 1, 2, 1, 2, 3, 1, 2, 3, 4,
+c    2              1, 1, 2, 1, 2, 3, 1, 2, 3, 4,
+c    3              1, 2, 3, 4, 5/
+c
+c     ----- order of components in shells in HONDO -----
+c
+c                    1      2      3      4
+c                '   S','   X','   Y','   Z',
+c                    5      6      7      8      9     10
+c    1           '  XX','  YY','  ZZ','  XY','  XZ','  YZ',
+c                   11     12     13     14     15  
+c    2           ' XXX',' YYY',' ZZZ',' XXY',' XXZ',
+c                   16     17     18     19     20
+c    3           ' YYX',' YYZ',' ZZX',' ZZY',' XYZ',
+c                   21     22     23     24     25
+c    4           'XXXX','YYYY','ZZZZ','XXXY','XXXZ',
+c                   26     27     28     29     30
+c    5           'YYYX','YYYZ','ZZZX','ZZZY','XXYY',
+c                   31     32     33     34     35
+c    6           'XXZZ','YYZZ','XXYZ','YYXZ','ZZXY'/
+c
+c     ----- order of components in shells in NWCHEM -----
+c
+c                    1      2      3      4
+c                '   S','   X','   Y','   Z',
+c                    5      6      7      8      9     10
+c    1           '  XX','  XY','  XZ','  YY','  YZ','  ZZ',
+c                   11     12     13     14     15     
+c    2           ' XXX',' XXY',' XXZ',' XYY',' XYZ',
+c                   16     17     18     19     20
+c    3           ' XZZ',' YYY',' YYZ',' YZZ',' ZZZ',
+c                   21     22     23     24     25
+c    4           'XXXX','XXXY','XXXZ','XXYY','XXYZ',
+c                   26     27     28     29     30
+c    5           'XXZZ','XYYY','XYYZ','XYZZ','XZZZ',
+c                   31     32     33     34     35
+c    6           'YYYY','YYYZ','YYZZ','YZZZ','ZZZZ'/
+c
+      parameter (mxatom=500)
+      parameter (mxprim=2048)
+      parameter (mxshel=512)
+      parameter (mxnbf =2048)
+      parameter (sqrt3 = 1.73205080756888d+00)
+      parameter (sqrt5 = 2.23606797749979d+00)
+      parameter (sqrt7 = 2.64575131106459d+00)
+      parameter (sq5d3 = sqrt5/sqrt3)
+      common/hnd_iofile/ir,iw,ip
+      common/hnd_nshel/ex(mxprim),cs(mxprim),cp(mxprim),
+     1                 cd(mxprim),cf(mxprim),cg(mxprim),
+     2                 kstart(mxshel),katom(mxshel),ktype(mxshel),
+     3                 kng(mxshel),kloc(mxshel),kmin(mxshel),
+     4                 kmax(mxshel),nshell
+      common/hnd_nwtohnd/inw_to_hnd(mxnbf)
+      common/hnd_hndtonw/ihnd_to_nw(mxnbf)
+      common/hnd_facntoh/fac_nwthnd(mxnbf)
+c
+#include "global.fh"
+c
+      logical dbug
+      logical out 
+c
+      integer map_ntoh(35)
+      double precision fac_ntoh(35)
+c
+c     ----- mapping of shell components from nwchem to hondo -----
+c
+      data map_ntoh /1,     2,     3,     4,
+     1               5,     8,     9,     6,    10,    7,
+     2              11,    14,    15,    16,    20,
+     3              18,    12,    17,    19,    13,  
+     4              21,    24,    25,    30,    33,
+     5              31,    26,    34,    35,    28,
+     6              22,    27,    32,    29,    23 /
+
+      data fac_ntoh /1,     1,     1,     1,
+     1               1, sqrt3, sqrt3,     1, sqrt3,    1,
+     2               1, sqrt5, sqrt5, sqrt5, sqrt3,
+     3           sqrt5,     1, sqrt5, sqrt5,     1,  
+     4               1, sqrt7, sqrt7, sq5d3, sqrt3,
+     5           sq5d3, sqrt7, sqrt3, sqrt3, sqrt7,
+     6               1, sqrt7, sq5d3, sqrt7,     1/
+c
+      dbug=.false.
+      out =.false.
+c
+      if(out.and.ga_nodeid().eq.0) then
+         write(iw,*) ' in routine ... nw_hnd ... '
+      endif
+c
+c     ----- loop over shells -----
+c
+     
+      do ish = 1,nshell
+         mini =  kmin(ish)
+         maxi =  kmax(ish)
+         loci =  kloc(ish)
+         do im = mini,maxi
+
+c     ----- pointer of component of shell in nwchem ----
+
+            inw  = loci + im - mini
+
+c     ----- pointer of component of shell in hondo -----
+
+            ihnd = loci + map_ntoh(im) -mini
+
+c     ----- switch from nwchem to hondo -----
+
+            inw_to_hnd(inw ) = ihnd
+            fac_nwthnd(inw)  = fac_ntoh(im)
+
+c     ----- switch from hondo to nwchem -----
+
+            ihnd_to_nw(ihnd) = inw 
+
+         enddo
+      enddo
+c
+      return
       end

@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.2 1997-04-02 19:02:11 d3e129 Exp $
+* $Id: prop_input.F,v 1.3 1997-06-24 16:56:33 mdupuis Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -16,8 +16,26 @@ c
       integer rtdb ! [input] handle to database
       integer iline, ifield, nfield
       
+      character*255 movecs_in
+      character*255 movecs_out
       character*255 test
       integer nbofile
+      integer dipole
+      integer quadrupole
+      integer octupole
+      integer mulliken
+      integer spinpopulation
+      integer esp
+      integer efield
+      integer efieldmap
+      integer efieldgrad
+      integer efieldgradmap
+      integer electrondensity
+      integer electrondensitymap
+      integer spindensity
+      integer spindensitymap
+      integer stoneanalysis
+      integer boyslocalization
 
 c     
 c>>>  declarations from NWdft
@@ -25,9 +43,29 @@ c
       integer infinity ! for infinite loop
       parameter (infinity=100000) 
 c
+      movecs_in     = ' '
+      movecs_out    = ' '
+c
 c>>>  Default property settings.
 c
-      nbofile = 0
+      nbofile           = 0
+c
+      dipole            = 1
+      quadrupole        = 1
+      octupole          = 1
+      mulliken          = 1
+      spinpopulation    = 1
+      esp               = 1
+      efield            = 1
+      efieldmap         = 1
+      efieldgrad        = 1
+      efieldgradmap     = 1
+      electrondensity   = 1
+      electrondensitymap= 1
+      spindensity       = 1
+      spindensitymap    = 1
+      stoneanalysis     = 1
+      boyslocalization  = 1
 c     
 c>>>  read inputs; store in rtdb
 c     
@@ -39,35 +77,121 @@ c
         nfield = inp_n_field()
         do ifield = 1,nfield
 
-          if (inp_a(test)) then
-c           
-            if ( inp_compare(.false., 'nbofile', test)) then
+      if (inp_a(test)) then
 c             
-c>>>          print out nbo file for standalone nbo program.
+      if ( inp_compare(.false., 'vectors', test)) then
+           call vectors_input(rtdb,'prop')
 c             
-              nbofile = 1
-            elseif ( inp_compare(.false., 'end', test)) then
+      elseif ( inp_compare(.false., 'boyslocalization', test)) then
+         boyslocalization = 0
+         boyslocalization = 1
+      elseif ( inp_compare(.false., 'stoneanalysis', test)) then
+         stoneanalysis  = 0
+         stoneanalysis  = 1
+      elseif ( inp_compare(.false., 'spindensitymap', test)) then
+         spindensitymap = 0
+         spindensity    = 0
+      elseif ( inp_compare(.false., 'spindensity', test)) then
+         spindensity = 0
+      elseif ( inp_compare(.false., 'electrondensitymap', test)) then
+         electrondensitymap = 0
+         electrondensity    = 0
+      elseif ( inp_compare(.false., 'electrondensity', test)) then
+         electrondensity = 0
+      elseif ( inp_compare(.false., 'efieldgradmap', test)) then
+         efieldgradmap   = 0
+         efieldgrad      = 0
+      elseif ( inp_compare(.false., 'efieldgrad', test)) then
+         efieldgrad      = 0
+      elseif ( inp_compare(.false., 'efieldmap', test)) then
+         efieldmap       = 0
+         efield          = 0
+      elseif ( inp_compare(.false., 'efield', test)) then
+         efield          = 0
+      elseif ( inp_compare(.false., 'esp', test)) then
+         esp             = 0
+      elseif ( inp_compare(.false., 'spinpopulation', test)) then
+         spinpopulation  = 0
+         spinpopulation  = 1
+      elseif ( inp_compare(.false., 'mulliken', test)) then
+         mulliken  = 0
+      elseif ( inp_compare(.false., 'octupole', test)) then
+         octupole  = 0
+      elseif ( inp_compare(.false., 'quadrupole', test)) then
+         quadrupole  = 0
+      elseif ( inp_compare(.false., 'dipole', test)) then
+         dipole  = 0
+      elseif ( inp_compare(.false., 'nbofile', test)) then
+         nbofile = 1
 c             
-c>>>          end 
-c             
-              goto 99999
-            else
-              write(6,'(a,a,a)') ' prop_input: keyword ',test,
+      elseif ( inp_compare(.false., 'end', test)) then
+         goto 99999
+      else
+         write(6,'(a,a,a)') ' prop_input: keyword ',test,
      &             ' not recognized'
-              goto 10000 !  die with error
-            endif 
+         goto 10000 !  die with error
+      endif 
           else           ! no further field found in line
-            goto 88 ! next line
-          endif          ! terminates block    if (inp_a(test)) then
-        enddo            ! end of loop over input fields 
+            goto 88      ! next line
+      endif              ! terminates block    if (inp_a(test)) then
+      enddo              ! end of loop over input fields 
    88   continue 
       enddo              ! end of infinite loop over input lines
 99999 continue 
-c       
+c
 c>>>    place integer parameters in rtdb
 c       
-        if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1, nbofile))
-     $       call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
+     $                               nbofile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:dipole', mt_int, 1,
+     $                               dipole            ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:quadrupole', mt_int, 1,
+     $                               quadrupole        ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:octupole', mt_int, 1, 
+     $                               octupole          ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:mulliken', mt_int, 1,
+     $                               mulliken          ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:spinpopulation', mt_int, 1,
+     $                               spinpopulation    ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:esp', mt_int, 1,
+     $                               esp               ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:efield', mt_int, 1,
+     $                               efield            ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:efieldmap', mt_int, 1,
+     $                               efieldmap         ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:efieldgrad', mt_int, 1,
+     $                               efieldgrad        ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:efieldgradmap', mt_int, 1,
+     $                               efieldgradmap     ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:electrondensity', mt_int, 1,
+     $                               electrondensity   ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:electrondensitymap', mt_int, 1,
+     $                               electrondensitymap))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:spindensity', mt_int, 1,
+     $                               spindensity       ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:spindensitymap', mt_int, 1,
+     $                               spindensitymap    ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:stoneanalysis', mt_int, 1,
+     $                               stoneanalysis     ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:boyslocalization', mt_int, 1,
+     $                               boyslocalization  ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
 c       
 c>>>    store real parameters in rtdb
 c       
@@ -81,4 +205,3 @@ c
         call errquit('prop_input: error in input file', 0)
 c       
         end
-

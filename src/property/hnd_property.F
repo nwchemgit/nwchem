@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.2 1997-06-11 22:11:38 mdupuis Exp $
+* $Id: hnd_property.F,v 1.3 1997-06-24 16:56:32 mdupuis Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -14,29 +14,22 @@
 c
 c     property module.
 c
-c     Assumes SCF has been completed, MO vectors stored
-C     and all information is still in the RTDB
+c     Assumes energy has been completed, MO vectors stored
+c     and all information is still in the RTDB
 c
 c
-      logical  int_normalize, scf
-      external int_normalize, scf
+      logical  int_normalize
+      external int_normalize
 
       integer rtdb              ! [input] database handle
       integer geom, basis       ! handles
-      logical converged
       logical status
       character*255 title
       double precision charge
-c
-*     if (.not. scf(rtdb))
-*    $     call errquit('scf_property: scf failed', 0)
+      double precision energy
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push
-c
-      status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
-      if ( .not.( status .and. converged )) call errquit
-     $     ('property: no converged SCF wavefunction available', 0)
 c
 c     Extract high level info from the data-base setting defaults
 c     
@@ -50,18 +43,12 @@ c
      $     call errquit('property: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
      $     call errquit('property: no ao basis ', 0)
-      if(.not. int_normalize(basis))
+      if (.not. int_normalize(basis))
      $     call errquit('property: normalization failed',911)
-c
-c     Figure out the numer of electrons from the required total
-c     charge and the sum of nuclear charges
-c
-c     if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
-c    $     charge = 0.0d0
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
-            call util_print_centered(luout,'NWCHEM SCF_PROP Module',
+            call util_print_centered(luout,'NWCHEM HND_PROP Module',
      $           40,.true.)
             write(luout,*)
             call util_flush(luout)
@@ -81,7 +68,6 @@ c
          endif
          if (util_print('basis',print_high)) then
             if (.not. bas_print(basis))
-
      $           call errquit('property: bas_print ?',0)
             call util_flush(luout)
          endif
@@ -89,11 +75,9 @@ c
 c
 c     call hondo property calculation routines
 c
-
       call hnd_propty ( rtdb, basis, geom )
-
 c
-c property is done destroy basis and geometry handles  
+c property is done. destroy basis and geometry handles  
 c (e.g., preserve the memory available to other modules!!)
 c
       if (.not.(
@@ -105,6 +89,7 @@ c
      &    ('property:error destroying geom and basis handles',911)
 c
       call util_print_pop
+c
       hnd_property = .true.
 c
       return
