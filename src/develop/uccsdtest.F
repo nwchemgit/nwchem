@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.16 2000-05-11 23:28:05 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.17 2000-05-18 16:15:44 d3h449 Exp $
 *
       implicit none
 #include "global.fh"
@@ -36,7 +36,7 @@ c
      $     k_x1, k_x2, k_x3
       integer l_x, l_df, l_delta, k_x, k_df, k_delta, nvar
       integer iter, i
-      logical converged
+      logical converged, t2_rd_test
       double precision xxx
 c
       double precision energyaaa, energybbb, energyaab, energybba
@@ -287,6 +287,12 @@ c
      $     call errquit(' ma x ', 0)
       if (.not. ma_push_get(mt_dbl, nvar, 'x', l_delta, k_delta))
      $     call errquit(' ma x ', 0)
+c
+c     if t1 and t2 on disk jump and read
+c
+      if (.not. rtdb_get(rtdb, 'uccsdt:t2_rd_test', mt_log, 
+     &   1, t2_rd_test)) t2_rd_test = .false.
+      if(t2_rd_test)goto 3768
 c
 c     Iterate
 c
@@ -555,6 +561,18 @@ c
       write(6,*) energyaaa, energybbb
       write(6,*) energyaab, energybba
       write(6,*) energyaaa+energybbb+energyaab+energybba
+c
+      call write_t(
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c
+ 3768 continue
+c
+      call read_t(
+     $     noa, nob, nva, nvb, 
+     $     dbl_mb(k_t1a), dbl_mb(k_t1b),
+     $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
 c
       call uccsdt_initialize(nmo, noa, nob, nva, nvb, 
      $     dbl_mb(k_aeval), dbl_mb(k_beval),
@@ -5834,5 +5852,81 @@ c
       end do
 c
       end
-
-
+      subroutine write_t(
+     $     noa, nob, nva, nvb, 
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab)
+      implicit none
+#include "eaf.fh"
+#include "inp.fh"
+      integer noa, nob, nva, nvb
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+      character*256 actualname  ! Name of file
+      integer fd                ! CHEMIO fd
+      double precision offset
+      integer ierr
+      character*80 errmsg
+      actualname = 't_file'
+      if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $   call errquit('write_t: eaf_open failed', 0)
+      offset = 0
+      ierr = eaf_write(fd, offset, t1a, 8*nva*noa) ! write t1a
+      offset = offset + 8*nva*noa
+      ierr = eaf_write(fd, offset, t1b, 8*nvb*nob) ! write t1b
+      offset = offset + 8*nvb*nob
+      ierr = eaf_write(fd, offset, t2aa, 8*(nva*noa)**2) ! write t2aa
+      offset = offset + 8*(nva*noa)**2
+      ierr = eaf_write(fd, offset, t2bb, 8*(nvb*nob)**2) ! write t2bb
+      offset = offset + 8*(nvb*nob)**2
+      ierr = eaf_write(fd, offset, t2ab, 8*nva*noa*nvb*nob) ! write t2ab
+      if (ierr .ne. 0) then
+         call eaf_errmsg(ierr, errmsg)
+         write(6,*) ' IO offset ', offset
+         write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
+         call errquit(' write_t write: write failed',0)
+      end if
+      return
+      end
+      subroutine read_t(
+     $     noa, nob, nva, nvb, 
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab)
+      implicit none
+#include "eaf.fh"
+#include "inp.fh"
+      integer noa, nob, nva, nvb
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nva, nva, noa, noa)
+      double precision t2bb(nvb, nvb, nob, nob)
+      double precision t2ab(nva, nvb, noa, nob)
+      character*256 actualname  ! Name of file
+      integer fd                ! CHEMIO fd
+      double precision offset
+      integer ierr
+      character*80 errmsg
+      actualname = 't_file'
+      if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $   call errquit('read_t: eaf_open failed', 0)
+      offset = 0
+      ierr = eaf_read(fd, offset, t1a, 8*nva*noa) ! read t1a
+      offset = offset + 8*nva*noa
+      ierr = eaf_read(fd, offset, t1b, 8*nvb*nob) ! read t1b
+      offset = offset + 8*nvb*nob
+      ierr = eaf_read(fd, offset, t2aa, 8*(nva*noa)**2) ! read t2aa
+      offset = offset + 8*(nva*noa)**2
+      ierr = eaf_read(fd, offset, t2bb, 8*(nvb*nob)**2) ! read t2bb
+      offset = offset + 8*(nvb*nob)**2
+      ierr = eaf_read(fd, offset, t2ab, 8*nva*noa*nvb*nob) ! read t2ab
+      if (ierr .ne. 0) then
+         call eaf_errmsg(ierr, errmsg)
+         write(6,*) ' IO offset ', offset
+         write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
+         call errquit(' read_t read: read failed',0)
+      end if
+      return
+      end
