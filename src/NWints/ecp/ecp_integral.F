@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.9 1998-04-01 02:28:19 mg201 Exp $
+C $Id: ecp_integral.F,v 1.10 1998-04-01 03:04:02 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -230,7 +230,7 @@ C          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'zeta_C','E',81,5)
 C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'coef_C','E',81,5)
-        end if
+C        end if
         if (.not.DryRun) call dfill (n_intt*n_blk,zero,scr,1)
         if ((i_c_A .eq. i_c_C) .and. (i_c_B .eq. i_c_C)) then
 *
