@@ -1,4 +1,4 @@
-% $Id: user.tex,v 1.39 2000-02-04 02:38:04 edo Exp $
+% $Id: user.tex,v 1.40 2000-02-04 21:44:58 edo Exp $
 
 %\documentstyle[dvilj,ge,12pt,fleqn]{book}
 \documentclass[12pt,fleqn]{book}
@@ -15,8 +15,10 @@
 \usepackage[pdftex]{hyperref}
 %\usepackage[T1]{fontenc}
 \usepackage{times,latexsym,mathptm}
+\pdfcompresslevel=8
 \else
 \usepackage[dvips]{graphicx}
+%\usepackage{times,latexsym,mathptm}
 \fi
 
 \setlength{\parskip}{6pt}
@@ -27,9 +29,7 @@
 
 \newcommand{\angstroms}{Angstr{\o}ms}
 
-%\pdfcompresslevel=8
 \begin{document}
-%\DeclareGraphicsExtensions{.pdf}
 \input{titlepage}
 
 \chapter*{\center DISCLAIMER}
@@ -150,9 +150,10 @@
 
 \chapter{Running NWChem}
 \input{execution}
-
-%\pdfcatalog{            % Catalog dictionary of PDF output. 
-%    /PageMode /UseOutlines
+\ifpdf
+\pdfcatalog{            % Catalog dictionary of PDF output. 
+    /PageMode /UseOutlines
 %%%%    /URI (http://www.fi.muni.cz/)
-%} openaction goto page 1 {/Fit}
+} openaction goto page 1 {/Fit}
+\fi
 \end{document}

@@ -8,10 +8,29 @@
 This directive is used to obtain the plots of various types of electron
 densities (or orbitals) of the molecule. The electron density is calculated
 on a specified set of grid points using the molecular orbitals
-from SCF or DFT calculation. An input file to the {\em Insight}
-program is then generated. Different sub-directives are described below.
+from SCF or DFT calculation. The output file is either in 
+\htmladdnormallink{MSI Insight II} 
+{http://www.msi.com/materials/insight/Insight2.html} contour format
+(default)
+ or in the 
+\htmladdnormallink{Gaussian Cube}{http://www.gaussian.com/00000430.htm}  
+format. 
+Different sub-directives are described below.
 
-\section{{\tt TITLE} --- Title for {\em Insight}}
+\section{GAUSSIAN --- Gaussian Cube format}
+
+\begin{verbatim}
+  GAUSSIAN
+\end{verbatim}
+
+A ouptfile is generate in Gaussian Cube format.
+You can visualize this file using  \htmladdnormallink{gOpenMol}
+{http://www.csc.fi/~laaksone/gopenmol//help/gOpenMol_contour.html}
+after converting the Gaussian Cube file with 
+\htmladdnormallink{gcube2plt}
+{http://www.csc.fi/lul/chem/scarecrow/gcube2plt.c}.
+
+\section{TITLE --- Title for {\em Insight}}
 
 \begin{verbatim}
   TITLE
@@ -21,7 +40,7 @@ program is then generated. Different sub-directives are described below.
 This sub-directive specifies a title line for the generated
 input to the {\em Insight} program. Only one line is allowed.
 
-\section{{\tt LIMITXYZ} --- Plot limits}
+\section{LIMITXYZ --- Plot limits}
 
 \begin{verbatim}
   LIMITXYZ [units <string Units default angstroms>]
@@ -37,7 +56,7 @@ along each direction. The known names for \verb+Units+ are
 
 
 
-\section{{\tt SPIN} --- Density to be plotted}
+\section{SPIN --- Density to be plotted}
 
 \begin{verbatim}
   SPIN <string Spin default total>
@@ -50,7 +69,7 @@ $\alpha$ and $\beta$ electron densities.
 
 
 
-\section{{\tt OUTPUT} --- Filename for {\em Insight}}
+\section{OUTPUT --- Filename for {\em Insight}}
 
 \begin{verbatim}
   OUTPUT <string File_Name default dplot>
@@ -62,7 +81,7 @@ standard NWChem output.
 
 
 
-\section{{\tt VECTORS} --- MO vector file name}
+\section{VECTORS --- MO vector file name}
 
 \begin{verbatim}
   VECTORS <string File_Name default movecs> [<string File_Name2>]
@@ -75,7 +94,7 @@ files have to match.
 
 
 
-\section{{\tt WHERE} --- Density evaluation}
+\section{WHERE --- Density evaluation}
 
 \begin{verbatim}
   WHERE <string Where default grid>
@@ -90,7 +109,7 @@ the position of the nuclei and written to the NWChem output) and
 \verb+g++\verb+n+ (both).
 
 
-\section{{\tt ORBITAL} --- Orbital sub-space}
+\section{ORBITAL --- Orbital sub-space}
 
 \begin{verbatim}
   ORBITALS [<string Option default density>]
