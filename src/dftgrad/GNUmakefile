@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.59 2004-03-25 00:39:44 edo Exp $
+# $Id: GNUmakefile,v 1.60 2004-03-26 01:00:15 edo Exp $
 #
 
    OBJ = dft_grad_top.o \
@@ -8,7 +8,7 @@
          dftg_getcden.o  dftg_getxden.o dftg_gridpart.o\
          dftg_gridv0a.o dftg_gridv0.o dftg_gridv0b.o \
          dftg_griddo.o
-   OBJ_OPTIMIZE = dftg_cdfit.o dftg_quadv0b.o   dftg_ssw.o \
+   OBJ_OPTIMIZE = dftg_cdfit.o dftg_quadv0b.o   \
                   dftg_grad2.o dint_block_j.o j_nucder_gen.o  \
                   dftg_beckew.o dftg_wderiv.o  dftg_gridssw.o 
 
