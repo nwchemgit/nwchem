@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.1 1996-05-14 17:59:50 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.2 1996-05-18 01:04:46 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -139,6 +139,7 @@ c
 c     
       call ga_sync()
       call ga_dgop(374, dbl_mb(k_fock), nbf*nbf*nfock, '+')
+      call ga_sync()
 c     
 c     Process 0 PUTs stuff into the global fock matrix
 c
@@ -229,8 +230,12 @@ c
       integer cntoce(255)       ! Map from contractions to centers
       integer cetobfr(2,255)    ! Map from centers to bf range
 c
+      integer next, current, nproc
+c     
       logical int2e_set_bf_range
       external int2e_set_bf_range
+      integer nxtask
+      external nxtask
 c     
       call fock_init_rep_cmul(nbf) ! lookup table for f build
       if (owritefile) then
@@ -268,39 +273,41 @@ c
          end do
       end do
       dentol = min(1d-3,tol2e/denmax) ! Threshold to screen integs only
-c
+c     
 c     There is a BIG speed gain from agressive reduction of accuracy
 c     in the actual computation of the integrals. However, the screening
 c     on primitive integrals is done on radial prefactors not using
 c     the Schwarz inequality, hence the extra factor of 0.1d0
 c     (also tried 0.01 on C12H14 but was more expensive with no gain)
-c
+c     
       if (intacc .eq. 0.0d0) then
          integ_acc = min(1d-6,max(0.1d0*dentol,1d-15)) ! Variable
       else
          integ_acc = intacc     ! User controlled
       endif
       call int_acc_set(integ_acc)
-*      write(6,111) dentol, integ_acc
-* 111  format(1x,1p,' dentol=',d8.1,'  integ_acc=',d8.1)
+*     write(6,111) dentol, integ_acc
+*     111  format(1x,1p,' dentol=',d8.1,'  integ_acc=',d8.1)
 c     
 c     assume a dense integral list but with symmetry and figure out
 c     no. of pairs per pair block dividing quartets between processors
 c     and allowing for the max no. of quartets to be processed per block
 c     
       nshpair = nsh*(nsh+1)/2
-      max_p   = sqrt(dfloat(nshpair)**2*dfloat(natom_unique)) / 
-     $     dfloat(natom*ga_nnodes())
+      max_p   = sqrt(
+     $     dfloat(nshpair)**2*dfloat(natom_unique)) / 
+     $     dfloat(natom*ga_nnodes()
+     $     )
       max_p   = min(nint(sqrt(dfloat(qdim))),max_p)
       max_p   = max(10,max_p)
       max_p   = min(maxquartet, max_p) ! Enforce user maximum limit
-*      write(6,*) ' max_p ', max_p
+*     write(6,*) ' max_p ', max_p
 c     
 c     generate info about the pairs
 c     
       call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
      $     dentol, plist, ps, pinfo, ntype)
-*      write(6,*) ' ntype ', ntype
+*     write(6,*) ' ntype ', ntype
 c     
 c     loop over pair blocks and compute integrals ... want most expensive
 c     integrals first, hence outer loop over ijklt ... assume that
@@ -310,72 +317,79 @@ c     We could constrain the pair loops to run over a wierd unique
 c     list of quartets, but we need the conventional 'canonical'
 c     unique list to use petite-list symmetry.
 c     
+      nproc = ga_nnodes()
+      next = nxtask(nproc, 1)
+      current = 0
       nq = 0
       do ijklt = 2*ntype, 2, -1
          do ijt = min(ntype,ijklt-1), max(1,ijklt-ntype), -1
-            klt = ijklt - ijt
-            do ij = pinfo(1,ijt), pinfo(2,ijt)
-               ish = plist(1,ij)
-               jsh = plist(2,ij)
-               iat = cntoce(ish)
-               jat = cntoce(jsh)
-*               if (oskel) then
-*                  if (.not. sym_atom_pair(geom, iat, jat, qjunk)) 
+            if (next .eq. current) then
+               klt = ijklt - ijt
+               do ij = pinfo(1,ijt), pinfo(2,ijt)
+                  ish = plist(1,ij)
+                  jsh = plist(2,ij)
+                  iat = cntoce(ish)
+                  jat = cntoce(jsh)
+*     if (oskel) then
+*     if (.not. sym_atom_pair(geom, iat, jat, qjunk)) 
 *     $                 goto 100
-*               end if
-               q2  = 1.0d0
-               if (ish .eq. jsh) q2 = 0.5d0
-               do kl = pinfo(1,klt),pinfo(2,klt)
-                  qq4 = q2
-                  ksh = plist(1,kl)
-                  lsh = plist(2,kl)
-                  kat = cntoce(ksh)
-                  lat = cntoce(lsh)
+*     end if
+                  q2  = 1.0d0
+                  if (ish .eq. jsh) q2 = 0.5d0
+                  do kl = pinfo(1,klt),pinfo(2,klt)
+                     qq4 = q2
+                     ksh = plist(1,kl)
+                     lsh = plist(2,kl)
+                     kat = cntoce(ksh)
+                     lat = cntoce(lsh)
 c     schwarz screening
-                  sijkl = ps(ij)*ps(kl)
-                  if (sijkl*denmax .lt. tol2e) goto 200 ! Next kl
+                     sijkl = ps(ij)*ps(kl)
+                     if (sijkl*denmax .lt. tol2e) goto 200 ! Next kl
 c     enforce canonical indices
-                  if (ish.lt.ksh) then
-                     goto 200   ! Next kl
-                  else if (ish.eq.ksh) then
-                     if (jsh.lt.lsh) then
+                     if (ish.lt.ksh) then
                         goto 200 ! Next kl
-                     else if (jsh.eq.lsh) then
-                        qq4 = qq4 * 0.5d0 ! i==k && j==l diagonal
+                     else if (ish.eq.ksh) then
+                        if (jsh.lt.lsh) then
+                           goto 200 ! Next kl
+                        else if (jsh.eq.lsh) then
+                           qq4 = qq4 * 0.5d0 ! i==k && j==l diagonal
+                        end if
                      end if
-                  end if
 c     symmetry test
-                  if (oskel) then
-                     if (.not. sym_atom_quartet(geom,iat,jat,kat,lat,
-     $                    qjunk)) goto 200
-                     qq4 = qq4*qjunk
-                  end if
+                     if (oskel) then
+                        if (.not. sym_atom_quartet(geom,iat,jat,kat,lat,
+     $                       qjunk)) goto 200
+                        qq4 = qq4*qjunk
+                     end if
 c     density screening
-                  if (.not. owritefile) then
-                     dijkl = max(
-     $                    rdens(iat,jat),rdens(kat,lat),
-     $                    rdens(iat,kat),rdens(iat,lat), 
-     $                    rdens(jat,kat),rdens(jat,lat))
-                     if (sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
-                  end if
+                     if (.not. owritefile) then
+                        dijkl = max(
+     $                       rdens(iat,jat),rdens(kat,lat),
+     $                       rdens(iat,kat),rdens(iat,lat), 
+     $                       rdens(jat,kat),rdens(jat,lat))
+                        if (sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
+                     end if
 c     kl diagonal
-                  if (ksh.eq.lsh) qq4 = qq4*0.5d0
+                     if (ksh.eq.lsh) qq4 = qq4*0.5d0
 c     do it!
-                  if (nq .eq. qdim) then
-                     call fock_rep_txs(basis, nfock, nbf,
-     $                    jfac, kfac, dentol, dens, fock, 
-     $                    nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
-     $                    ijkl(1,4), q4)
-                     nq = 0
-                  end if
-                  nq = nq + 1
-                  ijkl(nq,1) = ish
-                  ijkl(nq,2) = jsh
-                  ijkl(nq,3) = ksh
-                  ijkl(nq,4) = lsh
-                  q4(nq)     = qq4
- 200           end do            ! Next KL pair
- 100        end do               ! Next IJ pair
+                     if (nq .eq. qdim) then
+                        call fock_rep_txs(basis, nfock, nbf,
+     $                       jfac, kfac, dentol, dens, fock, 
+     $                       nq, ijkl(1,1), ijkl(1,2), ijkl(1,3),
+     $                       ijkl(1,4), q4)
+                        nq = 0
+                     end if
+                     nq = nq + 1
+                     ijkl(nq,1) = ish
+                     ijkl(nq,2) = jsh
+                     ijkl(nq,3) = ksh
+                     ijkl(nq,4) = lsh
+                     q4(nq)     = qq4
+ 200              end do        ! Next KL pair
+ 100           end do           ! Next IJ pair
+               next = nxtask(nproc,1)
+            endif
+            current = current + 1
 c     
 c     Empty out interactions for this type ... significant performance gain
 c     
@@ -386,13 +400,15 @@ c
      $              ijkl(1,4), q4)
                nq = 0
             end if
-         end do                  ! Next IJ type
-      end do                     ! Next IJKL type
+         end do                 ! Next IJ type
+      end do                    ! Next IJKL type
+c     
+      next = nxtask(-nproc,1)
 c     
 c     done
 c     
       call int_acc_std()
-c
+c     
       end
       subroutine fock_rep_txs(basis, nfock, nbf,
      $     jfac, kfac, tol2e, dens, fock, 
