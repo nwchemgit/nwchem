@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.25 2002-01-23 14:43:13 bjohnson Exp $
+c $Id: cf_rdtop.F,v 1.26 2002-07-12 17:09:57 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -156,6 +156,8 @@ c      snam(i)=stemp
       if(j.gt.nsf) nsf=j
 c      if(j.gt.nsm) nsm=j
       totchg=totchg+cf_charge(m)
+      if(k.gt.msm)
+     + call errquit('Topology and Restart are incompatible',0)
    10 continue
       if(scaleq.ge.zero) call cf_scaleq(iqfr,iqto)
       idata(4)=0
