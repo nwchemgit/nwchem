@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.4 1996-11-02 07:05:14 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.5 1997-02-07 22:07:25 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -41,7 +41,7 @@ c
       call ecce_print_module_entry('task optimize')
 c
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
-     $     ousedriver = .false.
+     $     ousedriver = .true.
 c     
       cpu  = util_cpusec()
       wall = util_wallsec()

@@ -83,11 +83,11 @@ c
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
      $        call errquit('task_energy: rtdb_put failed',0)
          status = semi_dir_mp2(rtdb)
+      else if (theory .eq. 'mcscf') then
+         status = scf_gradient(rtdb) ! Done thru SCF gradient module
       else if (theory .eq. 'rimp2') then
          status = .false.       ! No derivatives yet
       else if (theory .eq. 'direct_mp2') then
-         status = task_num_grad(rtdb) ! Only numerical
-      else if (theory .eq. 'mcscf') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'selci') then
          status = task_num_grad(rtdb) ! Only numerical
