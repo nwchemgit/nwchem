@@ -62,7 +62,8 @@ The ``all'' keyword generates all currently available properties.
 
 The request to NBOFILE does not execute the Natural Bond Analysis
 code, but simply creates an input file to be used as input to the
-stand-alone NBO code. All other properties are calculated upon
+stand-alone NBO code. To execute the NBO analysis directly, see Section
+\ref{sec:nbo}. All other properties are calculated upon
 request.
 
 An additional subdirective is provided to specify the origin of the
@@ -87,6 +88,7 @@ must be given in the same units as UNITS in GEOMETRY (See Section
 \ref{sec:geomkeys}).
 
 \subsection{Nbofile}
+\label{sec:Nbofile}
 
 Following the successful completion of an electronic structure
 calculation, a Natural Bond Orbital (NBO) analysis may be carried out
@@ -97,5 +99,6 @@ will query the rtdb and construct an ASCII file,
 version of the NBO program, gennbo.  \verb+<file_prefix>+ is equal to
 string following the RESTART directive.  The input deck may be edited
 to provide additional options to the NBO calculation, (see the NBO
-user's manual for details.)
+user's manual for details.)  The other option in to directly run the NBO 
+analysis (See Section \ref{sec:nbo} for more information).
 
