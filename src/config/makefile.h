@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.323 2000-05-10 21:22:06 edo Exp $
+# $Id: makefile.h,v 1.324 2000-05-10 21:34:16 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1006,9 +1006,10 @@ ifeq ($(TARGET),IBM64)
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qintsize=8 
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000  -qarch=auto -qtune=auto
-  COPTIMIZE = -O -qmaxmem=8192
+  FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
+   COPTIMIZE = -O -qmaxmem=8192
 
-    DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT
+    DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT -DIBM64
        LIBPATH += -L/usr/lib -L/lib 
 
        CORE_LIBS = -lpario -lglobal -lma -lutil -lpeigs  -llapack -lblas
