@@ -1,6 +1,6 @@
       logical function pre_task(irtdb,itask,lfnout)
 c
-c $Id: pre_task.F,v 1.3 1998-06-08 23:29:39 d3j191 Exp $
+c $Id: pre_task.F,v 1.4 2000-04-26 23:56:27 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
       if(esp(irtdb)) then
       if(util_print('sequence',print_default)) then
       write(lfnout,1001)
- 1001 format(' ESP partial charges',/)
+ 1001 format(' esp module partial charges',/)
       endif
       pre_task=.true.
       endif
