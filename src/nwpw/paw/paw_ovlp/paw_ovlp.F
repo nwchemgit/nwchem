@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.19 2003-02-09 01:05:58 marat Exp $
+* $Id: paw_ovlp.F,v 1.20 2003-02-09 21:37:48 marat Exp $
 *
 
 !**************************************************
@@ -148,6 +148,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
 #include "paw_geom.fh"
+#include "paw_basis.fh"
 
       !*** local variables ***
       logical value
@@ -155,8 +156,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       integer nion,prj,i1,i2,n
       integer indx_psi,indx_prj,indx_coeff
       integer exi(2),tmp(2)
-      integer nx,ny,nz
-      real*8 scal_factor
+      integer ni,i,li,mi
 
       !*** nwpw external functions ****
       integer  psi_ne
@@ -200,26 +200,9 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
      >                         dcpl_mb(tmp(1)),
      >                         psi(indx_psi),
      >                         dcpl_mb(toeff(1)+indx_coeff))
-c           write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
-c     >                 dcpl_mb(toeff(1)+indx_coeff)
            end do
         end do
       end do 
-
-      nlmii = 0
-      do ii=1,nion
-        ia = ion_katm(ii)
-        nbasis = paw_proj_nbasis(ia)
-        do nlm=1,nbasis
-           nlmii = nlmii + 1
-           do n=1,neall
-             indx_coeff = (nlmii-1)*neall + (n-1)
-             write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
-     >                 dcpl_mb(toeff(1)+indx_coeff)
-           end do
-        end do
-      end do 
-
 
 
       !*** unsrcramble to get true overlap coefficients ***
@@ -231,17 +214,37 @@ c     >                 dcpl_mb(toeff(1)+indx_coeff)
      >              *dconjg(dcpl_mb(toeff(1)+i2)))
       end do     
 
+      write(*,*)
+      write(*,*) "Overlap coefficients:"
+      nlmii = 0
+      do ni=1,nion
+        ia = ion_katm(ni)
+        nbasis = paw_basis_nbasis(ia)
+        do i=1,nbasis
+          li = paw_basis_orb_l(i,ia)
+          do mi = -li,li
+           nlmii = nlmii + 1
+           do n=1,neall
+             indx_coeff = (nlmii-1)*neall + (n-1)
+             write(*,*) i,li,mi,ni,n
+             write(*,*) dcpl_mb(coeff(1)+indx_coeff)
+           end do
+           end do
+        end do
+      end do 
 
-      !*** debug - write out the overlap coefficients ***
-      write(*,*)
-      write(*,*) "Overlap coefficients:",neall,total_nbasis
-      do i2=1,neall
-      do i1=1,total_nbasis
-         indx_coeff = (i2-1) + (i1-1)*neall
-         write(*,*) "nlm n c(n,nlm):",i1,i2,dcpl_mb(coeff(1)+indx_coeff)
-      end do
-      end do
-      write(*,*)
+
+c      !*** debug - write out the overlap coefficients ***
+c      write(*,*)
+c      write(*,*) "Overlap coefficients:",neall,total_nbasis
+c      do i2=1,neall
+c      do i1=1,total_nbasis
+c         indx_coeff = (i2-1) + (i1-1)*neall
+c         write(*,*) "nlm n c(n,nlm):",i1,i2,dcpl_mb(coeff(1)+indx_coeff)
+c      end do
+c      end do
+c      write(*,*)
+
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',1)
@@ -266,11 +269,13 @@ c     >                 dcpl_mb(toeff(1)+indx_coeff)
 #include "paw_geom.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
+#include "paw_basis.fh"
 
       integer i_nbasis,ii
       integer in,nlm,nlm1,ia,n
       integer neall,nbasis
       integer indx_coeff,indx_coeff1
+      integer i,j,mi,mj,li,lj
       double complex w_tmp
       
 c     **** external functions ****
@@ -279,7 +284,6 @@ c     **** external functions ****
       
 c     !*** total number of electron states ***
       neall = (psi_ne(1) + psi_ne(2))
-
 
       ii = 0
       i_nbasis = 0
@@ -306,6 +310,26 @@ c           write(*,*) "paw_ovlp:w",w_tmp
         i_nbasis = i_nbasis + nbasis
       end do
 
+      write(*,*) " paw weights"
+      ii = 0
+      do in=1,ion_nion()
+        ia = ion_katm(in)
+        nbasis = paw_basis_nbasis(ia)
+        do i=1,nbasis
+          li = paw_basis_orb_l(i)
+          do mi=-li,li
+            do j=1,nbasis
+              lj = paw_basis_orb_l(j)
+                do mj=-lj,lj
+                  write(*,*) i,mi,j,mj,in
+                  write(*,*) dcpl_mb(w(1)+ii)
+                  ii =ii +1
+                end do
+             end do
+           end do   
+         end do
+      end do
+     
+     
       return
       end
-     
