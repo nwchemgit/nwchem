@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.14 2000-06-09 17:08:03 edo Exp $
+C$Id: grid_quadv0.F,v 1.15 2000-08-12 00:51:02 bjohnson Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -384,7 +384,7 @@ c
       endif
          
       rho_err=abs(rho_int-dble(nelec))/nelec
-      if(rho_err.gt.job_grid_acc.and.me.eq.0)
+      if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
      * write(LuOut,123) rho_err,job_grid_acc
 
       rho_n = rho_int
