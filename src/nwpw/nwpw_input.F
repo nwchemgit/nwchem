@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.20 2004-03-08 22:51:20 bylaska Exp $
+c $Id: nwpw_input.F,v 1.21 2004-03-11 15:46:15 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 60)
+      parameter (num_dirs = 61)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -75,6 +75,7 @@ c
      >            'dos_filename',
      >            'efield',
      >            'occupations',
+     >            'expand_cell',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -83,7 +84,7 @@ c
        character*30 output_wavefunction_filename
        character*30 exchange_correlation
        double precision fake_mass,time_step,rcut
-       integer loop(2),ncut
+       integer loop(2),ncut,cell_expand(3)
        double precision tolerances(3),ecut,wcut,fe
        double precision alpha,emin,emax
        integer npoints
@@ -123,7 +124,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,
-     >       4100,4200,4300,
+     >       4100,4200,4300,4400,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -620,6 +621,18 @@ c
 c OCCUPATIONS
 c
  4300 call frac_occ_input(rtdb)
+      goto 10
+
+c
+c  expand_cell
+c
+ 4400 if (.not. inp_i(cell_expand(1))) cell_expand(1) = 1
+      if (.not. inp_i(cell_expand(2))) cell_expand(2) = 1
+      if (.not. inp_i(cell_expand(3))) cell_expand(3) = 1
+      value = rtdb_put(rtdb,'nwpw:cell_expand',mt_int,3,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4400, RTDB_ERR)
       goto 10
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: incell1.f,v 1.2 2001-10-26 02:28:22 bylaska Exp $
+* $Id: incell1.f,v 1.3 2004-03-11 15:46:15 bylaska Exp $
 *
 
       subroutine incell1(ni,r2)
@@ -42,6 +42,7 @@
 
       volume = 1.0d0/volume
       call dscal(9,volume,b,1)
+
 
       do i =1,ni
 	

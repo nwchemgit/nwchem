@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.8 2003-10-17 22:57:01 carlfahl Exp $
+* $Id: task_pspw.F,v 1.9 2004-03-11 15:46:15 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -17,7 +17,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 14)
+      parameter (num_dirs = 15)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -33,17 +33,18 @@ c
      >            'pspw_dplot',
      >            'stress',
      >            'noit_energy',
-     > 		  'wannier'/
+     > 		  'wannier',
+     >            'expand_cell'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
       logical  pspw_dplot,pspw_stress_numerical,pspw_noit_energy
-      logical  pspw_wannier
+      logical  pspw_wannier,expand_cell
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
       external pspw_dplot,pspw_stress_numerical,pspw_noit_energy
-      external pspw_wannier
+      external pspw_wannier,expand_cell
 c
 c
       value = .false.
@@ -56,7 +57,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000, 1100, 1200, 1300, 1400 ) ind
+     >       1000, 1100, 1200, 1300, 1400, 1500 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -239,6 +240,21 @@ c
       value = pspw_wannier(rtdb)
       call ga_sync()
       goto 9999
+
+c
+c  expand_cell
+c
+ 1500 value = .true.
+      value = rtdb_parallel(.false.)
+      if (ga_nodeid().eq.MASTER) then
+        write(*,*)
+     >     ">>>> PSPW Serial Module - expand_cell <<<<"
+        write(*,*) "not finished"
+        value = expand_cell(rtdb)
+      endif
+      call ga_sync()
+      goto 9999
+
 
 
  9999 continue

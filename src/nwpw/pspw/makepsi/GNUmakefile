@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2002-10-15 21:24:01 bylaska Exp $
+# $Id: GNUmakefile,v 1.8 2004-03-11 15:46:15 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
                 wvfnc_init_input.o \
@@ -7,6 +7,7 @@
                 wvfnc_new.o \
                 wvfnc_expander_input.o \
                 wvfnc_expander.o \
+                wvfnc_expand_cell.o \
                 wvfnc_reformat.o \
                 v_wvfnc_init_input.o \
                 v_wvfnc_init.o \
@@ -14,7 +15,9 @@
 		pspw_wannier_input.o \
 		pspw_wannier.o \
 		silvestrelli_overlap.o \
-                silvestrelli_minimize.o
+                silvestrelli_minimize.o \
+		expand_cell.o \
+		wvfnc_expand_cell.o
 
 
 	  OBJ = 
