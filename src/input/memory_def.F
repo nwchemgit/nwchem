@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.3 1996-07-01 16:27:26 d3g681 Exp $
+C     $Id: memory_def.F,v 1.4 1996-07-01 16:47:00 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -80,19 +80,17 @@ C     an upper limit on memory usage on the Delta, unfortunately.
 C
       Parameter (Total_Dflt = 917504 ) ! 7 MB on a 16 MB node
 #elif defined(SGITFP)
-C     This is an arbitrary guess at the moment
-C
       Parameter ( Total_Dflt = 6291456 ) ! 48 MB
 #elif defined(DECOSF)
-C
       Parameter ( Total_Dflt = 2621440 ) ! 20 MB
 #elif defined(SGI) && ! defined(SGITFP)
-C     This is an arbitrary guess at the moment
-C
       Parameter ( Total_Dflt =  6291456 ) ! 48 MB
-#elif defined(IBM) || defined(SP1)
+#elif defined(IBM) 
+      Parameter ( Total_Dflt =  6291456 ) ! 48 MB
+#elif defined(SP1)
 C     This is probably a minimum configuration for most IBM
-C     platforms, but many will have more.
+C     platforms, but many will have more.  Assumes dedicated node
+C     access.
 C
       Parameter ( Total_Dflt = 13107200) ! 100 MB on 128 MB node
 #endif
