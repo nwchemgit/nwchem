@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.125 1999-06-25 21:43:38 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.126 1999-07-22 22:34:20 edo Exp $
 c     
       implicit none
 c
@@ -1596,7 +1596,7 @@ c
 c     write to rtdb that fractional occupancy exists
 c
       if(check_deg.or.ssmear.gt.1d-9) then
-      if (rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
+      if (.not.rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
      &   .true.))call errquit('dftscf: cannot write rtdb',1)
       endif
 

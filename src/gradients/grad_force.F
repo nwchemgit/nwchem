@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.35 1999-07-14 00:28:59 d3e129 Exp $
+c     $Id: grad_force.F,v 1.36 1999-07-22 22:33:31 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -121,8 +121,8 @@ c
       double precision crd(3),  ! atomic coordinates
      $     tol2e, q
 
-      double precision grad_norm, grad_max,
-     ,     ssmear
+      double precision grad_norm, grad_max
+
       external grad_norm, grad_max
 
       character*16 tag
@@ -134,7 +134,7 @@ c
 
       integer ipol, numfunc, noc(2)
       parameter (numfunc = 16)
-      logical oskel, omp2, odft, ocdfit, status,lsmear
+      logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
 
       nproc = ga_nnodes()
@@ -386,16 +386,12 @@ c
 c
 c     check if smearing is on
 c
-      if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
-     &   ssmear))then
-         lsmear=.false.
-      else
-         lsmear=.true.
-      endif
+      if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
+     & frac_occ  )) frac_occ=.false.
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),lsmear)
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ)
 
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))

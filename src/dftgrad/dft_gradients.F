@@ -62,7 +62,7 @@ c
       external grad_norm, grad_max
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
-      logical status
+      logical status,frac_occ
       integer me, nproc, max_sh_bf, max_at_bf, nat, max_sh_bfcd,
      $     lforce, nactive, i, nbf_vecs, nsets, ispin, 
      $     max1e, max2e, mscratch_1e, mscratch_2e, 
@@ -78,7 +78,7 @@ c
      $     nscr, lscr, iscr
       integer ipoint, itmpm,ltmpm,g_tmp(2),lenvec
       double precision charge, charge_nuc, rhffact, tol2e, onem,
-     , ssmear, toll
+     , toll
       parameter(toll=1.d-9)
 c     
       nproc = ga_nnodes()
@@ -112,10 +112,9 @@ c
 c     
 c     check if smearing is on
 c
-      if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
-     &   ssmear))then
-      ssmear=0.d0
-      endif
+      if (.not.rtdb_get(rtdb, 'dft:fractional_occup', mt_log, 1,
+     & frac_occ  )) frac_occ=.false.
+
 c     
 c     allocate and initialize global and local memory
 c     
@@ -236,7 +235,7 @@ c
          call errquit('dft_gradient: could not read mo vectors',917)
       endif
 c
-      if(ssmear.gt.1.d-9) then
+      if(frac_occ) then
 c
 c     smearing, therefore check new nocs
 c
@@ -278,7 +277,7 @@ c
 c     
 c     free temporary arrays
 c     
-         if(ssmear.gt.1d-9) then
+         if(frac_occ) then
            if(.not.ga_destroy (g_tmp(ispin))) call
      *          errquit('dftg_force: could not gadestr gtmp',ispin)
          endif
