@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      ,  nfock, g_dens, g_xc,scftype,l3d)
 c
-c     $Id: fock_xc.F,v 1.16 2002-01-14 20:38:02 edo Exp $
+c     $Id: fock_xc.F,v 1.17 2002-01-16 01:36:56 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -25,7 +25,7 @@ c
       character*4 scftype       ! [in]
       integer nfock             ! [input] number of XC matrices
       integer ndens             ! [in] number of DM
-      integer g_dens            ! [input] array of handles to densities
+      integer g_dens(*)        ! [input] array of handles to densities
       integer g_xc              ! [input] array of handles to XC matrices
       integer calc_type         ! [input] type of XC matrix calculation
       logical l3d
@@ -34,20 +34,20 @@ c                               !  ******* !!! document here !!!
 c
 c     Local declarations
 c
-      integer imat
       integer rtdb
       integer natoms
       integer nExc_dum, g_wght_dum, g_xyz_dum, g_nq_dum,
      &        l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom
-      integer g_dens_scf
+      integer g_dens_scf(2)
       logical wght_GA_dum,grid_reopen,grid_on_file,xc_gotxc
       external grid_reopen,xc_gotxc
       double precision Exc_dum(2), rho_n_dum,tdum
       logical cphf_tddft
-      integer ioff, joff
+cold      integer ioff, joff
+cold      integer imat
       integer dims(3),chunk(3)
-      integer dft_npatch,g_dens2
+      integer dft_npatch,g_dens2(2)
       logical oprint
       integer alo(3), ahi(3), blo(3), bhi(3)
       external dft_npatch
@@ -99,7 +99,7 @@ c
          if(ndens.eq.1) then
             dims(1) = nfock+1
          else
-            call errquit(' fxc: os to code ',0)
+            dims(1) = nfock+2
          endif
          dims(2) = nbf_ao
          dims(3) = nbf_ao
@@ -109,55 +109,57 @@ c
          if (.not. nga_create (MT_DBL, 3, dims, 'Density',chunk,
      &     g_dens2)) call errquit
      &     ('fock_xc: could not allocate g_dens2',555)
-      endif
-      if(ndens.eq.1)then
-         if(l3d) then
-            alo(1) = 1
-            ahi(1) = nfock
-            alo(2) = 1
-            ahi(2) = nbf_ao
-            alo(3) = 1
-            ahi(3) = nbf_ao
-            blo(1) = 1
-            bhi(1) = nfock
-            blo(2) = 1
-            bhi(2) = nbf_ao
-            blo(3) = 1
-            bhi(3) = nbf_ao
-            call ga_zero(g_dens2)
-            call nga_add_patch(1d0,g_dens,alo,ahi,
+         alo(1) = 1
+         ahi(1) = nfock
+         alo(2) = 1
+         ahi(2) = nbf_ao
+         alo(3) = 1
+         ahi(3) = nbf_ao
+         blo(1) = 1
+         bhi(1) = nfock
+         blo(2) = 1
+         bhi(2) = nbf_ao
+         blo(3) = 1
+         bhi(3) = nbf_ao
+         call ga_zero(g_dens2)
+         call nga_add_patch(1d0,g_dens,alo,ahi,
      .           0d0,g_dens2,blo,bhi,
-     .           g_dens2,blo,bhi)      
-         else
-            g_dens2=g_dens
-         endif
-      else if(ndens.eq.2)then 
-         call errquit(' broken os ',0)
-         do imat = 1, nfock/ndens
-!            ioff = k_g_dens_local + 2*(imat-1) - 1
-!            joff = 4*(imat-1)
-!            int_mb(ioff + 1) = g_dens(joff+1) ! alpha density
-!            int_mb(ioff + 2) = g_dens(joff+3) ! beta  density
-         enddo
+     .        g_dens2,blo,bhi)      
       else
-         call errquit('unknown ndens, fock_xc', ndens)
+         g_dens2(1)=g_dens(1)
+         if(ndens.eq.2) g_dens2(2)=g_dens(2)
       endif
+cold     do imat = 1, nfock/ndens
+cold     ioff = k_g_dens_local + 2*(imat-1) - 1
+cold     joff = 4*(imat-1)
+cold     int_mb(ioff + 1) = g_dens(joff+1) ! alpha density
+cold     int_mb(ioff + 2) = g_dens(joff+3) ! beta  density
+cold     enddo
       if (calc_type .eq. 2) then
-         if(ndens.eq.1)then
-!            k_g_dens_scf = k_g_dens_local+nfock
-         else if(ndens.eq.2)then
-!            k_g_dens_scf = k_g_dens_local+nfock/2 
-         endif
+cold        if(ndens.eq.1)then
+cold            k_g_dens_scf = k_g_dens_local+nfock
+cold        else if(ndens.eq.2)then
+cold            k_g_dens_scf = k_g_dens_local+nfock/2 
+cold        endif
          if (.not. bgj_get_scf_dens(g_dens_scf))
      &        call errquit('fock_xc: cant get scf density handles',0)
+         write(6,*) 'denscf ',g_dens_scf
+         call util_flush(6)
          alo(1) = 1
          ahi(1) = nbf_ao
          blo(1) = nfock+1
          bhi(1) = nfock+1
-         call nga_copy_patch('N',g_dens_scf,alo,ahi,
-     .        g_dens2,blo,bhi)      
+         call nga_copy_patch('N',g_dens_scf(1),alo,ahi,
+     .        g_dens2,blo,bhi)
+         if(ndens.eq.2) then
+            blo(1) = nfock+2
+            bhi(1) = nfock+2
+            call nga_copy_patch('N',g_dens_scf(2),alo,ahi,
+     .           g_dens2,blo,bhi)
+         endif
       else
-         g_dens_scf = g_dens
+         g_dens_scf(1) = g_dens(1)
+         if(ndens.eq.2) g_dens_scf(2) = g_dens(2)
       endif
 c
 c     Prepare to call xc_quadv0
@@ -207,19 +209,15 @@ c
       if(l3d) then
          if (.not. ga_destroy(g_dens2))
      &        call errquit('fock_xc: could not destroy g_dens2',0)
-         if(ndens.eq.1)then
-         else
-            call errquit(' dens222 fockxc ',ndens)
-         endif
       endif
       call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr, l_rdens_atom)
 c
       if (calc_type .eq. 2) then
-         if (.not. ga_destroy(g_dens_scf))
-     &      call errquit('fock_xc: could not destroy scf density',0)
+         if (.not. ga_destroy(g_dens_scf(1)))
+     &      call errquit('fock_xc: could not destroy DM',1)
          if (ndens. eq. 2) then
-!            if (.not. ga_destroy(int_mb(k_g_dens_scf+1)))
-!     &         call errquit('fock_xc: could not destroy scf density',0)
+            if (.not. ga_destroy(g_dens_scf(2)))
+     &           call errquit('fock_xc: could not destroy DM',2)
          endif
       endif
 c
