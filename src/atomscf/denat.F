@@ -1,5 +1,5 @@
       subroutine guess_dens(rtdb, geom, basis, g_dens)
-C$Id: denat.F,v 1.10 1996-03-29 07:34:41 d3e129 Exp $
+C$Id: denat.F,v 1.11 1996-03-29 18:18:15 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -42,7 +42,7 @@ c
       oprint_dens = util_print('atomic guess density',print_debug)
       oprint_scf  = util_print('atomic scf', print_debug)
       oprint_ener = util_print('mo guess', print_default)
-      oprint_mod_z = util_print('modified charges', print_default)
+      oprint_mod_z = util_print('mo guess', print_default)
 c
       if (ga_nodeid().eq.0 .and. 
      $     (oprint_dens .or. oprint_scf .or. oprint_ener)) then
@@ -104,7 +104,7 @@ c..
         if (.not.rtdb_cget(rtdb,'atomscf:tags_z',num_z,tags_z))
      &      call errquit
      &      ('guess_dens: read of atomscf:tag_z failed',911)
-        if (oprint_mod_z) then
+        if (oprint_mod_z.and.(ga_nodeid().eq.0)) then
           do iii = 1,num_z
             iiilen = inp_strlen(tags_z(iii))
             write(luout,'(1x,a,f7.2,a,a)')
