@@ -3,7 +3,7 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.9 2002-02-23 02:12:52 edo Exp $
+c     $Id: xc_d2expl.F,v 1.10 2002-02-23 03:54:09 edo Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Acof2, Cmat,
      &     Cmat2, Ccof2, F, Pmat, ff, s, chi, delchi, heschi, d3chi,
@@ -151,10 +151,9 @@ c
                if (.not.GRAD) then
                   do jdir = 1, 3
                      do idir = 1, 3
-                        do n = 1, nq
-                           T(idir,jdir) = T(idir,jdir)
-     &                    + Acof2(n,1,idir)*drho(n,1,jdir,jatcur)
-                        enddo
+                     T(idir,jdir) = T(idir,jdir) +
+     &                    ddot(nq,Acof2(1,1,idir),1,
+     .                    drho(1,1,jdir,jatcur),1)
                      enddo
                   enddo
                else
@@ -175,7 +174,7 @@ c
                   do idir = 1, 3
                      T(idir,jdir) = T(idir,jdir) +
      &                    ddot(nq,Acof2(1,1,idir),1,
-     .                    drho(n,1,jdir,jatcur),1) +
+     .                    drho(1,1,jdir,jatcur),1) +
      &                    ddot(nq,Acof2(1,2,idir),1,
      .                    drho(1,2,jdir,jatcur),1)
                   enddo
