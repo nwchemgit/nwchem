@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.37 2001-10-11 17:33:40 d3j191 Exp $
+c $Id: util_md.F,v 1.38 2003-04-11 22:47:31 edo Exp $
 c
       implicit none
 c
@@ -593,7 +593,7 @@ c
 c
       implicit none
 c
-      character*10 today,now
+      character*16 today,now
 c
 #if defined(LINUX)
       character*26 string
