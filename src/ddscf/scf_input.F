@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C     $Id: scf_input.F,v 1.9 1997-03-21 01:54:43 d3g681 Exp $
+C     $Id: scf_input.F,v 1.10 2001-11-29 22:23:48 bert Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -179,6 +179,8 @@ c
                   nriscf = 2
                else if (inp_compare(.false., test, 'preconverge')) then
                   nriscf = 3
+               else if (inp_compare(.false., test, 'coulomb')) then
+                  nriscf = 10
                else if (inp_compare(.false., test, 'auto')) then
                   ri_store = 1
                else if (inp_compare(.false., test, 'memory')) then
