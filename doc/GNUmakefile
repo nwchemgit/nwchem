@@ -36,7 +36,6 @@ viewall:	postscript
 dvi:		$(DVI)
 
 
-
 clean:		
 		@rm -f $(DVI)  *.toc *.aux *.log *.bbl *.blg
 
@@ -56,7 +55,7 @@ realclean:	clean
 
 
 ####
-user.dvi:	fullpage.sty dft.tex user.tex
+user.dvi:	fullpage.sty dft.tex user.tex selci.tex
 prog.dvi:	fullpage.sty integral_api.tex prog.tex
 md.dvi:		fullpage.sty md.tex
 
