@@ -157,9 +157,8 @@ sub-block.
 
 \subsection{Car-Parrinello}
 The Car-Parrinello task is used to perform ab initio molecular dynamics
-using the scheme developed by Car and Parrinello. 
-Input to the Car-Parrinello simulation is contained
-within the Car-Parrinello sub-block.
+using the scheme developed by Car and Parrinello. Input to the Car-Parrinello 
+simulation is contained within the Car-Parrinello sub-block.
 \begin{verbatim}
 PSPW
   ...
@@ -327,10 +326,10 @@ PSPW
      (RESTRICTED||UNRESTRICTED)
      UP_FILLING: <integer up_filling>
         [0 0 0 0   0]
-        {<integer kx ky kz> (-1||1)}
+        {<integer kx ky kz> (-2||-1||1||2)}
      DOWN_FILLING: <integer down_filling>
         [0 0 0 0   0]
-        {<integer kx ky kz> (-1||1)}
+        {<integer kx ky kz> (-2||-1||1||2)}
    END
 ...
 END
@@ -548,15 +547,16 @@ input in detail.
 	\item periodic - keyword specifying that the simulation cell 
 	                 has periodic boundary conditions. 	
 	\item aperiodic - keyword specifying that the simulation cell
-		          has free-space boundary conditions.
-	\item $<$a1.x a1.y a1.z$>$ - user-supplied values for the first lattice 
-				 vector 
-	\item $<$a2.x a2.y a2.z$>$ - user-supplied values for the second lattice
-				 vector
-	\item $<$a3.x a3.y a3.z$>$ - user-supplied values for the third lattice
-			  	 vector
-	\item $<$na1 na2 na3$>$ - user-supplied values for the discretization along
-			      the lattice vector directions.
+		          has free-space boundary conditions. !!! Currently 
+			  this option is not implemented !!!
+	\item $<$a1.x a1.y a1.z$>$ - user-supplied values for the first 
+				   lattice vector 
+	\item $<$a2.x a2.y a2.z$>$ - user-supplied values for the second 
+				   lattice vector
+	\item $<$a3.x a3.y a3.z$>$ - user-supplied values for the third 
+				   lattice vector
+	\item $<$na1 na2 na3$>$ - user-supplied values for discretization 
+				along lattice vector directions.
 \end{itemize}
 
 \subsection{Wavefunction Datafile}
