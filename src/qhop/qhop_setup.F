@@ -2,7 +2,43 @@
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.2 2003-08-07 21:47:40 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
+c
+      implicit none
+c
+#include "qhop_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfnhdb,lfnhop,matm,natm,mseq,nseq,nparms,mparms
+      character*255 filhop
+      character*10 cseq(mseq)
+      character*6 catm(mparms,matm)
+      integer latm(11,matm),lseq(6,mseq)
+      integer mbnd,nbnd
+      integer lbnd(4,mbnd)
+      real*8 rbnd(nparms,2,mbnd)
+      integer mang,nang
+      integer lang(5,mang)
+      real*8 rang(nparms,2,mang)
+c
+      call qhop_setup2(lfnhdb,lfnhop,filhop,
+     + mparms,nparms,matm,natm,mseq,nseq,
+     + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang,
+     + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
+     + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
+     + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
+     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
+     + dbl_mb(i_par+28*maxpar))
+c
+      return
+      end
+      subroutine qhop_setup2(lfnhdb,lfnhop,filhop,
+     + mparms,nparms,matm,natm,mseq,nseq,
+     + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang,
+     + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
+     + tdsgl,tstval,e12fxy)
+c
+c $Id: qhop_setup.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
 c
       implicit none
 c
@@ -42,6 +78,11 @@ c
       integer mang,nang
       integer lang(5,mang)
       real*8 rang(nparms,2,mang)
+c
+      real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
+     + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
+      real*8 deq(mxar),aneq(mxar)
+      integer ptseq(maxseq,2),ptpar(maxpar),arat(mxar,4),ptarat(mxseq)
 c
       integer i,j,k,l,m,n
 c      integer mxseq,maxhv,maxpar,mxar

@@ -1,6 +1,29 @@
       subroutine qhop_prob(gd,rsd,prd,ga,rsa,pra,uda,dang,prob)
+c     
+      implicit none
 c
-c $Id: qhop_prob.F,v 1.2 2003-08-07 01:33:55 d3j191 Exp $
+#include "qhop_common.fh"
+#include "mafdecls.fh"
+c
+c     declaration of arguments
+c
+      real*8 uda(4),dang(2),prob
+      integer gd,rsd,prd,ga,rsa,pra
+c
+      call qhop_prob2(gd,rsd,prd,ga,rsa,pra,uda,dang,prob,
+     + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
+     + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
+     + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
+     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
+     + dbl_mb(i_par+28*maxpar))
+c
+      return
+      end
+      subroutine qhop_prob2(gd,rsd,prd,ga,rsa,pra,uda,dang,prob,
+     + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
+     + tdsgl,tstval,e12fxy)
+c
+c $Id: qhop_prob.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
 c
 c     
 c     The hopping probability prob is calculated given the difference in 
@@ -25,6 +48,11 @@ c     declaration of arguments
 c
       real*8 uda(4),dang(2),prob
       integer gd,rsd,prd,ga,rsa,pra
+c
+      real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
+     + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
+      real*8 deq(mxar),aneq(mxar)
+      integer ptseq(maxseq,2),ptpar(maxpar),arat(mxar,4),ptarat(mxseq)
      
 c
 c     declaration of local variables

@@ -1,7 +1,35 @@
       subroutine qhop_asite(msa,xs,idon,idong,resd,istatd,iacc,
      + iaccg,resa,istata,xacc,doff,aoff)
 c
-c $Id: qhop_asite.F,v 1.2 2003-08-07 01:33:55 d3j191 Exp $
+c $Id: qhop_asite.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
+c
+      implicit none
+c
+#include "qhop_common.fh"
+#include "mafdecls.fh"
+c
+c     declaration of arguments
+c
+      integer msa,idon,idong,resd,iacc,iaccg,resa,istatd,istata,doff,
+     + aoff
+      real*8 xacc(5),xs(msa,3)
+c
+      call qhop_asite2(msa,xs,idon,idong,resd,istatd,iacc,
+     + iaccg,resa,istata,xacc,doff,aoff,
+     + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
+     + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
+     + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
+     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
+     + dbl_mb(i_par+28*maxpar))
+c
+      return
+      end
+      subroutine qhop_asite2(msa,xs,idon,idong,resd,istatd,iacc,
+     + iaccg,resa,istata,xacc,doff,aoff,
+     + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
+     + tdsgl,tstval,e12fxy)
+c
+c $Id: qhop_asite.F,v 1.3 2003-08-11 19:43:18 d3j191 Exp $
 c
       implicit none
 c
@@ -9,10 +37,14 @@ c
 c
 c     declaration of arguments
 c
-
       integer msa,idon,idong,resd,iacc,iaccg,resa,istatd,istata,doff,
      + aoff
       real*8 xacc(5),xs(msa,3)
+c
+      real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
+     + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
+      real*8 deq(mxar),aneq(mxar)
+      integer ptseq(maxseq,2),ptpar(maxpar),arat(mxar,4),ptarat(mxseq)
 c
 c     declaration of variables
 c

@@ -1,6 +1,98 @@
       subroutine qhop_init(lfnhop,filhop,lfnout,me)
 c
-c $Id: qhop_init.F,v 1.1 2003-07-17 19:36:51 d3j191 Exp $
+c $Id: qhop_init.F,v 1.2 2003-08-11 19:43:18 d3j191 Exp $
+c
+      implicit none
+c
+#include "qhop_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
+c
+      integer lfnhop,lfnout,me
+      character*255 filhop
+      integer i,numbi,numbd,idata(9)
+c
+      if(me.eq.0) then
+c
+      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1))
+c
+c     reading in the qhop par files
+c
+      read(lfnhop,1011) mxseq,mxar,maxpar,maxseq
+ 1011 format(2i5,i10,i5)
+c
+      read(lfnhop,1025) (shbit(i),i=1,5)
+ 1025 format(5i5)
+c
+      endif
+c
+      idata(1)=mxseq
+      idata(2)=mxar
+      idata(3)=maxpar
+      idata(4)=maxseq
+      do 1 i=1,5
+      idata(4+i)=shbit(i)
+    1 continue
+      numbi=ma_sizeof(mt_int,1,mt_byte)
+      call ga_brdcst(hop_01,idata,9*numbi,0)
+      mxseq=idata(1)
+      mxar=idata(2)
+      maxpar=idata(3)
+      maxseq=idata(4)
+      do 2 i=1,5
+      shbit(i)=idata(4+i)
+    2 continue
+c
+c     allocate memory for parameter arrays
+c
+      if(.not.ma_push_get(mt_int,2*maxseq,'iptseq',l_ptseq,i_ptseq))
+     + call errquit('Failed to allocate iptseq',0)
+      if(.not.ma_push_get(mt_int,mxseq,'iptarat',l_ptarat,i_ptarat))
+     + call errquit('Failed to allocate iptarat',0)
+      if(.not.ma_push_get(mt_int,4*mxar,'iarat',l_iarat,i_iarat))
+     + call errquit('Failed to allocate iarat',0)
+      if(.not.ma_push_get(mt_dbl,2*mxar,'racs',l_racs,i_racs))
+     + call errquit('Failed to allocate racs',0)
+      if(.not.ma_push_get(mt_int,maxpar,'iptpar',l_ptpar,i_ptpar))
+     + call errquit('Failed to allocate iptpar',0)
+      if(.not.ma_push_get(mt_dbl,31*maxpar,'par',l_par,i_par))
+     + call errquit('Failed to allocate par',0)
+c
+      call qhop_init2(lfnhop,filhop,lfnout,me,
+     + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
+     + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
+     + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
+     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
+     + dbl_mb(i_par+28*maxpar))
+c
+c     broadcast parameters to all processors
+c     --------------------------------------
+c
+      numbi=ma_sizeof(mt_int,1,mt_byte)
+      numbd=ma_sizeof(mt_dbl,1,mt_byte)
+c
+      call ga_brdcst(hop_02,int_mb(i_ptseq),2*maxseq*numbi,0)
+      call ga_brdcst(hop_03,int_mb(i_ptarat),mxseq*numbi,0)
+      call ga_brdcst(hop_04,int_mb(i_iarat),4*mxar*numbi,0)
+      call ga_brdcst(hop_05,int_mb(i_ptpar),maxpar*numbi,0)
+      call ga_brdcst(hop_06,dbl_mb(i_racs),2*mxar*numbd,0)
+      call ga_brdcst(hop_07,dbl_mb(i_par),31*maxpar*numbd,0)
+c
+c      call qhop_test(lfnout,me,
+c     + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
+c     + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
+c     + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
+c     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
+c     + dbl_mb(i_par+28*maxpar))
+c
+      return
+      end
+      subroutine qhop_init2(lfnhop,filhop,lfnout,me,
+     + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
+     + tdsgl,tstval,e12fxy)
+c
+c $Id: qhop_init.F,v 1.2 2003-08-11 19:43:18 d3j191 Exp $
 c
       implicit none
 c
@@ -28,6 +120,12 @@ c     lseq(5,1:nseq)  : number of protonation states of residue
 c     lseq(6,1:nseq)  : current protonation state of residue
 c
       integer i,j,ipar,numpar,larat,numseq,nseq,lfnhop,lfnout,me
+c
+      real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
+     + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
+      real*8 deq(mxar),aneq(mxar)
+      integer ptseq(maxseq,2),ptpar(maxpar),arat(mxar,4),ptarat(mxseq)
+c
       integer seqin(2),hvin(2),prtin(2)	 
       character*10 dummy
       character*255 filhop
@@ -36,7 +134,9 @@ c
 c
       if(me.eq.0) then
 c
-      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),err=112)
+c      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),err=112)
+c
+      rewind(lfnhop)
 c
 c     reading in the qhop par files
 c
@@ -91,19 +191,30 @@ c
 c
       endif
 c
-c     broadcast parameters to all processors
-c     --------------------------------------
-c
-      numbi=ma_sizeof(mt_int,1,mt_byte)
-      numbd=ma_sizeof(mt_dbl,1,mt_byte)
-c
-      numb=numbd*(31*maxpar+2*mxar)+numbi*(3*maxseq+maxpar+4*mxar+5)
-c
-      call ga_brdcst(hop_01,tunnel,numb,0)
-c
       return
   112 call errquit('err opening input file',0)
       return
   113 call errquit( 'err opening output file',0)
+      return
+      end
+      subroutine qhop_test(lfnout,me,
+     + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
+     + tdsgl,tstval,e12fxy)
+c
+      implicit none
+c
+#include "qhop_common.fh"
+c
+      integer lfnout,me
+c
+      real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
+     + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
+      real*8 deq(mxar),aneq(mxar)
+      integer ptseq(maxseq,2),ptpar(maxpar),arat(mxar,4),ptarat(mxseq)
+c
+      integer i
+c
+c      write(*,'(i5,5f12.6)') me,(tunnel(i,1),i=1,min(5,maxpar))
+c
       return
       end
