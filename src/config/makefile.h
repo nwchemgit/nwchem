@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.379 2002-02-15 19:42:03 edo Exp $
+# $Id: makefile.h,v 1.380 2002-02-18 23:40:11 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1200,7 +1200,7 @@ ifeq ($(LINUXCPU),x86)
 # Most Linux distributions are using EGCS
   EGCS = YES
   ifdef EGCS
-    FOPTIONS  += -Wno-globals
+    FOPTIONS  +=  -malign-double -fno-globals   -Wunused  -fno-silent
 #    FOPTIONS  += -fno-globals -Wunused -fno-silent  -malign-double
     FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
