@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.2 2001-12-21 16:50:29 bylaska Exp $                       
+*     $Id: pspw_Grsm_list.F,v 1.3 2001-12-25 22:54:10 bylaska Exp $                       
 *
 
       subroutine pspw_Grsm_list_init(tag,size_list0,nsize0)
@@ -60,7 +60,7 @@
       
       tmp = indx(1)
       do i=1,size_list-1
-         indx(i) = indx(i-1)
+         indx(i) = indx(i+1)
       end do
       indx(size_list) = tmp
       

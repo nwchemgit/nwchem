@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.2 2001-12-21 22:54:35 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.3 2001-12-25 22:54:02 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -28,12 +28,12 @@ c
       real*8     Enew,Eold,Estart
       common / cgsd_block / Enew,Eold,Estart
 
-      real*8 tmin
-      common / bfgs_block / tmin
+      real*8 tmin,dte,sum0,sum1
+      common / bfgs_block / tmin,dte,sum0,sum1
 
       integer it,it_in
       real*8 deltat
-      real*8 max_sigma,dt,dte
+      real*8 max_sigma,dt
 
       logical value
       integer neall,npack1
@@ -94,10 +94,11 @@ c
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
-      dte = dsqrt(control_fake_mass())/dt
+c     dte = dsqrt(control_fake_mass())/dt
+      dte = 1.0d0
 
 
-      write(*,*) "start,tmin:",tmin
+      write(*,*) "start,tmin:",tmin,dte
        
   
       call Pack_npack(1,npack1)
@@ -114,17 +115,19 @@ c     dte = dt/dsqrt(control_fake_mass())
 
 
 
-*        ***** get the initial direction ****
+*     ***** get the initial direction ****
+      call psi_1get_Tgradient(dcpl_mb(G0(1)))
+      call Grsm_gg_dScale(npack1,neall,dte,
+     >                    dcpl_mb(G0(1)),dcpl_mb(G0(1)))
+
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
-         call psi_1get_Tgradient(dcpl_mb(G0(1)))
-         call Grsm_gg_dScale(npack1,neall,dte,
-     >                       dcpl_mb(G0(1)),dcpl_mb(G0(1)))
          call Grsm_gg_Copy(npack1,neall,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
-         call pspw_lmbfgs_init(5,dcpl_mb(G0(1)))
+
+         call pspw_lmbfgs_init(4,dcpl_mb(G0(1)))
       else
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
       end if
@@ -149,12 +152,13 @@ c     dte = dt/dsqrt(control_fake_mass())
          else
             deltat = deltat_min
          end if
+         deltat = 1.0d0
          Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        tole,tmin,deltae)
          call psi_geodesic_final(tmin)
-      write(*,*) "tmin:",tmin
+      write(*,*) "tmin:",tmin,dte
          deltac = rho_error()
 
 *        **** exit loop early ****
@@ -184,7 +188,7 @@ c        call dng_2to1()
       else
          deltat = deltat_min
       end if
-
+      deltat = 1.0d0
 c      Eold = psi_geodesic_energy(0.0d0)
       Enew = linesearch(0.0d0,deltat,
      >                        psi_geodesic_energy,
@@ -192,7 +196,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
-      write(*,*) "END,tmin:",tmin
+      write(*,*) "END,tmin:",tmin,dte
 
 *     **** free memory ****
  30   value = MA_pop_stack(G0(2))

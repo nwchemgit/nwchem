@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.3 2001-12-21 22:54:35 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.4 2001-12-25 22:54:10 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -56,7 +56,7 @@
       call pspw_Grsm_list_load(m,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
       call psi_1geodesic_Gtransport(tmin,dcpl_mb(yy(1)))
       call psi_1geodesic_transport(tmin,dcpl_mb(ss(1)))
-      call Grsm_ggg_Sub(npack1,neall,g,dcpl_mb(yy(1)),dcpl_mb(yy(1)))
+      call Grsm_ggg_Sub(npack1,neall,dcpl_mb(yy(1)),g,dcpl_mb(yy(1)))
       call pspw_Grsm_list_store(m,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
 
       call Grsm_gg_trace(npack1,neall,
@@ -69,15 +69,15 @@
      >                   dcpl_mb(yy(1)),
      >                   dcpl_mb(yy(1)),
      >                   h0)
-      write(*,*) "h0:",h0
-      h0 = sum/h0
+c     write(*,*) "h0:",h0
+c     h0 = sum/h0
 
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(ss(1)),
      >                   s,
      >                   sum)
       alpha(m) = rho(m)*sum
-      call Grsm_gg_daxpy(npack1,neall,-alpha(m),dcpl_mb(yy(1)),s)
+      call Grsm_gg_daxpy(npack1,neall, alpha(m),dcpl_mb(yy(1)),s)
 
       do k=(m-1),1, -1
          call pspw_Grsm_list_load(k,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
@@ -89,14 +89,14 @@
      >                   s,
      >                   sum)
          alpha(k) = rho(k)*sum
-         call Grsm_gg_daxpy(npack1,neall,-alpha(k),dcpl_mb(yy(1)),s)
+         call Grsm_gg_daxpy(npack1,neall,alpha(k),dcpl_mb(yy(1)),s)
 
 *     **** debug ****
-      call Grsm_gg_trace(npack1,neall,
-     >                   dcpl_mb(yy(1)),
-     >                   dcpl_mb(ss(1)),
-     >                   sum)
-      write(*,*) "    debug k,RHO:",k,1.0d0/sum,rho(k)
+c      call Grsm_gg_trace(npack1,neall,
+c     >                   dcpl_mb(yy(1)),
+c     >                   dcpl_mb(ss(1)),
+c     >                   sum)
+c      write(*,*) "    debug k,RHO:",k,1.0d0/sum,rho(k)
 
       end do
 
@@ -111,6 +111,7 @@
      >                   sum)
          beta = rho(k)*sum
          sum = alpha(k) - beta
+         sum = beta - alpha(m)
          call Grsm_gg_daxpy(npack1,neall,sum,dcpl_mb(ss(1)),s)
          call pspw_Grsm_list_load(k+1,dcpl_mb(yy(1)),dcpl_mb(ss(1)))
       end do
@@ -120,7 +121,7 @@
      >                sum)
       beta = rho(m)*sum
       sum = alpha(m) - beta
-      sum = beta-alpha(m)
+      sum = beta - alpha(m)
       call Grsm_gg_daxpy(npack1,neall,sum,dcpl_mb(ss(1)),s)
 
       if (m.lt.max_m) then

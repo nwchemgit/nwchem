@@ -1,4 +1,4 @@
-c     $Id: cgminimize.F,v 1.5 2001-11-28 21:09:18 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.6 2001-12-25 22:54:09 bylaska Exp $                       
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -149,6 +149,7 @@ c        Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
          call psi_geodesic_final(tmin)
          deltac = rho_error()
+         write(*,*) "tmin:",tmin
 
 *        **** exit loop early ****
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) 
@@ -239,6 +240,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        tole,tmin,deltae)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
+      write(*,*) "final tmin:",tmin
 
  30   call psi_2to1()
       call psi_1toelectron() 
