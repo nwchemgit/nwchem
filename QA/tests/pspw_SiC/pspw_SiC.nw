@@ -95,7 +95,7 @@ PSPW
          8.277d0  0.000d0  0.0d0 
          0.000d0  8.277d0  0.000d0
          0.000d0  0.000d0  8.277d0
-      ngrid: 6 6 6
+      ngrid: 8 8 8
    END
    #FRACTIONAL_TO_CARTESIAN: small
 END
