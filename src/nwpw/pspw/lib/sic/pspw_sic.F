@@ -38,6 +38,11 @@
      >       rcut = -1.0d0
 
          if (.not. rtdb_get(rtdb,
+     >                      'pspw:SIC_screening_power',
+     >                      mt_dbl,1,pp)) 
+     >       pp = 8.0d0
+
+         if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_relax',
      >                      mt_log,1,relaxed)) 
      >       relaxed = .false.
@@ -49,11 +54,7 @@
 
 *        **** initialize coulomb_screened ****
          if (solver_type.eq.1) then
-           if (rcut.lt.0.0d0) then
-              call coulomb_screened_init(99999.0d9)
-           else
-              call coulomb_screened_init(rcut)
-           end if
+              call coulomb_screened_init(rcut,pp)
 
 *        **** initialize free-space coulomb if necessary ****
          else
