@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2002-01-14 21:06:28 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2002-02-13 21:08:51 edo Exp $
 #
  SUBDIRS =
 
@@ -15,7 +15,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psp.F semicore.F semicore_force.F
+    USES_BLAS = psp.F semicore.F semicore_force.F psp_stress.F
 
   LIB_DEFINES = 
 
