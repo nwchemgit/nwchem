@@ -2,11 +2,11 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_solvat.F,v 1.1 1998-04-28 23:10:54 d3j191 Exp $
+c $Id: pre_solvat.F,v 1.2 1998-05-15 19:11:27 d3j191 Exp $
 c
       implicit none
 c
-      integer islv,mwms,mwa,nwms,nwa,mwm,mwa,nwm,nwa,msa,nsa
+      integer islv,mwms,mwa,nwms,nwa,mwm,nwm,msa,nsa
       integer nwmc,mwmc
       integer iwmr(mwm)
       real*8 xw(3,mwa,mwm),xs(3,nsa),xslv(3,mwa,mwms)
