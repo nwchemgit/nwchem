@@ -15,7 +15,7 @@ modules. The new modules are:
 
   o HESSIAN: This module controls the analytic hessian calculation
   o DIRDYVTST: The DIRect Dynamics for Variational Transition State Theory
-  o 
+  o BAND: Prototype Band structure code
   o 
   o 
 
@@ -26,7 +26,7 @@ Additional major additions to the capabilities include:
 
   o The AUTOSYM directive in the GEOMETRY group is now ON by default.
   o NBO 5.0 is now available.
-  o 
+  o A limited memory BFGS minimization has been added to the PSPW code.
   o 
   o 
 
@@ -94,7 +94,6 @@ SCF:
     adding relativistic operators or COSMO) in the subsequent calculation
     the vectors are assumed to be converged. This is not correct as the 
     Hamiltonian changed. 
-  o 
 
 COSMO:
   o BUG FIX: Make COSMO gradients always go numerically.
@@ -127,6 +126,19 @@ Hessian and Frequencies:
   o 
   o 
   o 
+
+PSPW:
+
+  o Improved user interface
+  o Conjugate gradient optimization has been improved.
+  o Psuedopotential library
+  o Automated psuedopontential formatting
+  o Automated wavefunction initial guess, now with LCAO
+  o Automated conversion between small and large plane-wave expansions
+  o Fixed atoms in cartesian and SHAKE constraints in Car-Parrinello
+  o Polarization through the use of point charges
+  o DPLOT available during Car-Parrinello simulations
+  o BUG FIX: Ewald sum for irregular shaped unit cells is now correct.
 
 Prepare:
 

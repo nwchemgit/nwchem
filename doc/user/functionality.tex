@@ -104,31 +104,37 @@ calculations are available:
 
 \section{Pseudopotential plane-wave electronic structure}
 
-The following modules are available to compute the energy, optimize the
-geometry and perform ab initio molecular dynamics using pseudopotential
-plane-wave DFT.
+Two modules are available to compute the energy, optimize the
+geometry, numerical second derivatives, and perform ab initio 
+molecular dynamics using pseudopotential plane-wave DFT.
 
 \begin{itemize}
-\item Fixed step length steepest descent 
-\item Conuugate gradient
-\item Car-Parrinello (extended Lagrangian dynamics)
+\item PSPW - (Pseudopotential plane-wave) A gamma point code for calculating
+molecules, liquids, crystals, and surfaces.
+\item Band - A prototype band structure code for calculating crystals and 
+surfaces with small band gaps (e.g. semi-conductors and metals)
 \end{itemize}
 
 With
 
 \begin{itemize}
+\item Conjugate gradient and limited memory BFGS minimization
+\item Car-Parrinello (extended Lagrangian dynamics)
+\item Constant energy and constant temperature Car-Parrinello simulations
+\item Fixed atoms in cartesian and SHAKE constraints in Car-Parrinello
+\item Pseudopotential libraries
+\item Hamann and Troullier-Martins norm-conserving pseudopotentials with 
+optional semicore corrections
+\item Automated wavefunction initial guess, now with LCAO
 \item Vosko and PBE96 exchange-correlation potentials (spin-restricted 
 and unrestricted)
-\item (Gamma point) Periodic orthorhombic simulation cells for calculating
-molecules, liquids, crystals, and surfaces
-\item Aperiodic orthorhombic simulations cells for calculating molecules that 
-are charged or highly polar
-\item Constant energy and constant temperature Car-Parrinello simulations
-\item Hamann and Troullier-Martins norm-conserving pseudopotentials with opt
-ional semicore corrections
+\item Orthorhombic simulation cells with periodic and
+free space boundary conditions.
 \item Modules to convert between small and large plane-wave expansions
 \item Interface to DRIVER, STEPPER, and VIB modules
-\item Mulliken analysis
+\item Polarization through the use of point charges
+\item Mulliken, point charge, DPLOT (wavefunction, density and electrostatic
+potential plotting) analysis
 \end{itemize}
 
 \section{Periodic system electronic structure}
