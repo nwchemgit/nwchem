@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.10 1998-04-29 18:38:51 d3j191 Exp $
+c $Id: pre_charge.F,v 1.11 1998-04-29 20:35:59 d3j191 Exp $
 c
       implicit none
 c
@@ -110,6 +110,8 @@ c
      + call errquit('pre_charge: geom_rtdb_store failed',9999)
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)
+      nconst=0
+      if(nout.gt.ihi-ilo+1) then
       ncon=ihi-ilo+1
       icon(1)=ncon
       do 13 i=1,ncon
@@ -118,14 +120,17 @@ c
       ncon=ncon+1
       nconst=1
       rcon=0.0d0
+      endif
       if(.not.rtdb_put(irtdb,'esp:nconst',mt_int,1,nconst))
      + call errquit('pre_charge: rtdb_put nconst failed',0)
+      if(nconst.gt.0) then
       if(.not.rtdb_put(irtdb,'esp:ncon',mt_int,1,ncon))
      + call errquit('pre_charge: rtdb_put ncon failed',0)
       if(.not.rtdb_put(irtdb,'esp:icon',mt_int,ncon,icon))
      + call errquit('pre_charge: rtdb_put icon failed',0)
       if(.not.rtdb_put(irtdb,'esp:rcon',mt_dbl,nconst,rcon))
      + call errquit('pre_charge: rtdb_put rcon failed',0)
+      endif
   100 continue
       irest=2
       if(.not.rtdb_put(irtdb,'esp:irest',mt_int,1,irest))
