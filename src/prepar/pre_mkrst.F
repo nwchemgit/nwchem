@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain)
 c
-c $Id: pre_mkrst.F,v 1.23 1998-09-24 17:04:42 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.24 1998-11-06 19:12:07 d3j191 Exp $
 c
       implicit none
 c
@@ -31,14 +31,14 @@ c
 c
       integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
       integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc
+      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
       integer l_sfnd,i_sfnd,l_xs,i_xs,l_vs,i_vs
       integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr
-      integer l_inoe,i_inoe,l_dnoe,i_dnoe
+      integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
       integer l_wfnd,i_wfnd,l_wcmr,i_wcmr,l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
@@ -51,7 +51,7 @@ c
  1000 format(' RESTART FILE GENERATION')
       endif
 c
-      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb))
+      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb,nqu))
      + call errquit('pre_topsiz failed',9999)
 c
       if(util_print('where',print_high)) then
@@ -85,6 +85,8 @@ c     integer isfnd(msa)     : solute atom found flags
 c     real*8 qsa(msa)        : solute atom charges
 c     real*8 xs(3,msa)       : solute atom coordinates
 c
+      if(.not.ma_push_get(mt_dbl,nqu,'qu',l_qu,i_qu))
+     + call errquit('Memory allocation failed for qu',9999)
       if(.not.ma_push_get(mt_int,2*mnoe,'inoe',l_inoe,i_inoe))
      + call errquit('Memory allocation failed for inoe',9999)
       if(.not.ma_push_get(mt_dbl,5*mnoe,'dnoe',l_dnoe,i_dnoe))
@@ -171,7 +173,7 @@ c
      + int_mb(i_num),dbl_mb(i_mas),mat,
      + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
-     + dbl_mb(i_csb),msb,nsb))
+     + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu))
      + call errquit('pre_toprd failed',9999)
       if(util_print('coordinates',print_default)) then
       write(lfnout,1003) filtop(1:index(filtop,' ')-1)
@@ -834,7 +836,7 @@ c
       if(card(1:3).ne.'end') goto 1
 c
     9 continue
-      close(unit=lfncmd)
+      close(unit=lfncmd,err=999)
   999 continue
 c
 c     deallocate memory
@@ -872,6 +874,8 @@ c
      + call errquit('Memory deallocation failed for dnoe',9999)
       if(.not.ma_pop_stack(l_inoe))
      + call errquit('Memory deallocation failed for inoe',9999)
+      if(.not.ma_pop_stack(l_qu))
+     + call errquit('Memory deallocation failed for qu',9999)
 c
       if(lslvnt) then
       if(.not.ma_free_heap(l_xslv))
