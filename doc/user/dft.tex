@@ -471,16 +471,15 @@ functional derived by Hamprecht-Cohen-Tozer-Handy
 (this is not a hybrid functional)
 (F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
     J. Chem. Phys. {\bf 109}, 6264 (1998))
+\twocolumn
+\begin{table}[htp]
 
-
-\begin{table}
-{\footnotesize 
-\centering
+%\centering
 \begin{tabular}{|l|cccc|r|}
 \hline
-%           &          &             &        &         &         \\
-Keyword    & Exchange & Correlation & GCA    &  Hybrid & Ref.\\
-%           &          &             &        &         &         \\
+           &          &             &        &         &         \\
+Keyword    & X & C & GCA    &  Hybrid & Ref.\\
+           &          &             &        &         &         \\
 \hline
  slater     & $\star$    &            &         &         &[1]\\
 \hline							
@@ -516,7 +515,10 @@ becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &[16]\\
 pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
 \hline
 \end{tabular}
-\\
+\caption{Table of available Exchange (X) and Correlation (C) functionals}
+\end{table}
+{\footnotesize
+\vspace{8.5cm}
 \begin{enumerate}\setlength{\itemsep}{-1\baselineskip}
 \setlength{\parsep}{-1\baselineskip}
 \item C.~Slater, {\sl Quantum Theory of Molecules and Solids, 
@@ -537,7 +539,7 @@ Phys. Rev. Lett. {\bf 77}, 3865 (1996); {\bf 78 }, 1396 (1997).\\
 \item  J.~P.~Perdew, Phys.~Rev.~B   {\bf33}, 8822 (1986). \\
 \item C.~Lee, W.~Yang and R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785
 (1988). \\
-\item  F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
+\item  F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.\\ Handy, 
     J. Chem. Phys. {\bf 109}, 6264 (1998). \\
 \item   A.D.Boese, N.L.Doltsinis, N.C.Handy and
 M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
@@ -549,8 +551,8 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 \item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998).\\
 \end{enumerate}
 }
-\end{table}
-
+%\end{table}
+\onecolumn
 
 \section{ITERATIONS --- Number of SCF iterations}
 
@@ -791,6 +793,8 @@ than the default Gauss-Legendre quadrature.  In addition, we have
 observed that with Lebedev angular quadratures a reduction in the
 number of radial shells (perhaps by as much as 30\%) might be possible
 while continuing to provide the same level of accuracy.
+% g94/Sg-1 grid lebedev 50 4
+% g98/fine              75 5
 
 
 \begin{table}[h]
@@ -865,11 +869,16 @@ Keyword & {\tt Radial} & {\tt Theta} & {\tt phi} \\ \hline
 \end{center}
 \end{table}
 
+\clearpage
+
+\subsection{Angular grids}
 
 In addition to the simple keyword specifying the desired accuracy as
 described above, the user has the option of specifying a custom
 quadrature of this type in which ALL atoms have the same grid
 specification.  This is accomplished by using the \verb+gausleg+ keyword.
+
+\paragraph{Gauss-Legendre angular grid}
 
 \begin{verbatim}
   GRID gausleg <integer nradpts default 50> <integer nagrid default 10> 
@@ -883,51 +892,81 @@ theta points. So, for example, a specification of,
 would be interpreted as 80 radial points, 20 theta points, and 40
 phi points per center (or 64000 points per center before pruning).
 
-A second quadrature available for the numerical integration is an
-Euler-Mac\-Laurin scheme for the radial components and a Lebedev
+\paragraph{Lebedev angular grid}
+
+A second quadrature is the Lebedev
 scheme for the angular components\footnote{The subroutine 
 for the Lebedev grid was derived from a routine supplied by M.~Caus\`a
-of the University of Torino.}.  
+of the University of Torino and from the grid points supplied by
+D.N.~Laikov from Moscow State University.}.  
 Within this numerical integration procedure various levels 
 of accuracy have also been defined and are available to the user.  
 The input for this type of grid takes the form,
 \begin{verbatim}
-  GRID lebedev <integer radpts default 50> <integer iangquad default 4> 
+  GRID lebedev <integer radpts default 50> <integer iangquad default 8> 
 \end{verbatim}
 In this context the variable iangquad specifies a certain number of
-angular points as indicated by the table below.\footnote{The first 10
-quadratures up to order 59 are from
-B. Delley, Journal of Computational Chemistry {\bf 17}, 1152 (1996);
-the last quadrature, of oder 131, is from
-V.I. Lebedev and D.N. Laikov, Doklady Mathematics {\bf 366}, 741 (1999)
+angular points as indicated by the table below.\footnote{
+V.I. Lebedev and D.N. Laikov, Doklady Mathematics {\bf 366}, 741
+(1999).
 }
-
+\begin{table}[htp]
 \begin{center}
-\begin{tabular}[right]{|l|r r r r r r r r r r r|} \hline
-$IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 &11\\ \hline
-$N_{angular}$ & 38 & 50 & 110 & 194 & 302 & 434 & 590 & 770 & 974 &
-1202& 5810\\ \hline
+\begin{tabular}[right]{|c|rr|} \hline
+$IANGQUAD$ & $N_{angular}$ & $l$\\
+\hline
+ 1&   38&   9  \\
+ 2&   50&  11  \\
+ 3&   74 & 13  \\
+ 4&   86 & 15  \\
+ 5&  110 & 17  \\
+ 6&  146 & 19  \\
+ 7&  170 & 21  \\
+ 8&  194 & 23  \\
+ 9&  230 & 25  \\
+10&  266&  27  \\
+11&  302&  29  \\
+12&  350&  31  \\
+13&  434&  35  \\
+14&  590&  41  \\
+15&  770&  47  \\
+16&  974&  53  \\
+17& 1202&  59  \\
+18& 1454&   65 \\
+19& 1730&   71 \\
+20& 2030&   77 \\
+21& 2354&   83 \\
+22& 2702&   89 \\ 
+23& 3074&   95 \\
+24& 3470&  101 \\
+25& 3890&  107 \\
+26& 4334&  113 \\
+27& 4802&  119 \\
+28& 5294&  125 \\
+29& 5810&  131 \\
+\hline
 \end{tabular}
 \end{center}
-
+\caption{List of Lebedev quadratures}
+\end{table}
 Therefore the user can specify any number of radial points along with
-the level of angular quadrature (1-11).
+the level of angular quadrature (1-29).
 
 The user can also specify grid parameters specific for a given atom type: 
 parameters that must be supplied are: atom tag, number of radial points, number
 of angular points and \verb+accQrad+ (all three parameters must be given).
 As an example, here is a grid input line for the water molecule
 \begin{verbatim}
-grid lebedev 80 5 H 70 4 12 O 90 5 15 
+grid lebedev 80 11 H 70 8 12 O 90 11 15 
 \end{verbatim}
-Work is in progress to define pre-computed Lebedev quadrature of give accuaracy
+Work is in progress to define pre-computed Lebedev quadrature of given accuracy
 \begin{center}
-  \begin{tabular}[right]{|c|c|} \hline
+\begin{tabular}[right]{|c|c|} \hline
 Keyword & {\tt Total Energy Target Accuracy} \\ \hline
 {\tt lebmed}  & $1x10^{-6}$ \\ \hline
 {\tt lebfine}    & $1x10^{-7}$ \\ \hline
 {\tt lebxfine}   & $1x10^{-8}$ \\ \hline
-  \end{tabular} \\
+\end{tabular} \\
 \end{center}
 
 %       [store_wght] [nquad_task <integer nquad_task default 1>] \
@@ -941,23 +980,35 @@ Keyword & {\tt Total Energy Target Accuracy} \\ \hline
 %The user also has the option of choosing one of two types of spatial weights
 %implemented in the numerical integration of the XC terms; Delley and Becke.
 
+\clearpage
+\subsection{Partitioning functions}
+
 \begin{verbatim}
   GRID [(becke||erf1||erf2||ssf) default becke]
 \end{verbatim}
 
-{\tt ssf} R.E.Stratmann, G.Scuseria and  M.J.Frisch,
-Chem. Phys. Lett. {\bf 257}, 213 (1996).
 
+\begin{description}
+\item[\tt becke]  A. D. Becke, J. Chem. Phys. {\bf 88}, 1053 (1988).
+\item[\tt ssf] R.E.Stratmann, G.Scuseria and  M.J.Frisch,
+Chem. Phys. Lett. {\bf 257}, 213 (1996).
+\item[\tt erf1] modified ssf
+\item[\tt erf2] modified ssf
+\end{description}
+
+\subsection{Radial grids}
 
 \begin{verbatim}
   GRID [[euler||mura||treutler||lindh]  default euler]
 \end{verbatim}
 
-{\tt euler} Murray Handy Laming, Euler-McLaurin \\
-{\tt mura} M.E.Mura and P.J.Knowles, J Chem Phys {\bf 104}, 9848
+\begin{description}
+\item[\tt euler] Murray Handy Laming, Euler-McLaurin \\
+\item[\tt mura] M.E.Mura and P.J.Knowles, J Chem Phys {\bf 104}, 9848
 (1996).\\
-{\tt treutler} O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
-{\tt lindh} R.Lindh (1999)
+\item[\tt treutler] O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
+\item[\tt lindh] R.Lindh (1999)
+\end{description}
 
 \section{TOLERANCES --- Screening tolerances}
 
