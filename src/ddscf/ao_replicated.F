@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.38 2000-04-28 01:04:56 zzhang Exp $
+c     $Id: ao_replicated.F,v 1.39 2000-08-01 18:05:57 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -288,6 +288,7 @@ c
       integer next, current, nproc, incomplete_top
 c
       logical oprint, osavewritefile, odotask
+      logical odonea
 c     
       logical int2e_set_bf_range
       external int2e_set_bf_range
@@ -344,8 +345,8 @@ c
          write(6,*) ' JFACMAX ', jfacmax
          write(6,*) ' KFACMAX ', kfacmax
          write(6,*) '  DENMAX ', denmax
-         write(6,*) '   RDENS'
-         call doutput(rdens,1,nsh, 1, nsh, nsh, nsh,1)
+***         write(6,*) '   RDENS'
+***         call doutput(rdens,1,nsh, 1, nsh, nsh, nsh,1)
       endif
 
 *      if (owritefile) denmax = max(denmax,10.0d0) ! If do this not consistent
@@ -398,7 +399,7 @@ c     assume a dense integral list but with symmetry and figure out
 c     no. of pairs per pair block dividing quartets between processors
 c     and allowing for the max no. of quartets to be processed per block
 c     
-      ntp = 100
+      ntp = 10
       nshpair = nsh*(nsh+1)/2
       if (ga_nnodes() .gt. 1) then
          max_p = int(dble(nshpair)*dsqrt(dnops))
@@ -418,17 +419,27 @@ c
       if (oreadfile .and. incmax.ne.-1) 
      $     dentol_pairs = semi_direct_tol2e/dnops
 c
+      odonea = .false.          ! To avoid looping in block adjust logic
  10   call fock_pairs(basis, max_p, .true., 1, natom, 1, natom, 
      $     dentol_pairs, plist, ps, pinfo, tdim, ntype)
+      if (ga_nodeid() .eq. 0) call util_flush(6)
 c
-c     Figure out no. of tasks to do on each request to the
-c     shared counter.  Memory permitting we want this to be 
-c     close to 1.
+c     Figure out no. of tasks (chunk) to do on each request to the
+c     shared counter.  Memory permitting we want this to be close to 1.
 c
-      chunk = max(ntype*ntype/(ntp*ga_nnodes()),1)  
+c     Also, try to make sure we have enough tasks for load-balance.
+c
+      chunk = max(1, (ntype*ntype/2)/(ntp*ga_nnodes()))
       if (max_p .lt. nint(sqrt(dble(nops*qdim))) .and.
-     $     chunk .ge. 4) then
+     $     chunk .gt. 4) then
          max_p = min(nint(sqrt(dble(nops*qdim))),2*max_p)
+         if (oprint .and. ga_nodeid().eq.0) write(6,*) ' A ', max_p
+         odonea = .true.
+         goto 10
+      else if ((ntype*ntype/2)/ga_nnodes().lt.ntp  .and.
+     $        max_p.gt.10 .and. (.not. odonea)) then
+         max_p = max(10,max_p/2)
+         if (oprint .and. ga_nodeid().eq.0) write(6,*) ' B ', max_p
          goto 10
       end if
       if ((oprint  .or. util_print('semi_direct',print_debug))
