@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.86 2001-11-06 06:15:20 d3j191 Exp $
+c $Id: pre_input.F,v 1.87 2001-11-06 16:44:19 d3j191 Exp $
 c
       implicit none
 c
@@ -196,7 +196,7 @@ c
       if(.not.inp_a(dir_x)) call errquit('pre_input: error dir_x',0)
       goto 2
       endif
-      if(inp_compare(.false.,'quality',item)) then
+      if(inp_compare(.false.,'contributed',item)) then
       if(.not.inp_a(dir_q)) call errquit('pre_input: error dir_q',0)
       goto 2
       endif
