@@ -17,7 +17,7 @@ information.
 
 Additional major additions to the capabilities include: 
 
-  o 
+  o
 
 Again, for each of these capabilities, the user is referred to the User Manual for
 more information. 
@@ -42,6 +42,7 @@ Basis Sets:
 
 Geometry: 
 
+  o Inclusion of a finite Gaussian nuclear charge distribution.
   o 
 
 DFT: 
