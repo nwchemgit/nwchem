@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.52 2002-02-02 16:32:26 d3j191 Exp $
+c $Id: md_input.F,v 1.53 2002-02-02 16:38:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1009,6 +1009,11 @@ c
       endif
       endif
 c
+      if(inp_compare(.false.,'detail',item)) then
+      if(.not.inp_i(npstat)) npstat=1
+      goto 2
+      endif
+c
 c     print flags
 c
       if(inp_compare(.false.,'print',item)) then
@@ -1033,10 +1038,6 @@ c
       endif
       if(inp_compare(.false.,'extra',item)) then
       npstep=1
-      goto 500
-      endif
-      if(inp_compare(.false.,'detail',item)) then
-      npstat=1
       goto 500
       endif
       if(inp_compare(.false.,'energy',item)) then
