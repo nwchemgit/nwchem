@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: pre_misfit.F,v 1.39 2004-04-06 16:18:30 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.40 2004-04-20 14:46:24 d3j191 Exp $
 c
       implicit none
 c
@@ -449,7 +449,7 @@ c
       endif
   217 continue
       endif
-      write(*,'(a,4i5)') 'grid ',ix,iy,iz
+c      write(*,'(a,4i5)') 'grid ',ix,iy,iz
       do 17 k=1,nsa
       if(isfnd(k).eq.1) then
       if(npbtyp.eq.0) then
