@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.94 1999-10-15 22:46:01 d3g681 Exp $
+C$Id: geom.F,v 1.95 1999-10-26 21:24:04 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -376,6 +376,11 @@ c
       tmp(k:) = ':masses'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, 
      $     geom_mass(1,geom))
+Cnew
+      tmp(k:) = ':inv nuc expon'
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+     $     geom_invnucexp(1,geom))
+Cend
       tmp(k:) = ':efield'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
       tmp(k:) = ':lattice vectors'
@@ -754,6 +759,11 @@ c
       tmp(k:) = ':masses'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_mass(1,geom))
+Cnew
+      tmp(k:) = ':inv nuc expon'
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+     $     geom_invnucexp(1,geom))
+Cend
       tmp(k:) = ':efield'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
       tmp(k:) = ':lattice vectors'
@@ -1415,13 +1425,13 @@ c
       integer geom              ! [input]
       integer icent, jcent
       logical geom_check_handle, geom_check_cent, geom_get_user_scale,
-     $     geom_print_zmatrix
+     $     geom_print_zmatrix, geom_any_finuc
       external geom_check_handle, geom_check_cent, geom_get_user_scale,
-     $     geom_print_zmatrix
+     $     geom_print_zmatrix, geom_any_finuc
       integer i
       double precision scale, tmp(3)
       character*80 buf
-      logical oprint_uniq
+      logical oprint_uniq,ofinite
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.
@@ -1490,24 +1500,36 @@ c
 c     Only print out the masses for unique tags ... the structure
 c     should actually only store the data for unique tags.
 c     Also, keep all common output within 80 columns
-c     
+c
+      ofinite = geom_any_finuc(geom)
       write(6,*)
-      write(6,*) '     Atomic Mass '
-      write(6,*) '     ----------- '
+      if (ofinite) then
+        write(6,*) '     Atomic Mass and Nuclear Exponent '
+        write(6,*) '     -------------------------------- '
+      else
+        write(6,*) '     Atomic Mass '
+        write(6,*) '     ----------- '
+      end if
       write(6,*)
       do icent = 1, ncenter(geom)
         if (abs(geom_mass(icent,geom)).lt.1.0d-07) goto 765
         do jcent = 1, icent-1
           if (tags(icent,geom) .eq. tags(jcent,geom)) goto 765
         enddo
-        write(6,44) tags(icent,geom), geom_mass(icent,geom)
-44      format('      ',a16,' ',f10.6)
+        if (geom_invnucexp(icent,geom) .gt. 0.0d0) then
+          write(6,43) tags(icent,geom), geom_mass(icent,geom),
+     &        1.0d0/geom_invnucexp(icent,geom)
+   43     format('      ',a16,' ',f10.6,1pe20.6)
+        else
+          write(6,44) tags(icent,geom), geom_mass(icent,geom)
+   44     format('      ',a16,' ',f10.6)
+        end if
 765     continue
       enddo
       write(6,*)
 c     
       write(6,41) erep(geom)
- 41   format(/' Effective nuclear repulsion energy (a.u.) ', f18.10/)
+   41 format(/' Effective nuclear repulsion energy (a.u.) ', f18.10/)
 c     
       write(6,91)
  91   format('            Nuclear Dipole moment (a.u.) ')
@@ -1625,7 +1647,7 @@ c
      $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
      $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
      $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-     $     'Md', 'No', 'Lr'/
+     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt'/
       data elements/
      $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
      $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
@@ -1648,7 +1670,8 @@ c
      $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
      $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
      $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
-     $     'Nobelium', 'Lawrencium'/
+     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
+     $     'Seaborgium','Bohrium','Hassium','Meitnerium'/
       data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
       data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 
@@ -2136,6 +2159,10 @@ c used.
 c
 c RAK 11/95 PNNL/EMSL/HPCCG
 c
+c Updated 09/99 KG Dyall, correcting some transuranics and adding new
+c values from the WebElements website www.webelements.com
+c
+c
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2158,7 +2185,7 @@ c
      & 83.912d0,   84.9117d0,   87.9056d0,  88.9054d0,  89.9043d0,
      & 92.9060d0,  97.9055d0,   97.9072d0, 101.9037d0, 102.9048d0,
      &105.9032d0, 106.90509d0, 113.9036d0, 114.9041d0, 117.9018d0/
-      data (def_masses(i),i=51,103) /
+      data (def_masses(i),i=51,109) /
      & 120.9038d0, 129.9067d0, 126.9004d0, 131.9042d0, 132.9051d0,
      & 137.9050d0, 138.9061d0, 139.9053d0, 140.9074d0, 143.9099d0,
      & 144.9128d0, 151.9195d0, 152.9209d0, 157.9241d0, 159.9250d0,
@@ -2167,9 +2194,10 @@ c
      & 189.9586d0, 192.9633d0, 194.9648d0, 196.9666d0, 201.9706d0,
      & 204.9745d0, 207.9766d0, 208.9804d0, 209.9829d0, 210.9875d0,
      & 222.0175d0, 223.0198d0, 226.0254d0, 227.0278d0, 232.0382d0,
-     & 231.0359d0, 238.0508d0, 237.048d0,  244.0642d0, 243.0614d0,
-     & 247.0704d0, 247.0702d0, 249.0748d0, 254.0881d0, 253.0852d0,
-     & 258.0d0,    259.0d0,    260.0/
+     & 231.0359d0, 238.0508d0, 237.0482d0, 244.0642d0, 243.0614d0,
+     & 247.0704d0, 247.0703d0, 251.0796d0, 252.0829d0, 257.0950d0,
+     & 258.0986d0, 259.1009d0, 262.1100d0, 261.1087d0, 262.1138d0,
+     & 266.1219d0, 262.1229d0, 267.1318d0, 268.1388d0 /
 c
       geom_atn_to_default_mass = .false.
 c
@@ -4419,6 +4447,8 @@ C data for 87-103 RA Kendall
 * Guess = 1.3*largest cation radii: Cm<96>, Bk<97>, Cf<98>, Es<99>, 
 *                                   Fm<100>, Md<101>, No<102>, Lr<103>
 *
+* Added elements 104-109 with dummy values of 1.4 - KG Dyall.
+*
 *  Note: values in data structure are in Angstroms.
 *
       data (def_rcov(i), i=1,2)
@@ -4448,11 +4478,12 @@ C data for 87-103 RA Kendall
      &     1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
      &     1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
      &     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
-      data (def_rcov(i),i=87,103) /
+      data (def_rcov(i),i=87,109) /
      &     3.24d00, 2.68d00,  2.25d00, 2.16d00, 1.93d00,
      &     3.00d00, 1.57d00, 1.81d00, 2.21d00, 1.43d00,
      &     1.42d00, 1.40d00, 1.39d00, 1.38d00, 1.37d00,
-     &     1.36d00, 1.34d00/
+     &     1.36d00, 1.34d00, 1.40d00, 1.40d00, 1.40d00,
+     &     1.40d00, 1.40d00, 1.40d00/
       geom_get_def_rcov = .false.
       if (atn.eq.0) then
         rcoval = 2.0d00  ! dummy center sees lots of things?
@@ -4540,4 +4571,148 @@ c
 *        oecpcent(i,geom) = .false.
 *      enddo
 c
+      end
+************************************************************************
+      logical function geom_nucexps_set(geom, ncent, invnucexp)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom                      ! [input] geometry handle
+      integer ncent                     ! [input] number of centers
+      double precision invnucexp(ncent) ! [input] inverse nuclear exponent on each center
+c
+      integer i
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_nucexps_set = geom_check_handle(geom, 'geom_nucexps_set')
+      if (.not. geom_nucexps_set) return
+c
+      if (ncent.le.0 .or. ncent.gt.max_cent) then
+         write(6,*) ' geom_nucexps_set: too many centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      do i = 1, ncent
+        geom_invnucexp(i,geom) = invnucexp(i)
+      enddo
+c
+      end      
+************************************************************************
+      logical function geom_nucexps_get(geom, ncent, invnucexp)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom                      ! [input] geometry handle
+      integer ncent                     ! [input] number of centers
+      double precision invnucexp(ncent) ! [output] inverse nuclear exponent on each center
+c
+      integer i
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_nucexps_get = geom_check_handle(geom, 'geom_nucexps_get')
+      if (.not. geom_nucexps_get) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+        invnucexp(i) = geom_invnucexp(i,geom)
+      enddo
+c
+      end      
+************************************************************************
+      logical function geom_nucexp_set(geom, icent, invnucexp)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom                 ! [input] geometry handle
+      integer icent                ! [input] number of center for invnucexp
+      double precision invnucexp   ! [input] inverse nuclear exponent on center icent
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_nucexp_set = geom_check_handle(geom, 'geom_nucexp_set')
+      if (.not. geom_nucexp_set) return
+c
+      if (icent.le.0 .or. icent.gt.ncenter(geom)) then
+         write(6,*) ' geom_nucexp_set: icent out of range',icent,
+     &        ncenter(geom),
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      geom_invnucexp(icent,geom) = invnucexp
+c
+      end      
+************************************************************************
+      logical function geom_nucexp_get(geom, icent, invnucexp)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom            ! [input] geometry handle
+      integer icent           ! [input] number of center for invnucexp
+      double precision invnucexp   ! [output] inverse nuclear exponent on center icent
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_nucexp_get = geom_check_handle(geom, 'geom_nucexp_get')
+      if (.not. geom_nucexp_get) return
+c
+      if (icent.le.0 .or. icent.gt.ncenter(geom)) then
+         write(6,*) ' geom_nucexp_get: icent out of range',icent,
+     &        ncenter(geom),
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      invnucexp = geom_invnucexp(icent,geom)
+c
+      end      
+************************************************************************
+      logical function geom_mass_to_invnucexp (mass, invnucexp)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      double precision mass      ! [input] nuclear mass
+      double precision invnucexp ! [output] inverse nuclear exponent
+c--local
+      double precision massno,athird
+c
+      geom_mass_to_invnucexp = mass .gt. 0.0d0
+c
+      if (mass .gt. 0.0d0) then
+        massno = int(mass+0.2d0)
+        athird = massno**(1.0d0/3.0d0)
+        if (angstrom_to_au .eq. 0.0d0) call errquit(
+     &      'geom_mass_to_invnucexp:zero conversion factor',911)
+        invnucexp = ((0.836*athird+0.570d0)*angstrom_to_au)**2/1.5d10
+      end if
+c
+      end      
+************************************************************************
+      logical function geom_any_finuc (geom)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom
+      integer i
+      double precision sum
+c
+      sum = 0.0d0
+      do i = 1,ncenter(geom)
+        sum = sum+geom_invnucexp(i,geom)
+      end do
+      geom_any_finuc = sum .gt. 1.0d-20
+      return
       end
