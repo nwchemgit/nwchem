@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.45 1996-01-23 21:57:39 d3e129 Exp $
+c $Id: raktest.F,v 1.46 1996-02-05 23:21:03 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -16,8 +16,8 @@ c
       goto (00100,00200,00300,00400,00500) raktask
 c
       write(6,*)' default raktest task '
-      write(6,*)' test of general contraction code '
-      call raktest_gc(rtdb)
+      write(6,*)' test of spcart stuff '
+      call raktest_spcart(rtdb)
       goto 00001
 c
 00100 write(6,*)' raktest task 1 stepper test'
@@ -32,8 +32,8 @@ c
 00400 write(6,*)' raktest check 3ctr nai'
       call raktest_3ctr(rtdb)
       goto 00001
-00500 write(6,*)' test of spcart stuff '
-      call raktest_spcart(rtdb)
+00500 write(6,*)' test of general contraction code '
+      call raktest_gc(rtdb)
 c
 00001 continue
       end
@@ -52,8 +52,8 @@ c
       integer k_cart_s, k_sph_s, k_scr, k_buf, k_2bfr
       logical status
 c
-      logical int_normalize
-      external int_normalize
+      logical int_normalize, int_norm_2c
+      external int_normalize, int_norm_2c
 c
       if (.not.geom_create(geom,'geometry')) call errquit
      &      ('geom create failed',911)
@@ -64,7 +64,20 @@ c
      &      ('bas_create failed',911)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
      &      ('bas_rtdb_load failed',911)
-      if (.not.int_normalize(basis)) stop ' norm error '
+c
+      write(6,*)' geom/basis loaded'
+c
+      write(6,*)' raw basis '
+      if (.not. bas_print(basis))
+     $      call errquit(' basis print failed', 0)
+      write(6,*)' first normalize'
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not. bas_print(basis))
+     $      call errquit(' basis print failed', 0)
+      write(6,*)' second normalize'
+      if (.not.int_normalize(basis)) stop ' norm error 2'
+      if (.not. bas_print(basis))
+     $      call errquit(' basis print failed', 0)
 c
       if (.not.bas_numbf(basis,nbf)) call errquit
      &      ('numbf failed',911)
@@ -120,6 +133,11 @@ c
 c
       if (.not.status) call errquit('ma pop fail',911)
 c
+      if(.not.bas_destroy(basis)) call errquit
+     &      ('bas_destroy failed',911)
+      if(.not.geom_destroy(geom)) call errquit
+     &      ('geom_destroy failed',911)
+c
       end
       subroutine rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,cn2bfr)
       implicit none
@@ -158,7 +176,7 @@ c
       integer typei, typej, nprim, ngen, spsp
       integer nint, nint_sp, count, hi_ang, st_ang
       integer ii, jj
-      double precision value
+      double precision value, pi, fact
 c
       logical spcart_init, spcart_terminate
       external spcart_init, spcart_terminate
@@ -192,17 +210,17 @@ c
           nint    = nbfi*nbfj
           nint_sp = nbfi_sp*nbfj_sp
 c
-          write(6,*)' '
-          write(6,*)'<ish,ilow,ihi,nbfi,typei>',ish,ilow,ihi,nbfi,typei
-          write(6,*)'<jsh,jlow,jhi,nbfj,typej>',jsh,jlow,jhi,nbfj,typej
-          write(6,*)' nint     = ',nint,' nint(sp) = ',nint_sp
-          write(6,*)'<ish,ilowsp,ihisp,nbfisp,typei>',
-     &          ish,ilow_sp,ihi_sp,nbfi_sp,typei
-          write(6,*)'<jsh,jlowsp,jhisp,nbfjsp,typej>',
-     &          jsh,jlow_sp,jhi_sp,nbfj_sp,typej
-          write(6,*) ' ma fucked 1'
-          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 1'
-          write(6,*)' '
+*rak:          write(6,*)' '
+*rak:          write(6,*)'<ish,ilow,ihi,nbfi,typei>',ish,ilow,ihi,nbfi,typei
+*rak:          write(6,*)'<jsh,jlow,jhi,nbfj,typej>',jsh,jlow,jhi,nbfj,typej
+*rak:          write(6,*)' nint     = ',nint,' nint(sp) = ',nint_sp
+*rak:          write(6,*)'<ish,ilowsp,ihisp,nbfisp,typei>',
+*rak:     &          ish,ilow_sp,ihi_sp,nbfi_sp,typei
+*rak:          write(6,*)'<jsh,jlowsp,jhisp,nbfjsp,typej>',
+*rak:     &          jsh,jlow_sp,jhi_sp,nbfj_sp,typej
+*rak:          write(6,*) ' ma fucked 1'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 1'
+*rak:          write(6,*)' '
 c
           call int_1eov(basis,ish,basis,jsh,mscr,scr,mbuf,buf)
 c
@@ -215,8 +233,8 @@ c
               s(jbf,ibf) = value
             enddo
           enddo
-          write(6,*) ' ma fucked 2'
-          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 2'
+*rak:          write(6,*) ' ma fucked 2'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 2'
 c.... buf is now -- buf(nbfj,nbfi)
           write(6,*)' integral buffer cart,cart '
           call output(buf,1,nbfj,1,nbfi,nbfj,nbfi,1)
@@ -224,14 +242,14 @@ c.... buf is now -- buf(nbfj,nbfi)
 c.... scr is now -- scr(nbfj,nbfi_sp)
           write(6,*)' integral buffer  cart,sph'
           call output(scr,1,nbfj,1,nbfi_sp,nbfj,nbfi_sp,1)
-          write(6,*) ' ma fucked 3'
-          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 3'
+*rak:          write(6,*) ' ma fucked 3'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 3'
           call spcart_s_a(scr,buf,nbfi_sp,typej,.false.)
 c.... buf is now -- buf(nbfj_sp,nbfi_sp)
           write(6,*)' integral buffer  sph,sph'
           call output(buf,1,nbfj_sp,1,nbfi_sp,nbfj_sp,nbfi_sp,1)
-          write(6,*) ' ma fucked 4'
-          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 4'
+*rak:          write(6,*) ' ma fucked 4'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 4'
           count = 0
           do ibf = ilow_sp,ihi_sp
             do jbf = jlow_sp, jhi_sp
@@ -241,8 +259,8 @@ c.... buf is now -- buf(nbfj_sp,nbfi_sp)
               s_sp(jbf,ibf) = value
             enddo
           enddo
-          write(6,*) ' ma fucked 5'
-          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 5'
+*rak:          write(6,*) ' ma fucked 5'
+*rak:          if (.not.ma_verify_allocator_stuff()) stop ' ma fucked 5'
         enddo
       enddo
       write(6,*)' loops done '
@@ -256,6 +274,31 @@ c.... buf is now -- buf(nbfj_sp,nbfi_sp)
      &          ' ratios ',ii,jj,(s_sp(ii,ii)/s_sp(jj,jj)),
      &          (s_sp(jj,jj)/s_sp(ii,ii))
         enddo
+      enddo
+      PI=2.0d00*acos(0.0d00)
+      write(6,*)pi,(pi-3.1415926535898D0)
+      do ii = 1, nbf_sp
+*rak:        write(6,*)' indx, val, val**2 ',ii,s_sp(ii,ii),
+*rak:     &        (s_sp(ii,ii)*s_sp(ii,ii))
+*rak:        write(6,*)' indx, val, 1/val ',ii,s_sp(ii,ii),
+*rak:     &        (1.0d00/s_sp(ii,ii))
+*rak:        write(6,*)' indx, val, sqrt ',ii,s_sp(ii,ii),
+*rak:     &        (sqrt(s_sp(ii,ii)))
+*rak:        write(6,*)' indx, val, /sqrt(2) ',ii,s_sp(ii,ii),
+*rak:     &        (s_sp(ii,ii)/sqrt(2.0d00))
+*rak:        write(6,*)' indx, val, /sqrt(3) ',ii,s_sp(ii,ii),
+*rak:     &        (s_sp(ii,ii)/sqrt(3.0d00))
+        fact = 1.0d00
+        if (ii.ge.6.and.ii.le.10)  fact = pi*8.0d00/5.0d00
+        if (ii.ge.11.and.ii.le.17) fact = pi*8.0d00/7.0d00
+        if (ii.ge.18.and.ii.le.26) fact = pi*8.0d00/9.0d00
+        write(6,*)' indx, val, *fact',ii,s_sp(ii,ii),
+     &        (s_sp(ii,ii)*fact)
+        write(6,*)' indx, val, *pi',ii,s_sp(ii,ii),
+     &        (s_sp(ii,ii)*pi)
+*rak:        write(6,*)' indx, val, /pi',ii,s_sp(ii,ii),
+*rak:     &        (s_sp(ii,ii)/pi)
+        write(6,*)' '
       enddo
       if (.not.spcart_terminate()) stop ' fuck sp term'
       end
@@ -5040,15 +5083,15 @@ c
 c zero ma segments
 
       write(6,*)' dfill k_diff',k_diff
-      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff))
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff),1)
       write(6,*)' dfill k_ns',k_s_ns
-      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns),1)
       write(6,*)' dfill k_seg',k_s_seg
-      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
+      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg),1)
       write(6,*)' dfill k_scr',k_scr
-      call dfill(memscr,           0.0d00,dbl_mb(k_scr))
+      call dfill(memscr,           0.0d00,dbl_mb(k_scr),1)
       write(6,*)' dfill k_buf',k_buf
-      call dfill(membuf,           0.0d00,dbl_mb(k_buf))
+      call dfill(membuf,           0.0d00,dbl_mb(k_buf),1)
 c
 c overlap check
       tov_seg = util_cpusec()
@@ -5092,11 +5135,11 @@ c
       write(luout,*)' '
 c
 c zero ma segments
-      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff))
-      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
-      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
-      call dfill(memscr,           0.0d00,dbl_mb(k_scr))
-      call dfill(membuf,           0.0d00,dbl_mb(k_buf))
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff),1)
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns),1)
+      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg),1)
+      call dfill(memscr,           0.0d00,dbl_mb(k_scr),1)
+      call dfill(membuf,           0.0d00,dbl_mb(k_buf),1)
 c kinetic energy check
       tov_seg = util_cpusec()
       do icount = 1,niter
@@ -5139,11 +5182,11 @@ c
       write(luout,*)' '
 c
 c zero ma segments
-      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff))
-      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns))
-      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg))
-      call dfill(memscr,           0.0d00,dbl_mb(k_scr))
-      call dfill(membuf,           0.0d00,dbl_mb(k_buf))
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_diff),1)
+      call dfill((nbf_ns*nbf_ns),  0.0d00,dbl_mb(k_s_ns),1)
+      call dfill((nbf_seg*nbf_seg),0.0d00,dbl_mb(k_s_seg),1)
+      call dfill(memscr,           0.0d00,dbl_mb(k_scr),1)
+      call dfill(membuf,           0.0d00,dbl_mb(k_buf),1)
 c potential check
       tov_seg = util_cpusec()
       do icount = 1,niter
