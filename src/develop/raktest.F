@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.66 1997-04-25 00:41:28 d3e129 Exp $
+c $Id: raktest.F,v 1.67 1997-05-23 21:49:10 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -3790,6 +3790,7 @@ c
      &    call errquit
      &      ('raktest_ovd:bas_rtdb_load failed',911)
       if (.not.bas_print(basis)) stop ' print error'
+      if (.not.gbs_map_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
       if (.not.int_normalize(basis)) stop ' norm error 1'
       call intd_init(rtdb,1,basis)
@@ -3797,6 +3798,7 @@ c
 c
       if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
       if (.not.bas_numbf(basis,nbf)) stop 'bas_numbf fe'
+      write(6,*)' total number of basis functions:nbf:',nbf
       call int_mem_1e(maxg1,maxs1)      
       bufsz = 2*maxg1
       szscr = 2*maxs1
@@ -3818,6 +3820,16 @@ c
       call raktest_ovd1(dbl_mb(k_buf),bufsz,dbl_mb(k_scr),szscr,
      &    dbl_mb(k_fdo),dbl_mb(k_o),dbl_mb(k_fdp),dbl_mb(k_fdm),
      &    nbf,nat,dbl_mb(k_cm),basis,geom)
+      call intd_terminate()
+      if (.not.ma_pop_stack(h_fdm)) stop 'h_fdm pop error'
+      if (.not.ma_pop_stack(h_fdp)) stop 'h_fdp pop error'
+      if (.not.ma_pop_stack(h_fdo)) stop 'h_fdo pop error'
+      if (.not.ma_pop_stack(h_o))   stop 'h_o pop error'
+      if (.not.ma_pop_stack(h_cm))  stop 'h_cm pop error'
+      if (.not.ma_pop_stack(h_scr)) stop 'h_scr pop error'
+      if (.not.ma_pop_stack(h_buf)) stop 'h_buf pop error'
+      if (.not.bas_destroy(basis)) stop ' bas_destroy failed'
+      if (.not.geom_destroy(geom)) stop ' geom_destroy failed'
       end
       subroutine raktest_ovd1(buf,lbuf,scr,lscr,fdo,o,fdp,fdm,
      &    nbf,nat,cmaster,basis,geom)
@@ -3825,6 +3837,7 @@ c
 #include "geomP.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "inp.fh"
       double precision ddot
       external ddot
 c
@@ -3836,12 +3849,14 @@ c
       double precision o(nbf,nbf,3,nat) 
       double precision cmaster(3,nat)
       integer basis, geom
-      integer idatom(2)
+*      integer idatom(2)
 c
       double precision delta, delta2i, norm
       integer ncont, count, zatom, ratom, ixyz
       integer ish,ilo,ihi,ibf
       integer jsh,jlo,jhi,jbf
+      character*256 date_string
+      integer lds
 c
       if (.not.bas_numcont(basis,ncont)) stop ' bas_numcont'
       write(6,*)' buf size ', lbuf
@@ -3853,6 +3868,11 @@ c
       call dfill((nbf*nbf*3*nat),0.0d00,fdm,1)
       call dfill((nbf*nbf*3*nat),0.0d00,o,1)
       do ish = 1,ncont
+        call util_date(date_string)
+        lds = inp_strlen(date_string)
+        write(6,*)' direct: ish: ',ish,' of ',ncont,
+     &      '  ',date_string(1:lds)
+        call util_flush(6)
         if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
         do jsh = 1,ncont
           if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr i'
@@ -3882,11 +3902,22 @@ c
       delta2i = 1.0d00/(2.0d00*delta)
       do zatom = 1,nat
         do ixyz = 1,3
+        call util_date(date_string)
+        lds = inp_strlen(date_string)
+        write(6,*)' finite diff: atom: ',zatom,' of ',nat,
+     &      ' coord(1:x,2:y,3:z)  ',ixyz,
+     &      '  ',date_string(1:lds)
+        call util_flush(6)
 *--
 * +
           call dcopy((3*nat),cmaster,1,coords(1,1,geom),1)
           coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) + delta
           do ish = 1,ncont
+            call util_date(date_string)
+            lds = inp_strlen(date_string)
+            write(6,*)' finite diff: ish: ',ish,' of ',ncont,
+     &          '  ',date_string(1:lds)
+            call util_flush(6)
             if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
             do jsh = 1,ncont
               if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr i'
