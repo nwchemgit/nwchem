@@ -1,5 +1,5 @@
 #
-#        $Id: MakeFile,v 1.4 2003-02-06 23:14:49 edo Exp $
+#        $Id: MakeFile,v 1.5 2003-02-20 22:53:36 edo Exp $
 #
 
 
@@ -12,6 +12,7 @@ OBJ =          $(OBJDIR)\geom.obj \
                $(OBJDIR)\geom_hnd.obj \
                $(OBJDIR)\geom_numcore.obj \
                $(OBJDIR)\geom_checksum.obj \
+               $(OBJDIR)\geom_freeze.obj \
                $(OBJDIR)\geom_print_ecce.obj
 
 HEADERS =      geom.fh \
