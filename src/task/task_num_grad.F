@@ -237,8 +237,8 @@ c
       double precision energy   ! [output]
 c
       integer i, natoms3
-      logical task_energy
-      external task_energy
+      logical task_energy, task_restore_state
+      external task_energy, task_restore_state
 c
       fd_step_energy = .false.
       natoms3 = natoms*3
@@ -255,7 +255,8 @@ c
       if (.not. rtdb_cput(rtdb, 'geometry', 1, 'num. grad. geometry'))
      $     call errquit('task_num_grad: rtdb corrupt',0)
 c
-      call task_restore_state(rtdb,'numg')
+      if (.not. task_restore_state(rtdb,'numg'))
+     $     call errquit('task_num_grad: restore state failed',0)
       fd_step_energy = task_energy(rtdb)
 c
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, energy))
