@@ -1,5 +1,5 @@
 *
-* $Id: paw_force.F,v 1.3 2003-03-14 00:35:52 marat Exp $
+* $Id: paw_force.F,v 1.4 2003-03-14 01:18:56 marat Exp $
 *
 
 !**************************************************
@@ -34,7 +34,6 @@
       nion = ion_nion()
 
       paw_force_c_size = paw_ovlp_coeff_size()
-      write(*,*) "paw_force_c_size=",paw_force_c_size
       value = value.and.my_alloc(mt_dcpl,paw_force_c_size,
      >                               'paw_force_cx_u',paw_force_cx_u)
       value = value.and.my_alloc(mt_dcpl,paw_force_c_size,
@@ -165,7 +164,6 @@ c    *** get reciprocal lattice arrays ***
       call Pack_t_pack(1,dbl_mb(Gy(1)))
       call Pack_t_pack(1,dbl_mb(Gz(1)))
 
-      write(*,*) "paw force coefficients0:"
 
 c     *** compute force overlap coefficients ***
       nlmii = 0
@@ -230,7 +228,6 @@ c     *** compute force overlap coefficients ***
      >     = 0.5d0*( dcpl_mb(paw_force_cx_s(1)+i1-1)
      >             + int_mb(sgn(1)+i1-1)
      >              *dconjg(dcpl_mb(paw_force_cx_s(1)+i2)))
-             write(*,*) dcpl_mb(paw_force_cx_u(1)+i1-1)
           dcpl_mb(paw_force_cy_u(1)+i1-1) 
      >     = 0.5d0*( dcpl_mb(paw_force_cy_s(1)+i1-1)
      >             + int_mb(sgn(1)+i1-1)
@@ -241,29 +238,28 @@ c     *** compute force overlap coefficients ***
      >              *dconjg(dcpl_mb(paw_force_cz_s(1)+i2)))
       end do     
 
-      write(*,*)
-      write(*,*) "paw force coefficients1:"
-      nlmii = 0
-      do ni=1,nion
-        ia = ion_katm(ni)
-        nbasis = paw_basis_nbasis(ia)
-        do i=1,nbasis
-          li = paw_basis_orb_l(i,ia)
-          do mi = -li,li
-           nlmii = nlmii + 1
-           do n=1,neall
-             indx_coeff = (nlmii-1)*neall + (n-1)
-             write(*,*) i,mi,ni,n
-             write(*,*) dcpl_mb(paw_force_cx_u(1)+indx_coeff),
-     >                  dcpl_mb(paw_force_cy_u(1)+indx_coeff),        
-     >                  dcpl_mb(paw_force_cz_u(1)+indx_coeff)        
-           end do
-           end do
-        end do
-      end do 
+c      write(*,*)
+c      write(*,*) "paw force coefficients1:"
+c      nlmii = 0
+c      do ni=1,nion
+c        ia = ion_katm(ni)
+c        nbasis = paw_basis_nbasis(ia)
+c        do i=1,nbasis
+c          li = paw_basis_orb_l(i,ia)
+c          do mi = -li,li
+c           nlmii = nlmii + 1
+c           do n=1,neall
+c             indx_coeff = (nlmii-1)*neall + (n-1)
+c             write(*,*) i,mi,ni,n
+c             write(*,*) dcpl_mb(paw_force_cx_u(1)+indx_coeff),
+c     >                  dcpl_mb(paw_force_cy_u(1)+indx_coeff),        
+c     >                  dcpl_mb(paw_force_cz_u(1)+indx_coeff)        
+c           end do
+c           end do
+c        end do
+c      end do 
 
 
-      write(*,*) "paw force 3"
 
 
       value = value.and.MA_pop_stack(Gz(2))
@@ -277,7 +273,6 @@ c     *** compute force overlap coefficients ***
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',1)
 
-      write(*,*) "paw force 4"
       
 c     *** calculate weights ***      
       if (paw_ispin().eq.1) then
@@ -286,7 +281,6 @@ c     *** calculate weights ***
         occup = 1.0d0
       end if
 
-      write(*,*) "paw force wx_tmp"
       ii = 0
       i_nbasis = 0
       do in=1,ion_nion()
@@ -298,7 +292,6 @@ c     *** calculate weights ***
            wx_tmp = dcmplx(0.0d0,0.0d0)
            wy_tmp = dcmplx(0.0d0,0.0d0)
            wz_tmp = dcmplx(0.0d0,0.0d0)
-           write(*,*) "nlm=",nlm,nlm1
            do n=1,ne_u
 
              indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
@@ -365,8 +358,8 @@ c           !*** this loop is not computed when ispin=1 ***
         end do
         i_nbasis = i_nbasis + nbasis
       end do
-      write(*,*) "paw force 5"
 
+      call paw_force_atom()
       return
       end
 
@@ -448,14 +441,16 @@ c           !*** this loop is not computed when ispin=1 ***
 #include "mafdecls.fh"
 #include "paw_force_data.fh"
 #include "paw_geom.fh"
+#include "paw_proj.fh"
 
 
       integer i
       integer gop_u(4),gop_d(4)
-      complex*16 tmp_f_u,tmp_f_d
+      complex*16 tmp_fx,tmp_fy,tmp_fz
 
-      integer in
-      integer i_w
+      integer in,ii,ia
+      integer i_w,nb2
+      integer nion
       integer i_paw_ovlp_w(4)
       
       call paw_ovlp_i_w_ptr(i_paw_ovlp_w)
@@ -463,48 +458,62 @@ c           !*** this loop is not computed when ispin=1 ***
       call paw_nonloc_gop_u_ptr(gop_u)
       call paw_nonloc_gop_d_ptr(gop_d)
 
-      do in=1,ion_nion()
-        i_w = int_mb(i_paw_ovlp_w(1) + in - 1)-1
- 
-        call Pack_cc_izdot(1,
-     >                  dcpl_mb(gop_u(1)+i_w),
-     >                  dcpl_mb(paw_force_wx_u(1)+i_w),
-     >                  tmp_f_u)
- 
-        call Pack_cc_izdot(1,
-     >                  dcpl_mb(gop_d(1)+i_w),
-     >                  dcpl_mb(paw_force_wx_d(1)+i_w),
-     >                  tmp_f_d)
-  
-        dbl_mb(paw_force_fx_atom(1)+in-1)=dble(tmp_f_u + tmp_f_d)
+      write(*,*) " paw force, gop"
+      do in=1,gop_u(3)
+      write(*,*) 
+     > dcpl_mb(gop_u(1)+in-1),
+     > dcpl_mb(gop_d(1)+in-1),
+     > dcpl_mb(paw_force_wx_u(1)+in-1)
+      end do
 
-        call Pack_cc_izdot(1,
-     >                  dcpl_mb(gop_u(1)+i_w),
-     >                  dcpl_mb(paw_force_wy_u(1)+i_w),
-     >                  tmp_f_u)
- 
-        call Pack_cc_izdot(1,
-     >                  dcpl_mb(gop_d(1)+i_w),
-     >                  dcpl_mb(paw_force_wy_d(1)+i_w),
-     >                  tmp_f_d)
-  
-        dbl_mb(paw_force_fy_atom(1)+in-1)=dble(tmp_f_u + tmp_f_d)
+      nion = ion_nion()
+      do in=1,nion
+        ia = ion_katm(in)
+        nb2=paw_proj_nbasis(ia)**2
 
-        call Pack_cc_izdot(1,
-     >                  dcpl_mb(gop_u(1)+i_w),
-     >                  dcpl_mb(paw_force_wz_u(1)+i_w),
-     >                  tmp_f_u)
+        i_w = int_mb(i_paw_ovlp_w(1) + in - 1)
  
-        call Pack_cc_izdot(1,
-     >                  dcpl_mb(gop_d(1)+i_w),
-     >                  dcpl_mb(paw_force_wz_d(1)+i_w),
-     >                  tmp_f_d)
-  
-        dbl_mb(paw_force_fz_atom(1)+in-1)=dble(tmp_f_u + tmp_f_d)
 
+        tmp_fx = dcmplx(0.0,0.0)
+        tmp_fy = dcmplx(0.0,0.0)
+        tmp_fz = dcmplx(0.0,0.0)
+        do ii=1,nb2
+           tmp_fx = tmp_fx + 
+     >             dcpl_mb(gop_u(1)+i_w+ii-1)*
+     >             dcpl_mb(paw_force_wx_u(1)+i_w+ii-1)     
+     >             +
+     >             dcpl_mb(gop_d(1)+i_w+ii-1)*
+     >             dcpl_mb(paw_force_wx_d(1)+i_w+ii-1)     
+           tmp_fy = tmp_fy + 
+     >             dcpl_mb(gop_u(1)+i_w+ii-1)*
+     >             dcpl_mb(paw_force_wy_u(1)+i_w+ii-1)     
+     >             +
+     >             dcpl_mb(gop_d(1)+i_w+ii-1)*
+     >             dcpl_mb(paw_force_wy_d(1)+i_w+ii-1)     
+           tmp_fz = tmp_fz + 
+     >             dcpl_mb(gop_u(1)+i_w+ii-1)*
+     >             dcpl_mb(paw_force_wz_u(1)+i_w+ii-1)     
+     >             +
+     >             dcpl_mb(gop_d(1)+i_w+ii-1)*
+     >             dcpl_mb(paw_force_wz_d(1)+i_w+ii-1)     
+        end do
+
+        dbl_mb(paw_force_fx_atom(1)+in-1)=-dble(tmp_fx)
+        dbl_mb(paw_force_fy_atom(1)+in-1)=-dble(tmp_fy)
+        dbl_mb(paw_force_fz_atom(1)+in-1)=-dble(tmp_fz)
 
       end do
 
+
+      write(*,*) "atomic force"
+      do in=1,nion
+
+        write(*,*) in, 
+     >             dbl_mb(paw_force_fx_atom(1)+in-1),
+     >             dbl_mb(paw_force_fy_atom(1)+in-1),
+     >             dbl_mb(paw_force_fz_atom(1)+in-1)
+
+      end do
       return
       end
 
