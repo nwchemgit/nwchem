@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.31 2003-02-17 00:54:00 marat Exp $
+* $Id: paw_sd.F,v 1.32 2003-02-17 01:07:53 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -224,8 +224,7 @@
       call paw_comp_charge_init()
       call init_paw_pot_hartree()
       call init_paw_pot_comp()
-      !call dealloc_paw_basis_data()
-      !call paw_proj_end()
+      call paw_mult_init()
 
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
@@ -572,14 +571,17 @@
       call paw_proj_end()
       call paw_ovlp_end()
       call paw_comp_charge_end()
+      call paw_mult_end()
       call end_paw_kin_matrix()
       call end_paw_vloc_matrix()
       call end_paw_ion_matrix()
       call end_paw_overlap_matrix()
-      !call end_paw_hartree_matrix()
+      call end_paw_hartree_matrix()
       call end_paw_core_matrix()
       call end_paw_comp_pot_matrix()
       call end_paw_comp_charge_matrix()
+      call end_paw_pot_comp()
+      call end_paw_pot_hartree()
 
 
       value = MA_free_heap(psir(2))
