@@ -2,9 +2,11 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.25 1999-01-29 01:05:15 edo Exp $
+c     $Id: xc_perdew91.F,v 1.26 1999-02-15 16:47:17 bjohnson Exp $
 c
       Implicit none
+c
+#include "dft2drv.fh"
 c
       double precision TOLL, EXPTOL
       double precision alpha, beta, pgamma, delta, beta10
@@ -59,7 +61,7 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
+      double precision Amat(nq,ipol), Cmat(nq,*)
       double precision dp81drho(2), rho_t(3)
 c     
 c     J.P.Perdew, J.A.Chevary, S.H.Vosko, K.A.Jackson, M.R.Pederson, 
@@ -275,9 +277,12 @@ c
      &                     aden1*2.d0*t*dtdgamma*A1p2At2*
      &                     (ONE - alognd*A)
                gaa = (dH0dgamma + dH1dgamma)*rhoval*fac*2.d0
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + gaa
+#if 0
                Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1)
                Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1)
                Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1)
+#endif
             endif
    10    continue
       else
@@ -496,6 +501,10 @@ c
                gaa = 2.d0*(dH0dgamma + dH1dgamma)*rhoval*fac
                gbb = gaa
 c               gbb = gaa*fac
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + gaa*0.5d0
+               Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + gaa
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + gbb*0.5d0
+#if 0
                Cmat(n,1,1) = Cmat(n,1,1) + gaa*(delrho(n,1,1) + 
      &                                          delrho(n,1,2))
                Cmat(n,2,1) = Cmat(n,2,1) + gaa*(delrho(n,2,1) + 
@@ -508,6 +517,7 @@ c               gbb = gaa*fac
      &                                          delrho(n,2,1))
                Cmat(n,3,2) = Cmat(n,3,2) + gbb*(delrho(n,3,2) + 
      &                                          delrho(n,3,1))
+#endif
             endif
    20    continue
       endif

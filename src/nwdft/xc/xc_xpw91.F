@@ -1,9 +1,11 @@
       Subroutine xc_xpw91(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)     
 c
-C$Id: xc_xpw91.F,v 1.3 1999-01-07 01:50:13 edo Exp $
+C$Id: xc_xpw91.F,v 1.4 1999-02-15 16:47:18 bjohnson Exp $
 c
       implicit none
+c
+#include "dft2drv.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -24,7 +26,7 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
+      double precision Amat(nq,ipol), Cmat(nq,*)
 c
 c
 c     Compute the partial derivatives of the exchange functional of Perdew91.
@@ -105,9 +107,12 @@ c
 c
             if (Gna.gt.tol_rho)  then
                g = -.5d0*fprimex/Gna*fac
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g
+#if 0
                Cmat(n,1,1) = Cmat(n,1,1) + g*delrho(n,1,1)
                Cmat(n,2,1) = Cmat(n,2,1) + g*delrho(n,2,1)
                Cmat(n,3,1) = Cmat(n,3,1) + g*delrho(n,3,1)
+#endif
             endif
 c
    10    continue
@@ -165,9 +170,12 @@ c
 c
             if (Gna.gt.tol_rho)  then
                g = -fprimex/Gna*fac
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g*0.5d0
+#if 0
                Cmat(n,1,1) = Cmat(n,1,1) + g*delrho(n,1,1)
                Cmat(n,2,1) = Cmat(n,2,1) + g*delrho(n,2,1)
                Cmat(n,3,1) = Cmat(n,3,1) + g*delrho(n,3,1)
+#endif
             endif
             endif
 c
@@ -218,9 +226,12 @@ c
 c
             if (Gna.gt.tol_rho)  then
                g = -fprimex/Gna*fac
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + g*0.5d0
+#if 0
                Cmat(n,1,2) = Cmat(n,1,2) + g*delrho(n,1,1)
                Cmat(n,2,2) = Cmat(n,2,2) + g*delrho(n,2,1)
                Cmat(n,3,2) = Cmat(n,3,2) + g*delrho(n,3,1)
+#endif
             endif
           endif
 c        

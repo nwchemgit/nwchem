@@ -1,9 +1,11 @@
       Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght, ldew, func)
 c
-C$Id: xc_lyp88.F,v 1.9 1998-10-07 23:20:28 og845 Exp $
+C$Id: xc_lyp88.F,v 1.10 1999-02-15 16:47:15 bjohnson Exp $
 c
       implicit none 
+c
+#include "dft2drv.fh"
 c
       double precision fac ! [input]
       integer nq
@@ -11,7 +13,6 @@ c
       double precision Ec
       logical lfac, nlfac, ldew
       double precision func(*)  ! value of the functional [output]
-
 c
 c     Charge Density & Its Cube Root
 c
@@ -27,7 +28,7 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
+      double precision Amat(nq,ipol), Cmat(nq,*)
       double precision P13, P43, P83, P19, EPS, P1, tol_rho, A, 
      &                 B, C, D, P2,  P3
 c
@@ -136,9 +137,13 @@ c
 c
             Amat(n,1) = Amat(n,1) + dElypdCDa*fac
             gaa = (dElypdGaa + 0.5d0*dElypdGab)*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dElypdGaa*fac
+            Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dElypdGab*fac
+#if 0
             Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1)
             Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1)
             Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1)
+#endif
             Ec = Ec + (Elyp*fac)*qwght(n)
             if (ldew) func(n) =func(n) + (Elyp*fac)
    10    continue
@@ -231,6 +236,10 @@ c
             gaa = 2.d0*dElypdGaa*fac
             gbb = 2.d0*dElypdGbb*fac
             gab = dElypdGab*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dElypdGaa*fac
+            Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dElypdGab*fac
+            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dElypdGbb*fac
+#if 0
             Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1) + 
      &                                  gab*delrho(n,1,2)
             Cmat(n,1,2) = Cmat(n,1,2) + gbb*delrho(n,1,2) + 
@@ -243,6 +252,7 @@ c
      &                                  gab*delrho(n,3,2)
             Cmat(n,3,2) = Cmat(n,3,2) + gbb*delrho(n,3,2) + 
      &                                  gab*delrho(n,3,1)
+#endif
             Ec = Ec + (Elyp*fac)*qwght(n)
             if (ldew) func(n) =func(n) + (Elyp*fac)
    20    continue

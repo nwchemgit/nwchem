@@ -2,9 +2,11 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght,
      ,     ldew, ffunc)
 c
-c$Id: xc_perdew86.F,v 1.16 1999-01-29 01:04:42 edo Exp $
+c$Id: xc_perdew86.F,v 1.17 1999-02-15 16:47:16 bjohnson Exp $
 c
       implicit none
+c
+#include "dft2drv.fh"
 c
       double precision tol_rho, fac ! [input]
       integer nq, ipol              ! [input]
@@ -26,7 +28,7 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
+      double precision Amat(nq,ipol), Cmat(nq,*)
       double precision TOLL, EXPTOL, alpha, beta, pgamma, delta, 
      &                 beta10, ftilde, zzz, fff, pfff, CINF, ONE, 
      &                 ONETHIRD, THREE, FOURTHIRDS, SEV6, FIVE3, 
@@ -105,9 +107,12 @@ c
             Amat(n,1) = Amat(n,1) + AAadd*fac
             if (dsqgamma.gt.0.d0)then
                g = func/gammaval*(2.d0-phi)*fac
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g
+#if 0
                Cmat(n,1,1) = Cmat(n,1,1) + g*delrho(n,1,1)
                Cmat(n,2,1) = Cmat(n,2,1) + g*delrho(n,2,1)
                Cmat(n,3,1) = Cmat(n,3,1) + g*delrho(n,3,1)
+#endif
             endif
             Ec = Ec + func*qwght(n)*fac
             if (ldew) ffunc(n)=ffunc(n)+func*fac
@@ -171,6 +176,10 @@ c
                gaa = func/gammaval*(2.d0-phi)*fac
                gbb = gaa
                gab = gaa
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + gaa*0.5D0
+               Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + gab
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + gbb*0.5D0
+#if 0
                Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1) +
      &                                     gab*delrho(n,1,2)
                Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1) +
@@ -183,6 +192,7 @@ c
      &                                     gab*delrho(n,2,1)
                Cmat(n,3,2) = Cmat(n,3,2) + gbb*delrho(n,3,2) +
      &                                     gab*delrho(n,3,1)
+#endif
             endif
             Ec = Ec + func*qwght(n)*fac
             if (ldew) ffunc(n)=ffunc(n)+func*fac

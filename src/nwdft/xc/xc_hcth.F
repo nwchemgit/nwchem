@@ -2,9 +2,11 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.9 1998-10-21 23:31:21 og845 Exp $
+c$Id: xc_hcth.F,v 1.10 1999-02-15 16:47:15 bjohnson Exp $
 c
       Implicit none
+c
+#include "dft2drv.fh"
 c
       logical ldew ! [input]
       logical lfac, nlfac ! [input]
@@ -21,7 +23,7 @@ c
       double precision delrho(nq,3,ipol) ! Charge Density Gradient[input] 
       double precision qwght(nq) ! Quadrature Weights [input]
       double precision Amat(nq,ipol)  !Sampling Matrices for the XC [output]
-      double precision Cmat(nq,3,ipol)!Potential & Energy [output]
+      double precision Cmat(nq,*)!Potential & Energy [output]
 c     
 c References:
 c    F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
@@ -62,9 +64,12 @@ c
             Ex=Ex+hE_x*qwght(n)*fac
             Amat(n,1) = Amat(n,1)+dfdra*fac
             dfdza=dfdza*fac*0.5d0
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
+#if 0
             Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
             Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
             Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
+#endif
           endif
         enddo
       else
@@ -92,12 +97,16 @@ c
             Amat(n,2) = Amat(n,2)+dfdrb*fac
             dfdza=dfdza*fac
             dfdzb=dfdzb*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza*0.5d0
+            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb*0.5d0
+#if 0
             Cmat(n,1,1) = Cmat(n,1,1) + dfdza*delrho(n,1,1)
             Cmat(n,2,1) = Cmat(n,2,1) + dfdza*delrho(n,2,1)
             Cmat(n,3,1) = Cmat(n,3,1) + dfdza*delrho(n,3,1)
             Cmat(n,1,2) = Cmat(n,1,2) + dfdzb*delrho(n,1,2)
             Cmat(n,2,2) = Cmat(n,2,2) + dfdzb*delrho(n,2,2)
             Cmat(n,3,2) = Cmat(n,3,2) + dfdzb*delrho(n,3,2)
+#endif
           endif
         enddo
       endif

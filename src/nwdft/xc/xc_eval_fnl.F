@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.6 1999-01-04 19:55:22 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.7 1999-02-15 16:47:14 bjohnson Exp $
 c
       implicit none
 c
@@ -237,10 +237,10 @@ c
 c     Combine with quadrature weights
 c
       if (.not. do_2nd) then
-         call setACmat(Amat, Cmat, qwght, ipol, nq, GRAD)
+         call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, GRAD)
       else
-         call setACmat_d2(Amat, Amat2, Cmat, Cmat2, qwght, ipol, nq,
-     &                    GRAD)
+         call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, ipol,
+     &                    nq, GRAD)
       endif
 c
       return

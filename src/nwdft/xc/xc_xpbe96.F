@@ -2,9 +2,11 @@
      &                     Amat, Cmat, nq, ipol, Ex, qwght,
      &                     ldew,func)     
 c
-c$Id: xc_xpbe96.F,v 1.4 1999-01-07 01:10:37 edo Exp $
+c$Id: xc_xpbe96.F,v 1.5 1999-02-15 16:47:17 bjohnson Exp $
 c
       implicit none
+c
+#include "dft2drv.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -25,7 +27,7 @@ c
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision amat(nq,ipol), cmat(nq,3,ipol)
+      double precision amat(nq,ipol), cmat(nq,*)
 
 c
 c     Compute the partial derivatives of the PBE exchange functional 
@@ -101,9 +103,12 @@ c
 c
             if (gna.gt.tol_rho)  then
                g = tp3*p2t*pa/gna*fac
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g
+#if 0
                cmat(n,1,1) = cmat(n,1,1) + g*delrho(n,1,1)
                cmat(n,2,1) = cmat(n,2,1) + g*delrho(n,2,1)
                cmat(n,3,1) = cmat(n,3,1) + g*delrho(n,3,1)
+#endif
             endif
 c
    10    continue
@@ -150,9 +155,12 @@ c
 c           
             if (gna.gt.tol_rho)  then
               g = 2.d0*tp3*p2t*pa/gna*fac
+              Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g*0.5d0
+#if 0
               cmat(n,1,1) = cmat(n,1,1) + g*delrho(n,1,1)
               cmat(n,2,1) = cmat(n,2,1) + g*delrho(n,2,1)
               cmat(n,3,1) = cmat(n,3,1) + g*delrho(n,3,1)
+#endif
             endif
             endif
 C
@@ -191,9 +199,12 @@ c
 c           
             if (gnb.gt.0d0)  then
               g = 2.d0*tp3*p2t*pb/gnb*fac
+              Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + g*0.5d0
+#if 0
               cmat(n,1,2) = cmat(n,1,2) + g*delrho(n,1,2)
               cmat(n,2,2) = cmat(n,2,2) + g*delrho(n,2,2)
               cmat(n,3,2) = cmat(n,3,2) + g*delrho(n,3,2)
+#endif
             endif
 c           
             endif

@@ -1,17 +1,18 @@
 #ifndef SECOND_DERIV
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)         
+     &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
 #else
-#include "dft2drv.fh"
       Subroutine xc_becke88_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                         qwght,ldew,func)     
+     &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_becke88.F,v 1.16 1999-01-29 00:51:26 edo Exp $
+C$Id: xc_becke88.F,v 1.17 1999-02-15 16:47:14 bjohnson Exp $
 c
       implicit none
 c      
+#include "dft2drv.fh"
+c
       double precision tol_rho, fac, Ex
       integer nq, ipol
       logical lfac, nlfac,ldew
@@ -31,7 +32,7 @@ c
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,ipol), Cmat(nq,3,ipol)
+      double precision Amat(nq,ipol), Cmat(nq,*)
 c
 #ifdef SECOND_DERIV
 c
@@ -105,9 +106,10 @@ c
 c
             if (x.gt.tol_rho) then
                t = 0.5d0 * dg / sqrt(gamma) * fac
-               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
-               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
-               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
+c               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
+c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
+c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
@@ -169,9 +171,10 @@ c
 c
             if (x.gt.tol_rho) then
                t = dg / sqrt(gamma) * fac
-               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
-               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
-               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t * 0.5d0
+c               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
+c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
+c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
             endif
 c
 #ifdef SECOND_DERIV
@@ -224,9 +227,10 @@ c
 c
             if (x.gt.tol_rho) then
                t = dg / sqrt(gamma) * fac
-               Cmat(n,1,2) = Cmat(n,1,2) + t*delrho(n,1,2)
-               Cmat(n,2,2) = Cmat(n,2,2) + t*delrho(n,2,2)
-               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + t * 0.5d0
+c               Cmat(n,1,2) = Cmat(n,1,2) + t*delrho(n,1,2)
+c               Cmat(n,2,2) = Cmat(n,2,2) + t*delrho(n,2,2)
+c               Cmat(n,3,2) = Cmat(n,3,2) + t*delrho(n,3,2)
             endif
 c
 #ifdef SECOND_DERIV
