@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup)
 c
-c $Id: pre_select.F,v 1.4 2000-03-29 00:50:40 d3j191 Exp $
+c $Id: pre_select.F,v 1.5 2001-05-08 21:59:09 d3j191 Exp $
 c
       implicit none
 c
@@ -19,9 +19,10 @@ c
       character*80 card
 c
 c
-      integer i,ifr,ito,igrp
+      integer i,j,ifr,ito,igrp
       character*255 target,atomi
       integer ndx,iatom,isgm
+      character*4 trgt
 c
       card=card(7:80)
 c
@@ -42,7 +43,7 @@ c
       ndx=index(target,':')
       if(ndx.eq.0) then
       read(target,*,err=9999) isgm
-      atomi='    '
+      atomi='????'
       else
       read(target(1:ndx-1),*,err=9999) isgm
       atomi=target(ndx+1:index(target,' ')-1)//'      '
@@ -51,19 +52,24 @@ c
       endif
       iatom=0
       do 1 i=1,nsa
+      trgt=csa(i)(11:14)
+      do 4 j=1,4
+      if(atomi(j:j).eq.'?') trgt(j:j)='?'
+    4 continue
       if(isgm.eq.isegm(i).and.
-     + (ndx.eq.0.or.atomi(1:4).eq.csa(i)(11:14))) then
+     + (ndx.eq.0.or.atomi(1:4).eq.trgt)) then
+      iatom=1
       lgroup(igrp)=lgroup(igrp)+1
       if(lgroup(igrp).gt.maxatm)
      + call errquit('Increase group maxatm',maxatm)
       igroup(igrp,lgroup(igrp))=i
-      goto 2
       endif
     1 continue
+      if(iatom.eq.0) then
       write(*,3) igrp,isgm,atomi(1:4)
     3 format(' Unable to find in select',i5,' atom ',i4,':',a4)
       call errquit('Atom in select not found:',isgm)
-    2 continue
+      endif
 c
       pre_select=.true.
       return
