@@ -1,0 +1,32 @@
+#!/bin/csh 
+@ count = 1
+while ($count)
+  if ($count < 10) then
+     if (-e user.00${count}) then
+        echo "mv user.00${count} user.00${count}.ps"
+        mv user.00${count} user.00${count}.ps
+        @ count++
+     else
+        @ count = 0
+     endif
+  else if ($count < 100) then
+     if (-e user.0${count}) then
+        echo "mv user.0${count} user.0${count}.ps"
+        mv user.0${count} user.0${count}.ps
+        @ count++
+     else
+        @ count = 0
+     endif
+  else if ($count < 1000) then
+     if (-e user.${count}) then
+        echo "mv user.${count} user.${count}.ps"
+        mv user.${count} user.${count}.ps
+        @ count++
+     else
+        @ count = 0
+     endif
+  else
+    echo "count value of $count requires a fix in userpsfix"
+    exit 911
+  endif
+end

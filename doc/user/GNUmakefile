@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 1997-06-01 20:36:05 gutowski Exp $
+# $Id: GNUmakefile,v 1.10 1998-02-13 01:22:56 d3e129 Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
@@ -9,26 +9,33 @@
 
  SOURCE_NOT_USED = md.tex
 
+ DVIPS_OPTS = -D300 -N0 -i -S200
+
 all postscript user.ps:	$(SOURCE)
+	rm -f user.[0-9][0-9][0-9] user.[0-9][0-9][0-9].ps
 	latex user.tex
 	latex user.tex
 	latex user.tex
-	dvips -D 300 -N0 -o user.ps user.dvi
+	dvips user ${DVIPS_OPTS} -o
+	./userpsfix
 odd:	$(SOURCE)
+	rm -f user.[0-9][0-9][0-9] user.[0-9][0-9][0-9].ps usereven.ps userodd.ps
 	latex user.tex
 	latex user.tex
 	latex user.tex
-	dvips -D 300 -N0 -A -o userodd.ps user.dvi 
-	dvips -D 300 -N0 -B -o usereven.ps user.dvi 
+	dvips user -D300 -N0 -A -o userodd.ps 
+	dvips user -D300 -N0 -B -o usereven.ps 
 
 quick:		$(SOURCE)
+	rm -f user.[0-9][0-9][0-9] user.[0-9][0-9][0-9].ps
 	latex user.tex
-	dvips -D 300 -N0 -o user.ps user.dvi
+	dvips user ${DVIPS_OPTS} -o
+	./userpsfix
 html:	
 	../htmlize user
 
 view:	user.ps
-	ghostview -bg white -fg black -bd black user.ps
+	ghostview -bg white -fg black -bd black user.001.ps
 
 realclean clean:
 	/bin/rm -f *.dvi *.ps *.toc *.aux *.log *~

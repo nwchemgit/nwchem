@@ -29,11 +29,15 @@ related and are terminated with an \verb+END+ directive.  See the
 sample inputs (Sections \ref{sec:simplesample}, \ref{sec:realsample})
 and the input syntax specification (Section \ref{sec:syntax}).
 
-All input is free format, and directives or blocks of module-specific
-directives can appear in any order, with the exception of the
-\verb+TASK+ directive (see sections \ref{sec:inputstructure} and
-\ref{sec:task}) which is used to invoke an NWChem module.  Case is
-ignored except for actual data (e.g., names/tags of centers, titles).
+All input is free format and case is ignored except for actual data
+(e.g., names/tags of centers, titles). Directives or blocks of
+module-specific directives (i.e., compound directives) can appear in
+any order, with the exception of the \verb+TASK+ directive (see
+sections \ref{sec:inputstructure} and \ref{sec:task}) which is used to
+invoke an NWChem module.  All input for a given task must
+proceed the \verb+TASK+ directive.  This input specification rule
+allows the concatenation of multiple tasks in a single NWChem input
+file. 
 
 To make the input as short and simple as possible, most options have
 default values.  The user needs to supply input only for those items that
