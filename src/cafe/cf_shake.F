@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.9 2000-01-28 20:42:40 d3j191 Exp $
+c $Id: cf_shake.F,v 1.10 2000-02-18 07:02:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -81,13 +81,10 @@ c
       integer isgan(msa),isat(msa)
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
       real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,4),ypmf(numpmf,4,3)
-      real*8 wgt(mat,6)
-      real*8 et(2),ft(4,3)
-      integer ip(3)
-      real*8 rp(2,6),rv(2),w(4)
-      integer it(2),ign(4),iml(4),idt(4),ich(4)
+      real*8 wgt(mat,6),ft(4,3),rv(2),w(4)
+      integer ip(3),it(2),ign(4),iml(4),idt(4),ich(4)
 c
-      integer i,j,k,l,m
+      integer i,j,k,l
 c
       epmf=zero
 c
@@ -195,8 +192,8 @@ c
 c
       logical ready
 c
-      integer ix,iwb,iwm,iwa,jwa,nshake,ndtl,iwr
-      real*8 bw,tw,w,dif,cmx1,cmx2,cmx3,tisum,cdwb4,ydif1,ydif2,ydif3
+      integer ix,iwb,iwm,iwa,jwa,nshake,ndtl
+      real*8 bw,tw,w,dif,tisum,cdwb4,ydif1,ydif2,ydif3
       real*8 ydist,ep2sum,cdwb2,ep3sum,cdwb3,wiwa,wjwa
 c
 #include "bitops.fh"
@@ -390,10 +387,10 @@ c
 c
       real*8 wsai,wsaj
       logical ready,dtl
-      integer i,j,isb,isa,jsa,isbmax,ndtl,ipmf
-      integer isaglo,jsaglo,ix,niterl
+      integer i,j,isb,isa,jsa,isbmax,ndtl
+      integer isaglo,jsaglo
       real*8 dmax,bs,ts,w,rsx1,rsx2,rsx3,rsi1,dif1,dif2,dif3,rsi2
-      real*8 rsi6,ff1,ff2,ff3,xsdist,ysdist
+      real*8 rsi6,ff1,ff2,ff3
 c
 #include "bitops.fh"
 c

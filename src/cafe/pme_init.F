@@ -1,5 +1,5 @@
       subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.11 1999-11-05 16:33:46 d3j191 Exp $
+c $Id: pme_init.F,v 1.12 2000-02-18 07:02:31 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
@@ -181,9 +181,12 @@ c
 c
       real*8 value,target(np)
       integer nodep(nodpme),knode(ngz),kfrom(np),kto(np),map(np)
-      integer icntxt,lfftok
 c
-      integer i,j,k,npls,nlnd,number,npr,npc,myr,myc
+      integer i,j,k,npls,nlnd
+#if defined(USE_ESSL)
+      integer number,npr,npc,myr,myc
+      integer icntxt,lfftok
+#endif
 c
 c     select nodes with minimum value to be used for pme/fft
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.28 2000-02-01 00:56:17 d3j191 Exp $
+c $Id: cf_main.F,v 1.29 2000-02-18 07:02:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -984,7 +984,7 @@ c
       integer isat(msa)
       real*8 vs(msa,3),wgt(mat,6)
 c
-      integer i,j,k
+      integer i,j
       real*8 ekins
 c
       ekins=zero
@@ -1153,10 +1153,10 @@ c
       real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,3)
       real*8 et(2),ft(4,3)
       integer ip(4)
-      real*8 rp(2,6),rv(2),chg(2)
+      real*8 rv(2),chg(2)
       integer it(2),ign(4),iml(4),idt(4),ich(4)
 c
-      integer i,j,k,l,m
+      integer i,j,k,l
 c
       epmf=zero
 c
@@ -1270,7 +1270,7 @@ c
       real*8 xs(msa,3),fs(msa,3)
       integer isgan(msa)
       integer idrs(ndrs,2)
-      real*8 rdrs(ndrs,6),xdrs(ndrs,6),ft(2,6)
+      real*8 rdrs(ndrs,6),xdrs(ndrs,6)
 c
       integer i,j,k
       real*8 d,di,dd,dn,dx(3),dfor,df(3),en
@@ -1803,7 +1803,7 @@ c
       else
       write(lfnout,1002) (ibnd(i,j),j=1,2),(bnd(i,j,iset),j=1,2),
      + rbnd(i,1)
- 1002 format(2i7,' cnstr 'f10.5,e12.5,f10.5,f12.6)
+ 1002 format(2i7,' cnstr ',f10.5,e12.5,f10.5,f12.6)
       endif
     1 continue
 c

@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.6 1999-09-08 16:49:55 d3j191 Exp $
+c $Id: cf_grid.F,v 1.7 2000-02-18 07:02:29 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -51,8 +51,6 @@ c
       real*8 grid(ngx,ngy,mgz)
       integer mnx,mxx,mny,mxy,mnz,mxz
 c
-      integer i,j,k
-c
       if(lset.or..not.lscr) then
       if(.not.lscr) call cf_salloc
       call cf_pmeset(xw,dbl_mb(i_pmew),nwmloc,xs,dbl_mb(i_pmes),
@@ -76,7 +74,7 @@ c
 c
 #include "cf_common.fh"
 c
-      logical lset,lgrid
+      logical lgrid
       integer ipset,nwmloc,nsaloc,node,mgz
       real*8 xw(mwm,3,mwa),xs(msa,3)
       real*8 yw(mwm,3,mwa),ys(msa,3)

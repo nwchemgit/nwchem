@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.8 2000-02-10 22:54:36 d3j191 Exp $
+c $Id: cf_list.F,v 1.9 2000-02-18 07:02:30 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -467,7 +467,7 @@ c
    11 continue
       lssjpt(isa-isafr+1,1)=npairs+1
       npairs=npairs+nlist1
-      lsss=lsss+nlist
+      lsss=lsss+nlist1
       lssin(isa-isafr+1,1)=nlist1
       if(npss.eq.2) then
       do 12 ilist=1,nlist2
@@ -475,7 +475,7 @@ c
    12 continue
       lssjpt(isa-isafr+1,2)=npairs+1
       npairs=npairs+nlist2
-      llss=llss+nlist
+      llss=llss+nlist2
       lssin(isa-isafr+1,2)=nlist2
       endif
     1 continue
@@ -970,7 +970,7 @@ c
       integer ldihes(1)
       integer itemp(nsatot),istemp(msa)
       integer isa,jsa,isfr,isto,jsfr,jsto,isafr,isato,jsafr,jsato
-      integer isd,ndi,ndihes,nconst,maxdih
+      integer isd,ndi,ndihes,nconst
       integer isdloc,idloc,jdloc,kdloc,ldloc,iq,jq,kq,lq
       logical lself
 c

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
       implicit none
 c
@@ -45,18 +45,20 @@ c
 c      integer nax2,ipset
       real*8 qai,qaj,pai,paj,pix,piy,piz,pjx,pjy,pjz
       real*8 ri3,rmi,rmj,fri,fmi,fmj,rmm,qfaci
+      real*8 rx,ry,rz,ri1,ri2
+#else
+      real*8 ewwqsm,ferfc,fderfc
 #endif
 c
       integer iwfr,ipww,number,iwm,iwpm,nax
-      integer iwmn,lwwptr,iwa,iax,jwa,iptr,jptr
-      integer igc,igr,indx,iwpj
-      real*8 ewwqsm,ewwl6,ewwl12,q,ferfc,fderfc
+      integer iwmn,lwwptr,iwa,iax,jwa,iptr,jptr,iwpj
+      real*8 ewwl6,ewwl12,q
       real*8 c64,c124,qi,qj,qi4,qj4,dercon
       real*8 c6p,c12p,qp,ep2tmp,ep3tmp
       real*8 c6,cf6,c12,cf12
 c
-      integer i,j,jwm,iwaptr,jwaptr,nwwlen(2),k
-      real*8 cx,cy,cz,dx,dy,dz,rx,ry,rz,ri1,ri2,ri6,ff,eterml,etermq
+      integer nwwlen(2)
+      real*8 eterml,etermq
 c
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
@@ -507,12 +509,7 @@ c
 c error
 #endif
 c
-c     + isfrom,nums,isl,ca6,ca12,iass,xw,xwm,iwl,fw,
-c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
-c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
-c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
-c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
       implicit none
 c
@@ -526,7 +523,7 @@ c
       integer isml(msa),isss(msa),isq1(msa)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),rtos(mwm)
       integer iwdt(mwm)
-      integer isfrom,nsloc
+      integer isfrom
       logical lpbc,lpbcs
 c
       real*8 vdw(mat,mat,map,6),chg(mqt,mqp,6)
@@ -542,10 +539,10 @@ c
       integer lswndx(0:msa,2),lswjpt(nums,2),lswin(nums,2)
       integer list(0:msa)
 c
-      integer isar,isatm,nswlen(2),iasst
+      integer isatm,nswlen(2)
       integer isfr,iwm,ipsw,number,isa,ispm,isf,nax,ism
-      integer ispj,ismn,lswptr,iwa,iax,iwatmi,ix,igc
-      integer igr,indx,iwatyp,isrst
+      integer ispj,ismn,lswptr,iwa,iax,iwatmi,ix
+      integer iwatyp
       real*8 c6,cf6,c12,cf12,sumen,qwas,ferfc,fderfc
       real*8 q,c64,c124,dercon,qj,qj4,derco1,derco2
       real*8 drvco1,drvco2,derco3,drvco3,c6p,c12p,etermq,eterml
@@ -1191,7 +1188,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
       implicit none
 c
@@ -1214,27 +1211,16 @@ c
       real*8 facu(mscr)
       integer nums
       integer lssndx(0:msa,2),lssjpt(nums,2),lssin(nums,2)
-      integer lsbj(1),lshj(1),lsdj(1),lsoj(1),lstj(1)
       integer iass(mat,mat),nsslen(2)
 c
-      integer isa,jsa,i,isf,jsf,isx
-      integer ksa,ksf,ifacu
-      integer isd,lsa,lsf,iasst
+      integer isa,jsa,i,isf,jsf
       integer isfr,isfrom,ism,jsm
-      integer ipss,number,isslen,nax,jsaptr,isag,jsag,ix,jx
-      integer jnum,lssptr,iax,isq,igc,igr,indx,isrxt,jsrxt
-      real*8 bnd,for,xs1,xs2,xs3,rss2,rss,rssi,dbnd,dfor,dfs1,dfs2,dfs3
-      real*8 dercon,factu,ang,xsijx,xskjx,xsijy,xskjy,xsijz,xskjz
-      real*8 rsij2,rskj2,cphi,rsij2i,rskj2i,rsikji,phi,dang,sphi,dfs
-      real*8 rmul,xsklx,xsikx,xsjlx,xskly,xsiky,xsjly,xsklz,xsikz,xsjlz
-      real*8 xmx,xmy,xmz,xnx,xny,xnz,rm2i,rn2i,rmni,s,rpa,sphii
-      real*8 xdx,xdy,xdz,xex,xey,xez
-      real*8 dfsix,dfsiy,dfsiz,dfsjx,dfsjy,dfsjz
-      real*8 dfskx,dfsky,dfskz,dfslx,dfsly,dfslz,cphii,rkj,xox,xoy,xoz
-      real*8 rkjo,xpx,xpy,xpz,rkjp,dangp,rxx,rxy,rxz,r2,r2i,r1i,dfsu
-      real*8 r6i,c6,c12,cf6,cf12,q
-      real*8 c64,c124,qi,qi4,qj,qj4
-      real*8 q14,sumen,sumen1,sumen2,sumen3,ferfc,fderfc,rsi,qij,dfsp
+      integer ipss,number,isslen,nax,jsaptr
+      integer jnum,lssptr,iax
+      real*8 dercon
+      real*8 c6,c12,cf6,cf12,q
+      real*8 c64,c124
+      real*8 q14,sumen,sumen1,sumen2,sumen3,ferfc,fderfc
       real*8 etermq,eterml
 c
 #include "cf_funcs_dec.fh"
@@ -2055,7 +2041,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -2111,10 +2097,9 @@ c     declaration of local variables
 c     ------------------------------
 c
       integer i,j,isb,isa,jsa,isf,jsf
-      integer isag,jsag
-      real*8 factu,hess,dercon,qij,ferfc,fderfc
+      real*8 factu,dercon,qij,ferfc,fderfc
       real*8 bond,dbond,for,dfor,dfs1,dfs2,dfs3,eterm
-      real*8 xs1,xs2,xs3,rsi,rss,rss2,rssi,rss2i,ess(msf,msf,mpe,2)
+      real*8 xs1,xs2,xs3,rss,rss2,rssi,rss2i,ess(msf,msf,mpe,2)
 c
 #include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
@@ -2328,7 +2313,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2587,7 +2572,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2645,7 +2630,7 @@ c     ------------------------------
 c
       integer i,j,isd,isa,jsa,ksa,lsa,isf,jsf,ksf,lsf
       integer ifacu
-      real*8 ang,dang,for,dfor,dfs,phi,cphi,cphii,sphi,sphii
+      real*8 ang,for,dfor,phi,cphi,cphii,sphi,sphii
       real*8 rmul,factu,dercon
       real*8 xsijx,xskjx,xsijy,xskjy,xsijz,xskjz
       real*8 xsklx,xsjlx,xskly,xsjly,xsklz,xsjlz
@@ -2654,8 +2639,7 @@ c
       real*8 dfsix,dfsiy,dfsiz,dfsjx,dfsjy,dfsjz
       real*8 dfskx,dfsky,dfskz,dfslx,dfsly,dfslz
       real*8 rm2i,rn2i,rmni,s,rpa,dx(3),eterm
-      real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,rkj,rkjo,rkjp
-      real*8 qij,xs1,xs2,xs3,rss,rsi,ferfc,fderfc,dfs1,dfs2,dfs3
+      real*8 rkj,rkjo,rkjp
 c
 c#include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
@@ -2913,7 +2897,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden)
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -2971,17 +2955,16 @@ c     -----------------------------
 c
       integer i,j,iso,isa,jsa,ksa,lsa,isf,jsf,ksf,lsf
       integer ifacu
-      real*8 ang,dang,dangp,for,dfor,dfs,phi,cphi,cphii,sphi,sphii
-      real*8 rmul,factu,dercon
+      real*8 ang,dang,dangp,for,dfor,phi,cphi,cphii,sphi,sphii
+      real*8 factu,dercon
       real*8 xsijx,xskjx,xsijy,xskjy,xsijz,xskjz
       real*8 xsklx,xsjlx,xskly,xsjly,xsklz,xsjlz
       real*8 xsikx,xsiky,xsikz,xmx,xmy,xmz,xnx,xny,xnz,xdx,xdy,xdz
       real*8 xex,xey,xez,xox,xoy,xoz,xpx,xpy,xpz
       real*8 dfsix,dfsiy,dfsiz,dfsjx,dfsjy,dfsjz
       real*8 dfskx,dfsky,dfskz,dfslx,dfsly,dfslz
-      real*8 rm2i,rn2i,rmni,s,rpa,dx(3),eterm
-      real*8 rsij2,rskj2,rsij2i,rskj2i,rsikji,rkj,rkjo,rkjp
-      real*8 qij,xs1,xs2,xs3,rss,rsi,ferfc,fderfc,dfs1,dfs2,dfs3
+      real*8 rm2i,rn2i,rmni,s,dx(3),eterm
+      real*8 rkj,rkjo,rkjp
 c
 c#include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
@@ -3224,7 +3207,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs)
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3540,7 +3523,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.16 2000-02-14 17:02:41 d3j191 Exp $
+c $Id: cf_f.fh,v 1.17 2000-02-18 07:02:29 d3j191 Exp $
 c
       implicit none
 c
@@ -3586,7 +3569,7 @@ c
       real*8 c6,c12,c6t,c12t,qit,qjt,cf6,cf12,qi,qj,q,qp1,qp2
       real*8 ep2l,ep3l,ep2q,ep3q,rxx,rxy,rxz,r2,r2i,r1i,r6i,dfw
       real*8 rwikji,sphii,qij,rwi,ferfc,fderfc,eww(mpe,2)
-      real*8 eterm,etermq,eterml
+      real*8 etermq,eterml
 c
 #include "cf_funcs_dec.fh"
 #include "bitops_decls.fh"
