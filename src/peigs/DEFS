@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.76 2000-08-29 18:08:39 edo Exp $
+# $Id: DEFS,v 1.77 2000-08-29 22:52:43 edo Exp $
 #
 #======================================================================
 #
@@ -432,7 +432,12 @@ peigs_CPU  = ALPHA
 peigs_COMM = TCGMSG
 peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
 peigs_CODEOBJ = DBLE
+ifeq ($(CC),ccc)
 peigs_CC  +=  -DSTD_DBL -O2  -fast -tune host -arch host 
+endif
+ifeq ($(CC),gcc)
+peigs_CC  +=  -DSTD_DBL -O3  -mcpu=ev56
+endif
 peigs_FC +=  -O1 -DLINUX64  -DSTD_DBL  -D$(peigs_COMM) -DLINUX -tune host -arch host
 endif
 
