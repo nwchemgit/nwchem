@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.11 1998-04-29 07:27:34 d3e129 Exp $
+c $Id: apiP.fh,v 1.12 1998-09-22 16:14:50 d3e129 Exp $
 c
 c common block that holds memory information
 c
@@ -18,10 +18,12 @@ c
       integer memb_2e4c   ! scr memory size for blocked 4 center integrals
       integer init_int    ! integral initialization flag
       integer init_intd   ! derivative initialization flag
+      integer init_intdd  ! second derivative initialization flag
 *
       common /capi/ init_int,mem_2e4c, mem_1e, isz_2e4c, isz_1e,
      &       mem_1e_h1, isz_2e3c, isz_2e2c, mem_2e3c, mem_2e2c,
-     &       isz_3ov, mem_3ov, iszb_2e4c, memb_2e4c, init_intd
+     &       isz_3ov, mem_3ov, iszb_2e4c, memb_2e4c, init_intd,
+     &       init_intdd
 c
 c common block that holds dummy exponent and coeficient
 c
@@ -46,7 +48,7 @@ c.... default approximate memory parameter for hf2d
 c....  Memory of 5 000 000 => parameter of 
       parameter (intd_memp=410000)
 c
-c ECP specific storage for the API
+c ECP/SO specific storage for the API
 c
       logical any_ecp  ! does any basis set have an ecp
       logical any_so   ! does any basis set have an so potential

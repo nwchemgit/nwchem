@@ -10,7 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.10 1997-06-10 21:55:28 d3e129 Exp $
+c $Id: int_term.F,v 1.11 1998-09-22 16:14:51 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -23,7 +23,6 @@ c
       endif
       call int_mem_zero()
 c      
-      call sp_terminate()
 * def u=f d=f -> f.and.!f -> f -> e = t
 * no txs u=t d=f -> t.and.!f -> t -> e = f
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
@@ -36,31 +35,6 @@ c
         call int_ecp_terminate()
         ecp_bsh = 0
       endif
-      end
-      subroutine sp_terminate()
-*_not_used?:      implicit none
-*_not_used?:#include "apispP.fh"
-*_not_used?:#include "mafdecls.fh"
-*_not_used?:c
-*_not_used?:      if (no_sp_conts) return
-*_not_used?:c
-*_not_used?:      write(6,*)':::: de-allocating sp blocks of memory'
-*_not_used?:      if (.not.MA_free_heap(hszspa))
-*_not_used?:     &       call errquit('sp_terminate: free of hszspa failed',911)
-*_not_used?:      write(6,*)'::done:: de-allocating sp blocks of memory'
-*_not_used?:      if (.not.MA_free_heap(hszspb))
-*_not_used?:     &       call errquit('sp_terminate: free of hszspb failed',911)
-*_not_used?:      write(6,*)'::done:: de-allocating sp blocks of memory'
-*_not_used?:      if (.not.MA_free_heap(hszspc))
-*_not_used?:     &       call errquit('sp_terminate: free of hszspc failed',911)
-*_not_used?:      write(6,*)'::done:: de-allocating sp blocks of memory'
-*_not_used?:      if (.not.MA_free_heap(hszspd))
-*_not_used?:     &       call errquit('sp_terminate: free of hszspd failed',911)
-*_not_used?:      write(6,*)'::done:: de-allocating sp blocks of memory'
-*_not_used?:      if (.not.MA_free_heap(hspscat))
-*_not_used?:     &       call errquit('sp_terminate: free of hspscat failed',911)
-*_not_used?:      write(6,*)'::done:: de-allocating sp blocks of memory'
-*_not_used?:c
       end
 c:tex-
 c:tex-%API Initialization and Termination Routines
@@ -92,16 +66,54 @@ c.. parameters for int derivative (hf2d)
       numd_okay      = 0
       numd_red       = 0
 c
-      call sp_terminate()
-c
       if (.not.spcart_terminate()) then
-        call errquit('int_terminate: spcart_terminate failed',0)
+        call errquit('intd_terminate: spcart_terminate failed',0)
       endif
 c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
         call texas_terminate()
       endif
 *:rak:this should not be here      call int_app_unset_no_texas(rtdbIused)
+c
+      if (any_ecp) then
+        call int_ecp_terminate()
+        ecp_bsh = 0
+      endif
+c
+      end
+c:tex-
+c:tex-%API Initialization and Termination Routines
+c:tex-\subsection{intdd\_terminate}
+c:tex-This is the main termination routine for integral
+c:tex-second derivatives.
+c:tex-After this call the INT-API is ready for re-initialization.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine intdd_terminate()
+c:tex-\end{verbatim}
+c:tex-No formal arguments
+c:tex-
+      implicit none
+#include "apiP.fh"
+#include "candoP.fh"
+c::functions
+      logical spcart_terminate 
+      external spcart_terminate 
+c
+      if (init_intdd.eq.0) then
+        write(6,*)' warning: intdd_init has not been called '
+      endif
+      call int_mem_zero()
+      intd_memthresh = 0
+c
+      if (.not.spcart_terminate()) then
+        call errquit('intdd_terminate: spcart_terminate failed',0)
+      endif
+c
+      if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
+        call texas_terminate()
+      endif
 c
       if (any_ecp) then
         call int_ecp_terminate()
