@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.28 1998-05-14 17:40:13 mdupuis Exp $
+* $Id: prp.F,v 1.29 1998-07-20 23:19:19 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -208,10 +208,6 @@ C
      6 ' nogiao=',I2,' noiglo=',i2,' noston=',I2)
  9998 FORMAT(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       END
-*:rak      SUBROUTINE HND_GIAOX(RTDB,BASIS,GEOM)
-*:rak      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-*:rak      RETURN
-*:rak      END
       SUBROUTINE HND_PRPDEN(DA,DB,L)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXIODA=255)
@@ -358,7 +354,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i40),x(i50),x(i60),x(i70),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 c
       if(out) then
          call hnd_prtr(x(i40),l1)
@@ -513,8 +511,9 @@ C
      2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
      3              3, 3, 2, 2, 3/
 C
+      OUT=.FALSE.
+C
       TOL=RLN10*ITOL
-      OUT=NPRINT.EQ.6
       NORM=NORMF.NE.1.OR.NORMP.NE.1
 C
       XC=CM(1)
@@ -1235,7 +1234,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i70),x(i80),x(i90),x(i91),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 C
       QMXX=-hnd_prpDOT(X(I70),X(I10),L1)
       QMYY=-hnd_prpDOT(X(I70),X(I20),L1)
@@ -1403,7 +1404,6 @@ C
       LOGICAL IANDJ
       LOGICAL NORM,DOUBLE
       LOGICAL OUT
-      COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW,IP
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       COMMON/HND_BASNUM/NUM
@@ -1414,9 +1414,8 @@ C
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
       COMMON/HND_XYZQDP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,
-     1              XINTXX,YINTYY,ZINTZZ,T,XC,YC,ZC,
-     2              X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
-      COMMON/HND_IJPAIR/IA(1)
+     1                  XINTXX,YINTYY,ZINTZZ,T,XC,YC,ZC,
+     2                  X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
       DIMENSION XXS(1),YYS(1),ZZS(1),XYS(1),XZS(1),YZS(1)
       DIMENSION SXX(225),SYY(225),SZZ(225),SXY(225),SXZ(225),SYZ(225)
       DIMENSION DIJ(225)
@@ -1444,8 +1443,9 @@ C
      2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
      3              3, 3, 2, 2, 3/
 C
+      OUT=.FALSE.        
+C
       TOL=RLN10*ITOL
-      OUT=NPRINT.EQ.6
       NORM=NORMF.NE.1.OR.NORMP.NE.1
 C
       XC=CM(1)
@@ -1660,7 +1660,9 @@ C
       IF(IANDJ) JMAX=I
       DO 7500 J=MINJ,JMAX
       IJ=IJ+1
-      NN=IA(LOCI+I)+(LOCJ+J)
+      IDUM=LOCI+I
+      JDUM=LOCJ+J
+      NN=(IDUM*(IDUM-1))/2+JDUM
       XXS(NN)=SXX(IJ)
       YYS(NN)=SYY(IJ)
       ZZS(NN)=SZZ(IJ)
@@ -1674,17 +1676,17 @@ C
 C
       IF(.NOT.OUT) GO TO 9100
       WRITE(IW,9999)
-      CALL HND_PRTRL(XXS,L1)
+      CALL HND_PRTR(XXS,L1)
       WRITE(IW,9998)
-      CALL HND_PRTRL(YYS,L1)
+      CALL HND_PRTR(YYS,L1)
       WRITE(IW,9997)
-      CALL HND_PRTRL(ZZS,L1)
+      CALL HND_PRTR(ZZS,L1)
       WRITE(IW,9996)
-      CALL HND_PRTRL(XYS,L1)
+      CALL HND_PRTR(XYS,L1)
       WRITE(IW,9995)
-      CALL HND_PRTRL(XZS,L1)
+      CALL HND_PRTR(XZS,L1)
       WRITE(IW,9994)
-      CALL HND_PRTRL(YZS,L1)
+      CALL HND_PRTR(YZS,L1)
  9100 CONTINUE
 C
       RETURN
@@ -1999,7 +2001,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom, 
      1                      x(i110),x(i120),x(i130),x(i140),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 C
       RXXX=-hnd_prpDOT(X(I110),X(I10),L1)
       RYYY=-hnd_prpDOT(X(I110),X(I20),L1)
@@ -2969,7 +2973,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i40),x(i41),x(i95),x(i96),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
       if(scftyp.eq.uhf) then
          wfntyp=scf
       endif
@@ -3099,7 +3105,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i40),x(i41),x(i95),x(i96),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 C
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
@@ -4444,7 +4452,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i20),x(i30),x(i40),x(i50),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 C
 C     ----- DEFINE POINTS FOR CALCULATION -----
 C           1. GRID POINTS
@@ -5065,7 +5075,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i20),x(i30),x(i40),x(i50),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 
 C
 C     ----- GET TOTAL DENSITY MATRIX -----
@@ -5549,7 +5561,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i20),x(i30),x(i40),x(i50),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 
 C
 C     ----- GET TOTAL DENSITY MATRIX -----
@@ -5772,21 +5786,21 @@ C
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
-      COMMON/HND_RYS/XX,U(5),W(5),NROOTS
+      COMMON/HND_HFK/XX,U(9),W(9),NROOTS
       COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
       COMMON/HND_IJPAIR/IA(1)
-      DIMENSION W2(5),W4(5)
+      DIMENSION W2(6),W4(6)
       DIMENSION XYZPT(3,1),ELFGR(6,1),DAB(1)
       DIMENSION DIJ(225)
       DIMENSION IJX(35),IJY(35),IJZ(35)
-      DIMENSION   XV(5,5,5),  YV(5,5,5),  ZV(5,5,5)
-      DIMENSION  DXV(5,5,5), DYV(5,5,5), DZV(5,5,5)
-      DIMENSION DDXV(5,5,5),DDYV(5,5,5),DDZV(5,5,5)
+      DIMENSION   XV(5,5,6),  YV(5,5,6),  ZV(5,5,6)
+      DIMENSION  DXV(5,5,6), DYV(5,5,6), DZV(5,5,6)
+      DIMENSION DDXV(5,5,6),DDYV(5,5,6),DDZV(5,5,6)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ELFGRD-'/
-      DATA MAXRYS /5/
+      DATA MAXRYS /6/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA PT5    /0.5D+00/
@@ -5979,9 +5993,7 @@ C
       CY=XYZPT(2,IPT)
       CZ=XYZPT(3,IPT)
       XX=AA*((AX-CX)**2+(AY-CY)**2+(AZ-CZ)**2)
-      IF(NROOTS.LE.3) CALL HND_RT123
-      IF(NROOTS.EQ.4) CALL HND_ROOT4
-      IF(NROOTS.EQ.5) CALL HND_ROOT5
+      CALL HND_DROOT
       DO 420 IROOT=1,NROOTS
       UU=U(IROOT)*AA
       U2=UU
@@ -6290,7 +6302,9 @@ c     ----- calculate density matrix -----
 
       call hnd_prp_get_dens(rtdb,basis,geom,
      1                      x(i20),x(i30),x(i40),x(i50),
-     2                      scftyp)
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
      1   (WFNTYP.EQ.MP2.AND.SCFTYP.EQ.UHF)    ) THEN
@@ -9032,6 +9046,8 @@ C
       DIMENSION IC(5),CBF(5),C(5)
       DATA VTOL  /1.5D-01/
       DATA ICMAX /5/
+C
+      LIST=1
       IF(LIST.EQ.0) MAX=10
       IF(LIST.EQ.1) MAX=7
       IF(LIST.EQ.2) MAX=7
@@ -10994,7 +11010,7 @@ c
       logical          debug
       data zero   /0.0d+00/
 c
-      debug=.false.
+      debug=.true. 
 c
       num3=num*num
 c     
@@ -11114,7 +11130,10 @@ c
       return 
       end
       subroutine hnd_prp_get_dens(rtdb,basis,geom,
-     1                            da,db,d1nw,d2nw,scftyp)
+     1                            da,db,d1nw,d2nw,
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11129,6 +11148,8 @@ c     Assumes energy has been completed, MO vectors stored
 c     and all information is still in the RTDB
 c
       double precision da,db,d1nw,d2nw
+      integer               nclosed ,nopen ,nvirt 
+      integer               nclosedu,nopenu,nvirtu
 c
       logical  int_normalize
       external int_normalize
@@ -11162,12 +11183,18 @@ c
       call util_file_name_resolve(movecs_out, .false.)
 c
       call hnd_prp_dens_read(rtdb,basis,geom,movecs_in,
-     $                       da,db,d1nw,d2nw,scftyp)
+     1                       da,db,d1nw,d2nw,
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
 c
       return
       end
       subroutine hnd_prp_dens_read(rtdb,basis,geom,movecs,
-     $                             da,db,d1nw,d2nw,scftyp)
+     1                             da,db,d1nw,d2nw,
+     2                      scftyp,
+     3                      nclosed ,nopen ,nvirt ,
+     4                      nclosedu,nopenu,nvirtu)
       implicit none
 
 #include "mafdecls.fh"
@@ -11209,7 +11236,7 @@ c
       double precision da(*),db(*),d1nw(*),d2nw(*)
 c
       logical dbug
-      dbug=.false.
+      dbug=.true. 
 c
 c     get information about basis set
 c
@@ -11279,6 +11306,14 @@ C     eigenvalues
      $                           nbf_molec, nmo,g_molec)
       if (.not.status)
      $     call errquit('property: GA for molecular MOs',911)
+
+      if(dbug) then
+         write(6,*) 'in hnd_prop_dens_read'
+         write(6,*) 'scftype',scftype
+         write(6,*) 'nbf,nbf2',nbf,nbf2
+         write(6,*) 'nmo,ndens',nmo,ndens
+      endif
+
 c
 c     read ( alpha ) orbitals
 c
@@ -11337,6 +11372,14 @@ c     global density
      $              'density matrix' )
       enddo
 
+      if(dbug) then
+         write(6,*) 'in hnd_prop_dens_read'
+         write(6,*) 'scftype',scftype
+         write(6,*) 'nbf,nbf2',nbf,nbf2
+         write(6,*) 'nclosed,nopen',nclosed,nopen
+         write(6,*) 'nclosedu,nopenu',nclosedu,nopenu
+      endif
+
 c
       call hnd_prop_dens_make (geom, basis, g_dens, 
      $     dbl_mb(k_eval), dbl_mb(k_occ), ndens, nbf, nbf2, 
@@ -11394,7 +11437,15 @@ C     local variables
       logical status
 c
       logical dbug
-      dbug=.false.
+      dbug=.true. 
+
+      if(dbug) then
+         write(6,*) 'in hnd_prop_dens_make'
+         write(6,*) 'scftype',scftype
+         write(6,*) 'nbf,nbf2',nbf,nbf2
+         write(6,*) 'nclosed,nopen',nclosed,nopen
+         write(6,*) 'nclosedu,nopenu',nclosedu,nopenu
+      endif
 
 C  get MO vectors from file 
 
@@ -11414,7 +11465,7 @@ C  get MO vectors from file
         call errquit('prop_dens_make: could not read uhf vectors', 110)
         endif
       endif
-      
+
       if (scftype .eq. 'RHF') then
 c       density matrix
 
