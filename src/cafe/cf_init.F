@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta)
-c $Id: cf_init.F,v 1.27 1999-09-17 22:21:40 d3j191 Exp $
+c $Id: cf_init.F,v 1.28 1999-09-20 15:01:56 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -276,7 +276,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfndrs,ndrs
+      integer lfndrs
       integer idrs(ndrs,2)
       real*8 rdrs(ndrs,6)
 c
