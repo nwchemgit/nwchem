@@ -1,55 +1,34 @@
-C $Id: rel_onel.F,v 1.1 1998-09-23 22:26:14 mg201 Exp $
+C $Id: rel_onel.F,v 1.2 1998-09-24 19:00:13 mg201 Exp $
 ************************************************************************
-*                                                                      *
+c:tex-\subsection{rel\_onel}
+c:tex-This routine generates the modified one-electron integrals for
+c:tex-a relativistic basis set. These are the modified kinetic energy,
+c:tex-the modified (scalar) potential energy and the modified overlap,
+c:tex-\begin{eqnarray}
+c:tex-&& \tilde{T}_{ab} = T_{ab}^{LS} + T_{ab}^{SL} - T_{ab}^{SS} 
+c:tex- \nonumber \\ 
+c:tex-&& \tilde{V}_{ab} = V_{ab}^{LL} + {{\alpha^2}\over{4}}
+c:tex-   \nabla_A\cdot\nabla_B V_{ab}^{SS}
+c:tex- \nonumber \\ 
+c:tex-&& \tilde{S}_{ab} = S_{ab}^{LL} + {{\alpha^2}\over{2}} T_{ab}^{SS} 
+c:tex- \nonumber 
+c:tex-\end{eqnarray}
+c:tex-
+c:tex-\noindent Author: K. G. Dyall
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
       subroutine rel_onel (
      &       Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &       Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &       Cxyz,zan,nat,S,T,V,lstv,doStil,doTtil,doVtil,canAB,
      &       DryRun,scr,lscr,msg,ibug,ntyp)
-*                                                                      *
-*   Given the integrals for shifted angular momenta, assemble the      *
-*   small component potential energy integrals in the modified Dirac   *
-*   formalism. The output consists of the spin-free and spin-orbit     *
-*   integrals or the 3x3 array of gradient integrals.                  *
-*                                                                      *
-*   Argument (status) - description                                    *
-*                                                                      *
-*   Vpp (inp) - integrals for l_B+1, l_A+1                             *
-*   Vpm (inp) - integrals for l_B+1, l_A-1                             *
-*   Vmp (inp) - integrals for l_B-1, l_A+1                             *
-*   Vmm (inp) - integrals for l_B-1, l_A-1                             *
-*   Vrel (out) - final integral array                                  *
-*   ntyp (inp) - gives type of integral output, also acts as dimension *
-*                ntyp = 1 : scalar integrals only                      *
-*                ntyp = 3 : spin-orbit integrals only                  *
-*                ntyp = 4 : scalar and spin-orbit integrals            *
-*                ntyp = 9 : derivative integrals                       *
-*   l_A (inp) - angular momentum of functions on centre A              *
-*   np_A (inp) - number of cartesians for l_A+1                        *
-*   n_A (inp) - number of cartesians for l_A                           *
-*   nm_A (inp) - number of cartesians for l_A-1                        *
-*   n_cont_A (inp) - number of contracted functions on centre A        *
-*   l_B (inp) - angular momentum of functions on centre B              *
-*   np_B (inp) - number of cartesians for l_B+1                        *
-*   n_B (inp) - number of cartesians for l_B                           *
-*   nm_B (inp) - number of cartesians for l_B-1                        *
-*   n_cont_B (inp) - number of contracted functions on centre B        *
-*   DryRun (inp) - logical for dry run. If true, routine only returns  *
-*                  maximum scratch space needed, if false, integrals   *
-*                  are returned.                                       *
-*   scr (scr) - scratch array for work space                           *
-*   lscr (i/o) - length of scratch array. Value returned if DryRun is  *
-*                true, used as dimension if false.                     *
-*   ibug - debug flag. 0 for no debug, 1 for address printing, 2 for   *
-*          array printing, 3 for both.                                 *
-*                                                                      *
-*   Written by K. G. Dyall                                             *
-*                                                                      *
-************************************************************************
+c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "rel_consts.fh"
 *
+c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
       integer n_prim_A ! [input] num. prims in shell A
       integer n_cont_A ! [input] num general conts in shell A
@@ -62,61 +41,71 @@ c:tex-\begin{verbatim}
       integer nat      ! [input] number of atoms
       integer lscr     ! [input] size of scratch array
       integer lstv     ! [input] size of any integral buffer
-      double precision Axyz(3)  ! [input] position of center A
+      integer ibug    ! [input] debug variable
+      integer ntyp    ! [input] potential energy integral type
+      double precision Axyz(3)          ! [input] position of center A
       double precision zeta_A(n_prim_A) ! [input] exponents of shell A
       double precision coefL_A(n_prim_A,n_cont_A) ! [input] A large coeffs
       double precision coefS_A(n_prim_A,n_cont_A) ! [input] A small coeffs
-      double precision Bxyz(3)  ! [input] position of center B
-      double precision zeta_B(n_prim_B)  ! [input] exponents of shell B 
+      double precision Bxyz(3)          ! [input] position of center B
+      double precision zeta_B(n_prim_B) ! [input] exponents of shell B 
       double precision coefL_B(n_prim_B,n_cont_B)  ! [input] B large coeffs
       double precision coefS_B(n_prim_B,n_cont_B)  ! [input] B small coeffs
       double precision Cxyz(3,nat)  ! [input] all atom positions
-      double precision zan(nat)  ! [input] charges on all atoms
-      double precision scr(lscr)  ! [scratch] scratch buffers
-      double precision S(lstv)  ! [output] overlap integrals
-      double precision T(lstv)  ! [output] kinetic energy integrals
-      double precision V(lstv)  ! [output] potential integrals
-      logical doS     ! [input] compute overlap (True/False)
-      logical doT     ! [input] compute kinetic (True/False)
-      logical doV     ! [input] compute potential (True/False)
+      double precision zan(nat)     ! [input] charges on all atoms
+      double precision scr(lscr)    ! [scratch] scratch buffers
+      double precision S(lstv)      ! [output] overlap integrals
+      double precision T(lstv)      ! [output] kinetic energy integrals
+      double precision V(lstv,ntyp) ! [output] potential integrals
+      logical doStil     ! [input] compute modified overlap (True/False)
+      logical doTtil     ! [input] compute modified kinetic (True/False)
+      logical doVtil     ! [input] compute modified potential (True/False)
       logical canAB   ! [input] compute only canonical ints (false only)
       logical DryRun  ! [input] true means only compute required memory
       character*(*) msg ![input] calling func. identification message
-      integer ibug    ! [input] debug variable
-      integer ntyp    ! [input] potential energy integral type
 c:tex-\end{verbatim}
+c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
+c:tex-Note that in the current version of this routine, the call to rel_pot 
+c:tex-uses a dummy ntyp=1. It is kept in the input so that in future, the 
+c:tex-spin-orbit integrals can also be obtained with a call to this routine.
+c:tex-
+c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy 
 *
-      integer n_cart_a ! cartesian components of shell A
-      integer n_cart_b ! cartesian components of shell B
+      integer n_cart_a  ! cartesian components of shell A
+      integer n_cart_b  ! cartesian components of shell B
       integer n_cart_ab ! n_cart_a*n_cart_b
       integer n_cont_ab ! n_cont_a*n_cont_b
-      integer n_all_b ! n_cart_b*n_cont_b
-      integer n_all_a ! n_cart_a*n_cont_a
-      integer n_ab ! number of integrals
+      integer n_all_b   ! n_cart_b*n_cont_b
+      integer n_all_a   ! n_cart_a*n_cont_a
+      integer n_ab      ! number of integrals
       integer n_cartp_a ! cartesian components for l_A+1
       integer n_cartp_b ! cartesian components for l_B+1
       integer n_cartm_a ! cartesian components for l_A-1
       integer n_cartm_b ! cartesian components for l_B-1
-      integer n_intpp ! number of integrals for l_A+1,l_B+1
-      integer n_intpm ! number of integrals for l_A-1,l_B+1
-      integer n_intmp ! number of integrals for l_A+1,l_B-1
-      integer n_intmm ! number of integrals for l_A-1,l_B-1
-      integer i_xca ! address in scr of exp*coef for shell A
-      integer i_xcb ! address in scr of exp*coef for shell B
-      integer i_pp ! address in scr of integrals for l_A+1,l_B+1
-      integer i_pm ! address in scr of integrals for l_A-1,l_B+1
-      integer i_mp ! address in scr of integrals for l_A+1,l_B-1
-      integer i_mm ! address in scr of integrals for l_A-1,l_B-1
-      integer i_scr ! address of free space in scr
-      integer memscr ! free space in scr
-      integer max_mem ! maximum memory used
-      integer i,j,k ! loop indices etc.
+      integer n_intpp   ! number of integrals for l_A+1,l_B+1
+      integer n_intpm   ! number of integrals for l_A-1,l_B+1
+      integer n_intmp   ! number of integrals for l_A+1,l_B-1
+      integer n_intmm   ! number of integrals for l_A-1,l_B-1
+      integer i_xca     ! address in scr of exp*coef for shell A
+      integer i_xcb     ! address in scr of exp*coef for shell B
+      integer i_pp      ! address in scr of integrals for l_A+1,l_B+1
+      integer i_pm      ! address in scr of integrals for l_A-1,l_B+1
+      integer i_mp      ! address in scr of integrals for l_A+1,l_B-1
+      integer i_mm      ! address in scr of integrals for l_A-1,l_B-1
+      integer i_scr     ! address of free space in scr
+      integer memscr    ! free space in scr
+      integer max_mem   ! maximum memory used
+      integer i,j,k     ! loop indices etc.
+      integer ntyptmp   ! temporary value of ntyp, set to 1.
       double precision one ! Obvious!
       parameter (one = 1.0D0)
 *
-      logical debug_gen ! do general debug printing
+      logical debug_gen       ! do general debug printing
       logical debug_addresses ! do address debug printing
-      logical debug_arrays ! do array debug printing
+      logical debug_arrays    ! do array debug printing
+      logical doS     ! compute overlap (True/False)
+      logical doT     ! compute kinetic (True/False)
+      logical doV     ! compute potential (True/False)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -142,9 +131,9 @@ c:tex-\end{verbatim}
 *
 *   Calculate large component overlap and nuclear attraction integrals
 *
-      doS = .true.
+      doS = doStil
       doT = .false.
-      doV = .true.
+      doV = doVtil
       memscr = lscr
       call int_hf1sp(
      &       Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
@@ -155,35 +144,42 @@ c:tex-\end{verbatim}
 *
 *   Calculate kinetic energy integrals, correction to overlaps
 *
-      doS = .false.
-      doT = .true.
-      doV = .false.
-      call int_hf1sp(
-     &       Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &       Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
-     &       DryRun,scr,memscr,msg)
-      if (DryRun) max_mem = max(max_mem,memscr)
-      call int_hf1sp(
-     &       Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &       Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,nat,S,scr,V,lstv,doS,doT,doV,canAB,
-     &       DryRun,scr(n_ab+1),memscr,msg)
-      if (DryRun) then
-        max_mem = max(max_mem,memscr+n_ab)
-      else
-        call daxpy (n_ab,one,scr,1,T,1)
+      if (doTtil) then
+        doS = .false.
+        doT = .true.
+        doV = .false.
+        call int_hf1sp(
+     &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &      Cxyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &      DryRun,scr,memscr,msg)
+        if (DryRun) max_mem = max(max_mem,memscr)
+        call int_hf1sp(
+     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &      Cxyz,zan,nat,S,scr,V,lstv,doS,doT,doV,canAB,
+     &      DryRun,scr(n_ab+1),memscr,msg)
+        if (DryRun) then
+          max_mem = max(max_mem,memscr+n_ab)
+        else
+          call daxpy (n_ab,one,scr,1,T,1)
+        end if
       end if
-      call int_hf1sp(
-     &       Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
-     &       Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &       Cxyz,zan,nat,S,scr,V,lstv,doS,doT,doV,canAB,
-     &       DryRun,scr(n_ab+1),memscr,msg)
-      if (DryRun) then
-        max_mem = max(max_mem,memscr+n_ab)
-      else
-        call daxpy (n_ab,-one,scr,1,T,1)
-        call daxpy (n_ab,halsq,scr,1,S,1)
+      if (doStil .or. doTtil) then
+        doS = .false.
+        doT = .true.
+        doV = .false.
+        call int_hf1sp(
+     &      Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
+     &      Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
+     &      Cxyz,zan,nat,S,scr,V,lstv,doS,doT,doV,canAB,
+     &      DryRun,scr(n_ab+1),memscr,msg)
+        if (DryRun) then
+          max_mem = max(max_mem,memscr+n_ab)
+        else
+          if (doTtil) call daxpy (n_ab,-one,scr,1,T,1)
+          if (doStil) call daxpy (n_ab,halsq,scr,1,S,1)
+        end if
       end if
 *
 *   Generate small component potential arrays
@@ -191,6 +187,8 @@ c:tex-\end{verbatim}
 *
 *   Set up pointers to scratch space for coefficients multiplied by 
 *   exponents and for integrals with shifted l values
+*
+      if (.not.doVtil) return
 *
       n_cartp_a = n_cart_a+l_A+2
       n_cartp_b = n_cart_b+l_B+2
@@ -290,10 +288,12 @@ c:tex-\end{verbatim}
       end if
 *
 *     Compute only the scalar relativistic integrals; can do others
-*     later.
+*     later. To do this, simply remove the next statement and change
+*     ntyptmp to ntyp in the call to rel_pot. Then the type of integral
+*     will be controlled by ntyp.
 *
-      ntyp = 1
-      call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),scr,ntyp,
+      ntyptmp = 1
+      call rel_pot (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),scr,ntyptmp,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,n_cont_A,
      &    l_B,n_cartp_b,n_cart_b,n_cartm_b,n_cont_B,
      &    DryRun,scr(i_scr),memscr,ibug)
