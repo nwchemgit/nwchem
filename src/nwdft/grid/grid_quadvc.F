@@ -12,7 +12,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d,triplet)
-C$Id: grid_quadvc.F,v 1.15 2003-01-03 22:43:14 edo Exp $
+C$Id: grid_quadvc.F,v 1.16 2003-01-03 22:48:29 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -59,7 +59,7 @@ c
       if (xcfit) then
          if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
-     &        call errquit('grid_quadv0a: cannot allocate bas_cent_info',0)
+     &        call errquit('grid_quadvc: cannot alloc bas_cent_info',0)
       if (.not.bas_numcont(AO_bas_han, ncontrsetx))
      &     call errquit('Exiting in grid_quadv0a',0)
       if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_info',
