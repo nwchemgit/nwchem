@@ -13,9 +13,9 @@ The changes for version 4.1 are listed at the bottom of this file.
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
 
-  o HESSIAN: This module controls the analytic hessian calculation
-  o DIRDYVTST: The DIRect Dynamics for Variational Transition State Theory
-  o BAND: Prototype Band structure code
+  o HESSIAN: This module controls the analytic hessian calculation.
+  o DIRDYVTST: The DIRect Dynamics for Variational Transition State Theory.
+  o BAND: Prototype Band structure code.
   o 
   o 
 
@@ -24,10 +24,17 @@ information.
 
 Additional major additions to the capabilities include: 
 
-  o The AUTOSYM directive in the GEOMETRY group is now ON by default.
+  o The AUTOSYM directive in the GEOMETRY group is now ON by default, except
+    for atoms.
   o NBO 5.0 is now available.
   o A limited memory BFGS minimization has been added to the PSPW code.
-  o 
+  o New density functionals, B97-2, HCTC P1/4, OPTX, and OPTC, have been added.
+  o A robust algorithm of eliminating linear dependence in basis functions
+    has been implemented in DFT.
+  o A new SCF convergence scheme based on fractional occupation numbers has
+    been implemented in DFT (with keyword SMEAR).
+  o DFT allows fixed fractional occupation numbers via a keyword FON.
+  o Wildcard "*" can be used in basis set, ECP, SO basis set input.
   o 
 
 Again, for each of these capabilities, the user is referred to the User Manual 
@@ -46,11 +53,12 @@ Top level directives:
   o BUG FIX: Problems on some platforms with a title longer than 80
     characters has been fixed.
   o BUG FIX: TASK SHELL now returns properly for DECOSF.
-  o 
+  o The amount of memory (in MB) per node that is consumed by OS may 
+    now be supplied.
 
 Initial orbital Guess: 
 
-  o 
+  o Maximum number of fragment systems has been increased to 60.
   o 
   o 
 
@@ -63,23 +71,51 @@ Basis Sets:
     keyword is introduced. Other new tags possibe are bq* and <tag string>*.
   o Basis set library file has been split into one file per basis set to allow
     for easier access. These files are located in the directory "libraries".
+  o Blanks (spaces) in basis set names have been replaced by underscores.
+  o BUG FIX: An error in Ne DGauss_A1_DFT_Exchange_Fitting has been corrected. 
 
 Geometry: 
 
-  o The AUTOSYM directive has been improved and is now ON by default.
-  o 
-  o 
+  o The AUTOSYM directive has been improved and is now ON by default, except
+    for atoms.
+  o BUG FIX: AUTOSYM now uses tags instead of nuclear charges to judge
+    symmetrical equivalence of atoms.
+  o BUG FIX: Geometries with collinear atoms are now detected and processed 
+    correctly.
+  o BUG FIX: Overflow problem during the determination of rotational axes
+    has been fixed.
+  o BUG FIX: AUTOSYM now works for Ih and Oh symmetries.
 
 DFT: 
 
-  o BUG FIX: DFT Open-shell calculations with the Exchange functions xpbe96
+  o New density functionals, B97-2, HCTC P1/4, OPTX, and OPTC, have been added.
+  o A robust algorithm of eliminating linear dependence in basis functions
+    has been implemented.
+  o A new SCF convergence scheme based on fractional occupation numbers has
+    been implemented (with keyword SMEAR).
+  o Allows fixed fractional occupation numbers via a keyword FON.
+  o The default value of the Schwartz screening tolerance has been raised from
+    1E-10 to 1E-8 (accCoul = 8).
+  o Threshold for level shifting has been decreased from 0.05 to 0.01.
+  o Symmetry can be turned on and off in Lebedev grids via keywords SYMM and 
+    NOSYMM.
+  o Spatial symmetry breaking of orbitals for open-shell systems is checked.
+  o BUG FIX: Problems with reusing a quadrature grid have been fixed.
+  o BUG FIX: Restart problem when linear dependence in the basis functions is
+    present has been fixed.
+  o BUG FIX: DFT open-shell calculations with the exchange functions xpbe96
     and xperdew91 now give correct gradients.
   o BUG FIX: Restart calculations now work under NQE or NQS.
   o BUG FIX: DFT calculations now work when the molecule contains ghost atoms.
   o BUG FIX: Bug introduced in 4.0.1 which produced nonsense numbers for
     very large SCF and DFT calculations has been fixed.
   o BUG FIX: Convergence of COSMO for UDFT has been improved.
-  o KNOWN BUG: In a sequence of calculations in one input deck (using
+  o BUG FIX: Level shifting can now be invoked when MO vectors are retrieved
+    from a file.
+  o BUG FIX: Problems with negative electron density and other unstable 
+    floating-point operations in some density functionals have been fixed.
+  o BUG FIX: LOCK keyword (in VECTOR directive) will now work.
+  o KNOWN PROBLEM: In a sequence of calculations in one input deck (using
     the same geometry and basis set) if the Hamiltonian gets changed (by
     adding relativistic operators or COSMO) in the subsequent calculation
     the vectors are assumed to be converged. This is not correct as the 
@@ -89,14 +125,18 @@ SCF:
 
   o BUG FIX: Bug introduced in 4.0.1 which produced nonsense numbers for
     very large SCF and DFT calculations has been fixed.
-  o KNOWN BUG: In a sequence of calculations in one input deck (using
+  o KNOWN PROBLEM: In a sequence of calculations in one input deck (using
     the same geometry and basis set) if the Hamiltonian gets changed (by
     adding relativistic operators or COSMO) in the subsequent calculation
     the vectors are assumed to be converged. This is not correct as the 
     Hamiltonian changed. 
 
 COSMO:
+  
+  o By default, induced charges will not be re-scaled (ifscrn = 2).
   o BUG FIX: Make COSMO gradients always go numerically.
+  o KNOWN PROBLEM: No ECP can be used with COSMO.
+  o KNOWN PROBLEM: No spherical Gaussian basis set can be used with COSMO.
 
 Driver: 
 
@@ -108,14 +148,20 @@ Properties:
 
   o BUG FIX: Segmentation violations in large property calculations have been
     fixed.
-  o 
-  o 
+  o BUG FIX: SIGFPE problems on Linux have been fixed.
+  o KNOWN PROBLEM: Electrostatic potential (ESP) not available for UHF.
 
 MP2: 
 
+  o Singlet and triplet pair contributions to MP2 correlation energies are
+    now printed separately. 
+  o BUG FIX: Problem with numerical gradients of direct MP2 energies has been
+    fixed.
   o 
-  o 
-  o 
+
+RI-MP2:
+
+  o Improved performance with new data parallel routines.
 
 MCSCF:
 
@@ -123,21 +169,21 @@ MCSCF:
 
 Hessian and Frequencies: 
 
-  o 
+  o BUG FIX: ANIMATE directive is now processed correctly.
   o 
   o 
 
 PSPW:
 
-  o Improved user interface
+  o Improved user interface.
   o Conjugate gradient optimization has been improved.
-  o Psuedopotential library
-  o Automated psuedopontential formatting
-  o Automated wavefunction initial guess, now with LCAO
-  o Automated conversion between small and large plane-wave expansions
-  o Fixed atoms in cartesian and SHAKE constraints in Car-Parrinello
-  o Polarization through the use of point charges
-  o DPLOT available during Car-Parrinello simulations
+  o Psuedopotential library.
+  o Automated psuedopontential formatting.
+  o Automated wavefunction initial guess, now with LCAO.
+  o Automated conversion between small and large plane-wave expansions.
+  o Fixed atoms in cartesian and SHAKE constraints in Car-Parrinello.
+  o Polarization through the use of point charges.
+  o DPLOT available during Car-Parrinello simulations.
   o BUG FIX: Ewald sum for irregular shaped unit cells is now correct.
 
 Prepare:
@@ -161,8 +207,19 @@ Analysis:
 Integral changes: 
 
   o Third-order Douglas-Kroll (DK3) integrals have been added.
-  o 
-  o 
+  o Default value for integral screening threshold (tol2e) has been raised from
+    1E-10 to 1E-8.
+  o Texas integral routine will be invoked in DFT.
+  o Texas integral routine will be invoked for three-center electron-repulsion
+    integrals evaluation.
+  o BUG FIX: An error in the transformation from Cartesian to spherical Gaussian
+    basis of integral second derivatives has been fixed.
+
+Effective core potentials:
+
+  o ECP integral evaluation has been accerelated by virtue of spatial symmetry.
+  o BUG FIX: Wrong numbers of core electrons in LANL2DZ ECP have been corrected.
+  o BUG FIX: Unstable floating-point operations have been removed.
 
 Relativistic:
  
@@ -171,10 +228,17 @@ Relativistic:
 
 DPLOT:
 
+  o DPLOT available during Car-Parrinello simulations.
   o BUG FIX: Vectors directive now picks up the vectors correctly.
   o BUG FIX: Negative spin densities are now correctly calculated for
     DFT wavefunctions.
   o 
+
+PYTHON:
+
+  o A python script that generates Coulomb fitting basis sets for atoms, diatomic
+    hydride and fluoride molecules has been added.
+  o BUG FIX: Linker now links the latest version of python.
 
 Tests, manuals and misc script changes: 
 
@@ -227,4 +291,10 @@ http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
 
 A list of Known Bugs is available at
 http://www.emsl.pnl.gov:2080/docs/nwchem/support/known_bugs.4.1.html
+
+
+
+
+
+
 
