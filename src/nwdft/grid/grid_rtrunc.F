@@ -226,7 +226,7 @@ c
             endif
             if(abs(s_max).gt.ov_trunc) then
                write(0,*) ' atom ',iat,' - neighbor  & S ',jat,s_max
-               range=grid_rnegl(l_iat+l(jat),exp_iat+expo(jat),
+               range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
      .              my_acc) 
 c
 c     bit to add from gaussian product formula
@@ -296,7 +296,7 @@ c
                min_exp = min(zprim(iprimo),min_exp)
             enddo
 C            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
-            range = grid_rnegl(l+l, min_exp+min_exp, job_grid_acc)
+            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
             if(range.gt.range_max) then
                range_max =  range
                cs(iat)=icset
