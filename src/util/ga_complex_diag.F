@@ -254,13 +254,14 @@ c
      $        'ga_diag_comp: pdcomplex info non-zero ', info)
       endif
 c     
-c to reduce out of order message problems between ga and non-ga process
-c
+c     to reduce out of order message problems between ga and non-ga process
+c     
 c     
       call ga_sync
 c     
 c***  store the eigenvector matrix in global array g_vr and g_vc
 c     
+      n = nn
       if (oactive) then
          istart = 0
          do k = 1, n
