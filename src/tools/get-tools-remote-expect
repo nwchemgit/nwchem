@@ -1,6 +1,6 @@
 #!/bin/env expect
 #
-# $Id: get-tools-remote-expect,v 1.1 1999-06-05 00:58:40 d3e129 Exp $
+# $Id: get-tools-remote-expect,v 1.2 1999-07-15 01:05:44 d3e129 Exp $
 #
 send_user "We need three pieces of information to check out the code:\n"
 send_user " 1) the hostname which will be used to check out the tools (e.g., fermi.emsl.pnl.gov) \n"
@@ -20,19 +20,19 @@ set password [string trimright $expect_out(buffer) "\n"]
 send_user "hostname is :$hostname \n"
 send_user "user-id  is :$userid \n"
 set myexpectstring [format "%s%s%s" $userid "@" $hostname ]
-send_user "myexpectstring is $myexpectstring \n"
+send_user "acount for ssh is $myexpectstring \n"
 set timeout -1
 spawn csh 
 send "set prompt = 'expect_script% ' \r"
 expect -re ".*expect_script.*"
 expect -re ".*expect_script.*"
 sleep 1
-send "ls -l \r"
-sleep 1
-expect -re ".*expect_script.*"
-set timeout -1
-send "date;date;date \r"
-expect -re ".*expect_script.*"
+#send "ls -l \r"
+#sleep 1
+#expect -re ".*expect_script.*"
+#set timeout -1
+#send "date;date;date \r"
+#expect -re ".*expect_script.*"
 send "mv CVS CVS0 \r"
 expect -re ".*expect_script.*"
 send "setenv CVS_RSH ssh \r"
