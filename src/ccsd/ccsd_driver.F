@@ -165,7 +165,8 @@ c Maximum number of operator matrices we can allocate
 c
        nocct = (nocc_correl*(nocc_correl+1))/2
        if ((ocoul).and.(oexch)) nocct = 2*nocct
-       max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2, blen)
+       max_noper = moints_numoper( basis, algo, nbf, nocc, nmo2,
+     $                             blen, .false.)
 C       MAX_NOPER = 10
 capr change gt to ge
        if (max_noper.ge.nocct) then
