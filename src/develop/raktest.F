@@ -1,10 +1,14 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.77 1998-02-27 04:30:59 d3e129 Exp $
+c $Id: raktest.F,v 1.78 1998-03-18 18:25:13 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "global.fh"
+#include "stdio.fh"
+c::functions
+      logical task_computeSld
+      external task_computeSld
 c::passed
       integer rtdb          ! rtdb handle
 c::local
@@ -22,71 +26,76 @@ c
       me = ga_nodeid()
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
      &    00090, 00100, 00110, 00120, 00130, 00140, 00150,
-     &    00160, 00170) raktask
+     &    00160, 00170, 00180) raktask
 c
       if (me.eq.0) then
-        write(6,*)' default raktest task '
-        write(6,*)' test semi empirical interface '
+        write(luout,*)' default raktest task '
+        write(luout,*)' test semi empirical interface '
       endif
       call raktest_semi(rtdb)
       goto 00001
 c
-00010 if (me.eq.0)write(6,*)' raktest task 1 stepper test'
+00010 if (me.eq.0)write(luout,*)' raktest task 1 stepper test'
       call raktest_stpr(rtdb)
       goto 00001
-00020 if (me.eq.0)write(6,*)' raktest task 2 check int_init'
+00020 if (me.eq.0)write(luout,*)' raktest task 2 check int_init'
       call raktest_init(rtdb)
       goto 00001
-00030 if (me.eq.0)write(6,*)' raktest task 3 check intd_init'
+00030 if (me.eq.0)write(luout,*)' raktest task 3 check intd_init'
       call raktest_initd(rtdb)
       goto 00001
-00040 if (me.eq.0)write(6,*)' raktest check 3ctr nai'
+00040 if (me.eq.0)write(luout,*)' raktest check 3ctr nai'
       call raktest_3ctr(rtdb)
       goto 00001
-00050 if (me.eq.0)write(6,*)' test of general contraction code '
+00050 if (me.eq.0)write(luout,*)' test of general contraction code '
       call raktest_gc(rtdb)
       goto 00001
-00060 if (me.eq.0)write(6,*)' test of orbital printing code '
+00060 if (me.eq.0)write(luout,*)' test of orbital printing code '
       call raktest_printorb(rtdb)
       goto 00001
-00070 if (me.eq.0)write(6,*)' test of writing geom objects out '
+00070 if (me.eq.0)write(luout,*)' test of writing geom objects out '
       call raktest_geomwrt(rtdb)
       goto 00001
-00080 if (me.eq.0)write(6,*)' test of spcart stuff '
+00080 if (me.eq.0)write(luout,*)' test of spcart stuff '
       call raktest_spcart(rtdb)
       goto 00001
-00090 if (me.eq.0)write(6,*)' test of spcart stuff all in one'
+00090 if (me.eq.0)write(luout,*)' test of spcart stuff all in one'
       call raktest_test9(rtdb)
       goto 00001
-00100 if (me.eq.0)write(6,*)' test of ecp stuff '
+00100 if (me.eq.0)write(luout,*)' test of ecp stuff '
       call raktest_ecp(rtdb)
       goto 00001
-00110 if (me.eq.0)write(6,*)' bug in integrals test '
+00110 if (me.eq.0)write(luout,*)' bug in integrals test '
       call raktest_bug(rtdb)
       goto 00001
-00120 if (me.eq.0)write(6,*)' geometry printing routines '
+00120 if (me.eq.0)write(luout,*)' geometry printing routines '
       call raktest_geomprt(rtdb)
       goto 00001
-00130 if (me.eq.0)write(6,*)' test 3 center derivatives '
+00130 if (me.eq.0)write(luout,*)' test 3 center derivatives '
       call raktest_3cd(rtdb)
       goto 00001
-00140 if (me.eq.0)write(6,*)' test derivative overlap '
+00140 if (me.eq.0)write(luout,*)' test derivative overlap '
       call raktest_ovd(rtdb)
       goto 00001
-00150 if (me.eq.0)write(6,*)
+00150 if (me.eq.0)write(luout,*)
      &    ' test blocking 2e derivative integral interface'
       call raktest_bd2e(rtdb)
       goto 00001
-00160 if (me.eq.0)write(6,*)' raktest: disk test code '
+00160 if (me.eq.0)write(luout,*)' raktest: disk test code '
       call raktest_diskspeed(rtdb)
       goto 00001
-00170 if (me.eq.0)write(6,*)
+00170 if (me.eq.0)write(luout,*)
      &    ' raktest: compare 2e integrals from nwchem & texas'
       call raktest_2ecompare(rtdb)
       goto 00001
+00180 if (me.eq.0)write(luout,*)
+     &    ' raktest: compute overlap and linear dependence '
+      raktest = task_computeSld(rtdb)
+      goto 00002
 c
 00001 continue
       raktest = .true.
+00002 continue
       end
       subroutine raktest_geomwrt(rtdb)
       implicit none
