@@ -14,14 +14,14 @@
 OBJ_OPTIMIZE = \
 	      moints_2x.o \
               moints_6x.o \
-              moints_aux1.o 
+              moints_aux2.o 
 
     LIBRARY = libmoints.a
 
   USES_BLAS = \
 	      moints_2x.F \
               moints_6x.F \
-              moints_aux1.F 
+              moints_aux2.F 
 
 LIB_DEFINES =  -DDEBUG_PRINT
 
