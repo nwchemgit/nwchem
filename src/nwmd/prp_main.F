@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.69 2002-02-16 04:57:16 d3j191 Exp $
+c $Id: prp_main.F,v 1.70 2002-04-17 23:42:26 d3j191 Exp $
 c
       implicit none
 c
@@ -124,6 +124,9 @@ c
     7 continue
 c
       if(me.eq.0) then
+c
+      if(ntype.eq.0) call sp_gettp(temp,pres)
+c
       p(1)=dble(mdstep)
       p(2)=stime
       endif

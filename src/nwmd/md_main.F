@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.125 2002-04-12 23:03:47 d3j191 Exp $
+c $Id: md_main.F,v 1.126 2002-04-17 23:42:26 d3j191 Exp $
 c
       implicit none
 c
@@ -190,7 +190,10 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box)
 c
-      call prp_print()
+      call prp_step(import,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),dbl_mb(i_esk),epme,uqmd,uqmmm)
+c
+cx      call prp_print()
 c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
 c
@@ -199,11 +202,11 @@ c
 c
 c     print energies
 c
-      call cf_print_energy(lfnout)
-      if(me.eq.0.and.frequency(import,nfprop)) call prp_record()
+cx      call cf_print_energy(lfnout)
+cx      if(me.eq.0.and.frequency(import,nfprop)) call prp_record()
 c
-      call sp_printf(lfnout,filtop,lfntop,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
+cx      call sp_printf(lfnout,filtop,lfntop,
+cx     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       if(ifidi.ne.0) then
       call md_fd(int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_fs),
@@ -2355,7 +2358,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.125 2002-04-12 23:03:47 d3j191 Exp $
+c $Id: md_main.F,v 1.126 2002-04-17 23:42:26 d3j191 Exp $
 c
       implicit none
 c

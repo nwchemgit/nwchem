@@ -1,10 +1,10 @@
-      subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
+      subroutine prp_start(nseri,ntyp,nftri,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,llpstep,llpener,npstti,
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.47 2002-04-12 23:03:47 d3j191 Exp $
+c $Id: prp_init.F,v 1.48 2002-04-17 23:42:26 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer nserie,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi
+      integer nseri,ntyp,lfn,iout,iprp,igib,iprf,ndistr,nbiasi,nftri
       integer nwmtot,msfi,nsfi,nsai,mpei,nf1,nf2,nf3,npenrg,npstti
       integer mdacq,mrn,ipset,isetp1,isetp2,msmi,nsmi,npmf
       logical lcf,lsp,ltwn,lpol,lpme,llpener,llpstep,lpbc
@@ -26,6 +26,9 @@ c
       np=ga_nnodes()
 c
       ntype=ntyp
+      nserie=nseri
+c
+      limport=nserie.eq.0.and.nftri.gt.0
 c
       lfnout=iout
       lfnprp=iprp
@@ -73,9 +76,9 @@ c
     1 continue
 c
       pronam(  1)='Step                                              '
-      lp(1)=ntype.gt.1.or.ntype.eq.0
+      lp(1)=ntype.gt.1.or.limport
       pronam(  2)='Time                                            ps'
-      lp(2)=ntype.gt.1.or.ntype.eq.0
+      lp(2)=ntype.gt.1.or.limport
       pronam(  3)='Number solvent-solvent interactions SR            '
       lp(3)=nwm.gt.0
       pronam(  4)='Number solvent-solvent interactions LR            '

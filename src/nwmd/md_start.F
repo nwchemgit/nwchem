@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.120 2002-04-12 23:03:47 d3j191 Exp $
+c $Id: md_start.F,v 1.121 2002-04-17 23:42:26 d3j191 Exp $
 c
       implicit none
 c
@@ -62,7 +62,7 @@ c
 c     start the property API
 c     ----------------------
 c
-      call prp_start(nserie,ntype,lfnrst,filrst,lfnout,lfnprp,
+      call prp_start(nserie,ntype,nftri,lfnrst,filrst,lfnout,lfnprp,
      + lfngib,nfoutp,nfstat,nfprop,
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,npstat,
