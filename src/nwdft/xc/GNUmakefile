@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.91 2004-08-26 23:26:57 edo Exp $
+# $Id: GNUmakefile,v 1.92 2004-09-01 22:30:47 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -27,7 +27,7 @@
 	xc_vwn_4.o \
 	xc_vwn_5.o \
 	xc_eval_fnl.o xc_fd.o xc_pbe96.o  \
-	xc_hcth.o  xc_xpbe96.o xc_ssw.o  xc_xpw91.o xc_tarad.o xc_murakn.o \
+	xc_hcth.o  xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o \
 	xc_signf.o  xc_gill96.o  xc_xmpw91.o  xc_xpkzb99.o \
 	xc_cpkzb99.o   xc_cMpbe96.o xc_xtpss03.o xc_ctpss03.o \
 	xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o \
