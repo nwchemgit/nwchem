@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.99 1999-06-03 21:58:36 d3g681 Exp $
+C     $Id: geom_input.F,v 1.100 1999-06-04 00:09:32 d3e129 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -954,10 +954,10 @@ c$$$      endif
 c
 c     what the %^$#! is this shit? Passing input via common ?????
 c
-      nat = 9999999999
+      nat   = 999999999
       nzmat = 888888888
       nzvar = 777777777
-      nvar = 666666666
+      nvar  = 666666666
 c
 c$$$      nat=ncenter
 c$$$      do i=1,ncenter
