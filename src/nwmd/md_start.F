@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.166 2004-11-09 15:29:39 d3j191 Exp $
+c $Id: md_start.F,v 1.167 2005-01-08 19:29:00 d3j191 Exp $
 c
       implicit none
 c
@@ -1915,12 +1915,12 @@ c
 #include "md_common.fh"
 #include "global.fh"
 c
-      write(*,1000) npg
- 1000 format(' The number of processor groups requested is ',i5)
-      write(*,1001) ga_pgroup_get_world()
- 1001 format(' The world group handle is ',i5)
-      write(*,1002) ga_pgroup_get_default()
- 1002 format(' The default group handle is ',i5)
+c      write(*,1000) npg
+c 1000 format(' The number of processor groups requested is ',i5)
+c      write(*,1001) ga_pgroup_get_world()
+c 1001 format(' The world group handle is ',i5)
+c      write(*,1002) ga_pgroup_get_default()
+c 1002 format(' The default group handle is ',i5)
 c
       return
       end
