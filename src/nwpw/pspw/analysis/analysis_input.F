@@ -1,6 +1,6 @@
       subroutine analysis_input(rtdb)
 c
-c $Id: analysis_input.F,v 1.2 2001-11-11 01:29:07 bylaska Exp $
+c $Id: analysis_input.F,v 1.3 2002-01-14 17:57:00 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -11,14 +11,16 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 3)
+      parameter (num_dirs = 5)
       integer lorb
  
       character*30 dirs(num_dirs)
       character*255 test
 
       data dirs / 'psp_filename:',
-     >            'max_orbital:',
+     >            'psp_filename',
+     >            'max_orbital:', 
+     >            'max_orbital',
      >            'end'/
 
       lorb = -1
@@ -34,7 +36,7 @@ c
      >           'analysis_input: unknown directive', 0)
 
 
-      goto ( 100, 200,
+      goto ( 100,100, 200,200,
      >      9999) ind
       call errquit(
      >   'analysis_input: unimplemented directive', ind)
