@@ -245,8 +245,7 @@ c
 c     MD
 c
   130    continue
-         write(6,*) 'MD not linked into this executable'
-C        call mdmain(rtdb)
+         call mdmain(rtdb)
          goto 1000
 c
 c     dft gradient
