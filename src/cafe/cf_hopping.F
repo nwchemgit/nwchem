@@ -1,6 +1,6 @@
       logical function cf_hopping(issgm,isgan,ishop,xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.3 2003-08-07 03:40:58 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.4 2003-08-07 04:01:28 d3j191 Exp $
 c
       implicit none
 c
@@ -82,7 +82,7 @@ c
       do 4 j=1,10
       lda(j,i+ioff)=lda(j,i)
     4 continue
-      do 5 j=1,3
+      do 5 j=1,5
       rda(j,i+ioff)=rda(j,i)
     5 continue
     3 continue
@@ -90,7 +90,7 @@ c
       do 7 j=1,10
       lda(j,i)=0
     7 continue
-      do 8 j=1,3
+      do 8 j=1,5
       rda(j,i)=0.0d0
     8 continue
     6 continue
@@ -100,7 +100,7 @@ c
       do 10 j=1,10
       lda(j,i)=0
    10 continue
-      do 11 j=1,3
+      do 11 j=1,5
       rda(j,i)=0.0d0
    11 continue
     9 continue
