@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.267 1998-08-28 00:13:42 d3g270 Exp $
+# $Id: makefile.h,v 1.268 1998-09-02 22:26:04 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -848,9 +848,9 @@ ifeq ($(TARGET),SP1)
 
 LARGE_FILES = YES
 
-  LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+  LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map -L$(LIBDIR) 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90 -lm -qEXTNAME -qnosave -g -bloadmap:nwchem_map -L$(LIBDIR) 
+  LDOPTIONS = -lxlf90 -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map -L$(LIBDIR) 
 endif
 
    LINK.f   = mpxlf -qnohpf $(LDOPTIONS)
@@ -955,10 +955,10 @@ ifeq ($(TARGET),LAPI)
 LARGE_FILES = YES
 
 ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
+  LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map -L$(LIBDIR) 
    LINK.f   = mpxlf_r   $(LDOPTIONS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bloadmap:nwchem.lapi_map -L$(LIBDIR)
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map -L$(LIBDIR)
    LINK.f   = mpcc_r   $(LDOPTIONS)
 endif
    FOPTIONS = -qEXTNAME -qnosave
