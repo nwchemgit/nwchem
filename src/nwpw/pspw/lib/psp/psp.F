@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.7 2003-06-07 17:04:17 bylaska Exp $
+* $Id: psp.F,v 1.8 2003-06-30 18:02:56 bylaska Exp $
 *
 
 #define TCGMSG
@@ -982,7 +982,7 @@ c     integer    lmmax(nkatmx)
 *     *** local variables ***
       integer nfft3d,G(3),npack1
       integer i,ii,ia,l,n,nn
-      real*8  omega
+      real*8  omega,scal
       complex*16 ctmp
       integer exi(2),vtmp(2),xtmp(2),sw1(2),sum(2)
       integer Gx(2),Gy(2),Gz(2)
@@ -1115,10 +1115,25 @@ c     >                      dbl_mb(sw1(1)))
              dbl_mb(sw1(1)+n-1+(l-1)*nn) = dbl_mb(sw1(1)+n-1+(l-1)*nn) !// change
      >                      /(omega*dbl_mb(vnlnrm(1)
      >                         +(l-1)+(ia-1)*lmmax_max))
-             call Pack_cc_daxpy(1,(-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
-     >                          dcpl_mb(vtmp(1)),
-     >                          psi2(1+(n-1)*npack1)) 
+c            call Pack_cc_daxpy(1,(-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
+c    >                          dcpl_mb(vtmp(1)),
+c    >                          psi2(1+(n-1)*npack1)) 
+             call daxpy((2*npack1),
+     >                  (-dbl_mb(sw1(1)+n-1+(l-1)*nn)),
+     >                  dcpl_mb(vtmp(1)),1,
+     >                  psi2(1+(n-1)*npack1),1) 
           end do
+
+c         scal = 1.0d0/(omega*dbl_mb(vnlnrm(1)+(l-1)+(ia-1)*lmmax_max))
+c         call dscal(nn,scal,dbl_mb(sw1(1)+(l-1)*nn),1)
+c         call DGEMM('N','T',(2*npack1),nn,1,
+c    >             (-1.0d0),
+c    >             dcpl_mb(vtmp(1)),(2*npack1),
+c    >             dbl_mb(sw1(1)+(l-1)*nn),nn,
+c    >             (1.0d0),
+c    >             psi2,(2*npack1))
+
+
 
           if (move) then
              do n=1,nn

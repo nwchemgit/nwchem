@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.10 2003-03-19 00:45:58 bylaska Exp $
+* $Id: pack.F,v 1.11 2003-06-30 18:02:33 bylaska Exp $
 *
 
 
@@ -545,6 +545,168 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 *     ***********************************
 *     *					*
+*     *	         Pack_ccm_sym_dot	*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_ccm_sym_dot(nb,n,A,B,matrix)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(n,n)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer j,k
+      integer np,npack,npack2
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+
+      npack  = (nida(nb)+nidb(nb))
+      npack2 = 2*npack
+
+      do k=1,n
+        call DGEMM('T','N',k,1,npack2,
+     >             2.0d0,
+     >             A,npack2, 
+     >             B(1+(k-1)*npack),npack2, 
+     >             0.0d0,
+     >             matrix(1,k),k)
+        call DGEMM('T','N',k,1,2*nida(nb),
+     >             -1.0d0,
+     >             A,npack2, 
+     >             B(1+(k-1)*npack),npack2, 
+     >             1.0d0,
+     >             matrix(1,k),k)
+      end do
+
+      do k=1,n
+      do j=k+1,n
+        matrix(j,k) = matrix(k,j)
+      end do
+      end do
+
+      if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end 
+
+*     ***********************************
+*     *					*
+*     *	         Pack_ccm_sym_dot2	*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_ccm_sym_dot2(nb,m,n,A,B,matrix)
+      implicit none
+      integer    nb,m,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(m,m)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer j,k
+      integer np,npack,npack2
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+
+      npack  = (nida(nb)+nidb(nb))
+      npack2 = 2*npack
+
+      do k=1,n
+        call DGEMM('T','N',k,1,npack2,
+     >             2.0d0,
+     >             A,npack2, 
+     >             B(1+(k-1)*npack),npack2, 
+     >             0.0d0,
+     >             matrix(1,k),k)
+        call DGEMM('T','N',k,1,2*nida(nb),
+     >             -1.0d0,
+     >             A,npack2, 
+     >             B(1+(k-1)*npack),npack2, 
+     >             1.0d0,
+     >             matrix(1,k),k)
+      end do
+
+      do k=1,n
+      do j=k+1,n
+        matrix(j,k) = matrix(k,j)
+      end do
+      end do
+
+      if (np.gt.1) call D3dB_Vector_SumAll(m*m,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end 
+
+
+
+*     ***********************************
+*     *					*
+*     *	         Pack_ccm_dot		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_ccm_dot(nb,n,A,B,matrix)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(n,n)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer np,npack
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+
+      npack = 2*(nida(nb)+nidb(nb))
+
+        call DGEMM('T','N',n,n,npack,
+     >             2.0d0,
+     >             A,npack, 
+     >             B,npack, 
+     >             0.0d0,
+     >             matrix,n)
+        call DGEMM('T','N',n,n,2*nida(nb),
+     >             -1.0d0,
+     >             A,npack, 
+     >             B,npack, 
+     >             1.0d0,
+     >             matrix,n)
+
+      if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end 
+
+
+
+*     ***********************************
+*     *					*
 *     *	         Pack_cc_indot		*	
 *     *					*
 *     ***********************************
@@ -565,24 +727,40 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
 *     **** local variables ****
       integer n,np
-      integer npack, shift
+c     integer npack, shift
+      integer npack2
 
 *     **** external functions ****
-      real*8   ddot
-      external ddot
+c     real*8   ddot
+c     external ddot
 
       call nwpw_timing_start(2)
       call Parallel_np(np)
-      npack= nida(nb)+nidb(nb)
+      npack2= 2*(nida(nb)+nidb(nb))
 
-      do n=1,ne
-        shift = (n-1)*npack
+c     do n=1,ne
+c       shift = (n-1)*npack
+c
+c       sum(n) = ddot(2*nida(nb),A(1+shift),1,B,1)
+c       sum(n) = sum(n) + 2*ddot(2*nidb(nb),
+c    >                           A(nida(nb)+1+shift),1,
+c    >                           B(nida(nb)+1),      1)
+c     end do
 
-        sum(n) = ddot(2*nida(nb),A(1+shift),1,B,1)
-        sum(n) = sum(n) + 2*ddot(2*nidb(nb),
-     >                           A(nida(nb)+1+shift),1,
-     >                           B(nida(nb)+1),      1)
-      end do
+      call DGEMM('T','N',ne,1,(npack2),
+     >           (2.0d0),
+     >           A,npack2,
+     >           B,npack2,
+     >           (0.0d0),
+     >           sum,ne)
+      call DGEMM('T','N',ne,1,(2*nida(nb)),
+     >           (-1.0d0),
+     >           A,npack2,
+     >           B,npack2,
+     >           (1.0d0),
+     >           sum,ne)
+
+   
 
       call nwpw_timing_end(2)
       return
@@ -626,6 +804,8 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
       return
       end 
+
+
 
 
 *     ***********************************
