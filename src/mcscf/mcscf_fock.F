@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.10 1997-04-10 02:04:45 d3g681 Exp $
+c     $Id: mcscf_fock.F,v 1.11 1997-04-19 17:46:54 d3g681 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -632,6 +632,7 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "rtdb.fh"
+#include "bas.fh"
       integer rtdb, geom, basis, g_dens
 c
       integer len_moments, lmax
@@ -644,6 +645,8 @@ c
       integer k, l, m, ltotal, ind
       data center/3*0.0d0/
 c      
+      if (.not. bas_cando_mpoles(basis)) return
+c
       call dfill(len_moments, 0.0d0, totalmoments, 1)
       call dfill(len_moments, 0.0d0, nuclmoments, 1)
       call geom_nuc_mpole(geom, center, lmax, nuclmoments, len_moments)
