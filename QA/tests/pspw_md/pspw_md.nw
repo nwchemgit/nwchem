@@ -11,6 +11,7 @@ C -1.2400000000 0.00000000 0.00000000
 end
 
 
+
 PSPW 
    #******* Generate a Pseudopotential for Carbon **********************
    PSP_GENERATOR                       
@@ -136,17 +137,29 @@ END
 task cg_pspw energy
 task pspw steepest_descent
 
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:  sic2.01.elc
+      output_wavefunction_filename: sic2.01.elc
+      loop: 25 100
+   END
+END
+
 
 #******* Generate a initial wavefunction based on planewaves ****
 PSPW
    V_WAVEFUNCTION_INITIALIZER
       restricted
-      up_filling: 4
+      up_filling: 6
       v_wavefunction_filename: sic2.00.velc
       cell_name: small
    END 
 END
 TASK PSPW v_wavefunction_initializer
+
 
 
 PSPW
@@ -171,6 +184,7 @@ PSPW
    END 
 END
 task pspw Car-Parrinello
+task cg_pspw freq
 
 
 geometry units au
@@ -202,4 +216,4 @@ PSPW
    END 
 END
 task pspw Car-Parrinello
-
+task cg_pspw freq
