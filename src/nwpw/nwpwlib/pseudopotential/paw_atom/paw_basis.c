@@ -1,5 +1,5 @@
 /*
-   $Id: paw_basis.c,v 1.5 2004-12-23 01:12:43 edo Exp $
+   $Id: paw_basis.c,v 1.6 2004-12-24 18:05:48 bylaska Exp $
 */
 
  /************************************
@@ -111,7 +111,6 @@ void paw_init_paw_basis(
   int i_match;
   int Ngrid;
   int index;
-  int lcountmx=4;
   double *rgrid;
   double *psi;
   double *psi_prime;
@@ -141,8 +140,7 @@ void paw_init_paw_basis(
 
   orb_type    = (int *)    malloc( nbasis*      sizeof(int));  
   prin_n_ps   = (int *)    malloc( nbasis*      sizeof(int));
-  if((max_orb_l+1)> lcountmx) lcountmx=max_orb_l+1; 
-  l_counter   = (int *)    malloc(lcountmx*sizeof(int));
+  l_counter   = (int *)    malloc((max_orb_l+1)*sizeof(int));
   i_r_orbital = (int *)    malloc( nbasis*      sizeof(int));
   fill        = (double *) malloc( nbasis*      sizeof(double));
   e           = (double *) malloc( nbasis*      sizeof(double));
@@ -236,7 +234,7 @@ void paw_init_paw_basis(
   }
 
   /* counter for number of orbitals per angular momentum*/
-  for(i=0;i<4;++i)
+  for(i=0;i<(max_orb_l+1);++i)
     l_counter[i] = 0;
  
   if(strcmp(nodal_constraint,"off")==0)
@@ -339,7 +337,7 @@ void paw_end_paw_basis()
   free(psi_ps);  
   free(psi_ps_prime); 
 
-  /*
+
   free(delta_ekin);
   free(orb_type);
   free(prin_n_ps);
@@ -349,7 +347,7 @@ void paw_end_paw_basis()
   free(e);      
   free(e_ps);    
   free(log_deriv);
-  */
+
   paw_dealloc_LogGrid(rho);
   paw_dealloc_LogGrid(rho_ps);
 
