@@ -1,9 +1,9 @@
 \label{SCF}
 \Large
-\verb+***********
+***
 It would be really nice if someone could supply a '25-words-or-less'
 description of the SCF program right here.
-\verb+**********
+***
 \normalsize
 
 The SCF program is invoked in NWChem 
@@ -364,9 +364,17 @@ vectors output h2o.movecs
 \end{verbatim}
 
 This directive will result in the initial vectors being read from the 
-location \verb+atomic.movecs+, (which is the default).  The final vectors 
+default location,
+
+\verb+atomic.movecs+
+
+The final vectors 
 obtained in the calculation
-will be saved in \verb+h2o.movecs+, and the contents of \verb+atomic.movecs+
+will be saved in 
+
+\verb+h2o.movecs+
+
+The contents of \verb+atomic.movecs+
 will not be changed.  Note that SCF orbitals are {\em always}
 canonicalized on output.
 
