@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.31 2000-03-06 20:17:46 d3j191 Exp $
+c $Id: cf_main.F,v 1.32 2000-03-09 00:34:36 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1042,7 +1042,7 @@ c
 c
       return
       end
-      subroutine cf_fnorm(fw,numw,isat,fs,nums,fnorm,fmax)
+      subroutine cf_fnorm(iwdt,fw,numw,isat,isdt,fs,nums,fnorm,fmax)
 c
       implicit none
 c
@@ -1051,13 +1051,15 @@ c
 c
       real*8 fw(mwm,3,mwa),fs(msa,3),fnorm,fmax
       integer isat(msa),numw,nums
+      integer isdt(msa),iwdt(mwm)
 c
-      call cf_fnrm(dbl_mb(i_mas),int_mb(i_iwa),fw,numw,
-     + isat,fs,nums,fnorm,fmax)
+      call cf_fnrm(dbl_mb(i_mas),int_mb(i_iwa),iwdt,fw,numw,
+     + isat,isdt,fs,nums,fnorm,fmax)
 c
       return
       end
-      subroutine cf_fnrm(wgt,iwat,fw,numw,isat,fs,nums,fnorm,fmax)
+      subroutine cf_fnrm(wgt,iwat,iwdt,fw,numw,isat,isdt,fs,nums,
+     + fnorm,fmax)
 c
       implicit none
 c
@@ -1068,6 +1070,7 @@ c
       real*8 wgt(mat,6)
       real*8 fw(mwm,3,mwa),fs(msa,3),fnorm,fmax
       integer iwat(mwa),isat(msa),numw,nums
+      integer isdt(msa),iwdt(mwm)
 c
       integer i,j
       real*8 fm,factor
@@ -1079,19 +1082,23 @@ c
       do 1 j=1,nwa
       factor=(one/wgt(iwat(j),iset))*(one/wgt(iwat(j),iset))
       do 2 i=1,numw
+      if(iwdt(i).eq.0) then
       fm=fw(i,1,j)**2+fw(i,2,j)**2+fw(i,3,j)**2
       fnorm=fnorm+fm
       fmax=max(fmax,factor*fm)
+      endif
     2 continue
     1 continue
       endif
 c
       if(nums.gt.0) then
       do 3 i=1,nums
+      if(isdt(i).eq.0) then
       fm=fs(i,1)**2+fs(i,2)**2+fs(i,3)**2
       fnorm=fnorm+fm
       factor=(one/wgt(isat(i),iset))*(one/wgt(isat(i),iset))
       fmax=max(fmax,factor*fm)
+      endif
     3 continue
       endif
 c
