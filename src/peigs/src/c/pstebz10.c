@@ -1,5 +1,5 @@
 /*
- $Id: pstebz10.c,v 1.30 2001-10-22 21:49:02 d3g270 Exp $
+ $Id: pstebz10.c,v 1.31 2004-10-20 17:52:26 edo Exp $
  *======================================================================dstebz
  *
  * DISCLAIMER
@@ -241,7 +241,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    extern Integer  mapchk_();
    extern void     xstop_(), pdiff(), pgexit();
    DoublePrecision eps, tmp;
-   extern void dlasq1_();
    extern void dsterf_();
    extern void peigs_tldlfact();
    extern DoublePrecision dlamch_();

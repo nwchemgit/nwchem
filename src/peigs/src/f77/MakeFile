@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2001-08-19 21:25:03 bjohnson Exp $	
+#	$Id: MakeFile,v 1.5 2004-10-20 17:52:29 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -15,14 +15,12 @@ FOBJ =         $(OBJDIR)\damax.obj \
                $(OBJDIR)\dgetavec3.obj \
                $(OBJDIR)\dlarnv.obj \
                $(OBJDIR)\dlasq1.obj \
-               $(OBJDIR)\dlasq2.obj \
                $(OBJDIR)\dlasq3.obj \
                $(OBJDIR)\dlasq4.obj \
                $(OBJDIR)\dlasrt.obj \
                $(OBJDIR)\dlaebz.obj \
                $(OBJDIR)\dlascl.obj \
                $(OBJDIR)\types1.obj \
-               $(OBJDIR)\dlasq2a.obj \
                $(OBJDIR)\dlasq3a.obj \
                $(OBJDIR)\dlasq4a.obj \
                $(OBJDIR)\dlasq5a.obj
@@ -69,7 +67,7 @@ clean:
 		-rm -f *.s
 ifneq ($(peigs_TARGET),CYGNUS)
 		-rm -f dgetavec.f dlaebz.f dlaebz2.f dlagtf1.f \
-		dlas2.f dlasq1.f dlasq2.f \
+		dlas2.f  \
 		dlasq3.f dlasq4.f dlasr.f \
 		dlasrt.f dlassq.f dlasv2.f dlaswp.f \
 		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
@@ -80,11 +78,5 @@ endif
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<
 .c.o:; $(peigs_CC) -c $<
-
-dlasq1.o:	dlasq1.F
-		$(peigs_FC) -c -g $<
-
-dlasq2.o:	dlasq2.F
-		$(peigs_FC) -c -g $<
 
 !ENDIF

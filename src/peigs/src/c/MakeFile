@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.6 2000-11-25 15:42:43 bjohnson Exp $	
+#	$Id: MakeFile,v 1.7 2004-10-20 17:52:25 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -12,7 +12,6 @@ COBJ =         $(OBJDIR)\clustrfix.obj \
                $(OBJDIR)\clustrxx4.obj \
                $(OBJDIR)\pstein4.obj \
                $(OBJDIR)\pstein5.obj \
-               $(OBJDIR)\peigs_dlasq2a.obj \
                $(OBJDIR)\b_ortho.obj \
                $(OBJDIR)\chol_bcst.obj \
                $(OBJDIR)\choleski9.obj \
@@ -92,7 +91,7 @@ LIBRARY = peigs.lib
 !IF 0
 
 #
-# $Id: MakeFile,v 1.6 2000-11-25 15:42:43 bjohnson Exp $
+# $Id: MakeFile,v 1.7 2004-10-20 17:52:25 edo Exp $
 #
 
 include ../../DEFS

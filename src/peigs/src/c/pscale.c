@@ -1,5 +1,5 @@
 /*
- $Id: pscale.c,v 1.7 2000-10-24 18:25:53 d3g270 Exp $
+ $Id: pscale.c,v 1.8 2004-10-20 17:52:26 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -251,7 +251,6 @@ void pscale_( job, n, lb, ub, jjjlb, jjjub, abstol,
    extern Integer  mapchk_();
    extern void     xstop_(), pdiff(), pgexit();
    DoublePrecision dummy, tmp; 
-   extern void dlasq1_();
    extern DoublePrecision dlamch_();
    
 

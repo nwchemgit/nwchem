@@ -1,5 +1,5 @@
 /*
- $Id: peigs_tldlfact.c,v 1.7 2004-10-19 21:55:10 edo Exp $
+ $Id: peigs_tldlfact.c,v 1.8 2004-10-20 17:52:26 edo Exp $
 */
 
 #include <stdio.h>
@@ -18,9 +18,9 @@ void peigs_tldlfact(Integer  *n, DoublePrecision *d, DoublePrecision *e, DoubleP
     lplus[i] = e[i+1]/dplus[i];
     dplus[i+1] = d[i+1] - lplus[i]*e[i+1];
   }
-  //  for (i = 0; i < msize; i++ ){
-  //        printf(" %ld lp dp  %f %f \n", i, lplus[i], dplus[i]);
-  //  }
+  /*  for (i = 0; i < msize; i++ ){
+          printf(" %ld lp dp  %f %f \n", i, lplus[i], dplus[i]);
+  }*/
 
   return;
 }

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.proto,v 1.2 1999-07-28 00:39:44 d3e129 Exp $
+# $Id: Makefile.proto,v 1.3 2004-10-20 17:52:29 edo Exp $
 #
 
 ifeq ($(peigs_CODEOBJ),DBLE)
@@ -13,16 +13,13 @@ FOBJ = damax.o \
 	dgetavec2.o \
 	dgetavec3.o \
 	dlarnv.o \
-	dlasq1.o \
 	dlasrt.o \
-	dlasq2.o \
 	dlasq3.o \
 	dlasq4.o \
 	dlasrt.o \
 	dlaebz.o \
 	dlascl.o \
 	types1.o \
-	dlasq2a.o \
 	dlasq3a.o \
 	dlasq4a.o \
 	dlasq5a.o 
@@ -39,16 +36,13 @@ FOBJ = samax.o \
 	dgetavec2.o \
 	dgetavec3.o \
 	dlarnv.o \
-	dlasq1.o \
 	dlasrt.o \
-	dlasq2.o \
 	dlasq3.o \
 	dlasq4.o \
 	dlasrt.o \
 	dlaebz.o \
 	dlascl.o \
 	types1.o \
-	dlasq2a.o \
 	dlasq3a.o \
 	dlasq4a.o \
 	dlasq5a.o 
@@ -73,7 +67,7 @@ clean:
 		-rm -f *.o
 		-rm -f *.s
 		-rm -f dgetavec.f dlaebz.f dlaebz2.f dlagtf1.f \
-		dlas2.f dlasq1.f dlasq2.f \
+		dlas2.f  \
 		dlasq3.f dlasq4.f dlasr.f \
 		dlasrt.f dlassq.f dlasv2.f dlaswp.f \
 		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
@@ -83,9 +77,3 @@ clean:
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<
 .c.o:; $(peigs_CC) -c $<
-
-dlasq1.o:	dlasq1.F
-		$(peigs_FC) -c -g $<
-
-dlasq2.o:	dlasq2.F
-		$(peigs_FC) -c -g $<

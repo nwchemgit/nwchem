@@ -1,5 +1,5 @@
 /*
- $Id: pstebz11.c,v 1.6 2004-10-19 21:55:10 edo Exp $
+ $Id: pstebz11.c,v 1.7 2004-10-20 17:52:26 edo Exp $
  *======================================================================
  *
  * DISCLAIMR
@@ -675,12 +675,12 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
      
      
-     //       printf(" i= %d d = %d jsplit %d  blksz %d \n", i, i1split, jsplit, blksz );
-     //     for ( jjj = 0; jjj< blksz; jjj++ )
-     //       printf(" jjj = %d dptr %f lptr %f \n", jjj, dptr[jjj], lptr[jjj]);
+     /*       printf(" i= %d d = %d jsplit %d  blksz %d \n", i, i1split, jsplit, blksz );
+          for ( jjj = 0; jjj< blksz; jjj++ )
+            printf(" jjj = %d dptr %f lptr %f \n", jjj, dptr[jjj], lptr[jjj]);*/
        
      
-     peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], work + *n );
+          peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], work + *n, info );
      
      j = iii+1; /* for fortran indexing */
      for ( jjj = i1split; jjj < jsplit; jjj++ )

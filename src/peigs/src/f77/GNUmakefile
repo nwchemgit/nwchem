@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2004-10-14 21:58:48 edo Exp $
+# $Id: GNUmakefile,v 1.21 2004-10-20 17:52:29 edo Exp $
 #
 
 include ../../../config/makefile.h
@@ -21,16 +21,13 @@ FOBJ = inverm.o \
 	dgetavec2.o \
 	dgetavec3.o \
 	dlarnv.o \
-	dlasq1.o \
 	dlasrt.o \
-	dlasq2.o \
 	dlasq3.o \
 	dlasq4.o \
 	dlasrt.o \
 	dlaebz.o \
 	dlascl.o \
 	types1.o \
-	dlasq2a.o \
 	dlasq3a.o \
 	dlasq4a.o \
 	dlasq5a.o \
@@ -48,16 +45,13 @@ FOBJ = samax.o \
 	dgetavec2.o \
 	dgetavec3.o \
 	dlarnv.o \
-	dlasq1.o \
 	dlasrt.o \
-	dlasq2.o \
 	dlasq3.o \
 	dlasq4.o \
 	dlasrt.o \
 	dlaebz.o \
 	dlascl.o \
 	types1.o \
-	dlasq2a.o \
 	dlasq3a.o \
 	dlasq4a.o \
 	dlasq5a.o 
@@ -89,7 +83,7 @@ clean:
 		-rm -f *.s
 ifdef REMOVESF
 		-rm -f dgetavec.f dlaebz.f dlaebz2.f dlagtf1.f \
-		dlas2.f dlasq1.f dlasq2.f \
+		dlas2.f  \
 		dlasq3.f dlasq4.f dlasr.f \
 		dlasrt.f dlassq.f dlasv2.f dlaswp.f \
 		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
@@ -100,9 +94,3 @@ endif
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<
 .c.o:; $(peigs_CC) -c $<
-
-dlasq1.o:	dlasq1.F
-		$(peigs_FC) -c -g $<
-
-dlasq2.o:	dlasq2.F
-		$(peigs_FC) -c -g $<
