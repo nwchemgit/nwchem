@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.127 1995-11-16 20:38:13 d3g681 Exp $
+# $Id: makefile.h,v 1.128 1995-11-20 21:26:35 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -407,7 +407,7 @@ ifeq ($(TARGET),IBM)
 # note: using only source blas.
 #
 
-    CORE_SUBDIRS_EXTRA = 
+    CORE_SUBDIRS_EXTRA = lapack
          FC = xlf
     ARFLAGS = urs
      RANLIB = echo
