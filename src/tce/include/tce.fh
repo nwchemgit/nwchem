@@ -1,4 +1,4 @@
-c $Id: tce.fh,v 1.1 2003-09-16 21:54:09 sohirata Exp $
+c $Id: tce.fh,v 1.2 2003-10-19 01:02:35 sohirata Exp $
 c
 c Include file for TCE module
 c
@@ -8,7 +8,7 @@ c
       integer max_size         ! A large number
       parameter (max_size = 10000)
       integer max_files        ! Maximum number of files
-      parameter (max_files = 1024)
+      parameter (max_files = 131072)
       integer geom             ! Geometry handle
       integer ao_bas_han       ! AO basis set handle
       logical oskel,oadapt     ! Symmetry control parameters
@@ -18,6 +18,8 @@ c
       integer nmo(2)           ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       character*10 model       ! CC model
+      character*10 perturbative! PT model
+      logical left             ! Dipole moments & dipole transition moments
       integer maxiter          ! Maximum number of Davidson iterations
       integer l_evl(2),k_evl(2)! MA handles for eigenvalues (AB)
       integer l_occ(2),k_occ(2)! MA handles for occupancies (AB)
@@ -91,6 +93,14 @@ c
       integer nytrials         ! No. of LHS trial vectors
       integer maxtrials        ! Max No. of trial vectors
       parameter (maxtrials = 10000)
+      integer xc1(maxtrials)   ! Converged RHS1 vectors
+      integer yc1(maxtrials)   ! Converged LHS1 vectors
+      integer xc2(maxtrials)   ! Converged RHS2 vectors
+      integer yc2(maxtrials)   ! Converged LHS2 vectors
+      integer xc3(maxtrials)   ! Converged RHS3 vectors
+      integer yc3(maxtrials)   ! Converged LHS3 vectors
+      integer xc4(maxtrials)   ! Converged RHS4 vectors
+      integer yc4(maxtrials)   ! Converged LHS4 vectors
       integer x1(maxtrials)    ! Trial RHS1 vectors
       integer y1(maxtrials)    ! Trial LHS1 vectors
       integer x2(maxtrials)    ! Trial RHS2 vectors
@@ -107,6 +117,14 @@ c
       integer yp3(maxtrials)   ! Product LHS3 vectors
       integer xp4(maxtrials)   ! Product RHS4 vectors
       integer yp4(maxtrials)   ! Product LHS4 vectors
+      logical xc1_exist(maxtrials) ! True if XC1 file exist
+      logical yc1_exist(maxtrials) ! True if YC1 file exist
+      logical xc2_exist(maxtrials) ! True if XC2 file exist
+      logical yc2_exist(maxtrials) ! True if YC2 file exist
+      logical xc3_exist(maxtrials) ! True if XC3 file exist
+      logical yc3_exist(maxtrials) ! True if YC3 file exist
+      logical xc4_exist(maxtrials) ! True if XC4 file exist
+      logical yc4_exist(maxtrials) ! True if YC4 file exist
       logical x1_exist(maxtrials)  ! True if X1 file exist
       logical y1_exist(maxtrials)  ! True if Y1 file exist
       logical x2_exist(maxtrials)  ! True if X2 file exist
@@ -162,7 +180,8 @@ c
      9  t2_pointer,r2_pointer,t3_pointer,r3_pointer,t4_pointer,
      1  r4_pointer,nroots,nroots_reduced,nxtrials,nytrials,x1,y1,x2,y2,
      2  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
-     3  irrep_x,irrep_y,irrep_d,target,filesizes
+     3  irrep_x,irrep_y,irrep_d,target,filesizes,xc1,xc2,xc3,xc4,
+     4  yc1,yc2,yc3,yc4
 c
 c     Doubles
 c
@@ -172,14 +191,15 @@ c
 c     Characters
 c
       common /tcechar/
-     1  model,filenames,targetsym
+     1  model,perturbative,filenames,targetsym
 c
 c     Logicals
 c
       common /tcelogical/
-     1  oskel,oadapt,restricted,t1_diis_exist,r1_diis_exist,
+     1  oskel,oadapt,left,restricted,t1_diis_exist,r1_diis_exist,
      2  t2_diis_exist,r2_diis_exist,t3_diis_exist,r3_diis_exist,
      3  t4_diis_exist,r4_diis_exist,x1_exist,y1_exist,x2_exist,y2_exist,
      4  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
      5  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
-     6  symmetry,fileisga
+     6  symmetry,fileisga,xc1_exist,xc2_exist,xc3_exist,xc4_exist,
+     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist
