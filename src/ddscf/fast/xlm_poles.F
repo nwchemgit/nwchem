@@ -325,12 +325,12 @@ c
          stop 1
       end if
 ***      call dfill((2*lq+1)*(lmax+1), 0.0d0, q, 1)
-      q(0,0) = 1.0d0
-      do l = 1,lmax
+      do l = 0,lmax             ! NOTE that |m| = l+1 is referenced
          do m = -lq,lq
             q(m,l) = 0.0d0
          end do
       end do
+      q(0,0) = 1.0d0            ! MUST be after zero
       if (lmax.ge.1) then
          q(-1,1) = y
          q( 0,1) = z
