@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult.F,v 1.6 2003-02-19 19:08:30 bylaska Exp $
+* $Id: paw_mult.F,v 1.7 2003-02-20 00:21:15 bylaska Exp $
 *
 
 
@@ -316,8 +316,9 @@
       !**** local variables ***
       logical ok
       integer ia,ii,jj,kk,l,m,nion,npack0,mult_l,mabs
-      integer exi(2),QYlm(2),gls(2),gl(2),t_mult(2)
-      real*8  isgn,omega
+      integer  ll,isgn
+      integer exi(2),tmp1(2),gls(2),gl(2),t_mult(2)
+      real*8  omega
       complex*16 csum1,csum2
 
       !**** external functions ****
@@ -330,7 +331,7 @@
       call Pack_npack(0,npack0)
       ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+     >     MA_push_get(mt_dcpl,npack0,'tmp1',tmp1(2),tmp1(1))
       ok = ok.and.
      >     MA_push_get(mt_dcpl,npack0,'gl',gl(2),gl(1))
       ok = ok.and.
@@ -347,41 +348,51 @@
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
          ia = ion_katm(ii)
 
-         mult_l   = paw_basis_mult_l(ia)
-         jj       = int_mb(i_v_mult(1) + ii - 1) 
-         kk       = 0
-         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
-         do l=0,mult_l
-         do m=-l,l
-           call Pack_cc_Mul(0,
-     >                    dcpl_mb(exi(1)),
-     >                    dcpl_mb(g_lm(1)+(kk)*npack0),
-     >                    dcpl_mb(QYlm(1)))
+         !**** DEBUG ****
            call Pack_tc_Mul(0,
      >                    dbl_mb(gk(1)+(ia-1)*npack0),
-     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(exi(1)),
      >                    dcpl_mb(gl(1)))
            call Pack_tc_Mul(0,
      >                    dbl_mb(gk_smooth(1)),
-     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(exi(1)),
      >                    dcpl_mb(gls(1)))
+           call Pack_cc_izdot(0,dcpl_mb(gl(1)),
+     >                          dcpl_mb(gls(1)),
+     >                          csum1)
+           write(*,*)
+           write(*,*) "<gk|gks>:",ii,csum1*omega
+         !**** DEBUG ****
 
-           call Pack_cc_izdot(0,
-     >                        dcpl_mb(gl(1)),
+         mult_l   = paw_basis_mult_l(ia)
+         jj       = int_mb(i_v_mult(1) + ii - 1) 
+         kk       = 0
+         do l=0,mult_l
+           do m=-l,l
+             call Pack_cc_Mul(0,
+     >                    dcpl_mb(gl(1)),
+     >                    dcpl_mb(g_lm(1)+(kk)*npack0),
+     >                    dcpl_mb(tmp1(1)))
+             call Pack_cc_izdot(0,
      >                        vh,
+     >                        dcpl_mb(tmp1(1)),
      >                        csum1)
-           call Pack_cc_izdot(0,
-     >                        dcpl_mb(gls(1)),
+             call Pack_cc_Mul(0,
+     >                    dcpl_mb(gls(1)),
+     >                    dcpl_mb(g_lm(1)+(kk)*npack0),
+     >                    dcpl_mb(tmp1(1)))
+             call Pack_cc_izdot(0,
      >                        vcmp,
+     >                        dcpl_mb(tmp1(1)),
      >                        csum2)
 
-           !**** v_mult(l,m,ii) = <g_lm^a|vh> + <tg_lm^a|vcmp> ****
-           dcpl_mb(t_mult(1)+jj) = (csum1 + csum2)*omega
+             !**** v_mult(l,m,ii) = <g_lm^a|vh> + <tg_lm^a|vcmp> ****
+             dcpl_mb(t_mult(1)+jj) = (csum1 + csum2)*omega
 
-           jj = jj + 1
-           kk = kk + 1
-         end do
-         end do
+             jj = jj + 1
+             kk = kk + 1
+           end do !*m*
+         end do !*l*
       end do !*ii*
 
 
@@ -396,9 +407,9 @@
          do m=-l,l
             mabs = abs(m)
             if (mod(mabs,2).eq.0) then
-              isgn = 1.0d0
+              isgn = 1
             else
-              isgn = -1.0d0
+              isgn = -1
             end if
            kk = jj - 2*m
            dcpl_mb(v_mult(1)+jj) = 0.5d0*(dcpl_mb(t_mult(1)+jj) 
@@ -418,7 +429,7 @@
       ok =        MA_pop_stack(t_mult(2))
       ok = ok.and.MA_pop_stack(gls(2))
       ok = ok.and.MA_pop_stack(gl(2))
-      ok = ok.and.MA_pop_stack(QYlm(2))
+      ok = ok.and.MA_pop_stack(tmp1(2))
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit('paw_mult_coeff_set: error popping stack',1)
