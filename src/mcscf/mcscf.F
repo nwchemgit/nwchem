@@ -336,7 +336,8 @@ c
      $                        g_exch, oconj, ocjrst, ocanon, ocimicro,
      $                        g_conj, g_gradold, g_hcore, eone, etwo,
      $                        ecore, gnorm, dbl_mb(k_evals),
-     $                        g_movecs, oconverged, oprconv )
+     $                        g_movecs, oconverged, oprconv,
+     $                        dbl_mb(k_occ))
          gnrmv(iter) =  gnorm
          ocjrst = ocjrst.or.ocanon
          if (omcscfprof) call pstat_off(ps_orb)
@@ -439,6 +440,9 @@ c
          call sym_movecs_adapt(basis, 1.d-8, g_movecs,
      $                        int_mb(k_sym), nmixed)
          call ga_orthog_mos(basis, g_movecs)
+c
+         call mcscf_save_vec(rtdb,geom,basis, nbf, 
+     $        dbl_mb(k_evals), dbl_mb(k_occ), g_movecs)
 c
          if ((oprinfo).and.(util_print('movecs',print_debug))) then
            write(6,880)

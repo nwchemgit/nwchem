@@ -633,7 +633,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.18 1996-11-05 06:06:15 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.19 1996-11-10 18:05:24 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -724,7 +724,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.18 1996-11-05 06:06:15 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.19 1996-11-10 18:05:24 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)
@@ -982,14 +982,14 @@ c
       integer g_movecs
 c
       integer l_tmp, k_tmp
-      integer g_v
-      integer tsize, info, i, j, ii, jj
+      integer tsize, info, i, ii, jj
       integer l_u, k_u, l_x, k_x, l_y, k_y
       integer idamax
       external idamax
 c
 c  Orbital occupation
 c
+      call dfill(nbf, 0.0d0, occ, 1)
       do i=1,nclosed                    
         occ(i) = 2.d0                     ! Trivial inactive occupation
       enddo
@@ -1227,7 +1227,7 @@ c
 
 
 
-      subroutine mcscf_save_vec( rtdb, geom, basis, nbf, orbe,
+      subroutine mcscf_save_vec( rtdb, geom, basis, nbf, orbe, occ,
      $                           g_movecs )
       implicit none
 #include "mafdecls.fh"
@@ -1238,14 +1238,14 @@ c
       integer geom
       integer basis
       integer nbf
-      double precision orbe(*)
+      double precision orbe(*), occ(*)
       integer g_movecs
 c
 c
 c
       logical olock
       integer g_tmp
-      integer k_occ, l_occ, k_oldev, l_oldev
+      integer k_oldocc, l_oldocc, k_oldev, l_oldev
       integer i
 c
 c
@@ -1256,20 +1256,22 @@ c
      $     1, olock)) olock = .false.
       if (.not.ma_push_get(MT_DBL, nbf,'tmp evals', l_oldev, k_oldev))
      $  call errquit('mcscf_save_vecs: cannot allocate',0)
-      if (.not.ma_push_get(MT_DBL, nbf,'tmp occ', l_occ, k_occ))
+      if (.not.ma_push_get(MT_DBL, nbf,'tmp occ', l_oldocc, k_oldocc))
      $  call errquit('mcscf_save_vecs: cannot allocate',0)
-      call dfill(nbf,0.d0,dbl_mb(k_occ),1)                      ! quick hack!
 c
 c  Read in old vectors and occupations
 c  Optionally lock movecs ordering with old vectors
 c
       if (olock) then
-        call mcscf_movecs_read( rtdb, basis, nbf, dbl_mb(k_occ),
+        call mcscf_movecs_read( rtdb, basis, nbf, dbl_mb(k_oldocc),
      $                          dbl_mb(k_oldev), g_tmp )
         call dcopy(nbf, orbe, 1, dbl_mb(k_oldev), 1 )
-        call movecs_lock(geom, basis, g_tmp, g_movecs, dbl_mb(k_oldev))
+        call dcopy(nbf, occ,  1, dbl_mb(k_oldocc), 1)
+        call movecs_lock(geom, basis, g_tmp, g_movecs, 
+     $       dbl_mb(k_oldev), dbl_mb(k_oldocc))
       else
         call dcopy(nbf, orbe, 1, dbl_mb(k_oldev), 1 )
+        call dcopy(nbf, occ,  1, dbl_mb(k_oldocc), 1)
       endif
 c
 c  Info print
@@ -1279,17 +1281,20 @@ c
         write(6,911) 
  911    format('Saved MO vectors  - orbital energies')
         write(6,881) (dbl_mb(k_oldev+i-1),i=1,nbf)
+        write(6,912)
+ 912    format('Saved MO vectors  - orbital occupations')
+        write(6,881) (dbl_mb(k_oldocc+i-1),i=1,nbf)
  881    format(7f12.6)
       endif
 c
 c  Write out MOs
 c
-      call mcscf_movecs_write( rtdb, basis, nbf, dbl_mb(k_occ),
+      call mcscf_movecs_write( rtdb, basis, nbf, dbl_mb(k_oldocc),
      $                         dbl_mb(k_oldev), g_movecs )
 c
 c  Clean up
 c
-      if (.not.ma_pop_stack(l_occ))
+      if (.not.ma_pop_stack(l_oldocc))
      $  call errquit('mcscf_save_vecs: cannot pop stack',0)
       if (.not.ma_pop_stack(l_oldev))
      $  call errquit('mcscf_save_vecs: cannot pop stack',0)

@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.28 1996-11-05 06:06:16 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.29 1996-11-10 18:05:24 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -15,7 +15,7 @@ c
      $                           ocjrst, ocanon, ocirelax, g_conj,
      $                           g_gradold, g_hcore, eone, etwo, ecore,
      $                           gnorm, orbe, g_movecs, oconverged,
-     $                           oprconv )
+     $                           oprconv, occ )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -48,6 +48,7 @@ c
        double precision ecore                          ! [output] clsoed-shell core energy
        double precision gnorm                          ! [output] gradient norm
        double precision orbe(nbf)                      ! [output] MCSCF orbital energies
+       double precision occ(nbf)                       ! [input] MCSCF orbital occupation (junk until natorb)
        integer g_movecs                                ! [input/output] MO vectors
        logical oconverged                              ! [output] convergence flag
        logical oprconv          ! [input] if true then print
@@ -454,7 +455,7 @@ c  Orbitals maybe reordered on save (movecs_lock)
 c  so pass temporary MOs
 c
        call ga_copy(g_movecs, g_newvecs) ! rjh ... save sym adapted vectors
-       call mcscf_save_vec( rtdb, geom, basis, nbf, orbe, g_newvecs )
+       call mcscf_save_vec(rtdb, geom, basis, nbf, orbe, occ, g_newvecs)
 c
 c  Update Coulomb and Exchange operator
 c     rjh ... must do it if have canonicalized even if exact energy LS
