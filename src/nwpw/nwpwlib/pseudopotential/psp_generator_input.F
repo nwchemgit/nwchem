@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.4 2001-11-03 01:14:40 edo Exp $
+c $Id: psp_generator_input.F,v 1.5 2001-11-05 21:17:23 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -401,7 +401,7 @@ c
       double precision rlocal
       integer	    locp,lmax
 c
-      character*255 test,dir_name,sdir_name
+      character*255 dir_name,sdir_name
       character*64 psp_in,psp_out
       integer h,i,j,k
       integer nwpw_libglmax,nwpw_libglocp
@@ -411,7 +411,8 @@ c
       call util_directory_name(sdir_name,.true.,0)
       call util_directory_name(dir_name,.false.,0)
       psp_in='junk.inp'
-      psp_out = atom//'.psp'
+      k = index(atom,' ') - 1
+      psp_out = atom(1:k)//'.psp'
       h = inp_strlen(sdir_name)
       i = inp_strlen(dir_name)
       j = inp_strlen(psp_in)
@@ -424,6 +425,9 @@ c
      >     psp_in,j,
      >     psp_out, k)
 !      stop
+      open(unit=99,file='junk.inp',status='old')
+      close(unit=99,status='delete')
+
 c     **** routines needed by psp_formatter_auto ****
       lmax=nwpw_libglmax(atom)
       locp=nwpw_libglocp(atom)
