@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.62 1996-12-14 00:36:07 d3e129 Exp $
+c $Id: raktest.F,v 1.63 1997-01-21 17:16:42 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -14,7 +14,7 @@ c
      &    raktask = rak_tmp
 c
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100, 00110, 00120) raktask
+     &    00090, 00100, 00110, 00120, 00130) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
@@ -56,6 +56,9 @@ c
       goto 00001
 00120 write(6,*)' geometry printing routines '
       call raktest_geomprt(rtdb)
+      goto 00001
+00130 write(6,*)' test 3 center derivatives '
+      call raktest_3cd(rtdb)
       goto 00001
 c
 00001 continue
@@ -3102,4 +3105,655 @@ c
 *rak:     &    call errquit('raktest_geomprt:print_dihedrals error',911)
       if (.not.geom_destroy(geom))
      &    call errquit('raktest_geomprt:destory',911)
+      end
+      subroutine raktest_3cd(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "bas.fh"
+      integer rtdb
+c
+      integer geom, basis
+      integer nat, nbf, lmax, bufsz, dbufsz, nbftrip, szscr
+      integer h_bovp,h_bovm,h_dbuf,h_fd3ov,h_3ov,h_scr,h_c,h_cp,h_cm
+      integer k_bovp,k_bovm,k_dbuf,k_fd3ov,k_3ov,k_scr,k_c,k_cp,k_cm
+      integer h_fdp3ov, h_fdm3ov
+      integer k_fdp3ov, k_fdm3ov
+      integer stackleft
+c
+      logical int_normalize
+      external int_normalize
+c
+*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+      if (.not.geom_print(geom)) stop ' print error'
+c
+      if (.not.bas_create(basis,'ao basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+     &    call errquit
+     &      ('bas_rtdb_load failed',911)
+      if (.not.bas_print(basis)) stop ' print error'
+      if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+      call int_init(rtdb,1,basis)
+c
+      if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
+      if (.not.bas_numbf(basis,nbf)) stop 'bas_numbf fe'
+      if (.not.bas_high_angular(basis,Lmax)) stop 'bas_ha fe'
+c
+      bufsz = (Lmax+1)*(Lmax+2)/2
+      bufsz = bufsz*bufsz*bufsz
+      dbufsz = 9*bufsz
+      nbftrip = nbf*nbf*nbf
+      szscr  = 60000
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (0)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <0> stack left ',stackleft,
+     &    ' next:',bufsz
+      if (.not.ma_push_get(mt_dbl,bufsz,' buf ovlap +',
+     &    h_bovp,k_bovp)) stop ' ma_pg 1 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (1)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <1> stack left ',stackleft,
+     &    ' next:',bufsz
+      if (.not.ma_push_get(mt_dbl,bufsz,' buf ovlap -',
+     &    h_bovm,k_bovm)) stop ' ma_pg 2 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (2)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <2> stack left ',stackleft,
+     &    ' next:',dbufsz
+      if (.not.ma_push_get(mt_dbl,dbufsz,'deriv buf ',
+     &    h_dbuf,k_dbuf)) stop ' ma_pg 3 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (3)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <3> stack left ',stackleft,
+     &    ' next:',(nbftrip*nat*3)
+      if (.not.ma_push_get(mt_dbl,(nbftrip*nat*3),' fd 3ov matrix ',
+     &    h_fd3ov, k_fd3ov)) stop ' ma_pg 4 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (4)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <4> stack left ',stackleft,
+     &    ' next:',(nbftrip*nat*3)
+      if (.not.ma_push_get(mt_dbl,(nbftrip*nat*3),' fd + 3ov matrix ',
+     &    h_fdp3ov, k_fdp3ov)) stop ' ma_pg 5 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (5)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <5> stack left ',stackleft,
+     &    ' next:',(nbftrip*nat*3)
+      if (.not.ma_push_get(mt_dbl,(nbftrip*nat*3),' fd - 3ov matrix ',
+     &    h_fdm3ov, k_fdm3ov)) stop ' ma_pg 6 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (6)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <6> stack left ',stackleft,
+     &    ' next:',(nbftrip*nat*3)
+      if (.not.ma_push_get(mt_dbl,(nbftrip*nat*3),' 3ov matrix ',
+     &    h_3ov, k_3ov)) stop ' ma_pg 7 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (7)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <7> stack left ',stackleft,
+     &    ' next:',szscr
+      if (.not.ma_push_get(mt_dbl,szscr,' scratch buffer',
+     &    h_scr, k_scr)) stop ' ma_pg 8 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (8)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <8> stack left ',stackleft,
+     &    ' next:',(3*nat)
+      if (.not.ma_push_get(mt_dbl,(3*nat),' coords ',
+     &    h_c, k_c)) stop ' ma_pg 9 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (9)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <9> stack left ',stackleft,
+     &    ' next:',(3*nat)
+      if (.not.ma_push_get(mt_dbl,(3*nat),' coords +',
+     &    h_cp, k_cp)) stop ' ma_pg 10 fail '
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (10)'
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <10> stack left ',stackleft,
+     &    ' next:',(3*nat)
+      if (MA_verify_allocator_stuff()) write(6,*)' maok (11)'
+      if (.not.ma_push_get(mt_dbl,(3*nat),' coords -',
+     &    h_cm, k_cm)) stop ' ma_pg 11 fail '
+      stackleft = ma_inquire_stack(mt_dbl)
+      write(6,*)' <11> stack left ',stackleft
+c
+      call raktest_3cd_1(geom,basis,nbf,nat,szscr,bufsz,dbufsz,
+     &    dbl_mb(k_bovp),  dbl_mb(k_bovm),   dbl_mb(k_dbuf),
+     &    dbl_mb(k_fd3ov), dbl_mb(k_fdp3ov), dbl_mb(k_fdm3ov),
+     &    dbl_mb(k_3ov),  dbl_mb(k_scr),
+     &    dbl_mb(k_c), dbl_mb(k_cp), dbl_mb(k_cm))
+c
+      if (.not.ma_pop_stack(h_cm)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_cp)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_c)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_scr)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_3ov)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_fdm3ov)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_fdp3ov)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_fd3ov)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_dbuf)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_bovm)) stop ' ma pop fail'
+      if (.not.ma_pop_stack(h_bovp)) stop ' ma pop fail'
+c
+      call int_terminate
+      if (.not.bas_destroy(basis)) stop ' bas_dest error 1'
+      if (.not.geom_destroy(geom)) stop ' geom_dest error 1'
+      if (.not.bas_version()) stop ' bas_version error'
+      end
+      subroutine raktest_3cd_1(geom,basisin,nbf,nat,szscr,bufsz,dbufsz,
+     &    bufp, bufm, dbuf, fdo, fdp, fdm, o, scr, c, cp, cm)
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+      integer geom
+      integer basisin
+      integer nbf
+      integer nat
+      integer szscr
+      integer bufsz
+      integer dbufsz
+      double precision bufp(bufsz), bufm(bufsz), dbuf(dbufsz)
+      double precision fdo(nbf,nbf,nbf,3,nat)
+      double precision fdp(nbf,nbf,nbf,3,nat)
+      double precision fdm(nbf,nbf,nbf,3,nat)
+      double precision o(nbf,nbf,nbf,3,nat)
+      double precision scr(szscr)
+      double precision c(3,nat), cp(3,nat), cm(3,nat)
+c
+      double precision delta, delta2i, norm
+      double precision ddot
+      external ddot
+      integer ucont
+      integer ish, ilow, ihi, Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
+      integer jsh, jlow, jhi, Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent
+      integer ksh, klow, khi, Lk, k_prim, k_gen, k_iexp, k_icfp, k_cent
+      integer ibf, jbf, kbf
+      integer bs
+      integer nshell, nint, count
+      integer zcent(3), ixyz, zc
+      integer pass
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      call dfill((3*nat*nbf*nbf*nbf),0.0d00,fdm,1)
+      call dfill((3*nat*nbf*nbf*nbf),0.0d00,fdp,1)
+      call dfill((3*nat*nbf*nbf*nbf),0.0d00,fdo,1)
+      call dfill((3*nat*nbf*nbf*nbf),0.0d00,  o,1)
+      delta = 0.00001d00
+      delta2i = 1.0d00/(2.0d00*delta)
+      write(6,*)' nbf = ',nbf
+      write(6,*)' nat = ',nat
+      write(6,*)' delta,2inverse ',delta,delta2i
+      bs = basisin + Basis_Handle_Offset
+      nshell = ncont_tot_gb(bs)
+      write(6,*)' nshell',nshell
+c
+      call dcopy (3*nat,coords(1,1,geom),1,c,1)
+c
+      pass = 0
+      do ish = 1,nshell
+        if (.not.bas_cn2bfr(basisin,ish,ilow,ihi)) stop 'cn2bfr i'
+        ucont   = (sf_ibs_cn2ucn(ish,bs))
+        Li      = infbs_cont(CONT_TYPE ,ucont,bs)
+        i_prim  = infbs_cont(CONT_NPRIM,ucont,bs)
+        i_gen   = infbs_cont(CONT_NGEN ,ucont,bs)
+        i_iexp  = infbs_cont(CONT_IEXP ,ucont,bs)
+        i_icfp  = infbs_cont(CONT_ICFP ,ucont,bs)
+        i_cent  = (sf_ibs_cn2ce(ish,bs))
+        do jsh = 1,nshell
+          if (.not.bas_cn2bfr(basisin,jsh,jlow,jhi)) stop 'cn2bfr j'
+          ucont   = (sf_ibs_cn2ucn(jsh,bs))
+          Lj      = infbs_cont(CONT_TYPE ,ucont,bs)
+          j_prim  = infbs_cont(CONT_NPRIM,ucont,bs)
+          j_gen   = infbs_cont(CONT_NGEN ,ucont,bs)
+          j_iexp  = infbs_cont(CONT_IEXP ,ucont,bs)
+          j_icfp  = infbs_cont(CONT_ICFP ,ucont,bs)
+          j_cent  = (sf_ibs_cn2ce(jsh,bs))
+          do ksh = 1,nshell
+            if (.not.bas_cn2bfr(basisin,ksh,klow,khi)) stop 'cn2bfr k'
+            ucont   = (sf_ibs_cn2ucn(ksh,bs))
+            Lk      = infbs_cont(CONT_TYPE ,ucont,bs)
+            k_prim  = infbs_cont(CONT_NPRIM,ucont,bs)
+            k_gen   = infbs_cont(CONT_NGEN ,ucont,bs)
+            k_iexp  = infbs_cont(CONT_IEXP ,ucont,bs)
+            k_icfp  = infbs_cont(CONT_ICFP ,ucont,bs)
+            k_cent  = (sf_ibs_cn2ce(ksh,bs))
+            pass = pass + 1
+            write(6,*)' pass ',pass
+            if (i_cent.eq.j_cent.and.j_cent.eq.k_cent) goto 00100
+c
+            nint = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+            write(6,*)' nint = ',nint
+c
+c* icenter x +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(1,i_cent) = cp(1,i_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* icenter x -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(1,i_cent) = cm(1,i_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,1,i_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,1,i_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c* icenter y +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(2,i_cent) = cp(2,i_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* icenter y -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(2,i_cent) = cm(2,i_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,2,i_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,2,i_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c            
+c* icenter z +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(3,i_cent) = cp(3,i_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* icenter z -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(3,i_cent) = cm(3,i_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,3,i_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,3,i_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c
+c* jcenter x +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(1,j_cent) = cp(1,j_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* jcenter x -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(1,j_cent) = cm(1,j_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,1,j_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,1,j_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c* jcenter y +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(2,j_cent) = cp(2,j_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* jcenter y -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(2,j_cent) = cm(2,j_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,2,j_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,2,j_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c            
+c* jcenter z +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(3,j_cent) = cp(3,j_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* jcenter z -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(3,j_cent) = cm(3,j_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,3,j_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,3,j_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c
+c* kcenter x +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(1,k_cent) = cp(1,k_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* kcenter x -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(1,k_cent) = cm(1,k_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,1,k_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,1,k_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c* kcenter y +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(2,k_cent) = cp(2,k_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* kcenter y -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(2,k_cent) = cm(2,k_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,2,k_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,2,k_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c            
+c            
+c* kcenter z +
+            call dcopy(nat*3,c,1,cp,1)
+            cp(3,k_cent) = cp(3,k_cent)+delta
+            call hf3ois(
+     &          cp(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cp(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cp(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufp,nint,.false.,.false.,scr,szscr)
+c* kcenter z -
+            call dcopy(nat*3,c,1,cm,1)
+            cm(3,k_cent) = cm(3,k_cent)-delta
+            call hf3ois(
+     &          cm(1,i_cent), dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, Li,
+     &          cm(1,j_cent), dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, Lj,
+     &          cm(1,k_cent), dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, Lk,
+     &          bufm,nint,.false.,.false.,scr,szscr)
+            count = 0
+            do ibf = ilow,ihi
+              do jbf = jlow,jhi
+                do kbf = klow,khi
+                  count = count + 1
+                  fdp(ibf,jbf,kbf,3,k_cent) = bufp(count)
+                  fdm(ibf,jbf,kbf,3,k_cent) = bufm(count)
+                enddo
+              enddo
+            enddo
+c
+            call hfd3ois(c(1,i_cent),dbl_mb(mb_exndcf(i_iexp,bs)),
+     &          dbl_mb(mb_exndcf(i_icfp,bs)),i_prim, 1, Li,
+     &          c(1,j_cent),dbl_mb(mb_exndcf(j_iexp,bs)),
+     &          dbl_mb(mb_exndcf(j_icfp,bs)),j_prim, 1, Lj,
+     &          c(1,k_cent),dbl_mb(mb_exndcf(k_iexp,bs)),
+     &          dbl_mb(mb_exndcf(k_icfp,bs)),k_prim, 1, Lk,
+     &          dbuf,nint,.false.,scr,szscr)
+            call raktest_3cd_2(i_cent,j_cent,k_cent,nint,dbuf,zcent)
+c
+            count = 0
+            do zc = 1,3
+              if (zcent(zc).ne.0) then
+                do ixyz = 1,3
+                  do ibf = ilow,ihi
+                    do jbf = jlow,jhi
+                      do kbf = klow,khi
+                        count = count + 1
+                        o(ibf,jbf,kbf,ixyz,zcent(zc)) = dbuf(count)
+                      enddo
+                    enddo
+                  enddo
+                enddo
+              endif
+            enddo
+c            
+00100       continue
+c
+          enddo
+        enddo
+      enddo
+c
+      call dcopy((nbf*nbf*nbf*3*nat),fdp,1,fdo,1)
+      call daxpy((nbf*nbf*nbf*3*nat),-1.0d00,fdm,1,fdo,1)
+      call dscal((nbf*nbf*nbf*3*nat),delta2i,fdo,1)
+      call printboth_3cd(nbf,nat,fdo,o)
+      call dcopy((nbf*nbf*nbf*3*nat),fdo,1,fdm,1)
+      call daxpy((nbf*nbf*nbf*3*nat),-1.0d00,o,1,fdm,1)
+      norm = ddot((nbf*nbf*nbf*3*nat),fdm,1,fdm,1)
+c
+      write(6,*)' difference norm: ',norm
+c
+      end
+      subroutine raktest_3cd_2(ic,jc,kc,nint,dbuf,idcent)
+      implicit none
+      integer ic, jc, kc, nint
+      integer idcent(3)
+      double precision dbuf(nint,9)
+c
+      if ((ic.ne.jc).and.(ic.ne.kc).and.(jc.ne.kc)) then
+        idcent(1) = ic
+        idcent(2) = jc
+        idcent(3) = kc
+        goto 90000
+      endif
+      if (ic.eq.jc) then
+        call daxpy(3*nint,1.0d00,dbuf(1,4),1,dbuf(1,1),1)
+        call dcopy(3*nint,dbuf(1,7),1,dbuf(1,4),1)
+        call dfill(3*nint,0.0d00,dbuf(1,7),1)
+        write(6,*)' moving'
+        idcent(1) = ic
+        idcent(2) = kc
+        idcent(3) = 0
+      else if (ic.eq.kc) then
+        call daxpy(3*nint,1.0d00,dbuf(1,7),1,dbuf(1,1),1)
+        call dfill(3*nint,0.0d00,dbuf(1,7),1)
+        idcent(1) = ic
+        idcent(2) = jc
+        idcent(3) = 0
+      else if (jc.eq.kc) then
+        call daxpy(3*nint,1.0d00,dbuf(1,7),1,dbuf(1,4),1)
+        call dfill(3*nint,0.0d00,dbuf(1,7),1)
+        idcent(1) = ic
+        idcent(2) = jc
+        idcent(3) = 0
+      else
+        write(6,*)ic,jc,kc
+        stop ' how did I get here'
+      endif
+90000 continue
+      write(6,*)'idcent',idcent
+      end
+      subroutine printboth_3cd(nbf,nat,fdo,o)
+      implicit none
+      integer nbf
+      integer nat
+      double precision fdo(nbf,nbf,nbf,3,nat)
+      double precision   o(nbf,nbf,nbf,3,nat)
+c
+      double precision diff, thresh
+      integer i,j,k,ixyz,ic, count
+c
+      thresh =  1.0d-06
+*      thresh =  -1.0d00
+c
+      count = 0
+      do ic = 1,nat
+        do ixyz=1,3
+          do k=1,nbf
+            do j=1,nbf
+              do i=1,nbf
+                count = count + 1
+                diff = fdo(i,j,k,ixyz,ic) - o(i,j,k,ixyz,ic)
+                diff = abs(diff)
+                if (diff.gt.thresh) then
+                  write(6,10000)count,i,j,k,ixyz,ic,
+     &                fdo(i,j,k,ixyz,ic),
+     &                o(i,j,k,ixyz,ic), diff
+                endif
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+10000 format(1x,'<',i6,'>','(i=',i3,',j=',
+     &    i3,',k=',i3,',x=',i3,',at=',i3,') fd=',
+     &    1pd12.5,' o=',1pd12.5,' diff=',1pd12.5)
       end
