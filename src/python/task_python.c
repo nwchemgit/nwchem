@@ -1,5 +1,5 @@
 /*
- $Id: task_python.c,v 1.8 2000-08-26 00:37:57 d3g681 Exp $
+ $Id: task_python.c,v 1.9 2000-08-26 01:19:58 d3g681 Exp $
 */
 #include "macdecls.h"
 #include "global.h"
@@ -63,18 +63,20 @@ int FATR task_python_(Integer *rtdb_ptr)
 
    util_file_parallel_copy(filename, filename);
 
+   /* PyRun_SimpleFile is unreliable on windows since you're passing
+      a file pointer to Python which requires that it is compiled with
+      a compatible compiler ... which it most likely is not */
+ 
    /*
    if (!(F = fopen(filename, "r"))) {
        fprintf(stderr,"task_python: cannot open file %s\n",filename); 
        return 0;
    }
-   */
    
-   /* PyRun_SimpleFile is unreliable on windows since you're passing
-      a file pointer to Python which requires that it is compiled with
-      a compatible compiler ... which it most likely is not */
-   /*ret = PyRun_SimpleFile(F, filename); */
+   ret = PyRun_SimpleFile(F, filename); */
+
    ret = PyRun_SimpleString("execfile('nwchem.py')"); 
+
    /*fclose(F);*/
    /*   unlink(filename); */
 
