@@ -4,6 +4,9 @@ c***********************************************************************
 c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
+*
+* $Id: prop.F,v 1.4 1997-04-02 19:02:11 d3e129 Exp $
+*
       implicit none
       integer rtdb              ! [input]
       integer nbofile

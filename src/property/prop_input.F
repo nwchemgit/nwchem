@@ -1,4 +1,7 @@
       subroutine prop_input(rtdb)
+*
+* $Id: prop_input.F,v 1.2 1997-04-02 19:02:11 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "context.fh"

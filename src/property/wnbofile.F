@@ -29,6 +29,9 @@ c>>>  executable is not negligible), and to take advantage of the fact
 c>>>  that gennbo already exists and has been ported to a number of 
 c>>>  platforms.
 c
+*
+* $Id: wnbofile.F,v 1.7 1997-04-02 19:02:14 d3e129 Exp $
+*
       implicit none
 #include "bas.fh"
 #include "geom.fh"
