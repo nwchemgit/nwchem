@@ -1,8 +1,9 @@
+#ifndef SECOND_DERIV
       Subroutine xc_perdew86(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                       Amat, Cmat, nq, ipol, Ec, qwght,
      ,     ldew, ffunc)
 c
-c$Id: xc_perdew86.F,v 1.17 1999-02-15 16:47:16 bjohnson Exp $
+c$Id: xc_perdew86.F,v 1.18 2000-05-05 01:57:27 bjohnson Exp $
 c
       implicit none
 c
@@ -108,11 +109,6 @@ c
             if (dsqgamma.gt.0.d0)then
                g = func/gammaval*(2.d0-phi)*fac
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g
-#if 0
-               Cmat(n,1,1) = Cmat(n,1,1) + g*delrho(n,1,1)
-               Cmat(n,2,1) = Cmat(n,2,1) + g*delrho(n,2,1)
-               Cmat(n,3,1) = Cmat(n,3,1) + g*delrho(n,3,1)
-#endif
             endif
             Ec = Ec + func*qwght(n)*fac
             if (ldew) ffunc(n)=ffunc(n)+func*fac
@@ -179,20 +175,6 @@ c
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + gaa*0.5D0
                Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + gab
                Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + gbb*0.5D0
-#if 0
-               Cmat(n,1,1) = Cmat(n,1,1) + gaa*delrho(n,1,1) +
-     &                                     gab*delrho(n,1,2)
-               Cmat(n,2,1) = Cmat(n,2,1) + gaa*delrho(n,2,1) +
-     &                                     gab*delrho(n,2,2)
-               Cmat(n,3,1) = Cmat(n,3,1) + gaa*delrho(n,3,1) +
-     &                                     gab*delrho(n,3,2)
-               Cmat(n,1,2) = Cmat(n,1,2) + gbb*delrho(n,1,2) +
-     &                                     gab*delrho(n,1,1)
-               Cmat(n,2,2) = Cmat(n,2,2) + gbb*delrho(n,2,2) +
-     &                                     gab*delrho(n,2,1)
-               Cmat(n,3,2) = Cmat(n,3,2) + gbb*delrho(n,3,2) +
-     &                                     gab*delrho(n,3,1)
-#endif
             endif
             Ec = Ec + func*qwght(n)*fac
             if (ldew) ffunc(n)=ffunc(n)+func*fac
@@ -200,9 +182,16 @@ c
       endif
       return
       end
+#endif
 
+#ifndef SECOND_DERIV
       Subroutine xc_p81(tol_rho, fac, lfac, nlfac, rho, Amat, nq, ipol, 
      &                  Ec, qwght, ldew, func)
+#else
+#include "dft2drv.fh"
+      Subroutine xc_p81_d2(tol_rho, fac, lfac, nlfac, rho, Amat, Amat2,
+     &                     nq, ipol, Ec, qwght, ldew, func)
+#endif
 c
 c     Ceperley Alder LDA from Perdew Zunger PRB 23, 5048 (1981)
 c
@@ -224,24 +213,39 @@ c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol)
-      double precision AU, BU, CU, DU, GU, B1U, B2U, AP, BP, CP, DP, GP, 
-     &                 B1P, B2P, pi, tol_rho, ONE3, SEV6, FOUR3, TWO3
-      parameter(AU = 0.0311d0, BU = -0.048d0, CU = 0.0020d0, 
-     &          DU = -0.0116d0, GU = -.1423d0, B1U = 1.0529d0, 
-     &          B2U = 0.3334d0, AP = 0.01555d0, BP = -0.0269d0, 
-     &          CP = 0.0007d0, DP = -0.0048d0, GP = -.0843d0, 
-     &          B1P = 1.3981d0, B2P = 0.2611d0)
+#ifdef SECOND_DERIV
+      double precision Amat2(nq,*)
+#endif
+      double precision A(2), B(2), C(2), D(2), G(2), B1(2), B2(2),
+     &                 pi, tol_rho, ONE3, FOUR3, TWO3
+      data A / 0.0311d0, 0.01555d0 /
+      data B / -0.048d0, -0.0269d0 /
+      data C / 0.0020d0, 0.0007d0 /
+      data D / -0.0116d0, -0.0048d0 /
+      data G / -.1423d0, -.0843d0 /
+      data B1 / 1.0529d0, 1.3981d0 /
+      data B2 / 0.3334d0, 0.2611d0 /
+      save A, B, C, D, G, B1, B2
       parameter (pi = 3.1415926535897932385d0)
-      Parameter (ONE3 = 1.d0/3.d0, SEV6 = 7.d0/6.d0)
-      Parameter (FOUR3 = 4.D0/3.D0, TWO3 = 2.d0/3.d0)
-      integer n
-      double precision rhoval, rs, alnrs, eU, vU, drs, adU, ePol, 
-     &                 fz, zeta, eP, vP, adP, AAadd
-      double precision x, fzeta, fzzprime, rsfact
+      Parameter (ONE3 = 1.d0/3.d0, FOUR3 = 4.D0/3.D0)
+      Parameter (TWO3 = 2.d0/3.d0)
+      integer n, i
+      double precision rhoval, rs, alnrs, d1rs, e(2), d1e(2), rden(2),
+     &                 d1den(2), d1zeta(2), d1ersz(2), d1edrho(2), eps,
+     &                 sqrtrs, fz, d1fz, zeta
+#ifdef SECOND_DERIV
+      double precision d2rs, d2e(2), d2den(2), d2zeta(3), d2ersz(3),
+     &                 d2edrho(3), d2fzeta, d2fz, rrho2
+#endif
+      double precision x, fzeta, d1fzeta, rsfact
       fzeta(x) = ((1.d0+x)**FOUR3 + 
      &            (1.d0-x)**FOUR3 - 2.d0) / (2.d0**FOUR3-2.d0)
-      fzzprime(x) = FOUR3*((1.d0+x)**ONE3 - 
-     &                     (1.d0-x)**ONE3) / (2.d0**FOUR3-2.d0)
+      d1fzeta(x) = FOUR3*((1.d0+x)**ONE3 - 
+     &                    (1.d0-x)**ONE3) / (2.d0**FOUR3-2.d0)
+#ifdef SECOND_DERIV
+      d2fzeta(x) = ONE3*FOUR3*((1.d0+x)**(-TWO3) + 
+     &                    (1.d0-x)**(-TWO3)) / (2.d0**FOUR3-2.d0)
+#endif
 c
       rsfact = (0.75d0/pi)**ONE3
 c
@@ -253,20 +257,44 @@ c
             if (abs(rho(n,1)).gt.tol_rho)then
                rhoval = rho(n,1)
                rs = rsfact/rhoval**ONE3
+               d1rs = -ONE3*rs/rhoval
+#ifdef SECOND_DERIV
+               d2rs = -FOUR3*d1rs/rhoval
+#endif
                if (rs.lt.1.d0)then
                   alnrs = log(rs)
-                  eU = AU*alnrs+BU+CU*rs*alnrs+DU*rs
-                  vU = AU*alnrs + (BU-ONE3*AU) + TWO3*CU*rs*alnrs + 
-     &                 ONE3*(DU+DU-CU)*rs
+                  e(1) = A(1)*alnrs+B(1)+C(1)*rs*alnrs+D(1)*rs
+                  d1e(1) = A(1)/rs+C(1)*(alnrs+1d0)+D(1)
+#ifdef SECOND_DERIV
+                  d2e(1) = (C(1)-A(1)/rs)/rs
+#endif
                else
-                  drs = sqrt(rs)
-                  adU = 1.d0/(1.d0+B1U*drs+B2U*rs)
-                  eU = GU*adU
-                  vU = eU*(1.d0+SEV6*B1U*drs+FOUR3*B2U*rs)*adU
+                  sqrtrs = sqrt(rs)
+                  rden(1) = 1.d0/(1.d0+B1(1)*sqrtrs+B2(1)*rs)
+                  d1den(1) = B1(1)/(2.d0*sqrtrs)+B2(1)
+                  e(1) = G(1)*rden(1)
+                  d1e(1) = -G(1)*d1den(1)*rden(1)**2
+#ifdef SECOND_DERIV
+                  d2den(1) = -B1(1)/(4.d0*rs*sqrtrs)
+                  d2e(1) = G(1)*rden(1)**2
+     &                 *(2.d0*d1den(1)**2*rden(1)-d2den(1))
+#endif
                endif
-               Ec = Ec+eU*qwght(n)*rhoval*fac
-               if (ldew) func(n) = func(n) +eU*rhoval*fac
-               Amat(n,1) = Amat(n,1) + vU*fac
+               d1edrho(1) = d1e(1)*d1rs
+               Ec = Ec + e(1)*qwght(n)*rhoval*fac
+               if (ldew) func(n) = func(n) + e(1)*rhoval*fac
+               Amat(n,1) = Amat(n,1) + (e(1)+rhoval*d1edrho(1))*fac
+#ifdef SECOND_DERIV
+               d2edrho(1) = d2e(1)*d1rs*d1rs
+     &                    + d1e(1)*d2rs
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &              + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
+c     ab contribution is same as aa contribution for restricted
+c     since in that case this functional depends on total rho only -
+c     it's not that simple in general
+               Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
+     &              + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
+#endif
             endif
          enddo
       else
@@ -277,35 +305,91 @@ c
             if (abs(rho(n,1)).gt.tol_rho)then
                rhoval = rho(n,1)
                zeta = (rho(n,2)-rho(n,3))/rhoval
-               fz = fzeta(zeta)
                rs = rsfact/rhoval**ONE3
+               d1rs = -ONE3*rs/rhoval
+               fz = fzeta(zeta)
+               d1fz = d1fzeta(zeta)
+               d1zeta(1) = (1.d0-zeta)/rhoval
+               d1zeta(2) =-(1.d0+zeta)/rhoval
+#ifdef SECOND_DERIV
+               d2rs = -FOUR3*d1rs/rhoval
+               d2fz = d2fzeta(zeta)
+               rrho2 = 2.d0/(rhoval*rhoval)
+c              1 = aa, 2 = ab, 3 = bb
+               d2zeta(1) =-rrho2*(1.d0-zeta)
+               d2zeta(2) = rrho2*zeta
+               d2zeta(3) = rrho2*(1.d0+zeta)
+#endif
                if (rs.lt.1.d0)then
                   alnrs = log(rs)
-                  eU = AU*alnrs+BU+CU*rs*alnrs+DU*rs
-                  eP = AP*alnrs+BP+CP*rs*alnrs+DP*rs
-                  vU = AU*alnrs + (BU-ONE3*AU) + TWO3*CU*rs*alnrs + 
-     &                 ONE3*(DU+DU-CU)*rs
-                  vP = AP*alnrs + (BP-ONE3*AP) + TWO3*CP*rs*alnrs + 
-     &                 ONE3*(DP+DP-CP)*rs
+                  do i = 1, 2
+                     e(i) = A(i)*alnrs+B(i)+C(i)*rs*alnrs+D(i)*rs
+                     d1e(i) = A(i)/rs+C(i)*(alnrs+1d0)+D(i)
+#ifdef SECOND_DERIV
+                     d2e(i) = (C(i)-A(i)/rs)/rs
+#endif
+                  enddo
                else
-                  drs = sqrt(rs)
-                  adU = 1.d0/(1.d0+B1U*drs+B2U*rs)
-                  adP = 1.d0/(1.d0+B1P*drs+B2P*rs)
-                  eU = GU*adU
-                  eP = GP*adP
-                  vU = eU*(1.d0+SEV6*B1U*drs+FOUR3*B2U*rs)*adU
-                  vP = eP*(1.d0+SEV6*B1P*drs+FOUR3*B2P*rs)*adP
+                  sqrtrs = sqrt(rs)
+                  do i = 1, 2
+                     rden(i) = 1.d0/(1.d0+B1(i)*sqrtrs+B2(i)*rs)
+                     d1den(i) = B1(i)/(2.d0*sqrtrs)+B2(i)
+                     e(i) = G(i)*rden(i)
+                     d1e(i) = -G(i)*d1den(i)*rden(i)**2
+#ifdef SECOND_DERIV
+                     d2den(i) = -B1(i)/(4.d0*rs*sqrtrs)
+                     d2e(i) = G(i)*rden(i)**2
+     &                    *(2.d0*d1den(i)**2*rden(i)-d2den(i))
+#endif
+                  enddo
                endif
-               AAadd = vU + fz*(vP-vU) 
-               ePOL = (eP-eU)*fzzprime(zeta)
-               Ec = Ec+(eU+fz*(eP-eU))*qwght(n)*rhoval*fac
-               if (ldew) func(n) = func(n) +
-     *              (eU+fz*(eP-eU))*rhoval*fac
-               Amat(n,1) = Amat(n,1) + (AAadd + (1.d0-zeta)*ePOL)*fac
-               Amat(n,2) = Amat(n,2) + (AAadd - (1.d0+zeta)*ePOL)*fac
+               eps = e(1) + fz*(e(2)-e(1))
+               d1ersz(1) = d1e(1) + fz*(d1e(2)-d1e(1))
+               d1ersz(2) = d1fz*(e(2)-e(1))
+               d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
+               d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
+               Ec = Ec + eps*qwght(n)*rhoval*fac
+               if (ldew) func(n) = func(n) + eps*rhoval*fac
+               Amat(n,1) = Amat(n,1) + (eps + rhoval*d1edrho(1))*fac
+               Amat(n,2) = Amat(n,2) + (eps + rhoval*d1edrho(2))*fac
+#ifdef SECOND_DERIV
+c              1 = rsrs, 2 = rsz, 3 = zz
+               d2ersz(1) = d2e(1) + fz*(d2e(2)-d2e(1))
+               d2ersz(2) = d1fz*(d1e(2)-d1e(1))
+               d2ersz(3) = d2fz*(e(2)-e(1))
+c              1 = aa, 2 = ab, 3 = bb
+               d2edrho(1) = d2ersz(1)*d1rs*d1rs
+     &                    + d2ersz(2)*d1rs*d1zeta(1)*2.d0
+     &                    + d2ersz(3)*d1zeta(1)*d1zeta(1)
+     &                    + d1ersz(1)*d2rs
+     &                    + d1ersz(2)*d2zeta(1)
+               d2edrho(2) = d2ersz(1)*d1rs*d1rs
+     &                    + d2ersz(2)*d1rs*(d1zeta(1)+d1zeta(2))
+     &                    + d2ersz(3)*d1zeta(1)*d1zeta(2)
+     &                    + d1ersz(1)*d2rs
+     &                    + d1ersz(2)*d2zeta(2)
+               d2edrho(3) = d2ersz(1)*d1rs*d1rs
+     &                    + d2ersz(2)*d1rs*d1zeta(2)*2.d0
+     &                    + d2ersz(3)*d1zeta(2)*d1zeta(2)
+     &                    + d1ersz(1)*d2rs
+     &                    + d1ersz(2)*d2zeta(3)
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &              + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
+               Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
+     &              + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*fac
+               Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+     &              + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*fac
+#endif
             endif
          enddo
       endif
       return
       end
-
+c
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "xc_perdew86.F"
+#endif
