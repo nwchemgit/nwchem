@@ -5,9 +5,9 @@ include ./DEFS
 
 #peigs.lib:; $(MAKE) -f makefile.peigs lib
 
-peigs_stamp:	include_stamp
+peigs_stamp.$(TARGET):	include_stamp
 	($(MAKE) -f makefile.peigs lib ) || exit 1
-	touch peigs_stamp
+	touch peigs_stamp.$(TARGET)
 
 
 # no include files needed. 
@@ -17,11 +17,11 @@ include_stamp:	./h/blas_lapack.h
 
 clean:
 	$(MAKE) -f makefile.peigs clean
-	rm -f peigs_stamp include_stamp
+	rm -f peigs_stamp.$(TARGET) include_stamp
 realclean:	clean
 	$(MAKE) -f makefile.peigs realclean
 	rm -f $(LIBDIR)/$(LIBRARY)
-	rm -f peigs_stamp include_stamp
+	rm -f peigs_stamp.$(TARGET) include_stamp
 
 
 sngl_to_dbl dbl_to_sngl:
