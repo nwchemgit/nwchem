@@ -80,19 +80,7 @@ c
 c
       me = ga_nodeid()
 c
-      if (oscratch) then
-         if (.not. util_file_parse_dir(scratch_dir, dir, me)) then
-            if (.not. util_file_parse_dir(
-     $ SCRATCH_DEF_DIR
-     $           , dir, me)) dir = ' ' ! Final default is blank
-         endif
-      else
-         if (.not. util_file_parse_dir(permanent_dir, dir, me)) then
-            if (.not. util_file_parse_dir(
-     $ PERM_DEF_DIR
-     $           , dir, me)) dir = ' ' ! Final default is blank
-         endif
-      endif
+      call util_directory_name(dir, oscratch, me)
 c
 *      write(6,*) ' dir = |', dir,'|'
 c
@@ -145,16 +133,9 @@ c
       prevsdir = ' '
       if (ga_nodeid().eq.0) then
          do node = 0, ga_nnodes()-1
-            if (.not. util_file_parse_dir(scratch_dir, sdir, node)) then
-               if (.not. util_file_parse_dir(
-     $              SCRATCH_DEF_DIR
-     $              , sdir, 0)) sdir = ' ' ! Final default is blank
-            endif
-            if (.not. util_file_parse_dir(permanent_dir,pdir,node)) then
-               if (.not. util_file_parse_dir(
-     $              PERM_DEF_DIR
-     $              , pdir, 0)) pdir = ' ' ! Final default is blank
-            endif
+c
+            call util_directory_name(sdir, .true., node)
+            call util_directory_name(pdir, .false., node)
 c
             if ((pdir.ne.prevpdir .or. sdir.ne.prevsdir)) then
                write(6,1) node, pdir(1:inp_strlen(pdir)), node,
@@ -283,7 +264,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.10 1997-05-25 21:19:53 d3g681 Exp $
+C$Id: util_file_name.F,v 1.11 1997-05-29 17:17:21 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -452,6 +433,33 @@ c
       endif
 c
       end
+      subroutine util_directory_name(dir, oscratch, node)
+      implicit none
+#include "cfileprefix.fh"
+      character*(*) dir         ! [output]
+      logical oscratch          ! [input]
+      integer node              ! [input]
+      logical util_file_parse_dir
+      external util_file_parse_dir
+c
+c     return the name of the scratch/permanent directory for the
+c     specified process
+c
+      if (oscratch) then
+         if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
+            if (.not. util_file_parse_dir(
+     $ SCRATCH_DEF_DIR
+     $           , dir, node)) dir = ' ' ! Final default is blank
+         endif
+      else
+         if (.not. util_file_parse_dir(permanent_dir, dir, node)) then
+            if (.not. util_file_parse_dir(
+     $ PERM_DEF_DIR
+     $           , dir, node)) dir = ' ' ! Final default is blank
+         endif
+      endif
+c
+      end
       integer function util_scratch_dir_avail_for_me()
       implicit none
 #include "global.fh"
@@ -492,11 +500,7 @@ c
 c
 c     Now get the name of my scratch directory
 c
-      if (.not. util_file_parse_dir(scratch_dir, mine, me)) then
-         if (.not. util_file_parse_dir(
-     $ SCRATCH_DEF_DIR
-     $        , mine, me)) mine = ' ' ! Final default is blank
-      endif
+      call util_directory_name(mine, .true., me)
 c
       nuse = 0
 c
@@ -514,11 +518,7 @@ c
 c     Count other processes using this directory
 c     
          do you = 0, nproc-1
-            if (.not. util_file_parse_dir(scratch_dir, yours, you)) then
-               if (.not. util_file_parse_dir(
-     $              SCRATCH_DEF_DIR
-     $              , yours, you)) yours = ' ' ! Final default is blank
-            endif
+            call util_directory_name(yours, .true., you)
             if (yours .eq. mine) nuse = nuse + 1
          enddo
       endif
@@ -526,5 +526,45 @@ c
       util_scratch_dir_avail_for_me = avail / nuse
 c
       end
+      subroutine util_file_name_resolve(filename, oscratch)
+      implicit none
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+      character*(*) filename    ! [input/output] 
+      logical oscratch          ! [input] 
+c
+c     If the given filename is not a full path (begins with /)
+c     or explicitly relative to the current directory (./ or ../)
+c     then resolve it to the scratch/permanent directory for the
+c     current process according to oscratch.
+c
+c     Note that this resolution cannot happen at input time since only
+c     process 0 reads the input and the directories are process specific.
+cc
+      character*(nw_max_path_len) dir
+      integer flen, dlen
+c
+      if ((filename(1:1).ne.'/')  .and. (filename(1:2).ne.'./')
+     $     .and. (filename(1:3).ne.'../')) then
+         call util_directory_name(dir, oscratch, ga_nodeid())
+         dlen = inp_strlen(dir)
+         if (dlen .gt. 0) then
+            flen = inp_strlen(filename)
+            if ((flen+dlen+1).gt.len(filename)) call errquit
+     $           ('util_file_name_resolve: filename too small',
+     $           flen+dlen+1)
+            dir(dlen+1:dlen+1) = '/'
+            dir(dlen+2:) = filename
+c     
+*            write(6,*) ' RESOLVED ', filename(1:flen), ' TO ', 
+*     $           dir(1:inp_strlen(dir))
+c     
+            filename = dir
+         endif
+      endif
+c
+      end
 
-
+         
+      
