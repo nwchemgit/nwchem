@@ -1,11 +1,11 @@
 #!/bin/csh 
 #
-# $Id: runtest.batch,v 1.4 1997-07-02 18:51:14 d3e129 Exp $
+# $Id: runtest.batch,v 1.5 1997-07-02 22:07:44 d3e129 Exp $
 #
 # Batch system based parallel and sequential execution of test jobs
 #
 # Usage:
-#       runtest.batch [-procs nproc] [-nowait|wait] testdir1 [testdir2 ...]
+#       runtest.batch [-procs nproc] [-nowait|wait] [-add] testdir1 [testdir2 ...]
 #
 #
 # Gets executable from environment variable NWCHEM_EXECUTABLE or
@@ -47,6 +47,7 @@ endif
 @ argv_set_nproc = 0
 @ check_interactive = 1
 @ get_nproc = 0
+@ add_job = 0
 set args_2_use = removeme
 foreach argument ($argv)  
     if ($get_nproc) then
@@ -59,6 +60,8 @@ foreach argument ($argv)
         @ check_interactive = 1
     else if ($argument == "-nowait") then
         @ check_interactive = 0
+    else if ($argument == "-add") then
+        @ add_job = 1
     else
         set args_2_use = ($args_2_use $argument)
     endif
@@ -151,10 +154,12 @@ endif
 
 set overall_status = 0
 
-rm -f $CURDIR/BATCH_OKAY
-rm -f $CURDIR/BATCH_FAILED
-rm -f $CURDIR/BATCH_OVERALL
-rm -f $CURDIR/BATCH_JOBS
+if (! $add_job) then
+  rm -f $CURDIR/BATCH_OK
+  rm -f $CURDIR/BATCH_FAILED
+  rm -f $CURDIR/BATCH_OVERALL
+  rm -f $CURDIR/BATCH_JOBS
+endif
 
 @ run_count = 0
 foreach TEST ($args_2_use) 
@@ -486,8 +491,16 @@ foreach TEST ($args_2_use)
      exit 911
   endif
 end
-touch $CURDIR/BATCH_JOBS
-echo $run_count > $CURDIR/BATCH_JOBS
+if (! $add_job) then
+   touch $CURDIR/BATCH_JOBS
+   echo $run_count > $CURDIR/BATCH_JOBS
+else
+   @ cur_job_count = `cat $CURDIR/BATCH_JOBS`
+   @ cur_job_count += $run_count
+   touch $CURDIR/BATCH_JOBS
+   rm -f $CURDIR/BATCH_JOBS
+   echo $cur_job_count > $CURDIR/BATCH_JOBS
+endif
 if (!($check_interactive)) then
    echo " not doing inteactive check of jobs "
    echo " run batch.check to see current status"
@@ -531,8 +544,9 @@ endif
 
 
 USAGE:
-  echo "runtest.batch [-procs nproc] [-wait|-nowait] testdir1 [testdir2 ...]"
+  echo "runtest.batch [-procs nproc] [-wait|-nowait] [-add] testdir1 [testdir2 ...]"
   echo " -procs nproc sets the number of processors to use"
   echo " -wait <the default> tries to interactively check the jobs as they are processed"
   echo " -nowait turns off the interactive check and conformation must be done by hand"
+  echo " -add allows the addition of the current jobs to others already submitted"
   exit 0
