@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.3 1996-07-12 01:55:54 d3g681 Exp $
+C$Id: mull_pop.F,v 1.4 1996-08-02 02:00:28 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -127,7 +127,7 @@ c
      &         call errquit(' exiting in mull_pop',4)
           write(LuOut,2) iat,qatom(iat),
      &         (qshell(ish),ish=ish1,ish2)
-    2     format(i4,2x,f10.4,2x,25(f8.4))
+    2     format(i4,2x,f10.2,2x,25(f6.2))
         enddo
       endif
       call ga_sync
