@@ -5,3 +5,22 @@ PGI's compilation system is braindamaged in some fascinating ways.
    the man page, but when invoked by if77, these things are _not_ defined.
 2) ld's -L prepends directories to the search path instead of
    appending like every other unix compiler package I've encountered.
+
+
+
+HP-UX 9000/735, also some others      08 Feb 1996  Jarek Nieplocha
+
+1. Avoid the _free_ HP C compiler - use gcc instead:
+
+HP cc does not generate any symbols or code for several routines in one of
+the GA files. To make the user's life more entertaining, there is no any
+warning or error messages either -- compiler creates a junk object file
+quietly and pretends that everything went well.
+
+Karl Anderson says: "(HP) cc is worh every penny you paid for it"
+
+2. fort77 instead of f77 should be used to link fortran programs since 
+f77 doesn't support -L flag. Fortran code should be compiled with the 
++ppu flag that adds underscores to the subroutine names.
+
+
