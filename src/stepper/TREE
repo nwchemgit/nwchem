@@ -1,0 +1,72 @@
+dft_optimize------stpr_walk-----|-stpr_cneed
+				|-stpr_stepper	stpr_stepcor----->
+
+
+
+stpr_stepcor----|-stpr_setmass 
+		|
+                |-stpr_face-----|-stpr_set_defaults   
+		|		|-stpr_load_rtdb      
+		|		|-stpr_select_grtdb   
+		|		|-stpr_setmass_grtdb  
+		|		|-stpr_locate         
+		|		|-stpr_matout         
+		|		|-stpr_wlkchk         
+		|		|-stpr_chkhess        
+		|		|-stpr_mktri          
+		|
+                |-stpr_formup---|-stpr_retrve 
+		|		|-stpr_inihes 
+		|		|-stpr_retrve 
+		|		|-stpr_hesupd
+		|
+                |-stpr_driver---|-stpr_retrve
+		|		|-stpr_place 
+		|		|-stpr_partit
+		|		|-stpr_mkstep
+		|		|-stpr_output
+		|		|-stpr_recall
+		|		|-stpr_save  
+		|		|-stpr_sumstc
+		|
+                |-stpr_putbck  
+                |-distan       
+                |-angle        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+stpr_set_defaults
+stpr_load_rtdb
+stpr_select_grtdb
+stpr_setmass_grtdb
+stpr_locate 
+stpr_matout
+stpr_wlkchk
+stpr_chkhess
+stpr_mktri          
+
+
+
+
+
+
+
+
+
+
+
+stpr_stepcor is Utah-style...
