@@ -1,8 +1,11 @@
+c
+c $Id: orb.F,v 1.7 2004-05-18 21:56:46 bylaska Exp $
+c
 
 *     ***********************************
-*     *                 				*
+*     *                 		*
 *     *           Orb_Init          	*
-*     *                 				*
+*     *                 		*
 *     ***********************************
 
       subroutine Orb_Init(rtdb,ispin_in,ne_in)
@@ -26,7 +29,7 @@
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      logical value,found
+      logical value,found,mulliken_kawai
       integer nion,npsp,k
       character*30 filename
       character*255 id,full_filename
@@ -36,6 +39,8 @@
       external    psp_atom
       integer  ion_nion,psp_npsp
       external ion_nion,psp_npsp
+      logical  control_mulliken_kawai,aorbs_init,aorbs_readall
+      external control_mulliken_kawai,aorbs_init,aorbs_readall
 
       call Parallel_taskid(taskid)
       ispin = ispin_in
@@ -45,6 +50,7 @@
       nion = ion_nion()
       npsp = psp_npsp()
       call Pack_npack(1,npack1)
+      mulliken_kawai = control_mulliken_kawai()
 
       value = MA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
       value = value.and.
@@ -71,6 +77,16 @@
      >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
       end do
 
+
+      if (.not.mulliken_kawai) then
+         value = aorbs_init()
+         value = value.and.aorbs_readall()
+         if (.not.value) 
+     >    call errquit('analysis_input: aorbs_init failed',0,0)
+      end if
+
+
+
       value = rtdb_cget(rtdb,'cpmd:omotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,.false.,
      >                    full_filename)
@@ -96,9 +112,9 @@
       end
 
 *     ***********************************
-*     *                 				*
-*     *           Orb_End 	         	*
-*     *                 				*
+*     *                 		*
+*     *           Orb_End 	       	*
+*     *                 		*
 *     ***********************************
 
       subroutine Orb_End()
@@ -115,11 +131,17 @@
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      logical value
+      logical value,mulliken_kawai
+      logical  control_mulliken_kawai
+      external control_mulliken_kawai
+
 
       call Parallel_taskid(taskid)
 
       if (taskid.eq.MASTER) close(unit=33)
+
+      mulliken_kawai = control_mulliken_kawai()
+      if (.not.mulliken_kawai) call aorbs_end()
 
 *     **** free heap space ****
       value = MA_free_heap(lorb(2))
@@ -131,9 +153,9 @@
       end
 
 *     ***********************************
-*     *                 				*
-*     *           Orb_Write	         	*
-*     *                 				*
+*     *                 		*
+*     *           Orb_Write	       	*
+*     *                 		*
 *     ***********************************
 
       subroutine Orb_Write(psi)
