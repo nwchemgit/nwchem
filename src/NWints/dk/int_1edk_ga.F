@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, oskel)
-c $Id: int_1edk_ga.F,v 1.5 1999-11-02 22:17:22 bert Exp $
+c $Id: int_1edk_ga.F,v 1.6 1999-11-02 23:21:53 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -81,6 +81,7 @@ c
 c
 c     Re-initialize integrals so that pVp integral memory requirement is set
 c
+      print*,'doing douglas-kroll',form_type
       call int_terminate
       basis_array(1) = basis_in
       basis_array(2) = usebasis
