@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.316 2000-04-26 23:25:11 windus Exp $
+# $Id: makefile.h,v 1.317 2000-05-02 17:20:53 nwchem Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -889,18 +889,15 @@ endif
               -brename:.lsame_,.lsame \
               -brename:.xerbla_,.xerbla \
               -brename:.zgemm_,.zgemm \
-              -brename:.dsyr2_,.dsyr2
-
+              -brename:.dsyr2_,.dsyr2 \
 #              -brename:.dtrsv_,.dtrsv \
 #              -brename:.ztrsv_,.ztrsv 
 #              -brename:.dsymm_,.dsymm \
-
               -brename:.dznrm2_,.dznrm2 \
               -brename:.zaxpy_,.zaxpy \
               -brename:.zcopy_,.zcopy \
               -brename:.zdotc_,.zdotc \
               -brename:.zdscal_,.zdscal \
-
               -brename:.zgemv_,.zgemv \
               -brename:.zgerc_,.zgerc \
 #              -brename:.zhemm_,.zhemm \
