@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.5 1996-08-02 02:10:49 gg502 Exp $
+C     $Id: memory_def.F,v 1.6 1996-08-19 15:24:02 d3g681 Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -92,7 +92,7 @@ C     This is probably a minimum configuration for most IBM
 C     platforms, but many will have more.  Assumes dedicated node
 C     access.
 C
-      Parameter ( Total_Dflt = 13107200) ! 100 MB on 128 MB node
+      Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
 #endif
 C
 C     Fraction of total memory which goes into each memory category
