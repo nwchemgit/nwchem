@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.90 2001-05-09 17:51:23 d3j191 Exp $
+c $Id: md_start.F,v 1.91 2001-06-26 21:10:38 d3j191 Exp $
 c
       implicit none
 c
@@ -359,6 +359,7 @@ c
       lfnmsg=45
       lfnday=46
       lfncmd=47
+      lfnpmf=48
 c
 c     set defaults
 c

@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.20 2000-07-14 19:54:03 d3j191 Exp $
+c $Id: md_finish.F,v 1.21 2001-06-26 21:10:38 d3j191 Exp $
 c
       implicit none
 c
@@ -108,6 +108,9 @@ c
       endif
       if(nfsync.gt.0) then
       close(unit=lfnsyn,status='keep')
+      endif
+      if(lfnpmf.lt.0) then
+      close(unit=lfnpmf,status='keep')
       endif
       endif
 c

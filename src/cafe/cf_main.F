@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.92 2001-05-23 03:20:03 d3j191 Exp $
+c $Id: cf_main.F,v 1.93 2001-06-26 21:09:29 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1224,16 +1224,18 @@ c
 c
       return
       end
-      subroutine cf_multi(nums,xs,fs,isgan,isatt,isfrc,isdyn,isct1,ess)
+      subroutine cf_multi(nums,xs,fs,isgan,isatt,isfrc,isdyn,isct1,ess,
+     + lfnpmf,lrec)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer nums
+      integer nums,lfnpmf
       real*8 xs(msa,3),fs(msa,3),ess(msf,msf,mpe,2)
       integer isgan(msa),isatt(msa),isfrc(msa),isdyn(msa),isct1(msa)
+      logical lrec
 c
       edrs=zero
       epmf=zero
@@ -1252,13 +1254,14 @@ c
 c
       if(lpmf) then
       call cf_plist(nums,xs,fs,isgan,isatt,int_mb(i_ipmf),
-     + int_mb(i_jpmf),dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_wpmf))
+     + int_mb(i_jpmf),dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_wpmf),
+     + lfnpmf,lrec)
       endif
 c
       return
       end
       subroutine cf_plist(nums,xs,fs,isgan,isatt,
-     + ipmf,jpmf,rpmf,xpmf,wpmf)
+     + ipmf,jpmf,rpmf,xpmf,wpmf,lfnpmf,lrec)
 c
       implicit none
 c
@@ -1270,7 +1273,7 @@ c
       real*8 cf_atmass
       external cf_atmass
 c
-      integer nums
+      integer nums,lfnpmf
       real*8 xs(msa,3),fs(msa,3)
       integer isgan(msa),isatt(msa)
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
@@ -1279,6 +1282,7 @@ c
       integer ip(5)
       real*8 rv(2),chg(2)
       integer it(2),ign(4),iml(4),idt(4),ich(4)
+      logical lrec
 c
       integer i,j,k,l,m
       real*8 wm,wmtot
@@ -1292,6 +1296,7 @@ c
       xpmf(j,1,i)=zero
       xpmf(j,2,i)=zero
       xpmf(j,3,i)=zero
+      wpmf(j,i)=zero
     2 continue
       m=0
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
@@ -1309,16 +1314,17 @@ c
       xpmf(j,1,i)=xpmf(j,1,i)+wm*xs(l,1)
       xpmf(j,2,i)=xpmf(j,2,i)+wm*xs(l,2)
       xpmf(j,3,i)=xpmf(j,3,i)+wm*xs(l,3)
+      wpmf(j,i)=wpmf(j,i)+wm
       endif
     5 continue
     4 continue
-      wpmf(j,i)=one/wmtot
+c      wpmf(j,i)=one/wmtot
 c      xpmf(j,1,i)=xpmf(j,1,i)/dble(ipmf(i,j+1))
 c      xpmf(j,2,i)=xpmf(j,2,i)/dble(ipmf(i,j+1))
 c      xpmf(j,3,i)=xpmf(j,3,i)/dble(ipmf(i,j+1))
-      xpmf(j,1,i)=xpmf(j,1,i)/wmtot
-      xpmf(j,2,i)=xpmf(j,2,i)/wmtot
-      xpmf(j,3,i)=xpmf(j,3,i)/wmtot
+c      xpmf(j,1,i)=xpmf(j,1,i)/wmtot
+c      xpmf(j,2,i)=xpmf(j,2,i)/wmtot
+c      xpmf(j,3,i)=xpmf(j,3,i)/wmtot
     3 continue
       if(ipmf(i,1).eq.5) xpmf(2,3,i)=xpmf(1,3,i)
       if(ipmf(i,1).eq.6) then
@@ -1327,9 +1333,23 @@ c      xpmf(j,3,i)=xpmf(j,3,i)/dble(ipmf(i,j+1))
       endif
     1 continue
 c
+      call ga_dgop(mcf_59,wpmf,4*numpmf,'+')
       call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
+c
+      m=0
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.2) m=3
+      if(ipmf(i,1).eq.3) m=4
+      if(ipmf(i,1).eq.4) m=4
+      do 22 j=1,m
+      wmtot=one/wpmf(j,i)
+      wpmf(j,i)=wmtot
+      xpmf(j,1,i)=xpmf(j,1,i)*wmtot
+      xpmf(j,2,i)=xpmf(j,2,i)*wmtot
+      xpmf(j,3,i)=xpmf(j,3,i)*wmtot
+   22 continue
 c
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
       do 7 j=1,2
@@ -1347,8 +1367,11 @@ c
       ip(3)=0
       call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
      + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
-c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Bond: ',rv,(ft(1,j),j=1,3)
-      if(me.eq.0) epmf=epmf+rv(2)
+      if(me.eq.0) then
+      if(lrec) write(-lfnpmf,1000) i,rv
+ 1000 format(i3,f12.6,e12.5)
+      epmf=epmf+rv(2)
+      endif
       do 9 j=1,2
       do 10 k=1,ipmf(i,j+1)
       do 11 l=1,nums

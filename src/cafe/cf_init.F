@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.59 2001-05-23 03:20:03 d3j191 Exp $
+c $Id: cf_init.F,v 1.60 2001-06-26 21:09:29 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1700,16 +1700,32 @@ c
 c
       return
       end
-      subroutine cf_lambda(lamtyp,lambda,maxlam,explam,lfnout,
-     + rlambd,dlambd)
+      subroutine cf_lambda(lamtyp,lambda,maxlam,explam,lfnout,lfnpmf,
+     + rlambd,dlambd,projct)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      integer lamtyp,lambda,maxlam,lfnout
+      integer lamtyp,lambda,maxlam,lfnout,lfnpmf
       real*8 explam,rlambd,dlambd
+      character*80 projct
+      character*3 cnum
+c
+      character*255 filnam
+c
+      if(me.eq.0.and.lpmf) then
+      if(lfnpmf.lt.0) then
+      close(unit=-lfnpmf,status='keep')
+      else
+      lfnpmf=-lfnpmf
+      endif
+      write(cnum,'(i3.3)') lambda
+      filnam=projct(1:index(projct,' ')-1)//cnum//'.pmf '
+      open(unit=-lfnpmf,file=filnam(1:index(filnam,' ')-1),
+     + form='formatted')
+      endif
 c
       call cf_lam(lamtyp,lambda,maxlam,explam,lfnout,rlambd,dlambd,
      + dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),
@@ -1718,7 +1734,8 @@ c
      + mdt(1),numd(1),mdp(1),dbl_mb(i_dih(1)),
      + mit(1),numi(1),mip(1),dbl_mb(i_imp(1)),
      + mbt(2),mbp(2),dbl_mb(i_bnd(2)),mht(2),mhp(2),dbl_mb(i_ang(2)),
-     + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)))
+     + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)),
+     + lfnpmf)
 c
       return
       end
@@ -1726,7 +1743,8 @@ c
      + rlambd,dlambd,
      + wgt,vdw,chg,mwb,nwb,nbp,bndw,
      + mwh,nwh,nhp,angw,mwd,nwd,ndp,dihw,mwo,nwo,nop,oopw,
-     + msb,npb,bnds,msh,nph,angs,msd,npd,dihs,mso,npo,oops)
+     + msb,npb,bnds,msh,nph,angs,msd,npd,dihs,mso,npo,oops,
+     + lfnpmf)
 c
       implicit none
 c
@@ -1743,6 +1761,7 @@ c
       real*8 dihw(mwd,ndp,6),oopw(mwo,nop,6)
       real*8 bnds(msb,npb,6),angs(msh,nph,6)
       real*8 dihs(msd,npd,6),oops(mso,npo,6)
+      integer lfnpmf
 c
       real*8 tlam(3),rlam(3),slam(3)
       integer i,j,k,l
@@ -1834,7 +1853,7 @@ c
       shift1(k)=rlam(k)*shift1(6)+slam(k)*shift1(5)
     1 continue
 c
-      if(lpmf) call cf_lampmf(rlam,slam,dbl_mb(i_rpmf))
+      if(lpmf) call cf_lampmf(rlam,slam,dbl_mb(i_rpmf),lfnpmf)
 c
       if(me.eq.0) then
       call swatch(pdate,ptime)
@@ -1848,13 +1867,14 @@ c
 c
       return
       end
-      subroutine cf_lampmf(rlam,slam,rpmf)
+      subroutine cf_lampmf(rlam,slam,rpmf,lfnpmf)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       real*8 rlam(3),slam(3),rpmf(3,6,numpmf)
+      integer lfnpmf
 c
       integer i,j,k
 c
@@ -1864,6 +1884,10 @@ c
       rpmf(j,k,i)=rlam(k)*rpmf(j,6,i)+slam(k)*rpmf(j,5,i)
     3 continue
     2 continue
+      if(me.eq.0) then
+      write(-lfnpmf,1000) i,rpmf(1,1,i),rlam(1)
+ 1000 format(i3,2f12.6)
+      endif
     1 continue
 c
       return

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.107 2001-05-23 03:22:58 d3j191 Exp $
+c $Id: md_main.F,v 1.108 2001-06-26 21:10:38 d3j191 Exp $
 c
       implicit none
 c
@@ -1037,7 +1037,8 @@ c
 c
 c     initialize parameters
 c
-      call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,rlambd,dlambd)
+      call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
+     + rlambd,dlambd,filnam)
 c
 c     property initialization
 c
@@ -1522,7 +1523,7 @@ c
      + isl(1,lsct1),nwmloc,dbl_mb(i_fw))
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsatt),isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),
-     + dbl_mb(i_ess))
+     + dbl_mb(i_ess),lfnpmf,.not.lequi)
       call timer_stop(10)
 c
       if(ipolt.gt.0) then
@@ -2143,7 +2144,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.107 2001-05-23 03:22:58 d3j191 Exp $
+c $Id: md_main.F,v 1.108 2001-06-26 21:10:38 d3j191 Exp $
 c
       implicit none
 c
