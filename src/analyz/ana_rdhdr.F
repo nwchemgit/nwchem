@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.12 2000-08-23 17:04:12 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.13 2001-01-18 21:16:36 d3j191 Exp $
 c
       implicit none
 c
@@ -17,6 +17,9 @@ c
       if(me.eq.0) then
 c
       iscof=ifrst
+      timoff=0.0d0
+      time=0.0d0
+      timr=0.0d0
       write(cnum,'(i3.3)') iscof
 c
       fname=filtrj
