@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.66 2001-11-15 04:31:31 d3j191 Exp $
+c $Id: sp_main.F,v 1.67 2001-11-15 19:00:17 d3j191 Exp $
 c
       implicit none
 c
@@ -1259,9 +1259,10 @@ c
       do 222 k=1,27
       if(iwl(iwm,lwnod).eq.neighb(k,1)) goto 223
   222 continue
-      write(string,'(a,i4,a,i4,a,i4)') 'sp_travel: solvent molecule ',
+      write(string,'(a,i4,a,i4,a,i4,9f6.2)')
+     +  'sp_travel: solvent molecule ',
      + iwl(iwm,lwgmn),' moving to non-neighbor ',iwl(iwm,lwnod),
-     + ' from ',me
+     + ' from ',me,((xw(iwm,i,j),i=1,3),j=1,3)
       call errquit(string,me)
   223 continue
 c
@@ -1384,9 +1385,10 @@ c
       do 444 k=1,27
       if(isl(isa,lsnod).eq.neighb(k,1)) goto 445
   444 continue
-      write(string,'(a,i4,a,i4,a,i4)') 'sp_travel: solute segment ',
+      write(string,'(a,i4,a,i4,a,i4,3f6.2)')
+     +  'sp_travel: solute segment ',
      + isl(isa,lssgm),' moving to non-neighbor ',isl(isa,lsnod),
-     + ' from ',me
+     + ' from ',me,(xs(isa,i),i=1,3)
       call errquit(string,me)
   445 continue
 c
