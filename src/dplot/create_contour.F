@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.7 1997-11-13 02:01:16 d3e129 Exp $
+* $Id: create_contour.F,v 1.8 1999-11-10 03:47:57 edo Exp $
 *
       Implicit None
 *
@@ -144,15 +144,15 @@
 *
       Call dfill(nXPrim,0.0d0,Dbl_mb(k_Expo),1)
       Call dfill(nCoef_Max,0.0d0,Dbl_mb(k_Coef),1)
-      Acc_AO_Gauss = 20.d0
+      Acc_AO_Gauss = 40.d0
       If (What.eq.'VIEW') Acc_AO_Gauss = 1.d20
       mBF = nBF
-      Call nBF_to_mBF(Geom,AO_Bas_Han,
-     &                Dbl_mb(k_rq0),mBF,nAtom,
+      Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
+     &                mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      &                Dbl_mb(k_Expo),nXPrim,Acc_AO_Gauss)
       If (What.eq.'VIEW' . and . nBF.ne.mBF)
-     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',0)
+     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
 *
 *---- Compute values of the basis functions and the grid points (use
@@ -166,13 +166,13 @@
       lth3 = mBF
       If (lth3.eq.0) lth3 = 1
       LResult = MA_Push_Get(MT_Dbl,lth1,'Scr1',l_Scr1,k_Scr1)
-      Call ErrMem(LResult,'C_C: Failed to allocate Scr1',0)
+      Call ErrMem(LResult,'C_C: Failed to allocate Scr1',lth1)
       LResult = MA_Push_Get(MT_Dbl,lth2,'Scr2',l_Scr2,k_Scr2)
-      Call ErrMem(LResult,'C_C: Failed to allocate Scr2',0)
+      Call ErrMem(LResult,'C_C: Failed to allocate Scr2',lth2)
       LResult = MA_Push_Get(MT_Int,1   ,'Hess',l_Hess,k_Hess)
-      Call ErrMem(LResult,'C_C: Failed to allocate Hess',0)
+      Call ErrMem(LResult,'C_C: Failed to allocate Hess',1)
       LResult = MA_Push_Get(MT_Int,lth3,'Scr3',l_Scr3,k_Scr3)
-      Call ErrMem(LResult,'C_C: Failed to allocate Scr3',0)
+      Call ErrMem(LResult,'C_C: Failed to allocate Scr3',lth3)
 *
       LResult = Bas_High_Angular(AO_Bas_Han,nXAng)
       LResult = Bas_nContr_CN_Max(AO_bas_han,nXCont)
@@ -195,7 +195,7 @@
       LResult = MA_Push_Get(MT_Dbl,nScr4,'Scr4',l_Scr4,k_Scr4)
       Call ErrMem(LResult,'C_C: Failed to allocate Scr4',0)
 *
-      Call New_Eval_GBSets(Geom,AO_Bas_Han,GRAD,.false.,
+      Call New_Eval_GBSets(AO_Bas_Han,GRAD,.false.,
      &                     Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),
      &                     Dbl_mb(k_Hess),Int_mb(k_Scr3),
      &                     0,Dbl_mb(k_rq0),Dbl_mb(k_rq),
@@ -204,7 +204,7 @@
      &                     Dbl_mb(k_Scr4),nScr4,
      &                     Dbl_mb(k_Expo),nXPrim,
      &                     Dbl_mb(k_Coef),nCoef_Max,
-     &                     Acc_AO_Gauss)
+     &                     Int_mb(k_iniz),Int_mb(k_ifin))
 *
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of each
 *     basis function at a given set of points. The value of the density
@@ -366,7 +366,7 @@
 *---- Loop over the grid points to get the orbital values
       Do iPoint = 1, nPoint
          Values(iPoint) = ddot(nBF,Chi(iPoint,1),nPoint,Vector,1)
-*        Write(*,'(e10.4)')Values(iPoint)
+*        Write(*,'(d10.4)')Values(iPoint)
       End Do
 *
       Call GA_Sync
@@ -374,3 +374,102 @@
 *---- Normal termination
       Return
       End
+      Subroutine oldnbf_to_mbf(basis_hand, rq0, mbf, mcenters, 
+     &                      iniz, ifin, zprim, nzprim, acc_gauss)
+c
+C$Id: create_contour.F,v 1.8 1999-11-10 03:47:57 edo Exp $
+c
+      implicit none
+c      
+      integer basis_hand
+      integer mcenters ! [input]
+      integer nzprim ! [input]
+      double precision acc_gauss ! [input]
+      integer mbf  ! [input/output]
+c
+#include "bas.fh"
+c
+c     Distance Squared between Sampling Points and Centers
+c
+      double precision rq0(mcenters)
+      integer  iniz(mcenters),ifin(mcenters)
+      double precision zprim(nzprim)
+      integer ncontrset, n1, icset, ictr, itype, nprimo, ncontr, 
+     &        isphere, ifirst, ilast, nshbf, l, nang, iprimo
+      integer n
+      double precision zmin
+      double precision alpha,logeps,acc_loc
+      double precision gaussian_range,r_arg
+      gaussian_range(n,logeps,alpha) = 
+     $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
+     $     sqrt(-16.0d0*alpha*logeps)
+c
+      acc_loc=-acc_gauss
+      if (.not.bas_numcont(basis_hand, ncontrset))
+     &   call errquit('Exiting in nbf_to_mbf.',1)
+c
+      call ifill(mcenters,0,iniz,1)
+      call ifill(mcenters,0,ifin,1)
+c
+      n1 = 0
+c
+      do 400 icset = 1,ncontrset
+         if (.not.bas_cn2ce(basis_hand, icset, ictr))
+     &      call errquit('Exiting in nbf_to_mbf.',2)
+c         
+c        get info about current contraction set
+c         
+         if (.not.bas_continfo(basis_hand, icset,
+     &      l, nprimo, ncontr, isphere))
+     &      call errquit('Exiting in nbf_to_mbf.',3)
+c         
+c        angular momentum
+c         
+c         
+c        cartesian/spherical harmonic
+c         
+         if (isphere .eq. 0)then !  cartesian set
+            nang = (l+1)*(l+2)/2
+         elseif (isphere .eq. 1)then !  spherical harmonic
+            nang = 2*l+1
+         else 
+            call errquit('nbf_to_mbf: illegal isphere value', 6)
+         endif 
+c         
+c        get exponents and contraction coefficients for this contraction set
+c         
+         if (.not.bas_get_exponent(basis_hand, icset, zprim))
+     &      call errquit('Exiting in nbf_to_mbf.',7)
+c
+c        Determine the minimum Gaussian exponent.
+c
+         zmin = 1.D+06
+         do 300 iprimo = 1,nprimo
+            zmin = min(zprim(iprimo),zmin)
+  300    continue
+c
+c        Only include those basis functions that are "non-zero" for at least one 
+c        point in the sampling set.
+c
+          if(isphere.eq.1) then
+            nshbf=ncontr*(2*l+1)
+          else
+            nshbf=ncontr*(((l+1)*(l+2))/2)
+          endif
+cedo        if (rq0(ictr).ge.gaussian_range(l,acc_loc,zmin)) then
+          if (zmin*rq0(ictr).gt.acc_gauss)then
+            go to 400
+         else
+            if (iniz(ictr).eq.0) iniz(ictr)=n1+1
+         endif
+         n1 = n1 + ncontr*nang
+c
+         ifin(ictr)= n1
+c
+  400 continue
+c
+c      write(*,*) ' from nbf_to_mbf: n1 = ',n1
+      mbf = n1
+c
+      return
+      end
