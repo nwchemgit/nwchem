@@ -59,7 +59,7 @@ c
      &           'cpbe96','xpbe96','gill96','xperdew91',
      ,     'xhcth','xbecke97','xbecke97-1',
      ,     'chcth','cbecke97','cbecke97-1','hcth120','hcth147',
-     ,     'becke98','pbe0','becke97gga1','hcth402','hcthp14',
+     ,     'becke98','pbe0','becke97gga1','hcth407','hcthp14',
      ,     'optx'/
 c
 c     Only these few arrays are initialized (not defaults).
@@ -302,7 +302,7 @@ c
          cfac(19) = 1.0d0
        goto 10
 c     
-c     HCTH402 by Boese
+c     HCTH407 by Boese
 c     
  3100  continue
 c
@@ -1084,7 +1084,7 @@ c
      &       /,' [chcth] ',
      &       /,' [hcth120] ',
      &       /,' [hcth147] ',
-     &       /,' [hcth402] ',
+     &       /,' [hcth407] ',
      &       /,' [hcthp14]',
      &       /,' [becke97gga1]')
       call util_flush(LuOut)

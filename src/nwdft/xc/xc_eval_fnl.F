@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.21 2001-03-11 17:10:45 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.22 2001-03-21 23:22:43 edo Exp $
 c
       implicit none
 c
@@ -119,7 +119,7 @@ C
          nx=13
          nc=19
       elseif (abs(xfac(14)).gt.eps.or.abs(cfac(20)).gt.eps)then
-         whichf='h402'
+         whichf='h407'
          dohcth=.true.
          nx=14
          nc=20
