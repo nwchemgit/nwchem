@@ -55,8 +55,10 @@ c
       endif
       if (filesize .gt. 0) then
          max_file_rec = filesize/rec_len_in_dbl
-      else
+      else if (filesize .eq. 0) then
          max_file_rec = 2048    ! Default max size of about 2 Gb
+      else 
+         max_file_rec = 0
       endif
 c
 c     defer allocation of memory until the first write otherwise
@@ -296,7 +298,7 @@ c
 c
       if (otrace) then
          write(6,*) ' int2e_file: write file ', nints, cntr_ptr
-         call print_integ_list(nints, i, j, k, l, g)
+*         call print_integ_list(nints, i, j, k, l, g)
          call util_flush(6)
       end if
 c
@@ -440,7 +442,7 @@ c
       if (otrace) then
          write(6,*) ' int2e_file: read file ', nints
          call util_flush(6)
-         if (nints .gt. 0) call print_integ_list(nints, i, j, k, l, g)
+*         if (nints .gt. 0) call print_integ_list(nints, i, j, k, l, g)
       end if
 c
       return
@@ -686,5 +688,78 @@ c
      $     ('int2e_buf_cntr_unpack: invalid count', 
      $     labels(1,cntr_ptr))
       endif
+c
+      end
+      logical function int2e_test_mem(geom, basis, tol2e)
+      implicit none
+#include "util.fh"
+#include "bas.fh"
+#include "cint2efile.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "sym.fh"
+#include "cfock.fh"
+c     
+      integer geom              ! [input]
+      integer basis             ! [input]
+      double precision tol2e    ! [input]
+c     
+c     By default memsize=filesize=0, i.e., a fully direct calculation.
+c     However, if we can store the integrals in memory it is much
+c     better to do this by default.
+c     
+c     memsize<0 or filesize<0 means don't use this medium.
+c     memsize>0 or filesize>0 means already enabled.
+c     
+      logical int2e_file_open
+      external int2e_file_open
+      integer nbf, avail, mem2, max2e
+      double precision nq
+      logical ofirst
+      data ofirst /.true./      ! If first call to this routine
+c     
+      int2e_test_mem = .false.
+      if (memsize.ne.0 .or. filesize.ne.0) return
+      oinfo  = util_print('int2einfo', print_default) .and.
+     $     ga_nodeid().eq.0
+c
+c     How much memory?  Leave space for GAs, for the integral code,
+c     and for 50,000 of misc. junk. 
+c
+      avail = MA_inquire_avail(mt_dbl)
+      if (ga_uses_ma()) avail = avail - ga_memory_avail()
+      call int_mem_2e4c(max2e, mem2)
+      mem2 = max(mem2,max2e)
+      avail = avail - 5*max2e - mem2
+      avail = avail - 100000
+      call ga_igop(12, avail, 1, 'min')
+c
+c     Assume that for the small systems for which can hold the
+c     integrals, that there is no sparsity except for symmetry.
+c     Also, assume that the integrals will be evenly distributed
+c     apart from a 10% fluctuation
+c
+      if (.not. bas_numbf(basis, nbf))
+     $     call errquit('int2e: bad bas',0)
+c     
+      nq = 0.125d0 * dble(nbf+1)**4 
+      nq = nq / (sym_number_ops(geom)+1)
+      nq = nq / ga_nnodes()
+      nq = nq * 1.1d0
+      nq = max(2*(n_per_rec+1),nq)
+c
+      if (nq .lt. avail) then
+         memsize = int(nq)      ! Set these so that scf_tidy cleans up
+         filesize = -1          ! Fits in memory ... file not needed
+         if (.not. int2e_file_open('aoints', memsize, filesize, tol2e))
+     $        call errquit('int2e_test_mem: int2e_file_open failed',0)
+         int2e_test_mem = .true.
+      else if (oinfo .and. ofirst) then
+         write(6,1) nq-avail
+ 1       format(/' Provide',1p,d9.2,' more words/process to ',
+     $        'cache all integrals in memory'/)
+      endif
+c
+      ofirst = .false.
 c
       end

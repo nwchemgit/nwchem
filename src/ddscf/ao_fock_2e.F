@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.5 1995-11-27 02:13:59 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.6 1995-12-10 00:27:53 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -30,8 +30,8 @@ c
 c     
 c     local variables
 c     
-      integer natoms, maxd, max_at_bf, ablklen, nshb
-      integer iatom, i, ilo, ihi
+      integer natoms, maxd, ablklen, nshb
+      integer i
       integer l_dij, l_dik, l_dli, l_djk, l_dlj, l_dlk
       integer l_fij, l_fik, l_fli, l_fjk, l_flj, l_flk
       integer k_dij, k_dik, k_dli, k_djk, k_dlj, k_dlk
@@ -39,6 +39,8 @@ c
       integer l_atmp, k_atmp
       integer l_block, k_block, nblock, maxblock
       logical status
+      logical int2e_test_mem
+      external int2e_test_mem
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
@@ -99,7 +101,14 @@ c
       status = status .and. ma_push_get(MT_DBL, ablklen, 'atmp',
      $     l_atmp, k_atmp)
       if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
-c     
+c
+c     If we can hold all of the integrals in core then we should
+c     do this ... i.e., the default should be semi-direct, though
+c     right now we must store all of the integrals.
+c
+      if (.not. (oreadfile .or. owritefile))
+     $     owritefile = int2e_test_mem(geom, basis, tol2e*0.01d0)
+c
       if (oreadfile) then
          call fock_2e_from_file( geom, basis, nfock, ablklen,
      $        jfac, kfac, tol2e, oskel,
