@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.14 2000-04-26 23:29:09 edo Exp $
+c$Id: grid_bucket.F,v 1.15 2000-05-03 22:45:09 edo Exp $
 c
       implicit none
 c     
@@ -11,6 +11,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "grid_cube.fh"
 c
       integer rtdb
@@ -21,17 +22,19 @@ c
       integer grid_nsub4
       external grid_nsub4
       external grid_ncubes,grid_lcube,grid_nxyz
+      logical oprint
 c
+      oprint = util_print('quadrature', print_high)
       if(.not.geom_ncent(geom, nctrs))
      . call errquit(' gridb_buck: geom cent failed',0)
 c
 c     get cubes definition
 c
       if (.not. rtdb_get(rtdb, 'dft:l_cube',
-     $     mt_dbl, 1, l_cube)) l_cube = 5.5d0
+     $     mt_dbl, 1, l_cube)) l_cube = 11d0
       if (.not. rtdb_get(rtdb, 'dft:sub4',
      $     mt_log, 1, sub4)) sub4=.true.
-      if(ga_nodeid().eq.0) write(LuOut,'(A,F8.2)') 
+      if(ga_nodeid().eq.0.and.oprint) write(LuOut,'(A,F8.2)') 
      .     ' l_cube input',l_cube
 c
 c     get ncubes
@@ -51,7 +54,8 @@ c
          endif
          ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
      ,        .false.,dum,lcube(i))
-      if(ga_nodeid().eq.0) write(LuOut,22) i,lcube(i),ncubes_type(i),
+      if(ga_nodeid().eq.0.and.oprint) 
+     .        write(LuOut,22) i,lcube(i),ncubes_type(i),
      ,     nxyz,rad_cutoff(1,i),shft
  22   format(5x,i4,2x,f8.2,4x,i6,7x,i3,5x,i3,2x,i4)
          ncubesmx=max(ncubesmx,ncubes_type(i))

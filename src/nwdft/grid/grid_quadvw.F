@@ -12,7 +12,7 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.12 2000-05-01 21:32:48 edo Exp $
+c$Id: grid_quadvw.F,v 1.13 2000-05-03 22:45:09 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -58,9 +58,12 @@ c
       integer grid_nxyz,grid_nsub4
       external grid_nxyz,grid_nsub4
       double precision symfact,rmax,rmin,rad_write,rad_sh
+      logical oprint
 C      
       nproc=ga_nnodes()
       me=ga_nodeid()
+      oprint = util_print('quadrature', print_high)
+     
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -102,12 +105,10 @@ c
 c
       if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
      &   trunc_neigh))trunc_neigh=.true.
-      call dft_tstamp(' Before buckinit.')
       call grid_buckinit(rtdb)
       nqtotc=0
       ncubenz=0
       dosympts=leb.and.oskel
-      call dft_tstamp(' Before atom loop')
 c
 c     parallel loop init
 c
@@ -209,7 +210,7 @@ c
  111  continue                  ! end loop over atoms
       if(ncubenz.eq.0) call errquit(
      .     ' grid_quadvw: no cube detected - nqtot ',nqtotc)
-      write(LuOut,16) ' me ',me,
+      if(oprint) write(LuOut,16) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       if(dosympts)call grid_sympts2(l_symops,l_gridscr)
  16   format(A,I3,A,2I8)
@@ -221,7 +222,6 @@ c
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf,0)
       n1 = nxtask(-nproc,icount)
-      call dft_tstamp(' done atom loop')
       grid_written=.true.
 c
       call ga_sync

@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.19 2000-05-02 18:42:48 edo Exp $
+C$Id: dft_3cincor.F,v 1.20 2000-05-03 22:45:08 edo Exp $
 c
       implicit none
 c    
@@ -47,7 +47,6 @@ c
       integer itype,nprimo,isphere,nbf_cd_cart
       double precision THRESHOLD, ERI_est, ratio
       double precision q1
-c      write(0,*) ' in 3CINCO',itol2e
 c
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_high)
@@ -117,6 +116,7 @@ c
          nao2_max=max(nao2_max,
      ,        ((itype+1)*(itype+2))/2*nshbfc)
       enddo
+      nbf_cd_cart=0
       do ishc=1,nshells_cd
          if(.not.bas_continfo(cd_bas_han,ishc,
      &        itype,nprimo,nshbfc,isphere))
@@ -231,7 +231,7 @@ c
 c              write(LuOut,1111)me,ishc,ishd,n1,n2,nxtbuf,n3c_dbl, 
 c     &                         n_batch, iwhat(n_batch), ndone
 c 1111         format(' Done: me,ishc,ishd,n1,n2,nxtbuf,n3c_dbl, ',
-c     &                     ' n_batch, iwhat(n_batch), ndone ',/,10i5)
+c     &                     ' n_batch, iwhat(n_batch), ndone ',/,10i7)
 c              call util_flush(LuOut)
 c
               if( nxtbuf.lt.n3c_dbl) then

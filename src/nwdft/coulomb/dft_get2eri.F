@@ -1,6 +1,6 @@
       Subroutine dft_get2eri(CD_bas_han, g_2ceri)
 c
-C$Id: dft_get2eri.F,v 1.9 2000-04-22 01:05:43 edo Exp $
+C$Id: dft_get2eri.F,v 1.10 2000-05-03 22:45:09 edo Exp $
 c
       implicit none
       integer CD_bas_han
@@ -11,7 +11,7 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 c      
-      integer nshells_cd, MXnshbf_cd, me, nproc, icount, MXint,
+      integer nshells_cd, MXnshbf_cd, me, nproc, icount,
      &        maxg, mscratch_2e2c, n1, n2, Nintegrals,
      &        ishp, ifirstp, ilastp, nshp,
      &        ishq, ifirstq, ilastq, nshq
@@ -42,10 +42,8 @@ c     niter  = (nshells_cd*(nshells_cd+1))/2
       icount = max(icount,1)
       call int_mem_2e2c(maxg, mscratch_2e2c)
 c
-      MXint = MXnshbf_cd*MXnshbf_cd
-c
-c      write(6,*)' nproc, me, icount, maxg, mscratch_2e2c, MXint: ',
-c     &            nproc, me, icount, maxg, mscratch_2e2c, MXint
+c      write(6,*)' nproc, me, icount, maxg, mscratch_2e2c: ',
+c     &            nproc, me, icount, maxg, mscratch_2e2c
 c
       if (.not.MA_Push_Get(MT_Dbl,maxg,'buf',lbuf,ibuf))
      &   call errquit('dft_get2eri: cannot allocate buf',0)
@@ -72,7 +70,7 @@ c
 c
                nshq = ilastq - ifirstq + 1
 c
-               Nintegrals=MXint
+               Nintegrals=maxg
 c
                call int_2e2c(CD_bas_han, ishp, CD_bas_han, ishq,
      &                       mscratch_2e2c, Dbl_MB(iscr), Nintegrals,
@@ -93,18 +91,10 @@ c
 c
    20 continue
 c
-      if (.not.ma_pop_stack(lscr))
-     &   call errquit('dft_get2eri: cannot pop stack',0)
-      if (.not.ma_pop_stack(lvec))
-     &   call errquit('dft_get2eri: cannot pop stack',0)
-      if (.not.ma_pop_stack(lbuf))
+      if (.not.ma_chop_stack(lbuf))
      &   call errquit('dft_get2eri: cannot pop stack',0)
 c
       n1 = nxtask(-nproc,icount)
-c
-      call ga_sync
-c      call ga_print(g_2ceri)
-c      call ga_sync
 c
       return
       end
