@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.24 2003-07-10 18:26:40 bylaska Exp $
+* $Id: cpmdv5.F,v 1.25 2003-07-29 19:22:43 bylaska Exp $
 *
 
 ***********************************************************************
@@ -73,13 +73,14 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA
+      logical verlet,mulliken,SA,found
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
       real*8  ekg,eki0,eki1,sum
       real*8  eke0,eke1
       real*8  EV,pi,dt
+      real*8  emotion_time_shift
       integer i,j,k,ia,n,nn
       integer ii,jj,index
       integer icount,it_in,it_out
@@ -487,13 +488,33 @@
 
 
 
+*     ************************************
 *     **** open up other MOTION files ****
+*     ************************************
+
+
+*     **** open EMOTION file ****
       value = rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)
-      if (taskid.eq.MASTER) 
-     >   open(unit=31,file=full_filename,form='formatted')
+      if (taskid.eq.MASTER) then
+
+         emotion_time_shift = 0.0d0
+         inquire(file=full_filename,exist=found)
+         if (found) then
+           open(unit=31,file=full_filename,form='formatted',
+     >          status='old')
+           do while (found)
+           read(31,*,end=100) emotion_time_shift
+           end do
+  100      continue
+         else
+           open(unit=31,file=full_filename,form='formatted',
+     >          status='new')
+         end if
+      end if
+
 
 *     **** open EIGMOTION file ****
       if (mulliken) then
@@ -541,7 +562,7 @@
       icount = 0
       verlet = .true.
       eke    = 0.0d0
-      if (it_out.lt.1) goto 2
+      if (it_out.lt.1) goto 102
 
 
 
@@ -549,7 +570,7 @@
 
       Te_new = Te_init
       Tr_new = Tr_init
-   1  continue
+  101 continue
          icount = icount + 1
          call inner_loop_md(verlet,ispin,ne,
      >             npack1,nfft3d,nemax,
@@ -576,11 +597,11 @@
 
 *          **** write out EMOTION data ****
            if (control_Nose()) then
-             write(31,1311) icount*it_in*dt,
+             write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),e(9),e(10)
            else
-             write(31,1311) icount*it_in*dt,
+             write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8)
            end if
@@ -631,15 +652,15 @@
          if (control_out_of_time()) then
             if (taskid.eq.MASTER) 
      >       write(6,*) ' *** out of time. iteration terminated'
-            go to 2
+            go to 102
          end if
-      if (icount.lt.it_out) go to 1
+      if (icount.lt.it_out) go to 101
       if (taskid.eq.MASTER) 
      > write(6,*) '*** arived at the Maximum iiteration.   terminated.'
  
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
-   2  continue
+  102 continue
 
 
 *     **** close xyz and MOTION files ****
