@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.28 1996-08-31 00:21:42 d3j191 Exp $
+C     $Id: input_parse.F,v 1.29 1996-09-19 01:11:44 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -95,6 +95,8 @@ c
                call speech_input(rtdb)
             else if (inp_compare(.false.,test,'gapss')) then
                call gap_parse(rtdb)
+            else if (inp_compare(.false.,test,'pause')) then
+	       call util_sleep(60)
 c
 c     INSERT NEW ELSE IF CLAUSES HERE
 c
