@@ -1,6 +1,6 @@
       subroutine cf_pbc(iopt,xd,ndd,xc,ndc,noff,n0,n1)
 c
-c $Id: cf_pbc.F,v 1.5 1999-10-08 18:28:43 d3j191 Exp $
+c $Id: cf_pbc.F,v 1.6 2000-03-17 05:30:27 d3j191 Exp $
 c
       implicit none
 c
@@ -11,8 +11,8 @@ c
       integer i,ix,jx,ndim
       real*8 rin(3),pbcor,boxi(3)
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      real*8 arg_nint
-      external arg_nint
+      real*8 cf_anint
+      external cf_anint
 #endif
 c
       if(npbtyp.eq.0) return
@@ -42,9 +42,9 @@ c
       do 3 i=n0,n1
       if(abs(xd(noff+i,ix)).gt.boxh(ix)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
-      xc(i,ix)=arg_nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+      xc(i,ix)=cf_anint(xd(noff+i,ix)*boxi(ix))*box(ix)
 #else
-      xc(i,ix)=nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+      xc(i,ix)=anint(xd(noff+i,ix)*boxi(ix))*box(ix)
 #endif
       endif
     3 continue
@@ -98,10 +98,10 @@ c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       if(abs(xd(noff+i,ix)).gt.boxh(ix))
      + xd(noff+i,ix)=xd(noff+i,ix)-
-     + arg_nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+     + cf_anint(xd(noff+i,ix)*boxi(ix))*box(ix)
 #else
       if(abs(xd(noff+i,ix)).gt.boxh(ix))
-     + xd(noff+i,ix)=xd(noff+i,ix)-nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+     + xd(noff+i,ix)=xd(noff+i,ix)-anint(xd(noff+i,ix)*boxi(ix))*box(ix)
 #endif
    13 continue
    12 continue
