@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.46 2002-12-28 20:33:59 d3k958 Exp $
+C$Id: vectors.F,v 1.47 2002-12-30 21:39:20 d3k958 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -595,9 +595,9 @@ c
       character*(*) scftype
       integer rtdb, basis,g_vecs(*), nbf, nat, geom
       integer type, nelem, handle, index, g_temp
-      integer pair, i, j, k, ioff, joff, set, nset
+      integer i, j, k, set, nset
       integer l_atm, k_atm, l_batm, k_batm
-      integer ilo, ihi, jlo, jhi
+      integer jlo, jhi
       integer dim1, dim2, start_from, end_from, start_to, end_to
       logical oprint
 c
@@ -646,12 +646,12 @@ c  find nbf for each atom
 c  ----------------------
 c
       if (ga_nodeid().eq.0) then
-         call util_print_centered(LuOut,'Reordering MO coeffs on atoms',25,
+      call util_print_centered(LuOut,'Reordering MO coeffs on atoms',25,
      $        .true.)
-         write(LuOut,*) 
-         write(LuOut,101) 'old','new','old','new'
-         write(LuOut,102) 'atom#','atom#','basis range','basis range'
-         write(LuOut,*) '-------------------------------------------------'
+      write(LuOut,*) 
+      write(LuOut,101) 'old','new','old','new'
+      write(LuOut,102) 'atom#','atom#','basis range','basis range'
+      write(LuOut,*) '-------------------------------------------------'
       endif
 c
       int_mb(k_batm) = 0
