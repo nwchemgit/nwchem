@@ -4,12 +4,15 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.3 1998-12-31 21:40:38 bjohnson Exp $
+c     $Id: xc_cpks_coeff.F,v 1.4 1999-02-19 02:40:58 bjohnson Exp $
 c
       Subroutine xc_cpks_coeff(prho, pdelrho, Amat2, Cmat2, Cmat,
      &                         delrho, npert, ipol, nq, GRAD)
       implicit none
 #include "dft2drv.fh"
+c !!! BGJ test
+#include "bgj.fh"
+c !!! BGJ test
 c
       integer npert ! Number CPKS perturbations [input]
       integer ipol  ! [input]
@@ -231,12 +234,16 @@ c
 c
       enddo
 c
-c      write(6,*) 'xc_cpks_coeff: prho out'
-c      call output(prho, 1, nq, 1, ipol*npert, nq, ipol*npert, 1)
-c      if (GRAD) then
-c         write(6,*) 'xc_cpks_coeff: pdelrho out'
-c         call output(pdelrho, 1, nq, 1, 3*ipol*npert, nq, 3*ipol*npert,
-c     &               1)
-c      endif
+#if 0
+      if (bgj_print() .gt. 1) then
+      write(6,*) 'xc_cpks_coeff: prho out'
+      call output(prho, 1, nq, 1, ipol*npert, nq, ipol*npert, 1)
+      if (GRAD) then
+         write(6,*) 'xc_cpks_coeff: pdelrho out'
+         call output(pdelrho, 1, nq, 1, 3*ipol*npert, nq, 3*ipol*npert,
+     &               1)
+      endif
+      endif
+#endif
       return
       end
