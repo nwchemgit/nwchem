@@ -16,7 +16,7 @@ endif
 
 include ../config/makelib.h
 
-testbasis:	testbasis.o $(LIBRARY) 
+testbasis:	testbasis.o 
 	$(FC) $(FFLAGS) -o $@ testbasis.o $(LIBS)
 
 
