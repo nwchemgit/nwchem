@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.10 2000-05-11 01:53:59 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.11 2000-05-16 14:46:45 d3j191 Exp $
 c
       implicit none
 c
@@ -25,6 +25,7 @@ c
       lsv=.false.
 c
       if(me.eq.0) then
+  100 continue
       if(fmttrj.eq.'trj') then
     1 continue
       read(lfntrj,1000,err=9999,end=9999) card
@@ -110,7 +111,7 @@ c
      + status='old',err=9998)
       write(*,3333) fname(1:index(fname,' ')-1)
  3333 format(/,' Opening trj file ',a)
-      goto 1
+      goto 100
 c
  9998 continue
       succes=.false.
