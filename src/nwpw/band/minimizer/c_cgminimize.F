@@ -1,8 +1,7 @@
 *
-*     $Id: c_cgminimize.F,v 1.8 2002-01-15 01:53:01 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.9 2002-01-15 03:27:09 bylaska Exp $                       
 *
 
-****#define DEBUG
 
 *  ************************************************************
 *  *                MPI cgminimize routine                    *
@@ -227,16 +226,12 @@ c              scale = sum3/sum0
 
 c      Eold = cpsi_geodesic_energy(0.0d0)
 c     Eold = cpsi_geodesic_energy(0.0d0)
-#ifdef DEBUG
-      Enew = E0
-      tmin = 0.0d0
-#endif
-#ifndef DEBUG
+c      Enew = E0
+c      tmin = 0.0d0
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
-#endif
       call cpsi_geodesic_final(tmin)
       deltac = c_rho_error()
 
