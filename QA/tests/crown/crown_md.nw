@@ -6,6 +6,7 @@ start crown_job
 
 prepare
  system crown_em
+ fraction 1
 end
 
 task prepare
@@ -20,7 +21,7 @@ prepare
  system crown_md
  read rst crown_em.qrs
  touch 0.25
- expand 0.1
+ envelope 0.1
  solvate
  write rst crown_md.rst
 end
