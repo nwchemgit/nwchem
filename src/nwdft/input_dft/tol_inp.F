@@ -1,5 +1,5 @@
       subroutine tol_input(rtdb, module)
-C     $Id: 
+C$Id: tol_inp.F,v 1.8 1997-12-12 17:46:20 d3h449 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
