@@ -20,11 +20,13 @@ c         differentiation. If absent or false use default selection.
 c     
 c     RTDB output parameters
 c     ----------------------
-c     task:energy (real)   - total energy
-c     task:gradient (real array) - derivative w.r.t. geometry cart. coords.
 c     task:status (logical)- T/F for success/failure
-c     task:cputime (real)  - cpu time to execute the task
-c     task:walltime (real) - wall time to execute the task
+c     if (status) then
+c     .  task:energy (real)   - total energy
+c     .  task:gradient (real array) - derivative w.r.t. geometry cart. coords.
+c     .  task:dipole (real(3)) - total dipole if available
+c     .  task:cputime (real)  - cpu time to execute the task
+c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
@@ -41,7 +43,7 @@ c
 c
       integer k_grad, l_grad, type, nelem
       logical status, numerical
-      double precision energy, cpu, wall
+      double precision energy, cpu, wall,dipole(3)
       character*80 theory, key, prefix
 c
       call ecce_print_module_entry('task gradient')
@@ -72,8 +74,6 @@ c
       if (numerical) then
          status = task_num_grad(rtdb)
       else if (theory .eq. 'scf') then
-         if (.not.rtdb_put(rtdb, 'scf:lagrangian',mt_log, 1, .true.))
-     $        call errquit('task_gradient: rtdb is corrupt?',0)
          status = scf_gradient(rtdb)
       else if (theory .eq. 'dft') then
          status = nwdft(rtdb)
@@ -102,31 +102,40 @@ c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
 c
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
+     $     call errquit('task_gradient: failed to set status',0)
+c
       if (status) then
          key = ' '
          write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
          if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy))
      $        call errquit('task_gradient: no energy in rtdb?',0)
+         if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
+     $        call errquit('task_gradient: failed storing energy',0)
+c
+         key = ' '
+         write(key,'(a,'':dipole'')') prefix(1:inp_strlen(prefix))
+         if (rtdb_get(rtdb, key, mt_dbl, 3, dipole)) then
+           if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 1, dipole))
+     $        call errquit('task_gradient: failed storing dipole',0)
+	 endif
+c
          write(key,'(a,'':gradient'')') prefix(1:inp_strlen(prefix))
          if (.not. rtdb_ma_get(rtdb, key, type, nelem, l_grad))
      $        call errquit('task_gradient: no gradient in rtdb?',0)
          if (.not. ma_get_index(l_grad, k_grad))
      $        call errquit('task_gradient: ma corrupt?',0)
-c         
-         if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
-     $        call errquit('task_gradient: failed storing energy',0)
          if (.not. rtdb_put(rtdb, 'task:gradient', mt_dbl, nelem,
      $        dbl_mb(k_grad)))
      $        call errquit('task_gradient: failed storing energy',0)
          if (.not. ma_free_heap(l_grad))
      $        call errquit('task_gradient: ma corrupt?',0)
+c         
+         if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
+     $        call errquit('task_gradient: failed storing cputime',0)
+         if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
+     $        call errquit('task_gradient: failed storing walltime',0)
       endif
-      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_gradient: failed storing cputime',0)
-      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_gradient: failed storing walltime',0)
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
-     $     call errquit('task_gradient: failed to set status',0)
 c
       if (status) then
          call ecce_print_module_exit('task gradient', 'ok')

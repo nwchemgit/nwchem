@@ -15,10 +15,12 @@ c     task:theory (string) - name of (QM) level of theory to use
 c     
 c     RTDB output parameters
 c     ----------------------
-c     task:energy (real)   - total energy
 c     task:status (logical)- T/F for success/failure
-c     task:cputime (real)  - cpu time to execute the task
-c     task:walltime (real) - wall time to execute the task
+c     if (status) then
+c     .  task:energy (real)   - total energy
+c     .  task:dipole(real(3)) - total dipole moment if available
+c     .  task:cputime (real)  - cpu time to execute the task
+c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
@@ -28,7 +30,7 @@ c
       external semi_dir_mp2, nwargos
 c
       logical status
-      double precision energy, cpu, wall
+      double precision energy, cpu, wall, dipole(3)
       character*80 theory, key, prefix
 c
       call ecce_print_module_entry('task energy')
@@ -91,6 +93,9 @@ c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
 c
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
+     $   call errquit('task_energy: failed to set status',0)
+c
       if (status) then
          key = ' '
          write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
@@ -98,12 +103,18 @@ c
      $        call errquit('task_energy: no energy in rtdb?',0)
          if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
      $        call errquit('task_energy: failed storing energy',0)
+c
+         key = ' '
+         write(key,'(a,'':dipole'')') prefix(1:inp_strlen(prefix))
+         if (rtdb_get(rtdb, key, mt_dbl, 3, dipole)) then
+           if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 3, dipole))
+     $          call errquit('task_energy: failed storing dipole',0)
+	 endif
+c
          if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
      $        call errquit('task_energy: failed storing cputime',0)
          if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
      $        call errquit('task_energy: failed storing walltime',0)
-         if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
-     $        call errquit('task_energy: failed to set status',0)
       endif
 c
       if (status) then
