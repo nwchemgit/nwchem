@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.27 2003-02-01 07:57:46 edo Exp $
+C$Id: util_file_name.F,v 1.28 2003-02-08 00:56:21 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -563,9 +563,9 @@ c
       integer avail0,avail1
       integer fd
       character*8 fstype
-      integer l1megabyte,i_k,l_k
+      integer l1megabyte,i_k,l_k,nuse_fail,nattpt
       character*255 dirscr
-      parameter(l1megabyte=1000000)
+      parameter(l1megabyte=2*1000000)
       logical util_file_parse_dir,oprint
       external util_file_parse_dir
 c
@@ -576,18 +576,19 @@ c     process and inquire how much space is available
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
-      call util_file_name('junk',.true.,.true.,mine)
+      nattpt=0
+1025  call util_file_name('junk',.true.,.true.,mine)
       ierr=eaf_delete(mine)
       ierr=eaf_open(mine, eaf_rw, fd)
       if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',ierr)
       call ga_sync()
       ierr = eaf_stat(mine, avail0, fstype)
 c
-c     now write 1k of doubles
+c     now write 5M of doubles
 c
       if (.not.ma_push_get(MT_Dbl,l1megabyte,'cc',l_k,i_k))
      &   call errquit('utilfname: cannot allocate ',0)
-      call dfill(l1megabyte,0d0,dbl_mb(i_k),1)
+      call dcopy(l1megabyte,0d0,0,dbl_mb(i_k),1)
       ierr = eaf_write(fd, 0, dbl_mb(i_k),8*l1megabyte)
       if (.not.ma_pop_stack(l_k))
      &   call errquit('utilfname: cannot deallocate ',0)
@@ -596,13 +597,23 @@ c
       ierr = eaf_stat(mine, avail1, fstype)
       if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
       ierr=eaf_delete(mine)
-      nuse=nint((avail0-avail1)/8d0)
-      if (nuse .eq. 0) nuse = 1
+      nuse=nint((avail0-avail1)/16d0)
+      nuse_fail=0
+      if (nuse .le. 0) nuse_fail= 1
+      call ga_dgop(1024,nuse_fail,1,'+')
+      if(nuse_fail.ne.0) then
+        if(oprint.and.ga_nodeid().eq.0) write(luout,*) ' negative nuse'
+        nattpt=nattpt+1
+        if(nattpt.gt.5) call errquit
+     (    ('utilscravail: too many attempts',nattpt)
+        goto 1025
+      endif
       if(oprint) then
          call util_directory_name(dirscr, .true., ga_nodeid())
-         write(luout,11) ga_nodeid(),nuse,avail0/nuse,
+         write(luout,11) ga_nodeid(),nuse,(avail0-avail1)/16d0,
+     .     avail0/nuse,
      .     dirscr(1:inp_strlen(dirscr))
- 11      format(i4,': nuse =',i4,' available disk =',i10,'Mb on ',
+ 11      format(i4,': nuse =',i4,f8.2,' available disk =',i10,'Mb on ',
      .     A)
       endif
 c
