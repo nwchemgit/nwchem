@@ -42,7 +42,7 @@ c
       call inp_set_field(0)     ! goto start of line
       if (.not. inp_a(field))
      $     call errquit('geom_input: no input present', 0)
-      if (.not. inp_compare(.false., 'geom', field))
+      if (.not. inp_compare(.false., 'geometry', field))
      $     call errquit('geom_input: not geometry input', 0)
 c     
 c     geometry [<name>] [units <units>] [print] [noprint]
