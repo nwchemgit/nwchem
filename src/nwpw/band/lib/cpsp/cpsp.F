@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.4 2002-01-07 02:05:33 bylaska Exp $
+* $Id: cpsp.F,v 1.5 2002-01-08 23:40:48 bylaska Exp $
 *
 
 #define TCGMSG
@@ -746,26 +746,29 @@ c     integer    lmmax(nkatmx)
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      value = value.and.
      >        MA_push_get(mt_dcpl,nn,'zsw1',zsw1(2),zsw1(1))
-      value = value.and.
-     >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-      if (.not. value) call errquit('out of stack memory',0)
-      G(1)  = G_indx(1)
-      G(2)  = G_indx(2)
-      G(3)  = G_indx(3)
 
-*     **** define Gx,Gy and Gz in packed space ****
-      call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+      if (move) then
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+        value = value.and.
+     >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+        if (.not. value) call errquit('out of stack memory',0)
+        G(1)  = G_indx(1)
+        G(2)  = G_indx(2)
+        G(3)  = G_indx(3)
+
+*       **** define Gx,Gy and Gz in packed space ****
+        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+      end if
 
       omega = lattice_omega()
 
@@ -877,12 +880,15 @@ c     integer    lmmax(nkatmx)
       end do
       end do
 
-      value = MA_pop_stack(sum(2))
+      if (move) then
+        value = MA_pop_stack(sum(2))
+        value = MA_pop_stack(Gz(2))
+        value = MA_pop_stack(Gy(2))
+        value = MA_pop_stack(Gx(2))
+        value = MA_pop_stack(xtmp(2))
+      end if
+
       value = MA_pop_stack(zsw1(2))
-      value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
       value = MA_pop_stack(vtmp(2))
       value = MA_pop_stack(tmp4(2))
       value = MA_pop_stack(exi(2))
