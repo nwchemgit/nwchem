@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-C$Id:
+c$Id: grid_rtrunc.F,v 1.20 2000-02-22 21:23:29 edo Exp $
 c
       implicit none
 c      

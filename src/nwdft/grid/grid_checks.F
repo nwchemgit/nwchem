@@ -1,5 +1,8 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
+c
+c$Id: grid_checks.F,v 1.6 2000-02-22 21:25:14 edo Exp $
+c
       implicit none
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -9,21 +12,19 @@
       double precision acc_in ! [in]
 c
       double precision pi
-      integer nptstot,mxangpp,mxnangpp
-      parameter (mxnangpp=11,mxangpp=5810)
+      integer nptstot,mxangpp,mxnangpp,mxangpp1
+      parameter (mxnangpp=iac_max,mxangpp=mx_l_ang,mxangpp1=1202)
       parameter (nptstot=mxangpp)
-c      parameter (nptstot=mxrad*mxangpp)
       integer itype,jtype
-      double precision s_err,s_err0
+      double precision s_err
       double precision rij
-      double precision range_a,range_b,delta_a,delta_b,
-     .     range_a0,range_b0, value,value_ex,maxrad
-      integer nrada,nradb,nanga,nangb,nanga0,nangb0,
-     ,     deltara,deltarb,dum,niter,mxiter,nrada0,nradb0
-      parameter(maxrad=131d0,mxiter=2)
-      logical grid_nangl,grid_nradl,grid_incang,grid_incrad
-      external grid_nangl,grid_nradl,grid_incang,grid_incrad
-      logical lsafe,limprove,lnotacc,lsafea,lsafeb
+      double precision range_a,range_b,value,value_ex
+      integer maxrad,nrada,nradb,nanga,nangb,
+     ,     dum,niter,mxiter
+      parameter(maxrad=131d0,mxiter=3)
+      logical grid_nangl,grid_nradl,same_ctr
+      external grid_nangl,grid_nradl
+      logical lsafe
       integer l_pts,k_pts,l_wgt,k_wgt,k_xyzw,l_xyzw,
      ,     k_iscr,l_iscr,k_rq,l_rq
       double precision reqacc
@@ -56,38 +57,22 @@ c
 
       itype=iatype(iat)
       jtype=iatype(ibt)
+      same_ctr=iat.eq.ibt
 c
 c     radial
 c
       lsafe=grid_nradl(itype,mxrad,nrada)
       lsafe=grid_nradl(jtype,mxrad,nradb)
-      nrada0=nrada
-      nradb0=nradb
 c
 c     ang
 c
       lsafe=grid_nangl(itype,mxangpp,nanga)
       lsafe=grid_nangl(jtype,mxangpp,nangb)
-      nanga0=nanga
-      nangb0=nangb
 c
 c     range
 c
       range_a=dble(rad_cutoff(1,itype))
       range_b=dble(rad_cutoff(1,jtype))
-      range_a0=range_a
-      range_b0=range_b
-      if(iat.eq.ibt) then
-         deltara=1
-         deltarb=1
-         delta_a=1d0
-         delta_b=1d0
-      else
-         deltara=nrada/6
-         deltarb=nradb/6
-         delta_a=range_a/6d0
-         delta_b=range_b/6d0
-      endif
       reqacc=acc_in
       write(0,*) ' required accuracy ',reqacc
       write(0,*) ' alpha ',alphaa,alphab
@@ -97,60 +82,155 @@ c     initial test
 c
       call grid_checkscore(alphaa,lla,alphab,llb,rij,
      ,     nrada,nradb,nanga,nangb,range_a,range_b,
-     ,     iat.eq.ibt,
-     ,     value,value_ex,
+     ,     same_ctr,
+     ,     value,value_ex,s_err,
      ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
      ,     int_mb(k_iscr),dbl_mb(k_rq))
-      s_err = value - value_ex
-      lnotacc=abs(s_err).gt.reqacc
-      if(.not.lnotacc) goto 2001
+      if(s_err.lt.reqacc) goto 2001
+      if(.not.same_ctr) then
+c
+c     first <a|a> at r=0
+c
+
+      write(0,*) ' aa0'
+      call grid_checks1(acc_in,alphaa,lla,alphaa,lla,0d0,
+     ,     nrada,nrada,nanga,nanga,range_a,range_a,.true.,
+     ,     value,value_ex,s_err,
+     ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
+     ,     int_mb(k_iscr),dbl_mb(k_rq),
+     ,     niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
+c
+c     2nd <b|b> at r=0
+c
+      write(0,*) ' bb0'
+      call grid_checks1(acc_in,alphab,llb,alphab,llb,0d0,
+     ,     nradb,nradb,nangb,nangb,range_b,range_b,.true.,
+     ,     value,value_ex,s_err,
+     ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
+     ,     int_mb(k_iscr),dbl_mb(k_rq),
+     ,     niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
+      endif
+      write(0,*) ' call s1'
+c
+c     3rd <a|b> at r
+c
+      call grid_checks1(acc_in,alphaa,lla,alphab,llb,rij,
+     ,     nrada,nradb,nanga,nangb,range_a,range_b,same_ctr,
+     ,     value,value_ex,s_err,
+     ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
+     ,     int_mb(k_iscr),dbl_mb(k_rq),
+     ,     niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
+
+ 2001 write(0,*) ' **********'
+      write(0,*) ' #iter:',niter,
+     ,     ' reached accuracy ? ',abs(s_err).lt.acc_in
+      write(0,1) alphaa,alphab,lla,llb,
+     ,     '  err_rel',s_err/value_ex, ' err_abs',s_err
+      write(0,*) ' **********'
+      rad_cutoff(1,itype)=range_a
+      if(same_ctr) rad_cutoff(1,jtype)=range_b
+      nrad(itype)=nrada
+      nrad(jtype)=nradb
+      nang(itype)=nanga
+      nang(jtype)=nangb
+      if (.not. ma_chop_stack(l_pts)) call errquit
+     $     ('grchks: ma pop?', 0)                 
+      return
+ 1    format(' exps',2d10.2,' l ',2i4,A,d10.2,A,d12.4)
+      end
+      subroutine grid_checks1(acc_in,alphaa,lla,alphab,llb,rij,
+     ,     nrada,nradb,nanga,nangb,range_a,range_b,same_ctr,
+     ,     value,value_ex,s_err,
+     ,     pts,wghts,xyzw,iscr,rq,
+     ,niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
+      implicit none
+      double precision alphaa,alphab
+      integer lla,llb
+      double precision acc_in ! [in]
+      double precision reqacc
+      double precision s_err,s_err0
+      double precision rij
+      double precision range_a,range_b,delta_a,delta_b,
+     .     range_a0,range_b0, value,value_ex,maxrad
+      integer nrada,nradb,nanga,nangb,nanga0,nangb0,
+     ,     deltara,deltarb,niter,mxiter,nrada0,nradb0
+      integer mxangpp,mxangpp1,mxrad,mxnangpp
+      double precision pts(*),wghts(*),xyzw(4,*),rq(*) ! [scratch]
+      integer iscr(*) ! [scratch]
+      logical same_ctr,lnotacc,lsafe,limprove,lsafea,lsafeb
+      logical grid_nangl,grid_nradl,grid_incang,grid_incrad
+      external grid_nangl,grid_nradl,grid_incang,grid_incrad
+c
+      niter=0
+c
+c     initial test
+c
+      call grid_checkscore(alphaa,lla,alphab,llb,rij,
+     ,     nrada,nradb,nanga,nangb,range_a,range_b,
+     ,     same_ctr,
+     ,     value,value_ex,s_err,
+     ,     pts,wghts,xyzw,
+     ,     iscr,rq)
+      lnotacc=s_err.gt.acc_in
+      if(.not.lnotacc) return
+
+      range_a0=range_a
+      range_b0=range_b
+      nanga0=nanga
+      nangb0=nangb
+      nrada0=nrada
+      nradb0=nradb
+      deltara=nrada/6
+      deltarb=nradb/6
+      delta_a=range_a/6d0
+      delta_b=range_b/6d0
 c
 c     test range
 c
+ 12   niter=niter+1
       write(0,*) ' 0-ranges ',range_a,range_b
       s_err0=1d99
       s_err=0d0
- 12   niter=niter+1
-      reqacc=acc_in*mxiter/niter
+      reqacc=acc_in*dble(mxiter)/dble(niter)
       range_a=range_a0
       range_b=range_b0
  1688 continue
       call grid_checkscore(alphaa,lla,alphab,llb,rij,
-     ,     nrada,nradb,mxangpp,mxangpp,range_a,range_b,
-     ,     iat.eq.ibt,
-     ,     value,value_ex,
-     ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
-     ,     int_mb(k_iscr),dbl_mb(k_rq))
-      s_err = value - value_ex
-      lnotacc=abs(s_err).gt.reqacc
-c      lnotacc=abs(s_err).gt.reqacc*0.05d0
+     ,     nrada,nradb,max(mxangpp1,nanga),
+     ,     max(mxangpp1,nangb),range_a,range_b,
+     ,     same_ctr,
+     ,     value,value_ex,s_err,
+     ,     pts,wghts,xyzw,
+     ,     iscr,rq)
+      if(same_ctr) then
+         lnotacc=s_err.gt.(reqacc*0.05d0)
+      else
+         lnotacc=s_err.gt.reqacc
+      endif
       lsafe=range_a.gt.maxrad.and.range_b.gt.maxrad
-      limprove=abs(s_err0-s_err).gt.reqacc*0.1d0
-      s_err0=s_err
-c      write(0,*) ' rr err ',range_a,range_b,s_err
+      limprove=(s_err0-s_err).gt.reqacc*0.01d0
       if(lnotacc.and.(.not.lsafe).
      .     and.limprove) then
-         range_b=range_b+delta_b
-         range_a=range_a+delta_a
+         range_b=min(range_b+delta_b,maxrad)
+         range_a=min(range_a+delta_a,maxrad)
+         s_err0=s_err
          goto 1688
       endif
       range_a=min(maxrad,range_a)
       range_b=min(maxrad,range_b)
-      rad_cutoff(1,itype)=range_a
-      if(iat.ne.ibt) rad_cutoff(1,jtype)=range_b
       write(0,*) ' f-ranges ',range_a,range_b
       if(.not.lnotacc) then
          write(0,*) '@radial extension OK'
       else
-         write(0,*) ' cant go beyond acc ',s_err, ' ?? '
-         reqacc=(abs(s_err)+abs(reqacc))*0.5d0
-         write(0,*) ' new acc ',reqacc
+         if(.not.limprove) then
+            range_a=range_a-delta_a
+            range_b=range_b-delta_b
+         endif
+         reqacc=(s_err0+reqacc)*0.5d0
       endif
 c
 c     test nrad
 c
-c .99997 for UO2      deltara=nrada/4
-c      deltarb=nradb/4
       write(0,*) ' 0-nrad ',nrada,nradb
       s_err0=1d99
       s_err=0d0
@@ -159,45 +239,41 @@ c      deltarb=nradb/4
  2688 continue
       call grid_checkscore(alphaa,lla,alphab,llb,rij,
      ,     nrada,nradb,nanga,nangb,range_a,range_b,
-     ,     iat.eq.ibt,
-     ,     value,value_ex,
-     ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
-     ,     int_mb(k_iscr),dbl_mb(k_rq))
-      s_err = value - value_ex
+     ,     same_ctr,
+     ,     value,value_ex,s_err,
+     ,     pts,wghts,xyzw,
+     ,     iscr,rq)
       lsafe=nrada.gt.mxrad.and.nradb.gt.mxrad
-      lnotacc=abs(s_err).gt.reqacc
+      lnotacc=s_err.gt.reqacc
+      limprove=(s_err0-s_err).gt.reqacc*0.01d0
       s_err0=s_err
-      limprove=(s_err0-s_err).gt.reqacc*0.025d0
-      write(0,*) ' nr acc ',nrada,nradb,abs(s_err)
       if(lnotacc.and.(.not.lsafe).and.limprove) then
          lsafea=grid_incrad(mxrad,nrada,deltara)
          lsafeb=grid_incrad(mxrad,nradb,deltarb)
          if(lsafea.and.lsafeb) goto 2689
          goto 2688
       endif
- 2689 nrad(itype)=nrada
-      nrad(jtype)=nradb
-      write(0,*) ' f-nrada nradb',nrada,nradb
+ 2689 continue
+      write(0,*) ' f-nrad ',nrada,nradb
       if(.not.lnotacc) write(0,*) '@ nrad  OK '
-      if(iat.eq.ibt) goto 2000
+      if(same_ctr) goto 2000
 c
 c     test nang
 c
-      write(0,*) ' 0-nang ',nanga,nangb
       nanga=nanga0
       nangb=nangb0
+      write(0,*) ' 0-nang ',nanga,nangb
       s_err0=1d99
       s_err=0d0
  3688 continue
       call grid_checkscore(alphaa,lla,alphab,llb,rij,
      ,     nrada,nradb,nanga,nangb,range_a,range_b,
-     ,     iat.eq.ibt,
-     ,     value,value_ex,
-     ,     dbl_mb(k_pts),dbl_mb(k_wgt),dbl_mb(k_xyzw),
-     ,     int_mb(k_iscr),dbl_mb(k_rq))
-      s_err = value - value_ex
+     ,     same_ctr,
+     ,     value,value_ex,s_err,
+     ,     pts,wghts,xyzw,
+     ,     iscr,rq)
       lsafe=nanga.gt.mxangpp.and.nanga.gt.mxangpp
-      lnotacc=abs(s_err).gt.reqacc
+      lnotacc=s_err.gt.reqacc
       s_err0=s_err
       if(lnotacc.and.(.not.lsafe)) then
          lsafea=grid_incang(mxnangpp,nangb)
@@ -205,40 +281,31 @@ c
          if(lsafea.and.lsafeb) goto 3689
          goto 3688
       endif
- 3689 nang(itype)=nanga
-      nang(jtype)=nangb
+ 3689 continue
       write(0,*) ' f-nang ',nanga,nangb
       if(.not.lnotacc)  write(0,*) '@ nang OK '
  2000 reqacc=acc_in
-      lnotacc=abs(s_err).gt.reqacc
+      lnotacc=s_err.gt.reqacc
       if(lnotacc.and.(niter.le.mxiter)) then
          write(0,*) '#iter',niter,' acc= ',s_err
          s_err0=1d99
          s_err=0d0
          goto 12
       endif
- 2001 write(0,*) ' **********'
-      write(0,*) ' #iter:',niter,
-     ,     ' reached accuracy ? ',abs(s_err).lt.acc_in
-      write(0,1) alphaa,alphab,lla,llb,
-     ,     '  err_rel',s_err/value_ex, ' err_abs',s_err
-      write(0,*) ' **********'
- 1    format(' exps',2d10.2,' l ',2i4,A,d10.2,A,d12.4)
-      if (.not. ma_chop_stack(l_pts)) call errquit
-     $     ('grchks: ma pop?', 0)                 
       return
       end
       subroutine grid_checkscore(alphaa,lla,alphab,llb,rij,
      ,     nrada,nradb,nanga,nangb,range_a,range_b,lsame,
-     ,     value,value_ex,
+     ,     value,value_ex,s_err,
      ,     pts,wghts,xyzw,iscr,rq)
       implicit none
       double precision alphaa,alphab,rij ! [in]
       integer nrada,nradb,nanga,nangb,lla,llb ! [in]
       double precision range_a,range_b ! [in]
       logical lsame
-      double precision value,value_ex ! [out]
-      double precision pts(*),wghts(*),xyzw(*),rq(*) ! [scratch]
+      double precision value,value_ex,s_err ! [out]
+      double precision pts(*),wghts(*),
+     ,     xyzw(4,*),rq(*)      ! [scratch]
       integer iscr(*) ! [scratch]
 c
       double precision range_mk
@@ -265,10 +332,11 @@ c
          range_mk=range_b
          value=value+grid_s2int0(pts,wghts,nradb,nangb,
      ,        range_mk,xyzw,
-     ,        alphab,llb,alphaa,lla,-rij,
+     ,        alphab,llb,alphaa,lla,(-rij),
      ,        iscr,rq)
          value_ex=grid_intovl(alphaa,lla,alphab,llb,rij)
       endif
+      s_err=abs(value-value_ex)
       return
       end
       double precision function grid_sint(n0,pts,wghts,alpha,l)
@@ -301,17 +369,17 @@ c
       implicit none
 #include "cdft.fh"
       integer n0,nangtst ! [in]
-      double precision xyzw(4,*),pts(*),wghts(*)
+      double precision xyzw(4,nangtst),pts(n0),wghts(n0)
       double precision rij,alphaa,alphab,range_mk 
-      double precision rq(*) ! [scratch]
-      integer iscr(*)
-      double precision p(2),rdum(2)
+      double precision rq(2,nangtst) ! [scratch]
+      integer iscr(nangtst)
+      double precision p(2),rdum(3)
       integer lla,llb
 c
       external xc_leb_nrd2acc
       double precision grid_s2int
       integer nq,j,k,acc_leb,xc_leb_nrd2acc
-      double precision xyz(3,2),rrad,tx,ty,tz
+      double precision xyz(3,2),rrad,ww
       external grid_s2int
 c              call eumac(2d0, pts, 
 c     &             wghts, n0, 2d0)
@@ -328,15 +396,13 @@ c     &             wghts, n0, 2d0)
       do j=1,n0
          nq=0
          rrad=pts(j)
-         do k = 1, ntheta(acc_leb)
-            tx=za_leb(1,k,acc_leb)
-            ty=za_leb(2,k,acc_leb)
-            tz=za_leb(3,k,acc_leb)
+         ww=wghts(j)
+         do k = 1, nangtst
             nq = nq + 1
-            xyzw(1,nq) =rrad*tx
-            xyzw(2,nq) =rrad*ty
-            xyzw(3,nq) =rrad*tz
-            xyzw(4,nq) = wa_leb(k,acc_leb)*wghts(j)
+            xyzw(1,nq) =rrad*za_leb(1,k,acc_leb)
+            xyzw(2,nq) =rrad*za_leb(2,k,acc_leb)
+            xyzw(3,nq) =rrad*za_leb(3,k,acc_leb)
+            xyzw(4,nq) = wa_leb(k,acc_leb)*ww
          enddo
          call grid_ssw(xyzw, xyz, Rdum, rq, p, 1, 
      &        2,nq,iscr, 'erf1')
@@ -378,7 +444,7 @@ cedo 11   format(' int2 ',i3,d12.4,f20.16,d12.4)
       integer lla,llb
       double precision alphaa,alphab,rij
       integer lscr,lstv
-      parameter(lscr=10000,lstv=50)
+      parameter(lscr=20000,lstv=100)
       double precision xa(3),xb(3),dum,S(lstv)
       double precision scr(lscr)
       integer ndum
@@ -388,25 +454,25 @@ cedo 11   format(' int2 ',i3,d12.4,f20.16,d12.4)
       xb(1)=rij
       xb(2)=0d0
       xb(3)=0d0
-!     call hf1(
-!    &     xa,alphaa,
-!    &     1d0,
-!    &     1, 1, lla,
-!    &     xb,alphab,
-!    &     1d0,
-!    &     1, 1, llb,
-!    &     dum,dum,dum,ndum,
-!    &     S,dum,dum,lstv,.true.,.false.,.false.,
-!    .     .false.,.false.,scr,lscr,'int_1eov')
-      call hnd_stvint(
+      call hf1(
      &     xa,alphaa,
-     &     1d0,0
+     &     1d0,
      &     1, 1, lla,
      &     xb,alphab,
      &     1d0,
      &     1, 1, llb,
-     &     dum,dum,ndum,
-     &     S,dum,dum,lstv,.true.,.false.,.false.,scr,lscr)
+     &     dum,dum,dum,ndum,
+     &     S,dum,dum,lstv,.true.,.false.,.false.,
+     .     .false.,.false.,scr,lscr)
+cedo      call hnd_stvint(
+cedo     &     xa,alphaa,
+cedo     &     1d0,0
+cedo     &     1, 1, lla,
+cedo     &     xb,alphab,
+cedo     &     1d0,
+cedo     &     1, 1, llb,
+cedo     &     dum,dum,ndum,
+cedo     &     S,dum,dum,lstv,.true.,.false.,.false.,scr,lscr)
       grid_intovl=S(1)
 c      write(0,'(A,d12.4,/" X",6F10.6)') ' hnd S',grid_intovl,xa,xb
       return
