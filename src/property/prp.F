@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.35 1998-12-04 08:34:09 d3e129 Exp $
+* $Id: prp.F,v 1.36 1999-01-07 23:14:00 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -6002,10 +6002,10 @@ C
       YY=AA*((AX-CX)**2+(AY-CY)**2+(AZ-CZ)**2)
       CALL HND_DROOT
       DO 420 IROOT=1,MROOTS
-      UU=T(IROOT)*AA
+      UU=U9(IROOT)*AA
       U2=UU
       U4=UU*UU
-      WW=V(IROOT)*ZNUC
+      WW=W9(IROOT)*ZNUC
       W2(IROOT)=WW*U2*TWO
       W4(IROOT)=WW*U4*FOUR
       TT=ONE/(AA+UU)

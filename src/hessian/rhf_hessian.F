@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.21 1998-10-05 21:03:12 windus Exp $
+c $Id: rhf_hessian.F,v 1.22 1999-01-07 23:13:52 windus Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -14017,8 +14017,8 @@ C
       YY=ABV(5,NG)
       CALL HND_DROOT
       DO 110 NR=1,MROOTS
-      RWV(1,NG,NR)=T(NR)
-      RWV(2,NG,NR)=V(NR)
+      RWV(1,NG,NR)=U9(NR)
+      RWV(2,NG,NR)=W9(NR)
   110 CONTINUE
   120 CONTINUE
       RETURN

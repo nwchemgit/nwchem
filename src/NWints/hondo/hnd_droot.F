@@ -70,8 +70,8 @@ c
   150 ww(i,k)=  one  /dum
       do 160 k=1,mroots
       dum=r(k,mroots)
-      t(k)=dum/(  one  -dum)
-  160 v(k)=ww(k,mroots)
+      u9(k)=dum/(  one  -dum)
+  160 w9(k)=ww(k,mroots)
       return
       end
 c
