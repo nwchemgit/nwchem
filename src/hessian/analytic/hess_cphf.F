@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.4 2000-05-30 20:56:43 d3e129 Exp $
+C $Id: hess_cphf.F,v 1.5 2000-05-31 19:53:12 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -20,8 +20,6 @@ c
       integer num3, norb2, nocc2, nbf2, ind, ndns, in, nfock
       integer l_evals, k_evals, l_occ, k_occ
       integer g_vecs(2), g_modx
-*not passed cannot be dynamic      integer g_wax(ncent*3) 
-*not passed cannot be dynamic      integer g_aa(ncent*3)
       integer g_wax(nw_max_atom*3)
       integer g_aa(nw_max_atom*3)
       integer g_tmp, g_sol
@@ -48,10 +46,10 @@ c
       write(6,*) 'k_exy at entry ',k_exy
       call flush(6)
       dbug     = .false.
-      out      = .false.
+      out      = .true.
       out      = out.or.dbug
       if(out) then
-         write(6,*) 'in hnd_cphf'
+         write(6,*) 'in hess_cphf'
       endif
 
 c     ----- get nocc -----
@@ -120,6 +118,7 @@ c print out some debug info, note that occ and evals are for the
 c beta orbitals if UHF
 c
        if (out.and.ga_nodeid().eq.0) then
+           write(6,*) 'occupations, eigenvalues and vectors'
            call hnd_prsq(dbl_mb(k_occ),1,num,num)
            call hnd_prsq(dbl_mb(k_evals),1,num,num)
            call ga_print(g_vecs(1))
@@ -139,6 +138,10 @@ c
       do ndns = 1, ndens
        do in =1,nc
         ind = ind + 1
+        if (out) then
+          write(6,*) 'RHS before MO transformation'
+          call ga_print(g_rhs(ind))
+        endif
         call ga_zero(g_modx)
         call ga_matmul_patch ('t','n', 1.D0, 0.D0,
      $                         g_vecs(ndns), 1, num,   1, num,
@@ -180,9 +183,16 @@ c
      $     g_aa(ind),1,nocc,1,nocc)
         write(6,*) 'after the aa copy_patch ',ind
         call flush(6)
+        if (out) then
+          write(6,*) 'g_wax(ind) ',ind
+          call ga_print(g_wax(ind))
+          write(6,*) 'g_aa(ind) ',ind
+          call ga_print(g_aa(ind))
+        endif
         
        enddo
       enddo
+
 c
 c This loop and the one before can probably be put together in one loop.
 c Will reuse g_rhs for the ds/dx term.
@@ -216,11 +226,15 @@ c get contribution to wax, need to put into ga language
 c try to do this a row at a time as a ga_add_patch
 c
          do i = 1, nocc
-           write(6,*) 'index ',(ndns-1)*nbf+i-1
+           write(6,*) 'index ',(ndns-1)*nbf+i
            call ga_add_patch(one,g_wax(ind),i,i,1,nvirt,
-     $       eight*dbl_mb(k_evals+(ndns-1)*nbf+i-1),g_rhs(ind),i,i,
+     $       eight*dbl_mb(k_evals+(ndns-1)*nbf+i),g_rhs(ind),i,i,
      $       nocc+1, num,g_wax(ind),i,i,1,nvirt)
          enddo
+         if (out) then
+           write(6,*) 'g_wax after T addition'
+           call ga_print(g_wax(ind))
+         endif
 c
 c        g_wax(ind,i,a) = g_wax(ind,i,a) + g_rhs(ind,i,a)*eight
 c    $        *dbl_mb(k_evals,i)
@@ -265,9 +279,15 @@ c
         call ga_copy(g_rhs(ind),g_modx)  ! copy Ta to g_modx
         call ga_zero(g_rhs(ind))   ! zeroed to get the "new" fock matrices
 
+        if (out) then
+          write(6,*) 'Before the fock_2e call for ind ',ind
+          write(6,*) 'nfock, jfact, kfact ',nfock, jfact, kfact
+          call flush(6)
+          call ga_print(g_modx)
+        endif
         call int_init(rtdb,1,basis)
         call schwarz_init(geom,basis)
-        call scf_get_fock_param(rtdb,tol2e)
+        call scf_get_fock_param(rtdb,tol2e) ! need to change for DFT?
         call fock_2e(geom,basis,nfock,jfact,kfact,tol2e,skelsym,
      &              g_modx,g_rhs(ind), .false.)
         call fock_2e_tidy(rtdb)
@@ -285,6 +305,10 @@ c
      $                         g_modx,       1, num,    1, num,
      $                         g_vecs(1),    1, num,    1, num,
      $                         g_rhs(ind),   1, num,    1, num ) 
+        if (out) then
+          write(6,*) 'after transformation back to MO basis'
+          call ga_print(g_rhs(ind))
+        endif
 
 c
 c Now form the Wax and Aa contributions

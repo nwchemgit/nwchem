@@ -1,5 +1,5 @@
       logical function scf_hessian(rtdb)
-* $Id: scf_hessian.F,v 1.7 2000-02-04 19:56:37 mg201 Exp $
+* $Id: scf_hessian.F,v 1.8 2000-05-31 19:52:59 windus Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -17,6 +17,8 @@ C     and all information is still in the RTDB
 c
 c
       logical  int_normalize, scf
+      logical  hess_anal
+      external hess_anal
       external int_normalize, scf
 
       integer rtdb              ! [input] database handle
@@ -24,6 +26,14 @@ c
       logical converged
       logical status
       character*255 title
+c
+c temp
+c
+      status = hess_anal(rtdb)
+      if (.not. status) call errquit
+     $  ('analytic hessian did not work',555)
+      scf_hessian = status
+      return
 c
       if (.not. scf(rtdb))
      $     call errquit('scf_hessian: scf failed', 0)
