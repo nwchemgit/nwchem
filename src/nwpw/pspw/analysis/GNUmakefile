@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-11-11 01:29:07 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2002-02-11 19:45:35 edo Exp $
 #
      SUBDIRS = APC
 
@@ -15,7 +15,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = 
+    USES_BLAS =  pspw_Lubin_water_analysis.F
 
   LIB_DEFINES = 
 
