@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.12 2003-10-17 22:55:53 carlfahl Exp $
+c     $Id: xc_eval_basis.F,v 1.13 2004-01-27 20:37:41 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -2345,24 +2345,59 @@ c
 c
       integer n, iprimo
       double precision zeta
+#ifdef CHKUNDFLW
+      double precision rmax,undovl,zz
+cedo      parameter(undovl=-700d0)
+      parameter(undovl=-160d0)
+#endif
 c
 c
 c     Store results for first primitive directly and then sum the rest
 c
+#ifdef CHKUNDFLW
+      rmax=r2(1)
+      do n=2,nq
+         rmax=max(rmax,r2(n))
+      enddo
+#endif
       if(nprimo.eq.1) then
          zeta = -zprim(1)
          t0 = ccoef(1,1)
-         do n = 1,nq
-            crad(n) = exp(zeta*r2(n))*t0
-         enddo
+#ifdef CHKUNDFLW
+         if(rmax*zeta.lt.undovl) then
+            zz=undovl/zeta
+            do n = 1,nq
+               if(r2(n).lt.zz)
+     .              crad(n) = exp(zeta*r2(n))*t0
+            enddo
+         else
+#endif
+            do n = 1,nq
+               crad(n) = exp(zeta*r2(n))*t0
+            enddo
+#ifdef CHKUNDFLW
+         endif
+#endif
       else
          call dcopy(nq,0d0,0,crad,1) 
          do iprimo = 1, nprimo
             zeta = -zprim(iprimo)
             t0 = ccoef(iprimo,1)
-            do n = 1,nq
-               crad(n) = crad(n) + exp(zeta*r2(n))*t0
-            enddo
+#ifdef CHKUNDFLW
+            if(rmax*zeta.lt.undovl) then
+               zz=undovl/zeta
+               do n = 1,nq
+                  if(r2(n).lt.zz)
+     .                 crad(n) = crad(n)+exp(zeta*r2(n))*t0
+               enddo
+            else
+#endif
+               do n = 1,nq
+                  crad(n) = crad(n) + exp(zeta*r2(n))*t0
+               enddo
+#ifdef CHKUNDFLW
+            endif
+#endif
          enddo
       endif
       return
