@@ -1,5 +1,5 @@
       subroutine intp_txyz(n_cent, n_geom, R, xyz_new)
-c $Id: intp_txyz.F,v 1.1 1995-01-09 08:48:44 d3e129 Exp $
+c $Id: intp_txyz.F,v 1.2 1995-01-19 20:44:48 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c::external subroutines used
@@ -7,7 +7,7 @@ c... dgemv
 c::passed
       integer n_cent               ! [input] center to be translated
       integer n_geom               ! [input] geometry handle to use
-      double precision R           ! [input] fractional translation vector
+      double precision R(3)        ! [input] fractional translation vector
       double precision xyz_new(3)  ! [output] new coordinates based on R translations
 c::local
       double precision xyz_frac(3) ! fractional coordinates 
