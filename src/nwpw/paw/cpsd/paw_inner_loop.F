@@ -1,8 +1,24 @@
 *
-* $Id: paw_inner_loop.F,v 1.37 2003-10-21 02:05:15 marat Exp $
+* $Id: paw_inner_loop.F,v 1.38 2003-10-24 18:45:24 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.37  2003/10/21 02:05:15  marat
+* switched to new errquit by running global replace operation
+* see the script below (note it will not work on multiline errquit calls)
+* *********************************************************
+* #!/bin/sh
+*
+* e=`find . -name "*F" -print`
+*
+* for f in $e
+* do
+* cp $f $f.bak
+* sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+* #rm $f.bak
+* done
+* **********************************************************
+*
 * Revision 1.36  2003/03/25 19:43:31  bylaska
 * bug fix...EJB
 *
@@ -123,7 +139,7 @@
       integer tmp_L(2)
       integer tmp1(2),tmp2(2)
       integer vl(2),vh(2),vc(2),vcomp(2),dng(2)
-      integer rho(2),r_grid(2)
+      integer rho(2)
       integer xcp(2),xce(2),dnall(2)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
@@ -176,16 +192,11 @@
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vcomp',vcomp(2),vcomp(1))
+     >        MA_push_get(mt_dcpl,(nfft3d),'vcomp',vcomp(2),vcomp(1))
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vh',vh(2),vh(1))
+     >        MA_push_get(mt_dcpl,(nfft3d),'vh',vh(2),vh(1))
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
-      end if
-
-      if (control_version().eq.4) then
-       value = value.and.
-     >    MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
+     >        MA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
       end if
 
       value = value.and.
@@ -229,8 +240,6 @@
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1*lattice_omega()
 
-      if (control_version().eq.4)
-     >   call lattice_r_grid(dbl_mb(r_grid(1)))
 
 *     ******************************************
 *     ****                                  ****
@@ -346,8 +355,47 @@
         end if
 
         if (control_version().eq.4) then
-           write(*,*) "Multipole interaction not done for aperiodic"
-           call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+        
+           call Pack_cc_Sub(0,
+     >                      dcpl_mb(tmp1(1)),
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(tmp2(1))) !** tmp2 = dn_cmp - dn_cmp_smooth
+           call Pack_cc_Sum(0,
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(dng(1)),
+     >                      dcpl_mb(tmp1(1))) !** tmp1 = dng+dn_cmp_smooth **
+
+           call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dcpl_mb(tmp1(1)))
+
+           call coulomb2_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
+
+           call D3dB_rc_fft3f(1,dcpl_mb(vh(1)))
+           call D3dB_r_SMul(1,scal1,dcpl_mb(vh(1)),dcpl_mb(vh(1)))
+           call Pack_c_pack(0,dcpl_mb(vh(1)))
+
+
+           call Pack_c_unpack(0,dcpl_mb(tmp2(1)))
+           call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+           call D3dB_r_Zero_Ends(1,dcpl_mb(tmp2(1)))
+
+           call coulomb2_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
+
+           call D3dB_rc_fft3f(1,dcpl_mb(vcomp(1)))
+           call D3dB_r_SMul(1,scal1,dcpl_mb(vcomp(1)),dcpl_mb(vcomp(1)))
+           call Pack_c_pack(0,dcpl_mb(vcomp(1)))
+
+           call paw_mult_vzero(vzero)
+           call Pack_c_setzero(0,vzero,dcpl_mb(vcomp(1)))
+
+           call paw_mult_coeff_set(dcpl_mb(vh(1)),dcpl_mb(vcomp(1)))
+
+           call Pack_cc_Sum(0,
+     >                      dcpl_mb(vh(1)),
+     >                      dcpl_mb(vcomp(1)),
+     >                      dcpl_mb(vc(1)))
+
         end if
 
 
@@ -377,18 +425,11 @@
 *       **** get Hpsi ****
 *       ******************
         call nwpw_timing_start(13)
-        if (control_version().eq.3) 
-     >     call paw_psi_H(ispin,ne,psi1,psi_r,
+        call paw_psi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
  
-        if (control_version().eq.4) 
-     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
-     >             dcpl_mb(vl(1)),
-     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
-
         
         !call paw_Gop_print()
 
@@ -660,28 +701,23 @@ c          write(*,*)
 
     
 *     **** get coulomb energy ****
-      if (control_version().eq.3) then
-        call Pack_cc_Sum(0,
+      call Pack_cc_Sum(0,
      >                   dcpl_mb(dng(1)),
      >                   dn_cmp_smooth,
      >                   dcpl_mb(tmp1(1)))
-        call Pack_c_Copy(0,
+      call Pack_c_Copy(0,
      >                   dcpl_mb(vcomp(1)),
      >                   dcpl_mb(tmp2(1)))
-        call Pack_cc_daxpy(0,0.5d0,
+      call Pack_cc_daxpy(0,0.5d0,
      >                   dcpl_mb(vh(1)),
      >                   dcpl_mb(tmp2(1)))
-        call Pack_cc_dot(0,
+      call Pack_cc_dot(0,
      >                  dcpl_mb(tmp1(1)),
      >                  dcpl_mb(tmp2(1)),
      >                  ehartr_pw)
-        ehartr_pw = ehartr_pw*lattice_omega()
-      end if
+      ehartr_pw = ehartr_pw*lattice_omega()
+     
 
-      if (control_version().eq.4) then
-         call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr_pw)
-         ehartr_pw = 0.5d0*ehartr_pw*dv
-      end if
         
 
 *     **** get exchange-correlation energy ****
@@ -821,8 +857,6 @@ c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
       value = MA_pop_stack(rho(2))
       value = MA_pop_stack(vl(2))
 
-      if ((control_version().eq.4))
-     >   value = MA_pop_stack(r_grid(2))
 
       value = MA_pop_stack(vc(2))
       value = MA_pop_stack(vh(2))
