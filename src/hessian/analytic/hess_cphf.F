@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.42 2002-01-05 01:25:42 edo Exp $
+C $Id: hess_cphf.F,v 1.43 2002-01-08 19:29:03 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -754,12 +754,13 @@ c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
 c
       multfac = 8.0d+00
       if (ndens.gt.1) multfac = 4.0d+00
+c
       ind = 0
       do ndns = 1, ndens
         do in = 1, n3xyz
-          dbl_mb(k_jfac+ind) =  multfac*jfac(ndns)
+          dbl_mb(k_jfac+ind) =  jfac(ndns)
 c         dbl_mb(k_kfac+ind) =  0.0d+00*kfac(ndns)
-          dbl_mb(k_kfac+ind) =  multfac*kfac(ndns)
+          dbl_mb(k_kfac+ind) =  kfac(ndns)
           ind = ind + 1
         enddo
       enddo
@@ -793,6 +794,8 @@ c    &            g_tmp,g_rhs_x)
       call shell_fock_build(geom,basis,0,ndens*n3xyz,dbl_mb(k_jfac),
      &            dbl_mb(k_kfac),tol2e,
      &            g_tmp,g_rhs_x,.true.)
+c
+      call ga_dscal(g_rhs_x, multfac)
 c
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',1)
