@@ -152,13 +152,15 @@ c
      &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +     call errquit('task: no task input for theory?',0)
-c      if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+c     if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
 c     $     nopen = 0
       if(theory .eq. 'dft')then
          if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
      *        mult = 1
          nopen = mult - 1
       endif
+      if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
+     $     nopen = 0
       if (nopen .gt. nelec) call errquit
      $     ('scf: nopen > nelec ', nopen)
       if (mod(nelec-nopen,2) .ne. 0) call errquit
@@ -296,7 +298,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.51 2001-06-21 19:01:26 zzhang Exp $
+C$Id: scf_get_info.F,v 1.52 2001-06-26 19:42:20 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
