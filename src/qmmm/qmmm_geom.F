@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.50 2005-02-10 05:53:32 marat Exp $
+c $Id: qmmm_geom.F,v 1.51 2005-02-17 01:57:07 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -193,7 +193,7 @@ c
       end if
 
 
-       call qmmm_print_pdb(nqm,"-qm.pdb",
+       call qmmm_print_pdb(nqm,"-qm-start.pdb",
      >                    dbl_mb(i_c),
      >                    dbl_mb(i_q),
      >                    byte_mb(i_t))

@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.8 2005-02-15 06:39:44 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.9 2005-02-17 01:57:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -53,6 +53,7 @@ c
          if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
      $        call errquit('task_optimize: rtdb?',0, RTDB_ERR)
          status = driver(rtdb)
+         call mm_print_info()
       endif
 c     
       cpu  = util_cpusec() - cpu

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.11 2005-02-10 05:53:32 marat Exp $
+c $Id: qmmm_output.F,v 1.12 2005-02-17 01:57:07 marat Exp $
 c
 c
       subroutine qmmm_print_header()

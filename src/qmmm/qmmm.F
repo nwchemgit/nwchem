@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.44 2005-02-15 06:39:44 marat Exp $
+c $Id: qmmm.F,v 1.45 2005-02-17 01:57:07 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -123,7 +123,9 @@ c
       integer rtdb
       logical qmmm_energy
 c     local variables
+      character*30 operation
       logical status
+      logical do_print
       character*255 theory
       double precision energy
       double precision qm_energy
@@ -140,6 +142,12 @@ c     external functions
       
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+
+      do_print = .false.
+      if (operation.eq.'energy') do_print = .true.
 
        if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
@@ -196,6 +204,9 @@ c     -------------------------
 
 
       call qmmm_print_energy(rtdb)
+
+      if(do_print)
+     >  call mm_print_info()
 
       qmmm_energy=status
 

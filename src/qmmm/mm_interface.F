@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.44 2005-02-10 05:53:32 marat Exp $
+c $Id: mm_interface.F,v 1.45 2005-02-17 01:57:07 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -77,6 +77,24 @@ c      call md_wrtrst(lfnqrs,filqrs,.false.)
       call md_finish()
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      subroutine mm_print_info()
+      implicit none
+#include "qmmm.fh"
+#include "md_common.fh"
+#include "mafdecls.fh"
+
+      call prp_print()
+c
+c     print energies
+c
+      call cf_print_energy(lfnout)
+c
+      call sp_printf(filtop,lfntop,
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
+c
       return
       end
 

@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.33 2005-02-16 08:21:25 marat Exp $
+c $Id: qmmm_main.F,v 1.34 2005-02-17 01:57:07 marat Exp $
 c
       implicit none
 #include "errquit.fh"

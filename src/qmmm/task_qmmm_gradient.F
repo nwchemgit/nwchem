@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.16 2005-02-15 06:39:44 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.17 2005-02-17 01:57:07 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -75,6 +75,7 @@ c
       logical ignore_qm
       character*30 operation
       logical do_actlist
+      logical do_print
       logical save_rst
 
       call util_print_push() 
@@ -108,6 +109,8 @@ c
       if (operation.eq.'optimize' .or.
      >    operation.eq.'saddle') save_rst = .true.
 
+      do_print = .false.
+      if (operation.eq.'gradient') do_print = .true.
 
        if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
@@ -205,6 +208,9 @@ c
 
       if(do_actlist) 
      >  call qmmm_unload_fixed_atoms(rtdb)
+
+      if(do_print)
+     >  call mm_print_info()
 
       end
 
