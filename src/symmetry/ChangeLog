@@ -1,0 +1,16 @@
+$Id: ChangeLog,v 1.1 1998-09-29 16:50:25 d3e129 Exp $	
+	
+files need to be changed for sphericals and symmetry:
+sym_bas_op.F
+	: added logical argument for transformation
+	: added sym_bas_op_spherical to transform to spherical basis functions
+sym_bs_irrep.F
+	: added argument/logic for spherical
+sym_mo_ap_op.F
+	: added argument/logic for spherical
+sym_sym.F
+	: added argument/logic for spherical
+sym_vec_sym.F
+	: added argument/logic for spherical
+makefile
+	: if dgemm is used add sym_bas_op to USES_BLAS
