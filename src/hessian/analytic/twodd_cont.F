@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.18 2001-04-11 18:01:09 edo Exp $
+C $Id: twodd_cont.F,v 1.19 2001-05-22 17:48:28 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -49,8 +49,6 @@ c
      $     k_bfglo, k_bfghi, k_labels, k_list, k_q4, k_bftoat
       integer l_shbflo, l_shbfhi
       integer k_shbflo, k_shbfhi
-      integer ndims(4), chunk(4)
-      integer g_fock, alo(2), ahi(2), blo(4), bhi(4)
 c
 c dummy variable needed for grad2 call, but not used here
 c
@@ -72,9 +70,7 @@ c
 c Set up printing
 c
       oprint = util_print('hess_follow',print_high)
-!      oprint = oprint .and. (ga_nodeid().eq.0)
       otwoprint = util_print('twodd_cont',print_debug)
-!      otwoprint = otwoprint .and. (ga_nodeid().eq.0)
 c
 c  First let's do the DFT part.
 c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
@@ -132,7 +128,7 @@ c
 c Print out the hessian before adding anything else
 c
       if (otwoprint) then
-         if(ga_nodeid().eq.0) then
+        if(ga_nodeid().eq.0) then
         write(LuOut,*)
         write(LuOut,*) 'The full Hessian after the dft contribution'
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
@@ -188,6 +184,21 @@ c    $     call errquit('twodd_cont: could not allocate l_act',ncent)
         log_mb(k_act+i-1) = .true.
       end do
 c
+c  Take care of the first derivative contributions to the rhs
+c
+      call shell_fock_build (geom, basis, n3xyz, ndens, jfac, kfac,
+     *   tol2e, g_dens, g_rhs, log_mb(k_act))
+      if (otwoprint) then
+         if(ga_nodeid().eq.0) then
+        write(LuOut,*) 'after going into shell_fock_build:'
+        write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
+     *      n3xyz, ndens, tol2e
+        endif
+        do i = 1, ndens*n3xyz
+          call ga_print(g_rhs(i))
+        enddo
+      endif
+c
 c  Set up some variables that would be set using mp2, etc... for the
 c  the call to twodd_coul_ex.
 c
@@ -225,45 +236,6 @@ c
       ld_jl8  = 1
       ld_il8  = 1
       ld_jk8  = 1
-c
-c  This is pretty inefficient for now, but ...
-c  First create a (3N,ndens,i,j) ga for the fock_derivatives in the
-c  fock build.  Second call the fock build.  Finally, add the two
-c  ga's together together and get rid of the extra ga.
-c
-      ndims(1) = n3xyz
-      ndims(2) = ndens
-      ndims(3) = nbf
-      ndims(4) = nbf
-      chunk(1) = -1
-      chunk(2) = -1
-      chunk(3) = -1
-      chunk(4) = -1
-      if (.not.nga_create(MT_DBL,4,ndims,'Fockders',chunk,g_fock))
-     *  call errquit('twodd_cont: Could not create g_fock',555)
-      call ga_zero(g_fock)
-      if (otwoprint.and.(ga_nodeid().eq.0)) then
-        write(LuOut,*) 'before going into shell_fock_build:'
-        write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
-     *      n3xyz, ndens, tol2e
-        do i = 1, ndens
-          write(LuOut,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
-        enddo
-      endif
-      call shell_fock_build (geom, basis, n3xyz, ndens, jfac, kfac,
-     *   tol2e, g_dens, g_fock, log_mb(k_act))
-      if (otwoprint) then
-         if(ga_nodeid().eq.0) then
-        write(LuOut,*) 'after going into shell_fock_build:'
-        write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
-     *      n3xyz, ndens, tol2e
-        endif
-        do i = 1, ndens
-           if(ga_nodeid().eq.0)
-     .     write(LuOut,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
-        enddo
-        call ga_print(g_fock)
-      endif
 c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
@@ -445,43 +417,6 @@ c
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
         write(LuOut,*)
       endif
-c
-c Now add the two fockdir contributions together
-c needs to be here for the moment because we need the map
-c
-      alo(1) = 1
-      ahi(1) = nbf
-      alo(2) = 1
-      ahi(2) = nbf
-c TEMPORARY
-      blo(2) = 1
-      bhi(2) = 1
-      blo(3) = 1
-      bhi(3) = nbf
-      blo(4) = 1
-      bhi(4) = nbf
-      do i = 1, n3xyz
-      blo(1) = i
-      bhi(1) = i
-cc     do j = 1, nfock  ! NEED TO ADD THIS IN
-cc       blo(2) = j
-cc       bhi(2) = j
-        call ga_reorder(g_rhs(i), .true., int_mb(k_rbfmap),
-     *       .true., int_mb(k_rbfmap))
-        call nga_add_patch(1.0d+00,g_rhs(i),alo,ahi,1.0d+00,g_fock,
-     *     blo,bhi, g_rhs(i),alo,ahi)
-        call ga_reorder(g_rhs(i), .true., int_mb(k_bfmap),
-     *       .true., int_mb(k_bfmap))
-        if (otwoprint) then
-          if(ga_nodeid().eq.0)write(LuOut,*) 'fockder ', i
-          call ga_print(g_rhs(i))
-          if(ga_nodeid().eq.0)write(LuOut,*) 
-        endif
-cc     enddo
-      enddo
-c
-      if (.not.ga_destroy(g_fock))
-     *  call errquit('twodd_cont: Could not destroy g_fock',555)
 c
 c  Get rid of the g_dens arrays since they are no longer needed.
 c

@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.5 2001-05-18 21:52:18 windus Exp $
+c $Id: shell_fock_build.F,v 1.6 2001-05-22 17:48:28 windus Exp $
 c
       subroutine shell_fock_build(geom, basis, nder, nfock, jfac, 
      $     kfac, tol2e, g_dens, g_fock, oactive)
@@ -8,7 +8,7 @@ c
 #include "global.fh"
 #include "bas.fh"
       integer geom, basis, nder, nfock 
-      integer g_dens(nfock), g_fock(nder, nfock)
+      integer g_dens(nfock), g_fock(nder,nfock)
       double precision jfac(*), kfac(*), tol2e
       logical oactive(*)        ! [input] T if atom is active
 c
@@ -129,9 +129,13 @@ c
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
      $     call errquit('new_fock:could not allocate q4',maxq)
 c
-      do i = 1, nfock
-         call ga_reorder(g_dens(i), .true., int_mb(k_rbfmap),
+      do j = 1, nfock
+         call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
+        do i = 1, nder
+          call ga_reorder(g_fock(i,j), .true., int_mb(k_rbfmap),
+     $        .true., int_mb(k_rbfmap))
+        enddo
       end do
 c
       call newfock(
@@ -151,53 +155,20 @@ c
      $     oactive,
      $     jfac, kfac)
 c
-      do i = 1, nfock
-         call ga_reorder(g_dens(i), .true., int_mb(k_bfmap),
+      do j = 1, nfock
+         call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
-c        call ga_reorder(g_fock(i), .true., int_mb(k_bfmap),
-c    $        .true., int_mb(k_bfmap))
+         do i = 1, nder
+           call ga_reorder(g_fock(i,j), .true., int_mb(k_bfmap),
+     $        .true., int_mb(k_bfmap))
+         enddo
       end do
 c
-c     call dscal(nfock, 2.0d0, kfac, 1)
-c
-c      call ga_dscal(g_fock, 4.0d0)
-c        call ga_dscal(g_fock(i), 4.0d0)
-
-      if (.not. ma_push_get(mt_dbl,nbf*nbf,'lfock',l_fock,k_fock))
-     $     call errquit('new_fock:could not allocate lfock',555)
-      g_tfock = ga_create_atom_blocked
-     *            (geom, basis, 'shell_fock_build:tdens')
-      ld(1) = 1
-      ld(2) = 1
-      ilo(3) = 1
-      ihi(3) = nbf
-      ld(3) = nbf
-      ilo(4) = 1
-      ihi(4) = nbf
-      do j = 1, nder
-         ilo(1) = j
-         ihi(1) = j
-      do i = 1, nfock
-         ilo(2) = i
-         ihi(2) = i
-         if (ga_nodeid().eq.0) then
-         call nga_get(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
-         call ga_put(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
-c        write(6,*) 'before ga_symmetrize'
-         endif
-c        call ga_print(g_tfock)
-         call ga_symmetrize(g_tfock)
-c        write(6,*) 'after ga_symmetrize'
-c        call ga_print(g_tfock)
-         if (ga_nodeid().eq.0) then
-         call ga_get(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
-         call nga_put(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
-         endif
-      end do
-      end do
-      if (.not. ga_destroy(g_tfock)) call errquit
-     *  ('shell_fock_build: g_tfock destroy failed',555)
-c        call ga_symmetrize(g_fock(i))
+      do j = 1, nfock
+      do i = 1, nder
+         call ga_symmetrize(g_fock(i,j))
+      enddo
+      enddo
 c
 c  Clean up memory allocated in this routine
 c
@@ -568,26 +539,24 @@ c
       subroutine new_acc_fock_block(
      $   g_fock, nder, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
       implicit none
-      integer  g_fock, nder, nfock, blen, ibflo, ibfhi, jbflo, jbfhi
+      integer nder, nfock, g_fock(nder,nfock), blen 
+      integer ibflo, ibfhi, jbflo, jbfhi
       double precision buf(*)
 c
-      integer lo(4), hi(4), ld(3)
+      integer i, j, blen2, index
 c
-      lo(1) = 1
-      hi(1) = nder
-      ld(1) = nder
-      lo(2) = 1
-      hi(2) = nfock
-      ld(2) = nfock
-      lo(3) = ibflo
-      hi(3) = ibfhi
-      ld(3) = blen
-      lo(4) = jbflo
-      hi(4) = jbfhi
-      call nga_acc(g_fock, lo, hi, buf, ld, 1d0) 
-c     call ga_acc(g_fock,ibflo,ibfhi,jbflo,jbfhi,buf,blen,1d0)
+      blen2 = blen * blen
+      index = 1
+      do j = 1, nfock
+      do i = 1, nder
+        call ga_acc(g_fock(i,j),ibflo,ibfhi,jbflo,jbfhi,buf(index),
+     $              blen,1d0)
+        index = index + blen2
+      enddo
+      enddo
 c
       end
+C NEED TO FIX FOR ORDER blen,blen,nfock
       subroutine new_fock_doit(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
@@ -656,9 +625,9 @@ c
      $     d_ik(nfock,blen,blen), d_jl(nfock,blen,blen), 
      $     d_il(nfock,blen,blen), d_jk(nfock,blen,blen)
       double precision
-     $     f_ij(nder,nfock,blen,blen), f_kl(nder,nfock,blen,blen), 
-     $     f_ik(nder,nfock,blen,blen), f_jl(nder,nfock,blen,blen), 
-     $     f_il(nder,nfock,blen,blen), f_jk(nder,nfock,blen,blen)
+     $     f_ij(blen,blen,nder,nfock), f_kl(blen,blen,nder,nfock), 
+     $     f_ik(blen,blen,nder,nfock), f_jl(blen,blen,nder,nfock), 
+     $     f_il(blen,blen,nder,nfock), f_jk(blen,blen,nder,nfock)
       integer rbfmap(*)
       integer bftoat(*)       ! [input] Map from old basis func to atom
       integer ibflo, jbflo, kbflo, lbflo
@@ -698,12 +667,12 @@ c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
 c    *  i,j,k,l,
 c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),
 c    *  d_ik(v,i,k),d_il(v,i,l)
-               f_ij(xyz,v,i,j)=f_ij(xyz,v,i,j)+4.0d+00*g*d_kl(v,k,l)
-               f_kl(xyz,v,k,l)=f_kl(xyz,v,k,l)+4.0d+00*g*d_ij(v,i,j)
-               f_ik(xyz,v,i,k)=f_ik(xyz,v,i,k)-g*d_jl(v,j,l)
-               f_il(xyz,v,i,l)=f_il(xyz,v,i,l)-g*d_jk(v,j,k)
-               f_jl(xyz,v,j,l)=f_jl(xyz,v,j,l)-g*d_ik(v,i,k)
-               f_jk(xyz,v,j,k)=f_jk(xyz,v,j,k)-g*d_il(v,i,l)
+               f_ij(i,j,xyz,v)=f_ij(i,j,xyz,v)+4.0d+00*g*d_kl(v,k,l)
+               f_kl(k,l,xyz,v)=f_kl(k,l,xyz,v)+4.0d+00*g*d_ij(v,i,j)
+               f_ik(i,k,xyz,v)=f_ik(i,k,xyz,v)-g*d_jl(v,j,l)
+               f_il(i,l,xyz,v)=f_il(i,l,xyz,v)-g*d_jk(v,j,k)
+               f_jl(j,l,xyz,v)=f_jl(j,l,xyz,v)-g*d_ik(v,i,k)
+               f_jk(j,k,xyz,v)=f_jk(j,k,xyz,v)-g*d_il(v,i,l)
               end do
               nbuf = nbuf + 1
               end do
