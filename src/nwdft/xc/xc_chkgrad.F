@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.15 2001-11-21 01:57:13 edo Exp $
+* $Id: xc_chkgrad.F,v 1.16 2002-01-17 02:41:11 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -45,3 +45,10 @@ c
       xc_getnqmx=nqmax
       return
       end
+      integer function xc_getipol()
+      implicit none
+#include "cdft.fh"
+      xc_getipol=ipol
+      return
+      end
+
