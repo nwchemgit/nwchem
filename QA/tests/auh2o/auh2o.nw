@@ -5,7 +5,7 @@ title; Au+(H2O)2, H2O aVTZ using optimal MP2/aVDZ geometry
 
 charge 1  # Overall +1 charge
 
-geometry units angstrom
+geometry 
 
 symmetry group C2
 
