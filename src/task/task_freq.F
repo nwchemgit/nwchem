@@ -22,7 +22,7 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.14 1997-12-03 10:09:04 d3e129 Exp $
+* $Id: task_freq.F,v 1.15 1997-12-05 12:33:58 d3e129 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -62,6 +62,8 @@ c
       endif
 
       status = task_hessian(rtdb)
+      if (.not.status) call errquit
+     &    ('task_freq: task_hessian failed',911)
       ignore = rtdb_parallel(.false.)
       if ((ga_nodeid()).eq.0) then
         if (.not. rtdb_cget(rtdb, 'task:hessian file name', 1,

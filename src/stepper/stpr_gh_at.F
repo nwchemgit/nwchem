@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.14 1997-10-29 09:40:20 d3e129 Exp $
+*     $Id: stpr_gh_at.F,v 1.15 1997-12-05 12:33:45 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -45,6 +45,9 @@ c::   local
       logical o_debug_restart
       logical o_directions
       logical ogeom_aliased
+      logical last_pass
+      double precision time_taskg1, time_taskg2
+      integer time_taskg
       double precision xyz(3), chg
       double precision pdipole(3), mdipole(3)
       character*255 tmpname
@@ -353,6 +356,7 @@ c
           xyz_pass = .true.
         endif
         do 00200 ixyz = ixyz_start,3
+          last_pass = (ixyz.eq.3).and.(iatom.eq.nat)
           if (ixyz.eq.1 .and. no_x) goto 00199
           if (ixyz.eq.2 .and. no_y) goto 00199
           if (ixyz.eq.3 .and. no_z) goto 00199
@@ -425,8 +429,10 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        24)
 c     
+          time_taskg1 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb)) call errquit
      &        ('stpr_gen_hess_at: energy+grad failed',25)
+          time_taskg1 = time_taskg1 + util_wallsec()
 c     
 *
           if (o_stepper_debug) then
@@ -507,9 +513,11 @@ c
      &        ('stpr_gen_hess_at: failed to restore central point',
      &        35)
 c     
+          time_taskg2 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb))
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
      &        36)
+          time_taskg2 = time_taskg2 + util_wallsec()
 c     
 *
           if (o_stepper_debug) then
@@ -573,6 +581,19 @@ c
      &          iatom,ixyz,whoiam
             call util_flush(6)
             call ga_sync()
+          endif
+*
+          if (.not.last_pass) then
+            time_taskg = int(1.2d00*(time_taskg1 + time_taskg2))
+            if (util_test_time_remaining(rtdb,time_taskg)) then
+              if (o_stepper_debug) write(luout,*)
+     &            'remaining time enough for next step'
+            else
+              if (whoiam.eq.master) write(luout,*)
+     &            'remaining time not enough for next step'
+              stpr_gen_hess_at = .false.
+              return
+            endif
           endif
 *
 00200   continue
