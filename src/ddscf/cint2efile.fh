@@ -19,6 +19,7 @@ c
       integer l_cache, k_cache  ! MA space for integral cache
       integer max_file_rec      ! Max no. of records to put in file
       integer max_cache_rec     ! Max no. of records to put in cache
+      logical file_opened       ! True if a physical file is open
 c
       integer range(4,2)        ! Current bf range (i/j/k/l,lo/hi)
       integer nleft_in_range    ! No. of ints to be processed in range
@@ -54,6 +55,7 @@ c
      $     next_value,
      $     otrace,
      $     oinfo,
+     $     file_opened,
      $     l_cache, k_cache,
      $     max_file_rec, max_cache_rec,
      $     range,
