@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.9 2003-08-05 00:37:55 sohirata Exp $
+c $Id: tce_zero.F,v 1.10 2003-08-05 05:07:24 sohirata Exp $
 c
 c     Zero scratch a file
 c
@@ -27,13 +27,16 @@ c
       endif
       if (ioalg.eq.2) then
         call ga_zero(d_sf)
+      else if (ioalg.eq.5) then
+        call dratoga(d_sf)
+        call ga_zero(filehandles(d_sf))
+        call gatodra(d_sf)
       else if ((ioalg.eq.6).and.fileisga(d_sf)) then
         call ga_zero(filehandles(d_sf))
       else
         if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
      1    l_temp,k_temp))
      2    call errquit('tce_zero: MA problem',0)
-        call dratoga(d_sf)
         do i = 1,nblocks
           k = 0
           do j = (i-1)*blocksize+1,min(size,i*blocksize)
@@ -46,7 +49,6 @@ c
           call put_block(d_sf,dbl_mb(k_temp),
      1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
         enddo
-        call gatodra(d_sf)
         if (.not.ma_pop_stack(l_temp))
      1    call errquit('createfile: MA problem',1)
         call ga_sync()
