@@ -2355,3 +2355,863 @@ c
        end
 
 #endif /* ! USEGEMM */
+
+
+
+
+
+
+
+
+
+
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c
+c
+c   atw - Oct 27 94 
+c   Some old auxliary routines
+c   Note: have changed *back* to a Whiteside type of algorithm,
+c         this older version has sync()'s.
+c
+c
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+c---------------------------------------------------------------------------------
+       subroutine moints_trf1idx( nbf, a1, a2, ni, nj,
+     $                            klo, khi, llo, lhi,
+     $                            eri, c, y )
+       implicit none
+       integer nbf,a1,a2,ni,nj,klo,khi,llo,lhi
+       double precision eri(llo:lhi,klo:khi,nj,ni)
+       double precision c(nbf,nbf)
+       double precision y(nbf,ni,nj,a1:a2)
+       integer i,j,a,k,l,nn
+       double precision xx
+
+       do a=a1,a2
+         do j=1,nj
+           do i=1,ni
+             do k=klo,khi
+               xx = 0.d0
+               do l=llo,lhi
+                 xx = xx + eri(l,k,j,i)*c(l,a)
+               enddo
+               y(k,i,j,a) = y(k,i,j,a) + xx
+             enddo
+             do l=llo,lhi
+               xx = 0.d0
+               do k=klo,khi
+                 xx = xx + eri(l,k,j,i)*c(k,a)
+               enddo
+               y(l,i,j,a) = y(l,i,j,a) + xx
+             enddo
+           enddo
+         enddo
+       enddo
+
+       return
+       end
+
+
+
+
+
+
+
+
+
+
+       subroutine moints_eri_pushblk( ijlen, koff, loff, klen, llen,
+     $                                eri, kglen, lglen, blk )
+       implicit none
+       integer ijlen, klen, llen
+       double precision eri(llen, klen, ijlen )
+       double precision blk(lglen, kglen, ijlen )
+
+       integer ij
+
+       do ij=1,ijlen
+         do k=1,klen
+           call dcopy(llen,eri(1,k,ij),1,blk(loff,koff,ij),1)
+         enddo
+       enddo
+c
+c
+c  $Id: graveyard,v 1.3 1994-11-02 00:14:32 rg240 Exp $
+c
+c
+c  This routine returns the Coulomb and exchange integral
+c  operator matrices for the range of MO-indices as mo_indx_hi, mo_indx_lo
+c  The g_coul, g_exch global arrays are ordered as
+c
+c
+c
+c               ij
+c  (ij|ab) = ( J  )  = g_coul[ ij : (a-1)*N2 + b ] = g_coul [ ij : (b-1)*N2 + a ]
+c                  ab
+c
+c               ij
+c  (ia|jb) = ( K  )  = g_exch[ ij : (a-1)*N2 + b ]
+c                  ab
+c
+c
+c
+c
+       subroutine moints_build_JK(basis,
+     $                            mo1_lo,mo1_hi,
+     $                            mo2_lo,mo2_hi,
+     $                            g_movecs,
+     $                            g_coul,ocoul,
+     $                            g_exch,oexch,
+     $                            chunk_factor)
+       implicit none
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+#include "msgids.fh"
+c
+c Arguments
+c
+       integer basis                          ! Basis handle
+       integer mo1_lo, mo1_hi                 ! 1st Pair Index range
+       integer mo2_lo, mo2_hi                 ! 2nd Pair Index range
+       integer g_movecs                       ! MO coefficients
+       integer g_coul                         ! Coulomb operator
+       integer g_exch                         ! Exchange operator
+       logical ocoul,oexch                    ! Type selection
+       double precision chunk_factor
+c
+c Local variables
+c
+       integer nmo1,nmo2,nbf,nsh,maxbfsh
+       integer ish,jsh,ish2,msh
+       integer ibflo1,ibfhi1,ibflo2,ibfhi2
+       integer g_k2idx,g_j2idx
+       integer l_sssi,k_sssi
+       integer l_ssni,k_ssni
+       integer l_ssai,k_ssai
+       integer l_ssji,k_ssji
+       integer l_ab1, k_ab1, l_ab2, k_ab2
+       integer l_eri,k_eri,l_erit,k_erit
+       integer l_iscr,k_iscr
+       integer l_mo,k_mo
+       integer n_sssi,n_ssni,n_ssai,n_ssji,n_ab,nrow,ncol
+       integer mem2,max2e
+       integer offset
+       integer num_nodes,ploop,next,chunksiz,tri_shells
+       double precision tol2e
+       logical status
+       logical oprint
+#ifdef MOINTS_STATS
+       integer l_dstatv,k_dstatv
+       double precision tpush_avg,tint_avg,twait_avg
+       double precision tt,t4sh,tyy,tavg,tyyy,t12,twait,t34
+       double precision schw_ratio
+       double precision schw_done,t1qtr,t2qtr,tpush,tint
+       common/moints_stats/schw_done,t1qtr,t2qtr,tpush,tint
+#endif
+#ifdef MOINTS_PAR_STATS
+       integer l_istatv, k_istatv
+       integer nptasks,npcomm
+       common/moints_pstats/nptasks,npcomm
+#endif
+c
+c
+       integer nxtseg
+       external nxtseg
+c
+c
+c
+       data tol2e/1.d-12/
+       data oprint/.true./
+c
+c
+c  General basis info
+c
+       num_nodes = ga_nnodes()
+       status = bas_numbf(basis,nbf)
+       status = status.and.bas_numcont(basis,nsh)
+       status = status.and.bas_nbf_cn_max(basis,maxbfsh)
+       if (.not.status) call errquit('moints: cannot get basis info',0)
+       nmo1 = mo1_hi - mo1_lo + 1
+       nmo2 = mo2_hi - mo2_lo + 1
+c
+c  Integrals allocation
+c
+       call int_mem_2e4c(max2e, mem2)
+       status = ma_push_get(MT_DBL, max2e, 'moints: buf', l_eri, k_eri)
+       status = status.and.ma_push_get(MT_DBL, max2e,
+     $          'moints: buf', l_erit, k_erit)
+       status = status.and.ma_push_get(MT_DBL, mem2,
+     $          'moints: scr', l_iscr, k_iscr)
+c
+c  Local MO coefficients
+c
+       status = status.and.ma_push_get(MT_DBL,(nbf*nbf),
+     $                                 'movecs cols',l_mo,k_mo)
+       call ga_get(g_movecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
+c
+c  Temporary partially-transformed arrays
+c
+       n_sssi = maxbfsh*maxbfsh*maxbfsh*nmo1
+       n_ssni = maxbfsh*maxbfsh*nbf*nmo1
+       n_ssai = maxbfsh*maxbfsh*nmo2*nmo1
+       n_ssji = max((maxbfsh*maxbfsh*nmo1*nmo1),(maxbfsh*nmo2))
+       n_ab = max(nmo1,nmo2)*max(nmo1,nmo2)
+       status = status.and.ma_push_get(MT_DBL,n_sssi,
+     $          'K sssi block',l_sssi,k_sssi)
+       status = status.and.ma_push_get(MT_DBL,n_ssni,
+     $          'K ssni block',l_ssni,k_ssni)
+       if (oexch) then
+         status = status.and.ma_push_get(MT_DBL,n_ssai,
+     $          'K ssai block',l_ssai,k_ssai)
+       endif
+       if (ocoul) then
+         status = status.and.ma_push_get(MT_DBL,n_ssji,
+     $          'K ssai block',l_ssji,k_ssji)
+       endif
+       status = status.and.ma_push_get(MT_DBL,n_ab,
+     $          'K ab1 block',l_ab1,k_ab1)
+       status = status.and.ma_push_get(MT_DBL,n_ab,
+     $          'K ab2 block',l_ab2,k_ab2)
+       if (.not.(status)) call errquit('cannot allocate local memory',0)
+c
+c  Globals for accumulating partially-transformed (& transposing)
+c
+       nrow = maxbfsh*(nbf+1+maxbfsh)
+       ncol = nmo1*nmo2
+       if (oexch) then
+         if (.not.ga_create(MT_DBL,nrow,ncol,'K2idx',nrow,1,g_k2idx))
+     $    call errquit('moints: cannot allocate global',0)
+       endif
+       ncol = (nmo1*(nmo1+1))/2
+       if (ocoul) then
+         if (.not.ga_create(MT_DBL,nrow,ncol,'J2idx',nrow,1,g_j2idx))
+     $     call errquit('moints: cannot allocate global',0)
+       endif
+c
+c Initialize
+c
+       tri_shells = (nsh*(nsh+1))/2
+       chunksiz = tri_shells/chunk_factor
+#ifdef MOINTS_STATS
+       t1qtr = 0.d0
+       t2qtr = 0.d0
+       t34 = 0.d0
+       tint = 0.d0
+       tpush = 0.d0
+       schw_done = 0.d0
+       twait = 0.d0
+       t4sh = tcgtime()
+#endif
+#ifdef MOINTS_PAR_STATS
+       nptasks = 0
+       npcomm = 0
+#endif
+       if (oexch) call ga_zero(g_exch)
+       if (ocoul) call ga_zero(g_coul)
+c
+c  4-fold shell loop
+c
+       msh = nsh/2 + mod(nsh,2)
+       do ish=1,msh
+#ifdef MOINTS_STATS
+         tyyy = tcgtime()
+#endif
+         next = nxtseg(num_nodes,chunksiz,tri_shells)
+         ploop = 0
+         offset = 0
+         if (oexch) call ga_zero(g_k2idx)
+         if (ocoul) call ga_zero(g_j2idx)
+         if (.not. bas_cn2bfr(basis,ish,ibflo1,ibfhi1))
+     $        call errquit('mo_ints: bas_cn2bfr',ish)
+         do jsh=1,ish
+           if (schwarz_shell(ish,jsh)*schwarz_max().ge.tol2e) then
+             call moints_inner( basis, nbf, nsh, ish, jsh,
+     $                          ibflo1, ibfhi1,
+     $                          next, ploop, chunksiz, offset,
+     $                          ocoul, oexch, mo1_lo, mo1_hi,
+     $                          mo2_lo, mo2_hi, dbl_mb(k_mo),
+     $                          max2e, dbl_mb(k_eri), dbl_mb(k_erit),
+     $                          mem2, dbl_mb(k_iscr),
+     $                          dbl_mb(k_sssi), n_ssni,
+     $                          dbl_mb(k_ssni), dbl_mb(k_ssai),
+     $                          dbl_mb(k_ssji), g_k2idx, g_j2idx )
+           endif
+         enddo
+         ish2 = nsh - ish + 1
+         if (ish2.eq.ish) goto 100
+         if (.not. bas_cn2bfr(basis,ish2,ibflo2,ibfhi2))
+     $        call errquit('mo_ints: bas_cn2bfr',ish2)
+         offset = (ibfhi1 - ibflo1 + 1)*ibfhi1
+          do jsh=1,ish2
+           if (schwarz_shell(ish2,jsh)*schwarz_max().ge.tol2e) then
+             call moints_inner( basis, nbf, nsh, ish2, jsh,
+     $                          ibflo2, ibfhi2,
+     $                          next, ploop, chunksiz, offset,
+     $                          ocoul, oexch, mo1_lo, mo1_hi,
+     $                          mo2_lo, mo2_hi, dbl_mb(k_mo),
+     $                          max2e, dbl_mb(k_eri), dbl_mb(k_erit),
+     $                          mem2, dbl_mb(k_iscr),
+     $                          dbl_mb(k_sssi), n_ssni,
+     $                          dbl_mb(k_ssni), dbl_mb(k_ssai),
+     $                          dbl_mb(k_ssji), g_k2idx, g_j2idx )
+           endif
+         enddo
+ 100     continue
+c
+c Third and fourth qtr transformations can only be done
+c when all 'jsh' contributions have been completed
+c for some 'ish'. Must sync() and wait for all parallel
+c tasks to finish.
+c
+#ifdef MOINTS_STATS
+         t12 = t12 + tcgtime() - tyyy
+         tyy = tcgtime()
+#endif
+         next = nxtseg(-num_nodes,chunksiz,tri_shells)
+#ifdef MOINTS_STATS
+         tt = tcgtime()
+         twait = twait + tt - tyy
+#endif
+         offset = 0
+         if (oexch)
+     $     call moints_trf34idx_K( nbf, mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                             ibflo1, ibfhi1, offset, dbl_mb(k_mo),
+     $                             g_k2idx, dbl_mb(k_ab1),
+     $                             dbl_mb(k_ab2), dbl_mb(k_ssai),
+     $                             g_exch )
+         if (ocoul)
+     $     call moints_trf34idx_J( nbf, mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                             ibflo1, ibfhi1, offset, dbl_mb(k_mo),
+     $                             g_j2idx, dbl_mb(k_ab1),
+     $                             dbl_mb(k_ab2), dbl_mb(k_ssji),
+     $                             g_coul )
+         if (ish.eq.ish2) goto 101
+         offset = (ibfhi1 - ibflo1 + 1)*ibfhi1
+         if (oexch)
+     $     call moints_trf34idx_K( nbf, mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                             ibflo2, ibfhi2, offset, dbl_mb(k_mo),
+     $                             g_k2idx, dbl_mb(k_ab1),
+     $                             dbl_mb(k_ab2), dbl_mb(k_ssai),
+     $                             g_exch )
+         if (ocoul)
+     $     call moints_trf34idx_J( nbf, mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                             ibflo2, ibfhi2, offset, dbl_mb(k_mo),
+     $                             g_j2idx, dbl_mb(k_ab1),
+     $                             dbl_mb(k_ab2), dbl_mb(k_ssji),
+     $                             g_coul )
+ 101     continue
+#ifdef MOINTS_STATS
+         t34 = t34 + tcgtime() - tt
+#endif
+       enddo
+       call ga_sync()
+c
+C       call moints_print_opermatrix(nmo1,nmo2,g_exch)
+C       call moints_print_opermatrix(nmo1,nmo2,g_coul)
+#ifdef MOINTS_STATS
+c
+c Print statistics
+c
+       t4sh = tcgtime() - t4sh
+       if (oprint) then
+         if (.not.ma_push_get(MT_DBL,(num_nodes+1),'nodes stats',
+     $        l_dstatv,k_dstatv))
+     $        call errquit('moints: cannot allocate',0)
+         call brdcst_dvec( tpush, dbl_mb(k_dstatv), tpush_avg )
+         call brdcst_dvec( twait, dbl_mb(k_dstatv), twait_avg )
+         call ga_dgop(Msg_MOSch,schw_done,1,'+')
+         schw_ratio = (schw_done/(tri_shells*tri_shells))*100.d0
+         if (ga_nodeid().eq.0) then
+           write(6,986) schw_done,schw_ratio,chunksiz,
+     $                  t1qtr,t2qtr,t12,t34,t4sh,
+     $                  tint,tpush_avg,twait_avg
+ 986       format(10x,'Shell-quartets done:',11x,f10.0,/,
+     $            10x,'Shell-quartets percentage:',4x,f10.1,'%',/,
+     $            10x,'Task chunksize:',14x,i12,/,
+     $            10x,'1st quarter time:',14x,f10.2,/,
+     $            10x,'2nd quarter time:',14x,f10.2,/,
+     $            10x,'Combined 1st and 2nd time:',5x,f10.2,/,
+     $            10x,'3rd and 4th quarter time:',6x,f10.2,/,
+     $            10x,'Four-fold shell loop time:',5x,f10.2,/,
+     $            10x,'Integral evaluation time:',6x,f10.2,/,
+     $            10x,'Transposition time:',12x,f10.2,/
+     $            10x,'Synchronization time:',10x,f10.2)
+           call util_flush(6)
+         endif
+         if (.not. ma_pop_stack(l_dstatv))
+     $        call errquit('moints: failed to pop', l_dstatv)
+       endif
+#endif
+
+#ifdef MOINTS_PAR_STATS
+c
+c Gather and print parallel statistics
+c
+       if (.not.ma_push_get(MT_DBL,(num_nodes+1),'nodes int stats',
+     $      l_istatv,k_istatv))
+     $      call errquit('moints: cannot allocate',0)
+       call ga_sync()
+       call brdcst_ivec( nptasks, int_mb(k_istatv) )
+       if (ga_nodeid().eq.0) then
+         write(6,966)
+ 966     format(/,'Number of tasks:')
+         write(6,901) (int_mb(k_istatv+i-1),i=1,num_nodes)
+       endif
+       call brdcst_ivec( npcomm, int_mb(k_istatv) )
+       if (ga_nodeid().eq.0) then
+         write(6,967)
+ 967     format(/,'Number of comms:')
+         write(6,901) (int_mb(k_istatv+i-1),i=1,num_nodes)
+ 901     format(10i10)
+       endif
+      if (.not. ma_pop_stack(l_istatv))
+     $     call errquit('moints: failed to pop', l_istatv)
+#endif
+c
+c Clean-up
+c
+      if (.not. ma_pop_stack(l_ab2))
+     $     call errquit('moints: failed to pop', l_ab2)
+      if (.not. ma_pop_stack(l_ab1))
+     $     call errquit('moints: failed to pop', l_ab1)
+      if ((ocoul).and.(.not. ma_pop_stack(l_ssji)))
+     $     call errquit('moints: failed to pop', l_ssji)
+      if ((oexch).and.(.not.ma_pop_stack(l_ssai)))
+     $     call errquit('moints: failed to pop', l_ssai)
+      if (.not. ma_pop_stack(l_ssni))
+     $     call errquit('moints: failed to pop', l_ssni)
+      if (.not. ma_pop_stack(l_sssi))
+     $     call errquit('moints: failed to pop', l_sssi)
+      if (.not. ma_pop_stack(l_mo))
+     $     call errquit('moints: failed to pop', l_mo)
+      if (.not. ma_pop_stack(l_iscr))
+     $     call errquit('moints: failed to pop', l_iscr)
+      if (.not. ma_pop_stack(l_erit))
+     $     call errquit('moints: failed to pop', l_erit)
+      if (.not. ma_pop_stack(l_eri))
+     $     call errquit('moints: failed to pop', l_eri)
+       if ((oexch).and.
+     $    (.not.ga_destroy(g_k2idx)))
+     $      call errquit('moints: cannot destroy global',g_k2idx)
+      if ((ocoul).and.
+     $   (.not.ga_destroy(g_j2idx)))
+     $     call errquit('moints: cannot destroy global',g_j2idx)
+
+       return
+       end
+
+
+
+
+
+
+
+
+
+
+
+c
+c
+c  1st and 2nd transformation and
+c  inner 2 loops over ksh & lsh.
+c
+c
+c
+       subroutine moints_inner( basis, nbf, nsh, ish, jsh,
+     $                          ibflo, ibfhi,
+     $                          next, ploop, tasksiz, offset,
+     $                          ocoul, oexch,
+     $                          mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                          mo, max2e, eri, erit, mem2, scr,
+     $                          sssi, n_ssni, ssni, ssai, ssji,
+     $                          g_k2, g_j2 )
+       implicit none
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+       integer basis
+       integer nbf, nsh, ish, jsh
+       integer ibflo, ibfhi
+       integer next, ploop, tasksiz
+       integer mo1_lo, mo1_hi, mo2_lo, mo2_hi
+       integer mem2, max2e, n_ssni
+       integer g_k2, g_j2
+       integer offset
+       logical oexch, ocoul
+       double precision mo(nbf,nbf)
+       double precision eri(max2e),erit(max2e),scr(mem2)
+       double precision ssni(n_ssni),sssi(*),ssai(*),ssji(*)
+c
+c
+       integer nmo1
+       integer ksh,lsh
+       integer jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
+       integer ilen,jlen,klen,llen,ijklen
+       integer numnodes,next0,tri_shells
+       double precision tol2e,pscale
+#ifdef MOINTS_STATS
+       double precision tt,txy,tzz
+       double precision schw_done,t1qtr,t2qtr,tpush,tint
+       common/moints_stats/schw_done,t1qtr,t2qtr,tpush,tint
+#endif
+#ifdef MOINTS_PAR_STATS
+       integer nptasks,npcomm
+       common/moints_pstats/nptasks,npcomm
+#endif
+c
+c
+       integer nxtseg
+       external nxtseg
+c
+c
+       data tol2e/1.e-12/
+
+
+#ifdef MOINTS_STATS
+       txy = tcgtime()
+#endif
+       ilen = ibfhi - ibflo + 1
+       if (.not. bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     $     call errquit('mo_ints: bas_cn2bfr',jsh)
+       jlen = jbfhi - jbflo + 1
+       numnodes = ga_nnodes()
+       next0 = next
+       tri_shells = (nsh*(nsh+1))/2
+       nmo1 = mo1_hi - mo1_lo + 1
+       call dfill(n_ssni,0.d0,ssni,1)
+       do ksh=1,nsh
+         if (.not. bas_cn2bfr(basis,ksh,kbflo,kbfhi))
+     $        call errquit('mo_ints: bas_cn2bfr',ksh)
+         klen = kbfhi - kbflo + 1
+         ijklen = klen*jlen*ilen
+         do lsh=1,ksh
+           if (next.eq.ploop) then
+#ifdef MOINTS_PAR_STATS
+             nptasks = nptasks + 1
+#endif
+             if (schwarz_shell(ish,jsh)*schwarz_shell(ksh,lsh)
+     $            .ge.tol2e) then
+#ifdef MOINTS_STATS
+               schw_done = schw_done + 1.d0
+               if (.not. bas_cn2bfr(basis,lsh,lbflo,lbfhi))
+     $              call errquit('mo_ints: bas_cn2bfr',lsh)
+               llen = lbfhi - lbflo + 1
+               tt = tcgtime()
+               call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
+     $                       mem2, scr, max2e, eri )
+               tint = tint + tcgtime() - tt
+#else
+               if (.not. bas_cn2bfr(basis,lsh,lbflo,lbfhi))
+     $              call errquit('mo_ints: bas_cn2bfr',lsh)
+               llen = lbfhi - lbflo + 1
+               call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
+     $                       mem2, scr, max2e, eri )
+#endif
+               if (ksh.eq.lsh) call dscal((llen*ijklen),0.5d0,eri,1)
+               call moints_trf1idx( nbf, mo1_lo, mo1_hi, ilen, jlen,
+     $                              kbflo, kbfhi, lbflo, lbfhi, 
+     $                              eri, mo, ssni )
+             endif
+             next = nxtseg(numnodes,tasksiz,tri_shells)
+           endif
+           ploop = ploop + 1
+         enddo
+       enddo
+#ifdef MOINTS_STATS
+       t1qtr = t1qtr + tcgtime() - txy
+#endif
+c
+c 2nd qtr transformation
+c
+       if (next.ne.next0) then
+#ifdef MOINTS_STATS
+         tt = tcgtime()
+#endif
+         pscale = 1.d0
+         if (jsh.eq.ish) pscale = 0.5d0
+         if (oexch)
+     $     call moints_trf2idx( nbf, mo2_lo, mo2_hi, nmo1,
+     $                          ilen, jlen, pscale,
+     $                          ssni, mo, ssai )
+         if (ocoul)
+     $     call moints_trf2idx( nbf, mo1_lo, mo1_hi, nmo1,
+     $                          ilen, jlen, pscale,
+     $                          ssni, mo, ssji )
+c
+c Push intermediates into global
+c
+#ifdef MOINTS_PAR_STATS
+         npcomm = npcomm + 1
+#endif
+#ifdef MOINTS_STATS
+         tzz = tcgtime()
+#endif
+         if (oexch)
+     $     call moints_push2idxK( nbf, mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                            ibflo, ibfhi, jbflo, jbfhi, offset, 
+     $                            ssai, g_k2 )
+         if (ocoul)
+     $     call moints_push2idxJ( nbf, mo1_lo, mo1_hi, mo2_lo, mo2_hi,
+     $                            ibflo, ibfhi, jbflo, jbfhi, offset, 
+     $                            ssji, g_j2 )
+#ifdef MOINTS_STATS
+         tpush = tpush + tcgtime() - tzz
+         t2qtr = t2qtr + tcgtime() - tt
+#endif
+       endif
+       return
+       end
+
+
+
+
+
+
+
+
+
+
+c
+c
+c
+c     ---------------------------
+c         Auxiliary Routines
+c     ---------------------------
+c
+c
+c
+       subroutine moints_trf2idx( nbf, a1, a2, nb, ni, nj,
+     $                            scale, y, c, z )
+       implicit none
+       integer nbf,a1,a2,nb,ni,nj
+       double precision scale
+       double precision c(nbf,nbf)
+       double precision y(nbf,ni,nj,nb)
+       double precision z(ni,nj,nb,a1:a2)
+       integer ssb,na
+
+       ssb = nj*ni*nb
+       na = a2 - a1 + 1
+       call dgemm('t','n',ssb,na,nbf,scale,y,nbf,c(1,a1),nbf,
+     $            0.d0,z,ssb)
+       return
+       end
+
+
+
+
+
+
+
+
+
+       subroutine moints_push2idxK( nbf, alo, ahi, blo, bhi,
+     $                             ilo, ihi, jlo, jhi, koffset,
+     $                             x, g_k )
+       implicit none
+#include "global.fh"       
+       integer nbf,alo,ahi,blo,bhi
+       integer ilo,ihi,jlo,jhi,koffset
+       double precision x(ilo:ihi,jlo:jhi,alo:ahi,blo:bhi)
+       integer g_k
+       integer a,b,ijlo,ijhi,bleng,ab,ij_leng,ileng
+
+       ileng = ihi - ilo + 1
+       ij_leng = ileng*(jhi - jlo + 1)
+       bleng = bhi - blo + 1
+       ijlo = koffset + (jlo-1)*ileng + 1
+       ijhi = koffset + jhi*ileng
+       do a=alo,ahi
+         do b=blo,bhi
+           ab = (a-alo)*bleng + (b-blo+1)
+           call ga_acc(g_k,ijlo,ijhi,ab,ab,x(ilo,jlo,a,b),ij_leng,1.d0)
+         enddo
+       enddo
+       return
+       end
+
+
+
+
+       subroutine moints_push2idxJ( nbf, alo, ahi, blo, bhi,
+     $                              ilo, ihi, jlo, jhi, joffset, 
+     $                              x, g_j )
+       implicit none
+#include "global.fh"
+       integer nbf,alo,ahi,blo,bhi
+       integer ilo,ihi,jlo,jhi
+       integer joffset
+       double precision x(ilo:ihi,jlo:jhi,alo:ahi,alo:ahi)
+       integer a,b,ijlo,ijhi,ab,ij_leng,ileng
+       integer g_j
+
+       ileng = ihi - ilo + 1
+       ij_leng = ileng*(jhi - jlo + 1)
+       ijlo = joffset + (jlo-1)*ileng + 1
+       ijhi = joffset + jhi*ileng
+       do a=alo,ahi
+         do b=alo,a
+           ab = ((a-alo+1)*(a-alo))/2 + (b-alo+1)
+           call ga_acc(g_j,ijlo,ijhi,ab,ab,x(ilo,jlo,a,b),ij_leng,1.d0)
+         enddo
+       enddo
+       return
+       end
+
+
+
+
+
+
+
+
+
+
+           
+
+       subroutine moints_trf34idx_K( nbf, alo, ahi, blo, bhi,
+     $                               ilo, ihi, offset, c, g_k,
+     $                               t1, t2, tmp, g_exch )
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+       integer nbf,alo,ahi,blo,bhi,ilo,ihi
+       integer g_k,g_exch
+       integer offset
+       double precision c(nbf,nbf)
+       double precision t1(alo:ahi,blo:bhi)
+       double precision t2(blo:bhi,alo:ahi)
+       double precision tmp(*)
+       integer my_id,rlo,rhi,clo,chi,ileng
+       integer k_local,ld_local
+       integer a,b,ia,i,j,ij,bleng,jblo,jbhi
+       
+
+       ileng = ihi - ilo + 1
+       bleng = bhi - blo + 1
+       my_id = ga_nodeid()
+       call ga_distribution(g_k,my_id,rlo,rhi,clo,chi)
+       do i=alo,ahi
+         do j=blo,bhi
+           ij = (i-alo)*(bhi-blo+1) + (j-blo+1)
+           if ((ij.ge.clo).and.(ij.le.chi)) then
+             call ga_access(g_k,rlo,rhi,ij,ij,k_local,ld_local)
+             call moints_trf34idx_a(nbf,ilo,ihi,alo,ahi,blo,bhi,c,
+     $                       dbl_mb(k_local+offset),tmp,t1)
+             call moints_trf34idx_a(nbf,ilo,ihi,blo,bhi,alo,ahi,c,
+     $                       dbl_mb(k_local+offset),tmp,t2)
+             call ga_release(g_k,rlo,rhi,ij,ij)
+             jblo = (j-blo)*bleng + 1
+             jbhi = (j-blo)*bleng + bleng
+             do a=alo,i
+               do b=blo,bhi
+                 t2(b,a) = t2(b,a) + t1(a,b)
+               enddo
+               ia = ((i-alo)*(i-alo+1))/2 + (a-alo+1)
+               call ga_acc(g_exch,jblo,jbhi,ia,ia,t2(blo,a),bleng,1.d0)
+             enddo
+           endif
+         enddo
+       enddo
+
+
+       return
+       end
+
+
+
+
+
+
+
+
+       subroutine moints_trf34idx_J( nbf, alo, ahi, blo, bhi,
+     $                               ilo, ihi, offset, c, g_j,
+     $                               t1, t2, tmp, g_coul )
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+       integer nbf,alo,ahi,blo,bhi,ilo,ihi
+       integer offset
+       integer g_j,g_coul
+       double precision c(nbf,nbf)
+       double precision t1(blo:bhi,blo:bhi)
+       double precision t2(blo:bhi,blo:bhi)
+       double precision tmp(*)
+       integer my_id,rlo,rhi,clo,chi,ileng
+       integer k_local,ld_local
+       integer a,b,i,j,ij,bleng,bbleng,bblo,bbhi
+
+       ileng = ihi - ilo + 1
+       bleng = bhi - blo + 1
+       bbleng = bleng*bleng
+       bblo = 1
+       bbhi = bbleng
+       my_id = ga_nodeid()
+       call ga_distribution(g_j,my_id,rlo,rhi,clo,chi)
+       do i=alo,ahi
+         do j=alo,i
+           ij = ((i-alo)*(i-alo+1))/2 + (j-alo+1)
+           if ((ij.ge.clo).and.(ij.le.chi)) then
+             call ga_access(g_j,rlo,rhi,ij,ij,k_local,ld_local)
+             call moints_trf34idx_a(nbf,ilo,ihi,blo,bhi,blo,bhi,c,
+     $                              dbl_mb(k_local+offset),tmp,t1)
+             call ga_release(g_j,rlo,rhi,ij,ij)
+             do a=blo,bhi
+               do b=blo,a
+                 t2(a,b) = t1(a,b) + t1(b,a)
+                 t2(b,a) = t2(a,b)
+               enddo
+             enddo
+             call ga_acc(g_coul,bblo,bbhi,ij,ij,t2,bbleng,1.d0)
+           endif
+         enddo
+       enddo
+       return
+       end
+
+
+
+
+
+
+
+
+
+
+       subroutine moints_trf34idx_a( nbf, ilo, ihi, alo, ahi,
+     $                               blo, bhi, c, x, y, z )
+       implicit none
+       integer nbf,ilo,ihi,alo,ahi,blo,bhi
+       double precision c(nbf,nbf)
+       double precision x(ilo:ihi,ihi)
+       double precision y(alo:ahi,ilo:ihi)
+       double precision z(alo:ahi,blo:bhi)
+       integer na,nb,ileng
+       
+       na = ahi - alo + 1
+       nb = bhi - blo + 1
+       ileng = ihi - ilo + 1
+
+       call dgemm('t','t',na,ileng,ihi,1.d0,c(1,alo),nbf,x,ileng,
+     $            0.d0,y,na)
+       call dgemm('n','n',na,nb,ileng,1.d0,y,na,c(ilo,blo),nbf,
+     $            0.d0,z,na)
+       end
+
+
+
+
+
+

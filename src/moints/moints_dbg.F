@@ -1,4 +1,3 @@
-#ifdef DEBUG_PRINT
        subroutine moints_print_opermatrix(noper,nbf,g_a)
        implicit none
 #include "global.fh"
@@ -33,12 +32,13 @@
 
        subroutine moints_print_square(n,x)
        implicit none
-       integer n,i,j
+       integer n,i,j,col
        double precision x(n,n)
-       
+
+       col = min(n,10)
        do i=1,n
-         write(6,901) (x(i,j),j=1,n)
- 901     format(15f9.4)
+         write(6,901) (x(i,j),j=1,col)
+ 901     format(10f12.6)
        enddo
        call util_flush(6)
        end
@@ -53,12 +53,13 @@
        implicit none
        integer ilo,ihi,jlo,jhi,klo,khi,mo_lo,mo_hi
        double precision x(klo:khi,jlo:jhi,ilo:ihi,mo_lo:mo_hi)
-       integer m,i,j,k
+       integer m,i,j,k,jtop
 
+       jtop = jlo + min((jhi-jlo),10)
        do m=mo_lo,mo_hi
          do i=ilo,ihi
-           write(6,933) ((x(k,j,i,m),k=klo,khi),j=jlo,jhi)
- 933       format(15f9.4)
+           write(6,933) ((x(k,j,i,m),k=klo,khi),j=jlo,jtop)
+ 933       format(10f12.6)
          enddo
          write(6,*)
        enddo
@@ -68,14 +69,7 @@
 
 
 
-#else
-       subroutine moints_print_opermatrix(noper,nbf,g_a)
-       implicit none
-       integer noper,nbf
-       integer g_a
 
-       return
-       end
 
-#endif
+
 

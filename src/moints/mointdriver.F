@@ -1,4 +1,3 @@
-
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
        implicit none
 #include "mafdecls.fh"
@@ -26,6 +25,7 @@ c
        integer mo_indx_lo, mo_indx_hi, nsets, nmo
        integer mo_indx2_lo, mo_indx2_hi, nmo2
        integer noper, nvir
+       integer blklen1, blklen2
        integer g_coul, g_exch
        logical oexch,ocoul,oprint
        double precision emp2,chunk_factor
@@ -33,7 +33,7 @@ c
 c
 c
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.true./
+       data oexch,ocoul/.true.,.false./
        data oprint/.true./
 c
 c
@@ -42,6 +42,8 @@ c
        external movecs_read_header, movecs_read, movecs_write
        integer ga_create_atom_blocked,ga_create_JKblocked
        external ga_create_atom_blocked,ga_create_JKblocked
+       integer moints_numgr
+       external moints_numgr
 c
 c
 c
@@ -110,10 +112,10 @@ c
 c
        mo_indx_lo = 1
        mo_indx_hi = nocc
-       mo_indx2_lo = nocc + 1
+c$$$       mo_indx2_lo = nocc + 1
+c$$$       mo_indx2_hi = nbf
+       mo_indx2_lo = 1
        mo_indx2_hi = nbf
-C       mo_indx2_lo = 1
-C       mo_indx2_hi = nbf
        nvir = nbf - nocc
        nmo2 = mo_indx2_hi - mo_indx2_lo + 1
        noper = mo_indx_hi - mo_indx_lo + 1
@@ -132,6 +134,13 @@ c
        if (.not.rtdb_get(rtdb,'chunkfactor',MT_DBL,1,chunk_factor))
      $      chunk_factor = 1.d0
 c
+c Block-length
+c
+       if (.not.rtdb_get(rtdb,'block1',MT_INT,1,blklen1))
+     $      blklen1 = 1
+       if (.not.rtdb_get(rtdb,'block2',MT_INT,1,blklen2))
+     $      blklen2 = 8
+c
 c
 c
        if (ga_nodeid().eq.0) then
@@ -140,35 +149,69 @@ c
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
          write(6,966) nbf,nsh,nocc,mo_indx_lo,mo_indx_hi,
-     $                mo_indx2_lo,mo_indx2_hi,movecs_in,chunk_factor
+     $                mo_indx2_lo,mo_indx2_hi,movecs_in,chunk_factor,
+     $                blklen1, blklen2
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
      $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
      $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
-     $        10x,'Chunksize Factor:',14x,f10.2)
+     $        10x,'Chunksize Factor:',14x,f10.2,/,
+     $        10x,'Block Length 1:',16x,i10,/,
+     $        10x,'Block Length 2:',16x,i10)
          call util_flush(6)
        endif
 c
 c
 c
-       if (ocoul)
-     $      g_coul = ga_create_JKblocked(noper,nmo2,'Coulomb operator')
-       if (oexch)
-     $      g_exch = ga_create_JKblocked(noper,nmo2,'exchange operator')
+       if (ocoul) then
+         g_coul = ga_create_JKblocked(noper,nmo2,'Coulomb operator')
+         call ga_zero(g_coul)
+       endif
+       if (oexch) then
+         g_exch = ga_create_JKblocked(noper,nmo2,'exchange operator')
+         call ga_zero(g_exch)
+       endif
 c
 c
 c
-       call moints_build_JK(basis,
+       call moints_build_JKa(basis,
      $                      mo_indx_lo, mo_indx_hi,
      $                      mo_indx2_lo, mo_indx2_hi,
      $                      g_vecs,
      $                      g_coul, ocoul,
      $                      g_exch, oexch,
-     $                      chunk_factor)
+     $                      blklen1, blklen2 )
 
-C       call moints_print_opermatrix(noper,nmo2,g_coul)
+c$$$       write(6,887)
+c$$$ 887   format(//,' New Blocking routine : ')
+c$$$       write(6,888)
+c$$$       call moints_print_opermatrix(noper,nmo2,g_exch)
+c$$$ 888   format(//,'Exchange Operator')
+c$$$
+
+c$$$       call moints_build_JKo(rtdb, basis,
+c$$$     $                      mo_indx_lo, mo_indx_hi,
+c$$$     $                      mo_indx2_lo, mo_indx2_hi,
+c$$$     $                      g_vecs,
+c$$$     $                      g_coul, ocoul,
+c$$$     $                      g_exch, oexch,
+c$$$     $                      chunk_factor)
+c$$$
+c$$$       write(6,888)
+c$$$       call moints_print_opermatrix(noper,nmo2,g_exch)
+
+c$$$       call moints_build_JK(basis,
+c$$$     $                      mo_indx_lo, mo_indx_hi,
+c$$$     $                      mo_indx2_lo, mo_indx2_hi,
+c$$$     $                      g_vecs,
+c$$$     $                      g_coul, ocoul,
+c$$$     $                      g_exch, oexch,
+c$$$     $                      chunk_factor)
+c$$$
+c$$$       write(6,888)
+c$$$       call moints_print_opermatrix(noper,nmo2,g_exch)
 c
 c
 c
@@ -185,6 +228,7 @@ c
        call schwarz_tidy()
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
+       status = ga_destroy(g_vecs)
        status = ma_pop_stack(l_evals)
        status = status.and.ma_pop_stack(l_occ)
        if (.not.status) call errquit('moints: cannot pop stack?',0)
