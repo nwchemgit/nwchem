@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.139 2002-11-08 17:23:48 d3j191 Exp $
+c $Id: md_start.F,v 1.140 2003-01-08 19:45:17 d3j191 Exp $
 c
       implicit none
 c
@@ -14,6 +14,16 @@ c     print input information
 c     -----------------------
 c
       call md_print()
+c
+c     divide processors into partitions
+c     ---------------------------------
+c
+      call md_partition(1)
+c
+c     copy partition information to cafe and space modules
+c
+      call cf_partition(npart,mypart,npthis,methis,ipthis)
+      call sp_partition(npart,mypart,npthis,methis,ipthis)
 c
 c     start the spacial decomposition API
 c     -----------------------------------
@@ -45,7 +55,7 @@ c
      + tmprlx,tmsrlx,prsrlx,scaleq,facpmf,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener,icntrl,nbias,mropt,includ,ltwin)
+     + npener,icntrl,nbias,mropt,includ,ltwin,norder)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -72,6 +82,10 @@ c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
 c
+      if(norder.gt.0) then
+      if(.not.ma_push_get(mt_int,norder,'order',l_order,i_order))
+     + call errquit('Failed to allocate memory for order',0)
+      endif
       if(.not.ma_push_get(mt_int,mwm*miw2,'iw',l_iw,i_iw))
      + call errquit('Failed to allocate memory for iw',0)
       if(.not.ma_push_get(mt_int,msa*mis2,'is',l_is,i_is))
@@ -151,6 +165,8 @@ c
       if(.not.ma_push_get(mt_dbl,3*msa,'gs',l_gs,i_gs))
      + call errquit('Failed to allocate memory for gs',0)
       endif
+c
+      if(norder.gt.0) call cf_copy_order(norder,int_mb(i_order))
 c
 c     retrieve current coordinates for this node
 c     ------------------------------------------
@@ -1658,6 +1674,37 @@ c
       if(ioload.eq.1) write(lfnout,2011)
  2011 format(/,' Experimental load balancing')
 c
+      endif
+c
+      return
+      end
+      subroutine md_partition(nprt)
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      integer lfnout,nprt
+c
+      integer i
+c
+      npart=nprt
+      npthis=np/npart
+      if(npthis*npart.ne.np)
+     + call errquit('Processors can not be partitioned',npart)
+c
+      mypart=me/npthis+1
+      methis=me-(mypart-1)*npthis
+      do 1 i=1,npthis
+      ipthis(i)=(mypart-1)*npart+i
+    1 continue
+c      write(*,'(3i5)') mypart,me,methis
+c
+      if(me.eq.0) then
+      write(lfnout,1000) npart,npthis
+ 1000 format(/,' PROCESSOR PARTITION INFORMATION',/,
+     + /,' Number of Processor Partitions     ',i5,
+     + /,' Number of Processors per Partition ',i5)
       endif
 c
       return
