@@ -68,3 +68,5 @@ Jul 15 1998	 Remove persistency new_top new_seq and new_rst
 		 Bug fix in restart file name
                  Read modified restart format
 Jul 16 1998	 Change default value of xpndw to 0.2 nm
+Aug 07 1998	 Initilization bug fix in pre_misfit
+Aug 07 1998	 Initilization bug fix in pre_short

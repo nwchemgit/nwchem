@@ -1,7 +1,7 @@
       logical function pre_misfit(lfnout,isfnd,xs,qsa,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,gdist)
 c
-c $Id: pre_misfit.F,v 1.3 1998-06-08 23:29:32 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.4 1998-08-07 19:23:14 d3j191 Exp $
 c
       implicit none
 c
@@ -22,6 +22,7 @@ c
 c     loop over all solute atoms
 c     --------------------------
 c
+      ngrid=0      
       miss=0
 c
       do 1 i=1,nsa
