@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.7 2003-06-09 19:10:29 edo Exp $
+C$Id: xc_replicated.F,v 1.8 2003-06-09 20:32:40 edo Exp $
 c
       implicit none
 c      
@@ -93,6 +93,7 @@ c
                   if(.not.nga_create_config(MT_DBL, 2, dims,
      .                 'replicated xc GA',
      .                 nblock,plist, k_repxc(ii))) goto 1984
+                  call ga_zero(k_repxc(ii))
                endif
                if(.not.nga_create_config(MT_DBL, 2, dims,
      .              'replicated DM GA',
@@ -102,7 +103,6 @@ c
 #ifdef DEBUG
                call ga_print_distribution(k_repxc(ii))
 #endif
-               call ga_zero(k_repxc(ii))
             enddo
             if (.not.ma_pop_stack(l_map))
      &           call errquit('xc_rep_init: cannot pop stack',11)
@@ -144,7 +144,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.7 2003-06-09 19:10:29 edo Exp $
+C$Id: xc_replicated.F,v 1.8 2003-06-09 20:32:40 edo Exp $
 c
       implicit none
 c      

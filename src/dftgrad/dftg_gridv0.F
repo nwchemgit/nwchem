@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.13 2003-06-09 19:10:26 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.14 2003-06-09 20:32:43 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.13 2003-06-09 19:10:26 edo Exp $
+c $Id: dftg_gridv0.F,v 1.14 2003-06-09 20:32:43 edo Exp $
 c     
       implicit none      
 c
@@ -411,7 +411,7 @@ c
      &     call errquit
      &     (' exiting in dftg_gridv0: insuff stack',12)
       call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,
-     &     nbf_ao,ipol,do_force)
+     &     nbf_ao,ipol,do_force,.true.)
       
 c
       call dftg_gridv0a(iga_dens,ldew,
