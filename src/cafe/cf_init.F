@@ -1,5 +1,5 @@
-      subroutine cf_start(irtdbi,logqmd,lfntop,filtop,ndistr,npmf,nipmf,
-     + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
+      subroutine cf_start(irtdbi,logqmd,lfnout,lfntop,filtop,ndistr,
+     + npmf,nipmf,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi,nbgeti)
-c $Id: cf_init.F,v 1.105 2004-07-20 14:09:37 edo Exp $
+c $Id: cf_init.F,v 1.106 2004-10-02 02:48:35 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,7 +15,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop,irtdbi,lfnhopi
+      integer lfnout,lfntop,irtdbi,lfnhopi
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
@@ -324,7 +324,8 @@ c
       if(.not.ma_push_get(mt_dbl,numpmf,'upmf',l_upmf,i_upmf))
      + call md_abort('Failed to allocate upmf',0)
       endif
-      call cf_rdpmf(lfntop,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
+      call cf_rdpmf(lfnout,lfntop,int_mb(i_ipmf),int_mb(i_jpmf),
+     + dbl_mb(i_rpmf))
       call ga_brdcst(mcf_75,nbias,ma_sizeof(mt_int,1,mt_byte),0)
       if(me.eq.0) then
       close(unit=lfntop)
@@ -419,7 +420,7 @@ c
 c
       return
       end
-      subroutine cf_rdpmf(lfntop,ipmf,jpmf,rpmf)
+      subroutine cf_rdpmf(lfnout,lfntop,ipmf,jpmf,rpmf)
 c
       implicit none
 c
@@ -428,11 +429,11 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop
+      integer lfnout,lfntop
       integer ipmf(numpmf,8),jpmf(numpmf,4,npmfa)
       real*8 rpmf(3,6,numpmf)
 c
-      integer i,j,k,m,lenint,lendbl,lenlog
+      integer i,j,k,m,lenint,lendbl,lenlog,idpmf
 c
       lenint=ma_sizeof(mt_int,1,mt_byte)
       lendbl=ma_sizeof(mt_dbl,1,mt_byte)
@@ -440,12 +441,24 @@ c
 c
       nbias=0
       npmfi=0
+      idpmf=1
       if(me.eq.0) then
+      write(lfnout,1100)
+ 1100 format(//,' Potentials of mean force',//,
+     + '  pmf  terms',/)
       do 1 i=1,numpmf
       read(lfntop,1000) ipmf(i,1),ipmf(i,6),ipmf(i,7),
      + (rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5),ipmf(i,8)
  1000 format(3i5,2f12.6,2e12.5,5i5)
+      if(idpmf.ne.ipmf(i,8)) then
+      write(lfnout,1200) idpmf,npmfi
+ 1200 format(2i5)
+      npmfi=1
+      idpmf=ipmf(i,8)
+      else
+      npmfi=npmfi+1
+      endif
       rpmf(2,1,i)=facpmf*rpmf(2,1,i)
       rpmf(2,3,i)=facpmf*rpmf(2,3,i)
       if(ipmf(i,8).eq.0) ipmf(i,8)=1
@@ -492,6 +505,7 @@ c
     6 continue
       endif
     1 continue
+      write(lfnout,1200) idpmf,npmfi
       endif
 c
       call ga_sync()

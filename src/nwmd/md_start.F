@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.163 2004-04-20 15:08:35 d3j191 Exp $
+c $Id: md_start.F,v 1.164 2004-10-02 02:48:31 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,7 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call cf_start(irtdb,lqmd,lfntop,filtop,ndistr,npmf,npmfi,
+      call cf_start(irtdb,lqmd,lfnout,lfntop,filtop,ndistr,npmf,npmfi,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
