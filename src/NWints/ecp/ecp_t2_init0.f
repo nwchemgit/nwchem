@@ -103,14 +103,14 @@ C      write (6,*) 'ns,nl,na,nb',ns,nl,na,nb
 *   Evaluate Q^0_{mm} functions
 *
       do m = m_min,max(m_max-1,m_min)
-        call ecp_t2_ghq (0,m,m,ns,12,temp(js,1),temp(js,2),temp(js,3),
-     &      temp(js,6),temp(js,4),temp(js,5),tol)
-        call ecp_t2_ghq (0,m,m,nl,6,temp(jl,1),temp(jl,2),temp(jl,3),
-     &      temp(jl,6),temp(jl,4),temp(jl,5),tol)
-        call ecp_t2_p0pow (na,m,0,temp(ja,1),temp(ja,2),temp(ja,3),
-     &      temp(ja,4),temp(ja,6),temp(ja,7),temp(ja,5),tol)
-        call ecp_t2_p0pow (nb,m,0,temp(jb,1),temp(jb,2),temp(jb,3),
-     &      temp(jb,4),temp(jb,6),temp(jb,7),temp(jb,5),tol)
+        if (ns .gt. 0) call ecp_t2_ghq (0,m,m,ns,12,temp(js,1),
+     &      temp(js,2),temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
+        if (nl .gt. 0) call ecp_t2_ghq (0,m,m,nl,6,temp(jl,1),
+     &      temp(jl,2),temp(jl,3),temp(jl,6),temp(jl,4),temp(jl,5),tol)
+        if (na .gt. 0) call ecp_t2_p0pow (na,m,0,temp(ja,1),temp(ja,2),
+     &      temp(ja,3),temp(ja,4),temp(ja,6),temp(ja,7),temp(ja,5),tol)
+        if (nb .gt. 0) call ecp_t2_p0pow (nb,m,0,temp(jb,1),temp(jb,2),
+     &      temp(jb,3),temp(jb,4),temp(jb,6),temp(jb,7),temp(jb,5),tol)
         do i = 1,n
           Q(i,m,1) = prefactor(i)*temp(ind(i),5)
         end do
@@ -123,14 +123,16 @@ C      write (6,'(2I5,1pe20.10)') ((i,m,Q(i,m,1),i=1,n),m=m_min,m_max)
 *
       k = j-h
       do m = m_max-1,max(m_max-1,m_min)-1,-1
-        call ecp_t2_ghq (1,m+j,m+h,ns,12,temp(js,1),temp(js,2),
-     &      temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
-        call ecp_t2_ghq (1,m+j,m+h,nl,6,temp(jl,1),temp(jl,2),
-     &      temp(jl,3),temp(jl,6),temp(jl,4),temp(jl,5),tol)
-        call ecp_t2_p0pow (na,m+h,k,temp(ja,1),temp(ja,2),temp(ja,3),
-     &      temp(ja,4),temp(ja,6),temp(ja,7),temp(ja,5),tol)
-        call ecp_t2_p0pow (nb,m+j,-k,temp(jb,1),temp(jb,2),temp(jb,3),
-     &      temp(jb,4),temp(jb,6),temp(jb,7),temp(jb,5),tol)
+        if (ns .gt. 0) call ecp_t2_ghq (1,m+j,m+h,ns,12,temp(js,1),
+     &      temp(js,2),temp(js,3),temp(js,6),temp(js,4),temp(js,5),tol)
+        if (nl .gt. 0) call ecp_t2_ghq (1,m+j,m+h,nl,6,temp(jl,1),
+     &      temp(jl,2),temp(jl,3),temp(jl,6),temp(jl,4),temp(jl,5),tol)
+        if (na .gt. 0) call ecp_t2_p0pow (na,m+h,k,temp(ja,1),
+     &      temp(ja,2),temp(ja,3),temp(ja,4),temp(ja,6),temp(ja,7),
+     &      temp(ja,5),tol)
+        if (nb .gt. 0) call ecp_t2_p0pow (nb,m+j,-k,temp(jb,1),
+     &      temp(jb,2),temp(jb,3),temp(jb,4),temp(jb,6),temp(jb,7),
+     &      temp(jb,5),tol)
         do i = 1,n
           Q(i,m,2) = prefactor(i)*temp(ind(i),5)
 C          write (6,'(2i5,1pe20.10)') i,m,Q(i,m,2)
