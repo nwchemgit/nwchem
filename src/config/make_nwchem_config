@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.68 1997-12-11 08:10:38 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.69 1997-12-24 11:20:15 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -17,7 +17,7 @@
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos esp\
-	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss fft peigs
+	hessian plane_wave selci dplot mp2_grad nwaprep oimp2 property gapss fft 
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -27,7 +27,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2 -lnwints -lideaz -lnwaprep -lnwargos -lesp\
-                    -lpfft -lpeigs -ldplot -loimp2 -lproperty 
+                    -lpfft -ldplot -loimp2 -lproperty 
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -119,7 +119,6 @@ MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 MODULES := $(patsubst argos,argos fft NWints,$(MODULES) )
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
-MODULES := $(patsubst fft,fft peigs,$(MODULES) )
 MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
@@ -172,7 +171,6 @@ MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst peigs,-lpeigs,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------

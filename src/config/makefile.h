@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.248 1997-12-09 19:32:28 d3g681 Exp $
+# $Id: makefile.h,v 1.249 1997-12-24 11:20:16 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -106,10 +106,10 @@ endif
 
 ifdef USE_MPI
 NW_CORE_SUBDIRS = include basis geom global inp input chemio \
-	ma pstat rtdb tcgmsg-mpi task symmetry util $(CORE_SUBDIRS_EXTRA)
+	ma pstat rtdb tcgmsg-mpi task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 else
 NW_CORE_SUBDIRS = include basis geom global inp input chemio \
-	ma pstat rtdb tcgmsg task symmetry util $(CORE_SUBDIRS_EXTRA)
+	ma pstat rtdb tcgmsg task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
 endif
 
 # Include the modules to build defined by 'make nwchem_config' at top level
@@ -250,12 +250,12 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       CORE_LIBS =  -lutil -lchemio -lglobal -llapack -lblas
+       CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 endif
 
 ifeq ($(TARGET),SOLARIS)
 #
-# Sun runningS olaris 2.4 or later
+# Sun running Solaris 2.4 or later
 # if you want to use purecoverage tool you must
 #
 # setenv PURECOV 1
@@ -292,9 +292,8 @@ ifeq ($(TARGET),SOLARIS)
 
   LDOPTIONS = -xildoff
 
-#-lpeigs 
 
-       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
 
@@ -328,7 +327,7 @@ ifdef PURECOV
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
    DEFINES = -DSOLARIS
    OPTIONS = -xildoff -Bstatic
-   CORE_LIBS = -lutil -lglobal -llapack -lblas
+   CORE_LIBS = -lutil -lglobal -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
@@ -382,7 +381,7 @@ ifeq ($(TARGET),CRAY-T3D)
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
                LINK.f = mppldr $(LDOPTIONS)
 
-            CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+            CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas 
 
       EXPLICITF     = TRUE
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
@@ -391,7 +390,7 @@ endif
 ifeq ($(TARGET),CRAY-T3E)
 #
 #
-   CORE_SUBDIRS_EXTRA = peigs blas lapack # Only a couple of routines not in scilib
+   CORE_SUBDIRS_EXTRA = blas lapack # Only a couple of routines not in scilib
                RANLIB = echo
             MAKEFLAGS = -j 1 --no-print-directory
               INSTALL = @echo $@ is built
@@ -415,7 +414,7 @@ ifeq ($(TARGET),CRAY-T3E)
 
                LINK.f = f90 $(LDOPTIONS)
 
-            CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas -lpeigs
+            CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
       EXPLICITF     = TRUE
@@ -484,8 +483,8 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBPATH  += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lchemio -lutil \
-	           -lpeigs_paragon -llapack $(LIBDIR)/liblapack.a -lkmath 
+       CORE_LIBS = -lglobal -lchemio -lutil -lpeigs \
+	           -llapack $(LIBDIR)/liblapack.a -lkmath 
       EXTRA_LIBS = -nx
 endif
 
@@ -512,7 +511,7 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
         LIBPATH += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs_delta \
+       CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs \
 		   $(LIBDIR)/liblapack.a -llapack -lblas
       EXTRA_LIBS = -node
 endif
@@ -597,7 +596,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
 endif
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT
-  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 endif
 
 
@@ -628,7 +627,7 @@ ifeq ($(TARGET),SGI)
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
-       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 #     EXTRA_LIBS = -lmalloc 
 endif
 
@@ -676,7 +675,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FVECTORIZE = $(FVECTORIZE_8K)
 endif
 
-       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
 endif
 
 
@@ -740,7 +739,7 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lchemio -lutil -llapack -lblas \
+       CORE_LIBS = -lglobal -lchemio -lutil -lpeigs -llapack -lblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -805,7 +804,7 @@ endif
 
 ifeq ($(TARGET),SP1)
 #
-    CORE_SUBDIRS_EXTRA = peigs lapack blas
+    CORE_SUBDIRS_EXTRA = lapack blas
          FC = mpxlf
 # -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc
@@ -919,7 +918,7 @@ ifeq ($(TARGET),DECOSF)
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DEXT_INT
-             CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+             CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
             EXTRA_LIBS = -laio -lpthreads 
 endif
 
@@ -952,7 +951,7 @@ endif
 
   LDOPTIONS = -g
      LINK.f = gcc $(LDFLAGS)
-  CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
  EXTRA_LIBS = -lf2c -lm
 
         CPP = gcc -E -nostdinc -undef -P
