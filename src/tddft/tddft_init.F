@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.9 2003-02-20 01:16:32 mhackler Exp $
+c $Id: tddft_init.F,v 1.10 2003-04-10 17:50:47 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -75,6 +75,9 @@ c
       integer l_occ,k_occ      ! MA handles for occupancies (AB)
       integer l_irs(2),k_irs(2)! MA handles for irreps (AB)
       integer mult             ! Ground state spin multiplicity
+      logical lb94             ! LB94 asymptotic correction
+      logical cs00             ! CS00 asymptotic correction
+      double precision shift   ! Shift for CS00
 C     character*80 vector      ! CI vector filename
 c
       character*3 onoff1,onoff2
@@ -159,6 +162,12 @@ c --------------
      1  call errquit('tddft_init: failed to read cname',0) 
       if (.not.rtdb_cget(rtdb,'dft:xname',numfunc,xname))
      1  call errquit('tddft_init: failed to read xcname',0) 
+      if (.not.rtdb_get(rtdb,'dft:lb94',mt_log,1,lb94))
+     1  call errquit('tddft_init: failed to read lb94',0)
+      if (.not.rtdb_get(rtdb,'dft:cs00',mt_log,1,cs00))
+     1  call errquit('tddft_init: failed to read cs00',0)
+      if (.not.rtdb_get(rtdb,'dft:delta_ac',mt_dbl,1,shift))
+     1  call errquit('tddft_init: failed to read delta_ac',0)
 c -----------
 c TDDFT input
 c -----------
@@ -450,6 +459,16 @@ c -------------
             write(LuOut,9310) cname(n),cfac(n),'non-local'
           endif
         enddo
+        if (cs00) then
+          write(LuOut,*)
+          write(LuOut,9320)
+     1    '  Casida-Salahub correction with a shift    ',
+     1    shift,'au'
+        else if (lb94) then
+          write(LuOut,*)
+          write(LuOut,9330)
+     1    '         van Leeuwen-Baerends correction    '
+        endif
       endif
       if (nodezero.and.util_print('xc information',print_default)) then
         write(LuOut,*)
@@ -522,6 +541,8 @@ c -------------
  9140 format(3x,'              Algorithm : ',a)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
+ 9320 format(3x,a44,1x,f10.6,1x,a2)
+ 9330 format(3x,a44)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
 c
