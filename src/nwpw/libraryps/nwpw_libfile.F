@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.8 2003-12-02 19:16:53 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.9 2004-01-28 01:30:17 bylaska Exp $
 *
 
 *
@@ -17,6 +17,7 @@ c
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+#include "util.fh"
 
       integer       flag
       character*(*) filename !RESULT
@@ -26,11 +27,14 @@ c
       external util_find_dir
       logical  util_find_dir,lexist
       integer lgth,l,ind,rtdb
-      logical from_environment
+      logical from_environment,hprint
 
+      logical  control_print
+      external control_print
       integer  control_rtdb
       external control_rtdb
 c
+      hprint = control_print(print_high)
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)
       lgth=inp_strlen(libname)
       from_environment = .false.
@@ -60,19 +64,23 @@ c
       call errquit('nwpwlibfile: no nwpw library found',0, DISK_ERR)
  99   continue
       if (from_environment) then
-          write(luout,*)' library name resolved from: environment'
+          if (hprint)
+     >     write(luout,*)' library name resolved from: environment'
        else
-           write(luout,*)
+          if (hprint)
+     >     write(luout,*)
      &      ' library name resolved from: compiled reference'
        endif
 
 
 *     **** library for paw ****
       if (flag.eq.2) then
-        write(luout,*)' library file name is: <',
+        if (hprint) then
+         write(luout,*)' library file name is: <',
      &     libname(1:inp_strlen(libname)),
      &     'library2/', element, '_basis','>'
-        write(luout,*) ' '
+         write(luout,*) ' '
+        end if
 
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
@@ -96,9 +104,11 @@ c
 
         filename=libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
 
+        if (hprint) then
         write(luout,*)
      >   ' library file name is: ',filename(1:inp_strlen(filename))
         write(luout,*) 
+        end if
 
       end if
 
