@@ -2,7 +2,7 @@
       logical function sym_char_table(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab.F,v 1.4 1999-06-02 01:13:18 d3g681 Exp $
+C$Id: sym_char_tab.F,v 1.5 1999-09-22 19:01:05 d3g681 Exp $
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
@@ -11,7 +11,7 @@ C$Id: sym_char_tab.F,v 1.4 1999-06-02 01:13:18 d3g681 Exp $
 c     
       dimension iclass_dim(maxireps), ipointer(maxireps), zir(maxireps), 
      +     zclass(maxireps), chars(maxireps*maxireps)
-c     
+c
 c     Ipointer() used to return mapping of classes from gamess order
 c     to standard order ... seems of no use now but I have left the code
 c     lying around ... note that some groups lack this info
@@ -414,6 +414,9 @@ c
       character*4 yrth
       parameter(nth=8)
       dimension ith(18), chth(8,8), yth(8), yrth(8)
+c
+      logical please_print_ecce
+      data please_print_ecce / .true. /
 c
       data ic1/1,1,1
      +     ,1/
@@ -2040,6 +2043,12 @@ c
          enddo
  111     format(1x,20f10.6)
          call util_flush(6)
+      endif
+c
+      if (please_ecce_print) then
+         please_ecce_print = .false.
+         call ecce_print1_char('group class names', zclass, nir)
+         call ecce_print1_char('group irrep names', zir, nir)
       endif
 c
       end
