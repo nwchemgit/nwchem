@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.50 2000-04-28 21:37:49 edo Exp $
+c     $Id: dft_inpana.F,v 1.51 2000-04-28 22:44:34 edo Exp $
 c
 c*********************************************************************
 c     
@@ -429,12 +429,12 @@ c
              write(LuOut,'(/,14x,"SIC perturbative approximation")')
            else
              if (test_sic.eq.2) then
-               write(LuOut,'(/,14x,
-     &                       "SIC/OEP without localized orbitals")')
+               write(LuOut,
+     .               '(/14x,"SIC/OEP without localized orbitals")')
              else
                if (test_sic.eq.4) then
-                 write(LuOut,'(/,14x,
-     &                         "SIC/OEP with localized orbitals")')
+                 write(LuOut,
+     .                 '(/14x,"SIC/OEP with localized orbitals")')
                end if
              end if
            end if

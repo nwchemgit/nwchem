@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.23 2000-04-28 17:56:26 jolguin Exp $
+c     $Id: dft_input.F,v 1.24 2000-04-28 22:44:35 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -25,7 +25,7 @@ c
       character*12 dirs(num_dirs)
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
-     &        idirect, nfock, ifield, imull
+     &        idirect, imull
       integer nopen
       logical pseudo, direct, lmaxov, incore
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
