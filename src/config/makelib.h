@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.31 1996-01-02 18:38:16 d3h325 Exp $
+# $Id: makelib.h,v 1.32 1996-01-05 22:50:33 d3h325 Exp $
 
 #
 # A makefile for a library should
@@ -97,6 +97,32 @@ LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
 
 OBJECTS := $(OBJ) $(OBJ_OPTIMIZE)
 
+######################################################################
+# makefile in each directory might define error message for undefined 
+# symbols etc. When error message is defined, it should be displayed 
+# and then make processing aborted.
+# This comes from GA, TCGMSG-MPI & DA
+######################################################################
+
+define print_error
+	@echo $(ERRMSG)
+	exit 1
+	@echo
+endef
+
+ifdef ERRMSG
+error:
+	$(print_error)
+endif
+
+# Make sure that nothing gets compiled in case of error
+#
+ifdef ERRMSG
+      CC = $(print_error)
+      FC = $(print_error)
+endif
+
+######################################################################
 ifndef OPTIMIZE
 ifdef OBJ_OPTIMIZE
  OPT_TARGET = optimized
