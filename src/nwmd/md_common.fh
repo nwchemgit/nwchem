@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.3 1999-04-14 20:25:21 d3j191 Exp $
+c $Id: md_common.fh,v 1.4 1999-04-14 20:39:26 d3j191 Exp $
 c
 c     parameters
 c
@@ -129,7 +129,7 @@ c
      + ngx,ngy,ngz,iewald,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
-     + idevel,ndaver,llong,never,npbtyp,nbxtyp,nflong,lstype,
+     + idevel,ndaver,never,npbtyp,nbxtyp,nflong,lstype,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,
      + inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
@@ -156,12 +156,12 @@ c
      + ngx,ngy,ngz,iewald,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
-     + idevel,ndaver,llong,never,npbtyp,nbxtyp,nflong,lstype,
+     + idevel,ndaver,never,npbtyp,nbxtyp,nflong,lstype,
      + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,
      + inp_ptr
 c
-      logical ltwin,lpbc,lpair
-      common/md_log/ltwin,lpbc,lpair
+      logical llong,ltwin,lpbc,lpair
+      common/md_log/llong,ltwin,lpbc,lpair
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,
