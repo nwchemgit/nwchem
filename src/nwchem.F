@@ -6,6 +6,7 @@
       integer rtdb
       integer stack
       integer heap
+      logical status
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -21,6 +22,7 @@ c     Initialize local memory allocator
 c
       if (.not. ma_init(mt_dbl, stack, heap))
      $     call errquit('nwchem: ma_init failed', -1)
+      status = ma_set_auto_verify(.true.)
 c
 c     Intialize global memory allocator
 c
@@ -127,7 +129,8 @@ c
 c     
 c     raktest
 c     
- 20      call raktest(rtdb)
+ 20      continue
+*     call raktest(rtdb)
          goto 1000
 c     
 c     rtdbprint
