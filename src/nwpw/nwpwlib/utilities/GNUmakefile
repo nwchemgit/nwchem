@@ -1,12 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.4 2001-11-14 17:48:32 edo Exp $
+# $Id: GNUmakefile,v 1.5 2001-11-14 17:49:59 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
             cpmd_properties.o \
  			pair_dist.o \
             auto_corr.o \
-            dsum.o \
+            dsum.o matrix.o \
  			CIF_write.o
 
 
