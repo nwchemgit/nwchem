@@ -807,7 +807,7 @@ int rtdb_seq_get_info(const int handle,
 
   key = wrap_DBT(info_buf, strlen(info_buf)+1);
 
-  if (db->get(db, &key, &value, (u_int) 0)) {
+  if (status = db->get(db, &key, &value, (u_int) 0)) {
 
     if (status == -1) {
       (void) fprintf(stderr, "rtdb_seq_get_info: db get failed for \"%s\" in %s\n",
