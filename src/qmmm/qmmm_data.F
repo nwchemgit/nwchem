@@ -137,12 +137,13 @@ c     initialize rtdb parameters
 
       tag = "qmmm:bq_dynamical"
       if (.not.rtdb_get(irtdb,tag,mt_log,1,flag)) then
-        flag = .false.
+        flag = .true.
         if (.not.rtdb_put(irtdb,tag,mt_log,1,flag)) 
      >      call errquit(pname//'failed to store fixlinks',0,
      >       RTDB_ERR)
 
        end if
+       bq_dynamical = flag
       if(master)
      > write(6,21) "dynamical bq update",tag,flag
 
@@ -255,7 +256,7 @@ c
         interface = "mm"
       end if
 
-      if(interface.eq."mm") bq_dynamical = .false.
+c      if(interface.eq."qm") bq_dynamical = .false.
 
       tag ="qmmm:fixqm" 
       if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 

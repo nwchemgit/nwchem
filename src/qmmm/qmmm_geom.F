@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.45 2004-12-21 02:12:49 marat Exp $
+c $Id: qmmm_geom.F,v 1.46 2004-12-28 00:35:49 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -353,6 +353,7 @@ c     local variables
       integer i_t_all,h_t_all
       integer i_m_all,h_m_all
       logical nobq
+      logical bq_dynamical
       double precision charge
       character*32 filename
       character*32 pname
@@ -370,9 +371,18 @@ c
 c     load bq information (coord and charges)
 c     into qmmm common arrays from md module
 c     --------------------------------------
+      
+      bq_dynamical = qmmm_bq_dynamical()
+      if(qmmm_print_debug())
+     >       write(*,*) pname,"bq_dynamical",bq_dynamical
       if(.not.nobq) then
-         if(qmmm_bq_dynamical()) then
+         if(bq_dynamical) then
            call qmmm_bq_data_load()
+           if(qmmm_print_debug())
+     >       write(*,*) pname,"updated Bq's"
+         else
+           if(qmmm_print_debug())
+     >       write(*,*) pname,"Bq's are not updated"
          end if
       end if
 
