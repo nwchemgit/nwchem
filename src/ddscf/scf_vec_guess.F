@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.18 1997-07-25 17:58:03 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.19 1997-08-03 18:41:31 d3g681 Exp $
 c
       implicit none
 c
@@ -149,7 +149,7 @@ c
             tolguess = tol2e
          else
             call fock_force_direct(rtdb)
-            tolguess = 1e-4
+            tolguess = 1d-5 ! 1e-4 broke clark still crown ether
          endif
 *         write(6,*) ' tolguess', tolguess
          call rhf_dens_to_mo(rtdb, geom, basis, 2*nclosed+nopen,
