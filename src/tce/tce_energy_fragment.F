@@ -1,6 +1,6 @@
       logical function tce_energy_fragment(rtdb)
 c
-c $Id: tce_energy_fragment.F,v 1.1 2004-02-01 22:08:58 sohirata Exp $
+c $Id: tce_energy_fragment.F,v 1.2 2004-03-15 20:43:31 sohirata Exp $
 c
 c Wrapper for tce_energy for fragment MO calculations.
 c
@@ -43,13 +43,13 @@ c
       if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
      1  call errquit('tce_energy_fragment',0,RTDB_ERR)
       if (fragment.eq.-1) then
-        tce_energy_fragment = tce_energy(rtdb)
+        tce_energy_fragment = tce_energy(rtdb,.true.)
         return
       else
         tce_energy_fragment = .false.
         call geom_fragment(rtdb,nfrags)
         if (nfrags.eq.1) then
-          tce_energy_fragment = tce_energy(rtdb)
+          tce_energy_fragment = tce_energy(rtdb,.true.)
           return
         else
 c
@@ -113,13 +113,23 @@ c
           if (.not.scf_only) then
             do ifrag = 1, nfrags
               call select_fragment(rtdb,ifrag,dbl_mb(k_fdipole))
-              if (.not.tce_energy(rtdb)) call errquit
-     1          ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
-              if (.not.rtdb_get(rtdb,'tce:energy',mt_dbl,1,energy))
-     1          call errquit('tce_energy_fragment',0,RTDB_ERR)
-              dbl_mb(k_efrags+ifrag-1) = energy
-              if (nodezero) write(LuOut,9010) ifrag,
-     1          dbl_mb(k_efrags+ifrag-1)
+              if (fragment.eq.0) then
+                if (.not.tce_energy(rtdb,.false.)) call errquit
+     1            ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
+                if (.not.rtdb_get(rtdb,'tce:energy',mt_dbl,1,energy))
+     1            call errquit('tce_energy_fragment',0,RTDB_ERR)
+                dbl_mb(k_efrags+ifrag-1) = energy
+                if (nodezero) write(LuOut,9010) ifrag,
+     1            dbl_mb(k_efrags+ifrag-1)
+              else if (fragment.eq.ifrag) then
+                if (.not.tce_energy(rtdb,.true.)) call errquit
+     1            ('tce_energy_fragment: fragment',0,UNKNOWN_ERR)
+                if (.not.rtdb_get(rtdb,'tce:omega',mt_dbl,1,energy))
+     1            call errquit('tce_energy_fragment',0,RTDB_ERR)
+                dbl_mb(k_efrags+ifrag-1) = energy
+                if (nodezero) write(LuOut,9110) ifrag,
+     1            dbl_mb(k_efrags+ifrag-1)
+              endif
             enddo
           endif
 c
@@ -133,39 +143,76 @@ c
               call select_fragmentpair(rtdb,ifrag,jfrag,
      1          dbl_mb(k_fdipole))
               if (.not.scf_only) then
-                if (.not.tce_energy(rtdb)) call errquit
-     1            ('tce_energy_fragment: fragment pair',0,UNKNOWN_ERR)
-                if (.not.rtdb_get(rtdb,'tce:energy',mt_dbl,1,energy))
-     1            call errquit('tce_energy_fragment',0,RTDB_ERR)
+                if (fragment.eq.0) then
+                  if (.not.tce_energy(rtdb,.false.)) call errquit
+     1              ('tce_energy_fragment: fragment pair',0,UNKNOWN_ERR)
+                  if (.not.rtdb_get(rtdb,'tce:energy',mt_dbl,1,energy))
+     1              call errquit('tce_energy_fragment',0,RTDB_ERR)
+                  dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1) = energy
+                  if (nodezero) write(LuOut,9030) ifrag,jfrag,
+     1            dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+                else if ((fragment.eq.ifrag).or.
+     1                   (fragment.eq.jfrag)) then
+                  if (.not.tce_energy(rtdb,.true.)) call errquit
+     1              ('tce_energy_fragment: fragment pair',0,UNKNOWN_ERR)
+                  if (.not.rtdb_get(rtdb,'tce:omega',mt_dbl,1,energy))
+     1              call errquit('tce_energy_fragment',0,RTDB_ERR)
+                  dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1) = energy
+                  if (nodezero) write(LuOut,9130) ifrag,jfrag,
+     1            dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+                endif
               else
                 if (.not.scf(rtdb)) call errquit
      1            ('tce_energy_fragment: fragment pair',0,UNKNOWN_ERR)
                 if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,energy))
      1            call errquit('tce_energy_fragment',0,RTDB_ERR)
+                dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1) = energy
+                if (nodezero) write(LuOut,9030) ifrag,jfrag,
+     1          dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
               endif
-              dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1) = energy
-              if (nodezero) write(LuOut,9030) ifrag,jfrag,
-     1        dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
             enddo
           enddo
           if (nodezero) write(LuOut,*)
           if (nodezero) write(LuOut,9000)
           if (nodezero) write(LuOut,*)
-          energy = 0.0d0
-          do ifrag = 1, nfrags-1
-            do jfrag = ifrag+1, nfrags
-              if (nodezero) write(LuOut,9030) ifrag,jfrag,
-     1        dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
-              energy = energy
-     1               + dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+          if ((fragment.eq.0).or.(scf_only)) then
+            energy = 0.0d0
+            do ifrag = 1, nfrags-1
+              do jfrag = ifrag+1, nfrags
+                if (nodezero) write(LuOut,9030) ifrag,jfrag,
+     1          dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+                energy = energy
+     1                 + dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+              enddo
             enddo
-          enddo
-          do ifrag = 1, nfrags
-            if (nodezero) write(LuOut,9010) ifrag,
-     1        dbl_mb(k_efrags+ifrag-1)
-            energy = energy-dfloat(nfrags-2)*dbl_mb(k_efrags+ifrag-1)
-          enddo
-          if (nodezero) write(LuOut,9020) energy
+            do ifrag = 1, nfrags
+              if (nodezero) write(LuOut,9010) ifrag,
+     1          dbl_mb(k_efrags+ifrag-1)
+              energy = energy-dfloat(nfrags-2)*dbl_mb(k_efrags+ifrag-1)
+            enddo
+            if (nodezero) write(LuOut,9020) energy
+          else
+            energy = 0.0d0
+            do ifrag = 1, nfrags-1
+              do jfrag = ifrag+1, nfrags
+                if ((fragment.eq.ifrag).or.(fragment.eq.jfrag)) then
+                  if (nodezero) write(LuOut,9130) ifrag,jfrag,
+     1            dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+                  energy = energy
+     1            +dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+                endif
+              enddo
+            enddo
+            do ifrag = 1, nfrags
+              if (fragment.eq.ifrag) then
+                if (nodezero) write(LuOut,9110) ifrag,
+     1            dbl_mb(k_efrags+ifrag-1)
+                energy = energy-dfloat(nfrags-2)
+     1                 * dbl_mb(k_efrags+ifrag-1)
+              endif
+            enddo
+            if (nodezero) write(LuOut,9120) energy
+          endif
           if (.not.rtdb_put(rtdb,'tce:energy',mt_dbl,1,energy))
      1      call errquit('tce_energy_fragment: RTDB problem',0,RTDB_ERR)
           if (.not.ma_pop_stack(l_efragpairs))
@@ -186,4 +233,11 @@ c
  9030 format(1x,'@ Fragment pair',i3,i3,' energy = ',F25.15,' hartree')
  9040 format(1x,'@ Fragment',i3,' dipole = ',3F10.6,' a.u.')
  9050 format(1x,'@ Dipole residual = ',3F20.15)
+ 9110 format(1x,'@         Fragment',i3,' excitation energy = ',
+     1  F15.5,' eV')
+ 9120 format(1x,'@               Total excitation energy = ',
+     1  F15.5,' eV')
+ 9130 format(1x,'@ Fragment pair',i3,i3,' excitation energy = ',
+     1  F15.5,' eV')
+ 9140 format(1x,'@ Fragment',i3,' dipole = ',3F10.6,' a.u.')
       end
