@@ -29,17 +29,24 @@
 #
 #======================================================================
 
+
 LIBRARY   = libpfft.a
 
-OBJ = nwfft3d.o
-
-ifeq ($(TARGET),SP1)
-  LIB_DEFINES = -DESSLFFT
-  OBJ += iessl.o
+ifeq ($(NWCHEM_TARGET),SP1)
+  ifeq ($(USE_ESSL),NO) 
+     LIB_DEFINES = -DEMSLFFT
+     OBJ = nwfft3d.o
+  else
+     LIB_DEFINES = -DESSLFFT
+     OBJ = nwfft3d.o iessl.o
+  endif
 else
   LIB_DEFINES = -DEMSLFFT
+  OBJ = nwfft3d.o
 endif
 
 include $(NWCHEM_TOP)/src/config/makefile.h
 include $(NWCHEM_TOP)/src/config/makelib.h
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(nwfft3d.o):	$(INCDIR)/mafdecls.fh 
