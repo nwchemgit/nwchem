@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.83 1999-05-27 17:50:43 d3g681 Exp $
+C$Id: geom.F,v 1.84 1999-05-29 01:43:20 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -251,8 +251,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
-
-*#include "global.fh"
+#include "global.fh"
 *      integer node
 c     
       integer rtdb              ! [input]

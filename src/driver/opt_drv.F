@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.64 1999-05-28 21:21:16 d3g681 Exp $
+C$Id: opt_drv.F,v 1.65 1999-05-29 01:43:38 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -72,27 +72,25 @@ c
       logical       excess
       logical       zmatrix     ! True if user specified zmatrix
       character*8   source
-      character*255 opt_hess_fil
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
-c                mxcoor=max(mxcart,mxzmat)
-c
+c     mxcoor=max(mxcart,mxzmat)
+c     
       logical geom_zmt_get_varinfo, geom_zmt_get_source
       character*8 zvarname(mxcoor),test
       double precision zvarsign(mxcoor)
 
       common/hnd_iofile/ir,iw
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
-     1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
-     2                  func,func0,gmax,gmax0,curv,alpha,gnorm
+     1     g0(mxcoor),g(mxcoor),ds(mxcoor),
+     2     func,func0,gmax,gmax0,curv,alpha,gnorm
       common/hnd_optrun/npts,nserch,nupdat,cvged
       common/hnd_optsad/sadstp
       common/hnd_optfrz/nzfrz,izfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_optvar/zcoord,ncoord,mcoord
-      common/hnd_optfil/opt_hess_fil
       common/hnd_opttim/energy_time,gradient_time
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
@@ -105,9 +103,24 @@ c
       data alphmn /0.4d+00/
       data alphmx /2.5d+00/
       data four   /4.0d+00/
-c
+c     
       hnd_optx = .false.
+c     
+c     Initialize with junk for paranoia
 c
+      call dfill(6*mxcoor+7,1d300,x0,1)
+      call ifill(4,-99999999,npts,1)
+      nzfrz = 9999
+      ncoord = -99999
+      mcoord = -99099
+      nzmat = 98888888
+      nzvar = 89898989
+      nvar = 81818181
+      sadstp = 1d300
+      call dfill(mxcart+mxatom,1d300,c,1)
+      nat = 99999999
+c
+      
       dbug=.false.
       out =.false.
       out =out.or.dbug
@@ -117,100 +130,100 @@ c
      $     util_print('information', print_low))  then
          write(iw,9999)
       endif
-c
+c     
 c     ----- default parameters for optimization driver -----
-c
+c     
       do i=1,mxcoor
          izfrz(i)=0
       enddo
       do i=1,mxatom
          iatfrz(i)=0
       enddo
-c
+c     
 c     ----- parameters for optimization driver -----
-c
+c     
       if (.not. rtdb_get(rtdb,'driver:cvgopt',mt_dbl,1,cvgopt)) then
-           cvgopt=8.0d-04
-           if(dbug) then
-              write(iw,*) 'using default value of -cvgopt-',cvgopt
-           endif
+         cvgopt=8.0d-04
+         if(dbug) then
+            write(iw,*) 'using default value of -cvgopt-',cvgopt
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt)) then
-           nptopt=20
-           if(dbug) then
-              write(iw,*) 'using default value of -nptopt-',nptopt
-           endif
+         nptopt=20
+         if(dbug) then
+            write(iw,*) 'using default value of -nptopt-',nptopt
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess)) then
-           inhess=0
-           if(dbug) then
-              write(iw,*) 'using default value of -inhess-',inhess
-           endif
+         inhess=0
+         if(dbug) then
+            write(iw,*) 'using default value of -inhess-',inhess
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) then
-           linopt=10
-           if(dbug) then
-              write(iw,*) 'using default value of -linopt-',linopt
-           endif
+         linopt=10
+         if(dbug) then
+            write(iw,*) 'using default value of -linopt-',linopt
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:modupd',mt_int,1,modupd)) then
-           modupd=1
-           if(dbug) then
-              write(iw,*) 'using default value of -modupd-',modupd
-           endif
+         modupd=1
+         if(dbug) then
+            write(iw,*) 'using default value of -modupd-',modupd
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:moddir',mt_int,1,moddir)) then
-           moddir=1
-           if(dbug) then
-              write(iw,*) 'using default value of -moddir-',moddir
-           endif
+         moddir=1
+         if(dbug) then
+            write(iw,*) 'using default value of -moddir-',moddir
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:modsad',mt_int,1,modsad)) then
-           modsad=0
-           if(dbug) then
-              write(iw,*) 'using default value of -modsad-',modsad
-           endif
+         modsad=0
+         if(dbug) then
+            write(iw,*) 'using default value of -modsad-',modsad
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:sadstp',mt_dbl,1,sadstp)) then
-           sadstp=0.35d+00
-           if(dbug) then
-              write(iw,*) 'using default value of -sadstp-',sadstp
-           endif
+         sadstp=0.35d+00
+         if(dbug) then
+            write(iw,*) 'using default value of -sadstp-',sadstp
+         endif
       endif
       if (.not. rtdb_get(rtdb,'driver:oqstep',mt_log,1,oqstep)) then
-           oqstep = .true.
-           if(dbug) then
-              write(iw,*) 'using default value of -oqstep-',oqstep
-           endif
+         oqstep = .true.
+         if(dbug) then
+            write(iw,*) 'using default value of -oqstep-',oqstep
+         endif
       endif
-c
-c
+c     
+c     
 c     ----- get going ... -----
-c
+c     
       if (.not. geom_create(geom, 'geometry'))
-     &       call errquit('hnd_opt: geom_create?', 911)
+     &     call errquit('hnd_opt: geom_create?', 911)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &       call errquit('hnd_opt: no geometry ', 911)
+     &     call errquit('hnd_opt: no geometry ', 911)
       if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
-     &       call errquit('hnd_opt: geom_get ', 911)
-       nat = ncent
+     &     call errquit('hnd_opt: geom_get ', 911)
+      nat = ncent
       if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+     &     call errquit('geom_input: geom_zmt_get_nizmat failed',0)
       zcoord  = nzmat.gt.0      ! zmatrix from either autoz or user
-c
+c     
       if (.not.geom_zmt_get_source(geom,source))
      $     call errquit('hnd_optx: zmat source ',geom)
       zmatrix = (source .eq. 'user') ! zmatrix from user
       if (.not. zmatrix) oqstep = .false.
       if (nzvar .ne. nvar) oqstep = .false.
-c
+c     
       if (util_print('information', print_low) .and. 
      $     (ga_nodeid().eq.0.or.dbug))  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
-     1                                       modsad,moddir,
-     2                                       sadstp, source, oqstep
+     1        modsad,moddir,
+     2        sadstp, source, oqstep
       endif
-c
+c     
       nzfrz=0
       do i=1,mxcoor           
          izfrz(i)=0
@@ -218,9 +231,9 @@ c
       do i=1,mxatom
          iatfrz(i)=0
       enddo
-c
+c     
 c     ----- branch to transition state search if demanded -----
-c
+c     
       if(idriver.ne.0.or.modsad.ne.0) then
          hnd_optx=hnd_sadx(rtdb,idriver)
          return
@@ -230,9 +243,9 @@ c
             write(iw,9994)
          endif
       endif
-c
+c     
 c     ----- frozen coordinates ? if so .... -----
-c
+c     
       if(.not.geom_zmt_get_nzfrz(geom,nzfrz)) then
          nzfrz=0
       else
@@ -240,7 +253,7 @@ c
             call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
          endif
       endif
-c
+c     
       if ((ga_nodeid().eq.0.or.dbug) .and.
      $     util_print('information', print_low)) then
          if(nzfrz.gt.0) then
@@ -295,16 +308,16 @@ c
             enddo
          endif
       endif
-c
+c     
 c     ----- get ready to start now -----
 c     if internal coordinates ...
-c           nzvar  = # of (redundant) internal coordinates
-c           ncoord = # of independent internal coordinates
-c           mcoord = max( 3*nat , nzvar )
+c     nzvar  = # of (redundant) internal coordinates
+c     ncoord = # of independent internal coordinates
+c     mcoord = max( 3*nat , nzvar )
 c     if cartesian coordinates ...
-c           ncoord = 3*nat
-c           mcoord = 3*nat
-c
+c     ncoord = 3*nat
+c     mcoord = 3*nat
+c     
       rstart=.false.
       excess=.false.
       if(zcoord) then
@@ -320,18 +333,18 @@ c
          ncoord=ncart
          mcoord=ncart
       endif
-c
+c     
 c     ----- initialize hessian matrix -----
-c
+c     
       call hnd_opt_hss_init(rtdb,geom)
       if(zcoord) then
          if(inhess.eq.1) then
             call hnd_opt_tfhx(rtdb,geom)
          endif
       endif
-c
+c     
 c     ----- set up ----  
-c
+c     
       e     =zero
       func  =zero
       func0 =zero
@@ -345,47 +358,49 @@ c
          g0(i)=zero
          x0(i)=zero
          t0(i)=zero
-          x(i)=zero
-          g(i)=zero
+         x(i)=zero
+         g(i)=zero
       enddo
       alpha =zero
       npts  =0
       nserch=0
       nupdat=0
       cvged =.false.
-c
+c     
 c     ----- first point -----  
-c
+c     
       npts=1
       do i=1,ncart
          x(i)=c(i)
       enddo
-c
+c     
 c     ----- energy -----
-c
-         time_start=util_wallsec()
-         call hnd_opt_energy(rtdb,geom)
-         time_end  =util_wallsec()
-         energy_time=time_end-time_start
-         if(out) then
-            write(iw,*) 'energy_time = ',energy_time
-         endif
-c
+c     
+      time_start=util_wallsec()
+      call hnd_opt_energy(rtdb,geom)
+      time_end  =util_wallsec()
+      energy_time=time_end-time_start
+      if(out) then
+         write(iw,*) 'energy_time = ',energy_time
+      endif
+c     
       func=e
-c
+c     
 c     ----- gradient -----
-c
-         time_start=util_wallsec()
-         call hnd_opt_gradient(rtdb,geom)
-         time_end  =util_wallsec()
-         gradient_time=time_end-time_start
-         if(out) then
-            write(iw,*) 'gradient_time = ',gradient_time
-         endif
-c
+c     
+      time_start=util_wallsec()
+      call hnd_opt_gradient(rtdb,geom)
+      time_end  =util_wallsec()
+      gradient_time=time_end-time_start
+      if(out) then
+         write(iw,*) 'gradient_time = ',gradient_time
+      endif
+c     
       do i=1,ncart
          g(i)=eg(i)
       enddo
+      call ga_sync()
+c
       if(zcoord) then
          call hnd_opt_tfgx(rtdb,geom)
       endif
@@ -399,21 +414,21 @@ c
          g0(i)=g(i)
          t0(i)=g(i)
       enddo
-c
+c     
 c     ----- exit if converged -----                     
-c
+c     
       if (cvged) goto 3301
-c
-  100 continue
-c
+c     
+ 100  continue
+c     
 c     ----- search direction -----
-c
+c     
       nserch=nserch+1
       call hnd_opt_search_dir(rtdb,geom)
       do i=1,ncoord
          ds(i)=dx(i)
       enddo
-c
+c     
       if(alpha.eq.zero) then
          if(zcoord) then
             if(abs(gmax).lt.pt5) then
@@ -429,20 +444,20 @@ c
             endif
          endif
       endif
-c
+c     
       if(zcoord) call hnd_opt_tfds(rtdb,geom)               
       if (oqstep) then
          call hnd_opt_search_lin_int(rtdb,geom,rstart,excess)
       else
          call hnd_opt_search_lin(rtdb,geom,rstart,excess)
       endif
-c
+c     
       if(excess) then
          if (ga_nodeid().eq.0.or.dbug)  then
             write(iw,9995) nptopt
          endif
          if (.not.geom_destroy(geom))
-     &      call errquit('hnd_opt: geom_destroy?', 911)
+     &        call errquit('hnd_opt: geom_destroy?', 911)
          call ga_sync()
          hnd_optx=.false.
          return
@@ -451,9 +466,9 @@ c
          dx(i)=dx(i)*alpha
          ds(i)=ds(i)*alpha
       enddo
-c
+c     
 c     ----- improved point found -----
-c
+c     
       if(zcoord) then
          call hnd_opt_tfgx(rtdb,geom)
       endif
@@ -463,34 +478,34 @@ c
       call hnd_opt_print(rtdb)
 c
       if(cvged) goto 3301
-c
+c     
 c     ----- update hessian matrix -----
-c
+c     
       do i=1,ncoord
          g0(i)=t0(i)
          dx(i)=ds(i)
       enddo
       call hnd_opt_hss_update(rtdb)
-c
+c     
       alpha=sqrt(abs(alpha))
       if(alpha.gt.alphmx) alpha=alphmx
       if(alpha.lt.alphmn) alpha=alphmn
-c
+c     
 c     ----- reset pt -0- -----
-c
+c     
       do i=1,ncart
          x0(i)=x(i)
       enddo
       do i=1,ncoord
          t0(i)=g(i)
       enddo
-c
+c     
 c     ----- go back to next search direction -----
-c
+c     
       go to 100
-c
+c     
 c     Converged ... print info and clean up
-c
+c     
  3301 if ((ga_nodeid().eq.0.or.dbug)
      $     .and. util_print('geometry',print_low))  then
          write(iw,9998)
@@ -516,32 +531,33 @@ c
       endif
       if (.not.geom_destroy(geom))
      &     call errquit('hnd_opt: geom_destroy?', 911)
+
       call ga_sync()
       hnd_optx=.true.
       return
-c
+c     
  9999 format(/,10x,21(1h-),
-     1       /,10x,'Geometry Optimization',
-     2       /,10x,21(1h-))
+     1     /,10x,'Geometry Optimization',
+     2     /,10x,21(1h-))
  9998 format(/,10x,22(1h-),
-     1       /,10x,'Optimization converged',
-     2       /,10x,22(1h-))
+     1     /,10x,'Optimization converged',
+     2     /,10x,22(1h-))
  9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
  9996 format(' optimization convergence threshold    (cvgopt) = ',f10.6,
      1     /,' maximum number of energy evaluations  (nptopt) = ',i4,/,
-     2       ' max.num. of points in linear search   (linopt) = ',i4,/,
-     3       ' initial guess option for opt.hessian  (inhess) = ',i4,/,
-     4       ' hessian update selection option       (modupd) = ',i4,/,
-     5       ' optimization to saddle point          (modsad) = ',i4,/,
-     6       ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
-     7       ' maximum step size to saddle           (sadstp) = ',f6.2/
-     7       ' source of zmatrix                              =   ',a8/
-     8       ' line search in internals              (oqstep) =    ',l1)
+     2     ' max.num. of points in linear search   (linopt) = ',i4,/,
+     3     ' initial guess option for opt.hessian  (inhess) = ',i4,/,
+     4     ' hessian update selection option       (modupd) = ',i4,/,
+     5     ' optimization to saddle point          (modsad) = ',i4,/,
+     6     ' initial eigen-mode followed to saddle (moddir) = ',i4,/,
+     7     ' maximum step size to saddle           (sadstp) = ',f6.2/
+     7     ' source of zmatrix                              =   ',a8/
+     8     ' line search in internals              (oqstep) =    ',l1)
  9995 format(' maximum number of energy points reached. stop',
-     1       ' currently -nptopt- = ',i5)
+     1     ' currently -nptopt- = ',i5)
  9994 format(/,10x,19(1h-),
      1       /,10x,'Energy Minimization',
-     2       /,10x,19(1h-),/)
+     2     /,10x,19(1h-),/)
  9993 format(' number of frozen internal coordinates = ',i4)
  9992 format('           frozen internal coordinates = ',12i4)
  9991 format('        no frozen internal coordinates.')
@@ -840,10 +856,6 @@ c
       integer  geom
       logical  gradients
       external gradients
-      logical  driver_opt_put_hess
-      external driver_opt_put_hess
-      logical  driver_opt_get_hess
-      external driver_opt_get_hess
       logical  geom_hnd_tfhx
       logical  dbug
       integer mxatom, mxcart, mxzmat, mxcoor
@@ -888,47 +900,37 @@ c
       ihs=ihx+mcoord*mcoord
 c
 c     ----- only for node 0 -----
+c     rjh ... NOW everyone does this
 c
-      if(ga_nodeid().eq.0) then
-c
-         do i=1,ncart*nzvar
-            dbl_mb(i+ibi-1)=zero
-         enddo
-         call geom_hnd_get_data('binv', dbl_mb(ibi), ncart*nzvar)
-         if(dbug) then
-            write(iw,*) '-binv-'
-            call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
-         endif
-         do i=1,mcoord*mcoord
-            dbl_mb(i+ihx-1)=zero
-         enddo
-         if (.not. driver_opt_get_hess(dbl_mb(ihx),mcoord,mcoord))
-     $        call errquit('hnd_opt_tfhx: get_hess failed', 911 )
-         if(dbug) then
-            write(iw,*) '-hx-'
-            call hnd_prsq(dbl_mb(ihx),ncart,ncart,mcoord)
-         endif
+      do i=1,ncart*nzvar
+         dbl_mb(i+ibi-1)=zero
+      enddo
+      call geom_hnd_get_data('binv', dbl_mb(ibi), ncart*nzvar)
+      if(dbug) then
+         write(iw,*) '-binv-'
+         call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
+      endif
+      do i=1,mcoord*mcoord
+         dbl_mb(i+ihx-1)=zero
+      enddo
+      call geom_hnd_get_data('drv.hess',dbl_mb(ihx),mcoord*mcoord)
 c
 c     ----- now transform -----
 c
-         do i=1,mcoord*mcoord
-            dbl_mb(i+ihs-1)=zero
-         enddo
+      do i=1,mcoord*mcoord
+         dbl_mb(i+ihs-1)=zero
+      enddo
       if (.not. geom_hnd_tfhx(dbl_mb(ihs),dbl_mb(ihx),dbl_mb(ibi),
      $     nvar,ncart,ncart,mcoord))
      $     call errquit('hnd_opt_tfhx: hnd_tfhx failed', 911)
-         if(dbug) then
-            write(iw,*) '-hs-'
-            call hnd_prsq(dbl_mb(ihs),nvar,nvar,mcoord)
-         endif
+      if(dbug) then
+         write(iw,*) '-hs-'
+         call hnd_prsq(dbl_mb(ihs),nvar,nvar,mcoord)
+      endif
 c
 c     ----- write out transformed hessian -----
 c
-         if (.not. driver_opt_put_hess(dbl_mb(ihs),mcoord,mcoord))
-     $        call errquit('hnd_opt_tfhx: put_hess failed', 911 )
-c
-      endif
-      call ga_sync()
+      call geom_hnd_put_data('drv.hess',dbl_mb(ihs),mcoord*mcoord)
 c
       if (.not. ma_pop_stack(i_ibi))
      $     call errquit('hnd_opt_tfhx: ma pop', memsiz )
@@ -998,14 +1000,16 @@ c
       endif
       call geom_hnd_get_data('binv',dbl_mb(ibi),ncart*nzvar)
       if(dbug) then
-         write(iw,*) '-binv-'
+         write(iw,*) '-binv-', ga_nodeid()
          call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
+         call util_flush(6)
       endif
       if (.not. geom_hnd_tfgx(gs,g,dbl_mb(ibi),nvar,ncart,ncart))
      $     call errquit('hnd_opt_tfgx: tfgx', ncart*nzvar)
       if(dbug) then
-         write(iw,*) '-gs-'
+         write(iw,*) '-gs-',ga_nodeid()
          call hnd_prsq(gs,1,nvar,ncart)
+         call util_flush(6)
       endif
       if (.not. ma_pop_stack(i_ibi))
      $     call errquit('hnd_opt_tfgx: ma pop', ncart*nzvar)
@@ -1018,8 +1022,9 @@ c
          enddo
       endif
       if(dbug) then
-         write(iw,*) '-gs-'
+         write(iw,*) '-gs-',ga_nodeid(),nvar,ncart
          call hnd_prsq(g,1,ncart,ncart)
+         call util_flush(6)
       endif
 c
 c     Apply constants and constraints to the gradient before
@@ -1058,6 +1063,12 @@ c
             endif
          endif
       enddo
+c
+      if(dbug) then
+         write(iw,*) '-gs- at end ',ga_nodeid(),nvar,ncart
+         call hnd_prsq(g,1,ncart,ncart)
+         call util_flush(6)
+      endif
 c
       return
       end
@@ -1484,19 +1495,13 @@ C
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
-      LOGICAL  DRIVER_OPT_GET_HESS
-      EXTERNAL DRIVER_OPT_GET_HESS
-      LOGICAL  DRIVER_OPT_PUT_HESS
-      EXTERNAL DRIVER_OPT_PUT_HESS
       LOGICAL       STATUS
       LOGICAL       DBUG
       LOGICAL       OUT
       LOGICAL       SOME
       LOGICAL       OLD_HESSIAN
-      CHARACTER*255 OPT_HESS_FIL
       CHARACTER*8   ERRMSG
       COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_OPTFIL/OPT_HESS_FIL
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSS (NCOOR,*)
@@ -1522,8 +1527,10 @@ C     ----- CHECK IF THERE IS ALREADY A HESSIAN ON DISK -----
 C
       OLD_HESSIAN=.FALSE.
       IF(INHESS.EQ.0) THEN
+         call driver_opt_check_hess(ncoor, old_hessian)
+         if (old_hessian)
+     $        call geom_hnd_get_data('drv.hess',hss,ncoor*ncoor)
          IF(GA_NODEID().EQ.0) THEN
-            OLD_HESSIAN=DRIVER_OPT_GET_HESS(HSS,NCOOR,NCOOR)
             IF(OLD_HESSIAN) THEN
                if (util_print('information', print_low))
      $              WRITE(IW,9993)
@@ -1535,8 +1542,8 @@ C
      $              WRITE(IW,9992)
             ENDIF
          ENDIF
-         CALL GA_SYNC()
       ENDIF
+      CALL GA_SYNC()
 C
 C     ----- GENERATE A GUESS ... BUT DO NOT NECESSARILY USE IT -----
 C     ----- IF drv.hess EXISTS, AND -INHESS- = 0               -----
@@ -1659,15 +1666,7 @@ C           IF THERE IS ONE, KEEP IT, DO NOT OVERWRITE IT
 C           NOTE :
 C     NCOOR = mcoord = max(3*nat,ncoord) with ncoord=nzvar
 C
-      IF(GA_NODEID().EQ.0) THEN
-         IF(.NOT.OLD_HESSIAN) THEN
-            STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
-            IF(.NOT.STATUS) THEN 
-               CALL ERRQUIT(' HND_INIT_HSS: PUT_HESS FAILED',911)        
-            ENDIF
-         ENDIF
-      ENDIF
-      CALL GA_SYNC()
+      call geom_hnd_put_data('drv.hess',hss,ncoor*ncoor)
 C
       RETURN
  9999 FORMAT(/,' IN  OPT_HSS-INIT_X , ', 
@@ -2000,6 +1999,39 @@ C
      2     /,1X,38(1H-))
  9008 FORMAT(' IN  OPT_HSS_INIT_ZMT , HGUESS = ',A8) 
       END
+      subroutine driver_opt_check_hess(ncoor, old_hessian)
+      implicit none
+#include "global.fh"
+#include "tcgmsg.fh"
+c
+      integer ncoor
+      logical old_hessian
+      character*255 filename
+c
+      integer m
+c
+c     Look at an existing hessian file and verify it
+c
+      call util_file_name('drv.hess',
+     1     .false.,.false.,filename)
+c
+      if (ga_nodeid() .eq. 0) then
+         open(32,file=filename,status='old',err=10)
+         write(6,*) ' CHECK: OPENED OK',filename
+         read(32,err=11) m
+         write(6,*) ' CHECK: READ OK ',m,ncoor*ncoor
+         if (m.ne.ncoor*ncoor) goto 11
+         close(32)
+         old_hessian = .true.
+         goto 20
+c
+ 11      close(32)
+ 10      old_hessian = .false.
+      endif
+c
+ 20   call ga_brdcst(323, old_hessian, mitob(1), 0)
+c
+      end
       subroutine driver_opt_del_hess()
       implicit none
 #include "util.fh"
@@ -2020,128 +2052,128 @@ c
       endif
 c
       end
-      logical function driver_opt_put_hess(hess,nint,mint)   
-      implicit none
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-c
-      integer nint 
-      integer mint
-      integer i
-      integer j
-      integer ir
-      integer iw
-      integer ift
-      logical dbug
-      logical out
-      common/hnd_iofile/ir,iw
-      double precision hess(mint,mint)  
-      character*255 opt_hess_fil
-      data ift /31/
-c
-      dbug=.false.
-      dbug=dbug.or.util_print('hess_fil', print_debug)
-      out =.false.
-      out =out.or.dbug
-c
-      call util_file_name('drv.hess',
-     1     .false.,.false.,opt_hess_fil)
-      open(unit=ift, file=opt_hess_fil, form='unformatted',
-     1     access='sequential', status='unknown', err=911)
-c
-      if(out) then
-         write(iw,*) ' _put_hess', opt_hess_fil
-         write(iw,*) 'nint, mint = ',nint,mint 
-      endif
-      if(dbug) then
-         call hnd_prsq(hess,nint,nint,mint)    
-      endif
-c
-      rewind ift
-      write(ift) mint
-      write(ift) ((hess(i,j),i=1,mint),j=1,mint)
-c
-      close(ift,status='keep')
-c
-      driver_opt_put_hess=.true.
-      return
-c
- 911  call errquit('driver_opt_put_hess: open failed',0)
-c
-      end
-      logical function driver_opt_get_hess(hess,nint,mint)   
-      implicit none
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-c
-      integer nint
-      integer mint
-      integer i
-      integer j
-      integer ir
-      integer iw
-      integer ift
-      logical dbug
-      logical out
-c
-      integer mmint
-c
-      common/hnd_iofile/ir,iw
-      double precision hess(mint,mint) 
-      character*255 opt_hess_fil
-      data ift /31/
-c
-      dbug=.false.
-      dbug=dbug.or.util_print('hess_fil', print_debug)
-      out =.false.
-      out =out.or.dbug
-c
-      call util_file_name('drv.hess',
-     1     .false.,.false.,opt_hess_fil)
-      open(unit=ift, file=opt_hess_fil, form='unformatted',
-     1     access='sequential', status='unknown', err=911)
-      if(out) then
-         write(iw,*) ' _get_hess', opt_hess_fil
-         write(iw,*) 'nint, mint = ',nint,mint 
-      endif
-c
-      rewind ift
-      read(ift,end=910,err=910) mmint
-      if (mint .ne. mmint) goto 910
-      read(ift,end=910,err=910) ((hess(i,j),i=1,mint),j=1,mint)
-c
-      close(ift,status='keep')
-c
-      if(dbug) then
-         call hnd_prsq(hess,nint,nint,mint)    
-      endif
-c
-      driver_opt_get_hess=.true.
-      return
-c
-c     ----- unable to complete the read ---
-c
- 910  close(ift,status='keep')
-      if(out) then
-         write(iw,*) 'unable to complete the read in _get_hess'
-      endif
-      driver_opt_get_hess=.false.
-      return 
-c
-c     ----- unable to open ; stop ... -----
-c
- 911  call errquit('driver_opt_get_hess: open failed',0)
-      return
-c
-      end
+c$$$      logical function driver_opt_put_hess(hess,nint,mint)   
+c$$$      implicit none
+c$$$#include "mafdecls.fh"
+c$$$#include "tcgmsg.fh"
+c$$$#include "msgtypesf.h"
+c$$$#include "global.fh"
+c$$$#include "rtdb.fh"
+c$$$#include "util.fh"
+c$$$c
+c$$$      integer nint 
+c$$$      integer mint
+c$$$      integer i
+c$$$      integer j
+c$$$      integer ir
+c$$$      integer iw
+c$$$      integer ift
+c$$$      logical dbug
+c$$$      logical out
+c$$$      common/hnd_iofile/ir,iw
+c$$$      double precision hess(mint,mint)  
+c$$$      character*255 opt_hess_fil
+c$$$      data ift /31/
+c$$$c
+c$$$      dbug=.false.
+c$$$      dbug=dbug.or.util_print('hess_fil', print_debug)
+c$$$      out =.false.
+c$$$      out =out.or.dbug
+c$$$c
+c$$$      call util_file_name('drv.hess',
+c$$$     1     .false.,.false.,opt_hess_fil)
+c$$$      open(unit=ift, file=opt_hess_fil, form='unformatted',
+c$$$     1     access='sequential', status='unknown', err=911)
+c$$$c
+c$$$      if(out) then
+c$$$         write(iw,*) ' _put_hess', opt_hess_fil
+c$$$         write(iw,*) 'nint, mint = ',nint,mint 
+c$$$      endif
+c$$$      if(dbug) then
+c$$$         call hnd_prsq(hess,nint,nint,mint)    
+c$$$      endif
+c$$$c
+c$$$      rewind ift
+c$$$      write(ift) mint
+c$$$      write(ift) ((hess(i,j),i=1,mint),j=1,mint)
+c$$$c
+c$$$      close(ift,status='keep')
+c$$$c
+c$$$      driver_opt_put_hess=.true.
+c$$$      return
+c$$$c
+c$$$ 911  call errquit('driver_opt_put_hess: open failed',0)
+c$$$c
+c$$$      end
+c$$$      logical function driver_opt_get_hess(hess,nint,mint)   
+c$$$      implicit none
+c$$$#include "mafdecls.fh"
+c$$$#include "tcgmsg.fh"
+c$$$#include "msgtypesf.h"
+c$$$#include "global.fh"
+c$$$#include "rtdb.fh"
+c$$$#include "util.fh"
+c$$$c
+c$$$      integer nint
+c$$$      integer mint
+c$$$      integer i
+c$$$      integer j
+c$$$      integer ir
+c$$$      integer iw
+c$$$      integer ift
+c$$$      logical dbug
+c$$$      logical out
+c$$$c
+c$$$      integer mmint
+c$$$c
+c$$$      common/hnd_iofile/ir,iw
+c$$$      double precision hess(mint,mint) 
+c$$$      character*255 opt_hess_fil
+c$$$      data ift /31/
+c$$$c
+c$$$      dbug=.false.
+c$$$      dbug=dbug.or.util_print('hess_fil', print_debug)
+c$$$      out =.false.
+c$$$      out =out.or.dbug
+c$$$c
+c$$$      call util_file_name('drv.hess',
+c$$$     1     .false.,.false.,opt_hess_fil)
+c$$$      open(unit=ift, file=opt_hess_fil, form='unformatted',
+c$$$     1     access='sequential', status='unknown', err=911)
+c$$$      if(out) then
+c$$$         write(iw,*) ' _get_hess', opt_hess_fil
+c$$$         write(iw,*) 'nint, mint = ',nint,mint 
+c$$$      endif
+c$$$c
+c$$$      rewind ift
+c$$$      read(ift,end=910,err=910) mmint
+c$$$      if (mint .ne. mmint) goto 910
+c$$$      read(ift,end=910,err=910) ((hess(i,j),i=1,mint),j=1,mint)
+c$$$c
+c$$$      close(ift,status='keep')
+c$$$c
+c$$$      if(dbug) then
+c$$$         call hnd_prsq(hess,nint,nint,mint)    
+c$$$      endif
+c$$$c
+c$$$      driver_opt_get_hess=.true.
+c$$$      return
+c$$$c
+c$$$c     ----- unable to complete the read ---
+c$$$c
+c$$$ 910  close(ift,status='keep')
+c$$$      if(out) then
+c$$$         write(iw,*) 'unable to complete the read in _get_hess'
+c$$$      endif
+c$$$      driver_opt_get_hess=.false.
+c$$$      return 
+c$$$c
+c$$$c     ----- unable to open ; stop ... -----
+c$$$c
+c$$$ 911  call errquit('driver_opt_get_hess: open failed',0)
+c$$$      return
+c$$$c
+c$$$      end
       subroutine hnd_opt_search_dir(rtdb,geom)
       implicit none
 #include "mafdecls.fh"
@@ -2153,8 +2185,6 @@ c
 c
       integer    rtdb, geom
       logical    status
-      logical    driver_opt_get_hess
-      logical    driver_opt_put_hess
 c
       integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
@@ -2262,17 +2292,12 @@ c
 c     ----- get current hessian matrix -----
 c
       if(zcoord) then
-         if( ga_nodeid().eq.0) then
-            status=driver_opt_get_hess(x(j10),ndim,ndim)     
-         endif
-         call ga_brdcst(51+msgdbl,x(j10),mdtob(ndim*ndim),0)
-
+         call geom_hnd_get_data('drv.hess',x(j10),ndim*ndim)
          if(dbug) then
             write(iw,*) 'in -search_dir- , int.coord. hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
          call geom_hnd_get_data('zind',x(j20),ndim*ndim)
-
          if(dbug) then
             write(iw,*) 'in -search_dir- , zind = '                 
             call hnd_prsq(x(j20),ndimq,ndimq,ndim)
@@ -2293,10 +2318,7 @@ c
          endif
       else
 c
-         if( ga_nodeid().eq.0) then
-            status=driver_opt_get_hess(x(i10),ndimx,ndim1)       
-         endif
-         call ga_brdcst(71+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
+         call geom_hnd_get_data('drv.hess',x(i10),ndim1*ndim1)
          if(dbug) then
             write(iw,*) 'in -search_dir- , cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
@@ -2348,13 +2370,9 @@ c--            call hnd_prsq(x(j10),ndimq,ndimq,ndim)
 c--            stop
 c--         endif
          endif
-         if( ga_nodeid().eq.0) then
-            status=driver_opt_put_hess(x(j10),ndimq,ndim)       
-         endif
+         call geom_hnd_put_data('drv.hess',x(j10),ndim*ndim)       
       else
-         if( ga_nodeid().eq.0) then
-            status=driver_opt_put_hess(x(i10),ndimx,ndim1)       
-         endif
+         call geom_hnd_put_data('drv.hess',x(i10),ndim1*ndim1)       
          if(dbug) then
             write(iw,*) 'in -search_dir- , cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
@@ -4077,8 +4095,6 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
       INTEGER RTDB
-      LOGICAL DRIVER_OPT_PUT_HESS
-      LOGICAL DRIVER_OPT_GET_HESS
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
 C
@@ -4134,11 +4150,7 @@ c     ----- get current hessian matrix -----
 c
       if(zcoord) then
          call geom_hnd_get_data('zind',x(j20),ndim*ndim)
-         if( ga_nodeid().eq.0) then
-            if (.not. driver_opt_get_hess(x(j10),ndim,ndim))
-     $           call errquit('hnd_opt_hss_update: get_hess',ndim *ndim)
-         endif
-         call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
+         call geom_hnd_get_data('drv.hess',x(j10),ndim*ndim)
 c
          if(dbug) then
             write(iw,*) 'in hss_update, current hessian = '
@@ -4157,11 +4169,7 @@ c
             call hnd_prsq(x(i10),ndimi,ndimi,ndimi)
          endif
       else
-         if( ga_nodeid().eq.0) then
-            if (.not. driver_opt_get_hess(x(i10),ndimx,ndim))
-     $           call errquit('hnd_opt_hss_update: get_hess',ndimx*ndim)
-         endif
-         call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
+         call geom_hnd_get_data('drv.hess',x(i10),ndim*ndim)
          if(dbug) then
             if( ga_nodeid().eq.0) then
                write(iw,*) 'in hss_update, cartesian hessian = '
@@ -4196,25 +4204,18 @@ c
 c
          call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
 c
-         if( ga_nodeid().eq.0) then
-            if (.not. driver_opt_put_hess(x(j10),ndimq,ndim))
-     $           call errquit('hnd_opt_hss_update: put_hess',ndimq*ndim)
-         endif
+         call geom_hnd_put_data('drv.hess',x(j10),ndim*ndim)
          if(out) then
             write(iw,*) 'in hss_update, ',
      $                  'back-transformed updated hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
       else
-         if( ga_nodeid().eq.0) then
-            if (.not. driver_opt_put_hess(x(i10),ndimx,ndim))
-     $           call errquit('hnd_opt_hss_update: put_hess',ndimx*ndim)
-            if(dbug) then
-               write(iw,*) 'in hss_update, updated hessian = '
-               call hnd_prsq(x(i10),ndimx,ndimx,ndim)
-            endif
+         call geom_hnd_put_data('drv.hess',x(i10),ndim*ndim)
+         if(dbug) then
+            write(iw,*) 'in hss_update, updated hessian = '
+            call hnd_prsq(x(i10),ndimx,ndimx,ndim)
          endif
-         call ga_sync()
       endif
 c
 c     ----- release memory -----

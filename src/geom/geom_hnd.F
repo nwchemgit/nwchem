@@ -6124,8 +6124,6 @@ c
      $     call errquit('geom_check_all_connected: ma pop?',nat)
 c     
       end
-
-         
       subroutine geom_hnd_put_data(name, a, n)
       implicit none
 #include "global.fh"
@@ -6139,18 +6137,21 @@ c     Put the data of given name and dimension from a()
 c     into the appropriate file.
 c
       character*255 filename
-      logical odebug
+      logical odebug, oscratch
+c
+      oscratch = name .ne. 'drv.hess'
 c
       odebug = util_print('geom_hnd',print_never)
       if (ga_nodeid() .eq. 0) then
-         call util_file_name(name,.true.,.false.,filename)
+         call util_file_name(name,oscratch,.false.,filename)
          open(32, file=filename, form='unformatted', 
      $        status='unknown', err=100)
+         write(32) n
          call swrite(32, a, n)
          close(32)
          if (odebug) then
-            write(6,*) ' WROTE ', name, n
-            call doutput(a,1,n,1,1,n,1,1)
+            write(6,*) ' WROTE ', name, n, filename
+*            call doutput(a,1,n,1,1,n,1,1)
          endif
       endif
 c
@@ -6174,17 +6175,22 @@ c     Get the data of given name and dimension into a()
 c     from the appropriate file.
 c
       character*255 filename
-      logical odebug
+      logical odebug, oscratch
+      integer m
 c
+      oscratch = name .ne. 'drv.hess'
       odebug = util_print('geom_hnd',print_never)
       if (ga_nodeid() .eq. 0) then
-         call util_file_name(name,.true.,.false.,filename)
+         call util_file_name(name,oscratch,.false.,filename)
          open(32, file=filename, form='unformatted', 
      $        status='old', err=100)
          if (odebug) write(6,*) ' READ  ', name, n
+         read(32,err=101) m
+         write(6,*) ' m = ', m
+         if (n .ne. m) goto 102
          call sread(32, a, n)
          close(32)
-         if (odebug) call doutput(a,1,n,1,1,n,1,1)
+*         if (odebug) call doutput(a,1,n,1,1,n,1,1)
       endif
       call ga_brdcst(32, a, mdtob(n), 0)
 c
@@ -6192,5 +6198,9 @@ c
 c
  100  write(6,*) ' name = ', name
       call errquit('geom_hnd_get_data: open failed',0)
+ 101  write(6,*) ' name = ', name
+      call errquit('geom_hnd_get_data: reading m failed',0)
+ 102  write(6,*) ' name = ', name, ' n = ', n, ' m = ', m
+      call errquit('geom_hnd_get_data: dimension mismatch',0)
 c
       end
