@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.39 2000-05-25 22:57:26 mdupuis Exp $
+C$Id: rohf.F,v 1.40 2001-04-07 01:07:43 edo Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -232,7 +232,7 @@ c
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical oprintmulliken, oprintmultipole
+      logical oprintmulliken, oprintmultipole,oprintinertia
 c
       integer len_moments, lmax
       parameter (lmax = 2)
@@ -246,6 +246,11 @@ c
 c
       oprintmulliken  = util_print('mulliken', print_default)
       oprintmultipole = util_print('multipole', print_default)
+      oprintinertia = util_print('inertia', print_default)
+c
+c     moments of inertia
+c
+      if(oprintinertia) call geom_momint(geom)
 c     
 c     First analyze the total density
 c     
