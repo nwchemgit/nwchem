@@ -1,5 +1,4 @@
-FC=ifc
-F90FLAGS=-w95
+FC=ifc -w -132
 .SUFFIXES:
 
 .SUFFIXES: .o .f90
