@@ -155,7 +155,8 @@ c
 c     Determine which preconditioner, required accuracies
 c     and adjust the level shift
 c     
-      if (scftype .eq. 'UHF') odisable_nr = .true.
+c     Old UHF was not quadratically convergent
+*      if (scftype .eq. 'UHF') odisable_nr = .true.
 c
       if ( odisable_nr .or.
      $     max_grad .gt. nr_gswitch .or.

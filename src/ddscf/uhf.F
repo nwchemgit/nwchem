@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
+C$Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
+C     $Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -242,7 +242,7 @@ c
          write(6,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
-     $        1x,'    Not yet quadratically convergent UHF',//,
+     $        1x,'        Quadratically convergent UHF',//,
      $        1x,'Convergence threshold     :',9x,1p,e10.3,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
      $        1x,'Integral*density screening:',9x,1p,e10.3,0p)
@@ -439,7 +439,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
+C$Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -530,7 +530,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
+c     $Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -765,6 +765,8 @@ c
 #include "global.fh"
 #include "cscf.fh"
 #include "util.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
       integer rtdb
       integer g_grad
       integer g_work
@@ -772,17 +774,31 @@ c
 c     Precondition the gradient with an approximation to the Hessian
 c     return the result in g_work.
 c
-c     Right now only divide by the level-shifted diagonals which 
-c     is in uhf the preconditioner to the preconditioner!
+c     Old version only divided by the level-shifted diagonals which 
+c     is in rohf the preconditioner to the preconditioner!
 c
-      logical oprint_conv, oprint_eval, oprint_debug
+      logical oprint_conv, oprint_eval, oprint_debug, oprint_solve
       double precision gnorm
       double precision max_grad
       double precision min_shift
+      integer max_precond_iter  ! Max. no. of iters for preconditioner
+      integer max_precond_sub   ! Max. dim. of precond. iterative space
+      parameter (max_precond_iter=20)
+c
+      double precision precond_acc ! Accuracy attained by solver
+      integer precond_iter       ! No. of iterations used by solver
+c
+      external uhf_precond, uhf_hessv
+      logical ga_iter_lsolve
+      external ga_iter_lsolve
 c
       oprint_conv = util_print('convergence', print_default)
       oprint_eval = util_print('intermediate evals', print_debug)
       oprint_debug= util_print('uhf_debug', print_debug)
+      oprint_solve= util_print('solve', print_high)
+c
+      if (.not.rtdb_get(rtdb, 'scf:maxsub', MT_INT, 1, 
+     $     max_precond_sub)) max_precond_sub = 10
 c
       call ga_maxelt(g_grad, max_grad)
       gnorm = sqrt(ga_ddot(g_grad, g_grad))
@@ -791,6 +807,7 @@ c
 c     Determine shift necessary to make the preconditioner
 c     positive definite
 c
+ 30   continue
       call uhf_make_shift(min_shift)
 c
 c     Figure out which preconditioner to use, convergence
@@ -820,8 +837,54 @@ c
          end if
       end if
 c
-      call ga_copy(g_grad,g_work)
-      call uhf_precond(g_work, 0.0d0)
+c     Next to lines precondition with just the eigenvalue differences
+c
+*      call ga_copy(g_grad,g_work)
+*      call uhf_precond(g_work, 0.0d0)
+c
+      call ga_zero(g_work)      ! ESSENTIAL
+c     
+c     Attempt to solve the damned equations
+c
+*      write(6,*) ' pflg ', pflg
+c
+ 20   if (.not. ga_iter_lsolve(cuhf_vlen, max_precond_iter,
+     $     max_precond_sub, precond_tol, 
+     $     uhf_precond, uhf_hessv, oprint_solve, 
+     $     g_grad, g_work, precond_acc, precond_iter)) then
+c     
+c     Iterative solution did not converge.  If we got at least
+c     1 sig. fig. then just continue.  Otherwise for the 1-e
+c     approximation increase the level-shift and restart with
+c     the current vector as guess.  If the 2-e approximation did
+c     not converge disable it forever and resort to the 1-e method.
+c     
+         if (precond_acc .gt. 0.1d0) then
+            if (pflg .eq. 2) then
+               odisable_nr = .true.
+               if (ga_nodeid() .eq. 0 .and. oprint_conv) then
+                  maxiter = maxiter + 10
+                  write(6,22) maxiter
+ 22               format(/' Disabled NR: increased maxiter to ',i3/)
+                  call util_flush(6)
+               endif
+               goto 30
+            else
+               if (lshift .eq. 0.0d0) then
+                  lshift = 2.0d0
+                  call ga_zero(g_work)
+               else
+                  lshift = lshift*2.0d0
+               endif
+            endif
+            if (ga_nodeid() .eq. 0 .and. oprint_conv) then
+               write(6,2) lshift
+ 2             format(' Increased level shift to ', f8.2)
+               call util_flush(6)
+            endif
+            goto 20
+         endif
+      endif
 c
       end
       subroutine uhf_precond(g_x, solveshift)
@@ -913,7 +976,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.20 1996-06-27 22:42:56 d3g681 Exp $
+C$Id: uhf.F,v 1.21 1996-07-05 16:00:53 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
