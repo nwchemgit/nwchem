@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.71 2002-04-30 23:52:16 d3j191 Exp $
+c $Id: prp_main.F,v 1.72 2002-05-01 19:05:58 d3j191 Exp $
 c
       implicit none
 c
@@ -105,7 +105,8 @@ c
       if(lspac) then
       endif
 c
-      if(me.eq.0) ep=ep+edrs+epmf
+      if(me.eq.0) ep=ep+edrs
+      ep=ep+epmf
 c
       ep=ep+epme(iset)+epmec
       eq=eq+epme(iset)+epmec
