@@ -1,6 +1,6 @@
       subroutine qhop_prob(gd,rsd,prd,ga,rsa,pra,uda,dang,prob)
 c
-c $Id: qhop_prob.F,v 1.1 2003-07-17 19:36:52 d3j191 Exp $
+c $Id: qhop_prob.F,v 1.2 2003-08-07 01:33:55 d3j191 Exp $
 c
 c     
 c     The hopping probability prob is calculated given the difference in 
@@ -140,9 +140,9 @@ c
       endif
       endif 
 c      
-      print 1101,iseq(1),iseq(2),prd,pra,ptpar(ipar),dang(1),e12,
-     + e12right,e12left,prob
- 1101 format('prob2 ',5i5,5f12.4)
+c      print 1101,iseq(1),iseq(2),prd,pra,ptpar(ipar),dang(1),e12,
+c     + e12right,e12left,prob
+c 1101 format('prob2 ',5i5,5f12.4)
       return
       end
 

@@ -1,7 +1,7 @@
       subroutine qhop_asite(msa,xs,idon,idong,resd,istatd,iacc,
      + iaccg,resa,istata,xacc,doff,aoff)
 c
-c $Id: qhop_asite.F,v 1.1 2003-07-17 19:36:51 d3j191 Exp $
+c $Id: qhop_asite.F,v 1.2 2003-08-07 01:33:55 d3j191 Exp $
 c
       implicit none
 c
@@ -72,7 +72,7 @@ c
       if(xdr(1).lt.tol.and.xdr(2).lt.tol)then
 c   
 c     no rotation needed
-c            
+c        
       fct=sqrt(xh2(1)**2+xh2(2)**2)
       if(fct.gt.tol)then
       xacc(1)=xs(iacc,1)*(rds/fct)
