@@ -136,6 +136,7 @@ c
       endif
 c
 c initialize for schwarz screening
+      call intd_init(1,basis)
       call schwarz_init (geom, basis)
 c
       call force(rtdb,basis,geom,movecs)
@@ -152,6 +153,10 @@ c
      &    ))
      &    call errquit
      &    ('gradients:error destroying geom and basis handles',911)
+c
+c terminate integral scope
+c
+      call int_terminate()
 c
       if (.not. context_pop('gradients')) 
      $     call errquit('context_pop failed',0)
