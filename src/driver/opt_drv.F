@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.60 1999-05-25 00:07:35 d3e129 Exp $
+C$Id: opt_drv.F,v 1.61 1999-05-25 18:57:52 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -283,7 +283,7 @@ c
                            else
                               write(6,5434) -j
                            endif
- 5434                      format(i5$)
+ 5434                      format(i5,$)
                            zvarname(j) = ' '
                         endif
                      enddo
@@ -1254,6 +1254,10 @@ c
       logical geom_zmt_get_zsym
       logical geom_zmt_get_izmat
       logical geom_zmt_get_nizmat
+      external geom_zmt_get_zmat
+      external geom_zmt_get_zsym
+      external geom_zmt_get_izmat
+      external geom_zmt_get_nizmat
       logical dbug
       logical out 
 c
@@ -3709,6 +3713,9 @@ C
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
 C
+      logical geom_zmt_get_zmat
+      external geom_zmt_get_zmat
+C
       INTEGER RTDB
       INTEGER GEOM
       LOGICAL STATUS
@@ -3780,7 +3787,10 @@ C
       ENDDO
 **      write(6,*) ' HERE DUM ', dum
 c$$$      GS0=DUM
-      call geom_zmt_get_zmat(geom,s,nzvar)
+      if (.not.geom_zmt_get_zmat(geom,s,nzvar))
+     &    call errquit(
+     &    'hnd_opt_search_lin_int: geom_zmt_get_zmat failed',
+     &    911)
 c
            NLPTS  = 1
        ALP(NLPTS) = ZERO
