@@ -1,8 +1,36 @@
+      logical function dft_energy(rtdb)
+      implicit none
+#include "rtdb.fh"
+      integer rtdb
+c
+      logical nwdft
+      external nwdft
+      logical status
+c
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
+      dft_energy = nwdft(rtdb)
+      call grid_cleanup(rtdb,.true.)
+c
+      end
+      logical function sodft_energy(rtdb)
+      implicit none
+#include "rtdb.fh"
+      integer rtdb
+c
+      logical nwdft
+      external nwdft
+      logical status
+c
+      status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
+      sodft_energy = nwdft(rtdb)
+      call grid_cleanup(rtdb,.true.)
+c
+      end
       logical function nwdft(rtdb)
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.50 2000-05-05 15:51:07 edo Exp $
+C$Id: nwdft.F,v 1.51 2000-11-04 03:25:55 d3g681 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -104,8 +132,8 @@ c
 c     Can we check here to see if system if already converged?
 c
       if (movecs_in .eq. movecs_out) then
-         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $        call errquit('task:gradient: theory not specified',0)
+         if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
+     $        call errquit('dft: theory not specified',0)
          if(theory .eq. 'dft')then 
             if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))
      &           then
