@@ -31,8 +31,9 @@ dvi:		$(DVI)
 
 
 clean:		
-		@rm -f $(DVI) $(PSFILE) *.toc *.aux *.log *.bbl *.blg
-
+		@rm -f $(DVI)  *.toc *.aux *.log *.bbl *.blg
+realclean:	clean
+		@rm -f $(PSFILE)
 
 
 .tex.dvi:
