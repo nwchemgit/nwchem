@@ -344,13 +344,11 @@ c
               enddo 
               i = i+15
             elseif(sphcart.eq.1)then
-              call errquit('wnbofile: spherical harmonics for
-     $             g type basis not implemented',0)
+              call errquit('wnbofile: no spherical harmonics for g',0)
             endif 
 
           elseif(type.gt.4) then
-            call errquit('wnbofile: angular momentum of basis
-     $           exceeds NBO maximum',0)
+            call errquit('wnbofile: max angular momentum exceeded',0)
           endif 
           
         enddo 
