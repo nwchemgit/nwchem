@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.16 1996-10-10 20:32:02 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.17 1996-10-17 05:02:54 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -36,7 +36,9 @@ c
       integer i
       integer l_fock, k_fock, l_dens, k_dens, l_rdens, k_rdens
       integer l_q4, k_q4, k_ijkl, l_ijkl
-      integer l_plist, k_plist, l_ps, k_ps
+      integer tdim
+      parameter (tdim = 10000)  ! Max no. of distinct pair types
+      integer l_plist, k_plist, l_ps, k_ps, l_pinfo, k_pinfo
       logical status
       logical int2e_test_mem, int2e_buf_write
       external int2e_test_mem, int2e_buf_write
@@ -85,6 +87,8 @@ c
      $     'ao_rep: plist',    l_plist, k_plist)
       status = status .and. ma_push_get(MT_DBL, nbf*(nbf+1)/2,
      $     'ao_rep: plist',    l_ps, k_ps)
+      status = status .and. ma_push_get(MT_INT, tdim,
+     $     'ao_rep: pinfo',    l_pinfo, k_pinfo)
       if (.not. status) call errquit
      $     ('ao_replicated: insufficient memory', nfock*nbf*nbf*2)
 c     
@@ -146,7 +150,8 @@ c
      $        jfac, kfac, tol2e_local, oskel,
      $        dbl_mb(k_dens), dbl_mb(k_fock), dbl_mb(k_rdens),
      $        int_mb(k_plist), dbl_mb(k_ps), maxquartet,
-     $        dbl_mb(k_q4), int_mb(k_ijkl))
+     $        dbl_mb(k_q4), int_mb(k_ijkl),
+     $        tdim, int_mb(k_pinfo))
          if (util_print('debuginteg',print_never)) then
             close(66)
             call errquit('done',0)
@@ -176,7 +181,8 @@ c
      $           dbl_mb(k_dens+(i-1)*nbf*nbf), nbf)
          end do
       end if
-      status = ma_pop_stack(l_ps)
+      status = ma_pop_stack(l_pinfo)
+      status = ma_pop_stack(l_ps) .and. status
       status = ma_pop_stack(l_plist) .and. status
       status = ma_pop_stack(l_ijkl)  .and. status
       status = ma_pop_stack(l_q4)    .and. status
@@ -210,7 +216,7 @@ c
       end
       subroutine fock_2e_rep(geom, basis, nfock, nbf, natom,
      $     jfac, kfac, tol2e, oskel, dens, fock, rdens,
-     $     plist, ps, qdim, q4, ijkl)
+     $     plist, ps, qdim, q4, ijkl, tdim, pinfo)
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -236,12 +242,11 @@ c
       integer qdim
       double precision q4(qdim) ! Q4 factors for each quartet
       integer ijkl(qdim, 4)     ! Indices for quartet
+      integer tdim              ! Max no. of pair types (guess)
+      integer pinfo(2,tdim)     ! Start and end of each pair type
 c     
       integer natom_unique
       integer nshpair, nsh
-      integer tdim
-      parameter (tdim=10240)
-      integer pinfo(2,tdim)     ! Start and end of each pair type
       integer ntype             ! No. of pair types
       integer max_p             ! Max pairs per block
       integer chunk             ! Chunking factor for tasks
