@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c$Id: xc_pbe96.F,v 1.7 2001-04-12 18:00:22 edo Exp $
+c$Id: xc_pbe96.F,v 1.8 2001-05-11 21:01:18 edo Exp $
 c
       Implicit none
 c
@@ -130,9 +130,7 @@ c
 c
             if (abs(cfac(1)).gt.eps)then
                  facl = cfac(1)
-                lfacl = lcfac(1)
-               nlfacl = nlcfac(1)
-               call xc_vwn_5(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
+               call xc_vwn_5(tol_rho,facl,rhoval,dp81drho,
      &                       lnq,ipol,egas,lqwght,.false.,dummy)
             endif
 c
@@ -156,42 +154,32 @@ c
 c
             if (abs(cfac(7)).gt.eps)then
                  facl = cfac(7)
-                lfacl = lcfac(7)
-               nlfacl = nlcfac(7)
-               call xc_vwn_1_rpa(tol_rho,facl,lfacl,nlfacl,rhoval,
+               call xc_vwn_1_rpa(tol_rho,facl,rhoval,
      &                           dp81drho,lnq,ipol,egas,lqwght,
      &                           .false.,dummy)
             endif
 c
             if (abs(cfac(8)).gt.eps)then
                  facl = cfac(8)
-                lfacl = lcfac(8)
-               nlfacl = nlcfac(8)
-               call xc_vwn_1(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
+               call xc_vwn_1(tol_rho,facl,rhoval,dp81drho,
      &                       lnq,ipol,egas,lqwght,.false.,dummy)
             endif
 c
             if (abs(cfac(9)).gt.eps)then
                  facl = cfac(9)
-                lfacl = lcfac(9)
-               nlfacl = nlcfac(9)
-               call xc_vwn_2(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
+               call xc_vwn_2(tol_rho,facl,rhoval,dp81drho,
      &                       lnq,ipol,egas,lqwght,.false.,dummy)
             endif
 c
             if (abs(cfac(10)).gt.eps)then
                  facl = cfac(10)
-                lfacl = lcfac(10)
-               nlfacl = nlcfac(10)
-               call xc_vwn_3(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
+               call xc_vwn_3(tol_rho,facl,rhoval,dp81drho,
      &                       lnq,ipol,egas,lqwght,.false.,dummy)
             endif
 c
             if (abs(cfac(11)).gt.eps)then
                  facl = cfac(11)
-                lfacl = lcfac(11)
-               nlfacl = nlcfac(11)
-               call xc_vwn_4(tol_rho,facl,lfacl,nlfacl,rhoval,dp81drho,
+               call xc_vwn_4(tol_rho,facl,rhoval,dp81drho,
      &                       lnq,ipol,egas,lqwght,.false.,dummy)
             endif
 c
@@ -296,9 +284,7 @@ c
 c
             if (abs(cfac(1)).gt.eps)then
                  facl = cfac(1)
-                lfacl = lcfac(1)
-               nlfacl = nlcfac(1)
-               call xc_vwn_5(tol_rho,facl,lfacl,nlfacl,rho_t,
+               call xc_vwn_5(tol_rho,facl,rho_t,
      &                       dp81drho,lnq,ipol,egas,lqwght,
      &                       .false.,dummy)
             endif
@@ -323,45 +309,35 @@ c
 c
             if (abs(cfac(7)).gt.eps)then
                  facl = cfac(7)
-                lfacl = lcfac(7)
-               nlfacl = nlcfac(7)
-               call xc_vwn_1_rpa(tol_rho,facl,lfacl,nlfacl,rho_t,
+               call xc_vwn_1_rpa(tol_rho,facl,rho_t,
      &                           dp81drho,lnq,ipol,egas,lqwght,
      &                           .false.,dummy)
             endif
 c
             if (abs(cfac(8)).gt.eps)then
                  facl = cfac(8)
-                lfacl = lcfac(8)
-               nlfacl = nlcfac(8)
-               call xc_vwn_1(tol_rho,facl,lfacl,nlfacl,rho_t,
+               call xc_vwn_1(tol_rho,facl,rho_t,
      &                       dp81drho,lnq,ipol,egas,lqwght,
      &                       .false.,dummy)
             endif
 c
             if (abs(cfac(9)).gt.eps)then
                  facl = cfac(9)
-                lfacl = lcfac(9)
-               nlfacl = nlcfac(9)
-               call xc_vwn_2(tol_rho,facl,lfacl,nlfacl,rho_t,
+               call xc_vwn_2(tol_rho,facl,rho_t,
      &                       dp81drho,lnq,ipol,egas,lqwght,
      &                       .false.,dummy)
             endif
 c
             if (abs(cfac(10)).gt.eps)then
                  facl = cfac(10)
-                lfacl = lcfac(10)
-               nlfacl = nlcfac(10)
-               call xc_vwn_3(tol_rho,facl,lfacl,nlfacl,rho_t,
+               call xc_vwn_3(tol_rho,facl,rho_t,
      &                       dp81drho,lnq,ipol,egas,lqwght,
      &                       .false.,dummy)
             endif
 c
             if (abs(cfac(11)).gt.eps)then
                  facl = cfac(11)
-                lfacl = lcfac(11)
-               nlfacl = nlcfac(11)
-               call xc_vwn_4(tol_rho,facl,lfacl,nlfacl,rho_t,
+               call xc_vwn_4(tol_rho,facl,rho_t,
      &                       dp81drho,lnq,ipol,egas,lqwght,
      &                       .false.,dummy)
             endif
