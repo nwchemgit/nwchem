@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.32 1998-10-05 21:03:29 windus Exp $
+* $Id: prp.F,v 1.33 1998-11-23 17:12:11 mdupuis Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -484,7 +484,6 @@ C
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_XYZDIP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,T,XC,YC,ZC,
      1              X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION XS(1),YS(1),ZS(1)
       DIMENSION SX(225),SY(225),SZ(225)
       DIMENSION DIJ(225)
@@ -720,7 +719,9 @@ C
       IF(IANDJ) JMAX=I
       DO 7500 J=MINJ,JMAX
       IJ=IJ+1
-      NN=IA(LOCI+I)+(LOCJ+J)
+      LOCII=LOCI+I
+      LOCJJ=LOCJ+J
+      NN=(LOCII*(LOCII-1))/2+LOCJJ
       XS(NN)=SX(IJ)
       YS(NN)=SY(IJ)
       ZS(NN)=SZ(IJ)
@@ -2255,7 +2256,6 @@ C
       COMMON/HND_XYZOTP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,
      1              XINTXX,YINTYY,ZINTZZ,XINXXX,YINYYY,ZINZZZ,
      2              T,XC,YC,ZC,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION XXXS(1),YYYS(1),ZZZS(1),XXYS(1),XXZS(1),YYXS(1),YYZS(1)
       DIMENSION ZZXS(1),ZZYS(1),XYZS(1)
       DIMENSION SXXX(225),SYYY(225),SZZZ(225)
@@ -2524,7 +2524,9 @@ C
       IF(IANDJ) JMAX=I
       DO 7500 J=MINJ,JMAX
       IJ=IJ+1
-      NN=IA(LOCI+I)+(LOCJ+J)
+      LOCII=LOCI+I
+      LOCJJ=LOCJ+J
+      NN=(LOCII*(LOCII-1))/2+LOCJJ
       XXXS(NN)=SXXX(IJ)
       YYYS(NN)=SYYY(IJ)
       ZZZS(NN)=SZZZ(IJ)
@@ -2819,7 +2821,6 @@ C
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_MLKPOP/CHGMLK(MXATOM)
       COMMON/HND_BFNATM/LIMLOW(MXATOM),LIMSUP(MXATOM)
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION X(1)
       EQUIVALENCE (X(1),DBL_MB(1))
       DIMENSION ZNUC(MXATOM)
@@ -3205,8 +3206,12 @@ C
             DUMS=ZERO
             DUM =ZERO
             DO K=1,NUM
-               IK=IA(MAX0(I,K))+MIN0(I,K)
-               KJ=IA(MAX0(K,J))+MIN0(K,J)
+               IKMAX=MAX0(I,K)
+               IKMIN=MIN0(I,K)
+               KJMAX=MAX0(K,J)
+               KJMIN=MIN0(K,J)
+               IK=(IKMAX*(IKMAX-1))/2+IKMIN
+               KJ=(KJMAX*(KJMAX-1))/2+KJMIN
                DUMS=DUMS+DS(IK)*S(KJ)
                DUM =DUM + D(IK)*S(KJ)
             ENDDO
@@ -3485,16 +3490,13 @@ C
       DO I=1,NORB
          DO J=1,NUM
 
-C           DUM=ZERO
-           DDUM=ZERO
+            DDUM=ZERO
             DO K=1,NUM
                JJ=MAX0(J,K)
                KK=MIN0(J,K)
-               JK=IA(JJ)+KK
-C              DUM=DUM+V(K,I)*S(JK)*V(J,I)
-              DDUM=DDUM+V(K,I)*S(JK)*V(J,I)
+               JK=(JJ*(JJ-1))/2+KK
+               DDUM=DDUM+V(K,I)*S(JK)*V(J,I)
             ENDDO
-C           T(J)=DUM
             T(J)=DDUM
 
          ENDDO
@@ -3685,7 +3687,7 @@ C
 C
       DO I=1,NAT
          DO J=1,I
-            IJ=IA(I)+J
+            IJ=(I*(I-1))/2+J
             B(IJ)=ZERO
          ENDDO
       ENDDO
@@ -3703,13 +3705,13 @@ C
                      DO L=J1,J2
                         KK=MAX0(K,L)
                         LL=MIN0(K,L)
-                        KL=IA(KK)+LL
+                        KL=(KK*(KK-1))/2+LL
                         DUM=DUM+A(KL)
                      ENDDO
                   ENDDO
                   II=MAX0(I,J)
                   JJ=MIN0(I,J)
-                  IJ=IA(II)+JJ
+                  IJ=(II*(II-1))/2+JJ
                   B(IJ)=DUM
                ENDIF
             ENDDO
@@ -3728,7 +3730,7 @@ C
          DO J=1,N
             II=MAX0(I,J)
             JJ=MIN0(I,J)
-            IJ=IA(II)+JJ
+            IJ=(II*(II-1))/2+JJ
             DUM=DUM+A(IJ)
          ENDDO
          B(I)=DUM
@@ -3894,7 +3896,7 @@ c%%
       COMMON/HND_OUTPUT/NPRINT
       DIMENSION CC(L1,M1),CL(L1,M1),DMAO(L2),IIR(L1)
       DIMENSION QPIX(L1),QPJX(L1)
-      DIMENSION IA(L1),B(L1,M1),IORD(L1),RI(L1,3),RIJ(M2,3)
+      DIMENSION IA(1),B(L1,M1),IORD(L1),RI(L1,3),RIJ(M2,3)
       DIMENSION IFRZ(1)
       DATA IDAR  /32/
       DATA FAC   /2.54176568D+00/
@@ -3938,7 +3940,7 @@ C
       DO 260 L = 1,NUM
       KK=MAX0(K,L)
       LL=MIN0(K,L)
-      KL=IA(KK)+LL
+      KL=(KK*(KK-1))/2+LL
   260 SUM = SUM+CC(K,I)*CC(L,J)*DMAO(KL)
       IF (I .EQ. J) RI(I,IXYZ) = SUM
       IF (I .NE. J) RIJ(MM,IXYZ) = SUM
@@ -4185,7 +4187,7 @@ C
       DO 1180 L = 1,NUM
       KK=MAX0(K,L)
       LL=MIN0(K,L)
-      KL=IA(KK)+LL
+      KL=(KK*(KK-1))/2+LL
       SUM = SUM + B(K,I)*B(L,I)*CL(KL,1)
  1180 CONTINUE
       RI(I,IXYZ) = SUM
@@ -4651,7 +4653,6 @@ C
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_XYZSTV/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      &                  NI,NJ
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION ELPOT(1),XYZPT(3,1),DAB(1)
       DIMENSION DIJ(225)
       DIMENSION XV(5,5,5),YV(5,5,5),ZV(5,5,5)
@@ -4881,7 +4882,10 @@ C
       DUM=DUM*(AA1*PI212)
       IJ=IJ+1
       DUM=DUM*DIJ(IJ)
-      DEN=DAB(IA(LOCI+I)+(LOCJ+J))
+      LOCII=LOCI+I
+      LOCJJ=LOCJ+J
+      IJDEN=(LOCII*(LOCII-1))/2+LOCJJ
+      DEN=DAB(IJDEN)
       IF(.NOT.IANDJ.OR.J.NE.I) DEN=DEN+DEN
       ELPOT(IPT)=ELPOT(IPT)+DUM*DEN
   440 CONTINUE
@@ -5194,7 +5198,6 @@ C
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION ELFLD(3,1),XYZPT(3,1),DAB(1)
       DIMENSION DIJ(225)
       DIMENSION IJX(35),IJY(35),IJZ(35)
@@ -5377,7 +5380,9 @@ C
   340 IF(NORM) DUM2=DUM2*SQRT3
   350 CONTINUE
 C
-      NN=IA(LOCI+I)+(LOCJ+J)
+      LOCII=LOCI+I
+      LOCJJ=LOCJ+J
+      NN=(LOCII*(LOCII-1))/2+LOCJJ
       DEN=DAB(NN)
       IF(.NOT.IANDJ.OR.J.NE.I) DEN=DEN+DEN
       IJ=IJ+1
@@ -5791,7 +5796,6 @@ C
       COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION W2(6),W4(6)
       DIMENSION XYZPT(3,1),ELFGR(6,1),DAB(1)
       DIMENSION DIJ(225)
@@ -5977,7 +5981,9 @@ C
   340 IF(NORM) DUM2=DUM2*SQRT3
   350 CONTINUE
 C
-      NN=IA(LOCI+I)+(LOCJ+J)
+      LOCII=LOCI+I
+      LOCJJ=LOCJ+J
+      NN=(LOCII*(LOCII-1))/2+LOCJJ
       DEN=DAB(NN)
       IF(.NOT.IANDJ.OR.J.NE.I) DEN=DEN+DEN
       IJ=IJ+1
@@ -6820,7 +6826,6 @@ C
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_XYZDEN/XINT,YINT,ZINT,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
-      COMMON/HND_IJPAIR/IA(1)
       DIMENSION ELDEN(1),XYZPT(3,NPT),DAB(1)
       DIMENSION DIJ(225)
       DIMENSION XIN(5,5),YIN(5,5),ZIN(5,5)
@@ -7034,9 +7039,11 @@ C
       JY=IJY(J)
       JZ=IJZ(J)
       IJ=IJ+1
-      NN=IA(LOCI+I)+(LOCJ+J)
       ELD=FAC*DIJ(IJ)*XIN(IX,JX)*YIN(IY,JY)*ZIN(IZ,JZ)
-      DEN=DAB(IA(LOCI+I)+(LOCJ+J))
+      LOCII=LOCI+I
+      LOCJJ=LOCJ+J
+      NN=(LOCII*(LOCII-1))/2+LOCJJ
+      DEN=DAB(NN)
       IF(.NOT.IANDJ.OR.J.NE.I) DEN=DEN+DEN
       ELDEN(IPT)=ELDEN(IPT)+ELD*DEN
   390 CONTINUE
@@ -11638,7 +11645,6 @@ c
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_basnum/num
-      common/hnd_ijpair/ia(mxnbf)
       common/hnd_nshel/ex(mxprim),cs(mxprim),cp(mxprim),
      1                 cd(mxprim),cf(mxprim),cg(mxprim),
      2                 kstart(mxshel),katom(mxshel),ktype(mxshel),
@@ -11694,9 +11700,6 @@ c
          write(iw,*) ' ... num    = ', num
       endif
 
-      do i=1,mxnbf
-         ia(i) = i*(i-1)/2 
-      enddo
 c
 c     ----- loop over atoms -----
 c
