@@ -338,4 +338,10 @@ continuous and well defined.  To do this specify
   set selci:update logical .false.
 \end{verbatim}
 
+\sction{Orbital locking in ci geometry optimization}
 
+The selected CI wavefunction is not invariant to orbital rotations or 
+to swapping two or more orbitals. Orbitals could be swapped or rotated
+when the geometry is changed in a geometry optimization step. The keyword 
+\verb#lock# has to be set in the SCF/MCSCF (vectors) input block to keep the
+orbitals in the same order throughout the geometry optimization.
