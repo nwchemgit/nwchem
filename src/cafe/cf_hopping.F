@@ -1,6 +1,7 @@
-      logical function cf_hopping(issgm,isgan,ishop,xs,nsaloc)
+      logical function cf_hopping(stime,issgm,isgan,ishop,
+     + xs,nsaloc,lfnhop)
 c
-c $Id: cf_hopping.F,v 1.6 2003-08-11 22:23:49 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.7 2003-08-18 17:35:31 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +14,9 @@ c
       external cf_hop
 c
       integer issgm(msa),nsaloc,isgan(msa),ishop(msa)
+      integer lfnhop
       real*8 xs(msa,3)
+      real*8 stime
 c
       integer i_itmp,l_itmp,i_dtmp,l_dtmp
 c
@@ -23,7 +26,8 @@ c
       if(.not.ma_push_get(mt_int,np,'itmp',l_itmp,i_itmp))
      + call errquit('Failed to allocate itmp',me)
 c
-      call cf_hoplist(int_mb(i_itmp),int_mb(i_lda),dbl_mb(i_rda))
+      call cf_hoplist(int_mb(i_itmp),int_mb(i_lda),dbl_mb(i_rda),
+     + lfnhop)
 c
       if(.not.ma_pop_stack(l_itmp))
      + call errquit('Failed to deallocate itmp',me)
@@ -36,9 +40,9 @@ c
       if(.not.ma_push_get(mt_int,nldat,'itmp',l_itmp,i_itmp))
      + call errquit('Failed to allocate itmp',me)
 c
-      cf_hopping=cf_hop(int_mb(i_lseq),issgm,
+      cf_hopping=cf_hop(stime,int_mb(i_lseq),issgm,
      + int_mb(i_lda),dbl_mb(i_rda),dbl_mb(i_uda),
-     + int_mb(i_itmp),dbl_mb(i_dtmp),isgan,ishop,xs,nsaloc)
+     + int_mb(i_itmp),dbl_mb(i_dtmp),isgan,ishop,xs,nsaloc,lfnhop)
 c
       if(.not.ma_pop_stack(l_itmp))
      + call errquit('Failed to deallocate itmp',me)
@@ -49,7 +53,7 @@ c
 c
       return
       end
-      subroutine cf_hoplist(nhopl,lda,rda)
+      subroutine cf_hoplist(nhopl,lda,rda,lfnhop)
 c
       implicit none
 c
@@ -60,6 +64,7 @@ c
 c
       integer nhopl(np)
       integer lda(10,*)
+      integer lfnhop
       real*8 rda(5,*)
 c
       integer i,j,ioff
@@ -126,8 +131,8 @@ c      endif
 ctest
       return
       end
-      logical function cf_hop(lseq,issgm,lda,rda,uda,ndx,pda,
-     + isgan,ishop,xs,nsaloc)
+      logical function cf_hop(stime,lseq,issgm,lda,rda,uda,ndx,pda,
+     + isgan,ishop,xs,nsaloc,lfnhop)
 c
       implicit none
 c
@@ -140,6 +145,8 @@ c
       integer lseq(mseq),issgm(msa)
       integer lda(10,*),nsaloc,isgan(msa),ishop(msa)
       real*8 rda(5,*),uda(4,*),pda(*),xs(msa,3),x(3)
+      real*8 stime
+      integer lfnhop
       integer ndx(*)
 c
       integer i,j,k,ndxrel
@@ -149,7 +156,7 @@ c
 c
       if(me.eq.0) then
       if(util_print('qhop',print_high)) then
-      write(*,110) 
+      write(lfnhop,110) 
   110 format(/,
      + ' QHOP  ----donor---   --acceptor-- ',
      + '     pre-hop energies        post-hop energies  ',/,
@@ -163,7 +170,7 @@ c
 c      pda(i)=0.0d0
 c
       if(util_print('qhop',print_high)) then
-      write(*,111) i,lda(1,i),lda(3,i),lseq(lda(3,i)),
+      write(lfnhop,111) i,lda(1,i),lda(3,i),lseq(lda(3,i)),
      + lda(6,i),lda(8,i),lseq(lda(8,i)),
      + (uda(j,i),j=1,4),rda(4,i),pda(i)
   111 format(7i5,5f12.6,f12.9)
@@ -190,8 +197,9 @@ c
       dprob=pda(ndx(i))
 c      write(*,'(a,2f12.6)') 'RAND/PROB ',drand,dprob
       if(drand.lt.dprob) then
-      write(*,'(/,a,i5,a,i5,/)') ' PROTON HOP FROM ',lda(3,ndx(i)),
-     + ' TO ',lda(8,ndx(i))
+      write(lfnhop,'(/,a,i5,a,i5,a,f12.6/)')
+     + ' PROTON HOP FROM ',lda(3,ndx(i)),' TO ',lda(8,ndx(i)),
+     + ' AT TIME ',stime
       pda(ndx(i))=1.0d0
       do 6 j=i+1,nldat
       if(lda(3,ndx(i)).eq.lda(3,ndx(j))) pda(ndx(j))=0.0d0
@@ -262,11 +270,3 @@ c
 c
       return
       end
-
-
-
-
-
-
-
-

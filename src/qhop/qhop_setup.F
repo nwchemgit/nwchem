@@ -1,16 +1,15 @@
-      subroutine qhop_setup(lfnhdb,lfnhop,filhop,
+      subroutine qhop_setup(lfnhdb,lfntop,
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.6 2003-08-12 11:38:42 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.7 2003-08-18 17:35:32 d3j191 Exp $
 c
       implicit none
 c
 #include "qhop_common.fh"
 #include "mafdecls.fh"
 c
-      integer lfnhdb,lfnhop,matm,natm,mseq,nseq,nparms,mparms
-      character*255 filhop
+      integer lfnhdb,lfntop,matm,natm,mseq,nseq,nparms,mparms
       character*10 cseq(mseq)
       character*6 catm(mparms,matm)
       integer latm(11,matm),lseq(6,mseq)
@@ -21,7 +20,7 @@ c
       integer lang(5,mang)
       real*8 rang(nparms,2,mang)
 c
-      call qhop_setup2(lfnhdb,lfnhop,filhop,
+      call qhop_setup2(lfnhdb,lfntop,
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang,
      + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
@@ -32,13 +31,13 @@ c
 c
       return
       end
-      subroutine qhop_setup2(lfnhdb,lfnhop,filhop,
+      subroutine qhop_setup2(lfnhdb,lfntop,
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang,
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_setup.F,v 1.6 2003-08-12 11:38:42 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.7 2003-08-18 17:35:32 d3j191 Exp $
 c
       implicit none
 c
@@ -67,8 +66,7 @@ c     nbnd            : number of bonds
 c     lbnd(1,1:nbnd)  : atom index i
 c     lbnd(2,1:nbnd)  : atom index j
 c
-      integer lfnhdb,lfnhop,matm,natm,mseq,nseq,nparms,mparms
-      character*255 filhop
+      integer lfnhdb,lfntop,matm,natm,mseq,nseq,nparms,mparms
       character*10 cseq(mseq)
       character*6 catm(mparms,matm)
       integer latm(11,matm),lseq(6,mseq)
@@ -108,11 +106,9 @@ c      real*8 deq(mxar),aneq(mxar)
 c      real*8 e12fxy(maxpar,3),defe12(maxpar,7),zpef(maxpar,6),
 c     + tdsgl(maxpar,6),tunnel(maxpar,7),tstval(maxpar,5) 
 c
-c      print*,'QHOP_SETUP',filhop(1:index(filhop,' ')-1)
 c
       fileinp='qhop.par'
       open(unit=lfnhdb,file=fileinp(1:index(fileinp,' ')-1),err=112)
-      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),err=113)      
 c
 c     Initializing variables
 c
@@ -370,16 +366,16 @@ c     MANCA UN CONTROLLO SUI NUMERI CHE LEGGE SUI PROT STATES
       ptpar(numpar)=lshift(i,shbit(5))+lshift(k,shbit(4))+
      + lshift(prtin(1),shbit(3))+lshift(j,shbit(2))+
      + lshift(l,shbit(1))+prtin(2) 
-c      write(lfnhop,1030) cseqin(1),chvin(1),prtin(1),cseqin(2),chvin(2)
+c      write(lfntop,1030) cseqin(1),chvin(1),prtin(1),cseqin(2),chvin(2)
 c     + ,prtin(2),ptpar(numpar)
 c 1030 format(a10,a6,i3,10x,a10,a6,i3,i10)
-c      write(lfnhop,1009) i,k,prtin(1),j,l,prtin(2)
-c      write(lfnhop,1003)(e12fxy(numpar,m),m=1,3)     	
-c      write(lfnhop,1004)(defe12(numpar,m),m=1,7)
-c      write(lfnhop,1005)(zpef(numpar,m),m=1,6)
-c      write(lfnhop,1006)(tdsgl(numpar,m),m=1,6)
-c      write(lfnhop,1007)(tunnel(numpar,m),m=1,7)
-c      write(lfnhop,1008)(tstval(numpar,m),m=1,5)
+c      write(lfntop,1009) i,k,prtin(1),j,l,prtin(2)
+c      write(lfntop,1003)(e12fxy(numpar,m),m=1,3)     	
+c      write(lfntop,1004)(defe12(numpar,m),m=1,7)
+c      write(lfntop,1005)(zpef(numpar,m),m=1,6)
+c      write(lfntop,1006)(tdsgl(numpar,m),m=1,6)
+c      write(lfntop,1007)(tunnel(numpar,m),m=1,7)
+c      write(lfntop,1008)(tstval(numpar,m),m=1,5)
  1009 format(3i7,5x,3i7)
       else
 c     ERR HEAVY ATOM2 NOT FIND 
@@ -400,44 +396,44 @@ c
       if(ptseq(i,1).ne.0)nuseq=nuseq+1
     9 continue
 c
-      write(lfnhop,1014) numseq,larat,numpar,nseq
+      write(lfntop,1013)
+ 1013 format('qhop')
+      write(lfntop,1014) numseq,larat,numpar,nseq
  1014 format(2i5,i10,i5)
-      write(lfnhop,1025) (shbit(i),i=1,5)
+      write(lfntop,1025) (shbit(i),i=1,5)
  1025 format(5i5)
 c
       do 11 i=1,nseq
-      write(lfnhop,1010) i,cseq(i),(ptseq(i,j),j=1,2)
+      write(lfntop,1010) i,cseq(i),(ptseq(i,j),j=1,2)
  1010 format(i5,1x,a10,2i5)
    11 continue
 c
       do 21 i=1,numseq
-      write(lfnhop,1020) i,cuseq(i),ptarat(i)
+      write(lfntop,1020) i,cuseq(i),ptarat(i)
  1020 format(i5,1x,a10,1x,i5)
    21 continue
 c
       do 22 i=1,larat
-      write(lfnhop,1021) i,(arat(i,j),j=1,4), deq(i),aneq(i)  
+      write(lfntop,1021) i,(arat(i,j),j=1,4), deq(i),aneq(i)  
  1021 format(i5,4i4,2f8.4)
    22 continue
 c
       do 10 i=1,numpar 
-      write(lfnhop,1015)ptpar(i)
-      write(lfnhop,1003)(e12fxy(i,m),m=1,3)     	
-      write(lfnhop,1004)(defe12(i,m),m=1,7)
-      write(lfnhop,1005)(zpef(i,m),m=1,6)
-      write(lfnhop,1006)(tdsgl(i,m),m=1,6)
-      write(lfnhop,1007)(tunnel(i,m),m=1,7)
-      write(lfnhop,1008)(tstval(i,m),m=1,5)
+      write(lfntop,1015)ptpar(i)
+      write(lfntop,1003)(e12fxy(i,m),m=1,3)     	
+      write(lfntop,1004)(defe12(i,m),m=1,7)
+      write(lfntop,1005)(zpef(i,m),m=1,6)
+      write(lfntop,1006)(tdsgl(i,m),m=1,6)
+      write(lfntop,1007)(tunnel(i,m),m=1,7)
+      write(lfntop,1008)(tstval(i,m),m=1,5)
    10 continue  
  1015 format(i10)
 c
       close(lfnhdb)
-      close(lfnhop)         
+c      close(lfntop)         
       return
 c
   112 write(*,1030) 'err opening input file'
  1030 format(a40)
-      return
-  113 write(*,1030) 'err opening output file'
       return
       end

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.168 2003-08-18 15:54:21 d3j191 Exp $
+c $Id: md_main.F,v 1.169 2003-08-18 17:35:29 d3j191 Exp $
 c
       implicit none
 c
@@ -2198,8 +2198,8 @@ c
     1 continue
 c
       if(.not.ldone) then
-      if(cf_hopping(isl(1,lssgm),isl(1,lsgan),isl(1,lshop),xs,nsaloc))
-     + then
+      if(cf_hopping(stime,isl(1,lssgm),isl(1,lsgan),isl(1,lshop),
+     + xs,nsaloc,lfnhop)) then
       if(lpair) then
       lpair=.false.
       lforce=.true.
@@ -2598,7 +2598,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.168 2003-08-18 15:54:21 d3j191 Exp $
+c $Id: md_main.F,v 1.169 2003-08-18 17:35:29 d3j191 Exp $
 c
       implicit none
 c

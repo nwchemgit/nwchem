@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.43 2003-08-12 11:24:30 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.44 2003-08-18 17:35:26 d3j191 Exp $
 c
       implicit none
 c
@@ -476,7 +476,7 @@ c
       endif
 c
       if(itopol.eq.3) then
-      call qhop_setup(lfnhdb,lfnhop,filhop,
+      call qhop_setup(lfnhdb,lfntop,
      + mparms,ipnum,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
       lqhopmem=.true.

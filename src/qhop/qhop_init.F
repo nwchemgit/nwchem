@@ -1,6 +1,6 @@
-      subroutine qhop_init(lfnhop,filhop,lfnout,me)
+      subroutine qhop_init(lfntop,filtop,lfnout,me)
 c
-c $Id: qhop_init.F,v 1.2 2003-08-11 19:43:18 d3j191 Exp $
+c $Id: qhop_init.F,v 1.3 2003-08-18 17:35:32 d3j191 Exp $
 c
       implicit none
 c
@@ -9,20 +9,27 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer lfnhop,lfnout,me
-      character*255 filhop
+      integer lfntop,lfnout,me
       integer i,numbi,numbd,idata(9)
+      character*255 filtop
+      character*4 string
 c
       if(me.eq.0) then
 c
-      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1))
-c
 c     reading in the qhop par files
 c
-      read(lfnhop,1011) mxseq,mxar,maxpar,maxseq
+      open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
+     + form='formatted',status='old',err=9999)
+      rewind(lfntop)
+   99 continue
+      read(lfntop,1001,end=9999,err=9999) string
+ 1001 format(a4)
+      if(string(1:4).ne.'qhop') goto 99
+c
+      read(lfntop,1011) mxseq,mxar,maxpar,maxseq
  1011 format(2i5,i10,i5)
 c
-      read(lfnhop,1025) (shbit(i),i=1,5)
+      read(lfntop,1025) (shbit(i),i=1,5)
  1025 format(5i5)
 c
       endif
@@ -59,12 +66,14 @@ c
       if(.not.ma_push_get(mt_dbl,31*maxpar,'par',l_par,i_par))
      + call errquit('Failed to allocate par',0)
 c
-      call qhop_init2(lfnhop,filhop,lfnout,me,
+      call qhop_init2(lfntop,lfnout,me,
      + int_mb(i_ptseq),int_mb(i_ptarat),int_mb(i_iarat),
      + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
      + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
      + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
      + dbl_mb(i_par+28*maxpar))
+c
+      close(unit=lfntop)
 c
 c     broadcast parameters to all processors
 c     --------------------------------------
@@ -87,12 +96,14 @@ c     + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
 c     + dbl_mb(i_par+28*maxpar))
 c
       return
+ 9999 call errquit('Error reading qhop data from topology file',me)
+      return
       end
-      subroutine qhop_init2(lfnhop,filhop,lfnout,me,
+      subroutine qhop_init2(lfntop,lfnout,me,
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_init.F,v 1.2 2003-08-11 19:43:18 d3j191 Exp $
+c $Id: qhop_init.F,v 1.3 2003-08-18 17:35:32 d3j191 Exp $
 c
       implicit none
 c
@@ -119,7 +130,7 @@ c                       - protonatable hydrogen, relative index to heavy atom
 c     lseq(5,1:nseq)  : number of protonation states of residue
 c     lseq(6,1:nseq)  : current protonation state of residue
 c
-      integer i,j,ipar,numpar,larat,numseq,nseq,lfnhop,lfnout,me
+      integer i,j,ipar,numpar,larat,numseq,nseq,lfntop,lfnout,me
 c
       real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
      + tdsgl(maxpar,6),tstval(maxpar,5),e12fxy(maxpar,3)
@@ -128,54 +139,56 @@ c
 c
       integer seqin(2),hvin(2),prtin(2)	 
       character*10 dummy
-      character*255 filhop
 c
       integer numbi,numbd,numb
+      character*4 string
 c
       if(me.eq.0) then
 c
-c      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),err=112)
-c
-      rewind(lfnhop)
+      rewind(lfntop)
+   99 continue
+      read(lfntop,1000,end=9999,err=9999) string
+ 1000 format(a4)
+      if(string(1:4).ne.'qhop') goto 99
 c
 c     reading in the qhop par files
 c
-      read(lfnhop,1011) numseq,larat,numpar,nseq
+      read(lfntop,1011) numseq,larat,numpar,nseq
  1011 format(2i5,i10,i5)
 c
-      read(lfnhop,1025) (shbit(i),i=1,5)
+      read(lfntop,1025) (shbit(i),i=1,5)
  1025 format(5i5)
 c
       do 1 i=1,nseq
-      read(lfnhop,1010) j,dummy,(ptseq(i,j),j=1,2)
+      read(lfntop,1010) j,dummy,(ptseq(i,j),j=1,2)
  1010 format(i5,1x,a10,2i5)
     1 continue
 c
       do 2 i=1,numseq
-      read(lfnhop,1020) j,dummy,ptarat(i)
+      read(lfntop,1020) j,dummy,ptarat(i)
  1020 format(i5,1x,a10,1x,i5)
     2 continue
 c
       do 3 i=1,larat
-      read(lfnhop,1021) j,(arat(i,j),j=1,4), deq(i),aneq(i)  
+      read(lfntop,1021) j,(arat(i,j),j=1,4), deq(i),aneq(i)  
  1021 format(i5,4i4,2f8.4)
     3 continue
 c
       do 4 ipar=1,numpar 
-      read(lfnhop,1001)ptpar(ipar)
+      read(lfntop,1001)ptpar(ipar)
  1001 format(i10)
 c       
-      read(lfnhop,1003) (e12fxy(ipar,i),i=1,3)
+      read(lfntop,1003) (e12fxy(ipar,i),i=1,3)
  1003 format(3f12.6)
-      read(lfnhop,1004) (defe12(ipar,i),i=1,7)
+      read(lfntop,1004) (defe12(ipar,i),i=1,7)
  1004 format(3f12.6,f8.4,2f12.6,f12.8)
-      read(lfnhop,1005) (zpef(ipar,i),i=1,6)
+      read(lfntop,1005) (zpef(ipar,i),i=1,6)
  1005 format(6f12.6)
-      read(lfnhop,1006) (tdsgl(ipar,i),i=1,6)
+      read(lfntop,1006) (tdsgl(ipar,i),i=1,6)
  1006 format(6f12.6)
-      read(lfnhop,1007) (tunnel(ipar,i),i=1,7)
+      read(lfntop,1007) (tunnel(ipar,i),i=1,7)
  1007 format(f8.2,f8.3,f10.5,e12.3,f10.5,2e12.3)
-      read(lfnhop,1008) (tstval(ipar,i),i=1,5)
+      read(lfntop,1008) (tstval(ipar,i),i=1,5)
  1008 format(f10.2,2f10.4,f10.6,f10.4) 
       write(lfnout,1009)ptpar(ipar)
  1009 format(i10)
@@ -187,14 +200,14 @@ c
       write(lfnout,1008)(tstval(ipar,i),i=1,5)
     4 continue
 c
-      close(lfnhop)
-c
       endif
 c
       return
   112 call errquit('err opening input file',0)
       return
   113 call errquit( 'err opening output file',0)
+      return
+ 9999 call errquit('Error reading qhop data from topology file',me)
       return
       end
       subroutine qhop_test(lfnout,me,

@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.33 2003-07-23 20:37:32 d3j191 Exp $
+c $Id: md_finish.F,v 1.34 2003-08-18 17:35:29 d3j191 Exp $
 c
       implicit none
 c
@@ -100,6 +100,9 @@ c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       close(unit=lfntrj,status='keep')
+      endif
+      if(nfhop.gt.0) then
+      close(unit=lfnhop,status='keep')
       endif
       if(nfprop.gt.0) then
       close(unit=lfnprp,status='keep')

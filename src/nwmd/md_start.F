@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.146 2003-08-08 15:11:38 d3j191 Exp $
+c $Id: md_start.F,v 1.147 2003-08-18 17:35:29 d3j191 Exp $
 c
       implicit none
 c
@@ -47,7 +47,7 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
-     + nseq,i_lseq,nfhop,rhop,lfnhop,filhop,ndums,ipbtyp)
+     + nseq,i_lseq,nfhop,rhop,ndums,ipbtyp,lfnhop)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -332,7 +332,7 @@ c
       filcmd=filnam(1:ibl)//'.cmd'
       filtri=filnam(1:ibl)//'.tri'
       filpmf=filnam(1:ibl)//'.pmf'
-      filhop=filnam(1:iun)//'.hop'
+      filhop=filnam(1:ibl)//'.hop'
 c
 c     set logical file numbers
 c
@@ -1256,6 +1256,10 @@ c
       if(ntype.ne.3) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(nfhop.gt.0) then
+      open(unit=lfnhop,file=filhop(1:index(filhop,' ')-1),
      + form='formatted',status='unknown')
       endif
       if(nfprop.gt.0) then

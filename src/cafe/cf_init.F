@@ -5,9 +5,9 @@
      + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
-     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,lfnhop,filhop,
-     + ndumsi,ipbtpi)
-c $Id: cf_init.F,v 1.92 2003-08-18 15:54:23 d3j191 Exp $
+     + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,ndumsi,ipbtpi,
+     + lfnhop)
+c $Id: cf_init.F,v 1.93 2003-08-18 17:35:31 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,8 +15,8 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop,lfnhop,irtdbi
-      character*(*) filtop,filhop
+      integer lfntop,irtdbi,lfnhop
+      character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq,rhopi
@@ -358,7 +358,7 @@ c
 c
 c     initialize QHOP parameters
 c
-      if(nfhop.gt.0) call qhop_init(lfnhop,filhop,6,me)
+      if(nfhop.gt.0) call qhop_init(lfntop,filtop,lfnhop,me)
 c
       nsfi=nsf
       nbiasi=nbias
