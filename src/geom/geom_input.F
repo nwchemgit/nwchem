@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.52 1997-02-27 21:39:26 mdupuis Exp $
+C     $Id: geom_input.F,v 1.53 1997-02-27 23:42:14 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -926,6 +926,7 @@ c
       logical      geom_tag_to_element
       logical      geom_atn_to_default_mass
       logical      geom_zmt_put_izmat          
+      logical      geom_usr_put_izmat          
       logical      dbug 
       logical      some 
       double precision zmat
@@ -945,6 +946,7 @@ c
       external     geom_tag_to_element
       external     geom_atn_to_default_mass
       external     geom_zmt_put_izmat          
+      external     geom_usr_put_izmat          
 c
       dbug=.false.
       some=.true.
@@ -979,6 +981,8 @@ c     ----- store -izmat- for -nwchem- -----
 c
       if(.not.geom_zmt_put_izmat(izmat,nizmat))
      1   call errquit('geom_input: geom_zmt_put_izmat failed', 0)
+      if(.not.geom_usr_put_izmat(izmat,nizmat))
+     1   call errquit('geom_input: geom_usr_put_izmat failed', 0)
       if(dbug) then
          write(iw,9994)
          write(iw,9997)
@@ -1048,6 +1052,38 @@ c
       end do
 c
       geom_zmt_get_izmat=.true.
+      return
+      end
+      logical function geom_usr_put_izmat(izmat,nizmat)
+      implicit none
+#include "geomP.fh"
+c    
+      integer nizmat
+      integer izmat
+      integer i
+      dimension izmat(*)
+c
+      do i = 1, nizmat
+         usr_izmat(i) = izmat(i)
+      end do
+c
+      geom_usr_put_izmat=.true.
+      return
+      end
+      logical function geom_usr_get_izmat(izmat,nizmat)
+      implicit none
+#include "geomP.fh"
+c    
+      integer nizmat
+      integer izmat
+      integer i
+      dimension izmat(*)
+c
+      do i = 1, nizmat
+         izmat(i) = usr_izmat(i)
+      end do
+c
+      geom_usr_get_izmat=.true.
       return
       end
       logical function geom_zmt_put_zmat(zmat,nzmat)          
@@ -1801,8 +1837,8 @@ C
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtdat/zmat(mxcoor),izmat(mxizmt),nizmat
+      common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_zmtopt/ifzmat,natzmt
       dimension errmsg(3)
       data errmsg /'program ','stop in ','-icoord-'/
@@ -2266,9 +2302,9 @@ C
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_MOLNUC/NUC(MXATOM)
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
-      COMMON/HND_ZMTOUT/IPRZMT
       COMMON/HND_ZMTOPT/IFZMAT,NATZMT          
       COMMON/HND_ZMTDAT/ZMAT(MXCOOR),IZMAT(MXIZMT),NIZMAT
+      COMMON/HND_ZMTOUT/IPRZMT
       DIMENSION SIJ(MXNIJS),IJS(2,MXNIJS)
       DIMENSION A(3,NA)
       DIMENSION ERRMSG(3)
