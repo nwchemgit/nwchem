@@ -1,0 +1,21 @@
+#!/bin/csh
+
+#
+# Simple shell script that figures out the dependecies of
+# .F files on .fh files in the current directory.
+# Spews to standard output th dependencies of .o files
+# suitable for a makefile
+#
+
+ls *.fh >& /dev/null
+
+if ($status) exit 0
+
+foreach file (*.fh)
+
+   set a = (`grep -l $file *.F | sed -e 's/\.F/\.o/'`)
+
+   if ($#a) echo "${a[*]}:	" $file
+
+end
+      
