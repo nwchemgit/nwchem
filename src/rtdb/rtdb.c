@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.13 1999-11-13 03:02:22 bjohnson Exp $*/
+/*$Id: rtdb.c,v 1.14 2001-05-10 00:22:35 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -66,9 +66,9 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
   node 0 to all other nodes
 */
 {
-  long len = MA_sizeof(ma_type, nelem, MT_CHAR);
-  long from = 0;
-  long type = msg_type;
+  Integer len = MA_sizeof(ma_type, nelem, MT_CHAR);
+  Integer from = 0;
+  Integer type = msg_type;
   ga_brdcst_(&type, (char *) data, &len, &from);
 }
 
