@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.25 2002-01-18 10:29:16 bjohnson Exp $
+c$Id: xc_hcth.F,v 1.26 2002-01-18 17:51:07 edo Exp $
 c
       Implicit none
 c
@@ -110,7 +110,7 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.25 2002-01-18 10:29:16 bjohnson Exp $
+c$Id: xc_hcth.F,v 1.26 2002-01-18 17:51:07 edo Exp $
 c
       Implicit none
 c
@@ -168,7 +168,7 @@ c
 c
 c     Free temporary storage allocated by xc_setup_fd
 c
-      if (.not.ma_pop_stack(l_storage))
+      if (.not.ma_free_heap(l_storage))
      &     call errquit('xc_hcth_d2: cannot pop stack',0)
 c
       return
