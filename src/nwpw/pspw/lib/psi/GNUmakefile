@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2002-06-25 19:51:26 bylaska Exp $
+# $Id: GNUmakefile,v 1.10 2002-07-17 16:53:34 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -26,7 +26,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psi.F geodesic.F geodesic2.F Grassman.F dipole.F psi_history.F
+    USES_BLAS = psi.F geodesic.F geodesic2.F Grassman.F dipole.F psi_history.F skew.F
 
   LIB_DEFINES = 
 
