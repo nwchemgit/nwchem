@@ -75,7 +75,7 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 	bfacaPlot.setTitle("Atomic B factor");
 	bfacrPlot.setTitle("Segment B Factor");
 	rmsrPlot.setBars(1.0,0.0);
-	rmsPlot.setSize(700,300);
+	rmsPlot.setSize(500,300);
 	rmsaPlot.setSize(350,300);
 	rmsrPlot.setSize(350,300);
 	bfacaPlot.setSize(350,300);
