@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.47 2002-04-02 16:06:21 edo Exp $
+$Id: INSTALL,v 1.48 2002-04-03 17:31:24 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -337,8 +337,10 @@ C) cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem /usr/local/NW
 
 D) cd $NWCHEM_TOP/src/basis 
    cp -r libraries /usr/local/NWChem/data
-   cd $NWCHEM_TOP/src/nwadata
-   cp -r * /usr/local/NWChem/data
+   cd $NWCHEM_TOP/src/
+   cp -r data /usr/local/NWChem/data
+   cd $NWCHEM_TOP/src/nwpw/libraryps
+   cp -r library1 /usr/local/NWChem/data
 
 E) Each user will need a .nwchemrc file to point to these default data
    files.  A global one could be put in /usr/local/NWChem/data and a
@@ -353,11 +355,19 @@ F) Contents of the default.nwchemrc file based on the above
    nwchem_basis_library /usr/local/NWChem/data/libraries/
    ffield amber
    amber_s /usr/local/NWChem/data/amber/amber_s/
+   amber_x /usr/local/NWChem/data/amber/amber_x/
    spce /usr/local/NWChem/data/solvents/spce.rst
    charmm_s /usr/local/NWChem/data/charmm/charmm_s/
+   charmm_x /usr/local/NWChem/data/charmm/charmm_x/
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
+
+G)  Please note that the .nwchemrc does not handle the pseudopotential
+   libraries used in the planewave part of the code.  The user will
+   need to set an environment variable, NWCHEM_NWPW_LIBRARY, to the
+   appropriate location.  For example:
+   setenv NWCHEM_NWPW_LIBRARY /usr/local/lib/NWChem/data/library1/
 
 
 BUILDING WITH MPI:
