@@ -9,6 +9,8 @@
            gauleg.o solver.o vsint.o dgels.o pot_shell.o  fastj_direct.o \
            fastj_range.o
 
+  USES_BLAS = potential.F cart_trans.f fmm.F pot_shell.F 
+
 ifdef TESTING
   OBJ += $(OPTIM)
 else
