@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.6 1995-12-23 02:15:11 pg481 Exp $
+c $Id: texas_hf.F,v 1.7 1996-01-05 18:11:22 pg481 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -314,7 +314,6 @@ c
 c--------------------------------------------------------
       nqrtpnl=nquart
       nsupblk=nbl2*(nbl2+1)/2
-      ncspair=ncs*(ncs+1)/2
 c--------------------------------------------------------
 c find texas-shells corresponding to the given set of pnl-shells.
 c
