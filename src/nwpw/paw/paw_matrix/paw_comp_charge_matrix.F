@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge_matrix.F,v 1.3 2003-02-08 03:38:35 bylaska Exp $
+* $Id: paw_comp_charge_matrix.F,v 1.4 2003-02-09 21:52:34 marat Exp $
 *
 !**************************************************
 !
@@ -42,8 +42,8 @@
       do it=1,tot_ntype
         nbasis = paw_basis_nbasis(it)
         mult_l  = paw_basis_mult_l(it)
-        int_mb(s_comp_charge_matrix(1) + it - 1) = nbasis**2*(mult_l+1)                  
-        matr_size = matr_size + int_mb(s_comp_charge_matrix(1) + it - 1)                
+        int_mb(s_comp_charge_matrix(1) + it - 1) = nbasis**2*(mult_l+1) 
+        matr_size = matr_size + int_mb(s_comp_charge_matrix(1) + it - 1)
       end do
   
       !*** set the indexing to access diff atom types ***
