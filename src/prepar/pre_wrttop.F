@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.42 2003-07-23 02:38:47 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.43 2003-08-12 11:24:30 d3j191 Exp $
 c
       implicit none
 c
@@ -479,6 +479,7 @@ c
       call qhop_setup(lfnhdb,lfnhop,filhop,
      + mparms,ipnum,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
+      lqhopmem=.true.
       endif
 c
       close(unit=lfntop)

@@ -2,7 +2,7 @@
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.4 2003-08-12 11:12:29 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.5 2003-08-12 11:24:31 d3j191 Exp $
 c
       implicit none
 c
@@ -43,8 +43,6 @@ c
       if(.not.ma_push_get(mt_dbl,31*maxpar,'par',l_par,i_par))
      + call errquit('Failed to allocate par',0)
 c
-      lqhopmem=.true.
-c
       call qhop_setup2(lfnhdb,lfnhop,filhop,
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang,
@@ -62,7 +60,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_setup.F,v 1.4 2003-08-12 11:12:29 d3j191 Exp $
+c $Id: qhop_setup.F,v 1.5 2003-08-12 11:24:31 d3j191 Exp $
 c
       implicit none
 c
