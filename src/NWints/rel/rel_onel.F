@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.10 2000-04-26 17:46:52 mg201 Exp $
+C $Id: rel_onel.F,v 1.11 2000-04-26 21:13:00 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for
@@ -121,7 +121,6 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       if (.not.(do_nw .or. do_hnd)) call errquit
      &    ('rel_onel: can''t do NW or HONDO integrals',99)
 *
-      debug_gen = .not.DryRun
       if (debug_gen) then
         write (LuOut,*)
         write (LuOut,*) 'rel_onel: ibug =',ibug
@@ -133,7 +132,6 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
           write (LuOut,*) 'Using NWChem integrals'
         end if
       end if
-      debug_gen = .false.
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
