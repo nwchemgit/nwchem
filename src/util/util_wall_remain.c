@@ -1,5 +1,5 @@
 /*
- $Id: util_wall_remain.c,v 1.10 1999-11-13 03:22:42 bjohnson Exp $
+ $Id: util_wall_remain.c,v 1.11 2002-10-18 01:39:03 edo Exp $
 */
 #include <stdio.h>
 #include "typesf2c.h"
@@ -13,7 +13,7 @@
 /* util_batch_job_time_remaining returns the wall time (>=0) in seconds
    remaining for job execution, or -1 if no information is available */
 
-#if (defined(SP1) && defined(JOBTIMEPATH))
+#if (defined(SP1) && defined(JOBTIMEPATH)) || defined(LSF)
 #define DONEIT 1  
 
 #include <unistd.h>
@@ -25,7 +25,11 @@ Integer FATR util_batch_job_time_remaining_(void)
   char cmd[1024];
   int t, status;
 
+#ifdef LSF
+  sprintf(cmd,"%s/jobtime_lsf",JOBTIMEPATH);
+#else
   sprintf(cmd,"%s/jobtime",JOBTIMEPATH);
+#endif
 
   if (access(cmd,F_OK|X_OK)) {	/* If cannot access perl script */
     /*(void) fprintf(stderr,"ujtr: cannot access %s\n",cmd);*/

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.151 2002-08-22 17:22:54 edo Exp $
+# $Id: GNUmakefile,v 1.152 2002-10-18 01:39:03 edo Exp $
 
 include ../config/makefile.h
 
@@ -195,6 +195,10 @@ ifeq ($(TARGET),SGITFP)
    OBJ += sgi_flush6.o
 DEFINES += -DNOSOCKLEN
 endif
+ifdef LSF
+DEFINES += -DLSF
+  LIB_ALSO_BUILD = $(BINDIR)/jobtime_lsf $(BINDIR)/jobtime_lsf.pl
+endif
 
 include ../config/makelib.h
 
@@ -243,3 +247,10 @@ $(BINDIR)/jobtime.pl:	jobtime.pl
 	/bin/cp $^ $@
 endif
 
+ifdef LSF
+$(BINDIR)/jobtime_lsf:	jobtime_lsf
+	/bin/cp $^ $@
+
+$(BINDIR)/jobtime_lsf.pl:	jobtime_lsf.pl
+	/bin/cp $^ $@
+endif
