@@ -1,0 +1,30 @@
+for the gradient the full vector is 3*nat where nat is the number of
+atoms.  
+
+for the overlap and kinetic energy gradient integrals their dimension
+is (3,2,nint) since they only contribute to two atoms.  If you use
+translational invariance the dimension is (3,nint).  dI/dAx = dI/dBx.
+IFF A=B then these integrals vanish.  
+
+For the potential integrals the dimension is (3,nat,nint) since there
+is an electric field contribution from every basis function
+pair. (3,nat-1,nint) using TRanslational invariance.
+
+For 2 electron gradient integrals There are 12 total gradient
+integrals (4 centers, xyz).  Using Translational invariance you need
+only compute 9.
+
+
+Now the harder part for the hessian (3,nat,3,nat) matrix the 
+1 electron overlap 
+
+The second derivative api will look like this
+
+intdd_1e_h1(i_basis,ish,j_basis,jsh,lscr,scr,lH1aa,H1aa)
+
+i_basis, j_basis are respective basis sets
+ish, jsh, are the lexical shell indicies for the contribution to H1aa
+lscr, scr are the length of the scratch array and the scratch array
+lH1aa is the length of the H1aa buffer
+H1aa is the buffer of integrals being returned. 
+
