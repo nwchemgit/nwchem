@@ -37,15 +37,18 @@ following format;
 The \verb+START+ directive indicates that the calculation is one in
 which the database is to be created.  Any relevent information that
 already exists in a previous database of the same name is destroyed.
-The string variable{\tt <file\_prefix>} will be used as the prefix
+The string variable {\tt <file\_prefix>} will be used as the prefix
 when naming any files created in the course of the calculation.  If
 the user does not specify an entry for {\tt <file\_prefix>} on the
 \verb+START+ directive (or omits the \verb+START+ directive
 altogether), the code uses the basename of the input file as the file
-prefix (i.e., the name of the input file with any directory
-information and the last ``dot-prefix'' removed.  E.g., the input file
+prefix.  That is, the variable {\tt <file\_prefix>} is assigned
+the name of the input file, with any directory
+information and the last "dot-prefix" removed.  For example,
+the input file
 name \verb+/home/dave/job.2.in+ yields \verb+job.2+ as the file
-prefix.).
+prefix, if a name is not assigned explicitly using the \verb+START+
+directive.
 
 The user also has the option of
 specifying a unique name for the database, using the keyword {\tt
@@ -90,12 +93,12 @@ To summarize the default options for this start-up directive, if the
 input file does {\em not} contain a \verb+START+ or a \verb+CONTINUE+ or a
 \verb+RESTART+ directive, then
 \begin{itemize}
-  \item the variable {\tt <file prefix>} is assigned the name of the 
+  \item the variable {\tt <file\_prefix>} is assigned the name of the 
 input file for the job, without the suffix (which is usually \verb+.nw+)
   \item the variable {\tt <rtdb\_file\_name>} is assigned the default name,
-\verb+$file\_prefix$.db+
+\verb+$file_prefix$.db+
 \end{itemize}
-If the database with name \verb+$file\_prefix$.db+ does {\it not} 
+If the database with name \verb+$file_prefix$.db+ does {\it not} 
 exist already,
 the calculation is carried out as if a \verb+START+ directive had
 been encountered.  If the database with name \verb+$file\_prefix$.db+
@@ -140,7 +143,7 @@ NWChem distinguishes between permanent (or persistent) files and
 scratch (or temporary) files, and allows the user the option of
 putting them in different locations.  In most installations, however,
 permanent and scratch files are all written to the current directory
-by default.  What constitutes 'local' disk space may also differ from 
+by default.  What constitutes "local" disk space may also differ from 
 machine to machine.
 
 The conventions for file storage are at the discretion of the specific 
@@ -229,7 +232,7 @@ is as follows;
          [stack <integer stack_size>] \
          [heap <integer heap_size>] \
          [global <integer global_size>] \
-         [units <string units default "real">] \
+         [units <string units default real>] \
          [(verify||noverify)] \
          [(nohardfail||hardfail)] \
 \end{verbatim}
@@ -380,7 +383,7 @@ the directive is as follows;
   <string title>
 \end{verbatim}
 
-The character string \verb+title+ is assigned to the contents of the
+The character string \verb+<title>+ is assigned to the contents of the
 line following the \verb+TITLE+ directive.  For example,
 
 \begin{verbatim}
@@ -435,7 +438,7 @@ diagnosing convergence problems.  (The print level of \verb+debug+ might
 also be of use in evaluating problem cases, but the user should be aware
 that this can generate a huge amount of output.)  Setting the print level
 to \verb+low+ might be the preferable choice for geometry
-optimizations that will perform many steps that are in themselves of
+optimizations that will perform many steps which are in themselves of
 little interest to the user.
 
 In addition, it is possible to enable the printing of specific
@@ -443,7 +446,7 @@ items by naming them in the \verb+PRINT+ directive in the
 \verb+<list_of_names>+.  Items identified in this way will be printed, 
 regardless of the overall print level specified.  Similarly, the 
 \verb+NOPRINT+ directive can be used to suppress the printing of specific
-items by naming them in the \verb+<list_of_names>+.  These items will
+items by naming them in its \verb+<list_of_names>+.  These items will
 {\em not} be printed, regardless of the overall print level, or the 
 specific print level of the individual items.
 
@@ -492,16 +495,17 @@ database (see Section \ref{sec:database} for a description of the database).
 The format of the directive is as follows,
 
 \begin{verbatim}
-  SET <name> [<string type default automatic>] <$type$ data>
+  SET <string name> [<string type default automatic>] <$type$ data>
 \end{verbatim}
 
-The \verb+<name>+ is the name of some array or object to be entered
+The entry for variable \verb+<name>+ is the name of some array or object to be entered
 into the database.  This must be specified explicitly; there is no
-default.  The second, optional, item allows the user to define a string
+default.  The variable \verb+<type>+, which is optional, allows the user to define a string
 specifying the type of data in the array \verb+<name>+.  The data type
 can be explicitly specified as \verb+integer+, \verb+real+,
-\verb+double+, \verb+logical+, or \verb+string+.  If this item is
-omitted from the directive, the value for \verb+<type>+ is inferred from
+\verb+double+, \verb+logical+, or \verb+string+.  If there is no entry
+for \verb+<type>+ specified on
+the directive, its value is inferred from
 the data type of the {\em first} data element.  In such a case,
 floating-point data entered using this directive must include either
 an exponent or decimal point to ensure that the correct default type
@@ -511,8 +515,8 @@ logical values if logical-true values are specified as \verb+.true.+,
 \verb+.false.+, \verb+false+, or \verb+f+.
 
 The \verb+SET+ directive is useful for providing indirection by 
-associating the name of a basis set or geometry with the standard
-names (\verb+"ao basis"+ and \verb+geometry+, respectively) that are used
+associating the name of a basis set or geometry with the standard object
+name (\verb+"ao basis"+ and \verb+geometry+, respectively) used
 by NWChem.  The following input file shows an example using 
 the \verb+SET+ directive to direct different tasks to different geometries.
 The required input lines are as follows,
@@ -550,7 +554,7 @@ on the Argon atom in the presence of the ``ghost'' basis of the other
 atom at the same geometry.
 
 The \verb+SET+ directive can also be used as an indirect means of
-supplying input to a module that does not have a seperate input module.  
+supplying input to a part of the code that does not have a seperate input module.  
 Additional examples of applications of this
 directive can be found in the sample input files (see Section 
 \ref{sec:realsample}), including examples of its usage with basis sets.
@@ -566,28 +570,30 @@ database.  The general form of the directive is as follows;
 \end{verbatim}
 
 This directive cannot be used with complex objects such as geometries
-and basis sets.  The input string \verb+<name>+ must be an array; it cannot
-be an
+and basis sets.  The input for the string variable \verb+<name>+ must 
+be an array; it cannot be an
 object name.  A wildcard (*) specified at the end of the string
 \verb+<name>+ will cause {\em all} entries beginning with that string to
 be deleted.  This is very useful as a way to reset modules to their
 default behaviour, since modules typically store information in the
 database with names that begin with \verb+module:+.
+For example, the SCF program can be restored to its default behaviour by
+deleting all database entries beginning with \verb+scf:+, using the directive,
 
-The following example makes an entry in the database using \verb+SET+
-and then immediately deletes it using \verb+UNSET+.
+\begin{verbatim}
+  unset scf:*
+\end{verbatim}
+
+The following examplei illustrates how to makes an entry in the database i
+using the \verb+SET+ directive, 
+and then immediately deletes it using the \verb+UNSET+ directive.
 
 \begin{verbatim}
   set mylist 1 2 3 4
   unset mylist
 \end{verbatim}
 
-The SCF program can be restored to its default behaviour by
-deleting all database entries beginning with \verb+scf:+, using the directive,
 
-\begin{verbatim}
-  unset scf:*
-\end{verbatim}
 
 \subsection{{\tt STOP} --- Terminate processing}
 
@@ -619,17 +625,18 @@ database is persistent, multiple tasks within one job behave {\em
   exactly} the same as multiple restart jobs with the same sequence of
 input.
 
-There are three main forms of the the \verb+TASK+ directive.  One is
-used to perform most elctronic structure and molecular dynamics
-calculations.  The second form is used to perform tasks such as
-printing the contents of the database, or performing simple property
-evaluations.  The third is used to execute UNIX commands on machines
+There are three main forms of the the \verb+TASK+ directive.  One form is
+used to tell the code when to execute most of the elctronic structure 
+and molecular dynamics
+calculations.  The second form is used to specify tasks such as
+printing the contents of the database, or simple property
+evaluations.  The third form is used to execute UNIX commands on machines
 having a Bourne shell.  Additional forms will be added in the near
 future to accomodate mixed molecular-mechanics and quantum-mechanics
 (MM/QM) calculations.
 
 By default, the program terminates when a task does not complete
-successfully.  The keyword \verb+ignore+ can be used to prevent this
+successfully.  The keyword \verb+ignore+ can be used to prevent this,
 and is recognized by all forms of the \verb+TASK+ directive.  When a
 \verb+TASK+ directive includes the keyword \verb+ignore+, task failure
 results in only a warning message being printed, and code execution
@@ -686,10 +693,6 @@ and print out an analysis of molecular vibrations
     using NWArgos
 \end{itemize}
 
-\Large
-**The following paragraph may not be need, if the section on functionality
-is expanded as planned.
-\normalsize
 
 The user should be aware that some of these operations (gradient,
 optimization, dynamics, thermodynamics) require computation of
@@ -700,8 +703,8 @@ be very expensive.
 
 Here are some examples of the \verb+TASK+ directive, to illustrate the
 input needed to specify particular calculations with the code.  To
-perform a single point energy evaluation using any level of theory the
-directive is very simple, since the energy evaluation is the default
+perform a single point energy evaluation using any level of theory, the
+directive is very simple since the energy evaluation is the default
 for the string \verb+operation+.  For an SCF energy calculation the
 input line is simply,
 \begin{verbatim}
@@ -725,7 +728,7 @@ task fails, as discussed above.
 \subsubsection{{\tt TASK} Directive for Special Operations}
 
 This form of the \verb+TASK+ directive is used in instances where the
-task to be performed does not fit the model of the previous version or
+task to be performed does not fit the model of the previous version, or
 if the operation has not yet been implemented in a fashion that
 applies to a wide range of theories (e.g., property evaluation).
 Instead of requiring \verb+theory+ and \verb+operation+ as input, the
@@ -738,7 +741,7 @@ directive in such cases is as follows;
 
 The supported tasks that can be accessed with this form of the \verb+TASK+
 directive are listed
-below, with the cooresponding entries for string variable \verb+task+.
+below, with the cooresponding entries for string variable \verb+<task>+.
 
 \begin{itemize}
   \item \verb+rtdbprint+ --- print the contents of the database
@@ -811,8 +814,8 @@ The default charge\footnote{The charge directive in conjunction with
   the charge of atomic nuclei (which can be changed via the geometry
   input, c.f. Section \ref{sec:cart}) determine the total number of
   electrons in the chemical system.  Therefore, a \verb+charge n+
-  specification deletes ``n'' electrons from the chemical system
-  system.  Similaryly, \verb+charge -n+ adds ``n'' electrons.} is zero
+  specification deletes "n" electrons from the chemical system.
+  Similaryly, \verb+charge -n+ adds "n" electrons.} is zero
 if this directive is omitted.  An example of a case where the
 directive would be needed is for a calculation on a doubly charged
 cation.  In such a case, the directive is simply,
