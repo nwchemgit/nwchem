@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.1 1997-04-14 06:35:04 gg502 Exp $
+C     $Id: ccsd_z2pm.F,v 2.2 1997-06-05 17:40:15 gg502 Exp $
       implicit none
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
@@ -130,10 +130,7 @@ c
 #include "tcgmsg.fh"
 #include "bas.fh"
 #include "rtdb.fh"
-c
-      integer doa,dob,dog,doh,dojk,dos,dod
-      common/debug/doa(15),dob(15),dog(15),doh(15),dojk(15),
-     &             dos(15),dod(15)
+#include "ccsd_debug.fh"
 c
       integer g_shz2t,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
