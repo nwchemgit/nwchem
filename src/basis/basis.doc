@@ -10,6 +10,7 @@ These are probably the ONLY user visible routines
       logical bas_cn2ce          
       logical bas_cn2bfr         
       logical bas_ce2cnr         
+      logical bas_ce2bfr
       logical bas_numbf          
 c
       logical bas_get_exponent   

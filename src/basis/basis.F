@@ -1,5 +1,5 @@
       block data basis_data
-c $Id: basis.F,v 1.7 1994-04-08 15:57:46 d3e129 Exp $
+c $Id: basis.F,v 1.8 1994-04-22 02:05:20 d3g681 Exp $
 c
 c Block data structure to initialize the common block variables in the
 c  internal basis set object data structures
@@ -1316,6 +1316,25 @@ c
       ilast  = ibs_ce2cnr(2, center, basis)
 c
       return
+      end
+      logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
+      implicit none
+      integer basis             ! [input] handle
+      integer icent             ! [input] no. of center
+      integer ibflo, ibfhi      ! [output] range of functions on center
+c
+      integer cnlo, cnhi, tmp
+      logical status
+      logical bas_ce2cnr, bas_cn2bfr
+      external bas_ce2cnr, bas_cn2bfr
+c
+      status = .true.
+      status = status .and. bas_ce2cnr(basis, icent, cnlo, cnhi)
+      status = status .and. bas_cn2bfr(basis, cnlo, ibflo, tmp)
+      status = status .and. bas_cn2bfr(basis, cnhi, tmp, ibfhi)
+c
+      bas_ce2bfr = status
+c
       end
       logical function bas_get_exponent(basisin,icont,exp)
       implicit none
