@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.12 1996-08-19 15:24:37 d3g681 Exp $
+C     $Id: moints_full.F,v 1.13 1996-08-27 23:03:00 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -126,7 +126,7 @@ c
      $     call errquit('moints: cannot read MO vectors header',0)
       if (nbf.ne.nbf_vecs) call errquit
      $     ('moints: number of basis fun does not match input',0)
-      if (nsets .ne. 1) call errquit('moints: cannot do UHF?',0)
+*      if (nsets .ne. 1) call errquit('moints: cannot do UHF?',0)
 c     
       if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_work, k_work))
      $     call errquit('moints: failed to alloc work ',nbf)
