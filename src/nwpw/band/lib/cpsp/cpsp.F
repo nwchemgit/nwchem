@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.10 2002-01-14 21:06:25 bylaska Exp $
+* $Id: cpsp.F,v 1.11 2002-01-15 03:24:30 bylaska Exp $
 *
 
 #define TCGMSG
@@ -843,7 +843,7 @@ c       write(*,*)
       logical semicore
       real*8  rcore
       real*8  ncore(*)
-      complex*16 tmp(*)
+      real*8     tmp(*)
       real*8     tmp2(*)
       integer ierr
 
@@ -963,7 +963,7 @@ c       write(*,*)
       do n=1,lmmax
          call C3dB_r_read(1,5,tmp2,tmp)
          call Cram_r_pack(nb,tmp2)
-         call Cram_r_Copy(1,tmp2,vnl(1,n,nb))
+         call Cram_r_Copy(nb,tmp2,vnl(1,n,nb))
       end do
       end do
 
