@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.32 2000-08-01 20:11:54 edo Exp $
+* $Id: grid_file.F,v 1.33 2000-08-01 23:17:29 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -140,6 +140,7 @@ c
          open(unit=gr_unit,file=grinfo,status='unknown',
      .        form='formatted')
          filedump_opened=.true.
+         rewind(gr_unit)
          write(gr_unit,'(1E20.12)') enuc_in
       else
          grid_file_open=.false.
@@ -208,6 +209,7 @@ c
          write(gr_unit,99,err=199) max_cache_rec
          write(gr_unit,99,err=199) n_rec_in_file
          write(gr_unit,'(L1)',err=199) file_opened
+         rewind(gr_unit)
          close(gr_unit)
       endif
 c
