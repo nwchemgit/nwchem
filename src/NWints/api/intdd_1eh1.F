@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.5 1999-09-21 21:34:53 windus Exp $
+C $Id: intdd_1eh1.F,v 1.6 1999-12-21 23:54:04 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -84,11 +84,11 @@ c
       offset = offset + 1     ! increment for passing to intd_1eh1P
 c
       call intdd_1eh1P(i_basis,ish,j_basis,jsh,
-     &       scrsize,scr(offset),nint,H1a,scr)
+     &       scrsize,scr(offset),nint,H1a,scr,nat)
 c
       end
       subroutine intdd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,H1a,Ta)
+     &       nint,H1a,Ta,nat)
       implicit none
 #include "stdio.fh"
 #include "apiP.fh"
@@ -114,29 +114,23 @@ c::passed
       integer j_basis   ! [input] jsh basis set handle
       integer jsh       ! [input] ``j'' contraction index
       integer lscr      ! [input] length of scratch space 
+      integer nat       ! [input] number of atoms
       integer nint      ! [input] number of integrals in shells ish and jsh
-c                       ! NOTE: nint*3 integral derivatives returned per unique center
+c                       ! NOTE: nint*3*3 integral derivatives returned per unique center
       double precision scr(lscr) ! [input] scratch array
       double precision H1a(nint,3,3,*)    ! [output] derivative integrals (nint,3,3,n_atoms)
-      double precision Ta(nint,3,3,2)     ! [scratch] space for kinetic integrals
+      double precision Ta(nint,3,3,3)     ! [scratch] space for kinetic integrals
 c::local
       logical doT
       integer ucont
       integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
       integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
-      integer nat
-      integer nintV
-      integer offset
 c
       logical any_spherical
-      integer i_nbf_x, j_nbf_x
-      integer i_nbf_s, j_nbf_s
-      integer nint_x, nint_s
-      integer zatom, zyx
 c
 c  Temporary variable that needs to be taken out after testing!
 c
-      integer itemp,jtemp,nxyz
+c     integer itemp,jtemp,ktemp,ltemp
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -180,12 +174,10 @@ c
       else
         doT = .true.
       endif
-c     if (doT) write(luout,*) 'doT is true'
-c     if (.not.doT) write(luout,*) 'doT is false'
-        
+c       
       if (cando_hnd_1e(i_basis,ish,0).and.cando_hnd_1e(j_basis,jsh,0))
      &    then
-        call hnd_stvintd(
+        call hnd_stvintdd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),
      &       dbl_mb(mb_exndcf(icf,ibas)),
@@ -201,23 +193,6 @@ c
 c............overlap, k-e,     pot-e,
      &       .false.,  doT, .true.,
      &       scr,lscr)
-c     write(luout,*) 'K 1e- derivative integrals from hondo'
-c     do itemp = 1,nint
-c       write(luout,*) itemp,' 1,1,',Ta(itemp,1,1)
-c       write(luout,*) itemp,' 2,1,',Ta(itemp,2,1)
-c       write(luout,*) itemp,' 3,1,',Ta(itemp,3,1)
-c       write(luout,*) itemp,' 1,2,',Ta(itemp,1,2)
-c       write(luout,*) itemp,' 2,2,',Ta(itemp,2,2)
-c       write(luout,*) itemp,' 3,2,',Ta(itemp,3,2)
-c     enddo
-c     write(luout,*) 'V 1e- derivative integrals from hondo'
-c     do jtemp = 1,ncenter(igeom)
-c       do nxyz = 1,3
-c       do itemp = 1,nint
-c         write(luout,*) itemp,nxyz,jtemp,H1a(itemp,nxyz,jtemp)
-c       enddo
-c       enddo
-c     enddo
       else
         call errquit('intdd_1eh1: could not do hnd integrals',
      &                0)
@@ -226,8 +201,24 @@ c
 c if needed add in Ta derivative integrals
 c
       if (doT) then
+c     write(luout,*) 'K 1e- derivative integrals from hondo'
+c     do jtemp = 1,3
+c     do ktemp = 1,3
+c     do ltemp = 1,3
+c     do itemp = 1,nint
+c       write(luout,*) itemp,ltemp,ktemp,jtemp,
+c    &     Ta(itemp,ltemp,ktemp,jtemp)
+c     enddo
+c     enddo
+c     enddo
+c     enddo
+c     write(6,*) 'iatom and jatom are ',iatom,jatom
         call daxpy(nint*3*3,1.0d00,Ta(1,1,1,1),1,H1a(1,1,1,iatom),1)
-        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,2),1,H1a(1,1,1,jatom),1)
+        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,2),1,
+     &     H1a(1,1,1,nat+jatom),1)
+        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,2),1,
+     &     H1a(1,1,1,2*nat+iatom),1)
+        call daxpy(nint*3*3,1.0d00,Ta(1,1,1,3),1,H1a(1,1,1,jatom),1)
       endif
 c
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)

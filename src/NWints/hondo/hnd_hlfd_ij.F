@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlfd_ij.F,v 1.2 1999-05-06 17:25:50 windus Exp $
+c $Id: hnd_hlfd_ij.F,v 1.3 1999-12-21 23:54:04 windus Exp $
 c
 c Taken from HONDO
 c
@@ -35,8 +35,6 @@ c
       double precision djdvij(nint,3,3) ! [output] 2nd der integrals
       double precision zan(*)   ! [input] nuclear charges
 c
-      character*8 errmsg
-      logical out
       common/hnd_xyzder/xint,yint,zint,tx,x0,y0,z0,xi,yi,zi,xj,yj,zj,
      1                             ni,nj,cx,cy,cz
       double precision xint, yint, zint, tx, x0, y0, z0, xi, yi, zi
@@ -48,9 +46,9 @@ c
       double precision ax, ay, az, dum1, dum2, pij
       double precision dumxx, dumyy, dumzz, dumxy, dumxz, dumyz
       double precision dumyx, dumzx, dumzy
-      double precision two, four, pi212, aax, aay, aaz, znuc
-      double precision uu, u2, u4, ww, w2, w4, tt, xv, yv, zv
-      double precision dxv, dyv, dzv, ddxv, ddyv, ddzv
+      double precision two, pi212, aax, aay, aaz, znuc
+      double precision uu, ww, w2, tt, xv, yv, zv
+      double precision dxv, dyv, dzv
       double precision dxvdi, dyvdi, dzvdi
       double precision dxvdj, dyvdj, dzvdj
       double precision ddxvdi, ddyvdi, ddzvdi
@@ -69,8 +67,6 @@ c
       dimension  dxvdj(5,5,5), dyvdj(5,5,5), dzvdj(5,5,5)
       dimension ddxvdi(5,5,5),ddyvdi(5,5,5),ddzvdi(5,5,5)
       dimension ddxvdj(5,5,5),ddyvdj(5,5,5),ddzvdj(5,5,5)
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','- hlfd -'/
       data maxrys /5/
       data rln10  /2.30258d+00/
       data zero   /0.0d+00/
@@ -270,8 +266,6 @@ c     call original hnd_dsyxz instead?
       dzv(i,j,iroot)=zint
   410 continue
 c
-c probably need to adjust this for the j derivative
-c
       call hnd_deriaj( dxvdi(1,1,iroot), dyvdi(1,1,iroot),
      1              dzvdi(1,1,iroot), dxvdj(1,1,iroot),
      1              dyvdj(1,1,iroot), dzvdj(1,1,iroot),
@@ -334,16 +328,6 @@ c
       didvij(ij,3,2)=didvij(ij,3,2)+dumzy*(aa1*pi212*pij(ij))
       didvij(ij,3,3)=didvij(ij,3,3)+dumzz*(aa1*pi212*pij(ij))
 c
-c      didvij(1,1,ij)=didvij(1,1,ij)+dumxx*(aa1*pi212*pij(ij))
-c      didvij(1,2,ij)=didvij(1,2,ij)+dumxy*(aa1*pi212*pij(ij))
-c      didvij(1,3,ij)=didvij(1,3,ij)+dumxz*(aa1*pi212*pij(ij))
-c      didvij(2,1,ij)=didvij(2,1,ij)+dumyx*(aa1*pi212*pij(ij))
-c      didvij(2,2,ij)=didvij(2,2,ij)+dumyy*(aa1*pi212*pij(ij))
-c      didvij(2,3,ij)=didvij(2,3,ij)+dumyz*(aa1*pi212*pij(ij))
-c      didvij(3,1,ij)=didvij(3,1,ij)+dumzx*(aa1*pi212*pij(ij))
-c      didvij(3,2,ij)=didvij(3,2,ij)+dumzy*(aa1*pi212*pij(ij))
-c      didvij(3,3,ij)=didvij(3,3,ij)+dumzz*(aa1*pi212*pij(ij))
-c
 c handle the djdvij part
 c
       dumxx=zero
@@ -375,7 +359,6 @@ c
       dumzz=dumzz+w2(iroot)*
      1     ( xv   (ix,jx,iroot)* yv   (iy,jy,iroot)*ddzvdj(iz,jz,iroot))
   435 continue
-      ij=ij+1
       djdvij(ij,1,1)=djdvij(ij,1,1)+dumxx*(aa1*pi212*pij(ij))
       djdvij(ij,1,2)=djdvij(ij,1,2)+dumxy*(aa1*pi212*pij(ij))
       djdvij(ij,1,3)=djdvij(ij,1,3)+dumxz*(aa1*pi212*pij(ij))

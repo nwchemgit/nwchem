@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.2 1999-05-06 17:25:50 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.3 1999-12-21 23:54:04 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -39,16 +39,11 @@ c
       integer nder, mini, maxi, minj, maxj, minprim, maxprim
       integer i, index
       dimension minprim(5), maxprim(5)
-      double precision zero, negone
+      double precision zero
       data zero   /0.0d+00/
-      data negone /-1.0d+00/
       data minprim / 1, 2, 5,11,21/
       data maxprim / 1, 4,10,20,35/
 c
-      write(6,*) 'lscr is ',lscr
-      write(6,*) 'i_cent and j_cent',i_cent,j_cent
-      write(6,*) 'nint is ',nint
-      call flush(6)
       doH1 = doT.and.doV.and..not.doS
       nder = 2
 c
@@ -68,9 +63,6 @@ c
         call dcopy(nint*3*3,sder(nint*3*3+1),1,sder(nint*3*3*2+1),1)
       endif
 c
-      write(luout,*) 'before the call to doV'
-      call flush(luout)
-c
       if (doV) then
         call dfill(nint*3*3*nat*3,zero,vder,1)
 c
@@ -78,7 +70,6 @@ c Do the Helman-Feynman part (i|d2/dxcdxcV|j)
 c The first nat*nint*3*3 holds these terms
 c
         do i=1,nat
-          write(luout,*) 'number of calls to hnd_hlf_ij2 ',i
           call hnd_hlf_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
      1      xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,scr,
      2      vder((i-1)*3*3*nint+1),zan,xyz,nder,nint)
@@ -89,20 +80,14 @@ c These are held in the rest of vder
 c
          do i=1,nat
            call hnd_hlfd_ij2(xyzi,expi,coefi,i_nprim,i_ngen,Li,
-     1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+     1       xyzj,expj,coefj,j_nprim,j_ngen,Lj,i,
      2       vder((i-1)*3*3*nint+nint*3*3*nat+1),
      3       vder((i-1)*3*3*nint+nint*3*3*nat*2+1),
-     4       i,xyz,nder,nint)
+     4       zan,xyz,nder,nint)
          enddo
 c
-c        write(6,*) 'before the second doV, vder is'
-c        do i=1,nat*3*nint
-c          write(6,*) vder(i)
-c        enddo
       endif
 
-      write(luout,*) 'before the doT call'
-      call flush(luout)
       if (doT.or.doV) then
         if (doT) call dfill(nint*3*3*3,zero,tder,1)
 c note that scr is where the didj vder ints are temporarily going
@@ -113,10 +98,13 @@ c note that scr is where the didj vder ints are temporarily going
      3    vder(nint*3*3*(i_cent-1)+1),scr,
      4    vder(nint*3*3*(j_cent-1)+1),nder,nint,
      5    zan,nat,doT,doV,i_cent,j_cent)
-c        write(6,*) 'after the first tvd_ij call, scr is'
-c        do i=1,3*nint
-c          write(6,*) scr(i)
-c        enddo
+c
+c add in the scr vder ints
+c
+         call daxpy(nint*3*3,1.0d00,scr(1),1,
+     1     vder(nint*3*3*nat+nint*3*3*(j_cent-1)+1),1)
+         call daxpy(nint*3*3,1.0d00,scr(1),1,
+     1     vder(nint*3*3*nat*2+nint*3*3*(i_cent-1)+1),1)
       endif
 c
 c     ----- perform transformation to NWChem order if necessary ----
