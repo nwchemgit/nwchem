@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.31 1997-05-30 09:21:34 d3e129 Exp $
+C$Id: opt_drv.F,v 1.32 1997-06-06 11:12:57 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1953,11 +1953,11 @@ c
          if(baker) then
             call hnd_opt_bkr_search(ncoord,
      1      x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
-     2      ndim1)
+     2      ndim1,zcoord)
          else
             call hnd_opt_dir_search(ncoord,
      1      x(i10),x(i20),x(i30),x(i40),x(i50),x(i60),x(i70),
-     2      ndim1)
+     2      ndim1,zcoord)
          endif
 c
 c     ----- transform back if needed and store hessian -----
@@ -2020,7 +2020,7 @@ c
       return
       end
       SUBROUTINE HND_OPT_BKR_SEARCH(NVAR,
-     1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM)
+     1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM,ZCOORD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     ----- SELECT SEARCH DIRECTION -----
@@ -2028,6 +2028,7 @@ C
       LOGICAL   OUT
       LOGICAL   DBUG
       LOGICAL   CVGED
+      LOGICAL   ZCOORD
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
@@ -2130,7 +2131,7 @@ C
  9988 FORMAT(' IN BKR_SEARCH, CURRENT GRADIENT ')
       END
       SUBROUTINE HND_OPT_DIR_SEARCH(NVAR,
-     1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM)
+     1           HESS,HESVEC,HESST,HESEIG,HESEDM,T,IA,NDIM,ZCOORD)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 C
 C     ----- SELECT SEARCH DIRECTION -----
@@ -2138,6 +2139,7 @@ C
       LOGICAL   OUT
       LOGICAL   DBUG
       LOGICAL   CVGED
+      LOGICAL   ZCOORD
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
@@ -2155,7 +2157,6 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TINY   /1.0D-06/
-      DATA SMALL  /1.0D-02/
       DATA DAMP1  /5.0D+00/
       DATA DAMP2  /2.0D+00/
       DATA HUNDRD /1.0D+02/
@@ -2168,6 +2169,11 @@ C
          WRITE(IW,9999) NVAR,NDIM
       ENDIF
 C
+      IF(ZCOORD) THEN
+         SMALL=1.0D-04
+      ELSE
+         SMALL=1.0D-01
+      ENDIF
       DO I=1,NDIM
          IA(I)=(I*(I-1))/2
       ENDDO
@@ -2219,8 +2225,8 @@ C
       NEGEIG=0
       DO I=1,NVAR
          IF(ABS(HESEIG(I)).LT.TINY) THEN
-            HESEIG(I)=ZERO
-            HESEDM(I)=ZERO
+            HESEIG(I)=SMALL
+            HESEDM(I)=SMALL
          ELSE 
             IF(HESEIG(I).LT.ZERO) THEN
                NEGEIG=NEGEIG+1
