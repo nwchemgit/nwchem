@@ -19,7 +19,7 @@ c
 c     Currently only allows for restart if entire file is disk resident
 c     ... needs mods to allow writing of memory cached integrals
 c     (actually gets simpler once the file routines do the caching)
-c
+*
       call util_pname(filename, actualname)
 c
       otrace = util_print('int2edebug',print_debug)
