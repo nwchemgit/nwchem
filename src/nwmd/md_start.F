@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.61 2000-05-12 18:20:07 d3j191 Exp $
+c $Id: md_start.F,v 1.62 2000-05-18 20:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -1144,6 +1144,8 @@ c
      + form='formatted',status='unknown')
       endif
       endif
+c
+      costio=zero
 c
       return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.31 2000-04-28 19:53:58 d3j191 Exp $
+c $Id: md_common.fh,v 1.32 2000-05-18 20:40:44 d3j191 Exp $
 c
 c     parameters
 c
@@ -179,12 +179,12 @@ c
      + msf,nsf
 c
       real*8 temps,tempw,temp,pres,volume,epme(3),eww(mpe,2),eskin,
-     + zw(3,2),fmax,fnorm,dwr,
+     + zw(3,2),fmax,fnorm,dwr,costio,
      + epot,epotw,epotsw,epots,ekin,etot,
      + vlat(3,3),vlati(3,3),box(3),rlambd,dlambd,wbox,uqmd,uqmmm
       integer npolit
       common/md_pro/temps,tempw,temp,pres,volume,epme,eww,eskin,
-     + zw,fmax,fnorm,dwr,
+     + zw,fmax,fnorm,dwr,costio,
      + epot,epotw,epotsw,epots,ekin,etot,
      + vlat,vlati,box,rlambd,dlambd,wbox,uqmd,uqmmm,
      + npolit

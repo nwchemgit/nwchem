@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.83 2000-05-17 21:08:10 d3j191 Exp $
+c $Id: md_main.F,v 1.84 2000-05-18 20:40:46 d3j191 Exp $
 c
       implicit none
 c
@@ -1153,7 +1153,7 @@ c
       external timer_wall,timer_wall_average,timer_wall_minimum
       real*8 timer_wall,timer_wall_average,timer_wall_minimum
 c
-      real*8 dxmax,wallt
+      real*8 dxmax,wallt,syntim
 c
       mdstep=mdstep+1
       stime=stime+tstep
@@ -1190,19 +1190,20 @@ c
 c     dynamic load balancing
 c
       if(itload.eq.0) then
-cx      if(me.eq.0) then
-cx      call sp_balanc(stime,timer_wall_minimum(4),wallt,
-cx     + frequency(mdstep,nfsync))
-cx      else
-      call sp_balanc(stime,timer_wall(4),wallt,frequency(mdstep,nfsync))
-cx      endif
+      syntim=timer_wall(4)
       elseif(itload.eq.1) then
-      call sp_balanc(stime,timer_wall_minimum(4),wallt,
-     + frequency(mdstep,nfsync))
+      syntim=timer_wall_minimum(4)
       else
-      call sp_balanc(stime,timer_wall_average(4),wallt,
-     + frequency(mdstep,nfsync))
+      syntim=timer_wall_average(4)
       endif
+      if(me.eq.0) then
+      if(costio.ge.syntim) then
+      syntim=zero
+      else
+      syntim=syntim-costio
+      endif
+      endif
+      call sp_balanc(stime,syntim,wallt,frequency(mdstep,nfsync))
       call timer_reset(4)
 c
 c     atom redistribution
@@ -1231,9 +1232,10 @@ c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
+      if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
+c
       call timer_start(17)
 c
-      if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
      + .true.,.false.,.true.,.false.,stime-tstep,pres,temp,tempw,temps,
@@ -1244,9 +1246,11 @@ c
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
-      endif
 c
       call timer_stop(17)
+      costio=timer_wall(17)
+c
+      endif
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
@@ -2035,7 +2039,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.83 2000-05-17 21:08:10 d3j191 Exp $
+c $Id: md_main.F,v 1.84 2000-05-18 20:40:46 d3j191 Exp $
 c
       implicit none
 c
