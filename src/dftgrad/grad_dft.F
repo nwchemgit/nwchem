@@ -5,8 +5,9 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
+#include "util.fh"
 #include "schwarz.fh"
+#include "stdio.fh"
 c****
 c**** dft gradients module hacked from the scf gradients module
 c****
@@ -76,28 +77,31 @@ c
       Integer rtdb              ! [input] database handle
       Integer geom, ao_basis,cd_basis       ! handles
       Integer ipol,nbases
-      Logical converged,CDFIT
-      Logical status, print_debug
+      Logical converged, CDFIT, status
       Character*255 title
       Double precision charge
       integer bases(3)
 c
       Character*255 movecs_in, movecs_out
-      Data print_debug /.false./
 c----------------------------------------------------------------------- 
 c
 c     Push context down to DFTGRAD
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      if (.not. context_push('dftgrad'))
-     $     call errquit('grad_dft: context_push failed', 0)
+      call util_print_push('dftgrad')
+      call util_print_rtdb_load(rtdb,'dft_grad')
+      call ecce_print_module_entry ('dft')
+
 c**** debug
 C      status = rtdb_print(rtdb,.true.)
 c
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) then
-        write (6,*) 'status: ', status, '    converged: ',converged
+        if ( (ga_nodeid() .eq. 0) 
+     $       .and. util_print('information', print_none) ) then
+          write (luout,*) 'status: ', status, '   converged: ',converged
+        endif
         call errquit(
      &       'dft grad_dft: no converged DFT wavefunction available',
      &     0)
@@ -165,32 +169,35 @@ c
       if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
      $     call errquit('dft_grad: dft:ipol get failed', 0)
       if (ga_nodeid() .eq. 0) then
-         call util_print_centered(6,'NWCHEM DFTGRAD Module',40,.true.)
-         write(6,*)
-         write(6,*)
-         if (title .ne. ' ') then
-            call util_print_centered(6, title, 40, .false.)
-            write(6,*)
-            write(6,*)
+         if ( util_print('information',print_default) ) then
+            call util_print_centered(luout,
+     $          'NWCHEM DFTGRAD Module',40,.true.)
+            write(luout,*)
+            write(luout,*)
+            if (title .ne. ' ') then
+               call util_print_centered(luout, title, 40, .false.)
+               write(luout,*)
+               write(luout,*)
+            endif
+
+            if (ipol .eq. 1) then
+               write(luout,1) charge, 'closed shell'
+            else 
+               write(luout,1) charge, 'open shell'
+            endif 
+            call util_flush(luout)
+
          endif
-
-
-         if (ipol .eq. 1) then
-           write(6,1) charge, 'closed shell'
-         else 
-           write(6,1) charge, 'open shell'
-         endif 
 
  1       format(/
      $        '  charge          = ', f6.2/
      $        '  wavefunction    = ', a/)
-         if (print_debug) then
+         if ( util_print('debug',print_debug) ) then
            if (.not. geom_print(geom)) 
      $         call errquit('grad_dft: geom_print ?',0)
            if (.not. bas_print(ao_basis)) 
      $         call errquit('grad_dft: bas_print ?',0)
          endif
-         call util_flush(6)
       endif
 c
 c initialize NWints
@@ -225,8 +232,8 @@ c terminate integral scope
 c
       call intd_terminate()
 c
-      if (.not. context_pop('dftgrad')) 
-     $     call errquit('context_pop failed',0)
+      call ecce_print_module_exit ('dft','ok')
+      call util_print_pop
       grad_dft = .true.
 c
       return
