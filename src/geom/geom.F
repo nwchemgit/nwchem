@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.33 1995-03-01 19:56:46 d3g681 Exp $
+C$Id: geom.F,v 1.34 1995-03-02 00:00:33 d3e863 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -1430,8 +1430,6 @@ c
       do i=1,3
         rvectors(i)=recip_lat_vectors(i,geom)
       end do
-      write(*,*) 'in geom printing rvectors'
-      write(*,*) (rvectors(i),i=1,3)
       geom_recipvec_get = .true.
       end
       logical function geom_recipang_get(geom,rangles)
