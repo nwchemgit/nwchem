@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.79 2002-11-14 18:04:28 d3j191 Exp $
+c $Id: sp_main.F,v 1.80 2002-11-14 18:27:12 d3j191 Exp $
 c
       implicit none
 c
@@ -2725,7 +2725,7 @@ c
       dlb(i)=dble(nlst(i,1))*1.0d-6
       synsum=synsum+dlb(i)
     5 continue
-      waltim=dble(nlst(npp,1))*1.0d-6
+      waltim=(dble(nlst(npp,1))*1.0d-6/dble(np))
 c
       if(nldup.lt.0) then
       tslow=synsum
