@@ -8,7 +8,7 @@ ifeq ($(NWCHEM_TARGET),SGITFP)
    OBJ = dftg_cdfit.o  dft_grad_top.o  dftg_force.o \
          dftg_getxc.o       dftg_grad2.o \
          grad_dft.o      dftg_quadv0.o     \
-         dftg_get_cden.o  dftg_get_xden.o\
+         dftg_getcden.o  dftg_getxden.o\
          dftg_bal_sum.o dftg_hf_x.o dftg_quadv0a.o dftg_beckew.o dftg_wderiv.o
    OBJ_OPTIMIZE = dftg_quadv0b.o 
 endif
