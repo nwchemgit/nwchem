@@ -1,13 +1,14 @@
-      block data cgridfdata
+      Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.23 2000-06-06 00:26:57 edo Exp $
+* $Id: grid_file.F,v 1.24 2000-07-18 01:12:45 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
       data file_opened /.false./
+      data filedump_opened /.false./
       data l_cache /-1/
       end
-      logical function grid_file_open(
+      logical function grid_file_open(oreopen,enuc_in,
      $     filename,
      $     cachesize, filesize)
       implicit none
@@ -24,11 +25,17 @@
       external cgridfdata
 #endif
 c
+      double precision enuc_in ! [in]
+      double precision enuc
+      logical oreopen ! [in]
       integer availkb, sdlen
       character*20 fstype
+      character*255 grinfo
       character*(nw_max_path_len) scratchdir
-      integer util_scratch_dir_avail_for_me
+      integer util_scratch_dir_avail_for_me,me
       external util_scratch_dir_avail_for_me
+      logical grid_file_rewind
+      external grid_file_rewind
 c
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
@@ -52,12 +59,13 @@ c
 c
 c     Initialize common
 c
+      me=ga_nodeid()
       file_opened = .false.
       cur_rec = 1
-      n_rec_in_file = 0
       cur_cub = -99
       nsubb=0
       ntot_sub=0
+      gr_unit=85
       rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)
@@ -123,10 +131,40 @@ c
 c     defer allocation of memory until the first write otherwise
 c     this memory is sitting around during the initial guess routines
 c
-      l_cache = -1
-      k_cache = -1
+      call util_file_name('grinfo',.true.,.true.,grinfo)
+
+      if(.not.oreopen) then
+         l_cache = -1
+         k_cache = -1
+         n_rec_in_file = 0
+         grid_file_open = .true.
+         open(unit=gr_unit,file=grinfo,status='unknown',
+     .        form='formatted')
+         filedump_opened=.true.
+         write(gr_unit,'(1E20.12)') enuc_in
+      else
+         grid_file_open=.false.
+         open(unit=gr_unit,file=grinfo,status='unknown',err=199)
+         filedump_opened=.true.
+         read(gr_unit,'(1E20.12)',err=199) enuc
+         if(abs(enuc-enuc_in).gt.1d-4) return
+         read(gr_unit,'(I)',err=199) max_file_rec
+         read(gr_unit,'(I)',err=199) max_cache_rec
+         read(gr_unit,'(I)',err=199) n_rec_in_file
+         read(gr_unit,'(I)',err=199) file_opened
+         grid_file_open=.true.
+         if (.not. grid_file_rewind())
+     $        call errquit('grfile: rewinding gridpts?',1)
+         if(file_opened) then
+            file_opened=.false.
+            filedump_opened=.false.
+            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $           call errquit('grid_file_open: eaf_open failed', 0)
+            file_opened = .true.
+          endif
+      endif
+ 199  return
 c
-      grid_file_open = .true.
 c
       end
       logical function grid_file_close(okeep)
@@ -154,9 +192,17 @@ c
       endif
 c
       if (l_cache .ne. -1) then
-         if (.not. ma_free_heap(l_cache))
-     $        call errquit('grid_file_close: free heap?',0)
+         if (.not. ma_free_heap(l_cache)) then
+             call MA_summarize_allocated_blocks()
+             call errquit('grid_file_close: free heap?',0)
+          endif
       end if
+         write(gr_unit,'(I)',err=199) max_file_rec
+         write(gr_unit,'(I)',err=199) max_cache_rec
+         write(gr_unit,'(I)',err=199) n_rec_in_file
+         write(gr_unit,'(I)',err=199) file_opened
+      rewind(gr_unit)
+      close(gr_unit)
 c
       if (file_opened .or. l_cache.ne.-1) then
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
@@ -182,6 +228,7 @@ c
 c     
       grid_file_close = .true.
 c
+ 199  return
       end
       logical function grid_file_rewind()
       implicit none
@@ -227,6 +274,7 @@ c
 #include "inp.fh"
 #include "eaf.fh"
 #include "stdio.fh"
+#include "global.fh"
       logical oend           ! [input]
 c
 c     Write the grid_pts buffer to disk.  For all but the
@@ -235,7 +283,6 @@ c     that size constraints should be enforced leaving
 c     room for the end record.  The last record is output with
 c     oend=.true. meaning just write it.
 c
-      integer nbitv             ! For pretty output
       integer maxrec
       double precision offset
       integer ierr
@@ -260,7 +307,6 @@ c     write operation
 c
       if (cur_rec .eq. 1) then
          if (oinfo) then
-            nbitv = 64
             write(LuOut,20) actualname(1:inp_strlen(actualname)),
      $           rec_len_in_dbl,n_per_rec,max_cache_rec,max_file_rec
  20         format(/
@@ -274,7 +320,7 @@ c
       end if
 c
  10   continue
-      if (cur_rec .le. max_cache_rec) then
+       if (cur_rec .le. max_cache_rec) then
          if (l_cache .eq. -1) then
             if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
      $           'grid', l_cache, k_cache)) then
@@ -362,8 +408,8 @@ c
       character*80 errmsg
 c
       call grid_buf_clear
+      grid_packed_buf_read = .false.
       if (cur_rec .gt. n_rec_in_file) then
-         grid_packed_buf_read = .false.
 cedo         if (otrace) then
             write(LuOut,1) cur_rec, n_rec_in_file
  1          format(' grid_file: EOF at record',i5,' of ',i5,'?')
@@ -394,9 +440,12 @@ c
             ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
             if (ierr.ne.0) then
                call eaf_errmsg(ierr,errmsg)
-               write(LuOut,*) ga_nodeid(),errmsg
-               call errquit('grid_buf_read:premature end of file',
-     $              cur_rec)
+               write(LuOut,*) ga_nodeid(),errmsg,
+     ,              ' EOF ',eaf_eof(ierr)
+               grid_packed_buf_read = .false.
+!               call errquit('grid_buf_read:premature end of file',
+!     $              cur_rec)
+               return
             endif
          else
 c
@@ -502,8 +551,10 @@ c
       logical function grid_test_mem(rtdb,  nq_tot)
       implicit none
 #include "util.fh"
+#include "cdft.fh"
 #include "bas.fh"
 #include "cgridfile.fh"
+#include "geom.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "sym.fh"
@@ -513,6 +564,7 @@ c
 c
       integer rtdb              ! [input]
       integer nq_tot  ! [input]
+      double precision enuc
 c      integer basis             ! [input]
 c     
 c     By default memsize=filesize=0 implying if the calculation fits into
@@ -598,7 +650,9 @@ c
       if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
      $        call errquit('grid_file: opening gridpts?', 0)
       if (localmemsize.gt.0 .or. filesize.ge.0) then
-         if (.not. grid_file_open(gridfilename, 
+         if(.not.geom_nuc_rep_energy(geom, enuc)) 
+     .        call errquit(' gridtestmem: enucrep failed ',0)
+         if (.not. grid_file_open(.false.,enuc,gridfilename, 
      $        localmemsize, filesize))
      $        call errquit('grid_test_mem: grid_file_open failed',0)
          grid_test_mem = .true.
@@ -728,6 +782,8 @@ c
       integer nqpts
       integer nctr,nsub_out
       double precision aqbuf(4,maxqpts),rad
+      integer ga_nodeid
+      external ga_nodeid
 c
 c     Return grid pts corresponding to the same atom center.
 c     Return in nqpts the number of grid pts read.  
@@ -738,6 +794,7 @@ c
 c
       grid_file_read = .true.
       nqpts = 0
+
 c
       grid_file_read = grid_buf_read()
       if (.not. grid_file_read) return
@@ -792,5 +849,139 @@ c
       enddo
       grid_getnsubb=.true.
 
+      return
+      end
+      logical function grid_dump_write(oend)
+      implicit none
+#include "cgridfile.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "eaf.fh"
+#include "stdio.fh"
+#include "global.fh"
+      logical oend           ! [input]
+c
+c     Write the grid_pts buffer to disk.  For all but the
+c     end record it is called with oend=.false. meaning
+c     that size constraints should be enforced leaving
+c     room for the end record.  The last record is output with
+c     oend=.true. meaning just write it.
+c
+      double precision offset
+      integer ierr,ii,istep
+      character*80 errmsg
+c
+c     test for overflowing the file and memory cache
+c
+      grid_dump_write = .true.
+      if (file_opened) return
+      if ((.not. oend) .and. (cur_rec .gt. 
+     .     max_cache_rec + max_file_rec)) then
+         grid_dump_write = .false.
+         if (otrace) then
+            write(LuOut,12) cur_rec
+ 12         format(' grid_file: file full at record ',i8)
+            call util_flush(LuOut)
+         end if
+         return
+      endif
+c
+c     Opening of file, allocation of buffer and writing of
+c     info message are all now deferred until the first
+c     write operation
+c
+c
+      if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $     call errquit('grid_file_open: eaf_open failed', 0)
+c
+c     Should really detect failures in writing and return false
+c
+      offset=0d0
+      istep=0
+      do ii=1,n_rec_in_file
+         call dcopy(rec_len_in_dbl, dbl_mb(k_cache+istep), 1,buf, 1)
+         ierr = eaf_write(fd, offset, buf, 8*rec_len_in_dbl)
+         istep=istep+rec_len_in_dbl
+         offset=offset+istep*8d0
+         if (ierr .ne. 0) then
+            call eaf_errmsg(ierr, errmsg)
+            write(LuOut,*) ' IO offset ', offset
+            write(LuOut,*) ' IO error message ',
+     $           errmsg(1:inp_strlen(errmsg))
+            call errquit('grid_packed_buf_write: write failed',0)
+         endif
+      enddo
+c
+      call grid_buf_clear
+      grid_dump_write = .true.
+c
+      end
+      logical function grid_dump_read(oend)
+      implicit none
+#include "cgridfile.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "eaf.fh"
+#include "stdio.fh"
+#include "global.fh"
+      logical oend           ! [input]
+c
+c     Read the grid_pts buffer to disk.  For all but the
+c     end record it is called with oend=.false. meaning
+c     that size constraints should be enforced leaving
+c     room for the end record.  The last record is output with
+c     oend=.true. meaning just read it.
+c
+      integer maxrec
+      double precision offset
+      integer ierr,ii,istep
+      character*80 errmsg
+c
+c     test for overflowing the file and memory cache
+c
+      grid_dump_read = .true.
+      if (file_opened) return
+      maxrec = max_cache_rec + max_file_rec
+      if ((.not. oend) .and. (cur_rec .gt. maxrec)) then
+         grid_dump_read = .false.
+         if (otrace) then
+            write(LuOut,12) cur_rec
+ 12         format(' grid_file: file full at record ',i8)
+            call util_flush(LuOut)
+         end if
+         return
+      endif
+c
+c     Opening of file, allocation of buffer and writing of
+c     info message are all now deferred until the first
+c     read operation
+c
+c
+      if (.not. file_opened) then
+         if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $        call errquit('grid_file_open: eaf_open failed', 0)
+      end if
+c
+c     Should really detect failures in writing and return false
+c
+      offset=0d0
+      if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
+     $     'grid', l_cache, k_cache)) call errquit(
+     . ' grid_dumpr: Failed to allocate cache ')
+      istep=0
+      do ii=1,n_rec_in_file
+         ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
+         call dcopy(rec_len_in_dbl, buf, 1, 
+     $        dbl_mb(k_cache+istep), 1)
+         istep=istep+rec_len_in_dbl
+         offset=offset+istep*8d0
+      if (ierr .ne. 0) then
+         call eaf_errmsg(ierr, errmsg)
+         write(LuOut,*) ' IO offset ', offset
+         write(LuOut,*) ' IO error message ',
+     $        errmsg(1:inp_strlen(errmsg))
+         call errquit('grid_packed_buf_read: read failed',0)
+      endif
+      enddo
       return
       end

@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.7 2000-06-09 19:11:55 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.8 2000-07-18 01:13:20 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -80,7 +80,6 @@ c
 c
 c     local crap
 c
-      integer npol
       integer iqsh
       integer me
       integer  nbf_max
@@ -90,8 +89,8 @@ c
       integer nqpts_per_buf, nqpts, ictr_buf
       integer lrqbuf, irqbuf,
      .     grid_nbfm,ncube,istep,ntot_cube
-      logical grid_file_rewind
-      external grid_file_rewind,grid_nbfm
+      logical grid_file_rewind,grid_file_read
+      external grid_file_rewind,grid_nbfm,grid_file_read
 c
 c     
       me = ga_nodeid()
@@ -136,7 +135,6 @@ c
       endif
 c      write(6,*)'*** dftg_quadv0a: hesschi der3chi',hesschi,der3chi
 c
-      npol = (ipol*(ipol+1))/2
 c     
 c     rewind grid pts file
 c
@@ -152,8 +150,8 @@ c
 c         
 c           Define the current range of radial shells and integration center.
 c          
-         call grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
-     &        rad,dbl_mb(irqbuf),nsubb)
+         if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
+     &        rad,dbl_mb(irqbuf),nsubb)) goto 2001
          if(nqpts.gt.buffer_size) call
      '        errquit(' buffersize exceed by qpts ',nqpts)
         if(nqpts.eq.0) goto 200
@@ -176,13 +174,14 @@ c
      .        drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
-     ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,npol,
+     ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop
+ 2001 continue
       if (.not.ma_pop_stack(lrqbuf))
      &     call errquit('dftg_quadv0a: cannot pop stack', 0)
       return 

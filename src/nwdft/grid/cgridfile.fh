@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.18 2000-06-23 15:11:53 edo Exp $
+* $Id: cgridfile.fh,v 1.19 2000-07-18 01:12:45 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -7,36 +7,39 @@ c
 c     want to dynamically allocate most of this soon
 c     
       double precision values   ! Buffer for grid_pt values
+      double precision cur_rec_rad       ! Max Radius of current record
+      double precision buf      ! Compressed buffer for IO only
+      double precision fd                ! CHEMIO fd
+      double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_rec          ! No. of entries in buffer
       integer next_value        ! Next value to be read/inserted
       integer n_rec_in_file     ! No. of records in file
       integer cur_rec           ! Current record no. (1, 2, ...)
       integer cur_rec_ctr       ! Atom center of current record
-      double precision cur_rec_rad       ! Max Radius of current record
       integer buffer_size       ! Size of buffer ... MUST BE EVEN
       integer n_per_rec         ! No. of grid_pts a buffer can hold
       integer rec_len_in_dbl    ! Size of total record in doubles
       character*256 actualname  ! Name of file
+      character*256 actualgrinfo  ! Name of info file
       logical otrace            ! True if debugging enabled
       logical oinfo             ! True if to print brief info
       integer l_cache, k_cache  ! MA space for grid_pt cache
       integer max_file_rec      ! Max no. of records to put in file
       integer max_cache_rec     ! Max no. of records to put in cache
       logical file_opened       ! True if a physical file is open
+      logical filedump_opened  ! True if a physical file is open
+      integer gr_unit !
 c
       logical oasyncio          ! If true use asynchronous IO
       logical oiopending        ! If true asynchronous IO is pending
       integer aioreq            ! EAF handle to AIO request
 c
-      integer fd                ! CHEMIO fd
 c
       integer posinfo           ! Used to record current position
 c
-      double precision buf      ! Compressed buffer for IO only
       integer n_in_buf          ! n_in_rec info for this buf
       integer pad               ! Padding for 32 bit machines
 c
-      double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_buf2         ! n_in_rec info for this buf    - ASYNC
       integer pad2              ! Padding for 32 bit machines   - ASYNC
       integer nsubb ! number of sub-buffer (with a given rad)
@@ -70,29 +73,33 @@ c
      $     n_in_rec
 c
       common/cgridinfo/
+c     double
+     $     fd,
+     $     cur_rec_rad,
+c     integer
      $     n_rec_in_file,
      $     n_per_rec,
      $     cur_rec,
      $     cur_rec_ctr,
-     $     cur_rec_rad,
      $     rec_len_in_dbl,
      $     next_value,
+     $     l_cache, k_cache,
+     $     max_file_rec, max_cache_rec, cur_cub,nsubb,ntot_sub,
+     .     gr_unit,
+     $     posinfo(16),
+c     logicals
+     .     grid_written,
      $     otrace,
      $     oinfo,
      $     file_opened,
-     $     l_cache, k_cache,
-     $     max_file_rec, max_cache_rec, cur_cub,nsubb,ntot_sub,
-c     logicals
-     .     grid_written,
-c     doubles
-     $     fd,
+     $     filedump_opened,
      $     oasyncio,
      $     oiopending,
-     $     aioreq,
-     $     posinfo(16)
+     $     aioreq
+c     doubles
 c     .     radsub
 c
       common/ccgridinfo/
-     $     actualname
+     $     actualname,actualgrinfo
 c
 

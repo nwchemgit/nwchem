@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.33 2000-07-12 20:36:59 edo Exp $
+c$Id: grid_tasks.F,v 1.34 2000-07-18 01:12:45 edo Exp $
 c
       implicit none
 c
@@ -11,12 +11,13 @@ c
 #include "global.fh"
 #include "stdio.fh"
 #include "sym.fh"
+#include "geom.fh"
 c
       integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
       integer ndbl
       double precision xyz, aqbuf, rad,rad_sh,
-     ,     rmax,rmin,rad_write,symfact
+     ,     rmax,rmin,rad_write,symfact,enuc
       dimension xyz(3,ncenters)
       dimension qsh(3,nqlen)
       dimension aqbuf(4,npts_per_ang)
@@ -31,8 +32,6 @@ c
      ,     fnxyz,nxyz,nqtotc,nq_cube,ncubenz,iaia
       logical grid_file_open
       external grid_file_open
-      logical grid_file_close
-      external grid_file_close
       logical grid_test_mem
       external grid_test_mem
       integer nxtask,n1,n2,icount
@@ -78,7 +77,10 @@ c
       owritefile= .false.
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
-         if (.not. grid_file_open(gridfilename, memsize, filesize))
+         if(.not.geom_nuc_rep_energy(geom, Enuc)) 
+     .        call errquit(' gridquad: enucrep failed ',0)
+         if (.not. grid_file_open(.false.,enuc,
+     .        gridfilename, memsize, filesize))
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif
 c

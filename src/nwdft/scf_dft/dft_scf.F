@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.166 2000-07-12 23:00:18 edo Exp $
+c     $Id: dft_scf.F,v 1.167 2000-07-18 01:13:04 edo Exp $
 c     
       implicit none
 c
@@ -133,8 +133,8 @@ c
       logical dft_mem3c
       external dft_mem3c
 c !!! BGJ
-      logical cphf_poliz, do_poliz
-      external cphf_poliz
+      logical cphf_poliz, do_poliz,grid_dump_write
+      external cphf_poliz,grid_dump_write
 c !!! BGJ
 c
 c     ----- cosmo -----
@@ -1482,6 +1482,8 @@ c
      &   call errquit('dft_scf: cannot chop stack',99)
 c
       dft_scf = converged
+      if(.not.grid_dump_write(.true.)) call errquit(
+     /     ' dftscf: grdumpwrite failed ',0)
 c
 c !!! BGJ
       if (.not. rtdb_get(rtdb, 'bgj:poliz', mt_log,

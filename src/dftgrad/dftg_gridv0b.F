@@ -9,12 +9,12 @@
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,rscr,
      ,     force, hess, g_rhs, do_force,
      ,     nbf_ao_mxnbf_ce2,
-     ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,npol,
+     ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.7 2000-07-10 23:02:43 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.8 2000-07-18 01:13:20 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -84,7 +84,6 @@ c
 c
 c     local crap
 c
-      integer npol
       integer mbf_ao
       integer  m4
       integer   lheschi_ao, iheschi_ao,
@@ -330,7 +329,7 @@ c
                   call dftg_wderiv(ictr_buf, natoms, nqpts, nqpts, 
      .                 iandex, 
      &                 natoms_l, func, d_qwght,
-     &                 force, oactive, nactive)
+     &                 force, oactive)
                endif
 c         
 c

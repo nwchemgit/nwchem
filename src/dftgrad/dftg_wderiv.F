@@ -1,8 +1,8 @@
       Subroutine dftg_wderiv(ictr, nat, nq_orig, nq, 
      .     iandex, ncenters, func, 
-     &                       d_qwght, force, oactive,  nactive)
+     &                       d_qwght, force, oactive)
 *
-* $Id: dftg_wderiv.F,v 1.6 2000-04-18 00:35:29 edo Exp $
+* $Id: dftg_wderiv.F,v 1.7 2000-07-18 01:13:20 edo Exp $
 *
       Implicit none
 c
@@ -15,7 +15,6 @@ c     compute the product \delta w(j)*func(j)
 c
       integer ictr
       integer nat, nq,nq_orig
-      Integer nactive
       logical oactive(nat)
       integer iandex(*), ncenters
       double precision func(*)          ! func value [input]

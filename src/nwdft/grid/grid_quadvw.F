@@ -12,11 +12,12 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat)
 c
-c$Id: grid_quadvw.F,v 1.18 2000-07-10 23:03:53 edo Exp $
+c$Id: grid_quadvw.F,v 1.19 2000-07-18 01:12:45 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
 #include "stdio.fh"
+#include "geom.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -39,8 +40,8 @@ c
       character*255 gridfilename
       logical xc_chkgrad
       external xc_chkgrad
-      logical grid_file_open,grid_file_close
-      external grid_file_open,grid_file_close
+      logical grid_file_open
+      external grid_file_open
       logical grid_test_mem,cube_done
       external grid_test_mem
       integer nxtask,n1,n2,icount
@@ -59,7 +60,7 @@ c
       integer grid_nxyz,grid_nsub4,ifail
       external grid_nxyz,grid_nsub4
       double precision symfact,rmax,rmin,rad_write,rad_sh
-      double precision grid_lcube,lcubez
+      double precision grid_lcube,lcubez,enuc
       external grid_lcube
       integer i
       logical oprint
@@ -96,16 +97,14 @@ c
       owritefile= .false.
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
-         if (.not. grid_file_open(gridfilename, memsize, filesize))
+         if(.not.geom_nuc_rep_energy(geom, enuc)) 
+     .        call errquit(' gridquad: enucrep failed ',0)
+         if (.not. grid_file_open(.false.,enuc,
+     .        gridfilename, memsize, filesize))
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif
 c
       owritefile= grid_test_mem (rtdb, nq_list)
-c
-c     get partitioning function
-c
-cedo      if(lssw) do_interp = xc_interp(whichssw)
-
       ntot_cube=0
 c
       call grid_buckinit(rtdb)
@@ -225,7 +224,7 @@ c
          call grid_buckend()
          if (l_cache .ne. -1) then
             if (.not. ma_free_heap(l_cache))
-     $           call errquit('grid_file_close: free heap?',0)
+     $           call errquit('grid_quadvw: free heap?',0)
          endif
          lcubez=1d+10
          do i=1,ntypes

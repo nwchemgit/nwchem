@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive, s34, rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.22 2000-06-09 19:11:55 edo Exp $
+* $Id: dftg_getxc.F,v 1.23 2000-07-18 01:13:20 edo Exp $
 *
       implicit none
 c      
@@ -31,6 +31,7 @@ c!!! BGJ test !!!
 #include "bgj.fh"
 c!!! BGJ test !!!
 #include "cgridfile.fh"
+#include "geom.fh"
 c 
       integer cetobfr(2,natom)
       double precision rdens_atom(ipol*natom*natom)    
@@ -38,8 +39,12 @@ c
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       logical status,grid_on_file
 c
+      integer filesize, memsize
+      character*255 gridfilename
       integer nproc,i
-      double precision  tot
+      double precision  tot,enuc
+      logical grid_file_open,grid_file_rewind,grid_dump_read
+      external grid_file_open,grid_file_rewind,grid_dump_read
 c
       nproc = ga_nnodes()
 c
@@ -59,6 +64,26 @@ c
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &     grid_on_file))then
          grid_on_file = .false.
+      endif
+      if(.not.grid_written) then
+c
+c     check if we can get the grid from a file
+c         
+         if(.not.geom_nuc_rep_energy(geom, Enuc)) 
+     .        call errquit(' gridquad: enucrep failed ',0)
+         if(rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) then
+            grid_written=
+     .           grid_file_open(.true.,enuc,
+     .           gridfilename, memsize, filesize)
+            if(grid_written) then
+               if(filedump_opened) then
+                  if(.not.grid_dump_read(.true.)) call errquit(
+     /     ' dftgetxc: grdumpread failed ',0)
+               else
+                  file_opened=.false.
+               endif
+            endif
+         endif
       endif
       if(grid_on_file.and.grid_written) then
          call dftg_gridv0(rtdb, iga_dens, force, natom, oactive, 

@@ -2,9 +2,9 @@
      &                         nbf_ao, mbf_ao, nat, nq, chi, delchi, 
      &                         heschi, Amat, Cmat, ibf, iniz, ifin, 
      &                         PPP, F, zzz, hh, g_dens, force, 
-     &                         oactive, nactive)
+     &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.5 2000-04-18 00:35:28 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.6 2000-07-18 01:13:20 edo Exp $
 *
       Implicit none
 c
@@ -17,7 +17,6 @@ c
       integer ictr
       integer ipol, nbf_ao, mbf_ao, nat, nq
       Integer AO_bas_han
-      Integer nactive
       logical GRAD, oactive(nat)
       double precision zzz(3,mbf_ao)
       double precision PPP(nbf_ao), F(mbf_ao)

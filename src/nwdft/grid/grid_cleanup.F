@@ -1,12 +1,13 @@
       Subroutine grid_cleanup(rtdb)
 c
-c$Id: grid_cleanup.F,v 1.2 2000-03-27 19:15:31 edo Exp $
+c$Id: grid_cleanup.F,v 1.3 2000-07-18 01:12:45 edo Exp $
 c
       implicit none
 c      
 #include "rtdb.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
+#include "geom.fh"
 c
       integer rtdb
       logical grid_on_file

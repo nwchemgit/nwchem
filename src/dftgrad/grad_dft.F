@@ -1,6 +1,6 @@
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.28 2000-04-17 22:02:35 zzhang Exp $
+* $Id: grad_dft.F,v 1.29 2000-07-18 01:13:21 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -29,7 +29,7 @@ c
       integer nbases
       logical converged, status
       integer bases(3), plevel
-      character*80 theory, key, prefix
+      character*80 theory
 c
 c----------------------------------------------------------------------- 
 c
