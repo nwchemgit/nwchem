@@ -1,4 +1,4 @@
-C $Id: int_acc.F,v 1.14 2003-01-23 00:45:25 edo Exp $
+C $Id: int_acc.F,v 1.15 2003-02-07 22:52:24 edo Exp $
 *
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_std}
@@ -14,7 +14,7 @@ c:tex-\end{verbatim}
 #include "apiP.fh"
 c:tex-The default ''standard'' value for the integral accuracy is:
 c:tex-\begin{verbatim}
-c      parameter(val_def = 1.0d-11)
+c      parameter(val_def = 1.0d-12)
 c:tex-\end{verbatim}
 c
       val_int_acc = val_int_acc_std

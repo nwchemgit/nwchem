@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.63 2003-01-23 00:45:25 edo Exp $
+c $Id: int_init.F,v 1.64 2003-02-07 22:52:24 edo Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -52,7 +52,7 @@ c
          ouseracc = .true.
       else
 cedo         val_int_acc_std = 1d-15
-         val_int_acc_std = 1d-11
+         val_int_acc_std = 1d-12
       end if
       if (rtdb_get(rtdb,'int:acc_high',mt_dbl,1,val_int_acc_high)) then 
          ouseracc = .true.
