@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:22 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2004-05-14 16:24:04 edo Exp $
 #
 
           OBJ_OPTIMIZE = paw_matrix_hartree.o paw_pot_hartree.o \
@@ -9,7 +9,7 @@
 
       LIBRARY =	libpaw.a
 
-   USES_BLAS = 
+   USES_BLAS =  paw_pot_hartree.F
 
   LIB_INCLUDES = -I../include/
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.12 2004-03-08 22:51:25 bylaska Exp $
+# $Id: GNUmakefile,v 1.13 2004-05-14 16:18:21 edo Exp $
 #
  SUBDIRS = shake
 
@@ -21,7 +21,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = ion.F fcoord.f  incell1.f incell3.f seperate_molpsp.F seperate_pointcharge.F
+    USES_BLAS = ion.F fcoord.f  incell1.f incell3.f seperate_molpsp.F seperate_pointcharge.F incell2.f
 
   LIB_DEFINES = 
 

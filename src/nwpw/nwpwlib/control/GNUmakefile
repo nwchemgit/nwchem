@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2003-12-02 19:17:08 bylaska Exp $
+# $Id: GNUmakefile,v 1.8 2004-05-14 16:11:59 edo Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -14,7 +14,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = 
+    USES_BLAS = control.F
 
   LIB_DEFINES = 
 
