@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.43 1999-10-26 19:32:16 d3j191 Exp $
+c $Id: md_main.F,v 1.44 1999-10-26 21:43:44 d3j191 Exp $
 c
       implicit none
 c
@@ -1081,7 +1081,7 @@ c
 c     add center of mass coordinates from reference coordinates
 c
       call md_addref(.true.,dbl_mb(i_xwm),dbl_mb(i_xwcr),
-     + dbl_mb(i_xsm),dbl_mb(i_xscr))
+     + dbl_mb(i_xsm),dbl_mb(i_xscr),dbl_mb(i_dsr))
 c
 c     center solute in box
 c
