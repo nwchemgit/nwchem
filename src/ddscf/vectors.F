@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.20 1996-01-19 07:29:34 d3g681 Exp $
+C$Id: vectors.F,v 1.21 1996-03-04 23:51:29 rg240 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -455,20 +455,24 @@ c
                call ga_put(g_vecs(set), 1, dim1, i, i, dbl_mb(k_vecj),1)
                call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_veci),1)
 c
-               ioff = i + (set-1)*dim1
-               joff = j + (set-1)*dim1
-               tmp = occ(ioff)
-               occ(ioff) = occ(joff)
-               occ(joff) = tmp
-               tmp = eval(ioff)
-               eval(ioff) = eval(joff)
-               eval(joff) = tmp
-c     
             enddo
             if (oprint) call util_flush(6)
             if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
             if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
          endif
+c
+         do pair = 1, nelem, 2
+           i = int_mb(index+pair-1)
+           j = int_mb(index+pair  )
+           ioff = i + (set-1)*dim1
+           joff = j + (set-1)*dim1
+           tmp = occ(ioff)
+           occ(ioff) = occ(joff)
+           occ(joff) = tmp
+           tmp = eval(ioff)
+           eval(ioff) = eval(joff)
+           eval(joff) = tmp
+         enddo
 c
          call ga_sync
 c
