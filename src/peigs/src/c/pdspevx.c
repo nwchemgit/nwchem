@@ -759,7 +759,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-
+      
 
    if ( linfo != 0 ) {
 
@@ -767,11 +767,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      fflush(stdout);
      pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
 	       dplus, lplus, mapZ, &neigval, &nsplit, eval, iblock, isplit,
-	       d_scrat, i_scrat, info);
-
+	      d_scrat, i_scrat, info);
+     
       syncco[0] = 0.0e0;
-      gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-
+     gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
+     
      
      if ( *info != 0 ) {
      printf(" error in peigs...pstebz9 me = %d \n", me);
@@ -892,7 +892,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, clustr_info, d_scrat,i_scrat, iptr, info);
 
-      /*
+/*
       file = fopen(filename, "w");
       
       for ( iii = 0; iii < 4*msize; iii++)
@@ -902,7 +902,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       for ( iii = 0; iii < msize; iii++)
 	fprintf(file, " me = %d pstein5 isplit %d %d \n", me, iii, isplit[iii]);
       fflush(file);
-      */
+*/
       
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 11, mapA[0], nn_proc, proclist, d_scrat);
@@ -931,17 +931,17 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		i_scrat, iptr, &linfo);
       
       
-      /*
+/*
       for ( iii = 0; iii < 4*msize; iii++)
 	fprintf(file, " me = %d pstein4 clustr_info %d %d \n", me, iii, clustr_info[iii]);
       for ( iii = 0; iii < msize; iii++)
 	fprintf(file, " me = %d pstein4 iblock %d %d \n", me, iii, iblock[iii]);
       for ( iii = 0; iii < msize; iii++)
 	fprintf(file, " me = %d pstein4 isplit %d %d \n", me, iii, isplit[iii]);
-      
+
       close(file);
       fflush(file);
-      */
+*/
       
       
 	/*
