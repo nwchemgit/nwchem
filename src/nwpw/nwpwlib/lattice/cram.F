@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.12 2002-06-06 16:22:57 bylaska Exp $
+* $Id: cram.F,v 1.13 2002-06-11 23:17:23 bylaska Exp $
 *
 
 *     ***********************************
@@ -599,7 +599,7 @@
 
 
 *     **** local variables ****
-      integer np
+c      integer np
 
 *     **** external functions ****
       real*8   ddot
@@ -609,9 +609,9 @@
       call nwpw_timing_start(2)
 
 
-      call Parallel_np(np)
+c      call Parallel_np(np)
 
-      sum = ddot(2*int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
+      sum = ddot(2*int_mb(nidb2_list(1)+nb),A,1,B,1)
 
 c     if (np.gt.1) call C3dB_SumAll(sum)
 
@@ -650,7 +650,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       call nwpw_timing_start(2)
       call Parallel_np(np)
 
-      sum = ddot(2*int_mb(nidb2_list(1)+nb),A(1),1,B(1),1)
+      sum = ddot(2*int_mb(nidb2_list(1)+nb),A,1,B,1)
 
       if (np.gt.1) call C3dB_SumAll(sum)
 

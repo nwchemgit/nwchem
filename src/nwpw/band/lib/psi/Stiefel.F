@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.6 2002-05-03 19:44:01 bylaska Exp $
+* $Id: Stiefel.F,v 1.7 2002-06-11 23:17:22 bylaska Exp $
 *
 
 
@@ -516,7 +516,7 @@
       do nb=1,nbrill
       do ms=1,ispin
          do j=n1(ms),n2(ms)
-            call Cram_cc_idot(nb,A(1,j,nbrill),B(1,j,nbrill),sum)
+            call Cram_cc_idot(nb,A(1,j,nb),B(1,j,nb),sum)
             MM(ms,nb) = MM(ms,nb) + sum
          end do
       end do
