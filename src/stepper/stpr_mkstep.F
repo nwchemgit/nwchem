@@ -3,7 +3,7 @@
      &       ENERGY, CONVGE, CONVGG,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
      &       CNVGRD,rtdb)
-c $Id: stpr_mkstep.F,v 1.5 1996-06-22 00:53:28 d3e129 Exp $
+c $Id: stpr_mkstep.F,v 1.6 1998-03-13 01:28:16 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD,LPRINT, oprint, oprint_step
 #include "chow.fh"
@@ -416,15 +416,16 @@ c
       integer k_actlist ! ma index for actlist
       integer h_step    ! ma handle for copy of step
       integer k_step    ! ma index for copy of step
-      logical status    ! logical for return of rtdb functions
       integer i         ! loop index
       integer atom      ! atom index
       integer indx      ! offset in step and h_step
+      integer ma_type
 c
 * check for active atom list
-      status = rtdb_get(rtdb,'geometry:nactive', mt_int, 1, nactive)
-      if (.not.status) return
 *..
+      if (.not.rtdb_ma_get(rtdb,'geometry:actlist', ma_type, 
+     $     nactive,h_actlist)) return
+c
       oprint = util_print('step',print_debug)
       if (oprint) then
         write(luout,*)' step before removal of active atoms'
@@ -434,10 +435,6 @@ c
       nat = nat3/3
       if (nactive.le.0 .or. nactive.gt.nat) call errquit
      &    ('stpr_active: invalid number of active atoms',nactive)
-      if (.not.rtdb_ma_get
-     &    (rtdb,'geometry:actlist', mt_int, nactive,h_actlist))
-     &    call errquit
-     &    ('stpr_active: rtdb_ma_get failed for actlist',911)
       if (.not.MA_get_index(h_actlist,k_actlist)) call errquit
      &    ('stpr_active: ma_get_index failed for actlist',911)
 *

@@ -1,5 +1,5 @@
       SUBROUTINE stpr_inihes ( HESIAN,rtdb )
-c $Id: stpr_inihes.F,v 1.3 1996-06-22 00:53:27 d3e129 Exp $
+c $Id: stpr_inihes.F,v 1.4 1998-03-13 01:28:15 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       PARAMETER (ZERO=0.0D0, ONE=1.0D0)
 #include "stdio.fh"
@@ -13,10 +13,9 @@ c $Id: stpr_inihes.F,v 1.3 1996-06-22 00:53:27 d3e129 Exp $
       logical oprint_inithess
 #if defined(WEIGHT_HESS)
       integer indx, indx_x, indx_y, indx_z
-      integer nactive,nat
+      integer nactive,nat,ma_type
       integer h_actlist, k_actlist
       double precision valinf
-      logical status
 #endif
 c
 * zeroed matrix
@@ -25,9 +24,9 @@ c
       oprint_inithess = util_print('inithess',print_debug)
 * check for active atom list
 #if defined(WEIGHT_HESS)
-      status = rtdb_get(rtdb,'geometry:nactive', mt_int, 1, nactive)
-      if (status) then
-        if (MWC) then
+      if (rtdb_ma_get(rtdb,'geometry:actlist', ma_type, 
+     $     nactive, h_actlist)) then 
+       if (MWC) then
           write(luout,*)' Unknown how to fill hessian for NWC ',
      &        'stepper walking'
           call errquit('stpr_inihes: fatal logical error',911)
@@ -35,10 +34,6 @@ c
         nat = nat3/3
         if (nactive.le.0 .or. nactive.gt.nat) call errquit
      &      ('stpr_inihes: invalid number of active atoms',nactive)
-        if (.not.rtdb_ma_get
-     &      (rtdb,'geometry:actlist', mt_int, nactive,h_actlist))
-     &      call errquit
-     &      ('stpr_inihes: rtdb_ma_get failed for actlist',911)
         if (.not.MA_get_index(h_actlist,k_actlist)) call errquit
      &      ('stpr_inihes: ma_get_index failed for actlist',911)
 * have active list of atoms now fill matrix with infinite values        

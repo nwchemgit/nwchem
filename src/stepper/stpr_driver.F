@@ -6,7 +6,7 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
-c $Id: stpr_driver.F,v 1.9 1997-06-03 21:43:19 d3e129 Exp $
+c $Id: stpr_driver.F,v 1.10 1998-03-13 01:28:15 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
@@ -62,7 +62,8 @@ C
 C
 C     Partition hessian.
 C
-      CALL stpr_partit(HESS, GRAD, COORD, HIEIGS, GISR, VC, SCRSYM,
+      CALL stpr_partit(rtdb,
+     $     HESS, GRAD, COORD, HIEIGS, GISR, VC, SCRSYM,
      &            SCRSQ, VECSQ, STEP, SELECT, P, HMP,
      &            ATMASS, CMASS, TENIN, ENERGY,
      &            CONVGE, CONVGG,

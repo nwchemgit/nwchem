@@ -1,15 +1,16 @@
-      SUBROUTINE stpr_partit(
+      SUBROUTINE stpr_partit(rtdb,
      &       HESS, GRAD, COORD, HIEIGS, GISR, VC, SCRSYM,
      &       SCRSQ, VECSQ, STEP, SELECT, P, HMP,
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.6 1996-06-22 00:53:29 d3e129 Exp $
+c $Id: stpr_partit.F,v 1.7 1998-03-13 01:28:16 d3g681 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
       LOGICAL COOK, LPRINT, oprint
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
+#include "rtdb.fh"
 #include "util.fh"
 #include "chow.fh"
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -23,6 +24,7 @@ c
      &          P(NAT3TR), HMP(NAT3TR), ATMASS(NATOM),
      &          CMASS(3), TENIN(3,3)
       DIMENSION UNIVEC(3), SQMAS(3)
+      character*26 date
 C
 C     Internal hessian/gradient symmetry tolerance.
 C
@@ -209,6 +211,19 @@ C        WRITE(6,*)'  Squared norm of vector ',I,' is ',RNORM
      &              ' assumed. '
         END IF
   130 CONTINUE
+
+
+      if (rtdb_get_info(rtdb,'geometry:actlist', ma_type, 
+     $     nactive,date)) then
+c
+c     DO NOT project out rotn/trans if have frozen some cartesians
+c
+**         write(6,*) ' NOT PROJECTING !!!! '
+         nexter = 0
+         ired = 0
+      endif
+
+
       IF(IRED.NE.0.AND.IRED.NE.6)THEN
         call dcopy(nat3,Vc(1,6),1,Vc(1,IRED),1)
 *        DO 140 I = 1,NAT3
