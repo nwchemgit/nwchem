@@ -1,191 +1,211 @@
-title Si2
+title "CH3Cl optimization"
 
-start Si2
 
-memory global 55 mb 
+#memory 950 mb
 
-geometry units angstroms noautosym
-Si  1.1230000000 0.00000000  0.00000000
-Si -1.1230000000 0.00000000 0.00000000
+start ch3cl.pspw
+
+charge 0
+
+geometry
+C             1.141270   -0.000034    0.000004
+Cl           -0.664540    0.000021   -0.000006
+H             1.483169   -0.877342   -0.547984
+H             1.483210    0.913220   -0.485690
+H             1.483190   -0.036019    1.033759
 end
 
+############################################################
+######### Grid expansion and cell change testing ###########
+############################################################
+set nwpw:minimizer 2
 
-#******* Generate a Pseudopotential for Silicon **********************
-PSPW 
-   PSP_GENERATOR                       
-      pseudopotential_filename: Si.psp  # Si.psp is the name of the datafile
-                                        # generated
+nwpw 
+   simulation_cell
+     ngrid 8 8 8
+   end
+end
+task pspw energy
+nwpw 
+   simulation_cell
+     FCC 32.0
+     ngrid 16 16 16
+   end
+end
+task pspw energy
 
-      element: Si                       # label used for the carbon atom
-      charge: 14.0                       # nuclear charge of carbon atom
-      mass_number: 28.0                 # mass (a.u.) of carbon atom
-      solver_type: pauli                # Pauli or Schrodinger op
-      pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
-      exchange_type: pbe96              # dirac and pbe96 options
-      correlation_type: pbe96           # vosko and pbe96 options
+nwpw
+   simulation_cell
+     lattice
+       lat_a 18.0
+       lat_b 18.2
+       lat_c 18.2
+     end
+   end
+end
+task pspw energy
 
-      atomic_filling: 3 2   # Ncore and Nvalence states
-        1 s 2.0             # core state  1s^2
-        2 s 2.0             # coren state 2s^2
-        2 p 6.0             # coren state 2p^2
-        3 s 2.0             # valence state 3s^2
-        3 p 2.0             # valence state 3p^2
-   END
-   ANALYSIS
-      psp_filename: Si.psp
-   END
-END
+nwpw
+   simulation_cell
+     lattice_vectors
+       19.0 0.0  0.0
+        0.0 19.0 0.0
+        0.0  0.0 19.0 
+   end
+end
+task pspw energy
 
-PSPW
-   #**** define a simulation cell (FCC; a=34bohrs)*****
-   SIMULATION_CELL
-      cell_name: small
-      boundry_conditions: periodic
-      lattice_vectors:
-         17.0  17.0   0.0 
-         17.0   0.0  17.0
-          0.0  17.0  17.0 
-      ngrid: 8 8 8
-   END
-   SIMULATION_CELL
-      cell_name: medium
-      boundry_conditions: periodic
-      lattice_vectors:
-         17.0  17.0   0.0 
-         17.0   0.0  17.0
-          0.0  17.0  17.0 
-      ngrid: 24 24 24
-   END
-   SIMULATION_CELL
-      cell_name: charge
-      boundry_conditions: aperiodic
-      lattice_vectors:
-         17.0  17.0   0.0 
-         17.0   0.0  17.0
-          0.0  17.0  17.0 
-      ngrid: 24 24 24
-   END
-END
+### add virtual orbital  testing ###
+set nwpw:excited_ne 4 0
 
-#******* Generate a Formmatted pseudopotential for silicon *****
-PSPW
-   PSP_FORMATTER
-      reset
-      cell_name: small
-      psp_filename: Si.psp
-      formatted_filename: Si.small.vpp
-   END
-END
-task pspw psp_formatter
-
-PSPW
-   PSP_FORMATTER
-      reset
-      cell_name: medium
-      psp_filename: Si.psp
-      formatted_filename: Si.medium.vpp
-   END
-END
-task pspw psp_formatter
-
-PSPW
-   PSP_FORMATTER
-      reset
-      cell_name: charge
-      psp_filename: Si.psp
-      formatted_filename: Si.charge.vpp
-   END
-END
-task pspw psp_formatter
+nwpw 
+   simulation_cell
+     BCC 32.0
+   end
+end
+task pspw energy
 
 
-#******* Generate a initial wavefunction based on planewaves ****
-PSPW
-   WAVEFUNCTION_INITIALIZER
-      unrestricted
-      up_filling: 5
-               0 0 0     0
-               1 0 0    -1
-               0 1 0    -1
-               0 0 1    -1
-               0 0 1    +1
-      down_filling: 3
-               0 0 0     0
-               1 0 0    -1
-               0 1 0    -1
-      wavefunction_filename: Si2.elc00
-      cell_name: small
-   END
-END
-task pspw wavefunction_initializer
+nwpw 
+   simulation_cell
+     SC 20.0
+   end
+end
+task pspw energy
 
-#***** do coarse optimization with steepest descent ********
-PSPW
-   STEEPEST_DESCENT
-      cell_name: small
-      formatted_filename: Si.small.vpp
-      input_wavefunction_filename:  Si2.elc00
-      output_wavefunction_filename: Si2.elc00
-      fake_mass: 400000.0d0
-      time_step: 51.8d0
-      loop: 10 10
-      Mulliken
-   END 
-END
+nwpw 
+   simulation_cell
+     ngrid 32 32 32
+   end
+end
+task pspw energy
+
+############################################
+####### steepest descent testing ###########
+############################################
+nwpw
+  steepest_descent
+    fake_mass 400000.0d0
+    time_step 51.8d0
+    loop 10 10
+   end
+end
 task pspw steepest_descent
 
-#***** Setup conjugate gradient code ****
-PSPW
-   CONJUGATE_GRADIENT
-      cell_name: small
-      formatted_filename: Si.small.vpp
-      input_wavefunction_filename:  Si2.elc00
-      output_wavefunction_filename: Si2.elc00
-      loop: 25 100
-      Mulliken
-   END 
-END
-task pspw energy
-task pspw steepest_descent
 
-#***** expand the wavefunction to larger grid *****
-PSPW
-   WAVEFUNCTION_EXPANDER
-      old_wavefunction_filename: Si2.elc00
-      new_wavefunction_filename: Si2.elc01
-      new_ngrid: 24 24 24
-   END
-END
-task pspw wavefunction_expander
+############################################
+######### Minimizer testing ################
+############################################
 
-#***** re-setup conjugate gradient code ****
-PSPW
-   CONJUGATE_GRADIENT
-      cell_name: medium
-      formatted_filename: Si.medium.vpp
-      input_wavefunction_filename:  Si2.elc01
-      output_wavefunction_filename: Si2.elc01
-      loop: 25 100
-      exchange_correlation: pbe96
-   END 
-END
-
-#**** Find energy ****
+#### testing Grassman CG minimizer ####
+set nwpw:minimizer 1
 task pspw energy
 
-
-#***** re-setup conjugate gradient code  to use aperiodic convoultion ****
-PSPW
-   CONJUGATE_GRADIENT
-      cell_name: charge
-      formatted_filename: Si.charge.vpp
-      input_wavefunction_filename:  Si2.elc01
-      output_wavefunction_filename: Si2.elc01
-      loop: 25 100
-      exchange_correlation: pbe96
-   END 
-END
-
-#**** Find energy ****
+#### testing Grassman LMBBFGS minimizer ####
+set nwpw:minimizer 2
 task pspw energy
+
+#### testing Grassman DIIS minimizer ####
+set nwpw:minimizer 3
+task pspw energy
+
+#### testing Stiefel CG minimizer ####
+set nwpw:minimizer 4
+task pspw energy
+
+#### testing SCF - Simple mixing minimizer ####
+set nwpw:minimizer 5
+set nwpw:scf_algorithm 0
+#set nwpw:ks_alpha 0.2
+#set nwpw:precondition .true.
+task pspw energy
+
+#### testing SCF - Anderson mixing minimizer ####
+set nwpw:minimizer 5
+set nwpw:scf_algorithm 1
+task pspw energy
+
+#### testing SCF - Johnson mixing minimizer ####
+set nwpw:minimizer 5
+set nwpw:scf_algorithm 2
+task pspw energy
+
+#### testing Projected Grassman LMBFGS minimizer ####
+set nwpw:minimizer 6
+task pspw energy
+
+
+
+#### testing Stiefel LMBFGS minimizer ####
+set nwpw:minimizer 7
+task pspw energy
+
+
+
+############################################
+############## PBE96 testing ###############
+############################################
+set nwpw:minimizer 2
+
+nwpw
+   xc pbe96
+end
+task pspw energy
+
+############################################
+########### Free-Space testing #############
+############################################
+set nwpw:minimizer 2
+
+nwpw
+   simulation_cell
+     boundary_conditions aperiodic
+   end
+   xc pbe96
+end
+task pspw energy
+
+
+############################################
+########### Mulliken testing ###############
+############################################
+set nwpw:minimizer 2
+
+### lcao projection ###
+nwpw
+   Mulliken lcao
+end
+task pspw energy
+
+### Kawai projection ###
+nwpw
+   Mulliken kawai
+end
+task pspw energy
+
+
+
+############################################
+########### Efield testing #################
+############################################
+set nwpw:minimizer 2
+
+nwpw
+   Mulliken 
+   efield
+end
+task pspw energy
+
+
+############################################
+############## APC testing #################
+############################################
+set nwpw:minimizer 2
+
+set pspw_APC:Gc 2.5
+set pspw_APC:nga 3
+set pspw_APC:gamma 0.6 0.9 1.35
+
+task pspw energy
+
 

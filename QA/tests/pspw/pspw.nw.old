@@ -1,0 +1,191 @@
+title Si2
+
+start Si2
+
+memory global 55 mb 
+
+geometry units angstroms noautosym
+Si  1.1230000000 0.00000000  0.00000000
+Si -1.1230000000 0.00000000 0.00000000
+end
+
+
+#******* Generate a Pseudopotential for Silicon **********************
+PSPW 
+   PSP_GENERATOR                       
+      pseudopotential_filename: Si.psp  # Si.psp is the name of the datafile
+                                        # generated
+
+      element: Si                       # label used for the carbon atom
+      charge: 14.0                       # nuclear charge of carbon atom
+      mass_number: 28.0                 # mass (a.u.) of carbon atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
+      exchange_type: pbe96              # dirac and pbe96 options
+      correlation_type: pbe96           # vosko and pbe96 options
+
+      atomic_filling: 3 2   # Ncore and Nvalence states
+        1 s 2.0             # core state  1s^2
+        2 s 2.0             # coren state 2s^2
+        2 p 6.0             # coren state 2p^2
+        3 s 2.0             # valence state 3s^2
+        3 p 2.0             # valence state 3p^2
+   END
+   ANALYSIS
+      psp_filename: Si.psp
+   END
+END
+
+PSPW
+   #**** define a simulation cell (FCC; a=34bohrs)*****
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         17.0  17.0   0.0 
+         17.0   0.0  17.0
+          0.0  17.0  17.0 
+      ngrid: 8 8 8
+   END
+   SIMULATION_CELL
+      cell_name: medium
+      boundry_conditions: periodic
+      lattice_vectors:
+         17.0  17.0   0.0 
+         17.0   0.0  17.0
+          0.0  17.0  17.0 
+      ngrid: 24 24 24
+   END
+   SIMULATION_CELL
+      cell_name: charge
+      boundry_conditions: aperiodic
+      lattice_vectors:
+         17.0  17.0   0.0 
+         17.0   0.0  17.0
+          0.0  17.0  17.0 
+      ngrid: 24 24 24
+   END
+END
+
+#******* Generate a Formmatted pseudopotential for silicon *****
+PSPW
+   PSP_FORMATTER
+      reset
+      cell_name: small
+      psp_filename: Si.psp
+      formatted_filename: Si.small.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   PSP_FORMATTER
+      reset
+      cell_name: medium
+      psp_filename: Si.psp
+      formatted_filename: Si.medium.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   PSP_FORMATTER
+      reset
+      cell_name: charge
+      psp_filename: Si.psp
+      formatted_filename: Si.charge.vpp
+   END
+END
+task pspw psp_formatter
+
+
+#******* Generate a initial wavefunction based on planewaves ****
+PSPW
+   WAVEFUNCTION_INITIALIZER
+      unrestricted
+      up_filling: 5
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+               0 0 1    -1
+               0 0 1    +1
+      down_filling: 3
+               0 0 0     0
+               1 0 0    -1
+               0 1 0    -1
+      wavefunction_filename: Si2.elc00
+      cell_name: small
+   END
+END
+task pspw wavefunction_initializer
+
+#***** do coarse optimization with steepest descent ********
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: Si.small.vpp
+      input_wavefunction_filename:  Si2.elc00
+      output_wavefunction_filename: Si2.elc00
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 10 10
+      Mulliken
+   END 
+END
+task pspw steepest_descent
+
+#***** Setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: Si.small.vpp
+      input_wavefunction_filename:  Si2.elc00
+      output_wavefunction_filename: Si2.elc00
+      loop: 25 100
+      Mulliken
+   END 
+END
+task pspw energy
+task pspw steepest_descent
+
+#***** expand the wavefunction to larger grid *****
+PSPW
+   WAVEFUNCTION_EXPANDER
+      old_wavefunction_filename: Si2.elc00
+      new_wavefunction_filename: Si2.elc01
+      new_ngrid: 24 24 24
+   END
+END
+task pspw wavefunction_expander
+
+#***** re-setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: medium
+      formatted_filename: Si.medium.vpp
+      input_wavefunction_filename:  Si2.elc01
+      output_wavefunction_filename: Si2.elc01
+      loop: 25 100
+      exchange_correlation: pbe96
+   END 
+END
+
+#**** Find energy ****
+task pspw energy
+
+
+#***** re-setup conjugate gradient code  to use aperiodic convoultion ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: charge
+      formatted_filename: Si.charge.vpp
+      input_wavefunction_filename:  Si2.elc01
+      output_wavefunction_filename: Si2.elc01
+      loop: 25 100
+      exchange_correlation: pbe96
+   END 
+END
+
+#**** Find energy ****
+task pspw energy
+
