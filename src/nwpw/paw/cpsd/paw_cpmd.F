@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.13 2005-01-31 03:58:32 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.14 2005-01-31 16:38:45 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.13  2005/01/31 03:58:32  bylaska
+* aperiodic bug fixes in PAW-CPMD ... EJB
+*
 * Revision 1.12  2005/01/31 02:09:12  bylaska
 * Large nested loops in PAW  parallelized using an openMP-like strategy.
 * ...EJB
@@ -126,7 +129,7 @@
 *     real*8  hml(2*nemax*nemax)
 *     real*8  lmd(2*nemax*nemax)
       integer eig(2),hml(2),lmd(2),lmd1(2)
-      real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2)
+      real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
 
 
 
@@ -221,11 +224,11 @@
       logical  control_Nose,pspw_qmmm_found
       external control_Nose,pspw_qmmm_found
 
-      real*8   control_Nose_Te,Nose_Qe,control_Nose_Pe,Nose_Ee0
-      external control_Nose_Te,Nose_Qe,control_Nose_Pe,Nose_Ee0
+      real*8   control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
+      external control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
 
-      real*8   control_Nose_Tr,Nose_Qr,control_Nose_Pr,Nose_Er0
-      external control_Nose_Tr,Nose_Qr,control_Nose_Pr,Nose_Er0
+      real*8   control_Nose_Tr,Nose_Qr,Nose_Pr,Nose_Er0
+      external control_Nose_Tr,Nose_Qr,Nose_Pr,Nose_Er0
       logical      v_psi_filefind
       external     v_psi_filefind
 
@@ -493,20 +496,35 @@ c      call paw_vloc_init()
       call ion_init_ke(ekg,eki0,eki1)
 
 *     **** Initialize thermostats ****
-      SA=.false.
-      Te_init     = 0.0d0
-      Tr_init     = 0.0d0
       if (control_Nose()) then
          call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
          call Nose_Init(w)
-         if (control_SA()) then
+      end if
+
+
+*     **** Initialize simulated annealing ****
+      SA=.false.
+      Te_init     = 0.0d0
+      Tr_init     = 0.0d0
+      sa_alpha(1) = 1.0d0
+      sa_alpha(2) = 1.0d0
+      if (control_SA()) then
+         if (control_Nose()) then
             SA          = .true.
             sa_decay(1) = control_SA_decay(1)
             sa_decay(2) = control_SA_decay(2)
             Te_init     = control_Nose_Te()
             Tr_init     = control_Nose_Tr()
+         else
+            dt = control_time_step()
+            SA          = .false.
+            sa_decay(1) = control_SA_decay(1)
+            sa_decay(2) = control_SA_decay(2)
+            sa_alpha(1) = dexp( -(dt/control_SA_decay(1)) )
+            sa_alpha(2) = dexp( -(dt/control_SA_decay(2)) )
          end if
       end if
+
 
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
@@ -637,16 +655,17 @@ c      call paw_vloc_init()
          write(6,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
            write(6,1295)
-           if (control_SA()) then
-           write(6,1296) sa_decay(1),sa_decay(2)
-           end if
            write(6,1297) control_Nose_Te(),Nose_Qe(),
-     >                   control_Nose_Pe(),Nose_Ee0()
+     >                   Nose_Pe(),Nose_Ee0()
            write(6,1298) control_Nose_Tr(),Nose_Qr(),
-     >                   control_Nose_Pr(),Nose_Er0()
+     >                   Nose_Pr(),Nose_Er0()
          else
            write(6,1294)
          end if
+        if (control_SA()) then
+           write(6,1296) sa_decay(1),sa_decay(2)
+         end if
+
          if (mulliken) write(6,1299)
          write(6,1300)
          write(6,1305)
@@ -727,7 +746,7 @@ c      call paw_vloc_init()
 
 *     ***** first step using velocity ****
       verlet = .false.
-      call paw_inner_loop_md(verlet,ispin,ne,
+      call paw_inner_loop_md(verlet,sa_alpha,ispin,ne,
      >             npack1,nfft3d,nemax,
      >             dcpl_mb(psi0(1)),
      >             dcpl_mb(psi1(1)),
@@ -755,7 +774,7 @@ c      call paw_vloc_init()
       Tr_new = Tr_init
   101 continue
          icount = icount + 1
-         call paw_inner_loop_md(verlet,ispin,ne,
+         call paw_inner_loop_md(verlet,sa_alpha,ispin,ne,
      >             npack1,nfft3d,nemax,
      >             dcpl_mb(psi0(1)),
      >             dcpl_mb(psi1(1)),
@@ -1164,6 +1183,8 @@ c      call paw_vloc_end()
       call paw_xc_end()
       if (control_move()) call paw_force_end()
       call paw_gaunt_end()
+      if (control_Nose()) call Nose_end()
+
 
       value =           MA_free_heap(psir(2))
       value = value.and.MA_free_heap(Hpsi(2))
@@ -1180,6 +1201,9 @@ c      call paw_vloc_end()
 
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+
+*     **** do anaylysis on MOTION files ****
+      call cpmd_properties(rtdb)
 
 *                |***************************|
 ****************** report consumed cputime   **********************

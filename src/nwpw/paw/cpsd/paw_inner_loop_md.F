@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.8 2005-01-31 03:58:32 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.9 2005-01-31 16:38:45 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2005/01/31 03:58:32  bylaska
+* aperiodic bug fixes in PAW-CPMD ... EJB
+*
 * Revision 1.7  2005/01/31 03:28:37  bylaska
 * Thermostat bug fix in PAW-CPMD...EJB
 *
@@ -55,7 +58,7 @@
 *
 *
 
-      subroutine paw_inner_loop_md(verlet,
+      subroutine paw_inner_loop_md(verlet,sa_alpha,
      >                      ispin,ne,
      >                      npack1,nfft3d,nemax,
      >                      psi0,psi1,psi2,
@@ -65,6 +68,7 @@
      >                      Hpsi,psi_r)
       implicit none
       logical    verlet
+      real*8     sa_alpha(2)
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
       complex*16 psi0(npack1,nemax)
@@ -99,7 +103,7 @@
       integer index,indext
       double precision evloc_pw,evloc_atom
       real*8  sum,Eold,eorbit,ehartr_pw,enlocal
-      real*8  eke,eki,sse,ssr
+      real*8  eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,h
       real*8  deltamm,vzero,fmass
       double precision ekin_atom,ekin_pw
@@ -178,7 +182,7 @@
       deltamm = 0.0d0
 
       field_exist = pspw_qmmm_found().or.pspw_charge_found()
-      allow_translation = control_allow_translation()
+c      allow_translation = control_allow_translation()
 
 
 
@@ -253,6 +257,11 @@
       fmass = control_fake_mass()
       dte   = dt*dt/fmass
       if (.not. verlet) dte=0.5d0*dte
+      if (.not.nose) then
+        sa1 =    1.0d0/(2.0d0-sa_alpha(1))
+        sa2 = sa_alpha(1)/(2.0d0-sa_alpha(1))
+      end if
+
       h = 1.0d0/(2.0d0*dt)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
@@ -550,10 +559,10 @@
 *       **** remove ion forces using ion_FixIon ****
         call ion_FixIon(dbl_mb(fion(1)))
 
-        !**** center of mass constraint ****
-        if (.not.allow_translation) then
-          call remove_center_F_mass(dbl_mb(fion(1)))
-        end if
+c        !**** center of mass constraint ****
+c        if (.not.allow_translation) then
+c          call remove_center_F_mass(dbl_mb(fion(1)))
+c        end if
 
 
 
@@ -578,11 +587,11 @@
 *          **** constant energy ****
            else
              do n=1,n2(ispin)
-              call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,2.0d0,psi1(1,n),psi2(1,n))
+              call Pack_c_SMul(1,dte*sa1,Hpsi(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,-1.0d0*sa2,psi0(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,2.0d0*sa1,psi1(1,n),psi2(1,n))
              end do
-             call ion_verlet_step(dbl_mb(fion(1)),1.0d0)
+             call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
 
            end if
 
@@ -592,10 +601,10 @@
         else
            do n=1,n2(ispin)
               call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,dt,psi0(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,dt*sa_alpha(1),psi0(1,n),psi2(1,n))
               call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            end do
-           call ion_newton_step(dbl_mb(fion(1)),1.0d0)
+           call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
 
         end if
 
