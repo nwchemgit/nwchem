@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.2 1996-10-16 18:27:42 mg201 Exp $
+C $Id: ecp_gradient.F,v 1.3 1996-10-18 22:15:41 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -48,11 +48,11 @@ C $Id: ecp_gradient.F,v 1.2 1996-10-16 18:27:42 mg201 Exp $
 *   n_zeta_C (inp) - total number of ECP exponents/coefficients. This  *
 *                    is n_tot_C summed over centres.                   *
 *   l_C (inp) - maximum angular momentum of projectors on centres C    *
-*   i_cent_C - indices of ECP centres C                                *
+*   i_cent_C (inp) - indices of ECP centres C                          *
 *   n_C (inp) - number of ECP centres C                                *
 *   l_ecp_max (inp) - maximum angular momentum of any projector on any *
 *                 ECP centre                                           *
-*   sphcart - 0 for cartesian integrals, 1 for spherical integrals     *
+*   sphcart (inp) - 0 for cartesian, 1 for spherical integrals         *
 *   ecp_grads (out) - gradient integrals over ECPs                     *
 *   n_int (inp) - number of ECP gradient integrals for a given centre  *
 *                 and cartesian derivative. Should be equal to         *
@@ -186,8 +186,8 @@ C $Id: ecp_gradient.F,v 1.2 1996-10-16 18:27:42 mg201 Exp $
 *
 *   Loop over ECP centres
 *
-      if (debug_arrays) call ecp_matp(xyz_C,3,n_C,'coordinate array',
-     &    'E',78,4)
+      if (debug_arrays) call ecp_matpr (xyz_C,1,3,1,n_C,1,3,1,n_C,
+     &    'coordinate array','E',78,4)
       if (debug_gen) write (LuOut,*) 'Number of ECP centers =',n_C
       do i = 1,n_C
         n = n_tot_C(i)
