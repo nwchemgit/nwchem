@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.43 1995-10-17 08:56:33 d3g681 Exp $
+# $Id: GNUmakefile,v 1.44 1995-10-17 16:57:37 rg240 Exp $
 
 include ../config/makefile.h
 
@@ -36,7 +36,9 @@ endif
               mk_fit_xf.o \
               int_2c_ga.o \
               util_cpusec.o util_wallsec.o \
+	      gather.o scatter.o \
               $(EXTRA_OBJ) 
+
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh
