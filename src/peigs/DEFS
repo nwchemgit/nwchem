@@ -103,7 +103,7 @@ peigs_CODEOBJ = SINGLE
 peigs_CC +=  -DSTD_DBL -DCRAY_T3D
 peigs_NODE = uniproc
 peigs_COMM = TCGMSG
-peigs_FC += -DCRAY_T3D -DCRAY_T3E -D$(peigs_COMM) -e 0 -D$(peigs_CPU)
+peigs_FC += -DCRAY_T3D -DCRAY_T3E -D$(peigs_COMM) -D$(peigs_CPU)
 peigs_FOPT +=
 peigs_CPP += -DCRAY_T3E -DCRAY_T3D -P
 endif
@@ -219,35 +219,18 @@ endif
 
 ifeq ($(peigs_TARGET),SGITFP)
 #SGI/TCGMSG, r10000 cpu 7.x compilers
-ifeq ($(peigs_CPU_TYPE),R10000)
 peigs_CPU = MIPS
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -64 -IPA -Ofast=ip21 -LNO:pf2=ON:prefetch=2
-peigs_FC += -align64  -64 -IPA -Ofast=ip21 -LNO:pf2=ON:prefetch=2 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_CC += -DSTD_DBL -64
+peigs_FC += -align64  -64 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
 peigs_CPP += -DSTD_DBL -P
 peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
+peigs_FOPT = -O3 
 peigs_COPT = -O3
-peigs_COMM        = TCGMSG
-peigs_CTOFLIB         = -lftn -lm -lc /usr/lib/crtn.o
-endif
-ifeq ($(peigs_CPU_TYPE),R8000)
-#SGI/TCGMSG, r8000 cpu 6.x compilers
-peigs_CPU = MIPS
-peigs_COMM = TCGMSG
-peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -64 
-peigs_FC += -align64  -64 -IPA -LNO:pf2=ON:prefetch=2 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
-peigs_CPP += -DSTD_DBL -P
-peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMM  = TCGMSG
 peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-peigs_FOPT = -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
-peigs_COPT = -O3
-peigs_COMM        = TCGMSG
-peigs_CTOFLIB         = -lftn -lm -lc /usr/lib/crtn.o
-endif
 endif
 
 ifeq ($(peigs_TARGET),CONVEX-SPP)
