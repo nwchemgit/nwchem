@@ -10,16 +10,16 @@ C****************************************************************
 C      
       subroutine dradfg (ido,ip,l1,idl1,cc,c1,c2,ch,ch2,wa)
 *      
-* $Id: dradfg.F,v 1.4 1997-12-10 01:21:07 d3g270 Exp $
+* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
 *      
 *      
-* $Id: dradfg.F,v 1.4 1997-12-10 01:21:07 d3g270 Exp $
+* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
 *      
 *      
-* $Id: dradfg.F,v 1.4 1997-12-10 01:21:07 d3g270 Exp $
+* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
 *      
 *      
-* $Id: dradfg.F,v 1.4 1997-12-10 01:21:07 d3g270 Exp $
+* $Id: dradfg.F,v 1.5 1997-12-11 08:29:48 d3e129 Exp $
 *      
       double precision cc(ido,ip,l1), c1(ido,l1,ip), c2(idl1,ip),
      1  ch(ido,l1,ip), ch2(idl1,ip), wa(1), ai1, ai2, ar1, ar1h, ar2,
@@ -109,9 +109,9 @@ c
       is = -ido
       do i = 1, (ido - 1)/2
          if (l1 .gt. 0) then
-            j1 = and(l1,1)
+            j1 = iand(l1,1)
       if (j1 .gt. 0) then
-         j12 = and(j1,1)
+         j12 = iand(j1,1)
          do k = 1, j12
             j3 = 0
             j13 = 0
@@ -290,7 +290,7 @@ c
   127 continue
 c      
       if (ipph - 1 .gt. 0) then
-         j6 = and(ipph - 1,3)
+         j6 = iand(ipph - 1,3)
 c      
          do j = 1, j6
             ik2 = iand(max0(idl1,0),3)
