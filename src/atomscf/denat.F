@@ -1,5 +1,5 @@
       subroutine guess_dens(rtdb, geom, basis, g_dens)
-C$Id: denat.F,v 1.11 1996-03-29 18:18:15 d3e129 Exp $
+C$Id: denat.F,v 1.12 1996-06-29 01:51:34 d3g681 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -135,8 +135,29 @@ c
 c
       if (.not. ma_pop_stack(l_scr))
      $     call errquit('guess_dens: pop_stack failed', 0)
+c     
+      if (util_print('debugatscf',print_never))
+     $     call atscf_debug(geom,basis)
 c
       return
  6020 format (//30x,28('-'),/,30x,'   initial guess density   ',/,30x,
      +        28('-')//)
       end
+      subroutine atscf_debug(geom,basis)
+      implicit none
+      integer geom,basis
+#include "geom.fh"
+c
+      integer nl_out, iat, nat
+      integer ncsh_out(4),nosh_out(4),nccup_out(4),nbc_out(4)
+      double precision cc_out(2000), energy_out, eps_out(50)
+c
+      if (.not. geom_ncent(geom, nat)) call errquit('atscf_debug',0)
+      do iat = 1, nat
+         call atscf_atomic_scf(geom, basis, iat, .true.,
+     $        nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,
+     $        cc_out, energy_out, eps_out)
+      enddo
+c
+      end
+

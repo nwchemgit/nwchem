@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 1996-05-14 00:19:45 d3g681 Exp $
+# $Id: GNUmakefile,v 1.13 1996-06-29 01:51:35 d3g681 Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -27,7 +27,8 @@
 		guess_mem.o  \
 		starcd.o \
 		writel.o \
-		printbasis.o
+		printbasis.o \
+                atscf_atscf.o
 
   USES_BLAS = atomd.F
 
