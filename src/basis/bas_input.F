@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.54 2001-12-07 04:41:54 bert Exp $
+c $Id: bas_input.F,v 1.55 2001-12-20 02:56:59 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -270,8 +270,6 @@ c
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
      $     ('bas_input: failed to store basis', 0)
-c
-      call bas_ecce_print_basis(basis,'bas_input')
 c
       if (.not. bas_add_ucnt_tidy(basis))
      $     call errquit('bas_input: tidy failed',0)

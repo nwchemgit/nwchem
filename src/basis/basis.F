@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.106 2001-12-06 02:34:38 edo Exp $
+c $Id: basis.F,v 1.107 2001-12-20 02:57:11 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1179,6 +1179,9 @@ c
           endif
         endif
       endif
+c
+      call bas_ecce_print_basis(basisin,'bas_input')
+c
       end
 *.....................................................................
       logical function bas_rtdb_do_load(rtdb, geom, basisin, name)
