@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.3 2003-07-12 21:27:00 bylaska Exp $
+* $Id: dipole.F,v 1.4 2003-07-12 21:53:48 bylaska Exp $
 *
 
 *     ******************************
@@ -163,7 +163,7 @@
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
       dv=lattice_omega()/dble(nx*ny*nz)
-      call lattice_r_grid(dbl_mb(rgrid(1)))
+      call lattice_r_grid_sym(dbl_mb(rgrid(1)))
       call dcopy(n2ft3d,dbl_mb(rgrid(1)+0),3,dbl_mb(rgx(1)),1)
       call dcopy(n2ft3d,dbl_mb(rgrid(1)+1),3,dbl_mb(rgy(1)),1)
       call dcopy(n2ft3d,dbl_mb(rgrid(1)+2),3,dbl_mb(rgz(1)),1)
