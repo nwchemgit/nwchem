@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.2 2002-10-23 01:38:53 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.3 2002-10-24 22:31:42 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -44,7 +44,7 @@ c
       external nxtval
       integer next,count,nprocs
       integer N
-      character*20 filename
+      character*255 filename
 c
 c     ===========
 c     Set offsets
@@ -82,7 +82,7 @@ c
  9000 format(1x,'2-e (intermediate) file size = ',i15)
       call util_file_name('v2i',.true.,.false.,filename)
       if (nodezero.and.util_print('mo1e',print_default))
-     1  write(LuOut,9010) filename
+     1  write(LuOut,9010) filename(1:20)
  9010 format(1x,'2-e (intermediate) file name = ',A)
       dummy=sf_create(filename,dfloat(bytes*sf_size_pq*sf_size_kl),
      1  dfloat(bytes*sf_size_pq*sf_size_kl),
