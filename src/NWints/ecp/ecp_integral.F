@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.14 1999-04-21 22:30:05 mg201 Exp $
+C $Id: ecp_integral.F,v 1.15 1999-04-28 21:38:20 edo Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -216,7 +216,9 @@ C        end if
 *       One-centre case, A = B = C
 *
           if (debug_gen) write (LuOut,*) 'One-centre case'
-          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0)) 
+          if ((n_colc_C(-1,i) .gt. 0)) then
+c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0)) 
+          if ((n_blk .ne. 3)) 
      &        call ecp_local0 (mem,DryRun,
      &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
@@ -229,6 +231,7 @@ C        end if
      &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
      &        1,n_all_a,'Local ECP integrals','E',78,4)
           if (DryRun) max_type0 = max(mem,max_type0)
+          endif
           call ecp_int0 (mem,DryRun,
      &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
      &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
@@ -243,7 +246,9 @@ C        end if
 *       Two-centre case with A = C
 *
           if (debug_gen) write (LuOut,*) 'Two-centre case A=C'
-          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+          if ((n_colc_C(-1,i) .gt. 0)) then
+c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+          if ((n_blk .ne. 3))
      &        call ecp_local1 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
@@ -256,6 +261,7 @@ C        end if
      &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
      &        1,n_all_a,'Local ECP integrals','E',78,4)
           if (DryRun) max_type1 = max(mem,max_type1)
+          endif
           call ecp_int1 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
@@ -270,7 +276,9 @@ C        end if
 *       Two-centre case with B = C
 *
           if (debug_gen) write (LuOut,*) 'Two-centre case B=C'
-          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+          if ((n_colc_C(-1,i) .gt. 0)) then
+c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+          if ((n_blk .ne. 3))
      &        call ecp_local1 (mem,DryRun,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -283,6 +291,7 @@ C        end if
      &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
      &        1,n_all_a,'Local ECP integrals','E',78,4)
           if (DryRun) max_type1 = max(mem,max_type1)
+          endif
           call ecp_int1 (mem,DryRun,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
@@ -297,7 +306,9 @@ C        end if
 *     Three-centre case
 *
           if (debug_gen) write (LuOut,*) 'Three-centre case'
-          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+          if ((n_colc_C(-1,i) .gt. 0))then
+c          if ((n_blk .ne. 3) .and. (n_colc_C(-1,i) .gt. 0))
+          if ((n_blk .ne. 3))
      &        call ecp_local2 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
@@ -310,6 +321,7 @@ C        end if
      &        call ecp_matpr (scr,1,n_all_b,1,n_all_a,1,n_all_b,
      &        1,n_all_a,'Local ECP integrals','E',78,4)
           if (DryRun) max_type2 = max(mem,max_type2)
+          endif
           call ecp_int2 (mem,DryRun,
      &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
      &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
