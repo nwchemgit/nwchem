@@ -13,6 +13,7 @@ basis noprint
 end
  charge 0
 property
+  mulliken
   dipole
   quadrupole
   octupole

@@ -1,10 +1,46 @@
  argument  1 = prop_h2o.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+title h2o
+
+geometry units au nocenter
+o       .00000000      .00000000      .11786656
+h       .00000000     1.84118838     -.93531364
+h       .00000000    -1.84118838     -.93531364
+end
+
+basis noprint
+  H library sto-3g
+  O library sto-3g
+end
+ charge 0
+property
+  mulliken
+  dipole
+  quadrupole
+  octupole
+  esp
+  efield
+  efieldgrad
+  electrondensity
+  giao
+end
+
+task scf
+
+task property
+================================================================================
+
+
                                          
                                          
  
  
-             Northwest Computational Chemistry Package (NWChem) 3.2.1
-             --------------------------------------------------------
+              Northwest Computational Chemistry Package (NWChem) 4.1
+              ------------------------------------------------------
  
  
                     Environmental Molecular Sciences Laboratory
@@ -15,7 +51,8 @@
                                          
  
  
-                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998
+                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
+                               1999, 2000, 2001, 2002
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -68,15 +105,15 @@
             Government contractors.
 
 
-              Job information
-              ---------------
+           Job information
+           ---------------
 
-    hostname      = hondo
-    program       = nwchem
-    date          = Fri Dec 18 10:50:05 1998
+    hostname      = ng122
+    program       = /home/bert/nwchem.latest/bin/LINUX64/nwchem
+    date          = Fri Feb  7 15:31:19 2003
 
-    compiled      = Fri Dec 18 10:18:09 PST 1998
-    source        = /scratch/mdupuis/nwchem
+    compiled      = Fri Feb  7 15:27:37 PST 2003
+    source        = /home/bert/nwchem.latest
     nwchem branch = Development
     input         = prop_h2o.nw
     prefix        = prop_h2o.
@@ -87,13 +124,13 @@
 
 
 
-            Memory information
-            ------------------
+           Memory information
+           ------------------
 
-    heap      =    2949121 doubles =     23.6 Mbytes
-    stack     =    2949121 doubles =     23.6 Mbytes
-    global    =    5898240 doubles =     47.2 Mbytes (distinct from heap & stack)
-    total     =   11796482 doubles =     94.4 Mbytes
+    heap      =  144179200 doubles =   1100.0 Mbytes
+    stack     =   91750397 doubles =    700.0 Mbytes
+    global    =  235929614 doubles =   1800.0 Mbytes (within heap+stack)
+    total     =  235929597 doubles =   1800.0 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -106,13 +143,19 @@
  
  
  
+ 
                                 NWChem Input Module
                                 -------------------
  
  
-                                       h2o
-                                       ---
+                                                                                                                               h2o
+                                                                                                                               ---
  
+ C2V symmetry detected
+
+          ------
+          auto-z
+          ------
  
  
                              Geometry "geometry" -> ""
@@ -122,9 +165,9 @@
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 o                    8.0000      .00000000      .00000000      .11786656
-    2 h                    1.0000      .00000000     1.84118838     -.93531364
-    3 h                    1.0000      .00000000    -1.84118838     -.93531364
+    1 o                    8.0000     0.00000000     0.00000000     0.11786656
+    2 h                    1.0000    -1.84118838     0.00000000    -0.93531364
+    3 h                    1.0000     1.84118838     0.00000000    -0.93531364
  
       Atomic Mass 
       ----------- 
@@ -139,7 +182,32 @@
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-      .0000000000      .0000000000     -.9276948000
+     0.0000000000     0.0000000000    -0.9276948448
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             C2v       
+ Group number             16
+ Group order               4
+ No. of unique centers     2
+ 
+      Symmetry unique atoms
+ 
+     1    2
+ 
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+ 
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.12245
+    2 Stretch                  1     3                       1.12245
+    3 Bend                     2     1     3               120.45993
  
                                  NWChem SCF Module
                                  -----------------
@@ -154,12 +222,12 @@
   atoms           =     3
   closed shells   =     5
   open shells     =     0
-  charge          =    .00
+  charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
   output vectors  = ./prop_h2o.movecs
-  use symmetry    = F
-  symmetry adapt  = F
+  use symmetry    = T
+  symmetry adapt  = T
 
 
  Summary of "ao basis" -> "ao basis" (cartesian)
@@ -170,8 +238,16 @@
  O                           sto-3g                  3        5   2s1p
 
 
+      Symmetry analysis of basis
+      --------------------------
+ 
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+ 
 
- Forming initial guess at        .3s
+ Forming initial guess at       0.2s
 
  
       Superposition of Atomic Density Guess
@@ -185,11 +261,24 @@
  Total energy =     -74.317721
  1-e energy   =    -119.270021
  2-e energy   =      37.137562
- HOMO         =       -.227821
- LUMO         =        .298134
+ HOMO         =      -0.227821
+ LUMO         =       0.298134
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1          2 a2          3 b1          4 b2      
+ 
+  Orbital symmetries:
+ 
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1      
  
 
- Starting SCF solution at        .6s
+ Starting SCF solution at       0.3s
 
 
 
@@ -202,90 +291,113 @@
  ----------------------------------------------
 
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.8588540099  7.27D-01  6.03D-01       .8
-                 2      -74.9124589392  1.40D-01  1.01D-01       .8
-                 3      -74.9139808890  3.43D-02  2.42D-02       .8
-                 4      -74.9140706256  3.75D-04  2.77D-04       .9
-                 5      -74.9140706450  5.34D-06  4.16D-06      1.0
+                 1      -74.8588540099  7.27D-01  6.03D-01      0.2
+                 2      -74.9124589392  1.40D-01  1.01D-01      0.2
+                 3      -74.9139808890  3.43D-02  2.42D-02      0.2
+                 4      -74.9140706256  3.75D-04  2.77D-04      0.2
+                 5      -74.9140706450  5.34D-06  4.16D-06      0.2
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.914070644957
-      One-electron energy =   -119.966141479475
-      Two-electron energy =     37.237333369946
+         Total SCF energy =    -74.914070644978
+      One-electron energy =   -119.966141479470
+      Two-electron energy =     37.237333369920
  Nuclear repulsion energy =      7.814737464571
 
-        Time for solution =       .4s
+        Time for solution =      0.1s
 
 
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1          2 a2          3 b1          4 b2      
+ 
+  Orbital symmetries:
+ 
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1      
+ 
              Final eigenvalues
              -----------------
 
               1      
     1  -20.2383
     2   -1.1860
-    3    -.5540
-    4    -.3949
-    5    -.3726
-    6     .4209
-    7     .6126
+    3   -0.5540
+    4   -0.3949
+    5   -0.3726
+    6    0.4209
+    7    0.6126
  
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
  
- Vector    2  Occ=2.000000D+00  E=-1.186010D+00
-              MO Center=  2.7D-18, -4.2D-16, -5.7D-02, r^2= 5.6D-01
+ Vector    2  Occ=2.000000D+00  E=-1.186010D+00  Symmetry=a1
+              MO Center=  3.5D-16, -1.5D-17, -5.7D-02, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2       .892954  1 O  s                  1      -.240442  1 O  s          
+     2      0.892954  1 O  s                  1     -0.240442  1 O  s          
  
- Vector    3  Occ=2.000000D+00  E=-5.539732D-01
-              MO Center= -2.5D-32, -2.2D-16, -2.1D-01, r^2= 1.0D+00
+ Vector    3  Occ=2.000000D+00  E=-5.539732D-01  Symmetry=b1
+              MO Center= -3.1D-15, -1.5D-31, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4       .584126  1 O  py                 7      -.451451  3 H  s          
-     6       .451451  2 H  s          
+     3      0.584126  1 O  px                 6     -0.451451  2 H  s          
+     7      0.451451  3 H  s          
  
- Vector    4  Occ=2.000000D+00  E=-3.948621D-01
-              MO Center=  1.4D-16,  8.4D-16,  4.3D-02, r^2= 7.4D-01
+ Vector    4  Occ=2.000000D+00  E=-3.948621D-01  Symmetry=a1
+              MO Center=  3.9D-15, -9.8D-17,  4.3D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5       .791068  1 O  pz                 2       .436427  1 O  s          
-     6      -.320232  2 H  s                  7      -.320232  3 H  s          
+     5      0.791068  1 O  pz                 2      0.436427  1 O  s          
+     7     -0.320232  3 H  s                  6     -0.320232  2 H  s          
  
- Vector    5  Occ=2.000000D+00  E=-3.725538D-01
-              MO Center= -1.5D-16,  1.6D-31,  6.2D-02, r^2= 4.2D-01
+ Vector    5  Occ=2.000000D+00  E=-3.725538D-01  Symmetry=b2
+              MO Center= -9.2D-32,  1.1D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      1.000000  1 O  px         
+     4      1.000000  1 O  py         
  
- Vector    6  Occ=0.000000D+00  E= 4.209275D-01
-              MO Center=  1.6D-17,  7.0D-16, -4.0D-01, r^2= 1.3D+00
+ Vector    6  Occ=0.000000D+00  E= 4.209275D-01  Symmetry=a1
+              MO Center= -1.7D-15,  1.1D-18, -4.0D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6       .713199  2 H  s                  7       .713199  3 H  s          
-     2      -.669383  1 O  s                  5       .661753  1 O  pz         
+     6      0.713199  2 H  s                  7      0.713199  3 H  s          
+     2     -0.669383  1 O  s                  5      0.661753  1 O  pz         
  
- Vector    7  Occ=0.000000D+00  E= 6.126017D-01
-              MO Center=  1.7D-33, -1.1D-15, -2.4D-01, r^2= 1.2D+00
+ Vector    7  Occ=0.000000D+00  E= 6.126017D-01  Symmetry=b1
+              MO Center=  5.8D-16,  5.7D-34, -2.4D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4       .945894  1 O  py                 7       .711467  3 H  s          
-     6      -.711467  2 H  s          
+     3      0.945894  1 O  px                 7     -0.711467  3 H  s          
+     6      0.711467  2 H  s          
  
+
+ center of mass
+ --------------
+ x =  -0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           1.985523714464           0.000000000000          -0.000000000000
+           0.000000000000           8.818526119040           0.000000000000
+          -0.000000000000           0.000000000000           6.833002404577
  
   Mulliken analysis of the total density
   --------------------------------------
@@ -293,32 +405,32 @@
     Atom       Charge   Shell Charges
  -----------   ------   -------------------------------------------------------
     1 O    8     8.27   2.00  1.85  4.42
-    2 H    1      .86    .86
-    3 H    1      .86    .86
+    2 H    1     0.86   0.86
+    3 H    1     0.86   0.86
  
-     Multipole analysis of the density
-     ---------------------------------
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
  
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
-     0   0 0 0       .000000       .000000     10.000000
+     0   0 0 0      0.000000      0.000000     10.000000
  
-     1   1 0 0       .000000       .000000       .000000
-     1   0 1 0       .000000       .000000       .000000
-     1   0 0 1      -.560196       .000000      -.927695
+     1   1 0 0     -0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000
+     1   0 0 1     -0.560196      0.000000     -0.927695
  
-     2   2 0 0     -4.613255       .000000       .000000
-     2   1 1 0       .000000       .000000       .000000
-     2   1 0 1       .000000       .000000       .000000
-     2   0 2 0     -2.770212       .000000      6.779949
-     2   0 1 1       .000000       .000000       .000000
-     2   0 0 2     -4.068125       .000000      1.860763
+     2   2 0 0     -2.770212      0.000000      6.779949
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
+     2   0 2 0     -4.613255      0.000000      0.000000
+     2   0 1 1     -0.000000      0.000000      0.000000
+     2   0 0 2     -4.068125      0.000000      1.860763
  
 
  Parallel integral file used       1 records with       0 large values
 
 
- Task  times  cpu:         .9s     wall:         .9s
+ Task  times  cpu:        0.1s     wall:        0.4s
  
  
                                 NWChem Input Module
@@ -333,7 +445,7 @@
  
 
  ----- property selection -----
- nodip = 0 noqdp = 0 nootp = 0 nopop = 1 nospin= 1 noloc = 1 nodpl = 1
+ nodip = 0 noqdp = 0 nootp = 0 nopop = 0 nospin= 1 noloc = 1 nodpl = 1
  nodhp = 1 nod2hp= 1 nofpl = 1 nofhp = 1 nof2hp= 1 nosos = 1 noelp = 0
  noelf = 0 noelfg= 0 noden = 0 nogiao= 0 noiglo= 1 noston= 1
 
@@ -342,30 +454,25 @@
           ---------------------
 
     1     o                15.99491
-    2     h                 1.00782
-    3     h                 1.00782
+    2     h                 1.00783
+    3     h                 1.00783
 
- Read molecular orbitals from ./prop_h2o.movecs
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
 
+   Dipole moment        0.5601960869 A.U.
+             DMX       -0.0000000000 DMXEFC        0.0000000000
+             DMY       -0.0000000000 DMYEFC        0.0000000000
+             DMZ       -0.5601960869 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 A.U.
+   Total dipole         0.5601960869 A.U.
 
- Read molecular orbitals from ./prop_h2o.movecs
-
-
-   Center of mass X =        .0000000 Y =        .0000000 Z =        .0000000
-
-   Dipole moment         .5601960869 A.U. ( W.R.T. center of mass) 
-             DMX         .0000000000 DMXEFC         .0000000000
-             DMY         .0000000000 DMYEFC         .0000000000
-             DMZ        -.5601960869 DMZEFC         .0000000000
-   -EFC- dipole          .0000000000 A.U.
-   Total dipole          .5601960869 A.U.
-
-   Dipole moment        1.4238871877 Debye(s) ( W.R.T. center of mass) 
-             DMX         .0000000000 DMXEFC         .0000000000
-             DMY         .0000000000 DMYEFC         .0000000000
-             DMZ       -1.4238871877 DMZEFC         .0000000000
-   -EFC- dipole          .0000000000 DEBYE(S)
-   Total dipole         1.4238871877 DEBYE(S)
+   Dipole moment        1.4238871878 Debye(s)
+             DMX       -0.0000000000 DMXEFC        0.0000000000
+             DMY       -0.0000000000 DMYEFC        0.0000000000
+             DMZ       -1.4238871878 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 DEBYE(S)
+   Total dipole         1.4238871878 DEBYE(S)
  1 a.u. = 2.541766 Debyes 
 
           ---------------------
@@ -373,51 +480,46 @@
           ---------------------
 
     1     o                15.99491
-    2     h                 1.00782
-    3     h                 1.00782
+    2     h                 1.00783
+    3     h                 1.00783
 
- Read molecular orbitals from ./prop_h2o.movecs
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
 
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- < R**2 > =  20.092305 a.u.  ( 1 a.u. = 0.280023 10**(-16) cm**2 ) 
+ < R**2 > =  20.110182 a.u.  ( 1 a.u. = 0.280023 10**(-16) cm**2 ) 
  ( also called diamagnetic susceptibility ) 
 
-   Center of mass X =        .0000000 Y =        .0000000 Z =        .0000000
+   Second moments in atomic units
+   QMXX       -2.7702119915 QMXXEF        0.0000000000 QMXXT       -2.7702119915
+   QMYY       -4.6132554202 QMYYEF        0.0000000000 QMYYT       -4.6132554202
+   QMZZ       -4.1720634177 QMZZEF        0.0000000000 QMZZT       -4.1720634177
+   QMXY        0.0000000000 QMXYEF        0.0000000000 QMXYT        0.0000000000
+   QMXZ        0.0000000000 QMXZEF        0.0000000000 QMXZT        0.0000000000
+   QMYZ       -0.0000000000 QMYZEF        0.0000000000 QMYZT       -0.0000000000
 
-   Second moments in atomic units ( W.R.T. center of mass) 
-   QMXX       -4.6132554202 QMXXEF         .0000000000 QMXXT       -4.6132554202
-   QMYY       -2.7702119916 QMYYEF         .0000000000 QMYYT       -2.7702119916
-   QMZZ       -4.0681252133 QMZZEF         .0000000000 QMZZT       -4.0681252133
-   QMXY         .0000000000 QMXYEF         .0000000000 QMXYT         .0000000000
-   QMXZ         .0000000000 QMXZEF         .0000000000 QMXZT         .0000000000
-   QMYZ         .0000000000 QMYZEF         .0000000000 QMYZT         .0000000000
+   Second moments in buckingham(s)
+   QMXX       -3.7256885798 QMXXEF        0.0000000000 QMXXT       -3.7256885798
+   QMYY       -6.2044179605 QMYYEF        0.0000000000 QMYYT       -6.2044179605
+   QMZZ       -5.6110539831 QMZZEF        0.0000000000 QMZZT       -5.6110539831
+   QMXY        0.0000000000 QMXYEF        0.0000000000 QMXYT        0.0000000000
+   QMXZ        0.0000000000 QMXZEF        0.0000000000 QMXZT        0.0000000000
+   QMYZ       -0.0000000000 QMYZEF        0.0000000000 QMYZT       -0.0000000000
 
-   Second moments in buckingham(s) ( W.R.T. center of mass) 
-   QMXX       -6.2044179605 QMXXEF         .0000000000 QMXXT       -6.2044179605
-   QMYY       -3.7256885798 QMYYEF         .0000000000 QMYYT       -3.7256885798
-   QMZZ       -5.4712663487 QMZZEF         .0000000000 QMZZT       -5.4712663487
-   QMXY         .0000000000 QMXYEF         .0000000000 QMXYT         .0000000000
-   QMXZ         .0000000000 QMXZEF         .0000000000 QMXZT         .0000000000
-   QMYZ         .0000000000 QMYZEF         .0000000000 QMYZT         .0000000000
+   Quadrupole moments in atomic units
+   THXX        1.6224474274 THXXEF        0.0000000000 THXXT        1.6224474274
+   THYY       -1.1421177156 THYYEF        0.0000000000 THYYT       -1.1421177156
+   THZZ       -0.4803297118 THZZEF        0.0000000000 THZZT       -0.4803297118
+   THXY        0.0000000000 THXYEF        0.0000000000 THXYT        0.0000000000
+   THXZ        0.0000000000 THXZEF        0.0000000000 THXZT        0.0000000000
+   THYZ       -0.0000000000 THYZEF        0.0000000000 THYZT       -0.0000000000
 
-   Quadrupole moments in atomic units ( W.R.T. center of mass) 
-   THXX       -1.1940868178 THXXEF         .0000000000 THXXT       -1.1940868178
-   THYY        1.5704783252 THYYEF         .0000000000 THYYT        1.5704783252
-   THZZ        -.3763915074 THZZEF         .0000000000 THZZT        -.3763915074
-   THXY         .0000000000 THXYEF         .0000000000 THXYT         .0000000000
-   THXZ         .0000000000 THXZEF         .0000000000 THXZT         .0000000000
-   THYZ         .0000000000 THYZEF         .0000000000 THYZT         .0000000000
-
-   Quadrupole moments in buckingham(s) ( W.R.T. center of mass) 
-   THXX       -1.6059404962 THXXEF         .0000000000 THXXT       -1.6059404962
-   THYY        2.1121535748 THYYEF         .0000000000 THYYT        2.1121535748
-   THZZ        -.5062130786 THZZEF         .0000000000 THZZT        -.5062130786
-   THXY         .0000000000 THXYEF         .0000000000 THXYT         .0000000000
-   THXZ         .0000000000 THXZEF         .0000000000 THXZT         .0000000000
-   THYZ         .0000000000 THYZEF         .0000000000 THYZT         .0000000000
+   Quadrupole moments in buckingham(s)
+   THXX        2.1820473920 THXXEF        0.0000000000 THXXT        2.1820473920
+   THYY       -1.5360466790 THYYEF        0.0000000000 THYYT       -1.5360466790
+   THZZ       -0.6460007130 THZZEF        0.0000000000 THZZT       -0.6460007130
+   THXY        0.0000000000 THXYEF        0.0000000000 THXYT        0.0000000000
+   THXZ        0.0000000000 THXZEF        0.0000000000 THXZT        0.0000000000
+   THYZ       -0.0000000000 THYZEF        0.0000000000 THYZT       -0.0000000000
 
  1 a.u. = 1.344911 Buckinghams = 1.344911 10**(-26) esu*cm**2 
 
@@ -426,66 +528,132 @@
           ---------------------
 
     1     o                15.99491
-    2     h                 1.00782
-    3     h                 1.00782
+    2     h                 1.00783
+    3     h                 1.00783
 
- Read molecular orbitals from ./prop_h2o.movecs
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
 
+   Third moments in atomic units
+   RXXX       -0.0000000000 RXXXEF        0.0000000000 RXXXT       -0.0000000000
+   RYYY       -0.0000000000 RYYYEF        0.0000000000 RYYYT       -0.0000000000
+   RZZZ        0.1173809284 RZZZEF        0.0000000000 RZZZT        0.1173809284
+   RXXY       -0.0000000000 RXXYEF        0.0000000000 RXXYT       -0.0000000000
+   RXXZ       -1.0881970065 RXXZEF        0.0000000000 RXXZT       -1.0881970065
+   RYYX       -0.0000000000 RYYXEF        0.0000000000 RYYXT       -0.0000000000
+   RYYZ        0.0838134357 RYYZEF        0.0000000000 RYYZT        0.0838134357
+   RZZX       -0.0000000000 RZZXEF        0.0000000000 RZZXT       -0.0000000000
+   RZZY       -0.0000000000 RZZYEF        0.0000000000 RZZYT       -0.0000000000
+   RXYZ        0.0000000000 RXYZEF        0.0000000000 RXYZT        0.0000000000
 
- Read molecular orbitals from ./prop_h2o.movecs
+   Third moments in 10**(-34) esu*cm**3
+   RXXX       -0.0000000000 RXXXEF        0.0000000000 RXXXT       -0.0000000000
+   RYYY       -0.0000000000 RYYYEF        0.0000000000 RYYYT       -0.0000000000
+   RZZZ        0.0835385981 RZZZEF        0.0000000000 RZZZT        0.0835385981
+   RXXY       -0.0000000000 RXXYEF        0.0000000000 RXXYT       -0.0000000000
+   RXXZ       -0.7744567512 RXXZEF        0.0000000000 RXXZT       -0.7744567512
+   RYYX       -0.0000000000 RYYXEF        0.0000000000 RYYXT       -0.0000000000
+   RYYZ        0.0596490164 RYYZEF        0.0000000000 RYYZT        0.0596490164
+   RZZX       -0.0000000000 RZZXEF        0.0000000000 RZZXT       -0.0000000000
+   RZZY       -0.0000000000 RZZYEF        0.0000000000 RZZYT       -0.0000000000
+   RXYZ        0.0000000000 RXYZEF        0.0000000000 RXYZT        0.0000000000
 
+   Octupole moments in atomic units
+   OXXX       -0.0000000000 OXXXEF        0.0000000000 OXXXT       -0.0000000000
+   OYYY       -0.0000000000 OYYYEF        0.0000000000 OYYYT       -0.0000000000
+   OZZZ        1.6239562845 OZZZEF        0.0000000000 OZZZT        1.6239562845
+   OXXY        0.0000000000 OXXYEF        0.0000000000 OXXYT        0.0000000000
+   OXXZ       -2.2769911950 OXXZEF        0.0000000000 OXXZT       -2.2769911950
+   OYYX        0.0000000000 OYYXEF        0.0000000000 OYYXT        0.0000000000
+   OYYZ        0.6530349105 OYYZEF        0.0000000000 OYYZT        0.6530349105
+   OZZX        0.0000000000 OZZXEF        0.0000000000 OZZXT        0.0000000000
+   OZZY        0.0000000000 OZZYEF        0.0000000000 OZZYT        0.0000000000
+   OXYZ        0.0000000000 OXYZEF        0.0000000000 OXYZT        0.0000000000
 
-   Center of mass X =        .0000000 Y =        .0000000 Z =        .0000000
-
-   Third moments in atomic units ( W.R.T. center of mass) 
-   RXXX         .0000000000 RXXXEF         .0000000000 RXXXT         .0000000000
-   RYYY         .0000000000 RYYYEF         .0000000000 RYYYT         .0000000000
-   RZZZ        1.2640380054 RZZZEF         .0000000000 RZZZT        1.2640380054
-   RXXY         .0000000000 RXXYEF         .0000000000 RXXYT         .0000000000
-   RXXZ         .5117827629 RXXZEF         .0000000000 RXXZT         .5117827629
-   RYYX         .0000000000 RYYXEF         .0000000000 RYYXT         .0000000000
-   RYYZ        -.8312058681 RYYZEF         .0000000000 RYYZT        -.8312058681
-   RZZX         .0000000000 RZZXEF         .0000000000 RZZXT         .0000000000
-   RZZY         .0000000000 RZZYEF         .0000000000 RZZYT         .0000000000
-   RXYZ         .0000000000 RXYZEF         .0000000000 RXYZT         .0000000000
-
-   Third moments in 10**(-34) esu*cm**3 ( W.R.T. center of mass) 
-   RXXX         .0000000000 RXXXEF         .0000000000 RXXXT         .0000000000
-   RYYY         .0000000000 RYYYEF         .0000000000 RYYYT         .0000000000
-   RZZZ         .8996006800 RZZZEF         .0000000000 RZZZT         .8996006800
-   RXXY         .0000000000 RXXYEF         .0000000000 RXXYT         .0000000000
-   RXXZ         .3642296509 RXXZEF         .0000000000 RXXZT         .3642296509
-   RYYX         .0000000000 RYYXEF         .0000000000 RYYXT         .0000000000
-   RYYZ        -.5915592419 RYYZEF         .0000000000 RYYZT        -.5915592419
-   RZZX         .0000000000 RZZXEF         .0000000000 RZZXT         .0000000000
-   RZZY         .0000000000 RZZYEF         .0000000000 RZZYT         .0000000000
-   RXYZ         .0000000000 RXYZEF         .0000000000 RXYZT         .0000000000
-
-   Octupole moments in atomic units ( W.R.T. center of mass) 
-   OXXX         .0000000000 OXXXEF         .0000000000 OXXXT         .0000000000
-   OYYY         .0000000000 OYYYEF         .0000000000 OYYYT         .0000000000
-   OZZZ        1.7431726632 OZZZEF         .0000000000 OZZZT        1.7431726632
-   OXXY         .0000000000 OXXYEF         .0000000000 OXXYT         .0000000000
-   OXXZ         .8071494571 OXXZEF         .0000000000 OXXZT         .8071494571
-   OYYX         .0000000000 OYYXEF         .0000000000 OYYXT         .0000000000
-   OYYZ       -2.5503221203 OYYZEF         .0000000000 OYYZT       -2.5503221203
-   OZZX         .0000000000 OZZXEF         .0000000000 OZZXT         .0000000000
-   OZZY         .0000000000 OZZYEF         .0000000000 OZZYT         .0000000000
-   OXYZ         .0000000000 OXYZEF         .0000000000 OXYZT         .0000000000
-
-   Octupole moments in 10**(-34) esu*cm**3 ( W.R.T. center of mass) 
-   OXXX         .0000000000 OXXXEF         .0000000000 OXXXT         .0000000000
-   OYYY         .0000000000 OYYYEF         .0000000000 OYYYT         .0000000000
-   OZZZ        1.2405950663 OZZZEF         .0000000000 OZZZT        1.2405950663
-   OXXY         .0000000000 OXXYEF         .0000000000 OXXYT         .0000000000
-   OXXZ         .5744385828 OXXZEF         .0000000000 OXXZT         .5744385828
-   OYYX         .0000000000 OYYXEF         .0000000000 OYYXT         .0000000000
-   OYYZ       -1.8150336492 OYYZEF         .0000000000 OYYZT       -1.8150336492
-   OZZX         .0000000000 OZZXEF         .0000000000 OZZXT         .0000000000
-   OZZY         .0000000000 OZZYEF         .0000000000 OZZYT         .0000000000
-   OXYZ         .0000000000 OXYZEF         .0000000000 OXYZT         .0000000000
+   Octupole moments in 10**(-34) esu*cm**3
+   OXXX       -0.0000000000 OXXXEF        0.0000000000 OXXXT       -0.0000000000
+   OYYY       -0.0000000000 OYYYEF        0.0000000000 OYYYT       -0.0000000000
+   OZZZ        1.1557502002 OZZZEF        0.0000000000 OZZZT        1.1557502002
+   OXXY        0.0000000000 OXXYEF        0.0000000000 OXXYT        0.0000000000
+   OXXZ       -1.6205073096 OXXZEF        0.0000000000 OXXZT       -1.6205073096
+   OYYX        0.0000000000 OYYXEF        0.0000000000 OYYXT        0.0000000000
+   OYYZ        0.4647571094 OYYZEF        0.0000000000 OYYZT        0.4647571094
+   OZZX       -0.0000000000 OZZXEF        0.0000000000 OZZXT       -0.0000000000
+   OZZY       -0.0000000000 OZZYEF        0.0000000000 OZZYT       -0.0000000000
+   OXYZ        0.0000000000 OXYZEF        0.0000000000 OXYZT        0.0000000000
 
  1 a.u. = 0.711688 10**(-34) esu*cm**3 
+
+
+          ----------------------------
+          Mulliken population analysis
+
+          ----- OVERLAP POPULATION -----
+
+
+                      1              2              3              4              5              6              7
+
+
+  1 O    1 S     2.1078478938  -0.1078940324   0.0000000000   0.0000000000  -0.0000000000  -0.0008759533  -0.0008759533
+  2 O      S    -0.1078940324   1.9768189275  -0.0000000000  -0.0000000000   0.0000000000  -0.0080917087  -0.0080917087
+  3 O      X     0.0000000000  -0.0000000000   0.6824071921  -0.0000000000  -0.0000000000   0.1520094727   0.1520094727
+  4 O      Y     0.0000000000  -0.0000000000  -0.0000000000   2.0000000000   0.0000000000  -0.0000000000   0.0000000000
+  5 O      Z    -0.0000000000   0.0000000000  -0.0000000000   0.0000000000   1.2616105417   0.0868969827   0.0868969827
+  6 H    2 S    -0.0008759533  -0.0080917087   0.1520094727  -0.0000000000   0.0868969827   0.6545082524  -0.0208340844
+  7 H    3 S    -0.0008759533  -0.0080917087   0.1520094727   0.0000000000   0.0868969827  -0.0208340844   0.6545082524
+
+          ----- Total gross population in ao -----
+
+    1 O    1 S    1.99820
+    2 O      S    1.85274
+    3 O      X    0.98643
+    4 O      Y    2.00000
+    5 O      Z    1.43540
+    6 H    2 S    0.86361
+    7 H    3 S    0.86361
+
+          ----- Condensed to atoms -----
+
+
+
+                      1              2              3
+
+
+  1 o            7.8128964903   0.2299387934   0.2299387934
+  2 h            0.2299387934   0.6545082524  -0.0208340844
+  3 h            0.2299387934  -0.0208340844   0.6545082524
+
+ Total S,P,D,... shell population
+ --------------------------------
+         Atom          S         P         D         F         G       Total   
+ ----------------------------------------------------------------------------
+    1 o            3.85094   4.42183   0.00000   0.00000   0.00000   8.27277
+    2 h            0.86361   0.00000   0.00000   0.00000   0.00000   0.86361
+    3 h            0.86361   0.00000   0.00000   0.00000   0.00000   0.86361
+
+          ----- Total gross population on atoms ----
+
+              1  o            8.0   8.0     8.27277
+              2  h            1.0   1.0     0.86361
+              3  h            1.0   1.0     0.86361
+
+          ----- Bond indices -----
+
+
+  1- 1   0.00000  1- 2   0.95891  1- 3   0.95891
+  2- 1   0.95891  2- 2   0.00000  2- 3   0.02249
+  3- 1   0.95891  3- 2   0.02249  3- 3   0.00000
+
+ Large bond indices
+ ------------------
+  1 o   -  2 h      0.95891  1 o   -  3 h      0.95891
+
+                                                                        Free electrons             Valency
+                                      Number of         Sum of          + Bond indices         - Bond indices    
+                        Valency     Free electrons    Bond indices     =Mulliken charge     = Net spin population
+     1  o               1.91782        6.35495          1.91782           8.27277                -0.00000
+     2  h               0.98140       -0.11779          0.98140           0.86361                -0.00000
+     3  h               0.98140       -0.11779          0.98140           0.86361                 0.00000
 
           ---------------------------------------------
           Electrostatic potential/diamagnetic shielding
@@ -493,18 +661,12 @@
 
  1 a.u. = 9.07618 esu/cm ( or statvolts ) 
 
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
  No grid defined. 
    Point      X         Y         Z     Potential(a.u.)   Diamagnetic shielding(a.u.)
-     1      .00000    .00000    .11787     -22.062591            23.005488
-     2      .00000   1.84119   -.93531      -1.093638             5.136789
-     3      .00000  -1.84119   -.93531      -1.093638             5.136789
-     4      .00000    .00000    .00000      49.485268            19.356558
+     1     0.00000   0.00000   0.11787     -22.062591            23.005488
+     2    -1.84119   0.00000  -0.93531      -1.093638             5.136789
+     3     1.84119   0.00000  -0.93531      -1.093638             5.136789
+     4     0.00000   0.00000   0.00000      49.485268            19.356558
 
           --------------
           Electric field
@@ -512,18 +674,12 @@
 
  1 a.u. = 0.171524 10**(-8) dyn/esu 
 
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
     Atom      X         Y         Z                        Electric field (a.u.)
                                               X              Y              Z           Field
   ------------------------------------------------------------------------------------------------
-     1      .00000    .00000    .11787        .000000        .000000        .334636        .334636
-     2      .00000   1.84119   -.93531        .000000       -.029510        .019754        .035512
-     3      .00000  -1.84119   -.93531        .000000        .029510        .019754        .035512
+     1     0.00000   0.00000   0.11787      -0.000000      -0.000000       0.334636       0.334636
+     2    -1.84119   0.00000  -0.93531       0.029510      -0.000000       0.019754       0.035512
+     3     1.84119   0.00000  -0.93531      -0.029510      -0.000000       0.019754       0.035512
 
           -----------------------
           Electric field gradient
@@ -531,44 +687,38 @@
 
  1 a.u. = 0.324123 10**(16) esu/cm**3  ( or statvolts/cm**2 ) = 0.97174 10**(22) v/m**2 
 
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
   Atom      X         Y         Z                            Electric field gradient in molecular frame (a.u.)
                                              XX             YY             ZZ             XY             XZ             YZ
   ------------------------------------------------------------------------------------------------------------------------------
-     1      .00000    .00000    .11787       2.715784      -2.522999       -.192785        .000000        .000000        .000000
-     2      .00000   1.84119   -.93531        .085581       -.094158        .008577        .000000        .000000        .085345
-     3      .00000  -1.84119   -.93531        .085581       -.094158        .008577        .000000        .000000       -.085345
+     1     0.00000   0.00000   0.11787      -2.522999       2.715784      -0.192785      -0.000000      -0.000000       0.000000
+     2    -1.84119   0.00000  -0.93531      -0.094158       0.085581       0.008577      -0.000000      -0.085345       0.000000
+     3     1.84119   0.00000  -0.93531      -0.094158       0.085581       0.008577       0.000000       0.085345      -0.000000
 
   Atom   Principal components of the -EFG- tensor (a.u.)         Asymmetry parameter eta
   --------------------------------------------------------------------------------------
-     1       -.192785      -2.522999       2.715784                      .858026
-     2        .056821        .085581       -.142402                      .201966
-     3        .056821        .085581       -.142402                      .201966
+     1      -0.192785      -2.522999       2.715784                     0.858026
+     2       0.056821       0.085581      -0.142402                     0.201966
+     3       0.056821       0.085581      -0.142402                     0.201966
 
  Orientation ( in degrees ) of the principal axis of -EFG- tensor w.r.t absolute (molecular) frame
 
  Atom =     1
  ------ 
-       90.000000      90.000000        .000000
-       90.000000        .000000      90.000000
-         .000000      90.000000      90.000000
+       90.000000       0.000000      90.000000
+       90.000000      90.000000       0.000000
+        0.000000      90.000000      90.000000
 
  Atom =     2
  ------ 
-       90.000000        .000000      90.000000
-       60.521513      90.000000      29.478487
-       29.478487      90.000000     119.478487
+      119.478487      90.000000      29.478487
+       90.000000       0.000000      90.000000
+       29.478487      90.000000      60.521513
 
  Atom =     3
  ------ 
-       90.000000        .000000      90.000000
-      119.478487      90.000000      29.478487
-       29.478487      90.000000      60.521513
+       60.521513      90.000000      29.478487
+       90.000000       0.000000      90.000000
+       29.478487      90.000000     119.478487
 
           ---------------------
           Electron/spin density
@@ -578,19 +728,13 @@
 
  No grid defined. 
 
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
  Total electron density 
  ---------------------- 
    Point      X         Y         Z      Density (a.u.)
-     1      .00000    .00000    .11787     193.439508
-     2      .00000   1.84119   -.93531        .330282
-     3      .00000  -1.84119   -.93531        .330282
-     4      .00000    .00000    .00000      48.043083
+     1     0.00000   0.00000   0.11787     193.439508
+     2    -1.84119   0.00000  -0.93531       0.330282
+     3     1.84119   0.00000  -0.93531       0.330282
+     4     0.00000   0.00000   0.00000      48.043083
           ---------------------------------------------------------
           -giao- magnetic susceptibility/chemical shielding tensors
           ---------------------------------------------------------
@@ -598,653 +742,905 @@
  ----- $GIA -----
 
  MAXIT  =         50
- CNVA   =     .00100
- CNVB   =     .00100
- DAMP   =     .20000
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
+ CNVA   =    0.00100
+ CNVB   =    0.00100
+ DAMP   =    0.50000
 
  diamagnetic susceptibility tensor -b20- (a.u.) = 
  ------------------------------------------------ 
 
- b20(xx) =        15.4790499293
- b20(yy) =        10.5421440566
+ b20(xx) =        10.5421440599
+ b20(yy) =        15.4790499325
  b20(zz) =        14.1634167131
- b20(xy) =          .0000000000
- b20(xz) =          .0000000000
- b20(yz) =          .0000000000
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
+ b20(xy) =         0.0000000000
+ b20(xz) =         0.0000000000
+ b20(yz) =        -0.0000000000
 
 
           ---------------------------
           -GIAO- 2 ELECTRON INTEGRALS
           ---------------------------
-          ELAPSED - CPU- TIME =       .000     TOTAL - CPU- TIME =       .000
-          ELAPSED -WALL- TIME =       .000     TOTAL -WALL- TIME =       .000
-   0          .000000000      .000000000      .000000000      .000000000   0   0        10  0
+ BERT:                   15   10.0000000000000        1.00000000000000D-006
+   1.10000000000000D-006
+          ELAPSED - CPU- TIME =      0.013     TOTAL - CPU- TIME =      0.265
+          ELAPSED -WALL- TIME =      0.014     TOTAL -WALL- TIME =      0.670
+   0         0.000000000    -0.000000000     0.000000000     0.000000000   0   0        10  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   1          .000000000      .000000000      .110863168      .478992625   7   4         3  0
+   1         0.000000000     0.000000000    -0.218252881    -0.603299776   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   2          .000000000      .000000000      .048674719      .527667344   7   4         2  0
+   2         0.000000000     0.000000000    -0.072186661    -0.675486437   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   3          .000000000      .000000000      .030998326      .558665670   7   4         2  0
+   3         0.000000000     0.000000000    -0.059968910    -0.735455347   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   4          .000000000      .000000000      .019703519      .578369189   7   4         2  0
+   4         0.000000000     0.000000000    -0.049819040    -0.785274387   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   5          .000000000      .000000000      .012503405      .590872594   7   4         2  0
+   5         0.000000000     0.000000000    -0.041387058    -0.826661445   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   6          .000000000      .000000000      .007922900      .598795494   7   4         2  0
+   6         0.000000000     0.000000000    -0.034382208    -0.861043652   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   7          .000000000      .000000000      .005014075      .603809568   7   4         2  0
+   7         0.000000000     0.000000000    -0.028562943    -0.889606596   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   8          .000000000      .000000000      .003169689      .606979257   7   4         2  0
+   8         0.000000000     0.000000000    -0.023728602    -0.913335198   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   9          .000000000      .000000000      .002001801      .608981058   7   4         2  0
+   9         0.000000000     0.000000000    -0.019712484    -0.933047683   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  10          .000000000      .000000000      .001263149      .610244207   7   4         1  0
+  10         0.000000000     0.000000000    -0.016376103    -0.949423786   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  11          .000000000      .000000000      .000796458      .611040664   7   4         0  1
+  11         0.000000000     0.000000000    -0.013604412    -0.963028197   6   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  12          .000000000      .000000000      .000627327      .611667991   7   4         0  1
+  12         0.000000000     0.000000000    -0.011301835    -0.974330032   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  13         0.000000000     0.000000000    -0.009388975    -0.983719007   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  14         0.000000000     0.000000000    -0.007799870    -0.991518877   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  15         0.000000000     0.000000000    -0.006479725    -0.997998602   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  16         0.000000000     0.000000000    -0.005383017    -1.003381619   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  17         0.000000000     0.000000000    -0.004471930    -1.007853549   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  18         0.000000000     0.000000000    -0.003715046    -1.011568595   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  19         0.000000000     0.000000000    -0.003086266    -1.014654861   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  20         0.000000000     0.000000000    -0.002563909    -1.017218770   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  21         0.000000000     0.000000000    -0.002129962    -1.019348731   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  22         0.000000000     0.000000000    -0.001769461    -1.021118192   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  23         0.000000000     0.000000000    -0.001469976    -1.022588168   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  24         0.000000000     0.000000000    -0.001221179    -1.023809347   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  25         0.000000000     0.000000000    -0.001014492    -1.024823839   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  26         0.000000000     0.000000000    -0.000842787    -1.025666626   6   5         0  1
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  27         0.000000000     0.000000000    -0.001400287    -1.027066913   6   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  28         0.000000000     0.000000000    -0.000926284    -1.027993196   6   5         0  1
  -GIAO- CPHF CONVERGED
+   0         0.000000000    -0.000000000     0.000000000     0.000000000   0   0        10  0
 
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-   0          .000000000      .000000000      .000000000      .000000000   0   0        10  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   1          .000000000      .000000000      .218252881      .603299776   6   5         1  0
+   1         0.000000000     0.000000000    -0.110863168    -0.478992623   7   4         3  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   2          .000000000      .000000000      .115498657      .718798433   6   5         1  0
+   2         0.000000000     0.000000000    -0.030421699    -0.509414323   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   3          .000000000      .000000000      .084221215      .803019648   6   5         1  0
+   3         0.000000000     0.000000000    -0.023516858    -0.532931181   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   4          .000000000      .000000000      .061413814      .864433462   6   5         1  0
+   4         0.000000000     0.000000000    -0.018170022    -0.551101203   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   5          .000000000      .000000000      .044782737      .909216199   6   5         1  0
+   5         0.000000000     0.000000000    -0.014032237    -0.565133440   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   6          .000000000      .000000000      .032655414      .941871613   6   5         1  0
+   6         0.000000000     0.000000000    -0.010831973    -0.575965413   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   7          .000000000      .000000000      .023812213      .965683827   6   5         1  0
+   7         0.000000000     0.000000000    -0.008358150    -0.584323563   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   8          .000000000      .000000000      .017363782      .983047609   6   5         1  0
+   8         0.000000000     0.000000000    -0.006446835    -0.590770399   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   9          .000000000      .000000000      .012661609      .995709218   6   5         1  0
+   9         0.000000000     0.000000000    -0.004970816    -0.595741214   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  10          .000000000      .000000000      .009232801     1.004942019   6   5         1  0
+  10         0.000000000     0.000000000    -0.003831454    -0.599572668   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  11          .000000000      .000000000      .006732526     1.011674545   6   5         1  0
+  11         0.000000000     0.000000000    -0.002952322    -0.602524991   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  12          .000000000      .000000000      .004909334     1.016583879   6   5         1  0
+  12         0.000000000     0.000000000    -0.002274243    -0.604799234   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  13          .000000000      .000000000      .003579869     1.020163748   6   5         1  0
+  13         0.000000000     0.000000000    -0.001751424    -0.606550658   7   4         2  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  14          .000000000      .000000000      .002610428     1.022774176   6   5         1  0
+  14         0.000000000     0.000000000    -0.001348448    -0.607899105   7   4         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  15          .000000000      .000000000      .001903515     1.024677691   6   5         1  0
+  15         0.000000000     0.000000000    -0.001037941    -0.608937046   7   4         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  16          .000000000      .000000000      .001388036     1.026065728   6   5         1  0
+  16         0.000000000     0.000000000    -0.000798754    -0.609735800   7   4         0  1
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  17          .000000000      .000000000      .001012151     1.027077879   6   5         1  0
+  17         0.000000000     0.000000000    -0.001229114    -0.610964914   7   4         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  18          .000000000      .000000000      .000738057     1.027815936   6   5         0  1
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
-
-
- Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- Parallel integral file used       1 records with       0 large values
-
-  19          .000000000      .000000000      .000672736     1.028488672   6   5         0  1
+  18         0.000000000     0.000000000    -0.000661858    -0.611626772   7   4         0  1
  -GIAO- CPHF CONVERGED
+   0         0.000000000    -0.000000000     0.000000000     0.000000000   0   0        10  0
 
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-   0          .000000000      .000000000      .000000000      .000000000   0   0        10  0
-
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   1          .000000000      .000000000     -.131225263     -.472630423   7   5         1  0
+   1         0.000000000     0.000000000     0.131225263     0.472630423   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   2          .000000000      .000000000     -.063070345     -.535700768   7   5         1  0
+   2         0.000000000     0.000000000     0.039418966     0.512049389   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   3          .000000000      .000000000     -.042927351     -.578628119   7   5         1  0
+   3         0.000000000     0.000000000     0.031550609     0.543599997   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   4          .000000000      .000000000     -.029217495     -.607845614   7   5         1  0
+   4         0.000000000     0.000000000     0.025252842     0.568852839   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   5          .000000000      .000000000     -.019886203     -.627731817   7   5         1  0
+   5         0.000000000     0.000000000     0.020212162     0.589065002   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   6          .000000000      .000000000     -.013535077     -.641266894   7   5         1  0
+   6         0.000000000     0.000000000     0.016177645     0.605242646   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   7          .000000000      .000000000     -.009212333     -.650479227   7   5         1  0
+   7         0.000000000     0.000000000     0.012948451     0.618191097   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   8          .000000000      .000000000     -.006270158     -.656749385   7   5         1  0
+   8         0.000000000     0.000000000     0.010363831     0.628554928   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-   9          .000000000      .000000000     -.004267636     -.661017022   7   5         1  0
+   9         0.000000000     0.000000000     0.008295123     0.636850052   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  10          .000000000      .000000000     -.002904667     -.663921688   7   5         1  0
+  10         0.000000000     0.000000000     0.006639347     0.643489399   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  11          .000000000      .000000000     -.001976993     -.665898681   7   5         1  0
+  11         0.000000000     0.000000000     0.005314077     0.648803476   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  12          .000000000      .000000000     -.001345594     -.667244275   7   5         1  0
+  12         0.000000000     0.000000000     0.004253343     0.653056819   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  13          .000000000      .000000000     -.000915847     -.668160122   7   5         0  1
+  13         0.000000000     0.000000000     0.003404340     0.656461159   7   5         1  0
 
- #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =   .0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./prop_h2o.aoints.0
- Record size in doubles =  32769        No. of integs per rec  =  21844
- Max. records in memory =      2        Max. records in file   =   5818
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  Parallel integral file used       1 records with       0 large values
 
-  14          .000000000      .000000000     -.000779187     -.668939310   7   5         0  1
+  14         0.000000000     0.000000000     0.002724805     0.659185964   7   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  15         0.000000000     0.000000000     0.002180911     0.661366875   7   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  16         0.000000000     0.000000000     0.001745583     0.663112458   7   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  17         0.000000000     0.000000000     0.001397150     0.664509608   7   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  18         0.000000000     0.000000000     0.001118267     0.665627875   7   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  19         0.000000000     0.000000000     0.000895051     0.666522926   7   5         0  1
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  20         0.000000000     0.000000000     0.001432783     0.667955710   7   5         1  0
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./prop_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Parallel integral file used       1 records with       0 large values
+
+  21         0.000000000     0.000000000     0.000860792     0.668816502   7   5         0  1
  -GIAO- CPHF CONVERGED
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
-
- Read molecular orbitals from ./prop_h2o.movecs
-
 
 
  SHIELDING TENSOR (PPM) =  ( PARAMAGNETIC P10 * H01 ) 
@@ -1254,28 +1650,28 @@
  -------------
 
               Bx          By          Bz
-      x   -129.4878       .0000       .0000
-      y       .0000   -186.2502       .0000
-      z       .0000       .0000   -121.6683
-             ISOTROPIC =    -145.8021
+      x   -186.0767      0.0000     -0.0000
+      y      0.0000   -129.4591     -0.0000
+      z      0.0000      0.0000   -121.6018
+             ISOTROPIC =    -145.7125
 
    2  h       
  -------------
 
               Bx          By          Bz
-      x      4.2219       .0000       .0000
-      y       .0000       .0332      2.7543
-      z       .0000      7.9848      2.5713
-             ISOTROPIC =       2.2755
+      x      0.0340      0.0000     -2.7530
+      y      0.0000      4.2214      0.0000
+      z     -7.9783      0.0000      2.5706
+             ISOTROPIC =       2.2753
 
    3  h       
  -------------
 
               Bx          By          Bz
-      x      4.2219       .0000       .0000
-      y       .0000       .0332     -2.7543
-      z       .0000     -7.9848      2.5713
-             ISOTROPIC =       2.2755
+      x      0.0340      0.0000      2.7530
+      y     -0.0000      4.2214      0.0000
+      z      7.9783     -0.0000      2.5706
+             ISOTROPIC =       2.2753
 
 
  SHIELDING TENSOR (PPM) =  (              P00 * H11 ) 
@@ -1285,27 +1681,27 @@
  -------------
 
               Bx          By          Bz
-      x    361.4697       .0000       .0000
-      y       .0000    394.6973       .0000
-      z       .0000       .0000    380.1678
+      x    394.6973      0.0000      0.0000
+      y      0.0000    361.4697     -0.0000
+      z     -0.0000     -0.0000    380.1678
              ISOTROPIC =     378.7783
 
    2  h       
  -------------
 
               Bx          By          Bz
-      x     21.0188       .0000       .0000
-      y       .0000     33.1490     -5.6317
-      z       .0000     -4.5419     24.9948
+      x     33.1490      0.0000      5.6317
+      y     -0.0000     21.0188     -0.0000
+      z      4.5419      0.0000     24.9948
              ISOTROPIC =      26.3875
 
    3  h       
  -------------
 
               Bx          By          Bz
-      x     21.0188       .0000       .0000
-      y       .0000     33.1490      5.6317
-      z       .0000      4.5419     24.9948
+      x     33.1490      0.0000     -5.6317
+      y     -0.0000     21.0188      0.0000
+      z     -4.5419     -0.0000     24.9948
              ISOTROPIC =      26.3875
 
 
@@ -1316,78 +1712,91 @@
  -------------
 
               Bx          By          Bz
-      x    231.9819       .0000       .0000
-      y       .0000    208.4471       .0000
-      z       .0000       .0000    258.4994
-             ISOTROPIC =     232.9762
-            ANISOTROPY =      38.2849
+      x    208.6207      0.0000     -0.0000
+      y      0.0000    232.0106     -0.0000
+      z      0.0000     -0.0000    258.5660
+             ISOTROPIC =     233.0658
+            ANISOTROPY =      38.2504
 
               1           2           3
- EIG =     258.4994    231.9819    208.4471
+ EIG =     258.5660    232.0106    208.6207
  VEC = 
-      1       .0000      1.0000       .0000
-      2       .0000       .0000      1.0000
-      3      1.0000       .0000       .0000
+      1     -0.0000      0.0000     -1.0000
+      2     -0.0000      1.0000      0.0000
+      3      1.0000      0.0000     -0.0000
 
    2  h       
  -------------
 
               Bx          By          Bz
-      x     25.2406       .0000       .0000
-      y       .0000     33.1822     -2.8774
-      z       .0000      3.4428     27.5661
-             ISOTROPIC =      28.6630
-            ANISOTROPY =       6.8001
+      x     33.1830      0.0000      2.8788
+      y      0.0000     25.2401      0.0000
+      z     -3.4363      0.0000     27.5655
+             ISOTROPIC =      28.6629
+            ANISOTROPY =       6.8009
 
               1           2           3
- EIG =      33.1964     27.5519     25.2406
+ EIG =      33.1968     27.5517     25.2401
  VEC = 
-      1       .0000       .0000      1.0000
-      2       .9987      -.0501       .0000
-      3       .0501       .9987       .0000
+      1      0.9988      0.0494      0.0000
+      2      0.0000      0.0000     -1.0000
+      3     -0.0494      0.9988      0.0000
 
    3  h       
  -------------
 
               Bx          By          Bz
-      x     25.2406       .0000       .0000
-      y       .0000     33.1822      2.8774
-      z       .0000     -3.4428     27.5661
-             ISOTROPIC =      28.6630
-            ANISOTROPY =       6.8001
+      x     33.1830      0.0000     -2.8788
+      y     -0.0000     25.2401      0.0000
+      z      3.4363     -0.0000     27.5655
+             ISOTROPIC =      28.6629
+            ANISOTROPY =       6.8009
 
               1           2           3
- EIG =      33.1964     27.5519     25.2406
+ EIG =      33.1968     27.5517     25.2401
  VEC = 
-      1       .0000       .0000      1.0000
-      2       .9987       .0501       .0000
-      3      -.0501       .9987       .0000
+      1      0.9988     -0.0494     -0.0000
+      2     -0.0000     -0.0000     -1.0000
+      3      0.0494      0.9988     -0.0000
 
 
 
- Task  times  cpu:       15.0s     wall:       16.0s
+ Task  times  cpu:        2.8s     wall:       16.1s
  
  
                                 NWChem Input Module
                                 -------------------
  
  
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
 
- Summary of allocated global arrays 
- ----------------------------------
 
-   No active global arrays
-  
 
                          GA Statistics for process    0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  392      406      972      780      649        0        0        0     
-bytes total:             1.82e+05 9.69e+04 5.95e+04 0.00e+00 0.00e+00 0.00e+00
+calls:  529      547     1790     1140     1112        0        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             2.50e+05 1.35e+05 8.97e+04 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 5448 bytes
  
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        33	        14
+	current total bytes		         0	         0
+	maximum total bytes		   1062520	1698691400
+	maximum total K-bytes		      1063	   1698692
+	maximum total M-bytes		         2	      1699
 
 
 
@@ -1399,7 +1808,7 @@ Max memory consumed for GA by this process: 5448 bytes
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 3.2.1" (1998), Pacific Northwest National Laboratory,
+            Version 4.1" (2002), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -1409,31 +1818,20 @@ Max memory consumed for GA by this process: 5448 bytes
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; Clark, T.; 
-            Clerc, D.; Dachsel, H.; Deegan, M.; Dupuis, M.;Dyall, K.; 
-            Fann, G.; Fruchtl, H.; Gutowski, M.; Harrison, R.; Hess, A.;
-            Jaffe, J.; Kendall, R.; Kobayashi, R.; Kutteh, R.; Lin, Z.; 
-            Littlefield, R.; Long, X.; Meng, B.; Nichols, J.; Nieplocha, J.; 
-            Rendall, A.; Stave, M.; Straatsma, T.;Taylor, H.; Thomas, G.; 
-            Wolinski, K.; Wong, A.; "NWChem, A Computational Chemistry 
-            Package for Parallel Computers, Version 3.2.1" (1998),
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis,
+            E. J. Bylaska, G. I. Fann, T. L. Windus, E. Apra, W. de Jong,
+            S. Hirata, M. T. Hackler, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendening, M. Gutowski, K. Hirao, A. Hess,
+            J. Jaffe, B. Johnson, J. Ju, R. Kendall, R. Kobayashi, R. Kutteh,
+            Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+            G. Thomas, J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.1" (2002),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
-                                    REFERENCES
-                                    ----------
 
-            Where appropriate, please cite the following reference(s) 
-            when publishing results obtained with NWChem:
-
-
-     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
-        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
-        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
-        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
-        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
-
-
-
- Total times  cpu:       16.2s     wall:       17.3s
+ Total times  cpu:        3.0s     wall:       16.7s
