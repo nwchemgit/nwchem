@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.47 2000-02-25 00:37:54 windus Exp $
+* $Id: prp.F,v 1.48 2000-02-25 01:06:24 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -344,6 +344,7 @@ c
       SUBROUTINE HND_DIPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "global.fh"
+#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
       integer rtdb,basis,geom
