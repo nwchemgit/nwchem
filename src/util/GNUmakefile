@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.67 1996-10-23 05:49:24 d3g681 Exp $
+# $Id: GNUmakefile,v 1.68 1996-11-01 18:29:37 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -41,7 +41,7 @@ endif
 
        BLAS = dfill.o ifill.o rsg.o
 
-   LIB_TARGETS = testsolve
+   LIB_TARGETS = testsolve testecce
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS)
 
@@ -69,7 +69,7 @@ endif
               util_file_name.o \
               util_speak.o util_rtdb_speak.o util_file_copy.o \
               util_file_unlink.o util_system.o util_sleep.o \
-              util_rtdb_state.o \
+              util_rtdb_state.o ecce_print.o \
               $(EXTRA_OBJ) 
 
     LIBRARY = libutil.a
@@ -104,17 +104,27 @@ speechclient:	speechclient.c udp.c
 testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
+testecce:      testecce.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(testecce.o):	$(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(ecce_print.o):	$(INCDIR)/types.f2c.h $(INCDIR)/macommon.h ./ecce_print.h 
 $(LIBRARY_PATH)(util_rtdb_state.o):	./stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh 
-$(LIBRARY_PATH)(util_rtdb_speak.o):	./util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(util_print.o):	$(INCDIR)/rtdb.fh ./printlevels.fh ./printcommon.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(util_pname.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(util_pack.o):	$(INCDIR)/mafdecls.fh ./bitops.fh 
-$(LIBRARY_PATH)(util_legal.o):	./stdio.fh 
 $(LIBRARY_PATH)(util_file_name.o):	./util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh ./msgids.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cfileprefix.fh 
+$(LIBRARY_PATH)(ga_pcg_min.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(util_print.o):	$(INCDIR)/rtdb.fh ./printlevels.fh ./printcommon.fh $(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(util_rtdb_speak.o):	./util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
+$(LIBRARY_PATH)(ga_it_lsolve.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(ga_it_orth.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(errquit.o):	$(INCDIR)/global.fh 
+$(LIBRARY_PATH)(util_legal.o):	./stdio.fh 
+$(LIBRARY_PATH)(util_pack.o):	$(INCDIR)/mafdecls.fh ./bitops.fh 
 $(LIBRARY_PATH)(util_ch_brd.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(util_pname.o):	$(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(two_ind_trn.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(testsolve.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(seq_output.o):	$(INCDIR)/tcgmsg.fh ./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
@@ -122,11 +132,10 @@ $(LIBRARY_PATH)(print_center.o):	$(INCDIR)/inp.fh
 $(LIBRARY_PATH)(mk_fit_xf.o):	./stdio.fh ./numerical_constants.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(line_search.o):	./util.fh 
 $(LIBRARY_PATH)(int_2c_ga.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(input_echo.o):	$(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(ga_trace_dg.o):	./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_screen.o):	./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_ran_fill.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(ga_pcg_min.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(ga_get_diag.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_orthog.o):	./msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_orth_vec.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_mix.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
@@ -135,8 +144,4 @@ $(LIBRARY_PATH)(ga_matpow.o):	./util.fh ./stdio.fh ./numerical_constants.fh $(IN
 $(LIBRARY_PATH)(ga_mat2col.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_iter_diag.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(ga_it_proj.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cproject.fh 
-$(LIBRARY_PATH)(ga_it_orth.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(ga_it_lsolve.o):	./util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(ga_get_diag.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(errquit.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(error.o):	$(INCDIR)/errorP.h 
