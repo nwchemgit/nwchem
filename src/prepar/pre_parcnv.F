@@ -1,6 +1,6 @@
       logical function pre_parcnv(icomb,latt,patt,catt,matt,natt)
 c
-c $Id: pre_parcnv.F,v 1.4 2000-01-11 20:39:46 d3j191 Exp $
+c $Id: pre_parcnv.F,v 1.5 2000-01-17 20:03:25 d3j191 Exp $
 c
       implicit none
 c
@@ -29,8 +29,8 @@ c
       do 2 k=1,2
       epsil=patt(1,k,i,i)
       rstar=patt(2,k,i,i)
-      patt(1,k,i,i)=2.0d0*epsil*epsil*((rstar+rstar)**6)
-      patt(2,k,i,i)=epsil*epsil*((rstar+rstar)**12)
+      patt(1,k,i,i)=2.0d0*epsil*((rstar+rstar)**6)
+      patt(2,k,i,i)=epsil*((rstar+rstar)**12)
     2 continue
       do 3 j=i+1,natt
       if(i.ne.j) then

@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.15 2000-01-10 19:27:14 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.16 2000-01-17 20:03:25 d3j191 Exp $
 c
       implicit none
 c
@@ -135,21 +135,21 @@ c
       if(icomb.eq.1) then
       endif
       if(icomb.eq.2) then
-      patt(1,1,i,j)=p1*patt(1,1,j,j)
+      patt(1,1,i,j)=sqrt(p1*patt(1,1,j,j))
       patt(1,1,j,i)=patt(1,1,i,j)
       patt(2,1,i,j)=p2+patt(2,1,j,j)
       patt(2,1,j,i)=patt(2,1,i,j)
-      patt(1,2,i,j)=pt1*patt(1,2,j,j)
+      patt(1,2,i,j)=sqrt(pt1*patt(1,2,j,j))
       patt(1,2,j,i)=patt(1,2,i,j)
       patt(2,2,i,j)=pt2+patt(2,2,j,j)
       patt(2,2,j,i)=patt(2,2,i,j)
       endif
       if(icomb.eq.3) then
-      patt(1,1,i,j)=p1*patt(1,1,j,j)
+      patt(1,1,i,j)=sqrt(p1*patt(1,1,j,j))
       patt(1,1,j,i)=patt(1,1,i,j)
       patt(2,1,i,j)=p2+patt(2,1,j,j)
       patt(2,1,j,i)=patt(2,1,i,j)
-      patt(1,2,i,j)=pt1*patt(1,2,j,j)
+      patt(1,2,i,j)=sqrt(pt1*patt(1,2,j,j))
       patt(1,2,j,i)=patt(1,2,i,j)
       patt(2,2,i,j)=pt2+patt(2,2,j,j)
       patt(2,2,j,i)=patt(2,2,i,j)
