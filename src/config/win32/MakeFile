@@ -1,10 +1,10 @@
 #
-#	$Id: MakeFile,v 1.1 2000-07-27 15:54:43 bjohnson Exp $
+#	$Id: MakeFile,v 1.2 2000-08-08 23:31:30 bjohnson Exp $
 #
 
 CPPFLAGS = -nologo /GX
 
-all: file_exists.exe convmake.exe cleanmake.exe wrapdsp.exe
+all: file_exists.exe convmake.exe cleanmake.exe
 
 file_exists.exe: file_exists.obj
 	cl -nologo /Fe"$@" $**
@@ -15,14 +15,10 @@ convmake.exe: convmake.obj TokenList.obj
 cleanmake.exe: cleanmake.obj
 	cl -nologo /Fe"$@" $**
 
-wrapdsp.exe: wrapdsp.obj
-	cl -nologo /Fe"$@" $**
-
 clean:
 	@if exist "file_exists.exe" erase "file_exists.exe"
 	@if exist "convmake.exe" erase "convmake.exe"
 	@if exist "cleanmake.exe" erase "cleanmake.exe"
-	@if exist "wrapdsp.exe" erase "wrapdsp.exe"
 	@if exist "*.obj" erase "*.obj"
 	@if exist "*.i" erase "*.i"
 
