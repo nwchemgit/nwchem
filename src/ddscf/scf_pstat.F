@@ -1,6 +1,6 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.14 1995-05-22 22:28:33 vg038 Exp $
+C$Id: scf_pstat.F,v 1.15 1995-06-28 21:46:34 vg038 Exp $
       data oscfps /.false./     ! So that other codes don't break
 c
       end
@@ -75,6 +75,12 @@ c
 c       
         if (.not. pstat_allocate('riscf: coulomb', pstat_qstat, 0, junk,
      $       ps_coulomb)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: transp', pstat_qstat, 0, junk,
+     $       ps_transpose)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: copy', pstat_qstat, 0, junk,
+     $       ps_copy)) call errquit('riscf: ri_scf_pstat_init', 0)
       endif
 c       
       call pstat_on(ps_total)
@@ -120,6 +126,10 @@ C        additional for RI-SCF
            if (.not. pstat_free(ps_exchange))
      $          call errquit('scf_pstat?', 0)
            if (.not. pstat_free(ps_coulomb))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_copy))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_transpose))
      $          call errquit('scf_pstat?', 0)
          endif
 c
