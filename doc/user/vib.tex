@@ -27,30 +27,5 @@ you must enter the following in your input deck.
   set "vib:zero point energy" logical true
 \end{verbatim}
 
-\subsection{VIB known problems}
-\begin{itemize}
-\item Currently there is no direct way to set masses for atoms not
-  already in the vibrational code.  ({\it {\bf Note:} this is
-    currently being addressed}).  The default masses used by the VIB
-  module are:
-\begin{verbatim}
-   1.007825D00  ! H                     38.96371D00  ! K   
-   4.00260D00   ! He                    39.96259D00  ! Ca  
-   7.01600D00   ! Li                    44.95592D00  ! Sc  
-   9.01218D00   ! Be                    47.9D00      ! Ti  
-  11.00931D00   ! B                     50.9440D00   ! V   
-  12.00000D00   ! C                     51.9405D00   ! Cr  
-  14.00307D00   ! N                     54.9380D00   ! Mn  
-  15.99491D00   ! O                     55.9349D00   ! Fe  
-  18.99840D00   ! F                     58.9332D00   ! Co  
-  19.99244D00   ! Ne                    57.9353D00   ! Ni *
-  22.9898D00    ! Na                    62.9296D00   ! Cu *
-  23.98504D00   ! Mg                    63.9291D00   ! Zn *
-  26.98153D00   ! Al                    68.9257D00   ! Ga *
-  27.97693D00   ! Si                    73.9219D00   ! Ge *
-  30.97376D00   ! P                     74.9216D00   ! As  
-  31.97207D00   ! S                     79.9165D00   ! Se *
-  34.96885D00   ! Cl                    78.9183D00   ! Br *
-  39.948D00     ! Ar                    83.80D00     ! Kr *
-\end{verbatim}
-\end{itemize}
+Note: the mass of each atom is set via the geometry input, (c.f.,
+\ref{sec:geom}). 
