@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.30 1998-08-04 18:51:04 mdupuis Exp $
+* $Id: prp.F,v 1.31 1998-10-01 20:47:52 windus Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -754,12 +754,11 @@ C
 C
 C     ----- GAUSS-HERMITE QUADRATURE USING MINIMUM POINT FORMULA -----
 C
+#include "hnd_whermt.fh"
+c
       COMMON/HND_XYZDIP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,T,XC,YC,ZC,
      1 X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
-      COMMON/HND_HERMIT/H1,H2(2),H3(3),H4(4),H5(5),H6(6),H7(7)
-      COMMON/HND_WERMIT/W1,W2(2),W3(3),W4(4),W5(5),W6(6),W7(7)
-      DIMENSION H(28),W(28),MIN(7),MAX(7)
-      EQUIVALENCE (H(1),H1),(W(1),W1)
+      DIMENSION MIN(7),MAX(7)
       DATA MIN /1,2,4, 7,11,16,22/
       DATA MAX /1,3,6,10,15,21,28/
       DATA ZERO /0.0D+00/
@@ -1708,12 +1707,11 @@ C
 C
 C     ----- GAUSS-HERMITE QUADRATURE USING MINIMUM POINT FORMULA -----
 C
+#include "hnd_whermt.fh"
+c
       COMMON/HND_XYZQDP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,
      1 XINTXX,YINTYY,ZINTZZ,T,XC,YC,ZC,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
-      COMMON/HND_HERMIT/H1,H2(2),H3(3),H4(4),H5(5),H6(6),H7(7)
-      COMMON/HND_WERMIT/W1,W2(2),W3(3),W4(4),W5(5),W6(6),W7(7)
-      DIMENSION H(28),W(28),MIN(7),MAX(7)
-      EQUIVALENCE (H(1),H1),(W(1),W1)
+      DIMENSION MIN(7),MAX(7)
       DATA MIN /1,2,4, 7,11,16,22/
       DATA MAX /1,3,6,10,15,21,28/
       DATA ZERO /0.0D+00/
@@ -2592,13 +2590,12 @@ C
 C
 C     ----- GAUSS-HERMITE QUADRATURE USING MINIMUM POINT FORMULA -----
 C
+#include "hnd_whermt.fh"
+c
       COMMON/HND_XYZOTP/XINT,YINT,ZINT,XINTX,YINTY,ZINTZ,
      1              XINTXX,YINTYY,ZINTZZ,XINXXX,YINYYY,ZINZZZ,
      2              T,XC,YC,ZC,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,NI,NJ
-      COMMON/HND_HERMIT/H1,H2(2),H3(3),H4(4),H5(5),H6(6),H7(7)
-      COMMON/HND_WERMIT/W1,W2(2),W3(3),W4(4),W5(5),W6(6),W7(7)
-      DIMENSION H(28),W(28),MIN(7),MAX(7)
-      EQUIVALENCE (H(1),H1),(W(1),W1)
+      DIMENSION MIN(7),MAX(7)
       DATA MIN /1,2,4, 7,11,16,22/
       DATA MAX /1,3,6,10,15,21,28/
       DATA ZERO /0.0D+00/
@@ -4635,6 +4632,7 @@ C
       END
       SUBROUTINE HND_ELPOTC(NPT,XYZPT,ELPOT,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_rys.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -4651,8 +4649,7 @@ C
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
-      COMMON/HND_RYS/XX,U(5),W(5),NROOTS
-      COMMON/HND_XYZSTV/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
+      COMMON/HND_XYZSTV/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      &                  NI,NJ
       COMMON/HND_IJPAIR/IA(1)
       DIMENSION ELPOT(1),XYZPT(3,1),DAB(1)
@@ -4852,7 +4849,7 @@ C
       UU=U(IROOT)*AA
       WW=W(IROOT)*ZNUC
       TT=ONE/(AA+UU)
-      T= SQRT(TT)
+      TX= SQRT(TT)
       X0=(AAX+UU*CX)*TT
       Y0=(AAY+UU*CY)*TT
       Z0=(AAZ+UU*CZ)*TT
@@ -4905,12 +4902,11 @@ C
 C
 C     ----- GAUSS-HERMITE QUADRATURE USING MINIMUM POINT FORMULA -----
 C
+#include "hnd_whermt.fh"
+c
       COMMON/HND_XYZSTV/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      &                  NI,NJ
-      COMMON/HND_HERMIT/H1,H2(2),H3(3),H4(4),H5(5),H6(6),H7(7)
-      COMMON/HND_WERMIT/W1,W2(2),W3(3),W4(4),W5(5),W6(6),W7(7)
-      DIMENSION H(28),W(28),MIN(7),MAX(7)
-      EQUIVALENCE (H(1),H1),(W(1),W1)
+      DIMENSION MIN(7),MAX(7)
       DATA MIN  /1,2,4, 7,11,16,22/
       DATA MAX  /1,3,6,10,15,21,28/
       DATA ZERO /0.0D+00/
@@ -5177,6 +5173,7 @@ C
       END
       SUBROUTINE HND_ELFLDC(NPT,XYZPT,ELFLD,DAB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "hnd_rys.fh"
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
@@ -5194,8 +5191,7 @@ C
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
-      COMMON/HND_RYS/XX,U(5),W(5),NROOTS
-      COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
+      COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
       COMMON/HND_IJPAIR/IA(1)
@@ -5406,7 +5402,7 @@ C
       WW=W(IROOT)*ZNUC
       WW=WW*(UU+UU)
       TT=ONE/(AA+UU)
-      T = SQRT(TT)
+      TX= SQRT(TT)
       X0=(AAX+UU*CX)*TT
       Y0=(AAY+UU*CY)*TT
       Z0=(AAZ+UU*CZ)*TT
@@ -5777,6 +5773,7 @@ C
       PARAMETER (MXATOM=500)
       PARAMETER (MXPRIM=2048)
       PARAMETER (MXSHEL=512)
+#include "hnd_rys.fh"
       CHARACTER*8 ERRMSG
       LOGICAL IANDJ
       LOGICAL NORM,DOUBLE
@@ -5791,8 +5788,7 @@ C
      3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
      4                 KMAX(MXSHEL),NSHELL
       COMMON/HND_BASPAR/NORMF,NORMP,ITOL
-      COMMON/HND_HFK/XX,U(9),W(9),NROOTS
-      COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
+      COMMON/HND_XYZDER/XINT,YINT,ZINT,TX,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
      1                  NI,NJ
      1                              ,CX,CY,CZ
       COMMON/HND_IJPAIR/IA(1)
@@ -5870,9 +5866,9 @@ C
 C
       IANDJ=II.EQ.JJ
       RR=(XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2
-      NROOTS=(LIT+LJT+NDER-2)/2+1
-      IF(NROOTS.GT.MAXRYS) THEN
-         WRITE(IW,9997) MAXRYS,LIT,LJT,NROOTS
+      MROOTS=(LIT+LJT+NDER-2)/2+1
+      IF(MROOTS.GT.MAXRYS) THEN
+         WRITE(IW,9997) MAXRYS,LIT,LJT,MROOTS
          CALL HND_HNDERR(3,ERRMSG)
       ENDIF
 C
@@ -5997,17 +5993,17 @@ C
       CX=XYZPT(1,IPT)
       CY=XYZPT(2,IPT)
       CZ=XYZPT(3,IPT)
-      XX=AA*((AX-CX)**2+(AY-CY)**2+(AZ-CZ)**2)
+      YY=AA*((AX-CX)**2+(AY-CY)**2+(AZ-CZ)**2)
       CALL HND_DROOT
-      DO 420 IROOT=1,NROOTS
-      UU=U(IROOT)*AA
+      DO 420 IROOT=1,MROOTS
+      UU=T(IROOT)*AA
       U2=UU
       U4=UU*UU
-      WW=W(IROOT)*ZNUC
+      WW=V(IROOT)*ZNUC
       W2(IROOT)=WW*U2*TWO
       W4(IROOT)=WW*U4*FOUR
       TT=ONE/(AA+UU)
-      T = SQRT(TT)
+      TX= SQRT(TT)
       X0=(AAX+UU*CX)*TT
       Y0=(AAY+UU*CY)*TT
       Z0=(AAZ+UU*CZ)*TT
@@ -6050,7 +6046,7 @@ C
       DUMXY=ZERO
       DUMXZ=ZERO
       DUMYZ=ZERO
-      DO 430 IROOT=1,NROOTS
+      DO 430 IROOT=1,MROOTS
       DUMX =DUMX+
      1    DXV(IX,JX,IROOT)*  YV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W2(IROOT)
       DUMY =DUMY+
@@ -8671,14 +8667,11 @@ c%%
 c
 c     ----- gauss-hermite quadrature using minimum point formula -----
 c
+#include "hnd_whermt.fh"
+c
       COMMON/HND_xyzstn/tx0,ty0,tz0,tx1,ty1,tz1,tx2,ty2,tz2,tx3,ty3,tz3,
      1              t,x0,y0,z0,xi,yi,zi,xj,yj,zj,ni,nj
-      COMMON/HND_HERMIT/H1,H2(2),H3(3),H4(4),H5(5),H6(6),H7(7)
-      COMMON/HND_WERMIT/W1,W2(2),W3(3),W4(4),W5(5),W6(6),W7(7)
-C     COMMON/HND_hermit/h1,h2(2),h3(3),h4(4),h5(5),h6(6)
-C     COMMON/HND_wermit/w1,w2(2),w3(3),w4(4),w5(5),w6(6)
-      dimension h(21),w(21),min(6),max(6)
-      equivalence (h(1),h1),(w(1),w1)
+      dimension min(6),max(6)
       data min /1,2,4,7,11,16/
       data max /1,3,6,10,15,21/
       data zero /0.0d+00/
