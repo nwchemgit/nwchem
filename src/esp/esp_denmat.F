@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.7 2000-05-04 07:09:56 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.8 2001-06-27 21:34:56 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       real*8 ene(nbf),occ(nbf)
 c
       integer ilo,ihi,jlo,jhi,lthi,lthj,i
-      integer lg_s,k_scr,l_scr,icol
+      integer lg_s,k_scr,l_scr,icol,iset
 c
       real*8 scale
       character*20 scftyp
@@ -38,15 +38,20 @@ c
       if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
      + nmo,2)) call errquit('esp: movecs_read_header failed',me)
 c
-c     read orbital occupations, energies and vectors from movecs
-c
-      if(.not.movecs_read(movfil,1,occ,ene,lg_v))
-     + call errquit('eps: movecs_read failed',me)
+      if(nset.gt.1) call errquit('ESP not available for UHF',nset)
 c
       nocc=0
       charge=chgnuc
-      do 1 i=1,nbf
+c
+c     read orbital occupations, energies and vectors from movecs
+c
+      do  1 iset=1,nset
+      if(.not.movecs_read(movfil,iset,occ,ene,lg_v))
+     + call errquit('eps: movecs_read failed',me)
+c
+      do 2 i=1,nbf
       if(occ(i).gt.small) charge=charge-occ(i)
+    2 continue
     1 continue
 c
       call ga_copy(lg_v,lg_s)
@@ -63,7 +68,7 @@ c
       if(.not.ma_push_get(mt_dbl,lthi,'vector',l_scr,k_scr))
      + call errquit('esp_denmat: failed to allocate vector',me)
 c
-      do 2 icol=jlo,jhi
+      do 3 icol=jlo,jhi
       call ga_get(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
 cx
 cx      write(*,6666) icol,(dbl_mb(k_scr+i),i=0,nbf-1)
@@ -80,7 +85,7 @@ cx
 cx      write(*,6667) (dbl_mb(k_scr+i),i=0,nbf-1)
 cx 6667 format(10f10.6)
 cx
-    2 continue
+    3 continue
 c
       if(.not.ma_pop_stack(l_scr))
      + call errquit('esp_denmat: failed to deallocate vector',me)
@@ -99,3 +104,5 @@ c
 c
       return
       end
+
+
