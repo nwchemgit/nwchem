@@ -64,6 +64,10 @@ peigs_LINK = $(FC) $(FOPTIONS) -I$(peigs_HDIR)
 peigs_COMM = TCGMSG
 peigs_CPP  = $(CPP) -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET}
 
+#ifdef EXPLICITF
+peigs_FCONVERT = $(FCONVERT) -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} -D${peigs_TARGET}
+#endif
+
 # The following are customizations for each machine
 
 ifeq ($(peigs_TARGET),CRAY-T3D)
@@ -317,4 +321,5 @@ export peigs_COMM
 export peigs_CC
 export peigs_FC
 export peigs_CODEOBJ
+export peigs_FCONVERT
 
