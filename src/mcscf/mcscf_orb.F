@@ -1,7 +1,7 @@
 c
 c  Solve orbital MCSCF equations using PCG/NR
 c
-c  $Id: mcscf_orb.F,v 1.7 1996-02-22 10:37:27 rg240 Exp $
+c  $Id: mcscf_orb.F,v 1.8 1996-03-06 18:13:11 rg240 Exp $
 c
        subroutine mcscf_orbsolve( rtdb, geom, basis, nbf, nclosed,
      $                           nact, oskel, orbsym, dm1, dm2,
@@ -263,7 +263,7 @@ c
        if (ga_nodeid().eq.0) write(6,927) alpha
  927   format(10x,'Line search exhausted --- step length is:',f10.2)
        call ga_dadd( alpha, g_srch, 0.d0, g_kvec, g_kvec )
-       call rohf_k2cf( basis, nbf, nclosed, nact, g_kvec,
+       call rohf_k2cf( basis, nbf, nbf, nclosed, nact, g_kvec,
      $                 g_movecs, g_newvecs )
 c  
 c  Safe to copy new MOs into result
@@ -299,7 +299,7 @@ c
 
 
        subroutine lsrch_proj( g_grad, g_srch, gs0, alpha1, alpha0 )
-C$Id: mcscf_orb.F,v 1.7 1996-02-22 10:37:27 rg240 Exp $
+C$Id: mcscf_orb.F,v 1.8 1996-03-06 18:13:11 rg240 Exp $
        implicit none
 #include "global.fh"
        integer g_grad, g_srch
