@@ -1,8 +1,7 @@
       subroutine dft_grad_top(rtdb)
-      implicit real*8 (a-h,o-z) 
+      implicit none
 c
       integer rtdb
-#include "quad.fh"
 c
       logical nwdft, grad_dft
       external nwdft, grad_dft

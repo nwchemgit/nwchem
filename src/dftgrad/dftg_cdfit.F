@@ -4,8 +4,7 @@
      $     scr, lscr, buf, lbuf,
      &     vec, PPP,max_sh_bf,
      &     iga_dens,force, CD_coef )
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+      Implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "bas.fh"
@@ -16,25 +15,41 @@ c****
 c**** handles
 c****
       Integer rtdb,geom,AO_bas_han,CD_bas_han
-      Integer iga_dens
+      Integer iga_dens,lbuf,lscr
 C
 C     scratch arrays for calls to integrals package
 C
-      dimension scr(lscr), buf(lbuf), idatom(4)
+      double precision scr(lscr), buf(lbuf)
+      integer idatom(4)
 C
 C     scratch arrays for dgem
 C
-      dimension vec(max_sh_bf*max_sh_bf),PPP(max_sh_bf,max_sh_bf)
+      double precision vec(max_sh_bf*max_sh_bf),
+     *     PPP(max_sh_bf,max_sh_bf)
 
 c-->  Charge Density Expansion Coefficients
       
-      Dimension CD_coef(nbf_cd)
+      double precision CD_coef(nbf_cd)
 c**** 
 c**** force vector
 c**** 
-      Real*8 force(3,nat)
+      double precision force(3,nat)
+
+      integer nbf_ao,nbf_cd,nat,max_sh_bf
+      double precision tol2e
+C
+C     local declarations
+C
       logical doesit,isit
+      integer nproc,me,icount,igran
+      integer nshells_ao,nshells_cd,ishp,ishq
+      integer ifirstq, ilastq, ifirstp, ilastp,nshbfq,nshbfp,Nao2
+      integer mu,nu,Nint,ishd,ifirstd,ilastd,nshbfd
+      integer iat,icount2,ifp,i,next,nxtask,icart,ist
+      double precision PPP_max,dE,fac,schwarz_shell,ddot
+      external ddot,nxtask,schwarz_shell
 c--   >
+
       nproc  = ga_nnodes()
       me = ga_nodeid()
 C
@@ -73,10 +88,17 @@ c
 C
 C     2el. 3-c integral derivatives
 C
-      next=nxtval(nproc)+1
+C     increased granularity
+C
+      igran = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      igran = max(1,igran)
+
+      next=nxtask(nproc,igran)+1
+
       do 205 ishp = 1,nshells_ao
         if(ishp.eq.next) then
-          next=nxtval(nproc)+1
+
+          next=nxtask(nproc,igran)+1
           if( .not. bas_cn2bfr(AO_bas_han,ishp,ifirstp,ilastp) )
      &         call errquit('Exiting in grad_cdfit.',6)
           nshbfp=ilastp-ifirstp+1
@@ -155,15 +177,18 @@ c
 
   205 continue
 
-      next=nxtval(-nproc)
+      next=nxtask(-nproc,igran)
 
 C
 C     2el. 2-c integral derivatives
 C
-      next=nxtval(nproc)+1
+      igran = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      igran = max(1,igran)
+
+      next=nxtask(nproc,igran)+1
       do 305 ishp = 1,nshells_cd
         if(ishp.eq.next) then
-          next=nxtval(nproc)+1
+          next=nxtask(nproc,igran)+1
           if( .not. bas_cn2bfr(CD_bas_han,ishp,ifirstp,ilastp) )
      &         call errquit('Exiting in grad_cdfit.',9)
           nshbfp=ilastp-ifirstp+1
@@ -205,7 +230,7 @@ C
 
   305 continue
 
-      next=nxtval(-nproc)
+      next=nxtask(-nproc,igran)
 
       return 
       end 
