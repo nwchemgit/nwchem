@@ -1377,3 +1377,72 @@ c
 c
       return
       end
+      subroutine sp_wrtrst(lfnrst,filrst,xw,vw)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer lfnrst
+      character*255 filrst
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa)
+c
+      integer lenscr
+c
+      lenscr=ma_inquire_avail(mt_byte)/
+     + ((6*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
+     + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
+      if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
+     + call errquit('Failed to allocate bx',0)
+      if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
+     + call errquit('Failed to allocate bv',0)
+c
+      call sp_wtrst(lfnrst,filrst,xw,vw,
+     + lenscr,dbl_mb(i_bx),dbl_mb(i_bv))
+c
+      if(.not.ma_pop_stack(l_bv))
+     + call errquit('Failed to deallocate bv',0)
+      if(.not.ma_pop_stack(l_bx))
+     + call errquit('Failed to deallocate bx',0)
+c
+      return
+      end
+      subroutine sp_wtrst(lfnr,filrst,xw,vw,
+     + nw,bxw,bvw)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer lfnr,nw
+      character*255 filrst
+      real*8 xw(mwm,3,mwa),vw(mwm,3,mwa)
+      real*8 bxw(nw,3,mwa),bvw(nw,3,mwa)
+c
+      integer lfnrst
+      character*10 rdate,rtime
+c
+      lfnrst=6
+c
+      print*,'buffer size in sp_wtrst for w is ',nw
+c
+      if(me.eq.0) then
+c
+c      open(unit=lfnrst,file='restart.file',form='formatted',
+c     + status='unknown',err=9999)
+c
+      call swatch(rdate,rtime)
+c
+      write(lfnrst,1000) rdate,rtime
+ 1000 format('Restart file',/,2a10,/,' ')
+      endif
+c
+      return
+ 9999 continue
+      call errquit('Failed to open restart file',me)
+      return
+      end
