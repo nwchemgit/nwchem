@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.484 2004-10-10 01:42:50 edo Exp $
+# $Id: makefile.h,v 1.485 2004-10-11 19:40:33 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -130,7 +130,7 @@ endif
 # other NWChem modules
 
 NW_CORE_SUBDIRS = tools include basis geom inp input  \
-	pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
+	pstat rtdb task symmetry util peigs perfm cons $(CORE_SUBDIRS_EXTRA)
 
 # Include the modules to build defined by 'make nwchem_config' at top level
 
@@ -235,7 +235,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           CDEBUG = -g
               AR = ar
 
-       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs 
+       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons
 #
 # Machine specific stuff
 #
@@ -1891,6 +1891,33 @@ else
 CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
 endif
 endif
+######
+#PAPI#
+######
+   
+ifdef USE_PAPI 
+  DEFINES += -DUSE_PAPI
+  ifndef PAPI_LIB
+    papierror1:
+	echo You must define PAPI_LIB in your environment to be the path
+	@echo of your PAPI library installation ... something like
+	@echo     setenv PAPI_LIB ~/papi/lib
+	@exit 1
+  endif
+ifndef PAPI_INCLUDE
+papierror2:
+	@echo You must define PAPI_INCLUDE in your environment to be the path
+	@echo of your PAPI headers installation ... something like
+	@echo     setenv PAPI_INCLUDE ~/papi/include
+	@exit 1
+endif
+ifndef LIBPAPI 
+  LIBPAPI = -lpapi 
+endif 
+  CORE_LIBS += -L$(PAPI_LIB) $(LIBPAPI) 
+  INCPATH += -I$(PAPI_INCLUDE)
+endif
+
 
 ###################################################################
 #  All machine dependent sections should be above here, otherwise #
