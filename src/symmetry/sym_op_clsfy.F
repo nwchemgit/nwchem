@@ -1,5 +1,5 @@
       subroutine sym_op_classify(geom, op_class_index)
-C$Id: sym_op_clsfy.F,v 1.1 1995-12-13 01:28:30 d3g681 Exp $
+C$Id: sym_op_clsfy.F,v 1.2 1998-06-15 22:16:57 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "inp.fh"
@@ -22,8 +22,9 @@ c
       integer nop, nir,  nop_table, iclass_dim(maxireps)
       character*8 zir(maxireps), zclass(maxireps)
       double precision chars(maxireps*maxireps)
-      integer order, power
+      integer order, power, npass
       double precision direction(3)
+      logical oagain
 c
 c     Get character table information including class names
 c
@@ -44,7 +45,6 @@ c
          call sym_op_type(hh, op_type, order, power, direction)
          call sym_op_class_name(op_type, order, power, direction,
      $     group_name, op_class_name(h))
-         op_class_index(h) = 0
          if (util_print('sym_op_classify',print_never))
      $        write(6,*) h, ' = ', op_class_name(h)
       enddo
@@ -57,10 +57,26 @@ c     for each group, and finally assign to each operator the class
 c     index (i.e., the lexical index of its class in the standard order)
 c     which is the link needed to make use of the character tables.
 c
-      do i = 1, nir
+c     Mmmm ... not quite sure about how best to resolve this.  For at
+c     least T and Th there is a problem about picking consistent
+c     directions for rotations in sym_op_type ... since C3 and C3^2
+c     or S6 and S6^2 are in different classes we need to be consistent.
+c     Until I bother to figure out a more elegant way to pick the direction
+c     simply relabel classes below if operators are found to be inconsistently
+c     labelled ... run the algorithm a second time just to be sure.
+c
+      npass = 0
+c
+ 1101 do i = 1, nir
          count(i) = 0
       enddo
       count(1) = 1
+c
+      do h = 1, nop
+         op_class_index(h) = 0
+      enddo
+      oagain = .false.
+      npass = npass + 1
 c
       do h = 1, nop
          call sym_get_cart_op(geom, h, hh)
@@ -97,9 +113,15 @@ c
                   op_class_index(f) = op_class_index(h)
                   count(op_class_index(f))=count(op_class_index(f))+1
                   if (op_class_name(f) .ne. op_class_name(h)) then
-                     write(6,*) ' bad class: h ', h, op_class_name(h)
-                     write(6,*) ' bad class: f ', f, op_class_name(f)
-                     call errquit('sym_test: bad class', 0)
+                     if (group_name.eq.'T' .or. group_name.eq.'Th') then
+c     See comments above about this switch
+                        op_class_name(f) = op_class_name(h)
+                        oagain = .true.
+                     else
+                        write(6,*) ' bad class: h ', h, op_class_name(h)
+                        write(6,*) ' bad class: f ', f, op_class_name(f)
+                        call errquit('sym_test: bad class', 0)
+                     endif
                   endif
                else if (op_class_index(f) .ne. op_class_index(h)) then
                      write(6,*) ' multiple class: h ', h, 
@@ -111,6 +133,11 @@ c
             enddo
          endif
       enddo
+      if (oagain .and. npass.eq.1) then
+         goto 1101
+      else if (oagain .and. npass.ne.1) then
+         call errquit('sym_op_classify: patch for T/Th failed',0)
+      endif
 c
       do ir = 1, nir
          if (count(ir).ne.iclass_dim(ir)) then
