@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.29 1995-10-17 08:55:21 d3g681 Exp $
+#$Id: GNUmakefile,v 1.30 1995-10-25 20:55:44 og845 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -17,7 +17,7 @@ ifeq ($(NWCHEM_TARGET),CRAY-T3D)
 	dft_second.o	\
 	dft_tstamp.o	\
 	bas_ncontr_cn_max.o       nbf_to_mbf.o \
-	int_2e3c_can.o dft_mpole.o
+	dft_mpole.o
 else
 	OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -36,7 +36,7 @@ else
         dft_eval_grad.o        dft_eval_hess.o    \
 	bas_ncontr_cn_max.o		ga_chol_seq.o	\
 	ga_inv_seq.o 	\
-	int_2e3c_can.o	nbf_to_mbf.o dft_mpole.o
+	nbf_to_mbf.o dft_mpole.o
 endif
 else
 	OBJ = bas_ncontr_cn_max.o 	nbf_to_mbf.o int_eval_gbsets.o new_eval_gbsets.o         dft_eval_basis.o        dft_eval_funs.o   \
@@ -56,8 +56,7 @@ else
 	dft_second.o	\
 	dft_tstamp.o	\
 	ga_chol_seq.o	\
-	ga_inv_seq.o 	\
-	int_2e3c_can.o 
+	ga_inv_seq.o 	
 endif
 
      LIBRARY = libnwdft.a
@@ -87,7 +86,6 @@ ga_inv_seq.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(I
 ga_inverse.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 gacrea.o :	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 gat_lab_can.o :	 $(INCDIR)/bas.fh 
-int_2e3c_can.o :	 $(INCDIR)/bas.fh 
 int_eval_gbsets.o :	 $(INCDIR)/bas.fh 
 nbf_to_mbf.o :	 $(INCDIR)/bas.fh 
 new_eval_gbsets.o :	 $(INCDIR)/dimensions.fh $(INCDIR)/bas.fh 
