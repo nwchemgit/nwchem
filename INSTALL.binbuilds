@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem Binary Builds
 ====================================================
-$Id: INSTALL.binbuilds,v 1.4 1999-08-02 21:48:05 d3e129 Exp $
+$Id: INSTALL.binbuilds,v 1.5 2000-12-21 20:05:47 windus Exp $
 ----------------------------------------------------
 
 INSTALLING NWCHEM FOR GENERAL SITE USE: 
@@ -41,7 +41,7 @@ E) The ./etc directory has an executable c-shell script to generate a
    script in ./etc can be used as the target of a symbolic link in
    c-shell each users $HOME directory. Users would have to issue the 
    following command prior to using NWChem: 
-   ln -s /usr/local/NWChem/usr.local.lib.nwchem/default.nwchemrc $HOME/.nwchemrc
+   ln -s /usr/local/NWChem/etc/default.nwchemrc $HOME/.nwchemrc
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
