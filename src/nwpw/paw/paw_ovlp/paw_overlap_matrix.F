@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.2 2003-02-11 01:41:23 edo Exp $
+c $Id: paw_overlap_matrix.F,v 1.3 2003-02-11 18:35:02 bylaska Exp $
 c
 
 !**************************************************
@@ -33,6 +33,8 @@ c
      >              s_overlap_matrix)
       if (.not.ok)
      > call errquit("init_paw_overlap_matrix: error getting heap",0)
+
+        write(*,*) "i_overlap_matrix",i_overlap_matrix
   
       !*** determine matrix size ***
       matr_size = 0
@@ -40,6 +42,7 @@ c
         nbasis = paw_basis_nbasis(it)
         int_mb(s_overlap_matrix(1) + it - 1) = nbasis**2                   
         matr_size = matr_size + int_mb(s_overlap_matrix(1) + it - 1)                
+      print*," matrix_size=",matr_size,it
       end do
   
       print*,"matrix_size=",matr_size
@@ -172,6 +175,7 @@ c
              tmp = def_integr(power_f,dbl_mb(i_f),power_r,r,
      >                        log_amesh,ic)
         
+             write(*,*) "find_overlap_matrix:",i,j,tmp
              matrix(i,j) = tmp
              matrix(j,i) = tmp
            else
@@ -200,32 +204,118 @@ c
 !   created : 2/10/2003
 !
 !*************************************************
-c      subroutine paw_overlap_matrix_gen(ne,psi1,psi2,S)
-c      implicit none
-c      integer    ne
-c      complex*16 psi1(*),psi2(*)
-c      real*8     S(ne,ne)
-c
-c#include "mafdecls.fh"
-c#include "paw_ma.fh"
-c#include "paw_basis.fh"
-c#include "paw_overlap_matrix.fh"
-c
-c      !***** local variables ****
-c      integer npack1
-c
-c      !*** calculate overlap1 ****
-c      call Pack_npack(1,npack1)
-c      call Grsm_ggm_dot(npack1,ne,
-c     >                  psi1,psi2,
-c     >                  S)
-c
-c      !*** calculate overlap2 ****
-c      call paw_overlap_calc_scramble_coeff(ne,psi1,dcpl_mb(ct(1)))
-c      call paw_overlap_unscramble_coeff(ne,dcpl_mb(ct(1)),c1)
-c      call paw_overlap_calc_scramble_coeff(ne,psi2,ct)
-c      call paw_overlap_unscramble_coeff(ne,ct,c2)
-c
-c      return
-c      end
+      subroutine paw_overlap_matrix_gen(ne,psi1,psi2,Sij)
+      implicit none
+      integer    ne
+      complex*16 psi1(*),psi2(*)
+      real*8     Sij(ne,ne)
+
+#include "mafdecls.fh"
+#include "paw_ma.fh"
+#include "paw_basis.fh"
+#include "paw_proj.fh"
+#include "paw_geom.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_overlap_matrix.fh"
+
+      !*** local variables ***
+      logical ok
+      integer npack1,indxr,indxs,indx
+      integer i,j,ii,ia,a,b,ma,mb,la,lb,r,s
+      integer nbasis,basis_nbasis,nion,ii_shift
+      integer matrx_ptr
+      integer c1(2),c2(2),ct(2)
+
+
+      !*** calculate overlap1 ****
+      call Pack_npack(1,npack1)
+      call Grsm_ggm_dot(npack1,ne,
+     >                  psi1,psi2,
+     >                  Sij)
+
+      !*** allocate space from stack ****
+      ok = MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,ne*total_nbasis,'c2',c2(2),c2(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
+      if (.not.ok)
+     > call errquit('paw_overlap_matrix_gen: out of stack memory',0)
+
+      !*** calculate overlap2 ****
+      call paw_ovlp_calc_scramble_coef(ne,psi1,dcpl_mb(ct(1)))
+      call paw_ovlp_unscramble_coef(ne,
+     >                              dcpl_mb(ct(1)),
+     >                              dcpl_mb(c1(1)))
+      call paw_ovlp_calc_scramble_coef(ne,psi2,dcpl_mb(ct(1)))
+      call paw_ovlp_unscramble_coef(ne,
+     >                              dcpl_mb(ct(1)),
+     >                              dcpl_mb(c2(1)))
+
+*     **** ct_r^a(j) = Sum(rs) (q_rs^a)*c_s^a(j) ****
+      call dcopy(2*ne*total_nbasis,0.0d0,0,dcpl_mb(ct(1)),1)
+      nion = ion_nion()
+      ii_shift=0
+      do ii=1,nion
+        ia           = ion_katm(ii)
+        nbasis       = paw_proj_nbasis(ia)
+        basis_nbasis = paw_basis_nbasis(ia)
+        matrx_ptr    = int_mb(i_overlap_matrix(1)+ia-1)
+
+        r = 0
+        do a=1,basis_nbasis
+          la=paw_basis_orb_l(a,ia)
+          do ma=-la,la
+            r = r + 1 
+            s = 0
+            do b=1,basis_nbasis
+              lb    = paw_basis_orb_l(b,ia)
+              indx  = matrx_ptr + (b-1)*basis_nbasis + (a-1)
+              do mb=-lb,lb
+                 s = s + 1
+                 if (mb.eq.ma) then
+                   do j=1,ne
+                     indxr = (r-1+ii_shift)*ne + (j-1)
+                     indxs = (s-1+ii_shift)*ne + (j-1)
+                      dcpl_mb(ct(1)+indxr) 
+     >                  = dcpl_mb(ct(1)+indxr)
+     >                  + dbl_mb(overlap_matrix(1)+matrx_ptr)
+     >                   *dcpl_mb(c2(1)+indxs)
+                   end do !*j*
+                 end if  
+              end do !*mb*
+            end do !*b*
+          end do !*ma*
+        end do   !*a*
+ 
+        ii_shift = ii_shift+nbasis
+      end do !*ii*
+
+*     **** S(i,j) = Sum(i,j,r) dconjg( c1_r^a(i) ) * ct_r^a(j) ****
+      ii_shift = 0
+      do ii=1,nion
+        ia     = ion_katm(ii)
+        nbasis = paw_proj_nbasis(ia)
+        do r=1,nbasis
+           do i=1,ne
+           do j=1,ne
+             indxr = (r-1+ii_shift)*ne + (i-1)
+             indxs = (r-1+ii_shift)*ne + (j-1)
+             
+             Sij(i,j) = Sij(i,j) 
+     >                + dconjg(dcpl_mb(c1(1)+indxr))
+     >                 *dcpl_mb(ct(1)+indxs)
+           end do 
+           end do 
+        end do
+        ii_shift = ii_shift+nbasis
+      end do
+
+      ok =        MA_pop_stack(ct(2))
+      ok = ok.and.MA_pop_stack(c2(2))
+      ok = ok.and.MA_pop_stack(c1(2))
+      if (.not.ok)
+     > call errquit('paw_overlap_matrix_gen: error popping stack',0)
+      return
+      end
 

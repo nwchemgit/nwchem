@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.25 2003-02-11 01:41:24 edo Exp $
+* $Id: paw_ovlp.F,v 1.26 2003-02-11 18:35:02 bylaska Exp $
 *
 
 !**************************************************
@@ -154,6 +154,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       value = value.and.MA_free_heap(sgn(2))
       value = value.and.MA_free_heap(paw_ovlp_w(2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
+      value = value.and.my_dealloc(paw_ovlp_w_d)
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
       end
@@ -398,7 +399,7 @@ c     *** calculate diagonal weights mi=mj***
       subroutine paw_ovlp_calc_scramble_coef(ne,psi,ct)
       implicit none
       integer ne
-      complex*16 psi
+      complex*16 psi(*)
       complex*16 ct(ne,*)
 
 #include "mafdecls.fh"
@@ -469,21 +470,22 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 !
 !	Created:	2/10/2002
 !**************************************************
-      subroutine paw_ovlp_unscramble_coef(ne,ct,c)
+      subroutine paw_ovlp_unscramble_coef(ne,ct,c1)
       implicit none
       integer ne
-      complex*16 ct(ne,*),c(ne,*)
+      complex*16 ct(ne,*),c1(ne,*)
 
 
 #include "mafdecls.fh"
+#include "paw_ma.fh"
 #include "paw_proj.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_geom.fh"
-#include "paw_ma.fh"
 
 *     **** local variables ****
       integer ii,ia,nlm,nlmii,n,m,mabs
-      integer nbasis,isgn,nion
+      integer nbasis,nion,i2
+      real*8 isgn
 
       nion = ion_nion()
       nlmii = 0
@@ -496,13 +498,14 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
             m = paw_proj_m(nlm,ia)
             mabs = abs(m)
             if (mod(mabs,2).eq.0) then
-              isgn = 1
+              isgn = 1.0d0
             else
-              isgn = -1
+              isgn = -1.0d0
             end if
+            i2 = nlmii-2*m
             do n=1,ne
-              c(n,nlmii) = 0.5d0*(ct(n,nlmii) 
-     >                   + isgn*dconjg(ct(n,nlmii-2*m)))
+              c1(n,nlmii) = 0.5d0*(ct(n,nlmii) 
+     >                   + isgn*dconjg(ct(n,i2)))
             end do
          end do
       end do
