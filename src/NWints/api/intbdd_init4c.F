@@ -1,4 +1,4 @@
-c $Id: intbdd_init4c.F,v 1.1 2000-05-04 17:02:37 windus Exp $
+c $Id: intbdd_init4c.F,v 1.2 2000-06-06 20:27:25 windus Exp $
 *
 c:tex-\subsection{intbdd\_init4c}
 c:tex-This logical function sets up the blocking integral second derivative 
@@ -75,7 +75,7 @@ c
       if (num_q.eq.0) return
       block_eff = -1.0d00
 c
-*.... check shells for txs only after intbd_init is called and established        
+*.... check shells for txs only after intbdd_init is called and established        
       txs_b2e4c = .true.
       status = .true.
 *.... check first 20 quartets but every other one
