@@ -418,6 +418,6 @@ void initnwchem()
     m = Py_InitModule("nwchem", nwchem_methods);
     d = PyModule_GetDict(m);
     NwchemError = PyErr_NewException("nwchem.error", NULL, NULL);
-    PyDict_SetItemString(d, "error", NwchemError);
+    PyDict_SetItemString(d, "NWChemError", NwchemError);
 }
 
