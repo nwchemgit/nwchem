@@ -12,16 +12,17 @@ c
 c     Called whenever the input parser encounters a task directive.
 c     Terminates by calling errquit if there was any error.
 c
-c     task <string theory> [<string operation = energy>] [numerical] 
+c     task [qmmm] <string theory> [<string operation = energy>] [numerical] 
 c          [ignore]
 c
-      logical numerical, ignore
+      logical numerical, ignore, oqmmm
       character*20 test, theory, operation
 c
-      theory = ' '
+      theory    = ' '
       operation = ' '
       numerical = .false.
-      ignore = .false.
+      ignore    = .false.
+      oqmmm     = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
@@ -50,6 +51,8 @@ c
             call task_shell_input(rtdb)
          else if (inp_compare(.false.,test,'ignore')) then
             ignore = .true.
+         else if (inp_compare(.false.,test,'qmmm')) then
+            oqmmm = .true.
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)
@@ -63,6 +66,12 @@ c
       if (numerical) then
          if (.not. rtdb_put(rtdb, 'task:numerical', mt_log, 1, 
      $        numerical)) call errquit('task_input: rtdb is corrupt',0)
+      endif
+      if (oqmmm) then
+        if (.not.rtdb_put(rtdb, 'task:QMMM', mt_log, 1, .true.))
+     &       call errquit('task_input:task:QMMM rtdb is corrupt',911)
+        if (theory.eq.'md'.or.theory.eq.'nwargos') call errquit
+     &      ('task_input:theory must be a QM method for QMMM',911)
       endif
       if (ignore) then
          if (.not. rtdb_put(rtdb, 'task:ignore', mt_log, 1, 

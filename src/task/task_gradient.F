@@ -5,6 +5,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "global.fh"
       integer rtdb
 c
 c     Generic NWChem interface to compute the energy and gradient.  
@@ -97,8 +98,14 @@ c
       else if (theory .eq. 'ccsd') then
          status = .false.       ! No derivatives yet
       else if (theory .eq. 'qmmm') then
-         write(luout,*) ' qmmm gradient task not available'
-         status = .false.       ! No derivatives yet
+         if (ga_nodeid().eq.0) then
+           write(6,*)'task_gradient: qmmm should never be the theory '
+           write(6,*)'task_gradient: you probably reversed the order ',
+     &         'of the task input '
+           write(6,*)'task [qmmm] <string theory> [<string operation ',
+     &         '= energy>] [numerical] [ignore]'
+         endif
+         status = .false.
       else
          call errquit('task_gradient: unknown theory',0)
       endif

@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.6 1997-02-27 08:41:05 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.7 1997-03-06 06:10:18 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -61,10 +61,17 @@ c
 c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      + call errquit('task_optimize: failed rtdb_cget task:theory',0)
-      if (theory.eq.'md'.or.
-     &    theory.eq.'nwargos'.or.
-     &    theory.eq.'qmmm') then
+      if (theory.eq.'md'.or.theory.eq.'nwargos') then
         status=nwargos(rtdb)
+      else if (theory.eq.'qmmm') then
+        if (ga_nodeid().eq.0) then
+          write(6,*)'task_optimize: qmmm should never be the theory '
+          write(6,*)'task_optimize: you probably reversed the order ',
+     &        'of the task input '
+          write(6,*)'task [qmmm] <string theory> [<string operation ',
+     &        '= energy>] [numerical] [ignore]'
+        endif
+        status = .false.
       else
         if (ousedriver) then
           status = drv_opt(rtdb)

@@ -29,11 +29,15 @@ c
       logical  nwargos, property, dplot, gapss, task_shell, moints_full
       logical  task_energy, task_gradient, task_optimize, task_freq
       logical  task_hessian
+      logical  task_qmmm
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian
+c
+      if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     &    task_qmmm = .false.
 c      
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
@@ -43,6 +47,31 @@ c
 c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
+c
+c for qmmm start in nwargos.  nwargos will call appropriate task routines
+c
+      if (task_qmmm) then
+        if (theory.eq.'md'.or.theory.eq.'nwargos') call errquit
+     &      ('task:theory must be a QM method for QMMM',911)
+        status = nwargos(rtdb)
+        if ((ga_nodeid().eq.0) .and. (.not. status)) then
+          errmsg = ' '
+          write(errmsg,'(''QMMM '',a,'' failed '')')
+     &        theory(1:inp_strlen(theory))
+          if (ga_nodeid().eq.0) then
+            if (ignore) then
+              write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
+              call util_flush(6)
+            else
+              call errquit(errmsg, 0)
+            endif
+          endif
+        endif
+        call ga_sync()
+        return
+      endif
+c
+c Look for speciallized routine tasks here 
 c
       if (operation .eq. ' ') then ! Look for specialized routine
          if (inp_compare(.false.,'rjhtest', theory)) then

@@ -4,6 +4,7 @@
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "global.fh"
       integer rtdb
 c
 c     Generic NWChem interface to compute the energy.  Currently
@@ -85,7 +86,14 @@ c
       else if (theory .eq. 'md') then
          status = nwargos(rtdb)
       else if (theory .eq. 'qmmm') then
-         status = nwargos(rtdb)
+         if(ga_nodeid().eq.0) then
+           write(6,*)'task_energy: qmmm should never be the theory '
+           write(6,*)'task_energy: you probably reversed the order ',
+     &         'of the task input '
+           write(6,*)'task [qmmm] <string theory> [<string operatio',
+     &         'n = energy>] [numerical] [ignore]'
+         endif
+         status = .false.
       else if (theory .eq. 'nwargos') then
          status = nwargos(rtdb)
       else
