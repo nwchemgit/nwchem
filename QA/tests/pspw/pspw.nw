@@ -70,6 +70,7 @@ END
 #******* Generate a Formmatted pseudopotential for silicon *****
 PSPW
    PSP_FORMATTER
+      reset
       cell_name: small
       psp_filename: Si.psp
       formatted_filename: Si.small.vpp
@@ -79,6 +80,7 @@ task pspw psp_formatter
 
 PSPW
    PSP_FORMATTER
+      reset
       cell_name: medium
       psp_filename: Si.psp
       formatted_filename: Si.medium.vpp
@@ -88,6 +90,7 @@ task pspw psp_formatter
 
 PSPW
    PSP_FORMATTER
+      reset
       cell_name: charge
       psp_filename: Si.psp
       formatted_filename: Si.charge.vpp

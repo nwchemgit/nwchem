@@ -1,0 +1,92 @@
+title "water dimer - aperiodic cubic cell"
+
+start water2psp
+
+memory 80 mb
+
+geometry units angstroms center autosym autoz print xyz
+O                   0.00196489    -1.46479200     0.02674379
+H                   0.01793230    -0.51398814     0.11575868
+H                  -0.09044643    -1.79059131    -0.83576224
+O^                  0.00080320     1.25162374    -0.00049517
+H^                 -0.73944514     1.76982991     0.30129222
+H^                  0.78267061     1.76347520     0.19019233
+end
+
+
+PSPW
+   QMMM
+      lj_ion_parameters: O 3.60d0 0.15d0
+      lj_mm_parameters:  O 3.60d0 0.15d0
+      lj_ion_parameters: H 1.30d0 0.10d0
+      lj_mm_parameters:  H 1.30d0 0.10d0
+      sr_basis: O  33.3672 0.8
+      sr_basis: O -41.5755 1.2
+      sr_basis: H  -1.9778 0.8
+      sr_basis: H  16.7055 1.2
+      lr_cutoff: H 0.8
+   END
+END
+set pspw_Q_param_mm:O -0.6
+set pspw_Q_param_mm:H  0.3
+set pspw:qmmm_frag 1 2 3 -1
+#task rtdbprint
+
+#**** define a large simulation cell ****
+PSPW
+   SIMULATION_CELL units angstroms
+      cell_name: small
+      boundry_conditions: aperiodic
+      lattice
+         lat_a 8.00d0
+         lat_b 8.00d0
+         lat_c 8.00d0
+      end
+      ngrid: 16 16 16
+   END
+END
+
+
+
+#******* Generate a initial wavefunction based on planewaves ****
+PSPW
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      restricted_electrons: 8
+      cell_name: small
+   END
+END
+task pspw wavefunction_initializer
+
+
+#***** do coarse optimization with steepest descent ********
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      time_step: 5.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       15.0d0
+      wavefunction_cutoff: 15.0d0
+      exchange_correlation: pbe96
+   END
+END
+
+#***** Setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      loop: 1 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       15.0d0
+      wavefunction_cutoff: 15.0d0
+      exchange_correlation: pbe96
+   END
+END
+
+task pspw steepest_descent
+task cg_pspw energy  
+
+
+
+
