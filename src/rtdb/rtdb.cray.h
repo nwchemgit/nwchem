@@ -1,4 +1,5 @@
-/*$Id: rtdb.cray.h,v 1.2 1995-02-02 23:22:05 d3g681 Exp $*/
+
+/*$Id: rtdb.cray.h,v 1.3 1995-04-11 04:37:28 og845 Exp $*/
 #ifdef CRAY
 #define  context_pop_              CONTEXT_POP 
 #define  context_prefix_            CONTEXT_PREFIX 
@@ -21,5 +22,8 @@
 #define  rtdb_parallel_             RTDB_PARALLEL
 #define  rtdb_put_                  RTDB_PUT
 #define  rtdb_print_                RTDB_PRINT
+#define  rtdb_print_usage           RTDB_PRINT_USAGE
 #endif
+
+
 
