@@ -185,7 +185,8 @@ c
          do i = 1, natoms
             if (.not. geom_cent_get(geom, i, thetag, crd, q))
      $           call errquit('task:numg geom_cent_get?',0)
-            write(6,2000) i, thetag, (crd(j),j=1,3),
+            write(6,2000) i, thetag,
+     $           (dbl_mb(k_coord+3*(i-1)+j),j=0,2),
      $           (dbl_mb(k_grad +3*(i-1)+j),j=0,2)
          enddo
          write(6,*)
