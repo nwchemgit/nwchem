@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.114 1999-06-21 23:58:32 windus Exp $
+C     $Id: geom_input.F,v 1.115 1999-06-22 17:48:40 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3783,10 +3783,7 @@ c
       ENDDO
       endif
       if ((groupname(1:3).eq.'C3V').or.(groupname(1:3).eq.'C6V').or.
-     1  (groupname(1:2).eq.'D3').or.(groupname(1:3).eq.'D6H').or.
-     2  (groupname(1:3).eq.'D6 ')) then
-c    1  (groupname(1:3).eq.'D3H').or.(groupname(1:3).eq.'D6H').or.
-c    2  (groupname(1:3).eq.'D3 ').or.(groupname(1:3).eq.'D6 ')) then
+     1  (groupname(1:2).eq.'D3').or.(groupname(1:2).eq.'D6')) then
         pi4 = atan(1d0)
         if (symc2x) then
           theta = pi4
