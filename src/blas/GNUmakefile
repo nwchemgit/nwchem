@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.30 2002-01-04 00:13:26 d3g270 Exp $
+#$Id: GNUmakefile,v 1.31 2002-01-19 03:04:14 zzhang Exp $
 
 include ../config/makefile.h
 
@@ -53,7 +53,14 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
                 ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o        \
-                xerbla.o     zdotu.o
+                xerbla.o     zdotu.o   zgebak.o  zgehrd.o          \
+		zgetrs.o  zladiv.o	zlanhs.o  zlarft.o  zlassq.o  \
+		zung2r.o  zgebal.o  zgesv.o   zhseqr.o  zlahqr.o zlarf.o \
+		zlarfx.o  zlaswp.o  zunghr.o  zgeev.o   zgetf2.o zlacgv.o \
+		zlahrd.o	zlarfb.o  zlascl.o  zlatrs.o  zungqr.o \
+		zgehd2.o  zgetrf.o  zlacpy.o  zlange.o	zlarfg.o  zlaset.o  \
+		ztrevc.o izamax.o zgeru.o dzasum.o dlabad.o\
+
 
 else
 #######################################################################
