@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.3 2001-02-06 08:16:09 windus Exp $
+% $Id: interface.tex,v 1.4 2001-02-06 22:22:59 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -86,7 +86,8 @@ Pacific Northwest Laboratory, Richland, Washington
 
 \subsection{Introduction}
 
-This program prepares the file30 input for \verb+POLYRATE+ from NWChem
+This program prepares the file30 input for \htmladdnormallink{POLYRATE}
+{http://comp.chem.umn.edu/polyrate/} from NWChem
 electronic structure calculations of energies, gradients and Hessians at the 
 reactant, product, and saddle point geometries and along the minimum
 energy path.  Cartesian geometries for the reactants, products, and 
@@ -282,8 +283,10 @@ These sections have the following format:
 \end{verbatim}
 
     SPECIES is a variable keyword that indicates the type of the 
-              molecule.  Options are: ATOMIC, LINRP, NONLINRP, LINTS, and
-              NONLINTS.
+              molecule.  Options are: ATOMIC (atomic reactant or product), 
+              LINRP (linear reactant or product), NONLINRP
+              (nonlinear reactant or product), LINTS (linear transition 
+              state), and NONLINTS (nonlinear transition state).
 
               For example:
                           SPECIES  atomic
@@ -300,7 +303,7 @@ The Path section has the format:
   [SHESS <real shess default SSAVE>]
   [SLP <real slp default 1.0>]
   [SLM <real slm default -1.0>]
-  [SIGN Reactant]
+  [SIGN (REACTANT || PRODUCT default REACTANT)]
   [INTEGRA (EULER || LQA || CLQA || CUBE default EULER)]
   [PRINTFREQ (on || off default off)]
 \end{verbatim}
@@ -340,10 +343,121 @@ The Path section has the format:
     SLM is a variable keyword that indicates the negative limit of 
               the reaction coordinate (in bohrs).
 
+    SIGN is a variable keyword used to ensure the conventional definition
+              of the sign of s, $s < 0$ for the reactant side and
+              $s > 0$ for the product side, is followed.  \verb+PRODUCT+
+              should be used if the eigenvector at the saddle point points
+              toward the product side and \verb+REACTANT+ if the
+              eigenvector points toward the reactant side.
+
     INTEGRA is a variable keyword that indicates the integration
               method used to follow the reaction path.  Options are: EULER,
               LQA, CLQA, and CUBE.
 
     PRINTFREQ is a variable keyword that indicates that projected
               frequencies and eigenvectors will be printed along the MEP.
+
+\subsubsection{Restart}
+
+\verb+DIRDYVTST+ calculations should be restarted through the normal NWChem
+mechanism (See Section \ref{sec:start}).  The user needs to change the
+\verb+start+ directive to a \verb+restart+ directive and get rid of any
+information that will overwrite important information in the RTDB.  The
+\verb+file.db+ and \verb+file.file30+ need to be available for the
+calculation to restart properly.
+
+\subsubsection{Example}
+
+This is an example that creates the file30 file for POLYRATE for $H + H_2$.
+Note that the multiplicity is that of the entire supermolecule, a doublet.
+In this example, the initial energies, gradients, and Hessians are calculated
+at the UHF$\backslash$3-21G level of theory and the singlepoint calculations are 
+calculated at the MP2$\backslash$cc-pVDZ level of theory with a tighter convergence
+threshold than the first SCF.
+
+\begin{verbatim}
+start h3test
+
+basis
+ h library 3-21G
+end
+
+basis singlepoint
+ h library cc-pVDZ
+end
+
+scf
+   uhf
+   doublet
+   thresh 1.0e-6
+end
+
+dirdyvtst autosym 0.001
+  theory scf input "scf\; uhf\; doublet\; thresh 1.0e-06\; end"
+  sptheory mp2 basis singlepoint input \
+    "scf\; uhf\; doublet\; thresh 1.0e-07\; end"
+*GENERAL
+  TITLE
+    Test run: H+H2 reaction, Page-McIver CLQA algorithm, no restart
+
+  ATOMS
+     1    H
+     2    H
+     3    H
+  END
+
+  SINGLEPOINT
+
+*REACT1
+   GEOM
+     1  0.0   0.0   0.0
+     2  0.0   0.0   1.3886144
+   END
+
+   SPECIES LINRP
+
+*REACT2
+  GEOM
+    3    0.0   0.0 190.3612132
+  END
+
+  SPECIES  ATOMIC
+
+*PROD2
+  GEOM
+    1   0.0   0.0 190.3612132
+  END
+
+  SPECIES   ATOMIC
+
+*PROD1
+
+  GEOM
+    2  0.0   0.0   1.3886144
+    3   0.0   0.0   0.0
+  END
+
+  SPECIES  LINRP
+
+*START
+
+  GEOM
+    1  0.0   0.0  -1.76531973
+    2  0.0   0.0   0.0
+    3  0.0   0.0   1.76531973
+  END
+
+  SPECIES  LINTS
+
+*PATH
+  SSTEP  0.05
+  SSAVE  0.05
+  SLP    0.50
+  SLM   -0.50
+  SCALEMASS 0.6718993
+  INTEGRA   CLQA
+end
+
+task dirdyvtst
+\end{verbatim}
 
