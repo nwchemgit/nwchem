@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.21 1996-03-04 23:51:29 rg240 Exp $
+C$Id: vectors.F,v 1.22 1996-03-18 05:14:44 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -277,10 +277,10 @@ c
       logical function movecs_write(filename, title, basis_name, 
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
+#include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "mafdecls.fh"
 #include "inp.fh"
 #include "msgids.fh"
 #include "cscfps.fh"
