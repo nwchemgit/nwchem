@@ -1,5 +1,5 @@
 *
-* $Id: coptopt.fh,v 1.11 2002-05-04 20:03:36 d3g681 Exp $
+* $Id: coptopt.fh,v 1.12 2002-05-10 02:16:43 bylaska Exp $
 *
 c
 c     Defintions of /coptopt/ and /coptimize/
@@ -70,6 +70,7 @@ c
      $     oprint,              ! print information
      $     odebug,              ! print debug data
      $     ostress,             ! include stress
+     $     ocheckgrad,          ! verify the gradient
      $     oactive(max_cent)    ! active atom flags
 c
       character*8
@@ -87,7 +88,7 @@ c     integers
      $     izfrz, isystype, nactive,
 c     logicals
      $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug,
-     $     ostress, oactive
+     $     ostress, ocheckgrad, oactive
 c     characters
       common/ccdrv_optopt/
      $     zvarname, xyz
