@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.91 2000-10-23 23:37:45 windus Exp $
+* $Id: opt_drv.F,v 1.92 2001-01-03 00:47:27 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -2285,19 +2285,19 @@ c
       integer i,j
       integer l_bi, k_bi, l_hc, k_hc, l_hq, k_hq
 c     
+      if (.not. ma_push_get(mt_dbl, ncart*nvar, 'binv',
+     $     l_bi, k_bi)) call errquit
+     $     ('driver_hess_cart_guess: ma?', ncart*nvar)
+c     
+      if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart',
+     $     l_hc, k_hc)) call errquit
+     $     ('driver_hess_cart_guess: ma?', ncart**2)
+c     
+      if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart2',
+     $     l_hq, k_hq)) call errquit
+     $     ('driver_hess_cart_guess: ma?', nvar**2)
+c     
       if (ga_nodeid().eq.0) then
-         if (.not. ma_push_get(mt_dbl, ncart*nvar, 'binv',
-     $        l_bi, k_bi)) call errquit
-     $        ('driver_hess_cart_guess: ma?', ncart*nvar)
-c     
-         if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart',
-     $        l_hc, k_hc)) call errquit
-     $        ('driver_hess_cart_guess: ma?', ncart**2)
-c     
-         if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart2',
-     $        l_hq, k_hq)) call errquit
-     $        ('driver_hess_cart_guess: ma?', nvar**2)
-c     
          call util_file_name('hess',.false.,.false.,fname)
          open(unit=h_unit,file=fname,form='formatted',status='unknown',
      $        err=99990,access='sequential')
