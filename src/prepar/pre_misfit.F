@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.21 2000-09-15 22:21:53 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.22 2000-09-16 02:27:16 d3j191 Exp $
 c
       implicit none
 c
@@ -30,7 +30,7 @@ c
       real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle,boxh(3)
       integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa,num
 c
-      integer isg,ioff,iz,jz,kz,lz
+      integer isg,ioff,jz,kz,lz
       real*8 dz,az,tz
       logical lmat
 c
@@ -58,8 +58,10 @@ c
  1000 format(4i5,3f12.6)
       if(i.eq.iz+ioff.and.isfnd(ioff+jz).ne.0.and.
      + isfnd(ioff+kz).ne.0.and.isfnd(ioff+lz).ne.0) then
-      if(md_zmat(xs(1,i),xs(1,ioff+kz),xs(1,ioff+kz),xs(1,ioff+kz),
+      if(md_zmat(xs(1,i),xs(1,ioff+jz),xs(1,ioff+kz),xs(1,ioff+lz),
      + dz,az,tz)) isfnd(i)=1
+      write(*,'(a,i7,a,a,3f10.5)') ' Generated from z-matrix: ',
+     + isg,':',csa(i),(xs(k,i),k=1,3)
       else
       goto 31
       endif
