@@ -1,12 +1,14 @@
 #!/bin/csh -f
 
 set sed_script = {$NWCHEM_TOP}/src/config/dbl_to_sngl.sed
+set sed_script2 = {$NWCHEM_TOP}/src/config/dbl_to_sngl.2.sed
 
 set sufx = .sngl
 
 foreach file ($argv)
 
    echo converting $file to single precision
-   sed -f $sed_script < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file
+   sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file
+   sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file
 
 end
