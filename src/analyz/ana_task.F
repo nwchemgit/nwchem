@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.50 2000-10-06 05:36:14 d3j191 Exp $
+c $Id: ana_task.F,v 1.51 2000-10-06 07:09:25 d3j191 Exp $
 c
       implicit none
 c
@@ -314,8 +314,8 @@ c
       goto 1
       endif
 c
-c     atom group definition
-c     ---------------------
+c     solute atom group definition
+c     ----------------------------
 c
       if(card(1:6).eq.'define') then
       call ana_define(card,byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
@@ -323,6 +323,17 @@ c
       if(me.eq.0) then
       write(*,3004) ndef
  3004 format(' Defined',i5,' atom groups')
+      endif
+      goto 1
+      endif
+c
+c     solvent atom group definition
+c     -----------------------------
+c
+      if(card(1:6).eq.'wdefin') then
+      call ana_wdefin(card)
+      if(me.eq.0) then
+      write(*,3004) ndef
       endif
       goto 1
       endif
@@ -345,12 +356,13 @@ c
       rhis=-0.6d0*box(3)
       if(nhis.gt.mhis)
      + call errquit('Too many histogram directives ',nhis)
-      read(card(8:14),'(2i7)') idhis(nhis,1),idhis(nhis,2)
+      read(card(8:21),'(2i7)') idhis(nhis,1),idhis(nhis,2)
+      if(idhis(nhis,2).eq.0) idhis(nhis,2)=mlhis
       do 45 i=1,mlhis
       ihis(i,nhis)=0
    45 continue
       fil=card(54:80)
-      if(filhis(1:1).eq.' ')
+      if(fil(1:1).eq.' ')
      + call errquit('No histogram filename given',nhis)
       open(unit=idhis(nhis,3),file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown')
@@ -755,7 +767,7 @@ c
 c
       if(nhis.gt.0) then
       do 3302 i=1,nhis
-      call ana_histo(dbl_mb(i_xdat),i)
+      call ana_histo(dbl_mb(i_xdat),dbl_mb(i_wdat),i)
  3302 continue
       endif
 c
@@ -797,8 +809,8 @@ c
       do 3304 i=1,nhis
       dhis=1.2d0*box(3)/real(idhis(i,2))
       do 3305 j=1,idhis(i,2)
-      write(idhis(i,3),3306) rhis+(j-1)*dhis,real(ihis(j,i))
- 3306 format(2f12.6)
+      write(idhis(i,3),3306) rhis+(j-1)*dhis,real(ihis(j,i))/real(ndata)
+ 3306 format(f12.6,f12.6)
  3305 continue
       close(unit=idhis(i,3))
  3304 continue

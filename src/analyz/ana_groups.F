@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.2 2000-10-06 05:36:13 d3j191 Exp $
+c $Id: ana_groups.F,v 1.3 2000-10-06 07:09:25 d3j191 Exp $
 c
       implicit none
 c
@@ -59,6 +59,8 @@ c
 c
       number=0
 c
+      if(ldef(igrp).lt.0) return
+c
       write(lfngrp,1000) time
  1000 format('Atom distances for selected atoms at time ',f12.6)
 c
@@ -96,7 +98,7 @@ c
 c
       return
       end
-      subroutine ana_histo(x,ih)
+      subroutine ana_histo(x,w,ih)
 c
       implicit none
 c
@@ -106,18 +108,28 @@ c
 #include "msgids.fh"
 c
       integer ih
-      real*8 x(nsa,3)
+      real*8 x(nsa,3),w(mwm,mwa,3)
 c
-      integer i,ia,ito,ndx
+      integer i,ia,ito,j,ndx
 c
       dhis=1.2d0*box(3)/real(idhis(ih,2))
 c
       ito=ldef(idhis(ih,1))
+      if(ito.gt.0) then
       do 1 i=1,ito
       ia=idef(idhis(ih,1),i)
       ndx=(x(ia,3)-rhis)/dhis
       ihis(ndx,ih)=ihis(ndx,ih)+1
     1 continue
+      else
+      do 2 j=1,nwm
+      do 3 i=1,-ito
+      ia=idef(idhis(ih,1),i)
+      ndx=(w(j,ia,3)-rhis)/dhis
+      ihis(ndx,ih)=ihis(ndx,ih)+1
+    3 continue
+    2 continue
+      endif
 c
       return
       end      
