@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.13 1999-11-02 02:38:09 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.14 2000-04-20 01:47:37 edo Exp $
 c
       implicit none
 c
@@ -22,10 +22,10 @@ c
       double precision Ex, Ec
       double precision qwght(nq), func(nq)
       logical GRAD, ldew, do_2nd
-      logical dohcth,lxfach,nlxfach,lcfach,nlcfach
+      logical dohcth
       character*4 whichf
 c
-      double precision eps,xfach,cfach
+      double precision eps
       integer nx,nc
       parameter (eps=1.e-8)
 c

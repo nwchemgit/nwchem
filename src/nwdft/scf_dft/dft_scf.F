@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.153 2000-04-14 01:51:26 edo Exp $
+c     $Id: dft_scf.F,v 1.154 2000-04-20 01:47:35 edo Exp $
 c     
       implicit none
 c
@@ -13,7 +13,7 @@ c
       integer iter
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, isvals, 
-     &        g_xcinv,g_scr
+     &        g_xcinv
       double precision rho_n, toll_s
 c     
 #include "bas.fh"
@@ -60,7 +60,7 @@ cc    Jorge Garza/End
       integer k_eval(2)
       integer natoms, nTotEl
       integer l_occ, k_occ
-      integer i, j
+      integer i
       integer me, nproc
       integer g_tmp, g_fockt,  g_wght, g_xyz,g_nq
       integer nheap, nstack

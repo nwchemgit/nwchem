@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.30 2000-04-19 23:46:55 edo Exp $
+C$Id: xc_getv.F,v 1.31 2000-04-20 01:47:37 edo Exp $
 c
       implicit none
 c      
@@ -58,7 +58,7 @@ c
 c           nTcols = ipol 
 c
       integer me,nproc,i,nTrows,nTcols
-      integer lTmat,iTmat,ii
+      integer lTmat,iTmat
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time, grid_on_file
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
