@@ -1,5 +1,5 @@
       double precision function ga_trace_diag(g_a)
-C$Id: ga_trace_dg.F,v 1.1 1995-12-13 01:37:35 d3g681 Exp $
+C$Id: ga_trace_dg.F,v 1.2 1996-10-06 20:15:41 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -15,6 +15,7 @@ c
       integer i, ilo, ihi, jlo, jhi
       double precision xx,tr
 c
+      call ga_sync()
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
      $     ('ga_trace_diagonal: array is not square/real', g_a)

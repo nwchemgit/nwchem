@@ -1,5 +1,5 @@
       subroutine ga_iter_orthog(basis, g_c, ometric, osym)
-C$Id: ga_it_orth.F,v 1.4 1996-09-19 19:00:50 d3g681 Exp $
+C$Id: ga_it_orth.F,v 1.5 1996-10-06 20:15:40 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -126,5 +126,7 @@ c
          if (.not. ga_destroy(g_ms))
      $     call errquit('iter_orthog: ga_destroy failed', 0)
       endif
+c
+      call ga_sync()
 c
       end

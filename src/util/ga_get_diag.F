@@ -1,5 +1,5 @@
       subroutine ga_get_diagonal(g_a, diags)
-C$Id: ga_get_diag.F,v 1.3 1995-02-02 18:09:26 d3g681 Exp $
+C$Id: ga_get_diag.F,v 1.4 1996-10-06 20:15:40 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -13,6 +13,8 @@ c     Everyone ends up with the diagonal.
 c
       integer ma_type, dim1, dim2, n
       integer i, ilo, ihi, jlo, jhi
+c
+      call ga_sync
 c
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit

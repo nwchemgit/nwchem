@@ -1,5 +1,5 @@
       subroutine int_2c_ga(ibas, jbas, g, integ_type, Alpha)
-C$Id: int_2c_ga.F,v 1.2 1995-10-17 08:56:32 d3g681 Exp $
+C$Id: int_2c_ga.F,v 1.3 1996-10-06 20:15:41 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -76,6 +76,7 @@ c
 c
 c     Loop thru shells with static parallel work decomposition
 c
+      call ga_sync
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       ijshell = 0
