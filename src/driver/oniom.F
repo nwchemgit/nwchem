@@ -673,7 +673,7 @@ c
      $        ('oniom:failed resetting user basis name',0)
       end if
       if (ename .ne. ' ') then 
-         if (.not. rtdb_cput(rtdb,'ecp basis',1,bname)) call errquit
+         if (.not. rtdb_cput(rtdb,'ecp basis',1,ename)) call errquit
      $        ('oniom:failed resetting user ecp name',0)
       end if
       if (real_charge .ne. -999.0d0) then
