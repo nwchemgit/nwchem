@@ -1,0 +1,77 @@
+      subroutine sym_geom_project(geom, tol)
+C     $Id: sym_geom_prj.F,v 1.1 1995-12-13 01:28:15 d3g681 Exp $
+      implicit none
+#include "geomP.fh"
+#include "sym.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+      integer geom
+      double precision tol
+c     
+c     Apply a projection operator to the geometry
+c     so that it posesses the symmetry of the group
+c     to machine precision.  An atom and the image of
+c     that atom under the operations of the group are
+c     considered to be identical iff they are less than
+c     tol distant from each other.  
+c     
+      integer iat, jat, k, op
+      integer nops, nat, l_tmp, k_tmp
+      double precision rnew(3), r
+c     
+      nops = sym_number_ops(geom)
+c     
+      nat = ncenter(geom)
+      if (.not. ma_push_get(mt_dbl, 3*nat, 'coordtmp', l_tmp, k_tmp))
+     $     call errquit('sym_geom_project: scratch space', 3*nat)
+c     
+      if (util_print('sym_geom_project', print_debug)) then
+         write(6,*) ' sym_geom_project: Input geometry'
+         call geom_print(geom)
+      endif
+c
+      call dcopy(3*nat, coords(1,1,geom), 1, dbl_mb(k_tmp), 1)
+c
+      do iat = 1, nat
+         do op = 1, nops
+            jat = sym_center_map(geom, iat, op)
+            call sym_apply_cart_op(geom, op, coords(1,iat,geom), rnew)
+            r = sqrt(
+     $           (rnew(1)-coords(1,jat,geom))**2 + 
+     $           (rnew(2)-coords(2,jat,geom))**2 + 
+     $           (rnew(3)-coords(3,jat,geom))**2)
+            if (r.le.tol) then
+               do k = 1, 3
+                  dbl_mb(k_tmp-1 + k + (jat-1)*3) = 
+     $                 dbl_mb(k_tmp-1 + k + (jat-1)*3) + rnew(k)
+               enddo
+            else
+               call geom_print(geom)
+               call errquit('sym_geom_project: sym_center_map'//
+     $              ' is inconsistent with requested accuracy',
+     $              op)
+            end if
+         end do
+      end do
+c     
+      call dscal(3*nat, 1.0d0/dble(nops+1), dbl_mb(k_tmp), 1)
+c
+      call dcopy(3*nat, dbl_mb(k_tmp), 1, coords(1,1,geom), 1)
+c     
+c     Should also munge any applied electric field which must be
+c     totally symmetric and therefore invariant to all group
+c     operations.
+c     
+c     
+      if (util_print('sym_geom_project', print_debug)) then
+         write(6,*) ' sym_geom_project: Output geometry'
+         call geom_print(geom)
+      endif
+c
+      if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_p: ma?',0)
+c
+c     May have changed the coords ... recompute derived info
+c
+        call geom_compute_values(geom)
+
+      end
