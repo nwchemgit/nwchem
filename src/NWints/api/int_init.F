@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.48 1999-12-08 01:10:44 bert Exp $
+c $Id: int_init.F,v 1.49 1999-12-09 01:30:50 bert Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -42,6 +42,7 @@ c:tex-\begin{verbatim}
       integer bases(nbas) ! [input] basis set handles
 c:tex-\end{verbatim}
 c::local
+      character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
       integer txs_mem_min ! memory from texas
       integer ibas, ang2use, angm, type
       logical status, oprint
@@ -225,12 +226,33 @@ c
       if (.not. rtdb_get(rtdb,'doug_kroll',MT_LOG,1,doug_kroll)) 
      $    doug_kroll = .false.
       if (doug_kroll) then
+c
+c        Which form of Douglas-Kroll has to be done, default = 2
+c
          if (.not. rtdb_get(rtdb,'doug_kroll:type',MT_INT,1,
      $      dk_form_type)) dk_form_type = 2
+c
+c        If one want one can specify an even tempered basis as fitting basis
+c
          if (.not. rtdb_get(rtdb,'doug_kroll:eventemp',MT_LOG,1,
      $      dk_even_bas)) dk_even_bas = .false.
          if (.not. rtdb_get(rtdb,'doug_kroll:etratio',MT_DBL,1,
      $      dk_ratio)) dk_ratio = 2.0d0
+c
+c        Generate the fitting basis set and add it to the list of 
+c        used basis sets
+c
+         do 00400 ibas = 1, nbas
+            if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
+     $         call errquit('int_init: failed in bas_name',0)
+            if (dk_bas_name(1:8) .eq. 'ao basis') goto 00004
+00400    continue
+         call errquit('int_init: could not find ao basis',0)
+00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
+     $      dk_fitbas)
+c
+c        Set possibily an alternative speed of light
+c
          if (.not. rtdb_get(rtdb,'doug_kroll:clight',MT_DBL,1,
      $      dk_clight)) dk_clight = 137.0359895d0
       endif
