@@ -1,36 +1,39 @@
       subroutine dft_tstamp (name)
-C$Id: dft_tstamp.F,v 1.6 1995-12-20 03:53:24 og845 Exp $
+C$Id: dft_tstamp.F,v 1.7 1996-07-26 16:34:40 d3g681 Exp $
       implicit none
 
 
 #include "global.fh"
-#include "tcgmsg.fh"
+c$$$#include "tcgmsg.fh"
 #include "stdio.fh"
       character*8 istime,isdate
       character*(*) name
-#if defined(CRAY)
-      character*24 datime
-      call date(datime)
-      isdate=datime(1:9)
-      call clock(istime)
-#else
-#if defined(USE_FDATE)
-      character*24 datime
-      call fdate(datime)
-      isdate=datime(4:11)
-      istime=datime(12:19)
-#else
-c                1         2    
-c:     :123456789012345678901234
-c:ctime:Mon Aug 31 16:02:05 1992
-c:fdate:Mon Nov 9 10:48:45 1992
 c
+c     RJH. Commented out unnecessary machine dependent code.
+c 
+c$$$#if defined(CRAY)
+c$$$      character*24 datime
+c$$$      call date(datime)
+c$$$      isdate=datime(1:9)
+c$$$      call clock(istime)
+c$$$#else
+c$$$#if defined(USE_FDATE)
+c$$$      character*24 datime
+c$$$      call fdate(datime)
+c$$$      isdate=datime(4:11)
+c$$$      istime=datime(12:19)
+c$$$#else
+c$$$c                1         2    
+c$$$c:     :123456789012345678901234
+c$$$c:ctime:Mon Aug 31 16:02:05 1992
+c$$$c:fdate:Mon Nov 9 10:48:45 1992
+c$$$c
       character*26 datime
       call util_date(datime)
       isdate=datime(4:11)
       istime=datime(12:19)
-#endif
-#endif
+c$$$#endif
+c$$$#endif
       if( ga_nodeid().eq.0 )then
         write (LuOut,100) name,isdate,istime
         call flush(LuOut)
