@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
 c
-c $Id: pre_misfit.F,v 1.23 2000-09-21 15:24:19 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.24 2000-09-21 16:57:14 d3j191 Exp $
 c
       implicit none
 c
@@ -503,7 +503,7 @@ c
       else
       miss=miss+1
       if(util_print('coordinates',print_none)) then
-      write(lfnout,9998) i,csa(i)
+      write(lfnout,9998) isgm(i),csa(i)
  9998 format(' Coordinates missing for atom ',i5,':',a)
       endif
       endif

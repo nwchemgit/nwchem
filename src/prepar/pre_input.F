@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.68 2000-09-21 15:40:41 d3j191 Exp $
+c $Id: pre_input.F,v 1.69 2000-09-21 16:57:14 d3j191 Exp $
 c
       implicit none
 c
@@ -66,7 +66,7 @@ c
       slvmdl='spce      '
       altloc='A'
       chain='*'
-      his='D'
+      his=' '
       newtop=0
       newseq=0
       newrst=0
@@ -290,9 +290,9 @@ c     ---------------------
 c
       if(inp_compare(.false.,'histidine',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: chain',9999)
-      if(inp_compare(.false.,'hid')) his='D'
-      if(inp_compare(.false.,'hie')) his='E'
-      if(inp_compare(.false.,'hip')) his='P'
+      if(inp_compare(.false.,'hid',item)) his='D'
+      if(inp_compare(.false.,'hie',item)) his='E'
+      if(inp_compare(.false.,'hip',item)) his='P'
       goto 2
       endif
 c

@@ -5,7 +5,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract,scale,cpk,his)
 c
-c $Id: pre_rtdbin.F,v 1.23 2000-09-21 15:40:41 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.24 2000-09-21 16:57:14 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -98,7 +98,7 @@ c
 c
       if(.not.rtdb_cget(irtdb,'prep:altloc',1,altloc)) altloc='A'
       if(.not.rtdb_cget(irtdb,'prep:chain',1,chain)) chain='A'
-      if(.not.rtdb_cget(irtdb,'prep:his',1,his)) chain='D'
+      if(.not.rtdb_cget(irtdb,'prep:his',1,his)) his=' '
 c
       if(.not.rtdb_get(irtdb,'prep:model',mt_int,1,model)) model=0
 c
@@ -153,12 +153,14 @@ c
       if(dir_t(1:1).eq.' ') dir_t='./ '
 c
       key='histidine'
+      if(his.eq.' ') then
       if(util_nwchemrc_get(key,value)) then
       if(value(1:3).eq.'HID') his='D'
       if(value(1:3).eq.'HIE') his='E'
       if(value(1:3).eq.'HIP') his='P'
       else
       his='E'
+      endif
       endif
 c
       pre_rtdbin=.true.
