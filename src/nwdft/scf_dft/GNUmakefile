@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.7 1994-12-31 01:22:05 og845 Exp $
+# $Id: GNUmakefile,v 1.8 1995-01-25 23:18:38 og845 Exp $
 
       OBJ = mull_pop.o dft.o 
       OBJ_OPTIMIZE = \
 	bsolve.o	\
-	diis.o		scfcvg.o gasbld.o\
+	diis.o		dencvg.o scfcvg.o gasbld.o\
 	diisdriver.o			   gacond.o	\
 	gafact.o	\
 	hamwght.o	\
