@@ -6,6 +6,7 @@
 #include "msgtypesf.h"
 #include "msgids.fh"
 #include "cscfps.fh"
+#include "inp.fh"
 c
 c     Temporary routine
 c
@@ -98,6 +99,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "cscfps.fh"
+#include "inp.fh"
 c
       character*(*) filename
       integer iset              ! No. (1,2) of set of vectors to read
@@ -162,6 +164,11 @@ c
       endif
 c
       movecs_read = ok .eq. 1
+      if (ga_nodeid() .eq. 0) then
+         write(6,22) filename(1:inp_strlen(filename))
+ 22      format(/' Read molecular orbitals from ',a/)
+         call util_flush(6)
+      endif
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
@@ -254,6 +261,11 @@ c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
 c
       movecs_write = ok .eq. 1
+      if (ga_nodeid() .eq. 0) then
+         write(6,22) filename(1:inp_strlen(filename))
+ 22      format(/' Wrote molecular orbitals to ',a/)
+         call util_flush(6)
+      endif
       if (oscfps) call pstat_off(ps_vecio)
       return
 c
@@ -274,6 +286,64 @@ c
       goto 10
 c
       end
+      subroutine movecs_swap(rtdb,g_vecs)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      integer rtdb, g_vecs
+c
+      integer type, nelem, handle, index
+      integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
+      integer pair, i, j
+c
+      if (.not. rtdb_ma_get(rtdb, 'scf:swap', type, nelem, 
+     $     handle)) return
+      if (.not. ma_get_index(handle,index)) call errquit
+     $     ('movecs_swap: get index failed', handle)
+      if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
+     $     ('movecs_swap: invalid list of pairs',nelem)
+c
+      call ga_sync()
+      if (ga_nodeid() .eq. 0) then
+         write(6,*)
+         call ga_inquire(g_vecs, type, dim1, dim2)
+         if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
+     $        call errquit('movecs_swap: no scratch space', dim1)
+         if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
+     $        call errquit('movecs_swap: no scratch space', dim1)
+         do pair = 1, nelem, 2
+            i = int_mb(index+pair-1)
+            j = int_mb(index+pair  )
+            write(6,1) i, j
+ 1          format(' Swapping orbitals ', 2i5)
+            if (i.lt.0 .or. i.gt.dim2) call errquit
+     $           ('movecs_swap: invalid vector ', i)
+            if (j.lt.0 .or. j.gt.dim2) call errquit
+     $           ('movecs_swap: invalid vector ', j)
+c     
+            call ga_get(g_vecs, 1, dim1, i, i, dbl_mb(k_veci), 1)
+            call ga_get(g_vecs, 1, dim1, j, j, dbl_mb(k_vecj), 1)
+            call ga_put(g_vecs, 1, dim1, i, i, dbl_mb(k_vecj), 1)
+            call ga_put(g_vecs, 1, dim1, j, j, dbl_mb(k_veci), 1)
+c     
+         enddo
+         call util_flush(6)
+         if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
+         if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
+      endif
+c
+      call ga_sync
+c
+      if (.not. rtdb_delete(rtdb, 'scf:swap')) call errquit
+     $     ('movecs_swap: delete of swap entry failed', 0)
+c
+      if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
+c
+      end
 
+
+            
       
       

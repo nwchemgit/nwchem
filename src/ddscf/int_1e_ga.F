@@ -89,12 +89,22 @@ c
 c
             if (odoit) then
                if (mod(ijshell, nproc) .eq. iproc) then
+
+*                  if (oskel)
+*     $                 write(6,*) ga_nodeid(), ' getting bfr ', jshell
+*                  call util_flush(6)
+
                   if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
      $                 call errquit('int_1e_ga: bas_cn2bfr ?', jbas)
                   jdim = jhi - jlo + 1
 c     
 c     Generate the integrals
 c     
+
+*                  if (oskel)
+*     $                 write(6,*) ga_nodeid(), ' generating integrals '
+*                  call util_flush(6)
+
                   if (type .eq. 1) then
                      call int_1eke (ibas, ishell, jbas, jshell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
@@ -110,11 +120,18 @@ c
 c     
 c     Add the integrals into the global array
 c     
+
+*                  if (oskel)
+*     $                 write(6,*) ga_nodeid(), ' ga_acc ', jshell, jlo,
+*     $                 jhi
+*                  call util_flush(6)
+
                   call ga_acc(g, jlo, jhi, ilo, ihi, dbl_mb(k_buf),
      $                 jdim, q2)
                endif
                ijshell = ijshell + 1
             endif
+            call ga_sync()
          enddo
       enddo
 c     

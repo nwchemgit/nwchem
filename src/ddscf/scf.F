@@ -9,6 +9,7 @@
 #include "inp.fh"
 #include "pstat.fh"
 #include "cscfps.fh"
+#include "cskeleton.fh"
 c
 c     RHF module.
 c
@@ -132,6 +133,8 @@ c
      $     call errquit('scf: no mo basis ', 0)
       if (.not. bas_name(basis, name, trans))
      $     call errquit('scf: bas_name?', 0)
+      if (.not.rtdb_get(rtdb, 'scf:skeleton',
+     $     MT_LOG, 1, oskel)) oskel = .true.
       if (name .eq. ' ') name = 'mo basis'
 *      if (.not. geom_print(geom)) call errquit('scf: geom_print', 0)
 *      if (.not. bas_print(basis)) call errquit('scf: bas_print', 0)
