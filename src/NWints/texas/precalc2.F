@@ -1,5 +1,5 @@
       subroutine prec2ij(ibl, bl,inx,npar,nbl2, iis,jjs,ijbl)
-c $Id: precalc2.F,v 1.1 1995-10-30 20:57:46 d3e129 Exp $
+c $Id: precalc2.F,v 1.2 1995-12-21 23:28:49 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -180,7 +180,7 @@ c-----------------------------------------------------------
       ijbegin=nijbeg
       klbegin=nklbeg
 c-----------------------------------------------------------
-c* precalculations for pairs ij
+c precalculations for pairs ij
 c
       call precal2x(iabprim,ijdim,iapb,i1apb,isab)
 c--------
@@ -202,7 +202,7 @@ c for abnia
           endif
       endif
 c----------------------------------------
-c* precalculations for pairs kl
+c precalculations for pairs kl
 c
       if(kbl.eq.ibl) then
           kabprim=iabprim
@@ -746,9 +746,8 @@ c====================================================================
 c-------------------------------------------------------------------
 c  Description :
 c
-c  This subroutine calculates 1 quantity for contracted
-c  shell pairs which belong to a given block of contracted
-c  of contracted quartets. 
+c  This subroutine calculates 1 quantity for contracted shell pairs 
+c  which belong to a given block of contracted shell quartets .
 c    This subroutine is called (from Blockint) only for blocks
 c  with total angular momentum MMAX > 2 ,where MMAX is the sum 
 c  of angular momentum of four contracted shells (+1) /for exemple :
@@ -791,30 +790,30 @@ c
 c====================================================================
       subroutine precal2c(npij,npkl,npklx, rapb,rcpd,ijpar1,klpar1,
      *                    habcd,nhabcd,nfumax)
-c*************
+c-----------------------------------------
 c  Description of the PRECAL2b subroutine
 c
-c  This subroutine calculates 1 quantity for contracted
-c  shell pairs which belong to a given block of contracted
-c  of contracted quartets. 
+c  This subroutine calculates 1 quantity for contracted shell pairs 
+c  which belong to a given block of contracted shell quartets .
 c    This subroutine is called (from Blockint) only for blocks
 c  with total angular momentum MMAX > 2 ,where MMAX is the sum 
 c  of angular momentum of four contracted shells (+1) /for exemple :
 c  (ss ss):mmax=1, (pp,ps):mmax=4, (dd,ll):mmax=7, (ff,ff):mmax=13 /
 c
 c  INPUT 
-c  ******
+c  ------
 c
 c    NPIJ, NPKL  - number of pairs <IJ  nd KL> in a given block
 c                  of contracted quartets
 c    NPKLX  - is 0 if this subroutine is called for a diagonal block
 c                  (IJ,IJ), or it is NPKL otherwise.
-c     RAPB(ij,lcij) - 1/(a+b) : reversed sum of exponents of each
+c    RAPB(ij,lcij) - 1/(a+b) : reversed sum of exponents of each
 c                     pair of primitive shells from IJth pair of  
 c                     contracted shells.
-c     RCPD(kl,lckl) - 1/(c+d)  : like above for pairs KL>
+c    RCPD(kl,lckl) - 1/(c+d)  : like above for pairs KL>
+c
 c  OUTPUT
-c  *******
+c  ------
 c  For each pair of primitive shells ij (kl) from IJ (KL) contracted
 c  pair belonging to a given block of quartets with total ang.mom. MMAX
 c
@@ -825,7 +824,7 @@ c  total number of functions corresponding to the MMAX-1 /for example
 c  for mmax=3 it is from 1 to 10 - s,x,y,z,xx,yy,zz,xy,xz,yz /
 c  The second index lx stays for x,y or z and is used to find the power
 c  of an elementary function in these directions from matrix HNIA which
-c  is constat and is set up in BLOCK DATA logobsa. For example :
+c  is constant and is set up in BLOCK DATA logobsa. For example :
 c
 c     habcd(klpar,1=x,ifu,kl)=hnia(1,ifu)*rcpd(klpar,kl)
 c
@@ -924,21 +923,16 @@ c  CONST(ijkl1) = 8*rapb*rcpd*SQRT(rppq)
 c                  *contri*contrj*contrk*contrl * sab*scd
 c                 /sab,scd denote "pure" overlaps /
 c*************
-c*
+c
       implicit real*8 (a-h,o-z)
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
 cflops
       common /flops/ iflop(20)
-c
       common /neglect/ eps,eps1,epsr
 cnowy
       common /superbl/ isupb,ibl,kbl
-c
       common /begin/ ijbegin,klbegin
 c
-ctest
-ccccc common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
-ctest
       dimension indxij(*),indxkl(*),index(*)
 c-------
       dimension apb(ijpar1,lc12),cpd(klpar1,lc34)
@@ -953,17 +947,12 @@ c
       data zero /0.d0/
       data one /1.d0/
 c---------------------------------------------------------------
-c for test print only :pi256=(pi/256)**-1
-cccc  pi256=81.48733086d0
-c---------------------------------------------------------------
 c not par268=eps1*8.d0
       par268=     8.d0
 c---------------------------------------------------------------
       ijstart=ijbegin-1
       klstart=klbegin-1
 c---------------------------------------------------------------
-c        write(8,*)'              '
-c        write(8,*)' From prec4neg'
 c
       sqrpold=one
       rpold=one
@@ -1003,17 +992,6 @@ c
 c
          estim=esti1*esti2
          estim=estim*abpcdr
-cTTTT
-c        write(8,66) esti1,esti2,estim
-c        write(8,67) estim*pi256*eps1    , eps
-c        if(estim.gt.epsr) then
-c           write(8,*) ' integrals retained '
-c        else
-c           write(8,*) ' integrals neglected'
-c        endif
-c 66  format(' estij=',e15.5,' estkl=',e15.5,' estim=',e15.5)
-c 67  format(' est. uesd=',e15.5,' esp=',e15.5)
-cTTTT
          if(estim.gt.epsr) then
             coef12=coef1*coef2
             ijkl1=ijkl1+1
@@ -1064,13 +1042,11 @@ c*
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
 cflops
       common /flops/ iflop(20)
-c
       common /neglect/ eps,eps1,epsr
 cnowy
       common /begin/ ijbegin,klbegin
       common /superbl/ isupb,ibl,kbl
 c
-ccccc common /gcont/ ngci1,ngcj1,ngck1,ngcl1,ngcd
       dimension indxij(*),indxkl(*),index(*)
 c---------------
       dimension apb(ijpar1,lc12),cpd(klpar1,lc34)
@@ -1088,17 +1064,12 @@ c
       data zero /0.d0/
       data one /1.d0/
 c---------------------------------------------------------------
-c for test print only :pi256=(pi/256)**-1
-cccc  pi256=81.48733086d0
-c---------------------------------------------------------------
 c not par268=eps1*8.d0
       par268=     8.d0
 c---------------------------------------------------------------
       ijstart=ijbegin-1
       klstart=klbegin-1
 c---------------------------------------------------------------
-c        write(8,*)'              '
-c        write(8,*)' From precspec'
 c
       sqrpold=one
       rpold=one
@@ -1144,17 +1115,6 @@ c
 c
          estim=esti1*esti2
          estim=estim*abpcdr
-cTTTT
-c        write(8,66) esti1,esti2,estim
-c        write(8,67) estim*pi256*eps1    , eps
-c        if(estim.gt.epsr) then
-c           write(8,*) ' integrals retained '
-c        else
-c           write(8,*) ' integrals neglected'
-c        endif
-c 66  format(' estij=',e15.5,' estkl=',e15.5,' estim=',e15.5)
-c 67  format(' est. uesd=',e15.5,' esp=',e15.5)
-cTTTT
          if(estim.gt.epsr) then
             coef12=coef1*coef2
             ijkl1=ijkl1+1
@@ -1229,7 +1189,7 @@ c====================================================================
      *        indxij,indxkl,index,
      *        rppq,xp,xq,xpp,xqq,
      *        txab,txcd,abcd,apb,rcpd,cpd,rapb)
-c*************
+c-----------------------------------------------
 c  Description of the XWPQ     subroutine
 c
 c  For two primitive pairs lcij and lckl which contribute 
@@ -1265,8 +1225,7 @@ c  XWP(ijkl1) - coordinates of W-P,  where W=(XPP+XQQ)/(a+b+c+d)
 c  XWQ(ijkl1) - coordinates of W-Q
 c  P1234(ijkl1)=(txab+txcd)*(rcpd OR rapb)
 c  ABCD(ijkl1)= apb*rcpd   OR  cpd*rapb
-c
-c*************
+c-----------------------------------------------
 c
       implicit real*8 (a-h,o-z)
 cflops
