@@ -182,7 +182,7 @@ Integral changes:
 DPLOT:
 
   o Gaussian cube file can now be output.
-  o Format for InsightII is compatible with verison 97.0.
+  o Format for InsightII is compatible with version 97.0.
   o Spherical functions can be plotted for MOs and density.
 
 Tests, manuals and misc script changes: 
@@ -210,16 +210,21 @@ The current tested platforms and O/S versions are:
   o SUN workstations, SunOS 4.1.3 and Solaris 5.5 
   o Compaq DEC alpha workstion (600 MHz EV6), Digital UNIX V4.0E Rev.
     1091, DEC C V5.8-009, Digital Fortran V5.2 
-  o Linux. Since there are at least 8 popular distributions of the Linux
-    operating system and numerous others in existence, including
-    downloading everything and building your own Linux OS, it is impossible
-    to test all possible versions of Linux with NWChem. NWChem Release 4.0
-    has been tested on Slackware 3.4, 3.5, 4.0, RedHat 5.1, 5.2, and 6.0,
-    Mandrake based on RedHat 6.0, and RedHat 6.0 for the Power PC
-    Macintosh. These all use the EGCS compilers at different levels. Those
+  o Linux with Intel x86 cpus. Since there are at least 8 popular
+    distributions of the Linux operating system and numerous others in
+    existence, including downloading everything and building your own Linux OS,
+    it is impossible to test all possible versions of Linux with NWChem.
+    NWChem Release 4.0 has been tested on Slackware 3.4, 3.5, 4.0, RedHat 5.1,
+    5.2, 6.0 and 6.2.  Mandrake based on RedHat 6.0,
+    and RedHat 6.0 for the Power PC Macintosh. 
+    These all use the EGCS compilers at different levels. Those
     distributed from Slackware are somewhat different than those distributed
     from RedHat but the code is configured to run on all of them.  The Portland
     Group Compiler can now be used.
+  o Linux with Alpha cpus has been tested with RedHat 6.1 and 6.2.
+    Usage of the Compaq Fortran and C compilers is necessary for compiling.
+  o HP 9000/800 workstions with  HPUX B.11.00. f90 must be used for
+    compilation.
 
 A general FAQ is available at 
 http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html

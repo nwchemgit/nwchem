@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.30 2000-11-20 21:49:46 windus Exp $
+$Id: INSTALL,v 1.31 2000-12-01 02:24:30 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -122,10 +122,11 @@ BASIC BUILD INSTRUCTIONS:
     CRAY-T3D       Cray T3D                 UNICOS         single
     CRAY-T3E       Cray T3E        ***      UNICOS         single
     LAPI           IBM SP          ***      AIX/LAPI       double
-    LINUX          IBM PC          ***      Slackware 4.0  double
-                   IBM PC          ***      RedHat 5.2/6.0 double
+    LINUX          Intel x86       ***      Slackware 4.0  double
+                   Intel x86       ***      RedHat 5.2-6.2 double
                    PowerPC         ***      RedHat 6.0     double
-    LINUX64        Alpha            *       ReadHat 6.2    double
+    LINUX64        Alpha            *       RedHat 6.2     double
+    HPUX           HP               *       HPUX 11.0      double
     -----------------------------------------------------------------
    *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
           If you don't have it get it from IBM.  Also, the environment
