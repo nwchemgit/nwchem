@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.9 2002-02-28 00:41:09 bylaska Exp $
+c $Id: pspw_Q.F,v 1.10 2002-03-05 01:49:32 bylaska Exp $
 c
 
 
@@ -43,6 +43,7 @@ c
 
       nkatm_mm = pspw_qmmm_nkatm()
       nkatm_ion = ion_nkatm()
+
 
 *     **** allocate Electrostatic parameters ****
 *     **** default is zero                   ****

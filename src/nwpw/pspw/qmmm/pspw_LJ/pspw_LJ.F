@@ -1,5 +1,5 @@
 c
-c $Id: pspw_LJ.F,v 1.8 2002-02-28 00:34:21 bylaska Exp $
+c $Id: pspw_LJ.F,v 1.9 2002-03-05 01:49:32 bylaska Exp $
 c
 
 *     *************************
@@ -52,7 +52,7 @@ c
       value = MA_alloc_get(mt_dbl,nkatm_ion,
      >                 'sigma_ion',sigma_ion(2),sigma_ion(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm_mm,
+     >        MA_alloc_get(mt_dbl,nkatm_ion,
      >                 'epsilon_ion',epsilon_ion(2),epsilon_ion(1))
       if (.not. value) call errquit('out of heap memory',0)
 
@@ -68,6 +68,7 @@ c
         dbl_mb(sigma_mm(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
         dbl_mb(epsilon_mm(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
       end do
+
       
 *     **** read in Ion LJ parameters ***
       do i=1,nkatm_ion
@@ -80,7 +81,7 @@ c
         dbl_mb(sigma_ion(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
         dbl_mb(epsilon_ion(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
       end do
-
+      
       
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then

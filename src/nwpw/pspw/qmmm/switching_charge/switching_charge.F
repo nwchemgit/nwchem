@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.8 2002-03-03 23:23:03 bylaska Exp $
+c $Id: switching_charge.F,v 1.9 2002-03-05 01:49:32 bylaska Exp $
 c
 
 ***********************************************************
@@ -104,6 +104,9 @@ c
       call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
       call Pack_c_unpack(0,dbl_mb(xtmp(1)))
       call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
+
+*     **** debug ****
+      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
 *     **** Tall*Vqm ****
       call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
@@ -217,6 +220,9 @@ c
       call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
       call Pack_c_unpack(0,dbl_mb(xtmp(1)))
       call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
+
+*     **** debug ****
+      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       do j=1,nion
          x = pspw_qmmm_rion(1,j)

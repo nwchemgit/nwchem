@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.16 2002-03-03 21:47:18 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.17 2002-03-05 01:49:31 bylaska Exp $
 c
 
 ***********************************************************
@@ -113,10 +113,19 @@ c         end if
          if (rtdb_ma_get(rtdb, 'pspw:qmmm_frag', ma_type,
      >        h_nfrag, h_hndl)) then
 
-
            if (.not.MA_get_index(h_hndl,h_indx))
      >      call errquit(
      >      'pspw_qmmm_init: ma_get_index failed for qmmm_frag',911)
+
+         else
+           h_nfrag = 2*nion+2
+           value = MA_alloc_get(mt_int,(h_nfrag),
+     >                        'ffrag_list',h_hndl,h_indx)
+           if (.not. value) call errquit('out of heap memory',0)
+           do i=1,nion
+              int_mb(h_indx+2*(i-1))   = i
+              int_mb(h_indx+2*(i-1)+1) = -1
+           end do
          end if
 
 *        **** find maximum fragment length and nfrag  ****
@@ -129,6 +138,7 @@ c         end if
          value = value.and.
      >           MA_alloc_get(mt_int,(2*nion),
      >           'frag_from_indx',frag_from_indx(2),frag_from_indx(1))
+
          value = value.and.
      >           MA_alloc_get(mt_int,(max_frag_length*nfrag),
      >           'indx_from_frag',indx_from_frag(2),indx_from_frag(1))
@@ -173,8 +183,6 @@ c         end if
      >                     nkatm,katm,natm,atom)
 
 
-     
-
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
         call pspw_LJ_init(rtdb)
         call pspw_Q_init(rtdb)
@@ -184,6 +192,7 @@ c         end if
 
       return
       end
+
 *     **************************************
 *     *                                    *
 *     *    set_max_frag_length_and_nfrag   *
@@ -715,8 +724,8 @@ c         end if
       return
 
  1180 FORMAT(/' position of MM ions (au): ')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3)
- 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3)
+ 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,
      >      ' fragment:',2I6)
       end
 
