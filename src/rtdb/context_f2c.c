@@ -1,4 +1,4 @@
-/*$Id: context_f2c.c,v 1.5 1999-11-13 03:01:34 bjohnson Exp $*/
+/*$Id: context_f2c.c,v 1.6 1999-11-15 21:28:06 d3g681 Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +14,10 @@ typedef long logical;		/* Equivalent C type to FORTRAN logical */
 typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define FORTRAN_TRUE  ((logical) 1)
 #define FORTRAN_FALSE ((logical) 0)
+
+#ifndef WIN32
+#define FATR 
+#endif
 
 #define MAX_CLEN 4096
 #if defined(CRAY) || defined(USE_FCD) 
