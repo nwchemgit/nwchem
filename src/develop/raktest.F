@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.67 1997-05-23 21:49:10 d3e129 Exp $
+c $Id: raktest.F,v 1.68 1997-05-29 00:54:28 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -3834,10 +3834,12 @@ c
       subroutine raktest_ovd1(buf,lbuf,scr,lscr,fdo,o,fdp,fdm,
      &    nbf,nat,cmaster,basis,geom)
       implicit none
+#include "mafdecls.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "inp.fh"
+#include "ecp_nwc.fh"
       double precision ddot
       external ddot
 c
@@ -3912,6 +3914,9 @@ c
 * +
           call dcopy((3*nat),cmaster,1,coords(1,1,geom),1)
           coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) + delta
+c.. get coordinates for ecp centers.
+          if (.not.geom_coords_ecp(geom,dbl_mb(k_xyzecp),n_ecp))
+     &        call errquit('ecpdebug: geom_coords_ecp failed',911)
           do ish = 1,ncont
             call util_date(date_string)
             lds = inp_strlen(date_string)
@@ -3935,6 +3940,9 @@ c
 * -
           call dcopy((3*nat),cmaster,1,coords(1,1,geom),1)
           coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) - delta
+c.. get coordinates for ecp centers.
+          if (.not.geom_coords_ecp(geom,dbl_mb(k_xyzecp),n_ecp))
+     &        call errquit('ecpdebug: geom_coords_ecp failed',911)
           do ish = 1,ncont
             if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
             do jsh = 1,ncont
@@ -3971,10 +3979,15 @@ c
       double precision   o(nbf,nbf,3,nat)
 c
       double precision diff, thresh
-      integer i,j,ixyz,ic, count, nval_good
+      integer i,j,ixyz,ic, count, nval_good, n_zero
+c
+      integer o_res, fd_res
+      integer  is_this_val_okay
+      external is_this_val_okay
 c
       thresh =  1.0d-06
 c
+      n_zero = 0
       nval_good = 0
       count = 0
       do ic = 1,nat
@@ -3982,15 +3995,33 @@ c
           do j=1,nbf
             do i=1,nbf
               count = count + 1
+              o_res  = is_this_val_okay(o(i,j,ixyz,ic)) 
+*              write(6,*)' o_res',o_res
+              if (o_res .eq. 1) then
+                write(6,10001)i,j,ixyz,ic
+              elseif (o_res .eq. 2) then
+                write(6,10003)i,j,ixyz,ic
+              elseif (o_res.eq.0) then
+                n_zero = n_zero + 1
+              elseif (o_res.eq.3) then
+                nval_good = nval_good + 1
+              endif
+              fd_res = is_this_val_okay(fdo(i,j,ixyz,ic)) 
+*              write(6,*)' fd_res',fd_res
+              if (fd_res .eq. 1) then
+                write(6,10002)i,j,ixyz,ic
+              elseif (fd_res .eq. 2) then
+                write(6,10004)i,j,ixyz,ic
+              endif
               diff = fdo(i,j,ixyz,ic) - o(i,j,ixyz,ic)
               diff = abs(diff)
               if (diff.gt.thresh) then
                 write(6,10000)count,i,j,ixyz,ic,
      &              fdo(i,j,ixyz,ic),
      &              o(i,j,ixyz,ic), diff
-              else
-                if (abs(o(i,j,ixyz,ic)).gt.thresh)
-     &              nval_good = nval_good + 1
+*              else
+*                if (abs(o(i,j,ixyz,ic)).gt.thresh)
+*     &              nval_good = nval_good + 1
               endif
             enddo
           enddo
@@ -3999,5 +4030,16 @@ c
 10000 format(1x,'<',i6,'>','(i=',i3,',j=',
      &    i3,',x=',i3,',at=',i3,') fd=',
      &    1pd12.5,' o=',1pd12.5,' diff=',1pd12.5)
+      write(6,*)' zero values',n_zero
       write(6,*)' good values',nval_good
+      write(6,*)'         sum',(n_zero+nval_good)
+      write(6,*)' count     =',count
+10001 format(' calculated  value (',i3,',',i3,',',i3,',',
+     &    i3,') is a NAN')
+10002 format(' finite diff value (',i3,',',i3,',',i3,',',
+     &    i3,') is a NAN')
+10003 format(' calculated  value (',i3,',',i3,',',i3,',',
+     &    i3,') is an INFINITY')
+10004 format(' finite diff value (',i3,',',i3,',',i3,',',
+     &    i3,') is an INFINITY')
       end

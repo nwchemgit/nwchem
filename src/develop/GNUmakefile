@@ -1,5 +1,5 @@
-#$Id: GNUmakefile,v 1.21 1997-02-17 20:51:42 d3g681 Exp $
-       OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o
+#$Id: GNUmakefile,v 1.22 1997-05-29 00:54:25 d3e129 Exp $
+       OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o raktestc.o
    LIBRARY = libtest.a
 
 USES_BLAS =     raktest.F 
