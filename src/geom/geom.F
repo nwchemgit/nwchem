@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.105 2000-10-26 00:15:34 edo Exp $
+C$Id: geom.F,v 1.106 2000-11-04 03:23:12 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -332,6 +332,29 @@ c
       end if
 c     
       end
+      logical function geom_rtdb_ncent(rtdb, name, ncent)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+      integer rtdb              ! [input]
+      character*(*) name        ! [input]
+      integer ncent             ! [output]
+c
+c     Return the number of atoms in a geometry that is
+c     stored on the database ... a convenience routine.
+c
+      character*128 trans, tmp
+      integer lent
+c
+      if (.not. rtdb_cget(rtdb, name, 1, trans)) trans = name
+      lent = inp_strlen(trans)
+      tmp = 'geometry:'//trans(1:lent)
+      lent = inp_strlen(tmp)
+      tmp(lent+1:) = ':ncenter'
+      geom_rtdb_ncent = rtdb_get(rtdb, tmp, mt_int, 1, ncent)
+c
+      end
       logical function geom_rtdb_load(rtdb, geom, name)
       implicit none
 #include "rtdb.fh"
@@ -604,7 +627,7 @@ c
      $           call errquit('geom_rtdb_load: free of atom map', 0)
          end if
 c
-      tmp(k:) = ' ' 
+         tmp(k:) = ' ' 
          tmp(k:) = ' ' 
          tmp(k:) = ':map_atoms'
          s = s .and. 
@@ -1544,6 +1567,21 @@ c
       geom_ncent = geom_check_handle(geom, 'geom_ncent')
       if (.not. geom_ncent) return
       ncent = ncenter(geom)
+c      
+      end
+      logical function geom_ncent_set(geom, ncent)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      integer ncent             ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+c
+      geom_ncent_set = geom_check_handle(geom, 'geom_ncent_set')
+      if (.not. geom_ncent_set) return
+      ncenter(geom) = ncent
 c      
       end
       logical function geom_ncent_unique(geom, ncent)
