@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.84 2004-02-24 06:24:52 d3j191 Exp $
+c $Id: md_common.fh,v 1.85 2004-07-20 14:09:38 edo Exp $
 c
 c     parameters
 c
@@ -65,7 +65,7 @@ c
       common/md_mpp/me,np,mew,npw,irtdb
 c
       integer npx,npy,npz,npg,nbx,nby,nbz
-      common/md_inp/npx,npy,npz,npg,nbx,nby,nbz
+      common/md_inp0/npx,npy,npz,npg,nbx,nby,nbz
 c
 c     md_lfn : logical file numbers and filename lengths
 c     ---------------------------------------------------

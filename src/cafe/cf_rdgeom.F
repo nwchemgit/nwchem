@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.10 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: cf_rdgeom.F,v 1.11 2004-07-20 14:09:37 edo Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -62,9 +62,7 @@ c
       vadata(2*j-1)=q
       vadata(2*j)=0.0d0
     2 continue
-      call cf_para(i,1,cdata(1),rdata(1),idata(1))
-      call cf_para(i,2,cdata(2),rdata(2),idata(2))
-      call cf_para(i,3,cdata(3),rdata(3),idata(3))
+      call cf_para(i,cdata(1),rdata(1),idata(1))
       call cf_parq(i,vadata)
     1 continue
       if(.not.geom_destroy(igeom))

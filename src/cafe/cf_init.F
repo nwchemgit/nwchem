@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi,nbgeti)
-c $Id: cf_init.F,v 1.104 2004-03-26 23:40:28 d3j191 Exp $
+c $Id: cf_init.F,v 1.105 2004-07-20 14:09:37 edo Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -66,6 +66,10 @@ c
 c
       lfnhop=lfnhopi
       nhops=0
+      if(lqmd) then
+        nparms=3
+        mset=6
+      endif
 c
       lfree=ntype.eq.3
 c
