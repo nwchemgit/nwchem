@@ -14,8 +14,12 @@ peigs_stamp:	include_stamp
 include_stamp:
 	touch include_stamp
 
-realclean clean:
+clean:
 	$(MAKE) -f makefile.peigs clean
+	rm -f peigs_stamp include_stamp
+realclean:	clean
+	$(MAKE) -f makefile.peigs realclean
+	rm -f $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
 	rm -f peigs_stamp include_stamp
 
 
