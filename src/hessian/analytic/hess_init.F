@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.41 2002-03-26 06:59:53 edo Exp $
+C $Id: hess_init.F,v 1.42 2002-06-17 22:34:10 bert Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -506,7 +506,6 @@ c
 c
       hess_check = .false.
       cdfit = .false.
-      ecp = .false.
       ipol = 1
 c
 c  Get theory type
@@ -541,28 +540,8 @@ c
      $                   basis1)
       endif
 c
-c  Check for ECP in basis
-c
-      if (.not. bas_create(basis1, 'ao basis'))
-     $   call errquit('hess_check: bas_create?',102)
-      if (.not. bas_rtdb_load(rtdb, geom1, basis1, 'ao basis'))
-     $   call errquit('hess_check: no basis available', 555)
-      ecp = bas_get_ecp_handle(basis1,ecp_handle)
-      if (.not. bas_destroy(basis1))
-     $   call errquit('hess_check:not able to destroy AO_bas:',
-     $                 555)
-c
-      if (.not. geom_destroy(geom1))
-     $   call errquit('hess_check:not able to destroy geometry:',
-     $                 geom1)
-c
       if (cdfit) then
         write(LuOut,*) 'CD fit detected'
-        return
-      endif
-c
-      if (ecp) then
-        write(LuOut,*) 'ECP detected'
         return
       endif
 c
