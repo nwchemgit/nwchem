@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.144 2001-11-07 02:25:00 windus Exp $
+C     $Id: geom_input.F,v 1.145 2001-11-08 01:10:21 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -419,6 +419,7 @@ c     set autosym off.  Note the the threquiv variable is set first by the
 c     autosym directive and thenreset by the symmetry directive input if 
 c     either of them is given.
 c     
+         if(ncenter.eq.1) oautosym=.false.
          if (oautosym.and.osymmetry) then
             oautosym=.false.
             write(luout,*) 'Turning off AUTOSYM since'
