@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.255 1998-05-07 18:13:56 d3e129 Exp $
+# $Id: makefile.h,v 1.256 1998-05-08 19:05:26 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -208,7 +208,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #
 #        NWCHEM_TARGET                NWCHEM_TARGET_CPU          
 #           SP1                          P2SC
-#           LAPI                       P2SC
+#           LAPI                         P2SC
 #           SGITFP                       R10000/R8000
 #           SGI_N32                      R10000/R8000
 #
