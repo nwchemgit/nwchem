@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.10 2000-04-27 20:39:15 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.11 2000-05-07 00:22:04 zzhang Exp $
 c     
       implicit none
 c     
@@ -25,7 +25,7 @@ c     so
       integer lwork, iwork      ! complex*16 work(3) 
       integer lrwork, irwork    ! double precision rwork
       integer info 
-      integer lbuff, ibuff
+      integer lbuff, ibuff, lso,iso
       integer nbf_mo 
       logical  modiag
       logical numerical 
@@ -88,6 +88,8 @@ c
 
       integer l_occ, k_occ
       integer i, j,  i1
+      integer tot
+      double precision vso(1,1)
       integer me, nproc
       integer g_tmp, g_fockt, g_wght, g_xyz,g_nq
 c     so
@@ -736,9 +738,6 @@ c
 c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken)then
-!         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-!         call ga_zero(g_s)
-!         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
          if (me.eq.0)call dft_header
      &        (' Total Density - Mulliken Population Analysis')
          call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
@@ -755,8 +754,6 @@ c
          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
          call ga_dscal(g_dens(2),0.5d0)
       endif
-!      if (.not. ga_destroy(g_s)) call errquit
-!     &     ('dft_scf: could not destroy g_s', 0)
  
       iter = 1 
  
@@ -773,6 +770,8 @@ cso   ma for complex diagonalizer
      &     call errquit('dft_scf: cannot allocate w.s',0)
       if (.not.ma_push_get(mt_dbl,nbf_mo,'buff',lbuff,ibuff))
      &     call errquit('dft_scf:push_get failed', 13)      
+      if(.not.ma_push_get(mt_dbl,nbf_ao,'so',lso,iso))
+     &     call errquit('dft_scf:push_get failed', 13)
 cso     
 c     
 c     Top of infinite SCF iteration loop
@@ -839,7 +838,24 @@ cso
        call ga_scale(g_so(1),dble(0.5d0))
       call ga_scale(g_so(2),dble(0.5d0))
       call ga_scale(g_so(3),dble(0.5d0))
-      call ga_fock_so(g_so, g_fockso, nbf_ao)
+c
+c      tot=0
+c      do i = 1,nbf_ao
+c         do j = 1, i
+c            call ga_get(g_so(1),i,i,j,j,vso,1)
+c            if(abs(vso(1,1)).gt.1.0e-8)then 
+c               tot=tot+1
+c               write(*,'("i,j,",i4,i4,f10.5)')i,j,vso(1,1)
+c            endif
+c         enddo
+c      enddo
+c      write(*,'("i,j,",i10)')tot
+
+c      call ga_print(g_so(1))
+c      call ga_print(g_so(2))
+c      call ga_print(g_so(3))
+c
+       call ga_fock_so(g_so, g_fockso, nbf_ao)
 cso  
 cso   Accumulate z-component s.o. contribution
 cso   Re(Dz)=-Im(Daa)+Im(Dbb) 
@@ -1475,11 +1491,7 @@ c     Form the total density matrix.
 c     
       call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       call ga_sync
-!      g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-!      call ga_zero(g_s)
-!      call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
 c      write(*,*)"electrons", ga_ddot(g_s, g_dens(1))
-!      if(.not.ga_destroy(g_s)) stop 
 c     
 c     Check for SCF convergence.
 c     
@@ -1736,8 +1748,6 @@ c
          call ga_copy(g_moso(1), g_damp_so(1))
          call ga_copy(g_moso(2), g_damp_so(2))
          ioff = nTotEl + 1  
-c         call ga_print(g_moso(1))
-c         call ga_print(g_moso(2))
          do i = 1, nel_fon
             joff = nTotEl + 1  
             do j= joff, nmo_fon 
@@ -1755,8 +1765,6 @@ c         call ga_print(g_moso(2))
             enddo
             ioff=ioff+1
          enddo
-c         call ga_print(g_damp_so(1))
-c         call ga_print(g_damp_so(2))
 c     
 c     form a new density matrix and calculate the corresponding energy 
 c
@@ -1820,9 +1828,6 @@ c
 c     call to Mulliken Pop Ananlysis
 c     
       if (mulliken)then
-!         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-!         call ga_zero(g_s)
-!         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
          if (me.eq.0)
      &      call dft_header
      &      (' Total Density - Mulliken Population Analysis')
@@ -1838,8 +1843,6 @@ c
             call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
             call ga_dscal(g_dens(2),0.5d0)
          endif
-!         if (.not. ga_destroy(g_s)) call errquit
-!     &      ('dft_scf: could not destroy g_s', 0)
       endif
 c     
 c     end infinite loop for SCF iterations
@@ -1966,6 +1969,9 @@ c
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
 c      call MA_SUMMARIZE_ALLOCATED_BLOCKS 
+
+      if (.not.ma_pop_stack(lso))
+     &   call errquit('dft_scf: cannot pop stack:lbuff',0)
       if (.not.ma_pop_stack(lbuff))
      &   call errquit('dft_scf: cannot pop stack:lbuff',0)
       if (.not.ma_pop_stack(lrwork))
