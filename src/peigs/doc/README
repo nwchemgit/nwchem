@@ -1,3 +1,5 @@
+Older version of manual.  New version under development.
+
 This directory contains the documentation for PeIGS.  It uses "dvips"
 to convert dvi-file to postscript.  You may want to edit the Makefile
 to suit your local setup.
