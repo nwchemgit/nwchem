@@ -60,7 +60,7 @@ c     Apply screening on the density and schwarz inequality
 c     (don't use density screening if writing integrals to file)
 c
       if (owritefile) then
-         otest  = sijkl .gt. tol2e
+         otest  = sijkl .gt. den_tol
       else
          otest  = (sijkl*denmax) .gt. den_tol
       endif
@@ -68,7 +68,7 @@ c
       if (otest) then
 c
          if (owritefile) then
-            dtol2e = tol2e
+            dtol2e = den_tol
          else
             dtol2e = den_tol / denmax
          endif
