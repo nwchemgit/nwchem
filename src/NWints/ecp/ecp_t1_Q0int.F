@@ -1,9 +1,13 @@
-C $Id: ecp_t1_Q0int.F,v 1.1 1996-10-16 23:28:15 mg201 Exp $
+C $Id: ecp_t1_Q0int.F,v 1.2 1999-04-01 19:55:42 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q0int (n,m,x,a_sqrt,Q0,temp,ind,tol)
 *                                                                      *
 *   Driver for calculation of type 1 Q^{m+p}_{m} integrals for p = 0   *
+*                                                                      *
+* Q^{m+p}_{m} = \int_0^\infty dr r^{m+p} e^{-\alpha r^2} i_m(\beta r)  *
+*                                                                      *
+*   where $i_m(\beta r)$ is the modified spherical Bessel function.    *
 *                                                                      *
 *   Argument (status) - description                                    *
 *                                                                      *
@@ -27,15 +31,20 @@ C $Id: ecp_t1_Q0int.F,v 1.1 1996-10-16 23:28:15 mg201 Exp $
 *
 *   Gather arguments
 *
-      m_plus_half = m+m+1
       real_m = m
-      m_plus_half = m_plus_half/two
+      m_plus_half = real_m+half
       log_accy = log(tol)-log(two)-real_m*log(m_plus_half)+m_plus_half
       na = 0
       np = 0
       n1 = n+1
       do i = 1,n
-        if (log_accy+x(i)**2+two*real_m*log(x(i)) .gt. zero) then
+        if (x(i) .eq. zero) then
+          if (m .eq. 0) then
+            Q0(i) = qpirt*two*a_sqrt(i)
+          else
+            Q0(i) = zero
+          end if
+        else if (log_accy+x(i)**2+two*real_m*log(x(i)) .gt. zero) then
           na = na+1
           temp(na,1) = x(i)
           temp(na,3) = a_sqrt(i)
