@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
-     $                    tol2e, oskel, vg_dens, vg_fock )
+     $     tol2e, oskel, vg_dens, vg_fock, asym)
 c
-c$Id: ao_fock_2e.F,v 1.14 1997-07-25 17:59:24 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.15 2000-04-27 20:06:28 zzhang Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -27,6 +27,7 @@ c
       logical oskel                  ! [input] toggle skeleton Fock matrix
       integer vg_dens(nfock)         ! [input] array of handles to densities
       integer vg_fock(nfock)         ! [output] array of handles to Fock matrices
+      logical asym                   ! [input] flag to antisymmetrize the fock matrices
 c     
 c     local variables
 c     
@@ -64,7 +65,7 @@ c
 c
       if (oreplicated) then
          call ao_replicated( geom, basis, nfock, jfac, kfac,
-     $        tol2e, oskel, vg_dens, vg_fock )
+     $        tol2e, oskel, vg_dens, vg_fock, asym )
          return
       endif
 c     
@@ -194,7 +195,10 @@ c     triangles ... need to symmetrize
 c
       do i=1,nfock
         call ga_dscal(vg_fock(i), 4.0d0)
-        if (.not. oskel) call ga_symmetrize(vg_fock(i))
+        if (.not. oskel .and. .not. asym) 
+     &       call ga_symmetrize(vg_fock(i))
+        if (.not. oskel .and. asym) 
+     &       call asym_fock2e(vg_fock(i))
       end do
 c
 c     Reset exchange factors
@@ -212,3 +216,23 @@ c
       endif
 c     
       end
+
+      subroutine asym_fock2e(g_fock)
+c
+#include "global.fh"
+c
+      implicit none
+      integer g_fock, g_tmp
+c
+      if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
+     $     call errquit('asym_fock2e: ga duplicate?',0)
+c
+      call ga_transpose(g_fock,g_tmp)
+      call ga_add(0.5d0,g_fock,-0.5d0,g_tmp,g_fock)
+
+      if (.not. ga_destroy(g_tmp)) call errquit
+     $     ('asym_fock2e: ga corrupt?',0)
+c
+      return
+      end
+
