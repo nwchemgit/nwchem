@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.111 1999-01-29 21:05:42 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.112 1999-02-05 01:55:48 d3h449 Exp $
 c     
       implicit none
 c
@@ -15,7 +15,7 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, isvals, 
      &        g_cdinv, g_xcinv, g_2ceri, g_scr
-      double precision rho_n
+      double precision rho_n, toll_s
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -199,6 +199,14 @@ c
      &   call errquit('dft_scf: rtdb_get of noc failed', 0)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
      &   call errquit('dft_scf: failed to alloc',999)
+c
+c     get/set orbital overlap tolerance
+c
+      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
+         toll_s = 1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
+     &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
+      endif
 c      
       if (ipol.eq.1)then
 c     
@@ -796,10 +804,11 @@ c
 c           DIIS step taken here.
 c     
             if (diising)then
-               call diis_driver(derr(ispin), ispin, ipol, icall, nfock, 
-     &                          nbf_ao, geom, ao_bas_han, g_fock, 
-     &                          g_dens(ispin), g_tmp, g_svecs, isvals, 
-     &                          diising, nodiis)
+               call diis_driver(toll_s, derr(ispin), ispin, ipol, 
+     &                          icall, nfock, nbf_ao, geom, 
+     &                          ao_bas_han, g_fock, g_dens(ispin), 
+     &                          g_tmp, g_svecs, isvals, diising, 
+     &                          nodiis)
             endif
          endif
 c     
@@ -818,7 +827,7 @@ c
 c        Put s-1/2 in g_scr.
 c     
          iw = 2
-         call diis_bld12(dbl_mb(isvals), g_svecs, g_scr, 
+         call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
      &                   g_tmp, nbf_ao, iw)
 c     
 c        Transform Fock matrix.
@@ -845,7 +854,7 @@ c
 c           Use S^+1/2 * old movecs (as a transform).
 c     
             iw = 3
-            call diis_bld12(dbl_mb(isvals), g_svecs, g_scr, 
+            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
      &                      g_tmp, nbf_ao, iw)
             call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                    g_scr, g_movecs(ispin), zero, g_tmp)
@@ -898,7 +907,7 @@ c
 c           Put S^-1/2 back in g_scr (use g_fock as temp scr).
 c     
             iw = 2
-            call diis_bld12(dbl_mb(isvals), g_svecs, g_scr, 
+            call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_scr, 
      &                      g_fock, nbf_ao, iw)
 c     
 c           Put old-movecs back.
@@ -1136,9 +1145,10 @@ c        Re-initialize DIIS
 c     
 c         if (icall(1).gt.0)then
 c            icall(1) = -1
-c            call diis_driver(derr(1), 1, ipol, icall, nfock, nbf_ao, 
-c     &                       geom, ao_bas_han, g_fock, g_dens(1), 
-c     &                       g_tmp, g_svecs, isvals, diising, nodiis)
+c            call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+c     &                       nbf_ao, geom, ao_bas_han, g_fock, 
+c     &                       g_dens(1), g_tmp, g_svecs, isvals, 
+c     &                       diising, nodiis)
 c            icall(1) = 0
 c            icall(2) = 0
 c         endif
@@ -1410,9 +1420,9 @@ c     Shut down DIIS.
 c     
       if (icall(1).gt.0)then
          icall(1) = -1
-         call diis_driver(derr(1), 1, ipol, icall, nfock, nbf_ao, geom, 
-     &                    ao_bas_han, g_fock, g_dens(1), g_tmp, g_svecs, 
-     &                    isvals, diising, nodiis)
+         call diis_driver(toll_s, derr(1), 1, ipol, icall, nfock, 
+     &                    nbf_ao, geom, ao_bas_han, g_fock, g_dens(1), 
+     &                    g_tmp, g_svecs, isvals, diising, nodiis)
       endif
 c     
 c     If open shell compute overlap of alpha orbitals with beta orbitals.

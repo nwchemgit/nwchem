@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.22 1998-09-10 21:13:31 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.23 1999-02-05 01:55:47 d3h449 Exp $
 c     
       implicit none
 c
@@ -36,7 +36,6 @@ c
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals, iw, idum, i
       double precision toll_s
-      parameter(toll_s = 1.d-7)
       logical dft_scf
       external dft_scf
 c     
@@ -66,7 +65,15 @@ c
       if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
          call errquit('Exiting from dft_main0d',1)
       endif 
+c
+c     Set orbital overlap tolerance
 c     
+      if (.not. rtdb_get(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))then
+         toll_s = 1.d-6
+         if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1, toll_s))
+     &      call errquit('dft_main0d: failed to put toll_s in rtdb', 0)
+      endif
+c
       iter = 0
       Etold = 0.D0
 c     
@@ -365,8 +372,8 @@ c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
       iw = 2
       g_tmp = g_s
-      call diis_bld12(dbl_mb(isvals), g_svecs, g_evecs(1), g_tmp, 
-     &                nbf_ao, iw)
+      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
+     &                g_tmp, nbf_ao, iw)
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
       if (CDFIT)then

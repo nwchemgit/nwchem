@@ -1,8 +1,8 @@
-      Subroutine diis_driver(derr, ispin, ipol, icall, MXhist, nbf, 
-     &                       geom, AO_bas_han, g_fock, g_dens, g_tmp, 
-     &                       g_svecs, isvals, diis, nodiis)
+      Subroutine diis_driver(toll_s, derr, ispin, ipol, icall, MXhist, 
+     &                       nbf, geom, AO_bas_han, g_fock, g_dens, 
+     &                       g_tmp, g_svecs, isvals, diis, nodiis)
 c
-C$Id: diis_driver.F,v 1.11 1997-11-26 23:06:44 d3h449 Exp $
+C$Id: diis_driver.F,v 1.12 1999-02-05 01:55:51 d3h449 Exp $
 c
       implicit none
 c      
@@ -19,6 +19,7 @@ c
       Integer nhist(2), icall(2)
       integer geom, AO_bas_han
       double precision derr ! Diis error norm [output]
+      double precision toll_s
       integer lpulay, npulay, ipulay
       Save lpulay, npulay, ipulay, nhist, g_diis
 c
@@ -134,13 +135,15 @@ c
 c     Mat mult Fock * s-1/2
 c
       iw = 2
-      call diis_bld12(dbl_mb(isvals),g_svecs,g_tmp,g_fsm12,nbf,iw)
+      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_tmp, g_fsm12,
+     &                nbf, iw)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_fock,g_tmp,zero,g_fsm12)
 c      call gacrea(geom,AO_bas_han,
 c     &     nbf,nbf,'ga temp3',g_s12p,'atom')
       g_s12p = ga_create_atom_blocked(geom, AO_bas_han, 'ga temp3')
       iw = 3
-      call diis_bld12(dbl_mb(isvals),g_svecs,g_tmp,g_s12p,nbf,iw)
+      call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_tmp, g_s12p, 
+     &                nbf, iw)
 c
 #if defined(DFT_TIMER)
       call dft_second(tp2)

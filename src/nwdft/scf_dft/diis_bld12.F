@@ -1,5 +1,5 @@
-      subroutine diis_bld12(svals, iga_svecs, iga_sout, iga_stmp, 
-     &                      nbf, iwhich)
+      subroutine diis_bld12(toll_s, svals, iga_svecs, iga_sout, 
+     &                      iga_stmp, nbf, iwhich)
 c***********************************************************************
 c     sbuild:  Build S, S**(-1/2) or S**(+1/2) from S eigenvalues and
 c     S eigenvectors.
@@ -7,7 +7,7 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.8 1998-09-10 21:13:33 d3h449 Exp $
+C$Id: diis_bld12.F,v 1.9 1999-02-05 01:55:50 d3h449 Exp $
 c
       implicit none
 c
@@ -22,12 +22,12 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
 c     
       logical LResult
       integer me, nproc, i
       integer ltmpm, itmpm
-      double precision toll, aaz
-      parameter (toll = 1.d-7)
+      double precision toll_s, aaz
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -45,7 +45,7 @@ c
          call ga_zero(iga_stmp)
          do i = me+1, nbf, nproc
             aaz = svals(i)
-            if (aaz.ge.toll)  then
+            if (aaz.ge.toll_s)  then
                call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
                call dscal(nbf, aaz, DBL_MB(itmpm), 1)
                call put_col(iga_stmp, nbf, i, DBL_MB(itmpm))
@@ -64,7 +64,7 @@ c
          call ga_zero(iga_stmp)
          do i = me+1, nbf, nproc
             aaz = svals(i)
-            if (aaz.ge.toll)  then
+            if (aaz.ge.toll_s)  then
                aaz = 1.d0/sqrt(aaz)
                call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
                call dscal(nbf, aaz, DBL_MB(itmpm), 1)
@@ -84,7 +84,7 @@ c
          call ga_zero(iga_stmp)
          do i = me+1, nbf, nproc
             aaz = svals(i)
-            if (aaz.ge.toll)  then
+            if (aaz.ge.toll_s)  then
                aaz = dsqrt(aaz)
                call get_col(iga_svecs, nbf, i, DBL_MB(itmpm))
                call dscal(nbf, aaz, DBL_MB(itmpm), 1)
