@@ -95,8 +95,8 @@ c
          if (precond_acc .gt. 0.1d0) then
             if (pflg .eq. 2) then
                odisable_nr = .true.
+               maxiter = maxiter + 10
                if (ga_nodeid() .eq. 0 .and. oprint_conv) then
-                  maxiter = maxiter + 10
                   write(6,22) maxiter
  22               format(/' Disabled NR: increased maxiter to ',i3/)
                   call util_flush(6)
@@ -143,34 +143,29 @@ c
       implicit none
 #include "global.fh"
 #include "cscf.fh"
-c
+c     
       double precision gnorm
       double precision max_grad
       double precision min_shift
       logical oprint
-c
+c     
       double precision tol_floor,tol_ceil
       parameter(tol_floor=1.d-12)
       parameter(tol_ceil=1.d-1)
       double precision ndigit
-c
-      if (iter .le. 2) then     ! First call is with iter = 2
-         ododiag = .true.
-         odisable_nr = .false.
-      endif
-c
-*      write(6,*) ' iter, odisable_nr ', iter, odisable_nr, max_grad
-*      write(6,*) ' shifts ', shifts
-*      write(6,*) ' lshift ', lshift, min_shift
-c
+c     
+*     write(6,*) ' iter, odisable_nr ', iter, odisable_nr, max_grad
+*     write(6,*) ' shifts ', shifts
+*     write(6,*) ' lshift ', lshift, min_shift
+c     
       oconjugacy = .true.
-c
+c     
 c     Determine which preconditioner, required accuracies
 c     and adjust the level shift
 c     
 c     Old UHF was not quadratically convergent
-*      if (scftype .eq. 'UHF') odisable_nr = .true.
-c
+*     if (scftype .eq. 'UHF') odisable_nr = .true.
+c     
       if ( odisable_nr .or.
      $     max_grad .gt. nr_gswitch .or.
      $     min_shift .gt. 0.0d0) then
@@ -180,10 +175,10 @@ c
          else
             lshift = shifts(3)
          endif
-c
+c     
 c     Maintaining conjugacy early on is counterproductive
 c     because of the very high anharmonicity and large steps.
-c
+c     
          if (max_grad .gt. 2.0d0 .or. min_shift .gt. 0.0d0)
      $        oconjugacy = .false.
 c     
@@ -193,7 +188,7 @@ c     can approximately enforce conjugacy.  On the hard Co test
 c     case 0.01 and 0.1 gave essentially the same convergence
 c     rates.  A tolerance of 0.5 caused the CG algorithm to
 c     reset several times with negative beta.
-c
+c     
          ls_tol = 0.2d0
       else
          pflg = 2
@@ -216,7 +211,7 @@ c
             ls_tol = 0.1d0
          endif
       endif
-c
+c     
 c     Determine if should canonicalize the orbitals to make the
 c     Hessian more diagonally dominant ... right now do a diag
 c     on the first iteration and whenever doing exact preconditioning
@@ -224,7 +219,7 @@ c     Note that a large rotation of the orbitals will mess up conjugacy.
 c     If are locking the orbitals we current disable all diagonalization
 c     except the last since unless we munge the gradient after reordering
 c     we need to recompute it.
-c
+c     
       if ( (iter.eq.2) .or.
      $     ((max_grad.gt.1.0e-2) .and. (.not. oconjugacy))) then
          ododiag = .true.
@@ -232,15 +227,15 @@ c
          ododiag = .false.
       endif
       if (olock) ododiag = .false.
-c
+c     
 c     Determine no. of significant digits required to either
 c     maintain quadratic convergence or to reach the desired
 c     convergence threshold.  However, if we are level shifting
 c     we do not expect quadratic convergence so just aim for at
 c     least one digit.
-c
+c     
 c     !! Note that are now using gnorm as the convergence threshold.
-c
+c     
       if (pflg .eq. 2) then
          if (lshift .eq. 0.0d0) then
             ndigit = min(
@@ -253,10 +248,10 @@ c
          ndigit = 2             ! For 1-e hessian
       endif
       precond_tol = max(min(10.0d0**(-ndigit), tol_ceil), tol_floor)
-c
+c     
 *      write(6,*) ' pflg, pflg_prev ', pflg, pflg_prev
-c
+c     
       if (pflg .ne. pflg_prev) oconjugacy = .false.
       pflg_prev = pflg
-c
+c     
       end 

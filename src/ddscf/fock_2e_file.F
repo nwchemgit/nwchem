@@ -8,7 +8,7 @@
 #include "cscfps.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.8 1996-10-22 08:33:17 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.9 1997-01-15 23:52:00 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -153,6 +153,8 @@ c
       end do
       denmax = denmax*100.0d0 
       den_tol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
+c
+**      write(6,*) tol2e, dentolmax, den_tol
 c
       call fock_init_cmul(nbf,nbf,nbf) ! lookup table for f build
 c

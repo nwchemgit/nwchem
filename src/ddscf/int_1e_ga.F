@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.17 1996-03-04 23:18:27 vg038 Exp $
+C$Id: int_1e_ga.F,v 1.18 1997-01-15 23:52:11 d3g681 Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -41,7 +41,7 @@ c
       logical odoit
       double precision q2
       double precision tol
-      parameter (tol = 1.0d-10)
+      parameter (tol = 1.0d-12)
       external block_int1e      ! For T3D
 c     
       call ga_sync()

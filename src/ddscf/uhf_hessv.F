@@ -138,7 +138,7 @@ c
       parameter (max_nvec=300)
       integer g_dens(4,max_nvec), g_fock(4,max_nvec), g_d, g_j, g_k
       double precision jfac(4,max_nvec), kfac(4,max_nvec)
-c      double precision tol2e
+      double precision tol2e_local
       double precision itol_floor, itol_ceil
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
 c      logical ga_create_atom_blocked
@@ -218,11 +218,13 @@ c
          kfac(4,ivec) = one
       enddo
       oskel_local = oskel .and. (nvec.eq.1)
-      tol2e = min(max(acc,itol_floor),itol_ceil)
+c
+      tol2e_local = min(max(acc,itol_floor),itol_ceil)
+c
       nfock = 4*nvec
 c
       call fock_2e(geom, basis, nfock, jfac, kfac,
-     $     tol2e, oskel_local, g_dens, g_fock)
+     $     tol2e_local, oskel_local, g_dens, g_fock)
 c
 c     Again, note that this is NOT what you want except for
 c     a totally symmetric input vector

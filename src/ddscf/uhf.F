@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
+C$Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -171,7 +171,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
+C     $Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -258,6 +258,9 @@ c
      $        1x,'----------------------------------------------',/)
          call util_flush(6)
       end if
+c
+      ododiag = .true.
+      odisable_nr = .false.
 c     
 c     PCG iterative loop
 c     
@@ -447,7 +450,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
+C$Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -538,7 +541,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
+c     $Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -892,8 +895,8 @@ c
          if (precond_acc .gt. 0.1d0) then
             if (pflg .eq. 2) then
                odisable_nr = .true.
+               maxiter = maxiter + 10
                if (ga_nodeid() .eq. 0 .and. oprint_conv) then
-                  maxiter = maxiter + 10
                   write(6,22) maxiter
  22               format(/' Disabled NR: increased maxiter to ',i3/)
                   call util_flush(6)
@@ -1024,7 +1027,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.28 1996-11-10 17:53:52 d3g681 Exp $
+C$Id: uhf.F,v 1.29 1997-01-15 23:52:12 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

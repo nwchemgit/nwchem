@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.9 1996-11-10 17:53:51 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.10 1997-01-15 23:52:11 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -94,6 +94,9 @@ c
          call util_flush(6)
       endif
 c
+      ododiag = .true.
+      odisable_nr = .false.
+c
 c     Only use low accuracy at outset for startup jobs
 c
       tol2e_save = tol2e
@@ -120,6 +123,7 @@ c
 c     
 c     Compute the energy and gradient at step*search direction
 c     
+*            write(6,*) ' TOL2E ', tol2e
             call rohf_step_energy(rtdb, step, g_search,
      $           eone, etwo, enrep, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
@@ -146,6 +150,7 @@ c     updated MO coefficients.
 c     
             call rohf_rotate_movecs(step, g_search)
             converged = gnorm .lt. gnorm_tol
+*            write(6,*) ' CONVERGED ', converged
             if (tol2e .ne. tol2e_save) then
 c
 c     Switch of variable screening will happen in the middle of a line
@@ -160,6 +165,7 @@ c
                   if (tol2e .lt. 2.0d0*tol2e_save) tol2e = tol2e_save
                endif
                converged = .false. ! Only converge with full precision
+*               write(6,*) ' RESET ', tol2e
                if (util_print('parameters', print_high) .and.
      $              ga_nodeid() .eq. 0) then
                   write(6,2310) tol2e
