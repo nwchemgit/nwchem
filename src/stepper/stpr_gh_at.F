@@ -1,7 +1,7 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
 *     
-*     $Id: stpr_gh_at.F,v 1.13 1997-10-23 16:49:36 d3g681 Exp $
+*     $Id: stpr_gh_at.F,v 1.14 1997-10-29 09:40:20 d3e129 Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -28,9 +28,9 @@ c::   local
       integer whoiam, master
       integer geom
       integer nat, rank_hess
-      integer h_gradm, k_gradm  ! handle/index for central gradient
-      integer h_gradp, k_gradp  ! handle/index for delta gradient
-      integer h_hess, k_hess    ! handle/index for hessian matrix
+      integer h_gradm, k_gradm ! handle/index for central gradient
+      integer h_gradp, k_gradp ! handle/index for delta gradient
+      integer h_hess, k_hess   ! handle/index for hessian matrix
       integer h_ddipole, k_ddipole
       integer iatom, ixyz
       integer iatom_start, ixyz_start
@@ -42,7 +42,9 @@ c::   local
       logical no_x, no_y, no_z
       logical dipole_okay
       logical o_stepper_debug
+      logical o_debug_restart
       logical o_directions
+      logical ogeom_aliased
       double precision xyz(3), chg
       double precision pdipole(3), mdipole(3)
       character*255 tmpname
@@ -51,89 +53,124 @@ c::   local
       character*40 first_geom_name
       double precision q1
       logical task_gradient, task_save_state, task_restore_state,
-     &     task_delete_state, task_energy
+     &    task_delete_state, task_energy
       external task_gradient, task_save_state, task_restore_state,
-     &     task_delete_state, task_energy
+     &    task_delete_state, task_energy
 c     
       o_stepper_debug = util_print('debug_stepper',print_debug)
       o_directions    = util_print('directions', print_medium)
+      o_debug_restart = util_print('debug_stepper_restart',print_debug)
 c
       dipole_okay = .true.
       stpr_gen_hess_at = .false.
       whoiam = ga_nodeid()
       master = 0
 c
-      call stpr_filenames       ! Initialize common with all stepper filename
+      call stpr_filenames ! Initialize common with all stepper filename
 c
       restart = .false.
       restart = stpr_check_genat_restart(rtdb,iatom_start,ixyz_start)
-c
-#if defined(DEBUG_GHAT)
-      call ga_sync()
-      write(6,*)' going false 1',whoiam
-      call util_flush(6)
-#endif
+*
+      if (o_stepper_debug) then
+        call ga_sync()
+        write(6,*)' going false 1',whoiam
+        call util_flush(6)
+      endif
+*
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
 c     
 c     create/load reference geometry
 c     
-        first_geom_name = 'geometry'
-        if (restart)first_geom_name = 'reference'
-         if (.not.geom_create(geom,first_geom_name)) call errquit
+        
+        if (restart) then 
+          if (.not.geom_create(geom,'reference')) call errquit
      &        ('stpr_gen_hess_at:geom_create failed?',1)
-         if (.not.geom_rtdb_load(rtdb,geom,first_geom_name))
-     &       call errquit
+          if (o_debug_restart)
+     &        write(6,*)' load 1 reference ',
+     &        '   node=',whoiam
+          if (.not.geom_rtdb_load(rtdb,geom,'reference'))
+     &        call errquit
      &        ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
+          if (rtdb_cget(rtdb,'stpr:gh:at:alias:name',1,tmpname)) then
+            ogeom_aliased = .true.
+          else
+            ogeom_aliased = .false.
+          endif
+        else
+          if (rtdb_cget(rtdb,'geometry',1,first_geom_name)) then
+            ogeom_aliased = .true.
+            if (.not.
+     &          rtdb_cput
+     &          (rtdb,'stpr:gh:at:alias:name',1,first_geom_name)
+     &          ) call errquit
+     &          ('stpr_gen_hess_at:rtdb_cput of alias name failed?',1)          
+          else
+            first_geom_name = 'geometry'          
+            ogeom_aliased = .false.
+          endif
+          if (.not.geom_create(geom,first_geom_name)) call errquit
+     &        ('stpr_gen_hess_at:geom_create failed?',1)
+          if (o_debug_restart)
+     &        write(6,*)' load 2 first_geom_name: ',first_geom_name,
+     &        '   node=',whoiam
+          if (.not.geom_rtdb_load(rtdb,geom,first_geom_name))
+     &        call errquit
+     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
+        endif
 c     
 c     get the number of atoms
 c     
-         if (.not. geom_ncent(geom,nat)) call errquit
-     &        ('stpr_gen_hess_at:geom_ncent failed?',3)
+        if (.not. geom_ncent(geom,nat)) call errquit
+     &      ('stpr_gen_hess_at:geom_ncent failed?',3)
 c     
 c     copy reference geometry and store on rtdb
 c     
-         if (.not.restart) then
-           if (.not.
-     &         geom_rtdb_store(rtdb,geom,'reference'))
-     &         call errquit
-     &         ('stpr_gen_hess_at: geom_rtdb_store failed',4)
-         endif
-         if (.not.geom_destroy(geom))
+        if (.not.restart) then
+          if (.not.
+     &        geom_rtdb_store(rtdb,geom,'reference'))
      &        call errquit
-     &        ('stpr_gen_hess_at: geom_destroy failed?',5)
+     &        ('stpr_gen_hess_at: geom_rtdb_store failed',4)
+        endif
+        if (.not.geom_destroy(geom))
+     &      call errquit
+     &      ('stpr_gen_hess_at: geom_destroy failed?',5)
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
-#if defined(DEBUG_GHAT)
-      write(6,*)' gone true 1',whoiam
-      call util_flush(6)
-      call ga_sync()
-#endif
+*
+      if (o_stepper_debug) then
+        write(6,*)' gone true 1',whoiam
+        call util_flush(6)
+        call ga_sync()
+      endif
+*
 c     
 c     all nodes working here
 c     
       if (.not.rtdb_ma_get(rtdb,'gen_hess:active atoms',MT_INT,
-     &     nat_active,h_active)) then
-         all_atom = .true.
+     &    nat_active,h_active)) then
+        all_atom = .true.
       else
-         all_atom = .false.
-         if (.not.MA_get_index(h_active,i_active)) call errquit
-     &        ('stpr_gen_hess_at: ma_get_index error',6)
+        all_atom = .false.
+        if (.not.MA_get_index(h_active,i_active)) call errquit
+     &      ('stpr_gen_hess_at: ma_get_index error',6)
       endif
 c     set no xyz options
       if (.not.rtdb_get(rtdb,'vib:no_x',mt_log,1,no_x))
-     &     no_x = .false.
+     &    no_x = .false.
       if (.not.rtdb_get(rtdb,'vib:no_y',mt_log,1,no_y))
-     &     no_y = .false.
+     &    no_y = .false.
       if (.not.rtdb_get(rtdb,'vib:no_z',mt_log,1,no_z))
-     &     no_z = .false.
-#if defined(DEBUG_GHAT)
-      call ga_sync()
-      write(6,*)' going false 2',whoiam
-      call util_flush(6)
-#endif
+     &    no_z = .false.
+*
+      if (o_stepper_debug) then
+        call ga_sync()
+        write(6,*)' going false 2',whoiam
+        call util_flush(6)
+      endif
+*
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if ( whoiam .eq. master ) then
@@ -145,11 +182,13 @@ c     set no xyz options
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
-#if defined(DEBUG_GHAT)
-      write(6,*)' gone true 2',whoiam
-      call util_flush(6)
-      call ga_sync()
-#endif
+*
+      if (o_stepper_debug) then
+        write(6,*)' gone true 2',whoiam
+        call util_flush(6)
+        call ga_sync()
+      endif
+*
 c     all nodes work here 
 c
       if (.not. restart) then
@@ -157,87 +196,98 @@ c
 c     Perform an energy calculation at the central point and
 c     save wavefunction information for rapid convergence
 c
-         if (.not. task_energy(rtdb)) call errquit
-     &        ('stpr_gen_hess_at: reference point energy failed',7)
-         if (.not. task_save_state(rtdb,'hess')) call errquit
-     &        ('stpr_gen_hess_at: failed to save central point',8)
+        if (.not. task_energy(rtdb)) call errquit
+     &      ('stpr_gen_hess_at: reference point energy failed',7)
+        if (.not. task_save_state(rtdb,'hess')) call errquit
+     &      ('stpr_gen_hess_at: failed to save central point',8)
 c
 c     save reference geometry
 c     
-#if defined(DEBUG_GHAT)
-         call ga_sync()
-         write(6,*)' going false 3',whoiam
-         call util_flush(6)
-#endif
-         call ga_sync()
-         ignore_status = rtdb_parallel(.false.)
-         if (whoiam .eq. master) then
-            if (.not.geom_create(geom,'geometry')) call errquit
-     &           ('stpr_gen_hess_at:geom_create failed?',9)
-            if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &           ('stpr_gen_hess_at:geom_rtdb_load failed?',10)
-            if (.not.geom_rtdb_store(rtdb,geom,'reference'))call errquit
-     &           ('stpr_gen_hess_at: geom_rtdb_store failed',11)
-            if (.not.geom_destroy(geom)) call errquit
-     &           ('stpr_gen_hess_at: geom_destroy failed?',12)
-         endif
-         ignore_status = rtdb_parallel(.true.)
-         call ga_sync()
-#if defined(DEBUG_GHAT)
-         write(6,*)' gone true 3',whoiam
-         call util_flush(6)
-         call ga_sync()
-#endif
+*
+        if (o_stepper_debug) then
+          call ga_sync()
+          write(6,*)' going false 3',whoiam
+          call util_flush(6)
+        endif
+*
+        call ga_sync()
+        ignore_status = rtdb_parallel(.false.)
+        if (whoiam .eq. master) then
+          if (.not.geom_create(geom,'geometry')) call errquit
+     &        ('stpr_gen_hess_at:geom_create failed?',9)
+          if (o_debug_restart)
+     &        write(6,*)' load 3 geometry ',
+     &        '   node=',whoiam
+          if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',10)
+          if (.not.geom_rtdb_store(rtdb,geom,'reference'))call errquit
+     &        ('stpr_gen_hess_at: geom_rtdb_store failed',11)
+          if (.not.geom_destroy(geom)) call errquit
+     &        ('stpr_gen_hess_at: geom_destroy failed?',12)
+        endif
+        ignore_status = rtdb_parallel(.true.)
+        call ga_sync()
+*
+        if (o_stepper_debug) then
+          write(6,*)' gone true 3',whoiam
+          call util_flush(6)
+          call ga_sync()
+        endif
+*
       endif
 c     
 c     broadcast number of atoms
 c     
       call ga_brdcst(Msg_gen_at_nat+MSGINT, nat, mitob(1), 0)
 c     
-#if defined(DEBUG_GHAT)
-      call ga_sync()
-      write(6,*)' going false 4',whoiam
-      call util_flush(6)
-#endif
+*
+      if (o_stepper_debug) then
+        call ga_sync()
+        write(6,*)' going false 4',whoiam
+        call util_flush(6)
+      endif
+*
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
-         rank_hess = 3*nat
-         if (.not. MA_Push_Get(MT_DBL,rank_hess,
-     &        'minus delta nuclear gradient vector',
-     &        h_gradm,k_gradm)) call errquit
-     &        ('stpr_gen_hess_at: ma_push_get failed?',13)
-         if (.not. MA_Push_Get(MT_DBL,rank_hess,
-     &        'plus delta nuclear gradient vector',
-     &        h_gradp,k_gradp)) call errquit
-     &        ('stpr_gen_hess_at: ma_push_get failed?',14)
-         if (.not. MA_Push_Get(MT_DBL,3*rank_hess,
-     &       'derivative dipole moment',
-     &       h_ddipole, k_ddipole)) call errquit
-     &       ('stpr_gen_hess_at: ma_push_get failed',15)
-         if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
-     &        'nuclear hessian matrix',
-     &        h_hess,k_hess)) call errquit
-     &        ('stpr_gen_hess_at: ma_push_get failed?',16)
+        rank_hess = 3*nat
+        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &      'minus delta nuclear gradient vector',
+     &      h_gradm,k_gradm)) call errquit
+     &      ('stpr_gen_hess_at: ma_push_get failed?',13)
+        if (.not. MA_Push_Get(MT_DBL,rank_hess,
+     &      'plus delta nuclear gradient vector',
+     &      h_gradp,k_gradp)) call errquit
+     &      ('stpr_gen_hess_at: ma_push_get failed?',14)
+        if (.not. MA_Push_Get(MT_DBL,3*rank_hess,
+     &      'derivative dipole moment',
+     &      h_ddipole, k_ddipole)) call errquit
+     &      ('stpr_gen_hess_at: ma_push_get failed',15)
+        if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
+     &      'nuclear hessian matrix',
+     &      h_hess,k_hess)) call errquit
+     &      ('stpr_gen_hess_at: ma_push_get failed?',16)
 c
-         if (restart) then 
-           call stpr_get_genat_restart(rank_hess,
-     &         dbl_mb(k_hess),
-     &         dbl_mb(k_gradm),.false.,
-     &         dipole_okay,dbl_mb(k_ddipole))
-         else
-            call dfill((rank_hess*rank_hess),0.0d00,
-     &           dbl_mb(k_hess),1)
-            call dfill((3*rank_hess),0.0d00,dbl_mb(k_ddipole),1)
-         endif
+        if (restart) then 
+          call stpr_get_genat_restart(rank_hess,
+     &        dbl_mb(k_hess),
+     &        dbl_mb(k_gradm),.false.,
+     &        dipole_okay,dbl_mb(k_ddipole))
+        else
+          call dfill((rank_hess*rank_hess),0.0d00,
+     &        dbl_mb(k_hess),1)
+          call dfill((3*rank_hess),0.0d00,dbl_mb(k_ddipole),1)
+        endif
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
-#if defined(DEBUG_GHAT)
-      write(6,*)' gone true 4',whoiam
-      call util_flush(6)
-      call ga_sync()
-#endif
+*
+      if (o_stepper_debug) then
+        write(6,*)' gone true 4',whoiam
+        call util_flush(6)
+        call ga_sync()
+      endif
+*
 c     
 c     all nodes doing work here
 c     
@@ -247,11 +297,13 @@ c
         xyz_pass    = .true.
       else
         xyz_pass = .false.
-#if defined(DEBUG_GHAT)
-        call ga_sync()
-        write(6,*)' going false 5',whoiam
-        call util_flush(6)
-#endif
+*
+        if (o_stepper_debug) then
+          call ga_sync()
+          write(6,*)' going false 5',whoiam
+          call util_flush(6)
+        endif
+*
         call ga_sync()
         ignore_status = rtdb_parallel(.false.)
         if (whoiam.eq.master) then
@@ -264,11 +316,13 @@ c
         endif
         ignore_status = rtdb_parallel(.true.)
         call ga_sync()
-#if defined(DEBUG_GHAT)
-        write(6,*)' gone true 5',whoiam
-        call util_flush(6)
-        call ga_sync()
-#endif
+*
+        if (o_stepper_debug) then
+          write(6,*)' gone true 5',whoiam
+          call util_flush(6)
+          call ga_sync()
+        endif
+*
       endif
       call ga_sync()
       do 00100 iatom = iatom_start,nat
@@ -281,11 +335,15 @@ c
         else
           if (.not.geom_create(geom,'reference')) call errquit
      &        ('stpr_gen_hess_at:geom_create failed?',9)
+          if (o_debug_restart)
+     &        write(6,*)' load 4 reference:',
+     &        '  iatom=',iatom,
+     &        '   node=',whoiam
           if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
      &        ('stpr_gen_hess_at:geom_rtdb_load failed?',10)
           skip_atom = .not.(sym_atom(geom,iatom,q1))
           if (.not.geom_destroy(geom)) call errquit
-     &           ('stpr_gen_hess_at: geom_destroy failed?',12)
+     &        ('stpr_gen_hess_at: geom_destroy failed?',12)
         endif
         if (skip_atom) goto 00201
         call stpr_ghat_set_active(rtdb,iatom)
@@ -298,11 +356,13 @@ c
           if (ixyz.eq.1 .and. no_x) goto 00199
           if (ixyz.eq.2 .and. no_y) goto 00199
           if (ixyz.eq.3 .and. no_z) goto 00199
-#if defined(DEBUG_GHAT)
-          call ga_sync()
-          write(6,*)' going false 6',whoiam
-          call util_flush(6)
-#endif
+*
+          if (o_stepper_debug) then
+            call ga_sync()
+            write(6,*)' going false 6',whoiam
+            call util_flush(6)
+          endif
+*
           call ga_sync()
           ignore_status = rtdb_parallel(.false.)
           if(whoiam.eq.master) then
@@ -316,6 +376,8 @@ c     master node only
 c     
             if (.not.geom_create(geom,'reference')) call errquit
      &          ('stpr_gen_hess_at:geom_create failed?',17)
+          if (o_stepper_debug)
+     &          write(6,*)' load 5 reference'
             if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &          call errquit
      &          ('stpr_gen_hess_at:geom_rtdb_load failed?',18)
@@ -349,11 +411,13 @@ c
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
-#if defined(DEBUG_GHAT)
-          write(6,*)' gone true 6',whoiam
-          call util_flush(6)
-          call ga_sync()
-#endif
+*
+          if (o_stepper_debug) then
+            write(6,*)' gone true 6',whoiam
+            call util_flush(6)
+            call ga_sync()
+          endif
+*
 c
 c     restore starting information for central point
 c     
@@ -364,11 +428,13 @@ c
           if (.not. task_gradient(rtdb)) call errquit
      &        ('stpr_gen_hess_at: energy+grad failed',25)
 c     
-#if defined(DEBUG_GHAT)
-          call ga_sync()
-          write(6,*)' going false 7',whoiam
-          call util_flush(6)
-#endif
+*
+          if (o_stepper_debug) then
+            call ga_sync()
+            write(6,*)' going false 7',whoiam
+            call util_flush(6)
+          endif
+*
           call ga_sync()
           ignore_status = rtdb_parallel(.false.)
           if (whoiam.eq.master) then
@@ -391,6 +457,9 @@ c     master node only
 c     
             if (.not.geom_create(geom,'reference')) call errquit
      &          ('stpr_gen_hess_at:geom_create failed?',28)
+          if (o_debug_restart)
+     &          write(6,*)' load 6 reference',
+     &          '   node=',whoiam
             if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &          call errquit
      &          ('stpr_gen_hess_at:geom_rtdb_load failed?',29)
@@ -424,11 +493,13 @@ c
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
-#if defined(DEBUG_GHAT)
-          write(6,*)' gone true 7',whoiam
-          call util_flush(6)
-          call ga_sync()
-#endif
+*
+          if (o_stepper_debug) then
+            write(6,*)' gone true 7',whoiam
+            call util_flush(6)
+            call ga_sync()
+          endif
+*
 c
 c     restore starting information from central point
 c     
@@ -440,11 +511,13 @@ c
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
      &        36)
 c     
-#if defined(DEBUG_GHAT)
-          call ga_sync()
-          write(6,*)' going false 8',whoiam
-          call util_flush(6)
-#endif
+*
+          if (o_stepper_debug) then
+            call ga_sync()
+            write(6,*)' going false 8',whoiam
+            call util_flush(6)
+          endif
+*
           call ga_sync()
           ignore_status = rtdb_parallel(.false.)
           if (whoiam.eq.master) then
@@ -467,17 +540,21 @@ c
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
-#if defined(DEBUG_GHAT)
-          write(6,*)' gone true 8',whoiam
-          call util_flush(6)
-          call ga_sync()
-#endif
+*
+          if (o_stepper_debug) then
+            write(6,*)' gone true 8',whoiam
+            call util_flush(6)
+            call ga_sync()
+          endif
+*
 00199     continue
-#if defined(DEBUG_GHAT)
-          call ga_sync()
-          write(6,*)' going false 9',whoiam
-          call util_flush(6)
-#endif
+*
+          if (o_stepper_debug) then
+            call ga_sync()
+            write(6,*)' going false 9',whoiam
+            call util_flush(6)
+          endif
+*
           call ga_sync()
           ignore_status = rtdb_parallel(.false.)
           if (whoiam.eq.master) then
@@ -487,36 +564,45 @@ c
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
-#if defined(DEBUG_GHAT)
-          write(6,*)' gone true 9',whoiam
-          call util_flush(6)
-          call ga_sync()
-          write(6,*)'@----------------------- iatom,ixyz,nodeid ',
-     &        iatom,ixyz,whoiam
-          call util_flush(6)
-          call ga_sync()
-#endif
+*
+          if (o_stepper_debug) then
+            write(6,*)' gone true 9',whoiam
+            call util_flush(6)
+            call ga_sync()
+            write(6,*)'@----------------------- iatom,ixyz,nodeid ',
+     &          iatom,ixyz,whoiam
+            call util_flush(6)
+            call ga_sync()
+          endif
+*
 00200   continue
 00201   continue
-#if defined(DEBUG_GHAT)
+*
+        if (o_stepper_debug) then
           call ga_sync()
           write(6,*)'@----------------------- iatom,nodeid ',
      &        iatom,whoiam
           call util_flush(6)
           call ga_sync()
-#endif
+        endif
+*
 00100 continue
 c     
-#if defined(DEBUG_GHAT)
-      call ga_sync()
-      write(6,*)' going false 10',whoiam
-      call util_flush(6)
-#endif
+*
+      if (o_stepper_debug) then
+        call ga_sync()
+        write(6,*)' going false 10',whoiam
+        call util_flush(6)
+      endif
+*
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
         if (.not.geom_create(geom,'reference')) call errquit
      &      ('stpr_gen_hess_at:geom_create failed?',1)
+          if (o_debug_restart)
+     &      write(6,*)' load 7 reference',
+     &      '   node=',whoiam
         if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
      &      ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
         call sym_hess_symmetrize(geom,dbl_mb(k_hess))
@@ -565,20 +651,16 @@ c
      &        write(luout,*)' derivative dipole written to ',
      &        FILEDDIPOLE(1:inp_strlen(FILEDDIPOLE))
         endif
-c     
-c     set "geometry" to "geometry"
-c     
-        if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
-     &      call errquit
-     &      ('stpr_gen_hess_at: rtdb_cput failed ?',39)
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
-#if defined(DEBUG_GHAT)
-      write(6,*)' gone true 10',whoiam
-      call util_flush(6)
-      call ga_sync()
-#endif
+*
+      if (o_stepper_debug) then
+        write(6,*)' gone true 10',whoiam
+        call util_flush(6)
+        call ga_sync()
+      endif
+*
 c
 c     restore and delete save state
 c
@@ -586,14 +668,30 @@ c
      &    ('stpr_gen_hess_at: failed to restore central point',40)
       if (.not. task_delete_state(rtdb, 'hess')) call errquit
      &    ('stpr_gen_hess_at: failed to restore central point',41)
-#if defined(DEBUG_GHAT)
-      call ga_sync()
-      write(6,*)' going false 11',whoiam
-      call util_flush(6)
-#endif
+*
+      if (o_stepper_debug) then
+        call ga_sync()
+        write(6,*)' going false 11',whoiam
+        call util_flush(6)
+      endif
+*
       call ga_sync()
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
+c     
+c     reset "geometry" to appropriate designation
+c     
+        ignore_status = rtdb_delete(rtdb,'geometry')  ! always try to delete geometry alias
+        if (ogeom_aliased) then
+          if(.not.rtdb_cget(rtdb,'stpr:gh:at:alias:name',1,tmpname))
+     &        call errquit
+     &        ('stpr_gh_at: get of <stpr:gh:at:alias:name> failed ?',
+     &        39)
+          if(.not.rtdb_cput(rtdb,'geometry',1,tmpname))
+     &        call errquit
+     &        ('stpr_gen_hess_at: rtdb_cput failed ?',39)
+          ignore_status = rtdb_delete(rtdb,'stpr:gh:at:alias:name') ! always delete reference alias
+        endif
 c     
 c     free memory
 c     
@@ -609,18 +707,22 @@ c
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
-#if defined(DEBUG_GHAT)
-      write(6,*)' gone true 11',whoiam
-      call util_flush(6)
-      call ga_sync()
-#endif
+*
+      if (o_stepper_debug) then
+        write(6,*)' gone true 11',whoiam
+        call util_flush(6)
+        call ga_sync()
+      endif
+*
       if(.not.all_atom) then
         if (.not.ma_free_heap(h_active)) call errquit
      &      ('stpr_gen_hess_at: ma_free_heap(h_active) failed?',46)
       endif
-#if defined(DEBUG_GHAT)
-      write(6,*)' out of stpr_gen_hess_at ',whoiam
-#endif
+*
+      if (o_stepper_debug) then
+        write(6,*)' out of stpr_gen_hess_at ',whoiam
+      endif
+*
       stpr_gen_hess_at = .true.
       call ga_sync()
       end
@@ -633,8 +735,8 @@ c
 #include "geom.fh"
 #include "util.fh"
 *::passed
-      integer rtdb   ! [input] the rtdb handle
-      integer iatom  ! [input] the current loop atom
+      integer rtdb  ! [input] the rtdb handle
+      integer iatom ! [input] the current loop atom
 *::local
       logical current_rtdb_status, ignore_status
       double precision q2
@@ -662,6 +764,8 @@ c
 *
         if (.not.geom_create(geom,'reference')) call errquit
      &      ('stpr_ghat_set_active:geom_create failed?',17)
+          if (odebug_print)
+     &      write(6,*)' load 8 reference'
         if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &      call errquit
      &      ('stpr_ghat_set_active:geom_rtdb_load failed?',18)

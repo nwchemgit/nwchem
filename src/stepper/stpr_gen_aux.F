@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.11 1997-10-24 16:07:04 d3e129 Exp $
+* $Id: stpr_gen_aux.F,v 1.12 1997-10-29 09:40:19 d3e129 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -177,7 +177,7 @@ c
       integer ixyz_start
 c
       integer int_restart
-      integer rank, ijunk
+      integer rank, ijunk1, ijunk2
       logical does_it_exist
 c
       logical ostart, orestart, ocontinue
@@ -199,7 +199,7 @@ c assume not a restart
      &          form='unformatted',
      &          access='sequential',
      &          status='old')
-            read(69)iatom_start,ixyz_start,rank, ijunk
+            read(69)iatom_start,ixyz_start,rank, ijunk1, ijunk2
             close(unit=69,status='keep')
             int_restart = 1
           else
@@ -381,68 +381,76 @@ c
       subroutine stpr_gen_hess_fold(hess,rank_hess)
 *! sums off diaginal contributions assuming a partial computation
       implicit none
+#include "util.fh"
       integer rank_hess
       double precision hess(rank_hess,rank_hess)
 *
       integer i,j
       double precision dbl_tmp 
-#define DEBUG
-#if defined(DEBUG)      
       integer icount
       double precision dbl_diff, max_dbl_diff
+      logical o_debug
 c
-      write(6,*)' hessian before fold operaton'
-      call output(hess,1,rank_hess,1,rank_hess,
-     &    rank_hess,rank_hess,1)
-      icount = 0
-      max_dbl_diff = -1.0d00
-#endif
+      o_debug = util_print('debug_stepper_restart',print_debug)
+      o_debug = o_debug .or.
+     &    util_print('debug_stepper',print_debug)
+      if (o_debug) then
+        write(6,*)' hessian before fold operaton'
+        call output(hess,1,rank_hess,1,rank_hess,
+     &      rank_hess,rank_hess,1)
+        icount = 0
+        max_dbl_diff = -1.0d00
+      endif
 *
       do i = 1,rank_hess
         do j = 1,(i-1)
-#if defined(DEBUG)      
-          dbl_diff = abs(hess(i,j)) - abs(hess(j,i))
-          max_dbl_diff = max(max_dbl_diff,dbl_diff)
-          icount = icount + 1
-          write(6,12345)icount,dbl_diff,max_dbl_diff
-12345     format('<',i2,'> <diff=',f14.8,'> <diff_max=',f14.8)
-#endif
+          if (o_debug) then
+            dbl_diff = abs(hess(i,j)) - abs(hess(j,i))
+            max_dbl_diff = max(max_dbl_diff,dbl_diff)
+            icount = icount + 1
+            write(6,12345)icount,dbl_diff,max_dbl_diff
+          endif
           dbl_tmp   = hess(i,j) + hess(j,i)
           hess(i,j) = dbl_tmp
           hess(j,i) = dbl_tmp
         enddo
       enddo
-#if defined(DEBUG)      
-      write(6,*)' hessian after fold operaton'
-      call output(hess,1,rank_hess,1,rank_hess,
-     &    rank_hess,rank_hess,1)
-#endif
+      if (o_debug) then
+        write(6,*)' hessian after fold operaton'
+        call output(hess,1,rank_hess,1,rank_hess,
+     &      rank_hess,rank_hess,1)
+      endif
+12345 format('<',i2,'> <diff=',f14.8,'> <diff_max=',f14.8)
       end
       subroutine stpr_gen_set_diag(hess,rank_hess)
 *! sets diag to default value for stiff frequency analysis
 *! e.g., active atom computation
       implicit none
+#include "util.fh"
       integer rank_hess
       double precision hess(rank_hess,rank_hess)
 *
       integer i
       double precision dbl_tmp 
-#define DEBUG
-#if defined(DEBUG)      
-      write(6,*)' hessian before diag set operaton'
-      call output(hess,1,rank_hess,1,rank_hess,
-     &    rank_hess,rank_hess,1)
-#endif
+      logical o_debug
+      o_debug = util_print('debug_stepper_restart',print_debug)
+      o_debug = o_debug .or.
+     &    util_print('debug_stepper',print_debug)
+      if (o_debug) then
+        write(6,*)' hessian before diag set operaton'
+        call output(hess,1,rank_hess,1,rank_hess,
+     &      rank_hess,rank_hess,1)
+      endif
 *
       dbl_tmp = 1.0d00
       do i = 1,rank_hess
         if (hess(i,i).eq.0.0d00) hess(i,i) = dbl_tmp
       enddo
-#if defined(DEBUG)      
-      write(6,*)' hessian after diag set operaton'
-      call output(hess,1,rank_hess,1,rank_hess,
-     &    rank_hess,rank_hess,1)
-#endif
+      if (o_debug) then
+        write(6,*)' hessian after diag set operaton'
+        call output(hess,1,rank_hess,1,rank_hess,
+     &      rank_hess,rank_hess,1)
+      endif
       end
       subroutine stpr_print_ddipole(ddipole,msg,nat,thresh)
       implicit none
