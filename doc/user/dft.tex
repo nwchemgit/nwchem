@@ -83,7 +83,8 @@ the DFT module are:
                [diis [nfock <integer nfock default 10>]] \
                [nodiis] [lshift <real lshift default 0.5>] \
                [nolevelshifting] \
-               [hl_tol <real hl_tol default 0.1>]]
+               [hl_tol <real hl_tol default 0.1>]\
+               [smear] <real smear  default 0.001]
 
 
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
@@ -608,6 +609,7 @@ iterations is reached or convergence is met.
               [levlon <real levlon default 0.0>] \
               [levloff <real levloff default 0.0>] \
               [(lshift <real lshift default 0.5>) || nolevelshifting] \
+              [smear] <real smear  default 0.001]
 \end{verbatim}
 
 Convergence is satisfied by meeting any or all of three criteria;
@@ -719,11 +721,26 @@ would take the form,
   CONVERGENCE diis 3
 \end{verbatim}
 
-Finally, the user has the ability to simply turn off any optimization
+The user has the ability to simply turn off any optimization
 procedures deemed undesirable with the obvious keywords,
 \begin{verbatim}
   CONVERGENCE [nodamping] [nodiis] [nolevelshifting]
 \end{verbatim}
+
+The {\tt \bf SMEAR} keyword is useful in case with many degenerate states
+near the HOMO (eg metallic clusters)
+
+\begin{verbatim}
+  CONVERGENCE smear <real smear default 0.001>
+\end{verbatim}
+
+This  option allows fractional occupation of the molecular orbitals.
+A Gaussian broadening function of exponent {\tt smear} is used as desribed in 
+the paper:
+R.W. Warren RW and B.I. Dunlap, Chem. Phys. Letters {\bf 262}, 384 (1996).\\
+The user must be aware that an additional energy term is added to the total
+energy in order to have
+energies and gradients consistent.
 
 
 \section{GRID --- Numerical Integration of the XC Potential}
