@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.5 1999-12-09 01:28:35 bert Exp $
+c $Id: bas_create_uncont.F,v 1.6 1999-12-30 22:03:33 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -250,7 +250,7 @@ c
      $          call errquit('bas_create_uncont: bas_cont_tag failed',0)
                do 21 iprim = 1, nprim
                   if (.not. bas_add_ucnt(basis_out,usetag,l_type,1,1,
-     $                0.0d0,maxprim,1.0d0,1,name)) call errquit 
+     $                0.0d0,maxprim,1.0d0,1,name, .false.)) call errquit 
      $                ('bas_create_uncont: bas_add_ucnt',0)
                   maxprim = maxprim / alpha
    21          continue
@@ -267,7 +267,8 @@ c
      $         call errquit ('bas_create_uncont: bas_cont_tag failed',0)
             if (.not. bas_add_ucnt(basis_out,usetag,
      $                            int_mb(LIm_a+iprim-1),1,1,0.0d0,
-     $                            dbl_mb(ExpIm_a+iprim-1),1.0d0,1,name))
+     $                            dbl_mb(ExpIm_a+iprim-1),1.0d0,1,name,
+     $                            .false.))
      $         call errquit ('bas_create_uncont: bas_add_ucnt',0)
    15    continue
       endif
