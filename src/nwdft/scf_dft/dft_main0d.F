@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.29 1999-10-22 18:53:17 edo Exp $
+c     $Id: dft_main0d.F,v 1.30 1999-11-02 02:39:55 edo Exp $
 c     
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals, iw, idum, i
       double precision toll_s
-      logical dft_scf
+      logical dft_scf,l1ecache
       external dft_scf
 c     
 #if defined(DFT_TIMER)
@@ -52,8 +52,11 @@ c
       oprint_time = util_print('dft timings', print_high)
       oprint_ioinfo = util_print('io info', print_debug)
       call schwarz_init(geom, AO_bas_han)
-      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 2000000) ! Cache if < 2MB/node
-     $     call int_1e_cache_ga(AO_bas_han, oskel)
+      l1ecache=.false.
+      if ((nbf_ao*nbf_ao*3*8)/ga_nnodes() .lt. 2000000) then! Cache if < 2MB/node
+         l1ecache=.true.
+         call int_1e_cache_ga(AO_bas_han, oskel)
+      endif
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
 c     
@@ -426,6 +429,7 @@ c
      &   ('dft_main0d: could not destroy g_dens(1)', 0)
       if (.not. ga_destroy(g_svecs)) call errquit
      &   ('dft_main0d: could not destroy g_svecs', 0)
+      if(l1ecache) call int_1e_uncache_ga(AO_bas_han, oskel)
       call schwarz_tidy
       call ga_sync
 c     
