@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.19 2001-04-12 22:00:13 edo Exp $
+C$Id: util_file_name.F,v 1.20 2001-07-14 00:23:17 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -498,6 +498,7 @@ c
       subroutine util_directory_name(dir, oscratch, node)
       implicit none
 #include "cfileprefix.fh"
+#include "inp.fh"
       character*(*) dir         ! [output]
       logical oscratch          ! [input]
       integer node              ! [input]
@@ -511,17 +512,18 @@ c     return the name of the scratch/permanent directory for the
 c     specified process
 c
       if (oscratch) then
+         call util_getenv('SCRATCH_DIR',envscr) 
+         istart=util_getblnk(envscr,1024)
+         if(istart.ne.0) then
+            lencrd=index(envscr(istart:1024),' ')-1
+            scratch_dir=envscr(istart:istart+lencrd)
+         else
          if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
-            call util_getenv('SCRATCH_DIR',envscr) 
-            istart=util_getblnk(envscr,1024)
-            if(istart.ne.0) then
-               lencrd=index(envscr(istart:1024),' ')-1
-               scratch_dir=envscr(istart:istart+lencrd)
-            endif
             if (.not. util_file_parse_dir(
      $ SCRATCH_DEF_DIR
      $           , dir, node)) dir = ' ' ! Final default is blank
          endif
+      endif
       else
          if (.not. util_file_parse_dir(permanent_dir, dir, node)) then
             if (.not. util_file_parse_dir(
