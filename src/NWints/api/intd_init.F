@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.15 1998-07-29 00:38:19 d3e129 Exp $
+c $Id: intd_init.F,v 1.16 1998-07-29 19:01:19 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -122,9 +122,9 @@ c
           user_cando_txs = .true.
           def_cando_txs = .false.
           if (ga_nodeid().eq.0) then
-            write(6,*)' internal texas instability possible '
             write(6,*)
-     &          ' intd_init: cando_txs set to always be ',def_cando_txs
+     &          ' intd_init: internal texas instability possible cando',
+     &          '_txs set to always be ',def_cando_txs
             call util_flush(6)
           endif
         endif

@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.37 1998-07-29 00:38:19 d3e129 Exp $
+c $Id: int_init.F,v 1.38 1998-07-29 19:01:19 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -121,9 +121,9 @@ c
           user_cando_txs = .true.
           def_cando_txs = .false.
           if (ga_nodeid().eq.0) then
-            write(6,*)' internal texas instability possible '
             write(6,*)
-     &          ' int_init: cando_txs set to always be ',def_cando_txs
+     &          ' int_init: internal texas instability possible cando_',
+     &          'txs set to always be ',def_cando_txs
             call util_flush(6)
           endif
         endif
@@ -304,44 +304,48 @@ c See if any basis has an attached SO potential
       implicit none
 #include "bas.fh"
 c::passed
-      integer nbas        ! [input] number of basis sets
-      integer bases(nbas) ! [input] basis set handles
+      integer nbas             ! [input] number of basis sets
+      integer bases(nbas)      ! [input] basis set handles
+*return:: texas_check_basis_ok ! [output] true texas is okay to use
 c::local
-      integer ibas  ! specific basis index
-      integer jbas  ! specific basis index
-      integer i_highang ! high angular momentum for specific basis set
-      integer j_highang ! high angular momentum for specific basis set
-      double precision i_exponent ! largest exponent for ith basis set
-      double precision j_exponent ! largest exponent for jth basis set
-      logical okay1, okay2, okay3, okay4
+      integer ibas       ! specific basis index
+      integer ishell     ! specific shell index
+      integer my_highang ! high angular momentum specified in basis set
+      integer my_nshell  ! number of contracted shells in basis set
+      integer my_type    ! type of a given contraction
+      integer my_nprim   ! number of primitives in a given contraction
+      integer my_ngen    ! number of contractions in a given contraction
+      integer my_spc            ! spherical/cartesean fag for a given contraction
+      double precision exponent ! largest exponent for basis set
 c
-      texas_check_basis_ok = .true.  ! [output] true texas is okay to use
+      texas_check_basis_ok = .true.  
 c
       do ibas = 1,nbas
-        if (.not.bas_large_exponent(bases(ibas),i_exponent))
+        if (.not.bas_high_angular(bases(ibas),my_highang))
      &      call errquit
-     &      ('texas_check_basis_ok:i: bas_large_exponent failed',911)
-        if (.not.bas_high_angular(bases(ibas),i_highang))
-     &      call errquit
-     &      ('texas_check_basis_ok:i: bas_high_angular',911)
-        do jbas = 1,ibas
-          if (.not.bas_large_exponent(bases(jbas),j_exponent))
+     &      ('texas_check_basis_ok: bas_high_angular failed',911)
+        if (my_highang.ge.2) then
+          if (.not.bas_numcont(bases(ibas),my_nshell))
      &        call errquit
-     &        ('texas_check_basis_ok:j: bas_large_exponent failed',911)
-          if (.not.bas_high_angular(bases(jbas),j_highang))
-     &        call errquit
-     &        ('texas_check_basis_ok:j: bas_high_angular',911)
-*          write(6,*)' i_highang  ',i_highang
-*          write(6,*)' j_highang  ',j_highang
-*          write(6,*)' i_exponent ',i_exponent
-*          write(6,*)' j_exponent ',j_exponent
-          okay1 = .not.((i_highang.ge.2).and.(i_exponent.gt.10000.0d00))
-          okay2 = .not.((j_highang.ge.2).and.(j_exponent.gt.10000.0d00))
-          okay3 = .not.((i_highang.ge.2).and.(j_exponent.gt.10000.0d00))
-          okay4 = .not.((j_highang.ge.2).and.(i_exponent.gt.10000.0d00))
-*          write(6,*)okay1, okay2, okay3, okay4
-          texas_check_basis_ok = okay1.and.okay2.and.okay3.and.okay4
-          if (.not.texas_check_basis_ok) return
-        enddo
+     &        ('texas_check_basis_ok: bas_numcont failed',911)
+          do ishell = 1, my_nshell
+            if (.not.bas_continfo
+     &          (bases(ibas),ishell,my_type,my_nprim,my_ngen,my_spc))
+     &          call errquit
+     &          ('texas_check_basis_ok: bas_continfo failed',911)
+            if (my_type.ge.2) then
+              if (.not.
+     &            bas_cont_large_exponent(bases(ibas),ishell,exponent))
+     &            call errquit
+     &            ('texas_check_basis_ok: bas_cont_lrg_expnnt failed',
+     &            911)
+              if (exponent.gt.10000.0d00) then
+                texas_check_basis_ok = .false.
+                return
+              endif
+            endif
+          enddo
+        endif
       enddo
       end
+      
