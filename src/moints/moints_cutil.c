@@ -1,8 +1,9 @@
 /*---------------------------------------------------------*\
-$Id: moints_cutil.c,v 1.6 1997-06-16 22:14:57 d3e129 Exp $
+$Id: moints_cutil.c,v 1.7 1999-11-13 02:29:04 bjohnson Exp $
 \*---------------------------------------------------------*/
 
 #include <stdio.h>
+#include "typesf2c.h"
 
 void c_print_sparsemat( int, int, int *, int *, int, double * );
 
@@ -17,10 +18,10 @@ long onbitmask_( long *len )
   return ((long)mask);
 }
 #else  
-#if defined(CRAY_T3E) || defined(CRAY_T3D)
-int ONBITMASK( int *len )
+#if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(WIN32)
+int FATR ONBITMASK( int *len )
 #else
-int onbitmask_( int *len )
+int FATR onbitmask_( int *len )
 #endif
 {
   unsigned int		mask;
