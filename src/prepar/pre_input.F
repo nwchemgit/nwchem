@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.52 2000-05-03 21:04:40 d3j191 Exp $
+c $Id: pre_input.F,v 1.53 2000-05-09 21:49:40 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       integer mcount
       parameter(mcount=10)
       integer mfract
-      parameter(mfract=10)
+      parameter(mfract=250)
 c
       character*3 slvnam
       character*80 source

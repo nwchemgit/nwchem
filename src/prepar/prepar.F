@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.35 2000-04-26 20:32:20 d3j191 Exp $
+c $Id: prepar.F,v 1.36 2000-05-09 21:49:41 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -43,7 +43,7 @@ c
       integer mcount
       parameter(mcount=10)
       integer mfract
-      parameter(mfract=10)
+      parameter(mfract=250)
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf
