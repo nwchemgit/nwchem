@@ -74,10 +74,10 @@ c
          if (.not. ga_create(MT_DBL, nbf_frag, nmo_frag(1), 
      $        ' frag mos',  32, 32, g_frag)) 
      $        call errquit('movecs_fragment: GA for frag MOs', nmo_frag)
-         if (.not. ma_push_get(mt_dbl, nmo_frag(1), 
+         if (.not. ma_push_get(mt_dbl, nbf_frag, 
      $        ' fragment eva', l_eval, k_eval)) call errquit
      $        ('movecs fragment: insufficient memory?', nmo_frag(1))
-         if (.not. ma_push_get(mt_dbl, nmo_frag(1), 
+         if (.not. ma_push_get(mt_dbl, nbf_frag, 
      $        ' fragment eva', l_occ, k_occ)) call errquit
      $        ('movecs fragment: insufficient memory?', nmo_frag(1))
 c     
