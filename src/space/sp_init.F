@@ -2103,7 +2103,7 @@ c
       endif
       if(nsan.gt.0) then
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
-      call ga_get(ga_is,ili,ili+nsan-1,jli,jli+lsdyn-1,isl,msa)
+      call ga_get(ga_is,ili,ili+nsan-1,jli,jhi,isl,msa)
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       call ga_get(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
@@ -2180,7 +2180,7 @@ c
       read(lfnmri) ((xs(j,k),j=1,nsan),k=1,3)
       read(lfnmri) ((vs(j,k),j=1,nsan),k=1,3)
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
-      call ga_put(ga_is,ili,ili+nsan-1,jli,jli+lsdyn-1,isl,msa)
+      call ga_put(ga_is,ili,ili+nsan-1,jli,jhi,isl,msa)
       call ga_distribution(ga_s,node,ils,ihs,jls,jhs)
       call ga_put(ga_s,ils,ils+nsan-1,jls,jls+2,xs,msa)
       call ga_put(ga_s,ils,ils+nsan-1,jls+3,jls+5,vs,msa)
@@ -2216,7 +2216,7 @@ c
       endif
       if(nsaloc.gt.0) then
       call ga_distribution(ga_is,me,ili,ihi,jli,jhi)
-      call ga_get(ga_is,ili,ili+nsaloc-1,jli,jli+lsdyn-1,isl,msa)
+      call ga_get(ga_is,ili,ili+nsaloc-1,jli,jhi,isl,msa)
       call ga_distribution(ga_s,me,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsaloc-1,jls,jls+2,xs,msa)
       call ga_get(ga_s,ils,ils+nsaloc-1,jls+3,jls+5,vs,msa)
