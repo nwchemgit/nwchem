@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.45 2000-01-21 17:31:56 d3j191 Exp $
+c $Id: md_start.F,v 1.46 2000-01-28 23:16:50 d3j191 Exp $
 c
       implicit none
 c
@@ -188,6 +188,7 @@ c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0)
      + call cf_trjhdr(lfncoo)
+      if(nfem.gt.0) call cf_trjhdr(lfnemt)
       endif
 c
       return
