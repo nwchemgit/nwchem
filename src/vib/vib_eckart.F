@@ -1,5 +1,5 @@
       SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC )
-* $Id: vib_eckart.F,v 1.4 1997-04-22 20:01:42 d3e129 Exp $
+* $Id: vib_eckart.F,v 1.5 2002-02-23 02:17:00 edo Exp $
       IMPLICIT none ! REAL*8 (A-H,O-Z)
 c
 #include "util.fh"
@@ -18,7 +18,8 @@ c
       double precision VC(NAT3,6)
 c
       DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
-      double precision test_norm
+      double precision test_norm,ddot
+      external ddot
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
 C****
 C**** construct translation unit vectors;  these are stored in the
@@ -59,23 +60,15 @@ C****   Schmidt orthogonalize the constraint vectors
 C****
       DO 70 I=2,6     ! orthogonalize vector I to each of vectors J
         DO 80 J=1,I-1
-          DOTVAL = ZERO
-          DO 90 K=1,NAT3
-            DOTVAL = DOTVAL+VC(K,J)*VC(K,I)
-   90     CONTINUE
+           dotval=ddot(nat3,vc(1,J),1,vc(1,i),1)
           DO 100 K=1,NAT3
-            VC(K,I) = VC(K,I)-DOTVAL*VC(K,J)
+             VC(K,I) = VC(K,I)-dotval*VC(K,J)
   100     CONTINUE
    80   CONTINUE
-        RNORM = ZERO  ! normalize vector I
-        DO 110 K=1,NAT3
-          RNORM = RNORM+VC(K,I)*VC(K,I)
-  110   CONTINUE
+        RNORM = ddot(nat3,vc(1,I),1,vc(1,I),1)
         IF ( RNORM.GT.1.D-8 ) THEN
           RNORM = ONE/SQRT(RNORM)
-          DO 120 K=1,NAT3
-            VC(K,I) = VC(K,I)*RNORM
-  120     CONTINUE
+          call dscal(nat3,rnorm,vc(1,I),1)
         ELSE ! dependent constraint vector (linear molecule; set to zero)
           DO 125 K=1,NAT3
             VC(K,I) = ZERO
@@ -91,7 +84,7 @@ C****
 C**** remove rotations and translations from the Hessian matrix
 C****
       DO 130 M=1,NAT3
-        DO 140 N=1,NAT3
+        DO 140 N=1,M
           HESSP(M,N) = HESS(M,N)
           DO 150 MU=1,6
             DO 160 J=1,NAT3
@@ -105,6 +98,7 @@ C****
   170         CONTINUE
   160       CONTINUE
   150     CONTINUE
+          if(M.ne.M) HESSP(N,M) = HESSP(M,N)
   140   CONTINUE
   130 CONTINUE
 C****
@@ -121,11 +115,15 @@ C**** place the projected Hessian in array HESS, and the difference
 C**** between projected and unprojected in HESSP
 C****
       DO 210 I=1,NAT3
-        DO 220 J=1,NAT3
+        DO 220 J=1,I
           TEMP = HESS(I,J)
           HESS(I,J) = HESSP(I,J)
           HESSP(I,J) = HESS(I,J)-TEMP
           IF (DABS(HESSP(I,J)).LT.1.D-9) HESSP(I,J) = ZERO
+          IF(J.NE.I) then
+             HESSP(J,I)=HESSP(I,J)
+             HESS(J,I)=HESS(I,J)
+          endif
   220   CONTINUE
   210 CONTINUE
 C****
