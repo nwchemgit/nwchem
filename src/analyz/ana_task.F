@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.83 2002-07-21 16:16:29 d3j191 Exp $
+c $Id: ana_task.F,v 1.84 2002-07-21 16:29:40 d3j191 Exp $
 c
       implicit none
 c
@@ -349,8 +349,7 @@ c
       endif
       if(card(1:6).eq.'hbond  ') then
       lhbond=.true.
-      call ana_hbond_init(byte_mb(i_snam),int_mb(i_sbnd),
-     + int_mb(i_isel),int_mb(i_hbnd))
+      call ana_hbond_init(byte_mb(i_snam),int_mb(i_sbnd),int_mb(i_hbnd))
       goto 1
       endif
 c
@@ -962,7 +961,8 @@ c
 c     hydrogen bond analysis
 c
       if(lhbond) then
-      call ana_hbond(dbl_mb(i_xdat),dbl_mb(i_wdat),int_mb(i_hbnd))
+      call ana_hbond(dbl_mb(i_xdat),dbl_mb(i_wdat),int_mb(i_isel),
+     + int_mb(i_hbnd))
       endif
 c
       if(ngroup.gt.0) then

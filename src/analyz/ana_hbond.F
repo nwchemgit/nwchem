@@ -1,4 +1,4 @@
-      subroutine ana_hbond_init(snam,ibnd,isel,ihbnd)
+      subroutine ana_hbond_init(snam,ibnd,ihbnd)
 c
 c $Id: ana_hbond.F
 c
@@ -8,7 +8,7 @@ c
 #include "ana_params.fh"
 c
       character*16 snam(msa)
-      integer ibnd(msb,2),isel(msa),ihbnd(msa)
+      integer ibnd(msb,2),ihbnd(msa)
 c
       integer i,j,k
 c
@@ -21,11 +21,9 @@ c
 c
       do 2 j=1,2
       do 3 i=1,msb
-      if(isel(ibnd(i,j)).ne.0) then
       if(snam(ibnd(i,j))(6:7).eq.' O'.or.
      + snam(ibnd(i,j))(6:7).eq.' N'.or.
      + snam(ibnd(i,j))(6:7).eq.' S') ihbnd(ibnd(i,j))=-1
-      endif
     3 continue
     2 continue
 c
@@ -33,7 +31,7 @@ c
       k=2
       if(j.eq.2) k=1
       do 5 i=1,msb
-      if(isel(ibnd(i,j)).ne.0.and.ihbnd(ibnd(i,k)).eq.-1) then
+      if(ihbnd(ibnd(i,k)).eq.-1) then
       if(snam(ibnd(i,j))(6:7).eq.' H'.or.
      + snam(ibnd(i,j))(6:7).eq.'2H'.or.
      + snam(ibnd(i,j))(6:7).eq.'3H'.or.
@@ -53,7 +51,6 @@ c
 c
       do 7 j=1,2
       do 8 i=1,mwb
-      print*,wnam(ibndw(i,j))
       if(wnam(ibndw(i,j))(6:7).eq.' O'.or.
      + wnam(ibndw(i,j))(6:7).eq.' N'.or.
      + wnam(ibndw(i,j))(6:7).eq.' S') ihbndw(ibnd(i,j))=-1
@@ -101,7 +98,7 @@ c
 c
       return
       end
-      subroutine ana_hbond(xs,xw,ihbnd)
+      subroutine ana_hbond(xs,xw,isel,ihbnd)
 c
       implicit none
 c
@@ -112,7 +109,7 @@ c
       external ana_angle
 c
       real*8 xs(msa,3),xw(mwm,mwa,3)
-      integer ihbnd(msa)
+      integer ihbnd(msa),isel(msa)
 c
       integer i,j,k
       real*8 d,a
@@ -121,7 +118,7 @@ c
  1000 format('frame',/,f12.6,/,'solute-solute')
       do 1 i=1,nsa-1
       do 2 j=i+1,nsa
-      if(ihbnd(i)*ihbnd(j).lt.0) then
+      if(ihbnd(i)*ihbnd(j).lt.0.and.(isel(i).gt.0.or.isel(j).gt.0)) then
       if(ihbnd(i).lt.0.and.ihbnd(j).eq.i) goto 2
       if(ihbnd(j).lt.0.and.ihbnd(i).eq.j) goto 2
       d=sqrt((xs(i,1)-xs(j,1))**2+(xs(i,2)-xs(j,2))**2+
@@ -149,7 +146,7 @@ c
       do 4 j=1,nwm
       do 5 k=1,nwa
 c
-      if(ihbnd(i)*ihbndw(k).lt.0) then
+      if(ihbnd(i)*ihbndw(k).lt.0.and.isel(i).gt.0) then
       d=sqrt((xs(i,1)-xw(j,k,1))**2+(xs(i,2)-xw(j,k,2))**2+
      + (xs(i,3)-xw(j,k,3))**2)
       if(d.gt.rhbmin.and.d.lt.rhbmax) then
