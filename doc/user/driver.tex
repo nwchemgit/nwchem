@@ -42,6 +42,12 @@ directive,
     ASCALE <real ASCALE default 0.25>
     TSCALE <real TSCALE default 0.1>
     HSCALE <REAL HSCALE default 1.0>
+   
+    PRINT ...
+
+    XYZ [<string xyz default $fileprefix>]
+    NOXYZ
+
   END
 \end{verbatim}
 
@@ -208,6 +214,28 @@ first negative mode might not be the one of interest (e.g., transverse
 to the reaction direction).  If \verb+NOFIRSTNEG+ is specified, the
 code will not take the first negative direction and will continue doing
 mode-following until that mode goes negative.
+
+\section{Optimization history as XYZ files}
+
+\begin{verbatim}
+    XYZ [<string xyz default $fileprefix>]
+    NOXYZ
+\end{verbatim}
+
+The \verb+XYZ+ directive causes the geometry at each step (but not
+intermediate points of a line search) to be output into separate files
+in the permanent directory in XYZ format.  The optional string will
+prefix the filename.  The \verb+NOXYZ+ directive turns this off.
+
+For example, the input
+\begin{verbatim}
+    driver; xyz test; end
+\end{verbatim}
+will cause files test-000.xyz, test-001.xyz, \ldots\ to be created
+in the permanent directory.  
+
+The script \verb+rasmolmovie+ in the NWChem \verb+contrib+ directory
+can be used to turn these into an animated GIF movie.
 
 \section{Print options}
 
