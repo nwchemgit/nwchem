@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.21 2000-01-12 18:38:23 windus Exp $
+$Id: INSTALL,v 1.22 2000-05-23 21:16:19 windus Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -54,16 +54,22 @@ BUILDING NWCHEM:
     CRAY-T3E    Cray T3E        ***      UNICOS         single
     PARAGON     Intel Paragon            OSF/1          double
     DELTA       Intel Delta              NX             double
-    SP          IBM SP1,SP2     ***      AIX/LAPI       double
+    LAPI        IBM SP          ***      AIX/LAPI       double
+    SP          IBM SP          ***      AIX/MPL        double
     LINUX       IBM PC          ***      Slackware 4.0  double
                 IBM PC          ***      RedHat 5.2/6.0 double
                 PowerPC         ***      RedHat 6.0     double
     -------------------------------------------------------------
+   *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
+          If you don't have it get it from IBM.  Also, the environment
+          variable LARGE_FILES should be set to YES during the compile to
+          allow larger than 2 GB scratch files.
+
 
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
    that matches your target platform, e.g.
 
-       % setenv NWCHEM_TARGET SP1
+       % setenv NWCHEM_TARGET LAPI
 
    Some systems also require that you set NWCHEM_TARGET_CPU
     Symb.Name      CPU type     NWCHEM_TARGET_CPU 
@@ -84,11 +90,6 @@ BUILDING NWCHEM:
           We have tested with pgf77 Version 1.7 and have found that our
           automatic z-matrix code hangs but other functionality works. 
           This has not been robustly tested.
-
-   *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
-          If you don't have it get it from IBM.  Also, the environment
-          variable LARGE_FILES should be set to YES during the compile to
-          allow larger than 2 GB scratch files.
 
 4) Configure to build the modules you need.  As a first shot build
    everything, and if you start running out of memory you can exclude
