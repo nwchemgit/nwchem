@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
+C$Id: movecs_rotate.F,v 1.10 2002-12-18 02:04:45 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -9,6 +9,7 @@ C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
+#include "stdio.fh"
 c
 c     Rotate the MO's calculated at an old geometry to the active geometry.
 c     Syntax: vectors input rotate geomname filename
@@ -30,9 +31,7 @@ c
       double precision xyyx,xyyy,xyyz
       double precision xzyx,xzyy,xzyz
       double precision xmid, ymid, zmid, norm
-      double precision xrot, yrot, zrot
       double precision zan(1000) ! max # atoms
-      integer l_occ, k_occ,  g_c, g_v
       integer l_a, k_a, l_b, k_b
       integer oldgeom, nat,iptr
       logical movecs_read_header, movecs_read
@@ -50,16 +49,16 @@ c
       filename = rotate(2)
 c
       if (oprint_info) then
-         write(6,*)
-         call util_print_centered(6,'Orbital rotation guess',15,
+         write(luout,*)
+         call util_print_centered(luout,'Orbital rotation guess',15,
      $        .true.)
-         write(6,1)
+         write(luout,1)
      $        filename(1:inp_strlen(filename)),
      $        geomname(1:inp_strlen(geomname))
  1       format(/
      $        ' input vectors filename    = ',a/
      $        ' input vectors geometry    = ',a/)
-         call util_flush(6)
+         call util_flush(luout)
       endif
 
 c     -------------------------------------------------
@@ -84,7 +83,7 @@ c
       if (.not. geom_destroy(oldgeom))
      $     call errquit('movecs_rotate: cant destroy oldgeom', 0)
 c
-       if (ga_nodeid().eq.0) then
+!       if (ga_nodeid().eq.0) then
 c
          do i = 1,nat
            x1(i) = cold(1,i)
@@ -104,7 +103,8 @@ c     calculate the 3x3 rotation matrix which transforms the old
 c     geometry into the active geometry.  Literature reference:
 c     S. K. Kearsley, "On the Orthogonal Transformation Used for
 c     Structural Comparisons", Acta Crystallographica Section A,
-c     45, 208-210 (1989).  Adapted from Tinker routine quatfit.f
+c     45, 208-210 (1989).  Adapted from 
+c     David J. Heisterberg, OSC, 1990
 c     ----------------------------------------------------------
 c
 c     Find the centroid of the old and active geometries
@@ -184,7 +184,7 @@ c
         c(2,4) = xzyx + xxyz
         c(3,4) = xyyz + xzyy
         c(4,4) = xzyz - xxyx - xyyy
-      endif   ! ga_nodeid().eq.0
+!      endif   ! ga_nodeid().eq.0
 c
 c     diagonalize the quadratic form matrix
 c
@@ -198,7 +198,7 @@ c
 c
 c     Assemble the rotation matrix that superimposes the molecules.
 c
-        rot(1,1) = q(1)**2.0d0 + q(2)**2.0d0 - q(3)**2.0d0 - q(4)**2.0d0
+        rot(1,1) = q(1)*q(1) + q(2)*q(2) - q(3)*q(3) - q(4)*q(4)
         rot(2,1) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
         rot(3,1) = 2.0d0 * (q(2) * q(4) + q(1) * q(3))
         rot(1,2) = 2.0d0 * (q(3) * q(2) + q(1) * q(4))
@@ -206,36 +206,18 @@ c
         rot(3,2) = 2.0d0 * (q(3) * q(4) - q(1) * q(2))
         rot(1,3) = 2.0d0 * (q(4) * q(2) - q(1) * q(3))
         rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
-        rot(3,3) = q(1)**2.0d0 - q(2)**2.0d0 - q(3)**2.0d0 + q(4)**2.0d0
+        rot(3,3) = q(1)*q(1) - q(2)*q(2) - q(3)*q(3) + q(4)*q(4)
 c
 c
    4  format(3F12.6)
       if (oprint_info)   then
-        call util_print_centered(6,'Rotation matrix',15,.true.)
+        call util_print_centered(luout,'Rotation matrix',15,.true.)
           do i = 1,3
-            write(6,4) rot(i,1), rot(i,2), rot(i,3)
+            write(luout,4) rot(i,1), rot(i,2), rot(i,3)
           enddo
+          call util_flush(luout)
       endif
       call ga_sync()
-c
-c  for error checking:
-c  -------------------
-c     rotate second molecule to best fit with first molecule
-c
-c      if (ga_nodeid().eq.0) then
-c      do i = 1, nat
-c         xrot = x2(i)*rot(1,1) + y2(i)*rot(1,2) + z2(i)*rot(1,3)
-c         yrot = x2(i)*rot(2,1) + y2(i)*rot(2,2) + z2(i)*rot(2,3)
-c         zrot = x2(i)*rot(3,1) + y2(i)*rot(3,2) + z2(i)*rot(3,3)
-c         x2(i) = xrot + xmid
-c         y2(i) = yrot + ymid
-c         z2(i) = zrot + zmid
-c      print *,x2(i)/1.889725989d0
-c     $       ,y2(i)/1.889725989d0
-c     $       ,z2(i)/1.889725989d0
-c      end do
-c      endif
-c      call ga_sync()
 c
 c     ---------------------------------------------
 c     Read in vectors calculated at the old geometry.
@@ -273,13 +255,9 @@ c
       if (.not. ma_push_get(mt_dbl, nbf, 'vectors out', l_b, k_b))
      $     call errquit('sym_movecs_apply_rot: ma?', nbf)
 c
-      call ga_sync()
-c
-      if (ga_nodeid().eq.0) then
-c
         do iset = 1,nset
 c
-        do j = 1,nmo
+        do j = 1+ga_nodeid(),nmo,ga_nnodes()
          do i = 1,nbf
            dbl_mb(k_a+i-1)=0.0d0
            dbl_mb(k_b+i-1)=0.0d0
@@ -287,16 +265,15 @@ c
          call ga_get(g_vecs(iset),1,nbf,j,j,dbl_mb(k_a),1)
          call sym_movecs_apply_rot(basis, rot, dbl_mb(k_a), dbl_mb(k_b))
          call ga_put(g_vecs(iset),1,nbf,j,j,dbl_mb(k_b),1)
-c         write(6,*)
-c         write(6,*)'mo# ',j
+c         write(luout,*)
+c         write(luout,*)'mo# ',j
 c         do i = 1,nbf
-c         write (6,11) dbl_mb(k_a+i-1),  dbl_mb(k_b+i-1)
+c         write (luout,11) dbl_mb(k_a+i-1),  dbl_mb(k_b+i-1)
 c         enddo
         enddo
 c
         enddo   !iset
 c
-      endif
       call ga_sync()
 c
       if (.not. ma_pop_stack(l_b)) call errquit
@@ -310,7 +287,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
+C$Id: movecs_rotate.F,v 1.10 2002-12-18 02:04:45 edo Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -333,7 +310,6 @@ c
       integer ncent, icent, jcent, ish, jsh, ilo, ihi, jlo, jhi
       integer ishlo, ishhi, jshlo, jshhi
       integer type, ngen, nprim, sphcart
-      integer opinv
       logical do_spherical
 c
 c     Get basis and geom info
@@ -357,13 +333,9 @@ c
 c
       call sym_bas_rot
      &    (geom, matrix, dbl_mb(k_r), maxf, ang_max, do_spherical)
-c      call sym_inv_op(geom, op, opinv)
-c
-**      call dfill(nbf, 0.0d0, t, 1) ! Now defined to add in to result
 c
       do icent = 1, ncent
          jcent = icent
-c         jcent = sym_center_map(geom, icent, opinv)
          if (.not. bas_ce2cnr(basis, icent, ishlo, ishhi))
      $        call errquit('sym_movecs_apply_rot: bas_ce2cnr',0)
          if (.not. bas_ce2cnr(basis, jcent, jshlo, jshhi))
@@ -398,11 +370,6 @@ c
          enddo
       enddo
 c
-c*      write(6,*) ' sym_movecs_apply_rot: ', op
-c      do i = 1, nbf
-c         write(6,11) v(i), t(i)
-c 11      format(2f12.6)
-c      enddo
 c
       if (.not. ma_pop_stack(l_r)) call errquit
      $     ('sym_movecs_apply_rot: ma?', 0)
@@ -439,14 +406,13 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.9 2002-12-18 01:33:48 edo Exp $
+C$Id: movecs_rotate.F,v 1.10 2002-12-18 02:04:45 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 c     
       integer geom         ! [input]  geometry handle
-      integer op           ! [input]  Desired operator
       double precision matrix(3,3) ! [input]  Desired operator
       integer maxf         ! [input]  Leading dimension of r
       integer ang_max      ! [input]  Max. ang. momentum of shell
@@ -532,13 +498,13 @@ c     Ensure cartesian basis function polynomials are defined
 c     
       call defnxyz(ang_max)
 c     
-*     call util_print_centered(6,
+*     call util_print_centered(luout,
 *     $     'Transformation of basis shells under symmetry operators', 
 *     $     30, .true.)
 c     
 c     Loop through operators in the group
 c     
-*      write(6,1) op
+*      write(luout,1) op
 *    1    format(/' Symmetry operator ', i3)
       call dfill(maxf*maxf*(ang_max+1), 0.0d0, R, 1)
 c     
@@ -614,111 +580,12 @@ c
             enddo
          endif
 c     
-*         write(6,2) LL
+*         write(luout,2) LL
 * 2       format(/'      Angular momentum ', i2)
 *         call output(R(1,1,LL), 1, nLL, 1, nLL, maxf, maxf, 1)
       enddo
       if (.not.otransform) return
 c
-      call sym_bas_rot_spherical(maxf,ang_max,r)
+      call sym_bas_op_spherical(maxf,ang_max,r)
 c
-      end
-      subroutine sym_bas_rot_spherical(maxf,ang_max,r)
-      implicit none
-#include "mafdecls.fh"
-#include "spcartP.fh"
-      integer maxf    ! [input] leading dimension(s) of R
-      integer ang_max ! [input] trailing dimension of R
-      double precision R(1:maxf,1:maxf,0:ang_max)  ! [input/output] cartesian/spherical
-c::local
-      double precision sum(36,36)  ! intermediate matrix (handles j functions)
-      double precision val
-*     double precision scale
-      integer lval
-      integer l2s
-      integer s1, s2, c1, c2, r1, r2
-      double precision sover(6,6,0:2)
-c::functions
-      logical spcart_init
-      external spcart_init
-c::statement function ----- start
-      integer iic,iis,iil,lval_max
-      double precision Dtrans, Dinvtrans, Dscale
-      integer sindex
-      Dtrans(iic,iis,iil) =
-     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
-     &           ((iis+iil)*(iil+1)*(iil+2)/2)
-     &           + iic - 1)
-      Dinvtrans(iis,iic,iil) =
-     &    dbl_mb((int_mb(k_invsp2c_lindx+iil))+
-     &    (iic-1)*(2*iil+1)+iis+iil)
-      sindex(iis,lval) = lval+iis+1
-c--(2*lm+1)*l + l+i + (lm-l):m=2,a=5
-c--(2*lm+1)*l + i + lm      :m=2,a=3
-c--lm*(2*l+1) + l + i       :m=2,a=3
-      Dscale(iis,lval,lval_max) =
-     &    dbl_mb(k_cart_norm_scale + lval_max*(2*lval+1)+lval+iis)
-c::statement function ----- end
-c
-      if (.not.spcart_init(ang_max,.true.,.false.))
-     &    call errquit
-     &    ('sym_bas_rot_spherical: could not initialize spcart',911)
-c
-      call dfill ((6*6*3),0.0d00,sover,1)
-      sover(1,1,0) = 1.0d00
-      sover(1,1,1) = 1.0d00
-      sover(2,2,1) = 1.0d00
-      sover(3,3,1) = 1.0d00
-      sover(1,1,2) = 1.0d00
-      sover(2,2,2) = 1.0d00/3.0d00
-      sover(3,3,2) = 1.0d00/3.0d00
-      sover(4,4,2) = 1.0d00
-      sover(5,5,2) = 1.0d00/3.0d00
-      sover(6,6,2) = 1.0d00
-      sover(1,4,2) = 1.0d00/3.0d00
-      sover(1,6,2) = 1.0d00/3.0d00
-      sover(4,6,2) = 1.0d00/3.0d00
-      sover(4,1,2) = 1.0d00/3.0d00
-      sover(6,1,2) = 1.0d00/3.0d00
-      sover(6,4,2) = 1.0d00/3.0d00
-c
-      do lval = 2,ang_max         ! skip s and p transformations
-        l2s = (lval+1)*(lval+2)/2
-*        write(6,*)' cartesian matrix for angular momentum ',lval
-*        call output(R(1,1,lval),1,l2s,1,l2s,maxf,maxf,1)
-        call dfill((36*36),0.0d0,sum,1)
-        do c2 = 1,l2s
-          do s1 = -lval,lval
-            val = 0.0d00
-            do c1 = 1,l2s
-              val = val +
-     &            dinvtrans(s1,c1,lval)*R(c1,c2,lval)
-            enddo
-            sum(sindex(s1,lval),c2) = val
-          enddo
-        enddo
-* now sum is sum(spherical,cartesian,implied lval)
-*        write(6,*)' intermediate sum(sph,car)'
-*        call output(sum,1,(2*lval+1),1,l2s,36,36,1)
-        do s1 = -lval,lval
-          do s2 = -lval,lval
-            val = 0.0d00
-            do c2 = 1,l2s
-              val = val +
-     &            dtrans(c2,s2,lval)*sum(sindex(s1,lval),c2)
-            enddo
-            r1 = sindex(s1,lval)
-            r2 = sindex(s2,lval)
-            R(r1,r2,lval) = val
-          enddo
-        enddo
-*        write(6,*)' spherical matrix for angular momentum ',lval
-*        call output(R(1,1,lval),1,(2*lval+1),1,(2*lval+1),maxf,maxf,1)
-*        do s1 = 2*lval+2,maxf
-*          do s2 = 2*lval+2,maxf
-*            R(s1,s2,lval) = 1234.0d00
-*          enddo
-*        enddo
-      enddo
-c      
       end
