@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.3 2000-01-25 20:00:11 mg201 Exp $
+c $Id: int_1estv.F,v 1.4 2000-02-15 21:46:56 windus Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -234,7 +234,7 @@ c
      &      coords(1,1,i_geom),charge(1,i_geom),
      &      geom_invnucexp(1,i_geom),ncenter(i_geom),
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
-     &      scr,lscr,'int_1eov')
+     &      scr,lscr)
       else
         call errquit('int_1eov: could not do hnd, sp or nw integrals',
      &                0)
