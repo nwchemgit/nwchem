@@ -1,10 +1,11 @@
       subroutine ana_rmsdev(x,ix,nx,xref,wt,xrms)
-c $Id: ana_rmsdev.F,v 1.6 2000-08-03 00:25:50 d3j191 Exp $
+c $Id: ana_rmsdev.F,v 1.7 2000-08-03 00:27:02 d3j191 Exp $
       implicit none
 c
 #include "ana_params.fh"
 #include "ana_common.fh"
 #include "global.fh"
+#include "mafdecls.fh"
 #include "msgids.fh"
 c
       integer nx
