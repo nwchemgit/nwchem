@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.44 1995-02-24 00:54:46 mg141 Exp $
+c     $Id: nwchem.F,v 1.45 1995-03-01 19:53:20 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -95,7 +95,7 @@ c     Print memory info
 c
       if (ga_nodeid() .eq. 0) then
          if (util_print('ga summary', print_default))
-     $        call ga_summarize(.false.)
+     $        call ga_summarize(0)
          if (util_print('ma summary', print_default))
      $        call ma_summarize_allocated_blocks()
          if (util_print('ma stats', print_default))
@@ -294,7 +294,7 @@ c
          goto 1000
 
 c
-c     Miles' test crap
+c     Miles' test 
 c
   170    call mjdtest(rtdb)
          goto 1000
