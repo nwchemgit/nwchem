@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.11 1996-09-03 01:23:17 d3g681 Exp $*/
+/*$Id: rtdb_seq.c,v 1.12 1999-10-14 23:11:15 d3g681 Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -728,7 +728,7 @@ int rtdb_seq_print(const int handle, const int print_values)
 	printf(" ");
       if (nelem < 100000)
 	printf(" ");
-      printf(" %s", date);
+      printf(" %s\n", date);
 
       if (print_values) {
 	int ma_handle;
@@ -887,6 +887,7 @@ int rtdb_seq_get_info(const int handle,
 
   *ma_type = info.ma_type;
   *nelem   = info.nelem;
+  if (info.date[24] == '\n') info.date[24] = ' ';
   (void) memcpy(date, info.date, 26);
 
   return 1;
