@@ -46,14 +46,14 @@ OBJ = ecp_3j_prod.o  \
       ecp_local.o    \
       int_ecp.o      
 
-USES_BLAS = ecp_integral.o \
-      ecp_int0.o \
-      ecp_int1.o \
-      ecp_int2.o \
-      ecp_radint0.o \
-      ecp_radint1.o \
-      ecp_radint2.o \
-      ecp_cartsph.o 
+USES_BLAS = ecp_integral.f \
+      ecp_int0.f \
+      ecp_int1.f \
+      ecp_int2.f \
+      ecp_radint0.f \
+      ecp_radint1.f \
+      ecp_radint2.f \
+      ecp_cartsph.f 
 
 LIBRARY = libnwints.a
 
