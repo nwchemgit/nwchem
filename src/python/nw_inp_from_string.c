@@ -1,10 +1,13 @@
 /*
- $Id: nw_inp_from_string.c,v 1.6 1999-10-25 15:58:04 d3g681 Exp $
+ $Id: nw_inp_from_string.c,v 1.7 2000-07-27 16:27:59 bjohnson Exp $
 */
 #include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 #if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(CRAY)
 #define nw_inp_from_file_ NW_INP_FROM_FILE
