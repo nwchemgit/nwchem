@@ -12,12 +12,12 @@ c       uses the faster ESSL FFT.
 c 
 c Non-destructive interface (see below).
 c ------------------------------------------------------------------------
-      SUBROUTINE nwfft3d(nd1,nd2,nd3,isign,
+      SUBROUTINE nwfft3d(nd1,nd2,nd3,idir,
      .                   x1,x2,map1,map2,doMap,
      .                   iwrklen,iwrk,rwrklen,rwrk,jstatus,ffttype)
       implicit none
-      INTEGER nd1,nd2,nd3, isign, jstatus
-      INTEGER map1(*), map2(*)
+      INTEGER nd1,nd2,nd3, isign,jstatus,idir
+      INTEGER map1(*),map2(*)
       INTEGER doMap
       DOUBLE PRECISION x1(*),x2(*)
       INTEGER rwrklen
@@ -29,7 +29,7 @@ c ------------------------------------------------------------------------
 c *** input parameters described
 c
 c  nd1,nd2,nd3: dimension of x1 and x2
-c  isign: 1 => forward fft;  -1 => reverse fft
+c  isign: 1 => forward fft;  -1 => reverse fft; -2 => reverse, no scaling
 c  x1: data to be fft-ed. input(x1) = output(x1), i.e., non-destructive.
 c  x2: output fft(x1). Note that EMSL uses a destructive interface, while
 c      TYPE: double precsion  => x1(dim), dim  = nd1*nd2*nd3*2 
@@ -46,13 +46,13 @@ c  rwrklen,iwrklen: if <> 0, use for EMSL routine scratch memory
 c  ffttype:  1=>EMSL fft;  2=>ESSL fft
 c
 c *** local variables
-      integer d1,d2,d3, owner
+      integer d1,d2,d3,owner
       double precision scale
-      integer blksz, computedMap
+      integer blksz,computedMap
       integer n123
 #ifdef ESSLFFT
-      integer icontext, ip(40) 
-      integer initESSL, iESSL
+      integer icontext,ip(40) 
+      integer initESSL,iESSL
 #endif
 #ifdef EMSLFFT
       integer  nwords, nrealscr,ma_nrealscr, ma_nintscr
@@ -79,13 +79,15 @@ c	double precision work(isize)
 *
       me = nodeid()
       nproc = nnodes()
+      isign=idir
+      if(isign.lt.-1) isign=-1
 
 c      if (me.EQ.0) print*,' ENTER FFT ',nd1,nd2,nd3,' isign=',isign
 
 c --- calculate constants ----
       n123 = nd1*nd2*nd3
 c scale for forward (isign==1) and reverse (isign==-1) fft 
-      if (isign.EQ.-1) then
+      if (idir.EQ.-1) then
          scale = 1.D0/dble(n123)
       else
          scale = 1.D0
