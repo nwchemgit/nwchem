@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 1994-11-14 15:55:38 d3g681 Exp $
+# $Id: GNUmakefile,v 1.20 1994-11-14 17:31:30 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -22,8 +22,8 @@ endif
               ga_maxelt.o ga_pcg_minimize.o line_search.o \
               ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
               ga_iter_project.o ga_screen.o ga_get_diag.o \
-	      fortchar.o sequential_output.o ga_mat2col.o ga_orthog.o \
-              $(BLAS) $(EXTRA_OBJ) 
+	      fortchar.o sequential_output.o ga_mat2col.o $(BLAS) $(EXTRA_OBJ) 
+OBJ_OPTIMIZE= ga_orthog.o 
     LIBRARY = libutil.a
     HEADERS = util.fh itri.fh msgids.fh
 

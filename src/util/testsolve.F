@@ -9,7 +9,7 @@ c
       integer iter_solve
       common /info/ n, g_a
       integer nroot
-      parameter (dim = 100, nroot=3)
+      parameter (dim = 128, nroot=3)
       double precision col(dim), acc(nroot), tol, scale
       double precision eval(nroot)
       double precision evals(dim)
@@ -50,15 +50,18 @@ c
          call ga_put(g_a, i, i, i, n, col(i), 1)
       enddo
 c
-      write(6,*) ' before '
+      if (ga_nodeid().eq.0) write(6,*) ' before '
       call ga_print(g_a)
       call ga_orthog(g_a, -999999, .false.)
-      write(6,*) ' after '
+      if (ga_nodeid().eq.0) write(6,*) ' after '
       call ga_print(g_a)
       call ga_dgemm('t','n',n,n,n,1.0d0,g_a, g_a, 0.0d0, g_v)
-      write(6,*) ' identity'
+      if (ga_nodeid().eq.0) write(6,*) ' identity'
       call ga_print(g_v)
-      call errquit('done')
+      call ga_sync()
+      call ffflush(6)
+      call ga_sync()
+      goto 10000
 c
       if (ga_nodeid() .eq. 0) then
          do i = 1, n
@@ -124,7 +127,7 @@ c
       status = ga_destroy(g_a)
       status = ga_destroy(g_v)
 c      
-      call ga_terminate
+10000 call ga_terminate
       call pend
 c
       end

@@ -50,7 +50,8 @@ c
 c
 c     Put results back
 c
-      call ga_put(g_vecs, ulo, uhi, 1, ni, dbl_mb(k_tmp), ld)
+      if (uhi .ge. ulo)
+     $     call ga_put(g_vecs, ulo, uhi, 1, ni, dbl_mb(k_tmp), ld)
 c
 c     Tidy up memory
 c
