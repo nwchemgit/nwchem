@@ -1,10 +1,10 @@
       logical function grid_insidesp(nx,ny,nz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.2 2000-02-23 01:37:57 edo Exp $
+c$Id: grid_sphere.F,v 1.3 2000-03-17 02:58:57 edo Exp $
 c
       implicit none
-      integer nx,ny,nz
-      double precision l_rect,rad
+      integer nx,ny,nz            ! [in]
+      double precision l_rect,rad ! [in]
 c
       double precision ndx,ndy,ndz,dista
       grid_insidesp=.true.
@@ -34,9 +34,9 @@ c
       implicit none
       integer nx,ny,nz,nxyz
       integer ninside
-      double precision rad
-      integer fnxyz(*)
-      logical ynxyz
+      double precision rad ! [in]
+      integer fnxyz(*)     ! [out]
+      logical ynxyz        ! [in] get points
       logical grid_insidesp
       external grid_insidesp
 #include "cgridfile.fh"
@@ -117,4 +117,56 @@ c
       call errquit(' grid_wcube: failed',ncubes)
       return
       end
+      subroutine grid_rmaxmin(nx,ny,nz,rmax,rmin,l)
+      implicit none
+      integer nx,ny,nz      ! [in]
+      double precision l    ! [in]
+      double precision rmax ! [out]
+      double precision rmin ! [out]
+c
+      double precision rr,onx,ony,onz
+c
+      onx=nx
+      ony=ny
+      onz=nz
       
+      rmax=sqrt( (abs(onx)+.5d0)**2d0+
+     +(abs(ony)+.5d0)**2d0+
+     +(abs(onz)+.5d0)**2d0)*l
+      rr=0d0
+      if(nx.ne.0) then
+         rr=(abs(onx)-.5d0)**2d0
+      endif
+      if(ny.ne.0) then
+         rr=rr+(abs(ony)-.5d0)**2d0
+      endif
+      if(nz.ne.0) then
+         rr=rr+(abs(onz)-.5d0)**2d0
+      endif
+      rmin=sqrt(rr)*l
+      return
+      end
+      logical function grid_incube(x,y,z,nx,ny,nz)
+      double precision x,y,z ! [in] point coors
+      integer nx,ny,nz       ! [in] cube definition
+c
+c     returns true if xyz is inside cube defined by nx,ny,nz
+c
+#include "cdft.fh"      
+c     
+      double precision onx,ony,onz
+
+c
+      onx=dble(nx)
+      ony=dble(ny)
+      onz=dble(nz)
+      grid_incube=.false.
+      if(x.le.(onx+.5d0)*l_rect.and.x.gt.(onx-.5d0)*l_rect) then
+         if(y.le.(ony+.5d0)*l_rect.and.y.gt.(ony-.5d0)*l_rect) then
+            if(z.le.(onz+.5d0)*l_rect.and.z.gt.(onz-.5d0)*l_rect) then
+               grid_incube=.true.
+            endif
+         endif
+      endif
+      return
+      end

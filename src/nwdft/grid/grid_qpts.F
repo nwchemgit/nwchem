@@ -1,7 +1,7 @@
-      Subroutine grid_qpts(xyz, ictr, irsh, iang, aqbuf, nq, 
-     *     rad)
+      Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
+     *     nx,ny,nz)
 c
-c$Id: grid_qpts.F,v 1.5 2000-03-07 02:02:32 edo Exp $
+c$Id: grid_qpts.F,v 1.6 2000-03-17 02:58:56 edo Exp $
 c
       implicit none
 c      
@@ -13,19 +13,17 @@ c
 #include "cdft.fh"
 #include "util.fh"
 #include "global.fh"
-c
-c---> Cartesian Coordinates of Integration Center
-c
-      double precision xyz(3) ! [input]
-c
-c---> Cartesian Coordinates of Quadrature Points & Weights
-c
+      double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
-      double precision aqbuf(4,nq), qwght_nq,rad
+      double precision aqbuf(4,nq), qwght_nq ! quadr pts and wght
+      integer nx,ny,nz      ! [in] cube def
+      double precision r ! [in]
+      logical grid_incube
+      external grid_incube
 c
 c     Compute the quadrature points & weights for a given 
 c     set of radial shells.
-c     compute rad
+c     Keep only point belonging to cube
 c
       integer k, l, ia_ictr
       double precision r, tx, ty, tz, xor, yor, zor
@@ -36,16 +34,14 @@ c
 c
       ia_ictr = iatype(ictr)
 c
-      r = rpts(irsh,ia_ictr)
-      rad=r
       
 c
 c     debug writes
 c
       if (ga_nodeid().eq.0.and.oprint_grid)then
          write(6,*)' xyz: ', xyz
-         write(6,*)' ictr, irsh, iang, ia_ictr, rad: ',
-     &               ictr, irsh, iang, ia_ictr, rad
+         write(6,*)' ictr, irsh, iang, ia_ictr: ',
+     &               ictr, irsh, iang, ia_ictr
       endif
 c
       if (leb.or.daul) then
@@ -61,15 +57,20 @@ c
             xor = qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz
             yor = qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz
             zor = qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz
+            xor=r*xor
+            yor=r*yor
+            zor=r*zor
 c
 c           Define the quadrature point and weight.
 c            
-            nq = nq + 1
-            aqbuf(1,nq) = xyz(1) + r*xor
-            aqbuf(2,nq) = xyz(2) + r*yor
-            aqbuf(3,nq) = xyz(3) + r*zor
+            if(grid_incube(xor,yor,zor,nx,ny,nz)) then
+               nq = nq + 1
+               aqbuf(1,nq) = xyz(1) + xor
+               aqbuf(2,nq) = xyz(2) + yor
+               aqbuf(3,nq) = xyz(3) + zor
 c             
-            aqbuf(4,nq) = wa_leb(k,iang)*rwghts(irsh,ia_ictr)
+               aqbuf(4,nq) = wa_leb(k,iang)*rwghts(irsh,ia_ictr)
+            endif
          enddo
       else
 c
@@ -92,15 +93,24 @@ c
                xor = qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz
                yor = qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz
                zor = qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz
+               xor=r*xor
+               yor=r*yor
+               zor=r*zor
 c
 c              Define the quadrature point and weight.
 c             
+            if(grid_incube(xor,yor,zor,nx,ny,nz)) then
                nq = nq + 1
-               aqbuf(1,nq) = xyz(1) + r*xor
-               aqbuf(2,nq) = xyz(2) + r*yor
-               aqbuf(3,nq) = xyz(3) + r*zor
+               aqbuf(1,nq) = xyz(1) + xor
+               aqbuf(2,nq) = xyz(2) + yor
+               aqbuf(3,nq) = xyz(3) + zor
 c             
                aqbuf(4,nq) = qwght_nq
+            write(0,'(A,4F20.12)') 
+     .           ' ww ',aqbuf(1,nq),aqbuf(2,nq),aqbuf(3,nq),
+     .              aqbuf(4,nq)
+               
+            endif
 c
    10       continue
 c

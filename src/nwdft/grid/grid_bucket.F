@@ -1,6 +1,6 @@
       subroutine grid_buckinit(g_buck,g_buckind)
 c
-c$Id: grid_bucket.F,v 1.3 2000-03-10 02:03:15 edo Exp $
+c$Id: grid_bucket.F,v 1.4 2000-03-17 02:58:55 edo Exp $
 c
       implicit none
       integer g_buck,g_buckind
@@ -12,7 +12,7 @@ c
 #include "cgridfile.fh"
 #include "geom.fh"
 c
-      integer ncubes,i,nctrs,dum
+      integer i,nctrs,dum
       integer grid_ncubes,ipts
       external grid_ncubes
 c
@@ -21,25 +21,25 @@ c
 c
 c     get ncubes
 c
-      ncubes=1
+      ncubesmx=1
       do i=1,ntypes
          ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
      ,        .false.,dum)
-         ncubes=max(ncubes,ncubes_type(i))
+         ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
-      write(6,*) ' NCUBES ',ncubes
-      if (.not.MA_alloc_Get(MT_int,ntypes*ncubes,'howmany cubes',
+      write(6,*) ' NCUBES ',ncubesmx
+      if (.not.MA_alloc_Get(MT_int,ntypes*ncubesmx,'howmany cubes',
      ,     l_nxyz,k_nxyz))
      ,     call errquit('grid_buckinit: cannot allocate nxyz',0)
       do i=1,ntypes
-         ipts=k_nxyz+(i-1)*ncubes
+         ipts=k_nxyz+(i-1)*ncubesmx
          dum=grid_ncubes(dble(rad_cutoff(1,i)),.true.,int_mb(ipts))
       enddo
-      if(.not. ga_create(mt_dbl,ncenters*ncubes,mxpt_rect*4,
+      if(.not. ga_create(mt_dbl,ncenters*ncubesmx,mxpt_rect*4,
      ,     'grid bucket', 0,mxpt_rect*4,g_buck))
      . call errquit(' gridb_buck: ga_create failed',0)
-      if(.not. ga_create(mt_int,ncenters,ncubes,
-     ,     'grid bucket', 0,ncubes,g_buckind))
+      if(.not. ga_create(mt_int,ncenters,ncubesmx,
+     ,     'grid bucket', 0,ncubesmx,g_buckind))
      . call errquit(' gridb_buck: ga_create failed',1)
       call ga_zero(g_buck)
       call ga_zero(g_buckind)

@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.15 2000-02-02 02:37:31 edo Exp $
+c$Id: grid_tasks.F,v 1.16 2000-03-17 02:58:57 edo Exp $
 c
       implicit none
 c
@@ -14,7 +14,8 @@ c
       integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
       integer ndbl
-      double precision coord, aqbuf, rad
+      double precision coord, aqbuf, rad,rad_sh,
+     ,     rmax,rmin,rad_write
       dimension coord(3,ncenters)
       dimension qsh(3,nqlen)
       dimension aqbuf(4,npts_per_ang)
@@ -25,7 +26,10 @@ c
       character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
-      integer nq,nproc,me,g_buck,g_buckind
+      integer nq,nproc,me,g_buck,g_buckind,
+     ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
+     ,     nx,ny,nz,fnxyz,nxyz,nqtotc
+
       logical trunc_neigh
       logical grid_file_open
       external grid_file_open
@@ -88,6 +92,8 @@ C      call a_dist(coord, Dbl_MB(iRij), ncenters)
      &   call errquit('grid_tasks: cannot allocate rq',0)
       if (.not.MA_Push_get(mt_dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
      &   call errquit('grid_tasks: cannot allocate rq',4)
+      if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
+     &   call errquit('grid_tasks: cannot allocate qat',5)
 c      
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -97,47 +103,99 @@ c
 
       call grid_buckinit(g_buck,g_buckind)
 
-      do 100 iqsh = 1+me, nqshells,nproc
+      nqtotc=0
+      do i_a =1,ncenters
+c
+c     get shells centers on i_a
+c
+         nqsh_at=0
+         do iqsh=1,nqshells
+            if(qsh(2,iqsh).eq.i_a) then
+               nqsh_at=nqsh_at+1
+               int_mb(k_qat+nqsh_at-1)=iqsh
+            endif
+         enddo
+c
+c     get no of segment
+c
+         rad=dble(rad_cutoff(1,iatype(i_a)))
+         nxyz=nint((rad*2d0-l_rect)/(l_rect*2d0))
+c
+c     loop over cubes centers on i_a
+c
+         do nx=-nxyz,nxyz
+            do ny=-nxyz,nxyz
+               do nz=-nxyz,nxyz
+                  write(0,*) ' nx ny nz ',nx,ny,nz
+!         do ncu=1,ncubes_type(iatype(i_a))
+!            fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
+!            write(0,*) ' ncu ',ncu,nxyz
+!            call n2nxyz(nxyz,fnxyz,nx,ny,nz)
+            
+!            write(0,*) ' nxyz ',fnxyz,nx,ny,nz
+            call grid_rmaxmin(nx,ny,nz,rmax,rmin,l_rect)
+            write(0,*) ' rmax rmin ',rmax,rmin
+            npts_iqsh = 0
+!            call dfill(4*npts_per_ang, 0.0d0, aqbuf, 1)
+            call dfill(4*5810, 0.0d0, aqbuf, 1)
+            rad_write=0d0
+         do 100 iii = 1, nqsh_at
+            iqsh=int_mb(k_qat+iii-1)          
 c
 
-         irsh = qsh(1,iqsh)         
-         ictr = qsh(2,iqsh)
-         iang = qsh(3,iqsh)
-         nq = npts_per_ang
+            irsh = qsh(1,iqsh)         
+            rad_sh=rpts(irsh,iatype(i_a))
 c
-c        Generate all angular quadrature points for this radial shell
-c
-         call dfill(4*nq, 0.0d0, aqbuf, 1)
-c
-         call grid_qpts(coord(1,ictr), ictr, irsh, iang, aqbuf, nq, 
-     ,        rad)
-         npts_iqsh = nq
-c
-c        modify the weight to include the spatial weight (and symmetry factor)
-c
-         call grid_setspac(rtdb, coord, aqbuf, dbl_mb(irij), 
-     &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh,
-     ,        dbl_mb(iexpo), rad, trunc_neigh)
-
-         if (npts_iqsh.eq.0) then
-            go to 100
-         endif
-         
-c
-c        since only generating symmetry unique quadrature 
-c        scale weights with symmetry factor if desired
-c
-         call grid_sym(ictr, aqbuf, npts_iqsh)
+c     check if radius between rmin and rmax
 c            
-c        now pack this aqbuf into the write buffer (write and update task counter as needed)
-c
-         call grid_file_write(npts_iqsh, ictr, rad, aqbuf)
-c
+            if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
+               rad_write=max(rad_write,rad_sh)
+               ictr = qsh(2,iqsh)
+               iang = qsh(3,iqsh)
+               nq = npts_per_ang
+c     
+c     Generate all angular quadrature points for this radial shell
+c     
+c     
+            call grid_qpts(rad_sh,coord(1,ictr), ictr, irsh, iang, 
+     ,              aqbuf(1,npts_iqsh+1), nq, 
+     ,           nx,ny,nz)
+            if(nq.ne.0) write(0,*) ' nq ',nq
+c     
+c     modify the weight to include the spatial weight (and symmetry factor)
+c     
+            call grid_setspac(rtdb, coord, aqbuf(1,npts_iqsh+1),
+     ,           dbl_mb(irij), 
+     &           dbl_mb(irq), dbl_mb(ip), ictr, nq,
+     ,           dbl_mb(iexpo), rad_sh, trunc_neigh)
+            npts_iqsh = npts_iqsh+nq
+            write(0,*) ' nqsp nn ',nq,npts_iqsh
+            
+            
+         endif
+ 100     continue
+c     
+c     since only generating symmetry unique quadrature 
+c     scale weights with symmetry factor if desired
+c     
+            if(npts_iqsh.ne.0) then
+               call grid_sym(ictr, aqbuf, npts_iqsh)
+c            
+c     now pack this aqbuf into the write buffer (write and update task counter as needed)
+c     
+               write(0,*) ' nq in cube ',npts_iqsh
+               call grid_file_write(npts_iqsh, ictr, rad_write, aqbuf)
+               
+               nqtotc=nqtotc+npts_iqsh
+            endif
+         enddo
+         enddo
+         enddo ! end loop over cubes
+      enddo !end loop over atoms
 
-  100 continue
-
+      write(0,*) ' NQTOTC ',nqtotc
       call grid_buckend(g_buck,g_buckind)
-
+!      if(.true.) call errquit(' out ',1948)
 c
 c     Write last buffer of grid pts and close file     
 c
@@ -148,6 +206,8 @@ c      write(6,*)' n_tot_tasks = ', n_tot_tasks
 c
 c     clean up
 c
+      if (.not. MA_Pop_Stack(l_qat))
+     &   call errquit('grid_tasks: pop stack failed.',1)
       if (.not. MA_Pop_Stack(lexpo))
      &   call errquit('grid_tasks: pop stack failed.',1)
       if (.not. MA_Pop_Stack(lp))

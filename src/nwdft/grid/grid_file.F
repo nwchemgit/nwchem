@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.11 1999-08-20 23:28:12 edo Exp $
+* $Id: grid_file.F,v 1.12 2000-03-17 02:58:56 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -630,11 +630,12 @@ c
          if (.not. grid_file_write) return
          cur_rec_rad=0d0
       end if
-cedo      write(6,*) ' RAD ',nctr,rad,cur_rec_rad
+      write(6,*) ' RAD ',nctr,rad,cur_rec_rad
       cur_rec_rad = max(rad,cur_rec_rad)
 c
 c     This copy can be made a lot more efficient
 c     
+      write(0,*) ' nqpts ',nqpts
       do ind = 1, nqpts
          if (n_in_rec .eq. n_per_rec) then
             grid_file_write = grid_buf_write(.false.)
