@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.25 2000-04-21 19:21:30 edo Exp $
+C$Id: xc_lebedev.F,v 1.26 2000-06-15 21:35:19 edo Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -4055,8 +4055,8 @@ c
                isi = isig(i,ks)
                do 57  j = 1, 3
 57    goh(i,j,nop) = isi*itop(i,j,iv)
-      fasf(2) = 1.d0/sqrt(2.d0)
-      fasf(3) = 1.d0/sqrt(3.d0)
+      fasf(2) = sqrt(2.d0)
+      fasf(3) = sqrt(3.d0)
 c
       do ia = 1,iangquad
 c
@@ -4078,13 +4078,25 @@ c
                do 20 k = 1,njk(j,iaz)
                   jk = jk + 1
                   jk1 = jk1 + 1
-                  x0 = gjk(1,jk)*fasfj
-                  y0 = gjk(2,jk)*fasfj
-                  gjkt1=x0*x0+y0*y0
-                  if(gjkt1.lt.1.d0) then
-                    z0=dsqrt(1.d0-gjkt1)
+                  if(fasfj.ne.1d0) then
+                     x0 = gjk(1,jk)/fasfj
+                     y0 = gjk(2,jk)/fasfj
+                     gjkt1=x0*x0+y0*y0
+                     if(abs(gjkt1-1.d0).gt.1d-8) then
+                        z0=sqrt(fasfj*fasfj-gjk(1,jk)*gjk(1,jk)-
+     -                       gjk(2,jk)*gjk(2,jk))/fasfj
+                     else
+                        z0=0.d0
+                     endif
                   else
-                    z0=0.d0
+                     x0 = gjk(1,jk)
+                     y0 = gjk(2,jk)
+                     gjkt1=x0*x0+y0*y0
+                     if(abs(gjkt1-1.d0).gt.1d-8) then
+                        z0=sqrt(1d0-gjkt1)
+                     else
+                        z0=0.d0
+                     endif
                   endif
 C                  if (oprint)write(LuOut,207)
                      if (oprint)write(LuOut,209)wleb(jk),
