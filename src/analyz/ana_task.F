@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.74 2002-04-30 16:46:29 d3j191 Exp $
+c $Id: ana_task.F,v 1.75 2002-04-30 20:30:30 d3j191 Exp $
 c
       implicit none
 c
@@ -1088,11 +1088,11 @@ c
       if(filcop(1:1).ne.' ') then
       if(fmt.eq.'pdb') then
       call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
-     + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.false.,
+     + dbl_mb(i_xadat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.false.,
      + int_mb(i_ndxw))
       elseif(fmt.eq.'xyz') then
       call ana_wrtxyz(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
-     + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
+     + dbl_mb(i_xadat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
      + .false.,.false.,int_mb(i_ndxw))
       endif
       if(lsaver) then
