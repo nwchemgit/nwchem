@@ -36,7 +36,7 @@ The "list of modules" should be a blank-separated list of the
 directories that are to be included in the build.  Order is not
 important.  Currently recognized modules are:
 	NWints atomscf ddscf develop gradients ideaz moints nwdft rimp2 
-	stepper symmetry
+	stepper driver
 There are also a couple of shorthand "modules" which are recognized.
 	all	everything except ideaz (the source is not available to all)
 	qm	excludes develop and ideaz

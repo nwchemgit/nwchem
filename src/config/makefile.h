@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.203 1997-02-17 20:31:13 d3g681 Exp $
+# $Id: makefile.h,v 1.204 1997-02-17 21:42:30 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -139,7 +139,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #
 # CORE_SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
 #                 are needed on this machine.
-# MODULE_SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
+# MODULE_SUBDIRS_EXTRA = List of additional directories (e.g., stepper) that
 #                 are needed for top-level modules on this machine.
 #		  (Should not normally be used)
 #
