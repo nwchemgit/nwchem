@@ -21,6 +21,15 @@ endif
 ifeq ($(TARGET),CRAY)
        PRECISION = single
 endif
+ifeq ($(TARGET),PARAGON)
+       PRECISION = double
+endif
+ifeq ($(TARGET),DELTA)
+       PRECISION = double
+endif
+ifeq ($(TARGET),IPSC)
+       PRECISION = double
+endif
 
 ifeq ($(PRECISION),double)
          OBJ = dlabrd.o   dlarfb.o   dlasv2.o   dormlq.o \
