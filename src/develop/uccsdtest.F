@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.10 2000-04-28 00:58:06 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.11 2000-04-29 00:38:07 d3h449 Exp $
 *
       implicit none
 #include "global.fh"
@@ -1946,25 +1946,25 @@ c
 c
 c     temp buffers for t2 and ints 
 c
-      double precision t2aa_ecji(5000), iaa_ekab(5000),
-     &                 t2aa_ecjk(5000), iaa_eiab(5000),
-     &                 t2aa_ecki(5000), iaa_ejab(5000),
-     &                 t2aa_eaji(5000), iaa_ekcb(5000),
-     &                 t2aa_ebji(5000), iaa_ekac(5000),
-     &                 t2aa_eajk(5000), iaa_eicb(5000),
-     &                 t2aa_ebjk(5000), iaa_eiac(5000),
-     &                 t2aa_eaki(5000), iaa_ejcb(5000),
-     &                 t2aa_ebki(5000), iaa_ejac(5000)
-c
-      double precision t2aa_mkab(5000), iaa_mcji(5000),
-     &                 t2aa_miab(5000), iaa_mcjk(5000),
-     &                 t2aa_mjab(5000), iaa_mcki(5000),
-     &                 t2aa_mkcb(5000), iaa_maji(5000),
-     &                 t2aa_mkac(5000), iaa_mbji(5000),
-     &                 t2aa_micb(5000), iaa_majk(5000),
-     &                 t2aa_miac(5000), iaa_mbjk(5000),
-     &                 t2aa_mjcb(5000), iaa_maki(5000),
-     &                 t2aa_mjac(5000), iaa_mbki(5000)
+c      double precision t2aa_ecji(5000), iaa_ekab(5000),
+c     &                 t2aa_ecjk(5000), iaa_eiab(5000),
+c     &                 t2aa_ecki(5000), iaa_ejab(5000),
+c     &                 t2aa_eaji(5000), iaa_ekcb(5000),
+c     &                 t2aa_ebji(5000), iaa_ekac(5000),
+c     &                 t2aa_eajk(5000), iaa_eicb(5000),
+c     &                 t2aa_ebjk(5000), iaa_eiac(5000),
+c     &                 t2aa_eaki(5000), iaa_ejcb(5000),
+c     &                 t2aa_ebki(5000), iaa_ejac(5000)
+cc
+c      double precision t2aa_mkab(5000), iaa_mcji(5000),
+c     &                 t2aa_miab(5000), iaa_mcjk(5000),
+c     &                 t2aa_mjab(5000), iaa_mcki(5000),
+c     &                 t2aa_mkcb(5000), iaa_maji(5000),
+c     &                 t2aa_mkac(5000), iaa_mbji(5000),
+c     &                 t2aa_micb(5000), iaa_majk(5000),
+c     &                 t2aa_miac(5000), iaa_mbjk(5000),
+c     &                 t2aa_mjcb(5000), iaa_maki(5000),
+c     &                 t2aa_mjac(5000), iaa_mbki(5000)
 c
       double precision iaa_ijab(5000),
      &                 iaa_kjab(5000),
@@ -1976,7 +1976,8 @@ c
      &                 iaa_ikcb(5000),
      &                 iaa_ikac(5000)
 c
-      double precision int_buf(5000), w(100000), v(100000)
+c      double precision int_buf(5000), t_buf(5000), w(100000), v(100000)
+      double precision int_buf(5000), t_buf(5000), w(100000)
 c
 c      double precision ge, gm, gs
 c      ge(i,j,k,a,b,c,e) = t2aa(c,e,i,j)*
@@ -2054,43 +2055,43 @@ c
 c
 c     zero all the buffers
 c
-                        call dfill (5000, 0.0d0, t2aa_ecji, 1)
-                        call dfill (5000, 0.0d0, iaa_ekab, 1)
-                        call dfill (5000, 0.0d0, t2aa_ecjk, 1)
-                        call dfill (5000, 0.0d0, iaa_eiab, 1)
-                        call dfill (5000, 0.0d0, t2aa_ecki, 1)
-                        call dfill (5000, 0.0d0, iaa_ejab, 1)
-                        call dfill (5000, 0.0d0, t2aa_eaji, 1)
-                        call dfill (5000, 0.0d0, iaa_ekcb, 1)
-                        call dfill (5000, 0.0d0, t2aa_ebji, 1)
-                        call dfill (5000, 0.0d0, iaa_ekac, 1)
-                        call dfill (5000, 0.0d0, t2aa_eajk, 1)
-                        call dfill (5000, 0.0d0, iaa_eicb, 1)
-                        call dfill (5000, 0.0d0, t2aa_ebjk, 1)
-                        call dfill (5000, 0.0d0, iaa_eiac, 1)
-                        call dfill (5000, 0.0d0, t2aa_eaki, 1)
-                        call dfill (5000, 0.0d0, iaa_ejcb, 1)
-                        call dfill (5000, 0.0d0, t2aa_ebki, 1)
-                        call dfill (5000, 0.0d0, iaa_ejac, 1)
-c
-                        call dfill (5000, 0.0d0, t2aa_mkab, 1)
-                        call dfill (5000, 0.0d0, iaa_mcji, 1)
-                        call dfill (5000, 0.0d0, t2aa_miab, 1)
-                        call dfill (5000, 0.0d0, iaa_mcjk, 1)
-                        call dfill (5000, 0.0d0, t2aa_mjab, 1)
-                        call dfill (5000, 0.0d0, iaa_mcki, 1)
-                        call dfill (5000, 0.0d0, t2aa_mkcb, 1)
-                        call dfill (5000, 0.0d0, iaa_maji, 1)
-                        call dfill (5000, 0.0d0, t2aa_mkac, 1)
-                        call dfill (5000, 0.0d0, iaa_mbji, 1)
-                        call dfill (5000, 0.0d0, t2aa_micb, 1)
-                        call dfill (5000, 0.0d0, iaa_majk, 1)
-                        call dfill (5000, 0.0d0, t2aa_miac, 1)
-                        call dfill (5000, 0.0d0, iaa_mbjk, 1)
-                        call dfill (5000, 0.0d0, t2aa_mjcb, 1)
-                        call dfill (5000, 0.0d0, iaa_maki, 1)
-                        call dfill (5000, 0.0d0, t2aa_mjac, 1)
-                        call dfill (5000, 0.0d0, iaa_mbki, 1)
+c                        call dfill (5000, 0.0d0, t2aa_ecji, 1)
+c                        call dfill (5000, 0.0d0, iaa_ekab, 1)
+c                        call dfill (5000, 0.0d0, t2aa_ecjk, 1)
+c                        call dfill (5000, 0.0d0, iaa_eiab, 1)
+c                        call dfill (5000, 0.0d0, t2aa_ecki, 1)
+c                        call dfill (5000, 0.0d0, iaa_ejab, 1)
+c                        call dfill (5000, 0.0d0, t2aa_eaji, 1)
+c                        call dfill (5000, 0.0d0, iaa_ekcb, 1)
+c                        call dfill (5000, 0.0d0, t2aa_ebji, 1)
+c                        call dfill (5000, 0.0d0, iaa_ekac, 1)
+c                        call dfill (5000, 0.0d0, t2aa_eajk, 1)
+c                        call dfill (5000, 0.0d0, iaa_eicb, 1)
+c                        call dfill (5000, 0.0d0, t2aa_ebjk, 1)
+c                        call dfill (5000, 0.0d0, iaa_eiac, 1)
+c                        call dfill (5000, 0.0d0, t2aa_eaki, 1)
+c                        call dfill (5000, 0.0d0, iaa_ejcb, 1)
+c                        call dfill (5000, 0.0d0, t2aa_ebki, 1)
+c                        call dfill (5000, 0.0d0, iaa_ejac, 1)
+cc
+c                        call dfill (5000, 0.0d0, t2aa_mkab, 1)
+c                        call dfill (5000, 0.0d0, iaa_mcji, 1)
+c                        call dfill (5000, 0.0d0, t2aa_miab, 1)
+c                        call dfill (5000, 0.0d0, iaa_mcjk, 1)
+c                        call dfill (5000, 0.0d0, t2aa_mjab, 1)
+c                        call dfill (5000, 0.0d0, iaa_mcki, 1)
+c                        call dfill (5000, 0.0d0, t2aa_mkcb, 1)
+c                        call dfill (5000, 0.0d0, iaa_maji, 1)
+c                        call dfill (5000, 0.0d0, t2aa_mkac, 1)
+c                        call dfill (5000, 0.0d0, iaa_mbji, 1)
+c                        call dfill (5000, 0.0d0, t2aa_micb, 1)
+c                        call dfill (5000, 0.0d0, iaa_majk, 1)
+c                        call dfill (5000, 0.0d0, t2aa_miac, 1)
+c                        call dfill (5000, 0.0d0, iaa_mbjk, 1)
+c                        call dfill (5000, 0.0d0, t2aa_mjcb, 1)
+c                        call dfill (5000, 0.0d0, iaa_maki, 1)
+c                        call dfill (5000, 0.0d0, t2aa_mjac, 1)
+c                        call dfill (5000, 0.0d0, iaa_mbki, 1)
 c
                         call dfill (5000, 0.0d0, iaa_ijab, 1)
                         call dfill (5000, 0.0d0, iaa_kjab, 1)
@@ -2101,8 +2102,9 @@ c
                         call dfill (5000, 0.0d0, iaa_kjac, 1)
                         call dfill (5000, 0.0d0, iaa_ikcb, 1)
                         call dfill (5000, 0.0d0, iaa_ikac, 1)
+c
                         call dfill (100000, 0.0d0, w, 1)
-                        call dfill (100000, 0.0d0, v, 1)
+c                        call dfill (100000, 0.0d0, v, 1)
 c
                         write(6,*)' after butt-load of dfills '
 c
@@ -2125,24 +2127,24 @@ c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi,
 c     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
 c     &                     nv_dim, no_dim, spin)
 c
-                        call uccsdt_get_3x(k_blk, a_blk, b_blk, 
-     &                     spin, spin, spin, iaa_ekab)
-                        call uccsdt_get_3x(i_blk, a_blk, b_blk, 
-     &                     spin, spin, spin, iaa_eiab)
-                        call uccsdt_get_3x(j_blk, a_blk, b_blk, 
-     &                     spin, spin, spin, iaa_ejab)
-                        call uccsdt_get_3x(k_blk, c_blk, b_blk, 
-     &                     spin, spin, spin, iaa_ekcb)
-                        call uccsdt_get_3x(k_blk, a_blk, c_blk, 
-     &                     spin, spin, spin, iaa_ekac)
-                        call uccsdt_get_3x(i_blk, c_blk, b_blk, 
-     &                     spin, spin, spin, iaa_eicb)
-                        call uccsdt_get_3x(i_blk, a_blk, c_blk, 
-     &                     spin, spin, spin, iaa_eiac)
-                        call uccsdt_get_3x(j_blk, c_blk, b_blk, 
-     &                     spin, spin, spin, iaa_ejcb)
-                        call uccsdt_get_3x(j_blk, a_blk, c_blk, 
-     &                     spin, spin, spin, iaa_ejac)
+c                        call uccsdt_get_3x(k_blk, a_blk, b_blk, 
+c     &                     spin, spin, spin, iaa_ekab)
+c                        call uccsdt_get_3x(i_blk, a_blk, b_blk, 
+c     &                     spin, spin, spin, iaa_eiab)
+c                        call uccsdt_get_3x(j_blk, a_blk, b_blk, 
+c     &                     spin, spin, spin, iaa_ejab)
+c                        call uccsdt_get_3x(k_blk, c_blk, b_blk, 
+c     &                     spin, spin, spin, iaa_ekcb)
+c                        call uccsdt_get_3x(k_blk, a_blk, c_blk, 
+c     &                     spin, spin, spin, iaa_ekac)
+c                        call uccsdt_get_3x(i_blk, c_blk, b_blk, 
+c     &                     spin, spin, spin, iaa_eicb)
+c                        call uccsdt_get_3x(i_blk, a_blk, c_blk, 
+c     &                     spin, spin, spin, iaa_eiac)
+c                        call uccsdt_get_3x(j_blk, c_blk, b_blk, 
+c     &                     spin, spin, spin, iaa_ejcb)
+c                        call uccsdt_get_3x(j_blk, a_blk, c_blk, 
+c     &                     spin, spin, spin, iaa_ejac)
 c                        call uccsdt_get_2x(i_blk, j_blk, a_blk, b_blk, 
 c     &                     spin, spin, spin, spin, iaa_ijab)
 c                        call uccsdt_get_2x(k_blk, j_blk, a_blk, b_blk, 
@@ -2161,60 +2163,60 @@ c                        call uccsdt_get_2x(i_blk, k_blk, c_blk, b_blk,
 c     &                     spin, spin, spin, spin, iaa_ikcb)
 c                        call uccsdt_get_2x(i_blk, k_blk, a_blk, c_blk, 
 c     &                     spin, spin, spin, spin, iaa_ikac)
-                        call uccsdt_get_1x(c_blk, j_blk, i_blk, 
-     &                     spin, spin, spin, iaa_mcji)
-                        call uccsdt_get_1x(c_blk, j_blk, k_blk, 
-     &                     spin, spin, spin, iaa_mcjk)
-                        call uccsdt_get_1x(c_blk, k_blk, i_blk, 
-     &                     spin, spin, spin, iaa_mcki)
-                        call uccsdt_get_1x(a_blk, j_blk, i_blk, 
-     &                     spin, spin, spin, iaa_maji)
-                        call uccsdt_get_1x(b_blk, j_blk, i_blk, 
-     &                     spin, spin, spin, iaa_mbji)
-                        call uccsdt_get_1x(a_blk, j_blk, k_blk, 
-     &                     spin, spin, spin, iaa_majk)
-                        call uccsdt_get_1x(b_blk, j_blk, k_blk, 
-     &                     spin, spin, spin, iaa_mbjk)
-                        call uccsdt_get_1x(a_blk, k_blk, i_blk, 
-     &                     spin, spin, spin, iaa_maki)
-                        call uccsdt_get_1x(b_blk, k_blk, i_blk, 
-     &                     spin, spin, spin, iaa_mbki)
-                        call uccsdt_get_t3x(c_blk, j_blk, i_blk, 
-     &                     spin, spin, spin, t2aa_ecji)
-                        call uccsdt_get_t3x(c_blk, j_blk, k_blk, 
-     &                     spin, spin, spin, t2aa_ecjk)
-                        call uccsdt_get_t3x(c_blk, k_blk, i_blk, 
-     &                     spin, spin, spin, t2aa_ecki)
-                        call uccsdt_get_t3x(a_blk, j_blk, i_blk, 
-     &                     spin, spin, spin, t2aa_eaji)
-                        call uccsdt_get_t3x(b_blk, j_blk, i_blk, 
-     &                     spin, spin, spin, t2aa_ebji)
-                        call uccsdt_get_t3x(a_blk, j_blk, k_blk, 
-     &                     spin, spin, spin, t2aa_eajk)
-                        call uccsdt_get_t3x(b_blk, j_blk, k_blk, 
-     &                     spin, spin, spin, t2aa_ebjk)
-                        call uccsdt_get_t3x(a_blk, k_blk, i_blk, 
-     &                     spin, spin, spin, t2aa_eaki)
-                        call uccsdt_get_t3x(b_blk, k_blk, i_blk, 
-     &                     spin, spin, spin, t2aa_ebki)
-                        call uccsdt_get_t1x(k_blk, a_blk, b_blk, 
-     &                     spin, spin, spin, t2aa_mkab)
-                        call uccsdt_get_t1x(i_blk, a_blk, b_blk, 
-     &                     spin, spin, spin, t2aa_miab)
-                        call uccsdt_get_t1x(j_blk, a_blk, b_blk, 
-     &                     spin, spin, spin, t2aa_mjab)
-                        call uccsdt_get_t1x(k_blk, c_blk, b_blk, 
-     &                     spin, spin, spin, t2aa_mkcb)
-                        call uccsdt_get_t1x(k_blk, a_blk, c_blk, 
-     &                     spin, spin, spin, t2aa_mkac)
-                        call uccsdt_get_t1x(i_blk, c_blk, b_blk, 
-     &                     spin, spin, spin, t2aa_micb)
-                        call uccsdt_get_t1x(i_blk, a_blk, c_blk, 
-     &                     spin, spin, spin, t2aa_miac)
-                        call uccsdt_get_t1x(j_blk, c_blk, b_blk, 
-     &                     spin, spin, spin, t2aa_mjcb)
-                        call uccsdt_get_t1x(j_blk, a_blk, c_blk, 
-     &                     spin, spin, spin, t2aa_mjac)
+c                        call uccsdt_get_1x(c_blk, j_blk, i_blk, 
+c     &                     spin, spin, spin, iaa_mcji)
+c                        call uccsdt_get_1x(c_blk, j_blk, k_blk, 
+c     &                     spin, spin, spin, iaa_mcjk)
+c                        call uccsdt_get_1x(c_blk, k_blk, i_blk, 
+c     &                     spin, spin, spin, iaa_mcki)
+c                        call uccsdt_get_1x(a_blk, j_blk, i_blk, 
+c     &                     spin, spin, spin, iaa_maji)
+c                        call uccsdt_get_1x(b_blk, j_blk, i_blk, 
+c     &                     spin, spin, spin, iaa_mbji)
+c                        call uccsdt_get_1x(a_blk, j_blk, k_blk, 
+c     &                     spin, spin, spin, iaa_majk)
+c                        call uccsdt_get_1x(b_blk, j_blk, k_blk, 
+c     &                     spin, spin, spin, iaa_mbjk)
+c                        call uccsdt_get_1x(a_blk, k_blk, i_blk, 
+c     &                     spin, spin, spin, iaa_maki)
+c                        call uccsdt_get_1x(b_blk, k_blk, i_blk, 
+c     &                     spin, spin, spin, iaa_mbki)
+c                        call uccsdt_get_t3x(c_blk, j_blk, i_blk, 
+c     &                     spin, spin, spin, t2aa_ecji)
+c                        call uccsdt_get_t3x(c_blk, j_blk, k_blk, 
+c     &                     spin, spin, spin, t2aa_ecjk)
+c                        call uccsdt_get_t3x(c_blk, k_blk, i_blk, 
+c     &                     spin, spin, spin, t2aa_ecki)
+c                        call uccsdt_get_t3x(a_blk, j_blk, i_blk, 
+c     &                     spin, spin, spin, t2aa_eaji)
+c                        call uccsdt_get_t3x(b_blk, j_blk, i_blk, 
+c     &                     spin, spin, spin, t2aa_ebji)
+c                        call uccsdt_get_t3x(a_blk, j_blk, k_blk, 
+c     &                     spin, spin, spin, t2aa_eajk)
+c                        call uccsdt_get_t3x(b_blk, j_blk, k_blk, 
+c     &                     spin, spin, spin, t2aa_ebjk)
+c                        call uccsdt_get_t3x(a_blk, k_blk, i_blk, 
+c     &                     spin, spin, spin, t2aa_eaki)
+c                        call uccsdt_get_t3x(b_blk, k_blk, i_blk, 
+c     &                     spin, spin, spin, t2aa_ebki)
+c                        call uccsdt_get_t1x(k_blk, a_blk, b_blk, 
+c     &                     spin, spin, spin, t2aa_mkab)
+c                        call uccsdt_get_t1x(i_blk, a_blk, b_blk, 
+c     &                     spin, spin, spin, t2aa_miab)
+c                        call uccsdt_get_t1x(j_blk, a_blk, b_blk, 
+c     &                     spin, spin, spin, t2aa_mjab)
+c                        call uccsdt_get_t1x(k_blk, c_blk, b_blk, 
+c     &                     spin, spin, spin, t2aa_mkcb)
+c                        call uccsdt_get_t1x(k_blk, a_blk, c_blk, 
+c     &                     spin, spin, spin, t2aa_mkac)
+c                        call uccsdt_get_t1x(i_blk, c_blk, b_blk, 
+c     &                     spin, spin, spin, t2aa_micb)
+c                        call uccsdt_get_t1x(i_blk, a_blk, c_blk, 
+c     &                     spin, spin, spin, t2aa_miac)
+c                        call uccsdt_get_t1x(j_blk, c_blk, b_blk, 
+c     &                     spin, spin, spin, t2aa_mjcb)
+c                        call uccsdt_get_t1x(j_blk, a_blk, c_blk, 
+c     &                     spin, spin, spin, t2aa_mjac)
 c
 c                        call triples_temp_dump_buffers(
 c     &                     t2aa_ecji, iaa_ekab, t2aa_ecjk, iaa_eiab,
@@ -2234,236 +2236,350 @@ c     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
 c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
 c     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi)
 c
-                        call uccsdtest_triples_pure_blocked_energy_45
-     &                    (t1a, evals, energy,
-     &                     t2aa_ecji, iaa_ekab, t2aa_ecjk, iaa_eiab,
-     &                     t2aa_ecki, iaa_ejab, t2aa_eaji, iaa_ekcb,
-     &                     t2aa_ebji, iaa_ekac, t2aa_eajk, iaa_eicb,
-     &                     t2aa_ebjk, iaa_eiac, t2aa_eaki, iaa_ejcb,
-     &                     t2aa_ebki, iaa_ejac, t2aa_mkab, iaa_mcji,
-     &                     t2aa_miab, iaa_mcjk, t2aa_mjab, iaa_mcki,
-     &                     t2aa_mkcb, iaa_maji, t2aa_mkac, iaa_mbji,
-     &                     t2aa_micb, iaa_majk, t2aa_miac, iaa_mbjk,
-     &                     t2aa_mjcb, iaa_maki, t2aa_mjac, iaa_mbki,
+c                        call uccsdtest_triples_pure_blocked_energy_45
+c     &                    (t1a, evals, energy,
+c     &                     t2aa_ecji, iaa_ekab, t2aa_ecjk, iaa_eiab,
+c     &                     t2aa_ecki, iaa_ejab, t2aa_eaji, iaa_ekcb,
+c     &                     t2aa_ebji, iaa_ekac, t2aa_eajk, iaa_eicb,
+c     &                     t2aa_ebjk, iaa_eiac, t2aa_eaki, iaa_ejcb,
+c     &                     t2aa_ebki, iaa_ejac, t2aa_mkab, iaa_mcji,
+c     &                     t2aa_miab, iaa_mcjk, t2aa_mjab, iaa_mcki,
+c     &                     t2aa_mkcb, iaa_maji, t2aa_mkac, iaa_mbji,
+c     &                     t2aa_micb, iaa_majk, t2aa_miac, iaa_mbjk,
+c     &                     t2aa_mjcb, iaa_maki, t2aa_mjac, iaa_mbki,
+c     &                     iaa_ijab,  iaa_kjab, iaa_ikab,  iaa_ijcb,
+c     &                     iaa_ijac,  iaa_kjcb, iaa_kjac,  iaa_ikcb,
+c     &                     iaa_ikac,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c
+                        call uccsdt_get_t3x(c_blk, j_blk, i_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(k_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_ecji_iaa_ekab
+     &                    (w, t_buf, int_buf,
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(c_blk, j_blk, k_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(i_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_ecjk_iaa_eiab
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(c_blk, k_blk, i_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(j_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_ecki_iaa_ejab
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(a_blk, j_blk, i_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(k_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_eaji_iaa_ekcb
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(b_blk, j_blk, i_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(k_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_ebji_iaa_ekac
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(a_blk, j_blk, k_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(i_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_eajk_iaa_eicb
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(b_blk, j_blk, k_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(i_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_ebjk_iaa_eiac
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(a_blk, k_blk, i_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(j_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_eaki_iaa_ejcb
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t3x(b_blk, k_blk, i_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_3x(j_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_ebki_iaa_ejac
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(k_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(c_blk, j_blk, i_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_mkab_iaa_mcji
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(i_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(c_blk, j_blk, k_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_miab_iaa_mcjk
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(j_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(c_blk, k_blk, i_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_mjab_iaa_mcki
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(k_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(a_blk, j_blk, i_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_mkcb_iaa_maji
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(k_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(b_blk, j_blk, i_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_mkac_iaa_mbji
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(i_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(a_blk, j_blk, k_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_micb_iaa_majk
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(i_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(b_blk, j_blk, k_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_miac_iaa_mbjk
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(j_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(a_blk, k_blk, i_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_mjcb_iaa_maki
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+                        call uccsdt_get_t1x(j_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, t_buf)
+                        call uccsdt_get_1x(b_blk, k_blk, i_blk, 
+     &                     spin, spin, spin, int_buf)
+                        call w_t2aa_mjac_iaa_mbki
+     &                    (w, t_buf, int_buf, 
+     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+     &                     c_blk_lo, c_blk_hi,
+     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
+     &                     spin)
+c
+c                        call dcopy(100000, w, 1, v, 1)
+c
+c                        call w_t1a_iaa_ijab
+c     &                    (v, w, t1a, iaa_ijab,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_kjab
+c     &                    (v, w, t1a, iaa_kjab,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_ikab
+c     &                    (v, w, t1a, iaa_ikab,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_ijcb
+c     &                    (v, w, t1a, iaa_ijcb,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_ijac
+c     &                    (v, w, t1a, iaa_ijac,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_kjcb
+c     &                    (v, w, t1a, iaa_kjcb,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_kjac
+c     &                    (v, w, t1a, iaa_kjac,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_ikcb
+c     &                    (v, w, t1a, iaa_ikcb,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c                        call w_t1a_iaa_ikac
+c     &                    (v, w, t1a, iaa_ikac,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi,
+c     &                     nv_dim, no_dim, spin)
+c
+                        call uccsdt_get_2x(i_blk, j_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, spin, iaa_ijab)
+                        call uccsdt_get_2x(k_blk, j_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, spin, iaa_kjab)
+                        call uccsdt_get_2x(i_blk, k_blk, a_blk, b_blk, 
+     &                     spin, spin, spin, spin, iaa_ikab)
+                        call uccsdt_get_2x(i_blk, j_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, spin, iaa_ijcb)
+                        call uccsdt_get_2x(i_blk, j_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, spin, iaa_ijac)
+                        call uccsdt_get_2x(k_blk, j_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, spin, iaa_kjcb)
+                        call uccsdt_get_2x(k_blk, j_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, spin, iaa_kjac)
+                        call uccsdt_get_2x(i_blk, k_blk, c_blk, b_blk, 
+     &                     spin, spin, spin, spin, iaa_ikcb)
+                        call uccsdt_get_2x(i_blk, k_blk, a_blk, c_blk, 
+     &                     spin, spin, spin, spin, iaa_ikac)
+c
+                        call w_t1a_iaa_energy
+     &                    (w, t1a, evals, energy,
      &                     iaa_ijab,  iaa_kjab, iaa_ikab,  iaa_ijcb,
      &                     iaa_ijac,  iaa_kjcb, iaa_kjac,  iaa_ikcb,
      &                     iaa_ikac,
      &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-c
-                        call w_t2aa_ecji_iaa_ekab
-     &                    (w, t2aa_ecji, iaa_ekab,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_ecjk_iaa_eiab
-     &                    (w, t2aa_ecjk, iaa_eiab, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_ecki_iaa_ejab
-     &                    (w, t2aa_ecki, iaa_ejab, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_eaji_iaa_ekcb
-     &                    (w, t2aa_eaji, iaa_ekcb, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_ebji_iaa_ekac
-     &                    (w, t2aa_ebji, iaa_ekac, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_eajk_iaa_eicb
-     &                    (w, t2aa_eajk, iaa_eicb, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_ebjk_iaa_eiac
-     &                    (w, t2aa_ebjk, iaa_eiac, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_eaki_iaa_ejcb
-     &                    (w, t2aa_eaki, iaa_ejcb, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_ebki_iaa_ejac
-     &                    (w, t2aa_ebki, iaa_ejac, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_mkab_iaa_mcji
-     &                    (w, t2aa_mkab, iaa_mcji, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_miab_iaa_mcjk
-     &                    (w, t2aa_miab, iaa_mcjk, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_mjab_iaa_mcki
-     &                    (w, t2aa_mjab, iaa_mcki, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_mkcb_iaa_maji
-     &                    (w, t2aa_mkcb, iaa_maji, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_mkac_iaa_mbji
-     &                    (w, t2aa_mkac, iaa_mbji, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_micb_iaa_majk
-     &                    (w, t2aa_micb, iaa_majk, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_miac_iaa_mbjk
-     &                    (w, t2aa_miac, iaa_mbjk, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_mjcb_iaa_maki
-     &                    (w, t2aa_mjcb, iaa_maki, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t2aa_mjac_iaa_mbki
-     &                    (w, t2aa_mjac, iaa_mbki, 
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     spin)
-                        call w_t1a_iaa_ijab
-     &                    (v, w, t1a, iaa_ijab,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_kjab
-     &                    (v, w, t1a, iaa_kjab,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_ikab
-     &                    (v, w, t1a, iaa_ikab,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_ijcb
-     &                    (v, w, t1a, iaa_ijcb,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_ijac
-     &                    (v, w, t1a, iaa_ijac,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_kjcb
-     &                    (v, w, t1a, iaa_kjcb,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_kjac
-     &                    (v, w, t1a, iaa_kjac,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_ikcb
-     &                    (v, w, t1a, iaa_ikcb,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_t1a_iaa_ikac
-     &                    (v, w, t1a, iaa_ikac,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
-     &                     c_blk_lo, c_blk_hi, e_blk_lo, e_blk_hi,
-     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi, m_blk_lo, m_blk_hi,
-     &                     nv_dim, no_dim, spin)
-                        call w_v_d_energy
-     &                    (v, w, evals, energy2,
-     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
      &                     c_blk_lo, c_blk_hi,
      &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
-     &                     k_blk_lo, k_blk_hi)
+     &                     k_blk_lo, k_blk_hi,
+     &                     nv_dim, no_dim, spin)
 c
-      write(6,*) ' E(45) block', energy
-c
-      write(6,*) ' E(2) block', energy2
-c
+c                        call w_v_d_energy
+c     &                    (v, w, evals, energy2,
+c     &                     a_blk_lo, a_blk_hi, b_blk_lo, b_blk_hi, 
+c     &                     c_blk_lo, c_blk_hi,
+c     &                     i_blk_lo, i_blk_hi, j_blk_lo, j_blk_hi, 
+c     &                     k_blk_lo, k_blk_hi)
                      end do
                   end do
                end do
             end do
          end do
       end do
-c
-      write(6,*) ' E(45) ', energy
-c
-      write(6,*) ' E(2) ', energy2
 c
       uccsdtest_triples_pure_blocked = energy
 c
@@ -3638,28 +3754,26 @@ c
          end do
       end do
 c
-      write(6,*) ' E ', energy
+      write(6,*) ' E(45) block', energy
 c
-c end block loops
       return
       end
       subroutine w_t2aa_ecji_iaa_ekab
      &  (w, t2aa_ecji, iaa_ekab, 
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_ecji(elo:ehi,clo:chi,jlo:jhi,ilo:ihi)
       double precision iaa_ekab(elo:ehi,klo:khi,alo:ahi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3667,12 +3781,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_ecji(e,c,j,i)*
      &                             iaa_ekab(e,k,a,b)
                         end do
@@ -3687,20 +3801,19 @@ c
       subroutine w_t2aa_ecjk_iaa_eiab
      &  (w, t2aa_ecjk, iaa_eiab,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_ecjk(elo:ehi,clo:chi,jlo:jhi,klo:khi)
       double precision iaa_eiab(elo:ehi,ilo:ihi,alo:ahi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3708,12 +3821,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_ecjk(e,c,j,k)*
      &                             iaa_eiab(e,i,a,b)
                         end do
@@ -3728,20 +3841,19 @@ c
       subroutine w_t2aa_ecki_iaa_ejab
      &  (w, t2aa_ecki, iaa_ejab,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_ecki(elo:ehi,clo:chi,klo:khi,ilo:ihi)
       double precision iaa_ejab(elo:ehi,jlo:jhi,alo:ahi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3749,12 +3861,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_ecki(e,c,k,i)*
      &                             iaa_ejab(e,j,a,b)
                         end do
@@ -3769,20 +3881,19 @@ c
       subroutine w_t2aa_eaji_iaa_ekcb
      &  (w, t2aa_eaji, iaa_ekcb,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_eaji(elo:ehi,alo:ahi,jlo:jhi,ilo:ihi)
       double precision iaa_ekcb(elo:ehi,klo:khi,clo:chi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3790,12 +3901,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_eaji(e,a,j,i)*
      &                             iaa_ekcb(e,k,c,b)
                         end do
@@ -3810,20 +3921,19 @@ c
       subroutine w_t2aa_ebji_iaa_ekac
      &  (w, t2aa_ebji, iaa_ekac,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_ebji(elo:ehi,blo:bhi,jlo:jhi,ilo:ihi)
       double precision iaa_ekac(elo:ehi,klo:khi,alo:ahi,clo:chi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3831,12 +3941,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_ebji(e,b,j,i)*
      &                             iaa_ekac(e,k,a,c)
                         end do
@@ -3851,20 +3961,19 @@ c
       subroutine w_t2aa_eajk_iaa_eicb
      &  (w, t2aa_eajk, iaa_eicb,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_eajk(elo:ehi,alo:ahi,jlo:jhi,klo:khi)
       double precision iaa_eicb(elo:ehi,ilo:ihi,clo:chi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3872,12 +3981,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_eajk(e,a,j,k)*
      &                             iaa_eicb(e,i,c,b)
                         end do
@@ -3892,20 +4001,19 @@ c
       subroutine w_t2aa_ebjk_iaa_eiac
      &  (w, t2aa_ebjk, iaa_eiac,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_ebjk(elo:ehi,blo:bhi,jlo:jhi,klo:khi)
       double precision iaa_eiac(elo:ehi,ilo:ihi,alo:ahi,clo:chi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3913,12 +4021,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_ebjk(e,b,j,k)*
      &                             iaa_eiac(e,i,a,c)
                         end do
@@ -3933,20 +4041,19 @@ c
       subroutine w_t2aa_eaki_iaa_ejcb
      &  (w, t2aa_eaki, iaa_ejcb,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_eaki(elo:ehi,alo:ahi,klo:khi,ilo:ihi)
       double precision iaa_ejcb(elo:ehi,jlo:jhi,clo:chi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3954,12 +4061,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_eaki(e,a,k,i)*
      &                             iaa_ejcb(e,j,c,b)
                         end do
@@ -3974,20 +4081,19 @@ c
       subroutine w_t2aa_ebki_iaa_ejac
      &  (w, t2aa_ebki, iaa_ejac,
      &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        elo, ehi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_ebki(elo:ehi,blo:bhi,klo:khi,ilo:ihi)
       double precision iaa_ejac(elo:ehi,jlo:jhi,alo:ahi,clo:chi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c, e
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -3995,12 +4101,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do e = no(spin)+1, no(spin)+nv(spin)
+                        do e = elo, ehi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_ebki(e,b,k,i)*
      &                             iaa_ejac(e,j,a,c)
                         end do
@@ -4014,21 +4120,20 @@ c
       end
       subroutine w_t2aa_mkab_iaa_mcji
      &  (w, t2aa_mkab, iaa_mcji,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_mkab(mlo:mhi,klo:khi,alo:ahi,blo:bhi)
       double precision iaa_mcji(mlo:mhi,clo:chi,jlo:jhi,ilo:ihi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4036,12 +4141,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_mkab(m,k,a,b)*
      &                             iaa_mcji(m,c,j,i)
                         end do
@@ -4055,21 +4160,20 @@ c
       end
       subroutine w_t2aa_miab_iaa_mcjk
      &  (w, t2aa_miab, iaa_mcjk,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_miab(mlo:mhi,ilo:ihi,alo:ahi,blo:bhi)
       double precision iaa_mcjk(mlo:mhi,clo:chi,jlo:jhi,klo:khi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4077,12 +4181,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_miab(m,i,a,b)*
      &                             iaa_mcjk(m,c,j,k)
                         end do
@@ -4096,21 +4200,20 @@ c
       end
       subroutine w_t2aa_mjab_iaa_mcki
      &  (w, t2aa_mjab, iaa_mcki,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_mjab(mlo:mhi,jlo:jhi,alo:ahi,blo:bhi)
       double precision iaa_mcki(mlo:mhi,clo:chi,klo:khi,ilo:ihi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4118,12 +4221,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_mjab(m,j,a,b)*
      &                             iaa_mcki(m,c,k,i)
                         end do
@@ -4137,21 +4240,20 @@ c
       end
       subroutine w_t2aa_mkcb_iaa_maji
      &  (w, t2aa_mkcb, iaa_maji,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_mkcb(mlo:mhi,klo:khi,clo:chi,blo:bhi)
       double precision iaa_maji(mlo:mhi,alo:ahi,jlo:jhi,ilo:ihi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4159,12 +4261,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_mkcb(m,k,c,b)*
      &                             iaa_maji(m,a,j,i)
                         end do
@@ -4178,21 +4280,20 @@ c
       end
       subroutine w_t2aa_mkac_iaa_mbji
      &  (w, t2aa_mkac, iaa_mbji,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_mkac(mlo:mhi,klo:khi,alo:ahi,clo:chi)
       double precision iaa_mbji(mlo:mhi,blo:bhi,jlo:jhi,ilo:ihi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4200,12 +4301,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           + t2aa_mkac(m,k,a,c)*
      &                             iaa_mbji(m,b,j,i)
                         end do
@@ -4219,21 +4320,20 @@ c
       end
       subroutine w_t2aa_micb_iaa_majk
      &  (w, t2aa_micb, iaa_majk,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_micb(mlo:mhi,ilo:ihi,clo:chi,blo:bhi)
       double precision iaa_majk(mlo:mhi,alo:ahi,jlo:jhi,klo:khi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4241,12 +4341,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_micb(m,i,c,b)*
      &                             iaa_majk(m,a,j,k)
                         end do
@@ -4260,21 +4360,20 @@ c
       end
       subroutine w_t2aa_miac_iaa_mbjk
      &  (w, t2aa_miac, iaa_mbjk,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_miac(mlo:mhi,ilo:ihi,alo:ahi,clo:chi)
       double precision iaa_mbjk(mlo:mhi,blo:bhi,jlo:jhi,klo:khi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4282,12 +4381,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_miac(m,i,a,c)*
      &                             iaa_mbjk(m,b,j,k)
                         end do
@@ -4301,21 +4400,20 @@ c
       end
       subroutine w_t2aa_mjcb_iaa_maki
      &  (w, t2aa_mjcb, iaa_maki,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_mjcb(mlo:mhi,jlo:jhi,clo:chi,blo:bhi)
       double precision iaa_maki(mlo:mhi,alo:ahi,klo:khi,ilo:ihi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4323,12 +4421,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_mjcb(m,j,c,b)*
      &                             iaa_maki(m,a,k,i)
                         end do
@@ -4342,21 +4440,20 @@ c
       end
       subroutine w_t2aa_mjac_iaa_mbki
      &  (w, t2aa_mjac, iaa_mbki,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
+     &   alo, ahi, blo, bhi, clo, chi,
      &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
      &   spin)
 c
       implicit none
-#include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, spin
+     &        mlo, mhi, spin
 c
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision t2aa_mjac(mlo:mhi,jlo:jhi,alo:ahi,clo:chi)
       double precision iaa_mbki(mlo:mhi,blo:bhi,klo:khi,ilo:ihi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, m, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4364,12 +4461,12 @@ c
                do i = ilo, ihi
                   do j = jlo, min(jhi,i-1)
                      do k = klo, min(khi,j-1)
-                        do m = 1, no(spin)
+                        do m = mlo, mhi
 c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           w(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           w(k,j,i,c,b,a) = w(k,j,i,c,b,a)
      &                           - t2aa_mjac(m,j,a,c)*
      &                             iaa_mbki(m,b,k,i)
                         end do
@@ -4382,24 +4479,22 @@ c
       return
       end
       subroutine w_t1a_iaa_ijab
-     &  (v, w, t1a, iaa_ijab,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_ijab,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_ijab(ilo:ihi,jlo:jhi,alo:ahi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4411,7 +4506,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           + t1a(c-no(spin),k)*
      &                             iaa_ijab(i,j,a,b)
                      end do
@@ -4423,24 +4518,22 @@ c
       return
       end
       subroutine w_t1a_iaa_kjab
-     &  (v, w, t1a, iaa_kjab,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_kjab,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_kjab(klo:khi,jlo:jhi,alo:ahi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4452,7 +4545,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           - t1a(c-no(spin),i)*
      &                             iaa_kjab(k,j,a,b)
                      end do
@@ -4464,24 +4557,22 @@ c
       return
       end
       subroutine w_t1a_iaa_ikab
-     &  (v, w, t1a, iaa_ikab,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_ikab,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_ikab(ilo:ihi,klo:khi,alo:ahi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4493,7 +4584,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           - t1a(c-no(spin),j)*
      &                             iaa_ikab(i,k,a,b)
                      end do
@@ -4505,24 +4596,22 @@ c
       return
       end
       subroutine w_t1a_iaa_ijcb
-     &  (v, w, t1a, iaa_ijcb,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_ijcb,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_ijcb(ilo:ihi,jlo:jhi,clo:chi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4534,7 +4623,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           - t1a(a-no(spin),k)*
      &                             iaa_ijcb(i,j,c,b)
                      end do
@@ -4546,24 +4635,22 @@ c
       return
       end
       subroutine w_t1a_iaa_ijac
-     &  (v, w, t1a, iaa_ijac,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_ijac,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_ijac(ilo:ihi,jlo:jhi,alo:ahi,clo:chi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4575,7 +4662,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           - t1a(b-no(spin),k)*
      &                             iaa_ijac(i,j,a,c)
                      end do
@@ -4587,24 +4674,22 @@ c
       return
       end
       subroutine w_t1a_iaa_kjcb
-     &  (v, w, t1a, iaa_kjcb,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_kjcb,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_kjcb(klo:khi,jlo:jhi,clo:chi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4616,7 +4701,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           + t1a(a-no(spin),i)*
      &                             iaa_kjcb(k,j,c,b)
                      end do
@@ -4628,24 +4713,22 @@ c
       return
       end
       subroutine w_t1a_iaa_kjac
-     &  (v, w, t1a, iaa_kjac,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_kjac,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_kjac(klo:khi,jlo:jhi,alo:ahi,clo:chi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4657,7 +4740,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           + t1a(b-no(spin),i)*
      &                             iaa_kjac(k,j,a,c)
                      end do
@@ -4669,24 +4752,22 @@ c
       return
       end
       subroutine w_t1a_iaa_ikcb
-     &  (v, w, t1a, iaa_ikcb,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_ikcb,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_ikcb(ilo:ihi,klo:khi,clo:chi,blo:bhi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4698,7 +4779,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           + t1a(a-no(spin),j)*
      &                             iaa_ikcb(i,k,c,b)
                      end do
@@ -4710,24 +4791,22 @@ c
       return
       end
       subroutine w_t1a_iaa_ikac
-     &  (v, w, t1a, iaa_ikac,
-     &   alo, ahi, blo, bhi, clo, chi, elo, ehi,
-     &   ilo, ihi, jlo, jhi, klo, khi, mlo, mhi,
+     &  (v, t1a, iaa_ikac,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
      &   nv_dim, no_dim, spin)
 c
       implicit none
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
-     &        elo, ehi, mlo, mhi, nv_dim, no_dim, spin
+     &        nv_dim, no_dim, spin
 c
       double precision t1a(nv_dim, no_dim)
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision iaa_ikac(ilo:ihi,klo:khi,alo:ahi,clo:chi)
-      integer i, j, k, m, a, b, c, e
+      integer i, j, k, a, b, c
 c
       do a = alo, ahi
          do b = blo, min(bhi,a-1)
@@ -4739,7 +4818,7 @@ c
 c                        write(6,*)' a,b,c,i,j,k,e: ',
 c     &                              a,b,c,i,j,k,e
 c
-                           v(a,b,c,i,j,k) = w(a,b,c,i,j,k)
+                           v(k,j,i,c,b,a) = v(k,j,i,c,b,a)
      &                           + t1a(b-no(spin),j)*
      &                             iaa_ikac(i,k,a,c)
                      end do
@@ -4748,6 +4827,89 @@ c
             end do
          end do
       end do
+      return
+      end
+      subroutine w_t1a_iaa_energy
+     &  (w, t1a, evals, energy,
+     &   iaa_ijab, iaa_kjab, iaa_ikab, iaa_ijcb,
+     &   iaa_ijac, iaa_kjcb, iaa_kjac, iaa_ikcb,
+     &   iaa_ikac,
+     &   alo, ahi, blo, bhi, clo, chi,
+     &   ilo, ihi, jlo, jhi, klo, khi,
+     &   nv_dim, no_dim, spin)
+c
+      implicit none
+#include "cuccsdtP.fh"
+      integer alo, ahi, blo, bhi, clo, chi,
+     &        ilo, ihi, jlo, jhi, klo, khi,
+     &        nv_dim, no_dim, spin
+c
+      double precision t1a(nv_dim, no_dim)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
+      double precision iaa_ijab(ilo:ihi,jlo:jhi,alo:ahi,blo:bhi)
+      double precision iaa_kjab(klo:khi,jlo:jhi,alo:ahi,blo:bhi)
+      double precision iaa_ikab(ilo:ihi,klo:khi,alo:ahi,blo:bhi)
+      double precision iaa_ijcb(ilo:ihi,jlo:jhi,clo:chi,blo:bhi)
+      double precision iaa_ijac(ilo:ihi,jlo:jhi,alo:ahi,clo:chi)
+      double precision iaa_kjcb(klo:khi,jlo:jhi,clo:chi,blo:bhi)
+      double precision iaa_kjac(klo:khi,jlo:jhi,alo:ahi,clo:chi)
+      double precision iaa_ikcb(ilo:ihi,klo:khi,clo:chi,blo:bhi)
+      double precision iaa_ikac(ilo:ihi,klo:khi,alo:ahi,clo:chi)
+      double precision evals(nmo), energy, v, d
+      integer i, j, k, a, b, c
+c
+      do a = alo, ahi
+         do b = blo, min(bhi,a-1)
+            do c = clo, min(chi,b-1)
+               do i = ilo, ihi
+                  do j = jlo, min(jhi,i-1)
+                     do k = klo, min(khi,j-1)
+c
+c                        write(6,*)' a,b,c,i,j,k: ',
+c     &                              a,b,c,i,j,k
+c
+                        v = w(k,j,i,c,b,a)
+     &                        + t1a(c-no(spin),k)*
+     &                          iaa_ijab(i,j,a,b)
+     &                        - t1a(c-no(spin),i)*
+     &                          iaa_kjab(k,j,a,b)
+     &                        - t1a(c-no(spin),j)*
+     &                          iaa_ikab(i,k,a,b)
+     &                        - t1a(a-no(spin),k)*
+     &                          iaa_ijcb(i,j,c,b)
+     &                        - t1a(b-no(spin),k)*
+     &                          iaa_ijac(i,j,a,c)
+     &                        + t1a(a-no(spin),i)*
+     &                          iaa_kjcb(k,j,c,b)
+     &                        + t1a(b-no(spin),i)*
+     &                          iaa_kjac(k,j,a,c)
+     &                        + t1a(a-no(spin),j)*
+     &                          iaa_ikcb(i,k,c,b)
+     &                        + t1a(b-no(spin),j)*
+     &                          iaa_ikac(i,k,a,c)
+c
+                        d = evals(a)+
+     &                      evals(b)+
+     &                      evals(c)-
+     &                      evals(i)-
+     &                      evals(j)-
+     &                      evals(k)
+c
+                        energy = energy - 
+     &                           v*w(k,j,i,c,b,a)/d
+c                        write(6,*)' a,b,c,i,j,k,w,v,d,energy: ',
+c     &                              a,b,c,i,j,k,w,v,d,energy
+c
+                     end do
+                  end do
+               end do
+            end do
+         end do
+      end do
+c
+      write(6,*) ' E(2) block', energy
+c
       return
       end
       subroutine w_v_d_energy
@@ -4760,10 +4922,10 @@ c
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi
 c
-      double precision v(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
-      double precision w(alo:ahi,blo:bhi,clo:chi,
-     &                   ilo:ihi,jlo:jhi,klo:khi)
+      double precision v(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
+      double precision w(klo:khi,jlo:jhi,ilo:ihi,
+     &                   clo:chi,blo:bhi,alo:ahi)
       double precision evals(nmo), energy, d
       integer i, j, k, a, b, c
 c
@@ -4785,7 +4947,7 @@ c
      &                      evals(k)
 c
                         energy = energy - 
-     &                           v(a,b,c,i,j,k)*w(a,b,c,i,j,k)/d
+     &                           v(k,j,i,c,b,a)*w(k,j,i,c,b,a)/d
 c                        write(6,*)' a,b,c,i,j,k,w,v,d,energy: ',
 c     &                              a,b,c,i,j,k,w,v,d,energy
 c
@@ -4795,5 +4957,8 @@ c
             end do
          end do
       end do
+c
+      write(6,*) ' E(2) block', energy
+c
       return
       end
