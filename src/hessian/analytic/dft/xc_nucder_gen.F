@@ -1,6 +1,6 @@
       subroutine xc_hessian(g_dens, oactive, nactive, hess)
 c
-c     $Id: xc_nucder_gen.F,v 1.2 1998-09-15 18:29:06 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.3 1998-09-25 01:26:20 bjohnson Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -10,7 +10,7 @@ c
 c
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
-      integer oactive(nactive)  ! [input] key to active atoms
+      logical oactive(nactive) ! [input] key to active atoms
       double precision hess(*)  ! [output] XC hessian matrix
 c
       call xc_deriv_gen(g_dens, oactive, nactive, hess, 0, 2)
@@ -20,7 +20,7 @@ c
 c
       subroutine xc_cpks_rhs(g_dens, oactive, nactive, g_rhs)
 c
-c     $Id: xc_nucder_gen.F,v 1.2 1998-09-15 18:29:06 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.3 1998-09-25 01:26:20 bjohnson Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -30,7 +30,7 @@ c
 c
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
-      integer oactive(nactive)  ! [input] key to active atoms
+      logical oactive(nactive) ! [input] key to active atoms
       integer g_rhs(*)          ! [output] XC CPKS RHS matrices
 c
       call xc_deriv_gen(g_dens, oactive, nactive, 0d0, g_rhs, 3)
@@ -41,7 +41,7 @@ c
       subroutine xc_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.2 1998-09-15 18:29:06 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.3 1998-09-25 01:26:20 bjohnson Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -59,7 +59,7 @@ c!!! BGJ
 c
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
-      integer oactive(nactive)  ! [input] key to active atoms
+      logical oactive(nactive)  ! [input] key to active atoms
       double precision hess(*)  ! [output] XC hessian matrix
       integer g_rhs(*)          ! [output] XC CPKS RHS matrices
       integer calc_type         ! [input] calculation type
