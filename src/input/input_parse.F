@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.33 1997-02-06 18:56:23 mdupuis Exp $
+C     $Id: input_parse.F,v 1.34 1997-03-05 23:20:43 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -55,6 +55,8 @@ c
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'scf')) then
                call scf_input(rtdb)
+            else if (inp_compare(.false.,test,'mp2')) then
+               call mp2_input(rtdb)
             else if (inp_compare(.false.,test,'time')) then
                call input_time(rtdb)
             else if (inp_compare(.false.,test,'set')) then
