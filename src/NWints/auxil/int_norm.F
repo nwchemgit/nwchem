@@ -1,15 +1,17 @@
-      logical function int_normalize(basisin)
-c $Id: int_norm.F,v 1.7 1999-12-30 22:04:47 mg201 Exp $
+      logical function int_normalize(basisin,rtdb)
+c $Id: int_norm.F,v 1.8 2000-02-04 00:55:16 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
+#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
       integer basisin             ! [input] basis handle
+      integer rtdb                ! [input] database handle
       integer basis, nucont, iucont, type, nprim, ngen, ept, cpt, igen
       integer norm_typ
       logical norm_ok
@@ -28,11 +30,14 @@ c
 c if this is a relativistic basis set, we need the primitive normalization
 c but not the general contractions.
 c     
+      if (.not. rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir))
+     &    dyall_mod_dir = .false.
       if (dyall_mod_dir) then
         norm_typ = 3
       else
         norm_typ = 1
       end if
+      write (6,*) 'int_norm: norm_typ =',norm_typ,'; basis =',basisin
 c
 c check and set basis normalization
 c
@@ -57,7 +62,7 @@ c
          if (type .ge. 0) then
             do igen = 0,ngen-1
                call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
-     $              dbl_mb(mb_exndcf(cpt+igen*nprim,basis)),
+     &              dbl_mb(mb_exndcf(cpt+igen*nprim,basis)),
      &              type, nprim, norm_typ)
             enddo
 c....... sp
@@ -72,10 +77,10 @@ c........ spd
      &           dbl_mb(mb_exndcf(cpt, basis)), 0, nprim, norm_typ) 
             call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
      &           dbl_mb(mb_exndcf(cpt+nprim,basis)),
-     $           1, nprim, norm_typ)
+     &           1, nprim, norm_typ)
             call nmcoef(dbl_mb(mb_exndcf(ept, basis)),
      &            dbl_mb(mb_exndcf(cpt+2*nprim,basis)),
-     $           2, nprim, norm_typ)
+     &           2, nprim, norm_typ)
          else
             call errquit('int_normalize: invalid contraction type', 0)
          endif
