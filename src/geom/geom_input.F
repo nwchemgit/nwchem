@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.80 1998-06-23 07:15:27 mdupuis Exp $
+C     $Id: geom_input.F,v 1.81 1998-07-04 06:30:54 gutowski Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -303,7 +303,7 @@ c
       nata=ncenter
       call sym_nwc(geom,rtdb,nata,oprint_sym,scale)
 c
-      if (oprint_sym) call sym_print_all(geom,
+      if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
      $     .true.,.true.,.true.,.true.,.true.)
 c     
 c     Center origin at the center of charge if requested
