@@ -26,6 +26,8 @@ foreach tag ($blas)
            set blas_list = ($blas_list $tag)
         endif
 end
+if ($#blas_list > 1) then
 set blas_list = ($blas_list[2-])
 echo "$file :: $blas_list"
+endif
 end
