@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.26 2002-06-17 18:03:57 d3j191 Exp $
+c $Id: md_finish.F,v 1.27 2002-06-18 15:28:45 d3j191 Exp $
 c
       implicit none
 c
@@ -48,6 +48,8 @@ c      call ma_summarize_allocated_blocks()
      + call errquit('Failed to deallocate memory for xscr',0)
       if(.not.ma_pop_stack(l_gsm))
      + call errquit('Failed to deallocate memory for gsm',0)
+      if(.not.ma_pop_stack(l_xsmp))
+     + call errquit('Failed to deallocate memory for xsmp',0)
       if(.not.ma_pop_stack(l_xsm))
      + call errquit('Failed to deallocate memory for xsm',0)
       if(.not.ma_pop_stack(l_xwcr))
