@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.37 1995-11-03 20:43:12 d3g681 Exp $
+C$Id: mointdriver.F,v 1.38 1995-11-10 23:32:11 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -34,10 +34,10 @@ c
        integer noper, oseg_lo, oseg_hi, npass, blen, max_noper, nocct
        integer noper_core
        integer g_coul, g_exch, g_epair
-       integer i, j, ij, ii
+       integer i, j, ij, ii, ipass
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
        double precision emp2, e2pair
-       double precision tpass
+       double precision tpass, tmp2
        double precision tol2e
        character*7 algo
 c
@@ -333,7 +333,6 @@ c
 c
 c
 c
-       status = ga_destroy(g_epair)
        if (ocoul) status = ga_destroy(g_coul)
        if (oexch) status = ga_destroy(g_exch)
 c
@@ -341,24 +340,58 @@ c ---------------------------
 c  Test semi-direct routine
 c ---------------------------
 c
-       ocoul = .false.
+       tmp2 = tcgtime()
+       call ga_zero(g_epair)
+       ocoul = .true.
        oexch = .true.
-       call moints_semi( basis, tol2e, ocoul, oexch,
-     $                   occ_lo, occ_hi, vir_lo, vir_hi, g_vecs )
-
+       oseg_hi = occ_lo - 1
+       ipass = 0
+c
+ 222   continue
+       tpass = tcgtime()
+       ipass = ipass + 1
+       oseg_lo = oseg_hi + 1
+       oseg_hi = min((oseg_lo + 1),occ_hi)
+c
+       call moints_semi( basis, tol2e, ocoul, oexch, oseg_lo, oseg_hi,
+     $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs )
        status = ma_push_get(MT_DBL, (nbf*nbf), 'mos', l_x, k_x )
        call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_x),nbf)
        if (oexch)
-     $    call moints_readintK( nbf, occ_lo, occ_hi, vir_lo, vir_hi,
-     $                          dbl_mb(k_x), dbl_mb(k_evals) )
+     $    call moints_readintK( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
+     $                          vir_lo, vir_hi, dbl_mb(k_x),
+     $                          dbl_mb(k_evals), g_epair )
        if (ocoul)
-     $    call moints_readintJ( nbf, occ_lo, occ_hi, vir_lo, vir_hi,
-     $                          dbl_mb(k_x), dbl_mb(k_evals) )
+     $    call moints_readintJ( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
+     $                          vir_lo, vir_hi, dbl_mb(k_x),
+     $                          dbl_mb(k_evals) )
        status = ma_pop_stack(l_x)
+       tpass = tcgtime() - tpass
+       write(6,332) ipass, oseg_lo, oseg_hi, tpass
+ 332   format('Pass:',i3,5x,'Segment:',i3,'-',i3,5x,f12.2)
+       if (oseg_hi.lt.occ_hi) goto 222
+c
+c  Sum pair energies       
+c
+       emp2 = 0.d0
+       do i=occ_lo,occ_hi
+         do j=occ_lo,i
+           ij = ((i-occ_lo+1)*(i-occ_lo))/2 + j
+           call ga_get(g_epair,1,1,ij,ij,e2pair,1)
+           emp2 = emp2 + e2pair
+         enddo
+       enddo
+       tmp2 = tcgtime() - tmp2
+       if (ga_nodeid().eq.0) then
+         write(6,999) emp2
+         write(6,881) tmp2
+ 881     format(/,'Time for semi-direct energy:',f12.3)
+         call util_flush(6)
+       endif
 c
 c
 c
-c
+       status = ga_destroy(g_epair)
        status = ma_pop_stack(l_evals)
        call schwarz_tidy()
        status = status.and.ma_pop_stack(l_occ)
