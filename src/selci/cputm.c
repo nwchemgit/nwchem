@@ -1,5 +1,5 @@
 /*
- $Id: cputm.c,v 1.8 2004-05-05 02:11:38 edo Exp $
+ $Id: cputm.c,v 1.9 2004-05-08 01:28:14 edo Exp $
  */
 
 #include <sys/types.h>
@@ -23,7 +23,11 @@ int *ai;
 #ifndef WIN32
   /* !!! Comment out function for WIN32 just so we can keep going */
 struct timeval tp;
-struct timezone tzp;
+#ifdef __INTERIX
+char tzp[10];
+#else
+void timezone tzp;
+#endif
 int i;
 
 	gettimeofday(&tp,&tzp);
