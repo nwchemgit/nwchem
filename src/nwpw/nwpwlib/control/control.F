@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.30 2002-10-09 19:11:18 bylaska Exp $
+* $Id: control.F,v 1.31 2002-10-09 19:43:13 bylaska Exp $
 *
 
 *     ***********************************
@@ -157,6 +157,10 @@
 
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei)) then
         fei = .false.
+      end if
+
+      if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench)) then
+        fei_quench = .false.
       end if
 
 
@@ -1616,6 +1620,7 @@ c      end
       return
       end
 
+
 *     ***************************
 *     *                	   	*
 *     *        control_Fei	*
@@ -1631,5 +1636,18 @@ c      end
       end
 
 
+*     ***************************
+*     *                	   	*
+*     *    control_Fei_quench	*
+*     *                  	*
+*     ***************************
+      logical function control_Fei_quench()
+      implicit none
+
+#include "control.fh"
+
+      control_Fei_quench=fei_quench
+      return
+      end
 
 
