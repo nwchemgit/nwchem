@@ -1,18 +1,18 @@
-   OBJ = dft_grad_top.o  force_dft.o \
-         getdexc.o       grad2_dft.o \
-         grad_dft.o      quaddexc0.o     \
-         get_coul_den.o  \
-         dft_bal_sum.o
-   OBJ_OPTIMIZE = grad_cdfit.o grad_xc.o  
+   OBJ = dft_grad_top.o  dftg_force.o \
+         dftg_getxc.o       dftg_grad2.o \
+         grad_dft.o      dftg_quadv0.o     \
+         dftg_get_cden.o  \
+         dftg_bal_sum.o
+   OBJ_OPTIMIZE = dftg_cdfit.o dftg_quadv0_b.o  
 ifeq ($(NWCHEM_TARGET),SGITFP)
-   OBJ = grad_cdfit.o  dft_grad_top.o  force_dft.o \
-         getdexc.o       grad2_dft.o \
-         grad_dft.o      quaddexc0.o     \
-         get_coul_den.o  \
-         dft_bal_sum.o
-   OBJ_OPTIMIZE = grad_xc.o  
+   OBJ = dftg_cdfit.o  dft_grad_top.o  dftg_force.o \
+         dftg_getxc.o       dftg_grad2.o \
+         grad_dft.o      dftg_quadv0.o     \
+         dftg_get_cden.o  \
+         dftg_bal_sum.o
+   OBJ_OPTIMIZE = dftg_quadv0_b.o  
 endif
-   USES_BLAS = force_dft.F quaddexc0.F grad_cdfit.F grad_xc.F
+   USES_BLAS = dftg_force.F dftg_quadv0.F dftg_cdfit.F dftg_quadv0_b.F
 
    LIBRARY = libdftgrad.a
 

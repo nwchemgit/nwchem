@@ -201,7 +201,7 @@ c initialize for schwarz screening
 c
       call schwarz_init (geom, ao_basis)
 c
-      call force_dft(rtdb,ao_basis,cd_basis,geom, 
+      call dftg_force(rtdb,ao_basis,cd_basis,geom, 
      &     CDFIT,movecs_out)
 c
       call schwarz_tidy ()
