@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.27 1997-03-05 23:14:42 d3g681 Exp $
+C$Id: vectors.F,v 1.28 1997-03-06 20:56:54 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -432,7 +432,7 @@ c
       goto 10
 c
       end
-      subroutine movecs_swap(rtdb,scftype,g_vecs,occ,eval)
+      subroutine movecs_swap(rtdb, module, scftype,g_vecs,occ,eval)
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -443,8 +443,9 @@ c
       character*(*) scftype
       integer rtdb, g_vecs(*)
       double precision occ(*), eval(*)
+      character*(*) module
 c
-c     In the database may be an entry 'scf:swap' (with
+c     In the database may be an entry '<module>:swap' (with
 c     alpha/beta appended for UHF) which is a list of pairs
 c     of vectors to swap.  Apply these to the input vectors, 
 c     occupation numbers and eigenvalues.  In the case of
@@ -455,12 +456,13 @@ c
       double precision tmp
       integer type, nelem, handle, index
       integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
-      integer pair, i, j, ioff, joff, set, nset
+      integer pair, i, j, ioff, joff, set, nset, mlen
       logical oprint
-      character*20 name
+      character*40 name
       character*8 text
 c
       oprint = util_print('mo guess', print_default)
+      mlen = inp_strlen(module)
 c
       if (scftype .eq. 'UHF') then
          nset = 2
@@ -469,16 +471,17 @@ c
       endif
 c
       do set = 1, nset
+         name = ' '
          if (scftype .eq. 'UHF') then
             if (set.eq.1) then
-               name = 'scf:swap alpha'
+               write(name,'(a,a)') module(1:mlen),':swap alpha'
                text = 'alpha'
             else
-               name = 'scf:swap beta'
+               write(name,'(a,a)') module(1:mlen),':swap beta'
                text = 'beta'
             endif
          else
-            name = 'scf:swap'
+            write(name,'(a,a)') module(1:mlen),':swap'
             text = scftype
          endif
          if (.not. rtdb_ma_get(rtdb, name, type, nelem, 

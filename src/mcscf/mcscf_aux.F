@@ -401,7 +401,7 @@ c
                call util_flush(6)
             endif
          endif
-         call movecs_swap(rtdb,'mcscf',g_movecs,occ,evals)
+         call movecs_swap(rtdb,'mcscf','mcscf',g_movecs,occ,evals)
          if (.not. status) call errquit('rhf: failed to load vectors',0)
       endif
 c
@@ -634,7 +634,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.22 1997-02-13 02:45:05 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.23 1997-03-06 20:57:15 d3g681 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -725,7 +725,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.22 1997-02-13 02:45:05 d3g681 Exp $
+c  $Id: mcscf_aux.F,v 1.23 1997-03-06 20:57:15 d3g681 Exp $
 c
 c   Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c   partially occupied orbitals (trivially)

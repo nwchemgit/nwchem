@@ -1,5 +1,5 @@
       subroutine scf_vectors_guess(rtdb)
-C     $Id: scf_vec_guess.F,v 1.10 1997-02-13 01:14:19 d3g681 Exp $
+C     $Id: scf_vec_guess.F,v 1.11 1997-03-06 20:56:53 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -193,7 +193,7 @@ c
 c
 c     Apply any swaps of orbitals
 c
-      call movecs_swap(rtdb, scftype, g_movecs,
+      call movecs_swap(rtdb, 'scf', scftype, g_movecs,
      $     dbl_mb(k_occ), dbl_mb(k_eval))
 c
 c     Optionally symmetry adapt the initial molecular orbitals
