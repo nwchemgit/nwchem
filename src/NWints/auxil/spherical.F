@@ -1,5 +1,5 @@
       program spherical
-* $Id: spherical.F,v 1.2 1995-07-29 23:15:05 d3e129 Exp $
+* $Id: spherical.F,v 1.3 1995-10-17 18:53:51 d3e129 Exp $
       implicit none
       integer memgot
       parameter (memgot=5000)
@@ -33,7 +33,6 @@ c
 * i.e.,
 *        x(m,l) = sum(i) cartesian(i) * d(i, m, l)
 *
-*     implicit double precision (a-h, o-z)
       implicit none
 c
 *:functions

@@ -1,5 +1,5 @@
       subroutine xlmcoeff(lmax, d, normalize)
-* $Id: xlmcoeff.F,v 1.1 1995-05-18 07:18:35 d3e129 Exp $
+* $Id: xlmcoeff.F,v 1.2 1995-10-17 18:53:52 d3e129 Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -13,7 +13,6 @@
 * i.e.,
 *        x(m,l) = sum(i) cartesian(i) * d(i, m, l)
 *
-*     implicit double precision (a-h, o-z)
       implicit none
 c
 *:functions
