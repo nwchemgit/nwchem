@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.12 2001-06-08 19:30:31 edo Exp $
+c     $Id: grad_force_so.F,v 1.13 2001-06-12 20:55:55 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -159,6 +159,7 @@ c
 
       jfac = 1.0d0              ! Only changed for DFT
       kfac = 1.0d0
+      exso=.false.
 
 C     get information about basis set
       if (.not. geom_ncent(geom,nat))
