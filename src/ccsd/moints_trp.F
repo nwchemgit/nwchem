@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_trp.F,v 1.4 1995-11-08 23:14:46 rg240 Exp $
+c  $Id: moints_trp.F,v 1.5 1995-11-19 07:19:57 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -44,7 +44,6 @@ c
        integer occ_start                      ! Offset from frozen core
        integer mo1_lo, mo1_hi                 ! 1st Pair Index range
        integer mo2_lo, mo2_hi                 ! 2nd Pair Index range
-capr       integer g_movecs                       ! MO coefficients
        integer g_coul                         ! Coulomb operator
        integer g_exch                         ! Exchange operator
        logical ocoul,oexch                    ! Type selection
@@ -72,6 +71,7 @@ c
        integer mem2, max2e
        integer num_nodes, ploop, next, nmixed, i
        integer l_sym, k_sym
+       integer g_tmp                       
        double precision tol2e, scale, schw_ij, q2
        logical status, oprint, osym, odoit
 c
@@ -108,8 +108,14 @@ c
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_trp: no memory for syms?',0)
-          call sym_movecs_adapt2( basis, 1d-8, nbf, cmo,
+          if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp))
+     $      call errquit('cannot create tmp',0)
+          call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
+          call sym_movecs_adapt( basis, 1d-8, nbf, g_tmp,
      $                            int_mb(k_sym), nmixed )
+          call ga_get(g_tmp,1,nbf,1,nbf,cmo,nbf)
+          if (.not.ga_destroy(g_tmp))
+     $      call errquit('cannot destroy tmp')
           if (nmixed .ne. 0)
      $       call errquit('moints_trp: symmetry contamination', nmixed)
           do i =0, nbf-1
