@@ -29,9 +29,8 @@ c
       if(.not. rtdb_cget(rtdb,"constraints" , 1, namespace)) then
          namespace=cons_default
       end if
-      call cons_set_namespace(namespace)
 
-      if(.not.cons_namespace(namespace,rtdb)) then
+      if(.not.cons_activate(namespace,rtdb)) then
         status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .false.)
         if(.not.status)
      &  call errquit('cons_init',0,RTDB_ERR) 
@@ -113,6 +112,7 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
 
+      call cons_load_fixed_atoms(namespace,rtdb)
       call cons_print_gen_info(rtdb)
 
       return
@@ -316,21 +316,41 @@ c     >      nhb, RTDB_ERR)
 c      end if
       end
 c
-      subroutine cons_load_fixed_atoms(namespace,nfa,rtdb)
+      subroutine cons_load_fixed_atoms(namespace,rtdb)
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "cons_data.fh"
+#include "cons.fh"
+#include "geom.fh"
 c     
       character*(*) namespace
-      integer nfa
       integer rtdb
 c
+      integer nfa
+      integer i,j,id
       logical status
       character(255) tag_id
       character(255) tag_n
       integer h_tmp_id,i_tmp_id 
+      integer h_tmp_id1,i_tmp_id1 
+      integer h_active,i_active
+      integer nat
+      integer geom
+c
+c     load geometry 
+c     -------------
+      if (.not. geom_create(geom, 'geometry'))
+     &     call errquit('cons_init: geom_create?',70, GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &     call errquit('cons_init: no geometry ',72, RTDB_ERR)
+c
+c     get number of atoms
+c     --------------------
+      status=geom_ncent(geom,nat)
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+
 c
       call cons_fxd_atoms_id_tag(namespace,tag_id)
       call cons_fxd_atoms_n_tag(namespace,tag_n)
@@ -347,6 +367,61 @@ c
      &      h_tmp_id, i_tmp_id) ) call errquit(
      &      'cons_add_fixed_atoms: unable to allocate scratch space',
      &      nfa, MA_ERR)
+
+      if ( .not. ma_push_get( MT_INT, nat-nfa, 'h_tmp_id1',
+     &      h_tmp_id1, i_tmp_id1) ) call errquit(
+     &      'cons_add_fixed_atoms: unable to allocate scratch space',
+     &      nfa, MA_ERR)
+
+      if ( .not. ma_push_get( MT_LOG, nat, 'h_active',
+     &      h_active, i_active) ) call errquit(
+     &      'cons_add_fixed_atoms: unable to allocate scratch space',
+     &      nfa, MA_ERR)
+
+        status = rtdb_get(rtdb,tag_id,
+     >     mt_int,nfa,int_mb(i_tmp_id)) 
+        if(.not.status) call errquit(
+     >     'cons_load_fixed_atoms: unable to get prior fixed atoms',
+     >      0, MA_ERR)
+        
+        do i=1,nat
+          log_mb(i_active+i-1)=.true.
+        end do
+
+        do i=1,nfa
+          id = int_mb(i_tmp_id+i-1)
+          log_mb(i_active+id-1)=.false.
+        end do
+
+
+        j=0
+        do i=1,nat
+          if(log_mb(i_active+i-1)) then
+            j=j+1
+            int_mb(i_tmp_id1-j+1)=i  
+          end if
+        end do
+        
+      write(*,*) "cons_load_fixed_atoms",j,(int_mb(i_tmp_id1-i+1),i=1,j)
+
+      status = rtdb_put(rtdb,'geometry:actlist',
+     >     mt_int,nat-nfa,int_mb(i_tmp_id1))
+        if(.not.status) call errquit(
+     >     'cons_load_fixed_atoms: unable to store fixed atoms',
+     >      0, MA_ERR)
+
+      if (.not. ma_pop_stack(h_active) ) call errquit(
+     &    'cons_load_fixed_atoms:ma_pop_stack',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_id1) ) call errquit(
+     &    'cons_load_fixed_atoms:ma_pop_stack',
+     &    0, MA_ERR)
+
+      if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_load_fixed_atoms:ma_pop_stack',
+     &    0, MA_ERR)
+
+
 
       end
 c

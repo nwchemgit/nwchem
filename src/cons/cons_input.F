@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.7 2004-04-02 22:04:12 marat Exp $
+c $Id: cons_input.F,v 1.8 2004-04-03 02:45:53 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -21,7 +21,6 @@ c
 c
       logical cons_harm_bond_input
       external cons_harm_bond_input
-
 c
 c     enable constraints by default
       status = rtdb_put(rtdb, 'cons:active', mt_log, 1, .true.)
@@ -44,7 +43,7 @@ c
        else
          namespace=test
          write(*,*) "cons_input:namespace",namespace
-         call cons_add_namespace(namespace,rtdb)
+         call cons_create(namespace,rtdb)
        end if
       end if 
       

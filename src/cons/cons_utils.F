@@ -1,4 +1,67 @@
-c $Id: cons_utils.F,v 1.7 2004-04-02 22:04:12 marat Exp $
+c $Id: cons_utils.F,v 1.8 2004-04-03 02:45:53 marat Exp $
+      function cons_inquire(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      logical cons_inquire
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      character(255) tag
+
+      call cons_tag(namespace,tag)
+      cons_inquire=rtdb_get(rtdb,tag,mt_log,1,ignore)
+      return
+      end
+
+      function cons_activate(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      logical cons_activate
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      character(255) tag
+      
+      call cons_tag(namespace,tag)
+      cons_activate=rtdb_get(rtdb,tag,mt_log,1,ignore)
+
+      if(cons_activate) call cons_set_namespace(namespace)
+
+      return
+      end
+
+      subroutine cons_create(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "cons.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      logical ignore
+      character(255) tag
+      
+      call cons_tag(namespace,tag)
+
+      if(cons_inquire(namespace,rtdb)) return
+
+      if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit('cons_create', 0,
+     >        RTDB_ERR)
+      
+      end
+
       subroutine cons_add_spring(namespace,i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
@@ -114,29 +177,6 @@ c
      &    'cons_add_spring: unable to free h_tmp_id',
      &    0, MA_ERR)
 
-      end
-
-      subroutine cons_add_namespace(namespace,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-c     
-      character*(*) namespace
-      integer rtdb
-c
-      logical ignore
-      character(255) tag
-      
-      call cons_namespace_tag(namespace,tag)
-
-      if(rtdb_get(rtdb,tag,mt_log,1,ignore)) return
-
-      if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
-     >      call errquit('cons_add_namespace', 0,
-     >        RTDB_ERR)
-      
       end
 
       subroutine cons_add_fixed_atoms(namespace,nat,id,rtdb)
@@ -581,7 +621,7 @@ c
 
       end
 c
-      subroutine cons_namespace_tag(cons_name,tag)
+      subroutine cons_tag(cons_name,tag)
       implicit none
 #include "util.fh"
 #include "inp.fh"
@@ -683,21 +723,3 @@ c
       return
       end
 
-      function cons_namespace(namespace,rtdb)
-      implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "cons_data.fh"
-c     
-      logical cons_namespace
-      character*(*) namespace
-      integer rtdb
-c
-      logical ignore
-      character(255) tag
-
-      call cons_namespace_tag(namespace,tag)
-      cons_namespace=rtdb_get(rtdb,tag,mt_log,1,ignore)
-      return
-      end
