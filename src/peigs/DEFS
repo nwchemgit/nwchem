@@ -102,8 +102,8 @@ peigs_CODEOBJ = SINGLE
 peigs_CC +=  -DSTD_DBL -DCRAY_T3D
 peigs_NODE = uniproc
 peigs_COMM = TCGMSG
-peigs_FC += $(FOPTIMIZE) -e 0 -DCRAY_T3D -DCRAY_T3E
-peigs_FOPT +=   -DCRAY_T3D -DCRAY_T3E
+peigs_FC += $(FOPTIMIZE) -DCRAY_T3D -DCRAY_T3E -e 0 
+peigs_FOPT +=
 peigs_CPP += -DCRAY_T3E -DCRAY_T3D -P
 endif
 
