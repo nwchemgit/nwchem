@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.38 2001-07-03 17:34:36 d3j191 Exp $
+c $Id: md_input.F,v 1.39 2001-08-03 19:48:36 d3j191 Exp $
 c
       implicit none
 c
@@ -35,9 +35,10 @@ c
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
-      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide
+      real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix
+      character*12 afix
 c
-      integer i,mtimes,mdold,len
+      integer i,mtimes,len
       character*255 filcmd
       integer lfncmd,numcmd,ifirst,ilast
 c
@@ -678,27 +679,58 @@ c
 c
       if(inp_compare(.false.,'solvent',item)) then
       if(.not.inp_i(ifirst)) then
+      if(.not.inp_a(item)) then
       ifirst=0
       ilast=0
       else
+      print*,item
+      ifirst=-1
+      if(inp_compare(.false.,'within',item)) then
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      ilast=-1
+      elseif(inp_compare(.false.,'beyond',item)) then
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      ilast=-2
+      else
+      call errquit('md_input : error fix',13)
+      endif
+      endif
+      else
       if(.not.inp_i(ilast)) ilast=ifirst
       endif
-      write(lfncmd,1001) ifix,ifirst,ilast
- 1001 format('fix w ',i2,2i10)
+      write(lfncmd,1001) ifix,ifirst,ilast,rfix,afix
+ 1001 format('fix w ',i2,2i10,f12.6,a)
       numfix=numfix+1
       goto 2
       endif
 c
       if(inp_compare(.false.,'solute',item)) then
       if(.not.inp_i(ifirst)) then
+      if(.not.inp_a(item)) then
       ifirst=0
       ilast=0
+      else
+      ifirst=-1
+      if(inp_compare(.false.,'within',item)) then
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      ilast=-1
+      elseif(inp_compare(.false.,'beyond',item)) then
+      if(.not.inp_f(rfix)) call errquit('md_input : error fix',13)
+      if(.not.inp_a(afix)) call errquit('md_input : error fix',13)
+      ilast=-2
+      else
+      call errquit('md_input : error fix',13)
+      endif
+      endif
       else
       if(.not.inp_i(ilast)) ilast=ifirst
       endif
       if(.not.inp_a(item)) then
-      write(lfncmd,1002) ifix,ifirst,ilast
- 1002 format('fix s ',i2,2i10)
+      write(lfncmd,1002) ifix,ifirst,ilast,rfix,afix
+ 1002 format('fix s ',i2,2i10,f12.6,a)
       numfix=numfix+1
       goto 2
       else
@@ -710,7 +742,7 @@ c
       else
  1113 continue
       write(lfncmd,1004) ifix,ifirst,ilast,item(1:index(item,' ')-1)
- 1004 format('fix s ',i2,2i10,a)
+ 1004 format('fix s ',i2,2i10,12x,a)
       numfix=numfix+1
       if(inp_a(item)) goto 1113
       goto 2

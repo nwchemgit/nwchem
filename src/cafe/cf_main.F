@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.101 2001-08-02 15:52:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.102 2001-08-03 19:48:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -219,7 +219,7 @@ c
       real*8 xs(msa,3),xsm(msm,3),gsm(msm,4,2),wsm(msm),wgt(mat,6)
 c
       integer i,j
-      real*8 dist2,wmass
+      real*8 dist2
 c
       do 1 i=1,msm
       xsm(i,1)=zero
@@ -2235,7 +2235,7 @@ c
       return
       end
       subroutine cf_fix(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,issgm,nums)
+     + isgan,isatt,isdt,issgm,nums,xwm,xs)
 c
       implicit none
 c
@@ -2245,14 +2245,15 @@ c
       integer lfn,numfix,numw,nums
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
       integer issgm(msa)
+      real*8 xwm(mwm,3),xs(msa,3)
 c
       call cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam))
+     + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam),xwm,xs)
 c
       return
       end
       subroutine cf_fix_sw(lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,issgm,nums,snam)
+     + isgan,isatt,isdt,issgm,nums,snam,xwm,xs)
 c
       implicit none
 c
@@ -2269,15 +2270,16 @@ c
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
       integer issgm(msa)
       character*16 snam(nsatot)
+      real*8 xwm(mwm,3),xs(msa,3)
 c
-      integer i,j,ndof(3),ifix,ifr,ito,l,len,number
-      real*8 fact(3)
+      integer i,j,ndof(3),ifix,ifr,ito,l,len,number,itarget,ntotal(2)
+      real*8 fact(3),xtarget(3),rfix,dist2,rfix2
       character*80 string,target,residu
       character*16 tag
 c
       if(me.eq.0) then
       write(*,1000) numfix
- 1000 format(' Number of fix directives is ',i5)
+ 1000 format(/,' Number of fix directives is ',i5,/)
       endif
 c
       number=0
@@ -2287,13 +2289,51 @@ c
       if(me.eq.0) then
       read(lfn,2000) string
  2000 format(a80)
+c
+      target=string(41:80)
+      len=index(target,':')
+      residu=' '
+      if(len.gt.0) then
+      residu=target(1:len-1)
+      target=target(len+1:80)
+      target(13-len:11)=residu
       endif
+      do 33 i=1,4
+      if(target(i:i).eq.'_') target(i:i)=' '
+   33 continue
+c
+      itarget=0
+      do 34 i=1,nsatot
+      if(snam(i)(6:16).eq.target(1:11)) itarget=i
+   34 continue
+c
+      endif
+c
+      call ga_brdcst(mrg_d47,itarget,ma_sizeof(mt_int,1,mt_byte),0)
       call util_char_ga_brdcst(mrg_d47,string,0)
+c
+      if(itarget.gt.0) then
+      do 35 i=1,nums
+      if(isgan(i).eq.itarget) then
+      itarget=i
+      xtarget(1)=xs(i,1)
+      xtarget(2)=xs(i,2)
+      xtarget(3)=xs(i,3)
+      goto 36
+      endif
+   35 continue
+      xtarget(1)=zero
+      xtarget(2)=zero
+      xtarget(3)=zero
+      itarget=0
+   36 continue
+      call ga_dgop(mrg_d47,xtarget,3,'+')
+      endif
 c
       if(string(1:3).eq.'fix') then
 c
-      read(string(6:28),'(i3,2i10)') ifix,ifr,ito
-      target=string(29:80)
+      read(string(6:40),'(i3,2i10,f12.6)') ifix,ifr,ito,rfix
+      target=string(41:80)
       len=index(target,':')
       residu=' '
       if(len.gt.0) then
@@ -2321,12 +2361,27 @@ c
     3 continue
       endif
       else
+      if(ifr.gt.0) then
       do 4 i=1,numw
       if(iwgmn(i).ge.ifr.and.iwgmn(i).le.ito) then
       if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
       if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
       endif
     4 continue
+      else
+      rfix2=rfix*rfix
+      do 41 i=1,numw
+      dist2=(xwm(i,1)-xtarget(1))**2+(xwm(i,2)-xtarget(2))**2+
+     + (xwm(i,3)-xtarget(3))**2
+      if(ito.eq.-1.and.dist2.le.rfix2) then
+      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
+      elseif(ito.eq.-2.and.dist2.ge.rfix2) then
+      if(ifix.eq.0) iwdt(i)=iand(iwdt(i),not(lfixed))
+      if(ifix.eq.1) iwdt(i)=ior(iwdt(i),lfixed)
+      endif
+   41 continue
+      endif
       endif
       endif
       endif
@@ -2363,6 +2418,7 @@ c
     6 continue
       endif
       else
+      if(ifr.gt.0) then
       do 7 i=1,nums
       if(issgm(i).ge.ifr.and.issgm(i).le.ito) then
       tag=snam(isgan(i))
@@ -2377,6 +2433,20 @@ c
       endif
       endif
     7 continue
+      else
+      rfix2=rfix*rfix
+      do 72 i=1,nums
+      dist2=(xs(i,1)-xtarget(1))**2+(xs(i,2)-xtarget(2))**2+
+     + (xs(i,3)-xtarget(3))**2
+      if(ito.eq.-1.and.dist2.le.rfix2) then
+      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(lfixed))
+      if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
+      elseif(ito.eq.-2.and.dist2.ge.rfix2) then
+      if(ifix.eq.0) isdt(i)=iand(isdt(i),not(lfixed))
+      if(ifix.eq.1) isdt(i)=ior(isdt(i),lfixed)
+      endif
+   72 continue
+      endif
       endif
       endif
       endif
@@ -2444,17 +2514,25 @@ c
 c
     1 continue
 c
-      number=0
+      ntotal(1)=0
+      ntotal(2)=0
       do 201 i=1,nums
-      if(isdt(i).ne.0) number=number+1
+      if(isdt(i).ne.0) ntotal(1)=ntotal(1)+1
   201 continue
+      do 202 i=1,numw
+      if(iwdt(i).ne.0) ntotal(2)=ntotal(2)+1
+  202 continue
 c
       if(np.gt.1) then
-      call ga_igop(mrg_d48,number,ma_sizeof(mt_int,1,mt_byte),'+')
+      call ga_igop(mrg_d48,ntotal,2*ma_sizeof(mt_int,1,mt_byte),'+')
       endif
 c
-      if(me.eq.0) write(*,'(a,i8,a,i8,a,/)')
-     +  ' Solute fix applied to ',number,' out of ',nsa,' atoms'
+      if(me.eq.0) then
+      write(*,'(a,i8,a,i8,a)')
+     +  ' Solute fix applied to  ',ntotal(1),' out of ',nsa,' atoms'
+      write(*,'(a,i8,a,i8,a,/)')
+     +  ' Solvent fix applied to ',ntotal(2),' out of ',nwm,' molecules'
+      endif
 c
 c      if(numw.gt.0) then
 c      if(iand(ifix,1).eq.1) then

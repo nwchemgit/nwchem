@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.94 2001-08-01 16:45:18 d3j191 Exp $
+c $Id: md_start.F,v 1.95 2001-08-03 19:48:36 d3j191 Exp $
 c
       implicit none
 c
@@ -155,26 +155,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_xscr),dbl_mb(i_vs),
      + dbl_mb(i_gs),nsaloc,lpack)
       endif
-c
-c     fix or unfix
-c     ------------
-c
-      if(numfix.gt.0) then
-      if(me.eq.0) then
-      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
-     + form='formatted',status='old')
-      rewind(lfncmd)
-      endif
-      call cf_fix(lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
-     + int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
-     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
-     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lssgm-1)*msa),nsaloc)
-      if(me.eq.0) then
-      close(unit=lfncmd)
-      endif
       if(.not.lqmd)
      + call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
-      endif
 c
 c     initialize packing
 c     ------------------
@@ -203,6 +185,27 @@ c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
+c
+c     fix
+c     ------------
+c
+      if(numfix.gt.0) then
+      if(me.eq.0) then
+      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+     + form='formatted',status='old')
+      rewind(lfncmd)
+      endif
+      call cf_fix(lfncmd,numfix,int_mb(i_iw+(lwgmn-1)*mwm),
+     + int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
+     + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lssgm-1)*msa),nsaloc,
+     + dbl_mb(i_xwm),dbl_mb(i_xs))
+      if(me.eq.0) then
+      close(unit=lfncmd)
+      endif
+      if(.not.lqmd)
+     + call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
+      endif
 c
 c     print decomposition information
 c     -------------------------------
