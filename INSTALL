@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.16 1998-10-10 00:08:21 windus Exp $
+$Id: INSTALL,v 1.17 1999-08-02 21:40:10 d3e129 Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -40,22 +40,22 @@ BUILDING NWCHEM:
 
 3)  The currently supported platforms are:
 
-    Symb.Name  Platform               OS/Version    Precision
-    ----------------------------------------------------------
-    SUN         Sun                    SunOS        double
-    SOLARIS     Sun                    Solaris 2.X  double
-    IBM         IBM RS/6000            AIX 3.x 4.s  double
-    DECOSF      DEC AXP                OSF/1        double
-    SGI         SGI 32 bit os          IRIX 5.x 6.x double
-    SGITFP      SGI 64 bit os          IRIX         double
-    SGI_N32     SGI 64 bit os          IRIX         double 
+    Symb.Name  Platform       Checked    OS/Version    Precision 
+    -------------------------------------------------------------
+    SUN         Sun                      SunOS         double
+    SOLARIS     Sun             ***      Solaris 2.X   double
+    IBM         IBM RS/6000     ***      AIX 3.X 4.X   double
+    DECOSF      DEC AXP         ***      Dig.Unix 4.0  double
+    SGI_N32     SGI 64 bit os   ***      IRIX          double 
                 using 32 ints
-    CRAY-T3D    Cray T3D               UNICOS       single
-    CRAY-T3E    Cray T3E               UNICOS       single
-    PARAGON     Intel Paragon          OSF/1        double
-    DELTA       Intel Delta            NX           double
-    SP1         IBM SP1,SP2            AIX          double
-    ----------------------------------------------------------
+    SGI         SGI 32 bit os    *       IRIX 5.X 6.X  double
+    SGITFP      SGI 64 bit os    *       IRIX          double
+    CRAY-T3D    Cray T3D                 UNICOS        single
+    CRAY-T3E    Cray T3E        ***      UNICOS        single
+    PARAGON     Intel Paragon            OSF/1         double
+    DELTA       Intel Delta              NX            double
+    SP          IBM SP1,SP2     ***      AIX/LAPI      double
+    -------------------------------------------------------------
 
    Set the environment variable, NWCHEM_TARGET, to the symbolic name
    that matches your target platform, e.g.
@@ -69,17 +69,21 @@ BUILDING NWCHEM:
                    R10000          R10000
     SGI_N32        R8000           R8000
                    R10000          R10000
-    SP1            Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
+    SP             Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
                    Power 2 super   P2SC
                    604e chip       604
-    
+    LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
+                   Power Mac       POWERPC
+                   Alpha           ALPHA  (Build is currently broke)
+
 4) Configure to build the modules you need.  As a first shot build
    everything, and if you start running out of memory you can exclude
    modules.  Choose one or more from
 
         Name        Description
         -------------------------------------------------
-        all         Everything
+        pnnl        Everything including NBO and python
+        all         Everything useful
         qm          All quantum mechanics modules
 	argos       MD only build 
         - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,6 +102,7 @@ BUILDING NWCHEM:
         rimp2       RI-MP2
         ccsd        CCSD & CCSD(T)
         property    Properties analysis
+        python      Build python interface to NWChem
         -------------------------------------------------
 
 
@@ -130,8 +135,9 @@ BUILDING NWCHEM:
    example, if the target platform equals SP1 then the following
    subdirectories are created:
 
-	$NWCHEM_TOP/bin/SP1          (executables)
-        $NWCHEM_TOP/lib/SP1          (libraries)
+	$NWCHEM_TOP/bin/SP          (executables)
+        $NWCHEM_TOP/lib/SP          (libraries)
+
 7) If you will be installing NWChem for general site use please also
    build the version info to help us determine exactly which version
    and patched version of NWChem you are using.  To do this you do the
@@ -159,7 +165,12 @@ ALTERNATIVE BUILD MODE:
    time builds.  For instance, to build just the quantum mechanical
    codes on an IBM workstation
 
-       make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM NWCHEM_MODULES=qm
+     make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM NWCHEM_MODULES=qm
+
+   Sometimes but infrequently the GNU make program fails with a singlye
+   line specification.  If this happens try
+     make NWCHEM_TOP=/home/nwchem NWCHEM_MODULES=qm nwchem_config
+     make NWCHEM_TOP=/home/nwchem NWCHEM_TARGET=IBM 
 
 POINT OF CONTACT USERS:
 ----------------------
@@ -197,7 +208,7 @@ C) cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem /usr/local/NWChem/bin
    chmod 755 parallel
    Note: parallel does not exist for all builds.  To learn how to use
          parallel consult the on-line documentation at:
-         http://www.emsl.pnl.gov:2080/docs/nwchem/doc/user/index.html
+         http://www.emsl.pnl.gov/pub/docs/nwchem/doc/user/index.html
 	 or read the README files in $NWCHEM_TOP/src/tcgmsg    
 
 D) cp $NWCHEM_TOP/src/basis/library /usr/local/NWChem/data
