@@ -12,12 +12,12 @@
       integer heap
       integer global
       logical status
-      logical overify
+      logical overify, ohardfail
 #ifdef PARALLEL_DIAG
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.86 1996-07-26 16:18:19 d3g681 Exp $
+c     $Id: nwchem.F,v 1.87 1996-08-06 05:23:50 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -83,6 +83,9 @@ c
 c     Initialize timers so they are relative to job start
 c
 **      call ieeetrap()
+#ifdef DECOSF
+      call dec_fpe  ! To avoid underflow problems on Alpha in Texas
+#endif
       total_wall = -util_wallsec()
       total_cpu  = -util_cpusec()
 c
@@ -115,7 +118,7 @@ C     The user input model has well-defined categories of memory,
 C     each of which has a specific size.  How we use these limits
 C     depends on the platform we are running on.
 C
-      call input_mem_size(stack, heap, global, overify)
+      call input_mem_size(stack, heap, global, overify, ohardfail)
 c
 c     Initialize local memory allocator & global array tools
 C
@@ -137,8 +140,12 @@ C
          call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
       endif
 C
+c     Hard fail is good for development but means that we can't
+c     respond to allocation problems. Disable by default.
+c
       status = ma_set_auto_verify(overify)
-      status = ma_set_hard_fail(.true.)
+      status = ma_set_hard_fail(ohardfail)
+      status = ma_set_error_print(ohardfail)
 c
 c     Initialize pstat
 c
@@ -257,7 +264,7 @@ c
 #endif
       integer heap, stack, global, global_b, total, nproc
       logical status
-      character*3 cstatus
+      character*3 cstatus, fstatus
       character*8 cstart
       Character*40 GStatus
 c
@@ -332,6 +339,7 @@ c
      $     '    nproc     = ', i4//)
 c
 c     Determine, without altering, setting of memory verification
+c     and hardfail.
 c
       status = ma_set_auto_verify(.true.)
       if (status) then
@@ -340,6 +348,14 @@ c
          cstatus = 'no '
       endif
       status = ma_set_auto_verify(status)
+c
+      status = ma_set_hard_fail(.true.)
+      if (status) then
+         fstatus = 'yes'
+      else
+         fstatus = 'no '
+      endif
+      status = ma_set_hard_fail(status)
 C
 C     Memory size information.  Note:  Subtleties of MA & friends
 C     will likely result in actual heap and stack sizes _slightly_ 
@@ -373,13 +389,15 @@ C
 c
       call util_print_centered(6, 'Memory information', 20, .true.)
 c
-      write(6,3) heap, stack, global, GStatus, total, cstatus
+      write(6,3) heap, stack, global, GStatus, total, cstatus,
+     $     fstatus
  3    format(/
      $     '    heap      = ', i10,' doubles'/
      $     '    stack     = ', i10,' doubles'/
      $     '    global    = ', i10,' doubles ', A/
      $     '    total     = ', i10,' doubles'/
-     $     '    verify    = ',a3//)
+     $     '    verify    = ', a3/
+     $     '    hardfail  = ', a3//)
 c
       call util_flush(6)
 c
