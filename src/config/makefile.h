@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.232 1997-04-16 17:08:18 d3h325 Exp $
+# $Id: makefile.h,v 1.233 1997-04-26 00:41:10 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -225,7 +225,12 @@ ifeq ($(TARGET),SOLARIS)
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
 	CPP = /usr/ccs/lib/cpp
-         CC = gcc
+#        CC = gcc
+#  COPTIONS = -Wall
+# COPTIMIZE = -g -O2
+         CC = cc
+   COPTIONS = 
+  COPTIMIZE = -fast
      RANLIB = echo
   MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = echo $@ is built
@@ -234,7 +239,6 @@ ifeq ($(TARGET),SOLARIS)
 #     but may need to increase the stacksize at runtime using limit
 # -xs allows debugging without .o files
    FOPTIONS = -Nl199 -fast -dalign -stackvar
-   COPTIONS = -Wall
 # Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
 # -fsimple=2 enables more rearranging of floating point expressions
 # -depend enables more loop restructuring
@@ -242,13 +246,16 @@ ifeq ($(TARGET),SOLARIS)
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
 # but is slow and impairs debug ... use -O1 for speed and debugability
      FDEBUG = -g -O1
-  COPTIMIZE = -g -O2
    LIBPATH += -L/usr/ucblib
-    DEFINES = -DSOLARIS -DPARALLEL_DIAG
+    DEFINES = -DSOLARIS 
+
+# -DPARALLEL_DIAG
 
   LDOPTIONS = -xildoff
 
-       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+#-lpeigs 
+
+       CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl
 
