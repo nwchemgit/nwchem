@@ -1,27 +1,33 @@
 #
-# $Id: O,v 1.2 2004-12-29 01:52:12 bylaska Exp $
+# $Id: Ge,v 1.1 2004-12-29 01:52:12 bylaska Exp $
 #
-Comment: O pseudopotential parameters
-Comment: Fitted 12-27-04
+Comment: Ge pseudopotential parameters
+Comment: Fitted 12-28-04
 Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
 Comment: relativistic TM, quadratic semicore
+
 
 [lmax] 1
 [locp] 1
 [rlocal] 1.0
 <atom>
-O
-8.0 16.0 1 2 
-1  0      2.0
+Ge
+32.0 73.0 6 2
+1  0      2.00
 2  0      2.00
-2  1      4.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+3  2     10.00
+4  0      2.00
+4  1      2.00
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0    1.4482335
-   1    1.4482335
+   0    1.9822350
+   1    1.9822350
 <end>
 
-<semicore> 0.37 <end>
+<semicore> 1.52   <end>
 <semicore_type> quadratic <end>

@@ -1,7 +1,7 @@
 #
-# $Id: H,v 1.3 2004-12-29 01:52:12 bylaska Exp $
+# $Id: He,v 1.1 2004-12-29 01:52:12 bylaska Exp $
 #
-Comment: H pseudopotential parameters
+Comment: He pseudopotential parameters
 Comment: Fitted 12-27-04
 Comment: by E.J. Bylaska, based on Khein and Allens' TM data base
 Comment: relativistic TM, quadratic semicore
@@ -10,11 +10,11 @@ Comment: relativistic TM, quadratic semicore
 [locp] 0 
 [rlocal] 1.0
 <atom>
-H
-1.0 1.0 0 1 
-1  0      1.0
+He
+2.0 0.0 0 1 
+1  0      2.0
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
-<rcut> 0  1.5855604
+<rcut> 0  1.9762990
 <end>

@@ -1,28 +1,29 @@
 #
-# $Id: C,v 1.2 2004-12-29 01:52:11 bylaska Exp $
+# $Id: Na,v 1.1 2004-12-29 01:52:12 bylaska Exp $
 #
-Comment: C pseudopotential parameters
+Comment: Na pseudopotential parameters
 Comment: Fitted 12-27-04
 Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
 Comment: relativistic TM, quadratic semicore
 
-[lmax] 1
-[locp] -1
+[lmax] 2
+[locp] 2
 [rlocal] 1.0
 <atom>
-C
-6.0 12.0 1 2 
+Na
+11.0 23.0 3 1 
 1  0      2.0
 2  0      2.00
-2  1      2.00
+2  1      6.00
+3  0      1.00
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0   1.4850707
-   1   1.4850707
+   0    2.9359409
+   1    3.1646217
+   2    2.9359409
 <end>
 
-<semicore> 0.55 <end>
+<semicore> 1.000   <end>
 <semicore_type> quadratic <end>
-

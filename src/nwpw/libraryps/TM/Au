@@ -1,0 +1,41 @@
+#
+# $Id: Au,v 1.1 2004-12-29 01:52:11 bylaska Exp $
+#
+Comment: Au pseudopotential parameters
+Comment: Fitted 12-27-04 by E.J. Bylaska
+Comment: Parameters somewhat based on Khein and Allens' TM database
+Comment: Relativistic TM, quadratic semicore
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Au
+79.0 197.0 12 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   9.95
+6 0   1.00
+6 1   0.05
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    2.0761953
+   1    3.0973349
+   2    1.9261744
+<end>
+<semicore> 1.2 <end>
+<semicore_type> quadratic <end>
+
+

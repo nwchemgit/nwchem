@@ -1,7 +1,7 @@
 #
-# $Id: C,v 1.2 2004-12-29 01:52:11 bylaska Exp $
+# $Id: B,v 1.1 2004-12-29 01:52:11 bylaska Exp $
 #
-Comment: C pseudopotential parameters
+Comment: B pseudopotential parameters  
 Comment: Fitted 12-27-04
 Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
 Comment: relativistic TM, quadratic semicore
@@ -10,19 +10,20 @@ Comment: relativistic TM, quadratic semicore
 [locp] -1
 [rlocal] 1.0
 <atom>
-C
-6.0 12.0 1 2 
+B
+5.0 11.0 1 2 
 1  0      2.0
 2  0      2.00
-2  1      2.00
+2  1      1.00
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0   1.4850707
-   1   1.4850707
+   0   1.5924135
+   1   1.5924135
 <end>
 
-<semicore> 0.55 <end>
+<semicore> 0.73 <end>
 <semicore_type> quadratic <end>
+
 

@@ -1,0 +1,46 @@
+#
+# $Id: Pu,v 1.1 2004-12-29 01:52:13 bylaska Exp $
+#
+Comment: Pu pseudopotential parameters
+Comment: Fitted 12-27-04
+Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
+Comment: relativistic TM, quadratic semicore
+
+[lmax] 3
+[locp] 0
+[rlocal] 1.0
+ <atom>
+Pu
+  0.940000E+02  244.0000   15 4
+   1  0  2.0
+   2  0  2.0
+   2  1  6.0
+   3  0  2.0
+   3  1  6.0
+   3  2  10.0
+   4  0  2.0
+   4  1  6.0
+   4  2  10.0
+   4  3  14.0
+   5  0  2.0
+   5  1  6.0
+   5  2  10.0
+   6  0  2.0
+   6  1  6.0
+   5   3    3.00
+   6   2    1.0
+   7   0    2.00
+   7   1    1.00
+ <end>
+ <solver> pauli			        <end>
+ <pseudopotential> troullier-martins	<end>
+<rcut>
+   0    2.7365434
+   1    3.3844704
+   2    2.4761243
+   3    2.6358223
+<end>
+<semicore> 2.40 <end>
+<semicore_type> quadratic <end>
+
+

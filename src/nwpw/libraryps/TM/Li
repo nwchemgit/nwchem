@@ -1,0 +1,29 @@
+#
+# $Id: Li,v 1.1 2004-12-29 01:52:12 bylaska Exp $
+#
+Comment: Li pseudopotential parameters
+Comment: Fitted 12-27-04 by E.J. Bylaska
+Comment: Parameters somewhat based on Khein and Allens' TM database
+Comment: Relativistic TM, quadratic semicore
+
+
+[lmax] 1
+[locp] 1
+[rlocal] 1.0
+<atom>
+Li
+3.0 7.0 1 2 
+1  0      2.0
+2  0      0.99
+2  1      0.01
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut> 
+   0   2.4315963
+   1   2.4315963
+<end>
+<semicore> 1.66 <end>
+<semicore_type> quadratic <end>
+
+
