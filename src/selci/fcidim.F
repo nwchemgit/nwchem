@@ -20,7 +20,7 @@ c
 *      write(6,*) ' fcidim: nelec, multi, issss, norbs',
 *     & nelec, multi, issss, norbs
 *      write(6,*) ' fcidim: isym', isym
-      call dfill(8*maxa*maxb, 0.0d0, r1, 1)
+      call dfill(8*(maxa+1)*(maxb+1), 0.0d0, r1, 1)
       ib = multi-1
       ia = (nelec-ib)/2
       if (ia.gt.maxa .or. ib.gt.maxb .or.
@@ -34,7 +34,13 @@ c
 c     now construct the drt one level at a time
 c
       do 10 iorb = norbs,1,-1
-         call dfill(8*maxa*maxb,0.0d0,r2,1)
+*         do ia = 0,maxa
+*            do ib = 0,maxb
+*               if (r1(0,ib,ia).ne.0.0d0) write(6,*) iorb, ia, ib, 
+*     $              r1(0,ib,ia)
+*            enddo
+*         enddo
+         call dfill(8*(maxa+1)*(maxb+1),0.0d0,r2,1)
 c
 c     loop thru rows at this level
 c
@@ -86,7 +92,7 @@ c
  30         continue
  20      continue
 c
-         call dcopy(8*maxa*maxb,r2,1,r1,1)
+         call dcopy(8*(maxa+1)*(maxb+1),r2,1,r1,1)
  10   continue
 c
       selci_fcidim = r1(0,0,0)
