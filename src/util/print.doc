@@ -3,9 +3,7 @@ Print control
 -------------
 
 All modules should use the same print control mechanism to provide
-both uniformity and flexibility.  Here are the routines currently in
-use in the SCF and Gradient modules.  These are offered here as a
-starting point for discussion.
+both uniformity and flexibility.  The routine in util_print do this.
 
 A) All modules understand the print levels
 
@@ -26,13 +24,13 @@ C) Modules operate independently and printing will eventually be
 
 This is how it currently works.
 
-You might input (in the current absence of better input)
+Inside the SCF input
 
-  set scf:print low basis "final eigenvectors"
-  set scf:noprint "title"
+  print low basis "final eigenvectors"
+  noprint title
 
-This sets the overall printlevel to low, forces printing of the final
-eigenvectors and basis, and disables printing of the title.
+This sets the overall SCF printlevel to low, forces printing of the
+final eigenvectors and basis, and disables printing of the title.
 
 ------------
 
@@ -51,12 +49,19 @@ context.
 
 The code necessary for each module is then simply
 
+  In the input routine
+
+     Upon detecting a line with the print directive 
+
+     call util_print_input(rtdb, "module_name")
+
   At the beginning of a module
 
      call util_print_push 
      call util_print_rtdb_load(rtdb, "module_name")
 
      Util_print_push() sets the default printlevel for a new module.
+     Util_print_rtdb_load reads in any input parameters
 
   To control printing within a module
 
@@ -122,9 +127,12 @@ Other relevant routines are
 
     subroutine util_print_push
     subroutine util_print_pop
-    subroutine util_print_rtdb_load(rtdb, prefix)
     subroutine util_print_set_level(level)
+    subroutine util_print_input(rtdb, prefix)
+    subroutine util_print_rtdb_load(rtdb, prefix)
+
+These two routines are probably not needed by applications
+
     subroutine util_print_enable(name)
     subroutine util_print_disable(name)
-
 

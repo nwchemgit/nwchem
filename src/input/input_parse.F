@@ -1,42 +1,43 @@
       subroutine input_parse(rtdb)
-C$Id: input_parse.F,v 1.13 1995-02-02 23:15:16 d3g681 Exp $
+C     $Id: input_parse.F,v 1.14 1995-03-02 18:03:45 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
 #include "global.fh"
 #include "rtdb.fh"
-c
+c     
 c     Read the input looking for high-level directives or names
 c     of known modules.  Once all the input has been read attempt
 c     to provide sensible defaults for anything that is missing.
-c
+c     
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       logical status, echo
-      parameter (num_dirs = 19)
+      parameter (num_dirs = 21)
       character*8 dirs(num_dirs)
       character*255 test
       data dirs /
      $     'memory',   'rtdb',     'geometry', 'basis',    'scf',
      $     'task',     'time',     'set'     , 'enter',    'stop',
      $     'title',    'start',    'restart' , 'stepper',  'echo',
-     $     'charge',   'dft',      'md',       'gradient'/
+     $     'charge',   'dft',      'md',       'gradient',
+     $     'print',    'noprint'/
       data echo /.false./
-c
+c     
 c     Only process 0 is involved here
-c
+c     
       if (ga_nodeid() .ne. 0) return
-c
+c     
       call util_print_centered(6, 'NWCHEM Input Module', 40, .true.)
       write(6,*)
       write(6,*)
-c
+c     
 c     Do data base operations in sequential mode
-c
+c     
       status = rtdb_parallel(.false.)
-c
+c     
 c     While (input is available)
-c
+c     
       rewind 5
       call inp_init(5, 6)
  10   if (inp_read()) then
@@ -47,125 +48,131 @@ c
             call inp_outrec()
             goto 10
          endif
-c
+c     
          call inp_prev_field
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900) ind
+     $        1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900,
+     $        2000, 2100) ind
          call errquit('input_parse: unimplemented directive', ind)
-c
+c     
 c     Memory ... already handled by input_mem_size() but will soon
-c                want to do this in a context specific fashion
-c
+c     want to do this in a context specific fashion
+c     
  100     goto 10
-c
+c     
 c     RTDB ... already handled by input_rtdb_name()
-c
+c     
  200     goto 10
-c
+c     
 c     Geometry
-c
+c     
  300     call geom_input(rtdb)
          goto 10
-c
+c     
 c     Basis
-c
+c     
  400     call bas_input(rtdb)
          goto 10
-c
+c     
 c     SCF
-c
+c     
  500     call scf_input(rtdb)
          goto 10
-c
+c     
 c     Task
-c
+c     
  600     call task_input(rtdb)
          goto 10
-c
+c     
 c     Time
-c
+c     
  700     call input_time(rtdb)
          goto 10
-c
+c     
 c     Set
-c
+c     
  800     call input_set(rtdb)
          goto 10
-c
+c     
 c     Enter ... behave as if we just hit end of input
-c
+c     
  900     goto 99999
-c
+c     
 c     Stop ... literally just stop ... well allow for parallel world
-c
+c     
  1000    call errquit('input_parse: STOP', 0)
          goto 10                ! Not executed
-c
+c     
 c     Title
-c
+c     
  1100    call input_title(rtdb)
          goto 10
-c
+c     
 c     Start ... already digested by input_start_opt
-c
+c     
  1200    goto 10
-c
+c     
 c     Restart ... already digested by input_start_opt
-c
+c     
  1300    goto 10
-c
+c     
 c     Stepper
-c
+c     
  1400    call stepper_input(rtdb)
          goto 10
-c
+c     
 c     Echo
-c
+c     
  1500    echo = .true.
          goto 10
-c
+c     
 c     Charge
-c
+c     
  1600    call input_charge(rtdb)
          goto 10
-c    
-c        Dft
-c    
+c     
+c     Dft
+c     
  1700    call dft_input(rtdb)
          goto 10
-c    
-c        MD
-c    
+c     
+c     MD
+c     
  1800    call md_input(rtdb)
          goto 10
-c    
-c        Gradients
-c    
+c     
+c     Gradients
+c     
  1900    call gradients_input(rtdb)
          goto 10
-c
-c
+c     
+c     Print and noprint
+c     
+ 2000    continue
+ 2100    continue
+         call util_print_input(rtdb,'')
+c     
       endif
-c
+c     
 99999 continue
-c
-c echo input deck if requested
-c
+c     
+c     echo input deck if requested
+c     
       if (echo) call input_echo(5,6)
-c
+c     
 c     All input is exhausted.  Now apply defaults for everything that
 c     is missing from the input if is a startup calculation
-c
+c     
       call input_defaults(rtdb)
-c
+c     
 c     Try and verify anything not checked so far
-c
+c     
       call input_verify
-c
+c     
 c     Done
-c
+c     
       status = rtdb_parallel(.true.) ! Restore parallel access to db
-c
+c     
       end
       subroutine input_time(rtdb)
       implicit none

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1995-02-02 23:26:46 d3g681 Exp $
+# $Id: GNUmakefile,v 1.32 1995-03-02 18:01:59 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -20,7 +20,7 @@ OBJ_OPTIMIZE=  ga_matpow.o
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_hostname.o util_date.o \
-	      ga_orthog.o \
+	      ga_orthog.o file_prefix.o \
               ga_iter_orthog.o ga_iter_lsolve.o ga_iter_diag.o \
               ga_maxelt.o ga_pcg_minimize.o line_search.o \
               ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
@@ -45,3 +45,5 @@ testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 ga_iter_project.o:	cproject.fh
+
+file_prefix.o:	cfileprefix.fh

@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.45 1995-03-01 19:53:20 d3g681 Exp $
+c     $Id: nwchem.F,v 1.46 1995-03-02 18:03:26 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -119,6 +119,7 @@ c
       implicit none
 #include "mafdecls.h"
 #include "rtdb.fh"
+#include "inp.fh"
       integer rtdb              ! [output]
       character*255 rtdb_name
       character*255 file_prefix
@@ -140,8 +141,11 @@ c
          if (.not. rtdb_open(rtdb_name, 'old', rtdb))
      $        call errquit('start: rtdb_open old failed ', 0)
       endif
-      if (.not. rtdb_cput(rtdb, 'file_prefix', 1, file_prefix))
-     $     call errquit('start: rtdb_put of file_prefix failed', 0)
+      call util_file_prefix_set(file_prefix)
+      call util_file_prefix_rtdb_store(rtdb) ! Not ideal location for this
+c
+      write(6,1) file_prefix(1:inp_strlen(file_prefix))
+ 1    format(' file prefix = ', a//)
 c
 c     Parse input data and shove into the database
 c
@@ -393,14 +397,15 @@ c
      $     date(1:inp_strlen(date)),
      $     compiled(1:inp_strlen(compiled)),
      $     srcdir(1:inp_strlen(srcdir)),
-     $     input_filename(1:inp_strlen(input_filename)), nproc
+     $     input_filename(1:inp_strlen(input_filename)),
+     $     nproc
  2    format(/
      $     '    hostname = ', a/
      $     '    program  = ', a/
      $     '    date     = ', a/
      $     '    compiled = ', a/
      $     '    source   = ', a/
-     $     '    input    = "',a,'"'/
+     $     '    input    = ', a/
      $     '    nproc    = ', i4//)
 c
 c     Determine, without altering, setting of memory verification

@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.23 1995-02-06 22:00:18 rg240 Exp $
+C$Id: scf.F,v 1.24 1995-03-02 18:04:01 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -80,7 +80,7 @@ c
       if (movecs_out.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
      $        movecs_in.eq.'project') then
-            movecs_out = 'movecs'
+            call util_file_prefix('movecs', movecs_out)
          else
             movecs_out = movecs_in
          endif

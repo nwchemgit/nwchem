@@ -1,0 +1,6 @@
+c
+c     file_prefix ... used to prefix default names of all permanent filenames
+c
+      character*256 file_prefix
+      common /cfileprefix/ file_prefix
+c

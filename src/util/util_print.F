@@ -1,5 +1,5 @@
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.6 1995-02-02 18:09:54 d3g681 Exp $
+C$Id: util_print.F,v 1.7 1995-03-02 18:02:03 d3g681 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -201,4 +201,51 @@ c
          enddo
       endif
 c     
+      end
+      subroutine util_print_input(rtdb, prefix)
+      implicit none
+#include "inp.fh"
+#include "rtdb.fh"
+      integer rtdb
+      character*(*) prefix
+c
+c     Parse input for print and noprint storing result in the database
+c     as "<prefix>:print" and "<prefix>:noprint".
+c
+c     Input is left at end of line.
+c
+      integer maxnames
+      parameter (maxnames = 33)
+      character*32 buf(maxnames), test
+      character*80 entry
+      integer n
+c
+c     figure out if this is a print/noprint directive and build
+c     the name for the database entry
+c
+      call inp_set_field(0)
+      if (.not. inp_a(test))
+     $     call errquit('util_print_input: can''t read directive',0)
+c
+      entry = ' '
+      if (inp_compare(.false.,'print',test)) then
+         write(entry,'(a,a)') prefix(1:inp_strlen(prefix)), ':print'
+      else if (inp_compare(.false.,'noprint',test)) then
+         write(entry,'(a,a)') prefix(1:inp_strlen(prefix)), ':noprint'
+      else
+         call errquit('util_print_input: not print or noprint?',0)
+      endif
+c
+      n = 0
+ 10   if (inp_a(test)) then
+         n = n + 1
+         if (n .gt. maxnames) call errquit
+     $        ('util_print_input: too many names?',n)
+         buf(n) = test
+         goto 10
+      endif
+c
+      if (.not. rtdb_cput(rtdb,entry,n,buf)) call errquit
+     $     ('util_print_input: failed to store in database',rtdb)
+c
       end
