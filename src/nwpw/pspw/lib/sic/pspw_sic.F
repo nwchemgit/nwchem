@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.18 2003-07-02 17:27:46 bylaska Exp $
+* $Id: pspw_sic.F,v 1.19 2003-07-11 21:05:39 bylaska Exp $
 *
 
 *     *************************
@@ -240,11 +240,11 @@
 *     *     pspw_potential_SIC   *
 *     *                          *
 *     ****************************
-      subroutine pspw_potential_SIC(ispin,psi_r,Hpsi_k)
+      subroutine pspw_potential_SIC(ispin,psi_r,Hpsi_r)
       implicit none
       integer    ispin
       real*8     psi_r(*)
-      complex*16 Hpsi_k(*)
+      real*8     Hpsi_r(*)
 
 #include "mafdecls.fh"
 #include "pspw_sic.fh"
@@ -252,7 +252,8 @@
 *     **** local variables ****
       logical value
       integer i,n2ft3d,n1,n2,n3,npack
-      integer dn(2),xcp(2),xce(2),tmp1(2),index,index2
+      integer dn(2),xcp(2),xce(2),tmp1(2),index
+      !integer index2
       real*8  scal1,scal2,dv,exc,pxc,eh,ph
 
 *     **** external functions ****
@@ -288,7 +289,7 @@
         do i=1,norbs
 
            index  = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
-           index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
+           !index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
 
 *          **** generate dn for Vxc and VH ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
@@ -390,12 +391,17 @@ c     >                            dbl_mb(dn(1)))
      >                        dbl_mb(tmp1(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
-*          **** add (Vcoul+Vxc)*psi_r to Hpsi_k ***
-           call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
-           call Pack_c_pack(1,dbl_mb(tmp1(1)))
-           call Pack_cc_daxpy(1,(scal1),
+*          **** add -(Vcoul+Vxc)*psi_r to Hpsi_r ***
+           call D3dB_rr_Sub(1,Hpsi_r(index),
      >                        dbl_mb(tmp1(1)),
-     >                        Hpsi_k(index2))
+     >                        Hpsi_r(index))
+
+*          **** fourier transform (Vcoul+Vxc)*psi_r and add to Hpsi_k ***
+c          call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
+c          call Pack_c_pack(1,dbl_mb(tmp1(1)))
+c          call Pack_cc_daxpy(1,(scal1),
+c    >                        dbl_mb(tmp1(1)),
+c    >                        Hpsi_k(index2))
 
 *          **** keep track of orbital contributions ****
            if (orb_contribution) then
@@ -409,7 +415,8 @@ c     >                            dbl_mb(dn(1)))
         value = value.and.MA_pop_stack(xce(2))
         value = value.and.MA_pop_stack(xcp(2))
         value = value.and.MA_pop_stack(dn(2))
-        if (.not. value) call errquit('popping stack memory',0)
+        if (.not. value) 
+     >    call errquit('pspw_potential_SIC:popping stack memory',0)
       end if
       return
       end
@@ -432,7 +439,8 @@ c     >                            dbl_mb(dn(1)))
 *     **** local variables ****
       logical value
       integer i,n2ft3d,n1,n2,n3,npack
-      integer dn(2),xcp(2),xce(2),tmp1(2),index,index2
+      integer dn(2),xcp(2),xce(2),tmp1(2),index
+      !integer index2
       real*8  scal1,scal2,dv,exc,pxc,eh,ph
 
 *     **** external functions ****
@@ -472,7 +480,7 @@ c     >                            dbl_mb(dn(1)))
         do i=1,norbs
 
            index  = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
-           index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
+           !index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
 
 *          **** generate dn ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
@@ -553,7 +561,8 @@ c     >                            dbl_mb(dn(1)))
         value = value.and.MA_pop_stack(xce(2))
         value = value.and.MA_pop_stack(xcp(2))
         value = value.and.MA_pop_stack(dn(2))
-        if (.not. value) call errquit('popping stack memory',0)
+        if (.not. value) 
+     >     call errquit('pspw_energy_SIC:popping stack memory',0)
 
       end if
 
