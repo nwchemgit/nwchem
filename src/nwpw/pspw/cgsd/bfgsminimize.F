@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.5 2001-12-28 00:00:02 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.6 2001-12-28 19:04:25 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -22,6 +22,7 @@ c
       parameter (deltat_min=1.0d-2)
        
       integer G0(2),S0(2)
+      real*8  E0,dE0
 
 
       real*8     tole,tolc
@@ -101,8 +102,6 @@ c     dte = dsqrt(control_fake_mass())/dt
 c     dte = 1.0d0
 
 
-c     write(*,*) "start,tmin:",tmin,dte
-       
   
       call Pack_npack(1,npack1)
       neall = psi_ne(1)+psi_ne(2)
@@ -121,7 +120,7 @@ c     write(*,*) "start,tmin:",tmin,dte
 *     ***** get the initial direction ****
 
       if (current_iteration.eq.1) then
-         call psi_1get_Tgradient(dcpl_mb(G0(1)))
+         call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
 
 *        ***** use the initial gradient for the direction ****
          call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
@@ -130,7 +129,7 @@ c     write(*,*) "start,tmin:",tmin,dte
      >                      dcpl_mb(S0(1)))
          tmin  = 10*deltat_min
       else
-         call psi_1get_Tgradient(dcpl_mb(G0(1)))
+         call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
       end if
 
@@ -145,16 +144,7 @@ c     write(*,*) "start,tmin:",tmin,dte
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
-c        call Grsm_gg_trace(npack1,neall,
-c    >                   dcpl_mb(S0(1)),
-c    >                   dcpl_mb(S0(1)),
-c    >                   dte)
-c        call Grsm_gg_trace(npack1,neall,
-c    >                   dcpl_mb(G0(1)),
-c    >                   dcpl_mb(G0(1)),
-c    >                   dt)
-         call geodesic_start(dcpl_mb(S0(1)),max_sigma)
-c        write(*,*) "<s|s>, <g|g>, sigma:",dte,dt,max_sigma
+         call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
 
 *        ******* line search *********
          if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -162,7 +152,7 @@ c        write(*,*) "<s|s>, <g|g>, sigma:",dte,dt,max_sigma
          else
             deltat = deltat_min
          end if
-         Enew = linesearch(0.0d0,deltat,
+         Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.5d0,tmin,deltae,2)
@@ -177,7 +167,7 @@ c     write(*,*)
          end if
      
 *        **** get the new gradient - also updates densities****
-         call psi_2get_Tgradient(dcpl_mb(G0(1)))
+         call psi_2get_Tgradient(dcpl_mb(G0(1)),E0)
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
 
@@ -189,7 +179,7 @@ c        call dng_2to1()
       end do
 
 *     **** initialize the geoedesic line data structure ****
-      call geodesic_start(dcpl_mb(S0(1)),max_sigma)
+      call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
 
 *     ******* line search *********
       if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -198,7 +188,7 @@ c        call dng_2to1()
          deltat = deltat_min
       end if
 c      Eold = psi_geodesic_energy(0.0d0)
-      Enew = linesearch(0.0d0,deltat,
+      Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.5d0,tmin,deltae,2)

@@ -640,9 +640,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_1get_Tgradient	*
 *     *					*
 *     ***********************************
-      subroutine psi_1get_Tgradient(THpsi)
+      subroutine psi_1get_Tgradient(THpsi,Eout)
       implicit none
-      real*8 THpsi(*)
+      complex*16 THpsi(*)
+      real*8 Eout
 
 #include "mafdecls.fh"
 *     ***** psi common block ****
@@ -668,8 +669,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       logical value
       integer tmp1(2)
  
-      real*8 dsum
-      external dsum
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
@@ -680,12 +683,20 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)))
+
+      Eout =  electron_energy(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)))
+
+
       call electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dbl_mb(tmp1(1)))
       call electron_get_Tgradient(dcpl_mb(psi1(1)),
      >                             dbl_mb(tmp1(1)),
      >                            THpsi)
       
+
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory in psi_1get_Tradient',0)
@@ -700,9 +711,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_2get_Tgradient	*
 *     *					*
 *     ***********************************
-      subroutine psi_2get_Tgradient(THpsi)
+      subroutine psi_2get_Tgradient(THpsi,Eout)
       implicit none
       complex*16 THpsi(*)
+      real*8     Eout
 
 #include "mafdecls.fh"
 *     ***** psi common block ****
@@ -727,6 +739,11 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       logical value
       integer tmp1(2)
 
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
+
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in psi_1get_Tradient',0)
@@ -736,6 +753,12 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
      >                   dbl_mb(rho2_all(1)))
+
+      Eout =  electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
+
       call electron_gen_hml(dcpl_mb(psi2(1)),
      >                       dbl_mb(tmp1(1)))
       call electron_get_Tgradient(dcpl_mb(psi2(1)),
@@ -755,9 +778,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_1get_TMgradient	*
 *     *					*
 *     ***********************************
-      subroutine psi_1get_TMgradient(THpsi)
+      subroutine psi_1get_TMgradient(THpsi,Eout)
       implicit none
-      real*8 THpsi(*)
+      complex*16 THpsi(*)
+      real*8     Eout
 
 #include "mafdecls.fh"
 *     ***** psi common block ****
@@ -779,16 +803,23 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       integer rho2_all(2)
       common / rhoall_block / rho1_all,rho2_all
 
- 
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
 
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)))
 
+      Eout =  electron_energy(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)))
+
       call electron_get_TMgradient(dcpl_mb(psi1(1)),
      >                            THpsi)
-      
 
       return
       end
@@ -800,9 +831,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_2get_TMgradient	*
 *     *					*
 *     ***********************************
-      subroutine psi_2get_TMgradient(THpsi)
+      subroutine psi_2get_TMgradient(THpsi,Eout)
       implicit none
       complex*16 THpsi(*)
+      real*8     Eout
 
 #include "mafdecls.fh"
 *     ***** psi common block ****
@@ -823,11 +855,20 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       integer rho2_all(2)
       common / rhoall_block / rho1_all,rho2_all
 
+*     **** external functions ****
+      real*8   electron_energy
+      external electron_energy
+
 
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
      >                   dbl_mb(rho2_all(1)))
+
+      Eout =  electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
 
       call electron_get_TMgradient(dcpl_mb(psi2(1)),
      >                             THpsi)

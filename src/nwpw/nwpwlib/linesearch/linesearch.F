@@ -1,4 +1,4 @@
-c     $Id: linesearch.F,v 1.3 2001-12-28 01:32:02 bylaska Exp $                       
+c     $Id: linesearch.F,v 1.4 2001-12-28 19:04:25 bylaska Exp $                       
 *     ********************************
 *     *                              *
 *     *      linesearch_init	     *
@@ -38,11 +38,12 @@ c     $Id: linesearch.F,v 1.3 2001-12-28 01:32:02 bylaska Exp $
 *     *                              *
 *     ********************************
 
-      real*8 function linesearch(t0,deltat,FUNC1,DFUNC1,
+      real*8 function linesearch(t0,f0,df0,deltat,FUNC1,DFUNC1,
      >                           tolerance,tmin,deltaE,
      >                           stoptype)
       implicit none
-      real*8 t0,deltat
+      real*8 t0,f0,df0
+      real*8 deltat
       real*8   FUNC1
       external FUNC1
       real*8   DFUNC1
@@ -73,8 +74,10 @@ c     $Id: linesearch.F,v 1.3 2001-12-28 01:32:02 bylaska Exp $
       secant = .true.
 
       t(1) = t0
-      f(1)  =  FUNC1(t(1))
-      df(1) = DFUNC1(t(1))
+c     f(1)  =  FUNC1(t(1))
+c     df(1) = DFUNC1(t(1))
+      f(1)  = f0
+      df(1) = df0
       t_last = t(1)
       f_last = f(1)
       t_first = t(1)

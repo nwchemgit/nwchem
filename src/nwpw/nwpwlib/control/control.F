@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.14 2001-12-28 01:32:02 bylaska Exp $
+* $Id: control.F,v 1.15 2001-12-28 19:04:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -1306,7 +1306,7 @@
       logical precondition
 
       if (.not.rtdb_get(rtdb,'nwpw:precondition',
-     >                  mt_int,1,precondition)) 
+     >                  mt_log,1,precondition)) 
      >  then
          precondition = .false.
       end if
@@ -1333,7 +1333,7 @@
       logical ondisk
 
       if (.not.rtdb_get(rtdb,'nwpw:lmbfgs_ondisk',
-     >                  mt_int,1,ondisk)) 
+     >                  mt_log,1,ondisk)) 
      >  then
          ondisk = .false.
       end if

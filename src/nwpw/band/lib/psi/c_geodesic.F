@@ -1,5 +1,5 @@
 *
-* $Id: c_geodesic.F,v 1.2 2001-12-17 23:31:12 bylaska Exp $
+* $Id: c_geodesic.F,v 1.3 2001-12-28 19:04:24 bylaska Exp $
 *
 
 
@@ -88,10 +88,10 @@
 *     Uses - c_geodesic common block
 *
 
-      subroutine c_geodesic_start(A,max_sigma)
+      subroutine c_geodesic_start(A,max_sigma,dE)
       implicit none
       complex*16 A(*)
-      real*8     max_sigma
+      real*8     max_sigma,dE
 
 #include "mafdecls.fh"
 #include "c_geodesic_common.fh"
@@ -105,7 +105,9 @@
 
 *     **** external functions **** 
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      real*8   c_electron_eorbit
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      external c_electron_eorbit
 
       call nwpw_timing_start(10)
 
@@ -151,6 +153,10 @@
          end do
          end do
       end do
+
+*     **** calculate 2*<A|H|psi> ****
+      dE = 2.0d0*c_electron_eorbit(A)
+
 
 *     **** deallocate tmp space ****     
       value = value.and.

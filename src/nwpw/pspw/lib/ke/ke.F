@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.4 2001-12-27 20:54:55 bylaska Exp $
+* $Id: ke.F,v 1.5 2001-12-28 19:04:25 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -158,7 +158,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.4 2001-12-27 20:54:55 bylaska Exp $
+* $Id: ke.F,v 1.5 2001-12-28 19:04:25 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
@@ -298,24 +298,25 @@ c     real*8 tg(nfft3d)
       real*8  x,cm,dm
       integer tmp1(2)
 
-      real*8   lattice_ecut
-      external lattice_ecut
+      real*8   lattice_wggcut
+      external lattice_wggcut
 
       value = MA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0)
 
-      sum = 2*lattice_ecut()
+      sum = lattice_wggcut()
       do n=1,neall
 c        call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
 c        call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
          do k=1,npack
-           x = dabs(dbl_mb(tg_indx+k-1)/sum)
+           x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
 
-           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-           dm = (cm + 16.0d0* x**4)
-           cm = cm/dm
+c          cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+c          dm = (cm + 16.0d0* x**4)
+c          cm = cm/dm
 
-c          cm = 1.0d0 + 0.4d0*dexp(-0.1d0*x*x) 
+c          cm = dexp(-0.15d0*x*x) 
+           cm = dexp(-0.5d0*(x-0.5)**2) 
 
            gradk(k,n) = gradk(k,n)*(cm)
          end do

@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.4 2001-12-28 00:00:01 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.5 2001-12-28 19:04:25 bylaska Exp $                       
 *
 
 
@@ -27,6 +27,7 @@
 c      complex*16 H0(nfft3d,nemax)
 c      complex*16 G1(nfft3d,nemax)
       integer H0(2),G0(2),G1(2)
+      real*8  E0,dE0
 
       real*8     sum0,sum1,sum3,scale,tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
@@ -101,7 +102,7 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     ***** get the initial gradient and direction ****
-      call cpsi_1get_Tgradient(dcpl_mb(G1(1)))
+      call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
       call Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(G1(1)),sum1)
@@ -123,7 +124,7 @@ c     write(*,*) "sum1a,Estart,:",sum1,Estart
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
-         call c_geodesic_start(dcpl_mb(H0(1)),max_sigma)
+         call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
 c        Eold= cpsi_geodesic_energy(0.0d0)
 c        write(*,*) "Eold:", Eold,max_sigma
 
@@ -134,7 +135,7 @@ c        write(*,*) "Eold:", Eold,max_sigma
             deltat = deltat_min
          end if
 c        Eold = cpsi_geodesic_energy(0.0d0)
-         Enew = linesearch(0.0d0,deltat,
+         Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
@@ -161,7 +162,7 @@ c        call c_rho_2to1()
 c        call c_dng_2to1()
 
 *        **** get the new gradient - also updates densities****
-         call cpsi_1get_Tgradient(dcpl_mb(G1(1)))
+         call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
          call Stfl_ggg_Sub(ispin,ne,nfft3d,neall,nbrill,
      >                       dcpl_mb(G1(1)),
@@ -215,7 +216,7 @@ c              scale = sum3/sum0
       end do
 
 *     **** initialize the geoedesic line data structure ****
-      call c_geodesic_start(dcpl_mb(H0(1)),max_sigma)
+      call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
 
 *     ******* line search *********
       if (tmin.gt.0.0d0) then
@@ -228,7 +229,7 @@ c      Eold = cpsi_geodesic_energy(0.0d0)
 c     Eold = cpsi_geodesic_energy(0.0d0)
 c     Enew = Eold
 c     tmin = 0.0d0
-      Enew = linesearch(0.0d0,deltat,
+      Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
@@ -236,13 +237,13 @@ c     tmin = 0.0d0
       deltac = c_rho_error()
 
 *     **** free memory ****
-      value = MA_pop_stack(G1(2))
+ 30   value = MA_pop_stack(G1(2))
       value = value.and.MA_pop_stack(G0(2))
       value = value.and.MA_pop_stack(H0(2))
       if (.not. value) 
      >  call errquit('c_cgminimize:error freeing stack memory',0)
 
- 30   call cpsi_2to1()
+      call cpsi_2to1()
       call cpsi_1toelectron() 
 c     call c_rho_2to1()
 c     call c_dng_2to1()

@@ -89,10 +89,10 @@
 *     Uses - geodesic common block
 *
 
-      subroutine geodesic_start(A,max_sigma)
+      subroutine geodesic_start(A,max_sigma,dE)
       implicit none
       complex*16 A(*)
-      real*8     max_sigma
+      real*8     max_sigma,dE
 
 #include "mafdecls.fh"
 
@@ -128,11 +128,14 @@ c      integer ierr
 
 *     **** external functions **** 
       integer  psi_ispin,psi_ne
+      real*8   electron_eorbit
       external psi_ispin,psi_ne
+      external electron_eorbit
 
       call current_second(tim1)
       call Pack_npack(1,npack1)
       nemax = psi_ne(1) + psi_ne(2)
+
 
 *     **** allocate tmp space ****
       value = MA_push_get(mt_dbl,(4*nemax*nemax),'tmp1',
@@ -224,6 +227,9 @@ c         end do
          end do
          
       end do
+
+*     **** calculate 2*<A|H|psi> ****
+      dE = 2.0d0*electron_eorbit(A)
 
 *     **** deallocate tmp space ****     
       value = value.and.

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.4 2001-12-20 00:30:51 bylaska Exp $
+* $Id: cpsi.F,v 1.5 2001-12-28 19:04:24 bylaska Exp $
 *
 
 
@@ -348,9 +348,10 @@
 *     *		cpsi_1get_Tgradient	*
 *     *					*
 *     ***********************************
-      subroutine cpsi_1get_Tgradient(THpsi)
+      subroutine cpsi_1get_Tgradient(THpsi,E0)
       implicit none
       complex*16 THpsi(*)
+      real*8     E0
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -360,8 +361,9 @@
       logical value
       integer tmp1(2)
  
-      real*8 dsum
-      external dsum
+*     **** external functions ****
+      real*8   c_electron_energy
+      external c_electron_energy
 
       value = MA_push_get(mt_dcpl,(2*ne(1)*ne(1))*nbrillioun,
      >                   'tmp1',tmp1(2),tmp1(1))
@@ -373,6 +375,12 @@
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)))
+
+      E0 = c_electron_energy(dcpl_mb(psi1(1)),
+     >                       dbl_mb(rho1(1)),
+     >                       dcpl_mb(dng1(1)),
+     >                       dbl_mb(rho1_all(1)))
+
       call c_electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dcpl_mb(tmp1(1)))
       call c_electron_get_Tgradient(dcpl_mb(psi1(1)),
@@ -393,9 +401,10 @@
 *     *		cpsi_2get_Tgradient	*
 *     *					*
 *     ***********************************
-      subroutine cpsi_2get_Tgradient(THpsi)
+      subroutine cpsi_2get_Tgradient(THpsi,E0)
       implicit none
       complex*16 THpsi(*)
+      real*8     E0
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -404,6 +413,11 @@
 *     *** local variables ****
       logical value
       integer tmp1(2)
+
+*     **** external functions ****
+      real*8   c_electron_energy
+      external c_electron_energy
+
 
       value = MA_push_get(mt_dcpl,(2*ne(1)*ne(1)*nbrillioun),
      >                   'tmp1',tmp1(2),tmp1(1))
@@ -415,6 +429,12 @@
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
      >                   dbl_mb(rho2_all(1)))
+
+      E0 = c_electron_energy(dcpl_mb(psi2(1)),
+     >                       dbl_mb(rho2(1)),
+     >                       dcpl_mb(dng2(1)),
+     >                       dbl_mb(rho2_all(1)))
+
       call c_electron_gen_hml(dcpl_mb(psi2(1)),
      >                       dcpl_mb(tmp1(1)))
       call c_electron_get_Tgradient(dcpl_mb(psi2(1)),
