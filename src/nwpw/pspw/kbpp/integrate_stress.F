@@ -1,5 +1,5 @@
 *
-* $Id: integrate_stress.F,v 1.1 2003-10-17 21:54:44 carlfahl Exp $
+* $Id: integrate_stress.F,v 1.2 2003-11-01 01:53:27 bylaska Exp $
 *
 
 
@@ -415,6 +415,8 @@
     
   700 CONTINUE
 
+
+      call D3dB_Vector_SumAll(4*nfft3d,rho_sc_k)
       call D3dB_Vector_SumAll(nfft3d,dvl)
       call D3dB_Vector_Sumall(3*lmmax*nfft3d,dvnl)
 
