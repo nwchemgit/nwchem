@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.9 2000-09-01 01:03:30 bjohnson Exp $
+#	$Id: NTmakefile.h,v 1.10 2000-11-03 00:50:31 edo Exp $
 #
 
 #
@@ -62,13 +62,13 @@ FC = f90 -nologo
 COPT = -Z7
 FOPT = /debug:full /nooptimize
 !ELSE
-COPT = -G5 -O2
+COPT = 
 FOPT = /fast /optimize:5 /noinline /nofltconsistency
 # Added /noinline since it breaks LAPACK dlamach routines
 !ENDIF
 
 CFLAGS = -W3 $(COPT) $(INCLUDES) $(DEFINES) -Fo"$(OBJDIR)/" -c
-FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES) /automatic /extend_source:132 /check:none /traceback /fpscomp=nogeneral /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
+FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)  /automatic /extend_source:132 /check:none /traceback /fpscomp=nogeneral /warn:argument_checking /warn:nofileopt /warn:nouncalled /object:"$(OBJDIR)/" /fpp:"/c /m" /nodefine /nokeep -c
 
 .SUFFIXES:
 .SUFFIXES:      .obj .s .F .c
