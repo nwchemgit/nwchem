@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.35 2000-03-31 01:33:21 edo Exp $
+c     $Id: dft_main0d.F,v 1.36 2000-04-10 21:15:15 zzhang Exp $
 c     
       implicit none
 c
@@ -38,6 +38,9 @@ c
       double precision toll_s
       logical dft_scf,l1ecache
       external dft_scf
+      logical dft_scf_so 
+      external dft_scf_so 
+      character*80 theory, key, prefix
 c     
 #if defined(DFT_TIMER)
       call t_stat(11,-2)
@@ -389,11 +392,21 @@ c
 c     
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
-c
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
-      dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
-     &                     iter, g_dens, g_evecs, g_vxc, g_fock, 
-     &                     g_svecs, isvals, g_xcinv, g_s)
+c     
+c     if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
+c     
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:energy: theory not specified',0)
+      if (theory .eq. 'dft') then
+         dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
+     &        iter, g_dens, g_evecs, g_vxc, g_fock,
+     &        g_svecs, isvals, g_xcinv, gs)
+      else if (theory .eq. 'sodft') then
+         dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
+     &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 
+     &        g_svecs, isvals, g_xcinv)
+      endif 
+cso 
 c     
 c     Clean up memory usage.
 c     
