@@ -1,23 +1,19 @@
-# $Id: GNUmakefile,v 1.77 2002-10-01 00:01:21 edo Exp $
+# $Id: GNUmakefile,v 1.78 2003-01-09 02:48:12 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o
 	OBJ_OPTIMIZE = \
 	a_dist.o \
 	eumac.o \
-	gat_mat.o \
 	qdist.o \
-	qpts.o \
 	scat_mat.o \
 	setACmat.o \
 	xc_becke88.o \
 	xc_beckew.o \
-	xc_delleyw.o \
 	xc_dirac.o \
 	xc_dirac_screened.o \
 	xc_fitv.o \
 	xc_lebedev.o \
 	xc_lyp88.o \
-	xc_neighb.o \
 	xc_perdew86.o \
 	xc_perdew91.o \
 	xc_pw91lda.o \

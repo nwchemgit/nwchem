@@ -1,7 +1,7 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
      &     nshbfa,nshbfb,g_a,vec,vec2,what)
 
-C$Id: sca_lab_mat.F,v 1.12 2001-11-22 02:00:10 edo Exp $
+C$Id: sca_lab_mat.F,v 1.13 2003-01-09 02:48:12 edo Exp $
       implicit none
       
       integer basis_hand
@@ -63,7 +63,7 @@ c******************************************************************************
      &     nshbfa,nshbfb,g_a,nmat,
      .     vec,vec2,what)
 
-C$Id: sca_lab_mat.F,v 1.12 2001-11-22 02:00:10 edo Exp $
+C$Id: sca_lab_mat.F,v 1.13 2003-01-09 02:48:12 edo Exp $
       implicit none
 #include "bas.fh"
       integer nmat
@@ -118,3 +118,25 @@ c
       return
       end
 
+      Subroutine gat_mat(T,TT,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
+
+C$Id: sca_lab_mat.F,v 1.13 2003-01-09 02:48:12 edo Exp $
+      implicit none
+      integer mi,mj,Ni,Nj
+      integer ifirst,jfirst
+      integer ibf(mi),jbf(mj)
+      double precision T(mi,mj),TT(Ni,Nj)
+c
+      integer i,j,jj
+c
+c     gather into matrix 
+c     
+      do j = 1,mj
+        jj=jbf(j)-jfirst+1
+        do i =1,mi
+          T(i,j)=TT((ibf(i)-ifirst+1),jj)
+        enddo
+      enddo
+      
+      return
+      end
