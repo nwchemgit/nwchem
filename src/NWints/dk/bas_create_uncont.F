@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.9 2000-01-12 19:02:43 bert Exp $
+c $Id: bas_create_uncont.F,v 1.10 2000-02-04 00:57:27 mg201 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -69,9 +69,12 @@ c
      $   call errquit('bas_create_uncont: bas_create failed',0)
 c
 c     Check if the user generated a fitting basis on input called
-c     "D-K basis", if so load and return
+c     "D-K basis", if so load, normalize and return
 c
-      if (bas_rtdb_load(usertdb,usegeom,basis_out,'D-K basis')) return
+      if (bas_rtdb_load(usertdb,usegeom,basis_out,'D-K basis')) then
+        call int_normalize(basis_out,usertdb)
+        return
+      end if
 c
 c     Create a new uncontracted basis and initialize adding function
 c
@@ -308,6 +311,10 @@ c
      $   call errquit('bas_create_uncont: bas_create failed',0)
       if (.not. bas_rtdb_load(usertdb,usegeom,basis_out,name))
      $   call errquit('bas_create_uncont: bas_rtdb_load failed',0)
+c
+c     Normalize the uncontracted fitting basis 
+c
+      call int_normalize(basis_out,usertdb)
 c
       return
 c
