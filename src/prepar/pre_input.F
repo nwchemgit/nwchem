@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.115 2003-11-13 17:24:28 d3j191 Exp $
+c $Id: pre_input.F,v 1.116 2003-12-05 20:46:42 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert,irrep
       integer iskip,jskip,kskip
       integer nrgrid,iogrid(5),rogrid(2,5)
-      integer itopol,ititle,ntitle,nmoves
+      integer itopol,ititle,ntitle,nmoves,icomb
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo,ltitle
 c
@@ -110,6 +110,7 @@ c
       fcount=1.0d0
       nrgrid=0
       itopol=0
+      icomb=0
 c
       touch=0.25d0
       xpnd(1)=0.00d0
@@ -224,10 +225,12 @@ c
     5 continue
       if(inp_compare(.false.,'amber',item)) then
       ffield='amber '
+      if(icomb.eq.0) icomb=3
       goto 2
       endif
       if(inp_compare(.false.,'charmm',item)) then
       ffield='charmm '
+      if(icomb.eq.0) icomb=3
       goto 2
       endif
       if(inp_compare(.false.,'gromos',item)) then
@@ -246,6 +249,42 @@ c
       if(.not.inp_a(item)) call md_abort('pre_input: error ffield',0)
       goto 5
       endif
+c
+c     default parameter combination rules
+c     -----------------------------------
+c
+c     1: C6 and C12
+c     2: epsilon and sigma
+c     3: epsilon and R*
+c     4: B and A
+c
+      if(inp_compare(.false.,'parameters',item)) then
+      if(.not.inp_a(item)) call md_abort('pre_input: error parameter',0)
+      if(inp_compare(.false.,'epsilon',item)) then
+      if(.not.inp_a(item)) call md_abort('pre_input: error parameter',0)
+      if(inp_compare(.false.,'sigma',item)) then
+      icomb=2
+      elseif(inp_compare(.false.,'r*',item)) then
+      icomb=3
+      else
+      call md_abort('pre_input: unknown parameter format',0)
+      endif
+      elseif(inp_compare(.false.,'c6',item)) then
+      if(.not.inp_a(item)) call md_abort('pre_input: error parameter',0)
+      if(.not.inp_compare(.false.,'c12',item))
+     + call md_abort('pre_input: unknown parameter format',0)
+      icomb=1
+      elseif(inp_compare(.false.,'b',item)) then
+      if(.not.inp_a(item)) call md_abort('pre_input: error parameter',0)
+      if(.not.inp_compare(.false.,'a',item))
+     + call md_abort('pre_input: unknown parameter format',0)
+      icomb=4
+      else
+      call md_abort('pre_input: unknown parameter format',0)
+      endif
+      goto 2
+      endif
+c
 c
 c     topology function
 c     -----------------
@@ -1850,6 +1889,9 @@ c
      + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'prep:ignore',mt_int,1,ignore))
+     + call md_abort('pre_input: rtdb_put failed',0)
+c
+      if(.not.rtdb_put(irtdb,'prep:icomb',mt_int,1,icomb))
      + call md_abort('pre_input: rtdb_put failed',0)
 c
       if(maxscf.ge.0) then

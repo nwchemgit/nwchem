@@ -1,9 +1,9 @@
       logical function pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
-     + ignore,slvnam,itopol)
+     + ignore,slvnam,itopol,icomb)
 c
-c $Id: pre_mktop.F,v 1.36 2003-12-03 05:00:55 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.37 2003-12-05 20:46:42 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -28,7 +28,7 @@ c
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore,lfnmat
       integer lfnhdb,lfnhop
-      integer nparms,mparms,itopol
+      integer nparms,mparms,itopol,icomb
       character*80 title(2,3)
       character*255 filseq,filtop,filmod,filhop
       character*3 slvnam
@@ -369,7 +369,7 @@ c
      + int_mb(i_limp),int_mb(i_kimp),dbl_mb(i_rimp),mimp,nimpt,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,mats,nats,
-     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq))
+     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,icomb))
      + call md_abort('pre_params failed',9999)
 c
       if(util_print('topology',print_debug)) then

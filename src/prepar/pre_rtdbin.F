@@ -4,9 +4,9 @@
      + mgrid,nrgrid,iogrid,rogrid,gdist,mnoe,mpmf,
      + maxscf,qscale,
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
-     + fcount,mfract,nfract,ifract,scale,cpk,his,itopol)
+     + fcount,mfract,nfract,ifract,scale,cpk,his,itopol,icomb)
 c
-c $Id: pre_rtdbin.F,v 1.38 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.39 2003-12-05 20:46:42 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -26,7 +26,7 @@ c
       character*10 slvmdl
       integer newtop,newseq,newrst,icount(mcount),icyren,ignore
       integer len,ndx,mgrid,mnoe,mpmf,maxscf,model,nxlnk,mdold
-      integer mfract,nfract,iconst,itopol
+      integer mfract,nfract,iconst,itopol,icomb
       integer ifract(mfract)
       real*8 gdist,qscale
       character*1 altloc,chain,his
@@ -115,6 +115,8 @@ c
       if(.not.rtdb_get(irtdb,'prep:mpmf',mt_int,1,mpmf)) mpmf=0
 c
       if(.not.rtdb_get(irtdb,'prep:itopol',mt_int,1,itopol)) itopol=0
+c
+      if(.not.rtdb_get(irtdb,'prep:icomb',mt_int,1,icomb)) icomb=0
 c
       if(.not.rtdb_get(irtdb,'prep:ignore',mt_int,1,ignore)) ignore=0
 c

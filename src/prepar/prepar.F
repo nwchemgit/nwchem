@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.57 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: prepar.F,v 1.58 2003-12-05 20:46:42 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -67,7 +67,7 @@ c
       integer ncount,icyren,model,iconst,nmerge
       integer nrgrid,iogrid(5),rogrid(2,5)
       integer nfract,ifract(mfract)
-      integer ignore,itopol
+      integer ignore,itopol,icomb
       real*8 gdist,qscale,xmerge(3,100)
       logical lstate
       real*8 scale,cpk
@@ -150,7 +150,8 @@ c
      + icount,mgrid,nrgrid,iogrid,rogrid,
      + gdist,mnoe,mpmf,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
-     + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his,itopol))
+     + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his,itopol,
+     + icomb))
      + call md_abort('pre_rtdbin failed',9999)
 c
 c     construct file names
@@ -301,7 +302,7 @@ c     -----------------
 c
       if(.not.pre_mktop(lfnout,title,nparms,mparms,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,lfnmod,filmod,lfnmat,
-     + lfnhdb,lfnhop,filhop,ignore,slvnam,itopol))
+     + lfnhdb,lfnhop,filhop,ignore,slvnam,itopol,icomb))
      + call md_abort('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)

@@ -5,7 +5,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms)
 c
-c $Id: pre_ffield.F,v 1.24 2003-12-03 05:00:55 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.25 2003-12-05 20:46:42 d3j191 Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer limp(6,mimp),kimp(nparms,mdih)
       real*8 rimp(nparms,2,mimp)
 c
-      integer i,j,length,nt,ng,latnum,mult,ifnd,nd
+      integer i,j,length,nt,ng,latnum,mult,ifnd,nd,jcomb
       character*80 card
       character*6 atyp1,atyp2,atyp3,atyp4,btyp1,btyp2,btyp3,btyp4
       character*1 qtm
@@ -57,7 +57,7 @@ c
  1111 format(' Parameter file',t40,a)
       endif
 c
-      icomb=0
+      if(icomb.eq.0) icomb=3
 c
     1 continue
       read(lfnpar,1000,err=9999,end=999) card
@@ -86,21 +86,36 @@ c     non-bonded parameter format
 c     ---------------------------
 c
       if(card(1:17).eq.'Parameters C6 C12') then
-      if(icomb.ne.0.and.icomb.ne.1)
-     + call md_abort('Combination rules should not be mixed',9999)
-      icomb=1
+c      if(icomb.ne.0.and.icomb.ne.1)
+c     + call md_abort('Combination rules should not be mixed',9999)
+      jcomb=1
+      if(util_print('files',print_default).and.icomb.ne.jcomb) then
+      if(icomb.eq.2) write(lfnout,1102)
+      if(icomb.eq.3) write(lfnout,1103)
+ 1101 format(/,' Parameters converted to C6 and C12')
+ 1102 format(/,' Parameters converted to epsilon and sigma')
+ 1103 format(/,' Parameters converted to epsilon and R*')
+      endif
       goto 1
       endif
       if(card(1:24).eq.'Parameters epsilon sigma') then
-      if(icomb.ne.0.and.icomb.ne.2)
-     + call md_abort('Combination rules should not be mixed',9999)
-      icomb=2
+c      if(icomb.ne.0.and.icomb.ne.2)
+c     + call md_abort('Combination rules should not be mixed',9999)
+      jcomb=2
+      if(util_print('files',print_default).and.icomb.ne.jcomb) then
+      if(icomb.eq.1) write(lfnout,1101)
+      if(icomb.eq.3) write(lfnout,1103)
+      endif
       goto 1
       endif
       if(card(1:21).eq.'Parameters epsilon R*') then
-      if(icomb.ne.0.and.icomb.ne.3)
-     + call md_abort('Combination rules should not be mixed',9999)
-      icomb=3
+c      if(icomb.ne.0.and.icomb.ne.3)
+c     + call md_abort('Combination rules should not be mixed',9999)
+      jcomb=3
+      if(util_print('files',print_default).and.icomb.ne.jcomb) then
+      if(icomb.eq.1) write(lfnout,1101)
+      if(icomb.eq.2) write(lfnout,1102)
+      endif
       goto 1
       endif
 c
@@ -134,6 +149,49 @@ c
       latt(1,i)=latnum
       latt(2,i)=nt
       latt(3,i)=ng
+c
+      if(icomb.ne.jcomb) then
+      if(icomb.eq.1) then
+      if(jcomb.eq.2) then
+      call md_abort('Parameter conversion not implemented',12)
+      elseif(jcomb.eq.3) then
+      call md_abort('Parameter conversion not implemented',13)
+      elseif(jcomb.eq.4) then
+      call md_abort('Parameter conversion not implemented',14)
+      endif
+      elseif(icomb.eq.2) then
+      if(jcomb.eq.1) then
+      call md_abort('Parameter conversion not implemented',21)
+      elseif(jcomb.eq.3) then
+      call md_abort('Parameter conversion not implemented',23)
+      elseif(jcomb.eq.4) then
+      call md_abort('Parameter conversion not implemented',24)
+      endif
+      elseif(icomb.eq.3) then
+      if(jcomb.eq.1) then
+      patt(1,1,i,i)=0.25d0*(p1*p1/p2)
+      patt(2,1,i,i)=0.5d0*((2.0d0*p2/p1)**(1.0d0/6.0d0))
+      patt(3,1,i,i)=p3
+      patt(4,1,i,i)=p4
+      patt(1,2,i,i)=0.25d0*(pt1*pt1/pt2)
+      patt(2,2,i,i)=0.5d0*((2.0d0*pt2/pt1)**(1.0d0/6.0d0))
+      patt(3,2,i,i)=pt3
+      patt(4,2,i,i)=pt4
+      elseif(jcomb.eq.2) then
+      call md_abort('Parameter conversion not implemented',32)
+      elseif(jcomb.eq.4) then
+      call md_abort('Parameter conversion not implemented',34)
+      endif
+      elseif(icomb.eq.4) then
+      if(jcomb.eq.1) then
+      call md_abort('Parameter conversion not implemented',41)
+      elseif(jcomb.eq.2) then
+      call md_abort('Parameter conversion not implemented',42)
+      elseif(jcomb.eq.3) then
+      call md_abort('Parameter conversion not implemented',43)
+      endif
+      endif
+      else
       patt(1,1,i,i)=p1
       patt(2,1,i,i)=p2
       patt(3,1,i,i)=p3
@@ -142,28 +200,30 @@ c
       patt(2,2,i,i)=pt2
       patt(3,2,i,i)=pt3
       patt(4,2,i,i)=pt4
+      endif
+c
       do 5 j=1,natt
       if(i.ne.j) then
       if(icomb.eq.1) then
       endif
       if(icomb.eq.2) then
-      patt(1,1,i,j)=sqrt(p1*patt(1,1,j,j))
+      patt(1,1,i,j)=sqrt(patt(1,1,i,i)*patt(1,1,j,j))
       patt(1,1,j,i)=patt(1,1,i,j)
-      patt(2,1,i,j)=p2+patt(2,1,j,j)
+      patt(2,1,i,j)=patt(2,1,i,i)+patt(2,1,j,j)
       patt(2,1,j,i)=patt(2,1,i,j)
-      patt(1,2,i,j)=sqrt(pt1*patt(1,2,j,j))
+      patt(1,2,i,j)=sqrt(patt(1,2,i,i)*patt(1,2,j,j))
       patt(1,2,j,i)=patt(1,2,i,j)
-      patt(2,2,i,j)=pt2+patt(2,2,j,j)
+      patt(2,2,i,j)=patt(2,2,i,i)+patt(2,2,j,j)
       patt(2,2,j,i)=patt(2,2,i,j)
       endif
       if(icomb.eq.3) then
-      patt(1,1,i,j)=sqrt(p1*patt(1,1,j,j))
+      patt(1,1,i,j)=sqrt(patt(1,1,i,i)*patt(1,1,j,j))
       patt(1,1,j,i)=patt(1,1,i,j)
-      patt(2,1,i,j)=p2+patt(2,1,j,j)
+      patt(2,1,i,j)=patt(2,1,i,i)+patt(2,1,j,j)
       patt(2,1,j,i)=patt(2,1,i,j)
-      patt(1,2,i,j)=sqrt(pt1*patt(1,2,j,j))
+      patt(1,2,i,j)=sqrt(patt(1,2,i,i)*patt(1,2,j,j))
       patt(1,2,j,i)=patt(1,2,i,j)
-      patt(2,2,i,j)=pt2+patt(2,2,j,j)
+      patt(2,2,i,j)=patt(2,2,i,i)+patt(2,2,j,j)
       patt(2,2,j,i)=patt(2,2,i,j)
       endif
       endif
@@ -195,28 +255,112 @@ c
       if(atyp2.eq.'      ') goto 1
       read(lfnpar,1004,err=9999) pt1,pt2
  1004 format(13x,2e12.5)
+c
       do 7 i=1,natt
       if(catt(1,i)(1:5).eq.atyp1) then
       do 8 j=1,natt
       if(catt(1,i)(1:5).eq.atyp2) then
+c
+      if(icomb.ne.jcomb) then
+      if(icomb.eq.1) then
+      if(jcomb.eq.2) then
+      call md_abort('Parameter conversion not implemented',12)
+      elseif(jcomb.eq.3) then
+      call md_abort('Parameter conversion not implemented',13)
+      elseif(jcomb.eq.4) then
+      call md_abort('Parameter conversion not implemented',14)
+      endif
+      elseif(icomb.eq.2) then
+      if(jcomb.eq.1) then
+      call md_abort('Parameter conversion not implemented',21)
+      elseif(jcomb.eq.3) then
+      call md_abort('Parameter conversion not implemented',23)
+      elseif(jcomb.eq.4) then
+      call md_abort('Parameter conversion not implemented',24)
+      endif
+      elseif(icomb.eq.3) then
+      if(jcomb.eq.1) then
+      patt(1,1,i,j)=0.25d0*(p1*p1/p2)
+      patt(2,1,i,j)=0.5d0*((2.0d0*p2/p1)**(1.0d0/6.0d0))
+      patt(3,1,i,j)=p3
+      patt(4,1,i,j)=p4
+      patt(1,2,i,j)=0.25d0*(pt1*pt1/pt2)
+      patt(2,2,i,j)=0.5d0*((2.0d0*pt2/pt1)**(1.0d0/6.0d0))
+      patt(3,2,i,j)=pt3
+      patt(4,2,i,j)=pt4
+      elseif(jcomb.eq.2) then
+      call md_abort('Parameter conversion not implemented',32)
+      elseif(jcomb.eq.4) then
+      call md_abort('Parameter conversion not implemented',34)
+      endif
+      elseif(icomb.eq.4) then
+      if(jcomb.eq.1) then
+      call md_abort('Parameter conversion not implemented',41)
+      elseif(jcomb.eq.2) then
+      call md_abort('Parameter conversion not implemented',42)
+      elseif(jcomb.eq.3) then
+      call md_abort('Parameter conversion not implemented',43)
+      endif
+      endif
+      else
       if(icomb.eq.1) then
       patt(1,1,i,j)=p1
       patt(2,1,i,j)=p2
+      patt(3,1,i,j)=p3
+      patt(4,1,i,j)=p4
       patt(1,2,i,j)=pt1
       patt(2,2,i,j)=pt2
-      endif
-      if(icomb.eq.2) then
-      endif
-      if(icomb.eq.3) then
-      patt(1,1,i,j)=p1*p1
+      patt(3,2,i,j)=pt3
+      patt(4,2,i,j)=pt4
+      elseif(icomb.eq.2) then
+      patt(1,1,i,j)=p1
       patt(2,1,i,j)=p2+p2
-      patt(1,2,i,j)=pt1*pt1
+      patt(3,1,i,j)=p3
+      patt(4,1,i,j)=p4
+      patt(1,2,i,j)=pt1
       patt(2,2,i,j)=pt2+pt2
+      patt(3,2,i,j)=pt3
+      patt(4,2,i,j)=pt4
+      elseif(icomb.eq.3) then
+      patt(1,1,i,j)=p1
+      patt(2,1,i,j)=p2+p2
+      patt(3,1,i,j)=p3
+      patt(4,1,i,j)=p4
+      patt(1,2,i,j)=pt1
+      patt(2,2,i,j)=pt2+pt2
+      patt(3,2,i,j)=pt3
+      patt(4,2,i,j)=pt4
+      elseif(icomb.eq.4) then
+      patt(1,1,i,j)=p1
+      patt(2,1,i,j)=p2
+      patt(3,1,i,j)=p3
+      patt(4,1,i,j)=p4
+      patt(1,2,i,j)=pt1
+      patt(2,2,i,j)=pt2
+      patt(3,2,i,j)=pt3
+      patt(4,2,i,j)=pt4
       endif
-      patt(1,1,i,j)=patt(1,1,j,i)
-      patt(2,1,i,j)=patt(2,1,j,i)
-      patt(1,2,i,j)=patt(1,2,j,i)
-      patt(2,2,i,j)=patt(2,2,j,i)
+      endif
+c
+c      if(icomb.eq.1) then
+c      patt(1,1,i,j)=p1
+c      patt(2,1,i,j)=p2
+c      patt(1,2,i,j)=pt1
+c      patt(2,2,i,j)=pt2
+c      endif
+c      if(icomb.eq.2) then
+c      endif
+c      if(icomb.eq.3) then
+c      patt(1,1,i,j)=sqrt(p1*p1)
+c      patt(2,1,i,j)=p2+p2
+c      patt(1,2,i,j)=sqrt(pt1*pt1)
+c      patt(2,2,i,j)=pt2+pt2
+c      endif
+c
+      patt(1,1,j,i)=patt(1,1,i,j)
+      patt(2,1,j,i)=patt(2,1,i,j)
+      patt(1,2,j,i)=patt(1,2,i,j)
+      patt(2,2,j,i)=patt(2,2,i,j)
       endif
     8 continue
       endif

@@ -4,9 +4,9 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,mats,nats,
-     + lseq,cseq,mseq,nseq)
+     + lseq,cseq,mseq,nseq,icomb)
 c
-c $Id: pre_params.F,v 1.19 2003-12-03 05:00:56 d3j191 Exp $
+c $Id: pre_params.F,v 1.20 2003-12-05 20:46:42 d3j191 Exp $
 c
       implicit none
 c
