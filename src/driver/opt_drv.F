@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.15 1997-03-11 22:48:24 mdupuis Exp $
+C$Id: opt_drv.F,v 1.16 1997-03-13 18:49:34 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1668,9 +1668,8 @@ c
       out  =.false.
       out  =out.or.dbug
 c
-c     ----- set broadcast off -----
-c
       baker=.false.
+c
       if(out) then
          write(iw,*) 'start of hnd_opt_search_dir, baker = ',
      1                                             baker
