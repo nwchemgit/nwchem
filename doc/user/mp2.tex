@@ -4,12 +4,12 @@ The RI-MP2 module can be invoked by specifying
 \begin{verbatim}
   TASK RI-MP2
 \end{verbatim}
-on a \verb+RESTART+ job -- the MO vectors and database from the SCF
-calculation must be present.  At present, the RI-MP2 does not have its
-own input module, instead it can be controlled by \verb+SET+ing
-entries in the database.  Currently recognized entries are described
-below. {\em The names of these entries in the database will change in
-the very near future.}
+on a \verb+RESTART+ or \verb+CONTINUE+ job -- the MO vectors and
+database from the SCF calculation must be present.  At present, the
+RI-MP2 does not have its own input module, instead it can be
+controlled by \verb+SET+ing entries in the database.  Currently
+recognized entries are described below. {\em The names of these
+  entries in the database will change in the very near future.}
 
 Alternatively, the fully-direct MP2 module using conventional
 four-index transformation (see also section \ref{sec:fourindex}) may be
@@ -19,15 +19,15 @@ invoked by the input line
 \end{verbatim}
 In future releases, the two MP2 modules will be amalgamated into a
 single task where the choice of method will be an input parameter.  In
-cases where the MP2 is restarted using a \verb+RESTART+ directive --
-the MO vectors and database from the SCF calculation must be present.
-Currently, there is no specific MP2 input module, instead the
-behavior can be modified by using the \verb+SET+ command on the
-database entries. Currently recognized entries are described below,
-the first three entries apply to both the \verb+RI-MP2+ and
-\verb+DIRECT_MP2+ tasks while the remainder are specific to
-\verb+RI-MP2+.  {\em The names of these entries in the database are
-subject to change in the near future.}
+cases where the MP2 is restarted using a \verb+RESTART+ or
+\verb+CONTINUE+ directive -- the MO vectors and database from the SCF
+calculation must be present.  Currently, there is no specific MP2
+input module, instead the behavior can be modified by using the
+\verb+SET+ command on the database entries. Currently recognized
+entries are described below, the first three entries apply to both the
+\verb+RI-MP2+ and \verb+DIRECT_MP2+ tasks while the remainder are
+specific to \verb+RI-MP2+.  {\em The names of these entries in the
+  database are subject to change in the near future.}
 
 \subsection{Frozen Orbitals}
 

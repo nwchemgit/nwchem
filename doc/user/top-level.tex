@@ -1,34 +1,57 @@
 
-\subsection{START and RESTART}
+\subsection{START, CONTINUE and RESTART}
 \label{sec:start}
 
 This is a startup directive (section \ref{sec:inputstructure}).
 
-A \verb+START+ or \verb+RESTART+ directive is optional but care must
+A \verb+START+, \verb+CONTINUE+ or \verb+RESTART+ directive is optional but care must
 be taken if no directive is presented since the behaviour of the code
 will vary depending upon the existence of the database. 
 \begin{verbatim}
-  (RESTART || START) [<string file_prefix>] [rtdb <string rtdb_file_name>]
+(RESTART || CONTINUE || START) [<string file_prefix>] [rtdb <string rtdb_file_name>]
 \end{verbatim}
 \verb+START+ indicates a startup calculation in which the database is
-created and any existing database is destroyed.  \verb+RESTART+
-indicates that an existing database should be used and an error will
-result if it does not exist.  All files created by NWChem are by
-default prefixed with the string specified on the directive, which
-defaults to the basename of the input file (i.e., the input file name
-with the directory and any trailing \verb+.*+ stripped off).  Note
-that if you change the file prefix in a restart job, NWChem will be
-unable to locate most files automatically.  The \verb+RTDB+ keyword
-permits specification of the name of the database which otherwise
-defaults to \verb+<file_prefix>.db+ in the directory for permanent
-files.
+created and any existing database is destroyed.  \verb+RESTART+ or
+\verb+CONTINUE+ indicate that an existing database should be used and
+an error will result if it does not exist.  All files created by
+NWChem are by default prefixed with the string specified on the
+directive, which defaults to the basename of the input file (i.e., the
+input file name with the directory and any trailing \verb+.*+ stripped
+off).  Note that if you change the file prefix in a restart job,
+NWChem will be unable to locate most files automatically.  The
+\verb+RTDB+ keyword permits specification of the name of the database
+which otherwise defaults to \verb+<file_prefix>.db+ in the directory
+for permanent files.
 
-If no \verb+START+ or \verb+RESTART+ directive is presented then
+The difference between \verb+CONTINUE+ and \verb+RESTART+ is subtle
+but useful. \verb+CONTINUE+ will not parse any new input data before
+it does the task stored in the database file.  \verb+RESTART+ will
+parse new input data and overwrite any existing data if appropriate.
+\verb+CONTINUE+ should be viewed as {\it restart and finish} the
+old task and also do any new tasks that are input. \verb+RESTART+
+should be viewed as restart with information available, new input is
+also parsed, and do the tasks outlined in the input so the old task
+may be discarded.  \verb+CONTINUE+ implies restart the old task and
+\verb+RESTART+ implies restart with possibly a new task.
+
+For example, in a SCF energy calculation where you underestimated the
+time necessary and the job was killed by the scheduling software.  You
+could use either \verb+CONTINUE+ or \verb+RESTART+ directive with the
+appropriate file prefix and database specifiction to complete the
+task.  On the other hand if you wanted to finish the task and do an
+additional SCF energy computation with a new geometry you could use
+\verb+CONTINUE+ directive, input the new geometry and use a single
+task directive for the second energy point.  Again, the difference is
+subtle but useful.
+
+If no \verb+START+ \verb+CONTINUE+ or \verb+RESTART+ directive is
+presented then 
 \begin{itemize}
   \item the default file prefix is used,
   \item the default database name is used,
   \item if the default database exists, then the job is assumed to be
     a restart, otherwise it is assumed to be a startup.
+  \item continue is never assumed.
 \end{itemize}
 
 E.g., if running NWChem with the command \verb+nwchem water.nw+ and no
