@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.142 2001-04-07 05:31:21 edo Exp $
+C     $Id: geom_input.F,v 1.143 2001-06-06 17:01:55 edo Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -3100,7 +3100,6 @@ C
       DIMENSION S4AXS(3)
       DIMENSION ERRMSG(3)
       double precision big
-      parameter (big=1d3)
       EQUIVALENCE (DEGNR3,CUBIC)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-MOLOPS-'/
       DATA ZERO   /0.0D+00/
@@ -3114,6 +3113,7 @@ c     DATA TENM02 /1.0D-02/
       DATA TENM05 /1.0D-05/
       DATA EPS    /1.01D+00/
 C
+      big=dlamch('o')**(0.125d0)
       QZERO=cmplx(ZERO,ZERO)
          PI=    FOUR*ATAN(ONE)
       TWOPI=TWO*FOUR*ATAN(ONE)
