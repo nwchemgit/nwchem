@@ -217,7 +217,7 @@ c
       character*(*) name        ! [input]
 c     
       character*256 tmp
-      integer k, nelem
+      integer k, nelem, ma_type
       logical status
       logical geom_check_handle, geom_rtdb_in
       external geom_check_handle, geom_rtdb_in
@@ -300,7 +300,7 @@ c
      $     sym_ops(1,1,geom))
       tmp(k:) = ':map_atoms'
       status = status .and. 
-     $     rtdb_ma_get(rtdb, tmp, mt_int, nelem,
+     $     rtdb_ma_get(rtdb, tmp, ma_type, nelem,
      $     sym_center_map_handle(geom))
       if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
      $     ('geom_rtdb_load: invalid no. of element in sym map', nelem)
