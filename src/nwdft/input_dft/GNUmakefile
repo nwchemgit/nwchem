@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.28 1999-08-10 23:00:10 edo Exp $
+# $Id: GNUmakefile,v 1.29 2000-03-17 18:40:24 edo Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -16,7 +16,7 @@
 
 LIB_INCLUDES = -I../include
 
-   USES_BLAS = xc_setquad.F
+#   USES_BLAS = xc_setquad.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
