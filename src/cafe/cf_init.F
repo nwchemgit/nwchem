@@ -1,12 +1,20 @@
-      subroutine cf_start(lfntop,filtop)
+      subroutine cf_start(lfntop,filtop,
+     + nwm,nwa,nsa,nwmt,nsat,npbt,nbxt,msfi,rcs,rcl,rqm,
+     + jpme,jorder,jgx,jgy,jgz,spmet,
+     + iiqmmm,iipolt)
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "global.fh"
+#include "mafdecls.fh"
 c
       integer lfntop
       character*(*) filtop
+      integer jpme,jorder,jgx,jgy,jgz
+      real*8 spmet
+      integer nwm,nwa,nsa,nwmt,nsat,npbt,nbxt,iiqmmm,msfi,iipolt
+      real*8 rcs,rcl,rqm
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -14,20 +22,93 @@ c
       if(me.eq.0) write(*,1000)
  1000 format('CAFE Classical Atomic Forces and Energies')
 c
+c     dimensions initially set to zero indicating non-allocated
+c
       nbs=0
       mscr=0
-      mwm=0
-      mwa=0
-      msa=0
       lscr=.false.
+      llst=.false.
       lpair=.true.
       llist=.false.
       ndxp=0
       maxl=0
 c
-      twopi=8.0d0*atan(1.0d0)
+      mwm=nwm
+      mwa=nwa
+      msa=nsa
+      mscr=max(mwm+1,msa+1)
+      nwmtot=nwmt
+      nsatot=nsat
+      msf=msfi
+c
+      rshrt=rcs
+      rlong=rcl
+      rqmmm=rqm
+      rshrt2=rshrt*rshrt
+      rlong2=rlong*rlong
+      rqmmm2=rqmmm*rqmmm
+c
+      nbxtyp=nbxt
+      npbtyp=npbt
+c
+      iqmmm=iiqmmm
+      ipolt=iipolt
+c
+      lstype=1
+c
+      ngc=1
+      ngl=1
+      nfrdf=99999
+      ifstep=1
+      ngrww=0
+      ngrsw=0
+      ngrss=0
+      ireact=0
+      iset=1
+      npener=0
+      issscl=0
+      nrwrec=0
+      isolvo=0
+c
+      lpww=1
+      lpsw=1
+      lpss=1
+c
+      npww=1
+      npsw=1
+      npss=1
+      if(rlong.gt.rshrt) then
+      npww=2
+      npsw=2
+      npss=2
+      endif
+c
+      mgc=1
+      mgl=1
+      mgr=1
+c
+      rffww=0.0d0
+      rffsw=0.0d0
+      rffss=0.0d0
+c
+      q14fac=0.833333d0
+c
+      pi=four*atan(one)
+      twopi=two*pi
 c
       call cf_rdtop(lfntop,filtop)
+c
+      ipme=jpme
+      morder=jorder
+      ngx=jgx
+      ngy=jgy
+      ngz=jgz
+      ngmax=max(ngx,ngy,ngz)
+      pmetol=spmet
+      if(ipme.gt.0) then
+      if(morder.gt.25) call errquit('morder too large',0)
+      call cf_alpha
+      endif
 c
       return
       end
@@ -584,86 +665,6 @@ c
 c
       return
       end
-      subroutine cf_initx(nwm,nwa,nsa,nwmt,nsat,iiqmmm,
-     + rcs,rcl,rqm,npbt,nbxt,msfi)
-c
-c     in int : nwm : dimension number of solvent molecules
-c     in int : nwa : dimension number of solvent atoms per molecule
-c     in int : nsa : dimension number of solute atoms
-c     in r*8 : rcs : cutoff radius short range
-c     in r*8 : rcl : cutoff radius long range
-c
-      implicit none
-c
-#include "cf_common.fh"
-c
-      integer nwm,nwa,nsa,nwmt,nsat,npbt,nbxt,iiqmmm,msfi
-      real*8 rcs,rcl,rqm
-c
-      if(lscr) call errquit('Error 1 in cf_initx',0)
-c
-      mwm=nwm
-      mwa=nwa
-      msa=nsa
-      mscr=max(mwm+1,msa+1)
-      nwmtot=nwmt
-      nsatot=nsat
-      msf=msfi
-c
-      rshrt=rcs
-      rlong=rcl
-      rqmmm=rqm
-      rshrt2=rshrt*rshrt
-      rlong2=rlong*rlong
-      rqmmm2=rqmmm*rqmmm
-c
-      nbxtyp=nbxt
-      npbtyp=npbt
-c
-      iqmmm=iiqmmm
-c
-      lstype=1
-c
-      ngc=1
-      ngl=1
-      nfrdf=99999
-      ifstep=1
-      ngrww=0
-      ngrsw=0
-      ngrss=0
-      ireact=0
-      iset=1
-      npener=0
-      iewald=0
-      issscl=0
-      nrwrec=0
-      isolvo=0
-c
-      lpww=1
-      lpsw=1
-      lpss=1
-c
-      npww=1
-      npsw=1
-      npss=1
-      if(rlong.gt.rshrt) then
-      npww=2
-      npsw=2
-      npss=2
-      endif
-c
-      mgc=1
-      mgl=1
-      mgr=1
-c
-      rffww=0.0d0
-      rffsw=0.0d0
-      rffss=0.0d0
-c
-      q14fac=0.833333d0
-c
-      return
-      end
       subroutine cf_final(ewpo,ewwlo,ewwqo,zwo)
 c
       implicit none
@@ -754,6 +755,20 @@ c
       if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr4',l_smr4,i_smr4))
      + call errquit('Failed to allocate scratch array smr4',0)
 c
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr5',l_smr5,i_smr5))
+     + call errquit('Failed to allocate scratch array smr5',0)
+c
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mscr,'smr6',l_smr6,i_smr6))
+     + call errquit('Failed to allocate scratch array smr6',0)
+c
+      if(ipme.gt.0) then
+      lenscr=3*morder*(mwa*mwm+msa)
+      if(.not.ma_alloc_get(mt_dbl,lenscr,'theta',l_theta,i_theta))
+     + call errquit('Failed to allocate scratch array theta',0)
+      if(.not.ma_alloc_get(mt_dbl,lenscr,'dtheta',l_dtheta,i_dtheta))
+     + call errquit('Failed to allocate scratch array dtheta',0)
+      endif
+c
       lscr=.true.
 c
       return
@@ -766,6 +781,19 @@ c
 #include "mafdecls.fh"
 c
       if(.not.lscr) call errquit('Error 1 in cf_sfree',0)
+c
+      if(ipme.gt.0) then
+      if(.not.ma_free_heap(l_dtheta))
+     + call errquit('Failed to free scratch array dtheta',0)
+      if(.not.ma_free_heap(l_theta))
+     + call errquit('Failed to free scratch array theta',0)
+      endif
+c
+      if(.not.ma_free_heap(l_smr6))
+     + call errquit('Failed to free scratch array smr6',0)
+c
+      if(.not.ma_free_heap(l_smr5))
+     + call errquit('Failed to free scratch array smr5',0)
 c
       if(.not.ma_free_heap(l_smr4))
      + call errquit('Failed to free scratch array smr4',0)
@@ -894,6 +922,7 @@ c
       vlati(i,j)=vli(1,3)
     2 continue
     1 continue
+      volume=box(1)*box(2)*box(3)
 c
       lpair=lp
       if(.not.llist) lpair=.true.
@@ -926,4 +955,3 @@ c
 c
       return
       end
-

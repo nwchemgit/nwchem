@@ -1,0 +1,30 @@
+c
+      real*8 zero,small,half,one,two,four
+      parameter(zero=0.0d0)
+      parameter(small=1.0d-6)
+      parameter(half=5.0d-1)
+      parameter(one=1.0d0)
+      parameter(two=2.0d0)
+      parameter(four=4.0d0)
+c
+      integer me,np,nodpme,lslab(512),imfft
+      common/pme_nod/me,np,nodpme,lslab,imfft
+c
+      integer i_bmod,l_bmod,i_barr,l_barr
+      integer i_grd1,l_grd1,i_grd2,l_grd2
+      integer i_lnod,l_lnod,i_kfr,l_kfr,i_kto,l_kto
+      integer i_nodp,l_nodp,i_knod,l_knod,i_lsld,l_lsld
+      integer i_map1,l_map1,i_map2,l_map2,i_slab,l_slab
+      common/pme_ptr/i_bmod,l_bmod,i_barr,l_barr,
+     + i_grd1,l_grd1,i_grd2,l_grd2,
+     + i_lnod,l_lnod,i_kfr,l_kfr,i_kto,l_kto,
+     + i_nodp,l_nodp,i_knod,l_knod,i_lsld,l_lsld,
+     + i_map1,l_map1,i_map2,l_map2,i_slab,l_slab
+c
+      integer mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,ngmax
+      logical lpnode
+      common/pme_dim/mwa,mwm,msa,ngx,ngy,ngz,mgx,mgy,mgz,ngzloc,
+     + ngmax,lpnode
+c
+      real*8 pi,twopi
+      common/pme_var/pi,twopi
