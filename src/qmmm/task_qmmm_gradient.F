@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.4 2004-12-01 18:31:01 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.5 2004-12-02 00:20:27 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -162,7 +162,7 @@ c     take care of the energies
       qmmm_gradient=status
 
 c
-      call qmmm_restore_qm_geom
+      call qmmm_restore_qm_geom(rtdb)
 
       call util_print_pop()
       call mm_write_restart()

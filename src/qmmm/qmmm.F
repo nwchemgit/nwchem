@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.36 2004-12-01 18:31:00 marat Exp $
+c $Id: qmmm.F,v 1.37 2004-12-02 00:20:27 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -105,6 +105,7 @@ c
 #include "errquit.fh"
 #include "qmmm_params.fh"
 #include "qmmm.fh"
+#include "global.fh"
 c
       integer rtdb
       logical qmmm_energy

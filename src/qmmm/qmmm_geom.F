@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.36 2004-12-01 23:53:13 marat Exp $
+c $Id: qmmm_geom.F,v 1.37 2004-12-02 00:20:27 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -196,6 +196,8 @@ c
       integer i_m_all,h_m_all
  
       pname = "qmmm_create_qm_geom"
+      if(qmmm_print_debug())
+     > write(*,*) "in "//pname
 
       nqm   = qmmm_get_nqm()
       i_ind = qmmm_get_i_ai()
@@ -226,7 +228,6 @@ c     ---------------------------
      + call errquit('qmmm: Failed to allocate memory for q_all',nact,
      &       MA_ERR)
 
-      write(*,*) "in "//pname
       icent = 0
       do i=1,nqm
         if(log_mb(i_act+i-1)) then
@@ -282,6 +283,8 @@ c     ------------------------
      & call errquit('qmmm: Failed to deallocate stack c_all',nact,
      &       MA_ERR)
 
+      if(qmmm_print_debug())
+     > write(*,*) "out "//pname
  
       end
 
@@ -474,11 +477,12 @@ c     -----------------------------
 #include "qmmm.fh"
       integer irtdb
 c     local variables
+      logical ignore
       double precision charge
       character*32 pname
 c
       pname = "qmmm_restore_qm_geom"
-c
+
 
       if(.not.rtdb_delete(irtdb,'geometry'))
      + call errquit(pname//' to  delete geom name in rtdb',0, RTDB_ERR)
