@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.31 2000-01-05 17:20:04 d3j191 Exp $
+C$Id: geom.fh,v 1.32 2000-01-25 19:31:46 mg201 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -63,6 +63,8 @@ c
       logical geom_nucexps_get
       logical geom_nucexp_set
       logical geom_nucexp_get
+      logical geom_mass_to_invnucexp
+      logical geom_any_finuc
 c
       logical geom_set_ang2au
       logical geom_get_ang2au
@@ -146,6 +148,8 @@ c
       external geom_nucexps_get
       external geom_nucexp_set
       external geom_nucexp_get
+      external geom_mass_to_invnucexp
+      external geom_any_finuc
 c
       external geom_set_ang2au
       external geom_get_ang2au
