@@ -608,7 +608,7 @@ c
 c      
 c      
 c this is for an occasionally breakage on cray mpp
-c can't tell if it is the compiler or what
+c can''t tell if it is the compiler or what
 c
       if ( gamma(k) .eq. 0.0d0 ) then
          do i = b1, bn

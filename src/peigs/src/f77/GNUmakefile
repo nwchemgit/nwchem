@@ -55,6 +55,7 @@ all:		$(FOBJ) $(EOBJ)
 
 clean:
 		-rm -f *.o
+		-rm -f *.s
 		-rm -f dgetavec.f dlasq1.f dspevx2.f dstebz3.f \
 			 neblw2.f sneblw2.f sstebz3.f
 
@@ -68,6 +69,10 @@ dgetavec.o:	dgetavec.F
 dlasq1.o:	dlasq1.F
 		$(peigs_CPP) < dlasq1.F >  dlasq1.f
 		$(peigs_FC) -c $(F77NFLAGS) dlasq1.f
+
+dlasq3.o:	dlasq3.F
+		$(peigs_CPP) < dlasq3.F >  dlasq3.f
+		$(peigs_FC) -c $(F77NFLAGS) dlasq3.f
 
 dspevx2.o:	dspevx2.F
 		$(peigs_CPP) < dspevx2.F >  dspevx2.f
