@@ -1,6 +1,6 @@
 
 
-# $Id: makefile.h,v 1.86 1994-12-31 01:42:34 og845 Exp $
+# $Id: makefile.h,v 1.87 1995-01-05 04:28:44 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -214,20 +214,21 @@ ifeq ($(TARGET),CRAY-T3D)
 # and to setenv TARGET CRAY-T3D (for C compiler)
 #
     CORE_SUBDIRS_EXTRA = 
-       LINK.f = /mpp/bin/mppldr -Drdahead=on    -L$(LIBDIR) 
+       LINK.f = /mpp/bin/mppldr -Drdahead=on \
+                -Dbin=inp/inp.o,basis/basisP.o,ddscf/rhf_fock_2e_a.o,ddscf/scf_pstat.o,NWints/api/int_init.o,util/error.o\
+                -L$(LIBDIR)
      RANLIB = @echo
   MAKEFLAGS = -j 6
     INSTALL = @echo $@ is built
 
          FC = /mpp/bin/cf77 
        CPP = /mpp/lib/cpp -P  -N
-
-   FOPTIONS = -Wf"-dp" -Wl"-Drdahead=on"
+   FOPTIONS = -Wf"-dp" 
    COPTIONS = 
-  FOPTIMIZE =  -O scalar3
+  FOPTIMIZE = -O scalar3
   COPTIMIZE = 
 
-    DEFINES = 
+    DEFINES =  
 
        CORE_LIBS =  -lglobal \
                 -ltcgmsg 
