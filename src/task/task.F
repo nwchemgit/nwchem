@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.46 2001-06-29 20:42:51 edo Exp $
+* $Id: task.F,v 1.47 2001-11-19 22:15:57 d3k958 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -41,6 +41,7 @@ c
       logical task_version, task_vscf
       logical task_pspw
       logical task_drdy
+      logical task_et
 c
       external jantest, uccsdtest, mcstep_main
       external rjhtest, raktest, atwtest, task_check_sum, cphf
@@ -52,6 +53,7 @@ c
       external kgdtest, task_vscf
       external task_pspw
       external task_drdy
+      external task_et
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
@@ -187,6 +189,8 @@ c     *** task_pspw handles pspw specific "operations" ***
          status = task_saddle(rtdb)
       else if (inp_compare(.false., 'lst', operation)) then
          status = task_lst(rtdb)
+      else if (inp_compare(.false., 'et', operation)) then
+         status = task_et(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
