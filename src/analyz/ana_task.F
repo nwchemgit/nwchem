@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.70 2001-07-17 21:24:30 d3j191 Exp $
+c $Id: ana_task.F,v 1.71 2001-07-17 21:58:48 d3j191 Exp $
 c
       implicit none
 c
@@ -89,6 +89,8 @@ c
 c
       nhis=0
       lhis=0
+c
+      nrot=0
 c
       lsel=.false.
       active=.false.
@@ -555,6 +557,34 @@ c
       call ana_center_ref(dbl_mb(i_xref))
 c
       endif
+      goto 1
+      endif
+c
+c     rotations
+c
+      if(card(1:6).eq.'rotat0') then
+      nrot=0
+      goto 1
+      endif
+      if(card(1:6).eq.'rotatx') then
+      nrot=nrot+1
+      if(nrot.gt.100) call errquit('Increase dimension irot',0)
+      irot(nrot)=1
+      read(card(8:19),'(f12.6)') arot(nrot)
+      goto 1
+      endif
+      if(card(1:6).eq.'rotaty') then
+      nrot=nrot+1
+      if(nrot.gt.100) call errquit('Increase dimension irot',0)
+      irot(nrot)=2
+      read(card(8:19),'(f12.6)') arot(nrot)
+      goto 1
+      endif
+      if(card(1:6).eq.'rotatz') then
+      nrot=nrot+1
+      if(nrot.gt.100) call errquit('Increase dimension irot',0)
+      irot(nrot)=3
+      read(card(8:19),'(f12.6)') arot(nrot)
       goto 1
       endif
 c

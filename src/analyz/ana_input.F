@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.51 2001-07-17 21:24:30 d3j191 Exp $
+c $Id: ana_input.F,v 1.52 2001-07-17 21:58:48 d3j191 Exp $
 c
       implicit none
 c
@@ -17,6 +17,8 @@ c
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,ivctr,iorder
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
+      integer irota
+      real*8 arota
       logical lref,lfil,lsol,lsuper
       integer iesppb,lent,idpdb,indx,icent,jcent
       character*8 option
@@ -598,6 +600,40 @@ c
       if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 5
       goto 2
+      endif
+c
+c     define rotation
+c     ---------------
+c
+      if(inp_compare(.false.,'rotate',item)) then
+      if(.not.inp_a(item)) call errquit('Error in rotate',0)
+      if(inp_compare(.false.,'off',item)) then
+      write(lfncmd,1588)
+ 1588 format('rotat0 ')
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'x',item)) then
+      if(.not.inp_f(arota)) call errquit('Error in rotate',0)
+      write(lfncmd,1587)
+ 1587 format('rotatx ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'y',item)) then
+      if(.not.inp_f(arota)) call errquit('Error in rotate',0)
+      write(lfncmd,1586)
+ 1586 format('rotaty ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+      if(inp_compare(.false.,'z',item)) then
+      if(.not.inp_f(arota)) call errquit('Error in rotate',0)
+      write(lfncmd,1585)
+ 1585 format('rotatz ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
       endif
 c
 c     ramachandran analysis

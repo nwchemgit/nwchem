@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.22 2001-07-17 21:24:30 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.23 2001-07-17 21:58:48 d3j191 Exp $
 c
       implicit none
 c
@@ -140,12 +140,17 @@ c
       endif
  9000 continue
 c
-c     center and fold
-c     ---------------
+c     center and fold and rotate
+c     --------------------------
 c
-      if(me.eq.0.and.icent.gt.0) then
+      if(me.eq.0) then
+      if(icent.gt.0) then
       if(.not.ltop) call errquit('No topology for center',0)
       call ana_center_fold(x,w,int_mb(i_imol),nwm)
+      endif
+      if(nrot.gt.0) then
+      call ana_rotate(x,w,nwm)
+      endif
       endif
 c
 c     broadcast to all nodes
@@ -266,6 +271,63 @@ c
    11 continue
     9 continue
       endif
+c
+      return
+      end
+      subroutine ana_rotate(xs,xw,nw)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "ana_params.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      real*8 xs(msa,3),xw(mwm,mwa,3)
+      integer nw
+c
+      real*8 rv(3),rw(3),rotang,rx(3),ry(3),twopi
+      integer i,j,k
+c
+      twopi=8.0d0*tan(1.0d0)
+c
+      do 1 k=1,nrot
+      rv(1)=0.0d0
+      rv(2)=0.0d0
+      rv(3)=0.0d0
+      rw(1)=0.0d0
+      rw(2)=0.0d0
+      rw(3)=0.0d0
+      rw(irot(k))=1.0d0
+      rotang=arot(k)*twopi/3.6d2
+      do 2 i=1,nsa
+      rx(1)=xs(i,1)
+      rx(2)=xs(i,2)
+      rx(3)=xs(i,3)
+      ry(1)=xs(i,1)
+      ry(2)=xs(i,2)
+      ry(3)=xs(i,3)
+      call rotate(rv,rw,rotang,ry,rx)
+      xs(i,1)=rx(1)
+      xs(i,2)=rx(2)
+      xs(i,3)=rx(3)
+    2 continue
+      do 3 i=1,nw
+      do 4 j=1,nwa
+      rx(1)=xw(i,j,1)
+      rx(2)=xw(i,j,2)
+      rx(3)=xw(i,j,3)
+      ry(1)=xw(i,j,1)
+      ry(2)=xw(i,j,2)
+      ry(3)=xw(i,j,3)
+      call rotate(rv,rw,rotang,ry,rx)
+      xw(i,j,1)=rx(1)
+      xw(i,j,2)=rx(2)
+      xw(i,j,3)=rx(3)
+    4 continue
+    3 continue
+    1 continue
 c
       return
       end
