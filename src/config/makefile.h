@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.352 2000-12-04 18:59:18 windus Exp $
+# $Id: makefile.h,v 1.353 2000-12-11 21:53:48 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1130,7 +1130,7 @@ ifdef EGCS
 endif
 
 ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
-  FOPTIONS   = -fno-second-underscore -fno-globals
+  FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
   FOPTIMIZE  = -g -O2 
   COPTIONS   = -Wall
   COPTIMIZE  = -g -O2
