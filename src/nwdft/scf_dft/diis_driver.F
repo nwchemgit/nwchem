@@ -1,8 +1,8 @@
       Subroutine diis_driver(derr,ispin,ipol,icall,
      &     MXhist,nbf,geom,AO_bas_han,
-     &     g_fock,g_dens,g_tmp,g_svecs,g_diis,isvals)
+     &     g_fock,g_dens,g_tmp,g_svecs,isvals)
 
-C$Id: diis_driver.F,v 1.5 1996-05-04 21:06:26 og845 Exp $
+C$Id: diis_driver.F,v 1.6 1996-10-01 21:31:06 d3h449 Exp $
       implicit none
       
       integer ispin
@@ -20,7 +20,7 @@ C$Id: diis_driver.F,v 1.5 1996-05-04 21:06:26 og845 Exp $
       double precision derr ! Diis error norm [output]
       
       integer lpulay,npulay,ipulay
-      Save lpulay,npulay,ipulay,nhist
+      Save lpulay,npulay,ipulay,nhist,g_diis
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -41,7 +41,9 @@ c     Use the DIIS scheme to accelerate convergence.
 c     
 c*****************************************************************************
       if( icall(ispin).lt.0 )then
-        LResult = MA_Free_Heap(lpulay)
+        if(.not.MA_Free_Heap(lpulay))
+     &    call errquit('diis_driver: cannot free heap',0)
+        call gadest(g_diis)
         return
       end if
       me=ga_nodeid()
@@ -56,11 +58,18 @@ c
 c     Allocate scratch space.
 c
       if( icall(1).eq.0 )then
+c
+c       Create necessary DIIS arrays.
+c
         npulay  = ipol*(MXhist+1)*(MXhist+2)/2
-        LResult = MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay)
+        if(.not.MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay))
+     &    call errquit('diis_driver: cannot allocate Pulay',0)
+        call gacrea(geom,AO_bas_han,
+     &    nbf,nbf*(2*mxhist*ipol),
+     &    'diis bufs',g_diis,'row')
       end if
-
-      LResult = MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght)
+      if(.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
+     &  call errquit('diis_driver: cannot allocate Fock wghts',0)
 c
 c     Increment call counter.
 c
@@ -113,13 +122,17 @@ c
       call gadest(g_s12p)
       call gadest(g_fsm12)
 
-      LResult = MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow)
-      LResult = MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol)
+      if(.not.MA_Push_Get(MT_Dbl,nbf,'row',lrow,irow))
+     &  call errquit('diis_driver: cannot allocate row',0)
+      if(.not.MA_Push_Get(MT_Dbl,nbf,'column',lcol,icol))
+     &  call errquit('diis_driver: cannot allocate',0)
 
       call diis_refvec(nbf,g_tmp,dbl_mb(irow),DBL_MB(icol))
 
-      LResult = MA_Pop_Stack(lcol)
-      LResult = MA_Pop_Stack(lrow)
+      if(.not.ma_pop_stack(lcol))
+     &  call errquit('diis_driver: cannot pop stack',0)
+      if(.not.ma_pop_stack(lrow))
+     &  call errquit('diis_driver: cannot pop stack',0)
 
       call ga_sync
 c
@@ -156,7 +169,8 @@ c
       call tcllct(t_sub(1,4),tp2,tp1)
 #endif
 c
-      LResult = MA_Pop_Stack(lfwght)
+      if(.not.ma_pop_stack(lfwght))
+     &  call errquit('diis_driver: cannot pop stack',0)
 c
 #if defined(DFT_TIMER)
       ltime = 7

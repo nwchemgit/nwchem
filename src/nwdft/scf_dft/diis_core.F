@@ -1,6 +1,6 @@
       subroutine diis_core(derr,pulay,
      &     mxhist,nhist,icall,nbf,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.5 1996-05-01 23:52:23 og845 Exp $
+C$Id: diis_core.F,v 1.6 1996-10-01 21:31:06 d3h449 Exp $
       implicit none
 c
       integer mxhist
@@ -69,6 +69,8 @@ c
 c       Initialize the Pulay matrix.  Store -1 on the 1st row and column.
 c       (1,1) element = 0.
 c
+c        if(me.eq.0)write(LUout,*)' Initializing DIIS; ispin = ',ispin
+
         pulay(1,ispin) = 0.0d0
 c
         do i = 2,mxhist+1

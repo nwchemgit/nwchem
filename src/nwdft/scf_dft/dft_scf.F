@@ -1,11 +1,11 @@
       Subroutine dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
-     &     g_dens,g_movecs,g_olddens,g_vxc,
-     &     g_fock,g_diis,g_svecs,isvals,
+     &     g_dens,g_movecs,g_vxc,
+     &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.33 1996-09-09 15:49:18 d3g681 Exp $
+C$Id: dft_scf.F,v 1.34 1996-10-01 21:31:03 d3h449 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -13,7 +13,7 @@ C$Id: dft_scf.F,v 1.33 1996-09-09 15:49:18 d3g681 Exp $
       integer iVcoul_opt
       integer iVxc_opt
       integer iconst(*),nconst,iter
-      integer g_dens(*),g_movecs(*),g_olddens,g_vxc(*),
+      integer g_dens(*),g_movecs(*),g_vxc(*),
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri
       
@@ -37,8 +37,7 @@ c**** patches for SC95,  ECCE' parsing
       Logical movecs_write, movecs_read_header, movecs_read
       External movecs_write,movecs_read_header, movecs_read
       logical oprint,oprint_sym,oadapt
-      
-      double precision Exc(2)
+      double precision Exc(2), rms(2), derr(2)
       integer noc(2),nmo(2),nmo_read(2),icall(2)
       integer n3c_dbl,n3c_int,n_batch
       integer avail
@@ -66,31 +65,50 @@ c**** patches for SC95,  ECCE' parsing
       integer i,ii,j
       integer n_ashift,n_bshift
       integer me,nproc
-      integer g_jeff,g_tmp,g_fockt,g_s,g_wght,g_xyz
+      integer g_tmp,g_fockt,g_s,g_wght,g_xyz
       integer nheap,nsets,nstack
       integer nbf_vecs,ispin,nxang,idone
-      integer ncysh,ndamp,itrscf
+      integer itrscf
       integer igcon,idisoff,ielem
       integer nexc,nfock,itol2e
       integer l_afshift,n_afshift,i_afshift
       integer l_bfshift,n_bfshift,i_bfshift
-      integer icvgtyp,iaoacc,iswitc
+      integer iaoacc,iswitc
       integer itol_max,iaoacc_max
       integer imull,iguess,idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
-      double precision rlshift
       double precision ecoul,rb,facto,ecore,afact,anps,aaz
-      double precision rms,pp,bb,delta
+      double precision pp,bb,delta
       double precision anucl_charg,rcharge,anel,anew_nel
       double precision anoca,anocb,onempp
       double precision etnew,tol2e,fock_el
+c convergence declarations
+      double precision dampon,levlon,diison
+      double precision dampoff,levloff,diisoff
+      double precision rlshift,rlshift_input,rlshift_def
+      integer ndamp,ndamp_input,ndamp_def
+      integer ncydp,ncysh,ncyds,nc
+      character*10 start_10c, NA_10c, asap_10c
+      character*10 strng1,strng2,strng3,strng4,strng5,strng6
+c
+c     Note, damping, levelshifting, and diis logicals
+c     are used to turn on/off these procedures per
+c     iteration.  The alternative logicals nodamping, 
+c     nolevelshifting, and nodiis are specified and held
+c     for the entire convergence sequence.
+c
+      logical diis, damping, levelshifting
+      logical nodamping, nolevelshifting, nodiis
+      logical keep_damp_on,keep_levl_on,keep_diis_on
+c
+c
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
       logical lfocka,lfockb,lmaxov
       logical oprint_parm,oprint_conv,oprint_vecs,
      ,     oprint_eval ,oprint_syma,oprint_time
       integer itol_min,iAOacc_min,iscfcon
-      double precision scfcon,derr
+      double precision scfcon
       double precision zero,onem,one
       parameter(zero=0.d0,one=1.d0,onem=-one)
       parameter(itol_min=6,iAOacc_min=15)
@@ -266,7 +284,7 @@ C        if (ga_uses_ma()) avail = avail - ga_memory_avail()
         if(.not.incore.and.me.eq.0) then
           write (LuOut,*) ' CANNOT HOLD  INTS in core'
           write(LuOut,*) ' add ',n3c_dbl-avail,
-     , ' doubles to keep ints in core '
+     & ' doubles to keep ints in core '
         elseif(incore.and.me.eq.0) then
           write (LuOut,*) ' Coulomb component computed incore.'
         endif
@@ -278,6 +296,7 @@ c
       if(ltight) then
         itol2e=itol_max
         iAOacc=iAOacc_max
+        iswitc=1
       else
         itol2e=min(itol_min,itol_max)
         iAOacc=min(iAOacc_min,iAOacc_max)
@@ -295,7 +314,6 @@ c
       itrscf  = iconst(8)
       iscfcon = iconst(9)
       igcon   = iconst(18)
-      icvgtyp = iconst(36)
       nfock   = iconst(37)
       idisoff = iconst(40)
       ncysh=iconst(52)
@@ -321,12 +339,178 @@ c
       if(ipol.gt.1) then
         call gacrea(geom,ao_bas_han,
      &       nbf_ao,nbf_ao,'fock tr',g_fockt,'atom')
-        if(icvgtyp.eq.2)
-     &       call gacrea(geom,ao_bas_han,
-     &       nbf_ao,nbf_ao,'fock save',g_jeff,'atom')
-      else
-        g_fockt=g_fock
       endif
+c
+c     Set up convergence parameters
+c
+      diis = .false.
+      damping = .true.
+      levelshifting = .false.
+      nodamping = .false.
+      nolevelshifting = .false.
+      nodiis = .false.
+      keep_damp_on = .false.
+      keep_levl_on = .false.
+      keep_diis_on = .false.
+      ndamp_input = ndamp
+      rlshift_input = rlshift
+      ndamp_def = 0
+      rlshift_def = 0.0
+      ndamp = ndamp_input
+      rlshift = rlshift_def
+c
+c     Note new input parameters are: nodamping, nolevelshifting, nodiis (old),
+c     lshift (old), ndamp (old), dampon, dampoff, levlon, levloff, diison,
+c     diisoff, ncydp, ncysh (old), ncyds
+c
+c     Energetic default will be damping until energy converged to < 10-1, 
+c     then damping turned off, followed by level shifting and DIIS 
+c     until energy converged to < 10-3, then level shifting turned 
+c     off, followed by DIIS only.
+c 
+      if (.not. rtdb_get(rtdb, 'dft:dampon', mt_dbl, 1, dampon))then
+         dampon = 1.0d+8
+         write(*,*)' Dampon not found, set to default. ',dampon
+      endif    
+      if (.not. rtdb_get(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))then
+         dampoff = 1.0d-1
+         write(*,*)' Dampoff not found, set to default. ',dampoff
+      endif    
+c
+      if (.not. rtdb_get(rtdb, 'dft:levlon', mt_dbl, 1, levlon))then
+         levlon = 1.0d-1
+         write(*,*)' Levlon not found, set to default. ',levlon
+      endif    
+      if (.not. rtdb_get(rtdb, 'dft:levloff', mt_dbl, 1, levloff))then
+         levloff = 1.0d-4
+         write(*,*)' Levloff not found, set to default. ',levloff
+      endif    
+c
+      if (.not. rtdb_get(rtdb, 'dft:diison', mt_dbl, 1, diison))then
+         diison = 0.0d-1
+         write(*,*)' Diison not found, set to default. ',diison
+      endif    
+      if (.not. rtdb_get(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))then
+         diisoff = 0.0d0
+         write(*,*)' Diisoff not found, set to default. ',diisoff
+      endif    
+c
+      if (.not. rtdb_get(rtdb, 'dft:ncydp', mt_int, 1, ncydp))then
+         ncydp = 0
+         write(*,*)' Ncydp not found, set to default. ',ncydp
+      endif    
+c
+      if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1, ncysh))then
+         ncysh = 0
+         write(*,*)' Ncysh not found, set to default. ',ncysh
+      endif    
+c
+      if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1, ncyds))then
+         ncyds = 0
+         write(*,*)' Ncyds not found, set to default. ',ncyds
+      endif    
+c
+      if(.not.rtdb_get(rtdb,'dft:nodamping',mt_log,1,nodamping))then
+         nodamping = .false.
+         write(*,*)' Nodamping not found, set to default. ',nodamping
+      endif    
+c
+      if(.not.rtdb_get(rtdb,'dft:nolevelshifting',mt_log,1,
+     &   nolevelshifting))then
+         nolevelshifting = .false.
+         write(*,*)' Nolevelshifting not found, set to default. ',
+     &   nolevelshifting
+      endif    
+c
+      if(.not.rtdb_get(rtdb,'dft:nodiis',mt_log,1,nodiis))then
+         nodiis = .false.
+         write(*,*)' Nodiis not found, set to default. ',nodiis
+      endif    
+      if(nodamping)then
+        ncydp = 0
+        ndamp = 0
+      endif
+      if(nolevelshifting)then
+        ncysh = 0
+        rlshift = 0.0
+      endif
+      if(nodiis)then
+        ncyds = 0
+      endif
+c
+c     If convergence input based upon #cycles then turn off energy constraints.
+c
+      if(ncydp.ne.0)then
+        dampon  = -999.9
+        dampoff = -999.9
+        damping = .true. 
+        ndamp = ndamp_input
+      endif
+      if(ncysh.ne.0)then
+        levlon  = -999.9
+        levloff = -999.9
+        levelshifting = .true.
+        rlshift = rlshift_input
+      endif
+      if(ncyds.ne.0)then
+        diison  = -999.9
+        diisoff = -999.9
+        diis = .true.
+      endif
+      if( me.eq.0 )then
+        write(LuOut,3231)
+        write(LuOut,3232)ndamp_input, rlshift_input
+        asap_10c  = '  ASAP    '
+        start_10c = '  start   '
+        NA_10c = '   N/A    '
+        if(ncydp.ne.0)then
+          strng1 = start_10c
+          write(strng4,'(i3,7h iters )')ncydp
+        elseif(nodamping)then
+          strng1 = NA_10c
+          strng4 = NA_10c
+        else
+          write(strng1,'(d10.2)')dampon
+          write(strng4,'(d10.2)')dampoff
+        endif
+c
+        if(ncysh.ne.0)then
+          strng2 = asap_10c
+          write(strng5,'(i3,7h iters )')ncysh
+        elseif(nolevelshifting)then
+          strng2 = NA_10c
+          strng5 = NA_10c
+        else
+          write(strng2,'(d10.2)')levlon
+          write(strng5,'(d10.2)')levloff
+        endif
+c
+        if(ncyds.ne.0)then
+          strng3 = start_10c
+          write(strng6,'(i3,7h iters )')ncyds
+        elseif(nodiis)then
+          strng3 = NA_10c
+          strng6 = NA_10c
+        else
+          write(strng3,'(d10.2)')diison
+          write(strng6,'(d10.2)')diisoff
+        endif
+        write(LuOut,3233)strng1,strng2,strng3,strng4,strng5,strng6
+	call flush(LuOut)
+      end if
+ 3231 format(/,1x,' Convergence aids based upon iterative change in ',
+     &            'total energy ',/,' or number of iterations. ')
+ 3232 format(/,1x,
+     &'       Damping(',i2,'%)  Levelshifting(',f3.1,')       DIIS',/,
+
+     &1x,'     --------------- ------------------- ---------------')
+ 3233 format(1x,' on:',2x,a10,7x,a10,10x,a10,/,
+     &       1x,'off:',2x,a10,7x,a10,10x,a10,/)
+c
+c     Do not allow levelshifting initially until sure that the
+c     transformed Fock matrix will be diagonally dominant.
+c
+      levelshifting = .false.
 c     
 c     Initialize DIIS call counter.
 c     
@@ -344,12 +528,8 @@ c
      &       'Stack Space remaining (MW):  ',dble(nstack)*1.D-06,nstack
 	call flush(LuOut)
       end if
-c     
-c     Construct a temporary global array.
-c     
-c     
 c**** 
-c**** top of infinite SCF iteration loop
+c**** Top of infinite SCF iteration loop
 c**** 
 c**** 
 c**** allocate eigenvalue array, including second pointer to beta block
@@ -360,7 +540,12 @@ c****
       if ( ipol .eq. 2) then  
         k_eval(2) = k_eval(1) + nbf_ao
       endif 
-
+c
+c     Get initial density.
+c
+      call dft_init_guess(rtdb,ipol,iconst,nconst,
+     &  g_dens,g_movecs,g_fock)
+      iter = 1
 c
 c     Figure input/output MO vectors 
 c     
@@ -371,329 +556,154 @@ c
       if (movecs_out.eq.' ') then
             movecs_out = movecs_in
       endif
-c
-c  get MO vectors from file
-c
-      LResult = movecs_read_header(movecs_in, title_vecs, basis_vecs,
-     &     nbf_vecs, nsets, nmo_read, 2)
-      if(Lresult.and.
-     &     (nbf_vecs.eq.nbf_ao).and.
-     &     (nmo(1).eq.nmo_read(1))) then
-        LResult=.true.
-        if(ipol.eq.1.and.nsets.eq.2) nsets=1
-        do ispin = 1,nsets
-        call gacrea(geom,ao_bas_han,
-     &       nbf_ao,nbf_ao,'read mov',g_rmovecs(ispin),'atom')
-c****     
-c****     get orbitals (i.e. fock eigenvectors) and fock eigenvalues
-c****     
-          LResult = LResult .and.
-     &         movecs_read(movecs_in, ispin, dbl_mb(k_occ),
-     &         dbl_mb(k_eval(ispin)), g_rmovecs(ispin))
-          call ga_orthog_mos(ao_bas_han, g_rmovecs(ispin))
-        enddo 
-          if(LResult) then
-            if(ipol.eq.2.and.nsets.eq.1) then
-              call ga_copy(g_rmovecs(1),g_rmovecs(2))
-            endif
-c
-c     Apply any swaps of orbitals
-c
-            scftype='RHF'
-            if(ipol.eq.2) scftype='UHF'
-            call movecs_swap(rtdb, scftype, g_rmovecs,
-     $           dbl_mb(k_occ), dbl_mb(k_eval(1)))
-            do ispin=1,ipol
-              call dft_densm(g_dens(ispin),g_rmovecs(ispin),
-     &             nbf_ao,ipol,noc(ispin))
-            enddo
-          endif
-            call gadest(g_rmovecs(1))
-          if (ipol.eq.2) call gadest(g_rmovecs(2))
-      else
-        LResult=.false.
-      endif
-      if(LResult) then
-        iter=1
-        iguess=999
-        itol2e=itol_max
-        iAOacc=iAOacc_max
-        iswitc=1
-        if(me.eq.0)  
-     &     write(LuOut,*) ' read movecs file as starting guess '
-        
-c       
-c       Form the total density matrix.
-c       
-        if( ipol.eq.2 )then
-          call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
-        end if
-c       
-c       call to Mulliken Pop Ananlysis
-c       
-        if (mulliken) then
-          call gacrea(geom,ao_bas_han,
-     &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-          call ga_zero(g_s)
-          call int_1e_ga(ao_bas_han,ao_bas_han,
-     &         g_s,'overlap',.false.)
-          if(me.eq.0) call dft_header(
-     &         ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
-          if(ipol.eq.2) then
-            if(me.eq.0) call dft_header(
-     &           ' Beta Density - Mulliken Population Analysis')
-            call mull_pop(geom,ao_bas_han,g_dens(2),g_s)
-          endif
-          call gadest(g_s)
-        endif
-      endif
 
  1000 continue
 
-c     
-c     Compute the contribution to the total energy from the core Hamiltonian.
-c     
-
-C      if( me.eq.0 ) write(LuOut,9000) iter
       Ecoul  = ZERO
       Exc(1) = ZERO
       Exc(2) = ZERO
-      if(iguess.eq.0.and.iter.eq.0) then
-C
-C       call to atomscf for initial density matrix
-C
-        call ga_zero(g_dens(1))
-        call guess_dens(rtdb,geom,ao_bas_han,g_dens)
-        if(ipol.eq.2) then
-          call ga_copy(g_dens(1),g_dens(2))
-          if((lfocka).or.(lfockb)) then
-            call ga_dscal(g_dens(2),.5d0)
-          else
-            rb=anocb/anel
-            if(me.eq.0) write(luerr,*) ' scaling beta DM by',rb
-            call ga_dscal(g_dens(2),rb)
-          endif
-        endif
-
-        iter=1
-c       
-c       call to Mulliken Pop Ananlysis
-c       
-        if (mulliken) then
-          call gacrea(geom,ao_bas_han,
-     &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-          call ga_zero(g_s)
-          call int_1e_ga(ao_bas_han,ao_bas_han,
-     &         g_s,'overlap',.false.)
-          if(me.eq.0) call dft_header(
-     &         ' Total Density - Mulliken Population Analysis')
-          call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
-          if(ipol.eq.2) then
-            if(me.eq.0) call dft_header(
-     &           ' Beta Density - Mulliken Population Analysis')
-            call mull_pop(geom,ao_bas_han,g_dens(2),g_s)
-          endif
-          call gadest(g_s)
-        endif
-      endif
-      if( iter.gt.0 )then
-        call ga_zero(g_fock)
+      call ga_zero(g_fock)
 C       
-C       accumulate core hamiltonian into Fock matrix
-C       compute core energy
+C     Accumulate core hamiltonian into Fock matrix
+C     compute core energy
 C       
-        call int_1e_ga(ao_bas_han,ao_bas_han,
-     &       g_fock,'kinetic',.false.)
-        call int_1e_ga(ao_bas_han,ao_bas_han,
-     &       g_fock,'potential',.false.)
-        Ecore = ga_ddot(g_dens(1),g_fock)
-
-
+      call int_1e_ga(ao_bas_han,ao_bas_han,
+     &  g_fock,'kinetic',.false.)
+      call int_1e_ga(ao_bas_han,ao_bas_han,
+     &  g_fock,'potential',.false.)
+      Ecore = ga_ddot(g_dens(1),g_fock)
 c
-c       perform SPM analysis
+c     Perform SPM analysis
 c
-        LSPM=.true.
-      if (.not. rtdb_get(rtdb, 'dft:cmm', mt_int, 1, lmax))
-     &     LSPM=.false.
-        
-
-
+      LSPM=.true.
+      if(.not. rtdb_get(rtdb, 'dft:cmm', mt_int, 1, lmax))
+     &  LSPM=.false.
       if(LSPM) then
         lresult=geom_charge_center(geom)
-
-
-      if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
-     &     finest=4
-
-      if(oprint_time) call dft_tstamp(' Before call to CMM.   ')
+        if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
+     &  finest=4
+        if(oprint_time) call dft_tstamp(' Before call to CMM.   ')
         call dft_getspm(geom,lmax,finest,g_dens,ao_bas_han)
         call errquit(' end of CMM ',1234)
-
       endif
 
-
 #if defined(DFT_TIMER)
-        call dft_second(tp3)
+      call dft_second(tp3)
 #endif  
 
-        if( CDFIT ) then
+      if( CDFIT ) then
 c         
-c         Fit the electron charge density.
+c       Fit the electron charge density.
 c         
-          if(oprint_time) 
-     &         call dft_tstamp(' Before call to FITCD.   ')
-      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,icd_coef))
-     &  call errquit('dft_scf: cannot allocate cd_coef',0)
+        if(oprint_time) 
+     &    call dft_tstamp(' Before call to FITCD.   ')
+        if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
+     &    icd_coef))
+     &    call errquit('dft_scf: cannot allocate cd_coef',0)
           
-          call dft_fitcd( rtdb,ao_bas_han, CD_bas_han,geom,
-     &         Dbl_MB(icd_coef),  nbf_cd,
-     &         g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
-     &         Ecoul,incore,
-     &         n_batch,n3c_int,
-     &           int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
-        endif
+        call dft_fitcd( rtdb,ao_bas_han, CD_bas_han,geom,
+     &    Dbl_MB(icd_coef),  nbf_cd,
+     &    g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
+     &    Ecoul,incore,
+     &    n_batch,n3c_int,
+     &    int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
+      endif
 c       
 #if defined(DFT_TIMER)
-        call dft_second(tp4)
-        pgmsect(6)='   FitCD  '
-        call tcllct(t_pgm(1,6),tp4,tp3)
-        call dft_second(tp3)
+      call dft_second(tp4)
+      pgmsect(6)='   FitCD  '
+      call tcllct(t_pgm(1,6),tp4,tp3)
+      call dft_second(tp3)
 #endif  
-        if (oprint_time)
-     &       call dft_tstamp(' Before call to GETVCOUL.')
-        call dft_getvc(rtdb,geom,ao_bas_han,CD_bas_han,
-     &       Dbl_MB(icd_coef),g_tmp,
-     &       Ecoul,nbf_cd,iVcoul_opt,
-     &       g_2ceri,g_dens,IOLGC,itol2e,incore,
-     &         n_batch,n3c_int,
-     &           int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
+      if(oprint_time)
+     &  call dft_tstamp(' Before call to GETVCOUL.')
+      call dft_getvc(rtdb,geom,ao_bas_han,CD_bas_han,
+     &  Dbl_MB(icd_coef),g_tmp,
+     &  Ecoul,nbf_cd,iVcoul_opt,
+     &  g_2ceri,g_dens,IOLGC,itol2e,incore,
+     &  n_batch,n3c_int,
+     &  int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl)
 c       
-C       Add V coul to Fock Matrix
-C       
-        call ga_dadd(one,g_tmp,one,g_fock,g_fock)
-        if(CDFIT)then
-          if(.not.ma_pop_stack(lcd_coef))
-     &      call errquit('dft_scf: cannot pop stack',0)
-        endif
+c     Add V coul to Fock Matrix
+c       
+      call ga_dadd(one,g_tmp,one,g_fock,g_fock)
+      if(CDFIT)then
+        if(.not.ma_pop_stack(lcd_coef))
+     &    call errquit('dft_scf: cannot pop stack',0)
+      endif
 c       
 #if defined(DFT_TIMER)
-        call dft_second(tp4)
-        pgmsect(7)='   GtVcoul'
-        call tcllct(t_pgm(1,7),tp4,tp3)
-        call dft_second(tp3)
+      call dft_second(tp4)
+      pgmsect(7)='   GtVcoul'
+      call tcllct(t_pgm(1,7),tp4,tp3)
+      call dft_second(tp3)
 #endif  
-        if(ipol.gt.1) then
+      if(ipol.gt.1) then
 c         
-C         Restore alpha and beta densities.
+C       Restore alpha and beta densities.
 c         
-          call ga_dadd(one,g_dens(1),onem,g_dens(2),g_dens(1))
-        endif
+        call ga_dadd(one,g_dens(1),onem,g_dens(2),g_dens(1))
+c
+c       Note that g_dens(1) now contains the alpha density
+c       matrix and g_dens(2) contains the beta
+c
+      endif
 c       
-c       Compute the XC potential and energy.
+c     Compute the XC potential and energy.
 c       
-        g_vxc(1)=g_tmp
-        call ga_zero(g_vxc(1))
-        if(ipol.eq.2)
-     &       call ga_zero(g_vxc(2))
-        if (oprint_time)
-     &       call dft_tstamp(' Before call to GETVXC.  ')
-        call xc_getv(rtdb,geom,ao_bas_han,XC_bas_han,
-     &       Exc,ipol,nExc,
-     &       iVxc_opt,g_xcinv,
-     &       g_dens,g_vxc,IOLGC,iAOacc,
-     &       g_wght,g_xyz,wght_GA)
-
-        call ga_dadd(1.d0,g_vxc(1),1.d0,g_fock,g_fock)
-        if(ipol.gt.1) then
+      g_vxc(1)=g_tmp
+      call ga_zero(g_vxc(1))
+      if(ipol.eq.2)call ga_zero(g_vxc(2))
+      if(oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
+      call xc_getv(rtdb,geom,ao_bas_han,XC_bas_han,
+     &  Exc,ipol,nExc,
+     &  iVxc_opt,g_xcinv,
+     &  g_dens,g_vxc,IOLGC,iAOacc,
+     &  g_wght,g_xyz,wght_GA)
+      call ga_sync
+      call ga_dadd(1.d0,g_vxc(1),1.d0,g_fock,g_fock)
+      if(ipol.gt.1) then
 c         
-C         
-c         Put (-alpha+beta) in g_vxc(2)
+c       Put (-alpha+beta) in g_vxc(2)
 c         
-          call ga_dadd(-1.d0,g_vxc(1),1.d0,g_vxc(2),g_vxc(2))
-        endif
+        call ga_dadd(-1.d0,g_vxc(1),1.d0,g_vxc(2),g_vxc(2))
+      endif
 c       
-        if (oprint_time)
-     &       call dft_tstamp(' End of parallel region. ')
+      if(oprint_time)
+     &  call dft_tstamp(' End of parallel region. ')
 c       
 #if defined(DFT_TIMER)
-        call dft_second(tp4)
-        pgmsect(8)='   GetVXC '
-        call tcllct(t_pgm(1,8),tp4,tp3)
+      call dft_second(tp4)
+      pgmsect(8)='   GetVXC '
+      call tcllct(t_pgm(1,8),tp4,tp3)
 #endif  
 c       
-c       Calculate the total electronic energy.
+c     Calculate the total electronic energy.
 c       
-        if( nExc.eq.1 )then
-          Etnew = Ecore + Ecoul + Exc(1)
-        else
-          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
-        end if
-          delta=abs(etold-etnew)
-        call ga_sync
-
+      if( nExc.eq.1 )then
+        Etnew = Ecore + Ecoul + Exc(1)
+      else
+        Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
       end if
-c     
-c     Solve for the eigenvalues and eigenvectors of the Hamiltonian.
-c     
-      rms =0.d0
+      delta=abs(etold-etnew)
+      call ga_sync
+      rms(1) = 0.d0
+      rms(2) = 0.d0
       do ispin = 1,ipol
-        if(iter.eq.0) then
-          if(iguess.eq.2) then
-            call errquit(' guess read option no more available',999)
-          elseif(iguess.eq.1) then
-C           
-C           initialize fock matrix
-C           
-            call ga_zero(g_fock)
-C           
-C           accumulate core hamiltonian into Fock matrix
-C           compute core energy
-C           
-            call int_1e_ga(ao_bas_han,ao_bas_han,
-     &           g_fock,'kinetic',.false.)
-            call int_1e_ga(ao_bas_han,ao_bas_han,
-     &           g_fock,'potential',.false.)
-          endif
-          call ga_sync
-        elseif(iter.gt.0) then
 C         
-C         Add V xc to Fock Matrix
-C         
-          if(icvgtyp.eq.2.and.ispin.eq.2) 
-     *         call ga_copy(g_jeff,g_fock)
-          if(ispin.eq.2) then
-            call ga_dadd(one,g_vxc(ispin),one,g_fock,g_fock)
-          endif
+C       Add V xc to Fock Matrix
+C
+        if(ispin.eq.2) 
+     *       call ga_copy(g_fockt,g_fock)
+        if(ispin.eq.2) then
+          call ga_dadd(one,g_vxc(ispin),one,g_fock,g_fock)
+        endif
 c         
 #if defined(DFT_TIMER)
-          call dft_second(tp3)
+        call dft_second(tp3)
 #endif    
-c         
 C
-C         set tighter conditions when de < 1.e-4
-C
-        if(delta.lt.1.d-4) then
-c
-c         set  coulomb acc to input parameter
-c
-          itol2e=itol_max
-          iAOacc=iAOacc_max
-          if(iswitc.eq.0.and.icvgtyp.eq.2.and.icall(1).gt.0)then
-            icall(1) = -1
-            icall(2) = -1
-            call diis_driver(derr,
-     &           1,ipol,icall,
-     &           nfock,nbf_ao,geom,ao_bas_han,
-     &           g_fock,g_dens(1),g_tmp,
-     &           g_svecs,g_diis,isvals)
-            icall(1)=0
-            icall(2)=0
-          endif
-          iswitc=iswitc+1
-        endif
-C
-C       rape the Fock matrix
+C       Change Fock matrix
 C
         if(lfocka.and.iter.lt.2.and.ispin.eq.1) then
           if(me.eq.0) then
@@ -703,11 +713,11 @@ C
             do ii=0,n_afshift-1
               ielem= int_mb(i_afshift+ii)
               call ga_get(g_fock, ielem, ielem,
-     *             ielem, ielem, fock_el, 1)
+     *           ielem, ielem, fock_el, 1)
               fock_el = fock_el +5.d0
               write(luerr,*) ' alpha ',ii,fock_el
               call ga_put(g_fock, ielem, ielem,
-     *             ielem, ielem, fock_el, 1)
+     *           ielem, ielem, fock_el, 1)
             enddo
           endif
         endif
@@ -719,77 +729,88 @@ C
             do ii=0,n_bfshift-1
               ielem= int_mb(i_bfshift+ii)
               call ga_get(g_fock, ielem, ielem,
-     *             ielem, ielem, fock_el, 1)
+     *           ielem, ielem, fock_el, 1)
               fock_el = fock_el +5.d0
               call ga_put(g_fock, ielem, ielem,
-     *             ielem, ielem, fock_el, 1)
+     *           ielem, ielem, fock_el, 1)
               write(luerr,*) ' beta ',ii,fock_el
             enddo
           endif
           call ga_sync
         endif
-
-          if( icvgtyp.eq.2.and.delta.gt.10.d0**(-idisoff)) then
-            if(ispin.eq.1.and.ipol.gt.1) 
-     &           call ga_copy(g_fock,g_jeff)
-            call diis_driver(derr,ispin,ipol,icall,
-     &           nfock,nbf_ao,geom,ao_bas_han,
-     &           g_fock,g_dens(ispin),g_tmp,
-     &           g_svecs,g_diis,isvals)
+c
+        if(ispin.eq.1.and.ipol.gt.1) call ga_copy(g_fock,g_fockt)
+        if(diis)then
+c
+c         DIIS step taken here.
+c
+          if(diis) then
+            call diis_driver(derr(ispin),ispin,ipol,icall,
+     &        nfock,nbf_ao,geom,ao_bas_han,
+     &        g_fock,g_dens(ispin),g_tmp,
+     &        g_svecs,isvals)
           endif
+        endif
 c         
 #if defined(DFT_TIMER)
-          call dft_second(tp4)
-          pgmsect(9)='   DIIS   '
-          call tcllct(t_pgm(1,9),tp4,tp3)
+        call dft_second(tp4)
+        pgmsect(9)='   DIIS   '
+        call tcllct(t_pgm(1,9),tp4,tp3)
 #endif    
 c         
-        end if 
-C       
-C       level shifter: similarity transformation+ standard eigensolver
-C       
-
 #if defined(DFT_TIMER)
         call dft_second(tp3)
 #endif  
         call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       g_movecs(ispin),g_fock,zero,g_tmp)
+     &     g_movecs(ispin),g_fock,zero,g_tmp)
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       g_tmp,g_movecs(ispin),zero,g_fockt)
-
-        if(abs(rlshift).gt.1.d-5.and.iter.lt.ncysh) then
+     &     g_tmp,g_movecs(ispin),zero,g_fock)
+        call ga_sync
+c       
+c       Level shifting implemented here (similarity 
+c       transformation+ standard eigensolver).  Note,
+c       levelshifting is appropriate once the transformation
+c       makes the resulting Fock matrix diagonally dominant
+c       e.g., in an approximate MO basis.
+c       
+c        write(*,*)' Fock matrix before levelshift'
+c        call ga_print(g_fock)
+        if(levelshifting) then
           do j=noc(ispin)+1+me,nbf_ao,nproc
-            call ga_get(g_fockt,
-     *           j,j,j,j,AAZ,1)
+            call ga_get(g_fock,j,j,j,j,AAZ,1)
             AAZ=AAZ+rlshift
-            call ga_put(g_fockt,
-     *           j,j,j,j,AAZ,1)
+            call ga_put(g_fock,j,j,j,j,AAZ,1)
           enddo
+        else
+          rlshift = 0.0
         endif
         call ga_sync
+c        write(*,*)' Fock matrix after levelshift'
+c        call ga_print(g_fock)
+c     
+c       Solve for the eigenvalues and eigenvectors of the Hamiltonian.
+c     
 #if defined(PARALLEL_DIAG)
-        call ga_diag_std(g_fockt,g_tmp,Dbl_MB(k_eval(ispin)))
+        call ga_diag_std(g_fock,g_tmp,Dbl_MB(k_eval(ispin)))
 #else   
-        call ga_diag_std_seq(g_fockt,g_tmp,Dbl_MB(k_eval(ispin)))
+        call ga_diag_std_seq(g_fock,g_tmp,Dbl_MB(k_eval(ispin)))
 #endif  
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &       g_movecs(ispin),g_tmp,zero,g_fockt)
-C
-C       keep orbital ordering according to principle
-C       of maximum overlap with previous iteration
-C
-        if (rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov )) then
-          
-        call gacrea(geom,ao_bas_han,
-     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-        call ga_zero(g_s)
-        call int_1e_ga(ao_bas_han,ao_bas_han,
-     &       g_s,'overlap',.false.)
-        call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
-     ,       g_fockt, g_movecs(ispin),g_s,g_tmp)
-        call gadest(g_s)
+     &     g_movecs(ispin),g_tmp,zero,g_fock)
+        call ga_sync
+c
+c       Keep orbital ordering according to principle
+c       of maximum overlap with previous iteration.
+c       Note, do this after MOs have settled down a
+c       few iterations.
+c       
+        if(rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov ).and.
+     &    (delta.lt.0.01)) then
+          call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
+     &      g_fock, g_movecs(ispin),g_tmp)
+        else
+          call ga_copy(g_fock,g_movecs(ispin))
         endif
-        call ga_copy(g_fockt,g_movecs(ispin))
         call ga_sync
 #if defined(DFT_TIMER)
         call dft_second(tp4)
@@ -800,14 +821,18 @@ c
 c       Save previous density for convergence check.
 c       
 c       Save the old alpha (ispin = 1) density matrix.
-c       OR
-c       Sum in the old beta (ispin = 2) density matrix.
+c       and the old beta (ispin = 2) density matrix.
 c       
         if(ispin.eq.1)then
           call ga_copy(g_dens(1),g_tmp)
+          call ga_sync
+c          write(*,*)' Old alpha matrix '
+c          call ga_print(g_tmp)
         else
-          call ga_copy(g_dens(2),g_olddens)
-          call ga_dadd(one,g_tmp,one,g_dens(2),g_tmp)
+          call ga_copy(g_dens(2),g_tmp)
+          call ga_sync
+c          write(*,*)' Old beta matrix '
+c          call ga_print(g_tmp)
         endif
 c       
 c       Form a new density matrix.
@@ -816,72 +841,71 @@ c
      &       nbf_ao,ipol,noc(ispin))
 c       
         call ga_sync
-        if(ndamp.ne.0.and.iter.gt.0.and.iter.lt.ncysh) then
+c
+c        write(*,*)' New ',ispin,' density '
+c        call ga_print(g_dens(ispin))
+c
+c       Damping implemented here.
+c
+        call ga_sync
+        if(damping)then
           pp=ndamp*1.d-2
           onempp=1.0d0 - pp
-          if(ispin.eq.1)then
-            call ga_dadd(
-     &           pp,g_tmp,onempp,g_dens(ispin),g_dens(ispin))
-          else
-            call ga_dadd(
-     &           pp,g_olddens,onempp,g_dens(ispin),g_dens(ispin))
-          endif
+          call ga_dadd(pp,g_tmp,onempp,g_dens(ispin),g_dens(ispin))
+        else
+          ndamp = 0
         endif
 c
-c           check convergence on Density
+c       Check convergence on Density.
 c
-        if(ispin.eq.1) then
-            rms=rms+dft_dencvg(g_dens(ispin),g_tmp,nbf_ao)
-          else
-            rms=rms+dft_dencvg(g_dens(ispin),g_olddens,nbf_ao)
-          endif
         call ga_sync
+        rms(ispin) = rms(ispin) +
+     &               dft_dencvg(g_dens(ispin),g_tmp,nbf_ao)
+        call ga_sync
+c
       enddo     ! end loop over ispin
-      if (oprint.and. iter.eq.1.and.me.eq.0) then
-       if(icvgtyp.eq.2) then
-         write(LuOut,1)
-       else
-         write(LuOut,11)
-       endif
+c
+      if(oprint.and.iter.eq.1.and.me.eq.0)then
+        write(LuOut,1)
       endif
  1    format(/,
-     $     13x,' iter        energy         DeltaE   RMS-Dens ',
-     $     ' Diis-err    time'/
-     $     13x,'----- ------------------- --------- ---------',
-     $     ' ---------  ------')
- 11   format(/,
-     $     13x,' iter        energy         DeltaE   RMS-Dens ',
-     $     '     time'/
-     $     13x,'----- ------------------- --------- ---------',
-     $     '   ------')
+     $      1x,'  convergence    iter        energy       DeltaE   ',
+     $         'RMS-Dens  Diis-err    time'/
+     $      1x,'---------------- ----- ----------------- --------- ',
+     $         '--------- ---------  ------')
       if(oprint.and.me.eq.0) then
-        if(icvgtyp.eq.2) then
-          write(LuOut,2) iter, Etnew+Enuc,-etold+etnew,sqrt(rms),derr,
-     ,         util_cpusec()
+        if(diis) then
+          write(LuOut,2) ndamp,rlshift,
+     &         iter, Etnew+Enuc,
+     &         -etold+etnew,sqrt(rms(1)),derr(1),util_cpusec()
+          if(ipol.eq.2)write(LuOut,3) sqrt(rms(2)),derr(2)
         else
-          write(LuOut,22) iter, Etnew+Enuc,-etold+etnew,sqrt(rms), 
-     ,         util_cpusec()
+          write(LuOut,22) ndamp,rlshift,
+     &         iter, Etnew+Enuc,
+     &         -etold+etnew,sqrt(rms(1)), util_cpusec()
+          if(ipol.eq.2)write(LuOut,23) sqrt(rms(2))
         endif
         call util_flush(LuOut)
       endif
- 2    format(13x,i5,f20.10,1p,3d10.2,0p,f8.1)
- 22    format(13x,i5,f20.10,1p,2d10.2,0p,f8.1)
+    2 format(1x,'d=',i2,',ls=',f3.1,',diis',1x,i5,f18.10,
+     &       1p,3d10.2,0p,f8.1)
+    3 format(51x,1p,2d10.2)
+   22 format(1x,'d=',i2,',ls=',f3.1,6x,i5,f18.10,
+     &       1p,2d10.2,10x,0p,f8.1)
+   23 format(51x,1p,1d10.2)
       call ga_sync
 c
 c     save eigenvectors to movecs file
 c
-      if(iter.gt.0) then
-        
-        if (.not.
-     &       movecs_write(movecs_out, 'Kohn-Sham orbitals',
-     &       'ao basis',
-     &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &       dbl_mb(k_eval(1)), nbf_ao, g_movecs))
-     &       call errquit('dft_scf: movec_write failed', 0)
-
-        call ga_sync
-
-      endif
+      if (.not.
+     &     movecs_write(movecs_out, 'Kohn-Sham orbitals',
+     &     'ao basis',
+     &     nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
+     &     dbl_mb(k_eval(1)), nbf_ao, g_movecs))
+     &     call errquit('dft_scf: movec_write failed', 0)
+c
+      call ga_sync
+c
       if (me .eq. 0.and.oprint_eval) then
         if (util_print('intermediate evals', print_default)) then
           call util_print_centered(LuOut,'alpha eigenvalues',
@@ -928,33 +952,7 @@ c
         
       end if
       call ga_sync
-c     
-c     call to Mulliken Pop Ananlysis
-c     
-      if(mulliken) then
-        call gacrea(geom,ao_bas_han,
-     &       nbf_ao,nbf_ao,'ovl ',g_s,'atom')
-        call ga_zero(g_s)
-        call int_1e_ga(ao_bas_han,ao_bas_han,
-     &       g_s,'overlap',.false.)
-        if(me.eq.0)
-     &       call dft_header(
-     &       ' Total Density - Mulliken Population Analysis')
-        call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
-        if(ipol.eq.2) then
-c         
-c         analysis of spin density
-c         
-          if(me.eq.0) call dft_header(
-     &         ' Spin Density - Mulliken Population Analysis')
-          call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
-          call mull_pop(geom,ao_bas_han,g_dens(2),g_s) 
-          call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
-          call ga_dscal(g_dens(2),0.5d0)
-        endif
-        call gadest(g_s)
-      endif
-      
+c      
 c     Check for SCF convergence.
 c     
       if(itrscf.eq.0) then
@@ -968,25 +966,74 @@ c
         if(oprint_conv.and.me.eq.0) write(LuOut,1111) Ecore
       else
         call ga_sync
-        rms = rms/(ipol)
         call dft_scfcvg(rms,
      &       Etold,Etnew,Enuc,
-     &       scfcon,igcon,iter,itrscf,idone,converged,rtdb)
-
+     &       scfcon,ipol,igcon,iter,itrscf,idone,converged,rtdb)
+        if(delta.lt.1.d-4) then
+c
+c         Set coulomb acc to max (e.g., input parameter).
+c         (note, may also require re-initializing DIIS)
+c
+          itol2e=itol_max
+          iAOacc=iAOacc_max
+          iswitc=iswitc+1
+        endif
+c
         iter = iter + 1
+c
+c       Check convergence parameters.
+c
+        if((delta.lt.dampon.and.delta.gt.dampoff).or.iter.le.ncydp)then
+          damping = .true.
+          ndamp = ndamp_input
+        else
+          damping = .false.
+          ndamp = ndamp_def
+        endif
+c
+        if((delta.lt.levlon.and.delta.gt.levloff).or.
+     &     (iter.le.ncysh+3.and.iter.gt.3))then
+          levelshifting = .true.
+          rlshift = rlshift_input
+        else
+          levelshifting = .false.
+          rlshift = rlshift_def
+        endif
+c
+        if((delta.lt.diison.and.delta.gt.diisoff).or.
+     &    iter.le.ncyds.or.keep_diis_on)then
+          diis = .true.
+c
+c         Once started, keep DIIS on until diisoff threshold.
+c
+          keep_diis_on = .true.
+        else
+          diis = .false.
+        endif
+        if(delta.lt.diisoff.or.(ncyds.gt.0.and.iter.gt.ncyds))then
+          diis = .false.
+          keep_diis_on = .false.
+        endif
+c
+        if(nodamping)damping = .false.
+        if(nolevelshifting)levelshifting = .false.
+        if(nodiis)diis = .false.
+c
         Etold = Etnew
+c
         if( idone.eq.0.or.
-     .   (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
-        if( me.eq.0.and.oprint)then
-         if (.not. converged) then
+     &   (iswitc.lt.2.and.iter.lt.itrscf)) go to 1000 ! begin new iteration
+c
+        if(me.eq.0.and.oprint)then
+          if(.not.converged)then
             write(LuOut,*)
             call util_print_centered(LuOut,
-     $           'Calculation failed to converge', 20, .true.)
+     $         'Calculation failed to converge', 20, .true.)
             write(LuOut,*)
-         end if
+          endif
           dft_time=dft_time+util_cpusec()
           write(LuOut,222)  etnew+enuc, ecore, Ecoul,Exc(1), enuc, 
-     $         dft_time
+     $                     dft_time
  222      format(//
      $        '          Final results '/
      $        '       ------------------ '//
@@ -996,8 +1043,34 @@ c
      $        '    Exchange-Corr. energy =', f20.12/
      $        ' Nuclear repulsion energy =', f20.12//
      $        '        Time for solution =', f9.1,'s'//)
-         call util_flush(LuOut)
-      end if
+          call util_flush(LuOut)
+        endif
+c     
+c       call to Mulliken Pop Ananlysis
+c     
+        if(mulliken) then
+          call gacrea(geom,ao_bas_han,
+     &         nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+          call ga_zero(g_s)
+          call int_1e_ga(ao_bas_han,ao_bas_han,
+     &         g_s,'overlap',.false.)
+          if(me.eq.0)
+     &      call dft_header(
+     &       ' Total Density - Mulliken Population Analysis')
+          call mull_pop(geom,ao_bas_han,g_dens(1),g_s)
+          if(ipol.eq.2) then
+c         
+c           analysis of spin density
+c         
+            if(me.eq.0) call dft_header(
+     &        ' Spin Density - Mulliken Population Analysis')
+            call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
+            call mull_pop(geom,ao_bas_han,g_dens(2),g_s) 
+            call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
+            call ga_dscal(g_dens(2),0.5d0)
+          endif
+          call gadest(g_s)
+        endif
 c****   
 c****   end infinite loop for SCF iterations
 c****   
@@ -1092,24 +1165,20 @@ c****     check values
           endif 
         endif 
 #endif
-
-
-        if(icvgtyp.eq.2.and.icall(1).gt.0) then
 c         
-c         One call kills all
+c       Shut down DIIS.
 c         
+        if(icall(1).gt.0) then
           icall(1) = -1
-          call diis_driver(derr,
-     &         1,ipol,icall,
+          call diis_driver(derr(1),1,ipol,icall,
      &         nfock,nbf_ao,geom,ao_bas_han,
      &         g_fock,g_dens(1),g_tmp,
-     &         g_svecs,g_diis,isvals)
+     &         g_svecs,isvals)
         end if
       endif
+c
       if(ipol.gt.1) then
         call gadest(g_fockt)
-        if(icvgtyp.eq.2)
-     &       call gadest(g_jeff)
       endif
       call gadest(g_tmp)
       if(wght_GA) then

@@ -1,7 +1,7 @@
       Subroutine dft_main0d( rtdb,
      &                      iconst, nconst )
 
-C$Id: dft_main0d.F,v 1.9 1996-07-03 21:47:32 d3h449 Exp $
+C$Id: dft_main0d.F,v 1.10 1996-10-01 21:31:01 d3h449 Exp $
       implicit none
       integer rtdb  ! rtdb handle [input]
       integer nconst
@@ -29,12 +29,12 @@ c****
 #endif
 
       integer g_dens(2),g_evecs(2),g_vxc(4)
-      integer g_svecs,g_olddens,g_xcinv,g_oi,g_2ceri,g_cdinv
-      integer g_s,g_fock,g_diis,g_tmpb,g_tmp
+      integer g_svecs,g_xcinv,g_oi,g_2ceri,g_cdinv
+      integer g_s,g_fock,g_tmpb,g_tmp
       integer nbf_xc,nvxc
       integer me,nproc,info
       double precision Enuc,Etold
-      integer iter,itrscf,iscfcon,ipol,igcon,icvgtyp 
+      integer iter,itrscf,iscfcon,ipol,igcon
       integer nfock,nExc,lshift,ncysh,ndamp
       integer iVxc_opt,lmiss,ivcoul_opt
       integer isvals,lsvals,iw,idum,i
@@ -67,9 +67,6 @@ c
       if ( .not. bas_numbf(AO_bas_han,nbf_ao) ) then
         call errquit('Exiting from dft_main0d',1)
       endif 
-
-c     
-c     Generate initial guess for the density matrix.
 c     
       iter = 0
       Etold = 0.D0
@@ -78,7 +75,6 @@ c
       iscfcon = iconst(9)
       ipol    = iconst(11)
       igcon   = iconst(18)
-      icvgtyp = iconst(36)
       nfock   = iconst(37)
       nExc    = iconst(39) + 1
       lshift  = iconst(50)
@@ -265,17 +261,17 @@ c
 c--   > Diag Overlap Matrix
 c     
       call gacrea(geom,AO_bas_han,
-     &     nbf_ao,nbf_ao,'ovl eig vecs',g_svecs,'atom')
+     &  nbf_ao,nbf_ao,'ovl eig vecs',g_svecs,'atom')
 #if defined(PARALLEL_DIAG)         
       call ga_diag_std(g_s,g_svecs,Dbl_MB(isvals))
 #else
       call ga_diag_std_seq(g_s,g_svecs,Dbl_MB(isvals))
 #endif
-        do i=me,nbf_ao-1,nproc
-          if(Dbl_MB(isvals+i).lt.toll_s)  
-     &      write(LuOut,*) ' singular eigenvalue in S matrix ',
-     &      Dbl_MB(isvals+i)
-        enddo
+      do i=me,nbf_ao-1,nproc
+        if(Dbl_MB(isvals+i).lt.toll_s)  
+     &    write(LuOut,*) ' singular eigenvalue in S matrix ',
+     &    Dbl_MB(isvals+i)
+      enddo
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -297,18 +293,12 @@ c
         call gacrea(geom,AO_bas_han,
      &       nbf_ao,nbf_ao,'beta evecs',g_evecs(2),'atom')
         call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao,'olddens',g_olddens,'atom')
-        call gacrea(geom,AO_bas_han,
      &     nbf_ao,nbf_ao,'Vxcs',g_Vxc(2),'atom')
       end if 
       nVxc=ipol
       call gacrea(geom,AO_bas_han,
      &     nbf_ao,nbf_ao,'fock Matrix',g_fock,'atom')
       g_vxc(1)=g_fock
-      if(icvgtyp.eq.2) 
-     &       call gacrea(geom,AO_bas_han,
-     &       nbf_ao,nbf_ao*(2*nfock*ipol),
-     &     'diis bufs',g_diis,'row')
 c     
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -316,24 +306,20 @@ c
       call tcllct(t_pgm(1,5),tp2,tp1)
 #endif
 c     
-c     
 c     Begin iteration sequence with S**(-1/2) in g_evecs arrays
 c     
       iw=2
       g_tmp=g_s
-      call diis_bld12(
-     &  dbl_mb(isvals),g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
-
+      call diis_bld12(dbl_mb(isvals),g_svecs,g_evecs(1),g_tmp,nbf_ao,iw)
       if (ipol.gt.1) call ga_copy(g_evecs(1),g_evecs(2))
-      if(icvgtyp.ne.2) call gadest(g_svecs)
-
+c
       if(CDFIT)call gadest(g_s)
 
       call dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
-     &     g_dens,g_evecs,g_olddens,g_vxc,
-     &     g_fock,g_diis,g_svecs,isvals,
+     &     g_dens,g_evecs,g_vxc,
+     &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c     
 c     Clean up memory usage.
@@ -355,18 +341,16 @@ c
         call gadest(g_2ceri)
       endif
       if (XCFIT.and.(.not.IOLGC)) call gadest(g_xcinv)
-      if(icvgtyp.eq.2)call gadest(g_diis)
       call gadest(g_fock)
       if(ipol.eq.2)
      &     call gadest(g_vxc(2))
       if(ipol.ne.1)then
-        call gadest(g_olddens)
         call gadest(g_evecs(2))
         call gadest(g_dens(2))
       endif
       call gadest(g_evecs(1))
       call gadest(g_dens(1))
-      if(icvgtyp.eq.2) call gadest(g_svecs)
+      call gadest(g_svecs)
       call schwarz_tidy
       call ga_sync
 c     

@@ -1,14 +1,15 @@
       subroutine dft_scfcvg(rms,etold,etnew,Enuc,scfcon,
-     &     igcon,iter,itrscf,idone,converged,rtdb)
-C     $Id: dft_scfcvg.F,v 1.5 1996-05-01 23:52:21 og845 Exp $
+     &     ipol,igcon,iter,itrscf,idone,converged,rtdb)
+C     $Id: dft_scfcvg.F,v 1.6 1996-10-01 21:31:05 d3h449 Exp $
       implicit none
 
-      double precision rms      ! [output]
+      double precision rms(2)   ! [input]
       double precision etold    ! [input]
       double precision etnew    ! [output]
       double precision Enuc
       double precision scfcon
       integer igcon
+      integer ipol
       integer iter
       integer itrscf
       integer idone
@@ -57,20 +58,24 @@ c
 c--   >  Check for density matrix convergence.
 c     
       if( DENSITY )then
-
         iswitch=0
-        
-        if(dsqrt(rms).le.10.0**(-igcon))iswitch=1
-
+        if(dsqrt(rms(1)).le.10.0**(-igcon))iswitch=1
         idone=idone*iswitch
-
+c        write(*,*)' iswitch, idone, rms(1): ',
+c     &              iswitch, idone, rms(1)
+        if(ipol.eq.2)then
+          iswitch=0
+          if(dsqrt(rms(2)).le.10.0**(-igcon))iswitch=1
+          idone=idone*iswitch
+c          write(*,*)' iswitch, idone, rms(2): ',
+c     &                iswitch, idone, rms(2)
+        endif
         if(idone.eq.1)then
           converged = .true.
           status = rtdb_put(
      &         rtdb, 'dft:converged', MT_LOG, 1, converged)
           return
         endif
-
       endif
 c     
 c--   >  Check iteration value.

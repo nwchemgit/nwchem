@@ -1,6 +1,6 @@
-      Subroutine dft_mxovl(basis, evals,g_evecs, g_oevecs,g_s,g_tmp)
+      Subroutine dft_mxovl(basis, evals, g_evecs, g_oevecs,g_tmp)
 
-C$Id: dft_mxovl.F,v 1.3 1996-07-03 21:47:34 d3h449 Exp $
+C$Id: dft_mxovl.F,v 1.4 1996-10-01 21:31:02 d3h449 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap       [input] overwritten!
@@ -10,6 +10,7 @@ C$Id: dft_mxovl.F,v 1.3 1996-07-03 21:47:34 d3h449 Exp $
       double precision evals(*)! eigenvalues  [input/output]
 
 #include "bas.fh"
+#include "cdft.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -33,6 +34,9 @@ c*****************************************************************************
 c     
       if ( .not. bas_numbf(basis,nbf) ) 
      &     call errquit(' exiting in max_ovl',1)
+c
+      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
+c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'tmpm',l_tmp, k_tmp))
      &     call errquit('dft_mxovl: cannot allocate tmpm',0)
       if(.not.MA_Push_Get(MT_Dbl,nbf,'scr',l_scr, k_scr))
@@ -40,6 +44,8 @@ c
       if(.not.MA_Push_Get(MT_int,nbf,'ord',l_ord, k_ord))
      &     call errquit('dft_mxovl: cannot allocate ord',0)
 
+      call ga_zero(g_s)
+      call int_1e_ga(basis,basis,g_s,'overlap',.false.)
       call ifill(nbf, 0, int_mb(k_ord), 1)
 
 C
@@ -47,7 +53,9 @@ C     compute matrix mult (V_old)T * S * V_new = S`
 C     
       call ga_dgemm('T','N',nbf,nbf,nbf,1.d0,g_oevecs,g_s,0.d0,g_tmp)
       call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,g_tmp,g_evecs,0.d0,g_s)
-
+c
+c      call ga_print(g_s)
+c
       if(me.eq.0) then
         do i=1,nbf
           prodmax=-30.d0
@@ -71,7 +79,10 @@ C
         enddo
       endif
       call ga_igop(Msg_mxovl_1,int_mb(k_ord),nbf,'+')
-
+c      if(me.eq.0) then
+c        write(*,*)' orbital order: ',(int_mb(k_ord+i-1),i=1,nbf)
+c      endif
+c
       call ga_copy(g_evecs,g_oevecs)
       call dcopy(nbf,evals,1,dbl_mb(k_tmp),1)
       call dfill(nbf,0.d0,evals,1)
@@ -81,15 +92,17 @@ C
         evals(i)=dbl_mb(k_tmp+ix-1)
         call put_col(g_evecs,nbf,i,DBL_MB(k_scr))
       enddo
-      
+c
+      call gadest(g_s)
+c
       if(.not.MA_Pop_Stack(l_ord))
      & call errquit('dft_mxovl: cannot pop stack',0)
       if(.not.MA_Pop_Stack(l_scr))
      & call errquit('dft_mxovl: cannot pop stack',0)
       if(.not.MA_Pop_Stack(l_tmp))
      & call errquit('dft_mxovl: cannot pop stack',0)
-
+c
       call ga_dgop(Msg_mxovl_2,evals,nbf,'+')
-
+c
       return
       end
