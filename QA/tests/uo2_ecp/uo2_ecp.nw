@@ -1,0 +1,45 @@
+
+
+title "uo2 scf gradient with lanl ecp"
+
+memory global 30 mb stack 55 mb heap 15 mb
+
+Start  uo2
+
+echo
+
+geometry uo2 units angstrom
+ symmetry d2h
+ U     .00000000      .00000000      .00000000
+ O     .00000000      .00000000     1.65082173
+end
+
+basis spherical
+ O library aug-cc-pvdz
+ U library lanl2dz_ecp
+end
+
+ecp
+ U library lanl2dz_ecp
+end
+
+set geometry uo2
+
+charge 2
+
+scf
+  RHF
+  thresh 1.0e-8
+  nopen 0
+  maxiter 150
+  vectors hcore output uo2.mo
+end
+
+set tng:5pt t
+
+task scf gradient
+task scf gradient numerical
+
+eof
+
+
