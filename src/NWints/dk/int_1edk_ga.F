@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.18 1999-12-08 22:04:54 bert Exp $
+c $Id: int_1edk_ga.F,v 1.19 1999-12-09 01:28:10 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -24,7 +24,7 @@ c        (vn2 approximation). This is also Bernd Hess' implementation.
 c     3. External potential projection operators, i.e  complete Douglas-Kroll.
 c
 c     Method:
-c     A. Determine uncontracted basis (usebasis) from input basis (basis_in)
+c     A. Determine uncontracted basis (dk_fitbas) from input basis (basis_in)
 c     B. Create p^2/2 matrix and diagonalize to get real to momentum space 
 c        transformation.
 c     C. Create diagonal matrices (store as vectors) of momentum operators in 
@@ -47,8 +47,7 @@ c
 c     
 c     local variables
 c     
-      integer nbf, nbf_in       ! # of basis functions for usebasis and basis_in
-      integer usebasis          ! Uncontracted basis to be used for computation of integrals
+      integer nbf, nbf_in       ! # of basis functions for dk_fitbas and basis_in
       integer Tg_a              ! GA handle kinetic energy integral matrix T 
       integer Ug_a              ! GA handle transformation matrix r -> p space 
       integer Vg_a              ! GA handle potential energy integral matrix V
@@ -64,7 +63,6 @@ c
       integer Km_a, KIm_a       ! MA handle and index K vector
       integer tempm_a, tempIm_a ! Temporary m_a vector handle and index
       integer iloop             
-      integer basis_array(2)
 c
       double precision c2    ! Speed of light c (in au) squared 
 c
@@ -75,32 +73,13 @@ c     transformations we have to do with the full integral matrices.
 c
       oskel = .false.
 c
-c     Recheck if some variables have changed in case of more then one run
+c     Normalize the uncontracted fitting basis 
 c
-      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:type',
-     $    MT_INT,1,dk_form_type)) dk_form_type = 2
-      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:eventemp',
-     $    MT_LOG,1,dk_even_bas)) dk_even_bas = .false.
-      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:etratio',
-     $    MT_DBL,1,dk_ratio)) dk_ratio = 2.0d0
-      if (.not. rtdb_get(bgj_get_rtdb_handle(),'doug_kroll:clight',
-     $    MT_DBL,1,dk_clight)) dk_clight = 137.0359895d0
-c
-c     Create an uncontracted basis from basis_in
-c
-      call bas_create_uncont(basis_in,'auto D-K basis',usebasis)
-      call int_normalize(usebasis)
-c
-c     Re-initialize integrals so that pVp integral memory requirement is set
-c
-      call int_terminate
-      basis_array(1) = basis_in
-      basis_array(2) = usebasis
-      call int_init(bgj_get_rtdb_handle(),2,basis_array)
+      call int_normalize(dk_fitbas)
 c
 c     Define the dimensions of the arrays
 c
-      if (.not. bas_numbf(usebasis,nbf))
+      if (.not. bas_numbf(dk_fitbas,nbf))
      $   call errquit('int_1edk_ga: bas_numbf failed',0)
 c
 c     Create DKg_a of nbf*nbf to store integrals of uncontracted basis
@@ -130,7 +109,7 @@ c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Tmatrix',1,1,Tg_a))
      $     call errquit('int_1edk_ga: ga_create failed Tmatrix',0)
       call ga_zero(Tg_a)
-      call int_1e_oldga(usebasis,usebasis,Tg_a,'kinetic',oskel)
+      call int_1e_oldga(dk_fitbas,dk_fitbas,Tg_a,'kinetic',oskel)
 c
 c     Diagonalize T in the orthogonal basis, using the overlap S as metric to get XU
 c
@@ -138,7 +117,7 @@ c     Put eigenvalues in p2g_a and multiply by 2.0 to get p^2,
 c     destroy T because we don't need that one anymore
 c
       call ga_zero(tempg_a)
-      call int_1e_oldga(usebasis,usebasis,tempg_a,'overlap',oskel)
+      call int_1e_oldga(dk_fitbas,dk_fitbas,tempg_a,'overlap',oskel)
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0)
 #ifdef PARALLEL_DIAG
@@ -202,7 +181,7 @@ c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Vmatrix',1,1,Vg_a))
      $     call errquit('int_1edk_ga: ga_create failed Vmatrix',0)
       call ga_zero(Vg_a)
-      call int_1e_oldga(usebasis,usebasis,Vg_a,'potential',oskel)
+      call int_1e_oldga(dk_fitbas,dk_fitbas,Vg_a,'potential',oskel)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,Vg_a,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,Vg_a)
@@ -226,7 +205,7 @@ c
 c     get p.Vp integrals and put them in Vdg_a
 c
       call ga_zero(Vdg_a)
-      call int_1e_oldga(usebasis,usebasis,Vdg_a,'pVp',oskel)
+      call int_1e_oldga(dk_fitbas,dk_fitbas,Vdg_a,'pVp',oskel)
 c
 c     Do U^t Vdg_a U to transform to momentum space
 c
@@ -533,7 +512,7 @@ c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Z',1,1,Z_ga))
      $     call errquit('int_1edk_ga: ga_create failed GA Z_ga',0)
 c
-      call int_pxvp_ga(usebasis,X_ga,Y_ga,Z_ga,oskel)
+      call int_pxvp_ga(dk_fitbas,X_ga,Y_ga,Z_ga,oskel)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,Ug_a,X_ga,0.0d0,tempg_a)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,X_ga)
@@ -646,7 +625,7 @@ c     Get overlap and multiply with Ug_a to get SXU
 c
       call ga_zero(tempg_a)
       call ga_zero(tmpg_a)
-      call int_1e_oldga(usebasis, usebasis, tempg_a, 'overlap', .false.)
+      call int_1e_oldga(dk_fitbas, dk_fitbas, tempg_a,'overlap',.false.)
       call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,Ug_a,0.0d0,
      $              tmpg_a)
 c
@@ -696,15 +675,15 @@ c
       if (.not. ga_create(MT_DBL,nbf,nbf_in,'GA temp',1,1,tmpg_a))
      $     call errquit('int_1edk_ga: ga_create failed GA tmp',0)
 c
-c     Create mixed overlap between basis_in and usebasis
+c     Create mixed overlap between basis_in and dk_fitbas
 c
       call ga_zero(Mixg_a)
-      call int_1e_oldga(usebasis,basis_in,Mixg_a,'overlap',.false.)
+      call int_1e_oldga(dk_fitbas,basis_in,Mixg_a,'overlap',.false.)
 c
-c     Create overlap matrix usebasis, invert to S^-1 and multiply with Mixg_a
+c     Create overlap matrix dk_fitbas, invert to S^-1 and multiply with Mixg_a
 c
       call ga_zero(tempg_a)
-      call int_1e_oldga(usebasis,usebasis,tempg_a,'overlap',.false.)
+      call int_1e_oldga(dk_fitbas,dk_fitbas,tempg_a,'overlap',.false.)
       call ga_matpow(tempg_a, -1.0d0, 0.0d0)
       call ga_dgemm('n','n',nbf,nbf_in,nbf,1.0d0,tempg_a,Mixg_a,
      $              0.0d0,tmpg_a)
@@ -732,11 +711,6 @@ c
      $     call errquit('int_1edk_ga: ga_destroy Mixg_a',0)
       if (.not. ga_destroy(DKg_a))
      $     call errquit('int_1edk_ga: ga_destroy DKg_a',0)
-c
-c     We don't need the uncontracted basis anymore, destroy it also
-c
-      if (.not. bas_destroy(usebasis))
-     $   call errquit('int_1edk_ga: bas_destroy usebasis failed',0)
 c
       return
 c

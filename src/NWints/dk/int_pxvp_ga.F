@@ -1,6 +1,6 @@
       subroutine int_pxvp_ga(ibas, g_x, g_y, g_z, oskel)
 *
-* $Id: int_pxvp_ga.F,v 1.1 1999-12-08 01:19:35 bert Exp $
+* $Id: int_pxvp_ga.F,v 1.2 1999-12-09 01:27:57 bert Exp $
 *
 c
 c     Gather pxVp integrals from int_1epxvpe on a shell by shell basis
@@ -43,7 +43,8 @@ c
 c
 c      Allocate temporary arrays
 c
-      call emem_1e_pvp(ibas, ibas, max1e, mem1, 3)
+      call int_mem_1e(max1e, mem1)
+c     call emem_1e_pvp(ibas, ibas, max1e, mem1, 3)
       if (.not. MA_push_get(MT_DBL,max1e*3,'int_pxvp_ga:buf',l_buf,
      $    k_buf)) call errquit('int_pxvp_ga: ma failed', max1e)
       if (.not. MA_push_get(MT_DBL, mem1,'int_pxvp_ga:scr',l_scr,k_scr))
