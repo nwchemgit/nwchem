@@ -26,11 +26,24 @@ sub datetosec {
     $precdays{Nov} = 304;
     $precdays{Dec} = 334;
     
-    ($day, $month, $daynum, $hour, $min, $sec, $zone, $year) = split(/[ :]/,$date);
+    @fields = split(/[ +:]/,$date);
+#    ($day, $month, $daynum, $hour, $min, $sec, $zone, $year) = split(/[ :]/,$date);
 
+    for ($i=0; $i<@fields; $i++) {
+#       print "field $i = $fields[$i]\n";
+       if ($fields[$i] =~ /[ :]/ || $fields[$i] eq "") {
+#         print "shifting\n";
+         for ($j=($i+1); $j<@fields; $j++) {
+           $fields[$j-1] = $fields[$j];
+         }
+         $fields[@fields-1] = ' ';
+       }
+    }
+        
+   ($day, $month, $daynum, $hour, $min, $sec, $zone, $year) = @fields;
 # Handle case when no zone info is included (from LL output)
 
-    if ($year == "") {
+    if ($zone =~ /\d+/) {
 	$year = $zone;
     }
     
@@ -50,10 +63,11 @@ sub datetosec {
 }
 
 
-$jobid = $ENV{'LOADL_JOB_NAME'};
+$jobid = $ENV{"LOADL_JOB_NAME"};
 
-if ($jobid == "") {
-    exit(1); #die("LOADL_JOB_NAME not defined\n");
+if ($jobid eq "") {
+    exit(1); 
+#die("LOADL_JOB_NAME not defined\n");
 }
 
 #die("llq failed\n") unless open(LL,"llq -l $jobid|");
@@ -72,7 +86,7 @@ while (<LL>) {
 
 close(LL);
 
-#die("Unable to determine dispatch/limit\n") unless 
+#die("Unable to determine dispatch/limit\n") unless (defined($dispatch) &&defined($walllimit));
 exit 1 unless (defined($dispatch) &&defined($walllimit));
 
 #print "Dispatch date = '$dispatch'; walllimit = $walllimit\n";

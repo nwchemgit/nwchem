@@ -14,12 +14,13 @@
 #define DONEIT 1  
 
 #include <unistd.h>
+#include <sys/wait.h>
 
 Integer util_batch_job_time_remaining_(void)
 {
   FILE *p;
   char cmd[1024];
-  int t;
+  int t, status;
 
   sprintf(cmd,"%s/jobtime",BINDIR);
 
@@ -36,10 +37,12 @@ Integer util_batch_job_time_remaining_(void)
   if (fscanf(p,"%d",&t) != 1) {
     /*(void) fprintf(stderr,"ujtr: failed to read time from pipe\n");*/
     (void) fclose(p);
+    (void) wait(&status);
     return NOT_AVAILABLE;
   }
 
-  fclose(p);
+  (void) fclose(p);
+  (void) wait(&status);
 
   if (t < 0) t = 0;
 
