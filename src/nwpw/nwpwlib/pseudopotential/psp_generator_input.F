@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.22 2004-01-28 01:29:38 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.23 2004-03-03 23:26:54 bylaska Exp $
 c
 
 *     ***************************************
@@ -630,6 +630,128 @@ c        *** PBE96 ***
      >        psp_in(1:j),j,
      >        psp_out(1:k),k)
       end if
+      open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+      close(unit=99,status='delete')
+
+
+      end if !** taskid.eq.MASTER **
+      value = rtdb_parallel(.true.)
+
+      call ga_sync()
+
+      msglen = 1
+      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
+      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
+      call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
+
+      return
+      end
+
+
+
+*     ***************************************
+*     *					    *
+*     *          psp_generator_auto1        *
+*     *					    *
+*     ***************************************
+      subroutine psp_generator_auto1(atom,lmax,locp,rlocal)
+      implicit none
+
+#include "inp.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+
+      character*2 atom
+      double precision rlocal
+      integer	    locp,lmax
+c
+      integer MASTER,taskid,msglen
+      parameter (MASTER=0)
+
+      logical value,hprint
+      character*255 dir_name,sdir_name
+      character*16 psp_in,psp_out
+      integer h,i,j,k,debug,psp_type,print
+      character ch_tmp
+
+*     **** external functions ****
+      logical  control_print
+      integer  nwpw_libglmax,nwpw_libglocp,control_gga
+      integer  nwpw_libgpsp_type
+      double precision nwpw_libgrlocal
+      external control_print
+      external nwpw_libglmax,nwpw_libglocp,control_gga
+      external nwpw_libgpsp_type
+      external nwpw_libgrlocal
+c
+      call Parallel_taskid(taskid)
+      hprint = (taskid.eq.MASTER).and.control_print(print_high)
+
+      value = rtdb_parallel(.false.)
+      if (taskid.eq.MASTER) then
+
+      call util_directory_name(sdir_name,.true.,0)
+      call util_directory_name(dir_name,.false.,0)
+      h = index(sdir_name,' ') - 1
+      i = index(dir_name,' ') - 1
+c      
+c     clean crap
+c
+      open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='unknown')
+      close(unit=99,status='delete')
+      psp_in = "junk.inp "
+      k = index(atom,' ') - 1
+      if (k.lt.0) k = 2
+      psp_out = atom(1:k)//".psp1"
+      j = index(psp_in,' ')  - 1
+      k = index(psp_out,' ') - 1
+
+      call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
+      lmax=nwpw_libglmax(atom)
+      locp=nwpw_libglocp(atom)
+      rlocal=nwpw_libgrlocal(atom)
+      psp_type=nwpw_libgpsp_type(atom)
+       
+      if (hprint) then
+      write(*,*) "Generating 1d atomic orbitals for ",atom
+      write(*,*) "psp_type:",psp_type
+      end if
+
+
+
+c        *** add GGA options to junk.inp ***
+*  
+c        *** Vosko ***
+         if (control_gga().eq.0) then
+           if (hprint) write(*,*) "+ generated using Vosko et al."
+
+c        *** PBE96 ***
+         else if (control_gga().eq.1) then
+           if (hprint) write(*,*) "+ generated using PBE96"
+           open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+           do while(.true.)
+             read(99,*,ERR=30,END=30) ch_tmp
+           end do
+   30      write(99,*) '<exchange>    pbe96 <end>'
+           write(99,*) '<correlation> pbe96 <end>'
+           close(unit=99)
+         end if
+
+         debug = 0
+         print = 0
+         if (control_print(print_debug)) debug = 1
+         if (control_print(print_high)) print  = 1
+         call pspsolve(print,debug,
+     >        lmax,locp,rlocal,
+     >        sdir_name(1:h),h,
+     >        dir_name(1:i),i,
+     >        psp_in(1:j),j,
+     >        psp_out(1:k),k)
+
+
       open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
       close(unit=99,status='delete')
 

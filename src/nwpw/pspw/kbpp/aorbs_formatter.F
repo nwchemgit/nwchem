@@ -1,5 +1,5 @@
 c
-c $Id: aorbs_formatter.F,v 1.5 2003-10-17 22:57:16 carlfahl Exp $
+c $Id: aorbs_formatter.F,v 1.6 2004-03-03 23:26:54 bylaska Exp $
 c
 
 *     ***************************************
@@ -45,12 +45,12 @@ c
       element = '    '
       element = atom
       l = index(element,' ') - 1
-      psp_filename       = element(1:l)//'.psp'
+      psp_filename       = element(1:l)//'.psp1'
       formatted_filename = element(1:l)//'.aorb'
 
 *     **** generate one-dimensional pseudopotential file ****
       if (.not.nwpw_filefind(psp_filename)) then
-        call psp_generator_auto(atom,lmax,locp,rlocal)
+        call psp_generator_auto1(atom,lmax,locp,rlocal)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
