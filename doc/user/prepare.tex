@@ -534,8 +534,8 @@ for which solvent coordinates will be used.
 
 \begin{verbatim}
 solvate   [ < real rshell default 1.2 > ] \
-        ( [ cube <real edge> ] |  \
-          [ box <real xedge> [ <real xedge> [ <real xedge> ]]] | \
+        ( [ cube [ <real edge> ]] |  \
+          [ box [ <real xedge> [ <real xedge> [ <real xedge> ]]]] | \
           [ sphere <real radius> ] |
           [ troct <real edge> ])
 \end{verbatim}
@@ -549,9 +549,12 @@ and rectangular boxes will be expanded by a length specified by the
 expand variable. If no shape is specified, solvation will be done for
 a cubic box with an edge that leaves rshell nm between any solute atom and
 a periodic image of any solute atom after the solute has been centered. 
-An explicit \verb+write+
-is not needed to write the restart file. The \verb+solvate+ will
-write out a file \verb+sys_calc+.rst.
+An explicit \verb+write+ is not needed to write the restart file. 
+The \verb+solvate+ will write out a file \verb+sys_calc+.rst.
+If not specified, the dimension of the solvation cell will be as large
+as to have at least a distance of \verb+rshell+ nm between any solute atom
+and the edge of the cell. The experimental \verb+troct+ directive generates 
+a truncated octrahedral box.
 
 \begin{verbatim}
 touch <real touch default 0.23>
@@ -569,7 +572,7 @@ volume will be increased after solvation.
 
 \begin{verbatim}
 read [rst | rst_old | pdb] <string filename>
-write [rst | [solute [<integer nsolvent>]] (pdb | xyz)] <string filename>
+write [rst | [solute [<integer nsolvent>]] ( [large] pdb | xyz)] <string filename>
 \end{verbatim}
 
 These directives read and write the file \verb+filename+ in the specified
@@ -582,6 +585,10 @@ filename. Recognized extensions are rst, rst\_old (read only), pdb, xyz
 Reading and then writing the same restart file will cause the
 sub-block size information to be lost. If this information needs to be
 retained a shell copy command needs to be used.
+The \verb+large+ keyword allows PDB files to be written with more than 9999
+residues. Since the PDB file will not conform to the PDB convention, this
+option should only be used if required. NWChem will be able to read the
+resulting PDB file, but other codes may not.
 
 \begin{verbatim}
 scale <real scale default -1.0>
