@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.61 2004-10-30 00:55:12 edo Exp $
+c     $Id: dft_main0d.F,v 1.62 2004-11-03 00:42:07 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -20,7 +20,6 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 #include "dftps.fh"
-cedo#define XC_REPL 1
 c     
 c     
       integer  ga_create_atom_blocked
@@ -36,7 +35,7 @@ c
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals,  idum,n_dep
       double precision toll_s
-      logical dft_scf
+      logical dft_scf,atmblk
       external dft_scf
       logical dft_scf_so 
       external dft_scf_so 
@@ -180,8 +179,7 @@ c
          call dft_get2eri(CD_bas_han, g_2ceri,oskel)
          if (oskel)call 
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
-         if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
-     &                        0, nbf_cd,g_cdinv)) 
+      if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
      &      call errquit('dft_main0d: error creating g_cdinv',0, GA_ERR)
          call ga_zero(g_cdinv)
          lmiss = 1
@@ -255,13 +253,15 @@ c
 c     
 c     Compute the AO overlap matrix.
 c     
-#ifdef XC_REPL 
-      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
-     &                       nbf_ao, 0, g_s))
-     &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
-#else
-      g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
-#endif
+      if (.not. rtdb_get(rtdb, 'dft:atomblock',mt_log,1,atmblk))
+     &     atmblk=.true.
+      if(atmblk) then
+         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+      else
+         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
+     &        0, 0, g_s))
+     &        call errquit('dft_main0d: error creating ga',0,GA_ERR)
+      endif
       call ga_zero(g_s)
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'ovl eig vals', lsvals, 
      &   isvals))

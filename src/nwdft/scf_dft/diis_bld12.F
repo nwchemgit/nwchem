@@ -1,46 +1,3 @@
-      subroutine diis_gets12pm(geom,bas,toll_s,svals, iga_svecs, 
-     .     iga_s12m, iga_s12p)
-      implicit none
-cedo#define XC_REPL
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-      integer geom               ! [in] handle
-      integer bas               ! [in] handle
-      double precision toll_s   ! [in]
-      double precision svals(*) ! [in]
-      integer iga_svecs         ! [in]
-      integer iga_s12m,iga_s12p ! [out]
-c
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
-      integer iga_stmp
-c
-#ifdef XC_REPL 
-      logical bas_numbf
-      external bas_numbf
-      integer nbf_ao
-      if (.not. bas_numbf(bas, nbf_ao))
-     .     call errquit('diisbld12: bas failed ',0,0)
-      if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gs12m',
-     &     nbf_ao, 0, iga_s12m))
-     &     call errquit('diis_bld12: error creating ga',0,GA_ERR)
-#else
-      iga_s12m = ga_create_atom_blocked(geom, bas, 'gs12m')
-#endif
-      if (.not. ga_duplicate(iga_s12m, iga_s12p, 'gs12p'))
-     &     call errquit('diis_bld12: error creating ga',0,GA_ERR)
-      if (.not. ga_duplicate(iga_s12m, iga_stmp, 'gtmp'))
-     &     call errquit('diis_bld12: error creating ga',0,GA_ERR)
-      call diis_bld12(toll_s, svals, iga_svecs, iga_s12m, 
-     &                      iga_stmp, 2)
-      call diis_bld12(toll_s, svals, iga_svecs, iga_s12p, 
-     &                      iga_stmp, 3)
-      if (.not. ga_destroy(iga_stmp)) call errquit
-     &     ('diis_gets: could not destroy g_tmp', 0, GA_ERR)
-c
-      return
-      end
       subroutine diis_bld12(toll_s, svals, iga_svecs, iga_sout, 
      &                      iga_stmp,  iwhich)
 c***********************************************************************
@@ -51,7 +8,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.22 2004-10-30 00:55:12 edo Exp $
+C$Id: diis_bld12.F,v 1.23 2004-11-03 00:42:07 edo Exp $
 c
       implicit none
 #include "errquit.fh"
