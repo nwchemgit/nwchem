@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.13 2000-06-05 23:54:42 edo Exp $
+c     $Id: dft_scf_so.F,v 1.14 2000-06-08 00:42:30 zzhang Exp $
 c     
       implicit none
 c     
@@ -744,7 +744,7 @@ c      write(*,'("i,j,",i10)')tot
 cso   Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1) 
 cso   <Hsf> = Re(Dsf) dot T+Vsf 
       Ecore = ga_ddot(g_dens(1), g_fock)
-      write(*,*)"Ecore=", ecore
+c      write(*,*)"Ecore=", ecore
       call ga_zero(g_so(1))
       call ga_zero(g_so(2))
       call ga_zero(g_so(3))
@@ -778,7 +778,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(1)) 
-      write(*,*)"Ecore=", ecore
+c      write(*,*)"Ecore=", ecore
 cso  
 cso   Accumulate y-component s.o. contribution 
 cso   Re(Dy)=Re(Dab)-Re(Dba) 
@@ -787,7 +787,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(2)) 
-      write(*,*)"Ecore=", ecore
+c      write(*,*)"Ecore=", ecore
 cso  
 cso   Accumulate x-component s.o. contribution 
 cso   Re(Dx)=-Im(Dab)-Im(Dba) 
@@ -795,7 +795,7 @@ cso   <Hx>=Re(Dx) dot Vx
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
-      write(*,*)"Ecore=", ecore
+c      write(*,*)"Ecore=", ecore
       noso = Ecore-noso 
 c     
 c     Perform SPM analysis
@@ -907,7 +907,7 @@ c
      &     (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &     g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &     dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
-      write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
+c      write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
       call ga_sync
       call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
      &                                     1, nbf_ao, 
@@ -1944,6 +1944,10 @@ c
       if(.not.ga_destroy(g_densso(2)))     
      &     call errquit('dft_scf_so: error destroy DenMx Im',0)
       if(.not.ga_destroy(g_tmp_ri))     
+     &     call errquit('dft_scf_so: error destroy old re',0)
+      if(.not.ga_destroy(g_old(1)))     
+     &     call errquit('dft_scf_so: error destroy old im',0)
+      if(.not.ga_destroy(g_old(2)))     
      &     call errquit('dft_scf_so: error destroy Tmp ReIm',0)
       if(.not.ga_destroy(g_so(1)))     
      &     call errquit('dft_scf_so: error destroy so z',0)
