@@ -9424,11 +9424,6 @@ C
       SUBROUTINE HND_DIAJAC(A,V,D,N,NDIM,T)
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-C     -----             JACOBI DIAGONALIZATION                   -----
-C
-C     ----- NUMERICAL RECIPES (P.70), CAMBRIDGE UNIVERSITY PRESS -----
-C          W.H.PRESS, B.P.FLANNERY, S.A.TEUKOLSKY, W.T.VETTERLING
-C
       DIMENSION A(NDIM,NDIM),V(NDIM,NDIM),D(NDIM),T(NDIM,2)
 
       CALL HND_JACOBI(A,V,D,N,NDIM,NROT,T(1,1),T(1,2))
@@ -11038,9 +11033,6 @@ C
       SUBROUTINE HND_LUDCMP(A,LDA,N,IB,VV,D,IERR)
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-C     ----- NUMERICAL RECIPES (P.35), CAMBRIDGE UNIVERSITY PRESS -----
-C          W.H.PRESS, B.P.FLANNERY, S.A.TEUKOLSKY, W.T.VETTERLING
-C
       CHARACTER*8 ERRMSG
       DIMENSION A(LDA,1),IB(N),VV(N)
       DIMENSION ERRMSG(3)
@@ -11111,9 +11103,6 @@ C
       END
       SUBROUTINE HND_LUBKSB(A,LDA,N,IB,B)
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-C     ----- NUMERICAL RECIPES (P.37), CAMBRIDGE UNIVERSITY PRESS -----
-C          W.H.PRESS, B.P.FLANNERY, S.A.TEUKOLSKY, W.T.VETTERLING
 C
       DIMENSION A(LDA,1),IB(N),B(N)
       DATA ZERO /0.0D+00/
@@ -11308,7 +11297,7 @@ c
 c
       integer          i_init,init,need 
       integer          num3
-      integer          i,j,ij
+c*    integer          i,j,ij
       integer          i00,i10
 c
       double precision x
@@ -11402,6 +11391,8 @@ c
 
            dhnd(inw_to_hnd(i),j)=
      &     dnwc(i,j)/(fac_nwthnd(i))
+c*         dhnd(i,inw_to_hnd(j))=
+c*   &     dnwc(i,j)/(fac_nwthnd(j))
 
         enddo
       enddo
