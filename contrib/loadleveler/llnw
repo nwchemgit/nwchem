@@ -1,7 +1,5 @@
 #!/bin/csh
 
-# $Id: llnw,v 1.1 1998-10-22 18:00:24 d3e129 Exp $
-
 onintr interrupted
 
 ############################################################################
@@ -43,11 +41,13 @@ unset noglob
 
 set TIME = "1:00:00"
 set NPROC = 1
+set NTASK = 1
+set NNODE = 1
 set QUEUE = batch
 set ACCOUNT = " "
-if ($?ACCOUNT_NO) then
-  set ACCOUNT = $ACCOUNT_NO
-endif
+#if ($?ACCOUNT_NO) then
+#  set ACCOUNT = $ACCOUNT_NO
+#endif
 
 ############################################################################
 # If there are no arguments then prompt for data, otherwise
@@ -64,6 +64,14 @@ if ($#argv == 0) then
   echo "-------------------------------------------"
   echo " "
 
+  again3:
+  echo -n "What type of IBM are you submitting too? (SP/SMP): "
+  set HOST = "$<"
+  if ("$HOST" != "SP" && "$HOST" != "SMP") then
+     echo "Invalid input $HOST, try again"
+     goto again3
+  endif
+  echo ""
   again2:
   set DEFAULTINPUT = "$FULLPATH/nwchem.nw"
   echo -n "Input file name ($DEFAULTINPUT): "
@@ -99,28 +107,52 @@ if ($#argv == 0) then
   set TEST = "$<"
   if ("$TEST" != "") set OUTPUT = "$TEST"
 
-  echo -n "Number of processes (1): "
-  set NPROC = "$<"
-  if ("$NPROC" == "") set NPROC = 1
+  if ("$HOST" == "SP") then
+     echo -n "Number of processors (1): "
+     set NPROC = "$<"
+     if ("$NPROC" == "") set NPROC = 1
+  else
+     echo -n "Number of SMP nodes (1): "
+     set NNODE = "$<"
+     if ("$NNODE" == "") set NNODE = 1
+     echo -n "Number of processors per node (1): "
+     set NTASK = "$<"
+     if ("$NTASK" == "") set NTASK = 1
+  endif
 
   echo -n "Time limit (1:00:00): "
   set TIME = "$<"
   if ("$TIME" == "") set TIME = "1:00:00"
 
-  echo -n "Account to charge ($ACCOUNT): "
+  echo -n "Account to charge: "
   set TEST = "$<"
-  if ("$TEST" != "") set ACCOUNT = "$TEST"
-
-#  if ($NPROC <= 3) then
-#    set QUEUE = small
-#  else
-#    set QUEUE = large
-#  endif
+  set ACCOUNT = "$TEST"
   
   echo -n "Load Leveller queue ($QUEUE): "
   set TEST = "$<"
   if ("$TEST" != "") set QUEUE = "$TEST"
 
+  echo -n "Are you doing a molecular dynamics run? (y/n): "
+  set TEST = "$<"
+  if ("$TEST" != "y" && "$TEST" != "n") then
+    echo "Invalid response: assuming a non molecular dynamics run"
+    set MDON = "n"
+  else
+    set MDON = "$TEST"
+  endif
+
+  if ("$MDON" == "y") then
+    echo ""
+    echo "During the molecular dynamics run, this script will copy all"
+    echo "*.pdb, *.top, and *.rst files in the current directory to the "
+    echo "/scratch/$USER directory of node 0.  After completion, all files "
+    echo "except the nwchem executable will be copied back to the current"
+    echo "directory. "
+    echo ""
+    echo -n "Do you want the files copied from and to /scratch? (y/n): "
+    set MDON = "$<"
+    echo ""
+  endif
 
   again1:
   echo -n "NWChem executable ($NWCHEM): "
@@ -143,7 +175,7 @@ if ($#argv == 0) then
 else
 
 ############################################################################
-# Non-interactive ... llnw input [-accnt accnt_no] [-procs nproc] [-queue queue] [-time time]
+# Non-interactive ... llnw input [-accnt accnt_no] [-nprocs nproc] [-tasks ntask] [-nnodes nnode] [-queue queue] [-time time] [-mdon y/n]
 ############################################################################
 
   if ("$1" == "-help" || "$1" == "help") then
@@ -199,14 +231,22 @@ else
       set TIME = "$value"
     else if ("$key" == "-queue") then
       set QUEUE = "$value"
-#      echo "! With the Maui scheduler only the queue named BATCH can be used"
-    else if ("$key" == "-procs") then
+    else if ("$key" == "-nprocs") then
       set NPROC = "$value"
+      set HOST = "SP"
+    else if ("$key" == "-tasks") then
+      set NTASK = "$value"
+      set HOST = "SMP"
+    else if ("$key" == "-nnodes") then
+      set NNODE = "$value"
+      set HOST = "SMP"
     else if ("$key" == "-accnt") then
       set ACCOUNT = "$value"
+    else if ("$key" == "-mdon") then
+      set MDON = "$value"
     else
       echo " unknown option: $key"
-      exit 1
+      goto usage
     endif
   end
 endif
@@ -222,15 +262,21 @@ set LLJOB = `dirname $OUTPUT`/`basename $OUTPUT .out`.job
 unset noglob
 
 echo " "
-echo " NPROC   = $NPROC"
-echo " TIME    = $TIME"
-echo " QUEUE   = $QUEUE"
-echo " INPUT   = $INPUT"
-echo " OUTPUT  = $OUTPUT"
-echo " ERROR   = $LLERR"
-echo " JOB     = $LLJOB"
-echo " NWCHEM  = $NWCHEM"
-echo " ACCOUNT = $ACCOUNT"
+if ("$HOST" == "SP") then
+echo " NPROC      = $NPROC"
+else
+echo " NTASK      = $NTASK"
+echo " NNODE      = $NNODE"
+endif
+echo " TIME       = $TIME"
+echo " QUEUE      = $QUEUE"
+echo " INPUT      = $INPUT"
+echo " OUTPUT     = $OUTPUT"
+echo " ERROR      = $LLERR"
+echo " JOB        = $LLJOB"
+echo " NWCHEM     = $NWCHEM"
+echo " ACCOUNT    = $ACCOUNT"
+echo " MDON       = $MDON"
 echo " "
 
 if ($?INTERACTIVE) then
@@ -246,27 +292,49 @@ endif
 
 # Remove ~ since poe will not expand it
 set THEINPUT = `echo $INPUT | sed -e "s,~,$PWDHOME,"`
-# Remove the .err off of the error file so the jobid can be appended
-set LLERR = $LLERR:r
+
+# set scratchdir
+set SCRATCHDIR = /scratch
+if ("$HOST" == "SMP") then
+   set SCRATCHDIR = /scratch/$USER
+endif
 
 ############################################################################
 # Put the job into the file $LLJOB so the user can refer to it
 ############################################################################
 
-cat <<EOF > $LLJOB
+cat <<EOF1 > $LLJOB
 #!/bin/csh -x
 # @ job_type         =    parallel
 # @ class            =    $QUEUE
-# @ requirements     =    (Adapter == "hps_user")
+# @ environment      =    COPY_ALL; MP_INFOLEVEL=3; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; MP_EUILIB=us; MP_CPU_USAGE=unique;AIXTHREAD_SCOPE=S;RT_GRQ=ON;restart=no
 # @ input            =    /dev/null
 # @ output           =    $OUTPUT
-# @ error            =    $LLERR.\$(jobid).err
-# @ environment      =    COPY_ALL; MP_EUILIB=us ; MP_CSS_INTERRUPT=yes; MP_INFOLEVEL=3; MP_EUIDEVICE=css0; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; restart=no
-# @ min_processors   =    $NPROC
-# @ max_processors   =    $NPROC
+# @ error            =    $LLERR
 # @ wall_clock_limit =    $TIME
 # @ cpu_limit        =    $TIME
-# @ account_no       =    $ACCOUNT
+# @ account          =    $ACCOUNT
+# @ notification     =    complete
+EOF1
+if ("$HOST" == "SP") then
+cat <<EOFt1 >> $LLJOB
+# @ network.lapi     = css0,not_shared,US
+# @ min_processors   =    $NPROC
+# @ max_processors   =    $NPROC
+EOFt1
+else
+cat <<EOFt2 >> $LLJOB
+# @ network.lapi     = css0,shared,US
+# @ node             = $NNODE
+# @ tasks_per_node   = $NTASK
+EOFt2
+endif
+
+if (-e $HOME/.llnw.config) then
+  cat $HOME/.llnw.config >> $LLJOB
+endif
+
+cat <<EOF3 >> $LLJOB
 # @ queue
 #
 # This gives good MPI performance on few nodes but hangs on many nodes
@@ -278,49 +346,116 @@ cat <<EOF > $LLJOB
 
 cd /scratch
 
-# /scratch should be cleared, but just to be sure do it here and at the end
-#/bin/rm -rf /scratch/*
+EOF3
+if ("$HOST" == "SMP") then
+cat <<EOF3a >> $LLJOB
+if ( ! -d $SCRATCHDIR ) then
+  mkdir -p $SCRATCHDIR
+endif
 
+EOF3a
+cat <<EOF3b >> $LLJOB
 ############################################################################
 # Set up environment variables for the POE collective commands
 ############################################################################
 
 echo " "
 echo "List of current environment variables:"
-env
+env 
 echo " "
 echo "List of the libraries being used by the executable"
 dump -H $NWCHEM
+
+# 
+# This is to help in getting the refund information automatically
+#
+echo "refund:UserID = $USER"
+echo "refund:Job ID = \$LOADL_STEP_ID"
+EOF3b
+if ("$HOST" == "SP") then
+cat <<EOFt3 >> $LLJOB
+echo "refund:Number of processors = $NPROC"
+EOFt3
+else
+cat <<EOFt4 >> $LLJOB
+echo "refund:Number of nodes = $NNODE"
+echo "refund:Number of tasks_per_node = $NTASK"
+EOFt4
+endif
+cat <<EOF4 >> $LLJOB
+echo "refund:Amount of time requested = $TIME"
 
 setenv WCOLL /scratch/wcoll.\$\$
 
 # This is convoluted to avoid exceeding limit on comand line length
 env LOADL_PROCESSOR_LIST | \\
-	sed -e 's/\\.nwmpp1\\.emsl\\.pnl\\.gov//g' | \\
 		sed -e 'y/ /\\n/' > \$WCOLL
 echo " "
 echo Processor list
 echo " "
-cat \$WCOLL
+sed 's/^/refund:/' \$WCOLL >> \$WCOLL.2
+cat \$WCOLL.2
 echo " "
 
-cp $NWCHEM /scratch/nwchem
+EOF4
+if ("$MDON" == "y") then
+cat <<EOFt5 >> $LLJOB
+if (-e $PWDHOME/*.top) cp $PWDHOME/*.top $SCRATCHDIR    
+if (-e $PWDHOME/*.pdb) cp $PWDHOME/*.pdb $SCRATCHDIR    
+if (-e $PWDHOME/*.rst) cp $PWDHOME/*.rst $SCRATCHDIR    
+EOFt5
+endif
+if ("$HOST" == "SP") then
+cat <<EOFt6 >> $LLJOB
+cp $NWCHEM $SCRATCHDIR/nwchem
+EOFt6
+else
+cat <<EOFt7 >> $LLJOB
+mcp $NWCHEM $SCRATCHDIR/nwchem -nodes $NNODE -euilib ip
+EOFt7
+endif
+
+cat <<EOF5 >> $LLJOB
 
 ############################################################################
 # Actually run the job
 ############################################################################
 
 cat << EOFcat > poe.commands
-/u1/d3g681/bin/copyexe /scratch/nwchem
-/scratch/nwchem $THEINPUT
+EOF5
+if ("$HOST" == "SP") then
+cat <<EOFt8 >> $LLJOB
+/u2/nwchem/bin/copyexe $SCRATCHDIR/nwchem
+$SCRATCHDIR/nwchem $THEINPUT
+EOFt8
+else
+cat <<EOFt9 >> $LLJOB
+$SCRATCHDIR/nwchem $THEINPUT
+EOFt9
+endif
+cat <<EOF6 >> $LLJOB
 quit
 EOFcat
 
+echo -n "refund:"
 date
-time poe -procs $NPROC -newjob yes -cmdfile poe.commands
+time poe -newjob yes -cmdfile poe.commands
+echo -n "refund:"
 date
+EOF6
 
+if ("$MDON" == "y") then
+cat <<EOF7 >> $LLJOB
 
+############################################################################
+# Copy MD files back
+############################################################################
+
+cp $SCRATCHDIR/*.* $PWDHOME/. 
+
+EOF7
+endif
+cat <<EOF >> $LLJOB
 ############################################################################
 # End of the job script
 ############################################################################
@@ -332,10 +467,10 @@ EOF
 
 llsubmit $LLJOB
 
-if ($status != 0) then
-  echo "  llsubmit failed"
-  exit 1
-endif
+#if ($status != 0) then
+#  echo "  llsubmit failed"
+#  exit 1
+#endif
 
 llq
 
@@ -368,7 +503,8 @@ interrupted:
 usage:
     echo " llnw usage: "
     echo "   1) use with no arguments for interactive prompts"
-    echo "   2) llnw filename [-accnt accnt_no] [-procs nproc] [-queue queue] [-time time]"
+    echo "   2) llnw filename [-accnt accnt_no] [-procs nproc] [-tasks ntask] [-nnodes nnode]"
+    echo "                    [-queue queue] [-time time] [-mdon y/n]"
     echo "   3) llnw -help ... prints this information"  
     echo " "
     echo "   Input filenames may be specified without any trailing .nw and"
