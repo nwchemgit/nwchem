@@ -56,14 +56,13 @@ c     alignments in combination of more than one equivalent molecule
 c
       elseif(iopt(i,1).eq.2) then
       if(ipmf(i,1).eq.6) then
-      nump=nump+lgroup(ipmf(i,2))
+      nump=nump+1
       nume=1
       if(mgroup(ipmf(i,2)).gt.0) then
       l=iequi(mgroup(ipmf(i,2)),3)
       if(l.ne.0) call errquit('pmf not on first equivalent molecule',0)
       do 52 j=1,nsm
       if(iequi(j,3).eq.mgroup(ipmf(i,2))) then
-      nump=nump+lgroup(ipmf(i,2))
       nume=nume+1
       endif
    52 continue
@@ -72,7 +71,7 @@ c
       endif
 c
       else
-      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
+      if(ipmf(i,1).eq.5) then
       nump=nump+lgroup(ipmf(i,2))
       elseif(ipmf(i,1).eq.7) then
       nump=nump+3
@@ -195,14 +194,11 @@ c     planar  pmf
 c
       if(ipmf(i,1).eq.6) then
       if(iopt(i,1).ne.2) then
-      do 8 k=1,lgroup(ipmf(i,2))
       write(lfntop,1001) 6,iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
+     + (rpmf(i,j),j=1,4),lgroup(ipmf(i,2))
       if(lgroup(ipmf(i,2)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
-      write(lfntop,1002) igroup(ipmf(i,2),k)
       write(lfntop,1002) (igroup(ipmf(i,2),j),j=1,lgroup(ipmf(i,2)))
-    8 continue
       else
       natoms=0
       do 81 k=1,lgroup(ipmf(i,2))
@@ -222,12 +218,9 @@ c
    82 continue
       if(natoms.le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
-      do 84 k=1,natoms
       write(lfntop,1001) 6,iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),1,natoms
-      write(lfntop,1002) itemp(k)
+     + (rpmf(i,j),j=1,4),natoms
       write(lfntop,1002) (itemp(im),im=1,natoms)
-   84 continue
       endif
       endif
 c

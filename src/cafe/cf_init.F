@@ -6,7 +6,7 @@
      + sclq,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,nbiasi,
      + mropti)
-c $Id: cf_init.F,v 1.72 2002-02-09 05:49:27 d3j191 Exp $
+c $Id: cf_init.F,v 1.73 2002-02-15 20:54:09 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -384,12 +384,14 @@ c
       rpmf(j,6,i)=rpmf(j,3,i)
     2 continue
       m=0
-      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       if(ipmf(i,1).eq.1) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
+      if(ipmf(i,1).eq.5) m=2
+      if(ipmf(i,1).eq.6) m=1
       if(ithint) then
+      if(m.eq.1) ith(18)=.true.
       if(m.eq.2) ith(18)=.true.
       if(m.eq.3) ith(20)=.true.
       if(ipmf(i,1).eq.3) ith(21)=.true.

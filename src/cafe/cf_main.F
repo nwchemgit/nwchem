@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.128 2002-02-09 05:49:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.129 2002-02-15 20:54:09 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1454,10 +1454,13 @@ c
     2 continue
       if(ipmf(i,6).eq.2.and.lpmfc) goto 1
       m=0
-      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+c      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.1) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
+      if(ipmf(i,1).eq.5) m=2
+      if(ipmf(i,1).eq.6) m=1
       if(m.eq.0) call errquit('Error in pmf xx',ipmf(i,1))
       skip=.false.
       do 3 j=1,m
@@ -1490,24 +1493,22 @@ c
       if(ipmf(i,6).eq.2.and.lpmfc) goto 6
 c
       m=0
-      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
+      if(ipmf(i,1).eq.1) m=2
       if(ipmf(i,1).eq.2) m=3
       if(ipmf(i,1).eq.3) m=4
       if(ipmf(i,1).eq.4) m=4
-      do 22 j=1,m
+      if(ipmf(i,1).eq.5) m=2
+      if(ipmf(i,1).eq.6) m=1
+      do 222 j=1,m
       wmtot=one/wpmf(j,i)
       wpmf(j,i)=wmtot
       xpmf(j,1,i)=xpmf(j,1,i)*wmtot
       xpmf(j,2,i)=xpmf(j,2,i)*wmtot
       xpmf(j,3,i)=xpmf(j,3,i)*wmtot
-   22 continue
+  222 continue
       if(ipmf(i,1).eq.5) xpmf(2,3,i)=xpmf(1,3,i)
-      if(ipmf(i,1).eq.6) then
-      xpmf(2,1,i)=xpmf(1,1,i)
-      xpmf(2,2,i)=xpmf(1,2,i)
-      endif
 c
-      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
+      if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.5) then
       do 7 j=1,2
       ign(j)=j
       iml(j)=1
@@ -1623,6 +1624,63 @@ c      write(*,'(a,f12.6,e12.5,3e12.5)') 'Imp:',rv,(ft(3,j),j=1,3)
    21 continue
    20 continue
    19 continue
+      endif
+c
+c     planar pmf
+c
+      if(ipmf(i,1).eq.6) then
+c
+c     copy x and y coordinates of center of mass
+c
+      xpmf(2,1,i)=xpmf(1,1,i)
+      xpmf(2,2,i)=xpmf(1,2,i)
+c
+c     loop over all atoms on this processor
+c
+      do 22 j=1,nums
+c
+c     loop over all atoms in the selected group
+c
+      do 23 k=1,ipmf(i,2)
+      if(isgan(j).eq.jpmf(i,1,k)) then
+c
+c     copy z coordinate of the atom in xpmf
+c
+      xpmf(2,3,i)=xs(j,3)
+c
+c     initialize arrays for fsb
+c
+      do 24 l=1,2
+      ign(l)=l
+      iml(l)=1
+      idt(l)=0
+      ich(l)=1
+      do 25 m=1,3
+      ft(l,m)=zero
+   25 continue
+   24 continue
+      it(1)=1
+      ip(1)=1
+      ip(2)=2
+      ip(3)=0
+      call cf_fsb(1,it,1,3,ip,rpmf(1,1,i),rv,2,4,ign,iml,idt,ich,chg,
+     + xpmf(1,1,i),ft,et,.true.,.true.,.false.,dbl_mb(i_sti))
+c
+c     sum ubias on every processor since this is not done in replicated mode
+c
+      ubias=ubias+rv(2)
+      epmf=epmf+rv(2)
+c
+c     sum the forces
+c
+      wm=cf_atmass(j,isatt)
+      fs(j,3)=fs(j,3)+ft(2,3)*wm*wpmf(1,i)
+c
+c     note that the reaction force is not used since they sum to zero.
+c
+      endif
+   23 continue
+   22 continue
       endif
 c
     6 continue
@@ -1868,6 +1926,8 @@ c
 c
       real*8 facdof,rran,tdev
       integer iwa,iwm,ix,isa,iran
+c
+      tdev=zero
 c
       if(numw.gt.0) then
       facdof=rgas*tgauss
