@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.15 2002-08-02 21:39:26 edo Exp $
+C$Id: grid_ssw.F,v 1.16 2002-08-05 01:16:32 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -131,7 +131,7 @@ c
                  elseif (mu.lt.-(ass-eps)) then
                     p(j)=0.d0
                  else
-#if !defined(IFCLINUX)
+#if !(defined(IFCLINUX) && defined(LINUX64))
                     if(inota.and. j.ne.AA) then
 c     
 c     use interpolation for erfs
@@ -149,7 +149,7 @@ c
                        sk=erf1(mu)
                        p(i) = p(i)*sk
                        p(j) = p(j)*(1d0 - sk)
-#if !defined(IFCLINUX)
+#if !(defined(IFCLINUX) && defined(LINUX64))
                     endif
 #endif
                  endif
