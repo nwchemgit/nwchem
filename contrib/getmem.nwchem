@@ -1,19 +1,16 @@
 #!/bin/csh  -f
 #
-# $Id: getmem.nwchem,v 1.1 2000-11-30 21:21:36 edo Exp $
+# $Id: getmem.nwchem,v 1.2 2000-12-01 19:06:15 edo Exp $
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
 #
 cd $NWCHEM_TOP/src/input
-set ffc="f77"
 set a=("" "" "" "" "" "") 
 set good=1
 if ($NWCHEM_TARGET == LINUX) then
-set ffc="g77"
 set nproc = `egrep processor /proc/cpuinfo | wc --line`
 set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 else  if ($NWCHEM_TARGET == LINUX64) then
-set ffc="fort"
 set nproc = `egrep cpus /proc/cpuinfo |  sed -e "s/cpus detected		: //"`
 set memtot = `egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 else  if ($NWCHEM_TARGET == DECOSF) then
@@ -30,7 +27,6 @@ set nproc = `/usr/sbin/psrinfo | wc -l `
 set a=`/usr/sbin/prtconf | egrep -i mem   `  
 @ memtot = ($a[3] * 1000)
 else  if ($NWCHEM_TARGET == IBM || $NWCHEM_TARGET == IBM64 || $NWCHEM_TARGET == LAPI ) then
-set good="2"
 set nproc=`/usr/sbin/lsdev -Cc processor | wc -l `
 set nmcard = `/usr/sbin/lsdev -Cc memory | egrep mem | wc -l`
 set i=0
@@ -43,7 +39,6 @@ set cardmem=$a[2]
 end
 @ memtot = ($memtot * 1000)
 else  if ($NWCHEM_TARGET == HPUX || $NWCHEM_TARGET == HPUX64  ) then
-set ffc="f90"
 set nproc=`/usr/sbin/ioscan -fkC processor | grep '^proc' | wc -l `
 cat > getmemhp.c <<EOF
 #include <sys/param.h>
@@ -73,18 +68,20 @@ echo "Total Memory/proc    :" $memproc "Kb"
 # multiply by 128*1024
 @ memproc = ($memproc * 128)
 if($good == 1) then
-set copt=$ffc" -DDFLT_TOT_MEM="$memproc
+set copt=" -DDFLT_TOT_MEM="$memproc
 touch memory_def.F
 set mymake=`which make`
 echo `/usr/bin/strings $mymake | egrep GNU | head -1` >! tmp.out.test
 set nbyte=`wc -c tmp.out.test`
 rm -f tmp.out.test 
 if ($nbyte[1] != 1) then
-echo "Executing " 'make FC="'$copt '"'
-make FC="$copt "
+echo "Executing " 'make LIB_DEFINES+="'$copt'"'
+# this is need for PGI
+#make  FC=pgf77 LIB_DEFINES+="$copt "
+make   LIB_DEFINES+="$copt "
 else
-echo "Executing " 'gmake FC="'$copt '"'
-gmake FC="$copt " 
+echo "Executing "  'gmake LIB_DEFINES+="'$copt'"'
+gmake LIB_DEFINES+="copt " 
 endif 
 else
 echo " "
