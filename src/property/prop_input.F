@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.10 2004-07-22 19:37:24 bert Exp $
+* $Id: prop_input.F,v 1.11 2004-12-03 23:27:05 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -15,7 +15,7 @@ c     All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
 c     
       integer rtdb ! [input] handle to database
-      integer iline, ifield, nfield
+      integer iline, ifield, nfield, ii, jj, icount
       
       character*255 movecs_in
       character*255 movecs_out
@@ -38,8 +38,10 @@ c
       integer stoneanalysis
       integer boyslocalization
       integer hyperfine
-      integer giao
+      integer spinspin, spnspnpairs
+      integer giao, giaoatoms
       integer center
+      integer l_at, k_at, l_pr, k_pr
       double precision point(3)
       logical status
 
@@ -73,11 +75,14 @@ c
       stoneanalysis     = 1
       boyslocalization  = 1
       hyperfine         = 1
+      spinspin          = 1
       giao              = 1
       center            = 1   ! default of center of charge
       point(1)          = 0.0d+0
       point(2)          = 0.0d+0
       point(3)          = 0.0d+0
+      giaoatoms         = 0
+      spnspnpairs       = 0
 c     
 c>>>  read inputs; store in rtdb
 c     
@@ -96,8 +101,62 @@ c
 c             
       elseif ( inp_compare(.false., 'hyperfine', test)) then
          hyperfine = 0
+      elseif ( inp_compare(.false., 'spinspin', test)) then
+         spinspin = 0
+         if (inp_i(spnspnpairs)) then
+            if (.not. ma_push_get(mt_int,spnspnpairs*2,'prs',l_pr,k_pr))
+     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
+            icount = 0
+            do ii = 1, spnspnpairs
+               status = inp_i(int_mb(k_pr+ii-1))
+               status = inp_i(int_mb(k_pr+ii+spnspnpairs-1))
+               if (status) then
+                  icount = icount+1
+               else
+                  write(6,'(a,a,i4,a)') 
+     &             'Spin-spin property input found',
+     &             ' viewer pairs than expected, only',icount,
+     &             ' will be used'
+                  if (icount.gt.0) then
+                    do jj = 0, icount-1
+                    int_mb(k_pr+jj+icount) = int_mb(k_pr+jj+spnspnpairs)
+                    enddo
+                  endif
+                  spnspnpairs = icount
+                  if (icount.eq.0) then 
+                     if (.not.ma_pop_stack(l_pr)) call
+     &          errquit('prop_input: ma_pop_stack failed k_pr',0,MA_ERR)
+                  endif
+                  goto 10
+               endif
+            enddo
+         endif
+  10     continue                
       elseif ( inp_compare(.false., 'giao', test)) then
          giao = 0
+         if (inp_i(giaoatoms)) then
+            if (.not. ma_push_get(mt_int,giaoatoms,'atoms',l_at,k_at))
+     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
+            icount = 0
+            do ii = 1, giaoatoms
+               status = inp_i(int_mb(k_at+ii-1))
+               if (status) then
+                  icount = icount+1
+               else
+                  write(6,'(a,a,i4,a)') 
+     &             'NMR shielding property input found',
+     &             ' viewer atoms than expected, only',icount,
+     &             ' will be used'
+                  giaoatoms = icount
+                  if (icount.eq.0) then 
+                     if (.not.ma_pop_stack(l_at)) call
+     &          errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+                  endif
+                  goto 11
+               endif
+            enddo
+         endif
+  11     continue                
       elseif ( inp_compare(.false., 'boyslocalization', test)) then
          boyslocalization = 0
          boyslocalization = 1
@@ -155,6 +214,7 @@ c
          efield          = 0
          esp             = 0
          hyperfine       = 0
+         spinspin        = 0
          spinpopulation  = 0
          spinpopulation  = 1
          mulliken  = 0
@@ -259,9 +319,30 @@ c
       if (.not. rtdb_put(rtdb, 'prop:hyperfine', mt_int, 1,
      $                               hyperfine         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:spinspin', mt_int, 1,
+     $                               spinspin         ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (spnspnpairs.gt.0) then
+          if (.not.rtdb_put(rtdb,'spinspin:pairs',mt_int,1,spnspnpairs))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+          if (.not. rtdb_put(rtdb,'spinspin:pair list',mt_int,
+     &                       spnspnpairs,int_mb(k_pr)))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+          if (.not.ma_pop_stack(l_pr)) call
+     &        errquit('prop_input: ma_pop_stack failed k_pr',0,MA_ERR)
+      endif
       if (.not. rtdb_put(rtdb, 'prop:giao', mt_int, 1,
      $                               giao              ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (giaoatoms.gt.0) then
+          if (.not. rtdb_put(rtdb, 'giao:natoms', mt_int, 1,giaoatoms))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+          if (.not. rtdb_put(rtdb, 'giao:atom list', mt_int, giaoatoms,
+     &                       int_mb(k_at)))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+          if (.not.ma_pop_stack(l_at)) call
+     &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+      endif
       if (.not. rtdb_put(rtdb, 'prop:center',mt_int, 1, center))
      $      call errquit('prop_input: rtdb_put failed', 555, RTDB_ERR)
       if (center.eq.4) then
