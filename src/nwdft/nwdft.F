@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.45 2000-03-27 19:17:45 edo Exp $
+C$Id: nwdft.F,v 1.46 2000-04-11 09:32:50 hvd Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -77,7 +77,7 @@ c      call util_file_name('dftim',.true.,.false.,timings)
           write(LuOut,*)
           write(LuOut,*)
           if (title .ne. ' ') then
-            call util_print_centered(6, title, 40, .false.)
+            call util_print_centered(LuOut, title, 40, .false.)
             write(LuOut,*)
             write(LuOut,*)
           endif
@@ -108,10 +108,10 @@ c
      &         call errquit('dft_scf: failed getting converged energy',
      &         0)
             if (ga_nodeid().eq.0 .and. oprint)then
-               write(6,1011)energy
+               write(LuOut,1011)energy
  1011          format(/'  The DFT is already converged '//,
      &              '         Total DFT energy =', f20.12/)
-               call util_flush(6)
+               call util_flush(LuOut)
             endif
             converged = .true.
             nwdft = .true.
