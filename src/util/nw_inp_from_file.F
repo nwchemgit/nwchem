@@ -3,6 +3,7 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "global.fh"
 c
       integer rtdb
       character*(*) filename
@@ -10,7 +11,8 @@ c
       logical input_parse, status
       external input_parse
 c
-      if (util_print('nw_inp_from_file',print_low)) then
+      if (util_print('nw_inp_from_file',print_low)
+     $     .and. ga_nodeid().eq.0) then
          write(6,*) ' Reading NWChem input from ', 
      $        filename(1:inp_strlen(filename))
          call util_flush(6)
