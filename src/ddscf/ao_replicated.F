@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.25 1997-04-26 21:37:32 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.26 1997-07-25 17:59:23 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -48,6 +48,8 @@ c
      $     ('ao_fock_2e: geom_ncent failed', 0)
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0)
+      if ( .not. bas_numcont(basis, nsh) ) call errquit(
+     $     'ao_fock_2e: problem with call to bas_numcont', basis)
 c     
 c     If we can hold most of the integrals in core then we should
 c     do this ... i.e., the default should be semi-direct. However,
@@ -80,7 +82,7 @@ c
      $     'ao_rep: density', l_dens, k_dens)
       status = status .and. ma_push_get(MT_DBL, nbf*nbf*nfock, 
      $     'ao_rep: fock',    l_fock, k_fock)
-      status = status .and. ma_push_get(MT_DBL, natom*natom, 
+      status = status .and. ma_push_get(MT_DBL, nsh*nsh, 
      $     'ao_rep: fock',    l_rdens, k_rdens)
       status = status .and. ma_push_get(MT_DBL, maxquartet,
      $     'ao_rep: q4',    l_q4, k_q4)
@@ -149,7 +151,7 @@ c
             open(66,file='/scratch/ints',form='formatted',
      $           status='unknown')
          endif
-         call fock_2e_rep( geom, basis, nfock, nbf, natom,
+         call fock_2e_rep( geom, basis, nfock, nbf, nsh, natom,
      $        jfac, kfac, tol2e_local, oskel,
      $        dbl_mb(k_dens), dbl_mb(k_fock), dbl_mb(k_rdens),
      $        int_mb(k_plist), dbl_mb(k_ps), maxquartet,
@@ -161,8 +163,6 @@ c
          endif
 c     
          if (util_print('screening statistics', print_debug)) then
-            if ( .not. bas_numcont(basis, nsh) ) call errquit(
-     $           'ao_fock_2e: problem with call to bas_numcont', basis)
             call schwarz_print(natom, nsh)
          end if
 c     
@@ -217,7 +217,7 @@ c
       end if
 c     
       end
-      subroutine fock_2e_rep(geom, basis, nfock, nbf, natom,
+      subroutine fock_2e_rep(geom, basis, nfock, nbf, nsh, natom,
      $     jfac, kfac, tol2e, oskel, dens, fock, rdens,
      $     plist, ps, qdim, q4, ijkl, tdim, pinfo)
       implicit none
@@ -233,13 +233,14 @@ c
       integer geom, basis
       integer nfock
       integer nbf
+      integer nsh
       integer natom
       double precision jfac(nfock), kfac(nfock)
       double precision tol2e
       logical oskel
       double precision dens(nfock, nbf*nbf)
       double precision fock(nfock, nbf*nbf)
-      double precision rdens(natom,natom)
+      double precision rdens(nsh,nsh)
       integer plist(2,*)        ! Pairs sorted by type
       double precision ps(*)    ! Schwarz screening for pair
       integer qdim
@@ -250,7 +251,7 @@ c
       integer ntp               ! No. of tasks per processor
 c     
       integer natom_unique
-      integer nshpair, nsh
+      integer nshpair
       integer ntype             ! No. of pair types
       integer max_p             ! Max pairs per block
       integer chunk             ! Chunking factor for tasks
@@ -261,6 +262,8 @@ c
       double precision dentol, integ_acc
       character*80 buff
 c
+      double precision nqraw, nqsch, nqsym
+c
       integer nq                ! No. of quartets generated
 c
       integer ntreq
@@ -268,10 +271,10 @@ c
       double precision nqdone, neri_done
       common/fred/nqdone, neri_done, neri_direct, neri_cached, ntreq
 c
-      integer cnmax, cemax
-      parameter (cnmax=1024, cemax=1024) ! Max no. of shells and centers
+      integer cnmax
+      parameter (cnmax=2048) ! Max no. of shells and centers
       integer cntoce(cnmax)     ! Map from contractions to centers
-      integer cetobfr(2,cemax)  ! Map from centers to bf range
+      integer cntobfr(2,cnmax)  ! Map from contractions to bf range
 c
       integer nops              ! No. of group operators = max value of q4
       double precision dnops, dentol_pairs
@@ -303,9 +306,6 @@ c
       end if
       if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
      $     ('fock_2e_rep: bad geom handle?',0)
-      if ( .not. bas_numcont(basis, nsh) ) call errquit(
-     $     'ao_fock_2e: problem with call to bas_numcont', basis)
-      if (natom .gt. cemax) call errquit('fock_2e_rep: cemax',natom)
       if (nsh .gt. cnmax)   call errquit('fock_2e_rep: cnmax',nsh)
 c     
 c     Build maps (for speed) and construct density matrix over atoms
@@ -314,26 +314,27 @@ c
          if (.not. bas_cn2ce(basis, ish, cntoce(ish)))
      $        call errquit('ao_rep: bad basis', 0)
       end do
-      do iat = 1, natom
-         if (.not. bas_ce2bfr(basis,iat,cetobfr(1,iat),cetobfr(2,iat)))
+      do ish = 1, nsh
+         if (.not. bas_cn2bfr(basis,ish,cntobfr(1,ish),cntobfr(2,ish)))
      $        call errquit('ao_rep: bad basis', 0)
       end do
 c
-      call dfill(natom*natom,0.0d0,rdens,1)
+      call dfill(nsh*nsh,0.0d0,rdens,1)
       do imat = 1, nfock
-         call util_mat_reduce(nbf, natom, cetobfr, dens(imat,1), 
+         call util_mat_reduce(nbf, nsh, cntobfr, dens(imat,1), 
      $        nfock, rdens, 'rms')
       end do
 *      write(6,*) ' RDENS'
-*      call output(rdens,1,natom,1,natom,natom,natom,1)
+*      call doutput(rdens,1,nsh, 1, nsh, nsh, nsh,1)
       denmax = 0.0d0
-      do iat = 1, natom
-         do jat = 1, iat
-            denmax = max(denmax,rdens(jat,iat))
+      do ish = 1, nsh
+         do jsh = 1, ish
+            denmax = max(denmax,rdens(jsh,ish))
          end do
       end do
       if (owritefile) denmax = max(denmax,10.0d0)
 c
+      dentolmax = 1d-3
       dentol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
 c
 c     If this is the first call for a potential semi-direct calculation 
@@ -360,8 +361,13 @@ c
          integ_acc = intacc     ! User controlled
       end if
       call int_acc_set(integ_acc)
-*      write(6,111) dentol, integ_acc
-* 111  format(1x,1p,' FRED  dentol=',d8.1,'  integ_acc=',d8.1)
+      if (util_print('ao_rep_info', print_debug)) then
+         write(6,111) tol2e, denmax, dentol, integ_acc, odensityscreen,
+     $        oreadfile, owritefile
+ 111     format(1x,1p,' tol2e=',d8.1,' denmax=',d8.1,
+     $        ' dentol=',d8.1,' integ_acc=',d8.1,
+     $        ' odenscr=',l1,' oread=',l1,' owrite=',l1)
+      endif
 c     
 c     assume a dense integral list but with symmetry and figure out
 c     no. of pairs per pair block dividing quartets between processors
@@ -434,6 +440,10 @@ c
       current = 0
       nq = 0
 c
+      nqraw = 0
+      nqsch = 0
+      nqsym = 0
+c
       nqdone = 0
       neri_done = 0
       ntreq  = 1
@@ -477,21 +487,25 @@ c     enforce canonical indices
                      end if
 c     kl diagonal
                      if (ksh.eq.lsh) qq4 = qq4*0.5d0
+c
+                     nqraw = nqraw + 1.0d0
 c     schwarz screening
                      sijkl = ps(ij)*ps(kl)
                      if (sijkl*dnops*qq4 .lt. dentol) goto 200 ! Next kl
+                     nqsch = nqsch + 1.0d0
 c     symmetry test
                      if (oskel) then
                         if (.not. sym_atom_quartet(geom,iat,jat,kat,lat,
      $                       qjunk)) goto 200
                         qq4 = qq4*qjunk
                      end if
+                     nqsym = nqsym + 1.0d0
 c     density screening
                      if (odensityscreen .and. (.not. owritefile)) then
                         dijkl = max(
-     $                       rdens(iat,jat),rdens(kat,lat),
-     $                       rdens(iat,kat),rdens(iat,lat), 
-     $                       rdens(jat,kat),rdens(jat,lat))
+     $                       rdens(ish,jsh),rdens(ksh,lsh),
+     $                       rdens(ish,ksh),rdens(ish,lsh), 
+     $                       rdens(jsh,ksh),rdens(jsh,lsh))
                         if (qq4*sijkl*dijkl .lt. tol2e) goto 200 ! Next kl
                      end if
 c     save it for later
@@ -579,6 +593,12 @@ c
  109     format(/1p,' #quartets =',d10.3, ' #integrals =',d10.3,
      $        0p,' #direct =',f5.1,'% #cached =',f5.1,'%'/)
          call util_flush(6)
+      endif
+c
+      if (util_print('ao_rep_info', print_debug)) then
+         write(6,77) nqraw, nqsch, nqsym, nqdone
+ 77      format(1p,' raw=',d8.1,' schwarz=',d8.1,' sym=',d8.1,
+     $        ' dens=',d8.1)
       endif
 c
 c     done

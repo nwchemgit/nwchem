@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.13 1997-03-25 19:10:02 d3g681 Exp $
+c$Id: ao_fock_2e.F,v 1.14 1997-07-25 17:59:24 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -30,7 +30,7 @@ c
 c     
 c     local variables
 c     
-      integer natoms, maxd, ablklen, nshb, nbf, maxg, lenscr
+      integer natoms, maxd, ablklen, nshb, nbf, maxg, lenscr, nsh
       integer i, mem_rep
       integer l_dij, l_dik, l_dli, l_djk, l_dlj, l_dlk
       integer l_fij, l_fik, l_fli, l_fjk, l_flj, l_flk
@@ -44,6 +44,8 @@ c
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ao_replicated: bas_numbf failed', 0)
+      if (.not. bas_numcont(basis, nsh)) call errquit
+     $     ('ao_replicated: bas_numcont failed', 0)
       if (.not. geom_ncent(geom, natoms)) call errquit
      $     ('ao_fock_2e: geom_ncent failed', 0)
 c
@@ -52,7 +54,7 @@ c     'fock:replicated' as false.  It is also overriden here when the
 c     replicated data algorithm would exceed memory requirements
 c
       call intb_mem_2e4c(maxg, lenscr)
-      mem_rep = nbf*nbf*(2*nfock + 2)
+      mem_rep = nbf*nbf*2*nfock + nsh*nsh
       if (owritefile) mem_rep = mem_rep + max(0,memsize)
       if (owritefile .or. (.not. (owritefile .or. oreadfile)))
      $      mem_rep = mem_rep + maxeri*5 + lenscr
