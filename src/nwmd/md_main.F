@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.78 2000-04-25 21:47:51 d3j191 Exp $
+c $Id: md_main.F,v 1.79 2000-04-28 20:13:08 d3j191 Exp $
 c
       implicit none
 c
@@ -239,7 +239,7 @@ c
       real*8 ww(mwa),ws(msa)
 c
       integer i,j
-      logical ltr,ldone
+      logical ldone
       real*8 edif,epsd,epsdw,epsdsw,epsds
       real*8 dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
@@ -374,15 +374,16 @@ c
       epsdsw=epotsw
       epsds=epots
 c
-      ltr=frequency(isdit,nfem)
+      lxw=frequency(mdstep,nfcoor)
+      lxs=frequency(mdstep,nfscoo)
 c
-      if(ltr) then
+      if(lxw.or.lxs) then
       if(lqmd) then
-      call qmd_wrttrj(lfnemt,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
      + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfnemt,.true.,.false.,.true.,.false.,
+      call sp_wrttrj(lfntrj,lxw,.false.,lxs,.false.,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
@@ -433,7 +434,7 @@ c
       real*8 pcgw(mwm,3,mwa),pcgs(msa,3),ww(mwa),ws(msa)
 c
       integer iwa,iwm,isa,ix,inner
-      logical ltr,ldone
+      logical ldone
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
       real*8 dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf
       real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
@@ -867,17 +868,19 @@ c
       ecg1=ecg2
       ecgnew=ecg2
 c
-c     record to lfnemt
+c     record to lfntrj
 c
-      ltr=frequency(icgit,nfem)
 c
-      if(ltr) then
+      lxw=frequency(mdstep,nfcoor)
+      lxs=frequency(mdstep,nfscoo)
+c
+      if(lxw.or.lxs) then
       if(lqmd) then
-      call qmd_wrttrj(lfnemt,mwm,nwmloc,mwa,nwa,msa,nsaloc,
+      call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
      + .true.,.false.,.true.,.false.,stime,pres,temp,tempw,temps,
      + dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xs),dbl_mb(i_vs))
       else
-      call sp_wrttrj(lfnemt,.true.,.false.,.true.,.false.,
+      call sp_wrttrj(lfntrj,lxw,.false.,lxs,.false.,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
@@ -2022,7 +2025,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.78 2000-04-25 21:47:51 d3j191 Exp $
+c $Id: md_main.F,v 1.79 2000-04-28 20:13:08 d3j191 Exp $
 c
       implicit none
 c

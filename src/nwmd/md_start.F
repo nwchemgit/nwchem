@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.56 2000-04-25 17:20:16 d3j191 Exp $
+c $Id: md_start.F,v 1.57 2000-04-28 20:13:08 d3j191 Exp $
 c
       implicit none
 c
@@ -197,7 +197,6 @@ c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0)
      + call cf_trjhdr(lfntrj)
-      if(nfem.gt.0) call cf_trjhdr(lfnemt)
       endif
 c
       return
@@ -270,7 +269,6 @@ c
       filmro=filnam(1:ibl)//'.mro'
       filmrr=filnam(1:ibl)//'.mrr'
       filmri=filnam(1:ibl)//'.mri'
-      filemt=filnam(1:ibl)//'.emt'
       filout=filnam(1:ibl)//'.out'
       filmem=filnam(1:ibl)//'.mem'
       fildef=filnam(1:ibl)//'.def'
@@ -301,38 +299,38 @@ c
       lfnrst=13
       lfntrj=14
       lfnprp=15
-      lfngib=17
-      lfnrdf=19
-      lfnppd=20
-      lfndip=25
-      lfndef=26
-      lfnemt=27
-      lfnqrs=28
-      lfnhis=31
-      lfnhbo=32
-      lfnkrk=33
-      lfndbg=34
-      lfnqsc=35
-      lfnacf=36
-      lfncnv=38
-      lfnfet=39
-      lfnuse=41
-      lfnmsg=42
-      lfnday=43
-      lfnmri=44
-      lfnmro=45
-      lfnmrr=46
-      lfnarg=47
-      lfnsum=48
-      lfnlog=49
-      lfnind=50
-      lfnsin=51
-      lfntim=53
-      lfnsyn=54
-      lfnrdi=55
-      lfnfld=56
-      lfnsfl=57
-      lfntst=58
+      lfngib=16
+      lfnqrs=17
+      lfndbg=18
+      lfnmri=19
+      lfnmro=20
+      lfntim=21
+      lfnsyn=22
+c
+      lfnmrr=23
+      lfnarg=24
+      lfnsum=25
+      lfnlog=26
+      lfnind=27
+      lfnsin=28
+      lfnrdi=29
+      lfnfld=30
+      lfnsfl=31
+      lfntst=32
+      lfnrdf=33
+      lfnppd=34
+      lfndip=35
+      lfndef=36
+      lfnhis=37
+      lfnhbo=38
+      lfnkrk=39
+      lfnqsc=40
+      lfnacf=41
+      lfncnv=42
+      lfnfet=43
+      lfnuse=44
+      lfnmsg=45
+      lfnday=46
 c
 c     set defaults
 c
@@ -417,7 +415,6 @@ c     em defaults
 c
       mintyp=0
       nem=0
-      nfem=0
       nemcrt=3
       nfqrs=25
 c
@@ -709,8 +706,6 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',47)
       if(.not.rtdb_get(irtdb,'md:keepr',mt_int,1,keepr))
      + call errquit('md_rtdbin: rtdb_get failed',48)
-      if(.not.rtdb_get(irtdb,'md:nfem',mt_int,1,nfem))
-     + call errquit('md_rtdbin: rtdb_get failed',49)
       if(.not.rtdb_get(irtdb,'md:nfcoor',mt_int,1,nfcoor))
      + call errquit('md_rtdbin: rtdb_get failed',50)
       if(.not.rtdb_get(irtdb,'md:nfscoo',mt_int,1,nfscoo))
@@ -934,8 +929,6 @@ c
       if(operat.eq.'optimize'.or.operat.eq.'OPTIMIZE') then
       ntype=1
       if(nfrest.gt.0) nfqrs=nfrest
-      nfcoor=0
-      nfscoo=0
       nfvelo=0
       nfsvel=0
       endif
@@ -1124,12 +1117,6 @@ c
 c     open recording file
 c
       if(me.eq.0) then
-      if(ntype.eq.1) then
-      if(nfem.gt.0) then
-      open(unit=lfnemt,file=filemt(1:index(filemt,' ')-1),
-     + form='formatted',status='unknown')
-      endif
-      endif
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       open(unit=lfntrj,file=filtrj(1:index(filtrj,' ')-1),
      + form='formatted',status='unknown')

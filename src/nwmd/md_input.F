@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.16 2000-04-28 18:02:32 d3j191 Exp $
+c $Id: md_input.F,v 1.17 2000-04-28 20:13:08 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
       integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
       integer ngx,ngy,ngz,ifix,iunfix,noshak,nfslow,nfefld,nfsfld
-      integer ngl,isetp1,isetp2,ifield,iapprx,nacfl,npxpct,nfem,imfft
+      integer ngl,isetp1,isetp2,ifield,iapprx,nacfl,npxpct,imfft
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
@@ -110,7 +110,6 @@ c
       nfauto=0
       nfconv=0
       nffet=0
-      nfem=0
       nfefld=0
       nfsfld=0
       ibinar=0
@@ -977,10 +976,6 @@ c
       nffet=1
       goto 600
       endif
-      if(inp_compare(.false.,'mind',item)) then
-      if(.not.inp_i(nfem)) call errquit('md_input: error mind',20)
-      goto 600
-      endif
       if(inp_compare(.false.,'coord',item)) then
       if(.not.inp_i(nfcoor)) call errquit('md_input: error coord',20)
       goto 600
@@ -1253,8 +1248,6 @@ c
       if(.not.rtdb_put(irtdb,'md:nfrest',mt_int,1,nfrest))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:keepr',mt_int,1,keepr))
-     + call errquit('md_input: rtdb_put failed',0)
-      if(.not.rtdb_put(irtdb,'md:nfem',mt_int,1,nfem))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfcoor',mt_int,1,nfwcoo))
      + call errquit('md_input: rtdb_put failed',0)

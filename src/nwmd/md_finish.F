@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.18 2000-04-25 17:20:15 d3j191 Exp $
+c $Id: md_finish.F,v 1.19 2000-04-28 20:13:08 d3j191 Exp $
 c
       implicit none
 c
@@ -92,11 +92,6 @@ c
 c     close files
 c
       if(me.eq.0) then
-      if(ntype.eq.1) then
-      if(nfem.gt.0) then
-      close(unit=lfnemt,status='keep')
-      endif
-      endif
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
       close(unit=lfntrj,status='keep')
       endif
