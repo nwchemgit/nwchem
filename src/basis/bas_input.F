@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.17 1996-01-19 18:51:32 d3e129 Exp $
+c $Id: bas_input.F,v 1.18 1996-01-19 19:16:06 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -289,12 +289,13 @@ c
       character*16 tag          ! [input]
       integer l_value           ! [input]
 c
-      integer ngen, iprim, nprim, i
+      integer ngen, iprim, nprim, i, j, nptmp
       integer cont_max          ! Max. no. of contractions
       integer prim_max          ! Max. no. of primitives
       logical status
       parameter (cont_max = 30, prim_max = 30)
-      double precision expnt(prim_max), coeff(prim_max,cont_max)
+      double precision expnt(prim_max), coeff(prim_max,cont_max),
+     $     etmp(prim_max), ctmp(prim_max)
 c
 c     The SUBSEQUENT lines contain coefficients and exponents
 c     for a contraction ... read them in and add the contraction to the
@@ -354,14 +355,23 @@ c
       status = .true.
       if (osegment) then
 c     
-c     Add contractions one-at-a-time to force segmentation
+c     Add contractions one-at-a-time to force segmentation ... remove
+c     functions with zero coefficients
 c     
          if (l_value .ne. -1) then
 c     simple shell
             do i = 1, ngen
+               nptmp = 0
+               do j = 1, nprim
+                  if (coeff(j,i).ne.0.0d0) then
+                     nptmp = nptmp + 1
+                     ctmp(nptmp) = coeff(j,i)
+                     etmp(nptmp) = expnt(j)
+                  endif
+               enddo
                status = status .and.
-     $              bas_add_ucnt(basis, tag, l_value, 1, nprim, 
-     $              expnt, coeff(1,i), prim_max)
+     $              bas_add_ucnt(basis, tag, l_value, 1, nptmp, 
+     $              etmp, ctmp, prim_max)
             enddo
          else
 c     sp shell
