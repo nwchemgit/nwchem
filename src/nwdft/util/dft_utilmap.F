@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.10 2002-02-21 22:18:40 edo Exp $
+* $Id: dft_utilmap.F,v 1.11 2002-02-22 22:26:39 edo Exp $
 *
       implicit none
       integer basis, natoms, nshells
@@ -75,7 +75,6 @@ c
       itask=0
       call dfill(n_a*nr*nr, 0.0d0, r, 1)
 
-      call util_flush(6)
       do k = 1, n_a
 c
 c         write(6,*) ' util_mat_reduce: input matrix '
