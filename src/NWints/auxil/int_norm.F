@@ -1,5 +1,5 @@
       logical function int_normalize(basisin)
-c $Id: int_norm.F,v 1.6 1999-10-26 21:41:18 mg201 Exp $
+c $Id: int_norm.F,v 1.7 1999-12-30 22:04:47 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "bas.fh"
@@ -28,7 +28,7 @@ c
 c if this is a relativistic basis set, we need the primitive normalization
 c but not the general contractions.
 c     
-      if (basis_is_rel(basisin)) then
+      if (dyall_mod_dir) then
         norm_typ = 3
       else
         norm_typ = 1
