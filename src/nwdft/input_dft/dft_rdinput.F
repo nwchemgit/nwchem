@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.20 1996-10-23 01:19:35 gutowski Exp $
+C$Id: dft_rdinput.F,v 1.21 1996-11-15 22:54:25 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -27,8 +27,10 @@ c
      &     icenter,jcenter,i3
       integer nshells_cd,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
-     &     lznuc,iznuc,lratom,iratom
+     &     lznuc,iznuc,lratom,iratom,lrot,irot
       integer iline, n
+      integer three, six, fifteen
+      Parameter ( three=3, six=6, fifteen=15 )
       character*40 blank_40c
       Logical lnewtype
       Logical int_normalize
@@ -512,7 +514,16 @@ c
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72)
 c
-      itype = 1
+c****
+c**** allocate space for M and T (rotational invariance; 
+c***  see B.G. Johnson et al, CPL, 220, 377 (1994), and auxiliary 
+c***  species R_a - T and (R_a -T)(R_a - T)^T
+c****
+      if ( .not. Ma_Push_Get(MT_Dbl,fifteen,'rotation',lrot,
+     &   irot))call errquit('dft_rdinput: failed to alloc rotation',0)
+c
+      call dzero(Dbl_MB(irot),fifteen)
+c
 c****
 c**** get number of atomic centers from geometry object
 c****
@@ -617,11 +628,12 @@ c****
         call errquit(' rdinput: raise MXagrid',3)
       end if
 c
-c     Set the switch to rotate the quadrature points.  Eventually 
-c     this switch will control whether the user wants the grid 
-c     rotationally invariant.
+c     Set the switch to rotate the quadrature points.
+c     This switch controls whether the grid is
+c     rotationally invariant. For now, it is hard-wired to 
+c     1 (rotationally invariant).
 c     
-      iqrot = 0
+      iqrot = 1
       if (.not. rtdb_put(rtdb, 'dft:iqrot',
      &   mt_int, 1, iqrot))
      &   call errquit('dft_input: rtdb_put failed', 117)
@@ -675,7 +687,9 @@ c****       center icenter is of type itype; assign charge
      &     call errquit('dft_rdinput: failed to alloc ratom',0)
       nqshells = MXqshells
 c
-      call xc_setquad(rtdb,Dbl_MB(iznuc),Dbl_MB(iratom),dbl_mb(icoord))
+      call xc_setquad(rtdb,Dbl_MB(iznuc),Dbl_MB(iratom),dbl_mb(icoord),
+     &                dbl_mb(icharge),dbl_mb(irot),dbl_mb(irot+three),
+     &                dbl_mb(irot+six))
 c
       if ( .not. MA_Pop_Stack(lratom))
      &   call errquit('dft_rdinput: pop stack failed.',0)
@@ -686,6 +700,8 @@ c
       if ( .not. MA_Pop_Stack(lcharge))
      &   call errquit('dft_rdinput: pop stack failed.',0)
       if ( .not. MA_Pop_Stack(lcoord))
+     &   call errquit('dft_rdinput: pop stack failed.',0)
+      if ( .not. MA_Pop_Stack(lrot))
      &   call errquit('dft_rdinput: pop stack failed.',0)
 c
       if (.not. bas_numcont(AO_bas_han, nshells))

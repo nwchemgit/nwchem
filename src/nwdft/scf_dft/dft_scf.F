@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.44 1996-11-13 01:34:00 vg038 Exp $
+C$Id: dft_scf.F,v 1.45 1996-11-15 22:54:29 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -252,7 +252,7 @@ c
 c
 c     get info for int2e_
 c
-      call scf_get_fock_param(rtdb, tol2e*100.)
+      call scf_get_fock_param(rtdb, tol2e)
       mulliken=.false.
       if(imull.eq.1) mulliken=.true.
       IOLGC=.TRUE.
