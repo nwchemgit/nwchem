@@ -1,0 +1,35 @@
+#
+
+set path = (/msrc/home/d3g681/CI/selci $path)
+
+set START = 0
+set CLEAN = 0
+
+if ($#argv > 0) then
+  if ("$1" == "start") then
+    set START = 1
+  else if ("$1" == "clean") then
+    set CLEAN = 1
+  else
+    echo 'usage: cycle [clean | start]'
+    exit 1
+  endif
+endif
+
+if ($CLEAN) then
+  /bin/rm -f hamil hamdg civecs sigmas ciconf roname rtname wmatrix
+  exit 
+endif
+
+if (! -e hamil)  ln -s /scratch/hamil
+if (! -e hamdg)  ln -s /scratch/hamdg
+if (! -e civecs) ln -s /scratch/civecs
+if (! -e ciconf) ln -s /scratch/ciconf
+if (  -e wmatrix) /bin/rm -f wmatrix
+
+if ($START) conf
+ci
+davids
+select
+
+/bin/rm -f wmatrix

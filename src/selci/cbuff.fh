@@ -1,0 +1,32 @@
+c
+c    This for debug with i*2 integers
+c      parameter (lenrbf=3, lenibf=9)
+c
+c    Next four lines for usual 2 byte integers ... imagic allows
+c    offsetting of indices from 0,...,max to -max/2,...,+max/2
+c
+c     parameter (lenrbf=13100, lenibf=13136)
+c     parameter (lenbuf=(8*lenrbf+2*lenibf+7)/8)
+c     parameter (iendf=-32768, iendr=-32767, imagic=32767)
+c     integer *2 ibuff
+c
+c     Next four lines for 4 byte integers ... need if nci > 65532
+c
+      parameter (lenrbf=21844, lenibf=21848)
+      parameter (lenbuf=(8*lenrbf+4*lenibf+7)/8)
+      parameter (iendf=-1, iendr=-2, imagic=0)
+      integer *4 ibuff
+c
+      common /selci_cbuff/rbuff(lenrbf),ibuff(lenibf),
+     $     nrinb,niinb,nrec,nval
+c
+c     buffer for output/input of the hamiltonian matrix
+c
+c     rbuff = the real*8 part of the buffer
+c     ibuff = integer*2  part of the buffer
+c     lenrbf = length of rbuff in r*8
+c     lenibf = length of ibuff in i*2
+c     lenbuf = total length of buffer in r*8
+c     nrinb = no. of real values in buffer
+c     niinb = no. of integer values in buffer
+c

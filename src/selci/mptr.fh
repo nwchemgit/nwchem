@@ -1,0 +1,10 @@
+      integer selci_minit
+      integer selci_mleft
+      integer selci_mptr
+      integer selci_mfree
+      integer selci_mstats
+      external selci_minit
+      external selci_mleft
+      external selci_mptr
+      external selci_mfree
+      external selci_mstats

@@ -1,0 +1,28 @@
+c
+c     this common contains full one particle coupling coefficients
+c     <*|eij|*> for the largest no. of open shells that 
+c     have root for <= 8 shells triplet
+c
+c     these next three parameters are used to dimension the
+c     arrays in common ... they are derived from 8 electrons triplet
+c
+c     nsc    = max # open shells can hold info for
+c     nfc    = max # functions for this many open shells (triplet)
+c     nfc2   = no. functions for nsc-2 open shells
+c     
+c     nseij  = no. of open shells for which info is stored
+c     ns4eij = no. of open shells handled for case4
+c              this may be smaller than nseij if nseij=nsmax as
+c              to compute case 4 involves using w2 for ns4eij+2
+c     case1(*,*,ib,jb) = <*|eij|*> for iocc(i)=1, iocc(j)=0 in
+c                         LHS configuration. ib and jb label the
+c                         postion of i and j in the socc list of LHS
+c     case2(*,*,ib,jb) = <*|eij|*> for iocc(i)=1, iocc(j)=1
+c     case4(*,*,ib,jb) = <*|eij|*> for iocc(i)=3, iocc(j)=1
+c
+      parameter (nfc=28, nfc2=9, nsc=8)
+      common /selci_ceij/ nseij,  ns4eij,
+     $     case1(nfc, nfc,  nsc,   nsc+1),
+     $     case2(nfc, nfc2, nsc,   nsc),
+     $     case4(nfc, nfc,  nsc+1, nsc)
+c

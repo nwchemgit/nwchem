@@ -1,0 +1,31 @@
+???????????
+This should not be used since the GAMESS interface is no longer
+supported
+??????????
+************************************************************************
+*   ==========  parameters defining the maximum system size =========
+*
+*   there are eight    parameters that the programmer need set:
+*     maxorb = maximum number of basis functions
+*     maxat  = maximum number of atoms (including point charges)
+*     maxvar = maximum number of z-matrix variables
+*     maxnz  = maximum number of z-matrix cards
+*     mxshel = maximum number of shells
+*
+*     mxprim = maximum number of shell primitives
+      parameter (maxorb= 256, maxat=1000)
+      parameter (maxvar=1200, maxnz= 400)
+      parameter (mxshel= 120, mxprim=440)
+*
+*   following parameters refer to analysis modules
+*     mxgaus = maximum number of orbital primitives
+*     mxgrps = maximum number of shells
+      parameter ( mxgrps = 480, mxgaus = 4800)
+************************************************************************
+*
+*   the following values should not be altered
+*
+************************************************************************
+      parameter (mxorb3=maxorb*3)
+      parameter (maxat3=maxat+3)
+************************************************************************

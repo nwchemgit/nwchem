@@ -1,0 +1,9 @@
+c
+c     Statement functions ... assumes ciinfo.h is included
+c
+c     itrian(i,j) - computes lower triangle index from two orbital labels
+c     intadr(ij,kl) - computes address of (ij|kl)
+c
+      itrian(i,j) = iky(max(i,j)) + min(i,j)
+      intadr(ij,kl) = int12(max(ij,kl)) + int34(min(ij,kl))
+c     

@@ -1,0 +1,60 @@
+c
+c     global static info about the ci
+c
+c     repnuc = nuclear repulsion energy
+c     multi  = multiplicity
+c     nelec  = no. of electrons
+c     issss  = state symmetry (0:8)
+c     norbs  = no. of orbitals
+c     nnorbs = (norbs*(norbs+1))/2
+c     nroot  = no. of roots sought
+c     nci    = dimension of the ci
+c     noconf = no. of orbital configurations
+c     nintpo = no. of integers in packed representation of orbital occupancy
+c     nbitpi = no. of bits per integer
+c     numint = no. of symmetry non-zero integrals
+c     inttyp = source for mo integrals
+c            = 0 = ascii list a la full ci
+c            = 1 = gamess (section 191 on ed3 1, and ed2 1)
+c            = 2 = columbus
+c     nsmax  = maximum no. of open shells we can handle
+c     nsneed(1) = max ns needed to count CSF
+c     nsneed(2) = max ns needed to compute CI hamiltonian
+c     nsneed(3) = max ns needed to do PT and selection
+c     nfmax  = no. of spin functions for nsmax
+c     nfmax2 = no. of spin functions for nsmax-2
+c     nf(ns) = no. of spin functions for ns
+c     nsym   = no. of symmetry types
+c     nbpsy(1:nsym) = no. of basis functions of given symmetry 
+c     isym(1:norbs) = symmetry (0:nsym-1) of that orbital
+c     iky(1:norbs) = i*(i-1)/2
+c     iflcon = unit number for file ciconf
+c     iflint = unit number for file moints
+c     iflwmt = unit number for file wmatrx
+c     ifllog = unit number for standard output
+c     iflham = unit number for hamiltonian matrix
+c     iflhdg = unit number for hamiltonian diagonals
+c     iflciv = unit number for ci energies and vectors
+c     ifleig = unit number for orbital eigenvalues  
+c
+c     lencii = no. of integers in the common
+c     lencir = no. of reals in the common
+c     iwpt   = selction procedure
+c            = 0 use ES perturbation theory for selection of ref.
+c            = 1 use MP perturbation theory for selection of ref.
+c
+      parameter (lencir = 1, lencii = 574)
+c
+      double precision repnuc
+      common/selci_ciinfo/
+     &     repnuc,
+     &     multi, nelec, issss, norbs, nnorbs, nroot,
+     &     nci, noconf, 
+     &     nintpo, nbitpi,
+     &     numint, inttyp,
+     &     nsneed(3), nsmax, nfmax, nfmax2, nf(0:32),
+     &     nsym, nbpsy(8), isym(255),
+     &     iky(255),
+     &     iflcon, iflint, iflwmt, ifllog, iflham, iflhdg, iflciv,
+     &     ifleig, iwpt
+c

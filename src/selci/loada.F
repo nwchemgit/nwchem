@@ -1,0 +1,77 @@
+      subroutine selci_loada(h, g, int12, int34)
+#include "implicit.fh"
+#include "ciinfo.fh"
+      dimension h(nnorbs), g(numint), int12(nnorbs), int34(nnorbs)
+#include "bitops.fh"
+c
+c     load the symmetry packed integrals in core
+c     this version is reading from the ascii list of integrals
+c
+      call dfill(numint, 0.0d0, g, 1)
+c
+ 10   read (iflint, *) gg, i, j, k, l
+      if (k.gt.0) then
+         if (abs(gg).lt.1.0d-10) goto 10
+         if (i.lt.j) then
+            ii = i
+            i = j
+            j = ii
+         endif
+         if (k.lt.l) then
+            kk = k
+            k = l
+            l = kk
+         endif
+         if (max(i,k).gt.norbs) goto 10
+         ij = iky(i) + j
+         kl = iky(k) + l
+         if (ij.lt.kl) then
+            ijij = ij
+            ij = kl
+            kl = ijij
+         endif
+         ijs = ieor(isym(i),isym(j))
+         kls = ieor(isym(k),isym(l))
+         if (ijs.ne.kls) then
+            write(ifllog,*) ' gg,i,j,k,l,ijs,kls,',gg,i,j,k,l,ijs,kls
+            call errquit('integral should be zero by symmetry',0)
+         endif
+         g(int12(ij)+int34(kl)) = gg
+*mdc*if debug
+*         write(6,1101) i,j,k,l,int12(ij)+int34(kl),gg
+*1101     format(1x,4i5,i8,d16.8)
+*mdc*endif
+         goto 10
+      else if (i.gt.0) then
+         if (abs(gg).lt.1.0d-10) goto 10
+         if (i.lt.j) then
+            ii = i
+            i = j
+            j = ii
+         endif
+         if (i.gt.norbs) goto 10
+         ij = iky(i) + j
+         ijs = ieor(isym(i),isym(j))
+         if (ijs.ne.0) then
+            write(ifllog,*) ' h,i,j,ijs',gg,i,j,ijs
+            call errquit(' integral should be zero by symmetry',0)
+         endif
+         h(ij) = gg
+*mdc*if debug
+*         write(6,1101) i,j,0,0,ij,gg
+*mdc*endif
+         goto 10
+      else if (i.eq.0) then
+         repnuc = gg
+         write(6,19) repnuc
+ 19      format(' nuclear replusion energy is ',f20.12)
+         goto 10
+      endif
+*mdc*if debug
+*      write(6,*) ' twoint: ',dasum(numint, g, 1)
+*      write(6,*) ' oneint: ',dasum(nnorbs, h, 1)
+*mdc*endif
+c
+c     fall out here when have read everything in
+c
+      end

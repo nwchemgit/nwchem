@@ -1,0 +1,7 @@
+c
+c     used: in selection program only
+c     Main common used by mp2 style perturbation routines
+c
+      parameter (norbsmx=200)
+      common /selci_cmp2/ eps(norbsmx)
+c

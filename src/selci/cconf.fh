@@ -1,0 +1,48 @@
+c
+c     Main common used by configuration generation program
+c
+c     nrefmx = max. no. of integers for holding configurations
+c     ngenmx = max. no. of refgen sets allowed in input
+c
+c     nelec = no. of electrons
+c     multi = state multiplicity
+c     norbs = no. of orbitals
+c     nref = no. of reference orbital occupations
+c     nsym = no. of symmetries
+c     ngen = no. of refgen sets
+c     issss = state symmetry
+c     nnsmax = max value of ns (# open shells)
+c     nsneed(3) ... see ciinfo.h
+c     nintpo = no. of integers per occupancy
+c     nbitpi = no. of bits per integer word
+c     nelpi = no. of orbitals per integer
+c     nci = dimension of ci in csf
+c     iexcit = refgen excitation level
+c     inttyp = type of integrals to be read
+c              0 = ascii list a la full ci
+c              1 = gamess
+c              2 = columbus
+c              3 = binary version of the ascii list
+c     nbpsy = no. of orbitals per symmetry
+c     isym = symmetry of each orbital
+c     iocc = workspace for orbital occupancies
+c     igen = list of regen sets
+c     nigen = no. of operators per refgen set
+c     nf = no. of spin functions given #open shells
+c
+c!!!!!These next three are now dynamically allocated
+c     irefo,jrefo = workspace for generating orbital occupancies
+c     indxci = csf index into ci vector from orbital conf
+
+c
+*      parameter (nrefmx = 10000) ... now dynamically determined
+      parameter (ngenmx=10)
+      common/selci_cconf/
+     $     nrefmx,
+     $     nelec,multi,norbs,nref,ngen,nsym,issss,nnsmax,
+     $     nintpo,nbitpi,nelpi,nci,iexcit,inttyp,
+     $     nbpsy(8),isym(255),iocc(255),
+     $     igen(2,255,ngenmx),nigen(ngenmx),
+     $     nf(0:32), nsneed(3)
+
+* now dynamically allocated irefo(nrefmx),jrefo(nrefmx),indxci(nrefmx+1)
