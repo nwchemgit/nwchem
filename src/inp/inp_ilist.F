@@ -3,7 +3,7 @@ C NAME
 C     inp_ilist -- read an integer list, possibly including ranges
 C
 C REVISION
-C     $Id: inp_ilist.F,v 1.2 1995-11-03 20:42:47 d3g681 Exp $
+C     $Id: inp_ilist.F,v 1.3 1997-03-05 23:20:31 d3g681 Exp $
 C
 C SYNOPSIS
       Logical Function Inp_IList( MaxList, List, N)
@@ -13,18 +13,34 @@ C SYNOPSIS
       Integer N                 ! [out]   Number of elements in list
 C
 C DESCRIPTION
-C     Reads the remainder of the line for a list of integers and puts
+C     Reads the line for a list of integers and puts
 c     the results in List.  Ranges of integers may be compactly using
 c     F90-style triplet notation. The number of elements set from the
 c     input is returned in N. 
-C
-C     Inp_IList returns .TRUE. if the input is a valid integer list, 
-C     and .FALSE. otherwise, also setting an appropriate error message.
+c
+c     It USED to read the entire remainder of the input line. BUT now
+c     reads until it finds something that is not an integer range.
+c
+c     IF (the remainder of the input line was read as a valid list)
+c     .  inp_list returns .true. with N as the number of elements read
+c     ELSE 
+c     .  inp_list returns .false. with N as the number of elements 
+c     .  and also sets the INP internal error message appropriately
+c     .  which can be cleared with inp_clear_err
+c
+c     N may be returned in either case as zero.
+c
 C     If N > MaxList, it indicates that there is too much data on
-C     the line to fit in List.
+C     the line to fit in List. NOTE that inp_ilist now returns
+c     true in this scenario so the value of N must be checked 
+c     for this condition.  A recovery action would be to reposition
+c     the input to the beginning of the list, allocate a sufficiently
+c     large array and then call inp_ilist again.  The input position may
+c     be recorded with inp_cur_field() and reset with inp_set_field().
+c     The INP error message is also set in this circumstance.
 C
 C INCLUDED FILES
-#include "inpP.fh"
+c     none.
 C
 C EXTERNAL ROUTINES
       Integer  Inp_Cur_Field, Inp_N_Field
@@ -32,48 +48,28 @@ C EXTERNAL ROUTINES
       External Inp_Cur_Field, Inp_N_Field, Inp_IRange
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer Field, First, Last, Stride, I, Start
+      Integer First, Last, Stride, I
 C
       N = 0
 C
-C     Fields are numbered from 0..n-1
+c     Read as many fields as possible as integer ranges
+c
+ 10   If ( Inp_IRange(First, Last, Stride) ) then
 C
-      Start = JRec
-      Do Field = JRec, Jump-1
-         If ( Inp_IRange(First, Last, Stride) ) then
+C     Expand the triplet.  If there are too many elements for the List, 
+C     we count them but do not overwrite the array bounds.
 C
-C           Expand the triplet.  Notice that if there are too many
-C           elements for the List, we count them but do not overwrite
-C           the array bounds.
-C
-            Do I = First, Last, Stride
-               N = N + 1
-               If ( N .le. MaxList) List(N) = I
-               If ( N .eq. MaxList+1) IErrPos = IStrt(JRec)
-            EndDo
-         Else
-C
-C           Inp_IRange will set IErrPos and ErrMsg appropriately.
-C           We need to shove the pointer back to the beginning of
-C           the whole list though.
-C
-            JRec = Start
-            Inp_IList = .FALSE.
-            Return
-         EndIf
-      EndDo
-C
-C     It is possible we have exceeded the array capacity.
-C
-      If ( N .le. MaxList) then
-         Inp_IList = .TRUE.
-      Else
-C
-C        IErrPos is set at the field which causes the overwrite
-C
-         ErrMsg = 'insufficient space for integer list'
-         JRec = Start
-         Inp_IList = .FALSE.
+         Do I = First, Last, Stride
+            N = N + 1
+            If ( N .le. MaxList) List(N) = I
+            If ( N .eq. MaxList+1) call inp_mark_err
+     $          ('insufficient space for integer list')
+         EndDo
+         goto 10
       EndIf
-      Return
+C
+C     OK if we are we are the end of the input line 
+C
+      inp_ilist = (inp_cur_field() .eq. inp_n_field()) 
+C
       End

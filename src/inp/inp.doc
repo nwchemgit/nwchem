@@ -72,15 +72,27 @@
   logical function inp_ilist( integer maxlist, integer list(maxlist),
      integer n)
 
-     Reads the remainder of the line for a list of integers and puts
+     Reads the line for a list of integers and puts
      the results in List.  Ranges of integers may be compactly using
-     inp_irange's notation. The number of elements set from the
+     F90-style triplet notation. The number of elements set from the
      input is returned in N. 
 
-     Inp_IList returns .TRUE. if the input is a valid integer list, 
-     and .FALSE. otherwise, also setting an appropriate error message.
+     It USED to read the entire remainder of the input line. BUT now
+     reads until it finds something that is not an integer range.
+
+     IF (the remainder of the input line was read as a valid list)
+     .  inp_list returns .true. with N as the number of elements read
+     ELSE 
+     .  inp_list returns .false. with N as the number of elements 
+     .  and also sets the INP internal error message appropriately
+     .  which can be cleared with inp_clear_err
+
+     N may be returned in either case as zero.
+
      If N > MaxList, it indicates that there is too much data on
-     the line to fit in List.
+     the line to fit in List. NOTE that inp_ilist now returns
+     true in this scenario so the value of N must be checked 
+     for this condition.
 
 
   logical function inp_f(double precision d)

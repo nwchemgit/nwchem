@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.28 1997-03-04 06:17:06 d3e129 Exp $
+C$Id: inp.F,v 1.29 1997-03-05 23:20:30 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -498,6 +498,17 @@ c
       ierrpos = i
       errmsg = 'illegal character reading floating point number'
 c     
+      end
+      subroutine inp_mark_err(message)
+      implicit none
+#include "inpP.fh"
+      character*(*) message
+c
+c     Mark an input error at the beginning of the current input field
+c
+      ierrpos = istrt(min(max_field,max(1,jrec)))
+      errmsg  = message
+c
       end
       logical function inp_i(jbuf)
       implicit none
