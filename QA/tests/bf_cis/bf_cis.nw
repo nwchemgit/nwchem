@@ -25,6 +25,7 @@ cis
 nroots 3
 notriplet
 target 1
+thresh 1.0e-5
 end
 
 task tddft optimize
