@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.215 1997-02-27 18:32:50 d3j191 Exp $
+# $Id: makefile.h,v 1.216 1997-02-28 22:45:22 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -353,7 +353,7 @@ ifeq ($(TARGET),CRAY-T3E)
             COPTIMIZE = -O
             LDOPTIONS = -L$(LIBDIR) 
 
-              DEFINES = -DCRAY_T3D -D__F90__
+              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__
 
                LINK.f = f90 $(LDOPTIONS)
 
