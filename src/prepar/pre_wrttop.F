@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.18 1998-11-18 01:19:58 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.19 1999-01-14 22:21:44 d3j191 Exp $
 c
       implicit none
 c
@@ -116,10 +116,10 @@ c
       nd=nd+max(ldih(7,i),ldih(8,i),ldih(9,i))
    30 continue
       if(ffield(1:5).eq.'amber') then
-      write(lfntop,1009) natm,nbnd,nang,nd+nimp,0,n3rd,nexc
+      write(lfntop,1009) natm,nbnd,nang,nd+nimp,0,n3rd,nexc,0,0,0
       else
-      write(lfntop,1009) natm,nbnd,nang,nd,nimp,n3rd,nexc
- 1009 format(5i7,2i10)
+      write(lfntop,1009) natm,nbnd,nang,nd,nimp,n3rd,nexc,0,0,0
+ 1009 format(5i7,3i10,2i5)
       endif
 c
       if(natmt.gt.natm) then
