@@ -90,9 +90,9 @@ c     for diagnostic and debugging purposes
 c     
       geom_rtdb_in = .false.
       ngeom_rtdb = 0
-      if (rtdb_par_get(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb))
+      if (rtdb_get(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb))
      $     then
-         if (.not. rtdb_par_cget(rtdb, 'geometry:names', max_geom,
+         if (.not. rtdb_cget(rtdb, 'geometry:names', max_geom,
      $        names_rtdb)) then
             write(6,*) 'geom_rtdb_in: rtdb corrupt'
          else
@@ -116,9 +116,9 @@ c
 c     output to rtdb info about known geometries
 c     
       geom_rtdb_out  =
-     $     rtdb_par_put(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb)
+     $     rtdb_put(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb)
      $     .and.
-     $     rtdb_par_cput(rtdb, 'geometry:names', max_geom, names_rtdb)
+     $     rtdb_cput(rtdb, 'geometry:names', max_geom, names_rtdb)
       if (.not. geom_rtdb_out) 
      $     write(6,*) ' geom_rtdb_out: rtdb is corrupt '
 c     
@@ -243,22 +243,22 @@ c
 c
       tmp(k:) = ':ncenter'
       status = status .and. 
-     $     rtdb_par_get(rtdb, tmp, mt_int, 1, ncenter(geom))
+     $     rtdb_get(rtdb, tmp, mt_int, 1, ncenter(geom))
       tmp(k:) = ':coords'
       status = status .and. 
-     $     rtdb_par_get(rtdb, tmp, mt_dbl, max_cent*3, coords(1,1,geom))
+     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, coords(1,1,geom))
       tmp(k:) = ':charges'
       status = status .and. 
-     $     rtdb_par_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
+     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
       tmp(k:) = ':efield'
       status = status .and. 
-     $     rtdb_par_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+     $     rtdb_get(rtdb, tmp, mt_dbl, 3, efield(1,geom))
       tmp(k:) = ':latvec'
       status = status .and. 
-     $     rtdb_par_get(rtdb, tmp, mt_dbl, 9, latvec(1,1,geom))
+     $     rtdb_get(rtdb, tmp, mt_dbl, 9, latvec(1,1,geom))
       tmp(k:) = ':tags'
       status = status .and. 
-     $     rtdb_par_cget(rtdb, tmp, max_cent, tags(1,geom))
+     $     rtdb_cget(rtdb, tmp, max_cent, tags(1,geom))
 c     
       if (.not. status) then
          write(6,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
@@ -371,24 +371,24 @@ c
 c
       tmp(k:) = ':ncenter'
       status = status .and. 
-     $     rtdb_par_put(rtdb, tmp, mt_int, 1, ncenter(geom))
+     $     rtdb_put(rtdb, tmp, mt_int, 1, ncenter(geom))
       tmp(k:) = ':coords'
       status = status .and. 
-     $     rtdb_par_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
+     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
      $     coords(1,1,geom))
       tmp(k:) = ':charges'
       status = status .and. 
-     $     rtdb_par_put(rtdb, tmp, mt_dbl, ncenter(geom),
+     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     charge(1,geom))
       tmp(k:) = ':efield'
       status = status .and. 
-     $     rtdb_par_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
+     $     rtdb_put(rtdb, tmp, mt_dbl, 3, efield(1,geom))
       tmp(k:) = ':latvec'
       status = status .and. 
-     $     rtdb_par_put(rtdb, tmp, mt_dbl, 9, latvec(1,1,geom))
+     $     rtdb_put(rtdb, tmp, mt_dbl, 9, latvec(1,1,geom))
       tmp(k:) = ':tags'
       status = status .and. 
-     $     rtdb_par_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
+     $     rtdb_cput(rtdb, tmp, ncenter(geom), tags(1,geom))
 c
 c     insert translated name into list of known geometries
 c
@@ -424,7 +424,7 @@ c
 c
 c     try to translate the provided name
 c
-      if (.not. rtdb_par_cget(rtdb, name, 1, translation))
+      if (.not. rtdb_cget(rtdb, name, 1, translation))
      $     translation = name
       lt = inp_strlen(translation)
 c
@@ -449,17 +449,17 @@ c
       k = inp_strlen(tmp)+1
 c
       tmp(k:) = ':ncenter'
-      status = status .and. rtdb_par_delete(rtdb, tmp)
+      status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':coords'
-      status = status .and. rtdb_par_delete(rtdb, tmp)
+      status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':charges'
-      status = status .and. rtdb_par_delete(rtdb, tmp)
+      status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':efield'
-      status = status .and. rtdb_par_delete(rtdb, tmp)
+      status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':latvec'
-      status = status .and. rtdb_par_delete(rtdb, tmp)
+      status = status .and. rtdb_delete(rtdb, tmp)
       tmp(k:) = ':tags'
-      status = status .and. rtdb_par_delete(rtdb, tmp)
+      status = status .and. rtdb_delete(rtdb, tmp)
 c
 c     check status of all rtdb stores
 c
