@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.47 2000-04-24 14:40:44 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.48 2000-04-24 14:50:01 d3j191 Exp $
 c
       implicit none
 c
@@ -781,6 +781,26 @@ c
       read(card(8:53),'(2i5,3f12.6)',err=9999) itran,jtran,xtran
       if(.not.pre_transl(itran,jtran,xtran,
      + int_mb(i_sml),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_transl failed',9999)
+      endif
+c
+c     translate segment
+c     -----------------
+c
+      if(card(1:6).eq.'trasgm') then
+      read(card(8:53),'(2i5,3f12.6)',err=9999) itran,jtran,xtran
+      if(.not.pre_transl(itran,jtran,xtran,
+     + int_mb(i_sgm),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_transl failed',9999)
+      endif
+c
+c     translate atom
+c     --------------
+c
+      if(card(1:6).eq.'traatm') then
+      read(card(8:53),'(2i5,3f12.6)',err=9999) itran,jtran,xtran
+      if(.not.pre_transl(itran,jtran,xtran,
+     + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_transl failed',9999)
       endif
 c

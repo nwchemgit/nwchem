@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.44 2000-04-24 14:40:43 d3j191 Exp $
+c $Id: pre_input.F,v 1.45 2000-04-24 14:50:01 d3j191 Exp $
 c
       implicit none
 c
@@ -749,6 +749,24 @@ c
       if(.not.inp_f(xtran(3))) call errquit('pre_input: translate',9999)
       write(68,6852) itran,jtran,xtran
  6852 format('tramol ',2i5,3f12.6)
+      numcmd=numcmd+1
+      elseif(inp_compare(.false.,'segment',item)) then
+      if(.not.inp_i(itran)) call errquit('pre_input: translate',9999)
+      if(.not.inp_i(jtran)) jtran=itran
+      if(.not.inp_f(xtran(1))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(2))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(3))) call errquit('pre_input: translate',9999)
+      write(68,6853) itran,jtran,xtran
+ 6853 format('trasgm ',2i5,3f12.6)
+      numcmd=numcmd+1
+      elseif(inp_compare(.false.,'atom',item)) then
+      if(.not.inp_i(itran)) call errquit('pre_input: translate',9999)
+      if(.not.inp_i(jtran)) jtran=itran
+      if(.not.inp_f(xtran(1))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(2))) call errquit('pre_input: translate',9999)
+      if(.not.inp_f(xtran(3))) call errquit('pre_input: translate',9999)
+      write(68,6854) itran,jtran,xtran
+ 6854 format('traatm ',2i5,3f12.6)
       numcmd=numcmd+1
       else
       call errquit('pre_input: translate',9999)
