@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.31 1994-06-25 00:51:34 d3g681 Exp $
+# $Id: makefile.h,v 1.32 1994-06-27 04:04:12 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -36,7 +36,6 @@ endif
 # ... it is preferable to do the setenv then this file is independent
 # ... of who is using it!!!
 #
-  NWCHEM_TARGET = KSR
 
 ifndef NWCHEM_TARGET
 # This variable must be defined ... the next line will cause an error
