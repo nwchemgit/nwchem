@@ -1,6 +1,6 @@
       subroutine sym_op_class_name(op_type, order, power, direction,
      $     group_name, class)
-C$Id: sym_op_cname.F,v 1.4 1999-03-20 02:12:47 d3g681 Exp $
+C$Id: sym_op_cname.F,v 1.5 2000-11-05 19:23:14 d3g681 Exp $
       implicit none
 #include "inp.fh"
 c     
@@ -100,6 +100,13 @@ c
             endif
          endif
       else if (op_type .eq. 'improper rotation') then
+         if (group_name(1:1) .eq. 'D') then
+c
+c     Additional mirror planes of Dnh force some ops into the same class
+c     whereas for Cnh they are all in different classes.
+c
+            if (abspow .gt. order) abspow = 2*order - abspow
+         endif
          if (abspow .gt. 1) then
             if (order .lt. 10) then
                write(class,'(''s'',i1,''^'',i1)') order, abspow
