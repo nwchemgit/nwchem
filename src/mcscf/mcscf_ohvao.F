@@ -1,9 +1,5 @@
 c
 c
-c  TODO:   1) Reduce the required number of density matrices
-c          2) Direct accumulation into product vector
-c          3) Remove redundant ga_zero's
-c        
 c
 c
        subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
@@ -36,14 +32,14 @@ c
        parameter(nsets=6)
        integer iv_dens(nsets), iv_fock(nsets)
        double precision jfac(nsets),kfac(nsets)
+       data jfac/6*1.d0/
+       data kfac/6*-0.5d0/
        double precision tol2e
+       data tol2e/1.d-12/
 c
 c
        integer ga_create_atom_blocked
        external ga_create_atom_blocked
-       data jfac/6*1.d0/
-       data kfac/6*-0.5d0/
-       data tol2e/1.d-12/
 c
 c
 c
@@ -76,9 +72,10 @@ c
        g_f4 = ga_create_atom_blocked( geom, basis, 'Fock 4')
        g_f5 = ga_create_atom_blocked( geom, basis, 'Fock 5')
        g_f6 = ga_create_atom_blocked( geom, basis, 'Fock 6')
-
 c
 c Inactive-Virtual "density"
+c                                               iv   t iv
+c                                              D  = C.X .C
 c
        call ga_matmul_patch( 'n', 't', 1.d0, 0.d0,
      $                       g_x, voff, nbf, 1, nclosed,
@@ -93,7 +90,9 @@ c
        call ga_copy( g_d1, g_d2 )
        call ga_copy( g_d1, g_d3 )
 c
-c Inactive-Virtual, Active-Virtual "density"
+c Inactive-Virtual, Active-Virtual "density"    
+c                                               ,av   t av
+c                                              D   = C.X .d.C
 c
        call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
      $                       g_x, voff, nbf, aoff, aend,
@@ -109,9 +108,11 @@ c
      $                       g_tmp1, 1, nbf, 1, nbf )
        call ga_symmetrize(g_tmp1)
        call ga_copy( g_tmp1, g_d4 )
-       call ga_dadd( 1.d0, g_d4, 2.d0, g_d1, g_d1 )
+       call ga_dadd( 1.d0, g_d4, 2.d0, g_d1, g_d1 )                  
 c
 c Inactive-Virtual, Inactive-Active "density"
+c                                               ,ia   t      ia
+c                                              D   = C.(2-d)X .C
 c
        call ga_zero(g_tmp2)
        call diagfill_patch(g_tmp2, 2.d0, aoff, aend )
@@ -133,14 +134,16 @@ c
        call ga_copy( g_tmp1, g_d5 )
        call ga_dadd( 1.d0, g_d5, 1.d0, g_d1, g_d1 )
 c
-c Active-Virtual part
+c Inactive-Active density
+c                                               ia    t ia
+c                                              D   = C.X .C
 c
        call ga_zero(g_tmp1)
+       call ga_zero(g_tmp2)
        call ga_matmul_patch('n', 't', 1.d0, 0.d0,
      $                      g_x, aoff, aend, 1, nclosed,
      $                      g_movecs, 1, nclosed, 1, nbf,
      $                      g_tmp1, aoff, aend, 1, nbf )
-       call ga_zero(g_tmp2)
        call ga_matmul_patch('n', 'n', 1.d0, 0.d0,
      $                      g_movecs, 1, nbf, aoff, aend,
      $                      g_tmp1, aoff, aend, 1, nbf,
@@ -151,11 +154,12 @@ c
 c
 c
 c CA, CA density
-c
+c                                               ,,ia    t       ia
+c                                              D    = -C.(1-d).X .C
 c
        call ga_zero(g_tmp1)
-       call diagfill_patch(g_tmp1, 1.d0, aoff, aend )
-       call ga_dadd( 1.d0, g_tmp1, -1.d0, g_tmp, g_tmp1)
+       call diagfill_patch(g_tmp1, 1.d0, aoff, aend )                  
+       call ga_dadd( 1.d0, g_tmp1, -1.d0, g_tmp, g_tmp1)               
        call ga_matmul_patch( 'n', 'n', 1.d0, 0.d0,
      $                       g_tmp1, aoff, aend, aoff, aend,
      $                       g_x, aoff, aend, 1, nclosed,
@@ -173,6 +177,25 @@ c
 c 
 c
 c
+c  Density summary
+c
+c              iv   ,av   ,ia                 ,av
+c       d1 : 2D  + D   + D              d4 : D
+c
+c             iv   ia                         ia
+c       d2 : D  + D                     d5 : D
+c
+c             iv                              ,,ia
+c       d3 : D                          d6 : D
+c
+c
+       iv_dens(1) = g_d1
+       iv_dens(2) = g_d2
+       iv_dens(3) = g_d3
+       iv_dens(4) = g_d4
+       iv_dens(5) = g_d5
+       iv_dens(6) = g_d6
+c
 c Fock build
 c
        nn = 6
@@ -182,19 +205,12 @@ c
        call ga_zero(g_f4)
        call ga_zero(g_f5)
        call ga_zero(g_f6)
-       iv_dens(1) = g_d1
-       iv_dens(2) = g_d2
-       iv_dens(3) = g_d3
-       iv_dens(4) = g_d4
-       iv_dens(5) = g_d5
-       iv_dens(6) = g_d6
        iv_fock(1) = g_f1
        iv_fock(2) = g_f2
        iv_fock(3) = g_f3
        iv_fock(4) = g_f4
        iv_fock(5) = g_f5
        iv_fock(6) = g_f6
-       
        call fock_2e( geom, basis, nn, jfac, kfac, tol2e, oskel,
      $               iv_dens, iv_fock )
 c
@@ -242,9 +258,9 @@ c
      $                     1.d0, g_ax, voff, nbf, aoff, aend,
      $                           g_ax, voff, nbf, aoff, aend )
 c
-c
-c
-c Inactive-Active contribution
+c Inactive-Active contributions
+c                                          t   iv
+c                                 (2 - d) C.F[D  ].C
 c
        call ga_zero(g_tmp1)
        call ga_zero(g_tmp2)
@@ -263,6 +279,10 @@ c
      $                       g_tmp1, aoff, aend, aoff, aend,
      $                       g_tmp2, aoff, aend, 1, nclosed,
      $                       g_tmp1, aoff, aend, 1, nclosed )
+c
+c                                     t   ,av  
+c                                 -d C.F[D   ].C
+c
        call ga_zero(g_tmp2)
        call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
      $                       g_movecs, aoff, aend, 1, nbf,
@@ -277,9 +297,10 @@ c
      $                           g_ax, aoff, aend, 1, nclosed )
 c
 c
-c CA,CA contribution   (note this last section has zero contribution
-c                       in ROHF theory and has not been debugged against the ROHF
-c                       Hessian product)
+c Inactive-Active, Inactive-Active contribution
+c    (note this last section has zero contribution
+c    in ROHF theory and has not been debugged against the ROHF
+c    Hessian product)
 c
 c
        call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,                         
@@ -293,8 +314,9 @@ c
        call ga_dadd_patch( 1.d0, g_tmp2, aoff, aend, 1, nclosed,
      $                     1.d0, g_ax, aoff, aend, 1, nclosed,
      $                           g_ax, aoff, aend, 1, nclosed )
-
-
+c
+c
+c
        call ga_matmul_patch( 't', 'n', 1.d0, 0.d0,
      $                       g_movecs, aoff, aend, 1, nbf,
      $                       g_f5, 1, nbf, 1, nbf,
@@ -312,6 +334,7 @@ c
        call ga_dadd_patch( 1.d0, g_tmp1, aoff, aend, 1, nclosed,
      $                     1.d0, g_ax, aoff, aend, 1, nclosed,
      $                           g_ax, aoff, aend, 1, nclosed )
+c
 c
 c
        if (.not.ga_destroy(g_tmp1))
@@ -347,4 +370,5 @@ c
 c
        return
        end
+
 

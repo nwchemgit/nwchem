@@ -1,9 +1,7 @@
 c
-c $Id: mcscf_ohv2e.F,v 1.1 1995-12-12 22:11:18 rg240 Exp $
+c  $Id: mcscf_ohv2e.F,v 1.2 1996-02-14 23:03:45 rg240 Exp $
 c
 c Return the MCSCF 2e Hessian-vector product
-c
-c     
 c
 c
        subroutine mcscf_hessv_2e( geom, basis, nbf, nclosed, nact,
