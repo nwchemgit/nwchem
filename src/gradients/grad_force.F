@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.25 1997-06-25 02:31:48 d3g681 Exp $
+c     $Id: grad_force.F,v 1.26 1997-09-17 23:01:13 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -103,7 +103,7 @@ c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer maxblen           ! maximum value for blen = max no. bf in group
       integer maxsh             ! maximum no. of shells in a group
       integer maxq              ! max quartets in a request
-      parameter (maxblen=32, maxsh=10)
+      parameter (maxblen=36, maxsh=10)
       parameter (maxq=maxsh**4)
 c
       integer 
@@ -146,7 +146,7 @@ c
       if (.not. bas_nbf_cn_max(basis,max_sh_bf))
      $     call errquit('grad: could not get max_sh_bf',0)
 
-      blen = min(nbf,maxblen,5*max_sh_bf) ! d(6)*5=30, 5**4=625 quartets
+      blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('grad: failed getting theory',0)

@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.27 1997-07-17 03:28:07 d3j191 Exp $
+c     $Id: grad2.F,v 1.28 1997-09-17 23:01:11 d3g681 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -88,6 +88,7 @@ C-------------------------local variables-----------------------------
       integer nq, integ, atoms(4)
 *      integer numq
       double precision smax, sij, sijkl, block_eff, p
+*     double precision integ_acc
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
@@ -97,7 +98,11 @@ C-------------------------local variables-----------------------------
 c     
       smax  = schwarz_max()
       q4max = 8.0d0*(sym_number_ops(geom) + 1)*100.0d0 ! 100 for max(psum)
-
+c
+      call int_acc_std()
+*      integ_acc = min(1d-9,max(0.01d0*tol2e/q4max,1d-17))
+*      call int_acc_set(integ_acc)
+c
       ibflo_prev = -1
       jbflo_prev = -1
       kbflo_prev = -1
@@ -282,7 +287,7 @@ c
                      if (.not. intbd_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
-     $                    nq, q4, .true., lscr, scr, leri, 
+     $                    nq, q4, .true., lscr, scr, 12*leri, 
      $                    block_eff)) call errquit('grad2:txs init?',nq)
 c     
  10                  omore = intbd_2e4c(
@@ -291,7 +296,7 @@ c
      $                    nq, q4, .true., tol2e, .false.,
      $                    labels(1,1),labels(1,2), 
      $                    labels(1,3), labels(1,4), 
-     $                    eri, leri, nint, lscr, scr)
+     $                    eri, 12*leri, nint, lscr, scr)
 c     
 *     write(6,*) ' nint ', nint, omore
 c     
@@ -336,6 +341,9 @@ c
             end do
          end do
       end do
+c
+      call int_acc_std()
+c
       next = nxtask(-nproc,task_size)
       call ga_sync()
 c     
