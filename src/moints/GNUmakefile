@@ -1,5 +1,6 @@
-#$Id: GNUmakefile,v 1.69 2000-11-22 20:42:28 edo Exp $
+#$Id: GNUmakefile,v 1.70 2002-02-16 20:55:04 edo Exp $
 
+include ../config/makefile.h
         OBJ = atwtest.o \
 	      direct_mp2.o \
 	      mointdriver.o \
@@ -13,16 +14,17 @@
               sifs0.o \
               sifs1.o
 
-#              twopdm_backt.o 
-
-
 OBJ_OPTIMIZE = \
 	      moints_cutil.o \
               moints_aodisk.o \
 	      moints_semi.o \
-              moints_aux2.o \
-	      moints_2x.o \
-              moints_6x.o 
+              moints_aux2.o  
+
+ifeq ($(FC), efc)
+   OBJ += moints_2x.o moints_6x.o 
+ else
+   OBJ_OPTIMIZE += moints_2x.o moints_6x.o 
+ endif
 
 
     LIBRARY = libmoints.a
@@ -49,6 +51,5 @@ LIB_DEFINES = -DDEBUG_PRINT
 #              -DOLD_AOBLOCK          /* Recover original AO blocking scheme */
 #
 
-include ../config/makefile.h
 include ../config/makelib.h
 
