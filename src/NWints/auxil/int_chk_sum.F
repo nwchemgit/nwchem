@@ -1,7 +1,8 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.4 1994-05-05 17:21:34 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.5 1994-08-21 22:00:29 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
+#include "global.fh"
 #include "bas.fh"
 c::passed
       integer basisin    ! [input] basis set handle 
@@ -25,6 +26,9 @@ c
       integer ncont
       integer plevel
 c
+      integer me, nproc, idoit
+      double precision x1, x2, x3
+c      
       data debug /.false./
       data plevel /0/
 c 
@@ -36,7 +40,7 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &       call errquit('int_chk_sum: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum: numcont not obtained',ncont)
 c
       call int_init(1,basisin)
       call int_mem(max1bf,maxg,mscr1,mscr2)
@@ -49,23 +53,23 @@ c
 c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
-     &       call errquit('int_chk_sum: allocation memb failed',memb)
+     &    call errquit('int_chk_sum: allocation memb failed',memb)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
-     &       call errquit('int_chk_sum: allocation mems failed',mems)
+     &    call errquit('int_chk_sum: allocation mems failed',mems)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,'i label buffer',h_ilab,i_ilab))
-     &       call errquit('int_chk_sum: allocation ilab failed',memb)
+     &    call errquit('int_chk_sum: allocation ilab failed',memb)
       if (.not.MA_Push_Get(MT_Int,memb,'j label buffer',h_jlab,i_jlab))
-     &       call errquit('int_chk_sum: allocation jlab failed',memb)
+     &    call errquit('int_chk_sum: allocation jlab failed',memb)
       if (.not.MA_Push_Get(MT_Int,memb,'k label buffer',h_klab,i_klab))
-     &       call errquit('int_chk_sum: allocation klab failed',memb)
+     &    call errquit('int_chk_sum: allocation klab failed',memb)
       if (.not.MA_Push_Get(MT_Int,memb,'l label buffer',h_llab,i_llab))
-     &       call errquit('int_chk_sum: allocation llab failed',memb)
+     &    call errquit('int_chk_sum: allocation llab failed',memb)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
-     &       h_stats,i_stats))
-     &       call errquit('int_chk_sum: allocation mems failed',(5*3))
+     &    h_stats,i_stats))
+     &    call errquit('int_chk_sum: allocation mems failed',(5*3))
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -76,95 +80,136 @@ c zero memory
       call dfill(mems,0.0,  dbl_mb(imems)  ,1)
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
 c
+c initialize parallelization flags
+c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+      call ga_sync()
+      if (me.eq.0.and.nproc.gt.1)
+     &    write(6,*)' only integrals on node 0 will be printed. '
+c
 c loop over shells and compute S sums
 c      
+      idoit = (me-1)
       numtot = 0
       do 00100 i = 1,ncont
         do 00200 j = 1,i
-          call int_1eov(basisin,i,basisin,j,
-     &           mems,dbl_mb(imems),memb,dbl_mb(imemb))
-          call int_lgen1e(basisin,i,basisin,j,1.0d-08,
-     &           int_mb(i_ilab),int_mb(i_jlab),memb,
-     &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          if(print_ints)
-     &      call int_pgen1e('overlap',basisin,i,basisin,j,
-     &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb),plevel)
-          call stsum1(numleft,numtot,
-     &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &           dbl_mb(i_stats))
+          idoit = idoit + 1
+          if(mod(idoit,nproc).eq.0) then
+            call int_1eov(basisin,i,basisin,j,
+     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            if(print_ints.and.me.eq.0)
+     &          call int_pgen1e('overlap',basisin,i,basisin,j,
+     &          int_mb(i_ilab),int_mb(i_jlab),numleft,
+     &          dbl_mb(imemb),plevel)
+            call stsum1(numleft,numtot,
+     &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
+     &          dbl_mb(i_stats))
+          endif
 00200   continue
 00100 continue
-      call pstat_sum('overlap',dbl_mb(i_stats),numtot)
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum('overlap',dbl_mb(i_stats),numtot)
+      call ga_sync()
 c
 c loop over shells and compute T sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      idoit = (me-1)
       numtot = 0
       do 00101 i = 1,ncont
         do 00201 j = 1,i
-          call int_1eke(basisin,i,basisin,j,
-     &           mems,dbl_mb(imems),memb,dbl_mb(imemb))
-          call int_lgen1e(basisin,i,basisin,j,1.0d-08,
-     &           int_mb(i_ilab),int_mb(i_jlab),memb,
-     &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          if(print_ints)
-     &      call int_pgen1e('kinetic energy',basisin,i,basisin,j,
-     &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb),plevel)
-          call stsum1(numleft,numtot,
-     &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &           dbl_mb(i_stats))
+          idoit = idoit + 1
+          if(mod(idoit,nproc).eq.0) then
+            call int_1eke(basisin,i,basisin,j,
+     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            if(print_ints.and.me.eq.0)
+     &          call int_pgen1e('kinetic energy',basisin,i,basisin,j,
+     &          int_mb(i_ilab),int_mb(i_jlab),numleft,
+     &          dbl_mb(imemb),plevel)
+            call stsum1(numleft,numtot,
+     &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
+     &          dbl_mb(i_stats))
+          endif
 00201   continue
 00101 continue
-      call pstat_sum('kinetic energy',dbl_mb(i_stats),numtot)
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum('kinetic energy',dbl_mb(i_stats),numtot)
+      call ga_sync()
 c
 c loop over shells and compute V sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      idoit = (me-1)
       numtot = 0
       do 00102 i = 1,ncont
         do 00202 j = 1,i
-          call int_1epe(basisin,i,basisin,j,
-     &           mems,dbl_mb(imems),memb,dbl_mb(imemb))
-          call int_lgen1e(basisin,i,basisin,j,1.0d-08,
-     &           int_mb(i_ilab),int_mb(i_jlab),memb,
-     &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          if(print_ints)
-     &      call int_pgen1e('pot. energy',basisin,i,basisin,j,
-     &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb),plevel)
-          call stsum1(numleft,numtot,
-     &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &           dbl_mb(i_stats))
+          idoit = idoit + 1
+          if(mod(idoit,nproc).eq.0) then
+            call int_1epe(basisin,i,basisin,j,
+     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            if(print_ints.and.me.eq.0)
+     &          call int_pgen1e('pot. energy',basisin,i,basisin,j,
+     &          int_mb(i_ilab),int_mb(i_jlab),numleft,
+     &          dbl_mb(imemb),plevel)
+            call stsum1(numleft,numtot,
+     &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
+     &          dbl_mb(i_stats))
+          endif
 00202   continue
 00102 continue
-      call pstat_sum('pot. energy',dbl_mb(i_stats),numtot)
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum('pot. energy',dbl_mb(i_stats),numtot)
+      call ga_sync()
 c
 c loop over shells and compute h1 sums
 c      
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      idoit = (me-1)
       numtot = 0
       do 00103 i = 1,ncont
         do 00203 j = 1,i
-          call int_1eh1(basisin,i,basisin,j,
-     &           mems,dbl_mb(imems),memb,dbl_mb(imemb))
-          call int_lgen1e(basisin,i,basisin,j,1.0d-08,
-     &           int_mb(i_ilab),int_mb(i_jlab),memb,
-     &           dbl_mb(imemb),mems,dbl_mb(imems),numleft)
-          if(print_ints)
-     &      call int_pgen1e('h1',basisin,i,basisin,j,
-     &           int_mb(i_ilab),int_mb(i_jlab),numleft,
-     &           dbl_mb(imemb),plevel)
-          call stsum1(numleft,numtot,
-     &           dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
-     &           dbl_mb(i_stats))
+          idoit = idoit + 1
+          if(mod(idoit,nproc).eq.0) then
+            call int_1eh1(basisin,i,basisin,j,
+     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+            call int_lgen1e(basisin,i,basisin,j,1.0d-08,
+     &          int_mb(i_ilab),int_mb(i_jlab),memb,
+     &          dbl_mb(imemb),mems,dbl_mb(imems),numleft)
+            if(print_ints.and.me.eq.0)
+     &          call int_pgen1e('h1',basisin,i,basisin,j,
+     &          int_mb(i_ilab),int_mb(i_jlab),numleft,
+     &          dbl_mb(imemb),plevel)
+            call stsum1(numleft,numtot,
+     &          dbl_mb(imemb),int_mb(i_ilab),int_mb(i_jlab),
+     &          dbl_mb(i_stats))
+          endif
 00203   continue
 00103 continue
-      call pstat_sum('h1',dbl_mb(i_stats),numtot)
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum('h1',dbl_mb(i_stats),numtot)
+      call ga_sync()
 c
-c do canonical shell list for 2e integrals
+c do canonical shell list for 2e integrals (4 center)
 c
+      idoit = (me-1)
       numtot = 0
       call dfill((5*3),0.0, dbl_mb(i_stats),1)
       do 01000 i = 1,ncont
@@ -173,23 +218,98 @@ c
             lend = k
             if (i.eq.k) lend = j
             do 04000 l = 1, lend
-              call int_2e4c(basisin,i,j,basisin,k,l,
-     &               mems,dbl_mb(imems),memb,dbl_mb(imemb))
-              call int_l2e4c(basisin,i,j,basisin,k,l,
-     &               1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
-     &               int_mb(i_ilab),int_mb(i_jlab),
-     &               int_mb(i_klab),int_mb(i_llab),
-     &               mems,dbl_mb(imems))
-              call stsum2(numleft,numtot,
-     &               dbl_mb(imemb),
-     &               int_mb(i_ilab),int_mb(i_jlab),
-     &               int_mb(i_klab),int_mb(i_llab),
-     &               dbl_mb(i_stats),print_ints)
+              idoit = idoit + 1
+              if(mod(idoit,nproc).eq.0) then
+                call int_2e4c(basisin,i,j,basisin,k,l,
+     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
+                call int_l2e4c(basisin,i,j,basisin,k,l,
+     &              1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
+     &              int_mb(i_ilab),int_mb(i_jlab),
+     &              int_mb(i_klab),int_mb(i_llab),
+     &              mems,dbl_mb(imems))
+                call stsum2(numleft,numtot,
+     &              dbl_mb(imemb),
+     &              int_mb(i_ilab),int_mb(i_jlab),
+     &              int_mb(i_klab),int_mb(i_llab),
+     &              dbl_mb(i_stats),
+     &              (print_ints.and.me.eq.0))
+              endif
 04000       continue
 03000     continue
 02000   continue
 01000 continue
-      call pstat_sum('two electron',dbl_mb(i_stats),numtot)      
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum('two electron',dbl_mb(i_stats),numtot)      
+      call ga_sync()
+c
+c do canonical shell list for 2e integrals (3 center)
+c
+      idoit = (me-1)
+      numtot = 0
+      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      do 01001 i = 1,ncont
+        do 02001 j = 1, i
+          do 03001 k = 1, j
+            idoit = idoit + 1
+            if(mod(idoit,nproc).eq.0) then
+              call int_2e3c(basisin,i,basisin,j,k,
+     &              mems,dbl_mb(imems),memb,dbl_mb(imemb))
+              call int_l2e3c(basisin,i,basisin,j,k,
+     &            1.0d-08,.true.,memb,dbl_mb(imemb),numleft,
+     &            int_mb(i_ilab),int_mb(i_jlab),
+     &            int_mb(i_klab),
+     &            mems,dbl_mb(imems))
+              call stsum2_3c(numleft,numtot,
+     &            dbl_mb(imemb),
+     &            int_mb(i_ilab),int_mb(i_jlab),
+     &            int_mb(i_klab),
+     &            dbl_mb(i_stats),(print_ints.and.me.eq.0))
+            endif
+03001     continue
+02001   continue
+01001 continue
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum
+     &    ('3 center two electron',dbl_mb(i_stats),numtot)      
+      call ga_sync()
+c
+c do canonical shell list for 2e integrals (2 center)
+c
+      idoit = (me-1)
+      numtot = 0
+      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      do 01002 i = 1,ncont
+        do 02002 j = 1, i
+          idoit = idoit + 1
+          if(mod(idoit,nproc).eq.0) then
+            call int_2e2c(basisin,i,basisin,j,
+     &          mems,dbl_mb(imems),memb,dbl_mb(imemb))
+            x1 = dbl_mb(imemb)
+            x2 = dbl_mb(imemb+1)
+            x3 = dbl_mb(imemb+2)
+            call int_l2e2c(basisin,i,basisin,j,
+     &          1.0d-08,memb,dbl_mb(imemb),numleft,
+     &          int_mb(i_ilab),int_mb(i_jlab),
+     &          mems,dbl_mb(imems))
+            call stsum2_2c(numleft,numtot,
+     &          dbl_mb(imemb),
+     &          int_mb(i_ilab),int_mb(i_jlab),
+     &          dbl_mb(i_stats),(print_ints.and.me.eq.0))
+          endif
+02002   continue
+01002 continue
+      call ga_dgop(564,numtot,1,'+')
+      call ga_dgop(565,dbl_mb(i_stats),(5*3),'+')
+      if (me.eq.0)
+     &    call prt_stat_sum
+     &    ('2 center two electron',dbl_mb(i_stats),numtot)      
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
 c
 c free memory in order
 c
@@ -202,8 +322,38 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &       call errquit('int_chk_sum: error poping memory stack',0)
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
       end
-      subroutine pstat_sum(msg,stats,numtot)
+      subroutine prt_stat_sum(msg,stats,numtot)
       implicit none
 c::passed
       character*(*) msg
@@ -244,6 +394,7 @@ c
         d1    = abs(i-j)
         x     = Gen(ii)
         x2    = x*x
+*        write(6,'(1x,i5,i5,d20.10)') i, j, x
         denom = 1.0d00 + x2
 c
         stats(1,1) = stats(1,1) + x
@@ -272,7 +423,7 @@ c
 c::passed
       integer num                   ! number of 2e moieties
 c
-c...   numtot must be zeroed prior to first call to stsum1 ...
+c...   numtot must be zeroed prior to first call to stsum2 ...
 c
       integer numtot                ! accumulater
 c
@@ -304,6 +455,112 @@ c
           l4 = isym4(i,j,k,l)
           write(6,10001)l4,i,j,k,l,x
 10001    format(i8,4(i4,1x),5x,'eri = ',1pd20.10)
+       endif
+        x2    = x*x
+        denom = 1.0d00 + x2
+c
+        stats(1,1) = stats(1,1) + x
+        stats(2,1) = stats(2,1) + abs(x)
+        stats(3,1) = stats(3,1) + x2
+        stats(4,1) = stats(4,1) + x/denom
+        stats(5,1) = stats(5,1) + x2/denom
+c
+        stats(1,2) = stats(1,2) + x        * s1
+        stats(2,2) = stats(2,2) + abs(x)   * s1
+        stats(3,2) = stats(3,2) + x2       * s1
+        stats(4,2) = stats(4,2) + x/denom  * s1
+        stats(5,2) = stats(5,2) + x2/denom * s1
+c
+        stats(1,3) = stats(1,3) + x        * d1
+        stats(2,3) = stats(2,3) + abs(x)   * d1
+        stats(3,3) = stats(3,3) + x2       * d1
+        stats(4,3) = stats(4,3) + x/denom  * d1
+        stats(5,3) = stats(5,3) + x2/denom * d1
+c
+00100 continue
+      end
+      subroutine stsum2_3c(num,numtot,Eri,ilab,jlab,klab,
+     &       stats,printem)
+      implicit none
+c::passed
+      integer num                   ! number of 2e moieties
+c
+c...   numtot must be zeroed prior to first call to stsum_3c
+c
+      integer numtot                ! accumulater
+c
+      integer ilab(num),jlab(num)   ! labels for moieties
+      integer klab(num)             ! labels for moieties
+      double precision Eri(num)     ! 2e moieties
+      double precision stats(5,3)   ! stats array (zeroed elsewhere)
+      logical printem               ! print values as you go??
+c::local 
+      integer ii,i,j,k
+      double precision x,x2,denom,s1,d1
+c
+      numtot = numtot + num
+      do 00100 ii = 1,num
+        i     = ilab(ii)
+        j     = jlab(ii)
+        k     = klab(ii)
+        s1    = i+j+k
+        d1    = abs(abs(i-j)-abs(k))
+        x     = Eri(ii)
+        if (printem) then
+          write(6,10001)i,j,k,x
+10001    format(1x,3(i4,1x),5x,'eri(3c) = ',1pd20.10)
+       endif
+        x2    = x*x
+        denom = 1.0d00 + x2
+c
+        stats(1,1) = stats(1,1) + x
+        stats(2,1) = stats(2,1) + abs(x)
+        stats(3,1) = stats(3,1) + x2
+        stats(4,1) = stats(4,1) + x/denom
+        stats(5,1) = stats(5,1) + x2/denom
+c
+        stats(1,2) = stats(1,2) + x        * s1
+        stats(2,2) = stats(2,2) + abs(x)   * s1
+        stats(3,2) = stats(3,2) + x2       * s1
+        stats(4,2) = stats(4,2) + x/denom  * s1
+        stats(5,2) = stats(5,2) + x2/denom * s1
+c
+        stats(1,3) = stats(1,3) + x        * d1
+        stats(2,3) = stats(2,3) + abs(x)   * d1
+        stats(3,3) = stats(3,3) + x2       * d1
+        stats(4,3) = stats(4,3) + x/denom  * d1
+        stats(5,3) = stats(5,3) + x2/denom * d1
+c
+00100 continue
+      end
+      subroutine stsum2_2c(num,numtot,Eri,ilab,jlab,
+     &       stats,printem)
+      implicit none
+c::passed
+      integer num                   ! number of 2e moieties
+c
+c...   numtot must be zeroed prior to first call to stsum2_2c
+c
+      integer numtot                ! accumulater
+c
+      integer ilab(num),jlab(num)   ! labels for moieties
+      double precision Eri(num)     ! 2e moieties
+      double precision stats(5,3)   ! stats array (zeroed elsewhere)
+      logical printem               ! print values as you go??
+c::local 
+      integer ii,i,j
+      double precision x,x2,denom,s1,d1
+c
+      numtot = numtot + num
+      do 00100 ii = 1,num
+        i     = ilab(ii)
+        j     = jlab(ii)
+        s1    = i+j
+        d1    = abs(abs(i)-abs(j))
+        x     = Eri(ii)
+        if (printem) then
+          write(6,10001)i,j,x
+10001    format(1x,2(i4,1x),5x,'eri(2c) = ',1pd20.10)
        endif
         x2    = x*x
         denom = 1.0d00 + x2

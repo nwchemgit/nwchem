@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1994-08-17 07:12:32 d3e129 Exp $
+# $Id: GNUmakefile,v 1.14 1994-08-21 22:00:27 d3e129 Exp $
 
 include ../../config/makefile.h
 API_OBJ = int_init.o exact_mem.o int_mem.o \
@@ -13,11 +13,10 @@ API_OBJ = int_init.o exact_mem.o int_mem.o \
           intd_1eov.o intd_1eh1.o intd_2e4c.o \
           intd_init.o exactd_mem.o int_acc.o
 
-api_stamp:	$(API_OBJ)
-	/bin/rm -f ../nwints_stamp
-	touch api_stamp 
+api_obj:	$(API_OBJ)
+
 clean:
-	/bin/rm -f $(API_OBJ) api_stamp 
+	/bin/rm -f $(API_OBJ)
 
 exact_mem.o:	apiP.fh
 int_chk_init.o:	apiP.fh
@@ -25,3 +24,9 @@ int_init.o:	apiP.fh	apispP.fh
 int_mem.o:	apiP.fh
 int_terminate.o:	apiP.fh
 int_hf1sp.o:	apispP.fh
+
+# ARFLAGS = rv
+# LIBRARY = ../libnwints.a
+# LIBOBJ = $(patsubst %, $(LIBRARY)(%), $(API_OBJ))
+#
+# $(LIBRARY):	$(LIBOBJ)

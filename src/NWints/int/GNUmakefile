@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1994-08-17 07:12:38 d3e129 Exp $
+# $Id: GNUmakefile,v 1.6 1994-08-21 22:00:34 d3e129 Exp $
 
 include ../../config/makefile.h
 
@@ -11,9 +11,7 @@ INT_OBJ = defNxyz.o getNxyz.o hf1.o hf1mke3.o \
           hfmkr_4.o hfmkr_5.o hfmkr_6.o \
           hfmkr_7.o hfmkr_8.o hfmkr_9.o
 
-int_stamp:	$(INT_OBJ)
-	/bin/rm -f ../nwints_stamp
-	touch int_stamp
+int_obj:	$(INT_OBJ)
 
 clean:
-	/bin/rm -f $(INT_OBJ) int_stamp
+	/bin/rm -f $(INT_OBJ)

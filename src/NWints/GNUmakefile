@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.17 1994-08-18 04:52:22 d3e129 Exp $
+# $Id: GNUmakefile,v 1.18 1994-08-21 22:00:04 d3e129 Exp $
 
 HEADERS = api/int_tim.fh api/apiP.fh
 LIBRARY = libnwints.a
@@ -51,13 +51,12 @@ OBJ = $(API_OBJ)  $(INT_OBJ) $(INTSP_OBJ)	$(DERIV_OBJ) $(AUX_OBJ) $(TEXAS_OBJ)
 
 INT_SUBDIRS = api int aux ints_sp deriv texas
 
-nwints_stamp:	include_stamp
+$(LIBRARY):	include_stamp $(OBJ)
 	/bin/rm -f $(LIBRARY) 
 	$(MAKE) intlibs
 	$(AR) $(ARFLAGS) $(LIBRARY)  $(OBJ)
 	$(RANLIB) $(LIBRARY) 
 	cp -p $(LIBRARY) $(LIBDIR)
-	touch nwints_stamp
 
 ifdef HEADERS
 include_stamp:	$(HEADERS)
@@ -84,9 +83,6 @@ sngl_to_dbl dbl_to_sngl:
 	echo $@ : no conversion necessary
 endif
 
-redo rebuild:
-	/bin/rm -f nwints_stamp
-	$(MAKE) nwints_stamp
 clean:
 	/bin/rm -f $(LIBRARY) $(OBJ) core include_stamp nwints_stamp */*_stamp $(LIB_TARGETS)
 
@@ -94,19 +90,9 @@ realclean:	clean
 	/bin/rm -f *~ \#*\#
 
 debug:
-	for intdir in $(INT_SUBDIRS) ; do \
-		echo Making $$intdir objects ; \
-		(cd $$intdir; $(MAKE) 'DEFINES = -DSUN -DINT_TIMING') || exit 1 ; \
-	done
+	$(MAKE) 'DEFINES = -DSUN -DINT_TIMING'
 debugopt:
-	for intdir in $(INT_SUBDIRS) ; do \
-		echo Making $$intdir objects ; \
-		(cd $$intdir; 	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN -DINT_TIMING' ) || exit 1 ; \
-	done
-
+	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN -DINT_TIMING'
 opt:
-	for intdir in $(INT_SUBDIRS) ; do \
-		echo Making $$intdir objects ; \
-		(cd $$intdir; $(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN') || exit 1 ; \
-	done
+	$(MAKE) 'FOPT=-O3 -Nl99' 'DEFINES = -DSUN'
 
