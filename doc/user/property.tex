@@ -5,23 +5,60 @@
   END
 \end{verbatim}
 
-The following properties can be extracted from the wavefunction.
+The following properties can be extracted from 
+Hartree-Fock ( closed-shell RHF, open-shell ROHF,
+and open-shell UHF ) wavefunctions, as well as
+DFT ( closed-shell and open-shell spin unrestricted )
+wavefunctions.
 
 \begin{itemize}
+\item natural bond analysis
 \item dipole moment
 \item quadrupole moment
 \item octupole moment
 \item Mulliken population analysis and bond order analysis
-\item electrostatic potential (diamagnetic shielding) at nuclei and grid
-\item electric field at nuclei and grid
-\item electric field gradient at nuclei and grid
-\item electron density and electron wavefunction at nuclei and grid
+\item electrostatic potential (diamagnetic shielding) at nuclei 
+\item electric field at nuclei 
+\item electric field gradient at nuclei 
+\item electron density and electron wavefunction at nuclei 
 \item Boy's localized orbitals
 \item spin density
-\item Stone's distributed multipole analysis
-\item static dipole polarizabilities
-\item natural bond analysis
 \end{itemize}
+
+\subsection{subdirectives}
+
+Calculation of properties is accomplished via a call to
+TASK PROPERTY following the complition of an energy calculation.
+Each property can be requested by means of a subdirective among
+the subdirectives provided :
+
+\begin{itemize}
+\item nbofile
+\item dipole
+\item quadrupole
+\item octupole
+\item mulliken
+\item esp
+\item efield
+\item efieldgrad
+\item electrondensity
+\item spindensity
+\item boyslocalization
+\end{itemize}
+
+The request to NBOFILE does not execute the Natural Bond Analysis
+code, but simply create an input file to be used as input to the
+stand-alone NBO code. All other properties are calculated upon
+request.
+
+An additional subdirective is provided to specify the origin of the
+molecular orbitals used in the calculation of the molecular
+properties. This is the 'vectors' subdirective, also used in the
+SCF and DFT tasks. For a full description of this subdirective
+the user is refered to the description found in the SCF description.
+By default, the input file used for the calculation of the properties
+has the .movecs name extension. The output file name ought to be
+used to store the Boys' localized molecular orbitals.
 
 \subsection{nbofile}
 
