@@ -91,7 +91,7 @@ c$$$               enddo
             enddo
          enddo
       enddo
-      write(6,*) ' used ', nlcnt, ' tables out of ', maxnl
+**      write(6,*) ' used ', nlcnt, ' tables out of ', maxnl
 c      
 c     Initialize prefactors for asymptotic form used beyond xhi
 c
@@ -127,7 +127,7 @@ c
       double precision x
 c
 c     Compute the radial part of the potential due to a
-c     general gaussian function time as real, solid, spherical harmonic
+c     general gaussian function times a real, solid, spherical harmonic
 c
 c     A(x) = 0.5*x**(n-l) (n+l+1)F((n+l)/2,x**2) + (n-l)*x**l*I(n-l-1)/2
 c
