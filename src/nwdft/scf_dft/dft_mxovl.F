@@ -1,8 +1,8 @@
       subroutine dft_mxovl(basis, evals, 
      ,     g_evecs, g_oevecs, g_s,g_tmp,
-     ,     noc,ispin,oprint)
+     ,     noc,ispin,oprint,homo,lumo)
 
-C$Id: dft_mxovl.F,v 1.8 2000-03-31 01:33:21 edo Exp $
+C$Id: dft_mxovl.F,v 1.9 2000-04-03 05:49:06 edo Exp $
       Implicit none
 #include "bas.fh"
 #include "cdft.fh"

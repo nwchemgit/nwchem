@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.147 2000-03-31 18:46:47 jolguin Exp $
+c     $Id: dft_scf.F,v 1.148 2000-04-03 05:49:06 edo Exp $
 c     
       implicit none
 c
@@ -36,11 +36,10 @@ c
       external ga_create_atom_blocked
 c
       integer g_s ! [in]
-      logical oprint, grid_on_file
-      double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
+      logical oprint
+      double precision Exc(2), rms(2), derr(2)
       integer noc(2), nmo(2), icall(2)
       integer n3c_dbl, n3c_int, n_batch
-      integer avail, availm
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
       integer n_semi_bufs, fd
@@ -74,12 +73,11 @@ cc    Jorge Garza/End
       integer itol_max, iaoacc_max
       integer itol_min, iAOacc_min
       double precision tol_rho_min, tol_rho_max
-      integer nao2_max, batch_max, icount
       integer npol
       integer leneval, lcd_coef, icd_coef
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
-     &        nscr, lscr, iscr, max_component, max_elem_ang_scr
+     &        nscr, lscr, iscr
       double precision start_wall, current_wall, elapsed_wall,
      &                 save_wall, current_cpu, start_cpu,
      &                 wall_time_reqd
