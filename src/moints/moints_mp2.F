@@ -4,7 +4,7 @@ c
 c
 c
        subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-C$Id: moints_mp2.F,v 1.18 1996-01-26 23:49:42 rg240 Exp $
+C$Id: moints_mp2.F,v 1.19 1996-03-08 20:36:48 mg141 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -132,7 +132,7 @@ c
        my_id = ga_nodeid()
        call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
        if ((ilo.ne.1).and.(ihi.ne.-1)) call 
-     $ errquit('moints_mp2_eval: wrong distribution for exchange',my_id)
+     $ errquit('moints_e2pair: wrong distribution for exchange',my_id)
 c
 c Set to handle different exchange matrix sizes
 c Usually K matrix is (nvir,nvir) but could be (nbf,nbf) 
@@ -142,9 +142,13 @@ c
        if ((ihi.eq.(nbf*nbf)).and.(nmo2.eq.nbf)) then
          ndim = nbf
          vstart = nocc
-       else if ((ihi.ne.(nvir*nvir)).and.(ihi.ne.(nvir*nbf)).and.
+       else if ((jhi.ne.-1).and.(ihi.ne.(nvir*nvir))
+     $           .and.(ihi.ne.(nvir*nbf)).and.
      $          (ihi.ne.(nbf*nbf))) then
-         call errquit('moints_mp2_eval: odd exchange matrix size',ihi)
+         write(6,911) my_id,ilo,ihi,jlo,jhi
+ 911     format(i5,':',2(2i5,5x))
+         call util_flush(6)
+         call errquit('moints_e2pair: odd exchange matrix size',ihi)
        endif
 c
 c Loop over occupied orbital pairs
