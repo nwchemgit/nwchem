@@ -147,7 +147,7 @@ c
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
          if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-            movecs_out = 'movecs'
+            call util_file_name('movecs',.false.,.false.,movecs_out)
          else
             movecs_out = movecs_in
          endif
