@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.6 2000-05-16 18:55:08 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.7 2000-05-16 23:55:45 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -142,7 +142,7 @@ c
                  else
                     osome=.false.
                  endif
-                 call cosmo_charges(rtdb,basis,ecosmo,osome)
+                 call cosmo_charges(rtdb,basis,ecosmo,iter,osome)
               endif
            endif
            omode=rtdb_parallel(.true.)
