@@ -29,6 +29,7 @@ end
 
 ucc
 thresh 1.0d-12
+dipole
 end
 
 task uccsd energy
