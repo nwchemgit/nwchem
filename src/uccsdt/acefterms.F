@@ -1,6 +1,6 @@
-      subroutine uccsdt_acefterms()
+      subroutine uccsdt_acefterms(x_lists)
 c
-c$Id: acefterms.F,v 1.7 2002-10-08 00:17:47 bert Exp $
+c$Id: acefterms.F,v 1.8 2002-10-29 01:09:24 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -10,13 +10,17 @@ c
 c
       integer urange(2,0:7), vrange(2,0:7)
       integer qO_handles(0:7,8), qV_handles(0:7,8)
-      integer lists(0:7,14)
+      integer lists(0:7,14), x_lists(3,0:7)
       integer symiu, list_nr
       integer u_sh, u_block_size, u_sh_hi
 c
 c     Allocate qO_handles and qV_handles
 c
       call qhandles_allocate(qO_handles,qV_handles)
+c
+c     Get the correct scaling for the X-terms
+c
+      call uccsdt_aterm_init(x_lists)
 c
 c     Determine the blocking for SOs u in 
 c     natural order ... and corresponding blocked range
@@ -33,15 +37,10 @@ c
          call init_iu_block_info(urange)
          call cctrans(u_sh,u_sh_hi,lists)
          call uccsdt_fterm(urange,vrange,lists)
-         call uccsdt_aterm(urange,vrange,lists)
-         do symiu = 0, nir-1
-            do list_nr = 5, 8
-               if (.not. ga_destroy(lists(symiu,list_nr))) call 
-     &            errquit('uccsdt: acefterms ga_destroy failed',0)
-            end do
-         end do
+         call uccsdt_aterm_acc(urange,vrange,lists)
          call uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
       end do
+      call uccsdt_aterm_finish(x_lists)
       call uccsdt_eterm(qO_handles,qV_handles)
 c
       end
