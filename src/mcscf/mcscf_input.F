@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.1 1996-07-26 16:31:35 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.2 1996-08-27 23:02:25 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -35,8 +35,6 @@ c
       data prof_opt/ 'fock' /
 c
 c
-c
-      call context_push('mcscf')
 c
 c
 c
@@ -172,6 +170,5 @@ c
 c
 c
  9999 continue
-       call context_pop('mcscf')
 c     
       end
