@@ -1,5 +1,5 @@
 *
-* $Id: wrkspc2.F,v 1.1 1999-06-09 00:49:58 d3e129 Exp $
+* $Id: wrkspc2.F,v 1.2 1999-06-11 18:53:19 d3g270 Exp $
 *
 *======================================================================
 *
@@ -34,7 +34,8 @@
       SUBROUTINE WRKSPC2(JOB, N1, N2, n3,
      $     MAP1, MAP2, LIWORK, LWORK,
      $     INFO )
-      INTEGER           JOB, N1, N, M, NELEBK, LIWORK, LWORK, INFO
+	implicit none
+      INTEGER           JOB, N1, N2, n3, LIWORK, LWORK, INFO
       INTEGER           MAP1(n3), MAP2(n2)
 *-----------------------------------------------------------------------
 *     Compute workspace requirements of various fft routines:
@@ -52,67 +53,38 @@ c     info
 c
 c
 *-----------------------------------------------------------------------
-      
+      integer nelebk
       INTEGER           NAPROC, ME, N1MAX, N2MAX, I
       INTEGER           LSTCNT
-      EXTERNAL          LSTCNT
+      integer           max
       INTEGER           MXNPRC, MXMYND
-      EXTERNAL          MXNPRC, MXMYND
+      integer m2, mmax,nmax, iii, nele
       intrinsic         max
+c     
+      EXTERNAL          LSTCNT
+      EXTERNAL          MXNPRC, MXMYND
 *-----------------------------------------------------------------------
-c
+c     
       NAPROC = MXNPRC()
       ME     = MXMYND()
       INFO = 0
-
-      IF( N .LT. 1 ) THEN
-         INFO = -2
-         
-      ELSE IF( M .LT. 1 ) THEN
-         INFO = -3
-         
-      ELSE IF( NELEBK .LT. 1 ) THEN
-         INFO = -4
-         
-      ELSE IF( MAPCHK( MAP1, M ) .NE. 0 ) THEN
-         INFO = -5
-         
-      ELSE IF( MAPCHK( MAP2, N ) .NE. 0 ) THEN
-         INFO = -6
-         
-      ENDIF
-      
-      IF( INFO .NE. 0 ) THEN
-*        CALL XERPRT( 'MEMUSE', 'Illegal input argument.', INFO )
-        call errquit('MEMUSE: Illegal input argument ',info)
-        RETURN
-      ENDIF
-c
+c     
 c     computes the large number of panels that is stored on map1(1:n3) and
 c     map2(1:n2)
 c     
+
       N1MAX = 0
       DO 10 I = 0, NAPROC-1
-         N1MAX = MAX( N1MAX, LSTCNT( I, MAP1, n3 ) )
+         iii = LSTCNT( I, MAP1, n3 )
+         N1MAX = MAX( N1MAX, iii)
  10   CONTINUE
       
       N2MAX = 0
       DO 20 I = 0, NAPROC-1
-         N2MAX = MAX( N2MAX, LSTCNT( I, MAP2, n2 ) )
+         iii = lstcnt(i, map2, n2)
+         N2MAX = MAX( N2MAX, iii)
  20   CONTINUE
-c     
-c     
-      
-*     BLKTRN
-*     ======
-c     
-      LIWORK = MAX( N1MAX, N2MAX )
-      LWORK = NELEBK * N1MAX * LSTCNT( ME, MAP2, N2 ) + 10 +
-     $     NELEBK * N2MAX * LSTCNT( ME, MAP1, n3 ) + 10
-      
-      IF( JOB .EQ. 1 )
-     $     RETURN
-c     
+c
 c     
       if ( job .eq. 1 ) then
          nelebk = 2*n1
@@ -126,7 +98,19 @@ c
             m2 = n2
          endif
       endif
-c
+c     
+c     
+*     BLKTRN
+*     ======
+c     
+      LIWORK = MAX( N1MAX, N2MAX )
+      LWORK = NELEBK * N1MAX * LSTCNT( ME, MAP2, N2 ) + 10 +
+     $     NELEBK * N2MAX * LSTCNT( ME, MAP1, n3 ) + 10
+      
+c     IF( JOB .EQ. 1 )
+c     $     RETURN
+c     
+c     
       mmax = 0
       nmax = 0
       do iii = 0, naproc-1
