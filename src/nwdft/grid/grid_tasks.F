@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.10 1999-07-09 22:41:58 edo Exp $
+c$Id: grid_tasks.F,v 1.11 1999-07-21 22:57:53 edo Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer nq,n1,n2,nproc
       integer nxtask
       external nxtask
-      logical lssw
+      logical lssw,trunc_neigh
       logical grid_file_open
       external grid_file_open
       logical grid_file_close
@@ -97,6 +97,8 @@ C      call a_dist(coord, Dbl_MB(iRij), ncenters)
 c      
       nproc=ga_nnodes()
 c
+      if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
+     &   trunc_neigh))trunc_neigh=.true.
       n1 = 0
       n2 = nxtask(nproc,1)
       do 100 iqsh = 1, nqshells
@@ -120,7 +122,7 @@ c        modify the weight to include the spatial weight (and symmetry factor)
 c
          call grid_setspac(rtdb, coord, aqbuf, dbl_mb(irij), 
      &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh,
-     ,        lssw, whichf, dbl_mb(iexpo), rad)
+     ,        lssw, whichf, dbl_mb(iexpo), rad, trunc_neigh)
 
          if (npts_iqsh.eq.0) then
             n1 = n1 + 1
