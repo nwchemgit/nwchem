@@ -246,9 +246,9 @@ c     **** ouput xyz format ****
       call util_flush(6)
 
  1500 FORMAT(//'------------------------------------------------'//)
- 1510 FORMAT('*** ORBITAL=',I2,'***  SPIN=',A4,4X,'SUM=',E12.5,
+ 1510 FORMAT('*** ORBITAL=',I4,'***  SPIN=',A4,4X,'SUM=',E12.5,
      >       ' E=',E12.5/)
- 1515 FORMAT('*** ORBITAL=',I2,'***  SPIN=BOTH',4X,'SUM=',E12.5,
+ 1515 FORMAT('*** ORBITAL=',I4,'***  SPIN=BOTH',4X,'SUM=',E12.5,
      >       ' E=',E12.5/)
  1520 FORMAT(A2,2X,A4,2X,A1,5X,A10)
  1530 FORMAT(I2,3X,A2,3X,I1,8F11.5)
