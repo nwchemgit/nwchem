@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.42 2003-03-10 05:28:57 marat Exp $
+* $Id: paw_ovlp.F,v 1.43 2003-03-10 05:43:27 marat Exp $
 *
 
 !**************************************************
@@ -617,18 +617,38 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
+!	Name: paw_ovlp_coeff_size
+!
+!	Purpose:  returns the size of the overlap array
+!
+!	Created:	2/10/2002
+!**************************************************
+      function paw_ovlp_coeff_size()
+      implicit none
+       
+      integer paw_ovlp_coeff_size 
+
+#include "paw_ovlp_data.fh"
+
+      paw_ovlp_coeff_size=coeff(3)
+      return
+      end 
+**************************************************
+!
 !	Name: paw_ovlp_coeff_ptr
 !
 !	Purpose: 
 !
 !	Created:	2/10/2002
 !**************************************************
-c      function paw_ovlp_coeff_size()
-c      implicit none
-c
-c#include "paw_ovlp_data.fh"
-c
-c      paw_ovlp_coeff_size=
-c      return
-c      end 
-c
+      function paw_ovlp_weight_size()
+      implicit none
+       
+      integer paw_ovlp_weight_size 
+
+#include "paw_ovlp_data.fh"
+
+      paw_ovlp_weight_size=paw_ovlp_w(3)
+      return
+      end 
+
