@@ -29,18 +29,18 @@ all postscript $(TARG).ps:	$(SOURCE)
 	latex $(TARG).tex
 	latex $(TARG).tex
 	latex $(TARG).tex
-	dvips -D 300 -N0 -o $(TARG).ps $(TARG).dvi
-
+	dvips -D300 -N0 -i -S200 -o $(TARG).ps $(TARG).dvi
+	./progpsfix
 odd:	$(SOURCE)
 	latex $(TARG).tex
 	latex $(TARG).tex
 	latex $(TARG).tex
-	dvips -D 300 -N0 -A -o $(TARG).odd.ps $(TARG).dvi 
-	dvips -D 300 -N0 -B -o $(TARG).even.ps $(TARG).dvi 
+	dvips -D300 -N0 -i -S200 -A -o $(TARG).odd.ps $(TARG).dvi 
+	dvips -D300 -N0 -i -S200 -B -o $(TARG).even.ps $(TARG).dvi 
 
 quick:		$(SOURCE)
 	latex $(TARG).tex
-	dvips -D 300 -N0 -o $(TARG).ps $(TARG).dvi
+	dvips -D300 -N0 -i -S200 -o $(TARG).ps $(TARG).dvi
 
 html:	
 	@../htmlize prog
