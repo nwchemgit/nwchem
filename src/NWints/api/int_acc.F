@@ -1,5 +1,5 @@
       subroutine int_acc_std()
-C $Id: int_acc.F,v 1.5 1995-11-29 02:10:36 d3e129 Exp $
+C $Id: int_acc.F,v 1.6 1995-12-20 22:45:11 d3e129 Exp $
       implicit none
 #include "apiP.fh"
       double precision val_def
@@ -7,6 +7,7 @@ C $Id: int_acc.F,v 1.5 1995-11-29 02:10:36 d3e129 Exp $
 c
       val_int_acc = val_def
       call int_sp_acc(val_int_acc)
+      call texas_set_accy(val_int_acc,val_int_acc)
       end
 c......................................................................
       subroutine int_acc_high()
