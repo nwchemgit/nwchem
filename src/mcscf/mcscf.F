@@ -62,7 +62,8 @@ c
      $   call errquit('mcscf: context_push failed', 0)
        call util_print_push
        call util_print_rtdb_load(rtdb, 'mcscf')
-       oprinfo = util_print('information',print_default)
+       oprinfo = (util_print('information',print_default).and.
+     $           (ga_nodeid().eq.0))
 c
 c  Get w.f. parameters
 c
@@ -177,9 +178,10 @@ c
      $                        int_mb(k_sym), nmixed )
        if (nmixed .ne. 0) call errquit(
      $   'mcscf: symmetry contamination in starting MOs', nmixed)
-       if (util_print('orbital symmetry',print_default)) then
+       if ((util_print('orbital symmetry',print_default)).and.
+     $     (ga_nodeid().eq.0)) then
          write(6,887) 
- 887     format(/,'Orbital symmetry')
+ 887     format(/,'Orbital symmetry irreps')
          write(6,888) (int_mb(k_sym+i),i=0,nbf-1)
  888     format(16i3)
        endif
@@ -215,7 +217,7 @@ c  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 c
 c
        do iter=1,maxiter
-         if ((ga_nodeid().eq.0).and.(oprinfo)) write(6,996) iter
+         if (oprinfo) write(6,996) iter
  996     format(/,10x,'%%%%% Iteration ',i3,' %%%%%',/)
 c
 c  4-Index Tranform 
@@ -256,16 +258,16 @@ c
      $                          g_movecs )
            if (omcscfprof) call pstat_off(ps_orb)
          else
-           if (ga_nodeid().eq.0) write(6,221)
+           if (oprinfo) write(6,221)
  221       format('Orbital solve skipped')
          endif
          energy = eone + etwo + enrep
-         write(6,927) iter,energy,gnorm
+         if (oprinfo) write(6,927) iter,energy,gnorm
  927     format(//,10x,'####',i5,5x,f20.12,5x,e12.5)
          if (gnorm.lt.thresh) goto 27
        enddo
  27    continue
-       if (ga_nodeid().eq.0) then
+       if (oprinfo) then
          if (gnorm.lt.thresh) then
            write(6,928)
  928       format(////,5x,30('='),/,12x,'MCSCF Converged',/,5x,30('='))
@@ -279,7 +281,7 @@ c  Transform to natural orbitals
 c
        call mcscf_naturalorb( nbf, nclosed, nact, dbl_mb(k_dm1),
      $                        dbl_mb(k_occ), g_movecs )
-       if (ga_nodeid().eq.0) then
+       if (oprinfo) then
          write(6,880)
  880     format(///,10x,'Natural Orbitals and Occupation')
          if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
@@ -310,7 +312,7 @@ c
      $                       g_exch, .true., 16 )
        call mcscf_fcore( basis, nbf, nclosed, nact, g_movecs,
      $                   g_coul, g_exch, g_hcore )
-       if (ga_nodeid().eq.0) write(6,882) 
+       if (oprinfo) write(6,882)
  882   format(//,10x,' Active Space Ground State CI vector')
        call mcscf_cisolve( rtdb, geom, basis, nbf, nclosed, nact,
      $                     nsym, int_mb(k_sym), dbl_mb(k_evals),
@@ -355,7 +357,7 @@ c
      $                    g_movecs, g_coul, eone, etwo )
        energy = eone + etwo + enrep
        if (util_print('trace energy',print_default)) then
-         if (ga_nodeid().eq.0) write(6,674) energy
+         if (oprinfo) write(6,674) energy
  674     format(/,20x,'<<<<<<<< trace energy: ',f20.10,' >>>>>>>',/)
        endif
 c
@@ -423,14 +425,12 @@ c
 c$$$       call ga_rowprint( ' ==== Gradient ====', g_grad )
        gnorm = sqrt(ga_ddot(g_grad,g_grad))
        energy = eone + etwo + enrep
-       if (ga_nodeid().eq.0) then
+       if (oprinfo) then
          write(6,772) gnorm
  772     format(/,10x,'Final gradient norm:',e12.4,/)
        endif
-       if (util_print('fock energy',print_default)) then
-         if (ga_nodeid().eq.0) write(6,675) energy
- 675     format(/,20x,'<<<<<<<< fock energy: ',f20.10,' >>>>>>>',/)
-       endif
+       if (oprinfo) write(6,675) energy
+ 675   format(/,20x,'<<<<<<<< fock energy: ',f20.10,' >>>>>>>',/)
 
 c
 c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -662,8 +662,6 @@ c
      $     ('scf: negative no. of electrons ?', nelec)
       if (abs(nuclear_charge - charge - dble(nelec)) .gt. 1.0d-8)
      $     call errquit('mcscf: charge neglected?', 0)
-       call util_flush(6)
-
 c
 c  Determine no. of closed and active shells
 c  **** Have to correctly determine number of active from MCSCF input ****
