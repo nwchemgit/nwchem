@@ -255,7 +255,7 @@ The format of the fragment files is described in Table \ref{tbl:nwafrag}
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular}{lll}
+\begin{tabular}{p{15mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
 I-1-1  & a1     & \$ to identify the start of a fragment \\ % $ for emacs
@@ -330,7 +330,7 @@ described in Tables \ref{tbl:nwaseg1}--\ref{tbl:nwaseg6}.
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck  & Format & Description \\ \hline
 I-1-1 & a1     & \$ to identify the start of a segment \\ %$ for emacs
@@ -352,7 +352,7 @@ I-2-5 & i5     & number of improper dihedrals in the segment\\
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
 \multicolumn{3}{l}{For each atom one deck II} \\
@@ -402,7 +402,7 @@ II-2-6  & f12.6  & atomic polarizability/$4\pi\epsilon_o$ in nm$^3$, set 3\\
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
 \multicolumn{3}{l}{For each bond a deck III} \\
@@ -429,7 +429,7 @@ III-2-6 & e12.5  & bond force constant in kJ nm$^2$ mol$^{-1}$, set 3 \\
 
 \begin{table}
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
 \multicolumn{3}{l}{For each angle a deck IV} \\
@@ -456,7 +456,7 @@ IV-2-6 & e12.5  & angle force constant in kJ mol$^{-1}$, set 3 \\
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
 \multicolumn{3}{l}{For each proper dihedral a deck V} \\
@@ -487,7 +487,7 @@ V-2-9 & e12.5  & proper dihedral force constant in kJ mol$^{-1}$, set 3 \\
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Deck & Format & Description \\ \hline
 \multicolumn{3}{l}{For each improper dihedral a deck VI} \\
@@ -520,7 +520,7 @@ file format is given in Table \ref{tbl:nwaseq}
 
 \begin{table}[htbp]
 \begin{center}
-\begin{tabular*}{150mm}{p{12mm}p{12mm}l}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
 \hline\hline
 Card & Format & Description \\ \hline
 I-1-1  & a1     & \$ to identify the start of a sequence \\ %$ for emacs
@@ -640,9 +640,11 @@ read will be treated as crystal solvent.
 
 \item
 \begin{verbatim}
-  write PDB <string filpdc>
+  write [solute] PDB <string filpdc>
 \end{verbatim}
-where \verb+<filpdc>+ is the file with coordinates in PDB format
+where \verb+<filpdc>+ is the file with coordinates in PDB format. If
+the keyword \verb+solute+ is specified, only the solute coordinates
+will be written to the PDB file.
 
 \item
 \begin{verbatim}
@@ -677,7 +679,7 @@ box with largest dimension along z and smallest dimension along x.
   solvate box [<real bx>[<real by>[<real bz>]]]
 \end{verbatim}
 solvates the system in a rectangular box with dimensions 
-bx $\times$ by $\times$ bz in nm
+\verb+<bx>+$\times$\verb+<by>+$\times$\verb+<bz>+ in nm
 
 \item
 \begin{verbatim}
@@ -690,15 +692,20 @@ simulation box
 \begin{verbatim}
   expand with <real xx>[<real xy>[<real xz>]]
 \end{verbatim}
-to expand the simulation box with xx, xy and xz in the
-x, y and z direction respectively
+to expand the simulation box with \verb+<xx>+, \verb+<xy>+ and 
+\verb+<xz>+ in the x, y and z direction, respectively. If
+\verb+<xy>+ is not specified it is given the value of \verb+<xx>+.
+If \verb+<xz>+ is not specified it is given the value of \verb+<xy>+.
 
 \item
 \begin{verbatim}
   expand to <real xx>[<real xy>[<real xz>]]
 \end{verbatim}
-to expand the simulation box to xx, xy and xz in the
-x, y and z direction respectively
+to expand the simulation box to \verb+<xx>+, \verb+<xy>+ and 
+\verb+<xz>+ nm in the x, y and z direction, respectively. If
+\verb+<xy>+ is not specified it is given the value of \verb+<xx>+.
+If \verb+<xz>+ is not specified it is given the value of \verb+<xy>+.
+
 
 \item
 \begin{verbatim}
@@ -722,7 +729,7 @@ to specify a system in vacuo
 \begin{verbatim}
   set touch <real touch>
 \end{verbatim}
-to specify the minimum distance between any atom in
+where \verb+<touch>+ is the minimum distance in nm between any atom in
 the system and a solvent atom to be added during solvation
 
 \item
@@ -1060,8 +1067,9 @@ the constant volume ensemble, using pair interaction potentials.
       [order <integer morder>] [fft <integer imfft>] 
 \end{verbatim}
 where \verb+ng+ is the number of grid points per dimension, 
-\verb+ealpha+ is the Ewald coefficient in nm$^{-1}$, with a default 
-of 4.0, and \verb+morder+ is order of the Cardinal B-spline
+\verb+ealpha+ is the Ewald coefficient in nm$^{-1}$, with a default
+determined by the short range cutoff radius, 
+and \verb+morder+ is order of the Cardinal B-spline
 interpolation which must be an even number and at least 4 (default
 value). A platform specific 3D fast Fourier transform is used if
 \verb+imfft+ is set to 2.
@@ -1070,7 +1078,11 @@ value). A platform specific 3D fast Fourier transform is used if
 \section{Fixing coordinates}
 The solvent or solute part of a system may be fixed or unfixed using
 the following keywords. Fixing part of the system will not propagate to
-simulations using restart files written.
+simulations using restart files written. In the commands \verb+fix+
+and \verb+unfix+, the keywords \verb+all+, \verb+solvent+,
+\verb+solute+ and \verb+non-H+ specify the entire molecular system,
+the solvent, the solute and the solute atoms other than hydrogen,
+respectively.
 \begin{itemize}
 \item
 \begin{verbatim}
