@@ -1,5 +1,5 @@
 c
-c $Id: sp_common.fh,v 1.43 2004-01-31 00:38:31 d3j191 Exp $
+c $Id: sp_common.fh,v 1.44 2004-01-31 16:52:33 d3j191 Exp $
 c
 c     conversion factors
 c
@@ -25,7 +25,7 @@ c
       parameter(mip2=7)
       parameter(miw2=4)
       parameter(mis2=15)
-      parameter(mbb2=18)
+      parameter(mbb2=22)
 c
       integer mdynam
       parameter(mdynam=12)

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.185 2004-01-31 00:38:28 d3j191 Exp $
+c $Id: md_main.F,v 1.186 2004-01-31 16:52:33 d3j191 Exp $
 c
       implicit none
 c
@@ -2328,6 +2328,8 @@ c
 c
     1 continue
 c
+      if(nbget.ne.0) call sp_nbwaitf()
+c
       if(.not.ldone) then
       if(cf_hopping(stime,isl(1,lssgm),isl(1,lsgan),isl(1,lshop),
      + xs,nsaloc,lfnhop)) then
@@ -2750,7 +2752,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.185 2004-01-31 00:38:28 d3j191 Exp $
+c $Id: md_main.F,v 1.186 2004-01-31 16:52:33 d3j191 Exp $
 c
       implicit none
 c
