@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.17 2000-05-18 16:15:44 d3h449 Exp $
+*     $Id: uccsdtest.F,v 1.18 2000-05-19 19:01:56 d3h449 Exp $
 *
       implicit none
 #include "global.fh"
@@ -5928,5 +5928,114 @@ c
          write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
          call errquit(' read_t read: read failed',0)
       end if
+      return
+      end
+      subroutine read_dummy_t(nbf,
+     $     noa, nob, nva, nvb, 
+     $     t1a, t1b,
+     $     t2aa,t2bb,t2ab)
+      implicit none
+#include "eaf.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+      integer noa, nob, nva, nvb, nbf
+      double precision t1a(nva, noa)
+      double precision t1b(nvb, nob)
+      double precision t2aa(nbf, nbf, nbf, nbf)
+      double precision t2bb(nbf, nbf, nbf, nbf)
+      double precision t2ab(nbf, nbf, nbf, nbf)
+      character*256 actualname  ! Name of file
+      integer fd                ! CHEMIO fd
+      double precision offset
+      integer ierr
+      integer k_temp, l_temp
+      character*80 errmsg
+      actualname = 't_file'
+      if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     $   call errquit('read_t: eaf_open failed', 0)
+c
+c      if (.not. ma_push_get(mt_dbl, (noa*nva), 
+c     $    't1_temp', l_temp, k_temp))
+c     $     call errquit('ma t1a', (noa*nva))
+      offset = 0
+      ierr = eaf_read(fd, offset, t1a, 8*nva*noa) ! read t1a
+c      ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*nva*noa) ! read t1a
+c      call repack_t1 (dbl_mb(k_temp), t1a, nva, noa, nbf)
+c      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+c
+c      if (.not. ma_push_get(mt_dbl, (nob*nvb), 
+c     $    't1_temp', l_temp, k_temp))
+c     $     call errquit('ma t1b', (nob*nvb))
+      offset = offset + 8*nva*noa
+      ierr = eaf_read(fd, offset, t1b, 8*nvb*nob) ! read t1b
+c      ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*nvb*nob) ! read t1b
+c      call repack_t1 (dbl_mb(k_temp), t1b, nvb, nob, nbf)
+c      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+c
+      if (.not. ma_push_get(mt_dbl, (noa*nva)**2, 
+     $    't2_temp', l_temp, k_temp))
+     $     call errquit('ma t2_aa', (noa*nva)**2)
+      offset = offset + 8*nvb*nob
+      ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*(nva*noa)**2) ! read t2aa
+      call repack_t2 (dbl_mb(k_temp), t2aa, nva, nva, noa, noa, nbf)
+      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+c
+      if (.not. ma_push_get(mt_dbl, (nob*nvb)**2, 
+     $     't2_temp', l_temp, k_temp))
+     $     call errquit('ma t2_bb', (nob*nvb)**2)
+      offset = offset + 8*(nva*noa)**2
+      ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*(nvb*nob)**2) ! read t2bb
+      call repack_t2 (dbl_mb(k_temp), t2bb, nvb, nvb, nob, nob, nbf)
+      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+c
+      if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
+     $     't2_temp', l_temp, k_temp))
+     $     call errquit('ma t2_ab', (noa*nva)*(nob*nvb))
+      offset = offset + 8*(nvb*nob)**2
+      ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*nva*noa*nvb*nob) ! read t2ab
+      call repack_t2 (dbl_mb(k_temp), t2ab, nva, nvb, noa, nob, nbf)
+      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+c
+      if (ierr .ne. 0) then
+         call eaf_errmsg(ierr, errmsg)
+         write(6,*) ' IO offset ', offset
+         write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
+         call errquit(' read_t read: read failed',0)
+      end if
+      return
+      end
+      subroutine repack_t1(
+     $     rd_buf, sv_buf, nv1, no1, nbf)
+      implicit none
+      integer nv1, no1, nbf
+      integer nva, noa
+      double precision rd_buf(nv1, no1)
+      double precision sv_buf(nbf, nbf)
+      call dfill(nbf**2,0.0d0,sv_buf,1)
+      do nva = 1, nv1
+         do noa = 1, no1
+            sv_buf(no1+nva,noa) = rd_buf(nva,noa)
+         end do
+      end do
+      return
+      end
+      subroutine repack_t2(
+     $     rd_buf, sv_buf, nv1, nv2, no1, no2, nbf)
+      implicit none
+      integer nv1, nv2, no1, no2, nbf
+      integer nva, noa, nvb, nob
+      double precision rd_buf(nv1, nv2, no1, no2)
+      double precision sv_buf(nbf, nbf, nbf, nbf)
+      call dfill(nbf**4,0.0d0,sv_buf,1)
+      do nva = 1, nv1
+         do nvb = 1, nv2
+            do noa = 1, no1
+               do nob = 1, no2
+                  sv_buf(no1+nva,no2+nvb,noa,nob) = 
+     &                rd_buf(nva,nvb,noa,nob)
+               end do
+            end do
+         end do
+      end do
       return
       end
