@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.10 2002-09-05 17:53:00 d3k958 Exp $
+c     $Id: et_2e.F,v 1.11 2003-01-10 00:02:47 d3k958 Exp $
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none
@@ -20,6 +20,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "msgids.fh"   
+#include "stdio.fh"   
 c
       integer rtdb
       integer g_pa,g_pb
@@ -33,7 +34,7 @@ c
       integer nxtask, next
       external nxtask
       double precision start_cpu, end_cpu, elapsed
-      double precision smax, sij, skl, Sba
+      double precision smax, sij, skl
       double precision pa(nbf,nbf), pb(nbf,nbf)
       double precision density(nbf*nbf)
       double precision norm, G(10000), dij
@@ -106,13 +107,13 @@ c
 c
  1212 format (2x,a30,1x,a1,1pE14.4)
       if (ga_nodeid().eq.0) then
-      write(6,*)
-      write(6,*)'Start two-electron contribution,  H2(RP)...'
-      write(6,1212)'Density screening tolerance   ',':',tol2e
-      write(6,1212)'Largest value of alpha density',':',maxPa
-      write(6,1212)'Largest value of beta density ',':',maxPb
-      write(6,1212)'Largest two-electron integral ',':',smax
-      write(6,*)
+      write(LuOut,*)
+      write(LuOut,*)'Start two-electron contribution,  H2(RP)...'
+      write(LuOut,1212)'Density screening tolerance   ',':',tol2e
+      write(LuOut,1212)'Largest value of alpha density',':',maxPa
+      write(LuOut,1212)'Largest value of beta density ',':',maxPb
+      write(LuOut,1212)'Largest two-electron integral ',':',smax
+      write(LuOut,*)
       endif
       call util_flush(6) 
 c     

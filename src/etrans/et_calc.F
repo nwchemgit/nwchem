@@ -3,7 +3,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.15 2002-09-10 15:54:04 d3k958 Exp $
+* $Id: et_calc.F,v 1.16 2003-01-10 00:02:47 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -15,13 +15,14 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "cscf.fh"
+#include "stdio.fh"
 c
       integer rtdb, me
       integer i, j, k
       integer l_vals,k_vals
       integer g_tmp,g_s,g_ahandle(2),g_bhandle(2),g_d,g_temp
       integer nocc(2)
-      integer g_u,g_vt,g_v,g_phandle(2)
+      integer g_u,g_vt,g_phandle(2)
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
       integer mem2, max2e, lena, lenb
@@ -41,16 +42,16 @@ c
 
       double precision Vba
       double precision prod(2)
-      double precision Sba,pa_val,pb_val,omega1,h1_val
+      double precision Sba,omega1
       double precision detu(2),detv(2),detprod,omega2
       double precision Haa,Hbb,Hba,val, dum
 
       me=ga_nodeid()
 
       if (me.eq.0) then
-      Call Util_Print_Centered(6,'Electron Transfer Calculation'
+      Call Util_Print_Centered(LuOut,'Electron Transfer Calculation'
      &     ,40,.true.)
-      write(6,*)
+      write(LuOut,*)
       endif
 c
 c -------------
@@ -120,9 +121,9 @@ c
       lenb = inp_strlen(b_file)
 c
       if (me.eq.0) then
-      write(6,*)'MO vectors for reactants: ',a_file(1:lena)
-      write(6,*)'MO vectors for products : ',b_file(1:lenb)
-      write(6,*)
+      write(LuOut,*)'MO vectors for reactants: ',a_file(1:lena)
+      write(LuOut,*)'MO vectors for products : ',b_file(1:lenb)
+      write(LuOut,*)
       endif
 c
 c -----------------------------------------------------
@@ -137,7 +138,7 @@ c
      $        call errquit('ma_push_get failed for evals',k_eval)
 c
 c ------------------------------------------------
-c Read header to check that nset=2, and to get nmo
+c Read header to check that nset=2
 c ------------------------------------------------
 c
 c a_file:
@@ -155,13 +156,6 @@ c
         call errquit('et_calc: basis function mismatch',nbf_file)
       endif
 
-      if (anmo.lt.nbf) then
-        if (me.eq.0) then
-          write(6,*) a_file(1:lena),
-     &    ' Linearly dependent MO vectors have been removed' 
-        endif
-      endif
-
 c b_file:
 c -------
 c
@@ -170,29 +164,13 @@ c
      &   call errquit('et_calc: movecs_read_header failed',me)
 
       if (nset.ne.2) then
-        call errquit('et_calc: only UHF/ODFT orbitals allowed',bnmo)
+        call errquit('et_calc: only UHF/ODFT orbitals allowed',nset)
       endif
 
       if (nbf_file.ne.nbf) then
         call errquit('et_calc: basis function mismatch',nbf_file)
       endif
-
-      if (bnmo.lt.nbf) then
-        if (me.eq.0) then
-          write(6,*) b_file(1:lenb),
-     &    ' Linearly dependent MO vectors have been removed' 
-        endif
-      endif
 c
-c check that the linear dependence in a_file and b_file is the same
-c -----------------------------------------------------------------
-c
-      if (anmo.ne.bnmo) then
-       if (me.eq.0) then 
-         write (6,*) 'et_calc: different lindep in a_file and b_file'
-       endif
-      endif
-
 c -------------------------------------------------------
 c allocate arrays for MO coefficients, for state A
 c -------------------------------------------------------
@@ -225,8 +203,8 @@ c
 
       if (util_print("et",print_high)) then
       if(me.eq.0) then
-        write(6,*) nocc(1), " occupied alpha orbitals"
-        write(6,*)
+        write(LuOut,*) nocc(1), " occupied alpha orbitals"
+        write(LuOut,*)
       endif
         call ga_print(g_avecsa)
       endif
@@ -250,8 +228,8 @@ c
 
       if (util_print("et",print_high)) then
       if(me.eq.0) then
-        write(6,*) nocc(2), " occupied  beta orbitals"
-        write(6,*)
+        write(LuOut,*) nocc(2), " occupied  beta orbitals"
+        write(LuOut,*)
       endif
         call ga_print(g_avecsb)
       endif
@@ -269,9 +247,11 @@ c
       call ga_zero (g_bvecsa)
       call ga_zero (g_bvecsb)
 c
-c ------------------------------------------------
-c read occ, evals, mo coefficients from b_file
-c ------------------------------------------------
+c -----------------------------------------------------------
+c read occ, evals, mo coefficients from b_file.  It is 
+c assumed that the number of occupied alpha and beta orbitals
+c is the same as in the a_file.
+c -----------------------------------------------------------
 c
       if(.not.et_movecs_read(b_file(1:lenb),1,dbl_mb(k_occ)
      $   ,dbl_mb(k_eval) ,g_bvecsa, dum))
@@ -299,8 +279,8 @@ c
      $   call errquit('et_movecs_read failed for Hbb',0)
 c
       if (me.eq.0) then
-      write(6,9995) 'Electronic energy of reactants   ','H(RR)',Haa
-      write(6,9995) 'Electronic energy of products    ','H(PP)',Hbb
+      write(LuOut,9995) 'Electronic energy of reactants   ','H(RR)',Haa
+      write(LuOut,9995) 'Electronic energy of products    ','H(PP)',Hbb
       endif
 c
 c -----------------------------------------------
@@ -335,11 +315,11 @@ c
 c
       if (util_print("et",print_high)) then
       if(me.eq.0) then
-       write(6,*) 
-       write(6,*) '---------------'
-       if(j.eq.1) write(6,*) 'ALPHA ELECTRONS'
-       if(j.eq.2) write(6,*) ' BETA ELECTRONS'
-       write(6,*) '---------------'
+       write(LuOut,*) 
+       write(LuOut,*) '---------------'
+       if(j.eq.1) write(LuOut,*) 'ALPHA ELECTRONS'
+       if(j.eq.2) write(LuOut,*) ' BETA ELECTRONS'
+       write(LuOut,*) '---------------'
       endif
       endif
 c
@@ -364,7 +344,6 @@ c
       if (.not.ga_destroy(g_tmp))
      &  call errquit('could not destroy tmp array',g_tmp)
 c
-      call ga_sync()
       if (util_print("et",print_debug)) then
        call ga_print(g_d)
       endif
@@ -393,8 +372,8 @@ c
       do k = 1,nocc(j)
          prod(j) = prod(j)*dbl_mb(k_vals+k-1)
       enddo
-c      write(6,*)'prod',j,prod(j)
-c      write(6,*)'singular values',(dbl_mb(k_vals+i-1),i=1,nocc(j))
+c      write(LuOut,*)'prod',j,prod(j)
+c      write(LuOut,*)'singular values',(dbl_mb(k_vals+i-1),i=1,nocc(j))
 c
 c
       if (.not.ga_destroy(g_d))
@@ -413,7 +392,7 @@ c
        call et_det('N',g_u,nocc(j),detu(j))
        call et_det('T',g_vt,nocc(j),detv(j))
        detprod = detprod*detu(j)*detv(j)
-c       write(6,*) j,'detu,detv',detu(j),detv(j)
+c       write(LuOut,*) j,'detu,detv',detu(j),detv(j)
 c
 c ------------------------------------------------------------
 c                                               ^       ^
@@ -447,13 +426,13 @@ c
 c
       if (util_print("et",print_high)) then
       if(me.eq.0) then
-        write(6,*) 
-        write(6,*) 'SVD transformed MO vectors for state A'
+        write(LuOut,*) 
+        write(LuOut,*) 'SVD transformed MO vectors for state A'
       endif
         call ga_print (g_av)
       if(me.eq.0) then
-        write(6,*) 
-        write(6,*) 'SVD transformed MO vectors for state B'
+        write(LuOut,*) 
+        write(LuOut,*) 'SVD transformed MO vectors for state B'
       endif
         call ga_print (g_bu)
       endif
@@ -533,7 +512,6 @@ c end alpha/beta loop:
 c --------------------
       enddo    
 c
-
       if (.not.ga_destroy(g_s)) 
      &  call errquit('could not destroy overlap array',g_s)
 
@@ -546,9 +524,9 @@ c
 
       if (util_print("et",print_debug)) then
       if(me.eq.0) then
-       write(6,*) 
-       write(6,*) 'scaled generalized density matrices:' 
-       write(6,*) 
+       write(LuOut,*) 
+       write(LuOut,*) 'scaled generalized density matrices:' 
+       write(LuOut,*) 
       endif
        call ga_print(g_phandle(1))
        call ga_print(g_phandle(2))
@@ -563,12 +541,12 @@ c
 c
 c
       if(me.eq.0) then
-       write(6,*)
-       write(6,9995) 'Reactants/Products overlap       ','S(RP)',Sba
-       write(6,*)
+       write(LuOut,*)
+       write(LuOut,9997) Sba
+       write(LuOut,*)
       endif
 c
-      call util_flush(6) 
+ 9997 format(1x,'Reactants/Products overlap S(RP) : ',1Pd9.2)
 c
 c --------------------------------------------
 c calculate the 1e contribution to Vba, omega1
@@ -590,16 +568,6 @@ c
         endif
       endif
 c
-c       omega1 = 0.0d0
-c       do i = 1,nbf
-c       do j = 1,nbf
-c         call ga_get(g_phandle(1), i, i, j, j, pa_val, 1)
-c         call ga_get(g_phandle(2), i, i, j, j, pb_val, 1)
-c         call ga_get(g_h1, i, i, j, j, h1_val, 1)
-c         omega1 = omega1 + (pa_val+pb_val)*h1_val
-c       enddo
-c       enddo
-c
        omega1 = 0.0d0
        omega1 = omega1 + ga_ddot (g_h1,g_phandle(1))
        omega1 = omega1 + ga_ddot (g_h1,g_phandle(2))
@@ -608,12 +576,11 @@ c
        omega1 = omega1*detprod
 c
       if(me.eq.0) then
-       write(6,*) 'Reactants/Products interaction energy:    '
-       write(6,*) '-------------------------------------           '
-       write(6,9995) 'One-electron contribution        ','H1(RP)',omega1
+       write(LuOut,*) 'Reactants/Products interaction energy:    '
+       write(LuOut,*) '-------------------------------------           '
+       write(LuOut,9995) 'One-electron contribution        ','H1(RP)',
+     &    omega1
       endif
-c
-      call util_flush(6) 
 c
       if (.not.ga_destroy(g_h1))
      &  call errquit('could not destroy H1 array',g_h1)
@@ -632,17 +599,17 @@ c
 
  9993 format(1x,'Two-electron integral screening (tol2e) : ',1Pd8.2)
       if(me.eq.0) then
-       write(6,*) 
-       write(6,*) 'Beginning calculation of 2e contribution'
-       write(6,9993) tol2e
-       write(6,*)
+       write(LuOut,*) 
+       write(LuOut,*) 'Beginning calculation of 2e contribution'
+       write(LuOut,9993) tol2e
+       write(LuOut,*)
       endif
 
 c ------------------------------------------------------------------------
-c two methods are available. One uses the scf fock builder (method_2e=1),
+c Two methods are available. One uses the scf fock builder (method_2e=1),
 c the other uses et_2e (method_2e=2). et_2e is more accurate, but much more
-c time consuming and should only be used for very small systems, or 
-c for debugging purposes.
+c time consuming and should only be used for very small systems, or very 
+c weakly interacting systems (with small overlap), or for debugging purposes.
 c ------------------------------------------------------------------------
 c
       if (.not.rtdb_get(rtdb,'et:method_2e',MT_INT,1,method_2e)) then
@@ -674,9 +641,11 @@ c
        Hba = omega1+omega2
 c
       if(me.eq.0) then
-       write(6,9995) 'Two-electron contribution        ','H2(RP)',omega2
-       write(6,9995) 'Total interaction energy         ','H(RP)',Hba
-       write(6,*)
+       write(LuOut,9995) 'Two-electron contribution        ','H2(RP)',
+     &    omega2
+       write(LuOut,9995) 'Total interaction energy         ','H(RP)',
+     &    Hba
+       write(LuOut,*)
       endif
 c
 c
@@ -698,9 +667,9 @@ c Print results
 c -------------
 c
       if(me.eq.0) then
-      write(6,9996) Vba,Vba*2.194746d5,
+      write(LuOut,9996) Vba,Vba*2.194746d5,
      &              Vba*27.2114d0,Vba*627.510d0
-      write (6,*) 
+      write(LuOut,*) 
       endif
 c
  9995 format (a34,1x,a6,1x,F18.10)
