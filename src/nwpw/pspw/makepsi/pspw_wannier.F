@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.1 2002-10-15 21:24:01 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.2 2002-10-24 22:55:44 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -287,7 +287,8 @@
      >                     dcpl_mb(psi2(1)+(i-1) *npack1
      >                                    +(ms-1)*npack1*ne(1)))
           do j=1,ne(ms)
-              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms))
+              wx    = dcpl_mb(A(1)+(i-1)+(j-1)*ne(ms) 
+     >                            +(ms-1)*ne(1)*ne(1))
               alpha = dble(wx)
 
               call Pack_cc_daxpy(1,alpha,
