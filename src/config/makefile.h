@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.407 2003-02-26 17:24:29 edo Exp $
+# $Id: makefile.h,v 1.408 2003-03-11 02:04:40 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -767,7 +767,7 @@ ifeq ($(TARGET),HPUX64)
 
   CORE_SUBDIRS_EXTRA = blas lapack
   _CPU = $(shell uname -m  )
-  MAKEFLAGS = -j 4 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
   CPP = /lib/cpp -P
   CC = cc
   FC = f90
