@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.109 2001-10-11 18:55:25 d3j191 Exp $
+c $Id: cf_main.F,v 1.110 2001-10-24 23:52:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -763,7 +763,9 @@ c
       ekc(2,3)=ewkc(2,3)+eskc(2,3)
       ekc(3,3)=ewkc(3,3)+eskc(3,3)
       call ga_dgop(mcf_38,z,9,'+')
-      call ga_dgop(mcf_38,ekc,9,'+')
+      call ga_dgop(mcf_70,ekc,9,'+')
+      call ga_dgop(mcf_71,ewkc,9,'+')
+      call ga_dgop(mcf_72,eskc,9,'+')
 c
       volume=box(1)*box(2)*box(3)
 c
@@ -1448,7 +1450,7 @@ c      xpmf(j,3,i)=xpmf(j,3,i)/wmtot
     1 continue
 c
       call ga_dgop(mcf_59,wpmf,4*numpmf,'+')
-      call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
+      call ga_dgop(mcf_73,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
 c
