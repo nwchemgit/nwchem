@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.9 2001-12-24 02:02:12 edo Exp $
+c     $Id: dft_canorg.F,v 1.10 2001-12-27 18:31:21 edo Exp $
 c     
       implicit none
 c
@@ -204,6 +204,13 @@ c
              toll_s=svals(n_dep+1)
           endif
        endif
+c
+c     this to keep sodft happy
+c
+       if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1,
+     .      toll_s)) call errquit(
+     .      'utiltools: rtdbput failed',0)
+
        if(oprint) then
           write(luout,*) ' lindep tolerance = ',toll_s
        endif
@@ -248,7 +255,7 @@ c
          write(luout,*) ' delta = ',delta
       endif
       if ((abs(delta).lt.dampon.and.abs(delta).gt.dampoff).
-     .     or.iter.le.ncydp.or.iter.eq.0)then
+     .     or.iter.le.ncydp.or.iter.le.1)then
          damping = .true.
          ndamp = ndamp_input
       else

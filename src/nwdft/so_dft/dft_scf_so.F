@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.22 2001-11-15 18:39:00 edo Exp $
+c     $Id: dft_scf_so.F,v 1.23 2001-12-27 18:31:19 edo Exp $
 c     
       implicit none
 c     
@@ -624,8 +624,8 @@ c
       if (movecs_guess.eq.'restart')then
          levelshifting = .true.
       else
-c         levelshifting = .false.
-         levelshifting = .true.
+         levelshifting = .false.
+!         levelshifting = .true.
 c     rlshift = 2.0
       endif
       iswitc = 0
