@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.32 1995-11-16 20:38:38 d3g681 Exp $
+#$Id: GNUmakefile,v 1.33 1995-11-16 23:26:16 d3g681 Exp $
 # makefile,v 1.15 1994/12/14 02:13:59 og845 Exp
 ifneq ($(NWCHEM_TARGET),SGITFP)
 ifeq ($(NWCHEM_TARGET),CRAY-T3D)
@@ -47,7 +47,7 @@ else
 	dzero.o		\
 	ga_chol.o	\
 	ga_inverse.o		\
-	gacrea.o	gat_lab_can.o	\
+	gacrea.o	\
 	get_col.o	\
 	dft_header.o	\
 	dft_invio.o		\
@@ -60,6 +60,8 @@ else
 endif
 
      LIBRARY = libnwdft.a
+LIB_INCLUDES = -I../include
+
 
    USES_BLAS = int_eval_gbsets.F new_eval_gbsets.F dft_second.F \
                ga_chol_seq.F ga_inv_seq.F dft_mpole.F \

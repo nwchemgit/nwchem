@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.14 1995-11-16 20:38:33 d3g681 Exp $
+#$Id: GNUmakefile,v 1.15 1995-11-16 23:26:08 d3g681 Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o
@@ -6,12 +6,7 @@
    LIBRARY = libnwdft.a
    LIB_DEFINES = -DDFT_TIMER
    SUBDIRS = input_dft scf_dft coulomb xc util 3d
-
-   HEADERS = \
-      include/timer.fh   \
-      include/quad.fh  \
-      include/cdft.fh  \
-      include/dimensions.fh  
+LIB_INCLUDES = -I./include
 
 
 include ../config/makefile.h

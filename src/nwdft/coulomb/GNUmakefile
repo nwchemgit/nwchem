@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1995-10-17 08:54:45 d3g681 Exp $
+# $Id: GNUmakefile,v 1.7 1995-11-16 23:26:10 d3g681 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
       OBJ_OPTIMIZE = dft_getvc.o
       OBJ = \
@@ -12,7 +12,9 @@ else
 endif
 
       LIBRARY = libnwdft.a
-   LIB_DEFINES = -DDFT_TIMER 
+  LIB_DEFINES = -DDFT_TIMER 
+ LIB_INCLUDES = -I../include
+
 
 
       USES_BLAS = dft_fitcd.F dft_fitvc.F dft_genspm.F

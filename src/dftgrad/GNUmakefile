@@ -18,7 +18,8 @@ endif
 
    USES_BLAS = dftg_force.F dftg_quadv0_a.F dftg_cdfit.F dftg_quadv0_b.F
 
-   LIBRARY = libdftgrad.a
+     LIBRARY = libdftgrad.a
+LIB_INCLUDES = -I../nwdft/include
 
 include ../config/makefile.h
 include ../config/makelib.h
