@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2002-02-11 18:27:11 edo Exp $
+# $Id: GNUmakefile,v 1.5 2003-04-07 21:10:40 windus Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -7,7 +7,7 @@
 		 	c_geodesic.o \
 			cpsi_lmbda.o \
 			Stiefel.o \
-			check.o \
+			c_check.o \
 			cpsi_read.o \
 			cpsi_write.o \
 			cpsi_new.o
