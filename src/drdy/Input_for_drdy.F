@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.5 2001-02-02 01:29:27 windus Exp $
+C $Id: Input_for_drdy.F,v 1.6 2001-02-06 19:14:23 windus Exp $
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array
@@ -286,7 +286,7 @@ c Input for reaction path calculation
 c
       return
 501   Format(2i5,4f10.6,i10,g10.3)
-600   Format(//,' DRDYVTST - DiRect DYnamics for Variational',
+600   Format(//,' DIRDYVTST - DiRect DYnamics for Variational',
      *  ' Transition State Theory with the NWChem ',
      *  ' electronic structure code',//,5x,
      *  'This code prepares the file30 input for POLYRATE from',
@@ -335,7 +335,7 @@ c
 6116  Format(5x,'lgs(39)=',i2,', Single point calculation performed')
 6117  Format(5x,'ERROR: Single point calculation cannot be',
      *       ' performed since',/,5x,
-     *       ' sptheory was not given in DRDYVTST block')
+     *       ' sptheory was not given in DIRDYVTST block')
 612   Format(//,' Title:',/,1x,a80)
 613   Format(//,' Number of atoms =',i6)
 614   Format (//,' Masses',/,T35,'amu',13x,'a.u.',12x,'kg')

@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.8 2001-02-02 01:29:27 windus Exp $
+C $Id: drdy_input.F,v 1.9 2001-02-06 19:14:23 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -89,10 +89,10 @@ C $Id: drdy_input.F,v 1.8 2001-02-02 01:29:27 windus Exp $
       call inp_set_field(0) ! goto start of the line
       if (.not.inp_a(field)) call errquit
      &   ('drdy_input: no input present',911)
-      if (.not.((inp_compare(.false.,'drdyvtst',field)).or.
+      if (.not.((inp_compare(.false.,'dirdyvtst',field)).or.
      &          (inp_compare(.false.,'drdy_nwchem',field)).or.
      &          (inp_compare(.false.,'drdy',field)))) call errquit
-     &   ('drdy_input:fatal error: not the DRDYVTST input block',911)
+     &   ('drdy_input:fatal error: not the DIRDYVTST input block',911)
 c
 c see if we are going to use autosym or not and then send the information
 c to the RTDB.
@@ -130,7 +130,7 @@ c
      &            call errquit(
      &            'drdy_input: cput of input failed',555)
             else
-              call errquit('drdyvtst: unknown keyword for theory',0)
+              call errquit('dirdyvtst: unknown keyword for theory',0)
             end if
             goto 00100
           elseif(inp_compare(.false.,'sptheory',field(1:8))) then
@@ -159,7 +159,7 @@ c
      &            call errquit(
      &            'drdy_input: cput of spinput failed',555)
             else
-               call errquit('drdyvtst: unknown keyword for sptheory',0)
+               call errquit('dirdyvtst: unknown keyword for sptheory',0)
             end if
             goto 10
           elseif(inp_compare(.false.,'*',field(1:1))) then
