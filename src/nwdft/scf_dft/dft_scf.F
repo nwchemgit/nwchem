@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.230 2003-04-02 23:08:25 edo Exp $
+c     $Id: dft_scf.F,v 1.231 2003-04-14 20:53:22 sohirata Exp $
 c     
       implicit none
 c
@@ -633,6 +633,14 @@ c
       rms(2) = 0.d0
       if (cosmo_on.and.cosmo_phase.eq.2) call cosmo_charges
      .   (rtdb,ao_bas_han,geom,ecosmo,iter,odbug,2,g_movecs)
+c
+c     Determine HOMO energy (for Zhan-Nichols-Dixon AC)
+c
+      e_homo = dbl_mb(k_eval(1)+noc(1)-1)
+      if (ipol.eq.2) then
+        if (e_homo.lt.dbl_mb(k_eval(2)+noc(2)-1))
+     &  e_homo = dbl_mb(k_eval(2)+noc(2)-1)
+      endif
 c
 c     build DFT Fock matrix
 c

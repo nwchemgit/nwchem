@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.59 2003-04-10 17:50:07 sohirata Exp $
+C$Id: cdft.fh,v 1.60 2003-04-14 20:51:36 sohirata Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -19,7 +19,7 @@ c
       double precision
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac, xfac, tol_rho, radius, rm, hl_tol,
-     &     e_conv, d_conv, g_conv, delta_ac
+     &     e_conv, d_conv, g_conv, delta_ac, e_homo
       logical
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
@@ -55,7 +55,7 @@ c
      &     rlshift, dampon, dampoff, levlon, levloff, diison, diisoff, 
      &     rcharge, rscale, cfac(numfunc), xfac(numfunc),
      &     tol_rho, radius, rm, hl_tol, e_conv, d_conv, g_conv,
-     &     delta_ac,
+     &     delta_ac, e_homo, 
 c
 c     Logicals
 c
