@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.335 2000-08-11 05:01:27 d3g681 Exp $
+# $Id: makefile.h,v 1.336 2000-08-25 22:06:35 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -778,7 +778,7 @@ ifeq ($(TARGET),SGI_N32)
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = -j 4 --no-print-directory
-    DEFINES = -DSGI  -DSGI_N32
+    DEFINES = -DSGI  -DSGI_N32 -DPARALLEL_DIAG
 
 # RJH ... moved -OPT... to the FOPTIMIZE macro since it's an optimization!
 # (that breaks things).
@@ -793,9 +793,18 @@ FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
  FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC 
 FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
 
+#optimization flags for R12000 (IP27)
+# FOPTIMIZE_12K = -O   -r12000  -TARG:platform=ip27  -LNO:cs2=8M -TENV:X=3
+ FOPTIMIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+ FVECTORIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+
  FOPTIMIZE = -O3
  COPTIMIZE = -O2
 
+ifeq ($(NWCHEM_TARGET_CPU),R12000)
+ FOPTIMIZE = $(FOPTIMIZE_12K)
+ FVECTORIZE = $(FVECTORIZE_12K)
+endif
 ifeq ($(NWCHEM_TARGET_CPU),R10000)
  FOPTIMIZE = $(FOPTIMIZE_10K)
  FVECTORIZE = $(FVECTORIZE_10K)
@@ -818,7 +827,8 @@ ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
 endif
 
-       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+#       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas -lmalloc_cv
+       CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas 
 endif
 
 ifeq ($(TARGET),HPUX)
@@ -1309,7 +1319,7 @@ ifeq ($(BUILDING_PYTHON),python)
    INCPATH += -I/usr/include/python1.5
 endif
 
-  DEFINES = -DLINUX
+  DEFINES = -DLINUX -DPARALLEL_DIAG
 ifeq ($(TARGET),CYGNUS)
     DEFINES += -DCYGNUS
 endif
