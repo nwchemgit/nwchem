@@ -6,17 +6,16 @@
 	      mointdriver.o \
 	      moints.o \
 	      moints_dbg.o \
-	      moints_grp.o \
 	      moints_mp2.o
 
 
-OBJ_OPTIMIZE =  moints_auxil.o 
+OBJ_OPTIMIZE = moints_trf1indx.o 
 
     LIBRARY = libmoints.a
 
-  USES_BLAS = moints.F 
+  USES_BLAS = moints.F moints_trf1indx.F
 
-LIB_DEFINES =  -DDEBUG_PRINT
+LIB_DEFINES = 
 
 #
 # Possible #defines
