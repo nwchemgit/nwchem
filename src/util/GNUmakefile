@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.150 2002-08-19 18:13:51 edo Exp $
+# $Id: GNUmakefile,v 1.151 2002-08-22 17:22:54 edo Exp $
 
 include ../config/makefile.h
 
@@ -185,12 +185,15 @@ endif
 
 ifeq ($(TARGET),SGI)
    OBJ += sgi_flush6.o
+DEFINES += -DNOSOCKLEN
 endif
 ifeq ($(TARGET),SGI_N32)
    OBJ += sgi_flush6.o
+DEFINES += -DNOSOCKLEN
 endif
 ifeq ($(TARGET),SGITFP)
    OBJ += sgi_flush6.o
+DEFINES += -DNOSOCKLEN
 endif
 
 include ../config/makelib.h
