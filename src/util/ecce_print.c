@@ -401,7 +401,7 @@ void ecce_print1_char_(const char *key, const char *data, Integer *dim1,
 	return;
     }
 
-    print_info("begin", key, "char", (int) *dim1, 0);
+    print_info("begin", buf, "char", (int) *dim1, 0);
     for (i=0; i<*dim1; i++, data+= dlen) {
 	if (!fortchar_to_string(data, dlen, buf1, sizeof(buf1))) {
 	    fprintf(stderr,"!! ecce_print1_char: datum too long (%d %d)\n", 
@@ -410,7 +410,7 @@ void ecce_print1_char_(const char *key, const char *data, Integer *dim1,
 	}
 	fprintf(ecce_file,"%s\n", buf1);
     }
-    print_info("end", key, "char", (int) *dim1, 0);
+    print_info("end", buf, "char", (int) *dim1, 0);
     fflush(ecce_file);
 }
 
