@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.236 2004-01-16 00:49:40 edo Exp $
+c     $Id: dft_scf.F,v 1.237 2004-01-16 01:49:42 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -420,6 +420,7 @@ c     allocate array for irreps
 c
       if (.not.MA_Push_Get(mt_int,ipol*nbf_ao,'dft:irreps',l_ir,k_ir))
      &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
+      call ifill(ipol*nbf_ao,1,int_mb(k_ir),1)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
 c
