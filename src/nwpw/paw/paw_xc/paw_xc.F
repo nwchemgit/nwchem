@@ -1,6 +1,10 @@
-!$Id: paw_xc.F,v 1.11 2003-02-24 23:35:04 marat Exp $
+!$Id: paw_xc.F,v 1.12 2003-02-27 02:19:26 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.11  2003/02/24 23:35:04  marat
+!removed write statements
+!MV
+!
 !Revision 1.10  2003/02/24 01:13:55  bylaska
 !Memory deallocation completed...EJB
 !
@@ -778,4 +782,26 @@ c            write(*,*) "paw_xc_pot_down",dcpl_mb(paw_xc_pot_u(1)+i_pot)
      >                      dbl_mb(paw_xc_e(1)+in-1)  
       end do
 
+      end
+
+
+
+      subroutine paw_xc_pot_up_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_xc_data.fh"
+
+      ptr = paw_xc_pot_u(1)
+      return
+      end
+
+      subroutine paw_xc_pot_down_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_xc_data.fh"
+
+      ptr = paw_xc_pot_d(1)
+      return
       end

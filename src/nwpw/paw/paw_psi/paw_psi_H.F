@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi_H.F,v 1.1 2003-02-13 01:57:45 bylaska Exp $
+* $Id: paw_psi_H.F,v 1.2 2003-02-27 02:19:26 bylaska Exp $
 *
 
 *     *************************************
@@ -91,7 +91,7 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
-c      call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
+      call paw_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
 
 
 *     **********************************************************

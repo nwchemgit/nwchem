@@ -1,5 +1,5 @@
 *
-* $Id: paw_nonlocal.F,v 1.4 2003-02-27 00:16:50 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.5 2003-02-27 02:19:25 bylaska Exp $
 *
 
 !**************************************************
@@ -161,9 +161,41 @@
       integer ii,ia,n,nion,nbasis,nlm,nlm1
       integer i_nbasis,indx,indx1,indx_m
       integer coeff_ptr
+      integer hartree_ptr,mult_ptr,comp_ptr,xc_ptr
 
 
       !**** add up Gop ****
+      call paw_hartree_pot_ptr(hartree_ptr)
+      call paw_mult_pot_ptr(mult_ptr)
+      call paw_comp_pot_ptr(comp_ptr)
+
+      call dcopy(2*paw_Gop_size,
+     >           dcpl_mb(paw_Gop_static(1)),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(hartree_ptr),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(mult_ptr),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(comp_ptr),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
+
+      if (ispin.eq.2) then
+      call dcopy(2*paw_Gop_size,
+     >           dcpl_mb(paw_Gop_u(1)),1,
+     >           dcpl_mb(paw_Gop_d(1)),1)
+      call paw_xc_pot_down_ptr(xc_ptr)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(xc_ptr),1,
+     >           dcpl_mb(paw_Gop_d(1)),1)
+      end if
+
+      call paw_xc_pot_up_ptr(xc_ptr)
+      call daxpy(2*paw_Gop_size,1.0d0,
+     >           dcpl_mb(xc_ptr),1,
+     >           dcpl_mb(paw_Gop_u(1)),1)
 
 
 
@@ -224,8 +256,10 @@
 !
 !       Created: Wed Feb 12 15:18:24 PST 2003
 !**************************************************
-      subroutine paw_nonlocal(Hpsi,move,fion)
+      subroutine paw_nonlocal(ispin0,ne0,psi,Hpsi,move,fion)
       implicit none
+      integer ispin0,ne0(2)
+      complex*16 psi(*)
       complex*16 Hpsi(*)
       logical    move
       real*8     fion(3,*)
@@ -242,11 +276,10 @@
       integer nlm,nlmii,indx_prj,indx_psi,indx_coeff
       integer exi(2),p(2)
 
+      call paw_nonlocal_gen_nl_coeff()
+
       call Pack_npack(1,npack1)
       nion  = ion_nion()
-
-
-
 
       ok = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       ok = ok.and.

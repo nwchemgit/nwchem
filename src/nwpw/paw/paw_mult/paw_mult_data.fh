@@ -1,8 +1,11 @@
 c
-c $Id: paw_mult_data.fh,v 1.4 2003-02-21 22:37:26 bylaska Exp $
+c $Id: paw_mult_data.fh,v 1.5 2003-02-27 02:19:25 bylaska Exp $
 c
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.4  2003/02/21 22:37:26  bylaska
+c find_comp_coeff subroutine has been added....EJB
+c
 c Revision 1.3  2003/02/21 19:44:22  bylaska
 c Routines for computing the mult_energy_coeff have been added to paw_mult
 c ...EJB
@@ -28,11 +31,16 @@ c
       integer    mult_energy_coeff(4) ! multipole energy coefficients
       integer    self_energy_coeff(4) ! self energy coefficients
 
+
+      integer    i_paw_pot_mult(4)
+      integer    paw_pot_mult(4) ! multipole energy potential
+
       common / paw_mult_common / sigma_smooth,ncut,nshl3d,rcell,
      >                           gk,gk_smooth,g_lm,
      >                           v_mult,comp_coeff,i_v_mult,
      >                           mult_energy_coeff,
-     >                           self_energy_coeff
+     >                           self_energy_coeff,
+     >                           paw_pot_mult,i_paw_pot_mult
      
     
 

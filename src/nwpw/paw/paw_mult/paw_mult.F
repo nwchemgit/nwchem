@@ -1,8 +1,13 @@
 *
-* $Id: paw_mult.F,v 1.17 2003-02-26 20:34:06 marat Exp $
+* $Id: paw_mult.F,v 1.18 2003-02-27 02:19:25 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.17  2003/02/26 20:34:06  marat
+* fixed bug related to calculation of
+* comp_coeff, the i and j loop were incorrectly switched
+* MV
+*
 * Revision 1.16  2003/02/25 00:21:00  bylaska
 * debug write statements commented out...EJB
 *
@@ -45,6 +50,7 @@
 #include "paw_mult_data.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
+#include "paw_proj.fh"
 #include "paw_basis.fh"
 
       !**** local variables ***
@@ -54,6 +60,7 @@
       integer ia,ii,jj
       integer l,m
       integer Gx(2),Gy(2),Gz(2),Ylm(2)
+      integer paw_pot_mult_size
       real*8  scal,gg,fourpi,omega,rs,w
       complex*16 itol,cscal
     
@@ -113,6 +120,23 @@
       if (.not.ok) 
      > call errquit("paw_mult_init: out of heap memory",2)
 
+      !*** allocate multiple potential nonlocal matrix ***
+      ok = my_alloc(mt_int,nion,"i_paw_pot_mult",
+     >                                     i_paw_pot_mult)
+      if (.not.ok)
+     > call errquit('init_paw_pot_mult:out of heap memory',3)
+
+      paw_pot_mult_size = 0
+      do ii=1,nion
+         int_mb(i_paw_pot_mult(1)+ii-1) = paw_pot_mult_size
+         ia = ion_katm(ii)
+         paw_pot_mult_size = paw_pot_mult_size
+     >                     + paw_proj_nbasis(ia)**2
+      end do
+      ok = my_alloc(mt_dcpl,paw_pot_mult_size,
+     >               "paw_pot_mult",paw_pot_mult)
+      if (.not.ok)
+     > call errquit("paw_mult_init:out of heap memory",4)
 
 
 
@@ -289,6 +313,8 @@ c      end if
       ok = ok.and.my_dealloc(self_energy_coeff)
       ok = ok.and.my_dealloc(mult_energy_coeff)
       ok = ok.and.my_dealloc(rcell)
+      ok = ok.and.my_dealloc(paw_pot_mult)
+      ok = ok.and.my_dealloc(i_paw_pot_mult)
       if (.not.ok)
      > call errquit("paw_mult_end: error freeing heap",0)
 
@@ -422,23 +448,33 @@ c      end if
 #include "mafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
+#include "paw_comp_charge_matrix.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"
+#include "paw_proj.fh"
 
 
       !**** local variables ***
       logical ok
       integer ia,ii,ja,jj,kk,l,m,nion,npack0,mult_l,mabs
-      integer il,li,mi,mult_li,ill,jll
-      integer jl,lj,mj,mult_lj
+      integer i,il,li,mi,mult_li,ill,jll
+      integer j,jl,lj,mj,mult_lj
       integer  isgn,lmax,lmax2,indx
       integer exi(2),tmp1(2),gls(2),gl(2),t_mult(2)
       real*8  omega
       complex*16 csum1,csum2
 
+      integer i_mtr,i_mtr0
+      integer nb,nb2
+      integer ilm
+      integer i_cp,i_cp0
+      integer nilm,njlm
+      integer i_qlm,i_qlm0
+      complex*16 tmp_mult_pot
+
       !**** external functions ****
-      real*8   lattice_omega
-      external lattice_omega
+      real*8   lattice_omega,gen_gaunt_coeff
+      external lattice_omega,gen_gaunt_coeff
 
       omega = lattice_omega()
 
@@ -529,11 +565,9 @@ c      end if
          end do
       end do
       call D3dB_Vector_SumAll(2*v_mult(3),dcpl_mb(v_mult(1)))
-c     write(*,*)
-c     write(*,*)
 
-c     write(*,*)
-c     write(*,*)
+
+
       lmax  = paw_basis_max_mult_l()
       lmax2 = (lmax+1)**2
       do ii=1,nion
@@ -562,9 +596,6 @@ c     write(*,*)
      >         + dcpl_mb(paw_qlm(1)+jl)
      >           *dcpl_mb(mult_energy_coeff(1)+indx)
 
-c      write(*,*) "v_mult 1.5:",ii,ill+1,jj,jll+1,
-c    >            dcpl_mb(paw_qlm(1)+jl),
-c    >            dcpl_mb(mult_energy_coeff(1)+indx)
 
                jl  = jl+1
                jll = jll+1
@@ -577,32 +608,13 @@ c    >            dcpl_mb(mult_energy_coeff(1)+indx)
          end do !*mi*
          end do !*li*
       end do !*ii*
-c     write(*,*)
-c     write(*,*)
 
-c     !*** DEBUG ***
-c     write(*,*)
-c     write(*,*)
-c     do ii=1,nion
-c        ia = ion_katm(ii)
-c        mult_li  = paw_basis_mult_l(ia)
-c        il       = int_mb(i_v_mult(1) + ii - 1) 
-c        do li=0,mult_li
-c        do mi=-li,li
-c          write(*,*) "v_mult 2:",ii,li,mi,dcpl_mb(v_mult(1)+il)
-c          il = il + 1
-c        end do !*mi*
-c        end do !*li*
-c     end do !*ii*
-c     write(*,*)
-c     write(*,*)
-c     !*** DEBUG ***
+
+
 
 
       call find_comp_coeff()
 
-c     write(*,*)
-c     write(*,*)
       do ii=1,nion
          ia = ion_katm(ii)
          mult_li  = paw_basis_mult_l(ia)
@@ -610,11 +622,6 @@ c     write(*,*)
          do li=0,mult_li
            indx = li + (ia-1)*(lmax+1)
            do mi=-li,li
-
-c      write(*,*) "v_mult 2.5:",ii,li,mi,
-c    >            dcpl_mb(paw_qlm(1)+il),
-c    >            dbl_mb(self_energy_coeff(1)+indx),
-c    >            dcpl_mb(comp_coeff(1)+il)
 
              dcpl_mb(v_mult(1)+il) 
      >         = dcpl_mb(v_mult(1)+il) 
@@ -627,26 +634,66 @@ c    >            dcpl_mb(comp_coeff(1)+il)
            end do !*mi*
          end do !*li*
       end do !*ii*
-c     write(*,*)
-c     write(*,*)
 
-c     !*** DEBUG ***
-c     write(*,*)
-c     write(*,*)
-c     do ii=1,nion
-c        ia = ion_katm(ii)
-c        mult_li  = paw_basis_mult_l(ia)
-c        il       = int_mb(i_v_mult(1) + ii - 1) 
-c        do li=0,mult_li
-c        do mi=-li,li
-c          write(*,*) "v_mult 3:",ii,li,mi,dcpl_mb(v_mult(1)+il)
-c          il = il + 1
-c        end do !*mi*
-c        end do !*li*
-c     end do !*ii*
-c     write(*,*)
-c     write(*,*)
-c     !*** DEBUG ***
+
+
+
+
+
+      !**** multipole potential nonlocal operator ****
+      call dcopy(2*paw_pot_mult(3),
+     >           0.0d0,0,
+     >           dcpl_mb(paw_pot_mult(1)),1)
+
+      do ii=1,nion
+        ia = ion_katm(ii)
+        nb = paw_basis_nbasis(ia)
+        nb2 = nb*nb
+        mult_l = paw_basis_mult_l(ia)
+        i_mtr0 = int_mb(i_comp_charge_matrix(1) + ia - 1)
+        i_qlm0 = int_mb(i_v_mult(1) + ii - 1)
+        i_cp0 = int_mb(i_paw_pot_mult(1) + ii - 1)
+        nilm = 0
+        do i=1,nb
+        li = paw_basis_orb_l(i,ia)
+        njlm = 0
+        do j=1,nb
+        lj = paw_basis_orb_l(j,ia)
+        ilm = 0
+        do l=0,mult_l
+        do m=-l,l
+          do mi=-li,li
+          do mj=-lj,lj
+          if ( m.eq.(mi-mj)) then
+             i_mtr = i_mtr0-1+i+(j-1)*nb+l*nb2
+             i_cp  = i_cp0-1+(njlm+lj+mj+1)+
+     >                (nilm+li+mi)*paw_proj_nbasis(ia)
+             i_qlm = i_qlm0 + ilm
+
+             tmp_mult_pot = dbl_mb(comp_charge_matrix(1)+i_mtr)*
+     >               gen_gaunt_coeff(l,m,lj,mj,li,mi)*
+     >               dcpl_mb(v_mult(1) + i_qlm)
+
+                  dcpl_mb(paw_pot_mult(1)+i_cp) =
+     >                  dcpl_mb(paw_pot_mult(1)+i_cp)-
+     >                  tmp_mult_pot
+
+
+          end if
+          end do !mi
+          end do !mj
+          ilm=ilm+1
+        end do !m
+        end do !l
+
+       njlm = njlm + 2*lj+1
+        end do !j
+        nilm = nilm + 2*li+1
+        end do !i
+      end do !ii
+
+
+
 
       !**** deallocate stack memory ****
       ok =        MA_pop_stack(t_mult(2))
@@ -865,3 +912,16 @@ c     !*** DEBUG ***
 
       return
       end 
+
+
+
+      subroutine paw_mult_pot_ptr(ptr)
+      implicit none
+      integer ptr
+
+#include "paw_mult_data.fh"
+
+      ptr = paw_pot_mult(1)
+      return
+      end
+
