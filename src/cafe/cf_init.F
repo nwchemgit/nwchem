@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta)
-c $Id: cf_init.F,v 1.25 1999-08-30 19:43:18 d3j191 Exp $
+c $Id: cf_init.F,v 1.26 1999-09-11 03:41:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1095,6 +1095,8 @@ c
       ep3(l)=zero
     8 continue
 c
+      if(me.eq.0) eww(6,1)=dble(nwm)*ewc(iset)
+c
       lpww=1
       lpsw=1
       lpss=1
@@ -1124,8 +1126,6 @@ c
       if(.not.llst) call cf_lalloc()
 c
       ndxp=0
-c
-      if(ipme.gt.0) call pme_init()
 c
       return
       end

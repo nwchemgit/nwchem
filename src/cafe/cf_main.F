@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.19 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: cf_main.F,v 1.20 1999-09-11 03:41:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -828,7 +828,9 @@ c
     5 continue
       endif
       if(np.gt.1) call ga_dgop(mcf_43,vv,4,'+')
+      if(me.eq.0) then
       eskc=eskc+half*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))/vv(4)
+      endif
     4 continue
 c
       return

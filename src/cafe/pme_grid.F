@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.9 1999-09-08 16:49:56 d3j191 Exp $
+c $Id: pme_grid.F,v 1.10 1999-09-11 03:41:41 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -10,6 +10,9 @@ c
       integer isq(msa)
 c
       call timer_start(11)
+c
+      call pme_init()
+c
       if(.not.lcorr(ipset)) then
       call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
@@ -45,6 +48,49 @@ c     set flag on all nodes to indicate that potential
 c     grid calculation has completed
 c
       call pme_flag(1,-1)
+c
+      call timer_stop(12)
+c
+      return
+      end
+      subroutine pme_energy(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
+c $Id: pme_grid.F,v 1.10 1999-09-11 03:41:41 d3j191 Exp $
+      implicit none
+c
+#include "pme_common.fh"
+#include "mafdecls.fh"
+c
+      integer ipset,nwmloc,nsaloc
+      real*8 xw(mwm,3,mwa),xs(msa,3),epme
+      integer isq(msa)
+c
+      call timer_start(11)
+c
+      call pme_init()
+c
+      if(.not.lcorr(ipset)) then
+      call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
+      lcorr(ipset)=.true.
+      endif
+c
+      call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
+     + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
+     + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
+c
+      epme=ecorr(ipset)
+      call timer_stop(11)
+c
+      if(.not.lpnode) return
+c
+      call timer_start(12)
+c
+      call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
+     + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
+c
+      call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
+     + dbl_mb(i_bmod),dbl_mb(i_grd1),mgz,epme)
+c
+      epme=epme+ecorr(ipset)
 c
       call timer_stop(12)
 c

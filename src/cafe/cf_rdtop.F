@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop)
-c $Id: cf_rdtop.F,v 1.9 1999-08-30 19:43:18 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.10 1999-09-11 03:41:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -137,7 +137,8 @@ c
       read(lfntop,1016,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nnw)
       call cf_ndxxcl(1,int_mb(i_i),int_mb(i_j),nnw)
       endif
-      read(lfntop,1000,end=9997,err=9998) cdummy
+      read(lfntop,1024,end=9997,err=9998) ewc
+ 1024 format(10x,3f12.6)
       do 10 i=1,nas
       read(lfntop,1017,end=9997,err=9998) j,k
  1017 format(16x,2i5)

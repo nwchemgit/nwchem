@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
       implicit none
 c
@@ -208,7 +208,7 @@ c
    17 continue
       endif
       etermq=q*ewwqsm
-      eww(6,ipww)=eww(6,ipww)+etermq
+      eww(8,ipww)=eww(8,ipww)+etermq
 c
 c     reaction field contribution
 c     ---------------------------
@@ -243,7 +243,7 @@ c
       f(iax)=f(iax)+(cf12*rwi6(iax)-cf6)*rwi6(iax)*rwi2(iax)
    20 continue
       eterml=c12*ewwl12-c6*ewwl6
-      eww(5,ipww)=eww(5,ipww)+eterml
+      eww(7,ipww)=eww(7,ipww)+eterml
       endif
 c
 c     force vectors
@@ -512,7 +512,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1190,7 +1190,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1423,7 +1423,7 @@ c
       rw(iax)=facu(iax)*q*rwi1(iax)
       f(iax)=f(iax)+q*rwi1(iax)*rwi2(iax)
       if(ireact.ne.0) then
-      ess(isf,jfal(iax),7,ipss)=ess(isf,jfal(iax),7,ipss)+
+      ess(isf,jfal(iax),6,ipss)=ess(isf,jfal(iax),6,ipss)+
      + facu(iax)*q*rffss/rwi2(iax)
       f(iax)=f(iax)-two*q*rffss
       endif
@@ -2049,7 +2049,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2292,8 +2292,8 @@ c
       fderfc=-(ealpha*derfc(ealpha*rss))
       epmecs=epmecs-ferfc*qij*rssi
       if(lupden) then
-      ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*ferfc*qij*rssi
-      ess(jsf,jsf,8,1)=ess(jsf,jsf,8,1)-half*ferfc*qij*rssi
+      ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*ferfc*qij*rssi
+      ess(jsf,jsf,6,1)=ess(jsf,jsf,6,1)-half*ferfc*qij*rssi
       endif
       dfor=-(qij*rssi*rssi*(ferfc*rssi-fderfc))
       dfs1=dfor*xs1
@@ -2322,7 +2322,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2553,8 +2553,8 @@ c
       fderfc=-(ealpha*derfc(ealpha*rss))
       epmecs=epmecs-ferfc*qij*rsi
       if(lupden) then
-      ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*ferfc*qij*rsi
-      ess(ksf,ksf,8,1)=ess(ksf,ksf,8,1)-half*ferfc*qij*rsi
+      ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*ferfc*qij*rsi
+      ess(ksf,ksf,6,1)=ess(ksf,ksf,6,1)-half*ferfc*qij*rsi
       endif
       dfor=-(qij*rsi*rsi*(ferfc*rsi-fderfc))
       dfs1=dfor*xs1
@@ -2581,7 +2581,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2907,7 +2907,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3218,7 +3218,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3403,8 +3403,8 @@ c
       qij=(one-q14fac)*q
       q=q14fac*q
       epmecs=epmecs-(one-ferfc)*qij*r1i*factu
-      ess(isf,isf,8,1)=ess(isf,isf,8,1)-half*(one-ferfc)*qij*r1i*factu
-      ess(isf,jsf,8,1)=ess(jsf,jsf,8,1)-half*(one-ferfc)*qij*r1i*factu
+      ess(isf,isf,6,1)=ess(isf,isf,6,1)-half*(one-ferfc)*qij*r1i*factu
+      ess(isf,jsf,6,1)=ess(jsf,jsf,6,1)-half*(one-ferfc)*qij*r1i*factu
 c
 c     calculate the electrostatic force contribution
 c
@@ -3416,7 +3416,7 @@ c
 c     reaction field contributions
 c
       if(ireact.ne.0) then
-      ess(isf,jsf,7,1)=ess(isf,jsf,7,1)+factu*q*rffss/r2i
+      ess(isf,jsf,6,1)=ess(isf,jsf,6,1)+factu*q*rffss/r2i
       dfs=dfs-two*q*rffss
       endif
 c
@@ -3534,7 +3534,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.11 1999-05-25 22:02:00 d3j191 Exp $
+c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
 c
       implicit none
 c
@@ -3650,7 +3650,7 @@ c
       ferfc=one-erfc(ealpha*rww)
       fderfc=-(ealpha*derfc(ealpha*rww))
       epmecw=epmecw-ferfc*qij*rwi
-      eww(8,1)=eww(8,1)-ferfc*qij*rwi
+      eww(6,1)=eww(6,1)-ferfc*qij*rwi
       dfor=-(qij*rwi*rwi*(ferfc*rwi-fderfc))
       dfw1=dfor*rwx1
       dfw2=dfor*rwx2
@@ -3742,7 +3742,7 @@ c
       ferfc=one-erfc(ealpha*rww)
       fderfc=-(ealpha*derfc(ealpha*rww))
       epmecw=epmecw-ferfc*qij*rwi
-      eww(8,1)=eww(8,1)-ferfc*qij*rwi
+      eww(6,1)=eww(6,1)-ferfc*qij*rwi
       dfor=-(qij*rwi*rwi*(ferfc*rwi-fderfc))
       dfw1=dfor*rwx1
       dfw2=dfor*rwx2
@@ -4035,7 +4035,7 @@ c
       ferfc=one-erfc(ealpha*rww)
       fderfc=-(ealpha*derfc(ealpha*rww))
       epmecw=epmecw-ferfc*qij*rwi
-      eww(8,1)=eww(8,1)-ferfc*qij*rwi
+      eww(6,1)=eww(6,1)-ferfc*qij*rwi
       dfor=-(qij*rwi*rwi*(ferfc*rwi-fderfc))
       dfw1=dfor*rwx1
       dfw2=dfor*rwx2
