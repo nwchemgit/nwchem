@@ -1,5 +1,5 @@
 c
-c     $Id: perfm.fh,v 1.1 2004-10-11 19:39:05 edo Exp $
+c     $Id: perfm.fh,v 1.2 2004-10-15 01:59:40 edo Exp $
 c
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -9,6 +9,8 @@ c
 #include "inp.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+      double precision conv2m
+      parameter(conv2m=1d-9)
 #ifdef USE_PAPI
 #include "fpapi.h"
 #define PAPI_FPINS 1

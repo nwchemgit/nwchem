@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2004-10-11 19:39:05 edo Exp $
+# $Id: GNUmakefile,v 1.2 2004-10-15 01:59:40 edo Exp $
 #
 
   LIBRARY = libperfm.a
   
-  OBJ = perfm_start.o perfm_end.o
+  OBJ = perfm_start.o perfm_end.o perfm_flop.o
 
 USES_BLAS = 
 

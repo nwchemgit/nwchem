@@ -1,11 +1,9 @@
 c
-c     $Id: perfm_end.F,v 1.2 2004-10-11 20:05:36 edo Exp $
+c     $Id: perfm_end.F,v 1.3 2004-10-15 01:59:40 edo Exp $
 c
       subroutine perfm_end()
       implicit none
 #include "perfm.fh"
-      double precision conv2m
-      parameter(conv2m=1d-9)
 #ifdef USE_PAPI
       double precision flpsum,flpmax,flpmin
       integer retvals
@@ -27,11 +25,11 @@ c
       call ga_dgop(msg_perfm_sum,flpsum,1, '+')
 c
       if(ga_nodeid().eq.0) then
-         write(luout,*) 'Real_time: ', real_time
-         write(luout,*) ' Proc_time: ', proc_time
-         write(luout,*) ' Total flpins: ', flpins
-         write(luout,*) ' MFLOPS: ', mflops
-         write(luout,12) ' Aggregate GFLOP : ', 
+!         write(luout,*) 'Real_time: ', real_time
+!         write(luout,*) ' Proc_time: ', proc_time
+!         write(luout,*) ' Total flpins: ', flpins
+!         write(luout,*) ' MFLOPS: ', mflops
+         write(luout,12) ' Aggregate GFloating-point ops: ', 
      ,        flpsum*conv2m
          write(luout,12) ' Aggregate GFLOPS (Real_time): ', 
      ,        flpsum/real_time*conv2m
@@ -43,7 +41,7 @@ c
      ,        flpmax/real_time*conv2m
          write(luout,12) ' Min       GFLOPS: ', 
      ,        flpmin/real_time*conv2m
- 12      format(A32,F10.2) 
+ 12      format(A38,F10.2) 
       endif
 #else
       call PAPIf_stop(es, values(1), retval)

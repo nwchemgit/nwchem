@@ -1,5 +1,5 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.3 2003-07-04 02:44:11 d3j191 Exp $
+C$Id: pstat_pr_all.F,v 1.4 2004-10-15 01:59:42 edo Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
@@ -12,6 +12,7 @@ C
 C
       Integer I, IMAM(3), icalls, ntime, total_calls
       Double Precision DMAM(3, 2), now_cpu, now_wall, overhead
+      double precision fmam(3)
 C
       Call GA_Sync()
 C
@@ -38,14 +39,17 @@ C
       EndIf
  9000 Format(10X,
      $   '     Nr. of calls    ',1X,
-     $   '    CPU time (s)  ',1X, '              Wall time (s)  ',/
+     $   '    CPU time (s)  ',1X, '              Wall time (s)  ',
+     $   10X,'    GFlops'/
      $   10X,
      $   '   ---------------    -------------------  ',
-     $     '   ------------------------------'/,
+     $     '   ------------------------------',
+     $     '   ----------------------'/,
      $   'Name', 6X, '   Min', 1X, '  Avg', 1X,
      $                     '  Max',1X,
      $  '   Min',1X, '    Avg',1X, '    Max',1X,
-     $  '    Min',1X, '    Avg',1X, '    Max',1X, '  Mx/calls')
+     $  '    Min',1X, '    Avg',1X, '    Max',1X, '  Mx/calls',1X,
+     $  '   Min',1X, '    Max',1X, '    Sum')
 C
       Do I = 1, PStat_max_items
          if (pstat_active(i)) then
@@ -79,14 +83,27 @@ C
             Call ga_DGOp(Msg_PStat_Avg, dMAM(2, 2), 1, '+')
             dMAM(2, 2) = dMAM(2, 2) / GA_NNodes()
             Call ga_DGOp(Msg_PStat_Max, dMAM(3, 2), 1, 'max')
-C     
+C
+            if(abs(pstat_flop(i)).gt.1d-3) then
+               fmam(1) = pstat_flop(i)/pstat_times(i,2)
+               fmam(2) = pstat_flop(i)/pstat_times(i,2)
+               fmam(3) = pstat_flop(i)/pstat_times(i,2)
+            else
+               fmam(1)=0d0
+               fmam(2)=0d0
+               fmam(3)=0d0
+            endif
+            Call ga_DGOp(Msg_PStat_Min, fmam(1), 1, 'min')
+            Call ga_DGOp(Msg_PStat_Avg, fmam(2), 1, 'max')
+            Call ga_DGOp(Msg_PStat_Max, fmam(3), 1, '+')
+c
             
             If ( GA_NodeID() .eq. 0) then
               icalls = iMAM(1) + iMAM(2) + iMAM(3)
               total_calls = total_calls + iMAM(2)
               if (icalls.gt.0)
      &            Write (StdOut, 9010) PStat_Name(I), iMAM, dMAM,
-     ,             dmam(3,2)/imam(3)
+     ,             dmam(3,2)/imam(3),fmam
             endif
          endif
       EndDo
@@ -97,7 +114,8 @@ c
          call util_flush(stdout)
       endif
 C
- 9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1X,G7.2E1), 1X, 4(1X,G7.2E1))
+ 9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1X,G7.2E1), 1X, 4(1X,G7.2E1),
+     $     1X, 3(1X,G7.1E1))
  9011 Format(/1p,' The average no. of pstat calls per process was',
      $     d9.2,/' with a timing overhead of',d9.2,'s'/)
 C
