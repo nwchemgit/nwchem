@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.5 1997-12-03 10:09:04 d3e129 Exp $
+* $Id: task_hessian.F,v 1.6 1998-05-08 19:03:29 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -95,7 +95,7 @@ c
 c     check for change of finite difference delta
 c     
         if (.not.rtdb_get(rtdb,'stpr_gen:delta',MT_DBL,1,delta_pass))
-     &      delta_pass = 0.01d00
+     &      delta_pass = 0.001d00
 c
         call ecce_print_control(0, ecce_old_print) ! disable ECCE printing
         status = stpr_gen_hess_at(rtdb,delta_pass)
