@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.22 2000-02-04 01:05:04 mg201 Exp $
+c $Id: apiP.fh,v 1.23 2000-05-23 21:59:09 d3g681 Exp $
 c
 c common block that holds memory information
 c
@@ -33,7 +33,9 @@ c
 c API accuracy value
 c
       double precision val_int_acc
-      common /comacc/ val_int_acc
+      double precision val_int_acc_std ! Now set in int_init()
+      double precision val_int_acc_high ! Now set in int_init()
+      common /comacc/ val_int_acc, val_int_acc_std, val_int_acc_high
 c
 c derivative storage and computation information
 c

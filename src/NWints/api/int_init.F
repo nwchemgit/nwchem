@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.59 2000-03-16 22:34:06 mg201 Exp $
+c $Id: int_init.F,v 1.60 2000-05-23 21:59:10 d3g681 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -42,6 +42,27 @@ c:tex-\end{verbatim}
 c::local
       integer mybm_a, mybIm_a, ibas, nrbas     ! Temporary variables
       character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
+      logical ouseracc
+c
+c     Put integral accuracy under user control
+c
+      ouseracc = .false.
+      if (rtdb_get(rtdb,'int:acc_std',mt_dbl,1,val_int_acc_std)) then
+         ouseracc = .true.
+      else
+         val_int_acc_std = 1d-15
+      end if
+      if (rtdb_get(rtdb,'int:acc_high',mt_dbl,1,val_int_acc_high)) then 
+         ouseracc = .true.
+      else
+         val_int_acc_high = val_int_acc_std**2
+      end if
+      if (ouseracc .and. ga_nodeid().eq.0 .and. 
+     $     util_print('information',print_default)) then
+         write(6,606) val_int_acc_std, val_int_acc_high
+ 606     format(/'int_init: setting std/high accuracies to',1p,2d9.1)
+         call util_flush(6)
+      end if
 c
 c   Dyall-modified Dirac equation
 c
