@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.2 2001-11-28 01:12:37 windus Exp $
+* $Id: cphf_solve2.F,v 1.3 2002-01-09 00:47:12 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -222,13 +222,17 @@ c !!! BGJ
      $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
 c !!! BGJ
       if (scftype .eq. 'UHF') then
-         if (nvec .ne. 1) call errquit('not yet',nvec)
+c        if (nvec .ne. 1) call errquit('not yet',nvec)
          call ga_zero(g_work)   ! Essential to get default initial guess
-         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
-     $        max_precond_sub, precond_tol, 
-     $        uhf_precond, uhf_hessv, .false., oprint_solve, 
-     $        g_grad, g_work, precond_acc, precond_iter))
-     $        call errquit('cphf did not converge',precond_iter)
+c         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
+c     $        max_precond_sub, precond_tol, 
+c     $        uhf_precond, uhf_hessv, .false., oprint_solve, 
+c     $        g_grad, g_work, precond_acc, precond_iter))
+c     $        call errquit('cphf did not converge',precond_iter)
+         call ga_copy(g_grad, g_work)
+         call uhf_precond(g_work,0.0d0)
+         call ga_lkain(g_work, g_grad, uhf_hessv, uhf_precond,
+     $        precond_tol, 10*nvec, 20, .false., oprint_solve)
       else 
 c$$$         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
 c$$$     $        max_precond_sub, precond_tol, 
