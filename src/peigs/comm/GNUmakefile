@@ -45,5 +45,10 @@ mxcombv1.o:	mxcombv1.cpp
 		$(peigs_CPP) < mxcombv1.cpp | sed '/^\#/D' > mxcombv1.f
 		$(peigs_FC) $(peigs_FOPT) -c mxcombv1.f
 
+sum.o:		sum.cpp
+		-rm -f sum.f
+		$(peigs_CPP) < sum.cpp | sed '/^\#/D' > sum.f
+		$(peigs_FC) $(peigs_FOPT) -c sum.f
+
 
 
