@@ -1,6 +1,6 @@
 
 
-# $Id: makefile.h,v 1.87 1995-01-05 04:28:44 og845 Exp $
+# $Id: makefile.h,v 1.88 1995-01-06 19:28:08 og845 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -215,10 +215,10 @@ ifeq ($(TARGET),CRAY-T3D)
 #
     CORE_SUBDIRS_EXTRA = 
        LINK.f = /mpp/bin/mppldr -Drdahead=on \
-                -Dbin=inp/inp.o,basis/basisP.o,ddscf/rhf_fock_2e_a.o,ddscf/scf_pstat.o,NWints/api/int_init.o,util/error.o\
+                -Dbin=inp/inp.o,basis/basisP.o,ddscf/rhf_fock_2e_a.o,ddscf/scf_pstat.o,NWints/api/int_init.o\
                 -L$(LIBDIR)
      RANLIB = @echo
-  MAKEFLAGS = -j 6
+  MAKEFLAGS = -j 5
     INSTALL = @echo $@ is built
 
          FC = /mpp/bin/cf77 
@@ -228,9 +228,9 @@ ifeq ($(TARGET),CRAY-T3D)
   FOPTIMIZE = -O scalar3
   COPTIMIZE = 
 
-    DEFINES =  
+    DEFINES =  -DPARALLEL_DIAG
 
-       CORE_LIBS =  -lglobal \
+       CORE_LIBS =  -lglobal -lpeigs\
                 -ltcgmsg 
 
   EXPLICITF = TRUE
