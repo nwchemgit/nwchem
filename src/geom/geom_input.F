@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.22 1995-11-13 06:42:35 d3g681 Exp $
+C     $Id: geom_input.F,v 1.23 1995-12-16 02:18:36 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -112,7 +112,7 @@ c
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
      $     ('geom_input: geom_create failed !', 0)
-      if (include_bqbq) status = geom_set_bqbq(.true.)
+      if (include_bqbq) status = geom_set_bqbq(geom, .true.)
 c     
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
      $     units(1:2) .eq. 'at') then

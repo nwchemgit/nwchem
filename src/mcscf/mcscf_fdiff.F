@@ -39,9 +39,9 @@ c
 c
 c
        if (.not.ga_duplicate(g_grad,g_kvec,' crap '))
-     $   call errquit('mcscf: cannot dup grad vector')
+     $   call errquit('mcscf: cannot dup grad vector',0)
        if (.not.ga_duplicate(g_movecs,g_tmpmo,' MO crap '))
-     $   call errquit('mcscf: cannot dup grad vector')
+     $   call errquit('mcscf: cannot dup grad vector',0)
        mo_lo = nclosed + 1
        mo_hi = nclosed + nact
        nvir = nbf - nact - nclosed
@@ -114,9 +114,9 @@ c
 c
 c
        if (.not. ga_destroy(g_tmpmo))
-     $   call errquit('mcscf: cannot destroy ga')
+     $   call errquit('mcscf: cannot destroy ga',0)
        if (.not. ga_destroy(g_kvec))
-     $   call errquit('mcscf: cannot destroy ga')
+     $   call errquit('mcscf: cannot destroy ga',0)
        return
        end
 
@@ -174,11 +174,11 @@ c
 c
 c
        if (.not.ga_duplicate(g_k1,g_k2,' crap '))
-     $   call errquit('mcscf: cannot dup grad vector')
+     $   call errquit('mcscf: cannot dup grad vector',0)
        if (.not.ga_duplicate(g_movecs,g_tmp1,' MO crap '))
-     $   call errquit('mcscf: cannot dup grad vector')
+     $   call errquit('mcscf: cannot dup grad vector',0)
        if (.not.ga_duplicate(g_movecs,g_tmp2,' MO crap 1'))
-     $   call errquit('mcscf: cannot dup grad vector')
+     $   call errquit('mcscf: cannot dup grad vector',0)
        mo_lo = nclosed + 1
        mo_hi = nclosed + nact
        nvir = nbf - nact - nclosed
@@ -244,11 +244,11 @@ c
        if (.not.ma_pop_stack(l_v))
      $      call errquit('mcscf_fdiff: cannot pop stack?',0)
        if (.not. ga_destroy(g_tmp1))
-     $   call errquit('mcscf: cannot destroy ga')
+     $   call errquit('mcscf: cannot destroy ga',0)
        if (.not. ga_destroy(g_tmp2))
-     $   call errquit('mcscf: cannot destroy ga')
+     $   call errquit('mcscf: cannot destroy ga',0)
        if (.not. ga_destroy(g_k2))
-     $   call errquit('mcscf: cannot destroy ga')
+     $   call errquit('mcscf: cannot destroy ga',0)
        return
        end
 

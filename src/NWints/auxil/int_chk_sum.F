@@ -1,5 +1,5 @@
       subroutine int_chk_sum(rtdb,basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.16 1995-10-17 08:52:31 d3g681 Exp $
+c $Id: int_chk_sum.F,v 1.17 1995-12-16 02:18:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -90,9 +90,9 @@ c zero memory
       call ifill(memb,0,    int_mb(i_jlab) ,1)
       call ifill(memb,0,    int_mb(i_klab) ,1)
       call ifill(memb,0,    int_mb(i_llab) ,1)
-      call dfill(memb,0.0,  dbl_mb(imemb)  ,1)
-      call dfill(mems,0.0,  dbl_mb(imems)  ,1)
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill(memb,0.0d0,  dbl_mb(imemb)  ,1)
+      call dfill(mems,0.0d0,  dbl_mb(imems)  ,1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
 c
 c initialize parallelization flags
 c
@@ -142,7 +142,7 @@ c
 c
 c loop over shells and compute T sums
 c      
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
       print69 = .false.
       if (rtdb_get(rtdb,'int:ke69',MT_LOG,1,dumm69)) then
         print69 = dumm69
@@ -180,7 +180,7 @@ c
 c
 c loop over shells and compute V sums
 c      
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
       print69 = .false.
       if (rtdb_get(rtdb,'int:pe69',MT_LOG,1,dumm69)) then
         print69 = dumm69
@@ -218,7 +218,7 @@ c
 c
 c loop over shells and compute h1 sums
 c      
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
       idoit = (me-1)
       print69 = .false.
       if (rtdb_get(rtdb,'int:h169',MT_LOG,1,dumm69)) then
@@ -262,7 +262,7 @@ c
       endif
       idoit = (me-1)
       numtot = 0
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
       do 01000 i = 1,ncont
         if((me.eq.0).and.(mod(i,10).eq.0)) then
           write(6,*)' 2e4c outer loop counter ',i,' of ',ncont
@@ -307,7 +307,7 @@ c
       endif
       idoit = (me-1)
       numtot = 0
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
       do 01001 i = 1,ncont
         if((me.eq.0).and.(mod(i,10).eq.0)) then
           write(6,*)' 2e3c outer loop counter ',i,' of ',ncont
@@ -349,7 +349,7 @@ c
       endif
       idoit = (me-1)
       numtot = 0
-      call dfill((5*3),0.0, dbl_mb(i_stats),1)
+      call dfill((5*3),0.0d0, dbl_mb(i_stats),1)
       do 01002 i = 1,ncont
         if((me.eq.0).and.(mod(i,10).eq.0)) then
           write(6,*)' 2e2c outer loop counter ',i,' of ',ncont

@@ -1,5 +1,5 @@
       subroutine task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.1 1995-12-13 01:34:05 d3g681 Exp $
+C$Id: do_chk_sum.F,v 1.2 1995-12-16 02:18:19 d3g681 Exp $
       implicit none
       integer rtdb
 c
@@ -30,7 +30,7 @@ c
       write(luout,*)' do_int_chk_sum:geom_name : <',geom_name,'>'
       write(luout,*)' do_int_chk_sum:basis_name: <',basis_name,'>'
 c
-      if (.not.rtdb_parallel(1))
+      if (.not.rtdb_parallel(.true.))
      &     call errquit('do_int_chk_sum: rtdb_parallel failed?', 0)
       if (.not. geom_create(geom, geom_name))
      $     call errquit('do_int_chk_sum: geom_create failed?', 0)

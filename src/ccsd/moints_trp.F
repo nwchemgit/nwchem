@@ -2,7 +2,7 @@ c
 c
 c
 c
-c  $Id: moints_trp.F,v 1.6 1995-11-20 18:12:42 rg240 Exp $
+c  $Id: moints_trp.F,v 1.7 1995-12-16 02:18:27 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -113,7 +113,7 @@ c
           if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,1,g_tmp))
      $      call errquit('cannot create tmp',0)
           call ga_put(g_tmp,1,nbf,1,nbf,cmo,nbf)
-          call sym_movecs_adapt( basis, 1d-8, nbf, g_tmp,
+          call sym_movecs_adapt( basis, 1d-8, g_tmp,
      $                            int_mb(k_sym), nmixed )
           call ga_get(g_tmp,1,nbf,1,nbf,cmo,nbf)
           if (.not.ga_destroy(g_tmp))

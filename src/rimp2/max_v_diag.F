@@ -1,5 +1,5 @@
       Subroutine Max_V_Diagonal(Basis, Big)
-C$Id: max_v_diag.F,v 1.1 1995-12-13 01:36:48 d3g681 Exp $
+C$Id: max_v_diag.F,v 1.2 1995-12-16 02:18:57 d3g681 Exp $
       Implicit NONE
       Integer Basis
       Double precision Big
@@ -46,7 +46,7 @@ C
      $   H_Scr, Scr_Idx)
 C
       If ( .NOT. Status )
-     $   Call ErrQuit('Max_V_Diagonal: Big problems!')
+     $   Call ErrQuit('Max_V_Diagonal: Big problems!',0)
 C
       Do S = SShLo, SShHi
          Status = Status .AND. Bas_Cn2BFR(Basis, S, BFLo, BFHi)

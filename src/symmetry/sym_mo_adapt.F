@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.2 1995-12-13 19:47:39 d3g681 Exp $
+C$Id: sym_mo_adapt.F,v 1.3 1995-12-16 02:19:01 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -57,8 +57,8 @@ c
       logical odebug            ! True if debugging
       logical owarn             ! True if to print warning messages
 c
-      odebug = util_print("sym_movecs_adapt_debug",print_never)
-      owarn = util_print("sym_movecs_adapt_warn",print_high)
+      odebug = util_print('sym_movecs_adapt_debug',print_never)
+      owarn = util_print('sym_movecs_adapt_warn',print_high)
 c
       if (odebug) then
          write(6,*) ' sym_movecs_adapt input orbitals'

@@ -151,11 +151,11 @@ c
 c  Create and get MO vectors
 c
        if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,1,g_movecs))
-     $   call errquit('mcscf: cannot allocate MO vectors')
+     $   call errquit('mcscf: cannot allocate MO vectors',0)
        call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_movecs )
        if (.not.ga_duplicate(g_movecs,g_h,'1e hamiltonian'))
-     $   call errquit('mcscf: cannot dup MO vectors')
+     $   call errquit('mcscf: cannot dup MO vectors',0)
 c
 c  ROHF occupation
 c
@@ -269,11 +269,11 @@ c
 c  Allocate MO matrices
 c
        if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,1,g_afock))
-     $      call errquit('mcscf: cannot allocate active Fock')
+     $      call errquit('mcscf: cannot allocate active Fock',0)
        if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,1,g_ifock))
-     $      call errquit('mcscf: cannot allocate inactive Fock')
+     $      call errquit('mcscf: cannot allocate inactive Fock',0)
        if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,1,g_gfock))
-     $      call errquit('mcscf: cannot allocate general Fock')
+     $      call errquit('mcscf: cannot allocate general Fock',0)
 c
 c  Allocate MCSCF Gradient vector
 c
@@ -435,11 +435,11 @@ c
 c  Fock build and 1e-Hessian vector product
 c
        if (.not.ga_create(MT_DBL,nbf,nbf,'CV Fock',nbf,1,g_fcv))
-     $      call errquit('mcscf: cannot allocate active Fock')
+     $      call errquit('mcscf: cannot allocate active Fock',0)
        if (.not.ga_create(MT_DBL,nbf,nbf,'PV Fock',nbf,1,g_fpv))
-     $      call errquit('mcscf: cannot allocate active Fock')
+     $      call errquit('mcscf: cannot allocate active Fock',0)
        if (.not.ga_create(MT_DBL,nbf,nbf,'CP Fock',nbf,1,g_fcp))
-     $      call errquit('mcscf: cannot allocate active Fock')
+     $      call errquit('mcscf: cannot allocate active Fock',0)
 c
 c  ROHF Gradient
 c

@@ -1,6 +1,6 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.19 1995-12-01 16:58:14 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.20 1995-12-16 02:18:33 d3g681 Exp $
       data oscfps /.false./     ! So that other codes do not break
 c
       end
@@ -12,7 +12,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
       integer rtdb
-      double precision junk
+      integer junk
       external dscfps ! For T3D linker
 c
       if (.not. rtdb_get(rtdb, 'scf:pstat',

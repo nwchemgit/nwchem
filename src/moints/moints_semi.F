@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.8 1995-12-12 22:14:37 rg240 Exp $
+c  $Id: moints_semi.F,v 1.9 1995-12-16 02:18:52 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -204,7 +204,7 @@ c
          itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nseg
          if (.not.(ga_create( MT_DBL, mxrlen, nseg*nocc, 'transp Jbuf',
      $                        mxrlen, itmp, g_jbuf )))
-     $           call errquit('moints_semi: cannot allocate J buffer')
+     $           call errquit('moints_semi: cannot allocate J buffer',0)
          call ga_distribution(g_jbuf, myid, rlo, rhi, clo, chi )
          if ((clo.eq.0).and.(chi.eq.-1)) then
            bilo = 0
@@ -862,7 +862,7 @@ c
       integer nbf, oseglo, oseghi, olo, ohi, vlo, vhi
       double precision c(nbf,nbf)
       double precision orbe(nbf)
-      double precision g_epair
+      integer g_epair
 c
       integer nseg, nocc, nvir, nnbf, ioff, v, o, oo
       integer balo, bahi, itmp
