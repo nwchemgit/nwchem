@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.70 2004-04-29 03:09:59 edo Exp $
+C$Id: nwdft.F,v 1.71 2004-07-23 20:46:35 bert Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -115,6 +115,7 @@ c
 c
 c     ----- cosmo initialization ----
 c
+      cosmo_last = .false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
             call cosmo_initialize(rtdb,geom,ao_bas_han,oprint)
@@ -122,6 +123,7 @@ c
 c           Turn cosmo on, we want to run the calculation
 c           Start with gas_phase run
 c
+            cosmo_last = .true.
             cosmo_on = .true.
             cosmo_phase = 1
          endif
