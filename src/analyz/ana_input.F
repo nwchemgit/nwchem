@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.63 2002-07-21 18:13:42 d3j191 Exp $
+c $Id: ana_input.F,v 1.64 2002-09-20 20:06:52 d3j191 Exp $
 c
       implicit none
 c
@@ -300,11 +300,15 @@ c     ------------
 c
       if(inp_compare(.false.,'select',item)) then
       lsuper=.false.
-      if(.not.inp_f(rsel)) rsel=0.0d0
+      rsel=0.0d0
  1255 continue
       if(.not.inp_a(atom)) call errquit('Error in select',0)
       if(atom(1:5).eq.'super') then
       lsuper=.true.
+      goto 1255
+      endif
+      if(atom(1:5).eq.'range') then
+      if(.not.inp_f(rsel)) call errquit('Error in select',1)
       goto 1255
       endif
       if(atom(1:7).eq.'solvent') then
