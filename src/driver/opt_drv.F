@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.24 1997-04-19 18:48:43 d3g681 Exp $
+C$Id: opt_drv.F,v 1.25 1997-04-19 21:38:00 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -16,6 +16,7 @@ C$Id: opt_drv.F,v 1.24 1997-04-19 18:48:43 d3g681 Exp $
 c
       call util_print_push
       call util_print_rtdb_load(rtdb, 'driver')
+      if (util_print("brdcst", print_never)) call setdbg(1)
 c
       dbug=.false.
       some=.false.
@@ -31,6 +32,8 @@ c
       idriver=0
 c
       drv_opt = hnd_optx(rtdb,idriver)
+c
+      if (util_print("brdcst", print_never)) call setdbg(0)
       call util_print_pop
 c
       end
@@ -94,8 +97,8 @@ c           may have been read in already. if
 c           not, use default.
 c
       if (ga_nodeid().eq.0)  then
-         status=rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)
-         if(.not.status) then
+         status=rtdb_parallel(.false.)
+         if (.not. rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)) then
             cvgopt=8.0d-04
             nptopt=20
             linopt=10
@@ -110,6 +113,7 @@ c
                iatfrz(i)=0
             enddo
          endif
+         status=rtdb_parallel(.true.)
       endif
       call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
       call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
@@ -145,6 +149,7 @@ c
      &       call errquit('hnd_opt: no geometry ', 911)
       if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
      &       call errquit('hnd_opt: geom_get ', 911)
+       nat = ncent
       if(.not.geom_zmt_get_nizmat(geom,nzmat))
      1       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
 c
@@ -517,6 +522,7 @@ c
       subroutine hnd_opt_gmax(rtdb)
       implicit double precision (a-h,o-z)
       integer  rtdb
+#include "global.fh"
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
@@ -1154,6 +1160,7 @@ C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
 C
 c      LOGICAL   DRIVER_OPT_GET_HESS
+      LOGICAL   STATUS
 C
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -1260,7 +1267,7 @@ C
 *            CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
 *         ENDIF
          if (.not. DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR))
-     $        call errquit('hnd_hess_init: put hess?',ncoor*ncoor)
+     $     call errquit(' hnd_init_hss: put hess failed',ncoor*ncoor)
       ENDIF
       CALL GA_SYNC()
 C
@@ -1776,7 +1783,6 @@ c
 #include "geom.fh"
 #include "util.fh"
 c   #include "geomP.fh"   ! should not need this?
-#include "rtdb.fh"
 c
       integer    rtdb
       logical    status
