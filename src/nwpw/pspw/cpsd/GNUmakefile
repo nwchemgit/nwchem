@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.3 2002-01-14 21:06:27 bylaska Exp $
+# $Id: GNUmakefile,v 1.4 2002-10-09 19:38:58 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 				cpsd_input.o \
@@ -8,7 +8,8 @@
                 cpmdv5.o \
                 inner_loop.o \
                 inner_loop_md.o \
-                psi_lmbda.o 
+                psi_lmbda.o \
+		fei_output.o
 
 
 

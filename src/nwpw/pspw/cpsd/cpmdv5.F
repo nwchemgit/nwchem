@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.20 2002-09-26 21:05:11 bylaska Exp $
+* $Id: cpmdv5.F,v 1.21 2002-10-09 19:38:58 bylaska Exp $
 *
 
 ***********************************************************************
@@ -155,9 +155,9 @@
       logical  control_out_of_time
       external control_out_of_time
 
-      logical  control_SA
+      logical  control_SA,control_Fei
       real*8   control_SA_decay
-      external control_SA
+      external control_SA,control_Fei
       external control_SA_decay
      
 
@@ -479,8 +479,12 @@
 ******************     start iterations      **********************
 *                |***************************|
 *     **** open xyz and MOTION file ****
-      call xyz_init()
-      call MOTION_init(rtdb)
+      call xyz_init()          ! unit=18
+      call MOTION_init(rtdb)   ! unit=19
+
+*     *** fei io ****
+      call fei_init()
+
 
 
 *     **** open up other MOTION files ****
@@ -512,7 +516,7 @@
       end if
 
 *     **** open OMOTION file ****
-      if (mulliken) call Orb_Init(rtdb,ispin,ne)
+      if (mulliken) call Orb_Init(rtdb,ispin,ne) !unit=33
 
 *     **** write initial position to xyz data ****
       call xyz_write()
@@ -645,7 +649,11 @@
         close(unit=32)
         close(unit=34)
       end if
-*     **** clsoe OMOTION file ****
+
+*     *** close fei io ****
+      call fei_end()
+
+*     **** close OMOTION file ****
       if (mulliken) call Orb_End()
 
 

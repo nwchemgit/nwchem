@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.10 2002-04-22 23:37:00 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.11 2002-10-09 19:38:58 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -619,6 +619,10 @@ c     real*8     fion(3,natmx)
          E(14) = e_vib
          E(15) = e_cav
       end if
+
+
+*     **** output Forces for Fei ***
+      call fei_output(E(2),dbl_mb(fion(1)))
 
 
 

@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.7 2002-09-19 21:57:01 bylaska Exp $
+c $Id: cpmd_input.F,v 1.8 2002-10-09 19:38:58 bylaska Exp $
 c
 
 
@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 51)
+      parameter (num_dirs = 52)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -69,6 +69,7 @@ c
      >            'mulliken',
      >            'energy',
      >            'SA_decay',
+     >            'Fei',
      >            'end'/
 
        character*30 cell_name
@@ -113,7 +114,7 @@ c
      >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
-     >       2500,2600,2700,
+     >       2500,2600,2700,2800,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind)
@@ -434,6 +435,13 @@ c
       value = rtdb_put(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)
       if (.not.value)
      > call errquit('cpmd_input: writing sa_decay', 2700)
+      goto 10
+c
+c Fei
+c
+ 2800 value = .true.
+      if (.not.rtdb_put(rtdb,'cpmd:fei',mt_log,1,value))
+     > call errquit('cpmd_input: writing fei ', 2800)
       goto 10
 
 
