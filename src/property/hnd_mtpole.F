@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.7 2004-12-08 23:57:39 bert Exp $
+c $Id: hnd_mtpole.F,v 1.8 2004-12-29 22:56:42 edo Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -98,9 +98,15 @@ c
       mptval(icomp,1) = -mptval(icomp,1)
       call getNxyz(mpole,icomp,Nxyz)
       do 60 iat = 1, nat
-         cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
-         cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
-         cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
+         cx = 1d0
+         if(Nxyz(1).ne.0)
+     &   cx = (dbl_mb(k_xyzpt  +3*(iat-1))-cm(1))**Nxyz(1)
+         cy = 1d0
+         if(Nxyz(2).ne.0)
+     &   cy = (dbl_mb(k_xyzpt+1+3*(iat-1))-cm(2))**Nxyz(2)
+         cz = 1d0
+         if(Nxyz(3).ne.0)
+     &   cz = (dbl_mb(k_xyzpt+2+3*(iat-1))-cm(3))**Nxyz(3)
          mptval(icomp,1) = mptval(icomp,1) + 
      &                     dbl_mb(k_zanpt+iat-1) * cx * cy * cz
    60 continue
@@ -125,9 +131,15 @@ c
          do 70 icomp = 1, ncomp
             call getNxyz(2,icomp,Nxyz)
             do 70 iat=1,nefc
-               cx = (dbl_mb(k_efcc+3*(i-1)  )-cm(1))**Nxyz(1)
-               cy = (dbl_mb(k_efcc+3*(i-1)+1)-cm(2))**Nxyz(2)
-               cz = (dbl_mb(k_efcc+3*(i-1)+2)-cm(3))**Nxyz(3)
+               cx=1d0
+               if(Nxyz(1).ne.0)
+     &         cx = (dbl_mb(k_efcc+3*(icomp-1)  )-cm(1))**Nxyz(1)
+               cy=1d0
+               if(Nxyz(2).ne.0)
+     &         cy = (dbl_mb(k_efcc+3*(icomp-1)+1)-cm(2))**Nxyz(2)
+               cz=1d0
+               if(Nxyz(3).ne.0)
+     &         cz = (dbl_mb(k_efcc+3*(icomp-1)+2)-cm(3))**Nxyz(3)
                mptval(icomp,2) = mptval(icomp,2) + 
      &                           dbl_mb(k_efcz+iat-1)*cx*cy*cz
    70    continue
