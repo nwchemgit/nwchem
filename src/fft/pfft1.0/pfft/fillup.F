@@ -117,7 +117,7 @@
           J = NELEBK * N * ( K - 1 ) + 1
           DO 110 I = 1, NIP
 
-            CALL scopy( NELEBK, A( J + NELEBK * (IWORK( I )-1) ),
+            CALL dcopy( NELEBK, A( J + NELEBK * (IWORK( I )-1) ),
      $                  1, BUF( KELE ), 1 )
 
             KELE = KELE + NELEBK
