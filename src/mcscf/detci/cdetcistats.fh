@@ -9,11 +9,13 @@
 	double precision detci_spinadp_etime
 	double precision detci_symmadp_etime
         double precision detci_aaff_etime
+	double precision detci_aagop_etime
         double precision detci_aadot_etime
         double precision detci_abstr_etime 
         double precision detci_abgath_etime
         double precision detci_abdotab_etime
         double precision detci_abscat_etime
+	double precision detci_absync_etime
 c
 c
 	common/detcistats/detci_init_etime,
@@ -25,11 +27,13 @@ c
      $                    detci_spinadp_etime,
      $                    detci_symmadp_etime,
      $                    detci_aaff_etime,
+     $                    detci_aagop_etime,
      $                    detci_aadot_etime,
      $                    detci_abstr_etime, 
      $                    detci_abgath_etime,
      $                    detci_abdotab_etime,
      $                    detci_abscat_etime,
+     $                    detci_absync_etime,
      $                    detci_sigma_calls,
      $                    detci_density_calls
 c

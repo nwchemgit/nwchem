@@ -37,6 +37,7 @@ c
       integer cdetci_ataba                            ! Alpha arc weight table
       integer cdetci_atabb                            ! Beta arc weight table
       logical cdetci_spinadapt                        ! Toggle spin-adaption in preconditioning
+      logical cdetci_profprint                        ! Toggle detailed profile printing
       double precision cdetci_squant                  ! Spin quantum number
       double precision cdetci_eref                    ! Reference ground-state for preconditioning
       double precision cdetci_eps                     ! Orbital energies
@@ -90,7 +91,8 @@ c
      $           l_detci_cprime,       k_detci_cprime,
      $           l_detci_sprime,       k_detci_sprime,
      $           cdetci_squant,
-     $           cdetci_spinadapt
+     $           cdetci_spinadapt,
+     $           cdetci_profprint
 c
 c
 c

@@ -38,6 +38,7 @@ c
       integer vtab((detci_maxorb+1)*(detci_maxelec+1)*(detci_maxsy))
       integer i, j, ij, ii
       integer memuse, memuse01, memuse02, memuse03
+      integer mseg
 c
 c  Reset statistics
 c
@@ -54,10 +55,13 @@ c
       detci_symmadp_etime = 0.d0
       detci_aaff_etime = 0.d0
       detci_aadot_etime = 0.d0
+      detci_aagop_etime = 0.d0
       detci_abstr_etime = 0.d0
       detci_abgath_etime = 0.d0
       detci_abdotab_etime = 0.d0
       detci_abscat_etime = 0.d0
+      detci_absync_etime = 0.d0
+      cdetci_profprint = .true.
 c
 c  Copy CI parameters
 c
@@ -97,6 +101,9 @@ c
       nekla = detci_binomial((norb-1),(nela-1))
       neklb = detci_binomial((norb-1),(nelb-1))
       civlen = nstra*nstrb
+      mseg = (10*ga_nnodes())/min(nexa,nexb)
+      mseg = min(mseg, 20)
+      MSEG = 5
 c
 c  Default reference energy is Aufbau ordering
 c  ...although maybe reset by CI-guess routine!
@@ -133,6 +140,7 @@ c
      $        10x,'Spin adaption:',13x,l1,/,
      $        10x,'S quantum number:',3x,f10.3,/,
      $        10x,'Reference energy:',5x,f15.8)
+        PRINT*,'String segment length:', mseg
         call util_flush(6)
       endif
 c     
@@ -185,9 +193,9 @@ c
 c
 c  Memory for scratch space should be allocated HERE!
 c
-      memuse03 = 2*max(nstra,nstrb) + 3*nekla + 4*nstrb*nekla
+      memuse03 = 2*max(nstra,nstrb)*mseg + 3*nekla + 4*nstrb*nekla
       
-      if (.not.ma_push_get(MT_DBL, max(nstra,nstrb),
+      if (.not.ma_push_get(MT_DBL, (max(nstra,nstrb)*mseg),
      $     'detci: fscr', l_detci_fscr, k_detci_fscr))
      $     call errquit('detci: cannot allocate fscr',0)
 
@@ -292,34 +300,44 @@ c
 c
 c Print stats
 c
-c$$$      if (ga_nodeid().eq.0) write(6,901) detci_sigma_calls,
-c$$$     $                                   detci_saa_etime,
-c$$$     $                                   detci_sbb_etime,
-c$$$     $                                   detci_sab_etime,
-c$$$     $                                   detci_sigma_etime,
-c$$$     $                                   detci_aaff_etime,
-c$$$     $                                   detci_aadot_etime,
-c$$$     $                                   detci_abstr_etime,
-c$$$     $                                   detci_abgath_etime,
-c$$$     $                                   detci_abdotab_etime,
-c$$$     $                                   detci_abscat_etime,
-c$$$     $                                   detci_density_etime,
-c$$$     $                                   detci_spinadp_etime,
-c$$$     $                                   detci_symmadp_etime
-c$$$ 901  format(/,10x,'Number of sigma calls:',4x,i5,
-c$$$     $       /,23x,'o',5('<'),' (aa):',7x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (bb):',7x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (ab):',7x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (total)',5x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (aa) ff',5x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (aa) dot',4x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (ab) str',4x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (ab) gath',3x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (ab) dotab',2x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' (ab) scat',3x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' Density',5x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' Spin adapt',2x,f10.2,
-c$$$     $       /,23x,'o',5('<'),' Symm adapt',2x,f10.2)
+      if (cdetci_profprint) then
+        if (ga_nodeid().eq.0) write(6,901) detci_sigma_calls,
+     $                                     detci_saa_etime,
+     $                                     detci_sbb_etime,
+     $                                     detci_sab_etime,
+     $                                     detci_sigma_etime,
+     $                                     detci_aaff_etime,
+     $                                     detci_aagop_etime,
+     $                                     detci_aadot_etime,
+     $                                     detci_abstr_etime,
+     $                                     detci_abgath_etime,
+     $                                     detci_abdotab_etime,
+     $                                     detci_abscat_etime,
+     $                                     detci_absync_etime,
+     $                                     detci_density_etime,
+     $                                     detci_spinadp_etime,
+     $                                     detci_symmadp_etime
+ 901    format(/,10x,'Number of sigma calls:',4x,i5,
+     $         /,23x,'o',5('<'),' (aa):',7x,f10.2,
+     $         /,23x,'o',5('<'),' (bb):',7x,f10.2,
+     $         /,23x,'o',5('<'),' (ab):',7x,f10.2,
+     $         /,23x,'o',5('<'),' (total)',5x,f10.2,
+     $         /,23x,'o',5('<'),' (aa) ff',5x,f10.2,
+     $         /,23x,'o',5('<'),' (aa) gop',4x,f10.2,
+     $         /,23x,'o',5('<'),' (aa) dot',4x,f10.2,
+     $         /,23x,'o',5('<'),' (ab) str',4x,f10.2,
+     $         /,23x,'o',5('<'),' (ab) gath',3x,f10.2,
+     $         /,23x,'o',5('<'),' (ab) dotab',2x,f10.2,
+     $         /,23x,'o',5('<'),' (ab) scat',3x,f10.2,
+     $         /,23x,'o',5('<'),' (ab) sync',3x,f10.2,
+     $         /,23x,'o',5('<'),' Density',5x,f10.2,
+     $         /,23x,'o',5('<'),' Spin adapt',2x,f10.2,
+     $         /,23x,'o',5('<'),' Symm adapt',2x,f10.2)
+
+        call ga_dgop(1966, detci_absync_etime, 1, 'max' )
+        if (ga_nodeid().eq.0) write(6,933) detci_absync_etime
+ 933    format(/,23x,'o',5('<'),' (ab) max sync:',f10.2)
+      endif
 c
 c  Free scratch memory
 c
@@ -517,6 +535,8 @@ c
       integer ntij
       integer ijmap(detci_maxorb*detci_maxorb)
       integer g_ct, g_st, g_snew
+      integer mseg
+      DOUBLE PRECISION XX
 c
 c  Check internals
 c
@@ -538,6 +558,9 @@ c
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
       nekla = detci_binomial( (cdetci_norb-1), (cdetci_nela-1) )
       neklb = detci_binomial( (cdetci_norb-1), (cdetci_nelb-1) )
+      mseg = (10*ga_nnodes())/min(nexa,nexb)
+      mseg = min(mseg, 20)
+      MSEG = 5
 c
 c  Sigma components
 c
@@ -557,7 +580,7 @@ c
      $                    neklb, nekla, cdetci_osym, 
      $                    ijmap, int_mb(k_detci_exb),
      $                    int_mb(k_detci_exa),
-     $                    cdetci_atabb, cdetci_ataba, ntij,
+     $                    cdetci_atabb, cdetci_ataba, ntij, mseg,
      $                    dbl_mb(k_detci_h), dbl_mb(k_detci_g),
      $                    dbl_mb(k_detci_fscr),
      $                    g_ct, g_st )
@@ -578,7 +601,7 @@ c
      $                    nekla, neklb, cdetci_osym, 
      $                    ijmap, int_mb(k_detci_exa),
      $                    int_mb(k_detci_exb),
-     $                    cdetci_ataba, cdetci_atabb, ntij,
+     $                    cdetci_ataba, cdetci_atabb, ntij, mseg,
      $                    dbl_mb(k_detci_h), dbl_mb(k_detci_g),
      $                    dbl_mb(k_detci_fscr),
      $                    g_civec, g_sigma )
@@ -619,6 +642,7 @@ c
      $                    g_civec, g_sigma )
       detci_sab_etime = detci_sab_etime + util_cpusec() - tx
       detci_sigma_etime = detci_sigma_etime + util_cpusec() - t0
+
 c
 c
 c$$$      CALL DETCI_CIVEC_PRINT( CDETCI_NORB, CDETCI_NSYM, CDETCI_NELA, CDETCI_NELB,
