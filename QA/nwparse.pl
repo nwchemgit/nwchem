@@ -1,6 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.9 1998-08-06 00:15:27 d3e129 Exp $
-#
+# $Id: nwparse.pl,v 1.10 1998-08-06 00:34:47 d3e129 Exp $
 #
 #
 # perl script to parse nwchem output files
