@@ -27,7 +27,7 @@ c
        integer noper, nvir
        integer g_coul, g_exch
        logical oexch,ocoul,oprint
-       double precision emp2
+       double precision emp2,chunk_factor
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./
        data oprint/.true./
@@ -89,13 +89,8 @@ c
          if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_in))
      $        movecs_in = 'movecs'
        endif
-       if (ga_nodeid().eq.0) then
-         write(6,912) movecs_in
- 912     format(10x,'MO coefficients read from:',a20)
-         call util_flush(6)
-       endif
 c
-c
+c Read in MO coefficients
 c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
@@ -129,18 +124,28 @@ c
 c
 c
 c
+c
+c Get tasksize factor
+c
+       if (.not.rtdb_get(rtdb,'chunkfactor',MT_DBL,1,chunk_factor))
+     $      chunk_factor = 1.d0
+c
+c
+c
        if (ga_nodeid().eq.0) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,'Four-Index Transformation',
      $                            30,.true.)
          write(6,966) nbf,nsh,nocc,mo_indx_lo,mo_indx_hi,
-     $                mo_indx2_lo,mo_indx2_hi
+     $                mo_indx2_lo,mo_indx2_hi,movecs_in,chunk_factor
  966     format(10x,'Number of basis functions:',10x,i5,/,
      $        10x,'Number of shells:',19x,i5,/,
      $        10x,'Number of occupied orbitals:',8x,i5,/,
      $        10x,'Superscript MO index range:',6x,i3,1x,'-',i3,/,
-     $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3)
+     $        10x,'Subscript MO index range:',8x,i3,1x,'-',i3,/,
+     $        10x,'MO coefficients read from:',2x,a25,/,
+     $        10x,'Chunksize factor:',14x,f10.2)
          call util_flush(6)
        endif
 c
@@ -159,7 +164,8 @@ c
      $                      g_vecs,
      $                      g_coul,ocoul,
      $                      g_exch,oexch,
-     $                      oprint)
+     $                      oprint,
+     $                      chunk_factor)
 
 C       call moints_print_opermatrix(noper,nmo2,g_coul)
 c
