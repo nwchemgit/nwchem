@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.37 1997-12-10 01:00:53 d3e129 Exp $
+c $Id: bas_input.F,v 1.38 1998-02-12 17:55:06 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -159,6 +159,13 @@ c
 c
       endif
 c
+c initialize the default library name based on rules in bas_library_file
+c the file parameter can overide this setting for a given standard basis set
+c 
+      call bas_set_library_name()
+c
+      
+c
 c     Now check reality against input
 c
 c     Open a new basis set to receive the new data
@@ -228,6 +235,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "inp.fh"
+#include "baslibraryP.fh"
 c::passed
       integer basis             ! [input]
       logical osegment          ! [input]
@@ -280,8 +288,7 @@ c     Start parsing current line
 c
  20   call inp_set_field(0)
       standard = ' '            ! Must reset these for every tag
-      filename =
-     &BASIS_LIBRARY
+      filename = user_library_name
       if (.not. inp_a(tag)) goto 10000
 c
 *. . . . . . . . . . . . . . . . . . . . . . ! End of basis directive
@@ -770,4 +777,151 @@ c
       enddo
       call errquit('bas_check_contractions: fatal error',911)
 10000 format(10(1pd14.6))
+      end
+      subroutine bas_library_file(libname)
+      implicit none
+#include "inp.fh"
+#include "stdio.fh"
+*passed
+      character*(*) libname ! [output] filename for library file
+*local
+      character*128 compiled_name
+      character*256 file_nwchemrc, userhome
+      character*128 test
+      integer length
+      logical from_environment
+      logical from_nwchemrc
+      logical from_compile
+      logical does_it_exist
+      logical debug
+      logical foundit
+      integer calls
+      data calls/0/
+      save calls
+*
+      from_environment = .false.
+      from_nwchemrc    = .false.
+      from_compile     = .false.
+      debug = .false.
+      calls = calls + 1
+      if (debug) write(luout,*)' calls:calls: ',calls
+      compiled_name = 
+     &BASIS_LIBRARY
+*
+* order of precidence for choosing name
+* 1) value of NWCHEM_BASIS_LIBRARY environment variable
+* 2) value of NWCHEM_BASIS_LIBRARY set in $HOME/.nwchemrc file
+* 3) value of the compiled in library name
+*      
+*1: check for NWCHEM_BASIS_LIBRARY environment variable
+      call util_getenv('NWCHEM_BASIS_LIBRARY',libname)
+      if (debug) then
+        write(luout,*)
+     &      'env return value of NWCHEM_BASIS_LIBRARY <',
+     &      libname(1:inp_strlen(libname)),'>'
+      endif
+      length = inp_strlen(libname)
+      if (length.gt.0) then
+        does_it_exist = .false.
+        inquire(file=libname,exist=does_it_exist)
+        if (does_it_exist)then
+          from_environment = .true.
+          goto 99999
+        else
+          write(luout,*)' warning:::::::::::::: from_environment'
+          write(luout,*)' NWCHEM_BASIS_LIBRARY set to: <',
+     &        libname(1:inp_strlen(libname)),'>'
+          write(luout,*)' but file does not exist !'
+        endif
+      endif
+*2: check for NWCHEM_BASIS_LIBRARY defined in users .nwchemrc file
+*   assumed structue in .nwchemrc file is variable [whitespace] value
+*   one setting per line
+*
+      call util_getenv('HOME',userhome)
+      if (debug) then
+        write(luout,*)'env return value of HOME: <',
+     &      userhome(1:inp_strlen(userhome)),'>'
+      endif
+      length = inp_strlen(userhome)
+      if (length.gt.0) then
+        file_nwchemrc = userhome(1:length)//'/.nwchemrc'
+        if (debug) then
+          write(luout,*)' file_nwchemrc: <',
+     &        file_nwchemrc(1:inp_strlen(file_nwchemrc)),'>'
+        endif
+        does_it_exist = .false.
+        inquire(file=file_nwchemrc,exist=does_it_exist)
+        if (does_it_exist) then
+          call inp_save_state() ! save state of any inp unit
+*
+          open (unit=69,  file=file_nwchemrc,
+     &        status='old', err=99998,
+     &        form='formatted',
+     &        access='sequential')
+          call inp_init(69,6)
+00001     continue
+          if (.not.inp_read()) then
+            if (inp_eof()) then
+              goto 99998
+            else
+              call errquit('fatal parsing error in nwchemrc file',911)
+            endif
+          endif
+          if (.not.inp_a(test)) call errquit('inp_a error 1',911)
+          foundit = inp_compare(.false.,test,'nwchem_basis_library')
+          if (foundit) then
+            if (.not.inp_a(test)) call errquit('inp_a error 2',911)
+            libname = test
+            does_it_exist = .false.
+            inquire(file=libname,exist=does_it_exist)
+            if (does_it_exist)then
+              from_nwchemrc = .true.
+              call inp_restore_state() ! restore state of any inp unit
+              goto 99999
+            else
+              write(luout,*)' warning:::::::::::::: from_nwchemrc'
+              write(luout,*)' NWCHEM_BASIS_LIBRARY set to: <',
+     &            libname(1:inp_strlen(libname)),'>'
+              write(luout,*)' but file does not exist !'
+            endif
+            goto 99998
+          else
+            goto 00001
+          endif
+*
+99998     continue
+          call inp_restore_state() ! restore state of any inp unit
+        endif
+      endif
+      libname = compiled_name
+      does_it_exist = .false.
+      inquire(file=libname,exist=does_it_exist)
+      if (does_it_exist)then
+        from_compile = .true.
+      else
+        write(luout,*)' warning:::::::::::::: from_compile'
+        write(luout,*)' NWCHEM_BASIS_LIBRARY is: <',
+     &      libname(1:inp_strlen(libname)),'>'
+        write(luout,*)' but file does ','not exist or you ',
+     &      'do not have ','access to it !'
+      endif
+99999 continue
+      if (debug.or.(from_environment.or.from_nwchemrc)) then
+        if (from_environment)
+     &      write(luout,*)' library name resolved from: environment'
+        if (from_nwchemrc)
+     &      write(luout,*)' library name resolved from: .nwchemrc'
+        if (from_compile)
+     &      write(luout,*)
+     &      ' library name resolved from: compiled reference'
+        write(luout,*)' library file name is: <',
+     &      libname(1:inp_strlen(libname)),'>'
+        write(luout,*) ' '
+      endif
+      end
+      subroutine bas_set_library_name()
+      implicit none
+#include "baslibraryP.fh"
+      call bas_library_file(user_library_name)
       end
