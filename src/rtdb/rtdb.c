@@ -1,9 +1,10 @@
-/*$Id: rtdb.c,v 1.15 2004-01-02 21:58:02 edo Exp $*/
+/*$Id: rtdb.c,v 1.16 2004-01-02 22:03:32 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
 #include "global.h"
+#include "hdbm.h"
 
 typedef long integer;		/* Equivalent C type to FORTRAN integer */
 
@@ -74,7 +75,7 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
 int rtdb_open(const char *filename, const char *mode, int *handle)
 {
   int status;
-  me = NODEID_();
+  me = ga_nodeid_();
 
   if (!verify_parallel_access()) return 0;
 
@@ -258,15 +259,15 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 	     error condition to all the other processes ... exit via
 	     the TCGMSG error routine */
 
-	  Error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=",
-		(long) nelem);
+	  ga_error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=",
+		(int) nelem);
 	}
         *ma_handle = (int) ma_handle_buf;
       }
       
       if (!MA_get_pointer((Integer) *ma_handle, &ma_data)) {
-	Error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
-	      (long) nelem);
+	ga_error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
+	      (int) nelem);
       }
 
       rtdb_broadcast(TYPE_RTDB_ARRAY, *ma_type, *nelem, (void *) ma_data);
