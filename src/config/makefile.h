@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.279 1999-05-25 18:07:05 d3e129 Exp $
+# $Id: makefile.h,v 1.280 1999-05-27 16:41:24 d3h325 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -260,7 +260,7 @@ ifeq ($(TARGET),SUN)
 
     DEFINES = -DSUN
 
-       CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+       CORE_LIBS =  -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 endif
 
 ifeq ($(TARGET),SOLARIS)
@@ -302,7 +302,7 @@ ifeq ($(TARGET),SOLARIS)
 
   LDOPTIONS = -xildoff
 
-       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
       EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
 # needed if python was compiled with gcc
@@ -346,7 +346,7 @@ ifeq ($(TARGET),PURESOLARIS)
    LIBPATH += -L/usr/ucblib
    LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
    OPTIONS = -xildoff -Bstatic
-   CORE_LIBS = -lutil -lglobal -lpeigs -llapack -lblas
+   CORE_LIBS = -lutil -lglobal -lma -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
 	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
 
@@ -396,7 +396,7 @@ ifeq ($(TARGET),CRAY-T3D)
 #               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
                LINK.f = mppldr $(LDOPTIONS)
 
-            CORE_LIBS =  -lutil -lchemio -lglobal -lpeigs -llapack -lblas 
+            CORE_LIBS =  -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas 
 
       EXPLICITF     = TRUE
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
@@ -429,7 +429,7 @@ ifeq ($(TARGET),CRAY-T3E)
 
                LINK.f = f90 $(LDOPTIONS)
 
-            CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+            CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 #
 # 
 ifeq ($(BUILDING_PYTHON),python)
@@ -466,7 +466,7 @@ ifeq ($(TARGET),KSR)
 
 #       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
         LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
-       CORE_LIBS = -lglobal -lutil -lchemio -lpeigs \
+       CORE_LIBS = -lglobal -lma -lutil -lchemio -lpeigs \
                    -lksrlapk -lksrblas -llapack2 -lblas2  
       EXTRA_LIBS = -para -lrpc
 endif
@@ -507,7 +507,7 @@ FVECTORIZE = -O2 -Minline=1000 # -Mvect
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
        LIBPATH  += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lchemio -lutil -lpeigs \
+       CORE_LIBS = -lchemio -lglobal -lma -lutil -lpeigs \
 	           -llapack $(LIBDIR)/liblapack.a -lkmath 
       EXTRA_LIBS = -nx
 endif
@@ -535,7 +535,7 @@ FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
         LIBPATH += -L/home/delilah11/gifann/lib
-       CORE_LIBS = -lglobal -lutil -lchemio -lglobal -lpeigs \
+       CORE_LIBS = -lglobal -lma -lutil -lchemio -lglobal -lpeigs \
 		   $(LIBDIR)/liblapack.a -llapack -lblas
       EXTRA_LIBS = -node
 endif
@@ -586,6 +586,8 @@ ifeq ($(TARGET),SGITFP)
 #
 # JN 96/10/02:
 # Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+#
+# JN 99/05/26: MA now has its own library -lma
 
 	CPP = /usr/lib/cpp
   CORE_SUBDIRS_EXTRA = blas lapack
@@ -620,7 +622,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
 endif
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
-  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 endif
 
 
@@ -651,7 +653,7 @@ ifeq ($(TARGET),SGI)
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
-       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 #     EXTRA_LIBS = -lmalloc 
 endif
 
@@ -699,7 +701,7 @@ ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FVECTORIZE = $(FVECTORIZE_8K)
 endif
 
-       CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+       CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 endif
 
 ifeq ($(TARGET),HPUX)
@@ -714,7 +716,7 @@ ifeq ($(TARGET),HPUX)
   FC = f77
   LDOPTIONS = -g  -L$(LIBDIR)  -L/usr/lib
   LINK.f = fort77   $(LDOPTIONS)
-  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -ltcgmsg -llapack -lblas -lU77 -lM -lm
+  CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -ltcgmsg -llapack -lblas -lU77 -lM -lm
   CDEBUG =
   FDEBUG = -g
   FOPTIONS =  +ppu
@@ -790,7 +792,7 @@ endif
 
        LIBPATH += -L/usr/lib -L/msrc/apps/lib
 
-       CORE_LIBS = -lglobal -lchemio -lutil -lpeigs -llapack -lblas \
+       CORE_LIBS = -lchemio -lglobal -lma -lutil -lpeigs -llapack -lblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -902,7 +904,7 @@ endif
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack -lblas
+  CORE_LIBS = -lchemio -lglobal -lma -lutil -lpeigs -llapack -lblas
 
 
    USE_ESSL = YES
@@ -1009,7 +1011,7 @@ endif
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
 
-  CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack -lblas
+  CORE_LIBS = -lchemio -lglobal -lma -lutil -lpeigs -llapack -lblas
 
 
    USE_ESSL = YES
@@ -1099,7 +1101,7 @@ ifeq ($(TARGET),DECOSF)
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DEXT_INT
-             CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+             CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
             EXTRA_LIBS = -laio -lpthreads 
 endif
 
@@ -1151,7 +1153,7 @@ else
      LINK.f = gcc $(LDFLAGS)
  EXTRA_LIBS = -lf2c -lm
 endif
-  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 
         CPP = gcc -E -nostdinc -undef -P
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
@@ -1190,7 +1192,7 @@ NW_CORE_SUBDIRS = include basis geom inp input chemio ma \
 	pstat rtdb task symmetry util $(CORE_SUBDIRS_EXTRA)
 
        CORE_LIBS = -lutil -lchemio -lpeigs \
-                   -L/home/fruechtl/lib -lglobal -ltcgmsg-mpi -lma \
+                   -L/home/fruechtl/lib -lglobal -lma -ltcgmsg-mpi \
                    -llapackvp -lblasvp
       EXTRA_LIBS = -L /opt/tools/lib/ -lmp -lgen  -lpx -lelf -Wl,-J,-P,-t
 endif
@@ -1221,7 +1223,7 @@ ifeq ($(TARGET),PGLINUX)
 
   LDOPTIONS = -g
      LINK.f = pgf77 $(LDFLAGS)
-  CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
+  CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
  EXTRA_LIBS = 
 
         CPP = gcc -E -nostdinc -undef -P
