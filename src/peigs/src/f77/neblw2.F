@@ -1,4 +1,4 @@
-#include "blas_lapack.h"
+#include "blas_lapackf.h"
 *======================================================================
 *
 * DISCLAIMER

@@ -1,4 +1,4 @@
-#include "blas_lapack.h"
+#include "blas_lapackf.h"
 c      
       SUBROUTINE DDSTQDS( LAMBDA, DELTA, N, B1, BN, L, D,
      $     LD, LPLUS, DPLUS, T )
@@ -578,8 +578,8 @@ C
       INTEGER            IDAMAX
       EXTERNAL           IDAMAX
 c      
-      double precision dnrm2
-      external dnrm2
+      double precision DNRM2
+      external DNRM2
 c      
       integer iseed(4)
 *     ..
@@ -781,7 +781,7 @@ c     DO I = B1, BN
 c     ZTZ = ZTZ + Z( I ) * Z( I )
 c     END DO
 c      
-      ztz = dnrm2( bn-b1+1, z(b1), 1)
+      ztz = DNRM2( bn-b1+1, z(b1), 1)
 c      
       RETURN
 101   format (E22.14)
