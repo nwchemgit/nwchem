@@ -26,7 +26,7 @@ c     local variables
 c     
       integer nshell_i, nshell_j
       integer ishell, jshell, iproc, nproc, mem1, max1e
-      integer ijshell, ilo, ihi, jlo, jhi, jdim
+      integer ijshell, ilo, ihi, jlo, jhi, idim
       integer l_buf, l_scr
       integer k_buf, k_scr
       integer type
@@ -82,6 +82,7 @@ c
       do ishell = 1, nshell_i
          if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) call errquit
      $        ('int_1e_ga: bas_cn2bfr failed ibas', ibas)
+         idim = ihi - ilo + 1
          do jshell = 1, nshell_j
 c     
             if (oskel) 
@@ -96,7 +97,6 @@ c
 
                   if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
      $                 call errquit('int_1e_ga: bas_cn2bfr ?', jbas)
-                  jdim = jhi - jlo + 1
 c     
 c     Generate the integrals
 c     
@@ -106,13 +106,13 @@ c
 *                  call util_flush(6)
 
                   if (type .eq. 1) then
-                     call int_1eke (ibas, ishell, jbas, jshell,
+                     call int_1eke (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else if (type .eq. 2) then
-                     call int_1epe (ibas, ishell, jbas, jshell,
+                     call int_1epe (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else if (type .eq. 3) then
-                     call int_1eov (ibas, ishell, jbas, jshell,
+                     call int_1eov (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_1e_ga: invalid type?', type)
@@ -126,8 +126,8 @@ c
 *     $                 jhi
 *                  call util_flush(6)
 
-                  call ga_acc(g, jlo, jhi, ilo, ihi, dbl_mb(k_buf),
-     $                 jdim, q2)
+                  call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
+     $                 idim, q2)
                endif
                ijshell = ijshell + 1
             endif

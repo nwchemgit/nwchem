@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.18 1994-12-12 07:18:43 d3g681 Exp $
+# $Id: GNUmakefile,v 1.19 1994-12-23 03:28:16 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -19,7 +19,7 @@
         ri_v_fit_cd.o             ri_v_fit_j.o \
         ri_drive.o \
         matrix_exp.o              scf_pstat.o \
-        schwarz_max.o 
+        schwarz_max.o             movecs_project.o
 
 
 # rhf_fock_2e_b compiles incorrectly with optimize on the SGITFP

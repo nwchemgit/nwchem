@@ -148,14 +148,15 @@ c
       if (.not. rtdb_cget(rtdb, 'scf:output vectors', 1, movecs_out))
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
-         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
+         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
+     $        movecs_in.eq.'project') then
             movecs_out = 'movecs'
          else
             movecs_out = movecs_in
          endif
       endif
 c
-c     Figure out the numer of electrons from the required total
+c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
 c
 c     !! NEED to change context_rtdb_match -> context_rtdb_translate
