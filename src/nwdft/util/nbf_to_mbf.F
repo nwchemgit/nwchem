@@ -2,7 +2,7 @@
      &     ctr_quad, rad_quad, xyz,
      &                  ibf,iniz, ifin, zprim,  acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.13 1999-03-13 04:14:37 edo Exp $
+C$Id: nbf_to_mbf.F,v 1.14 1999-03-13 20:52:56 edo Exp $
 c
       implicit none
 c      
@@ -24,7 +24,7 @@ c
       integer ncontrset, n1, icset, ictr,  nprim, ncontr, 
      &        isphere,  l, iprimo,npt,nshbf
       double precision zmin,acc_loc,r2,x,y,z
-      integer n,ic1,ic2,ctr_quad,m
+      integer n,ic1,ic2,m
       double precision alpha,logeps
       double precision gaussian_range,r_arg
       gaussian_range(n,logeps,alpha) = 
