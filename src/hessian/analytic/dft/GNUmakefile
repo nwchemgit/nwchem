@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 2001-11-16 02:10:55 edo Exp $
+# $Id: GNUmakefile,v 1.7 2002-01-29 21:34:45 windus Exp $
 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \
 		xc_d2expl.o \
@@ -24,7 +24,7 @@ LIB_INCLUDES = -I../../../nwdft/include
 		xc_rhogen_pert.F \
 		xc_tabcd_cpks_lhs.F \
 		xc_tabcd_cpks_rhs.F\
-                xc_nucder_gen.F xc_d2expl.F
+                xc_nucder_gen.F
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h
