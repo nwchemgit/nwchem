@@ -217,7 +217,8 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   num_all_cls = I_ZERO;
   *nacluster = I_ZERO;
   max_clustr_size = I_ZERO;
-  sepfine = MAX(1000, *n)*DLAMCHE;
+  sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
+  sepfine = onenrm*DLAMCHE;
   
   /*
       Compute reorthogonalization criterion.  
