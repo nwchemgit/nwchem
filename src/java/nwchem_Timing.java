@@ -13,8 +13,10 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
     int numSets = 0;
     TimingSet[] timer = new TimingSet[5];
 
-    Graph nodPlot = new Graph();
-    Graph accPlot = new Graph();
+    Graph aPlot = new Graph();
+    Graph bPlot = new Graph();
+    Graph cPlot = new Graph();
+    Graph dPlot = new Graph();
     
     DefaultListModel timeList = new DefaultListModel();
     JList tList = new JList(timeList);
@@ -24,8 +26,11 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
     JButton clearButton = new JButton("Clear");
     JButton sumButton = new JButton("Sum");
     JButton newButton = new JButton("New");
+    JButton prevButton = new JButton("Prev");
+    JButton nextButton = new JButton("Next");
+    JButton orderButton = new JButton("Order");
 
-    JLabel dataLabel = new JLabel(" ");
+    int current = -1;
 
     public nwchem_Timing(){
 	
@@ -46,35 +51,43 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
 	addComponent(super.getContentPane(),header,0,0,2,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.WEST);
 	
-
-	addComponent(header,dataLabel,0,0,5,1,1,1,
-		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
-
-	addComponent(header,newButton,11,7,1,1,1,1,
+	addComponent(header,newButton,11,6,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	newButton.addActionListener(this);
 
-	addComponent(header,clearButton,12,7,1,1,1,1,
+	addComponent(header,clearButton,12,6,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	clearButton.addActionListener(this);
 
-	addComponent(header,sumButton,13,7,1,1,1,1,
+	addComponent(header,sumButton,13,6,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	sumButton.addActionListener(this);
 
-	addComponent(header,doneButton,14,7,1,1,1,1,
+	addComponent(header,doneButton,14,6,1,1,1,1,
 		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
 	doneButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 	
-	addComponent(header,timePane,11,1,5,5,10,10,
+	addComponent(header,prevButton,11,7,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	prevButton.addActionListener(this);
+
+	addComponent(header,nextButton,12,7,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	nextButton.addActionListener(this);
+
+	addComponent(header,orderButton,13,7,1,1,1,1,
+		     GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	orderButton.addActionListener(this);
+	
+	addComponent(header,timePane,11,0,5,5,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.WEST);
 	tList.addMouseListener(this);
 	tList.setVisibleRowCount(15);
 	
 	setLocation(25,225);	
-	setSize(1500,500);
+	setSize(1400,800);
 	setVisible(true);
 
 	timer[0] = new TimingSet(numSets,timeList); numSets=1;
@@ -82,22 +95,32 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
 	// set up graphs
 
 	try{
-	    addComponent(header,nodPlot,0,1,5,5,1,1,
+	    addComponent(header,aPlot,0,0,5,5,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-	    addComponent(header,accPlot,5,1,5,5,1,1,
+	    addComponent(header,bPlot,5,0,5,5,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-	    nodPlot.init();
-	    nodPlot.resize(700,300);
-	    nodPlot.setTitle("Processor Wall Clock Time");
-	    nodPlot.setXLabel("Processor");
-	    nodPlot.setBars(1.1,0.0);
-	    nodPlot.setMarksStyle("none");
-	    accPlot.init();
-	    accPlot.resize(700,300);
-	    accPlot.setTitle("Accumulated Wall Clock Time");
-	    accPlot.setXLabel("Time");
-	    //      accPlot.setBars(1.1,0.0);
-	    //      accPlot.setMarksStyle("none");
+	    addComponent(header,cPlot,0,5,5,5,1,1,
+			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	    addComponent(header,dPlot,5,5,5,5,1,1,
+			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
+	    aPlot.init();
+	    aPlot.resize(700,300);
+	    aPlot.setTitle("Processor Wall Clock Time");
+	    aPlot.setXLabel("Processor");
+	    aPlot.setBars(1.1,0.0);
+	    aPlot.setMarksStyle("none");
+	    bPlot.init();
+	    bPlot.resize(700,300);
+	    bPlot.setTitle("Accumulated Wall Clock Time");
+	    bPlot.setXLabel("Time");
+	    cPlot.init();
+	    cPlot.resize(700,300);
+	    cPlot.setTitle("Accumulated Wall Clock Time");
+	    cPlot.setXLabel("Time");
+	    dPlot.init();
+	    dPlot.resize(700,300);
+	    dPlot.setTitle("Accumulated Wall Clock Time");
+	    dPlot.setXLabel("Time");
 	    validate();
 	} catch(Exception e) {e.printStackTrace();};
 
@@ -136,22 +159,22 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
 		    };
 		};
 	    };
-	    addComponent(header,nodPlot,0,2,5,5,1,1,
+	    addComponent(header,aPlot,0,2,5,5,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-	    addComponent(header,accPlot,0,10,5,5,1,1,
+	    addComponent(header,bPlot,0,10,5,5,1,1,
 			 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-	    nodPlot.init();
-	    nodPlot.resize(700,300);
-	    nodPlot.setTitle("Processor Wall Clock Time");
-	    nodPlot.setXLabel("Processor");
-	    nodPlot.setBars(1.1,0.0);
-	    nodPlot.setMarksStyle("none");
-	    accPlot.init();
-	    accPlot.resize(700,300);
-	    accPlot.setTitle("Accumulated Wall Clock Time");
-	    accPlot.setXLabel("Time");
-	    //      accPlot.setBars(1.1,0.0);
-	    //      accPlot.setMarksStyle("none");
+	    aPlot.init();
+	    aPlot.resize(700,300);
+	    aPlot.setTitle("Processor Wall Clock Time");
+	    aPlot.setXLabel("Processor");
+	    aPlot.setBars(1.1,0.0);
+	    aPlot.setMarksStyle("none");
+	    bPlot.init();
+	    bPlot.resize(700,300);
+	    bPlot.setTitle("Accumulated Wall Clock Time");
+	    bPlot.setXLabel("Time");
+	    //      bPlot.setBars(1.1,0.0);
+	    //      bPlot.setMarksStyle("none");
 	    validate();
 	} catch(Exception e) {e.printStackTrace();};
 	
@@ -159,22 +182,22 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
 
     /*
     try{
-      addComponent(header,nodPlot,0,2,5,5,1,1,
+      addComponent(header,aPlot,0,2,5,5,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-      addComponent(header,accPlot,0,8,5,5,1,1,
+      addComponent(header,bPlot,0,8,5,5,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.CENTER);
-      nodPlot.init();
-      nodPlot.resize(700,300);
-      nodPlot.setTitle("Wall Clock Time Decomposition per Processor");
-      nodPlot.setXLabel("Processor");
-      nodPlot.setBars(1.1,0.0);
-      nodPlot.setMarksStyle("none");
-      accPlot.init();
-      accPlot.resize(700,300);
-      accPlot.setTitle("Wall Clock Time Decomposition Accumulated");
-      accPlot.setXLabel("Time");
-      //      accPlot.setBars(1.1,0.0);
-      //      accPlot.setMarksStyle("none");
+      aPlot.init();
+      aPlot.resize(700,300);
+      aPlot.setTitle("Wall Clock Time Decomposition per Processor");
+      aPlot.setXLabel("Processor");
+      aPlot.setBars(1.1,0.0);
+      aPlot.setMarksStyle("none");
+      bPlot.init();
+      bPlot.resize(700,300);
+      bPlot.setTitle("Wall Clock Time Decomposition Accumulated");
+      bPlot.setXLabel("Time");
+      //      bPlot.setBars(1.1,0.0);
+      //      bPlot.setMarksStyle("none");
       validate();
     } catch(Exception e) {e.printStackTrace();};
 
@@ -250,20 +273,20 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
 
   void addNodeData(){
     for(int i=0; i<17; i++){
-	//	nodPlot.clear(i);
-      try{ nodPlot.removeSet(i); } catch(Exception ee){};
+	//	aPlot.clear(i);
+      try{ aPlot.removeSet(i); } catch(Exception ee){};
     };
     for(int i=0; i<17; i++){
       for(int ip=0; ip<np; ip++){
-	nodPlot.addData(i,ip,ndata[ndx[ip]][i],false,false);
+	aPlot.addData(i,ip,ndata[ndx[ip]][i],false,false);
       };
     };
   };
 
   void addAccuData(){
     for(int i=16; i>=0; i--){
-      accPlot.addData(16-i,time,tdata[i],!firstElement1,false);
-      //accPlot.addData(16-i,time,tdata[i],false,false);
+      bPlot.addData(16-i,time,tdata[i],!firstElement1,false);
+      //bPlot.addData(16-i,time,tdata[i],false,false);
     };
     firstElement1=false;
   };
@@ -308,26 +331,50 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
       };
       if(e.getSource()==sumButton){
 	  if(numSets==1){
-	      accPlot.clear(true); 
-	      accPlot.setTitle("Accumulated Wall Clock Time Set 1");
-	      accPlot.setXLabel("Time");
-	      timer[0].sumPlot(accPlot);
-	      accPlot.fillPlot();
+	      bPlot.clear(true); 
+	      bPlot.setTitle("Accumulated Wall Clock Time Set 1");
+	      bPlot.setXLabel("Time");
+	      timer[0].sumPlot(bPlot);
+	      bPlot.fillPlot();
 	  } else {
-	      nodPlot.clear(true);  
-	      nodPlot.setTitle("Accumulated Wall Clock Time Set 1");
-	      nodPlot.setXLabel("Time");
-	      timer[0].sumPlot(nodPlot);
-	      nodPlot.fillPlot();
-	      accPlot.clear(true);  
-	      accPlot.setTitle("Accumulated Wall Clock Time Set 2");
-	      accPlot.setXLabel("Time");
-	      timer[1].sumPlot(accPlot);
-	      accPlot.fillPlot();
+	      aPlot.clear(true);  
+	      aPlot.setTitle("Accumulated Wall Clock Time Set 1");
+	      aPlot.setXLabel("Time");
+	      timer[0].sumPlot(aPlot);
+	      aPlot.fillPlot();
+	      bPlot.clear(true);  
+	      bPlot.setTitle("Accumulated Wall Clock Time Set 2");
+	      bPlot.setXLabel("Time");
+	      timer[1].sumPlot(bPlot);
+	      bPlot.fillPlot();
 	  };
       };
       if(e.getSource()==clearButton){
-	  accPlot.clear(true); accPlot.fillPlot();
+	  bPlot.clear(true); bPlot.fillPlot();
+      };
+      if(e.getSource()==nextButton){
+	  current++;
+	  cPlot.clear(true);
+	  cPlot.setBars(1.1,0.0);
+	  cPlot.setMarksStyle("none");
+	  cPlot.setConnected(false);
+	  timer[0].nodPlot(current,cPlot); cPlot.fillPlot();
+      };
+      if(e.getSource()==prevButton){
+	  current--;
+	  cPlot.clear(true);
+	  cPlot.setBars(1.1,0.0);
+	  cPlot.setMarksStyle("none");
+	  cPlot.setConnected(false);
+	  timer[0].nodPlot(current,cPlot); cPlot.fillPlot();
+      };
+      if(e.getSource()==orderButton){
+	  timer[0].order=!timer[0].order;
+	  cPlot.clear(true);
+	  cPlot.setBars(1.1,0.0);
+	  cPlot.setMarksStyle("none");
+	  cPlot.setConnected(false);
+	  timer[0].nodPlot(current,cPlot); cPlot.fillPlot();
       };
   }
 
@@ -355,12 +402,13 @@ class nwchem_Timing extends JFrame implements ActionListener, ChangeListener, Wi
     if(mouse.getModifiers()==MouseEvent.BUTTON1_MASK){
       if(mouse.getSource()==tList){
 	  int index=tList.getSelectedIndex(); 
-	  accPlot.clear(true);  
-	  accPlot.setTitle(tList.getSelectedValue().toString());
+	  bPlot.clear(true);  
+	  bPlot.setTitle(tList.getSelectedValue().toString());
 	  for(int i=0; i<numSets; i++){
-	      timer[i].plot(index,i,accPlot); 
+	      timer[i].plot(index,i,bPlot); 
 	  };
-	  accPlot.fillPlot(); super.getContentPane().validate();
+	  bPlot.fillPlot(); 
+	  //super.getContentPane().validate();
       };
     };
   }

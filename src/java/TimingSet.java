@@ -9,6 +9,8 @@ public class TimingSet{
     public int numData;
     public double data[][][];
     public double time[];
+    public int index[];
+    public boolean order = false;
 
     public TimingSet(int number, DefaultListModel list){
 
@@ -45,6 +47,7 @@ public class TimingSet{
 
 	    data = new double[numFrames][numProcs][numData];
 	    time = new double[numFrames];
+	    index= new int[numProcs];
 
 	    br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
 
@@ -70,14 +73,14 @@ public class TimingSet{
 	} catch(Exception e) {e.printStackTrace();};
     }
 
-    public void plot(int index, int set, Graph graph){
+    public void plot(int ndx, int set, Graph graph){
 
 	double sum;
 	boolean first = true;
 
 	for(int i=0; i<numFrames; i++){
 	    sum=0.0;
-	    for(int j=0; j<numProcs; j++){ sum=sum+data[i][j][index]; };
+	    for(int j=0; j<numProcs; j++){ sum=sum+data[i][j][ndx]; };
 	    graph.addData(set,time[i],sum,!first,false); first=false;
 	};
 	graph.fillPlot();
@@ -100,4 +103,35 @@ public class TimingSet{
 
     };
 
+    public void nodPlot(int frame, Graph graph){
+	
+	boolean first = true;
+	double sum;
+	int ndx;
+	double[] accu = new double[numProcs];
+
+	if(order){
+	    for(int i=0; i<numProcs; i++) index[i]=i;
+	} else {
+	    for(int i=1; i<numProcs; i++) {
+		for(int j=0; j<i; j++) {
+		    if(data[frame][index[i]][31]>data[frame][index[j]][31]){
+			ndx=index[i]; index[i]=index[j]; index[j]=ndx;
+		    };
+		};
+	    };
+	};
+
+	if(frame>=0 && frame<numFrames){
+	    for(int i=0; i<numData-1; i++){
+		ndx=numData-1-i;
+		first = true;
+		for(int proc=0; proc<numProcs; proc++){
+		    sum=0.0;
+		    for(int j=0; j<ndx; j++) sum=sum+data[frame][index[proc]][j];
+		    graph.addData(ndx,proc,sum,!first,false); first=false;
+		};
+	    };
+	};
+    };
 }
