@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.4 2003-10-09 00:30:45 yuri Exp $
+C $Id: geninterface.F,v 1.5 2003-10-09 23:57:05 yuri Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -58,7 +58,7 @@ C  Create parallel processes
       write(6,*) labels(1), labels(2), labels(3),labels(4)
      * ,labels(5),labels(6)
       call flush(6)
-C YA
+C YA: Broadcast charge
       call ga_brdcst(MT_DBL, charge, mdtob(1), 0)
       call ga_brdcst(MT_INT,printName, 256/4, 0)
 
@@ -82,12 +82,12 @@ c      endif
 C  Set up memory environment
 
 !      call input_mem_size(stack, heap, global, overify, ohardfail)
-!       stack = 6553600
-!       heap = 6553600
-!       global = 13107200
-       stack = 6553587
-       heap = 19660794
-       global = 26214404
+
+C YA: Hardwire memory limits assuming total equal 1800.0 Mbytes
+       stack = 58982399
+       heap = 58982386
+       global = 117964800
+
        overify = .true.
        ohardfail = .true.
        write (6,*) 'stack=',stack,' heap=',heap,' global=',global,
