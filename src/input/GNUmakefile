@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.24 1996-02-13 17:23:10 pborowsk Exp $
+#$Id: GNUmakefile,v 1.25 1996-02-27 00:28:12 d3e129 Exp $
 
  LIBRARY = libutil.a
 
@@ -21,6 +21,7 @@ endif
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(ccsd_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(dft_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas_staticP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(dplot_input.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(get_inp_file.o):	 $(INCDIR)/inp.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(grad_inp.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
 $(LIBRARY_PATH)(input_echo.o):	 $(INCDIR)/inp.fh 
