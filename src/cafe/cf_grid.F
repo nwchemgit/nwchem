@@ -1,5 +1,5 @@
       subroutine cf_alpha
-c $Id: cf_grid.F,v 1.12 2002-07-17 14:25:21 d3j191 Exp $
+c $Id: cf_grid.F,v 1.13 2002-11-08 22:27:55 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -410,7 +410,7 @@ c
       integer isq(msa)
       integer knode(*),kfrom(*)
       logical lsldo(*)
-      real*8 grid(2,ngx,ngy,mgz)
+      real*8 grid(ngx,ngy,mgz)
 c
       call cf_forpme(dbl_mb(i_pmew),fw,int_mb(i_iwq),nwmloc,
      + dbl_mb(i_pmes),fs,isq,nsaloc,
@@ -434,7 +434,7 @@ c
       real*8 chg(mqt,mqp,6),theta(morder,3,*),dtheta(morder,3,*)
       integer knode(*),kfrom(*)
       logical lsldo(*)
-      real*8 grid(2,ngx,ngy,mgz)
+      real*8 grid(ngx,ngy,mgz)
 c
       integer i,i0,j,j0,k,k0,ith1,ith2,ith3,iwm,iwa,isa,indx
       real*8 term,fx,fy,fz
@@ -467,7 +467,7 @@ c
       i=i0+1+(ngx-isign(ngx,i0))/2
       if(i.gt.ngx) i=i-ngx
       if(i.lt.1) i=i+ngx
-      term=chg(iwq(iwa),1,iset)*grid(1,i,j,k)
+      term=chg(iwq(iwa),1,iset)*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
       fy=fy-ngy*term*dtheta(ith2,2,indx)*theta(ith3,3,indx)*
@@ -506,7 +506,7 @@ c
       do 10 ith1=1,morder
       i0=i0+1
       i=i0+1+(ngx-isign(ngx,i0))/2
-      term=chg(isq(isa),1,iset)*grid(1,i,j,k)
+      term=chg(isq(isa),1,iset)*grid(i,j,k)
       fx=fx-ngx*term*dtheta(ith1,1,indx)*theta(ith2,2,indx)*
      + theta(ith3,3,indx)
       fy=fy-ngy*term*dtheta(ith2,2,indx)*theta(ith3,3,indx)*
