@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.7 2001-03-08 19:27:45 edo Exp $
+C$Id: dftg_gridssw.F,v 1.8 2002-08-13 21:15:49 edo Exp $
 c
       implicit none
       logical grid_written
@@ -43,7 +43,7 @@ c
       double precision xi, yi, zi, dmu1, dmu2, dmu3
       double precision tmu, tmu1,mu1,mu14,dmu1dmu,dskdmu1,asqrtpi
       double precision xa,ya,za,alpha_erf
-      integer A,B
+      integer A,B,n1
 #include "xc_erftab.fh"
 c     
 c     RE Stratmann, GE Scuseria, MJ Frisch, Chem Phys Lett 257, 213 (1996)
@@ -116,11 +116,15 @@ c
 c
 c       check if grid point is within sphere where w=1
 c
-         if(rq(n,AA).lt.radwgh+eps) then
-            p(AA)=1d0
-            zeta(n)=1d0
-            goto 3300
+         if(rq(n,AA).ge.radwgh+eps) then
+            n1=n
+            goto 31
          endif
+      enddo
+c     all inside
+      return
+ 31   continue
+      do n=n1,nq
 c
 c       compute mu_AN
 c
@@ -335,7 +339,6 @@ c
 !            enddo
          endif
       enddo
- 3300 continue
       enddo ! n loop
       n=0
       do j=1,nq
