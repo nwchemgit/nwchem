@@ -170,7 +170,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
       br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
       card=br.readLine();
       numprop = Integer.parseInt(card.substring(1,7).trim());
-      for(int i=0; i<numprop; i++){ card=br.readLine(); propList.addElement(card); };
+      for(int i=0; i<numprop; i++){ card=br.readLine(); propList.addElement(card.substring(1,card.indexOf("  ").trim())); };
       numframes=0;
       while((card=br.readLine()) != null){
 	int num=0;
@@ -245,8 +245,8 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
       card=br.readLine();
       numprop = Integer.parseInt(card.substring(1,7).trim());
       for(int i=0; i<numprop; i++){ 
-	card=br.readLine(); 
-	if(numframes==0) propList.addElement(card); 
+	card=br.readLine();
+	if(numframes==0) propList.addElement(card.substring(0,card.indexOf("   "))+" / "+card.substring(card.lastIndexOf(" "),card.length()).trim()); 
       };
       while((card=br.readLine()) != null){
 	int num=0;
