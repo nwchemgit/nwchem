@@ -15,6 +15,7 @@ and complicated when presented in its general form, as follows:
            [print [xyz] || noprint] \
            [center || nocenter] \
            [bqbq] \
+           [autosym [real tol default 1d-2]] \
            [autoz || noautoz] \
            [adjust]
     
@@ -78,6 +79,7 @@ As described above, the first line of the directive has the general form,
            [bqbq] \
            [print [xyz] || noprint] \
            [center || nocenter] \
+           [autosym [real tol default 1d-2]] \
            [autoz || noautoz] \
            [adjust]
 \end{verbatim}
@@ -141,6 +143,16 @@ list describes  all options and their defaults.
   of the nuclear dipole are zero.  The default is to move the center
   of nuclear charge to the origin.
 
+\item \verb+autosym+ -- keyword to specify that the symmetry of the
+  geometric system should be automatically determined.  This option is off
+  by default.  Only groups up to and including $O_{h}$ are recognized.
+  Occasionally NWChem will be unable to determine the full symmetry
+  of a molecular system, but will find a proper subgroup of the full 
+  symmetry.  The default tolerance is set to work for most cases, but may
+  need to be decreased to find the full symmetry of a geometry.  Note that
+  autosym will be turned off if the \verb+SYMMETRY+ group input is given
+  (See section \ref{sec:symgrp}).
+
 \item \verb+noautoz+ -- by default NWChem (release 3.3 and later) 
   will generate redundant internal coordinates from user input
   Cartesian coordinates.  The internal coordinates will be used in
@@ -178,6 +190,7 @@ bond length of 0.732556\ \AA):
 \end{verbatim}
       
 \section{Symmetry Group Input}
+\label{sec:symgrp}
 
 The \verb+SYMMETRY+ directive is used (optionally) within the compound
 \verb+GEOMETRY+ directive to specify the point group for the molecular
