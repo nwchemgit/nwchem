@@ -70,10 +70,10 @@ c
 c%%
       IF(NODHP.EQ.0.OR.NOD2HP.EQ.0) NODPL=0
       IF(NOFHP.EQ.0.OR.NOF2HP.EQ.0) NOFPL=0
-      IF(SOME) WRITE(IW,9999) NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
-     1                        NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
-     2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
-     3                        NOSTON
+c*    IF(SOME) WRITE(IW,9999) NODIP,NOQDP,NOOTP,NOPOP,NOSPIN,NOLOC,
+c*   1                        NODPL,NODHP,NOD2HP,NOFPL,NOFHP,NOF2HP,
+c*   2                        NOSOS,NOELP,NOELF,NOELFG,NODEN,NONMR,
+c*   3                        NOSTON
 C
 C     ----- INTERFACE OF NWCHEM AND HONDO -----
 C
@@ -931,7 +931,7 @@ C
       RETURN
    60 NCODE=1
       RETURN
- 9998 FORMAT(/,10X,21(1H-),/,10X,'Atomic Weights (a.u.)',
+ 9998 FORMAT(/,10X,21(1H-),/,10X,'Atomic weights (a.u.)',
      1       /,10X,21(1H-),/)
  9997 FORMAT(I5,5X,A8,A2,F15.5)
  9996 FORMAT(' NO ATOMIC MASS TABULATED FOR  -NUCZ.GT.104-  . STOP')
@@ -3014,7 +3014,9 @@ c
 
 c     ----- transform S from nwchem to hnd format -----
  
-      call hnd_nwhnd_tran(x(i97),x(i98),num)
+      call hnd_nwhnd_tran_s(x(i97),x(i98),num)
+
+c*    call hnd_sprtr(x(i98),num)
 
 c     ----- destroy ga handle of overlay matrix -----
       status = ga_destroy ( g_s )
@@ -3037,9 +3039,10 @@ c
                x(i40 +ij-1) = x(i98 + (j-1)*(num)+(i-1))
             enddo
          enddo
-
+c%%
 C*       CALL HND_DAREAD(IDAF,IODA,X(I40)
 C*       CALL HND_TFTR(X(I10),X(I40),X(I00),X(I50),IA,L1,L1,L1)
+c%%
       ELSE
 c
 c     ----- transform S from square to triangular format -----
@@ -3136,7 +3139,7 @@ C
       LAST=.FALSE.
       ELEC=ALPHA
       IF((WFNTYP.NE.SCF.OR.SCFTYP.NE.UHF).AND.
-     1   (WFNTYP.NE.MP2.OR.SCFTYP.NE.UHF)     ) ELEC=ALL
+     1   (WFNTYP.NE.MP2.OR.SCFTYP.NE.UHF)     ) ELEC=All
   100 CONTINUE
 C
 C     ----- DO A MULLIKEN POPULATION ANALYSIS -----
@@ -3233,7 +3236,7 @@ C     ----- DO ALL ELECTRONS -----
 C
       IPASS=1
       LAST=.TRUE.
-      ELEC=ALL
+      ELEC=All
       DO I=1,L2
          X(I-1+I40)=X(I-1+I40)+X(I-1+I41)
       ENDDO
@@ -3296,7 +3299,7 @@ C
 C
       RETURN
  9999 FORMAT(//,10X,28(1H-),/,10X,'Mulliken population analysis',
-     1 10X,A8,' ELECTRONS',/,10X,28(1H-))
+     1 10X,A8,' electrons',/,10X,28(1H-))
  9998 FORMAT(/,10X,'----- Total gross population in ao -----',/)
  9997 FORMAT(5(I5,1X,A8,F11.5))
  9996 FORMAT(/,10X,'----- Condensed to atoms -----',/)
@@ -3515,15 +3518,15 @@ C
 #include "global.fh"
 #include "mafdecls.fh"
       integer rtdb,geom,basis
-      logical  status
-      integer  g_vecs
-      character*255 movecs_in,movecs_out
-      character*255 movecs
-      logical  movecs_read
-      external movecs_read
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
-      double precision  occ(mxbfn)
+c*    logical  status
+c*    integer  g_vecs
+c*    character*255 movecs_in,movecs_out
+c*    character*255 movecs
+c*    logical  movecs_read
+c*    external movecs_read
+c*    integer  ga_create_atom_blocked
+c*    external ga_create_atom_blocked
+c*    double precision  occ(mxbfn)
       character*8 sphlab,dum
       character*8 anam,bflab
       character*2 bnam
@@ -3592,29 +3595,30 @@ C     CALL HND_DAREAD(IDAF,IODA,V,L3,NDAF)
 
 c     ----- get mo vectors from file -----
 
-       g_vecs=ga_create_atom_blocked (geom, basis, 'mo vectors')
+c*     g_vecs=ga_create_atom_blocked (geom, basis, 'mo vectors')
 
 c     ----- figure output input/output MO vectors -----
 
-       if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
-     $      movecs_in = 'atomic'
-       if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
-     $      movecs_out = ' '
-       if (movecs.eq.' ') then
-         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-            movecs_out = 'movecs'
-         else 
-            movecs_out = movecs_in
-         endif
-       endif
-       movecs = movecs_out
+c*     if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
+c*   $      movecs_in = 'atomic'
+c*     if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
+c*   $      movecs_out = ' '
+c*     if (movecs.eq.' ') then
+c*       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
+c*           movecs_out = 'movecs'
+c*       else 
+c*           movecs_out = movecs_in
+c*       endif
+c*     endif
+c*     movecs = movecs_out
 
 c      ----- read eig-vec; eng-val in t for tmp. -----
 
-       status = movecs_read (movecs, 1, occ, e, g_vecs)
-       call ga_get(g_vecs, 1, num, 1, num, v, num)
-       status = ga_destroy ( g_vecs )
-
+c*     status = movecs_read (movecs, 1, occ, e, g_vecs)
+c*     call ga_get(g_vecs, 1, num, 1, num, v, num)
+c*     status = ga_destroy ( g_vecs )
+       call hnd_get_eigens(rtdb,geom,basis,v,e,num)
+c*     call hnd_prevl(v,e,norb,num,ndim)
 C
 C     ----- TRANSFORM TO SPHERICAL HARMONICS IF NEEDED -----
 C     -----    MULTIPLY BY   SPH**(-1)   ON THE LEFT   -----
@@ -5394,9 +5398,9 @@ C
  9999 FORMAT(/,10X,14(1H-),/,10X,'Electric field',
      1       /,10X,14(1H-),/)
  9998 FORMAT(' Not enough core in -ELFMAP-')
- 9997 FORMAT(3X,' ATOM',6X,'X',9X,'Y',9X,'Z',8X,1X,
+ 9997 FORMAT(3X,' Atom',6X,'X',9X,'Y',9X,'Z',8X,1X,
      1 15X,'Electric field (a.u.)',/,
-     2 39X,7X,'X',14X,'Y',14X,'Z',11X,'FIELD',/,
+     2 39X,7X,'X',14X,'Y',14X,'Z',11X,'Field',/,
      3 2X,96(1H-))
  9996 FORMAT(' --- Warning - electric field at ',
      1 3F10.5,' . contribution from nucleus ',I3,' ignored')
@@ -5962,7 +5966,7 @@ C
  9999 FORMAT(/,10X,23(1H-),/,10X,'Electric field gradient',
      1       /,10X,23(1H-),/)
  9998 FORMAT(' Not enough core in -efgmap-')
- 9997 FORMAT(1X,' ATOM',6X,'X',9X,'Y',9X,'Z',8X,1X,
+ 9997 FORMAT(1X,' Atom',6X,'X',9X,'Y',9X,'Z',8X,1X,
      1 19X,'Electric field gradient in molecular frame (a.u.)',/,
      2 39X,6X,'XX',13X,'YY',13X,'ZZ',13X,'XY',13X,'XZ',13X,'YZ',/,
      3 2X,126(1H-))
@@ -5973,8 +5977,8 @@ C
      1       ' ( or statvolts/cm**2 )',' = 0.97174 10**(22) v/m**2 ',/)
  9993 FORMAT(' --- Warning - electric field gradient at ',
      1 3F10.5,' . contribution from  -efc-  ',I3,' ignored')
- 9992 FORMAT(/,1X,' Atom',3x,'principal components of the -EFG- ',
-     1       'tensor (a.u.)',9x,'asymmetry parameter eta',/,
+ 9992 FORMAT(/,1X,' Atom',3x,'Principal components of the -EFG- ',
+     1       'tensor (a.u.)',9x,'Asymmetry parameter eta',/,
      2       2X,86(1H-))
  9991 FORMAT(1X,I5,3F15.6,14X,F15.6)
  9990 FORMAT(/,' Orientation ( in degrees ) of the principal axis',
@@ -6363,14 +6367,14 @@ C
       integer rtdb,geom,basis
       integer g_dens(3),g_wdens
       logical status
-      integer  g_vecs
-      character*255 movecs_in,movecs_out
-      character*255 movecs
-      logical  movecs_read
-      external movecs_read
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
-      double precision  noc(mxbfn)
+c*    integer  g_vecs
+c*    character*255 movecs_in,movecs_out
+c*    character*255 movecs
+c*    logical  movecs_read
+c*    external movecs_read
+c*    integer  ga_create_atom_blocked
+c*    external ga_create_atom_blocked
+c*    double precision  noc(mxbfn)
       CHARACTER*8 ERRMSG
       CHARACTER*8 WFNTYP, SCFTYP, RUNTYP
       CHARACTER*8 RHF, UHF, MP2, GVB, SCF, PROP
@@ -6694,30 +6698,31 @@ C*    CALL HND_DAREAD(IDAF,IODA,X(I20),L3,15)
 
 c     ----- get mo vectors from file -----
 
-       g_vecs=ga_create_atom_blocked (geom, basis, 'mo vectors')
+c*      g_vecs=ga_create_atom_blocked (geom, basis, 'mo vectors')
 
 c     ----- figure output input/output MO vectors -----
 
-       if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
-     $      movecs_in = 'atomic'
-       if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
-     $      movecs_out = ' '
-       if (movecs.eq.' ') then
-         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
-            movecs_out = 'movecs'
-         else 
-            movecs_out = movecs_in
-         endif
-       endif
-       movecs = movecs_out
+c*     if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
+c*   $      movecs_in = 'atomic'
+c*     if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
+c*   $      movecs_out = ' '
+c*     if (movecs.eq.' ') then
+c*       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
+c           movecs_out = 'movecs'
+c*       else 
+c*          movecs_out = movecs_in
+c*       endif
+c*     endif
+c*     movecs = movecs_out
 
 c      ----- read eig-vec x(i40); eng-val in x(i50) for tmp. -----
 
-       status = movecs_read (movecs, 1, noc, x(i50), g_vecs)
-       call ga_get(g_vecs, 1, num, 1, num, x(i40), num)
-       status = ga_destroy ( g_vecs )
+c*     status = movecs_read (movecs, 1, noc, x(i50), g_vecs)
+c*     call ga_get(g_vecs, 1, num, 1, num, x(i40), num)
+c*     status = ga_destroy ( g_vecs )
 c%%%
-       call hnd_nwhnd_tran(x(i40),x(i20),num)
+c*     call hnd_nwhnd_tran(x(i40),x(i20),num)
+       call hnd_get_eigens(rtdb,geom,basis,x(i20),x(i50),num)
 c%%%
 c
       IF((WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF).OR.
@@ -6886,7 +6891,7 @@ C
  9999 FORMAT(/,10X,21(1H-),/,10X,'Electron/spin density',
      1       /,10X,21(1H-),/)
  9998 FORMAT(' Not enough core in -ELDMAP-')
- 9997 FORMAT(3X,'point',6X,'X',9X,'Y',9X,'Z',6X,'density (a.u.)')
+ 9997 FORMAT(3X,'Point',6X,'X',9X,'Y',9X,'Z',6X,'Density (a.u.)')
  9996 FORMAT(' 1 a.u. = 4.80286 10**(-10) esu ')
  9995 FORMAT(1X,I5,2X,3F10.5,F15.6)
  9994 FORMAT(/,' Density for (alpha) orbital = ',i5,/,
@@ -11277,3 +11282,158 @@ c*    WRITE(WORD,FMT='(1X,A8)') WRDKEY
 c*     READ(WORD,FMT='(   A8)') WRDKEY
 c*     RETURN
 c*    END
+      subroutine hnd_get_eigens(rtdb,geom,basis,vecs,e,num)
+c
+c     only RHF(close shell) is considered 
+c
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+      integer           mxnbf
+      parameter         (mxnbf=3072)
+      integer           num
+      integer           rtdb,geom,basis
+      logical           status
+      integer           g_vecs
+      character*255     movecs_in,movecs_out
+      character*255     movecs
+      logical           movecs_read
+      external          movecs_read
+      integer           ga_create_atom_blocked
+      external          ga_create_atom_blocked
+      double precision  vecs(num*num) 
+      double precision  e(num)
+      double precision  occ(mxnbf)
+c
+      integer          i_init,init,need 
+      integer          num3
+      integer          i,j,ij
+      integer          i00,i10
+c
+      double precision x
+      double precision zero
+c
+      dimension    x(1)
+      equivalence (x(1),dbl_mb(1))
+c
+      data zero   /0.0d+00/
+c
+      logical          debug
+      debug=.false.
+c
+      num3=num*num
+c     
+      need=num3+num3
+c
+c     allocate memory block
+c
+      if(.not.ma_push_get(mt_dbl,need , 'mem init',i_init,init))
+     & call errquit('hnd_get_eigens, malloc of init  failed',911)
+c
+      i00=init
+      i10=i00+ num3
+c
+      do 10 i=1,need
+   10 x(i+init-1)=zero
+c
+c     get mo vectors from file 
+c
+      g_vecs=ga_create_atom_blocked (geom, basis, 'mo vectors')
+c
+c     check output input/output MO vectors 
+c
+       if (.not.rtdb_cget(rtdb,'scf:input  vectors',1,movecs_in))
+     $      movecs_in = 'atomic'
+       if (.not.rtdb_cget(rtdb,'scf:output vectors',1,movecs_out))
+     $      movecs_out = ' '
+       if (movecs.eq.' ') then
+         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore') then
+            movecs_out = 'movecs'
+         else 
+            movecs_out = movecs_in
+         endif
+       endif
+       movecs = movecs_out
+c
+c      read eig-vec=>x(i00); eng-val=>x(i10) 
+c
+       status = movecs_read (movecs, 1, occ, e, g_vecs)
+       call ga_get(g_vecs, 1, num, 1, num,x(i00), num)
+       status = ga_destroy ( g_vecs )
+c
+c      tranform eigen-V matrix from nwchem to hondo shell order
+c
+      if (debug) print*,'eigen vectors in nwchem format'
+      if (debug) call hnd_sprtr(x(i00),num)
+      call hnd_nwhnd_tran_vecs(x(i00),vecs,num)
+      if (debug) print*,'eigen vectors in hondo  format'
+      if (debug) call hnd_sprtr(vecs,num)
+c
+c     release memory block         
+c
+      if (.not.ma_pop_stack(i_init))
+     & call errquit('hnd_get_eigens, ma_pop_stack of init
+     & failed',911)
+c
+      return
+      end
+c
+      subroutine hnd_nwhnd_tran_vecs(dnwc,dhnd,ndim)
+      implicit double precision (a-h,o-z)
+#include "global.fh"
+      parameter (mxnbf =2048)
+      common/hnd_nwtohnd/inw_to_hnd(mxnbf)
+      common/hnd_iofile/ir,iw,ip
+      common/hnd_facntoh/fac_nwthnd(mxnbf)
+      dimension dnwc(ndim,ndim),dhnd(ndim,ndim)
+c
+      logical out
+      out =.false.
+c
+      if(out.and.ga_nodeid().eq.0) then
+         write(iw,*) ' in routine ... nwhnd_tran_vecs '
+      endif
+c
+c     ----- eigen-vectors from nwchem to hondo shell order-----
+c
+      do j=1,ndim
+        do i=1,ndim
+
+           dhnd(inw_to_hnd(i),j)=
+     &     dnwc(i,j)/(fac_nwthnd(i))
+
+        enddo
+      enddo
+c
+      return 
+      end
+      subroutine hnd_nwhnd_tran_s(dnwc,dhnd,ndim)
+      implicit double precision (a-h,o-z)
+#include "global.fh"
+      parameter (mxnbf =2048)
+      common/hnd_nwtohnd/inw_to_hnd(mxnbf)
+      common/hnd_iofile/ir,iw,ip
+      common/hnd_facntoh/fac_nwthnd(mxnbf)
+      dimension dnwc(ndim,ndim),dhnd(ndim,ndim)
+c
+      logical out
+      out =.false.
+c
+      if(out.and.ga_nodeid().eq.0) then
+         write(iw,*) ' in routine ... nwhnd_tran ... '
+      endif
+c
+c     ----- matrices tran. from nwchem to hondo shell order-----
+c
+      do j=1,ndim
+        do i=1,ndim
+
+           dhnd(inw_to_hnd(i),inw_to_hnd(j))=
+     &     dnwc(i,j)*fac_nwthnd(i)*fac_nwthnd(j)
+
+        enddo
+      enddo
+c
+      return 
+      end
