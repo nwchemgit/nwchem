@@ -20,6 +20,27 @@ A useful command is
 6) nawk -f bas.awk < NWCHEM.BSLIB > library
 7) look at the output
 
+8) egrep 'basis|ecp' ../library > list.old
+   egrep 'basis|ecp' library > list.new
+
+9) wc list.*  new should be equal or greater?
+
+10) cat list.old | sort > sort.old 
+    cat list.new | sort > sort.new
+
+11) cat list.old | sort -u > sort.u.old 
+    cat list.new | sort -u > sort.u.new
+
+12) wc sort.u should identify redundancy in sets.
+
+13) diff -b sort.u.old sort.u.new  shows the differences
+
+names with < are in the old library but missing from the new library
+names with > are new so keep them
+
+14) make libcheck in the basis directory and run in the convert directory
+
+
 I have a set of scripts that will eventually run calculations for all
 of the basis sets and ECPs for all atoms.  This is not yet finished.
 
