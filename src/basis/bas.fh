@@ -1,6 +1,7 @@
-c $Id: bas.fh,v 1.14 1996-12-13 21:55:25 d3e129 Exp $
+c $Id: bas.fh,v 1.15 1997-02-13 01:15:47 d3g681 Exp $
 c:bas.fh
 c
+      logical bas_checksum
       logical bas_version        
       logical bas_create         
       logical bas_destroy        
@@ -117,3 +118,4 @@ c
 c
       external bas_cont_tag
 c
+      external bas_checksum

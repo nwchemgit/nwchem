@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.50 1996-12-13 21:55:27 d3e129 Exp $
+c $Id: basis.F,v 1.51 1997-02-13 01:15:49 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -949,15 +949,19 @@ c
 c read the basis now get check status of read operations
 c
       if (.not.rtdb_status) then
-         if(ga_nodeid().eq.0) then
-            write(6,*)
-            write(6,*) ' bas_rtdb_do_load: basis not present "',
-     $           bs_name(basis)(1:inp_strlen(bs_name(basis))),
-     &          '" -> "',
-     $           bs_trans(basis)(1:inp_strlen(bs_trans(basis))),
-     &          '"'
-            write(6,*)
-         endif
+c
+c     rjh ... can be quiet now since the application should
+c     whine if it really did need the basis set
+c
+*         if(ga_nodeid().eq.0) then
+*            write(6,*)
+*            write(6,*) ' bas_rtdb_do_load: basis not present "',
+*     $           bs_name(basis)(1:inp_strlen(bs_name(basis))),
+*     &          '" -> "',
+*     $           bs_trans(basis)(1:inp_strlen(bs_trans(basis))),
+*     &          '"'
+*            write(6,*)
+*         endif
          bas_rtdb_do_load = .false.
 c.....add diagnostics later
          return
