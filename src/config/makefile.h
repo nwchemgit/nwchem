@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.22 1994-05-06 22:48:32 d3e129 Exp $
+# $Id: makefile.h,v 1.23 1994-06-01 19:04:06 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -230,6 +230,13 @@ ifeq ($(TARGET),IBM)
  EXPLICITF = TRUE
 #
 endif
+
+#
+# Define known suffixes mostly so that .p files don't cause pc to be invoked
+#
+
+.SUFFIXES:	
+.SUFFIXES:	.o .s .F .f .c
 
 ifeq ($(EXPLICITF),TRUE)
 #
