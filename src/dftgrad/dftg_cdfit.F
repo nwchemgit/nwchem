@@ -1,9 +1,10 @@
       Subroutine dftg_cdfit (rtdb, geom, AO_bas_han, CD_bas_han,
      &                       nbf_ao, nbf_cd, nat, tol2e, scr, 
      &                       lscr, buf, lbuf, vec, PPP, max_sh_bf,
+     &                       max_sh_bfcd,
      &                       iga_dens, force, CD_coef, oskel)
 *
-* $Id: dftg_cdfit.F,v 1.11 1997-11-04 10:12:12 d3e129 Exp $
+* $Id: dftg_cdfit.F,v 1.12 1999-02-13 00:19:52 edo Exp $
 *
       implicit none
 c
@@ -17,7 +18,7 @@ c
 #include "sym.fh"
 c
       integer rtdb, geom, AO_bas_han, CD_bas_han
-      integer nbf_ao, nbf_cd, nat, max_sh_bf
+      integer nbf_ao, nbf_cd, nat, max_sh_bf,max_sh_bfcd
       integer iga_dens, lbuf, lscr
 c
 c     scratch arrays for calls to integrals package
@@ -27,7 +28,7 @@ c
 c
 c     scratch arrays for dgem
 c
-      double precision vec(max_sh_bf*max_sh_bf),
+      double precision vec(max_sh_bfcd*max_sh_bfcd),
      &                 PPP(max_sh_bf,max_sh_bf)
 c
 c-->  Charge Density Expansion Coefficients
@@ -110,6 +111,7 @@ c              get shell block of DM
 c
                call ga_get (iga_dens, ifirstq, ilastq, ifirstp, ilastp,
      &                      PPP, max_sh_bf)
+               
 c
 c              Schwarz screening on product MAX(ABS(DM(i,j)))*schwarz(i,j)
 c
