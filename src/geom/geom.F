@@ -889,6 +889,45 @@ c
       call errquit('geom_get_efield: not yet!', 0)
       geom_efield_get = .false.
       end
+      logical function geom_print_xyz(geom, unit)
+      implicit none
+#include "geomP.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer geom, unit
+      integer i, j, icent
+      double precision scale, tmp(3)
+      logical geom_check_handle
+      external geom_check_handle
+c     
+      if (.not. geom_check_handle(geom, 'geom_print_xyz')) then
+         geom_print_xyz = .false.
+         return
+      end if
+c
+      scale = 1.0d0 / angstrom_to_au
+c
+      write(unit,1) ncenter(geom)
+ 1    format(1x,i5)
+      write(unit,2) names(geom)(1:inp_strlen(names(geom)))
+ 2    format(1x,a)
+      do icent = 1, ncenter(geom)
+c
+c     Convert from cartesian to crystallographic coordinates
+c
+         do i = 1, 3
+            tmp(i) = 0.0d0
+            do j = 1, 3
+               tmp(i) = tmp(i) + 
+     $              amatrix_inv(i,j,geom)*coords(j,icent,geom)
+            end do
+            tmp(i) = tmp(i)*scale ! Scale to angstrom
+         end do
+         write(unit,3) tags(icent,geom), (tmp(j),j=1,3)
+ 3       format(1x,a16,1x,3f15.8)
+      end do
+c
+      end
       logical function geom_print(geom)
       implicit none
 #include "geomP.fh"

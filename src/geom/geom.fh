@@ -12,6 +12,7 @@
       logical geom_ncent
       logical geom_cent_tag
       logical geom_print
+      logical geom_print_xyz
       logical geom_tag_to_element
       logical geom_charge_center
       logical geom_nuc_charge
@@ -44,6 +45,7 @@ c
       external geom_ncent
       external geom_cent_tag
       external geom_print
+      external geom_print_xyz
       external geom_tag_to_element
       external geom_charge_center
       external geom_nuc_charge

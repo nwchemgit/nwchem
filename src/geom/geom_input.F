@@ -25,6 +25,7 @@ c
       character*16 element
       logical osymmetry
       integer atn, isys
+      character*16 format
       external geom_data
 c
 c     read a geometry from the input deck and output it
@@ -64,6 +65,24 @@ c
  10   if (inp_a(field)) then
          if (inp_compare(.false.,'print', field)) then
             oprint = .true.
+c
+c     If the next field is a recognizable format for standard
+c     geometries then process as
+c
+c     print format
+c
+c     currently just know about xyz
+c
+            if (inp_a(format)) then
+               if (inp_compare(.false.,'xyz',format)) then
+                  format = 'xyz'
+               else
+                  call inp_prev_field()
+                  format = ' '
+               endif
+            else
+               format = ' '
+            endif
          else if (inp_compare(.false.,'noprint',field)) then
             oprint = .false.
          else if (inp_compare(.false.,'units', field)) then
@@ -184,6 +203,14 @@ c
       if (oprint) then
          if (.not. geom_print(geom))
      $        call errquit('geom_input: print failed ', 0)
+         if (format .eq. 'xyz') then
+            write(6,*)
+            call util_print_centered(6,'XYZ format geometry',20,.true.)
+            if (.not. geom_print_xyz(geom,6))
+     $           call errquit('geom_input: print xyz?',0)
+            write(6,*)
+            call util_flush(6)
+         endif
       end if
 c
       if (.not. geom_rtdb_store(rtdb, geom, name))

@@ -17,7 +17,7 @@
       integer i, nvalues, max_values
       parameter (max_values = 100)
       double precision dvals(max_values)
-      character*16     cvals(max_values)
+      character*32     cvals(max_values)
       integer          ivals(max_values)
       logical          lvals(max_values)
       character*8 test
@@ -68,7 +68,7 @@ c
       endif
 c
 c     How many values are provided ?  For character variables
-c     we will always have statically allocatate buffers, but
+c     we will always have statically allocatated buffers, but
 c     for integer/real we could make some with ma?
 c
       nvalues = inp_n_field() - inp_cur_field()

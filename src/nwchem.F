@@ -5,6 +5,7 @@
 #include "rtdb.fh"
 #include "tcgmsg.fh"
 #include "pstat.fh"
+#include "util.fh"
       integer rtdb
       integer stack
       integer heap
@@ -91,9 +92,12 @@ c
 c     Print memory info
 c
       if (ga_nodeid() .eq. 0) then
-         call ga_summarize(.false.)
-         call ma_summarize_allocated_blocks()
-         call ma_print_stats()
+         if (util_print('ga summary', print_default))
+     $        call ga_summarize(.false.)
+         if (util_print('ma summary', print_default))
+     $        call ma_summarize_allocated_blocks()
+         if (util_print('ma stats', print_default))
+     $        call ma_print_stats()
       endif
 c
 c     Tidy up the global memory
@@ -139,6 +143,10 @@ c     Parse input data and shove into the database
 c
       call input_parse(rtdb)
 c
+c     Extract any high level print options
+c
+      call util_print_rtdb_load(rtdb,'print','noprint')
+c
 c     Done
 c
       end
@@ -146,6 +154,7 @@ c
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
+#include "util.fh"
       integer rtdb              ! [input] data base handle
 c     
 c     Drive the calculation.  Eventually this routine will hook up with the
@@ -263,8 +272,10 @@ c
 c     
 c     Eventually this will be where the next task is identified
 c     
- 1000 if (.not. rtdb_print(rtdb, .false.))
+ 1000 if (util_print('rtdb', print_high)) then
+         if (.not. rtdb_print(rtdb, .false.))
      $     call errquit('control: rtdb_print failed', 0)
+      endif
  1001 continue
 c
 c     Finished ... eventually need to track status of tasks so that

@@ -5,6 +5,7 @@
 #include "cguess.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
       integer geom, basis       ! Handles
       integer g_dens            ! GA returns superposition of atomic densities
 c
@@ -24,13 +25,25 @@ c..
 c...  start all types after one cycle closed shell in routine denscf
 c
       integer iwrite
-      logical oprint_dens, oprint_scf
+      logical oprint_dens, oprint_scf, oprint_ener
       integer l2
       integer ntr, nsq
       integer i10, ipcap, iqcap, ifc, ifo, is, iu, it
       integer ih, idc, idos, idt, idold, iss, ic, icopn, ismin
       integer iqmin, itransf, icc, last, memq, l_scr, k_scr
       data iwrite/6/, oprint_dens/.false./, oprint_scf/.false./
+c
+      oprint_dens = util_print('atomic guess density',print_debug)
+      oprint_scf  = util_print('atomic scf', print_debug)
+      oprint_ener = util_print('mo guess', print_default)
+c
+      if (ga_nodeid().eq.0 .and. 
+     $     (oprint_dens .or. oprint_scf .or. oprint_ener)) then
+         write(6,*)
+         call util_print_centered(6,
+     $        'Superposition of Atomic Density Guess', 20, .true.)
+         write(6,*)
+      endif
 c..
 c..    core partitioning
 c..
@@ -79,7 +92,7 @@ c..
      +     dbl_mb(it), dbl_mb(ih), dbl_mb(idc), dbl_mb(idos), 
      $     dbl_mb(idt), dbl_mb(idold), dbl_mb(iss) ,
      +     dbl_mb(ic), dbl_mb(icopn), dbl_mb(ismin), dbl_mb(iqmin), 
-     $     dbl_mb(itransf), dbl_mb(icc), nb) 
+     $     dbl_mb(itransf), dbl_mb(icc), nb, oprint_ener) 
 c
 c..   print if requested
 c

@@ -46,7 +46,9 @@ c
 c
 c     Extract high level info from the data-base setting defaults
 c
-      oprint = util_print('information',print_low) ! Need to also push print level
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'scf:print', 'scf:noprint')
+      oprint = util_print('information',print_low)
 c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
@@ -63,9 +65,6 @@ c
       if (.not.rtdb_get(rtdb, 'scf:skeleton',
      $     MT_LOG, 1, oskel)) oskel = .true.
       if (name .eq. ' ') name = 'mo basis'
-*      if (.not. geom_print(geom)) call errquit('scf: geom_print', 0)
-*      if (.not. bas_print(basis)) call errquit('scf: bas_print', 0)
-*      if (.not. gbs_map_print(basis)) call errquit('scf:gmp', 0)
 c
 c     Figure output input/output MO vectors ... all this should be
 c     context sensitive but that design is incomplete.
@@ -117,6 +116,31 @@ c
      $        '  output vectors  = ', a/)
          call util_flush(6)
       endif
+c
+c     Print out other junk
+c
+      if (ga_nodeid() .eq. 0) then
+         if (util_print('geometry',print_high)) then
+            if (.not. geom_print(geom))
+     $        call errquit('scf: geom_print', 0)
+            write(6,*)
+         endif
+         if (util_print('symmetry', print_debug)) then
+            call sym_print_all(geom, .true., .true., .true., .true.)
+            write(6,*)
+         endif
+         if (util_print('basis', print_high)) then
+            if (.not. bas_print(basis)) 
+     $           call errquit('scf: bas_print', 0)
+            write(6,*)
+         endif
+         if (util_print('geombas', print_debug)) then
+            if (.not. gbs_map_print(basis)) 
+     $           call errquit('scf:gmp', 0)
+            write(6,*)
+         endif
+         call util_flush(6)
+      endif
 c     
 c     When do other than RHF need to check that WFN type is valid
 c     in case have inherited the wavefunction description from
@@ -147,7 +171,7 @@ c
       if (.not. rtdb_cput(rtdb, 'scf:input vectors', 1, movecs_out))
      $     call errquit('scf:rtdb_cput failed scf:input vectors',0)
 c
-c     SCF is done destroy basis and geomtry handles  
+c     SCF is done destroy basis and geometry handles  
 c
       if (.not.(bas_destroy(basis) .and. geom_destroy(geom)))
      $     call errquit ('scf:destroying geom and basis handles',0)
@@ -158,6 +182,7 @@ c
 c
 c     Nothing else for now ... return convergence status
 c
+      call util_print_pop
       if (.not. context_pop('scf')) call errquit('context_pop failed',0)
       scf = converged
 c

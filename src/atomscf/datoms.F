@@ -1,6 +1,6 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
-     + cvec, copn, smin, qmin, transf, cc, nbb)
+     + cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -23,7 +23,7 @@ c
       real *8 pcap(*), qcap(*), fc(*), fo(*), s(*), u(*), t(*)
       real *8 h(*), dc(*), dos(*), dt(*), dold(*), ss(*)
       real *8 cvec(*), copn(*), smin(nbb,*), qmin(nbb,*),transf(*),cc(*)
-      logical oprin, status
+      logical oprin, status, oprint_ener
       integer iwrite
 c
 c     These should be dynamically allocated
@@ -279,9 +279,7 @@ c
       call ga_sync()
 c
       call ga_dgop(Msg_AtSCF, toteng, 1, '+')
-      if (ga_nodeid().eq.0) then
-         call util_print_centered(6,
-     $        'Superposition of Atomic Density Guess', 20, .true.)
+      if (ga_nodeid().eq.0 .and. oprint_ener) then
          write (iwrite,6010) toteng
          call util_flush(iwrite)
       endif
