@@ -1,8 +1,8 @@
       subroutine xc_signf(basis, nbf, iandex,mcenters, 
      &                      xyz,xyzm,ctr_quad, rad_quad,
-     &                       zprim,  acc_gauss)
+     &                       zprim,  acc_gauss,iatype_pt_chg)
 c
-C$Id: xc_signf.F,v 1.4 1999-03-09 04:45:57 edo Exp $
+C$Id: xc_signf.F,v 1.5 1999-05-10 22:41:53 edo Exp $
 c
       implicit none
 c      
@@ -13,6 +13,7 @@ c
       double precision xyzm(3,*) ! [input/output]
       double precision acc_gauss ! [input]
       double precision rad_quad ! [input]
+      logical iatype_pt_chg(*) ! [input]
       integer nbf  ! [input/output]
     
 c
@@ -35,13 +36,13 @@ c
      $     sqrt(-16.0d0*alpha*logeps)
 
 c
-c
-c
 c      acc_sigf=max(acc_gauss,20d0)
       acc_sigf=log(1d-10)
       mcenters_scr = 0
 c
       do ictr=1,mcenters
+
+        if(iatype_pt_chg(ictr)) goto 2001
         if (ictr.eq.ctr_quad) then
           mcenters_scr=mcenters_scr+1
           iandex(mcenters_scr)=ictr
@@ -49,6 +50,14 @@ c
         endif
         if (.not.bas_ce2cnr(basis,ictr,ic1,ic2))
      &       call errquit('Exiting in xc_signf.',11)
+c
+c     no bf on center ie but we keep grid
+c
+        if(ic1.eq.0) then
+           mcenters_scr=mcenters_scr+1
+           iandex(mcenters_scr)=ictr
+           goto 2001
+        endif
 
         x = xyz(1,ctr_quad) - xyz(1,ictr)
         y = xyz(2,ctr_quad) - xyz(2,ictr)
@@ -89,9 +98,7 @@ c        if (zmin*r_arg.lt.acc_sigf) then
           mcenters_scr=mcenters_scr+1
           iandex(mcenters_scr)=ictr
           goto 2001
-        else
         endif
-
       enddo
  2001 continue
       enddo
