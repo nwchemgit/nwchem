@@ -84,10 +84,9 @@
 
 #include "globalp.c.h"
 
-#define min(a,b) ( (a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
-#define ffabs(a) ((a) >= (0.) ? (a) : (-a))
-
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
+#define ffabs(a) ((a) > (0.) ? (a) : (-a))
 
 #define R_ZERO (DoublePrecision) 0.0e0
 #define R_ONE  (DoublePrecision) 1.0e0
@@ -104,7 +103,7 @@
 #define I_ZERO 0
 
   static Integer clustr_check(c1, cn, imin, imax)
-Integer c1, cn, imin, imax;
+     Integer c1, cn, imin, imax;
 {
   /*
     routine to determine if
@@ -173,7 +172,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   Integer i, j, num_cls, num_all_cls;
   Integer b1, num_eig;
   Integer max_clustr_size;
-  Integer beg_of_block, end_of_block;
+  Integer beg_of_block, end_of_block, ime;
   Integer bn;
   Integer clustrptr, blksiz;
   Integer me;
@@ -184,7 +183,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   DoublePrecision tmp, *eval, sep, eps;
   DoublePrecision onenrm, pertol;
   DoublePrecision xjm, eps1;
-  DoublePrecision ortol, xj;
+  DoublePrecision ortol, xj, sepfine;
   
   Integer clustr_check();
   extern Integer count_list();
@@ -235,15 +234,19 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
    */
       
   onenrm = ffabs( d[0] ) + ffabs( e[1] );
-  tmp = ffabs(d[*n-1]) + ffabs(e[*n-1]);
-  onenrm = MAX(onenrm, tmp);
   for (i = 1; i < *n-1; ++i) {
     tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
     onenrm = MAX(onenrm, tmp);
   }
-  
-  ortol = onenrm * (DoublePrecision ) 1.e-3 ;
+  tmp = ffabs(d[*n-1]) + ffabs(e[*n-1]);
+  onenrm = MAX(onenrm, tmp);
       
+  ortol = onenrm * (DoublePrecision ) 1.e-3 ;
+  /*
+sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
+  sepfine = sepfine*MAX(ortol, 1.);
+*/
+  
   c_ptr = iscratch;
   nn_proc = reduce_list2( num_eig, mapZ, c_ptr);
   
@@ -398,23 +401,25 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	
 	*/
       
-      /*
-       *  This is how one would compute ortol if the eigenvalues of block i
-       *  of T, Ti, were accurate relative to norm(Ti).
-       */
-      onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
-      tmp = ffabs(d[bn]) + ffabs(e[bn]);
-      onenrm = MAX(onenrm, tmp);
-      for (i = b1 + 1; i < bn; ++i) {
-	tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-	onenrm = MAX(onenrm, tmp);
-      }
-      ortol = onenrm * (DoublePrecision ) 1.e-3 ;
+/*
+ *  This is how one would compute ortol if the eigenvalues of block i
+ *  of T, Ti, were accurate relative to norm(Ti).
+ *
+ *     onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
+ *     tmp = ffabs(d[bn]) + ffabs(e[bn]);
+ *     onenrm = max(onenrm, tmp);
+ *     for (i = b1 + 1; i < bn; ++i) {
+*	tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+*	onenrm = max(onenrm, tmp);
+*      }
+ *     
+ *     ortol = onenrm * (DoublePrecision ) 1.e-3 ;
+ */
       
 #ifdef DEBUG1
-      fprintf(stderr, " got here 2 me = %d \n", me );
+    fprintf(stderr, " got here 2 me = %d \n", me );
 #endif
-      
+
       
       /*
 	Loop through eigenvalues of block nblk.
@@ -443,14 +448,13 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    fprintf(stderr, " Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
 	    return(-5);
 	  }
+	pertol = eps1 * R_TEN;
+	  sep = xj - xjm;
 	  /*
-	    pertol = eps1 * R_TEN;
-	    sep = xj - xjm;
-	    if (sep < pertol)
-	    xj = xjm + pertol;
-	    */
+	if (sep < pertol*MAX(ffabs(xj), ffabs(xjm)))
+	      xj = xjm + pertol;
+	*/
 	}
-	
 	eval[j] = xj;
 	
 #ifdef DEBUG1
@@ -461,12 +465,19 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  clustrptr = j;
 	
 	/*
-	  loose cluster
+	  tight cluster
 	  */
 	
 	if ( jblk > 1 )  {            /* jblk > 1 */
 	  sep = ffabs(xj - xjm);
-	if ( sep > 2.*MAX(fabs(xj), fabs(xjm)) * ortol){
+	  if ( sep >= MAX(ffabs(xj),ffabs(xjm))*1.e-3*onenrm) {
+	  /*
+	if ( sep >= 1.e-3*onenrm) {
+*/
+#ifdef DEBUG1
+	    fprintf(stderr, " got here 4 me = %d \n", me );
+#endif
+	    
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;
@@ -482,6 +493,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
             num_all_cls++;
             *nacluster = num_all_cls;
 
+
 #ifdef DEBUG1
 	    fprintf(stderr, " out of 4 me = %d \n", me );
 #endif
@@ -490,12 +502,11 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	}
 	
 	/* 
-	   assume that xj - xjm < ortol but we're at the end of the blk 
-	   */
-	
+	  assume that xj - xjm < ortol but we're at the end of the blk 
+	  */
 	if ( j == end_of_block ) {
 	  if ( clustr_check(clustrptr, end_of_block, *imin, imax) == 1 ) {
-	    
+
 #ifdef DEBUG1
 	    fprintf(stderr, " got here 5 me = %d \n", me );
 #endif
@@ -506,12 +517,12 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	    *(c_ptr++) = bn;
 	    num_cls++;
 	    max_clustr_size = MAX( (end_of_block -clustrptr + 1), max_clustr_size);
-	    
 #ifdef DEBUG1
-	    fprintf(stderr, " out of 5 me = %d \n", me );
+	    fprintf(stderr, " out of 5 me = %d cbeg %d cend %d b1 %d bn %d \n",me,
+		    clustrptr, end_of_block, b1, bn );
 #endif
 	  }
-	  
+
           icsplit[ num_all_cls ] = end_of_block;
           num_all_cls++;
           *nacluster = num_all_cls;
@@ -520,55 +531,50 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	
 	xjm = xj;
       }
-#ifdef DEBUG1
-      fprintf(stderr, " out of 6 me = %d \n", me );
-#endif
     }
-#ifdef DEBUG1
-    fprintf(stderr, " out of 7 me = %d \n", me );
-#endif
   }
   
-#ifdef DEBUG1
-  fprintf(stderr, " out of 8 me = %d \n", me );
-#endif
+  ime = -1;
+  ii = -1;
+  for ( ii = 0; ii < *n; ii++ ){
+    if ( mapZ[ii] == me ){
+      ime = ii;
+      break;
+    }
+  }
   
   /*
-    reorder for better load balance
-    */
-  
-  /*
-    if ( me % 2 == 1 ) {
+  if ( ime % 2 == 1 ) {
     if ( *num_clustr > 1 ) {
-    iscratch[0] = clustr_info[0];
-    iscratch[1] = clustr_info[1];
-    iscratch[2] = clustr_info[2];
-    iscratch[3] = clustr_info[3];
-    c_ptr = clustr_info + 4 * ( *num_clustr - 1);
-    clustr_info[0] = *(c_ptr++);
-    clustr_info[1] = *(c_ptr++);
-    clustr_info[2] = *(c_ptr++);
-    clustr_info[3] = *(c_ptr++);
-    c_ptr = clustr_info + 4 * ( *num_clustr - 1);
-    *(c_ptr++) = iscratch[0];
-    *(c_ptr++) = iscratch[1];
-    *(c_ptr++) = iscratch[2];
-    *(c_ptr++) = iscratch[3];
+      iscratch[0] = clustr_info[0];
+      iscratch[1] = clustr_info[1];
+      iscratch[2] = clustr_info[2];
+      iscratch[3] = clustr_info[3];
+      c_ptr = clustr_info + 4 * ( *num_clustr - 1);
+      clustr_info[0] = *(c_ptr++);
+      clustr_info[1] = *(c_ptr++);
+      clustr_info[2] = *(c_ptr++);
+      clustr_info[3] = *(c_ptr++);
+      c_ptr = clustr_info + 4 * ( *num_clustr - 1);
+      *(c_ptr++) = iscratch[0];
+      *(c_ptr++) = iscratch[1];
+      *(c_ptr++) = iscratch[2];
+      *(c_ptr++) = iscratch[3];
     }
-    }
-    */
+}
+  */
+  
   
   c_ptr = clustr_info;
   *num_clustr = num_cls;
+
+  
 /*
- for ( ii = 0; ii < 4* *num_clustr; ii++ )
-  printf("me = %d clustr4_info[%d] =  %d \n", me, ii, *(c_ptr++));               
+  for ( ii = 0; ii < 4* *num_clustr; ii++ )
+    printf("me = %d clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
 */
   
   /*
-    for ( ii = 0; ii < 4* *num_clustr; ii++ )
-    printf("me = %d clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
-    
     for ( ii = 0; ii < num_eig ; ii++ )
     printf("me = %d mapZ[%d] =  %d \n", me, ii, mapZ[ii]);
     
@@ -576,19 +582,15 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
     */
   
   
-  
-/*
-  if ( me == 0 ) {
-  for ( ii = 0; ii < 4* *num_clustr; ii++ )
-  printf("me = %d clustrf4 clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
-  
-  printf("me = %d exiting clustrf4 coarse imin =  %d numclustr %d  \n", me, *imin, *num_clustr);
-  }
+  /*
+    if ( me == 0 ) {
+    for ( ii = 0; ii < 4* *num_clustr; ii++ )
+    printf("me = %d clustrf5 close clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
+    
+    printf("me = %d exiting clustrf5 num fine clustr =  %d \n", me, *num_clustr);
+    }
   */
   
-  return(max_clustr_size);
+    return(max_clustr_size);
 }
-
-
-
 

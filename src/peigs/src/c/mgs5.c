@@ -125,7 +125,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
    iscrat = iscratch;
    
    proclist = iscrat;
-   nproc = reduce_list4( *n, mapF, proclist, iscrat + naproc );
+   nproc = reduce_list4( *n, mapF, proclist, &iscrat[naproc] );
    iscrat += nproc;
    
    nleft = iscrat;
@@ -148,7 +148,6 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
        for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
 	 dptr1 = &colF[indx][bb];
 	 t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-	 if ( ffabs(t) > DLAMCHE ) 
 	   daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
        }
      }
@@ -176,7 +175,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
     rsize = nvecs_in * vec_len * sizeof(DoublePrecision);
       
     if ( rsize != 0 )
-      bbcast00( (char *) in_buffer, rsize, 11113,  proclist[1],
+      bbcast00( (char *) in_buffer, rsize, 999,  proclist[1],
                 nproc-1, &proclist[1] );    
   }
 
@@ -186,7 +185,6 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
     dptr1 = in_buffer;
     for ( jndx = 0; jndx < nvecs_in; jndx++ ){
       t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-      if ( fabs(t) > DLAMCHE )
 	daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
       dptr1 += vec_len;
     }
@@ -236,7 +234,6 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 	  for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
 	    dptr1 = &colF[indx][bb];
 	    t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
-	    if ( fabs(t) > DLAMCHE )
 	      daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
 	  }
         }
@@ -254,8 +251,8 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 
       rsize = mvecs * vec_len * sizeof(DoublePrecision);
 
-      bbcast00( (char *) in_buffer, rsize, 11113,  proclist[i],
-                nproc-1, proclist+1 );    
+      bbcast00( (char *) in_buffer, rsize, 888,  proclist[i],
+                nproc-1, &proclist[1] );    
       
       /*
        * the buffer contains incoming orthonormal vectors
@@ -267,7 +264,6 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
         dptr1 = in_buffer;
         for ( jndx = 0; jndx < mvecs; jndx++ ){
           t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-	  if ( fabs(t) > DLAMCHE )
 	    daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
           dptr1 += vec_len;
         }

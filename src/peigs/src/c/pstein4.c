@@ -158,9 +158,9 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
   extern Integer      mxnprc_(), mxmynd_();
   extern void     reduce_maps_();
-  extern Integer clustrf_();
+  extern Integer clustrf4_();
   
-  extern Integer      reduce_list2(), count_list(), clustrinv_();
+  extern Integer      reduce_list2(), count_list(), clustrinv4_();
   extern Integer      indxL ();
   extern void     xstop_();
   extern void     pgexit();
@@ -392,7 +392,10 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   neigval = *meigval;
 
+/*
   iwork  = iiwork;
+*/
+  iwork  = iscratch;
   dwork  = ddwork;
   piwork = ppiwork;
   
@@ -440,7 +443,8 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   nacluster = 0;
   isize = 0;
-  isize = clustrf4_(&msize, dplus, lplus, &neigval, eval, mapZ, vecZ, iblock, nsplit, isplit,
+  isize = clustrf4_(&msize, dplus, lplus, &neigval,
+		    eval, mapZ, vecZ, iblock, nsplit, isplit,
 		    ptbeval, &numclstr, clustr_info, &imin, proclist, 
 		    &nacluster, icsplit, i_scrat);
   
@@ -461,7 +465,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     i_scrat[ii] = 0;
   i_scrat[ me ] = isize;
   
-  gsum00( (char *) i_scrat, nproc, 5, 111, mapZ[0], nn_proc, proclist, d_scrat );
+  gsum01( (char *) i_scrat, nproc, 5, 111, mapZ[0], nn_proc, proclist, d_scrat );
   
   max_sz = 0;
   for ( ii = 0; ii < nproc; ii++ )
@@ -478,7 +482,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
     }
   }
   
-  bbcast00( (char *) d_scrat, 1, 112, sync_proc, nn_proc, proclist);
+  bbcast00( (char *) d_scrat, 1, 999, sync_proc, nn_proc, proclist);
   
   /*
    * Compute eigenvectors
@@ -490,8 +494,10 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   ibad = 0;
   if ( nvecsZ != 0 ) 
-    ibad = clustrinv4_( &msize, dd, ee, dplus, lplus, ld, lld, ptbeval, clustr_info, &numclstr, mapZ,
-			mapvZ, vecZ, &imin, &nacluster, icsplit, i_scrat, d_scrat);
+    ibad = clustrinv4_( &msize, dd, ee, dplus, lplus, ld, lld,
+			ptbeval, clustr_info, &numclstr, mapZ,
+			mapvZ, vecZ, &imin, &nacluster, icsplit,
+			i_scrat, d_scrat);
   
   /*
    * syncronize processors
@@ -501,43 +507,22 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    * Get same value of ibad for all processors in proclist.
    */
   
-  /*
-    if( ibad == 0 ) {
-    for ( iii = 0; iii < neigval; iii++)
-    eval[iii] += psgn*psigma;
-    
-    tresid( n, meigval, dd, ee, vecZ, mapZ, eval, iiwork, ddwork, &res, &linfo);
-    if( res > 1000.e0  && me == mapZ[0] ) {
-    
-    fprintf(stderr, "\n\n Warning from pstein.  Tridiagonal eigenproblem has \n");
-    fprintf(stderr, " max |T z_i-lamba_i z_i | /(eps |T|) = %13.3e \n \n", res );
-    
-    if( res > 1.e30 ) 
-    ibad = *n + 30;
-    else
-    ibad = *n + (Integer) log10( res );
-    }
-    
-    bbcast00( (char *) &ibad, sizeof(Integer), 11114, mapZ[0], nn_proc, proclist);
-    }
-    */
+  bbcast00( (char *) &ibad, 1, 999, sync_proc, nn_proc, proclist);
   
   
-  /*
-    ibad = -ibad;
-    if( ibad == 0 )
+  ibad = -ibad;
+  if( ibad == 0 )
     ibad = -(msize+10);
-    
-    dbad = (DoublePrecision) ibad;
-    
-    gmax00( (char *) &dbad, 1, 1, 1, proclist[0], nn_proc, proclist, dwork );
+  
+  dbad = (DoublePrecision) ibad;
+  
+  gmax00( (char *) &dbad, 1, 1, 888, proclist[0], nn_proc, proclist, dwork );
     
     ibad = (Integer) dbad;
     ibad = -ibad;
     
     if( ibad == msize+10 )
     ibad = 0;
-    */
   
   /*
    * Check residual of tridiagonal eigenproblem.
@@ -546,12 +531,6 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   *info = ibad;
   
-  
-  for ( ii = 0; ii < nproc ; ii++ )
-    i_scrat[ii] = 0;
-  i_scrat[ me ] = isize;
-  
-  gsum00( (char *) i_scrat, nproc, 5, 11111, mapZ[0], nn_proc, proclist, d_scrat );
   
 #ifdef DEBUG7
   printf(" out pstein4 me = %d \n", me);

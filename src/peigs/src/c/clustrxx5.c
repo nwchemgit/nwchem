@@ -346,7 +346,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     }
 
     if( send_num == 0 ) {
-      itype = 999999;
+      itype = 99;
 
       c1     = schedule[4*recv_cl];
       csiz   = schedule[4*recv_cl+1] - c1 + 1;
@@ -434,26 +434,20 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 	    */
 	  
 	  /*
-	    Initialize vector to zero.
-	    */
+	     Initialize vector to zero.
+	     */
 	  
+	  fil_dbl_lst (*n, vecZ[i], 0.0e0);
 	  /*
-	    fil_dbl_lst (*n, vecZ[i], 0.0e0);
-	    */
+	     for ( jjj = 0; jjj < bb1; jjj++ )
+	     vecZ[i][jjj] = 0.0;
+	     */
 	  
-  	  for ( jjj = 0; jjj < bb1; jjj++ )
-	    vecZ[i][jjj] = 0.0;
-
 	  /*
 	    fill with random entries
 	    */
 	  
 	  dlarnv_(&three, iseed, &blksiz, &vecZ[i][bb1]);
-	  
-  	  for ( jjj = bn ; jjj < *n; jjj++ )
-	    vecZ[i][jjj] = 0.0;
-	  
-	  
 	  indx++;
 	}
       }
@@ -511,7 +505,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 	
 	for ( i = 0; i < itime ; i++ )
 	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
-	  itime = 0;
+	itime = 0;
       }
   }
     
@@ -528,7 +522,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     
       itype = 99;
 
-      if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) { 
+      if( recv_num > 0  &&  ( myindx % 2 ) == 0 ) { 
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 
@@ -566,7 +560,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
 
-      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) {
+      if( recv_num > 0  &&  ( myindx % 2 ) != 0 ) {
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
         xblksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;

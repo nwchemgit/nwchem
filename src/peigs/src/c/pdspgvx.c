@@ -884,8 +884,9 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
 
   }
 
-      printf( "me = %d Exiting pdspgvx. \n", me );
-	fflush(stdout);
+#ifdef DEBUG1
+      fprintf(stderr, "me = %d Exiting pdspgvx. \n", me );
+#endif
 
   return;
 }

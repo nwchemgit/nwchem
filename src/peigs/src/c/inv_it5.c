@@ -109,13 +109,8 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
   p = &lplus[5* lsiz];
   gamma = &lplus[6*lsiz];
   
-    ibad = 0;
-
-#ifdef DEBUG  
-  fprintf(stderr, " csiz = %d blksize = %d \n", csiz, blksz);
-#endif
-
-
+  ibad = 0;
+  
 
   /*
     iwork1 = iwork+*n;
@@ -129,8 +124,8 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
       mapvec[k] = i_1;
       xj = eval[i_1];
       dgetavec_( &j, &xj, &delta, n, &bb1, &bbn, e, d, ld, lld, lplus,
-		 dplus, uminus, dminus, t, p, gamma,
-		 vector[k], &kk, &ztz, &zbegin1, &zend, &j, iwork1 );
+		dplus, uminus, dminus, t, p, gamma,
+		vector[k], &kk, &ztz, &zbegin1, &zend, &j, iwork1 );
       
 #ifdef DEBUG
       printf(" invit5 me = %d csiz = %d j = %d xj = %f c1 = %d cn = %d ztz = %f \n", me, csiz, j, xj, *c1, *cn, ztz);

@@ -103,7 +103,7 @@
 #define I_ZERO 0
 
   static Integer clustr_check(c1, cn, imin, imax)
-Integer c1, cn, imin, imax;
+     Integer c1, cn, imin, imax;
 {
   /*
     routine to determine if
@@ -172,7 +172,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   Integer i, j, num_cls, num_all_cls;
   Integer b1, num_eig;
   Integer max_clustr_size;
-  Integer beg_of_block, end_of_block;
+  Integer beg_of_block, end_of_block, ime;
   Integer bn;
   Integer clustrptr, blksiz;
   Integer me;
@@ -524,24 +524,20 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	
 	xjm = xj;
       }
-#ifdef DEBUG1
-	    fprintf(stderr, " out of 6 me = %d \n", me );
-#endif
     }
-#ifdef DEBUG1
-	    fprintf(stderr, " out of 7 me = %d \n", me );
-#endif
   }
-
-#ifdef DEBUG1
-	    fprintf(stderr, " out of 8 me = %d \n", me );
-#endif
-
   
-
+  ime = -1;
+  ii = -1;
+  for ( ii = 0; ii < *n; ii++ ){
+    if ( mapZ[ii] == me ){
+      ime = ii;
+      break;
+    }
+  }
   
-	    /*
-  if ( me % 2 == 1 ) {
+  /*
+  if ( ime % 2 == 1 ) {
     if ( *num_clustr > 1 ) {
       iscratch[0] = clustr_info[0];
       iscratch[1] = clustr_info[1];
@@ -557,9 +553,10 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
       *(c_ptr++) = iscratch[1];
       *(c_ptr++) = iscratch[2];
       *(c_ptr++) = iscratch[3];
-      }
-      }
-      */
+    }
+}
+  */
+  
   
   c_ptr = clustr_info;
   *num_clustr = num_cls;

@@ -1,7 +1,8 @@
 include ../../../config/makefile.h
 include ../../DEFS
 
-COBJ  = pscale.o \
+COBJ  = mgscs.o \
+	pscale.o \
 	clustrxx5.o \
 	clustrxx4.o \
 	pstein4.o \
@@ -24,11 +25,13 @@ COBJ  = pscale.o \
          mapdif1.o \
          matmax.o \
          mdif2b.o \
-         mdiff1.o \
+        mdiff1.o \
          mdiff2.o \
          memreq.o \
          memreq_f.o \
-         mgs4.o \
+	mgs4.o \
+	mgs1b.o \
+	mgs2.o \
          mxm25.o \
          mxm5x.o \
          mxm88.o \

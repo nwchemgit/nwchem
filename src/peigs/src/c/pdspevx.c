@@ -46,6 +46,8 @@ TIMINGG test_timing;
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define ffabs(a) ((a) > (0.) ? (a) : (-a))
 
+long peigs_DEBUG=1; 
+
 
 DoublePrecision psigma, psgn, peigs_shift, peigs_scale;
 
@@ -263,7 +265,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
                     nproc, itmp,
                     isize, nZ2,
                     mapZ_0, nvecsQ, nvecsA, nvecsZ, nvecsZ2,
-                    linfo, maxinfo, i, j;
+                    linfo, maxinfo, i, j, bb1, bn ;
 
     Integer         *i_scrat, *mapQ, *iblock,ii, *isplit;
 
@@ -308,6 +310,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     extern Integer  tred2();
     extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
+	extern void synch_();
 
 /*
  *  ---------------------------------------------------------------
@@ -336,6 +339,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     me    = mxmynd_();
     nproc = mxnprc_();
     strcpy( msg,  "Error in pdspevx." );
+/*
+setdbg_(&peigs_DEBUG);
+*/
 
     
    /*
@@ -675,16 +681,14 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #ifdef TIMING
       tt1 = t1 = mxclock_();
 #endif
-#ifdef DEBUG11
-      printf(" in pdspevx tred2 me = %d \n", mxmynd_());
-      fflush(stdout);
+#ifdef DEBUG7
+   printf(" in pdspevx tred2 me = %d \n", mxmynd_());
 #endif
 
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
-#ifdef DEBUG11
+#ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
-      fflush(stdout);
 #endif
    
    
@@ -710,9 +714,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 #ifdef TIMING
       t1 = mxclock_();
 #endif
-#ifdef DEBUG11
+#ifdef DEBUG7
    printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
-   fflush(stdout);
 #endif
       
       peigs_shift = 0.0e0;
@@ -754,9 +757,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      
      
    
-#ifdef DEBUG11
+#ifdef DEBUG7
    printf(" out pdspevx pstebz10 me = %d \n", mxmynd_());
-   fflush(stdout);
 #endif
    
 #ifdef TIMING
@@ -832,9 +834,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	*/
       
       
-#ifdef DEBUG11
-      printf(" me = %d just before syncco pstein5 %d \n", me, *info );
-      fflush(stdout);
+#ifdef DEBUG7
+      printf(" me = %d just before pstein5 %d \n", me, *info );
 #endif
       
       /*
@@ -847,26 +848,19 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-
-      printf(" me = %d just before pstein5 %d \n", me, *info );
-      fflush(stdout);
-
       
       pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
 
-#ifdef DEBUG11
-      printf(" me = %d just before syncco pstein5 %d \n", me, *info );
-      fflush(stdout);
-#endif
-
-
+	linfo = 26001;
+/*      synch_(&linfo );
+*/
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 11, mapA[0], nn_proc, proclist, d_scrat);
 
       
-#ifdef DEBUG11
+#ifdef DEBUG7
       printf(" me = %d just after pstein5 %d \n", me, *info );
 #endif
       
@@ -874,24 +868,21 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	 mgs loose cluster
 	 */
 
-#ifdef DEBUG11
+#ifdef DEBUG7
       printf(" me = %d just before pstein4 %d \n", me, *info );
 #endif
-      
-      pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
-		&neigval, eval, iblock, &nsplit, isplit,
-		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
-      
-#ifdef DEBUG11
-      printf(" me = %d just before syncco pstein4 %d \n", me, *info );
-      fflush(stdout);
-#endif
 
-      
-      syncco[0] = 0.0e0;
-      gsum00( (char *) syncco, 1, 5, 12, mapA[0], nn_proc, proclist, d_scrat);
-      
-      
+	pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
+	&neigval, eval, iblock, &nsplit, isplit,
+		  mapZ, vecZ, d_scrat,i_scrat, iptr, info);
+	
+	/*
+	  synch_(&linfo);
+	  */
+	syncco[0] = 0.0e0;
+	gsum00( (char *) syncco, 1, 5, 12, mapA[0], nn_proc, proclist, d_scrat);
+	
+	
 #ifdef DEBUG7
       printf(" me = %d just after pstein4 %d \n", me, *info );
       fflush(stderr);
@@ -925,26 +916,19 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      * Compute product of Q from tred2 and Z, the eigenvectors of the
      * tridiagonal matrix.  This gives the eigenvectors of A.
      */
-    
-    nvecsZ = count_list( me, mapZ, &neigval );
-    
-#ifdef TIMING
-    t1 = mxclock_();
-#endif
 
-#ifdef DEBUG11
-      printf(" me = %d just before syncco mxm25 %d \n", me, *info );
-      fflush(stdout);
+    nvecsZ = count_list( me, mapZ, &neigval );
+
+#ifdef TIMING
+      t1 = mxclock_();
 #endif
-      
-      
+    
       if (nvecsQ + nvecsZ > 0) {
 	mxm25 ( &msize, &msize, vecQ, mapQ, &neigval,
 		vecZ, mapZ, vecZ, i_scrat, d_scrat);
       }
-
-    syncco[0] = 0.0e0;
-    gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
+      syncco[0] = 0.0e0;
+      gsum00( (char *) syncco, 1, 5, 14, mapA[0], nn_proc, proclist, d_scrat);
       
 #ifdef TIMING
       mxsync_();
@@ -976,9 +960,8 @@ END:
 #endif
     
     
-#ifdef DEBUG11
-    printf("me = %d Exiting pdspevx \n", me );
-    fflush(stdout);
+#ifdef DEBUG7
+    fprintf(stderr, "me = %d Exiting pdspevx \n", me );
 #endif
     
 #ifdef TIMING
