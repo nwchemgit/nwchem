@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.19 2002-01-14 18:50:48 bylaska Exp $
+* $Id: control.F,v 1.20 2002-02-25 02:56:33 bylaska Exp $
 *
 
 *     ***********************************
@@ -1051,8 +1051,12 @@ c      end
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "inp.fh"
+#include "util.fh"
 
       logical value
+      character*30 operation
+
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -1060,8 +1064,15 @@ c      end
 
       if (.not.rtdb_get(rtdb,'cgsd:allow_translation',
      >                  mt_log,1,value))
-     >  call errquit(
-     > 'control_allow_translation:rtdb_get allow_translation failed',0)
+     >  value = .true.
+
+*      *** read the current operation ****
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = ' '
+
+*     *** allow translation of operation == freq||hessian ***
+      if (inp_compare(.false.,'freq',operation)) value = .true.
+      if (inp_compare(.false.,'hessian',operation)) value = .true.
 
       control_allow_translation = value
       return
