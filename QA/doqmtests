@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: doqmtests,v 1.37 2003-04-16 22:54:49 edo Exp $
+# $Id: doqmtests,v 1.38 2003-04-17 04:17:42 edo Exp $
 #
 #---   small tests
 runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o #pyqa
@@ -31,7 +31,7 @@ runtests.unix hess_c6h6
 runtests.unix intchk
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
-runtests.unix sadbig
+#runtests.unix sadbig
 runtests.unix br2_dk
 runtests.unix uo2_sodft
 runtests.unix uo2_sodft_grad
