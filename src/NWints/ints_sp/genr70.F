@@ -1,6 +1,6 @@
       subroutine genr70(bra, ish, xi, jsh, xj, ket, ksh, xk, lsh, xl,
      $     eri)
-c $Id: genr70.F,v 1.3 1994-08-19 01:22:47 d3g681 Exp $
+c $Id: genr70.F,v 1.4 1994-10-06 00:18:55 d3g681 Exp $
 c
 c     Generic interface to the gaussian two electron integral package.
 c     Evaluates those integrals involving only s, p and sp functions.
@@ -31,7 +31,6 @@ c
       integer i, iush, jush, kush, lush, ibas, jbas, kbas, lbas
       integer ngi, ngj, ngk, ngl, iptc, jptc, kptc, lptc, ngij, ngkl
       integer ipte, jpte, kpte, lpte, isht, jsht, ksht, lsht
-      logical firstcall
       double precision x(3,4)   ! used to permute coordinates
       double precision gout(256) ! Internal integral buffer
 c
@@ -39,13 +38,6 @@ c
       logical bas_check_handle
       external bas_check_handle
 #endif
-      save firstcall
-      data firstcall /.true. /
-c
-      if (firstcall) then
-         call init70
-         firstcall = .false.
-      endif
 c
 c     check basis handles, prepare to get data from basis structures
 c
