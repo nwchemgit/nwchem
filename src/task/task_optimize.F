@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.9 1997-05-22 00:26:54 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.10 1997-06-25 18:09:17 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -86,6 +86,7 @@ c
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
+            call stpr_walk_reset()
  10         if (task_gradient(rtdb)) then
                if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
                status = .true.  ! Finished
@@ -117,7 +118,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.9 1997-05-22 00:26:54 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.10 1997-06-25 18:09:17 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -207,6 +208,7 @@ c
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
      &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
+            call stpr_walk_reset()
  10         if (task_gradient(rtdb)) then
                if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
                status = .true.  ! Finished
