@@ -23,6 +23,12 @@ static PyObject *NwchemError;
 
 static int rtdb_handle;            /* handle to the rtdb */
 
+#ifdef CRAY
+#define task_energy_ TASK_ENERGY
+#define task_gradient_ TASK_GRADIENT
+#define task_optimize_ TASK_OPTIMIZE
+#endif
+
 static PyObject *
 wrap_rtdb_open(PyObject *self, PyObject *args)
 {
@@ -370,6 +376,69 @@ static PyObject *wrap_task_gradient(PyObject *self, PyObject *args)
     return returnObj;
 }
 
+static PyObject *wrap_task_optimize(PyObject *self, PyObject *args)
+{
+    char *filename, *mode;
+    char *theory;
+    double energy, *gradient;
+    int ma_type, nelem, ma_handle, ind, i;
+    char date[26], *format_str;
+    PyObject *returnObj, *eObj, *gradObj;
+    
+    if (PyArg_Parse(args, "s", &theory)) {
+	if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+		      strlen(theory)+1, theory)) {
+	    PyErr_SetString(NwchemError, "task_optimize: putting theory failed");
+	    return NULL;
+	}
+	if (!task_optimize_(&rtdb_handle)) {
+	    PyErr_SetString(NwchemError, "task_optimize: failed");
+	    return NULL;
+	}
+	if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
+	    PyErr_SetString(NwchemError, "task_optimize: getting energy failed");
+	    return NULL;
+	}
+	if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)) {
+	    PyErr_SetString(NwchemError, "task_optimize: getting gradient failed");
+	    return NULL;
+	}
+	if (!MA_get_pointer(ma_handle, &gradient)) {
+	    PyErr_SetString(NwchemError, "task_optimize: ma_get_ptr failed");
+	    return NULL;
+	}
+    }
+    else {
+	PyErr_SetString(PyExc_TypeError, "Usage: task_optimize(theory)");
+	return NULL;
+    }
+    
+    if (!(format_str = malloc(nelem+3))) {
+	PyErr_SetString(PyExc_MemoryError,
+			"rtdb_get failed allocating format string");
+	(void) MA_free_heap(ma_handle);
+	return NULL;
+    }
+
+    ind = 0;
+    format_str[ind++] = '[';
+    for (i = 0; i < nelem; i++, ind++) {
+	format_str[ind] = 'd';
+    }
+    format_str[ind++] = ']';
+    format_str[ind] = 0;
+    
+    eObj = Py_BuildValue("d",energy);
+    gradObj = Py_VaBuildValue(format_str, (void *) gradient);
+    returnObj = Py_BuildValue("OO", eObj, gradObj);
+    Py_DECREF(eObj);
+    Py_DECREF(gradObj);
+    (void) MA_free_heap(ma_handle);
+    (void) free(format_str);
+
+    return returnObj;
+}
+
 
 static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
 {
@@ -416,6 +485,7 @@ static struct PyMethodDef nwchem_methods[] = {
    {"rtdb_get",        wrap_rtdb_get, 0}, 
    {"task_energy",     wrap_task_energy, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
+   {"task_optimize",   wrap_task_optimize, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
    {"ga_nodeid",       wrap_ga_nodeid, 0}, 
    {NULL, NULL}
