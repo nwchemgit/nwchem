@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.13 1997-02-26 07:42:21 d3e129 Exp $
+C$Id: opt_drv.F,v 1.14 1997-03-10 23:05:21 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -31,17 +31,18 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
-      integer  rtdb
-      integer  geom
-      logical  status
-      logical  hnd_sadx
-      logical  opt_input
-      logical  some
-      logical  dbug
-      logical  cvged
-      logical  zcoord
-      logical  rstart
-      logical  excess
+      integer       rtdb
+      integer       geom
+      logical       status
+      logical       hnd_sadx
+      logical       opt_input
+      logical       some
+      logical       dbug
+      logical       cvged
+      logical       zcoord
+      logical       rstart
+      logical       excess
+      character*255 opt_hess_fil
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
@@ -57,6 +58,7 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_optfrz/icfrz(mxcoor),iatfrz(mxatom)
       common/hnd_optfun/e,eg(mxcart)
       common/hnd_optvar/zcoord,ncoord,mcoord
+      common/hnd_optfil/opt_hess_fil
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
       dimension t0(mxcoor)
@@ -87,6 +89,7 @@ c
             inhess=0
             modupd=1
             modsad=0
+            moddir=1
             do i=1,mxcoor
                icfrz(i)=0
             enddo
@@ -100,8 +103,9 @@ c
          call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
          call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
          call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
-         call ga_brdcst( 7+msgint,icfrz ,mitob(mxcoor),0)
-         call ga_brdcst( 8+msgint,iatfrz,mitob(mxatom),0)
+         call ga_brdcst( 7+msgint,moddir,mitob(1     ),0)
+         call ga_brdcst( 8+msgint,icfrz ,mitob(mxcoor),0)
+         call ga_brdcst( 9+msgint,iatfrz,mitob(mxatom),0)
       else
          call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
          call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
@@ -109,15 +113,16 @@ c
          call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
          call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
          call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
-         call ga_brdcst( 7+msgint,icfrz ,mitob(mxcoor),0)
-         call ga_brdcst( 8+msgint,iatfrz,mitob(mxatom),0)
+         call ga_brdcst( 7+msgint,moddir,mitob(1     ),0)
+         call ga_brdcst( 8+msgint,icfrz ,mitob(mxcoor),0)
+         call ga_brdcst( 9+msgint,iatfrz,mitob(mxatom),0)
       endif
       call ga_sync()
       status = rtdb_parallel(.true.) 
 c
       if (ga_nodeid().eq.0.or.dbug)  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
-     1                                              modsad
+     1                                       modsad,moddir
       endif
 c
 c     ----- branch to transition state search if demanded -----
@@ -326,7 +331,7 @@ c
  9997 format(' in hnd_optx, nzvar,nvar,ncart,ncoord,mcoord = ',5i5)
  9996 format(' cvgopt = ',f10.6,/,' nptopt = ',i4,/,' linopt = ',i4,
      1                          /,' inhess = ',i4,/,' modupd = ',i4,
-     2                                            /,' modsad = ',i4)
+     2                          /,' modsad = ',i4,/,' moddir = ',i4)
  9995 format(' too many points in optimization. stop')
  9994 format(/,10x,19(1h-),
      1       /,10x,'Energy Minimization',
@@ -381,6 +386,7 @@ c
       inhess=0
       modupd=1
       modsad=0
+      moddir=1
       do i=1,mxcoor
          icfrz(i)=0
       enddo
@@ -469,6 +475,13 @@ c
                else
                   call errquit('hnd_opt_input: modsad',911)
                endif
+            elseif(inp_compare(.false.,'moddir',field)) then
+               if(inp_i(idum)) then
+                  moddir=idum
+                  go to 10
+               else
+                  call errquit('hnd_opt_input: moddir',911)
+               endif
             endif
          endif
 c
@@ -482,6 +495,7 @@ c
          write(iw,*) 'inhess',inhess
          write(iw,*) 'modupd',modupd
          write(iw,*) 'modsad',modsad
+         write(iw,*) 'moddir',moddir
       endif
 c
       return
@@ -1032,7 +1046,7 @@ C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
 C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
 C
-      INTEGER   GA_HESS
+      LOGICAL   DRIVER_OPT_OPN_HESS
       LOGICAL   DRIVER_OPT_PUT_HESS
       LOGICAL   DRIVER_OPT_GET_HESS
       LOGICAL   STATUS
@@ -1041,11 +1055,12 @@ C
       PARAMETER (MXCART=3*MXATOM)
       PARAMETER (MXZMAT=1500)
       PARAMETER (MXCOOR=1500)
-      CHARACTER*8 ERRMSG
+      CHARACTER*255 OPT_HESS_FIL
+      CHARACTER*8   ERRMSG
       LOGICAL OUT
       LOGICAL SOME
       COMMON/HND_IOFILE/IR,IW
-      COMMON/HND_GA_OPT/GA_HESS
+      COMMON/HND_OPTFIL/OPT_HESS_FIL
       COMMON/HND_ZMTPAR/NZMAT,NZVAR,NVAR
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSSX(NCART,*),HSSQ(NINT,*)       
@@ -1109,9 +1124,9 @@ C
 C
 C     ----- SAVE INITIAL HESSIAN -----
 C
-      STATUS=GA_CREATE(MT_DBL,NCOOR,NCOOR,'DRIVER:HESS',1,1,GA_HESS)
+      STATUS=DRIVER_OPT_OPN_HESS()
       IF(.NOT.STATUS) THEN
-         CALL ERRQUIT('HSS_INIT_X:GA_CREATE?',911)
+         CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
       ENDIF
       STATUS=RTDB_PARALLEL(.FALSE.)
       IF( GA_NODEID().EQ.0) THEN
@@ -1444,6 +1459,88 @@ C
      2       /,1X,38(1H-))
  9008 FORMAT(' IN  OPT_HSS_INIT_ZMT , HGUESS = ',A8) 
       END
+      logical function driver_opt_opn_hess()
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+c
+      character*255 opt_hess_fil
+      character*8   errmsg
+      logical       status
+c
+      integer       ir
+      integer       iw
+      integer       ift
+      logical       dbug
+      common/hnd_iofile/ir,iw
+      common/hnd_optfil/opt_hess_fil
+      dimension errmsg(3)
+      data errmsg   /'program ','stop in ','opn_hess'/
+      data ift      /31/
+c
+      dbug=.true. 
+c
+      call util_file_name('driver',.false.,.false.,opt_hess_fil)
+      open(unit=ift,file=opt_hess_fil,form='unformatted',
+     1     access='sequential',status='unknown',err=911)
+      if(dbug) then
+         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+      endif
+      driver_opt_opn_hess=.true.
+      return
+c
+  911 continue
+      if(dbug) then
+         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+      endif
+      call hnd_hnderr(3,errmsg)
+      driver_opt_opn_hess=.false.
+      return
+      end
+      logical function driver_opt_cls_hess()
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "context.fh"
+c
+      character*255 opt_hess_fil
+      character*8   errmsg
+      logical       status
+c
+      integer       ir
+      integer       iw
+      integer       ift
+      logical       dbug
+      common/hnd_iofile/ir,iw
+      common/hnd_optfil/opt_hess_fil
+      dimension errmsg(3)
+      data errmsg   /'program ','stop in ','cls_hess'/
+      data ift      /31/
+c
+      dbug=.true.
+c
+      close(unit=ift,status='keep',err=911)
+      if(dbug) then
+         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+      endif
+      driver_opt_cls_hess=.true.
+      return
+c
+  911 continue
+      if(dbug) then
+         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+      endif
+      call hnd_hnderr(3,errmsg)
+      driver_opt_cls_hess=.false.
+      return
+      end
       logical function driver_opt_put_hess(hess,nint,mint)   
       implicit none
 #include "mafdecls.fh"
@@ -1453,7 +1550,6 @@ C
 #include "rtdb.fh"
 #include "context.fh"
 c
-      integer ga_hess
       logical status
 c
       integer nint 
@@ -1463,10 +1559,11 @@ c
       integer ir
       integer iw
       integer ip
+      integer ift
       logical dbug
       common/hnd_iofile/ir,iw
-      common/hnd_ga_opt/ga_hess
-      double precision hess(mint,*)  
+      double precision hess(mint,mint)  
+      data ift /31/
 c
       dbug=.false.
 c
@@ -1475,7 +1572,8 @@ c
          call hnd_prsq(hess,nint,nint,mint)    
       endif
 c
-      call ga_put(ga_hess,1,nint,1,nint,hess,mint)
+      rewind ift
+      write(ift) hess
 c
       driver_opt_put_hess=.true.
       return
@@ -1489,7 +1587,6 @@ c
 #include "rtdb.fh"
 #include "context.fh"
 c
-      integer ga_hess
       logical status
 c    
       integer nint
@@ -1499,14 +1596,16 @@ c
       integer ir
       integer iw
       integer ip
+      integer ift
       logical dbug
       common/hnd_iofile/ir,iw
-      common/hnd_ga_opt/ga_hess
-      double precision hess(mint,*) 
+      double precision hess(mint,mint) 
+      data ift /31/
 c
       dbug=.false.
 c
-      call ga_get(ga_hess,1,nint,1,nint,hess,mint)
+      rewind ift
+      read(ift) hess
 c
       if(dbug) then
          write(iw,*) ' _get_hess'
@@ -2333,7 +2432,6 @@ C
       LOGICAL DBUG
       LOGICAL OUT
       COMMON/HND_IOFILE/IR,IW
-      COMMON/RESTAR/NREST
       COMMON/HND_MOLXYZ/C(MXCART),ZAN(MXATOM),NAT         
       COMMON/HND_OPTMIZ/X0(MXCOOR),X(MXCOOR),DX(MXCOOR),
      1                  G0(MXCOOR),G(MXCOOR),DS(MXCOOR),
