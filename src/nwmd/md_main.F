@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.200 2005-02-15 18:52:44 d3j191 Exp $
+c $Id: md_main.F,v 1.201 2005-02-17 01:54:20 marat Exp $
 c
       implicit none
 c
@@ -91,15 +91,18 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
-      call prp_print()
+      if(.not.lqmmm) 
+     >       call prp_print()
 c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
 c
 c     print energies
 c
-      call cf_print_energy(lfnout)
+      if(.not.lqmmm) 
+     >  call cf_print_energy(lfnout)
 c
-      call sp_printf(filtop,lfntop,
+      if(.not.lqmmm) 
+     >       call sp_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
 c
       if(ifidi.ne.0) then
@@ -2778,7 +2781,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.200 2005-02-15 18:52:44 d3j191 Exp $
+c $Id: md_main.F,v 1.201 2005-02-17 01:54:20 marat Exp $
 c
       implicit none
 c
