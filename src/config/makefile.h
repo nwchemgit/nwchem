@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.60 1994-09-14 14:33:20 d3g681 Exp $
+# $Id: makefile.h,v 1.61 1994-09-14 15:23:42 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -261,7 +261,7 @@ ifeq ($(TARGET),DELTA)
  FOPTIMIZE = -O2 -Minline=1000
  COPTIMIZE = -O2
 
-   DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
+   DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
       LIBS = -L/home/delilah11/gifann/lib \
              -ltest -lddscf -lriscf -lrimp2 -lgradients -lnwints \
 	     -lstepper -lmoints \
