@@ -25,7 +25,7 @@ c
       integer rtdb              ! [input] database handle
       integer nbases
       logical converged, status
-      integer bases(3)
+      integer bases(3), plevel
 c
 c----------------------------------------------------------------------- 
 c
@@ -52,9 +52,10 @@ c     Extract high level info from the data-base setting defaults
 c
 c     load DFT parameters into common; turn off DFT printing
 c
+      call util_print_get_level(plevel)
       call util_print_set_level(print_none)
       call dft_rdinput(rtdb)
-      call util_print_rtdb_load(rtdb,'dftgrad')
+      call util_print_set_level(plevel)
 c
       if (XCFIT.and.CDFIT)then
          nbases = 3
