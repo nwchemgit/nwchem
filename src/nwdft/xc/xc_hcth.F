@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.10 1999-02-15 16:47:15 bjohnson Exp $
+c$Id: xc_hcth.F,v 1.11 1999-06-10 23:01:28 edo Exp $
 c
       Implicit none
 c
@@ -417,8 +417,9 @@ C      DOUBLE PRECISION du_cab_by_dzb_dzb
      & de_caa_by_drhoa, de_cbb_by_drhob, de_cab_by_drhoa, 
      & de_cab_by_drhob,
      & c_naa, c_nbb, c_nab
-      DOUBLE PRECISION F_xs ! this is a function which is called. 
-      DOUBLE PRECISION dF_xs_by_drhos, dF_xs_by_dzs
+      DOUBLE PRECISION F_xs,F_xs0 ! this is a function which is called. 
+      DOUBLE PRECISION dF_xs_by_drhos, dF_xs_by_dzs,
+     ,dF_xs_by_drhos0,dF_xs_by_drhos1,  dF_xs_by_dzs1
       INTEGER i, j,  n
       integer n1
       double precision x1,x2,x3,x4
@@ -435,6 +436,9 @@ C
      = (-3.D0*x1*(3.D0/Pi)**(1.D0/3.D0)*x2**(4.D0/3.D0)*
      -     ((0.004D0*x3**2.D0)/(0.004D0*x3**2.D0 +
      -     x2**(8.D0/3.D0)))**n1)/(2.D0*2.D0**(2.D0/3.D0))
+      F_xs0( x1, x2, x3) =
+     = (-3.D0*x1*(3.D0/Pi)**(1.D0/3.D0)*x2**(4.D0/3.D0)
+     -     )/(2.D0*2.D0**(2.D0/3.D0))
 C
 C     dF_xs_by_drhos computes dE_x/drho derivative
 Cfah  computes the derivative of the term with u^n of the exchange part of
@@ -453,6 +457,14 @@ C
      *     x2**3.D0*x3*x3*((0.004D0*x3*x3)/
      /     (x2**(8.D0/3.D0)+0.004D0*x3*x3))**(-1 + n1))/
      /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)**2
+       dF_xs_by_drhos0(x1, x2, x3) =  -(x1*(6.D0/Pi)**
+     *     (1.D0/3.D0)*x2**(1.D0/3.D0))
+       dF_xs_by_drhos1(x1, x2, x3) =  -(x1*(6.D0/Pi)**
+     *     (1.D0/3.D0)*x2**(1.D0/3.D0)*((0.004D0*x3*x3)/
+     /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)))+
+     +     (x1*0.008D0*(6.D0/Pi)**(1.D0/3.D0)*
+     *     x2**3.D0*x3*x3)/
+     /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)**2
 C
 C     F_xc with respect to zs
 Cfah  see above (function dF_xs_by_drhos) for definition of the
@@ -460,13 +472,21 @@ Cfah  other variables
 C     usage  dF_xs_by_dzs (n, c_xs, rhos, zs)
 c
       dF_xs_by_dzs(n1, x1, x2, x3) = 
-     =      (-3.d0*x1*n*(3.D0/Pi)**(1.D0/3.D0)*
+     =      (-3.d0*x1*n1*(3.D0/Pi)**(1.D0/3.D0)*
      *     x2**(4.D0/3.D0)*((0.004D0*x3*x3)/
-     /     (x2**(8.D0/3.D0)+ 0.004D0*x3*x3))**(-1 + n)*
+     /     (x2**(8.D0/3.D0)+ 0.004D0*x3*x3))**(-1+n1)*
      *     ((-0.000032D0*x3*x3*x3)/(x2**(8.D0/3.D0)+
      +     0.004D0*x3*x3)**2+(0.008D0*x3)/
      /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)))/
      /     (2.D0**(5.D0/3.D0))
+      dF_xs_by_dzs1(x1, x2, x3) = 
+     =      (-3.d0*x1*(3.D0/Pi)**(1.D0/3.D0)*
+     *     x2**(4.D0/3.D0)*
+     *     ((-0.000032D0*x3*x3*x3)/(x2**(8.D0/3.D0)+
+     +     0.004D0*x3*x3)**2+(0.008D0*x3)/
+     /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)))/
+     /     (2.D0**(5.D0/3.D0))
+c      dF_xs_by_dzs0(x1, x2, x3) = 0d0
 c
 c     usage
 c     e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
@@ -815,7 +835,11 @@ Cfah -------------------------------
           if(abs(u_caa).gt.0.d0)F_xc(n*3+2) = e_caa*u_caa**n*c_naa
 
         IF (rhob.GT.tol_rho) THEN
+           if(n.eq.0) then
+          F_xc(1) = F_xc(1)+F_xs0(sol(1), rhob, zb)
+           else
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
+          endif
         ENDIF
           if(abs(u_cbb).gt.0.d0)
      .         F_xc(n*3+2) = F_xc(n*3+2)+e_cbb*u_cbb**n*c_nbb
@@ -828,30 +852,66 @@ Cfah    First Derivatives
 Cfah ---------------------
 
         if(za.gt.tol_rho)then 
+           if(n.eq.0) then
+            dF_xa(1) = dF_xs_by_drhos0 ( sol(1), rhoa, za) 
+            dF_xa(3) = 0d0
+         elseif(n.eq.1) then
+            dF_xa(1) = dF_xs_by_drhos1 (sol(4), rhoa, za) 
+            dF_xa(3) = dF_xs_by_dzs1 ( sol(4), rhoa, za)
+         else
             dF_xa(1) = dF_xs_by_drhos (n, sol((n*3) + 1), rhoa, za) 
             dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
+         endif
           endif
 
         if(zb.gt.tol_rho) then
+           if(n.eq.0) then
+             dF_xb(2) = dF_xs_by_drhos0(sol(1), rhob, zb)
+             dF_xb(4) = 0d0
+          elseif(n.eq.1) then
+             dF_xb(2) = dF_xs_by_drhos1(sol(4), rhob, zb)
+             dF_xb(4) = dF_xs_by_dzs1 ( sol(4), rhob, zb)
+          else
              dF_xb(2) = dF_xs_by_drhos (n, sol((n*3) + 1), rhob, zb)
              dF_xb(4) = dF_xs_by_dzs (n, sol((n*3) + 1), rhob, zb)
+          endif
            endif
 
         if(abs(u_caa).gt.0.d0) then
+           if(n.eq.1) then
+          dF_caa(1) = c_naa*u_caa*
+     *       de_caa_by_drhoa+c_naa*e_caa*du_caa_by_drhoa
+          dF_caa(3) = c_naa*e_caa*du_caa_by_dza
+          else
           dF_caa(1) = c_naa*u_caa**n*
      *       de_caa_by_drhoa+c_naa*n*e_caa*u_caa**(-1+n)*
      *       du_caa_by_drhoa
           dF_caa(3) = c_naa*n*e_caa*u_caa**(-1+n)*du_caa_by_dza
+          endif
         endif
 
         if(abs(u_cbb).gt.0.d0) then
+           if(n.eq.1) then
+          dF_cbb(2) = c_nbb*u_cbb*de_cbb_by_drhob + 
+     -   c_nbb*e_cbb*du_cbb_by_drhob
+          dF_cbb(4) = c_nbb*e_cbb*du_cbb_by_dzb
+           else
           dF_cbb(2) = c_nbb*u_cbb**n*de_cbb_by_drhob + 
      -   c_nbb*n*e_cbb*u_cbb**(-1 + n)*du_cbb_by_drhob
           dF_cbb(4) = c_nbb*n*e_cbb*u_cbb**(-1+n)*du_cbb_by_dzb
+          endif
         endif
 
 
         if(abs(u_cab).gt.0.d0) then
+           if(n.eq.1) then
+          dF_cab(1) = c_nab*u_cab*
+     *         de_cab_by_drhoa+c_nab*n*e_cab*du_cab_by_drhoa 
+          dF_cab(2) = c_nab*u_cab*
+     -         de_cab_by_drhob+c_nab*n*e_cab*du_cab_by_drhob
+          dF_cab(3) = c_nab*e_cab*du_cab_by_dza
+          dF_cab(4) = c_nab*n*e_cab*du_cab_by_dzb
+          else
           dF_cab(1) = c_nab*u_cab**n*
      *         de_cab_by_drhoa+c_nab*n*e_cab*u_cab**(-1+n)*
      *         du_cab_by_drhoa 
@@ -862,6 +922,7 @@ Cfah ---------------------
      -         u_cab**(-1+n)*du_cab_by_dza
           dF_cab(4) = c_nab*n*e_cab*
      -         u_cab**(-1+n)*du_cab_by_dzb
+          endif
         endif
 
 Cfah Second Derivatives
