@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.31 2002-01-19 06:22:29 edo Exp $
+C $Id: hess_init.F,v 1.32 2002-01-31 00:54:36 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -297,7 +297,7 @@ c  these values should be reset after the calculation is done.
 c
        integer rtdb
        integer geomnew
-       double precision uthresh, ithresh
+       double precision ithresh
        logical whatever,grid_file_close
        character*15 gridtype
        external grid_file_close
@@ -362,12 +362,12 @@ c     set grid to fine or leave the user to set it to xfine
 c
          if (rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype)) then
             if(gridtype.eq.'coarse'.or.gridtype.eq.'xcoarse'.
-     .           or.gridtype.eq.'medium') gridtype='fine'
+     $           or.gridtype.eq.'medium') gridtype='fine'
          else
             gridtype='fine'
          endif
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     .        call errquit('hessinit:rtdbcput failed',0)
+     $        call errquit('hessinit:rtdbcput failed',0)
 c     
 c     kill symmetry for XC grid build
 c     
@@ -376,5 +376,87 @@ c
      $        ' task_hessian: rtdb_put failed',0)
          whatever=grid_file_close(.false.)
       endif
+      return
+      end
+c
+      logical function hess_check(rtdb)
+      implicit none
+#include "bas.fh"
+#include "geom.fh"
+#include "hess_info.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+c
+      integer rtdb      ! [input] rtdb handle
+c
+      integer geom1, basis1
+      integer ecp_handle, ipol
+      logical cdfit, ecp
+c
+      hess_check = .false.
+      cdfit = .false.
+      ecp = .false.
+      ipol = 1
+c
+c  Get theory type
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('hess_check: theory not specified',555)
+      if (theory.eq.'hyb') theory = 'dft'
+c
+c  Check for UHF in DFT
+c
+      if (theory.eq.'dft') then
+        if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol))
+     $    ipol = 1
+        if (ipol.gt.1) then
+          write(LuOut,*) 'Open shell DFT detected'
+          return
+        endif
+      endif
+c
+c  Check for CD fit
+c
+      if (.not. geom_create(geom1, 'geometry'))
+     $  call errquit('hess_check: geom_create problem', 555)
+      if (.not. geom_rtdb_load(rtdb, geom1, 'geometry'))
+     $  call errquit('hess_check: no geometry ', 555)
+      if (theory.eq.'dft') then
+        if (.not. bas_create(basis1, 'cd basis'))
+     $     call errquit('hess_check: bas_create?',102)
+        cdfit=bas_rtdb_load(rtdb, geom1, basis1, 'cd basis')
+        if (.not. bas_destroy(basis1))
+     $     call errquit('hess_check:not able to destroy CD_bas:',
+     $                   basis1)
+      endif
+c
+c  Check for ECP in basis
+c
+      if (.not. bas_create(basis1, 'ao basis'))
+     $   call errquit('hess_check: bas_create?',102)
+      if (.not. bas_rtdb_load(rtdb, geom1, basis1, 'ao basis'))
+     $   call errquit('hess_check: no basis available', 555)
+      ecp = bas_get_ecp_handle(basis1,ecp_handle)
+      if (.not. bas_destroy(basis1))
+     $   call errquit('hess_check:not able to destroy AO_bas:',
+     $                 555)
+c
+      if (.not. geom_destroy(geom1))
+     $   call errquit('hess_check:not able to destroy geometry:',
+     $                 geom1)
+c
+      if (cdfit) then
+        write(LuOut,*) 'CD fit detected'
+        return
+      endif
+c
+      if (ecp) then
+        write(LuOut,*) 'ECP detected'
+        return
+      endif
+c
+      hess_check = .true.
+c
       return
       end

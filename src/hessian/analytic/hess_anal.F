@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.12 2001-12-19 22:41:56 windus Exp $
+C $Id: hess_anal.F,v 1.13 2002-01-31 00:54:36 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -31,21 +31,32 @@ C
       integer ps_total, ps_onedd, ps_nucdd, ps_twodd, ps_cphf
       logical oprint, ohessprof
       logical task_energy
-      logical bgj_get_scf_method
+      logical bgj_get_scf_method, hess_check
       external task_energy
-      external bgj_get_scf_method
+      external bgj_get_scf_method, hess_check
 c
       hess_anal = .false.
-c
-c     find out if this is a restart
-c
-      if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
-     *  restr = 0
 c
 c  Broadcast information to all of the nodes on read
 c
       if (.not. rtdb_parallel(.true.)) call errquit
      *  ('hess_anal: unable to set rtdb_parallel to true',555)
+c
+c  First check to see if we should fail the calculation because
+c  the code can't handle it.
+c
+      if (.not. hess_check(rtdb)) then
+        write(LuOut,*) 'The Analytic Hessian code cannot run ',
+     *    'calculations with ECPs, open shell DFT, or charge ',
+     *    'fitted DFT'
+        write(LuOut,*) 'Please use the numerical option'
+        return
+      endif
+c
+c     find out if this is a restart
+c
+      if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
+     *  restr = 0
 c
 c  Set up the print mechanism (push down the stack and loads the print
 c  information for hess)
