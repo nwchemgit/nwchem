@@ -106,6 +106,8 @@ c
       integer mrg_d45
       integer mrg_d46
       integer mrg_d47
+      integer mrg_d48
+      integer mrg_d49
 c
       integer mrg_i01
       integer mrg_i02
@@ -122,6 +124,11 @@ c
       integer mrg_i13
       integer mrg_i14
       integer mrg_i15
+      integer mrg_i16
+      integer mrg_i17
+      integer mrg_i18
+      integer mrg_i19
+      integer mrg_i20
 c
       integer msg_hessmin
       integer msg_hessmax
@@ -370,6 +377,8 @@ c
       parameter(mrg_d45=msg_ftn_base-145) ! arg_wrsben
       parameter(mrg_d46=msg_ftn_base-146) ! arg_wrtraj
       parameter(mrg_d47=msg_ftn_base-147) ! arg_xscale
+      parameter(mrg_d48=msg_ftn_base-148) ! arg_props
+      parameter(mrg_d49=msg_ftn_base-149)
 c
       parameter(mrg_i01=msg_ftn_base-150) ! arg_diagtm
       parameter(mrg_i02=msg_ftn_base-151) ! arg_dymcti
@@ -386,6 +395,11 @@ c
       parameter(mrg_i13=msg_ftn_base-162) ! arg_setup1
       parameter(mrg_i14=msg_ftn_base-163) ! arg_timing
       parameter(mrg_i15=msg_ftn_base-164) ! arg_wrtinp
+      parameter(mrg_i16=msg_ftn_base-165) ! arg_param1
+      parameter(mrg_i17=msg_ftn_base-166) ! arg_param1
+      parameter(mrg_i18=msg_ftn_base-167)
+      parameter(mrg_i19=msg_ftn_base-168)
+      parameter(mrg_i20=msg_ftn_base-169)
 c
       parameter (msg_hessmin = msg_ftn_base - 170 )         ! MCSCF orbital hessian min
       parameter (msg_hessmax = msg_ftn_base - 171 )         ! MCSCF orbital hessian max
