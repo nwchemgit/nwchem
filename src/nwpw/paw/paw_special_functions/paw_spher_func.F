@@ -1,7 +1,10 @@
 c
-c $Id: paw_spher_func.F,v 1.4 2003-02-21 19:27:11 bylaska Exp $
+c $Id: paw_spher_func.F,v 1.5 2003-03-18 01:00:17 marat Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.4  2003/02/21 19:27:11  bylaska
+c find_Y_lm_deriv subourine added...EJB
+c
 c Revision 1.3  2003/02/21 03:02:19  bylaska
 c find_Y_lm added...EJB
 c
@@ -115,6 +118,105 @@ c
       return
       end
 
+
+      DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
+ 
+      INTEGER L
+      INTEGER M
+      DOUBLE PRECISION X
+      DOUBLE PRECISION F
+ 
+ 
+!    *** local variables ***
+      INTEGER I
+      INTEGER MOD_M
+      DOUBLE PRECISION P_MM
+      DOUBLE PRECISION P_MP1M
+      DOUBLE PRECISION TMP
+      DOUBLE PRECISION FACT
+      DOUBLE PRECISION COEFF
+ 
+ 
+      MOD_M = ABS(M)
+      IF (ABS(X) .GT. 1) CALL errquit(
+     1   'parameter ot of range in legendre_lm',0)
+ 
+      IF (MOD_M .GT. L) THEN
+         LEGENDRE_LM = ZERO
+         RETURN 
+      ENDIF
+ 
+!    *** find P(mod_m,mod_m) for mod_m=0 ***
+      P_MM = 1.0D0
+ 
+!    *** find P(mod_m,mod_m) for mod_m > 0 ***
+      IF (MOD_M .GT. 0) THEN
+ 
+         TMP = SQRT((1.0D0 - X)*(1.0D0 + X))
+ 
+         FACT = 1.0D0
+ 
+         DO I = 1, MOD_M
+ 
+            P_MM = -P_MM*FACT*TMP
+ 
+            FACT = FACT + 2.0D0
+ 
+         END DO
+ 
+      ENDIF
+ 
+!    *** find P(l,mod_m) ***
+      IF (MOD_M .EQ. L) THEN
+ 
+         LEGENDRE_LM = P_MM
+ 
+      ELSE
+ 
+      !*** find P(mod_m+1,mod_m) ***
+         P_MP1M = X*(2*MOD_M + 1)*P_MM
+ 
+         IF (L .EQ. MOD_M+1) THEN
+ 
+            LEGENDRE_LM = P_MP1M
+ 
+         ELSE
+ 
+            DO I = MOD_M + 2, L
+ 
+               TMP=(X*(2*I-1)*P_MP1M-(I+MOD_M-1)*P_MM)/(I-MOD_M)
+ 
+               P_MM = P_MP1M
+               P_MP1M = TMP
+ 
+            END DO
+ 
+            LEGENDRE_LM = TMP
+ 
+         ENDIF
+ 
+      ENDIF
+ 
+!    *** negative m ***
+      IF (M .LT. 0) THEN
+ 
+         COEFF = 1.0D0
+ 
+         DO I = 1, 2*MOD_M
+ 
+            COEFF = COEFF/(L - MOD_M + I)
+ 
+         END DO
+ 
+         COEFF = COEFF*(-1)**MOD_M
+ 
+         LEGENDRE_LM = LEGENDRE_LM*COEFF
+ 
+      ENDIF
+ 
+ 
+      END 
+ 
 !**************************************************
 !
 !	Name: legendre_lm
@@ -124,11 +226,11 @@ c
 !	Created:	8/05/2002
 !**************************************************
     
-      function legendre_lm(l,m,x)
+      function legendre_lm1(l,m,x)
       implicit none
       integer l,m
       real*8 x
-      double precision legendre_lm
+      double precision legendre_lm1
 
 *     *** local variables ****
       integer i,ll
@@ -163,7 +265,7 @@ c
          end if
       end if
 
-      legendre_lm = Plm
+      legendre_lm1 = Plm
       return
       end
 
@@ -351,6 +453,8 @@ c
 
       coeff = coeff*(2*l+1)/(fourpi)
       coeff = dsqrt(coeff)
+
+      
 
       tmp = coeff*dlegendre_lm(l,mod_m,cos_theta)
 
