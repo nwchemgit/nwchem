@@ -1,7 +1,7 @@
       subroutine int_l2e3c(brain, ish, ketin, jsh, ksh,
      &       zerotol, canket, leri, eri, nint, ilab, jlab, klab,
      &       lscr, scr)
-c $Id: int_l2e3c.F,v 1.1 1994-04-09 15:46:30 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.2 1994-04-09 15:50:58 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -23,14 +23,8 @@ c::passed
       integer ilab(leri), jlab(leri), klab(leri), nint
       logical canket
 c::local
-      logical braket, allshl, ignore_ij_kl, shells_ok
-      integer ijsh, klsh
-      integer isym2
-      integer i,j,k,l,bra,ket,icount,ij,kl
-c
-c:statement function
-c
-      isym2(i,j)=(max(i,j)*(max(i,j)-1))/2 + min(i,j)
+      logical shells_ok
+      integer i,j,k,bra,ket,icount
 c
 c check initialization and shells 
 c
