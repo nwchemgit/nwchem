@@ -1,6 +1,7 @@
 csh runtests.unix auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
 csh runtests.unix rimp2_ne sadsmall scf_feco5 small_intchk tagcheck testtab
 csh runtests.unix h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
+csh runtests.unix neda_nbo
 
 REM ---   small tests that should fail!
 echo " "

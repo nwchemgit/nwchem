@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: nqetests,v 1.4 2002-01-22 17:25:56 bert Exp $
+# $Id: nqetests,v 1.5 2002-02-08 23:47:35 windus Exp $
 #
 #---   small tests
 cd ~/nwchem/QA/tests/auh2o
@@ -39,6 +39,10 @@ cd ~/nwchem/QA/tests/h2o_dk
 nwdebug startag.nw -queue debug -accnt mp15 -procs 2 -time 1999
 cd ~/nwchem/QA/tests/startag
 nwdebug h2o_dk.nw -queue debug -accnt mp15 -procs 2 -time 1999
+cd ~/nwchem/QA/tests/neda_nbo
+nwdebug neda_nbo.nw -queue debug -accnt mp15 -procs 2 -time 1999
+cd ~/nwchem/QA/tests/ch5n_nbo
+nwdebug ch5n_nbo.nw -queue debug -accnt mp15 -procs 2 -time 1999
 #---   small tests that should fail!
 cd ~/nwchem/QA/tests/oh2
 nwdebug oh2.nw -queue debug -accnt mp15 -procs 2 -time 1999
