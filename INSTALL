@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.69 2004-04-30 02:10:50 edo Exp $
+$Id: INSTALL,v 1.70 2004-12-29 00:40:36 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -129,7 +129,6 @@ BASIC BUILD INSTRUCTIONS:
                   using 32 ints 		   
    SGITFP         SGI 64 bit os   IRIX 6.5                        y
    				 		   
-   CRAY-T3D       Cray T3D        UNICOS         
    CRAY-T3E       Cray T3E        UNICOS         
    cray-sv2       Cray X1         UNICOS/mp    Cray               y
    				 		   
@@ -229,7 +228,7 @@ BASIC BUILD INSTRUCTIONS:
        % setenv NWCHEM_MODULES "all gapss python" 
     will build the union of these three module identifiers.  
 
-6) If your NWCHEM_TARGET is CRAY-T3E or CRAY-T3D, perform the
+6) If your NWCHEM_TARGET is CRAY-T3E or cray-sv2, perform the
    precision conversion:
 
        % cd $NWCHEM_TOP/src
