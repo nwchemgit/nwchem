@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.36 1997-12-05 00:04:13 d3g681 Exp $
+c $Id: bas_input.F,v 1.37 1997-12-10 01:00:53 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -419,6 +419,7 @@ c
      $     etmp(prim_max), ctmp(prim_max),
      &     rex(prim_max), rex_tmp(prim_max)
 c
+c
 c    The SUBSEQUENT lines contain coefficients and exponents
 c    for a contraction ... read them in and add the contraction to the
 c    basis set, segmenting if required.  The input file is left
@@ -489,9 +490,14 @@ c
  30   nprim = iprim-1
       if (nprim .le. 0) call errquit('bas_input_cont: no primitives?',
      $     nprim)
+c check to make sure any contraction is not all zero's
+c
+c
+      call bas_check_contractions(nprim,ngen,prim_max,coeff,expnt)
 c
 c   Now have tag, contraction type, no. of contractions, no. of prims,
 c   exponents, coeffs.  Shove this lot into the basis set.
+c
 c
 c   bas_add_ucnt -> adds a new general contraction on the specified 
 c                   tag.
@@ -726,4 +732,42 @@ c
 c
 10000 call errquit('bas_tag_lib: problem with library format?', 0)
 c
+      end
+      subroutine bas_check_contractions(np,ng,ldc,cc,ee)
+      implicit none
+#include "stdio.fh"
+      integer np  ! [input] number of primatives
+      integer ng  ! [input] number of general contractions
+      integer ldc ! [input] leading dimension of cc
+      double precision ee(np)    ! [input] exponents
+      double precision cc(ldc,ng) ! [input] coefficients
+c
+      double precision thresh
+      parameter (thresh = 1.0d-15)
+      logical okay
+      integer ig, ip, nzero
+c
+*debug:      write(luout,*)'number of primitives          :',np
+*debug:      write(luout,*)'number of general contractions:',ng
+*debug:      write(luout,*)' input exponents, coeffs'
+*debug:      do ip = 1,np
+*debug:        write(luout,10000)ee(ip),(cc(ip,ig),ig=1,ng)
+*debug:      enddo
+*debug:      
+      okay = .true.
+      do ig = 1,ng
+        nzero = 0
+        do ip = 1,np
+          if (abs(cc(ip,ig)).lt.thresh) nzero = nzero + 1
+        enddo
+        okay = okay.and.nzero.lt.np
+      enddo
+      if (okay) return
+      write(luout,*) ' bad basis set input :'
+      write(luout,*) ' one contraction has all zero coefficients'
+      do ip = 1,np
+        write(luout,10000)ee(ip),(cc(ip,ig),ig=1,ng)
+      enddo
+      call errquit('bas_check_contractions: fatal error',911)
+10000 format(10(1pd14.6))
       end

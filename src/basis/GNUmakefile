@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.36 1997-04-24 16:34:31 d3e129 Exp $
+#$Id: GNUmakefile,v 1.37 1997-12-10 01:00:56 d3e129 Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -16,7 +16,7 @@ ifeq ($(TARGET),CRAY-T3E)
    OBJ =  basisP.o bas_input.o bas_contrib.o bas_checksum.o bas_blas.o bas_blasP.o bas_vec_info.o
 endif
 
-   LIB_TARGETS = testbasis testbasis.o
+   LIB_TARGETS = testbasis testbasis.o libcheck
 
 ifeq ($(TARGET),DELTA)
    LIB_DEFINES = -DBASIS_LIBRARY="'library'"
@@ -34,6 +34,8 @@ endif
 
 include ../config/makelib.h
 
+libcheck:	libcheck.o
+	$(FC) $(FFLAGS) -o $@ libcheck.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
 testbasis:	testbasis.o
 	$(FC) $(FFLAGS) -o $@ testbasis.o  $(LDFLAGS) $(LIBS) $(TESTLIBS)
 
