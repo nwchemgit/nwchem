@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.18 1994-06-01 19:03:36 d3g681 Exp $
+c $Id: basis.F,v 1.19 1994-06-06 19:22:35 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1778,7 +1778,7 @@ c
       endif
 c
       basis = basisin + BASIS_HANDLE_OFFSET
-      if (angular_bs(basis) .gt. -565) then
+      if (nbfmax_bs(basis) .gt. -565) then
         nbf_max = nbfmax_bs(basis)
         bas_nbf_cn_max = .true.
         return
