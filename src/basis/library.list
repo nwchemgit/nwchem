@@ -72,16 +72,16 @@ H, He, Be, B, C, N, O, F, Ne, Al, Si, P, S, Cl, Ar
 
 aug-cc-pvdz
 
-H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
 
 
 aug-cc-pvtz
 
-H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
 
 aug-cc-pvqz
 
-H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
 
 aug-cc-pv5z
 
@@ -89,9 +89,47 @@ H, He, Be, B, C, N, O, F, Ne, Al, Si, P, S, Cl, Ar
 
 cd-demon
 
-H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
 Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
 Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+
+xc-demon
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
+Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+
+dzvp2-dgauss-dft-spherical
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+
+tzvp-dgauss-dft-cartesian
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+
+xc-dgauss-a1-dft
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
+Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+
+cd-dgauss-a1-dft
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
+Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+
+cd-dgauss-a2-dft
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
+
+xc-dgauss-a2-dft
+
+H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
 
 6-31g*
 
