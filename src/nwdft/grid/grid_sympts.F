@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.14 2001-10-25 21:51:35 edo Exp $
+c$Id: grid_sympts.F,v 1.15 2001-10-26 01:20:41 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -67,7 +67,7 @@ c
 c      
       double precision gridscr(4,*)
       integer nops
-      double precision ops(3,nops,4)
+      double precision ops(3,nops,4),gops(3,48,3)
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
       double precision aqbuf(4,*) ! quadr pts and wght
@@ -85,7 +85,7 @@ c     Compute the quadrature points & weights for a given
 c     set of radial shells.
 c     Keep only point belonging to cube
 c
-      integer k, ia_ictr,nq_left,k1,h,n_equiv
+      integer k, ia_ictr,nq_left,k1,h,n_equiv,nops_out
       double precision  tx, ty, tz, xor, yor, zor
       double precision x,y,z,x1,y1,z1,ddd,wsum
 c
@@ -116,35 +116,9 @@ c
 c     apply symmetry operations
 c
          if(dosympts) then
-            do k=1,nq_left
-               if(gridscr(4,k).ne.0d0) then
-                  n_equiv=1
-                  x=xyz(1) +gridscr(1,k)
-                  y=xyz(2) +gridscr(2,k)
-                  z=xyz(3) +gridscr(3,k)
-                  do h=1,nops
-                     x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z-xyz(1)
-                     y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z-xyz(2)
-                     z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z-xyz(3)
-                     do k1=k+1,nq_left
-                        ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
-     +                       (y1-gridscr(2,k1))*(y1-gridscr(2,k1))+
-     +                       (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
-                        if(ddd.lt.1d-10) then
-                           if(gridscr(4,k1).ne.0d0) then
-                              gridscr(4,k1)=0d0
-                              n_equiv=n_equiv+1
-                           endif
-                           goto 111
-                        endif
-                     enddo
-cedo                  write(6,*) ' no equiv found ???',222
- 111                 continue
-                  enddo
-                  gridscr(4,k)=n_equiv*gridscr(4,k)
-
-               endif
-            enddo
+            nops_out=nops
+            call grid_symop(xyz,nops,nops_out,ops,gops)
+            call grid_symptsb(nq_left,nops,nops_out,gridscr,xyz,gops)
          endif
 c     remove zeroes
          call grid_compress(nq_left,gridscr,iscr,1d-19)
@@ -252,3 +226,79 @@ c
       enddo
       return
       end
+
+      subroutine grid_symptsb(nq_left,nops,nops_out,gridscr,xyz,ops)
+      implicit none
+      integer nq_left,nops,nops_out
+      double precision gridscr(4,*)
+      double precision xyz(3)
+      double precision ops(3,nops,*)
+c
+      integer k,k1,h,n_equiv
+      double precision x,y,z,x1,y1,z1,ddd
+      
+c
+      do k=1,nq_left
+         if(gridscr(4,k).ne.0d0) then
+            n_equiv=1
+            x=xyz(1) +gridscr(1,k)
+            y=xyz(2) +gridscr(2,k)
+            z=xyz(3) +gridscr(3,k)
+            do h=1,nops_out
+               x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z-xyz(1)
+               y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z-xyz(2)
+               z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z-xyz(3)
+               do k1=k+1,nq_left
+                  ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
+     +                 (y1-gridscr(2,k1))*(y1-gridscr(2,k1))+
+     +                 (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
+                  if(ddd.lt.1d-10) then
+                     if(gridscr(4,k1).ne.0d0) then
+                        gridscr(4,k1)=0d0
+                        n_equiv=n_equiv+1
+                     endif
+                     goto 111
+                  endif
+               enddo
+ 111           continue
+            enddo
+ 112        gridscr(4,k)=n_equiv*gridscr(4,k)
+            
+         endif
+      enddo
+      return
+      end
+      subroutine grid_symop(x,nops,nops_out,ops,gops)
+c
+c     keeps only symm. operations that lie on the center
+c
+      double precision x(3)
+      integer nops_out,nops
+      double precision ops(3,nops,4),gops(3,nops,4)
+c
+      integer nops_in,h
+      double precision x1,y1,z1
+c
+      nops_in=nops_out
+      nops_out=0
+      do h=1,nops_in
+         x1=ops(1,h,1)*x(1)+ops(1,h,2)*x(2)+ops(1,h,3)*x(3)-x(1)
+         y1=ops(2,h,1)*x(1)+ops(2,h,2)*x(2)+ops(2,h,3)*x(3)-x(2)
+         z1=ops(3,h,1)*x(1)+ops(3,h,2)*x(2)+ops(3,h,3)*x(3)-x(3)
+         ddd=x1**2+y1**2+z1**2
+         if(ddd.lt.1d-10) then
+            nops_out=nops_out+1
+            gops(1,nops_out,1)=ops(1,h,1)
+            gops(2,nops_out,1)=ops(2,h,1)
+            gops(3,nops_out,1)=ops(3,h,1)
+            gops(1,nops_out,2)=ops(1,h,2)
+            gops(2,nops_out,2)=ops(2,h,2)
+            gops(3,nops_out,2)=ops(3,h,2)
+            gops(1,nops_out,3)=ops(1,h,3)
+            gops(2,nops_out,3)=ops(2,h,3)
+            gops(3,nops_out,3)=ops(3,h,3)
+         endif
+      enddo
+      return
+      end
+
