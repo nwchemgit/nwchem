@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.119 2003-08-07 20:14:34 d3j191 Exp $
+c $Id: sp_init.F,v 1.120 2003-09-23 23:45:16 d3j191 Exp $
 c
       implicit none
 c
@@ -3045,9 +3045,9 @@ c
       bxs(j,3)=xs(nonh,3)-xs(i,3)
       dist=sqrt(bxs(j,1)*bxs(j,1)+bxs(j,2)*bxs(j,2)+bxs(j,3)*bxs(j,3))
       dist=dumdst/dist
-      bxs(j,1)=xs(nonh,1)+dist*bxs(j,1)
-      bxs(j,2)=xs(nonh,2)+dist*bxs(j,2)
-      bxs(j,3)=xs(nonh,3)+dist*bxs(j,3)
+      bxs(j,1)=xs(nonh,1)-dist*bxs(j,1)
+      bxs(j,2)=xs(nonh,2)-dist*bxs(j,2)
+      bxs(j,3)=xs(nonh,3)-dist*bxs(j,3)
       endif
       else
       nonh=i
