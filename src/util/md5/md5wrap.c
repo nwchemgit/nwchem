@@ -7,7 +7,7 @@
 #include "typesf2c.h"
 
 /*
- $Id: md5wrap.c,v 1.5 1999-11-13 03:23:10 bjohnson Exp $
+ $Id: md5wrap.c,v 1.6 2001-05-04 20:01:35 edo Exp $
  */
 
 #if defined(CRAY) || defined(USE_FCD)
@@ -32,8 +32,11 @@ extern int string_to_fortchar(char *f, int flen, char *buf);
 /*#define MD5TEST*/
 
 static MD5_CTX context;
-
+#ifdef EXT_INT
 typedef long integer;		/* FORTRAN integer */
+#else
+typedef int integer;		/* FORTRAN integer */
+#endif
 
 /* C interface */
 
