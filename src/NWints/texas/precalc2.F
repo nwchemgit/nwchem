@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.25 2000-10-23 23:37:43 windus Exp $
+* $Id: precalc2.F,v 1.26 2001-08-09 22:15:56 bjohnson Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -750,6 +750,9 @@ coutput
      *                      rppq,rhoapb,rhocpd,rys,const,nbls1,index)
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
 c-------
@@ -826,6 +829,9 @@ c
 c
             rr2=x1*x1 + x2*x2 + x3*x3
             rys(ijkl1)=rr2*rho1
+#ifdef BETTIS
+            ijkl_theta(ijkl1) = sqrt(rho1)
+#endif
 c
               if(abpcdr.ne.rpold) then
                 rpold=abpcdr
@@ -840,6 +846,13 @@ cpnl        endif
  100  continue
 c
       nbls1=ijkl1
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         if (nbls1 .gt. 5000) then
+            call errquit('Temp storage for theta too small',nbls1)
+         endif
+      endif
+#endif
 c
       end
 c====================================================================
@@ -853,6 +866,9 @@ c output
      *                      rys,const,xpqr,txxr,nbls1,index)
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
 c---------------
@@ -933,6 +949,9 @@ c
 c
             rr2=x1*x1 + x2*x2 + x3*x3
             rys(ijkl1)=rr2*rho1
+#ifdef BETTIS
+            ijkl_theta(ijkl1) = sqrt(rho1)
+#endif
 c
               if(abpcdr.ne.rpold) then
                 rpold=abpcdr
@@ -949,6 +968,13 @@ c
 c
       nbls1=ijkl1
       if(nbls1.eq.0) return
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         if (nbls1 .gt. 5000) then
+            call errquit('Temp storage for theta too small',nbls1)
+         endif
+      endif
+#endif
 c
 cnew
       if (ityp.gt.1 .or. jtyp.gt.1 ) then
@@ -1235,6 +1261,9 @@ c====================================================================
      *                     buf,buf1, const,rysx,xpqr,txxr,concoe)
 c*
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       logical first
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
@@ -1285,12 +1314,25 @@ c
       if11=if11-1
 c
 c
-      do 100 i=1,nbls1
-      xrys=rysx(i)
-      call ft0
-      bl(if00+i)=f0
-      bl(if11+i)=f1
-  100 continue
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         do 110 i=1,nbls1
+            xrys=rysx(i)
+            call screened_fm(F0,1,xrys,ijkl_theta(i))
+            bl(if00+i)=f0
+            bl(if11+i)=f1
+ 110     continue
+      else
+#endif
+         do 100 i=1,nbls1
+            xrys=rysx(i)
+            call ft0
+            bl(if00+i)=f0
+            bl(if11+i)=f1
+ 100     continue
+#ifdef BETTIS
+      endif
+#endif
 c
 c special code for (ss ss) integrals
 c
@@ -1981,6 +2023,9 @@ coutput
      *                      rppq,rhoapb,rhocpd,rys,const,nbls1,index)
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       common /neglect/ eps,eps1,epsr
 c-------
       dimension map_ij(isbl_size),map_kl(isbl_size)
@@ -1997,6 +2042,11 @@ c now scalars:  rppq,rhoapb,rhocpd
       dimension rys(*),const(*)
 c
       data one /1.d0/
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         call errquit('Screened operator on in prec4neg_2',0)
+      endif
+#endif
 c---------------------------------------------------------------
 c not par268=eps1*8.d0
       par268=     8.d0
@@ -2063,6 +2113,13 @@ cpnl        endif
  100  continue
 c
       nbls1=ijkl1
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         if (nbls1 .gt. 5000) then
+            call errquit('Temp storage for theta too small',nbls1)
+         endif
+      endif
+#endif
 c
       end
 c====================================================================
@@ -2076,6 +2133,9 @@ c     output
      *                      rys,const,xpqr,txxr,nbls1,index)
 c-------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+#ifdef BETTIS
+#include "bettis.fh"
+#endif
       common /types/iityp,jjtyp,kktyp,lltyp, ityp,jtyp,ktyp,ltyp
       common /neglect/ eps,eps1,epsr
 c---------------
@@ -2094,6 +2154,11 @@ c
       dimension xpqr(3,*),txxr(3,*)
 c     
       data one /1.d0/
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         call errquit('Screened operator on in precspec_2',0)
+      endif
+#endif
 c---------------------------------------------------------------
       par268=     8.d0
 c---------------------------------------------------------------
@@ -2161,6 +2226,13 @@ c
 c     
       nbls1=ijkl1
       if(nbls1.eq.0) return
+#ifdef BETTIS
+      if (bs_scroperator_enabled()) then
+         if (nbls1 .gt. 5000) then
+            call errquit('Temp storage for theta too small',nbls1)
+         endif
+      endif
+#endif
 c     
 c     new
       if (ityp.gt.1 .or. jtyp.gt.1 ) then
