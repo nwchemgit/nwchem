@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.4 2000-05-05 15:56:50 d3g681 Exp $
+* $Id: sym_abelian.F,v 1.5 2000-05-08 05:52:00 d3g681 Exp $
 *
       implicit none
       integer geom              ! [input]
@@ -449,9 +449,6 @@ c
             char_tab(op,ir) = chars((ir-1)*nir+class)            
          end do
       end do
-c
-      write(6,*) ' Character table in natural order '
-      call output(char_tab, 1, nop, 1, nir, 8, 8, 1)
 c
       end
 
