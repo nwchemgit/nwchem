@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.23 2001-08-09 20:33:37 edo Exp $
+* $Id: util_legal.F,v 1.24 2001-11-20 00:21:49 edo Exp $
 *---------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001  *
 *         Pacific Northwest National Laboratory,                *
@@ -178,7 +178,7 @@ c
      + 12x,'J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave,',
      + ' H. Taylor, G. Thomas,',/,
      + 12x,'J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,',/,
-     + 12x,'NWChem, A Computational Chemistry Package for Parallel ',
+     + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
      &    'Version 4.0.1" (2001),',
