@@ -1,4 +1,4 @@
-c $Id: int_mpole.F,v 1.9 1997-04-25 00:40:53 d3e129 Exp $
+c $Id: int_mpole.F,v 1.10 1997-05-03 19:41:00 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsubsection{int\_mpole}
@@ -15,6 +15,10 @@ c:tex-  $<x|x|x>, <x|x|y>, <x|x|z>, <x|y|x>, <x|y|y> \dots <x|z|z>$ (second nine
 c:tex-  $<y|x|x>, <y|x|y>, <y|x|z>, <y|y|x>, <y|y|y> ... <y|z|z>$ (third nine)\\
 c:tex-  $<z|x|x>, <z|x|y>, <z|x|z>, <z|y|x>, <z|y|y> ... <z|z|z>$ (fourth nine).
 c:tex-
+c:tex-The integral for each L value computed is:
+c:tex-\begin{eqnarray*}
+c:tex-({\mu}{\hat{L}}{\lambda}) = \int_{-\infty}^{\infty} g_{\mu}(X,r_{1})\hat{L}g_{\lambda}(X,r_{1})dr_{1}
+c:tex-\end{eqnarray*}
 c:tex-
 c:tex-
 c:tex- See the int_order code inside $\ldots$/NWints/int for specific order of a 
