@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.28 2000-11-15 03:00:55 edo Exp $
+* $Id: task_gradient.F,v 1.29 2001-01-10 21:53:50 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -106,7 +106,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.28 2000-11-15 03:00:55 edo Exp $
+* $Id: task_gradient.F,v 1.29 2001-01-10 21:53:50 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -158,7 +158,7 @@ c
       logical geom_rtdb_ncent
 c
       integer nelem, ncent
-      logical status, numerical
+      logical status, numerical, ocosmo
       double precision dipole(3)
       character*80 key, prefix
 c
@@ -182,6 +182,12 @@ c     Right now only have a QM component
 c
       if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
      $     numerical)) numerical = .false.
+c
+c Currently cosmo does not work with analytic gradients
+c
+      if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo))
+     $     ocosmo = .false.
+      if (ocosmo) numerical = .true.
 c
 c     Actually do the deed
 c
