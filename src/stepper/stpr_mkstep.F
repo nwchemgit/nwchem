@@ -3,13 +3,11 @@
      &       ENERGY, CONVGE, CONVGG,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
      &       CNVGRD)
-c $Id: stpr_mkstep.F,v 1.1 1994-06-24 20:42:32 d3e129 Exp $
+c $Id: stpr_mkstep.F,v 1.2 1994-10-26 23:12:06 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD,LPRINT
 #include "chow.fh"
       COMMON / THRESH / RCONVG,RSTD
-      COMMON / STAPES / ITAP05, ITAP06, ITAP41,
-     &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
       DIMENSION HIEIGS(NINTER),GISR(NINTER),VC(NAT3,NINTER),
      &          STEP(NAT3),SELECT(NAT3),SCRVEC(NAT3),
