@@ -2,7 +2,7 @@
      $           ldim,
      $           iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
      $           g_dens )
-c$Id: grad_getdens.F,v 1.2 1996-09-19 16:58:10 vg038 Exp $
+c$Id: grad_getdens.F,v 1.3 1996-10-21 00:39:36 vg038 Exp $
 C
 C     get atomic blocks from density matrix and make sure no block is
 C     transferred twice
@@ -367,6 +367,144 @@ C     j,k
         call grad_transp ( d_il2, d_jk2, li, ll, ldim )
       else
         call ga_get (g_dens(2), iab2f, iab2l, iab3f, iab3l, d_jk2, ldim)
+      endif
+
+      return 
+      end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine grad_get_dens_rmp2 ( 
+     $           d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
+     $           p_ij, p_kl, p_ik, p_jl, p_il, p_jk, 
+     $           ldim,
+     $           iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
+     $           g_dens )
+C
+C     get atomic blocks from density matrices and make sure no block is
+C     transferred twice
+C
+C     (a,b) denotes spin, d is the HF part and p contains (twice) the 
+C     second order correction
+C
+      implicit none
+
+#include "global.fh"
+
+      integer g_dens, ldim, 
+     $     iab1f, iab1l, iab2f, iab2l, iab3f, iab3l, iab4f, iab4l,
+     $     li, lj, lk, ll
+
+      double precision d_ij, d_kl, d_ik, d_jl, d_il, d_jk,
+     $                 p_ij, p_kl, p_ik, p_jl, p_il, p_jk
+
+      dimension g_dens(3)
+      dimension d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
+     $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim),
+     $          p_ij(ldim,ldim),p_kl(ldim,ldim),p_ik(ldim,ldim),
+     $          p_jl(ldim,ldim),p_il(ldim,ldim),p_jk(ldim,ldim)
+
+      logical eij, ejk, ekl, eil, eik, ejl
+
+      eij = ( iab1f.eq.iab2f )
+      ejk = ( iab2f.eq.iab3f )
+      ekl = ( iab3f.eq.iab4f )
+      eil = ( iab1f.eq.iab4f )
+      eik = ( iab1f.eq.iab3f )
+      ejl = ( iab2f.eq.iab4f )
+
+      li = iab1l - iab1f + 1
+      lj = iab2l - iab2f + 1
+      lk = iab3l - iab3f + 1
+      ll = iab4l - iab4f + 1
+
+C     i,j
+      call ga_get (g_dens(2), iab1f, iab1l, iab2f, iab2l, d_ij, ldim)
+      call ga_get (g_dens(3), iab1f, iab1l, iab2f, iab2l, p_ij, ldim)
+
+C     k,l
+      if ( eik.and.ejl ) then
+        call grad_copy ( d_ij, d_kl, li, lj, ldim )
+        call grad_copy ( p_ij, p_kl, li, lj, ldim )
+      else if ( eil.and.ejk ) then
+        call grad_transp ( d_ij, d_kl, li, lj, ldim )
+        call grad_transp ( p_ij, p_kl, li, lj, ldim )
+      else
+        call ga_get (g_dens(2), iab3f, iab3l, iab4f, iab4l, d_kl, ldim)
+        call ga_get (g_dens(3), iab3f, iab3l, iab4f, iab4l, p_kl, ldim)
+      endif
+
+C     i,k
+      if ( ejk ) then
+        call grad_copy ( d_ij, d_ik, li, lj, ldim )
+        call grad_copy ( p_ij, p_ik, li, lj, ldim )
+      else if ( eil ) then
+        call grad_transp ( d_kl, d_ik, lk, ll, ldim )
+        call grad_transp ( p_kl, p_ik, lk, ll, ldim )
+      else
+        call ga_get (g_dens(2), iab1f, iab1l, iab3f, iab3l, d_ik, ldim)
+        call ga_get (g_dens(3), iab1f, iab1l, iab3f, iab3l, p_ik, ldim)
+      endif
+
+C     j,l
+      if ( ejk ) then
+        call grad_copy ( d_kl, d_jl, lk, ll, ldim )
+        call grad_copy ( p_kl, p_jl, lk, ll, ldim )
+      else if ( eij.and.ejl ) then
+        call grad_copy ( d_ij, d_jl, li, lj, ldim )
+        call grad_copy ( p_ij, p_jl, li, lj, ldim )
+      else if ( eil ) then
+        call grad_transp ( d_ij, d_jl, li, lj, ldim )
+        call grad_transp ( p_ij, p_jl, li, lj, ldim )
+      else if ( eij.and.ekl ) then
+        call grad_copy ( d_ik, d_jl, li, lk, ldim )
+        call grad_copy ( p_ik, p_jl, li, lk, ldim )
+      else if ( ejk.and.eil ) then
+        call grad_transp ( d_ik, d_jl, li, lk, ldim )
+        call grad_transp ( p_ik, p_jl, li, lk, ldim )
+      else
+        call ga_get (g_dens(2), iab2f, iab2l, iab4f, iab4l, d_jl, ldim)
+        call ga_get (g_dens(3), iab2f, iab2l, iab4f, iab4l, p_jl, ldim)
+      endif
+
+C     i,l
+      if ( ejl ) then
+        call grad_copy ( d_ij, d_il, li, lj, ldim )
+        call grad_copy ( p_ij, p_il, li, lj, ldim )
+      else if ( eik ) then
+        call grad_copy ( d_kl, d_il, lk, ll, ldim )
+        call grad_copy ( p_kl, p_il, lk, ll, ldim )
+      else if ( eij ) then
+        call grad_copy ( d_jl, d_il, lj, ll, ldim )
+        call grad_copy ( p_jl, p_il, lj, ll, ldim )
+      else if ( ekl ) then
+        call grad_copy ( d_ik, d_il, li, lk, ldim )
+        call grad_copy ( p_ik, p_il, li, lk, ldim )
+      else
+        call ga_get (g_dens(2), iab1f, iab1l, iab4f, iab4l, d_il, ldim)
+        call ga_get (g_dens(3), iab1f, iab1l, iab4f, iab4l, p_il, ldim)
+      endif
+
+C     j,k
+      if ( ekl ) then
+        call grad_copy ( d_jl, d_jk, lj, ll, ldim )
+        call grad_copy ( p_jl, p_jk, lj, ll, ldim )
+      else if ( eij ) then
+        call grad_copy ( d_ik, d_jk, li, lk, ldim )
+        call grad_copy ( p_ik, p_jk, li, lk, ldim )
+      else if ( eik ) then
+        call grad_transp ( d_ij, d_jk, li, lj, ldim )
+        call grad_transp ( p_ij, p_jk, li, lj, ldim )
+      else if ( ejl ) then
+        call grad_transp ( d_kl, d_jk, lk, ll, ldim )
+        call grad_transp ( p_kl, p_jk, lk, ll, ldim )
+      else if ( eij.and.ekl ) then
+        call grad_copy ( d_il, d_jk, li, ll, ldim )
+        call grad_copy ( p_il, p_jk, li, ll, ldim )
+      else if ( ejl.and.eik ) then
+        call grad_transp ( d_il, d_jk, li, ll, ldim )
+        call grad_transp ( p_il, p_jk, li, ll, ldim )
+      else
+        call ga_get (g_dens(2), iab2f, iab2l, iab3f, iab3l, d_jk, ldim)
+        call ga_get (g_dens(3), iab2f, iab2l, iab3f, iab3l, p_jk, ldim)
       endif
 
       return

@@ -1,5 +1,5 @@
       subroutine grad_force ( rtdb, basis, geom )
-c$Id: grad_force.F,v 1.11 1996-10-12 20:08:42 d3g681 Exp $
+c$Id: grad_force.F,v 1.12 1996-10-21 00:39:35 vg038 Exp $
 C calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C         ___                 ___                         ___
@@ -96,7 +96,8 @@ C------------------------------------------------------------------------------
      $     l_sch, k_sch, l_act, k_act, nactive, l_actlist, k_actlist,
      $     l_buf, k_buf, l_scr, k_scr, l_dens, k_dens, l_wdens, k_wdens,
      $     k_frc_nuc, k_frc_kin, k_frc_2el, k_frc_wgh, 
-     $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh
+     $     l_frc_nuc, l_frc_kin, l_frc_2el, l_frc_wgh,
+     $     l_frc_mp2, k_frc_mp2
 
       integer ld_ij, ld_kl, lh_ik, ld_ik, lh_jl, ld_jl, lh_il, ld_il,
      $     lh_jk, ld_jk, 
@@ -118,7 +119,6 @@ C------------------------------------------------------------------------------
       character*32 rtdb_string
       logical oskel, omp2, status
 
-      status = MA_verify_allocator_stuff ( .true. )
       nproc = ga_nnodes()
 
 C     get information about basis set
@@ -225,6 +225,11 @@ C     local replication (separate for the different pieces)
       status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_2el, 
      $     k_frc_2el)
       if (.not.status) call errquit('could not allocate l_force',1)
+      if ( omp2 ) then
+        status = MA_alloc_get(MT_DBL, lforce, 'forces', l_frc_mp2, 
+     $       k_frc_mp2)
+        if (.not.status) call errquit('could not allocate l_force',1)
+      endif
 
 C     eigenvalue diagonal matrix
       nocc = nopen + nclosed
@@ -392,7 +397,7 @@ C  blocks of density matrix:
       status = MA_alloc_get(MT_DBL, lsqa, 'ld_jk', lh_jk, ld_jk)
       if (.not.status) call errquit('could not allocate ld_jk',1)
 
-      if ( scftype .ne. 'RHF' ) then ! UHF or ROHF
+      if ( scftype .ne. 'RHF' .or. omp2 ) then ! UHF or ROHF (or MP2)
         if ( scftype .eq. 'ROHF' .or. omp2 ) then
           status = MA_alloc_get(MT_DBL, lsqa, 'ld_ij2', lh_ij2, ld_ij2)
           if (.not.status) call errquit('could not allocate ld_ij2',1)
@@ -502,14 +507,21 @@ C     print forces
       status = rtdb_parallel (.false.)
       if ( ga_nodeid() .eq. 0 ) then
         call ga_get ( g_force, 1, 3, 1, nat, dbl_mb(k_frc_2el), 3 )
-*        call ga_acc ( g_force, 1, 3, 1, nat, dbl_mb(k_frc_nuc), 3, 1.D0)
-*        call ga_acc ( g_force, 1, 3, 1, nat, dbl_mb(k_frc_wgh), 3, 1.D0)
-*        call ga_acc ( g_force, 1, 3, 1, nat, dbl_mb(k_frc_kin), 3, 1.D0)
-*        call ga_get ( g_force, 1, 3, 1, nat, dbl_mb(k_force), 3 )
+
         do i=0, 3*nat-1
           dbl_mb(k_force+i) = dbl_mb(k_frc_2el+i) + dbl_mb(k_frc_nuc+i) 
      $                      + dbl_mb(k_frc_wgh+i) + dbl_mb(k_frc_kin+i)
         enddo
+
+        if ( omp2 ) then
+          status = rtdb_get ( rtdb, 'mp2:nonseparable gradient', mt_dbl,
+     $         3*nat, dbl_mb(k_frc_mp2) )
+          if (.not. status ) 
+     $         call errquit ('grad_force: no nonseparable gradient',110)
+          do i=0, 3*nat-1
+            dbl_mb(k_force+i) = dbl_mb(k_force+i) + dbl_mb(k_frc_mp2+i) 
+          enddo
+        endif
 
 C       zero force contributions on inactive atoms
         call zero_forces ( dbl_mb(k_force), log_mb(k_act), nat )
@@ -529,8 +541,10 @@ C       symmetrize
           write (luout,2200) '2-electron gradient',
      $         ((dbl_mb(k_frc_2el+i-1+3*(j-1)),i=1,3),j=1,nat)
           if ( omp2 ) then
+            write (luout,2200) 'non-separable gradient',
+     $         ((dbl_mb(k_frc_mp2+i-1+3*(j-1)),i=1,3),j=1,nat)
             write (luout,2200) 
-     $           'total separable contribution to gradient',
+     $           'total MP2 gradient',
      $           ((dbl_mb(k_force+i-1+3*(j-1)),i=1,3),j=1,nat)
           else
             write (luout,2200) 'total SCF gradient',
@@ -542,7 +556,7 @@ C       symmetrize
 
 C       store in rtdb
         if ( omp2 ) then
-          rtdb_string = 'mp2:scf+separable gradient'
+          rtdb_string = 'mp2:gradient'
         else  ! scf
           rtdb_string = 'scf:gradient'
         endif
@@ -553,10 +567,8 @@ C       store in rtdb
       endif
       status = rtdb_parallel (.true.)
 
-C     in HF case print the forces 
-C     (MP2 forces are incomplete and not printed by default)
-      if ( .not. omp2
-     $     .and. ga_nodeid() .eq. 0 
+C     default: print the total forces 
+      if ( ga_nodeid() .eq. 0 
      $     .and. util_print('forces', print_low) ) then
         write (luout,1000)'x','y','z','x','y','z'
         do 30, i=1, nat
@@ -601,7 +613,7 @@ C     print timing information
 C  free memory
 
       status = MA_free_heap ( l_act )
-      if ( scftype .ne. 'RHF' ) then
+      if ( scftype .ne. 'RHF' .or. omp2 ) then
         if ( scftype .eq. 'ROHF' .or. omp2 ) then
           status = MA_free_heap ( lh_kl2 )
           status = MA_free_heap ( lh_ij2 )
@@ -643,6 +655,9 @@ C  free memory
       status = MA_free_heap ( l_frc_kin )
       status = MA_free_heap ( l_frc_nuc )
       status = MA_free_heap ( l_force )
+      if ( omp2 ) then
+        status = MA_free_heap ( l_frc_mp2 )
+      endif
       call ga_sync()
       status = ga_destroy ( g_force )
       status = ga_destroy ( g_wdens )

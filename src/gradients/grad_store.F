@@ -1,7 +1,7 @@
       subroutine grad_store ( rtdb, geom, g_force, chktime, nat, nquad, 
      $     frc, oinit, ofinish, oactive, oskel, omp2 )
 
-c$Id: grad_store.F,v 1.3 1996-09-19 16:58:11 vg038 Exp $
+c$Id: grad_store.F,v 1.4 1996-10-21 00:39:36 vg038 Exp $
 C=======================================================================
 C     Syncs and writes the partially calculated forces to rtdb if either:
 C     - checkpointing is requested and the specified time has elapsed. 
@@ -97,7 +97,8 @@ C       zero the local 2-el. force array
       return
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      logical function grad_restart ( rtdb, nat, ndone, frc, g_force )
+      logical function grad_restart ( rtdb, geom, basis, nat, ndone, 
+     $     frc, g_force )
 
 C=======================================================================
 C     Finds out if this is a restart of a partially finished gradient run.
@@ -112,7 +113,7 @@ C========================================================================
 #include "stdio.fh"
 #include "util.fh"
 
-      integer rtdb, nat,
+      integer rtdb, geom, basis, nat,
      $     ndone, g_force
 
       double precision frc
@@ -121,21 +122,22 @@ C========================================================================
 
       logical status, yes
 
+      logical grad_same_geom
+      external grad_same_geom
+
       status = rtdb_get ( rtdb, 'gradients:restart', mt_log, 1, yes )
 
       if ( status .and. yes ) then
-C       delete entry (the next run e.g. in a geometry optimization 
-C       is NOT a restart)
-        status = rtdb_delete ( rtdb, 'gradients:restart' )
 
         status = rtdb_get ( rtdb, 'gradients:ndone', mt_int, 1, 
      $       ndone )
 
         if ( status ) then
+C         have basis or geometry changed?
+          status = grad_same_geom ( rtdb, geom, basis, nat )
+        endif
 
-C         delete one-electron derivatives (they come from the previous run)
-          call ga_zero ( g_force )
-
+        if ( status ) then
           if ( ga_nodeid() .eq. 0 ) then
 C           node 0 gets the old forces
             if ( util_print('information', print_high) ) then
@@ -153,12 +155,13 @@ C           node 0 gets the old forces
 
           else  ! node <> 0
 C           all other nodes simply zero their forces
-C           1el. forces are already in the rtdb
-CCC            call dfill ( 3*nat, 0.D0, frc, 1 )
+CCC         call dfill ( 3*nat, 0.D0, frc, 1 )
           endif
 C         successful completion
           grad_restart = .true.
+          return
         else
+C         just print error message and continue to default end
           if ( ga_nodeid() .eq. 0 ) then
             if ( util_print('information', print_medium) ) then
               call util_print_centered ( luout,
@@ -167,13 +170,10 @@ C         successful completion
      $             'starting from the beginning', 35, .true.)
             endif
           endif
-          ndone = 0
-          grad_restart = .false.
         endif
-      else
-        ndone = 0
-        grad_restart = .false.
       endif
+      ndone = 0
+      grad_restart = .false.
       return
       end
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -221,3 +221,9 @@ C     sets ofinish true if it is true on any node
 
       return
       end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      logical function grad_same_geom ( rtdb, geom, basis, nat )
+
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "bas.fh"

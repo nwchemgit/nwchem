@@ -6,7 +6,7 @@
      $                  rtdb, geom, basis, 
      $                  nproc, nat, scr, lscr, buf, lbuf, tol2e,
      $                  s34, oactive, oskel, scftype, omp2)
-c$Id: grad2.F,v 1.18 1996-09-20 23:31:52 vg038 Exp $
+c$Id: grad2.F,v 1.19 1996-10-21 00:39:34 vg038 Exp $
 
       implicit none
 
@@ -91,13 +91,13 @@ C-------------------------local variables-----------------------------
 
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
-      
       q4 = 1.0d0                ! If not using symmetry
 
       call fock_2e_est_task(geom, oskel, tol2e, task_size)
 
 C     is this a restart run?
-      oskip = grad_restart ( rtdb, nat, ndone, frc, g_force )
+      oskip = grad_restart ( rtdb, geom, basis, nat, ndone, frc, 
+     $     g_force )
 
 C     checkpointing requested?
       ochkpt = rtdb_get ( rtdb, 'gradients:checkpoint', mt_int, 1, 
@@ -252,8 +252,17 @@ C            get density matrix blocks
      $                            iab1f, iab1l, iab2f, iab2l, 
      $                            iab3f, iab3l, iab4f, iab4l,
      $                            g_dens )
-                    else
+                    else if ( orohf ) then
                       call errquit ('no RMP2 gradients yet', 0)
+                    else  ! rmp2
+                      call grad_get_dens_rmp2 ( d_ij, d_kl, d_ik, 
+     $                            d_jl, d_il, d_jk,
+     $                            d_ij2, d_kl2, d_ik2, 
+     $                            d_jl2, d_il2, d_jk2, 
+     $                            ldim,
+     $                            iab1f, iab1l, iab2f, iab2l, 
+     $                            iab3f, iab3l, iab4f, iab4l,
+     $                            g_dens )
                     endif
 
                   endif
@@ -427,9 +436,36 @@ C     2el. integral derivatives
                 frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
  435          continue
 
-            else
+            else if ( orohf ) then
               call errquit ('only OUMP2 grads available',110)
-            endif
+            else  ! RMP2
+              do 635, icart = 1, 3
+                dE = 0.D0
+                do 655, ip1 = if1, il1
+                  do 650, ip2 = if2, il2
+                    do 645, ip3 = if3, il3
+                      do 640, ip4 = if4, il4
+                        den2 = quart* ( d_ij(ip1,ip2) * d_kl2(ip3,ip4)
+     $                               +  d_ij2(ip1,ip2) * d_kl(ip3,ip4) )
+     $                      - sixh * ( d_il(ip1,ip4) * d_jk2(ip2,ip3) 
+     $                               + d_jk(ip2,ip3) * d_il2(ip1,ip4)
+     $                               + d_jl(ip2,ip4) * d_ik2(ip1,ip3)
+     $                               + d_ik(ip1,ip3) * d_jl2(ip2,ip4) )
+                        dE = dE + den2 * buf(icount)
+                        icount = icount + 1
+
+ 640                  continue
+ 645                continue
+ 650              continue
+ 655            continue
+                if ( .not.oij .or. ish1.ne.ish2 ) dE = dE + dE
+                if ( .not.okl .or. ish3.ne.ish4 ) dE = dE + dE
+                if ( .not.oikjl .or. ish1.ne.ish3 .or. ish2.ne.ish4 )
+     $               dE = dE + dE
+                frc(icart,idatom(i)) = frc(icart,idatom(i)) + dE * q4
+ 635          continue
+
+            endif ! closed shell
             
           endif  ! MP2
 
