@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.24 2000-02-04 19:46:55 mg201 Exp $
+* $Id: cphf_solve.F,v 1.25 2000-05-23 15:49:42 edo Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -176,7 +176,8 @@ c !!! BGJ
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
       else
          call rohf_init(rtdb)
-         call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
+         call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,
+     ,        rtdb)
       endif
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
