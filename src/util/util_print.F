@@ -1,16 +1,23 @@
+      block data dataprintcommon
+      implicit none
+#include "printlevels.fh"
+#include "printcommon.fh"
+c
+      data depth /1/, print_level(1)/print_default/ ! In common
+      data n_print(1) /0/, n_no_print(1) /0/
+      data oprint_print(1) /.false./
+c     
+      end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.8 1995-04-17 17:30:46 d3g681 Exp $
+C$Id: util_print.F,v 1.9 1996-04-16 21:08:11 d3g681 Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
 #include "inp.fh"
       character*(*) name
+      external dataprintcommon  ! block data for T3D linker
       integer level
       integer ind
-c     
-      data depth /1/, print_level(1)/print_default/ ! In common
-      data n_print(1) /0/, n_no_print(1) /0/
-      data oprint_print(1) /.false./
 c     
       if (n_print(depth) .gt. 0) then
          if (inp_match(n_print(depth), .false., name, 
