@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.4 2003-02-18 19:06:14 edo Exp $
+* $Id: MOTION.F,v 1.5 2003-02-27 21:17:43 bert Exp $
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *
@@ -37,7 +37,7 @@
 
       logical value,found
       integer taskid
-      character ch_tmp
+      real*8 ch_tmp
       character*30 filename
       character*255 full_filename
 
