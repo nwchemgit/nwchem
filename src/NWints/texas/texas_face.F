@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.7 1995-12-21 18:59:26 pg481 Exp $
+c $Id: texas_face.F,v 1.8 1996-01-04 21:28:20 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -747,8 +747,8 @@ c
 c------------------------------------
 c change the value of "scftype"
 c
-      scftype='**  PNL  **'
-      write(6,100) scftype
+**      scftype='**  PNL  **'
+**      write(6,100) scftype
 c------------------------------------
 c Construct an array showing to which pair-block
 c a given pair of shells belongs:

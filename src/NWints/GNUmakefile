@@ -1,11 +1,12 @@
 
-# $Id: GNUmakefile,v 1.27 1995-12-20 22:44:43 d3e129 Exp $
+# $Id: GNUmakefile,v 1.28 1996-01-04 21:28:15 d3g681 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh
     LIBRARY = libnwints.a
     SUBDIRS = api int aux ints_sp deriv texas
 
-    USE_TEXAS = NOPE
+#NOPE
+    USE_TEXAS = YEP
 
 include ../config/makefile.h
 include ../config/makelib.h
