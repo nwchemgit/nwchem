@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.42 1996-07-26 16:18:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.43 1996-08-19 15:11:44 d3g681 Exp $
 
 include config/makefile.h
 
@@ -155,6 +155,15 @@ depend:
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 	config/depend.x
+
+.PHONY:	src.F
+src.F:	
+	cat stubs.f nwchem.F > src.F
+ifdef SUBDIRS
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+	done
+endif
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
