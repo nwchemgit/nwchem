@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.11 2002-03-05 22:54:41 bylaska Exp $
+c $Id: switching_charge.F,v 1.12 2002-03-05 22:56:10 bylaska Exp $
 c
 
 ***********************************************************
@@ -101,10 +101,7 @@ c
       value = MA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) 
      >  call errquit(' Switching_Charge_Generate_V:pushing stack',0)
-      call Truncating_Function(dbl_mb(xtmp(1)))
-c      call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
-c      call Pack_c_unpack(0,dbl_mb(xtmp(1)))
-      call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
+      call Truncating_Function(rgrid,dbl_mb(xtmp(1)))
 
 c*     **** debug ****
 c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
@@ -231,9 +228,6 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
       if (.not. value) 
      >  call errquit(' Switching_Charge_Potentail_Fmm:pushing stack',0)
       call Truncating_Function(dbl_mb(xtmp(1)))
-c     call Pack_c_SMul(0,scal2,dbl_mb(xtmp(1)),dbl_mb(xtmp(1)))
-c     call Pack_c_unpack(0,dbl_mb(xtmp(1)))
-      call D3dB_cr_fft3b(1,dbl_mb(xtmp(1)))
 
 c*     **** debug ****
 c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
