@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.26 2000-07-31 23:27:04 d3j191 Exp $
+c $Id: util_md.F,v 1.27 2000-09-15 22:21:26 d3j191 Exp $
 c
       implicit none
 c
@@ -1456,3 +1456,12 @@ cc
       return
       end
 #endif
+      logical function md_zmat(x1,x2,x3,x4,d,a,t)
+c
+      implicit none
+c
+      real*8 x1(3),x2(3),x3(3),x4(4),d,a,t
+c
+      md_zmat=.false.
+      return
+      end
