@@ -127,7 +127,7 @@ c
       call util_file_name('movecs', .false., .false., movecs_in)
       if(.not.movecs_read_header(movecs_in, title_vecs, bas_vecs,
      $     nbf_vecs, nset, nmo_vecs, 2))
-     $     call errquit('wnbofile:  failed on movecs_read_header,0')
+     $     call errquit('wnbofile:  failed on movecs_read_header',0)
 
       if(nset.eq.1)then
         restricted=.true.
