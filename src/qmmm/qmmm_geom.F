@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.2 2004-07-21 01:29:47 marat Exp $
+c $Id: qmmm_geom.F,v 1.3 2004-08-14 00:33:44 marat Exp $
 c
 c
       subroutine qmmm_create_qm_geom(irtdb)
@@ -208,6 +208,8 @@ c     -----------------------------
           call errquit('qmmm: Failed to set charge',0,
      &       RTDB_ERR)
       end if
+
+      call qmmm_load_bq()
 
       end
 
