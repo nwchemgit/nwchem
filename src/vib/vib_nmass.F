@@ -1,5 +1,5 @@
       SUBROUTINE vib_NMASS(VECTOR,ATMASS)
-* $Id: vib_nmass.F,v 1.3 1997-04-22 20:01:43 d3e129 Exp $
+* $Id: vib_nmass.F,v 1.4 1997-06-12 22:51:49 d3e129 Exp $
 C
 C  This routine unmass weights the normal mode vectors.
 C
@@ -30,3 +30,18 @@ C
 00100 CONTINUE
       RETURN
       END
+      subroutine vib_vecnormal(vectors,nvec)
+      implicit none
+#include "util.fh"
+*.. normalize the eigen-vectors 
+      integer nvec
+      double precision vectors(nvec,nvec)
+c
+      double precision vnorm
+      integer col
+      do col = 1,nvec
+        vnorm = ddot(nvec,vectors(1,col),1,vectors(1,col),1)
+        vnorm = sqrt(1.0d00/vnorm)
+        call dscal(nvec,vnorm,vectors(1,col),1)
+      enddo
+      end

@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.7 1997-04-22 20:01:44 d3e129 Exp $
+* $Id: vib_vib.F,v 1.8 1997-06-12 22:51:49 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -41,11 +41,12 @@ c
 c
       integer i_core, h_core, iii, ioldlabs, ivc, itot
       integer nels, npri, ihess, icoord, ihesst, ihesstcp,
-     &    ihessp, iegval, iegvec
+     &    ihessp, iegval, iegvec, iddpol, iddpolq, intense
       integer imass, iscr, i10, i20, i30, i40
       double precision dbl_tmp
       logical first_pass
-
+      character*255 dipole_file
+      logical dipole_file_exists
 c
       first_pass = .true.
 *... check input logic 
@@ -96,7 +97,10 @@ C
       I20      =  I10    + NELS
       I30      =  I20    + NAT3*NAT3 ! Space to represent internal coord. Hessian
       I40      =  I30    + NAT3*NAT3 !
-      ITOT     =  I40    + 8*NAT3    !
+      Iddpol   =  I40    + 8*NAT3    ! derivative dipole in cartesians
+      Iddpolq  =  Iddpol + 3*NAT3    ! derivative dipole in normal modes
+      Intense  =  Iddpolq+ 3*NAT3    ! intensities
+      ITOT     =  Intense + 3*natom*3
       itot = itot + 2*natom+1 + 6*nat3 ! extra for call to rdinp
 c
       if (.not.ma_push_get
@@ -122,7 +126,10 @@ C
       I40      =  I30    + NAT3*NAT3 !
       ioldlabs =  I40    + 8*NAT3    !
       ivc      =  ioldlabs + 2*natom + 1
-      itot     =  ivc + 6*nat3
+      iddpol   =  ivc + 6*nat3
+      iddpolq  =  iddpol + 3*nat3
+      intense  =  iddpolq + 3*nat3
+      Itot     =  intense + 3*natom*3
 c
 c read/load hessian and form triangle/square as needed
 c
@@ -140,6 +147,18 @@ c
         enddo
         close(unit=69,status='keep')
         call vib_dsquar(dbl_mb(ihesst),dbl_mb(ihess),nat3,nat3)
+      endif
+      call util_file_name('fd_ddipole',.false., .false.,dipole_file)
+      dipole_file_exists = .false.
+      inquire(file=dipole_file,exist=dipole_file_exists)
+      if (dipole_file_exists) then
+        open(unit=70,file=dipole_file,form='formatted',status='old',
+     &      err=89900,access='sequential')
+        do iii = 0,((3*nat3)-1)
+          read(70,*,err=89901,end=89902) dbl_tmp
+          dbl_mb(iddpol+iii) = dbl_tmp
+        enddo
+        close(unit=70,status='keep')
       endif
 00001 continue
       write(luout,*)
@@ -199,6 +218,7 @@ C
 C
 C
       CALL vib_NMASS(DBL_MB(IEGVEC),DBL_MB(IMASS)) ! "unmass" weight the normal modes.
+*      call vib_vecnormal(dbl_mb(iegvec),nat3)
 C
 C *** Note: DBL_MB(IHESST) now destroyed if needed reinitialize from DBL_MB(IHESS)
 C
@@ -207,7 +227,7 @@ C
 C
       CALL vib_WRTFREQ(DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
 C
-      CALL vib_CLEAN(DBL_MB(IEGVEC),NAT3*NAT3,1.0D-07) ! CLEAN eigenvectors
+      CALL vib_CLEAN(DBL_MB(IEGVEC),NAT3*NAT3,1.0D-27) ! CLEAN eigenvectors
       if (first_pass) then
         WRITE(6,9000)
       else
@@ -216,6 +236,11 @@ C
       CALL vib_PRDATA(DBL_MB(IEGVEC),DBL_MB(IEGVAL),
      &    NAT3,NAT3,NAT3,NAT3,.TRUE.,NPRI,
      &    first_pass)     ! Write eigenvalues and eigenvectors
+      if (dipole_file_exists) then
+        call vib_intense(dbl_mb(iegvec),dbl_mb(iegval),natom,
+     &      dbl_mb(iddpol),dbl_mb(iddpolq),dbl_mb(intense),
+     &      first_pass)
+      endif
 C
 C----------Call GAMESS subroutines which express the HESSIAN and the normal 
 C----------modes in terms of internal coordinates.
@@ -240,6 +265,16 @@ C
       if (.not.ma_pop_stack(h_core)) call errquit
      &    ('vib_rdinp ma_pop failed',911)
       return
+89900 continue
+      write(luout,*)'dipole_file => ',dipole_file
+      call errquit('vib_vib: error opening file: "dipole_file"',811)
+89901 continue
+      write(luout,*)'dipole_file => ',dipole_file
+      call errquit('vib_vib: error reading file: "dipole_file"',811)
+89902 continue
+      write(luout,*)'dipole_file => ',dipole_file
+      call errquit
+     & ('vib_vib: unexpected EOF when reading file: "dipole_file"',811)
 99900 continue
       write(luout,*)'hess_file => ',hess_file
       call errquit('vib_vib: error opening file: "hess_file"',911)

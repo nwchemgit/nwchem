@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.32 1997-05-23 21:45:35 d3e129 Exp $
+# $Id: GNUmakefile,v 1.33 1997-06-12 22:52:24 d3e129 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -21,7 +21,7 @@
        LIBRARY = libstepper.a
    LIB_TARGETS = 
 
-   USES_BLAS = stpr_mkstep.F stpr_partit.F stpr_driver.F
+   USES_BLAS = stpr_driver.F stpr_mkstep.F stpr_partit.F
 
 include ../config/makefile.h
 include ../config/makelib.h

@@ -1,9 +1,10 @@
 *
-* $Id: stpr_gen_aux.F,v 1.6 1997-04-22 20:01:45 d3e129 Exp $
+* $Id: stpr_gen_aux.F,v 1.7 1997-06-12 22:52:25 d3e129 Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
 * current routines: 
+* stpr_fd_upd_dipole           ! computes finite difference dipole moment
 * stpr_fd_upd_hess             ! computes finite difference either central or forward
 * stpr_wrt_fd_from_sq          ! writes hessian to file
 * stpr_check_genat_restart     ! check for restart "is info available?"
@@ -14,6 +15,31 @@
 * stpr_gen_set_diag            ! sets inactive atom diagonal contribs to large value
 *
 c
+      subroutine stpr_fd_upd_dipole(ddipole,mdipole,pdipole,
+     &    s_delta,delta,nat,iatom,ixyz)
+      implicit none
+c
+c::passed
+      integer nat
+      integer iatom
+      integer ixyz
+      double precision s_delta
+      double precision delta
+      double precision mdipole(3)
+      double precision pdipole(3)
+      double precision ddipole(3,3,nat)
+c:local
+      integer moment
+      double precision rdelta
+      double precision value
+c
+      rdelta = 1.0d00/(s_delta*delta)
+      do moment = 1,3
+        value = rdelta*(pdipole(moment)-mdipole(moment))
+        ddipole(moment,ixyz,iatom) = value
+      enddo
+c
+      end
       subroutine stpr_fd_upd_hess(hess,gradm,gradp,s_delta,delta,nat,
      &    iatom_t,ixyz_t)
       implicit none
@@ -42,6 +68,43 @@ c
           hess(ixyz,iatom,ixyz_t,iatom_t) = value
 00200   continue
 00100 continue
+c
+      end
+      subroutine stpr_wrt_fd_dipole(ddipole,nat,filename)
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+      integer nat
+      double precision ddipole(3,3,nat)
+      character*(*) filename
+c
+      integer lu
+      integer atom, xyz, moment
+      logical does_it_exist
+c
+      lu = 67 
+      does_it_exist = .false.
+      inquire(file=filename,exist=does_it_exist)
+      if (does_it_exist)
+     &    write(luout,*)
+     &    'stpr_wrt_fd_dipole: overwrite of existing file',
+     &    filename(1:inp_strlen(filename))
+      open(unit=lu,file=filename,
+     &    form='formatted',
+     &    access='sequential',
+     &    status='unknown')
+c
+      do atom = 1,nat
+        do  xyz = 1,3
+          do moment = 1,3
+            write(lu,10000)ddipole(moment,xyz,atom)
+          enddo
+        enddo
+      enddo
+c
+10000 format(1x,1pd20.10)
+c
+      close(unit=lu,status='keep')
 c
       end
       subroutine stpr_wrt_fd_from_sq(hess,rank_hess,filename)
@@ -316,4 +379,68 @@ c
       call output(hess,1,rank_hess,1,rank_hess,
      &    rank_hess,rank_hess,1)
 #endif
+      end
+      subroutine stpr_print_ddipole(ddipole,msg,nat)
+      implicit none
+#include "stdio.fh"
+#include "inp.fh"
+      integer nat
+      double precision ddipole(3,3,nat)
+      character*(*) msg
+      character*1 cname(3)
+      character*1 kapname
+c
+      double precision val
+      integer moment
+      integer xyz, atom
+c
+      cname(1) = 'x'
+      cname(2) = 'y'
+      cname(3) = 'z'
+c
+      write(luout,'(/a/)') msg(1:inp_strlen(msg))
+      write(luout,*)' '
+      do moment = 1,3 
+        kapname = cname(moment)
+        call inp_ucase(kapname)
+        write(luout,*)' '
+        write(luout,10001) kapname
+        do atom = 1,nat
+          do xyz = 1,3
+            if (moment.ge.1.and.moment.le.3) then
+              val = ddipole(moment,xyz,atom)
+*
+* from A Physicists Desk Reference, The Second Edition of Physics Vade Mecum
+*      Herbert L. Anderson, Editor in Chief
+*      Copyright (C) 1989 American Institute of Physics
+*      335 East 45th Street, New York, NY 10017
+*
+*1 debye = 10**(-18) esu cm * [1 e/4.8032068 x 10**(-10) esu]*[1 m /100cm]*[a0/5.29177249 x 10**(-11) m]
+*1 debye = (1.0/4.8032068/5.29177249) * 10**(-18 + 10 - 2 + 11) e a0
+*1 debye = (1.0/4.8032068/5.29177249) * 10**(1) e a0
+*1 e a0  = (4.8032068*5.29177249) * 10**(-1) debye
+*1 e a0  = 25.417477608 * 10**(-1) debye
+*1 e a0  = 2.5417477608 debye
+*
+*use 1 e a0 = 2.541 7478 debye
+*
+              val = val*2.5417478d00
+              val = val/0.529177249d00  ! bohr->angstrom matches current geom data
+              write(luout,10002)
+     &            cname(moment),atom,cname(xyz),
+     &            ddipole(moment,xyz,atom),val
+            else
+              write(luout,10000)moment
+              call errquit('stpr_print_ddipole: fatal error',911)
+            endif
+          enddo
+        enddo
+      enddo
+      write(luout,*)' '
+      write(luout,*)' '
+10000 format('invalid moment value',i10)
+10001 format(1x,a1,1x,
+     &    'vector of derivative dipole (au) [debye/angstrom]')
+10002 format(1x,'d_dipole_',a1,'/<atom=',i4,',',a1,'> = ',
+     &    f10.4,5x,'[',f10.4,']')
       end
