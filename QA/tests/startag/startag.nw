@@ -1,0 +1,32 @@
+echo
+start h2o
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+  * library 6-31g*
+end
+
+task scf 
+
+basis
+  * library 6-31g*
+  O S
+  0.01 1.0
+  O p
+  0.01 1.0
+  O d  
+  0.01 1.0
+end
+
+scf
+  vectors atomic
+end
+
+task scf
