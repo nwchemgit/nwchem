@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.9 1994-09-06 20:21:14 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.10 1994-10-31 17:32:08 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -357,12 +357,6 @@ C
                   If ( ISpin .eq. JSpin) then
                      Call GA_Zero(G_bigB)
 C
-C                    NOTE: the operations in here are SIMD, so are
-C                    not as parallel as one might like. This could
-C                    be optimized away by creating a specialized
-C                    routine to do the whole thing, but we'll wait
-C                    and see if there is a problem.
-C
                      Do I = ILo, IHi
 C
 C                       Use permutational symmetry if possible
@@ -378,9 +372,13 @@ C
 C
 C                          Copy from an IJ block of A to the 
 C                          coresponding IJ block of B, but with
-C                          transposition.
+C                          transposition.  This routine is data parallel
+C                          in that nodes which don't have any part of
+C                          the patch to be copies will just fall through
+C                          and immediately go on to the next loop
+C                          iteration.
 C
-                           Call GA_Copy_Patch('T',
+                           Call GA_Copy_Patch_DP('T',
      $                        G_bigA, (I-ILo)*NVir(ISpin)+1,
      $                                (I-ILo+1)*NVir(ISpin),
      $                                (J-JLo)*NVir(JSpin)+1,
@@ -391,6 +389,11 @@ C
      $                                (J-JLo+1)*NVir(JSpin) )
                         EndDo
                      EndDo
+C
+C                    Now we must make sure everyone has a consistent
+C                    copy of B before moving on.
+C
+                     Call GA_Sync
 C
 C                    In all of these cases, we also have to scale B
 C                    by -1 and add some multiple of A to it,
