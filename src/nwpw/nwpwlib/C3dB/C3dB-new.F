@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.10 2002-01-09 00:20:31 bylaska Exp $
+* $Id: C3dB-new.F,v 1.11 2002-01-12 02:26:16 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -52,7 +52,7 @@
 *     integer iq_to_i2((NFFT1)*NFFT2*NSLABS)
 *     integer i1_start(NPROCS+1)
 *     integer i2_start(NPROCS+1)
-*     common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+*     common / c_trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
 
 *     ***********************************
@@ -134,12 +134,12 @@
       integer iq_to_i2(2,NBLOCKS)
       integer i1_start(2,NBLOCKS)
       integer i2_start(2,NBLOCKS)
-      common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+      common / c_trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
       integer Nchannels(NBLOCKS)
       integer channel_proc(2,NBLOCKS)
       integer channel_type(2,NBLOCKS)
-      common / channel_blk / channel_proc,channel_type,Nchannels
+      common / c_channel_blk / channel_proc,channel_type,Nchannels
 
       logical value
 
@@ -519,19 +519,7 @@ c     real*8      tmp3(*)
 
 
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - ABC_time
-*     3 - L_time
-*     4 - vlocal_time
-*     5 - vnl_time
-*     6 - vh_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-
-      call current_second(tim1)
+      call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
       call C3dB_nfft3d(nb,nfft3d)
@@ -599,8 +587,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp1(2))
 
-      call current_second(tim2)
-      times(1) = times(1) + (tim2-tim1)
+      call nwpw_timing_end(1)
       return
       end
 
@@ -651,18 +638,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       logical value
 
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - ABC_time
-*     3 - L_time
-*     4 - vlocal_time
-*     5 - vnl_time
-*     6 - vh_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
+      call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
       call C3dB_nfft3d(nb,nfft3d)
@@ -733,8 +709,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp1(2))
 
-      call current_second(tim2)
-      times(1) = times(1) + (tim2-tim1)
+      call nwpw_timing_end(1)
       return
       end
 
@@ -1080,13 +1055,13 @@ c     integer i2_start(NFFT3+1)
       integer iq_to_i2(2,NBLOCKS)
       integer i1_start(2,NBLOCKS)
       integer i2_start(2,NBLOCKS)
-      common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+      common / c_trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
 *     **** Used to avoid asynchronous communications ****
       integer Nchannels(NBLOCKS)
       integer channel_proc(2,NBLOCKS)
       integer channel_type(2,NBLOCKS)
-      common / channel_blk / channel_proc,channel_type,Nchannels
+      common / c_channel_blk / channel_proc,channel_type,Nchannels
       integer pair1(2),pair2(2)
       integer pair_step(2)
       integer step,Nstep,icount
@@ -1106,7 +1081,7 @@ c     integer i2_start(NFFT3+1)
       external full_ps_C3dB
 
 
-*     **** allocate trans_blk common block ****
+*     **** allocate c_trans_blk common block ****
       value = MA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
       value = MA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
@@ -1318,13 +1293,13 @@ c     integer i2_start(NFFT3+1)
       integer iq_to_i2(2,NBLOCKS)
       integer i1_start(2,NBLOCKS)
       integer i2_start(2,NBLOCKS)
-      common / trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+      common / c_trans_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
 
 *     **** Used to avoid asynchronous communications ****
       integer Nchannels(NBLOCKS)
       integer channel_proc(2,NBLOCKS)
       integer channel_type(2,NBLOCKS)
-      common / channel_blk / channel_proc,channel_type,Nchannels
+      common / c_channel_blk / channel_proc,channel_type,Nchannels
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -1585,22 +1560,12 @@ c     integer i2_start(NFFT3+1)
       integer np
       real*8  sum
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - ABC_time
-*     3 - L_time
-*     4 - vlocal_time
-*     5 - vnl_time
-*     6 - vh_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
 *     **** external functions ****
       real*8 ddot
       external ddot
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
       call Parallel_np(np)
 
@@ -1615,8 +1580,7 @@ c     integer i2_start(NFFT3+1)
          call C3dB_SumAll(sum)
       end if
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
 
       sumall = sum
       return
@@ -1640,29 +1604,18 @@ c     integer i2_start(NFFT3+1)
 
       real*8  sum
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - ABC_time
-*     3 - L_time
-*     4 - vlocal_time
-*     5 - vnl_time
-*     6 - vh_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
       real*8   ddot
       external ddot
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
 *     **** sum up dot product on this node ****
       sum = ddot(nx(nb)*ny(nb)*nq(nb),A(1),2,B(1),2)
      >    + ddot(nx(nb)*ny(nb)*nq(nb),A(2),2,B(2),2)
 
 *     **** do not add up sums from other nodes ****       
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
 
       sumall = sum
       return
@@ -2262,17 +2215,10 @@ c     integer i2_start(NFFT3+1)
       integer n,m,shift1,shift2
       real*8  sum
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
       real*8   ddot
       external ddot
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
       call Parallel_np(np)
 
@@ -2291,13 +2237,13 @@ c     integer i2_start(NFFT3+1)
       end do
       end do
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
 
 *     **** add up sums from other nodes ****
       if (np.gt.1) then
          call C3dB_Vector_SumAll(nn*ne,sumall)
       end if
+
+      call nwpw_timing_end(2)
 
       return
       end
@@ -2325,21 +2271,11 @@ c     integer i2_start(NFFT3+1)
       integer n,shift1
       real*8  sum
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - ABC_time
-*     3 - L_time
-*     4 - vlocal_time
-*     5 - vnl_time
-*     6 - vh_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
       real*8   ddot
       external ddot
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
       call Parallel_np(np)
 
@@ -2353,15 +2289,12 @@ c     integer i2_start(NFFT3+1)
         sumall(n) = sum
       end do
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
-
 *     **** add up sums from other nodes ****
       if (np.gt.1) then
          call C3dB_Vector_SumAll(ne,sumall)
       end if
 
-
+      call nwpw_timing_end(2)
       return
       end
 
@@ -2395,14 +2328,7 @@ c     implicit none
 *     **** temporary workspace ****
       integer sumall(2)
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
-
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
@@ -2420,8 +2346,7 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
       return
       end
 
@@ -2453,14 +2378,8 @@ c     implicit none
 *     **** temporary workspace ****
       integer sumall(2)
 
-*     ***** timing variables *****
-*     1 - fft_time
-*     2 - dot_time
-      real*8 tim1,tim2
-      real*8 times(50)
-      common / timing / times
 
-      call current_second(tim1)
+      call nwpw_timing_start(2)
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
@@ -2477,8 +2396,7 @@ c     implicit none
       call icopy(n,int_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
 
-      call current_second(tim2)
-      times(2) = times(2) + (tim2-tim1)
+      call nwpw_timing_end(2)
       return
       end
 
