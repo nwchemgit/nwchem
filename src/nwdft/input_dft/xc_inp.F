@@ -31,7 +31,7 @@ c     vwn_4
 c     vwn_5
 c     vwn_1_rpa
 c     
-      integer num_dirs, ind, mlen, iline
+      integer num_dirs, ind, mlen, iline, n
       parameter (num_dirs = 17)
       character*10 dirs(num_dirs)
       character*255 test
@@ -39,7 +39,7 @@ c
 c     Define logical flags for local (l) and nonlocal (nl)
 c     parts of exchange-correlation functionals.
 c
-      logical  lcfac(15),  lxfac(15)
+      logical  lcfac(15),  lxfac(15), ck_local
       logical nlcfac(15), nlxfac(15)
       logical xccomb(15)
 c
@@ -287,20 +287,14 @@ c
   800 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
             write(6,*)' perdew86 is a nonlocal functional;',
-     &                ' adding perdew81 local functional. '                   
-            lcfac(3) = .true.
+     &                ' "local" descriptor is ignored. '                   
             lcfac(4) = .false.
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            nlcfac(3) = .false.
             nlcfac(4) = .true.
          else
 c
-c           assume total wanted
+c           assume total wanted (but total here = nonlocal)
 c
-            write(6,*)' perdew86 is a nonlocal functional;',
-     &                ' adding perdew81 local functional. '                   
-            lcfac(3) = .true.
-            nlcfac(3) = .false.
             lcfac(4) = .false.
             nlcfac(4) = .true.
             call inp_prev_field()
@@ -309,16 +303,11 @@ c
 c
 c        assume total wanted
 c
-         write(6,*)' perdew86 is a nonlocal functional;',
-     &             ' adding perdew81 local functional. '                   
-         lcfac(3) = .true.
-         nlcfac(3) = .false.
          lcfac(4) = .false.
          nlcfac(4) = .true.
       endif
       if (.not. inp_f(cfac(4))) then
          cfac(4) = 1.0d0
-         if(lcfac(3))cfac(3) = cfac(4)
       endif            
 c
       goto 10
@@ -328,20 +317,19 @@ c
   900 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
             write(6,*)' perdew91 is a nonlocal functional;',
-     &                ' adding pw91lda local functional. '
+     &                ' "local" descriptor is ignored. '                   
 c
 c           This is also done by default inside xc_perdew91.F
 c           when lcfac(5) is .true.
 c
-            lcfac(6) = .true.
             lcfac(5) = .false.
          elseif (inp_compare(.false.,'nonlocal', test)) then
             nlcfac(5) = .true.
          else
 c
-c           assume total wanted
+c           assume total wanted (but total here = nonlocal)
 c
-            lcfac(5) = .true.
+            lcfac(5) = .false.
             nlcfac(5) = .true.
             call inp_prev_field()
          endif
@@ -349,12 +337,11 @@ c
 c
 c        assume total wanted
 c
-         lcfac(5) = .true.
+         lcfac(5) = .false.
          nlcfac(5) = .true.
       endif
       if (.not. inp_f(cfac(5))) then
          cfac(5) = 1.0d0
-         if(lcfac(6))cfac(6) = cfac(5)
       endif            
 c
       goto 10
@@ -600,6 +587,40 @@ c
       goto 10
 c     
  1999 continue
+c
+c     Check nonlocal functionals: perdew86 and perdew91 to
+c     see if user has specified and accompanying local
+c     functional.  If not, set appropriately.
+c
+      ck_local = .false.
+      if(nlcfac(4).or.nlcfac(5))then
+        do n = 1, 15
+           if(lcfac(n))ck_local = .true.
+        enddo
+c
+c       if ck_local is true than local functional has
+c       been specified.  If false than a default local
+c       functional is needed.
+c
+        if(.not.ck_local)then
+          if(nlcfac(4))then
+            write(6,*)' perdew86 is a nonlocal functional;',
+     &                ' adding perdew81 local functional. '                   
+            lcfac(3) = .true.
+            cfac(3) = cfac(4)
+          elseif(nlcfac(5))then
+            write(6,*)' perdew91 is a nonlocal functional;',
+     &                ' adding pw91lda local functional. '
+c
+c           This is also done by default inside xc_perdew91.F
+c           when lcfac(5) is .true.
+c
+            lcfac(6) = .true.
+            cfac(6) = 1.0d0
+          endif
+        endif
+      endif
+      
 c     
 c    
 c      write(*,*) ' lcfac '
