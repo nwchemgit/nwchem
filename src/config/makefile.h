@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.284 1999-06-14 21:00:49 d3h325 Exp $
+# $Id: makefile.h,v 1.285 1999-06-21 20:12:57 d3h325 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -32,7 +32,7 @@ error1:
 endif
 
 # Select the old (pre-1999 version of GA) by uncommenting the next line
-OLD_GA = y 
+#OLD_GA = y 
 
 #
 # Do a setenv for NWCHEM_TARGET to be the machine and NWCHEM_TARGET_CPU the CPU to build for
