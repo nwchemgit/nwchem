@@ -16,10 +16,10 @@ c                  and mapping tables to rtdb for future retrieval.
 c                         
 c
 c                                          A.C.H. 5/12/94
-c                 Interfaces to NWCHEM     A.C.H. 10/10/94
+c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
-      subroutine sym_nwc(geom,rtdb,nata,lpr_sym)
+      subroutine sym_nwc(geom,rtdb,nata,oprint)
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -29,7 +29,7 @@ c***********************************************************************
 #include "geomP.fh"
 #include "rtdb.fh"
 
-      logical LResult
+      logical LResult, oprint
       integer geom,rtdb
       dimension cdist(3),cang(3)
       external pertbl
@@ -51,20 +51,20 @@ c--> check for system type (dimensionality) - leave dummy if structure.
 c
       if (itype.eq.3) then
          call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $       nops,lpr_sym)
+     $       nops,oprint, group_name(geom))
       elseif(itype.eq.0) then
          call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $       nops,lpr_sym)
+     $       nops,oprint, group_name(geom))
       endif
 c
 c     scratch space needed by dosymops: tags, coordinates
 c     space on stack: pointer list, points to the assymetric (distinct) atoms
 c     expanded coord list
 c
-      LResult = MA_Push_Get(MT_Byte,nata*nops*16,'scratch labels',
+      LResult = MA_Push_Get(MT_Byte,nata*(nops+1)*16,'scratch labels',
      &     latags, iatags)
 
-      LResult = MA_Push_Get(MT_Dbl,nata*nops*3,'scratch atoms',
+      LResult = MA_Push_Get(MT_Dbl,nata*(nops+1)*3,'scratch atoms',
      &     lcoord, icoord) .and. lresult
 
       Lresult = MA_Push_Get(MT_Int,nata,'distinct atoms',ldatom,idatom)
@@ -72,8 +72,9 @@ c
       if (.not. lresult) call errquit('sym_nwc: dosymops ma failed', 0)
 c
       call dosymops(sym_ops(1,1,geom),nops,coords(1,1,geom),tags,nata,
-     &     itype,Byte_MB(iatags),Dbl_MB(icoord),nareal,nata*nops,cdist,
-     &     cang,Int_MB(idatom))
+     &     itype,Byte_MB(iatags),Dbl_MB(icoord),nareal,nata*(nops+1),
+     $     cdist,cang,Int_MB(idatom), oprint)
+
 c
       if(nareal.gt.max_cent) then
         write(iw,*)' Too many atoms, increase max_cent in ',
@@ -97,7 +98,8 @@ c
      $     ('sym_nwc: ma for xnew scratch', nops*3)
 c
       call sym_map(itype, Byte_MB(iatags), sym_ops(1,1,geom),
-     $     nops, nareal, Int_Mb(imscr),Dbl_Mb(ixnew),Dbl_Mb(icoord))
+     $     nops, nareal, Int_Mb(imscr),Dbl_Mb(ixnew),Dbl_Mb(icoord),
+     $     oprint)
 c
       LResult = MA_Pop_Stack(lxnew)
 c
@@ -109,17 +111,18 @@ c
       call sym_put_in_geom(geom, nata, nareal,
      $     Byte_MB(iatags), int_mb(idatom), dbl_mb(icoord),
      $     lmscr, imscr, nops)
+
 c
 c---> print gmat,amat,vol evaluated by geom_nd routines
 c
-      if(isystype(geom).ne.0) then
+      if(isystype(geom).ne.0 .and. oprint) then
 c
 c--> Print A matrix.
 c
-        write(*,9)
-        do 513 i=1,3
-          write(*,15) (amatrix(i,j,geom), j=1,3)
-  513   continue
+         write(*,9)
+         do 513 i=1,3
+            write(*,15) (amatrix(i,j,geom), j=1,3)
+ 513     continue
 c     
 c--> Print G matrix.
 c
@@ -165,14 +168,3 @@ c   20 format(15x,i5,5x,a16,3(f10.6,2x))
      &/)
       return
       end
-
-
-
-
-
-
-
-
-
-
-

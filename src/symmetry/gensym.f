@@ -54,19 +54,23 @@ c                                        Solid State Theory Group
 c                                        MSRC/PNL
 c                                        9/13/93
 c***********************************************************************
-      subroutine gensym(itype,numgrp,numset,symops,nops,lpr_sym)
+      subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
+     $     group_name)
       implicit real*8 (a-h,o-z) 
       parameter(maxops=192,tol=1.0d-07)
       character*1 let(5)
       character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
       dimension capr(3,4),caps(3,4),indx(3),symops(maxops*3,4)
       dimension resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
+      character*(*) group_name
+      logical oprint
       data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
       data let/'+','-','x','y','z'/
 c
 c-->call spgen with correct system type flag to make generators
 c
-      call spgen(itype,numgrp,numset,gens,cntvec,ngen,numvec)
+      call spgen(itype,numgrp,numset,gens,cntvec,ngen,numvec,
+     $     group_name, oprint)
 c
 c-----------------------------------------------------------------------
 c
@@ -86,12 +90,14 @@ c----------------------------------------------------------------------
       icnt1=1
       isquare=0
       nops=0
-      write(*,27)
-      write(*,29) ngen
-27    format(/,16x,'---------------',' GROUP GENERATORS ','-------------
-     &--')
-28    format(/,23x,'GROUP NUMBER AND NAME: ',a12)
-29    format(/,22x,i1,' GENERATORS USED TO FORM THE GROUP')
+      if (oprint) then
+         write(*,27)
+         write(*,29) ngen
+ 27      format(/,16x,'---------------',' GROUP GENERATORS ','---------',
+     $        '------')
+ 28      format(/,23x,'GROUP NUMBER AND NAME: ',a12)
+ 29      format(/,22x,i1,' GENERATORS USED TO FORM THE GROUP')
+      endif
 5000  ipos=(icnt1-1)*3+1
       igpos=(igen-1)*3+1
 c
@@ -131,21 +137,20 @@ c**********************************************************************
          itrace=idint(trace)
          if(det.lt.0.0d+00) then
             rotoop(nops)=kneg(itrace)
-            write(*,30) kneg(itrace)
-c            call opprint(symops,rotoop,maxops,nops,itype,lpr_sym)
+            if (oprint) write(*,30) kneg(itrace)
          else
             rotoop(nops)=kpos(itrace)
-            write(*,30) kpos(itrace)
+            if (oprint) write(*,30) kpos(itrace)
          endif
       endif
       if(itype.eq.0) then
-         write(*,30) 'PT'
+         if (oprint) write(*,30) 'PT'
       endif
 30    format(/,25x,a2,' fold Rotoinversion Operator')
 c
 c--> write out input generators
 c
-        call mprint(capr,3,4)
+      if (oprint) call mprint(capr,3,4)
 c
 c--> get the current operator to do mults with, O(j)
 c
@@ -448,7 +453,8 @@ c25    format(2x,4(f10.6))
 c
 c--> print the matrix reps in operator form, with labels
 c
-      call opprint(symops,rotoop,maxops,nops,itype,lpr_sym)
-      return
+      if (oprint)
+     $     call opprint(symops,rotoop,maxops,nops,itype)
+c
       end
 

@@ -1,111 +1,135 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c
-c  sym_map 
-c
+c     
+c     sym_map 
+c     
 c     creates an equiv. table for mapping of atoms under sym ops
 c     stores the matrix representations of the group operators, number
 c     of operators and equiv.
-c
-c table format:
-c          atm #1    atm #2  ..........   atm #N
-c   op#1
-c
-c   op#2
+c     
+c     table format:
+c     atm #1    atm #2  ..........   atm #N
+c     op#1
+c     
+c     op#2
 c     .
 c     .
 c     .
-c
-c   op#N   
-c
-c  therefore, searching down a col. will give you all the atoms equivalent
-c  to atom N under all operations of the group.
-c
-c                                               ach 10/14/94
-c
-c
+c     
+c     op#N   
+c     
+c     therefore, searching down a col. will give you all the atoms equivalent
+c     to atom N under all operations of the group.
+c     
+c     ach 10/14/94
+c     
+c     
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
-     &     acord)
+     &     acord, oprint)
       implicit real*8 (a-h,o-z)
-c
-      integer geom
+c     
       integer maxops
       integer map(nops,nareal)
-      parameter(maxops=192,tol=1.0e-07)
+      parameter(maxops=192,tol=1.0d-07)
       dimension symops(maxops*3,4),xnew(nops,3),acord(3,nareal)
       character*16 tags(nareal)
       integer ilbl(maxops)
       integer itype
-c
-c symops*coordinates
-c
+      logical oprint
+c     
+c     Initialize map to invalid center number so that can check
+c     all entries are set at the end
+c     
+      do i = 1, nareal
+         do iop = 1, nops
+            map(iop,i) = 0
+         enddo
+      enddo
+c     
+c     symops*coordinates
+c     
       sum=0.0d+00
       do 300 i=1,nareal
-        iopnum=0
-
-        do 305 iop=1,nops
-          do 310 j=1,3
-            iopnum=iopnum+1
-            do 320 k=1,3
-              sum=sum+symops(iopnum,k)*acord(k,i)
-  320       continue
-            xnew(iop,j)=sum+symops(iopnum,4)
-            sum=0.0e+00
-  310     continue
-c          
-c--> shift it into the home cell. This operation depends on sysytem type
-c--> in place for 3-d and molecules now.
-c
-          if(itype.eq.3) then
- 3000       do 380 ii=1,3
-              if(dabs(xnew(iop,ii)).lt.1.0e-10) then
-                xnew(iop,ii)=0.0
-              endif
-              if(xnew(iop,ii).lt.0.0) then
-                xnew(iop,ii)=xnew(iop,ii)+1.0
-              elseif (xnew(iop,ii).ge.1.0) then
-                xnew(iop,ii)=xnew(iop,ii)-1.0
-              endif
-              if(xnew(iop,ii).lt.0.0.or.xnew(iop,ii).ge.1.0) then
-                goto 3000
-              endif
-  380       continue
-          endif
-  305   continue
-c--> load tags equiv. to the tag of atom i for search
-      num=0
-      do 400 j=1,nareal
-        if(tags(i).eq.tags(j)) then
-          num=num+1
-          ilbl(num)=j
-        endif
-  400 continue
-c--> search those tags to identify atoms in xnew
-      do 410 j=1,nops
-        do 420 k=1,num
-          dx=dabs(acord(1,ilbl(k))-xnew(j,1))
-          if(dx.lt.tol) then
-            dy=dabs(acord(2,ilbl(k))-xnew(j,2))
-            if(dy.lt.tol) then
-              dz=dabs(acord(3,ilbl(k))-xnew(j,3))
-              if(dz.lt.tol) then
-                map(j,i)=ilbl(k)
-              endif
+         iopnum=0
+         do 305 iop=1,nops
+            do 310 j=1,3
+               iopnum=iopnum+1
+               do 320 k=1,3
+                  sum=sum+symops(iopnum,k)*acord(k,i)
+ 320           continue
+               xnew(iop,j)=sum+symops(iopnum,4)
+               sum=0.0d+00
+ 310        continue
+c     
+c--   > shift it into the home cell. This operation depends on sysytem type
+c--   > in place for 3-d and molecules now.
+c     
+            if(itype.eq.3) then
+ 3000          do 380 ii=1,3
+                  if(dabs(xnew(iop,ii)).lt.1.0e-10) then
+                     xnew(iop,ii)=0.0d0
+                  endif
+                  if(xnew(iop,ii).lt.0.0) then
+                     xnew(iop,ii)=xnew(iop,ii)+1.0d0
+                  elseif (xnew(iop,ii).ge.1.0) then
+                     xnew(iop,ii)=xnew(iop,ii)-1.0d0
+                  endif
+                  if(xnew(iop,ii).lt.0.0.or.xnew(iop,ii).ge.1.0) then
+                     goto 3000
+                  endif
+ 380           continue
             endif
-          endif
-  420   continue
-  410 continue
-  300 continue
+ 305     continue
+c--   > load tags equiv. to the tag of atom i for search
+         num=0
+         do 400 j=1,nareal
+            if(tags(i).eq.tags(j)) then
+               num=num+1
+               ilbl(num)=j
+            endif
+ 400     continue
+c--   > search those tags to identify atoms in xnew
+         do 410 j=1,nops
+            do 420 k=1,num
+               dx=dabs(acord(1,ilbl(k))-xnew(j,1))
+               if(dx.lt.tol) then
+                  dy=dabs(acord(2,ilbl(k))-xnew(j,2))
+                  if(dy.lt.tol) then
+                     dz=dabs(acord(3,ilbl(k))-xnew(j,3))
+                     if(dz.lt.tol) then
+                        map(j,i)=ilbl(k)
+                        goto 421
+                     endif
+                  endif
+               endif
+ 420        continue
+            write(6,*) ' atom = ', i
+            write(6,*) ' op   = ', j
+            write(6,*) ' xnew   ', (xnew(j,k),k=1,3)
+            call util_flush(6)
+            call errquit('sym_map: no match for 1000*op+atom ',1000*j+i)
+ 421        continue
+ 410     continue
+ 300  continue
 c
-c--> test prints (prints map)
+c     Check the map has all entries in it.
 c
-c      write(*,*) 'map printed out nops rows nareal columns'
-c      do 500 i=1,nops
-c        write(*,'(8(i2,3x))') (map(i,j),j=1,nareal)
-c  500 continue
-c
-      write(*,10)
-   10 format(//,18x,'<<< SYMMETRY OPERATION/ATOM MAPPING BUILT >>>')
+      do i = 1, nareal
+         do j = 1, nops
+            if (map(j,i).le.0 .or. map(j,i).gt.nareal) call errquit
+     $           ('sym_map: invalid map for 1000*op+atom ',1000*j+i)
+         enddo
+      enddo
+c     
+c--   > test prints (prints map)
+c     
+c     write(*,*) 'map printed out nops rows nareal columns'
+c     do 500 i=1,nops
+c     write(*,'(8(i2,3x))') (map(i,j),j=1,nareal)
+c     500 continue
+c     
+      if (oprint) write(*,10)
+ 10   format(//,18x,'<<< SYMMETRY OPERATION/ATOM MAPPING BUILT >>>')
       return
       end
 

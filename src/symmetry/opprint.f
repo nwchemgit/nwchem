@@ -3,11 +3,10 @@ c
 c     print the matrix representations of the operators
 c     
 c***********************************************************************
-      subroutine opprint(symops,rotoop,maxops,nops,itype,lpr_sym)
+      subroutine opprint(symops,rotoop,maxops,nops,itype)
       implicit real*8 (a-h,o-z)
       character*2 rotoop(maxops)
       dimension symops(maxops*3,4)
-      if(lpr_sym.eq.1) then
         write(*,9)
         write(*,12)
         write(*,13) nops
@@ -26,7 +25,6 @@ c
             write(*,10) (symops((indx+j),k), k=1,4)
   150     continue
   100   continue
-      endif
     8 format(/,25x,a2,' fold Rotoinversion Operator')
     9 format(//,20x,'---------- FULL LISTING OF GROUP ----------')
    10 format(19x,4(f10.6))

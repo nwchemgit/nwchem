@@ -1,7 +1,8 @@
-# $Id: GNUmakefile,v 1.1 1994-10-29 16:43:56 d3g681 Exp $
+# $Id: GNUmakefile,v 1.2 1994-11-10 18:03:34 d3g681 Exp $
 
 LIBRARY = libutil.a
 USES_BLAS = sym_put_in_geom.F
+HEADERS = sym.fh
 
 OBJ =     dosymops.o \
           gensym.o \
@@ -19,6 +20,8 @@ OBJ =     dosymops.o \
           sym_number_ops.o \
           sym_bas_op.o \
           sym_print_all.o \
+          sym_symmetrize.o \
+          sym_shell_pair.o \
           wrcell.o
 
 
