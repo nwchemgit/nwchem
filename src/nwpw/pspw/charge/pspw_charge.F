@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.3 2002-01-16 20:51:13 bylaska Exp $
+c $Id: pspw_charge.F,v 1.4 2002-01-16 22:28:24 bylaska Exp $
 c
 
 ***********************************************************
@@ -408,3 +408,48 @@ c
       return
       end
 
+*     **********************************
+*     *	                               *
+*     *     pspw_charge_Energy_ion     *
+*     *                                *
+*     **********************************
+
+      real*8 function pspw_charge_Energy_ion()
+      implicit none
+
+#include "mafdecls.fh"
+#include "pspw_charge.fh"
+
+*     **** local variables ****
+      integer i,ii,ia
+      real*8  qi, xi, yi, zi
+      real*8  qii,xii,yii,zii
+      real*8  r,energy
+
+*     **** external functions ****
+      integer   ion_nion,ion_katm
+      real*8    ion_rion,psp_zv
+      external  ion_nion,ion_katm
+      external  ion_rion,psp_zv
+
+      energy = 0.0d0
+      do ii=1,ion_nion()
+         ia = ion_katm(ii)
+         qii = psp_zv(ia)
+         xii = ion_rion(1,ii)
+         yii = ion_rion(2,ii)
+         zii = ion_rion(3,ii)
+         do i=1,nion
+            xi = dbl_mb(r1(1)+3*(ii-1))
+            yi = dbl_mb(r1(1)+3*(ii-1)+1)
+            zi = dbl_mb(r1(1)+3*(ii-1)+2)
+            qi = dbl_mb(charge(1)+ii-1)
+            r = (xi-xii)**2 + (yi-yii)**2 + (zi-zii)**2
+            r = dsqrt(r)
+            energy = energy + qi*qii/r
+         end do
+      end do
+
+      pspw_charge_Energy_ion = energy
+      return
+      end

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.6 2002-01-16 20:51:14 bylaska Exp $
+* $Id: electron.F,v 1.7 2002-01-16 22:28:24 bylaska Exp $
 *
 
 
@@ -1279,6 +1279,57 @@ c    >                         sum)
       electron_psi_vnl_ave = enlocal
       return
       end
+
+*     ***********************************
+*     *			 		*
+*     *   electron_psi_v_field_ave	 	*
+*     *					*
+*     ***********************************
+
+      real*8 function electron_psi_v_field_ave(psi1,dn)
+      implicit none
+      complex*16 psi1(*)
+      real*8     dn(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer nx,ny,nz,n2ft3d
+      real*8 elocal,sum,scal1,scal2,dv
+
+*     **** external functions ***
+      real*8   lattice_omega
+      external lattice_omega
+
+
+      n2ft3d = 2*nfft3d
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv    = scal1/scal2
+
+
+      elocal = 0.0d0
+
+*     **** add in other real-space fields ****
+      if (field_exist) then
+       call D3dB_rr_dot(1,dn(1),dbl_mb(v_field(1)),sum)
+       elocal = elocal + sum*dv
+       call D3dB_rr_dot(1,dn(1+(ispin-1)*n2ft3d),
+     >                    dbl_mb(v_field(1)),sum)
+       elocal = elocal + sum*dv
+      end if
+      
+      electron_psi_v_field_ave = elocal
+      return
+      end
+
 
 
 

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -57,7 +57,7 @@ c
       real*8   rho_error
       real*8   dng_1ehartree
       real*8   psi_1ke
-      real*8   psi_1vl
+      real*8   psi_1vl,psi_1v_field
       real*8   psi_1vnl
       real*8   rho_1exc
       real*8   rho_1pxc
@@ -72,7 +72,7 @@ c
       external rho_error
       external dng_1ehartree
       external psi_1ke
-      external psi_1vl
+      external psi_1vl,psi_1v_field
       external psi_1vnl
       external rho_1exc
       external rho_1pxc
@@ -95,6 +95,12 @@ c
       external pspw_qmmm_Energy_pol
       external pspw_qmmm_Energy_vib
       external pspw_qmmm_Energy_cav
+
+*     ***** pspw_charge external functions ****
+      logical  pspw_charge_found
+      real*8   pspw_charge_Energy_ion
+
+
 
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
@@ -237,6 +243,7 @@ c     call rho_2to1()
 c     call dng_2to1()
       call psi_check()
 
+      eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()
       if (control_version().eq.4) eion = ion_ion_e()
 
@@ -278,8 +285,13 @@ c     call dng_2to1()
          E(15) = e_cav
       end if
 
+*     **** get pspw_charge energies ****
+      if (pspw_charge_found()) then
+         E(16)  = psi_1v_field()
+         E(17)  = pspw_charge_Energy_ion()
+         E(1)   = E(1) + E(17)
+      end if
 
-  
       return
       end
  

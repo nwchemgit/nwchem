@@ -417,6 +417,40 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       return
       end
 
+*     *******************************
+*     *								*
+*     *		psi_1v_field 			*
+*     *								*
+*     *******************************
+      real*8 function psi_1v_field()
+      implicit none
+
+#include "mafdecls.fh"
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+
+*     **** external functions ****
+      real*8   electron_psi_v_field_ave
+      external electron_psi_v_field_ave
+ 
+      psi_1v_field = electron_psi_v_field_ave(dcpl_mb(psi1(1)),
+     >                                        dbl_mb(rho1(1)))
+
+      return
+      end
+
+
 *     ***********************************
 *     *									*
 *     *		rho_1Fmm					*

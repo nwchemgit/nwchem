@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.11 2002-01-16 22:28:23 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -24,13 +24,13 @@ c     $Id: cgsd_energy.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $
       real*8  E(20)
 
 *     **** external functions ****
-      logical     psp_semicore,pspw_qmmm_found
+      logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin
       real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,ion_amass
-      external psp_semicore,pspw_qmmm_found
+      external psp_semicore,pspw_qmmm_found,pspw_charge_found
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin
@@ -144,15 +144,17 @@ c     $Id: cgsd_energy.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $
          neall = (psi_ne(1)+psi_ne(2))
          write(6,1304)
          write(6,1410)
-         write(6,1420)
-         write(6,1190)(i,ion_aname(I),
-     >                 (ion_rion(K,I),K=1,3),
-     >                 ion_amass(i)/1822.89d0,
-     >                I=1,ion_nion())
-         write(6,1200) CX,CY,CZ
-         write(6,1210) GX,GY,GZ
 
-         call pspw_qmmm_Print(6)
+c        write(6,1420)
+c        write(6,1190)(i,ion_aname(I),
+c    >                 (ion_rion(K,I),K=1,3),
+c    >                 ion_amass(i)/1822.89d0,
+c    >                I=1,ion_nion())
+c        write(6,1200) CX,CY,CZ
+c        write(6,1210) GX,GY,GZ
+c
+c        call pspw_qmmm_Print(6)
+c        call pspw_charge_Print(6)
 
          write(6,*)
          write(6,1320) en(1),en(psi_ispin()),' (real space)'
@@ -183,6 +185,12 @@ c     $Id: cgsd_energy.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $
             write(6,1705) E(14)
             write(6,1706) E(15)
          end if
+        if (pspw_charge_found()) then
+            write(6,1800)
+            write(6,1801)
+            write(6,1802) E(16)
+            write(6,1803) E(17)
+        end if
 
 
          write(6,1500)
@@ -250,6 +258,11 @@ c     $Id: cgsd_energy.F,v 1.10 2002-01-02 22:12:51 bylaska Exp $
  1704 FORMAT( ' MM Polarization energy :',E19.10)
  1705 FORMAT( ' MM Vibration energy    :',E19.10)
  1706 FORMAT( ' (QM+MM)/Cavity energy  :',E19.10)
+
+ 1800 FORMAT(/' Charge Field Energies')
+ 1801 FORMAT( ' ---------------------')
+ 1802 FORMAT( ' Charge Field/Electron  :',E19.10)
+ 1803 FORMAT( ' Charge Field/Ion       :',E19.10)
       end
 
 *     *******************************

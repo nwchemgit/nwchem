@@ -11,7 +11,7 @@
 
       logical function cgsdv5(rtdb,flag)
 *
-* $Id: cgsdv5.F,v 1.17 2002-01-16 20:51:13 bylaska Exp $
+* $Id: cgsdv5.F,v 1.18 2002-01-16 22:28:23 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -508,7 +508,7 @@ c     end if
  1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
- 1180 FORMAT(/' initial position of ions:')
+ 1180 FORMAT(/' position of ions (au):')
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
