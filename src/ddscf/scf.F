@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.44 1996-11-07 00:12:05 d3g681 Exp $
+C$Id: scf.F,v 1.45 1996-11-18 20:38:38 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -26,8 +26,10 @@ c
 c
       integer nbf_per_ir(20)
       integer natoms, Nff
-      logical rohf, uhf, riscf_init, cphf_poliz
-      external rohf, uhf, riscf_init, cphf_poliz
+      logical rohf, uhf, riscf_init
+      external rohf, uhf, riscf_init
+c     logical cphf_poliz
+c     external cphf_poliz
 c
 c     Make sure database is parallel, 
 c     and initialize performance statistics
