@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.4 2003-10-24 18:57:00 marat Exp $
+* $Id: pspw_wannier.F,v 1.5 2004-01-30 21:36:34 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -252,9 +252,9 @@ c        end if
 
             write(6,'(A,i3,a3,f8.3,a3,f8.3,a3,f8.3)') 
      >      "psi=", i,
-     >      "x=", datan(dimag(wx)/dble(wx))/lattice_unitg(1,1),
-     >      "y=", datan(dimag(wy)/dble(wy))/lattice_unitg(2,2),
-     >      "z=", datan(dimag(wz)/dble(wz))/lattice_unitg(3,3)
+     >      "x=", datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
+     >      "y=", datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
+     >      "z=", datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
           end do	
         end if
 
