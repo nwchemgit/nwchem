@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.29 2003-10-17 22:54:24 carlfahl Exp $
+C     $Id: aoccsd2.F,v 2.30 2003-10-27 02:25:10 edo Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -365,10 +365,10 @@ C     Write our energy out to the database
 C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd correlation energy',
      $   MT_Dbl, 1, Eccsd) )
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 1)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 1,0)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd energy', MT_Dbl, 1,
      $   RefEner+eccsd) ) 
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 2)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 2,0)
 C
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -382,19 +382,19 @@ C     Start by creating the data structures we need
 C
          If ( .NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDens T1',
      $      H_DenT1, I_DenT1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to allocate T1', NOcc*NVir)
+     $      'CCDen (prep): unable to allocate T1', NOcc*NVir,0)
 C
          If ( .NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDens Z1',
      $      H_DenZ1, I_DenZ1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to allocate Z1', NOcc*NVir)
+     $      'CCDen (prep): unable to allocate Z1', NOcc*NVir,0)
 C
          If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $      'CCDen T2', NVir, NVir, G_DenT2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to allocate T2', NVir*NOcc*NVir*NOcc)
+     $      'CCDen(prep): unable to alloc T2', NVir*NOcc*NVir*NOcc,0)
 C
          If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $      'CCDen Z2', NVir, NVir, G_DenZ2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to allocate Z2', NVir*NOcc*NVir*NOcc)
+     $      'CCDen (prep): unable to alloc Z2',NVir*NOcc*NVir*NOcc,0)
 C
          G_1PDM = GA_Create_Atom_Blocked(Geom, Basis, 'CCDen 1-PDM')
 C
@@ -415,9 +415,9 @@ C
          If ( GA_NodeID() .eq. 0) then
             lsab=max(lnoov,nbf*nbf)
             If ( .NOT. ma_push_get(MT_DBL,lsab,'sa',l_sa, k_sa) )
-     $         Call ErrQuit('CCDen (prep): can''t allocate sa', lsab)
+     $         Call ErrQuit('CCDen (prep): can''t allocate sa', lsab,0)
             If (.NOT. ma_push_get(MT_DBL,lsab,'sb',l_sb, k_sb) )
-     $         Call ErrQuit('CCDen (prep): can''t allocate sb', lsab)
+     $         Call ErrQuit('CCDen (prep): can''t allocate sb', lsab,0)
             do a=1,nvir
                call ga_get(g_ObjV,lnobj+1, lnobj+lnoov,a,a,
      &            dbl_mb(k_sa),lnoov)
@@ -434,9 +434,9 @@ C
                enddo
             enddo
             If ( .NOT. MA_Pop_Stack(L_Sb)) Call ErrQuit(
-     $         'CCDen (prep): freeing sb', 0)
+     $         'CCDen (prep): freeing sb', 0,0)
             If ( .NOT. MA_Pop_Stack(L_Sa)) Call ErrQuit(
-     $         'CCDen (prep): freeing sa', 0)
+     $         'CCDen (prep): freeing sa', 0,0)
          EndIf
          Call GA_Sync
          Call GA_Copy(G_DenT2, G_DenZ2)
@@ -447,15 +447,15 @@ C
      $      Dbl_MB(I_DenZ1), NOcc, G_DenZ2, G_1PDM)
 C
          If ( .NOT. GA_Destroy(G_1PDM) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free 1PDM', 0)
+     $      'CCDen (prep): unable to free 1PDM', 0,0)
          If ( .NOT. GA_Destroy(G_DenZ2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free Z2', 0)
+     $      'CCDen (prep): unable to free Z2', 0,0)
          If ( .NOT. GA_Destroy(G_DenT2) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free T2', 0)
+     $      'CCDen (prep): unable to free T2', 0,0)
          If ( .NOT. MA_Pop_Stack(H_DenZ1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free Z1', 0)
+     $      'CCDen (prep): unable to free Z1', 0,0)
          If ( .NOT. MA_Pop_Stack(H_DenT1) ) Call ErrQuit(
-     $      'CCDen (prep): unable to free T1', 0)
+     $      'CCDen (prep): unable to free T1', 0,0)
       EndIf
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -473,7 +473,7 @@ C
          call ecce_print1('total energy', mt_dbl, refener+eccsd, 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd) ) 
-     $      Call ErrQuit('CCSD: Can''t write to RTDB', 3)
+     $      Call ErrQuit('CCSD: Can''t write to RTDB', 3,0)
          Goto 999
       EndIf
 c
@@ -753,16 +753,16 @@ C     Write our energy out to the database
 C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd+t(ccsd) correlation energy',
      $   MT_Dbl, 1, Eccsd+empt(1) ) )
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 10)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 10,0)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd+t(ccsd) energy', MT_Dbl, 1,
      $   RefEner+eccsd+empt(1) ) ) 
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 11)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 11,0)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd(t) correlation energy',
      $   MT_Dbl, 1, Eccsd+eccsdt) )
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 12)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 12,0)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:ccsd(t) energy', MT_Dbl, 1,
      $   RefEner+eccsd+eccsdt) ) 
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 13)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 13,0)
 C
 C     This reports back to task_energy that the requested task has been
 C     completed successfully.
@@ -772,13 +772,13 @@ C
      $        RefEner+eccsd+eccsdt, 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd+eccsdt) ) 
-     $      Call ErrQuit('CCSD: Can''t write to RTDB', 14)
+     $      Call ErrQuit('CCSD: Can''t write to RTDB', 14,0)
       ElseIf ( Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory) ) then
          call ecce_print1('total energy', mt_dbl, 
      $        RefEner+eccsd+empt(1), 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd+empt(1) ) ) 
-     $      Call ErrQuit('CCSD: Can''t write to RTDB', 14)
+     $      Call ErrQuit('CCSD: Can''t write to RTDB', 14,0)
       EndIf
 C
 C

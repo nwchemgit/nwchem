@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.38 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id: ccsd_driver.F,v 2.39 2003-10-27 02:25:11 edo Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -378,10 +378,10 @@ C     Write our energy out to the database
 C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:mp2 correlation energy',
      $   MT_Dbl, 1, EMP2) )
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 1)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 1,0)
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:mp2 energy', MT_Dbl, 1,
      $   TotEner) ) 
-     $   Call ErrQuit('CCSD: Can''t write to RTDB', 2)
+     $   Call ErrQuit('CCSD: Can''t write to RTDB', 2,0)
 c
       call ecce_print1('mp2 energy', mt_dbl, totener, 1)
       call ga_sync()
