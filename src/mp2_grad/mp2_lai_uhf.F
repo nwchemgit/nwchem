@@ -12,8 +12,6 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-#include "cuhf.fh"
-#include "cscf.fh"
       integer i,c,jk
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
