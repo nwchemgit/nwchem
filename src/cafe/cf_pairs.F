@@ -74,7 +74,7 @@ c
 c     solvent-solvent pairlist
 c
       npairs=0
-      mpairs=maxl-4*nwloc-1
+      mpairs=maxl-(lptr-i_list)-4*nwloc-1
       if(nwloc.gt.0.and.nwnon.gt.0) then
       call cf_lww(lself,lpbc,xwm,iwdt,iwfr,iwto,jwfr,jwto,nwloc,
      + mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nwloc),
@@ -92,7 +92,7 @@ c
 c     solute-solvent pairlist
 c
       npairs=0
-      mpairs=maxl-4*nsloc-1
+      mpairs=maxl-(lptr-i_list)-4*nsloc-1
       if(nsloc.gt.0.and.nwnon.gt.0) then
       call cf_lsw(lpbc,xs,isdt,isgr,isfr,isto,xwm,iwdt,iwz,jwfr,jwto,
      + nsloc,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsloc),
@@ -110,7 +110,7 @@ c
 c     solvent-solute pairlist
 c
       npairs=0
-      mpairs=maxl-4*nsnon-1
+      mpairs=maxl-(lptr-i_list)-4*nsnon-1
       if(nsnon.gt.0.and.nwloc.gt.0.and..not.lself) then
       call cf_lsw(lpbc,xs,isdt,isgr,jsfr,jsto,xwm,iwdt,iwz,iwfr,iwto,
      + nsnon,mpairs,npairs,int_mb(lptr+1),int_mb(lptr+1+2*nsnon),
@@ -128,7 +128,7 @@ c
 c     solute-solute pairlist
 c
       npairs=0
-      mpairs=maxl-4*nsloc-1
+      mpairs=maxl-(lptr-i_list)-4*nsloc-1
       if(nsloc.gt.0.and.nsnon.gt.0) then
       call cf_lss(lself,lpbc,xs,isga,isdt,isgr,isz,isfr,isto,
      + jsfr,jsto,
@@ -148,7 +148,7 @@ c
 c     solute bond list
 c
       npairs=0
-      mpairs=maxl
+      mpairs=maxl-(lptr-i_list)
       if(nsloc.gt.0.and.(lself.or.nsnon.gt.0)) then
       call cf_lsb(lself,isga,isdt,isz,isfr,isto,jsfr,jsto,
      + int_mb(i_ibnd(2)),mbt(2),npairs,mpairs,nconst,
@@ -165,7 +165,7 @@ c
 c     solute angle list
 c
       npairs=0
-      mpairs=maxl
+      mpairs=maxl-(lptr-i_list)
       if(nsloc.gt.0.and.(lself.or.nsnon.gt.0)) then
       call cf_lsh(lself,isga,isdt,isz,isfr,isto,jsfr,jsto,
      + int_mb(i_iang(2)),mht(2),npairs,mpairs,nconst,
@@ -182,7 +182,7 @@ c
 c     solute torsion list
 c
       npairs=0
-      mpairs=maxl
+      mpairs=maxl-(lptr-i_list)
       if(nsloc.gt.0.and.(lself.or.nsnon.gt.0)) then
       call cf_lsd(lself,isga,isdt,isz,isfr,isto,jsfr,jsto,
      + int_mb(i_idih(2)),mdt(2),npairs,mpairs,nconst,
@@ -199,7 +199,7 @@ c
 c     solute improper torsion list
 c
       npairs=0
-      mpairs=maxl
+      mpairs=maxl-(lptr-i_list)
       if(nsloc.gt.0.and.(lself.or.nsnon.gt.0)) then
       call cf_lso(lself,isga,isdt,isz,isfr,isto,jsfr,jsto,
      + int_mb(i_iimp(2)),mit(2),npairs,mpairs,nconst,
@@ -216,7 +216,7 @@ c
 c     solute third neighbor list
 c
       npairs=0
-      mpairs=maxl
+      mpairs=maxl-(lptr-i_list)
       if(nsloc.gt.0.and.(lself.or.nsnon.gt.0)) then
       call cf_lst(lself,isga,isdt,isz,isfr,isto,jsfr,jsto,
      + int_mb(i_itrd(2)),mtt(2),npairs,mpairs,
