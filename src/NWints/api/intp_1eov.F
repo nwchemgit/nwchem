@@ -1,5 +1,5 @@
       subroutine intp_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,lov,Ov)
-c $Id: intp_1eov.F,v 1.1 1994-11-23 17:40:47 d3e129 Exp $
+c $Id: intp_1eov.F,v 1.2 1994-12-10 15:51:19 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -79,29 +79,27 @@ c
 c.. zero local arrays
       call dfill(3,0.0d00,xyz_new,1)
       call dfill(3,0.0d00,xyz_frac,1)
+c
 c... compute j center fractional coordinates
-c...    xyz_frac = amatrix_inv*coords(jsh)
+c....    xyz_frac = amatrix_inv*coords(jsh)
+c
       call dgemv('n',3,3,1.0d00,amatrix_inv(1,1,j_geom),3,
      &    coords(1,j_cent,j_geom),1,
      &    0.0d00,xyz_frac,1)
-      write(6,*)'intp_1eov: debug original   coords:xyz: ',
-     &    (coords(jjj,j_cent,j_geom),jjj=1,3)
-      write(6,*)'intp_1eov: debug j fractional coords:xyz: ',
-     &    (xyz_frac(jjj),jjj=1,3)
+c
 c... compute j translated fractional coordinates
 c.........  xyz_frac = xyz_frac + R
+c
       do 00100 jjj=1,3
         xyz_frac(jjj) = xyz_frac(jjj) + R(jjj)
 00100 continue
-      write(6,*)'intp_1eov: debug j fractional coords tranlated:xyz: ',
-     &    (xyz_frac(jjj),jjj=1,3)
+c
 c... computer j translated cart. coordinates.
 c........ xyz_new = amatrix*xyz_frac
+c
       call dgemv('n',3,3,1.0d00,amatrix(1,1,j_geom),3,
      &    xyz_frac,1,
      &    0.0d00,xyz_new,1)
-      write(6,*)'intp_1eov: debug j cart. coords tranlated:xyz: ',
-     &    (xyz_new(jjj),jjj=1,3)
 c
       if (cando_sp(i_basis,ish,0).and.cando_sp(j_basis,jsh,0)) then
         call int_hf1sp(
