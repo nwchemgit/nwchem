@@ -1,5 +1,96 @@
-      double precision cvgopt
-      integer nptopt,inhess,linopt,modupd,moddir,modsad
-      logical oqstep
-      common/hnd_optopt/cvgopt,nptopt,inhess,linopt,modupd,moddir,
-     $     modsad,oqstep
+c
+c     Defintions of /coptopt/ and /coptimize/
+c      
+c     The contents of /coptopt/ are mostly read-only and are
+c     initialized by driver_initialize().  The zmatrix info must be
+c     updated if the internal coordinates regenerated
+c
+c     /coptimize/ is dynamically updated
+c
+c     These parameter definitions from geomP.fh and soon to be from
+c     a standard include file
+      integer max_cent, max_nzvar, max_izmat
+      parameter (max_cent      = 500)
+      parameter (max_nzvar     = 3*max_cent)
+      parameter (max_izmat     = 4*max_nzvar)
+c
+      integer max_cart
+      parameter (max_cart = 3*max_cent)
+      integer max_nvar
+      parameter (max_nvar = max(max_nzvar,max_cart))
+c
+      double precision eprec    ! Precision for energy comparisons
+      parameter (eprec = 1d-5)
+c      
+c     zmatrix info will only be set if zcoord is true
+c
+c     nvar is the no. of variables in the optimization which
+c     is performed in one of
+c     .   cartesians
+c     .   redundant internals
+c     .   non-redundant user-specified internals
+c     nindep is the number of independent variables but this
+c     is not actually used in the optimizer.
+c
+      double precision 
+     $     trust,               ! [user] trust radius for spectral step
+     $     cvgopt,              ! [user] convergence on max(g)
+     $     sadstp,              ! [user] step in search for saddle point
+     $     zvarsign(max_nzvar)  ! sign of zmatrix variables
+      integer 
+     $     nptopt,              ! [user] max no. of steps
+     $     inhess,              ! [user] guess hessian option
+     $     linopt,              ! [user] max. no. of steps for line search
+     $     modupd,              ! [user] ??
+     $     moddir,              ! [user] ??
+     $     modsad,              ! [user] ??
+     $     nat,                 ! no. of atoms
+     $     ncart,               ! no. of cartesians = 3*nat
+     $     nzmat,               ! no. of zmatrix integers
+     $     nzvar,               ! no. of zmatrix variables
+     $     nvar,                ! no. of redundant or cartesian variables
+     $     nindep,              ! no. of independent variables
+     $     nzfrz,               ! no. of frozen zmatrix variables
+     $     izmat(max_izmat),    ! zmatrix integers
+     $     izfrz(max_nzvar)     ! list of frozen variables
+c
+      logical 
+     $     oqstep,              ! [user/auto] step in internal coords
+     $     zcoord,              ! autoz/zmatrix being used
+     $     zmatrix,             ! user specified zmatrix being used
+     $     oprint,              ! print information
+     $     odebug               ! print debug data
+c
+      character*8
+     $     zvarname(max_nzvar)  ! name of user specified zmatrix variables
+c
+      common/cdrv_optopt/
+c     doubles
+     $     trust, cvgopt, sadstp, zvarsign, 
+c     integers
+     $     nptopt,inhess,linopt,modupd,moddir, modsad, 
+     $     nat, ncart, nzmat, nzvar, nvar, nindep, izmat, nzfrz, izfrz,
+c     logicals
+     $     oqstep, zcoord, zmatrix, oprint, odebug
+c     characters
+      common/ccdrv_optopt/
+     $     zvarname
+c
+c     Contents of /coptimize/
+c
+      double precision 
+     $     gmax,                ! maxmimum gradient element
+     $     gnorm,               ! norm of gradient
+     $     smax,                ! maximum step
+     $     snorm,               ! norm of step
+     $     energy,              ! Current energy
+     $     alpha,               ! Current step in current search direction
+     $     gx(max_nvar),        ! Current cartesian gradient
+     $     gq(max_nvar),        ! Current internal coord gradient
+     $     g(max_nvar),         ! Current gradient in optimization variables
+     $     ds(max_nzvar),       ! Current search direction
+     $     penergy,             ! Previous energy
+     $     gp(max_nvar)         ! Previous gradient in optimization variables
+c
+      common /coptimize/ gmax, gnorm, smax, snorm,
+     $     energy, penergy, alpha, gx, gq, g, gp, ds
