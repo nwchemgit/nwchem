@@ -1,10 +1,33 @@
-# $Id: GNUmakefile,v 1.4 1994-07-28 07:57:36 d3g681 Exp $
+# $Id: GNUmakefile,v 1.5 1995-03-16 23:50:24 rg240 Exp $
 
-      OBJ = atcond.o    denat.o        hamild.o    outpud.o    teigd.o \
-            atomd.o     denmad.o       jacod.o     pdfded.o    tracd.o \
-            cmergd.o    densid.o       oeigd.o     shalfd.o    trafsd.o \
-            creded.o    orderd.o       square.o    tramad.o \
-            datoms.o    guess_mem.o    starcd.o    writel.o printbasis.o
+          OBJ = orderd.o 
+#
+# KSR optimize barfs on orderd.F !?
+#
+
+ OBJ_OPTIMIZE = atcond.o \
+                denat.o \
+		hamild.o \
+		outpud.o \
+		teigd.o \
+		atomd.o \
+		denmad.o \
+		jacod.o \
+		pdfded.o \
+		tracd.o \
+		cmergd.o \
+		densid.o \
+		oeigd.o \
+		shalfd.o \
+		trafsd.o \
+		creded.o \
+		square.o \
+		tramad.o \
+		datoms.o \
+		guess_mem.o  \
+		starcd.o \
+		writel.o \
+		printbasis.o
 
   USES_BLAS = atomd.F
 
@@ -14,5 +37,6 @@
 
 include ../config/makefile.h
 include ../config/makelib.h
+
 
 $(OBJ):	cguess.fh
