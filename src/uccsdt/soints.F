@@ -96,8 +96,8 @@ c
       integer nops, geom
       integer sym_number_ops
       external sym_number_ops
-      integer mapi(nw_max_nbf), mapj(nw_max_nbf), mapk(nw_max_nbf),
-     $     mapl(nw_max_nbf)
+      integer mapi(nw_max_nbf_small), mapj(nw_max_nbf_small), 
+     $     mapk(nw_max_nbf_small), mapl(nw_max_nbf_small)
 c
       if (.not. bas_geom(basis,geom)) call errquit
      $     ('soints_block: basis?', 0)
@@ -748,7 +748,7 @@ c
 c     Assumes cbassym has been initialized.
 c
       integer i, j, juq, nopuq, iruq, opuq
-      double precision t(nw_max_nbf), s(8,8), sum
+      double precision t(nw_max_nbf_small), s(8,8), sum
 c
       write(6,*) ' INPUT'
       call output(c,1,nbf,1,nmo,nbf,nmo,1)

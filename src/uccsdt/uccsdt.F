@@ -39,6 +39,7 @@ c
       subroutine uccsdt_init(rtdb)
       implicit none
 #include "cuccsdtP.fh"
+#include "amplitudes.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "global.fh"
@@ -64,13 +65,13 @@ c$$$c
 c$$$c     For debug
 c$$$c
 c$$$      integer
-c$$$     $     ishuqlo, ishuqhi, ioff(nw_max_nbf), 
+c$$$     $     ishuqlo, ishuqhi, ioff(nw_max_nbf_small), 
 c$$$     $     irange(2,0:7), 
-c$$$     $     jshuqlo, jshuqhi, joff(nw_max_nbf,0:7),
+c$$$     $     jshuqlo, jshuqhi, joff(nw_max_nbf_small,0:7),
 c$$$     $     jrange(2,0:7),
-c$$$     $     kshuqlo, kshuqhi, koff(nw_max_nbf,0:7), 
+c$$$     $     kshuqlo, kshuqhi, koff(nw_max_nbf_small,0:7), 
 c$$$     $     krange(2,0:7),
-c$$$     $     lshuqlo, lshuqhi, loff(nw_max_nbf,0:7), 
+c$$$     $     lshuqlo, lshuqhi, loff(nw_max_nbf_small,0:7), 
 c$$$     $     lrange(2,0:7),
 c$$$     $     lenij(0:7), lenkl(0:7), leng, symkloff(0:7)
 c$$$      double precision g(100000)
@@ -111,6 +112,10 @@ c
      $     call errquit('uccsdt: bas_numbf?',0)
       if (.not. bas_numcont(basis, nsh))
      $     call errquit('uccsdt: bas_numcont?',0)
+c
+      if (nbf.gt.nw_max_nbf_small .or. nsh.gt.nw_max_shells_small)
+     $     call errquit('uccsdt: nbf or nsh too large - modify'//
+     $     ' *_small in nwc_const.fh',0)
 c
 c     Other CCSD(T) options
 c
@@ -440,6 +445,11 @@ c
             call output(dbl_mb(k_movecs(2)),1,nbf,1,nmo,nbf,nmo,1)
          end if
       end if
+c
+c     Initialize the amplitude access info and file handling
+c
+      if (.not. uccsdt_ampfile_init(rtdb)) call errquit
+     $     ('uccsdt: failed initializing amplitude info',0)
 c
 c$$$c$$$      call soints_sovecs(nbf,nmo,dbl_mb(k_movecs(1)))
 c$$$c$$$      stop 
@@ -1240,7 +1250,7 @@ c
      $                             vlo, vhi, olo, ohi, 
      $                             vlo_ck, vhi_ck, olo_ck, ohi_ck, 
      $                             spin, spinck, 
-     $                             nw_max_nbf)
+     $                             nw_max_nbf_small)
 c     
                               next = nxtval(nproc)
                            endif
@@ -1628,7 +1638,7 @@ c
          a1 = max(alo,v_sym(1,ir,spina))
          a2 = min(ahi,v_sym(2,ir,spina))
          call uccsdt_block_range(a1, a2, vblock_max, nblk, 
-     $        ablock(1,nablock+1), 3, nw_max_nbf-nablock)
+     $        ablock(1,nablock+1), 3, nw_max_nbf_small-nablock)
          do i = nablock+1,nablock+nblk
             ablock(3,i) = ir
          end do
@@ -1642,7 +1652,7 @@ c
          b1 = max(blo,v_sym(1,ir,spinb))
          b2 = min(bhi,v_sym(2,ir,spinb))
          call uccsdt_block_range(b1, b2, vblock_max, nblk, 
-     $        bblock(1,nbblock+1), 3, nw_max_nbf-nbblock)
+     $        bblock(1,nbblock+1), 3, nw_max_nbf_small-nbblock)
          do i = nbblock+1,nbblock+nblk
             bblock(3,i) = ir
          end do
@@ -1656,7 +1666,7 @@ c
          c1 = max(clo,v_sym(1,ir,spinc))
          c2 = min(chi,v_sym(2,ir,spinc))
          call uccsdt_block_range(c1, c2, vblock_max, nblk, 
-     $        cblock(1,ncblock+1), 3, nw_max_nbf-ncblock)
+     $        cblock(1,ncblock+1), 3, nw_max_nbf_small-ncblock)
          do i = ncblock+1,ncblock+nblk
             cblock(3,i) = ir
          end do
@@ -1673,7 +1683,7 @@ c
      $           o_sym(1,ir,spin), o_sym(2,ir,spin), 
      $           oblock_max, nblk, 
      $           oblock(1,noblock(spin)+1,spin), 3, 
-     $           nw_max_nbf-noblock(spin))
+     $           nw_max_nbf_small-noblock(spin))
             do i = noblock(spin)+1,noblock(spin)+nblk
                oblock(3,i,spin) = ir
             end do

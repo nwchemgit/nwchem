@@ -38,7 +38,28 @@ c
       integer o_sym(1:2,0:7,1:2) ! Ditto for active occupied
       integer v_sym(1:2,0:7,1:2) ! Ditto for virtuals 
 c
-      integer map(nw_max_nbf,1:2) ! Map from semi-canonical to symmetry blocked
+      integer map(nw_max_nbf_small,1:2) ! Map semi-canonical to sym. blocked
+c
+c     Info about symmetry packed OV pairs.  
+c
+c     lenia = ov_len(symia,spini,spina)
+c     dimension packed(lenia)
+c     dimension unpacked(ilo:ihi,alo:ahi)
+c     packed(1 + i-o_sym(1,symi,spini) + ov_off(a,symia,spini,spina)) 
+c     .    = unpacked(i,a)
+c
+      integer ov_len(0:7,2,2)
+      integer ov_len_cum(0:7,2,2)
+      integer ov_off(nw_max_nbf_small+1,0:7,2,2)
+c
+c     t2(spini,spina,spinj,spinb,symjb) is a dense 2D array of dimension
+c     (ov_len(symia,spini,spina),ov_len(symjb,spinj,spinb)) and begins
+c     at file_t2_off(spini,spina,spinj,spinb,symjb)
+c
+      integer file_t1_off(2)
+      integer file_t2_off(2,2,2,2,0:7)
+      integer t1_len(2)
+      integer t2_len(2,2)       ! t2_len(spini,spinj)
 c
 c     Super-blocking info for the triples
 c
@@ -48,10 +69,10 @@ c
 c     Sub-blocking info for the triples
 c     1=first orbital, 2=last orbital, 3=symmetry of all orbitals in sub-block
 c
-      integer nablock, ablock(1:3,nw_max_nbf)
-      integer nbblock, bblock(1:3,nw_max_nbf)
-      integer ncblock, cblock(1:3,nw_max_nbf)
-      integer noblock(1:2), oblock(1:3,nw_max_nbf,1:2)
+      integer nablock, ablock(1:3,nw_max_nbf_small)
+      integer nbblock, bblock(1:3,nw_max_nbf_small)
+      integer ncblock, cblock(1:3,nw_max_nbf_small)
+      integer noblock(1:2), oblock(1:3,nw_max_nbf_small,1:2)
       integer oblock_max, vblock_max ! Maximum size of any occ/virt block
       integer e_block_max, m_block_max ! largest no. of virt/occ in any irrep
 c
@@ -67,7 +88,7 @@ c     .   (note that 1st dimension is unity except for lists 11, 12, 13)
 c
       logical ocheck            ! If true check the integral lists
 c
-      double precision eps(nw_max_nbf,1:2) ! Eigenvalues for each spin
+      double precision eps(nw_max_nbf_small,1:2) ! Eigenvalues for each spin
 c
       integer aoints_file       ! EAF file handle for AO integrals
       logical aoints_file_read, aoints_file_write
@@ -85,6 +106,8 @@ c
      $     nsh, nbf, nmo, nact, nir, nc, no, nv, nc_sym, no_sym, nv_sym, 
      $     c_sym, o_sym, v_sym, map, ocheck, 
      $     aoints_file, aoints_file_read, aoints_file_write, 
+     $     ov_len, ov_len_cum, ov_off, 
+     $     file_t1_off, file_t2_off, t1_len, t2_len,
 c
      $     asuper, bsuper, csuper, 
      $     asuper_spin, csuper_spin,

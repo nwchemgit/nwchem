@@ -674,7 +674,7 @@ c
       integer k_wivu, k_wkvu, k_work, k_buf, k_tmp, k_res
       integer lenwork, lenbuf, dummy(3)
       integer me, next, nproc, count, maxdim, maxsh, shmaxbf
-      integer shlist(2,nw_max_shells), nshblock, need
+      integer shlist(2,nw_max_shells_small), nshblock, need
       double precision ga_need, ma_need
       logical ok
       integer nxtval
@@ -1645,7 +1645,7 @@ c
       integer wlo, whi, llo, lhi, junk, l_work, k_work, lenwork
       integer avail_ma, need, wblk, lblk
 c
-      integer shlist(2,nw_max_shells), nshblock, maxdim, maxsh
+      integer shlist(2,nw_max_shells_small), nshblock, maxdim, maxsh
 c
       if (nset.lt.1 .or. nset.gt.2) call errquit
      $     ('moints_shpair_one_index: bad nset', nset)
@@ -1873,7 +1873,7 @@ c
       double precision block_eff
       double precision scalekl, scale, smax, skl, q4
 c
-      integer atom(nw_max_shells), geom, nsh
+      integer atom(nw_max_shells_small), geom, nsh
       logical sym_atom_gen_quartet
       external sym_atom_gen_quartet
       logical sym_shell_pair
