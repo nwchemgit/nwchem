@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.6 1999-07-10 06:55:35 d3e129 Exp $
+C$Id: grid_utils.F,v 1.7 1999-07-14 20:34:50 edo Exp $
 c
       implicit none
 c      
@@ -348,7 +348,9 @@ c
 c
 c        redefine nq_task
 c
-         if(nquad_task.eq.1) then
+Cedo         if(nquad_task.eq.1) then
+          if (.not. rtdb_get(rtdb, 'dft:nquad_task', mt_int, 1,
+     &        nquad_task))then
           nquad_task = min(avail/2/(4*max_pr_mbfnq),6)
           if(nquad_task.lt.1) nquad_task=1
            nqmax=nqmax*nquad_task
@@ -619,7 +621,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.6 1999-07-10 06:55:35 d3e129 Exp $
+C$Id: grid_utils.F,v 1.7 1999-07-14 20:34:50 edo Exp $
 c
       implicit none
 c
