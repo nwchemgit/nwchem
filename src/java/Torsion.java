@@ -2,7 +2,7 @@ public class Torsion{
 
     public String type1, type2, type3, type4;
     public int source;
-    public boolean redefining, redefined;
+    public boolean redefining, redefined, selected;
     public int number;
     public double[] value = new double[5];
     public double[] force = new double[5];
@@ -15,7 +15,7 @@ public class Torsion{
 	type2=card.substring(6,8);
 	type3=card.substring(12,14);
 	type4=card.substring(18,20);
-	redefining=false; redefined=false;
+	redefining=false; redefined=false; selected=true;
 	number=0;
 	multiplicity[number]=Integer.parseInt(card.substring(45,50).trim());
 	value[number]=Double.valueOf(card.substring(24,33)).doubleValue();

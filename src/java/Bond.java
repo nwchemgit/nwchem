@@ -3,7 +3,7 @@ public class Bond{
     public double value, force, charge;
     public String type1, type2;
     public int source;
-    boolean redefining, redefined;
+    boolean redefining, redefined, selected;
 
     public Bond(String card, int isource){
 	source=isource;
@@ -15,7 +15,7 @@ public class Bond{
 	if(card.length()>33) { 
 	    if(card.charAt(39)=='.') charge=Double.valueOf(card.substring(33,45)).doubleValue();
 	};
-	redefining=false; redefined=false;
+	redefining=false; redefined=false; selected=true;
     }
 
 }
