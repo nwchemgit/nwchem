@@ -156,7 +156,8 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, jshv, basis, kshv, lshv,
-     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $     nshq, qv4, osym, 
+     $     scrlen, iscr, erilen, beffect ))
      $   call errquit('moints_gblk: intb_init4c failed',0)
 c
 c  Get some batch of integrals
@@ -213,7 +214,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -465,7 +466,8 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, jshv, basis, kshv, lshv,
-     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $     nshq, qv4, osym,
+     $     scrlen, iscr, erilen, beffect ))
      $   call errquit('moints_gblk: intb_init4c failed',0)
 c
 c  Get some batch of integrals
@@ -521,7 +523,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1077,7 +1079,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1121,7 +1123,7 @@ C$Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.19 1996-09-19 01:17:46 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.20 1996-10-04 22:11:42 d3g681 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

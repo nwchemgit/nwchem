@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.14 1996-09-26 19:24:32 d3j191 Exp $
+c  $Id: moints_6x.F,v 1.15 1996-10-04 22:11:41 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -886,7 +886,8 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, kshv, basis, jshv, lshv,
-     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $     nshq, q4, use_q4, 
+     $     scrlen, iscr, erilen, beffect ))
      $   call errquit('moints6x_gblkk: intb_init4c failed',0)
 c
 c  Get some batch of integrals
@@ -934,7 +935,8 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, lshv, basis, jshv, kshv,
-     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $     nshq, q4, use_q4,
+     $     scrlen, iscr, erilen, beffect ))
      $   call errquit('moints6x_gblkk: intb_init4c failed',0)
 c
 c  Get some batch of integrals
@@ -1255,7 +1257,8 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, kshv, basis, jshv, lshv,
-     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $     nshq, q4, use_q4,
+     $     scrlen, iscr, erilen, beffect ))
      $   call errquit('moints6x_gblkk: intb_init4c failed',0)
 c
 c  Get some batch of integrals
@@ -1305,7 +1308,8 @@ c
 c  Prepare texas for shell block
 c
       if (.not. intb_init4c( basis, ishv, lshv, basis, jshv, kshv,
-     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $     nshq, q4, use_q4, 
+     $     scrlen, iscr, erilen, beffect ))
      $   call errquit('moints6x_gblkk: intb_init4c failed',0)
 c
 c  Get some batch of integrals
