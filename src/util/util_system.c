@@ -1,5 +1,5 @@
 /*
- $Id: util_system.c,v 1.5 1999-11-16 20:51:03 edo Exp $
+ $Id: util_system.c,v 1.6 2000-01-17 21:50:22 windus Exp $
  */
 
 #include <stdio.h>
@@ -15,6 +15,11 @@ extern int system(const char *);
 #endif
 #ifdef WIN32
 #include "typesf2c.h"
+#endif
+#ifdef LINUX
+#define __USE_BSD
+#include <signal.h>
+#undef __USE_BSD
 #endif
 
 typedef long Integer;		/*  FORTRAN integer */
@@ -35,14 +40,22 @@ Integer FATR UTIL_SYSTEM(_fcd input)
 Integer util_system_(const char *input, int lin)
 {
 #endif
+#if defined(LINUX)
+    int i;
+	void (*Siginit)();
+#endif
     char in[1024];
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
 	ga_error("util_system: fortchar_to_string failed for in",0);
 
-#ifdef CRAY
+#if defined(CRAY)
     return 1;			/* Does not work on the Cray? */
+#elif defined(LINUX)
+	Siginit = signal(SIGCHLD,SIG_IGN);
+	i = system(in);
+	Siginit = signal(SIGCHLD,Siginit);
+    return i;
 #else
     return system(in);
 #endif
 }
-
