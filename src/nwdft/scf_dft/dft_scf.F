@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.209 2001-12-15 01:11:07 edo Exp $
+c     $Id: dft_scf.F,v 1.210 2001-12-15 01:51:36 edo Exp $
 c     
       implicit none
 c
@@ -528,7 +528,7 @@ c     transformed Fock matrix will be diagonally dominant, or
 c     alternatively shift the piss out of it.
 c     
       if (movecs_guess.eq.'restart'.or.ncanorg.eq.1)then
-         levelshifting = gotsmear(ssmear)
+         levelshifting = .not.gotsmear(ssmear)
       else
          levelshifting = .false.
       endif
@@ -999,7 +999,7 @@ c
 c     
       if ((delta.lt.levlon.and.delta.gt.levloff).or.
      &    (iter.le.ncysh))then
-         if (homo_lumo_gap.lt.hl_tol.and.gotsmear(ssmear))then
+         if (homo_lumo_gap.lt.hl_tol.and.(.not.gotsmear(ssmear)))then
             levelshifting = .true.
             rlshift = rlshift_input
             if (check_shift)then
