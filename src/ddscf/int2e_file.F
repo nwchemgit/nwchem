@@ -59,13 +59,11 @@ c
          max_file_rec = 2048    ! Default max size of about 2 Gb
       endif
 c
-      if (max_cache_rec .gt. 0) then
-         if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
-     $        'int2e', l_cache, k_cache)) then
-            write(6,*) ' Failed to allocate cache ... setting to zero'
-            max_cache_rec = 0
-         endif
-      endif
+c     defer allocation of memory until the first write otherwise
+c     this memory is sitting around during the initial guess routines
+c
+      l_cache = -1
+      k_cache = -1
 c
       if (oinfo) then
          write(6,20) actualname(1:inp_strlen(actualname)),
@@ -470,7 +468,17 @@ c
       call int2e_buf_cntr_pack()
       call int2e_buf_pack()
 c
+ 10   continue
       if (cur_rec .le. max_cache_rec) then
+c
+         if (l_cache .eq. -1) then
+            if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
+     $           'int2e', l_cache, k_cache)) then
+               write(6,*) ' Failed to allocate cache ... disabling'
+               max_cache_rec = 0
+               goto 10          ! Dirty ... go back and try again
+            endif
+         endif
          call dcopy(rec_len_in_dbl, buf, 1, 
      $        dbl_mb(k_cache+(cur_rec-1)*rec_len_in_dbl), 1)
       else
