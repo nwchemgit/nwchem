@@ -1,5 +1,5 @@
       Subroutine PStat_Print_Detail(handles,n_handles)
-c $Id: pstat_pr_det.F,v 1.3 2003-10-17 22:58:01 carlfahl Exp $
+c $Id: pstat_pr_det.F,v 1.4 2004-12-01 02:15:26 edo Exp $
       Implicit NONE
 #include "errquit.fh"
 C
@@ -7,22 +7,21 @@ C
 #include "global.fh"
 #include "msgids.fh"
 #include "mafdecls.fh"
+#include "stdio.fh"
 C
       integer n_handles
       integer handles(n_handles)
       integer current_handle
 c
-      Integer StdOut
-      Parameter ( Stdout = 6 )
 C
       Integer I, Off, N, H_Collect, I_Collect
 C
       Call GA_Sync()
 C
       If ( GA_NodeID() .eq. 0) then
-         Call Banner(StdOut, 'Detailed Performance Information', '-',
+         Call Banner(luout, 'Detailed Performance Information', '-',
      $   .TRUE., .TRUE., .FALSE.)
-         Write (StdOut, 9000)
+         Write (luout, 9000)
       EndIf
  9000 Format(1X, 'Name', 18X, 'Node', 6X, 'Calls', 1X,
      $     'CPU Time (s)', 2X, 'Wall Time (s)')
@@ -63,7 +62,7 @@ C
             if (pstat_active(current_handle)) then
 C
                Do N = 0, GA_NNodes()-1
-                  Write (StdOut, 9010)
+                  Write (luout, 9010)
      &                 PStat_Name(current_handle), N,
      $                 Int( Dbl_MB( I_Collect + Off )),
      $                 Dbl_MB( I_Collect + Off + 1 ),
@@ -72,7 +71,7 @@ C
                EndDo
             EndIF
          EndDo
-         call util_flush(stdout)
+         call util_flush(luout)
       EndIf
 C
       If ( .NOT. MA_Pop_Stack( H_Collect) ) Call ErrQuit(

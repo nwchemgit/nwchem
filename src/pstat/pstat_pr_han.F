@@ -1,27 +1,25 @@
       Subroutine PStat_Print_Handles(handles,n_handles)
-c $Id: pstat_pr_han.F,v 1.1 1995-12-13 01:36:34 d3g681 Exp $
+c $Id: pstat_pr_han.F,v 1.2 2004-12-01 02:15:26 edo Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "stdio.fh"
 C
       integer n_handles
       integer handles(n_handles)
       integer current_handle
 c
-      Integer StdOut
-      Parameter ( Stdout = 6 )
-C
       Integer I, IMAM(3), icalls
       Double Precision DMAM(3, 2)
 C
       Call GA_Sync()
 C
       If ( GA_NodeID() .eq. 0) then
-         Call Banner(StdOut, 'Performance information', '-',
+         Call Banner(luout, 'Performance information', '-',
      $   .TRUE., .TRUE., .FALSE.)
-         Write (StdOut, 9000)
+         Write (luout, 9000)
       EndIf
  9000 Format(1X, 21X,
      $   '             Nr. of calls          ',1X,
@@ -71,13 +69,13 @@ C
             If ( GA_NodeID() .eq. 0) then
               icalls = iMAM(1) + iMAM(2) + iMAM(3)
               if (icalls.gt.0)
-     &            Write (StdOut, 9010)
+     &            Write (luout, 9010)
      &            PStat_Name(current_handle), iMAM, dMAM
             endif
           endif
       EndDo
 c
-      if (ga_nodeid() .eq. 0) call util_flush(stdout)
+      if (ga_nodeid() .eq. 0) call util_flush(luout)
 C
  9010 Format(1X, A20, 1X, 3(I10,1X), 1P, 3(G8.2, 1X), 2X, 3(G8.2, 1X))
 C

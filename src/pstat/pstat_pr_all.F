@@ -1,14 +1,12 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.6 2004-11-15 19:31:33 edo Exp $
+C$Id: pstat_pr_all.F,v 1.7 2004-12-01 02:15:26 edo Exp $
       Implicit NONE
 C
 #include "pstatP.fh"
 #include "global.fh"
 #include "msgids.fh"
 #include "util.fh"
-C
-      Integer StdOut
-      Parameter ( Stdout = 6 )
+#include "stdio.fh"
 C
       Integer I, IMAM(3), icalls, ntime, total_calls
       Double Precision DMAM(3, 2), now_cpu, now_wall, overhead
@@ -31,11 +29,11 @@ c
       total_calls = 0
 C
       If ( GA_NodeID() .eq. 0) then
-         Call Banner(StdOut, 'Performance information', '-',
+         Call Banner(luout, 'Performance information', '-',
      $   .TRUE., .TRUE., .FALSE.)
-          write(stdout, 8999) overhead
+          write(luout, 8999) overhead
 8999      format(/' Timer overhead = ',1p,d9.2,' seconds/call'/)
-         Write (StdOut, 9000)
+         Write (luout, 9000)
       EndIf
  9000 Format(10X,
      $   '     Nr. of calls    ',1X,
@@ -103,16 +101,16 @@ c
               icalls = iMAM(1) + iMAM(2) + iMAM(3)
               total_calls = total_calls + iMAM(2)
               if (icalls.gt.0)
-     &            Write (StdOut, 9010) PStat_Name(I), iMAM, dMAM,
+     &            Write (luout, 9010) PStat_Name(I), iMAM, dMAM,
      ,             dmam(3,2)/imam(3),fmam
             endif
          endif
       EndDo
 c
       if (ga_nodeid() .eq. 0) then
-         write(stdout,9011) dble(total_calls),
+         write(luout,9011) dble(total_calls),
      $        dble(total_calls)*overhead
-         call util_flush(stdout)
+         call util_flush(luout)
       endif
 C
  9010 Format(A9, 1X, 3(I5,1X), 1X,1P, 3(1X,G7.2E1), 1X, 4(1X,G7.2E1),
