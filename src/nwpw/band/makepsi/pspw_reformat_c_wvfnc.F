@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.7 2002-02-04 23:21:49 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.8 2002-02-16 00:34:24 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -61,9 +61,9 @@
       call iwrite(6,ne,2)
       call iwrite(6,nbrill,1)
        
-       nfft3d = ( ngrid(1)/2+1)* ngrid(2)* ngrid(3)
+       nfft3d = ( ngrid(1)/2+1)*ngrid(2)*ngrid(3)
        n2ft3d = 2* nfft3d
-       nfft3d_out =  ngrid(1) * ngrid(2)* ngrid(3)
+       nfft3d_out =  ngrid(1)*ngrid(2)*ngrid(3)
 
       write(*,*)
       write(*,*) 
@@ -89,7 +89,8 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d_out,
      >                     'cfull_out',cfull_out(2),cfull_out(1))
-      if (.not.value) call errquit("out of memory",0)
+      if (.not.value) 
+     > call errquit("pspw_reformat_c_wvfnc:push stack",0)
 
        
       do nb=1,nbrill
