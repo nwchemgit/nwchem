@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.9 2000-05-08 21:44:49 zzhang Exp $
+C$Id: xc_exso.F,v 1.10 2000-05-24 22:04:24 zzhang Exp $
 c
       implicit none
 c      
@@ -42,7 +42,7 @@ c
       call ga_inquire(g_densso(1),type,nao,nao)
       nao=nao/2
       if(ga_nodeid().eq.0)write(*,*)"nao", nao
-      jantest=.true.
+      jantest=.false.
       if(jantest)then 
 c     
 c     Make all AO integrals
@@ -68,7 +68,7 @@ c     parts of Kab. Kba is obtained from Kab by the Hermitian property.
 c     
       oprint_intermediate_xc = util_print('intermediate XC matrix',
      $     print_debug)
-      oprint_intermediate_xc = .true. 
+c      oprint_intermediate_xc = .true. 
       oprint_time = util_print('dft timings', print_high)
 c      Exc(1)=0.d0
 c      Exc(2)=0.d0
@@ -167,13 +167,13 @@ c            call ga_print(g_dens(2))
          enddo
       endif
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
-     $        onem*ga_ddot(g_dens(1),g_jk(1)) +
-     $        onem*ga_ddot(g_dens(2),g_jk(3)))
+     $        onem*ga_ddot(g_dens(1),g_jk(2)) +
+     $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,1,nao, 
-     &                    xfac(1),g_jk(1),    1,nao,1,nao,
+     &                    xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,1,nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,nao+1,2*nao, 
-     &                    xfac(1),g_jk(3),    1,nao,1,nao,
+     &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,nao+1,2*nao)
 c
          if (oprint_intermediate_xc)then
@@ -238,13 +238,13 @@ c
          enddo
       endif
          exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
-     $        ga_ddot(g_dens(1),g_jk(1)) +
-     $        ga_ddot(g_dens(2),g_jk(3)))
+     $        ga_ddot(g_dens(1),g_jk(2)) +
+     $        ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(1),1,nao,nao+1,2*nao, 
-     &                   -xfac(1),g_jk(1),    1,nao,1,nao,
+     &                   -xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(1),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(1),nao+1,2*nao,1,nao, 
-     &                   -xfac(1),g_jk(3),    1,nao,1,nao,
+     &                   -xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(1),nao+1,2*nao,1,nao)
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kab) and Im(Kab):'
@@ -312,13 +312,13 @@ c
       endif
 c
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy 
-     $        onem*ga_ddot(g_dens(1),g_jk(1)) +
-     $        onem*ga_ddot(g_dens(2),g_jk(3)))
+     $        onem*ga_ddot(g_dens(1),g_jk(2)) +
+     $        onem*ga_ddot(g_dens(2),g_jk(4)))
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,nao+1,2*nao,
-     &                    xfac(1),g_jk(1),    1,nao,1,nao,
+     &                    xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,1,nao, 
-     &                    xfac(1),g_jk(3),    1,nao,1,nao,
+     &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,1,nao)
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kba) and Im(Kba):'
