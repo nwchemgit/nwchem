@@ -173,9 +173,9 @@ sub-block.
 	\item $<$inner\_iteration$>$ - number of iterations between the 
               printing out of energies and tolerances
 	\item $<$outer\_iteration$>$ - number of outer iterations
- 	\item $<$tole$>$ - energy tolerance requested.
-	\item $<$tolc$>$ - one-electron orbital tolerance requested.
-	\item $<$tolr$>$ - ion position tolerance requested.
+ 	\item $<$tole$>$ - value for the energy tolerance.
+	\item $<$tolc$>$ - value for the one-electron orbital tolerance.
+	\item $<$tolr$>$ - value for the ion position tolerance.
 	\item $<$ecut$>$ - value for the cutoff energy used
                            to define the density.  Default is set
                            to be the maximum value that will fit
@@ -243,7 +243,7 @@ PSPW
       [FAKE_MASS: <real fake_mass default 400000.0>]
       [TIME_STEP: <real time_step default 5.8>]
       LOOP: <integer inner_iteration outer_iteration default 10 1>
-      TOLERANCES: <real tole tolc tolr default 1.0e-9 1.0e-9 1.0e-4>
+      TOLERANCES: <real tole tolc default 1.0e-9 1.0e-9>
       ENERGY_CUTOFF:       <real ecut default (see input description)>
       WAVEFUNCTION_CUTOFF: <real wcut default (see input description)>
       EWALD_NCUT: <integer ncut default 1>]
@@ -277,9 +277,8 @@ sub-block.
 	\item $<$inner\_iteration$>$ - number of iterations between the 
               printing out of energies and tolerances
 	\item $<$outer\_iteration$>$ - number of outer iterations
- 	\item $<$tole$>$ - energy tolerance requested.
-	\item $<$tolc$>$ - one-electron orbital tolerance requested.
-	\item $<$tolr$>$ - ion position tolerance requested.
+ 	\item $<$tole$>$ - value for the energy tolerance.
+	\item $<$tolc$>$ - value for the one-electron orbital tolerance.
 	\item $<$ecut$>$ - value for the cutoff energy used
                            to define the density. Default is set
                            to be the maximum value that will fit
@@ -1841,10 +1840,10 @@ the file: nwchem/examples/pspw/NaCl-md.nw
 \label{sec:pspw_limits}
 
 \begin{itemize}
-\item You cannot use more processors than the size of the third dimension (e.g. a 64x64x64 FFT grid
-      can use at most 64 processors).
-\item The second and third dimsntions of the FFT grid must be the same (i.e. the parameters na2 and 
-      na3 must be the same for each simulation cell).
+\item You cannot use more processors than the size of the third dimension 
+  (e.g. a 64x64x64 FFT grid can use at most 64 processors).
+\item The second and third dimensions of the FFT grid must be the same 
+  (i.e. the parameters na2 and na3 must be the same for each simulation cell).
 \end{itemize}
 
 
