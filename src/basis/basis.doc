@@ -1,4 +1,4 @@
-# $Id: basis.doc,v 1.5 1994-05-19 05:50:37 d3e129 Exp $
+# $Id: basis.doc,v 1.6 1994-05-20 17:48:48 d3e129 Exp $
 
 Basis Set Object/API
 Rick A. Kendall and Robert J. Harrison (April/May 1994)
@@ -33,7 +33,7 @@ logical function bas_numcont(basis,numcont)
 logical function bas_get_coeff(basis,icont,coeff)
 logical function bas_set_exponent(basis,icont,exp,nexp)
 logical function bas_set_coeff(basis,icont,coeff,ncoeff)
-
+logical function bas_nbf_cn_max(basis,nbf_max)
 
 c......................................................................
       logical function bas_version()
@@ -227,4 +227,12 @@ c
       integer icont                   ! [input] mapped contraction index           
       integer ncoeff                  ! [input] number of coeffs. for contraction
       double precision coeff(ncoeff)  ! [input] "new" coeffs. for contraction    
+c......................................................................
+      logical function bas_nbf_cn_max(basis,nbf_max)
+c
+c  calculate, return and store maximum basis function block size
+c   for all contractions in a given basis. 
+c
+      integer basis         ! [input] basis set handle
+      integer nbf_max       ! [output] high angular momentum of basis
 c......................................................................

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.15 1994-05-19 05:02:18 d3e129 Exp $
+c $Id: basis.F,v 1.16 1994-05-20 17:48:45 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -25,7 +25,7 @@ c.. integer data in basis set object common
       idata =         ndbs_head*nbasis_bsmx
       idata = idata + ndbs_tags*ntags_bsmx*nbasis_bsmx
       idata = idata + ndbs_ucont*nucont_bsmx*nbasis_bsmx
-      idata = idata + nbasis_bsmx*4 + 1
+      idata = idata + nbasis_bsmx*5 + 1
       idata = idata + nbasis_rtdb_mx
       idata = 4*idata
 c
@@ -713,6 +713,7 @@ c
 c
 c build nprim_tot_gb, nbf_tot_gb, and 
 c contraction -> basis function range map 
+c find nbfmax for basis (initialized in block data statement)
 c
       nbf_tot_gb(basis)   = 0
       nprim_tot_gb(basis) = 0
@@ -720,6 +721,7 @@ c
         iu_cont = ibs_cn2ucn(i,basis)
 c
         nbf = nbf_from_ucont(iu_cont,basisin)
+        nbfmax_bs(basis) = max(nbfmax_bs(basis),nbf)
 c
         ibs_cn2bfr(1,i,basis) = nbf_tot_gb(basis) + 1
         ibs_cn2bfr(2,i,basis) = nbf_tot_gb(basis) + nbf
@@ -876,9 +878,9 @@ c:: passed
 c:local
       integer basis, myucont, i, myang
 c
-      bas_high_angular = bas_check_handle(basisin,"bas_high_angular")
+      bas_high_angular = bas_check_handle(basisin,'bas_high_angular')
       if (.not. bas_high_angular ) then
-        write(6,*) ' basis handle not valid '
+        write(6,*) 'bas_high_angular: basis handle not valid '
         return
       endif
 c
@@ -919,7 +921,7 @@ c::passed
 c::local
       integer basis
 
-      gbs_map_clear = bas_check_handle(basisin,"gbs_map_clear")
+      gbs_map_clear = bas_check_handle(basisin,'gbs_map_clear')
       if (.not. gbs_map_clear ) then
         write(6,*) ' basis handle not valid '
         return
@@ -1746,5 +1748,50 @@ c
 c
       bas_set_coeff = .true.
 c
+      return
+      end
+c......................................................................
+      logical function bas_nbf_cn_max(basisin,nbf_max)
+      implicit none
+c
+c  calculate, return and store maximum basis function block size
+c   for all contractions in a given basis. 
+c
+#include "basP.fh"
+#include "basdeclsP.fh"
+c::functions
+      logical bas_check_handle
+      external bas_check_handle
+      integer nbf_from_ucont
+      external nbf_from_ucont
+c:: passed
+      integer basisin       ! [input] basis set handle
+      integer nbf_max       ! [output] high angular momentum of basis
+c:local
+      integer basis, myucont, i, mynbf
+c
+      bas_nbf_cn_max = bas_check_handle(basisin,'bas_nbf_cn_max')
+      if (.not. bas_nbf_cn_max ) then
+        write(6,*) 'bas_nbf_cn_max: basis handle not valid '
+        return
+      endif
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+      if (angular_bs(basis) .gt. -565) then
+        nbf_max = nbfmax_bs(basis)
+        bas_nbf_cn_max = .true.
+        return
+      endif
+c
+      myucont = infbs_head(HEAD_NCONT,basis)
+      nbf_max = -565
+c
+      do 00100 i = 1,myucont
+        mynbf = nbf_from_ucont(i,basisin)
+        nbf_max = max(nbf_max, mynbf)
+00100 continue
+c
+      nbfmax_bs(basis) = nbf_max
+      bas_nbf_cn_max = .true.
       return
       end

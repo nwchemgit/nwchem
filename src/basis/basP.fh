@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.2 1994-04-04 20:20:18 d3e129 Exp $
+c $Id: basP.fh,v 1.3 1994-05-20 17:48:43 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -190,7 +190,7 @@ c.. incore sturctures
       real*8 bsversion
       character*256 bs_trans,bs_names_rtdb
       integer len_bs_name, len_bs_trans, len_bs_rtdb, nbasis_rtdb
-      integer angular_bs
+      integer angular_bs, nbfmax_bs
       logical bsactive 
 c
       common /cbsdatac/
@@ -211,6 +211,7 @@ c......... above for each basis is stored ... below is in-core
      &       len_bs_rtdb(nbasis_rtdb_mx),
      &       bsactive(nbasis_bsmx),
      &       angular_bs(nbasis_bsmx),
+     &       nbfmax_bs(nbasis_bsmx),
      &       nbasis_rtdb
 c
 

@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.6 1994-05-19 05:02:16 d3e129 Exp $
+c $Id: bas.fh,v 1.7 1994-05-20 17:48:41 d3e129 Exp $
 c:bas.fh
 c
       logical bas_version        
@@ -32,6 +32,7 @@ c
       logical bas_get_coeff      
       logical bas_set_exponent   
       logical bas_set_coeff      
+      logical bas_nbf_cn_max
 c
       external bas_version        
       external bas_create         
@@ -64,4 +65,5 @@ c
       external bas_get_coeff      
       external bas_set_exponent   
       external bas_set_coeff      
+      external bas_nbf_cn_max
 c

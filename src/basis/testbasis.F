@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.6 1994-05-19 05:02:21 d3e129 Exp $
+c $Id: testbasis.F,v 1.7 1994-05-20 17:48:50 d3e129 Exp $
       implicit none
 c
 #include "bas.fh"
@@ -179,6 +179,9 @@ c
      &            ' is on center ',iat,
      &         ' and in contraction',icont
 00400 continue
+c
+      status = bas_nbf_cn_max(basis,nbf)
+      write(6,*)' max block of nbf for basis is:',nbf
 c
       stop ' testbasis done '
       end

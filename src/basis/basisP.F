@@ -1,6 +1,6 @@
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     expnt, coeffs, ldc)
-c $Id: basisP.F,v 1.7 1994-05-19 03:47:32 d3e129 Exp $
+c $Id: basisP.F,v 1.8 1994-05-20 17:48:49 d3e129 Exp $
       implicit none
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -477,7 +477,8 @@ c
       data nbasis_rtdb /0/
       data bsactive /nbasis_bsmx*.false./
       data angular_bs /nbasis_bsmx*-565/
-      data bsversion /1.00d00/
+      data nbfmax_bs /nbasis_bsmx*-565/
+      data bsversion /1.10d00/
 c     
       end
 c......................................................................
