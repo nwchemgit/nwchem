@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.6 2000-08-09 21:55:04 windus Exp $
+C $Id: hess_anal.F,v 1.7 2000-08-10 03:00:06 windus Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -24,12 +24,18 @@ C
 #include "rtdb.fh"
       integer rtdb
 
+      integer restr
       logical task_energy
       logical bgj_get_scf_method
       external task_energy
       external bgj_get_scf_method
 c
       hess_anal = .false.
+c
+c     find out if this is a restart
+c
+      if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
+     *  restr = 0
 c
 c  Broadcast information to all of the nodes on read
 c
@@ -69,15 +75,14 @@ c
 c  Get the nuclear contribution to the hessian
 c
       call nucdd_cont(rtdb)
-      write(6,*) 'The Hessian after nucdd contributions:'
-      call flush(6)
-      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      call hess_restart(rtdb,1)
 c
 c  Get the two-electron second derivative contributions
 c
       call twodd_cont(rtdb)
       write(6,*) 'after the twodd_cont call'
       call flush(6)
+      call hess_restart(rtdb,2)
 c
 c  solve the CPSCF problem
 c
