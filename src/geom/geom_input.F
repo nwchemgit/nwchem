@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.55 1997-03-05 07:36:37 gutowski Exp $
+C     $Id: geom_input.F,v 1.56 1997-03-06 00:25:31 gutowski Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -303,7 +303,11 @@ c     Force exact symetry on the coordinates
 c     
       call sym_geom_project(geom, 1d-3)
 c     
-      call geom_compute_values(geom)
+c     geom_compute_values is called in the very end of 
+c     sym_geom_project. Current call of geom_compute_values 
+c     is commented out. 
+c
+c     call geom_compute_values(geom)
 c     
       if(oautoz) then
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
