@@ -1,17 +1,18 @@
+title "dplot testing"
 echo
 start dplot
 
 memory 90 mb 
 
 geometry units au
- O 0       0        0
- H 0       1.430   -1.107
- H 0      -1.430   -1.107
+ Be 0       0        0
 end
 
 basis
-  O library 6-31g*
-  H library 6-31g*
+  Be library 6-31g*
+end
+scf
+   vectors output ttt.movecs
 end
 
 task scf energy
@@ -19,6 +20,7 @@ task scf energy
 
 
 dplot
+   vectors  ttt.movecs
    title HOMO
    limitXYZ
    -3.0 3.0 10
@@ -29,3 +31,20 @@ dplot
    output lumo.cube
 end
 task dplot
+
+pspw
+   simulation_cell
+      ngrid 16 16 16
+      boundary_conditions aperiodic
+   end
+end
+set nwpw:minimizer 2
+task pspw energy
+
+pspw
+   dplot
+     density total total.cube
+     orbital 1      orb1.cube
+   end
+end
+task pspw dplot
