@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.38 1995-05-27 20:35:42 gg502 Exp $
+# $Id: GNUmakefile,v 1.39 1995-05-29 15:16:01 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -28,7 +28,7 @@ OBJ_OPTIMIZE=  ga_matpow.o
 	      fortchar.o sequential_output.o ga_mat2col.o \
               util_char_ga_brdcst.o two_index_transf.o \
 	      dabssum.o dabsmax.o util_pname.o sread.o swrite.o \
-	      banner.o util_print.o util_version.o \
+	      banner.o util_print.o util_version.o util_pack.o \
               mk_fit_xf.o \
               int_2c_ga.o \
               $(BLAS) $(EXTRA_OBJ) 
@@ -42,9 +42,12 @@ OBJ_OPTIMIZE=  ga_matpow.o
 
 include ../config/makelib.h
 
-util_version.f:	../config/nwchem_config.h
-		catsrc nwchem.F config $(NWSUBDIRS) | \
-			awk -f ids.awk > $@
+util_version.F:	util_version_stub.F
+	cp $^ $@
+
+version:	../config/nwchem_config.h
+	catsrc nwchem.F config $(NWSUBDIRS) | \
+		awk -f ids.awk > util_version.F
 
 testsolve:      testsolve.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
