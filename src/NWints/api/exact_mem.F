@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.43 2000-02-04 01:19:32 mg201 Exp $
+c $Id: exact_mem.F,v 1.44 2000-04-24 20:07:02 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
 #include "rtdb.fh"
 #include "bas.fh"
 #include "apiP.fh"
+#include "stdio.fh"
 c
 c:: functions
       logical api_is_atomic_basis
@@ -38,6 +39,7 @@ c:: local
       integer lmem_2e2c, lsz_2e2c
       integer ibas,jbas, kbas
       integer lsz_3ov,lmem_3ov
+      integer mem2emax
       logical o_do_full
 c
 c
@@ -56,11 +58,18 @@ c... ensure that mem_2e{432}c memory reqirements are zero
 c
       call int_mem_zero()
 c
+c     Get maximum memory for 2e integrals from rtdb
+c
+      if (.not. rtdb_get(rtdb,'int:mem2emax',Mt_Int,1,mem2emax))
+     &    mem2emax = 14 000 000
+
+c
       do 00100 ibas = 1,nbas
         if (api_is_atomic_basis(bases(ibas))) then
           do 00200 jbas = 1,ibas
             if (api_is_atomic_basis(bases(jbas))) then
 c.... 2e 4 center
+              lmem_2e4c = mem2emax
               if (o_do_full) then
                 call emem_2e4c_full
      &              (bases(ibas),bases(jbas),lsz_2e4c,lmem_2e4c)
@@ -71,11 +80,13 @@ c.... 2e 4 center
               mem_2e4c = max(mem_2e4c, lmem_2e4c)
               isz_2e4c = max(isz_2e4c, lsz_2e4c)
 c.... 2e 3 center
+              lmem_2e3c = mem2emax
               call emem_2e3c
      &            (bases(ibas),bases(jbas),lsz_2e3c,lmem_2e3c)
               mem_2e3c = max(mem_2e3c, lmem_2e3c)
               isz_2e3c = max(isz_2e3c, lsz_2e3c)
 c.... 2e 2 center
+              lmem_2e2c = mem2emax
               call emem_2e2c
      &            (bases(ibas),bases(jbas),lsz_2e2c,lmem_2e2c)
               mem_2e2c = max(mem_2e2c, lmem_2e2c)
@@ -136,7 +147,7 @@ c
 c for NWChem blocking interface
 c
       iszb_2e4c = isz_2e4c   ! use minimum of one quartet for integrals
-      memb_2e4c = mem_2e4c + mem_2e4c/10  ! +10% to me safe
+      memb_2e4c = mem_2e4c + mem_2e4c/10  ! +10% to be safe
 c
 #if defined(API_DEBUG)
 c.. debug write statements
@@ -469,19 +480,14 @@ c:tex-\end{verbatim}
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
       integer bra_type, ket_type, memdum
-      integer bra_prim, ket_prim, ket_lim
+      integer bra_prim, ket_prim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
-c      integer rel_dbg, rel_typ
 c
 #include "bas_exndcf_sfn.fh"
 c
       memsize = 0
       max1e = 0
-c
-c     relativistic integral options. rel_typ selects scalar (1),
-c     spin-orbit (3) or both (4). Should be passed when spin-orbit 
-c     integrals are needed, or included in a common block.
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
@@ -509,13 +515,7 @@ c
           bra_gen  = 1
         endif
 c
-        if (bra.eq.ket) then
-          ket_lim = ibc
-        else
-          ket_lim = ket_ucont
-        endif
-c
-        do 00200 ikc = 1, ket_lim
+        do 00200 ikc = 1, ket_ucont
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
@@ -610,9 +610,10 @@ c:tex-\begin{verbatim}
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
 c:tex-\end{verbatim}
+c     NB. On input, memsize contains the (dummy) memory limit for 2e integrals
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
-      integer bra_type, ket_type, memdum
+      integer bra_type, ket_type, memdum, memmax
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen, bra_cent, ket_cent
       integer max_nbf_bra, max_nbf_ket
@@ -624,6 +625,7 @@ c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
+      memmax = memsize
       memsize = 0
       maxg = 0
 c
@@ -683,7 +685,7 @@ c
           ket_cando_sp = cando_sp_u(ketin,ikc,0)
           if (bra_cando_sp.and.ket_cando_sp) goto 00201
 c
-          memdum = 14 000 000
+          memdum = memmax
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulomb
           if (status_rel .and. (bra_rel .or. ket_rel)) then
             call rel_2e4c_sf (
@@ -719,7 +721,7 @@ c ...........   DryRun
 *:debug   write(luout,*)' coul ',ibc,ibc,ikc,ikc,memdum
           memsize = max(memsize,memdum)
 c
-          memdum = 14 000 000
+          memdum = memmax
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           if (status_rel .and. bra_rel .and. ket_rel) then
             call rel_2e4c_sf (
@@ -754,7 +756,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
           memsize = max(memsize,memdum)
 c
           if (brain.eq.ketin) then
-            memdum = 14 000 000
+            memdum = memmax
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
             if (status_rel .and. (bra_rel .or. ket_rel)) then
               call rel_2e4c_sf (
@@ -788,7 +790,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bb|bk)
 *:debug     write(luout,*)' bbbk ',ibc,ibc,ibc,ikc,memdum
             memsize = max(memsize,memdum)
 c
-            memdum = 14 000 000
+            memdum = memmax
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
             if (status_rel .and. (bra_rel .or. ket_rel)) then
               call rel_2e4c_sf (
@@ -871,15 +873,17 @@ c:tex-\begin{verbatim}
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
 c:tex-\end{verbatim}
+c     NB. On input, memsize contains the (dummy) memory limit for 2e integrals
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
-      integer bra_type, ket_type, memdum
+      integer bra_type, ket_type, memdum, memmax
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
 c
 #include "bas_exndcf_sfn.fh"
 c
+      memmax = memsize
       memsize = 0
       maxg = 0
 c
@@ -924,7 +928,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 14 000 000
+          memdum = memmax
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           call hf2(dbl_mb(mb_exndcf(1,1)),
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
@@ -988,15 +992,17 @@ c:tex-\begin{verbatim}
       integer maxg    ! [output] max size of 2e integrals buffer
       integer memsize ! [output] max size of scratch space for 2e integral evaluation
 c:tex-\end{verbatim}
+c     NB. On input, memsize contains the (dummy) memory limit for 2e integrals
 c::local
       integer bra, ket, bra_ucont, ket_ucont, ibc, ikc
-      integer bra_type, ket_type, memdum
+      integer bra_type, ket_type, memdum, memmax
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
 c
 #include "bas_exndcf_sfn.fh"
 c
+      memmax = memsize
       memsize = 0
       maxg = 0
 c
@@ -1042,7 +1048,7 @@ c
             ket_gen  = 1
           endif
 c
-          memdum = 14 000 000
+          memdum = memmax
 c. . . . . . . . . . . . . . . . . . . . . . . . . . . . coulumb
           call hf2(
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
