@@ -19,7 +19,7 @@ end
 print none
 
 python noprint
-  from util import *
+  from mathutil import *
 
   # It should only be necessary to modify these three lines for 
   # your system ... the exponents will be subsitituted in order
