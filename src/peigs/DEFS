@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.63 1999-11-04 23:16:03 d3g270 Exp $
+# $Id: DEFS,v 1.64 1999-11-13 02:41:20 bjohnson Exp $
 #
 #======================================================================
 #
@@ -377,13 +377,17 @@ peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3 -DDECOSF
 peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF
 endif
 
-ifeq ($(peigs_TARGET),LINUX)
+ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX CYGNUS))
 #
 # Linux running on an x86 using f77 on f2c
 #
 peigs_COMM = TCGMSG
 peigs_CODEOBJ = DBLE
 peigs_CPU = PENTIUM
+ifeq ($(peigs_TARGET),CYGNUS)
+peigs_CC += -DLINUX
+peigs_CPP += -DLINUX
+endif
 peigs_CC += -DSTD_DBL -DSTD_INT
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
