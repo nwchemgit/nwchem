@@ -40,3 +40,28 @@ c
      $     istrt(max_field), inumb(max_field),iwidth,nend(max_field),
      $     nstart(max_field),nline,noline,nerr,oswit,ierrpos, input_line
       common/inp_file/iread,iwrite
+c
+c
+c     This drivel below is to save state so that by doing the following
+c
+c     call inp_save_state
+c
+c     call inp_init
+c
+c     call inp_restore_state
+c
+c     It is possible to go off and read another file without 
+c     destroying the state of the current file.  Note that this
+c     only works ONCE.
+c
+c     Note that all of these commons must match in size the
+c     ones above and that inp_save/restore_state must also be 
+c     consistent
+c
+      character*1 csave
+      integer isave
+      integer fsave
+      common/inp_csave/csave(3*max_width+80+6)
+      common/inp_isave/isave(9+4*max_field)
+      common/inp_fsave/fsave(2)
+c

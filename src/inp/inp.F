@@ -672,3 +672,49 @@ c
       inp_search = .false.
 c
       end
+      subroutine inp_save_state
+#include "inpP.fh"
+c
+      character*1 cdata(1)
+      integer idata(1)
+      integer fdata(1)
+      integer i
+c
+      equivalence (cdata(1),ia)
+      equivalence (idata(1),jrec)
+      equivalence (fdata(1),iread)
+c
+      do i = 1, 3*max_width+80+6
+         csave(i) = cdata(i)
+      enddo
+      do i = 1, 9+4*max_field
+         isave(i) = idata(i)
+      enddo
+      do i = 1, 2
+         fsave(i) = fdata(i)
+      enddo
+c
+      end
+      subroutine inp_restore_state
+#include "inpP.fh"
+c
+      character*1 cdata(1)
+      integer idata(1)
+      integer fdata(1)
+      integer i
+c
+      equivalence (cdata(1),ia)
+      equivalence (idata(1),jrec)
+      equivalence (fdata(1),iread)
+c
+      do i = 1, 3*max_width+80+6
+         cdata(i) = csave(i)
+      enddo
+      do i = 1, 9+4*max_field
+         idata(i) = isave(i)
+      enddo
+      do i = 1, 2
+         fdata(i) = fsave(i)
+      enddo
+c
+      end
