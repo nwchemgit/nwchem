@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.7 2002-03-05 23:23:35 bylaska Exp $
+c $Id: truncating_function.F,v 1.8 2002-03-05 23:25:57 bylaska Exp $
 c
   
 ***********************************************************
@@ -281,7 +281,7 @@ c      integer rho(2),f(2)
          rjj = dsqrt(x*x + y*y + z*z)
          fjj = (1.0d0-(1.0d0-dexp(-(rjj/rrjj)**pp2))**pp)
 
-         T(i) = dabs(fii-fjj)
+         T(i) = 0.5d0*dabs(fii-fjj)
       end do
 
       return
