@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.134 2001-08-19 21:13:37 bjohnson Exp $
+# $Id: GNUmakefile,v 1.135 2001-08-22 22:50:14 edo Exp $
 
 include ../config/makefile.h
 
@@ -100,7 +100,9 @@ ifeq ($(TARGET),DECOSF)
   EXTRA_OBJ = dec_fpe.o
 endif
 ifeq ($(TARGET),LINUX64)
+ifeq ($(_CPU),alpha)
   EXTRA_OBJ += dec_fpe.o
+endif
 endif                                                                           
 
 ifeq ($(TARGET),FUJITSU_VPP)
