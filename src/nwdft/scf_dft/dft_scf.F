@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.213 2001-12-22 02:02:32 edo Exp $
+c     $Id: dft_scf.F,v 1.214 2001-12-22 23:55:12 edo Exp $
 c     
       implicit none
 c
@@ -841,7 +841,9 @@ c
       endif
          etnew=etnew+tdots
 c
-      delta = abs(etold-etnew)
+!      delta = abs(etold-etnew)
+      delta = -etold+etnew
+      Etold = Etnew
 c
 c     check for symmetry breaking
 c
@@ -902,12 +904,12 @@ c
          if (diising)then
             write(LuOut,2)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           -etold+etnew,sqrt(rms(1)),derr(1),current_cpu
+     &           delta,sqrt(rms(1)),derr(1),current_cpu
             if (ipol.eq.2)write(LuOut,3)sqrt(rms(2)),derr(2)
          else
             write(LuOut,22)ndamp,rlshift,
      &           iter, Etnew+Enuc,
-     &           -etold+etnew,sqrt(rms(1)), current_cpu
+     &           delta,sqrt(rms(1)), current_cpu
             if (ipol.eq.2)write(LuOut,23)sqrt(rms(2))
          endif
          call util_flush(LuOut)
@@ -917,7 +919,7 @@ c     ecce ouput
 c
       call ecce_print1 ('iteration counter', mt_int, iter, 1)
       call ecce_print1 ('iterative total energy difference', 
-     &                  mt_dbl, -etold+etnew, 1)
+     &                  mt_dbl, delta, 1)
       call ecce_print1 ('iterative total density difference', 
      &                  mt_dbl, sqrt(rms(1)), 1)
 c

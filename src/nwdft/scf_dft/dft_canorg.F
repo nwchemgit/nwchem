@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.7 2001-12-21 23:08:19 edo Exp $
+c     $Id: dft_canorg.F,v 1.8 2001-12-22 23:55:11 edo Exp $
 c     
       implicit none
 c
@@ -295,7 +295,7 @@ c
       endif        
       if (nodiis)diising = .false.
 c     
-      Etold = Etnew
+!      Etold = Etnew
 c
       lmaxov = lmaxov_sv
       if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
