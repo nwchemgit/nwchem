@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.1 1995-07-29 23:19:46 d3e129 Exp $
+* $Id: vib_vib.F,v 1.2 1995-07-31 06:09:04 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995n      
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -203,10 +203,13 @@ C
      &    ('vib_rdinp ma_pop failed',911)
       return
 99900 continue
-      call errquit('vib_vib: error opening file:'//hess_file,911)
+      write(luout,*)'hess_file => ',hess_file
+      call errquit('vib_vib: error opening file: "hess_file"',911)
 99901 continue
-      call errquit('vib_vib: error reading file:'//hess_file,911)
+      write(luout,*)'hess_file => ',hess_file
+      call errquit('vib_vib: error reading file: "hess_file"',911)
 99902 continue
+      write(luout,*)'hess_file => ',hess_file
       call errquit
-     &    ('vib_vib: unexpected EOF when reading file:'//hess_file,911)
+     & ('vib_vib: unexpected EOF when reading file: "hess_file"',911)
       END
