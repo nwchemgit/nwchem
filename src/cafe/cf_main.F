@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.132 2002-02-22 21:18:32 d3j191 Exp $
+c $Id: cf_main.F,v 1.133 2002-02-27 14:44:54 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1094,6 +1094,7 @@ c
       endif
     4 continue
       if(np.gt.1) call ga_dgop(mcf_43,vsm,3*msm,'+')
+      if(me.eq.0) then
       do 8 i=1,nsm
       w=half/wsm(i) 
       eskc(1,1)=eskc(1,1)+w*vsm(i,1)*vsm(i,1)
@@ -1106,6 +1107,7 @@ c
       eskc(2,3)=eskc(2,3)+w*vsm(i,2)*vsm(i,3)
       eskc(3,3)=eskc(3,3)+w*vsm(i,3)*vsm(i,3)
     8 continue
+      endif
 c
       return
       end
