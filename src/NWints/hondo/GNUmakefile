@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 1998-10-05 21:02:43 windus Exp $
+# $Id: GNUmakefile,v 1.4 1998-10-20 23:43:51 windus Exp $
 
 include ../../config/makefile.h
 
@@ -6,7 +6,11 @@ include ../../config/makefile.h
                  hnd_rt123.o  \
                  hnd_root4.o  \
                  hnd_root5.o  \
-                 hnd_droot.o
+                 hnd_droot.o  \
+                 hnd_1emem.o  \
+                 hnd_init.o   \
+                 hnd_set_acc.o \
+                 hnd_terminate.o 
 
        HEADERS = hnd_whermt.fh \
                  hnd_rys.fh \
