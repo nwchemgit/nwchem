@@ -274,7 +274,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.22 2002-02-12 01:55:10 edo Exp $
+C$Id: util_file_name.F,v 1.23 2002-10-13 06:40:42 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -579,16 +579,7 @@ c     Now get the name of my scratch directory
 c
       call util_directory_name(mine, .true., me)
 c
-      nuse = 0
-c
-#if defined(SP) || defined(SP1) || defined(SP2)
-      if (inp_compare(.true.,mine,'/scratch') .or.
-     $     inp_compare(.true.,mine,
-     $ SCRATCH_DEF_DIR
-     $     )) then
-         nuse = 1
-      endif
-#endif
+      nuse = ga_cluster_nprocs(-1)
 c
       if (nuse .eq. 0) then
 c     

@@ -66,6 +66,14 @@ void FATR util_debug_(Integer *rtdb)
   argv[10] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
+#elif defined(IFCLINUX) && defined(LINUXIA64)
+  argv[6] = "idb";
+  argv[7] = "-pid";
+  argv[8] = pid;
+  argv[9] = path;
+  argv[10] = 0;
+  if (!xterm[0])
+    strcpy(xterm, "/usr/bin/X11/xterm");
 #elif defined(LINUX)
   argv[6] = "gdb";
   argv[7] = path;
