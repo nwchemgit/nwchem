@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.18 1997-11-20 17:36:53 d3e129 Exp $
+# $Id: GNUmakefile,v 1.19 2000-08-01 19:45:48 d3g681 Exp $
 #
 
 
@@ -42,6 +42,14 @@ USES_BLAS = davids.F fcidim.F makeh.F makehs.F makhdb.F tester.F
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+LIB_DEFINES = -DINTEGER_1=byte
+ifeq ($(TARGET),SOLARIS)
+LIB_DEFINES = -DINTEGER_1=byte
+endif
+ifeq ($(TARGET),SOLARIS64)
+LIB_DEFINES = -DINTEGER_1='integer*1'
+endif
 
 ifeq ($(TARGET),CRAY-T3E)
 # vector 3 breaks code in this directory only

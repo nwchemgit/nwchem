@@ -1,13 +1,13 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.6 1997-10-31 23:42:20 d3e129 Exp $
+* $Id: popcnt32.F,v 1.7 2000-08-01 19:45:49 d3g681 Exp $
 *
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       integer i
       selci_popcnt32 = popcnt(i)
 #else
 #include "cbits.fh"
-      byte i(4)
+      INTEGER_1 i(4)
 c
 c     pop count of 32 bit word for sun ... the routine inibit must
 c     be called once before popcnt32 or leadz32 is used ... this
@@ -36,7 +36,7 @@ c
       implicit integer(a-z)
 #include "cbits.fh"
 c
-      byte input(*)
+      INTEGER_1 input(*)
       dimension output(*)
 c
       i4 = 1
@@ -52,33 +52,60 @@ c
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       integer i
       selci_leadz32 = leadz(i)
-#else
-c
+#else 
+c     
 #include "cbits.fh"
-c
-      byte i(4)
-c
+c     
+      INTEGER_1 i(4)
+c     
+      integer longw
+      integer*2 shortw(4)
+      equivalence (longw,shortw)
+      logical olittleendian
+c     
+      shortw(1) = 0
+      longw = 1
+      olittleendian = (shortw(1) .eq. 1)
+c     
 c     leading zero bit count for 32 bit word on sun ... must
 c     call inibit once before using
-c
-      ind = i(1)
-      m = leadzb(ind)
-      if (m.eq.8) then
-         ind = i(2)
-         m = m + leadzb(ind)
-         if (m.eq.16) then
+c     
+      if (olittleendian) then
+         ind = i(4)
+         m = leadzb(ind)
+         if (m.eq.8) then
             ind = i(3)
             m = m + leadzb(ind)
-            if (m.eq.24) then
-               ind = i(4)
+            if (m.eq.16) then
+               ind = i(2)
                m = m + leadzb(ind)
+               if (m.eq.24) then
+                  ind = i(1)
+                  m = m + leadzb(ind)
+               endif
             endif
          endif
+         selci_leadz32 = m
+      else
+         ind = i(1)
+         m = leadzb(ind)
+         if (m.eq.8) then
+            ind = i(2)
+            m = m + leadzb(ind)
+            if (m.eq.16) then
+               ind = i(3)
+               m = m + leadzb(ind)
+               if (m.eq.24) then
+                  ind = i(4)
+                  m = m + leadzb(ind)
+               endif
+            endif
+         endif
+         selci_leadz32 = m
       endif
-      selci_leadz32 = m
-c
+c     
 #endif
-c
+c     
       end
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       subroutine inibit
@@ -86,9 +113,11 @@ c
 #else
       subroutine inibit
 #include "cbits.fh"
-      byte ib(4)
+      INTEGER_1 ib(4)
       integer i
       equivalence (ib, i)
+      integer bytes_per_int
+      logical obigendian
 #ifdef SOLARIS
 c     needed with -stackvar option
       save ib, i
@@ -98,9 +127,17 @@ c
 c
 c     initialise lookup arrays for faster pop-count and leading zero co
 c
+      call util_pack_info(bytes_per_int, obigendian)
+      if (bytes_per_int .ne. 4) call errquit
+     $     ('sorry ... the selected CI has not been ported to 64 bit',0)
+c
       i = 0
       do 10 mm = -128,127,1
-         ib(1) = mm
+         if (obigendian) then
+            ib(1) = mm
+         else
+            ib(4) = mm
+         endif
 c
 c     do pop count using generic 32 bit code
 c
