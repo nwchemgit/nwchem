@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.3 2004-03-29 08:04:07 marat Exp $
+c $Id: cons_input.F,v 1.4 2004-03-30 02:48:09 marat Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -85,6 +85,24 @@ c     ----------------------------
              call cons_add_fixed_atoms(nfp,int_mb(i_tmp_id),rtdb)
            else
              call errquit('cons_input: failed fixed atom input', 0,
+     >        0)
+           end if
+         end if
+c
+      goto 100
+c
+c     unfixed degress of freedom 
+c     ----------------------------
+      else if (inp_compare(.false.,'unfix', test)) then
+        if (.not. inp_a(test))
+     >      call errquit('cons_input: failed to read keyword', 0,
+     >        0)
+         if (inp_compare(.false.,'pos', test)) then
+           status = inp_ilist(max_fp,int_mb(i_tmp_id),nfp)
+           if(status) then
+             call cons_unfix_atoms(nfp,int_mb(i_tmp_id),rtdb)
+           else
+             call errquit('cons_input: failed unfixed atom input', 0,
      >        0)
            end if
          end if

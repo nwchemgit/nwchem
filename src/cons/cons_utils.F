@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.3 2004-03-30 02:24:22 marat Exp $
+c $Id: cons_utils.F,v 1.4 2004-03-30 02:48:09 marat Exp $
       subroutine cons_add_spring(i,j,k,r,rtdb)
       implicit none
 #include "errquit.fh"
@@ -129,9 +129,7 @@ c
       character tag_n*(*) 
       parameter (tag_n = 'cons:fxd_at_n') 
 
-      write(*,*) "fixed atoms before sort",(id(i),i=1,nat)
       call cons_sort_i(nat,id)
-      write(*,*) "fixed atoms after sort",(id(i),i=1,nat)
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
          n0 = 0
       end if
@@ -170,11 +168,87 @@ c
        end do
        n=n0+j
 
-       write(*,*) "fixed atoms clean",(int_mb(i_tmp_id +i-1),i=1,n)
-
        status = rtdb_put(rtdb,tag_n,mt_int,1,n)
        status = status . and. rtdb_put(rtdb,tag_id,
      >     mt_int,n,int_mb(i_tmp_id)) 
+        if(.not.status) call errquit(
+     >     'cons_add_fixed_atoms: unable to get prior harm bonds',
+     >      n, MA_ERR)
+
+      if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_add_fixed_atoms: unable to free h_tmp_id',
+     &    0, MA_ERR)
+
+      end
+
+      subroutine cons_unfix_atoms(nat,id,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "cons_data.fh"
+c     
+      integer nat
+      integer id(nat)
+      integer rtdb
+c
+      logical status
+      integer i,j
+      integer n0
+      integer n
+      integer h_tmp_id,i_tmp_id 
+      
+      character tag_id*(*) 
+      parameter (tag_id = 'cons:fxd_at_id') 
+      character tag_n*(*) 
+      parameter (tag_n = 'cons:fxd_at_n') 
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
+         n=0
+      end if
+      if(n.eq.0) then
+         write(*,*) "nothing to unfix"
+         return
+      end if
+      n = n0
+
+      if ( .not. ma_push_get( MT_INT, n, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_add_fixed_atoms: unable to allocate scratch space',
+     &      n, MA_ERR)
+
+        status = rtdb_get(rtdb,tag_id,
+     >     mt_int,n0,int_mb(i_tmp_id)) 
+        if(.not.status) call errquit(
+     >     'cons_add_fixed_atoms: unable to get prior fixed atoms',
+     >      0, MA_ERR)
+        status =  rtdb_delete(rtdb,tag_id)
+        if(.not.status) call errquit(
+     >     'cons_add_fixed_atoms: unable to delete prior fixed atoms',
+     >      0, MA_ERR)
+
+       do i=1,n0
+        do j=1,nat
+           if(int_mb(i_tmp_id + i-1).eq.id(j)) then
+             int_mb(i_tmp_id + i-1)=-1
+           end if
+        end do
+       end do
+
+       call cons_sort_i(n0,int_mb(i_tmp_id))
+       
+       j=0
+       do i=1,n0
+         if(int_mb(i_tmp_id + i-1).eq.-1) then
+           j=j+1
+         end if
+       end do
+
+
+       status = rtdb_put(rtdb,tag_n,mt_int,1,n-j)
+       status = status . and. rtdb_put(rtdb,tag_id,
+     >     mt_int,n-j,int_mb(i_tmp_id+j)) 
         if(.not.status) call errquit(
      >     'cons_add_fixed_atoms: unable to get prior harm bonds',
      >      n, MA_ERR)
