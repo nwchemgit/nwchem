@@ -1,3 +1,6 @@
+#if defined(FUJITSU_VPP)
+!ocl scalar
+#endif
 #ifndef SECOND_DERIV
       Subroutine xc_becke88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
@@ -7,7 +10,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_becke88.F,v 1.21 2002-01-08 23:42:18 edo Exp $
+C$Id: xc_becke88.F,v 1.22 2003-03-06 20:52:58 edo Exp $
 c
       implicit none
 c      
