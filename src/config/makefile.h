@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.451 2004-04-22 04:31:42 edo Exp $
+# $Id: makefile.h,v 1.452 2004-04-23 19:13:15 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -932,6 +932,7 @@ ifeq ($(TARGET),IBM64)
    COPTIMIZE = -O -qmaxmem=8192
 
     DEFINES = -DIBM -DAIX -DEXTNAME -DPARALLEL_DIAG
+    DEFINES += -DCHKUNDFLW
        LIBPATH += -L/usr/lib -L/lib 
 ifdef USE_INTEGER4
    FOPTIONS += -qintsize=4
@@ -943,8 +944,8 @@ else
    FOPTIONS += -qintsize=8 
    DEFINES  += -DEXT_INT 
 endif
-#  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.ibm64map# IBM claims maxstack and maxdata not needed on 64-bit
   LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc
+  LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
    CORE_LIBS += -llapack $(BLASOPT) -lblas
 
 
