@@ -806,7 +806,9 @@ c
      &       /,' [vwn_1_rpa local rval]] ',
      &       /,' [hcth] ',
      &       /,' [becke97] ',
-     &       /,' [becke97-1] ')
+     &       /,' [becke97-1] ',
+     &       /,' [cpbe96 nonlocal rval]',
+     &       /,' [xpbe96] ')
       call util_flush(6)
       call errquit('xc_input: invalid format', 0)
 c     
