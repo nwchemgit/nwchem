@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.77 2002-02-16 22:58:55 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.78 2002-03-29 22:59:28 d3j191 Exp $
 c
       implicit none
 c
@@ -978,10 +978,10 @@ c     collapse solute
 c     ---------------
 c
       if(card(1:10).eq.'collapsexy') then
-      call pre_collaps(dbl_mb(i_xs),int_mb(i_sfr),msa,nsa,touch,3)
+      call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),msa,nsa,touch,3)
       endif
       if(card(1:9).eq.'collapsez') then
-      call pre_collaps(dbl_mb(i_xs),int_mb(i_sfr),msa,nsa,touch,1)
+      call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),msa,nsa,touch,1)
       endif
 c
 c     remove solvent
