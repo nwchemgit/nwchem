@@ -3,12 +3,13 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.11 2002-03-22 02:31:01 sohirata Exp $
+c     $Id: xc_d2expl.F,v 1.12 2004-03-26 01:59:52 edo Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Acof2, Cmat,
      &     Cmat2, Ccof2, F, Pmat, ff, s, chi, delchi, heschi, d3chi,
      &     curatoms, ncuratoms, ipol, nq, nbf, max_at_bf, GRAD, basis,
-     &     natoms, iniz, ifin, drho, ddelrho, delrho, g_dens, hess, ibf,
+     &     natoms, iniz, ifin, drho, ddelrho, delrho, g_dens, hess, 
+     &     ibf,
      &     rchi_atom, rdelchi_atom, rdens_atom, cetobfr)
 c
 c
@@ -70,7 +71,7 @@ c
 c
 c     Basis Functions & Derivatives
 c
-      double precision chi(nq,nbf), delchi(nq,3,nbf), heschi(nq,6,nbf),
+      double precision chi(nq,nbf), delchi(nq,3,nbf),heschi(nq,6,nbf),
      &                 d3chi(nq,10,nbf)
 c
       integer ibf(nbf)
@@ -138,7 +139,8 @@ c
          if (grad) then
             call dcopy(nq*ipol*9,ddelrho(1,1,1,1,iatcur),1,Ccof2,1)
          endif
-         call xc_cpks_coeff(Acof2,Ccof2,Amat2,Cmat2,Cmat,delrho,3,ipol,
+         call xc_cpks_coeff(Acof2,Ccof2,Amat2,Cmat2,Cmat,delrho,3,
+     I        ipol,
      &        nq,GRAD,.false.)
 c
          do 20 jat = 1, iat
@@ -161,10 +163,10 @@ c
                      do idir = 1, 3
                         do n = 1, nq
                            T(idir,jdir) = T(idir,jdir)
-     &                    + Acof2(n,1,idir)*drho(n,1,jdir,jatcur)
-     &                    + Ccof2(n,1,1,idir)*ddelrho(n,1,1,jdir,jatcur)
-     &                    + Ccof2(n,2,1,idir)*ddelrho(n,2,1,jdir,jatcur)
-     &                    + Ccof2(n,3,1,idir)*ddelrho(n,3,1,jdir,jatcur)
+     &                  + Acof2(n,1,idir)*drho(n,1,jdir,jatcur)
+     &                  + Ccof2(n,1,1,idir)*ddelrho(n,1,1,jdir,jatcur)
+     &                  + Ccof2(n,2,1,idir)*ddelrho(n,2,1,jdir,jatcur)
+     &                  + Ccof2(n,3,1,idir)*ddelrho(n,3,1,jdir,jatcur)
                         enddo
                      enddo
                   enddo
@@ -184,12 +186,12 @@ c
                      do idir = 1, 3
                         do n = 1, nq
                            T(idir,jdir) = T(idir,jdir)
-     &                    + Ccof2(n,1,1,idir)*ddelrho(n,1,1,jdir,jatcur)
-     &                    + Ccof2(n,2,1,idir)*ddelrho(n,2,1,jdir,jatcur)
-     &                    + Ccof2(n,3,1,idir)*ddelrho(n,3,1,jdir,jatcur)
-     &                    + Ccof2(n,1,2,idir)*ddelrho(n,1,2,jdir,jatcur)
-     &                    + Ccof2(n,2,2,idir)*ddelrho(n,2,2,jdir,jatcur)
-     &                    + Ccof2(n,3,2,idir)*ddelrho(n,3,2,jdir,jatcur)
+     &                  + Ccof2(n,1,1,idir)*ddelrho(n,1,1,jdir,jatcur)
+     &                  + Ccof2(n,2,1,idir)*ddelrho(n,2,1,jdir,jatcur)
+     &                  + Ccof2(n,3,1,idir)*ddelrho(n,3,1,jdir,jatcur)
+     &                  + Ccof2(n,1,2,idir)*ddelrho(n,1,2,jdir,jatcur)
+     &                  + Ccof2(n,2,2,idir)*ddelrho(n,2,2,jdir,jatcur)
+     &                  + Ccof2(n,3,2,idir)*ddelrho(n,3,2,jdir,jatcur)
                         enddo
                      enddo
                   enddo
@@ -309,7 +311,7 @@ c
                call get_atom_block(g_dens(ii), basis,
      &                             iat, jat, Pmat, idim, jdim)
 c
-               call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
+               call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja,ifirst, 
      &                      jfirst, ibf(inizia), ibf(inizja))
 c
 c     Three terms to compute
@@ -332,7 +334,7 @@ c
                         if (abs(aaa).gt.tol_rho_tmp)then
                            call daxpy(nq,aaa,chi(1,nu),1,s,1)
                            if (GRAD) then
-                              call daxpy(nq*3,aaa,delchi(1,1,nu),1,ff,1)
+                            call daxpy(nq*3,aaa,delchi(1,1,nu),1,ff,1)
                            endif
                         endif
                      enddo
@@ -340,6 +342,9 @@ c
 c     Prepare coefficient of hessXjat
 c
                      if (GRAD) then
+#ifdef IFCLINUX
+CDIR$ NOVECTOR
+#endif
                         do n = 1, nq
                            ff(n,1) = Amat(n,ii)*s(n)
      &                             + Cmat(n,1,ii)*ff(n,1)
@@ -347,6 +352,9 @@ c
      &                             + Cmat(n,3,ii)*ff(n,3)
                         enddo
                      else
+#ifdef IFCLINUX
+CDIR$ NOVECTOR
+#endif
                         do n = 1, nq
                            ff(n,1) = Amat(n,ii)*s(n)
                         enddo
@@ -419,7 +427,7 @@ c
                         if (abs(aaa).gt.tol_rho_tmp)then
                            call daxpy(nq,aaa,chi(1,mu),1,s,1)
                            if (GRAD) then
-                              call daxpy(nq*3,aaa,delchi(1,1,mu),1,ff,1)
+                            call daxpy(nq*3,aaa,delchi(1,1,mu),1,ff,1)
                            endif
                         endif
                      enddo
@@ -427,6 +435,9 @@ c
 c     Prepare coefficient of hessXiat
 c
                      if (GRAD) then
+#ifdef IFCLINUX
+CDIR$ NOVECTOR
+#endif
                         do n = 1, nq
                            ff(n,1) = Amat(n,ii)*s(n)
      &                             + Cmat(n,1,ii)*ff(n,1)
@@ -434,6 +445,9 @@ c
      &                             + Cmat(n,3,ii)*ff(n,3)
                         enddo
                      else
+#ifdef IFCLINUX
+CDIR$ NOVECTOR
+#endif
                         do n = 1, nq
                            ff(n,1) = Amat(n,ii)*s(n)
                         enddo
