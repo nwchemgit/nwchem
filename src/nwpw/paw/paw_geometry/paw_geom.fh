@@ -1,0 +1,3 @@
+      integer  ion_nion,ion_natm,ion_nkatm,ion_katm
+      external ion_nion,ion_natm,ion_nkatm,ion_katm
+
