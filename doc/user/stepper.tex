@@ -1,5 +1,5 @@
 %
-% $Id: stepper.tex,v 1.12 1998-09-08 18:53:31 d3e129 Exp $
+% $Id: stepper.tex,v 1.13 1999-07-20 19:18:52 d3g681 Exp $
 %
 
 \label{sec:stepper}
@@ -107,12 +107,12 @@ of 0.5, or greater, usually should be entered for \verb+<radius>+.
 \section{{\tt CONVGGM}, {\tt CONVGG} and {\tt CONVGE} --- Convergence criteria}
 
 Three convergence criteria can be specified explicitly for the 
-STEPPER calculations.  The keyword \verb+CONVGGM allows the user to
+STEPPER calculations.  The keyword \verb+CONVGGM+ allows the user to
 specify the convergence tolerance for the largest component of the
 gradient. This is the primary convergence criterion, as per the default
 settings, although all three criteria are in effect. this default setting
 is consistent with the other optimizer module DRIVER. 
-The input line for \verb+CONVGGM has the following form,
+The input line for \verb+CONVGGM+ has the following form,
 \begin{verbatim}
    CONVGGM <real convggm default 8.0d-04>
 \end{verbatim}

@@ -15,7 +15,8 @@ and complicated when presented in its general form, as follows:
            [print [xyz] || noprint] \
            [center || nocenter] \
            [bqbq] \
-           [autoz]
+           [autoz || noautoz] \
+           [adjust]
     
     [SYMMETRY [group] <string group_name> [print] \
            [tol <real tol default 1d-2>]]
@@ -38,9 +39,13 @@ and complicated when presented in its general form, as follows:
      (END || ZEND)]
 
          [ZCOORD
-              <cvr_scaling> <real value>
-              <ij_flag> <list_of_z-coordinate_variables>
-               ...
+              CVR_SCALING <real value>
+              BOND    <integer i> <integer j> \
+                      [<real value>] [<string name>] [constant]
+              ANGLE   <integer i> <integer j> \
+                      [<real value>] [<string name>] [constant]
+              TORSION <integer i> <integer j> <integer k> <integer l> \
+                      [<real value>] [<string name>] [constant]
           END]
    END
 \end{verbatim}
@@ -73,7 +78,8 @@ As described above, the first line of the directive has the general form,
            [bqbq] \
            [print [xyz] || noprint] \
            [center || nocenter] \
-           [autoz]
+           [autoz || noautoz] \
+           [adjust]
 \end{verbatim}
     
 All of the keywords and input on this line are optional.  The following
@@ -135,17 +141,22 @@ list describes  all options and their defaults.
   of the nuclear dipole are zero.  The default is to move the center
   of nuclear charge to the origin.
 
-\item \verb+autoz+ -- keyword to specify that the geometry information
-  supplied with the \verb+GEOMETRY+ directive is to be used {\em only}
-  as the starting geometry, and that NWChem will automatically
-  generate a set of redundant internal coordinates suitable for
-  geometry optimization.  If this keyword is not specified, then by
-  default the Cartesian or Z-matrix parameters provided by the user in
-  the \verb+GEOMETRY+ directive are used in subsequent geometry
-  optimizations.  (See Section \ref{sec:zcoord} for a detailed
-  description of how to use this option, including how to force the
-  definition of specific internal variables in combination with
-  automatically generated variables.)
+\item \verb+noautoz+ -- by default NWChem (release 3.3 and later) 
+  will generate redundant internal coordinates from user input
+  Cartesian coordinates.  The internal coordinates will be used in
+  geometry optimizations.  The \verb+noautoz+ keyword disables use of
+  internal coordinates.  The \verb+autoz+ keyword is provided only for
+  backward compatibility.  See Section \ref{sec:zcoord} for a more
+  detailed description of redundant internal coordinates, including
+  how to force the definition of specific internal variables in
+  combination with automatically generated variables.
+
+\item \verb+adjust+ -- This indicates that an existing geometry is
+  to be adjusted.  Only new input for the redundant internal
+  coordinates may be provided (Section \ref{sec:zcoord}).  It is 
+  not possible to define new centers or to modify the point
+  group using this keyword.  See Section \ref{sec:zcoord} for 
+  an example of its usage.
 \end{itemize}
 
 The following examples illustrate some of the various options that the
@@ -200,12 +211,13 @@ The \verb+SYMMETRY+ directive is optional.  The default is no symmetry
 (i.e., $C_1$ point group). Automatic detection of point
 group symmetry is not yet automated, though this is planned.
 
-Only symmetry-unique atoms should be specified --- the others will be
-generated through the action of the point group operators.  The user
-must know the symmetry of the molecule being modeled, and be able to
-specify the coordinates of the symmetry-unique atoms in a suitable
-orientation relative to the rotation axes and planes of symmetry.
-Appendix \ref{symexamples} lists a number of examples of the
+If only symmetry-unique atoms are specified, the others will be
+generated through the action of the point group operators, but the
+user if free to specify all atoms.  The user must know the symmetry of
+the molecule being modeled, and be able to specify the coordinates of
+the atoms in a suitable orientation relative to the rotation axes and
+planes of symmetry.  Appendix \ref{symexamples} lists a number of
+examples of the
 \verb+GEOMETRY+ directive input for specific molecules having symmetry
 patterns recognized by NWChem.  The exact point group symmetry will be
 forced upon the molecule, and atoms within $10^{-3}$ A.U. of a
@@ -463,26 +475,27 @@ Following the Z-matrix center definitions described above, the user can
 Z-matrix tags.  This is done using the optional  \verb+VARIABLES+ directive,
 which has the general form:
 
+%    <string symbol>  <real value> <real value>
 \begin{verbatim}
   VARIABLES
-    <string symbol>  <real value> <read value>
+    <string symbol>  <real value>
     ...
 \end{verbatim}
 Each line contains the name of a variable followed by its value.
 Optionally, an equals sign (\verb+=+) can be included between the
 symbol and its value, for clarity in reading the input file.
 
-If a second value follows the first value, a second structure gets
-created, built from all the second valued internal coordinates and
-the lone valued internal coordinates for those which are attributed
-only a single vale.  the program will define
-a Linear Synchronous Transit (LST) path between the first structure
-and the second structure ( the initial and final structures respectively).
-A number of structures (11 in total) get created in equal increments
-of the internal coordinates. The set of coordinates get written
-to the file ./xxxx.lst.coord. In an 'LST' task , specified by
-'task <theory> lst', the program calculates the energy of the
-system for all these structures in sequence.
+%If a second value follows the first value, a second structure gets
+%created, built from all the second valued internal coordinates and
+%the lone valued internal coordinates for those which are attributed
+%only a single vale.  the program will define
+%a Linear Synchronous Transit (LST) path between the first structure
+%and the second structure ( the initial and final structures respectively).
+%A number of structures (11 in total) get created in equal increments
+%of the internal coordinates. The set of coordinates get written
+%to the file ./xxxx.lst.coord. In an 'LST' task , specified by
+%'task <theory> lst', the program calculates the energy of the
+%system for all these structures in sequence.
 
 Following the \verb+VARIABLES+ directive, the \verb+CONSTANTS+
 directive may be used to define any Z-matrix symbolic variables that remain
@@ -578,79 +591,84 @@ internal coordinates.  These are arranged as follows:
 \section{{\tt ZCOORD} --- Forcing internal coordinates}
 \label{sec:zcoord}
 
-Specifying the keyword \verb+autoz+ on the first line of the
-\verb+GEOMETRY+ directive forces automatic generation of internal
-coordinates for use in geometry optimizations.  Connectivity is
-inferred by comparing inter-atomic distances with the sum of the van
-der Waals radii of the two atoms involved in a possible bond, times a
-scaling factor. The scaling factor is an input parameter of
-\verb+ZCOORD+ which maybe changed from its default value of 1.2 . Under
-some circumstances ( unusual bonding, bond dissociation, ...) it will
-be necessary to augment the automatically generated list of internal
-coordinates to force some specific internal coordinates to be included
-in among the internal coordinates.  This is accomplished by including
-the optional directive {\tt ZCOORD} within the geometry directive.  The
-general form of the \verb+ZCOORD+ directive is as follows:
+By default redundant internal coordinates are generated for use in
+geometry optimizations.  Connectivity is inferred by comparing
+inter-atomic distances with the sum of the van der Waals radii of the
+two atoms involved in a possible bond, times a scaling factor. The
+scaling factor is an input parameter of \verb+ZCOORD+ which maybe
+changed from its default value of 1.3.  Under some circumstances 
+(unusual bonding, bond dissociation, \ldots) it will be necessary to
+augment the automatically generated list of internal coordinates to
+force some specific internal coordinates to be included in among the
+internal coordinates.  This is accomplished by including the optional
+directive {\tt ZCOORD} within the geometry directive.  The general
+form of the \verb+ZCOORD+ directive is as follows:
 \begin{verbatim}
   ZCOORD
-     [cvr_scaling < real value > ] 
-     [ijbond  <integer i> <integer j>]
-     [ijkang  <integer i> <integer j> <integer k>] 
-     [ijklto  <integer i> <integer j> <integer k> <integer l>] 
-     [ijklop  <integer i> <integer j> <integer k> <integer l>] 
-     [ijklnb  <integer i> <integer j> <integer k> <integer l>] 
+     CVR_SCALING <real value>
+     BOND    <integer i> <integer j> \
+             [<real value>] [<string name>] [constant]
+     ANGLE   <integer i> <integer j> \
+             [<real value>] [<string name>] [constant]
+     TORSION <integer i> <integer j> <integer k> <integer l> \
+             [<real value>] [<string name>] [constant]
   END
 \end{verbatim}
 
-The centers \verb+i+, \verb+j+, \verb+k+ and \verb+l+ {\em must}
-be specified using the numbers of the centers, as supplied in the input
-for the \verb+ZMATRIX+ directive.  
-The \verb+ZCOORD+ input parameters are defined as follows:
+The centers \verb+i+, \verb+j+, \verb+k+ and \verb+l+ {\em must} be
+specified using the numbers of the centers, as supplied in the input
+for the Cartesian coordinates.  The \verb+ZCOORD+ input parameters are
+defined as follows:
 
 \begin{itemize}
 \item {\tt cvr\_scaling} --- scaling factor applied to van der Waals radii.
-\item {\tt ijbond} --- a bond between the two centers.
-\item {\tt ijkang} --- a bond angle $\widehat{ijk}$.
-\item {\tt ijklto} --- a torsion (or dihedral) angle.  The
+\item {\tt bond} --- a bond between the two centers.
+\item {\tt angle} --- a bond angle $\widehat{ijk}$.
+\item {\tt torsion} --- a torsion (or dihedral) angle.  The
   angle between the planes \verb+i-j-k+ and \verb+j-k-l+.
-\item {\tt ijklop} --- an out-of-plane bend.  The angle of center
-  \verb+l+ out of the plane \verb+i-j-k+.
-\item {\tt ijklnb} --- a linear bend.  This defines two angles
-  corresponding to the deformation of the centers \verb+i-j-k+,
-  which may initially be arranged (nearly) linearly.  The center
-  \verb+l+ must not be collinear with \verb+i-j-k+.  The two bends are 
-  constructed to be within and perpendicular to the plane containing 
-  the atoms.
 \end{itemize}   
 
-\section{Freezing coordinates in geometry optimizations}
+A value may be specified for a user-defined internal coordinate, in
+which case it is forced upon the input Cartesian coordinates while
+attempting to make only small changes in the other internal
+coordinates.  If no value is provided the value implicit in the input
+coordinates is kept.  If the keyword \verb+constant+ is specified, then
+that internal variable is not modified during a geometry optimization 
+with DRIVER (Section \ref{sec:driver}).  Each internal coordinate may
+also be named either for easy identification in the output, or
+for the application of constraints (Section \ref{sec:constraints}).
+
+If the keyword \verb+adjust+ is specified on the main \verb+GEOMETRY+
+directive, only \verb+ZCOORD+ data may be specified and it can
+be used to change the user-defined internal coordinates, including
+adding/removing constraints and changing their values.
+
+\section{Applying constraints in geometry optimizations}
 \label{sec:activeatoms}
+\label{sec:constraints}
 
-Internal coordinates may have been specified by means of a user
-defined Z-matrix ( see \verb+ZMATRIX+ directive ) or by automatic
-definition of internal coodinates by the program ( see 
-\verb+AUTOZ+ directive ). Currently it is possible to freeze
-internal coordinates during an energy minimization when they
-have been defined by means of the \verb+ZMATRIX+ directive only.
-( the \verb+AUTOZ+ option defines a redundant set of internal
-coordinates, and in the context of redundant coordinates, the
-code does not know how to freeze selected coordinates yet! ). In
-the contex of the \verb+ZMATRIX+ directive then, internal coordinates
-that have been entered by numerical value, or that have been
-specified by a symbolic name labeled as \verb+CONSTANTS+ will
-be frozen during an energy minimization.
+Internal coordinates specified as constant in a \verb+ZCOORD+ directive
+or in the constants section of a \verb+ZMATRIX+ directive, will be
+frozen at their initial values if a geometry optimization is
+performed with DRIVER (Section \ref{sec:driver}).
 
-When atoms have been specified by their cartesian coordinates, it
-is possible to freeze the cartesian position of selected atoms.
-This is useful for such purposes as optimizing a molecule
-absorbed on the surface of a cluster with fixed geometry.  Only the
-gradients associated with the active atoms are computed.  This can
-result in a big computational saving, since gradients associated with
-frozen atoms are forced to zero (Note, however, that this destroys the
-translational and rotational invariance of the gradient.  This is not
-yet fully accommodated by the STEPPER geometry optimization software,
-and can sometimes result in slower convergence of the optimization.
-The DRIVER optimization package does not suffer from this problem).
+If internal coordinates have then same name (give or take 
+an optional sign for torsions) then they are forced to have 
+the same value.  This may be used to force bonds or angles to
+be equal even if they are not related by symmetry.
+
+When atoms have been specified by their cartesian coordinates, {\em
+and} internal coordinates are not being used, it is possible to freeze
+the cartesian position of selected atoms.  This is useful for such
+purposes as optimizing a molecule absorbed on the surface of a cluster
+with fixed geometry.  Only the gradients associated with the active
+atoms are computed.  This can result in a big computational saving,
+since gradients associated with frozen atoms are forced to zero (Note,
+however, that this destroys the translational and rotational
+invariance of the gradient.  This is not yet fully accommodated by the
+STEPPER geometry optimization software, and can sometimes result in
+slower convergence of the optimization.  The DRIVER optimization
+package does not suffer from this problem).
 
 The \verb+SET+ directive (Section \ref{sec:set}) is used to freeze
 atoms, by specifying a directive of the form:

@@ -17,94 +17,233 @@ Optional input for this module is specified within the compound
 directive,
 \begin{verbatim}
   DRIVER 
-    ...
+    (LOOSE || DEFAULT || TIGHT)
+    GMAX <real value>
+    GRMS <real value>
+    XMAX <real value>
+    XRMS <real value>
+
+    EPREC <real eprec default 1e-7>
+
+    TRUST <real trust default 0.3>
+    SADSTP <real sadstp default 0.1>
+
+    CLEAR
+    REDOAUTOZ
+
+    INHESS <integer inhess default 0>
+
+    (MODDIR || VARDIR) <integer dir default 0>
+    (FIRSTNEG || NOFIRSTNEG)
+
+    MAXITER <integer maxiter default 20>
+
+    BSCALE <real BSCALE default 1.0>
+    ASCALE <real ASCALE default 0.25>
+    TSCALE <real TSCALE default 0.1>
+    HSCALE <REAL HSCALE default 1.0>
   END
-\end{verbatim}
-
-Input specified for the DRIVER module may appear anywhere in the input
-file preceding the \verb+TASK+ directive performing the optimization.
-In the current version of NWChem, DRIVER uses geometries that are
-defined via Cartesian coordinates or internal coordinates. The latter
-may be user-defined with the Z-matrix input (Section
-\ref{sec:Z-matrix}) or may be automatically generated using the
-\verb+AUTOZ+ option (Section \ref{sec:geomkeys}).  The initial guess
-nuclear Hessian is the identity matrix and there is an ASCII interface
-file to input a Hessian from another code.  The automatic generation
-of finite difference Hessians will be available soon. When internal
-coordinates are selected an appropriate initial Hessian matrix is
-automatically created to match the internal coordinate definition.
-
-Execution of the DRIVER module calculation is invoked with a
-\verb+TASK+ directive (see Section \ref{sec:task}).
-
-No input is required for DRIVER.  If no input is present the default
-actions are to minimize the energy as a function of the geometry with a
-maximum of 20 stepper iterations.
-
-\section{{\tt NPTOPT} --- Maximum number of steps}
-
-\begin{verbatim}
-  NPTOPT  <integer nptopt  default 20>
-\end{verbatim}
-
-The value specified for the integer \verb+<nptopt>+ defines the maximum 
-number of geometry optimization steps.  
-
-\section{{\tt CVGOPT} --- Convergence criterion}
-
-\begin{verbatim}
-  CVGOPT  <real cvgopt  default 0.0008>
-\end{verbatim}
- 
-The value specified for the real \verb+<cvgopt>+ defines the convergence
-threshold of the optimization algorithm. The convergence criterion is
-the largest component of the energy gradient for the coordinates used
-in the optimization ( Cartesian or internal coordinates ).
-
-\section{{\tt LINOPT} --- Linear search}
-
-\begin{verbatim}
-  LINOPT  <integer linopt  default 10>
-\end{verbatim}
-
-The value specified for the integer \verb+<linopt>+ defines the maximum 
-number of energy points during any linear search. 
-
-\section{{\tt INHESS} and {\tt MODUPD} --- Hessian update algorithm}
-
-\begin{verbatim}
-  INHESS  <integer inhess  default 0>
-\end{verbatim}
-
-\begin{verbatim}
-  MODUPD  <integer modupt  default 1>
 \end{verbatim}
 
 \sloppy
 
-The value specified for the integer \verb+<modupd>+ defines the
-Hessian update algorithm, Fle\-tcher-Powell update (\verb+<modupd> = 0+)
-or Broy\-den-Fle\-tcher-Gold\-farb-Shanno update (\verb+<modupd> = 1+)
-
-\section{{\tt MODSAD} --- Optimization mode}
+\section{Convergence criteria}
 
 \begin{verbatim}
-  MODSAD  <integer modsad  default 0>
+    (LOOSE || DEFAULT || TIGHT)
+    GMAX <real value>
+    GRMS <real value>
+    XMAX <real value>
+    XRMS <real value>
 \end{verbatim}
 
-The value specified for the integer \verb+modsad+ defines the type of
-optimization to be performed, an energy minimization (\verb+<modsad> =
-0+) or a transition state optimization (\verb+<modsad> = 1+).
-
-\section{{\tt MODDIR} --- Normal mode selection}
+ In version 3.3 Gaussian-style convergence criteria have been
+adopted.  The defaults may be, or the directives \verb+LOOSE+,
+\verb+DEFAULT+, or \verb+TIGHT+ specified to use standard values, or
+the individual criteria adjusted.  All criteria are in atomic units.
+\verb+GMAX+ and \verb+GRMS+ control the maximum and root mean square
+gradient in the coordinates being used (Z-matrix, redundant internals,
+or Cartesian).  \verb+XMAX+ and \verb+XRMS+ control the maximum and
+root mean square of the Cartesian step.
 
 \begin{verbatim}
-  MODDIR  <integer moddir  default 1>
+                  LOOSE    DEFAULT    TIGHT
+         GMAX   0.0045d0   0.00045   0.000015   
+         GRMS   0.0030d0   0.00030   0.00001
+         XMAX   0.0054d0   0.00018   0.00006
+         XRMS   0.0036d0   0.00012   0.00004
 \end{verbatim}
 
-The value specified for the integer \verb+moddir+ defines    
-which normal mode of displacement to follow initially in the
-transition state search.
+The old criterion may be recovered with the input
+\begin{verbatim}
+   gmax 0.0008; grms 1; xrms 1; xmax 1
+\end{verbatim}
+
+\section{Available precision}
+
+\begin{verbatim}
+    EPREC <real eprec default 1e-7>
+\end{verbatim}
+
+In performing a line search the optimizer must know the
+precision of the energy (this has nothing to
+do with convergence criteria).  The default value
+of 1e-7 should be adjusted if less, or more, precision
+is available.
+
+\section{Controlling the step length}
+
+\begin{verbatim}
+    TRUST <real trust default 0.3>
+    SADSTP <real sadstp default 0.1>
+\end{verbatim}
+
+A fixed trust radius (\verb+trust+) is used to control the step during
+minimizations, and is also used for modes being minimized during
+saddle-point searches.  It defaults to 0.3 for minimizations and 0.1
+for saddle-point searches.  The parameter \verb+sadstp+ is the trust
+radius used for the mode being maximized during a saddle-point search.
+
+\section{Maximum number of steps}
+
+\begin{verbatim}
+    MAXITER <integer maxiter default 20>
+\end{verbatim}
+
+By default at most 20 geometry optimization steps will be taken
+but this may be modified with this directive.
+
+\section{Discard restart information}
+\begin{verbatim}
+    CLEAR
+\end{verbatim}
+
+By default Driver reuses Hessian information from a previous
+optimization and to facilitate a restart also stores which mode is
+being followed for a saddle-point search.  This option deletes all
+restart data.
+
+\section{Regenerate internal coordinates}
+
+\begin{verbatim}
+    REDOAUTOZ
+\end{verbatim}
+
+Deletes Hessian data and regenerates internal coordinates at the
+current geometry.  Useful if there has been a large change in the
+geometry that has rendered the current set of coordinates invalid or
+non-optimal.
+
+\section{Initial Hessian}
+\begin{verbatim}
+    INHESS <integer inhess default 0>
+\end{verbatim}
+
+\begin{itemize}
+\item  0 = Default ... use restart data if available, otherwise use diagonal guess.
+\item  1 = Use diagonal initial guess.
+\item  2 = Use restart data if available, otherwise transform
+Cartesian Hessian from previous frequency calculation.
+\end{itemize}
+
+
+In addition, the diagonal elements of the initial Hessian for
+internal coordinates may be scaled using separate factors for
+bonds, angles and torsions with the following
+\begin{verbatim}
+    BSCALE <real bscale default 1.0>
+    ASCALE <real ascale default 0.25>
+    TSCALE <real tscale default 0.1>
+\end{verbatim}
+These values typically give a two-fold speedup over unit values, based
+on about 100 test cases up to 15 atoms using 3-21g and 6-31g* SCF.
+However, if doing many optimizations on physically similar systems it
+may be worth fine tuning these parameters.
+
+Finally, the entire Hessian from any source may be scaled
+by a factor using the directive
+\begin{verbatim}
+    HSCALE <real hscale default 1.0>
+\end{verbatim}
+It might be of utility, for instance, when computing an initial
+Hessian using SCF to start a large MP2 optimization.  The SCF
+vibrational modes are expected to be stiffer than the MP2, so scaling
+the initial Hessian by a number less than one might be beneficial.
+
+
+\section{Mode or variable to follow to saddle point}
+
+\begin{verbatim}
+    (MODDIR || VARDIR) <integer dir default 0>
+    (FIRSTNEG || NOFIRSTNEG)
+\end{verbatim}
+
+When searching for a transition state the program, by default,
+will take an initial step uphill and then do mode following
+using a fuzzy maximum overlap (the lowest eigen-mode with an
+overlap with the previous search direction of 0.7 times the
+maximum overlap is selected).  Once a negative eigen-value
+is found, that mode is followed regardless of overlap.
+
+The initial uphill step is appropriate if the gradient points roughly
+in the direction of the saddle point, such as might be the case if a
+constrained optimization was performed at the starting geometry.
+Alternatively, the initial search direction may be chosen to be along
+a specific internal variable (using the directive
+\verb+VARDIR+) or along a specific eigen-mode (using \verb+MODDIR+).
+Following a variable might be valuable if the initial gradient is
+either very small or very large.  Note that the eigen-modes in the
+optimizer have next-to-nothing to do with the output from a frequency
+calculation.  You can examine the eigen-modes used by the optimizer
+with
+
+\begin{verbatim}
+         driver; print hvecs; end
+\end{verbatim}
+
+The selection of the first negative mode is usually a good choice if
+the search is started in the vicinity of the transition state and the
+initial search direction is satisfactory.  However, sometimes the
+first negative mode might not be the one of interest (e.g., transverse
+to the reaction direction).  If \verb+NOFIRSTNEG+ is specified, the
+code will not take the first negative direction and will continue doing
+mode-following until that mode goes negative.
+
+\section{Print options}
+
+The UNIX command \verb+"egrep '^@' < output"+ will extract a pretty
+table summarizing the optimization.
+
+If you specify the NWChem input
+\begin{verbatim}
+      scf; print none; end
+      driver; print low; end
+      task scf optimize
+\end{verbatim}
+you'll obtain a pleasantly terse output.
+
+For more control, these options for the standard print directive are
+recognized
+\begin{itemize}
+\item \verb+debug+   - prints a large amount of data.  Don't use in parallel.
+\item \verb+high+    - print the search direction in internals
+\item \verb+default+ - prints geometry for each major step (not during
+                the line search), gradient in internals (before
+                and after application of constraints)
+\item \verb+low+     - prints convergence and energy information.  At 
+                convergence prints final geometry, change in internals
+                from initial geometry
+\end{itemize}
+and these specific print options
+\begin{itemize}
+\item      finish (low)      - print geometry data at end of calculation
+\item      bonds  (default)  - print bonds at end of calculation
+\item      angles (default)  - print angles at end of calculation
+\item      hvecs  (never)    - print eigen-values/vectors of the Hessian
+\item      searchdir (high)  - print the search direction in internals
+\item      'internal gradient' (default) - print the gradient in internals
+\item      sadmode (default) - print the mode being followed to the saddle point
+\end{itemize}
 
 \fussy
 
