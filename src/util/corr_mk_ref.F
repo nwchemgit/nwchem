@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.11 2003-02-20 01:26:28 mhackler Exp $
+C     $Id: corr_mk_ref.F,v 1.12 2003-02-20 22:52:55 edo Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -340,7 +340,8 @@ C     $     'freeze by atoms'
 C      Write (Key2, '(a,'':'',a)') Mod(1:MLen), 'frozen core'
 C      If ( RTDB_Get(RTDB, Key(1:Inp_StrLen(Key)), MT_Log, 1,
 C     $     Status) ) Then
-C         If (.NOT. Geom_Num_Core(Geom, NFrzOcc) ) Call ErrQuit(
+C         If (.NOT. Geom_Num_Core(rtdb,Geom, mod,NFrzOcc) ) 
+C     .       Call ErrQuit(
 C     $        'corr_mk_ref: problem with geom_num_core', 0)
 C      ElseIf ( RTDB_Get(RTDB, Key2(1:Inp_StrLen(Key2)), MT_Int, 1,
 C     $        NFrzOcc) ) Then
@@ -360,7 +361,8 @@ C
       Write (Key2, '(a,'':'',a)') Mod(1:MLen), 'frozen virtual'
       If ( RTDB_Get(RTDB, Key(1:Inp_StrLen(Key)), MT_Log, 1,
      $     Status) ) Then
-         If (.NOT. Geom_Num_Core(Geom, NFrzVir) ) Call ErrQuit(
+         If (.NOT. Geom_Num_Core(rtdb,Geom,mod,NFrzVir) ) 
+     C        Call ErrQuit(
      $        'corr_mk_ref: problem with geom_num_core', 0)
       ElseIf ( RTDB_Get(RTDB, Key2(1:Inp_StrLen(Key2)), MT_Int, 1,
      $        NFrzVir) ) Then

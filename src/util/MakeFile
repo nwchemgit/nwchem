@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.20 2003-02-07 00:36:57 edo Exp $	
+#	$Id: MakeFile,v 1.21 2003-02-20 22:52:55 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -105,6 +105,7 @@ OBJ =          $(OBJDIR)\output.obj \
                $(OBJDIR)\util_debug.obj \
                $(OBJDIR)\util_erf.obj \
                $(OBJDIR)\bead_list.obj \
+               $(OBJDIR)\ga_extra.obj \
                $(EXTRA_OBJ)
 
 HEADERS =      util.fh \
