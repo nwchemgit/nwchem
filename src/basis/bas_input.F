@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.31 1997-04-02 19:38:20 d3g681 Exp $
+c $Id: bas_input.F,v 1.32 1997-05-03 18:44:38 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -42,16 +42,13 @@ c::local
       integer nopt
       parameter (nopt = 10)
       character*10 opts(nopt)
-      integer num_main_dir
-      parameter (num_main_dir=2)     ! basis or ecp
-      character*5 main_directives(num_main_dir)
       character*255 test, name, filename, standard, ecpname
+      character*1000 errmsg
       logical status, ospherical, osegment, oprint, o_add_ecpname
       logical oIs_ecp
       integer ind, basis
       logical bas_add_ucnt_init, bas_set_spherical
       external bas_add_ucnt_init, bas_set_spherical
-      data main_directives /'basis','ecp  '/
       data opts /'spherical', 'cartesian', 'segment', 'nosegment',
      $     'library', 'file', 'print', 'noprint', 'ecpset', 'version'/
 c
@@ -68,7 +65,6 @@ c
       if (.not.status) goto 10000
 *:debug-s
 *debug:      write(luout,*)' debug output - start'
-*debug:      write(luout,*)' main directives - ',main_directives
 *debug:      write(luout,*)'      test?        ',test
 *debug:      write(luout,*)' oIs_ecp is        :',oIs_ecp
 *debug:      write(luout,*)' debug output - end  '
@@ -148,8 +144,9 @@ c
 00900    o_add_ecpname = .true.
          if (.not. inp_a(ecpname)) goto 10000
          if (oIs_ecp) then 
-           call errquit('bas_input: you are attaching an ecp to '//
-     &         'an ecp basis.  Not possible', 911)
+           errmsg = 'bas_input: you are attaching an ecp to '
+           errmsg = errmsg//'an ecp basis.  Not possible'
+           call errquit(errmsg, 911)
          endif
          goto 10
 c
@@ -219,7 +216,7 @@ c
       return
 c
 10000 write(6,10001)
-10001 format(' basis|ecp [<name>] [library <standard set>] \\'/
+10001 format(' basis|ecp [<name>] [library <standard set>] \\',/,
      $    '       [file <filename>] [spherical|cartesian] [segment]\\'
      &    '       [print|noprint] [ecp name_of_ecp]')
       call errquit('bas_input: invalid format for basis directive', 0)
@@ -374,17 +371,19 @@ c
  9000 return
 c
 10000 write(6,1)
- 1    format(' basis directive body format is:'/
-     $       '       tag library <standard set> [file <filename>]'/
-     $       '       tag <contraction type>'/
-     $       '           <exponent> <contraction coefficients>'/
-     $       '           ... '/
-     $       ' end basis'///'or'/' ecp directive body format is:'/
-     $       '       tag library <standard set> [file <filename>]'/
-     $       '       tag nelec <number of electrons replaced on tag>'/
-     $       '       tag <contraction type>'/
-     $       '           <exponent> <contraction coefficients>'/
-     $       '           ... '/
+ 1    format(' basis directive body format is:',/,
+     $       '       tag library <standard set> [file <filename>]',/,
+     $       '       tag <contraction type>',/,
+     $       '           <exponent> <contraction coefficients>',/,
+     $       '           ... ',/,
+     $       ' end basis',/,/,/,'or',/,
+     &       ' ecp directive body format is:',/,
+     $       '       tag library <standard set> [file <filename>]',/,
+     $       '       tag nelec <number of electrons ',
+     &            'replaced on tag>',/,
+     $       '       tag <contraction type>',/,
+     $       '           <exponent> <contraction coefficients>',/,
+     $       '           ... ',/,
      $       ' end ecp')
       call errquit('bas_input_body: format error in the input', 0)
 c
@@ -412,6 +411,7 @@ c
       integer cont_max          ! Max. no. of contractions
       integer prim_max          ! Max. no. of primitives
       logical status
+      character*1000 errmsg
       logical rex_okay
       logical ostat_f, ostat_field, ostat_split
       parameter (cont_max = 30, prim_max = 30)
@@ -433,10 +433,11 @@ c
       endif
 c
       if (ngen .lt. 1) goto 10000
-      if (ngen .gt. cont_max) call errquit
-     $    ('bas_input_cont: '//
-     &    'too many contractions - increase cont_max',
-     $     cont_max)
+      if (ngen .gt. cont_max) then
+        errmsg = 'bas_input_cont: '//
+     &        'too many contractions - increase cont_max'
+        call errquit(errmsg,cont_max)
+      endif
       if ((.not.oIs_ecp).and.(l_value.eq.-1 .and. ngen.ne.2))
      &    call errquit
      &    ('bas_input_cont: sp shell requires exactly 2 coeffs',ngen)
@@ -559,10 +560,10 @@ c
       return
 c
 10000 write(6,1)
- 1    format(' basis/ecp contraction format is:'/
-     $       '       tag <contraction type>'/
-     $       '           <exponent> <contraction coefficients>'/
-     $       '           ... '/
+ 1    format(' basis/ecp contraction format is:',/,
+     $       '       tag <contraction type>',/,
+     $       '           <exponent> <contraction coefficients>',/,
+     $       '           ... ',/,
      $       ' end basis/ecp')
       call errquit('bas_input_body: format error in the input', 0)
 c
