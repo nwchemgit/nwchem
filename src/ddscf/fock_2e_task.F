@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.28 1997-12-08 19:44:11 d3g681 Exp $
+c     $Id: fock_2e_task.F,v 1.29 1998-01-14 10:27:19 d3e129 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -428,7 +428,7 @@ c
          lenscr = maxscr
       end if
       leneri = max(maxeri,maxg)
-      lenlab = 4*maxeri
+      lenlab = 4*leneri
       if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
      $     call errquit('fock_txs: no room for eri',leneri)
       if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))

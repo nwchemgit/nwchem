@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.28 1997-12-08 19:44:09 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.29 1998-01-14 10:27:17 d3e129 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -660,7 +660,7 @@ c
          lenscr = maxscr
       end if
       leneri = max(maxeri,maxg)
-      lenlab = 4*maxeri
+      lenlab = 4*leneri
 c
       if (util_print('fock_rep_txs', print_never)) then
          write(6,11) nq, lenscr, leneri
