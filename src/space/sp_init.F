@@ -1,5 +1,5 @@
       subroutine sp_start(lfntop,filtop,lfnrst,filrst,rsht,rlng,rinp,
-     + npxi,npyi,npzi,nbxi,nbyi,nbzi,bxminx,bxminy,bxminz,
+     + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps)
@@ -11,13 +11,16 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
+      logical sp_diffbb
+      external sp_diffbb
+c
       integer lfntop,lfnrst
       character*255 filtop,filrst
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
-      real*8 temp,tempw,temps,bxminx,bxminy,bxminz
+      real*8 temp,tempw,temps,fld
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,lbp,fld,npbt,nbxt
+      integer lenscr,ldb,lbp,npbt,nbxt
       logical lpol,lfre
 c
       integer i,j
@@ -47,9 +50,8 @@ c
       npy=npyi
       npz=npzi
 c
-      bxmin=bxminx
-      bymin=bxminy
-      bzmin=bxminz
+      mbbl=0
+      nbbdif=-1
 c
       call sp_nrnode()
 c
@@ -62,7 +64,12 @@ c
       call sp_initip(int_mb(i_iown),int_mb(i_ipl))
 c
       call sp_numbb(int_mb(i_iown),dbl_mb(i_boxs))
-      call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
+c
+      if(.not.ma_push_get(mt_int,6*maxbox,'rng',l_rng,i_rng))
+     + call errquit('Failed to allocate rng',me)
+c
+      if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng)))
+     + call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
 c
       lenscr=3*max(mwm*mwa,msa)
       if(.not.ma_push_get(mt_dbl,lenscr,'x',l_x,i_x))
@@ -115,6 +122,8 @@ c
      + call errquit('Failed to deallocate v',0)
       if(.not.ma_pop_stack(l_x))
      + call errquit('Failed to deallocate x',0)
+      if(.not.ma_pop_stack(l_rng))
+     + call errquit('Failed to deallocate rng',0)
 c
       nwmi=nwm
       nwai=nwa
@@ -171,6 +180,7 @@ c
 c
       character*1 cdum
       integer i,j,jdum,ibx,iby,ibz,itemp(9)
+      real*8 rtemp(4)
 c
       mbbl=0
 c
@@ -202,6 +212,9 @@ c
       close(unit=lfnrst,status='keep')
 c
       bsize=max(rshort,half*rlong,rbox)
+      bxmin=bsize
+      bymin=bsize
+      bzmin=bsize
 c
       if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
@@ -215,19 +228,19 @@ c
       if(nbx.lt.npx) then
       i=npx/nbx
       if(mod(npx,nbx).gt.0) i=i+1
-      bsize=min(bsize,box(1)/dble(i))
+      bxmin=min(bsize,box(1)/dble(i))
       nbx=npx
       endif
       if(nby.lt.npy) then
       i=npy/nby
       if(mod(npy,nby).gt.0) i=i+1
-      bsize=min(bsize,box(2)/dble(i))
+      bymin=min(bsize,box(2)/dble(i))
       nby=npy
       endif
       if(nbz.lt.npz) then
       i=npz/nbz
       if(mod(npz,nbz).gt.0) i=i+1
-      bsize=min(bsize,box(3)/dble(i))
+      bzmin=min(bsize,box(3)/dble(i))
       nbz=npz
       endif
 c
@@ -243,8 +256,12 @@ c
       itemp(7)=nbz
       itemp(8)=npbtyp
       itemp(9)=nbxtyp
+      rtemp(1)=bsize
+      rtemp(2)=bxmin
+      rtemp(3)=bymin
+      rtemp(4)=bzmin
       call ga_brdcst(mrg_d01,itemp,ma_sizeof(mt_int,9,mt_byte),0)
-      call ga_brdcst(mrg_d04,bsize,ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mrg_d04,rtemp,ma_sizeof(mt_dbl,4,mt_byte),0)
       call ga_brdcst(mrg_d05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
       call ga_brdcst(mrg_d05,vlat,ma_sizeof(mt_dbl,9,mt_byte),0)
       nwm=itemp(1)
@@ -256,6 +273,10 @@ c
       nbz=itemp(7)
       npbtyp=itemp(8)
       nbxtyp=itemp(9)
+      bsize=rtemp(1)
+      bxmin=rtemp(2)
+      bymin=rtemp(3)
+      bzmin=rtemp(4)
       endif
 c
       boxh(1)=half*box(1)
@@ -958,12 +979,13 @@ c
       integer ibx,iby,ibz,ipx,ipy,ipz,ibox,inode
       integer jbx,jby,jbz,kbx,kby,kbz,jpx,jpy,jpz
       integer ilx,ihx,ily,ihy,ilz,ihz
-      integer jbox,jnode,mbblb
+      integer jbox,jnode,mbblb,mbblp
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
 c
 c     determine size of box-box pairlist
 c     ----------------------------------
 c
+      mbblp=mbbl
       mbbl=0
       mbblb=0
       do 1 ibx=0,nbx-1
@@ -1106,12 +1128,16 @@ c
 c
       mbbl=mbbl+1
       if(mbblb+1.gt.mbbl) mbbl=mbblb+1
-cx      if((loadb.ge.2.or.npprev.gt.0).and.mbblb+1.gt.mbbl) mbbl=mbblb+1
 c
 c     allocate memory for the box-box list
 c
+      if(mbblp.eq.0) then
       if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
      + call errquit('Failed to allocate memory for bb',0)
+      else
+      if(mbbl.gt.mbblp)
+     + call errquit('lbbl increased beyond allocated memory',me)
+      endif
 c
       return
       end

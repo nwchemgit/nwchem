@@ -1473,7 +1473,8 @@ c
 c
       integer l_dlb,i_dlb,i_nod,l_nod,i_nen,l_nen,i_lst,l_lst
 c
-      return
+      if(loadb.eq.0) return
+c
       if(.not.ma_push_get(mt_int,np,'nod',l_nod,i_nod))
      + call errquit('Failed to allocate nod',me)
       if(.not.ma_push_get(mt_int,np,'lst',l_lst,i_lst))
@@ -1486,9 +1487,6 @@ c
       call sp_dldbal(syntim,int_mb(i_nod),int_mb(i_lst),int_mb(i_nen),
      + int_mb(i_bb),dbl_mb(i_dlb))
 c
-      if(.not.ma_verify_allocator_stuff())
-     + call errquit('ma problems in sp_dldbal',me)
-c
       if(.not.ma_pop_stack(l_dlb))
      + call errquit('Failed to deallocate dlb',me)
       if(.not.ma_pop_stack(l_nen))
@@ -1498,24 +1496,11 @@ c
       if(.not.ma_pop_stack(l_nod))
      + call errquit('Failed to deallocate nod',me)
 c
-      print*,'maxbox=',maxbox
-      if(.not.ma_push_get(mt_int,6*maxbox,'lst',l_lst,i_lst))
-     + call errquit('Failed to allocate lst',me)
+      if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng))) then
+      call sp_numbb(int_mb(i_iown),dbl_mb(i_boxs))
+      call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
+      endif
 c
-c      if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_lst))) then
-c
-      if(.not.ma_verify_allocator_stuff())
-     + call errquit('ma problems in sp_diffbb',me)
-c      call sp_numbb(int_mb(i_iown),dbl_mb(i_boxs))
-      if(.not.ma_verify_allocator_stuff())
-     + call errquit('ma problems in sp_numbb',me)
-c      call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
-      if(.not.ma_verify_allocator_stuff())
-     + call errquit('ma problems in sp_listbb',me)
-c      endif
-c
-      if(.not.ma_pop_stack(l_lst))
-     + call errquit('Failed to deallocate 2nd lst',me)
       return
       end
       subroutine sp_dldbal(syntim,nod,nlst,nen,lbbl,dlb)
@@ -1530,7 +1515,7 @@ c
       integer lbbl(mbbl,mbb2)
       real*8 syntim,synsum,dlb(np),factor
 c
-      integer i,j,k,n,ibusy,ifrom,ito
+      integer i,j,k,n,ibusy
 c
 c     broad cast times
 c
@@ -1543,6 +1528,7 @@ c
 c
       call ga_dgop(mrg_d03,dlb,np,'+')
       call ga_dgop(mrg_d03,synsum,1,'+')
+      if(synsum.lt.1.0d-5) return
 c
 c     count load balancing steps with increasing synsum
 c
@@ -1574,7 +1560,6 @@ c
       return
       endif
 c
-c
 c     order node list
 c
       do 3 i=1,np-1
@@ -1594,6 +1579,7 @@ c
       do 6 j=1,26
       nen(i,j)=0
     6 continue
+      nlst(i)=-1
     5 continue
       do 7 i=1,nbbl
       do 8 j=1,n
@@ -1631,7 +1617,7 @@ c
 c
 c     cascade box-box pairs
 c
-      call sp_cascad(nen,int_mb(i_bb),ifrom,ito)
+      call sp_cascad(nen,int_mb(i_bb))
 c
       return
       end
@@ -1734,7 +1720,7 @@ c
 c
       return
       end
-      subroutine sp_cascad(ltran,lbbl,ifr,ito)
+      subroutine sp_cascad(ltran,lbbl)
 c
       implicit none
 c
@@ -1743,7 +1729,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer ltran(np,3),lbbl(mbbl,mbb2),ifr,ito
+      integer ltran(np,3),lbbl(mbbl,mbb2)
 c
       integer i,j,ltemp,ntargt
 c
@@ -1751,17 +1737,15 @@ c     load balancing based on cascade box-list redistribution
 c     -------------------------------------------------------
 c
       do 1 i=1,np
-      if(i.ne.me+1) then
       ltran(i,2)=0
       ltran(i,3)=0
-      endif
     1 continue
 c
       ntargt=ltran(me+1,1)
       ltran(me+1,2)=-1
       ltran(me+1,3)=-1
 c
-      if(ntargt.gt.0) then
+      if(ntargt.ge.0) then
       do 2 i=1,nbbl
       if(lbbl(i,1).eq.ntargt) then
       ltran(me+1,2)=lbbl(i,2)
@@ -1814,16 +1798,6 @@ c
     8 continue
       if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
-      ifr=-1
-      ito=-1
-      do 10 i=1,np
-      if(ltran(i,2).lt.0) ltran(i,1)=-1
-      if(ltran(i,1).gt.0.and.ifr.lt.0) then
-      ifr=i-1
-      ito=ltran(i,1)
-      endif
-   10 continue
-c
       return
       end
       logical function sp_diffbb(boxsiz,ibxrng)
@@ -1834,7 +1808,7 @@ c
 c
       integer ibxrng(maxbox,3,2)
       real*8 boxsiz(maxbox,3)
-      integer i,ib,j,k,num,nbbdif
+      integer i,ib,j,k,num
       real*8 rd
 c
 c     temporarily skip for non-rectangular boxes
@@ -1850,7 +1824,7 @@ c
       do 1 k=1,2
       do 2 j=1,3
       do 3 i=1,maxbox
-      ibxrng(i,j,k)=0
+      ibxrng(i,j,k)=-1
     3 continue
     2 continue
     1 continue
