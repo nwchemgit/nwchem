@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.37 2005-01-26 23:57:22 bylaska Exp $
+* $Id: ion.F,v 1.38 2005-01-27 00:33:42 bylaska Exp $
 *
 
 *     ***************************
@@ -1193,8 +1193,6 @@ c         eki1=0.5d0*eki1
       end do
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
-      call center_mass(vgx,vgy,vgz)
-      write(99,*) "CM:",vgx,vgy,vgz
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
@@ -1507,8 +1505,6 @@ c         eki1=0.5d0*eki1
       end do
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
-      call center_mass(vgx,vgy,vgz)
-      write(99,*) "CM:",vgx,vgy,vgz
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
