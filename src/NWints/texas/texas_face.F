@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.23 1996-07-15 17:02:04 d3g681 Exp $
+c $Id: texas_face.F,v 1.24 1996-07-19 22:44:10 mg141 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -362,7 +362,7 @@ c------------------------------------
 c Re-arrange a basis set according to the Texas convention
 c 1) normalize and 2) re-order
 c
-      call txsarrag(dbl_mb, nq_init, l_blsize)
+      call txsarrag(rtdb, dbl_mb, nq_init, l_blsize)
 c
 c... map texas memory to memory commons of the PNL/int API
 c
@@ -570,10 +570,11 @@ c
 c
       end
 c=================================================================
-      subroutine txsarrag(basnuc, nq_init, l_blsize)
+      subroutine txsarrag(rtdb, basnuc, nq_init, l_blsize)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
+      integer rtdb
       character*11 scftype
       character*4 where
 c----------------------------------------------------------------
@@ -621,7 +622,7 @@ c------------------------------------
 c------------------------------------
 c initialize commons number,ener,ganz,type :
 c
-      call txs_initial
+      call txs_initial(rtdb)
 c
 c------------------------------------
 c initialize common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
@@ -899,13 +900,16 @@ c------------------------------------
 c------------------------------------
       end
 c=================================================================
-      subroutine txs_initial
+      subroutine txs_initial(rtdb)
       implicit real*8 (a-h,o-z)
 c------------------------------------
 c
 c     .... set initial values
 c
 c------------------------------------
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
       common /tape/ inp,inp2,iout,ipun,ix,icond,itest,nentry,ltab,ntap,n
      1pl(9),nbl(9),nen(9),lentry(9),nam(200),num(200),irec(200),icode(20
      20),inpf,ioutf
@@ -928,7 +932,12 @@ c     open(unit=31,file='fort.31',status='unknown',form='formatted')
 c     open(unit=32,file='fort.32',status='unknown',form='formatted')
 c     open(unit=33,file='fort.33',status='unknown',form='formatted')
 c-------------
-      open(unit=8,file='fort.8',status='unknown',form='formatted')
+      if (.not.rtdb_get(rtdb,'int:txs:iprint',MT_INT,1,iprint)) then
+        iprint = 0
+      endif
+      if(iprint.gt.0)
+     $       open(unit=8,file='fort.8',status='unknown',
+     $       form='formatted')
 ccccc open(unit=7,file='fort.7',status='unknown',form='formatted')
 c--------------------------------
 c ONLY FOR TESTS with test_calc2
