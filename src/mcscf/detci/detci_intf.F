@@ -284,6 +284,7 @@ c
 c
 #include "mafdecls.fh"      
 #include "global.fh"
+#include "msgids.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "cdetci.fh"
@@ -331,7 +332,8 @@ c
      $         /,23x,'o',5('<'),' Spin adapt',2x,f10.2,
      $         /,23x,'o',5('<'),' Symm adapt',2x,f10.2)
 
-        call ga_dgop(1966, detci_absync_etime, 1, 'max' )
+        call ga_dgop(msg_detci_maxsync, detci_absync_etime,
+     $               1, 'max' )
         if (ga_nodeid().eq.0) write(6,933) detci_absync_etime
  933    format(/,23x,'o',5('<'),' (ab) max sync:',f10.2)
       endif

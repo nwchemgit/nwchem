@@ -12,6 +12,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
 #include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
@@ -39,9 +40,6 @@ c
       double precision f(nstrb,nsblk)         ! [scratch] Scratch space
       integer g_civec                         ! [input] CI-vector          
       integer g_sigma                         ! [input/output] Sigma vector
-c
-      integer Msg_detci_sum
-      parameter(Msg_detci_sum=1059)
 c
 c
 c
