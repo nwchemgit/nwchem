@@ -1,20 +1,22 @@
-echo
-title "NWChem molecular dynamics"
 memory noverify heap 1 mb stack 32 mb global 8 mb
+
 start ethanol_md
+
 md
-step 0.001 equil 0 data 100
-cutoff 1.2 
-leapfrog
-isotherm 298.16 trelax 0.1 0.1 
-isobar 1.025e5 trelax 0.4 compres 4.53e-10 
-print extra topol step 10 stat 100
-update pairs 1 center 1 long 1 rdf 0
-record rest 0
-record prop 0 sync 0
-record coord 0 scoor 0
-record veloc 0 svelo 0
-load pairs
-test 10        #This is for testing only, not for general users.
+ system ethanol_md
+ step 0.001 equil 0 data 100
+ cutoff 1.2 
+ leapfrog
+ isotherm 298.16 trelax 0.1 0.1 
+ isobar 1.025e5 trelax 0.4 compres 4.53e-10 
+ print extra topol step 10 stat 100
+ update pairs 1 center 1 long 1 rdf 0
+ record rest 0
+ record prop 0 sync 0
+ record coord 0 scoor 0
+ record veloc 0 svelo 0
+ load pairs
+ test 10        #This is for testing only, not for general users.
 end
+
 task md dynamics

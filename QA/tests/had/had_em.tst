@@ -1,30 +1,10 @@
-Iteration        =          1
-Energy           =   -2.983E+04
-
-Iteration        =          2
-Energy           =   -3.242E+04
-
-Iteration        =          3
-Energy           =   -3.387E+04
-
-Iteration        =          4
-Energy           =   -3.490E+04
-
-Iteration        =          5
+Energy           =   -2.985E+04
+Energy           =   -3.244E+04
+Energy           =   -3.389E+04
+Energy           =   -3.491E+04
 Energy           =   -3.557E+04
-
-Iteration        =          6
 Energy           =   -3.608E+04
-
-Iteration        =          7
-Energy           =   -3.654E+04
-
-Iteration        =          8
+Energy           =   -3.655E+04
 Energy           =   -3.691E+04
-
-Iteration        =          9
 Energy           =   -3.724E+04
-
-Iteration        =         10
-Energy           =   -3.751E+04
-
+Energy           =   -3.752E+04

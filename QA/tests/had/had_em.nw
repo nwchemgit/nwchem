@@ -14,6 +14,7 @@ md
  system had_em
  sd 10
  boxes 6 6 6
+ msa 4000
  test 10
 end
 
