@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.61 1999-07-28 00:39:01 d3e129 Exp $
+# $Id: DEFS,v 1.62 1999-07-29 23:09:23 d3g681 Exp $
 #
 #======================================================================
 #
@@ -360,7 +360,7 @@ peigs_FC  += -qthreaded -I$(peigs_HDIR) -O3 -qstrict \
 -qfloat=rsqrt:fltint:hssngl  -NQ40000 -NT80000 -qinline
 
 peigs_CPP += -DRS6000 -DSTD_INT -DSTD_DBL -DSTD_INT -DSTD_DBL -DIBM -I$(peigs_HDIR) -P
-peigs_COMMLIB = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -ltcgmsg
+peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 peigs_BLASLIB = -lesslp2_r
 peigs_LAPACKLIB = -lpeigs -lesslp2_r -llapack -lglobal -lutil
 
