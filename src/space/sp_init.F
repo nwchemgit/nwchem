@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.86 2001-08-23 15:32:50 d3j191 Exp $
+c $Id: sp_init.F,v 1.87 2001-08-23 15:54:33 d3j191 Exp $
 c
       implicit none
 c
@@ -1961,7 +1961,7 @@ c
  1106 format(2x,6e13.6)
       idyn=iand(ibw(i),12)/4
       idynp=iand(ibw(i),3)
-      write(lfnrst,1007) idyn,idynp,(brw(i,k),k=1,3)
+      write(lfnrst,1007) idynp,idyn,(brw(i,k),k=1,3)
  1007 format(2i1,3f13.8)
     5 continue
     1 continue
@@ -2012,9 +2012,9 @@ c
       idyn=iand(ibs(i),12)/4
       idynp=iand(ibs(i),3)
       if(lveloc) then
-      write(lfnrst,1008) idyn,idynp,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+      write(lfnrst,1008) idynp,idyn,(bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
       else
-      write(lfnrst,1008) idyn,idynp,(bxs(i,j),j=1,3),(zero,j=1,3)
+      write(lfnrst,1008) idynp,idyn,(bxs(i,j),j=1,3),(zero,j=1,3)
       endif
  1008 format(2i1,6f13.8)
       if(lforces) write(lfnrst,1108) (bfs(i,j),j=1,3)

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.97 2001-08-10 17:51:49 d3j191 Exp $
+c $Id: md_start.F,v 1.98 2001-08-23 15:54:16 d3j191 Exp $
 c
       implicit none
 c
@@ -189,8 +189,7 @@ c
 c     fix
 c     ------------
 c
-      if(numfix.gt.0) then
-      if(me.eq.0) then
+      if(me.eq.0.and.numfix.gt.0) then
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='old')
       rewind(lfncmd)
@@ -200,12 +199,11 @@ c
      + int_mb(i_is+(lsgan-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lssgm-1)*msa),nsaloc,
      + dbl_mb(i_xwm),dbl_mb(i_xs))
-      if(me.eq.0) then
+      if(me.eq.0.and.numfix.gt.0) then
       close(unit=lfncmd)
       endif
       if(.not.lqmd)
      + call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
-      endif
 c
 c     print decomposition information
 c     -------------------------------
