@@ -6,7 +6,7 @@ C
 C SYNOPSIS
       Logical Function Geom_Num_Core(Geom, NCore)
 *
-* $Id: geom_numcore.F,v 1.2 1997-11-04 10:04:23 d3e129 Exp $
+* $Id: geom_numcore.F,v 1.3 1998-07-08 22:34:47 d3g681 Exp $
 *
       Implicit NONE
       Integer Geom     ! [in]  Geometry handle
@@ -42,6 +42,10 @@ C PRIVATE DATA
 C
 C     NOTE: This version of the table assumes 5d & 7f representations in
 c     the basis.
+c
+c     rjh: To avoid problems with ECPs and atoms that aren't really
+c     .    atoms 'cos the user is messing with their charge, simply
+c     .    ignore atoms that don't have a charge = atomic number.
 C
       Data PerTbl /2*0,     ! H-He, <none> 
      $    8* 1,             ! Li-Ne, 1s
@@ -57,8 +61,11 @@ C
       NCore = 0
       Do I = 1, NCenter(Geom)
          Is_At = Geom_Tag_To_Element( Tags(i, Geom), Sy, El, AtNr)
-         If ( Is_At )
-     $      NCore = NCore + PerTbl( AtNr )
+         If ( Is_At ) then
+            if (abs(charge(i,geom)-dble(atnr)) .lt. 1d-6) then
+               NCore = NCore + PerTbl( AtNr )
+            endif
+         endif
       EndDo
 C
       Return
