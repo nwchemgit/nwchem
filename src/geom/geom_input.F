@@ -94,6 +94,7 @@ c
      $        call errquit('geom_input: print failed ', 0)
       endif
 c
+      if (name .eq. ' ') name = 'geometry'
       if (.not. geom_rtdb_store(rtdb, geom, name))
      $     call errquit('geom_input: geom_rtdb_store failed', 0)
 c

@@ -119,16 +119,56 @@ Operations:
 
      Extracts info from the geometry (opposite of set)
 
+  
+  logical function geom_cent_get(geom, icent, t, c, q)
+  integer geom  [input]
+  integer icent [input]
+  character*16 t [output]
+  double precision c(3) [output]
+  double precision q(3) [output]
+   
+     Returns tag/coords/charge about the center icent
+
+  logical function geom_cent_set(geom, icent, t, c, q)
+
+     Sets values inside geometry ... opposite of geom_cent_get
+
+
+  logical function geom_ncent(geom, ncent)
+  integer geom [input]
+  integer ncent [output]
+
+     Returns in ncent the no. of centers
 
   
-      logical function geom_cent_get(geom, icent, t, c, q)
-      logical function geom_cent_set(geom, icent, t, c, q)
-      logical function geom_ncent(geom, ncent)
-      logical function geom_cent_tag(geom, icent, tag)
-      logical function geom_latvec_set(geom, vectors)
-      logical function geom_latvec_get(geom, vectors)
-      logical function geom_efield_set(geom, ef)
-      logical function geom_efield_get(geom, ef)
-      logical function geom_print(geom)
-      logical function geom_tag_to_element(tag, symbol, element, atn)
+  logical function geom_cent_tag(geom, icent, tag)
+  integer geom  [input]
+  integer icent [input]
+  character*16 tag [output]
+
+      Returns just the tag of the cetner
+
+  
+  logical function geom_print(geom)
+
+      Print out the basis set to FORTRAN unit 5
+
+
+  logical function geom_tag_to_element(tag, symbol, element, atn)
+  character*16 tag  [input]
+  character*(*) symbol [output]
+  character*(*) element [output]
+  integer atn [output]
+
+  Attempt to interpret a tag as the name of an element.  If successful,
+  return the symbol, full name and atomic number.
+
+
+
+  The following are not yet fully implemented or designed
+
+  logical function geom_latvec_set(geom, vectors)
+  logical function geom_latvec_get(geom, vectors)
+  logical function geom_efield_set(geom, ef)
+  logical function geom_efield_get(geom, ef)
 

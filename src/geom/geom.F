@@ -804,6 +804,7 @@ c
 c     eliminate conventions that refer to centers used for
 c     computation purposes .. just bq for now
 c
+      buf = tag
       lbuf = inp_strlen(buf)
       if (lbuf .eq. 0) return
 c
