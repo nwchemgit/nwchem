@@ -663,7 +663,8 @@ formatted file or an existing restart file.
 \end{verbatim}
 where \verb+<filpdb>+ is the file with coordinates in PDB format. This
 directive, in general needs to be preceded by reading the topology
-file and reading the solvation coordinates file.
+file and reading the solvation coordinates file. All solvent molecules
+read will be treated as crystal solvent.
 
 \item
 \begin{verbatim}
@@ -684,6 +685,13 @@ coordinates file.
   write rst <string filrst>
 \end{verbatim}
 where \verb+<filrst>+ is a restart file
+
+\item
+\begin{verbatim}
+  crystal solvent <integer nwcrst>
+\end{verbatim}
+where \verb+nwcrst+ is the number of solvent molecules to be treated
+as crystal solvent.
 
 \item
 \begin{verbatim}
