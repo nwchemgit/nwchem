@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.18 2000-06-01 05:32:32 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.19 2000-06-09 22:30:14 d3j191 Exp $
 c
       implicit none
 c
@@ -204,6 +204,7 @@ c
       do 46 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
 c
+      nums=isoff
       do 47 i=1,numslv
       do 48 j=1,nwa
       nats=nats+1
