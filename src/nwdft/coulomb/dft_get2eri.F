@@ -1,6 +1,6 @@
-      Subroutine dft_get2eri(CD_bas_han, g_2ceri)
+      Subroutine dft_get2eri(CD_bas_han, g_2ceri,oskel)
 c
-C$Id: dft_get2eri.F,v 1.11 2000-10-11 22:06:04 edo Exp $
+C$Id: dft_get2eri.F,v 1.12 2001-12-28 19:38:53 edo Exp $
 c
       implicit none
       integer CD_bas_han
@@ -10,6 +10,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "sym.fh"
 c      
       integer nshells_cd, MXnshbf_cd, me, nproc, icount,
      &        maxg, mscratch_2e2c, n1, n2, Nintegrals,
@@ -17,7 +18,9 @@ c
      &        ishq, ifirstq, ilastq, nshq
       integer lbuf, ibuf, lscr, iscr, lvec, ivec
       integer nxtask
+      logical oskel,odoit
       external nxtask
+      double precision q2
 c     
 c     Compute the matrix of 2-ctr ERIs.
 c     
@@ -63,7 +66,11 @@ c
          nshp = ilastp - ifirstp + 1
 c
          do 10 ishq = 1, ishp
-c
+c     
+            odoit=.true.
+            q2=1d0
+            if (oskel.and.(.not.
+     .           sym_shell_pair(cd_bas_han,ishp,ishq,q2))) goto 10
             if ( n2.eq.n1 )then
                if (.not. bas_cn2bfr(CD_bas_han, ishq, ifirstq, ilastq))
      &            call errquit('dft_get2eri: problem with bas_cn2bfr',0)
@@ -75,6 +82,11 @@ c
                call int_2e2c(CD_bas_han, ishp, CD_bas_han, ishq,
      &                       mscratch_2e2c, Dbl_MB(iscr), Nintegrals,
      &                       Dbl_MB(ibuf))
+               if(oskel) then
+                  if(ishq.ne.ishp) q2=q2*.5d0
+                  if(q2.gt.1d0) call dscal(
+     .              nshp*nshq,q2,dbl_mb(ibuf),1)
+               endif
 c
 c              Re-order.  
 c

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.55 2001-12-21 23:08:19 edo Exp $
+c     $Id: dft_main0d.F,v 1.56 2001-12-28 19:38:55 edo Exp $
 c     
       implicit none
 c
@@ -201,26 +201,21 @@ c
 c     
 c        Compute the matrix inverse of the CD 2-ctr ERIs.
 c     
-*ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
      &                       0, nbf_cd, g_2ceri)) 
      &      call errquit('dft_main0d: error creating g_2ceri',0)
-!      g_2ceri = ga_create_atom_blocked(geom, CD_bas_han, 'CD2cer')
          call ga_zero(g_2ceri)
-         call dft_get2eri(CD_bas_han, g_2ceri)
-*ga:1:0
+         call dft_get2eri(CD_bas_han, g_2ceri,oskel)
+         if (oskel)call 
+     .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                        0, nbf_cd,g_cdinv)) 
      &      call errquit('dft_main0d: error creating g_cdinv',0)
-!      g_cdinv = ga_create_atom_blocked(geom, CD_bas_han, 'CD2ceriv')
          call ga_zero(g_cdinv)
          lmiss = 1
 c         if (lmiss.eq.1) then
             call ga_zero(g_cdinv)
             info = 0
-c            do i = 0, nproc
-c               if (me.eq.i) call dft_dump_info(me)
-c            enddo
 #if defined(PARALLEL_DIAG)
             call ga_chol(g_2ceri, g_cdinv, info)
 #else 
@@ -232,8 +227,6 @@ c            enddo
                   write(LuOut,*)' decomposition of the 2-ctr ERI '
                   write(LuOut,*)' matrix using CD fitting basis. '
                   write(LuOut,*)' Attempting a diag/inverse. '
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2g'
-c                  call errquit(' temp stop this should not happen',0)
                endif
             endif
             if (info.eq.0) then
@@ -250,8 +243,13 @@ c                  call errquit(' temp stop this should not happen',0)
                call dft_invdiag(g_2ceri, g_cdinv, 
      &                          nbf_cd)
             endif
+c
+c     second build of g_2ceri needed becuase previous calls destroyed it
+c     
             call ga_zero(g_2ceri)
-            call dft_get2eri(CD_bas_han, g_2ceri)
+            call dft_get2eri(CD_bas_han, g_2ceri,oskel)
+            if (oskel)call 
+     .           sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
             if (IOLGC.and.(me.eq.0)) then
                lmiss = 0
                call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)
