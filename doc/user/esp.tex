@@ -23,6 +23,13 @@ distance from the atomic centers. The following input parameters determine
 the selection of grid points.
 \begin{itemize}
 \item
+If a grid file is found, the grid will be read from that file. If no grid
+file is found, or the keyword
+\begin{verbatim}
+  recalculate
+\end{verbatim}
+is given, the grid and the electrostatic potential is recalculated.
+\item
 The extent of the grid is determined by
 \begin{verbatim}
   range <real rcut>
@@ -59,6 +66,11 @@ by a constant factor specified by
 \end{verbatim}
 All grid points are discarded that lie within a distance 
 \verb-factor*(radius(i)+probe)- from any atom $i$.
+\item
+Schwarz screening is applied using
+\begin{verbatim}
+  screen [<real scrtol default 1.0D-5>]
+\end{verbatim}
 \end{itemize}
 
 \section{Constraints}
