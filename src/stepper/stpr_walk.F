@@ -1,5 +1,5 @@
       logical function stpr_walk(flag,rtdb)
-c $Id: stpr_walk.F,v 1.16 1995-10-17 05:55:23 d3g681 Exp $
+c $Id: stpr_walk.F,v 1.17 1995-11-20 23:31:59 d3e129 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -14,6 +14,7 @@ c
 #include "pstat.fh"
 #include "util.fh"
 #include "stpr_optimize.fh"
+#include "stdio.fh"
 c
       integer flag    ! [input] integer identifier to set context
       integer rtdb    ! [input] run-time-data-base handle
@@ -216,6 +217,14 @@ c
         if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &      call errquit
      &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)
+c
+********************#define SC95
+#if defined(SC95)
+        write(luout,*)'<stepper updated geometry> start '
+        if(.not. geom_print(geom)) call errquit
+     &      ('stpr_walk:geom print failed ',911)
+        write(luout,*)'<stepper updated geometry> end'
+#endif
 c
         if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &      call errquit
