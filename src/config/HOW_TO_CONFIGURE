@@ -1,3 +1,10 @@
+EXAMPLE:  To configure for dft geometry optimization only, 
+from the directory .../nwchem/src use the command:
+ make nwchem_config NWCHEM_MODULES='stepper dftgrad gradients'
+This should include stepper, dftgrad, and all directories which
+these require (including NWints, ddscf, ...).
+----------------------------------------------------------------------------
+
 I've just checked in a substantial functional change to the NWChem
 makefile setup. This change will allow you to exclude certain
 computational modules from the build, giving you shorter build times
