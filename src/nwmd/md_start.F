@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.140 2003-01-08 19:45:17 d3j191 Exp $
+c $Id: md_start.F,v 1.141 2003-01-09 00:05:33 d3j191 Exp $
 c
       implicit none
 c
@@ -1684,7 +1684,7 @@ c
 c
 #include "md_common.fh"
 c
-      integer lfnout,nprt
+      integer nprt
 c
       integer i
 c
