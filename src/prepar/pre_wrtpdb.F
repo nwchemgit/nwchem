@@ -3,9 +3,10 @@
      + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
-     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,filmrg,irenum,invert)
+     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
+     + irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.34 2001-11-15 18:19:27 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.35 2002-01-08 17:36:45 d3j191 Exp $
 c
       implicit none
 c
@@ -19,15 +20,15 @@ c
 c
       integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
       integer lfnmrg
-      character*255 filpdb,filmrg
+      character*255 filpdb,filmrg(100)
       integer num(mat),isat(msa),isgm(msa),imol(msa),ifra(msa),iwat(mwa)
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
       integer iropt,irrand,nxrep,nyrep,nzrep,nskip
-      real*8 rdist,drep(3)
-      integer msb,nsb,nmols,irenum,invert
+      real*8 rdist,drep(3),xmerge(3,100)
+      integer msb,nsb,nmols,irenum,invert,nmerge
       integer idsb(2,msb),iskip(3,nskip),lang(*)
 c
       integer length,ioff
@@ -79,8 +80,13 @@ c
      + 'CRYST1',3f9.3,3f7.2)
 c
       ioff=0
-      if(filmrg(1:1).ne.' ') then
-      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
+c      if(filmrg(1:1).ne.' ') then
+      if(nmerge.gt.0) then
+      do 6060 k=1,nmerge
+      ioff=ioff+pre_merge(lfnmrg,xmerge(1,k),filmrg(k),
+     + lfnout,lfnpdb,slvnam,inum)
+ 6060 continue
+c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
       if(ioff.lt.0) call errquit('Error in pre_merge',ioff)
       if(inum.ge.0) ioff=ioff+1-isgm(1)
       endif
@@ -158,8 +164,13 @@ c
      + 90.0,90.0,90.0
 c
       ioff=0
-      if(filmrg(1:1).ne.' ') then
-      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
+      if(nmerge.gt.0) then
+      do 6061 k=1,nmerge
+      ioff=ioff+pre_merge(lfnmrg,xmerge(1,k),filmrg(k),
+     + lfnout,lfnpdb,slvnam,inum)
+ 6061 continue
+c      if(filmrg(1:1).ne.' ') then
+c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
       if(ioff.lt.0) call errquit('Error in pre_merge',0)
       endif
 c

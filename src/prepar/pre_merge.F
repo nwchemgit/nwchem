@@ -1,7 +1,7 @@
-      integer function  pre_merge(iunit,filnam,lfnout,lfnpdb,namslv,
-     + inum)
+      integer function  pre_merge(iunit,xmerge,filnam,
+     + lfnout,lfnpdb,namslv,inum)
 c
-c $Id: pre_merge.F,v 1.3 2001-08-29 23:04:04 d3j191 Exp $
+c $Id: pre_merge.F,v 1.4 2002-01-08 17:36:45 d3j191 Exp $
 c
       implicit none
 c
@@ -17,6 +17,7 @@ c
       integer length,mdl,nsgm,isgm,i
       logical lslvnt
       character*4 cnum
+      real*8 x(3),xmerge(3)
 c
       natm=0
       nseq=0
@@ -92,6 +93,11 @@ c
       endif
       write(card(23:26),'(i4)') inum
       endif
+      read(card(31:54),'(3f8.3)') x
+      x(1)=x(1)+xmerge(1)
+      x(2)=x(2)+xmerge(2)
+      x(3)=x(3)+xmerge(3)
+      write(card(31:54),'(3f8.3)') x
       write(lfnpdb,1000) card
       endif
       goto 1
@@ -121,6 +127,11 @@ c
       endif
       write(card(23:26),'(i4)') inum
       endif
+      read(card(31:54),'(3f8.3)') x
+      x(1)=x(1)+xmerge(1)
+      x(2)=x(2)+xmerge(2)
+      x(3)=x(3)+xmerge(3)
+      write(card(31:54),'(3f8.3)') x
       write(lfnpdb,1000) card
       endif
       goto 1
@@ -145,6 +156,6 @@ c
  2003 format('PDB ERROR ',a)
       endif
 c
-      pre_merge=-1
+      pre_merge=-9999
       return
       end

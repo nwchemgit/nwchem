@@ -2,9 +2,9 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
-     + lfnmat,lfnmrg,filmrg)
+     + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.70 2001-11-15 18:19:27 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.71 2002-01-08 17:36:45 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
       integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov,lfnmrg
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
-      character*255 filxyz,filqqq,filpov,filmrg
+      character*255 filxyz,filqqq,filpov,filmrg(100)
       character*10 slvmdl
       character*3 slvnam
       character*80 source,card,card2,cfix
@@ -39,9 +39,9 @@ c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
       integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt,irrand
-      integer invert
+      integer invert,nmerge
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
-      real*8 boxset(3)
+      real*8 boxset(3),xmerge(3,100)
       real*8 edgex,edgey,edgez
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
@@ -58,7 +58,7 @@ c
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater,irenum
       integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang
       real*8 xtran(3),xrot(3),arot
-      real*8 rdist,xr(3,2)
+      real*8 zdist,xr(3,2)
 c
       integer iskip(3,100),nskip
 c
@@ -667,8 +667,8 @@ c
       if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
      + dbl_mb(i_xs),msa,nsa,box,irrand))
      +  call errquit('pre_boxsiz failed',9999)
-      drep(1)=box(1)
-      drep(2)=box(2)
+      if(drep(1).lt.box(1)) drep(1)=box(1)
+      if(drep(2).lt.box(2)) drep(2)=box(2)
       endif
       mlang=nxrep*nyrep*iabs(nzrep)
       if(.not.ma_push_get(mt_int,mlang,'lang',l_lang,i_lang))
@@ -680,16 +680,19 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
-     + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,
-     + nskip,iskip,int_mb(i_lang),lfnmrg,filmrg,irenum,invert))
+     + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),zdist,
+     + nskip,iskip,int_mb(i_lang),lfnmrg,nmerge,xmerge,filmrg,
+     + irenum,invert))
      +  call errquit('pre_wrtpdb failed',9999)
       if(.not.ma_pop_stack(l_lang))
      + call errquit('ma_pop_stack failed for lang',9999)
-      filmrg=' '
+      nmerge=0
       endif
 c
       if(card(1:6).eq.'merge ') then
-      filmrg=card(7:80)
+      nmerge=nmerge+1
+      read(card(7:30),'(3f8.3)') (xmerge(i,nmerge),i=1,3)
+      filmrg(nmerge)=card(31:80)
       endif
 c
 c     write pov file
@@ -706,7 +709,7 @@ c
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
-     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,scale,cpk))
+     + nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),zdist,scale,cpk))
      + call errquit('pre_wrtpov failed',9999)
       endif
 c
@@ -1256,10 +1259,11 @@ c     repeat
 c     ======
 c
       if(card(1:6).eq.'repeat') then
+      write(*,'(a)') card
       read(card(8:12),'(i5)') nxrep
       read(card(13:17),'(i5)') nyrep
       read(card(18:22),'(i5)') nzrep
-      read(card(35:46),'(f12.6)') rdist
+      read(card(35:46),'(f12.6)') zdist
       read(card(47:51),'(i5)') iropt
       read(card(52:56),'(i5)') irrand
       read(card(57:61),'(i5)') invert

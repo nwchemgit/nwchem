@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.91 2001-12-11 19:26:07 d3j191 Exp $
+c $Id: pre_input.F,v 1.92 2002-01-08 17:36:45 d3j191 Exp $
 c
       implicit none
 c
@@ -39,7 +39,7 @@ c
       real*8 value1,value2
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
-      real*8 scale,cpk,rshell
+      real*8 scale,cpk,rshell,xmerge(3)
       integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert
       integer iskip,jskip,kskip
 c
@@ -1480,9 +1480,19 @@ c     merge pdb file
 c     --------------
 c
       if(inp_compare(.false.,'merge',item)) then
+      xmerge(1)=0.0d0
+      xmerge(2)=0.0d0
+      xmerge(3)=0.0d0
+      if(.not.inp_f(xmerge(1))) goto 6884
+      if(.not.inp_f(xmerge(2))) goto 6884
+      if(.not.inp_f(xmerge(3))) goto 6884
+ 6884 continue
       if(.not.inp_a(item)) call errquit('pre_input: merge',9999)
-      write(68,6869) item(1:index(item,' ')-1)
- 6869 format('merge ',a)
+      xmerge(1)=1.0d1*xmerge(1)
+      xmerge(2)=1.0d1*xmerge(2)
+      xmerge(3)=1.0d1*xmerge(3)
+      write(68,6869) xmerge,item(1:index(item,' ')-1)
+ 6869 format('merge ',3f8.3,a)
       numcmd=numcmd+1
       goto 1
       endif

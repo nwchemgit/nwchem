@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.45 2001-11-28 15:19:48 d3j191 Exp $
+c $Id: prepar.F,v 1.46 2002-01-08 17:36:45 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -47,7 +47,7 @@ c
 c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf,filpov
-      character*255 filmrg
+      character*255 filmrg(100)
       character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
       character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*80 sysnam,calc,ffield
@@ -61,10 +61,10 @@ c
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov,lfnmat,lfnmrg
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
-      integer ncount,icyren,model,iconst
+      integer ncount,icyren,model,iconst,nmerge
       integer nfract,ifract(mfract)
       integer ignore
-      real*8 gdist,qscale
+      real*8 gdist,qscale,xmerge(3,100)
       logical lstate
       real*8 scale,cpk
 c
@@ -157,7 +157,7 @@ c
       filrst=sysnam(1:len)//'_'//calc(1:lenc)//'.rst '
       filseq=dir_c(1:lend)//sysnam(1:len)//'.seq '
       filtmp=sysnam(1:len)//'.nam '
-      filmrg=' '
+      nmerge=0
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,prefix))
      + call errquit('rtdb_cget failed on file_prefix',9999)
@@ -343,7 +343,7 @@ c
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model,
      + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,lfnmat,
-     + lfnmrg,filmrg))
+     + lfnmrg,nmerge,xmerge,filmrg))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue
