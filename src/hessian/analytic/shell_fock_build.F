@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.17 2002-01-05 01:25:42 edo Exp $
+c $Id: shell_fock_build.F,v 1.18 2002-01-08 07:17:07 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -45,7 +45,7 @@ c
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
-c     write(6,*) 'inside of shell_fock_build'
+c     write(6,*) 'inside of shell_fock_build',kfac(1)
 c
 c Quietly modify the values of jfac and kfac so that the original
 c values coming in can be consistent with the original fock_2e
@@ -197,7 +197,7 @@ c
          kfac(i) = kfac(i)/2.0d00
       enddo
 c
-      if(xc_gotxc().and.nder.gt.1)then
+      if(xc_gotxc().and.nder.eq.0)then
          call xc_newfock(geom,basis,jfac,kfac,nbf,
      %        nder, ndens, nfock, g_fock,g_dens)
       endif
@@ -810,8 +810,11 @@ c
 
       call fock_xc(geom, nbf,basis,
      ,      ndens,  g_dens, g_xc,scftype,.true.)
-      do ifock = 1, ndens
-         write(0,*) ' ifock ',ifock
+         if (bgj_print() .gt. 1) then
+      write(*,*)'*** Scaling XC mats',nfock,' by',jfac(1),jfac(nfock)
+      endif
+      do ifock = 1, 1
+!      do ifock = 1, ndens
 !         if (xc_active.and.jfac(1).ne.0d0) then
 !         if (xc_active) then
          if (.true.) then
@@ -825,6 +828,7 @@ c     the CPSCF RHS that needs to be applied to XC also.
             else
                ffac=jfac(ifock)
             endif
+!            ffac=ffac*2d0
             write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
             call ga_add(jfac(ifock), g_xc, 1.0d0, g_fock,
      &           g_fock)
