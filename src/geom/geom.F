@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.65 1997-10-20 20:28:05 d3g681 Exp $
+C$Id: geom.F,v 1.66 1997-10-23 22:41:49 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -879,13 +879,13 @@ c     Reset the given geometry to have just C1 symmetry, freeing
 c     any associated in-core data structures.
 c
       integer geom              ! [input]
+      integer i
       logical geom_check_handle
       external geom_check_handle
 c     
       geom_strip_sym = geom_check_handle(geom, 'geom_strip_sym')
       if (.not. geom_strip_sym) return
 c
-      ncenter_unique(geom) = 0
       isystype(geom) = 0
       group_number(geom) = 1
       setting_number(geom) = 0
@@ -897,6 +897,11 @@ c
       sym_center_map_index(geom) = 1
       group_name(geom) = 'C1'
       sym_num_ops(geom) = 0
+c
+      ncenter_unique(geom) = ncenter(geom)
+      do i = 1, ncenter_unique(geom)
+         unique_cent(i,geom) = i
+      end do
 c
       end
       logical function geom_destroy(geom)
