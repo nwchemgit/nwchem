@@ -26,9 +26,9 @@ c
 #if defined(PARAGON)
 	Call Kill( 0, 9)
 #elif defined(DELTA)
-*      call killproc(-1,0)
+        call killproc(-1,0)
 #elif defined(IPSC)
-*      call killcube(-1,-1)
+        call killcube(-1,-1)
 #endif
 *
 #if defined(SUN) || defined(SGI)

@@ -6,7 +6,7 @@ c     Flush buffered output for the fortran unit
 c
 #if defined(SUN) || defined(KSR) || defined(PARAGON)
       call flush(unit)
-#elif defined(IPSC)
+#elif defined(IPSC) || defined(DELTA)
       call forflush(unit)
 #endif
 c

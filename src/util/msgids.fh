@@ -1,0 +1,77 @@
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+C NAME
+C     msgids.fh -- Definitions of all message IDs used in Fortran routines
+C
+C DESCRIPTION
+C     All message IDs used in Fortran code should be defined here as
+C     parameters to avoid collisions.  The routine which uses a given
+C     ID should also be identified.
+C
+C     GA is presently using things counting backwards from 32760.
+C     RTDB counts up from 30000
+C
+C     We'll go from 25000 down -- that should leave plenty of room.
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      Integer MSG_Ftn_Base
+      Parameter (MSG_Ftn_Base = 25000)
+C
+      Integer Msg_PrSum
+      Integer Msg_MxElt
+      Integer Msg_IChkI, Msg_IChkD
+      Integer Msg_AtSCF
+      Integer Msg_DFit, MSg_DFitB
+      Integer Msg_SchAt, Msg_SchSh, Msg_SchMx, Msg_SchPr
+      Integer Msg_ChkMO, Msg_MOSch, Msg_BcstVec
+      Integer Msg_Vec_Stat, Msg_Vec_TTL, Msg_Vec_Nam, Msg_Vec_NBF,
+     $   Msg_Vec_Set, Msg_Vec_NMO, Msg_Vec_EVal, Msg_Vec_Occ
+      Integer Msg_HeapMem, Msg_StkMem, Msg_StartUp
+      Integer Msg_PStat_Min, Msg_PStat_Avg, Msg_PStat_Max
+      Integer Msg_Stpr_Walk, Msg_RI_dens
+      Integer Msg_ChkJK
+C-----------------------------------------------------------------------
+      Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
+C
+      Parameter (Msg_MxElt = MSG_Ftn_Base -  2) ! GA_MaxElt
+C
+      Parameter (Msg_IChkI = MSG_Ftn_Base -  3) ! Int_Chk_Sum
+      Parameter (Msg_IChkD = MSG_Ftn_Base -  4) ! Int_Chk_Sum
+C
+      Parameter (Msg_AtSCF = MSG_Ftn_Base -  5) ! DAtoms
+C
+      Parameter (Msg_DFit  = MSG_Ftn_Base -  6) ! RI_V_Fit_CD
+      Parameter (Msg_DFitB = MSG_Ftn_Base -  7) ! RI_V_Fit_CD
+C
+      Parameter (Msg_SchAt = MSG_Ftn_Base -  8) ! Schwarz_Init
+      Parameter (Msg_SchSh = MSG_Ftn_Base -  9) ! Schwarz_Init
+      Parameter (Msg_SchMx = MSG_Ftn_Base - 10) ! Schwarz_Init
+      Parameter (Msg_SchPr = MSG_Ftn_Base - 11) ! Schwarz_Print
+C
+      Parameter (Msg_ChkMO = MSG_Ftn_Base - 12) ! GA_Check_MOBlocked
+      Parameter (Msg_MOSch = MSG_Ftn_Base - 13) ! MOInts_Build
+      Parameter (Msg_BcstVec = MSG_Ftn_Base - 14) ! Brdcst_Vec
+
+C
+      Parameter (Msg_Vec_Ttl  = MSG_Ftn_Base - 15) ! MOVecs_Read_Header
+      Parameter (Msg_Vec_Nam  = MSG_Ftn_Base - 16) ! MOVecs_Read_Header
+      Parameter (Msg_Vec_NBF  = MSG_Ftn_Base - 17) ! MOVecs_Read_Header
+      Parameter (Msg_Vec_Set  = MSG_Ftn_Base - 18) ! MOVecs_Read_Header
+      Parameter (Msg_Vec_NMO  = MSG_Ftn_Base - 19) ! MOVecs_Read_Header
+      Parameter (Msg_Vec_EVal = MSG_Ftn_Base - 20) ! MOVecs_Read
+      Parameter (Msg_Vec_Occ  = MSG_Ftn_Base - 21) ! MOVecs_Read
+      Parameter (Msg_Vec_Stat = MSG_Ftn_Base - 22) ! MOVecs_*
+C
+      Parameter (Msg_HeapMem  = MSG_Ftn_Base - 23) ! Input_Mem_Size
+      Parameter (Msg_StkMem   = MSG_Ftn_Base - 24) ! Input_Mem_Size
+C
+      Parameter (Msg_StartUp  = MSG_Ftn_Base - 25) ! Input_Start_Opt
+C
+      Parameter (Msg_PStat_Min = MSG_Ftn_Base - 26) ! PStat_Print_All
+      Parameter (Msg_PStat_Avg = MSG_Ftn_Base - 27) ! PStat_Print_All
+      Parameter (Msg_PStat_Max = MSG_Ftn_Base - 28) ! PStat_Print_All
+C
+      Parameter (Msg_Stpr_Walk = MSG_Ftn_Base - 29) ! stpr_walk
+C
+      Parameter (Msg_RI_dens   = MSG_Ftn_Base - 30) ! rhf_ri_two
+C
+      Parameter (Msg_ChkJK = MSG_Ftn_Base - 31)     ! GA_Check_JKBlocked
+C
