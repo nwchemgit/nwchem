@@ -15,7 +15,7 @@ c
       Integer dim1, dim2, type
       Logical have_data
 
-      Integer     adrA          !A
+      Integer     adrA,handa          !A
       Integer hB, adrB          !B
 c
 c***  check environment
@@ -32,13 +32,23 @@ c
 c
 c***  Find the local distribution
       call ga_distribution(g_a, myproc, ilo, ihi, jlo, jhi)
+#ifdef  BAD_GACCESS
+      if(.not.ma_push_get(MT_DBL,(ihi-ilo+1)*(jhi-jlo+1),
+     $  'scratch buff', handa, adra)) call 
+     $  errquit('gaantisymm: pushget failed',0)
+#endif
 c
       have_data = ihi.gt.0 .and. jhi.gt.0
 c
 c     if(myproc.eq.0)call ga_print(g_a)
       call ga_sync()
       if (have_data) then
+#ifdef  BAD_GACCESS
+         lda=ihi-ilo+1
+         call ga_get(g_a, ilo, ihi, jlo, jhi, dbl_mb(adrA), lda)
+#else
          call ga_access(g_a, ilo, ihi, jlo, jhi, adrA, lda)
+#endif
          nrow = ihi-ilo+1
          ncol = jhi-jlo+1
          myelem = nrow * ncol
@@ -55,10 +65,18 @@ c    $            ilo, ihi, jlo, jhi
       if(have_data) then
          call gai_subtr(nrow, ncol, dbl_mb(adrA), lda, dbl_mb(adrB),
      &                ncol, alpha)
+#ifdef  BAD_GACCESS
+         call ga_put(g_a, ilo, ihi, jlo, jhi, adrA, lda)
+#else
          call ga_release_update(g_a, ilo, ihi, jlo, jhi)
+#endif
          if (.not. ma_pop_stack(hB))
      $        call ga_error('ga_symmetrize: ma_pop?', 0)
       endif
+#ifdef  BAD_GACCESS
+      if(.not.ma_pop_stack(handa)) call 
+     $  errquit('gaantisymm: popstack failed',0)
+#endif
 c
       call ga_sync()
 c
