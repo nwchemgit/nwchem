@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.424 2003-10-02 00:39:05 edo Exp $
+# $Id: makefile.h,v 1.425 2003-10-06 18:39:55 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1426,16 +1426,16 @@ endif
 # tested under RedHat gingin64 preview vs 8.0.95
 # MA problems (MMAP?) needed malloc replacement
 # with dmalloc or libhoard
-# PGI not tested
+# PGI  under test
 # USE_INTEGER4=y need for g77
 # make FC=g77 CC=gcc USE_INTEGER4=y USE_GCC34=y
 #
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
-      DEFINES  +=   -DBAD_GACCESS
+      FC=pgf90
 
       ifeq ($(FC),pgf90)
-        FOPTIONS   =    -Munixlogical -tp k8-64 -Mrecursive -Mdalign
+        FOPTIONS   +=    -Munixlogical -tp k8-64 -Mrecursive -Mdalign
         FOPTIMIZE   =   -fastsse  -O3 
         FDEBUG = -g -O0
         DEFINES  +=   -DPGLINUX
@@ -1443,6 +1443,7 @@ endif
       endif
       ifeq ($(FC),g77)
 #        FOPTIONS  +=  -fno-globals# -Wno-globals # 
+      DEFINES  +=   -DBAD_GACCESS
         FOPTIONS  += -Wunused  -fno-silent
         FOPTIONS  += -fno-second-underscore  -fno-f90 
         FOPTIMIZE  += -O3 -ffast-math 
