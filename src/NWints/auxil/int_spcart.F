@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.17 1997-04-25 02:32:06 d3e129 Exp $
+c $Id: int_spcart.F,v 1.18 1997-11-07 01:46:07 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997           *
 *         Pacific Northwest National Laboratory, *
@@ -12,7 +12,8 @@ c $Id: int_spcart.F,v 1.17 1997-04-25 02:32:06 d3e129 Exp $
 *... stored on heap.  
 *... stored up to lmax values
 *...
-*   spcart(iccart,icsp,l)  => spcart((lmax+1)*(lmax+2)/2,1:2*lmax+1,0:lmax)
+*   spcart(iccart,icsp,l)  => 
+*                          spcart((lmax+1)*(lmax+2)/2,1:2*lmax+1,0:lmax)
 *    lmax = 5 h functions  => size = 21*11*6 = 1386 
 *   store array 34% sparse for simplicity.  1386 doubles is 11 Kbytes.
 *
@@ -22,12 +23,14 @@ c $Id: int_spcart.F,v 1.17 1997-04-25 02:32:06 d3e129 Exp $
 #include "spcartP.fh"
 c::passed
       integer lmaxin    ! [input] init transformed values up to lmaxin
-      logical normalize ! [input] normalize the coefficients for integral
-*                                 transformations
+      logical normalize ! [input] normalize the coefficients for 
+*                                 integral transformations
 *                         true for integral transformations
 *                         false for ECP integral computations
-      logical all_spherical ! [input] generate all spherical compoents eg 6 d sphericals etc.
-*.
+*
+      logical all_spherical ! [input] generate all spherical compoents 
+*                                     e.g., 6 d sphericals etc.
+*
       external bd_spcart  ! needed for cray T3D to link properly
 *
       logical spcart_terminate 
@@ -39,15 +42,16 @@ c::local
 c
 *rak:: temporary
       if (all_spherical) call errquit
-     &    ('spcart_init: all spherical components not working yet',911)
+     &      ('spcart_init: all spherical components not working yet',
+     &      911)
 c
       if (sph_cart_init.eq.SPH_CART_INIT_VALUE) then
         if (lmaxin.gt.lmax_init) then
           if (.not.spcart_terminate()) call errquit
-     &        ('spcart_init: error terminatine old spcart_init',911)
+     &          ('spcart_init: error terminatine old spcart_init',911)
         else
           spcart_init = .true.
-          return   ! initialization already done to cover lmaxin
+          return           ! initialization already done to cover lmaxin
         endif
       endif
 *
@@ -62,10 +66,10 @@ c
       size_sp2c = size_sp2c*(((lmaxin+1)*(lmaxin+2))/2)
 c
       active_sp2c = 
-     &    ma_alloc_get(mt_dbl,size_sp2c,'sph 2 cart trans array',
-     &    h_sp2c,k_sp2c)
+     &      ma_alloc_get(mt_dbl,size_sp2c,'sph 2 cart trans array',
+     &      h_sp2c,k_sp2c)
       if (.not.active_sp2c)  call errquit
-     &    ('spcart_init: alloc_get failed for size',size_sp2c)
+     &      ('spcart_init: alloc_get failed for size',size_sp2c)
 c
 * generate transformation matricies by recursion
       call xlmcoeff(lmaxin,dbl_mb(k_sp2c),normalize)
@@ -73,10 +77,17 @@ c
       call xlm_coeff_full(lmaxin,dbl_mb(k_sp2c),normalize)
 * allocate memory for index array
       active_sp2c_lindx = ma_alloc_get(
-     &    mt_int,(lmaxin+1),' ptrs array xlm sph 2 cart ',
-     &    h_sp2c_lindx,k_sp2c_lindx)
+     &      mt_int,(lmaxin+1),' ptrs array xlm sph 2 cart ',
+     &      h_sp2c_lindx,k_sp2c_lindx)
       if (.not.active_sp2c_lindx) call errquit
-     &    ('spcart_init: alloc_get failed (index) ',911)
+     &      ('spcart_init: alloc_get failed (index) ',911)
+* allocate memory for index array for inverse transform
+      active_invsp2c_lindx = ma_alloc_get(
+     &      mt_int,(lmaxin+1),
+     &      ' ptrs array inverse xlm sph 2 cart ',
+     &      h_invsp2c_lindx,k_invsp2c_lindx)
+      if (.not.active_invsp2c_lindx) call errquit
+     &      ('spcart_init: alloc_get failed (index) ',911)
 * determine size of compressed transformation arrays
       l_block_size = 0
       do 00100 lval=0,Lmaxin
@@ -86,25 +97,47 @@ c
 00100 continue
 * allocate memory for compressed transformation arrays
       active_sp2c_cmp = ma_alloc_get
-     &    (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
-     &    h_sp2c_cmp,k_sp2c_cmp)
+     &      (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
+     &      h_sp2c_cmp,k_sp2c_cmp)
       if (.not. active_sp2c_cmp) call errquit
-     &    ('spcart_init: alloc_get failed (array cmp) ',911)
+     &      ('spcart_init: alloc_get failed (array cmp) ',911)
+* allocate memory for compressed inverse transformation arrays
+      active_invsp2c_cmp = ma_alloc_get
+     &      (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
+     &      h_invsp2c_cmp,k_invsp2c_cmp)
+      if (.not. active_invsp2c_cmp) call errquit
+     &      ('spcart_init: alloc_get failed (inv array cmp) ',911)
+      
+* allocate memory for scale vector
+      active_cart_norm_scale= ma_alloc_get
+     &      (mt_dbl,(2*lmaxin+1)*(lmaxin+1),
+     &      'sph 2 cart scale arryy ',
+     &      h_cart_norm_scale,k_cart_norm_scale)
+      if (.not. active_cart_norm_scale) call errquit
+     &      ('spcart_init: alloc_get failed (array scale) ',911)
 
-* set up pointers and copy recursion array to compressed transformation arrays
-      call xlm_ptrs(lmaxin,dbl_mb(k_sp2c),dbl_mb(k_sp2c),
-     &    dbl_mb(k_sp2c_cmp),l_block_size,int_mb(k_sp2c_lindx))
-*      do lval=0,Lmaxin
-*        call spcart_print_dtrans(lval)
-*      enddo
+* set normalize scale vector so cartesian vectors of transformation 
+* matrix are normalized to unity
+      call xlm_cart_norm_scale(lmaxin,dbl_mb(k_sp2c),
+     &      dbl_mb(k_cart_norm_scale))
+* set up pointers and copy recursion array to compressed 
+* transformation arrays
+      call xlm_ptrs(lmaxin,dbl_mb(k_sp2c),
+     &      dbl_mb(k_sp2c_cmp),l_block_size,int_mb(k_sp2c_lindx))
       if (lmaxin.ge.1) then
         call xlm_ptrs_fix_p(dbl_mb(int_mb((k_sp2c_lindx+1))),3,1)
       endif
-*rak:      do lval=0,Lmaxin
-*rak:        call xlm_ptrs_phase(dbl_mb(int_mb((k_sp2c_lindx+lval))),
-*rak:     &      (lval+1)*(lval+2)/2,lval)
-*rak:        call spcart_print_dtrans(lval)
-*rak:      enddo
+*      do lval=0,Lmaxin
+*        write(6,*)' before '
+*        call spcart_print_dtrans(lval)
+*      enddo
+*
+* form inverse array 
+*
+      call xlm_ptrsinv(lmaxin,
+     &      dbl_mb(k_invsp2c_cmp),
+     &      l_block_size,
+     &      int_mb(k_invsp2c_lindx))
 c
 * free up recursion copy of transformation matricies
       if (.not.ma_free_heap(h_sp2c)) call errquit
@@ -112,6 +145,12 @@ c
       active_sp2c = .false.
       k_sp2c = 0
       h_sp2c = 0
+c
+*      do lval=0,Lmaxin
+*        write(6,*)' after '
+*        call spcart_print_dtrans(lval)
+*        call spcart_print_invdtrans(lval)
+*      enddo
 c
       sph_cart_init = Sph_Cart_Init_Value
       lmax_init = lmaxin
@@ -153,6 +192,27 @@ c
           k_sp2c_lindx = 0
           h_sp2c_lindx = 0
         endif
+        if (active_invsp2c_cmp) then
+          spcart_terminate = spcart_terminate .and.
+     &        ma_free_heap(h_invsp2c_cmp)
+          active_invsp2c_cmp = .false.
+          k_invsp2c_cmp = 0
+          h_invsp2c_cmp = 0
+        endif
+        if (active_invsp2c_lindx) then
+          spcart_terminate = spcart_terminate .and.
+     &        ma_free_heap(h_invsp2c_lindx)
+          active_invsp2c_lindx = .false.
+          k_invsp2c_lindx = 0
+          h_invsp2c_lindx = 0
+        endif
+        if (active_cart_norm_scale) then
+          spcart_terminate = spcart_terminate .and.
+     &        ma_free_heap(h_cart_norm_scale)
+          active_cart_norm_scale = .false.
+          k_cart_norm_scale = 0
+          h_cart_norm_scale = 0
+        endif
         if (.not.spcart_terminate) call errquit
      &      (' error freeing heap in spcart_terminate',911)
         sph_cart_init = 0
@@ -171,39 +231,183 @@ c
       end
 *.......................................................................
 * set up pointer information
-      subroutine xlm_ptrs(Ld,D,Dall,Dcmp,ldcmp,Dindex)
+      subroutine xlm_ptrs(Ld,D,Dcmp,ldcmp,Dindex)
+      implicit none
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "spcartP.fh"
 c
 c::passed
       integer Ld        ! [input] Lmax for how spcart_* was initialized
-      integer ldcmp     ! [input] length of compressed transformation arrays
-      double precision D((((Ld+1)*(Ld+2))/2),-Ld:Ld,0:Ld) ! [input] transformation matrix
-      double precision Dall((((Ld+1)*(Ld+2))/2),
-     &    (((Ld+1)*(Ld+2))/2),0:Ld) ! [input] transformation matrix
+      integer ldcmp     ! [input] length of compressed transformation 
+*                                 arrays
+*
+*. . . . . . . . . . . . . . . . . . . . ! [input] transformation matrix
+      double precision D((((Ld+1)*(Ld+2))/2),-Ld:Ld,0:Ld) 
 c
-      double precision Dcmp(ldcmp)  ! [output] compressed transformation arrays
-      integer Dindex(0:Ld)          ! [output] pointer for lth transform array in compressed array
+      double precision Dcmp(ldcmp)  ! [output] compressed transformation
+*                                              arrays
+*
+      integer Dindex(0:Ld)          ! [output] pointer for lth transform
+*                                              array in compressed array
 c
 c::local      
-      integer lval
+      integer lval, isp, icart
+      integer icount
 c
       if (sph_cart_allsph) call errquit
-     &    ('xlm_ptrs: all spherical components not working yet',911)
+     &      ('xlm_ptrs: all spherical components not working yet',911)
 c
 c
       icount = 0
       do 00100 lval = 0,Ld
-        Dindex(lval) = k_sp2c_cmp + icount  ! set pointer in index array
+        Dindex(lval) = k_sp2c_cmp + icount ! set pointer in index array
         do 00200 isp = -lval,lval
           do 00300 icart = 1,(((lval+1)*(lval+2))/2)
             icount = icount + 1
-            Dcmp(icount) = D(icart,isp,lval)  ! form separate D(xyz,sph) arrays
+            Dcmp(icount) = D(icart,isp,lval) ! form separate D(xyz,sph)
+*                                              arrays
 00300     continue
 00200   continue
 00100 continue
 *      call spcart_print_both(D,ld)
+      end
+*.......................................................................
+* set up pointer information for inverse array
+      subroutine xlm_ptrsinv(Ld,Dinvcmp,lDinvcmp,Dindex)
+      implicit none
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "spcartP.fh"
+c
+c::passed
+      integer Ld       ! [input] Lmax for how spcart_* was initialized
+      integer lDinvcmp ! [input] length of compressed inverse 
+*                                transformation arrays
+*
+      double precision Dinvcmp(lDinvcmp) ! [output] compressed inverse 
+*                                                   transformation 
+*                                                   arrays
+*
+      integer Dindex(0:Ld) ! [output] pointer for lth inverse transform
+*                                     array in compressed array
+c
+c::local      
+      integer lval, ld2s, icount, l2s
+      integer k_ov, h_ov, k_scr, h_scr
+c
+      if (sph_cart_allsph) call errquit
+     &      ('xlm_ptrs: all spherical components not working yet',911)
+c
+      ld2s = (((ld+1)*(ld+2))/2)
+      if (.not.ma_push_get(mt_dbl,ld2s*ld2s,
+     &    'xlm_ptrsinv overlap',h_ov,k_ov)) call errquit
+     &    ('xlm_ptrsinv: could not allocate overlap',911)
+      if (.not.ma_push_get(mt_dbl,ld2s*(2*ld+1),
+     &    'xlm_ptrsinv scratch',h_scr,k_scr)) call errquit
+     &    ('xlm_ptrsinv: could not allocate scratch',911)
+      icount = 1
+      do 00100 lval = 0,Ld
+        Dindex(lval) =
+     &        k_invsp2c_cmp + icount - 1 ! set pointer in index array
+        l2s = (((lval+1)*(lval+2))/2)
+        call spcart_cart_overlap(lval,l2s,dbl_mb(k_ov))
+*        write(6,*)' xlm_ptrsinv verify 1', l2s, lval
+*        if (.not. ma_verify_allocator_stuff()) stop ' xlm_ptrsinv'
+        call xlm_ptrsinva(l2s,lval,dbl_mb(k_ov),Dinvcmp(icount),
+     &      dbl_mb(k_scr))
+*        write(6,*)' xlm_ptrsinv verify 2', l2s, lval
+*        if (.not. ma_verify_allocator_stuff()) stop ' xlm_ptrsinv'
+        icount = icount + l2s*(2*lval+1)
+00100 continue
+      if (.not.ma_pop_stack(h_scr)) call errquit
+     &      ('xlm_ptrsinv: could not pop_stack for overlap',911)
+      if (.not.ma_pop_stack(h_ov)) call errquit
+     &      ('xlm_ptrsinv: could not pop_stack for overlap',911)
+      end
+*.......................................................................
+      subroutine xlm_ptrsinva(l2s,lval,overlap,Dinv,scr)
+      implicit none
+#include "mafdecls.fh"
+#include "spcartP.fh"
+      integer l2s,lval
+      double precision Dinv(-lval:lval,l2s)
+      double precision scr(-lval:lval,l2s)
+      double precision overlap(l2s,l2s)
+      integer s,c1, c2
+      double precision val
+c::statement function ----- start
+      integer iic,iis,iil
+      double precision Dtrans
+      Dtrans(iic,iis,iil) =
+     &      dbl_mb((int_mb(k_sp2c_lindx+iil))+
+     &      ((iis+iil)*(iil+1)*(iil+2)/2)
+     &      + iic - 1)
+c::statement function ----- end
+
+* transpose Dtrans
+      do s = -lval,lval
+        do c1 = 1,l2s
+          scr(s,c1) = Dtrans(c1,s,lval)
+          Dinv(s,c1) = 0.0d00
+        enddo
+      enddo
+*      write(6,*)' inside forming Dinv '
+*      call spcart_print_dtrans(lval)
+*      write(6,*)' transpose scr '
+*      call output(scr,1,(2*lval+1),1,l2s,(2*lval+1),l2s,1)
+* Dinv(sph,cart) = [Dtrans(cart,sph]^+ overlap(cart,cart)
+* Dinv(sph,cart) = scr(sph,cart)*overlap(cart,cart)
+      do s = -lval,lval
+        do c1 = 1,l2s
+          val = 0.0d00
+          do c2 = 1,l2s
+             val = val + scr(s,c2)*overlap(c2,c1)
+          enddo
+          Dinv(s,c1) = val
+        enddo
+      enddo
+c
+*      call dgemm('n','n',
+*     &    (2*lval+1),(2*lval+1),l2s,
+*     &    1.0d00,
+*     &    Dinv,(2*lval+1),
+*     &    dbl_mb(((int_mb(k_sp2c_lindx+lval)))),l2s,
+*     &    0.0d00,scr,(2*lval+1))
+*      write(6,*)' dinv*d'
+*      call output(scr,1,(2*lval+1),1,(2*lval+1),(2*lval+1),(2*lval+1),1)
+      end
+*.......................................................................
+      subroutine xlm_cart_norm_scale(Ld,D,cart_scale)
+      implicit none
+c::passed
+      integer Ld        ! [input] Lmax for how spcart_* was initialized
+      double precision
+     &      D((((Ld+1)*(Ld+2))/2),-Ld:Ld,0:Ld) ! [input] transformation
+*                                                        matrix
+      double precision cart_scale(-Ld:Ld,0:Ld)
+c::local
+      integer l,c,s,l2s
+      double precision norm
+      call dfill ((2*Ld+1)*(Ld+1),0.0d00,cart_scale,1)
+
+      do l = 0,Ld
+        l2s = (l+1)*(l+2)/2
+        do s = (-l),l
+          norm = 0.0d00
+          do c = 1,l2s
+            norm = norm + D(c,s,l)*D(c,s,l)
+          enddo
+*          write(6,*)'norm', norm, '  l,s,c',l,s,c
+*          if (norm.gt.1.0d-10) then
+          norm = sqrt(1.0d00/norm)
+*          else
+*            write(6,*)'scarry norm', norm, '  l,s,c',l,s,c
+*            norm = 1.0d00
+*          endif
+          cart_scale(s,l) = norm
+        enddo
+      enddo
       end
 *.......................................................................
 *rak:      subroutine xlm_ptrs_phase(Dp,l2p,lp)
@@ -288,7 +492,8 @@ c
 *rak:        do is = -lval,lval
 *rak:          do ic = 1,l2s
 *rak:            diff = D(ic,is,lval)-Dtrans(ic,is,lval)
-*rak:            write(6,*) lval,is,ic,D(ic,is,lval),Dtrans(ic,is,lval),diff
+*rak:            write(6,*) 
+*rak:     &            lval,is,ic,D(ic,is,lval),Dtrans(ic,is,lval),diff
 *rak:          enddo
 *rak:        enddo
 *rak:      enddo
@@ -300,14 +505,22 @@ c
 #include "spcartP.fh"
       integer ld
 c
-*rak:      if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
-*rak:     &    ('spcart_print_dtrans: spcart not initialized properly',
-*rak:     &    sph_cart_init)
-*rak:c
-      write(6,*)' trans matrix used for Lval =',ld
+      write(6,*)' spcart trans matrix used for Lval =',ld
       call output(dbl_mb((int_mb(k_sp2c_lindx+ld))),1,
      &    ((ld+1)*(ld+2)/2),1,(2*ld+1),
      &    ((ld+1)*(ld+2)/2),(2*ld+1),1)
+      end
+*.......................................................................
+      subroutine spcart_print_invdtrans(ld)
+      implicit none
+#include "mafdecls.fh"
+#include "spcartP.fh"
+      integer ld
+c
+      write(6,*)' spcart inverse trans matrix used for Lval =',ld
+      call output(dbl_mb((int_mb(k_invsp2c_lindx+ld))),1,
+     &    (2*ld+1),1,((ld+1)*(ld+2)/2),
+     &    (2*ld+1),((ld+1)*(ld+2)/2),1)
       end
 *.......................................................................
       integer function spcart_trns_ptr(lval,lcart,lsp)
@@ -337,27 +550,36 @@ c
 
 #include "spcartP.fh"
 
-      data sph_cart_init /0/
-      data lmax_init     /0/
-      data h_sp2c        /0/
-      data k_sp2c        /0/
-      data h_sp2c_cmp    /0/
-      data k_sp2c_cmp    /0/
-      data h_sp2c_lindx  /0/
-      data k_sp2c_lindx  /0/
-      data sph_cart_allsph   /.false./
-      data active_sp2c       /.false./
-      data active_sp2c_cmp   /.false./
-      data active_sp2c_lindx /.false./
-      data trust_dgemm       /.false./
+      data sph_cart_init     /0/
+      data lmax_init         /0/
+      data h_sp2c            /0/
+      data k_sp2c            /0/
+      data h_sp2c_cmp        /0/
+      data k_sp2c_cmp        /0/
+      data h_sp2c_lindx      /0/
+      data k_sp2c_lindx      /0/
+      data h_invsp2c_cmp     /0/
+      data k_invsp2c_cmp     /0/
+      data h_invsp2c_lindx   /0/
+      data k_invsp2c_lindx   /0/
+      data h_cart_norm_scale /0/
+      data k_cart_norm_scale /0/
+      data active_cart_norm_scale /.false./
+      data sph_cart_allsph        /.false./
+      data active_sp2c            /.false./
+      data active_sp2c_cmp        /.false./
+      data active_sp2c_lindx      /.false./
+      data active_invsp2c_cmp     /.false./
+      data active_invsp2c_lindx   /.false./
+      data trust_dgemm            /.false./
       end
 *.......................................................................
       subroutine spcart_a_s(blockin, blockout, ndima, ls,
      &      ngls, in_place, print_info)
       implicit none
 c
-c  transforms a block of integrals with the Ls function is the slowest dimension
-c  e.g., blockin(ndima,L2s,ngls)
+c  transforms a block of integrals with the Ls function is the slowest 
+c  dimension: e.g., blockin(ndima,L2s,ngls)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -366,9 +588,13 @@ c: passed
       integer ndima  ! [input] leading dimension of block
       integer ls     ! [input] angular momentum of block
       integer ngls   ! [input] general contraction length of ls block
-      double precision blockin (ndima,((ls+1)*(ls+2)/2),ngls)  ! [input] matrix 
-      double precision blockout(ndima,-ls:ls,ngls)             ! [output] matrix 
-      logical in_place  ! [input] true if blockin and block out are the same pointer
+      double precision
+     &      blockin (ndima,((ls+1)*(ls+2)/2),ngls) ! [input] matrix 
+      double precision
+     &      blockout(ndima,-ls:ls,ngls) ! [output] matrix 
+      logical
+     &      in_place ! [input] true if blockin and block out are 
+*                              the same pointer
       logical print_info ! [input] print info
 c: local
       double precision sumg
@@ -422,8 +648,10 @@ c
       endif
 c
 c
-c:old<dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = blockout(ndima,2l+1)>
-c dgemm call for blockin(ndima,l2s,ngls)*dtrans(l2s,2l+1) = blockout(ndima,2l+1,ngls)
+c:old<dgemm call for blockin(ndima,l2s)*dtrans(l2s,2l+1) = 
+*                                                  blockout(ndima,2l+1)>
+c dgemm call for blockin(ndima,l2s,ngls)*dtrans(l2s,2l+1) = 
+*                                             blockout(ndima,2l+1,ngls)
 c
       L2s = ((ls+1)*(ls+2)/2)
       if (trust_dgemm) then
@@ -437,7 +665,8 @@ c
       endif
 c
 c
-c  blockout(ndima,2l+1,ngls) = blockin(ndima,l2s,ngls)*d_spcart(l2s,2l+1,lp=ls)
+c  blockout(ndima,2l+1,ngls) = 
+*                       blockin(ndima,l2s,ngls)*d_spcart(l2s,2l+1,lp=ls)
 c      
       call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
       L2s = ((ls+1)*(ls+2)/2)
@@ -460,8 +689,8 @@ c
      &      ls, ngls, in_place, print_info)
       implicit none
 c
-c  transforms a block of "integrals" with the ls function is the leading dimension
-c  e.g., blockin(L2s,ndima)
+c  transforms a block of "integrals" with the ls function is the 
+c  leading dimension; e.g., blockin(L2s,ndima)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -470,9 +699,13 @@ c: passed
       integer ndima  ! [input] leading dimension of block
       integer ls     ! [input] angular momentum of block
       integer ngls   ! [input] general contraction length of ls block
-      double precision blockin (((ls+1)*(ls+2)/2),ngls,ndima)  ! [input] matrix 
-      double precision blockout(-ls:ls,ngls,ndima)           ! [output] matrix 
-      logical in_place  ! [input] true if blockin and block out are the same pointer
+      double precision
+     &      blockin (((ls+1)*(ls+2)/2),ngls,ndima) ! [input] matrix 
+      double precision
+     &      blockout(-ls:ls,ngls,ndima) ! [output] matrix 
+      logical
+     &      in_place     ! [input] true if blockin and block out are 
+*                                  the same pointer
       logical print_info ! [input] print info
 c: local
       integer i,j,k,g
@@ -527,7 +760,8 @@ c
 c
 c only works for ngls = 1 right now
 c dgemm call for:
-c  Transpose(d_spcart(l2s,2l+1))*blockin(l2s,ndima) = blockout(2l+1,ndima)
+c  Transpose(d_spcart(l2s,2l+1))*blockin(l2s,ndima) = 
+*                                                   blockout(2l+1,ndima)
 c
         L2s = ((ls+1)*(ls+2)/2)
         call dgemm('t','n',(2*ls+1),ndima,L2s,1.0d00,
@@ -536,7 +770,8 @@ c
         return
       endif
 c
-c blockout(2l+1,ngls,ndima) = blockin(l2s,ngls,ndima)*d_spcart(l2s,2l+1,lp=ls)
+c blockout(2l+1,ngls,ndima) = 
+*                       blockin(l2s,ngls,ndima)*d_spcart(l2s,2l+1,lp=ls)
 c      
       L2s = ((ls+1)*(ls+2)/2)
       call dfill((ndima*(2*ls+1)*ngls),0.0d00,blockout,1)
@@ -557,8 +792,8 @@ c
      &      in_place,print_info)
       implicit none
 c
-c  transforms a block of "integrals" with the ls function is ordered between 
-c  a leading dimension and trailing dimension.
+c  transforms a block of "integrals" with the ls function is ordered 
+c  between a leading dimension and trailing dimension.
 c  e.g., blockin(nidima,L2s,ndimb)
 c
 #include "mafdecls.fh"
@@ -569,9 +804,15 @@ c: passed
       integer ndimb  ! [input] tailing dimension of block
       integer ls     ! [input] angular momentum of block
       integer ngls   ! [input] general contraction length of ls block
-      double precision blockin (ndima,((ls+1)*(ls+2)/2),ngls,ndimb) ! [input] matrix 
-      double precision blockout(ndima,-ls:ls,ngls,ndimb)            ! [output] matrix 
-      logical in_place  ! [input] true if blockin and blockout are the same pointer
+      double precision blockin (ndima,((ls+1)*(ls+2)/2),ngls,ndimb) 
+*                                                      ! [input] matrix
+*
+      double precision
+     &      blockout(ndima,-ls:ls,ngls,ndimb) ! [output] matrix 
+      logical
+     &      in_place     ! [input] true if blockin and blockout are 
+*                                  the same pointer
+*
       logical print_info ! [input] print info
 c: local
       integer i,j,k,g
@@ -659,8 +900,8 @@ c
      &    in_place, print_info)
       implicit none
 c
-c  transforms a block of integrals where the d function is the slowest dimension
-c  e.g., blockin(ndima,6) and blockout(ndima,5)
+c  transforms a block of integrals where the d function is the slowest 
+c  dimension; e.g., blockin(ndima,6) and blockout(ndima,5)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -670,7 +911,10 @@ c: passed
       integer ngls   ! [input] general contraction length of ls block
       double precision blockin (ndima,6,ngls)    ! [input] matrix 
       double precision blockout(ndima,-2:2,ngls) ! [output] matrix 
-      logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical
+     &      in_place     ! [input] true if blockin and block out are 
+*                                  the same pointer
+*
       logical print_info ! [input] print info
 c: local
       integer i,g
@@ -712,7 +956,8 @@ c
       endif
 c  spint(-2) = cint(2)*dtrans(2,-2,2)
 c  spint(-1) = cint(5)*dtrans(5,-1,2)
-c  spint( 0) = cint(1)*dtrans(1,0,2) + cint(4)*dtrans(4,0,2) + cint(6)*dtrans(6,0,2)
+c  spint( 0) = cint(1)*dtrans(1,0,2) + cint(4)*dtrans(4,0,2) 
+*              + cint(6)*dtrans(6,0,2)
 c  spint( 1) = cint(3)*dtrans(3,1,2)
 c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt2m2 = dtrans(2,-2,2)
@@ -772,8 +1017,8 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
      &    in_place, print_info)
       implicit none
 c
-c  transforms a block of integrals where the d function is the fastest dimension
-c  e.g., blockin(6,ndima) and blockout(5,ndima)
+c  transforms a block of integrals where the d function is the fastest 
+c  dimension; e.g., blockin(6,ndima) and blockout(5,ndima)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -783,7 +1028,9 @@ c: passed
       integer ngls   ! [input] general contraction length of ls block
       double precision blockin (6,ngls,ndima)    ! [input] matrix 
       double precision blockout(-2:2,ngls,ndima) ! [output] matrix 
-      logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical
+     &      in_place     ! [input] true if blockin and block out are 
+*                                  the same pointer
       logical print_info ! [input] print info
 c: local
       integer i,g
@@ -822,7 +1069,8 @@ c
       endif
 c  spint(-2) = cint(2)*dtrans(2,-2,2)
 c  spint(-1) = cint(5)*dtrans(5,-1,2)
-c  spint( 0) = cint(1)*dtrans(1,0,2) + cint(4)*dtrans(4,0,2) + cint(6)*dtrans(6,0,2)
+c  spint( 0) = cint(1)*dtrans(1,0,2) + cint(4)*dtrans(4,0,2) 
+*              + cint(6)*dtrans(6,0,2)
 c  spint( 1) = cint(3)*dtrans(3,1,2)
 c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt2m2 = dtrans(2,-2,2)
@@ -880,8 +1128,8 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
      &    ndima, ndimb, ngls, in_place, print_info)
       implicit none
 c
-c  transforms a block of integrals where the d function is the middle dimension
-c  e.g., blockin(ndima,6,ndimb) and blockout(ndima,5,ndimb)
+c  transforms a block of integrals where the d function is the middle 
+c  dimension; e.g., blockin(ndima,6,ndimb) and blockout(ndima,5,ndimb)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -890,9 +1138,13 @@ c: passed
       integer ndima  ! [input] leading dimension of block
       integer ndimb  ! [input] trailing dimension of block
       integer ngls   ! [input] general contraction length of ls block
-      double precision blockin (ndima, 6   ,ngls,ndimb) ! [input] matrix 
-      double precision blockout(ndima, -2:2,ngls,ndimb) ! [output] matrix 
-      logical in_place  ! [input] true if blockin and block out are the same pointer
+      double precision
+     &      blockin (ndima, 6   ,ngls,ndimb) ! [input] matrix 
+      double precision
+     &      blockout(ndima, -2:2,ngls,ndimb) ! [output] matrix 
+      logical
+     &      in_place     ! [input] true if blockin and block out are 
+*                                  the same pointer
       logical print_info ! [input] print info
 c: local
       integer i,j,g
@@ -932,7 +1184,8 @@ c
       endif
 c  spint(-2) = cint(2)*dtrans(2,-2,2)
 c  spint(-1) = cint(5)*dtrans(5,-1,2)
-c  spint( 0) = cint(1)*dtrans(1,0,2) + cint(4)*dtrans(4,0,2) + cint(6)*dtrans(6,0,2)
+c  spint( 0) = cint(1)*dtrans(1,0,2) + cint(4)*dtrans(4,0,2) 
+*              + cint(6)*dtrans(6,0,2)
 c  spint( 1) = cint(3)*dtrans(3,1,2)
 c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
       dt2m2 = dtrans(2,-2,2)
@@ -994,8 +1247,8 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
      &    in_place, print_info)
       implicit none
 c
-c  transforms a block of integrals where the f function is the slowest dimension
-c  e.g., blockin(ndima,10) and blockout(ndima,7)
+c  transforms a block of integrals where the f function is the slowest 
+c  dimension; e.g., blockin(ndima,10) and blockout(ndima,7)
 c
 #include "mafdecls.fh"
 #include "spcartP.fh"
@@ -1005,7 +1258,8 @@ c: passed
       integer ngls   ! [input] general contraction length of ls block
       double precision blockin (ndima,10,ngls)    ! [input] matrix 
       double precision blockout(ndima,-3:3,ngls)  ! [output] matrix 
-      logical in_place  ! [input] true if blockin and block out are the same pointer
+      logical in_place  ! [input] true if blockin and block out are 
+*                                 the same pointer
       logical print_info ! [input] print info
 c: local
       integer i,g
@@ -2241,6 +2495,90 @@ c
      &      ('slice_amb_print: could not deallocate (pop) slice',911)
 c
       end
+      subroutine spcart_cart_overlap(lval,rankov,overlap)
+      implicit none
+*
+* compute the cartsian overlap matrix for a given type of basis function
+* This matrix is used to form the inverse of dtrans
+*
+#include "stdio.fh"
+#include "mafdecls.fh"
+      integer lval
+      integer rankov
+      double precision overlap(rankov,rankov)
+*      
+      double precision double_dummy
+      double precision xyz(3)
+      double precision zeta, coef
+      integer h_scr,k_scr
+      integer scr_size
+*
+*      write(6,*)' spcart_cart_overlap verify 1',' lval   = ',lval,
+*     &      ' rankov = ',rankov
+*      if (.not. ma_verify_allocator_stuff())
+*     &    stop ' spcart_cart_overlap '
+      call dfill (3,0.0d00,xyz,1)  ! do it at the origin
+      zeta  = 1.2345d00
+      coef = 1.0d00
+*
+* normalize exponents just like in integrals       
+      call nmcoef(zeta,coef,lval,1,1)
+*      
+      scr_size = 200000
+*      write(6,*)' spcart_cart_overlap verify 2',' lval   = ',lval,
+*     &      ' rankov = ',rankov
+*      if (.not. ma_verify_allocator_stuff())
+*     &    stop ' spcart_cart_overlap '
+      call hf1(xyz,zeta,coef,1,1,lval,
+     &    xyz,zeta,coef,1,1,lval,
+     &    xyz,double_dummy,1,
+     &    overlap,double_dummy,double_dummy,
+     &    (rankov*rankov),
+     &    .true.,.false.,.false.,.false.,
+     &    .true.,
+     &    double_dummy,scr_size)
+      scr_size = max(scr_size,5000)
+*      write(6,*)' spcart_cart_overlap verify 3',' lval   = ',lval,
+*     &      ' rankov = ',rankov
+*      if (.not. ma_verify_allocator_stuff())
+*     &    stop ' spcart_cart_overlap '
+*      write(6,*)' scr_size is ',scr_size
+      if (.not.ma_push_get(mt_dbl,scr_size,
+     &    'spcart overlap scratch buffer',
+     &    h_scr,k_scr)) call errquit
+     &    ('spcart_cart_overlap: could not allocate scratch buffer',
+     &    911)
+*      write(6,*)' spcart_cart_overlap verify 4',' lval   = ',lval,
+*     &      ' rankov = ',rankov
+*      if (.not. ma_verify_allocator_stuff())
+*     &    stop ' spcart_cart_overlap '
+      call dfill((rankov*rankov),0.0d00,overlap,1)
+*      write(6,*)' spcart_cart_overlap verify 5',' lval   = ',lval,
+*     &      ' rankov = ',rankov
+*      if (.not. ma_verify_allocator_stuff())
+*     &    stop ' spcart_cart_overlap '
+*      write(6,*)' calling hf1 '
+      call hf1(xyz,zeta,coef,1,1,lval,
+     &    xyz,zeta,coef,1,1,lval,
+     &    xyz,double_dummy,1,
+     &    overlap,double_dummy,double_dummy,
+     &    (rankov*rankov),
+     &    .true.,.false.,.false.,.false.,
+     &    .false.,
+     &    dbl_mb(k_scr),scr_size)
+*      write(6,*)' spcart_cart_overlap verify 6',' lval   = ',lval,
+*     &      ' rankov = ',rankov
+*      if (.not. ma_verify_allocator_stuff())
+*     &    stop ' spcart_cart_overlap '
+      if (.not.ma_pop_stack(h_scr))call errquit
+     &    ('spcart_cart_overlap: could not pop_stack scratch buffer',
+     &    911)
+*-debug-s
+*      write(luout,*)' overlap matrix for lval = ',lval
+*      call output(overlap,1,rankov,1,rankov,rankov,rankov,1)
+*-debug-s
+      end
+
 *.......................................................................
 *rak:      subroutine spcart_all(blockin, blockout,li,lj,lk,ll,ni,nj,nk,nl)
 *rak:      implicit none

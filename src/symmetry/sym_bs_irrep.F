@@ -1,5 +1,5 @@
       subroutine sym_bas_irreps(basis, oprint, nbf_per_ir)
-C$Id: sym_bs_irrep.F,v 1.2 1996-05-14 18:07:48 d3g681 Exp $
+C$Id: sym_bs_irrep.F,v 1.3 1997-11-07 01:45:17 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -35,6 +35,7 @@ c
       double precision chars(maxireps*maxireps)
 c
       integer itype, nprim, ngen, sphcart, n, irrep_dim
+      logical do_spherical
 c
       double precision sym_trace_bas_op
       external sym_trace_bas_op
@@ -49,6 +50,7 @@ c
      $     call errquit('sym_bas_irreps: bas_high_angular', basis)
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
+      do_spherical = bas_is_spherical(basis)
 c     
       if (.not. ma_push_get(MT_DBL, maxr, 'r', l_r, k_r))
      $     call errquit('sym_bas_irreps: ma failed', maxr)
@@ -70,7 +72,8 @@ c
 c     Loop thru operations and get the representation matrices
 c     
       do op = 1, nop-1          ! Don't include identity
-         call sym_bas_op(geom, op, dbl_mb(k_r), maxf, ang_max)
+         call sym_bas_op
+     &      (geom, op, dbl_mb(k_r), maxf, ang_max, do_spherical)
          class = op_class_index(op)
 c
 *         write(6,*) ' OP = ', op, class

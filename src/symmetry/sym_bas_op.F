@@ -1,14 +1,16 @@
-      subroutine sym_bas_op(geom, op, r, maxf, ang_max)
-C$Id: sym_bas_op.F,v 1.5 1995-11-17 01:25:29 d3g681 Exp $
+      subroutine sym_bas_op(geom, op, r, maxf, ang_max,
+     &    otransform)
+C$Id: sym_bas_op.F,v 1.6 1997-11-07 01:45:17 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 c     
-      integer geom
-      integer op                ! Desired operator
-      integer maxf              ! Leading dimension of r
-      integer ang_max           ! Max. ang. momentum of shell
+      integer geom         ! [input]  geometry handle
+      integer op           ! [input]  Desired operator
+      integer maxf         ! [input]  Leading dimension of r
+      integer ang_max      ! [input]  Max. ang. momentum of shell
+      logical otransform   ! [input]  transform to spherical basis
 c     
 c     Return the transformation matrices for basis functions
 c     under the specified group operation.
@@ -80,7 +82,8 @@ c     translational components of R are irrelevant.
 c     
 c     Finally, R(1,1,1) = 1 (s functions).
 c     
-      double precision R(1:maxf,1:maxf,0:ang_max)
+      double precision  ! [output] basis function transformation under operation op
+     &    R(1:maxf,1:maxf,0:ang_max) 
       double precision matrix(3,4)
       integer II, JJ, KK, LL, MM, IIMM, JJKK, i, j,  nLL, nLLm1
       integer ijk(3), pqr(3), lmn(3)
@@ -95,8 +98,8 @@ c
 c     
 c     Loop through operators in the group
 c     
-*     write(6,1) op
-*     1       format(/' Symmetry operator ', i3)
+*      write(6,1) op
+*    1    format(/' Symmetry operator ', i3)
       call dfill(maxf*maxf*(ang_max+1), 0.0d0, R, 1)
 c     
 c     Loop thru angular momenta
@@ -175,5 +178,107 @@ c
 * 2       format(/'      Angular momentum ', i2)
 *         call output(R(1,1,LL), 1, nLL, 1, nLL, maxf, maxf, 1)
       enddo
-c     
+      if (.not.otransform) return
+c
+      call sym_bas_op_spherical(maxf,ang_max,r)
+c
+      end
+      subroutine sym_bas_op_spherical(maxf,ang_max,r)
+      implicit none
+#include "mafdecls.fh"
+#include "spcartP.fh"
+      integer maxf    ! [input] leading dimension(s) of R
+      integer ang_max ! [input] trailing dimension of R
+      double precision R(1:maxf,1:maxf,0:ang_max)  ! [input/output] cartesian/spherical
+c::local
+      double precision sum(36,36)  ! intermediate matrix (handles j functions)
+      double precision val
+*     double precision scale
+      integer lval
+      integer l2s
+      integer s1, s2, c1, c2, r1, r2, c3
+      double precision sover(6,6,0:2)
+c::functions
+      logical spcart_init
+      external spcart_init
+c::statement function ----- start
+      integer iic,iis,iil,lval_max
+      double precision Dtrans, Dinvtrans, Dscale
+      integer sindex
+      Dtrans(iic,iis,iil) =
+     &    dbl_mb((int_mb(k_sp2c_lindx+iil))+
+     &           ((iis+iil)*(iil+1)*(iil+2)/2)
+     &           + iic - 1)
+      Dinvtrans(iis,iic,iil) =
+     &    dbl_mb((int_mb(k_invsp2c_lindx+iil))+
+     &    (iic-1)*(2*iil+1)+iis+iil)
+      sindex(iis,lval) = lval+iis+1
+c--(2*lm+1)*l + l+i + (lm-l):m=2,a=5
+c--(2*lm+1)*l + i + lm      :m=2,a=3
+c--lm*(2*l+1) + l + i       :m=2,a=3
+      Dscale(iis,lval,lval_max) =
+     &    dbl_mb(k_cart_norm_scale + lval_max*(2*lval+1)+lval+iis)
+c::statement function ----- end
+c
+      if (.not.spcart_init(ang_max,.true.,.false.))
+     &    call errquit
+     &    ('sym_bas_op_spherical: could not initialize spcart',911)
+c
+      call dfill ((6*6*3),0.0d00,sover,1)
+      sover(1,1,0) = 1.0d00
+      sover(1,1,1) = 1.0d00
+      sover(2,2,1) = 1.0d00
+      sover(3,3,1) = 1.0d00
+      sover(1,1,2) = 1.0d00
+      sover(2,2,2) = 1.0d00/3.0d00
+      sover(3,3,2) = 1.0d00/3.0d00
+      sover(4,4,2) = 1.0d00
+      sover(5,5,2) = 1.0d00/3.0d00
+      sover(6,6,2) = 1.0d00
+      sover(1,4,2) = 1.0d00/3.0d00
+      sover(1,6,2) = 1.0d00/3.0d00
+      sover(4,6,2) = 1.0d00/3.0d00
+      sover(4,1,2) = 1.0d00/3.0d00
+      sover(6,1,2) = 1.0d00/3.0d00
+      sover(6,4,2) = 1.0d00/3.0d00
+c
+      do lval = 2,ang_max         ! skip s and p transformations
+        l2s = (lval+1)*(lval+2)/2
+*        write(6,*)' cartesian matrix for angular momentum ',lval
+*        call output(R(1,1,lval),1,l2s,1,l2s,maxf,maxf,1)
+        call dfill((36*36),0.0d0,sum,1)
+        do c2 = 1,l2s
+          do s1 = -lval,lval
+            val = 0.0d00
+            do c1 = 1,l2s
+              val = val +
+     &            dinvtrans(s1,c1,lval)*R(c1,c2,lval)
+            enddo
+            sum(sindex(s1,lval),c2) = val
+          enddo
+        enddo
+* now sum is sum(spherical,cartesian,implied lval)
+*        write(6,*)' intermediate sum(sph,car)'
+*        call output(sum,1,(2*lval+1),1,l2s,36,36,1)
+        do s1 = -lval,lval
+          do s2 = -lval,lval
+            val = 0.0d00
+            do c2 = 1,l2s
+              val = val +
+     &            dtrans(c2,s2,lval)*sum(sindex(s1,lval),c2)
+            enddo
+            r1 = sindex(s1,lval)
+            r2 = sindex(s2,lval)
+            R(r1,r2,lval) = val
+          enddo
+        enddo
+*        write(6,*)' spherical matrix for angular momentum ',lval
+*        call output(R(1,1,lval),1,(2*lval+1),1,(2*lval+1),maxf,maxf,1)
+        do s1 = 2*lval+2,maxf
+          do s2 = 2*lval+2,maxf
+            R(s1,s2,lval) = 1234.0d00
+          enddo
+        enddo
+      enddo
+c      
       end

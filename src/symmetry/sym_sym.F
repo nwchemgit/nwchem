@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.5 1997-10-30 00:21:13 d3e129 Exp $
+C$Id: sym_sym.F,v 1.6 1997-11-07 01:45:19 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -39,18 +39,18 @@ c
 *: ang_max used below
       if (.not. bas_high_angular(basis, ang_max))
      $     call errquit('sym_symmetrize: bas_high_angular', basis)
-      status = bas_is_spherical(basis)
-      if (status.and.(ang_max.gt.1)) then
-        if (ga_nodeid().eq.0) then
-          write(6,*)' spherical basis set and symmetry ',
-     &        'are not allowed yet'
-          write(6,*)
-     &        ' you can use no symmetry and spherical basis sets '
-          write(6,*)'or'
-          write(6,*)' cartesian basis sets with symmetry'
-        endif
-        call errquit('sym_symmetrize: fatal error',911)
-      endif
+*rak:      status = bas_is_spherical(basis)
+*rak:      if (status.and.(ang_max.gt.1)) then
+*rak:        if (ga_nodeid().eq.0) then
+*rak:          write(6,*)' spherical basis set and symmetry ',
+*rak:     &        'are not allowed yet'
+*rak:          write(6,*)
+*rak:     &        ' you can use no symmetry and spherical basis sets '
+*rak:          write(6,*)'or'
+*rak:          write(6,*)' cartesian basis sets with symmetry'
+*rak:        endif
+*rak:        call errquit('sym_symmetrize: fatal error',911)
+*rak:      endif
 *
       call ga_sync()
       if (.not. ga_duplicate(g_a, g_b, 'sym_sym: b')) call errquit
@@ -169,6 +169,7 @@ c
       integer ingen, jngen, itype, jtype, inprim, jnprim
       integer isphcart, jsphcart, i_nbf_per_sh, j_nbf_per_sh
       integer op, icent_new, jcent_new, opinv
+      logical do_spherical
 c
       double precision sum(28,28), scale, factor, test
       integer sym_center_map, sym_number_ops
@@ -184,6 +185,8 @@ c
          end do
       end do
       if (test .eq. 0.0d0) return
+c
+      do_spherical = bas_is_spherical(basis)
 c
 c     Figure out range of basis functions on this atom
 c
@@ -214,7 +217,7 @@ c
             jcent_new = sym_center_map(geom, jcent, opinv)
          end if
 c
-         call sym_bas_op(geom, op, r, maxf, ang_max)
+         call sym_bas_op(geom, op, r, maxf, ang_max, do_spherical)
 c     
 c     loop thru general contractions on each center
 c
@@ -276,9 +279,13 @@ c     Finally have all of the necessary indices ... apply the
 c     operator ... number of functions here assumes that we
 c     have cartesian functions
 c
-                     ni = ((ish_type+1)*(ish_type+2))/2
-                     nj = ((jsh_type+1)*(jsh_type+2))/2
-
+                     if (do_spherical) then
+                       ni = 2*ish_type+1
+                       nj = 2*jsh_type+1
+                     else
+                       ni = ((ish_type+1)*(ish_type+2))/2
+                       nj = ((jsh_type+1)*(jsh_type+2))/2
+                     endif
 c
 c     tmp(i,j) <- sum(k,l) R(k,i)*A(k,l)*R(l,j)
 c

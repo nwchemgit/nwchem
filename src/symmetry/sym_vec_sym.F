@@ -1,5 +1,5 @@
       subroutine sym_vec_symmetrize(geom, basis, vec)
-C$Id: sym_vec_sym.F,v 1.3 1997-03-21 03:59:23 d3j191 Exp $
+C$Id: sym_vec_sym.F,v 1.4 1997-11-07 01:45:20 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -97,6 +97,7 @@ c
       integer ingen, itype, inprim
       integer isphcart, i_nbf_per_sh
       integer op
+      logical do_spherical
 c
       double precision sum, scale
       integer sym_center_map, sym_number_ops
@@ -107,11 +108,12 @@ c
       do i = 1, nbf
          tmp(i) = vec(i)
       end do
+      do_spherical = bas_is_spherical(basis)
 c
 c     Other operators
 c
       do op = 1, sym_number_ops(geom)
-         call sym_bas_op(geom, op, r, maxf, ang_max)
+         call sym_bas_op(geom, op, r, maxf, ang_max, do_spherical)
 c
 c     Centers
 c
@@ -162,7 +164,11 @@ c     Finally have all of the necessary indices ... apply the
 c     operator ... number of functions here assumes that we
 c     have cartesian functions
 c
-                  ni = ((ish_type+1)*(ish_type+2))/2
+                  if (do_spherical) then
+                    ni = 2*ish_type+1
+                  else
+                    ni = ((ish_type+1)*(ish_type+2))/2
+                  endif
 c
 c     tmp(j) <- sum(i) vec(i) R(i,j) for j on icent_new, i on icent
 c

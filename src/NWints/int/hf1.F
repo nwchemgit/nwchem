@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.13 1996-10-11 10:13:00 d3e129 Exp $
+c $Id: hf1.F,v 1.14 1997-11-07 01:46:09 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -134,6 +134,7 @@ c Assign pointers to scratch space.
        write(*,*) 'HF1:  Insufficient scratch space.'
        write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
        write(*,*) '       allocated ',maxW0
+       write(*,*) ' DryRun ',DryRun
  
        write(*,*) 'From the left '
        write(*,*) 'ALPHAp:  ',i_ALPHAp
@@ -196,6 +197,7 @@ c Assign pointers to scratch space.
        write(*,*) 'HF1:  Insufficient scratch space.'
        write(*,*) '       needed    ',i_left + (maxW0-(i_right-1))
        write(*,*) '       allocated ',maxW0
+       write(*,*) ' DryRun ',DryRun
 
        write(*,*) 'From the left '
        write(*,*) 'ALPHAp:  ',i_ALPHAp
@@ -262,6 +264,7 @@ c Assign pointers to scratch space.
         write(*,*) 'HF1:  Insufficient scratch space.'
         write(*,*) '       needed    ',i_top
         write(*,*) '       allocated ',maxW0
+        write(*,*) ' DryRun ',DryRun
 
         write(*,*) 'ALPHAp:  ',i_ALPHAp 
         write(*,*) 'IPAIRp:  ',i_IPAIRp
@@ -322,6 +325,7 @@ c Assign scratch space.
         write(*,*) 'HF1:  Insufficient scratch space.'
         write(*,*) '       needed    ',i_top
         write(*,*) '       allocated ',maxW0
+        write(*,*) ' DryRun ',DryRun
 
         write(*,*) 'ALPHAp:  ',i_ALPHAp 
         write(*,*) 'IPAIRp:  ',i_IPAIRp

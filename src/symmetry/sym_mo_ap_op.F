@@ -1,5 +1,5 @@
       subroutine sym_movecs_apply_op(basis, op, v, t)
-C$Id: sym_mo_ap_op.F,v 1.1 1995-12-13 01:28:24 d3g681 Exp $
+C$Id: sym_mo_ap_op.F,v 1.2 1997-11-07 01:45:18 d3e129 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -22,6 +22,7 @@ c
       integer ishlo, ishhi, jshlo, jshhi
       integer type, ngen, nprim, sphcart
       integer opinv
+      logical do_spherical
 c
 c     Get basis and geom info
 c     
@@ -36,12 +37,14 @@ c
 c     
 c     Get the transformation matrices for shells
 c
+      do_spherical = bas_is_spherical(basis)
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
       if (.not. ma_push_get(MT_DBL, maxr, 'r', l_r, k_r))
      $     call errquit('sym_movecs_apply_op: ma failed', maxr)
 c
-      call sym_bas_op(geom, op, dbl_mb(k_r), maxf, ang_max)
+      call sym_bas_op
+     &    (geom, op, dbl_mb(k_r), maxf, ang_max, do_spherical)
       call sym_inv_op(geom, op, opinv)
 c
 **      call dfill(nbf, 0.0d0, t, 1) ! Now defined to add in to result

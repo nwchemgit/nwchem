@@ -1,27 +1,52 @@
 *
-* $Id: spcartP.fh,v 1.3 1996-07-18 23:59:10 d3e129 Exp $
+* $Id: spcartP.fh,v 1.4 1997-11-07 01:46:08 d3e129 Exp $
 *
       integer h_sp2c               ! ma handle for array for recursion
       integer k_sp2c               ! ma index in dbl_mb for array for recursion
       integer h_sp2c_cmp           ! ma handle for array for use/compressed
       integer k_sp2c_cmp           ! ma index in dbl_mb for array for use/compressed
+      integer h_invsp2c_cmp        ! ma handle for inverse array for use/compressed 
+      integer k_invsp2c_cmp        ! ma index in dbl_mb for inverse array for use/compressed
       integer lmax_init            ! lmax value used for initialization
+      integer h_cart_norm_scale    ! ma handle for vector to normalize cart. components
+      integer k_cart_norm_scale    ! ma index  for vector to normalize cart. components
       integer sph_cart_init        ! 1731 -> initialzed
       integer sph_cart_init_value  ! 1731 
       integer h_sp2c_lindx         ! ma handle for array of pointers to transformation matricies
       integer k_sp2c_lindx         ! ma index for array of pointers 
+      integer h_invsp2c_lindx      ! ma handle for inverse array of pointers to transformation matricies
+      integer k_invsp2c_lindx      ! ma index for inverse array of pointers 
       logical sph_cart_allsph      ! use all spherical components 3s from d, 5p from f etc.
       logical active_sp2c          ! active ma array sp2c ?
       logical active_sp2c_cmp      ! active ma array sp2c_cmp ?
+      logical active_invsp2c_cmp   ! active ma array sp2c_cmp ?
       logical active_sp2c_lindx    ! active ma array sp2c_lindx ?
+      logical active_invsp2c_lindx ! active ma array sp2c_lindx ?
+      logical active_cart_norm_scale ! active ma array cart_norm_scale ?
       logical trust_dgemm          ! is dgemm okay
 *
       parameter (sph_cart_init_value = 1731)
 *
-      common /cspcart/ sph_cart_init, lmax_init, h_sp2c, k_sp2c,
-     &    h_sp2c_cmp, k_sp2c_cmp,
-     &    h_sp2c_lindx, k_sp2c_lindx,
-     &    sph_cart_allsph,
-     &    active_sp2c, active_sp2c_cmp, active_sp2c_lindx,
-     &    trust_dgemm
-
+      common /cspcart/
+     & h_sp2c,
+     & k_sp2c,
+     & h_sp2c_cmp,
+     & k_sp2c_cmp,
+     & h_invsp2c_cmp,
+     & k_invsp2c_cmp,
+     & lmax_init,
+     & h_cart_norm_scale,
+     & k_cart_norm_scale,
+     & sph_cart_init,
+     & h_sp2c_lindx,
+     & k_sp2c_lindx,
+     & h_invsp2c_lindx,
+     & k_invsp2c_lindx,
+     & sph_cart_allsph,
+     & active_sp2c,
+     & active_sp2c_cmp,
+     & active_invsp2c_cmp,
+     & active_sp2c_lindx,
+     & active_invsp2c_lindx,
+     & active_cart_norm_scale,
+     & trust_dgemm
