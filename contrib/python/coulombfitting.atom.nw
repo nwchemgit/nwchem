@@ -1,0 +1,184 @@
+start coulombfitting
+
+# This python program generates Coulomb fitting basis sets 
+# for an atom using a uhf scf or dft wave function, both
+# with Hartree-Fock exchange
+#
+# Optimize an even tempered like set of primitive functions 
+# for an atom and return list of exponents and contraction 
+# coefficients
+
+# exp[i+1] = exp[i] * beta * (1 + gamma * (i^2/(n+1)^2)
+#
+# with i = 0,...,n-2
+
+# Input block after the python call:
+#   run_type = "scf" or "dft"
+#   atom   = which atom to optimize for
+#   charge = atomic charge
+#   nopen  = nr of open shells (hence 2S)
+#   basis  = name of basis in nwchem library
+#   ecp    = name of ecp in nwchem library
+#   l      = maximum angular momentum
+#   n      = list with nr of exponents per l-value
+#   freeze = l-values that should not be optimized 
+#            0 = optimize
+#            1 = not optimize
+#   exp0   = list with exp[0] a for expansion per l-value, see formula above
+#   beta   = list with beta a for expansion per l-value, see formula above
+#   gamma  = list with gamma a for expansion per l-value, see formula above
+
+set tolguess 1e-10
+
+set lindep:n_dep 0
+
+set int:acc_std 1e-25
+
+print none
+
+python
+  from mathutil import *
+
+  run_type = "scf"
+  atom = "Be"
+  charge = 0
+  nopen = 0
+  basis = "Ahlrichs_pVDZ"
+  ecp = ""
+  l = 2
+  n = [9,5,2]
+  freeze =  [0,1,1]
+  exp0 =  [0.25,0.40,0.60]
+  beta =  [1.44,1.44,1.44]
+  gamma = [1.00,1.00,1.00]
+
+  def nr_lvalue_list(k):
+    nr = -1
+    for i in range(0,k+1):
+        if (n[i]>0 and freeze[i]<1):
+           nr = nr + 1
+    return (nr)
+  
+  def put_exp0_beta_gamma():
+    z = zerovector(3*(nr_lvalue_list(l)+1))
+    for i in range(0,l+1):
+       if (n[i]>0 and freeze[i]<1):
+          nr = nr_lvalue_list(i)
+          z[0+3*nr] = sqrt(exp0[i] - 0.000001)
+          z[1+3*nr] = sqrt(beta[i] - 0.000001)
+          z[2+3*nr] = sqrt(gamma[i] - 0.000001)
+    return (z)
+
+  def get_exp0_beta_gamma(z,k):
+    if (freeze[k]>0):
+       exp0_n  = exp0[k]
+       beta_n  = beta[k]
+       gamma_n = gamma[k]
+    else:
+       nr = nr_lvalue_list(k)
+       exp0_n  = z[0+3*nr]*z[0+3*nr]+0.000001
+       beta_n  = z[1+3*nr]*z[1+3*nr]+0.000001
+       gamma_n = z[2+3*nr]*z[2+3*nr]+0.000001
+    return (exp0_n, beta_n, gamma_n)
+
+  def make_exp(z):
+    exponents = zeromatrix(max(n),l+1)
+    for j in range(0,l+1):
+       (exp0_n, beta_n, gamma_n) = get_exp0_beta_gamma(z,j)
+       exponents[0][j] = exp0_n
+       for i in range(0,n[j]-1):
+          ee = exponents[i][j] * beta_n
+          ee = ee * (1 + gamma_n * i * i / ((n[j] + 1) * (n[j] + 1)) )
+          exponents[i+1][j] = ee          
+    return exponents
+
+  def type_setup(type):
+    if (type == "scf"):
+       string = "scf; ri-scf coulomb; uhf; vectors input start.movecs output final.movecs;"
+       string = string + ('nopen %i; maxiter 1; thresh 1e-8; end\n\n') % (nopen)
+    else:
+       string = "dft; xc hfexch 1.0; grid xfine; tolerances tight; odft;"
+       string = string + "vectors input start.movecs output final.movecs;"
+       string = string + ('mult %i; iterations 1; convergence energy 1e-8; end\n\n') % (nopen+1)
+    return string
+  
+  def ref_energy():
+    if (run_type == "scf"):
+       return task_coulomb_ref('scf')
+    else:
+       return task_coulomb_ref('dft')
+       
+  def energy(z):
+    function_type = ["s", "p", "d", "f", "g", "h", "i"]
+    exponents = make_exp(z)
+    basis = 'basis "riscf basis" spherical noprint;'
+    for j in range(0,l+1):
+       for i in range(0,n[j]):
+          basis = basis + ('%s %s ; %f 1;' % (atom, function_type[j], exponents[i][j]))
+    if (run_type == "scf"):
+       basis = basis + "end\n\n" + type_setup('scf')
+       input_parse(basis)
+       return task_coulomb('scf')
+    else:
+       basis = basis + "end\n\n" + type_setup('dft')
+       input_parse(basis)
+       return task_coulomb('dft')
+        
+  def printexp(z):
+    function_type = ["s", "p", "d", "f", "g", "h", "i"]
+    exponents = make_exp(z)
+    print ' Exponents:'
+    for j in range(0,l+1):
+        print "%s - functions" % (function_type[j])
+        for i in range(0,n[j]):
+          print " %14.8f" % exponents[i][j]
+        print ""
+    print " "
+
+  # Setup list of variables to be optimized
+
+  z = zerovector(3*(nr_lvalue_list(l)+1))
+  z = put_exp0_beta_gamma()
+
+  # Place geometry, basis, and (possibly) ecp into input / rtdb
+ 
+  calc_setup = "geometry;"
+  calc_setup = calc_setup + ('%s  0  0  0; end\n\n') % (atom)
+  calc_setup = calc_setup + ('basis spherical noprint; %s library %s; end\n\n') % (atom, basis)
+  if (ecp != ""):
+     calc_setup = calc_setup + ('ecp spherical noprint; %s library %s; end\n\n') % (atom,ecp)
+  calc_setup = calc_setup + ('charge %i \n\n') % (charge)
+  input_parse(calc_setup)
+  
+  # Calculate reference energy without Coulomb fitting
+  #
+  # First setup for scf or dft
+ 
+  if (run_type == "scf"):
+     string = "scf; uhf; vectors output start.movecs;"
+     string = string + ('nopen %i; maxiter 100; thresh 1e-8; end\n\n') % (nopen)
+  else:
+     string = "dft; xc hfexch 1.0; grid xfine; tolerances tight; odft;"
+     string = string + ('mult %i; vectors output start.movecs;') % (nopen+1)
+     string = string + "iterations 100; convergence energy 1e-8; end\n\n"
+  input_parse(string)
+  reference = ref_energy()
+
+  # Optimize fitting basis set
+ 
+  (value,z) = quasinr(energy, z, 1e-5, 1e-12, printexp)
+
+  # Print the final results
+ 
+  print '\n\n    Results\n'
+  print '  l   n     exp0       beta       gamma   ' 
+  print ' --- ---  ---------  ---------  --------- '
+  for j in range(0,l+1):
+     (exp0_n, beta_n, gamma_n) = get_exp0_beta_gamma(z,j)
+     print '%4i %4i %12.6f %10.6f %10.6f' % (j, n[j], exp0_n, beta_n, gamma_n)
+  print '\n Final energy difference = %12.6f' % value
+  print '\n Energy without Coulomb fitting = %12.6f' % reference
+  printexp(z)
+end
+
+task python
