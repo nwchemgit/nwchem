@@ -1,6 +1,6 @@
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,CONVGE,CONVGG,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.2 1995-01-05 18:31:08 d3g681 Exp $
+c $Id: stpr_stepcor.F,v 1.3 1995-04-06 08:29:08 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
       integer rtdb
@@ -78,6 +78,8 @@ C     Get user input: TRUST,NMODE,TRACK,
 C     SELECT, RPATH, STD, etc, and equivalence data coming
 C     in from NWCHEM to data locations required by STEPPER.
 C
+*      grad_max = dabsmax(natd*3,g)
+*      write(6,*)' grad max in stepcor ',grad_max
       CALL stpr_face
      &       ( A(IPT( 1)), A(IPT( 2)), A(IPT( 5)), A(IPT( 9)),
      &       A(IPT(11)), A(IPT(15)), A(IPT(16)),

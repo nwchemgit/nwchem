@@ -4,7 +4,7 @@
      &     CONVGG, NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.8 1995-03-31 01:45:26 d3g681 Exp $
+c     $Id: stpr_face.F,v 1.9 1995-04-06 08:29:07 d3e129 Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
@@ -343,7 +343,9 @@ C
       DO 9 I = 1, NAT3
          GRAD(I) = G(I)
     9 CONTINUE
-*     write(6,*)' grad ',(grad(i), i=1,nat3)
+*      grad_max = dabsmax(nat3,grad)
+*      write(6,*)' grad max in stpr_face ',grad_max
+*      write(6,*)' grad ',(grad(i), i=1,nat3)
       IF (ICALC .EQ. 2) THEN
          WRITE(6,*)'  Second derivatives NOT available. '
          call errquit('stepper:face fatal error',911)
