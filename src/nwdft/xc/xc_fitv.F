@@ -1,6 +1,6 @@
       Subroutine xc_fitv(Tmat, nTrows, nTcols, g_vxc, g_xcinv, IOLGC)
 c
-C$Id: xc_fitv.F,v 1.11 1997-11-19 05:55:23 d3j191 Exp $
+C$Id: xc_fitv.F,v 1.12 1999-01-04 19:11:57 edo Exp $
 c
       implicit none
 c
@@ -170,16 +170,16 @@ c     Allocate scratch.
 c
       n3OI = (MXnshbf_ao**2)*MXnshbf_xc
 c
-      if (.not.MA_Push_Get(MT_Dbl, n3OI, '3OI', l3OI, i3OI))
+      call int_mem_3ov(mag,Max_scr)
+c
+      if (.not.MA_Push_Get(MT_Dbl, mag, '3OI', l3OI, i3OI))
      &   call errquit('xc_fitv: cannot allocate 3OI',0)
 c
-      if (.not.MA_Push_Get(MT_Dbl, nTcols*n3OI, 'vvxc', lvvxc, ivvxc))
+      if (.not.MA_Push_Get(MT_Dbl, nTcols*mag, 'vvxc', lvvxc, ivvxc))
      &   call errquit('xc_fitv: cannot allocate vvxc',0)
 c
-      if (.not.MA_Push_Get(MT_Dbl, n3OI, 'vec2', lvec2, ivec2))
+      if (.not.MA_Push_Get(MT_Dbl, mag, 'vec2', lvec2, ivec2))
      &   call errquit('xc_fitv: cannot allocate vec2',0)
-c
-      call int_mem_3ov(mag,Max_scr)
 c
       if (.not.MA_Push_Get(MT_Dbl, Max_scr, 'scr2', lscr2, iscr2))
      &   call errquit('xc_fitv: cannot allocate scr2',0)
