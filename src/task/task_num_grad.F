@@ -159,7 +159,7 @@ c
 c
 c     logic should be here to diagnose too large/small energy change
 c
-         call saxpy(natoms3, grad, dbl_mb(k_vec+(ivec-1)*natoms3), 1,
+         call daxpy(natoms3, grad, dbl_mb(k_vec+(ivec-1)*natoms3), 1,
      $        dbl_mb(k_grad), 1)
 c
       enddo
@@ -290,8 +290,8 @@ c
       parameter (maxat = 100)
       double precision work(3*maxat,6), eval(maxat)
       double precision centroid(3), x, y, z, xx, yy, zz, fx
-      double precision sdot
-      external sdot
+      double precision ddot
+      external ddot
 c
       if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms)
       natoms3 = 3*natoms
@@ -341,12 +341,12 @@ c
             work(i3+3,k) = zz
          enddo
          do j = 1, k-1
-            fx = sdot(natoms3, work(1,j), 1, work(1,k), 1)
-            call saxpy(natoms3, -fx, work(1,j), 1, work(1,k), 1)
+            fx = ddot(natoms3, work(1,j), 1, work(1,k), 1)
+            call daxpy(natoms3, -fx, work(1,j), 1, work(1,k), 1)
          enddo
-         fx = sqrt(sdot(natoms3, work(1,k), 1, work(1,k), 1))
+         fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
          if (fx . gt. 1d-6) then
-            call sscal(natoms3, 1.0d0/fx, work(1,k), 1)
+            call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
          else
             call dfill(natoms3, 0.0d0, work(1,k), 1)
          endif
@@ -354,9 +354,9 @@ c
 c     
       do k = 1, 6
          call sym_grad_symmetrize(geom, work(1,k))
-         fx = sqrt(sdot(natoms3, work(1,k), 1, work(1,k), 1))
+         fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
          if (fx . gt. 1d-6) then
-            call sscal(natoms3, 1.0d0/fx, work(1,k), 1)
+            call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
          else
             call dfill(natoms3, 0.0d0, work(1,k), 1)
          endif
@@ -372,18 +372,18 @@ c     Project trans/rotn from the symmetrized vectors
 c
       do k = 1, 6
          do i = 1, natoms3
-            fx = sdot(natoms3, work(1,k), 1, vectors(1,i), 1)
-            call saxpy(natoms3, -fx, work(1,k), 1, vectors(1,i), 1)
+            fx = ddot(natoms3, work(1,k), 1, vectors(1,i), 1)
+            call daxpy(natoms3, -fx, work(1,k), 1, vectors(1,i), 1)
          enddo
       enddo
 c
 c     Get rid of the zero vectors and orthonormalize the rest
 c     by diagonalizing the metric
 c     
-      call sgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
+      call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
      $     vectors, natoms3, vectors, natoms3, 0.0d0, temp, natoms3)
-      call ssyev('v','u',natoms3,temp,natoms3,eval,work,600,info)
-      if (info .ne. 0) call errquit('fd_make_vectors: ssyev failed',0)
+      call dsyev('v','u',natoms3,temp,natoms3,eval,work,600,info)
+      if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
 *      write(6,*) ' Eigen values of the projected vectors metric '
 *      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
 c     
@@ -393,8 +393,8 @@ c
       do i = 1, natoms3
          if (eval(i) .gt. 1d-3) then
             nvec = nvec + 1
-            call scopy(natoms3,temp(1,i),1,vectors(1,nvec),1)
-            call sscal(natoms3,1.0d0/sqrt(eval(i)),vectors(1,nvec),1)
+            call dcopy(natoms3,temp(1,i),1,vectors(1,nvec),1)
+            call dscal(natoms3,1.0d0/sqrt(eval(i)),vectors(1,nvec),1)
          endif
       enddo
       if (oprint) then
