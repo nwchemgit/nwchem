@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.104 2002-08-14 22:06:27 d3j191 Exp $
+c $Id: pre_input.F,v 1.105 2002-08-22 20:45:32 d3j191 Exp $
 c
       implicit none
 c
@@ -877,8 +877,8 @@ c
       if(type(1:6).ne.'zalign'.and.type(1:5).ne.'zaxis'.and.
      + type(1:7).ne.'xyplane') then
       if(type(1:8).eq.'basepair') then
-      if(.not.inp_f(value1)) value1=2.5d-1
-      if(.not.inp_f(value2)) value2=2.5d-1
+      if(.not.inp_f(value1)) value1=2.8d-1
+      if(.not.inp_f(value2)) value2=2.8d-1
       else
       if(.not.inp_f(value1)) call errquit('pre_input: pmf',9999)
       if(.not.inp_f(value2)) call errquit('pre_input: pmf',9999)

@@ -1,6 +1,6 @@
       logical function pre_rot(irot,jrot,arot,xrot,is,xs,msa,nsa)
 c
-c $Id: pre_rot.F,v 1.2 2001-08-29 23:04:05 d3j191 Exp $
+c $Id: pre_rot.F,v 1.3 2002-08-22 20:45:32 d3j191 Exp $
 c
       implicit none
 c
@@ -19,21 +19,21 @@ c
 c
 c     find center of geometry
 c
-      number=0
-      do 1 i=1,nsa
-      if(is(i).ge.irot.and.is(i).le.jrot) then
-      number=number+1
-      do 2 j=1,3
-      cog(j)=cog(j)+xs(j,i)
-    2 continue
-      endif
-    1 continue
-      cog(1)=cog(1)/dble(number)
-      cog(2)=cog(2)/dble(number)
-      cog(3)=cog(3)/dble(number)
-      xr(1)=xrot(1)+cog(1)
-      xr(2)=xrot(2)+cog(2)
-      xr(3)=xrot(3)+cog(3)
+c      number=0
+c      do 1 i=1,nsa
+c      if(is(i).ge.irot.and.is(i).le.jrot) then
+c      number=number+1
+c      do 2 j=1,3
+c      cog(j)=cog(j)+xs(j,i)
+c    2 continue
+c      endif
+c    1 continue
+c      cog(1)=cog(1)/dble(number)
+c      cog(2)=cog(2)/dble(number)
+c      cog(3)=cog(3)/dble(number)
+c      xr(1)=xrot(1)+cog(1)
+c      xr(2)=xrot(2)+cog(2)
+c      xr(3)=xrot(3)+cog(3)
 c
 c     rotate
 c
@@ -42,7 +42,7 @@ c
       x(1)=xs(1,i)
       x(2)=xs(2,i)
       x(3)=xs(3,i)
-      call rotate(cog,xr,arot,x,y)
+      call rotate(cog,xrot,arot,x,y)
       xs(1,i)=y(1)
       xs(2,i)=y(2)
       xs(3,i)=y(3)

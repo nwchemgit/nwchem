@@ -22,6 +22,9 @@ c
       integer i,j,k,l,m,n,io,ibase,jbase,idatom,nume,nump,im
       integer natoms,natomsj
       character*3 string
+      real*8 pi
+c
+      pi=4.0d0*atan(1.0d0)
 c
       if(npmfr.le.0) npmfr=1
       if(ipmfr.le.0) ipmfr=0
@@ -307,7 +310,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
+     + pi,pi,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,2),':_N3 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -322,7 +325,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
+     + pi,pi,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,3),':_N1 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -349,7 +352,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
+     + pi,pi,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,2),':_N1 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -364,7 +367,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
+     + pi,pi,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,3),':_N3 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
