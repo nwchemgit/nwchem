@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.38 2004-08-02 21:28:15 bert Exp $
+c $Id: int_spcart.F,v 1.39 2004-10-01 00:51:11 bert Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -2095,29 +2095,29 @@ c
       dt1_5   = dtrans(1,5,5)      
       dt4_5   = dtrans(4,5,5)      
       dt11_5  = dtrans(11,5,5)     
-      do i=1,ndima
-        do g=1,ngls
-          bin1  = blockin( 1,g,i)
-          bin2  = blockin( 2,g,i)
-          bin3  = blockin( 3,g,i)
-          bin4  = blockin( 4,g,i)
-          bin5  = blockin( 5,g,i)
-          bin6  = blockin( 6,g,i)
-          bin7  = blockin( 7,g,i)
-          bin8  = blockin( 8,g,i)
-          bin9  = blockin( 9,g,i)
-          bin10 = blockin(10,g,i)
-          bin11 = blockin(11,g,i)
-          bin12 = blockin(12,g,i)
-          bin13 = blockin(13,g,i)
-          bin14 = blockin(14,g,i)
-          bin15 = blockin(15,g,i)
-          bin16 = blockin(16,g,i)
-          bin17 = blockin(17,g,i)
-          bin18 = blockin(18,g,i)
-          bin19 = blockin(19,g,i)
-          bin20 = blockin(20,g,i)
-          bin21 = blockin(21,g,i)
+      do g=1,ngls
+        do i=1,ndima
+          bin1  = blockin(i, 1,g)
+          bin2  = blockin(i, 2,g)
+          bin3  = blockin(i, 3,g)
+          bin4  = blockin(i, 4,g)
+          bin5  = blockin(i, 5,g)
+          bin6  = blockin(i, 6,g)
+          bin7  = blockin(i, 7,g)
+          bin8  = blockin(i, 8,g)
+          bin9  = blockin(i, 9,g)
+          bin10 = blockin(i,10,g)
+          bin11 = blockin(i,11,g)
+          bin12 = blockin(i,12,g)
+          bin13 = blockin(i,13,g)
+          bin14 = blockin(i,14,g)
+          bin15 = blockin(i,15,g)
+          bin16 = blockin(i,16,g)
+          bin17 = blockin(i,17,g)
+          bin18 = blockin(i,18,g)
+          bin19 = blockin(i,19,g)
+          bin20 = blockin(i,20,g)
+          bin21 = blockin(i,21,g)
 c
           blockout(i,-5,g) = bin2*dt2_m5  + bin7*dt7_m5   +
      &                       bin16*dt16_m5
