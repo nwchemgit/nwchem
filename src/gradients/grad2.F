@@ -13,8 +13,6 @@
 
       logical status, oij, okl,oikjl
 
-      external nxtval
-
       dimension scr(lscr), buf(lbuf), frc ( 3, nat ), idatom(4)
       dimension d_ij(ldim,ldim),d_kl(ldim,ldim),d_ik(ldim,ldim),
      $          d_jl(ldim,ldim),d_il(ldim,ldim),d_jk(ldim,ldim)
