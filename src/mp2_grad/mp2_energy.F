@@ -35,7 +35,7 @@
       integer pass
       integer noa,nob,nva,nvb
       integer noper_a,noper_b
-      double precision tol2e,e2
+      double precision tol2e,e2,e2back
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
@@ -50,7 +50,7 @@
       integer k_map_a,l_map_a
       integer k_map_b,l_map_b
       intrinsic nint
-      logical status
+      logical status,oblk
 c     
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('scf:scftype wrong',1)
@@ -82,7 +82,7 @@ c
      $        call errquit('mp2_energy: ga_create failed',0)
       endif
       if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
-     $     l_occ_a,k_occ_a))
+     $     l_occ_a,k_occ_a))      
      $     call errquit('mp2_energy ma problem with alpha occ',1)
       if(scftype.eq.'UHF')then
          if(.not.ma_push_get(mt_dbl,nbf,'occ beta',
@@ -132,6 +132,8 @@ c
      $           mt_int,1,nvb_frozen))nvb_frozen=0
          endif
       endif
+      if(.not.rtdb_get(rtdb,'fourindex:aoblock',mt_log,oblk,1))
+     $     oblk=.false.
       if(.not.ma_push_get(mt_int,nbf,'irs_a',l_irs_a,k_irs_a))
      $     call errquit('scf_movecs_sym_adapt: memory?',nbf)
       if(scftype.eq.'UHF')then
@@ -205,6 +207,7 @@ c
       tol2e=1d-12
 c     
       e2=0.0d0
+      e2back=0.0d0
       if(scftype.eq.'RHF')then
          call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
@@ -224,20 +227,21 @@ c
      $        num_oa_sym,num_va_sym,
      $        g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
-     $        num_ob_sym,num_vb_sym,
-     $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
-     $        basis,geom,tol2e,e2,nbf,eval_e2,eval_grad,pass)
+     $        num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),dbl_mb(k_eval_b),
+     $        basis,geom,tol2e,e2,nbf,
+     $        eval_e2,eval_grad,pass,e2back,oblk)
          pass=2
          call mp2_grad_uhf(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $        num_ob_sym,num_vb_sym,
      $        g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
-     $        num_oa_sym,num_va_sym,
-     $        dbl_mb(k_eval_b),dbl_mb(k_eval_a),
-     $        basis,geom,tol2e,e2,nbf,eval_e2,eval_grad,pass)
+     $        num_oa_sym,num_va_sym,dbl_mb(k_eval_b),dbl_mb(k_eval_a),
+     $        basis,geom,tol2e,e2,nbf,
+     $        eval_e2,eval_grad,pass,e2back,oblk)
       endif
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ', e2
+      if(ga_nodeid().eq.0)write(6,*) 'E2 read back = ',e2back
 c     
       if(.not.ma_chop_stack(l_occ_a))call errquit(
      $     'could not chop stack in mp2_energy',1)
