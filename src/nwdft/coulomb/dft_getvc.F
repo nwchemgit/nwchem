@@ -2,9 +2,10 @@
      &                     iVcoul_opt, g_2ceri, g_dens, n_batch,
      &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
      &                     n_semi_bufs, fd, IOLGC, rdens_atom,
-     &                     cntoce, cntobfr, cetobfr, natoms)
-
-C$Id: dft_getvc.F,v 1.17 1999-02-13 00:25:16 edo Exp $
+     &                     cntoce, cntobfr, cetobfr, natoms,
+     &                     derfit, nmat)
+c
+C$Id: dft_getvc.F,v 1.18 1999-05-08 13:19:25 bjohnson Exp $
       implicit none
 c
 #include "bas.fh"
@@ -32,9 +33,10 @@ c
       integer iwhat_max
       integer n_semi_bufs
       integer fd
-      logical IOLGC
+      integer nmat           ! number of fitted J matrices to make [in]
+      logical IOLGC, derfit
 c
-      double precision CD_coef(nbf_cd)
+      double precision CD_coef(nbf_cd,nmat)
       double precision i3c_ERI(n3c_dbl)
       double precision Ecoul
       double precision Ecoul2
@@ -78,7 +80,8 @@ c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         call dft_fitvc(CD_coef, i3c_ERI, Ecoul2, rtdb, g_vc,
      &                 g_2ceri, n_batch, n_bmax, iwhat, n3c_dbl,
      &                 iwhat_max, n_semi_bufs, fd, IOLGC, rdens_atom,
-     &                 cntoce, cntobfr, cetobfr, natoms)
+     &                 cntoce, cntobfr, cetobfr, natoms, derfit, nmat,
+     &                 .true.)
 c        call dft_tstamp(' After  call to dft_fitvc')
 c        if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
