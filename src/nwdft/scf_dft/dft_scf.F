@@ -5,7 +5,7 @@
      $     g_fock,g_svecs,isvals,
      $     g_cdinv,g_xcinv,g_2ceri)
 c     
-C     $Id: dft_scf.F,v 1.61 1997-02-27 02:52:48 gutowski Exp $
+C     $Id: dft_scf.F,v 1.62 1997-03-03 01:23:13 d3h449 Exp $
 c     
       implicit none
       integer rtdb              ! [input]
@@ -40,7 +40,7 @@ c
       integer avail, availm
       integer iwhat_max
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
-      integer dft_n3cint, n_semi_bufs
+      integer dft_n3cint, n_semi_bufs, fd
       external dft_n3cint
       double precision dft_n3cdbl
       external dft_n3cdbl
@@ -214,7 +214,12 @@ c
 c     - subtract off a few bits for later use, e.g., quadrature
 c     
          availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
-c     
+c
+c
+c        tmp set force into semi
+c              
+c         availm = 3500
+c
          availm_r = dble(availm)
          availm_r = min(availm_r,n3c_dbl_r)
          n3c_dbl=nint(availm_r)
@@ -252,6 +257,8 @@ c          cannot all be done incore, compute number of buffers
 c          required if semi-direct (I/O)
 c
            n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
+         else
+           n_semi_bufs = 0
          endif
          if( .not.MA_Push_Get(
      $        MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
@@ -266,7 +273,7 @@ c
      $           write(LuOut,3229)n3c_dbl*1.d-6
             call dft_3cincor(rtdb, n_batch, n3c_int,
      $           int_mb(k_3cwhat), dbl_mb(k_3cERI), n3c_dbl,
-     $           iwhat_max, n_semi_bufs)
+     $           iwhat_max, n_semi_bufs, fd)
          else
             if(me.eq.0 .and. oprint_parm)write(LuOut,3230)
          endif
@@ -536,7 +543,7 @@ c
      $        Ecoul,incore,
      $        n_batch,n3c_int,
      $        int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
-     $        iwhat_max)
+     $        iwhat_max, n_semi_bufs, fd)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -553,7 +560,7 @@ c
      $     g_2ceri,g_dens,IOLGC,itol2e,incore,
      $     n_batch,n3c_int,
      $     int_mb(k_3cwhat),dbl_mb(k_3cERI),n3c_dbl,
-     $     iwhat_max)
+     $     iwhat_max, n_semi_bufs, fd)
 c     
 c     Add V coul to Fock Matrix
 c     

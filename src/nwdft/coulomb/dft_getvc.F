@@ -3,9 +3,9 @@
      &                     iVcoul_opt,g_2ceri,g_dens,IOLGC,
      &     itol2e,incore,
      &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,
-     &     iwhat_max)
+     &     iwhat_max, n_semi_bufs, fd)
 
-C$Id: dft_getvc.F,v 1.8 1996-11-22 19:08:26 d3h449 Exp $
+C$Id: dft_getvc.F,v 1.9 1997-03-03 01:23:02 d3h449 Exp $
       implicit none
       
 
@@ -25,6 +25,7 @@ c****
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl, iwhat_max
+      integer n_semi_bufs, fd
       double precision i3c_ERI(n3c_dbl)
 c
 c     Charge Density Expansion Coefficients
@@ -67,7 +68,8 @@ c
 c       Compute the Coulomb potential via a LSQ fitting procedure.
         call dft_fitvc( rtdb, geom, AO_bas_han, CD_bas_han,
      &       CD_coef,g_vc,Ecoul2,nbf_cd,g_2ceri,IOLGC,itol2e,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max)
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max, 
+     &     n_semi_bufs, fd)
 c
 c       Compute the Coulomb energy.
 c

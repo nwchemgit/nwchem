@@ -2,7 +2,8 @@
      &     CD_coef,  nbf_cd,
      &     g_cdinv, g_dens, nTotEl, IOLGC,itol2e,
      &     Ecoul1,incore,
-     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max)
+     &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,iwhat_max,
+     &     n_semi_bufs, fd)
       
       implicit none
       
@@ -20,6 +21,9 @@ c****
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n_semi_bufs, current_nbuf, n3c_b, fd, n_batch_read
+      double precision offset
+      double precision length
       integer n3c_dbl
       double precision i3c_ERI(n3c_dbl)
 c-->  Charge Density Expansion Coefficients
@@ -37,6 +41,7 @@ c****
 #include "util.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
+#include "eaf.fh"
 
       double precision F(2)
       double precision fac,THRESHOLD,Pmat_max,ERI_est,Q,AZ,alpha,
@@ -44,7 +49,7 @@ c****
       integer nproc,me,nbf_ao,MXnshbf_ao,MXnshbf_cd,nshells_ao,
      ,     nshells_cd,ischw1,icount,Nao2,n1,n2,ishc,ifirstc,ilastc,
      ,     nshbfc,ishd,ifirstd, ilastd,nshbfd,istart,
-     ,     ishp,ifirstp,ilastp,nshbfp,Nint,nscr,
+     ,     ishp,ifirstp,ilastp,nshbfp,Nintegrals,nscr,
      ,     max1e,nscr1e,j,next,i,mscratch_2e3c,
      ,     ifirst,ilast,nshbf,maxg,ish,lmiss
       integer iTvec,lTvec,lgvec,igvec,lERI,iERI,lcgtf,icgtf,
@@ -156,6 +161,32 @@ c
       ipoint=1
       if(ndone.gt.n_batch)goto 25
 c
+c     check for semi-direct, if so, load 1st buffer
+c
+      n3c_b = 8*n3c_dbl
+      current_nbuf = 0
+c      write(6,*)' n_semi_bufs = ',n_semi_bufs
+      if (n_semi_bufs.gt.0)then
+c
+c        check to make sure file is there
+c
+c         write(6,*)' fd = ',fd
+         if (eaf_length(fd, length) .ne. 0) call errquit
+     $      ('dft_fitcd: unable to determine 3c2e file length',0)
+c         write(6,*)' length = ',length
+         current_nbuf = current_nbuf + 1
+         offset = (current_nbuf-1)*n3c_b
+         if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
+     &      ('dft_fitcd: 3c-2e integral buffer read failed',0)
+         n_batch = nint(i3c_eri(n3c_dbl))
+c         write(6,*)' n_batch = ',n_batch
+c
+c        temp stop
+c
+c         call errquit(' temp stop in dft_3cincor ',0)
+      endif
+         
+c
       do 24 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
      &       call errquit('Exiting in dft_fitcd',111)
@@ -200,11 +231,28 @@ c
             end if
 c
             ndone=ndone+1
+c            write(6,*)' ndone, n_batch ',ndone,n_batch
             if(ndone.gt.n_batch)then
 c
-c             Finished processing integrals incore.
+c             if not reading 3c2e integrals from disk - then done
+c             start "direct"
 c
-              goto 25
+              if(n_semi_bufs.eq.0)goto 25
+c
+c
+c             Finished processing this batch of integrals, either get
+
+c
+              if (current_nbuf .eq. n_semi_bufs)goto 25
+              current_nbuf = current_nbuf + 1
+              offset = (current_nbuf-1)*n3c_b
+              if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)
+     &           call errquit
+     &           ('dft_fitcd: 3c-2e integral buffer read failed',0)
+              n_batch_read = nint(i3c_eri(n3c_dbl))
+c              write(6,*)' n_batch_read = ',n_batch_read
+              n_batch = n_batch + n_batch_read
+              ipoint=1
             else
               ipoint=ipoint+Nao2*nbf_cd
             endif
@@ -218,9 +266,6 @@ c
    23   continue
    24 continue
    25 continue
-c
-c     Next, process any 3c 2e- integrals on disk (not implemented yet).
-c
 c
 c     Finally, process any 3c 2e- integrals still needed in direct mode.
 c
@@ -309,12 +354,12 @@ c
      &               call errquit('Exiting in fitcd.',5)
                 nshbfp=ilastp-ifirstp+1
 c                  
-                Nint = nshbfp*Nao2
+                Nintegrals = nshbfp*Nao2
                 nscr=mscratch_2e3c
 c                  
                 call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &               ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(istart))
-                istart=istart+Nint
+     &               ishd,nscr,Dbl_MB(iscr),Nintegrals,Dbl_MB(istart))
+                istart=istart+Nintegrals
 c
   220         continue
 c               

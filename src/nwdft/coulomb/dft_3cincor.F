@@ -1,6 +1,6 @@
       Subroutine dft_3cincor(rtdb, n_batch, n_bmax, iwhat, i3c_ERI, 
-     &      n3c_dbl, iwhat_max, n_semi_bufs)
-C$Id: dft_3cincor.F,v 1.6 1997-02-26 19:46:54 d3h449 Exp $
+     &      n3c_dbl, iwhat_max, n_semi_bufs, fd)
+C$Id: dft_3cincor.F,v 1.7 1997-03-03 01:22:59 d3h449 Exp $
       implicit none
             
 c****
@@ -38,10 +38,14 @@ c
       integer lscr,iscr, n_semi_bufs
       integer nlast, ntasks, nxtbuf, nbufs
       integer iwhat_max, nao2_max, batch_max, neri_max
-      integer availkb
+c
+      integer availkb, current_nbuf, n3c_b
       character*20 fstype
       character*255 filename, actualname
-      logical oprint_semi_file
+      integer fd, other_stuff, n_batch_buf
+      logical oprint_semi_file, file_opened
+      double precision offset
+c
       double precision THRESHOLD, ERI_est, ratio
       integer nxtask
       external nxtask
@@ -49,33 +53,47 @@ C      write(0,*) ' in 3CINCO',itol2e
 c
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_default)
+      me = ga_nodeid()
 c
 c     Check whether of not to enable semi-direct; check direct & noio
 c
+      if(noio.eq.1)n_semi_bufs = 0
 c
 c     temp set n_semi_bufs = 10
 c
-      n_semi_bufs = 10
+c      n_semi_bufs = 10
+c      write(6,*)' n_semi_bufs = ',n_semi_bufs
 c
-      write(6,*)' direct, noio = ',direct, noio
-      if(n_semi_bufs.gt.1)then
-        if((.not.direct).and.(noio.ne.1))then
+      n3c_b = 8*n3c_dbl
+      other_stuff = 8*(2*nbf_ao**2 + 2*nbf_cd**2 + 2*nbf_xc**2
+     &                 + 1024)
+      current_nbuf = 0
+      if (n_semi_bufs.gt.0)then
 c
-c         inquire of available disk space
+c        inquire of available disk space
 c
-          filename = 'dft_3c2e'           
-          call util_pname(filename, actualname)
+         call util_file_name('3ceri', .true., .false., filename)
+         call util_pname(filename, actualname)
 c
-          if(oprint_semi_file.and.(ga_nodeid().eq.0))then
-            write(6,*) ' dft_3cincor: opening ',
-     &      actualname(1:inp_strlen(actualname))
-            call util_flush(6)
-          endif
-          if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
-     &       call errquit('dft_3cincor: unable to get disk info',0)
-c         max_file_rec = nint((0.95*1024.0d0*availkb) / 
-c     $        (8.0d0*rec_len_in_dbl))
-        endif
+         if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
+     &      call errquit('dft_3cincor: unable to get disk info',0)
+c
+c        need global space available check here
+c
+         call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
+c
+         if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
+            if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
+     &        call errquit('dft_3cincor; eaf_open failed', 0)
+            file_opened = .true.
+            if (me.eq.0.and.oprint_semi_file)then
+               write(6,*) ' dft_3cincor: opening 3c-2e integral file: ',
+     &         actualname(1:inp_strlen(actualname))
+               write(6,*)' 1 availkb: ',availkb,' fstype: ',fstype,
+     &         ' fd: ',fd
+               call util_flush(6)
+            endif
+         endif
       endif
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -110,6 +128,7 @@ c
 c      
       nao2_max = MXshbf_ao**2
       batch_max = nao2_max*nbf_cd*icount
+c
       nERI_max = Nao2_max*MXshbf_cd
 c
 c      write(LuOut,*)' me, rtdb, geom, AO_bas_han, CD_bas_han: ',
@@ -140,6 +159,7 @@ c      n1 = nxtask(nproc,icount)
 c      
       ndone=1
       n_batch=0
+      n_batch_buf = 0
       do 240 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
      &     call errquit('exiting in fitvcoul.',3)
@@ -188,7 +208,8 @@ c
 c
  220          continue
 c
-              n_batch=n_batch+1
+              n_batch = n_batch + 1
+              n_batch_buf = n_batch_buf + 1
               if( n_batch.gt.n_bmax)
      &          call errquit('dft_3cincor: blew out buf of ints',n_bmax)
 c
@@ -218,7 +239,53 @@ c
 c               if I/O allowed, sync (so that all procs have similar size buffers
 c               to process later), write out buffer and continue.
 c
-                go to 241
+                if(n_semi_bufs.eq.0)go to 241
+c
+c               write buffer of 3c2e ints
+c
+                current_nbuf = current_nbuf + 1
+                offset = (current_nbuf-1)*n3c_b
+c
+c               put number of batches as last element in buffer
+c
+                i3c_eri(n3c_dbl) = dble(n_batch_buf)
+c  
+                if (eaf_write(fd, offset, i3c_eri, n3c_b) .ne. 0)
+     &             call errquit
+     &             ('dft_3cincor: 3c-2e integral buffer write failed',0)
+c                
+c               now clear buffer and continue
+c
+                call dzero(i3c_eri, n3c_dbl)
+                nxtbuf = batch_max
+                ndone = 1
+                n_batch_buf = 0
+c                write(6,*)' resetting nxtbuf & ndone: ',nxtbuf,ndone
+                call ga_sync
+c
+c               check to see if there is still more disk space available:
+c
+                if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
+     &            call errquit('dft_3cincor: unable to get disk info',0)
+c
+c               need global space available check here
+c
+                call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
+c
+                if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
+                   if (me.eq.0.and.oprint_semi_file)then
+                      write(6,*)' 2 availkb: ',availkb,' fstype: ',
+     &                fstype,' fd: ',fd
+                      call util_flush(6)
+                   endif
+c
+c                  get next task
+c
+                   call nxtask_nleft (nproc, icount, n1, nbufs)
+                else
+                   go to 242
+                endif
+c
               endif
 c
             end if
@@ -237,6 +304,26 @@ c     Either all integrals have been computed and are incore or all
 c     local buffers are full. 
 c
       call ga_sync
+      if (n_semi_bufs.gt.0)then
+c
+c        dump last buffer     
+c
+         current_nbuf = current_nbuf + 1
+         offset = (current_nbuf-1)*n3c_b
+c
+c        put number of batches as last element in buffer
+c
+         i3c_eri(n3c_dbl) = dble(n_batch_buf)
+c  
+         if (eaf_write(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
+     &      ('dft_3cincor: 3c-2e integral buffer write failed',0)
+c                
+c        now clear buffer and continue
+c
+         call dzero(i3c_eri, n3c_dbl)
+      endif
+c
+  242 continue
 c
 c     Determine last shell-pair computed.
 c
@@ -255,14 +342,28 @@ c
       do n1 = 1, nshells_ao
         if ((n1*(n1-1))/2.gt.nlast)then
           ishc = n1 - 1
-          goto 242
+          goto 243
         endif
       enddo
       ishc = nshells_ao
-  242 continue
+  243 continue
       ishd = nlast - (ishc*(ishc-1))/2
 c
-      if(me.eq.0)write(LuOut,3241)ratio*100.d0
+      if (me.eq.0)then
+         if (n_semi_bufs .eq. 0)then
+            write(LuOut,3241)ratio*100.d0
+         else
+            write(LuOut,3242)ratio*100.d0, current_nbuf
+         endif
+      endif
+c
+c     set and store number of 3c2e integral buffers
+c
+      if (noio .eq. 1)then
+         n_semi_bufs = 0
+      else
+         n_semi_bufs = current_nbuf
+      endif
 c
 c      write(LuOut,*)' ntasks, nlast, ishc, ishd: ', 
 c     &                ntasks, nlast, ishc, ishd
@@ -272,7 +373,6 @@ c
      &  call errquit('dft_3cincor: cannot pop stack',0)
 c
       call nxtask_nleft (-nproc, icount, n1, nbufs)
-c      n1 = nxtask(-nproc,icount)
 c
 c      call ga_sync
 c      do n1 = 0, nproc
@@ -285,12 +385,10 @@ c        endif
 c        call ga_sync
 c      enddo
 c      call ga_sync
-c
-c      call errquit(' temp stop semi-direct ',999)
-c      
  3241 format(/,10x,'The percent of 3c 2e- integrals held in-core is',
      &       /,10x,f6.2)
- 3242 format(/,10x,'All 3-center 2e- integrals are in-core. ')
+ 3242 format(/,10x,'The percent of 3c 2e- integrals held on-disk is',
+     &       /,10x,f6.2,', in ',i6,' integral buffers.')
       return
       end
       subroutine i_output (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
@@ -316,7 +414,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.6 1997-02-26 19:46:54 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.7 1997-03-03 01:22:59 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
