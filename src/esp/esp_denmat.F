@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.8 2001-06-27 21:34:56 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.9 2002-05-29 22:41:12 d3k958 Exp $
 c
       implicit none
 c
@@ -18,19 +18,21 @@ c
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
 c
-      real*8 ene(nbf),occ(nbf)
+      real*8 ene(2*nbf),occ(2*nbf)
 c
       integer ilo,ihi,jlo,jhi,lthi,lthj,i
-      integer lg_s,k_scr,l_scr,icol,iset
+      integer lg_s,k_scr,l_scr,icol,iset, lg_p(2)
 c
       real*8 scale
       character*20 scftyp
 c
 c     allocate global arrays
 c
-      lg_d=ga_create_atom_blocked(igeom,ibasis,'density')
-      lg_v=ga_create_atom_blocked(igeom,ibasis,'vector')
-      lg_s=ga_create_atom_blocked(igeom,ibasis,'scr')
+      lg_d    =ga_create_atom_blocked(igeom,ibasis,'density')
+      lg_v    =ga_create_atom_blocked(igeom,ibasis,'vector')
+      lg_s    =ga_create_atom_blocked(igeom,ibasis,'scr')
+      lg_p(1) =ga_create_atom_blocked(igeom,ibasis,'density1')
+      lg_p(2) =ga_create_atom_blocked(igeom,ibasis,'density2')
 c
 c     open movecs file and read header info
 c
@@ -38,7 +40,7 @@ c
       if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
      + nmo,2)) call errquit('esp: movecs_read_header failed',me)
 c
-      if(nset.gt.1) call errquit('ESP not available for UHF',nset)
+c      if(nset.gt.1) call errquit('ESP not available for UHF',nset) ! :) now it is !
 c
       nocc=0
       charge=chgnuc
@@ -46,13 +48,19 @@ c
 c     read orbital occupations, energies and vectors from movecs
 c
       do  1 iset=1,nset
-      if(.not.movecs_read(movfil,iset,occ,ene,lg_v))
-     + call errquit('eps: movecs_read failed',me)
 c
+      if (.not. movecs_read(movfil, iset, dbl_mb(ioptr+iset*nbf-nbf),
+     &     dbl_mb(ieptr+iset*nbf-nbf), lg_v))
+     & call errquit('esp_denmat:movecs_read failed ',0)
+
       do 2 i=1,nbf
-      if(occ(i).gt.small) charge=charge-occ(i)
+      if(dbl_mb(ioptr+i-1+iset*nbf-nbf).gt.small) then
+         charge=charge-dbl_mb(ioptr+i-1+iset*nbf-nbf)
+      endif
+c      if(occ(i).gt.small) charge=charge-occ(i)
     2 continue
-    1 continue
+c    1 continue 
+c
 c
       call ga_copy(lg_v,lg_s)
       call ga_sync()
@@ -93,10 +101,22 @@ c
       endif
 c
       call ga_sync()
-      call ga_dgemm('n','t',nbf,nbf,nbf,1.d0,lg_v,lg_s,0.d0,lg_d)
+      call ga_dgemm('n','t',nbf,nbf,nbf,1.d0,lg_v,lg_s,0.d0,lg_p(iset))
+c
+    1 continue 
+c
+      if (nset.eq.1) then
+        call ga_copy(lg_p(1),lg_d)
+      else
+      call ga_dadd(1.0d0,lg_p(1),1.0d0,lg_p(2),lg_d)
+      endif
 c
 c     deallocate global arrays lg_s, lg_v and lg_d
 c
+      if(.not.ga_destroy(lg_p(1)))
+     + call errquit('esp_denmat: failed to destroy lg_s',me)
+      if(.not.ga_destroy(lg_p(2)))
+     + call errquit('esp_denmat: failed to destroy lg_s',me)
       if(.not.ga_destroy(lg_s))
      + call errquit('esp_denmat: failed to destroy lg_s',me)
       if(.not.ga_destroy(lg_v))

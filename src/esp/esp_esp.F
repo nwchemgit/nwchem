@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.18 2000-05-04 07:09:57 d3j191 Exp $
+c $Id: esp_esp.F,v 1.19 2002-05-29 22:41:12 d3k958 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      real*8 ene(nbf),occ(nbf),dns(mbf,mbf)
+      real*8 ene(2*nbf),occ(2*nbf),dns(mbf,mbf)
       real*8 x(3,natoms),q(natoms)
       real*8 grid(3,mxgrid),val(mxgrid)
 c
