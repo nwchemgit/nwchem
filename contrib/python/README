@@ -77,8 +77,14 @@ isdoesmic.nw
      of basis set.
 
 
-
-          
+pes_scan.py
+   Python script for use in
+   NWchem that is the multidimensional analog of your zcoord scanning
+   script. This script can scan a grid of variables in several
+   dimensions, covering a parameter "volume", rather than the linear
+   track between points done by zcoord.
+   Additional documentation and usage notes is in the comments of the
+   script itself  (from Lev Gelb, gelb@mitre.wustl.edu) 
    
 
   
