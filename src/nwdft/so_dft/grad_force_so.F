@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.5 2000-08-14 19:58:19 windus Exp $
+c     $Id: grad_force_so.F,v 1.6 2000-08-26 19:52:37 d3g681 Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -439,7 +439,7 @@ c
       call grad_dens_so(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),.false.)
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff))   !! spurious last arg. of .false.
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))
      $     call errquit('grad: could not destroy g_eigen_diag',1)
