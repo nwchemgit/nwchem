@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.78 1998-06-05 15:44:51 d3j191 Exp $
+C     $Id: geom_input.F,v 1.79 1998-06-15 22:18:25 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -302,6 +302,9 @@ c     unique centers build mapping tables set up coord lists
 c     
       nata=ncenter
       call sym_nwc(geom,rtdb,nata,oprint_sym,scale)
+c
+      if (oprint_sym) call sym_print_all(geom,
+     $     .true.,.true.,.true.,.true.,.true.)
 c     
 c     Center origin at the center of charge if requested
 c     
@@ -475,7 +478,7 @@ c
       character*10 test
       logical oprint_sym
 c     
-c     symmetry [[group] (<string group_name>|<integer group_number>)] \
+c     symemtry [[group] (<string group_name>|<integer group_number>)] \
 c              [setting <integer setting>]
 c
       logical status
