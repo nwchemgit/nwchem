@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.23 1996-07-02 19:24:59 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.24 1996-07-08 23:41:42 rg240 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -20,7 +20,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.23 1996-07-02 19:24:59 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.24 1996-07-08 23:41:42 rg240 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -64,8 +64,8 @@ c
       logical otest
       double precision schwarz_atom_block
       external schwarz_atom_block
-      logical sym_atom_block_pair, sym_atom_block_quartet
-      external sym_atom_block_pair, sym_atom_block_quartet
+      logical sym_atom_block_quartet
+      external sym_atom_block_quartet
 c     
       integer nxtask
       external nxtask
