@@ -1,8 +1,8 @@
 c
-c $Id: qmmm_geom.F,v 1.10 2004-09-07 02:23:15 marat Exp $
+c $Id: qmmm_geom.F,v 1.11 2004-09-09 00:10:45 marat Exp $
 c
 c
-      subroutine qmmm_create_qm_geom(irtdb)
+      subroutine qmmm_geom_init(irtdb)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -12,7 +12,6 @@ c
 #include "mm_utils.fh"
       integer irtdb
 c     local variables
-      integer i
       integer nqm,nlink
       integer igeom
       integer i_c
@@ -146,18 +145,18 @@ c     local variables
       if (.not. rtdb_get(irtdb,'qmmm:remove_bq',mt_log,1,nobq)) then
         nobq=.false.
       end if
- 
+
 c
 c     load bq information (coord and charges)
 c     into qmmm common arrays from md module
 c     --------------------------------------
       if(.not.nobq) then
-         call qmmm_load_bq()
+         call qmmm_bq_data_load()
       end if
 
       nqm   = qmmm_get_nqm()
       nbq   = qmmm_get_nbq()
-      ntot  = qmmm_get_ntot()
+      ntot  = nbq+nqm
 
 c     nothing to do if no bq's
 c     -----------------------
@@ -253,16 +252,16 @@ c
 c     release temporary memory
 c     ------------------------
       if(.not.ma_pop_stack(h_t_all))
-     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     & call errquit('qmmm: Failed to deallocate stack t_all',ntot,
      &       MA_ERR)
       if(.not.ma_pop_stack(h_m_all))
-     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     & call errquit('qmmm: Failed to deallocate stack m_all',ntot,
      &       MA_ERR)
       if(.not.ma_pop_stack(h_q_all))
-     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     & call errquit('qmmm: Failed to deallocate stack q_all',ntot,
      &       MA_ERR)
       if(.not.ma_pop_stack(h_c_all))
-     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     & call errquit('qmmm: Failed to deallocate stack c_all',ntot,
      &       MA_ERR)
 
 
@@ -304,7 +303,8 @@ c     -----------------------
       if(nbq.eq.0) return
 
       nqm  = qmmm_get_nqm()
-      ntot = qmmm_get_ntot()
+      nbq  = qmmm_get_nbq()
+      ntot = nbq+nqm
       i_c  = qmmm_get_i_c()
 
 c
@@ -338,7 +338,7 @@ c     ------------------
       end do
 
       if(.not.ma_pop_stack(h_c_all))
-     & call errquit('qmmm: Failed to deallocate stack',ntot,
+     & call errquit('qmmm: Failed to deallocate stack c_all',ntot,
      &       MA_ERR)
 
 c

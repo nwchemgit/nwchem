@@ -1,0 +1,31 @@
+c
+c $Id: qmmm_bq_data.fh,v 1.1 2004-09-09 00:10:45 marat Exp $
+c
+      integer bq_exclude
+      integer nbq
+      integer nbqs
+      integer nbqw
+      integer i_cbqs,h_cbqs
+      integer i_cbqw,h_cbqw
+      integer i_qbqs,h_qbqs
+      integer i_qbqw,h_qbqw
+      integer i_cbq,h_cbq
+      integer i_qbq,h_qbq
+      integer i_tbq,h_tbq
+      integer i_ibq,h_ibq
+
+
+      common/qmmm_bq_data/ bq_exclude,
+     &                     nbq,
+     &                     nbqs,
+     &                     nbqw,
+     &                     i_ibq,h_ibq,
+     &                     i_cbqs,h_cbqs,
+     &                     i_cbqw,h_cbqw,
+     &                     i_qbq,h_qbq,
+     &                     i_tbq,h_tbq,
+     &                     i_cbq,h_cbq,
+     &                     i_qbqw,h_qbqw,
+     &                     i_qbqs,h_qbqs
+
+

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.14 2004-09-07 02:23:15 marat Exp $
+c $Id: mm_interface.F,v 1.15 2004-09-09 00:10:45 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -193,165 +193,6 @@ c
 
       end
 
-      subroutine mm_get_geom_bqw(nt,
-     >                       c,
-     >                       q)
-      implicit none
-
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "msgids.fh"
-#include "qmmm.fh"
-
-      integer nt
-      double precision c(3,nt)
-      double precision q(nt)
-
-
-c     local variables
-      integer i
-      integer np,me
-      integer nbqw
-      integer l_off,i_off
-
-      integer ioq
-      integer mwa
-      integer mwm
-      integer nwm
-      integer pwz
-      integer pxw
-
-      call dfill(3*nt,0,c,1)
-      call dfill(nt,0,q,1)
-
-      call mm_get_mwa(mwa)
-      call mm_get_mwm(mwm)
-      call mm_get_nwmloc(nwm)
-      call mm_get_pwz(pwz)
-      call mm_get_pxw(pxw)
-      
-      np=ga_nnodes()
-
-      if(.not.ma_push_get(mt_int,np,'off',l_off,i_off))
-     + call errquit('qmmm: Failed to allocate memory for ioff',np,
-     &       MA_ERR)
-
-      do i=1,np
-        int_mb(i_off+i-1)=0
-      end do
-c
-c     accumulate offsets
-c     ------------------
-      me = ga_nodeid()
-      call mm_get_nbqw(nbqw)
-      do i=me+1,np
-        int_mb(i_off+i-1)=nbqw
-      end do    
-      call ga_igop(msg_qmmm_nbqw_off,int_mb(i_off),np,'+')
-c
-c     set offset for a current node
-c     -----------------------------
-      if(me.gt.0) then
-        ioq=int_mb(i_off+me-1)
-      else
-        ioq=0
-      end if
-
-      write(*,*) "before mm_get_geom_bqw0"
-     
-      call mm_get_geom_bqw0(nt,
-     &                   mwm,
-     &                   mwa,
-     &                   nwm,
-     &                   ioq,
-     &                   int_mb(pwz),
-     &                   dbl_mb(pxw),
-     &                   c,
-     &                   q)
-
-      if(.not.ma_pop_stack(l_off))
-     & call errquit('qmmm: Failed to deallocate stack',nt,
-     &       MA_ERR)
-
-
-      end
-
-      subroutine mm_get_geom_bqw0(nt,
-     &                   mwm,
-     &                   mwa,
-     &                   nwm,
-     &                   ioff,
-     &                   iwz,
-     &                   xw,
-     &                   c,
-     &                   q)
-      implicit none
-
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-#include "mm_utils.fh"
-#include "qmmm_params.fh"
-#include "msgids.fh"
-
-      double precision cf_wcharge
-      external cf_wcharge
-
-
-      integer nt,mwa,nwm,mwm
-      integer ioff
-      integer iwz(mwm)
-      double precision xw(mwm,3,mwa)
-      double precision c(3,nt)
-      double precision q(nt)
-
-
-c     local variables
-      integer i,j
-      integer ioq
-
-
-      ioq = ioff
-      do i=1,nwm
-      if(mm_bqwzone(i)) then
-         do j=1,mwa
-         ioq=ioq+1
-         c(1,ioq)=xw(i,1,j)*cnm2au
-         c(2,ioq)=xw(i,2,j)*cnm2au
-         c(3,ioq)=xw(i,3,j)*cnm2au
-         q(ioq)=cf_wcharge(j)
-          write(*,'(I5,3(10X,F10.6),5X,"charge ",10X,F10.6)')
-     >     ioq,
-     >     c(1,i),
-     >      c(2,i),
-     >      c(3,i), q(i)
-
-         end do
-      endif
-      end do
-
-      call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
-      call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
-
-      write(48,*) nt
-      write(48,*) "  "
-      do i=1,nt
-       write(*,*) "i=",i
-       write(48,'("Bqw  ",3(10X,F10.6),5X,"charge ",10X,F10.6)')
-     >           c(1,i)*0.529177249d00,
-     >            c(2,i)*0.529177249d00,
-     >            c(3,i)*0.529177249d00, q(i)
-
-      end do
-
-      call util_flush(48)
-
-      end
-
       subroutine mm_get_solute_quant_link_ind(nt,ind)
       implicit none
 #include "global.fh"
@@ -422,7 +263,7 @@ c     local variables
       external mm_type
 
 c     local variables
-      integer i,j
+      integer i
       integer ioff,ioq
       integer me
       integer np
@@ -461,7 +302,6 @@ c     -----------------------------
       else
         ioff=0
       end if
-      write(*,*) "me,ioff",me,ioff
 
       ioq=ioff
       do i=1,nsa
@@ -473,19 +313,90 @@ c     -----------------------------
 
       call ga_igop(msg_qmmm_ind,ind,nt,'+')
 
-      do i=0,np-1
-        if(i.eq.me) then
-        write(*,*) "qmmm index array on proc",i
-        do j=1,nt
-        write(*,*) ind(j)
-        end do
-        end if
+      if(.not.ma_pop_stack(l_ioff))
+     + call errquit('qmmm: Failed to deallocate memory for ioff',np,
+     &       MA_ERR)
+
+      end
+
+      subroutine mm_get_solvent_ind_gen(nt,mm_type,ind)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+#include "msgids.fh"
+      integer nt
+      logical mm_type
+      integer ind(nt)
+      external mm_type
+
+c     local variables
+      integer i
+      integer ioff,ioq
+      integer me
+      integer np
+      integer nqa
+      integer l_ioff,i_ioff
+      integer nwm
+      integer pwl
+
+      call ifill(nt,0,ind,1)
+
+      call mm_get_nwmloc(nwm)
+
+      call mm_get_pwl(pwl)
+
+      np=ga_nnodes()
+
+      if(.not.ma_push_get(mt_int,np,'ioff',l_ioff,i_ioff))
+     + call errquit('qmmm: Failed to allocate memory for ioff',np,
+     &       MA_ERR)
+
+      call ifill(np,0,int_mb(i_ioff),1)
+
+c
+c     accumulate offsets
+c     ------------------
+      me = ga_nodeid()
+      call mm_get_nbqw(nqa)
+      do i=me+1,np
+        int_mb(i_ioff+i-1)=nqa
+      end do    
+      call ga_igop(msg_qmmm_nbqw_off,int_mb(i_ioff),np,'+')
+c
+c     set offset for a current node
+c     -----------------------------
+      if(me.gt.0) then
+        ioff=int_mb(i_ioff+me-1)
+      else
+        ioff=0
+      end if
+
+      ioq=ioff
+      do i=1,nwm
+      if(mm_type(i)) then
+         ioq=ioq+1
+         ind(ioq)=int_mb(pwl+i-1)
+      endif
       end do
+
+      call ga_igop(msg_qmmm_ind_solvent,ind,nt,'+')
 
       if(.not.ma_pop_stack(l_ioff))
      + call errquit('qmmm: Failed to deallocate memory for ioff',np,
      &       MA_ERR)
 
+      end
+
+      subroutine mm_get_solvent_ind_bq(nt,ind)
+      implicit none
+#include "mm_utils.fh"
+      integer nt
+      integer ind(nt)
+
+      call mm_get_solvent_ind_gen(nt,mm_bqwzone,ind)
       end
 
       subroutine mm_get_solute_geom_quant(nt,
@@ -656,72 +567,71 @@ c     mm local variables
 
       end
 
-      subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
-     + msa,nsa,isl,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
+      subroutine mm_get_solvent_geom(nt,
+     >                       ai,
+     >                       c,
+     >                       q)
       implicit none
-#include "errquit.fh"
-c
-#include "rtdb.fh"
-#include "geom.fh"
-#include "util.fh"
+
+#include "qmmm_params.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-#include "qmmm_params.fh"
+#include "errquit.fh"
+#include "geom.fh"
 #include "qmmm.fh"
-c
-      external task_gradient,esp
-      logical task_gradient,esp
-c
-      integer cf_element
-      external cf_element
-c
-      integer inrtdb
-      logical lesp
-      integer mwm,nwm,mwa,nwa,msa,nsa,lnkatm,nbq
-      integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa),isl(msa)
-      real*8 energy,xw(mwm,3,mwa),fw(mwm,3,mwa),xs(msa,3),fs(msa,3)
-c
-      integer i
-      integer j
+#include "msgids.fh"
+#include "mm_utils.fh"
+
       integer nt
-      integer i_ai
-      integer ai
-      logical islink
-      logical isquant
+      logical mm_type
+      integer ai(nt)
+      double precision c(3,nt)
+      double precision q(nt)
+      external mm_type
+      double precision cf_wcharge
+      external cf_wcharge
+
+      integer i,j,k,m,j1
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pxw
+      integer pwl
 
 
-      nt   = qmmm_get_nqm()
-      i_ai = qmmm_get_i_ai()
-c      i_g = qmmm_get_i_g()
+      call dfill(3*nt,0.0d0,c,1)
+      call dfill(nt,0.0d0,q,1)
 
-      write(*,*) "in qmmm force"
-
-
-      do i=1,nsa
-        islink=iand(isdt(i),lqlink).ne.0
-        isquant=iand(isdt(i),lquant).ne.0
-        if(isquant .or.  islink) then
-            do j=1,nt
-              ai = int_mb(i_ai+j-1)
-              if(isl(i).eq.ai) then
-                 write(*,*) "found match in qmmm force",isl(i),ai
-                 if(isquant) then
-                 write(*,*) "zeroing qmmm forces"
-                 fs(i,1)=0.0d0
-                 fs(i,2)=0.0d0
-                 fs(i,3)=0.0d0
-c                 else
-c                 fs(i,1)=fs(i,1)-g(1,j)*(cau2kj/cau2nm) 
-c                 fs(i,2)=fs(i,2)-g(2,j)*(cau2kj/cau2nm)
-c                 fs(i,3)=fs(i,3)-g(3,j)*(cau2kj/cau2nm)
-                 end if
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pxw(pxw)
+      call mm_get_pwl(pwl)
+ 
+      do i=1,nwm
+        if(mm_bqwzone(i)) then
+            do j=1,nt/mwa
+              if(int_mb(pwl+i-1).eq.ai(j)) then
+                 do m=1,mwa
+                   j1=(j-1)*mwa+m
+                   do k=1,3
+                     c(k,j1)=dbl_mb(pxw+(i-1)+(k-1)*mwm+(m-1)*3*mwm)
+                     c(k,j1)=c(k,j1)*cnm2au
+                   end do
+                   q(j1) = cf_wcharge(m)
+                 end do
               end if
             end do
         end if
       end do
 
+      call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
+      call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
+
       end
-c
+
       subroutine mm_get_solute_force_quant(nt,ai,g)
       implicit none
 #include "global.fh"
@@ -746,7 +656,7 @@ c
 #include "geom.fh"
 #include "qmmm.fh"
 #include "qmmm_params.fh"
-#include "rtdb.fh"
+#include "msgids.fh"
       integer nt
       logical mm_type
       integer ai(nt)
@@ -778,226 +688,74 @@ c     local variables
         end if
       end do
 
-      end
+      call ga_dgop(msg_qmmm_force,g,3*nt,'+')
 
-c      subroutine mm_get_force(nt,ind,g)
-c      implicit none
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "geom.fh"
-c#include "qmmm.fh"
-c#include "rtdb.fh"
-c      integer nt
-c      integer ind(nt)
-c      double precision  g(3,nt)
-cc     local variables
-c      integer msa
-c      integer nsaloc
-c      integer psdt
-c      integer psl
-c      integer pfs
+      end
 c
-c      call mm_get_msa(msa)
-c      call mm_get_nsaloc(nsaloc)
-c      call mm_get_psdt(psdt)
-c      call mm_get_psl(psl)
-c      call mm_get_pfs(pfs)
-c
-c      call mm_get_force0(nt,msa,nsaloc,
-c     &                   int_mb(psl),
-c     &                   int_mb(psdt),
-c     &                   dbl_mb(pfs),
-c     &                   ind,
-c     &                   g)
-c
-c      end
-c
-c      subroutine mm_get_force0(nt,msa,nsa,
-c     &                   isl,
-c     &                   isdt,
-c     &                   fs,
-c     &                   ai,
-c     &                   g)
-c      implicit none
-c#include "global.fh"
-c#include "geom.fh"
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "qmmm_params.fh"
-c#include "msgids.fh"
-c#include "inp.fh"
-c#include "mm_utils.fh"
-c      integer nt,msa,nsa
-c      integer isl(msa)
-c      integer isdt(msa)
-c      double precision fs(msa,3)
-c      integer ai(nt)
-c      double precision g(3,nt)
-cc     local variables
-c      logical islink
-c      integer i,j
-c
-c
-c      do i=1,nsa
-c         if(mm_quant_link(i)) then
-c            do j=1,nt
-c              if(isl(i).eq.ai(j)) then
-c                 g(1,j)=-fs(i,1)
-c                 g(2,j)=-fs(i,2)
-c                 g(3,j)=-fs(i,3)
-c              end if
-c            end do
-c        end if
-c      end do
-c
-c      end
-c
-      subroutine mm_set_geom(nt,ind,c)
+      subroutine mm_set_solute_coord_quant(nt,
+     >                       ai,
+     >                       c)
       implicit none
+
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+
+      call mm_set_solute_coord_gen(nt,
+     >                       mm_quant_link,
+     >                       ai,
+     >                       c)
+
+      end
+ 
+      subroutine mm_set_solute_coord_gen(nt,
+     >                       mm_type,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "qmmm_params.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "geom.fh"
 #include "qmmm.fh"
-      integer nt
-      integer ind(nt)
-      double precision c(3,nt)
+#include "msgids.fh"
+#include "mm_utils.fh"
 
-c     local variables
+      integer nt
+      logical mm_type
+      integer ai(nt)
+      double precision c(3,nt)
+      external mm_type
+
+      integer i,j,k
+
+c     mm local variables
       integer msa
-      integer nsaloc
-      integer psdt
+      integer nsa
       integer psl
       integer pxs
 
+
       call mm_get_msa(msa)
-      call mm_get_nsaloc(nsaloc)
-      call mm_get_psdt(psdt)
+      call mm_get_nsaloc(nsa)
       call mm_get_psl(psl)
       call mm_get_pxs(pxs)
 
-      call mm_set_geom0(nt,msa,nsaloc,
-     &                   int_mb(psl),
-     &                   int_mb(psdt),
-     &                   dbl_mb(pxs),
-     &                   ind,
-     &                   c)
-
-      end
-
-      subroutine mm_set_geom0(nt,msa,nsa,
-     &                   isl,
-     &                   isdt,
-     &                   xs,
-     &                   ai,
-     &                   c)
-      implicit none
-#include "global.fh"
-#include "geom.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm_params.fh"
-#include "msgids.fh"
-#include "inp.fh"
-      integer nt,msa,nsa
-      integer isl(msa)
-      integer isdt(msa)
-      double precision xs(msa,3)
-      integer ai(nt)
-      double precision c(3,nt)
-c     local variables
-      logical islink
-      integer i,j
-
       do i=1,nsa
-        islink=iand(isdt(i),lqlink).ne.0
-        if(iand(isdt(i),lquant).ne.0 .or.
-     &   islink) then
+        if(mm_type(i)) then
             do j=1,nt
-              if(isl(i).eq.ai(j)) then
-                 xs(i,1)=c(1,j)*cau2nm
-                 xs(i,2)=c(2,j)*cau2nm
-                 xs(i,3)=c(3,j)*cau2nm
+              if(int_mb(psl+i-1).eq.ai(j)) then
+                 do k=1,3
+                   dbl_mb(pxs+(i-1)+(k-1)*msa)=c(k,j)*cau2nm
+                 end do
               end if
             end do
         end if
       end do
 
       end
-
-      subroutine mm_update_force(nt,ind,g)
-      implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-#include "rtdb.fh"
-      integer nt
-      integer ind(nt)
-      double precision  g(3,nt)
-c     local variables
-      integer msa
-      integer nsaloc
-      integer psdt
-      integer psl
-      integer pfs
-
-      call mm_get_msa(msa)
-      call mm_get_nsaloc(nsaloc)
-      call mm_get_psdt(psdt)
-      call mm_get_psl(psl)
-      call mm_get_pfs(pfs)
-
-      call mm_update_force0(nt,msa,nsaloc,
-     &                   int_mb(psl),
-     &                   int_mb(psdt),
-     &                   dbl_mb(pfs),
-     &                   ind,
-     &                   g)
-
-      end
-
-      subroutine mm_update_force0(nt,msa,nsa,
-     &                   isl,
-     &                   isdt,
-     &                   fs,
-     &                   ai,
-     &                   g)
-      implicit none
-#include "global.fh"
-#include "geom.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm_params.fh"
-#include "msgids.fh"
-#include "inp.fh"
-      integer nt,msa,nsa
-      integer isl(msa)
-      integer isdt(msa)
-      double precision fs(msa,3)
-      integer ai(nt)
-      double precision g(3,nt)
-c     local variables
-      logical islink
-      integer i,j
-
-
-      do i=1,nsa
-        islink=iand(isdt(i),lqlink).ne.0
-        if(iand(isdt(i),lquant).ne.0 .or.
-     &   islink) then
-            do j=1,nt
-              if(isl(i).eq.ai(j)) then
-                 fs(i,1)=fs(i,1)-g(1,j)
-                 fs(i,2)=fs(i,2)-g(2,j)
-                 fs(i,3)=fs(i,3)-g(3,j)
-              end if
-            end do
-        end if
-      end do
-
-      end
-
 

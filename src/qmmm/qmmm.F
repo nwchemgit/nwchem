@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.14 2004-09-07 02:23:15 marat Exp $
+c $Id: qmmm.F,v 1.15 2004-09-09 00:10:45 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -15,8 +15,6 @@ c
       integer irtdb
       logical qmmm_init
 c
-      integer nqm
-
       qmmm_init = .true.
 
 c     initialize mm part
@@ -28,9 +26,12 @@ c     allocate and initialize qmmm data structure
 c     -------------------------------------------
       call qmmm_data_init(irtdb)
 
+c     initialize bq settings 
+      call qmmm_bq_data_init()
+
 c     create initial qm geometry
 c     --------------------------
-      call qmmm_create_qm_geom(irtdb)
+      call qmmm_geom_init(irtdb)
 
       return
       end
@@ -96,6 +97,7 @@ c     external functions
 c
 c     sync qm coordinates with the geometry object
 c     that was potentially modified outside qmmm (e.g.driver)     
+c     ------------------------------------------------------
       call qmmm_sync_qm_geom(rtdb)
 
       call qmmm_create_bq_geom(rtdb)
@@ -171,7 +173,7 @@ c
       integer i_gmm,h_gmm 
       integer i_ai
       double precision eatoms
-      integer nqm
+      integer nqm,nbq
       integer ntot
 c
       do_qm=.true.
@@ -208,7 +210,8 @@ c    --------------------
       call qmmm_create_bq_geom(rtdb)
 
       nqm  = qmmm_get_nqm()
-      ntot = qmmm_get_ntot()
+      nbq  = qmmm_get_nbq()
+      ntot = nqm+nbq
 
       if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
      &      h_g, i_g) ) call errquit(
@@ -343,8 +346,7 @@ c     local variables
       i_ai = qmmm_get_i_ai()
       i_c = qmmm_get_i_c()
 
-
-      call mm_set_geom(nqm,
+      call mm_set_solute_coord_quant(nqm,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_c))
 
