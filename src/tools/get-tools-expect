@@ -1,0 +1,78 @@
+#!/usr/bin/expect
+#
+# $Id: get-tools-expect,v 1.1 2000-05-18 05:32:37 d3j191 Exp $
+#
+set release " "
+# for release edit by hand after branch :)
+#for release branch# set release "-r release-3-3-patches"
+##send_user "We need three pieces of information to check out the code:\n"
+##send_user " 1) the hostname which will be used to check out the tools (e.g., fermi.emsl.pnl.gov) \n"
+##send_user " 2) the user-id or login-id on the given hostname (e.g., d322156)\n"
+##send_user " 3) the password for that account\n\n\n"
+##send_user " Enter hostname: "
+##expect_user -indices -re ".*\n"
+##set hostname [string trimright $expect_out(buffer) "\n"]
+##send_user " Enter  user-id: "
+##expect_user -indices -re ".*\n"
+##set userid [string trimright $expect_out(buffer) "\n"]
+stty -echo
+send_user " Enter password: "
+expect_user -indices -re ".*\n"
+set password [string trimright $expect_out(buffer) "\n"]
+stty echo
+##send_user "hostname is :$hostname \n"
+##send_user "user-id  is :$userid \n"
+##set myexpectstring [format "%s%s%s" $userid "@" $hostname ]
+##send_user "acount for ssh is $myexpectstring \n"
+set filename ./.tmp.gtre.[pid].csh
+set fp [open $filename "w"]
+puts $fp "#!/bin/csh"
+puts $fp "mv CVS CVS0"
+##puts $fp "setenv CVS_RSH ssh"
+puts $fp "setenv CVSROOT :ext:d3j191@fermi.emsl.pnl.gov:/msrc/proj/hpctools"
+puts $fp "foreach mdir (config global armci pario ma tcgmsg server tcgmsg-mpi LinAlg)"
+##puts $fp "   echo \" \""
+##puts $fp "   echo \"----------------------------------------------\""
+puts $fp "   echo \"cvs co $release \$mdir\""
+##puts $fp "   echo \"-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -\""
+puts $fp "   cvs co $release \$mdir"
+puts $fp "end"
+puts $fp "mv CVS0 CVS"
+puts $fp "echo \"gtre.csh.done\""
+puts $fp "exit 0"
+close $fp
+system "chmod 700 $filename"
+send_user "\n"
+set timeout -1
+log_user 0
+spawn $filename
+log_user 1
+while 1 {
+  expect {
+      -re "password:" {
+				 log_user 0
+				 stty -echo
+                                 send "$password\r"
+				 send_user "\n"
+				 stty echo
+          }
+      -nocase "gtre.csh.done" {
+                                 break
+          }
+      -re ".*\n" {
+				 log_user 1
+          }
+  }
+}
+wait
+system "rm $filename"
+send_user "\nexiting\n"
+exit
+
+
+
+
+
+
+
+
