@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.7 1999-12-29 23:30:23 windus Exp $
+C $Id: intdd_1eh1.F,v 1.8 2000-01-04 00:29:03 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -68,7 +68,7 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       double precision H1a(*)    ! [output] derivative integrals
 c
 c::local
-      integer nint, offset, scrsize, nat
+      integer nint, offset, nat
 c
       nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
 c
@@ -79,10 +79,10 @@ c
         call errquit('intd_1eh1: nint>lH1a error',911)
       endif
 c
-      offset = nint*3*3*nat*3 + 1  ! part of V is also held in T
+      offset = nint*3*3*nat*3 + 1  ! T is held seperately in H1a
 c
       call intdd_1eh1P(i_basis,ish,j_basis,jsh,
-     &       scrsize,scr(offset),nint,H1a,H1a(offset),nat)
+     &       lscr,scr(offset),nint,H1a,H1a(offset),nat)
 c
       end
       subroutine intdd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,

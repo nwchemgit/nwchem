@@ -1,5 +1,5 @@
 c
-c $Id: hnd_stvintdd.F,v 1.4 1999-12-29 23:30:24 windus Exp $
+c $Id: hnd_stvintdd.F,v 1.5 2000-01-04 00:29:04 windus Exp $
 c
 c Taken and modified from HONDO
 c
@@ -45,10 +45,6 @@ c
       data minprim / 1, 2, 5,11,21/
       data maxprim / 1, 4,10,20,35/
 c
-      write(6,*) 'lscr is ',lscr
-      write(6,*) 'i_cent and j_cent',i_cent,j_cent
-      write(6,*) 'nint is ',nint
-      call flush(6)
       doH1 = doT.and.doV.and..not.doS
       nder = 2
 c
