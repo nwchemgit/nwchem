@@ -4,19 +4,53 @@ c
 c
 #include "md_common.fh"
 c
+      if(ntype.eq.0) then
+c
 c     single energy
 c     -------------
 c
+      call md_sp()
+c
+      elseif(ntype.eq.2) then
 c     energy minimization
 c     -------------------
 c
+      call md_em()
+c
+      elseif(ntype.eq.1) then
 c     molecular dynamics
 c     ------------------
 c
       call md_md()
 c
+      elseif(ntype.eq.3) then
+c
 c     free energy simulation
 c     ----------------------
+c
+      call md_ti()
+c
+      else
+      call errquit('Unknown calculation type',ntype)
+      endif
+c
+      return
+      end
+      subroutine md_sp()
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
+c
+      return
+      end
+      subroutine md_em()
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
 c
       return
       end
@@ -28,16 +62,29 @@ c
 #include "mafdecls.fh"
 c
 c     equilibration
-c     -------------
 c
       do 1 iequi=kequi+1,mequi
-      if(.not.ma_verify_allocator_stuff()) stop '0000'
       call md_newton()
-c
-      call prp_step(mdstep,temp,pres,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme)
-c
     1 continue
+c
+c     data gathering
+c
+      do 2 iequi=kdacq+1,mdacq
+      call md_newton()
+      call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
+     + dbl_mb(i_ess),epme)
+      if(mod(mdstep,nfrest).eq.0)
+     + call sp_wrtrst(lfnrst,filrst,dbl_mb(i_xw),dbl_mb(i_vw))
+    2 continue
+c
+      return
+      end
+      subroutine md_ti()
+c
+      implicit none
+c
+#include "md_common.fh"
+#include "mafdecls.fh"
 c
       return
       end
@@ -49,6 +96,7 @@ c
 #include "mafdecls.fh"
 c
       mdstep=mdstep+1
+      stime=stime+tstep
 c
 c     reassign velocities
 c
@@ -95,7 +143,7 @@ c
      + dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_vwt),dbl_mb(i_fw),nwmloc,
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsatt-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_vst),
-     + dbl_mb(i_fs),nsaloc)
+     + dbl_mb(i_fs),nsaloc,int_mb(i_iw+(lwgmn-1)*mwm))
 c
 c     shake
 c
@@ -115,7 +163,7 @@ c
      + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_ys),dbl_mb(i_vs),
      + dbl_mb(i_vst),int_mb(i_is+(lsatt-1)*msa),
      + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsmol-1)*msa),
-     + dbl_mb(i_zs),nsaloc,box,pres,prsscl,temp)
+     + dbl_mb(i_zs),nsaloc,box)
 c
       return
       end

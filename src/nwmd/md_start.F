@@ -3,48 +3,17 @@ c
       implicit none
 c
 #include "md_common.fh"
-#include "msgids.fh"
 #include "mafdecls.fh"
-#include "global.fh"
 #include "rtdb.fh"
 c
-      integer nbytes
-      logical lstate
+c     input
+c     -----
 c
-      me=ga_nodeid()
-      np=ga_nnodes()
-c
-c     read rtdb
-c     ---------
-c
-      lstate=rtdb_parallel(.false.)
-      if(me.eq.0) then
-      call md_files
-      call md_dflts
-      call md_rtdbin
-      call md_numrdf
-      call md_chckin
-      endif
-      lstate=rtdb_parallel(.true.)
-c
-c     broadcast input variables
-c     -------------------------
-c
-      if(np.gt.1) then
-      nbytes=loc(izii)-loc(ptol)
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      nbytes=8*nbytes
-#endif
-      call ga_brdcst(mrg_d23,ptol,nbytes,0)
-      endif
-      ltwin=rlong.gt.rshort
+      call md_inp()
 c
 c     start the spacial decomposition API
 c     -----------------------------------
 c
-      nbx=nbxi
-      nby=nbyi
-      nbz=nbzi
       call sp_start(lfntop,filtop,lfnrst,filrst,rshort,rlong,zero,
      + npx,npy,npz,nbx,nby,nbz,npbtyp,nbxtyp,box,vlat,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
@@ -59,11 +28,13 @@ c
      + iewald,morder,ngx,ngy,ngz,nodpme,pmetol,
      + tstep,tlwsha,mshitw,mshits,
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
-     + 1,temp,tempw,temps,compr)
+     + 0,temp,tempw,temps,compr)
 c
-c     start the property api
+c     start the property API
 c
-      call prp_start(ltwin,msf,nsf,mpe)
+      call prp_start(lfnout,lfnprp,nfoutp,nfstat,nfprop,
+     + .true.,.true.,ltwin,ipolt.ne.0,
+     + iewald.ne.0,nwm,msf,nsf,mpe)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -145,15 +116,36 @@ c
       print*,'MD start completed'
       return
       end
-      subroutine md_files
+      subroutine md_inp()
 c
       implicit none
 c
 #include "md_common.fh"
+#include "global.fh"
+#include "msgids.fh"
 #include "rtdb.fh"
+#include "mafdecls.fh"
+c
+      character*7 restart
+      character*20 theory,operat
+      logical lstate,lstart,lrstrt,lcont
+      integer igt,igr,nbytes
+c
+c     set process id and number of processes
+c     --------------------------------------
+c
+      me=ga_nodeid()
+      np=ga_nnodes()
+c
+c     get input variables on process 0 only
+c
+      if(me.eq.0) then
+c
+c     sequential access to rtdb
+c
+      lstate=rtdb_parallel(.false.)
 c
 c     retrieve project name
-c     ---------------------
 c
       if(.not.rtdb_cget(irtdb,'md:project',1,filnam)) then
       if(.not.rtdb_cget(irtdb,'prep:sysnam',1,filnam)) then
@@ -164,8 +156,8 @@ c
 c
       ibl=index(filnam,' ')-1
       if(ibl.lt.1) then
-      filnam='argos'
-      ibl=5
+      filnam='nwmd'
+      ibl=4
       endif
       iun=index(filnam,'_')-1
       if(iun.lt.0) iun=ibl
@@ -175,7 +167,6 @@ c
       endif
 c
 c     set file names
-c     --------------
 c
       filday=filnam(1:ibl)//'.day'
       filinp=filnam(1:ibl)//'.inp'
@@ -219,10 +210,9 @@ c
       filtst=filnam(1:ibl)//'.tst'
 c
 c     set logical file numbers
-c     ------------------------
 c
       lfninp=10
-      lfnout=11
+      lfnout=6
       lfntop=12
       lfnrst=13
       lfncoo=14
@@ -264,18 +254,6 @@ c
       lfnfld=56
       lfnsfl=57
       lfntst=58
-c
-      return
-      end
-      subroutine md_dflts
-c
-      implicit none
-c
-#include "md_common.fh"
-#include "mafdecls.fh"
-c
-c     routine md_dflts sets the default input variables
-c     --------------------------------------------------
 c
 c     set defaults
 c
@@ -535,22 +513,7 @@ c
       nbperw=ma_sizeof(mt_dbl,1,mt_byte)
       niperw=nbperw/ma_sizeof(mt_int,1,mt_byte)
 c
-      return
-      end
-      subroutine md_rtdbin
-c
-      implicit none
-c
-#include "md_common.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-c
-      character*20 theory,operat
-      logical lstart,lrstrt,lcont
-c
-c     routine md_rtdbin reads input variables from rtdb
-c
-c     input through the rtdb
+c     input from rtdb
 c
       if(.not.rtdb_get(irtdb,'md:nbx',mt_int,1,nbxi))
      + call errquit('md_rtdbin: rtdb_get failed',1)
@@ -890,7 +853,6 @@ c
 c
       ssshft=delta
 c
-c      if(iewald.ne.0.and.ealpha.lt.small) call md_alpha
       if(nodpme.gt.ngz) nodpme=ngz
       if(nodpme.gt.np) nodpme=np
       if(nodpme.eq.0) nodpme=np
@@ -920,16 +882,6 @@ c     pairlist type
 c
       lstype=1
       if(latom.eq.1) lstype=0
-c
-      return
-      end
-      subroutine md_numrdf
-c
-      implicit none
-c
-#include "md_common.fh"
-c
-      integer igt,igr
 c
 c     Count radial distribution functions contributions
 c     -------------------------------------------------
@@ -966,15 +918,6 @@ c
       endif
 c
       endif
-c
-      return
-      end
-      subroutine md_chckin
-c
-      implicit none
-c
-#include "md_common.fh"
-c
 c     routine md_chckin performs a check of selected input
 c
 c     MCTI initializations
@@ -1069,6 +1012,41 @@ c
 c     only 3D-periodic boundary systems can be at constant pressure
 c
       if(npbtyp.ne.1) ipscal=0
+c
+      lstate=rtdb_parallel(.true.)
+c
+c     get variables from restart file if not initial run
+c
+      if(nserie.gt.0) then
+      open(unit=lfnrst,file=filrst(1:index(filrst,' ')-1),
+     + form='formatted',status='old')
+      rewind(lfnrst)
+    2 continue
+      read(lfnrst,'(a7)',end=9) restart
+      if(restart.ne.'restart') goto 2
+c
+c     read input data here
+c
+      close(unit=lfnrst)
+    9 continue
+      endif
+c
+      endif
+c
+c     broadcast to all nodes
+c
+      if(np.gt.1) then
+      nbytes=loc(izii)-loc(ptol)
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      nbytes=8*nbytes
+#endif
+      call ga_brdcst(mrg_d23,ptol,nbytes,0)
+      endif
+c
+      ltwin=rlong.gt.rshort
+      nbx=nbxi
+      nby=nbyi
+      nbz=nbzi
 c
       return
       end

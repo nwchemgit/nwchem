@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 1999-03-15 21:22:21 d3j191 Exp $
+# $Id: GNUmakefile,v 1.2 1999-03-29 17:21:30 d3j191 Exp $
 #
 
  OBJ_OPTIMIZE =  nwmd.o md_start.o md_input.o md_main.o \
                  md_finish.o \
-                 prp_init.o
+                 prp_init.o prp_main.o
 
 LIBRARY=libnwmd.a
 
