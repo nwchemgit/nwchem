@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.91 1999-07-27 20:27:35 d3e129 Exp $
+c $Id: basis.F,v 1.92 1999-10-14 23:10:47 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -2309,6 +2309,79 @@ c
 00100 continue
 c
       return
+      end
+      subroutine bas_print_known_bases(rtdb)
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+#include "global.fh"
+      implicit none
+      integer rtdb     ! [input] run time data base handle
+c     
+c     Print list of known basis sets
+c     
+      logical bas_rtdb_in, ignore
+      integer basis, ma_type, natom, nelem
+      character*26 date
+      character*32 name32
+      logical bas_rtdb_in, ignore
+      character*128 key
+      integer head_array(ndbs_head)
+c
+      ignore = bas_rtdb_in(rtdb)
+      if (ga_nodeid() .eq. 0) then
+         write(6,*)
+         call util_print_centered(6,'Basis sets in the database',
+     $        23,.true.)
+         write(6,*)
+         if (nbasis_rtdb .le. 0) then
+            write(6,*) ' There are no basis sets in the database'
+            write(6,*)
+         else
+            if (nbasis_rtdb .gt. 0) write(6,3)
+ 3          format(
+     $           2x,5x,2x,'Name',28x,2x,'Natoms',2x,
+     $           'Last Modified',/,
+     $           2x,5x,2x,32('-'),2x,6('-'),2x,24('-'))
+            do basis = 1, nbasis_rtdb
+               key = ' '
+               write(key,'(''basis:'',a,'':header'')')
+     $              bs_names_rtdb(basis)(1:len_bs_rtdb(basis))
+               if (.not. rtdb_get(rtdb, key, mt_int, 
+     $              ndbs_head, head_array)) then
+                  write(6,*) ' Warning: basis set ', basis, 
+     $                 ' may be corrupt'
+                  natom = -1
+               else
+                  natom = head_array(HEAD_NTAGS)
+               endif
+               if (.not. rtdb_get_info(rtdb, key, ma_type, 
+     $              nelem, date)) then
+                  write(6,*) ' Warning: basis set ', basis, 
+     $                 ' may be corrupt'
+                  date = 'unknown'
+               endif
+               name32 = bs_names_rtdb(basis)(1:len_bs_rtdb(basis))
+               write(6,4) basis, name32, natom, date
+ 4             format(2x,i5,2x,a32,2x,i6,2x,a26)
+            end do
+            if (nbasis_rtdb .gt. 0) then
+               if (.not. rtdb_cget(rtdb,'ao basis',1,key)) 
+     $              key = 'ao basis'
+               write(6,*)
+               write(6,5) key(1:inp_strlen(key))
+ 5             format(2x,'The basis set named "',a,
+     $              '" is the default AO basis for restart')
+            endif
+            write(6,*)
+            write(6,*)
+         endif
+         call util_flush(6)
+      endif
+c     
       end
 *.....................................................................
       logical function bas_rtdb_in(rtdb)

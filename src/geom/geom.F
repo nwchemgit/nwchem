@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.92 1999-07-14 00:28:56 d3e129 Exp $
+C$Id: geom.F,v 1.93 1999-10-14 23:10:38 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -118,6 +118,72 @@ c
          call geom_err_info(msg)
          status = geom_print(geom)
       end if
+c     
+      end
+      subroutine geom_print_known_geoms(rtdb)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "global.fh"
+c     
+      integer rtdb              ! [input]
+c     
+      integer geom, ma_type, natom, nelem
+      character*26 date
+      character*32 name32
+      logical geom_rtdb_in, ignore
+      character*128 key
+c
+      ignore = geom_rtdb_in(rtdb)
+      if (ga_nodeid() .eq. 0) then
+         write(6,*)
+         call util_print_centered(6,'Geometries in the database',
+     $        23,.true.)
+         write(6,*)
+         if (ngeom_rtdb .le. 0) then
+            write(6,*) ' There are no geometries in the database'
+            write(6,*)
+         else
+            if (ngeom_rtdb .gt. 0) write(6,3)
+ 3          format(
+     $           2x,5x,2x,'Name',28x,2x,'Natoms',2x,
+     $           'Last Modified',/,
+     $           2x,5x,2x,32('-'),2x,6('-'),2x,24('-'))
+            do geom = 1, ngeom_rtdb
+               key = ' '
+               write(key,'(''geometry:'',a,'':ncenter'')')
+     $              names_rtdb(geom)(1:lenr(geom))
+               if (.not. rtdb_get(rtdb, key, mt_int, 1, natom)) then
+                  write(6,*) ' Warning: geometry ', geom, 
+     $                 ' may be corrupt'
+                  natom = -1
+               endif
+               if (.not. rtdb_get_info(rtdb, key, ma_type, 
+     $              nelem, date)) then
+                  write(6,*) ' Warning: geometry ', geom, 
+     $                 ' may be corrupt'
+                  date = 'unknown'
+               endif
+               name32 = names_rtdb(geom)(1:lenr(geom))
+               write(6,4) geom, name32, natom, date
+ 4             format(2x,i5,2x,a32,2x,i6,2x,a26)
+            end do
+            if (ngeom_rtdb .gt. 0) then
+               if (.not. rtdb_cget(rtdb,'geometry',1,key)) 
+     $              key = 'geometry'
+               write(6,*)
+               write(6,5) key(1:inp_strlen(key))
+ 5             format(2x,'The geometry named "',a,
+     $              '" is the default for restart')
+            endif
+            write(6,*)
+            write(6,*)
+         endif
+         call util_flush(6)
+      endif
 c     
       end
       logical function geom_rtdb_in(rtdb)
