@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.103 1998-12-23 18:27:05 d3j191 Exp $
+c     $Id: msgids.fh,v 1.104 1998-12-23 18:30:29 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -176,6 +176,7 @@ c
       integer mre_009
       integer mre_010
       integer mre_011
+      integer mre_012
       integer mre_050
 c
       integer pre_i00
@@ -596,6 +597,7 @@ c
       parameter(mre_009=msg_ftn_base-290) ! esp_grid
       parameter(mre_010=msg_ftn_base-291) ! esp_grid
       parameter(mre_011=msg_ftn_base-292) ! esp_grid
+      parameter(mre_012=msg_ftn_base-293) ! esp_grid
       parameter(mre_050=msg_ftn_base-331) ! esp_grid
 c
       parameter(mrg_i21=msg_ftn_base-332) ! arg_rdstrt
