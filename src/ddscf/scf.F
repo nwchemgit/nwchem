@@ -173,6 +173,7 @@ c
             write(6,*)
             write(6,*)
          endif
+c
          write(6,1) trans(1:inp_strlen(trans)), charge, 'rhf',
      $        movecs_in(1:inp_strlen(movecs_in)),
      $        movecs_out(1:inp_strlen(movecs_out))
