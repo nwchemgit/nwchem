@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.13 2003-02-23 21:37:07 bylaska Exp $
+* $Id: paw_mult.F,v 1.14 2003-02-24 20:52:52 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.13  2003/02/23 21:37:07  bylaska
+* routines for calculating atomic multipole energies have been added....EJB
+*
 * Revision 1.12  2003/02/23 20:53:08  bylaska
 * bug fix in find_comp_coeff ....EJB
 *
@@ -42,7 +45,7 @@
       integer ia,ii,jj
       integer l,m
       integer Gx(2),Gy(2),Gz(2),Ylm(2)
-      real*8  scal,gg,fourpi,omega
+      real*8  scal,gg,fourpi,omega,rs,w
       complex*16 itol,cscal
     
       !**** external functions ****
@@ -109,6 +112,28 @@
       !**** initialize sigma_smooth and ncut***
       sigma_smooth = control_rcut()
       ncut         = control_ncut()
+      if (ncut.lt.0)     ncut=0
+      if (sigma_smooth.le.0.0d0) then
+         rs = lattice_unita(1,1)**2
+     >      + lattice_unita(2,1)**2
+     >      + lattice_unita(3,1)**2
+         rs = dsqrt(rs)
+         sigma_smooth=4.0d0*rs/fourpi
+
+         rs = lattice_unita(1,2)**2
+     >      + lattice_unita(2,2)**2
+     >      + lattice_unita(3,2)**2
+         rs = dsqrt(rs)
+         w=4.0d0*rs/fourpi
+         if (w.lt.sigma_smooth) sigma_smooth = w
+
+         rs = lattice_unita(1,3)**2
+     >      + lattice_unita(2,3)**2
+     >      + lattice_unita(3,3)**2
+         rs = dsqrt(rs)
+         w=4.0d0*rs/fourpi
+         if (w.lt.sigma_smooth) sigma_smooth = w
+      end if
 
 
 
