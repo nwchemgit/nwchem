@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.187 2004-01-31 17:27:18 d3j191 Exp $
+c $Id: md_main.F,v 1.188 2004-01-31 17:33:53 d3j191 Exp $
 c
       implicit none
 c
@@ -2326,7 +2326,7 @@ c
      + lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(itcom2)
       else
-      call timer_stop(37)
+      call timer_start(37)
       call sp_nbaccfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
       call timer_stop(37)
@@ -2335,7 +2335,7 @@ c
     1 continue
 c
       if(nbget.ne.0) then
-      call timer_stop(38)
+      call timer_start(38)
       call sp_nbwaitf()
       call timer_stop(38)
       endif
@@ -2762,7 +2762,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.187 2004-01-31 17:27:18 d3j191 Exp $
+c $Id: md_main.F,v 1.188 2004-01-31 17:33:53 d3j191 Exp $
 c
       implicit none
 c
