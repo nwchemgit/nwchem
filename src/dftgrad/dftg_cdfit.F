@@ -9,7 +9,7 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.16 1999-06-10 19:19:39 edo Exp $
+* $Id: dftg_cdfit.F,v 1.17 2000-02-09 22:26:02 edo Exp $
 *
       integer rtdb, geom, AO_bas_han, CD_bas_han
       integer nbf_ao, nbf_cd, nat, max_sh_bf
@@ -160,7 +160,8 @@ c     2el. 3-c integral derivatives
 c
 c     increased granularity
 c
-      igran = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+!      igran = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      igran = nshells_ao/nproc/nproc
       igran = max(1,igran)
 c
       next = nxtask(nproc,igran) + 1
