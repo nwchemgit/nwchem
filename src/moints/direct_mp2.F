@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.11 1995-06-22 08:56:21 rg240 Exp $
+C$Id: direct_mp2.F,v 1.12 1995-08-07 16:17:41 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -202,6 +202,16 @@ c
      $      'epair',1,1,g_epair))
      $      call errquit('direct_mp2:cannot create epair array',0)
 c
+c Dummy loop to count number of passes
+c
+       npass = 0
+       oseg_hi = occ_lo - 1
+ 322   continue
+       npass = npass + 1
+       oseg_lo = oseg_hi + 1
+       oseg_hi = moints_occrange( noper, occ_lo, oseg_lo, occ_hi )
+       if (oseg_hi.lt.occ_hi) goto 322
+c
 c Print info
 c
        if ((ga_nodeid().eq.0).and.oprint) then
@@ -209,7 +219,7 @@ c
          write(6,*)
          call util_print_centered(6,'Direct MP2', 30, .true. )
          write(6,966) nbf, nsh, blen, occ_lo, occ_hi,
-     $                vir_lo, vir_hi, movecs_in, noper
+     $                vir_lo, vir_hi, movecs_in, noper,npass
  966     format(
      $        10x,'Basis functions:',20x,i5,/,
      $        10x,'Shells:',29x,i5,/,
@@ -217,7 +227,8 @@ c
      $        10x,'Active occupied range:',11x,i3,1x,'-',i3,/,
      $        10x,'Active virtual range:',12x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
-     $        10x,'Operator matrices in core:',10x,i5)
+     $        10x,'Operator matrices in core:',10x,i5,/,
+     $        10x,'Number of AO passes required:',7x,i5)
          if (algo.eq.'sixfold') then
            write(6,975) 
  975       format(10x,'Sixfold algorithm used')
