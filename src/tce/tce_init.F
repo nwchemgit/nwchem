@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.15 2002-11-13 16:23:23 sohirata Exp $
+c $Id: tce_init.F,v 1.16 2002-11-14 02:05:52 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -288,7 +288,7 @@ c
      1  print_default)) then
         call util_print_centered
      1    (LuOut,'General Information',20,.true.)
-        write(LuOut,9200) ga_nodeid()
+        write(LuOut,9200) ga_nnodes()
         if (ipol.eq.1) then
           write(LuOut,9010)
           write(LuOut,9030) nocc(1)*2,nocc(1),nocc(1)
@@ -356,7 +356,7 @@ c
         endif
       endif
       call util_flush(LuOut)
- 9200 format(3x,'        Number of nodes : ',2x,i4)
+ 9200 format(3x,'        Number of nodes :',2x,i4)
  9000 format(3x,'       Calculation type : ',a)
  9010 format(3x,'      Wavefunction type : Restricted')
  9020 format(3x,'      Wavefunction type : Unrestricted')

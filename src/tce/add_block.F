@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.7 2002-11-13 16:23:22 sohirata Exp $
+c $Id: add_block.F,v 1.8 2002-11-14 02:05:52 sohirata Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -107,16 +107,16 @@ c
           if (sf_open(d_file).ne.0)
      1      call errquit('add_block: sf problem',0)
         endif
-        if (sf_read(d_file,dfloat(bytes*offset),
-     1    dfloat(bytes*size),dbl_mb(k_temp),request).ne.0)
+        if (sf_read(d_file,dfloat(bytes)*dfloat(offset),
+     1    dfloat(bytes)*dfloat(size),dbl_mb(k_temp),request).ne.0)
      2    call errquit('add_block: sf problem',1)
         if (sf_wait(request).ne.0)
      1    call errquit('add_block: sf problem',2)
         do i = 1,size
           dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
         enddo
-        if (sf_write(d_file,dfloat(bytes*offset),
-     1    dfloat(bytes*size),dbl_mb(k_temp),request).ne.0)
+        if (sf_write(d_file,dfloat(bytes)*dfloat(offset),
+     1    dfloat(bytes)*dfloat(size),dbl_mb(k_temp),request).ne.0)
      2    call errquit('add_block: sf problem',3)
         if (sf_wait(request).ne.0)
      1    call errquit('add_block: sf problem',4)

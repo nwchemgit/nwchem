@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.9 2002-11-13 16:23:22 sohirata Exp $
+c $Id: createfile.F,v 1.10 2002-11-14 02:05:52 sohirata Exp $
 c
 c     Creates a shared file and returns the handle
 c
@@ -109,8 +109,8 @@ c
         if (nodezero.and.util_print('files',print_debug))
      1    write(LuOut,9000) size,filename(1:40)
         if (parallel) call ga_sync()
-        if (sf_create(filename,dfloat(bytes*size),dfloat(bytes*size),
-     1    1.0d4,d_sf).ne.0)
+        if (sf_create(filename,dfloat(bytes)*dfloat(size),
+     1      dfloat(bytes)*dfloat(size),1.0d4,d_sf).ne.0)
      2    call errquit('createfile: sf problem',0)
         if (parallel) then
           if (sf_close(d_sf).ne.0)

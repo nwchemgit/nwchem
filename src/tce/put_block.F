@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.8 2002-11-13 16:23:22 sohirata Exp $
+c $Id: put_block.F,v 1.9 2002-11-14 02:05:52 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -81,8 +81,8 @@ c
           if (sf_open(d_file).ne.0)
      1      call errquit('put_block: sf problem',0)
         endif
-        if (sf_write(d_file,dfloat(bytes*offset),
-     1    dfloat(bytes*size),array,request).ne.0)
+        if (sf_write(d_file,dfloat(bytes)*dfloat(offset),
+     1    dfloat(bytes)*dfloat(size),array,request).ne.0)
      2    call errquit('put_block: sf problem',1)
         if (sf_wait(request).ne.0)
      1    call errquit('put_block: sf problem',2)
