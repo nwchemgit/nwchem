@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.26 2004-10-25 21:21:15 nwchem Exp $
+c $Id: psp_generator_input.F,v 1.27 2005-02-08 01:25:56 bylaska Exp $
 c
 
 *     ***************************************
@@ -607,6 +607,17 @@ c        *** PBE96 ***
    30      write(99,*) '<exchange>    pbe96 <end>'
            write(99,*) '<correlation> pbe96 <end>'
            close(unit=99)
+
+c        *** BLYP ***
+         else if (control_gga().eq.2) then
+           if (hprint) write(*,*) "+ generated using BLYP"
+           open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+           do while(.true.)
+             read(99,*,ERR=31,END=31) ch_tmp
+           end do
+   31      write(99,*) '<exchange>    becke <end>'
+           write(99,*) '<correlation> lyp   <end>'
+           close(unit=99)
          end if
 
          debug = 0
@@ -828,7 +839,21 @@ c        *** PBE96 ***
    30      write(99,*) '<exchange>    pbe96 <end>'
            write(99,*) '<correlation> pbe96 <end>'
            close(unit=99)
+
+c        *** BLYP ***
+         else if (control_gga().eq.2) then
+           if (hprint) write(*,*) "+ generated using BLYP"
+           open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+           do while(.true.)
+             read(99,*,ERR=31,END=31) ch_tmp
+           end do
+   31      write(99,*) '<exchange>    becke <end>'
+           write(99,*) '<correlation> lyp   <end>'
+           close(unit=99)
+
+
          end if
+
 
          debug = 0
          print = 0

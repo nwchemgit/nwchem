@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2004-10-14 00:26:32 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2005-02-08 01:25:56 bylaska Exp $
 #
       SUBDIRS = paw_atom
 
@@ -18,6 +18,7 @@
                 dirac_exchange.o \
                 perdew_wang.o perdew_zunger.o vosko.o \
                 pbe_exchange.o pbe_correlation.o \
+                becke_exchange.o lyp_correlation2.o \
                 hamann.o \
                 troullier.o xpansion.o gaussj.o \
                 vanderbilt.o xpansion2.o \

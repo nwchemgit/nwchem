@@ -1,5 +1,5 @@
 /*
- $Id: dft.h,v 1.1 2001-08-30 16:58:35 bylaska Exp $
+ $Id: dft.h,v 1.2 2005-02-08 01:25:56 bylaska Exp $
 */
 #ifndef _DFT_H_
 #define _DFT_H_
@@ -18,6 +18,8 @@
 #include        "perdew_wang.h"
 #include	"vosko.h"
 #include        "pbe_correlation.h"
+#include        "becke_exchange.h"
+#include        "lyp_correlation.h"
 
 
 extern	void	init_DFT(char*);
@@ -30,17 +32,22 @@ extern	void	R_Correlation_DFT();
 #define Hartree_On	-8101
 #define Hartree_Off	-8102
 
+
 /* Exchange type: Exchange_Type */
-#define Exchange_Dirac		-8201
+#define Exchange_Dirac          -8201
 #define Exchange_PBE96          -8202
-#define Exchange_Off		-8203
+#define Exchange_Becke          -8204
+#define Exchange_Off            -8205
+
 
 /* Correlation type: Correlation_Type */
-#define	Correlation_Vosko		-8301
-#define	Correlation_Perdew_Zunger	-8302
+#define Correlation_Vosko               -8301
+#define Correlation_Perdew_Zunger       -8302
 #define Correlation_Perdew_Wang         -8303
 #define Correlation_PBE96               -8304
-#define	Correlation_Off			-8305
+#define Correlation_LYP                 -8305
+#define Correlation_Off                 -8306
+
 
 /* used for setting solver parameters */
 extern void	set_Hartree_DFT();

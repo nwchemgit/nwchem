@@ -1,5 +1,5 @@
 /*
- $Id: dft.c,v 1.2 2003-01-25 02:12:05 edo Exp $
+ $Id: dft.c,v 1.3 2005-02-08 01:25:56 bylaska Exp $
    dft.c - 
    Author - Eric Bylaska
 
@@ -45,6 +45,7 @@ void	init_DFT(char	*filename)
       w = get_word(fp);
       if (strcmp("dirac",w)==0) Exchange_Type=Exchange_Dirac;
       if (strcmp("pbe96",w)==0) Exchange_Type=Exchange_PBE96;
+      if (strcmp("becke",w)==0) Exchange_Type=Exchange_Becke;
       if (strcmp("off",w)  ==0) Exchange_Type=Exchange_Off;
    }
    fclose(fp);
@@ -78,7 +79,8 @@ void	init_DFT(char	*filename)
 	Correlation_Type=Correlation_PBE96;
       if (strcmp("perdew-wang",w)  ==0)       
 	Correlation_Type=Correlation_Perdew_Wang;
-      
+      if (strcmp("lyp",w)  ==0)
+        Correlation_Type=Correlation_LYP;
       if (strcmp("off",w)  ==0)       
 	Correlation_Type=Correlation_Off;
    }
@@ -115,6 +117,8 @@ double	*Px;
       R_Dirac_Exchange(rho,Vx,Ex,Px);
    else if (Exchange_Type==Exchange_PBE96)
       R_PBE96_Exchange(rho,Vx,Ex,Px);
+   else if (Exchange_Type==Exchange_Becke)
+      R_Becke_Exchange(rho,Vx,Ex,Px);
    else
    {
       *Ex   = 0.0;
@@ -142,6 +146,8 @@ double	*Pc;
       R_PBE96_Correlation(rho,Vc,Ec,Pc);
    else if (Correlation_Type==Correlation_Perdew_Wang)
       R_Perdew_Wang(rho,Vc,Ec,Pc);
+   else if (Correlation_Type==Correlation_LYP)
+      R_LYP_Correlation(rho,Vc,Ec,Pc);
    else
    {
       *Ec   = 0.0;
@@ -195,6 +201,8 @@ char	*exchange_Name_DFT()
      s = "Dirac";
    else if (Exchange_Type==Exchange_PBE96)
      s = "PBE96 (Perdew, Burke, and Ernzerhof) parameterization";
+   else if (Exchange_Type==Exchange_Becke)
+     s = "Becke88 parameterization";
    else
      s = "No Exchange";
 
@@ -212,6 +220,8 @@ char	*correlation_Name_DFT()
        s = "PBE96 (Perdew, Burke, and Ernzerhof) parameterization";
     else if (Correlation_Type==Correlation_Perdew_Wang)
        s = "Perdew and Wang parameterization";
+    else if (Correlation_Type==Correlation_LYP)
+       s = "LYP (Lee, Yang, Parr) parameterization";
     else
        s = "No Correlation";
 
