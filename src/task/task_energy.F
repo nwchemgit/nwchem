@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.20 2000-06-02 17:41:07 zzhang Exp $
+* $Id: task_energy.F,v 1.21 2000-06-02 18:40:09 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -37,6 +37,7 @@ c
       double precision energy, cpu, wall, dipole(3)
       character*80 key, prefix
       character*80 theory
+      integer ipol_dft
 c
       call ecce_print_module_entry('task energy')
 c
@@ -65,9 +66,16 @@ c
          status = nwdft(rtdb)
          call grid_cleanup(rtdb)
       else if (theory .eq. 'sodft')then 
+c     setup ipol=2: spin unrestricted DFT, but save current setting
+         if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol_dft))
+     &       call errquit('task_energy: rtdb_get failed', 1)
          if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, 2))
-     &       call errquit('dft_input: rtdb_put failed', 1)
-         status = nwdft(rtdb) 
+     &       call errquit('task_energy: rtdb_put failed', 1)
+         status = nwdft(rtdb)
+c     restore ipol value
+         if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol_dft))
+     &       call errquit('task_energy: rtdb_put failed', 1)
+c     cleanup any grid parameters
          call grid_cleanup(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
