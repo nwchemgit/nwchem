@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c$Id: xc_pbe96.F,v 1.8 2001-05-11 21:01:18 edo Exp $
+c$Id: xc_pbe96.F,v 1.9 2001-07-09 20:37:38 edo Exp $
 c
       Implicit none
 c
@@ -115,7 +115,7 @@ c
             rhoval = rho(n,1)
             if (abs(rhoval).le.tol_rho)goto 10
             arho = 1.d0/rhoval
-            rho13  = rhoval**ONE3
+            rho13  = abs(rhoval)**ONE3
             gammaval = delrho(n,1,1)*delrho(n,1,1) +
      &                 delrho(n,2,1)*delrho(n,2,1) +
      &                 delrho(n,3,1)*delrho(n,3,1)
@@ -194,12 +194,16 @@ c
             dtdrhoa = -t*arho*SEV6
             dtdgamma = 0.5d0*t/gammaval
             dexpo1 = twoab2*(egas*arho)
+            if(abs(dexpo1).gt.tol_rho) then
             if (dexpo1.gt.EXPTOL)then
                expo1 = 0.d0
             else
                expo1 = exp(-dexpo1)
             endif
             A = twoab/(expo1-ONE)
+            else
+            A = 0d0
+            endif
             A1p2At2 = ONE+2.d0*A*t2
             aden1 = ONE/(ONE+A*t2+A*A*t4)
             alognd = (t2+A*t4)*aden1
@@ -260,7 +264,7 @@ c
             rho_t(3) = rho(n,3)
             if (abs(rhoval).le.tol_rho) goto 20
             arho = 1.d0/rhoval
-            rho13  = rhoval**ONE3
+            rho13  = abs(rhoval)**ONE3
             gammaval = delrho(n,1,1)*delrho(n,1,1) +
      &                 delrho(n,1,2)*delrho(n,1,2) +
      &                 delrho(n,2,1)*delrho(n,2,1) +

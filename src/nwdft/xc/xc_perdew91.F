@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.30 2001-06-11 20:29:27 edo Exp $
+c     $Id: xc_perdew91.F,v 1.31 2001-07-09 20:37:39 edo Exp $
 c
       Implicit none
 c
@@ -113,7 +113,7 @@ c
             rhoval = rho(n,1)
             if (rhoval.le.tol_rho)goto 10
             arho = 1.d0/rhoval
-            rho13  = rhoval**ONE3
+            rho13  = abs(rhoval)**ONE3
             rs = rsfact/rho13
             rs2 = rs*rs
             rs3 = rs2*rs
@@ -284,7 +284,7 @@ c
             rho_t(3) = rho(n,3)
             if (rhoval.le.tol_rho) goto 20
             arho = 1.d0/rhoval
-            rho13  = rhoval**ONE3
+            rho13  = abs(rhoval)**ONE3
             rs = rsfact/rho13
             rs2 = rs*rs
             rs3 = rs2*rs
