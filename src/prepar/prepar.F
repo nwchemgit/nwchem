@@ -29,16 +29,17 @@ c
 #include "rtdb.fh"
 #include "inp.fh"
 c
-      logical pre_mkseq,pre_mktop
-      external pre_mkseq,pre_mktop
+      logical pre_rtdbin,pre_mkseq,pre_mktop
+      external pre_rtdbin,pre_mkseq,pre_mktop
 c
       integer irtdb0,irtdb
 c
       character*80 filpdb,ffield,filtyp,filseq,filtop,filpar
-      character*80 dir_s,dir_x,dir_u,dir_t
+      character*80 dir_s,dir_x,dir_u,dir_t,sysnam
       character*3 namslv
 c
       integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm,lfntop,lfnpar
+      integer len,lend
 c
       ffield='amber '
       filpdb='/usr/people/d3j191/crown.pdb '
@@ -65,12 +66,32 @@ c     ------------------
 c
       prepar=.true.
       if(ga_nodeid().ne.0) return
+c
+c     header
+c     ------
+c
       write(6,*)
       write(6,*)
       call util_print_centered(6,'nwARGOS Preparation Phase',40,.true.)
       write(6,*)
       write(6,*)
       call ecce_print_module_entry('prepare')
+c
+c     get info from rtdb
+c     ------------------
+c
+      irtdb=irtdb0
+      if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,sysnam))
+     + call errquit('pre_rtdbin failed',9999)
+c
+c     construct file names
+c     --------------------
+c
+      len=index(sysnam,' ')-1
+      lend=index(dir_t,' ')-1
+      filpdb=sysnam(1:len)//'.pdb '
+      filtop=sysnam(1:len)//'.top '
+      filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
 c
 c     check if the topology file exists
 c     ---------------------------------

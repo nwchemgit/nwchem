@@ -1,12 +1,14 @@
-      logical function pre_wrttop(lfntop,filtop,lseq,cseq,mseq,nseq,
+      logical function pre_wrttop(ffield,lfntop,filtop,
+     + releps,q14fac,lseq,cseq,mseq,nseq,
      + latt,lats,catt,patt,ratt,matt,natt,nats,latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
-     + limp,rimp,mimp,nimp)
+     + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc)
 c
       implicit none
 c
       integer lfntop
-      character*80 filtop
+      character*80 filtop,ffield
+      real*8 releps,q14fac
       integer mseq,nseq
       integer lseq(4,mseq)
       character*10 cseq(mseq)
@@ -30,15 +32,28 @@ c
       integer mimp,nimp
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
+      integer m3rd,n3rd
+      integer l3rd(2,m3rd)
+      integer mexc,nexc
+      integer lexc(2,mexc)
 c
       integer i,j,k,l,length,nd
+      character*10 topdat,toptim
 c
       length=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:length),form='formatted',
      + status='new',err=9999)
 c
-      write(lfntop,1004) nats
- 1004 format(i5)
+      call arg_swatch(topdat,toptim)
+c
+      write(lfntop,1000) filtop(1:length),3.3,topdat,toptim,ffield(1:10)
+ 1000 format('TOPOLOGY FILE ',a,/,
+     + 'GENERATED AUTOMICALLY BY NWCHEM PREPARE MODULE',//,
+     + f12.6,3a10)
+c
+      
+      write(lfntop,1004) nats,q14fac,releps,0.0d0,0
+ 1004 format(i5,3f12.6,i5)
       do 1 i=1,nats
       write(lfntop,1005) (catt(1,lats(j,i)),ratt(lats(j,i)),j=1,3),
      + (latt(1,lats(j,i)),j=1,3)
@@ -51,6 +66,14 @@ c
  1006 format(6(1pe12.5))
     3 continue
     2 continue
+c
+c
+      nd=0
+      do 30 i=1,ndih
+      nd=nd+max(ldih(7,i),ldih(8,i),ldih(9,i))
+   30 continue
+      write(lfntop,1009) natm,nbnd,nang,nd,nimp,n3rd
+ 1009 format(5i7,2i10)
 c
       do 10 i=1,natm
       write(lfntop,1010) latm(3,i),0,latm(1,i),latm(2,i),latm(5,i),
@@ -91,6 +114,18 @@ c
       write(lfntop,1019) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
  1019 format(3(i3,0pf12.6,1pe12.5))
    15 continue
+c
+      if(n3rd.gt.0) then
+      write(lfntop,1020) (l3rd(1,i),i=1,n3rd)
+      write(lfntop,1020) (l3rd(2,i),i=1,n3rd)
+ 1020 format(11i7)
+      endif
+c
+      if(nexc.gt.0) then
+      write(lfntop,1021) (lexc(1,i),i=1,nexc)
+      write(lfntop,1021) (lexc(2,i),i=1,nexc)
+ 1021 format(11i7)
+      endif
 c
       close(unit=lfntop)
 c

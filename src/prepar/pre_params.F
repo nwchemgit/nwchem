@@ -1,5 +1,5 @@
       logical function pre_params(lfnpar,filpar,lfnout,lprint,
-     + dir_s,dir_x,dir_u,dir_t,
+     + dir_s,dir_x,dir_u,dir_t,releps,q14fac,
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,

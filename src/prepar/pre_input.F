@@ -11,6 +11,7 @@ c
       character*255 item
 c
       character*80 ffield,projct,calc,dir_s,dir_x,dir_u,dir_t
+      character*80 sysnam
 c
       if(ga_nodeid().eq.0) then
       write(6,*)
@@ -24,6 +25,11 @@ c     set the defaults
 c     ----------------
 c
       ffield='amber '
+      dir_s='/usr/people/d3j191/data/amber_s/ '
+      dir_x='/usr/people/d3j191/data/amber_x/ '
+      dir_u='/usr/people/d3j191/data/amber_u/ '
+      dir_t='/usr/people/d3j191/test/ '
+      sysnam=' '
 c
 c     read the prepare input block
 c     ----------------------------
@@ -67,15 +73,27 @@ c     -----------
 c
       if(inp_compare(.false.,'standard',item)) then
       if(.not.inp_a(dir_s)) call errquit('pre_input: error dir_s',0)
+      goto 2
       endif
       if(inp_compare(.false.,'extensions',item)) then
       if(.not.inp_a(dir_x)) call errquit('pre_input: error dir_x',0)
+      goto 2
       endif
       if(inp_compare(.false.,'user',item)) then
       if(.not.inp_a(dir_u)) call errquit('pre_input: error dir_u',0)
+      goto 2
       endif
       if(inp_compare(.false.,'temporary',item)) then
       if(.not.inp_a(dir_t)) call errquit('pre_input: error dir_t',0)
+      goto 2
+      endif
+c
+c     sysnam
+c     ------
+c
+      if(inp_compare(.false.,'system',item)) then
+      if(.not.inp_a(sysnam)) call errquit('pre_input: error sysnam',0)
+      goto 2
       endif
 c
 c     end
@@ -86,7 +104,12 @@ c
  9999 format('pre_input: unknown field ',a)
       call errquit('pre_input: error reading input file',0)
       endif
-
+c
+c     do some tests
+c     -------------
+c
+      if(sysnam(1:1).eq.' ')
+     + call errquit('pre_in put: no sysnam specified',0)
 c
 c     put on rtdb
 c     -----------
@@ -103,5 +126,9 @@ c
       if(.not.rtdb_cput(irtdb,'prep:dir_t',1,dir_t))
      + call errquit('pre_input: rtdb_put failed',0)
 c
+      if(.not.rtdb_cput(irtdb,'prep:sysnam',1,sysnam))
+     + call errquit('pre_input: rtdb_put failed',0)
+c
       return
       end
+

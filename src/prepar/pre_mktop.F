@@ -20,8 +20,8 @@ c
 c
       logical pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
       external pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
-      logical pre_params,pre_natyps,pre_wrttop
-      external pre_params,pre_natyps,pre_wrttop
+      logical pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
+      external pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar
       character*80 ffield,filseq,filtop,filpar
@@ -52,6 +52,14 @@ c
       integer matt,natt,nats
       integer l_latt,i_latt,l_catt,i_catt,l_patt,i_patt,l_ratt,i_ratt
       integer l_lats,i_lats
+c
+      integer m3rd,n3rd
+      integer i_l3rd,l_l3rd
+c
+      integer mexc,nexc
+      integer i_lexc,l_lexc
+c
+      real*8 releps,q14fac
 c
 c      write(lfnout,1000)
 c 1000 format('TOPOLOGY GENERATION')
@@ -292,7 +300,7 @@ c     substitute force field parameters
 c     ---------------------------------
 c
       if(.not.pre_params(lfnpar,filpar,lfnout,lprint,
-     + dir_s,dir_x,dir_u,dir_t,
+     + dir_s,dir_x,dir_u,dir_t,releps,q14fac,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,
@@ -302,10 +310,40 @@ c
      + dbl_mb(i_ratt),matt,natt,nats))
      + call errquit('pre_params failed',9999)
 c
+c     allocate memory for third neighbor list
+c     ---------------------------------------
+c
+      m3rd=6*mang
+      n3rd=0
+      if(.not.ma_push_get(mt_int,2*m3rd,"l3rd",l_l3rd,i_l3rd))
+     + call errquit('Memory allocation failed for l3rd',9999)
+c
+c     construct third neighbor list
+c     -----------------------------
+c
+      if(.not.pre_third(int_mb(i_lbnd),mbnd,nbnd,int_mb(i_lang),
+     + mang,nang,int_mb(i_l3rd),m3rd,n3rd))
+     + call errquit('pre_third failed',9999)
+c
+c     allocate memory for excluded pair list
+c     --------------------------------------
+c
+      mexc=n3rd+nbnd+nang
+      nexc=0
+      if(.not.ma_push_get(mt_int,2*mexc,"lexc",l_lexc,i_lexc))
+     + call errquit('Memory allocation failed for lexc',9999)
+c
+c     construct excluded pair list
+c     ----------------------------
+c
+      if(.not.pre_excl(int_mb(i_l3rd),m3rd,n3rd,int_mb(i_lbnd),
+     + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc))
+     + call errquit('pre_excl failed',9999)
+c
 c     write the topology file
 c     -----------------------
 c
-      if(.not.pre_wrttop(lfntop,filtop,
+      if(.not.pre_wrttop(ffield,lfntop,filtop,releps,q14fac,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latt),int_mb(i_lats),byte_mb(i_catt),dbl_mb(i_patt),
      + dbl_mb(i_ratt),matt,natt,nats,int_mb(i_latm),byte_mb(i_catm),
@@ -313,12 +351,17 @@ c
      + nbnd,int_mb(i_lang),
      + dbl_mb(i_rang),mang,nang,int_mb(i_ldih),int_mb(i_kdih),
      + dbl_mb(i_rdih),mdih,ndih,
-     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp))
+     + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_l3rd),
+     + m3rd,n3rd,int_mb(i_lexc),mexc,nexc))
      + call errquit('pre_wrttop failed',9999)
 c
 c     deallocate memory
 c     -----------------
 c
+      if(.not.ma_pop_stack(l_lexc))
+     + call errquit('Memory deallocation failed for lexc',9999)
+      if(.not.ma_pop_stack(l_l3rd))
+     + call errquit('Memory deallocation failed for l3rd',9999)
       if(.not.ma_pop_stack(l_ratt))
      + call errquit('Memory deallocation failed for ratt',9999)
       if(.not.ma_pop_stack(l_patt))
