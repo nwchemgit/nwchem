@@ -1,5 +1,5 @@
-      SUBROUTINE stpr_output(STEP,COORD,BCKSTP, grad_max)
-c     $Id: stpr_output.F,v 1.5 1995-05-30 17:39:37 d3e129 Exp $
+      SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad)
+c     $Id: stpr_output.F,v 1.6 1996-11-02 02:07:07 vg038 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
       LOGICAL BCKSTP, oprint_info
@@ -7,6 +7,7 @@ c     $Id: stpr_output.F,v 1.5 1995-05-30 17:39:37 d3e129 Exp $
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / SWITCH / SECO, SWSEC, SWFIR
+      double precision mxgrad, grad_max, grad_norm, stepmax, stepnorm
       DIMENSION STEP(NAT3),
      &     COORD(3,NATOM)
 c
@@ -25,6 +26,18 @@ c
       IF ((ICALC.EQ.1).AND.SWSEC) THEN
          WRITE(6,*)'  Using Analytical 1st and 2nd derivatives. '
       ENDIF
+
+C     ECCE output
+      stepmax  = grad_max  ( step, nat )
+      stepnorm = grad_norm ( step, nat )
+      if ( IWCTR .eq. 1 ) then
+C       initial geometry
+        call ecce_print2 ('geometry', mt_dbl, coord, 3,3,nat)
+      endif
+      call ecce_print1 ('step max',  mt_dbl, stepmax,  1 )
+      call ecce_print1 ('step norm', mt_dbl, stepnorm, 1 )
+      call ecce_print1 ('delta energy', mt_dbl, EDIFF, 1 )
+
       if (oprint_info) then
 *... does not reproduce correct output for reset and walk         WRITE(6,1000)NWALK
          WRITE(6,1000)iwctr
@@ -39,7 +52,7 @@ c
             WRITE(6,1011)TRUSTO
          ENDIF
          WRITE(6,1001)NNEG
-         write(6,1032)grad_max
+         write(6,1032)mxgrad
          WRITE(6,1002)GLNGTH
       endif
 #if defined(KSR) || defined(CRAY)
