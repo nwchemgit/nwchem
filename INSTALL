@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.28 2000-11-14 18:25:15 windus Exp $
+$Id: INSTALL,v 1.29 2000-11-17 18:49:06 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -281,8 +281,8 @@ B) make directories
    mkdir /usr/local/NWChem/bin
    mkdir /usr/local/NWChem/data
 
-C) cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem /usr/local/NWChem/bin
-*  cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/parallel /usr/local/NWChem/bin 
+C) cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem /usr/local/NWChem/bin
+*  cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/parallel /usr/local/NWChem/bin 
    cd /usr/local/NWChem/bin
    chmod 755 nwchem 
    chmod 755 parallel
@@ -291,8 +291,8 @@ C) cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem /usr/local/NWChem/bin
           http://www.emsl.pnl.gov/pub/docs/nwchem/doc/user/index.html
           or read the README files in $NWCHEM_TOP/src/tcgmsg    
    For SPs:
-** cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/jobtime usr/local/NWChem/bin
-   cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/jobtime.pl usr/local/NWChem/bin
+** cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/jobtime usr/local/NWChem/bin
+   cp $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/jobtime.pl usr/local/NWChem/bin
    **Note: These scripts use perl to get information from LoadLeveller
            to get time information.  jobtime may need to be modified
            to find perl on your system.  If you can't get these to 
@@ -376,13 +376,13 @@ BUILDING WITH MPI:
    we usually run nwchem under MPI are the following:
      1) using mpirun:
 
-     mpirun -np 8 $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem h2o.nw
+     mpirun -np 8 $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem h2o.nw
 
      2) If you have all nodes connected via shared memory 
      and you have installed the ch_shmem version of MPICH, 
      you can do
 
-     $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem -np 8 h2o.nw
+     $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/nwchem -np 8 h2o.nw
 
 
 BUILDING WITH PYTHON:
