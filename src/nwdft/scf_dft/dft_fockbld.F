@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.9 2001-05-11 02:12:17 edo Exp $
+c     $Id: dft_fockbld.F,v 1.10 2002-10-31 01:57:55 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -17,6 +17,7 @@ c
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "util.fh"
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_xcinv
       integer g_tmp,g_nq,g_wght,g_xyz
@@ -80,6 +81,14 @@ c
      &     call dft_tstamp(' calling 1-e int ')
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
+      if(util_print('kinetic_energy', print_high)) then
+         Ecore = ga_ddot(g_dens(1), g_fock)
+         if(ga_nodeid().eq.0) then
+            write(luout,222) Ecore
+ 222        format(/
+     &     '           Kinetic energy =', f20.12/)
+         endif
+      endif
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
 
 c
