@@ -1,0 +1,33 @@
+echo
+title ch3f
+
+geometry
+c  0.0    0.0    0.0
+f  0.0    0.0    1.383
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+basis
+* library 6-311++G**
+end
+
+charge 0
+
+property
+  spinspin 2 1 2 2 3
+end
+
+scf
+ uhf
+end
+
+task scf property
+
+dft
+ xc b3lyp
+ odft
+end
+
+task dft property
