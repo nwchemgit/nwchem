@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.12 2000-03-03 18:31:36 d3j191 Exp $
+c $Id: pre_rename.F,v 1.13 2000-03-03 18:36:25 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -126,8 +126,7 @@ c
       if(lseq(1,k).eq.j) then
       write(lfnout,1004) j,cseq(2,k),card(i+1:i+5)
  1004 format(' Sequence modification: ',i6,':',a5,' to ',a5)
-      i=index(cseq(2,k),'_')
-      if(i.eq.3) then
+      if(index(cseq(2,k),'_').eq.3) then
       cseq(2,k)=card(i+1:i+3)//cseq(2,k)(4:5)
       else
       cseq(2,k)=card(i+1:i+5)
