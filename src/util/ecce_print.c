@@ -173,6 +173,7 @@ void ecce_print2(const char *key, int ma_type,
 {
     static int print_warning = 1;
     const char *typename = ma_typename(ma_type);
+    const char *cdata = data;
     int typesize = MA_sizeof(ma_type, 1, MT_C_CHAR);
     int i;
 
@@ -187,8 +188,8 @@ void ecce_print2(const char *key, int ma_type,
     }
 
     print_info("begin", key, typename, dim1, dim2);
-    for (i=0; i<dim2; i++, data+= (ld1*typesize)) 
-	ma_print(ecce_file, ma_type, dim1, data);
+    for (i=0; i<dim2; i++, cdata+= (ld1*typesize)) 
+	ma_print(ecce_file, ma_type, dim1, (void *) cdata);
     print_info("end", key, typename, dim1, dim2);
     fflush(ecce_file);
 }
