@@ -1,6 +1,6 @@
       subroutine int_mpole(i_basis, ish, j_basis, jsh, lmax, centerl,
      &    lscr, scr, lmpint, MP)
-c $Id: int_mpole.F,v 1.3 1995-03-01 01:17:01 d3g681 Exp $
+c $Id: int_mpole.F,v 1.4 1995-03-04 16:32:52 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax
 c The general form is <shell|pole|shell>
@@ -35,7 +35,7 @@ c::passed
       double precision centerl(3) ! [input] coordinates of multipole
       integer lscr                ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
-      integer lmpint              ! [input/output] length of multipole integrals array
+      integer lmpint              ! [input] length of multipole integrals array
       double precision MP(lmpint) ! [output] multipole integrals
 c::local      
       logical shells_ok
@@ -110,7 +110,7 @@ c
         if (num_int.gt.lmpsiz) then
           write(6,*)' int_mpole: lmpsiz  = ',lmpsiz
           write(6,*)' int_mpole: num_int = ',num_int
-          call errquit('int_mpole: lmpsiz too small ',911)
+          call errquit('int_mpole: lmpint too small ',911)
         endif
         call hf3ois(
      &       coords(1,i_cent,i_geom),exndcf(i_iexp,ibas),
@@ -122,5 +122,5 @@ c
 c...................................TriDiag..DryRun
      &       MP(int_point),int_size,.false.,.false.,scr,lscr)
 00100 continue
-      lmpsiz = num_int
+*     lmpsiz = num_int
       end

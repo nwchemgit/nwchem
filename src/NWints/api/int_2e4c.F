@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.13 1995-01-09 08:48:36 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.14 1995-03-04 16:32:49 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -22,18 +22,20 @@ c errquit
 c::functions
       logical cando_nw
       logical cando_sp
-      logical int_chk_sh
-      logical int_chk_init
       external cando_nw
       external cando_sp
+#define PERF_NORMAL
+#if defined(PERF_NORMAL)
+      logical int_chk_sh
+      logical int_chk_init
       external int_chk_sh
       external int_chk_init
+#endif
 c:: passed
       integer brain, ketin, lscr, leri
       integer ish,jsh,ksh,lsh
       double precision scr(lscr), eri(leri)
 c:: local
-      logical shells_ok
       integer bra, ket 
       integer ab_geom, cd_geom, ucont
       integer La, a_prim, a_gen, a_iexp, a_icfp, a_cent
@@ -41,14 +43,18 @@ c:: local
       integer Lc, c_prim, c_gen, c_iexp, c_icfp, c_cent
       integer Ld, d_prim, d_gen, d_iexp, d_icfp, d_cent
 c
+#if defined(PERF_NORMAL)
+      logical shells_ok
       logical inline_chk_sh
+c
       integer WarnP
       save WarnP
       data WarnP /0/
 c... statement function for int_chk_sh
       inline_chk_sh(bra,ish) =
      $     ((ish.gt.0) .and. (ish.le.ncont_tot_gb(bra)))
-
+#endif
+#if defined(PERF_NORMAL)
 c
 c check initialization
 c
@@ -61,10 +67,12 @@ c
      $     ('int_2e4c: invalid bra basis handle', brain)
       if (.not. bas_check_handle(ketin,'int_2e4c:ket')) call errquit
      $     ('int_2e4c: invalid ket basis handle', ketin)
+#endif
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
       ab_geom = ibs_geom(bra)
       cd_geom = ibs_geom(ket)
+#if defined(PERF_NORMAL)
 c
 c     check input shell ranges
 c
@@ -82,6 +90,7 @@ c
         WarnP = 1
       endif
 c
+#endif
       a_cent  = ibs_cn2ce(ish,bra)
       b_cent  = ibs_cn2ce(jsh,bra)
       c_cent  = ibs_cn2ce(ksh,ket)

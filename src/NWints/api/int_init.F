@@ -1,6 +1,5 @@
-
       subroutine int_init(rtdb, nbas, bases)
-c $Id: int_init.F,v 1.18 1995-02-08 21:25:16 d3e129 Exp $
+c $Id: int_init.F,v 1.19 1995-03-04 16:32:50 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
