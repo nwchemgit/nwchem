@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.359 2001-05-07 18:09:09 edo Exp $
+# $Id: makefile.h,v 1.360 2001-05-07 20:02:32 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -903,7 +903,7 @@ ifeq ($(TARGET),IBM64)
          CC = xlc
     ARFLAGS = -X 64 urs 
      RANLIB = echo
-  MAKEFLAGS = -j 3 --no-print-directory
+  MAKEFLAGS = -j 1 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -913,13 +913,14 @@ ifeq ($(TARGET),IBM64)
   FVECTORIZE = -O5 -qhot -qfloat=rsqrt:fltint:hssngl -NQ40000 -NT80000  -qarch=auto -qtune=auto 
    COPTIMIZE = -O -qmaxmem=8192
 
-    DEFINES = -DIBM -DAIX -DEXTNAME -DEXT_INT 
+    DEFINES = -DIBM -DAIX -DEXTNAME 
        LIBPATH += -L/usr/lib -L/lib 
 ifdef USE_INTEGER4
    FOPTIONS += -qintsize=4
    CORE_LIBS += -lessl -llapack -lblas
 else
    FOPTIONS += -qintsize=8 
+   DEFINES  += -DEXT_INT 
    CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
