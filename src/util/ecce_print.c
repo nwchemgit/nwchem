@@ -276,6 +276,7 @@ static int fortchar_to_string(const char *f, int flen, char *buf,
 #define ecce_print1_char_        ECCE_PRINT1_CHAR
 #define ecce_print_module_entry_ ECCE_PRINT_MODULE_ENTRY
 #define ecce_print_module_exit_  ECCE_PRINT_MODULE_EXIT
+#define ecce_print_echo_input_   ECCE_PRINT_ECHO_INPUT
 #endif
 
 #if defined(CRAY) || defined(CRAY_T3D)
