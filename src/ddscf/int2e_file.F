@@ -23,8 +23,11 @@
 #endif
 c
       double precision length
-      integer availkb
+      integer availkb, sdlen
       character*20 fstype
+      character*(nw_max_path_len) scratchdir
+      integer util_scratch_dir_avail_for_me
+      external util_scratch_dir_avail_for_me
 c
 #include "cint2esave.fh"
 c
@@ -92,8 +95,23 @@ c
       if (filesize .gt. 0) then
          max_file_rec = filesize/rec_len_in_dbl
       else if (filesize .eq. 0) then
-         if (eaf_stat(actualname, availkb, fstype) .ne. 0) call errquit
+c
+c     If the file is in the scratch directory then use the estimate
+c     of available scratch space from util_scratch_dir_avail_for_me()
+c     otherwise use the result from eaf_stat.
+c
+         call util_file_name('x',.true.,.false.,scratchdir)
+         sdlen = inp_strlen(scratchdir) - 2 ! ignore trailing ".x"
+         if (scratchdir(1:sdlen) .eq. actualname(1:sdlen)) then
+            availkb = util_scratch_dir_avail_for_me()
+*            write(6,*) ' SCRATCH ', availkb
+         else
+            if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
+     $           call errquit
      $        ('int2e_file_open:unable to determine available disk',0)
+*            write(6,*) ' non-SCRATCH ', availkb
+         endif
+c
          max_file_rec = nint((0.95*1024.0d0*availkb) / 
      $        (8.0d0*rec_len_in_dbl))
          max_file_rec = max(0,max_file_rec)
