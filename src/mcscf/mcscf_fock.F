@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.11 1997-04-19 17:46:54 d3g681 Exp $
+c     $Id: mcscf_fock.F,v 1.12 1997-04-23 01:27:12 d3g681 Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -656,7 +656,7 @@ c
          totalmoments(k) = totalmoments(k) + nuclmoments(k)
       enddo
 c     
-      oprintmultipole = util_print('multipole', print_default)
+      oprintmultipole = util_print('multipole', print_low)
       if (oprintmultipole .and. ga_nodeid().eq.0) then
          write(6,*)
          call util_print_centered(6,

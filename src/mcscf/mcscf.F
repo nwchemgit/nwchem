@@ -630,6 +630,13 @@ c
       call movecs_ecce(nbf, nbf, 1, nbf, dbl_mb(k_evals),
      $     dbl_mb(k_occ), int_mb(k_sym), 
      $     g_movecs, 'mcscf', ' ')
+c
+      if (util_print('final vectors analysis', print_default))
+     $     call movecs_print_anal(basis, 
+     $     max(1,nclosed-10), min(nbf,nclosed+nact+10),
+     $     0.15d0, g_movecs, 'Analysis of MCSCF natural orbitals',
+     $     .true., dbl_mb(k_evals), .true., int_mb(k_sym), 
+     $     .true., dbl_mb(k_occ))
 c     
       call mcscf_dump_for_grad(rtdb, geom, basis, nbf, nclosed, nact,
      $     oskel, tol2e, dbl_mb(k_dm1), dbl_mb(k_dm2), 
