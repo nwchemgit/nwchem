@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.47 1999-12-30 21:58:17 mg201 Exp $
+c $Id: bas_input.F,v 1.48 2000-01-14 20:00:59 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -61,7 +61,7 @@ c::local
       logical o_add_ecpname, o_add_soname
       logical oIs_ecp, oIs_so, oIs_rel
       integer ind, basis
-      logical bas_add_ucnt_init, bas_set_spherical
+      logical bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
       external bas_add_ucnt_init, bas_set_spherical
       data opts /
      &    'spherical', 'cartesian', 'segment', 'nosegment', 'library',
@@ -272,6 +272,9 @@ c
      $     ('bas_input: failed to store basis', 0)
 c
       call bas_ecce_print_basis(basis,'bas_input')
+c
+      if (.not. bas_add_ucnt_tidy(basis))
+     $     call errquit('bas_input: tidy failed',0)
 c
       if (.not. bas_do_destroy(basis)) call errquit
      $     ('bas_input: bas_destroy failed', 0)

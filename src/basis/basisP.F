@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.21 1999-07-14 00:28:51 d3e129 Exp $
+c $Id: basisP.F,v 1.22 2000-01-14 20:00:59 d3g681 Exp $
 #include "nwc_const.fh"
 #include "basP.fh"
       character *(*) msg
@@ -60,7 +60,7 @@ c
       bas_add_ucnt_tidy = ma_free_heap(h_tmp)
       if (.not.bas_add_ucnt_tidy) call errquit
      &    ('bas_add_unct_tidy: error freeing heap',911)
-      exndcf(H_exndcf ,basis) = 0
+      exndcf(H_exndcf ,basis) = -1
       exndcf(K_exndcf ,basis) = 0
       exndcf(SZ_exndcf,basis) = 0
       bas_add_ucnt_tidy = .true.

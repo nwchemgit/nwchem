@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.96 2000-01-12 22:10:19 d3g681 Exp $
+c $Id: basis.F,v 1.97 2000-01-14 20:00:59 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -162,7 +162,7 @@ c Initialize basis info to be empty
 c
       bs_trans(basis) = ' '
       call ifill(ndbs_head, 0, infbs_head(1,basis), 1)
-      exndcf(H_exndcf ,basis) = 0 ! handle 
+      exndcf(H_exndcf ,basis) = -1 ! handle 
       exndcf(K_exndcf ,basis) = 0 ! index
       exndcf(SZ_exndcf,basis) = 0 ! allocated size
       call ifill(ndbs_tags*ntags_bsmx, 0,
@@ -309,12 +309,12 @@ c
       bas_any_gc(basis)       = .false.
       bas_any_sp_shell(basis) = .false.
 c
-      if (exndcf(SZ_exndcf,basis).gt.0) then
-        h_tmp = exndcf(H_exndcf,basis)
-        if (.not.ma_free_heap(h_tmp)) call errquit
+      h_tmp = exndcf(H_exndcf,basis)
+      if (h_tmp .ne. -1) then
+         if (.not.ma_free_heap(h_tmp)) call errquit
      &        ('bas_do_destroy: error freeing heap',911)
       endif
-      exndcf(H_exndcf ,basis) = 0
+      exndcf(H_exndcf ,basis) = -1
       exndcf(K_exndcf ,basis) = 0
       exndcf(SZ_exndcf,basis) = 0
 c
@@ -1234,7 +1234,7 @@ c
 c
       write(nameex,'(a23,i2)')' basis exps and coeffs ',basis
 c
-      if (exndcf(H_exndcf,basis) .ne. 0) then
+      if (exndcf(H_exndcf,basis) .ne. -1) then
          if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
      $        call errquit('bas_rtdb_do_load: ma is corrupted',
      $        exndcf(H_exndcf,basis))
@@ -1278,8 +1278,13 @@ c
 c read the basis now get check status of read operations
 c
       if (.not.rtdb_status) then
-         if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
-     $        call errquit('bas_rtdb_load: ma free failed?',0)
+         if (exndcf(H_exndcf,basis) .ne. -1) then
+            if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
+     $           call errquit('bas_rtdb_load: ma free failed?',0)
+            exndcf(H_exndcf,basis) = -1
+            exndcf(K_exndcf,basis) = 0
+            exndcf(SZ_exndcf,basis)= 0
+         endif
 c
 c     rjh ... can be quiet now since the application should
 c     whine if it really did need the basis set
