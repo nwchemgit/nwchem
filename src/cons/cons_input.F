@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.12 2004-04-21 23:30:07 marat Exp $
+c $Id: cons_input.F,v 1.13 2004-04-29 01:59:44 bert Exp $
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -209,7 +209,7 @@ c     do some checks
         return
       end if
 
-      if (j < i) then
+      if (j .lt. i) then
         itest  = j
         j = i
         i = itest

@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.15 2004-04-21 23:30:07 marat Exp $
+c $Id: cons_utils.F,v 1.16 2004-04-29 01:59:44 bert Exp $
       function cons_print()
       implicit none
 #include "global.fh"
@@ -19,7 +19,7 @@ c
       integer rtdb
 c
       logical ignore
-      character(255) tag
+      character*255 tag
 
       call cons_tag(namespace,tag)
       cons_inquire=rtdb_get(rtdb,tag,mt_log,1,ignore)
@@ -37,7 +37,7 @@ c
       integer rtdb
 c
       logical ignore
-      character(255) tag
+      character*255 tag
       
       call cons_tag(namespace,tag)
       cons_activate=rtdb_get(rtdb,tag,mt_log,1,ignore)
@@ -59,7 +59,7 @@ c
       integer rtdb
 c
       logical ignore
-      character(255) tag
+      character*255 tag
       
       call cons_tag(namespace,tag)
 
@@ -95,10 +95,10 @@ c
       integer id01,id02
       double precision k0
       double precision r0
-      character(255) tag_id
-      character(255) tag_n
-      character(255) tag_r
-      character(255) tag_k
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_r
+      character*255 tag_k
 
       call cons_hbond_id_tag(namespace,tag_id)
       call cons_hbond_n_tag(namespace,tag_n)
@@ -209,8 +209,8 @@ c
       integer n
       integer h_tmp_id,i_tmp_id 
       
-      character(255) tag_id
-      character(255) tag_n
+      character*255 tag_id
+      character*255 tag_n
 
 
       call cons_fxd_atoms_id_tag(namespace,tag_id)
@@ -286,8 +286,8 @@ c
       integer n
       integer h_tmp_id,i_tmp_id 
 
-      character(255) tag_id
-      character(255) tag_n
+      character*255 tag_id
+      character*255 tag_n
 
       call cons_fxd_atoms_id_tag(namespace,tag_id)
       call cons_fxd_atoms_n_tag(namespace,tag_n)
@@ -365,9 +365,9 @@ c
       integer id
       integer h_tmp_id,i_tmp_id 
 
-      character(255) tag_id
-      character(255) tag_n
-      character(255) namespace
+      character*255 tag_id
+      character*255 tag_n
+      character*255 namespace
 
       call cons_get_namespace(namespace)
       call cons_fxd_atoms_id_tag(namespace,tag_id)
@@ -428,9 +428,9 @@ c
       integer n
       integer h_tmp_id,i_tmp_id 
 
-      character(255) tag_id
-      character(255) tag_n
-      character(255) namespace
+      character*255 tag_id
+      character*255 tag_n
+      character*255 namespace
 
       call cons_get_namespace(namespace)
       call cons_fxd_atoms_id_tag(namespace,tag_id)
@@ -484,11 +484,11 @@ c
       integer h_tmp_id,i_tmp_id 
       integer h_tmp_k,i_tmp_k 
       integer h_tmp_r,i_tmp_r 
-      character(255) tag_id
-      character(255) tag_n
-      character(255) tag_k
-      character(255) tag_r
-      character(255) namespace
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_k
+      character*255 tag_r
+      character*255 namespace
 
       call cons_get_namespace(namespace)
       call cons_hbond_id_tag(namespace,tag_id)
@@ -621,7 +621,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*255 cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":fxd_atom_id"
@@ -636,7 +636,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*(*) cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":fxd_atom_n"
@@ -651,7 +651,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*255 cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)
@@ -666,7 +666,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*255 cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_id"
@@ -681,7 +681,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*255 cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_n"
@@ -696,7 +696,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*255 cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_r"
@@ -711,7 +711,7 @@ c
       character*(*) tag
 c
       integer n
-      character(255) cons_name
+      character*255 cons_name
 c
       n=inp_strlen(cons_name)
       tag="cons:"//cons_name(1:n)//":hbond_k"
@@ -729,7 +729,7 @@ c
       integer rtdb
 c
       integer nfa
-      character(255) tag_n
+      character*255 tag_n
 
       call cons_fxd_atoms_n_tag(namespace,tag_n)
 
@@ -755,7 +755,7 @@ c
       integer rtdb
 c
       integer nhb
-      character(255) tag_n
+      character*255 tag_n
 
       call cons_hbond_n_tag(namespace,tag_n)
 
@@ -780,7 +780,7 @@ c
       character*(*) namespace
       integer rtdb
 c
-      character(255) tag
+      character*255 tag
 
       call cons_tag(namespace,tag)
 
@@ -801,7 +801,7 @@ c
       character*(*) namespace
       integer rtdb
 c
-      character(255) tag
+      character*255 tag
 
       call cons_tag(namespace,tag)
 

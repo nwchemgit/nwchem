@@ -22,8 +22,8 @@ c
       integer n
       integer h_act,i_act
       integer h_tmp_id,i_tmp_id 
-      character(255) tag_n
-      character(255) namespace
+      character*255 tag_n
+      character*255 namespace
       logical oprint
       logical ocons
 c
@@ -287,10 +287,10 @@ c
       integer nhb
       integer i_rhb,i_khb,i_ijhb
       integer h_rhb,h_khb,h_ijhb
-      character(255) tag_id
-      character(255) tag_n
-      character(255) tag_r
-      character(255) tag_k
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_r
+      character*255 tag_k
 c
       call cons_unload_hbonds()
 c
@@ -385,8 +385,8 @@ c
       integer nfa
       integer i,j,id
       logical status
-      character(255) tag_id
-      character(255) tag_n
+      character*255 tag_id
+      character*255 tag_n
       integer h_tmp_id,i_tmp_id 
       integer h_tmp_id1,i_tmp_id1 
       integer h_active,i_active
@@ -493,10 +493,10 @@ c
       integer rtdb
 c
       logical status
-      character(255) tag_id
-      character(255) tag_n
-      character(255) tag_r
-      character(255) tag_k
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_r
+      character*255 tag_k
 
       call cons_hbond_id_tag(namespace,tag_id)
       call cons_hbond_n_tag(namespace,tag_n)
@@ -519,8 +519,8 @@ c
       integer rtdb
 c
       logical ignore
-      character(255) tag_id
-      character(255) tag_n
+      character*255 tag_id
+      character*255 tag_n
 c
       call cons_fxd_atoms_id_tag(namespace,tag_id)
       call cons_fxd_atoms_n_tag(namespace,tag_n)
@@ -544,7 +544,7 @@ c
       double precision gx(*)
       logical status
       integer nhb
-      character(255) namespace
+      character*255 namespace
 c
       call cons_get_namespace(namespace)
       if(.not.cons_status(namespace,rtdb)) return
@@ -571,7 +571,7 @@ c
       double precision energy
       logical status
       integer nhb
-      character(255) namespace
+      character*255 namespace
 c
       call cons_get_namespace(namespace)
       if(.not.cons_status(namespace,rtdb)) return
@@ -745,7 +745,7 @@ c     ---------------
       double precision r0,k
       integer i_c,i_rhb,i_khb,i_ijhb
       double precision etot,e,f(3)
-      character(255) namespace
+      character*255 namespace
 c
       if(.not. rtdb_get(rtdb, 'cons:active', mt_log, 1, status)) then
         return
