@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.362 2001-05-08 17:55:01 edo Exp $
+# $Id: makefile.h,v 1.363 2001-06-08 19:38:50 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1100,13 +1100,14 @@ ifeq ($(TARGET),DECOSF)
 # braindead alpha undflows inside texas (c6h6 6-31g)
 
 # assume noaccuracy_sensitive was breaking the code in recent versions (EA)
+              FDEBUG = -g -O0
               FOPTIONS = -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic
 
              COPTIONS = 
              LDOPTIONS = -O
              LINK.f = f77 $(LDFLAGS)
              FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
-             FVECTORIZE = -fast -O5 -tune host -arch host
+             FVECTORIZE = -fast -O4 -tune host -arch host
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF -DPARALLEL_DIAG
