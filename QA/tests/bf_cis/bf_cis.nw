@@ -21,7 +21,7 @@ xc HFexch 1.0
 end
 
 tddft
-tda
+cis
 nroots 3
 notriplet
 target 1
