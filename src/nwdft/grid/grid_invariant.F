@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.8 2000-03-28 19:52:36 edo Exp $
+c$Id: grid_invariant.F,v 1.9 2000-03-29 01:59:10 edo Exp $
 c
       implicit none
 c      
@@ -14,6 +14,17 @@ c
       logical oprint, oprint_grid
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       double precision matalr(3,3),c(3,3)
+      integer numgr3,n
+      logical dogr3rot
+      parameter (numgr3=13)
+      character*10 grrname,gr3name(numgr3)
+      data gr3name/
+     1'C3        ','C6        ',
+     3'D3        ','D6        ',
+     5'C3v       ','C6v       ',
+     7'C3h       ','C6h       ',
+     9'D3h       ','D6h       ',
+     1'D3d       ','D6d       ',' S6       '/
 c
 c     Set print options.
 c
@@ -64,22 +75,29 @@ c
      &      call errquit('grid_invariant: pop stack failed.',0)
       endif
 c
-c     rotate by Ahlrichs prescription
+c     rotate by Ahlrichs prescription for groups with 3-fold axis
 c
-cedo      if(leb) then
-cedo         matalr(1,1)= sqrt(6d0)/3d0
-cedo         matalr(2,1)=0d0
-cedo         matalr(3,1)= sqrt(3d0)/3d0
-cedo         matalr(1,2)=-sqrt(6d0)/6d0
-cedo         matalr(2,2)= sqrt(2d0)/2d0
-cedo         matalr(3,2)= sqrt(3d0)/3d0
-cedo         matalr(1,3)=-sqrt(6d0)/6d0
-cedo         matalr(2,3)=-sqrt(2d0)/2d0
-cedo         matalr(3,3)= sqrt(3d0)/3d0
-cedo         call dcopy(9,qrot,1,c,1)
-cedo         call dgemm('N','N',3,3,3,1d0,matalr,3,c,3,
-cedo     ,        0d0,qrot,3)
-cedo      endif
+      call sym_group_name(geom, grrname)
+      write(6,'("GRGR",A,"!")') grrname
+      dogr3rot=.false.
+      do n=1,numgr3
+         if(grrname.eq.gr3name(n)) dogr3rot=.true.
+      enddo
+      write(0,*) ' dogr ',dogr3rot
+      if(dogr3rot) then
+         matalr(1,1)= sqrt(6d0)/3d0
+         matalr(2,1)=0d0
+         matalr(3,1)= sqrt(3d0)/3d0
+         matalr(1,2)=-sqrt(6d0)/6d0
+         matalr(2,2)= sqrt(2d0)/2d0
+         matalr(3,2)= sqrt(3d0)/3d0
+         matalr(1,3)=-sqrt(6d0)/6d0
+         matalr(2,3)=-sqrt(2d0)/2d0
+         matalr(3,3)= sqrt(3d0)/3d0
+         call dcopy(9,qrot,1,c,1)
+         call dgemm('N','N',3,3,3,1d0,matalr,3,c,3,
+     ,        0d0,qrot,3)
+      endif
 c
 c     debug writes
 c
@@ -91,7 +109,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.8 2000-03-28 19:52:36 edo Exp $
+c$Id: grid_invariant.F,v 1.9 2000-03-29 01:59:10 edo Exp $
 c
       implicit none
 c

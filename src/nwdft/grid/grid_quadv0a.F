@@ -8,7 +8,7 @@
      ,     ibf_ao,rqbuf,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.14 2000-03-27 19:15:31 edo Exp $
+c$Id: grid_quadv0a.F,v 1.15 2000-03-29 01:59:11 edo Exp $
 c
       implicit none
 c
@@ -32,7 +32,6 @@ c
 c
 c     see if any Gradient Corrected Functional is not null
 c
-      grad=.true.
       grad=xc_chkgrad(xfac,cfac)
 c
 c     rewind grid pts file

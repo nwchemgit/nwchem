@@ -10,7 +10,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0b.F,v 1.1 2000-03-27 19:15:31 edo Exp $
+c$Id: grid_quadv0b.F,v 1.2 2000-03-29 01:59:11 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -22,10 +22,10 @@ c
 #include "grid_quad.fh"
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
-      double precision acc_AO_gauss, rad, dummy(1)
+      double precision acc_AO_gauss, rad, dummy(1),rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, nscr
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao, iscr, lscr
-      integer ldmat,idmat,i, grid_nbfm,ntot_cube
+      integer ldmat,idmat,i, grid_nbfm,ntot_cube,iii
       external grid_nbfm
 !       write(0,*) ' v0b nrc ',ntot_cube,' nqpt ',nqpts
 C
@@ -48,18 +48,18 @@ c
             max_elem_ang_scr = max_component * 28
          endif 
 C
-!         do iii=1,nqpts
-!            write(0,'(A,4F16.9)') 
-!     .           ' RR ',
-!     ,           qxyz(1,iii),qxyz(2,iii),qxyz(3,iii),
-!     .           qwght(iii)
-!         enddo
+cedo         do iii=1,nqpts
+cedo            write(0,'(A,I4,4F16.9)') 
+cedo     .           ' RR ',ictr_buf,
+cedo     ,           qxyz(1,iii),qxyz(2,iii),qxyz(3,iii),
+cedo     .           qwght(iii)
+cedo         enddo
 c     
 c
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
 c           within int_eval_gbsets
-c           Evaluate the distances (squared) between each center and the qpoints.
+c           Evaluate the distances (squared) between each center and the points
 c
          mbf_ao=nbf_ao
          if(natoms.gt.1) then
@@ -68,6 +68,7 @@ c
      &        ictr_buf,rad,xyz,qxyz,nqpts,
      &        ibf_ao,  iniz, ifin, expo, 
      &        minexp,ldiff,acc_ao_gauss)
+cedo         write(6,*) ' mbf_ao ',mbf_ao
          if (mbf_ao.eq.0) return
          else
             iniz(1)=1
@@ -109,6 +110,7 @@ c
 c     
 c        get reduced Xi(r) and dXi(r) over atoms
 c     
+         
          call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,           dbl_mb(ichi_ao),rchi_atom)
          if(grad) 
@@ -135,8 +137,11 @@ c           Evaluate the integrated charge density.
 c     
          nqtot = nqtot + nqpts
 c
+         rho0=rho_int
          rho_int = rho_int + 
      &        ddot(nqpts, qwght, 1, rho, 1)
+cedo         write(6,'(A,I3,3(2X,1PE12.6))') 
+cedo     .        ' rho ',nqpts,rho_int,rho(1)
 c
             call xc_eval_fnl(rho, delrho, Amat,
 !     &           Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,

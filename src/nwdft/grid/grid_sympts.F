@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.1 2000-03-28 19:52:37 edo Exp $
+c$Id: grid_sympts.F,v 1.2 2000-03-29 01:59:12 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -16,10 +16,14 @@ c
       external sym_number_ops
 c     
       nops = sym_number_ops(geom)
-      if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symops',
-     ,     l_symops,k_symops)) call errquit(
-     '     '     grid_sympt: malloc get failed',1)
-      call sym_ops_get(geom,nops,dbl_mb(k_symops))
+      if(nops.ne.0) then
+         if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symops',
+     ,        l_symops,k_symops)) call errquit(
+     '        '     grid_sympt: malloc get failed',1)
+         call sym_ops_get(geom,nops,dbl_mb(k_symops))
+      else
+         l_symops=-999
+      endif
       if (.not.MA_push_Get(MT_Dbl,mxang*4,'gridscr',
      ,     l_gridscr,k_gridscr)) call errquit(
      '     '     grid_sympt: malloc get failed',2)
@@ -39,11 +43,13 @@ c
      '     '     grid_sympt: free stack failed',0)
       if (.not.MA_pop_stack(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
+      if(l_symops.ne.-999) then
       if (.not.MA_pop_stack(l_symops)) call errquit(
      '     '     grid_sympt: free stack failed',2)
+      endif
       return
       end
-      Subroutine grid_sympts(r,xyz, ictr, irsh, 
+      Subroutine grid_sympts(dosympts,r,xyz, ictr, irsh, 
      ,     iang, iang_done,nq_left,
      ,     aqbuf, nq, nx,ny,nz,nxyz,
      ,     gridscr,nops,ops,iscr)
@@ -52,6 +58,7 @@ c
 #include "util.fh"
 #include "global.fh"
 c      
+      logical dosympts ! [in]
       integer iang ! [input]
       integer ictr ! [input]
       integer irsh ! [input]
@@ -77,7 +84,7 @@ c     Keep only point belonging to cube
 c
       integer k, l, ia_ictr,nq_left,k1,h,n_equiv
       double precision  tx, ty, tz, xor, yor, zor
-      double precision x,y,z,x1,y1,z1,ddd,rad_one,wsum
+      double precision x,y,z,x1,y1,z1,ddd,wsum
 c
       oprint_grid = util_print('griddebug', print_debug)
 c
@@ -85,15 +92,14 @@ c
       ia_ictr = iatype(ictr)
       if(iang_done.ne.iang) then
          nq_left = 0
-         rad_one=1d0
          do k = 1, ntheta(iang)
 c     
             tx=za_leb(1,k,iang)
             ty=za_leb(2,k,iang)
             tz=za_leb(3,k,iang)
-            xor=rad_one*(qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz)
-            yor=rad_one*(qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz)
-            zor=rad_one*(qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz)
+            xor=(qrot(1,1)*tx + qrot(1,2)*ty + qrot(1,3)*tz)
+            yor=(qrot(2,1)*tx + qrot(2,2)*ty + qrot(2,3)*tz)
+            zor=(qrot(3,1)*tx + qrot(3,2)*ty + qrot(3,3)*tz)
             nq_left = nq_left + 1
             
             gridscr(1,nq_left) =  xor
@@ -111,69 +117,62 @@ cedo     .           ops(1,h,1),ops(1,h,2),ops(1,h,3),
 cedo     .           ops(2,h,1),ops(2,h,2),ops(2,h,3),
 cedo     .           ops(3,h,1),ops(3,h,2),ops(3,h,3)
 cedo         enddo
-
 c
 c     apply symmetry operations
 c
-         do k=1,nq_left
-            if(gridscr(4,k).ne.0d0) then
+         if(dosympts) then
+            do k=1,nq_left
+               if(gridscr(4,k).ne.0d0) then
 cedo            write(6,'(" k ",i3,4(F12.6))') k,
 cedo     .           gridscr(1,k),
 cedo     .           gridscr(2,k),
 cedo     .           gridscr(3,k),
 cedo     .           gridscr(4,k)
-               n_equiv=1
-               x=xyz(1) +gridscr(1,k)
-               y=xyz(2) +gridscr(2,k)
-               z=xyz(3) +gridscr(3,k)
+                  n_equiv=1
+                  x=xyz(1) +gridscr(1,k)
+                  y=xyz(2) +gridscr(2,k)
+                  z=xyz(3) +gridscr(3,k)
 cedo            write(6,'(" k1 ",i3,4(F12.6))') k,x,y,z
-               do h=1,nops
-                  x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z
-                  y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z
-                  z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z
+                  do h=1,nops
+                     x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z
+                     y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z
+                     z1=ops(3,h,1)*x+ops(3,h,2)*y+ops(3,h,3)*z
 cedo            write(6,'("  h0",i3,4(F12.6))') h,x1,y1,z1
-                  x1=x1-xyz(1) 
-                  y1=y1-xyz(2) 
-                  z1=z1-xyz(3) 
+                     x1=x1-xyz(1) 
+                     y1=y1-xyz(2) 
+                     z1=z1-xyz(3) 
 cedo            write(6,'("  h1",i3,4(F12.6))') h,x1,y1,z1
-                  do k1=k+1,nq_left
-                     if(k.ne.k1) then
-                        ddd=(x1-gridscr(1,k1))**2+
-     +                      (y1-gridscr(2,k1))**2+
-     +                      (z1-gridscr(3,k1))**2
-                        if(ddd.lt.1d-10) then
-cedo                           if(k1.le.k) then
-cedo                              write(6,*) 'SMMAALL',k,k1
-cedo            write(6,'("  k1",i3,4(F12.6))') k1,
-cedo     .           gridscr(1,k1),
-cedo     .           gridscr(2,k1),
-cedo     .           gridscr(3,k1)
-cedo                           endif
-cedo                           write(6,*) ' equiv ',k1,gridscr(4,k1)
-                           if(gridscr(4,k1).ne.0d0) then
-                              if(abs(gridscr(4,k1)-gridscr(4,k)).
-     .                             gt.1d-5) then
+                     do k1=k+1,nq_left
+                        if(k.ne.k1) then
+                           ddd=(x1-gridscr(1,k1))**2+
+     +                          (y1-gridscr(2,k1))**2+
+     +                          (z1-gridscr(3,k1))**2
+                           if(ddd.lt.1d-10) then
+                              if(gridscr(4,k1).ne.0d0) then
+                                 if(abs(gridscr(4,k1)-gridscr(4,k)).
+     .                                gt.1d-5) then
 cedo                              write(6,'(" w ",2(I4,1pe20.12))') 
 cedo     .                                k,gridscr(4,k),k1,gridscr(4,k1)
+                                 endif
+                                 gridscr(4,k1)=0d0
+                                 n_equiv=n_equiv+1
+                              endif
+                              goto 111
                            endif
-                              gridscr(4,k1)=0d0
-                              n_equiv=n_equiv+1
-                           endif
-                           goto 111
                         endif
-                     endif
-                  enddo
+                     enddo
 cedo                  write(6,*) ' no equiv found ???',222
- 111              continue
-               enddo
-               gridscr(4,k)=n_equiv*gridscr(4,k)
+ 111                 continue
+                  enddo
+                  gridscr(4,k)=n_equiv*gridscr(4,k)
 
 cedo            write(6,'(2(A,I4),f20.12)') 
 cedo     ,           ' k ',k,' equiv = ',n_equiv,gridscr(4,k)
-            endif
-         enddo
+               endif
+            enddo
+         endif
 c     remove zeroes
-         call grid_compress(nq_left,gridscr,iscr,1d-20)
+         call grid_compress(nq_left,gridscr,iscr,1d-19)
 c
 c     check weight normaliz
 c

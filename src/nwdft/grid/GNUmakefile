@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.26 2000-03-28 19:52:36 edo Exp $
+# $Id: GNUmakefile,v 1.27 2000-03-29 01:59:10 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_sphere.o \
@@ -11,7 +11,6 @@
 	grid_quadvw.o \
 	grid_quadvc.o \
 	grid_nbfm.o \
-        grid_qpts.o \
         grid_bucket.o \
 	grid_utils.o  \
 	grid_sympts.o  \

@@ -11,7 +11,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadvw.F,v 1.2 2000-03-28 19:52:37 edo Exp $
+c$Id: grid_quadvw.F,v 1.3 2000-03-29 01:59:11 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -53,11 +53,11 @@ c
       integer nq_out,nwrbuf
       integer iang_done
       integer nops ! [out]
-c      integer mxang ! [in] max no. angular pts .eq.nqmax
       integer k_symops,l_symops ! [out]  symops handles
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
       integer nq_left
+      logical dosympts
 
 
       double precision symfact,rmax,rmin,rad_write,rad_sh
@@ -67,7 +67,6 @@ C
 c
 c     see if any Gradient Corrected Functional is not null
 c
-      grad=.true.
       grad=xc_chkgrad(xfac,cfac)
       npts_per_ang=nqmax
       nsubb_curr=0
@@ -118,6 +117,7 @@ cedo rchi business off
 cedo      call grid_rchi0
       nqtotc=0
       ncubenz=0
+      dosympts=leb.and.oskel
       call dft_tstamp(' Before atom loop')
 c
 c     parallel loop init
@@ -126,7 +126,7 @@ c
       n1 = 0
       n2 = nxtask(nproc,icount)
 
-      if(leb.and.oskel)call grid_sympts0(geom,nops,k_symops,l_symops,
+      call grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,nqmax)
       do 111 i_a =1,ncenters
          iang_done=-1
@@ -177,18 +177,12 @@ c
 c     Generate all angular quadrature points for this radial shell
 c     and keep only those inside cube
 c     
-                     if(leb.and.oskel) then
-                        call grid_sympts(
-     .                       rad_sh,xyz(1,ictr), ictr, 
-     .                       irsh, iang, iang_done,nq_left,
-     ,                       aqbuf, nq, nx,ny,nz,nxyz,
-     ,                       dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
-     .                       int_mb(k_iscr))
-                     else
-                        call grid_qpts(rad_sh,xyz(1,ictr), ictr, 
-     ,                       irsh, iang, 
-     ,                       aqbuf, nq,  nx,ny,nz,nxyz)
-                     endif
+                     call grid_sympts(dosympts,
+     .                    rad_sh,xyz(1,ictr), ictr, 
+     .                    irsh, iang, iang_done,nq_left,
+     ,                    aqbuf, nq, nx,ny,nz,nxyz,
+     ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
+     .                    int_mb(k_iscr))
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     
@@ -253,7 +247,7 @@ c
             endif
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
-      if(leb.and.oskel)call grid_sympts2(l_symops,l_gridscr,l_iscr)
+      call grid_sympts2(l_symops,l_gridscr,l_iscr)
       write(LuOut,*) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       call grid_buckend()

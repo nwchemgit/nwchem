@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.6 2000-01-26 00:40:48 edo Exp $
+C$Id: grid_ssw.F,v 1.7 2000-03-29 01:59:11 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -32,7 +32,7 @@ c
 c
       integer iw
       double precision ass,distnc,distnn,wsum
-      parameter (toll_scr=1d-14)
+      parameter (toll_scr=1d-15)
 #include "xc_erftab.fh"
 c     
 c     RE Stratmann, GE Scuseria, MJ Frisch, Chem Phys Lett 257, 213 (1996)
