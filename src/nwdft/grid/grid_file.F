@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.52 2003-02-04 02:33:12 edo Exp $
+* $Id: grid_file.F,v 1.53 2003-03-21 21:04:44 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -158,7 +158,7 @@ c
          end if
          read(gr_unit,'(1E20.12)',iostat=ios,err=199) enuc
          if(ios.ne.0) goto 199
-         if(abs(enuc-enuc_in).gt.1d-4) then
+         if(abs(enuc-enuc_in).gt.1d-7) then
 cedo           write(6,*) ' enucs ',enuc,enuc_in
            return
 	 endif
