@@ -7,7 +7,7 @@
      + ldbg,idbg)
 c
 c
-c $Id: sp_init.F,v 1.41 1999-11-26 17:25:15 d3j191 Exp $
+c $Id: sp_init.F,v 1.42 1999-11-26 17:38:18 d3j191 Exp $
 c
       implicit none
 c
@@ -1036,6 +1036,12 @@ c
 c
       call ga_distribution(ga_ip,me,il,ih,jl,jh)
       call ga_put(ga_ip,il,ih,jl,jh,ipl,mbox)
+c
+      if(idebug.eq.1) then
+      write(lfndbg,8000) (i,ipl(30+i,1),i=1,ipl(1,1))
+ 8000 format('ipl',/,(2i5))
+      call util_flush(lfndbg)
+      endif
 c
       return
       end

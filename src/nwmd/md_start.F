@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.39 1999-11-26 17:25:28 d3j191 Exp $
+c $Id: md_start.F,v 1.40 1999-11-26 17:38:00 d3j191 Exp $
 c
       implicit none
 c
@@ -983,14 +983,6 @@ c
       lstype=1
       if(latom.eq.1) lstype=0
 c
-c     Open debug file if requested
-c     ----------------------------
-c
-      if(idebug.gt.0) then
-      write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
-      open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
-      endif
-c
 c     Count radial distribution functions contributions
 c     -------------------------------------------------
 c
@@ -1097,6 +1089,14 @@ c
       nbytes=8*nbytes
 #endif
       call ga_brdcst(mrg_d36,ptol,nbytes,0)
+      endif
+c
+c     Open debug file if requested
+c     ----------------------------
+c
+      if(idebug.gt.0) then
+      write(fildbg,'(a,i5.5,a)') 'nwchem_',me,'.dbg'
+      open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
       endif
 c
       lqmd=iquant.ne.0
