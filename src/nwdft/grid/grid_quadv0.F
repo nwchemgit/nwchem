@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.18 2000-11-03 18:56:45 edo Exp $
+C$Id: grid_quadv0.F,v 1.19 2001-01-16 01:59:21 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -280,7 +280,7 @@ c
       Ec=0d0
       call ga_sync()
       if (.not. rtdb_get(rtdb, 'bgj:new_bf', mt_log,
-     &     1, donewbf)) donewbf = .false.
+     &     1, donewbf)) donewbf = .true.
       if(grid_written) then
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 

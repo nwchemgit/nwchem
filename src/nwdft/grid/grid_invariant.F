@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.13 2001-01-05 01:17:11 edo Exp $
+c$Id: grid_invariant.F,v 1.14 2001-01-16 01:59:21 edo Exp $
 c
       implicit none
 c      
@@ -118,13 +118,15 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.13 2001-01-05 01:17:11 edo Exp $
+c$Id: grid_invariant.F,v 1.14 2001-01-16 01:59:21 edo Exp $
 c
       implicit none
 c
 #include "stdio.fh"
 #include "cdft.fh"
 #include "global.fh"
+#include "util.fh"
+
 c      
       double precision eps
       parameter (eps = 1.d-16)
@@ -140,7 +142,9 @@ c
       integer ictr, icart, jcart, info
       double precision deter3
       external deter3
+      logical oprint
 c
+      oprint=util_print('griddebug', print_high)
       call dzero(qrot, 9)
       call dzero(tvec, 3)
 c
@@ -221,14 +225,14 @@ c
       dett=deter3(qrot)
       coss=(qrot(1,1)+qrot(2,2)+qrot(3,3)-1d0)*.5d0
       if ((dett-coss*coss).lt.0) then
-         if(ga_nodeid().eq.0) then
+         if(ga_nodeid().eq.0.and.oprint) then
             write(LuOut,*) ' WARNING: nonsense rotational matrix'
             write(LuOut,*) ' cosine      ',coss
             write(LuOut,*) ' sine square ',dett-coss*coss
             write(LuOut,*) ' Identity matrix is used '
             write(LuOut,*) '     '
          endif
-         call dfill(9,0,qrot,1)
+         call dfill(9,0d0,qrot,1)
          goto 111
       endif
       return
