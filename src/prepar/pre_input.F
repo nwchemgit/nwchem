@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.28 1999-07-16 16:34:05 d3j191 Exp $
+c $Id: pre_input.F,v 1.29 1999-07-16 20:56:19 d3j191 Exp $
 c
       implicit none
 c
@@ -62,7 +62,7 @@ c
       rgrid=0.2d0
       mnoe=0
       maxscf=0
-      qscale=-1.2d0
+      qscale=-1.0d0
       icount=0
       icyren=0
       model=0
