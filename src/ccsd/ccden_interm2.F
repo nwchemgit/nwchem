@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.2 1997-04-14 06:34:51 gg502 Exp $
+C     $Id: ccden_interm2.F,v 2.3 1997-04-17 05:57:54 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
@@ -91,7 +91,7 @@ c$$$            Write (LuOut, *) GA_NodeID(), ': Omega1 (', I, ',', M, ')'
 c$$$C
             Call GA_Get(g_T2, (I-1)*NVir+1, I*NVir, (M-1)*NVir+1,
      $         M*NVir, Dbl_MB(I_Scr1), NVir)
-            Call DGEMM('N', 'T', 1, NVir, NVir,
+            Call dgemm('N', 'T', 1, NVir, NVir,
      $         FP_One, Z1(M,1), LDT1, Dbl_MB(I_Scr1), NVir,
      $         FP_One, Omega1(I,1), LDO1)
 c$$$C
@@ -125,7 +125,7 @@ c$$$            Write (LuOut, *) GA_NodeID(), ':Omega2 (', M, ',', I, ')'
 c$$$C
             Call GA_Get(g_T2, (M-1)*NVir+1, M*NVir, (I-1)*NVir+1,
      $         I*NVir, Dbl_MB(I_Scr1), NVir)
-            Call DGEMM('N', 'T', 1, NVir, NVir,
+            Call dgemm('N', 'T', 1, NVir, NVir,
      $         FP_One, Z1(M,1), LDT1, Dbl_MB(I_Scr1), NVir,
      $         FP_One, Omega2(I,1), LDO2)
 c$$$C
@@ -146,14 +146,14 @@ c$$$     $   'Summed Partial Omega2', 80, 'F20.15')
 C
 C     Add in the t1 t1 z1 terms
 C
-      Call DGEMM('T', 'N', NVir, NVir, NOcc,
+      Call dgemm('T', 'N', NVir, NVir, NOcc,
      $   FP_One, Z1, LDZ1, T1, LDT1,
      $   FP_Zero, Dbl_MB(I_Scr1), NVir)
 c$$$C
 c$$$      Call DGeWr(NVir, NVir, Dbl_MB(I_Scr1), NVir, 0, 0, LuOut,
 c$$$     $   'Z(m,e) T(m,a)', 80, 'F20.15')
 C
-      Call DGEMM('N', 'N', NOcc, NVir, NVir,
+      Call dgemm('N', 'N', NOcc, NVir, NVir,
      $   FP_One, T1, LDT1, Dbl_MB(I_Scr1), NVir,
      $   FP_One, Omega2, LDO2)
 c$$$C
@@ -178,7 +178,7 @@ c$$$C
      $         N*NVir, Dbl_MB(I_Scr1), NVir)
             Call GA_Get(g_Z2, (M-1)*NVir+1, M*NVir, (N-1)*NVir+1,
      $         N*NVir, Dbl_MB(I_Scr2), NVir)
-            Call DGEMM('N', 'T', NVir, NVir, NVir,
+            Call dgemm('N', 'T', NVir, NVir, NVir,
      $         FP_One, Dbl_MB(I_Scr1), NVir, Dbl_MB(I_Scr2), NVir,
      $         FP_One, Omega3, LDO3)
 c$$$C
@@ -240,7 +240,7 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.2 1997-04-14 06:34:51 gg502 Exp $
+C     $Id: ccden_interm2.F,v 2.3 1997-04-17 05:57:54 d3e129 Exp $
 C SYNOPSIS
       Subroutine CCSD_T2_MyIJ(NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE

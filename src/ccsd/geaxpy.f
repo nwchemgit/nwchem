@@ -3,7 +3,7 @@ C NAME
 C     GEAXPY -- Matrix Y <-- a*X + Y
 C
 C REVISION
-C     $Id: geaxpy.f,v 2.1 1997-03-24 02:01:48 gg502 Exp $
+C     $Id: geaxpy.f,v 2.2 1997-04-17 05:57:55 d3e129 Exp $
 C
 C SYNOPSIS
       Subroutine GEAXPY(M, N, Alpha, X, LDX, Y, LDY)
@@ -32,7 +32,7 @@ C LOCAL VARIABLES
       Integer J
 C
       Do J = 1, N
-         Call DAXPY(M, Alpha, X(1, J), 1, Y(1, J), 1)
+         Call daxpy(M, Alpha, X(1, J), 1, Y(1, J), 1)
       EndDo
 C
       Return
