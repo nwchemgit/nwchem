@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.51 2000-11-04 03:25:55 d3g681 Exp $
+C$Id: nwdft.F,v 1.52 2001-01-12 00:18:00 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -69,6 +69,7 @@ c
 c
       logical dft_main0d, movecs_converged
       external dft_main0d, movecs_converged
+      logical ocosmo
       character*80 theory
 c     
       nwdft = .false.
@@ -118,6 +119,13 @@ c     old checkpoint files, etc.
 c
       call dft_rdinput(rtdb)
 c
+c     bail out if cosmo active and spherical bfns
+c
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+         if(ocosmo.and.bas_is_spherical(ao_bas_han)) call errquit(
+     .        ' cosmo does not handle spherical basis yet',0)
+      endif
+c
 c     Build the grid.
 c
       grid_written=.false.
@@ -126,8 +134,6 @@ c
 c     Analyze set parameters for consistency
 c
       call dft_inpana(rtdb)
-c
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 1'
 c
 c     Can we check here to see if system if already converged?
 c
