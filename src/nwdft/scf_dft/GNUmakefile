@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.9 1995-04-27 03:16:24 og845 Exp $
+# $Id: GNUmakefile,v 1.10 1995-05-10 03:52:45 og845 Exp $
 
-      OBJ = mull_pop.o dft_scf.o 
+      OBJ = mull_pop.o dft_scf.o dft_s2_value.o
       OBJ_OPTIMIZE = \
 	diis_driver.o	diis_bsolve.o	\
 	diis_core.o	diis_builds12.o diis_hamwgt.o diis_refvec.o	\

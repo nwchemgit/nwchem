@@ -5,7 +5,7 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.4 1995-05-05 23:49:52 og845 Exp $
+C$Id: dft_scf.F,v 1.5 1995-05-10 03:52:44 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
@@ -819,6 +819,7 @@ c
         call gadest(iga_wght)
         call gadest(iga_xyz)
       endif
+
 c-----------------------------------------------------------------------
 c
 c     computation of dipole moments
@@ -826,6 +827,22 @@ c
 
       call dft_mpole( geom, AO_bas_han, AO_bas_han,1, 
      &     iga_dens, ipol, rmoments, 3)
+
+C
+C     computatation of <S2> for open shell
+C
+      if(ipol.gt.1)then
+
+C         Restore alpha and beta densities.
+          call ga_dadd(one,iga_dens(1),onem,iga_dens(2),iga_dens(1))
+
+          call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
+     &     nbf_ao,iga_dens(1),iga_dens(2))
+
+        endif
+c
+c
+c
 c**** 
 c**** this is the final section of the ddscf routine rhf()
 c**** have substituted SCF with DFT
