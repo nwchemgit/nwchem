@@ -1156,12 +1156,12 @@ ctest
                   x_prim_wr2=x_prim_wr2 + 1.d0         !   test
                   xost_digit_1= log10(boa*rcpd(klpar,lckl))
                   xost_digit  = (nskl-1)*xost_digit_1 
-                  lost_digit= int( xost_digit )
+                  lost_digit= nint( xost_digit )
                   if(ngcd.gt.1) then
                      call get_max_gcoef(gcoef(1,ijkl),ngcd,gc_max)
-                     lost_const  =int( log10( gc_max*abs(const(i)) ) )
+                     lost_const  =nint( log10( gc_max*abs(const(i)) ) )
                   else
-                     lost_const  =int( log10( abs( const(i) ) ) )
+                     lost_const  =nint( log10( abs( const(i) ) ) )
                   endif
                   lost_const = max( -14, lost_const )
                   lost_digit = lost_digit + lost_const
@@ -1197,17 +1197,17 @@ ctest
                   if(abcd_max.gt.  10.d0) then
                      x_prim_wr2=x_prim_wr2 + 1.d0         !   test
                      abcd_max=abcd(i)
-                     xost_digit_1= 0.5d0*log10(abcd_max)
-c 2 are ok           xost_digit  = (nskl-1)*xost_digit_1 
-                     xost_digit  = (nskl-3)*xost_digit_1 
+                     xost_digit_1= log10(abcd_max) ! rjh was 0.5*
+                     xost_digit  = abs(nskl-1)*xost_digit_1 
+c                    xost_digit  = abs(nskl-3)*xost_digit_1 ! rjh - BAD
                      if(ngcd.gt.1) then
                         call get_max_gcoef(gcoef(1,ijkl),ngcd,gc_max)
-                        lost_const  =int(log10(gc_max*abs(const(i))))
+                        lost_const  =nint(log10(gc_max*abs(const(i))))
                      else
-                        lost_const  =int(log10(abs(const(i))))
+                        lost_const  =nint(log10(abs(const(i))))
                      endif
-                     lost_const  =max( -14, lost_const )
-                     lost_digit= int( xost_digit ) + lost_const
+                     lost_const = max( -14, lost_const )
+                     lost_digit= nint( xost_digit ) + lost_const
                      if(lost_digit.gt.lost_allow) then
                         x_prim_wr3=x_prim_wr3 + 1.d0                !   test
                         stable(i)=.false.
@@ -2346,9 +2346,9 @@ c
                x_prim_wr2=x_prim_wr2 + nbls1        !   test
                xost_digit_1= log10(boa*rcpd(lckl))
                xost_digit  = (nskl-1)*xost_digit_1 
-               lost_digit= int( xost_digit )
+               lost_digit= nint( xost_digit )
           call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
-               lost_const=int( log10(const_max) )
+               lost_const=nint( log10(const_max) )
                lost_const = max( -14, lost_const )
                lost_digit = lost_digit + lost_const
                if(lost_digit.gt.lost_allow) then
@@ -2373,13 +2373,13 @@ c
                abcd_max=abcd
                if(abcd_max.gt.  10.d0) then
                   x_prim_wr2=x_prim_wr2 + 1.d0         !   test
-                  xost_digit_1= 0.5d0*log10(abcd_max)
-c 2 are ok        xost_digit  = (nskl-1)*xost_digit_1 
-                  xost_digit  = (nskl-3)*xost_digit_1 
+                  xost_digit_1= log10(abcd_max) ! rjh was 0.5*
+                  xost_digit  = (nskl-1)*xost_digit_1 
+c                  xost_digit  = (nskl-3)*xost_digit_1 ! RJH BAD
              call get_max_const(nbls1,const,ngcd,index,gcoef,const_max)
-                  lost_const=int( log10(const_max) )
+                  lost_const=nint( log10(const_max) )
                   lost_const = max( -14, lost_const )
-                  lost_digit= int( xost_digit ) + lost_const
+                  lost_digit= nint( xost_digit ) + lost_const
                   if(lost_digit.gt.lost_allow) then
                      x_prim_wr3=x_prim_wr3 + nbls1               !   test
                      stable(1)=.false.
@@ -2735,7 +2735,7 @@ c
 c
          sqrt_abcd=sqrt(1.d0/(apb_min+cpd_min))
          const_max=const_ij_max*const_kl_max*sqrt_abcd
-         lost_const  = int( log10(const_max) )
+         lost_const  = nint( log10(const_max) )
          lost_const  = max( -14, lost_const )
 c---------------------------------------------------
 c test
@@ -2761,7 +2761,7 @@ c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
 ctest
             else
                xost_digit  = (nskl-1)*log10(boa_max*cpd_max) 
-               lost_digit  = int( xost_digit)
+               lost_digit  = nint( xost_digit)
                if(lost_digit.GT.0) then
                   lost_digit  = lost_digit + lost_const
                   if(lost_digit.gt.lost_allow) stable_kind_1=.false.
@@ -2782,9 +2782,10 @@ c for stability of the second kind :
 c
          abcd_max=apb_max*cpd_max
          if(abcd_max.ge. 10.d0) then
-            xost_digit_1= 0.5d0*log10(abcd_max)
-            xost_digit  = (nskl-3)*xost_digit_1
-            lost_digit  = int( xost_digit ) + lost_const
+            xost_digit_1= log10(abcd_max) ! RJH was 0.5*
+*     xost_digit  = (nskl-3)*xost_digit_1  ! RJH bad
+            xost_digit  = (nskl-1)*xost_digit_1
+            lost_digit  = nint( xost_digit ) + lost_const
             if(lost_digit.gt.lost_allow) stable_kind_2=.false.
 ctest..................................................................
 c              write(6,*)'IIed-kind stability: ','abcd_max=',abcd_max
@@ -2823,7 +2824,7 @@ c
                      boa_max_cpd=boa*cpd_max
                      xost_digit_1= log10( boa_max_cpd )
                      xost_digit  = (nskl-1)*xost_digit_1 
-                     lost_digit  = int( xost_digit )
+                     lost_digit  = nint( xost_digit )
                      lost_digit  = lost_digit + lost_const
                      if(lost_digit.gt.lost_allow) then
                         b_over_a(ij)=boa
@@ -2982,9 +2983,9 @@ c    *         ' a.m. (',nqi-1,nqj-1,'|',nqk-1,nql-1,')'
 ctest
             else
                xost_digit  = (nskl-1)*log10(boa_max*cpd_max) 
-               lost_digit  = int( xost_digit)
+               lost_digit  = nint( xost_digit)
                if(lost_digit.GT.0) then
-                  lost_const  = int( log10(const_max) )
+                  lost_const  = nint( log10(const_max) )
                   lost_const  = max( -14, lost_const )
                   lost_digit  = lost_digit + lost_const
                   if(lost_digit.gt.lost_allow) stable_kind_1=.false.
@@ -3005,11 +3006,12 @@ c for stability of the second kind :
 c
          abcd_max=apb_max*cpd_max
          if(abcd_max.ge. 10.d0) then
-            xost_digit_1= 0.5d0*log10(abcd_max)
-            xost_digit  = (nskl-3)*xost_digit_1
-            lost_const  = int( log10(const_max) )
+            xost_digit_1= log10(abcd_max) ! RJH was 0.5d0*
+*            xost_digit  = (nskl-3)*xost_digit_1 ! RJH BAD
+            xost_digit  = (nskl-1)*xost_digit_1
+            lost_const  = nint( log10(const_max) )
             lost_const  = max( -14, lost_const )
-            lost_digit  = int( xost_digit ) + lost_const
+            lost_digit  = nint( xost_digit ) + lost_const
             if(lost_digit.gt.lost_allow) stable_kind_2=.false.
 ctest..................................................................
 c              write(6,*)'IIed-kind stability: ','abcd_max=',abcd_max
