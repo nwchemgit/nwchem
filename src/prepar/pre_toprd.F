@@ -2,7 +2,7 @@
      + num,amass,mat,cwa,qwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb)
 c
-c $Id: pre_toprd.F,v 1.8 1998-10-05 20:18:59 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.9 1998-10-27 18:06:47 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       character*1 cdummy
 c
       integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsh,nsd,nso,nst,nsx
-      integer i,j,idummy,len,n,m,nqu,nbu,nhu,ndu,nou
+      integer i,j,idummy,len,n,m
 c
       len=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:len),form='formatted',
@@ -27,8 +27,8 @@ c
       read(lfntop,1000)
  1000 format(a1)
     1 continue
-      read(lfntop,1001) natl,nqu,nbu,nhu,ndu,nou
- 1001 format(i5,41x,5i5)
+      read(lfntop,1001) natl
+ 1001 format(i5)
       do 2 i=1,natl
       read(lfntop,1002) amass(i),num(i)
  1002 format(6x,f12.6,36x,i5)
