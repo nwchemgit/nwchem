@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.71 1996-03-12 21:48:38 d3g681 Exp $
+c     $Id: nwchem.F,v 1.72 1996-03-12 22:43:40 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -192,6 +192,8 @@ c
      $        call ma_print_stats()
          if (util_print('version', print_debug))
      $        call util_version
+         if (util_print('citation', print_low))
+     &       call util_cite()
          if (util_print('total time', print_low)) then
             total_wall = total_wall + util_wallsec()
             total_cpu  = total_cpu  + util_cpusec()
@@ -199,8 +201,6 @@ c
  1          format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
             call util_flush(6)
          endif
-         if (util_print('citation', print_low))
-     &       call util_cite()
       endif
       call ga_sync()
 c

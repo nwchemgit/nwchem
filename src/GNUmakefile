@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.39 1996-02-13 22:49:43 pborowsk Exp $
+# $Id: GNUmakefile,v 1.40 1996-03-12 22:43:41 d3g681 Exp $
 
 include config/makefile.h
 
@@ -59,7 +59,7 @@ showdir:
 
 clean:
 	-$(RM) nwchem core *.o *.a *.trace
-	@for dir in $(SUBDIRS) ../tests; do \
+	@for dir in $(SUBDIRS) config ../tests; do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
@@ -67,7 +67,7 @@ clean:
 realclean:	
 	-$(RM) nwchem core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
-	@for dir in $(SUBDIRS) ../tests; do \
+	@for dir in $(SUBDIRS) config ../tests; do \
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
 	done
@@ -138,12 +138,13 @@ endif
 
 .PHONY:	depend
 depend:	
+	( cd config; make depend.x ; )
 	config/stripdepend
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
-	config/makedepend
+	config/depend.x
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(nwchem.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(nwchem.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 
