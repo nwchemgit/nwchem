@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.124 2000-08-10 00:23:17 windus Exp $
+c     $Id: msgids.fh,v 1.125 2001-01-23 19:17:08 windus Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_hess_exy
@@ -453,6 +453,8 @@ c
 c
       integer msg_j21, msg_j20, msg_j301, msg_j302
       integer msg_u01, msg_u02
+c
+      integer msg_nbo_icd
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -1046,3 +1048,5 @@ c
       parameter (msg_vec_type = msg_ftn_base - 796) ! movecs_read_header
 c
       parameter (msg_hess_exy = msg_ftn_base - 797) ! hessian summation
+c
+      parameter(msg_nbo_icd = msg_ftn_base - 800) ! NBO messages
