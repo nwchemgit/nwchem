@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.217 1997-03-05 23:19:23 d3g681 Exp $
+# $Id: makefile.h,v 1.218 1997-03-13 00:46:06 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -90,7 +90,7 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #                                                        #
 ##########################################################
 
-# Only the SUN, KSR, PARAGON, DELTA and IBM versions are up to date
+# Only the SUN, SGI, KSR, PARAGON, DELTA and IBM versions are up to date
 
 # Each machine dependent section should define the following as necessary.
 # (defaults if any in parentheses)
@@ -157,7 +157,10 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #              This comprises the includes and defines.
 #    LDFLAGS = options for the linker.  Currently paths from LIBDIR and
 #              LIBPATH.
-
+#
+# NWCHEM_TARGET_CPU environment variable is used to select optimal compiler flag
+# values R10000 and R8000 are currently recognized under SGITFP and SGI_N32 (JN)
+#
 
 
 #
@@ -515,10 +518,26 @@ ifeq ($(TARGET),SGITFP)
 
   FOPTIONS = -d8 -i8 -mips4 -64 -r8 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -fullwarn -mips4 
- FOPTIMIZE = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
-FVECTORIZE = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+
+#optimization flags for R8000 (IP21)
+ FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
+
+#optimization flags for R10000 (IP28)
+ FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
+FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
 
  COPTIMIZE = -O
+ FOPTIMIZE = -O3
+
+ifeq ($(NWCHEM_TARGET_CPU),R10000)
+ FOPTIMIZE = $(FOPTIMIZE_10K)
+ FVECTORIZE = $(FVECTORIZE_10K)
+endif
+ifeq ($(NWCHEM_TARGET_CPU),R8000)
+ FOPTIMIZE = $(FOPTIMIZE_8K)
+ FVECTORIZE = $(FVECTORIZE_8K)
+endif
 
     DEFINES = -DSGI -DSGITFP -DEXT_INT
   CORE_LIBS = -lutil -lpeigs -lchemio -lglobal -llapack -lblas
@@ -577,7 +596,6 @@ ifeq ($(TARGET),SGI_N32)
 
   FOPTIONS = -n32 -mips4 -G 0 -OPT:roundoff=3:IEEE_arithmetic=3
   COPTIONS = -n32 -mips4 -fullwarn
- COPTIMIZE = -O2
 
 #optimization flags for R8000 (IP21)
  FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
@@ -587,12 +605,17 @@ FVECTORIZE_8K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=3 -WK,-dr=AKC
  FOPTIMIZE_10K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC -SWP:if_conversion=OFF
 FVECTORIZE_10K = -O3 -OPT:fold_arith_limit=4000 -TENV:X=1 -WK,-dr=AKC -SWP:if_conversion=OFF
 
-# optimization flags for R5000 (IP22)
- FOPTIMIZE_5K = -O3
+ FOPTIMIZE = -O3
+ COPTIMIZE = -O2
 
-#default optimization flag
+ifeq ($(NWCHEM_TARGET_CPU),R10000)
+ FOPTIMIZE = $(FOPTIMIZE_10K)
+ FVECTORIZE = $(FVECTORIZE_10K)
+endif
+ifeq ($(NWCHEM_TARGET_CPU),R8000)
  FOPTIMIZE = $(FOPTIMIZE_8K)
  FVECTORIZE = $(FVECTORIZE_8K)
+endif
 
        CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 endif
