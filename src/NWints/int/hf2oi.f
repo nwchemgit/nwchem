@@ -1,4 +1,5 @@
       Subroutine hf2oi(E,Sab,Nint,NPP,La,Lb,Li,canAB)
+c $Id: hf2oi.f,v 1.2 1994-04-04 20:31:01 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

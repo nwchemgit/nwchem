@@ -1,4 +1,5 @@
       Subroutine hfctr3(Axyz,Bxyz,Cxyz,alpha,G,NABC)
+c $Id: hfctr3.f,v 1.2 1994-04-04 20:31:04 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

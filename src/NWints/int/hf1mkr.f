@@ -1,6 +1,7 @@
       Subroutine hf1mkr(Axyz,Bxyz,Cxyz,zan,ncenters,
      &                  alpha,Pxyz,RS,PC,ff,R,
      &                  R0,R0C,IJK,NPP,Lp,Lp3,CENTER)
+c $Id: hf1mkr.f,v 1.2 1994-04-04 20:30:57 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

@@ -1,4 +1,5 @@
       Subroutine hfkei(alpha,E,Tab,Ti,Nint,NPP,La,Lb,Li,canAB)
+c $Id: hfkei.f,v 1.2 1994-04-04 20:31:07 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

@@ -1,5 +1,6 @@
       Subroutine hf1mke3(Axyz,Bxyz,Cxyz,alpha,G,GT,ABC2I,E,
      &                   NABC,La,Lb,Lc)
+c $Id: hf1mke3.f,v 1.2 1994-04-04 20:30:56 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
