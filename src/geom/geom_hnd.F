@@ -1794,6 +1794,7 @@ c
 c     Give up.  Punt to cartesians.
 c
 66666 zdone = .false.
+      geom_zmtmak = .false.
       if (oprint) write(6,5505) 
  5505 format(/' AUTOZ failed to generate good internal coordinates.',
      $     /' Cartesian coordinates will be used in optimizations.'/)
