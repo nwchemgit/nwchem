@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.20 1999-02-13 00:40:21 edo Exp $
+c     $Id: dft_input.F,v 1.21 1999-07-02 17:35:25 d3e129 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -25,6 +25,7 @@ c
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
      &        idirect, nfock, ifield, imull
+      integer nopen
       logical pseudo, direct, lmaxov, incore
       data dirs /'convergence', 'decomp', 'dft', 'direct', 'ecp', 
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
@@ -143,11 +144,14 @@ c     mult;
 c             
  1200 if (.not. inp_i(mult)) then
          write(6,*)' dft_input: spin multiplicity value not found;',
-     &             ' ignoring option'
-         mult = 0
+     &             ' ignoring option using default of singlet'
+         mult = 1
       endif 
       if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
      &   call errquit('dft_input: rtdb_put failed', 1200)
+      nopen = mult - 1
+      if (.not.rtdb_put(rtdb, 'dft:nopen',mt_int,1,nopen))
+     &   call errquit('dft_input: rtdb_put failed', 1201)
 c
       goto 10
 c             
