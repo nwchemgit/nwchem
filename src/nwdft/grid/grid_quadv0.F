@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.22 2001-05-05 05:20:15 edo Exp $
+C$Id: grid_quadv0.F,v 1.23 2001-06-21 19:12:19 zzhang Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(4)
@@ -69,7 +69,7 @@ c
       logical oldway
       logical donewbf           !!! !!!! *** temp
       integer max_elem_ang_scr, max_component
-      integer nexpo,nibf
+      integer nexpo,nibf,i
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
@@ -109,8 +109,8 @@ c
          len_Amat2 = 1
          len_Cmat2 = 1
       elseif (do_cpks_l) then
-         len_rho = ipol*n_per_rec*(nmat+1)
-         len_delrho = 3*ipol*n_per_rec*(nmat+1)
+         len_rho = ipol*n_per_rec*(nmat+1)+n_per_rec
+         len_delrho = 3*ipol*n_per_rec*(nmat+1)+3*n_per_rec
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
       elseif (do_cpks_r) then
@@ -209,7 +209,7 @@ c
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
-     &   call errquit('grid_den: cannot pop stack',0)
+     &     call errquit('grid_den: cannot pop stack',0)
 c
       if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat',lamat,iamat))
      &   call errquit('grid_quadv0: cannot allocate Amat',0)
