@@ -4,7 +4,7 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.2 1994-10-26 23:13:21 d3e129 Exp $
+c $Id: stpr_partit.F,v 1.3 1995-02-02 08:59:25 d3e129 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
@@ -29,6 +29,7 @@ C
 c
       ISYM2(I,J)=MAX(I,J)*((MAX(I,J))-1)/2 + MIN(I,J)
 c
+*debug:      call stpr_datestamp(6,'partit: start')
       AUCM = 2.194746D+05
 *debug:      LPRINT = .TRUE.
       LPRINT = .FALSE.
@@ -99,6 +100,7 @@ C
    25   CONTINUE
    35 CONTINUE
       ENDIF
+*debug:      call stpr_datestamp(6,'partit: after tran-vec form')
 C
 C     Construct rotation unit vectors; store in next 3 columns of VC.
 C
@@ -131,23 +133,27 @@ C
    55   CONTINUE
    65 CONTINUE
       ENDIF
+*debug:      call stpr_datestamp(6,'partit: after rot-vec form')
 C
 C     Normalize initial vectors
 C
       DO 61 I=1,6
-        RNORM = ZERO
-        DO 62 J=1,NAT3
-          RNORM = RNORM + VC(J,I)**2
-   62   CONTINUE
+*        RNORM = ZERO
+*        DO 62 J=1,NAT3
+*          RNORM = RNORM + VC(J,I)**2
+*   62   CONTINUE
+        Rnorm = ddot(nat3,VC(1,I),1,VC(1,I),1)
         IF ( RNORM.GT.1.D-8 ) THEN
           RNORM = ONE/SQRT(RNORM)
-          DO 63 K=1,NAT3
-            VC(K,I) = VC(K,I)*RNORM
-   63     CONTINUE
+          call dscal(nat3,rnorm,Vc(1,I),1)
+*          DO 63 K=1,NAT3
+*            VC(K,I) = VC(K,I)*RNORM
+*   63     CONTINUE
         ELSE
-          DO 64 K=1,NAT3
-            VC(K,I) = ZERO
-   64     CONTINUE
+          call dfill(nat3,0.0d00,Vc(1,I),1)
+*          DO 64 K=1,NAT3
+*            VC(K,I) = ZERO
+*   64     CONTINUE
         ENDIF
    61 CONTINUE
 C      WRITE(6,*)' STEPPER| Translational & Rotational vectors'
@@ -157,35 +163,42 @@ C   66   CONTINUE
 C
 C     Schmidt orthogonalize the constraint vectors.
 C
+*debug:      call stpr_datestamp(6,'partit: after rot/tran-vec norm')
       NEXTER = 1
       IRED = 0
       DO 130 I=2,6
         DO 90 J=1,I-1
-          DOT = ZERO
-          DO 70 K=1,NAT3
-            DOT = DOT+VC(K,J)*VC(K,I)
-   70     CONTINUE
+*          DOT = ZERO
+*          DO 70 K=1,NAT3
+*            DOT = DOT+VC(K,J)*VC(K,I)
+*   70     CONTINUE
+          Dot = ddot(nat3,VC(1,J),1,VC(1,I),1)
 C          WRITE(6,*)' STEPPER| Overlap between vectors ',I,J,
 C     &    ' is ',DOT
-          DO 80 K=1,NAT3
-            VC(K,I) = VC(K,I)-DOT*VC(K,J)
-   80     CONTINUE
+*          DO 80 K=1,NAT3
+*            VC(K,I) = VC(K,I)-DOT*VC(K,J)
+*   80     CONTINUE
+          dot=-dot
+          call daxpy(nat3,dot,Vc(1,J),1,Vc(1,I),1)
    90   CONTINUE
-        RNORM = ZERO
-        DO 100 K=1,NAT3
-          RNORM = RNORM+VC(K,I)*VC(K,I)
-  100   CONTINUE
+*        RNORM = ZERO
+*        DO 100 K=1,NAT3
+*          RNORM = RNORM+VC(K,I)*VC(K,I)
+*  100   CONTINUE
+         rnorm = ddot(nat3,Vc(1,i),1,Vc(1,i),1)
 C        WRITE(6,*)' STEPPER| Squared norm of vector ',I,' is ',RNORM
         IF ( RNORM.GT.1.D-8 ) THEN
           RNORM = ONE/SQRT(RNORM)
-          DO 110 K=1,NAT3
-            VC(K,I) = VC(K,I)*RNORM
-  110     CONTINUE
+*          DO 110 K=1,NAT3
+*            VC(K,I) = VC(K,I)*RNORM
+*  110     CONTINUE
+          call dscal(nat3,rnorm,Vc(1,I),1)
           NEXTER = NEXTER+1
         ELSE
-          DO 120 K=1,NAT3
-            VC(K,I) = ZERO
-  120     CONTINUE
+          call dfill(nat3,ZERO,Vc(1,I),1)
+*          DO 120 K=1,NAT3
+*            VC(K,I) = ZERO
+*  120     CONTINUE
           ITEMP = I-3
           IRED = I
           WRITE(6,*)' STEPPER| Dependent rotation vector no.',ITEMP
@@ -194,9 +207,10 @@ C        WRITE(6,*)' STEPPER| Squared norm of vector ',I,' is ',RNORM
         END IF
   130 CONTINUE
       IF(IRED.NE.0.AND.IRED.NE.6)THEN
-        DO 140 I = 1,NAT3
-          VC(I,IRED) = VC(I,6)
-  140   CONTINUE
+        call dcopy(nat3,Vc(1,6),1,Vc(1,IRED),1)
+*        DO 140 I = 1,NAT3
+*          VC(I,IRED) = VC(I,6)
+*  140   CONTINUE
       ENDIF
 C
 C     Find orthogonal vectors which span the internal space.
@@ -206,39 +220,49 @@ C
       DO 210 I=1,NAT3
         IINT = IINT + 1
         IONE = IONE + 1
-        DO 150 J = 1,NAT3
-          VC(J,NEXTER+IINT) = 0.0D0
-  150   CONTINUE
+        call dfill(nat3,zero,Vc(1,(nexter+iint)),1)
+*        DO 150 J = 1,NAT3
+*          VC(J,NEXTER+IINT) = 0.0D0
+*  150   CONTINUE
         VC(IONE,NEXTER+IINT) = ONE
         DO 180 J=1,NEXTER+IINT-1
-          DOT = ZERO
-          DO 160 K=1,NAT3
-            DOT = DOT+VC(K,J)*VC(K,NEXTER+IINT)
-  160     CONTINUE
-          DO 170 K=1,NAT3
-            VC(K,NEXTER+IINT) = VC(K,NEXTER+IINT)-DOT*VC(K,J)
-  170     CONTINUE
+*          DOT = ZERO
+*          DO 160 K=1,NAT3
+*            DOT = DOT+VC(K,J)*VC(K,NEXTER+IINT)
+*  160     CONTINUE
+          dot = ddot(nat3,Vc(1,j),1,Vc(1,(NEXTER+IINT)),1)
+          dot = -dot
+          call daxpy(nat3,dot,VC(1,J),1,VC(1,(NEXTER+IINT)),1)
+*          DO 170 K=1,NAT3
+*            VC(K,NEXTER+IINT) = VC(K,NEXTER+IINT)-DOT*VC(K,J)
+*  170     CONTINUE
   180   CONTINUE
-        RNORM = ZERO
-        DO 190 K=1,NAT3
-          RNORM = RNORM+VC(K,NEXTER+IINT)*VC(K,NEXTER+IINT)
-  190   CONTINUE
+*        RNORM = ZERO
+*        DO 190 K=1,NAT3
+*          RNORM = RNORM+VC(K,NEXTER+IINT)*VC(K,NEXTER+IINT)
+*  190   CONTINUE
+         rnorm = ddot(nat3,VC(1,(NEXTER+IINT)),1,VC(1,(NEXTER+IINT)),1)
         IF ( RNORM.GT.1.D-8 ) THEN
           RNORM = ONE/SQRT(RNORM)
-          DO 200 K=1,NAT3
-            VC(K,NEXTER+IINT) = VC(K,NEXTER+IINT)*RNORM
-  200     CONTINUE
+          call dscal(nat3,rnorm,VC(1,(NEXTER+IINT)),1)
+*          DO 200 K=1,NAT3
+*            VC(K,NEXTER+IINT) = VC(K,NEXTER+IINT)*RNORM
+*  200     CONTINUE
           IF(NEXTER+IINT.EQ.NAT3)GOTO 220
         ELSE
           IINT = IINT - 1
         END IF
   210 CONTINUE
   220 CONTINUE
+*debug:      call stpr_datestamp(6,'partit: after ortho/norm vecs ')
       NINTER = NAT3 - NEXTER
 C
 C     Form the internal hessian matrix first in a scratch array
 C     and than move to HESS.
 C
+*debug:      call stpr_datestamp(6,'partit: b4 internal hess form')
+#define PHASE2
+#if defined(OLDIFORM)      
       DO 260 M=1,NINTER
         MV = NEXTER + M
         DO 250 N=1,M
@@ -252,6 +276,56 @@ C
   240     CONTINUE
   250   CONTINUE
   260 CONTINUE
+#endif
+#if defined(PHASE1)      
+      is2_mn = 0
+      DO 260 M=1,NINTER
+        MV = NEXTER + M
+        DO 250 N=1,M
+          NV = NEXTER + N
+          is2_mn = is2_mn + 1
+          is2_ij = 0
+          DO 240 I=1,NAT3
+            DO 230 J=1,I
+              is2_ij = is2_ij +1 
+              if (i.eq.j) then
+                SCRSYM(is2_mn) = SCRSYM(is2_mn) +
+     &                 VC(I,MV)*VC(J,NV)*HESS(is2_ij)
+              else
+                SCRSYM(is2_mn) = SCRSYM(is2_mn) +
+     &                 (VC(I,MV)*VC(J,NV) + VC(J,MV)*VC(I,NV))*
+     &                 HESS(is2_ij)
+              endif
+230         CONTINUE
+240       CONTINUE
+250     CONTINUE
+260   CONTINUE
+#endif
+#if defined(PHASE2)
+      is2_mn = 0
+      DO 260 M=1,NINTER
+        MV = NEXTER + M
+        DO 250 N=1,M
+          NV = NEXTER + N
+          is2_mn = is2_mn + 1
+          DO 240 I=1,NAT3
+            is2_i = i*(i-1)/2
+            DO 230 J=1,(I-1)
+              is2_ij = is2_i + j
+              SCRSYM(is2_mn) = SCRSYM(is2_mn) +
+     &               (VC(I,MV)*VC(J,NV) + VC(J,MV)*VC(I,NV))*
+     &               HESS(is2_ij)
+230         CONTINUE
+240       CONTINUE
+          do 00241 i=1,nat3
+            is2_ij = i*(i+1)/2
+            SCRSYM(is2_mn) = SCRSYM(is2_mn) +
+     &             VC(I,MV)*VC(i,NV)*HESS(is2_ij)
+00241     continue
+250     CONTINUE
+260   CONTINUE
+#endif
+*debug:      call stpr_datestamp(6,'partit: after internal hess form')
       call dfill(NAT3TR,0.0d00,HESS,1)
       DO 270 I = 1,NAT3TR
 C
@@ -259,6 +333,7 @@ C       Zap any elements with absolute value less than 1.D-12
 C
         IF(DABS(SCRSYM(I)).GT.1.D-12) HESS(I) = SCRSYM(I)
   270 CONTINUE
+*debug:      call stpr_datestamp(6,'partit: after internal hess zap')
 *debug:      write(6,*)'hess stpr_partit after zap', nat3tr
 *debug:      do i=1,nat3tr
 *debug:        if (abs(hess(i)).gt.1.0d-5)
@@ -277,6 +352,7 @@ C
   280   CONTINUE
   290 CONTINUE
       call dfill(NAT3,0.0d00,GRAD,1)
+*debug:      call stpr_datestamp(6,'partit: after internal grad form')
       DO 300 I = 1,NINTER
 C
 C       Zap any elements with absolute value less than 1.D-12
@@ -294,7 +370,9 @@ C
 *debug:        if (abs(hess(i)).gt.1.0d-5)
 *debug:     &      write(6,*)' hess (',i,') =',hess(i)
 *debug:      enddo
+*debug:      call stpr_datestamp(6,'partit: before jacobi')
       CALL stpr_sjacobi(NAT3,NINTER,HESS,HIEIGS,SCRSQ,IERR)
+*debug:      call stpr_datestamp(6,'partit: after  jacobi')
 *debug:      write(6,*)'hess stpr_partit after jacobi',nat3tr
 *debug:      do i=1,nat3tr
 *debug:        if (abs(hess(i)).gt.1.0d-5)
@@ -644,6 +722,7 @@ C
           WRITE(6,*)' STEPPER| You are in the streambed. '
         ENDIF
       ENDIF
+*debug:      call stpr_datestamp(6,'partit: end')
       RETURN
  1000 FORMAT(' STEPPER| Eigenvector : ',I2,/,
      &       1X,(3(2X,F12.7)))
