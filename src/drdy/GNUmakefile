@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1999-08-16 22:54:34 d3e129 Exp $
+# $Id: GNUmakefile,v 1.2 1999-09-02 22:15:56 windus Exp $
        HEADERS = 
   OBJ_OPTIMIZE = 
            OBJ = drdy.o drdy_input.o Input_for_drdy.o drdy_synch.o \
@@ -13,7 +13,7 @@
        LIBRARY = libdrdy.a
    LIB_TARGETS = 
 
-     USES_BLAS = 
+     USES_BLAS = nwc_s1.F nwc_s2.F
 
 include ../config/makefile.h
 include ../config/makelib.h
