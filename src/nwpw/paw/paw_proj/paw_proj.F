@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.22 2003-02-06 06:13:09 marat Exp $
+* $Id: paw_proj.F,v 1.23 2003-02-09 21:27:07 marat Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.22  2003/02/06 06:13:09  marat
+* moved legendre and spher. harm. stuff to paw_special_functions dir
+*
 
 !**************************************************
 !
@@ -58,7 +61,7 @@
       do ia=1,prj_nkatm
         prj_ntot = prj_ntot + int_mb(prj_nbasis(1)+ia-1)
       end do
-      write(*,*) "paw_proj:prj_ntot",prj_ntot
+c      write(*,*) "paw_proj:prj_ntot",prj_ntot
 
       do ia=1,prj_nkatm
         value = MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
@@ -570,7 +573,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       call ion_atom_plus_suffix(ia,'_basis',atomname)
       call ion_atom_plus_suffix(ia,'.jpp',jppname)
 
-      write(*,*) "atomname,jppname:",atomname,jppname
+c      write(*,*) "atomname,jppname:",atomname,jppname
 
       !*** read in projectors from _basis file ***
       i_rgrid   = paw_basis_i_rgrid(ia)
@@ -578,14 +581,14 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       basis_nbasis    = int_mb(paw_basis_i_nbasis(ia))
       nr        = int_mb(paw_basis_i_ngrid(ia))
       log_amesh = dbl_mb(paw_basis_i_log_amesh(ia))
-      write(*,*) "basis_nbasis:",basis_nbasis," ngrid:",nr
+c      write(*,*) "basis_nbasis:",basis_nbasis," ngrid:",nr
       
       nbasis = 0
       do ii=1,basis_nbasis
          l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
          nbasis = nbasis + 2*l+1
       end do
-      write(*,*) "nbasis:",nbasis
+c      write(*,*) "nbasis:",nbasis
 
       call Parallel_taskid(taskid)
       unita(1,1) = lattice_unita(1,1)
@@ -676,18 +679,18 @@ c        write(*,*) "bess=",dbl_mb(rayleigh(1)+i-1)
      >                      dbl_mb(Gz(1)),
      >                      dcpl_mb(prj(1)))
 
-           write(*,*) "ylm(1)=",dcpl_mb(prj(1))
-           write(*,*) "bess(1)=",dbl_mb(rayleigh(1))
+c           write(*,*) "ylm(1)=",dcpl_mb(prj(1))
+c           write(*,*) "bess(1)=",dbl_mb(rayleigh(1))
 
 *          *** multiply Ylm and spherical besse
            call Pack_tc_Mul(1,dbl_mb(rayleigh(1)),
      >                     dcpl_mb(prj(1)),
      >                     dcpl_mb(prj(1)))
-           write(*,*) "ylm(1)*bess(1)=",dcpl_mb(prj(1))
+c           write(*,*) "ylm(1)*bess(1)=",dcpl_mb(prj(1))
            call rayleigh_itol_scaling(l,npack1,
      >                                dcpl_mb(prj(1)),
      >                                dcpl_mb(prj(1)))
-           write(*,*) "ylm(1)*bess(1)*coeff=",dcpl_mb(prj(1))
+c           write(*,*) "ylm(1)*bess(1)*coeff=",dcpl_mb(prj(1))
 c           pause 
            if (taskid.eq.MASTER) then
              write(*,*) "writing formatted prj:",ii,"  l,m",l,m
