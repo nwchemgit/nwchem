@@ -148,14 +148,16 @@ Analyses can be applied to a selection of solute atoms and solvent molecules.
 The selection is determined by
 
 \begin{verbatim}
-select ( [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ] |
+select ( [ super ] [ <integer isgm> [ <integer jsgm> ]] [ { <string atom> } ] |
 	solvent <real range> | save <string filename> | read <string filename> )
 \end{verbatim}
 
 where {\rm isgm} is the first segment number, {\rm jsgm} is the last 
 segment number in the selection, and {\rm \{atom\}} is the set of atom
 names selected from the specified residues. By default all solute
-atoms are selected.
+atoms are selected. When keyword \verb+super+ is specified the selecion
+applies to the superimposition option.
+
 \par
 For example, all protein backbone atoms are selected by
 

@@ -93,22 +93,40 @@ force field. These directories contain fragment files (with extension frg),
 segment files (with extension sgm) and a parameter file (with the name
 of the force field and with extension par).
 \item[{\bf *}]
+{\bf contributed}\\
+These database files contain contributed definitions, also required for 
+the quality assurance tests and are to reside in a separate directory 
+that is specified in the file \$HOME/.nwchemrc. 
+There will be such a directory for each supported 
+force field. These directories contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+\item[{\bf *}]
 {\bf user preferences}\\
 These database files contain user preferred extensions to the original
 force field and are to reside in a separate directory that is specified in 
 the file \$HOME/.nwchemrc. Separate directories of this type  should be 
 defined for each supported force field. 
-These directories may contain fragment files (with extension frg),
+This directory may contain fragment files (with extension frg),
 segment files (with extension sgm) and a parameter file (with the name
 of the force field and with extension par).
 \item[{\bf *}]
 {\bf temporary files}\\
 Temporary database files contain user preferred extensions to the original
 force field and are to reside in a separate directory that is specified in 
-the file \$HOME/.nwchemrc. There  be such a directory for each supported 
-force field. These directories may contain fragment files (with extension frg),
+the file \$HOME/.nwchemrc. There may  be such a directory for each supported 
+force field. This directory may contain fragment files (with extension frg),
 segment files (with extension sgm) and a parameter file (with the name
-of the force field and with extension par). If not specified, temporary
+of the force field and with extension par).
+\item[{\bf *}]
+{\bf current files}\\
+Database files that contain user preferred extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file \$HOME/.nwchemrc. Typically this will be the current working
+directory, although it may be defined as a specific directory.
+This directory may contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par). If not specified, 
 files will be taken from the current directory.
 \end{itemize}
 
@@ -117,7 +135,10 @@ is specified more than once, the last found values are used. For example,
 if some standard segment is redefined in a temporary file, the latter one
 will be used. This allows the user to redefine standards or extensions 
 without having to modify those database files, which may reside in a
-generally available, non-modifyable directory.
+generally available, non-modifyable directory. If a filename is specified
+rather than a directory, the filename indicates the parameter file
+definition. All other files (frg and sgm files) will be take from the
+specified directory.
 \par
 The most common problems with the \prepare\ module are
 \begin{itemize}
@@ -153,14 +174,15 @@ This entry specifies the default force field. Database files supplied with
 to AMBER95, and {\bf charmm}, referring to the academic CHARMM22 force field.
 
 \begin{verbatim}
-<string ffname>_(s | x | u | t) <string ffdir>
+<string ffname>_(s | x | q | u | t | c) <string ffdir>[<string parfile>]
 \end{verbatim}
 
 Entries of this type specify the directory \verb+ffdir+ in which force field 
-database files can be found. 
+database files can be found. Optionally the parameterfile in this directory
+may be specified as \verb+parfile+. 
 The prepare module will only use files in directories
 specified here. One exception is that files in the current work directory
-will be used if no directory with temporary files is specified.
+will be used if no directory with current files is specified.
 
 \begin{verbatim}
 <string solvnam> <string solvfil>
@@ -173,9 +195,9 @@ An example file \$HOME/.nwchemrc is:
 
 \begin{verbatim}
 ffield amber
-amber_s /msrc/proj/nwchem/share/amber/amber_s/
+amber_s /msrc/proj/nwchem/share/amber/amber_s/amber99.par
 amber_x /msrc/proj/nwchem/share/amber/amber_x/
-amber_u /usr/people/d3j191/data/amber/amber_u/
+amber_u /usr/people/username/data/amber/amber_u/
 spce /msrc/proj/nwchem/share/solvents/spce.rst
 charmm_s /msrc/proj/nwchem/share/charmm/charmm_s/
 charmm_x /msrc/proj/nwchem/share/charmm/charmm_x/
@@ -345,15 +367,18 @@ Currently \amber\ and \charmm\ are the supported force fields.
 A default force field may be specified in the file \$HOME/.nwchemrc. 
 
 \begin{verbatim}
-standard <string dir_s>
-extensions <string dir_x>
-user <string dir_u>
-temporary <string dir_t>
+standard <string dir_s>[<string par_s>]
+extensions <string dir_x>[<string par_x>]
+contributed <string dir_q>[<string par_q>]
+user <string dir_u>[<string par_u>]
+temporary <string dir_t>[<string par_t>]
+current <string dir_c>[<string par_c>]
 \end{verbatim}
 
 The user can explicitly specify the directories where force field
 specific databases can be found. These include force field standards,
-extensions, user preferences and temporary database files.\\
+extensions, quality assurance tests, user preferences, temporary , and
+current database files.\\
 Defaults for the directories where database files reside may be specified 
 in the file \$HOME/.nwchemrc for each of the supported force fields. 
 Fragment, segment and sequence files generated by the \prepare\ module are 

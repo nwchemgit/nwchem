@@ -605,13 +605,15 @@ will change from \verb+tmpext+ to \verb+tempext2+ between simulation time
 \item
 \begin{verbatim}
 isobar [<real prsext>] [trelax <real prsrlx> ] \
-       [compres <real compr>] [anisotropic] [noz]
+       [compres <real compr>] [anisotropic] [xy] [z]
 \end{verbatim}
 specifies a constant pressure ensemble using Berendsen's piston,
 where \verb+<prsext>+ is the external pressure with a default of 1.025~10$^5$ Pa,
 \verb+<prsrlx>+ is the pressure relaxation time in ps with a default of 0.5, and
 \verb+<compr>+ is the system compressibility in m$^2$N$^{-1}$ with a
-default of 4.53E-10.
+default of 4.53E-10. Optional keywords \verb+xy+ and \verb+z+ may be used to
+specify that pressure scaling is to be applied in the x and y or z dimension
+only, respectively.
 \end{description}
 
 \section{Velocity reassignments}
