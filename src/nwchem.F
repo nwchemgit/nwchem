@@ -25,7 +25,7 @@ c!!! BGJ
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.114 1999-05-30 21:28:49 d3g681 Exp $
+c     $Id: nwchem.F,v 1.115 1999-06-11 00:19:55 d3g270 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -84,6 +84,7 @@ c
 c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
+	call mxinit
 #ifdef PARALLEL_DIAG
       call mxpara(junk)
 #endif
