@@ -1,6 +1,6 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.25 1998-07-17 07:59:27 d3e129 Exp $
+C     $Id: ccsd_driver.F,v 2.26 1998-12-03 01:38:34 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -40,7 +40,7 @@ c
        Integer ALo, AHi, IJLo, IJHi, LD, Off
        Integer MaxVec
 C
-       Logical OUseSym, OBlk, ODisk
+       Logical OUseSym, OBlk, ODisk, occd
        Integer MaxBfSh
        Character*80 CC_Theory
        character*20 scftype_vecs
@@ -393,7 +393,7 @@ c Start CCSD part here
 c
 c
       call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec,
-     $     Tol2E)
+     $     Tol2E, occd)
       ncor=occ_frozen
       ndel=vir_frozen
 c
@@ -415,7 +415,7 @@ c
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
      &            blen,g_ncoul,g_nexch, RefEner,
-     $   CC_Theory, RTDB, MaxVec, Geom, Tol2E, oconverged)
+     $   CC_Theory, RTDB, MaxVec, Geom, Tol2E, occd, oconverged)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)

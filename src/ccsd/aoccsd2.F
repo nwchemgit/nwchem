@@ -1,9 +1,9 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,
      &                  convi,iprt,cmo,eorb,blen,
      &                  g_ncoul, g_nexch, RefEner,
-     $   CC_Theory, rtdb, mxvec, geom, Tol2e, oconverged)
+     $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.23 1997-12-08 18:38:22 d3g681 Exp $
+C     $Id: aoccsd2.F,v 2.24 1998-12-03 01:38:33 d3g681 Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -11,7 +11,7 @@ c
       Double Precision RefEner, Convi, Tol2E
       Character*(*) CC_Theory
       Integer RTDB, geom
-      logical oconverged
+      logical oconverged, occd
 c
 #include "ccsd_len.fh"
 #include "tcgmsg.fh"
@@ -198,8 +198,8 @@ c
      &                  g_t2,g_ht2,
      &                  mxvec,eccsd,max2e,mem2,g_ncoul,g_nexch,
      &                  int_mb(k_tk),offt2,nvp1, refener, Tol2E, 
-     $     oconverged)
-c
+     $     occd, oconverged)
+c     
       call ga_sync
 c
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',

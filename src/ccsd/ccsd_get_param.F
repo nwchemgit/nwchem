@@ -1,12 +1,13 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
-     $   maxdiis, tol2e)
-C     $Id: ccsd_get_param.F,v 1.6 1997-06-05 17:45:39 gg502 Exp $
+     $   maxdiis, tol2e, occd)
+C     $Id: ccsd_get_param.F,v 1.7 1998-12-03 01:38:35 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
 c     
       integer rtdb, maxit, iprt, maxdiis
+      logical occd
       Double Precision Convi, Tol2E
       Character*(*) theory
 c
@@ -14,6 +15,7 @@ c
       parameter (mone = -1.0d0)
 #include "ccsd_debug.fh"
 c     
+      if (.not. rtdb_get(Rtdb, 'ccsd:ccd', mt_log, 1, occd))occd=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:maxiter',
      $     MT_INT, 1, maxit)) maxit = 20
       if (.not. rtdb_get(rtdb, 'ccsd:thresh',

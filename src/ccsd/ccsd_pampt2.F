@@ -3,8 +3,8 @@
      $                      scra,scrb,hiu,hia,habe,giu,gabe,
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
-     &                      tklst, Tol2E)
-C     $Id: ccsd_pampt2.F,v 2.11 1997-10-18 20:14:36 d3g681 Exp $
+     &                      tklst, Tol2E, occd)
+C     $Id: ccsd_pampt2.F,v 2.12 1998-12-03 01:38:36 d3g681 Exp $
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_t2,g_ht2,g_ncoul,g_nexch,g_nt2,g_nht2,
@@ -15,6 +15,7 @@ c
      &                 ht1(*),scra(*),scrb(*),
      &                 hiu(*),hia(*),habe(*),giu(*),gabe(*)
       double precision tol2e
+      logical occd
 c
       integer nodes,iam
 #include "ccsd_debug.fh"
@@ -163,6 +164,10 @@ c ----------------------------------------------------------
 c
       offt2=(idiis-1)*lhoov
       nvp1=nvir+1
+
+*     RJH
+      if (occd) call dfill(lnov, 0.0d0, ht1, 1)
+*
 c
       if (iam.eq.0.and.iprt.gt.5)print *,'start symmetrization'
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)

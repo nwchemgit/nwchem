@@ -4,8 +4,8 @@
      &                        bbkp,bb,g_t2,g_ht2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
-     $     refener, Tol2E, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.16 1997-12-08 18:38:23 d3g681 Exp $
+     $     refener, Tol2E, occd, oconverged)
+C     $Id: ccsd_iterdrv2.F,v 2.17 1998-12-03 01:38:35 d3g681 Exp $
       implicit none
 #include "util.fh"
 c
@@ -16,6 +16,7 @@ c
       double precision time_iter_start
       integer time_prev_iter
       logical oconverged        ! Return convergence status
+      logical occd
 c
        double precision cmo(nbf,nbf),eorb(nbf),t1(*),
      &                  ht1(*),scra(*),scrb(*),
@@ -151,6 +152,18 @@ c
       endif
       if (iprt.gt.5.and.iam.eq.0)write(6,134)iter,idiis,ndiis
  134  format(' iteration ',i3,' idiis ',i3,' ndiis ',i3)
+
+*
+*     RJH ... hack for CCD
+      if (occd) then
+      if (iam.eq.0)then
+         call dfill(lnov, 0.0d0, t1, 1)
+         call ga_put(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,t1,lnov)
+      endif
+      endif
+*
+*
+
       if (iam.eq.0)then
        call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,t1,lnov)
       endif
@@ -177,12 +190,12 @@ c ----------------------------------------------------------
       call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
       call ga_sync
       do bev=1,nvir+1
-      if (bev.ge.ilo.and.bev.le.ihi)then
-        call ga_put(g_ht2,offt2+1,offt2+lhoov,bev,bev,scra,1)
-      endif
+         if (bev.ge.ilo.and.bev.le.ihi)then
+            call ga_put(g_ht2,offt2+1,offt2+lhoov,bev,bev,scra,1)
+         endif
       enddo
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
-       call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,scra,1)
+         call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,scra,1)
       endif
       call ga_sync()
       tx(1)=tcgtime()
@@ -190,8 +203,20 @@ c ----------------------------------------------------------
      &                iprt,cmo,eorb,t1,ht1,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
      &                g_t2,g_ht2,g_nt2,g_nht2,eccsd,
-     &                g_ncoul,g_nexch,tklst, Tol2E)
+     &                g_ncoul,g_nexch,tklst, Tol2E, occd)
       call ga_sync()
+*
+*     RJH more CCD hacks
+*
+      if (occd) then
+      if (iam .eq. 0) then
+         call dfill(lnov,zip,ht1,1)
+         call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,t1,lnov)
+      endif
+      call ga_sync()
+      endif
+
+
       tx(2)=tcgtime()
       tstart=tx(2)
       call ccsd_pdiis(nocc,nvir,idiis,ndiis,t1,ht1,scra,scrb,mxvec,
