@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.74 1997-11-15 00:44:52 d3e129 Exp $
+c $Id: raktest.F,v 1.75 1997-12-08 20:09:24 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -22,7 +22,7 @@ c
       me = ga_nodeid()
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
      &    00090, 00100, 00110, 00120, 00130, 00140, 00150,
-     &    00160) raktask
+     &    00160, 00170) raktask
 c
       if (me.eq.0) then
         write(6,*)' default raktest task '
@@ -79,6 +79,10 @@ c
       goto 00001
 00160 if (me.eq.0)write(6,*)' raktest: disk test code '
       call raktest_diskspeed(rtdb)
+      goto 00001
+00170 if (me.eq.0)write(6,*)
+     &    ' raktest: compare 2e integrals from nwchem & texas'
+      call raktest_2ecompare(rtdb)
       goto 00001
 c
 00001 continue
@@ -4664,3 +4668,637 @@ c
         buf(size) = sqrt(dble(i))
       enddo
       end
+      subroutine raktest_2ecompare(rtdb)
+      implicit none
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "global.fh"
+c:functions
+      logical int_normalize
+      external int_normalize
+c:passed
+      integer rtdb
+c:local
+      integer geom, basis
+      integer szbuf, Lmax, nshell
+      integer maxg, maxscr
+      integer size_dbls, h_dbls, k_dbls
+      integer size_ints, h_ints, k_ints
+      integer k_bufnw, k_buftxs, k_scr, k_lab, k_eri
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+c
+      if (.not.bas_create(basis,'ao basis')) call errquit
+     &      ('bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+     &    call errquit
+     &      ('bas_rtdb_load failed',911)
+      if (ga_nodeid().eq.0) then
+        if (.not.geom_print(geom)) stop ' print error'
+        if (.not.bas_print(basis)) stop ' print error'
+        if (.not.gbs_map_print(basis)) stop ' gbs_map_print 2?'
+      endif
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+      if (.not.bas_numcont(basis,nshell)) stop 'bas_numcont fe'
+      if (.not.bas_high_angular(basis,Lmax)) stop 'bas_ha fe'
+c
+      szbuf = (Lmax+1)*(Lmax+2)/2
+      szbuf = szbuf**4
+c
+      call rak_init(rtdb,1,basis)
+      call intb_mem_2e4c(maxg,maxscr)
+      maxscr = maxscr + szbuf
+      maxscr = maxscr + maxscr/5 + 1
+      maxscr = max(51000,maxscr)
+      call int_terminate()
+c
+      if (szbuf.lt.maxg) then
+        write(luout,*)' szbuf =',szbuf
+        write(luout,*)' maxg  =',maxg
+        call errquit('raktest_2ecompare:fatal error',911)
+      endif
+c
+      size_dbls = 3*szbuf+maxscr
+      size_ints = 4*szbuf
+      if (ga_nodeid().eq.0) then
+        write(luout,*)' raktest: maxscr   :',maxscr
+        write(luout,*)' raktest: szbuf    :',szbuf
+        write(luout,*)' raktest: size_dbls:',size_dbls
+        write(luout,*)' raktest: size_ints:',size_ints
+        call util_flush(luout)
+      endif
+      if (.not.ma_push_get(mt_dbl,size_dbls,'dbls scr',h_dbls,k_dbls))
+     &    call errquit('raktest_2ecompare:fatal error:ma dbls',911)
+      if (.not.ma_push_get(mt_int,size_ints,'ints scr',h_ints,k_ints))
+     &    call errquit('raktest_2ecompare:fatal error:ma ints',911)
+      k_bufnw  = k_dbls
+      k_buftxs = k_bufnw + szbuf
+      k_eri    = k_buftxs + szbuf
+      k_scr    = k_eri + szbuf
+      k_lab    = k_ints
+c
+      call ga_sync()
+      
+      call raktest_2ecompare_a(
+     &    dbl_mb(k_bufnw),
+     &    dbl_mb(k_buftxs),
+     &    dbl_mb(k_scr),
+     &    dbl_mb(k_eri),
+     &    int_mb(k_lab),
+     &    szbuf,maxscr,nshell,basis,geom,rtdb)
+c
+      if (.not.ma_pop_stack(h_ints)) stop ' ma pop error'
+      if (.not.ma_pop_stack(h_dbls)) stop ' ma pop error'
+      if (.not.bas_destroy(basis)) stop 'bas_destroy fe'
+      if (.not.geom_destroy(geom)) stop 'geom destroy fe'
+c
+      end
+      subroutine raktest_2ecompare_a(bufnw, buftxs, scr, eri,
+     &    labs, szbuf, maxscr, nsh, basis, geom, rtdb)
+      implicit none
+#include "bas.fh"
+#include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
+c:functions
+      logical intb_init4c, intb_2e4c
+      external intb_init4c, intb_2e4c
+c:passed
+      integer rtdb
+      integer szbuf
+      integer maxscr
+      integer nsh
+      integer basis
+      integer geom
+      double precision eri(szbuf)
+      double precision bufnw(szbuf)
+      double precision buftxs(szbuf)
+      integer labs(szbuf,4)
+      double precision scr(maxscr)
+c:local
+      integer me, nproc
+      integer ish, jsh, ksh, lsh
+      integer tish, tjsh, tksh, tlsh
+      integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
+      double precision q4, dummy, norm
+      integer nint_t, nint_n
+      logical more
+      double precision zero,thresh
+      double precision nwmax, txsmax
+      double precision prev_time, now_time, delta_time
+      integer count, wrong
+      integer task_count
+c
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+      zero = 1.0d-09
+      thresh = zero*0.01d00
+c
+*      call setdbg(1)
+      call int_app_set_no_spint(rtdb)
+      call rak_init(rtdb,1,basis)
+c
+      wrong = 0
+      count = 0
+      task_count = (me-1)
+      do ish = nsh,1,-1
+        if (ish.eq.nsh) then
+          delta_time = 0.0d0
+          prev_time = util_wallsec()
+        else
+          now_time = util_wallsec()
+          delta_time = now_time - prev_time
+          prev_time = now_time
+        endif
+        call ga_sync()
+        if (me.eq.0) then
+          write(luout,10001)ish,delta_time
+          call util_flush(luout)
+        endif
+        if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'        
+        do jsh = ish,1,-1
+          if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr j'        
+          do ksh = jsh,1,-1
+            if (.not.bas_cn2bfr(basis,ksh,klo,khi)) stop 'cn2bfr k'        
+            do lsh = ksh,1,-1
+              if (.not.bas_cn2bfr(basis,lsh,llo,lhi)) stop 'cn2bfr l'        
+              count = count + 1
+              task_count = task_count + 1
+              if (mod(task_count,nproc).eq.0) then
+*                write(luout,*)ish,jsh,ksh,lsh,':',
+*     &              task_count,count,me
+*                call util_flush(luout)
+c... do default
+                tish = ish
+                tjsh = jsh
+                tksh = ksh
+                tlsh = lsh
+                call ifill(4*szbuf,0,labs,1)
+                call dfill(szbuf,0.0d00,buftxs,1)
+*                call rak_init(rtdb,1,basis)
+                if (.not.intb_init4c(
+     &              basis,tish,tjsh,basis,tksh,tlsh,1,
+     &              q4,.false.,maxscr,scr,szbuf,dummy))
+     &              stop 'intb_init failed 1'
+00100           continue
+                call dfill (szbuf,0.0d00,eri,1)
+*                write(6,*)ish,jsh,ksh,lsh,':',' intb_2e4c 1',me
+*                call util_flush(luout)
+                more = intb_2e4c(
+     &              basis,tish,tjsh,basis,tksh,tlsh,1,
+     &              q4,.false.,zero,.false.,
+     &              labs(1,1),labs(1,2),labs(1,3),labs(1,4),
+     &              eri,szbuf,nint_t,maxscr,scr)
+                call raktest_2ecompare_cp(buftxs,eri,nint_t,
+     &              labs(1,1),labs(1,2),labs(1,3),labs(1,4),
+     &              ilo,ihi,jlo,jhi,klo,khi,llo,lhi,nwmax)
+                if (more) then
+*                  write(luout,*)ish,jsh,ksh,lsh,':',' more 2 ?',me
+*                  call util_flush(luout)
+                  goto 00100
+                endif
+*                call int_terminate()
+c... do no texas .eg., force nwchem integrals
+                tish = ish
+                tjsh = jsh
+                tksh = ksh
+                tlsh = lsh
+                call ifill(4*szbuf,0,labs,1)
+                call dfill(szbuf,0.0d00,bufnw,1)
+*                call int_app_set_no_texas(rtdb)
+*                call rak_init(rtdb,1,basis)
+                call rak_notxs()
+                if (.not.intb_init4c(
+     &              basis,tish,tjsh,basis,tksh,tlsh,1,
+     &              q4,.false.,maxscr,scr,szbuf,dummy))
+     &              stop 'intb_init failed 2'
+00200           continue
+                call dfill (szbuf,0.0d00,eri,1)
+*                write(6,*)ish,jsh,ksh,lsh,':',' intb_2e4c 2',me
+*                call util_flush(luout)
+                more = intb_2e4c(
+     &              basis,tish,tjsh,basis,tksh,tlsh,1,
+     &              q4,.false.,zero,.false.,
+     &              labs(1,1),labs(1,2),labs(1,3),labs(1,4),
+     &              eri,szbuf,nint_n,maxscr,scr)
+                call raktest_2ecompare_cp(bufnw,eri,nint_n,
+     &              labs(1,1),labs(1,2),labs(1,3),labs(1,4),
+     &              ilo,ihi,jlo,jhi,klo,khi,llo,lhi,txsmax)
+                if (more) then
+*                  write(luout,*)ish,jsh,ksh,lsh,':',' more 2 ?',me
+*                  call util_flush(luout)
+                  goto 00200
+                endif
+                call rak_nonotxs()
+*                call int_terminate()
+*                call int_app_unset_no_texas(rtdb)
+c
+*                write(6,*)ish,jsh,ksh,lsh,':',' dcopy',me
+*                call util_flush(luout)
+                call dcopy(szbuf,bufnw,1,eri,1)
+                call daxpy(szbuf,-1.0d00,buftxs,1,eri,1)
+                norm = ddot(szbuf,eri,1,eri,1)
+                if (norm.gt.thresh)then
+                  wrong = wrong + 1
+                  call raktest_2ecompare_mdiff(szbuf,bufnw,buftxs,nwmax)
+                  write(luout,10000)
+     &                me,wrong,count,ish,jsh,ksh,lsh,
+     &                nint_t,nint_n,norm,nwmax
+                  call util_flush(luout)
+                endif
+                if (nint_t.ne.nint_n.and.norm.gt.thresh)then
+                  wrong = wrong + 1
+                  call raktest_2ecompare_mdiff(szbuf,bufnw,buftxs,nwmax)
+                  if (nwmax.gt.zero) then
+                    write(luout,10000)
+     &                  me,wrong,count,ish,jsh,ksh,lsh,
+     &                  nint_t,nint_n,norm,
+     &                  nwmax
+                    call util_flush(luout)
+                  endif
+                endif
+c
+              endif
+            enddo
+          enddo
+        enddo
+      enddo
+c
+*      call ga_sync()
+c
+      delta_time = util_wallsec() - prev_time
+      if (me.eq.0) then
+        write(luout,10001) 0, delta_time
+        call util_flush(luout)
+      endif
+      call ga_dgop(5662,wrong,1,'+')
+      if (me.eq.0) write(luout,10002) wrong,count
+c
+      call int_terminate()
+      call int_app_unset_no_spint(rtdb)
+c
+10000 format(1x,i3,':',i5,' of',i8,'(',i4,i4,'|',i4,i4,') [t:',i5,
+     &    '|n:',i5,']  norm=',2(1pd15.6))
+10001 format(1x,60('-'),'>',i5,1x,f8.2 )
+10002 format(1x,i5,' of',i8,' quartets are bad')
+c
+      end
+      subroutine rak_notxs()
+      implicit none
+* 
+* user_* variables determine .true. a user set some value for the 
+*        specific integral code.  
+* def_* variables is the value that the user set.
+*
+* this means that if the user does not want to run the sp integral code
+* he/she would set "int:cando_sp" false and the values of would be
+* user_cando_sp = .true. and def_cando_sp = .false.
+*
+* to test then use: 
+*
+* if(user_cando_sp.and.(.not.def_cando_sp) then
+*    do not do anything with sp code
+* endif
+* 
+* or 
+* 
+* if (.not.((user_cando_sp.and.(.not.def_cando_sp)))) call sp_code
+*
+*
+* Ricky A. Kendall, HPCCG, EMSL, PNNL 
+*
+      logical user_cando_sp  ! did user set a value for sp 
+      logical user_cando_nw  ! did user set a value for nw 
+      logical user_cando_txs ! did user set a value for txs
+      logical def_cando_sp   ! default user setable value for cando_sp
+      logical def_cando_nw   ! default user setable value for cando_nw
+      logical def_cando_txs  ! default user setable value for cando_txs
+c
+      logical app_stored_txs   ! value stored in int_app_set_no_texas
+      logical app_stored_spint ! value stored in int_app_set_no_spint
+      integer rtdbIused
+c
+      common /clcando/ user_cando_sp, user_cando_nw, user_cando_txs,
+     &    def_cando_sp, def_cando_nw, def_cando_txs,
+     &    app_stored_txs, app_stored_spint,
+     &    rtdbIused
+c
+      user_cando_txs = .true.
+      def_cando_txs = .false.
+c
+      end
+      subroutine rak_nonotxs()
+      implicit none
+* 
+* user_* variables determine .true. a user set some value for the 
+*        specific integral code.  
+* def_* variables is the value that the user set.
+*
+* this means that if the user does not want to run the sp integral code
+* he/she would set "int:cando_sp" false and the values of would be
+* user_cando_sp = .true. and def_cando_sp = .false.
+*
+* to test then use: 
+*
+* if(user_cando_sp.and.(.not.def_cando_sp) then
+*    do not do anything with sp code
+* endif
+* 
+* or 
+* 
+* if (.not.((user_cando_sp.and.(.not.def_cando_sp)))) call sp_code
+*
+*
+* Ricky A. Kendall, HPCCG, EMSL, PNNL 
+*
+      logical user_cando_sp  ! did user set a value for sp 
+      logical user_cando_nw  ! did user set a value for nw 
+      logical user_cando_txs ! did user set a value for txs
+      logical def_cando_sp   ! default user setable value for cando_sp
+      logical def_cando_nw   ! default user setable value for cando_nw
+      logical def_cando_txs  ! default user setable value for cando_txs
+c
+      logical app_stored_txs   ! value stored in int_app_set_no_texas
+      logical app_stored_spint ! value stored in int_app_set_no_spint
+      integer rtdbIused
+c
+      common /clcando/ user_cando_sp, user_cando_nw, user_cando_txs,
+     &    def_cando_sp, def_cando_nw, def_cando_txs,
+     &    app_stored_txs, app_stored_spint,
+     &    rtdbIused
+c
+      user_cando_txs = .false.
+      def_cando_txs = .false.
+c
+      end
+      subroutine raktest_2ecompare_mdiff(szbuf,bufnw,buftxs,valmax)
+      implicit none
+      integer szbuf
+      double precision bufnw(szbuf),buftxs(szbuf),valmax
+c
+      double precision diff
+      integer i
+      valmax = 0.0d00
+      do i = 1,szbuf
+        diff = bufnw(i)-buftxs(i)
+        valmax = max(abs(diff),valmax)
+      enddo
+      end
+      subroutine raktest_2ecompare_cp(buf,eri,nint,
+     &            ilb,jlb,klb,llb,
+     &            ilo,ihi,jlo,jhi,klo,khi,llo,lhi,valmax)
+      implicit none
+      integer nint
+      integer ilb(nint),jlb(nint),klb(nint),llb(nint)
+      integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi
+      double precision eri(nint)
+      double precision buf(llo:lhi,klo:khi,jlo:jhi,ilo:ihi)
+      double precision valmax
+c
+      integer n,i,j,k,l
+      valmax = 0.0d00
+      do n = 1,nint
+        i = ilb(n)
+        j = jlb(n)
+        k = klb(n)
+        l = llb(n)
+        buf(l,k,j,i) = eri(n)
+        valmax = max(valmax,abs(eri(n)))
+      enddo
+      end
+      subroutine rak_init(rtdb, nbas, bases)
+c
+c initializes integral code to data structers for a integral computation
+c: no print
+      implicit none
+#include "bas.fh"
+#include "apiP.fh"
+* 
+* user_* variables determine .true. a user set some value for the 
+*        specific integral code.  
+* def_* variables is the value that the user set.
+*
+* this means that if the user does not want to run the sp integral code
+* he/she would set "int:cando_sp" false and the values of would be
+* user_cando_sp = .true. and def_cando_sp = .false.
+*
+* to test then use: 
+*
+* if(user_cando_sp.and.(.not.def_cando_sp) then
+*    do not do anything with sp code
+* endif
+* 
+* or 
+* 
+* if (.not.((user_cando_sp.and.(.not.def_cando_sp)))) call sp_code
+*
+*
+* Ricky A. Kendall, HPCCG, EMSL, PNNL 
+*
+      logical user_cando_sp  ! did user set a value for sp 
+      logical user_cando_nw  ! did user set a value for nw 
+      logical user_cando_txs ! did user set a value for txs
+      logical def_cando_sp   ! default user setable value for cando_sp
+      logical def_cando_nw   ! default user setable value for cando_nw
+      logical def_cando_txs  ! default user setable value for cando_txs
+c
+      logical app_stored_txs   ! value stored in int_app_set_no_texas
+      logical app_stored_spint ! value stored in int_app_set_no_spint
+      integer rtdbIused
+c
+      common /clcando/ user_cando_sp, user_cando_nw, user_cando_txs,
+     &    def_cando_sp, def_cando_nw, def_cando_txs,
+     &    app_stored_txs, app_stored_spint,
+     &    rtdbIused
+      
+c
+
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "int_nbf.fh"
+c::functions
+      logical spcart_init
+      external spcart_init
+      logical int_ecp_init
+      external int_ecp_init
+c::passed
+c:tex-\begin{verbatim}
+      integer rtdb        ! [input] run time data base handle
+      integer nbas        ! [input] number of basis sets to be used
+      integer bases(nbas) ! [input] basis set handles
+c:tex-\end{verbatim}
+c::local
+      integer txs_mem_min ! memory from texas
+      integer ibas, ang2use, angm, type
+      logical status
+      integer nqmax_texas  ! maximum number of quartets in texas blocking interface
+      parameter (nqmax_texas = 10000)
+c
+c      block data api_data
+c
+c
+c Block data structure to initialize the common block variables in the
+c  internal basis set object data structures
+c
+c     
+      call int_mem_zero()
+c
+      DCexp     = 0.0D00
+      DCcoeff   = 1.0D00
+      val_int_acc = 0.0d00
+c
+      intd_memthresh = 0
+      numd_tot       = 0
+      numd_okay      = 0
+      numd_red       = 0
+c
+      if(init_int.eq.1) then
+        write(6,*)' warning nested int_inits'
+        write(6,*)' int_init already called '
+        call util_flush(6)
+      endif
+c
+c initialize type-> nbf maps
+c
+      int_nbf_x(-1) = 4
+      int_nbf_s(-1) = 4
+      do type = 0,int_nbf_max_ang
+        int_nbf_x(type) = (type+1)*(type+2)/2
+        int_nbf_s(type) = 2*type+1
+      enddo
+     
+c
+c initialize cando information from rtdb
+c
+      user_cando_sp   = .false.
+      user_cando_nw   = .false.
+      user_cando_txs  = .false.
+      def_cando_sp    = .false.
+      def_cando_nw    = .false.
+      def_cando_txs   = .false.
+c
+      if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,status)) then
+        user_cando_sp = .true.
+        def_cando_sp  = status
+*        if (ga_nodeid().eq.0) then
+*          write(6,*)
+*     &        ' int_init: cando_sp set to always be ',def_cando_sp
+*          call util_flush(6)
+*        endif
+      endif
+c
+      if (rtdb_get(rtdb,'int:cando_nw',MT_LOG,1,status)) then
+        user_cando_nw = .true.
+        def_cando_nw  = status
+*rak:        if (ga_nodeid().eq.0) then
+*rak:          write(6,*)
+*rak:     &        ' int_init: cando_nw set to always be ',def_cando_nw
+*rak:          call util_flush(6)
+*rak:        endif
+      endif
+c
+      if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,status)) then
+        user_cando_txs = .true.
+        def_cando_txs  = status
+*rak:        if (ga_nodeid().eq.0) then
+*rak:          write(6,*)
+*rak:     &        ' int_init: cando_txs set to always be ',def_cando_txs
+*rak:          call util_flush(6)
+*rak:        endif
+      endif
+* sanity checking: e.g., you only want to turn off a particular integral
+* code never always turn it on.
+*
+      if (def_cando_sp.or.def_cando_nw.or.def_cando_txs) then
+        if (ga_nodeid().eq.0) then
+          write(6,*)' you are trying to turn an integral code on?? '
+          write(6,*)' sp  ', def_cando_sp
+          write(6,*)' nw  ', def_cando_nw
+          write(6,*)' txs ', def_cando_txs
+          call util_flush(6)
+        endif
+        call errquit
+     &      ('int_init: logic error with user cando settings',911)
+      endif
+c
+      status = .true.
+      do 00100 ibas=1,nbas
+        status = status .and. bas_check_handle(bases(ibas),'int_init')
+00100 continue
+
+      if (.not.status) then
+        write(6,*)' at least one basis handle not valid'
+        do 00200 ibas = 1,nbas
+          write(6,'(a,i5)')
+     &           ' basis set handle ',bases(ibas)
+00200   continue
+        call errquit('int_init: basis handles hosed ',nbas)
+      endif
+*      write(6,*)' int_init: basis set handles valid '
+c
+c check for both sp and gc shells
+c
+      call int_bothsp_gc_check(bases,nbas,'int_init')
+c
+c initialize defnxyz routines
+c      
+      ang2use = -1
+      do 00300 ibas = 1,nbas
+        if(.not.bas_high_angular(bases(ibas),angm))
+     &         call errquit('int_init: angm error',angm)
+        ang2use = max(ang2use,angm)
+00300 continue
+*
+* test for higher than h functions  0123456
+      if (ang2use.ge.6) call errquit
+     &    ('only basis sets with s through h functions are allowed',
+     &    911)
+*
+      call defNxyz(ang2use)
+c
+c initialize spcart stuff 
+c
+      if (.not.(spcart_init(ang2use,.true.,.false.))) then
+        call errquit('int_init: spcart_init failed',911)
+      endif
+c
+c... generate memory requirements and store in structures in apiP.fh
+c
+      call exact_mem(rtdb,bases,nbas)
+      call sp_init(nbas,bases)
+      call init70               ! To generate tables etc.
+      call int_acc_std()
+* def u=f d=f -> f.and.!f -> f -> e = t
+* no txs u=t d=f -> t.and.!f -> t -> e = f
+      if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
+        call texas_init(rtdb,nbas,bases,nqmax_texas,txs_mem_min,
+     *                  'scfd_int')
+      endif
+c
+c See if any basis has an attached ECP
+c
+      any_ecp = .false.
+      ecp_bsh = 0
+      do ibas = 1,nbas
+        if (bas_get_ecp_handle(bases(ibas),ecp_bsh)) then
+          any_ecp = .true.
+          goto 00001
+        endif
+      enddo
+00001 continue
+      if (any_ecp) then
+        if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
+     &        ('int_init: ecp handle is invalid fatal error',911)
+        if (.not.int_ecp_init(ecp_bsh,0)) call errquit
+     &        ('int_init: int_ecp_init failed ',911)
+      endif
+      init_int = 1
+      end
+      
