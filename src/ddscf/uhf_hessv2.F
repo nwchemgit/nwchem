@@ -1,6 +1,6 @@
       subroutine uhf_hessv2(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv2.F,v 1.4 2003-10-17 22:54:33 carlfahl Exp $
+* $Id: uhf_hessv2.F,v 1.5 2004-12-03 22:39:55 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -118,7 +118,11 @@ c
 c     initialize jfacs and kfacs (will go into the uhf_fock_setup)
 c
       do iset = 0, 2*nvec-1
-          dbl_mb(k_jfac+iset) =  1.0d0
+          if (noskew_uhf) then
+             dbl_mb(k_jfac+iset) =  1.0d0
+          else
+             dbl_mb(k_jfac+iset) =  0.0d0
+          endif
           dbl_mb(k_kfac+iset) =  xc_xfac1
       enddo
 c
@@ -185,7 +189,11 @@ c
      $              g_vecs, 1, nbf, vbase, nmo,
      $              g_tmp2, 1, nvir, 1, nbf,
      $              g_d, 1, nbf, 1, nbf)
-               call ga_symmetrize(g_d)
+               if (noskew_uhf) then
+                  call ga_symmetrize(g_d)
+               else
+                  call ga_antisymmetrize(g_d)
+               endif
                call nga_copy_patch('N',g_d,blo,bhi,g_dens2,alo,ahi)
             endif
          enddo
@@ -227,7 +235,7 @@ c     Actually do the Fock build
 c
       call shell_fock_build(geom, basis, 0, nfock,
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
-     $     tol2e, g_dens2, g_fock2,.true.)
+     $     tol2e, g_dens2, g_fock2, noskew_uhf)
 c
       if (.not.ma_pop_stack(l_kfac))
      $  call errquit('uhf_hessv_2e2: pop problem with l_jfac',555,
@@ -339,8 +347,6 @@ c
      $             four, g_tmp4, 1, nvir_diff, 1, nocc_diff,
      $             one, g_ax, istart_diff, iend_diff, ivec, ivec,
      $                  g_ax, istart_diff, iend_diff, ivec, ivec)
-c              write(*,*)"g_ax: differet spin, iset = ", iset
-c              call ga_print(g_ax)
            endif
  200       continue
         enddo

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
+C$Id: uhf.F,v 1.67 2004-12-03 22:39:55 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -198,6 +198,7 @@ c
      &       GA_ERR)
 c
       cuhf_init_flag = .true.
+      noskew_uhf = .true.
 c
       end
       subroutine uhf_tidy(rtdb)
@@ -217,7 +218,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
+C     $Id: uhf.F,v 1.67 2004-12-03 22:39:55 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -526,7 +527,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
+C$Id: uhf.F,v 1.67 2004-12-03 22:39:55 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -622,7 +623,7 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
-c     $Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
+c     $Id: uhf.F,v 1.67 2004-12-03 22:39:55 bert Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -725,7 +726,7 @@ c
          call ga_print(g_a_dens)
          call ga_print(g_b_dens)
       endif
-c
+ 
       call ga_zero(g_a_coul)
       call ga_zero(g_b_coul)
       call ga_zero(g_a_exch)
@@ -1157,7 +1158,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.66 2004-11-24 23:03:19 edo Exp $
+C$Id: uhf.F,v 1.67 2004-12-03 22:39:55 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

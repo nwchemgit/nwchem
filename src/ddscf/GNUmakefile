@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.119 2004-09-30 04:20:13 edo Exp $
+# $Id: GNUmakefile,v 1.120 2004-12-03 22:39:54 bert Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -65,7 +65,7 @@
                 movecs_lock.F movecs_phase.F riscf_fock.F riscf_trans.F rohf_diis.F \
                 rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F movecs_frag.F localize.F fock_2e.F int_1e_ga.F movecs_rotate.F
 
-HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh
+HEADERS = schwarz.fh cscfps.fh cfock.fh cscf.fh cint2efile.fh cint2esave.fh cfockmul.fh crohf.fh cosmo.fh cuhf.fh
 
 #activate disk array use of RI-SCF
   DEFINES += -DRISCF_USE_DRA
