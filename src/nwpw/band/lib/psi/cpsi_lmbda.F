@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_lmbda.F,v 1.3 2002-01-15 17:27:20 edo Exp $
+* $Id: cpsi_lmbda.F,v 1.4 2002-02-16 00:33:16 bylaska Exp $
 *
 
       subroutine cpsi_lmbda(ispin,ne,nfft3d,neall,nbrill,n,
@@ -75,8 +75,8 @@ c     complex*16 q11(n,n,2,nbrill)
       n2(2)=ne(1)+ne(2)
       
       
-      call zcopy(2*nn*nbrill,0.0d0,0,lmbda,1)
-      call zcopy(8*nn,0.0d0,0,tmp,1)
+      call zcopy(2*nn*nbrill,zero,0,lmbda,1)
+      call zcopy(8*nn,zero,0,tmp,1)
      
 
 *::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
@@ -193,7 +193,7 @@ cedo          write(0,*) 8*nn,iadiff,'tmp iad ',tmp(iadiff)
 
   630   continue
         call zcopy(nn,tmp(sa1),1,lmbda(1,1,ms,nb),1)
-        call zcopy(8*nn,0.0d0,0,tmp,1)
+        call zcopy(8*nn,zero,0,tmp,1)
 
   640 continue
   650 continue
