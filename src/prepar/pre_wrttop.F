@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.40 2003-07-17 19:38:58 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.41 2003-07-18 18:56:11 d3j191 Exp $
 c
       implicit none
 c
@@ -52,7 +52,7 @@ c
       real*8 wcorr(10)
       character*3 slvnam
 c
-      integer i,j,k,kk,l,length,nd,ifrac,imol,iq,isgm
+      integer i,j,k,kk,l,length,nd,ifrac,imol,iq,isgm,masks,maskd
       character*10 topdat,toptim
       real*8 qsum(10),qtot(10),qatom(10,2)
       logical lprt
@@ -368,9 +368,13 @@ c                      6 set 1 s-s self is dummy         (64)
 c                      7 set 2 s-s self is dummy        (128)
 c                      8 set 3 s-s self is dummy        (256)
 c
+      masks=9
+      maskd=73
       do 1110 l=ipfr,ipto
-      if(catt(1,lats(l,latm(3,i)))(6:6).eq.'S') iq=ior(iq,9*l)
-      if(catt(1,lats(l,latm(3,i)))(6:6).eq.'D') iq=ior(iq,73*l)
+      if(catt(1,lats(l,latm(3,i)))(6:6).eq.'S') iq=ior(iq,masks)
+      if(catt(1,lats(l,latm(3,i)))(6:6).eq.'D') iq=ior(iq,maskd)
+      masks=2*masks
+      maskd=2*maskd
  1110 continue
 c
       write(lfntop,1024) cseq(latm(5,i)),catm(1,i)(1:5),ifrac,imol,
