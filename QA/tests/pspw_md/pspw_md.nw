@@ -1,0 +1,199 @@
+title SiC2-MD
+
+start SiC2-MD
+
+memory global 12 mb stack 12 mb heap 15 mb
+
+geometry units au
+Si 0.000000000 2.00000000  0.00000000
+C 1.2400000000 0.00000000  0.00000000
+C -1.2400000000 0.00000000 0.00000000
+end
+
+
+PSPW 
+   #******* Generate a Pseudopotential for Carbon **********************
+   PSP_GENERATOR                       
+      pseudopotential_filename: C.psp   # C.psp is the name of the datafile
+                                        # generated
+
+      element: C                        # label used for the carbon atom
+      charge: 6.0                       # nuclear charge of carbon atom
+      mass_number: 12.0                 # mass (a.u.) of carbon atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
+                                        #  available
+
+      atomic_filling: 1 2   # Ncore and Nvalence states
+        1 s 2.0             # core state    1s^2
+        2 s 2.0             # valence state 2s^2
+        2 p 2.0             # valence state 2p^2
+      cutoff: 3   # number of cutoff values 
+         s 0.80   # cutoff value for Vs
+         p 0.85   # cutoff value for Vp
+         d 0.85   # cutoff value for Vd
+   END
+
+   #******* Generate a Pseudopotential for Silicon **********************
+   PSP_GENERATOR
+      pseudopotential_filename: Si.psp  # Si.psp is the name of the datafile
+                                        # generated
+
+      element: Si                       # label used for the carbon atom
+      charge: 14.0                       # nuclear charge of carbon atom
+      mass_number: 28.0                 # mass (a.u.) of carbon atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options
+
+      atomic_filling: 3 2   # Ncore and Nvalence states
+        1 s 2.0             # core state  1s^2
+        2 s 2.0             # coren state 2s^2
+        2 p 6.0             # coren state 2p^2
+        3 s 2.0             # valence state 3s^2
+        3 p 2.0             # valence state 3p^2
+   END
+
+   ANALYSIS
+      psp_filename: C.psp
+      psp_filename: Si.psp
+   END
+
+   #**** define a simulation cell *****
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0 
+          0.0 20.0  0.0 
+          0.0  0.0 20.0 
+      ngrid: 24 24 24
+   END
+END
+
+PSPW
+   #******* Generate a Formmatted pseudopotential for carbon *****
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: C.psp
+      formatted_filename: C.vpp
+      locp: 0
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   #******* Generate a Formmatted pseudopotential for silicon*****
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: Si.psp
+      formatted_filename: Si.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   #******* Generate a initial wavefunction based on planewaves ****
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      restricted_electrons: 12
+      wavefunction_filename: sic2.00.elc
+      cell_name: small
+   END 
+END
+task pspw wavefunction_initializer
+
+PSPW
+   #***** optimize the wavefunctions ********
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:  sic2.00.elc
+      output_wavefunction_filename: sic2.00.elc
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      Mulliken
+   END 
+END
+task pspw steepest_descent
+
+#***** Setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:  sic2.00.elc
+      output_wavefunction_filename: sic2.00.elc
+      loop: 10 100
+      Mulliken
+   END
+END
+task cg_pspw energy
+task pspw steepest_descent
+
+
+#******* Generate a initial wavefunction based on planewaves ****
+PSPW
+   V_WAVEFUNCTION_INITIALIZER
+      restricted
+      up_filling: 4
+      v_wavefunction_filename: sic2.00.velc
+      cell_name: small
+   END 
+END
+TASK PSPW v_wavefunction_initializer
+
+
+PSPW
+   #***** optimize the wavefunctions and ion positions ********
+   Car-Parrinello
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: si.vpp
+      input_wavefunction_filename:    sic2.00.elc
+      output_wavefunction_filename:   sic2.01.elc
+      input_v_wavefunction_filename:  sic2.00.velc
+      output_v_wavefunction_filename: sic2.01.velc
+      fake_mass: 500.0d0
+      time_step: 5.0d0
+      loop: 10 100
+      scaling: 1.0d0 1.0d0
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      xyz_filename: sic2.energy.xyz
+      Mulliken
+      omotion_filename: sic2.energy.omov
+   END 
+END
+task pspw Car-Parrinello
+
+
+PSPW
+   #***** optimize the wavefunctions and ion positions ********
+   Car-Parrinello
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:    sic2.00.elc
+      output_wavefunction_filename:   sic2.01.elc
+      input_v_wavefunction_filename:  sic2.00.velc
+      output_v_wavefunction_filename: sic2.01.velc
+      fake_mass: 500.0d0
+      time_step: 5.0d0
+      loop: 10 100
+      scaling: 1.0d0 1.0d0
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      xyz_filename: c2.hoover.xyz
+      Mulliken
+      Nose-Hoover:
+      omotion_filename: sic2.hoover.omov
+   END 
+END
+task pspw Car-Parrinello
+
