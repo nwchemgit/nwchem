@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.4 1997-05-08 21:59:01 d3g681 Exp $
+C     $Id: vectors_inp.F,v 1.5 2001-06-06 19:20:07 edo Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -33,7 +33,7 @@ c
       integer swap(max_swap), nswap, itest, mlen
       character*255 test, vectors_in, vectors_out
       integer maxfrag
-      parameter (maxfrag = 40)
+      parameter (maxfrag = 60)
       character*255 fragments(maxfrag)
       integer nfrag
       character*80 project(2)
@@ -151,6 +151,8 @@ c
             call inp_prev_field()
          else
             nfrag = nfrag + 1
+            if(nfrag.gt.maxfrag) call errquit(
+     '         ' vec_inp: too many fragment ',maxfrag)
             fragments(nfrag) = test
             goto 801
          endif
