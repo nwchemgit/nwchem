@@ -3,9 +3,10 @@
      2  xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
-     5  maxiter,target,algorithm,g_movecs,l_evl,k_evl,l_occ,k_occ)
+     5  maxiter,target,algorithm,g_movecs,l_evl,k_evl,l_occ,k_occ,
+     6  mult)
 c
-c $Id: tddft_init.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_init.F,v 1.2 2002-03-22 23:10:49 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -68,6 +69,7 @@ c
       integer g_movecs(2)      ! GA handle for MO vectors
       integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
       integer l_occ,k_occ      ! MA handles for occupancies (AB)
+      integer mult             ! Ground state spin multiplicity
 c
       character*3 onoff1,onoff2
       integer i,j,n
@@ -116,13 +118,15 @@ c MO vectors
 c ----------
       if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_out))
      1  call errquit('tddft_init: no final MO found',0)
-c --------------------------------
-c Number of electrons and orbitals
-c --------------------------------
+c ------------------------------------------------------
+c Number of electrons and orbitals and spin multiplicity
+c ------------------------------------------------------
       if (.not.rtdb_get(rtdb,'dft:ipol',mt_int,1,ipol))
      1  call errquit('tddft_init: failed to read ipol',0)
       if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,nocc))
      1  call errquit('tddft_init: failed to read nocc',0)
+      if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
+     1  call errquit('tddft_init: failed to read mult',0)
 c --------------
 c XC functionals
 c --------------
@@ -299,6 +303,7 @@ c -------------
         else if (ipol.eq.2) then
           write(LuOut,9410) nmo(1)+nmo(2),nmo(1),nmo(2)
         endif
+        write(LuOut,9420) mult
         write(LuOut,9050) nbf_ao
         if (oskel) then
           onoff1='on '
@@ -371,6 +376,7 @@ c -------------
  9410 format(10x,' No. of orbitals :',2x,i4,/,
      1       10x,'  Alpha orbitals :',2x,i4,/,
      2       10x,'   Beta orbitals :',2x,i4)
+ 9420 format(10x,'Spin multiplicity:',2x,i4)
  9040 format(10x,'Use of symmetry is: ',a3,
      1           '; symmetry adaption is: ',a3)
  9050 format(10x,'AO basis - number of functions: ',i5)

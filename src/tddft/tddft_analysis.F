@@ -1,8 +1,8 @@
       subroutine tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,
      1  ipol,nocc,nmo,ntrials,tda,g_trials,g_prod_p,g_apbvec,apbval,
-     2  g_ambvec,g_movecs,evl,singlet,triplet,target)
+     2  g_ambvec,g_movecs,evl,singlet,triplet,target,mult)
 c
-c $Id: tddft_analysis.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.2 2002-03-22 23:10:48 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -60,6 +60,8 @@ c
       double precision cntr(3) ! Center of dipole (arbitrary)
       integer target           ! Target root
       double precision energy  ! DFT/TDDFT energy
+      integer mult             ! Ground state spin multiplicity
+c
       integer i,j,k,l,n
       integer g_work
       integer g_tmomd(2)       ! Transition density matrix
@@ -244,8 +246,15 @@ c
               tmom(i)=tmom(i)*dsqrt(2.0d0)
             enddo
           endif
-          if (nodezero) write(LuOut,9200) tmom(2),tmom(3),tmom(4),
-     1      2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
+          if (nodezero) then
+            if ((singlet.and.(mult.ne.1)).or.
+     1          (triplet.and.(mult.ne.3))) then
+              write(LuOut,9210)
+            else
+              write(LuOut,9200) tmom(2),tmom(3),tmom(4),
+     1        2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
+          endif
+          endif
 c
 c Print dominant components of X & Y
 c
@@ -320,6 +329,8 @@ c
      3  2x,'-------------------------------------------------------')
  9200 format(5x,'Transition Moments  X',f9.5,' Y',f9.5,' Z',f9.5
      1    ,/,5x,'Oscillator Strength',21x,f12.5)
+ 9210 format(5x,'Transition Moments                    Spin forbidden'
+     1    ,/,5x,'Oscillator Strength                   Spin forbidden')
  9120 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f10.5)
  9130 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f8.5,' X')
  9140 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f8.5,' Y')
