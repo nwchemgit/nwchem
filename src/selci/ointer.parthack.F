@@ -1,5 +1,8 @@
       logical function selci_ointer(noconf,ioconf,joconf,nintpo,
      $     icon4, icon4new)
+*
+* $Id: ointer.parthack.F,v 1.2 1997-10-31 23:42:17 d3e129 Exp $
+*
       integer ioconf(nintpo*noconf),joconf(nintpo)
       integer icon4(4,noconf), icon4new(4)
 c     

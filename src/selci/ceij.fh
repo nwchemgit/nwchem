@@ -1,3 +1,6 @@
+*
+* $Id: ceij.fh,v 1.2 1997-10-31 23:41:55 d3e129 Exp $
+*
 c
 c     this common contains full one particle coupling coefficients
 c     <*|eij|*> for the largest no. of open shells that 

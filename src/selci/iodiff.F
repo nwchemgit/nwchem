@@ -1,4 +1,7 @@
       integer function selci_iodiff(ioconf,joconf,nintpo)
+*
+* $Id: iodiff.F,v 1.3 1997-10-31 23:42:06 d3e129 Exp $
+*
       integer ioconf(*),joconf(*), selci_popcnt32
 #include "bitops.fh"
 c

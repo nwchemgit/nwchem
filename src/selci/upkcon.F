@@ -1,4 +1,7 @@
       subroutine selci_upkcon(norbs, iocc, mocc, nintpo, nbitpi)
+*
+* $Id: upkcon.F,v 1.2 1997-10-31 23:42:31 d3e129 Exp $
+*
       dimension iocc(norbs), mocc(nintpo)
 #include "bitops.fh"
 c

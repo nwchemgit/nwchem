@@ -1,5 +1,8 @@
       subroutine selci_ptidy(ioconf, nintpo, noconf, ncold, nconmx,
      $     nroot, ept, enew, irange, ptnorm, ptnorm_mp, ept_mp)
+*
+* $Id: ptidy.F,v 1.4 1997-10-31 23:42:21 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "global.fh"
       dimension ioconf(nintpo,nconmx), ept(nroot), enew(nroot),

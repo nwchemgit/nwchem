@@ -1,5 +1,8 @@
       subroutine selci_gtijkl(ind,ioconf,joconf,nintpo,nbitpi,
      $     iocc,icase)
+*
+* $Id: gtijkl.F,v 1.2 1997-10-31 23:42:03 d3e129 Exp $
+*
       dimension ind(*),ioconf(nintpo),joconf(nintpo),iocc(*)
       dimension ijocc(4)
       integer selci_leadz32

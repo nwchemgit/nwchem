@@ -1,3 +1,7 @@
+/*
+ $Id: spindim.c,v 1.2 1997-10-31 23:42:28 d3e129 Exp $
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 

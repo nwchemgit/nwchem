@@ -1,4 +1,7 @@
       subroutine selci_brdeig
+*
+* $Id: e0mp2.F,v 1.4 1997-10-31 23:41:59 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "cmp2.fh"

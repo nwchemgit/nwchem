@@ -1,5 +1,8 @@
       subroutine selci_makhdb(hij,ind,icase,ns,indbar,iocc,
      $     w1,w2,work1,work2,g,int12,int34,numf,numf2)
+*
+* $Id: makhdb.F,v 1.2 1997-10-31 23:42:12 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension hij(*),ind(4),indbar(*),iocc(*),

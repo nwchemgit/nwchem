@@ -1,5 +1,8 @@
       subroutine selci_mxmb(a,mcola,mrowa,b,mcolb,mrowb,
      1     r,mcolr,mrowr, ncol,nlink,nrow)
+*
+* $Id: mxmb.f,v 1.2 1997-10-31 23:42:16 d3e129 Exp $
+*
       implicit double precision (a-h,o-z)
       dimension a(1),b(1),r(1)
 c

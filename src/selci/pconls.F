@@ -1,4 +1,7 @@
       subroutine selci_pconls(ioconf)
+*
+* $Id: pconls.F,v 1.2 1997-10-31 23:42:19 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension ioconf(nintpo,noconf)

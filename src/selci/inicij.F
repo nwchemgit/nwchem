@@ -1,4 +1,7 @@
       subroutine selci_inicij(w1,w2)
+*
+* $Id: inicij.F,v 1.2 1997-10-31 23:42:05 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "ceij.fh"

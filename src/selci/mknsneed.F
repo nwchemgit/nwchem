@@ -1,5 +1,8 @@
       subroutine selci_mknsneed(ioconf,noconf,nintpo,nbitpi,
      $     norbs,nsneed)
+*
+* $Id: mknsneed.F,v 1.2 1997-10-31 23:42:14 d3e129 Exp $
+*
 #include "implicit.fh"
 c
       dimension ioconf(nintpo,noconf), nsneed(3)

@@ -1,4 +1,7 @@
       subroutine selci_initci(title, type)
+*
+* $Id: initci.F,v 1.4 1997-10-31 23:42:05 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       character*(*) type, title

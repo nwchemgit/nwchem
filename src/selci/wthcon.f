@@ -2,6 +2,9 @@
      $     norbs, 
      &     nnsmax, nci, noconf, nintpo, nbitpi, nbpsy, isym, nsym,
      &     inttyp,nsneed)
+*
+* $Id: wthcon.f,v 1.2 1997-10-31 23:42:34 d3e129 Exp $
+*
       character*80 title
       dimension nbpsy(8), isym(255), nsneed(3)
 c

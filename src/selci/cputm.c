@@ -1,3 +1,7 @@
+/*
+ $Id: cputm.c,v 1.4 1997-10-31 23:41:58 d3e129 Exp $
+ */
+
 #include <sys/types.h>
 #include <sys/time.h>
 

@@ -1,6 +1,9 @@
       subroutine selci_stool(iconf,ept,ept_mp,enew,ptnorm,ptnorm_mp,
      &     nroot,irange,nrange,iwpt,
      &     noconfi,ioconf,nintpo,nconmx,ncold)
+*
+* $Id: stool.F,v 1.6 1997-10-31 23:42:29 d3e129 Exp $
+*
       implicit real*8 (a-h,o-z), integer(i-n)
 c     
 c     collect info from the other processes for restart

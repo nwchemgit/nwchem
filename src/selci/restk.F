@@ -1,4 +1,7 @@
       subroutine restk
+*
+* $Id: restk.F,v 1.3 1997-10-31 23:42:25 d3e129 Exp $
+*
       implicit real*8 (a-h,o-z), integer(i-n)
       parameter(irest1 = 69,irest2=70, istde=0,istdo=6)
       integer idum(7)

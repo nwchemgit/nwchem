@@ -1,4 +1,7 @@
       subroutine selci_tred1(nm,n,a,d,e,e2)
+*
+* $Id: tred1.f,v 1.2 1997-10-31 23:42:31 d3e129 Exp $
+*
 c
       integer i,j,k,l,n,ii,nm,jp1
       double precision a(nm,n),d(n),e(n),e2(n)

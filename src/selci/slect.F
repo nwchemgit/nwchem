@@ -1,6 +1,9 @@
       subroutine selci_slect(q,h,g,int12,int34,w1,w2,ioconf,indxci,
      $     roots,ci,nconmx,ncold,thresh,ept,enew,irange, ptnorm,
      &     ptnorm_mp,ept_mp,roots_mp,min2c)
+*
+* $Id: slect.F,v 1.4 1997-10-31 23:42:27 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"

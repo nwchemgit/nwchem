@@ -1,4 +1,7 @@
       subroutine selci_ci(q, lword)
+*
+* $Id: ci.F,v 1.5 1997-10-31 23:41:56 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"

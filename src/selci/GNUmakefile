@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.17 1997-10-31 23:42:10 d3e129 Exp $
+#
 
 
 LIBRARY = libselci.a

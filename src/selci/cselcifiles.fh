@@ -1,3 +1,6 @@
+*
+* $Id: cselcifiles.fh,v 1.2 1997-10-31 23:41:58 d3e129 Exp $
+*
 c
 c     moints   ... MO integrals
 c     ciconf   ... CI configuration info

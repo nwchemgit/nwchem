@@ -1,4 +1,7 @@
       logical function selci_ointer(noconf,ioconf,joconf,nintpo)
+*
+* $Id: ointer.mod.F,v 1.2 1997-10-31 23:42:17 d3e129 Exp $
+*
       integer ioconf(nintpo*noconf),joconf(nintpo)
 c     
 c     ivl set so can use short vector lengths ... if vector

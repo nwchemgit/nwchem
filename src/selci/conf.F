@@ -1,4 +1,7 @@
       subroutine selci_conf(rtdb, q, lword)
+*
+* $Id: conf.F,v 1.10 1997-10-31 23:41:57 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "cconf.fh"
 #include "mptr.fh"

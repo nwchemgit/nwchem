@@ -1,3 +1,6 @@
+*
+* $Id: cconf.fh,v 1.2 1997-10-31 23:41:55 d3e129 Exp $
+*
 c
 c     Main common used by configuration generation program
 c

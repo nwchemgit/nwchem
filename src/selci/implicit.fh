@@ -1,3 +1,6 @@
+*
+* $Id: implicit.fh,v 1.2 1997-10-31 23:42:05 d3e129 Exp $
+*
 c
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)

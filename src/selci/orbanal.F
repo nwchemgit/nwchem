@@ -1,6 +1,9 @@
       subroutine selci_orbanal(noconf, ioconf, nintpo, nbitpi, norbs,
      $     map)
       implicit none
+*
+* $Id: orbanal.F,v 1.3 1997-10-31 23:42:18 d3e129 Exp $
+*
       integer noconf, nintpo, nbitpi, norbs
       integer ioconf(nintpo, noconf)
       integer map(norbs)

@@ -1,3 +1,6 @@
+*
+* $Id: mptr.fh,v 1.2 1997-10-31 23:42:15 d3e129 Exp $
+*
       integer selci_minit
       integer selci_mleft
       integer selci_mptr

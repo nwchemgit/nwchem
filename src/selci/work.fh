@@ -1,3 +1,6 @@
+*
+* $Id: work.fh,v 1.2 1997-10-31 23:42:32 d3e129 Exp $
+*
       logical oswit
       common /work  / jrec,jump,istrt(40),inumb(40),iwidth,nend(40),
      * nstart(40),nline,noline,jwidth,nerr,oswit

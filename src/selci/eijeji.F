@@ -1,4 +1,7 @@
       subroutine selci_eijeji(e,odonly,i,j,ns,indbar,iocc,w1,w2,work)
+*
+* $Id: eijeji.F,v 1.2 1997-10-31 23:42:00 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension e(*),indbar(*),iocc(*),work(*),

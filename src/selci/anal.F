@@ -1,5 +1,8 @@
       subroutine selci_anal(irange, roots, ept, ptnorm, enew, ncinew,
      &           ptnorm_mp, ept_mp)
+*
+* $Id: anal.F,v 1.4 1997-10-31 23:41:52 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension irange(21), roots(nroot), ept(nroot), ptnorm(nroot),

@@ -1,4 +1,7 @@
       logical function selci(rtdb)
+*
+* $Id: selci.F,v 1.9 1997-10-31 23:42:26 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "util.fh"

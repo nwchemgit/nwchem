@@ -1,4 +1,7 @@
       subroutine selci_putinb(iflham,ibase,numf,hbuf,ninhb,jbuf,ninjb)
+*
+* $Id: putinb.F,v 1.2 1997-10-31 23:42:21 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "cbuff.fh"
       dimension hbuf(numf,*),jbuf(2,*)

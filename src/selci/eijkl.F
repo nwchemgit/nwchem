@@ -1,5 +1,8 @@
       subroutine selci_eijkl(e,i,j,k,l,ns,indbar,iocc,w1,w2,
      $     work,numf,numf2)
+*
+* $Id: eijkl.F,v 1.3 1997-10-31 23:42:01 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension e(numf,*),indbar(*),iocc(*),w1(nfmax,nfmax,nsmax),

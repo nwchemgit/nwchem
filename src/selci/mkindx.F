@@ -1,4 +1,7 @@
       subroutine selci_mkindx(ioconf,indxci,ncinew,nnsmax)
+*
+* $Id: mkindx.F,v 1.2 1997-10-31 23:42:13 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 c

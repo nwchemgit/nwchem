@@ -1,4 +1,7 @@
       subroutine selci_load(h, g, int12, int34)
+*
+* $Id: load.F,v 1.4 1997-10-31 23:42:07 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
       dimension h(nnorbs), g(numint), int12(nnorbs), int34(nnorbs)

@@ -1,5 +1,8 @@
       subroutine selci_makeh(h,g,int12,int34,w1,w2,ioconf,indxci,hd,
      $     work1, work2, work3, f)
+*
+* $Id: makeh.F,v 1.6 1997-10-31 23:42:10 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "cbuff.fh"

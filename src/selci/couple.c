@@ -1,3 +1,7 @@
+/*
+ $Id: couple.c,v 1.7 1997-10-31 23:41:58 d3e129 Exp $
+ */
+
 #include <math.h>
 #include <stdio.h>
 #include <strings.h>

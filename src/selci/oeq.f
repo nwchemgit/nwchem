@@ -1,4 +1,7 @@
       logical function selci_oeq(noconf,ioconf,joconf,nintpo)
+*
+* $Id: oeq.f,v 1.2 1997-10-31 23:42:16 d3e129 Exp $
+*
       integer ioconf(nintpo,noconf),joconf(nintpo)
 c     
 c     ivl set so can use short vector lengths

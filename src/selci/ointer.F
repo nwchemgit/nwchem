@@ -1,4 +1,7 @@
       logical function selci_ointer(noconf,ioconf,joconf,nintpo)
+*
+* $Id: ointer.F,v 1.3 1997-10-31 23:42:17 d3e129 Exp $
+*
       integer ioconf(nintpo*noconf),joconf(nintpo)
 c     
 c     if vector length is too long we have redundant computation

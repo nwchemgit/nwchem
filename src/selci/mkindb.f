@@ -1,4 +1,7 @@
       subroutine selci_mkindb(norbs, iocc, indbar, listd, lists, ns, nd)
+*
+* $Id: mkindb.f,v 1.2 1997-10-31 23:42:13 d3e129 Exp $
+*
       dimension iocc(norbs), indbar(norbs), listd(norbs), lists(norbs)
 c
 c     make indbar array and lists of socc/docc orbitals

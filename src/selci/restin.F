@@ -1,6 +1,9 @@
       subroutine selci_restin(iconf,ept,ept_mp,enew,ptnorm,ptnorm_mp,
      &                  nroot,irange,nrange,iwpt,
      &                  noconf,ioconf,nintpo,nconmx,ncold)
+*
+* $Id: restin.F,v 1.4 1997-10-31 23:42:25 d3e129 Exp $
+*
       implicit real*8(a-h,o-z), integer(i-n)
       dimension ioconf(nintpo,nconmx),irange(nrange),
      &          ept(nroot),enew(nroot),ptnorm(nroot),

@@ -1,4 +1,7 @@
       subroutine selci_getij(i,j,ioconf,joconf,nintpo,nbitpi,iocc)
+*
+* $Id: getij.F,v 1.2 1997-10-31 23:42:03 d3e129 Exp $
+*
       dimension ioconf(nintpo),joconf(nintpo),ind(2),ijocc(2),
      $     iocc(*)
       integer selci_leadz32

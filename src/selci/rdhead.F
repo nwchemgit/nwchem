@@ -1,4 +1,7 @@
       subroutine selci_rdhead(title,type)
+*
+* $Id: rdhead.F,v 1.3 1997-10-31 23:42:23 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "cselcifiles.fh"

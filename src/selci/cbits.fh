@@ -1,2 +1,5 @@
+*
+* $Id: cbits.fh,v 1.2 1997-10-31 23:41:53 d3e129 Exp $
+*
       integer ipopcb, leadzb
       common/selci_cbits/ ipopcb(-128:127), leadzb(-128:127)

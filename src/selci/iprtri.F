@@ -1,4 +1,7 @@
       subroutine selci_iprtri(id,n)
+*
+* $Id: iprtri.F,v 1.2 1997-10-31 23:42:07 d3e129 Exp $
+*
 c
 c     ----- print out an integer triangular matrix -----
 c

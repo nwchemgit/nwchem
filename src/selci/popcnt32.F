@@ -1,4 +1,7 @@
       integer function selci_popcnt32(i)
+*
+* $Id: popcnt32.F,v 1.6 1997-10-31 23:42:20 d3e129 Exp $
+*
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       integer i
       selci_popcnt32 = popcnt(i)

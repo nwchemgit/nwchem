@@ -1,4 +1,7 @@
       integer function selci_isum(n,m,im)
+*
+* $Id: isum.f,v 1.2 1997-10-31 23:42:07 d3e129 Exp $
+*
       dimension m(im,*)
 c
 c     return sum of integer array

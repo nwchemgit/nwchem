@@ -3,6 +3,9 @@
      $     roots, ci, nconmx, thresh, ept, enew, iconf, ncold,
      $     vc, iocc, itemp, irange, ptnorm,
      $     ptnorm_mp,ept_mp,roots_mp)
+*
+* $Id: tester.F,v 1.5 1997-10-31 23:42:30 d3e129 Exp $
+*
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"

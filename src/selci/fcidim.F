@@ -1,5 +1,8 @@
       double precision function selci_fcidim(nelec, multi, issss,
      $     norbs, isym)
+*
+* $Id: fcidim.F,v 1.3 1997-10-31 23:42:02 d3e129 Exp $
+*
 #include "implicit.fh"
 c
       dimension isym(norbs)
