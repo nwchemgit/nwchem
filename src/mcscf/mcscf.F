@@ -1,6 +1,6 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.62 2000-02-04 19:58:08 mg201 Exp $
+* $Id: mcscf.F,v 1.63 2001-02-09 01:03:33 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -75,6 +75,11 @@ c
       data mchar/'1','2','3','4','5','6','7','8','9'/
       data ohalf/.true./
       data blen/25/
+c
+c     This is a stupid kludge because of Benny breaking encapsulation rules.
+c     Store SCF hamiltonian type as HF for use in BGJ routines
+      if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 1))
+     $     call errquit('mcscf: put of bgj:scf_type failed',0)
 c     
       cputime = util_cpusec()
       walltime= util_wallsec()
