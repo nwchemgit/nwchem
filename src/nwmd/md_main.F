@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.177 2003-10-27 19:06:56 d3j191 Exp $
+c $Id: md_main.F,v 1.178 2003-10-31 00:03:08 d3j191 Exp $
 c
       implicit none
 c
@@ -1163,7 +1163,7 @@ c
       call timer_stop(201)
 c
       if(frequency(mdstep,nfnewf).and.idacq.ne.mdacq) then
-      call md_fopen(.true.)
+      if(me.eq.0) call md_fopen(.true.)
       endif
 c
       stime=stime+tstep
@@ -2653,7 +2653,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.177 2003-10-27 19:06:56 d3j191 Exp $
+c $Id: md_main.F,v 1.178 2003-10-31 00:03:08 d3j191 Exp $
 c
       implicit none
 c
