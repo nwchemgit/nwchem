@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.6 1996-07-12 01:55:48 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.7 1996-08-02 02:00:04 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -273,6 +273,7 @@ c
          if (.not. bas_ce2bfr(basis,iat,cetobfr(1,iat),cetobfr(2,iat)))
      $        call errquit('ao_rep: bad basis', 0)
       end do
+c
       call dfill(natom*natom,0.0d0,rdens,1)
       do imat = 1, nfock
          call util_mat_reduce(nbf, natom, cetobfr, dens(imat,1), 
@@ -595,7 +596,7 @@ c
       double precision sij(*)
       integer ijtype(*)
 c     
-      integer junk
+      integer junk, iat, jat
       integer nij, ij, ijt, i, j, jtop, prev, spch
       integer jlo, jhi, jnprim, jngen, jt, jtype
       integer ilo, ihi, inprim, ingen, it, itype
@@ -609,14 +610,29 @@ c     Below relies on #unique atoms<10, angmax<10, ngen<10.
       thetype(iuat,itype,inprim,ingen) = 
      $     iuat + 10*(itype+1 + 10*(ingen + 10*inprim))
 c     
-      if (.not. bas_ce2cnr(basis, iatlo, ilo, junk)) call errquit
-     $     ('fock_pairs: basis screwed ',0)
-      if (.not. bas_ce2cnr(basis, iathi, junk, ihi)) call errquit
-     $     ('fock_pairs: basis screwed ',0)
-      if (.not. bas_ce2cnr(basis, jatlo, jlo, junk)) call errquit
-     $     ('fock_pairs: basis screwed ',0)
-      if (.not. bas_ce2cnr(basis, jathi, junk, jhi)) call errquit
-     $     ('fock_pairs: basis screwed ',0)
+c     Fun and games here to handle centers with no functions
+c
+      do iat = iatlo, iathi
+         if (.not. bas_ce2cnr(basis, iat, ilo, junk)) call errquit
+     $        ('fock_pairs: basis corrupt ',0)
+         if (ilo .gt. 0) goto 10
+      enddo
+ 10   do iat = iathi,iatlo,-1
+         if (.not. bas_ce2cnr(basis, iat, junk, ihi)) call errquit
+     $        ('fock_pairs: basis corrupt ',0)
+         if (ihi .gt. 0) goto 20
+      enddo
+ 20   do jat = jatlo, jathi
+         if (.not. bas_ce2cnr(basis, jat, jlo, junk)) call errquit
+     $        ('fock_pairs: basis corrupt ',0)
+         if (jlo .gt. 0) goto 30
+      enddo
+ 30   do jat = jathi,jatlo,-1
+         if (.not. bas_ce2cnr(basis, jat, junk, jhi)) call errquit
+     $        ('fock_pairs: basis corrupt ',0)
+         if (jhi .gt. 0) goto 40
+      enddo
+ 40   continue
 c     
       smax = schwarz_max()
 c     
@@ -624,9 +640,9 @@ c
       nij = 0
       do i = ilo, ihi
          if (.not. bas_continfo(basis,i,itype,inprim,ingen,spch))
-     $        call errquit('fock_pairs: basis screwed ',0)
+     $        call errquit('fock_pairs: basis corrupt ',0)
          if (.not. bas_cn2uce(basis,i,iuat))
-     $        call errquit('fock_pairs: basis screwed ',0)
+     $        call errquit('fock_pairs: basis corrupt ',0)
 c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
          if (itype.eq.-1) then
             itype = 1
@@ -642,9 +658,9 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
             test = schwarz_shell(i,j)
             if (test*smax .gt. tol2e) then
                if (.not. bas_continfo(basis,j,jtype,jnprim,jngen,spch))
-     $              call errquit('fock_pairs: basis screwed ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0)
                if (.not. bas_cn2uce(basis,j,juat))
-     $              call errquit('fock_pairs: basis screwed ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0)
 c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
                if (jtype.eq.-1) then
                   jtype = 1
@@ -734,9 +750,9 @@ c
                if (.not. bas_continfo(basis,j,jtype,jnprim,jngen,spch))
      $              call errquit('fock_pairs: basis bad ',0)
                if (.not. bas_cn2uce(basis,i,iuat))
-     $              call errquit('fock_pairs: basis screwed ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0)
                if (.not. bas_cn2uce(basis,j,juat))
-     $              call errquit('fock_pairs: basis screwed ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0)
                write(6,11) ij,i,j,itype,jtype,inprim,jnprim,
      $              ingen,jngen, iuat, juat
  11            format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,2i3)
