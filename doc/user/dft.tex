@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.78 2004-04-22 07:21:42 edo Exp $ 
+% $Id: dft.tex,v 1.79 2004-05-17 20:04:36 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -11,9 +11,10 @@ in the:
 \item local density approximation (LDA), 
 \item non-local density approximation (NLDA), 
 \item local spin-density approximation (LSD), 
-\item non-local spin-density approximation (NLSD), and
-\item any empirical mixture of local and non-local approximations 
-(including exact exchange).
+\item non-local spin-density approximation (NLSD),
+\item any empirical mixture of local and non-local approximations
+(including exact exchange), and
+\item asymptotically corrected exchange-correlation potentials.
 \end{itemize}
 
 The formal scaling of the DFT computation can be reduced by choosing
@@ -100,6 +101,8 @@ the DFT module are:
               [accCoul <integer accCoul default 8>] \
               [radius <real radius default 25.0>]]
 
+
+  [(LB94||CS00 <real shift default none>)]
 
   DECOMP
   ODFT
@@ -530,6 +533,30 @@ S. Kurth, J. Perdew, P. Blaha, Int. J. Quant. Chem 75, 889 (1999)
 for a brief description of meta-GGAs, and  citations 14-27
 therein for thorough background )
 
+\section{{\tt LB94} and {\tt CS00} --- Asymptotic correction}
+
+The keyword \verb+LB94+ will correct the asymptotic region of 
+the \verb+XC+ definition of exchange-correlation {\it potential} by 
+the van-Leeuwen--Baerends exchange-correlation {\it potential} that
+has the correct $-1/r$ asymptotic behavior.  The total energy will be computed by the 
+\verb+XC+ definition of exchange-correlation functional.  This scheme is known to
+tend to overcorrect the deficiency of most uncorrected exchange-correlation potentials.
+
+The keyword \verb+CS00+, when supplied with a real value of shift (in atomic units),
+will perform Casida--Salahub '00 asymptotic correction.  This is primarily intended
+for use in conjunction with TDDFT and the background of this method is given in more
+detail in Chapter 14.  The shift is normally positive (which means that the original
+uncorrected exchange-correlation potential must be shifted down).
+
+When the keyword \verb+CS00+ is specified without the value of shift, the program will
+automatically supply it according to the semi-empirical formula of Zhan, Nichols, and
+Dixon (again, see Chapter 14 for more details and references).  As the Zhan's formula 
+is calibrated against B3LYP results, it is most meaningful to use this in conjunction
+with the B3LYP functional, although the program does not prohibit (or even warn) the use
+of any other functional.
+
+Sample input files of asymptotically corrected TDDFT calculations can be found in 
+Chapter 14.
 
 \section{Sample input file}
 \label{sec:DFTsample}
