@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.44 2003-10-20 21:21:51 edo Exp $
+* $Id: psi.F,v 1.45 2003-10-21 00:57:22 bylaska Exp $
 *
 
 
@@ -2414,9 +2414,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_1check_Tangent(H)
       implicit none
-#include "errquit.fh"
       complex*16 H(*)
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
 
@@ -2522,7 +2522,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
          value = MA_pop_stack(MM(2))
          if (.not. value)
      >    call errquit(
-     >         'error popping stack memory in psi_1check_Tangent',0,
+     >         'error popping stack memory in psi_2check_Tangent',0,
      &       MA_ERR)
 
  101     continue
@@ -2692,11 +2692,11 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     ***********************************
       subroutine psi_2get_Tgradient(option,THpsi,Eout)
       implicit none
-#include "errquit.fh"
       integer    option
       complex*16 THpsi(*)
       real*8     Eout
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
 
@@ -2837,10 +2837,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_1get_TSgradient(THpsi,Eout)
       implicit none
-#include "errquit.fh"
       complex*16 THpsi(*)
       real*8 Eout
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
 
@@ -2899,11 +2899,11 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_2get_TSgradient(option,THpsi,Eout)
       implicit none
-#include "errquit.fh"
       integer    option
       complex*16 THpsi(*)
       real*8     Eout
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
 
