@@ -24,7 +24,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine dosymops(symops,nops,coords,tags,nata,itype,
      &     tags_new,coords_new,nareal,nat,cdist,cang,iasym_order,
      $     charge, charge_new, mass, mass_new, threquiv)
-C$Id: dosymops.F,v 1.2 1999-06-14 23:24:00 windus Exp $
+C$Id: dosymops.F,v 1.3 1999-07-20 18:53:09 d3g681 Exp $
 *rak typed everyting
       implicit none
 #include "util.fh"
@@ -47,13 +47,14 @@ c
       double precision charge(*), charge_new(*), mass(*),
      $     mass_new(*)
 c
-      integer i, j, k, l, ii, ll,
+      integer i, j, k, l, ii, ll, nata_old,
      &    ipcord, ipt, nauniq, iopnum, im, iop
       double precision sum, dx, dy, dz, x, y, z 
 c
 c     set tolerance
 c
       tol = threquiv
+      nata_old = nata
 c
 c     Modified below (RJH) so that can send in a list with symmetry
 c     equivalent atoms and not generate redundant ones and also
@@ -266,7 +267,36 @@ c
  510     continue
  2122    format(i5,2x,a16,2x,3f12.6,2x,f10.2)
       endif
+*
+*     RJH.  If the user input all of the atoms don't want
+*     to reorder them since it may break zmatrix/autoz
+*
+      if (itype.eq.0 .and. nareal.eq.nata_old) then
 c
+c     Map unique atoms back into old ordering
+c
+         do ii = 1, nauniq
+            i = iasym_order(ii)
+            do j = 1, nareal
+               dx = abs(coords_new(1,i) - coords(1,j))
+               dy = abs(coords_new(2,i) - coords(2,j))
+               dz = abs(coords_new(3,i) - coords(3,j))
+               if(dx.le.tol.and.dy.le.tol.and.dz.le.tol) then
+                  iasym_order(ii) = j
+                  goto 9876
+               endif
+            enddo
+            call errquit('dosymops: failed matching uniq',i)
+ 9876       continue
+         enddo
+         do i = 1, nareal
+            tags_new(i) = tags(i)
+         enddo
+         call dcopy(nareal, charge, 1, charge_new, 1)
+         call dcopy(nareal, mass, 1, mass_new, 1)
+         call dcopy(nareal*3, coords, 1, coords_new, 1)
+      endif
+c     
 c
 c--> write stuff out
 c
