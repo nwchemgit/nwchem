@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.67 2000-03-15 21:04:05 d3j191 Exp $
+c $Id: md_main.F,v 1.68 2000-03-17 17:41:41 d3j191 Exp $
 c
       implicit none
 c
@@ -47,6 +47,8 @@ c
 #include "md_common.fh"
 #include "mafdecls.fh"
 c
+      integer i_wws,l_wws
+c
       lpair=.true.
       llong=ltwin
 c
@@ -55,6 +57,26 @@ c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
      + dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     periodic boundary conditions
+c
+      call md_fold(int_mb(i_iw),int_mb(i_is),
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
+c
+c     atom redistribution
+c
+      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs),int_mb(i_is),nsaloc)
+c
+      if(.not.ma_push_get(mt_dbl,mwa+msa,'wws',l_wws,i_wws))
+     + call errquit('Failed to allocate memory for wws',me)
+c
+      call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
+     + int_mb(i_is+(lsatt-1)*msa),nsaloc)
+c
+      call md_eminit(dbl_mb(i_xw),dbl_mb(i_yw),
+     + dbl_mb(i_xs),dbl_mb(i_ys))
 c
 c     atomic forces and potential energies
 c
@@ -70,6 +92,9 @@ c
       call prp_print()
 c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
+c
+      if(.not.ma_pop_stack(l_wws))
+     + call errquit('Failed to deallocate memory for wws',me)
 c
 c     print energies
 c
@@ -1874,7 +1899,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.67 2000-03-15 21:04:05 d3j191 Exp $
+c $Id: md_main.F,v 1.68 2000-03-17 17:41:41 d3j191 Exp $
 c
       implicit none
 c
