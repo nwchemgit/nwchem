@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.7 2000-10-23 15:52:46 windus Exp $
+c     $Id: grad_force_so.F,v 1.8 2000-10-31 02:02:02 zzhang Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -181,6 +181,7 @@ c
 C     get SCF MO vectors for density
 
       odft = .false.
+      exso = .false. 
       if (theory .eq. 'mcscf') then
          if (.not.rtdb_cget(rtdb, 'mcscf:input vectors',1,movecs_in))
      $        call errquit('gradients: MCSCF MO vectors not defined',0)
