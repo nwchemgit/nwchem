@@ -176,6 +176,13 @@ The library basis sets can also be marked as relativistic by adding the
 more details. The correlation consistent basis sets have been contracted for
 relativistic effects and are included in the standard library.
 
+There are also contractions in the standard library for both a point nucleus
+and a finite nucleus of Gaussian shape. These are usually distinguished by
+the suffixex {\tt \_pt} and {\tt \_fi}. It is the user's responsibility to
+ensure that the contraction matches the nuclear type specified in the
+geometry object. The specification of a finite nucleus basis set does NOT
+automagically set the nuclear type for that atom to be finite.
+
 \section{Explicit basis set definition}
 
 If the basis sets in the library or available in other external files
