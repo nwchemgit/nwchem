@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.43 1998-08-14 22:37:54 d3e129 Exp $
+c $Id: bas_input.F,v 1.44 1998-09-08 09:10:21 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -1023,6 +1023,7 @@ c
 #include "ecpso_decP.fh"
 #include "bas_exndcf_dec.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
 #include "stdio.fh"
       logical ecp_get_num_elec
       external ecp_get_num_elec
@@ -1040,7 +1041,7 @@ c
       integer ncont, icont, fcont, lcont
       integer nelec
       logical oIs_ecp, oIs_so, oIs_basis
-      integer j
+      integer j, mylen
       integer type, nprim, iprim, ngen, igen, iexp, icoef, irexp, bptr
       character*2 stype
       character*16 mytag
@@ -1074,6 +1075,15 @@ c
       else
         myline = myline(1:6)//'"'//
      &      bs_trans(basis)(1:len_bs_trans(basis))//'"'
+      endif
+*
+* add spherical or cartesean tag
+*
+      mylen = inp_strlen(myline)
+      if (bas_spherical(basis)) then
+         myline = myline(1:mylen)//' spherical'
+      else
+         myline = myline(1:mylen)//' cartesian'
       endif
       call ecce_print_echo_string(myline)
       ntags = infbs_head(Head_Ntags,basis)
