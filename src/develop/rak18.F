@@ -31,6 +31,7 @@ c::local
       integer h_buff, k_buff ! ma handle/index for integral buffer
       integer h_scr, k_scr ! ma handle/index for integral scratch
       integer h_eig, k_eig ! ma handle/index for overlap eigenvalues
+      integer h_eigvec, k_eigvec ! ma handle/index for overlap eigenvectors local
       integer ilo, ihi, nbfi, jlo, jhi, nbfj ! bf ranges/sizes
       logical status  ! dummy status variable
       double precision sld_thresh ! linear dependence threshold
@@ -132,9 +133,16 @@ c
       if (.not. ma_push_get(mt_dbl,nbf,'S eigenvalues',
      &      h_eig,k_eig)) call errquit
      &      ('task_computeSld: could not allocat integral buffer',911)
+*
+* allocate memory for eigenvalues
+      if (.not. ma_push_get(mt_dbl,nbf*nbf,'S eigenvectors',
+     &      h_eigvec,k_eigvec)) call errquit
+     &      ('task_computeSld: could not allocat integral buffer',911)
       call dfill(nbf,0.0d00,dbl_mb(k_eig),1)
+      call dfill(nbf,0.0d00,dbl_mb(k_eigvec),1)
 c
       call ga_diag_std(g_S,g_V,dbl_mb(k_eig))
+      call ga_get(g_V,1,nbf,1,nbf,dbl_mb(k_eigvec))
       ndep = 0
       do i = 0,(nbf-1)
         if (dbl_mb(k_eig+i).lt.sld_thresh) ndep = ndep + 1
@@ -147,7 +155,8 @@ c
           write(luout,*)' '
         endif
         write(luout,*)' eigenvalues in S'
-        call output(dbl_mb(k_eig),1,nbf,1,1,nbf,1,1)
+*        call output(dbl_mb(k_eig),1,nbf,1,1,nbf,1,1)
+        call print_Sld(dbl_mb(k_eig),dbl_mb(k_eigvec),nbf,luout)
       endif
       call int_terminate()
       if (.not.bas_destroy(basis)) call errquit
@@ -155,6 +164,7 @@ c
       if (.not.geom_destroy(geom)) call errquit
      &          ('task_computeSld: geom_destroy failed',911)
 * free memory
+      status = ma_pop_stack(h_eigvec)
       status = ma_pop_stack(h_eig)
       if (.not.status) call errquit
      &          ('task_computeSld: poping stack failed',911)
@@ -164,5 +174,25 @@ c
       if (.not.ga_destroy(g_V)) call errquit
      &          ('task_computeSld: ga_destroy of g_V failed',911)
       end
-
-
+      subroutine print_Sld(eigs,eigvec,n,lunit)
+      implicit none
+      integer n
+      double precision eigs(n)
+      double precision eigvec(n,n)
+      integer lunit
+c
+      integer ivallo, ivalhi, ival, ivec, blocksize
+      write(6,*)' n '
+      blocksize = 6
+      do ivallo = 1,n,blocksize
+        ivalhi = min(n,(ivallo+blocksize-1))
+        write(6,*)'ivallo ', ivallo
+        write(6,*)'ivalhi ', ivalhi
+        write(lunit,10000)(eigs(ival),ival=ivallo,ivalhi)
+        do ivec = 1,n
+          write(lunit,10001)ivec,(eigvec(ivec,ival),ival=ivallo,ivalhi)
+        enddo
+      enddo
+10000 format(5x,6(1pd15.8,2x),/,1x,(6(15('-'),2x)))
+10001 format(1x,i4,6(1pd15.8,2x))
+      end
