@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.17 2003-10-24 01:50:57 edo Exp $
+C$Id: errquit.F,v 1.18 2003-11-21 16:01:09 d3g681 Exp $
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -48,7 +48,7 @@ c
 c     
       if (errcode .eq. MEM_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode, 
-     &        'bites more memory'
+     &        'bytes more memory'
          write(LuOut,3)
          write(LuOut,3)
          write(LuOut,*) 'Add a memory card of the following format: '
@@ -59,7 +59,7 @@ c
 c
       if (errcode .eq. STACK_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
-     &        'bites more stack memory'
+     &        'bytes more stack memory'
          write(LuOut,3)
          write(LuOut,3)
          write(LuOut,*) 'Add a memory card of the following format: '
@@ -70,7 +70,7 @@ c
 c     
       if (errcode .eq. HEAP_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
-     &        'bites more heap memory'
+     &        'bytes more heap memory'
          write(LuOut,3)
          write(LuOut,3)
          write(LuOut,*) 'Add a memory card of the following format: '
@@ -104,13 +104,13 @@ c
 c     
       if (errcode .eq. GA_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
-     &        ' bites more global memory'
+     &        ' bytes more global memory'
          man_sec = 'NWChem -> Top Level Directives -> Memory'
       endif
 c     
       if (errcode .eq. MA_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
-     &        ' bites more local memory'
+     &        ' bytes more local memory'
          man_sec = 'NWChem -> Top Level Directives -> Memory'
       endif
 c
