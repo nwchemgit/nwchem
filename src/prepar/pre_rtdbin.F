@@ -5,9 +5,9 @@
      + newtop,newseq,newrst,mcount,ncount,icount,mgrid,gdist,mnoe,
      + maxscf,qscale,
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
-     + mfract,nfract,ifract,scale,cpk,his)
+     + fcount,mfract,nfract,ifract,scale,cpk,his)
 c
-c $Id: pre_rtdbin.F,v 1.30 2002-02-13 00:53:36 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.31 2002-08-14 19:56:32 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -33,6 +33,7 @@ c
       real*8 gdist,qscale
       character*1 altloc,chain,his
       character*4 scount(mcount)
+      real*8 fcount
       real*8 scale,cpk
       integer i
 c
@@ -102,6 +103,8 @@ c
       if(.not.rtdb_get(irtdb,'prep:icount',mt_int,ncount,icount))
      + call errquit('Counter ion input problem',0)
       if(.not.rtdb_cget(irtdb,'prep:scount',ncount,scount))
+     + call errquit('Counter ion input problem',0)
+      if(.not.rtdb_get(irtdb,'prep:fcount',mt_dbl,1,fcount))
      + call errquit('Counter ion input problem',0)
       endif
       if(.not.rtdb_get(irtdb,'prep:mgrid',mt_int,1,mgrid)) mgrid=24

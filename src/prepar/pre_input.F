@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.102 2002-07-30 21:12:17 d3j191 Exp $
+c $Id: pre_input.F,v 1.103 2002-08-14 19:56:32 d3j191 Exp $
 c
       implicit none
 c
@@ -38,6 +38,7 @@ c
       real*8 rrep,rdist,xtran(3),arot,xrot(3)
       real*8 value1,value2
       character*4 scount(mcount)
+      real*8 fcount
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
       real*8 scale,cpk,rshell,xmerge(3)
       integer irepeat,nrepeat,iopt,jopt,kopt,irrand,invert,irrep
@@ -96,6 +97,7 @@ c
       scale=-1.0d0
       cpk=-1.0d0
       nrepeat=0
+      fcount=1.0d0
 c
       touch=0.25d0
       xpnd(1)=0.00d0
@@ -391,11 +393,16 @@ c
       if(inp_compare(.false.,'counter',item)) then
       ncount=ncount+1
       if(ncount.gt.mcount) call errquit('Too many counters',ncount)
-      if(.not.inp_i(icount(ncount)))
+      if(.not.inp_i(icount(ncount))) then
+      if(.not.inp_f(fcount))
      + call errquit('pre_input: counter',9999)
+      ncount=ncount-1
+      goto 2
+      else
       if(.not.inp_a(item)) call errquit('pre_input: counter',9999)
       scount(ncount)=item(1:4)
       goto 2
+      endif
       endif
 c
 c     fix commands
@@ -1698,6 +1705,8 @@ c
       if(.not.rtdb_put(irtdb,'prep:icount',mt_int,ncount,icount))
      + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_cput(irtdb,'prep:scount',ncount,scount))
+     + call errquit('pre_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'prep:fcount',mt_dbl,1,fcount))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
       if(mgrid.gt.0) then

@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.47 2002-04-17 19:09:30 d3j191 Exp $
+c $Id: prepar.F,v 1.48 2002-08-14 19:56:32 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -56,6 +56,7 @@ c
       character*80 source
       character*1 altloc,chain,his
       character*4 scount(mcount)
+      real*8 fcount
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov,lfnmat,lfnmrg
@@ -137,7 +138,7 @@ c
      + icount,mgrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
-     + ignore,scount,mfract,nfract,ifract,scale,cpk,his))
+     + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     construct file names
@@ -348,7 +349,7 @@ c
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,chain,model,
      + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,lfnmat,
-     + lfnmrg,nmerge,xmerge,filmrg))
+     + lfnmrg,nmerge,xmerge,filmrg,fcount))
      + call errquit('pre_mkrst failed',9999)
 c
     6 continue

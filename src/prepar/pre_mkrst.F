@@ -2,9 +2,9 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
-     + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
+     + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount)
 c
-c $Id: pre_mkrst.F,v 1.85 2002-07-30 21:12:17 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.86 2002-08-14 19:56:32 d3j191 Exp $
 c
       implicit none
 c
@@ -34,6 +34,7 @@ c
       character*3 slvnam
       character*80 source,card,card2,cfix
       character*1 altloc,chain
+      real*8 fcount
       real*8 scale,cpk
 c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
@@ -293,7 +294,8 @@ c
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
-     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
+     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box,
+     + fcount))
      + call errquit('pre_misfit failed',9999)
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
@@ -516,7 +518,8 @@ c
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
-     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
+     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box,
+     + fcount))
      + call errquit('pre_misfit failed',9999)
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
@@ -815,7 +818,8 @@ c
      + byte_mb(i_csa),dbl_mb(i_qsa),int_mb(i_sgm),msa,nsa,
      + int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
-     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box))
+     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa,npbtyp,box,
+     + fcount))
      + call errquit('pre_misfit failed',9999)
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)

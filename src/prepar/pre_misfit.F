@@ -1,9 +1,9 @@
       logical function pre_misfit(lfnout,lfnmat,
      + isfnd,xs,csa,qsa,isgm,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
-     + qwa,mwm,mwa,nwm,nwa,npbtyp,box)
+     + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount)
 c
-c $Id: pre_misfit.F,v 1.33 2002-02-16 22:58:55 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.34 2002-08-14 19:56:32 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       integer isfnd(msa),idsb(2,msb),iwfnd(mwm),npbtyp,isgm(msa)
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
       character*16 csa(msa)
-      real*8 xw(3,mwa,mwm),qwa(mwa),box(3)
+      real*8 xw(3,mwa,mwm),qwa(mwa),box(3),fcount
       character*255 filmat
 c
       real*8 grid(4,mgrid),distx,disty,distz
@@ -485,7 +485,7 @@ c
 #endif
       dist2=distx**2+disty**2+distz**2
       endif
-      grid(4,k)=grid(4,k)+qsa(j)/dist2
+      grid(4,k)=grid(4,k)+fcount*qsa(j)/dist2
       endif
    19 continue
       if(iwater.gt.0) then
@@ -547,7 +547,7 @@ c
       endif
       isfnd(i)=1
       if(util_print('restart',print_medium)) then
-      write(lfnout,6000) qsa(i)*grid(4,imin)*138.9354d0
+      write(lfnout,6000) fcount*qsa(i)*grid(4,imin)*138.9354d0
  6000 format(' Added counterion with energy ',t40,f12.3,' kJ/mol')
       endif
 c
@@ -587,7 +587,7 @@ c
       grid(3,ngrid)=grid(3,j)
       dist2=dsqrt((grid(1,ngrid)-xs(1,i))**2+
      + (grid(2,ngrid)-xs(2,i))**2+(grid(3,ngrid)-xs(3,i))**2)
-      grid(4,ngrid)=grid(4,j)+qsa(i)/dist2
+      grid(4,ngrid)=grid(4,j)+fcount*qsa(i)/dist2
       endif
    21 continue
 c
