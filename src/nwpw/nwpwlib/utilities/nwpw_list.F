@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_list.F,v 1.5 2004-12-06 20:03:24 bylaska Exp $ 
+*     $Id: nwpw_list.F,v 1.6 2004-12-18 19:42:39 bylaska Exp $ 
 *
       subroutine nwpw_list_start(nb,size_list0,nsize0)
       implicit none
@@ -182,7 +182,7 @@
       do i=k,size_list(nb)-1
          indx(i,nb) = indx(i+1,nb)
       end do
-      indx(size_list,nb) = tmp
+      indx(size_list(nb),nb) = tmp
       
       return
       end
