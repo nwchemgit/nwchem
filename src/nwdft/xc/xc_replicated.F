@@ -1,8 +1,12 @@
+C
+C undefined the first define line if you get undefined symbols
+C
+C#define OLD_GAAPI 1
 #define GAIRREG_ 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.17 2003-10-17 22:55:53 carlfahl Exp $
+C$Id: xc_replicated.F,v 1.18 2004-01-02 23:25:07 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -58,7 +62,11 @@ c
 c     
 c     use of ga_mirror
 c
+#ifdef OLD_GAAPI
          plist=ga_mirror_config()
+#else
+         plist=ga_pgroup_get_mirror()
+#endif
          dims(1)=nbf_ao
          dims(2)=nbf_ao
          if(xcrepirrg) then
@@ -141,7 +149,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.17 2003-10-17 22:55:53 carlfahl Exp $
+C$Id: xc_replicated.F,v 1.18 2004-01-02 23:25:07 edo Exp $
 c
       implicit none
 #include "errquit.fh"
