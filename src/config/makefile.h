@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.423 2003-09-16 16:38:43 edo Exp $
+# $Id: makefile.h,v 1.424 2003-10-02 00:39:05 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1253,12 +1253,15 @@ ifeq ($(LINUXCPU),x86)
  ifeq ($(FC),ifort)
      _FC=ifc
  endif
+  FOPTIONS   =  -align    -mp1 -w -g -vec_report3
   ifeq ($(_FC),ifc)
     _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8.0/  {print "Y"}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
+      ifeq ($(FC),ifc)
+          FOPTIONS += -quiet
+      endif
     endif	
-    FOPTIONS   =  -align    -mp1 -w -g -vec_report3
     FOPTIMIZE = -O3 -prefetch  -unroll 
     ifeq ($(_CPU),i586)
       FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
