@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.16 2000-05-26 05:05:39 edo Exp $
+c$Id: grid_utils.F,v 1.17 2000-06-07 23:29:17 edo Exp $
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -122,7 +122,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb,  rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.16 2000-05-26 05:05:39 edo Exp $
+C$Id: grid_utils.F,v 1.17 2000-06-07 23:29:17 edo Exp $
 c
       implicit none
 c      
@@ -469,7 +469,7 @@ c     I(k) = [(k-1)*I(k-2) + r^(k-1)*exp(-alpha*r^2)]/(2*alpha)
 c
       integer i, ilo
       double precision value
-#if defined(SGI) || defined(DECOSF) || defined(WIN32)
+#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX64)
       double precision derfc
 #else
       double precision erfc
@@ -478,7 +478,7 @@ c
       ilo = mod(k,2)
 c
       if (ilo .eq. 0) then
-#if defined(SGI) || defined(DECOSF) || defined(WIN32)
+#if defined(SGI) || defined(DECOSF) || defined(WIN32) ||defined(LINUX64)
          value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $        derfc(sqrt(alpha)*r)
 #else
@@ -499,7 +499,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.16 2000-05-26 05:05:39 edo Exp $
+C$Id: grid_utils.F,v 1.17 2000-06-07 23:29:17 edo Exp $
 c
       implicit none
 c
