@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.176 1996-10-03 14:16:06 d3h325 Exp $
+# $Id: makefile.h,v 1.177 1996-10-06 20:11:33 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -663,13 +663,13 @@ endif
 
 ifeq ($(TARGET),SP1)
 #
-
     CORE_SUBDIRS_EXTRA = lapack
          FC = mpxlf
+# -F/u/d3g681/xlhpf.cfg:rjhxlf
          CC = mpcc
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 25 --no-print-directory
+  MAKEFLAGS = -j 2 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
@@ -684,29 +684,38 @@ ifeq ($(TARGET),SP1)
 # Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
 #
 #  LIBPATH += -L/sphome/harrison/peigs2.0
+
   CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack
+
+ifndef NOPIOFS
+# see inside chemio/elio
+  CORE_LIBS += -bI:/usr/lpp/piofs/include/piofs.exp
+endif
 
    USE_ESSL = YES
 ifdef USE_ESSL
    DEFINES += -DESSL
- CORE_LIBS += -lessl \
-	      -brename:.daxpy_,.daxpy \
-	      -brename:.dgesv_,.dgesv \
-	      -brename:.dcopy_,.dcopy \
-	      -brename:.ddot_,.ddot \
-	      -brename:.dgemm_,.dgemm \
-	      -brename:.dgemv_,.dgemv \
-	      -brename:.dgetrf_,.dgetrf \
-	      -brename:.dgetrs_,.dgetrs \
-	      -brename:.dscal_,.dscal \
-	      -brename:.dspsvx_,.dspsvx \
-	      -brename:.dpotrf_,.dpotrf \
-	      -brename:.dpotri_,.dpotri \
-	      -brename:.idamax_,.idamax 
+# renames not needed for 4.1.  Still are for 3.2.
+ CORE_LIBS += -lessl 
+#	      -brename:.daxpy_,.daxpy \
+#	      -brename:.dgesv_,.dgesv \
+#	      -brename:.dcopy_,.dcopy \
+#	      -brename:.ddot_,.ddot \
+#	      -brename:.dgemm_,.dgemm \
+#	      -brename:.dgemv_,.dgemv \
+#	      -brename:.dgetrf_,.dgetrf \
+#	      -brename:.dgetrs_,.dgetrs \
+#	      -brename:.dscal_,.dscal \
+#	      -brename:.dspsvx_,.dspsvx \
+#	      -brename:.dpotrf_,.dpotrf \
+#	      -brename:.dpotri_,.dpotri \
+#	      -brename:.idamax_,.idamax 
+
 else
     CORE_SUBDIRS_EXTRA += blas
              CORE_LIBS += -lblas
 endif
+
 
 # IMPORTANT:  These renames are necessary if you try to link against
 # a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
