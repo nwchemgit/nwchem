@@ -1,6 +1,6 @@
       double precision function util_random(iseed)
       implicit none
-c $Id: util_random.F,v 1.1 1997-04-16 18:31:11 d3j191 Exp $
+c $Id: util_random.F,v 1.2 1997-04-16 21:25:23 d3j191 Exp $
 c
 c routine to give a random number [0,1]
 c
@@ -13,11 +13,17 @@ c
 c #elif defined(KSR)
 c       integer*8 iseed
 c       util_random=random(iseed)
-#elif defined(SUN) || defined(SGI) || defined(SGITFP) || defined(SOLARIS)
+#elif defined(SGI) || defined(SGITFP)
       integer iseed
       real*8 rand
       external rand
       if(iseed.gt.0) call srand(dble(iseed))
+      util_random=rand()
+#elif defined(SUN) || defined(SOLARIS)
+      integer iseed
+      real*8 rand
+      external rand
+c      if(iseed.gt.0) call srand(dble(iseed))
       util_random=rand()
 c #elif defined(__PARAGON__) || defined(DELTA)
 c       integer iseed
