@@ -1,0 +1,65 @@
+% $Id: distribute.tex,v 1.1 1998-03-06 23:25:53 d3e129 Exp $
+
+\documentstyle[fullpage,12pt,fleqn]{article}
+\setlength{\parskip}{6pt}
+
+\begin{document}
+
+\begin{center}
+{\bf\Large NWCHEM Distribution Information}
+\end{center}
+
+\section{Automatic Builds at PNNL}
+Currently the automatic builds are run via cron jobs and work for the
+most part unless someone has checked in code that really doesn't
+work. The scripts simply build the code and do not do any regression on
+the binary they produce.  These scripts always keep older versions of
+the NWChem binaries.  We have started the development of some QA
+procedures and I will incorporate a subset of this QA to into the
+automatic builds so that we can have some small assurance that the new
+binary will work as planned.  Automatic builds are produced on a
+revolving schedule on various machines at PNNL.  The schedule
+information will eventually be a web page on the internal EMSL site
+but for now it is kept in a file located at:\\
+/msrc/proj/nwchem/build\_readme
+
+\subsection{AFS aware systems}
+
+The AFS @sys technology is used to distinguish between operating
+systems and the specific tags are used to distinguish between systems
+with the same operating system and different characteristics.  For
+example, IRIX 6.x runs on indigo's, origins, etc.  nwchem.R4.4k and
+nwchem.R10k exist in the same IRIX 6.x @sys directory.
+
+These machines have binaries located in three directories:
+\begin{itemize}
+\item The default release binary for general use is in :{\tt
+/msrc/proj/nwchem/bin}.  This directory is updated by hand when deemed
+necessary.
+\item The release tree build (usually weekly) is in:{\tt /msrc/proj/nwchem/binr}
+\item The development tree build (usually twice a week) is in:{\tt /msrc/proj/nwchem/bind}
+\end{itemize}
+
+I will eventually move this to DFS but I cannot get DFS credentials in
+a cron job yet.  
+
+\subsection{On NWMPP1}
+On NWMPP1 there is a user account ``nwchem'' where the automatic
+builds 
+
+\section{Off-site}
+\subsection{Current Procedure}
+Rick does it with each site.
+\subsection{Future}
+I want to put in place the technology that requires the user to fill
+out a form and then he will get the user agreement in the US mail.
+Once he returns the user agreement we send him to a page where he will
+bring up his registration information and enter a password of sorts
+and get to a page where he can down-load the binaries that are
+available.
+
+A similar mechanism could be used to distribute the tar file of the
+current release version of NWChem.
+
+\end{document}
+
