@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.6 2000-05-31 20:29:35 edo Exp $
+C $Id: hess_cphf.F,v 1.7 2000-06-01 20:17:09 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -245,9 +245,12 @@ c
 c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
 c dbl_mb(k_evals) and wxy is dbl_mb(k_exy)
-c   Benny is doing this routine.
 c
-
+      call hess_sxsy(dbl_mb(k_exy),dbl_mb(k_evals),g_rhs,
+     &    log_mb(k_act),ncent,nocc,hf_job)
+c
+c  Get rid of some memory
+c
       if (.not.ma_pop_stack(l_evals)) call errquit
      &  ('hess_cphf: cannot pop stack l_evals',555)
 c
