@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.41 1998-01-14 09:58:30 d3e129 Exp $
+# $Id: makelib.h,v 1.42 1999-02-01 16:43:23 d3j191 Exp $
 
 #
 # A makefile for a library should
@@ -194,6 +194,7 @@ MAKESUBDIRS = @for dir in $(SUBDIRS); do \
 			$(MAKE)	-C $$dir $@ || exit 1 ; done
 
 ifdef SUBDIRS
+ifndef OPTIMIZE
 
 $(LIBRARY_PATH):	subdirs
 
@@ -203,6 +204,7 @@ subdirs:
 		echo Making all in $$dir; \
 		$(MAKE)	 -C $$dir || exit 1 ;  \
         done
+endif
 endif
 
 
