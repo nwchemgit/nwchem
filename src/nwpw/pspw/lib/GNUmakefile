@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:23:46 edo Exp $
+# $Id: GNUmakefile,v 1.2 2001-08-30 01:56:20 bylaska Exp $
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
- SUBDIRS = Parallel D3dB psi electron ion-psp lattice ke coulomb exchange-correlation control io utilities thermostats sic
+ SUBDIRS = Parallel D3dB psi electron ion-psp lattice ke coulomb exchange-correlation control utilities thermostats sic
 
  OBJ_OPTIMIZE = \
 	      	dsum.o \
