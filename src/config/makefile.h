@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.425 2003-10-06 18:39:55 edo Exp $
+# $Id: makefile.h,v 1.426 2003-10-06 23:52:44 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1168,7 +1168,7 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
-   EXTRA_LIBS +=  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
+   EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl
 endif
 
   DEFINES = -DLINUX -DPARALLEL_DIAG
@@ -1253,8 +1253,8 @@ ifeq ($(LINUXCPU),x86)
  ifeq ($(FC),ifort)
      _FC=ifc
  endif
-  FOPTIONS   =  -align    -mp1 -w -g -vec_report3
   ifeq ($(_FC),ifc)
+  FOPTIONS   =  -align    -mp1 -w -g -vec_report3
     _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8.0/  {print "Y"}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
@@ -1319,7 +1319,7 @@ ifeq ($(LINUXCPU),x86)
       ifeq ($(_CPU),i786)
         EXTRA_LIBS +=  -lsvml
       endif
-#      EXTRA_LIBS +=  -static
+      EXTRA_LIBS +=  #-static
     else
       EXTRA_LIBS += -lm
     endif
@@ -1687,9 +1687,7 @@ endif
 # lower level libs used by communication libraries 
  
 #the new GA uses ARMCI library
-ifndef OLD_GA
       CORE_LIBS += -larmci
-endif
 
 
 ifdef COMM_LIBS 
