@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.18 2004-08-05 14:47:26 edo Exp $*/
+/*$Id: rtdb.c,v 1.19 2004-08-05 14:57:21 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -103,7 +103,7 @@ int rtdb_open(const char *filename, const char *mode, int *handle)
   return status;
 }
 
-int rtdb_copy(const int handle, const char *suffix)
+int rtdb_clone(const int handle, const char *suffix)
 {
   int status;
 #ifdef GAGROUPS
@@ -114,12 +114,12 @@ int rtdb_copy(const int handle, const char *suffix)
 
   if (!verify_parallel_access()) return 0;
   if (handle < 0 || handle >= MAX_RTDB) {
-    (void) fprintf(stderr, "rtdb_copy: handle out of range %d\n", handle);
+    (void) fprintf(stderr, "rtdb_clone: handle out of range %d\n", handle);
     (void) fflush(stderr);
     return 0;
   }
   if (parallel_mode != par_mode[handle]) {
-    (void) fprintf(stderr, "rtdb_copy: mode of open and copy mismatch\n");
+    (void) fprintf(stderr, "rtdb_clone: mode of open and copy mismatch\n");
     (void) fflush(stderr);
     return 0;
   }

@@ -24,7 +24,7 @@ c     character *(*) filename   [input]
 c     character *(*) mode       [input]
 c     integer handle            [output]
 c
-c     logical function rtdb_copy(handle, suffix)
+c     logical function rtdb_clone(handle, suffix)
 c     integer handle            [input]
 c     character*(*) suffix        [input]
 c
@@ -87,11 +87,11 @@ c     integer handle            [input]
 c     character *(*) name       [input]
 c
       logical rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
-     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, rtdb_copy,
+     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, rtdb_clone,
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
-C$Id: rtdb.fh,v 1.5 2004-08-04 16:45:46 edo Exp $
+C$Id: rtdb.fh,v 1.6 2004-08-05 14:57:21 edo Exp $
       external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
-     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, rtdb_copy,
+     $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, rtdb_clone,
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel
 c
 c     Check these values against rtdb_f2c.c

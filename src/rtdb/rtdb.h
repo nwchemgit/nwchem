@@ -1,4 +1,4 @@
-/*$Id: rtdb.h,v 1.5 2004-08-04 16:45:46 edo Exp $*/
+/*$Id: rtdb.h,v 1.6 2004-08-05 14:57:21 edo Exp $*/
 #ifndef RTDB_H
 #define RTDB_H
 
@@ -29,7 +29,7 @@
 
 
 
-  int rtdb_copy(const int handle, const char *suffix)
+  int rtdb_clone(const int handle, const char *suffix)
 
     Copy the data base file
 
@@ -141,7 +141,7 @@
 */
 
 extern int rtdb_open(const char *, const char *, int *);
-extern int rtdb_copy(const int, const char *);
+extern int rtdb_clone(const int, const char *);
 extern int rtdb_close(const int, const char *);
 extern int rtdb_put(const int, const char *, const int, const int, 
 		    const void *);

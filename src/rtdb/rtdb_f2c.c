@@ -1,4 +1,4 @@
-/*$Id: rtdb_f2c.c,v 1.20 2004-08-04 16:45:46 edo Exp $*/
+/*$Id: rtdb_f2c.c,v 1.21 2004-08-05 14:57:21 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -133,21 +133,21 @@ Logical FATR rtdb_open_(const char *filename, const char *mode, Integer *handle,
   }
 }
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
-Logical FATR rtdb_copy_(const Integer *handle, _fcd suffix)
+Logical FATR rtdb_clone_(const Integer *handle, _fcd suffix)
 {
   int mlen = _fcdlen(suffix);
 #else
-Logical FATR rtdb_copy_(const Integer *handle, const char *suffix, const int mlen)
+Logical FATR rtdb_clone_(const Integer *handle, const char *suffix, const int mlen)
 {
 #endif
   char mbuf[256];
   int hbuf = (int) *handle;
 
   if (!fortchar_to_string(suffix, mlen, mbuf, sizeof(mbuf))) {
-    (void) fprintf(stderr, "rtdb_copy: mbuf is too small, need=%d\n", mlen);
+    (void) fprintf(stderr, "rtdb_clone: mbuf is too small, need=%d\n", mlen);
     return FORTRAN_FALSE;
   }
- if (rtdb_copy(hbuf, mbuf))
+ if (rtdb_clone(hbuf, mbuf))
     return FORTRAN_TRUE;
  else
     return FORTRAN_FALSE;
