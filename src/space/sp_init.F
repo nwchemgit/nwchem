@@ -11,8 +11,8 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      logical sp_diffbb
-      external sp_diffbb
+      logical sp_rdrest,sp_diffbb
+      external sp_rdrest,sp_diffbb
 c
       integer lfntop,lfnrst
       character*255 filtop,filrst
@@ -21,7 +21,7 @@ c
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt
-      logical lpol,lfre
+      logical lpol,lfre,ignore
 c
       integer i,j
 c
@@ -67,6 +67,8 @@ c
 c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng)))
      + call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
+c
+      ignore=sp_rdrest(lfnrst,filrst)
 c
       lenscr=3*max(mwm*mwa,msa)
       if(.not.ma_push_get(mt_dbl,lenscr,'x',l_x,i_x))
@@ -1624,5 +1626,174 @@ c
  1000 format(/,' SPACIAL DECOMPOSITION')
       endif
 c
+      return
+      end
+      subroutine sp_wtrest(lfn)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfn
+c
+      integer i_ltmp,l_ltmp
+c
+      if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
+     + call errquit('Failed to allocate memory for ltmp',0)
+      call sp_wrest(lfn,int_mb(i_bb),int_mb(i_ltmp),mbbl+1)
+      if(.not.ma_pop_stack(l_ltmp))
+     + call errquit('Failed to deallocate ltmp',0)
+c
+      return
+      end
+      subroutine sp_wrest(lfn,lbbl,ltemp,mdim)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "msgids.fh"
+c
+      integer lfn,mdim
+      integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
+c
+      integer i,j,k
+c
+      if(me.eq.0) then
+      write(lfn,1000)
+ 1000 format('restart space')
+      write(lfn,1001) np,mbbl
+ 1001 format(2i7)
+      endif
+c
+      do 1 i=1,np
+      if(i.eq.me+1) then
+      do 2 k=1,mbb2
+      ltemp(1,k)=0
+      do 3 j=1,nbbl
+      ltemp(j+1,k)=lbbl(j,k)
+    3 continue
+    2 continue
+      ltemp(1,1)=nbbl
+      else
+      do 4 k=1,mdim
+      do 5 j=1,mbbl
+      ltemp(j,k)=0
+    5 continue
+    4 continue
+      endif
+c
+      call ga_igop(mrg_d04,ltemp,mbbl*mdim,'+')
+c
+      if(me.eq.0) then
+      write(lfn,1002) i-1,ltemp(1,1)
+ 1002 format(2i7)
+      do 6 j=1,ltemp(1,1)
+      write(lfn,1003) (ltemp(j+1,k),k=1,mbb2)
+ 1003 format(10i7)
+    6 continue
+      endif
+c
+    1 continue
+c
+      return
+      end
+      logical function sp_rdrest(lfn,fil)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+c
+      integer lfn
+      character*255 fil
+c
+      logical sp_rrest
+      external sp_rrest
+c
+      integer i_ltmp,l_ltmp
+c
+      if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
+     + call errquit('Failed to allocate memory for ltmp',0)
+      sp_rdrest=sp_rrest(lfn,fil,int_mb(i_bb),int_mb(i_ltmp),mbbl+1)
+      if(.not.ma_pop_stack(l_ltmp))
+     + call errquit('Failed to deallocate ltmp',0)
+c
+      return
+      end
+      logical function sp_rrest(lfn,fil,lbbl,ltemp,mdim)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer lfn,mdim
+      character*255 fil
+      integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
+c
+      integer i,j,k,node,npp,nbl,mbblp,nbytes
+      character*13 string
+c
+      if(me.eq.0) then
+      open(unit=lfn,file=fil(1:index(fil,' ')-1),
+     + status='old',form='formatted',err=9999)
+      rewind(lfn)
+
+    1 continue
+      npp=0
+      read(lfn,1000,end=9997) string
+ 1000 format(a13)
+      if(string.ne.'restart space') goto 1
+      read(lfn,1001) npp,mbblp
+ 1001 format(2i7)
+      if(mbbl.ne.mbblp) npp=0
+ 9997 continue
+      do 2 i=1,mbb2
+      ltemp(1,i)=0
+    2 continue
+      endif
+c
+      nbytes=ma_sizeof(mt_int,1,mt_byte)
+      call ga_brdcst(mrg_d23,npp,nbytes,0)
+c
+      if(np.ne.npp) goto 9998
+c
+      nbytes=mdim*mbb2*ma_sizeof(mt_int,1,mt_byte)
+c
+      do 3 i=1,np
+c
+      if(me.eq.0) then
+      read(lfn,1002) node,nbl
+ 1002 format(2i7)
+      ltemp(1,1)=node
+      ltemp(1,2)=nbl
+      do 4 j=1,nbl
+      read(lfn,1003) (ltemp(j+1,k),k=1,mbb2)
+ 1003 format(10i7)
+    4 continue
+      endif
+c
+      call ga_brdcst(mrg_d23,ltemp,nbytes,0)
+c
+      if(ltemp(1,1).eq.me) then
+      nbbl=ltemp(1,2)
+      do 5 k=1,mbb2
+      do 6 j=1,nbbl
+      lbbl(j,k)=ltemp(j+1,k)
+    6 continue
+    5 continue
+      endif
+c
+    3 continue
+c
+      sp_rrest=.true.
+      return
+ 9998 continue
+      sp_rrest=.false.
+      return
+ 9999 continue
+      call errquit('Failed to open restart file',0)
       return
       end
