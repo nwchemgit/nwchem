@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.8 1998-11-11 18:19:00 bernhold Exp $
+C     $Id: mk_l.F,v 1.9 1998-12-08 16:47:06 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -124,6 +124,10 @@ C
          Call GA_Scale(g_L1(ISpin), -1.0d0) ! CHEATING!
          Call GA_Scale(g_L2(ISpin), -1.0d0) ! CHEATING!
 C
+         Write (LuOut, *) 'L1 patches as computed...'
+         Call GA_Print_Patch(g_L1(ISpin), 1, C, 1, A, 1)
+         Call GA_Print_Patch(g_L1(ISpin), 1, A, 1, C, 1)
+C
       EndDo ! ISpin
 C
 C     ************************
@@ -145,6 +149,11 @@ C
      $                              g_P2(ISpin), C+1, C+A, 1, C)
 C           CHEATING!!!! minus sign on scale factor below
             Call GA_Scale_Patch(g_P2(ISpin), C+1, C+A, 1, C, -0.5d0 )
+C
+            Write (LuOut, *) 'L1 patches going into density...'
+            Call GA_Print_Patch(g_L1(ISpin), 1, C, 1, A, 1)
+            Call GA_Print_Patch(g_L1(ISpin), 1, A, 1, C, 1)
+            Call GA_Print_Patch(g_P2(ISpin), 1+C, C+A, 1, C, 1)
 C
             If ( Util_Print('partial p2', Print_Debug) ) then
                Write (6, *) 'P(2) w/ L1 copied in but not scaled...'
@@ -311,25 +320,39 @@ C        assembled.
 C
 C        W2(mi) <-- L1(mi) 
 C
-                           ! + on 0.5d0 is CHEATING!
+                                ! + on 0.5d0 is CHEATING!
          Call GA_Add_Patch(+0.5d0, g_L1(ISpin), 1, C+A, 1,   A,
      $                      1.0d0, g_W2(ISpin), 1, C+A, C+1, C+A,
      $                             g_W2(ISpin), 1, C+A, C+1, C+A)
+         Call GA_Scale_Patch(      g_W2(ISpin),   1, C,   C+1, C+A,
+     $        0.5d0)            ! 0.5d0 is CHEATING!
+         Call GA_Copy_Patch('T',   g_W2(ISpin),   1, C,   C+1, C+A,
+     $                             g_W2(ISpin), C+1, C+A,   1, C    )
 C
 C        W2(ap) <-- L2(ap) (also do transpose)
 C
-                           ! - on 0.5d0 is CHEATING!
-         Call GA_Add_Patch(-0.5d0, g_L2(ISpin), 1,     V,     1, C+A+V,
-     $                      1.0d0, g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
-     $                             g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V)
-         Call GA_Copy_Patch('T',   g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
-     $                             g_W2(ISpin), 1, C+A+V, C+A+1, C+A+V )
+         Call GA_Copy_Patch('T',  g_L2(ISpin), 1,     V,     1, C+A+V,
+     $                            g_W2(ISpin), 1, C+A+V, C+A+1, C+A+V)
+         Call GA_Scale_Patch(     g_W2(ISpin), 1, C+A+V, C+A+1, C+A+V,
+     $        -0.5d0) ! - on 0.5d0 is CHEATING!
+         Call GA_Copy_Patch('T',   g_W2(ISpin), 1, C+A, C+A+1, C+A+V,
+     $                             g_W2(ISpin), C+A+1, C+A+V, 1, C+A)
+C
+c$$$
+c$$$                           ! - on 0.5d0 is CHEATING!
+c$$$         Call GA_Add_Patch(-0.5d0, g_L2(ISpin), 1,     V,     1, C+A+V,
+c$$$     $                      1.0d0, g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V,
+c$$$     $                             g_W2(ISpin), C+A+1, C+A+V, 1, C+A+V)
+c$$$         Write (LuOut, *) 'W2 w/ L2 before copy_patch...'
+c$$$         Call GA_Print(g_W2(ISpin) )
 C
 C
 C        Print results if requested
 C
-         If ( Util_Print('partial w2', Print_Debug) )
-     $        Call GA_Print( g_W2(ISpin) )
+         If ( Util_Print('partial w2', Print_Debug) ) then
+            Write (LuOut, '(A)') 'W(2) after L contributions...'
+            Call GA_Print( g_W2(ISpin) )
+         EndIf
 C     
       EndDo                     ! ISpin
 C

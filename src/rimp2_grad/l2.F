@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l2 -- Compute RI-MP2 L2 Lagrangian term
 C
 C REVISION
-C     $Id: l2.F,v 1.4 1998-11-11 18:18:58 bernhold Exp $
+C     $Id: l2.F,v 1.5 1998-12-08 16:47:03 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L2(C, A, V, NFit, D_Int_ai, d_Int_ij, D_Gam,
@@ -116,18 +116,18 @@ C
          Write (6, *) 'L2: ILo, IHi, A, IBlock = ', ILo, IHi,
      $        A, IBlock
 C
-C        Assemble Int(pi,D) from Int(ai,D) and Int(ji,D) using
+C        Assemble Int(pi,D) from Int(ai,D) and Int(mi,D) using
 C        the g_Gam GA as scratch space.
 C
 C        First, read Int(ai,D) into g_Gam
 C
          If ( DRA_Read_Section(.FALSE.,
      $        G_Gam, 1,                 NI*V,     1, NFit,
-     $        D_Int_ai, (ILo-1)*V+1, (IHi)*V, 1, NFit, ReqI) .ne. 0)
+     $        D_Int_ai, (C+ILo-1)*V+1, (C+IHi)*V, 1, NFit, ReqI) .ne. 0)
      $        Call ErrQuit('RIMP2_L2: Error reading integrals', ILo)
          If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
      $        'RIMP2_L2: Error from DRA_Wait on integrals', 1)
-         Write (6, *) 'L2: Read ai from ',  (ILo-1)*V+1, IHi*V,
+         Write (6, *) 'L2: Read ai from ',  (C+ILo-1)*V+1, (C+IHi)*V,
      $        ' into ', 1, NI*V
 C
 C        Now copy blockwise into proper locations in g_Int

@@ -1,0 +1,61 @@
+	   ANALYSIS OF L AND W2 IN THE SEMI-DIRECT MP2 CODE
+
+ROUTINE					OBJECTS				LINE
+-------------------------------------------------------------------------------
+mp2_energy				lai  liy	wij  wab  wai
+    mp2_grad_uhf (mp2_grad_doit.F)	lai  liy	wij  wab  wai   403
+        mp2_wijab_uhf					wij  wab
+        mp2_lai_uhf			lai  liy	          wai
+--->        GA_PRINT			     liy
+--->GA_PRINT				lai  liy	wij  wab  wai
+    mp2_make_piy			     liy			522
+    mp2_make_wiy (mp2_make_piy.F)	     liy	wij		526
+--->GA_PRINT				lai		wij
+    mp2_lai_fock_uhf			lai				547
+--->GA_PRINT				lai
+    mp2_make_cphf_rhs			lai				573
+    mp2_wij_fock_uhf (mp2_lai_fock_uhf)			wij		632
+--->GA_PRINT						wij
+    mp2_make_tot_wdens					wij  wab  wai	659
+
+Matrix dimensions
+	lai	C+A	V
+	liy	A	C
+	wij	C+A	C+A
+	wab	V	V
+	wai	C+A	V
+
+
+mp2_energy				
+    mp2_grad_uhf (mp2_grad_doit.F)	
+        mp2_wijab_uhf			create wij, wab from amplitudes
+        mp2_lai_uhf			lai3(jc) <-- t(jb,ia) (cb|ia)	L1
+					lai1(kb) <-- (ia|jk) t(jb,ia)	L2
+					lai1(yb) <-- (ia|jy) t(jb,ia)	L2
+					liy3(jy) <-- t(jb,ia) (yb|ia)	L1
+					
+					if C lai3 <-- liy3
+
+					if C liy <-- liy3
+					lai <-- lai3 + lai1
+					wai <-- lai1
+
+--->        GA_PRINT			     liy
+--->GA_PRINT				lai  liy	wij  wab  wai
+
+    mp2_make_piy			piy <-- 0.5 liy (ei-ey)^-1 (liy = L1)
+    mp2_make_wiy (mp2_make_piy.F)	wiy <-- 0.5 liy		   (liy = L1)
+
+--->GA_PRINT				lai		wij
+
+    mp2_lai_fock_uhf			lai <-- fock build
+
+--->GA_PRINT				lai
+
+    mp2_make_cphf_rhs			
+    mp2_wij_fock_uhf (mp2_lai_fock_uhf)	wij <-- fock build
+
+--->GA_PRINT						wij
+
+    mp2_make_tot_wdens			w <-- wij + wab + wai
+					w(pq) <-- -e(p) p(pq) (ij, ai, ab)

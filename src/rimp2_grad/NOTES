@@ -5,6 +5,8 @@ General
 o Approximations other than V, especially assymetric, not well tested.
 o useful test technique: jobs with number of virtuals less than number
   of occupieds.
+o Are all integrals produced for gradients needed? (ap|D) integrals
+  maybe doesn't need (ay|D), for example?
 
 driver_xf:
 o No dynamic block sizing
@@ -22,10 +24,13 @@ o Don't pass in both NFit and FitBas
 t_stats:
 o t statistics should get only unique indices
 
-driver_g:
+driver_p & driver_g:
 o l2 uses ga_matmul_patch and is therefore not scalable
 o l2(ab) block is possibly transposed?  Does it matter?
 o density contributions to W2 are backwards from derivation????
+o p2am.F requires only Vx(C+A) block of L.  Irrelevant AxC block added
+  in mk_l.F.  Probably can compute less of L1-4, but CHECK NEEDS FOR
+  P2(iy) and W2 (all in mk_l.F)
 
 Helpful debugging tips:
 o Run jobs for which number of number of virtuals < occupied

@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.16 1998-11-11 18:19:02 bernhold Exp $
+C$Id: rimp2g.F,v 1.17 1998-12-08 16:47:19 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -265,9 +265,9 @@ C     **********************************************
 C
       If ( PrInfo) then
 C
-         Write (LuOut, '(A)') 
-         Call Banner(LuOut, 'RI-MP2 Calculation Information', '-',
-     $      .TRUE., .TRUE., .FALSE.)
+c$$$         Write (LuOut, '(A)') 
+c$$$         Call Banner(LuOut, 'RI-MP2 Calculation Information', '-',
+c$$$     $      .TRUE., .TRUE., .FALSE.)
          If ( DoGrad ) then
             Write (LuOut, 8505) 'Calculation Type:', 'Energy + Gradient'
          ElseIf ( DoDens .AND. .NOT. DoGrad ) then

@@ -1,0 +1,32 @@
+Do we really need all the bits of L and its contributors that we
+currently compute?
+
+Current matrix dimensions
+	L	C+A+V	C+A+V		driver_p	reduce to V x C+A
+	L1	C+A+V	A		mk_l
+	L2	V	C+A+V		mk_l
+	L34	V	C+A		mk_l
+
+Uses
+	L(V, C+A)	--> P2(V, C+A) & trans		p2am	okay
+	L1(C, A)	--> P2(A, C)			mk_l	okay
+
+	L1(C, A)	--> L(A, C)			mk_l	UNUSED
+	L1(V, A)	--> L(V, A)			mk_l	okay
+
+	L2(V, C)	--> L(V, C)			mk_l	consolidate 1
+	L2(V, A)	--> L(V, A)			mk_l	consolidate 1
+
+	L34(V, C)	--> L(V, C)			mk_l	consolidate 2
+	L34(V, A)	--> L(V, A)			mk_l	consolidate 2
+
+	L1(C+A, A)	--> W2(C+A, A)			mk_l
+	L2(V, C+A+V)	--> W2(V, C+A+V)		mk_l
+
+Requirements for L, P2
+	L(V, C+A)	size too large
+	L1(C+V, A)	size okay (what about A,A?)
+	L2(V, C+A)	size too large
+	L34(V, C+A)	size okay
+
+Note: Need proper W2 before we can finally figure out L needs.

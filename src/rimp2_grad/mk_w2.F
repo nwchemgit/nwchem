@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_W2 -- Complete formation of W2
 C
 C REVISION
-C     $Id: mk_w2.F,v 1.3 1998-10-06 18:36:38 bernhold Exp $
+C     $Id: mk_w2.F,v 1.4 1998-12-08 16:47:13 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
@@ -59,6 +59,10 @@ C
      $     MaxSpin)
 C
       Me = GA_NodeID()
+c$$$C
+c$$$      Do ISpin = 1, TopSpin
+c$$$         Call GA_Zero(g_W2(ISpin) )
+c$$$      EndDo
 C
 C     *****************************************
 C     * W2(ij) is computed using a Fock build *
@@ -156,12 +160,12 @@ C
      $                           
          Call GA_Copy_Patch('T', g_Tmp, C+A+1, C+A+V, 1,     C+A,
      $                           g_Tmp, 1,     C+A,   C+A+1, C+A+V )
-C
-C        W2(iy) <-- W2(yi) ! CHEATING! this is transpose of what it should be
-C
-         If ( C .gt. 0) Call GA_Copy_Patch('T', g_Tmp, 1, C, C+1, C+A,
-     $                                          g_Tmp, C+1, C+A, 1, C)
-     $                                          
+c$$$C
+c$$$C        W2(iy) <-- W2(yi) ! CHEATING! this is transpose of what it should be
+c$$$C
+c$$$         If ( C .gt. 0) Call GA_Copy_Patch('T', g_Tmp, 1, C, C+1, C+A,
+c$$$     $                                          g_Tmp, C+1, C+A, 1, C)
+c$$$     $                                          
 c$$$         If ( C .gt. 0) Call GA_Copy_Patch('T', g_Tmp, C+1, C+A, 1, C,
 c$$$     $                                          g_Tmp, 1, C, C+1, C+A)
 C
