@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.37 2003-02-18 02:02:52 bylaska Exp $
+* $Id: paw_sd.F,v 1.38 2003-02-19 19:08:44 bylaska Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -294,7 +294,6 @@
       call paw_density_solve()
       call paw_xc_solve()
 
-      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
       !**** Ortho Check ****
       do ms=1,ispin
         deltae=paw_psi_CheckOrtho(npack1,ne(ms),
@@ -323,6 +322,8 @@
         end if
      
       end do
+      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
+
 
 *                |**************************|
 ******************   summary of input data  **********************
@@ -507,7 +508,7 @@
       end do
 
       if (taskid.eq.MASTER) then
-         write(17,1320) en(1),en(ispin)
+         write(17,1321) en(1)+en(ispin)
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
@@ -612,7 +613,7 @@
 
 
          write(6,*)
-         write(6,1320) en(1),en(ispin),' (real space)'
+         write(6,1321) en(1)+en(ispin),' (real space)'
 
          write(6,1430) E(1),E(1)/ion_nion()
          write(6,1440) E(2),E(2)/n2(ispin)
@@ -823,6 +824,7 @@
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
+ 1321 FORMAT(' total charge of system:',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)

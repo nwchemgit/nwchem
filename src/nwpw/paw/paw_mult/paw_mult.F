@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult.F,v 1.5 2003-02-18 02:15:40 bylaska Exp $
+* $Id: paw_mult.F,v 1.6 2003-02-19 19:08:30 bylaska Exp $
 *
 
 
@@ -27,17 +27,18 @@
       integer ia,ii,jj
       integer l,m
       integer Gx(2),Gy(2),Gz(2),Ylm(2)
-      real*8  scal,gg,fourpi
+      real*8  scal,gg,fourpi,omega
       complex*16 itol,cscal
     
       !**** external functions ****
       integer  control_ncut,G_indx
-      real*8   control_rcut,double_factorial
+      real*8   control_rcut,double_factorial,lattice_omega
       external control_ncut,G_indx
-      external control_rcut,double_factorial
+      external control_rcut,double_factorial,lattice_omega
 
 
       fourpi = 16.0d0*datan(1.0d0)
+      omega = lattice_omega()
 
       !*** allocate paw mult memory from heap ***
       call D3dB_nfft3d(1,nfft3d)
@@ -133,9 +134,11 @@
      >      + dbl_mb(Gz(1)+k-1)**2
          scal = 0.25d0 * sigma_smooth**2
          dbl_mb(gk_smooth(1)+k-1) = fourpi*dexp(-scal*gg)
+     >                             /omega
          do ia=1,nkatm
            scal = 0.25d0 * paw_basis_sigma(ia)**2
            dbl_mb(gk(1)+k-1+(ia-1)*npack0) = fourpi*dexp(-scal*gg)
+     >                                      /omega
          end do !*ia*
       end do !*k*
 
@@ -186,15 +189,15 @@
 !
 !       Name: paw_mult_dn_cmp_get
 !
-!       Purpose: returns dn_cmp_smooth and dn_cmp_diff
+!       Purpose: returns dn_cmp and dn_cmp_smooth 
 !
 !       Created:        2/16/2003
 !**************************************************
-      subroutine paw_mult_dn_cmp_get(dn_cmp_smooth,
-     >                               dn_cmp_diff)
+      subroutine paw_mult_dn_cmp_get(dn_cmp,
+     >                               dn_cmp_smooth)
       implicit none
+      complex*16 dn_cmp(*)
       complex*16 dn_cmp_smooth(*)
-      complex*16 dn_cmp_diff(*)
 
 #include "mafdecls.fh"
 #include "paw_mult_data.fh"
@@ -220,8 +223,8 @@
      >  'paw_mult_dn_cmp_get: out of stack memory',0)
 
 
+      call dcopy(2*npack0,0.0d0,0,dn_cmp,1)
       call dcopy(2*npack0,0.0d0,0,dn_cmp_smooth,1)
-      call dcopy(2*npack0,0.0d0,0,dn_cmp_diff,1)
       sum = 0.0d0
       nion = ion_nion()
       do ii=1,nion
@@ -271,17 +274,11 @@
      >                    dcpl_mb(tmp(1)))
          call Pack_cc_Sum(0,
      >                    dcpl_mb(tmp(1)),
-     >                    dn_cmp_diff,
-     >                    dn_cmp_diff)
+     >                    dn_cmp,
+     >                    dn_cmp)
 
 
       end do !*ii*
-
-      !*** ncmp_diff = ncmp_diff-ncmp_smooth ***
-      call Pack_cc_Sub(0,
-     >                 dn_cmp_diff,
-     >                 dn_cmp_smooth,
-     >                 dn_cmp_diff)
 
       write(*,*) "Qtotal:",sum*dsqrt(16.0d0*datan(1.0d0))
       sum = 2*dbl_mb(paw_q00(1)) + dbl_mb(paw_q00(1)+1)
@@ -292,6 +289,139 @@
       ok = ok.and.MA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit('paw_mult_dn_cmp_get: error popping stack',1)
+
+      return
+      end
+
+!**************************************************
+!
+!       Name: paw_mult_coeff_set
+!
+!       Purpose: 
+!
+!       Created:        2/16/2003
+!**************************************************
+      subroutine paw_mult_coeff_set(vh,vcmp)
+      implicit none
+      complex*16 vh(*)
+      complex*16 vcmp(*)
+
+#include "mafdecls.fh"
+#include "paw_mult_data.fh"
+#include "paw_comp_charge_data.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+
+      !**** local variables ***
+      logical ok
+      integer ia,ii,jj,kk,l,m,nion,npack0,mult_l,mabs
+      integer exi(2),QYlm(2),gls(2),gl(2),t_mult(2)
+      real*8  isgn,omega
+      complex*16 csum1,csum2
+
+      !**** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      omega = lattice_omega()
+
+      !**** allocate stack memory ****
+      call Pack_npack(0,npack0)
+      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,'gl',gl(2),gl(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,'gls',gls(2),gls(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,v_mult(3),
+     >                 't_mult',t_mult(2),t_mult(1))
+      if (.not.ok)
+     > call errquit(
+     >  'paw_mult_coeff_set: out of stack memory',0)
+
+      nion = ion_nion()
+      do ii=1,nion
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         ia = ion_katm(ii)
+
+         mult_l   = paw_basis_mult_l(ia)
+         jj       = int_mb(i_v_mult(1) + ii - 1) 
+         kk       = 0
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
+         do l=0,mult_l
+         do m=-l,l
+           call Pack_cc_Mul(0,
+     >                    dcpl_mb(exi(1)),
+     >                    dcpl_mb(g_lm(1)+(kk)*npack0),
+     >                    dcpl_mb(QYlm(1)))
+           call Pack_tc_Mul(0,
+     >                    dbl_mb(gk(1)+(ia-1)*npack0),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(gl(1)))
+           call Pack_tc_Mul(0,
+     >                    dbl_mb(gk_smooth(1)),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(gls(1)))
+
+           call Pack_cc_izdot(0,
+     >                        dcpl_mb(gl(1)),
+     >                        vh,
+     >                        csum1)
+           call Pack_cc_izdot(0,
+     >                        dcpl_mb(gls(1)),
+     >                        vcmp,
+     >                        csum2)
+
+           !**** v_mult(l,m,ii) = <g_lm^a|vh> + <tg_lm^a|vcmp> ****
+           dcpl_mb(t_mult(1)+jj) = (csum1 + csum2)*omega
+
+           jj = jj + 1
+           kk = kk + 1
+         end do
+         end do
+      end do !*ii*
+
+
+      !**** unscramble multipole coefficients ****
+      write(*,*)
+      write(*,*)
+      do ii=1,nion
+         ia = ion_katm(ii)
+         mult_l   = paw_basis_mult_l(ia)
+         jj       = int_mb(i_v_mult(1) + ii - 1) 
+         do l=0,mult_l
+         do m=-l,l
+            mabs = abs(m)
+            if (mod(mabs,2).eq.0) then
+              isgn = 1.0d0
+            else
+              isgn = -1.0d0
+            end if
+           kk = jj - 2*m
+           dcpl_mb(v_mult(1)+jj) = 0.5d0*(dcpl_mb(t_mult(1)+jj) 
+     >                           + isgn*dconjg(dcpl_mb(t_mult(1)+kk)))
+
+           write(*,*) "t_mult:",ii,l,m,dcpl_mb(t_mult(1)+jj)
+           jj = jj + 1
+         end do
+         end do
+      end do
+      call D3dB_Vector_SumAll(2*v_mult(3),dcpl_mb(v_mult(1)))
+      write(*,*)
+      write(*,*)
+
+
+      !**** deallocate stack memory ****
+      ok =        MA_pop_stack(t_mult(2))
+      ok = ok.and.MA_pop_stack(gls(2))
+      ok = ok.and.MA_pop_stack(gl(2))
+      ok = ok.and.MA_pop_stack(QYlm(2))
+      ok = ok.and.MA_pop_stack(exi(2))
+      if (.not.ok)
+     >  call errquit('paw_mult_coeff_set: error popping stack',1)
 
       return
       end

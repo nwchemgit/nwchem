@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.14 2003-02-18 02:02:52 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.15 2003-02-19 19:08:44 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -184,12 +184,6 @@
         call paw_ovlp_coeff_set(psi1)
         call paw_ovlp_weights_set()
         call paw_comp_charge_update()
-        call paw_mult_dn_cmp_get(dn_cmp_smooth,
-     >                           dcpl_mb(tmp1(1)))
-        call Pack_c_unpack(0,dn_cmp_smooth)
-        call D3dB_cr_fft3b(1,dn_cmp_smooth)
-        call D3dB_r_SMul(1,scal2,dn_cmp_smooth,dn_cmp_smooth)
-        call D3dB_r_Zero_Ends(1,dn_cmp_smooth)
 
 
 *       **********************************
@@ -235,11 +229,35 @@
 *       ************************************
 *       **** generate coulomb potential ****
 *       ************************************
-        if (control_version().eq.3) 
-     >     call coulomb_v(dcpl_mb(dng(1)),dcpl_mb(vc(1)))
+        call paw_mult_dn_cmp_get(dcpl_mb(tmp1(1)),
+     >                           dn_cmp_smooth)
 
-        if (control_version().eq.4) 
-     >     call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+        if (control_version().eq.3)  then
+           call Pack_cc_Sum(0,
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(dng(1)),
+     >                      dcpl_mb(dng(1))) !** dng = dng+dn_cmp_smooth **
+           call Pack_cc_Sub(0,
+     >                      dcpl_mb(tmp1(1)),
+     >                      dn_cmp_smooth,
+     >                      dcpl_mb(tmp2(1))) !** tmp1 = dn_cmp - dn_cmp_smooth
+
+           call coulomb_v(dcpl_mb(dng(1)), dcpl_mb(vc(1)))   !*** vh   ***
+           call coulomb_v(dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1))) !*** vcmp ***
+           call paw_mult_coeff_set(dcpl_mb(vc(1)),dcpl_mb(tmp1(1)))
+           call Pack_cc_Sum(0,
+     >                      dcpl_mb(vc(1)),
+     >                      dcpl_mb(tmp1(1)),
+     >                      dcpl_mb(vc(1)))
+                   
+        end if
+
+        if (control_version().eq.4) then
+           write(*,*) "Multipole interaction not done for aperiodic"
+           call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+        end if
+
+
 
 *       *************************************************
 *       **** generate exchange-correlation potential ****
@@ -457,6 +475,10 @@ c     get paw atom energies
       write(*,*) "paw atom vloc energy",paw_evloc_atom 
       write(*,*) "paw atom ion energy",paw_eion_atom 
       write(*,*) "paw atom core energy",paw_ecore_atom 
+
+      call Pack_c_unpack(0,dn_cmp_smooth)
+      call D3dB_cr_fft3b(1,dn_cmp_smooth)
+      call D3dB_r_Zero_Ends(1,dn_cmp_smooth)
 
 *     **** total energy ****
       Eold=E(1)
