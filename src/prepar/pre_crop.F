@@ -23,7 +23,7 @@ c
     1 continue
 c
       write(lfnout,1000) xmin,xmax
- 1000 format(,/' Minimum coordinates ',3f12.6,/,
+ 1000 format(/,' Minimum coordinates ',3f12.6,/,
      + ' Maximum coordinates ',3f12.6,/)
 c
       pre_crop=.true.
