@@ -67,15 +67,15 @@ c      write(6,*)' without integrals  printed '
 c
       write(6,*)' derivative test '
 c
-      call hf_print_set(1)
-c
-      nscr = 1 000 000
-      if (.not.MA_Push_Get(MT_Dbl,nscr,'int buffer',hscr,iscr))
-     &       call errquit('raktest: allocation scr failed',nscr)
-      call dfill(nscr,0.0,dbl_mb(iscr),1)
-      call onedint_fd(basis,geom,dbl_mb(iscr),nscr)
-      if (.not.MA_Pop_Stack(hscr))
-     &       write(6,*)'raktest: pop on hscr failed'
+*      call hf_print_set(1)
+*c
+*      nscr = 1 000 000
+*      if (.not.MA_Push_Get(MT_Dbl,nscr,'int buffer',hscr,iscr))
+*     &       call errquit('raktest: allocation scr failed',nscr)
+*      call dfill(nscr,0.0,dbl_mb(iscr),1)
+*      call onedint_fd(basis,geom,dbl_mb(iscr),nscr)
+*      if (.not.MA_Pop_Stack(hscr))
+*     &       write(6,*)'raktest: pop on hscr failed'
 c
       
       if(.not.bas_numbf(basis,nbf))
@@ -156,6 +156,7 @@ c.. do V
      &       dbl_mb(ixyz),dbl_mb(ixyz+threen),.true.)
       call daxpy(sa_size,1.0d00,dbl_mb(isafd),1,dbl_mb(itafd),1)
       call daxpy(sa_size,-1.0d00,dbl_mb(isa),1,dbl_mb(isafd),1)
+      call printdmat('Va difference matrix',dbl_mb(isafd),nat,nbf)
       write(6,*)' Va difference norm =',
      &       ddot(sa_size,dbl_mb(isafd),1,dbl_mb(isafd),1)
 c... print H derivs
@@ -1362,7 +1363,7 @@ c
       double precision Va(nbf,nbf,3*nat),scr(nscr)
       logical printit
 c
-      integer ish,jsh, basis, id, ids, ide, icount
+      integer ish,jsh, basis, id, icount
       integer testgeom, ucont, nint, iscr, used, jbf, ibf
       integer datom,dxyz
       integer iatom,inp,igen,iexp,icf,itype
@@ -1417,35 +1418,21 @@ c
      &           scr,scr,scr,nint,
      &           FF,FF,FT,FF,scr(iscr),(nscr-used))
           icount = 0
-          ids = (iatom-1)*3+1
-          ide = ids + 2
-          do 00300 id = ids,ide
-            do 00400 jbf = ibs_cn2bfr(1,jsh,basis),
-     &             ibs_cn2bfr(2,jsh,basis)
-              do 00500 ibf = ibs_cn2bfr(1,ish,basis),
-     &               ibs_cn2bfr(2,ish,basis)
-                icount = icount + 1
-                Va(ibf,jbf,id) = scr(icount)
-                Va(jbf,ibf,id) = scr(icount)
-00500         continue
-00400       continue
-00300     continue
-          if(iatom.ne.jatom) then
-            ids = (jatom-1)*3+1
-            ide = ids + 2
-            do 00600 id = ids,ide
-              do 00700 jbf = ibs_cn2bfr(1,jsh,basis),
+          id = 0
+          do 00300 datom = 1,nat
+            do 00400 dxyz = 1,3
+              id = id + 1
+              do 00500 jbf = ibs_cn2bfr(1,jsh,basis),
      &               ibs_cn2bfr(2,jsh,basis)
-                do 00800 ibf = ibs_cn2bfr(1,ish,basis),
+                do 00600 ibf = ibs_cn2bfr(1,ish,basis),
      &                 ibs_cn2bfr(2,ish,basis)
                   icount = icount + 1
                   Va(ibf,jbf,id) = scr(icount)
                   Va(jbf,ibf,id) = scr(icount)
-00800           continue
-00700         continue
-00600       continue
-          endif
-
+00600           continue
+00500         continue
+00400       continue
+00300     continue
 00200   continue
 00100 continue
 
