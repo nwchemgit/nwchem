@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.17 2003-01-14 16:31:15 d3j191 Exp $
+c $Id: cf_list.F,v 1.18 2003-04-04 15:26:08 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -604,43 +604,59 @@ c
    37 continue
 c
       if(iqmmm.ne.0) then
-      do 38 jsa=jsafr+1,jsato
+      do 38 isa=isafr+1,isato
+      if(igr(isa).eq.igr(isa-1)) then
+      if(iand(idt(isa),lquant).ne.lquant.and.isz(isa-1).ne.0)
+     + isz(isa)=1
+      if(isz(isa).ne.0.and.iand(idt(isa-1),lquant).ne.lquant)
+     + isz(isa-1)=1
+      endif
+   38 continue
+      do 39 isa=isato-1,isafr,-1
+      if(igr(isa).eq.igr(isa+1)) then
+      if(iand(idt(isa),lquant).ne.lquant.and.isz(isa+1).ne.0)
+     + isz(isa)=1
+      if(isz(isa).ne.0.and.iand(idt(isa+1),lquant).ne.lquant)
+     + isz(isa+1)=1
+      endif
+   39 continue
+      do 40 jsa=jsafr+1,jsato
       if(igr(jsa).eq.igr(jsa-1)) then
       if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa-1).ne.0)
      + isz(jsa)=1
       if(isz(jsa).ne.0.and.iand(idt(jsa-1),lquant).ne.lquant)
      + isz(jsa-1)=1
       endif
-   38 continue
-      do 39 jsa=jsato-1,jsafr,-1
+   40 continue
+      do 41 jsa=jsato-1,jsafr,-1
       if(igr(jsa).eq.igr(jsa+1)) then
       if(iand(idt(jsa),lquant).ne.lquant.and.isz(jsa+1).ne.0)
      + isz(jsa)=1
       if(isz(jsa).ne.0.and.iand(idt(jsa+1),lquant).ne.lquant)
      + isz(jsa+1)=1
       endif
-   39 continue
+   41 continue
       endif
 c
       if(npss.eq.2) then
 c
 c     remove all short range interaction from long range list
 c
-      do 40 jsa=jsafr,jsato
+      do 42 jsa=jsafr,jsato
       if(list(jsa,1).eq.1) list(jsa,2)=0
-   40 continue
+   42 continue
 c
 c     following two loops make sure that all atoms in a charge group
 c     are counted if at least one atom is within long range cutoff
 c
-      do 41 jsa=jsafr+1,jsato
+      do 43 jsa=jsafr+1,jsato
       if(igr(jsa).eq.igr(jsa-1).and.list(jsa-1,2).eq.1)
      + list(jsa,2)=1
-   41 continue
-      do 42 jsa=jsato-1,jsafr,-1
+   43 continue
+      do 44 jsa=jsato-1,jsafr,-1
       if(igr(jsa).eq.igr(jsa+1).and.list(jsa+1,2).eq.1)
      + list(jsa,2)=1
-   42 continue
+   44 continue
 c
       endif
       endif
