@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.234 1997-04-28 22:53:07 d3e129 Exp $
+# $Id: makefile.h,v 1.235 1997-05-27 18:17:08 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -796,10 +796,6 @@ endif
 
   CORE_LIBS = -lglobal -lutil -lchemio -lpeigs -llapack -lblas
 
-ifndef NOPIOFS
-# see inside chemio/elio
-  CORE_LIBS += -bI:/usr/lpp/piofs/include/piofs.exp
-endif
 
    USE_ESSL = YES
 #   USE_BLAS = YES
