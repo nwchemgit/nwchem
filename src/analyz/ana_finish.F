@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.16 2000-08-24 18:30:43 d3j191 Exp $
+c $Id: ana_finish.F,v 1.17 2000-09-13 19:29:44 d3j191 Exp $
 c
       implicit none
 c
@@ -80,9 +80,11 @@ c
       real*8 xrms(nsa)
 c
       integer i,n
-      real*8 arms
+      real*8 arms,bfact
 c
 c     report results
+c
+      bfact=128.0d0*atan(1.0d0)*atan(1.0d0)/3.0d0
 c
       if(me.eq.0) then
       write(lfnrms,1000)
@@ -93,8 +95,8 @@ c
       endif
       if(me.eq.0) then
       write(lfnrms,1001) (sgmnam(i),i,isel(i),
-     + sqrt(xrms(i)/dble(ndata)),i=1,nsa)
- 1001 format(a16,i10,i5,f12.6)
+     + sqrt(xrms(i)/dble(ndata)),bfact*xrms(i)/dble(ndata),i=1,nsa) 
+ 1001 format(a16,i10,i5,2f12.6)
       arms=0.0d0
       n=0
       if(me.eq.0) write(lfnrms,1000)
@@ -106,8 +108,8 @@ c
       goto 1
     2 continue
       write(lfnrms,1002) sgmnam(i)(1:5),sgmnam(i)(11:16),
-     + sqrt(arms/dble(ndata*n))
- 1002 format(a5,a6,f12.6)
+     + sqrt(arms/dble(ndata*n)),bfact*arms/dble(ndata*n)
+ 1002 format(a5,a6,2f12.6)
       arms=0.0d0
       n=0
     1 continue
