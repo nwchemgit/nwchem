@@ -1,14 +1,19 @@
 /*
- $Id: nw_inp_from_string.c,v 1.9 2000-08-26 19:58:09 d3g681 Exp $
+ $Id: nw_inp_from_string.c,v 1.10 2000-11-28 20:30:33 edo Exp $
 */
 #include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef CRAY
+#define FATR
+#include <fortran.h> /* Required for Fortran-C string interface on Crays */
+#endif
 #ifndef WIN32
 #include <unistd.h>
-#endif
+#else
 #include "typesf2c.h"
+#endif
 
 #if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(CRAY) || defined(WIN32)
 #define nw_inp_from_file_ NW_INP_FROM_FILE
@@ -45,7 +50,8 @@ int nw_inp_from_string(Integer rtdb, const char *input)
     }
 
 #if defined(CRAY)
-      _fstring = _cptofcd(filename, strlen(filename));
+      fstring = _cptofcd(filename, strlen(filename));
+      status = nw_inp_from_file_(&rtdb, fstring);
 #elif defined(WIN32)
     fstring.string = filename;
     fstring.len = strlen(filename);
