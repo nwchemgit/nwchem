@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.42 1997-01-29 16:01:44 mdupuis Exp $
+C     $Id: geom_input.F,v 1.43 1997-01-29 21:04:37 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -255,7 +255,7 @@ c
         if (scale.ne.1.0d0) then
           write(luout,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
  1        format(/' Scaling coordinates for geometry "',a,'" by ',
-     $        f11.9,' ( inverse scale = ',f11.9,' ) ',/)
+     $        f11.9/'(inverse scale = ',f11.9,')',/)
           call dscal(3*ncenter, scale, coords, 1)
         end if
       else if (isys .gt. 0) then
@@ -6346,10 +6346,11 @@ C
          CALL HND_HNDERR(3,ERRMSG)
       ENDIF
       IF((NUMWRD.GT.1).OR.
-     1   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1VAR(1:3)).OR.
-     2   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2VAR(1:3)).OR.
-     3   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1CON(1:3)).OR.
-     4   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2CON(1:3))    ) THEN
+     1   (NUMWRD.EQ.1) .AND. .NOT. 
+     $     ( (PRSWRD(1)(2:4).EQ.WR1VAR(1:3)) .OR.
+     2       (PRSWRD(1)(2:4).EQ.WR2VAR(1:3)) .OR.
+     3       (PRSWRD(1)(2:4).EQ.WR1CON(1:3)) .OR.
+     4       (PRSWRD(1)(2:4).EQ.WR2CON(1:3)) )    ) THEN
          DO I=1,NUMWRD
             PRSZMT(I,IAT)=PRSWRD(I)
             FLGZMT(I,IAT)=FLGWRD(I)
@@ -6384,8 +6385,12 @@ C
          CALL HND_HNDERR(3,ERRMSG)
       ENDIF
       IF((NUMWRD.GT.1).OR.
-     1   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1CON(1:3)).OR.
-     2   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2CON(1:3))    ) THEN
+     1   (NUMWRD.EQ.1) .AND. .NOT. (
+     3       (PRSWRD(1)(2:4).EQ.WR1CON(1:3)) .OR.
+     4       (PRSWRD(1)(2:4).EQ.WR2CON(1:3)) )    ) THEN
+*      IF((NUMWRD.GT.1).OR.
+*     1   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1CON(1:3)).OR.
+*     2   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2CON(1:3))    ) THEN
          DO I=1,NUMWRD
             PRSVAR(I,IVAR)=PRSWRD(I)
             FLGVAR(I,IVAR)=FLGWRD(I)
@@ -7727,368 +7732,6 @@ C
  9999 FORMAT(' ILLEGAL 5-TH -ZMT- PARAMETER FOR -IAT- = ',I3,' STOP.')
  9998 FORMAT(' IAT,NA,NB,NC,ND,RCD = ',5I4,F12.5)
  9997 FORMAT(' IAT = ',I4,' IS ALREADY SPECIFIED IN CARTESIAN SPACE.')
-      END
-      SUBROUTINE HND_RDFREE (IR,STRING,IERR)
-C==================================================================
-C        ROUTINE HND_RDFREE (IR,STRING,IERR)
-C
-C     Routine to do free-formatted input from fortran, on a line
-C     by line basis. This enhances the normal FORTRAN free formatted
-C     input by removing the limitation that character strings need
-C     single quotes around them. Implicit DO LOOPS on read statements
-C     are not supported.
-C
-C     The routine parses the character variable INPUT and
-C     puts each new word into the array PRSWRD. Each new word
-C     is separated by one or more blanks. The array PRSWRD is
-C     then concatenated into the single string STRING.
-C
-C     Input  Parameter:
-C       INTEGER*4     IR         - Unit number to read from
-C
-C     Output Parameter:
-C       CHARACTER*255 STRING     - Output string of PRSWRD words. The
-C                                  character words are surrounded by
-C                                  quotes for the unformatted read.
-C       INTEGER*4     IERR       - End-of-File flag
-C                                  Iend = 0 --- successful read
-C                                  Iend = 1 --- EOF encountered
-C
-C     Other Variables:
-C       INTEGER*4     NUMWRD     - Number of words in INPUT
-C       CHARACTER*80  PRSWRD(40) - ARRAY OF WORDS FOUND
-C       INTEGER*4     NUMCHR(40) - NUMBER OF CHARACTERS IN EACH WORD
-C       INTEGER*4     FLGWRD(40) - ARRAY OF FLAGS FOR EACH WORD
-C                                  Flag = 0 --- Blank
-C                                  Flag = 1 --- Floating
-C                                  Flag = 2 --- Integer
-C                                  Flag = 3 --- Alphanumeric
-C       INTEGER*4     ISTR(40)   - BEGINNING CHARACTER NUMBERS IN INPUT
-C       INTEGER*4     IEND(40)   - ENDING CHARACTER NUMBERS IN INPUT
-C       CHARACTER*81  INPUT      - String read from IR
-C                                  (81st character is set to blank)
-C
-C     External Functions:
-C       INTEGER*4     hnd_wrdtyp     - RETURNS VALUE DETERMINING WORD TYPE
-C                                  Flag = 0 --- Blank
-C                                  Flag = 1 --- Floating
-C                                  Flag = 2 --- Integer
-C                                  Flag = 3 --- Alphanumeric
-C
-C     To use this routine in a program, normal FORTRAN formatted
-C     Read statements should be replaced as follows below.
-C
-C     Original code:
-C             CHARACTER*4    NAME,CHAR
-C             INTEGER*4      I,J,IR
-C             REAL*4         A,B
-C
-C             IR = 5
-C             READ (IR,10) A,NAME,I,B,J,CHAR
-C
-C     New Code (free formatted input):
-C*NEW LINE*   CHARACTER*255  INPUT
-C
-C             CHARACTER*4    NAME,CHAR
-C             INTEGER*4      I,J,IR
-C             REAL*4         A,B
-C
-C             IR = 5
-C*NEW LINE*   CALL HND_RDFREE (IR,INPUT,IERR)
-C*MODIFIED*   READ (INPUT,*) A,NAME,I,B,J,CHAR
-C
-C
-C     S. Chin: 11/08/90 - IBM Kingston, NY
-C
-C==================================================================
-      LOGICAL*4     DBUG
-      CHARACTER*81  INPUT
-      CHARACTER*255 STRING
-      CHARACTER*80  PRSWRD
-      INTEGER*4     FLGWRD
-      INTEGER*4     HND_WRDTYP
-      COMMON/HND_FREERD/PRSWRD(40),NUMCHR(40),FLGWRD(40),NUMWRD
-      COMMON/HND_IOFILE/IN,IW
-      DIMENSION     ISTR(40),IEND(40)
-C
-      IERR=0
-      DBUG=.FALSE.
-c
-      READ (IR,9999,ERR=200,END=200) INPUT(1:80)
-      IF (DBUG) THEN
-         WRITE (IW,9998) INPUT(1:80)
-      ENDIF
-C
-      INPUT (81:81) = ' '
-      DO I=1,40
-         DO J=1,80
-            PRSWRD (I) (J:J) = ' '
-         ENDDO
-      ENDDO
-      DO I=1,255
-         STRING (I:I) = ' '
-      ENDDO
-C
-      NUMWRD = 0
-C
-C     -----   Skip separators, words are separated by   -----
-C           blanks, commas, apostrophes, or equal signs
-C
-      ICOUNT = 1
-   10 DO WHILE ( ICOUNT.LE.80.AND.
-     1          (INPUT(ICOUNT:ICOUNT) .EQ. ' '.OR.
-     2           INPUT(ICOUNT:ICOUNT) .EQ. ','.OR.
-     3           INPUT(ICOUNT:ICOUNT) .EQ.''''.OR.
-     4           INPUT(ICOUNT:ICOUNT) .EQ. '=')   )
-         ICOUNT = ICOUNT + 1
-      ENDDO
-      IF (ICOUNT .GT. 80) GO TO 100
-C
-C     ----- This is the beginning of a word -----
-C
-      NUMWRD = NUMWRD + 1
-      ISTR(NUMWRD) = ICOUNT
-C
-C     ----- Find the next separator, which -----
-C             denotes the end of the word
-C
-      DO WHILE ( ICOUNT.LE.81.AND.
-     1          (INPUT(ICOUNT:ICOUNT) .NE. ' '.AND.
-     2           INPUT(ICOUNT:ICOUNT) .NE. ','.AND.
-     3           INPUT(ICOUNT:ICOUNT) .NE.''''.AND.
-     4           INPUT(ICOUNT:ICOUNT) .NE. '=')    )
-         ICOUNT = ICOUNT + 1
-      ENDDO
-C
-C     ----- We are actually at the separator -----
-C              which is one past the word
-C
-      IEND(NUMWRD) = ICOUNT - 1
-      IF (ICOUNT .GT. 80) GO TO 100
-      GO TO 10
-C
-C     ----- Decompose the words from INPUT -----
-C              into the array PRSWRD
-C
-  100 IF (NUMWRD .EQ. 0) RETURN
-C
-      DO I=1,NUMWRD
-         NUMCHR(I) = IEND(I) - ISTR(I) + 1
-         PRSWRD (I) (1:NUMCHR(I)) = INPUT (ISTR(I):IEND(I))
-         FLGWRD(I) = HND_WRDTYP(PRSWRD(I))
-C
-C     ----- If its a character string, then add -----
-C           the single quotes around the word
-C
-         IF (FLGWRD(I) .EQ. 3) THEN
-            PRSWRD (I) (NUMCHR(I)+2:NUMCHR(I)+2) = ''''
-            DO J=NUMCHR(I)+1,2,-1
-               PRSWRD (I) (J:J) = PRSWRD (I) (J-1:J-1)
-            ENDDO
-            PRSWRD (I) (1:1) = ''''
-            NUMCHR(I) = NUMCHR(I) + 2
-         ENDIF
-      ENDDO
-C
-C     ----- Now compose the new string STRING -----
-C           putting a blank between each word
-C
-      ICOUNT = 2
-      DO I=1,NUMWRD
-         STRING(ICOUNT:ICOUNT+NUMCHR(I)-1) = PRSWRD (I) (1:NUMCHR(I))
-         STRING(ICOUNT+NUMCHR(I)+1:ICOUNT+NUMCHR(I)+1) = ' '
-         ICOUNT = ICOUNT +  NUMCHR(I) + 1
-      ENDDO
-      IF (DBUG) THEN
-         WRITE (IW,9997) STRING(  1:127)
-         WRITE (IW,9997) STRING(128:255)
-      ENDIF
-C
-      RETURN
-C
-C     ----- EOF encountered or error -----
-C
-  200 CONTINUE
-      IERR=1
-      IF(DBUG) THEN
-         WRITE (IW,9998) INPUT(1:80)
-      ENDIF
-C
-      RETURN
- 9999 FORMAT (A80)
- 9998 FORMAT (1X,A80)
- 9997 FORMAT (1X,A128)
-      END
-      INTEGER FUNCTION HND_WRDTYP (WORD)
-C=====================================================================
-C
-C     INTEGER FUNCTION HND_WRDTYP (WORD)
-C
-C  Returns the type of the character*80 string variable WORD.
-C  hnd_wrdtyp is length CHARACTER*4, and can take the possible values
-C
-C           0 = Blank
-C           1 = Floating Point or scientific notation
-C           2 = Integer
-C           3 = Alphanumeric
-C
-C     S. Chin: 11/08/90 - IBM Kingston, NY
-C
-C=====================================================================
-      CHARACTER*(*)  WORD
-      CHARACTER*1    DIGITS(10)
-      INTEGER*4      BLNK,PREV
-      INTEGER*4      HEX0,HEX9
-      INTEGER*4      HEXEE,HEXDD,HEXE,HEXD,DECIMAL,MINUS,PLUS
-      INTEGER*4      HEXA
-c
-c Define the character of the digits
-c
-      data digits /'0','9','.','+','-','E','e','D','d',' '/
-c
-c Define the hexadecimal representation of the number. By doing
-c it this way we make the definition machine independent.
-c
-      hex0    = ichar(digits( 1))
-      hex9    = ichar(digits( 2))
-      decimal = ichar(digits( 3))
-      plus    = ichar(digits( 4))
-      minus   = ichar(digits( 5))
-      hexee   = ichar(digits( 6))
-      hexe    = ichar(digits( 7))
-      hexdd   = ichar(digits( 8))
-      hexd    = ichar(digits( 9))
-      blnk    = ichar(digits(10))
-c
-      hnd_wrdtyp = 0
-c
-      nchar  = 0
-      ndeci  = 0
-      nplus  = 0
-      nminus = 0
-      nsign  = 0
-      nhexd  = 0
-      prev   = blnk
-      length = len(word)
-      do 100 i=1,length
-         if (word (i:i) .ne. ' ' ) then
-            nchar = nchar + 1
-            hexa  = ichar(word(i:i))
-c
-c first test if its a decimal point, then it could be a floating
-c point number.
-c
-            if (hexa .eq. decimal ) then
-               ndeci = ndeci + 1
-               if (ndeci .gt. 1 ) then
-                  hnd_wrdtyp = 3
-               endif
-               if (hnd_wrdtyp .eq. 0 .or . 
-     1             hnd_wrdtyp .eq. 2       ) hnd_wrdtyp = 1
-c
-c it may have been entered in scientific notation, so lets check
-c the "d", "D", "e" or "E".
-c
-            else if (hexa .eq. hexd .or. hexa .eq. hexdd .or.
-     1               hexa .eq. hexe .or. hexa .eq. hexee ) then
-               nhexd = nhexd + 1
-               if (nhexd  .gt. 1) then
-                  hnd_wrdtyp = 3
-               else if (ndeci .ne. 1) then
-                  hnd_wrdtyp = 3
-               else if (nsign .gt. 1) then
-                  hnd_wrdtyp = 3
-               endif
-               if (hnd_wrdtyp .eq. 0      ) hnd_wrdtyp = 3
-               if (hnd_wrdtyp .eq. 1 .or.
-     1             hnd_wrdtyp .eq. 2      ) hnd_wrdtyp = 1
-c
-c maybe it is a numerical digit, so we try to see if it is an integer.
-c It can be a positive or negative integer
-c
-            else if ( (hexa .ge. hex0 .and. hexa .le. hex9) ) then
-               if (hnd_wrdtyp .eq. 0) hnd_wrdtyp = 2
-c
-c if it is a + or - sign, then there are various possibilities
-c
-            else if ((hexa .eq. plus) .or. (hexa .eq. minus)) then
-               nsign = nsign + 1
-               if (hexa .eq. plus ) nplus  = nplus  + 1
-               if (hexa .eq. minus) nminus = nminus + 1
-               if (nsign .gt. 2) then
-                  hnd_wrdtyp = 3
-               else if (nsign .eq. 2) then
-                  if (prev .ne. hexd .and. prev .ne. hexdd .and.
-     1                prev .ne. hexe .and. prev .ne. hexee ) then
-                     hnd_wrdtyp = 3
-                  endif
-               else if (nsign .eq. 1) then
-                  if (prev .eq. blnk) then
-                     hnd_wrdtyp = 2
-                  else if (prev .eq. hexd .or. prev .eq. hexdd .or.
-     1                     prev .eq. hexe .or. prev .eq. hexee ) then
-                     if (hnd_wrdtyp .ne. 3) hnd_wrdtyp = 1
-                  else
-                     hnd_wrdtyp = 3
-                  endif
-               endif
-            else
-c
-c it must be a character string
-c
-               hnd_wrdtyp = 3
-            endif
-         endif
-         prev = ichar(word (i:i))
-  100    continue
-      if (((ndeci .eq. 1) .or. (nplus .eq. 1) .or. (nminus .eq. 1)).and.
-     1     (nchar .eq. 1) ) then
-         hnd_wrdtyp = 3
-      endif
-      if ( (nhexd .eq. 1) .and. (nchar .lt. 3) ) then
-         hnd_wrdtyp = 3
-      endif
-c
-      RETURN
-      END
-      SUBROUTINE HND_WRDNAM(WRDKEY)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      CHARACTER*9 WORD
-      WRITE(WORD,FMT='(1X,A8)') WRDKEY
-       READ(WORD,FMT='(   A8)') WRDKEY
-      RETURN
-      END
-      SUBROUTINE HND_WRDRI4(KEYWRD)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      CHARACTER*4 CHAR
-      CHARACTER*5 IWRD
-      EQUIVALENCE (CHAR,KEY)
-      KEY=KEYWRD
-      I=0
-   10 I=I+1
-      IF(CHAR(4:4).NE.' ') GO TO 20
-         WRITE(IWRD,FMT='(1X,A4)') CHAR
-          READ(IWRD,FMT='(   A4)') CHAR
-      IF(I.LT.4) GO TO 10
-   20 CONTINUE
-      KEYWRD=KEY
-      RETURN
-      END
-      SUBROUTINE HND_WRDRR8(WRDKEY)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      CHARACTER*8 CHAR
-      CHARACTER*9 WORD
-      EQUIVALENCE (CHAR,WRD)
-      WRD=WRDKEY
-      I=0
-   10 I=I+1
-      IF(CHAR(8:8).NE.' ') GO TO 20
-         WRITE(WORD,FMT='(1X,A8)') CHAR
-          READ(WORD,FMT='(   A8)') CHAR
-      IF(I.LT.8) GO TO 10
-   20 CONTINUE
-      WRDKEY=WRD
-      RETURN
       END
       SUBROUTINE HND_PRSQ(V,M,N,NDIM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
