@@ -1,6 +1,6 @@
       subroutine int_l1eall(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.9 1995-12-22 01:39:00 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.10 1995-12-22 21:31:04 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -54,7 +54,7 @@ c
       iscrV = iscrT + numint
       newlscr = lscr - 3*numint
       call int_1eall(i_basis,ish,j_basis,jsh,
-     &    newlscr,scr(3*numint+1),
+     &    newlscr,scr(3*numint+1),numint,
      &    scr(iscrS),scr(iscrT),scr(iscrV))
 c
       numstv = 0
