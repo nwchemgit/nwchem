@@ -1,0 +1,8 @@
+This directory contains the documentation for PeIGS.  It uses "dvips"
+to convert dvi-file to postscript.  You may want to edit the Makefile
+to suit your local setup.
+
+You can make a *.dvi file and the postscript file by
+
+	% make
+

@@ -1,0 +1,7 @@
+file names			comments
+-----------------------------------------------------------------
+MANIFEST		this file
+Make.generic*		the generic make file which is converted to a Makefile
+README			a general info file
+peigs.texi		PeIGS manual using texi
+texi.texi		a copy of texi.texi just in case
