@@ -1,5 +1,5 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.4 1998-06-26 21:50:07 bernhold Exp $
+C$Id: rimp2g.F,v 1.5 1998-07-06 21:11:02 bernhold Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -16,13 +16,8 @@ C
 #include "dra.fh"
 #include "inp.fh"
 C
-      Logical MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,
-     $   Int_Normalize
-      External MOVecs_Read_Header, MOVecs_Read, MOVecs_Gather,
-     $   Int_Normalize
-C
-      Logical RIMP2G_XF_Driver, RIMP2_Driver_EG
-      External RIMP2G_XF_Driver, RIMP2_Driver_EG
+      Logical  Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E
+      External Int_Normalize, RIMP2_Driver_XF, RIMP2_Driver_E
 C
       Integer MaxSpin
       Parameter (MaxSpin = 2)
@@ -30,14 +25,17 @@ C
       Integer MinChunk
       Parameter (MinChunk = 64)
 C
+      Integer Kilobyte, Megabyte
+      Parameter (Kilobyte = 1024, Megabyte = 1024*1024)
+C
       Integer MxTBatch, MxEBatch(2)
 C
-      Logical Gradient
-      Parameter (Gradient = .TRUE.)
+      Logical DoGrad, BraKetSame
+      Parameter (DoGrad = .TRUE., BraKetSame = .TRUE.)
 C
       Character*(*) Def_Int, Def_MOVec, Def_Gam3
-      Parameter (Def_Int = 'mo3cint', Def_MOVec = 'movecs',
-     $     Def_Gam3 = 'gam3')
+      Parameter (Def_Int = '3ci', Def_MOVec = 'movecs',
+     $     Def_Gam3 = 'gam')
       Character*(*) Geom_Name, AOBasName, FitBasName
       Parameter (Geom_Name = 'geometry', AOBasName = 'ao basis',
      $   FitBasName = 'ri-mp2 basis')
@@ -56,6 +54,7 @@ C
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
       Logical Status
       Character*(1) Mem_Opt
+      Integer G_P2(MaxSpin)
 C
 C     Handles and indices to for the "correlated" basis
 C
@@ -64,10 +63,13 @@ C
       Integer G_AOXF(MaxSpin)
       Integer NCorBF(MaxSpin), MxNCorBF
 C
-C     "Handles" for the integral file(s) (either logical unit numbers
-C     or disk array handles)
+C     "Handles" for the integral file(s).  Indices are:
+C         1 = spin (alpha, beta)
+C         2 = bra, ket (may be distinct)
+C         3 = integral group (pa, ij)
 C
-      Integer D_Int(MaxSpin)
+      Integer D_Int(MaxSpin, 2, 2), D_Gam(MaxSpin)
+      Character*80 FN_Int(MaxSpin, 2, 2), FN_Gam(MaxSpin)
 C
 C     Print controls
 C
@@ -80,6 +82,10 @@ C
 C     Initialize this module
 C
       Status = .TRUE.
+C
+C     For debugging purposes
+C
+      Call IFill(MaxSpin*2*2, -99352, D_Int, 1)
 C
       Call RIMP2G_PStat_Init
       Call PStat_On( PS_Overall)
@@ -160,17 +166,26 @@ C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
      $   'RIMP2G: Unable to free local array H_Occ', H_Occ)
 C
+C     Prepare DRA sizes and names
+C
+      Call RIMP2_Prep_DRA(TopSpin, ILo, IHi, ALo, AHi, NFit,
+     $     DoGrad, BraKetSame, NrDA, MaxDASiz, TotDASiz,
+     $     FNInt(:Inp_StrLen(FNInt)), FNGam3(:Inp_StrLen(FNGam3)),
+     $     FN_Int, FN_Gam)
+C
 C     **********************************************
 C     * Print out calculation information for user *
 C     **********************************************
 C
       If ( Me .eq. 0 .AND. PrInfo) then
 C
-         Write (LuOut,'(1X, A)' ) 'RI-MP2 Calculation Information:'
-         If ( Gradient ) then
+         Write (LuOut, '(A)') 
+         Call Banner(LuOut, 'RI-MP2 Calculation Information', '-',
+     $      .TRUE., .TRUE., .FALSE.)
+         If ( DoGrad ) then
             Write (LuOut, 8505) 'Calculation Type:', 'Energy + Gradient'
          Else
-            Write (LuOut, 8505) 'Calculation Type:', 'Energy + Gradient'
+            Write (LuOut, 8505) 'Calculation Type:', 'Energy only'
          EndIf
          Write (LuOut, 8520) 'Nr. of AO basis functions:', NAOBF
          Write (LuOut, 8520) 'Nr. of fitting basis functions:', NFit
@@ -183,8 +198,13 @@ C
      $      (AHi(i)-ALo(i)+1, i = 1, TopSpin)
          Write (LuOut, *)
 C
-         Write (LuOut, 8500) 'RI integral approximation:',
-     $      Approx(:Inp_StrLen(Approx))
+         If ( BraKetSame ) then
+            Write (LuOut, 8505) 'RI integral approximation:',
+     $           'symmetric',  Approx(:Inp_StrLen(Approx))
+         Else
+            Write (LuOut, 8505) 'RI integral approximation:',
+     $           'assymetric', Approx(:Inp_StrLen(Approx))
+         EndIf
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
          Write (LuOut, 8510)
      $      'Smallest eigenvalue retained in fit:', MinEVal
@@ -196,11 +216,21 @@ C
             Write (LuOut, 8520) 'Max. batch size for energy:',
      $         MxEBatch
          EndIf
-         Write (LuOut, 8500) 'Base file name for MO integrals:',
-     $      FNInt(:Inp_StrLen(FNInt))
-         If ( Gradient )Write (LuOut, 8500) 'Base file name for gamma:',
-     $      FNGam3(:Inp_StrLen(FNGam3))
-         Write (LuOut, 8505) 'Files stored as', 'disk arrays'
+         Write (LuOut, *)
+C
+C        File information
+C
+         If ( DoGrad ) then
+            Write (LuOut, 8505) 'Base file suffixes:', 
+     $           FNInt(:Inp_StrLen(FNInt)), FNGam3(:Inp_StrLen(FNGam3))
+         Else
+            Write (LuOut, 8505) 'Base file suffixes:', 
+     $           FNInt(:Inp_StrLen(FNInt))
+         EndIf
+         Write (LuOut, 8530) 'Largest file (MB):',
+     $        Dble(MaxDASiz)/Megabyte
+         Write (LuOut, 8530) 'Total disk space (MB):',
+     $        Dble(TotDASiz)/Megabyte
          Write (LuOut, *)
 C
          if (util_print('geometry',print_high)) then
@@ -227,10 +257,11 @@ C
          call util_flush(LuOut)
       EndIf
 C
- 8500 Format(1X, A35, 1X, '''', A, '''')
- 8505 Format(1X, A35, 2X, A)
- 8510 Format(1X, A35, 4(1X, 1PE10.3), (/36X, 4(1X, I10)) )
+ 8500 Format(1X, A35, 1X, '''', A, '''' )
+ 8505 Format(1X, A35, 4(2X, A), (/36X, 4(2X, A)) )
+ 8510 Format(1X, A35, 4(1X, 1PE10.3), (/36X, 4(1X, 1PE10.3)) )
  8520 Format(1X, A35, 4(1X, I10), (/36X, 4(1X,I10)) )
+ 8530 Format(1X, A35, 4(1X, F10.3), (/36X, 4(1X, F10.3)) )
 C
  9050 Format(1X, 'The following mapping relates the ''correlated ',
      $       'basis'' to the'/
@@ -243,30 +274,8 @@ C
      $       'are labeled in the'/
      $   1X, '''correlated basis''.'/)
 C
-C     *************************************
-C     * Integral transformation (to disk) *
-C     *************************************
-C     Compute largest and total DA sizes (in bytes)
-C
-      MaxDASiz = 0
-      TotDASiz = 0
-      Do I = 1, TopSpin
-         Size =  (IHi(i)-ILo(i)+1) * (AHi(i)-ALo(i)+1) * NFit
-         SizeB = MA_SizeOf(MT_Dbl, Size, MT_Byte)
-         MaxDASiz = Max( MaxDASiz, SizeB)
-         TotDASiz = TotDASiz + SizeB
-      EndDo
-      NrDA = TopSpin
-C
-C     If we have to do gradients, we'll also need to store the
-C     3-index Gamma.  Its the same size as the integrals.
-C
-      If ( Gradient ) then
-         TotDASiz = 2 * TotDASiz
-         NrDA = 2 * NrDA
-      EndIf
-C
-C     Initialize DAs.  We know everything but how much memory to give it.
+C     Initialize DAs. Size limits computed earlier; let system
+C     decide how much memory to give it.
 C
       If (DRA_Init(NrDA, MaxDASiz, TotDASiz, -1) .ne. 0)
      $   Call ErrQuit('RIMP2G: DRA_Init failed', 0)
@@ -280,9 +289,9 @@ C
 C
 C
       Status = Status .AND.
-     $   RIMP2G_XF_Driver( RTDB, Geom, AOBas, FitBas,
-     $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
-     $   MinEVal, Approx, G_AOXF)
+     $   RIMP2_Driver_XF( MaxSpin, RTDB, Geom, AOBas, FitBas, TopSpin,
+     $     D_Int, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
+     $     MinEVal, Approx, G_AOXF, FN_Int)
 C
 C     Finished with the AO transformation
 C
@@ -314,12 +323,15 @@ C
 C     **********************
 C     * Energy calculation *
 C     **********************
+C     Print & store results before proceeding to gradient to give
+C     something in case of later failure.
 C
+      Status = .TRUE.
       Status = Status .AND.
-     $   RIMP2_Driver_EG( D_Int, FNInt, FNGam3, TopSpin, NCorBF,
-     $     NFrz, IHi, AHi, NFit,
-     $   FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
-     $   CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2), Gradient)
+     $   RIMP2_Driver_E( MaxSpin, FN_Int, D_Int, FN_Gam, D_Gam,
+     $     TopSpin, NCorBF, NFrzOcc, IHi, AHi, NFit,
+     $     FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
+     $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2), DoGrad, G_P2)
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -327,12 +339,14 @@ C
       If ( .NOT. Status ) then
          RefEner = FP_Zero
          If ( Me .eq. 0) Write ( LuOut, *)
-     $      'RIMP2G: Warning! Unable to get scf:energy from RTDB.'
+     $      'RIMP2G: Warning! Can''t get scf:energy from RTDB. ',
+     $        'Continuing.'
       EndIf
 C
       TotEner = RefEner + CorEner
 C
       If ( Me .eq. 0) then
+         Write (LuOut, '(A)') ' '
          Call Banner(LuOut, 'RI-MP2 energy', '-',
      $      .TRUE., .TRUE., .FALSE.)
          Write (LuOut, '(1X, A, F30.15)') 'Reference energy:    ',
@@ -345,17 +359,15 @@ C
 C
 C     Write our energy out to the database
 C
+      Status = .TRUE.
       Status = Status .AND. RTDB_Put( RTDB,
      $   'rimp2_grad:correlation energy', MT_Dbl, 1, CorEner)
       Status = Status .AND. RTDB_Put( RTDB, 'rimp2_grad:energy',
      $   MT_Dbl, 1, TotEner)
+      If (.NOT. Status .AND. Me .eq. 0) Write (LuOut, *)
+     $     'RIMP2G: WARNING! Can''t write energy to RTDB. Continuing.'
 C
-      If ( DRA_Terminate() .ne. 0) Call ErrQuit(
-     $   'RIMP2G: DRA_Terminate failed', 0)
-C
-C     ***********
-C     * Cleanup *
-C     ***********
+C     Clean up some memory
 C
       Status = .TRUE.
       Status = Status .AND. MA_Pop_Stack( H_Contrib)
@@ -363,6 +375,18 @@ C
       If ( .NOT. Status) Call ErrQuit(
      $   'RIMP2G: Unable to destroy local arrays', 0)
 C
+C     ************
+C     * Gradient *
+C     ************
+C
+C     ***********
+C     * Cleanup *
+C     ***********
+C
+      If ( DRA_Terminate() .ne. 0) Call ErrQuit(
+     $   'RIMP2G: DRA_Terminate failed', 0)
+C
+      Status = .TRUE.
       Status = Status .AND. Geom_Destroy( Geom)
       Status = Status .AND. Bas_Destroy( FitBas)
       Status = Status .AND. Bas_Destroy( AOBas)
