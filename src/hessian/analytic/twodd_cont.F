@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.9 2000-08-11 16:47:56 windus Exp $
+C $Id: twodd_cont.F,v 1.10 2000-08-15 00:07:06 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -48,7 +48,7 @@ c
       integer l_shbflo, l_shbfhi
       integer k_shbflo, k_shbfhi
       integer ndims(4), chunk(4)
-      integer g_fock
+      integer g_fock, alo(2), ahi(2), blo(4), bhi(4)
 c
 c dummy variable needed for grad2 call, but not used here
 c
@@ -173,8 +173,6 @@ c
         write(6,*) 'jfac and kfac and i ',jfac(i),kfac(i),i
       enddo
       call ga_print(g_fock)
-      if (.not.ga_destroy(g_fock))
-     *  call errquit('twodd_cont: Could not destroy g_fock',555)
 c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
@@ -286,6 +284,8 @@ c
       do i = 1, ndens
          call ga_reorder(g_dens(i), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
+         write(6,*) 'Density after reordering'
+         call ga_print(g_dens(i))
       end do
 c
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
@@ -343,10 +343,39 @@ c
       call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
       call flush(6)
 c
-c  Need to get rid of extra memory
+c Now add the two fockdir contributions together
+c needs to be here for the moment because we need the map
 c
-      if (.not. ma_chop_stack(lh_ij))
-     $  call errquit('twodd_cont: failed chopping MA stack',555)
+      alo(1) = 1
+      ahi(1) = nbf
+      alo(2) = 1
+      ahi(2) = nbf
+c TEMPORARY
+      blo(2) = 1
+      bhi(2) = 1
+      blo(3) = 1
+      bhi(3) = nbf
+      blo(4) = 1
+      bhi(4) = nbf
+      do i = 1, n3xyz
+      blo(1) = i
+      bhi(1) = i
+cc     do j = 1, nfock  ! NEED TO ADD THIS IN
+cc       blo(2) = j
+cc       bhi(2) = j
+        call ga_reorder(g_rhs(i), .true., int_mb(k_rbfmap),
+     *       .true., int_mb(k_rbfmap))
+        call nga_add_patch(1.0d+00,g_rhs(i),alo,ahi,1.0d+00,g_fock,
+     *     blo,bhi, g_rhs(i),alo,ahi)
+        call ga_reorder(g_rhs(i), .true., int_mb(k_bfmap),
+     *       .true., int_mb(k_bfmap))
+        write(6,*) 'fockder results after twod term'
+        call ga_print(g_rhs(i))
+cc     enddo
+      enddo
+c
+      if (.not.ga_destroy(g_fock))
+     *  call errquit('twodd_cont: Could not destroy g_fock',555)
 c
 c  IMPORTANT!  IMPORTANT!
 c  Need to add a reorder back to atomic so that Benny's code will work!!!
@@ -355,6 +384,12 @@ c
          call ga_reorder(g_dens(i), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
       end do
+c
+c  Need to get rid of extra memory
+c
+      if (.not. ma_chop_stack(lh_ij))
+     $  call errquit('twodd_cont: failed chopping MA stack',555)
+c
 c  For now we send in seperate memory, k_hess_xc and g_rhs_xc, to make sure
 c  that the xc contributions are coming out O.K.  Eventually, the xc routines
 c  will need to modified to add their contribution to k_exy and g_rhs and
@@ -367,6 +402,9 @@ c
      *    write(6,*)'*** In twodd_cont: calling xc_hessian'
         call xc_hessian(g_dens, log_mb(k_act), nactive, 
      *     dbl_mb(k_hess_xc))
+      write(6,*) 'The Hessian dft contribution'
+      call hnd_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
+      call flush(6)
         if (bgj_print() .gt. 0)
      *     write(6,*)'*** In twodd_cont: calling xc_cpks_rhs'
         call xc_cpks_rhs(g_dens, log_mb(k_act), nactive, g_rhs_xc)

@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.3 2000-08-14 20:30:08 windus Exp $
+c $Id: shell_fock_build.F,v 1.4 2000-08-15 00:07:05 windus Exp $
 c
       subroutine shell_fock_build(geom, basis, nder, nfock, jfac, 
      $     kfac, tol2e, g_dens, g_fock, oactive)
@@ -38,8 +38,10 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+      write(6,*) 'inside of shell_fock_build'
+c
 c     if (nfock .ne. 1) call errquit('NFOCK', nfock)
-      call dscal(nfock, 0.5d0, kfac, 1)
+c     call dscal(nfock, 0.5d0, kfac, 1)
 c      
       if (.not. bas_numbf(basis,nbf))
      $     call errquit('new_fock: could not get nbf',0)
@@ -156,9 +158,9 @@ c        call ga_reorder(g_fock(i), .true., int_mb(k_bfmap),
 c    $        .true., int_mb(k_bfmap))
       end do
 c
-      call dscal(nfock, 2.0d0, kfac, 1)
+c     call dscal(nfock, 2.0d0, kfac, 1)
 c
-      call ga_dscal(g_fock, 4.0d0)
+c      call ga_dscal(g_fock, 4.0d0)
 c        call ga_dscal(g_fock(i), 4.0d0)
 
       if (.not. ma_push_get(mt_dbl,nbf*nbf,'lfock',l_fock,k_fock))
@@ -180,11 +182,11 @@ c        call ga_dscal(g_fock(i), 4.0d0)
          ihi(2) = i
          call nga_get(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
          call ga_put(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
-         write(6,*) 'before ga_symmetrize'
-         call ga_print(g_tfock)
+c        write(6,*) 'before ga_symmetrize'
+c        call ga_print(g_tfock)
          call ga_symmetrize(g_tfock)
-         write(6,*) 'after ga_symmetrize'
-         call ga_print(g_tfock)
+c        write(6,*) 'after ga_symmetrize'
+c        call ga_print(g_tfock)
          call ga_get(g_tfock,1,nbf,1,nbf,dbl_mb(k_fock),nbf)
          call nga_put(g_fock,ilo,ihi,dbl_mb(k_fock),ld)
       end do
@@ -289,7 +291,7 @@ c
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
-      write(6,*) 'nshblocks and task_size ',nshblocks,task_size
+c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -463,6 +465,9 @@ c
      $                    labels(1,1),labels(1,2), 
      $                    labels(1,3), labels(1,4), 
      $                    eri, leri, nint, lscr, scr)
+c
+c     write(6,*) ' nint ', nint, omore
+c
                      endif
 c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0)
@@ -481,6 +486,7 @@ c
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
      $                    nder, nfock, blen, rbfmap, bftoat,
      $                    ibflo, jbflo, kbflo, lbflo)
+c                                      
                         endif
                      endif
 
@@ -501,9 +507,10 @@ c
      $                 blen, ibflo, ibfhi, lbflo, lbfhi, f_il)
                      call new_acc_fock_block(g_fock, nder, nfock, 
      $                 blen, jbflo, jbfhi, kbflo, kbfhi, f_jk)
-                     if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0)
+c                    if (.not. ma_verify_allocator_stuff())
+c    $                    call errquit(' ',0)
 c                                         
+c                    call ga_print(g_fock)
                      next = nxtask(nproc,task_size)
                   end if
 c     
@@ -664,26 +671,35 @@ c        if (abs(g) .gt. tol2e) then
             j = labels(integ,2)
             k = labels(integ,3)
             l = labels(integ,4)
+c     write(6,*) ' b ' ,i,j,k,l
             atoms(1) = bftoat(i)
             atoms(2) = bftoat(j)
             atoms(3) = bftoat(k)
             atoms(4) = bftoat(l)
+c     write(6,*) ' a ' ,atoms
             i = rbfmap(i) - ibflo + 1
             j = rbfmap(j) - jbflo + 1
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
+c     write(6,*) ' c ', i,j,k,l
             do iiat = 1, 4
               iat = atoms(iiat)
               nfockder = (iat-1)*3 + 1
               do xyz = nfockder, nfockder+2
+c     write(6,*) 'contributing to fockder ',xyz
               g = eri(nbuf)
+c     write(6,*) 'integral is ',g, nbuf
               do v = 1, nfock
-                f_ij(xyz,v,i,j) = f_ij(xyz,v,i,j) + g*d_kl(v,k,l)
-                f_kl(xyz,v,k,l) = f_kl(xyz,v,k,l) + g*d_ij(v,i,j)
-                f_ik(xyz,v,i,k) = f_ik(xyz,v,i,k) + g*d_jl(v,j,l)
-                f_il(xyz,v,i,l) = f_il(xyz,v,i,l) + g*d_jk(v,j,k)
-                f_jl(xyz,v,j,l) = f_jl(xyz,v,j,l) + g*d_ik(v,i,k)
-                f_jk(xyz,v,j,k) = f_jk(xyz,v,j,k) + g*d_il(v,i,l)
+c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
+c    *  i,j,k,l,
+c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),
+c    *  d_ik(v,i,k),d_il(v,i,l)
+               f_ij(xyz,v,i,j)=f_ij(xyz,v,i,j)+4.0d+00*g*d_kl(v,k,l)
+               f_kl(xyz,v,k,l)=f_kl(xyz,v,k,l)+4.0d+00*g*d_ij(v,i,j)
+               f_ik(xyz,v,i,k)=f_ik(xyz,v,i,k)-g*d_jl(v,j,l)
+               f_il(xyz,v,i,l)=f_il(xyz,v,i,l)-g*d_jk(v,j,k)
+               f_jl(xyz,v,j,l)=f_jl(xyz,v,j,l)-g*d_ik(v,i,k)
+               f_jk(xyz,v,j,k)=f_jk(xyz,v,j,k)-g*d_il(v,i,l)
               end do
               nbuf = nbuf + 1
               end do
