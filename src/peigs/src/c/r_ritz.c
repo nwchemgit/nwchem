@@ -35,7 +35,6 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
   Integer msize, me;
   Integer **dptr11, *dptr1;
   unInteger i, j, k, ptr, ptr1;
-  extern void ortho2();
   
   *info = 0;
   me = mxmynd_();
