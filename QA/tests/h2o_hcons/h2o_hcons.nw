@@ -1,6 +1,7 @@
 echo
 start h2o
 
+memory global 40 mb stack 23 mb heap 5 mb
 
 basis
   O library 6-31g*
@@ -13,15 +14,83 @@ geometry noautoz noautosym nocenter units au
  H                     0.23701217     0.50006465    -0.66134565
  H                     0.08518191    -0.91769081    -0.30894068
 end
-
-
-cons
-harm bond 1 2 5.0 1.3 
-harm bond 1 3 5.0 1.3 
+driver
+maxiter 40
 end
 
-driver
-clear
+####################################
+#      TESTING HARM BONDS          #
+####################################
+
+#one harm bond
+constraints 
+  harm bond 1 3 5.0 1.30 
+  fix pos 1:2
 end
 
 task dft optimize
+
+constraints
+clear
+end
+
+#two harm bonds
+constraints 
+  harm bond 1 3 5.0 1.30 
+  harm bond 1 2 5.0 1.70 
+  fix pos 1
+end
+task dft optimize
+
+constraints
+clear
+end
+
+#same thing but without clearing constraints in between
+geometry noautoz noautosym nocenter units au
+ O                     0.00000000     0.00000000     0.00000000
+ H                     0.23701217     0.50006465    -0.66134565
+ H                     0.08518191    -0.91769081    -0.30894068
+end
+
+constraints 
+  harm bond 1 3 5.0 1.30 
+  fix pos 1:2
+end
+task dft optimize
+
+constraints 
+  harm bond 1 2 5.0 1.70 
+  unfix pos 2
+end
+task dft optimize
+
+constraints
+clear
+end
+
+#same thing but using namespaces
+geometry noautoz noautosym nocenter units au
+ O                     0.00000000     0.00000000     0.00000000
+ H                     0.23701217     0.50006465    -0.66134565
+ H                     0.08518191    -0.91769081    -0.30894068
+end
+
+constraints one
+  harm bond 1 3 5.0 1.30 
+  fix pos 1:2
+end
+
+constraints two
+  harm bond 1 3 5.0 1.30 
+  harm bond 1 2 5.0 1.70 
+  fix pos 1
+end
+
+set constraints one
+task dft optimize
+
+set constraints two
+task dft optimize
+
+
