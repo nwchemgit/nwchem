@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.3 1998-09-28 16:53:44 d3e129 Exp $
+c $Id: intdd_2e4c.F,v 1.4 1998-10-02 22:14:38 d3e129 Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -196,7 +196,7 @@ c...............gen labs .. more_integrals
           nintzero = int_nint(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
           nintzero = nintzero*78
           call dfill(nintzero, 0.0d0, eri, 1)
-          call ifill(4,-1,idatom,1)
+          call ifill(4,-9,idatom,1)
         endif
 c
       else
