@@ -5,9 +5,9 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(geom,rtdb,iconst,nconst,nat,
-     ,     itrscf,iscfcon,igcon,ipol,icvgtyp,
+     ,     itrscf,iscfcon,igcon,ipol,
      &     idirect,nbf_xc,nbf_cd,iEx,iEc)
-C$Id: dft_inpana.F,v 1.8 1996-05-01 23:53:17 og845 Exp $
+C$Id: dft_inpana.F,v 1.9 1996-10-01 21:22:18 d3h449 Exp $
       implicit none
       integer nat,nconst
       logical even
@@ -16,7 +16,7 @@ C$Id: dft_inpana.F,v 1.8 1996-05-01 23:53:17 og845 Exp $
       Integer rtdb    !  runtime database handle
       integer geom
       character*50 xname,cname
-      integer ipol,itrscf,icvgtyp,idirect,nbf_xc,nbf_cd,
+      integer ipol,itrscf,idirect,nbf_xc,nbf_cd,
      ,     iscfcon,igcon,iEx,iEc
 c
 c
@@ -133,13 +133,13 @@ c
       endif
       write(LuOut,9030)itrscf
 c     
-      if(icvgtyp.eq.0) then
-        write(LuOut,9080)
-      elseif(icvgtyp.eq.1) then
-        write(LuOut,9090)
-      elseif(icvgtyp.eq.2) then
-        write(LuOut,9100)
-      endif
+c      if(icvgtyp.eq.0) then
+c        write(LuOut,9080)
+c      elseif(icvgtyp.eq.1) then
+c        write(LuOut,9090)
+c      elseif(icvgtyp.eq.2) then
+c        write(LuOut,9100)
+c      endif
 c     
       if(idirect.eq.1)write(LuOut,9110)
 c     

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput( rtdb, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.13 1996-08-19 15:19:59 d3g681 Exp $
+C$Id: dft_rdinput.F,v 1.14 1996-10-01 21:22:53 d3h449 Exp $
       implicit none
       
       integer rtdb                               ! [input] database handle
@@ -21,17 +21,32 @@ C$Id: dft_rdinput.F,v 1.13 1996-08-19 15:19:59 d3g681 Exp $
 c
       integer bases(3)
       character*255 title
+      character*10 gridtype
       integer ncenters,iproc,ichg,iscfcon,iguess,mult,ipol,
-     ,     igcon,icvgtyp,nfock,ncysh,idirect,idisoff,noio,
+     ,     igcon,nfock,idirect,noio,
      ,     ndamp,idecomp,nagrid,nrinc,nrmax,
      ,     itype,numgrp,numset,itrscf,
-     ,     icenter,jcenter,iEx,iEc,i3
+     ,     icenter,jcenter,iEx,iEc,i3,
+     &     igeotype, 
+     &     iAOacc,iXCacc,irqmax,itol2e,imull,iangquad,
+     &     ncydp, ncysh, ncyds
+      double precision rlshift
+      double precision dampon, dampoff, levlon, levloff, 
+     &                 diison, diisoff
       integer nbf,nshells_cd,nbf_xc,nshells_xc,nshells
       integer lcoord,icoord,lcharge,icharge,ltags,itags,
      ,     lznuc,iznuc,lratom,iratom
-      double precision rcharge,rm,rscale,rlshift
+      double precision rcharge,rm,rscale
+      double precision cdist(3), cang(3)
+      logical nodamping, nolevelshifting, nodiis
+      logical ltight, lmaxov, incore
       Logical LResult, lnewtype, XCFIT, CDFIT, oskel
       Logical int_normalize
+c     
+c     XC functionals coefficients
+c     
+      character*50 xname,cname
+      double precision cfac(10),xfac(10)
       External int_normalize
       Logical int_norm_2c
       External int_norm_2c
@@ -59,47 +74,163 @@ c****
         rcharge = 0.0d0
       endif 
       ichg = idint(1.000001d0 * rcharge) ! avoid bad truncation
+c       
+c>>>  Get logical parameters from rtdb.
+c     
+      if (.not. rtdb_get(rtdb, 'dft:nodamping', mt_log, 1, nodamping))
+     $     call errquit('dft_input: rtdb_get failed', 1)
+      if (.not. rtdb_get(rtdb, 'dft:nolevelshifting', mt_log, 1, 
+     $  nolevelshifting))call errquit('dft_input: rtdb_get failed', 2)
+      if (.not. rtdb_get(rtdb, 'dft:nodiis', mt_log, 1, nodiis))
+     $     call errquit('dft_input: rtdb_get failed', 3)
+      if (.not. rtdb_get(rtdb, 'dft:tight', mt_log, 1, ltight))
+     $     call errquit('dft_input: rtdb_get failed', 4)
+      if(.not.rtdb_get(rtdb,'dft:incore', mt_log, 1, incore)) 
+     $     call errquit('dft_input: rtdb_get failed', 5)
+      if(.not. rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,lmaxov ))
+     $     call errquit('dft_input: rtdb_get failed', 6)
+c     
+c>>>  Get integer parameters from rtdb.
+c     
+      if (.not. rtdb_cget(rtdb, 'dft:gridtype', 1, gridtype))
+     $     call errquit('dft_input: rtdb_get failed', 7) 
+      if (.not. rtdb_cget(rtdb, 'dft:cname', 1, cname))
+     $     call errquit('dft_input: rtdb_get failed', 8) 
+      if (.not. rtdb_cget(rtdb, 'dft:xname', 1, xname))
+     $     call errquit('dft_input: rtdb_get failed', 9) 
+      if (.not. rtdb_get(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
+     $     call errquit('dft_input: rtdb_get failed', 10) 
+      if (.not. rtdb_get(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
+     $     call errquit('dft_input: rtdb_get failed', 11)
+      if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
+     $     call errquit('dft_input: rtdb_get failed', 12)
+      if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
+     $     call errquit('dft_input: rtdb_get failed', 13)
+      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     $     call errquit('dft_input: rtdb_get failed', 14)
+      if (.not. rtdb_get(rtdb, 'dft:igcon', mt_int, 1, igcon))
+     $     call errquit('dft_input: rtdb_get failed', 15)
+c      if (.not. rtdb_get(rtdb, 'dft:icvgtyp', mt_int, 1, icvgtyp))
+c     $     call errquit('dft_input: rtdb_get failed', 16)
+      if (.not. rtdb_get(rtdb, 'dft:nfock', mt_int, 1, nfock))
+     $     call errquit('dft_input: rtdb_get failed', 17)
+      if (.not. rtdb_get(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
+     $     call errquit('dft_input: rtdb_get failed', 18)
+      if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
+     $     call errquit('dft_input: rtdb_get failed', 19)
+      if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
+     $     call errquit('dft_input: rtdb_get failed', 20)
+      if (.not. rtdb_get(rtdb, 'dft:idirect', mt_int, 1, idirect))
+     $     call errquit('dft_input: rtdb_get failed', 21)
+c      if (.not. rtdb_get(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
+c     $     call errquit('dft_input: rtdb_get failed', 22)
+      if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1, noio))
+     $     call errquit('dft_input: rtdb_get failed', 23)
+      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
+     $     call errquit('dft_input: rtdb_get failed', 24)
+      if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
+     $     call errquit('dft_input: rtdb_get failed', 25)
+      if (.not. rtdb_get(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
+     $     call errquit('dft_input: rtdb_get failed', 26)
+      if (.not. rtdb_get(rtdb, 'dft:nrad', mt_int, ntags_bsmx, nrad))
+     $     call errquit('dft_input: rtdb_get failed', 27)
+      if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+     $     call errquit('dft_input: rtdb_get failed', 28)
+      if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
+     $     call errquit('dft_input: rtdb_get failed', 29)
+      if (.not. rtdb_get(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
+     $     call errquit('dft_input: rtdb_get failed', 30)
+      if (.not. rtdb_get(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
+     $     call errquit('dft_input: rtdb_get failed', 31)
+      if (.not. rtdb_get(rtdb, 'dft:igeotype', mt_int, 1, igeotype))
+     $     call errquit('dft_input: rtdb_get failed', 32)
+      if (.not. rtdb_get(rtdb, 'dft:numgrp', mt_int, 1, numgrp))
+     $     call errquit('dft_input: rtdb_get failed', 33)
+      if (.not. rtdb_get(rtdb, 'dft:numset', mt_int, 1, numset))
+     $     call errquit('dft_input: rtdb_get failed', 34)
+c     
+c>>>  Get real parameters from rtdb.
+c     
+      if (.not. rtdb_get(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
+     $     call errquit('dft_input: rtdb_get failed', 35)
+      if (.not. rtdb_get(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
+     $     call errquit('dft_input: rtdb_get failed', 36)
+      if (.not. rtdb_get(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
+     $     call errquit('dft_input: rtdb_get failed', 37)
+      if (.not. rtdb_get(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
+     $     call errquit('dft_input: rtdb_get failed', 38)
+      if (.not. rtdb_get(rtdb, 'dft:diison', mt_dbl, 1, diison))
+     $     call errquit('dft_input: rtdb_get failed', 39)
+      if (.not. rtdb_get(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
+     $     call errquit('dft_input: rtdb_get failed', 40)
+      if (.not. rtdb_get(rtdb, 'dft:rscale', mt_dbl, 1, rscale))
+     $     call errquit('dft_input: rtdb_get failed', 41)
+      if (.not. rtdb_get(rtdb, 'dft:cang', mt_dbl, 3, cang))
+     $     call errquit('dft_input: rtdb_get failed', 42)
+      if (.not. rtdb_get(rtdb, 'dft:cdist', mt_dbl, 3, cdist))
+     $     call errquit('dft_input: rtdb_get failed', 43)
+c>>>  
+      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+     $     call errquit('dft_input: rtdb_get failed', 44)
+      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+     $     call errquit('dft_input: rtdb_get failed', 45)
+c     if (.not. rtdb_get(rtdb, 'dft:iEx', mt_int, 1, iEx))
+c     $     call errquit('dft_input: rtdb_get failed', 46)
+c     if (.not. rtdb_get(rtdb, 'dft:iEc', mt_int, 1, iEc))
+c     $     call errquit('dft_input: rtdb_get failed', 47)
+      if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
+     $     call errquit('dft_input: rtdb_get failed', 48)
+      if (.not. rtdb_get(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
+     $     call errquit('dft_input: rtdb_get failed', 49)
+      if (.not. rtdb_get(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
+     $     call errquit('dft_input: rtdb_get failed', 50)
+      if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
+     $     call errquit('dft_input: rtdb_get failed', 51)
+      if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1, imull))
+     $     call errquit('dft_input: rtdb_get failed', 52)
+      if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
+     $     call errquit('dft_input: rtdb_get failed', 53)
 c     
 c     recover rdcalc integer parameters from rtdb
 c     
-      if (.not. rtdb_get(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
-     &     call errquit('rdinput: rtdb_get failed',2) 
-      if (.not. rtdb_get(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
-     &     call errquit('rdinput: rtdb_get failed',4) 
-      if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     &     call errquit('rdinput: rtdb_get failed',6) 
-      if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
-     &     call errquit('rdinput: rtdb_get failed',10)
-      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     &     call errquit('rdinput: rtdb_get failed',14)
-      if (.not. rtdb_get(rtdb, 'dft:igcon', mt_int, 1, igcon))
-     &     call errquit('rdinput: rtdb_get failed',16)
-      if (.not. rtdb_get(rtdb, 'dft:icvgtyp', mt_int, 1, icvgtyp))
-     &     call errquit('rdinput: rtdb_get failed',18)
-      if (.not. rtdb_get(rtdb, 'dft:nfock', mt_int, 1, nfock))
-     &     call errquit('rdinput: rtdb_get failed',20)
-      if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
-     &     call errquit('rdinput: rtdb_get failed',20)
-      if (.not. rtdb_get(rtdb, 'dft:idirect', mt_int, 1, idirect))
-     &     call errquit('rdinput: rtdb_get failed',22)
-      if (.not. rtdb_get(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
-     &     call errquit('rdinput: rtdb_get failed',24)
-      if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1, noio))
-     &     call errquit('rdinput: rtdb_get failed',32)
-      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
-     &     call errquit('rdinput: rtdb_get failed',34)
-      if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     &     call errquit('rdinput: rtdb_get failed',36)
-      if (.not. rtdb_get(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
-     &     call errquit('rdinput: rtdb_get failed',38)
-      if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &     call errquit('rdinput: rtdb_get failed',40)
-      if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-     &     call errquit('rdinput: rtdb_get failed',42)
-      if (.not. rtdb_get(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
-     &     call errquit('rdinput: rtdb_get failed',44)
-      if (.not. rtdb_get(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
-     &     call errquit('rdinput: rtdb_get failed',46)
+c      if (.not. rtdb_get(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
+c     &     call errquit('rdinput: rtdb_get failed',2) 
+c      if (.not. rtdb_get(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
+c     &     call errquit('rdinput: rtdb_get failed',4) 
+c      if (.not. rtdb_get(rtdb, 'dft:iguess', mt_int, 1, iguess))
+c     &     call errquit('rdinput: rtdb_get failed',6) 
+c      if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, mult))
+c     &     call errquit('rdinput: rtdb_get failed',10)
+c      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
+c     &     call errquit('rdinput: rtdb_get failed',14)
+c      if (.not. rtdb_get(rtdb, 'dft:igcon', mt_int, 1, igcon))
+c     &     call errquit('rdinput: rtdb_get failed',16)
+c      if (.not. rtdb_get(rtdb, 'dft:icvgtyp', mt_int, 1, icvgtyp))
+c     &     call errquit('rdinput: rtdb_get failed',18)
+c      if (.not. rtdb_get(rtdb, 'dft:nfock', mt_int, 1, nfock))
+c     &     call errquit('rdinput: rtdb_get failed',20)
+c      if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
+c     &     call errquit('rdinput: rtdb_get failed',20)
+c      if (.not. rtdb_get(rtdb, 'dft:idirect', mt_int, 1, idirect))
+c     &     call errquit('rdinput: rtdb_get failed',22)
+c      if (.not. rtdb_get(rtdb, 'dft:idisoff', mt_int, 1, idisoff))
+c     &     call errquit('rdinput: rtdb_get failed',24)
+c      if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1, noio))
+c     &     call errquit('rdinput: rtdb_get failed',32)
+c      if (.not. rtdb_get(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
+c     &     call errquit('rdinput: rtdb_get failed',34)
+c      if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
+c     &     call errquit('rdinput: rtdb_get failed',36)
+c      if (.not. rtdb_get(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
+c     &     call errquit('rdinput: rtdb_get failed',38)
+c      if (.not. rtdb_get(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
+c     &     call errquit('rdinput: rtdb_get failed',40)
+c      if (.not. rtdb_get(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
+c     &     call errquit('rdinput: rtdb_get failed',42)
+c      if (.not. rtdb_get(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
+c     &     call errquit('rdinput: rtdb_get failed',44)
+c      if (.not. rtdb_get(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
+c     &     call errquit('rdinput: rtdb_get failed',46)
 c     
 c     recover real parameters from rtdb
 c     
@@ -111,7 +242,7 @@ c
 c     Read property evaluation options.
 
         iconst(39) = idecomp  ! only action in rdprop other than read in
-        iconst(40) = idisoff
+c        iconst(40) = idisoff
 
 c     
       if (.not. geom_create(geom, 'geometry'))
@@ -317,7 +448,7 @@ c     should be eliminated at least for these Gaussian basis set parameters.)
       iconst( 9) = iscfcon
       iconst(11) = ipol   
       iconst(18) = igcon  
-      iconst(36) = icvgtyp
+c      iconst(36) = icvgtyp
       iconst(37) = nfock
       iconst(38) = idirect
       iconst(49) = noio
@@ -335,7 +466,7 @@ C      iconst(50) = lshift
 c     Check the user supplied input for any inconsistencies.
 
         call dft_inpana(geom,rtdb,iconst,nconst,ncenters,
-     &       itrscf,iscfcon,igcon,ipol,icvgtyp,idirect,
+     &       itrscf,iscfcon,igcon,ipol,idirect,
      &       nbf_xc,nbf_cd,iEx,iEc) 
 c
 c       inpana could have modified ipol
@@ -343,22 +474,22 @@ c
         ipol=iconst(11)
 
       if( iproc.eq.0 )then
-        if(nfock.ne.0) then
-          write(LuOut,'(3x,A,i2,A)') 
-     &         '       ',nfock,' Fock matrices are used in DIIS'
-          write(LuOut,*)
-        endif
-        if(abs(rlshift).gt.1.d-5) then
-          write(LuOut,'(3x,A,f4.2,A,i4,A)') 
-     &         '       Fock Matrix Level Shifted by ',rlshift,
-     &         ' hartree for ',ncysh,' cycles'
-          write(LuOut,*)
-        endif
-        if(ndamp.ne.0) then
-          write(LuOut,'(3x,A,i2,A)') 
-     &         '       Density Matrix Damping by ',ndamp,'%'
-          write(LuOut,*)
-        endif
+c        if(nfock.ne.0) then
+c          write(LuOut,'(3x,A,i2,A)') 
+c     &         '       ',nfock,' Fock matrices are used in DIIS'
+c          write(LuOut,*)
+c        endif
+c        if(abs(rlshift).gt.1.d-5) then
+c          write(LuOut,'(3x,A,f4.2,A,i4,A)') 
+c     &         '       Fock Matrix Level Shifted by ',rlshift,
+c     &         ' hartree for ',ncysh,' cycles'
+c          write(LuOut,*)
+c        endif
+c        if(ndamp.ne.0) then
+c          write(LuOut,'(3x,A,i2,A)') 
+c     &         '       Density Matrix Damping by ',ndamp,'%'
+c          write(LuOut,*)
+c        endif
         write(LuOut,*)
         write(LuOut,1) 
      &       '       AO basis - No. of functions:   ',nbf,
