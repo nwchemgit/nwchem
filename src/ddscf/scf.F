@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.57 1997-11-09 19:14:15 d3g681 Exp $
+C$Id: scf.F,v 1.58 1998-03-13 01:38:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -19,7 +19,7 @@ c     restricted Hatree-Fock calculations
 c
       integer rtdb              ! [input] database handle
       logical converged
-      logical status
+      logical status, olocal
       double precision energy
       logical oprint
       character*255 name, ri_trans
@@ -253,6 +253,10 @@ c     Must store the final MOs AFTER writing the convergence flag
 c     since the time it is put into the RTDB is used to verify
 c     that the two correspond.
 c
+      if (.not. rtdb_get(rtdb, 'scf:localize', mt_log, 1, olocal))
+     $     olocal = .false.
+      if (olocal) CALL TESTLOCALIZE(rtdb)
+c
       call scf_movecs_write(rtdb)
 c
 c     With some better data compression in the ECCE output
@@ -260,7 +264,7 @@ c     we can now output all occupied plus the top 20 virtuals.
 c     Also, ECCE may currently be confused if molo != 1
 c
       molo = 1
-      mohi = min(nmo,nalpha+20)
+      mohi = nmo ! min(nmo,nalpha+20)
 c
       if (scftype .eq. 'UHF') then
          call movecs_ecce(nbf, nmo, molo, mohi, dbl_mb(k_eval),
