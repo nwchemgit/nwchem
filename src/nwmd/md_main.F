@@ -328,7 +328,7 @@ c
       integer iwa,iwm,isa,ix,inner
       logical ltr,ldone
       real*8 alpha,beta1,beta2,beta3,beta4,beta5,gamma,zeta
-      real*8 epot,dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif,espt
+      real*8 epot,dx,ecgnew,eqrs,ecgold,ecgdif,edt,dxf,edif
       real*8 dxsmax,dxwmax,fnorm1,fnorm2,ypa,ypb,pnorm,dxstep
       real*8 dxmax,dxfi,ecg0,ecg1,ecg2
       character*1 cqrs
