@@ -75,8 +75,8 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
 	    time=Double.valueOf(card.substring(6,17)).doubleValue();
 	    synt=Double.valueOf(card.substring(18,29)).doubleValue();
 	    stpt=Double.valueOf(card.substring(30,41)).doubleValue();
-	    synPlot.addData(setnumber,time,synt,!first,true);
-	    timPlot.addData(setnumber,time,stpt,!first,true); first=false;
+	    synPlot.addData(setnumber,time,synt,!first,false);
+	    timPlot.addData(setnumber,time,stpt,!first,false); first=false;
 	    if(type==1){card=br.readLine();};
 	    for(int i=0; i<np; i++) {card=br.readLine();};
 	  };
@@ -120,8 +120,8 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
 	time=Double.valueOf(card.substring(6,17)).doubleValue();
 	synt=Double.valueOf(card.substring(18,29)).doubleValue();
 	stpt=Double.valueOf(card.substring(30,41)).doubleValue();
-	synPlot.addData(0,time,synt,!first,true);
-	timPlot.addData(0,time,stpt,!first,true); first=false;
+	synPlot.addData(0,time,synt,!first,false);
+	timPlot.addData(0,time,stpt,!first,false); first=false;
 	if(type==1){card=br.readLine();};
 	for(int i=0; i<np; i++) {card=br.readLine();};
       };

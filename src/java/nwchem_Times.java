@@ -71,7 +71,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
 	int k;
 	for(int i=0; i<np-1; i++){
 	  for(int j=i+1; j<np; j++){
-	    if(ndata[ndx[i]][7]-ndata[ndx[i]][6]<ndata[ndx[j]][7]-ndata[ndx[j]][6]){
+	    if(ndata[ndx[i]][16]-ndata[ndx[i]][15]<ndata[ndx[j]][16]-ndata[ndx[j]][15]){
 	      k=ndx[i]; ndx[i]=ndx[j]; ndx[j]=k;
 	    };
 	  };
