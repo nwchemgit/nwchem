@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F,v 1.2 2003-02-15 08:32:19 edo Exp $
+c$Id: xc_ft97.F,v 1.3 2003-02-15 22:43:42 d3j191 Exp $
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
      .      cfac, lcfac, nlcfac,
@@ -33,8 +33,6 @@ c to hcth
       double precision rhob 
       double precision za   
       double precision zb   
-      double precision dfdrax, dfdrac
-      double precision dfdrbx, dfdrbc
       double precision dfdzac,dfdzax,dfdza
       double precision dfdzbc,dfdzbx,dfdzb
 c
