@@ -1,10 +1,10 @@
-      Subroutine tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,ntrials,
-     1  tda,g_trials,g_prod_p,g_prod_m,g_apbvec,apbval,g_ambvec,
-     2  residual_1,residual_2,g_residuals_1,g_residuals_2,thresh,
-     3  valsav,maxresidual,maxomega,converged,maxvecs,evl,
+      Subroutine tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
+     1  ntrials,tda,g_trials,g_prod_p,g_prod_m,g_apbvec,apbval,
+     2  g_ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
+     3  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      4  nconverged,nnewtrials)
 c
-c $Id: tddft_residual.F,v 1.1 2002-03-22 02:10:37 sohirata Exp $
+c $Id: tddft_residual.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -39,6 +39,7 @@ c
       integer ipol             ! = 1 (RDFT); =2 (UDFT)
       integer nocc(2)          ! Number of occupied orbitals
       integer nmo(2)           ! Number of orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for (A+B) product vectors
       integer g_prod_m(2)      ! GA handle for (A-B) product vectors
@@ -73,7 +74,7 @@ c Number of occupied virtual pairs
 c --------------------------------
 c
       do i=1,ipol
-        nov(i)=(nmo(i)-nocc(i))*nocc(i)
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
 c
@@ -219,8 +220,8 @@ c
           if (nodezero) then
             do i=1,ipol
               l=0
-              do j=1,nocc(i)
-                do k=nocc(i)+1,nmo(i)
+              do j=nfc(i)+1,nocc(i)
+                do k=nocc(i)+1,nmo(i)-nfv(i)
                   l=l+1
                   call ga_get(g_residuals_1(i),l,l,n,n,r,1)
                   r=r/(evl(k,i)-evl(j,i)-apbval(n))
@@ -277,8 +278,8 @@ c
             if (nodezero) then
               do i=1,ipol
                 l=0
-                do j=1,nocc(i)
-                  do k=nocc(i)+1,nmo(i)
+                do j=nfc(i)+1,nocc(i)
+                  do k=nocc(i)+1,nmo(i)-nfv(i)
                     l=l+1
                     call ga_get(g_residuals_2(i),l,l,n,n,r,1)
                     r=r/(evl(k,i)-evl(j,i)-apbval(n))

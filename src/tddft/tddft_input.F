@@ -1,12 +1,14 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.2 2002-03-28 17:15:47 sohirata Exp $
+c $Id: tddft_input.F,v 1.3 2002-04-10 19:17:19 sohirata Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
 c Modified from mp2_grad/mp2_input.F by So Hirata Feb, 2002.
 c
 c     TDDFT
+c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
+c                 [virtual <integer nfzv default 0>]]
 c        [(TDA||NOTDA) default NOTDA]
 c        [NROOTS <integer nroots default 1>]
 c        [MAXVECS <integer maxvecs default 1000>]
@@ -38,6 +40,10 @@ c
 c ------------------
 c Set default values
 c ------------------
+c
+c     FREEZE (Frozen cores/virtuals)
+c
+c     no action is taken
 c
 c     TDA (Tamm-Dancoff approximation)
 c
@@ -108,9 +114,14 @@ c
       if (.not. inp_a(test)) 
      1  call errquit('tddft_input: failed reading keyword',0)
 c
+c     FREEZE (Frozen cores/virtuals)
+c
+      if (inp_compare(.false.,test,'freeze')) then
+        call freeze_input(rtdb,'tddft')
+c
 c     TDA (Tamm-Dancoff approximation)
 c
-      if (inp_compare(.false.,test,'tda')) then
+      else if (inp_compare(.false.,test,'tda')) then
         tda=.true.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
      1    call errquit('tddft_input: failed writing to rtdb',0)

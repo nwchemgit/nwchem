@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
-     1  nbf_ao,nocc,nmo,ipol,g_density,itype)
+     1  nbf_ao,nocc,nmo,nfc,nfv,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.2 2002-03-22 04:17:41 sohirata Exp $
+c $Id: tddft_transfm.F,v 1.3 2002-04-10 19:17:19 sohirata Exp $
 c
 c itype=1
 c
@@ -35,6 +35,7 @@ c
       integer nbf_ao           ! Number of AO basis functions
       integer nocc(2)          ! Number of occupied orbitals
       integer nmo(2)           ! Number of orbitals
+      integer nfc(2),nfv(2)    ! Number of orbitals
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer g_vector(2)      ! GA handle for trial/product vectors
       integer g_movecs(2)      ! GA handle for MO vectors
@@ -83,8 +84,8 @@ c
  9000     format(' Vector: ',i5,' Spin: ',i5)
           call dfill(nbf_ao**2,0.0d0,dbl_mb(k_w1),1)
           l=0
-          do j=1,nocc(i)
-            do k=nocc(i)+1,nmo(i)
+          do j=nfc(i)+1,nocc(i)
+            do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
               call ga_get(g_vector(i),l,l,ivector,ivector,
      1          dbl_mb(k_w1+(j-1)*nbf_ao+k-1),1)
@@ -156,8 +157,8 @@ c Copy an array to GA
 c -------------------
 c
           l=0
-          do j=1,nocc(i)
-            do k=nocc(i)+1,nmo(i)
+          do j=nfc(i)+1,nocc(i)
+            do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
               call ga_put(g_vector(i),l,l,ivector,ivector,
      1          dbl_mb(k_w1+(j-1)*nbf_ao+k-1),1)

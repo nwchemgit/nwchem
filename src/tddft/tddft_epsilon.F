@@ -1,7 +1,7 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
-     1  ipol,nbf_ao,nocc,nmo,evl)
+     1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
 c
-c $Id: tddft_epsilon.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_epsilon.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
 c
 c Add (epsilon_a-epsilon_i) contribution to the product vector.
 c
@@ -28,6 +28,7 @@ c
       integer nbf_ao           ! Number of AO basis functions
       integer nocc(2)          ! Number of occupied orbitals
       integer nmo(2)           ! Number of orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       double precision evl(nbf_ao,2)   ! Eigenvalues
 c
       integer i,j,k,l
@@ -39,8 +40,8 @@ c --------------------------------------------------------
 c
       do i=1,ipol
         l=0
-        do j=1,nocc(i)
-          do k=nocc(i)+1,nmo(i)
+        do j=nfc(i)+1,nocc(i)
+          do k=nocc(i)+1,nmo(i)-nfv(i)
             l=l+1
             call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
             call ga_get(g_prod_s(i),l,l,ivector,ivector,p,1)

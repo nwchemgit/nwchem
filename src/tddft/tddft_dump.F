@@ -1,7 +1,7 @@
-      subroutine tddft_dump(ipol,nocc,nmo,g_trials,
+      subroutine tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1  g_prod_p,g_prod_m,ivector,ntrials,nproducts,tda)
 c
-c $Id: tddft_dump.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_dump.F,v 1.2 2002-04-10 19:17:18 sohirata Exp $
 c
 c Print all current trial and product vectors for debug
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
@@ -21,6 +21,7 @@ c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for A+B product vectors
       integer g_prod_m(2)      ! GA handle for A-B product vectors
@@ -50,8 +51,8 @@ c
         endif
         do i=1,ipol
           l=0
-          do j=1,nocc(i)
-            do k=nocc(i)+1,nmo(i)
+          do j=nfc(i)+1,nocc(i)
+            do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
               call ga_get(g_trials(i),l,l,ivector,ivector,t,1)
               if (ivector.le.nproducts) then

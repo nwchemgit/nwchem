@@ -1,8 +1,8 @@
       subroutine tddft_iguess(rtdb,nbf_ao,ipol,
-     1  nocc,nmo,nroots,maxvecs,g_trials,g_movecs,evl,
+     1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_movecs,evl,
      2  ntrials,nproducts)
 c
-c $Id: tddft_iguess.F,v 1.1 2002-03-22 02:10:36 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -30,6 +30,7 @@ c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer g_trials(2)      ! GA handle for trial vectors
@@ -58,7 +59,7 @@ c Allocate work arrays
 c --------------------
 c
       do i=1,ipol
-        nov(i)=(nmo(i)-nocc(i))*nocc(i)
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
       if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
@@ -91,8 +92,8 @@ c ----------------------------------
 c
       l=0
       do i=1,ipol
-        do j=1,nocc(i)
-          do k=nocc(i)+1,nmo(i)
+        do j=nfc(i)+1,nocc(i)
+          do k=nocc(i)+1,nmo(i)-nfv(i)
             l=l+1
             dbl_mb(k_ediff+l-1)=evl(k,i)-evl(j,i)
           enddo
@@ -108,8 +109,8 @@ c
         swap=huge
         l=0
         do i=1,ipol
-          do j=1,nocc(i)
-            do k=nocc(i)+1,nmo(i)
+          do j=nfc(i)+1,nocc(i)
+            do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
               if (dbl_mb(k_ediff+l-1).lt.swap) then
                 int_mb(k_sorto+m-1)=j
@@ -197,8 +198,9 @@ c
             dbl_mb(k_t(i)+j-1)=0.0d0
           enddo
           if (i.eq.int_mb(k_sortp+m-1))
-     1      dbl_mb(k_t(i)+(int_mb(k_sorto+m-1)-1)*(nmo(i)-nocc(i))
-     2                   +(int_mb(k_sortv+m-1)-nocc(i))-1)=1.0d0
+     1      dbl_mb(k_t(i)+(int_mb(k_sorto+m-1)-nfc(i)-1)
+     2        *((nmo(i)-nfv(i))-nocc(i))
+     3        +(int_mb(k_sortv+m-1)-nocc(i)-1))=1.0d0
           call ga_put(g_trials(i),1,nov(i),m,m,dbl_mb(k_t(i)),1)
         enddo
       enddo

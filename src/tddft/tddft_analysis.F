@@ -1,8 +1,9 @@
       subroutine tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,
-     1  ipol,nocc,nmo,ntrials,tda,g_trials,g_prod_p,g_apbvec,apbval,
-     2  g_ambvec,g_movecs,evl,singlet,triplet,target,targetsym,mult)
+     1  ipol,nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,
+     2  g_apbvec,apbval,g_ambvec,g_movecs,evl,singlet,triplet,
+     3  target,targetsym,mult)
 c
-c $Id: tddft_analysis.F,v 1.3 2002-03-28 17:15:46 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.4 2002-04-10 19:17:18 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -38,6 +39,7 @@ c
       integer ipol             ! = 1 (RDFT); =2 (UDFT)
       integer nocc(2)          ! Number of occupied orbitals
       integer nmo(2)           ! Number of orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for (A+B) product vectors
       integer ntrials          ! Current number of trial vectors
@@ -82,7 +84,7 @@ c
       spin(1)='alpha'
       spin(2)='beta '
       do i=1,ipol
-        nov(i)=(nmo(i)-nocc(i))*nocc(i)
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
 c
@@ -164,6 +166,8 @@ c
       isym=1
       if (ipol.eq.2) then
         do i=1,ipol
+c here we are just getting ground state symmetry ...
+c ... frozen cores are irrelevant
           do j=1,nocc(i)
             call sym_product(geom,isym,int_mb(k_irs(i)+j-1),isym)
           enddo
@@ -193,8 +197,8 @@ c
         vir=0
         do i=1,ipol
           l=0
-          do j=1,nocc(i)
-            do k=nocc(i)+1,nmo(i)
+          do j=nfc(i)+1,nocc(i)
+            do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
               call ga_get(g_x(i),l,l,n,n,r,1)
               if (dabs(r).gt.maxr) then
@@ -238,14 +242,14 @@ c
           tmom(i)=0.0d0
         enddo
         call tddft_transfm(n,g_x,g_movecs,nbf_ao,
-     1    nocc,nmo,ipol,g_tmomd,1)
+     1    nocc,nmo,nfc,nfv,ipol,g_tmomd,1)
         do i=1,ipol
           call multipole_density(ao_bas_han,cntr,1,
      1      g_tmomd(i),tmom,4)
         enddo
         if (.not.tda) then
           call tddft_transfm(n,g_y,g_movecs,nbf_ao,
-     1      nocc,nmo,ipol,g_tmomd,1)
+     1      nocc,nmo,nfc,nfv,ipol,g_tmomd,1)
           do i=1,ipol
             call multipole_density(ao_bas_han,cntr,1,
      1        g_tmomd(i),tmom,4)
@@ -273,8 +277,8 @@ c
      1    util_print('excited state',print_default)) write(LuOut,*)
         if (ipol.eq.1) then
           l=0
-          do j=1,nocc(1)
-            do k=nocc(1)+1,nmo(1)
+          do j=nfc(1)+1,nocc(1)
+            do k=nocc(1)+1,nmo(1)-nfv(1)
               l=l+1
               if (tda) then
                 call ga_get(g_x(1),l,l,n,n,r,1)
@@ -304,8 +308,8 @@ c
         else
           do i=1,ipol
             l=0
-            do j=1,nocc(i)
-              do k=nocc(i)+1,nmo(i)
+            do j=nfc(i)+1,nocc(i)
+              do k=nocc(i)+1,nmo(i)-nfv(i)
                 l=l+1
                 if (tda) then
                   call ga_get(g_x(i),l,l,n,n,r,1)

@@ -1,10 +1,10 @@
       subroutine tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
-     1  nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
+     1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2  g_movecs,evl,ntrials,nproducts,
      3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      4  maxiter,target,targetsym,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.4 2002-03-28 17:15:46 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.5 2002-04-10 19:17:18 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -105,6 +105,7 @@ c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer g_trials(2)      ! GA handle for trial vectors
@@ -174,7 +175,7 @@ c Allocate density matrices
 c -------------------------
 c
       do i=1,ipol
-        nov(i)=(nmo(i)-nocc(i))*nocc(i)
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
       do i=1,ipol
@@ -279,7 +280,7 @@ c -----------------------
 c
           do n=nproducts+1,ntrials
             call tddft_transfm(n,g_trials,g_movecs,
-     1        nbf_ao,nocc,nmo,ipol,g_td,1)
+     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
             do i=1,ipol
               alo(1)=1
               ahi(1)=nbf_ao
@@ -346,10 +347,10 @@ c             bhi(1)=(n-nproducts-1)*ipol+i
      1          ('N',g_nprd_m,blo,bhi,g_qd(i),alo,ahi)
             enddo
             call tddft_transfm(n,g_prod_p,g_movecs,
-     1        nbf_ao,nocc,nmo,ipol,g_pd,2)
+     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
             if (.not.tda) then
               call tddft_transfm(n,g_prod_m,g_movecs,
-     1          nbf_ao,nocc,nmo,ipol,g_qd,2)
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
             endif
           enddo
           ccpu=ccpu+util_cpusec()
@@ -370,13 +371,13 @@ c this subroutine in the future.
 c
           do n=nproducts+1,ntrials
             if (nodezero) call tddft_epsilon(n,g_trials,g_prod_p,
-     1        ipol,nbf_ao,nocc,nmo,evl)
+     1        ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             if (.not.tda) then
               if (nodezero) call tddft_epsilon(n,g_trials,g_prod_m,
-     1          ipol,nbf_ao,nocc,nmo,evl)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             endif
             if (nodezero.and.util_print('trial vectors',print_high))
-     1        call tddft_dump(ipol,nocc,nmo,g_trials,
+     1        call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      2        g_prod_p,g_prod_m,n,ntrials,n,tda)
           enddo
           nproducts=ntrials
@@ -420,7 +421,7 @@ c MO to AO transformation of the i-th trial vector
 c ------------------------------------------------
 c
             call tddft_transfm(n,g_trials,g_movecs,
-     1        nbf_ao,nocc,nmo,ipol,g_td,1)
+     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_td,1)
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
             if (nodezero.and.util_print('timings',print_high))
@@ -454,10 +455,10 @@ c MO to AO transformation of the i-th trial vector
 c ------------------------------------------------
 c
             call tddft_transfm(n,g_prod_p,g_movecs,
-     1        nbf_ao,nocc,nmo,ipol,g_pd,2)
+     1        nbf_ao,nocc,nmo,nfc,nfv,ipol,g_pd,2)
             if (.not.tda) then
               call tddft_transfm(n,g_prod_m,g_movecs,
-     1          nbf_ao,nocc,nmo,ipol,g_qd,2)
+     1          nbf_ao,nocc,nmo,nfc,nfv,ipol,g_qd,2)
             endif
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
@@ -476,10 +477,10 @@ c CAUTION: only node 0 execute tddft_epsilon; perhaps I should parallelize
 c this subroutine in the future.
 c
             if (nodezero) call tddft_epsilon(n,g_trials,g_prod_p,
-     1        ipol,nbf_ao,nocc,nmo,evl)
+     1        ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             if (.not.tda) then
               if (nodezero) call tddft_epsilon(n,g_trials,g_prod_m,
-     1          ipol,nbf_ao,nocc,nmo,evl)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
             endif
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
@@ -491,7 +492,7 @@ c
             if (nodezero.and.util_print('trial vectors',print_high))
      1        write(LuOut,9200) memleft
             if (nodezero.and.util_print('trial vectors',print_high))
-     1        call tddft_dump(ipol,nocc,nmo,g_trials,
+     1        call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      2        g_prod_p,g_prod_m,n,ntrials,n,tda)
           enddo
           nproducts=ntrials
@@ -526,7 +527,7 @@ c
 c
 c Make (A+B) and (A-B)
 c
-        call tddft_subspace(ipol,nocc,nmo,g_trials,
+        call tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
      1    g_prod_p,g_prod_m,ntrials,tda,g_apb,g_amb)
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
@@ -558,12 +559,12 @@ c ---------------------------------------------------------------
 c Form residual vectors, new trial vectors, and check convergence
 c ---------------------------------------------------------------
 c 
-        call tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,ntrials,tda,
-     1    g_trials,g_prod_p,g_prod_m,g_apbvec,dbl_mb(k_apbval),
-     2    g_ambvec,dbl_mb(k_residual_1),dbl_mb(k_residual_2),
-     3    g_residuals_1,g_residuals_2,thresh,dbl_mb(k_valsav),
-     4    maxresidual,maxomega,converged,maxvecs,evl,nconverged,
-     5    nnewtrials)
+        call tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
+     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,g_apbvec,
+     2    dbl_mb(k_apbval),g_ambvec,dbl_mb(k_residual_1),
+     3    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
+     4    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
+     5    evl,nconverged,nnewtrials)
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
@@ -601,7 +602,7 @@ c Analysis of the results
 c -----------------------
 c
           call tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,ipol,
-     1      nocc,nmo,ntrials,tda,g_trials,g_prod_p,g_apbvec,
+     1      nocc,nmo,nfc,nfv,ntrials,tda,g_trials,g_prod_p,g_apbvec,
      2      dbl_mb(k_apbval),g_ambvec,g_movecs,evl,singlet,triplet,
      3      target,targetsym,mult)
           ccpu=ccpu+util_cpusec()

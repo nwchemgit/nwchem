@@ -1,7 +1,7 @@
-      subroutine tddft_subspace(ipol,nocc,nmo,g_trials,
+      subroutine tddft_subspace(ipol,nocc,nmo,nfc,nfv,g_trials,
      1  g_prod_p,g_prod_m,ntrials,tda,g_apb,g_amb)
 c
-c $Id: tddft_subspace.F,v 1.1 2002-03-22 02:10:37 sohirata Exp $
+c $Id: tddft_subspace.F,v 1.2 2002-04-10 19:17:19 sohirata Exp $
 c
 c Form subspace representation of (A+B) and (A-B) matrices
 c using trial and product vectors.  The elements of (A+B)
@@ -27,6 +27,7 @@ c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer g_trials(2)      ! GA handle for trial vectors
       integer g_prod_p(2)      ! GA handle for A+B product vectors
       integer g_prod_m(2)      ! GA handle for A-B product vectors
@@ -44,7 +45,7 @@ c Allocate work arrays
 c --------------------
 c
       do i=1,ipol
-        nov(i)=(nmo(i)-nocc(i))*nocc(i)
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
       if (ipol.eq.1) nov(2)=0
 c

@@ -1,12 +1,12 @@
       subroutine tddft_init(rtdb,geom,oskel,oadapt,ao_bas_han,
-     1  nbf_ao,movecs_out,ipol,nocc,nmo,numfunc,xname,cname,xcname,
-     2  xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
+     1  nbf_ao,movecs_out,ipol,nocc,nmo,nfc,nfv,numfunc,
+     2  xname,cname,xcname,xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,mult)
 c
-c $Id: tddft_init.F,v 1.3 2002-03-28 17:15:46 sohirata Exp $
+c $Id: tddft_init.F,v 1.4 2002-04-10 19:17:19 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -37,6 +37,7 @@ c
       integer numfunc          ! Number of functionals implemented
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       character*255 movecs_out ! MO vector file name
       character*255 title      ! Title
       character*255 basisname  ! Basis set name
@@ -78,6 +79,7 @@ c
       character*18 ctype
       integer itol2e
       logical nodezero
+      logical dummy
 c
       logical int_normalize
       external int_normalize
@@ -154,6 +156,20 @@ c --------------
 c -----------
 c TDDFT input
 c -----------
+      if (rtdb_get(rtdb,'tddft:frozen core:freeze by atoms',
+     1  mt_log,1,dummy)) then
+        if (.not.geom_num_core(geom,nfc(1)))
+     1    call errquit('tddft_init: failed to get number of cores',0)
+      else if (rtdb_get(rtdb,'tddft:frozen core',
+     1  mt_int,1,nfc(1))) then
+        continue
+      else
+        nfc(1) = 0
+      endif
+      if (ipol.eq.2) nfc(2) = nfc(1)
+      if (.not.rtdb_get(rtdb,'tddft:frozen virtual',
+     1  mt_int,1,nfv(1))) nfv(1) = 0
+      if (ipol.eq.2) nfv(2) = nfv(1)
       if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots))
      1  call errquit('tddft_init: failed to read nroots',0)
       if (.not.rtdb_get(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
@@ -306,6 +322,16 @@ c -------------
         else if (ipol.eq.2) then
           write(LuOut,9410) nmo(1)+nmo(2),nmo(1),nmo(2)
         endif
+        if (ipol.eq.1) then
+          write(LuOut,9430) nfc(1),nfc(1)
+        else if (ipol.eq.2) then
+          write(LuOut,9430) nfc(1),nfc(2)
+        endif
+        if (ipol.eq.1) then
+          write(LuOut,9440) nfv(1),nfv(1)
+        else if (ipol.eq.2) then
+          write(LuOut,9440) nfv(1),nfv(2)
+        endif
         write(LuOut,9420) mult
         write(LuOut,9050) nbf_ao
         if (oskel) then
@@ -368,7 +394,6 @@ c -------------
           write(LuOut,9150) targetsym
         endif
         write(LuOut,9070) maxvecs
-        write(LuOut,9070) maxvecs
         write(LuOut,9130) maxiter
         write(LuOut,9140) algorithm
         if ((ipol.eq.1).and.(singlet)) write(LuOut,9080)
@@ -376,32 +401,36 @@ c -------------
         write(LuOut,9110) thresh
       endif
       call util_flush(LuOut)
- 9000 format(10x,'Calculation type : ',a18)
- 9010 format(10x,'Wavefunction type: Restricted')
- 9020 format(10x,'Wavefunction type: Unrestricted')
- 9030 format(10x,'No. of electrons :',2x,i4,/,
-     1       10x,' Alpha electrons :',2x,i4,/,
-     2       10x,'  Beta electrons :',2x,i4)
- 9410 format(10x,' No. of orbitals :',2x,i4,/,
-     1       10x,'  Alpha orbitals :',2x,i4,/,
-     2       10x,'   Beta orbitals :',2x,i4)
- 9420 format(10x,'Spin multiplicity:',2x,i4)
- 9040 format(10x,'Use of symmetry is: ',a3,
-     1           '; symmetry adaption is: ',a3)
- 9050 format(10x,'AO basis - number of functions: ',i5)
- 9060 format(10x,'No. of roots     :',2x,i8)
- 9070 format(10x,'Max subspacesize :',2x,i8)
- 9080 format(10x,'Singlet excited states will be sought')
- 9090 format(10x,'Triplet excited states will be sought')
- 9100 format(10x,'Schwarz screening: ',d8.2)
- 9110 format(10x,'Davidson convergence threshold: ',d8.2)
- 9120 format(10x,'Target root      :',2x,i8)
- 9150 format(10x,'Target symmetry  :',2x,i8)
- 9160 format(10x,'Target symmetry  : not specified')
- 9130 format(10x,'Max iterations   :',2x,i8)
- 9140 format(10x,'Algorithm        :',2x,i8)
- 9300 format(10x,a40)
- 9310 format(10x,a40,1x,f6.2,1x,a9)
+ 9000 format(3x,'       Calculation type : ',a18)
+ 9010 format(3x,'      Wavefunction type : Restricted')
+ 9020 format(3x,'      Wavefunction type : Unrestricted')
+ 9030 format(3x,'       No. of electrons :',2x,i4,/,
+     1       3x,'        Alpha electrons :',2x,i4,/,
+     2       3x,'         Beta electrons :',2x,i4)
+ 9410 format(3x,'        No. of orbitals :',2x,i4,/,
+     1       3x,'         Alpha orbitals :',2x,i4,/,
+     2       3x,'          Beta orbitals :',2x,i4)
+ 9430 format(3x,'     Alpha frozen cores :',2x,i4,/,
+     1       3x,'      Beta frozen cores :',2x,i4)
+ 9440 format(3x,'  Alpha frozen virtuals :',2x,i4,/,
+     1       3x,'   Beta frozen virtuals :',2x,i4)
+ 9420 format(3x,'      Spin multiplicity :',2x,i4)
+ 9040 format(3x,'     Use of symmetry is : ',a3,/,
+     1       3x,'   Symmetry adaption is : ',a3)
+ 9050 format(3x,' Number of AO functions :',2x,i4)
+ 9060 format(3x,'           No. of roots :',2x,i8)
+ 9070 format(3x,'       Max subspacesize :',2x,i8)
+ 9080 format(3x,'Singlet excited states will be sought')
+ 9090 format(3x,'Triplet excited states will be sought')
+ 9100 format(3x,'      Schwarz screening : ',d8.2)
+ 9110 format(3x,'     Davidson threshold : ',d8.2)
+ 9120 format(3x,'            Target root :',2x,i8)
+ 9150 format(3x,'        Target symmetry :',2x,i8)
+ 9160 format(3x,'        Target symmetry : not specified')
+ 9130 format(3x,'         Max iterations :',2x,i8)
+ 9140 format(3x,'              Algorithm :',2x,i8)
+ 9300 format(3x,a40)
+ 9310 format(3x,a40,1x,f6.2,1x,a9)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
 c

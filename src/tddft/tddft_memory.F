@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
-     1  ipol,nbf_ao,nocc,nmo,nov,tda,algorithm)
+     1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.2 2002-03-28 01:11:49 sohirata Exp $
+c $Id: tddft_memory.F,v 1.3 2002-04-10 19:17:19 sohirata Exp $
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the
@@ -25,6 +25,7 @@ c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta electrons
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer maxiter          ! Maximum number of iterations
@@ -66,7 +67,7 @@ c Occ*Virt
 c -------------------------------------
 c
       do i=1,ipol
-        nov(i)=(nmo(i)-nocc(i))*nocc(i)
+        nov(i)=(nmo(i)-nfv(i)-nocc(i))*(nocc(i)-nfc(i))
       enddo
 c
 c ----------------------
@@ -84,7 +85,7 @@ c (A+B) (A-B) eigenvalues, last eigenvalues, 2 residual vectors
 c
       n=n+3*(nroots*30*2)
       do i=1,ipol
-        n=n+2*(nmo(i)-nocc(i))*nocc(i)*nroots
+        n=n+2*((nmo(i)-nfv(i))-(nocc(i)-nfc(i)))*(nocc(i)-nfc(i))*nroots
       enddo
 c
 c Work arrays in tddft_transform

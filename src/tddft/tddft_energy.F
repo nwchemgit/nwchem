@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.3 2002-03-28 17:15:46 sohirata Exp $
+c $Id: tddft_energy.F,v 1.4 2002-04-10 19:17:18 sohirata Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -47,6 +47,7 @@ c
       integer ipol             ! =1 (restricted), =2 (unrestricted)
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
+      integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer numfunc          ! Number of functionals implemented
       parameter (numfunc=30)   ! Must be consistent with "cdft.fh"
       character*255 movecs_out ! MO vector file name
@@ -122,8 +123,8 @@ c Initialize parameters
 c ---------------------
 c
       call tddft_init(rtdb,geom,oskel,oadapt,ao_bas_han,
-     1  nbf_ao,movecs_out,ipol,nocc,nmo,numfunc,xname,cname,xcname,
-     2  xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
+     1  nbf_ao,movecs_out,ipol,nocc,nmo,nfc,nfv,numfunc,
+     2  xname,cname,xcname,xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,algorithm,g_movecs,
@@ -134,7 +135,7 @@ c Determine memory size and alter maxvecs if necessary
 c ----------------------------------------------------
 c
       call tddft_memory(rtdb,nroots,maxvecs,maxiter,
-     1  ipol,nbf_ao,nocc,nmo,nov,tda,algorithm)
+     1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
 c ----------------------------------------------------
 c Allocate global arrays for trial and product vectors
@@ -193,12 +194,12 @@ c
 c
 c Generate initial guess trial vectors
 c
-          call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,
+          call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1      nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
      2      ntrials,nproducts)
           if (nodezero.and.util_print('trial vectors',print_high)) then
             do i=1,ntrials
-              call tddft_dump(ipol,nocc,nmo,g_trials,
+              call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1          g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
             enddo
           endif
@@ -208,7 +209,7 @@ c
           if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.false.))
      1      call errquit('tddft_energy: failed to set triplet',0)
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
-     1      nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
+     1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      3      tda,oskel,.true.,.false.,tol2e,xfac(1),lhashf,thresh,
      4      maxiter,target,targetsym,algorithm,mult)
@@ -222,12 +223,12 @@ c
 c
 c Generate initial guess trial vectors
 c
-          call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,
+          call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1      nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
      2      ntrials,nproducts)
           if (nodezero.and.util_print('trial vectors',print_high)) then
             do i=1,ntrials
-              call tddft_dump(ipol,nocc,nmo,g_trials,
+              call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1          g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
             enddo
           endif
@@ -237,7 +238,7 @@ c
           if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.true.))
      1      call errquit('tddft_energy: failed to set triplet',0)
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
-     1      nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
+     1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      3      tda,oskel,.false.,.true.,tol2e,xfac(1),lhashf,thresh,
      4      maxiter,target,targetsym,algorithm,mult)
@@ -251,12 +252,12 @@ c
 c
 c Generate initial guess trial vectors
 c
-        call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,
+        call tddft_iguess(rtdb,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1    nroots,maxvecs,g_trials,g_movecs,dbl_mb(k_evl),
      2    ntrials,nproducts)
         if (nodezero.and.util_print('trial vectors',print_high)) then
           do i=1,ntrials
-            call tddft_dump(ipol,nocc,nmo,g_trials,
+            call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
      1        g_prod_p,g_prod_m,i,ntrials,nproducts,tda)
           enddo
         endif
@@ -264,7 +265,7 @@ c
 c Davidson iteration
 c
         call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
-     1    nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
+     1    nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      3    tda,oskel,.false.,.false.,tol2e,xfac(1),lhashf,thresh,
      4    maxiter,target,targetsym,algorithm,mult)
