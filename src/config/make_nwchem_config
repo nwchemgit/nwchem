@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.185 2004-09-30 00:51:29 edo Exp $
+# $Id: make_nwchem_config,v 1.186 2004-10-09 00:21:51 marat Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -64,7 +64,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md argos alldev pnnl pnnldev
 
-EXP_all = $(filter-out uccsdt python develop gapss oimp2 scfaux plane_wave rimp2_grad mcstep vscf geninterface,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out tce ccsd selci tddft mp2_grad uccsdt python develop gapss oimp2 scfaux plane_wave rimp2_grad mcstep vscf geninterface,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -264,7 +264,7 @@ STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst qmmm,qmmm_input qmmm_forces qmmm_init qmmm_end qmmm_energy qmmm_gradient,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst qmmm, qmmm_input qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran cosmo_tidy,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
