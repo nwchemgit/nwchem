@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.74 1996-03-15 22:04:22 gg502 Exp $
+c     $Id: nwchem.F,v 1.75 1996-03-16 16:46:32 d3j191 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -283,6 +283,8 @@ c
       external debtest, rimp2
       logical nwdft
       external nwdft
+      logical nwargos
+      external nwargos
       parameter (ntasks = 26)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
@@ -434,10 +436,11 @@ c
  200     call mcscf(rtdb)
          goto 1000
 c     
-c     NW_ARGOS the md package supurbum
+c     nw_Argos
 c     
- 210     call nwargos(rtdb)
-         goto 1000
+  210 continue
+      status=nwargos(rtdb)
+      goto 1000
 c     
 c     Four index
 c     
