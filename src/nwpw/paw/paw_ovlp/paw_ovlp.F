@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.33 2003-02-16 22:13:30 marat Exp $
+* $Id: paw_ovlp.F,v 1.34 2003-02-17 00:45:13 bylaska Exp $
 *
 
 !**************************************************
@@ -74,10 +74,10 @@ c     !-- total number of electron states
      >                           "paw_ovlp_w",paw_ovlp_w)
 
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
-     >                           "paw_ovlp_w",paw_ovlp_w_u)
+     >                           "paw_ovlp_w_u",paw_ovlp_w_u)
 
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
-     >                           "paw_ovlp_w",paw_ovlp_w_d)
+     >                           "paw_ovlp_w_d",paw_ovlp_w_d)
 
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
@@ -142,6 +142,8 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       value = value.and.MA_free_heap(indx2(2))
       value = value.and.MA_free_heap(sgn(2))
       value = value.and.MA_free_heap(paw_ovlp_w(2))
+      value = value.and.MA_free_heap(paw_ovlp_w_u(2))
+      value = value.and.MA_free_heap(paw_ovlp_w_d(2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0)
       return
