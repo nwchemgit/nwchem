@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.2 1996-10-16 20:36:31 mg201 Exp $
+C $Id: ecp_integral.F,v 1.3 1996-10-16 21:17:21 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -127,6 +127,7 @@ C $Id: ecp_integral.F,v 1.2 1996-10-16 20:36:31 mg201 Exp $
         max_type2 = 0
       else
         call dcopy (n_intt,zero,0,ecp_ints,1)
+        if (debug_addresses) write (LuOut,*) 'memscr =',memscr
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in ecp_integral',99)
       end if
@@ -282,20 +283,26 @@ C        end if
 *
 *     Add integrals from this centre to the total.
 *
-        if (.not.DryRun) call daxpy (n_intt,one,scr,1,ecp_ints,1)
-        if (debug_arrays) call ecp_matpr (scr,1,n_all_b,1,n_all_a,
-     &      1,n_all_b,1,n_all_a,'Non-local ECP integrals','E',78,4)
+        if (.not.DryRun) then
+           call daxpy (n_intt,one,scr,1,ecp_ints,1)
+           if (debug_arrays) call ecp_matpr (scr,1,n_all_b,1,n_all_a,
+     &          1,n_all_b,1,n_all_a,'Non-local ECP integrals','E',78,4)
+        end if
       end do
-Cbug
-C      debug_arrays = .true.
-      do i = 1,n_intt
-        if (abs(ecp_ints(i)) .lt. tol*tol) ecp_ints(i) = zero
-      end do
-Cend
-      if (debug_arrays) call ecp_matpr (ecp_ints,1,n_all_b,1,n_all_a,
-     &    1,n_all_b,1,n_all_a,'Final ECP integrals','E',78,4)
-      if (DryRun) 
-     &    lscr = max(max_loc,max_type0,max_type1,max_type2)+n_intt
+      if (DryRun) then
+        lscr = max(max_loc,max_type0,max_type1,max_type2)+n_intt
+        if (debug_addresses) then
+          write (LuOut,*) 'max_loc',max_loc
+          write (LuOut,*) 'max_type0',max_type0
+          write (LuOut,*) 'max_type1',max_type1
+          write (LuOut,*) 'max_type2',max_type2
+          write (LuOut,*) 'n_intt',n_intt
+          write (LuOut,*) 'lscr',lscr
+        end if
+      else
+        if (debug_arrays) call ecp_matpr (ecp_ints,1,n_all_b,1,n_all_a,
+     &      1,n_all_b,1,n_all_a,'Final ECP integrals','E',78,4)
+      end if
       if (debug_gen) write (LuOut,*) 'Exiting ecp_integral'
 *
       return
