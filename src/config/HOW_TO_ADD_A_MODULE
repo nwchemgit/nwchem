@@ -24,7 +24,7 @@
 	   successfully link the program on all platforms.
 
 2) Adding a computational module
-	a) Add the directory name to KNOWN_MODULE_SUBDIRS in
+ 	a) Add the directory name to KNOWN_MODULE_SUBDIRS in
 	   src/config/makefile.h, and the library to KNOWN_MODULE_LIBS
 	   in the same file. Follow the instructions in the file.
 	b) Edit the makefile make_nwchem_config.  Does the new module
