@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.54 1997-11-26 23:06:39 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.55 1997-12-09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -258,7 +258,7 @@ c
 c
       if (.not. rtdb_get(rtdb, 'dft:irqmax', mt_int, 1,
      &   irqmax))then
-         irqmax=9
+         irqmax=12
          if (.not. rtdb_put(rtdb, 'dft:irqmax',
      &      mt_int, 1, irqmax))
      &      call errquit('dft_input: rtdb_put failed', 126)
