@@ -5,7 +5,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract,scale,cpk,his)
 c
-c $Id: pre_rtdbin.F,v 1.26 2000-10-17 23:12:07 edo Exp $
+c $Id: pre_rtdbin.F,v 1.27 2000-10-18 21:36:28 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -127,28 +127,28 @@ c
       if(ffield(1:1).eq.' ') then
       key='ffield '
       if(util_nwchemrc_get(key,value)) then
-      ffield=value
+      ffield=value(1:index(value,' ')-1)
       endif
       endif
       if(dir_s(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_s '
       if(util_nwchemrc_get(key,value))
-     + dir_s=value
+     + dir_s=value(1:index(value,' '))
       endif
       if(dir_x(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_x '
       if(util_nwchemrc_get(key,value))
-     + dir_x=value
+     + dir_x=value(1:index(value,' '))
       endif
       if(dir_u(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_u '
       if(util_nwchemrc_get(key,value))
-     + dir_u=value
+     + dir_u=value(1:index(value,' '))
       endif
       if(dir_t(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_t '
       if(util_nwchemrc_get(key,value))
-     + dir_t=value
+     + dir_t=value(1:index(value,' '))
       endif
       if(dir_t(1:1).eq.' ') dir_t='./ '
 c
