@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl5
 #
-# $Id: jobtime.pl,v 1.7 2002-10-17 16:50:18 edo Exp $
+# $Id: jobtime.pl,v 1.8 2002-10-23 21:59:38 edo Exp $
 #
 
 # ON THE IBM SP DETERMINE THE TIME LEFT TO A LL BATCH JOB
@@ -21,19 +21,6 @@ sub walltosec {
     }
 #    print "days |$days[0]| fld1 $fields[0]  fld2 $fields[1] fld3 $fields[2]\n";
     $walltosec = $days[0]*24*3600+$fields[0]*3600+$fields[1]*60+$fields[2]; 
-}
-sub wallcheck {
-
-    use integer;
- $date = shift(@_); 
-    @fields = split(/[ +:]/,$date);
-    $wallcheck=0;
-    if($fields[4] eq 'seconds)') {
-      $wallcheck=1;
-    }
-    if($fields[5] eq 'seconds)') {
-      $wallcheck=1;
-    }
 }
 
 sub datetosec {
@@ -103,6 +90,7 @@ if ($jobid eq "") {
 
 #die("llq failed\n") unless open(LL,"llq -l $jobid|");
 exit(1) unless open(LL,"llq -l $jobid|");
+#exit(1) unless open(LL,"cat /u/edo/crap|");
 
 while (<LL>) {
     chop;
@@ -111,7 +99,9 @@ while (<LL>) {
 	$dispatch = $value;
     }
     elsif ($field =~ /Wall Clk Hard Limit/) {
-	$walllimit = $value;
+        if($value =~ /(\d+) seconds/){
+        $walllimit=$1;
+        }
     }
 }
 
@@ -123,18 +113,14 @@ exit 1 unless (defined($dispatch) &&defined($walllimit));
 #print "Dispatch date = '$dispatch'; walllimit = $walllimit\n";
 
 $now = `date`;
+#$now = "Thu Oct 24 00:11:01 2002           ";
 chop($now);
 
 #print("now = $now\n");
 $used = &datetosec($now) - &datetosec($dispatch);
-#check if walllimit is in the new sintax (ll 3.x and above?)
-$wcheck = &wallcheck($walllimit) ;
 $left = $walllimit - $used;
-if ($wcheck eq "1") {
-$wsec = &walltosec($walllimit) ;
-$left = $wsec - $used;
-}
-#print "wsec = $wsec\n";
+#print "  walllimit $walllimit \n";
+#print "used = $used\n";
 
 #print "The job has been running for $used seconds and has $left seconds remaining.\n";
 
