@@ -66,5 +66,16 @@
        return
        end
 
+
+
+#else
+       subroutine moints_print_opermatrix(noper,nbf,g_a)
+       implicit none
+       integer noper,nbf
+       integer g_a
+
+       return
+       end
+
 #endif
 
