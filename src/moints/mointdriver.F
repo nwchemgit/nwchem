@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.46 1996-07-17 16:34:06 d3g681 Exp $
+C$Id: mointdriver.F,v 1.47 1996-07-25 00:06:51 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -416,8 +416,6 @@ c
 c
 c
        call int_terminate()
-       if (.not.bas_destroy(basis))
-     $   call errquit('cannot free basis handle',0)
        call util_print_pop()
 c
        return

@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.12 1996-07-15 18:46:52 rg240 Exp $
+c  $Id: moints_6x.F,v 1.13 1996-07-25 00:06:53 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -61,18 +61,21 @@ c
 c Local variables
 c
        integer geom, nmo1, nmo2, nbf, nsh, maxbfsh
-       integer nblk, bsize, blocksize
+       integer nblk, bsize, ngrp
+       integer ii, jj, iz, kz, jz
        integer l_gmap, k_gmap
        integer ish0, jsh0, ish, jsh, ilen, jlen
        integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
+       integer kgr, lgr
        integer kb, lb, i, nmixed
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_eri, k_eri, l_iscr,k_iscr
-       integer l_mo, k_mo
-       integer l_shmap, k_shmap
+       integer l_mo, k_mo, l_xmo, k_xmo
+       integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
+       integer l_glo, k_glo, l_ghi, k_ghi
        integer l_sym, k_sym
        integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_ijni
        integer mem2, max2e
@@ -84,7 +87,7 @@ c
        double precision ttaskmaxK, ttaskminK, ttaskaggK
        double precision flop1, flop2k, flop2j, q2
        integer tottaskJ, tottaskK
-       logical status, oprint, osym, odoit
+       logical status, st, oprint, osym, odoit
 #include "moints_stats.fh"
 c
 c
@@ -151,21 +154,36 @@ c
 c
 c  Shell group mapping
 c
-       blocksize = blen
-       nblk = moints_numgr( basis, blocksize )
+       nblk = moints_numgr( basis, blen )
        status = ma_push_get(MT_INT,(nblk*4),'shell group map',
      $                      l_gmap, k_gmap)
-       call moints_grmap( basis, blocksize, nblk, int_mb(k_gmap))
+       call moints_grmap( basis, blen, nblk, int_mb(k_gmap))
 c
-c  Reorder shells by descending shell-length
+c  Reorder and group shells by type
 c
        status = ma_push_get(MT_INT,nsh,'shell order map',
      $                      l_shmap, k_shmap)
-       call moints_shorder( basis, nsh, maxbfsh, int_mb(k_shmap) )
+       status = ma_push_get(MT_INT,nsh,'group lo', l_glo, k_glo )
+       status = ma_push_get(MT_INT,nsh,'group hi', l_ghi, k_ghi)
+       status = ma_push_get(MT_INT,nbf,'basis map',
+     $                      l_bfmap, k_bfmap)
+       status = ma_push_get(MT_INT,nbf,'rev basis map',
+     $                      l_rbfmap, k_rbfmap)
+       call moints_shorder( basis, nsh, nbf, blen, ngrp,
+     $                      int_mb(k_glo), int_mb(k_ghi),
+     $                      int_mb(k_shmap),
+     $                      int_mb(k_bfmap), int_mb(k_rbfmap) )
+c
+c  Copy of MO coefficients with reordered rows
+c
+       status = ma_push_get(MT_DBL,(nbf*nbf),'reorder mos',
+     $                      l_xmo, k_xmo)
+       call row_exch( nbf, nbf, int_mb(k_rbfmap), dbl_mb(k_mo),
+     $                       dbl_mb(k_xmo) )
 c
 c  Temporary partially-transformed arrays
 c     
-       bsize = max(blocksize,maxbfsh)
+       bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
        n_ssbb1 = max((nmo1*nmo1),n_ssbb)
        n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
@@ -208,12 +226,13 @@ c
 c
        if (oexch) then
          if (next.lt.0) next = nxtval(num_nodes)
-         do ish0=1,nsh
-           ish = int_mb(k_shmap+ish0-1)
+
+         do ii=1,nsh
+           ish = int_mb(k_shmap+ii-1)
            status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
            ilen = ibfhi - ibflo + 1
-           do jsh0=1,ish0
-             jsh = int_mb(k_shmap+jsh0-1)
+           do jj=1,ii
+             jsh = int_mb(k_shmap+jj-1)
              status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
              jlen = jbfhi - jbflo + 1
              scale0 = 1.d0
@@ -222,30 +241,81 @@ c
                ttask = tcgtime()
                tottaskK = tottaskK + 1
                call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
-               do kb=1,nblk
-                 call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
-                 kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
-                 do lb=1,kb
-                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
-                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
+               do kgr=1,ngrp
+                 kshlo = int_mb(k_glo+kgr-1)
+                 kshhi = int_mb(k_ghi+kgr-1)
+                 st = bas_cn2bfr(basis,int_mb(k_shmap+kshlo-1),iz,kz)
+                 st = bas_cn2bfr(basis,int_mb(k_shmap+kshhi-1),kz,jz)
+                 kbflo = int_mb(k_rbfmap+iz-1)
+                 kbfhi = int_mb(k_rbfmap+jz-1)
+                 kblen = kbfhi - kbflo + 1
+                 do lgr=1,kgr
+                   lshlo = int_mb(k_glo+lgr-1)
+                   lshhi = int_mb(k_ghi+lgr-1)
+                   st = bas_cn2bfr(basis,int_mb(k_shmap+lshlo-1),iz,kz)
+                   st = bas_cn2bfr(basis,int_mb(k_shmap+lshhi-1),kz,jz)
+                   lbflo = int_mb(k_rbfmap+iz-1)
+                   lbfhi = int_mb(k_rbfmap+jz-1)
+                   lblen = lbfhi - lbflo + 1
                    tz = tcgtime()
                    scale = 1.d0
-                   if (kb.eq.lb) scale = 0.5d0
+                   if (kgr.eq.lgr) scale = 0.5d0
+
+c$$$         do ish0=1,nsh
+c$$$           ish = int_mb(k_shmap+ish0-1)
+c$$$           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
+c$$$           ilen = ibfhi - ibflo + 1
+c$$$           do jsh0=1,ish0
+c$$$             jsh = int_mb(k_shmap+jsh0-1)
+c$$$             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
+c$$$             jlen = jbfhi - jbflo + 1
+c$$$             scale0 = 1.d0
+c$$$             if (ish.eq.jsh) scale0 = 0.5d0
+c$$$             if (next.eq.ploop) then
+c$$$               ttask = tcgtime()
+c$$$               tottaskK = tottaskK + 1
+c$$$               call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
+c$$$               do kb=1,nblk
+c$$$                 call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
+c$$$                 kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
+c$$$                 do lb=1,kb
+c$$$                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
+c$$$                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
+c$$$                   tz = tcgtime()
+c$$$                   scale = 1.d0
+c$$$                   if (kb.eq.lb) scale = 0.5d0
+
+
                    call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
-     $                                  lshlo, lshhi, schw_ij, tol2e,
-     $                                  max2e, dbl_mb(k_eri), mem2,
-     $                                  dbl_mb(k_iscr),
+     $                                  lshlo, lshhi, int_mb(k_shmap),
+     $                                  int_mb(k_rbfmap),
+     $                                  schw_ij, tol2e, osym, oblk,
+     $                                  max2e, dbl_mb(k_eri),
+     $                                  mem2, dbl_mb(k_iscr),
      $                                  ibflo, ibfhi, jbflo, jbfhi,
      $                                  kbflo, kbfhi, lbflo, lbfhi,
      $                                  dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt), oblk )
+     $                                  dbl_mb(k_ssbbt) )
+
+
+c$$$                   call moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
+c$$$     $                                  lshlo, lshhi, schw_ij, tol2e,
+c$$$     $                                  max2e, dbl_mb(k_eri), mem2,
+c$$$     $                                  dbl_mb(k_iscr),
+c$$$     $                                  ibflo, ibfhi, jbflo, jbfhi,
+c$$$     $                                  kbflo, kbfhi, lbflo, lbfhi,
+c$$$     $                                  dbl_mb(k_ssbb),
+c$$$     $                                  dbl_mb(k_ssbbt), oblk )
+
+
+
                    tint = tint + tcgtime() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                    tz = tcgtime()
                    call moints6x_trf1K( nbf, occ_start, mo1_hi, ilen,
      $                                  jlen, kbflo, kbfhi, lbflo,
      $                                  lbfhi, scale, dbl_mb(k_ssbb),
-     $                                  dbl_mb(k_ssbbt), dbl_mb(k_mo),
+     $                                  dbl_mb(k_ssbbt), dbl_mb(k_xmo),
      $                                  dbl_mb(k_ssni), dbl_mb(k_hlp))
                    t1kidx = t1kidx + tcgtime() - tz
                  enddo
@@ -256,7 +326,7 @@ c
      $                              dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
-     $                              dbl_mb(k_mo), g_exch )
+     $                              dbl_mb(k_xmo), g_exch )
                t2kidx = t2kidx + tcgtime() - tz
                next = nxtval(num_nodes)
                ttask = tcgtime() - ttask
@@ -269,85 +339,141 @@ c
          enddo
        endif
 c
-c
-c
-c$$$       if (oexch) then
-c$$$         if (util_print('exchange half integral',print_debug)) then
-c$$$           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
-c$$$         endif
-c$$$       endif
+       if (oexch) then
+         if (util_print('exchange half integral',print_debug)) then
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
+         endif
+       endif
 c
 c  Coulomb part
 c  4-fold shell loop
 c
        if (ocoul) then
          if (next.lt.0) next = nxtval(num_nodes)
-         do ish0=1,nsh
-           do jsh0=1,ish0
-             ish = max(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
-             jsh = min(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
-             status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
-             ilen = ibfhi - ibflo + 1
-             jlen = jbfhi - jbflo + 1
-             schw_ij = schwarz_shell(ish,jsh)
-             scale = 1.d0
-             if (ish.eq.jsh) scale = scale*0.5d0
-             odoit = schw_ij*schwarz_max().ge.tol2e
-             if (odoit .and. osym) then
-               odoit = sym_shell_pair(basis, ish, jsh, q2)
-             endif
+
+         do ii=1,nsh
+           do jj=1,ii
+           ish = max(int_mb(k_shmap+ii-1),int_mb(k_shmap+jj-1))
+           jsh = min(int_mb(k_shmap+ii-1),int_mb(k_shmap+jj-1))
+           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
+           status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
+           ilen = ibfhi - ibflo + 1
+           jlen = jbfhi - jbflo + 1
+           schw_ij = schwarz_shell(ish,jsh)
+           scale = 1.d0
+           if (ish.eq.jsh) scale = scale*0.5d0
+           odoit = schw_ij*schwarz_max().ge.tol2e
+           if (odoit .and. osym) then
+              odoit = sym_shell_pair(basis, ish, jsh, q2)
+           endif
+
+c$$$         do ish0=1,nsh
+c$$$           do jsh0=1,ish0
+c$$$             ish = max(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
+c$$$             jsh = min(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
+c$$$             status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
+c$$$             status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
+c$$$             ilen = ibfhi - ibflo + 1
+c$$$             jlen = jbfhi - jbflo + 1
+c$$$             schw_ij = schwarz_shell(ish,jsh)
+c$$$             scale = 1.d0
+c$$$             if (ish.eq.jsh) scale = scale*0.5d0
+c$$$             odoit = schw_ij*schwarz_max().ge.tol2e
+c$$$             if (odoit .and. osym) then
+c$$$               odoit = sym_shell_pair(basis, ish, jsh, q2)
+c$$$             endif
+
              if (odoit) then
                if (next.eq.ploop) then
                  ttask = tcgtime()
                  tottaskJ = tottaskJ + 1
                  n_ijni = ilen*jlen*nbf*nmo1
                  call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
-                 do kb=1,nblk
-                   call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
-                   kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
-                   do lb=1,kb
-                     call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
-                     lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-                     tz = tcgtime()
-                     call moints_gblk( basis, ish, jsh, kshlo, kshhi,
-     $                                 lshlo, lshhi, schw_ij, tol2e,
-     $                                 max2e, dbl_mb(k_eri),
-     $                                 mem2, dbl_mb(k_iscr),
-     $                                 ibflo, ibfhi, jbflo, jbfhi,
-     $                                 kbflo, kbfhi, lbflo, lbfhi,
-     $                                 dbl_mb(k_ssbb), osym, oblk )
+
+
+               do kgr=1,ngrp
+                 kshlo = int_mb(k_glo+kgr-1)
+                 kshhi = int_mb(k_ghi+kgr-1)
+                 st = bas_cn2bfr(basis,int_mb(k_shmap+kshlo-1),iz,kz)
+                 st = bas_cn2bfr(basis,int_mb(k_shmap+kshhi-1),kz,jz)
+                 kbflo = int_mb(k_rbfmap+iz-1)
+                 kbfhi = int_mb(k_rbfmap+jz-1)
+                 kblen = kbfhi - kbflo + 1
+                 do lgr=1,kgr
+                   lshlo = int_mb(k_glo+lgr-1)
+                   lshhi = int_mb(k_ghi+lgr-1)
+                   st = bas_cn2bfr(basis,int_mb(k_shmap+lshlo-1),iz,kz)
+                   st = bas_cn2bfr(basis,int_mb(k_shmap+lshhi-1),kz,jz)
+                   lbflo = int_mb(k_rbfmap+iz-1)
+                   lbfhi = int_mb(k_rbfmap+jz-1)
+                   lblen = lbfhi - lbflo + 1
+                   tz = tcgtime()
+
+
+c$$$                 do kb=1,nblk
+c$$$                   call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
+c$$$                   kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
+c$$$                   do lb=1,kb
+c$$$                     call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
+c$$$                     lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
+c$$$                     tz = tcgtime()
+c$$$                  call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
+c$$$     $                                 lshlo, lshhi, schw_ij, tol2e,
+c$$$     $                                 max2e, dbl_mb(k_eri),
+c$$$     $                                 mem2, dbl_mb(k_iscr),
+c$$$     $                                 ibflo, ibfhi, jbflo, jbfhi,
+c$$$     $                                 kbflo, kbfhi, lbflo, lbfhi,
+c$$$     $                                 dbl_mb(k_ssbb), osym, oblk )
+
+                   call moints_gblk( basis, ish, jsh,
+     $                               kshlo, kshhi, lshlo, lshhi,
+     $                               int_mb(k_shmap),int_mb(k_rbfmap),
+     $                               schw_ij, tol2e, osym, oblk,
+     $                               max2e, dbl_mb(k_eri),
+     $                               mem2, dbl_mb(k_iscr),
+     $                               ibflo, ibfhi, jbflo, jbfhi,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               dbl_mb(k_ssbb) )
+
+
                      tint = tint + tcgtime() - tz
                      flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
-                     if (lb.ne.kb) then
+                     if (lgr.ne.kgr) then
                        tz = tcgtime()
                        call moints_blktr( ilen, jlen, kblen, lblen,
      $                                    dbl_mb(k_ssbb),
      $                                    dbl_mb(k_ssbbt))
                        call moints_trf1( nbf, mo1_lo, mo1_hi, ilen,
-     $                                   jlen, kbflo, kbfhi, lbflo,
-     $                                   lbfhi, 1.d0, dbl_mb(k_ssbb),
+     $                                   jlen, kbflo, kbfhi,
+     $                                   lbflo, lbfhi, 1.d0,
+     $                                   dbl_mb(k_ssbb),
      $                                   dbl_mb(k_ssbbt),
-     $                                   dbl_mb(k_mo), dbl_mb(k_ssni),
-     $                                   dbl_mb(k_hlp) )
+     $                                   dbl_mb(k_xmo),
+     $                                   dbl_mb(k_ssni),
+     $                                   dbl_mb(k_hlp))
                      else
                        tz = tcgtime()
                        call moints_trf1( nbf, mo1_lo, mo1_hi, ilen,
      $                                   jlen, kbflo, kbfhi, lbflo,
      $                                   lbfhi, 0.5d0, dbl_mb(k_ssbb),
-     $                                   dbl_mb(k_ssbb), dbl_mb(k_mo),
+     $                                   dbl_mb(k_ssbb),
+     $                                   dbl_mb(k_xmo),
      $                                   dbl_mb(k_ssni),
-     $                                   dbl_mb(k_hlp) )
+     $                                   dbl_mb(k_hlp))
                      endif
                      t1jidx = t1jidx + tcgtime() - tz
                    enddo
                  enddo
+c$$$                 PRINT*,' <<<<<<<<<<< ',ISH,JSH
+c$$$                 CALL ROW_EXCH( NBF, (ILEN*JLEN*NMO1), INT_MB(K_BFMAP),
+c$$$     $                          DBL_MB(K_SSNI), CRAP )
+c$$$                 CALL MOINTS_MATPRINT( NBF, (ILEN*JLEN*NMO1), CRAP )
                  flop2j = flop2j+2*nbf*ilen*jlen*((nmo1*(nmo1+1))/2)
                  tz = tcgtime()
                  call moints_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
-     $                              dbl_mb(k_ssbb), dbl_mb(k_mo),
+     $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                              g_coul )
                  t2jidx = t2jidx + tcgtime() - tz
                  next = nxtval(num_nodes)
@@ -362,12 +488,11 @@ c
          enddo
        endif
 c
-c
-c$$$       if (ocoul) then
-c$$$         if (util_print('coulomb half integral',print_debug)) then
-c$$$           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
-c$$$         endif
-c$$$       endif
+       if (ocoul) then
+         if (util_print('coulomb half integral',print_debug)) then
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
+         endif
+       endif
 c
 c Synchronize
 c
@@ -386,6 +511,16 @@ c
      $     call errquit('moints: failed to pop', l_ssbbt)
        if (.not. ma_pop_stack(l_ssbb))
      $     call errquit('moints: failed to pop', l_ssbb)
+       if (.not. ma_pop_stack(l_xmo))
+     $     call errquit('moints: failed to pop', l_xmo)
+       if (.not. ma_pop_stack(l_rbfmap))
+     $     call errquit('moints: failed to pop', l_rbfmap)
+       if (.not. ma_pop_stack(l_bfmap))
+     $     call errquit('moints: failed to pop', l_bfmap)
+       if (.not. ma_pop_stack(l_ghi))
+     $     call errquit('moints: failed to pop', l_ghi)
+       if (.not. ma_pop_stack(l_glo))
+     $     call errquit('moints: failed to pop', l_glo)
        if (.not. ma_pop_stack(l_shmap))
      $     call errquit('moints: failed to pop', l_shmap)
        if (.not. ma_pop_stack(l_gmap))
@@ -507,7 +642,14 @@ c
 
 
 
-
+c
+c               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c
+c                 OLD VERSIONS WITH NO REORDERING
+c
+c               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c
+c
 c
 c  Generate AO integrals in suitable form
 c  exchange transformation:
@@ -515,7 +657,7 @@ c  Branch according to block or non-block
 c  scheme
 c
 c
-      subroutine moints6x_gblkk( basis, ish, jsh,
+      subroutine moints6x_gblkk_old( basis, ish, jsh,
      $                           kshlo, kshhi, lshlo, lshhi,
      $                           schw_ij, tol2e, erilen, eri,
      $                           scrlen, iscr,
@@ -544,7 +686,7 @@ c
 
 
       if (.not.(oblk)) then
-        call moints6x_gblkk_sq( basis, ish, jsh,
+        call moints6x_gblkk_sq_old( basis, ish, jsh,
      $                          kshlo, kshhi, lshlo, lshhi,
      $                          schw_ij, tol2e, erilen, eri,
      $                          scrlen, iscr,
@@ -564,7 +706,7 @@ c
         k_jl = k_tmp + 4*mxshq + erilen
         k_kl = k_tmp + 4*mxshq + 2*erilen
         k_ll = k_tmp + 4*mxshq + 3*erilen
-        call moints6x_gblkk_mq( basis, ish, jsh,
+        call moints6x_gblkk_mq_old( basis, ish, jsh,
      $                          kshlo, kshhi, lshlo, lshhi,
      $                          schw_ij, tol2e, erilen, eri,
      $                          scrlen, iscr,
@@ -589,7 +731,7 @@ c
 c This version uses single shell 
 c quartet AO integrals.
 c
-      subroutine moints6x_gblkk_sq( basis, ish, jsh,
+      subroutine moints6x_gblkk_sq_old( basis, ish, jsh,
      $                              kshlo, kshhi, lshlo, lshhi,
      $                              schw_ij, tol2e, erilen, eri,
      $                              scrlen, iscr,
@@ -678,7 +820,7 @@ c  AO integrals with labels
 c
 c
 c
-      subroutine moints6x_gblkk_mq( basis, ish, jsh,
+      subroutine moints6x_gblkk_mq_old( basis, ish, jsh,
      $                              kshlo, kshhi, lshlo, lshhi,
      $                              schw_ij, tol2e, erilen, eri,
      $                              scrlen, iscr,
@@ -826,12 +968,6 @@ c
 
 
 
-
-
-
-
-
-
       subroutine moints6x_eri2blkk( ilen, jlen, klen, llen,
      $                              eri, blk, lblen, kblen )
       implicit none
@@ -852,6 +988,388 @@ c
       
       return
       end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+c
+c               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c
+c                 NEW VERSIONS WITH SHELL REORDERING
+c
+c               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+c
+c
+c
+c  Generate AO integrals in suitable form
+c  exchange transformation:
+c  Branch according to block or non-block
+c  scheme
+c
+c
+      subroutine moints6x_gblkk( basis, ish, jsh, kshlo, kshhi,
+     $                           lshlo, lshhi, shmap, rbfmap,
+     $                           schw_ij, tol2e, osym, oblk,
+     $                           erilen, eri, scrlen, iscr,
+     $                           ibflo, ibfhi, jbflo, jbfhi,
+     $                           kblo, kbhi, lblo, lbhi,
+     $                           sbsb, sbst )
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer shmap(*), rbfmap(*)
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      logical osym, oblk
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision sbsb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      double precision sbst(kblo:kbhi,lblo:lbhi,jbflo:jbfhi,ibflo:ibfhi)
+c
+c
+      integer mxshq, imem
+      integer k_tmp, l_tmp
+      integer k_iv, k_jv, k_kv, k_lv
+      integer k_il, k_jl, k_kl, k_ll
+c
+      if (oblk) then
+        mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
+        imem = 4*mxshq + 4*erilen
+        if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
+     $     call errquit('moints6x_gblkk: no memory for labels',imem)
+        k_iv = k_tmp
+        k_jv = k_tmp + mxshq
+        k_kv = k_tmp + 2*mxshq
+        k_lv = k_tmp + 3*mxshq
+        k_il = k_tmp + 4*mxshq
+        k_jl = k_tmp + 4*mxshq + erilen
+        k_kl = k_tmp + 4*mxshq + 2*erilen
+        k_ll = k_tmp + 4*mxshq + 3*erilen
+        call moints6x_gblkk_mq( basis, ish, jsh,
+     $                          kshlo, kshhi, lshlo, lshhi,
+     $                          shmap, rbfmap,
+     $                          schw_ij, tol2e, erilen, eri,
+     $                          scrlen, iscr,
+     $                          ibflo, ibfhi, jbflo, jbfhi,
+     $                          kblo, kbhi, lblo, lbhi,
+     $                          sbsb, sbst, mxshq,
+     $                          int_mb(k_iv), int_mb(k_jv),
+     $                          int_mb(k_kv), int_mb(k_lv),
+     $                          int_mb(k_il), int_mb(k_jl),
+     $                          int_mb(k_kl), int_mb(k_ll) )
+        if (.not.ma_pop_stack(l_tmp))
+     $    call errquit('moints6x_gblkk: failed to pop',0)
+      else
+        call moints6x_gblkk_sq( basis, ish, jsh,
+     $                          kshlo, kshhi, lshlo, lshhi,
+     $                          shmap, rbfmap,
+     $                          schw_ij, tol2e, erilen, eri,
+     $                          scrlen, iscr,
+     $                          ibflo, ibfhi, jbflo, jbfhi,
+     $                          kblo, kbhi, lblo, lbhi,
+     $                          sbsb, sbst )
+      endif
+      return
+      end
+
+
+
+
+
+c
+c This version uses single shell 
+c quartet AO integrals.
+c
+      subroutine moints6x_gblkk_sq( basis, ish, jsh,
+     $                              kshlo, kshhi, lshlo, lshhi,
+     $                              shmap, rbfmap,
+     $                              schw_ij, tol2e, erilen, eri,
+     $                              scrlen, iscr,
+     $                              ibflo, ibfhi, jbflo, jbfhi,
+     $                              kblo, kbhi, lblo, lbhi,
+     $                              sbsb, sbst )
+      implicit none
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer shmap(*), rbfmap(*)
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision sbsb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      double precision sbst(kblo:kbhi,lblo:lbhi,jbflo:jbfhi,ibflo:ibfhi)
+c
+      integer ilen, jlen
+      integer ksh, lsh, kbflo, kbfhi, lbflo, lbfhi, ltop, kk, ll
+      integer klen, llen, kblen, lblen, bsize, k1, k2, j, i
+      logical status
+c
+c
+c
+      ilen = ibfhi - ibflo + 1
+      jlen = jbfhi - jbflo + 1
+      kblen = kbhi - kblo + 1
+      lblen = lbhi - lblo + 1
+      bsize = kblen*lblen*ilen*jlen
+      call dfill(bsize,0.d0,sbsb,1)
+      call dfill(bsize,0.d0,sbst,1)
+c
+      do kk=kshlo,kshhi
+        ksh = shmap(kk)
+        status = bas_cn2bfr(basis,ksh,kbflo,kbfhi)
+        klen = kbfhi - kbflo + 1
+        ltop = lshhi
+        if (kshlo.eq.lshlo) ltop = kk
+        do ll=lshlo,ltop
+          lsh = shmap(ll)
+          status = bas_cn2bfr(basis,lsh,lbflo,lbfhi)
+          llen = lbfhi - lbflo + 1
+          if (schwarz_shell(ish,ksh)*
+     $        schwarz_shell(jsh,lsh).ge.tol2e) then
+            call int_2e4c(basis, ish, ksh, basis, jsh, lsh,
+     $                    scrlen, iscr, erilen, eri )
+            call moints6x_eri2blkkx( rbfmap, ilen, jlen,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               kblo, kbhi, lblo, lbhi,
+     $                               eri, sbsb )
+          endif
+          if (schwarz_shell(ish,lsh)*
+     $        schwarz_shell(jsh,ksh).ge.tol2e) then
+            call int_2e4c(basis, ish, lsh, basis, jsh, ksh,
+     $                    scrlen, iscr, erilen, eri )
+            call moints6x_eri2blkkx( rbfmap, ilen, jlen,
+     $                               lbflo, lbfhi, kbflo, kbfhi,
+     $                               lblo, lbhi, kblo, kbhi,
+     $                               eri, sbst )
+          endif
+        enddo
+      enddo
+c
+      if (kshlo.eq.lshlo) then
+        do i=ibflo,ibfhi
+          do j=jbflo,jbfhi
+            do k1=kblo,kbhi
+              do k2=kblo,k1-1
+                sbsb(k1,k2,j,i) = sbst(k1,k2,j,i)
+                sbst(k2,k1,j,i) = sbsb(k2,k1,j,i)
+              enddo
+            enddo
+          enddo
+        enddo
+      endif
+c
+      return
+      end
+
+
+
+
+
+
+c
+c  This uses multiple quartets at a time
+c  AO integrals with labels
+c
+      subroutine moints6x_gblkk_mq( basis, ish, jsh,
+     $                              kshlo, kshhi, lshlo, lshhi,
+     $                              shmap, rbfmap,
+     $                              schw_ij, tol2e, erilen, eri,
+     $                              scrlen, iscr,
+     $                              ibflo, ibfhi, jbflo, jbfhi,
+     $                              kblo, kbhi, lblo, lbhi,
+     $                              sbsb, sbst, mxshq,
+     $                              ishv, jshv, kshv, lshv,
+     $                              ilab, jlab, klab, llab )
+      implicit none
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer shmap(*), rbfmap(*)
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision sbsb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      double precision sbst(kblo:kbhi,lblo:lbhi,jbflo:jbfhi,ibflo:ibfhi)
+      integer mxshq
+      integer ishv(mxshq), jshv(mxshq), kshv(mxshq), lshv(mxshq)
+      integer ilab(erilen), jlab(erilen), klab(erilen), llab(erilen)
+c
+      integer bsize, ieri, neri, neritotal, nshq
+      integer ii, jj, kk, ll, ksh, lsh
+      double precision beffect, q4
+      logical use_q4, more
+      data use_q4/.false./
+      data q4/1.d0/
+c
+      logical intb_2e4c, intb_init4c
+      external intb_2e4c, intb_init4c
+c
+c
+c
+      neritotal = 0
+      bsize = (kbhi - kblo + 1)*(lbhi - lblo + 1)*
+     $        (ibfhi - ibflo + 1)*(jbfhi - jbflo + 1)
+      call dfill(bsize,0.d0,sbsb,1)
+      call dfill(bsize,0.d0,sbst,1)
+c
+c
+c  First time around   ( I K | J L ) type
+c
+c  Fill out shell arrays with interacting quartet labels
+c        
+      nshq = 0
+      do kk=kshlo,kshhi
+        ksh = shmap(kk)
+        do ll=lshlo,lshhi
+          lsh = shmap(ll)
+          if ((schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh))
+     $                .ge.tol2e) then
+            if (nshq.eq.mxshq)
+     $         call errquit('moints6x_gblkk: internal error',0)
+            nshq = nshq + 1
+            kshv(nshq) = ksh
+            lshv(nshq) = lsh
+          endif
+        enddo
+      enddo
+      call ifill( nshq, ish, ishv, 1 )
+      call ifill( nshq, jsh, jshv, 1 )
+c
+c  Prepare texas for shell block
+c
+      if (.not. intb_init4c( basis, ishv, kshv, basis, jshv, lshv,
+     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+c
+c  Get some batch of integrals
+c
+ 100  more = intb_2e4c( basis, ishv, kshv, basis, jshv, lshv,
+     $                  nshq, q4, use_q4, tol2e, .false.,
+     $                  ilab, klab, jlab, llab,
+     $                  eri, erilen, neri, scrlen, iscr )
+c
+c  Unpack labels and assign to integrals
+c
+      if (neri.gt.0) then
+        neritotal = neritotal + neri
+        do ieri=1,neri
+          ii = ilab(ieri)
+          jj = jlab(ieri)
+          kk = rbfmap(klab(ieri))
+          ll = rbfmap(llab(ieri))
+          sbsb(ll,kk,jj,ii) = eri(ieri)
+        enddo
+        if (more) goto 100
+      endif
+c
+c
+c  Second time around   ( I L | J K ) type
+c
+c  Fill out shell arrays with interacting quartet labels
+c        
+      nshq = 0
+      do kk=kshlo,kshhi
+        ksh = shmap(kk)
+        do ll=lshlo,lshhi
+          lsh = shmap(ll)
+          if ((schwarz_shell(ish,lsh)*schwarz_shell(jsh,ksh))
+     $                .ge.tol2e) then
+            if (nshq.eq.mxshq)
+     $         call errquit('moints6x_gblkk: internal error',0)
+            nshq = nshq + 1
+            kshv(nshq) = ksh
+            lshv(nshq) = lsh
+          endif
+        enddo
+      enddo
+      call ifill( nshq, ish, ishv, 1 )
+      call ifill( nshq, jsh, jshv, 1 )
+c
+c  Prepare texas for shell block
+c
+      if (.not. intb_init4c( basis, ishv, lshv, basis, jshv, kshv,
+     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+c
+c  Get some batch of integrals
+c
+ 200  more = intb_2e4c( basis, ishv, lshv, basis, jshv, kshv,
+     $                  nshq, q4, use_q4, tol2e, .false.,
+     $                  ilab, llab, jlab, klab,
+     $                  eri, erilen, neri, scrlen, iscr )
+c
+c  Unpack labels and assign to integrals
+c
+      if (neri.gt.0) then
+        neritotal = neritotal + neri
+        do ieri=1,neri
+          ii = ilab(ieri)
+          jj = jlab(ieri)
+          ll = rbfmap(llab(ieri))
+          kk = rbfmap(klab(ieri))
+          sbst(kk,ll,jj,ii) = eri(ieri)
+        enddo
+        if (more) goto 200
+      endif
+c
+c
+c
+      return
+      end
+
+
+
+
+
+
+      subroutine moints6x_eri2blkkx( rbfmap, ilen, jlen,
+     $                               kbflo, kbfhi, lbflo, lbfhi,
+     $                               kblo, kbhi, lblo, lbhi,
+     $                               eri, blk )
+      implicit none
+      integer rbfmap(*)
+      integer ilen, jlen
+      integer kbflo, kbfhi, lbflo, lbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision blk(lblo:lbhi,kblo:kbhi,jlen,ilen)
+      double precision eri(lbflo:lbfhi,jlen,kbflo:kbfhi,ilen)
+      integer kk,ll,k,l,i,j
+
+      do i=1,ilen
+        do j=1,jlen
+          do k=kbflo,kbfhi
+            kk = rbfmap(k)
+            do l=lbflo,lbfhi
+              ll = rbfmap(l)
+              blk(ll,kk,j,i) = eri(l,j,k,i)
+            enddo
+          enddo
+        enddo
+      enddo
+      
+      return
+      end
+
+
+
+
 
 
 

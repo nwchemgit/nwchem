@@ -96,7 +96,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.21 1996-07-17 16:34:13 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.22 1996-07-25 00:06:55 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -145,13 +145,14 @@ c
        integer oblk                           ! [input]  Toggle AO integral blocking
 c
        integer l_gmap, k_gmap
-       integer l_shmap, k_shmap
+       integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
+       integer l_glo, k_glo, l_ghi, k_ghi
        integer l_gloc, k_gloc
        integer l_iopass, k_iopass
        integer l_rlen, k_rlen
        integer l_rloc, k_rloc
        integer nbf, nsh, maxbfsh, nseg, nocc, nvir
-       integer ngrp, blksiz, nnbf
+       integer ngrp, blen, nnbf
        integer pvlo, pvhi
        integer polo, pohi
        integer myid, numnodes, rlo, rhi, clo, chi
@@ -168,7 +169,7 @@ c
        integer moints_lmem
        external moints_numgr
        external moints_lmem
-       data blksiz/16/                              ! Affects performance only
+       data blen/16/                              ! Affects performance only
        data osym/.false./
 c
 c  General info
@@ -187,7 +188,7 @@ c
 c
 c  Memory arithmetic
 c
-       lmemreq = moints_lmem(basis, nocc, nvir, ocoul, oexch, blksiz)
+       lmemreq = moints_lmem(basis, nocc, nvir, ocoul, oexch, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
      $   call errquit('cannot determine memory limit',0)
        gmem = ga_memory_avail() - numnodes*lmemreq
@@ -256,11 +257,21 @@ c
 c  Reorder shells by descending shell-length
 c  and group shells by blocksize
 c
-       status = ma_push_get(MT_INT,nsh,'sh map',l_shmap, k_shmap)
-       call moints_shorder( basis, nsh, maxbfsh, int_mb(k_shmap) )
-       ngrp = moints_numgr( basis, blksiz )
+       status = ma_push_get(MT_INT,nsh,'shell order map',
+     $                      l_shmap, k_shmap)
+       status = ma_push_get(MT_INT,nsh,'group lo', l_glo, k_glo )
+       status = ma_push_get(MT_INT,nsh,'group hi', l_ghi, k_ghi)
+       status = ma_push_get(MT_INT,nbf,'basis map',
+     $                      l_bfmap, k_bfmap)
+       status = ma_push_get(MT_INT,nbf,'rev basis map',
+     $                      l_rbfmap, k_rbfmap)
+       call moints_shorder( basis, nsh, nbf, blen, ngrp,
+     $                      int_mb(k_glo), int_mb(k_ghi),
+     $                      int_mb(k_shmap),
+     $                      int_mb(k_bfmap), int_mb(k_rbfmap) )
+       ngrp = moints_numgr( basis, blen )
        status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
-       call moints_grmap( basis, blksiz, ngrp, int_mb(k_gmap))
+       call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))
 c
 c  Generate locator and reverse map
 c
@@ -319,7 +330,7 @@ c
      $                     oseglo, oseghi, olo, ohi, vlo, vhi,
      $                     polo, pohi, pvlo, pvhi, ocoul, oexch,
      $                     osym, oblk, kunit, junit, int_mb(k_shmap),
-     $                     blksiz, ngrp, int_mb(k_gmap),
+     $                     blen, ngrp, int_mb(k_gmap),
      $                     int_mb(k_gloc), nnbf, int_mb(k_iopass),
      $                     int_mb(k_rlen), g_movecs, g_jbuf,
      $                     g_kbuf )
@@ -334,6 +345,14 @@ c
      $     call errquit('moints: failed to pop', l_gloc)
        if (.not. ma_pop_stack(l_gmap))
      $     call errquit('moints: failed to pop', l_gmap)
+       if (.not. ma_pop_stack(l_rbfmap))
+     $     call errquit('moints: failed to pop', l_rbfmap)
+       if (.not. ma_pop_stack(l_bfmap))
+     $     call errquit('moints: failed to pop', l_bfmap)
+       if (.not. ma_pop_stack(l_ghi))
+     $     call errquit('moints: failed to pop', l_ghi)
+       if (.not. ma_pop_stack(l_glo))
+     $     call errquit('moints: failed to pop', l_glo)
        if (.not. ma_pop_stack(l_shmap))
      $     call errquit('moints: failed to pop', l_shmap)
 
@@ -371,7 +390,7 @@ c
      $                           oseglo, oseghi, olo, ohi, vlo, vhi,
      $                           polo, pohi, pvlo, pvhi,
      $                           ocoul, oexch, osym, oblk,
-     $                           kunit, junit, shmap, blksiz,
+     $                           kunit, junit, shmap, blen,
      $                           ngrp, gmap, gloc, nnbf, iopass,
      $                           rlen, g_movecs, g_jbuf, g_kbuf )
        implicit none
@@ -401,7 +420,7 @@ c
        logical oblk                           ! [input] Toggle AO integral blocking
        integer junit, kunit                   ! [input] Unit numbers for IO
        integer shmap(nsh)                     ! [input] Map for shells
-       integer blksiz                         ! [input] Blocksize
+       integer blen                         ! [input] Blocksize
        integer ngrp                           ! [input] Number of groups of shells
        integer gmap(*)                        ! [input] Map of shell-group
        integer gloc(nbf*nbf)                  ! [input] bf -> GA memory map
@@ -458,7 +477,7 @@ c
 c
 c  Temporary partially-transformed arrays
 c     
-       bsize = max(blksiz,maxbfsh)
+       bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
        n_ssbb1 = max((nmo1*nmo1),n_ssbb)
        n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
@@ -539,7 +558,7 @@ c
                  do lb=1,kb
                    call gr_sh_idx(ngrp,gmap,lb,lshlo,lshhi)
                    lblen = gr_len(ngrp,gmap,lb,lbflo,lbfhi)
-                   call moints_gblk( basis, ish, jsh, kshlo, kshhi,
+                  call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
      $                               lshlo, lshhi, schw_ij, tol2e,
      $                               max2e, dbl_mb(k_eri),
      $                               mem2, dbl_mb(k_iscr),
@@ -1232,12 +1251,12 @@ c  Local memory requirements are independent of (ocoul, oexch)?
 c
 
        integer function moints_lmem( basis, nocc, nvir,
-     $                               ocoul, oexch, blksiz )
+     $                               ocoul, oexch, blen )
  193   implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
-       integer basis, nocc, nvir, blksiz
+       integer basis, nocc, nvir, blen
        logical ocoul, oexch
 c
        integer nsh, nbf, maxbfsh
@@ -1249,8 +1268,8 @@ c
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
-       bsize = max(blksiz,maxbfsh)
-       ngrp = moints_numgr( basis, blksiz )
+       bsize = max(blen,maxbfsh)
+       ngrp = moints_numgr( basis, blen )
        call int_mem_2e4c(imax2e, imem2)
        memi = nsh + 4*ngrp + nbf*nbf + nsh*(nsh+1) +
      $        2*ga_nnodes() + (nbf*(nbf+1))/2

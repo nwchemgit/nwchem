@@ -1,5 +1,5 @@
        subroutine atwtest(rtdb)
-C$Id: atwtest.F,v 1.4 1995-05-31 17:20:36 rg240 Exp $
+C$Id: atwtest.F,v 1.5 1996-07-25 00:06:50 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -44,8 +44,12 @@ c
 c
 c
 c
-       if (.not. context_pop('atwtest'))
-     $     call errquit('context_pop failed',0)
-       end
+      if (.not.geom_destroy(geom))
+     $  call errquit('cannot destroy geom handle?',0)
+      if (.not.bas_destroy(basis))
+     $  call errquit('cannot destroy basis handle?',0)
+      if (.not. context_pop('atwtest'))
+     $   call errquit('context_pop failed',0)
+      end
 
 

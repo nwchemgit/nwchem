@@ -1,5 +1,5 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.6 1996-07-02 21:02:56 rg240 Exp $
+C$Id: moints_gsh1.F,v 1.7 1996-07-25 00:06:55 rg240 Exp $
        implicit none
 #include "bas.fh"
        integer basis, blocklen
@@ -108,38 +108,208 @@ C$Id: moints_gsh1.F,v 1.6 1996-07-02 21:02:56 rg240 Exp $
 
 
 
-
-      subroutine moints_shorder( basis, nsh, maxshlen, map )
+c
+c  Reorder and group shells in optimal
+c  order for AO integral blocking and
+c  dynamic load balancing
+c
+c
+      subroutine moints_shorder( basis, nsh, nbf, blen,
+     $                           ngr, glo, ghi, shmap,
+     $                           bfmap, rbfmap )
+     $                  
       implicit none
+#include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 #include "bas.fh"
       integer basis
-      integer nsh, maxshlen
-      integer map(nsh)
-      integer shlen, ii, ish, ibflo, ibfhi
-      logical status
+      integer nsh, nbf
+      integer blen                         ! [input]  Blocking length (upper bound on length of groups)
+      integer ngr                          ! [output] Number of groups formed
+      integer glo(*)                       ! [output] Low indices of groups
+      integer ghi(*)                       ! [output] High indices of groups
+      integer shmap(nsh)                   ! [output] Shell new  --> orig
+      integer bfmap(nbf)                   ! [output] Basis new  --> orig
+      integer rbfmap(nbf)                  ! [output] Basis orig --> new
+c      
+      integer ice, itype, nprm, ncnt, spch, wght, maxwght
+      integer ii, j, k, i, ish, jsh, ibflo, ibfhi
+      integer tlen, ilen, glen, nsht
+      integer l_t, k_t
+      logical status, more, oreorder
+      integer lwght(-2:6)
+      data lwght/5,3,1,2,4,6,7,8,9/
+      data oreorder/.true./                 ! toggle shell reordering
 
-      ii = 0
-      do shlen=maxshlen,1,-1
-        do ish=1,nsh
-          status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-          if ((ibfhi - ibflo + 1).eq.shlen) then
-            ii = ii + 1
-            map(ii) = ish
+c
+c  Ordering by shell type (the default)
+c
+      if (oreorder) then
+        call ifill(nsh,0,bfmap,1)
+        do jsh=1,nsh
+          maxwght = 0
+          do ish=1,nsh
+            status = bas_cn2uce( basis, ish, ice )
+            status = bas_continfo(basis, ish, itype, nprm, ncnt, spch )
+            wght = ice + 50*(nprm + 50*(ncnt + 50*lwght(itype)))
+            if ((bfmap(ish).eq.0).and.(wght.gt.maxwght)) then
+              maxwght = wght
+              ii = ish
+            endif
+          enddo
+          bfmap(ii) = maxwght
+          shmap(jsh)  = ii
+        enddo
+c
+c  Types of shells
+c  Large groups of similar shells may be split
+c  to fit into a block.
+c
+        if (.not.ma_push_get(mt_int,(4*nsh),'gsh tmp',l_t,k_t))
+     $       call errquit('cannot allocate tmp',(4*nsh))
+        wght = 0
+        nsht = 0
+        tlen = 0
+        do ii=1,nsh
+          status = bas_cn2bfr(basis,shmap(ii),ibflo,ibfhi)
+          ilen = ibfhi - ibflo + 1
+          if ((bfmap(shmap(ii)).ne.wght).or.((tlen+ilen).gt.blen)) then
+            nsht = nsht + 1
+            wght = bfmap(shmap(ii))
+            int_mb(k_t+4*(nsht-1)) = ii
+            int_mb(k_t+4*(nsht-1)+2) = 0
+            tlen = 0
+          endif
+          tlen = tlen + ilen
+          int_mb(k_t+4*(nsht-1)+1) = ii
+          int_mb(k_t+4*(nsht-1)+3) = tlen
+        enddo
+c     
+c  Group together types subject to block 
+c  length constraint. Obtain final shell 
+c  ordering based on contigious groups of types.
+c
+        call ifill(nsh,0,bfmap,1)
+        j = 0
+        ngr = 0
+ 101    continue
+        glen = 0
+        ngr = ngr + 1
+        glo(ngr) = 0
+ 102    continue
+        more = .false.
+        do ii=0,nsht-1
+          if (int_mb(k_t+4*ii+2).eq.0) then
+            ilen = int_mb(k_t+4*ii+3)
+            if ((glen+ilen).le.blen) then
+              int_mb(k_t+4*ii+2) = 1
+              glen = glen + ilen
+              more = .true.
+              if (glo(ngr).eq.0) glo(ngr) = j + 1
+              do k=int_mb(k_t+4*ii),int_mb(k_t+4*ii+1)
+                j = j + 1
+                bfmap(j) = shmap(k)
+              enddo
+              ghi(ngr) = j
+            endif
           endif
         enddo
+        if (more) goto 102
+        do ii=0,nsht-1
+          more = more.or.(int_mb(k_t+4*ii+2).eq.0)
+        enddo
+        if (more) goto 101
+        call icopy(nsh,bfmap,1,shmap,1)
+c     
+c  Debug print
+c     
+        if (util_print('shell order',print_high).and.
+     $       (ga_nodeid().eq.0)) then
+          write(6,841) nsht
+ 841      format(/,'Number of shell types:',i5)
+          do ii=0,nsht-1
+            write(6,842) int_mb(k_t+4*ii),int_mb(k_t+4*ii+1),
+     $           int_mb(k_t+4*ii+3)
+ 842        format(5x,3i5) 
+          enddo
+        endif
+        if (.not.ma_pop_stack(l_t))
+     $       call errquit('cannot pop stack',0)
+      else
+c
+c  No reordering of shells -- still need grouping
+c
+        do ish=1,nsh
+          shmap(ish) = ish
+        enddo
+        ngr = 1
+        glo(ngr) = 0
+        glen = 0
+        do ish=1,nsh
+          if (glo(ngr).eq.0) glo(ngr) = ish
+          status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
+          ilen = ibfhi - ibflo + 1
+          if ((glen+ilen).le.blen) then
+            glen = glen + ilen
+          else
+            glen = ilen
+            ngr = ngr + 1
+            glo(ngr) = ish
+          endif
+          ghi(ngr) = ish
+        enddo
+      endif
+c
+c  Basis functions maps
+c
+      ii = 0
+      do ish=1,nsh
+        status = bas_cn2bfr(basis,shmap(ish),ibflo,ibfhi)
+        do i=ibflo,ibfhi
+          ii = ii + 1
+          bfmap(ii) = i         ! new idx   -->  orig idx
+          rbfmap(i) = ii        ! orig idx  -->  new idx
+        enddo
       enddo
-#ifdef DEBUG
-      if (ga_nodeid().eq.0) then
+c
+c  More debug print
+c
+      if (util_print('shell order',print_high).and.
+     $   (ga_nodeid().eq.0)) then
+        write(6,550) ngr
+ 550    format(/,'Number of groups:',i5,/)
+        do k=1,ngr              ! Example of how to use group info
+          write(6,552) k
+ 552      format(/,2x,'Group:',i2,/,
+     $             2x,'idx',3x,'sh',3x,'l',4x,'ct',3x,'pr',3x,'ce',/,
+     $             2x,29('-'))
+          do ii=glo(k),ghi(k)
+            ish = shmap(ii)
+            status = bas_continfo(basis, ish, itype, nprm, ncnt, spch )
+            status = bas_cn2uce( basis, ish, ice )
+            write(6,553) ii, ish, itype, ncnt, nprm, ice
+ 553        format(6i5)
+          enddo
+        enddo
         write(6,900)
  900    format(/,'Shell map:')
-        write(6,901) (map(ii),ii=1,nsh)
+        write(6,901) (shmap(ii),ii=1,nsh)
  901    format(16i5)
+        write(6,902)
+ 902    format(/,'Basis function maps:')
+        write(6,901) (bfmap(i),i=1,nbf)
+        write(6,903)
+ 903    format(/,'Reverse Basis function maps:')
+        write(6,901) (rbfmap(i),i=1,nbf)
         write(6,*)
       endif
-#endif
+
       return
       end
+
+
+
 
         
 

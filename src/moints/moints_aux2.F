@@ -7,12 +7,12 @@ c          - quartet at a time
 c  
 c
 c
-      subroutine moints_gblk( basis, ish, jsh, kshlo, kshhi,
-     $                        lshlo, lshhi, schw_ij, tol2e,
-     $                        erilen, eri, scrlen, iscr,
-     $                        ibflo, ibfhi, jbflo, jbfhi,
-     $                        kblo, kbhi, lblo, lbhi,
-     $                        ssbb, osym, oblk )
+      subroutine moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
+     $                            lshlo, lshhi, schw_ij, tol2e,
+     $                            erilen, eri, scrlen, iscr,
+     $                            ibflo, ibfhi, jbflo, jbfhi,
+     $                            kblo, kbhi, lblo, lbhi,
+     $                            ssbb, osym, oblk )
       implicit none
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -35,7 +35,7 @@ c
 c
 c
       if (.not.(oblk)) then
-        call moints_gblk_sq( basis, ish, jsh, kshlo, kshhi,
+        call moints_gblk_sq_old( basis, ish, jsh, kshlo, kshhi,
      $                       lshlo, lshhi, schw_ij, tol2e,
      $                       erilen, eri, scrlen, iscr,
      $                       ibflo, ibfhi, jbflo, jbfhi,
@@ -56,7 +56,7 @@ c
         k_ll = k_tmp + 4*mxshq + 3*erilen
         if (.not.ma_push_get(MT_DBL, mxshq, 'gblk q',l_qv, k_qv))
      $     call errquit('moints_gblk: no memory for sym factors',imem)
-        call moints_gblk_mq( basis, ish, jsh, kshlo, kshhi,
+        call moints_gblk_mq_old( basis, ish, jsh, kshlo, kshhi,
      $                       lshlo, lshhi, schw_ij, tol2e,
      $                       erilen, eri, scrlen, iscr,
      $                       ibflo, ibfhi, jbflo, jbfhi,
@@ -92,7 +92,7 @@ c  This uses block NWints interface
 c  with multiple shell quartets and labels
 c
 c
-      subroutine moints_gblk_mq( basis, ish, jsh, kshlo, kshhi,
+      subroutine moints_gblk_mq_old( basis, ish, jsh, kshlo, kshhi,
      $                           lshlo, lshhi, schw_ij, tol2e,
      $                           erilen, eri, scrlen, iscr,
      $                           ibflo, ibfhi, jbflo, jbfhi,
@@ -191,7 +191,7 @@ c
 c$$$      LL = (LBHI - LBLO + 1)
 c$$$      KK = (KBHI - KBLO + 1)
 c$$$      WRITE(6,881) IBFLO, JBFLO
-c$$$ 881  FORMAT(/,'===',2I5)
+c$$$ 881  FORMAT(/,'+++',2I5)
 c$$$      CALL MOINTS_MATPRINT(LL,KK,SSBB(LBLO,KBLO,JBFLO,IBFLO))
       return
       end
@@ -207,13 +207,13 @@ c  This is using older NWints interface
 c  with one shell quartet at a time
 c
 c
-      subroutine moints_gblk_sq( basis, ish, jsh, kshlo, kshhi,
+      subroutine moints_gblk_sq_old( basis, ish, jsh, kshlo, kshhi,
      $                           lshlo, lshhi, schw_ij, tol2e,
      $                           erilen, eri, scrlen, iscr, 
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.17 1996-07-16 17:21:45 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -264,10 +264,327 @@ c
       if (kshlo.eq.lshlo) call eriblktr(ilen, jlen, kblen, ssbb )
 
 c$$$      WRITE(6,881) IBFLO, JBFLO
-c$$$ 881  FORMAT(/,'===',2I5)
+c$$$ 881  FORMAT(/,'+++',2I5)
 c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
       return
       end
+c
+c
+c
+c
+c
+      subroutine eri2blk( ilen, jlen, klen, llen, eri, blk,
+     $                    lblen, kblen, q4)
+      implicit none
+      integer ilen,jlen,klen,llen,lblen,kblen
+      double precision blk(lblen,kblen,jlen,ilen)
+      double precision eri(llen,klen,jlen,ilen)
+      double precision q4
+      integer k,l,i,j
+
+      do i=1,ilen
+        do j=1,jlen
+          do k=1,klen
+            do l=1,llen
+              blk(l,k,j,i) = eri(l,k,j,i)*q4
+            enddo
+          enddo
+        enddo
+      enddo
+
+      return
+      end
+
+
+
+
+
+
+
+
+
+
+c
+c   ======================================================================
+c
+c                     NEW REORDERED GROUPED SHELL VERSIONS
+c
+c   ======================================================================
+c
+c
+c
+c  General interface to block AO integral routine
+c  Branch on whether to use 
+c          - labels/shell blocking
+c  or
+c          - quartet at a time
+c  
+c
+      subroutine moints_gblk( basis, ish, jsh, kshlo, kshhi,
+     $                        lshlo, lshhi, shmap, rbfmap,
+     $                        schw_ij, tol2e, osym, oblk,
+     $                        erilen, eri, scrlen, iscr,
+     $                        ibflo, ibfhi, jbflo, jbfhi,
+     $                        kblo, kbhi, lblo, lbhi,
+     $                        ssbb )
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer shmap(*), rbfmap(*)
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      logical osym, oblk
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision ssbb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+c
+      integer i
+      integer mxshq, imem
+      integer k_tmp, l_tmp
+      integer k_iv, k_jv, k_kv, k_lv
+      integer k_il, k_jl, k_kl, k_ll
+      integer k_qv, l_qv
+c
+c
+c
+      if (oblk) then
+        mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
+        imem = 4*mxshq + 4*erilen
+        if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
+     $     call errquit('moints_gblk: no memory for labels',imem)
+        k_iv = k_tmp
+        k_jv = k_iv + mxshq
+        k_kv = k_iv + 2*mxshq
+        k_lv = k_iv + 3*mxshq
+        k_il = k_iv + 4*mxshq
+        k_jl = k_il + erilen
+        k_kl = k_il + 2*erilen
+        k_ll = k_il + 3*erilen
+        if (.not.ma_push_get(MT_DBL, mxshq, 'gblk q',l_qv, k_qv))
+     $     call errquit('moints_gblk: no memory for sym factors',imem)
+        call moints_gblk_mq( basis, ish, jsh, kshlo, kshhi,
+     $                       lshlo, lshhi, shmap, rbfmap,
+     $                       schw_ij, tol2e,
+     $                       erilen, eri, scrlen, iscr,
+     $                       ibflo, ibfhi, jbflo, jbfhi,
+     $                       kblo, kbhi, lblo, lbhi,
+     $                       ssbb, osym, mxshq, dbl_mb(k_qv),
+     $                       int_mb(k_iv), int_mb(k_jv),
+     $                       int_mb(k_kv), int_mb(k_lv),
+     $                       int_mb(k_il), int_mb(k_jl),
+     $                       int_mb(k_kl), int_mb(k_ll) )
+        if (.not.ma_pop_stack(l_qv))
+     $    call errquit('moints_gblk: failed to pop',0)
+        if (.not.ma_pop_stack(l_tmp))
+     $    call errquit('moints_gblk: failed to pop',0)
+      else
+        call moints_gblk_sq( basis, ish, jsh, kshlo, kshhi,
+     $                       lshlo, lshhi, shmap, rbfmap,
+     $                       schw_ij, tol2e, osym,
+     $                       erilen, eri, scrlen, iscr,
+     $                       ibflo, ibfhi, jbflo, jbfhi,
+     $                       kblo, kbhi, lblo, lbhi,
+     $                       ssbb )
+      endif
+c
+c
+c
+      return
+      end
+
+        
+
+
+      subroutine moints_gblk_mq( basis, ish, jsh, kshlo, kshhi,
+     $                           lshlo, lshhi, shmap, rbfmap,
+     $                           schw_ij, tol2e,
+     $                           erilen, eri, scrlen, iscr,
+     $                           ibflo, ibfhi, jbflo, jbfhi,
+     $                           kblo, kbhi, lblo, lbhi,
+     $                           ssbb, osym, mxshq, qv4, 
+     $                           ishv, jshv, kshv, lshv,
+     $                           ilab, jlab, klab, llab )
+      implicit none
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer shmap(*), rbfmap(*)
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision ssbb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+      logical osym
+      integer mxshq
+      double precision qv4(mxshq)
+      integer ishv(mxshq), jshv(mxshq), lshv(mxshq), kshv(mxshq)
+      integer ilab(erilen), jlab(erilen), klab(erilen), llab(erilen)
+c
+c
+c
+      double precision beffect, q4
+      integer nshq, kl, neri, neritotal, ieri, nblksiz
+      integer ii, jj, kk, ll, ksh, lsh
+      integer ilen, jlen, klen
+      logical more
+      logical sym_shell_quartet
+      external sym_shell_quartet
+c
+      logical intb_2e4c, intb_init4c
+      external intb_2e4c, intb_init4c
+c
+      neritotal = 0
+      nblksiz = (lbhi-lblo+1)*(kbhi-kblo+1)*
+     $          (jbfhi-jbflo+1)*(ibfhi-ibflo+1)
+      call dfill(nblksiz, 0.d0, ssbb, 1 )
+c
+c  Fill out shell arrays with interacting quartet labels
+c        
+      q4 = 1.d0
+      nshq = 0
+      do kk=kshlo,kshhi
+        ksh = shmap(kk)
+        do ll=lshlo,lshhi
+          lsh = shmap(ll)
+          if (schwarz_shell(ksh,lsh)*schw_ij.ge.tol2e) then
+            if ((.not.(osym)).or.
+     $         (sym_shell_quartet(basis, ish, jsh, max(ksh,lsh),
+     $                            min(ksh,lsh), q4))) then
+              nshq = nshq + 1
+              kshv(nshq) = ksh
+              lshv(nshq) = lsh
+              qv4(nshq)  = q4
+            endif
+          endif
+        enddo
+      enddo
+      call ifill( nshq, ish, ishv, 1 )
+      call ifill( nshq, jsh, jshv, 1 )
+c
+c  Prepare texas for shell block
+c
+      if (.not. intb_init4c( basis, ishv, jshv, basis, kshv, lshv,
+     $                       nshq, scrlen, iscr, erilen, beffect ))
+     $   call errquit('moints_gblk: intb_init4c failed',0)
+c
+c  Get some batch of integrals
+c
+ 100  more = intb_2e4c( basis, ishv, jshv, basis, kshv, lshv,
+     $                  nshq, qv4, osym, tol2e, .false.,
+     $                  ilab, jlab, klab, llab,
+     $                  eri, erilen, neri, scrlen, iscr )
+c
+c  Unpack labels and assign to integrals
+c
+      if (neri.gt.0) then
+        neritotal = neritotal + neri
+        do ieri=1,neri
+          ii = ilab(ieri)
+          jj = jlab(ieri)
+          kk = rbfmap(klab(ieri))
+          ll = rbfmap(llab(ieri))
+          ssbb(ll,kk,jj,ii) = eri(ieri)
+        enddo
+        if (more) goto 100
+      endif
+c
+c  Reflect diagonal shell block
+c
+      klen = kbhi  - kblo + 1
+      ilen = ibfhi - ibflo + 1
+      jlen = jbfhi - jbflo + 1
+      if ((kshlo.eq.lshlo).and.(osym))
+     $   call eriblktr(ilen, jlen, klen, ssbb )
+
+c$$$      LL = (LBHI - LBLO + 1)
+c$$$      KK = (KBHI - KBLO + 1)
+c$$$      WRITE(6,881) IBFLO, JBFLO
+c$$$ 881  FORMAT(/,'===',2I5)
+c$$$      CALL MOINTS_MATPRINT(LL,KK,SSBB(LBLO,KBLO,JBFLO,IBFLO))
+      return
+      end
+
+
+
+
+
+
+
+c
+c  This computes one shell quartet at a time
+c
+      subroutine moints_gblk_sq( basis, ish, jsh, kshlo, kshhi,
+     $                           lshlo, lshhi, shmap, rbfmap,
+     $                           schw_ij, tol2e, osym,
+     $                           erilen, eri, scrlen, iscr, 
+     $                           ibflo, ibfhi, jbflo, jbfhi,
+     $                           kblo, kbhi, lblo, lbhi,
+     $                           ssbb )
+C     $Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
+      implicit none
+#include "bas.fh"
+#include "schwarz.fh"
+      integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
+      integer shmap(*), rbfmap(*)
+      logical osym
+      integer erilen, scrlen
+      double precision schw_ij, tol2e, eri(erilen), iscr(scrlen)
+      integer ibflo, ibfhi, jbflo, jbfhi
+      integer kblo, kbhi, lblo, lbhi
+      double precision ssbb(lblo:lbhi,kblo:kbhi,jbflo:jbfhi,ibflo:ibfhi)
+c     
+      integer ilen, jlen, kblen, lblen
+      integer ksh, lsh, kbflo, kbfhi, lbflo, lbfhi, ltop
+      integer kk, ll, bsize
+      logical status
+      double precision q4
+      logical sym_shell_quartet
+      external sym_shell_quartet
+c
+c
+c
+      q4 = 1.0d0
+      ilen = ibfhi - ibflo + 1
+      jlen = jbfhi - jbflo + 1
+      kblen = kbhi - kblo + 1
+      lblen = lbhi - lblo + 1
+      bsize = kblen*lblen*ilen*jlen
+      call dfill(bsize,0.d0,ssbb,1)
+      do kk=kshlo,kshhi
+        ksh = shmap(kk)
+        status = bas_cn2bfr(basis, ksh, kbflo, kbfhi)
+        ltop = lshhi
+        if (kshlo.eq.lshlo) ltop = kk
+        do ll=lshlo,ltop
+          lsh = shmap(ll)
+          if ((schwarz_shell(ksh,lsh)*schw_ij).ge.tol2e) then
+            if ((.not.(osym)).or.
+     $        (sym_shell_quartet(basis, ish, jsh, max(ksh,lsh),
+     $                           min(ksh,lsh), q4))) then
+              status = bas_cn2bfr(basis, lsh, lbflo, lbfhi)
+              call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
+     $                      scrlen, iscr, erilen, eri )
+              call eri2blkx(rbfmap, ilen, jlen,
+     $                      kblo, kbhi, lblo, lbhi,
+     $                      kbflo, kbfhi, lbflo, lbfhi,
+     $                      eri, q4, ssbb )
+            endif
+          endif
+        enddo
+      enddo
+      if (kshlo.eq.lshlo) call eriblktr(ilen, jlen, kblen, ssbb )
+
+c$$$      WRITE(6,881) ISH, JSH
+c$$$ 881  FORMAT(/,'+++',2I5)
+c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
+
+      return
+      end
+
+
+
 
 
 
@@ -319,41 +636,41 @@ c
 
 
 
-c
-c
-c
-c
-c
-      subroutine eri2blk( ilen, jlen, klen, llen, eri, blk,
-     $                    lblen, kblen, q4)
+
+
+
+
+
+
+
+      subroutine eri2blkx( rbfmap, ilen, jlen,
+     $                     kblo, kbhi, lblo, lbhi,
+     $                     kbflo, kbfhi, lbflo, lbfhi, 
+     $                     eri, q4, blk )
       implicit none
-      integer ilen,jlen,klen,llen,lblen,kblen
-      double precision blk(lblen,kblen,jlen,ilen)
-      double precision eri(llen,klen,jlen,ilen)
+      integer rbfmap(*)
+      integer ilen, jlen
+      integer kblo, kbhi, lblo, lbhi
+      integer kbflo, kbfhi, lbflo, lbfhi
       double precision q4
-      integer k,l,i,j
+      double precision blk(lblo:lbhi,kblo:kbhi,jlen,ilen)
+      double precision eri(lbflo:lbfhi,kbflo:kbfhi,jlen,ilen)
+      integer k,l,i,j,kk,ll
 
       do i=1,ilen
         do j=1,jlen
-          do k=1,klen
-            do l=1,llen
-              blk(l,k,j,i) = eri(l,k,j,i)*q4
+          do k=kbflo,kbfhi
+            kk = rbfmap(k)
+            do l=lbflo,lbfhi
+              ll = rbfmap(l)
+              blk(ll,kk,j,i) = eri(l,k,j,i)*q4
             enddo
           enddo
         enddo
       enddo
-
+      
       return
       end
-
-
-
-
-
-
-
-
-
 
 
 
@@ -378,6 +695,10 @@ c
       enddo
       return
       end
+
+
+
+
 
 
 
@@ -757,7 +1078,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.17 1996-07-16 17:21:45 rg240 Exp $
+C$Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -801,7 +1122,7 @@ C$Id: moints_aux2.F,v 1.17 1996-07-16 17:21:45 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.17 1996-07-16 17:21:45 rg240 Exp $
+c$$$C$Id: moints_aux2.F,v 1.18 1996-07-25 00:06:54 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
