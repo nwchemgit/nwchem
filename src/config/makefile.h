@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.247 1997-12-09 18:48:56 d3g681 Exp $
+# $Id: makefile.h,v 1.248 1997-12-09 19:32:28 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -15,9 +15,9 @@
 # a hypehn to NWCHEM_TOP in order to derive the directory path TOPDIR.
 
 # For development tree 
-#RELEASE := 
+RELEASE := 
 # For current release tree
-RELEASE := 3.1
+#RELEASE := 3.1
 
 #
 
