@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.53 2000-11-04 03:26:44 d3g681 Exp $
+c     $Id: dft_inpana.F,v 1.54 2001-04-04 00:22:29 edo Exp $
 c
 c*********************************************************************
 c     
@@ -33,10 +33,11 @@ c
       integer ictr
       double precision bsr, radang
       double precision anucl_charg, ckfac, t1, r1
-      double precision ictr_coord(3), ictr_chg
+      double precision ictr_coord(3), ictr_chg,smear_sigma
       character*3 on_off_1, on_off_2
       logical oprint_general, oprint_grid, oprint_xc, 
-     &     oprint_convergence, oprint_tolerances, oprint_sic
+     &     oprint_convergence, oprint_tolerances, oprint_sic,
+     ,     lsigma
       character*9 local_c, nonlocal_c, nineb_c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
@@ -292,6 +293,7 @@ c
      &         no_prune))no_prune = .false.
       if (.not. rtdb_get(rtdb, 'dft:test_sic', mt_int, 1,
      &     test_sic))test_sic = 0
+      lsigma=rtdb_get(rtdb, 'dft:smear_sigma',mt_dbl,1,smear_sigma)
 c
       if (me.eq.0) then
 c     
@@ -550,6 +552,13 @@ c
             write(LuOut,3233)strng1,strng2,strng3,strng4,strng5,strng6
             call util_flush(LuOut)
          endif
+         if(lsigma) then
+            write(luout,
+     .           "(10x,'Smearing applied: ',d8.2,' (hartree)')"
+     .           ) smear_sigma
+         endif
+         
+
          if (oprint_tolerances)then     
             write(LuOut,*)
             call util_print_centered

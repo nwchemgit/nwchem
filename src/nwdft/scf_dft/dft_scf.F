@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.175 2001-03-24 01:31:30 edo Exp $
+c     $Id: dft_scf.F,v 1.176 2001-04-04 00:22:32 edo Exp $
 c     
       implicit none
 c
@@ -191,7 +191,6 @@ c
      &     mult_loc)) mult_loc=mult
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
-        if(me.eq.0) write(LuOut,*) ' SMEAR = ',ssmear
       endif
       if (.not.rtdb_get(rtdb, 'dft:check_deg', mt_log, 1,
      &   check_deg))check_deg=.false.
