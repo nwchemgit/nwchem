@@ -1,21 +1,14 @@
-echo
-title "NWChem molecular dynamics"
-memory noverify heap 1 mb stack 32 mb global 8 mb
-start nak_job
+memory noverify heap 1 mb stack 128 mb global 24 mb
+
+start nak
 
 md
  system nak_md
- step 0.001 equil 0 data 100
- cutoff 0.9
- isotherm 298.15 trelax 0.1 0.1 
- isobar 1.025e5 trelax 0.4 compres 4.53e-10 
- print step 10 stat 100 
- update pairs 5 center 0 long 5 rdf 0
- record rest 1000
- record prop 0 sync 0
- record coord 0 scoor 0
- record veloc 0 svelo 0
- record ascii ecce
+ equil 0 data 100 step 0.002
+ isotherm
+ isobar
+ print step 10 stat 100
+ record rest 0
  test 10
 end
 
