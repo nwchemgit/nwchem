@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.17 2001-02-07 19:57:01 zzhang Exp $
+c     $Id: dft_scf_so.F,v 1.18 2001-05-29 23:33:08 edo Exp $
 c     
       implicit none
 c     
@@ -775,7 +775,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(1)) 
-      write(*,*)"Ecore+=so(z)", ecore
+!      write(*,*)"Ecore+=so(z)", ecore
 cso  
 cso   Accumulate y-component s.o. contribution 
 cso   Re(Dy)=Re(Dab)-Re(Dba) 
@@ -784,7 +784,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(2)) 
-      write(*,*)"Ecore+=so(y)", ecore
+!      write(*,*)"Ecore+=so(y)", ecore
 cso  
 cso   Accumulate x-component s.o. contribution 
 cso   Re(Dx)=-Im(Dab)-Im(Dba) 
@@ -792,7 +792,7 @@ cso   <Hx>=Re(Dx) dot Vx
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
-      write(*,*)"Ecore+=so(x)", ecore
+!      write(*,*)"Ecore+=so(x)", ecore
       noso = Ecore-noso 
 c     
 c     Perform SPM analysis
@@ -1131,7 +1131,7 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
  61   continue
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
-      call ZHEEVso( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
+      call ZHEEV( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
      $            Dbl_mb(k_eval(1)), 
      $            DCpl_mb(iwork), LLWORK, Dbl_mb(irwork), INFO )
       do i = 1, nbf_mo
