@@ -1,6 +1,6 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.5 2000-10-23 15:50:57 windus Exp $
+c $Id: intdd_1eov.F,v 1.6 2003-02-20 02:06:43 bert Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -78,9 +78,9 @@ c
 c::external subroutines used
 c... errquit
 c::functions
-      logical cando_hnd_1e
+      logical cando_hnd_1edd
       logical cando_nw
-      external cando_hnd_1e
+      external cando_hnd_1edd
       external cando_nw
 c::passed
       integer i_basis   ! [input] ish basis set handle
@@ -184,8 +184,8 @@ c
         call errquit('intdd_1eovP: geom error ',911)
       endif
 c
-      if (cando_hnd_1e(i_basis,ish,0).and.cando_hnd_1e(j_basis,jsh,0))
-     &    then
+      if (cando_hnd_1edd(i_basis,ish,0).and.
+     &    cando_hnd_1edd(j_basis,jsh,0)) then
         call hnd_stvintdd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),

@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.39 2002-01-08 18:44:01 windus Exp $
+c $Id: cando_sp.F,v 1.40 2003-02-20 02:06:43 bert Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -660,4 +660,78 @@ c
      &      mt_log,1,app_stored_hnd))
      &      call errquit('int_app_unset_no_hnd:rtdb_put failed',911)
       endif
+      end
+***********************************************************************
+c:tex-% part of API Internal Routines
+c:tex-\subsection{cando\_hnd_\1edd}
+c:tex-This routine returns ``.true.'' to the calling integral API
+c:tex-routine if the second derivatives of the one electron integrals over ISH and JSH can be
+c:tex-computed using the HONDO code.
+***********************************************************************
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      logical function cando_hnd_1edd(basisin,ish,jsh)
+c:tex-\end{verbatim}
+      implicit none
+c
+c this routine does not check the shell and int_init
+c because it is only called by routines that do this.
+c
+#include "apiP.fh"
+#include "bas.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "candoP.fh"
+#include "mafdecls.fh"
+#include "bas_ibs_dec.fh"
+c::passed
+c:tex-\begin{verbatim}
+      integer basisin  ! [input] basis set handle for identified shells
+      integer ish,jsh  ! [input] lexical shell index for I and J
+c:tex-\end{verbatim}
+c:tex-A zero [i|j]sh means ignore this shell. this allows one function
+c:tex-for all 1e permutations and multiple basis sets.
+c::local
+      integer basis, mytype, ucont, ngen
+c
+c
+#include "bas_ibs_sfn.fh"
+c
+      if (user_cando_hnd) then
+        cando_hnd_1edd = def_cando_hnd
+        return
+      endif
+c
+      cando_hnd_1edd = .true.
+c
+      basis = basisin + BASIS_HANDLE_OFFSET
+c
+c check shell range
+c also check for general contractions which the code does not
+c currently handle
+c
+      if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_hnd_1edd: bad ish =', ish)
+      if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
+     $     call errquit('cando_hnd_1edd: bad jsh =', jsh)
+c.... check ish
+      if (ish.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(ish,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        ngen = infbs_cont(CONT_NGEN,ucont,basis)
+        cando_hnd_1edd = cando_hnd_1edd .and. (mytype.ge.0) .and.
+     $     (mytype.le.4) .and. (ngen.eq.1)
+      endif
+c
+c.... check jsh
+      if (jsh.gt.0) then
+        ucont  = (sf_ibs_cn2ucn(jsh,basis))
+        mytype = infbs_cont(CONT_TYPE,ucont,basis)
+        ngen = infbs_cont(CONT_NGEN,ucont,basis)
+        cando_hnd_1edd = cando_hnd_1edd .and. (mytype.ge.0) .and.
+     $     (mytype.le.4) .and. (ngen.eq.1)
+      endif
+c
       end

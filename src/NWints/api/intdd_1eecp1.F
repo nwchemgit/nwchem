@@ -1,6 +1,6 @@
       subroutine intdd_1eecp1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eecp1.F,v 1.1 2002-06-17 22:26:17 bert Exp $
+C $Id: intdd_1eecp1.F,v 1.2 2003-02-20 02:06:43 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -73,10 +73,11 @@ c
       nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
 c
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
-      if (nint*3*3*nat*nat.gt.lH1a) then
-        write(luout,*) 'nint*3*3*(nat*3+3) = ',nint*3*3*(nat*3+3)
+      if (nint*3*3*(nat*(nat-1)/2+nat).gt.lH1a) then
+        write(luout,*) 'nint*3*3*(nat*(nat-1)/2+nat) = ',
+     &                 nint*3*3*(nat*(nat-1)/2+nat)
         write(luout,*) 'lH1a       = ',lH1a
-        call errquit('intd_1eh1: nint>lH1a error',911)
+        call errquit('intd_1eecp: nint>lH1a error',911)
       endif
 c
       call intdd_1eecp1P(i_basis,ish,j_basis,jsh,
@@ -99,11 +100,6 @@ c
 #include "bas_ibs_dec.fh"
 c::external subroutines used
 c... errquit
-c::functions
-      logical cando_hnd_1e
-      logical cando_nw
-      external cando_hnd_1e
-      external cando_nw
 c::passed
       integer i_basis   ! [input] ish basis set handle
       integer ish       ! [input] ``i'' contraction index

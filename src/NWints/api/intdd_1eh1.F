@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.10 2000-08-17 18:56:42 windus Exp $
+C $Id: intdd_1eh1.F,v 1.11 2003-02-20 02:06:43 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -76,7 +76,7 @@ c
       if (nint*3*3*(nat*3+3).gt.lH1a) then
         write(luout,*) 'nint*3*3*(nat*3+3) = ',nint*3*3*(nat*3+3)
         write(luout,*) 'lH1a       = ',lH1a
-        call errquit('intd_1eh1: nint>lH1a error',911)
+        call errquit('intdd_1eh1: nint>lH1a error',911)
       endif
 c
       offset = nint*3*3*nat*3 + 1  ! T is held seperately in H1a
@@ -102,9 +102,9 @@ c
 c::external subroutines used
 c... errquit
 c::functions
-      logical cando_hnd_1e
+      logical cando_hnd_1edd
       logical cando_nw
-      external cando_hnd_1e
+      external cando_hnd_1edd
       external cando_nw
 c::passed
       integer i_basis   ! [input] ish basis set handle
@@ -177,8 +177,8 @@ c
         doT = .true.
       endif
 c       
-      if (cando_hnd_1e(i_basis,ish,0).and.cando_hnd_1e(j_basis,jsh,0))
-     &    then
+      if (cando_hnd_1edd(i_basis,ish,0).and.
+     &    cando_hnd_1edd(j_basis,jsh,0)) then
         call hnd_stvintdd(
      &       coords(1,iatom,igeom),
      &       dbl_mb(mb_exndcf(iexp,ibas)),
