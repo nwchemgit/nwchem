@@ -76,4 +76,3 @@ OBJ_OPTIMIZE=	dcfftb.o \
 include $(NWCHEM_TOP)/src/config/makefile.h
 include $(CNFDIR)/makelib.h
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

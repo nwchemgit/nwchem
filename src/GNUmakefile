@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.47 1997-01-17 01:45:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.48 1997-02-17 20:51:06 d3g681 Exp $
 
 include config/makefile.h
 
@@ -35,8 +35,8 @@ link nwchem_link:
 ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/nwchem
 endif
-	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS)
-	/bin/rm -f nwchem.o stubs.o
+	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o -ltask $(LIBS) $(LIBS)
+#	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
 # This for linking version with profiling
@@ -119,7 +119,7 @@ directories:
 
 # This target will change config/nwchem_config.h include file which
 # controls what we're going to build.
-nwchem_config:
+$(CNFDIR)/nwchem_config.h nwchem_config:
 ifeq ($(NWCHEM_MODULES),)
 	@echo
 	@echo -----
@@ -152,9 +152,8 @@ ifneq ($(EXCLUDED_SUBDIRS),)
 	done
 endif
 
-.PHONY:	depend
-depend:	
-	( cd config; $(MAKE) depend.x ; )
+.PHONY:	stripdepend
+stripdepend:	
 	config/stripdepend
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
@@ -171,5 +170,3 @@ ifdef SUBDIRS
 endif
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(nwchem.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh 

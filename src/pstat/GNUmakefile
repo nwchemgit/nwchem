@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.13 1996-07-26 16:35:57 d3g681 Exp $
+# $Id: GNUmakefile,v 1.14 1997-02-17 20:52:28 d3g681 Exp $
 
 
 #LIBRARY = libpstat.a
@@ -14,13 +14,3 @@ HEADERS =	pstat.fh	pstat_consts.fh
 include ../config/makefile.h
 include ../config/makelib.h
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(pstat_term.o):	./pstatP.fh 
-$(LIBRARY_PATH)(pstat_pr_han.o):	./pstatP.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(pstat_pr_det.o):	./pstatP.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(pstat_pr_all.o):	$(INCDIR)/util.fh ./pstatP.fh $(INCDIR)/msgids.fh $(INCDIR)/global.fh 
-$(LIBRARY_PATH)(pstat_on.o):	$(INCDIR)/util.fh ./pstatP.fh 
-$(LIBRARY_PATH)(pstat_off.o):	$(INCDIR)/util.fh ./pstatP.fh 
-$(LIBRARY_PATH)(pstat_init.o):	./pstatP.fh 
-$(LIBRARY_PATH)(pstat_free.o):	./pstatP.fh 
-$(LIBRARY_PATH)(pstat_alloc.o):	./pstatP.fh $(INCDIR)/bitops.fh 

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.27 1996-12-10 23:43:45 d3h325 Exp $
+#$Id: GNUmakefile,v 1.28 1997-02-17 20:52:02 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -91,4 +91,3 @@ include ../config/makelib.h
 
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY

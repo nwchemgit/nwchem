@@ -8,9 +8,9 @@ geometry
   H      0.00000000   -1.43042809   -1.60715266
 end
 
-basis segment noprint
-  H library sto-3g file ../src/basis/library
-  O library sto-3g file ../src/basis/library
+basis nosegment noprint
+  H library cc-pvdz
+  O library cc-pvdz
 end
 
 basis "test mo basis" nosegment noprint
@@ -30,18 +30,6 @@ basis "test mo basis" nosegment noprint
             0.183192    1.000000
 end
 
+scf; print high; end
 
-scf
-  maxiter 20
-#  print int2edebug
-end
-
-#gradient
-#  print none
-#end
-
-#stepper
-#  print default
-#end
-
-task scf
+task direct_mp2

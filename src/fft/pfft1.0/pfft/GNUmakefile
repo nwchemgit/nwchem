@@ -69,7 +69,3 @@ OBJ_OPTIMIZE=	blktrn.o \
 include $(NWCHEM_TOP)/src/config/makefile.h
 include $(NWCHEM_TOP)/src/config/makelib.h
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(prfft.o):	./const.h 
-$(LIBRARY_PATH)(chk3d.o):	./datasize.h 
-$(LIBRARY_PATH)(blktrn.o):	./datasize.h 

@@ -57,6 +57,8 @@ OBJ =
 
 OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD)
 
+HEADERS = ecp_nwc.fh
+
 USES_BLAS = ecp_cart_xpd.f \
       ecp_cstrans.f  \
       ecp_int0.F     \
@@ -76,30 +78,3 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(ecp_t1_Q0asy.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t1_Q0int.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_matpr.o):	$(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(ecp_matpi.o):	$(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(ecp_t2_init2.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_radint1.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_radint0.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_int2.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_int1.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_int0.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_radint2.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t2_p1pow.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t1_Q1int.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t2_p0pow.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t1_Q2int.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t1_Q1pow.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t1_Q1asy.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_t1_Q0pow.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_init_con.o):	./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_hessian.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(ecp_grad_b.o):	$(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(ecp_integral.o):	$(INCDIR)/stdio.fh ./ecp_consts.fh 
-$(LIBRARY_PATH)(int_ecp.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/int_nbf.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/geobasmapP.fh ./ecp_nwc.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/bas_ibs_sfn.fh $(INCDIR)/bas_ibs_dec.fh $(INCDIR)/bas_exndcf_sfn.fh $(INCDIR)/bas_exndcf_dec.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh $(INCDIR)/apiP.fh 
-$(LIBRARY_PATH)(ecp_gradient.o):	$(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(ecp_grad_a.o):	$(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(ecp_local.o):	$(INCDIR)/stdio.fh 

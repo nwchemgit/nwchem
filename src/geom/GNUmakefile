@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.29 1997-02-17 17:56:43 d3g681 Exp $
+#$Id: GNUmakefile,v 1.30 1997-02-17 20:51:52 d3g681 Exp $
 
  LIBRARY = libutil.a
 
@@ -13,11 +13,3 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(geom.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh ./geomP.fh ./geom.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(geom_input.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./geomP.fh ./geom.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(geom_2d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
-$(LIBRARY_PATH)(geom_1d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
-$(LIBRARY_PATH)(geom_numcore.o):	./geomP.fh 
-$(LIBRARY_PATH)(geom_3d.o):	$(INCDIR)/inp.fh ./geomP.fh ./geom.fh 
-$(LIBRARY_PATH)(geom_checksum.o):	$(INCDIR)/mafdecls.fh ./geomP.fh 

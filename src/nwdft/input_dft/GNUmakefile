@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 1997-02-17 17:58:33 d3g681 Exp $
+# $Id: GNUmakefile,v 1.25 1997-02-17 20:52:19 d3g681 Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -19,12 +19,3 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(xc_inp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(tol_inp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(grid_inp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(dft_inpana.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ../include/cdft.fh 
-$(LIBRARY_PATH)(dft_input.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(conv_inp.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh 
-$(LIBRARY_PATH)(dft_rdinput.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ../include/cdft.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(xc_setquad.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh ../include/cdft.fh 

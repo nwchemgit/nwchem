@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.37 1996-10-16 22:40:45 d3e129 Exp $
+# $Id: GNUmakefile,v 1.38 1997-02-17 20:51:14 d3g681 Exp $
 
     HEADERS = api/int_tim.fh api/apiP.fh seint/se_defs.fh api/int_nbf.fh
     LIBRARY = libnwints.a
@@ -35,4 +35,3 @@ tasks tasks.ps:	tasks.tex
 view tasks.v:	tasks.ps
 	ghostview tasks.ps
 
-# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
