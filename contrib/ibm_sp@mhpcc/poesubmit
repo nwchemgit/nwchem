@@ -1,0 +1,71 @@
+#!/bin/perl
+
+# parse input script to get POE vars, place into temp file
+# echo to temp job file, adding POE_PROCESSOR_LIST setup commands
+open(VARFILE, ">varfile.tmp");
+open(JOBFILE, ">jobfile.tmp");
+
+$first = 1;
+while (<>) {
+  printf JOBFILE $_;
+  if (/^#POE/) {
+    if (/ MASTER/) {
+      printf JOBFILE "if [ \$MASTER = \"true\" ]; then\n";
+    } elsif (/END_MASTER/) {
+      printf JOBFILE "fi\n";
+    } else {
+      printf VARFILE $';
+      $_ = $';
+      /=/;
+      printf VARFILE " export%s\n", $`;
+    }
+  }
+
+  # include commands to set up POE_PROCESSOR_LIST in job file
+  if (/ksh/ || /\/sh/ && $first) {
+    printf JOBFILE "if [ -z \$MP_SAVEHOSTFILE ]; then\n";
+    printf JOBFILE "echo the MP_SAVEHOSTFILE variable must be set\n";
+    printf JOBFILE "exit -1\n";
+    printf JOBFILE "fi\n";
+    printf JOBFILE "POE_PROCESSOR_LIST=`cat \$MP_SAVEHOSTFILE | sed -e /\^!/d | 
+awk '{print \$1}'`\n";
+    printf JOBFILE "iam=`hostname`\n";
+    printf JOBFILE "master=`echo \$POE_PROCESSOR_LIST | awk '{print \$1}'`\n";
+    printf JOBFILE "if [ \$iam = \$master ]; then\n";
+    printf JOBFILE "MASTER=true\n";
+    printf JOBFILE "else\n";
+    printf JOBFILE "MASTER=false\n";
+    printf JOBFILE "fi\n";
+  } elsif (/csh/ && $first) {
+    printf JOBFILE "if (! \$?MP_SAVEHOSTFILE) then\n";
+    printf JOBFILE "echo the MP_SAVEHOSTFILE variable must be set\n";
+    printf JOBFILE "exit -1\n";
+    printf JOBFILE "endif\n";
+    printf JOBFILE "cat \$MP_SAVEHOSTFILE | sed -e /^\\!/d > hosts.tmp\n";
+    printf JOBFILE "set POE_PROCESSOR_LIST = `cat hosts.tmp | awk '{print
+\$1}'`
+\n";
+    printf JOBFILE "/bin/rm hosts.tmp\n";
+    printf JOBFILE "set iam = `hostname`\n";
+    printf JOBFILE "set master = `echo \$POE_PROCESSOR_LIST | awk '{print
+\$1}'`
+\n";
+    printf JOBFILE "if ( \$iam == \$master ) then\n";
+    printf JOBFILE "set MASTER = true\n";
+    printf JOBFILE "else\n";
+    printf JOBFILE "set MASTER = false\n";
+    printf JOBFILE "endif\n";
+  }
+  $first = 0;
+}
+close(VARFILE);
+close(JOBFILE);
+
+# source POE vars and run the input script
+system("chmod +x jobfile.tmp");
+system(". varfile.tmp; /usr/bin/poe jobfile.tmp");
+
+# remove the temp files
+unlink("varfile.tmp");
+unlink("jobfile.tmp");
+

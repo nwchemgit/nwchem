@@ -1,0 +1,37 @@
+#!/bin/ksh
+#POE MP_PROCS=2
+#POE SP_NAME=cws1.mhpcc.edu
+##POE MP_HOSTFILE="host.list"
+#POE MP_HOSTFILE=""
+##POE MP_EUILIB=ip
+#POE MP_EUILIB=us
+#POE MP_EUIDEVICE=css0
+#POE MP_PGMMODEL=spmd
+#POE MP_RMPOOL=0
+#POE MP_SAVEHOSTFILE=hosts.used
+#POE MP_INFOLEVEL=1
+#POE MP_LABELIO=no
+#POE MP_PULSE=0
+
+infile=input.file
+outfile=output.file
+
+# pre-execution set up
+#POE MASTER
+  for node in $POE_PROCESSOR_LIST
+  do
+    rcp $infile $node:/localscratch
+  done
+#POE END_MASTER
+
+# poe job goes here
+poejob
+
+# post-execution cleanup
+#POE MASTER
+  for node in $POE_PROCESSOR_LIST
+  do
+    rsh $node rm /localscratch/$infile
+    rsh $node mv /localscratch/$outfile /u/lwaters/mpi/timing/$outfile.$node
+  done
+#POE END_MASTER

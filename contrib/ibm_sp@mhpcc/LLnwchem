@@ -1,0 +1,48 @@
+#!/bin/csh
+# @ job_type     = parallel
+# @ notification = always
+# @ notify_user  = ja_nichols@pnl.gov
+# @ class        = tiny
+# @ requirements = (Adapter == "hps_user")
+# @ environment  = COPY_ALL
+# @ min_processors = 2
+# @ max_processors = 4
+# @ cpu_limit = 00:01:00
+# @ queue
+
+# mydir = directory where input/output files reside
+set mydir  = "/u/nichols/nwchem/examples/"
+# nwchem = nwchem exec directory
+set nwchem  = "/u/nichols/nwchem/bin/SP1/nwchem"
+# ldir = local directory where calculation will occur
+set ldir  = "/localscratch/"
+# string file_prefix default e.g., for db and movecs files
+set prefix = "h2o"
+# infile = name of nwchem input file
+set infile = "dft_h2o.nw"
+# outfile = name of nwchem output file
+set outfile = "dft_h2o.out"
+# nodes = nodes assigned at runtime by loadleveler
+set nodes  = `echo $LOADL_PROCESSOR_LIST`
+
+# Pre-execution setup
+rcp ${mydir}${infile} ${nodes[1]}:${ldir}
+
+# Execution steps
+cd ${ldir}
+${nwchem} ${infile} >& ${outfile} -infolevel 2
+
+# Post-execution cleanup
+
+# get output file
+rcp ${nodes[1]}:${ldir}${outfile} ${mydir}
+
+# get data files
+rcp ${nodes[1]}:${ldir}movecs ${mydir}
+rcp ${nodes[1]}:${ldir}${prefix}.db ${mydir}
+rcp ${nodes[1]}:${ldir}fort.7 ${mydir}
+rcp ${nodes[1]}:${ldir}cdfit.dat ${mydir}
+
+# delete files from ${ldir}
+rsh $nodes[1] "cd ${ldir}; rm -f ${infile} ${outfile} fort.7 *.dat *.db movecs"
+
