@@ -7,7 +7,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract,scale,cpk,his)
 c
-c $Id: pre_rtdbin.F,v 1.29 2001-11-06 06:15:21 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.30 2002-02-13 00:53:36 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -60,9 +60,10 @@ c
 c
       if(.not.rtdb_cget(irtdb,'prep:dir_s',1,dir_s)) continue
       if(.not.rtdb_cget(irtdb,'prep:dir_x',1,dir_x)) continue
-      if(.not.rtdb_cget(irtdb,'prep:dir_x',1,dir_q)) continue
+      if(.not.rtdb_cget(irtdb,'prep:dir_q',1,dir_q)) continue
       if(.not.rtdb_cget(irtdb,'prep:dir_u',1,dir_u)) continue
       if(.not.rtdb_cget(irtdb,'prep:dir_t',1,dir_t)) continue
+      if(.not.rtdb_cget(irtdb,'prep:dir_c',1,dir_c)) continue
 c
       if(.not.rtdb_cget(irtdb,'prep:par_s',1,par_s)) continue
       if(.not.rtdb_cget(irtdb,'prep:par_x',1,par_x)) continue
