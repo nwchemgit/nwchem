@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: dbl_to_sngl,v 1.9 1997-03-19 17:41:39 d3e129 Exp $
+# $Id: dbl_to_sngl,v 1.10 1998-07-27 04:04:13 d3e129 Exp $
 #
 #
 # modified to use the perl version to change back to the sed scripts
@@ -35,7 +35,7 @@ endif
 
 set JOB_LIMIT = 4
 if (`hostname` == circus) set JOB_LIMIT = 20
-if (`hostname` == mcurie) set JOB_LIMIT = 1
+if (`hostname` == mcurie) set JOB_LIMIT = 2
 @ njob = 0
 
 foreach file ($argv)
