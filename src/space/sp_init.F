@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.140 2004-05-04 22:59:03 edo Exp $
+c $Id: sp_init.F,v 1.141 2005-01-14 01:53:53 edo Exp $
 c
       implicit none
 c
@@ -721,52 +721,52 @@ c
       read(lfntop,2002,end=9897,err=9898) nqt
       read(lfntop,2002,end=9897,err=9898) nseq
  2002 format(i5)
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
       do 1103 k=1,npars
       do 102 i=1,nat
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
       do 103 j=i,nat
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   103 continue
   102 continue
  1103 continue
       do 104 i=1,nqt*npars
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   104 continue
       do 4104 i=1,nseq
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
  4104 continue
       read(lfntop,2003,end=9897,err=9898) naw,nbw,nhw,ndw,now,ntw,nnw
  2003 format(5i7,2i10)
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
       do 105 i=1,naw
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   105 continue
       do 106 i=1,nbw*(npars+1)
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   106 continue
       do 107 i=1,nhw*(npars+1)
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   107 continue
       do 108 i=1,ndw*(npars+1)
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   108 continue
       do 109 i=1,now*(npars+1)
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   109 continue
       if(ntw.gt.0) then
-      read(lfntop,2004,end=9897,err=9898) (idum,i=1,ntw)
-      read(lfntop,2004,end=9897,err=9898) (idum,i=1,ntw)
+      read(lfntop,2004,end=9897,err=9898) 
+      read(lfntop,2004,end=9897,err=9898) 
  2004 format(11i7)
       endif
       if(nnw.gt.0) then
-      read(lfntop,2005,end=9997,err=9998) (idum,i=1,nnw)
-      read(lfntop,2005,end=9997,err=9998) (idum,i=1,nnw)
+      read(lfntop,2005,end=9997,err=9998) 
+      read(lfntop,2005,end=9997,err=9998) 
  2005 format(11i7)
       endif
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
       do 204 i=1,npars
-      read(lfntop,2001,end=9897,err=9898) cdum
+      read(lfntop,2001,end=9897,err=9898) 
   204 continue
 c
       write(lfnout,6100)
