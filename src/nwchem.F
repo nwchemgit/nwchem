@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.130 2000-10-13 20:54:31 d3g681 Exp $
+c     $Id: nwchem.F,v 1.131 2000-11-16 17:35:12 edo Exp $
 *------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000     *
 *         Pacific Northwest National Laboratory,             * 
@@ -532,7 +532,7 @@ c
 c     Below here back to parallel execution
 c
 10101 call util_file_print_dirs()
-      write(LuOut,*)
+      if(ga_nodeid().eq.0) write(LuOut,*)
 c
       end
       subroutine nw_print_restart_info(rtdb)
