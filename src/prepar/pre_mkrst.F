@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk)
 c
-c $Id: pre_mkrst.F,v 1.57 2000-08-31 00:07:00 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.58 2000-09-05 22:19:27 d3j191 Exp $
 c
       implicit none
 c
@@ -370,6 +370,16 @@ c
       lslvnt=.false.
       endif
 c
+c     check if solvent restart file exists locally
+c     --------------------------------------------
+c
+      filslv=slvmdl(1:index(slvmdl,' ')-1)//'.rst '
+      open(unit=lfnslv,file=filslv(1:index(filslv,' ')-1),
+     + status='old',err=1020)
+      close(unit=lfnslv)
+      goto 1021
+ 1020 continue
+c
 c     get restart file name for the solvent
 c     -------------------------------------
 c
@@ -386,6 +396,8 @@ c
       open(unit=lfnslv,file=filslv(1:index(filslv,' ')-1),
      + status='old',err=9998)
       close(unit=lfnslv)
+c
+ 1021 continue
 c
 c     get dimensions from solvent restart file
 c     ----------------------------------------
