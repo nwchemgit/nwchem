@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,iga_dens,AO_bas_han)
 
-C$Id: dft_getspm.F,v 1.1 1995-05-03 19:27:50 og845 Exp $
+C$Id: dft_getspm.F,v 1.2 1995-05-04 04:59:27 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult
@@ -9,6 +9,7 @@ c****
 c**** nwchem handles
 c**** 
       integer  geom, AO_bas_han
+      double precision centerl(3)
 
 #include <bas.fh>
 #include <geom.fh>
@@ -34,6 +35,29 @@ c****
      &       Dbl_MB(icoord), Dbl_MB(icharge)))
      &       call errquit('dft_scf: geom_cart_get failed',74)
 
+c**** 
+c**** compute center of charge
+c**** 
+
+        centerl(1) = 0.d0
+        centerl(2) = 0.d0
+        centerl(3) = 0.d0
+
+      do icent = 0,natoms-1
+
+        q =dbl_mb(icharge+icent)
+          centerl(1) = centerl(1) + q*dbl_mb(icoord+3*icent  )
+          centerl(2) = centerl(2) + q*dbl_mb(icoord+3*icent+1)
+          centerl(3) = centerl(3) + q*dbl_mb(icoord+3*icent+2)
+      enddo 
+
+      if (.not. geom_nuc_charge(geom,total_nuc_charge)) call errquit(
+     &     'dft_mpole:dft_nuc_mpole: geom_nuc_charge failed',20)
+
+        centerl(1) = centerl(1)/total_nuc_charge
+        centerl(2) = centerl(2)/total_nuc_charge
+        centerl(3) = centerl(3)/total_nuc_charge
+
         LResult = MA_Pop_Stack(ltags)
 
         if(lmax.gt.0) then
@@ -55,7 +79,7 @@ c****
      &       call errquit('dft_scf: push_get failed',74)
 
         call dft_genspm(lmax,iga_dens,AO_bas_han,
-     &       natoms,dbl_MB(icoord),dbl_MB(iPmat),max_at_bf,
+     &       natoms,centerl,dbl_MB(iPmat),max_at_bf,
      &       DBL_MB(icharge),DBL_MB(idipole))
 
         LResult = MA_Pop_Stack(lPmat)

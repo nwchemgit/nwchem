@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
-     &     natoms,xyz,Pmat,max_at_bf,
+     &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole)
-C$Id: dft_genspm.F,v 1.1 1995-05-03 19:27:50 og845 Exp $
+C$Id: dft_genspm.F,v 1.2 1995-05-04 04:59:26 og845 Exp $
       implicit none
 #include <mafdecls.h>
 #include <tcgmsg.fh>
@@ -15,7 +15,6 @@ C$Id: dft_genspm.F,v 1.1 1995-05-03 19:27:50 og845 Exp $
 
       integer natoms
       integer iga_dens,basis,lmax
-      double precision xyz(3,natoms)
       double precision Pmat(max_at_bf*max_at_bf)
       integer max_at_bf
 
@@ -31,16 +30,7 @@ C$Id: dft_genspm.F,v 1.1 1995-05-03 19:27:50 og845 Exp $
       integer num_int,lval,ij_int
       integer istart,ipmat,Pmat_point,Pmat_point0,istartd
       integer n1,n2,icount,nproc
-
-c     common /cmm_block4/ xcrd, ycrd, zcrd
-c     common /cmm_block6/ acharge
-c     double precision xcrd(NMAX), ycrd(NMAX), zcrd(NMAX), acharge(NMAX)
-c     integer NMAX, MMAX, NCELLMAX
-c     parameter (NMAX=100000,MMAX=2**MAXFIN, NCELLMAX=MMAX*MMAX*MMAX)
-c     common / block4 / xcrd, ycrd, zcrd
-c     common / block6 / xp, yp, zp
-c     double precision xcrd(NMAX), ycrd(NMAX), zcrd(NMAX)
-c     double precision xp(NMAX), yp(NMAX), zp(NMAX) 
+      double precision centerl(3)
 
 c     
 c     evaluation of # of multipole ints
@@ -107,7 +97,7 @@ c
      &             call errquit('Exiting in dft_gensmp.',5)
               nbf_j=jlast_sh-jfirst_sh+1
 
-              call int_mpole(basis, jsh, basis, ish, lmax, xyz(1,iat),
+              call int_mpole(basis, jsh, basis, ish, lmax, centerl,
      &             max_scratch, DBL_MB(iscr), lmpint, DBL_MB(iMP))
               
 c             
