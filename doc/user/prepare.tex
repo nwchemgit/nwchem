@@ -773,11 +773,19 @@ may be specified, and will only apply to the previously specified
 \verb+repeat+ directive. 
 
 \begin{verbatim}
-(collapsexy | collapsez)
+(collapsexy | collapsez) [ <integer nmoves>]
 \end{verbatim}
 specifies to move all solute molecules toward the \verb+z+-axis or 
 \verb+x=y+-plane, respectively, to within a distance of \verb+touch+
-nm between any pair of atoms from different solute molecules.
+nm between any pair of atoms from different solute molecules. Parameter
+\verb+nmoves+ specifies the number of collapse moves that will be made.
+Monatomic ions will move with the nearest multi-atom molecule.
+
+\begin{verbatim}
+collapse_group <integer imol> <integer jmol>
+\end{verbatim}
+specifies that molecule jmol will move together with molecule imol in
+collapse operations.
 
 \begin{verbatim}
 merge <real xtran(3)> <string pdbfile>
