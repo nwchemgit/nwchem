@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.4 1997-08-19 23:31:48 mg201 Exp $
+C $Id: ecp_int2.F,v 1.5 1997-08-20 18:30:08 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -187,7 +187,7 @@ C $Id: ecp_int2.F,v 1.4 1997-08-19 23:31:48 mg201 Exp $
           n_cont_c = 1
           n_x = 1
         else
-          cycle
+          go to 10
         end if
         n_c = n_coef_c(l_c)
         i_t = ind_c(l_c)
@@ -504,6 +504,7 @@ C $Id: ecp_int2.F,v 1.4 1997-08-19 23:31:48 mg201 Exp $
           end do ! i_x
 *
         end if
+   10   continue
 *
       end do
       do i = 1,n_blk

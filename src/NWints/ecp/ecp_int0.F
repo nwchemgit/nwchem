@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.3 1997-08-19 23:31:47 mg201 Exp $
+C $Id: ecp_int0.F,v 1.4 1997-08-20 18:30:07 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -125,7 +125,7 @@ C      write (LuOut,*) 'Starting l_c loop'
           n_cont_c = 1
           n_x = 1
         else
-          cycle
+          go to 10
         end if
         n_c = n_coef_c(l_c)
         i_Q_int = 1
@@ -251,6 +251,7 @@ C      write (LuOut,*) 'Starting l_c loop'
             m = m+n_cont_a
           end do
         end if
+   10   continue
       end do
       if (debug_arrays) call ecp_matpr (ecp_ints,1,n_all_b,1,n_all_a,
      &    1,n_all_b,1,n_all_a,'ECP integrals','E',78,4)

@@ -1,4 +1,4 @@
-C $Id: ecp_int1.F,v 1.4 1997-08-19 23:31:47 mg201 Exp $
+C $Id: ecp_int1.F,v 1.5 1997-08-20 18:30:08 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
@@ -177,7 +177,7 @@ C $Id: ecp_int1.F,v 1.4 1997-08-19 23:31:47 mg201 Exp $
           n_cont_c = 1
           n_x = 1
         else
-          cycle
+          go to 10
         end if
         n_c = n_coef_c(l_c)
         n_abc = n_ab*n_c
@@ -377,6 +377,7 @@ C              write (LuOut,*) i,loc(tmp(i))
           end do
 *
         end if
+   10   continue
       end do
       if (debug_arrays) then
         n_all_a = n_na*n_cont_a
