@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.86 1998-08-21 20:43:28 d3g681 Exp $
+C     $Id: geom_input.F,v 1.87 1999-04-08 19:21:35 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -30,7 +30,7 @@ c
       double precision threquiv ! Threshold for autosym atom equivalence
 c     .                           and for forcing symmetry
       parameter (max_center = 500)
-      double precision coords(3,max_center)
+      double precision coords(3,max_center), velocities(3,max_center)
       double precision charge(max_center), mass(max_center)
       character*16 tags(max_center)
       character*2 symbol
@@ -95,6 +95,8 @@ c
 c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
+c
+      call dfill(3*max_center, 0.0d0, velocities, 1)
 c     
  10   if (inp_a(field)) then
          if (inp_compare(.false.,'bqbq',field)) then
@@ -244,13 +246,18 @@ c
      &           call errquit(' geom_input: default mass failed',
      &           911)
 c     
-c     New style input ... <tag> <x> <y> <z> [charge <q>] [mass <m>]
+c     New style input ... <tag> <x> <y> <z> [vx vvy vz] \
+c                         [charge <q>] [mass <m>]
 c     
             call inp_set_field(1)
             status = .true.
             status = status .and. inp_f(coords(1,ncenter+1))
             status = status .and. inp_f(coords(2,ncenter+1))
             status = status .and. inp_f(coords(3,ncenter+1))
+            if (inp_f(velocities(1,ncenter+1))) then
+               status = status .and. inp_f(velocities(2,ncenter+1))
+               status = status .and. inp_f(velocities(3,ncenter+1))
+            endif
             charge(ncenter+1) = atn
 c     
  111        if (inp_a(field)) then
@@ -300,6 +307,9 @@ c
 c
       if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_set failed', 0)
+c
+      if (.not. geom_vel_set(geom, velocities))
+     $     call errquit('geom_input: geom_vel_set failed', 0)
 c     
       if (.not. geom_masses_set(geom, ncenter, mass))
      &     call errquit('geom_input: geom_masses_set failed', 0)

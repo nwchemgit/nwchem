@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.78 1999-03-11 08:15:26 d3e129 Exp $
+C$Id: geom.F,v 1.79 1999-04-08 19:21:34 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -294,6 +294,9 @@ c
       tmp(k:) = ':coords'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, coords(1,1,geom))
+      tmp(k:) = ':vel'
+      status = status .and. 
+     $     rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, velocities(1,1,geom))
       tmp(k:) = ':charges'
       status = status .and. 
      $     rtdb_get(rtdb, tmp, mt_dbl, max_cent, charge(1,geom))
@@ -598,6 +601,10 @@ c
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
      $     coords(1,1,geom))
+      tmp(k:) = ':vel'
+      status = status .and. 
+     $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom)*3,
+     $     velocities(1,1,geom))
       tmp(k:) = ':charges'
       status = status .and. 
      $     rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
@@ -889,6 +896,39 @@ c
          geom_group_set = inp_match(230,.false.,group,sym_spgnames,
      $        group_number(geom))
       endif
+c
+      end
+      
+      logical function geom_vel_set(geom, vel)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      double precision vel(3, *) ! [input]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+c
+      geom_vel_set = geom_check_handle(geom, 'geom_vel_set')
+      if (.not. geom_vel_set) return
+c
+      call dcopy(3*ncenter(geom), vel, 1, velocities(1,1,geom), 1)
+c
+      end
+      logical function geom_vel_get(geom, vel)
+      implicit none
+#include "geomP.fh"
+c     
+      integer geom              ! [input]
+      double precision vel(3, *) ! [input]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+c
+      geom_vel_get = geom_check_handle(geom, 'geom_vel_get')
+      if (.not. geom_vel_get) return
+c
+      call dcopy(3*ncenter(geom), velocities(1,1,geom), 1, vel, 1)
 c
       end
       logical function geom_cart_set(geom, ncent, t, c, q)
@@ -1206,6 +1246,19 @@ c
      $        (tmp(i),i=1,3)
  4       format(' ',i4,' ',a16,' ',f10.4,3f15.8)
       end do
+c
+      if (ddot(3*ncenter(geom),velocities(1,1,geom),1,
+     $     velocities(1,1,geom),1) .gt. 1d-10) then
+
+         write(6,*)
+         write(6,*)
+         call util_print_centered(6,'Velocities',40,.true.)
+         write(6,3) 
+         do icent = 1, ncenter(geom)
+            write(6,4) icent, tags(icent,geom), charge(icent,geom),
+     $           (velocities(i,icent,geom),i=1,3)
+         end do
+      endif
 c     
 c     Only print out the masses for unique tags ... the structure
 c     should actually only store the data for unique tags.

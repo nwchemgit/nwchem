@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.23 1998-03-04 23:17:43 mdupuis Exp $
+* $Id: geomP.fh,v 1.24 1999-04-08 19:21:35 d3g681 Exp $
 *
 c
 c     Private fortran include file for the geometry routines
@@ -127,9 +127,10 @@ c
      $     lattice_vectors, lattice_angles, amatrix, amatrix_inv,
      $     volume_direct, metric_matrix, recip_lat_vectors, 
      $     recip_lat_angles, sym_ops, angstrom_to_au,
-     $     geom_mass,bmatrix
+     $     geom_mass,bmatrix, velocities
       common/cgeometry/
      $     coords(3,max_cent,max_geom),
+     $     velocities(3,max_cent,max_geom),
      $     charge(max_cent,max_geom),
      $     geom_mass(max_cent,max_geom),
      $     efield(3, max_geom),
