@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.38 1994-07-28 07:59:07 d3g681 Exp $
+# $Id: makefile.h,v 1.39 1994-07-29 12:57:14 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -198,7 +198,6 @@ ifeq ($(TARGET),PARAGON)
 	      -lutil -lma -ltcgmsg -llapack -lkmath
 #-lrpc -llapack -lblas 
 
->>>>>>> 1.37
   EXPLICITF = FALSE
 endif
 
