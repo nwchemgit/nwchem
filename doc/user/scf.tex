@@ -381,14 +381,18 @@ circumstances.
   MAXITER <integer maxiter default 8>
 \end{verbatim}
 
+\sloppy
+
 The maximum number of iterations for the SCF calculation defaults to
 eight for ROHF/RHF calculations and 20 for UHF.  For most molecules,
 this number of iterations is sufficient for the quadratically
 convergent SCF algorithm to obtain a solution converged to the
 default threshold (see Section \ref{sec:thresh} above).  If the SCF
-program detects that the quadratically-convergent algorithm is not
-efficient, then it will resort to a linearly-convergent algorithm and
+program detects that the quad\-ratically-con\-ver\-gent algorithm is not
+efficient, then it will resort to a lin\-early-con\-ver\-gent algorithm and
 increase the maximum number of iterations by 10.
+
+\fussy
 
 Convergence may not be reached in the maximum number of iterations for
 many reasons, including input error (e.g., an incorrect geometry or

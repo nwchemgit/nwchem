@@ -278,6 +278,8 @@ components as well as multiplicative factors can be invoked where
 appropriate.  Each of the correlation functionals is listed below along with
 appropriate citation. 
 
+\sloppy
+
 \begin{itemize}
 \item VWN local density functionals; S.J.~Vosko, L.~Wilk and M.~Nusair, 
   Can.~J.~Phys.~{\bf  58}, 1200 (1980); all five (5) functionals as
@@ -339,7 +341,7 @@ with the keyword,
   J.A.~Chevary, S.H.~Vosko, K.A.~Jackson, M.R.~Pederson, D.J.~Singh
   and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671 (1992). Note that this
   is a nonlocal functional and in the absence of any local functional 
-  specification the local component is defaulted to the pw91lda local 
+  specification the local component is defaulted to the \verb+pw91lda+ local 
   correlation functional.  This functional can be invoked with the keyword,
 
 \begin{verbatim}
@@ -357,6 +359,8 @@ with the keyword,
 \end{verbatim}
 
 \end{itemize}
+
+\fussy
 
 Any combination of the supported correlation functional options can be
 used.  For example the correlation component of the popular B3LYP
@@ -581,7 +585,7 @@ procedures deemed undesirable with the obvious keywords,
 \end{verbatim}
 
 
-\subsection{Controlling the Numerical Integration of the Exchange-Correlation Potential}
+\subsection{Numerical Integration of the Exchange-Correlation Potential}
 
 \begin{verbatim}
   GRID [[coarse|medium|fine|xfine] \ [gausleg <integer radpts default
@@ -762,16 +766,16 @@ where radius is the cutoff value in bohr.
   NOIO
 \end{verbatim}
 
+\sloppy
+
 The inverted charge-density and exchange-correlation matrices
 for a DFT calculation are normally written to disk storage.  The user
 can prevent this by specifying the keyword \verb+noio+ within the
 input for the DFT directive.  The input to exercise this option is
 as follows,
-
 \begin{verbatim}
    noio
 \end{verbatim}
-
 If this keyword is encountered, then the two matrices (inverted
 charge-density and exchange-correlation) are computed ``on-the-fly''
 whenever needed.  
@@ -780,6 +784,7 @@ The \verb+INCORE+ option is always assumed to be true but can be
 overridden with the option \verb+DIRECT+ in which case all integrals
 are computed ``on-the-fly''.
 
+\fussy
 
 \subsection{Control of Open Shells}
 \begin{verbatim}
