@@ -1,0 +1,21 @@
+      integer num_int_tim
+      parameter (num_int_tim = 17)
+      integer hand_int(num_int_tim)
+      common /int_tim_c/hand_int
+c  1:hfmkr_1
+c  2:hfmkr_2
+c  3:hfmkr_3
+c  4:hfmkr_4
+c  5:hfmkr_5
+c  6:hfmkr_6
+c  7:hfmkr_7
+c  8:hfmkr_8
+c  9:hfmkr_9
+c 10:hfmkr recursion
+c 11:all of hfmkr
+c 12:gamma
+c 13:hf2
+c 14:hfset      
+c 15:hfmke
+c 16:hf2mkr
+c 17:hferi

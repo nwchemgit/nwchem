@@ -1,5 +1,5 @@
       subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.9 1994-06-11 00:41:13 d3e129 Exp $
+c $Id: int_init.F,v 1.10 1994-08-12 00:35:45 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -42,6 +42,9 @@ c.. for derivatives
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
+#if defined(INT_TIMING)
+      call int_tim_init()
+#endif
       call exact_mem(bases,nbas)
       call sp_init(nbas,bases)
       init_int = 1
@@ -69,6 +72,7 @@ c
       data init_intd /0/
       data DCexp     /0.0000000000D00/
       data DCcoeff   /1.0000000000D00/
+      data val_int_acc /0.0d00/
       end
       subroutine sp_init(nbas,bases)
       implicit none
@@ -134,4 +138,60 @@ c
      &       hspscat,kspscat))
      &       call errquit('sp_init:ma_alloc_get scat failed',911)
       end
-      
+#if defined(INT_TIMING)
+      subroutine int_tim_init()
+      implicit none
+#include "int_tim.fh"
+#include "pstat.fh"
+c
+      if(.not.Pstat_init(num_int_tim,0,' '))
+     &    call errquit('int_tim_init: pstat_init failed?',911)
+c
+      if(.not.Pstat_allocate('hfmkr_1',Pstat_Qstat,0,0,hand_int(1)))
+     &    call errquit('int_tim_init:pstat_allocate_1 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_2',Pstat_Qstat,0,0,hand_int(2)))
+     &    call errquit('int_tim_init:pstat_allocate_2 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_3',Pstat_Qstat,0,0,hand_int(3)))
+     &    call errquit('int_tim_init:pstat_allocate_3 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_4',Pstat_Qstat,0,0,hand_int(4)))
+     &    call errquit('int_tim_init:pstat_allocate_4 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_5',Pstat_Qstat,0,0,hand_int(5)))
+     &    call errquit('int_tim_init:pstat_allocate_5 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_6',Pstat_Qstat,0,0,hand_int(6)))
+     &    call errquit('int_tim_init:pstat_allocate_6 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_7',Pstat_Qstat,0,0,hand_int(7)))
+     &    call errquit('int_tim_init:pstat_allocate_7 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_8',Pstat_Qstat,0,0,hand_int(8)))
+     &    call errquit('int_tim_init:pstat_allocate_8 failed?',911)
+      if(.not.Pstat_allocate('hfmkr_9',Pstat_Qstat,0,0,hand_int(9)))
+     &    call errquit('int_tim_init:pstat_allocate_9 failed?',911)
+      if(.not.Pstat_allocate('hfmkr',Pstat_Qstat,0,0,hand_int(10)))
+     &    call errquit('int_tim_init:pstat_allocate_10 failed?',911)
+      if(.not.Pstat_allocate('hfmkr all',Pstat_Qstat,0,0,hand_int(11)))
+     &    call errquit('int_tim_init:pstat_allocate_11 failed?',911)
+      if(.not.Pstat_allocate('gamma',Pstat_Qstat,0,0,hand_int(12)))
+     &    call errquit('int_tim_init:pstat_allocate_12 failed?',911)
+      if(.not.Pstat_allocate('hf2',Pstat_Qstat,0,0,hand_int(13)))
+     &    call errquit('int_tim_init:pstat_allocate_13 failed?',911)
+      if(.not.Pstat_allocate('hfset',Pstat_Qstat,0,0,hand_int(14)))
+     &    call errquit('int_tim_init:pstat_allocate_14 failed?',911)
+      if(.not.Pstat_allocate('hfmke',Pstat_Qstat,0,0,hand_int(15)))
+     &    call errquit('int_tim_init:pstat_allocate_15 failed?',911)
+      if(.not.Pstat_allocate('hf2mkr',Pstat_Qstat,0,0,hand_int(16)))
+     &    call errquit('int_tim_init:pstat_allocate_16 failed?',911)
+      if(.not.Pstat_allocate('hferi',Pstat_Qstat,0,0,hand_int(17)))
+     &    call errquit('int_tim_init:pstat_allocate_17 failed?',911)
+c
+      end
+      subroutine int_tim_terminate()
+      implicit none
+#include "int_tim.fh"
+#include "pstat.fh"
+c
+      call pstat_print_all()
+c
+      if(.not.Pstat_terminate())
+     &    call errquit('int_tim_terminate:pstat_terminate failed?',911)
+c
+      end
+#endif

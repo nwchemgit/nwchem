@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.5 1994-06-11 00:41:08 d3e129 Exp $
+c $Id: apiP.fh,v 1.6 1994-08-12 00:35:42 d3e129 Exp $
 c
 c common block that holds memory information
 c
@@ -13,5 +13,7 @@ c
      &       isz_3ov, mem_3ov, init_intd
       double precision DCexp, DCcoeff
       common /capidc/ DCexp, DCcoeff
+      double precision val_int_acc
+      common /comacc/ val_int_acc
 c
       
