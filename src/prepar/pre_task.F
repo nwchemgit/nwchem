@@ -1,6 +1,6 @@
       logical function pre_task(irtdb,itask,lfnout)
 c
-c $Id: pre_task.F,v 1.4 2000-04-26 23:56:27 d3j191 Exp $
+c $Id: pre_task.F,v 1.5 2000-06-21 05:59:41 d3j191 Exp $
 c
       implicit none
 c
@@ -31,19 +31,11 @@ c      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
 c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(scf(irtdb)) then
-      if(util_print('sequence',print_default)) then
-      write(lfnout,1000)
- 1000 format(' SCF single point energy',/)
-      endif
 c
 c      if(.not.rtdb_cput(irtdb,'esp:print',1,'none'))
 c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(esp(irtdb)) then
-      if(util_print('sequence',print_default)) then
-      write(lfnout,1001)
- 1001 format(' esp module partial charges',/)
-      endif
       pre_task=.true.
       endif
       endif
