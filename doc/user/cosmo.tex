@@ -1,4 +1,4 @@
-% $Id: cosmo.tex,v 1.2 2000-11-14 23:58:19 bylaska Exp $
+% $Id: cosmo.tex,v 1.3 2001-01-22 19:24:17 windus Exp $
 \label{sec:cosmo}
 
 COSMO is the continuum solvation 'Conductor-Like Screening' Model 
@@ -13,7 +13,8 @@ p799-805.
 The NWChem COSMO module implements algorithm for calculation of the
 energy for Hartree-Fock (RHF and ROHF) and Kohn-Sham (DFT and UDFT)
 wavefunctions. At the present gradients are calculated by finite
-difference of the energy. In the current implementation the code
+difference of the energy and the code does not work with spherical
+basis functions or ECPs.  In the current implementation the code
 calculates the gas-phase energy of the system followed by the
 solution-phase energy, and returns the electrostatic contribution
 to the solvation free energy. The codes does not calculate the
@@ -112,12 +113,12 @@ the HF/6-31G** level of theory:
 start
 echo
  title "h2o"
-geometry nocenter noautosym
+geometry
 o                  .0000000000         .0000000000        -.0486020332
 h                  .7545655371         .0000000000         .5243010666
 h                 -.7545655371         .0000000000         .5243010666
 end
-basis segment
+basis segment cartesian
   o library 6-31g**
   h library 6-31g**
 end
