@@ -1,7 +1,12 @@
 c
-c $Id: paw_gaunt.F,v 1.5 2004-07-29 15:55:37 bylaska Exp $
+c $Id: paw_gaunt.F,v 1.6 2004-07-31 21:54:30 bylaska Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.5  2004/07/29 15:55:37  bylaska
+c Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
+c
+c  ...EJB
+c
 c Revision 1.4  2003/10/21 02:05:16  marat
 c switched to new errquit by running global replace operation
 c see the script below (note it will not work on multiline errquit calls)
@@ -68,6 +73,7 @@ c
      >                MA_ERR)
 
 
+      do l1=0,paw_gaunt_lmax
       do l2=0,paw_gaunt_lmax
       do l3=0,paw_gaunt_lmax
 
@@ -75,7 +81,7 @@ c
         do m3=-l3,l3
           m1 = m2-m3
 
-          do l1=0,abs(m1)
+          if (abs(m1) .le. l1) then
             i = l1
             j = l2**2 + (l2+m2)
             k = l3**2 + (l3+m3)
@@ -83,11 +89,12 @@ c
 
             dbl_mb(paw_gaunt_coeff(1)+indx)
      >      =gen_gaunt_coeff_sub(l1,m1,l2,m2,l3,m3) 
-          end do
+          end if
 
         end do
         end do
 
+      end do
       end do
       end do
       
