@@ -1,4 +1,4 @@
-      logical function task_energy(rtdb)
+      logical function task_et(rtdb)
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -63,12 +63,12 @@ c
          call ecce_print_module_exit('task energy', 'failed')
       endif
 c         
-      task_energy = status
+      task_et = status
 c
       end
-      logical function task_energy_doit(rtdb,theory,energy)
+      logical function task_et_doit(rtdb,theory,energy)
 *
-* $Id: task_et.F,v 1.2 2001-11-19 22:18:11 d3k958 Exp $
+* $Id: task_et.F,v 1.3 2001-11-20 00:54:55 windus Exp $
 c
 *
       implicit none
@@ -112,7 +112,7 @@ c
 c
       call ecce_print_module_entry('task energy')
 c
-      task_energy_doit = .false.
+      task_et_doit = .false.
 c
 c     Set the theory in the database so that all is consistent for
 c     the lower level modules.  Should not really have to do this,
@@ -192,33 +192,6 @@ c
 	 endif
       endif
 c
-      task_energy_doit = status
+      task_et_doit = status
 c
       end
-      subroutine rtdb_clean(rtdb, prefix)
-      implicit none
-#include "rtdb.fh"
-#include "inp.fh"
-      integer rtdb
-      character*(*) prefix
-c     
-c     Delete all entries in the database beginning with prefix
-c
-      integer lp
-      logical status
-      character*255 name
-c
-      lp = inp_strlen(prefix)
-c
-      status = rtdb_first(rtdb, name)
- 10   if (status) then
-         if (inp_compare(.true.,prefix(1:lp),name(1:lp))) then
-            if (.not. rtdb_delete(rtdb,name)) call errquit
-     $           ('rtdb_clean: failed deleting existing entry',0)
-         endif
-         status = rtdb_next(rtdb, name)
-         goto 10
-      endif
-c     
-      end
-
