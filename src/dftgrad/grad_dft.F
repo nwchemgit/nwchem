@@ -85,11 +85,11 @@ c-----------------------------------------------------------------------
 c
 c     Push context down to DFTGRAD
 c
-      status = rtdb_print(rtdb,.true.)
+      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       if (.not. context_push('dftgrad'))
      $     call errquit('grad_dft: context_push failed', 0)
+c      status = rtdb_print(rtdb,.true.)
 c
-      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
       status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) then
@@ -156,9 +156,9 @@ c
          endif
 
          if (ipol .eq. 1) then
-           write(6,1) charge, 'rhf'
+           write(6,1) charge, 'closed shell'
          else 
-           write(6,1) charge, 'uhf'
+           write(6,1) charge, 'open shell'
          endif 
 
  1       format(/
