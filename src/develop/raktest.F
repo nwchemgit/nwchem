@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.55 1996-07-18 23:59:19 d3e129 Exp $
+c $Id: raktest.F,v 1.56 1996-07-26 16:25:31 d3g681 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1517,8 +1517,8 @@ c put scf:energy   =  real value
         if (.not. rtdb_put(rtdb,'scf:energy', MT_DBL, 1, energy))
      &      call errquit
      &      ('raktest_stpr: failed to read energy in rtdb', 911)
-c put scf:gradients = 3*nat reals
-        if (.not. rtdb_put(rtdb, 'scf:gradients', MT_DBL, 
+c put scf:gradient = 3*nat reals
+        if (.not. rtdb_put(rtdb, 'scf:gradient', MT_DBL, 
      &       (3*nat),dbl_mb(k_grad)))
      &      call errquit
      &        ('raktest_stpr: reading gradients failed',911)
