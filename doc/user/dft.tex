@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.69 2003-02-26 23:22:38 edo Exp $ 
+% $Id: dft.tex,v 1.70 2003-03-14 20:26:48 pollack Exp $ 
 %
 \label{sec:dft}
 
@@ -472,6 +472,106 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 %(this is not a hybrid functional)
 %(F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.Handy, 
 %    J. Chem. Phys. {\bf 109}, 6264 (1998))
+
+
+
+\subsection{Meta-GGA Functionals}
+
+
+One way to calculate meta-GGA energies is to use
+ orbitals and densities 
+from fully self-consistent GGA or LDA calculations
+and run them in one iteration in the meta-GGA functional.
+It is expected that meta-GGA energies obtained
+this way will be close to fully self consistent
+meta-GGA calculations. 
+This can be easily accomplished in NWChem,
+and is our current implementation.
+
+This kind of calculation
+will obviously not converge the energy.
+To avoid an error  in
+the standard Unix output of NWChem,
+you must tell NWChem
+ to ignore 
+the returned result of the task, 
+which may be accomplished in the input file
+ with \verb+ task dft ignore+
+
+You may still get a warning in the output to the effect,
+\begin{verbatim} 
+!! warning: dft energy failed 
+\end{verbatim}
+This simply means the energy failed to converge
+since you  ran  only one iteration of
+the  functional.
+
+(For more information,  see
+S. Kurth, J. Perdew, P. Blaha, Int. J. Quant. Chem 75, 889 (1999)
+for a brief description of meta-GGAs, and  citations 14-27
+therein for thorough background )
+
+
+\subsection{Sample input file}
+A simple example  calculates the meta-GGA 
+exchange
+energy of water, using converged GGA orbitals and
+densities to evaluate the meta-GGA functional,
+and also highlights some of
+the print features in the DFT module:
+\begin{verbatim}
+title "WATER 6-311G* meta-GGA X with PBE orbitals"
+echo
+geometry units angstroms
+  O       0.0  0.0  0.0
+  H       0.0  0.0  1.0
+  H       0.0  1.0  0.0
+end
+
+basis
+  H library 6-311G*
+  O library 6-311G*
+end
+ 
+dft
+ xc xpbe96 cpbe96
+ decomp
+end
+task dft optimize
+
+
+dft
+ iterations 1
+ xc xpkzb99
+ decomp
+ print kinetic_energy
+end
+task dft ignore
+\end{verbatim}
+
+Below are
+the results of the exchange-only
+meta-GGA calculation part, and as expected
+we are reminded the calculation was not allowed
+to converge:
+
+\begin{verbatim}
+      Calculation failed to converge
+      ------------------------------
+
+         Total DFT energy =    -75.948526603774
+      One electron energy =   -122.899234375708
+           Coulomb energy =     46.745269703266
+          Exchange energy =     -8.857824284365
+       Correlation energy =      0.000000000000
+ Nuclear repulsion energy =      9.063262353032
+
+ Numeric. integr. density =     10.000001055407
+\end{verbatim}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \twocolumn
 \begin{table}[htp]
 
@@ -530,7 +630,7 @@ mpw1k      & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[25]\\
 \end{tabular}
 \caption{Table of available Exchange (X) and Correlation (C) functionals.
 GGA is the Generalized Gradient Approximation, and meta refers to
-Meta-GGAs. The column 2nds refers to second derivatives of the
+Meta-GGAs. The column {\em 2nds} refers to second derivatives of the
 energy with respect to nuclear position. }
 \label{tablexc}
 \end{table}
