@@ -1,6 +1,6 @@
       Subroutine grid_beckew(xyzw, xyz, Rij, rq, p, ictr, nq)
 c
-C$Id: grid_beckew.F,v 1.1 1999-04-23 16:30:30 d3h449 Exp $
+C$Id: grid_beckew.F,v 1.2 1999-04-29 16:36:54 d3h449 Exp $
 c
       implicit none
 c
@@ -50,7 +50,7 @@ c
 c
       do 50 i = 1, ncenters
 c         iind = iandex(i)
-         iind = 1
+         iind = i
          iti = iatype(iind)
          istep = (iind*(iind-1))/2
          do 40 j = 1, i

@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen)
 c
-c$Id: grid_list.F,v 1.1 1999-04-23 16:30:32 d3h449 Exp $
+c$Id: grid_list.F,v 1.2 1999-04-29 16:36:56 d3h449 Exp $
 c
       implicit none
 c      
@@ -182,10 +182,14 @@ c
 c
 c     temp write checks
 c
-      write(6,*)' nqshells, nqmax: ',
-     &            nqshells, nqmax
+      write(6,*)' nqshells, nqmax, nqlen: ',
+     &            nqshells, nqmax, nqlen
+
       write(6,*)' iqshell: '
       call i_output(iqshell, 1, 4, 1, nqshells, 4, mxqshells, 1)
+c
+      write(6,*)' qsh: '
+      call i_output(qsh, 1, 3, 1, nqshells, 3, nqlen, 1)
 c
       return
       end

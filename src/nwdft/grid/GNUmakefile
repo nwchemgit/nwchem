@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1999-04-23 16:30:38 d3h449 Exp $
+# $Id: GNUmakefile,v 1.2 1999-04-29 16:37:00 d3h449 Exp $
 
       OBJ = \
 	grid_atom_type_info.o \
@@ -17,6 +17,10 @@
         grid_file.o \
         grid_setspac.o \
         grid_beckew.o \
+	grid_prescreen_1.o \
+	grid_prescreen_2.o \
+	grid_read_ck.o \
+	grid_sym.o \
 	grid_utils.o
 
      LIBRARY = libnwdft.a

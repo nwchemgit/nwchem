@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.1 1999-04-23 16:30:30 d3h449 Exp $
+* $Id: grid_file.F,v 1.2 1999-04-29 16:36:54 d3h449 Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -301,6 +301,8 @@ c
          write(6,2) n_in_rec, cur_rec, n_rec_in_file+1
  2       format(' grid_file: wrote ',i6,' grid_pts in record',i5
      $        ,' of ',i5,'.')
+c         write(6,*)' buf: '
+c         call output(buf, 1, 4, 1, n_in_rec, 4, rec_len_in_dbl, 1)
          call util_flush(6)
       end if
 c
@@ -331,6 +333,8 @@ c
             write(6,2) n_in_rec, cur_rec-1, n_rec_in_file
  2          format(' grid_file: read ',i6,' grid_pts in record',i6
      $           ,' of ',i6,'.')
+c         write(6,*)' buf: '
+c         call output(buf, 1, 4, 1, n_in_rec, 4, rec_len_in_dbl, 1)
          call util_flush(6)
       end if
 c
@@ -441,9 +445,9 @@ c
 c     Total dbls to copy is 4*(n_per_rec + 1)
 c
       ncopy = 4*(n_per_rec + 1)
-      call dcopy(n_per_rec, buf, 1, values, 1)
-      cur_rec_ctr = values(1,1)
-      n_in_rec = values(2,1)
+      call dcopy(ncopy, buf, 1, values, 1)
+      cur_rec_ctr = nint(values(1,1))
+      n_in_rec = nint(values(2,1))
 c
       end
       subroutine grid_buf_pack()
@@ -456,8 +460,8 @@ c     Copy count
 c
       n_in_buf = n_in_rec
 c
-      values(1,1) = cur_rec_ctr
-      values(2,1) = n_in_rec
+      values(1,1) = dble(cur_rec_ctr)
+      values(2,1) = dble(n_in_rec)
 c
 c     Total dbls to copy is 4*(n_per_rec + 1)
 c
@@ -603,13 +607,14 @@ c
       grid_file_write = .true.
 c
       if (otrace) then
-         write(6,*) ' grid_file: write file ', nqpts
+         write(6,*) ' grid_file write: nqpts,nctr,n_in_rec,next_value', 
+     &                                 nqpts,nctr,n_in_rec,next_value
          call util_flush(6)
       end if
 c
       n_in_rec      = next_value - 1
       n_rec_in_file = cur_rec - 1
-      if(cur_rec .eq. 1) cur_rec_ctr = nctr
+      if(n_in_rec .eq. 1) cur_rec_ctr = nctr
 c
 c     Check to see if buffer needs dumping before adding more pts.
 c
@@ -668,10 +673,11 @@ c
       ncopy = 4*(n_per_rec)
       call dcopy(ncopy, values(1,2), 1, aqbuf(1,1), 1)
       nctr = cur_rec_ctr
-      nqpts = n_in_rec
+      nqpts = n_in_rec - 1
 c
       if (otrace) then
-         write(6,*) ' grid_file: read file ', nqpts
+         write(6,*) ' grid_file read: nqpts,nctr,n_in_rec,next_value', 
+     &                                nqpts,nctr,n_in_rec,next_value
          call util_flush(6)
       end if
 c

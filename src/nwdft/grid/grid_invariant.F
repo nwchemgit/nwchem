@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.1 1999-04-23 16:30:31 d3h449 Exp $
+c$Id: grid_invariant.F,v 1.2 1999-04-29 16:36:55 d3h449 Exp $
 c
       implicit none
 c      
@@ -60,11 +60,15 @@ c
          if (.not. MA_Pop_Stack(lcoord))
      &      call errquit('grid_invariant: pop stack failed.',0)
       endif
+c
+      write(6,*)' qrot: '
+      call output(qrot, 1, 3, 1, 3, 3, 3, 1)
+c
       return
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.1 1999-04-23 16:30:31 d3h449 Exp $
+c$Id: grid_invariant.F,v 1.2 1999-04-29 16:36:55 d3h449 Exp $
 c
       implicit none
 c

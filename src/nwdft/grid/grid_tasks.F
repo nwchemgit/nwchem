@@ -2,13 +2,15 @@
      &                      wqbuf, npts_per_task,
      &                      aqbuf, npts_per_ang)
 c
-c$Id: grid_tasks.F,v 1.1 1999-04-23 16:30:36 d3h449 Exp $
+c$Id: grid_tasks.F,v 1.2 1999-04-29 16:36:59 d3h449 Exp $
 c
       implicit none
 c
 c     npts_per_task = target grid points per task
 c
       integer rtdb, qsh, nqlen, npts_per_task, npts_per_ang
+      integer lrij, irij, lrq, irq, lp, ip
+      integer ndbl
       double precision coord, wqbuf, aqbuf
       dimension coord(3,ncenters)
       dimension qsh(3,nqlen)
@@ -37,10 +39,6 @@ c     input
 c        qsh(1,iqsh) = irsh | where within nrad
 c        qsh(2,iqsh) = ictr | current center
 c        qsh(3,iqsh) = iang | angular quad for given irsh radial
-c    output
-c        iqtask(1,iqt) = points in task iqt
-c        iqtask(2,iqt) = integration center for task iqt
-c
 c
 c     Open grid pts file
 c
@@ -75,6 +73,18 @@ c
 c
       leb = .false.
       if (iangquad.ne.0) leb = .true.
+c
+c     Allocate some scratch space for construction of the spatial weights
+c
+      ndbl = (ncenters*(ncenters+1))/2
+      if (.not.MA_Push_Get(MT_Dbl,ndbl,'Rij',lRij,iRij))
+     &   call errquit('  in grid_setspac: cannot allocate Rij',0)
+      call a_dist(coord, Dbl_MB(iRij), ncenters)
+      if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'rq',lrq,irq))
+     &   call errquit('grid_setspac: cannot allocate rq',0)
+      if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'p',lp,ip))
+     &   call errquit('grid_setspac: cannot allocate rq',0)
+c
       do 100 iqsh = 1, nqshells
 c
          irsh = qsh(1,iqsh)         
@@ -87,6 +97,16 @@ c
          call grid_qpts(coord(1,ictr), ictr, irsh, iang, aqbuf, nq, leb)
          npts_iqsh = nq
 c
+c        modify the weight to include the spatial weight (and symmetry factor)
+c
+         call grid_setspac(rtdb, coord, aqbuf, dbl_mb(irij), 
+     &                     dbl_mb(irq), dbl_mb(ip), ictr, npts_iqsh)
+c
+c        since only generating symmetry unique quadrature 
+c        scale weights with symmetry factor if desired
+c
+         call grid_sym(ictr, aqbuf, npts_iqsh)
+c            
 c        now pack this aqbuf into the write buffer (write and update task counter as needed)
 c
          call grid_file_write(npts_iqsh, ictr, aqbuf)
@@ -103,5 +123,14 @@ c
 c      if (.not. grid_file_close(.true.))
 c     $   call errquit('grid_tasks: closing gridpts?', 0)
 c
+c
+c     clean up
+c
+      if (.not. MA_Pop_Stack(lp))
+     &   call errquit('grid_setspac: pop stack failed.',0)
+      if (.not. MA_Pop_Stack(lrq))
+     &   call errquit('grid_setspac: pop stack failed.',0)
+      if (.not. MA_Pop_Stack(lrij))
+     &   call errquit('grid_setspac: pop stack failed.',0)
       return
       end 

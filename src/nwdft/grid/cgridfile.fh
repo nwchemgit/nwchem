@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.1 1999-04-23 16:30:27 d3h449 Exp $
+* $Id: cgridfile.fh,v 1.2 1999-04-29 16:36:53 d3h449 Exp $
 *
 c
 c     Internal common for grid routines
@@ -44,6 +44,7 @@ c     save on memory since have only physical memory
       parameter (buffer_size = 8192)
 #else
       parameter (buffer_size = 32768)
+c      parameter (buffer_size = 100)
 #endif
 c
       common/cgridbuf/

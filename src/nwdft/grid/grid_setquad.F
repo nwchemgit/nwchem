@@ -1,6 +1,6 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.1 1999-04-23 16:30:34 d3h449 Exp $
+c$Id: grid_setquad.F,v 1.2 1999-04-29 16:36:58 d3h449 Exp $
 c
       implicit none
       logical oprint
@@ -38,14 +38,14 @@ c     the quadrature grid is rotationally invariant.
 c
       call grid_invariant
 c
+c     Compute/set any spatial weight parameters.
+c
+      call grid_setspac_params
+c
 c     Generate the complete grid and decompose it into blocks
 c     which can define the computational task size.
 c  
       call grid_gen_pts(rtdb)
-c
-c     Compute/set spatial weight parameters.
-c
-      call grid_setspac_params
 c
 c     Memory management (as before)
 c
@@ -55,10 +55,9 @@ c     Update any req'd data in rtdb
 c
       call grid_update_rtdb(rtdb)
 c
-c     Define the spatial weights and put them into a global array if desired.
+c     Try to see if you can read the quadrature file.
 c
-      call grid_setspac
-c      call errquit('grid_setquad temp stop', 911)
+      call grid_read_ck(rtdb)
 c
 c     Screening parameters are generated here.
 c
