@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.12 2004-01-28 00:08:46 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.13 2004-01-29 01:37:57 edo Exp $                       
 c
 
 *  ************************************************************
@@ -52,7 +52,7 @@ c
 
 
 *     **** external functions ****
-      integer  control_ispin,control_scf_algorithm,control_print
+      integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,psi_ne,control_version
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   rho_error,psi_1energy,psi_error
@@ -64,9 +64,9 @@ c
       real*8   rho_1pxc
       real*8   ewald_e,ion_ion_e
       real*8   psi_1eorbit
-      real*8   ddot
    
       external control_ispin,control_scf_algorithm,control_print
+      logical control_print
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
       external rho_error,psi_1energy,psi_error
@@ -78,7 +78,6 @@ c
       external rho_1pxc
       external ewald_e,ion_ion_e
       external psi_1eorbit
-      external ddot
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.39 2004-01-28 00:08:46 bylaska Exp $
+* $Id: cgsdv5.F,v 1.40 2004-01-29 01:37:57 edo Exp $
 *
 
 ***********************************************************************
@@ -621,7 +621,7 @@ c     end if
      &       '( ',I8,' waves ',I8,' per task)')
   
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
