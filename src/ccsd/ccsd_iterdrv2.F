@@ -29,13 +29,13 @@ c
       integer ii,jj
       Integer Nodes, IAm
 
-      double precision zip,one,half,two,ten
-      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 c
+      double precision zip,one,half,two,ten
+      data zip/0.0d00/,one/1.0d00/,ten/10.0d00/
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
