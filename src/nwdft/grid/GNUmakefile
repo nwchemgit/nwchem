@@ -1,9 +1,10 @@
-# $Id: GNUmakefile,v 1.39 2002-01-15 01:13:40 edo Exp $
+# $Id: GNUmakefile,v 1.40 2002-07-30 22:43:06 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
         grid_sphere.o \
 	grid_ssw.o \
+	grid_sswold.o \
         grid_beckew.o \
 	grid_signf.o \
 	grid_rchi_2.o \

@@ -1,7 +1,7 @@
       subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad)
 c
-c$Id: grid_setspac.F,v 1.12 2001-03-08 03:01:24 edo Exp $
+c$Id: grid_setspac.F,v 1.13 2002-07-30 22:43:06 edo Exp $
 c
       implicit none
 c
@@ -66,9 +66,15 @@ c
      &        xyz,dbl_mb(ixyzm),ictr_scr,
      &        rad, expo, int_mb(k_indx),iatype_pt_chg)
 !     &        rad, expo, int_mb(iscr),iatype_pt_chg,int_mb(k_indx))
+       if(whichssw.eq.'erf1') then
          call grid_ssw(xyzw, dbl_mb(ixyzm), rij,rq, 
      &        p, ictr_scr, ncenters_scr, nq,
      ,        int_mb(iscr),whichssw,int_mb(k_indx))
+      else
+         call grid_sswold(xyzw, dbl_mb(ixyzm), rij,rq, 
+     &        p, ictr_scr, ncenters_scr, nq,
+     ,        int_mb(iscr),whichssw,int_mb(k_indx))
+      endif
       endif
          
 
