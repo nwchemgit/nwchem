@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.45 2003-09-22 22:49:12 d3j191 Exp $
+c $Id: cf_common.fh,v 1.46 2003-09-23 14:17:12 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -145,6 +145,7 @@ c
       character*10 ffield
       character*16 wnam(100)
       common/cf_chr/ffield,wnam
-
+      integer lfnhop
+      common/cf_lfn/lfnhop
 
 

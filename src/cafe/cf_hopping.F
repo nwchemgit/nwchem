@@ -1,7 +1,7 @@
       logical function cf_hopping(stimei,issgm,isgan,ishop,
-     + xs,nsaloc,lfnhop)
+     + xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.10 2003-09-22 22:49:12 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.11 2003-09-23 14:17:12 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,6 @@ c
       external cf_hop
 c
       integer issgm(msa),nsaloc,isgan(msa),ishop(msa)
-      integer lfnhop
       real*8 xs(msa,3)
       real*8 stimei
 c
@@ -28,8 +27,7 @@ c
       if(.not.ma_push_get(mt_int,np,'itmp',l_itmp,i_itmp))
      + call errquit('Failed to allocate itmp',me)
 c
-      call cf_hoplist(int_mb(i_itmp),int_mb(i_lda),dbl_mb(i_rda),
-     + lfnhop)
+      call cf_hoplist(int_mb(i_itmp),int_mb(i_lda),dbl_mb(i_rda))
 c
       if(.not.ma_pop_stack(l_itmp))
      + call errquit('Failed to deallocate itmp',me)
@@ -44,7 +42,7 @@ c
 c
       cf_hopping=cf_hop(int_mb(i_lseq),issgm,
      + int_mb(i_lda),dbl_mb(i_rda),dbl_mb(i_uda),
-     + int_mb(i_itmp),dbl_mb(i_dtmp),isgan,ishop,xs,nsaloc,lfnhop,
+     + int_mb(i_itmp),dbl_mb(i_dtmp),isgan,ishop,xs,nsaloc,
      + int_mb(i_lsthop),dbl_mb(i_timhop))
 c
       if(.not.ma_pop_stack(l_itmp))
@@ -56,7 +54,7 @@ c
 c
       return
       end
-      subroutine cf_hoplist(nhopl,lda,rda,lfnhop)
+      subroutine cf_hoplist(nhopl,lda,rda)
 c
       implicit none
 c
@@ -67,7 +65,6 @@ c
 c
       integer nhopl(np)
       integer lda(10,*)
-      integer lfnhop
       real*8 rda(5,*)
 c
       integer i,j,k,m,ioff
@@ -150,7 +147,7 @@ ctest
       return
       end
       logical function cf_hop(lseq,issgm,lda,rda,uda,ndx,pda,
-     + isgan,ishop,xs,nsaloc,lfnhop,lsthop,timhop)
+     + isgan,ishop,xs,nsaloc,lsthop,timhop)
 c
       implicit none
 c
@@ -163,7 +160,6 @@ c
       integer lseq(mseq),issgm(msa)
       integer lda(10,*),nsaloc,isgan(msa),ishop(msa)
       real*8 rda(5,*),uda(4,*),pda(*),xs(msa,3),x(3)
-      integer lfnhop
       integer ndx(*)
       integer lsthop(2,*)
       real*8 timhop(*)

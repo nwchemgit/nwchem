@@ -6,8 +6,8 @@
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
-     + ipbtpi,lfnhop)
-c $Id: cf_init.F,v 1.95 2003-09-22 22:49:12 d3j191 Exp $
+     + ipbtpi,lfnhopi)
+c $Id: cf_init.F,v 1.96 2003-09-23 14:17:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,7 +15,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop,irtdbi,lfnhop
+      integer lfntop,irtdbi,lfnhopi
       character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
@@ -61,6 +61,7 @@ c
       includ=incl
       ipbtyp=ipbtpi
 c
+      lfnhop=lfnhopi
       nhops=0
 c
       lfree=ntype.eq.3

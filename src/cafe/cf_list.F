@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.24 2003-09-22 22:49:12 d3j191 Exp $
+c $Id: cf_list.F,v 1.25 2003-09-23 14:17:12 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -584,8 +584,17 @@ c
       if(lseq(isgm(idon)).ne.lseq(isgm(iacc))) then
 ctmp
 c
+      if(me.eq.0) print*,'nhops=',nhops
       do 226 i=1,nhops
-      if(lsthop(1,i).eq.iacc.and.lsthop(2,i).eq.idon) goto 227
+      if(util_print('qhop',print_high)) then
+      if(me.eq.0) then
+      write(lfnhop,'(a,5i5)') ' Skipping ',idon,iacc,
+     + lsthop(1,i),lsthop(2,i),i
+      endif
+      endif
+      if(lsthop(1,i).eq.iacc.and.lsthop(2,i).eq.idon) then
+      goto 227
+      endif
   226 continue
 c
       call qhop_asite(msa,xs,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
