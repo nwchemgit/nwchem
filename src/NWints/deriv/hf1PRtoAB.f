@@ -1,5 +1,6 @@
-      Subroutine hf1PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,Nint)
-c $Id: hf1PRtoAB.f,v 1.2 1994-05-24 21:51:26 d3e129 Exp $
+      Subroutine hf1PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,Nint,
+     &       ictrA,ictrB)
+c $Id: hf1PRtoAB.f,v 1.3 1994-06-02 20:33:12 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -36,6 +37,13 @@ c Initialize derivative integrals wrt to (A,B).
        dB(nn) = 0.D0
    10 continue
 
+      if(ictra.eq.ictrb) then
+        do 00100 nn = 1,Nint
+          do 00200 mp = 1,NPP
+            dA(nn) = dA(nn) + dP(mp,nn)
+00200     continue
+00100   continue
+      else
 c Compute exponent ratios.
 
       do 20 mp = 1,NPP
@@ -53,5 +61,6 @@ c Transform.
    30  continue
 
    40 continue
+      endif
 
       end

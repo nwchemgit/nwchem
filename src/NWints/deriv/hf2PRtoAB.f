@@ -1,16 +1,16 @@
-      Subroutine hf2PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,NPQ,Nint)
-c $Id: hf2PRtoAB.f,v 1.2 1994-05-24 21:51:29 d3e129 Exp $
+      Subroutine hf2PRtoAB(dP,dR,dA,dB,alpha,ipair,ff,NPP,NPQ,Nint3)
+c $Id: hf2PRtoAB.f,v 1.3 1994-06-02 20:33:14 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
 c--> Derivative Integrals WRT (P,R)
 
-      Dimension dP((NPQ*NPP),Nint),dR((NPQ*NPP),Nint)
+      Dimension dP((NPQ*NPP),Nint3),dR((NPQ*NPP),Nint3)
 
 c--> Derivative Integrals WRT (A,B)
 
-      Dimension dA(Nint),dB(Nint)
+      Dimension dA(Nint3),dB(Nint3)
 
 c--> Exponents & Pair Index
 
@@ -19,6 +19,7 @@ c--> Exponents & Pair Index
 c--> Scratch space
 
       Dimension ff(2,(NPQ*NPP))
+
 c
 c Transform derivative integrals wrt (P,R) to (A,B).
 c
@@ -31,7 +32,7 @@ c*******************************************************************************
 
 c Initialize derivative integrals wrt to (A,B).
 
-      do 10 nn = 1,Nint
+      do 10 nn = 1,Nint3
        dA(nn) = 0.D0
        dB(nn) = 0.D0
    10 continue
@@ -58,7 +59,7 @@ c Compute exponent ratios.
 
 c Transform.
 
-      do 40 nn = 1,Nint
+      do 40 nn = 1,Nint3
 
        do 30 mr = 1,(NPQ*NPP)
         dA(nn) = dA(nn) + (ff(1,mr)*dP(mr,nn) + dR(mr,nn))

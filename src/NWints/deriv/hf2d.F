@@ -1,9 +1,9 @@
-      Subroutine hf2d(Axyz,Aprims,Acoefs,NPA,NCA,La,
-     &                Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
-     &                Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
-     &                Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
+      Subroutine hf2d(Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
+     &                Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
+     &                Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
+     &                Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &                bERI,Nint,canAB,canCD,canPQ,W0,maxW0)
-c $Id: hf2d.F,v 1.2 1994-05-24 21:51:31 d3e129 Exp $
+c $Id: hf2d.F,v 1.3 1994-06-02 20:33:15 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -22,7 +22,7 @@ c--> Cartesian Coordinates, Primitives & Contraction Coefficients
       Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
       Dimension Cxyz(3),Cprims(NPC),Ccoefs(NPC,NCC)
       Dimension Dxyz(3),Dprims(NPD),Dcoefs(NPD,NCD)
-
+      integer ictra,ictrb,ictrc,ictrd
 c--> Block of Electron Repulsion Integrals
 
       Dimension bERI(Nint,*)
@@ -344,7 +344,7 @@ c Integral derivatives wrt Q.
       i_dQ = i_dP + NPR*(Nint*3)
 
 c Translation invariance requires d/dQ = -d/dP !
-
+c... replace with daxpy... rak
       do 200 n = 1,NPR*(Nint*3)
        W0(i_dQ+(n-1)) = -W0(i_dP+(n-1))
   200 continue

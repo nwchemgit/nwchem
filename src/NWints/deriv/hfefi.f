@@ -1,6 +1,7 @@
-      Subroutine hfefi(E,R0C,IJK,bEFI,
-     &                 NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,MXD,canAB)
-c $Id: hfefi.f,v 1.2 1994-05-24 21:51:38 d3e129 Exp $
+      Subroutine hfefi_d(E,R0C,IJK,bEFI,
+     &       NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
+     &       MXD,canAB,ictrA,ictrB)
+c $Id: hfefi.f,v 1.3 1994-06-02 20:33:16 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -36,11 +37,11 @@ c******************************************************************************
 c Initialize the block of EFIs.
 
       do 10 ic = 1,ncenters
-      do 10 nn = 1,Nint
-       bEFI(nn,1,ic) = 0.D0
-       bEFI(nn,2,ic) = 0.D0
-       bEFI(nn,3,ic) = 0.D0
-   10 continue
+        do 10 nn = 1,Nint
+          bEFI(nn,1,ic) = 0.D0
+          bEFI(nn,2,ic) = 0.D0
+          bEFI(nn,3,ic) = 0.D0
+10    continue
 
 c Define the number of shell components on each center.
 
@@ -94,17 +95,25 @@ c Define the angular momentum indices for shell "B".
      &         E(3,mp,0,Kp,Ka,Kb)
 
           do 15 ic = 1,ncenters
-           bEFI(nn,1,ic) = bEFI(nn,1,ic) - E3*R0C(ic,mp,npx)
-           bEFI(nn,2,ic) = bEFI(nn,2,ic) - E3*R0C(ic,mp,npy)
-           bEFI(nn,3,ic) = bEFI(nn,3,ic) - E3*R0C(ic,mp,npz)
-   15     continue
+              bEFI(nn,1,ic) = bEFI(nn,1,ic) - E3*R0C(ic,mp,npx)
+              bEFI(nn,2,ic) = bEFI(nn,2,ic) - E3*R0C(ic,mp,npy)
+              bEFI(nn,3,ic) = bEFI(nn,3,ic) - E3*R0C(ic,mp,npz)
+15        continue
+c
+*          bEFI(nn,1,ictra) = bEFI(nn,1,ictra) - E3*R0C(ictra,mp,npx)
+*          bEFI(nn,2,ictra) = bEFI(nn,2,ictra) - E3*R0C(ictra,mp,npy)
+*          bEFI(nn,3,ictra) = bEFI(nn,3,ictra) - E3*R0C(ictra,mp,npz)
+*          if (ictra.ne.ictrb) then
+*            bEFI(nn,1,ictrb) =  bEFI(nn,1,ictrb) - E3*R0C(ictrb,mp,npx)
+*            bEFI(nn,2,ictrb) =  bEFI(nn,2,ictrb) - E3*R0C(ictrb,mp,npy)
+*            bEFI(nn,3,ictrb) =  bEFI(nn,3,ictrb) - E3*R0C(ictrb,mp,npz)
+*          endif
+20      continue
 
-   20    continue
+30    continue
 
-   30   continue
+40    continue
 
-   40  continue
-
-   50 continue
+50    continue
 
       end

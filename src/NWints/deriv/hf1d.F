@@ -2,7 +2,7 @@
      &                Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &                Cxyz,zan,ncenters,ictrA,ictrB,
      &                bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,W0,maxW0)
-c $Id: hf1d.F,v 1.2 1994-05-24 21:51:28 d3e129 Exp $
+c $Id: hf1d.F,v 1.3 1994-06-02 20:33:13 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -294,8 +294,9 @@ c Assign scratch space.
 c Compute the derivative wrt to each of the nuclear attraction centers.
 c This accounts for the operator's dependence on the the nuclear coordinates.
 
-       call hfefi(W0(i_Ep),W0(i_R0C),W0(i_IJK),bNAI,
-     &            NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,MXD,canAB)
+       call hfefi_d(W0(i_Ep),W0(i_R0C),W0(i_IJK),bNAI,
+     &        NPP,Nint,La,Lb,Li,Lp,Lp3,ncenters,
+     &        MXD,canAB,ictra,ictrb)
 
 c Compute compute the derivative wrt to the centers of the Gaussian functions.
 
@@ -342,7 +343,8 @@ c Compute the derivatives of the primitive integrals.
 c Transform to obtain derivatives wrt (A,B).
 
        call hf1PRtoAB(W0(i_VP),W0(i_VR),W0(i_VA),W0(i_VB),
-     &                W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,Nint*3)
+     &        W0(i_ALPHAp),W0(i_IPAIRp),W0(i_ff),NPP,Nint*3,
+     &        ictrA,ictrB)
 
 c Combine the two components of the derivatives of NAIs.
 c
@@ -350,10 +352,10 @@ c   (1) the derivative wrt to each of the nuclear attraction centers,
 c   (2) the derivative wrt to the centers of the Gaussian functions.
 
        if( ictrA.eq.ictrB )then
-        call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
+         call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)         
        else
-        call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
-        call daxpy(Nint*3,1.D0,W0(i_VB),1,bNAI(1,((ictrB-1)*3+1)),1)
+         call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
+         call daxpy(Nint*3,1.D0,W0(i_VB),1,bNAI(1,((ictrB-1)*3+1)),1)
        end if
 
       end if
