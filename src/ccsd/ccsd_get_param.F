@@ -1,6 +1,6 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
      $   maxdiis, tol2e, occd)
-C     $Id: ccsd_get_param.F,v 1.11 2004-01-20 20:38:13 edo Exp $
+C     $Id: ccsd_get_param.F,v 1.12 2004-03-19 01:03:11 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -10,7 +10,7 @@ c
       integer rtdb, maxit, iprt, maxdiis
       logical occd
       Double Precision Convi, Tol2E
-      Character*80 theory
+      Character*32 theory
 c
       double precision mone
       parameter (mone = -1.0d0)
