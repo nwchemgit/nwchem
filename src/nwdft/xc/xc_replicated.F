@@ -1,7 +1,7 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.9 2003-06-16 17:56:14 edo Exp $
+C$Id: xc_replicated.F,v 1.10 2003-06-19 19:57:38 edo Exp $
 c
       implicit none
 c      
@@ -144,7 +144,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.9 2003-06-16 17:56:14 edo Exp $
+C$Id: xc_replicated.F,v 1.10 2003-06-19 19:57:38 edo Exp $
 c
       implicit none
 c      
@@ -161,7 +161,7 @@ c
       xc_rep_close=.true.
       if(xcreplicated) then
          if(oldway) then
-#if 0
+         if(.not.dograd) then
          call ga_dgop(374,dbl_mb(k_repxc(1)),nbf_ao*nbf_ao*ipol, '+')
          if (ga_nodeid() .eq. 0) then
             do i = 1, ipol
@@ -170,7 +170,7 @@ c
             end do
          end if
          xc_rep_close=ma_chop_stack(l_repxc(1))
-#endif
+         endif
          else
             do i = 1, ipol
                if(.not.dograd) then
