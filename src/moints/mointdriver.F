@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.34 1995-10-18 22:28:40 rg240 Exp $
+C$Id: mointdriver.F,v 1.35 1995-10-26 06:26:20 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,7 +43,7 @@ c
 c
 c
        data g_coul,g_exch/-1,-1/
-       data oexch,ocoul/.true.,.false./
+       data oexch,ocoul/.true.,.true./
        data ohalf/.true./
        data charge/0.d0/
        data tol2e/1.d-12/

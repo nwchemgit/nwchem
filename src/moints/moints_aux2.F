@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.6 1995-10-25 00:59:36 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.7 1995-10-26 06:26:22 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -32,8 +32,8 @@ c
          do lsh=lshlo,ltop
             odoit = (schwarz_shell(ksh,lsh)*schw_ij) .ge. tol2e
             if (odoit .and. osym) then
-               odoit = odoit .and. 
-     $              sym_shell_quartet(basis, ish, jsh, ksh, lsh, q4)
+               odoit = odoit.and.
+     $         sym_shell_quartet(basis, ish, jsh, ksh, lsh, q4)
 *               write(6,1) ish, jsh, ksh, lsh, odoit, q4
 * 1             format(1x,4i5,2x,l,2x,f6.2)
             endif
@@ -41,7 +41,7 @@ c
                status = bas_cn2bfr(basis,lsh,lbflo,lbfhi)
                llen = lbfhi - lbflo + 1
                call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
-     $              mem2, iscr, max2e, eri )
+     $                       mem2, iscr, max2e, eri )
 c     
 *               call print_shell_block(basis,eri, ish, jsh, ksh, lsh)
 c     
@@ -72,8 +72,8 @@ c
       double precision ssni(nbf,jlen,ilen,molo:mohi)
       double precision hlp(*)
 c
-c
       integer nmo, llen, klen, kjilen, ljilen
+c
 c
 c      
       nmo = mohi - molo + 1
@@ -98,10 +98,6 @@ c
 
 
 
-c
-c
-c
-c
 c
 c
 c
@@ -321,10 +317,8 @@ c
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
             call moints_Ktrf34a( otrp, nbf, c, dbl_mb(k_local), tmp )
-
             if (osym) call moints_sym_zero(nbf, 1, nbf, syms, a1, a2,
-     $           dbl_mb(k_local))
-
+     $                                     dbl_mb(k_local))
             call ga_release(g_exch,rlo,rhi,aa,aa)
           endif
         enddo
@@ -351,7 +345,7 @@ c
       integer ieor
       intrinsic ieor
 c
-*      write(6,*) ' moints_sym_zero ', i, j
+      write(6,*) ' moints_sym_zero ', i, j
 c
       symij = ieor(syms(i),syms(j))
       do p = vlo, vhi
@@ -366,7 +360,9 @@ c
 c
       end
 
-c
+
+
+
 c
 c Note: May require transpose the half-transformed matrix
 c       to conform to convention for storage
@@ -399,7 +395,7 @@ c
 
 
 c
-c ** symmetry ignored **
+c
 c
       subroutine moints_Jtrf34( g_coul, ostart, olo, ohi, vlo, vhi,
      $                          nbf, c, tmp, osym, syms )
@@ -428,6 +424,8 @@ c
           if ((aa.ge.clo).and.(aa.le.chi)) then
             call ga_access(g_coul,rlo,rhi,aa,aa,k_local,ld)
             call moints_Jtrf34a( nbf, c, dbl_mb(k_local), tmp )
+            if (osym) call moints_sym_zero(nbf, 1, nbf, syms, a1, a2,
+     $                                     dbl_mb(k_local))
             call ga_release(g_coul,rlo,rhi,aa,aa)
           endif
         enddo

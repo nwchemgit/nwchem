@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.10 1995-10-25 00:59:34 rg240 Exp $
+c  $Id: moints_2x.F,v 1.11 1995-10-26 06:26:21 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -38,7 +38,7 @@ c
 #include "msgids.fh"
 #include "sym.fh"
 c
-c Arguments
+c  Arguments
 c
        integer basis                          ! Basis handle
        logical ohalf                          ! Toggle alternative algorithm for half-ints intermediates
@@ -51,7 +51,7 @@ c
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
 c
-c Local variables
+c  Local variables
 c
        integer nmo1, nmo2, nbf, nsh, maxbfsh
        integer nblk, bsize, blocksize
@@ -60,19 +60,17 @@ c
        integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
        integer kshlo, kshhi, lshlo, lshhi
        integer kblen, lblen
-       integer kb, lb
-       integer i
+       integer kb, lb, i
        integer l_ssbb, k_ssbb, l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
        integer l_mo, k_mo
        integer l_shmap, k_shmap
+       integer k_sym, l_sym
        integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2, n_ijni
        integer mem2, max2e
-       integer n_ijni
        integer num_nodes, ploop, next, itmp
-       integer k_sym, l_sym
        integer nmixed
        double precision tol2e, scale, schw_ij
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
@@ -81,50 +79,43 @@ c
        double precision flop1, q2
        integer tottask
        integer geom
-       logical status
-       logical oprint
-       logical osym
-       logical odoit
+       logical status, oprint
+       logical osym, odoit
 c
 #include "moints_stats.fh"
-c
-c
-c
 c
        integer moints_numgr, gr_len
        external moints_numgr, gr_len
 c
-c
-c These are options that should be set
-c by input deck
-c
+c  These are options that should be set
+c  by input deck
 c
        data tol2e/1.d-12/
        data oprint/.true./
 c
-       if (.not. bas_geom(basis, geom)) call errquit
-     $      ('moints: cannot get geometry', 0)
-       osym = (sym_number_ops(geom) .gt. 0) 
 c
 c  General basis info
 c
        ttotal = tcgtime()
        num_nodes = ga_nnodes()
+       if (.not. bas_geom(basis, geom)) call errquit
+     $      ('moints: cannot get geometry', 0)
+       osym = (sym_number_ops(geom) .gt. 0) 
+       OSYM = .FALSE.
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not.status) call errquit('moints: cannot get basis info',0)
        nmo1 = mo1_hi - occ_start + 1
        nmo2 = mo2_hi - mo2_lo + 1
-c
+c     
+c  Symmetry adapt the MOs and renumber irreps to start at zero
+c     
        if (osym) then
-c     
-c     Symmetry adapt the MOs and renumber irreps to start at zero
-c     
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
      $         call errquit('moints_2x: no memory for syms?',0)
           call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
-     $         nmixed)
+     $                          nmixed)
           if (nmixed .ne. 0)
      $         call errquit('moints_2x: symmetry contamination', nmixed)
           do i =0, nbf-1
@@ -176,7 +167,7 @@ c
        status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
        if (.not.(status)) call errquit('cannot allocate local memory',0)
 c
-c Initialize
+c  Initialize
 c
        flop1 = 0.d0
        tint = 0.d0
@@ -302,7 +293,7 @@ c
        tsynch = tcgtime() - tsynch
        thalf = tcgtime() - thalf
 c
-c Clean-up
+c  Clean-up
 c
        if (.not. ma_pop_stack(l_ssni))
      $     call errquit('moints: failed to pop', l_ssni)
@@ -323,23 +314,17 @@ c
        if (.not. ma_pop_stack(l_eri))
      $     call errquit('moints: failed to pop', l_eri)
 c
-c 
+c  2nd half transformation
 c
        status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
 c
-c
+c  Exchange term
 c
        if (oexch) then
          tz = tcgtime()
          if (ohalf) then
-c
-c Half transformed ints could be optionally dumped here
-c or go ahead and transform the last 2 indices
-c
-c
-           if (util_print('exchange half integral',print_debug)) then
-             call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
-           endif
+c$$$           if (util_print('exchange half integral',print_debug))
+c$$$     $       call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
            call moints_Ktrf34( g_exch, .true., occ_start,
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
      $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp),
@@ -352,35 +337,37 @@ c
            t4kidx = t4kidx + tcgtime() - tz
            itmp = nmo2
          endif
-         if (util_print('exchange integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_exch)
-         endif
+         if (util_print('exchange integral',print_debug))
+     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_exch)
        endif
 c
-c
+c  Coulomb term
 c
        if (ocoul) then
          tz = tcgtime()
-         if (util_print('coulomb half integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
-         endif
+c$$$         if (util_print('coulomb half integral',print_debug))
+c$$$     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_coul)
          call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
 
          t34jidx = tcgtime() - tz
-         if (util_print('coulomb integral',print_debug)) then
-           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
-         endif
+         itmp = nmo2
+         if (ohalf) itmp = nbf
+         if (util_print('coulomb integral',print_debug))
+     $      call moints_op_print(occ_start,mo1_lo,mo1_hi,itmp,g_coul)
        endif
-       call ga_sync()
 c
-c
+c  Clean-up
 c
        if (.not. ma_pop_stack(l_hlp))
      $     call errquit('moints: failed to pop', l_hlp)
        if (.not. ma_pop_stack(l_mo))
      $     call errquit('moints: failed to pop', l_mo)
+       if (osym) then
+          if (.not. ma_pop_stack(l_sym))
+     $         call errquit('moints_2x: memory corrupt',0)
+       endif
 c
 c
 c
@@ -390,7 +377,7 @@ c
 #endif
 
 c
-c Timings and Statistics bookkeeping
+c  Timings and Statistics bookkeeping
 c
        flop1 = flop1*1.d-6
        ttotal = tcgtime() - ttotal
@@ -416,23 +403,12 @@ c
        mi_ntasksJ = mi_ntasksJ + tottask
        mi_ntasksK = 1.d0
        mi_mintaskK = 0.d0
-
-       if (osym) then
-          if (.not. ma_pop_stack(l_sym))
-     $         call errquit('moints_2x: memory corrupt',0)
-       endif
-
+c
+c
+c
        return
        end
 
-c
-c
-c
-c
-c
-c
-c
-c
 
 
 
@@ -442,11 +418,10 @@ c
 
 
 c
-c Exchange 2nd Index transformation to occupied
-c Used when half-transformed integrals
-c are required.
+c  Exchange 2nd Index transformation to occupied
+c  Used when half-transformed integrals
+c  are required.
 c
-
        subroutine moints2x_trf2K( nbf, ostart, olo, ohi, ilo, ihi,
      $                           jlo, jhi, scale, ssni, h1, h2,
      $                           c, g_exch )
@@ -513,9 +488,9 @@ c
 
 
 c
-c Exchange 2nd index & 3rd index transformations
-c Note that the 2nd index is transformed to virtuals
-c initially.
+c  Exchange 2nd index & 3rd index transformations
+c  Note that the 2nd index is transformed to virtuals
+c  initially.
 c
        subroutine moints2xv_trf23K( nbf, ostart, olo, ohi, nvir,
      $                              vlo, vhi, ilo, ihi, jlo, jhi,
@@ -599,7 +574,7 @@ c
 
 
 c
-c Transform last index of K to virtual
+c  Transform last index of K to virtual
 c
       subroutine moints2xv_Ktrf4( g_exch, ostart, olo, ohi,
      $                           vlo, vhi, nbf, c, tmp, osym, syms )
@@ -630,10 +605,8 @@ c
             call ga_access(g_exch,rlo,rhi,aa,aa,k_local,ld)
             call moints2xv_Ktrf4a( vlo, vhi, nbf, c,
      $                            dbl_mb(k_local), tmp )
-
-            if (osym) call moints_sym_zero(nbf, vlo, vhi,
-     $           syms, a1, a2, tmp)
-
+            if (osym) call moints_sym_zero( nbf, vlo, vhi, syms,
+     $                                      a1, a2, tmp)
             call dcopy((nvir*nvir),tmp,1,dbl_mb(k_local),1)
             call ga_release(g_exch,rlo,rhi,aa,aa)
           endif
