@@ -1,4 +1,4 @@
-c $Id: int_l1eov.F,v 1.8 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_l1eov.F,v 1.9 1999-11-13 02:09:27 bjohnson Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eov}
@@ -62,7 +62,7 @@ c
       jbas  = j_basis + BASIS_HANDLE_OFFSET
       ijbas = ibas .eq. jbas
 c
-      numint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0 0,0)
+      numint = int_nint_cart(i_basis,ish,j_basis,jsh, 0,0, 0,0)
       newlscr = lscr - numint
       call int_1eov(i_basis, ish, j_basis, jsh,
      &    newlscr,scr(numint+1),numint,scr)
