@@ -16,7 +16,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     BufferedReader br;
     String card;
 
-    Graph ana_plot = new Graph();
+    Graph anaPlot = new Graph();
 
 
     JLabel systemLabel = new JLabel();
@@ -25,6 +25,9 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     JButton plotButton = new JButton("plot");
     
     double time;
+    double data[][];
+    int numdat;
+    int iset=0;
 
     int nb, nh, nd, no, number, j;
     
@@ -59,8 +62,10 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	systemLabel.setForeground(Color.black);
 	
+	BufferedReader br;
+
 	try{
-	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
+	    br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
 	    String card;
 	    card=br.readLine();
 	    nb = Integer.parseInt(card.substring(1,10).trim());
@@ -68,14 +73,30 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	    nd = Integer.parseInt(card.substring(21,30).trim());
 	    no = Integer.parseInt(card.substring(31,40).trim());
             number=nb+nh+nd+no+1;
-	    
+	    //	} catch(Exception ee) {ee.printStackTrace();};
+
+	System.out.println("Number is "+number);
+
+	data = new double[number][5000];
+	numdat=0;
+
+	System.out.println("---");
+
+	//	try{
 	    while((card=br.readLine()) != null){
-		card=br.readLine();
-		time=Double.valueOf(card.substring(1,12)).doubleValue();
+		int k=1;
+		for(int l=0; l<number; l=l+1){
+		    if(k==49){card=br.readLine(); k=1;};
+		    //		    System.out.println(card.substring(k,k+11));
+		    data[l][numdat]=Double.valueOf(card.substring(k,k+11)).doubleValue();
+		    k=k+12;
+		};
+		numdat++;
 	    };
 	    br.close();
 	} catch(Exception ee) {ee.printStackTrace();};
 
+	System.out.println("Number of frames is "+numdat);
 	System.out.println(nb+" "+nh+" "+nd+" "+no);
 	
 	JButton tButton = new JButton("t");
@@ -140,7 +161,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 
-	addComponent(header,ana_plot,6,1,10,10,10,10,
+	addComponent(header,anaPlot,6,1,20,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	
 	setLocation(25,225);	
@@ -152,6 +173,12 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
     void plot_ana(String s){
 	int ndx = Integer.parseInt(s);
 	System.out.println("Plot index "+ndx);
+	boolean first=true;
+	for(int i=0; i<numdat; i++){
+	    anaPlot.addData(iset,data[0][i],data[ndx][i],!first,false); first=false;
+	};
+	anaPlot.fillPlot();
+	iset++;
     };
 
     void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 

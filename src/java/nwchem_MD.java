@@ -34,6 +34,10 @@ class nwchem_MD extends JPanel implements ActionListener, ChangeListener {
     systemName = new TextField(tsk.system,25);
     addComponent(this,systemName,3,0,3,1,1,1,
 		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    systemName.addFocusListener(new FocusListener(){
+      public void focusLost(FocusEvent e){tsk.system=systemName.getText();};
+      public void focusGained(FocusEvent e){}
+    });
 
     inputpane = new JTabbedPane();
     inputpane.setForeground(Color.black);
