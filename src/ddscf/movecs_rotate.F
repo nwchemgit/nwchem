@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.12 2002-12-19 19:39:04 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -11,18 +11,18 @@ C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
 #include "geom.fh"
 #include "stdio.fh"
 c
-c     Rotate the MO's calculated at an old geometry to the active geometry.
+c     Read the MO's calculated at an old geometry and rotate them 
+c     to the active geometry.
 c     Syntax: vectors input rotate geomname filename
 c
       integer rtdb, geom, basis, g_vecs(2)
       double precision evals(*),foccs(*)
 c
-      integer iset, nset ! [in] 1 = rhf, 2 = uhf (2 sets_
+      integer iset, nset ! [in] 1 = rhf, 2 = uhf 
       integer file_nbf, nbf, i, j, nmo, nsets
       character*80 geomname, basisname, filename, title
       character*80 rotate(2) 
       character*20 scftype
-      character*16 atom_tags
       double precision x1, y1, z1
       double precision x2, y2, z2
       double precision c(4,4), v(4,4), rot(3,3), q(4), d(4)
@@ -120,8 +120,7 @@ c     calculate the 3x3 rotation matrix which transforms the old
 c     geometry into the active geometry.  Literature reference:
 c     S. K. Kearsley, "On the Orthogonal Transformation Used for
 c     Structural Comparisons", Acta Crystallographica Section A,
-c     45, 208-210 (1989).  Adapted from 
-c     David J. Heisterberg, OSC, 1990
+c     45, 208-210 (1989). 
 c     ----------------------------------------------------------
 c
 c     Find the centroid of the old and active geometries
@@ -168,7 +167,7 @@ c
            dbl_mb(iold+3*(i-1)+2) = dbl_mb(iold+3*(i-1)+2) - zmid
         end do
 c
-c Use the quaternion - based method to achieve the best fit
+c     Use the quaternion - based method to achieve the best fit
 c     superposition of the two sets of coordinates.
 c
         xxyx = 0.0d0
@@ -218,7 +217,9 @@ c     diagonalize the quadratic form matrix
 c
       call dcopy(16,c,1,v,1)
       call util_jacobi (4,v,4,d)
-
+c
+c      write (luout,*) 'eigenvalues',d(1), d(2), d(3), d(4)
+c
         q(1) = v(1,4)
         q(2) = v(2,4)
         q(3) = v(3,4)
@@ -237,7 +238,6 @@ c
         rot(3,3) = q(1)*q(1) - q(2)*q(2) - q(3)*q(3) + q(4)*q(4)
 c
 c
-   4  format(3F12.6)
       if (oprint_info)   then
         call util_print_centered(luout,'Rotation matrix',15,.true.)
           do i = 1,3
@@ -246,6 +246,7 @@ c
           write(luout,*)
           call util_flush(luout)
       endif
+   4  format(3F12.6)
       call ga_sync()
 c
       if (.not. ma_pop_stack(lold))
@@ -255,7 +256,7 @@ c
      &     call errquit('movecs_rotate:cant pop stack',0)
 c
 c     ---------------------------------------------
-c     Read in vectors calculated at the old geometry.
+c     Read the vectors calculated at the old geometry.
 c     ---------------------------------------------
 c
       call util_file_name_resolve(filename, .false.)
@@ -322,7 +323,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.12 2002-12-19 19:39:04 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -441,7 +442,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.11 2002-12-18 23:58:48 d3k958 Exp $
+C$Id: movecs_rotate.F,v 1.12 2002-12-19 19:39:04 d3k958 Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
