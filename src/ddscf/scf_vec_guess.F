@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.36 2001-11-01 01:26:21 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.37 2001-12-12 00:59:44 edo Exp $
 c
       implicit none
 c
@@ -104,14 +104,6 @@ c
       if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear)) then
          ssmear=0.d0
-      endif
-      if (inp_compare(.false., 'DFT', calling_module))then
-         if (movecs_in .eq. 'atomic') then
-            nmo = nbf
-            if (oprint)
-     .           write(6,*)' Skipping SCF linear dependence check. '
-            goto 3212
-         endif
       endif
 c
 c     Analyze linear dependence ... put eigenvectors of S into g_movecs
