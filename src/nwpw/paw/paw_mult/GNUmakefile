@@ -1,8 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-02-19 23:42:53 marat Exp $
+# $Id: GNUmakefile,v 1.3 2003-02-21 03:01:48 bylaska Exp $
 #
 
-          OBJ =  paw_mult.o paw_mult_interaction.o
+          #OBJ =  paw_mult.o paw_mult_interaction.o
+          OBJ =  paw_mult.o 
           HEADERS = 
 
 

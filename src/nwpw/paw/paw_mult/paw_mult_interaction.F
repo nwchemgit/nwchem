@@ -1,4 +1,7 @@
-c $Id: paw_mult_interaction.F,v 1.4 2003-02-20 18:34:44 edo Exp $
+*
+* $Id: paw_mult_interaction.F,v 1.5 2003-02-21 03:01:48 bylaska Exp $
+*
+
 !*************************************************
 !
 !   Name    :  gaussian_mult_interaction
