@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.25 1996-09-19 01:09:17 d3g681 Exp $
+c$Id: fock_2e_a.F,v 1.26 1998-07-13 23:41:17 d3g681 Exp $
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -8,7 +8,7 @@ c
       data memsize  /0/         ! Max size of integral file in memory
       data oreadfile /.false./  ! If reading integrals from file
       data owritefile/.false./  ! If writing integrals to file
-      data dentolmax/1d-5/
+      data dentolmax/1d-6/
       data odensityscreen/.true./
 
 c     see scf_init for input of task_chunks etc.
@@ -22,7 +22,7 @@ c     see scf_init for input of task_chunks etc.
      $     blocks, nblock)
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.25 1996-09-19 01:09:17 d3g681 Exp $
+c     $Id: fock_2e_a.F,v 1.26 1998-07-13 23:41:17 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -86,12 +86,15 @@ c
 c
 c     SEE AO_REPLICATED.F to make the next parameters consistent
 c     
+c     NOTE THAT ONLY USER SPECIFIED INTEGRAL ACCURACY IS NOW USED
+c
       if (intacc .eq. 0.0d0) then
-         integ_acc = min(1d-9,max(0.01d0*dentol,1d-17)) ! Variable
+         integ_acc = min(1d-10,max(0.01d0*dentol,1d-20)) ! Variable
+*         call int_acc_set(integ_acc)
       else
          integ_acc = intacc     ! User controlled
+         call int_acc_set(integ_acc)
       endif
-      call int_acc_set(integ_acc)
 c
 c     How many atoms are there?
 c     

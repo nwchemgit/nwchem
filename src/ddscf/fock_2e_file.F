@@ -8,7 +8,7 @@
 #include "cscfps.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.9 1997-01-15 23:52:00 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.10 1998-07-13 23:41:17 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -85,7 +85,8 @@ c
      $        ihi, jhi, khi, lhi,
      $        dij, dik, dli, djk, dlj, dlk, denmax)
 c
-         dtol2e = min(dentolmax, den_tol/max(1d-10,denmax))
+         dtol2e = min(dentolmax, den_tol/max(1d-10,denmax), 
+     $        den_tol/max(1d-10,denmax**2))
 c     
          call int2e_file_fock_block(nfock, dtol2e,
      $           dij, dik, dli, djk, dlj, dlk,
@@ -151,8 +152,7 @@ c
          j = idamax(nbf*nbf, dens(i,1), nfock)
          denmax = max(denmax, abs(dens(i,j)))
       end do
-      denmax = denmax*100.0d0 
-      den_tol = min(dentolmax,tol2e/denmax) ! Threshold to screen integs only
+      den_tol = min(dentolmax,tol2e/denmax,tol2e/denmax**2) ! Threshold to screen integs only
 c
 **      write(6,*) tol2e, dentolmax, den_tol
 c

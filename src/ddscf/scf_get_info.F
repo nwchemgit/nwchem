@@ -231,7 +231,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.43 1997-05-29 20:38:12 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.44 1998-07-13 23:41:17 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -314,6 +314,11 @@ c     vector products would be disastrously expensive.
 c
 c     C4H10 shows worse convergence with dentolmax > 1d-5
 c     C60 shows worsse convergence with dentolmax > 1d-6
+c
+c     Some poor convergence in the CPHF and line search can
+c     be attributed to dentolmax being too high when preconditioning
+c     with Hessian-vector products.  I think there must be a problem
+c     in the screening algorithm somewhere ... but where?
 c
       if (.not. rtdb_get(rtdb, 'fock:dentolmax', mt_dbl, 1, dentolmax))
      $     dentolmax = 1d-6
