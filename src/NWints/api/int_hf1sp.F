@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.12 1997-12-13 00:39:19 d3e129 Exp $
+c $Id: int_hf1sp.F,v 1.13 1998-02-05 00:02:15 d3e129 Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -60,29 +60,29 @@ c
 *debug_print      integer iii
 c
       if (Li.gt.-1.and.Lj.gt.-1) then
-        call hf1(
-     &         xyzi,expi,coefi,i_nprim,i_ngen,Li,
-     &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+        call int_hf1sp_ecp(
+     &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
+     &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c
       elseif (Li.eq.-1.and.Lj.eq.-1) then
 c.............................................................. (SP|SP)
 c________________________________ (S|S)
-        call hf1(
-     &         xyzi,expi,coefi,i_nprim,1,0,
-     &         xyzj,expj,coefj,j_nprim,1,0,
+        call int_hf1sp_ecp(
+     &         xyzi,expi,coefi,i_nprim,1,0,ictri,
+     &         xyzj,expj,coefj,j_nprim,1,0,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c________________________________ (S|P)
         offset = 1
-        call hf1(
+        call int_hf1sp_ecp(
      &         xyzi,
      &         expi,coefi(1,1),
-     &         i_nprim,1,0,
+     &         i_nprim,1,0,ictri,
      &         xyzj,
      &         expj,coefj(1,2),
-     &         j_nprim,1,1,
+     &         j_nprim,1,1,ictrj,
      &         xyz,zan,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
@@ -90,13 +90,13 @@ c________________________________ (S|P)
      &         dryrun,scr,lscr)
 c________________________________ (P|S)
         offset = 1 + 3 
-        call hf1(
+        call int_hf1sp_ecp(
      &         xyzi,
      &         expi,coefi(1,2),
-     &         i_nprim,1,1,
+     &         i_nprim,1,1,ictri,
      &         xyzj,
      &         expj,coefj(1,1),
-     &         j_nprim,1,0,
+     &         j_nprim,1,0,ictrj,
      &         xyz,zan,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
@@ -104,13 +104,13 @@ c________________________________ (P|S)
      &         dryrun,scr,lscr)
 c________________________________ (P|P)
         offset = 1 + 3 + 3
-        call hf1(
+        call int_hf1sp_ecp(
      &         xyzi,
      &         expi,coefi(1,2),
-     &         i_nprim,1,1,
+     &         i_nprim,1,1,ictri,
      &         xyzj,
      &         expj,coefj(1,2),
-     &         j_nprim,1,1,
+     &         j_nprim,1,1,ictrj,
      &         xyz,zan,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
@@ -120,34 +120,22 @@ c________________________________ (P|P)
         if (doS) call int_1spsp(S,1)
         if (doT) call int_1spsp(T,1)
         if (dov) call int_1spsp(V,1)
-*debug_print:        if (doS) then
-*debug_print:          write(6,*)'sp|sp new way overlap'
-*debug_print:          write(6,'(1x,i5,f20.10)')(iii,S(iii),iii=1,16)
-*debug_print:        endif
-*debug_print:        if (doT) then
-*debug_print:          write(6,*)'sp|sp new way kinetic'
-*debug_print:          write(6,'(1x,i5,f20.10)')(iii,T(iii),iii=1,16)
-*debug_print:        endif
-*debug_print:        if (doV) then
-*debug_print:          write(6,*)'sp|sp new way potential'
-*debug_print:          write(6,'(1x,i5,f20.10)')(iii,V(iii),iii=1,16)
-*debug_print:        endif
       elseif (Li.eq.-1) then
 c.............................................................. (SP|X)
 c________________________________ (S|X)
-        call hf1(
-     &         xyzi,expi,coefi,i_nprim,1,0,
-     &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+        call int_hf1sp_ecp(
+     &         xyzi,expi,coefi,i_nprim,1,0,ictri,
+     &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c________________________________ (P|X)
         offset = 1*(Lj+1)*(Lj+2)/2*j_ngen
-        call hf1(
+        call int_hf1sp_ecp(
      &         xyzi,
      &         expi,coefi(1,2),
-     &         i_nprim,1,1,
+     &         i_nprim,1,1,ictri,
      &         xyzj,
-     &         expj,coefj,j_nprim,j_ngen,Lj,
+     &         expj,coefj,j_nprim,j_ngen,Lj,ictrj,
      &         xyz,zan,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
@@ -156,19 +144,19 @@ c________________________________ (P|X)
       elseif (Lj.eq.-1) then
 c.............................................................. (X|SP)
 c________________________________ (X|S)
-        call hf1(
-     &         xyzi,expi,coefi,i_nprim,i_ngen,Li,
-     &         xyzj,expj,coefj,j_nprim,1,0,
+        call int_hf1sp_ecp(
+     &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
+     &         xyzj,expj,coefj,j_nprim,1,0,ictrj,
      &         xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
      &         dryrun,scr,lscr)
 c________________________________ (X|P)
         offset = 1*(Li+1)*(Li+2)/2*i_ngen
-        call hf1(
+        call int_hf1sp_ecp(
      &         xyzi,
-     &         expi,coefi,i_nprim,i_ngen,Li,
+     &         expi,coefi,i_nprim,i_ngen,Li,ictri,
      &         xyzj,
      &         expj,coefj(1,2),
-     &         j_nprim,1,1,
+     &         j_nprim,1,1,ictrj,
      &         xyz,zan,nat,
      &         S(offset+1),T(offset+1),V(offset+1),
      &         (lstv-offset)
@@ -204,32 +192,85 @@ c * (s|s), (s|x), (s|y), (s|z)
             call int_sp1b(V,scr,scr(nintx+1),nintx,1)
           endif
         endif
-*debug_print:        if (doS) then
-*debug_print:          write(6,*)'sp|sp new way overlap'
-*debug_print:          write(6,'(1x,i5,f20.10)')(iii,S(iii),iii=1,16)
-*debug_print:        endif
-*debug_print:        if (doT) then
-*debug_print:          write(6,*)'sp|sp new way kinetic'
-*debug_print:          write(6,'(1x,i5,f20.10)')(iii,T(iii),iii=1,16)
-*debug_print:        endif
-*debug_print:        if (doV) then
-*debug_print:          write(6,*)'sp|sp new way potential'
-*debug_print:          write(6,'(1x,i5,f20.10)')(iii,V(iii),iii=1,16)
-*debug_print:        endif
       else
         write(luout,*)'int_hf1sp called by ',msg
         call errquit('int_hf1sp: unknown case finished',911)
       endif
 c
+c
+      end
+c:tex-% part of the internal API routines.
+c:tex-\subsection{int\_hf1sp\_ecp}
+c:tex-This is a layer routine that calls the 
+c:tex-McMurchie-Davidson one electron routine.  This layer
+c:tex-routine handles all options for computing ecp integrals.
+c:tex-This routine should never be called by an application module.
+c:tex-
+c:tex-{\it Syntax:}
+c:tex-\begin{verbatim}
+      subroutine int_hf1sp_ecp(
+     &       xyzi,expi,coefi, i_nprim, i_ngen, Li, ictri,
+     &       xyzj,expj,coefj, j_nprim, j_ngen, Lj, ictrj,
+     &       xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &       dryrun,scr,lscr,msg)
+c:tex-\end{verbatim}
+      implicit none
+#include "apiP.fh"
+#include "stdio.fh"
+#include "int_nbf.fh"
+c::passed
+c:tex-For an integral $<i|Operator|j>$
+c:tex-\begin{verbatim}
+      integer i_nprim  ! [input] num. prims on function i
+      integer i_ngen   ! [input] num general conts on func. i
+      integer Li       ! [input] angular momentum of func. i  
+      integer ictri    ! [input] lexical atom index for function i 
+      integer j_nprim  ! [input] num. prims on function j     
+      integer j_ngen   ! [input] num general conts on func. j 
+      integer Lj       ! [input] angular momentum of func. j  
+      integer ictrj    ! [input] lexical atom index for function j 
+      integer nat      ! [input] number of atoms
+      integer lscr     ! [input] size of scratch array
+      integer lstv     ! [input] size of any integral buffer
+      double precision xyzi(3)  ! [input] position of center i
+      double precision expi(i_nprim) ! [input] exponents on i
+      double precision coefi(i_nprim,i_ngen) ! [input] i coeffs
+      double precision xyzj(3)  ! [input] position of center j
+      double precision expj(j_nprim)  ! [input] exponents on j
+      double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
+      double precision xyz(3,nat)  ! [input] all atom positions
+      double precision zan(nat)  ! [input] charges on all atoms
+      double precision scr(lscr)  ! [scratch] scratch buffers
+      double precision S(lstv)  ! [output] overlap integrals
+      double precision T(lstv)  ! [output] kinetic energy integrals
+      double precision V(lstv)  ! [output] potential integrals
+      logical doS     ! [input] compute overlap (True/False)
+      logical doT     ! [input] compute kinetic (True/False)
+      logical doV     ! [input] compute potential (True/False)
+      logical canAB   ! [input] compute only canonical ints (false only)
+      logical dryrun  ! [input] true means only compute required memory
+      character*(*) msg ![input] calling func. identification message
+c:tex-\end{verbatim}
+c::local
+      integer nintV
+      integer offset
+      integer nintx, nint_xsp
+*
+      call hf1(
+     &      xyzi,expi,coefi,i_nprim,i_ngen,Li,
+     &      xyzj,expj,coefj,j_nprim,j_ngen,Lj,
+     &      xyz,zan,nat,S,T,V,lstv,doS,doT,doV,canAB,
+     &      dryrun,scr,lscr)
+*
       if (any_ecp.and.doV) then
         nintV = int_nbf_x(Li)*i_ngen
         nintV = nintV*int_nbf_x(Lj)*j_ngen
         offset = nintV + 1
 *       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
         if (ictri.lt.0.or.ictrj.lt.0) then
-          write(luout,*)' int_hf1sp: ictri = ',ictri
-          write(luout,*)' int_hf1sp: ictrj = ',ictrj
-          write(luout,*)'int_hf1sp called by ',msg
+          write(luout,*)' int_hf1sp_ecp: ictri = ',ictri
+          write(luout,*)' int_hf1sp_ecp: ictrj = ',ictrj
+          write(luout,*)'int_hf1sp_ecp called by ',msg
           call errquit(
      &        'int_hf1sp: unknown center for ECPs',
      &        911)
@@ -242,7 +283,7 @@ c
 *... sum ecp into V block
         call daxpy(nintV, 1.0d00, scr,1,V,1)
       endif
-c
+*
       end
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_1psp}
