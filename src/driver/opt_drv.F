@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.69 1999-06-09 23:40:09 d3g681 Exp $
+C$Id: opt_drv.F,v 1.70 1999-06-09 23:51:19 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -255,7 +255,7 @@ c
 #include "coptopt.fh"
 c
       integer rtdb, geom
-      integer     geom
+
 c
       logical geom_zmt_get_izmat, geom_zmt_get_nizmat
       external geom_zmt_get_izmat, geom_zmt_get_nizmat
