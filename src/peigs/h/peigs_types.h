@@ -17,6 +17,9 @@ Integer fil_mapvec_ (Integer *me, Integer *n, Integer *map, Integer *mapvec);
 /* clustrf.c */
 Integer clustrf_ (Integer *n, DoublePrecision *d, DoublePrecision *e, Integer *m, DoublePrecision *w, Integer *mapZ, DoublePrecision **vecZ, Integer *iblock, Integer *nsplit, Integer *isplit, DoublePrecision *ptbeval, Integer *num_clustr, Integer *clustr_info, Integer *imin, Integer *proclist, Integer *nacluster, Integer *icsplit, Integer *iscratch);
 
+Integer clustrf4_ (Integer *n, DoublePrecision *d, DoublePrecision *e, Integer *m, DoublePrecision *w, Integer *mapZ, DoublePrecision **vecZ, Integer *iblock, Integer *nsplit, Integer *isplit, Integer *clustr_info,  Integer *nacluster, Integer *icsplit, Integer *iscratch);
+
+
 /* clustrxx.c */
 Integer clustrinv_(Integer *, DoublePrecision *, DoublePrecision *, DoublePrecision *, Integer *, Integer *, Integer *, Integer *, DoublePrecision **, Integer *, Integer *, Integer *, Integer *, DoublePrecision *);
 

@@ -7,11 +7,11 @@
 
 #ifdef ALPHA
 
-#define DLAMCHE        2.22044604925031308E-16
-#define DLAMCHP        2.22044604925031308E-16
-#define DLAMCHB        2.E0
-#define DLAMCHS        2.22507385850720138E-308
-#define DLAMCHU        2.22507385850720138E-308
+#define DLAMCHE        (DoublePrecision ) 2.22044604925031308E-16
+#define DLAMCHP        (DoublePrecision ) 2.22044604925031308E-16
+#define DLAMCHB        (DoublePrecision ) 2.E0
+#define DLAMCHS        (DoublePrecision ) 2.22507385850720138E-308
+#define DLAMCHU        (DoublePrecision ) 2.22507385850720138E-308
 #define SLAMCHE        2.22044604925031308E-16
 #define SLAMCHP        2.22044604925031308E-16
 #define SLAMCHB        2.e0
@@ -89,11 +89,11 @@
 
 /* rs6000 */
 
-#define DLAMCHE 0.111022302462515654E-15
-#define DLAMCHP 0.111022302462515654E-15
-#define DLAMCHB 2.e0
-#define DLAMCHS 0.22250738585072013E-307
-#define DLAMCHU 0.22250738585072013E-307
+#define DLAMCHE (DoublePrecision )  0.111022302462515654E-15
+#define DLAMCHP (DoublePrecision ) 0.111022302462515654E-15
+#define DLAMCHB (DoublePrecision ) 2.e0
+#define DLAMCHS (DoublePrecision ) 0.22250738585072013E-307
+#define DLAMCHU (DoublePrecision ) 0.22250738585072013E-307
 
 
 /*
