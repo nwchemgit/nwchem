@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.122 2002-03-02 00:53:31 d3j191 Exp $
+c $Id: md_main.F,v 1.123 2002-03-29 03:31:53 d3j191 Exp $
 c
       implicit none
 c
@@ -941,6 +941,7 @@ c
       lvw=.false.
       lxs=.false.
       lvs=.false.
+      lesp=.false.
 c
 c     equilibration
 c
@@ -984,6 +985,7 @@ c
       lxs=frequency(mdstep,nfscoo)
       lvs=frequency(mdstep,nfsvel)
       lfs=frequency(mdstep,nfsfor)
+      lesp=frequency(mdstep,nfesp)
 c
       call timer_stop(61)
 c
@@ -1085,6 +1087,7 @@ c
       lvw=.false.
       lxs=.false.
       lvs=.false.
+      lesp=.false.
 c
 c     equilibration
 c
@@ -1714,7 +1717,7 @@ c
       call qmmm_forces(irtdb,mwm,nwmloc,mwa,nwa,int_mb(i_iwz),xw,fw,
      + msa,nsaloc,int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),
      + int_mb(i_is+(lsct1-1)*msa),int_mb(i_isz),xs,fs,uqmmm,
-     + linkatm,nobq)
+     + linkatm,nobq,lesp)
       uqmmm=uqmmm-uqmatm
       endif
       call timer_stop(53)
@@ -2249,7 +2252,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.122 2002-03-02 00:53:31 d3j191 Exp $
+c $Id: md_main.F,v 1.123 2002-03-29 03:31:53 d3j191 Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.58 2002-03-08 17:29:06 d3j191 Exp $
+c $Id: md_input.F,v 1.59 2002-03-29 03:31:53 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,7 @@ c
       integer ipolt,mshitw,mshits,npstep,npener,npdist,nptmng,nfpair
       integer nfrdf,nfcntr,nfoutp,nfstat,nfrest,keepr,nfcoor,nfscoo
       integer nfvelo,nfsvel,nfprop,nffree,nfsync,iformt,madbox,loadb
-      integer nfforc,nfwfor,nfsfor,npstat
+      integer nfforc,nfwfor,nfsfor,npstat,nfesp
       integer nflong,nfgaus,mropt,nfauto,nfconv,nffet,idebug,mpolit
       integer npatom,nptopw,nptops,npx,npy,npz,nbx,nby,nbz,itrack
       integer ngx,ngy,ngz,numfix,ifix,noshak,nfslow,nfefld,nfsfld
@@ -97,6 +97,7 @@ c
       npdist=0
       nptmng=0
       nfpair=1
+      nfesp=0
       nfrdf=0
       ngl=1000
       nflong=1
@@ -1136,6 +1137,10 @@ c
       if(.not.inp_i(nfpair)) call errquit('md_input: error pair',20)
       goto 800
       endif
+      if(inp_compare(.false.,'esp',item)) then
+      if(.not.inp_i(nfesp)) call errquit('md_input: error esp',20)
+      goto 800
+      endif
       if(inp_compare(.false.,'long',item)) then
       if(.not.inp_i(nflong)) call errquit('md_input: error long',20)
       goto 800
@@ -1531,6 +1536,8 @@ c
       if(.not.rtdb_put(irtdb,'md:npxpct',mt_int,1,npxpct))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfpair',mt_int,1,nfpair))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nfesp',mt_int,1,nfesp))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfrdf',mt_int,1,nfrdf))
      + call errquit('md_input: rtdb_put failed',0)

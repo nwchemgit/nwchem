@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.55 2002-03-08 17:29:06 d3j191 Exp $
+c $Id: md_common.fh,v 1.56 2002-03-29 03:31:53 d3j191 Exp $
 c
 c     parameters
 c
@@ -133,7 +133,7 @@ c
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
-     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,
+     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
@@ -163,7 +163,7 @@ c
      + nfauto,nfconv,issscl,ipscal,itscal,ivreas,ivopt,iint,
      + iseed,ireact,ifield,nprint,ibinar,icbw,icbs,irr,idipol,
      + iwarn,irlow,idebug,icntrl,iumbr,igmass,lowmcr,noone,nwarn,nform,
-     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,
+     + ignore,mdo,mwork,iformt,madbox,isetp1,isetp2,iqmmm,iquant,nfesp,
      + nfpair,npxpct,npatom,npdist,itrack,nfgaus,nacfl,lamtyp,mdalgo,
      + ngx,ngy,ngz,ipme,ireset,loadb,nffet,keepr,nfanal,nodpme,
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
@@ -174,9 +174,9 @@ c
      + isload,ncoll,ipopt,ilambd,mlambd,includ,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
-     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc
+     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp
       common/md_log/lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
-     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc
+     + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp
 c
       integer mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,msf,nsf
       common/md_dim/mwa,nwa,mwm,nwm,nwmloc,msa,nsa,nsaloc,msm,nsm,

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.118 2002-03-08 17:29:06 d3j191 Exp $
+c $Id: md_start.F,v 1.119 2002-03-29 03:31:53 d3j191 Exp $
 c
       implicit none
 c
@@ -739,6 +739,8 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',39)
       if(.not.rtdb_get(irtdb,'md:nfpair',mt_int,1,nfpair))
      + call errquit('md_rtdbin: rtdb_get failed',40)
+      if(.not.rtdb_get(irtdb,'md:nfesp',mt_int,1,nfesp))
+     + call errquit('md_rtdbin: rtdb_get failed',40)
       if(.not.rtdb_get(irtdb,'md:nfrdf',mt_int,1,nfrdf))
      + call errquit('md_rtdbin: rtdb_get failed',41)
       if(.not.rtdb_get(irtdb,'md:nflong',mt_int,1,nflong))
@@ -1193,6 +1195,7 @@ c
       open(unit=lfndbg,file=fildbg,form='formatted',status='unknown')
       endif
 c
+      lesp=.false.
       lqmd=iquant.ne.0
       lqmmm=iqmmm.ne.0
       lpert2=ntype.eq.3.or.(iset.eq.1.and.(isetp1.eq.2.or.isetp2.eq.2))

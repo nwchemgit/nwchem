@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
-     + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq)
+     + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
 c
-c $Id: qmmm_main.F,v 1.7 2002-02-11 21:47:08 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.8 2002-03-29 03:31:53 d3j191 Exp $
 c
       implicit none
 c
@@ -12,8 +12,8 @@ c
 #include "mafdecls.fh"
 #include "qmmm_common.fh"
 c
-      external task_gradient
-      logical task_gradient
+      external task_gradient,esp
+      logical task_gradient,esp
 c
       integer cf_element
       external cf_element
@@ -27,6 +27,7 @@ c
       integer i_ioff,l_ioff,i_c,l_c,i_q,l_q,i_t,l_t
       integer i_i,l_i,i_j,l_j,i_m,l_m
       integer nzatom,nqatom,nzatomt,nqatomt
+      logical lesp
 c
       np=ga_nnodes()
       me=ga_nodeid()
@@ -121,6 +122,62 @@ c
 c
       if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',me)
+c
+      if(lesp) then
+      if(.not.ma_push_get(mt_int,2*np,'ioff',l_ioff,i_ioff))
+     + call errquit('qmmm: Failed to allocate memory for ioff',me)
+      nqatom=0
+      nzatomt=0
+      do 3 i=1,nsa
+      if(iand(isdt(i),lquant).ne.0) nqatom=nqatom+1
+    3 continue
+      call qmmm_offset(me,np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
+     + int_mb(i_ioff))
+      if(.not.ma_pop_stack(l_ioff))
+     + call errquit('qmmm: Failed to deallocate memory for ioff',me)
+      if(.not.ma_push_get(mt_dbl,3*(nqatomt+nzatomt),'c',l_c,i_c))
+     + call errquit('qmmm: Failed to allocate memory for c',me)
+      if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'q',l_q,i_q))
+     + call errquit('qmmm: Failed to allocate memory for q',me)
+      if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'m',l_m,i_m))
+     + call errquit('qmmm: Failed to allocate memory for m',me)
+      if(.not.ma_push_get(mt_byte,16*(nqatomt+nzatomt),'t',l_t,i_t))
+     + call errquit('qmmm: Failed to allocate memory for t',me)
+      if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'i',l_i,i_i))
+     + call errquit('qmmm: Failed to allocate memory for i',me)
+      if(.not.ma_push_get(mt_int,2*(nqatomt+nzatomt),'j',l_j,i_j))
+     + call errquit('qmmm: Failed to allocate memory for i',me)
+      call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
+     + dbl_mb(i_m),byte_mb(i_t),int_mb(i_i),int_mb(i_j),ioffq,ioffz,
+     + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
+      if(.not.ma_pop_stack(l_j))
+     + call errquit('qmmm: Failed to deallocate memory for j',me)
+      if(.not.ma_pop_stack(l_i))
+     + call errquit('qmmm: Failed to deallocate memory for i',me)
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0)
+      if(.not.geom_cart_set(igeom,nqatomt,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q)))
+     + call errquit('qmmm: Failed to initialize geometry',0)
+      if(.not.geom_masses_set(igeom,nqatomt,dbl_mb(i_m)))
+     + call errquit('qmmm: Failed to initialize masses',0)
+      call geom_compute_values(igeom)
+      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to store geom to rtdb',0)
+      if(.not.ma_pop_stack(l_t))
+     + call errquit('qmmm: Failed to deallocate memory for t',me)
+      if(.not.ma_pop_stack(l_m))
+     + call errquit('qmmm: Failed to deallocate memory for m',me)
+      if(.not.ma_pop_stack(l_q))
+     + call errquit('qmmm: Failed to deallocate memory for q',me)
+      call ga_sync()
+      if(.not.esp(irtdb)) call errquit('Error in esp',0)
+      call ga_sync()
+      if(.not.ma_pop_stack(l_c))
+     + call errquit('qmmm: Failed to deallocate memory for c',me)
+      if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',me)
+      endif
 c
       return
       end
