@@ -1,0 +1,36 @@
+echo
+title ch3f
+
+geometry
+c  0.0    0.0    0.0
+f  0.0    0.0    1.383
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+basis
+* library 6-311++G** 
+end
+
+charge 0
+
+property
+  mulliken
+  dipole
+  quadrupole
+  octupole
+  esp
+  efield
+  efieldgrad
+  electrondensity
+  shielding
+end
+
+task scf property
+
+dft
+ xc b3lyp
+end
+
+task dft property
