@@ -1,0 +1,26 @@
+start nh3 trimer
+
+title; Gradient calculation for (NH3)3 MP2/aug-cc-pVTZ
+
+# This gradient is very sensitive to everything being right
+# and it must match to 6dp
+
+geometry
+ symmetry C3
+ n          -1.005522    1.528451    0.000000
+ h           0.000000    1.357900    0.000000
+ h          -1.213343    2.098625    0.810621
+ h          -1.213343    2.098625   -0.810621
+end
+
+basis spherical
+ n   library aug-cc-pvtz
+ h   library aug-cc-pvtz
+end
+
+mp2
+  freeze atomic
+  tight
+end
+
+task mp2 gradient
