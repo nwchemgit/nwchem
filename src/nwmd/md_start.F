@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.71 2000-07-13 19:08:00 d3j191 Exp $
+c $Id: md_start.F,v 1.72 2000-07-13 19:14:18 d3j191 Exp $
 c
       implicit none
 c
@@ -140,8 +140,7 @@ c     ------------------------------------------
 c
       if(lqmd) then
       call qmd_setup(nwmloc,
-     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc,
-     + lpack)
+     + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_gs),nsaloc)
       else
       call sp_setup(me,int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),
      + dbl_mb(i_vw),dbl_mb(i_gw),nwmloc,
