@@ -455,8 +455,8 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   
   /*
-    for ( ii = 0; ii < 4*numclstr; ii++ ){
-    printf(" me = %d ii %d clustrf_info %d \n", me, ii, clustr_info[ii]);
+  for ( ii = 0; ii < 4*numclstr; ii++ ){
+    printf(" pstein4 me = %d ii %d clustrf_info %d \n", me, ii, clustr_info[ii]);
     }
     */
     
@@ -510,15 +510,15 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 #endif
 
   /*
-     printf(" in pstein4 bbcast00 me = %d numclstr \n", me, numclstr);
-     fflush(stdout);
-     */
+  printf(" in pstein4 bbcast00 me = %d numclstr %d \n", me, numclstr);
+  fflush(stdout);
+  */
   
   nacluster= numclstr;
   
   /*
-  bbcast00( (char *) &clustr_info[0], 4*msize*sizeof(Integer), 9, proclist[0], nn_proc, proclist);
-  */
+     bbcast00( (char *) &clustr_info[0], 4*msize*sizeof(Integer), 9, proclist[0], nn_proc, proclist);
+     */
   
   /*
      printf(" in pstein4 after bbcast00 me = %d \n", me);

@@ -698,36 +698,36 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 */
    
    i1split = 0;
-     for ( iii = 0; iii < *nsplit; iii++ ){
-       jsplit = isplit[iii];
-       blksz = jsplit-i1split;
-       dptr = &dplus[i1split];
-       lptr = &lplus[i1split];
-       /*
-	 LDL' factorization of tridiagonal
-	 */
-       peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
-       peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
-       j = iii+1; /* for fortran indexing */
-       for ( jjj = i1split; jjj < jsplit; jjj++ )
-	 iblock[jjj] = j;
-       i1split = jsplit;
-     }
-     
+   for ( iii = 0; iii < *nsplit; iii++ ){
+     jsplit = isplit[iii];
+     blksz = jsplit-i1split;
+     dptr = &dplus[i1split];
+     lptr = &lplus[i1split];
      /*
-       for (i = 0; i < *n; i++ )
-       printf(" i= %d shifted eval = %f \n", i, eval[i] );
-       
-       for (i = 0; i < *n; i++ )
-       printf(" i= %d dplus = %20.16f lplus %20.16f  \n", i, dplus[i], lplus[i] );
-       
-       for (i = 0; i < *n; i++ )
-       printf(" i= %d iblock %d shifted eval = %20.16f \n", i, iblock[i], eval[i] );
-       
-       for (i = 0; i < *n; i++ )
-       printf(" i= %d isplit %d \n", i, isplit[i] );
+       LDL' factorization of tridiagonal
        */
-	
+     peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
+     peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
+     j = iii+1; /* for fortran indexing */
+     for ( jjj = i1split; jjj < jsplit; jjj++ )
+       iblock[jjj] = j;
+     i1split = jsplit;
+   }
+   
+   /*
+     for (i = 0; i < *n; i++ )
+     printf(" i= %d shifted eval = %f \n", i, eval[i] );
+     
+     for (i = 0; i < *n; i++ )
+     printf(" i= %d dplus = %20.16f lplus %20.16f  \n", i, dplus[i], lplus[i] );
+     
+     for (i = 0; i < *n; i++ )
+     printf(" i= %d iblock %d shifted eval = %20.16f \n", i, iblock[i], eval[i] );
+     
+     for (i = 0; i < *n; i++ )
+     printf(" i= %d isplit %d \n", i, isplit[i] );
+     */
+   
    
    /* The following assumes that the matrix does not split */
    

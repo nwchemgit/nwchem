@@ -34,6 +34,16 @@
 #include <math.h>
 #include <memory.h>
 
+
+
+
+
+
+
+
+
+
+
 #include "globalp.c.h"
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
@@ -193,7 +203,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
   Integer             k, me, nn_proc, msize, irange, ivector, meigval, ilb,
                       iub, nproc, isize, nvecsA, nvecsZ, linfo, maxinfo,
                       i, j, itmp;
-  Integer             *i_scrat, *proclist;
+  Integer             *i_scrat, *proclist, lll, jjj;
 
   DoublePrecision     lb, ub, abstol;
 
@@ -438,16 +448,28 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
     * Set "extra" arguments so pdspevx  will compute all eigenvalues
     * and eigenvectors.
     */
-   
-   irange  =  1;
-   ivector =  1;
-   meigval =  0;
-   ilb     =  0;
-   iub     = -1;
-   lb      = (DoublePrecision )  0.0e0;
-   ub      = (DoublePrecision ) -1.0e0;
-   abstol  = (DoublePrecision )  0.0e0;
-   
+  
+  irange  =  1;
+  ivector =  1;
+  meigval =  0;
+  ilb     =  0;
+  iub     = -1;
+  lb      = (DoublePrecision )  0.0e0;
+  ub      = (DoublePrecision ) -1.0e0;
+  abstol  = (DoublePrecision )  0.0e0;
+  
+  
+  /*
+  lll = 0;
+  for ( k = 0; k < *n; k++ ) {
+    if ( mapZ[k] == me ) {
+      for ( jjj = 0; jjj < *n; jjj++ )
+	vecZ[lll][jjj] = 0.0e0;
+      lll++;
+    }
+  }
+  */
+  
    pdspevx( &ivector, &irange, n, vecA, mapA, &lb, &ub, &ilb, &iub, &abstol,
 	    &meigval, vecZ, mapZ, eval, iscratch, iscsize,
 	    dblptr, ibuffsize, scratch, ssize, info);

@@ -193,7 +193,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
     linfo = -9;
     xerbla_( "MGSCS \n", &linfo);
   }
-
+  
   if ( n == NULL ) 
     exit(-1);
   
@@ -211,15 +211,22 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   iscrat += n_procs;
   
   ii = -1;
-  for ( i = 0; i < *n; i++ ) {
-    if ( mapvecA[i] >= c1 && mapvecA[i] <= cn ){
-      ii = i;
+  for ( i = 0; i <= cn; i++ ) {
+    if ( mapA[i] == me )
+      ii++;
+    if ( i >= c1 )
       break;
-    }
   }
+
+/*
+  printf(" before me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+*/
   
-  if ( ii = -1 )
+  if ( ii == -1 )
     return 0;
+
+/*  printf(" after me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+*/
   
   
 #ifdef DEBUG7

@@ -144,7 +144,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       if ( mapZ[ii] == me ) {
 	iii = 1;
 	break;
-      }    
+      }   
     }
     
     if ((iii == 1 ) && (csiz > 1 )) {

@@ -421,7 +421,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
     
     blksiz = bn - bb1 + 1;
     csiz = cn - c1 + 1;
-    
     onenrm = fabs(d[bb1]) + fabs(e[bb1 + 1]);
     tmp = fabs(d[bn])+ fabs(e[bn]);
     onenrm = max(onenrm,tmp);
@@ -474,7 +473,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       fine problem
       */
 
-    if ( csiz < 2 ){
+    if ( csiz == 1 ){
       itmp = inv_it5( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ,
 		      dplus, lplus, ld, lld, eval, &eps, &stpcrt,\
 		      &onenrm, iscratch, dscrat);

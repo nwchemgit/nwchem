@@ -86,7 +86,7 @@
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
-#define ffabs(a) ((a) > (0.) ? (a) : (-a))
+#define ffabs(a) ((a) > (DoublePrecision) (0.e0) ? (a) : (-a))
 
 #define R_ZERO (DoublePrecision) 0.0e0
 #define R_ONE  (DoublePrecision) 1.0e0
@@ -237,13 +237,17 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   tmp = ffabs(d[*n-1]) + ffabs(e[*n-1]);
   onenrm = MAX(onenrm, tmp);
   for (i = 1; i < *n-1; ++i) {
-     tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-     onenrm = MAX(onenrm, tmp);
+    tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+    onenrm = MAX(onenrm, tmp);
   }
-      
+  
   ortol = onenrm * (DoublePrecision ) 1.e-3 ;
-  sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
-  sepfine = sepfine*MAX(ortol, 1.);
+  sepfine = MAX(1.e2, (DoublePrecision) *n) * DLAMCHE;
+  sepfine = MIN(sepfine, MIN(1.e-3, 1.0e0/((DoublePrecision) *n)));
+  
+  /*
+    sepfine = sepfine*MAX(ortol, 1.e0);
+    */
   
   c_ptr = iscratch;
   nn_proc = reduce_list2( num_eig, mapZ, c_ptr);
@@ -466,11 +470,11 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	
 	if ( jblk > 1 )  {            /* jblk > 1 */
 	  sep = ffabs(xj - xjm);
-	  if ( sep >= sepfine*MAX(ffabs(xj),ffabs(xjm))) {
-#ifdef DEBUG1
-	    fprintf(stderr, " got here 4 me = %d \n", me );
-#endif
-	    
+	  /*
+	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(ffabs(xj), ffabs(xjm)));
+	    */
+	  
+	  if (fabs(sep - sepfine*MAX(fabs(xj),fabs(xjm))) > 1.e-5 ) {
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;

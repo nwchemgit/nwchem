@@ -91,8 +91,7 @@ static DoublePrecision relgap(l1, l2)
 }
 
 
-Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
-		    isplit, num_clustr, clustr_info )
+Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_info )
      Integer n, m, *iblock, nsplit, *isplit, *num_clustr, *clustr_info;
      DoublePrecision *d, *e, *w;
      /*
@@ -138,7 +137,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
   DoublePrecision tmp, *eval, sep, eps, xj1, xj2, xj3;
   DoublePrecision onenrm, pertol;
   DoublePrecision xjm, eps1;
-  DoublePrecision ortol, xj, relgap();
+  DoublePrecision ortol, xj, relgap(), delta1, delta2;
   
   Integer clustr_check();
   extern Integer count_list();
@@ -187,7 +186,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     this processor finds the eigenvectors between imin <= and <= imax
     */
 
-
+  
   
   /*
     cluster information
@@ -207,10 +206,10 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     */
   
   eps = DLAMCHE;
-
+  
   *num_clustr = 1;
   b1 = 0;
-  bn = n -1;
+  bn = n-1;
   *(c_ptr++) = b1;
   *(c_ptr++) = bn;
   *(c_ptr++) = b1;
@@ -233,7 +232,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     
     /*
        find the end of the block
-      */
+       */
     
     
     
@@ -257,6 +256,8 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     bn = isplit[nblk]-1;
     blksiz = bn - b1 + 1;
     c1 = b1;
+    delta1 = (DoublePrecision) max(100, n) ;
+    delta2 = min(1.e-3, 1.e0/(DoublePrecision) n);
     
     /*
       Skip all the work if the block size is one.
@@ -274,7 +275,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     c2 = bn;
     
     if ( blksiz == 2 ) {
-      if ( relgap(w[b1],w[bn]) < (DoublePrecision) max(100, n) ) {
+      if ( relgap(w[b1],w[bn]) < delta1 ) {
 	*(c_ptr++) = c1;
 	*(c_ptr++) = c2;
 	*(c_ptr++) = b1;
@@ -294,6 +295,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
 	num_cls++;
       }
     }
+
     
     if ( blksiz > 2 ) {
       jblk = 0;
@@ -305,7 +307,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
       clustr_size = 1;
       xj = w[ptr];
       
-      for (j = beg_of_block+1; j < end_of_block-1 ; ++j) {
+      for (j = beg_of_block+1; j < end_of_block ; ++j) {
 	if ( j == (end_of_block-1 )){
 	  *(c_ptr++) = ptr;
 	  *(c_ptr++) = tail;
@@ -318,7 +320,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
 	
 	if ( clustr_size == 1 ) {
 	  xj1 = w[j];
-	  if ( relgap(xj, xj1) < (DoublePrecision) max(100, n) ) {
+	  if ( relgap(xj, xj1) < delta1 ) {
 	    tail++;
 	    clustr_size = 2;
 	    xj = w[j-1];
@@ -337,32 +339,33 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
 	    clustr_size = 1;
 	  }
 	}
-	
-	if ( clustr_size >= 2 ) {
-	  xj2 = w[j];
-	  if ( min(relgap( xj, xj1),relgap(xj1, xj2)) 
-	      > min(1.e-3, 1./(DoublePrecision) n)) {
-	    *(c_ptr++) = ptr;
-	    *(c_ptr++) = tail;
-	    *(c_ptr++) = b1;
-	    *(c_ptr++) = bn;
-	    num_cls++;
-	    max_clustr_size = max( (ptr-tail+1) , max_clustr_size);
-	    ptr = j;
-	    tail = j;
-	    xj = w[j];
-	    clustr_size = 1;
-	  }
-	  else{
-	    tail++;
-	    clustr_size++;
-	    xj = w[j-1];
-	    xj1 = w[j];
+	else { /* if clustrsiz >= 2 */
+	  if ( clustr_size >= 2 ) {
+	    xj2 = w[j];
+	    if ( min(relgap( xj, xj1),relgap(xj1, xj2)) > delta2 ) {
+	      *(c_ptr++) = ptr;
+	      *(c_ptr++) = tail;
+	      *(c_ptr++) = b1;
+	      *(c_ptr++) = bn;
+	      num_cls++;
+	      max_clustr_size = max( (ptr-tail+1) , max_clustr_size);
+	      ptr = j;
+	      tail = j;
+	      xj = w[j];
+	      clustr_size = 1;
+	    }
+	    else{
+	      tail++;
+	      clustr_size++;
+	      xj = w[j-1];
+	      xj1 = w[j];
+	    }
 	  }
 	}
       }
     }
   }
+  
   
   *num_clustr = num_cls;
   

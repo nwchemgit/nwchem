@@ -422,7 +422,7 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
 		    clustrptr, end_of_block, b1, bn );
 #endif
 	  }
-
+	  
           icsplit[ num_all_cls ] = end_of_block;
           num_all_cls++;
           *nacluster = num_all_cls;
@@ -435,36 +435,35 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   }
   
   /*
-  ime = -1;
-  for ( ii = 0; ii < *n; ii++ ){
-  if ( mapZ[ii] == me ){
-  ime = ii;
-  break;
-  }
-  }
-  
-  if ( ime % 2 != 0 ) {
-  if ( num_all_cls > 1 ) {
-  iscratch[0] = clustr_info[0];
-  iscratch[1] = clustr_info[1];
-  iscratch[2] = clustr_info[2];
-  iscratch[3] = clustr_info[3];
-  c_ptr =&clustr_info[ 4 * ( num_all_cls - 1)];
-  clustr_info[0] = c_ptr[0];
-  clustr_info[1] = c_ptr[1];
-  clustr_info[2] = c_ptr[2];
-  clustr_info[3] = c_ptr[3];
-  c_ptr = &clustr_info[0];
-      c_ptr[0] = iscratch[0];
-      c_ptr[1] = iscratch[1];
-      c_ptr[2] = iscratch[2];
-      c_ptr[3] = iscratch[3];
-    }
-  }
-*/
+     ime = -1;
+     for ( ii = 0; ii < *n; ii++ ){
+     if ( mapZ[ii] == me ){
+     ime = ii;
+     break;
+     }
+     }
+     
+     if ( ime % 2 != 0 ) {
+     if ( num_all_cls > 1 ) {
+     iscratch[0] = clustr_info[0];
+     iscratch[1] = clustr_info[1];
+     iscratch[2] = clustr_info[2];
+     iscratch[3] = clustr_info[3];
+     c_ptr =&clustr_info[ 4 * ( num_all_cls - 1)];
+     clustr_info[0] = c_ptr[0];
+     clustr_info[1] = c_ptr[1];
+     clustr_info[2] = c_ptr[2];
+     clustr_info[3] = c_ptr[3];
+     c_ptr = &clustr_info[0];
+     c_ptr[0] = iscratch[0];
+     c_ptr[1] = iscratch[1];
+     c_ptr[2] = iscratch[2];
+     c_ptr[3] = iscratch[3];
+     }
+     }
+     */
   
   c_ptr = clustr_info;
-/*
   sprintf(filename, "junk%d", me);
   file = fopen(filename, "w");
   for ( ii = 0; ii < 4* num_all_cls; ii++ )
@@ -472,10 +471,9 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
   
   for ( ii = 0; ii < msize; ii++ )
     fprintf(file, "me = %d iblock %d = %d \n", me, ii, iblock[ii]);
-
+  
   close(file);
   fflush(file);
-*/
   
   
   
