@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.10 2000-10-20 20:07:01 edo Exp $
+C     $Id: get_inp_file.F,v 1.11 2003-08-13 21:17:54 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -20,15 +20,21 @@ c
 #if defined(FUJITSU_VPP)
       logical file_exists
 #endif
+      integer l
+#ifdef USE_POSIXF
+      integer ipxfargc
+      external ipxfargc
+      nargs =ipxfargc() 
+#else
 #if defined(EXT_INT) && !defined(HPUX64)
       integer*4 iargc
 #else
       integer iargc
 #endif
-      integer l
       external iargc
 c     
       nargs = iargc()
+#endif
       do arg = 1, nargs
          call util_getarg(arg,test)
          if (arg .eq. 1) input_filename = test

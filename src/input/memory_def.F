@@ -4,7 +4,7 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.22 2003-04-17 04:16:16 edo Exp $
+C     $Id: memory_def.F,v 1.23 2003-08-13 21:17:54 edo Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
@@ -63,6 +63,9 @@ C
 #elif defined(SUN) || defined(SOLARIS) || defined(HPUX)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sun or solaris)
       Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
+#elif defined(__crayx1)
+C
+      Parameter ( Total_Dflt = 52428800) ! 512
 #elif defined(CRAY_T3E)
 C
 *too large   Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node
@@ -101,9 +104,9 @@ C
 #elif defined(SGI) && ! defined(SGITFP)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (sgi)
       Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
-#elif defined(IBM) 
+#elif defined(IBM)  || defined(IBM64)
 *     Parameter ( Total_Dflt = 11796480) ! 90 MB on 128 MB node (ibm)
-      Parameter ( Total_Dflt = 52428800) ! 400 MB on 512 MB 
+      Parameter ( Total_Dflt = 92428800) ! 400 MB on 512 MB 
 #elif defined(FUJITSU_VPP)
       Parameter ( Total_Dflt = 67108864) ! 512 MB (Fujitsu VPP)
 #endif
