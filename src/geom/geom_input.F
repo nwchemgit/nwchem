@@ -1,29 +1,32 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.46 1997-02-13 23:06:54 mdupuis Exp $
+C     $Id: geom_input.F,v 1.47 1997-02-17 17:56:41 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
 #include "geom.fh"
 #include "tcgmsg.fh"
 #include "rtdb.fh"
-      integer rtdb ! [input]
+      integer rtdb              ! [input]
 c     
-      character*255 field ! for character input
-      character*255 name ! for name of geometry
-      character*12 units ! holds units of coordinates
-      integer ncenter ! counts no. of centers as input
-      integer geom ! handle for geometry
-      integer nata ! num. of unique atoms 
-      logical status ! scratch for return codes
+      character*255 field       ! for character input
+      character*255 name        ! for name of geometry
+      character*12 units        ! holds units of coordinates
+      integer ncenter           ! counts no. of centers as input
+      integer geom              ! handle for geometry
+      integer nata              ! num. of unique atoms 
+      logical status            ! scratch for return codes
       logical oprint
       logical ozmatrix
       logical oautoz
+      logical ocenter
       logical oforce_autoz
       logical include_bqbq
       logical oprint_sym
+      integer max_center        ! parameter for local array dimension
+      double precision scale    ! For unit conversion
       integer nzinput
-      integer max_center ! parameter for local array dimension
-      double precision scale ! For unit conversion
+      integer max_center        ! parameter for local array dimension
+      double precision scale    ! For unit conversion
       parameter (max_center = 500)
       double precision coords(3,max_center)
       double precision charge(max_center), mass(max_center)
@@ -52,15 +55,15 @@ c
 c     
 c     Check that this is indeed a geometry line
 c     
-      call inp_set_field(0) ! goto start of line
+      call inp_set_field(0)     ! goto start of line
       if (.not. inp_a(field))
-     $    call errquit('geom_input: no input present', 0)
+     $     call errquit('geom_input: no input present', 0)
       if (.not. inp_compare(.false., 'geometry', field))
-     $    call errquit('geom_input: not geometry input', 0)
+     $     call errquit('geom_input: not geometry input', 0)
 c     
 c     geometry [<name>] [units <units>] [print] [noprint] [bqbq] \
-c              [angstrom_to_au <real>] [au_to_angstrom <real>] \
-c              [(no)autoz]
+c     [angstrom_to_au <real>] [au_to_angstrom <real>] \
+c     [(no)autoz]
 c     
 c     subdirectives
 c     
@@ -78,36 +81,41 @@ c
       name  = ' '
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
-      oautoz   = .false.        ! Default is try -autoz-
+      oautoz   = .false.        ! Default is don't try -autoz-
       osymmetry = .true.
       oprint_sym = .false.
       include_bqbq = .false.
+      ocenter = .true.
       oforce_autoz = .false.
       nzinput=0
-c
+c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
 c     
  10   if (inp_a(field)) then
-        if (inp_compare(.false.,'bqbq',field)) then
-          include_bqbq = .true.
-        else if ((inp_compare(.false.,'angstrom_to_au',field)).or.
-     &        (inp_compare(.false.,'ang2au',field))) then
-          found_ang2au_conv = .true.
-          if (.not.inp_f(ang2au)) call errquit
-     &        ('error parsing real value of angstrom_to_au',911)
-        else if ((inp_compare(.false.,'au_to_angstrom',field)).or.
-     &        (inp_compare(.false.,'au2ang',field))) then
-          found_au2ang_conv = .true.
-          if (.not.inp_f(au2ang)) call errquit
-     &        ('error parsing real value of angstrom_to_au',911)
-        else if (inp_compare(.false.,'autoz',field)) then
-          oautoz       = .true.  
-          oforce_autoz = .true.
-        else if (inp_compare(.false.,'noautoz',field)) then
-          oautoz       = .false.
-        else if (inp_compare(.false.,'print', field)) then
-          oprint = .true.
+         if (inp_compare(.false.,'bqbq',field)) then
+            include_bqbq = .true.
+         else if ((inp_compare(.false.,'angstrom_to_au',field)).or.
+     &           (inp_compare(.false.,'ang2au',field))) then
+            found_ang2au_conv = .true.
+            if (.not.inp_f(ang2au)) call errquit
+     &           ('error parsing real value of angstrom_to_au',911)
+         else if ((inp_compare(.false.,'au_to_angstrom',field)).or.
+     &           (inp_compare(.false.,'au2ang',field))) then
+            found_au2ang_conv = .true.
+            if (.not.inp_f(au2ang)) call errquit
+     &           ('error parsing real value of angstrom_to_au',911)
+         else if (inp_compare(.false.,'autoz',field)) then
+            oautoz       = .true.  
+            oforce_autoz = .true.
+         else if (inp_compare(.false.,'center', field)) then
+            ocenter = .true.
+         else if (inp_compare(.false.,'nocenter', field)) then
+            ocenter = .false.
+         else if (inp_compare(.false.,'noautoz',field)) then
+            oautoz       = .false.
+         else if (inp_compare(.false.,'print', field)) then
+            oprint = .true.
 c     
 c     If the next field is a recognizable format for standard
 c     geometries then process as
@@ -116,49 +124,49 @@ c     print format
 c     
 c     currently just know about xyz
 c     
-          if (inp_a(format)) then
-            if (inp_compare(.false.,'xyz',format)) then
-              format = 'xyz'
-            else
-              call inp_prev_field()
-              format = ' '
+            if (inp_a(format)) then
+               if (inp_compare(.false.,'xyz',format)) then
+                  format = 'xyz'
+               else
+                  call inp_prev_field()
+                  format = ' '
+               endif
             endif
-          endif
-        else if (inp_compare(.false.,'noprint',field)) then
-          oprint = .false.
-        else if (inp_compare(.false.,'units', field)) then
-          if (.not. inp_a(units)) call errquit
-     $        ('geom_input: geometry [<name>] [units <units>]', 0)
-        else
-          if (name .ne. ' ') call errquit
-     $        ('geom_input: geometry [<name>] [units <units>]', 0)
-          name = field
-        end if
-        goto 10
+         else if (inp_compare(.false.,'noprint',field)) then
+            oprint = .false.
+         else if (inp_compare(.false.,'units', field)) then
+            if (.not. inp_a(units)) call errquit
+     $           ('geom_input: geometry [<name>] [units <units>]', 0)
+         else
+            if (name .ne. ' ') call errquit
+     $           ('geom_input: geometry [<name>] [units <units>]', 0)
+            name = field
+         end if
+         goto 10
       end if
 c     
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
-     $    ('geom_input: geom_create failed !', 0)
+     $     ('geom_input: geom_create failed !', 0)
       if (include_bqbq) status = geom_set_bqbq(geom, .true.)
-c
+c     
       if (found_au2ang_conv.and.found_ang2au_conv) call errquit
-     &    ('geom_input: user specified both au->ang and ang->au '//
-     &    'conversion factors.  This is not allowed', 911)
+     &     ('geom_input: user specified both au->ang and ang->au '//
+     &     'conversion factors.  This is not allowed', 911)
       if (found_au2ang_conv) then
-        if (.not.geom_set_au2ang(geom,au2ang)) call errquit
-     &      ('geom_input: error setting au2ang conversion unit',911)
+         if (.not.geom_set_au2ang(geom,au2ang)) call errquit
+     &        ('geom_input: error setting au2ang conversion unit',911)
       elseif (found_ang2au_conv) then
-        if (.not.geom_set_ang2au(geom,ang2au)) call errquit
-     &      ('geom_input: error setting ang2au conversion unit',911)
+         if (.not.geom_set_ang2au(geom,ang2au)) call errquit
+     &        ('geom_input: error setting ang2au conversion unit',911)
       endif
 c     
 c     ----- check units -----
-c
+c     
       call inp_lcase(units)
-c
+c     
       if (units(1:2) .eq. 'au' .or. units(1:2) .eq. 'bo' .or.
-     &    units(1:2) .eq. 'at') then
+     &     units(1:2) .eq. 'at') then
          units = 'a.u.'
       else if (units(1:2) .eq. 'an') then
          units = 'angstrom'
@@ -167,14 +175,14 @@ c
       else  if (units(1:2).eq.'pm' .or. units(1:2).eq.'pi') then
          units = 'picometer'
       else
-        call errquit('geom_input: unknown units', 0)
+         call errquit('geom_input: unknown units', 0)
       end if
-c
+c     
       if (.not. geom_set_user_units(geom,units))
      $     call errquit('geom_input: failed setting user units',0)
       if (.not. geom_get_user_scale(geom,scale))
      $     call errquit('geom_input: failed getting user scale',0)
-c
+c     
 c     ----- coordinate input -----
 c     
 c     system ...
@@ -184,104 +192,104 @@ c     tag x y z [charge q] [mass m]
 c     
       ncenter = 0
  20   if (inp_read()) then
-        status = inp_a(field)
-        if (inp_compare(.false., 'end', field)) then
-          goto 30
-        else if (inp_compare(.false.,'symmetry',field)) then
-          osymmetry = .true.
-          call geom_sym_input(geom, oprint_sym)
-          goto 20
-        else if (inp_compare(.false.,'system', field)) then
-          osymmetry = .true.
-          call geom_sys_input(geom)
-          goto 20
-        else if (inp_compare(.false.,'zcoord', field)) then
-          call geom_autoz_input(rtdb)
-          goto 20
-        else if (inp_compare(.false.,'zmt', field).or.
+         status = inp_a(field)
+         if (inp_compare(.false., 'end', field)) then
+            goto 30
+         else if (inp_compare(.false.,'symmetry',field)) then
+            osymmetry = .true.
+            call geom_sym_input(geom, oprint_sym)
+            goto 20
+         else if (inp_compare(.false.,'system', field)) then
+            osymmetry = .true.
+            call geom_sys_input(geom)
+            goto 20
+         else if (inp_compare(.false.,'zcoord', field)) then
+            call geom_autoz_input(rtdb)
+            goto 20
+         else if (inp_compare(.false.,'zmt', field).or.
      $           inp_compare(.false.,'zmat', field).or.
      $           inp_compare(.false.,'zmatr', field).or.
      $           inp_compare(.false.,'zmatri', field).or.
      $           inp_compare(.false.,'zmatrix', field)) then
-          ozmatrix=.true.   
-          call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
-     $                        nzinput,scale)
-          oautoz=.true.
-          goto 20
-        else
-          if ((ncenter+1) .eq. max_center) call errquit
-     $        ('geom_input: too many centers?', ncenter)
-          tags(ncenter+1) = field
-          charge(ncenter+1) = 0.0d0
+            ozmatrix=.true.   
+            call geom_zmt_input(geom,coords,tags,charge,mass,ncenter,
+     $           nzinput,scale)
+            oautoz=.true.
+            goto 20
+         else
+            if ((ncenter+1) .eq. max_center) call errquit
+     $           ('geom_input: too many centers?', ncenter)
+            tags(ncenter+1) = field
+            charge(ncenter+1) = 0.0d0
 c     
-          is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
-     $        element, atn)
-          if ((.not. is_atom) .and. symbol.ne.'bq') 
-     $        call errquit
-     &        ('geom_input:center is neither atom nor bq',0)
-c
-c.. set default mass
-c
-          if (.not.
-     &        geom_atn_to_default_mass(atn,mass((ncenter+1))))
-     &        call errquit(' geom_input: default mass failed',
-     &        911)
+            is_atom = geom_tag_to_element(tags(ncenter+1), symbol,
+     $           element, atn)
+            if ((.not. is_atom) .and. symbol.ne.'bq') 
+     $           call errquit
+     &           ('geom_input:center is neither atom nor bq',0)
+c     
+c..   set default mass
+c     
+            if (.not.
+     &           geom_atn_to_default_mass(atn,mass((ncenter+1))))
+     &           call errquit(' geom_input: default mass failed',
+     &           911)
 c     
 c     New style input ... <tag> <x> <y> <z> [charge <q>] [mass <m>]
 c     
-          call inp_set_field(1)
-          status = .true.
-          status = status .and. inp_f(coords(1,ncenter+1))
-          status = status .and. inp_f(coords(2,ncenter+1))
-          status = status .and. inp_f(coords(3,ncenter+1))
-          charge(ncenter+1) = atn
+            call inp_set_field(1)
+            status = .true.
+            status = status .and. inp_f(coords(1,ncenter+1))
+            status = status .and. inp_f(coords(2,ncenter+1))
+            status = status .and. inp_f(coords(3,ncenter+1))
+            charge(ncenter+1) = atn
 c     
- 111      if (inp_a(field)) then
-            if (inp_compare(.false., 'mass', field)) then
-              status = status .and. inp_f(mass(ncenter+1))
-              goto 111
-            else if (inp_compare(.false., 'charge', field)) then
-              status = status .and. inp_f(charge(ncenter+1))
-              goto 111
-            else
-              status = .false.
+ 111        if (inp_a(field)) then
+               if (inp_compare(.false., 'mass', field)) then
+                  status = status .and. inp_f(mass(ncenter+1))
+                  goto 111
+               else if (inp_compare(.false., 'charge', field)) then
+                  status = status .and. inp_f(charge(ncenter+1))
+                  goto 111
+               else
+                  status = .false.
+               endif
             endif
-          endif
-          if (.not. status) call errquit
-     $        ('geom_input: <tag> <x> <y> <z> '//
-     $        ' [charge <q>] [mass <m>]', ncenter)
-          ncenter = ncenter + 1
+            if (.not. status) call errquit
+     $           ('geom_input: <tag> <x> <y> <z> '//
+     $           ' [charge <q>] [mass <m>]', ncenter)
+            ncenter = ncenter + 1
 c     
-        end if
-        goto 20
+         end if
+         goto 20
       else
-        call errquit('geom_input: premature end of file', 0)
+         call errquit('geom_input: premature end of file', 0)
       end if
-c
+c     
 c     Apply requested conversion of units after we have
 c     all of the information
 c     
  30   if (.not. geom_systype_get(geom, isys)) call errquit
-     $    ('geom_input: systype?', 0)
+     $     ('geom_input: systype?', 0)
       if (isys.eq.0) then
-        if (scale.ne.1.0d0) then
-          write(luout,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
- 1        format(/' Scaling coordinates for geometry "',a,'" by ',
-     $        f12.9/' (inverse scale = ',f12.9,')',/)
-          call dscal(3*ncenter, scale, coords, 1)
-        end if
+         if (scale.ne.1.0d0) then
+            write(luout,1) name(1:inp_strlen(name)), scale, 1.0d0/scale
+ 1          format(/' Scaling coordinates for geometry "',a,'" by ',
+     $           f12.9/' (inverse scale = ',f12.9,')',/)
+            call dscal(3*ncenter, scale, coords, 1)
+         end if
       else if (isys .gt. 0) then
-        if (scale .ne. 1.0d0) call errquit
-     $      ('geom_input: specified units for fractional coords', 0)
+         if (scale .ne. 1.0d0) call errquit
+     $        ('geom_input: specified units for fractional coords', 0)
       else
-        call errquit('geom_input: invalid system type', 0)
+         call errquit('geom_input: invalid system type', 0)
       end if
 c     
       if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
-     $    call errquit('geom_input: geom_cart_set failed', 0)
-c
+     $     call errquit('geom_input: geom_cart_set failed', 0)
+c     
       if (.not. geom_masses_set(geom, ncenter, mass))
-     &    call errquit('geom_input: geom_masses_set failed', 0)
+     &     call errquit('geom_input: geom_masses_set failed', 0)
 c     
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
@@ -289,55 +297,62 @@ c
       nata=ncenter
       call sym_nwc(geom,rtdb,nata,oprint_sym)
 c     
+c     Center origin at the center of charge if requested
+c     
+      if (ocenter .and. isys.eq.0) then
+         if (.not. geom_charge_center(geom)) call errquit
+     $        ('geom_input: failed centering geometry',0)
+      endif
+c     
 c     Force exact symetry on the coordinates
 c     
       call sym_geom_project(geom, 1d-3)
 c     
       call geom_compute_values(geom)
-c
+c     
       if(oautoz) then
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_set failed', 0)
-c
+c     
 c     ----- call auto-z-matrix generation -----
-c
+c     
          call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter,
-     $                       nzinput,oforce_autoz)
+     $        nzinput,oforce_autoz)
       else
-c
+c     
 c     ----- no auto-z -----
-c
+c     
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $        call errquit('geom_input: geom_cart_set failed', 0)
          call geom_no_autoz(geom,coords,charge,tags,ncenter,nzinput)
       endif
 c     
       if (oprint) then
-        if (.not. geom_print(geom))
-     $      call errquit('geom_input: print failed ', 0)
-        if (format .eq. 'xyz') then
-          write(luout,*)
-          call util_print_centered
-     &        (luout,'XYZ format geometry',20,.true.)
-          if (.not. geom_print_xyz(geom,6))
-     $        call errquit('geom_input: print xyz?',0)
-          write(luout,*)
-          call util_flush(luout)
-        endif
-        if(dbug) then
-          call sym_print_all(geom,.true.,.true.,.true.,.true.,.true.)
-        endif
+         if (.not. geom_print(geom))
+     $        call errquit('geom_input: print failed ', 0)
+         if (format .eq. 'xyz') then
+            write(luout,*)
+            call util_print_centered
+     &           (luout,'XYZ format geometry',20,.true.)
+            if (.not. geom_print_xyz(geom,6))
+     $           call errquit('geom_input: print xyz?',0)
+            write(luout,*)
+            call util_flush(luout)
+         endif
+         if(dbug) then
+            call sym_print_all(geom,.true.,.true.,.true.,.true.,.true.)
+         endif
       end if
 c     
       if (.not. geom_rtdb_store(rtdb, geom, name))
-     $    call errquit('geom_input: geom_rtdb_store failed', 0)
+     $     call errquit('geom_input: geom_rtdb_store failed', 0)
 c     
       if(.not. geom_verify_coords(geom))
-     &    call errquit
-     &    ('geom_input: geom_verify_coords failed',911)
+     &     call errquit
+     &     ('geom_input: geom_verify_coords failed',911)
 c     
       if (.not. geom_destroy(geom))
-     $    call errquit('geom_input: geom_destroy failed', 0)
+     $     call errquit('geom_input: geom_destroy failed', 0)
 c     
 c     done
 c     
