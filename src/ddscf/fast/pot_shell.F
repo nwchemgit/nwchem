@@ -6,7 +6,7 @@
      $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact,
      $     omask, opresent, ldp)
 *
-* $Id: pot_shell.F,v 1.12 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: pot_shell.F,v 1.13 2002-05-08 22:18:21 edo Exp $
 *
       implicit none
 c
@@ -56,8 +56,8 @@ c
       integer lmax, lmax2, lencart, lenprod
       parameter (lmax = 5)      ! Max. angular momentum of shell
       parameter (lmax2 = 2*lmax)
-      parameter (lencart = ((lmax+1)*(lmax+2))/2)
-      parameter (lenprod = ((lmax+1)*(lmax+2)*(lmax+3))/6)
+      parameter (lencart = ((lmax2+1)*(lmax2+2))/2)
+      parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax+3))/6)
 c
       integer maxl              ! Max order of multipole
       parameter (maxl = 2*lmax2)
@@ -587,7 +587,7 @@ c
       double precision expi(inprim), coeffi(inprim), ri(3)
       double precision expj(jnprim), coeffj(jnprim), rj(3)
 c
-      double precision dens(numi,numj) ! Cartesian density block
+      double precision dens(numi,*) ! Cartesian density block
       integer lmaxd
       double precision dinv(*)  ! [input] dinv from xlm_coeff_inv
       double precision tol      ! [input] required accuracy
@@ -603,11 +603,12 @@ c
 c
 c     Local variables
 c
-      integer lmax, lmax2, lenprod
+      integer lmax, lmax2, lenprod,dfmax
       parameter (lmax = 5)      ! Max. angular momentum of shell
       parameter (lmax2 = 2*lmax)
-      parameter (lenprod = ((lmax+1)*(lmax+2)*(lmax+3))/6)
-      double precision df(lmax2+1)
+      parameter (lenprod = ((lmax2+1)*(lmax2+2)*(lmax2+3))/6)
+      parameter(dfmax=2*lmax2+1)
+      double precision df(dfmax)
       double precision work(lenprod**2), ndens(lenprod**2) 
 c
       logical odoit
@@ -631,6 +632,8 @@ c
      $     ('p_s_p_m: no generally conracted functions ', 0)
 c     
       ijtype = itype + jtype
+      if((2*ijtype + 1).gt.dfmax) call errquit(
+     .     ' potshellmultip: dfmax must be ',2*ijtype + 1)
       pi = 4.0d0*atan(1.0d0)
       rootpi = sqrt(pi)
       do i = 1, 2*ijtype + 1
