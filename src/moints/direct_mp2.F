@@ -1,5 +1,5 @@
        subroutine direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.12 1995-08-07 16:17:41 rg240 Exp $
+C$Id: direct_mp2.F,v 1.13 1995-08-07 16:37:17 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -156,10 +156,16 @@ c
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'fourindex:occ_frozen',MT_INT,1,
-     $      occ_frozen)) occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'fourindex:vir_frozen',MT_INT,1,
-     $      vir_frozen)) vir_frozen = 0
+       if (.not.rtdb_get(rtdb, 'direct_mp2:occ_frozen', MT_INT, 1,
+     $                   occ_frozen)) then
+         if (.not.rtdb_get(rtdb, 'fourindex:occ_frozen', MT_INT, 1,
+     $                     occ_frozen)) occ_frozen = 0
+       endif
+       if (.not.rtdb_get(rtdb, 'direct_mp2:vir_frozen', MT_INT, 1,
+     $                   occ_frozen)) then
+         if (.not.rtdb_get(rtdb, 'fourindex:vir_frozen', MT_INT, 1,
+     $                     vir_frozen)) vir_frozen = 0
+       endif
 c
 c Set index ranges
 c
@@ -228,7 +234,7 @@ c
      $        10x,'Active virtual range:',12x,i3,1x,'-',i3,/,
      $        10x,'MO coefficients read from:',2x,a25,/,
      $        10x,'Operator matrices in core:',10x,i5,/,
-     $        10x,'Number of AO passes required:',7x,i5)
+     $        10x,'AO passes required:',17x,i5)
          if (algo.eq.'sixfold') then
            write(6,975) 
  975       format(10x,'Sixfold algorithm used')
