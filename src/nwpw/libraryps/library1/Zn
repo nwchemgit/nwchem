@@ -1,7 +1,5 @@
-Comment: Zn pseudopotential parameters taken from
-Comment: Martins, Troullier, and Wei(1991), Phys. Rev. B, vol 43, page 2213.
-[lmax] 2
-[locp] 0
+[lmax] -1
+[locp] -1
 [rlocal] 1.0
  <atom>
  Zn
@@ -20,8 +18,9 @@ Comment: Martins, Troullier, and Wei(1991), Phys. Rev. B, vol 43, page 2213.
  <exchange>     dirac                      <end>
  <pseudopotential> troullier-martins         <end>
  <rcut>
-   0  0.217000E+01
-   1  0.217000E+01
-   2  0.217000E+01
+   0  0.200000E+01
+   1  0.200000E+01
+   2  0.200000E+01
+   3  0.200000E+01
  <end>
 
