@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.12 2002-02-13 20:02:07 edo Exp $                       
+c     $Id: cgsd_energy.F,v 1.13 2002-02-13 20:11:08 edo Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -107,19 +107,19 @@ c     $Id: cgsd_energy.F,v 1.12 2002-02-13 20:02:07 edo Exp $
          end if
          if (deltae.gt.0.0d0) then
             if (taskid.eq.MASTER) 
-     >       write(luout,*) ' *** Energy going up.  iteration terminated.'
+     >       write(luout,*) ' *** Energy going up. iteration terminated'
             go to 3
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.tole).and.
      >       (deltac.lt.tolc)) then
             if (taskid.eq.MASTER) 
-     >       write(luout,*) ' *** tolerance ok.     iteration terminated.'
+     >       write(luout,*) ' *** tolerance ok. iteration terminated'
             go to 3
          end if
       if (icount.lt.it_out) go to 2
       if (taskid.eq.MASTER) 
-     > write(luout,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(luout,*) '*** arived at the Maximum iteration.  terminated'
 
 *     :::::::::::  end of electron iteration loop  :::::::::::::::::::::
 
