@@ -12,26 +12,9 @@ end
 task prepare
 
 md
- sd 100
-end
-
-task md optimize
-
-prepare
  system crown_md
- read rst crown_em.qrs
- touch 0.25
- envelope 0.1
- solvate
- write rst crown_md.rst
-end
-
-task prepare
-
-md
- system crown_md
- equil 0 data 2000
- print step 10 stat 1000
+ equil 0 data 10
+ print step 1 stat 10
  record rest 0
  isotherm 298.15
  test 10
