@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.33 2000-09-07 19:19:48 d3j191 Exp $
+c $Id: ana_input.F,v 1.34 2000-09-07 19:46:53 d3j191 Exp $
 c
       implicit none
 c
@@ -337,8 +337,8 @@ c
       if(.not.inp_i(jsel)) call errquit('No jgroup specified',0)
       if(.not.inp_a(item)) call errquit('No group function',0)
       ipbc=0
-      if(inp_compare(.false.,'pbc',item)) then
-      ipbc=1
+      if(inp_compare(.false.,'periodic',item)) then
+      if(.not.inp_i(ipbc)) ipbc=3
       if(.not.inp_a(item)) call errquit('No group function',0)
       endif
       ksel=0
