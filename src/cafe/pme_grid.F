@@ -1,5 +1,5 @@
       subroutine pme_chgrid(xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.7 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: pme_grid.F,v 1.8 1999-08-31 17:24:21 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -9,6 +9,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
 c
+      call timer_start(11)
       if(.not.lcorr) then
       call cf_pmecor(xw,nwmloc,xs,isq,nsaloc,ecorr)
       lcorr=.true.
@@ -19,8 +20,11 @@ c
      + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
       epme=ecorr
+      call timer_stop(11)
 c
       if(.not.lpnode) return
+c
+      call timer_start(12)
 c
       call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
@@ -36,6 +40,13 @@ c
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
       call pme_putgrd(dbl_mb(i_grd2))
+c
+c     set flag on all nodes to indicate that potential
+c     grid calculation has completed
+c
+      call pme_flag(1,-1)
+c
+      call timer_stop(12)
 c
       return
       end
@@ -93,24 +104,10 @@ c
 c
       endif
 c
-c      if(minx.lt.minxx) minxx=minx
-c      if(miny.lt.minyy) minyy=miny
-c      if(maxx.gt.maxxx) maxxx=maxx
-c      if(maxy.gt.maxyy) maxyy=maxy
-c
     1 continue
-c
-c     accumulate flag on first pme node to indicate grid contributions
-c     of this node have been completed
-c
-      call pme_flag(-1,nodep(1))
 c
 c     pmenodes should wait until all nodes have finished contributions to the grid
 c
-      if(me.eq.nodep(1)) then
-      call pme_wait(np)
-      call pme_flag(0,me)
-      endif
       call pme_sync(nodpme,nodep)
 c
 c     retrieve local slab from global array space
@@ -200,6 +197,13 @@ c
 c
       integer inode,node,ngznon
 c
+c     wait until potential grid is available
+c
+      call timer_start(15)
+      call pme_wait(1)
+      call timer_stop(15)
+      call timer_start(16)
+c
       do 1 inode=1,np
       node=me+inode
       if(node.gt.np) node=node-np
@@ -221,6 +225,8 @@ c
      + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)
 c
     1 continue
+c
+      call timer_stop(16)
 c
       return
       end
