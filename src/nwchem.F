@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.72 1996-03-12 22:43:40 d3g681 Exp $
+c     $Id: nwchem.F,v 1.73 1996-03-15 01:40:41 d3h449 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -279,6 +279,8 @@ c
       logical status 
       logical  scf, task_check_sum, selci, eopt, rjhtest
       external scf, task_check_sum, selci, eopt, rjhtest
+      logical nwdft
+      external nwdft
       parameter (ntasks = 26)
       character*10 task_list(ntasks)
       data task_list /'rjhtest', ! 1
@@ -379,7 +381,7 @@ c
 c     dft
 c     
  110     continue 
-         call nwdft(rtdb)
+         status = nwdft(rtdb)
          goto 1000
 c     
 c     MD
