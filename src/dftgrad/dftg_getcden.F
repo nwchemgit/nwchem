@@ -7,12 +7,19 @@ c**** adapted from the scf gradients routine get_den.
 C     get atomic blocks from density matrix and make sure no block is
 C     transferred twice
 C
-      implicit real*8 (a-h,o-z)
+      implicit none
+      
+      integer ldim
+      integer iab1f, iab1l, iab2f, iab2l, iab3f, iab3l,
+     &           iab4f, iab4l
 
-      dimension d_ij(ldim,ldim),d_kl(ldim,ldim)
+      double precision d_ij(ldim,ldim),d_kl(ldim,ldim)
       integer g_dens
 
       logical eij, ejk, ekl, eil, eik, ejl
+c
+      integer li,lj,lk,ll
+c
 
       eij = ( iab1f.eq.iab2f )
       ejk = ( iab2f.eq.iab3f )
@@ -40,25 +47,3 @@ C     k,l
 
       return
       end
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c****      subroutine copy ( d_1, d_2, l1, l2, ld )
-c****      implicit real*8 (a-h, o-z)
-c****      dimension d_1(ld,ld), d_2(ld,ld)
-c****      do 20, j=1, l2
-c****        do 10, i=1, l1
-c****          d_2(i,j) = d_1(i,j)
-c**** 10     continue
-c**** 20   continue
-c****      return
-c****      end
-c****CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-c****      subroutine transp ( d_1, d_2, l1, l2, ld )
-c****      implicit real*8 (a-h, o-z)
-c****      dimension d_1(ld,ld), d_2(ld,ld)
-c****      do 20, j=1, l2
-c****        do 10, i=1, l1
-c****          d_2(j,i) = d_1(i,j)
-c**** 10     continue
-c**** 20   continue
-c****      return
-c****      end
