@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.16 2001-12-28 20:39:05 bylaska Exp $
+* $Id: control.F,v 1.17 2001-12-28 20:58:44 bylaska Exp $
 *
 
 *     ***********************************
@@ -1255,7 +1255,7 @@
       integer minimizer
 
       if (.not.rtdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
-         minimizer = 2   ! make the default lmbfgs 
+         minimizer = 1   ! make the default cg
       end if
 
       control_minimizer = minimizer
