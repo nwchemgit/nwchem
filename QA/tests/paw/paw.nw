@@ -1,4 +1,4 @@
-title "paw steepest descent test"
+title "paw testing"
 
 start paw_test
 
@@ -14,6 +14,7 @@ end
 
 
 
+################ periodic testing ##################
 nwpw
    time_step 15.8   
    ewald_rcut 1.50
@@ -22,18 +23,18 @@ end
 set nwpw:lcao_iterations 1
 set nwpw:minimizer 2
 task pspw energy
+
+#### Energy testing ####
+set nwpw:minimizer 1
+task paw energy
+set nwpw:minimizer 2
+task paw energy
+
 task paw steepest_descent
 
-nwpw
-   time_step 5.8
-   geometry_optimize
-   ewald_rcut 1.50
-   tolerances 1.0d-7 1.0d-7 1.0d-4
-end
-task paw steepest_descent
 
 
-##### Car-Parrinello testing ####
+### Car-Parrinello testing ###
 nwpw
    car-parrinello
       time_step 5.0
@@ -43,3 +44,18 @@ nwpw
    end
 end
 task paw Car-Parrinello
+
+### steepest descent geometry opt ###
+nwpw
+   time_step 5.8
+   geometry_optimize
+   ewald_rcut 1.50
+   tolerances 1.0d-7 1.0d-7 1.0d-4
+end
+task paw steepest_descent
+
+### driver testing ###
+task paw optimize
+
+
+

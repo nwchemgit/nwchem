@@ -3,7 +3,7 @@
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 4.5
+              Northwest Computational Chemistry Package (NWChem) 4.6
               ------------------------------------------------------
  
  
@@ -16,7 +16,7 @@
  
  
                      COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                            1999, 2000, 2001, 2002, 2003
+                         1999, 2000, 2001, 2002, 2003, 2004
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -74,9 +74,9 @@
 
     hostname      = wd37120.pnl.gov
     program       = nwchem
-    date          = Thu Apr 22 09:20:53 2004
+    date          = Tue Dec 21 09:25:18 2004
 
-    compiled      = Thu Apr 22 07:55:21 PDT 2004
+    compiled      = Tue Dec 21 07:51:41 PST 2004
     source        = /home/bylaska/nwchem
     nwchem branch = Development
     input         = ../paw.nw
@@ -91,10 +91,10 @@
            Memory information
            ------------------
 
-    heap      =   39321594 doubles =    300.0 Mbytes
-    stack     =   13107187 doubles =    100.0 Mbytes
-    global    =   52428804 doubles =    400.0 Mbytes (within heap+stack)
-    total     =   52428781 doubles =    400.0 Mbytes
+    heap      =   39321601 doubles =    300.0 Mbytes
+    stack     =   13107201 doubles =    100.0 Mbytes
+    global    =   52428811 doubles =    400.0 Mbytes (within heap+stack)
+    total     =   52428802 doubles =    400.0 Mbytes
     verify    = yes
     hardfail  = no 
 
@@ -112,9 +112,8 @@
                                 -------------------
  
  
-                                                                                                                    paw steepest descent test
-                                                                                                                    -------------------------
- 
+                                    paw testing
+                                    -----------
  
  
                              Geometry "geometry" -> ""
@@ -183,7 +182,7 @@
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 09:20:53 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:25:18 2004  <<<
           ================ input data ========================
  
  Generated formatted_filename: ./O.vpp
@@ -208,7 +207,7 @@
  options:
       boundary conditions  = periodic    (version3)
       electron spin        = restricted
-      exchange-correlation = Vosko et al parameterization
+      exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
       1: O   core charge: 6.0  lmax=  2
@@ -228,7 +227,7 @@
              cutoff =   0.800   0.800
  
 
- total charge: 0
+ total charge:   0.000
 
  atomic composition:
      O :  1     H :  2
@@ -265,7 +264,7 @@
 
 
           ============ Grassmann lmbfgs iteration ============
-     >>>  ITERATION STARTED AT Thu Apr 22 09:21:03 2004  <<<
+     >>>  ITERATION STARTED AT Tue Dec 21 09:25:27 2004  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
      -  15 steepest descent iterations performed
@@ -273,7 +272,7 @@
       20   -0.1638777944E+02   -0.10093E-05    0.21379E-04
       30   -0.1638778052E+02   -0.60658E-08    0.23760E-08
   *** tolerance ok. iteration terminated
-     >>>  ITERATION ENDED   AT Thu Apr 22 09:21:13 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:25:40 2004  <<<
 
 
 ==  Summary Of Results  ==
@@ -330,31 +329,355 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
 |mu| =     0.5306 au,       1.3486 Debye
 
  output psi filename:./paw_test.movecs
- 
- -----------------
- cputime in seconds
- prologue    :    9.06304799998179     
- main loop   :    10.7662060000002     
- epilogue    :    1.67130000190809D-002
- total       :    19.8459670000011     
- cputime/step:   0.139820857142860         (          77  evalulations, 
-          28  line searches)
- 
- -------------------------------
- Time spent doing:
-   FFTs                       :    4.72056500089821        6.13060389727040D-002
-   dot products               :   0.747815996059217        9.71189605271710D-003
-   geodesic                   :   0.806811000802554        1.04780649454877D-002
-   exchange correlation       :    1.97229999990668        2.56142857130738D-002
-   local pseudopotentials     :    8.83599987719208D-003   1.14753245158339D-004
-   non-local pseudopotentials :   0.787141000619158        1.02226103976514D-002
-   hartree potentials         :    5.27749996399507D-002   6.85389605713645D-004
-   structure factors          :   0.342725001741201        4.45097404858702D-003
-   masking and packing        :   0.981336999102496        1.27446363519805D-002
- 
-     >>>  JOB COMPLETED     AT Thu Apr 22 09:21:13 2004  <<<
 
- Task  times  cpu:       18.0s     wall:       19.8s
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.927980E+01
+  main loop   :   0.122288E+02
+  epilogue    :   0.166900E-01
+  total       :   0.215253E+02
+  cputime/step:   0.158816E+00       (      77 evalulations,      28 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.525942E+01  0.683042E-01
+  dot products               :   0.744310E+00  0.966636E-02
+  geodesic                   :   0.140804E+01  0.182863E-01
+  exchange correlation       :   0.155401E+01  0.201819E-01
+  local pseudopotentials     :   0.152400E-01  0.197922E-03
+  non-local pseudopotentials :   0.112301E+01  0.145846E-01
+  hartree potentials         :   0.602700E-01  0.782727E-03
+  structure factors          :   0.360540E+00  0.468234E-02
+  masking and packing        :   0.113700E+01  0.147663E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:25:40 2004  <<<
+
+ Task  times  cpu:       19.5s     wall:       21.5s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:25:40 2004  <<<
+          ================ input data ========================
+ 
+  Generated formatted filename:./O.jpp
+ 
+  Generated formatted filename:./H.jpp
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=     15.80     ficticious mass=  400000.0
+      tolerance=.100E-07 (energy)   0.100E-07 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ====== Grassmann conjugate gradient iteration ======
+     >>>  ITERATION STARTED AT Tue Dec 21 09:28:08 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578453522E+02   -0.17531E-03    0.62857E-05
+      20   -0.7578511520E+02   -0.16000E-04    0.40826E-06
+      30   -0.7578513913E+02   -0.57344E-06    0.87106E-08
+      40   -0.7578514060E+02   -0.83867E-08    0.25713E-09
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:30:24 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514060E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534938509E+02 (    0.18837E+02/ion)
+      plane wave:              0.9825923005E+01 (    0.24565E+01/ion)
+     local basis:              0.6552346209E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6207736114E+01 (   -0.15519E+01/ion)
+     local basis:             -0.2173350456E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083336312E+02 (    0.20208E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3712188371E+01 (   -0.92805E+00/ion)
+      local basis:            -0.4967232398E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8512140755E+01 (    0.21280E+01/ion)
+      local basis:            -0.8257827056E+01 (   -0.20645E+01/ion)
+
+ orbital energies:
+    -0.2546754E+00 (  -6.930eV)
+    -0.3366524E+00 (  -9.161eV)
+    -0.4539169E+00 ( -12.352eV)
+    -0.9171685E+00 ( -24.958eV)
+
+ Total PAW energy   :  -0.7578514060E+02
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.147932E+03
+  main loop   :   0.136306E+03
+  epilogue    :   0.219920E-01
+  total       :   0.284260E+03
+  cputime/step:   0.681528E+00       (     200 evalulations,      40 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.113380E+02  0.566898E-01
+  dot products               :   0.285324E+02  0.142662E+00
+  geodesic                   :   0.561432E+02  0.280716E+00
+  exchange correlation       :   0.129635E+02  0.648177E-01
+  local pseudopotentials     :   0.180400E-02  0.902000E-05
+  non-local pseudopotentials :   0.598398E+02  0.299199E+00
+  hartree potentials         :   0.115470E+00  0.577350E-03
+  structure factors          :   0.322381E+01  0.161191E-01
+  masking and packing        :   0.247003E+01  0.123502E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:30:24 2004  <<<
+
+ Task  times  cpu:      260.1s     wall:      284.3s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:30:24 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=     15.80     ficticious mass=  400000.0
+      tolerance=.100E-07 (energy)   0.100E-07 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:30:26 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514060E+02   -0.74083E-08    0.22593E-09
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:30:29 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514060E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534979038E+02 (    0.18837E+02/ion)
+      plane wave:              0.9825842859E+01 (    0.24565E+01/ion)
+     local basis:              0.6552394752E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6207644508E+01 (   -0.15519E+01/ion)
+     local basis:             -0.2173334919E+03 (   -0.54333E+02/ion)
+       multipole:              0.8083134010E+02 (    0.20208E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3712140608E+01 (   -0.92804E+00/ion)
+      local basis:            -0.4967320727E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8512110060E+01 (    0.21280E+01/ion)
+      local basis:            -0.8257783392E+01 (   -0.20644E+01/ion)
+
+ orbital energies:
+    -0.2546518E+00 (  -6.929eV)
+    -0.3366307E+00 (  -9.160eV)
+    -0.4538994E+00 ( -12.351eV)
+    -0.9171463E+00 ( -24.957eV)
+
+ Total PAW energy   :  -0.7578514060E+02
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.227279E+01
+  main loop   :   0.302707E+01
+  epilogue    :   0.233080E-01
+  total       :   0.532317E+01
+  cputime/step:   0.605414E+00       (       5 evalulations,       1 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.310268E+00  0.620536E-01
+  dot products               :   0.694166E+00  0.138833E+00
+  geodesic                   :   0.103403E+01  0.206806E+00
+  exchange correlation       :   0.291484E+00  0.582968E-01
+  local pseudopotentials     :   0.184600E-02  0.369200E-03
+  non-local pseudopotentials :   0.136292E+01  0.272585E+00
+  hartree potentials         :   0.386000E-02  0.772000E-03
+  structure factors          :   0.757660E-01  0.151532E-01
+  masking and packing        :   0.949080E-01  0.189816E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:30:29 2004  <<<
+
+ Task  times  cpu:        4.6s     wall:        5.3s
  
  
                                 NWChem Input Module
@@ -378,27 +701,13 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 09:21:13 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:30:29 2004  <<<
           ================ PAW input data ===================
- 
-  Generated formatted filename:
- ./O.jpp                                                                        
-                                                                                
-                                                                                
-                   
- 
-  Generated formatted filename:
- ./H.jpp                                                                        
-                                                                                
-                                                                                
-                   
 
  input psi filename:./paw_test.movecs
- Warning: Gram-Schmidt performed on up spin of psi2 
-        : (old error=  0.132536891418303       new error=
-   6.93994925719656D-015 )
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       ionic motion         = no
@@ -426,7 +735,7 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
                 2 (2) p     2.000000             3
                 3 (3) d     2.000000             5
 
- total charge: 0
+ total charge:   0.000
 
  atomic composition:
      O :  1     H :  2
@@ -463,45 +772,13 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Thu Apr 22 09:22:23 2004  <<<
+     >>>  ITERATION STARTED AT Tue Dec 21 09:30:32 2004  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.7578314955E+02   -0.47964E+00    0.35570E-04    0.00000E+00
-      20   -0.7578564766E+02   -0.15811E-04    0.15599E-04    0.00000E+00
-      30   -0.7578667612E+02   -0.65092E-05    0.89115E-05    0.00000E+00
-      40   -0.7578724797E+02   -0.36193E-05    0.51705E-05    0.00000E+00
-      50   -0.7578759823E+02   -0.22168E-05    0.30614E-05    0.00000E+00
-      60   -0.7578782539E+02   -0.14378E-05    0.20902E-05    0.00000E+00
-      70   -0.7578797903E+02   -0.97241E-06    0.15857E-05    0.00000E+00
-      80   -0.7578808649E+02   -0.68009E-06    0.12261E-05    0.00000E+00
-      90   -0.7578816375E+02   -0.48903E-06    0.96134E-06    0.00000E+00
-     100   -0.7578822063E+02   -0.35996E-06    0.76188E-06    0.00000E+00
-     110   -0.7578826332E+02   -0.27023E-06    0.60893E-06    0.00000E+00
-     120   -0.7578829592E+02   -0.20629E-06    0.49005E-06    0.00000E+00
-     130   -0.7578832115E+02   -0.15973E-06    0.39664E-06    0.00000E+00
-     140   -0.7578834093E+02   -0.12516E-06    0.32260E-06    0.00000E+00
-     150   -0.7578835658E+02   -0.99064E-07    0.26348E-06    0.00000E+00
-     160   -0.7578836908E+02   -0.79085E-07    0.21597E-06    0.00000E+00
-     170   -0.7578837912E+02   -0.63594E-07    0.17760E-06    0.00000E+00
-     180   -0.7578838725E+02   -0.51455E-07    0.14645E-06    0.00000E+00
-     190   -0.7578839387E+02   -0.41854E-07    0.12108E-06    0.00000E+00
-     200   -0.7578839927E+02   -0.34200E-07    0.10033E-06    0.00000E+00
-     210   -0.7578840370E+02   -0.28055E-07    0.83311E-07    0.00000E+00
-     220   -0.7578840735E+02   -0.23094E-07    0.69308E-07    0.00000E+00
-     230   -0.7578841036E+02   -0.19067E-07    0.57758E-07    0.00000E+00
-     240   -0.7578841286E+02   -0.15785E-07    0.48210E-07    0.00000E+00
-     250   -0.7578841493E+02   -0.13098E-07    0.40298E-07    0.00000E+00
-     260   -0.7578841665E+02   -0.10892E-07    0.33731E-07    0.00000E+00
-     270   -0.7578841808E+02   -0.90741E-08    0.28269E-07    0.00000E+00
-     280   -0.7578841928E+02   -0.75728E-08    0.23719E-07    0.00000E+00
-     290   -0.7578842028E+02   -0.63298E-08    0.19923E-07    0.00000E+00
-     300   -0.7578842112E+02   -0.52983E-08    0.16752E-07    0.00000E+00
-     310   -0.7578842182E+02   -0.44407E-08    0.14099E-07    0.00000E+00
-     320   -0.7578842241E+02   -0.37264E-08    0.11876E-07    0.00000E+00
-     330   -0.7578842290E+02   -0.31305E-08    0.10012E-07    0.00000E+00
-     340   -0.7578842332E+02   -0.26326E-08    0.84475E-08    0.00000E+00
+      10   -0.7578514064E+02   -0.47965E+00    0.30990E-09    0.00000E+00
+      20   -0.7578514066E+02   -0.11835E-09    0.23351E-09    0.00000E+00
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 09:25:49 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:30:44 2004  <<<
 
 
 
@@ -516,62 +793,261 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
  total charge of system:    0.00000 (real space)
 
 
- Total Energy:                -0.7578842332E+02 (   -0.25263E+02/ion)
+ Total Energy:                -0.7578514066E+02 (   -0.25262E+02/ion)
 
-  kinetic energy:              0.7528677886E+02 (    0.18822E+02/ion)
-      plane wave:              0.9695151757E+01 (    0.24238E+01/ion)
-     local basis:              0.6559162710E+02 (    0.16398E+02/ion)
+  kinetic energy:              0.7534941313E+02 (    0.18837E+02/ion)
+      plane wave:              0.9825778192E+01 (    0.24564E+01/ion)
+     local basis:              0.6552363494E+02 (    0.16381E+02/ion)
 
   coulomb energy:
-      plane wave:             -0.6082302037E+01 (   -0.15206E+01/ion)
-     local basis:             -0.2169103367E+03 (   -0.54228E+02/ion)
-       multipole:              0.8032606360E+02 (    0.20082E+02/ion)
+      plane wave:             -0.6207629455E+01 (   -0.15519E+01/ion)
+     local basis:             -0.2173344249E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083259113E+02 (    0.20208E+02/ion)
 
  exch-corr energy:
-       plane wave:            -0.3692710348E+01 (   -0.92318E+00/ion)
-      local basis:            -0.4982748464E+01 (   -0.12457E+01/ion)
+       plane wave:            -0.3712154301E+01 (   -0.92804E+00/ion)
+      local basis:            -0.4967262909E+01 (   -0.12418E+01/ion)
 
  pseudopot energy:
-       plane wave:             0.8276141658E+01 (    0.20690E+01/ion)
-      local basis:            -0.8009309854E+01 (   -0.20023E+01/ion)
+       plane wave:             0.8512063460E+01 (    0.21280E+01/ion)
+      local basis:            -0.8257736855E+01 (   -0.20644E+01/ion)
 
  orbital energies:
-    -0.2581070E+00 (  -7.024eV)
-    -0.3375546E+00 (  -9.185eV)
-    -0.4526845E+00 ( -12.318eV)
-    -0.9172363E+00 ( -24.959eV)
+    -0.2546778E+00 (  -6.930eV)
+    -0.3366543E+00 (  -9.161eV)
+    -0.4539188E+00 ( -12.352eV)
+    -0.9171705E+00 ( -24.958eV)
 
- Total PAW energy   :  -0.7578842332E+02
+ Total PAW energy   :  -0.7578514066E+02
 
  output psi filename:./paw_test.movecs
  
  -----------------
  cputime in seconds
- prologue    :    69.7129830000922     
- main loop   :    205.574007999967     
- epilogue    :   0.411868000053801     
- total       :    275.698859000113     
- cputime/step:   0.604629435294020     
+ prologue    :    2.21957199999997     
+ main loop   :    12.1555280000000     
+ epilogue    :   0.472282000000007     
+ total       :    14.8473820000000     
+ cputime/step:   0.607776400000000     
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    20.2110980018042     
-   dot products               :    42.0782850056421     
-   orthonormalization         :    43.7734999995446     
-   exchange correlation       :    6.09965700015891     
-   local pseudopotentials     :   0.706717000459321     
-   non-local pseudopotentials :    0.00000000000000D+000
-   hartree potentials         :   0.181929000187665     
-   structure factors          :    2.85318500862923     
-   masking and packing        :    3.45444500015583     
-   total energy evaluation    :   0.632539999904111     
+   FFTs                       :    1.16840200000013     
+   dot products               :    3.74732000000029     
+   orthonormalization         :    3.48942400000010     
+   exchange correlation       :    1.23118199999982     
+   local pseudopotentials     :    5.46419999998875D-002
+   non-local projectors       :    4.53804999999977     
+   hartree potentials         :    1.19819999997048D-002
+   structure factors          :   0.208859999999504     
+   masking and packing        :   0.259291999999903     
+   total energy evaluation    :    3.41899999999669D-002
    density                    :    0.00000000000000D+000
-   allocate and deallocate    :   0.185950998100452     
-   Hpsi and update            :    26.8024459992303     
+   allocate and deallocate    :    1.03680000000850D-002
+   Hpsi and update            :    1.63848599999994     
+   multipole calculation      :    6.91939999999818D-002
+   gaunt coefficients         :    1.63362199999153     
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 09:25:49 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:30:44 2004  <<<
 
- Task  times  cpu:      260.3s     wall:      275.7s
+ Task  times  cpu:       12.6s     wall:       14.8s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ >>>> PAW Parallel Module - Car-Parrinello <<<<
+          ****************************************************
+          *                                                  *
+          *  PAW Car-Parrinello microcluster calculation     *
+          *                                                  *
+          *     [    extended Lagrangian molecular    ]      *
+          *                                                  *
+          *     [         dynamics simulation         ]      *
+          *     [  Northwest Chemistry implementation ]      *
+          *                                                  *
+          *            version #1.00   10/01/03              *
+          *                                                  *
+          *    Authors: Marat Valiev and Eric J. Bylaska     *
+          *                                                  *
+          *    This code is based upon algorithms and code   *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:30:44 2004  <<<
+          ================ PAW input data ===================
+
+ input psi filename:./paw_test.movecs
+ Generated initial wavefunctions velocities:paw_test.vmovecs              
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions   = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ initial position of ions:
+        1 O  (    0.00000    0.00000    0.01390 ) - atomic mass=  15.995 
+        2 H  (   -1.49490    0.00000   -1.18710 ) - atomic mass=   1.008 
+        3 H  (    1.49490    0.00000   -1.18710 ) - atomic mass=   1.008 
+       G.C.  (    0.00000    0.00000   -0.78677 )
+      C.O.M. (    0.00000    0.00000   -0.12051 )
+
+ initial velocity of ions:
+        1 O  (    0.00000    0.00000    0.00000 )
+        2 H  (    0.00000    0.00000    0.00000 )
+        3 H  (    0.00000    0.00000    0.00000 )
+       G.C.  (    0.00000    0.00000    0.00000 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+
+ number of electrons: spin up=  4  spin down=  4 ( fourier space)
+
+ supercell:
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      volume :     8000.0
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      smooth compensation (ewald) summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.00     ficticious mass=    1100.0
+      cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
+      initial kinetic energy:  0.00000E+00 (psi)   0.00000E+00 (ion)
+                                                   0.00000E+00 (c.o.m.)
+      after scaling:           0.00000E+00 (psi)   0.00000E+00 (ion)
+      increased energy:        0.00000E+00 (psi)   0.00000E+00 (ion)
+
+ Constant Energy Simulation                     
+
+
+
+          ============ Car-Parrinello iteration ==============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:30:47 2004  <<<
+    iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
+    ------------------------------------------------------------------------------------
+      10  -0.7578514066E+02  -0.7578514111E+02   0.11865E-06   0.33646E-06
+      20  -0.7578514066E+02  -0.7578514210E+02   0.37993E-06   0.10690E-05
+      30  -0.7578514066E+02  -0.7578514321E+02   0.62972E-06   0.19247E-05
+      40  -0.7578514066E+02  -0.7578514400E+02   0.81492E-06   0.25296E-05
+      50  -0.7578514066E+02  -0.7578514420E+02   0.94834E-06   0.25922E-05
+      60  -0.7578514066E+02  -0.7578514366E+02   0.82293E-06   0.21807E-05
+      70  -0.7578514066E+02  -0.7578514268E+02   0.52147E-06   0.15004E-05
+      80  -0.7578514066E+02  -0.7578514179E+02   0.28610E-06   0.85265E-06
+      90  -0.7578514066E+02  -0.7578514134E+02   0.18178E-06   0.50759E-06
+     100  -0.7578514066E+02  -0.7578514141E+02   0.15973E-06   0.59946E-06
+ *** arived at the Maximum iiteration.   terminated.
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:32:45 2004  <<<
+
+
+
+          =============  summary of results  =================
+
+ final position of ions:
+        1 O  (    0.00000    0.00000    0.01018 ) - atomic mass=  15.995 
+        2 H  (   -1.49504    0.00000   -1.19221 ) - atomic mass=   1.008 
+        3 H  (    1.49504    0.00000   -1.19221 ) - atomic mass=   1.008 
+       G.C.  (    0.00000    0.00000   -0.79141 )
+      C.O.M. (    0.00000    0.00000   -0.12438 )
+
+ final velocity of ions:
+        1 O  (    0.00000    0.00000    0.00000 )
+        2 H  (    0.00001    0.00000   -0.00001 )
+        3 H  (   -0.00001    0.00000   -0.00001 )
+       G.C.  (    0.00000    0.00000   -0.00001 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+ 
+ total charge of system:    0.00000 (real space)
+ 
+
+ total     energy    :  -0.7578514141E+02 (   -0.25262E+02/ion)
+ total orbital energy:  -0.3924264142E+01 (   -0.98107E+00/electron)
+ hartree   energy    :  -0.2235407932E+03 (   -0.55885E+02/electron)
+ exc-corr  energy    :  -0.8678951882E+01 (   -0.21697E+01/electron)
+ ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
+
+ Kinetic energy (elc)    :   0.1597339589E-06 (    0.39933E-07/elc)
+ Kinetic energy (ion)    :   0.5994606058E-06 (    0.19982E-06/ion)
+
+ final kinetic energy:   0.15973E-06 (psi)   0.59946E-06 (ion)
+                                             0.30312E-07 (c.o.m.)
+ Temperature :           0.0 K (elc)
+ Temperature :           0.3 K (ion)
+             :           0.8 K (c.o.m.)
+
+ Eaverage           :      -0.7578514255E+02
+ Evariance          :       0.1818989404E-11
+ Cv - f*kb/(2*nion) :       0.2314858866E-05
+
+ orbital energies:
+    -0.2546577E+00 (  -6.930eV)
+    -0.3367335E+00 (  -9.163eV)
+    -0.4536820E+00 ( -12.345eV)
+    -0.9170589E+00 ( -24.955eV)
+
+ Total PAW energy   :  -0.7578514141E+02
+
+ output psi filename:./paw_test.movecs
+ 
+ -----------------
+ cputime in seconds
+ prologue    :    3.14855200000000     
+ main loop   :    117.938368000000     
+ epilogue    :   0.279957999999965     
+ total       :    121.366878000000     
+ cputime/step:    1.17938368000000     
+ 
+ -------------------------------
+ Time spent doing:
+   FFTs                       :    5.83446600000110     
+   dot products               :    21.6158300000132     
+   orthonormalization         :    15.2713960000000     
+   exchange correlation       :    6.12591799999973     
+   local pseudopotentials     :   0.693253999999911     
+   non-local pseudopotentials :    19.4856320000009     
+   hartree potentials         :    5.73140000001331D-002
+   structure factors          :   0.996599999998580     
+   masking and packing        :    1.58327000000128     
+   total energy evaluation    :   0.169751999999903     
+   density                    :    0.00000000000000D+000
+   allocate and deallocate    :    6.06580000001031D-002
+   Hpsi and update            :    7.65476400000023     
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:32:46 2004  <<<
+
+ Task  times  cpu:      103.5s     wall:      121.4s
  
  
                                 NWChem Input Module
@@ -595,12 +1071,16 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 09:25:49 2004  <<<
+     >>>  JOB STARTED       AT Tue Dec 21 09:32:46 2004  <<<
           ================ PAW input data ===================
 
  input psi filename:./paw_test.movecs
+ Warning: Gram-Schmidt performed on up spin of psi2 
+        : (old error=   1.54597501755100D-003  new error=
+   9.13122472035192D-015 )
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
       ionic motion         = yes
@@ -628,7 +1108,7 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
                 2 (2) p     2.000000             3
                 3 (3) d     2.000000             5
 
- total charge: 0
+ total charge:   0.000
 
  atomic composition:
      O :  1     H :  2
@@ -665,117 +1145,187 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Thu Apr 22 09:26:03 2004  <<<
+     >>>  ITERATION STARTED AT Tue Dec 21 09:32:48 2004  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.7578842349E+02   -0.13067E+01    0.28277E-08    0.62151E-04
-      20   -0.7578842363E+02   -0.23575E-08    0.26062E-08    0.26296E-04
+      10   -0.7578513983E+02   -0.13066E+01    0.48636E-07    0.10501E-01
+      20   -0.7578514192E+02   -0.36115E-07    0.17892E-08    0.10427E-02
+      30   -0.7578514214E+02   -0.37357E-08    0.12012E-08    0.17013E-03
+      40   -0.7578514226E+02   -0.20084E-08    0.10294E-08    0.89483E-04
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 09:26:44 2004  <<<
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:33:36 2004  <<<
 
 
 
           =============  summary of results  =================
  final position of ions:
-        1 O  (    0.00000    0.00000    0.01388 ) - atomic mass=  15.995 
-        2 H  (   -1.49509    0.00000   -1.18722 ) - atomic mass=   1.008 
-        3 H  (    1.49509    0.00000   -1.18722 ) - atomic mass=   1.008 
-       G.C.  (    0.00000    0.00000   -0.78685 )
-      C.O.M. (    0.00000    0.00000   -0.12054 )
+        1 O  (    0.00000    0.00000    0.01049 ) - atomic mass=  15.995 
+        2 H  (   -1.49494    0.00000   -1.19137 ) - atomic mass=   1.008 
+        3 H  (    1.49494    0.00000   -1.19137 ) - atomic mass=   1.008 
+       G.C.  (    0.00000    0.00000   -0.79075 )
+      C.O.M. (    0.00000    0.00000   -0.12402 )
  
  total charge of system:    0.00000 (real space)
 
 
- Total Energy:                -0.7578842363E+02 (   -0.25263E+02/ion)
+ Total Energy:                -0.7578514226E+02 (   -0.25262E+02/ion)
 
-  kinetic energy:              0.7528654992E+02 (    0.18822E+02/ion)
-      plane wave:              0.9695111490E+01 (    0.24238E+01/ion)
-     local basis:              0.6559143843E+02 (    0.16398E+02/ion)
+  kinetic energy:              0.7534874111E+02 (    0.18837E+02/ion)
+      plane wave:              0.9824525633E+01 (    0.24561E+01/ion)
+     local basis:              0.6552421548E+02 (    0.16381E+02/ion)
 
   coulomb energy:
-      plane wave:             -0.6082154881E+01 (   -0.15205E+01/ion)
-     local basis:             -0.2169102882E+03 (   -0.54228E+02/ion)
-       multipole:              0.8032607242E+02 (    0.20082E+02/ion)
+      plane wave:             -0.6207033338E+01 (   -0.15518E+01/ion)
+     local basis:             -0.2173338921E+03 (   -0.54333E+02/ion)
+       multipole:              0.8083185360E+02 (    0.20208E+02/ion)
 
  exch-corr energy:
-       plane wave:            -0.3692697495E+01 (   -0.92317E+00/ion)
-      local basis:            -0.4982739651E+01 (   -0.12457E+01/ion)
+       plane wave:            -0.3711849655E+01 (   -0.92796E+00/ion)
+      local basis:            -0.4967274056E+01 (   -0.12418E+01/ion)
 
  pseudopot energy:
-       plane wave:             0.8275998687E+01 (    0.20690E+01/ion)
-      local basis:            -0.8009164435E+01 (   -0.20023E+01/ion)
+       plane wave:             0.8511456300E+01 (    0.21279E+01/ion)
+      local basis:            -0.8257144137E+01 (   -0.20643E+01/ion)
 
  orbital energies:
-    -0.2580380E+00 (  -7.022eV)
-    -0.3374851E+00 (  -9.184eV)
-    -0.4526070E+00 ( -12.316eV)
-    -0.9171290E+00 ( -24.957eV)
+    -0.2547030E+00 (  -6.931eV)
+    -0.3367636E+00 (  -9.164eV)
+    -0.4537818E+00 ( -12.348eV)
+    -0.9171286E+00 ( -24.957eV)
 
- Total PAW energy   :  -0.7578842363E+02
+ Total PAW energy   :  -0.7578514226E+02
 
  output psi filename:./paw_test.movecs
  
  -----------------
  cputime in seconds
- prologue    :    14.1504979999736     
- main loop   :    40.3503700000001     
- epilogue    :   0.390128000057302     
- total       :    54.8909960000310     
- cputime/step:    2.01751850000001     
+ prologue    :    2.43771600000002     
+ main loop   :    48.2164720000000     
+ epilogue    :   0.447635999999989     
+ total       :    51.1018240000000     
+ cputime/step:    1.20541180000000     
  
  -------------------------------
  Time spent doing:
-   FFTs                       :    1.16419900045730     
-   dot products               :    3.61012700491119     
-   orthonormalization         :    2.49793499999214     
-   exchange correlation       :   0.353336999891326     
-   local pseudopotentials     :   0.134259999729693     
-   non-local pseudopotentials :    0.00000000000000D+000
-   hartree potentials         :    1.14930004347116D-002
-   structure factors          :   0.202851998154074     
-   masking and packing        :   0.324083998333663     
-   total energy evaluation    :    3.51139999693260D-002
+   FFTs                       :    2.32271600000041     
+   dot products               :    8.75241800000140     
+   orthonormalization         :    6.12757399999981     
+   exchange correlation       :    2.48668599999991     
+   local pseudopotentials     :   0.282786000000158     
+   non-local projectors       :    8.73622400000028     
+   hartree potentials         :    2.38479999998162D-002
+   structure factors          :   0.452254000000607     
+   masking and packing        :   0.629809999999907     
+   total energy evaluation    :   0.102784000000042     
    density                    :    0.00000000000000D+000
-   allocate and deallocate    :    1.15700000897050D-002
-   Hpsi and update            :    1.52400099998340     
+   allocate and deallocate    :    2.32860000002120D-002
+   Hpsi and update            :    3.25382600000017     
+   multipole calculation      :    18.8585680001814     
+   gaunt coefficients         :    4.63944200002874     
  
-     >>>  JOB COMPLETED     AT Thu Apr 22 09:26:44 2004  <<<
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:33:37 2004  <<<
 
- Task  times  cpu:       52.8s     wall:       54.9s
+ Task  times  cpu:       43.5s     wall:       51.1s
  
  
                                 NWChem Input Module
                                 -------------------
  
  
- >>>> PAW Parallel Module - Car-Parrinello <<<<
+ 
+ 
+                           NWChem Geometry Optimization
+                           ----------------------------
+ 
+ 
+ 
+ 
+                                    paw testing
+ 
+ 
+ maximum gradient threshold         (gmax) =   0.000450
+ rms gradient threshold             (grms) =   0.000300
+ maximum cartesian step threshold   (xmax) =   0.001800
+ rms cartesian step threshold       (xrms) =   0.001200
+ fixed trust radius                (trust) =   0.300000
+ maximum step size to saddle      (sadstp) =   0.100000
+ energy precision                  (eprec) =   1.0D-07
+ maximum number of steps          (nptopt) =   20
+ initial hessian option           (inhess) =    0
+ line search option               (linopt) =    1
+ hessian update option            (modupd) =    1
+ saddle point option              (modsad) =    0
+ initial eigen-mode to follow     (moddir) =    0
+ initial variable to follow       (vardir) =    0
+ follow first negative mode     (firstneg) =    T
+ apply conjugacy                    (opcg) =    F
+ source of zmatrix                         =           
+
+
+          -------------------
+          Energy Minimization
+          -------------------
+
+ 
+ Using diagonal initial Hessian 
+
+          --------
+          Step   0
+          --------
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.01048895
+    2 H                    1.0000    -1.49494130     0.00000000    -1.19136790
+    3 H                    1.0000     1.49494130     0.00000000    -1.19136790
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.6758206044
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000001     0.0000000000    -2.2988241604
+ 
           ****************************************************
           *                                                  *
-          *  PAW Car-Parrinello microcluster calculation     *
+          *               NWPW PAW Calculation               *
           *                                                  *
-          *     [    extended Lagrangian molecular    ]      *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
           *                                                  *
-          *     [         dynamics simulation         ]      *
-          *     [  Northwest Chemistry implementation ]      *
+          *      [ NorthWest Chemistry implementation ]      *
           *                                                  *
-          *            version #1.00   10/01/03              *
+          *            version #5.10   06/12/02              *
           *                                                  *
-          *    Authors: Marat Valiev and Eric J. Bylaska     *
-          *                                                  *
-          *    This code is based upon algorithms and code   *
-          *    developed by the group of Prof. John H. Weare *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Thu Apr 22 09:26:44 2004  <<<
-          ================ PAW input data ===================
+     >>>  JOB STARTED       AT Tue Dec 21 09:33:37 2004  <<<
+          ================ input data ========================
 
  input psi filename:./paw_test.movecs
- Generated initial wavefunctions velocities:paw_test.vmovecs              
 
  number of processors used:  1
+ parallel mapping         : slab
 
  options:
-      boundary conditions   = periodic    (version3)
+      boundary conditions  = periodic    (version3)
       electron spin        = restricted
       exchange-correlation = Vosko et al parameterization
 
@@ -799,145 +1349,1295 @@ mu   =  (    0.0000,    0.0000,   -0.5306 ) au
                 2 (2) p     2.000000             3
                 3 (3) d     2.000000             5
 
- total charge: 0
+ total charge:   0.000
 
  atomic composition:
      O :  1     H :  2
 
- initial position of ions:
-        1 O  (    0.00000    0.00000    0.01388 ) - atomic mass=  15.995 
-        2 H  (   -1.49509    0.00000   -1.18722 ) - atomic mass=   1.008 
-        3 H  (    1.49509    0.00000   -1.18722 ) - atomic mass=   1.008 
-       G.C.  (    0.00000    0.00000   -0.78685 )
-      C.O.M. (    0.00000    0.00000   -0.12054 )
-
- initial velocity of ions:
-        1 O  (    0.00000    0.00000    0.00000 )
-        2 H  (    0.00000    0.00000    0.00000 )
-        3 H  (    0.00000    0.00000    0.00000 )
-       G.C.  (    0.00000    0.00000    0.00000 )
-      C.O.M. (    0.00000    0.00000    0.00000 )
-
- number of electrons: spin up=  4  spin down=  4 ( fourier space)
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
 
  supercell:
+      cell_name:  cell_default                  
       lattice:    a1=<  20.000   0.000   0.000 >
                   a2=<   0.000  20.000   0.000 >
                   a3=<   0.000   0.000  20.000 >
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
       density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
       wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
-      smooth compensation (ewald) summation: cut radius=    1.50  and  0
+      ewald summation: cut radius=    1.50  and  0
 
  technical parameters:
-      time step=      5.00     ficticious mass=    1100.0
-      cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
-      initial kinetic energy:  0.00000E+00 (psi)   0.00000E+00 (ion)
-                                                   0.00000E+00 (c.o.m.)
-      after scaling:           0.00000E+00 (psi)   0.00000E+00 (ion)
-      increased energy:        0.00000E+00 (psi)   0.00000E+00 (ion)
-
- Constant Energy Simulation                     
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
 
 
 
-          ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Thu Apr 22 09:27:01 2004  <<<
-    iter.         KE+Energy             Energy        KE_psi        KE_ion
-    ----------------------------------------------------------------------
-      10  -0.7578842363E+02  -0.7578842477E+02   0.11284E-05   0.69775E-08
-      20  -0.7578842363E+02  -0.7578842545E+02   0.18111E-05   0.41940E-08
-      30  -0.7578842363E+02  -0.7578842417E+02   0.51604E-06   0.29114E-07
-      40  -0.7578842363E+02  -0.7578842407E+02   0.30331E-06   0.13912E-06
-      50  -0.7578842363E+02  -0.7578842520E+02   0.14176E-05   0.15149E-06
-      60  -0.7578842363E+02  -0.7578842483E+02   0.11610E-05   0.40560E-07
-      70  -0.7578842363E+02  -0.7578842397E+02   0.29052E-06   0.54805E-07
-      80  -0.7578842363E+02  -0.7578842463E+02   0.77735E-06   0.22260E-06
-      90  -0.7578842363E+02  -0.7578842521E+02   0.13380E-05   0.24528E-06
-     100  -0.7578842363E+02  -0.7578842444E+02   0.73977E-06   0.73965E-07
- *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Thu Apr 22 09:30:35 2004  <<<
 
 
+== Energy Calculation ==
 
-          =============  summary of results  =================
 
- final position of ions:
-        1 O  (    0.00000    0.00000    0.01411 ) - atomic mass=  15.995 
-        2 H  (   -1.49557    0.00000   -1.18722 ) - atomic mass=   1.008 
-        3 H  (    1.49557    0.00000   -1.18722 ) - atomic mass=   1.008 
-       G.C.  (    0.00000    0.00000   -0.78678 )
-      C.O.M. (    0.00000    0.00000   -0.12033 )
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:33:39 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514236E+02   -0.98865E-07    0.96997E-08
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:33:42 2004  <<<
 
- final velocity of ions:
-        1 O  (    0.00000    0.00000    0.00000 )
-        2 H  (   -0.00001    0.00000    0.00000 )
-        3 H  (    0.00001    0.00000    0.00000 )
-       G.C.  (    0.00000    0.00000    0.00000 )
-      C.O.M. (    0.00000    0.00000    0.00000 )
+
+==  Summary Of Results  ==
  
  total charge of system:    0.00000 (real space)
- 
 
- total     energy    :  -0.7578842444E+02 (   -0.25263E+02/ion)
- total orbital energy:  -0.3929759209E+01 (   -0.98244E+00/electron)
- hartree   energy    :  -0.2229855866E+03 (   -0.55746E+02/electron)
- exc-corr  energy    :  -0.8675142752E+01 (   -0.21688E+01/electron)
- ion-ion   energy    :   0.0000000000E+00 (    0.00000E+00/ion)
 
- Kinetic energy (elc)    :   0.7397749645E-06 (    0.18494E-06/elc)
- Kinetic energy (ion)    :   0.7396536346E-07 (    0.24655E-07/ion)
+ Total Energy:                -0.7578514236E+02 (   -0.25262E+02/ion)
 
- final kinetic energy:   0.73977E-06 (psi)   0.73965E-07 (ion)
-                                             0.83814E-10 (c.o.m.)
- Temperature :           0.0 K (elc)
- Temperature :           0.0 K (ion)
-             :           0.0 K (c.o.m.)
+  kinetic energy:              0.7534820303E+02 (    0.18837E+02/ion)
+      plane wave:              0.9824636635E+01 (    0.24562E+01/ion)
+     local basis:              0.6552356640E+02 (    0.16381E+02/ion)
 
- Eaverage           :      -0.7578842467E+02
- Evariance          :       0.9094947018E-12
- Cv - f*kb/(2*nion) :       0.2443241314E-03
+  coulomb energy:
+      plane wave:             -0.6207114708E+01 (   -0.15518E+01/ion)
+     local basis:             -0.2173357517E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083429289E+02 (    0.20209E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3711912721E+01 (   -0.92798E+00/ion)
+      local basis:            -0.4967166871E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8511508962E+01 (    0.21279E+01/ion)
+      local basis:            -0.8257201252E+01 (   -0.20643E+01/ion)
 
  orbital energies:
-    -0.2579619E+00 (  -7.020eV)
-    -0.3374117E+00 (  -9.182eV)
-    -0.4525435E+00 ( -12.314eV)
-    -0.9169625E+00 ( -24.952eV)
+    -0.2547192E+00 (  -6.931eV)
+    -0.3367646E+00 (  -9.164eV)
+    -0.4538078E+00 ( -12.349eV)
+    -0.9171618E+00 ( -24.957eV)
 
- Total PAW energy   :  -0.7578842444E+02
+ Total PAW energy   :  -0.7578514236E+02
+
+
+== Gradient Calculation ==
+
+
+Translation force removed: (    0.00000    0.00000    0.00190)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 O  (    0.00000    0.00000    0.01049 )
+        2 H  (   -1.49494    0.00000   -1.19137 )
+        3 H  (    1.49494    0.00000   -1.19137 )
+ Ion Forces:
+        1 O  (    0.00000    0.00000    0.00025 )
+        2 H  (    0.00001    0.00000   -0.00198 )
+        3 H  (   -0.00001    0.00000   -0.00198 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.2813124842E-02
+
+
 
  output psi filename:./paw_test.movecs
- 
- -----------------
- cputime in seconds
- prologue    :    16.8614920000546     
- main loop   :    214.272307999898     
- epilogue    :   0.251341000082903     
- total       :    231.385141000035     
- cputime/step:    2.14272307999898     
- 
- -------------------------------
- Time spent doing:
-   FFTs                       :    5.92141699988861     
-   dot products               :    17.8234649994411     
-   orthonormalization         :    12.5575150003424     
-   exchange correlation       :    2.33257800084539     
-   local pseudopotentials     :   0.721573999733664     
-   non-local pseudopotentials :    0.00000000000000D+000
-   hartree potentials         :    5.25219989940524D-002
-   structure factors          :   0.963501994614489     
-   masking and packing        :    1.52258100430481     
-   total energy evaluation    :   0.168585000094026     
-   density                    :    0.00000000000000D+000
-   allocate and deallocate    :    5.98649996099994D-002
-   Hpsi and update            :    7.63400399975944     
- 
-     >>>  JOB COMPLETED     AT Thu Apr 22 09:30:35 2004  <<<
 
- Task  times  cpu:      222.9s     wall:      231.4s
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.198318E+01
+  main loop   :   0.392080E+01
+  epilogue    :   0.249400E-01
+  total       :   0.592892E+01
+  cputime/step:   0.784160E+00       (       5 evalulations,       1 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.298910E+00  0.597820E-01
+  dot products               :   0.736096E+00  0.147219E+00
+  geodesic                   :   0.878762E+00  0.175752E+00
+  exchange correlation       :   0.325418E+00  0.650836E-01
+  local pseudopotentials     :   0.813200E-02  0.162640E-02
+  non-local pseudopotentials :   0.125400E+01  0.250801E+00
+  hartree potentials         :   0.399000E-02  0.798000E-03
+  structure factors          :   0.785240E-01  0.157048E-01
+  masking and packing        :   0.101872E+00  0.203744E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:33:43 2004  <<<
+
+@ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
+@ ---- ---------------- -------- -------- -------- -------- -------- --------
+@    0     -75.78514236  0.0D+00  0.00198  0.00094  0.00000  0.00000    504.5
+                                                       ok       ok  
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:33:43 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:33:45 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578513554E+02   -0.17938E-05    0.20278E-04
+      20   -0.7578513807E+02   -0.33219E-07    0.60360E-07
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:34:35 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578513807E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534499922E+02 (    0.18836E+02/ion)
+      plane wave:              0.9820073693E+01 (    0.24550E+01/ion)
+     local basis:              0.6552492552E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6204668424E+01 (   -0.15512E+01/ion)
+     local basis:             -0.2173352658E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083344404E+02 (    0.20208E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3710916181E+01 (   -0.92773E+00/ion)
+      local basis:            -0.4967109661E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8509241363E+01 (    0.21273E+01/ion)
+      local basis:            -0.8254862598E+01 (   -0.20637E+01/ion)
+
+ orbital energies:
+    -0.2545593E+00 (  -6.927eV)
+    -0.3370076E+00 (  -9.171eV)
+    -0.4529426E+00 ( -12.325eV)
+    -0.9165965E+00 ( -24.942eV)
+
+ Total PAW energy   :  -0.7578513807E+02
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.284703E+01
+  main loop   :   0.492647E+02
+  epilogue    :   0.245980E-01
+  total       :   0.521364E+02
+  cputime/step:   0.104819E+01       (      47 evalulations,      18 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.288571E+01  0.613980E-01
+  dot products               :   0.133882E+02  0.284856E+00
+  geodesic                   :   0.287753E+02  0.612241E+00
+  exchange correlation       :   0.265719E+01  0.565360E-01
+  local pseudopotentials     :   0.194600E-02  0.414043E-04
+  non-local pseudopotentials :   0.295208E+02  0.628103E+00
+  hartree potentials         :   0.323560E-01  0.688426E-03
+  structure factors          :   0.168449E+01  0.358402E-01
+  masking and packing        :   0.637084E+00  0.135550E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:34:35 2004  <<<
+ Line search: 
+     step= 1.00 grad=-6.6D-06 hess= 1.1D-05 energy=    -75.785138 mode=bracket 
+ new step= 0.30                   predicted energy=    -75.785143
+
+          --------
+          Step   1
+          --------
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.01139229
+    2 H                    1.0000    -1.49493819     0.00000000    -1.19181956
+    3 H                    1.0000     1.49493819     0.00000000    -1.19181956
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.6721401962
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000007     0.0000000000    -2.2925008370
+ 
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:34:35 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:34:37 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514278E+02   -0.30678E-06    0.93372E-05
+      20   -0.7578514342E+02   -0.74749E-07    0.26692E-07
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:35:24 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514342E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534644807E+02 (    0.18837E+02/ion)
+      plane wave:              0.9822919656E+01 (    0.24557E+01/ion)
+     local basis:              0.6552352842E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6205921659E+01 (   -0.15515E+01/ion)
+     local basis:             -0.2173357721E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083442588E+02 (    0.20209E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3711523143E+01 (   -0.92788E+00/ion)
+      local basis:            -0.4967121804E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8510566476E+01 (    0.21276E+01/ion)
+      local basis:            -0.8256245097E+01 (   -0.20641E+01/ion)
+
+ orbital energies:
+    -0.2547030E+00 (  -6.931eV)
+    -0.3368323E+00 (  -9.166eV)
+    -0.4536293E+00 ( -12.344eV)
+    -0.9170813E+00 ( -24.955eV)
+
+ Total PAW energy   :  -0.7578514342E+02
+
+
+== Gradient Calculation ==
+
+
+Translation force removed: (    0.00000    0.00000    0.00076)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 O  (    0.00000    0.00000    0.01139 )
+        2 H  (   -1.49494    0.00000   -1.19182 )
+        3 H  (    1.49494    0.00000   -1.19182 )
+ Ion Forces:
+        1 O  (    0.00000    0.00000    0.00006 )
+        2 H  (    0.00013    0.00000   -0.00046 )
+        3 H  (   -0.00013    0.00000   -0.00046 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.6827326338E-03
+
+
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.257050E+01
+  main loop   :   0.487393E+02
+  epilogue    :   0.719440E-01
+  total       :   0.513818E+02
+  cputime/step:   0.131728E+01       (      37 evalulations,      13 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.251911E+01  0.680841E-01
+  dot products               :   0.122803E+02  0.331900E+00
+  geodesic                   :   0.271174E+02  0.732903E+00
+  exchange correlation       :   0.296157E+01  0.800423E-01
+  local pseudopotentials     :   0.107580E-01  0.290757E-03
+  non-local pseudopotentials :   0.277341E+02  0.749571E+00
+  hartree potentials         :   0.208340E-01  0.563081E-03
+  structure factors          :   0.163934E+01  0.443065E-01
+  masking and packing        :   0.896294E+00  0.242242E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:35:26 2004  <<<
+
+  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
+  ---- ---------------- -------- -------- -------- -------- -------- --------
+@    1     -75.78514342 -1.1D-06  0.00046  0.00023  0.00037  0.00090    608.1
+                                              ok       ok       ok  
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:35:26 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:35:30 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514372E+02   -0.58590E-08    0.19475E-06
+      20   -0.7578514373E+02   -0.72740E-08    0.15710E-09
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:36:07 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514373E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534742008E+02 (    0.18837E+02/ion)
+      plane wave:              0.9822932341E+01 (    0.24557E+01/ion)
+     local basis:              0.6552448774E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6206067536E+01 (   -0.15515E+01/ion)
+     local basis:             -0.2173338704E+03 (   -0.54333E+02/ion)
+       multipole:              0.8083178375E+02 (    0.20208E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3711502198E+01 (   -0.92788E+00/ion)
+      local basis:            -0.4967243960E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8510680024E+01 (    0.21277E+01/ion)
+      local basis:            -0.8256343519E+01 (   -0.20641E+01/ion)
+
+ orbital energies:
+    -0.2546572E+00 (  -6.930eV)
+    -0.3368713E+00 (  -9.167eV)
+    -0.4534941E+00 ( -12.340eV)
+    -0.9170092E+00 ( -24.953eV)
+
+ Total PAW energy   :  -0.7578514373E+02
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.417194E+01
+  main loop   :   0.366378E+02
+  epilogue    :   0.229720E-01
+  total       :   0.408327E+02
+  cputime/step:   0.122126E+01       (      30 evalulations,      11 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.215453E+01  0.718178E-01
+  dot products               :   0.960242E+01  0.320081E+00
+  geodesic                   :   0.210971E+02  0.703237E+00
+  exchange correlation       :   0.187030E+01  0.623435E-01
+  local pseudopotentials     :   0.188400E-02  0.628000E-04
+  non-local pseudopotentials :   0.221330E+02  0.737765E+00
+  hartree potentials         :   0.193520E-01  0.645067E-03
+  structure factors          :   0.116906E+01  0.389686E-01
+  masking and packing        :   0.406490E+00  0.135497E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:36:07 2004  <<<
+ Line search: 
+     step= 1.00 grad=-2.5D-07 hess=-5.7D-08 energy=    -75.785144 mode=negative
+ new step= 2.00                   predicted energy=    -75.785144
+
+          --------
+          Step   2
+          --------
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.01203773
+    2 H                    1.0000    -1.49428793     0.00000000    -1.19214229
+    3 H                    1.0000     1.49428793     0.00000000    -1.19214229
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.6718476739
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+    -0.0000000013     0.0000000000    -2.2879827248
+ 
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:36:07 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:36:10 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514354E+02   -0.79984E-08    0.18677E-06
+      20   -0.7578514356E+02   -0.18653E-07    0.66431E-09
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:36:43 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514356E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534712262E+02 (    0.18837E+02/ion)
+      plane wave:              0.9822970832E+01 (    0.24557E+01/ion)
+     local basis:              0.6552415179E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6206252954E+01 (   -0.15516E+01/ion)
+     local basis:             -0.2173357020E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083406771E+02 (    0.20209E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3711560582E+01 (   -0.92789E+00/ion)
+      local basis:            -0.4967146583E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8510765710E+01 (    0.21277E+01/ion)
+      local basis:            -0.8256437458E+01 (   -0.20641E+01/ion)
+
+ orbital energies:
+    -0.2546817E+00 (  -6.930eV)
+    -0.3369588E+00 (  -9.169eV)
+    -0.4534329E+00 ( -12.339eV)
+    -0.9170256E+00 ( -24.954eV)
+
+ Total PAW energy   :  -0.7578514356E+02
+
+
+== Gradient Calculation ==
+
+
+Translation force removed: (    0.00000    0.00000   -0.00101)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 O  (    0.00000    0.00000    0.01204 )
+        2 H  (   -1.49429    0.00000   -1.19214 )
+        3 H  (    1.49429    0.00000   -1.19214 )
+ Ion Forces:
+        1 O  (    0.00000    0.00000   -0.00017 )
+        2 H  (    0.00015    0.00000    0.00134 )
+        3 H  (   -0.00015    0.00000    0.00134 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.1910338913E-02
+
+
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.286772E+01
+  main loop   :   0.345082E+02
+  epilogue    :   0.247220E-01
+  total       :   0.374007E+02
+  cputime/step:   0.111317E+01       (      31 evalulations,      11 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.201058E+01  0.648575E-01
+  dot products               :   0.915238E+01  0.295238E+00
+  geodesic                   :   0.189846E+02  0.612405E+00
+  exchange correlation       :   0.195894E+01  0.631917E-01
+  local pseudopotentials     :   0.824400E-02  0.265935E-03
+  non-local pseudopotentials :   0.202375E+02  0.652823E+00
+  hartree potentials         :   0.200120E-01  0.645548E-03
+  structure factors          :   0.111669E+01  0.360221E-01
+  masking and packing        :   0.476586E+00  0.153737E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:36:44 2004  <<<
+
+  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
+  ---- ---------------- -------- -------- -------- -------- -------- --------
+@    2     -75.78514356 -1.4D-07  0.00134  0.00064  0.00040  0.00065    686.3
+                                                       ok       ok  
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:36:44 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:36:48 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514380E+02   -0.10573E-07    0.28490E-06
+      20   -0.7578514382E+02   -0.19651E-07    0.18174E-09
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:37:22 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514382E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534735615E+02 (    0.18837E+02/ion)
+      plane wave:              0.9823464206E+01 (    0.24559E+01/ion)
+     local basis:              0.6552389194E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6206418306E+01 (   -0.15516E+01/ion)
+     local basis:             -0.2173355604E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083397421E+02 (    0.20208E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3711662232E+01 (   -0.92792E+00/ion)
+      local basis:            -0.4967157222E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8510987704E+01 (    0.21277E+01/ion)
+      local basis:            -0.8256663680E+01 (   -0.20642E+01/ion)
+
+ orbital energies:
+    -0.2546916E+00 (  -6.931eV)
+    -0.3368988E+00 (  -9.168eV)
+    -0.4535554E+00 ( -12.342eV)
+    -0.9171027E+00 ( -24.956eV)
+
+ Total PAW energy   :  -0.7578514382E+02
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.374439E+01
+  main loop   :   0.335874E+02
+  epilogue    :   0.252320E-01
+  total       :   0.373570E+02
+  cputime/step:   0.108346E+01       (      31 evalulations,      11 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.198040E+01  0.638839E-01
+  dot products               :   0.906464E+01  0.292408E+00
+  geodesic                   :   0.190678E+02  0.615092E+00
+  exchange correlation       :   0.184470E+01  0.595065E-01
+  local pseudopotentials     :   0.218400E-02  0.704516E-04
+  non-local pseudopotentials :   0.201489E+02  0.649963E+00
+  hartree potentials         :   0.200560E-01  0.646968E-03
+  structure factors          :   0.104571E+01  0.337327E-01
+  masking and packing        :   0.423038E+00  0.136464E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:37:22 2004  <<<
+ Line search: 
+     step= 1.00 grad=-5.6D-07 hess= 3.1D-07 energy=    -75.785144 mode=accept  
+ new step= 1.00                   predicted energy=    -75.785144
+
+          --------
+          Step   3
+          --------
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.01165475
+    2 H                    1.0000    -1.49432933     0.00000000    -1.19195080
+    3 H                    1.0000     1.49432933     0.00000000    -1.19195080
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.6732643444
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000025     0.0000000000    -2.2906635774
+ 
+          ****************************************************
+          *                                                  *
+          *               NWPW PAW Calculation               *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *      This code was developed by Marat Valiev     *
+          *      and Eric J. Bylaska and was based upon      *
+          *      algorithms and code developed by the        *
+          *      group of Prof. John H. Weare                *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Tue Dec 21 09:37:22 2004  <<<
+          ================ input data ========================
+
+ input psi filename:./paw_test.movecs
+
+ number of processors used:  1
+ parallel mapping         : slab
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: O   ion charge: 8.0  core charge: 2.0
+             augmentation sphere radius  : 1.785
+             compensation sigma          : 0.147
+             total number of projectors  : 13
+             n_ps (n) l          eig    #projector
+                1 (2) s    -0.871362             1
+                2 (2) p    -0.338381             3
+                3 (3) d     0.100000             5
+                2 (3) s    -0.004483             1
+                3 (3) p     0.100000             3
+      2: H   ion charge: 1.0  core charge: 0.0
+             augmentation sphere radius  : 0.892
+             compensation sigma          : 0.071
+             total number of projectors  :  9
+             n_ps (n) l          eig    #projector
+                1 (1) s    -0.233471             1
+                2 (2) p     2.000000             3
+                3 (3) d     2.000000             5
+
+ total charge:   0.000
+
+ atomic composition:
+     O :  1     H :  2
+
+ number of active electrons: spin up=     4  down=     4 (fourier space)
+ number of active orbitals : spin up=     4  down=     4 (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  20.000   0.000   0.000 >
+                  a2=<   0.000  20.000   0.000 >
+                  a3=<   0.000   0.000  20.000 >
+      reciprocal: b1=<   0.314   0.000   0.000 >
+                  b2=<   0.000   0.314   0.000 >
+                  b3=<   0.000   0.000   0.314 >
+      lattice:    a=      20.000 b=     20.000 c=      20.000
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=  8000.0
+
+      density cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      wavefnc cutoff= 12.633  fft= 32x 32x 32(     8536 waves     8536 per task)
+      ewald summation: cut radius=    1.50  and  0
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Tue Dec 21 09:37:24 2004  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.7578514383E+02   -0.94090E-08    0.16914E-09
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Tue Dec 21 09:37:28 2004  <<<
+
+
+==  Summary Of Results  ==
+ 
+ total charge of system:    0.00000 (real space)
+
+
+ Total Energy:                -0.7578514383E+02 (   -0.25262E+02/ion)
+
+  kinetic energy:              0.7534754996E+02 (    0.18837E+02/ion)
+      plane wave:              0.9823434241E+01 (    0.24559E+01/ion)
+     local basis:              0.6552411571E+02 (    0.16381E+02/ion)
+
+  coulomb energy:
+      plane wave:             -0.6206377468E+01 (   -0.15516E+01/ion)
+     local basis:             -0.2173348646E+03 (   -0.54334E+02/ion)
+       multipole:              0.8083305993E+02 (    0.20208E+02/ion)
+
+ exch-corr energy:
+       plane wave:            -0.3711641688E+01 (   -0.92791E+00/ion)
+      local basis:            -0.4967198450E+01 (   -0.12418E+01/ion)
+
+ pseudopot energy:
+       plane wave:             0.8510969698E+01 (    0.21277E+01/ion)
+      local basis:            -0.8256641200E+01 (   -0.20642E+01/ion)
+
+ orbital energies:
+    -0.2546805E+00 (  -6.930eV)
+    -0.3368872E+00 (  -9.167eV)
+    -0.4535461E+00 ( -12.342eV)
+    -0.9170924E+00 ( -24.956eV)
+
+ Total PAW energy   :  -0.7578514383E+02
+
+
+== Gradient Calculation ==
+
+
+Translation force removed: (    0.00000    0.00000    0.00063)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 O  (    0.00000    0.00000    0.01165 )
+        2 H  (   -1.49433    0.00000   -1.19195 )
+        3 H  (    1.49433    0.00000   -1.19195 )
+ Ion Forces:
+        1 O  (    0.00000    0.00000    0.00005 )
+        2 H  (    0.00003    0.00000   -0.00038 )
+        3 H  (   -0.00003    0.00000   -0.00038 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.5366273656E-03
+
+
+
+ output psi filename:./paw_test.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.208454E+01
+  main loop   :   0.517764E+01
+  epilogue    :   0.254400E-01
+  total       :   0.728762E+01
+  cputime/step:   0.739663E+00       (       7 evalulations,       1 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.437372E+00  0.624817E-01
+  dot products               :   0.986996E+00  0.140999E+00
+  geodesic                   :   0.134777E+01  0.192539E+00
+  exchange correlation       :   0.418098E+00  0.597283E-01
+  local pseudopotentials     :   0.952200E-02  0.136029E-02
+  non-local pseudopotentials :   0.172687E+01  0.246695E+00
+  hartree potentials         :   0.972400E-02  0.138914E-02
+  structure factors          :   0.104934E+00  0.149906E-01
+  masking and packing        :   0.134830E+00  0.192614E-01
+ 
+     >>>  JOB COMPLETED     AT Tue Dec 21 09:37:29 2004  <<<
+
+  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
+  ---- ---------------- -------- -------- -------- -------- -------- --------
+@    3     -75.78514383 -2.7D-07  0.00038  0.00018  0.00016  0.00038    731.0
+                                     ok       ok       ok       ok  
+
+
+      ----------------------
+      Optimization converged
+      ----------------------
+
+
+  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
+  ---- ---------------- -------- -------- -------- -------- -------- --------
+@    3     -75.78514383 -2.7D-07  0.00038  0.00018  0.00016  0.00038    731.0
+                                     ok       ok       ok       ok  
+
+ 
+ 
+                         Geometry "geometry" -> "geometry"
+                         ---------------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000     0.01165475
+    2 H                    1.0000    -1.49432933     0.00000000    -1.19195080
+    3 H                    1.0000     1.49432933     0.00000000    -1.19195080
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)       8.6732643444
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000025     0.0000000000    -2.2906635774
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.91877  |     1.91877
+    3 H                |   1 O                |     1.91877  |     1.91877
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   102.30
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+
+ Task  times  cpu:      186.4s     wall:      232.4s
  
  
                                 NWChem Input Module
@@ -971,7 +2671,7 @@ Max memory consumed for GA by this process: 2304 bytes
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003), Pacific Northwest National Laboratory,
+            Version 4.6" (2004), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -981,25 +2681,25 @@ Max memory consumed for GA by this process: 2304 bytes
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            T. P. Straatsma, E. Apra, T. L. Windus, M. Dupuis, E. J. Bylaska,
-            W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler, L. Pollack,
-            R. J. Harrison, J. Nieplocha, V. Tipparaju, M. Krishnan, A. A. Auer,
-            E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-            R. Kendall, J. A. Nichols, K. Tsemekhman, M. Valiev,
-            K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
-            D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
+            T. P. Straatsma, E. Apra, T. L. Windus, E. J. Bylaska, W. de Jong,
+            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, R. J. Harrison,
+            M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+            M. Krishnan, A. A. Auer, E. Brown, G. Cisneros, G. I. Fann,
+            H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
+            K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
             E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
             R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
             T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
             G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
             "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003),
+            Version 4.6" (2004),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
 
- Total times  cpu:      554.0s     wall:      581.9s
+ Total times  cpu:      630.3s     wall:      731.0s
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1008,8 +2708,8 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       202	        25
+	maximum number of blocks	       213	        25
 	current total bytes		         0	         0
-	maximum total bytes		  26006908	   4570588
-	maximum total K-bytes		     26007	      4571
-	maximum total M-bytes		        27	         5
+	maximum total bytes		  33289324	   4568956
+	maximum total K-bytes		     33290	      4569
+	maximum total M-bytes		        34	         5
