@@ -4,7 +4,7 @@
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.31 1999-08-25 18:50:11 edo Exp $
+* $Id: dft_fitcd.F,v 1.32 2000-02-02 02:36:18 edo Exp $
 *
       implicit none
 c
@@ -83,7 +83,7 @@ c     solving the normal equations for a standard linear least squares problem.
 c      
 #if defined(DFT_TIMER)
       call ga_sync
-      call t_stat(10,-1)
+      call t_stat(5,-1)
       call dft_second(ts1)
 #endif
       if (.not.derfit .and. nfit.ne.1) then
