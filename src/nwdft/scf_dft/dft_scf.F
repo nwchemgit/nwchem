@@ -5,12 +5,13 @@
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.2 1995-05-03 19:26:49 og845 Exp $
+C$Id: dft_scf.F,v 1.3 1995-05-04 04:59:45 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
       parameter(itol_min=5,iAOacc_min=15)
+      parameter(au2Debye=2.541d0)
       
 c**** 
 c**** nwchem handles
@@ -44,6 +45,7 @@ c****
       Character*255 movecs_out
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
+      Double Precision rmoments(3)  ! dipole
 c-----------------------------------------------------------------------
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -365,6 +367,7 @@ c
 
 
       if(LSPM) then
+        lresult=geom_charge_center(geom)
 
 
         call dft_getspm(geom,lmax,iga_dens,AO_bas_han)
@@ -657,7 +660,7 @@ c****     UHF occupations
      &       'AO_basis',
      &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &       dbl_mb(ISbn2(1)), nbf_ao, iga_evecs))
-     &       call errquit('rhf: movec_write failed', 0)
+     &       call errquit('dft_scf: movec_write failed', 0)
 
         LResult = MA_Pop_Stack(l_occ)
 
@@ -818,6 +821,16 @@ c
         call gadest(iga_xyz)
       endif
 c-----------------------------------------------------------------------
+c
+c     computation of dipole moments
+c
+
+      call dft_mpole( geom, AO_bas_han, AO_bas_han, 1, 
+     &     iga_dens, ipol, rmoments, 3)
+      call dft_header('Dipole Moments (debye):       ')
+      write(LuOut,'(3A12)') 'x','y','z'
+      write (LuOut,'(3f12.5)') (rmoments(ii)*au2Debye,ii=1,3)
+      write(LuOut,*)
 c**** 
 c**** this is the final section of the ddscf routine rhf()
 c**** have substituted SCF with DFT
