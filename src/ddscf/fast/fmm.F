@@ -559,6 +559,8 @@ c
 c
       integer lenxlm, poles, parent_poles, level,
      $     potential, parent_potential
+      
+      integer luse(32768)
 
       call xlm_init
 
@@ -595,7 +597,8 @@ c     Pass multipoles up to the parent and pass short-range potential
 c     to neighbours at the current level.
 c
          call fmm_pass1(lmax, level, dimx, dimy, dimz,
-     $        work(1,poles), work(1,potential), work(1,parent_poles))
+     $        work(1,poles), work(1,potential), work(1,parent_poles),
+     $        luse)
 c
          if (level .eq. 1) then
             call xlm_unpack(lmax, work(1,parent_poles),
@@ -622,7 +625,7 @@ c
 c
       end
       subroutine fmm_pass1(lmax, level, dimx, dimy, dimz,
-     $     poles, potential, parent_poles)
+     $     poles, potential, parent_poles, luse)
       implicit none
 #include "fmmP.fh"
       integer lmax, level
@@ -633,6 +636,7 @@ c
      $     0:2**level-1,0:2**level-1,0:2**level-1)
       double precision parent_poles((lmax+1)**2,
      $     0:2**(level-1)-1,0:2**(level-1)-1,0:2**(level-1)-1)
+      integer luse(0:2**level-1,0:2**level-1,0:2**level-1)
 c     
       double precision hx, hy, hz, x, y, z, xn, yn, zn, xp, yp, zp
       integer dkx, dky, dkz, l, m, ln
@@ -641,7 +645,7 @@ c
       parameter (lq = 25)
       double precision q(-lq:lq,0:lq), qn(-lq:lq,0:lq)
       double precision p(-lq:lq,0:lq), pn(-lq:lq,0:lq)
-      double precision scale
+      double precision scale, thresh
       integer lmaxeff, hi, lo, twol, ind, indn
 c
 c     If in_all_boxes is true, then the potential is transferred even
@@ -661,6 +665,21 @@ c
 c     
       call dfill(((lmax+1)**2)*(8**(level-1)),0.0d0,parent_poles,1)
       call dfill(((lmax+1)**2)*(8**level),0.0d0,potential,1)
+c
+c     With the crude estimate that the precision sought is 
+c     1d-6 / (ws+0.5)**lmax, estimate the order of multipole to
+c     use for each box during the local-multipole translation.
+c
+      scale = (dble(well_separated)+0.5d0)*max(hx,hy,hz)
+      thresh = 1d-6 / (well_separated+0.5)**lmax
+      do kz = 0, twol-1
+         do ky = 0, twol-1
+            do kx = 0, twol-1
+               call xlm_unpack(lmax,poles(1,kx,ky,kz),q,lq)
+               call xlm_thresh(lmax,q,lq,thresh,scale,luse(kx,ky,kz))
+            enddo
+         enddo
+      enddo
 c     
       nbox = 0
       do kz = 0, twol-1
@@ -670,12 +689,7 @@ c
                y = (dble(ky)+0.5d0)*hy
                z = (dble(kz)+0.5d0)*hz
                call xlm_unpack(lmax,poles(1,kx,ky,kz),q,lq)
-               do l = lmax,0,-1
-                  do m = -l,l
-                     if (abs(q(m,l)) .gt. 0.0d0) goto 10
-                  enddo
-               enddo
- 10            continue
+               l = luse(kx,ky,kz)
 c     
                if (l .ge. 0) then
                   kxp = kx/2    ! Parent box indices
@@ -718,6 +732,9 @@ c
                            xn = (dble(kxn)+0.5d0)*hx
                            yn = (dble(kyn)+0.5d0)*hy
                            zn = (dble(kzn)+0.5d0)*hz
+                           ln = luse(kxn,kyn,kzn)
+                           call xlm_unpack(lmax,poles(1,kxn,kyn,kzn),
+     $                          qn,lq)
 c     
 c     The next 3 lines give a factor of 3 speedup at ws=1 and a factor
 c     of 2 at ws=2!  Only need to use an order consistent with overall 
@@ -727,18 +744,10 @@ c
 c     With the l^3 translation algorithm, the speedup is 1.5 at ws=2.
 c
                            scale = sqrt(dble(dkx**2+dky**2+dkz**2))
-                           lmaxeff = nint(lmax*
+                           lmaxeff = nint(max(l,ln)*
      $                          log(1.0d0+well_separated)/log(scale))
-                           lmaxeff = min(lmaxeff,lmax)
+                           lmaxeff = min(lmaxeff,max(l,ln))
 c     
-                           call xlm_unpack(lmax,poles(1,kxn,kyn,kzn),
-     $                          qn,lq)
-                           do ln = lmax,0,-1
-                              do m = -ln,ln
-                                 if (abs(qn(m,ln)).gt.0.0d0) goto 20
-                              enddo
-                           enddo
- 20                        continue
                            if (ln.ge.0 .and. l.ge.0) then
 *                              call xlm_multipole_to_local_swap(lmaxeff,
 *     $                             xn, yn, zn, qn, pn, lq,
