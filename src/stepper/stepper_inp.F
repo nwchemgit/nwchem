@@ -1,5 +1,5 @@
       subroutine stepper_input(rtdb)
-C $Id: stepper_inp.F,v 1.1 1996-07-26 16:39:26 d3g681 Exp $
+C $Id: stepper_inp.F,v 1.2 1997-02-25 19:41:42 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -66,6 +66,12 @@ c
      &    call errquit('stepper_input: no input present',911)
       if (.not. inp_compare(FF,'stepper',stpr_token))
      &    call errquit('stepper_input: not stepper input', 911)
+c
+c If stepper module input then turn driver off
+c
+      if (.not.rtdb_put(rtdb, 'opt:driver', mt_log, 1, FF))
+     &    call errquit
+     &    ('stepper_input: unable to turn opt:driver off',911)
 c
 c set defaults
 c
