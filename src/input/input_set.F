@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.11 1996-09-19 01:11:45 d3g681 Exp $
+C$Id: input_set.F,v 1.12 1996-09-26 00:13:08 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -98,7 +98,7 @@ C     How much data is there to read? (For integers there may be more,
 C     since each field may actually be a range.
 C
       nvalues = inp_n_field() - inp_cur_field()
-      write(6,*) name(1:inp_strlen(name)), ' is ', type, ' ',nvalues
+*      write(6,*) name(1:inp_strlen(name)), ' is ', type, ' ',nvalues
 C
 C     Read the data according to the specified type.  For integers, we
 C     allocate an obnoxiously large buffer in the hopes of ensuring
