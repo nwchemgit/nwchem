@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.33 2000-08-01 23:17:29 edo Exp $
+* $Id: grid_file.F,v 1.34 2000-08-09 23:04:12 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -157,6 +157,7 @@ c
          read(gr_unit,99,err=199) max_cache_rec
          read(gr_unit,99,err=199) n_rec_in_file
          read(gr_unit,'(L1)',err=199) file_opened
+         rewind(gr_unit)
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1)
@@ -871,5 +872,30 @@ c
       enddo
       grid_getnsubb=.true.
 
+      return
+      end
+      logical function grid_reopen(rtdb,geom)
+      implicit none
+#include "geom.fh"
+#include "cgridfile.fh"
+#include "bgj.fh"
+#include "rtdb.fh"
+c
+      integer rtdb ![in]
+      integer geom ![in]
+c
+      double precision enuc
+      integer filesize, memsize
+      logical grid_file_open
+      external grid_file_open
+      character*255 gridfilename
+      if(.not.geom_nuc_rep_energy(geom, Enuc)) 
+     .     call errquit(' gridquad: enucrep failed ',0)
+      if(.not.rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
+     . call errquit(' grreopen: no filename on rtdb?',0)
+      oreopen=.true.
+      grid_reopen=
+     .     grid_file_open(enuc,
+     .     gridfilename, memsize, filesize)
       return
       end

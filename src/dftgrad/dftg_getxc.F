@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.28 2000-08-01 19:37:14 edo Exp $
+* $Id: dftg_getxc.F,v 1.29 2000-08-09 23:04:26 edo Exp $
 *
       implicit none
 c      
@@ -39,12 +39,10 @@ c
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       logical status,grid_on_file
 c
-      integer filesize, memsize
-      character*255 gridfilename
       integer nproc,i
-      double precision  tot,enuc
-      logical grid_file_open
-      external grid_file_open
+      double precision  tot
+      logical grid_reopen
+      external grid_reopen
 c
       nproc = ga_nnodes()
 c
@@ -69,14 +67,7 @@ c
 c
 c     check if we can get the grid from a file
 c         
-         if(.not.geom_nuc_rep_energy(geom, Enuc)) 
-     .        call errquit(' gridquad: enucrep failed ',0)
-         if(rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) then
-            oreopen=.true.
-            grid_written=
-     .           grid_file_open(enuc,
-     .           gridfilename, memsize, filesize)
-         endif
+         grid_written=grid_reopen(rtdb,geom)
       endif
       if(grid_on_file.and.grid_written) then
          call dftg_gridv0(rtdb, iga_dens, force, natom, oactive, 
