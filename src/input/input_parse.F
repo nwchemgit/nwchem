@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.46 1998-12-29 18:01:39 d3j191 Exp $
+C     $Id: input_parse.F,v 1.47 1999-03-15 21:23:35 d3j191 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -83,7 +83,7 @@ c
             else if (inp_compare(.false.,test,'prepare')) then
                call pre_input(rtdb)
             else if (inp_compare(.false.,test,'md')) then
-               call arg_input(rtdb)
+               call md_input(rtdb)
             else if (inp_compare(.false.,test,'nwargos')) then
                call arg_input(rtdb)
             else if (inp_compare(.false.,test,'esp')) then
@@ -93,7 +93,7 @@ c
             else if (inp_compare(.false.,test,'analyze')) then
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'ideaz')) then
-               call md_input(rtdb)
+               call ideaz_input(rtdb)
             else if (inp_compare(.false.,test,'gradients')) then
                call gradients_input(rtdb)
             else if (inp_compare(.false.,test,'gradient')) then
