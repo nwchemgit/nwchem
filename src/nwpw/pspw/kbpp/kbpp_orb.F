@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.5 2002-01-04 23:40:20 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.6 2002-01-24 18:22:33 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -90,7 +90,8 @@
 
 
 *     **** set the maximum angular momentum ****
-      if (lmax.eq.-1)    lmax = lmax1
+*      if (lmax.eq.-1)    lmax = lmax1
+      if (lmax.eq.-1)    lmax = lmax0  ! make lmax as large as possible
       if (lmax.gt.lmax0) lmax = lmax0
       if (lmax.lt.0)     lmax = lmax0
 
