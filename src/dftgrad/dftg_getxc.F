@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.12 1997-11-19 06:00:08 d3j191 Exp $
+* $Id: dftg_getxc.F,v 1.13 1998-09-09 13:08:51 bjohnson Exp $
 *
       implicit none
 c      
@@ -14,6 +14,11 @@ c
       double precision force(3*natom), s34(natom)
       integer nactive
       logical oactive(natom)
+c!!! BGJ test !!!
+      integer l_hess, k_hess, g_rhs(100), j
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+c!!! BGJ test !!!
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -22,6 +27,9 @@ c
 #include "tcgmsg.fh"
 #include "sym.fh"
 #include "cdft.fh"
+c!!! BGJ test !!!
+#include "bgj.fh"
+c!!! BGJ test !!!
 c 
       integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
      &        cetobfr(2,natom)
@@ -121,6 +129,82 @@ c
          call dftg_quadv0(rtdb, iga_dens, force, natom, oactive, 
      &                    nactive, rdens_atom, cntoce,
      &                    cntobfr, cetobfr)
+
+c!!! BGJ test !!!
+c
+c     XC hesssian test calculation done by setting bgj:xc_hessian
+c     to true
+c
+         if (.not. rtdb_get(rtdb, 'bgj:xc_hessian', mt_log,
+     &        1, status)) status = .false.
+         if (status) then
+            status = MA_push_get(MT_DBL, 3*natom*3*natom,
+     &           'xc hessian', l_hess, k_hess)
+            if (.not.status) 
+     &         call errquit('dftg_getxc: could not allocate xc hessian',
+     &                      1)
+            if (bgj_print() .gt. 0)
+     &           write(6,*)'*** In dftg_getxc: calling xc_hessian'
+            call xc_hessian(iga_dens, oactive, nactive, dbl_mb(k_hess))
+            status = MA_pop_stack(l_hess)
+            if (.not.status) call
+     &         errquit('dftg_get_xc: could not pop stack for hessian',
+     &                   1)
+         endif
+
+c
+c     XC CPKS RHS test calculation done by setting bgj:xc_cpks_rhs
+c     to true
+c
+         if (.not. rtdb_get(rtdb, 'bgj:xc_cpks_rhs', mt_log,
+     &        1, status)) status = .false.
+         if (status) then
+c
+c           Allocate temp GA's for RHS
+c
+            if (bgj_print() .gt. 0)
+     &           write(*,*)'*** xc cpks rhs test: nactive =',nactive
+            if (ipol*3*nactive.gt.100)
+     &           call errquit('dftg_getxc: dimension error in test',0)
+            j = 0
+            do i = 1, nactive
+               j = j + 1
+               g_rhs(j) = ga_create_atom_blocked
+     &              (geom, ao_bas_han, 'CPKS RHS test a x')
+               if (ipol.eq.2) then
+                  j = j + 1
+                  g_rhs(j) = ga_create_atom_blocked
+     &                 (geom, ao_bas_han, 'CPKS RHS test b x')
+               endif
+               j = j + 1
+               g_rhs(j) = ga_create_atom_blocked
+     &              (geom, ao_bas_han, 'CPKS RHS test a y')
+               if (ipol.eq.2) then
+                  j = j + 1
+                  g_rhs(j) = ga_create_atom_blocked
+     &                 (geom, ao_bas_han, 'CPKS RHS test b y')
+               endif
+               j = j + 1
+               g_rhs(j) = ga_create_atom_blocked
+     &              (geom, ao_bas_han, 'CPKS RHS test a z')
+               if (ipol.eq.2) then
+                  j = j + 1
+                  g_rhs(j) = ga_create_atom_blocked
+     &                 (geom, ao_bas_han, 'CPKS RHS test b z')
+               endif
+            enddo
+
+            if (bgj_print() .gt. 0)
+     &           write(6,*)'*** In dftg_getxc: calling xc_cpks_rhs'
+            call xc_cpks_rhs(iga_dens, oactive, nactive, g_rhs)
+
+            do j = 1, ipol*3*nactive
+               if (.not.ga_destroy(g_rhs(j))) then
+                  call errquit('xc_cpks_rhs: problem destroying ga',1)
+               endif
+            enddo
+         endif
+c!!! BGJ test !!!
       endif
 c
       return
