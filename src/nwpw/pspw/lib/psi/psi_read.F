@@ -7,13 +7,14 @@
 
       subroutine psi_read(ispin,ne,psi2)
 *
-* $Id: psi_read.F,v 1.2 2001-11-28 22:15:21 bylaska Exp $
+* $Id: psi_read.F,v 1.3 2002-01-25 16:24:38 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
       double complex psi2(*)
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 
 #ifdef MPI
       include 'mpif.h'
@@ -25,7 +26,7 @@
 #endif
 
 *    *** local variables ***
-      integer version,l
+      integer version,l,rtdb
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
@@ -39,15 +40,16 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value
+      logical value,psi_nolattice
 
 *     ***** local functions ****
       character*30 control_input_psi
       external     control_input_psi
       double precision control_unita
       external         control_unita
-      integer  control_ngrid
-      external control_ngrid
+      integer  control_ngrid,control_rtdb
+      external control_ngrid,control_rtdb
+      
 
       call Parallel_taskid(taskid)
       call D3dB_nfft3d(1,nfft3d)
@@ -58,7 +60,7 @@ c     complex*16 tmp(*)
       if (.not. value) call errquit('out of stack memory',0)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-       if (.not. value) call errquit('out of stack memory',0)
+       if (.not. value) call errquit('psi_read:pushing stack',0)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -108,12 +110,22 @@ c     **** send header to all nodes ****
 
 
 *     ***** Error checking ****
+      if (version.eq.5) then
+       call errquit('Error cannot read band structure wavefunctions',1)
+      end if
+
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-        call errquit('Error reading wavefunctions', 0)
+        call errquit('Error reading wavefunctions - bad grid', 2)
       end if
 
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+     >                  mt_log,1,psi_nolattice))
+     >   psi_nolattice = .false.
+  
+      if (.not.psi_nolattice) then
       if ( (unita(1,1).ne.control_unita(1,1)) .or.
      >     (unita(2,1).ne.control_unita(2,1)) .or.
      >     (unita(3,1).ne.control_unita(3,1)) .or.
@@ -123,7 +135,8 @@ c     **** send header to all nodes ****
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
-        call errquit('Error reading wavefunctions', 1)
+        call errquit('Error reading wavefunctions - bad lattice', 3)
+      end if
       end if
 
 
@@ -142,7 +155,8 @@ c     **** send header to all nodes ****
       end if
  
       value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not. value) call errquit('psi_read:popping stack',4)
 
 *     end if
 
