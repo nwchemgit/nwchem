@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.89 1999-05-09 19:16:21 d3g681 Exp $
+C     $Id: geom_input.F,v 1.90 1999-05-11 23:43:49 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -376,7 +376,7 @@ c
 c     ----- call auto-z-matrix generation -----
 c     
          call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter,
-     $        nzinput,oforce_autoz)
+     $        nzinput,oforce_autoz,oprint)
       else
 c     
 c     ----- no auto-z -----
@@ -1766,7 +1766,7 @@ c
       end
       subroutine  geom_zmt_autoz(rtdb,geom,
      1                           coords,charge,tags,ncenter,
-     2                           nzinput,oforce_autoz)
+     2                           nzinput,oforce_autoz, oprint)
       implicit none
 #include "stdio.fh"
       integer      rtdb
@@ -1799,6 +1799,7 @@ c
       logical      zdone
       logical      dbug 
       logical      some 
+      logical     oprint
       double precision coords
       double precision charge
       double precision zmat  
@@ -1851,7 +1852,7 @@ c
          enddo
       endif
 c
-      call hnd_zmtmak(zdone,rtdb)
+      call hnd_zmtmak(zdone,rtdb,oprint)
 c
       if(.not.zdone) then
          write(iw,9997)
@@ -1873,7 +1874,8 @@ c
 c
 c     ----- print -zmat- data -----
 c
-      call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+      if (oprint) 
+     $     call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
 c
       return
  9999 format(' in -geom_zmt_autoz- ')
@@ -2024,7 +2026,6 @@ C
       logical      status
       integer      rtdb
       integer      geom
-      integer      mitob
       integer      mxizmt
       integer      mxzmat
       integer      mxatom

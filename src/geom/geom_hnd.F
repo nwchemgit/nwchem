@@ -1,5 +1,6 @@
       SUBROUTINE HND_ICOORD(RTDB,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "util.fh"
 c
       logical status
       integer rtdb
@@ -66,21 +67,22 @@ C
             CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
          ENDIF
          CALL HND_BANDBI(GEOM,NAT,C)
-         CALL HND_ZMTPRT(GEOM)
+****         CALL HND_ZMTPRT(GEOM)  ! RJH - no need to print every time
       ELSEIF(IFZMAT.NE.0.AND.NZMAT.EQ.0) THEN
 C
 C     -----       THERE IS NO -Z- MATRIX     -----
 C     ----- TRY TO CREAT ONE ; IF SUCCESSFUL -----
 C     -----    CALCULATE -B- AND -B**(-1)-   -----
 C
-         CALL HND_ZMTMAK(ZDONE,RTDB)
+         CALL HND_ZMTMAK(ZDONE,RTDB,
+     $        util_print('zmat','print_default'))
          IF(ZDONE) THEN
             STATUS=GEOM_ZMT_OPN_FIL(.TRUE.,.TRUE.,.FALSE.,.FALSE.)
             IF(.NOT.STATUS) THEN
                CALL ERRQUIT('GEOM_ZMT_OPN_FIL?',911)
             ENDIF
             CALL HND_BANDBI(GEOM,NAT,C)
-            CALL HND_ZMTPRT(GEOM)
+****  CALL HND_ZMTPRT(GEOM)
          ELSE
 C
 C     -----  DEFINE ROTATIONS+TRANSLATIONS  -----
@@ -2671,15 +2673,17 @@ C
   950 FORMAT(1X,'THIS MESSAGE COMES TO YOU FROM -DIHPLA-, WHERE ',
      1          'INTERNAL COORDINATE',I4,' USES ATOMS',5I4)
       END
-      SUBROUTINE HND_ZMTMAK(ZDONE,RTDB)
+      SUBROUTINE HND_ZMTMAK(ZDONE,RTDB,oprint)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
+#include "util.fh"
       integer  rtdb
       logical  status
       logical  zcoord_input
+      logical  oprint
       parameter (max_zcoord=16)
 c
       PARAMETER (TOANGS=0.52917724924D+00)
@@ -2743,7 +2747,7 @@ C      EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
 C      AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
 C
       DATA (RCOV(NUCZ),NUCZ=1,2)
-     1  /0.30D+00,1.22D+00/
+     1  /0.40D+00,1.22D+00/     ! RJH Changed 0.3 for H to 0.4 for H2
       DATA (RCOV(NUCZ),NUCZ=3,10)
      1  /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
      2   0.70D+00,0.66D+00,0.71D+00,1.60D+00/
@@ -2784,7 +2788,7 @@ C
       OUT  =OUT.OR.DBUG
       SOME =.TRUE.
       SOME =SOME.OR.OUT
-      IF(SOME) THEN
+      IF(SOME .and. oprint) THEN
          WRITE(IW,8888)
       ENDIF
       IF(DBUG) THEN
@@ -3252,7 +3256,7 @@ C
          NZMAT=NIZMAT
          NLNBA=3*MXLNBA
 C
-         IF(SOME) THEN
+         IF(SOME .and. oprint) THEN
             WRITE(IW,8877) ZDONE
          ENDIF
          RETURN
