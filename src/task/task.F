@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.42 2000-07-14 00:20:15 edo Exp $
+* $Id: task.F,v 1.43 2001-02-02 00:24:08 windus Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -132,6 +132,7 @@ c
          else if (inp_compare(.false.,'property', theory)) then
             status = property(rtdb)
          else if (inp_compare(.false.,'drdy', theory).or.
+     &            inp_compare(.false.,'drdyvtst', theory).or.
      &            inp_compare(.false.,'drdy_nwchem', theory)) then
             status = task_drdy(rtdb)
          else if (inp_compare(.false.,'nbo', theory)) then
