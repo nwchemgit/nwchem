@@ -108,6 +108,9 @@ c
       integer mrg_d47
       integer mrg_d48
       integer mrg_d49
+      integer mrg_d50
+      integer mrg_d51
+      integer mrg_d52
 c
       integer mrg_i01
       integer mrg_i02
@@ -389,7 +392,7 @@ c
       parameter(mrg_d46=msg_ftn_base-146) ! arg_wrtraj
       parameter(mrg_d47=msg_ftn_base-147) ! arg_xscale
       parameter(mrg_d48=msg_ftn_base-148) ! arg_props
-      parameter(mrg_d49=msg_ftn_base-149)
+      parameter(mrg_d49=msg_ftn_base-149) ! arg_props
 c
       parameter(mrg_i01=msg_ftn_base-150) ! arg_diagtm
       parameter(mrg_i02=msg_ftn_base-151) ! arg_dymcti
@@ -408,8 +411,8 @@ c
       parameter(mrg_i15=msg_ftn_base-164) ! arg_wrtinp
       parameter(mrg_i16=msg_ftn_base-165) ! arg_param1
       parameter(mrg_i17=msg_ftn_base-166) ! arg_param1
-      parameter(mrg_i18=msg_ftn_base-167)
-      parameter(mrg_i19=msg_ftn_base-168)
+      parameter(mrg_i18=msg_ftn_base-167) ! arg_param3
+      parameter(mrg_i19=msg_ftn_base-168) ! arg_setup1
       parameter(mrg_i20=msg_ftn_base-169)
 c
       parameter (msg_hessmin = msg_ftn_base - 170 )         ! MCSCF orbital hessian min
@@ -509,3 +512,6 @@ c
       parameter (msg_qmmm_numin2   = msg_ftn_base - 271) ! nwargos/qmmm *ig
       parameter (msg_qmmm_numout2  = msg_ftn_base - 272) ! nwargos/qmmm *ig
 *
+      parameter(mrg_d50=msg_ftn_base-273) ! arg_props
+      parameter(mrg_d51=msg_ftn_base-274) ! arg_props
+      parameter(mrg_d52=msg_ftn_base-275) ! arg_props
