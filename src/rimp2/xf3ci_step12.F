@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.7 1994-10-14 19:44:56 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.8 1994-10-16 06:00:34 d3e129 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(IntTyp, Alo, Ahi, Ilo, Ihi,
@@ -315,7 +315,7 @@ C
      $            FP_One, Dbl_MB(CP_Idx + PLo-PBFLo), MxBfCe,
      $            Dbl_MB(Scr_Idx), NBFPSh,
      $            FP_One, Dbl_MB(Local_Idx), NA)
-               Call MA_Verify_Allocator_Stuff
+               if(.not.MA_Verify_Allocator_Stuff()) stop ' ma error'
 C
                Call PStat_Off( PS_Step12)
 C
