@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.16 1998-04-29 18:35:31 d3j191 Exp $
+c $Id: prepar.F,v 1.17 1998-04-29 18:46:03 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -106,7 +106,8 @@ c     get info from rtdb
 c     ------------------
 c
       if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
-     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mgrid,gdist,mnoe))
+     + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mgrid,gdist,mnoe,
+     + maxscf,qscale))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     directories
