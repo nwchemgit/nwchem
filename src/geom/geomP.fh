@@ -105,7 +105,7 @@ c
       integer  max_izmat
 c
       parameter (max_sym_ops   = 192)
-      parameter (max_geom      =   2)
+      parameter (max_geom      =   3)
       parameter (max_geom_rtdb = 100)
       parameter (nelements     = 103)
       parameter (max_cent      = 500)
