@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c
-c$Id: grid_rtrunc.F,v 1.21 2000-02-23 01:35:14 edo Exp $
+c$Id: grid_rtrunc.F,v 1.22 2000-02-23 02:47:52 edo Exp $
 c
       implicit none
 c      
@@ -30,7 +30,9 @@ c
      .     lpmat,ipmat,l_ics,k_ics,iat_diff,k_coord,l_coord
 c
       double precision alphaa,alphab,xa(3),xb(3)
-      integer lla,llb,itype
+      integer lla,llb,itype,maxangg
+      integer xc_leb_nrd2acc
+      external xc_leb_nrd2acc
       
 c
 c     determine node id
@@ -93,10 +95,13 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
       call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
       call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
       if(check_s) then 
+      call ga_dgop(msg_igop_tru5,int_mb(k_ldiff),ncenters,'absmax') 
+      call ga_igop(msg_igop_tru6,dbl_mb(k_minexp),ncenters,'absmax') 
+
          do itype=1,ntypes
             iat=ityp2ctr(itype)
             iat_diff=rad_cutoff(2,itype)
-            write(0,*) ' A and B are ',iat,iat_diff
+            if(me.eq.0) write(0,*) ' A and B are ',iat,iat_diff
             alphab=dbl_mb(k_minexp+iat_diff-1)
             alphaa=exex(itype)-alphab
             llb=int_mb(k_ldiff+iat_diff-1)
@@ -110,6 +115,21 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
             call grid_checks(job_grid_acc,iat,alphaa,lla,xa,
      .           iat_diff,alphab,llb,xb)
          enddo
+c
+c     recheck range_max
+c
+         do itype=1,ntypes
+            range_max=max(range_max,dble(rad_cutoff(itype,1)))
+         enddo
+c
+c     recheck iangquad
+c
+         
+         maxangg=0
+         do itype=1,ntypes
+            maxangg=max(maxangg,nang(itype))
+         enddo
+         iangquad=xc_leb_nrd2acc(maxangg)
       endif
       
 c

@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.16 2000-02-05 00:38:23 edo Exp $
+c$Id: grid_acc_def.F,v 1.17 2000-02-23 02:47:52 edo Exp $
 c
       implicit none
 c      
@@ -28,7 +28,7 @@ c
       data gridtypes /'xcoarse', 'coarse', 'medium', 'fine', 'xfine', 
      &                'lebmed','lebfine','lebxfine',
      .                'gausleg','lebedev'/
-      data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-6,1d-7,1d-8,1d-8,1d-4/
+      data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-5,1d-7,1d-8,1d-8,1d-4/
 c
       double precision ictr_coord(3), ictr_chg
       integer itype, ictr, iaz, i_atomic_number,iangat
@@ -349,7 +349,9 @@ c
       endif      
     8 continue
 c
-      job_grid_acc = grid_acc(grid_acc_index)
+      if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
+     &   job_grid_acc))
+     .     job_grid_acc = grid_acc(grid_acc_index)
 
 c
 c     shove job_grid_acc into the rtdb

@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.7 2000-02-23 01:35:14 edo Exp $
+c$Id: grid_checks.F,v 1.8 2000-02-23 02:47:52 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -79,9 +79,9 @@ c
       range_b=dble(rad_cutoff(1,jtype))
       reqacc=acc_in
       me=ga_nodeid(0)
-      write(0,*) ' required accuracy ',reqacc
-      write(0,*) ' alpha ',alphaa,alphab
-      write(0,*) ' lla llb rij ',lla,llb,rij
+      if(me.eq.0) write(0,*) ' required accuracy ',reqacc
+      if(me.eq.0) write(0,*) ' alpha ',alphaa,alphab
+      if(me.eq.0) write(0,*) ' lla llb rij ',lla,llb,rij
 c
 c     initial test
 c
@@ -97,7 +97,6 @@ c
 c     first <a|a> at r=0
 c
 
-      write(0,*) ' aa0'
       call grid_checks1(acc_in,alphaa,lla,alphaa,lla,0d0,
      ,     nrada,nrada,nanga,nanga,range_a,range_a,.true.,
      ,     value,value_ex,s_err,
@@ -107,7 +106,6 @@ c
 c
 c     2nd <b|b> at r=0
 c
-      write(0,*) ' bb0'
       call grid_checks1(acc_in,alphab,llb,alphab,llb,0d0,
      ,     nradb,nradb,nangb,nangb,range_b,range_b,.true.,
      ,     value,value_ex,s_err,
@@ -115,7 +113,6 @@ c
      ,     int_mb(k_iscr),dbl_mb(k_rq),
      ,     niter,mxiter,mxangpp,mxangpp1,mxrad,mxnangpp,maxrad)
       endif
-      write(0,*) ' call s1'
 c
 c     3rd <a|b> at r
 c
