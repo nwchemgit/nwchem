@@ -3,7 +3,7 @@
           basis.tex fourindex.tex md.tex  scf.tex  top-level.tex \
           dft.tex  geometry.tex mp2.tex  scfgrad.tex user.tex \
           disclaimer.tex intro.tex plnwv.tex selci.tex vib.tex \
-          dplot.tex knownbas.tex property.tex stepper.tex 
+          dplot.tex knownbas.tex property.tex stepper.tex nwargos.tex
 
 all postscript user.ps:	$(SOURCE)
 	latex user.tex
