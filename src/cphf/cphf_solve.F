@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.29 2001-06-12 20:10:13 zzhang Exp $
+* $Id: cphf_solve.F,v 1.30 2001-06-21 18:44:59 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -18,7 +18,7 @@ c!!! BGJ
 c!!! BGJ
       integer rtdb              ! [input] database handle
       double precision eone,etwo,enrep,energy
-      integer g_grad, g_work
+      integer g_grad, g_work, g_evecs
       integer max_precond_iter,max_precond_sub
       double precision precond_acc
       integer precond_iter
@@ -31,7 +31,7 @@ c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
       external rohf_hessv_precond,rohf_hessv
       external uhf_precond,uhf_hessv
-c      external tddft_precond
+      external tddft_precond
       logical oprint, oprint_conv
 c     
       character*(nw_max_path_len) cphf_rhs
@@ -49,10 +49,10 @@ c
       external int_normalize
 c
       logical hf_job
-      integer nroot, leval, ieval
+      integer nroot, leval, ieval, iroot
       logical cphf_tddft
 c      cphf_tddft = .true. 
-c      cphf_tddft = .false. 
+      cphf_tddft = .false. 
 c
       hf_job = .not. bgj_have_xc()      
 c
@@ -224,15 +224,22 @@ c !!! BGJ
 c !!! BGJ
       if (scftype .eq. 'UHF') then
          if(cphf_tddft)then
-c            call tddft_guess(g_grad, g_work)
             nroot = 1
-c            if (.not.MA_Push_Get(mt_dbl, nroot, 'Eval', lEval,iEval))
-c     &           call errquit('cphf_solve: cannot allocate Eval',0)
-c            if(.not.ga_iter_diag(vlen, nroot, max_precond_iter,
-c     $           max_precond_sub, precond_tol, 
-c     $           tddft_precond, uhf_hessv, oprint_solve, 0.d0, 
-c     $           g_work, dbl_mb(ieval), precond_acc, precond_iter))
-c     $           call errquit('cphf did not converge',precond_iter)
+            if(.not.ga_create(mt_dbl,vlen,nroot,'cphf_solve: g_evecs',
+     $           0,0,g_evecs))call errquit('cphf_solve: ga_cre evecs',0)
+            call ga_zero(g_evecs)
+            do iroot = 1, nroot
+               call tddft_guess(g_grad, g_work, iroot)
+               call ga_copy_patch('n', g_work, 1, vlen, 1, 1,
+     &              g_evecs, 1, vlen, iroot, iroot)
+            enddo
+            if (.not.MA_Push_Get(mt_dbl, nroot, 'Eval', lEval,iEval))
+     &           call errquit('cphf_solve: cannot allocate Eval',0)
+            if(.not.ga_iter_diag(vlen, nroot, max_precond_iter,
+     $           max_precond_sub, precond_tol, 
+     $           tddft_precond, uhf_hessv, oprint_solve, 0.d0, 
+     $           g_evecs, dbl_mb(ieval), precond_acc, precond_iter))
+     $           call errquit('cphf did not converge',precond_iter)
          else
             if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $           max_precond_sub, precond_tol, 
@@ -241,11 +248,30 @@ c     $           call errquit('cphf did not converge',precond_iter)
      $           call errquit('cphf did not converge',precond_iter)
          endif
       else 
-         if(.not.ga_iter_lsolve(vlen, max_precond_iter,
-     $        max_precond_sub, precond_tol, 
-     $        rohf_hessv_precond, rohf_hessv, .false., oprint_solve, 
-     $        g_grad, g_work, precond_acc,precond_iter))
-     $        call errquit('cphf did not converge', precond_iter)
+         if(cphf_tddft)then
+            nroot = 1
+            if(.not.ga_create(mt_dbl,vlen,nroot,'cphf_solve: g_evecs',
+     $           0,0,g_evecs))call errquit('cphf_solve: ga_cre evecs',0)
+            call ga_zero(g_evecs)
+            do iroot = 1, nroot
+               call tddft_guess(g_grad, g_work, iroot)
+               call ga_copy_patch('n', g_work, 1, vlen, 1, 1,
+     &              g_evecs, 1, vlen, iroot, iroot)
+            enddo
+            if (.not.MA_Push_Get(mt_dbl, nroot, 'Eval', lEval,iEval))
+     &           call errquit('cphf_solve: cannot allocate Eval',0)
+            if(.not.ga_iter_diag(vlen, nroot, max_precond_iter,
+     $           max_precond_sub, precond_tol, 
+     $           tddft_precond, rohf_hessv, oprint_solve, 0.d0, 
+     $           g_evecs, dbl_mb(ieval), precond_acc, precond_iter))
+     $           call errquit('cphf did not converge',precond_iter)
+         else
+            if(.not.ga_iter_lsolve(vlen, max_precond_iter,
+     $           max_precond_sub, precond_tol, 
+     $           rohf_hessv_precond, rohf_hessv, .false., oprint_solve, 
+     $           g_grad, g_work, precond_acc,precond_iter))
+     $           call errquit('cphf did not converge', precond_iter)
+         endif
       endif
 c     !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
@@ -300,12 +326,12 @@ c    $     call errquit(' cphf: not possible!',0)
 c
       end
 
-      subroutine tddft_guess(g_grad, g_work)
+      subroutine tddft_guess(g_grad, g_work, flag)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "cscf.fh"
-      integer g_grad, g_work
+      integer g_grad, g_work, flag
       integer vlen, i, j, ioff, nvira, l_init, k_init
       double precision ea, ei, eia
 c
@@ -314,48 +340,89 @@ c
 c
 c     initial guess of g_soln
 c
-      vlen = nalpha*(nmo-nalpha)+nbeta*(nmo-nbeta)
+      if (scftype.eq.'UHF') then 
+         vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
+      else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
+         vlen = nclosed*(nmo-nclosed)
+      else
+         call errquit('tddft_guess: unknown SCF type',0)
+      endif
+
       if(.not.ma_push_get(mt_dbl,vlen,'initial guess',l_init,
      &     k_init))
      &     call errquit('cannot alloctate l_init',0)      
       call dfill(vlen, 0.0d0, dbl_mb(k_init), 1)
-      nvira=nmo-nalpha
-      ioff = nvira*(nalpha-1)
-      dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo
-      dbl_mb(k_init+ ioff + nvira*nalpha) = -1.0d0 
-c
+      if(scftype .eq. 'UHF')then
+         nvira=nmo-nalpha
+         ioff = nvira*(nalpha-1)
+         if(flag .eq. 1)then
+            dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo
+            dbl_mb(k_init + ioff + nvira*nalpha) = -1.0d0 ! beta
+         else if (flag.eq.2) then
+            dbl_mb(k_init+ ioff + nvira*nalpha ) = -1.0d0
+         else if (flag.eq.3) then
+            dbl_mb(k_init+ ioff + 1) = 1.0d0
+         else if (flag.eq.4) then
+            dbl_mb(k_init+ ioff + nvira*nalpha +1) = -1.0d0
+         endif
+      else if(scftype .eq. 'RHF') then
+         ioff = (nmo-nclosed)*(nclosed-1)
+         if(flag .eq. 1)then
+            dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo
+         else if (flag.eq.2) then
+            dbl_mb(k_init+ ioff + 1) = -1.0d0
+         else if (flag.eq.3) then
+            dbl_mb(k_init+ ioff + 2) = 1.0d0
+         else if (flag.eq.4) then
+            dbl_mb(k_init+ ioff +3) = -1.0d0
+         endif
+      else
+         call errquit('tddft_guess: unknown SCF type',0)
+      endif
+c     
 c     scale the initial guess by epsilon(i,a)=epsilon(i) - epsilon(a)
-c      
-c      if(scftype .eq. 'RHF')then 
-      do i = 1, nalpha
-         ei = dbl_mb(k_eval+(i-1))
-         do j = 1, nbf-nalpha
-            ea = dbl_mb(k_eval+(nalpha+j-1))
-            eia = ea - ei 
-            dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1))=
-     &           dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)) /
-     &           sqrt(eia)
-            write(*,*)dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)),
-     &           ea, ei 
+c     
+      if(scftype .eq. 'UHF')then 
+         do i = 1, nalpha
+            ei = dbl_mb(k_eval+(i-1))
+            do j = 1, nbf-nalpha
+               ea = dbl_mb(k_eval+(nalpha+j-1))
+               eia = ea - ei 
+               dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1))=
+     &              dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)) /
+     &              sqrt(eia)
+            enddo
          enddo
-      enddo
-      ioff = nalpha*(nmo-nalpha)
-      do i = 1, nbeta
-         ei = dbl_mb(k_eval+nbf+(i-1))
-         do j = 1, nbf-nbeta
-            ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
-            eia = ea - ei 
-            dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1))=
-     &           dbl_mb(k_init + ioff + ((i-1)*(nbf-nalpha)+j-1)) / 
-     &           sqrt(eia)
-            write(*,*)dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1)),
-     &           ea, ei 
+         ioff = nalpha*(nmo-nalpha)
+         do i = 1, nbeta
+            ei = dbl_mb(k_eval+nbf+(i-1))
+            do j = 1, nbf-nbeta
+               ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
+               eia = ea - ei 
+               dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1))=
+     &              dbl_mb(k_init + ioff + ((i-1)*(nbf-nalpha)+j-1)) / 
+     &              sqrt(eia)
+            enddo
          enddo
-      enddo
-c     endif
+      else if(scftype.eq.'RHF')then
+         do i = 1, nclosed
+            ei = dbl_mb(k_eval+(i-1))
+            do j = 1, nbf-nclosed
+               ea = dbl_mb(k_eval+(nalpha+j-1))
+               eia = ea - ei 
+               dbl_mb(k_init + ((i-1)*(nbf-nclosed)+j-1))=
+     &              dbl_mb(k_init + ((i-1)*(nbf-nclosed)+j-1)) /
+     &              sqrt(eia)
+            enddo
+         enddo
+      else
+         call errquit('tddft_guess: unknown SCF type',0)
+      endif
       call ga_put(g_work,1,vlen,1,1,dbl_mb(k_init),1)
-      call ga_print(g_work)
-
+      if(.not.ma_pop_stack(l_init))
+     &     call errquit("cphf_guess: cannot pop stack initial guess", 0) 
+c     call ga_print(g_work)
+      
       return 
       end
 
@@ -365,44 +432,65 @@ c     endif
 #include "global.fh"
 #include "cscf.fh"
       integer g_grad, g_x, g_a, g_tmp, g_tmp2
-      integer vlen, i, j, ioff, nvira, l_init, k_init
+      integer vlen, gtype, nvec, i, j, ioff, nvira, l_init, k_init
       double precision ea, ei, eia
       logical flag              ! flag = .false. : scale by sqrt(ea-ei) only
                                 ! flag = .true.  : add the orbital energy and scale
-      write(*,*)"before scale by eigenvalue"
-      call ga_print(g_x)
-      call ga_print(g_grad)
-      vlen = nalpha*(nmo-nalpha)+nbeta*(nmo-nbeta)
+      if(scftype.eq.'UHF')then
+         vlen = nalpha*(nmo-nalpha)+nbeta*(nmo-nbeta)
+      else if(scftype.eq.'RHF')then
+         vlen=nclosed*(nmo-nclosed)
+      else
+         call errquit("unknown scftype?", 0)
+      endif
+      call ga_inquire(g_x,gtype,vlen,nvec)
       if(.not.ma_push_get(mt_dbl,vlen,'tmp_vec',l_init,
      &     k_init))
      &     call errquit('cannot alloctate l_init',0)      
       call dfill(vlen, 0.0d0, dbl_mb(k_init), 1)
-      nvira=nmo-nalpha
-      ioff = nvira*(nalpha-1)
-c
-c     scale g_grad by sqrt of epsilon(i,a)=epsilon(a) - epsilon(i)
-c      
-      do i = 1, nalpha
-         ei = dbl_mb(k_eval+(i-1))
-         do j = 1, nbf-nalpha
-            ea = dbl_mb(k_eval+(nalpha+j-1))
-            eia = ea - ei 
-            dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)) = sqrt(eia)
+      if(scftype.eq.'UHF')then
+         nvira=nmo-nalpha
+         ioff = nvira*(nalpha-1)
+c     
+c     form diagonal matrix of (sqrt of) eigenvalue differences 
+c     
+         do i = 1, nalpha
+            ei = dbl_mb(k_eval+(i-1))
+            do j = 1, nbf-nalpha
+               ea = dbl_mb(k_eval+(nalpha+j-1))
+               eia = ea - ei 
+               dbl_mb(k_init + ((i-1)*(nbf-nalpha)+j-1)) = sqrt(eia)
+            enddo
          enddo
-      enddo
-      ioff = nalpha*(nmo-nalpha)
-      do i = 1, nbeta
-         ei = dbl_mb(k_eval+nbf+(i-1))
-         do j = 1, nbf-nbeta
-            ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
-            eia = ea - ei 
-            dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1)) = sqrt(eia)
+         ioff = nalpha*(nmo-nalpha)
+         do i = 1, nbeta
+            ei = dbl_mb(k_eval+nbf+(i-1))
+            do j = 1, nbf-nbeta
+               ea = dbl_mb(k_eval+nbf+(nbeta+j-1))
+               eia = ea - ei 
+               dbl_mb(k_init + ioff + ((i-1)*(nbf-nbeta)+j-1))
+     &              = sqrt(eia)
+            enddo
          enddo
-      enddo
+      else if (scftype.eq.'RHF')then
+c     
+c     form diagonal matrix of (sqrt of) eigenvalue differences 
+c     
+         do i = 1, nclosed
+            ei = dbl_mb(k_eval+(i-1))
+            do j = 1, nbf-nclosed
+               ea = dbl_mb(k_eval+(nclosed+j-1))
+               eia = ea - ei 
+               dbl_mb(k_init + ((i-1)*(nbf-nclosed)+j-1)) = sqrt(eia)
+            enddo
+         enddo
+      else
+         call errquit("unknown scftype?",0)
+      endif
 c     
       if (.not. ga_create(MT_DBL, vlen, vlen, 'tddft_precond: diag',
      $     1, 0, g_a)) call errquit('diag', 0)
-      if (.not. ga_create(MT_DBL, vlen, 1, 'tddft_precond: tmp',
+      if (.not. ga_create(MT_DBL, vlen, nvec, 'tddft_precond: tmp',
      $     1, 0, g_tmp)) call errquit('diag', 0)
       if (.not. ga_create(MT_DBL, vlen, vlen, 'tddft_precond: tmp',
      $     1, 0, g_tmp2)) call errquit('diag', 0)
@@ -411,26 +499,31 @@ c
 c     
       call ga_copy_todiag(g_a,dbl_mb(k_init))
       if(flag)then
-c
+c     
 c     form the diagonal eia matrix g_tmp = g_a*g_a and then add the
 c     matrix vector product g_tmp * g_x to g_grad.
 c     
-         call ga_dgemm('n', 'n', vlen, vlen, vlen, 1.0d0, g_a, g_a, 
-     &        0.0d0, g_tmp2)
-         call ga_dgemm('n', 'n', vlen, 1, vlen, 1.0d0, g_tmp2, g_x, 
+         if(scftype.eq.'UHF')then
+            call ga_dgemm('n', 'n', vlen, vlen, vlen, 1.0d0, g_a, g_a, 
+     &           0.0d0, g_tmp2)
+         else if(scftype.eq.'RHF')then
+            call ga_dgemm('n', 'n', vlen, vlen, vlen, 1.0d0, g_a, g_a, 
+     &           0.0d0, g_tmp2)
+         endif
+         call ga_dgemm('n', 'n', vlen, nvec, vlen, 1.0d0, g_tmp2, g_x, 
      &        1.0d0, g_grad)
       endif
       call ga_copy(g_grad, g_tmp)
-      call ga_dgemm('n', 'n', vlen, 1, vlen, 1.0d0, g_a, g_tmp, 
+      call ga_dgemm('n', 'n', vlen, nvec, vlen, 1.0d0, g_a, g_tmp, 
      &     0.0d0, g_grad) 
-      write(*,*)"after scaling by eigenvalue"
-      call ga_print(g_grad)
       if(.not.ga_destroy(g_a))
      &     call errquit("tddft_scale: destroy g_a?" ,0)
       if(.not.ga_destroy(g_tmp))
      &     call errquit("tddft_scale: destroy g_tmp?" ,0)
       if(.not.ga_destroy(g_tmp2))
      &     call errquit("tddft_scale: destroy g_tmp2?" ,0)
+      if(.not.ma_pop_stack(l_init))
+     &     call errquit("cphf_guess: cannot pop stack initial guess", 0) 
       return 
       end
 
