@@ -64,6 +64,7 @@ c===============================================================
      *    nblock1,nblock1_back,npard,mxsize,mxpair,    ! output
      *                   nbl1,nbl2,nbl4)               ! output
       implicit real*8 (a-h,o-z)
+#include "global.fh"
       common /route/ iroute
 c save sizes :
       common /memor1_S/ npard_S,mxsize_S,nblock1_S,nblock1_back_S
@@ -173,8 +174,10 @@ c
       limxmem_here=limxmem - mem_txsetup - mem_blockin
 c
       if(limxmem_here.le.0) then
-        write(6,*)
-     &      'memory limit for texas will be more likely exceeded'
+        if (ga_nodeid().eq.0) then
+          write(6,*)
+     &        'memory limit for texas will be more likely exceeded'
+        endif
         limxmem_here=limxmem
       endif
 c-----------------------------------------------------
