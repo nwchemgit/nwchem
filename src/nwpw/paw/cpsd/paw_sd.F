@@ -1,7 +1,12 @@
 *
-* $Id: paw_sd.F,v 1.59 2003-03-23 22:21:53 bylaska Exp $
+* $Id: paw_sd.F,v 1.60 2003-03-25 22:47:53 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.59  2003/03/23 22:21:53  bylaska
+* eigen subroutine replaced by lapack DSYEV , because
+* SGI compiler optimization breaks eigen
+* ...EJB
+*
 * Revision 1.58  2003/03/22 20:15:15  bylaska
 * paw_marat_write has been commented out...EJB
 *
@@ -310,10 +315,19 @@
       call strfac_init()
 
 
-*     **** generate initial wavefunction if it does not exist ****
-!      if (.not.psi_filefind()) then
-!        call psi_new()
-!      end if
+!!!!!!!*     **** generate initial wavefunction if it does not exist ****
+*     **** report error if initial wavefunction does not exist ****
+      if (.not.psi_filefind()) then
+        if (taskid.eq.MASTER) then
+        write(*,*) "Automatic movecs file generation has not",
+     >             " been implemented in PAW."
+        write(*,*)
+        write(*,*) "Please generate movecs file using either"
+        write(*,*) "task pspw wavefunction_initializer or " 
+        write(*,*) "task pspw energy"
+        end if
+        call errquit("paw_sd: movecs file does not exist",0)
+      end if
 
 *     ***** allocate psi2,and psi1 wavefunctions ****
       call psi_get_ne(ispin,ne)
