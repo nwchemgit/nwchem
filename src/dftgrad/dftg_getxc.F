@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.13 1998-09-09 13:08:51 bjohnson Exp $
+* $Id: dftg_getxc.F,v 1.14 1998-09-25 11:38:37 bjohnson Exp $
 *
       implicit none
 c      
@@ -164,10 +164,11 @@ c           Allocate temp GA's for RHS
 c
             if (bgj_print() .gt. 0)
      &           write(*,*)'*** xc cpks rhs test: nactive =',nactive
-            if (ipol*3*nactive.gt.100)
+            if (ipol*3*natom.gt.100)
      &           call errquit('dftg_getxc: dimension error in test',0)
-            j = 0
-            do i = 1, nactive
+            do i = 1, natom
+             if (oactive(i)) then
+               j = ipol*3*(i-1)
                j = j + 1
                g_rhs(j) = ga_create_atom_blocked
      &              (geom, ao_bas_han, 'CPKS RHS test a x')
@@ -192,16 +193,21 @@ c
                   g_rhs(j) = ga_create_atom_blocked
      &                 (geom, ao_bas_han, 'CPKS RHS test b z')
                endif
+             endif
             enddo
 
             if (bgj_print() .gt. 0)
      &           write(6,*)'*** In dftg_getxc: calling xc_cpks_rhs'
             call xc_cpks_rhs(iga_dens, oactive, nactive, g_rhs)
 
-            do j = 1, ipol*3*nactive
-               if (.not.ga_destroy(g_rhs(j))) then
-                  call errquit('xc_cpks_rhs: problem destroying ga',1)
-               endif
+            do i = 1, natom
+              if (oactive(i)) then
+                do j = 1, ipol*3
+                  if (.not.ga_destroy(g_rhs(j+ipol*3*(i-1)))) then
+                    call errquit('xc_cpks_rhs: problem destroying ga',1)
+                  endif
+                enddo
+              endif
             enddo
          endif
 c!!! BGJ test !!!
