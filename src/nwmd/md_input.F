@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.48 2001-11-21 03:31:04 d3j191 Exp $
+c $Id: md_input.F,v 1.49 2001-11-21 03:42:33 d3j191 Exp $
 c
       implicit none
 c
@@ -1272,6 +1272,10 @@ c
       endif
       if(inp_compare(.false.,'mbb',item)) then
       if(.not.inp_i(mbbreq)) call errquit('md_input: error mbb',15)
+      goto 2
+      endif
+      if(inp_compare(.false.,'mcells',item)) then
+      if(.not.inp_i(mbbreq)) call errquit('md_input: error mcells',15)
       goto 2
       endif
       if(inp_compare(.false.,'load',item)) then
