@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.12 1995-04-10 01:39:32 gg502 Exp $
+C     $Id: xf3ci_step12.F,v 1.13 1995-06-15 21:16:37 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
@@ -194,7 +194,6 @@ C     try to allocate local memory (MA doesn't like zero lengths).
 C
       If ( NF .le. 0 ) then
          XF3cI_Step12 = .TRUE.
-         Call Util_Flush(6)
          Call GA_Sync
          Return
       EndIf
@@ -360,7 +359,6 @@ C
       If (.NOT. Status ) Call ErrQuit(
      $   'XF3cI_Step12: Problem freeing local memory', 0)
 C
-      Call Util_Flush(6)
       Call GA_Sync
 C
       XF3cI_Step12 = .TRUE.

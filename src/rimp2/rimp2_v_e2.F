@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.16 1995-05-27 20:33:23 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.17 1995-06-15 21:16:36 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -158,7 +158,8 @@ C
 C
 C     Clear out the energy contribution matrix
 C
-      Call DGEZER(TopSpin, TopSpin, Contrib, TopSpin)
+      Call dlaset('Full', TopSpin, TopSpin, FP_Zero, FP_Zero,
+     $     Contrib, TopSpin)
 C
       Status = .TRUE.
       Status = Status .AND. MA_Push_Get(MT_Int, 2*TopSpin-1,
@@ -342,6 +343,7 @@ C
 C
                   If ( Util_Print('progress reports', Print_Default))
      $               then
+                     String1 = ' ' ! Note all machines initialize mem.
                      Write (String1, 9210) ILo, IHi, JLo, JHi
                      Call Progress_Report(LuOut,
      $                  String1(:LNBlnk(String1)))
@@ -451,6 +453,7 @@ C
 C
                   If ( Util_Print('progress reports', Print_Default))
      $               then
+                     String1 = ' ' ! Note all machines initialize mem.
                      Write (String1, 9220) ILo, IHi, JLo, JHi
                      Call Progress_Report(LuOut,
      $                  String1(:LNBlnk(String1)))
@@ -473,6 +476,7 @@ C
 C
                   If ( Util_Print('progress reports', Print_Default))
      $               then
+                     String1 = ' ' ! Note all machines initialize mem.
                      Write (String1, 9230) ILo, IHi, JLo, JHi
                      Call Progress_Report(LuOut,
      $                  String1(:LNBlnk(String1)))
@@ -546,6 +550,7 @@ C
 C
                   If ( Util_Print('progress reports', Print_Default))
      $               then
+                     String1 = ' ' ! Note all machines initialize mem.
                      Write (String1, 9200) ILo, IHi, JLo, JHi
                      Call Progress_Report(LuOut,
      $                  String1(:LNBlnk(String1)))
