@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.40 2004-01-29 01:37:57 edo Exp $
+* $Id: cgsdv5.F,v 1.41 2004-02-18 01:22:25 bylaska Exp $
 *
 
 ***********************************************************************
@@ -308,9 +308,9 @@ c     value = psi_initialize()
      >           + ion_TotalCharge()
          write(6,1159) icharge
 
-         if (hprint) then
          write(6,1160)
          write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
+         if (hprint) then
          write(6,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
