@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.146 2002-03-23 00:49:11 edo Exp $
+# $Id: GNUmakefile,v 1.147 2002-07-27 18:27:49 edo Exp $
 
 include ../config/makefile.h
 
@@ -102,7 +102,7 @@ ifeq ($(FC),fort)
 endif
 endif
 ifeq ($(_CPU),ia64)
-  EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o 
+  EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o erfc.o
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 endif                                                                           
