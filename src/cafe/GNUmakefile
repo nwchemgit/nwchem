@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 1999-07-29 00:57:13 d3e129 Exp $
+# $Id: GNUmakefile,v 1.7 2000-01-06 21:20:44 d3j191 Exp $
 #
 OBJ_OPTIMIZE=cf_d.o cf_fp.o cf_f.o\
              cf_finish.o\
@@ -10,6 +10,7 @@ OBJ_OPTIMIZE=cf_d.o cf_fp.o cf_f.o\
              cf_main.o\
              cf_pairs.o\
              cf_pbc.o\
+             cf_rdgeom.o\
              cf_shake.o\
              cf_grid.o\
              cf_rdtop.o\

@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.15 1999-09-20 21:14:34 d3j191 Exp $
+c $Id: cf_common.fh,v 1.16 2000-01-06 21:20:44 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -38,19 +38,19 @@ c
       integer icnstr
       parameter(icnstr=1)
 c
-      integer me,np, 
+      integer me,np,irtdb,
      + nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
      + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
      + mbt(mbs),mbp(mbs),mht(mbs),mhp(mbs),mdt(mbs),mdp(mbs),
      + mit(mbs),mip(mbs),mtt(mbs),mtp(mbs),mxt(mbs),mxp(mbs),
      + mscr,ndxp,maxl,mgl,mgc,mgr,numb(mbs),numh(mbs),numd(mbs),
      + numi(mbs),numt(mbs),numx(mbs),mmult,nmul,nmult(4),mmuli
-      logical lscr,llst
-      common/cf_dim/me,np,nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
+      logical lscr,llst,lqmd,lpress
+      common/cf_dim/me,np,irtdb,nbs,mat,map,mqt,mqp,nwc,nsc,ndrs,
      + nwm,mwm,nwa,mwa,nsa,msa,nsm,msm,nsf,msf,nwmtot,nsatot,
      + numb,numh,numd,numi,numt,numx,mmult,nmul,nmult,mmuli,
      + mbt,mbp,mht,mhp,mdt,mdp,mit,mip,mtt,mtp,mxt,mxp,
-     + mscr,ndxp,maxl,mgl,mgc,mgr,lscr,llst
+     + mscr,ndxp,maxl,mgl,mgc,mgr,lscr,llst,lqmd,lpress
 c
       integer i_vdw,l_vdw,i_mas,l_mas,i_nam,l_nam,i_num,l_num,
      + i_chg,l_chg,i_iwa,l_iwa,i_iwq,l_iwq,i_ias,l_ias,

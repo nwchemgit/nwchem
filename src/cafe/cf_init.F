@@ -1,12 +1,12 @@
-      subroutine cf_start(lfntop,filtop,
+      subroutine cf_start(irtdbi,logqmd,lfntop,filtop,
      + ndistr,lfndrs,fildrs,npmf,lfnpmf,filpmf,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal)
-c $Id: cf_init.F,v 1.33 2000-01-04 16:21:57 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc)
+c $Id: cf_init.F,v 1.34 2000-01-06 21:20:44 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -14,7 +14,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop,lfndrs,lfnpmf
+      integer lfntop,lfndrs,lfnpmf,irtdbi
       character*(*) filtop,fildrs,filpmf
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf
@@ -24,6 +24,7 @@ c
       integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
       integer issscl
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
+      logical logqmd,lpbc
 c
       integer i,itemp(2)
 c
@@ -31,6 +32,10 @@ c
       np=ga_nnodes()
 c
 c     dimensions initially set to zero indicating non-allocated
+c
+      lqmd=logqmd
+      irtdb=irtdbi
+      lpress=lpbc
 c
       itscal=iitmps
       ipscal=iiprss
@@ -173,7 +178,11 @@ c
       if(.not.ma_push_get(mt_byte,16*nsatot,'snam',l_snam,i_snam))
      + call errquit('Failed to allocate snam',me)
 c
+      if(lqmd) then
+      call cf_rdgeom(byte_mb(i_snam))
+      else
       call cf_rdtop(lfntop,filtop,byte_mb(i_snam))
+      endif
 c
       if(ithint) then
       do 3 i=1,24
@@ -263,6 +272,8 @@ c
      + mit(1),numi(1),mip(1),dbl_mb(i_imp(1)),
      + mbt(2),mbp(2),dbl_mb(i_bnd(2)),mht(2),mhp(2),dbl_mb(i_ang(2)),
      + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)))
+c
+      print*,'Cafe initialization completed'
 c
       return
 
@@ -1145,6 +1156,7 @@ c
       if(llst) call errquit('Error 1 in cf_lalloc',0)
 c
       maxl=ma_inquire_avail(mt_int)/2
+      if(lqmd) maxl=1
       if(.not.ma_alloc_get(mt_int,maxl,'list',l_list,i_list))
      + call errquit('Failed to allocate list',0)
 c

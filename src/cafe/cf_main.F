@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.23 2000-01-03 22:21:52 d3j191 Exp $
+c $Id: cf_main.F,v 1.24 2000-01-06 21:20:44 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -600,7 +600,8 @@ c
 c
       volume=box(1)*box(2)*box(3)
 c
-      pres=(two*ekc-z)/(three*volume*avoga)
+      pres=0.0d0
+      if(lpress) pres=(two*ekc-z)/(three*volume*avoga)
 c
       pscale=one
       if(ipscal.gt.0) then
