@@ -119,7 +119,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.7 1999-07-14 20:34:50 edo Exp $
+C$Id: grid_utils.F,v 1.8 1999-07-14 22:59:20 edo Exp $
 c
       implicit none
 c      
@@ -494,7 +494,7 @@ c
            endif
         endif
     6 continue
-      call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
+cedo      call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
 c
 c     check input flag to see if tolerance modifications desired:
 c     accAOfunc, accqrad, radius
@@ -621,7 +621,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq)
 c
-C$Id: grid_utils.F,v 1.7 1999-07-14 20:34:50 edo Exp $
+C$Id: grid_utils.F,v 1.8 1999-07-14 22:59:20 edo Exp $
 c
       implicit none
 c

@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.2 1999-07-09 22:41:57 edo Exp $
+c$Id: grid_quadv0a.F,v 1.3 1999-07-14 22:59:20 edo Exp $
 c
       implicit none
 c
@@ -57,7 +57,7 @@ c
       logical grid_file_rewind
       external grid_file_rewind
       Logical GRAD, oprint
-      logical xc_chkgrad
+      logical xc_chkgrad,trunc_neigh
       external xc_chkgrad
 c
       oprint = util_print('quadrature', print_high)

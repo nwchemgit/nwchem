@@ -1,7 +1,7 @@
       subroutine grid_setspac(rtdb, xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     lssw, whichf, expo, rad)
 c
-c$Id: grid_setspac.F,v 1.4 1999-05-10 22:44:27 edo Exp $
+c$Id: grid_setspac.F,v 1.5 1999-07-14 22:59:20 edo Exp $
 c
       implicit none
       integer rtdb
@@ -20,7 +20,7 @@ c
       double precision p(nq,ncenters)
       double precision rad
       double precision expo(*)
-      logical lssw
+      logical lssw,trunc_neigh
       character*4 whichf
 c
       integer iscr,lscr,lgth_scr,ixyzm,lxyzm
@@ -31,6 +31,8 @@ c     set scratch space for grid compression
 c
       lgth_scr=nq
       if(lssw) lgth_scr=max(lgth_scr,ncenters)
+      if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
+     &   trunc_neigh))trunc_neigh=.true.
       if (.not.MA_Push_get(mt_dbl,3*ncenters,' xyzm',lxyzm,ixyzm))
      &   call errquit('grid_setspac: cannot allocate xyzm',1)
       if (.not.MA_Push_get(mt_int,lgth_scr,' scr gridcmp',lscr,iscr))
@@ -47,7 +49,8 @@ c
 c
 c     becke
 c
-         call grid_neighb_list(xyz(1,ictr), dbl_mb(ixyzm), 
+         if(trunc_neigh)
+     .        call grid_neighb_list(xyz(1,ictr), dbl_mb(ixyzm), 
      ,        ncenters_scr, ictr_scr)
          call grid_beckew(xyzw, dbl_mb(ixyzm),  rq, p, ictr_scr,
      ,        nq,int_mb(iscr),ncenters_scr)
@@ -55,7 +58,8 @@ c
 c
 c     call to ssw routine
 c
-         call grid_signf(AO_bas_han,  nbf_ao, ncenters_scr, 
+         if(trunc_neigh)
+     .        call grid_signf(AO_bas_han,  nbf_ao, ncenters_scr, 
      &        xyz,dbl_mb(ixyzm),ictr_scr,
      &        rad, expo, int_mb(iscr),iatype_pt_chg)
          call grid_ssw(xyzw, dbl_mb(ixyzm),rij, rq, 
