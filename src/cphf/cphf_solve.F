@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.27 2001-06-11 19:45:22 zzhang Exp $
+* $Id: cphf_solve.F,v 1.28 2001-06-12 20:08:46 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -51,6 +51,7 @@ c
       logical hf_job
       integer nroot, leval, ieval
       logical cphf_tddft
+c      cphf_tddft = .true. 
       cphf_tddft = .false. 
 c
       hf_job = .not. bgj_have_xc()      
@@ -223,15 +224,15 @@ c !!! BGJ
 c !!! BGJ
       if (scftype .eq. 'UHF') then
          if(cphf_tddft)then
-            call tddft_guess(g_grad, g_work)
+c            call tddft_guess(g_grad, g_work)
             nroot = 1
-            if (.not.MA_Push_Get(mt_dbl, nroot, 'Eval', lEval,iEval))
-     &           call errquit('cphf_solve: cannot allocate Eval',0)
-            if(.not.ga_iter_diag(vlen, nroot, max_precond_iter,
-     $           max_precond_sub, precond_tol, 
-     $           tddft_precond, uhf_hessv, oprint_solve, 0.d0, 
-     $           g_work, dbl_mb(ieval), precond_acc, precond_iter))
-     $           call errquit('cphf did not converge',precond_iter)
+c            if (.not.MA_Push_Get(mt_dbl, nroot, 'Eval', lEval,iEval))
+c     &           call errquit('cphf_solve: cannot allocate Eval',0)
+c            if(.not.ga_iter_diag(vlen, nroot, max_precond_iter,
+c     $           max_precond_sub, precond_tol, 
+c     $           tddft_precond, uhf_hessv, oprint_solve, 0.d0, 
+c     $           g_work, dbl_mb(ieval), precond_acc, precond_iter))
+c     $           call errquit('cphf did not converge',precond_iter)
          else
             if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $           max_precond_sub, precond_tol, 
@@ -320,7 +321,8 @@ c
       call dfill(vlen, 0.0d0, dbl_mb(k_init), 1)
       nvira=nmo-nalpha
       ioff = nvira*(nalpha-1)
-      dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo 
+      dbl_mb(k_init+ ioff) = 1.0d0 ! homo to lumo
+      dbl_mb(k_init+ ioff + nvira*nalpha) = -1.0d0 
 c
 c     scale the initial guess by epsilon(i,a)=epsilon(i) - epsilon(a)
 c      
