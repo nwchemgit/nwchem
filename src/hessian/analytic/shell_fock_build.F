@@ -1,16 +1,20 @@
 c
-c $Id: shell_fock_build.F,v 1.9 2001-06-28 21:14:29 windus Exp $
+c $Id: shell_fock_build.F,v 1.10 2001-10-02 21:52:34 windus Exp $
 c
-      subroutine shell_fock_build(basis, nder, ndens, nfock, 
-     $     jfac, kfac, tol2e, g_dens, g_fock, oactive)
+      subroutine shell_fock_build(basis, nder, ndens,
+     $     jfac, kfac, tol2e, g_dens, g_fock)
+c
+C Took oactive out for the time being, but will probably need to
+c bring it back - tlw
+c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
       integer basis, nder, ndens, nfock 
-      integer g_dens(ndens), g_fock(nfock)
+      integer g_dens(ndens), g_fock
       double precision jfac(*), kfac(*), tol2e
-      logical oactive(*)        ! [input] T if atom is active
+c      logical oactive(*)        ! [input] T if atom is active
 c
       integer nsh, nbf, max_at_bf, max_sh_bf, nshblocks
       integer blen
@@ -22,6 +26,7 @@ c
       integer l_shbflo, l_shbfhi, l_eri, l_scr
       integer k_shbflo, k_shbfhi, k_eri, k_scr
       integer i, j, iat
+      integer ityp, ndim, dims(3)
 c
       integer 
      $     k_d_ij,  k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
@@ -38,6 +43,11 @@ c
       external ga_create_atom_blocked
 c
       write(6,*) 'inside of shell_fock_build'
+c
+c Get the dimensions of g_fock and eventually g_dens.
+c
+      call nga_inquire(g_fock, ityp, ndim, dims)
+      nfock = dims(1)
 c
       if (.not. bas_numbf(basis,nbf))
      $     call errquit('new_fock: could not get nbf',0)
@@ -129,10 +139,8 @@ c
          call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
       enddo
-      do i = 1, nfock
-          call ga_reorder(g_fock(i), .true., int_mb(k_rbfmap),
+      call nga_reorder(g_fock, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
-      enddo
 c
       call newfock(
      $     basis, nder, ndens, nfock,
@@ -148,18 +156,17 @@ c
      $     int_mb(k_bfglo), int_mb(k_bfghi), int_mb(k_bfmap), 
      $     int_mb(k_rbfmap),
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi), 
-     $     oactive,
+c     $     oactive,
      $     jfac, kfac)
 c
       do j = 1, ndens
          call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
       enddo
-      do i = 1, nfock
-         call ga_reorder(g_fock(i), .true., int_mb(k_bfmap),
-     $        .true., int_mb(k_bfmap))
-         call ga_symmetrize(g_fock(i))
-      enddo
+      call nga_reorder(g_fock, .true., int_mb(k_bfmap),
+     $     .true., int_mb(k_bfmap))
+c
+       call nga_symmetrize(g_fock)
 c
 c  Clean up memory allocated in this routine
 c
@@ -177,7 +184,9 @@ c
      $     maxq, list, q4, tol2e,
      $     nsh,  nbf, blen,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
-     $     bftoat, shbflo, shbfhi, oactive, jfac, kfac)
+     $     bftoat, shbflo, shbfhi, 
+c     $     oactive, 
+     $     jfac, kfac)
 c
       implicit none
 #include "mafdecls.fh"
@@ -193,13 +202,13 @@ c
       integer g_dens, g_fock
       integer blen              ! [input] max dimension of density block
       double precision          ! [scratch] 6 blocks per possible density
-     $     d_ij(blen,blen,ndens),  d_kl(blen,blen,ndens),  
-     $     d_ik(blen,blen,ndens),  d_jl(blen,blen,ndens),  
-     $     d_il(blen,blen,ndens),  d_jk(blen,blen,ndens)
+     $     d_ij,  d_kl,  
+     $     d_ik,  d_jl,  
+     $     d_il,  d_jk
       double precision          ! [scratch] 6 blocks per possible fock
-     $     f_ij(blen,blen,nfock),  f_kl(blen,blen,nfock),  
-     $     f_ik(blen,blen,nfock),  f_jl(blen,blen,nfock),  
-     $     f_il(blen,blen,nfock),  f_jk(blen,blen,nfock)
+     $     f_ij,  f_kl,  
+     $     f_ik,  f_jl,  
+     $     f_il,  f_jk
 c     
       integer lscr              ! [input] Size of scratch for integrals
       double precision scr(lscr) ![scratch] Scratch space for integrals
@@ -223,7 +232,7 @@ c
       integer bftoat(nbf)       ! [input] Map from old basis func to atom
       integer shbflo(nsh)       ! [input] First new bf in new shell
       integer shbfhi(nsh)       ! [input] Last new bf in new shell
-      logical oactive(*)        ! [input] T if atom is active
+c      logical oactive(*)        ! [input] T if atom is active
       double precision jfac(*), kfac(*) ! [input] DFT scaling for Coulomb/Exchange
 c
       integer  next, nint, ijklblock
@@ -297,18 +306,18 @@ c     Get blocks of the one-particle densities
 c     
                      call new_get_dens_block(g_dens, ndens, blen, 
      $                    ibflo, ibfhi, jbflo, jbfhi, d_ij, jfac)
-                     write(6,*) 'alpha density'
-                     do id = 1, 1+ ibfhi -ibflo
-                       do jd = 1, 1+ jbfhi -jbflo
-                         write(6,*) id,jd,d_ij(id,jd,1)
-                       enddo
-                     enddo
-                     write(6,*) 'beta density'
-                     do id = 1, 1+ ibfhi -ibflo
-                       do jd = 1, 1+ jbfhi -jbflo
-                         write(6,*) id,jd,d_ij(id,jd,2)
-                       enddo
-                     enddo
+c                    write(6,*) 'alpha density'
+c                    do id = 1, 1+ ibfhi -ibflo
+c                      do jd = 1, 1+ jbfhi -jbflo
+c                        write(6,*) id,jd,d_ij(id,jd,1)
+c                      enddo
+c                    enddo
+c                    write(6,*) 'beta density'
+c                    do id = 1, 1+ ibfhi -ibflo
+c                      do jd = 1, 1+ jbfhi -jbflo
+c                        write(6,*) id,jd,d_ij(id,jd,2)
+c                      enddo
+c                    enddo
                      call new_get_dens_block(g_dens, ndens, blen, 
      $                    kbflo, kbfhi, lbflo, lbfhi, d_kl, jfac)
                      call new_get_dens_block(g_dens, ndens, blen, 
@@ -377,11 +386,11 @@ c
 c     
                                  if (sijkl*8d0 .lt. tol2e) goto 200 ! next llsh
                                  if (nder.gt.0) then
-                                   if (.not. (
-     $                                oactive(atoms(1)) .or.
-     $                                oactive(atoms(2)) .or.
-     $                                oactive(atoms(3)) .or.
-     $                                oactive(atoms(4)))) goto 200
+c                                   if (.not. (
+c     $                                oactive(atoms(1)) .or.
+c     $                                oactive(atoms(2)) .or.
+c     $                                oactive(atoms(3)) .or.
+c     $                                oactive(atoms(4)))) goto 200
                                    if (
      $                                atoms(1).eq.atoms(2) .and.
      $                                atoms(2).eq.atoms(3) .and.
@@ -546,19 +555,22 @@ c
       subroutine new_acc_fock_block(
      $   g_fock, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
       implicit none
-      integer nfock, g_fock(nfock), blen 
+      integer nfock, g_fock, blen 
       integer ibflo, ibfhi, jbflo, jbfhi
       double precision buf(*)
 c
-      integer i, blen2, index
+      integer i, index
+      integer lo(3), hi(3), ld(2)
 c
-      blen2 = blen * blen
-      index = 1
-      do i = 1, nfock
-        call ga_acc(g_fock(i),ibflo,ibfhi,jbflo,jbfhi,buf(index),
-     $              blen,1d0)
-        index = index + blen2
-      enddo
+      lo(1) = 1
+      hi(1) = nfock
+      lo(2) = ibflo
+      hi(2) = ibfhi
+      lo(3) = jbflo
+      hi(3) = jbfhi
+      ld(1) = nfock
+      ld(2) = blen
+      call nga_acc(g_fock, lo, hi, buf, ld, 1d0)
 c
       end
 C
@@ -576,13 +588,13 @@ c
       double precision eri(*)
       double precision tol2e
       double precision
-     $     d_ij(blen,blen,ndens), d_kl(blen,blen,ndens), 
-     $     d_ik(blen,blen,ndens), d_jl(blen,blen,ndens), 
-     $     d_il(blen,blen,ndens), d_jk(blen,blen,ndens)
+     $     d_ij(ndens,blen,blen), d_kl(ndens,blen,blen), 
+     $     d_ik(ndens,blen,blen), d_jl(ndens,blen,blen), 
+     $     d_il(ndens,blen,blen), d_jk(ndens,blen,blen)
       double precision
-     $     f_ij(blen,blen,nfock), f_kl(blen,blen,nfock), 
-     $     f_ik(blen,blen,nfock), f_jl(blen,blen,nfock), 
-     $     f_il(blen,blen,nfock), f_jk(blen,blen,nfock)
+     $     f_ij(nfock,blen,blen), f_kl(nfock,blen,blen), 
+     $     f_ik(nfock,blen,blen), f_jl(nfock,blen,blen), 
+     $     f_il(nfock,blen,blen), f_jk(nfock,blen,blen)
       integer rbfmap(*)
       integer ibflo, jbflo, kbflo, lbflo
 c
@@ -608,12 +620,12 @@ c
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
             do nf = 1, nfock
-               f_ij(i,j,nf)=f_ij(i,j,nf)+4.0d+00*g*d_kl(k,l,nf)
-               f_kl(k,l,nf)=f_kl(k,l,nf)+4.0d+00*g*d_ij(i,j,nf)
-               f_ik(i,k,nf)=f_ik(i,k,nf)-g*d_jl(j,l,nf)
-               f_il(i,l,nf)=f_il(i,l,nf)-g*d_jk(j,k,nf)
-               f_jl(j,l,nf)=f_jl(j,l,nf)-g*d_ik(i,k,nf)
-               f_jk(j,k,nf)=f_jk(j,k,nf)-g*d_il(i,l,nf)
+               f_ij(nf,i,j)=f_ij(nf,i,j)+4.0d+00*g*d_kl(nf,k,l)
+               f_kl(nf,k,l)=f_kl(nf,k,l)+4.0d+00*g*d_ij(nf,i,j)
+               f_ik(nf,i,k)=f_ik(nf,i,k)-g*d_jl(nf,j,l)
+               f_il(nf,i,l)=f_il(nf,i,l)-g*d_jk(nf,j,k)
+               f_jl(nf,j,l)=f_jl(nf,j,l)-g*d_ik(nf,i,k)
+               f_jk(nf,j,k)=f_jk(nf,j,k)-g*d_il(nf,i,l)
             end do
          end if
       end do
@@ -626,6 +638,9 @@ c
      $     ibflo, jbflo, kbflo, lbflo)
       implicit none
 c
+c Note that nfock is the number of alpha or beta fock matrices for UHF
+c and not the full number of fock matrices (as in the rest of the code)
+c
       integer ndens, nfock, blen
       integer nint
       integer leri
@@ -633,19 +648,19 @@ c
       double precision eri(*)
       double precision tol2e
       double precision
-     $     d_ij(blen,blen,ndens), d_kl(blen,blen,ndens), 
-     $     d_ik(blen,blen,ndens), d_jl(blen,blen,ndens), 
-     $     d_il(blen,blen,ndens), d_jk(blen,blen,ndens)
+     $     d_ij(ndens,blen,blen), d_kl(ndens,blen,blen), 
+     $     d_ik(ndens,blen,blen), d_jl(ndens,blen,blen), 
+     $     d_il(ndens,blen,blen), d_jk(ndens,blen,blen)
       double precision
-     $     f_ij(blen,blen,ndens,nfock), f_kl(blen,blen,ndens,nfock), 
-     $     f_ik(blen,blen,ndens,nfock), f_jl(blen,blen,ndens,nfock), 
-     $     f_il(blen,blen,ndens,nfock), f_jk(blen,blen,ndens,nfock)
+     $     f_ij(nfock*ndens,blen,blen), f_kl(nfock*ndens,blen,blen), 
+     $     f_ik(nfock*ndens,blen,blen), f_jl(nfock*ndens,blen,blen), 
+     $     f_il(nfock*ndens,blen,blen), f_jk(nfock*ndens,blen,blen)
       integer rbfmap(*)
       integer bftoat(*)       ! [input] Map from old basis func to atom
       integer ibflo, jbflo, kbflo, lbflo
 c
       integer integ, i, j, k, l, v
-      integer nbuf, iiat, iat
+      integer nbuf, iiat, iat, nstart
       integer atoms(4),nfockder,xyz
       double precision g
 c
@@ -672,23 +687,36 @@ c        if (abs(g) .gt. tol2e) then
             do iiat = 1, 4
               iat = atoms(iiat)
               nfockder = (iat-1)*3 + 1
-              do xyz = nfockder, nfockder+2
-      write(6,*) 'contributing to fockder ',xyz
-              g = eri(nbuf)
-         write(6,*) 'integral is ',g, nbuf
+c
+c At this point we have the atom information and will combine
+c integrals with density and put into local fock storage.  The loops
+c below reflect that the same integrals go into both alpha and beta
+c matrices for UHF.  So we keep track of where we are in the integral 
+c buffer, add contributions to the alpha matrices, go back to the
+c original place in the integral buffer and add the contribution to the
+c beta matrices.  An alternative would be to put the density loop outside
+c of the integral loop, but I didn't see any real advantage to this
+c at the moment.
+c
+              nstart = nbuf
               do v = 1, ndens
+              nbuf = nstart
+              do xyz=nfockder+(nfock*(v-1)),nfockder+2+(nfock*(v-1))
+      write(6,*) 'contributing to fockder ',xyz
+               g = eri(nbuf)
+         write(6,*) 'integral is ',g, nbuf
 c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
 c    *  i,j,k,l,
 c    *  d_kl(v,k,l),d_ij(v,i,j),d_jl(v,j,l),d_jk(v,j,k),
 c    *  d_ik(v,i,k),d_il(v,i,l)
-               f_ij(i,j,v,xyz)=f_ij(i,j,v,xyz)+4.0d+00*g*d_kl(k,l,v)
-               f_kl(k,l,v,xyz)=f_kl(k,l,v,xyz)+4.0d+00*g*d_ij(i,j,v)
-               f_ik(i,k,v,xyz)=f_ik(i,k,v,xyz)-g*d_jl(j,l,v)
-               f_il(i,l,v,xyz)=f_il(i,l,v,xyz)-g*d_jk(j,k,v)
-               f_jl(j,l,v,xyz)=f_jl(j,l,v,xyz)-g*d_ik(i,k,v)
-               f_jk(j,k,v,xyz)=f_jk(j,k,v,xyz)-g*d_il(i,l,v)
+               f_ij(xyz,i,j)=f_ij(xyz,i,j)+4.0d+00*g*d_kl(v,k,l)
+               f_kl(xyz,k,l)=f_kl(xyz,k,l)+4.0d+00*g*d_ij(v,i,j)
+               f_ik(xyz,i,k)=f_ik(xyz,i,k)-g*d_jl(v,j,l)
+               f_il(xyz,i,l)=f_il(xyz,i,l)-g*d_jk(v,j,k)
+               f_jl(xyz,j,l)=f_jl(xyz,j,l)-g*d_ik(v,i,k)
+               f_jk(xyz,j,k)=f_jk(xyz,j,k)-g*d_il(v,i,l)
+               nbuf = nbuf + 1
               end do
-              nbuf = nbuf + 1
               end do
             end do
 c        end if

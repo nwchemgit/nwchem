@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.18 2001-05-23 17:44:43 windus Exp $
+C $Id: onedd_cont.F,v 1.19 2001-10-02 21:52:34 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -27,6 +27,7 @@ c
       integer l_evals, k_evals, l_occ, k_occ
       integer k_pdm2, k_coeff
       integer nbf2, nocc
+      integer alo(3), ahi(3), blo(3), bhi(3)
       logical doS, doT, doV, frac_occ, omp2
       logical oprint, oneprint
 c
@@ -134,16 +135,12 @@ c
 c  first print out the rhs values (should be all zeroes)!
 c
       if (oneprint) then
-         if(ga_nodeid().eq.0) then
+        if(ga_nodeid().eq.0) then
         write(LuOut,*)
         write(LuOut,*) 'g_rhs before going into onedd_calc'
         write(LuOut,*) 'These values should all be zero'
         endif
-        do i = 1, n3xyz*ndens
-          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
-          call ga_print(g_rhs(i))
-          if(ga_nodeid().eq.0)write(LuOut,*)
-        enddo
+        call ga_print(g_rhs)
       endif
       if (oprint.and.(ga_nodeid().eq.0)) 
      *     write(LuOut,*) 'HESS: before the onedd_calc call'
@@ -190,11 +187,7 @@ c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'Sx term'
-        do i = 1, n3xyz
-          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
-          call ga_print(g_rhs(i))
-          if(ga_nodeid().eq.0)write(LuOut,*)
-        enddo
+        call ga_print(g_rhs)
       endif
 c
 c write out Sx terms to disk
@@ -203,9 +196,7 @@ c
 c
 c Clear g_rhs again
 c
-      do i = 1, n3xyz
-        call ga_zero(g_rhs(i))
-      enddo
+      call ga_zero(g_rhs)
 c
       if (oprint) write(LuOut,*) 'HESS: getting the Hx term'
       doS = .false.
@@ -215,18 +206,26 @@ c
 !     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
      *  doS,doT,doV,geom,basis,ncent)
-      if (ndens.gt.1) then
-        do i = 1, n3xyz
-          call ga_copy(g_rhs(i), g_rhs(n3xyz+i))
-        enddo
+      if (ndens.gt.1) then     ! UHF case
+        alo(1) = 1
+        ahi(1) = n3xyz
+        alo(2) = 1
+        ahi(2) = nbf
+        alo(3) = 1
+        ahi(3) = nbf
+        blo(1) = n3xyz + 1
+        bhi(1) = 2 * n3xyz
+        blo(2) = 1
+        bhi(2) = nbf
+        blo(3) = 1
+        bhi(3) = nbf
+        call nga_copy_patch('N', g_rhs, alo, ahi, g_rhs, blo, bhi)
       endif
 c  first print out the rhs values 
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs'
-        do i = 1, n3xyz*ndens
-          call ga_print(g_rhs(i))
-        enddo
+        call ga_print(g_rhs)
       endif
 c
 c  Get rid of the temporary buffers for the integrals

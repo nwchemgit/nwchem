@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.8 2000-10-23 15:52:10 windus Exp $
+c $Id: oned_calc.F,v 1.9 2001-10-02 21:52:34 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -12,7 +12,7 @@ c
 c
       integer nat                  ! [input] the number of atoms
       integer nxyz                 ! [input] 3*number of atoms
-      integer g_rhs(nxyz)          ! [output] handles for the RHSs
+      integer g_rhs                ! [output] handles for the RHSs
       integer lbuf                 ! [input] length of the integral buffer
       double precision Ibuf(lbuf)  ! [input] Buffer for integrals
       integer lscr                 ! [input] length of the scratch buffer
@@ -29,6 +29,7 @@ c
       integer iab1f, iab1l, iab2f, iab2l, ish1, ish2, if1, il1, if2, il2
       integer ic, icart1, i
       integer nproc, atx, nint
+      integer lo(3), hi(3), ld(2)
       logical status
       double precision qfac
 c
@@ -79,6 +80,13 @@ c
 
                 nint = (il1 - if1 + 1) * (il2 - if2 + 1)
 c               write(6,*) 'nint is ',nint
+
+                lo(2) = if2
+                hi(2) = il2
+                lo(3) = if1
+                hi(3) = il1
+                ld(1) = 1
+                ld(2) = il2 - if2 + 1
 c
 C     dS
 c
@@ -91,14 +99,14 @@ c               write(6,*) 'integral buffer for ',idatom(1),
 c    *              idatom(2)
 c
                   ic = 1
-                  do 28 i = 1, 2
-                  do 27 icart1 = 1, 3 
-                    call ga_acc(g_rhs((idatom(i)-1)*3 + icart1),if2,
-     *               il2,if1,il1,
-     *               Ibuf(ic),il2-if2+1,1.0d0)
+                  do i = 1, 2
+                  do icart1 = 1, 3 
+                    lo(1) = (idatom(i)-1) * 3 + icart1
+                    hi(1) = (idatom(i)-1) * 3 + icart1
+                    call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
                     ic = ic + nint
- 27               continue
- 28               continue
+                  enddo
+                  enddo
                 endif   ! if idatom
                 endif   ! if doS
 c
@@ -109,9 +117,9 @@ c
      *                lbuf,Ibuf)
                  ic = 1
                  do atx = 1, nxyz
-                   call ga_acc(g_rhs(atx),if2,il2,if1,il1,
-     *              Ibuf(ic),il2-if2+1,1.0d0)
-                    ic = ic + nint
+                   lo(1) = atx
+                   hi(1) = atx
+                   call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
                  enddo
                 endif   ! doV and doT
 

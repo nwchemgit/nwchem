@@ -1,5 +1,5 @@
 C
-C $Id: hess_info.fh,v 1.6 2000-08-31 05:33:03 windus Exp $
+C $Id: hess_info.fh,v 1.7 2001-10-02 21:52:34 windus Exp $
 C
 c  Hold all of the variables common to all hessian calculations.
 c  Wavefunction specific variables are set in the directories below.
@@ -56,7 +56,7 @@ c
      *   l_act, ncent, nactive,
      *   nclosed, nopen, nalpha, nbeta, nmo, nvirt(2), vlen,
      *   nbf, sx_dra_handle, fx_dra_handle, qy(2),
-     *   g_dens(2),g_wdens,ndens,g_rhs(100),g_rhs_xc(100)
+     *   g_dens(2),g_wdens,ndens,g_rhs,g_rhs_xc
 c
 c  Characters
 c

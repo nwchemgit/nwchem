@@ -1,11 +1,11 @@
 c
-c $Id: nucdd_calc.F,v 1.3 2000-05-30 14:47:30 windus Exp $
+c $Id: nucdd_calc.F,v 1.4 2001-10-02 21:52:34 windus Exp $
 c
       subroutine nucdd_calc(c,zan,nat,dde)
 c
 c  This is a modified HONDO routine (hnd_nucdx) to calculate
 c  the second derivative contribution of the nuclear term to
-c  the hessian.
+c  the hessian (dde).
 c
       implicit none
 c

@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.23 2001-06-28 21:14:29 windus Exp $
+C $Id: twodd_cont.F,v 1.24 2001-10-02 21:52:34 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -91,36 +91,31 @@ c
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
       if (otwoprint) then
-         if(ga_nodeid().eq.0) then
-        write(LuOut,*)
-        write(LuOut,*) 'The Hessian dft contribution'
-        call hess_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
-        if(skelsym) then
+        if(ga_nodeid().eq.0) then
+         write(LuOut,*)
+         write(LuOut,*) 'The Hessian dft contribution'
+         call hess_hssout(dbl_mb(k_hess_xc),n3xyz,n3xyz,n3xyz)
+         if(skelsym) then
            call sym_hess_symmetrize(geom,dbl_mb(k_hess_xc))  
-        write(LuOut,*) 'The Hessian dft contribution symmetrized'
-        call hess_hssout(dbl_mb(k_hess_xc),ncent*3,ncent*3,ncent*3)
+           write(LuOut,*) 'The Hessian dft contribution symmetrized'
+           call hess_hssout(dbl_mb(k_hess_xc),n3xyz,n3xyz,n3xyz)
+         endif
+         write(LuOut,*)
+         write(LuOut,*) 'The g_rhs dft contribution'
         endif
-        write(LuOut,*)
-        write(LuOut,*) 'The g_rhs dft contribution'
-        endif
-        do i = 1, ndens*n3xyz
-          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
-          call ga_print(g_rhs_xc(i))
-          if(ga_nodeid().eq.0)write(LuOut,*)
-          if(skelsym) then
+        call ga_print(g_rhs_xc)
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(skelsym) then
           if(ga_nodeid().eq.0)write(LuOut,*) 'symmetrized'
-             call  sym_symmetrize(geom,basis,.false.,g_rhs_xc(i))
-             call ga_print(g_rhs_xc(i))
-          endif
-        enddo
+          call  sym_symmetrize(geom,basis,.false.,g_rhs_xc)
+          call ga_print(g_rhs_xc)
+        endif
       endif
 c
 c  The next statements are only temporarily in until we are confident the
 c  dft code is giving the correct contributions.
 c
-        do i = 1,ndens*n3xyz
-          call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
-        enddo
+        call ga_add(1.0d+00,g_rhs_xc,1.0d+00,g_rhs,g_rhs)
         call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
      *    dbl_mb(k_exy),1)
       endif
@@ -129,17 +124,14 @@ c Print out the hessian before adding anything else
 c
       if (otwoprint) then
         if(ga_nodeid().eq.0) then
-        write(LuOut,*)
-        write(LuOut,*) 'The full Hessian after the dft contribution'
-        call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
-        write(LuOut,*)
-        write(LuOut,*) 'The full g_rhs after the dft contribution'
+          write(LuOut,*)
+          write(LuOut,*) 'The full Hessian after the dft contribution'
+          call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
+          write(LuOut,*)
+          write(LuOut,*) 'The full g_rhs after the dft contribution'
         endif
-        do i = 1, ndens*n3xyz
-          if(ga_nodeid().eq.0)write(LuOut,*) 'ndisplacement ', i
-          call ga_print(g_rhs(i))
-          if(ga_nodeid().eq.0)write(LuOut,*)
-        enddo
+        call ga_print(g_rhs)
+        if(ga_nodeid().eq.0)write(LuOut,*)
       endif
 c
 c  Coulomb and exact exchange second derivative contributions to hessian
@@ -190,17 +182,17 @@ c
         call ga_print(g_dens(i))
         write(luout,*) 'jfac, kfac, dens ',jfac(i),kfac(i),i
       enddo
-      call shell_fock_build (basis, 1, ndens, ndens*n3xyz, jfac, kfac,
-     *   tol2e, g_dens, g_rhs, log_mb(k_act))
+C
+      call shell_fock_build (basis, 1, ndens, jfac, kfac,
+     *   tol2e, g_dens, g_rhs)
+c will eventually bring back - log_mb(k_act))
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
         write(LuOut,*) 'after going into shell_fock_build:'
         write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e', geom, basis, 
      *      n3xyz, ndens, tol2e
         endif
-        do i = 1, ndens*n3xyz
-          call ga_print(g_rhs(i))
-        enddo
+        call ga_print(g_rhs)
         do i = 1, ndens
           call ga_print(g_dens(i))
         enddo
@@ -419,7 +411,7 @@ c
       if (otwoprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
         write(LuOut,*) 'The Hessian after the twodd contribution'
-        call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+        call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
         write(LuOut,*)
       endif
 c

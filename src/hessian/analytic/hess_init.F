@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.19 2001-06-28 05:20:20 windus Exp $
+C $Id: hess_init.F,v 1.20 2001-10-02 21:52:34 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -32,6 +32,7 @@ c     integer rtdb, mult, g_vecs(2)
       character*256 fx_name
       double precision zero, one, onem
       double precision xfac(numfunc)
+      integer dims(3), chunk(3)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -69,11 +70,12 @@ c
       call intdd_init(rtdb,1,basis)
       status = int_normalize(rtdb,basis)
 c
-c Are we using symmetry?
+c Are we using symmetry?  Assume not!
 c
-      if (.not. rtdb_get(rtdb, 'scf:skeleton', mt_log, 1, skelsym)) then
-         skelsym = sym_number_ops(geom) .gt. 0
-      end if
+c     if (.not. rtdb_get(rtdb, 'scf:skeleton', mt_log, 1, skelsym)) then
+c        skelsym = sym_number_ops(geom) .gt. 0
+c     end if
+      skelsym = .false.
 c
 c  get local memory for the nuclear hessian Exy
 c
@@ -190,69 +192,21 @@ c
         ndens = 1
       endif
 c     
-      j = 0
-      do i = 1, ncent
-         j = j + 1
-         g_rhs(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a x')
-         call ga_zero(g_rhs(j))
-         j = j + 1
-         g_rhs(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a y')
-         call ga_zero(g_rhs(j))
-         j = j + 1
-         g_rhs(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a z')
-         call ga_zero(g_rhs(j))
-      enddo
-      if (scftype.eq.'UHF') then
-      do i = 1, ncent
-         j = j + 1
-         g_rhs(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b x')
-         call ga_zero(g_rhs(j))
-         j = j + 1
-         g_rhs(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b y')
-         call ga_zero(g_rhs(j))
-         j = j + 1
-         g_rhs(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b z')
-         call ga_zero(g_rhs(j))
-      enddo
-      endif
+c Get the Fock derivative matrices (rhs), note that we get a seperate
+c one for the DFT code so that we can debug for the moment
 c
-      j = 0
-      do i = 1, ncent
-         j = j + 1
-         g_rhs_xc(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a x')
-         call ga_zero(g_rhs_xc(j))
-         j = j + 1
-         g_rhs_xc(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a y')
-         call ga_zero(g_rhs_xc(j))
-         j = j + 1
-         g_rhs_xc(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test a z')
-         call ga_zero(g_rhs_xc(j))
-      enddo
-      if (scftype.eq.'UHF') then
-      do i = 1, ncent
-         j = j + 1                                          
-         g_rhs_xc(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b x')
-         call ga_zero(g_rhs_xc(j))
-         j = j + 1
-         g_rhs_xc(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b y')
-         call ga_zero(g_rhs_xc(j))
-         j = j + 1
-         g_rhs_xc(j) = ga_create_atom_blocked
-     &        (geom, basis, 'CPKS RHS test b z')
-         call ga_zero(g_rhs_xc(j))
-      enddo
-      endif
+      dims(1) = ndens*n3xyz
+      dims(2) = nbf
+      dims(3) = nbf
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      if (.not. nga_create (MT_DBL, 3, dims, chunk, g_rhs))
+     &   call errquit('hess_init: could not allocate g_rhs',555)
+      call ga_zero(g_rhs)
+      if (.not. nga_create (MT_DBL, 3, dims, chunk, g_rhs_xc))
+     &   call errquit('hess_init: could not allocate g_rhs_xc',555)
+      call ga_zero(g_rhs_xc)
 c
 c  Initialize the Disk Resident Array (DRA) interface which will be needed
 c  to hold the overlap derivatives.

@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.4 2001-05-23 17:44:43 windus Exp $
+C $Id: hess_restart.F,v 1.5 2001-10-02 21:52:34 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -41,9 +41,7 @@ c
         write(LuOut,*) 'The Fock derivatives :'
       endif
       if (oprint) then
-        do i = 1, n3xyz*ndens
-          call ga_print(g_rhs(i))
-        enddo
+        call ga_print(g_rhs)
       endif
 c
 c  Write hessian out to disk
