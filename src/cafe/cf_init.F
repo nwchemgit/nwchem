@@ -6,7 +6,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.34 2000-01-06 21:20:44 d3j191 Exp $
+c $Id: cf_init.F,v 1.35 2000-01-11 23:57:50 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -272,8 +272,6 @@ c
      + mit(1),numi(1),mip(1),dbl_mb(i_imp(1)),
      + mbt(2),mbp(2),dbl_mb(i_bnd(2)),mht(2),mhp(2),dbl_mb(i_ang(2)),
      + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)))
-c
-      print*,'Cafe initialization completed'
 c
       return
 
