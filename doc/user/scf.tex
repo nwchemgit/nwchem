@@ -51,32 +51,38 @@ Examples:
 \end{itemize}
 
 Note that by default molecular orbitals are symmetry adapted.  This
-may not be desirable for UHF wavefunctions, in which case specify the
-\verb+NOADAPT+ keword (section \ref{sec:noadapt}).
+may not be desirable for fully unrestricted wavefunctions, in which
+case specify \verb+ADAPT OFF+ (section \ref{sec:adapt}) and \verb+SYM
+OFF+ (section \ref{sec:sym}).
 
-\subsection{NOSYM}
-\label{sec:nosym}
-
-\begin{verbatim}
-  NOSYM
-\end{verbatim}
-
-If present, this keyword disables use of symmetry to speedup Fock
-matrix construction (via the petite or skeleton algorithm) in the SCF
-even if symmetry was used in the specification of the geometry.
-Symmetry adaption of the molecular orbitals is still performed.
-
-\subsection{NOADAPT}
-\label{sec:noadapt}
+\subsection{SYM}
+\label{sec:sym}
 
 \begin{verbatim}
- NOADAPT
+  SYM (ON|OFF)
+\end{verbatim}
+This directive enables/disables use of symmetry to speedup Fock matrix
+construction (via the petite or skeleton algorithm) in the SCF even if
+symmetry was used in the specification of the geometry.  Symmetry
+adaption of the molecular orbitals is not affected by this option.
+
+\subsection{ADAPT}
+\label{sec:adapt}
+
+\begin{verbatim}
+ ADAPT (ON|OFF)
 \end{verbatim}
 
-This keyword disables symmetry adaption of the molecular orbitals.
-This does not impact the speed of the calculation but the resulting
-orbitals may be symmetry contaminated, especially if starting a
-calculation from orbitals from a distorted geometry.
+This directive enables/disables symmetry adaption of the molecular
+orbitals.  This does not impact the speed of the calculation but the
+resulting orbitals may be symmetry contaminated, especially if
+starting a calculation from orbitals from a distorted geometry.
+Underlying the use of symmetry in Fock-matrix construction is the
+assumption that the density is totally symmetric --- if the orbitals
+are symmetry contaminated this assumption may be invalid which will
+potentially result in incorrect energies and poor convergence.  It is
+thus advisable when specifying \verb+ADAPT OFF+ to also specify
+\verb+SYM OFF+.
 
 \subsection{TOL2E}
 
@@ -96,15 +102,16 @@ calculations, where as a tighter threshold of $10^-9$ might be
 necessary to explore reliably very weak, micro-Hartree or below,
 interactions.
 
-\subsection{LAGRANG}
+\subsection{LAGRANGIAN}
 
 \begin{verbatim}
-  LAGRANG
+  LAGRANGIAN
 \end{verbatim}
 
-This keyword generates and dumps the orbital Lagrangian to
-disk. Lagrangian is required by ROHF gradients.
-
+This keyword generates and dumps the orbital Lagrangian to disk. The
+lagrangian is required to compute ROHF gradients but under most
+circumstances this option is automatically enabled and need not be set
+by the user.
 
 \subsection{CHUNK}
 
@@ -158,8 +165,8 @@ for the alpha and beta orbitals as necessary.
 The \verb+LOCK+ directive locks the ordering orbitals to that of the
 initial vectors, as far as possible. The default is to order by
 ascending orbital energies within each orbital space. The \verb+LOCK+
-directive is useful, for example, to force the MCSCF to preserve the
-ROHF ordering despite flipping of orbital energies.
+directive is useful, for example, to force the SCF to preserve the
+ordering of a previous geometry despite flipping of orbital energies.
 
 To re-cap, the default options suffice to provide a good starting
 guess for most instances as well as to route vectors to a file
@@ -258,8 +265,7 @@ An expansion basis named ''riscf basis'' has to be present in the input deck.
 
 If present, this directive enables a detailed analysis of the
 performance of the SCF code.  This can introduce significant
-overhead on machines which have expensive timing routines
-(e.g., SUN).
+overhead on machines which have expensive timing routines (e.g., SUN).
 
 \subsection{DIIS}
 \begin{verbatim}
@@ -269,19 +275,17 @@ overhead on machines which have expensive timing routines
 This directive toggles on the DIIS convergence as opposed to the
 second-order convergence. This is a fairly rudimentary implementation
 without level-shifting and damping and, currently, does not support
-open-shells. This is provided as a last resort option for cases where
-the second-order scheme fails. Use the \verb+MAXITER+ directive to
-increase the macroiteration count to approximately 20.
+open-shells. This is provided on an ``as is'' basis. Use the
+\verb+MAXITER+ directive to increase the macroiteration count to
+approximately 20.
 
-\subsection{DIISBAS}
+The directive
 \begin{verbatim}
   DIISBAS <integer diisbas default 5>
 \end{verbatim}
-
-This controls the size of the subspace for DIIS extrapolation.
-The default should be adequate in most instances but it may be reduced
-to conserve memory for large systems or increased for problematic
-convergence.
+controls the size of the subspace for DIIS extrapolation.  The default
+should be adequate in most instances but it may be reduced to conserve
+memory for large systems or increased if convergence is poor.
 
 \subsection{Control of direct, semi-direct and disk-resident SCF}
 
