@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.31 2005-02-10 05:53:32 marat Exp $
+c $Id: qmmm_main.F,v 1.32 2005-02-15 00:53:07 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -30,7 +30,7 @@ c
       character*255 theory
       logical qmmm_init
       character*32 pname
-      integer nbq,nqm,ntot
+      integer nbq,nqm,ntot,nlink
       integer i_ai,i_ibq
       integer i_g,h_g 
       integer i_gqm,h_gqm 
@@ -112,6 +112,7 @@ c     ------------
       nbq   = qmmm_get_nbq ()
       nbqs  = qmmm_get_nbqs()
       nbqw  = qmmm_get_nbqw()
+      nlink = qmmm_get_nlink()
       ntot = nqm+nbq
 c
       i_ai  = qmmm_get_i_ai()
@@ -142,6 +143,9 @@ c     calculate qm contributions to gradients and energy
 c     --------------------------------------------------
       if (.not. rtdb_cget(inrtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+      write(*,*) "debug 0 ",nqm-nlink+1,ntot
+      if(interface.eq."mm") 
+     > call qmmm_set_actlist(nqm-nlink+1,ntot,inrtdb)
       if(ignore_qm) then
         energy = 0.0d0
         call dfill(3*ntot,0,dbl_mb(i_g),1)
@@ -250,5 +254,57 @@ c    ---------------------------------------------
      &       MA_ERR)
  
       return
+      end
+      subroutine qmmm_set_actlist(n1,n2,rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer n1,n2
+      integer rtdb
+      logical ignore
+c
+      character*32 pname
+      integer nact
+      integer i
+      integer j
+      integer i_cons,h_cons
+     
+      pname = "qmmm_set_actlist"
+      nact = n2-n1+1
+
+      if(.not.ma_push_get(MT_INT, nact, 'qmmm hcons',
+     &      h_cons, i_cons) ) call errquit(
+     &      pname//' unable to allocate stack',
+     &      nact, MA_ERR)
+
+      j = n1
+      do i=1,nact
+       int_mb(i_cons+i-1) = j
+       j = j + 1
+       write(*,*) "debug 1 ",int_mb(i_cons+i-1)
+      end do
+
+      ignore = rtdb_delete(rtdb, 'geometry:actlist')
+
+
+      if (.not.rtdb_put(rtdb, 'geometry:actlist',
+     >        mt_int,nact,int_mb(i_cons)))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+      if (.not. ma_pop_stack(h_cons) ) call errquit(
+     &    pname//' ma_pop_stack ',
+     &    0, MA_ERR)
+
+
       end
 
