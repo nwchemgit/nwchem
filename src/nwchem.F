@@ -9,6 +9,7 @@
       integer stack
       integer heap
       logical status
+      logical overify
 #ifdef PARALLEL_DIAG
       integer junk(4)
 #endif
@@ -47,14 +48,14 @@ c     Look for memory directive in the input ... must eventually
 c     open the rtdb first so that can get memory directive out of that
 c     if it is not in the input
 c
-      call input_mem_size(stack, heap)
+      call input_mem_size(stack, heap, overify)
 c
 c     Initialize local memory allocator
 c
       if (.not. ma_init(mt_dbl, stack, heap))
      $     call errquit('nwchem: ma_init failed', -1)
-      status = ma_set_auto_verify(.true.)
-c
+      status = ma_set_auto_verify(overify)
+      status = ma_set_hard_fail(.true.)
 c
 c     Intialize global memory allocator
 c
@@ -266,6 +267,8 @@ c
       character*80 hostname
       character*26 date
       integer heap, stack, total, nproc
+      logical status
+      character*3 cstatus
 c
       if (ga_nodeid() .ne. 0) return
 c
@@ -309,13 +312,26 @@ c
      $     '    input    = "',a,'"'/
      $     '    nproc    = ', i4//)
 c
+c     Determine, without altering, setting of memory verification
+c
+      status = ma_set_auto_verify(.true.)
+      if (status) then
+         cstatus = 'yes'
+      else
+         cstatus = 'no '
+      endif
+      status = ma_set_auto_verify(status)
+c
       call util_print_centered(6, 'Memory information', 20, .true.)
-      write(6,3) heap, stack, total
+c
+      write(6,3) heap, stack, total, cstatus
  3    format(/
      $     '    heap     = ', i8,' doubles'/
      $     '    stack    = ', i8,' doubles'/
-     $     '    avail    = ', i8,' doubles'//)
+     $     '    avail    = ', i8,' doubles'/
+     $     '    verify   = ',a3//)
 c
       call util_flush(6)
 c
       end
+
