@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.9 2003-10-17 22:57:58 carlfahl Exp $
+* $Id: prop_input.F,v 1.10 2004-07-22 19:37:24 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -37,7 +37,7 @@ c
       integer spindensitymap
       integer stoneanalysis
       integer boyslocalization
-      integer iglo
+      integer hyperfine
       integer giao
       integer center
       double precision point(3)
@@ -72,7 +72,7 @@ c
       spindensitymap    = 1
       stoneanalysis     = 1
       boyslocalization  = 1
-      iglo              = 1
+      hyperfine         = 1
       giao              = 1
       center            = 1   ! default of center of charge
       point(1)          = 0.0d+0
@@ -94,9 +94,8 @@ c
       if ( inp_compare(.false., 'vectors', test)) then
            call vectors_input(rtdb,'prop')
 c             
-      elseif ( inp_compare(.false., 'iglo', test)) then
-         iglo = 0
-         iglo = 1
+      elseif ( inp_compare(.false., 'hyperfine', test)) then
+         hyperfine = 0
       elseif ( inp_compare(.false., 'giao', test)) then
          giao = 0
       elseif ( inp_compare(.false., 'boyslocalization', test)) then
@@ -141,8 +140,6 @@ c
       elseif ( inp_compare(.false., 'nbofile', test)) then
          nbofile = 1
       elseif ( inp_compare(.false., 'all', test)) then
-         iglo = 0
-         iglo = 1
          giao = 0
          boyslocalization = 0
          boyslocalization = 1
@@ -157,6 +154,7 @@ c
          efieldmap       = 0
          efield          = 0
          esp             = 0
+         hyperfine       = 0
          spinpopulation  = 0
          spinpopulation  = 1
          mulliken  = 0
@@ -258,8 +256,8 @@ c
       if (.not. rtdb_put(rtdb, 'prop:boyslocalization', mt_int, 1,
      $                               boyslocalization  ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'prop:iglo', mt_int, 1,
-     $                               iglo              ))
+      if (.not. rtdb_put(rtdb, 'prop:hyperfine', mt_int, 1,
+     $                               hyperfine         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:giao', mt_int, 1,
      $                               giao              ))

@@ -1,6 +1,6 @@
       subroutine hnd_efgmap(rtdb,basis,geom)
 c
-c $Id: hnd_efgmap.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+c $Id: hnd_efgmap.F,v 1.2 2004-07-22 19:37:23 bert Exp $
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the
@@ -170,17 +170,12 @@ c
 c
 c        ----- diagonalize to get principal components and vectors -----
 c
-         call hnd_diag(a,vec,eig,3,.true.,.false.)
+         call hnd_diag(vec,eig,3,.true.,.false.)
          eta  = abs( (eig(1)-eig(2)) / eig(3) )
 c
          call ecce_print1('EFG eigenvalues',MT_DBL,eig,3)
          call ecce_print2('EFG eigenvectors',MT_DBL,vec,3,3,3)
          call ecce_print1('EFG asymmetry',MT_DBL,eta,1)
-c
-c
-         do 242 j = 1, 3
-         do 242 i = 1, 3
-  242       vec(i,j)= acos(vec(i,j))*deg
 c
          write(luout,9992)
          write(luout,9991) eig(1),eig(2),eig(3),eta
@@ -231,7 +226,7 @@ c
  9993 format(' --- Warning - electric field gradient at ',
      1 3f10.5,' . contribution from  -efc-  ',i3,' ignored')
  9992 format(1x,'Principal components (a.u.) and orientation ',
-     1       '(degrees)',/,' of principal axis w.r.t. absolute frame',
+     1       /,' of principal axis w.r.t. absolute frame',
      2       22x,'Asymmetry parameter eta',/,1x,86(1h-))
  9991 format(1x,3f15.6,16x,f15.6,/)
  9988 format(1X,3F15.6)

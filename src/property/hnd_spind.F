@@ -1,6 +1,6 @@
       subroutine hnd_spind(rtdb,basis,geom)
 c
-c $Id: hnd_spind.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+c $Id: hnd_spind.F,v 1.2 2004-07-22 19:37:23 bert Exp $
 c
 c     This routine calculates the Fermi Contact Term and
 c     Spin-Dipolar terms for a given (spin) density at the
@@ -202,7 +202,7 @@ c
   434    continue
          call ecce_print1_char('atom name',symbol,1)
          call ecce_print2('spin-dipole tensor',MT_DBL,vec,3,3,3)
-         call hnd_diag(a,vec,eig,3,.false.,.false.)
+         call hnd_diag(vec,eig,3,.false.,.false.)
          call ecce_print1('spin-dipole eigenvalues',MT_DBL,eig,3)
          call ecce_print2('spin-dipole eigenvectors',MT_DBL,vec,3,3,3)
          gnu = gn(atn)

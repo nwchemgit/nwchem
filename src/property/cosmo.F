@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.1 2004-07-21 17:28:26 bert Exp $
+* $Id: cosmo.F,v 1.2 2004-07-22 19:37:23 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -11,47 +11,14 @@
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer    mxatom
-      parameter (mxatom=nw_max_atom)
-c
       integer rtdb
-      integer iat
-      integer nfield
-      integer nrad   
-      integer irad   
+c
+      integer iat, nfield, nrad, irad 
+      integer iscren, ifscrn, minbem, maxbem, ificos, lineq
+      integer l_rad, k_rad
+      double precision dielec, rsolv, rad
       character*255 field
-      logical ocosmo
       logical do_cosmo
-      integer nap
-      integer iap
-c
-c
-      double precision radius
-      double precision rad    
-      double precision dielec
-      double precision rsolv
-      integer          iscren
-      integer          ifscrn
-      integer          minbem
-      integer          maxbem
-      integer          ificos
-      integer          lineq
-c
-      logical odbug
-      logical osome
-c
-      common/hnd_lcapid/nap,iap
-      common/hnd_cosrad/radius(mxatom)
-c
-c     ----- /lcapid/ -----
-c
-      nap = ga_nnodes()
-      iap = ga_nodeid() + 1
-c
-      odbug=.false.
-      odbug=odbug.and.(iap.eq.1)
-c
-c     ----- read input data -----
 c
 c     ----- defaults -----
 c
@@ -64,8 +31,10 @@ c
       ificos   =0
       lineq    =1
       rsolv    =0.0d+00
-      do iat=1,mxatom
-         radius(iat)=0.0d+00
+      if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
+     & call errquit('cosmo_input malloc k_rad failed',911)
+      do iat=1,nw_max_atom
+         dbl_mb(k_rad-1)=0.0d+00
       enddo
 c
 c     ----- read values from input -----
@@ -94,6 +63,16 @@ c
       else if(inp_compare(.false.,'off',field)) then
          do_cosmo=.false.
 c
+c     Let SCF/DFT know cosmo has to be calculated
+c
+         if (do_cosmo) then 
+            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
+     $          call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+         else
+            if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
+     $          call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
+         endif
+c
 c   --- rsolv
 c
       else if(inp_compare(.false.,'rsolv',field)) then
@@ -108,39 +87,24 @@ c
          irad=0
          nfield=nfield-1
    30    if(nfield.gt.0) then
-            if(odbug) then
-               write(Luout,*) 'nfield = ',nfield
-            endif
             if(inp_f(rad)) then
                irad=irad+1
-               radius(irad)=rad
-               if(odbug) then
-                  write(Luout,*) 'radius value found = ',rad
-               endif
+               dbl_mb(k_rad-1)=rad
                nfield=nfield-1
                go to 30
             else
-               if(odbug) then
-                  write(Luout,*) 'not a radius value'
-               endif
                nrad=irad  
-               if (.not. rtdb_put(rtdb,'cosmo:radius',
-     $                            mt_dbl,mxatom,radius))
-     $            call errquit('cosmo_input: rtdb put failed',911,
-     &       RTDB_ERR)
-               if(odbug) then
-                  write(Luout,*) 'nrad = ',nrad
-               endif
+               if (.not.rtdb_put(rtdb,'cosmo:nrrad',mt_int,1,nrad)) call
+     $            errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+               if (.not. rtdb_put(rtdb,'cosmo:radius',mt_dbl,nrad,
+     $            dbl_mb(k_rad))) call 
+     $            errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
                go to 20
             endif
          else
-            if(.not.inp_read())
-     $         call errquit('cosmo_input: unexpected eof',911,
-     &       INPUT_ERR)
+            if(.not.inp_read()) call
+     $         errquit('cosmo_input: unexpected eof',911,INPUT_ERR)
             nfield = inp_n_field()
-            if(odbug) then
-               write(Luout,*) 'new line with # fields = ',nfield
-            endif
             go to 30
          endif
 c
@@ -198,262 +162,12 @@ c
 c
    40 continue
 c
-c     Let SCF/DFT know cosmo has to be calculated
-c
-      if (do_cosmo) then 
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
-     $        call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
-      else
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.false.))
-     $        call errquit('cosmo_input: rtdb_put failed',0, RTDB_ERR)
-      endif
-c
-c     ----- print ... -----
-c
-      if(odbug) then
-         write(Luout,*) '-cosmo input-'
-         write(Luout,*) 'dielec     = ',dielec
-         write(Luout,*) 'iscren     = ',iscren
-         write(Luout,*) 'ifscrn     = ',ifscrn
-         write(Luout,*) 'minbem     = ',minbem
-         write(Luout,*) 'maxbem     = ',maxbem
-         write(Luout,*) 'ificos     = ',ificos
-         write(Luout,*) 'lineq      = ',lineq
-         write(Luout,*) 'rsolv      = ',rsolv
-         write(Luout,*) 'radius     = ',(radius(irad),irad=1,nrad)
-         write(Luout,*) 'do cosmo   = ',do_cosmo
-c
-         call cosmo_input_print(rtdb)
-      endif
-c
-      call util_flush(Luout)
-c
-      return
-      end
-      subroutine cosmo_tidy()
-      implicit double precision (a-h,o-z)
-#include "errquit.fh"
-#include "prop.fh"
-#include "geom.fh"
-c
-      if (.not. geom_destroy(cosmo_geom_efc)) call errquit
-     $     ('cosmo_tidy: geom destroy failed', 0, GEOM_ERR)
+      if(.not.ma_pop_stack(l_rad))
+     & call errquit('cosmo_input, ma_pop_stack of l_rad failed',911)
 c
       return
       end
 c
-      subroutine cosmo_input_print(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "rtdb.fh"
-#include "stdio.fh"
-#include "nwc_const.fh"
-#include "mafdecls.fh"
-c
-      integer    mxatom
-      parameter (mxatom=nw_max_atom)
-c
-      integer rtdb
-      integer iat
-      integer irad
-      integer nrad
-      logical cosmo
-      integer nap
-      integer iap
-c
-      double precision dielec
-      double precision rsolv
-      double precision radius
-      integer          iscren
-      integer          ifscrn
-      integer          minbem
-      integer          maxbem
-      integer          ificos
-      integer          lineq
-c
-      logical odbug
-c
-      common/hnd_lcapid/nap,iap
-      common/hnd_cosrad/radius(mxatom)
-c
-      odbug=.false.
-      odbug=odbug.and.(iap.eq.1)
-c
-      if(odbug) then
-         write(Luout,*) 'in cosmo_input_print ...'
-      endif
-c
-c     ----- defaults -----
-c
-      dielec   =78.4d+00
-      iscren   =0
-      ifscrn   =2
-      minbem   =2
-      maxbem   =3
-      ificos   =0
-      lineq    =1
-      rsolv    =0.0d+00
-      do iat=1,mxatom
-         radius(iat)=0.0d+00
-      enddo
-c
-      if(odbug) then
-         write(Luout,*) '-cosmo input defaults-'
-         write(Luout,*) 'dielec     = ',dielec
-         write(Luout,*) 'iscren     = ',iscren
-         write(Luout,*) 'ifscrn     = ',ifscrn
-         write(Luout,*) 'minbem     = ',minbem
-         write(Luout,*) 'maxbem     = ',maxbem
-         write(Luout,*) 'ificos     = ',ificos
-         write(Luout,*) 'lineq      = ',lineq
-         write(Luout,*) 'rsolv      = ',rsolv
-      endif
-c
-c   --- cosmo
-c
-      if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo))
-     $     call errquit('cosmo_input_print: rtdb_get failed',911,
-     &       RTDB_ERR)
-         if(cosmo) then
-            if(odbug) then
-               write(Luout,*) 'cosmo  ... found on rtdb'
-            endif
-         else
-            if(odbug) then
-               write(Luout,*) 'cosmo  not found on rtdb'
-            endif
-         endif
-c
-c   --- dielec
-c
-      if (.not. rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)) then
-         if(odbug) then
-            write(Luout,*) 'dielec ... from defaults = ',dielec
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'dielec ... from  -rtdb-  = ',dielec
-         endif
-      endif
-c
-c   --- rsolv
-c
-      if (.not. rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)) then
-         if(odbug) then
-            write(Luout,*) 'rsolv  ... from defaults = ',rsolv 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'rsolv  ... from  -rtdb-  = ',rsolv 
-         endif
-      endif
-c
-c   --- iscren
-c
-      if (.not. rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren)) then
-         if(odbug) then
-            write(Luout,*) 'iscren ... from defaults = ',iscren 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'iscren ... from  -rtdb-  = ',iscren
-         endif
-      endif
-c
-c   --- ifscrn
-c
-      if (.not. rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn)) then
-         if(odbug) then
-            write(Luout,*) 'ifscrn ... from defaults = ',ifscrn 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'ifscrn ... from  -rtdb-  = ',ifscrn
-         endif
-      endif
-c
-c   --- minbem
-c
-      if (.not. rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem)) then
-         if(odbug) then
-            write(Luout,*) 'minbem ... from defaults = ',minbem
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'minbem ... from  -rtdb-  = ',minbem
-         endif
-      endif
-c
-c   --- maxbem
-c
-      if (.not. rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)) then
-         if(odbug) then
-            write(Luout,*) 'maxbem ... from defaults = ',maxbem
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'maxbem ... from  -rtdb-  = ',maxbem
-         endif
-      endif
-c
-c   --- ificos
-c
-      if (.not. rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos)) then
-         if(odbug) then
-            write(Luout,*) 'ificos ... from defaults = ',ificos
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'ificos ... from  -rtdb-  = ',ificos
-         endif
-      endif
-c
-c   --- lineq
-c
-      if (.not. rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq)) then
-         if(odbug) then
-            write(Luout,*) 'lineq  ... from defaults = ',lineq 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'lineq  ... from  -rtdb-  = ',lineq 
-         endif
-      endif
-c
-c   --- radius
-c
-      nrad=mxatom
-      if (.not. rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,radius)) then
-         if(odbug) then
-            write(Luout,*) 'radius ... from defaults = ',
-     $                     (radius(irad),irad=1,nrad)
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'radius ... from  -rtdb-  = ',
-     $                     (radius(irad),irad=1,nrad)
-         endif
-      endif
-c
-c   --- print
-c
-      if(odbug) then
-         write(Luout,*) '-cosmo input from -rtdb- -'
-         write(Luout,*) 'dielec     = ',dielec
-         write(Luout,*) 'iscren     = ',iscren
-         write(Luout,*) 'ifscrn     = ',ifscrn
-         write(Luout,*) 'minbem     = ',minbem
-         write(Luout,*) 'maxbem     = ',maxbem
-         write(Luout,*) 'ificos     = ',ificos
-         write(Luout,*) 'lineq      = ',lineq
-         write(Luout,*) 'rsolv      = ',rsolv
-      endif
-c
-      call util_flush(Luout)
-c
-      return
-      end
       subroutine cosmo_initialize(rtdb,geom,basis,oprint)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
@@ -467,52 +181,26 @@ c
 #include "geom.fh"
 #include "bas.fh"
 c
-      integer    mxatom
-      parameter (mxatom=nw_max_atom)
-      parameter (mxefc =3*7*7*7)
-c
-      logical status
       integer rtdb
       integer geom
       integer basis
-      integer iat
+      logical oprint
+c
+      logical status
       logical cosmo
 c
-      double precision dielec
-      double precision rsolv
-      double precision radius
-      integer          iscren
-      integer          ifscrn
-      integer          minbem
-      integer          maxbem
-      integer          ificos
-      integer          lineq
+      integer iat, nfield, nrad, irad 
+      integer iscren, ifscrn, minbem, maxbem, ificos, lineq
+      integer l_rad, k_rad, l_tag, k_tag, l_zan, k_zan, l_coor, k_coor
 c
-      logical odbug
-      logical osome
-      logical oprint
+      logical odbug, osome
       integer me
 c
-      character*4 keyblk,keycos,icos,iefc
-      character*8 blank
-      character*8 efclab
-      common/hnd_iofile/ir,iw,ip
-      common/hnd_lcapid/nap,iap
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_molnuc/nuc(mxatom)
-      common/hnd_cosrad/radius(mxatom)
-      common/hnd_cosprt/iprt
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_efcpar/efcc(3,mxefc),efcz(mxefc),efclab(mxefc),nefc
-      common/hnd_efcopt/iefc	
-      character*16 atom_tags(mxatom)
       dimension vdwr(103)
       dimension vander(36)
 c
-      data blank  /'        '/
-      data keyblk /'    '/
-      data keycos /' COS'/
       data zero   /0.0d+00/
       data one    /1.0d+00/
       data pt5    /0.5d+00/
@@ -534,9 +222,9 @@ C
      9   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
      1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
      2   0.00,0.00,0.00/
-C
-C     vdw radii from Merz/Kollman/Singh
-C
+c
+c     VDW RADII FROM mERZ/kOLLMAN/sINGH
+c
       data (vander(i),i=1,36)
      1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
      2 1.45D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,1.30D+00,
@@ -561,26 +249,12 @@ c    2 1.50D+00,1.50D+00,1.70D+00,1.70D+00,1.70D+00,1.70D+00,
 c    3 2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,2.00D+00,
 c    4 2.00D+00,19*0.0D+00/
 c
-c
-c     ----- /iofile/ -----
-c
-      ir=Luin
-      iw=Luout
-      ip=7
-c
-c     ----- /lcapid/ -----
-c
       me=ga_nodeid()
-      nap = ga_nnodes()
-      iap = ga_nodeid() + 1
 c
       odbug=.false.
-      odbug=odbug.and.(iap.eq.1)
       osome=oprint
-      osome=osome.or.odbug
-      osome=osome.and.(iap.eq.1)
 c
-      if(odbug) then
+      if(odbug.and.me.eq.0) then
          write(Luout,*) 'in cosmo_initialize ...'
       endif
 c
@@ -595,188 +269,74 @@ c
      $     call errquit('cosmo_initialize: geom_create failed', 0,
      &       GEOM_ERR)
 c
-c     ----- /molxyz/ /molnuc/ -----
+c     Get data from the molecule itself
 c
-      status=geom_ncent(geom,nat)
-      if(.not.status) call errquit
+      if(.not.geom_ncent(geom,nat)) call errquit
      $    (' cosmo_initialize: geom_ncent    failed.',911, GEOM_ERR)
-      status=geom_cart_get(geom,nat,atom_tags,c,zan)
-      if(.not.status) call errquit
+c
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
+     & call errquit('cosmo_initialize malloc k_rad failed',911)
+      if(.not.ma_push_get(mt_dbl,nat*3,'cosmo coord',l_coor,k_coor))
+     & call errquit('cosmo_initialize malloc k_coor failed',911)
+      if(.not.ma_push_get(mt_dbl,nat,'cosmo zan',l_zan,k_zan))
+     & call errquit('cosmo_initialize malloc k_zan failed',911)
+      if(.not.ma_push_get(mt_byte,nat*16,'cosmo tags',l_tag,k_tag))
+     & call errquit('cosmo_initialize malloc k_tag failed',911)
+c
+      if(.not.geom_cart_get(geom,nat,byte_mb(k_tag),dbl_mb(k_coor),
+     $   dbl_mb(k_rad))) call errquit
      $    (' cosmo_initialize: geom_cart_get failed.',911, GEOM_ERR)
-      do iat=1,nat
-         nuc(iat)=nint(zan(iat))
-      enddo
-      if(odbug) then
-         do iat=1,nat
-            write(iw,*) ' ... i,Z,c = ',iat,zan(iat),c(1,iat),c(2,iat),
-     $                                               c(3,iat)
-         enddo
-      endif
 c
-c     ----- defaults -----
-c
-      dielec   =78.4d+00
-      iscren   =0
-      ifscrn   =2
-      minbem   =2
-      maxbem   =3
-      ificos   =0
-      lineq    =1
-      rsolv    =0.0d+00
-      do iat=1,mxatom
-         radius(iat)=0.0d+00
-      enddo
       do i=1,36
          vdwr(i)=vander(i) 
       enddo
       do iat=1,nat
-         rad=vdwr(nuc(iat))
+         rad=vdwr(nint(dbl_mb(k_zan+iat-1)))
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
             rad = zero
-            status = geom_tag_to_default_mass(atom_tags(iat),rad)
+            status = geom_tag_to_default_mass(byte_mb(k_tag+16*(iat-1)),
+     $                                        rad)
          endif
          if(rad.eq.zero) then
             rad=def
          endif
-         radius(iat)=rad
+         dbl_mb(k_rad+iat-1)=rad
       enddo
 c
-      if(odbug) then
-         write(Luout,*) '-cosmo input defaults-'
-         write(Luout,*) 'dielec     = ',dielec
-         write(Luout,*) 'iscren     = ',iscren
-         write(Luout,*) 'ifscrn     = ',ifscrn
-         write(Luout,*) 'minbem     = ',minbem
-         write(Luout,*) 'maxbem     = ',maxbem
-         write(Luout,*) 'ificos     = ',ificos
-         write(Luout,*) 'lineq      = ',lineq
-         write(Luout,*) 'rsolv      = ',rsolv
-      endif
-c
-c   --- cosmo
+      if(.not.ma_pop_stack(l_tag))
+     & call errquit('cosmo_initialize,ma_pop_stack of l_tag failed',911)
 c
       if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo))
      $     call errquit('cosmo_initialize: rtdb_get failed',911,
      &       RTDB_ERR)
-         if(cosmo) then
-            if(odbug) then
-               write(Luout,*) 'cosmo  ... found on rtdb'
-            endif
-         else
-            if(odbug) then
-               write(Luout,*) 'cosmo  not found on rtdb'
-            endif
-         endif
-c
-c   --- dielec
-c
-      if (.not. rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)) then
-         if(odbug) then
-            write(Luout,*) 'dielec ... from defaults = ',dielec
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'dielec ... from  -rtdb-  = ',dielec
-         endif
-      endif
-c
-c   --- rsolv
-c
-      if (.not. rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)) then
-         if(odbug) then
-            write(Luout,*) 'rsolv  ... from defaults = ',rsolv 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'rsolv  ... from  -rtdb-  = ',rsolv 
-         endif
-      endif
-c
-c   --- iscren
-c
-      if (.not. rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren)) then
-         if(odbug) then
-            write(Luout,*) 'iscren ... from defaults = ',iscren 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'iscren ... from  -rtdb-  = ',iscren
-         endif
-      endif
-c
-c   --- ifscrn
-c
-      if (.not. rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn)) then
-         if(odbug) then
-            write(Luout,*) 'ifscrn ... from defaults = ',ifscrn 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'ifscrn ... from  -rtdb-  = ',ifscrn
-         endif
-      endif
-c
-c   --- minbem
-c
-      if (.not. rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem)) then
-         if(odbug) then
-            write(Luout,*) 'minbem ... from defaults = ',minbem
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'minbem ... from  -rtdb-  = ',minbem
-         endif
-      endif
-c
-c   --- maxbem
-c
-      if (.not. rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)) then
-         if(odbug) then
-            write(Luout,*) 'maxbem ... from defaults = ',maxbem
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'maxbem ... from  -rtdb-  = ',maxbem
-         endif
-      endif
-c
-c   --- ificos
-c
-      if (.not. rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos)) then
-         if(odbug) then
-            write(Luout,*) 'ificos ... from defaults = ',ificos
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'ificos ... from  -rtdb-  = ',ificos
-         endif
-      endif
-c
-c   --- lineq
-c
-      if (.not. rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq)) then
-         if(odbug) then
-            write(Luout,*) 'lineq  ... from defaults = ',lineq 
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'lineq  ... from  -rtdb-  = ',lineq 
-         endif
-      endif
-c
-c   --- radius
-c
-      nrad=mxatom
-      if (.not. rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,radius)) then
-         if(odbug) then
-            write(Luout,*) 'radius ... from defaults = ',
-     $                     (radius(irad),irad=1,nrad)
-         endif
-      else
-         if(odbug) then
-            write(Luout,*) 'radius ... from  -rtdb-  = ',
-     $                     (radius(irad),irad=1,nrad)
-         endif
+      if (.not. rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)) 
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)) 
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren)) 
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn))
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem)) 
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem))
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos)) 
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq)) 
+     $     call errquit('cosmo_initialize: rtdb_get failed',911,
+     &       RTDB_ERR)
+      nrad = 0
+      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
+      if (nrad.gt.0) then
+         status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
       endif
 c
 c     ----- checks ... -----
@@ -785,1383 +345,1306 @@ c
          dielec=78.4d+00
       endif
 c
-      IF(OSOME) THEN
-         WRITE(IW,9999)
-         WRITE(IW,9997) DIELEC
-      ENDIF
-C
-C     ----- CHARGE SCREENING APPROACH ... -----
-C
-      IF(OSOME) THEN
-         WRITE(IW,9983) IFSCRN
-      ENDIF
+      if(osome.and.me.eq.0) then
+         write(Luout,9999)
+         write(Luout,9997) dielec
+      endif
+c
+c     ----- charge screening approach ... -----
+c
+      if(osome.and.me.eq.0) then
+         write(Luout,9983) ifscrn
+      endif
 
-      IF(IFSCRN.NE.1.AND.IFSCRN.NE.2) THEN
-         ISCREN=-1
-      ENDIF
-C
-C     ----- SCREENING FACTOR -----
-C
-      IF(ISCREN.LT.0) THEN
-         SCREEN=ONE
-         IF (OSOME) WRITE(IW,9984) SCREEN
-      ELSEIF(ISCREN.GT.0) THEN
-         SCREEN=(DIELEC-ONE)/(DIELEC+PT5)
-         IF (OSOME) WRITE(IW,9996) SCREEN
-      ELSE
-         SCREEN=(DIELEC-ONE)/(DIELEC    )
-         IF (OSOME) WRITE(IW,9995) SCREEN
-      ENDIF
-C
-C     ----- TESSELATION -----
-C
-      IF(MINBEM.LT.1.OR.MINBEM.GT.MXPASS) THEN
-         MINBEM=2
-      ENDIF
-      IF(MAXBEM.LT.1.OR.MAXBEM.GT.MXPASS) THEN
-         MAXBEM=4
-      ENDIF
-      IF(MAXBEM.LT.MINBEM) THEN
-         MAXBEM=MINBEM+2
-      ENDIF
-C
-      IFICOS=ABS(IFICOS)
-C
-      ICOS=KEYCOS
-C
-      IF(OSOME) THEN
-         WRITE(IW,9993) LINEQ
-         WRITE(IW,9991) MINBEM
-         WRITE(IW,9992) MAXBEM
-         IF(IFICOS.EQ.0) THEN
-            WRITE(IW,9990)
-         ELSE
-            WRITE(IW,9989)
-         ENDIF
-         WRITE(IW,9994) RSOLV
-         WRITE(IW,9988)
-      ENDIF
-      DO IAT=1,NAT
-         RADIUS(IAT)=ABS(RADIUS(IAT))
-         IF(RADIUS(IAT).LT.RADTOL) THEN
-            RADIUS(IAT)=ZERO
-         ENDIF
-         IF(OSOME) THEN
-            WRITE(IW,9987) IAT,NUC(IAT),RADIUS(IAT)
-         ENDIF
-      ENDDO
-C
-C     ----- CREATE BOUNDARY ELEMENTS OF CAVITY -----
-C
-      IF(OSOME) THEN
-         IPRT=1
-      ELSE
-         IPRT=0
-      ENDIF
-
-*     **********************************************
-*     **** do call in parallel ? -changed by EJB****
-*     **********************************************
-c-    IF(IAP.EQ.1) THEN
-c-        CALL HND_COSSET(RTDB)
-c-    ENDIF
-      CALL HND_COSSET(RTDB)
-      IPRT=0
-*     **********************************************
-C
-C     ----- FOR NOW ... NO INDUCED CHARGES ... -----
-C
-      NEFC=0
-      DO IEF=1,MXEFC
-         EFCLAB(IEF)=BLANK
-         EFCZ(  IEF)=ZERO
-         DO I=1,3
-            EFCC(I,IEF)=ZERO
-         ENDDO
-      ENDDO
-      IEFC=KEYBLK
+      if(ifscrn.ne.1.and.ifscrn.ne.2) then
+         iscren=-1
+      endif
+c
+c     ----- screening factor -----
+c
+      if(iscren.lt.0) then
+         screen=one
+         if (osome.and.me.eq.0) write(luout,9984) screen
+      elseif(iscren.gt.0) then
+         screen=(dielec-one)/(dielec+pt5)
+         if (osome.and.me.eq.0) write(luout,9996) screen
+      else
+         screen=(dielec-one)/(dielec    )
+         if (osome.and.me.eq.0) write(luout,9995) screen
+      endif
+c
+c     ----- tesselation -----
+c
+      if(minbem.lt.1.or.minbem.gt.mxpass) then
+         minbem=2
+      endif
+      if(maxbem.lt.1.or.maxbem.gt.mxpass) then
+         maxbem=4
+      endif
+      if(maxbem.lt.minbem) then
+         maxbem=minbem+2
+      endif
+c
+      ificos=abs(ificos)
+c
+      if(osome.and.me.eq.0) then
+         write(luout,9993) lineq
+         write(luout,9991) minbem
+         write(luout,9992) maxbem
+         if(ificos.eq.0) then
+            write(luout,9990)
+         else
+            write(luout,9989)
+         endif
+         write(luout,9994) rsolv
+         write(luout,9988)
+      endif
+      do iat=1,nat
+         dbl_mb(k_rad+iat-1)=abs(dbl_mb(k_rad+iat-1))
+         if(dbl_mb(k_rad+iat-1).lt.radtol) then
+            dbl_mb(k_rad+iat-1)=zero
+         endif
+         if(osome.and.me.eq.0) then
+           write(luout,9987) iat,dbl_mb(k_zan+iat-1),dbl_mb(k_rad+iat-1)
+         endif
+      enddo
+c
+      if(.not.ma_pop_stack(l_zan))
+     & call errquit('cosmo_initialize,ma_pop_stack of l_zan failed',911)
+c
+c     ----- create boundary elements of cavity -----
+c
+      call hnd_cosset(rtdb,nat,dbl_mb(k_coor),dbl_mb(k_rad))
 c
 c     ----- done -----
 c
-      if(osome) then
-         write(iw,9986)
-         write(iw,9985)
+      if(osome.and.me.eq.0) then
+         write(luout,9986)
+         write(luout,9985)
       endif
 c
       if(me.eq.0) call util_flush(Luout)
 c
+      if(.not.ma_pop_stack(l_coor))
+     & call errquit('cosmo_initialize,ma_pop_stack l_coor failed',911)
+      if(.not.ma_pop_stack(l_rad))
+     & call errquit('cosmo_initialize,ma_pop_stack l_rad failed',911)
+c
       return
- 9999 FORMAT(/,10X,15(1H-),
-     1       /,10X,'-cosmo- solvent',
-     2       /,10X,15(1H-))
- 9998 FORMAT(' no -cosmo- solvent.')
- 9997 FORMAT(' dielectric constant -eps-  = ',F6.2)
- 9996 FORMAT(' screen = (eps-1)/(eps+1/2) = ',F9.5)
- 9995 FORMAT(' screen = (eps-1)/(eps    ) = ',F9.5)
- 9994 FORMAT(' solvent radius (ang.)      = ',F7.3)
- 9993 FORMAT(' -lineq- algorithm          = ',I3)
- 9992 FORMAT(' -bem- high level           = ',I3)
- 9991 FORMAT(' -bem- low  level           = ',I3)
- 9990 FORMAT(' -bem- from -octahedral-')
- 9989 FORMAT(' -bem- from -icosahedral-')
- 9988 FORMAT(' atomic radii = ',/,' --------------')
- 9987 FORMAT(i5,i5,f7.3)
- 9986 FORMAT(' ...... end of -cosmo- initialization ......')
- 9985 FORMAT(/)
- 9984 FORMAT(' screen =  one              = ',F9.5)
- 9983 FORMAT(' charge screening approach  = ',I3)
+ 9999 format(/,10x,15(1h-),
+     1       /,10x,'-cosmo- solvent',
+     2       /,10x,15(1h-))
+ 9998 format(' no -cosmo- solvent.')
+ 9997 format(' dielectric constant -eps-  = ',f6.2)
+ 9996 format(' screen = (eps-1)/(eps+1/2) = ',f9.5)
+ 9995 format(' screen = (eps-1)/(eps    ) = ',f9.5)
+ 9994 format(' solvent radius (ang.)      = ',f7.3)
+ 9993 format(' -lineq- algorithm          = ',i3)
+ 9992 format(' -bem- high level           = ',i3)
+ 9991 format(' -bem- low  level           = ',i3)
+ 9990 format(' -bem- from -octahedral-')
+ 9989 format(' -bem- from -icosahedral-')
+ 9988 format(' atomic radii = ',/,' --------------')
+ 9987 format(i5,i5,f7.3)
+ 9986 format(' ...... end of -cosmo- initialization ......')
+ 9985 format(/)
+ 9984 format(' screen =  one              = ',f9.5)
+ 9983 format(' charge screening approach  = ',i3)
       end
-      SUBROUTINE HND_COSSET(RTDB)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c
+      subroutine cosmo_tidy()
+      implicit double precision (a-h,o-z)
 #include "errquit.fh"
-C
-C              ----- STARTING FROM -ICOSAHEDRON- -----
-C
-C     PASS, NAPEX, NFACE, ERROR =   0      12      20      20
-C     PASS, NAPEX, NFACE, ERROR =   1      42      80     100    0.4982
-C     PASS  NAPEX, NFACE, ERROR =   2     162     320     420    0.1848
-C     PASS  NAPEX, NFACE, ERROR =   3     642    1280    1700    0.0523
-C     PASS  NAPEX, NFACE, ERROR =   4    2562    5120    6820    0.0135
-C     PASS  NAPEX, NFACE, ERROR =   5   10242   20480   27300    0.0034
-C
-C              ----- STARTING FROM -OCTAHEDRON-  -----
-C
-C     PASS, NAPEX, NFACE, ERROR =   0       6       8       8
-C     PASS, NAPEX, NFACE, ERROR =   1      18      32      40    0.8075
-C     PASS  NAPEX, NFACE, ERROR =   2      66     128     168    0.4557
-C     PASS  NAPEX, NFACE, ERROR =   3     258     512     680    0.1619
-C     PASS  NAPEX, NFACE, ERROR =   4    1026    2048    2728    0.0451
-C     PASS  NAPEX, NFACE, ERROR =   5    4098    8192   10920    0.0116
-C     PASS  NAPEX, NFACE, ERROR =   6   16386   32768   43688    0.0029
-C
+#include "prop.fh"
+#include "geom.fh"
+c
+      if (.not. geom_destroy(cosmo_geom_efc)) call errquit
+     $     ('cosmo_tidy: geom destroy failed', 0, GEOM_ERR)
+      return
+      end
+c
+      subroutine hnd_cosset(rtdb,nat,c,radius)
+      implicit double precision (a-h,o-z)
+#include "errquit.fh"
+c
+c              ----- starting from -icosahedron- -----
+c
+c     pass, napex, nface, error =   0      12      20      20
+c     pass, napex, nface, error =   1      42      80     100    0.4982
+c     pass  napex, nface, error =   2     162     320     420    0.1848
+c     pass  napex, nface, error =   3     642    1280    1700    0.0523
+c     pass  napex, nface, error =   4    2562    5120    6820    0.0135
+c     pass  napex, nface, error =   5   10242   20480   27300    0.0034
+c
+c              ----- starting from -octahedron-  -----
+c
+c     pass, napex, nface, error =   0       6       8       8
+c     pass, napex, nface, error =   1      18      32      40    0.8075
+c     pass  napex, nface, error =   2      66     128     168    0.4557
+c     pass  napex, nface, error =   3     258     512     680    0.1619
+c     pass  napex, nface, error =   4    1026    2048    2728    0.0451
+c     pass  napex, nface, error =   5    4098    8192   10920    0.0116
+c     pass  napex, nface, error =   6   16386   32768   43688    0.0029
+c
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+#include "stdio.fh"
+c
       integer rtdb
-      integer geom
-      logical status
+      integer nat
+      double precision c(3,nat)
+      double precision radius(nat)
 c
-      PARAMETER (MXFACE=10920)
-      PARAMETER (MXAPEX= 4098)
-      PARAMETER (MXEFC =3*7*7*7)
-      PARAMETER (MXATOM=NW_MAX_ATOM)
-      CHARACTER*8 EFCLAB
-      CHARACTER*8 ERRMSG
-      LOGICAL     DBUG
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_COSMOD/LINEQ,MINBEM,MAXBEM,IFICOS,IFSCRN
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_MOLNUC/NUC(MXATOM)
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      COMMON/HND_EFCOPT/IEFC
-      DIMENSION X(1)
-      EQUIVALENCE (X(1),DBL_MB(1))
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-COSSET-'/
+      parameter (mxface=10920)
+      parameter (mxapex= 4098)
+      logical     dbug
+      dimension x(1)
+      equivalence (x(1),dbl_mb(1))
 c
-      character*16 atom_tags(mxatom)
-C
-C     XYZATM(3,MXATOM)
-C       RATM(  MXATOM)
-C       NSPA(  MXATOM)
-C       NPPA(  MXATOM)
-C     IJKFAC(3,MXFACE)
-C     XYZSEG(3,MXFACE)
-C     IJKSEG(  MXFACE)
-C     INSSEG(  MXFACE,MXATOM)
-C     XYZSPA(3,MXFACE,MXATOM)
-C     IJKSPA(  MXFACE,MXATOM)
-C     NUMPPS(  MXFACE,MXATOM)
-C       APEX(3,MXAPEX)
-C
-      DBUG=.FALSE.
-      DBUG=DBUG.AND.(IAP.EQ.1)
-C
-      IF(DBUG) THEN
-         WRITE(IW,9999)
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-      IF(IFICOS.EQ.0.AND.MAXBEM.GT.6) THEN
-         WRITE(IW,*) '-MAXBEM- TOO LARGE FOR PARAMETERS IN -COSSET-'
-CBERT    CALL HND_FIFLSH(IW)
-CBERT    CALL HND_HNDERR(3,ERRMSG)
-      ELSEIF(IFICOS.NE.0.AND.MAXBEM.GT.7) THEN
-         WRITE(IW,*) '-MAXBEM- TOO LARGE FOR PARAMETERS IN -COSSET-'
-CBERT    CALL HND_FIFLSH(IW)
-CBERT    CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-C
-      NFAC=MXFACE
-      NAPX=MXAPEX
-C
-C     ----- PARTITION MEMORY -----
-C
-      I10 =1      
-      I20 =I10 +3*NAT
-      I30 =I20 +  NAT
-      I40 =I30 +  NAT
-      I50 =I40 +  NAT
-      I60 =I50 +3*NFAC
-      I70 =I60 +3*NFAC
-      I80 =I70 +  NFAC
-      I90 =I80 +  NFAC*NAT
-      I100=I90 +3*NFAC*NAT
-      I110=I100+  NFAC*NAT
-      I120=I110+  NFAC*NAT
-      I130=i120+3*NAPX
-      LAST=I130-1
-C
-C     ----- ALLOCATE MEMORY BLOCK -----
-C
-      NEED = LAST
-      IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,'MEM INIT:cosmo:hnd_cosset:1',
-     &    I_INIT,INIT))
-     & CALL ERRQUIT('HND_COSSET, MALLOC OF INIT  FAILED',911)
-C
-      I10 =INIT   
-      I20 =I10 +3*NAT
-      I30 =I20 +  NAT
-      I40 =I30 +  NAT
-      I50 =I40 +  NAT
-      I60 =I50 +3*NFAC
-      I70 =I60 +3*NFAC
-      I80 =I70 +  NFAC
-      I90 =I80 +  NFAC*NAT
-      I100=I90 +3*NFAC*NAT
-      I110=I100+  NFAC*NAT
-      I120=I110+  NFAC*NAT
-      I130=i120+3*NAPX
-      LAST=I130-1
-C
-C     ----- GET -COSMO- SURFACE -----
-C
-      CALL HND_COSSRF(NAT,C,NUC,NAT,NFAC,NAPX,
-     1                X(I10),X(I20),X(I30),X(I40),
-     2                X(I50),X(I60),X(I70),
-     3                X(I80),X(I90),X(I100),X(I110),X(I120),rtdb)
-C
-C     ----- RELEASE MEMORY BLOCK -----
-C
-      IF(.NOT.MA_POP_STACK(I_INIT))
-     & CALL ERRQUIT('HND_COSSET, MA_POP_STACK OF INIT FAILED',911)
-C
-      RETURN
- 9999 FORMAT(/,10X,15(1H-),
-     1       /,10X,'-COSMO- SURFACE',
-     2       /,10X,15(1H-))
-      END
-      SUBROUTINE HND_COSSRF(NAT,C,NUC,MXATM,MXFAC,MXAPX,
-     1                  XYZATM,RATM,NSPA,NPPA,
-     2                  IJKFAC,XYZSEG,IJKSEG,INSSEG,
-     3                  XYZSPA,IJKSPA,NUMPPS,APEX,rtdb)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      dbug=.false.
+      if(dbug.and.ga_nodeid().eq.0) then
+         write(luout,9999)
+      endif
+c
+      if(ificos.eq.0.and.maxbem.gt.6) then
+         write(luout,*) '-maxbem- too large for parameters in -cosset-'
+         call errquit('hnd_cosset, -maxbem- too large',911)
+      elseif(ificos.ne.0.and.maxbem.gt.7) then
+         write(luout,*) '-maxbem- too large for parameters in -cosset-'
+         call errquit('hnd_cosset, -maxbem- too large',911)
+      endif
+c
+c     ----- partition memory -----
+c
+      need = 6*nat + 7*mxface + 6*mxface*nat + 3*mxapex
+c
+c     ----- allocate memory block -----
+c
+      if(.not.ma_push_get(mt_dbl,need,'mem init:cosmo:hnd_cosset:1',
+     &    i_init,init))
+     & call errquit('hnd_cosset, malloc of init  failed',911)
+c
+      i10 =init                    ! xyzatm(3,nat)
+      i20 =i10 +3*nat              !   ratm(  nat)
+      i30 =i20 +  nat              !   nspa(  nat)
+      i40 =i30 +  nat              !   nppa(  nat)
+      i50 =i40 +  nat              ! ijkfac(3,mxface)
+      i60 =i50 +3*nfac             ! xyzseg(3,mxface)
+      i70 =i60 +3*nfac             ! ijkseg(  mxface)
+      i80 =i70 +  nfac             ! insseg(  mxface,nat)
+      i90 =i80 +  nfac*nat         ! xyzspa(3,mxface,nat)
+      i100=i90 +3*nfac*nat         ! ijkspa(  mxface,nat)
+      i110=i100+  nfac*nat         ! numpps(  mxface,nat)
+      i120=i110+  nfac*nat         ! apex(3,mxapex)
+c
+c     ----- get -cosmo- surface -----
+c
+      call hnd_cossrf(nat,c,radius,nat,mxface,mxapex,
+     1                x(i10),x(i20),x(i30),x(i40),
+     2                x(i50),x(i60),x(i70),
+     3                x(i80),x(i90),x(i100),x(i110),x(i120),rtdb)
+c
+c     ----- release memory block -----
+c
+      if(.not.ma_pop_stack(i_init))
+     & call errquit('hnd_cosset, ma_pop_stack of init failed',911)
+c
+      return
+ 9999 format(/,10x,15(1h-),
+     1       /,10x,'-cosmo- surface',
+     2       /,10x,15(1h-))
+      end
+c
+      subroutine hnd_cossrf(nat,c,radius,mxatm,mxfac,mxapx,
+     1                  xyzatm,ratm,nspa,nppa,
+     2                  ijkfac,xyzseg,ijkseg,insseg,
+     3                  xyzspa,ijkspa,numpps,apex,rtdb)
+      implicit double precision (a-h,o-z)
 c
 #include "nwc_const.fh"
 #include "rtdb.fh"
-      integer rtdb
+#include "global.fh"
+#include "stdio.fh"
 c
-      PARAMETER (BOHR=0.529177249D+00)
-      PARAMETER (MXATOM=NW_MAX_ATOM)
-      LOGICAL    SOME
-      LOGICAL    OUT
-      LOGICAL    MORE
-      LOGICAL    DBUG
-      LOGICAL    INSSEG
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL 
-      COMMON/HND_COSPAR/DIELEC,SCREEN,RSOLV
-      COMMON/HND_COSRAD/RADIUS(MXATOM)
-      DIMENSION      C(3,*    )
-      DIMENSION    NUC(  *    )
-      DIMENSION XYZATM(3,MXATM)
-      DIMENSION   RATM(  MXATM)
-      DIMENSION   NSPA(  MXATM)
-      DIMENSION   NPPA(  MXATM)
-      DIMENSION IJKFAC(3,MXFAC)
-      DIMENSION XYZSEG(3,MXFAC)
-      DIMENSION IJKSEG(  MXFAC)
-      DIMENSION INSSEG(  MXFAC,MXATM)
-      DIMENSION XYZSPA(3,MXFAC,MXATM)
-      DIMENSION IJKSPA(  MXFAC,MXATM)
-      DIMENSION NUMPPS(  MXFAC,MXATM)
-      DIMENSION   APEX(3,MXAPX)
-      DATA ZERO /0.0D+00/
-C
-      DBUG=.FALSE.
-      MORE=.FALSE.
-      MORE=MORE.OR.DBUG
-      OUT =.FALSE. 
-      OUT =OUT.OR.MORE
-      SOME=.FALSE.
-      SOME=SOME.OR.OUT
-C
-      DBUG=DBUG.AND.(IAP.EQ.1)
-      MORE=MORE.AND.(IAP.EQ.1)
-      OUT =OUT .AND.(IAP.EQ.1)
-      SOME=SOME.AND.(IAP.EQ.1)
-C
-C     ----- APPROXIMATE SPHERE WITH SEGMENTS AND POINTS -----
-C
-      CALL HND_COSSPH(NSEG,NFAC,NDIV,
-     1                IJKFAC,XYZSEG,IJKSEG,MXFAC,APEX,MXAPX,
-     2                DSURF,DVOL,ADIAG)
-C
-C     ----- DEBUG PRINTING -----
-C
-      IF(OUT) THEN
-         WRITE(IW,9999) NSEG,NFAC,NDIV,DSURF,DVOL
-         WRITE(IW,9995) ADIAG
-         IF(MORE) THEN
-            WRITE(IW,9998)
-            DO LSEG=1,NSEG
-               WRITE(IW,9997) LSEG,XYZSEG(1,LSEG),XYZSEG(2,LSEG),
-     1                             XYZSEG(3,LSEG),IJKSEG(  LSEG)
-            ENDDO
-         ENDIF
-         IF(DBUG) THEN
-            WRITE(IW,9996)
-            DO LFAC=1,NFAC
-               MFAC=LFAC+NSEG
-               WRITE(IW,9997) MFAC,XYZSEG(1,MFAC),XYZSEG(2,MFAC),
-     1                             XYZSEG(3,MFAC),IJKSEG(  MFAC)
-            ENDDO
-         ENDIF
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- SET MOLECULE -----
-C
-      DO IAT=1,NAT
-         DO I=1,3
-            XYZATM(I,IAT)=C(I,IAT)
-         ENDDO
-      ENDDO
-      DO IAT=1,NAT
-         IF(RADIUS(IAT).EQ.ZERO) THEN
-            RATM(IAT)=ZERO
-         ELSE
-            RATM(IAT)=(RADIUS(IAT)+RSOLV)/BOHR
-         ENDIF
-      ENDDO
-C
-C     ----- CREATE -SOLVENT ACCESSIBLE SURFACE- OF THE MOLECULE -----
-C
-      CALL HND_COSSAS(NAT,XYZATM,RATM,MXATM,
-     1                NSPA,NPPA,XYZSPA,IJKSPA,
-     2                NSEG,NFAC,XYZSEG,IJKSEG,INSSEG,
-     3                NUMPPS,MXFAC,rtdb)
-C
-      RETURN
- 9999 FORMAT(' NSEG,NFAC,NDIV=NFAC/NSEG,DSURF,DVOL = ',3I7,2F10.6)
- 9998 FORMAT('  SEG  ','      X     ','      Y     ','      Z     ',
-     1       ' SEG ',/,1X,47(1H-))
- 9997 FORMAT(I7,3F12.8,I5,F12.8)
- 9996 FORMAT('  FAC  ','      X     ','      Y     ','      Z     ',
-     1       ' SEG ',/,1X,47(1H-))
- 9995 FORMAT(' ADIAG           = ',F12.6)
-      END
-      SUBROUTINE HND_COSSAS(NAT,XYZATM,RATM,MXATOM,
-     1                  NSPA,NPPA,XYZSPA,IJKSPA,
-     2                  NSEG,NFAC,XYZSEG,IJKSEG,INSSEG,
-     3                  NUMPPS,MXFACE,rtdb)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      integer rtdb, nat
+      dimension      c(3,nat  )
+      dimension radius(    nat)
+      dimension xyzatm(3,mxatm)
+      dimension   ratm(  mxatm)
+      dimension   nspa(  mxatm)
+      dimension   nppa(  mxatm)
+      dimension ijkfac(3,mxfac)
+      dimension xyzseg(3,mxfac)
+      dimension ijkseg(  mxfac)
+      dimension insseg(  mxfac,mxatm)
+      dimension xyzspa(3,mxfac,mxatm)
+      dimension ijkspa(  mxfac,mxatm)
+      dimension numpps(  mxfac,mxatm)
+      dimension   apex(3,mxapx)
+c
+      data zero /0.0d+00/
+      parameter (bohr=0.529177249d+00)
+      logical    some
+      logical    out
+      logical    more
+      logical    dbug
+      logical    insseg
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      common/hnd_cospar/dielec,screen,rsolv
+c
+      dbug=.false.
+      more=.false.
+      more=more.or.dbug
+      out =.false. 
+      out =out.or.more
+      some=.false.
+      some=some.or.out
+c
+c     ----- approximate sphere with segments and points -----
+c
+      nseg = 0
+      nfac = 0
+      ndiv = 0
+      call hnd_cossph(nseg,nfac,ndiv,
+     1                ijkfac,xyzseg,ijkseg,mxfac,apex,mxapx,
+     2                dsurf,dvol,adiag)
+c
+c     ----- debug printing -----
+c
+      if(out.and.ga_nodeid().eq.0) then
+         write(luout,9999) nseg,nfac,ndiv,dsurf,dvol
+         write(luout,9995) adiag
+         if(more) then
+            write(luout,9998)
+            do lseg=1,nseg
+               write(luout,9997) lseg,xyzseg(1,lseg),xyzseg(2,lseg),
+     1                             xyzseg(3,lseg),ijkseg(  lseg)
+            enddo
+         endif
+         if(dbug) then
+            write(luout,9996)
+            do lfac=1,nfac
+               mfac=lfac+nseg
+               write(luout,9997) mfac,xyzseg(1,mfac),xyzseg(2,mfac),
+     1                             xyzseg(3,mfac),ijkseg(  mfac)
+            enddo
+         endif
+      endif
+c
+c     ----- set molecule -----
+c
+      do iat=1,nat
+         do i=1,3
+            xyzatm(i,iat)=c(i,iat)
+         enddo
+      enddo
+      do iat=1,nat
+         if(radius(iat).eq.0.0d0) then
+            ratm(iat)=0.0d0
+         else
+            ratm(iat)=(radius(iat)+rsolv)/bohr
+         endif
+      enddo
+c
+c     ----- create -solvent accessible surface- of the molecule -----
+c
+      call hnd_cossas(nat,xyzatm,ratm,mxatm,
+     1                nspa,nppa,xyzspa,ijkspa,
+     2                nseg,nfac,xyzseg,ijkseg,insseg,
+     3                numpps,mxfac,rtdb)
+c
+      return
+ 9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
+ 9998 format('  seg  ','      x     ','      y     ','      z     ',
+     1       ' seg ',/,1x,47(1h-))
+ 9997 format(i7,3f12.8,i5,f12.8)
+ 9996 format('  fac  ','      x     ','      y     ','      z     ',
+     1       ' seg ',/,1x,47(1h-))
+ 9995 format(' adiag           = ',f12.6)
+      end
+c
+      subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
+     1                  nspa,nppa,xyzspa,ijkspa,
+     2                  nseg,nfac,xyzseg,ijkseg,insseg,
+     3                  numpps,mxface,rtdb)
+      implicit double precision (a-h,o-z)
 #include "errquit.fh"
-c
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+c
       integer rtdb
 c
-      PARAMETER  (MXEFC =3*7*7*7)
-      PARAMETER  (BOHR=0.529177249D+00)
-      CHARACTER*8 EFCLAB
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 BLANK
-      LOGICAL     SOME
-      LOGICAL     OUT
-      LOGICAL     DBUG
-      LOGICAL     INSSEG
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSPRT/IPRT      
-      COMMON/HND_COSOPT/ICOS,NCOS
-      COMMON/HND_COSPAR/DIELEC,SCREEN,RSOLV
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL 
-      COMMON/HND_COSNRG/ATMEFC,ELCEFC,EFCEFC,ALLEFC,SOLNRG,CAVDSP
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      DIMENSION XYZATM(3,MXATOM)
-      DIMENSION   RATM(  MXATOM)
-      DIMENSION   NSPA(  MXATOM)
-      DIMENSION   NPPA(  MXATOM)
-      DIMENSION XYZSEG(3,MXFACE)
-      DIMENSION IJKSEG(  MXFACE)
-      DIMENSION INSSEG(  MXFACE,MXATOM)
-      DIMENSION XYZSPA(3,MXFACE,MXATOM)
-      DIMENSION IJKSPA(  MXFACE,MXATOM)
-      DIMENSION NUMPPS(  MXFACE,MXATOM)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG  /'PROGRAM ','STOP IN ','-COSSAS-'/
-      DATA BLANK   /'        '/
-      DATA ZERO    /0.0D+00/
-C
-      DIST(XI,YI,ZI,XJ,YJ,ZJ)=SQRT((XJ-XI)**2+(YJ-YI)**2+(ZJ-ZI)**2)
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.  
-      OUT =OUT.OR.DBUG
-      SOME=.FALSE.
-      SOME=SOME.OR.OUT
-      SOME=SOME.OR.IPRT.NE.0
-C
-      DBUG=DBUG.AND.(IAP.EQ.1)
-      OUT =OUT .AND.(IAP.EQ.1)
-      SOME=SOME.AND.(IAP.EQ.1)
-C
-      IF(SOME) THEN
-         WRITE(IW,9999)
-      ENDIF
-C
-C     ----- PRINT ATOMIC CENTERS -----
-C
-      IF(OUT) THEN
-         WRITE(IW,9998)
-         DO IAT=1,NAT
-            WRITE(IW,9997) IAT,XYZATM(1,IAT),XYZATM(2,IAT),
-     1                                       XYZATM(3,IAT),
-     2                    (RATM(IAT)*BOHR-RSOLV)
-         ENDDO
-      ENDIF
-C
-C     ----- CLEAR ARRAYS ..... -----
-C
-      DO IAT=1,NAT
-         DO I=1,MXFACE
-            IJKSPA(I,IAT)=0
-            NUMPPS(I,IAT)=0
-         ENDDO
-      ENDDO
-C
-C     ----- SIFT THROUGH ATOMIC CENTERS AND DECIDE IF A FACE -----
-C           BELONGS TO THE -SAS- OR IS INSIDE THE MOLECULE.
-C
-      DO IAT=1,NAT
-C
-         IF(RATM(IAT).NE.ZERO) THEN
-C
-            DO ISEG=1,NSEG
-               IJKSPA(       ISEG,IAT)=IJKSEG(       ISEG)
-               DO M=1,3
-                  XYZSPA(M,     ISEG,IAT)=XYZSEG(M,     ISEG)*RATM(IAT)
-     1                                   +XYZATM(M,IAT)
-               ENDDO
-            ENDDO
-            DO IFAC=1,NFAC
-               IJKSPA(  IFAC+NSEG,IAT)=IJKSEG(  IFAC+NSEG)
-               DO M=1,3
-                  XYZSPA(M,IFAC+NSEG,IAT)=XYZSEG(M,IFAC+NSEG)*RATM(IAT)
-     1                                   +XYZATM(M,IAT)
-               ENDDO
-            ENDDO
-            IF(DBUG) THEN
-               WRITE(IW,9996) IAT
-               WRITE(IW,9995) (IJKSPA(IFAC+NSEG,IAT),IFAC=1,NFAC)
-            ENDIF
-            DO JAT=1,NAT
-               DIJ=DIST(XYZATM(1,IAT),
-     1                  XYZATM(2,IAT),
-     2                  XYZATM(3,IAT),
-     3                  XYZATM(1,JAT),
-     4                  XYZATM(2,JAT),
-     5                  XYZATM(3,JAT))
-               IF(JAT.NE.IAT.AND.(DIJ.LT.(RATM(IAT)+RATM(JAT)))) THEN
-                  DO IFAC=1,NFAC
-                     DUM=DIST(XYZSPA(1,IFAC+NSEG,IAT),
-     1                        XYZSPA(2,IFAC+NSEG,IAT),
-     2                        XYZSPA(3,IFAC+NSEG,IAT),
-     3                        XYZATM(1,JAT),
-     4                        XYZATM(2,JAT),
-     5                        XYZATM(3,JAT))
-                     IF(DUM.LT.RATM(JAT)) THEN
-                        IJKSPA(IFAC+NSEG,IAT)=0
-                     ENDIF
-                  ENDDO
-               ENDIF
-            ENDDO
-            IF(DBUG) THEN
-               WRITE(IW,9996) IAT
-               WRITE(IW,9995) (IJKSPA(IFAC+NSEG,IAT),IFAC=1,NFAC)
-            ENDIF
-C
-C     ----- CHECK SEGMENTS BELONGING TO -SAS- -----
-C
-            DO IFAC=1,NSEG+NFAC
-               INSSEG(IFAC,IAT)=.TRUE.
-            ENDDO
-            DO IFAC=1,NFAC
-               ISEG=IJKSPA(IFAC+NSEG,IAT)
-               IF(ISEG.NE.0) THEN
-                  INSSEG(IFAC+NSEG,IAT)=.FALSE.
-                  INSSEG(     ISEG,IAT)=.FALSE.
-               ENDIF
-            ENDDO
-            IF(DBUG) THEN
-               WRITE(IW,9994) IAT
-               WRITE(IW,9993) (INSSEG(IFAC,IAT),IFAC=1,NSEG+NFAC)
-            ENDIF
-            MSEG=0
-            DO ISEG=1,NSEG
-               IF(.NOT.INSSEG(     ISEG,IAT)) THEN
-                  MSEG=MSEG+1
-               ENDIF
-            ENDDO
-            MFAC=0
-            DO IFAC=1,NFAC
-               IF(.NOT.INSSEG(IFAC+NSEG,IAT)) THEN
-                  MFAC=MFAC+1
-               ENDIF
-            ENDDO
-            NSPA(IAT)=MSEG
-            NPPA(IAT)=MFAC
-C
-C     ----- SURFACE AREA OF SEGMENTS -----
-C
-            DO ISEG=1,NSEG
-               NUMPPS(ISEG,IAT)=0
-            ENDDO
-            DO IFAC=1,NFAC
-               ISEG=IJKSPA(IFAC+NSEG,IAT)
-               IF(ISEG.NE.0) THEN
-                  NUMPPS(ISEG,IAT)=NUMPPS(ISEG,IAT)+1
-               ENDIF
-            ENDDO
-C
-         ENDIF
-C
-      ENDDO
-C
-      IF(SOME) THEN
-         WRITE(IW,9985) NSEG,NFAC
-         WRITE(IW,9992)
-         DO IAT=1,NAT
-            NPP=0
-            DO ISEG=1,NSEG
-               NPP=NPP+NUMPPS(ISEG,IAT)
-            ENDDO
-            WRITE(IW,9991) IAT,NSPA(IAT),NPPA(IAT),NPP
-         ENDDO
-      ENDIF
-      IF(DBUG) THEN
-         WRITE(IW,9987)
-         DO IAT=1,NAT
-            DO ISEG=1,NSEG
-               WRITE(IW,9986) IAT,ISEG,NUMPPS(ISEG,IAT)
-            ENDDO
-         ENDDO
-      ENDIF
-C
-C     ----- SAVE COORDINATES OF SURFACE POINTS -----
-C           SAVE SEGMENT SURFACES
-C           SAVE SEGMENT TO ATOM MAPPING
-C
-      SRFMOL=ZERO
-      VOLMOL=ZERO
-      IEF   =0
-      DO IAT=1,NAT
-         IF(RATM(IAT).NE.ZERO) THEN
-            DO ISEG=1,NSEG
-               IF(.NOT.INSSEG(ISEG,IAT)) THEN
-                  IEF=IEF+1
-                  IF(IEF.GT.MXEFC) THEN
-                     WRITE(IW,*) 'TOO MANY -COSMO- SURFACE POINTS'
-                     CALL HND_HNDERR(3,ERRMSG)
-                  ENDIF
-                  DO I=1,3
-                     EFCC(I,IEF)=XYZSEG(I,ISEG)*RATM(IAT)
-     1                          +XYZATM(I,IAT )
-                  ENDDO
-                  IPP=NUMPPS(ISEG,IAT)
-                  EFCS(IEF)=         DBLE(IPP)*DSURF*RATM(IAT)**2
-                  SRFMOL   =SRFMOL + DBLE(IPP)*DSURF*RATM(IAT)**2
-                  VOLMOL   =VOLMOL + DBLE(IPP)*DVOL *RATM(IAT)**3
-                  IATEFC(IEF)=IAT
-               ENDIF
-            ENDDO
-         ENDIF
-      ENDDO
-      SRFMOL=SRFMOL*(BOHR**2)
-      VOLMOL=VOLMOL*(BOHR**3)
-C
-      NEFC=IEF
-      NCOS=IEF
-      IF(SOME) THEN
-         WRITE(IW,9990) NEFC
-         WRITE(IW,9984) SRFMOL 
-         WRITE(IW,9983) VOLMOL 
-      ENDIF 
-C
-C     ----- Cavity/Dispersion FREE ENERGY ---
-C           Sitkoff, Sharp, and Honig,
-C           J.Phys.Chem. 98, 1978 (1994)
-C
-      CAVDSP=0.860+0.005*SRFMOL
-      IF(SOME) THEN
-         WRITE(IW,9981) CAVDSP
-      ENDIF
-C
-C     ----- PRINT SEGMENT SURFACES -----
-C
-      IF(DBUG) THEN
-         WRITE(IW,9989)
-         DO IEF=1,NEFC
-            WRITE(IW,9988) IEF,EFCS(IEF),IATEFC(IEF)
-         ENDDO
-      ENDIF
-C
-      DO IEF=1,NEFC
-         EFCZ(IEF)=ZERO
-      ENDDO
-      DO IEF=1,NEFC
-         EFCLAB(IEF)=BLANK
-      ENDDO
+      parameter  (bohr=0.529177249d+00)
+      logical     dbug
+      logical     insseg
+      common/hnd_cospar/dielec,screen,rsolv
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      dimension xyzatm(3,mxatom)
+      dimension   ratm(  mxatom)
+      dimension   nspa(  mxatom)
+      dimension   nppa(  mxatom)
+      dimension xyzseg(3,mxface)
+      dimension ijkseg(  mxface)
+      dimension insseg(  mxface,mxatom)
+      dimension xyzspa(3,mxface,mxatom)
+      dimension ijkspa(  mxface,mxatom)
+      dimension numpps(  mxface,mxatom)
+      data zero    /0.0d+00/
+      integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
+      integer l_efclb, k_efclb, k_efciat, l_efciat
+c
+      dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
+c
+      dbug=.false.
+c
+      if(ga_nodeid().eq.0) then
+         write(luout,9999)
+      endif
+c
+c     ----- print atomic centers -----
+c
+      if(ga_nodeid().eq.0) then
+         write(luout,9998)
+         do iat=1,nat
+            write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
+     1                                       xyzatm(3,iat),
+     2                    (ratm(iat)*bohr-rsolv)
+         enddo
+      endif
+c
+c     ----- clear arrays ..... -----
+c
+      do iat=1,nat
+         do i=1,mxface
+            ijkspa(i,iat)=0
+            numpps(i,iat)=0
+         enddo
+      enddo
+c
+c     ----- sift through atomic centers and decide if a face -----
+c           belongs to the -sas- or is inside the molecule.
+c
+      do iat=1,nat
+c
+         if(ratm(iat).ne.zero) then
+            do iseg=1,nseg
+               ijkspa(iseg,iat)=ijkseg(iseg)
+               do m=1,3
+               xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)+xyzatm(m,iat)
+               enddo
+            enddo
+            do ifac=1,nfac
+               ijkspa(ifac+nseg,iat)=ijkseg(ifac+nseg)
+               do m=1,3
+                  xyzspa(m,ifac+nseg,iat)=xyzseg(m,ifac+nseg)*ratm(iat)
+     1                                   +xyzatm(m,iat)
+               enddo
+            enddo
+            if(dbug.and.ga_nodeid().eq.0) then
+               write(luout,9996) iat
+               write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
+            endif
+            do jat=1,nat
+               dij=dist(xyzatm(1,iat),
+     1                  xyzatm(2,iat),
+     2                  xyzatm(3,iat),
+     3                  xyzatm(1,jat),
+     4                  xyzatm(2,jat),
+     5                  xyzatm(3,jat))
+               if(jat.ne.iat.and.(dij.lt.(ratm(iat)+ratm(jat)))) then
+                  do ifac=1,nfac
+                     dum=dist(xyzspa(1,ifac+nseg,iat),
+     1                        xyzspa(2,ifac+nseg,iat),
+     2                        xyzspa(3,ifac+nseg,iat),
+     3                        xyzatm(1,jat),
+     4                        xyzatm(2,jat),
+     5                        xyzatm(3,jat))
+                     if(dum.lt.ratm(jat)) then
+                        ijkspa(ifac+nseg,iat)=0
+                     endif
+                  enddo
+               endif
+            enddo
+            if(dbug.and.ga_nodeid().eq.0) then
+               write(luout,9996) iat
+               write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
+            endif
+c
+c     ----- check segments belonging to -sas- -----
+c
+            do ifac=1,nseg+nfac
+               insseg(ifac,iat)=.true.
+            enddo
+            do ifac=1,nfac
+               iseg=ijkspa(ifac+nseg,iat)
+               if(iseg.ne.0) then
+                  insseg(ifac+nseg,iat)=.false.
+                  insseg(     iseg,iat)=.false.
+               endif
+            enddo
+            if(dbug.and.ga_nodeid().eq.0) then
+               write(luout,9994) iat
+               write(luout,9993) (insseg(ifac,iat),ifac=1,nseg+nfac)
+            endif
+            mseg=0
+            do iseg=1,nseg
+               if(.not.insseg(iseg,iat)) mseg=mseg+1
+            enddo
+            mfac=0
+            do ifac=1,nfac
+               if(.not.insseg(ifac+nseg,iat)) mfac=mfac+1
+            enddo
+            nspa(iat)=mseg
+            nppa(iat)=mfac
+c
+c     ----- surface area of segments -----
+c
+            do iseg=1,nseg
+               numpps(iseg,iat)=0
+            enddo
+            do ifac=1,nfac
+               iseg=ijkspa(ifac+nseg,iat)
+               if(iseg.ne.0) numpps(iseg,iat)=numpps(iseg,iat)+1
+            enddo
+c
+         endif
+c
+      enddo
+c
+      if(ga_nodeid().eq.0) then
+         write(luout,9985) nseg,nfac
+         write(luout,9992)
+         do iat=1,nat
+            npp=0
+            do iseg=1,nseg
+               npp=npp+numpps(iseg,iat)
+            enddo
+            write(luout,9991) iat,nspa(iat),nppa(iat),npp
+         enddo
+      endif
+      if(dbug.and.ga_nodeid().eq.0) then
+         write(luout,9987)
+         do iat=1,nat
+            do iseg=1,nseg
+               write(luout,9986) iat,iseg,numpps(iseg,iat)
+            enddo
+         enddo
+      endif
+c
+c    Count the number of surface points, i.e. number of point charges
+c    and generate memory to store them
+c
+      nefc = 0
+      do iat=1,nat
+         if(ratm(iat).ne.zero) then
+            do iseg=1,nseg
+               if(.not.insseg(iseg,iat)) nefc = nefc+1
+            enddo
+         endif
+      enddo
+c
+c     Allocate memory for point charges
+c
+      if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
+     & call errquit('cosmo_cossas malloc k_efcc failed',911)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcs',l_efcs,k_efcs))
+     & call errquit('cosmo_cossas malloc k_efcs failed',911)
+      if(.not.ma_push_get(mt_int,nefc,'cosmo efciat',l_efciat,k_efciat))
+     & call errquit('cosmo_cossas malloc k_efciat failed',911)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
+     & call errquit('cosmo_cossas malloc k_efcz failed',911)
+      if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
+     & call errquit('cosmo_cossas malloc k_tag failed',911)
+c
+c     ----- save coordinates of surface points -----
+c           save segment surfaces
+c           save segment to atom mapping
+c
+      srfmol=zero
+      volmol=zero
+      ief   =0
+      do iat=1,nat
+         if(ratm(iat).ne.zero) then
+            do iseg=1,nseg
+               if(.not.insseg(iseg,iat)) then
+                  ief=ief+1
+                  do i=1,3
+                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
+     1                          +xyzseg(i,iseg)*ratm(iat)
+                  enddo
+                  ipp=numpps(iseg,iat)
+                  dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm(iat)**2
+                  srfmol   = srfmol + dble(ipp)*dsurf*ratm(iat)**2
+                  volmol   = volmol + dble(ipp)*dvol *ratm(iat)**3
+                  int_mb(k_efciat+ief-1)=iat
+               endif
+            enddo
+         endif
+      enddo
+      srfmol=srfmol*(bohr**2)
+      volmol=volmol*(bohr**3)
+c
+      if(ga_nodeid().eq.0) then
+         write(luout,9990) nefc
+         write(luout,9984) srfmol 
+         write(luout,9983) volmol 
+      endif 
+c
+c     ----- Cavity/Dispersion free energy ---
+c           Sitkoff, Sharp, and Honig,
+c           J.Phys.Chem. 98, 1978 (1994)
+c
+      cavdsp=0.860+0.005*srfmol
+      if(ga_nodeid().eq.0) then
+         write(luout,9981) cavdsp
+      endif
+c
+c     ----- print segment surfaces -----
+c
+      if(dbug.and.ga_nodeid().eq.0) then
+         write(luout,9989)
+         do ief=1,nefc
+            write(luout,9988) ief,dbl_mb(k_efcs+ief-1),
+     &                        int_mb(k_efciat+ief-1)
+         enddo
+      endif
+c
+      do ief=1,nefc
+         dbl_mb(k_efcz+ief-1)=zero
+      enddo
+      do ief=1,nefc
+         byte_mb(k_efclab+(ief-1)*8)='        '
+      enddo
 c
 c     ----- write out to -rtdb- -----
 c
       if(.not.rtdb_put(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
      $   call errquit('hnd_cossas: rtdb put failed for nefc  ',911,
-     &       RTDB_ERR)
-      if(.not.rtdb_put(rtdb,'cosmo:efcc',mt_dbl,3*nefc,efcc))
+     &       rtdb_err)
+      if(.not.rtdb_put(rtdb,'cosmo:efcc',mt_dbl,3*nefc,dbl_mb(k_efcc)))
      $   call errquit('hnd_cossas: rtdb put failed for efcc  ',912,
-     &       RTDB_ERR)
-      if(.not.rtdb_put(rtdb,'cosmo:efcz',mt_dbl,  nefc,efcz))
+     &       rtdb_err)
+      if(.not.rtdb_put(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
      $   call errquit('hnd_cossas: rtdb put failed for efcz  ',913,
-     &       RTDB_ERR)
-      if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,efcs))
+     &       rtdb_err)
+      if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
-     &       RTDB_ERR)
-      if(.not.rtdb_put(rtdb,'cosmo:iatefc',mt_int,nefc,iatefc))
-     $   call errquit('hnd_cossas: rtdb put failed for iatefc',915,
-     &       RTDB_ERR)
-      if(.not.rtdb_cput(rtdb,'character variable',nefc,efclab))
-     $   call errquit('hnd_cossas: rtdb put failed for efclab',916,
-     &       RTDB_ERR)
-C
-      RETURN
- 9999 FORMAT(/,1X,'solvent accessible surface',/,1X,26(1H-))
- 9998 FORMAT(/,1X,'---------- ATOMIC COORDINATES (A.U.) ----------',
+     &       rtdb_err)
+c     if(.not.rtdb_put(rtdb,'cosmoiatefc',mt_int,nefc,int_mb(k_efciat)))
+c    $   call errquit('hnd_cossas: rtdb put failed for iatefc',915,
+c    &       rtdb_err)
+c     if(.not.rtdb_cput(rtdb,'char variable',nefc,byte_mb(k_efclb)))
+c    $   call errquit('hnd_cossas: rtdb put failed for efclab',916,
+c    &       rtdb_err)
+c
+      if(.not.ma_chop_stack(l_efcc)) call
+     &   errquit('cosmo_cossas chop stack k_efcc failed',911)
+c
+      return
+ 9999 format(/,1x,'solvent accessible surface',/,1x,26(1h-))
+ 9998 format(/,1x,'---------- ATOMIC COORDINATES (A.U.) ----------',
      1            '-- VDWR(ANG.) --')
- 9997 FORMAT(  1X,I5,3F14.8,F10.3)
- 9996 FORMAT(/,1X,'---------- SEGMENTS FOR -IAT- = ',I5)
- 9995 FORMAT(16I4)
- 9994 FORMAT(/,1X,'-INSSEG- FACES FOR IAT = ',I5)
- 9993 FORMAT(16L4)
- 9992 FORMAT(  1X,'atom',' ( ','  nspa',',','  nppa',' )',/,1X,22(1H-))
- 9991 FORMAT(  1X,   I4 ,' ( ',     I6 ,',',     I6 ,' )',I8)
- 9990 FORMAT(  1X,'number of -cosmo- surface points = ',I8)
- 9989 FORMAT(  1X,'SEGMENT SURFACES =',/,1X,18(1H-))
- 9988 FORMAT(I8,F10.5,I5)
- 9987 FORMAT(  1X,'NUMBER OF FACES / SEGMENT =',/,1X,27(1H-))
- 9986 FORMAT(3I5)
- 9985 FORMAT(' number of segments per atom = ',I10,/,
-     1       ' number of   points per atom = ',I10)
- 9984 FORMAT(' molecular surface = ',F10.3,' angstrom**2')
- 9983 FORMAT(' molecular volume  = ',F10.3,' angstrom**3')
- 9981 FORMAT(' G(cav/disp)       = ',F10.3,' kcal/mol')
-      END
-      SUBROUTINE HND_COSSPH(NSEG,NFAC,NDIV,
-     1                  IJKFAC,XYZSEG,IJKSEG,MXFACE,APEX,MXAPEX,
-     2                  DSURF,DVOL,ADIAG)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-C              ----- STARTING FROM -ICOSAHEDRON- -----
-C
-C     PASS, NAPEX, NFACE, ERROR =   0      12      20      20
-C     PASS, NAPEX, NFACE, ERROR =   1      42      80     100    0.4982
-C     PASS  NAPEX, NFACE, ERROR =   2     162     320     420    0.1848
-C     PASS  NAPEX, NFACE, ERROR =   3     642    1280    1700    0.0523
-C     PASS  NAPEX, NFACE, ERROR =   4    2562    5120    6820    0.0135
-C     PASS  NAPEX, NFACE, ERROR =   5   10242   20480   27300    0.0034
-C
-C              ----- STARTING FROM -OCTAHEDRON-  -----
-C
-C     PASS, NAPEX, NFACE, ERROR =   0       6       8       8
-C     PASS, NAPEX, NFACE, ERROR =   1      18      32      40    0.8075
-C     PASS  NAPEX, NFACE, ERROR =   2      66     128     168    0.4557
-C     PASS  NAPEX, NFACE, ERROR =   3     258     512     680    0.1619
-C     PASS  NAPEX, NFACE, ERROR =   4    1026    2048    2728    0.0451
-C     PASS  NAPEX, NFACE, ERROR =   5    4098    8192   10920    0.0116
-C     PASS  NAPEX, NFACE, ERROR =   6   16386   32768   43688    0.0029
-C
-      PARAMETER (MXPASS=    7)
-      LOGICAL ICOS
-      LOGICAL OCTA
-      LOGICAL SOME,OUT,DBUG
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSMOD/LINEQ,MINBEM,MAXBEM,IFICOS,IFSCRN
-      DIMENSION   APEX(3,*)
-      DIMENSION IJKFAC(3,*)
-      DIMENSION IJKSEG(  *)
-      DIMENSION XYZSEG(3,*)
-      DIMENSION MINFAC(MXPASS)
-      DIMENSION MAXFAC(MXPASS)
-      DIMENSION MINICO(MXPASS)
-      DIMENSION MAXICO(MXPASS)
-      DIMENSION MINOCT(MXPASS)
-      DIMENSION MAXOCT(MXPASS)
-      DIMENSION IJKNEW(3)
-      DIMENSION IJKOLD(3)
-      EQUIVALENCE (IJKOLD(1),IOLD),(IJKOLD(2),JOLD),(IJKOLD(3),KOLD)
-      EQUIVALENCE (IJKNEW(1),INEW),(IJKNEW(2),JNEW),(IJKNEW(3),KNEW)
-      DATA MINICO /    1,   21,  101,  421, 1701, 6821,    0/
-      DATA MAXICO /   20,  100,  420, 1700, 6820,27300,    0/
-      DATA MINOCT /    1,    9,   41,  169,  681, 2729,10921/
-      DATA MAXOCT /    8,   40,  168,  680, 2728,10920,43688/
-      DATA ZERO  /0.0D+00/
-      DATA ONE   /1.0D+00/
-      DATA TWO   /2.0D+00/
-      DATA THREE /3.0D+00/
-      DATA FOUR  /4.0D+00/
-C
-      DIST(XI,YI,ZI,XJ,YJ,ZJ)=SQRT((XJ-XI)**2+(YJ-YI)**2+(ZJ-ZI)**2)
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.DBUG
-      SOME=.FALSE.
-      SOME=SOME.OR.OUT
-C
-      DBUG=DBUG.AND.(IAP.EQ.1)
-      OUT =OUT .AND.(IAP.EQ.1)
-      SOME=SOME.AND.(IAP.EQ.1)
-C
-      PI=FOUR*ATAN(ONE)
-      RAD=ONE
-      CIR= TWO*PI*RAD
-      SRF=FOUR*PI*RAD**2
-      VOL=FOUR*PI*RAD**3/THREE
-C
-      NPASS=MAXBEM
-C
-C     ----- DEFINE  HEDRON  -----
-C           DEFINE -MINFAC- 
-C           DEFINE -MAXFAC- 
-C
-      ICOS=IFICOS.NE.0
-      OCTA=.NOT.ICOS
-      IF(ICOS) THEN
-         CALL HND_SPHICO(APEX,NAPEX,IJKFAC,IJKSEG,NFACE)
-         DO IPASS=1,MXPASS
-            MINFAC(IPASS)=MINICO(IPASS)
-            MAXFAC(IPASS)=MAXICO(IPASS)
-         ENDDO
-      ENDIF
-      IF(OCTA) THEN
-         CALL HND_SPHOCT(APEX,NAPEX,IJKFAC,IJKSEG,NFACE)
-         DO IPASS=1,MXPASS
-            MINFAC(IPASS)=MINOCT(IPASS)
-            MAXFAC(IPASS)=MAXOCT(IPASS)
-         ENDDO
-      ENDIF
-      IF(SOME.OR.OUT.OR.DBUG) THEN
-         IF(ICOS) THEN
-            WRITE(IW,9994)
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-         IF(OCTA) THEN
-            WRITE(IW,9982)
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-         IF(OUT) THEN
-            WRITE(IW,*) '-MINBEM- = ',MINBEM
-            WRITE(IW,*) '-MAXBEM- = ',MAXBEM
-            WRITE(IW,*) '-MINFAC- = ',MINFAC
-            WRITE(IW,*) '-MAXFAC- = ',MAXFAC
-            WRITE(IW,*) '-NPASS - = ',NPASS
-            WRITE(IW,9999)
-            DO IAPEX=1,NAPEX
-               WRITE(IW,9998) IAPEX,APEX(1,IAPEX),
-     1                              APEX(2,IAPEX),
-     2                              APEX(3,IAPEX)
-            ENDDO
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ENDIF
-C
-C     ----- LOOP OVER DIVISIONS TO CREATE SPHERE -----
-C
-      MXFAC=0
-      IPASS=1
-  100 IPASS=IPASS+1
-         MNFAC=MXFAC+1
-         MXFAC=NFACE
-         IF(OUT) THEN
-            WRITE(IW,9996) IPASS,NAPEX,NFACE,MNFAC,MXFAC
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-C
-         DMIN =ONE
-         MAPEX=NAPEX
-         MFACE=NFACE
-         DO LFACE=MNFAC,MXFAC
-            IOLD=IJKFAC(1,LFACE)
-            JOLD=IJKFAC(2,LFACE)
-            KOLD=IJKFAC(3,LFACE)
-            CALL HND_SPHAPX(APEX,MAPEX,IJKFAC,IJKSEG,MFACE,LFACE,
-     1                      IJKOLD,IJKNEW,DIJK)
-            DMIN=MIN(DMIN,DIJK)
-         ENDDO
-         NAPEX=MAPEX
-         NFACE=MFACE
-         IF(OUT) THEN
-            WRITE(IW,9995) NAPEX,NFACE
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-C
-C     ----- PRINT OUT NEW APECES -----
-C
-         IF(DBUG) THEN
-            DO IAPEX=1,NAPEX
-               WRITE(IW,9998) IAPEX,APEX(1,IAPEX),APEX(2,IAPEX),
-     1                              APEX(3,IAPEX)
-            ENDDO
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-C
-C     ----- PRINT APPROXIMATE VOLUME -----
-C
-         RADAPP=    DMIN
-         RADRAT=    DMIN
-         RADERR=ONE-RADRAT
-         SRFAPP=SRF*DMIN**2
-         SRFRAT=    DMIN**2
-         SRFERR=ONE-SRFRAT
-         VOLAPP=VOL*DMIN**3
-         VOLRAT=    DMIN**3
-         VOLERR=ONE-VOLRAT
-         IF(OUT) THEN
-            WRITE(IW,9997) VOL,VOLAPP,VOLRAT,VOLERR
-            WRITE(IW,9992) SRF,SRFAPP,SRFRAT,SRFERR
-            WRITE(IW,9991) RAD,RADAPP,RADRAT,RADERR
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-C
-C     ----- ASSIGN EARLY SEGMENT TO EACH FACE -----
-C
-         IF(IPASS.GT.(MINBEM+1)) THEN
-            IF(DBUG) THEN
-               WRITE(IW,9981) IPASS
-               WRITE(IW,9980) (MINFAC(I),I=1,IPASS)
-               WRITE(IW,9979) (MAXFAC(I),I=1,IPASS)
-CBERT          CALL HND_FIFLSH(IW)
-            ENDIF
-            MAXSEG=MAXFAC(MINBEM)
-            LFACMN=MINFAC(IPASS)
-            LFACMX=MAXFAC(IPASS)
-            IF(DBUG) THEN
-               WRITE(IW,9990) IPASS
-               WRITE(IW,9988) (IJKSEG(LFACE),LFACE=LFACMN,LFACMX)
-CBERT          CALL HND_FIFLSH(IW)
-            ENDIF
-            DO LFACE=LFACMN,LFACMX
-               IJKSEG(LFACE)=IJKSEG(IJKSEG(LFACE))
-               IF(IJKSEG(LFACE).GT.MAXSEG) THEN
-                  WRITE(IW,9987) LFACE,IJKSEG(LFACE)
-               ENDIF
-            ENDDO
-            IF(DBUG) THEN
-               WRITE(IW,9989) IPASS
-               WRITE(IW,9988) (IJKSEG(LFACE),LFACE=LFACMN,LFACMX)
-CBERT          CALL HND_FIFLSH(IW)
-            ENDIF
-         ENDIF
-C
-      IF(IPASS.LT.NPASS) GO TO 100
-C
-C     ----- END OF LOOP OVER TESSALATING PASSES -----
-C
-      IF(DBUG) THEN
-         DO IPASS=1,NPASS
-            LFACMN=MINFAC(IPASS)
-            LFACMX=MAXFAC(IPASS)
-            WRITE(IW,9989) IPASS
-            WRITE(IW,*) '-LFACMN- = ',LFACMN
-            WRITE(IW,*) '-LFACMX- = ',LFACMX
-            WRITE(IW,9988) (IJKSEG(LFACE),LFACE=LFACMN,LFACMX)
-CBERT       CALL HND_FIFLSH(IW)
-         ENDDO
-      ENDIF
-      IF(SOME.OR.OUT.OR.DBUG) THEN
-         WRITE(IW,9993) NPASS,NAPEX,MINFAC(NPASS),MAXFAC(NPASS),
-     1                  RADAPP,RADERR,SRFAPP,SRFERR,VOLAPP,VOLERR
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- AT THIS POINT EACH OF THE FACES IS ASSIGNED TO ONE -----
-C           SEGMENT. NOW DEFINE CENTERS OF SEGMENTS ...
-C
-      THIRD =ONE/THREE
-      LFACMN= MINFAC(MINBEM)
-      LFACMX= MAXFAC(MINBEM)
-      DO LFACE=LFACMN,LFACMX
-         MFACE=LFACE-LFACMN+1
-         IJKSEG(MFACE)=MFACE
-         I=IJKFAC(1,LFACE)
-         J=IJKFAC(2,LFACE)
-         K=IJKFAC(3,LFACE)
-         DO M=1,3
-            XYZSEG(M,MFACE)=(APEX(M,I)+APEX(M,J)+APEX(M,K))*THIRD
-         ENDDO
-         DSEG=ONE/DIST(XYZSEG(1,MFACE),XYZSEG(2,MFACE),XYZSEG(3,MFACE),
-     1                 ZERO,ZERO,ZERO)
-         DO M=1,3
-            XYZSEG(M,MFACE)=XYZSEG(M,MFACE)*DSEG
-         ENDDO
-      ENDDO
-      NSEG=(LFACMX-LFACMN+1)
-C
-      IF(DBUG) THEN
-         LFACMN=1
-         LFACMX=NSEG
-         WRITE(IW,*)    'SEGMENT TO SEGMENT MAPPING = '
-         WRITE(IW,9988) (IJKSEG(LFACE),LFACE=LFACMN,LFACMX)
-      ENDIF
-C
-C     ----- NOW THE FACES ... -----
-C
-      IF(NPASS.GT.MINBEM) THEN
-         LFACMN=MINFAC(MINBEM+1)
-         LFACMX=MAXFAC(NPASS   )
-         DO LFACE=LFACMN,LFACMX
-            MFACE=LFACE-LFACMN+1    
-     1                        +(MAXFAC(MINBEM)-MINFAC(MINBEM)+1)
-            IJKSEG(MFACE)=IJKSEG(LFACE)
-     1                        -(               MINFAC(MINBEM)-1)
-            I=IJKFAC(1,LFACE)
-            J=IJKFAC(2,LFACE)
-            K=IJKFAC(3,LFACE)
-            DO M=1,3
-               XYZSEG(M,MFACE)=(APEX(M,I)+APEX(M,J)+APEX(M,K))*THIRD
-            ENDDO
-            DSEG=ONE/DIST(XYZSEG(1,MFACE),
-     1                    XYZSEG(2,MFACE),
-     2                    XYZSEG(3,MFACE),ZERO,ZERO,ZERO)
-            DO M=1,3
-               XYZSEG(M,MFACE)=XYZSEG(M,MFACE)*DSEG
-            ENDDO
-         ENDDO
-         NFAC=(LFACMX-LFACMN+1)
-      ELSE
-         DO ISEG=1,NSEG
-            IFAC=ISEG+NSEG
-            IJKSEG(IFAC)=IJKSEG(ISEG)
-            DO M=1,3
-               XYZSEG(M,IFAC)=XYZSEG(M,ISEG)
-            ENDDO
-         ENDDO
-         NFAC=NSEG
-      ENDIF
-C
-      IF(DBUG) THEN
-         LFACMN=NSEG+1
-         LFACMX=NSEG+NFAC
-         WRITE(IW,*)    ' FACE   TO SEGMENT MAPPING = '
-         WRITE(IW,9988) (IJKSEG(LFACE),LFACE=LFACMN,LFACMX)
-      ENDIF
-C
-C     ----- CALCULATE -DSURF DVOL- FOR THE -COSMO- THEORY -----
-C
-      NDIV =NFAC/NSEG
-      DSURF=SRF/DBLE(NFAC)
-      DVOL =VOL/DBLE(NFAC)
-      IF(SOME.OR.OUT.OR.DBUG) THEN
-         WRITE(IW,9986) NSEG,NFAC,NDIV,DSURF,DVOL
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-      IF(OUT) THEN
-         WRITE(IW,9985)
-         DO I=1,NSEG
-            DONE=DIST(XYZSEG(1,I),XYZSEG(2,I),XYZSEG(3,I),
-     1                ZERO,ZERO,ZERO)
-            WRITE(IW,9984) I,
-     1                     XYZSEG(1,I),XYZSEG(2,I),XYZSEG(3,I),
-     2                     IJKSEG(I),DONE
-         ENDDO
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-      IF(DBUG) THEN
-         WRITE(IW,9985)
-         DO I=NSEG+1,NSEG+NFAC
-            DONE=DIST(XYZSEG(1,I),XYZSEG(2,I),XYZSEG(3,I),
-     1                ZERO,ZERO,ZERO)
-            WRITE(IW,9984) (I-NSEG),
-     1                     XYZSEG(1,I),XYZSEG(2,I),XYZSEG(3,I),
-     2                     IJKSEG(I),DONE
-         ENDDO
-      ENDIF
-C
-C     ----- CALCULATE -ADIAG- OF THE -COSMO- THEORY -----
-C
-      AVGDIA=ZERO
-      AVGFAC=ZERO
-      DO MSEG=1,NSEG
-         SUM=ZERO
-         DO LSEG=1,NSEG
-            IF(LSEG.NE.MSEG) THEN
-               L1=MSEG
-               L2=LSEG
-         SUM=SUM+RAD/DIST(XYZSEG(1,L2),XYZSEG(2,L2),XYZSEG(3,L2),
-     1                    XYZSEG(1,L1),XYZSEG(2,L1),XYZSEG(3,L1))
-            ENDIF
-         ENDDO
-         FAC=(DBLE(NSEG)-SUM)/SQRT(DBLE(NSEG))
-         ADIAG=SQRT(FOUR*PI)*FAC
-         IF(SOME.OR.OUT.OR.DBUG) THEN
-            WRITE(IW,9983) MSEG,ADIAG,FAC,DBLE(NSEG),SUM
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-         AVGDIA=AVGDIA+ADIAG
-         AVGFAC=AVGFAC+FAC
-      ENDDO
-      ADIAG=AVGDIA/DBLE(NSEG)
-      FAC  =AVGFAC/DBLE(NSEG)
-      IF(SOME.OR.OUT.OR.DBUG) THEN
-         WRITE(IW,9978)      ADIAG,FAC               
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(/,1X,'  APEX',5X,'X',6X,5X,'Y',6X,5X,'Z',6X,/,1X,42(1H-))
- 9998 FORMAT(1X,I6,F12.8,F12.8,F12.8)
- 9997 FORMAT(' VOL, APPROX., RATIO, ERROR = ',2F12.8,2 F8.4)
- 9996 FORMAT(' PASS, NAPEX, NFACE, MNFAC, MXFAC = ',I3,4I8)
- 9995 FORMAT('       NAPEX, NFACE               = ',3X,2I8)
- 9994 FORMAT(1X,'SPHERE FROM -ICOSAHEDRON-',/,1X,25(1H-))
- 9993 FORMAT(' NPASS = ',I2,' NAPEX = ',I8,
-     1       ' MINFAC = ',I8,' MAXFAC = ',I8,/,
-     2       ' RAD = ',F10.6,' ERROR = ',F8.4,/,
-     3       ' SRF = ',F10.6,' ERROR = ',F8.4,/,
-     4       ' VOL = ',F10.6,' ERROR = ',F8.4)
- 9992 FORMAT(' SRF, APPROX., RATIO, ERROR = ',2F12.8,2 F8.4)
- 9991 FORMAT(' RAD, APPROX., RATIO, ERROR = ',2F12.8,2 F8.4)
- 9990 FORMAT(' ABSOLUTE -IJKSEG- , FOR -IPASS- = ',I5)
- 9989 FORMAT(' RELATIVE -IJKSEG- , FOR -IPASS- = ',I5)
- 9988 FORMAT(12I6)
- 9987 FORMAT(' ASSIGNED SEGMENT FOR -LFACE- = ',I7,
-     1       ' IS = ',I7,' ( GREATER THAN -MAXSEG- = ',I4,' )')
- 9986 FORMAT(' NSEG,NFAC,NDIV=NFAC/NSEG,DSURF,DVOL = ',3I7,2F10.6)
- 9985 FORMAT('   PT  ','      X     ','      Y     ','      Z     ',
-     1       ' SEG ','    NORM    ',/,1X,59(1H-))
- 9984 FORMAT(I7,3F12.8,I5,F12.8)
- 9983 FORMAT(' MSEG,ADIAG,FAC,M,SUM = ',I7,4F12.6)
- 9982 FORMAT(1X,'SPHERE FROM -OCTAHEDRON-',/,1X,24(1H-))
- 9981 FORMAT(' PASS # = ',I5)
- 9980 FORMAT(' MINFAC = ',10I5)
- 9979 FORMAT(' MAXFAC = ',10I5)
- 9978 FORMAT('      ADIAG,FAC       = ',   2F12.6)
-      END
-      SUBROUTINE HND_SPHOCT(APEX,NAPEX,IJKFAC,IJKSEG,NFACE)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      DIMENSION    XYZ(3,6)
-      DIMENSION    IJK(3,8)
-      DIMENSION   APEX(3,*)
-      DIMENSION IJKFAC(3,*)
-      DIMENSION IJKSEG(  *)
-      DATA XYZ / 1.0D+00, 0.0D+00, 0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00,
-     1          -1.0D+00, 0.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00,
-     2           0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00/
-      DATA IJK / 5, 1, 2, 5, 2, 3, 5, 3, 4, 5, 4, 1,
+ 9997 format(  1x,i5,3f14.8,f10.3)
+ 9996 format(/,1x,'---------- SEGMENTS FOR -IAT- = ',i5)
+ 9995 format(16i4)
+ 9994 format(/,1x,'-INSSEG- FACES FOR IAT = ',i5)
+ 9993 format(16l4)
+ 9992 format(  1x,'atom',' ( ','  nspa',',','  nppa',' )',/,1x,22(1h-))
+ 9991 format(  1x,   i4 ,' ( ',     i6 ,',',     i6 ,' )',i8)
+ 9990 format(  1x,'number of -cosmo- surface points = ',i8)
+ 9989 format(  1x,'SEGMENT SURFACES =',/,1x,18(1h-))
+ 9988 format(i8,f10.5,i5)
+ 9987 format(  1x,'NUMBER OF FACES / SEGMENT =',/,1x,27(1h-))
+ 9986 format(3i5)
+ 9985 format(' number of segments per atom = ',i10,/,
+     1       ' number of   points per atom = ',i10)
+ 9984 format(' molecular surface = ',f10.3,' angstrom**2')
+ 9983 format(' molecular volume  = ',f10.3,' angstrom**3')
+ 9981 format(' G(cav/disp)       = ',f10.3,' kcal/mol')
+      enD
+c
+      subroutine hnd_cossph(nseg,nfac,ndiv,
+     1                  ijkfac,xyzseg,ijkseg,mxface,apex,mxapex,
+     2                  dsurf,dvol,adiag)
+      implicit double precision (a-h,o-z)
+#include "global.fh"
+#include "stdio.fh"
+c
+c              ----- starting from -icosahedron- -----
+c
+c     pass, napex, nface, error =   0      12      20      20
+c     pass, napex, nface, error =   1      42      80     100    0.4982
+c     pass  napex, nface, error =   2     162     320     420    0.1848
+c     pass  napex, nface, error =   3     642    1280    1700    0.0523
+c     pass  napex, nface, error =   4    2562    5120    6820    0.0135
+c     pass  napex, nface, error =   5   10242   20480   27300    0.0034
+c
+c              ----- starting from -octahedron-  -----
+c
+c     pass, napex, nface, error =   0       6       8       8
+c     pass, napex, nface, error =   1      18      32      40    0.8075
+c     pass  napex, nface, error =   2      66     128     168    0.4557
+c     pass  napex, nface, error =   3     258     512     680    0.1619
+c     pass  napex, nface, error =   4    1026    2048    2728    0.0451
+c     pass  napex, nface, error =   5    4098    8192   10920    0.0116
+c     pass  napex, nface, error =   6   16386   32768   43688    0.0029
+c
+      dimension   apex(3,*)
+      dimension ijkfac(3,*)
+      dimension ijkseg(  *)
+      dimension xyzseg(3,*)
+c
+      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+c
+      parameter (mxpass=    7)
+      dimension minfac(mxpass)
+      dimension maxfac(mxpass)
+      dimension minico(mxpass)
+      dimension maxico(mxpass)
+      dimension minoct(mxpass)
+      dimension maxoct(mxpass)
+      dimension ijknew(3)
+      dimension ijkold(3)
+      equivalence (ijkold(1),iold),(ijkold(2),jold),(ijkold(3),kold)
+      equivalence (ijknew(1),inew),(ijknew(2),jnew),(ijknew(3),knew)
+      logical icos
+      logical octa
+      logical some,out,dbug
+      data minico /    1,   21,  101,  421, 1701, 6821,    0/
+      data maxico /   20,  100,  420, 1700, 6820,27300,    0/
+      data minoct /    1,    9,   41,  169,  681, 2729,10921/
+      data maxoct /    8,   40,  168,  680, 2728,10920,43688/
+      data zero  /0.0d+00/
+      data one   /1.0d+00/
+      data two   /2.0d+00/
+      data three /3.0d+00/
+      data four  /4.0d+00/
+c
+      dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
+      some=.false.
+      some=some.or.out
+c
+      pi=four*atan(one)
+      rad=one
+      cir= two*pi*rad
+      srf=four*pi*rad**2
+      vol=four*pi*rad**3/three
+c
+      npass=maxbem
+c
+c     ----- define  hedron  -----
+c           define -minfac- 
+c           define -maxfac- 
+c
+      icos=ificos.ne.0
+      octa=.not.icos
+      if(icos) then
+         call hnd_sphico(apex,napex,ijkfac,ijkseg,nface)
+         do ipass=1,mxpass
+            minfac(ipass)=minico(ipass)
+            maxfac(ipass)=maxico(ipass)
+         enddo
+      endif
+      if(octa) then
+         call hnd_sphoct(apex,napex,ijkfac,ijkseg,nface)
+         do ipass=1,mxpass
+            minfac(ipass)=minoct(ipass)
+            maxfac(ipass)=maxoct(ipass)
+         enddo
+      endif
+      if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
+         if(icos) then
+            write(luout,9994)
+         endif
+         if(octa) then
+            write(luout,9982)
+         endif
+         if(out) then
+            write(luout,*) '-minbem- = ',minbem
+            write(luout,*) '-maxbem- = ',maxbem
+            write(luout,*) '-minfac- = ',minfac
+            write(luout,*) '-maxfac- = ',maxfac
+            write(luout,*) '-npass - = ',npass
+            write(luout,9999)
+            do iapex=1,napex
+               write(luout,9998) iapex,apex(1,iapex),
+     1                              apex(2,iapex),
+     2                              apex(3,iapex)
+            enddo
+         endif
+      endif
+c
+c     ----- loop over divisions to create sphere -----
+c
+      mxfac=0
+      ipass=1
+  100 ipass=ipass+1
+         mnfac=mxfac+1
+         mxfac=nface
+         if(out.and.ga_nodeid().eq.0) then
+            write(luout,9996) ipass,napex,nface,mnfac,mxfac
+         endif
+c
+         dmin =one
+         mapex=napex
+         mface=nface
+         do lface=mnfac,mxfac
+            iold=ijkfac(1,lface)
+            jold=ijkfac(2,lface)
+            kold=ijkfac(3,lface)
+            call hnd_sphapx(apex,mapex,ijkfac,ijkseg,mface,lface,
+     1                      ijkold,ijknew,dijk)
+            dmin=min(dmin,dijk)
+         enddo
+         napex=mapex
+         nface=mface
+         if(out.and.ga_nodeid().eq.0) then
+            write(luout,9995) napex,nface
+         endif
+c
+c     ----- print out new apeces -----
+c
+         if(dbug.and.ga_nodeid().eq.0) then
+            do iapex=1,napex
+               write(luout,9998) iapex,apex(1,iapex),apex(2,iapex),
+     1                              apex(3,iapex)
+            enddo
+         endif
+c
+c     ----- print approximate volume -----
+c
+         radapp=    dmin
+         radrat=    dmin
+         raderr=one-radrat
+         srfapp=srf*dmin**2
+         srfrat=    dmin**2
+         srferr=one-srfrat
+         volapp=vol*dmin**3
+         volrat=    dmin**3
+         volerr=one-volrat
+         if(out.and.ga_nodeid().eq.0) then
+            write(luout,9997) vol,volapp,volrat,volerr
+            write(luout,9992) srf,srfapp,srfrat,srferr
+            write(luout,9991) rad,radapp,radrat,raderr
+         endif
+c
+c     ----- assign early segment to each face -----
+c
+         if(ipass.gt.(minbem+1)) then
+            if(dbug.and.ga_nodeid().eq.0) then
+               write(luout,9981) ipass
+               write(luout,9980) (minfac(i),i=1,ipass)
+               write(luout,9979) (maxfac(i),i=1,ipass)
+            endif
+            maxseg=maxfac(minbem)
+            lfacmn=minfac(ipass)
+            lfacmx=maxfac(ipass)
+            if(dbug.and.ga_nodeid().eq.0) then
+               write(luout,9990) ipass
+               write(luout,9988) (ijkseg(lface),lface=lfacmn,lfacmx)
+            endif
+            do lface=lfacmn,lfacmx
+               ijkseg(lface)=ijkseg(ijkseg(lface))
+               if(ijkseg(lface).gt.maxseg.and.ga_nodeid().eq.0) then
+                  write(luout,9987) lface,ijkseg(lface)
+               endif
+            enddo
+            if(dbug.and.ga_nodeid().eq.0) then
+               write(luout,9989) ipass
+               write(luout,9988) (ijkseg(lface),lface=lfacmn,lfacmx)
+            endif
+         endif
+c
+      if(ipass.lt.npass) go to 100
+c
+c     ----- end of loop over tessalating passes -----
+c
+      if(dbug.and.ga_nodeid().eq.0) then
+         do ipass=1,npass
+            lfacmn=minfac(ipass)
+            lfacmx=maxfac(ipass)
+            write(luout,9989) ipass
+            write(luout,*) '-lfacmn- = ',lfacmn
+            write(luout,*) '-lfacmx- = ',lfacmx
+            write(luout,9988) (ijkseg(lface),lface=lfacmn,lfacmx)
+         enddo
+      endif
+      if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
+         write(luout,9993) npass,napex,minfac(npass),maxfac(npass),
+     1                  radapp,raderr,srfapp,srferr,volapp,volerr
+      endif
+c
+c     ----- at this point each of the faces is assigned to one -----
+c           segment. now define centers of segments ...
+c
+      third =one/three
+      lfacmn= minfac(minbem)
+      lfacmx= maxfac(minbem)
+      do lface=lfacmn,lfacmx
+         mface=lface-lfacmn+1
+         ijkseg(mface)=mface
+         i=ijkfac(1,lface)
+         j=ijkfac(2,lface)
+         k=ijkfac(3,lface)
+         do m=1,3
+            xyzseg(m,mface)=(apex(m,i)+apex(m,j)+apex(m,k))*third
+         enddo
+         dseg=one/dist(xyzseg(1,mface),xyzseg(2,mface),xyzseg(3,mface),
+     1                 zero,zero,zero)
+         do m=1,3
+            xyzseg(m,mface)=xyzseg(m,mface)*dseg
+         enddo
+      enddo
+      nseg=(lfacmx-lfacmn+1)
+c
+      if(dbug.and.ga_nodeid().eq.0) then
+         lfacmn=1
+         lfacmx=nseg
+         write(luout,*)    'segment to segment mapping = '
+         write(luout,9988) (ijkseg(lface),lface=lfacmn,lfacmx)
+      endif
+c
+c     ----- now the faces ... -----
+c
+      if(npass.gt.minbem) then
+         lfacmn=minfac(minbem+1)
+         lfacmx=maxfac(npass   )
+         do lface=lfacmn,lfacmx
+            mface=lface-lfacmn+1    
+     1                        +(maxfac(minbem)-minfac(minbem)+1)
+            ijkseg(mface)=ijkseg(lface)
+     1                        -(               minfac(minbem)-1)
+            i=ijkfac(1,lface)
+            j=ijkfac(2,lface)
+            k=ijkfac(3,lface)
+            do m=1,3
+               xyzseg(m,mface)=(apex(m,i)+apex(m,j)+apex(m,k))*third
+            enddo
+            dseg=one/dist(xyzseg(1,mface),
+     1                    xyzseg(2,mface),
+     2                    xyzseg(3,mface),zero,zero,zero)
+            do m=1,3
+               xyzseg(m,mface)=xyzseg(m,mface)*dseg
+            enddo
+         enddo
+         nfac=(lfacmx-lfacmn+1)
+      else
+         do iseg=1,nseg
+            ifac=iseg+nseg
+            ijkseg(ifac)=ijkseg(iseg)
+            do m=1,3
+               xyzseg(m,ifac)=xyzseg(m,iseg)
+            enddo
+         enddo
+         nfac=nseg
+      endif
+c
+      if(dbug.and.ga_nodeid().eq.0) then
+         lfacmn=nseg+1
+         lfacmx=nseg+nfac
+         write(luout,*)    ' face   to segment mapping = '
+         write(luout,9988) (ijkseg(lface),lface=lfacmn,lfacmx)
+      endif
+c
+c     ----- calculate -dsurf dvol- for the -cosmo- theory -----
+c
+      ndiv =nfac/nseg
+      dsurf=srf/dble(nfac)
+      dvol =vol/dble(nfac)
+      if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
+         write(luout,9986) nseg,nfac,ndiv,dsurf,dvol
+      endif
+      if(out.and.ga_nodeid().eq.0) then
+         write(luout,9985)
+         do i=1,nseg
+            done=dist(xyzseg(1,i),xyzseg(2,i),xyzseg(3,i),
+     1                zero,zero,zero)
+            write(luout,9984) i,
+     1                     xyzseg(1,i),xyzseg(2,i),xyzseg(3,i),
+     2                     ijkseg(i),done
+         enddo
+      endif
+      if(dbug.and.ga_nodeid().eq.0) then
+         write(luout,9985)
+         do i=nseg+1,nseg+nfac
+            done=dist(xyzseg(1,i),xyzseg(2,i),xyzseg(3,i),
+     1                zero,zero,zero)
+            write(luout,9984) (i-nseg),
+     1                     xyzseg(1,i),xyzseg(2,i),xyzseg(3,i),
+     2                     ijkseg(i),done
+         enddo
+      endif
+c
+c     ----- calculate -adiag- of the -cosmo- theory -----
+c
+      avgdia=zero
+      avgfac=zero
+      do mseg=1,nseg
+         sum=zero
+         do lseg=1,nseg
+            if(lseg.ne.mseg) then
+               l1=mseg
+               l2=lseg
+         sum=sum+rad/dist(xyzseg(1,l2),xyzseg(2,l2),xyzseg(3,l2),
+     1                    xyzseg(1,l1),xyzseg(2,l1),xyzseg(3,l1))
+            endif
+         enddo
+         fac=(dble(nseg)-sum)/sqrt(dble(nseg))
+         adiag=sqrt(four*pi)*fac
+         if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
+            write(luout,9983) mseg,adiag,fac,dble(nseg),sum
+         endif
+         avgdia=avgdia+adiag
+         avgfac=avgfac+fac
+      enddo
+      adiag=avgdia/dble(nseg)
+      fac  =avgfac/dble(nseg)
+      if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
+         write(luout,9978)      adiag,fac               
+      endif
+c
+      return
+ 9999 format(/,1x,'  apex',5x,'x',6x,5x,'y',6x,5x,'z',6x,/,1x,42(1h-))
+ 9998 format(1x,i6,f12.8,f12.8,f12.8)
+ 9997 format(' vol, approx., ratio, error = ',2f12.8,2 f8.4)
+ 9996 format(' pass, napex, nface, mnfac, mxfac = ',i3,4i8)
+ 9995 format('       napex, nface               = ',3x,2i8)
+ 9994 format(1x,'sphere from -icosahedron-',/,1x,25(1h-))
+ 9993 format(' npass = ',i2,' napex = ',i8,
+     1       ' minfac = ',i8,' maxfac = ',i8,/,
+     2       ' rad = ',f10.6,' error = ',f8.4,/,
+     3       ' srf = ',f10.6,' error = ',f8.4,/,
+     4       ' vol = ',f10.6,' error = ',f8.4)
+ 9992 format(' srf, approx., ratio, error = ',2f12.8,2 f8.4)
+ 9991 format(' rad, approx., ratio, error = ',2f12.8,2 f8.4)
+ 9990 format(' absolute -ijkseg- , for -ipass- = ',i5)
+ 9989 format(' relative -ijkseg- , for -ipass- = ',i5)
+ 9988 format(12i6)
+ 9987 format(' assigned segment for -lface- = ',i7,
+     1       ' is = ',i7,' ( greater than -maxseg- = ',i4,' )')
+ 9986 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
+ 9985 format('   pt  ','      x     ','      y     ','      z     ',
+     1       ' seg ','    norm    ',/,1x,59(1h-))
+ 9984 format(i7,3f12.8,i5,f12.8)
+ 9983 format(' mseg,adiag,fac,m,sum = ',i7,4f12.6)
+ 9982 format(1x,'sphere from -octahedron-',/,1x,24(1h-))
+ 9981 format(' pass # = ',i5)
+ 9980 format(' minfac = ',10i5)
+ 9979 format(' maxfac = ',10i5)
+ 9978 format('      adiag,fac       = ',   2f12.6)
+      end
+
+      subroutine hnd_sphoct(apex,napex,ijkfac,ijkseg,nface)
+      implicit double precision (a-h,o-z)
+#include "global.fh"
+#include "stdio.fh"
+c
+      logical out
+      dimension    xyz(3,6)
+      dimension    ijk(3,8)
+      dimension   apex(3,*)
+      dimension ijkfac(3,*)
+      dimension ijkseg(  *)
+      data xyz / 1.0d+00, 0.0d+00, 0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00,
+     1          -1.0d+00, 0.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00,
+     2           0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00/
+      data ijk / 5, 1, 2, 5, 2, 3, 5, 3, 4, 5, 4, 1,
      1           6, 1, 2, 6, 2, 3, 6, 3, 4, 6, 4, 1/
-C
-      OUT=.FALSE.
-      OUT=OUT.AND.(IAP.EQ.1)
-C
-      IF(OUT) THEN
-         WRITE(IW,9997)
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- SET THE 6 APECES OF AN OCTAHEDRON -----
-C
-C     1     1.     0.     0.
-C     2     0.     1.     0.
-C     3    -1.     0.     0.
-C     4     0.    -1.     0.
-C     5     0.     0.     1.
-C     6     0.     0.    -1.
-C
-      NAPEX=6
-      DO IAPEX=1,NAPEX
-         APEX(1,IAPEX)=XYZ(1,IAPEX)
-         APEX(2,IAPEX)=XYZ(2,IAPEX)
-         APEX(3,IAPEX)=XYZ(3,IAPEX)
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9999)
-         DO IAPEX=1,NAPEX
-            WRITE(IW,9998) IAPEX,APEX(1,IAPEX),APEX(2,IAPEX),
-     1                           APEX(3,IAPEX)
-         ENDDO
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-      NFACE=8
-      DO LFACE=1,NFACE
-         IJKFAC(1,LFACE)=IJK(1,LFACE)
-         IJKFAC(2,LFACE)=IJK(2,LFACE)
-         IJKFAC(3,LFACE)=IJK(3,LFACE)
-         IJKSEG(  LFACE)=      LFACE
-      ENDDO
-C
-      IF(OUT) THEN
-         WRITE(IW,*) '...... END OF -SPHOCT- ......'
-      ENDIF
-      RETURN
- 9999 FORMAT(/,1X,'  APEX',5X,'X',6X,5X,'Y',6X,5X,'Z',6X,/,1X,42(1H-))
- 9998 FORMAT(1X,I6,F12.8,F12.8,F12.8)
- 9997 FORMAT(/,1X,'OCTAHEDRON',/,1X,10(1H-))
-      END
-      SUBROUTINE HND_SPHICO(APEX,NAPEX,IJKFAC,IJKSEG,NFACE)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      LOGICAL OUT
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      DIMENSION      C(3,12)
-      DIMENSION      S(3,12)
-      DIMENSION    IJK(3,20)
-      DIMENSION   APEX(3,*)
-      DIMENSION IJKFAC(3,*)
-      DIMENSION IJKSEG(  *)
-      DATA C   / 0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00,
-     1           0.0D+00,-1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00,
-     2           0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00, 1.0D+00,
-     3           0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00,
-     4           1.0D+00, 0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00,
-     5          -1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00, 0.0D+00/
-      DATA S   / 0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00,
-     1           0.0D+00, 0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00,
-     2           1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00, 0.0D+00,
-     3           1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00, 0.0D+00,
-     4           0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00,
-     5           0.0D+00, 1.0D+00, 0.0D+00, 0.0D+00,-1.0D+00, 0.0D+00/
-      DATA IJK / 1, 2, 9, 1, 9, 5, 1, 5, 6, 1, 6,11, 1,11, 2,
+c
+      out=.false.
+      out=out.and.ga_nodeid().eq.0
+c
+      if(out) then
+         write(luout,9997)
+      endif
+c
+c     ----- set the 6 apeces of an octahedron -----
+c
+c     1     1.     0.     0.
+c     2     0.     1.     0.
+c     3    -1.     0.     0.
+c     4     0.    -1.     0.
+c     5     0.     0.     1.
+c     6     0.     0.    -1.
+c
+      napex=6
+      do iapex=1,napex
+         apex(1,iapex)=xyz(1,iapex)
+         apex(2,iapex)=xyz(2,iapex)
+         apex(3,iapex)=xyz(3,iapex)
+      enddo
+      if(out) then
+         write(luout,9999)
+         do iapex=1,napex
+            write(luout,9998) iapex,apex(1,iapex),apex(2,iapex),
+     1                           apex(3,iapex)
+         enddo
+      endif
+c
+      nface=8
+      do lface=1,nface
+         ijkfac(1,lface)=ijk(1,lface)
+         ijkfac(2,lface)=ijk(2,lface)
+         ijkfac(3,lface)=ijk(3,lface)
+         ijkseg(  lface)=      lface
+      enddo
+c
+      if(out) then
+         write(luout,*) '...... end of -sphoct- ......'
+      endif
+      return
+ 9999 format(/,1x,'  apex',5x,'x',6x,5x,'y',6x,5x,'z',6x,/,1x,42(1h-))
+ 9998 format(1x,i6,f12.8,f12.8,f12.8)
+ 9997 format(/,1x,'octahedron',/,1x,10(1h-))
+      end
+c
+      subroutine hnd_sphico(apex,napex,ijkfac,ijkseg,nface)
+      implicit double precision (a-h,o-z)
+#include "global.fh"
+#include "stdio.fh"
+c
+      logical out
+      dimension      c(3,12)
+      dimension      s(3,12)
+      dimension    ijk(3,20)
+      dimension   apex(3,*)
+      dimension ijkfac(3,*)
+      dimension ijkseg(  *)
+      data c   / 0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00,
+     1           0.0d+00,-1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00,
+     2           0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00, 1.0d+00,
+     3           0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00,
+     4           1.0d+00, 0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00,
+     5          -1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00, 0.0d+00/
+      data s   / 0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00,
+     1           0.0d+00, 0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00,
+     2           1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00, 0.0d+00,
+     3           1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00, 0.0d+00,
+     4           0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00,
+     5           0.0d+00, 1.0d+00, 0.0d+00, 0.0d+00,-1.0d+00, 0.0d+00/
+      data ijk / 1, 2, 9, 1, 9, 5, 1, 5, 6, 1, 6,11, 1,11, 2,
      1                    2, 9, 7, 2, 7, 8, 2, 8,11,
      2           3, 4,10, 3,10, 5, 3, 5, 6, 3, 6,12, 3,12, 4,
      3                    4,10, 7, 4, 7, 8, 4, 8,12,
      4           9,10, 7, 9, 5,10,11,12, 8,11, 6,12/
-      DATA ONE  /1.0D+00/
-      DATA TWO  /2.0D+00/
-      DATA FIVE /5.0D+00/
-C
-      OUT=.FALSE.
-      OUT=OUT.AND.(IAP.EQ.1)
-C
-      IF(OUT) THEN
-         WRITE(IW,9997)
-      ENDIF
-C
-C     ----- SET THE 12 APECES OF AN ICOSAHEDRON -----
-C
-C     1     0.     COSA   SINA
-C     2     0.     COSA  -SINA
-C     3     0.    -COSA   SINA
-C     4     0.    -COSA  -SINA
-C     5     SINA   0.     COSA
-C     6    -SINA   0.     COSA
-C     7     SINA   0.    -COSA
-C     8    -SINA   0.    -COSA
-C     9     COSA   SINA   0.
-C    10     COSA  -SINA   0.
-C    11    -COSA   SINA   0.
-C    12    -COSA  -SINA   0.
-C
-      ANG=ACOS(ONE/SQRT(FIVE))/TWO
-      COSA=COS(ANG)
-      SINA=SIN(ANG)
-      NAPEX=12
-      DO IAPEX=1,NAPEX
-         APEX(1,IAPEX)=COSA*C(1,IAPEX)+SINA*S(1,IAPEX)
-         APEX(2,IAPEX)=COSA*C(2,IAPEX)+SINA*S(2,IAPEX)
-         APEX(3,IAPEX)=COSA*C(3,IAPEX)+SINA*S(3,IAPEX)
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9999)
-         DO IAPEX=1,NAPEX
-            WRITE(IW,9998) IAPEX,APEX(1,IAPEX),APEX(2,IAPEX),
-     1                           APEX(3,IAPEX)
-         ENDDO
-      ENDIF
-C
-      NFACE=20
-      DO LFACE=1,NFACE
-         IJKFAC(1,LFACE)=IJK(1,LFACE)
-         IJKFAC(2,LFACE)=IJK(2,LFACE)
-         IJKFAC(3,LFACE)=IJK(3,LFACE)
-         IJKSEG(  LFACE)=      LFACE
-      ENDDO
-C
-      IF(OUT) THEN
-         WRITE(IW,*) '...... END OF -SPHICO- ......'
-      ENDIF
-      RETURN
- 9999 FORMAT(/,1X,'  APEX',5X,'X',6X,5X,'Y',6X,5X,'Z',6X,/,1X,42(1H-))
- 9998 FORMAT(1X,I6,F12.8,F12.8,F12.8)
- 9997 FORMAT(/,1X,'ICOSAHEDRON',/,1X,11(1H-))
-      END
-      SUBROUTINE HND_SPHAPX(APEX,MAPEX,IJKFAC,IJKSEG,MFACE,LFACE,
-     1                             IJKOLD,IJKNEW,DMIN)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      LOGICAL OUT
-      LOGICAL DUPLIC
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      DIMENSION   APEX(3,*)
-      DIMENSION IJKFAC(3,*)
-      DIMENSION IJKSEG(  *)
-      DIMENSION IJKOLD(3)
-      DIMENSION IJKNEW(3)
-      DIMENSION    XYZ(3,3)
-      DIMENSION      D(3)
-      DIMENSION XYZIJK(3)
-      EQUIVALENCE (XYZ(1,1),XIJ),(XYZ(2,1),YIJ),(XYZ(3,1),ZIJ),
-     1            (XYZ(1,2),XJK),(XYZ(2,2),YJK),(XYZ(3,2),ZJK),
-     2            (XYZ(1,3),XKI),(XYZ(2,3),YKI),(XYZ(3,3),ZKI)
-      DATA ZERO  /0.0D+00/
-      DATA PT5   /0.5D+00/
-      DATA ONE   /1.0D+00/
-      DATA THREE /3.0D+00/
-      DATA TOL   /1.0D-04/
-C
-      DIST(X1,Y1,Z1,X2,Y2,Z2)=SQRT((X2-X1)**2+(Y2-Y1)**2+(Z2-Z1)**2)
-C
-      OUT=.FALSE.
-      OUT=OUT.AND.(IAP.EQ.1)
-C
-C     ----- CREATE MID-POINT OF THE 3 EDGES -----
-C
-      IOLD=IJKOLD(1)
-      JOLD=IJKOLD(2)
-      KOLD=IJKOLD(3)
-      DO M=1,3
-         XYZ(M,1)=(APEX(M,IOLD)+APEX(M,JOLD))*PT5
-         XYZ(M,2)=(APEX(M,JOLD)+APEX(M,KOLD))*PT5
-         XYZ(M,3)=(APEX(M,KOLD)+APEX(M,IOLD))*PT5
-      ENDDO
-C
-C     ----- PROJECT ONTO SPHERE -----
-C
-      D(1)=DIST(XIJ,YIJ,ZIJ,ZERO,ZERO,ZERO)
-      D(2)=DIST(XJK,YJK,ZJK,ZERO,ZERO,ZERO)
-      D(3)=DIST(XKI,YKI,ZKI,ZERO,ZERO,ZERO)
-      D(1)=ONE/D(1)
-      D(2)=ONE/D(2)
-      D(3)=ONE/D(3)
-      DO L=1,3
-         DO M=1,3
-            XYZ(M,L)=XYZ(M,L)*D(L)
-         ENDDO
-      ENDDO
-C
-C     ----- CHECK FOR DUPLICATE APECES -----
-C
-      NEWAPX=0
-      DO IAPX=1,3
-         DUPLIC=.FALSE.
-         DO LAPEX=1,MAPEX
-            DD=DIST(XYZ(1,  IAPX),XYZ(2,  IAPX),XYZ(3,  IAPX),
-     1              APEX(1,LAPEX),APEX(2,LAPEX),APEX(3,LAPEX))
-            IF(ABS(DD).LT.TOL) THEN
-               DUPLIC=.TRUE.
-               LDUPLC=LAPEX
-            ENDIF
-         ENDDO
-         IF(DUPLIC) THEN
-            IJKNEW(IAPX)=LDUPLC
-            IF(OUT) THEN
-               WRITE(IW,9999) IAPX,IJKOLD,LDUPLC
-            ENDIF
-         ELSE
-            NEWAPX=NEWAPX+1
-            JAPX=MAPEX+NEWAPX
-            IJKNEW(IAPX)=JAPX
-            DO M=1,3
-               APEX(M,JAPX)=XYZ(M,IAPX)
-            ENDDO
-            IF(OUT) THEN
-               WRITE(IW,9998) IAPX,IJKOLD,JAPX,
-     1                        APEX(1,JAPX),APEX(2,JAPX),APEX(3,JAPX)
-            ENDIF
-         ENDIF
-      ENDDO
-      MAPEX=MAPEX+NEWAPX
-C
-C     ----- MAKE UP NEW FACES AND THEIR CENTERS -----
-C
-      THIRD=ONE/THREE
-      DMIN =ONE
-C
-      MFACE=MFACE+1
-      IJKSEG(  MFACE)=LFACE
-      IJKFAC(1,MFACE)=IJKOLD(1)
-      IJKFAC(2,MFACE)=IJKNEW(1)
-      IJKFAC(3,MFACE)=IJKNEW(3)
-      DO M=1,3
-         XYZIJK(M)=(APEX(M,IOLD)+APEX(M,JOLD)+APEX(M,KOLD))*THIRD
-      ENDDO
-      DIJK=DIST(XYZIJK(1),XYZIJK(2),XYZIJK(3),ZERO,ZERO,ZERO)
-      DMIN=MIN(DMIN,DIJK)
-C
-      MFACE=MFACE+1
-      IJKSEG(  MFACE)=LFACE
-      IJKFAC(1,MFACE)=IJKOLD(2)
-      IJKFAC(2,MFACE)=IJKNEW(1)
-      IJKFAC(3,MFACE)=IJKNEW(2)
-      DO M=1,3
-         XYZIJK(M)=(APEX(M,IOLD)+APEX(M,JOLD)+APEX(M,KOLD))*THIRD
-      ENDDO
-      DIJK=DIST(XYZIJK(1),XYZIJK(2),XYZIJK(3),ZERO,ZERO,ZERO)
-      DMIN=MIN(DMIN,DIJK)
-C
-      MFACE=MFACE+1
-      IJKSEG(  MFACE)=LFACE
-      IJKFAC(1,MFACE)=IJKOLD(3)
-      IJKFAC(2,MFACE)=IJKNEW(2)
-      IJKFAC(3,MFACE)=IJKNEW(3)
-      DO M=1,3
-         XYZIJK(M)=(APEX(M,IOLD)+APEX(M,JOLD)+APEX(M,KOLD))*THIRD
-      ENDDO
-      DIJK=DIST(XYZIJK(1),XYZIJK(2),XYZIJK(3),ZERO,ZERO,ZERO)
-      DMIN=MIN(DMIN,DIJK)
-C
-      MFACE=MFACE+1
-      IJKSEG(  MFACE)=LFACE
-      IJKFAC(1,MFACE)=IJKNEW(1)
-      IJKFAC(2,MFACE)=IJKNEW(2)
-      IJKFAC(3,MFACE)=IJKNEW(3)
-      DO M=1,3
-         XYZIJK(M)=(APEX(M,IOLD)+APEX(M,JOLD)+APEX(M,KOLD))*THIRD
-      ENDDO
-      DIJK=DIST(XYZIJK(1),XYZIJK(2),XYZIJK(3),ZERO,ZERO,ZERO)
-      DMIN=MIN(DMIN,DIJK)
-C
-      IF(OUT) THEN
-         WRITE(IW,9997) DMIN,MFACE
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(' DUPLICATED APEX =',I2,' FOR FACE ',3I5,'. SAME AS = ',I5)
- 9998 FORMAT('    NEW     APEX =',I2,' FOR FACE ',3I5,'.  NEWAPX = ',I5,
-     1       /,7X,3F12.8)
- 9997 FORMAT(' --- DMIN = ',F12.8,' --- MFACE = ',I10)
-      END
+      data one  /1.0d+00/
+      data two  /2.0d+00/
+      data five /5.0d+00/
+c
+      out=.false.
+      out=out.and.ga_nodeid().eq.0
+c
+      if(out) then
+         write(luout,9997)
+      endif
+c
+c     ----- set the 12 apeces of an icosahedron -----
+c
+c     1     0.     cosa   sina
+c     2     0.     cosa  -sina
+c     3     0.    -cosa   sina
+c     4     0.    -cosa  -sina
+c     5     sina   0.     cosa
+c     6    -sina   0.     cosa
+c     7     sina   0.    -cosa
+c     8    -sina   0.    -cosa
+c     9     cosa   sina   0.
+c    10     cosa  -sina   0.
+c    11    -cosa   sina   0.
+c    12    -cosa  -sina   0.
+c
+      ang=acos(one/sqrt(five))/two
+      cosa=cos(ang)
+      sina=sin(ang)
+      napex=12
+      do iapex=1,napex
+         apex(1,iapex)=cosa*c(1,iapex)+sina*s(1,iapex)
+         apex(2,iapex)=cosa*c(2,iapex)+sina*s(2,iapex)
+         apex(3,iapex)=cosa*c(3,iapex)+sina*s(3,iapex)
+      enddo
+      if(out) then
+         write(luout,9999)
+         do iapex=1,napex
+            write(luout,9998) iapex,apex(1,iapex),apex(2,iapex),
+     1                           apex(3,iapex)
+         enddo
+      endif
+c
+      nface=20
+      do lface=1,nface
+         ijkfac(1,lface)=ijk(1,lface)
+         ijkfac(2,lface)=ijk(2,lface)
+         ijkfac(3,lface)=ijk(3,lface)
+         ijkseg(  lface)=      lface
+      enddo
+c
+      if(out) then
+         write(luout,*) '...... end of -sphico- ......'
+      endif
+      return
+ 9999 format(/,1x,'  apex',5x,'x',6x,5x,'y',6x,5x,'z',6x,/,1x,42(1h-))
+ 9998 format(1x,i6,f12.8,f12.8,f12.8)
+ 9997 format(/,1x,'icosahedron',/,1x,11(1h-))
+      end
+c
+      subroutine hnd_sphapx(apex,mapex,ijkfac,ijkseg,mface,lface,
+     1                             ijkold,ijknew,dmin)
+      implicit double precision (a-h,o-z)
+#include "global.fh"
+#include "stdio.fh"
+c
+      logical out
+      logical duplic
+      dimension   apex(3,*)
+      dimension ijkfac(3,*)
+      dimension ijkseg(  *)
+      dimension ijkold(3)
+      dimension ijknew(3)
+      dimension    xyz(3,3)
+      dimension      d(3)
+      dimension xyzijk(3)
+      equivalence (xyz(1,1),xij),(xyz(2,1),yij),(xyz(3,1),zij),
+     1            (xyz(1,2),xjk),(xyz(2,2),yjk),(xyz(3,2),zjk),
+     2            (xyz(1,3),xki),(xyz(2,3),yki),(xyz(3,3),zki)
+      data zero  /0.0d+00/
+      data pt5   /0.5d+00/
+      data one   /1.0d+00/
+      data three /3.0d+00/
+      data tol   /1.0d-04/
+c
+      dist(x1,y1,z1,x2,y2,z2)=sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
+c
+      out=.false.
+      out=out.and.ga_nodeid().eq.0
+c
+c     ----- create mid-point of the 3 edges -----
+c
+      iold=ijkold(1)
+      jold=ijkold(2)
+      kold=ijkold(3)
+      do m=1,3
+         xyz(m,1)=(apex(m,iold)+apex(m,jold))*pt5
+         xyz(m,2)=(apex(m,jold)+apex(m,kold))*pt5
+         xyz(m,3)=(apex(m,kold)+apex(m,iold))*pt5
+      enddo
+c
+c     ----- project onto sphere -----
+c
+      d(1)=dist(xij,yij,zij,zero,zero,zero)
+      d(2)=dist(xjk,yjk,zjk,zero,zero,zero)
+      d(3)=dist(xki,yki,zki,zero,zero,zero)
+      d(1)=one/d(1)
+      d(2)=one/d(2)
+      d(3)=one/d(3)
+      do l=1,3
+         do m=1,3
+            xyz(m,l)=xyz(m,l)*d(l)
+         enddo
+      enddo
+c
+c     ----- check for duplicate apeces -----
+c
+      newapx=0
+      do iapx=1,3
+         duplic=.false.
+         do lapex=1,mapex
+            dd=dist(xyz(1,  iapx),xyz(2,  iapx),xyz(3,  iapx),
+     1              apex(1,lapex),apex(2,lapex),apex(3,lapex))
+            if(abs(dd).lt.tol) then
+               duplic=.true.
+               lduplc=lapex
+            endif
+         enddo
+         if(duplic) then
+            ijknew(iapx)=lduplc
+            if(out) then
+               write(luout,9999) iapx,ijkold,lduplc
+            endif
+         else
+            newapx=newapx+1
+            japx=mapex+newapx
+            ijknew(iapx)=japx
+            do m=1,3
+               apex(m,japx)=xyz(m,iapx)
+            enddo
+            if(out) then
+               write(luout,9998) iapx,ijkold,japx,
+     1                        apex(1,japx),apex(2,japx),apex(3,japx)
+            endif
+         endif
+      enddo
+      mapex=mapex+newapx
+c
+c     ----- make up new faces and their centers -----
+c
+      third=one/three
+      dmin =one
+c
+      mface=mface+1
+      ijkseg(  mface)=lface
+      ijkfac(1,mface)=ijkold(1)
+      ijkfac(2,mface)=ijknew(1)
+      ijkfac(3,mface)=ijknew(3)
+      do m=1,3
+         xyzijk(m)=(apex(m,iold)+apex(m,jold)+apex(m,kold))*third
+      enddo
+      dijk=dist(xyzijk(1),xyzijk(2),xyzijk(3),zero,zero,zero)
+      dmin=min(dmin,dijk)
+c
+      mface=mface+1
+      ijkseg(  mface)=lface
+      ijkfac(1,mface)=ijkold(2)
+      ijkfac(2,mface)=ijknew(1)
+      ijkfac(3,mface)=ijknew(2)
+      do m=1,3
+         xyzijk(m)=(apex(m,iold)+apex(m,jold)+apex(m,kold))*third
+      enddo
+      dijk=dist(xyzijk(1),xyzijk(2),xyzijk(3),zero,zero,zero)
+      dmin=min(dmin,dijk)
+c
+      mface=mface+1
+      ijkseg(  mface)=lface
+      ijkfac(1,mface)=ijkold(3)
+      ijkfac(2,mface)=ijknew(2)
+      ijkfac(3,mface)=ijknew(3)
+      do m=1,3
+         xyzijk(m)=(apex(m,iold)+apex(m,jold)+apex(m,kold))*third
+      enddo
+      dijk=dist(xyzijk(1),xyzijk(2),xyzijk(3),zero,zero,zero)
+      dmin=min(dmin,dijk)
+c
+      mface=mface+1
+      ijkseg(  mface)=lface
+      ijkfac(1,mface)=ijknew(1)
+      ijkfac(2,mface)=ijknew(2)
+      ijkfac(3,mface)=ijknew(3)
+      do m=1,3
+         xyzijk(m)=(apex(m,iold)+apex(m,jold)+apex(m,kold))*third
+      enddo
+      dijk=dist(xyzijk(1),xyzijk(2),xyzijk(3),zero,zero,zero)
+      dmin=min(dmin,dijk)
+c
+      if(out) then
+         write(luout,9997) dmin,mface
+      endif
+c
+      return
+ 9999 format(' duplicated apex =',i2,' for face ',3i5,'. same as = ',i5)
+ 9998 format('    new     apex =',i2,' for face ',3i5,'.  newapx = ',i5,
+     1       /,7x,3f12.8)
+ 9997 format(' --- dmin = ',f12.8,' --- mface = ',i10)
+      end
+c
       subroutine cosmo_charges(rtdb,basis,geom,ecos,iter,some,itype_wfn,
-     1                         g_movecs_dft)
+     1                         g_movecs_dft,nclosed,nopen,nbf,nmo)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "global.fh"
@@ -2169,68 +1652,36 @@ C
 #include "util.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
+#include "stdio.fh"
+c
       integer rtdb
       integer basis
-      integer geom
-      logical status
-c
-      parameter (mxatom=nw_max_atom)
-      parameter (mxefc =3*7*7*7)
+      integer geom, itype_wfn
+      double precision ecos
+      integer g_movecs_dft(2), itype_wfn, iter, nclosed(2), nopen(2)
 
-      parameter (zero=0.0d+00)
-c
-      integer itype_wfn
-
-      integer   g_movecs_dft
-      dimension g_movecs_dft(2)
-c
-      logical dbug
-      logical out
-      logical some
-      character*8 wfntyp
+      logical dbug, out, some
       character*8 scftyp
-      character*8 efclab
 c
-      common/hnd_iofile/ir,iw,ip
-      common/hnd_lcapid/nap,iap
-      common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      common/hnd_molnuc/nuc(mxatom)
-      common/hnd_basnum/num
-      common/hnd_cosrad/radius(mxatom)
-      common/hnd_cosprt/iprt
       common/hnd_cospar/dielec,screen,rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
-      common/hnd_cosbem/efcs(mxefc),iatefc(mxefc)
-      common/hnd_efcpar/efcc(3,mxefc),efcz(mxefc),efclab(mxefc),nefc
-      common/hnd_efcopt/iefc
-      common/hnd_wfnopt/wfntyp
-      common/hnd_scfopt/scftyp
-      character*16 atom_tags(mxatom)
 c
+      integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
+      integer g_dens(3),ndens,nvirt(2)
       dimension x(1)
       equivalence (x(1),dbl_mb(1))
 c
-      dbug=.false.
-      out =.false.
+      dbug=.false..and.ga_nodeid().eq.0
+      out =.false..and.ga_nodeid().eq.0
       out =out.or.dbug
-      some=some.or.out
-c
-c     dbug=dbug.and.(iap.eq.1)
-c     out =out .and.(iap.eq.1)
-c     some=some.and.(iap.eq.1)
+      some=some.or.out.and.ga_nodeid().eq.0
 c
       if(some) then
-         write(iw,9999)
-CBERT    call hnd_fiflsh(iw)
+         write(luout,9999)
       endif
 c
-c     ----- nwchem/hondo interface -----
-c
-CBERT call hnd_prp_init(geom,basis)
-CBERT call hnd_prp_nw_hnd
-CBERT call hnd_atlabl(rtdb,geom,basis)
       if(out) then
-         write(iw,*) 'in cosmo_charges ... geom = ',geom
+         write(luout,*) 'in cosmo_charges ... geom = ',geom
       endif
 c
 c     ----- read -efc- coordinates from -rtdb- -----
@@ -2238,114 +1689,87 @@ c
       if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
      &   call errquit('cosmo_charges: rtdb get failed for nefc  ',911,
      &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,efcc))
+c
+c     ----- allocate memory for efc's -----
+c
+      if(.not.ma_push_get(mt_dbl,nefc*3,'cosmo efcc',l_efcc,k_efcc))
+     & call errquit('cosmo_cossas malloc k_efcc failed',911)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcs',l_efcs,k_efcs))
+     & call errquit('cosmo_cossas malloc k_efcs failed',911)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
+     & call errquit('cosmo_cossas malloc k_efcz failed',911)
+c
+      if(.not.rtdb_get(rtdb,'cosmo:efcc',mt_dbl,3*nefc,dbl_mb(k_efcc)))
      &   call errquit('cosmo_charges: rtdb get failed for efcc  ',912,
      &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,  nefc,efcz))
+      if(.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
      &   call errquit('cosmo_charges: rtdb get failed for efcz  ',913,
      &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,efcs))
+      if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      &   call errquit('cosmo_charges: rtdb get failed for efcs  ',914,
      &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:iatefc',mt_int,nefc,iatefc))
-     &   call errquit('cosmo_charges: rtdb get failed for iatefc',915,
-     &       RTDB_ERR)
+c
       if(out) then
-         write(iw,*) 'in cosmo_charges, nefc = ',nefc
+         write(luout,*) 'in cosmo_charges, nefc = ',nefc
          do ief=1,nefc
-            write(iw,*) efcc(1,ief),efcc(2,ief),efcc(3,ief)
+            write(luout,*) dbl_mb(k_efcc+(ief-1)*3), 
+     &            dbl_mb(k_efcc+(ief-1)*3+1),dbl_mb(k_efcc+(ief-1)*3+2)
          enddo
       endif
 c
-c     ----- partition memory -----
-c
-      l1= num
-      l2=(num*(num+1))/2
-      l3= num* num
-c
-      i10 =1      
-      i20 =i10+l2
-      i30 =i20+l2
-      i40 =i30+l3
-      i50 =i40+l3
-      last=i50-1 
-c
-c     ----- allocate memory block -----
-c
-      need = last
-      if(.not.ma_push_get(mt_dbl,need,
-     &   'mem init:cosmo:cosmo_charges:1',i_init,init))
-     &    call errquit('cosmo_charges, malloc of init failed',911,
-     &       MA_ERR)
-c
-      i10 =init   
-      i20 =i10+l2
-      i30 =i20+l2
-      i40 =i30+l3
-      i50 =i40+l3
-      last=i50-1 
-c
-      wfntyp='SCF     '
-      scftyp='RHF     '
-c
 c     ----- get density matrix -----
 c
-      do i=1,l2
-         x(i+i10-1)=zero
-         x(i+i20-1)=zero
+      scftyp='RHF'
+      nocc=nclosed(1)+nopen(1)
+      if (itype_wfn.eq.2) then
+         scftyp='UHF'
+         nocc=max(nocc,nclosed(2)+nopen(2))
+      endif
+      if(.not.ma_push_get(mt_dbl,nocc*2,'cosmo occ',l_occ,k_occ))
+     &   call errquit('cosmo_charges malloc k_occ failed',911)
+      do i=1,nocc*2
+         dbl_mb(k_occ+i-1)=1.0d0
       enddo
+      call hnd_prop_dens_make(rtdb,geom,basis,nbf,nmo,nclosed,nopen,
+     &                       nvirt,scftyp,vectors,dbl_mb(k_occ),
+     &                       g_dens,ndens)
 c
       if(out) then
-         write(iw,*) 'in -cosmo_charges, wfntyp = ',wfntyp
-         write(iw,*) 'in -cosmo_charges, scftyp = ',scftyp
-         write(iw,*) 'itype_wfn = ',itype_wfn
-         write(iw,*) 'calling hnd_cos_get_dens_... '
-         call util_flush(iw)
-      endif
-
-      if(itype_wfn.eq.1) then
-CBERT    call hnd_cos_get_dens_scf(rtdb,geom,basis,
-CBERT1                            x(i10),x(i20),x(i30),x(i40),
-CBERT2                            scftyp)
-      elseif(itype_wfn.eq.2) then
-CBERT    call hnd_cos_get_dens_dft(rtdb,geom,basis,
-CBERT1                            x(i10),x(i20),x(i30),x(i40),
-CBERT2                            scftyp,g_movecs_dft)
-      else
-         call errquit('cosmo_charges, wrong wfn flag',911,
-     &       INPUT_ERR)
-      endif
-c
-      if(out) then
-         write(iw,*) 'in -cosmo_charges, wfntyp = ',wfntyp
-         write(iw,*) 'in -cosmo_charges, scftyp = ',scftyp
+         write(luout,*) 'in -cosmo_charges, wfntyp = ',itype_wfn
+         write(luout,*) 'in -cosmo_charges, scftyp = ',scftyp
          if(dbug) then
-            write(iw,*) 'in -cosmo_charges, -da- ...'
-CBERT       call hnd_prtr(x(i10),l1)
+            write(luout,*) 'in -cosmo_charges, -da- ...'
+            call ga_print(g_dens(1))
             if(scftyp.eq.'UHF     ') then
-               write(iw,*) 'in -cosmo_charges, -db- ...'
-CBERT          call hnd_prtr(x(i20),l1)
+               write(luout,*) 'in -cosmo_charges, -db- ...'
+               call ga_print(g_dens(2))
             endif
          endif
       endif
 c
 c     ----- get -cosmo- charges -----
 c
-      call hnd_coschg(X(i10),X(i20),l2,l1,ecos,iter,rtdb,geom)
+      call hnd_coschg(g_dens,rtdb,geom,nefc,dbl_mb(k_efcc),
+     &                dbl_mb(k_efcs),dbl_mb(k_efcz))
 c
 c     ----- release memory block -----
 c
-      if(.not.ma_pop_stack(i_init))
-     & call errquit('cosmo_charges, ma_pop_stack of init failed',911,
-     &       MA_ERR)
+      do i = 1, ndens
+         if (.not.ga_destroy(g_dens(i))) call
+     &       errquit('hnd_coschg: ga_destroy failed g_dens',0,GA_ERR)
+      enddo
+      if(.not.ma_chop_stack(l_occ))
+     & call errquit('cosmo_charges, ma_chop_stack of l_occ failed',911,
+     &       ma_err)
 c
       return
  9999 format(/,10X,15(1H-),
      1       /,10X,'-cosmo- charges',
      2       /,10X,15(1H-))
       end
-      SUBROUTINE HND_COSCHG(DA,DB,L2,L1,ECOS,ITER,RTDB,GEOM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c
+      subroutine hnd_coschg(g_dens,rtdb,geom,nefc,efcc,efcs,efcz)
+      implicit double precision (a-h,o-z)
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -2353,378 +1777,275 @@ c
 #include "nwc_const.fh"
 #include "prop.fh"
 #include "geom.fh"
-      INTEGER  RTDB
-      INTEGER  GEOM
-      LOGICAL  STATUS
-C
-      PARAMETER  (MXATOM=NW_MAX_ATOM)
-      PARAMETER  (MXEFC =3*7*7*7)
-      LOGICAL     DBUG
-      LOGICAL     MORE
-      LOGICAL     OUT
-      LOGICAL     DIRECT
-      LOGICAL     NOALL
-      LOGICAL     ALL
-      LOGICAL     ELEC
-      LOGICAL     NUCL
-      CHARACTER*8 ERRMSG
-      CHARACTER*8 EFCLAB
-      CHARACTER*8 SCFTYP
-      CHARACTER*8 WFNTYP
-      CHARACTER*8 SCF
-      CHARACTER*8 UHF
-      CHARACTER*8 MC
-      character*4 KEYEFC,IEFC
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSMOD/LINEQ,MINBEM,MAXBEM,IFICOS,IFSCRN
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL 
-      COMMON/HND_COSPAR/DIELEC,SCREEN,RSOLV
-      COMMON/HND_COSNRG/ATMEFC,ELCEFC,EFCEFC,ALLEFC,SOLNRG,CAVDSP
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_BASNUM/NUM
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      COMMON/HND_EFCOPT/IEFC
-      COMMON/HND_WFNOPT/WFNTYP
-      COMMON/HND_SCFOPT/SCFTYP
-      DIMENSION X(1)
-      EQUIVALENCE (X(1),DBL_MB(1))
-      DIMENSION   DA(*)
-      DIMENSION   DB(*)
-      DIMENSION   ERRMSG(3)
-      EXTERNAL    HND_COSAX,HND_COSXA
-      EXTERNAL    HND_COSAXD,HND_COSXAD
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-COSCHG-'/
-      DATA ZERO   /0.0D+00/
-      DATA PT5    /0.5D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-      DATA MXDIM  /1024/
-      DATA SCF    /'SCF     '/
-      DATA UHF    /'UHF     '/
-      DATA MC     /'MC      '/
-      DATA KEYEFC /' EFC'/
-C
-      MORE=.FALSE.
-      DBUG=.FALSE.
-      DBUG=DBUG.OR.MORE
-      OUT =.FALSE. 
-      OUT =OUT.OR.DBUG
-C
-      DBUG=DBUG.AND.(IAP.EQ.1)
-      MORE=MORE.AND.(IAP.EQ.1)
-      OUT =OUT .AND.(IAP.EQ.1)
-C
-      IF(OUT) THEN
-         WRITE(IW,9999)
-         WRITE(IW,9986) WFNTYP
-         WRITE(IW,9985) SCFTYP
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-      IF(NEFC.LE.0) THEN
-         WRITE(IW,*) 'NO -COSMO- SURFACE POINTS. STOP.'
-         CALL HND_HNDERR(3,ERRMSG)
-      ELSE
-         IF(OUT) THEN
-            WRITE(IW,*) '-NEFC- = ',NEFC
-            WRITE(IW,*) 'ITER   = ',ITER
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ENDIF
-C
-C     ----- DENSITY MATRIX -----
-C
-      IF(WFNTYP.EQ.SCF) THEN
-         IF(SCFTYP.EQ.UHF) THEN
-            IF(OUT) THEN
-               WRITE(IW,*) 'ALPHA DENSITY'
-               IF(DBUG) THEN
-                  CALL HND_PRTR(DA,L1)
-               ENDIF
-               WRITE(IW,*) 'BETA  DENSITY'
-               IF(DBUG) THEN
-                  CALL HND_PRTR(DB,L1)
-               ENDIF
-CBERT          CALL HND_FIFLSH(IW)
-            ENDIF
-            DO I=1,L2
-               DA(I)=DA(I)+DB(I)
-            ENDDO
-         ENDIF
-         IF(OUT) THEN
-            WRITE(IW,*) 'TOTAL DENSITY'
-            IF(DBUG) THEN
-               CALL HND_PRTR(DA,L1)
-            ENDIF
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ENDIF
-C
-      ECOS=ZERO
-C
-C     ----- ALLOCATE MEMORY BLOCK -----
-C
-      IF(NEFC.LE.MXDIM.AND.LINEQ.NE.1) THEN
-         NEED=3*NEFC+6*NEFC+NEFC*NEFC+NEFC+NEFC
-         IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,
-     &      'MEM INIT:cosmo:hnd_coschg:1',I_INIT,INIT)) THEN
-            NEED=NEFC+NEFC+NEFC+NEFC+NEFC+NEFC+NEFC
-            LINEQ=1
-            IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,
-     &         'MEM INIT:cosmo:hnd_coschg:1',I_INIT,INIT))
-     &         CALL ERRQUIT(
-     &              'HND_COSCHG, MALLOC OF INIT  FAILED',911)
-            IF(OUT) THEN
-               WRITE(IW,*) 'USE ITERATIVE METHOD FOR -LINEQ-'
-            ENDIF
-         ELSE
-            IF(OUT) THEN
-               WRITE(IW,*) 'USE IN-MEMORY METHOD FOR -LINEQ-'
-            ENDIF
-         ENDIF
-      ELSE
-         NEED=3*NEFC+3*NEFC+NEFC+NEFC+NEFC+NEFC+NEFC
-         IF(.NOT.MA_PUSH_GET(MT_DBL,NEED,
-     &      'MEM INIT:cosmo:hnd_coschg:2',I_INIT,INIT))
-     &    CALL ERRQUIT('HND_COSCHG, MALLOC OF INIT  FAILED',912)
-         LINEQ=1
-         IF(OUT) THEN
-            WRITE(IW,*) 'USE ITERATIVE METHOD FOR -LINEQ-'
-         ENDIF
-      ENDIF
-C
-C     ----- GET ELECTROSTATIC POTENTIAL AT SURFACE POINTS -----
-C
-      I10=INIT
-      I11=I10+NEFC
-      I12=I11+NEFC
-      I20=I12+NEFC
+#include "stdio.fh"
+c
+      integer  rtdb
+      integer  geom
+      logical  status
+c
+      logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
+      character*16 at_tag
+      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
+      common/hnd_cospar/dielec,screen,rsolv
+      dimension efcc(3,nefc),efcz(nefc),efcs(nefc)
+      dimension x(1)
+      equivalence (x(1),dbl_mb(1))
+      data zero   /0.0d+00/
+      data pt5    /0.5d+00/
+      data one    /1.0d+00/
+      data two    /2.0d+00/
+      integer g_dens(3)
+c
+      more=.false.
+      dbug=.false.
+      dbug=dbug.or.more
+      out =.false. 
+      out =out.or.dbug
+c
+      dbug=dbug.and.ga_nodeid().eq.0
+      more=more.and.ga_nodeid().eq.0
+      out =out .and.ga_nodeid().eq.0
+c
+      iefc_done=.false.
+      ecos=zero
+c
+c     ----- allocate memory block -----
+c
+      if(lineq.ne.1) then
+         need=11*nefc+nefc*nefc
+         if(.not.ma_push_get(mt_dbl,need,
+     &      'mem init:cosmo:hnd_coschg:1',i_init,init)) then
+            need=nefc+nefc+nefc+nefc+nefc+nefc+nefc
+            lineq=1
+            if(.not.ma_push_get(mt_dbl,need,
+     &         'mem init:cosmo:hnd_coschg:1',i_init,init))
+     &         call errquit(
+     &              'hnd_coschg, malloc of init  failed',911)
+            if(out) then
+               write(luout,*) 'use iterative method for -lineq-'
+            endif
+         else
+            if(out) then
+               write(luout,*) 'use in-memory method for -lineq-'
+            endif
+         endif
+      else
+         need=11*nefc
+         if(.not.ma_push_get(mt_dbl,need,
+     &      'mem init:cosmo:hnd_coschg:2',i_init,init))
+     &    call errquit('hnd_coschg, malloc of init  failed',912)
+         lineq=1
+         if(out) then
+            write(luout,*) 'use iterative method for -lineq-'
+         endif
+      endif
+c
+c     ----- get electrostatic potential at surface points -----
+c
+      i10=init
+      i11=i10+nefc
+      i12=i11+nefc
+c
+c     ----- calculate electronic contribution at all points -----
+c
+      call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nat,x(i12),0)
+c
+c     ----- nuclear contribution -----
+c
+      if (.not.geom_ncent(geom,nat)) call
+     &    errquit('hnd_coschg: geom_ncent',911,GEOM_ERR)
+      if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
+     &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,nat,'epot pnt',l_epot,k_epot))
+     &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
+     &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
+      do 30 iat=1,nat
+        if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
+     &     dbl_mb(k_zanpt+iat-1))) call
+     &     errquit('hnd_coschg: geom_cent_get',911,GEOM_ERR)
+   30 continue
+c
+      do 230  ipt=1,nefc
+         xp = efcc(1,ipt)
+         yp = efcc(2,ipt)
+         zp = efcc(3,ipt)
+         do 210 i = 1,nat
+            xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
+            yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
+            zn  = dbl_mb(k_xyzpt+2+3*(i-1)) - zp
+            zan = dbl_mb(k_zanpt+i-1)
+            rr =  sqrt(xn*xn + yn*yn + zn*zn)
+            if (rr.lt.1.0d-3) go to 210
+            x(i11+ipt-1) = x(i11+ipt-1) + zan/rr
+  210    continue
+         x(i10+ipt-1) = x(i11+ipt-1) + x(i12+ipt-1)
+  230 continue
+c
+c     ----- ( nucl, elec, all ) passes ... -----
+c
+      if(ifscrn.ne.2) then
+         noall=.true.
+      else
+         noall=.false.
+      endif
 
-      CALL HND_COSELP(DA,X(I10),X(I11),X(I12))
-C
-C     ----- ( NUCL, ELEC, ALL ) PASSES ... -----
-C
-      IF(IFSCRN.NE.2) THEN
-         NOALL=.TRUE.
-      ELSE
-         NOALL=.FALSE.
-      ENDIF
+      if(noall) then
+         all =.true.
+         elec=.false.
+         nucl=.false.
+      else
+         all  =.false.
+         elec =.false.
+         nucl =.true.
+      endif
+c
+   10 continue
 
-      IF(NOALL) THEN
-         ALL =.TRUE.
-         ELEC=.FALSE.
-         NUCL=.FALSE.
-      ELSE
-         ALL  =.FALSE.
-         ELEC =.FALSE.
-         NUCL =.TRUE.
-      ENDIF
-C
-   10 CONTINUE
+      if(out) then
+         write(luout,*) 'in -coschg- ... noall, all, elec, nucl = ',
+     1                                noall, all, elec, nucl
+      endif
+c
+c     ----- get surface charges -----
+c
+      if(lineq.eq.0) then
+         i10=init
+         i11=i10+nefc
+         i12=i11+nefc
+         i20=i12+nefc
+         i21=i20+nefc
+         i22=i21+nefc
+         i30=i22+nefc
+         i40=i30+nefc*nefc
+         i50=i40+nefc
+         i60=i50+nefc
+c
+c     ----- in memory -----
+c
+         if(out) then
+            write(luout,*) '-lineq- in memory'
+         endif
 
-      IF(OUT) THEN
-         WRITE(IW,*) 'IN -COSCHG- ... NOALL, ALL, ELEC, NUCL = ',
-     1                                NOALL, ALL, ELEC, NUCL
-      ENDIF
-C
-C     ----- GET SURFACE CHARGES -----
-C
-      I10=INIT
-      I11=I10+NEFC
-      I12=I11+NEFC
-      I20=I12+NEFC
-      I21=I20+NEFC
-      I22=I21+NEFC
-      I30=I22+NEFC
-      I40=I30+NEFC*NEFC
-      I50=I40+NEFC
-      I60=I50+NEFC
-C
-      IF(LINEQ.EQ.0) THEN
-         I10=INIT
-         I11=I10+NEFC
-         I12=I11+NEFC
-         I20=I12+NEFC
-         I21=I20+NEFC
-         I22=I21+NEFC
-         I30=I22+NEFC
-         I40=I30+NEFC*NEFC
-         I50=I40+NEFC
-         I60=I50+NEFC
-C
-C     ----- IN MEMORY -----
-C
-         IF(OUT) THEN
-            WRITE(IW,*) '-LINEQ- IN MEMORY'
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
+         if(all) then
+            iep=i10
+         elseif(nucl) then
+            iep=i11
+         elseif(elec) then
+            iep=i12
+         else
+            write(luout,*)'... should not be here ... all,elec,nucl = ',
+     1                                              all,elec,nucl
+            call errquit('hnd_coschg: should not be here...',911)
+         endif
 
-         IF(ALL) THEN
-            IEP=I10
-         ELSEIF(NUCL) THEN
-            IEP=I11
-         ELSEIF(ELEC) THEN
-            IEP=I12
-         ELSE
-            WRITE(IW,*) '... SHOULD NOT BE HERE ... ALL,ELEC,NUCL = ',
-     1                                              ALL,ELEC,NUCL
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
+         do ief=1,nefc
+            x(ief+i20-1)=x(ief+iep-1)
+         enddo
 
-         DO IEF=1,NEFC
-            X(IEF+I20-1)=X(IEF+IEP-1)
-         ENDDO
+         do jef=1,nefc
+            xj=efcc(1,jef)
+            yj=efcc(2,jef)
+            zj=efcc(3,jef)
+            do ief=1,nefc
+               if(ief.eq.jef) then
+                  aii=adiag/sqrt(efcs(ief))
+                  x(ief+nefc*(jef-1)+i30-1)=aii
+               else
+                  xi=efcc(1,ief)
+                  yi=efcc(2,ief)
+                  zi=efcc(3,ief)
+                  dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+                  x(ief+nefc*(jef-1)+i30-1)=one/dij
+               endif
+            enddo
+         enddo
+c
+         nodcmp=1
+         call hnd_linequ(x(i30),nefc,x(i20),nefc,
+     1                   x(i40),x(i50),deta,ierr,nodcmp)
+c
+      else
+         i10=init
+         i11=i10+nefc
+         i12=i11+nefc
+         i20=i12+nefc
+         i21=i20+nefc
+         i22=i21+nefc
+         i30=i22+nefc
+         i40=i30+nefc
+         i50=i40+nefc
+         i60=i50+nefc
+         i70=i60+nefc
+         i80=i70+nefc
+c
+c     ----- iterative -----
+c
+         if(out) then
+            write(luout,*) 'iterative -lineq-'
+         endif
+c
+         do ief=1,nefc
+            x(ief+i20-1)=zero
+         enddo
+c
+         direct=.true.
+c
+c     ----- solve ... -----
+c
+         if(all) then
+            iep=i10
+         elseif(nucl) then
+            iep=i11
+         elseif(elec) then
+            iep=i12
+         endif
 
-         DO JEF=1,NEFC
-            XJ=EFCC(1,JEF)
-            YJ=EFCC(2,JEF)
-            ZJ=EFCC(3,JEF)
-            DO IEF=1,NEFC
-               IF(IEF.EQ.JEF) THEN
-                  AII=ADIAG/SQRT(EFCS(IEF))
-                  X(IEF+NEFC*(JEF-1)+I30-1)=AII
-               ELSE
-                  XI=EFCC(1,IEF)
-                  YI=EFCC(2,IEF)
-                  ZI=EFCC(3,IEF)
-                  DIJ=SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-                  X(IEF+NEFC*(JEF-1)+I30-1)=ONE/DIJ
-               ENDIF
-            ENDDO
-         ENDDO
-         IF(OUT) THEN
-            WRITE(IW,*) '-B-'
-            IF(MORE) THEN
-               CALL HND_PRSQ(X(I20),1,NEFC,NEFC)
-            ENDIF
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-         IF(OUT) THEN
-            WRITE(IW,*) '-A-'
-            IF(MORE) THEN
-               CALL HND_PRSQ(X(I30),NEFC,NEFC,NEFC)
-            ENDIF
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-C
-         NODCMP=1
-         CALL HND_LINEQU(X(I30),NEFC,X(I20),NEFC,
-     1                   X(I40),X(I50),DETA,IERR,NODCMP)
-C
-         IF(OUT) THEN
-            WRITE(IW,*) '-Q-'
-            IF(DBUG) THEN
-               CALL HND_PRSQ(X(I20),1,NEFC,NEFC)
-            ENDIF
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ELSE
-         I10=INIT
-         I11=I10+NEFC
-         I12=I11+NEFC
-         I20=I12+NEFC
-         I21=I20+NEFC
-         I22=I21+NEFC
-         I30=I22+NEFC
-         I40=I30+NEFC
-         I50=I40+NEFC
-         I60=I50+NEFC
-         I70=I60+NEFC
-         I80=I70+NEFC
-C
-C     ----- ITERATIVE -----
-C
-         IF(OUT) THEN
-            WRITE(IW,*) 'ITERATIVE -LINEQ-'
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-C
-         DO IEF=1,NEFC
-            X(IEF+I20-1)=ZERO
-         ENDDO
-C
-         DIRECT=.TRUE.
-C
-C     ----- FIRST TIME AROUND CALCULATE MATRIX -----
-C
-         IF(.NOT.DIRECT) THEN
-            IF(WFNTYP.EQ.MC) THEN
-               IF(ITER.EQ.1) THEN
-                  CALL HND_COSMAT(X(I30),NEFC)
-               ENDIF
-            ELSE
-               IF(ITER.EQ.0) THEN
-                  CALL HND_COSMAT(X(I30),NEFC)
-               ENDIF
-            ENDIF
-         ENDIF
-C
-C     ----- SOLVE ... -----
-C
-         IF(ALL) THEN
-            IEP=I10
-         ELSEIF(NUCL) THEN
-            IEP=I11
-         ELSEIF(ELEC) THEN
-            IEP=I12
-         ENDIF
-
-         CALL HND_COSEQU(X(IEP),X(I20),X(I30),NEFC,
-     1                   X(I40),X(I50),X(I60),X(I70),
-     2                   HND_COSAX,HND_COSXA,
-     3                   HND_COSAXD,HND_COSXAD,DIRECT)
-C
-         IF(OUT) THEN
-            WRITE(IW,*) '-Q-'
-            IF(MORE) THEN
-               CALL HND_PRSQ(X(I20),1,NEFC,NEFC)
-            ENDIF
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ENDIF
-C
-C     ----- DEBUG CHECK -----
-C
-      IF(MORE) THEN
-         DO JEF=1,NEFC
-            XJ=EFCC(1,JEF)
-            YJ=EFCC(2,JEF)
-            ZJ=EFCC(3,JEF)
-            DUM=ZERO
-            DO IEF=1,NEFC
-               IF(IEF.EQ.JEF) THEN
-                  AII=ADIAG/SQRT(EFCS(IEF))
-                  DUM=DUM+AII*X(IEF+I20-1)      
-               ELSE
-                  XI=EFCC(1,IEF)
-                  YI=EFCC(2,IEF)
-                  ZI=EFCC(3,IEF)
-                  DIJ=SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-                  AIJ=ONE/DIJ
-                  DUM=DUM+AIJ*X(IEF+I20-1)      
-               ENDIF
-            ENDDO
-            WRITE(IW,9992) JEF,DUM
-         ENDDO
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- CHARGE SCREENING ISSUE ... -----
-C
-      CHGCOS=ZERO
-      DO IEF=1,NEFC
-         CHGIEF=-ONE*X(IEF+I20-1)
-         CHGCOS=CHGCOS+CHGIEF
-      ENDDO
-      CHGSCR=CHGCOS*SCREEN
-      IF(OUT) THEN
-         WRITE(IW,*) '-COSMO- CHARGE SCREENING ISSUE ...'
-         WRITE(IW,*) ' COSMO  CHARGE UN-SCREENED    = ',CHGCOS
-         WRITE(IW,*) '                  SCREENING   = ',SCREEN
-         WRITE(IW,*) ' COSMO  CHARGE    SCREENED    = ',CHGSCR
-      ENDIF
-
+         call hnd_cosequ(x(iep),x(i20),x(i30),nefc,
+     1                   x(i40),x(i50),x(i60),x(i70),
+     2                   efcc,efcs)
+      endif
+c
+c     ----- debug check -----
+c
+      if(more) then
+         do jef=1,nefc
+            xj=efcc(1,jef)
+            yj=efcc(2,jef)
+            zj=efcc(3,jef)
+            dum=zero
+            do ief=1,nefc
+               if(ief.eq.jef) then
+                  aii=adiag/sqrt(efcs(ief))
+                  dum=dum+aii*x(ief+i20-1)      
+               else
+                  xi=efcc(1,ief)
+                  yi=efcc(2,ief)
+                  zi=efcc(3,ief)
+                  dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+                  aij=one/dij
+                  dum=dum+aij*x(ief+i20-1)      
+               endif
+            enddo
+            write(luout,9992) jef,dum
+         enddo
+      endif
+c
+c     ----- charge screening issue ... -----
+c
+      chgcos=zero
+      do ief=1,nefc
+         chgief=-one*x(ief+i20-1)
+         chgcos=chgcos+chgief
+      enddo
+      chgscr=chgcos*screen
+      if(out) then
+         write(luout,*) '-cosmo- charge screening issue ...'
+         write(luout,*) ' cosmo  charge un-screened    = ',chgcos
+         write(luout,*) '                  screening   = ',screen
+         write(luout,*) ' cosmo  charge    screened    = ',chgscr
+      endif
 c
 c     ----- number of electrons and charge from rtdb ... -----
 c     Figure out the number of electrons from the required total
@@ -2742,1742 +2063,608 @@ c
      &       INPUT_ERR)
 
       if(out) then
-         write(iw,*) 'from -rtdb- nelec  = ',nelec
-         write(iw,*) 'from -rtdb- charge = ',charge
-         write(iw,*) 'from -rtdb- charge_nuclear = ',charge_nuclear
+         write(luout,*) 'from -rtdb- nelec  = ',nelec
+         write(luout,*) 'from -rtdb- charge = ',charge
+         write(luout,*) 'from -rtdb- charge_nuclear = ',charge_nuclear
       endif
 
-      NE=nelec
+      ne=nelec
 
-      IF(ALL) THEN
-         CHGGSS=(         -charge)*SCREEN
-      ELSEIF(ELEC) THEN
-         CHGGSS=( dble(ne)       )*SCREEN
-      ELSEIF(NUCL) THEN
-         CHGGSS=(-charge_nuclear )*SCREEN
-      ENDIF
-      ERRCOS=CHGCOS-CHGGSS
-      ERRSCR=CHGSCR-CHGGSS
-      IF(OUT) THEN
-         IF(ALL) THEN
-            WRITE(IW,*) ' SOLUTE TOTAL CHARGE          = ',
+      if(all) then
+         chggss=(         -charge)*screen
+      elseif(elec) then
+         chggss=( dble(ne)       )*screen
+      elseif(nucl) then
+         chggss=(-charge_nuclear )*screen
+      endif
+      errcos=chgcos-chggss
+      errscr=chgscr-chggss
+      if(out) then
+         if(all) then
+            write(luout,*) ' solute total charge          = ',
      $                  charge
-         ELSEIF(ELEC) THEN
-            WRITE(IW,*) ' SOLUTE TOTAL ELECTRON CHARGE = ',
+         elseif(elec) then
+            write(luout,*) ' solute total electron charge = ',
      $                 -dble(ne)
-         ELSEIF(NUCL) THEN
-            WRITE(IW,*) ' SOLUTE TOTAL NUCLEAR  CHARGE = ',
+         elseif(nucl) then
+            write(luout,*) ' solute total nuclear  charge = ',
      $                  charge_nuclear
-         ENDIF
-         WRITE(IW,*) ' GAUSS  CHARGE                = ',CHGGSS
-         WRITE(IW,*) ' ERROR  (UN-SCREENED - GAUSS) = ',ERRCOS
-         WRITE(IW,*) ' ERROR  (   SCREENED - GAUSS) = ',ERRSCR
-         WRITE(IW,*) ' RATIO  (GAUSS / UN-SCREENED) = ',CHGGSS/CHGCOS
-         WRITE(IW,*) ' RATIO  (GAUSS /    SCREENED) = ',CHGGSS/CHGSCR
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- SET SCREENING FACTOR -----
-C
-      IF(ALL) THEN
-         IF(IFSCRN.EQ.0) THEN
-            CHGFAC=ONE
-         ELSEIF(IFSCRN.EQ.1) THEN
-            CHGFAC=SCREEN
-            CHGFAC=ONE
-         ELSEIF(IFSCRN.EQ.2) THEN
-            CHGFAC=CHGGSS/CHGCOS
-            CHGFAC=ONE
-         ELSE
-            WRITE(IW,*) 'ILLEGAL -IFSCRN- ... STOP. -IFSCRN- = ',IFSCRN
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ELSE
-         IF(IFSCRN.EQ.0) THEN
-            CHGFAC=ONE
-         ELSEIF(IFSCRN.EQ.1) THEN
-            CHGFAC=SCREEN
-         ELSEIF(IFSCRN.EQ.2) THEN
-            CHGFAC=CHGGSS/CHGCOS
-         ELSE
-            WRITE(IW,*) 'ILLEGAL -IFSCRN- ... STOP. -IFSCRN- = ',IFSCRN
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-      ENDIF
+         endif
+         write(luout,*) ' gauss  charge                = ',chggss
+         write(luout,*) ' error  (un-screened - gauss) = ',errcos
+         write(luout,*) ' error  (   screened - gauss) = ',errscr
+         write(luout,*) ' ratio  (gauss / un-screened) = ',chggss/chgcos
+         write(luout,*) ' ratio  (gauss /    screened) = ',chggss/chgscr
+      endif
+c
+c     ----- set screening factor -----
+c
+      if(all) then
+         if(ifscrn.eq.0) then
+            chgfac=one
+         elseif(ifscrn.eq.1) then
+            chgfac=screen
+            chgfac=one
+         elseif(ifscrn.eq.2) then
+            chgfac=chggss/chgcos
+            chgfac=one
+         else
+            write(luout,*) 'illegal -ifscrn- ... stop. -ifscrn- = ',ifscrn
+            call errquit('hnd_coschg: illegal -ifscrn-...',911)
+         endif
+      else
+         if(ifscrn.eq.0) then
+            chgfac=one
+         elseif(ifscrn.eq.1) then
+            chgfac=screen
+         elseif(ifscrn.eq.2) then
+            chgfac=chggss/chgcos
+         else
+            write(luout,*) 'illegal -ifscrn- ... stop. -ifscrn- = ',ifscrn
+            call errquit('hnd_coschg: illegal -ifscrn-...',911)
+         endif
+      endif
 
-      IF(OUT) THEN
-         WRITE(IW,*) ' IFSCRN                       = ',IFSCRN
-         WRITE(IW,9984) CHGFAC
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- APPLY SCREENING FACTOR -----
-C
-      DO IEF=1,NEFC
-         X(IEF+I20-1)=(-CHGFAC)*X(IEF+I20-1)
-      ENDDO
-      IF(NUCL) THEN
-         DO IEF=1,NEFC
-            X(IEF+I21-1)=X(IEF+I20-1)
-         ENDDO
-      ENDIF
-      IF(ELEC) THEN
-         DO IEF=1,NEFC
-            X(IEF+I22-1)=X(IEF+I20-1)
-         ENDDO
-      ENDIF
-C
-C     ----- STORE EFFECTIVE CHARGES IN -EFCZ- ... -----
-C           CHECK CONVERGENCE ...
-C
-      IF(IEFC.EQ.KEYEFC) THEN
-         IF(ALL) THEN
-            CHGCVG=ZERO
-            DO IEF=1,NEFC
-               OLDIEF=EFCZ(IEF)
-               CHGIEF=   X(IEF+I20-1)
-               DELCHG=ABS(CHGIEF-OLDIEF)
-               IF(DELCHG.GT.CHGCVG) THEN
-                  CHGCVG=DELCHG
-               ENDIF
-               EFCZ(IEF)=CHGIEF
-            ENDDO
-         ELSE
-            DO IEF=1,NEFC
-               EFCZ(IEF)=X(IEF+I20-1)
-            ENDDO
-         ENDIF
-      ELSE
-         IF(ALL) THEN
-            CHGCVG=ZERO
-            DO IEF=1,NEFC
-               OLDIEF=   ZERO
-               CHGIEF=   X(IEF+I20-1)
-               DELCHG=ABS(CHGIEF-OLDIEF)
-               IF(DELCHG.GT.CHGCVG) THEN
-                  CHGCVG=DELCHG
-               ENDIF
-               EFCZ(IEF)=CHGIEF
-            ENDDO
-            IEFC=KEYEFC
-         ELSE
-            DO IEF=1,NEFC
-               EFCZ(IEF)=X(IEF+I20-1)
-            ENDDO
-         ENDIF
-      ENDIF
+      if(out) then
+         write(luout,*) ' ifscrn                       = ',ifscrn
+         write(luout,9984) chgfac
+      endif
+c
+c     ----- apply screening factor -----
+c
+      do ief=1,nefc
+         x(ief+i20-1)=(-chgfac)*x(ief+i20-1)
+      enddo
+      if(nucl) then
+         do ief=1,nefc
+            x(ief+i21-1)=x(ief+i20-1)
+         enddo
+      endif
+      if(elec) then
+         do ief=1,nefc
+            x(ief+i22-1)=x(ief+i20-1)
+         enddo
+      endif
+c
+c     ----- store effective charges in -efcz- ... -----
+c           check convergence ...
+c
+      if(iefc_done) then
+         if(all) then
+            chgcvg=zero
+            do ief=1,nefc
+               oldief=efcz(ief)
+               chgief=   x(ief+i20-1)
+               delchg=abs(chgief-oldief)
+               if(delchg.gt.chgcvg) then
+                  chgcvg=delchg
+               endif
+               efcz(ief)=chgief
+            enddo
+         else
+            do ief=1,nefc
+               efcz(ief)=x(ief+i20-1)
+            enddo
+         endif
+      else
+         if(all) then
+            chgcvg=zero
+            do ief=1,nefc
+               oldief=   zero
+               chgief=   x(ief+i20-1)
+               delchg=abs(chgief-oldief)
+               if(delchg.gt.chgcvg) then
+                  chgcvg=delchg
+               endif
+               efcz(ief)=chgief
+            enddo
+            iefc_done=.true.
+         else
+            do ief=1,nefc
+               efcz(ief)=x(ief+i20-1)
+            enddo
+         endif
+      endif
 
-      IF(ALL) THEN
-         IF(OUT) THEN
-            WRITE(IW,9987) CHGCVG
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ENDIF
+      if(all) then
+         if(out) then
+            write(luout,9987) chgcvg
+         endif
+      endif
 
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         DO IEF=1,NEFC
-            WRITE(IW,9997) IEF,(EFCC(I,IEF),I=1,3),EFCZ(IEF)
-         ENDDO
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- CALCULATE ENERGY TERMS FROM -COSMO- CHARGES -----
-C
-      ALLEFC=ZERO
-      ATMEFC=ZERO
-      EFCEFC=ZERO
-      DO JEF=1,NEFC
-         XJ=EFCC(1,JEF)
-         YJ=EFCC(2,JEF)
-         ZJ=EFCC(3,JEF)
-         QJ=EFCZ(  JEF)
-C
-         ALLEFC=ALLEFC+QJ*X(JEF+I10-1)
-C
-         DO IAT=1,NAT
-            XI=C(1,IAT)
-            YI=C(2,IAT)
-            ZI=C(3,IAT)
-            QI=ZAN(IAT)
-            DIJ=SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-            BIJ=ONE/DIJ
-            ATMEFC=ATMEFC+QI*BIJ*QJ
-         ENDDO
-C
-         DO IEF=1,NEFC
-            XI=EFCC(1,IEF)
-            YI=EFCC(2,IEF)
-            ZI=EFCC(3,IEF)
-            QI=EFCZ(  IEF)
-            IF(IEF.EQ.JEF) THEN
-               AIJ=ADIAG/SQRT(EFCS(IEF))
-            ELSE
-               DIJ=SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-               AIJ=ONE/DIJ
-            ENDIF
-            EFCEFC=EFCEFC+QI*AIJ*QJ
-         ENDDO
-      ENDDO
-      EFCEFC= EFCEFC/(TWO*CHGFAC)
-      ELCEFC= ALLEFC-ATMEFC
-      SOLNRG= ALLEFC+EFCEFC
-      ECOS  = ATMEFC+EFCEFC
-      IF(OUT) THEN
-         WRITE(IW,9991) ATMEFC
-         WRITE(IW,9990) ELCEFC
-         WRITE(IW,9995) EFCEFC
-         WRITE(IW,9988) SOLNRG
-         WRITE(IW,9989) ALLEFC,(-TWO*EFCEFC)
-         WRITE(IW,9994) ECOS  
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- OTHER FORM OF THE SOLVATION ENERGY ... -----
-C
-      ALLEFC=ZERO
-      ATMEFC=ZERO
-      ELCEFC=ZERO
-      DO JEF=1,NEFC
-         XJ=EFCC(1,JEF)
-         YJ=EFCC(2,JEF)
-         ZJ=EFCC(3,JEF)
-         QJ=EFCZ(  JEF)
-C
-         ALLEFC=ALLEFC+QJ*X(JEF+I10-1)
-         ATMEFC=ATMEFC+QJ*X(JEF+I11-1)
-         ELCEFC=ELCEFC+QJ*X(JEF+I12-1)
-      ENDDO
-      SOLNRG= PT5* ALLEFC
-      ECOS  = PT5*(ATMEFC-ELCEFC)
-      IF(OUT) THEN
-         WRITE(IW,9991) ATMEFC
-         WRITE(IW,9990) ELCEFC
-         WRITE(IW,9989) ALLEFC
-         WRITE(IW,9988) SOLNRG
-         WRITE(IW,9994) ECOS
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
-C
-C     ----- AFTER 'ELEC' PASS, GET THE TOTAL ... -----
-C
-      IF(NUCL) THEN
-         ATMEFCN=ATMEFC
-         ELCEFCN=ELCEFC
-         EFCEFCN=EFCEFC
-         ALLEFCN=ALLEFC
-         SOLNRGN=SOLNRG
-           ECOSN=  ECOS
-      ENDIF
-      IF(ELEC) THEN
-         ATMEFCE=ATMEFC
-         ELCEFCE=ELCEFC
-         EFCEFCE=EFCEFC
-         ALLEFCE=ALLEFC
-         SOLNRGE=SOLNRG
-           ECOSE=  ECOS
-         ATMEFCT=ATMEFCN+ATMEFCE
-         ELCEFCT=ELCEFCN+ELCEFCE
-         ALLEFCT=ALLEFCN+ALLEFCE
-         SOLNRGT=SOLNRGN+SOLNRGE
-           ECOST=  ECOSN+  ECOSE
-         IF(OUT) THEN
-            WRITE(IW,*) '-ATMEFC (NUCL     )  - = ',ATMEFCN
-            WRITE(IW,*) '-ATMEFC (     ELEC)  - = ',ATMEFCE
-            WRITE(IW,*) '-ATMEFC (NUCL+ELEC)  - = ',ATMEFCT
-            WRITE(IW,*) '-ELCEFC (NUCL     )  - = ',ELCEFCN
-            WRITE(IW,*) '-ELCEFC (     ELEC)  - = ',ELCEFCE
-            WRITE(IW,*) '-ELCEFC (NUCL+ELEC)  - = ',ELCEFCT
-            WRITE(IW,*) '-ALLEFC (NUCL     )  - = ',ALLEFCN
-            WRITE(IW,*) '-ALLEFC (     ELEC)  - = ',ALLEFCE
-            WRITE(IW,*) '-ALLEFC (NUCL+ELEC)  - = ',ALLEFCT
-            WRITE(IW,*) '-SOLNRG (NUCL     )  - = ',SOLNRGN
-            WRITE(IW,*) '-SOLNRG (     ELEC)  - = ',SOLNRGE
-            WRITE(IW,*) '-SOLNRG (NUCL+ELEC)  - = ',SOLNRGT
-            WRITE(IW,*) '-  ECOS (NUCL     )  - = ',  ECOSN
-            WRITE(IW,*) '-  ECOS (     ELEC)  - = ',  ECOSE
-            WRITE(IW,*) '-  ECOS (NUCL+ELEC)  - = ',  ECOST
-            WRITE(IW,*) '-EFCEFC (NUCL     )  - = ',EFCEFCN
-            WRITE(IW,*) '-EFCEFC (     ELEC)  - = ',EFCEFCE
-         ENDIF
-      ENDIF
-C
-C     ----- AFTER 'ALL' PASS, RESET CHARGES AND ENERGY ... -----
-C
-      IF(.NOT.NOALL.AND.ALL) THEN
-         ATMEFC=ATMEFCT
-         ELCEFC=ELCEFCT
-         SOLNRG=SOLNRGT
-           ECOS=  ECOST
-         EFCEFC=ZERO
-         DO IEF=1,NEFC
-            EFCZ(IEF)=X(IEF+I21-1)+X(IEF+I22-1)
-         ENDDO
+      if(dbug) then
+         write(luout,9998)
+         do ief=1,nefc
+            write(luout,9997) ief,(efcc(i,ief),i=1,3),efcz(ief)
+         enddo
+      endif
+c
+c     ----- calculate energy terms from -cosmo- charges -----
+c
+      allefc=zero
+      atmefc=zero
+      efcefc=zero
+      do jef=1,nefc
+         xj=efcc(1,jef)
+         yj=efcc(2,jef)
+         zj=efcc(3,jef)
+         qj=efcz(  jef)
+c
+         allefc=allefc+qj*x(jef+i10-1)
+c
+         do iat=1,nat
+            xi=dbl_mb(k_xyzpt  +3*(iat-1))
+            yi=dbl_mb(k_xyzpt+1+3*(iat-1))
+            zi=dbl_mb(k_xyzpt+2+3*(iat-1))
+            qi=dbl_mb(k_zanpt+iat-1)
+            dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+            bij=one/dij
+            atmefc=atmefc+qi*bij*qj
+         enddo
+c
+         do ief=1,nefc
+            xi=efcc(1,ief)
+            yi=efcc(2,ief)
+            zi=efcc(3,ief)
+            qi=efcz(  ief)
+            if(ief.eq.jef) then
+               aij=adiag/sqrt(efcs(ief))
+            else
+               dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+               aij=one/dij
+            endif
+            efcefc=efcefc+qi*aij*qj
+         enddo
+      enddo
+      efcefc= efcefc/(two*chgfac)
+      elcefc= allefc-atmefc
+      solnrg= allefc+efcefc
+      ecos  = atmefc+efcefc
+      if(out) then
+         write(luout,9991) atmefc
+         write(luout,9990) elcefc
+         write(luout,9995) efcefc
+         write(luout,9988) solnrg
+         write(luout,9989) allefc,(-two*efcefc)
+         write(luout,9994) ecos  
+      endif
+c
+c     ----- other form of the solvation energy ... -----
+c
+      allefc=zero
+      atmefc=zero
+      elcefc=zero
+      do jef=1,nefc
+         xj=efcc(1,jef)
+         yj=efcc(2,jef)
+         zj=efcc(3,jef)
+         qj=efcz(  jef)
+c
+         allefc=allefc+qj*x(jef+i10-1)
+         atmefc=atmefc+qj*x(jef+i11-1)
+         elcefc=elcefc+qj*x(jef+i12-1)
+      enddo
+      solnrg= pt5* allefc
+      ecos  = pt5*(atmefc-elcefc)
+      if(out) then
+         write(luout,9991) atmefc
+         write(luout,9990) elcefc
+         write(luout,9989) allefc
+         write(luout,9988) solnrg
+         write(luout,9994) ecos
+      endif
+c
+c     ----- after 'elec' pass, get the total ... -----
+c
+      if(nucl) then
+         atmefcn=atmefc
+         elcefcn=elcefc
+         efcefcn=efcefc
+         allefcn=allefc
+         solnrgn=solnrg
+           ecosn=  ecos
+      endif
+      if(elec) then
+         atmefce=atmefc
+         elcefce=elcefc
+         efcefce=efcefc
+         allefce=allefc
+         solnrge=solnrg
+           ecose=  ecos
+         atmefct=atmefcn+atmefce
+         elcefct=elcefcn+elcefce
+         allefct=allefcn+allefce
+         solnrgt=solnrgn+solnrge
+           ecost=  ecosn+  ecose
+         if(out) then
+            write(luout,*) '-atmefc (nucl     )  - = ',atmefcn
+            write(luout,*) '-atmefc (     elec)  - = ',atmefce
+            write(luout,*) '-atmefc (nucl+elec)  - = ',atmefct
+            write(luout,*) '-elcefc (nucl     )  - = ',elcefcn
+            write(luout,*) '-elcefc (     elec)  - = ',elcefce
+            write(luout,*) '-elcefc (nucl+elec)  - = ',elcefct
+            write(luout,*) '-allefc (nucl     )  - = ',allefcn
+            write(luout,*) '-allefc (     elec)  - = ',allefce
+            write(luout,*) '-allefc (nucl+elec)  - = ',allefct
+            write(luout,*) '-solnrg (nucl     )  - = ',solnrgn
+            write(luout,*) '-solnrg (     elec)  - = ',solnrge
+            write(luout,*) '-solnrg (nucl+elec)  - = ',solnrgt
+            write(luout,*) '-  ecos (nucl     )  - = ',  ecosn
+            write(luout,*) '-  ecos (     elec)  - = ',  ecose
+            write(luout,*) '-  ecos (nucl+elec)  - = ',  ecost
+            write(luout,*) '-efcefc (nucl     )  - = ',efcefcn
+            write(luout,*) '-efcefc (     elec)  - = ',efcefce
+         endif
+      endif
+c
+c     ----- after 'all' pass, reset charges and energy ... -----
+c
+      if(.not.noall.and.all) then
+         atmefc=atmefct
+         elcefc=elcefct
+         solnrg=solnrgt
+           ecos=  ecost
+         efcefc=zero
+         do ief=1,nefc
+            efcz(ief)=x(ief+i21-1)+x(ief+i22-1)
+         enddo
 
-         IF(DBUG) THEN
-            WRITE(IW,9998)
-            DO IEF=1,NEFC
-               WRITE(IW,9997) IEF,(EFCC(I,IEF),I=1,3),EFCZ(IEF)
-            ENDDO
-CBERT       CALL HND_FIFLSH(IW)
-         ENDIF
-      ENDIF
-C
-C     ----- -NUCL- FIRST, -ELEC- SECOND, THEN -ALL- ... -----
-C
-      IF(.NOT.ALL) THEN
-         IF(.NOT.ELEC) THEN
-            ELEC=.TRUE.
-            NUCL=.FALSE.
-            GO TO 10
-         ELSE
-            IF(.NOT.NOALL) THEN
-               ALL =.TRUE.
-               ELEC=.FALSE.
-               GO TO 10
-            ENDIF
-         ENDIF
-      ENDIF
-C
-C     ----- RESET DENSITY MATRIX IF -UHF- BEFORE RETURNING -----
-C
-      IF(SCFTYP.EQ.UHF) THEN
-         DO I=1,L2
-            DA(I)=DA(I)-DB(I)
-         ENDDO
-      ENDIF
-C
-      IF(OUT) THEN
-         WRITE(IW,9993)
-CBERT    CALL HND_FIFLSH(IW)
-      ENDIF
+         if(dbug) then
+            write(luout,9998)
+            do ief=1,nefc
+               write(luout,9997) ief,(efcc(i,ief),i=1,3),efcz(ief)
+            enddo
+         endif
+      endif
+c
+c     ----- -nucl- first, -elec- second, then -all- ... -----
+c
+      if(.not.all) then
+         if(.not.elec) then
+            elec=.true.
+            nucl=.false.
+            go to 10
+         else
+            if(.not.noall) then
+               all =.true.
+               elec=.false.
+               go to 10
+            endif
+         endif
+      endif
+c
+      if(out) then
+         write(luout,9993)
+      endif
 c
 c     ----- save -cosmo- charges and energy to -rtdb- -----
 c
       if (.not. rtdb_put(rtdb,'cosmo:energy',mt_dbl,1,ecos))
      &   call errquit('hnd_coschg: rtdb put failed for ecos',911,
-     &       RTDB_ERR)
+     &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efcz',mt_dbl,  nefc,efcz))
      $   call errquit('hnd_coschg: rtdb put failed for efcz',912,
-     &       RTDB_ERR)
+     &       rtdb_err)
 c
 c     ----- for the time being, save in 'geometry' object -----
 c
       if(out) then
-         write(iw,*) 'in -hnd_coschg ... for -efc- geom = ',geom
+         write(luout,*) 'in -hnd_coschg ... for -efc- geom = ',geom
       endif
       status=geom_efc_cart_set(cosmo_geom_efc,nefc,efcc,efcz)
       if (.not.status) then
          call errquit('hnd_coschg: geom_efc_cart_set failed !', 0,
-     &       GEOM_ERR)
-      endif
-
-C
-C     ----- RELEASE MEMORY BLOCK -----
-C
-      IF(.NOT.MA_POP_STACK(I_INIT))
-     & CALL ERRQUIT('HND_COSCHG, MA_POP_STACK OF INIT FAILED',911)
-C
-      RETURN
- 9999 FORMAT(/,10X,15(1H-),
-     1       /,10X,'-COSMO- CHARGES',
-     2       /,10X,15(1H-))
- 9998 FORMAT(4X,'IEFC',6X,'X',5X,6X,'Y',5X,6X,'Z',5X,5X,'Q',4X,
-     1     /,1X,53(1H-))
- 9997 FORMAT(1X,I7,3F12.6,F10.6)
- 9995 FORMAT(' -EFCEFC- ENERGY = ',F20.12)
- 9994 FORMAT(' -ECOS  - ENERGY = ',F20.12)
- 9993 FORMAT(' ...... END OF -COSCHG- ......')
- 9992 FORMAT(' COSMO POTENTIAL AT -IEF = ',I6,F16.10)
- 9991 FORMAT(' -ATMEFC- ENERGY = ',F20.12)
- 9990 FORMAT(' -ELCEFC- ENERGY = ',F20.12)
- 9989 FORMAT(' -ALLEFC- ENERGY = ',F20.12,F20.12)
- 9988 FORMAT(' -SOLNRG- ENERGY = ',F20.12)
- 9987 FORMAT(' -COSMO- CHARGES CONVERGENCE = ',F10.6)
- 9986 FORMAT(' -WFNTYP- = ',A8)
- 9985 FORMAT(' -SCFTYP- = ',A8)
- 9984 FORMAT(' APPLIED SCREENING FACTOR -CHGFAC- = ',F10.6)
-      END
-      SUBROUTINE HND_COSAX(A,X,AX,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (ZERO=0.0D+00)
-      COMMON/HND_IOFILE/IR,IW,IP
-      DIMENSION A(N),X(N),AX(N)
-      DATA NFT17 /17/
-C
-CBERT CALL HND_REWFIL(NFT17)
-      DO I=1,N
-         READ(NFT17) A
-         DUM=ZERO
-         DO J=1,N
-            AIJ=A(J)
-             XJ=X(J)
-            DUM=DUM+AIJ*XJ
-         ENDDO
-         AX(I)=DUM
-      ENDDO
-CBERT CALL HND_REWFIL(NFT17)
-C
-      RETURN
-      END
-      SUBROUTINE HND_COSXA(A,X,XA,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (ZERO=0.0D+00)
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      DIMENSION A(N),X(N),XA(N)
-      DATA NFT17 /17/
-C
-CBERT CALL HND_REWFIL(NFT17)
-      DO I=1,N
-         READ(NFT17) A
-         DUM=ZERO
-         DO J=1,N
-            AIJ=A(J)
-             XJ=X(J)
-            DUM=DUM+AIJ*XJ
-         ENDDO
-         XA(I)=DUM
-      ENDDO
-CBERT CALL HND_REWFIL(NFT17)
-C
-      RETURN
-      END
-      SUBROUTINE HND_COSMAT(A,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (ZERO=0.0D+00, ONE=1.0D+00)
-      PARAMETER (MXEFC =3*7*7*7)
-      CHARACTER*8 EFCLAB
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL 
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      DIMENSION A(N)
-      DATA NFT17 /17/
-C
-      RIJ(XI,YI,ZI,XJ,YJ,ZJ)=
-     1                    SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-C
-CBERT CALL HND_REWFIL(NFT17)
-      DO IEF=1,NEFC
-         XI=EFCC(1,IEF)
-         YI=EFCC(2,IEF)
-         ZI=EFCC(3,IEF)
-         DO JEF=1,NEFC
-            XJ=EFCC(1,JEF)
-            YJ=EFCC(2,JEF)
-            ZJ=EFCC(3,JEF)
-            IF(JEF.NE.IEF) THEN
-               AIJ=ONE/RIJ(XI,YI,ZI,XJ,YJ,ZJ)
-            ELSE
-               AIJ=ADIAG/SQRT(EFCS(IEF))
-            ENDIF
-            A(JEF)=AIJ 
-         ENDDO
-         WRITE(NFT17) A
-      ENDDO
-CBERT CALL HND_REWFIL(NFT17)
-C
-      RETURN
-      END
-      SUBROUTINE HND_COSAXD(A,X,AX,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (ZERO=0.0D+00, ONE=1.0D+00)
-      PARAMETER (MXEFC =3*7*7*7)
-      CHARACTER*8 EFCLAB
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      DIMENSION A(N),X(N),AX(N)
-C
-      B(I,J)=ONE/SQRT((EFCC(1,I)-EFCC(1,J))**2+
-     1                (EFCC(2,I)-EFCC(2,J))**2+
-     2                (EFCC(3,I)-EFCC(3,J))**2)
-      D(I  )=ADIAG/SQRT(EFCS(I))
-C
-      DO I=1,N
-         DUM=ZERO
-         DO J=1,N
-            IF(J.EQ.I) THEN
-               AIJ=D(I)
-            ELSE
-               AIJ=B(I,J)
-            ENDIF
-             XJ=X(J)
-            DUM=DUM+AIJ*XJ
-         ENDDO
-         AX(I)=DUM
-      ENDDO
-C
-      RETURN
-      END
-      SUBROUTINE HND_COSXAD(A,X,XA,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      PARAMETER (ZERO=0.0D+00, ONE=1.0D+00)
-      PARAMETER (MXEFC =3*7*7*7)
-      CHARACTER*8 EFCLAB
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      DIMENSION A(N),X(N),XA(N)
-C
-      B(I,J)=ONE/SQRT((EFCC(1,I)-EFCC(1,J))**2+
-     1                (EFCC(2,I)-EFCC(2,J))**2+
-     2                (EFCC(3,I)-EFCC(3,J))**2)
-      D(I  )=ADIAG/SQRT(EFCS(I))
-C
-      DO I=1,N
-         DUM=ZERO
-         DO J=1,N
-            IF(J.EQ.I) THEN
-               AIJ=D(I)
-            ELSE
-               AIJ=B(I,J)
-            ENDIF
-             XJ=X(J)
-            DUM=DUM+AIJ*XJ
-         ENDDO
-         XA(I)=DUM
-      ENDDO
-C
-      RETURN
-      END
-      SUBROUTINE HND_COSEQU(B,X,A,N,G,H,XI,XJ,
-     1                      HND_COSAX,HND_COSXA,
-     2                      HND_COSAXD,HND_COSXAD,DIRECT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-C
-C     ----- SOLVE A * X = B , USING AN ITERATIVE PROCEDURE       -----
-C
-C     ----- NUMERICAL RECIPES (P.70), CAMBRIDGE UNIVERSITY PRESS -----
-C          W.H.PRESS, B.P.FLANNERY, S.A.TEUKOLSKY, W.T.VETTERLING
-C
-      CHARACTER*8 ERRMSG
-      LOGICAL     DBUG
-      LOGICAL     DIRECT
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      DIMENSION   ERRMSG(3)
-      DIMENSION   A(N),X(N),B(N)
-      DIMENSION   G(N),H(N),XI(N),XJ(N)
-      EXTERNAL    HND_COSAX,HND_COSXA
-      EXTERNAL    HND_COSAXD,HND_COSXAD
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-COSEQU-'/
-      DATA ZERO   /0.0D+00/
-      DATA EPS    /1.0D-07/
-C
-      DBUG=.FALSE.
-      IF(DBUG) THEN
-         WRITE(IW,*) 'IN -COSEQU-'
-         DO I=1,N
-            WRITE(IW,9999) I,B(I)
-         ENDDO
-      ENDIF
-C
-      EPS2=N*EPS*EPS
-      IRST=0
-   10 IRST=IRST+1
-      IF(DIRECT) THEN
-         CALL HND_COSAXD(A,X,XI,N)
-      ELSE
-         CALL HND_COSAX(A,X,XI,N)
-      ENDIF
-      RP=ZERO
-      BSQ=ZERO
-      DO 11 J=1,N
-         BSQ=BSQ+B(J)*B(J)
-         XI(J)=XI(J)-B(J)
-         RP=RP+XI(J)*XI(J)
-   11 CONTINUE
-      IF(DIRECT) THEN
-         CALL HND_COSXAD(A,XI,G,N)
-      ELSE
-         CALL HND_COSXA(A,XI,G,N)
-      ENDIF
-      DO 12 J=1,N
-      G(J)=-G(J)
-      H(J)= G(J)
-   12 CONTINUE
-      DO 19 ITER=1,10*N
-         IF(DIRECT) THEN
-            CALL HND_COSAXD(A,H,XI,N)
-         ELSE
-            CALL HND_COSAX(A,H,XI,N)
-         ENDIF
-         ANUM=ZERO
-         ADEN=ZERO
-         DO 13 J=1,N
-            ANUM=ANUM+G(J)*H(J)
-            ADEN=ADEN+XI(J)*XI(J)
-   13    CONTINUE
-         IF(ADEN.EQ.ZERO) THEN
-            WRITE(IW,*) 'VERY SINGULAR MATRIX'
-            CALL HND_HNDERR(3,ERRMSG)
-         ENDIF
-         ANUM=ANUM/ADEN
-         DO 14 J=1,N
-            XI(J)=X(J)
-            X(J)=X(J)+ANUM*H(J)
-   14    CONTINUE
-         IF(DIRECT) THEN
-            CALL HND_COSAXD(A,X,XJ,N)
-         ELSE
-            CALL HND_COSAX(A,X,XJ,N)
-         ENDIF
-         RSQ=ZERO
-         DO 15 J=1,N
-            XJ(J)=XJ(J)-B(J)
-            RSQ=RSQ+XJ(J)*XJ(J)
-   15    CONTINUE
-         IF(RSQ.EQ.RP.OR.RSQ.LE.BSQ*EPS2) RETURN
-         IF(RSQ.GT.RP) THEN
-            DO 16 J=1,N
-               X(J)=XI(J)
-   16       CONTINUE
-            IF(IRST.GE.3) RETURN
-            GO TO 10
-         ENDIF
-         RP=RSQ
-         IF(DIRECT) THEN
-            CALL HND_COSXAD(A,XJ,XI,N)
-         ELSE
-            CALL HND_COSXA(A,XJ,XI,N)
-         ENDIF
-         GG=ZERO
-         DGG=ZERO
-         DO 17 J=1,N
-            GG=GG+G(J)*G(J)
-            DGG=DGG+(XI(J)+G(J))*XI(J)
-   17    CONTINUE
-         IF(GG.EQ.ZERO) RETURN
-         GAM=DGG/GG
-         DO 18 J=1,N
-            G(J)=-XI(J)
-            H(J)=G(J)+GAM*H(J)
-   18    CONTINUE
-   19 CONTINUE
-      WRITE(IW,*) 'TOO MANY ITERATIONS'
-      CALL HND_HNDERR(3,ERRMSG)
-      RETURN
- 9999 FORMAT(I8,F16.8)
-      END
-      SUBROUTINE HND_COSELP(D,ELP,ELPN,ELPE)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "nwc_const.fh"
-      PARAMETER  (MXATOM=NW_MAX_ATOM)
-      PARAMETER  (MXEFC =3*7*7*7)
-      CHARACTER*8 EFCLAB
-      LOGICAL     SOME
-      LOGICAL     OUT
-      LOGICAL     DBUG
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      COMMON/HND_EFCOPT/IEFC
-      DIMENSION      D(*)
-      DIMENSION    ELP(*)
-      DIMENSION   ELPN(*)
-      DIMENSION   ELPE(*)
-      DATA ZERO   /0.0D+00/
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.DBUG
-      SOME=.FALSE.
-      SOME=SOME.OR.OUT
-C
-C     ----- CALCULATE ELECTROSTATIC POTENTIAL -----
-C
-      IF(SOME) THEN
-         WRITE(IW,9999)
-         WRITE(IW,9998)
-      ENDIF
-C
-C     ----- ELECTRON DENSITY CONTIBUTION -----
-C
-CBERT CALL HND_ELPOTC(NEFC,EFCC,ELPE,D)
-      DO IEF=1,NEFC
-         ELPE(IEF)=-ELPE(IEF)
-      ENDDO
-C
-C     ----- ADD NUCLEAR CONTRIBUTION -----
-C
-      IF(DBUG) THEN
-         WRITE(IW,9997)
-      ENDIF
-C
-      DO IEF=1,NEFC
-         XP = EFCC(1,IEF)
-         YP = EFCC(2,IEF)
-         ZP = EFCC(3,IEF)
-C
-C     ----- NUCLEAR CONTRIBUTION ... -----
-C
-         ELPOTN = ZERO
-         DO IAT = 1,NAT
-            XN = XP - C(1,IAT) 
-            YN = YP - C(2,IAT) 
-            ZN = ZP - C(3,IAT) 
-            RR = SQRT(XN*XN + YN*YN + ZN*ZN)
-            DUM    = ZAN(IAT)/RR
-            ELPOTN = ELPOTN +           DUM        
-         ENDDO    
-         ELPN(IEF) = ELPOTN
-C
-C     ----- NUCLEAR + ELECTRON CONTRIBUTION ... -----
-C
-         DUME    =  ELPE(IEF)
-         DUMN    =  ELPN(IEF)
-         DUM     =  DUMN   + DUME    
-         ELP(IEF)=  DUM
-
-         IF(DBUG) THEN
-            WRITE(IW,9996) IEF,XP,YP,ZP,DUM,DUMN,DUME 
-         ENDIF
-
-      ENDDO
-C
-      IF(SOME) THEN
-         WRITE(IW,9994)
-      ENDIF
-CBERT CALL HND_FIFLSH(IW)
-C
-      RETURN
- 9999 FORMAT(/,10X,24(1H-),/,10X,'-ELP- AT -COSMO- SURFACE',
-     1       /,10X,24(1H-),/)
- 9998 FORMAT(' 1 A.U. = 9.07618 ESU/CM ( OR STATVOLTS ) ')
- 9997 FORMAT(3X,'POINT',6X,'X',9X,'Y',9X,'Z',5X,'POTENTIAL(A.U.)',/,
-     1       83(1H-))
- 9996 FORMAT(1X,I5,2X,3F10.5,3F15.6)
- 9994 FORMAT(' ...... END OF -COSELP- ......')
-      END
-      SUBROUTINE HND_LINEQU(A,LDA,B,N,IB,T,DETA,IERR,NODCMP)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(LDA,1),B(N),IB(N),T(N)
-C
-C     ----- SOLVE A * X = B , WITH X RETURNED IN B -----
-C
-      IF(NODCMP.NE.1) GO TO 20
-C
-CBERT CALL HND_LUDCMP(A,LDA,N,IB,T,DETA,IERR)
-      DO 10 J=1,N
-   10 DETA=DETA*A(J,J)
-C
-   20 CONTINUE
-CBERT CALL HND_LUBKSB(A,LDA,N,IB,B)
-C
-      RETURN
-      END
-      subroutine hnd_cos_get_dens_scf(rtdb,geom_handle,basis_handle,
-     1                               da,db,d1nw,d2nw,
-     2                               scftyp)
-      implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "bas.fh"
-#include "geom.fh"
-#include "util.fh"
-#include "sym.fh"
-#include "stdio.fh"
-#include "cscf.fh"
-      integer       rtdb
-      integer       geom_handle
-      integer       basis_handle
-c
-      character*8   scftyp
-c
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
-
-      integer g_dens      ! density matrices (up to 3)
-      dimension g_dens(3) ! max # of density matrices
- 
-      integer ndens
-
-c
-      integer ir, iw, ip
-      common/hnd_iofile/ir,iw,ip
-
-      integer nap, iap
-      common/hnd_lcapid/nap,iap
-c
-      double precision da(*),db(*),d1nw(*),d2nw(*)
-
-      integer i
-c
-      logical dbug
-      dbug=.false.
-      dbug=dbug.and.(iap.eq.1)
-c
-c     ----- ... scftyp ... -----
-c
-      if (scftype.eq.'UHF') then
-         scftyp  = 'UHF     '
-      else
-         scftyp  = 'RHF     '
+     &       geom_err)
       endif
 c
-      ndens = 3
+c     ----- release memory block -----
 c
-c     handles for density matrices
-c
-      do i=1, ndens
-        g_dens(i) = ga_create_atom_blocked ( geom_handle, 
-     $              basis_handle,'density matrix' )
-      enddo
-c
-      if(dbug) then
-         write(iw,*) 'in hnd_cos_dens_read'
-         write(iw,*) 'scftype = ',scftype
-         write(iw,*) 'scftyp  = ',scftyp 
-         write(iw,*) 'nbf     = ',nbf
-         write(iw,*) 'nmo     = ',nmo
-         write(iw,*) 'ndens   = ',ndens
-         write(iw,*) 'calling hnd_cos_dens_make_scf ... '
-         call util_flush(iw)
-      endif
-c
-c     ----- make density matrices -----
-c
-      call hnd_cos_dens_make_scf(g_dens, ndens, 
-     $                           da, db, d1nw, d2nw)
-c
-      return
-      end
-      subroutine hnd_cos_dens_make_scf(g_dens, ndens,
-     $                                 da, db, d1nw, d2nw)
-      implicit none
-#include "global.fh"
-#include "util.fh"
-#include "mafdecls.fh"
-#include "cscf.fh"
-
-      logical status
-
-      integer g_dens, ndens
-      dimension g_dens(ndens)
-
-      integer  ga_create_atom_blocked
-      external ga_create_atom_blocked
-
-      integer ir, iw, ip
-      common/hnd_iofile/ir,iw,ip
-
-      integer nap, iap
-      common/hnd_lcapid/nap,iap
-
-      double precision da, db, d1nw, d2nw
-      dimension da(*), db(*), d1nw(*), d2nw(*)
-
-c     local variables
-
-      integer i, j, ij
-
-c     calculate the density matrices from the g_movecs
-
-      logical dbug
-      dbug=.false.
-      dbug=dbug.and.(iap.eq.1)
-
-      if(dbug) then
-         write(iw,*) 'in hnd_cos_dens_make'
-         write(iw,*) 'nclosed, nopen, nbf = ',nclosed,nopen,nbf
-         write(iw,*) 'forming density ...'
-         call util_flush(iw)
-      endif
-
-c       density matrices ...
-
-      if (scftype .eq. 'RHF' .or. scftype .eq. 'ROHF') then
-c
-c     ----- rhf -----
-c
-        if(nclosed.eq.0) then
-           call ga_zero(g_dens(1))
-        else
-           if(dbug) then
-              write(iw,*) 'density from closed shells ...'
-              call util_flush(iw)
-           endif
-
-           call ga_matmul_patch('n', 't', 2.0D0, 0.0d0  ,
-     $          g_movecs(1), 1, nbf,            1, nclosed,
-     $          g_movecs(1), 1, nclosed,        1, nbf    ,
-     $          g_dens(1)  , 1, nbf,            1, nbf    )
-           if(nopen.gt.0) then
-              if(dbug) then
-                 write(iw,*) 'density from open   shells ...'
-                 call util_flush(iw)
-              endif
-
-              call ga_matmul_patch('n', 't', 1.0D0, 0.0d0       ,
-     $             g_movecs(1), 1, nbf, nclosed+1, nclosed+nopen,
-     $             g_movecs(1), nclosed+1, nclosed+nopen, 1, nbf,
-     $             g_dens(2)  , 1, nbf,            1, nbf       )
-              call ga_dadd ( 1.D0, g_dens(1), 1.D0, g_dens(2),
-     $                                              g_dens(3) )
-              call ga_dadd ( 1.D0, g_dens(3), 0.D0, g_dens(2),
-     $                                              g_dens(1) )
-           endif
-           if(dbug) then
-              write(iw,*) 'density formed ...'
-              call util_flush(iw)
-           endif
-        endif
-
-        call ga_symmetrize(g_dens(1))
-
-        call ga_get(g_dens(1),1,nbf,1,nbf,d1nw,nbf)
-
-c       hondo to nwchem mapping
-
-CBERT   call hnd_nwhnd_tran(d1nw,d2nw,nbf)
-
-c       square to triangular format
-
-        ij=0
-        do i=1,nbf
-           do j=1,i
-              ij=ij+1
-              da(ij)=d2nw(i+nbf*(j-1))
-           enddo
-        enddo
-        if(dbug) then
-CBERT      call hnd_prtr(da,nbf)
-           call util_flush(iw)
-        endif
-
-      else  ! UHF
-c
-c     ----- uhf -----
-c
-        call ga_zero(g_dens(1))
-        call ga_zero(g_dens(2))
-
-        call ga_dgemm('n', 't', nbf, nbf, nalpha, 1.D0, 
-     $                g_movecs(1), g_movecs(1), 0.D0, g_dens(1))
-        if (nbeta .gt. 0) then
-           call ga_dgemm('n', 't', nbf, nbf, nbeta, 1.D0, 
-     $                   g_movecs(2), g_movecs(2), 0.D0, g_dens(2))
-        endif
-
-C       density total
-
-        call ga_dadd ( 1.D0, g_dens(1), 1.D0, g_dens(2), g_dens(3) )
-        call ga_symmetrize(g_dens(1))
-        call ga_symmetrize(g_dens(2))
-        call ga_symmetrize(g_dens(3))
-
-        call ga_get(g_dens(1),1,nbf,1,nbf,d1nw,nbf)
-
-c       hondo to nwchem mapping
-
-CBERT   call hnd_nwhnd_tran(d1nw,d2nw,nbf)
-
-c       square to triangular format
-
-        ij=0
-        do i=1,nbf
-           do j=1,i
-              ij=ij+1
-              da(ij)=d2nw(i+nbf*(j-1))
-           enddo
-        enddo
-        if(dbug) then
-CBERT      call hnd_prtr(da,nbf)
-        endif
-
-        call ga_get(g_dens(2),1,nbf,1,nbf,d1nw,nbf)
-c       hondo to nwchem mapping
-
-CBERT   call hnd_nwhnd_tran(d1nw,d2nw,nbf)
-
-c       square to triangular format
-
-        ij=0
-        do i=1,nbf
-           do j=1,i
-              ij=ij+1
-              db(ij)=d2nw(i+nbf*(j-1))
-           enddo
-        enddo
-        if(dbug) then
-           call hnd_prtr(db,nbf)
-        endif
-
-c
-      endif
-
-c
-      do i=1,3
-         status = ga_destroy ( g_dens(i) )
-      enddo
-      return
-      end
-      SUBROUTINE HND_COSDER(RTDB,GEOM)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "errquit.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "mafdecls.fh"
-#include "nwc_const.fh"
-      INTEGER  RTDB
-      INTEGER  GEOM
-      LOGICAL  GEOM_CREATE
-      EXTERNAL GEOM_CREATE
-      LOGICAL  GEOM_DESTROY
-      EXTERNAL GEOM_DESTROY
-      LOGICAL  GEOM_EFC_CART_SET
-      EXTERNAL GEOM_EFC_CART_SET
-C
-      PARAMETER   (MXATOM=NW_MAX_ATOM)
-      PARAMETER   (MXEFC =3*7*7*7)
-c     CHARACTER*8  ERRMSG
-      CHARACTER*8  EFCLAB
-      CHARACTER*8 SCFTYP
-      CHARACTER*8 WFNTYP
-      CHARACTER*8 SCF
-      CHARACTER*8 UHF
-      character*4 keyblk,iefd
-      integer init,i_init,need
-      LOGICAL      DBUG
-      LOGICAL      OUT
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_LCAPID/NAP,IAP
-      COMMON/HND_MEMORY/MAXCOR,MAXLCM
-      COMMON/HND_COSMOD/LINEQ,MINBEM,MAXBEM,IFICOS,IFSCRN
-      COMMON/HND_COSDAT/ADIAG,DSURF,DVOL,SRFMOL,VOLMOL 
-      COMMON/HND_COSPAR/DIELEC,SCREEN,RSOLV
-      COMMON/HND_COSNRG/ATMEFC,ELCEFC,EFCEFC,ALLEFC,SOLNRG,CAVDSP
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_BASNUM/NUM
-      COMMON/HND_WFNOPT/WFNTYP
-      COMMON/HND_SCFOPT/SCFTYP
-      COMMON/HND_EFCOPT/IEFC
-      COMMON/HND_EFDOPT/IEFD
-      COMMON/HND_GRAD12/DE(3,MXATOM)
-      DIMENSION X(1)
-      EQUIVALENCE (X(1),DBL_MB(1))
-c     DIMENSION ERRMSG(3)
-      DIMENSION DE1(3,MXATOM)
-c     DATA ERRMSG  /'PROGRAM ','STOP IN ','-COSDER-'/
-      DATA SCF     /'SCF     '/
-      DATA UHF     /'UHF     '/
-      DATA KEYBLK  /'    '/
-      DATA ZERO    /0.0D+00/
-      DATA TWO     /2.0D+00/
-C
-      DBUG=.FALSE.
-      OUT =.TRUE. 
-      OUT =OUT.OR.DBUG
-C
-      DBUG=DBUG.AND.(IAP.EQ.1)
-      OUT =OUT .AND.(IAP.EQ.1)
-C
-      IF(OUT) THEN
-         WRITE(IW,9999)           
-         WRITE(IW,9998) IEFC
-      ENDIF
-C
-C     ----- GET CORE MEMORY -----
-C
-c     CALL HND_CMEM(LOADCM)
-c     LOCX1=LOCCM(X(1))
-c     NGOTMX=MAXCOR-LOCX1
-C
-      I10=1
-      I20=I10+(NUM*(NUM+1))/2
-      I30=I20+(NUM*(NUM+1))/2
-C
-      LAST=I20+1
-      IF(WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF) LAST=I30
-      LAST=LAST-1
-c     IF(LAST.GT.NGOTMX) THEN
-c        NEED=LOCX1+LAST
-c        CALL HND_NEEDCM(LAST,NEED)
-c        CALL HND_HNDERR(3,ERRMSG)
-c     ENDIF
-C
-C     GET MEMORY BLOCK
-C
-      need = last
-      if(.not.ma_push_get(mt_dbl,need,
-     &   'mem init:cosmo:hnd_cosder:1',i_init,init))
-     &    call errquit('hnd_cosder, malloc of init failed',911, MA_ERR)
-      I10=init
-      I20=I10+(NUM*(NUM+1))/2
-      I30=I20+(NUM*(NUM+1))/2
-      IF(WFNTYP.EQ.SCF.AND.SCFTYP.EQ.UHF) LAST=I30
-C
-C     ----- GET DENSITY MATRIX -----
-C
-c--   CALL HND_DENDDM(X(I10),X(I20),NUM)
-C
-C     ----- GET GRADIENT OF FIELD INTERACTION -----
-C
-      IEFD=KEYBLK
-      CALL HND_COSDIN(X(I10))
-C
-C     ----- ATM / EFC -COSMO- GRADIENT TERM -----
-C
-      DO IAT=1,NAT
-         DO I=1,3
-            DE1(I,IAT)=ZERO
-         ENDDO
-      ENDDO
-      ATMEFC=ZERO
-      DO JEF=1,NEFC
-         XJ=EFCC(1,JEF)
-         YJ=EFCC(2,JEF)
-         ZJ=EFCC(3,JEF)
-         QJ=EFCZ(  JEF)
-         JAT=IATEFC(JEF)
-         DO IAT=1,NAT
-            XI=C(1,IAT)
-            YI=C(2,IAT)
-            ZI=C(3,IAT)
-            QI=ZAN(IAT)
-            RIJ =SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-            RIJ2=RIJ*RIJ
-            RIJ3=RIJ*RIJ2
-            QIJ =QI*QJ
-            DUM =QIJ/RIJ3
-            DDXJ= DUM*(XI-XJ)
-            DDYJ= DUM*(YI-YJ)
-            DDZJ= DUM*(ZI-ZJ)
-C
-C     -----  THIS IS THE : z*B*q TERM    -----
-C           MATCHING TERM FROM -NUCDER- ! 
-C
-            DE1(1,JAT)=DE1(1,JAT)+DDXJ
-            DE1(2,JAT)=DE1(2,JAT)+DDYJ
-            DE1(3,JAT)=DE1(3,JAT)+DDZJ
-C
-            ATMEFC=ATMEFC+QIJ/RIJ
-         ENDDO
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,9997) ATMEFC
-         WRITE(IW,9990)
-         DO IAT=1,NAT
-            WRITE(IW,9993) IAT,(DE1(I,IAT),I=1,3)
-         ENDDO
-      ENDIF
-C
-C     ----- ADD TO TOTAL GRADIENT -----
-C
-      DO IAT=1,NAT
-         DO I=1,3
-            DE(I,IAT)=DE(I,IAT)+DE1(I,IAT)
-         ENDDO
-      ENDDO
-C
-C     ----- PRINT CURRENT TOTAL GRADIENT -----
-C
-      IF(OUT) THEN
-         WRITE(IW,9992)
-         DO IAT=1,NAT
-            WRITE(IW,9993) IAT,(DE(I,IAT),I=1,3)
-         ENDDO
-      ENDIF
-C
-C     ----- EFC / EFC -COSMO- GRADIENT TERM -----
-C
-      DO IAT=1,NAT
-         DO I=1,3
-            DE1(I,IAT)=ZERO
-         ENDDO
-      ENDDO
-      EFCEFC=ZERO
-      DO JEF=1,NEFC
-         XJ=EFCC(1,JEF)
-         YJ=EFCC(2,JEF)
-         ZJ=EFCC(3,JEF)
-         QJ=EFCZ(  JEF)
-         JAT=IATEFC(JEF)
-         DO IEF=1,NEFC
-            XI=EFCC(1,IEF)
-            YI=EFCC(2,IEF)
-            ZI=EFCC(3,IEF)
-            QI=EFCZ(  IEF)
-            IAT=IATEFC(IEF)
-            IF(IEF.EQ.JEF) THEN
-               AIJ =ADIAG/SQRT(EFCS(IEF))
-               QIJ =QI*QJ/(TWO*SCREEN)
-               EFCEFC=EFCEFC+QIJ*AIJ
-            ELSE
-               RIJ =SQRT((XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2)
-               RIJ2=RIJ*RIJ
-               RIJ3=RIJ*RIJ2
-               QIJ =QI*QJ/(TWO*SCREEN)
-               DUM =QIJ/RIJ3 
-               DDXJ= DUM*(XI-XJ)
-               DDYJ= DUM*(YI-YJ)
-               DDZJ= DUM*(ZI-ZJ)
-               DDXI=-DDXJ
-               DDYI=-DDYJ
-               DDZI=-DDZJ
-C
-C     -----    1/2 * f *  q * A * q term -----
-C
-               DE1(1,IAT)=DE1(1,IAT)+DDXI
-               DE1(2,IAT)=DE1(2,IAT)+DDYI
-               DE1(3,IAT)=DE1(3,IAT)+DDZI
-               DE1(1,JAT)=DE1(1,JAT)+DDXJ
-               DE1(2,JAT)=DE1(2,JAT)+DDYJ
-               DE1(3,JAT)=DE1(3,JAT)+DDZJ
-C            
-               EFCEFC=EFCEFC+QIJ/RIJ   
-            ENDIF
-         ENDDO
-      ENDDO
-      ECOS=ATMEFC+EFCEFC
-      IF(OUT) THEN
-         WRITE(IW,9997) ATMEFC
-         WRITE(IW,9996) EFCEFC
-         WRITE(IW,9995) ECOS
-         WRITE(IW,9994)
-         DO IAT=1,NAT
-            WRITE(IW,9993) IAT,(DE1(I,IAT),I=1,3)
-         ENDDO
-      ENDIF
-C
-C     ----- ADD TO TOTAL GRADIENT -----
-C
-      DO IAT=1,NAT
-         DO I=1,3
-            DE(I,IAT)=DE(I,IAT)+DE1(I,IAT)
-         ENDDO
-      ENDDO
-C
-C     ----- PRINT CURRENT TOTAL GRADIENT -----
-C
-      IF(OUT) THEN
-         WRITE(IW,9992)
-         DO IAT=1,NAT
-            WRITE(IW,9993) IAT,(DE(I,IAT),I=1,3)
-         ENDDO
-      ENDIF
-C
-C     ----- RESET CORE MEMORY -----
-C
       if(.not.ma_pop_stack(i_init))
-     & call errquit('hnd_cosder, ma_pop_stack of init failed',911,
-     &       MA_ERR)
-c     CALL HND_CMEM(NGOTCM)
-c     IF(NGOTCM.NE.LOADCM) CALL HND_SETC(LOADCM)
-C
-      IF(OUT) THEN
-         WRITE(IW,9991)
-      ENDIF
-C
-      RETURN
- 9999 FORMAT(' -COSDER- ',/,' -------- ')
- 9998 FORMAT(' -IEFC- = ',A4)
- 9997 FORMAT(' -ATMEFC- ENERGY = ',F20.12)
- 9996 FORMAT(' -EFCEFC- ENERGY = ',F20.12)
- 9995 FORMAT(' -ECOS  - ENERGY = ',F20.12)
- 9994 FORMAT(' EFC / EFC -COSMO- GRADIENT CONTRIBUTIONS')
- 9993 FORMAT(I5,3F15.8)
- 9992 FORMAT(' CURRENT TOTAL GRADIENT')
- 9991 FORMAT(' ...... END OF -COSDER- ......')
- 9990 FORMAT(' ATM / EFC -COSMO- GRADIENT CONTRIBUTIONS')
-      END
-      SUBROUTINE HND_COSDIN(DAB)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "global.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "nwc_const.fh"
-C
-#include "hnd_rys.fh"
-#include "hnd_tol.fh"
-C
-      PARAMETER   (MXATOM=NW_MAX_ATOM)
-      PARAMETER   (MXEFC =3*7*7*7)
-      PARAMETER   (MXPRIM=2048)
-      PARAMETER   (MXSHEL=1024)
-      CHARACTER*8 EFCLAB
-      CHARACTER*8 ERRMSG
-      character*4 keyefd,iefd
-      LOGICAL     IANDJ
-      LOGICAL     NORM
-      LOGICAL     DOUBLE
-      LOGICAL     DBUG
-      LOGICAL     OUT
-      LOGICAL     SOME
-      LOGICAL     EFD
-      COMMON/HND_OUTPUT/NPRINT
-      COMMON/HND_IOFILE/IR,IW,IP
-      COMMON/HND_EFCOPT/IEFC
-      COMMON/HND_EFDOPT/IEFD
-      COMMON/HND_EFCPAR/EFCC(3,MXEFC),EFCZ(MXEFC),EFCLAB(MXEFC),NEFC
-      COMMON/HND_EFDPAR/EFDD(3,MXEFC),EFDALF(MXEFC),NEFD
-      COMMON/HND_COSBEM/EFCS(MXEFC),IATEFC(MXEFC)
-      COMMON/HND_NSHEL/EX(MXPRIM),CS(MXPRIM),CP(MXPRIM),
-     1                 CD(MXPRIM),CF(MXPRIM),CG(MXPRIM),
-     2                 KSTART(MXSHEL),KATOM(MXSHEL),KTYPE(MXSHEL),
-     3                 KNG(MXSHEL),KLOC(MXSHEL),KMIN(MXSHEL),
-     4                 KMAX(MXSHEL),NSHELL
-      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
-      COMMON/HND_BASNUM/NUM
-      COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ,
-     1                  NI,NJ
-     1                              ,CX,CY,CZ
-      COMMON/HND_GRAD12/DE(3,MXATOM)
-      COMMON/HND_IJPAIR/IA(1)
-      DIMENSION DAB(*)
-      DIMENSION DE1(3,MXATOM)
-      DIMENSION DE2(3)
-      DIMENSION DE3(3,MXATOM)
-      DIMENSION DE4(3,MXATOM)
-      DIMENSION DE5(3)
-      DIMENSION DIJ(225)
-      DIMENSION IJX(35),IJY(35),IJZ(35)
-      DIMENSION   XV(5,5,5),  YV(5,5,5),  ZV(5,5,5)
-      DIMENSION  DXV(5,5,5), DYV(5,5,5), DZV(5,5,5)
-      DIMENSION DDXV(5,5,5),DDYV(5,5,5),DDZV(5,5,5)
-      DIMENSION W2(5),W4(5)
-      DIMENSION ERRMSG(3)
-      DATA ERRMSG /'PROGRAM ','STOP IN ','-COSDIN-'/
-      DATA RLN10  /2.30258D+00/
-      DATA ZERO   /0.0D+00/
-      DATA ONE    /1.0D+00/
-      DATA TWO    /2.0D+00/
-      DATA FOUR   /4.0D+00/
-      DATA PI212  /1.1283791670955D+00/
-      DATA SQRT3  /1.73205080756888D+00/
-      DATA SQRT5  /2.23606797749979D+00/
-      DATA SQRT7  /2.64575131106459D+00/
-      DATA IJX    / 1, 2, 1, 1, 3, 1, 1, 2, 2, 1,
-     1              4, 1, 1, 3, 3, 2, 1, 2, 1, 2,
-     2              5, 1, 1, 4, 4, 2, 1, 2, 1, 3,
-     3              3, 1, 3, 2, 2/
-      DATA IJY    / 1, 1, 2, 1, 1, 3, 1, 2, 1, 2,
-     1              1, 4, 1, 2, 1, 3, 3, 1, 2, 2,
-     2              1, 5, 1, 2, 1, 4, 4, 1, 2, 3,
-     3              1, 3, 2, 3, 2/
-      DATA IJZ    / 1, 1, 1, 2, 1, 1, 3, 1, 2, 2,
-     1              1, 1, 4, 1, 2, 1, 2, 3, 3, 2,
-     2              1, 1, 5, 1, 2, 1, 2, 4, 4, 1,
-     3              3, 3, 2, 2, 3/
-      DATA KEYEFD /' EFD'/
-C
-C     ----- ELECTRON/EFC CONTRIBUTION TO EFC GRADIENTS -----
-C     ----- ELECTRON/EFD CONTRIBUTION TO EFC GRADIENTS -----
-C
-      DBUG=.FALSE.
-      OUT =.FALSE.
-      OUT =OUT.OR.NPRINT.EQ. 6.OR.DBUG
-      SOME=.FALSE.
-      SOME=SOME.OR.OUT
-      IF(SOME) THEN
-         WRITE(IW,9992)
-      ENDIF
-C
-      TOL=RLN10*ITOL
-      NORM=NORMF.NE.1.OR.NORMP.NE.1
-C
-      DO IAT=1,NAT 
-         DO I=1,3
-            DE1(I,IAT)=ZERO
-         ENDDO
-      ENDDO
-C
-      DO IAT=1,NAT 
-         DO I=1,3
-            DE3(I,IAT)=ZERO
-            DE4(I,IAT)=ZERO
-         ENDDO
-      ENDDO
-C
-      EFD=IEFD.EQ.KEYEFD
-      IF(SOME) THEN
-         WRITE(IW,*) 'EFD = ',EFD
-      ENDIF
-C
-      NDER=1
-      IF(EFD) THEN
-         NDER=2
-      ENDIF
-C
-C     ----- ISHELL -----
-C
-      DO 9000 II=1,NSHELL
-      I=KATOM(II)
-      XI=C(1,I)
-      YI=C(2,I)
-      ZI=C(3,I)
-      I1=KSTART(II)
-      I2=I1+KNG(II)-1
-      LIT=KTYPE(II)
-      MINI=KMIN(II)
-      MAXI=KMAX(II)
-      LOCI=KLOC(II)-MINI
-C
-C     ----- JSHELL -----
-C
-      DO 8000 JJ=1,II
-      J=KATOM(JJ)
-      XJ=C(1,J)
-      YJ=C(2,J)
-      ZJ=C(3,J)
-      J1=KSTART(JJ)
-      J2=J1+KNG(JJ)-1
-      LJT=KTYPE(JJ)
-      MINJ=KMIN(JJ)
-      MAXJ=KMAX(JJ)
-      LOCJ=KLOC(JJ)-MINJ
-C
-      IANDJ=II.EQ.JJ
-      RR=(XI-XJ)**2+(YI-YJ)**2+(ZI-ZJ)**2
-      NROOTS=(LIT+LJT+NDER-2)/2+1
-      IF(NROOTS.GT.MAXRYS) THEN
-         WRITE(IW,9997) MAXRYS,LIT,LJT,NROOTS
-         CALL HND_HNDERR(3,ERRMSG)
-      ENDIF
-C
-C     ----- I PRIMITIVE -----
-C
-      DO 7000 IG=I1,I2
-      AI=EX(IG)
-      ARRI=AI*RR
-      AXI=AI*XI
-      AYI=AI*YI
-      AZI=AI*ZI
-      CSI=CS(IG)
-      CPI=CP(IG)
-      CDI=CD(IG)
-      CFI=CF(IG)
-      CGI=CG(IG)
-C
-C     ----- J PRIMITIVE -----
-C
-      JGMAX=J2
-      IF(IANDJ) JGMAX=IG
-      DO 6000 JG=J1,JGMAX
-      AJ=EX(JG)
-      AA=AI+AJ
-      AA1=ONE/AA
-      DUM=AJ*ARRI*AA1
-      IF(DUM.GT.TOL) GO TO 6000
-      FAC= EXP(-DUM)
-      CSJ=CS(JG)
-      CPJ=CP(JG)
-      CDJ=CD(JG)
-      CFJ=CF(JG)
-      CGJ=CG(JG)
-      AX=(AXI+AJ*XJ)*AA1
-      AY=(AYI+AJ*YJ)*AA1
-      AZ=(AZI+AJ*ZJ)*AA1
-C
-C     ----- DENSITY FACTOR -----
-C
-      DOUBLE=IANDJ.AND.IG.NE.JG
-      IJ=0
-      DO 360 I=MINI,MAXI
-      GO TO (110,120,220,220,130,220,220,140,220,220,
-     1       150,220,220,160,220,220,220,220,220,170,
-     2       180,220,220,190,220,220,220,220,220,200,
-     3       220,220,210,220,220),I
-  110 DUM1=CSI*FAC
-      GO TO 220
-  120 DUM1=CPI*FAC
-      GO TO 220
-  130 DUM1=CDI*FAC
-      GO TO 220
-  140 IF(NORM) DUM1=DUM1*SQRT3
-      GO TO 220
-  150 DUM1=CFI*FAC
-      GO TO 220
-  160 IF(NORM) DUM1=DUM1*SQRT5
-      GO TO 220
-  170 IF(NORM) DUM1=DUM1*SQRT3
-      GO TO 220
-  180 DUM1=CGI*FAC
-      GO TO 220
-  190 IF(NORM) DUM1=DUM1*SQRT7
-      GO TO 220
-  200 IF(NORM) DUM1=DUM1*SQRT5/SQRT3
-      GO TO 220
-  210 IF(NORM) DUM1=DUM1*SQRT3
-  220 CONTINUE
-C
-      JMAX=MAXJ
-      IF(IANDJ) JMAX=I
-      DO 360 J=MINJ,JMAX
-      GO TO (230,250,350,350,260,350,350,270,350,350,
-     1       280,350,350,290,350,350,350,350,350,300,
-     2       310,350,350,320,350,350,350,350,350,330,
-     3       350,350,340,350,350),J
-  230 DUM2=DUM1*CSJ
-      IF(.NOT.DOUBLE) GO TO 350
-      IF(I.GT.1) GO TO 240
-      DUM2=DUM2+DUM2
-      GO TO 350
-  240 DUM2=DUM2+CSI*CPJ*FAC
-      GO TO 350
-  250 DUM2=DUM1*CPJ
-      IF(DOUBLE) DUM2=DUM2+DUM2
-      GO TO 350
-  260 DUM2=DUM1*CDJ
-      IF(DOUBLE) DUM2=DUM2+DUM2
-      GO TO 350
-  270 IF(NORM) DUM2=DUM2*SQRT3
-      GO TO 350
-  280 DUM2=DUM1*CFJ
-      IF(DOUBLE) DUM2=DUM2+DUM2
-      GO TO 350
-  290 IF(NORM) DUM2=DUM2*SQRT5
-      GO TO 350
-  300 IF(NORM) DUM2=DUM2*SQRT3
-      GO TO 350
-  310 DUM2=DUM1*CGJ
-      IF(DOUBLE) DUM2=DUM2+DUM2
-      GO TO 350
-  320 IF(NORM) DUM2=DUM2*SQRT7
-      GO TO 350
-  330 IF(NORM) DUM2=DUM2*SQRT5/SQRT3
-      GO TO 350
-  340 IF(NORM) DUM2=DUM2*SQRT3
-  350 CONTINUE
-C
-      LOCII=LOCI+I
-      LOCJJ=LOCJ+J
-      NN=(LOCII*(LOCII-1))/2+LOCJJ
-      DEN=DAB(NN)
-      IF(.NOT.IANDJ.OR.J.NE.I) DEN=DEN+DEN
-      IJ=IJ+1
-  360 DIJ(IJ)=DUM2*DEN
-C
-C     ----- ELECTRIC FIELD          TERM -----
-C           ELECTRIC FIELD GRADIENT TERM
-C
-      AAX=AA*AX
-      AAY=AA*AY
-      AAZ=AA*AZ
-      DO 500 IEF=1,NEFC
-      ZNUC=-EFCZ(IEF)
-      CX=EFCC(1,IEF)
-      CY=EFCC(2,IEF)
-      CZ=EFCC(3,IEF)
-      XX=AA*((AX-CX)**2+(AY-CY)**2+(AZ-CZ)**2)
-      IF(NROOTS.LE.3) CALL HND_RT123
-      IF(NROOTS.EQ.4) CALL HND_ROOT4
-      IF(NROOTS.EQ.5) CALL HND_ROOT5
-      DO 420 IROOT=1,NROOTS
-CBERT UU=U(IROOT)*AA
-CBERT U2=UU
-CBERT U4=UU*UU
-CBERT WW=W(IROOT)
-      W2(IROOT)=WW*U2*TWO
-      W4(IROOT)=WW*U4*FOUR
-      TT=ONE/(AA+UU)
-      T = SQRT(TT)
-      X0=(AAX+UU*CX)*TT
-      Y0=(AAY+UU*CY)*TT
-      Z0=(AAZ+UU*CZ)*TT
-C
-      DO 410 J=1,LJT
-      NJ=J
-      DO 410 I=1,LIT
-      NI=I
-CBERT CALL HND_DSXYZ
-      XV(I,J,IROOT)=XINT
-      YV(I,J,IROOT)=YINT
-      ZV(I,J,IROOT)=ZINT
-CBERT CALL HND_DVXYZ
-      DXV(I,J,IROOT)=XINT
-      DYV(I,J,IROOT)=YINT
-      DZV(I,J,IROOT)=ZINT
-      IF(EFD) THEN
-CBERT    CALL HND_DDVXYZ
-         DDXV(I,J,IROOT)=XINT
-         DDYV(I,J,IROOT)=YINT
-         DDZV(I,J,IROOT)=ZINT
-      ENDIF
-  410 CONTINUE
-  420 CONTINUE
-C
-      IJ=0
-      DO 450 I=MINI,MAXI
-      IX=IJX(I)
-      IY=IJY(I)
-      IZ=IJZ(I)
-      JMAX=MAXJ
-      IF(IANDJ) JMAX=I
-      DO 440 J=MINJ,JMAX
-      JX=IJX(J)
-      JY=IJY(J)
-      JZ=IJZ(J)
-      DUMX=ZERO
-      DUMY=ZERO
-      DUMZ=ZERO
-      DUMXX=ZERO
-      DUMYX=ZERO
-      DUMZX=ZERO
-      DUMXY=ZERO
-      DUMYY=ZERO
-      DUMZY=ZERO
-      DUMXZ=ZERO
-      DUMYZ=ZERO
-      DUMZZ=ZERO
-      DO 430 IROOT=1,NROOTS
-      DUMX =DUMX +
-     1    DXV(IX,JX,IROOT)*  YV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W2(IROOT)
-      DUMY =DUMY +
-     1     XV(IX,JX,IROOT)* DYV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W2(IROOT)
-      DUMZ =DUMZ +
-     1     XV(IX,JX,IROOT)*  YV(IY,JY,IROOT)* DZV(IZ,JZ,IROOT)*W2(IROOT)
-      IF(EFD) THEN
-         DUM  =
-     1     XV(IX,JX,IROOT)*  YV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W2(IROOT)
-         DUMXX=DUMXX-DUM+
-     1   DDXV(IX,JX,IROOT)*  YV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMYX=DUMYX+
-     1    DXV(IX,JX,IROOT)* DYV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMZX=DUMZX+
-     1    DXV(IX,JX,IROOT)*  YV(IY,JY,IROOT)* DZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMXY=DUMXY+
-     1    DXV(IX,JX,IROOT)* DYV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMYY=DUMYY-DUM+
-     1     XV(IX,JX,IROOT)*DDYV(IY,JY,IROOT)*  ZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMZY=DUMZY+
-     1     XV(IX,JX,IROOT)* DYV(IY,JY,IROOT)* DZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMXZ=DUMXZ+
-     1    DXV(IX,JX,IROOT)*  YV(IY,JY,IROOT)* DZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMYZ=DUMYZ+
-     1     XV(IX,JX,IROOT)* DYV(IY,JY,IROOT)* DZV(IZ,JZ,IROOT)*W4(IROOT)
-         DUMZZ=DUMZZ-DUM+
-     1     XV(IX,JX,IROOT)*  YV(IY,JY,IROOT)*DDZV(IZ,JZ,IROOT)*W4(IROOT)
-      ENDIF
-  430 CONTINUE
-      IJ=IJ+1
-      DUM=PI212*AA1*DIJ(IJ)
-      TEMPX=DUMX*(DUM*ZNUC)
-      TEMPY=DUMY*(DUM*ZNUC)
-      TEMPZ=DUMZ*(DUM*ZNUC)
-      IAT=IATEFC(IEF)
-       DE1(1,IAT)= DE1(1,IAT)+TEMPX
-       DE1(2,IAT)= DE1(2,IAT)+TEMPY
-       DE1(3,IAT)= DE1(3,IAT)+TEMPZ
-       DE3(1,IAT)= DE3(1,IAT)+TEMPX
-       DE3(2,IAT)= DE3(2,IAT)+TEMPY
-       DE3(3,IAT)= DE3(3,IAT)+TEMPZ
-      IF(EFD) THEN
-         TEMPX=     -DUMXX*(DUM*EFDD(1,IEF))
-         TEMPY=     -DUMYX*(DUM*EFDD(1,IEF))
-         TEMPZ=     -DUMZX*(DUM*EFDD(1,IEF))
-         TEMPX=TEMPX-DUMXY*(DUM*EFDD(2,IEF))
-         TEMPY=TEMPY-DUMYY*(DUM*EFDD(2,IEF))
-         TEMPZ=TEMPZ-DUMZY*(DUM*EFDD(2,IEF))
-         TEMPX=TEMPX-DUMXZ*(DUM*EFDD(3,IEF))
-         TEMPY=TEMPY-DUMYZ*(DUM*EFDD(3,IEF))
-         TEMPZ=TEMPZ-DUMZZ*(DUM*EFDD(3,IEF))
-          DE1(1,IAT)= DE1(1,IAT)+TEMPX
-          DE1(2,IAT)= DE1(2,IAT)+TEMPY
-          DE1(3,IAT)= DE1(3,IAT)+TEMPZ
-          DE4(1,IAT)= DE4(1,IAT)+TEMPX
-          DE4(2,IAT)= DE4(2,IAT)+TEMPY
-          DE4(3,IAT)= DE4(3,IAT)+TEMPZ
-      ENDIF
-  440 CONTINUE
-  450 CONTINUE
-C
-  500 CONTINUE
-C
- 6000 CONTINUE
- 7000 CONTINUE
-C
-      IF(DBUG) THEN
-         DO I=1,3
-            DE2(I)=ZERO
-            DE5(I)=ZERO
-            DO IAT=1,NEFC
-               DE2(I)=DE2(I)+DE3(I,IAT)
-               DE5(I)=DE5(I)+DE4(I,IAT)
-            ENDDO
-         ENDDO
-         WRITE(IW,9995) II,JJ
-         WRITE(IW,*)    '-DE3-'
-         DO IAT=1,NAT 
-            WRITE(IW,9994) IAT,DE3(1,IAT),DE3(2,IAT),DE3(3,IAT)
-         ENDDO
-         IF(EFD) THEN
-            WRITE(IW,9995) II,JJ
-            WRITE(IW,*)    '-DE4-'
-            DO IAT=1,NAT 
-               WRITE(IW,9994) IAT,DE4(1,IAT),DE4(2,IAT),DE4(3,IAT)
-            ENDDO
-         ENDIF
-         WRITE(IW,9995) II,JJ
-         WRITE(IW,*) 'TRANSLATIONAL INVARIANCE'
-         WRITE(IW,*) '-X- = ',DE2(1)
-         WRITE(IW,*) '-Y- = ',DE2(2)
-         WRITE(IW,*) '-Z- = ',DE2(3)
-         WRITE(IW,9995) II,JJ
-         DO IAT=1,NAT
-            WRITE(IW,9994) IAT,DE1(1,IAT),DE1(2,IAT),DE1(3,IAT)
-         ENDDO
-      ENDIF
-C
- 8000 CONTINUE
- 9000 CONTINUE
-C
-      IF(OUT) THEN
-         WRITE(IW,*) '-DE3- = ELC / EFC GRADIENT TERM FROM -COSMO-'
-         DO IAT=1,NAT
-            WRITE(IW,9994) IAT,DE3(1,IAT),DE3(2,IAT),DE3(3,IAT)
-         ENDDO
-         IF(EFD) THEN
-            WRITE(IW,*) '-DE4- = ELC / EFD GRADIENT TERM FROM -COSMO-'
-            DO IAT=1,NAT 
-               WRITE(IW,9994) IAT,DE4(1,IAT),DE4(2,IAT),DE4(3,IAT)
-            ENDDO
-         ENDIF
-         IF(EFD) THEN
-            WRITE(IW,*) '-DE3- + -DE4- = '
-            DO IAT=1,NAT
-               WRITE(IW,9994) IAT,DE1(1,IAT),DE1(2,IAT),DE1(3,IAT)
-            ENDDO
-         ENDIF
-      ENDIF
-C
-C     ----- ADD TO FINAL GRADIENT -----
-C
-      DO IAT=1,NAT
-         DO I=1,3
-            DE(I,IAT)=DE(I,IAT)+DE1(I,IAT)
-         ENDDO
-      ENDDO
-      IF(OUT) THEN
-         WRITE(IW,*) 'TOTAL CURRENT GRADIENT'
-         DO IAT=1,NAT
-            WRITE(IW,9994) IAT,DE(1,IAT),DE(2,IAT),DE(3,IAT)
-         ENDDO
-      ENDIF
-C
-      RETURN
- 9997 FORMAT(' IN -COSDIN- , THE RYS QUADRATURE IS NOT IMPLEMENTED',
-     1       ' BEYOND -NROOTS- = ',I3,/,
-     2       ' LIT,LJT,NROOTS= ',3I3)
- 9996 FORMAT(' II,JJ,IG,JG,IEF,I,J= ',7I3,/,4F15.8)
- 9995 FORMAT(' SHELLS II,JJ = ',2I5)
- 9994 FORMAT(I5,3F15.8)
- 9993 FORMAT(3F15.8,/,3F15.8)
- 9992 FORMAT(' COSDIN',/,' ------')
- 9987 FORMAT(' I,J,DUMX ,DUMY ,DUMZ = ',2I3,3F15.8)
- 9986 FORMAT(' I,J,DUMXX,DUMXY,DUMXZ= ',2I3,3F15.8)
- 9985 FORMAT(' I,J,DUMYX,DUMYY,DUMYZ= ',2I3,3F15.8)
- 9984 FORMAT(' I,J,DUMZX,DUMZY,DUMZZ= ',2I3,3F15.8)
-      END
+     & call errquit('hnd_coschg, ma_pop_stack of init failed',911)
+c
+      return
+ 9999 format(/,10x,15(1h-),
+     1       /,10x,'-cosmo- charges',
+     2       /,10x,15(1h-))
+ 9998 format(4x,'iefc',6x,'x',5x,6x,'y',5x,6x,'z',5x,5x,'q',4x,
+     1     /,1x,53(1h-))
+ 9997 format(1x,i7,3f12.6,f10.6)
+ 9995 format(' -efcefc- energy = ',f20.12)
+ 9994 format(' -ecos  - energy = ',f20.12)
+ 9993 format(' ...... end of -coschg- ......')
+ 9992 format(' cosmo potential at -ief = ',i6,f16.10)
+ 9991 format(' -atmefc- energy = ',f20.12)
+ 9990 format(' -elcefc- energy = ',f20.12)
+ 9989 format(' -allefc- energy = ',f20.12,f20.12)
+ 9988 format(' -solnrg- energy = ',f20.12)
+ 9987 format(' -cosmo- charges convergence = ',f10.6)
+ 9986 format(' -wfntyp- = ',a8)
+ 9985 format(' -scftyp- = ',a8)
+ 9984 format(' applied screening factor -chgfac- = ',f10.6)
+      end
+c
+      subroutine hnd_cosaxd(a,x,ax,n,efcc,efcs)
+      implicit real*8 (a-h,o-z)
+      parameter (zero=0.0d+00, one=1.0d+00)
+      dimension efcc(3,n), efcs(n)
+      dimension a(n),x(n),ax(n)
+c
+      b(i,j)=one/sqrt((efcc(1,i)-efcc(1,j))**2+
+     1                (efcc(2,i)-efcc(2,j))**2+
+     2                (efcc(3,i)-efcc(3,j))**2)
+      d(i  )=adiag/sqrt(efcs(i))
+c
+      do i=1,n
+         dum=zero
+         do j=1,n
+            if(j.eq.i) then
+               aij=d(i)
+            else
+               aij=b(i,j)
+            endif
+             xj=x(j)
+            dum=dum+aij*xj
+         enddo
+         ax(i)=dum
+      enddo
+c
+      return
+      end
+c
+      subroutine hnd_cosxad(a,x,xa,n,efcc,efcs)
+      implicit real*8 (a-h,o-z)
+      parameter (zero=0.0d+00, one=1.0d+00)
+      dimension efcc(3,n), efcs(n)
+      dimension a(n),x(n),xa(n)
+c
+      b(i,j)=one/sqrt((efcc(1,i)-efcc(1,j))**2+
+     1                (efcc(2,i)-efcc(2,j))**2+
+     2                (efcc(3,i)-efcc(3,j))**2)
+      d(i  )=adiag/sqrt(efcs(i))
+c
+      do i=1,n
+         dum=zero
+         do j=1,n
+            if(j.eq.i) then
+               aij=d(i)
+            else
+               aij=b(i,j)
+            endif
+             xj=x(j)
+            dum=dum+aij*xj
+         enddo
+         xa(i)=dum
+      enddo
+c
+      return
+      end
+c
+      subroutine hnd_cosequ(b,x,a,n,g,h,xi,xj,efcc,efcs)
+      implicit real*8 (a-h,o-z)
+c
+c     ----- solve a * x = b , using an iterative procedure       -----
+c
+c     ----- numerical recipes (p.70), cambridge university press -----
+c          w.h.press, b.p.flannery, s.a.teukolsky, w.t.vetterling
+c
+      logical     dbug
+      double precision efcc(3,n),efcs(n)
+      dimension   a(n),x(n),b(n)
+      dimension   g(n),h(n),xi(n),xj(n)
+      data zero   /0.0d+00/
+      data eps    /1.0d-07/
+c
+      dbug=.false.
+      if(dbug) then
+         write(luout,*) 'in -cosequ-'
+         do i=1,n
+            write(luout,9999) i,b(i)
+         enddo
+      endif
+c
+      eps2=n*eps*eps
+      irst=0
+   10 irst=irst+1
+      call hnd_cosaxd(a,x,xi,n,efcc,efcs)
+      rp=zero
+      bsq=zero
+      do 11 j=1,n
+         bsq=bsq+b(j)*b(j)
+         xi(j)=xi(j)-b(j)
+         rp=rp+xi(j)*xi(j)
+   11 continue
+      call hnd_cosxad(a,xi,g,n,efcc,efcs)
+      do 12 j=1,n
+      g(j)=-g(j)
+      h(j)= g(j)
+   12 continue
+      do 19 iter=1,10*n
+         call hnd_cosaxd(a,h,xi,n,efcc,efcs)
+         anum=zero
+         aden=zero
+         do 13 j=1,n
+            anum=anum+g(j)*h(j)
+            aden=aden+xi(j)*xi(j)
+   13    continue
+         if(aden.eq.zero) then
+            write(luout,*) 'very singular matrix'
+            call errquit('hnd_cosequ: singular matrix',911)
+         endif
+         anum=anum/aden
+         do 14 j=1,n
+            xi(j)=x(j)
+            x(j)=x(j)+anum*h(j)
+   14    continue
+         call hnd_cosaxd(a,x,xj,n,efcc,efcs)
+         rsq=zero
+         do 15 j=1,n
+            xj(j)=xj(j)-b(j)
+            rsq=rsq+xj(j)*xj(j)
+   15    continue
+         if(rsq.eq.rp.or.rsq.le.bsq*eps2) return
+         if(rsq.gt.rp) then
+            do 16 j=1,n
+               x(j)=xi(j)
+   16       continue
+            if(irst.ge.3) return
+            go to 10
+         endif
+         rp=rsq
+         call hnd_cosxad(a,xj,xi,n,efcc,efcs)
+         gg=zero
+         dgg=zero
+         do 17 j=1,n
+            gg=gg+g(j)*g(j)
+            dgg=dgg+(xi(j)+g(j))*xi(j)
+   17    continue
+         if(gg.eq.zero) return
+         gam=dgg/gg
+         do 18 j=1,n
+            g(j)=-xi(j)
+            h(j)=g(j)+gam*h(j)
+   18    continue
+   19 continue
+      write(luout,*) 'too many iterations'
+      call errquit('hnd_cosequ: too many iters',911)
+      return
+ 9999 format(i8,f16.8)
+      end
+c
+      subroutine hnd_linequ(a,lda,b,n,ib,t,deta,ierr,nodcmp)
+      implicit real*8 (a-h,o-z)
+      dimension a(lda,1),b(n),ib(n),t(n)
+c
+c     ----- solve a * x = b , with x returned in b -----
+c
+      if(nodcmp.ne.1) go to 20
+c
+      call hnd_ludcmp(a,lda,n,ib,t,deta,ierr)
+      do 10 j=1,n
+   10 deta=deta*a(j,j)
+c
+   20 continue
+      call hnd_lubksb(a,lda,n,ib,b)
+c
+      return
+      end
+c
+      subroutine hnd_lubksb(a,lda,n,ib,b)
+      implicit real*8 (a-h,o-z)
+c
+      dimension a(lda,1),ib(n),b(n)
+      data zero /0.0d+00/
+c
+      ii=0
+      do 12 i=1,n
+         ll=ib(i)
+         sum=b(ll)
+         b(ll)=b(i)
+         if(ii.ne.0) then
+            do 11 j=ii,i-1
+               sum=sum-a(i,j)*b(j)
+   11       continue
+         else if (sum.ne.zero) then
+            ii=i
+         endif
+         b(i)=sum
+   12 continue
+      do 14 i=n,1,-1
+         sum=b(i)
+         if(i.lt.n) then
+            do 13 j=i+1,n
+               sum=sum-a(i,j)*b(j)
+   13       continue
+         endif
+         b(i)=sum/a(i,i)
+   14 continue
+      return
+      end
+c
+      subroutine hnd_ludcmp(a,lda,n,ib,vv,d,ierr)
+      implicit real*8 (a-h,o-z)
+c
+      dimension a(lda,1),ib(n),vv(n)
+      data tiny     /1.0d-20/
+      data zero,one /0.0d+00,1.0d+00/
+c
+      ierr=0
+      d=one
+      do 12 i=1,n
+         aamax=zero
+         do 11 j=1,n
+            if( abs(a(i,j)).gt.aamax) aamax= abs(a(i,j))
+   11    continue
+         if(aamax.eq.zero) then
+            ierr=1
+            return
+         endif
+         vv(i)=one/aamax
+   12 continue
+      do 19 j=1,n
+         if(j.gt.1) then
+            do 14 i=1,j-1
+               sum=a(i,j)
+               if(i.gt.1) then
+                  do 13 k=1,i-1
+                     sum=sum-a(i,k)*a(k,j)
+   13             continue
+                  a(i,j)=sum
+               endif
+   14       continue
+         endif
+         aamax=zero
+         do 16 i=j,n
+            sum=a(i,j)
+            if(j.gt.1) then
+               do 15 k=1,j-1
+                  sum=sum-a(i,k)*a(k,j)
+   15          continue
+               a(i,j)=sum
+            endif
+            dum=vv(i)* abs(sum)
+            if(dum.ge.aamax) then
+               imax=i
+               aamax=dum
+            endif
+   16    continue
+         if(j.ne.imax) then
+            do 17 k=1,n
+               dum=a(imax,k)
+               a(imax,k)=a(j,k)
+               a(j,k)=dum
+   17       continue
+            d=-d
+            vv(imax)=vv(j)
+         endif
+         ib(j)=imax
+         if(j.ne.n) then
+            if(a(j,j).eq.zero) a(j,j)=tiny
+            dum=one/a(j,j)
+            do 18 i=j+1,n
+               a(i,j)=a(i,j)*dum
+   18       continue
+         endif
+   19 continue
+      if(a(n,n).eq.zero) a(n,n)=tiny
+      return
+      end

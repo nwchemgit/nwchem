@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.1 2004-07-21 17:28:27 bert Exp $
+c $Id: hnd_giaox.F,v 1.2 2004-07-22 19:37:23 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -24,7 +24,7 @@ c
       integer l_xyz, k_xyz, l_zan, k_zan
       integer l_tmp, k_tmp
       integer g_dens(3), g_s10, g_h01, g_h11, g_d1, g_rhs, g_fock, g_u
-      integer vectors(2), geomnew, g_tmp, i
+      integer vectors(2), geomnew, g_tmp, i, j, ij
       double precision atn, qnuc, tol2e, val, isotr, aniso
       double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3)
       character*8 scftyp
@@ -607,7 +607,13 @@ c
             a(4) = dbl_mb(k_para+ioff+2)
             a(5) = dbl_mb(k_para+ioff+5)
             a(6) = dbl_mb(k_para+ioff+8)
-            call hnd_diag(a,axs,eig,3,.false.,.true.)
+            do 241 i = 1, 3
+            do 241 j = 1, i
+               ij = ij + 1
+               axs(i,j) = a(ij)
+               axs(j,i) = a(ij)
+  241       continue
+            call hnd_diag(axs,eig,3,.true.,.false.)
             isotr =(eig(1) + eig(2) + eig(3))/3.0d0
             aniso = eig(1) -(eig(2) + eig(3))/2.0d0
             write(luout,9987) isotr,aniso

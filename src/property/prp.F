@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.57 2004-07-21 17:28:28 bert Exp $
+* $Id: prp.F,v 1.58 2004-07-22 19:37:24 bert Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -41,13 +41,13 @@
       data iblk    /'   '/
       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
-     2     nogiao,noiglo,noston
+     2     nogiao,noston
 c    3    /  0,    1,    1,    0,    1,    1,    1,    1,    1,
 c    4       1,    1,    1,    1,    1,    1,    1,    1,
-c    5       1,    1,    1/
+c    5       1,    1/
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      4       1,    1,    1,    1,    1,    1,    1,    1, 
-     5       1,    1,    1/
+     5       1,    1/
 c
       out   =.false.
       some  =.true.        
@@ -65,7 +65,6 @@ c
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)   !done
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
-      status=rtdb_get(rtdb,'prop:iglo',MT_INT,1,noiglo)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
 c
       nefc  =0
@@ -79,7 +78,7 @@ c
       if(some) write(luout,9999) nodip,noqdp,nootp,nopop,nospin,noloc,
      1                        nodpl,nodhp,nod2hp,nofpl,nofhp,nof2hp,
      2                        nosos,noelp,noelf,noelfg,noden,nogiao,
-     3                        noiglo,noston
+     3                        noston
       if(out ) write(luout,9998) runtyp,scftyp
 c
 c     ----- dipole moment -----
@@ -170,11 +169,6 @@ c     ----- giao -nmr- chemical shifts -----
 c
       if(nogiao.eq.0) call hnd_giaox(rtdb,basis,geom)
 c
-c     ----- iglo -nmr- chemical shifts -----
-c
-      noiglo=1
-!     if(noiglo.eq.0) call hnd_iglox(rtdb,basis,geom)
-c
 c     ----- stone's distributed multipole analysis -----
 c
       noston=1
@@ -193,6 +187,6 @@ c
      3 ' noloc =',I2,' nodpl =',I2,/,' nodhp =',I2,' nod2hp=',I2,
      4 ' nofpl =',I2,' nofhp =',I2,' nof2hp=',I2,' nosos =',I2,
      5 ' noelp =',I2,/,' noelf =',I2,' noelfg=',I2,' noden =',I2,
-     6 ' nogiao=',I2,' noiglo=',i2,' noston=',I2)
+     6 ' nogiao=',I2,' noston=',I2)
  9998 format(' runtyp = --',A8,'--',/,' scftyp = --',A8,'--')
       end
