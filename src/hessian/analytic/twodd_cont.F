@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.22 2001-06-28 05:33:02 windus Exp $
+C $Id: twodd_cont.F,v 1.23 2001-06-28 21:14:29 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -190,7 +190,7 @@ c
         call ga_print(g_dens(i))
         write(luout,*) 'jfac, kfac, dens ',jfac(i),kfac(i),i
       enddo
-      call shell_fock_build (geom, basis, 1, ndens, n3xyz, jfac, kfac,
+      call shell_fock_build (basis, 1, ndens, ndens*n3xyz, jfac, kfac,
      *   tol2e, g_dens, g_rhs, log_mb(k_act))
       if (otwoprint) then
          if(ga_nodeid().eq.0) then

@@ -1,14 +1,14 @@
 c
-c $Id: shell_fock_build.F,v 1.8 2001-06-28 05:20:20 windus Exp $
+c $Id: shell_fock_build.F,v 1.9 2001-06-28 21:14:29 windus Exp $
 c
-      subroutine shell_fock_build(geom, basis, nder, ndens, nfock, 
+      subroutine shell_fock_build(basis, nder, ndens, nfock, 
      $     jfac, kfac, tol2e, g_dens, g_fock, oactive)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
-      integer geom, basis, nder, ndens, nfock 
-      integer g_dens(ndens), g_fock(ndens,nfock)
+      integer basis, nder, ndens, nfock 
+      integer g_dens(ndens), g_fock(nfock)
       double precision jfac(*), kfac(*), tol2e
       logical oactive(*)        ! [input] T if atom is active
 c
@@ -22,7 +22,6 @@ c
       integer l_shbflo, l_shbfhi, l_eri, l_scr
       integer k_shbflo, k_shbfhi, k_eri, k_scr
       integer i, j, iat
-      integer ld(3),ilo(4),ihi(4),g_tfock,l_fock,k_fock
 c
       integer 
      $     k_d_ij,  k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
@@ -65,7 +64,7 @@ c
       if (.not. ma_push_get(mt_dbl, lend, 'd_jl', l_d_jl, k_d_jl)) 
      $     call errquit('new_fock: d_jl', lend)
 c
-      lend = lend*nfock
+      lend = blen*blen*nfock
       if (.not. ma_push_get(mt_dbl, lend, 'f_ij', l_f_ij, k_f_ij)) 
      $     call errquit('new_fock: f_ij', lend)
       if (.not. ma_push_get(mt_dbl, lend, 'f_kl', l_f_kl, k_f_kl)) 
@@ -129,14 +128,14 @@ c
       do j = 1, ndens
          call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
-        do i = 1, nfock
-          call ga_reorder(g_fock(j,i), .true., int_mb(k_rbfmap),
+      enddo
+      do i = 1, nfock
+          call ga_reorder(g_fock(i), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
-        enddo
-      end do
+      enddo
 c
       call newfock(
-     $     basis, geom, nder, ndens, nfock,
+     $     basis, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     dbl_mb(k_d_ij), dbl_mb(k_d_kl), dbl_mb(k_d_ik),  
      $     dbl_mb(k_d_jl), dbl_mb(k_d_il), dbl_mb(k_d_jk), 
@@ -155,12 +154,12 @@ c
       do j = 1, ndens
          call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
-         do i = 1, nfock
-           call ga_reorder(g_fock(j,i), .true., int_mb(k_bfmap),
+      enddo
+      do i = 1, nfock
+         call ga_reorder(g_fock(i), .true., int_mb(k_bfmap),
      $        .true., int_mb(k_bfmap))
-           call ga_symmetrize(g_fock(j,i))
-         enddo
-      end do
+         call ga_symmetrize(g_fock(i))
+      enddo
 c
 c  Clean up memory allocated in this routine
 c
@@ -170,7 +169,7 @@ c
       end
 c
       subroutine newfock(
-     $     basis, geom, nder, ndens, nfock,
+     $     basis, nder, ndens, nfock,
      $     g_dens, g_fock,
      $     d_ij,  d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $     f_ij,  f_kl,  f_ik,  f_jl,  f_il,  f_jk, 
@@ -187,7 +186,7 @@ c
 #include "util.fh"
 #include "bas.fh"
 c
-      integer basis, geom       ! [input] familiar handles
+      integer basis             ! [input] familiar handles
       integer nder              ! [input] No. of derivatives (0 = energy)
       integer ndens             ! [input] No. of density matrices (for UHF)
       integer nfock             ! [input] No. of fock matrices
@@ -198,9 +197,9 @@ c
      $     d_ik(blen,blen,ndens),  d_jl(blen,blen,ndens),  
      $     d_il(blen,blen,ndens),  d_jk(blen,blen,ndens)
       double precision          ! [scratch] 6 blocks per possible fock
-     $     f_ij(blen,blen,ndens,nfock),  f_kl(blen,blen,ndens,nfock),  
-     $     f_ik(blen,blen,ndens,nfock),  f_jl(blen,blen,ndens,nfock),  
-     $     f_il(blen,blen,ndens,nfock),  f_jk(blen,blen,ndens,nfock)
+     $     f_ij(blen,blen,nfock),  f_kl(blen,blen,nfock),  
+     $     f_ik(blen,blen,nfock),  f_jl(blen,blen,nfock),  
+     $     f_il(blen,blen,nfock),  f_jk(blen,blen,nfock)
 c     
       integer lscr              ! [input] Size of scratch for integrals
       double precision scr(lscr) ![scratch] Scratch space for integrals
@@ -323,12 +322,12 @@ c
                      if (.not. ma_verify_allocator_stuff())
      $                    call errquit(' ',0)
 c
-                     call dfill(ndens*nfock*blen*blen, 0d0, f_ij, 1)
-                     call dfill(ndens*nfock*blen*blen, 0d0, f_kl, 1)
-                     call dfill(ndens*nfock*blen*blen, 0d0, f_ik, 1)
-                     call dfill(ndens*nfock*blen*blen, 0d0, f_jl, 1)
-                     call dfill(ndens*nfock*blen*blen, 0d0, f_il, 1)
-                     call dfill(ndens*nfock*blen*blen, 0d0, f_jk, 1)
+                     call dfill(nfock*blen*blen, 0d0, f_ij, 1)
+                     call dfill(nfock*blen*blen, 0d0, f_kl, 1)
+                     call dfill(nfock*blen*blen, 0d0, f_ik, 1)
+                     call dfill(nfock*blen*blen, 0d0, f_jl, 1)
+                     call dfill(nfock*blen*blen, 0d0, f_il, 1)
+                     call dfill(nfock*blen*blen, 0d0, f_jk, 1)
                      if (.not. ma_verify_allocator_stuff())
      $                    call errquit(' ',0)
 c     
@@ -465,7 +464,7 @@ c
      $                    eri,tol2e,
      $                    d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $                    ndens, nfock, blen, rbfmap, bftoat,
+     $                    ndens, nfock/ndens, blen, rbfmap, bftoat,
      $                    ibflo, jbflo, kbflo, lbflo)
 c                                      
                         endif
@@ -476,29 +475,29 @@ c
 
                      if (omore) goto 10
 c                                      
-                     call new_acc_fock_block(g_fock, ndens, nfock, 
+                     call new_acc_fock_block(g_fock, nfock, 
      $                 blen, ibflo, ibfhi, jbflo, jbfhi, f_ij)
-                     write(6,*) 'alpha fock'
-                     do id = 1, 1+ ibfhi -ibflo
-                       do jd = 1, 1+ jbfhi -jbflo
-                         write(6,*) id,jd,f_ij(id,jd,1,1)
-                       enddo
-                     enddo
-                     write(6,*) 'beta fock'
-                     do id = 1, 1+ ibfhi -ibflo
-                       do jd = 1, 1+ jbfhi -jbflo
-                         write(6,*) id,jd,f_ij(id,jd,2,1)
-                       enddo
-                     enddo
-                     call new_acc_fock_block(g_fock, ndens, nfock, 
+c                    write(6,*) 'alpha fock'
+c                    do id = 1, 1+ ibfhi -ibflo
+c                      do jd = 1, 1+ jbfhi -jbflo
+c                        write(6,*) id,jd,f_ij(id,jd,1,1)
+c                      enddo
+c                    enddo
+c                    write(6,*) 'beta fock'
+c                    do id = 1, 1+ ibfhi -ibflo
+c                      do jd = 1, 1+ jbfhi -jbflo
+c                        write(6,*) id,jd,f_ij(id,jd,2,1)
+c                      enddo
+c                    enddo
+                     call new_acc_fock_block(g_fock, nfock, 
      $                 blen, kbflo, kbfhi, lbflo, lbfhi, f_kl)
-                     call new_acc_fock_block(g_fock, ndens, nfock, 
+                     call new_acc_fock_block(g_fock, nfock, 
      $                 blen, ibflo, ibfhi, kbflo, kbfhi, f_ik)
-                     call new_acc_fock_block(g_fock, ndens, nfock, 
+                     call new_acc_fock_block(g_fock, nfock, 
      $                 blen, jbflo, jbfhi, lbflo, lbfhi, f_jl)
-                     call new_acc_fock_block(g_fock, ndens, nfock, 
+                     call new_acc_fock_block(g_fock, nfock, 
      $                 blen, ibflo, ibfhi, lbflo, lbfhi, f_il)
-                     call new_acc_fock_block(g_fock, ndens, nfock, 
+                     call new_acc_fock_block(g_fock, nfock, 
      $                 blen, jbflo, jbfhi, kbflo, kbfhi, f_jk)
 c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0)
@@ -545,30 +544,29 @@ c
 c
       end
       subroutine new_acc_fock_block(
-     $   g_fock, ndens, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
+     $   g_fock, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
       implicit none
-      integer ndens, nfock, g_fock(ndens,nfock), blen 
+      integer nfock, g_fock(nfock), blen 
       integer ibflo, ibfhi, jbflo, jbfhi
       double precision buf(*)
 c
-      integer i, j, blen2, index
+      integer i, blen2, index
 c
       blen2 = blen * blen
       index = 1
-      do i = 1, ndens
-      do j = 1, nfock
-        call ga_acc(g_fock(i,j),ibflo,ibfhi,jbflo,jbfhi,buf(index),
+      do i = 1, nfock
+        call ga_acc(g_fock(i),ibflo,ibfhi,jbflo,jbfhi,buf(index),
      $              blen,1d0)
         index = index + blen2
       enddo
-      enddo
 c
       end
-C NEED TO FIX FOR ORDER blen,blen,nfock
+C
       subroutine new_fock_doit(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
-     $     ndens, nfock, blen, rbfmap, ibflo, jbflo, kbflo, lbflo)
+     $     ndens, nfock, blen, rbfmap,
+     $     ibflo, jbflo, kbflo, lbflo)
       implicit none
 c
       integer ndens, nfock, blen
@@ -578,18 +576,25 @@ c
       double precision eri(*)
       double precision tol2e
       double precision
-     $     d_ij(nfock,blen,blen), d_kl(nfock,blen,blen), 
-     $     d_ik(nfock,blen,blen), d_jl(nfock,blen,blen), 
-     $     d_il(nfock,blen,blen), d_jk(nfock,blen,blen)
+     $     d_ij(blen,blen,ndens), d_kl(blen,blen,ndens), 
+     $     d_ik(blen,blen,ndens), d_jl(blen,blen,ndens), 
+     $     d_il(blen,blen,ndens), d_jk(blen,blen,ndens)
       double precision
-     $     f_ij(1,nfock,blen,blen), f_kl(1,nfock,blen,blen), 
-     $     f_ik(1,nfock,blen,blen), f_jl(1,nfock,blen,blen), 
-     $     f_il(1,nfock,blen,blen), f_jk(1,nfock,blen,blen)
+     $     f_ij(blen,blen,nfock), f_kl(blen,blen,nfock), 
+     $     f_ik(blen,blen,nfock), f_jl(blen,blen,nfock), 
+     $     f_il(blen,blen,nfock), f_jk(blen,blen,nfock)
       integer rbfmap(*)
       integer ibflo, jbflo, kbflo, lbflo
 c
-      integer integ, i, j, k, l, v
+      integer integ, i, j, k, l, nf
       double precision g
+c
+c  There is an assumption that the number of fock matrices is the same
+c  as the number of density matrices.  If this is not true, we bomb for
+c  now.  If there is a situation where should be different, ...
+c
+      if (nfock.ne.ndens) call errquit(
+     $  'new_fock_doit: nfock not equal to ndens',555)
 c
       do integ = 1, nint
          g = eri(integ)
@@ -602,19 +607,18 @@ c
             j = rbfmap(j) - jbflo + 1
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
-            do v = 1, nfock
-               f_ij(1,v,i,j) = f_ij(1,v,i,j) + g*d_kl(v,k,l)
-               f_kl(1,v,k,l) = f_kl(1,v,k,l) + g*d_ij(v,i,j)
-               f_ik(1,v,i,k) = f_ik(1,v,i,k) + g*d_jl(v,j,l)
-               f_il(1,v,i,l) = f_il(1,v,i,l) + g*d_jk(v,j,k)
-               f_jl(1,v,j,l) = f_jl(1,v,j,l) + g*d_ik(v,i,k)
-               f_jk(1,v,j,k) = f_jk(1,v,j,k) + g*d_il(v,i,l)
+            do nf = 1, nfock
+               f_ij(i,j,nf)=f_ij(i,j,nf)+4.0d+00*g*d_kl(k,l,nf)
+               f_kl(k,l,nf)=f_kl(k,l,nf)+4.0d+00*g*d_ij(i,j,nf)
+               f_ik(i,k,nf)=f_ik(i,k,nf)-g*d_jl(j,l,nf)
+               f_il(i,l,nf)=f_il(i,l,nf)-g*d_jk(j,k,nf)
+               f_jl(j,l,nf)=f_jl(j,l,nf)-g*d_ik(i,k,nf)
+               f_jk(j,k,nf)=f_jk(j,k,nf)-g*d_il(i,l,nf)
             end do
          end if
       end do
 c
       end
-c
       subroutine new_fock_doit_der(nint,labels,leri,eri,tol2e,
      $     d_ij, d_kl, d_ik, d_jl, d_il, d_jk, 
      $     f_ij, f_kl, f_ik, f_jl, f_il, f_jk, 
@@ -645,6 +649,8 @@ c
       integer atoms(4),nfockder,xyz
       double precision g
 c
+      write(6,*) 'inside new_fock_doit_der'
+      write(6,*) 'ndens, nfock ',ndens,nfock
       nbuf = 1
       do integ = 1, nint
 c        if (abs(g) .gt. tol2e) then
@@ -652,24 +658,24 @@ c        if (abs(g) .gt. tol2e) then
             j = labels(integ,2)
             k = labels(integ,3)
             l = labels(integ,4)
-c     write(6,*) ' b ' ,i,j,k,l
+      write(6,*) ' b ' ,i,j,k,l
             atoms(1) = bftoat(i)
             atoms(2) = bftoat(j)
             atoms(3) = bftoat(k)
             atoms(4) = bftoat(l)
-c     write(6,*) ' a ' ,atoms
+      write(6,*) ' a ' ,atoms
             i = rbfmap(i) - ibflo + 1
             j = rbfmap(j) - jbflo + 1
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
-c     write(6,*) ' c ', i,j,k,l
+      write(6,*) ' c ', i,j,k,l
             do iiat = 1, 4
               iat = atoms(iiat)
               nfockder = (iat-1)*3 + 1
               do xyz = nfockder, nfockder+2
-c     write(6,*) 'contributing to fockder ',xyz
+      write(6,*) 'contributing to fockder ',xyz
               g = eri(nbuf)
-c     write(6,*) 'integral is ',g, nbuf
+         write(6,*) 'integral is ',g, nbuf
               do v = 1, ndens
 c     write(6,*) 'densities are kl, ij, jl, jk, ik, il,i,j,k,l ',
 c    *  i,j,k,l,

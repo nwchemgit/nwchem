@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.23 2001-06-21 19:09:10 zzhang Exp $
+C $Id: hess_cphf.F,v 1.24 2001-06-28 21:14:29 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -45,7 +45,6 @@ c
       oprint = util_print('hess_follow',print_high)
       oprint = oprint .and. (ga_nodeid().eq.0)
       ocphfprint = util_print('cphf_cont',print_debug)
-!      ocphfprint = ocphfprint .and. (ga_nodeid().eq.0)
       if (oprint) write(LuOut,*) 'HESS: setting up cphf'
 c
 c     ----- get nocc -----
@@ -111,8 +110,8 @@ c
      $        ('hess_cphf: could not read beta UHF MOs',0)
       end if
 c
-c print out some debug info, note that occ and evals are for the
-c beta orbitals if UHF
+c print out some debug info, note that occ is for the
+c beta orbitals if UHF and the evals are for the alpha orbitals
 c
       if (ocphfprint) then
          if(ga_nodeid().eq.0) then
@@ -144,7 +143,7 @@ c
         ind = ind + 1
         if (ocphfprint) then
           if(ga_nodeid().eq.0) 
-     .          write(LuOut,*) 'RHS before MO transformation', ind
+     $          write(LuOut,*) 'RHS before MO transformation', ind
           call ga_print(g_rhs(ind))
         endif
         call ga_zero(g_modx)
@@ -159,13 +158,13 @@ c
 c
         if (ocphfprint) then
           if(ga_nodeid().eq.0)  write(LuOut,*) 
-     .          'Transformed RHS before symmetrization',ind
+     $          'Transformed RHS before symmetrization',ind
           call ga_print(g_rhs(ind))
         endif
         call ga_symmetrize(g_rhs(ind))
         if (ocphfprint) then
           if(ga_nodeid().eq.0) write(LuOut,*) 
-     .          'Transformed RHS after symmetrization',ind
+     $          'Transformed RHS after symmetrization',ind
           call ga_print(g_rhs(ind))
         endif
 c
