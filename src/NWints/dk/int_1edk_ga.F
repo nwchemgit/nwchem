@@ -1,5 +1,5 @@
       subroutine int_1edk_ga(basis_in, g_in, type, kskel)
-c $Id: int_1edk_ga.F,v 1.15 1999-12-08 01:18:34 bert Exp $
+c $Id: int_1edk_ga.F,v 1.16 1999-12-08 17:54:27 bert Exp $
       implicit none
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -71,8 +71,8 @@ c
 c     dk_clight = 137.0360000d0         ! Speed of light by Bernd Hess
       c2 = dk_clight * dk_clight
 c
-c     At this point we set oskel to false. Having symmetry and oskel is true 
-c     lead to NWChem hanging, no progress and no crash!
+c     At this point we set oskel to false. We cannot use oskel because of the
+c     transformations we have to do with the full integral matrices.
 c
       oskel = .false.
 c
