@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.28 2000-09-15 22:50:58 d3j191 Exp $
+c $Id: util_md.F,v 1.29 2000-09-16 02:26:45 d3j191 Exp $
 c
       implicit none
 c
@@ -1483,7 +1483,7 @@ c
       call rotate(x3,x2,t,w,s)
 c
       do 3 i=1,3
-      x1(i)=s(1)
+      x1(i)=s(i)
     3 continue
 c
       md_zmat=.true.
