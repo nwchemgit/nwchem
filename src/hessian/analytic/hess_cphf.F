@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.41 2002-01-04 23:45:02 windus Exp $
+C $Id: hess_cphf.F,v 1.42 2002-01-05 01:25:42 edo Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -523,6 +523,7 @@ c
         blo2(1) = ind
         bhi2(1) = ind
         call ga_zero(g_modx)
+        
         call nga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                g_vecs(ndns), alo1, ahi1,
      $                g_rhs_x     , blo1, bhi1,
@@ -787,7 +788,9 @@ c
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
 c
-      call shell_fock_build(basis,0,ndens*n3xyz,dbl_mb(k_jfac),
+c     call shell_fock_build(basis,0,ndens,jfac,kfac,tol2e,
+c    &            g_tmp,g_rhs_x)
+      call shell_fock_build(geom,basis,0,ndens*n3xyz,dbl_mb(k_jfac),
      &            dbl_mb(k_kfac),tol2e,
      &            g_tmp,g_rhs_x,.true.)
 c

@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.30 2002-01-03 15:41:23 windus Exp $
+C $Id: twodd_cont.F,v 1.31 2002-01-05 01:25:42 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -221,15 +221,14 @@ c
         call nga_copy_patch('N',g_dens(i),blo,bhi,g_dens2,alo,ahi)
       enddo
 c
-c will eventually bring back - log_mb(k_act))
-      call shell_fock_build (basis, 1, ndens, jfac, kfac,
+      call shell_fock_build (geom,basis, 1, ndens, jfac, kfac,
      *   tol2e, g_dens2, g_rhs,.true.)
+c will eventually bring back - log_mb(k_act))
 c
 c Get rid of temporary memory
 c
       if (.not. ga_destroy(g_dens2)) call errquit
      *   ('twodd_cont: failed to free g_dens2', ndens)
-c
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
         write(LuOut,*) 'after going into shell_fock_build:'

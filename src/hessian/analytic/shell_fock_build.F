@@ -1,7 +1,7 @@
 c
-c $Id: shell_fock_build.F,v 1.16 2002-01-04 23:45:02 windus Exp $
+c $Id: shell_fock_build.F,v 1.17 2002-01-05 01:25:42 edo Exp $
 c
-      subroutine shell_fock_build(basis, nder, ndens,
+      subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
 c
 C Took oactive out for the time being, but will probably need to
@@ -11,7 +11,8 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
-      integer basis, nder, ndens, nfock 
+      integer basis, nder, ndens, nfock
+      integer geom
       integer g_dens, g_fock
       double precision jfac(*), kfac(*), tol2e
 c      logical oactive(*)        ! [input] T if atom is active
@@ -184,9 +185,6 @@ c     enddo
       call nga_reorder(g_fock, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
 c
-      if(xc_gotxc())call xc_newfock(nder, nfock, g_fock)
-       if (osym) call nga_symmetrize(g_fock)
-c
 c  Clean up memory allocated in this routine
 c
       if (.not. ma_chop_stack(l_d_ij))
@@ -198,6 +196,12 @@ c
          jfac(i) = jfac(i)/4.0d00
          kfac(i) = kfac(i)/2.0d00
       enddo
+c
+      if(xc_gotxc().and.nder.gt.1)then
+         call xc_newfock(geom,basis,jfac,kfac,nbf,
+     %        nder, ndens, nfock, g_fock,g_dens)
+      endif
+       if (osym) call nga_symmetrize(g_fock)
 c
       end
 c
@@ -763,47 +767,51 @@ c        end if
       end do
 c
       end
-      subroutine xc_newfock(nder, nfock,g_fock)
+      subroutine xc_newfock(geom,basis,jfac,kfac,nbf,
+     %     nder, ndens, nfock,g_fock,g_dens)
       implicit none
 #include "global.fh"
 #include "bgj.fh"
 #include "mafdecls.fh"
-#include "hess_info.fh"
-      integer nder,nfock
-      integer g_fock
+      integer geom
+      integer basis
+      double precision jfac(*),kfac(*)
+      integer nbf
+      integer nder,nfock,ndens
+      integer g_fock,g_dens
 c
       integer dims(3),chunk(3)
       integer g_xc
       integer ifock
       logical xc_active
       double precision ffac
-      integer ga_create_atom_blocked
-      external ga_create_atom_blocked
+      integer i
+      character*4 scftype
 c
-      
-      write(0,*) ' newfockxc nder ',nder, ' nfock ',nfock
-      if(nder.eq.-2) then
-         g_xc = ga_create_atom_blocked
-     $        (geom, basis, 'new_fockxc: g_xc')
-      else
-         dims(1) = nfock
-         dims(2) = nbf
-         dims(3) = nbf
-         chunk(1) = dims(1)
-         chunk(2) = -1
-         chunk(3) = -1
-         write(0,*) ' d ',dims
-         write(0,*) ' chunk ',chunk
-         if (.not. nga_create (MT_DBL, 3, dims, 'nfockxc:3dxc',chunk, 
-     &        g_xc))
+      scftype='RHF'
+      if(ndens.eq.2) scftype='UHF'
+      write(0,*) ' newfockxc nder ',nder, ' nfock ',nfock,
+     ,     ' ndens ',ndens
+      write(0,*) ' xcnf jfac ',(jfac(i),i=1,ndens)
+      write(0,*) ' xcnf kfac ',(kfac(i),i=1,ndens)
+      dims(1) = nfock
+      dims(2) = nbf
+      dims(3) = nbf
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      write(0,*) ' d ',dims
+      write(0,*) ' chunk ',chunk
+      if (.not. nga_create (MT_DBL, 3, dims, 'nfockxc:3dxc',chunk, 
+     &     g_xc))
      &        call errquit('fock_2e: could not allocate g_xc',555)
-      endif
-      write(0,*) ' got create: g_xc=',g_xc
+      write(0,*) ' got create: g_xc=',g_xc, ' gdens ',g_dens
       call ga_zero(g_xc)
 
       call fock_xc(geom, nbf,basis,
-     ,     nfock, g_dens, g_xc,scftype)
-      do ifock = 1, nder
+     ,      ndens,  g_dens, g_xc,scftype,.true.)
+      do ifock = 1, ndens
+         write(0,*) ' ifock ',ifock
 !         if (xc_active.and.jfac(1).ne.0d0) then
 !         if (xc_active) then
          if (.true.) then
@@ -811,16 +819,14 @@ c     Scale the XC matrices by the same scaling factor as J in this case
 c     since there is no explicit way to pass in an XC scaling factor, yet
 c     the 2nd derivative code uses a scale factor of 8 for the OO part of
 c     the CPSCF RHS that needs to be applied to XC also.
-            write(0,*) ' newfxc jfac ',jfac
-            write(0,*) ' newfxc kfac ',kfac
-            if (jfac(1) .ne. 1d0 .and. jfac(1) .ne. 8d0) then
-               write(*,*)'cant Scale XC matrix',ifock,' by',jfac(1)
-               ffac=kfac(1)
-               write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
+            if (jfac(ifock).ne.1d0.and.jfac(ifock).ne.8d0) then
+               write(*,*)'shf:cant Scale XCm',ifock,' by',jfac(ifock)
+               ffac=kfac(ifock)
             else
-               ffac=jfac(1)
+               ffac=jfac(ifock)
             endif
-            call ga_add(jfac(1), g_xc, 1.0d0, g_fock,
+            write(*,*)'*** Scaling XC matrix',ifock,' by',ffac
+            call ga_add(jfac(ifock), g_xc, 1.0d0, g_fock,
      &           g_fock)
          endif
          if (bgj_print() .gt. 1) then
