@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.13 2000-05-18 20:14:12 bert Exp $
+c $Id: bas_create_uncont.F,v 1.14 2000-08-04 01:14:53 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -24,11 +24,21 @@ c
       logical bas_add_ucnt
       logical bas_set_spherical
       logical bas_get_spherical
+      logical bas_ucontinfo
+      logical bas_num_uce
+      logical bas_uce2cnr
+      logical bas_getu_exponent
+      logical bas_uce_tag
       external bas_add_ucnt_init
       external bas_add_ucnt_tidy
       external bas_add_ucnt
       external bas_set_spherical
       external bas_get_spherical
+      external bas_ucontinfo
+      external bas_num_uce
+      external bas_uce2cnr
+      external bas_getu_exponent
+      external bas_uce_tag
 c
 c     arguments
 c
@@ -45,19 +55,17 @@ c
       integer Am_a, AIm_a            ! MA array for storing centers of exponents
       integer ipr_mx                 ! Maximum # of primitives in basis
       integer usegeom                ! Handle to geometry basis_in
-      integer nuniqatom, iuniqcent   ! # of unique atoms
-      integer nshell
+      integer nuniqatom              ! # of unique atoms
       integer iatom, ishell, iprim
       integer ifirst, ilast, icont
       integer cartsph, l_type
       integer counter, nuniqprim
-      integer icenter(nw_max_atom)
       character*16 usetag
-      logical new, spheri
+      logical spheri
 c
       integer Pmnm_a,PmnIm_a         ! Following indices are used for generating 
       integer Pmxm_a,PmxIm_a         ! a fitting basis set based on exponents and
-      integer l_max,nprim,loctag     ! angular momenta
+      integer l_max,nprim            ! angular momenta
       double precision maxprim,minprim,alpha
 c
 c     Get geometry and rtdb handles for basis_in
@@ -83,42 +91,21 @@ c
       if (.not. bas_add_ucnt_init(basis_out)) call errquit
      &      ('bas_create_uncont: bas_add_ucnt_init failed',0)
 c
-c     Get info from basis_in in order to extract the exponents
+c     Get # unique centers 
 c
-      if (.not. bas_numcont(basis_in,nshell))
+      if (.not. bas_num_uce(basis_in,nuniqatom)) 
      $   call errquit ('bas_create_uncont: bas_numcont failed',0)
-c
-c     Get unique centers and their shell range
-c
-      nuniqatom = 0
-      do 5 ishell = 1, nshell
-         if (.not. bas_cn2uce(basis_in,ishell,iuniqcent))
-     $      call errquit ('bas_create_uncont: bas_continfo failed',0)
-         if (nuniqatom .gt. 0) then
-            new = .true.
-            do 6 iatom = 1, nuniqatom
-               if (iuniqcent .eq. icenter(iatom)) new = .false.
-    6       continue
-            if (new) then
-               nuniqatom = nuniqatom +1
-               icenter(nuniqatom) = iuniqcent
-            endif
-         else
-            nuniqatom = 1
-            icenter(1) = iuniqcent
-         endif
-    5 continue
 c
 c     Get maximum number of exponents for unique atoms
 c
       ipr_mx = 0
       do 7 iatom = 1, nuniqatom
-         if (.not.bas_ce2cnr(basis_in,icenter(iatom),ifirst,ilast))
-     $      call errquit ('bas_create_uncont: bas_ce2cnr failed',0)
+         if (.not.bas_uce2cnr(basis_in,iatom,ifirst,ilast))
+     $      call errquit ('bas_create_uncont: bas_uce2cnr failed',0)
          do 8 ishell = ifirst, ilast
-            if (.not. bas_continfo(basis_in,ishell,l_type,
+            if (.not. bas_ucontinfo(basis_in,ishell,l_type,
      $                             nprim,icont,cartsph))
-     $         call errquit ('bas_create_uncont: bas_continfo ',0)
+     $         call errquit ('bas_create_uncont: bas_ucontinfo ',0)
             ipr_mx = ipr_mx + nprim
     8    continue
     7 continue
@@ -138,15 +125,15 @@ c     Extract exponents and data from basis_in for all unique atoms
 c
       counter = 0
       do 1 iatom = 1, nuniqatom
-         if (.not.bas_ce2cnr(basis_in,icenter(iatom),ifirst,ilast))
-     $      call errquit ('bas_create_uncont: bas_ce2cnr failed',0)
+         if (.not.bas_uce2cnr(basis_in,iatom,ifirst,ilast))
+     $      call errquit ('bas_create_uncont: bas_uce2cnr failed',0)
          do 2 ishell = ifirst, ilast
-            if (.not. bas_continfo(basis_in,ishell,l_type,
+            if (.not. bas_ucontinfo(basis_in,ishell,l_type,
      $                             nprim,icont,cartsph))
-     $         call errquit ('bas_create_uncont: bas_continfo ',0)
-            if (.not. bas_get_exponent(basis_in,ishell,
+     $         call errquit ('bas_create_uncont: bas_ucontinfo ',0)
+            if (.not. bas_getu_exponent(basis_in,ishell,
      $                                 dbl_mb(ExpIm_a+counter)))
-     $         call errquit ('bas_create_uncont: bas_get_exponent',0)
+     $         call errquit ('bas_create_uncont: bas_getu_exponent',0)
             do 3 iprim = 1, nprim
                  int_mb(LIm_a+counter+iprim-1) = l_type
                  int_mb(SIm_a+counter+iprim-1) = ishell
@@ -200,9 +187,8 @@ c
                dbl_mb(PmnIm_a+iprim) = 1.0d20
    16       continue
             l_max = 0
-            loctag = 0
             do 18 iprim = 1, nuniqprim
-               if (int_mb(AIm_a+iprim-1) .eq. icenter(iatom)) then
+               if (int_mb(AIm_a+iprim-1) .eq. iatom) then
                   if (l_max .lt. int_mb(LIm_a+iprim-1))
      $               l_max = int_mb(LIm_a+iprim-1)
                counter = int_mb(LIm_a+iprim-1)
@@ -210,7 +196,6 @@ c
      $             dbl_mb(PmxIm_a+counter) = dbl_mb(ExpIm_a+iprim-1)
                if (dbl_mb(PmnIm_a+counter) .gt. dbl_mb(ExpIm_a+iprim-1)) 
      $             dbl_mb(PmnIm_a+counter) = dbl_mb(ExpIm_a+iprim-1)
-               loctag = int_mb(SIm_a+iprim-1)
                endif
    18       continue
 c
@@ -253,7 +238,7 @@ c
                endif
                nprim = log(maxprim/minprim)/log(dk_ratio) + 1
                alpha = (maxprim/minprim)**(1.0d0/dble(nprim-1))
-               if (.not. bas_cont_tag(basis_in,loctag, usetag))
+               if (.not. bas_uce_tag(basis_in,iatom, usetag))
      $          call errquit('bas_create_uncont: bas_cont_tag failed',0)
                do 21 iprim = 1, nprim
                   if (.not. bas_add_ucnt(basis_out,usetag,l_type,1,1,
@@ -269,7 +254,7 @@ c
      $     call errquit('bas_create_uncont: ma__pop_stack Pmx array',0)
       else
          do 15 iprim = 1, nuniqprim
-            if (.not. bas_cont_tag(basis_in,int_mb(SIm_a+iprim-1),
+            if (.not. bas_uce_tag(basis_in,int_mb(AIm_a+iprim-1),
      $                             usetag)) 
      $         call errquit ('bas_create_uncont: bas_cont_tag failed',0)
             if (.not. bas_add_ucnt(basis_out,usetag,
