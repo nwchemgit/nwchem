@@ -1,9 +1,12 @@
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
-          basis.tex fourindex.tex md.tex  scf.tex  top-level.tex \
+          basis.tex fourindex.tex scf.tex  top-level.tex \
           dft.tex  geometry.tex mp2.tex  scfgrad.tex user.tex \
           disclaimer.tex intro.tex plnwv.tex selci.tex vib.tex \
-          dplot.tex knownbas.tex property.tex stepper.tex nwargos.tex ecp.tex
+          dplot.tex knownbas.tex property.tex stepper.tex nwargos.tex \
+          ecp.tex functionality.tex ccsd.tex
+
+ SOURCE_NOT_USED = md.tex
 
 all postscript user.ps:	$(SOURCE)
 	latex user.tex
