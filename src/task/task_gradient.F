@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.17 1998-11-02 15:43:36 bernhold Exp $
+* $Id: task_gradient.F,v 1.18 1998-12-08 18:44:20 bernhold Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -40,8 +40,8 @@ c     the numerical derivative routine.
 c
       logical  scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, nwdft, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2
-      external semi_dir_mp2
+      logical semi_dir_mp2, rimp2g
+      external semi_dir_mp2, rimp2g
 c
       logical scf_gradient, grad_dft, task_num_grad
       external scf_gradient, grad_dft, task_num_grad
@@ -91,6 +91,8 @@ c
       else if (theory .eq. 'mcscf') then
          status = scf_gradient(rtdb) ! Done thru SCF gradient module
       else if (theory .eq. 'rimp2') then
+         status = task_num_grad(rtdb) ! Only numerical
+      else if (theory .eq. 'rimp2_grad') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'direct_mp2') then
          status = task_num_grad(rtdb) ! Only numerical
