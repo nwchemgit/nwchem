@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.77 2000-09-06 16:33:17 d3j191 Exp $
+c $Id: md_start.F,v 1.78 2000-09-06 17:12:26 d3j191 Exp $
 c
       implicit none
 c
@@ -242,7 +242,7 @@ c
       character*32 theory
       logical lstate,lstart,lrstrt,lcont
       integer igt,igr,nbytes,ibl,iun
-      integer niperw,nbperw
+      integer niperw,nbperw,i
 c
 c     set process id and number of processes
 c     --------------------------------------
@@ -1184,7 +1184,7 @@ c
       write(lfntim,1216)
       write(lfntim,1217)
       write(lfntim,1218)
-      write(lfntim,1219)
+      write(lfntim,1219) (i,i=1,18)
  1201 format('  1 : (10) replicated data interactions')
  1202 format('  2 : (11) PME charge grid calculation')
  1203 format('  3 : (12) PME subset synchronization')
