@@ -18,6 +18,7 @@ c
       double precision  eatoms
       double precision bqzone
       logical fixlinks,fixqm
+      logical bq_dynamical
       integer linkatm,bq_exclude
       logical status
 c
@@ -38,9 +39,10 @@ c     ------------------
     2 continue
       if(.not.inp_a(token)) goto 1
 c
-      if (inp_compare(.false.,"eatoms", token)) then
+      if (inp_compare(.false.,"eatoms", token) .or.
+     >    inp_compare(.false.,"eref", token)) then
         if (.not.inp_f(eatoms))
-     +    call errquit('qmmm_input: failed to read eatoms',0, INPUT_ERR)
+     >    call errquit('qmmm_input: failed to read eatoms',0, INPUT_ERR)
         tag = "qmmm:uqmatm"
         if (.not.rtdb_put(rtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
      >      call errquit(pname//'failed to store'//tag,0,
@@ -48,7 +50,8 @@ c
         goto 2
       endif
 c
-      if (inp_compare(.false.,"link_bonds", token) ) then
+      if (inp_compare(.false.,"link_bonds", token ) .or.
+     >    inp_compare(.false.,"link_bond", token)) then
         if(.not.inp_a(token)) call errquit(' no link_bonds option',0,
      &         INPUT_ERR)
         if(inp_compare(.false.,"free", token)) then
@@ -66,7 +69,8 @@ c
         goto 2
        end if
 c
-      if(inp_compare(.false.,'link_atoms',token)) then
+      if(inp_compare(.false.,'link_atoms',token) .or.
+     >   inp_compare(.false.,'link_atom',token)) then
         if(.not.inp_a(token)) call errquit('no link_atoms option',0,
      &         INPUT_ERR)
         if(inp_compare(.false.,'hydrogen',token)) then
@@ -84,7 +88,8 @@ c
         goto 2
       endif
 c
-      if(inp_compare(.false.,'link_ecps',token)) then
+      if(inp_compare(.false.,'link_ecps',token) .or.
+     >   inp_compare(.false.,'link_ecp',token)) then
         if(.not.inp_a(token)) then
          write(*,*) "please provide an option for link_ecps"
          call errquit('qmmm_input: link-ecp',0,
@@ -144,7 +149,8 @@ c
         goto 2
       endif
 c
-      if(inp_compare(.false.,'bqzone',token)) then
+      if(inp_compare(.false.,'bq_zone',token) .or.
+     >   inp_compare(.false.,'bqzone',token)) then
         tag="qmmm:bqzone"
         if (.not.inp_f(bqzone))
      +    call errquit('qmmm_input: failed to read bqzone',0, INPUT_ERR)
@@ -153,7 +159,26 @@ c
      >        RTDB_ERR)
 
         goto 2
+      end if
 
+      if(inp_compare(.false.,'bq_update',token)) then
+        if(.not.inp_a(token)) then
+         write(*,*) "please provide an option for "//token
+         call errquit('qmmm_input: '//token,0,
+     &         INPUT_ERR)
+        end if
+        if(inp_compare(.false.,'static',token)) then
+          bq_dynamical=.false.
+        else if(inp_compare(.false.,'dynamic',token)) then
+          bq_dynamical=.true.
+        else
+          call errquit('unknown option for bq_update',0,INPUT_ERR)
+        end if
+        tag="qmmm:bq_dynamical"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,bq_dynamical)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
       end if
 
 c     
