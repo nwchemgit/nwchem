@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.43 1997-01-29 21:04:37 d3g681 Exp $
+C     $Id: geom_input.F,v 1.44 1997-01-29 22:02:00 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -6347,10 +6347,10 @@ C
       ENDIF
       IF((NUMWRD.GT.1).OR.
      1   (NUMWRD.EQ.1) .AND. .NOT. 
-     $     ( (PRSWRD(1)(2:4).EQ.WR1VAR(1:3)) .OR.
-     2       (PRSWRD(1)(2:4).EQ.WR2VAR(1:3)) .OR.
-     3       (PRSWRD(1)(2:4).EQ.WR1CON(1:3)) .OR.
-     4       (PRSWRD(1)(2:4).EQ.WR2CON(1:3)) )    ) THEN
+     2     ( (PRSWRD(1)(2:4).EQ.WR1VAR(1:3)) .OR.
+     3       (PRSWRD(1)(2:4).EQ.WR2VAR(1:3)) .OR.
+     4       (PRSWRD(1)(2:4).EQ.WR1CON(1:3)) .OR.
+     5       (PRSWRD(1)(2:4).EQ.WR2CON(1:3)) )    ) THEN
          DO I=1,NUMWRD
             PRSZMT(I,IAT)=PRSWRD(I)
             FLGZMT(I,IAT)=FLGWRD(I)
@@ -6363,7 +6363,8 @@ C
          IF(NUMWRD.GT.1) THEN
             GO TO 110
          ELSE
-            IF(NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)) THEN
+            IF((NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)).OR.
+     1         (NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(2:4))) THEN
                NAT = IAT -1
                GO TO 140
             ELSE
@@ -6386,11 +6387,8 @@ C
       ENDIF
       IF((NUMWRD.GT.1).OR.
      1   (NUMWRD.EQ.1) .AND. .NOT. (
-     3       (PRSWRD(1)(2:4).EQ.WR1CON(1:3)) .OR.
-     4       (PRSWRD(1)(2:4).EQ.WR2CON(1:3)) )    ) THEN
-*      IF((NUMWRD.GT.1).OR.
-*     1   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR1CON(1:3)).OR.
-*     2   (NUMWRD.EQ.1.AND.PRSWRD(1)(2:4).NE.WR2CON(1:3))    ) THEN
+     2       (PRSWRD(1)(2:4).EQ.WR1CON(1:3)) .OR.
+     3       (PRSWRD(1)(2:4).EQ.WR2CON(1:3)) )    ) THEN
          DO I=1,NUMWRD
             PRSVAR(I,IVAR)=PRSWRD(I)
             FLGVAR(I,IVAR)=FLGWRD(I)
@@ -6410,7 +6408,8 @@ C
             ENDIF
             GO TO 120
          ELSE
-            IF(NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)) THEN
+            IF((NUMCHR(1).EQ.6.AND.PRSWRD(1)(2:5).EQ.CHREND(1:4)).OR.
+     1         (NUMCHR(1).EQ.5.AND.PRSWRD(1)(2:4).EQ.CHREND(2:4))) THEN
                NVAR = IVAR -1
                GO TO 140
             ELSE
