@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.115 2000-06-16 22:56:52 bert Exp $
+# $Id: GNUmakefile,v 1.116 2000-06-17 00:39:51 bert Exp $
 
 include ../config/makefile.h
 
@@ -80,15 +80,20 @@ ifeq ($(TARGET),FUJITSU_VPP)
                  -Wp,-DHAVE_FORTRAN_INTEGER2,-DHAVE_FORTRAN_BYTE
 endif
 
-ifeq ($(TARGET),SGITFP)
-       BLAS = dfill.o ifill.o mabyte_fill.o
-else
-  ifeq ($(TARGET),SGI_N32)
-       BLAS = dfill.o ifill.o mabyte_fill.o
-  else
+#ifeq ($(TARGET),SGITFP)
+#       BLAS = dfill.o ifill.o mabyte_fill.o
+#       EXTRA_OBJ = rsg.o
+#else
+#  ifeq ($(TARGET),SGI_N32)
+#       BLAS = dfill.o ifill.o mabyte_fill.o
+#       EXTRA_OBJ = rsg.o
+#  else
+#       BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
+#  endif
+#endif
+
        BLAS = dfill.o ifill.o rsg.o mabyte_fill.o
-  endif
-endif
+
    LIB_TARGETS = testsolve testecce
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS) \
@@ -130,9 +135,6 @@ endif
               util_debug.o \
               $(EXTRA_OBJ)
 
-ifeq ($(TARGET),SGITFP)
-	OBJ += rsg.o
-endif
 #nxtval_ga.o 
 
     LIBRARY = libutil.a
@@ -160,6 +162,21 @@ ifeq ($(TARGET),SGITFP)
 endif
 
 include ../config/makelib.h
+
+#On SGI need IEEE for rsg
+ifeq ($(TARGET),SGITFP)
+rsg.o:	rsg.f
+	$(FC) $(FOPTIONS) -O3 -c rsg.f
+$(LIBRARY_PATH)(rsg.o):	rsg.o
+	ar r $@ $^
+endif
+ifeq ($(TARGET),SGI_N32)
+rsg.o:	rsg.f
+	$(FC) $(FOPTIONS) -O3 -c rsg.f
+$(LIBRARY_PATH)(rsg.o):	rsg.o
+	ar r $@ $^
+endif
+
 
 util_version.F:	util_v_stub.F
 	cp $^ $@
