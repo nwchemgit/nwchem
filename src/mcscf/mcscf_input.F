@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.2 1996-08-27 23:02:25 d3g681 Exp $
+c $Id: mcscf_input.F,v 1.3 1996-10-04 22:11:19 d3g681 Exp $
 c
       implicit none
 #include "inp.fh"
@@ -118,7 +118,7 @@ c
 c
 c  vectors
 c
- 900  call vectors_input(rtdb)
+ 900  call vectors_input(rtdb,'mcscf')
       goto 10
 c
 c  profiling options
