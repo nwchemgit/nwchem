@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.6 2003-10-17 22:57:10 carlfahl Exp $                       
+c     $Id: cgminimize2.F,v 1.7 2004-03-08 22:51:26 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -155,7 +155,7 @@ c
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic2_energy,
      >                        psi_geodesic2_denergy,
-     >                        tole,tmin,deltae,1)
+     >                        0.5d0,tmin,deltae,2)
          call psi_geodesic2_final(tmin)
          deltac = rho_error()
 
@@ -224,7 +224,7 @@ c
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic2_energy,
      >                        psi_geodesic2_denergy,
-     >                        tole,tmin,deltae,1)
+     >                        0.5d0,tmin,deltae,2)
 
       call psi_geodesic2_final(tmin)
       deltac = rho_error()

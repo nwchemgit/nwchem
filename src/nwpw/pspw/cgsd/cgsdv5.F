@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.42 2004-02-22 18:56:37 bylaska Exp $
+* $Id: cgsdv5.F,v 1.43 2004-03-08 22:51:26 bylaska Exp $
 *
 
 ***********************************************************************
@@ -23,6 +23,7 @@
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "frac_occ.fh"
 
 #include "nwpw_timing.fh"
       
@@ -41,7 +42,8 @@
     
 
 *     ***** energy variables ****
-      real*8  E(10)
+      integer ne(2),ms
+      real*8  E(10),en(2)
       real*8  dipole(3)
       real*8  stress(3,3)
 
@@ -263,8 +265,15 @@ c     value = psi_initialize()
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
 
+*     **** initialize frac_occ data structure ****
+      ne(1) = psi_ne(1)
+      ne(2) = psi_ne(2)
+      call frac_occ_init(rtdb,psi_ispin(),ne)
+
 *     **** initialize linesearching ****
       call linesearch_init()
+
+
 
 
 *                |**************************|
@@ -287,6 +296,7 @@ c     value = psi_initialize()
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
+         if (fractional) write(6,1132)
          call pspw_print_SIC(6)
          write(6,1140)
          do ia = 1,psp_npsp()
@@ -307,7 +317,20 @@ c     value = psi_initialize()
          end do
 
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
-     >           + ion_TotalCharge()
+         en(1)     = psi_ne(1)
+         en(psi_ispin()) = psi_ne(psi_ispin())
+         if (fractional) then
+            icharge = 0
+            do ms=1,psi_ispin()
+            en(ms) =0.0
+            do i=1,ne(ms)
+              k = fweight(1)+(i-1)+(ms-1)*ne(1)
+              icharge = icharge - (3-psi_ispin())*dbl_mb(k)
+              en(ms) = en(ms) + dbl_mb(k)
+            end do
+            end do
+         end if
+         icharge = icharge + ion_TotalCharge()
          write(6,1159) icharge
 
          write(6,1160)
@@ -330,7 +353,14 @@ c     value = psi_initialize()
          call pspw_charge_Print(6)
          end if
 
-         write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         if (fractional) then
+          write(6,1219) en(1),en(psi_ispin()),' (   fractional)'
+          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         else
+          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         end if
          write(6,1230)
          write(6,1233) control_cell_name()
          write(6,1241) lattice_unita(1,1),
@@ -504,6 +534,7 @@ c     end if
       call pspw_end_APC()
       call pspw_charge_end()
       call pspw_qmmm_end()
+      call frac_occ_end()
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
@@ -584,6 +615,7 @@ c     end if
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
+ 1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I3)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
@@ -605,8 +637,12 @@ c     end if
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
- 1220 FORMAT(/' number of active electrons: spin up=',I3,
-     >        '  spin down=',I3,A)
+ 1219 FORMAT(/' number of active electrons: spin up=',F6.2,
+     >        '  down=',F6.2,A)
+ 1220 FORMAT(/' number of active electrons: spin up=',I6,  
+     >        '  down=',I6,A)
+ 1221 FORMAT( ' number of active orbitals : spin up=',I6,  
+     >        '  down=',I6,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,'             omega=',F8.1)
  1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,

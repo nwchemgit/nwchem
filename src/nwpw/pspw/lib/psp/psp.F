@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.15 2004-01-28 00:08:47 bylaska Exp $
+* $Id: psp.F,v 1.16 2004-03-08 22:51:27 bylaska Exp $
 *
 
 #define TCGMSG
@@ -765,7 +765,6 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 *
       subroutine v_nonlocal(ispin,ne,psi1,psi2,move,fion)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       complex*16 psi2(*)
@@ -774,6 +773,8 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
 #include "mafdecls.fh"
 #include "psp.fh"
+#include "errquit.fh"
+#include "frac_occ.fh"
 
 
 *     *** local variables ***
@@ -958,6 +959,18 @@ c     >              psi2,                    (2*npack1))
              end do
 
              call D3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
+
+             !**** fractional weighting ****
+             if (fractional) then
+              do n=1,nn
+               dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))
+     >                               *dbl_mb(fweight(1)+n-1)
+               dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))
+     >                                 *dbl_mb(fweight(1)+n-1)
+               dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))
+     >                                 *dbl_mb(fweight(1)+n-1)
+              end do
+             end if
   
              do n=1,nn
                 fion(1,ii) = fion(1,ii) 
@@ -1050,6 +1063,7 @@ c     >              psi2,                    (2*npack1))
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "psp.fh"
+#include "frac_occ.fh"
 
 *     *** local variables ***
       integer nfft3d,G(3),npack1,shift
@@ -1246,6 +1260,18 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
           end do
 
           call D3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
+
+          !**** fractional weighting ****
+          if (fractional) then
+           do n=1,nn
+            dbl_mb(sum(1)+3*(n-1))=dbl_mb(sum(1)+3*(n-1))
+     >                            *dbl_mb(fweight(1)+n-1)
+            dbl_mb(sum(1)+1+3*(n-1))=dbl_mb(sum(1)+1+3*(n-1))
+     >                              *dbl_mb(fweight(1)+n-1)
+            dbl_mb(sum(1)+2+3*(n-1))=dbl_mb(sum(1)+2+3*(n-1))
+     >                              *dbl_mb(fweight(1)+n-1)
+           end do
+          end if
   
           do n=1,nn
              fion(1,ii) = fion(1,ii) 

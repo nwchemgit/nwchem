@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.15 2003-10-26 23:47:01 bylaska Exp $
+* $Id: pack.F,v 1.16 2004-03-08 22:51:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -1502,6 +1502,66 @@ c      end do
 
       return
       end
+*     ***********************************
+*     *                                 *
+*     *          Pack_tc_aMul           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_tc_aMul(nb,alpha,A,B,C)
+      implicit none
+      integer    nb
+      real*8     alpha
+      real*8     A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = alpha*B(i)*A(i)
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_tc_aMulAdd        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_tc_aMulAdd(nb,alpha,A,B,C)
+      implicit none
+      integer    nb
+      real*8     alpha
+      real*8     A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = C(i) + alpha*B(i)*A(i)
+      end do
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*

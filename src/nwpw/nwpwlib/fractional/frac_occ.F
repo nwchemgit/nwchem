@@ -1,5 +1,5 @@
 c
-c $Id: frac_occ.F,v 1.1 2004-03-04 15:12:21 bylaska Exp $
+c $Id: frac_occ.F,v 1.2 2004-03-08 22:51:25 bylaska Exp $
 c
 
 *     *************************************************
@@ -92,7 +92,9 @@ c
 #include "errquit.fh"
 #include "frac_occ.fh"
 
+      if (fractional) then
       if (.not.MA_free_heap(fweight(2)))
      >  call errquit('frac_occ_end: heap failed',0,MA_ERR)
+      end if
       return
       end

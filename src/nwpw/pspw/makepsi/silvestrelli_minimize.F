@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.3 2003-10-24 18:57:00 marat Exp $
+* $Id: silvestrelli_minimize.F,v 1.4 2004-03-08 22:51:28 bylaska Exp $
 *
 
 
@@ -23,6 +23,8 @@
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
+      integer MAXITER
+      parameter (MAXITER=10000)
 
       logical value,oprint
       integer i,j,k,sign,iter
@@ -66,16 +68,12 @@
       end do
 
 
-      if (oprint) then
-        write(6,*) 
-        write(6,*) '------------------------------------------'
-      end if
 
       maxgrad  = 9999.0d0
       timestep =    3.0d-2
       iter = 0
 
-      do while(maxgrad .GT. 1.0d-08)
+      do while((maxgrad .GT. 1.0d-08).and.(iter.lt.MAXITER))
 
          iter=iter+1
 
@@ -193,10 +191,20 @@
             omega = omega + (wx+wy+wz)
          end do
 
-         if (oprint) then
-         write(6,*) iter, omega, maxgrad
-         end if
+         !if (oprint) then
+         !write(6,*) iter, omega, maxgrad
+         !end if
       end do ! end do while
+
+      if (oprint) then
+        write(6,1000)
+        write(6,1001) iter, omega, maxgrad
+ 1000 FORMAT(//' fixed step steepest descent iteration results:')
+ 1001 FORMAT(5x,'iterations performed=',I12,
+     >       /5x,'               omega=' F12.6,
+     >       /5x,'               error=',E12.3)
+
+      end if
 
       call zcopy(n*n,dcpl_mb(expminusAtotal(1)),1,A,1)
 

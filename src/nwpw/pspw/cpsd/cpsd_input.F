@@ -1,5 +1,5 @@
 c
-c $Id: cpsd_input.F,v 1.7 2003-10-17 22:57:13 carlfahl Exp $
+c $Id: cpsd_input.F,v 1.8 2004-03-08 22:51:26 bylaska Exp $
 c
       subroutine cpsd_input(rtdb)
       implicit none
@@ -210,7 +210,7 @@ c
       if (.not. inp_f(fe)) goto 901
       tolerances(2) = fe
       if (.not. inp_f(fe)) goto 901
-      tolerances(3) = fe
+      tolerances(3) = 1.0d-4
  901  value = rtdb_put(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances)
       if (.not.value)
      > call errquit('cpsd_input: writing tolerances', 0, RTDB_ERR)

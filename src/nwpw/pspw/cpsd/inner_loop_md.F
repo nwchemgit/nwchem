@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.13 2003-10-17 22:57:13 carlfahl Exp $
+* $Id: inner_loop_md.F,v 1.14 2004-03-08 22:51:26 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -15,7 +15,7 @@
 *  *      then control file                                   *
 *  ************************************************************
   
-      subroutine inner_loop_md(verlet,
+      subroutine inner_loop_md(verlet,sa_alpha,
      >                      ispin,ne,
      >                      npack1,nfft3d,nemax,
      >                      psi0,psi1,psi2,dn,
@@ -23,8 +23,8 @@
      >                      hml,lmd,
      >                      Hpsi,psi_r)
       implicit none
-#include "errquit.fh"
       logical    verlet
+      real*8     sa_alpha(2)
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
       complex*16 psi0(npack1,nemax)
@@ -41,6 +41,8 @@
 
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "frac_occ.fh"
 
 
 *     **** local variables ****
@@ -49,7 +51,7 @@
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
       integer index,indext
-      real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr
+      real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
@@ -190,6 +192,10 @@ c     real*8     fion(3,natmx)
       fmass = control_fake_mass()
       dte   = dt*dt/fmass
       if (.not. verlet) dte=0.5d0*dte
+      if (.not.nose) then
+        sa1 =    1.0d0/(2.0d0-sa_alpha(1))
+        sa2 = sa_alpha(1)/(2.0d0-sa_alpha(1))
+      end if
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
@@ -234,15 +240,28 @@ c     real*8     fion(3,natmx)
 *       **** generate dn ****
 *       *********************
         call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-        do ms=1,ispin
-           do n=n1(ms),n2(ms)
-              do i=1,n2ft3d
-                 dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
-              end do
-           end do
-           call D3dB_r_Zero_Ends(1,dn(1,ms))
-        end do
-        
+        if (fractional) then
+          do ms=1,ispin
+             do n=n1(ms),n2(ms)
+                do i=1,n2ft3d
+                   dn(i,ms) = dn(i,ms)
+     >                      + scal2*(psi_r(i,n)**2)
+     >                       *dbl_mb(fweight(1)+n-1)
+                end do
+             end do
+             call D3dB_r_Zero_Ends(1,dn(1,ms))
+          end do
+        else
+          do ms=1,ispin
+             do n=n1(ms),n2(ms)
+                do i=1,n2ft3d
+                   dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+                end do
+             end do
+             call D3dB_r_Zero_Ends(1,dn(1,ms))
+          end do
+        end if
+
 
 *       **********************
 *       **** generate dng ****
@@ -403,9 +422,9 @@ c     real*8     fion(3,natmx)
 *          **** constant energy ****
            else
              do n=1,n2(ispin)
-              call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,2.0d0,psi1(1,n),psi2(1,n))
+              call Pack_c_SMul(1,dte*sa1,Hpsi(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,-1.0d0*sa2,psi0(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,2.0d0*sa1,psi1(1,n),psi2(1,n))
              end do
 
 *            **** QM/MM Verlet update ****
@@ -416,7 +435,7 @@ c     real*8     fion(3,natmx)
      >                                       dbl_mb(fion(1)),
      >                                       sum)
              end if
-             call ion_verlet_step(dbl_mb(fion(1)))
+             call ion_verlet_step(dbl_mb(fion(1)),sa_alpha(2))
            end if
 
 *       **************************
@@ -425,7 +444,7 @@ c     real*8     fion(3,natmx)
         else
            do n=1,n2(ispin)
               call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,dt,psi0(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,dt*sa_alpha(1),psi0(1,n),psi2(1,n))
               call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            end do
 
@@ -437,7 +456,7 @@ c     real*8     fion(3,natmx)
      >                                       dbl_mb(fion(1)),
      >                                       sum)
            end if
-           call ion_newton_step(dbl_mb(fion(1)))
+           call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
 
         end if
 
@@ -447,8 +466,14 @@ c     real*8     fion(3,natmx)
 *       *****************************************        
         dte0 = dte
         if (nose) dte0 = dte*sse
+        if (fractional) then
+        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
+     >                  dte0,dbl_mb(fweight(1)),
+     >                  lmd,dbl_mb(tmp_L(1)),ierr)
+        else
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte0,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
+        end if
 
 *       **************************
 *       *** update thermostats ***
@@ -528,7 +553,9 @@ c     real*8     fion(3,natmx)
       do ms=1,ispin
          do ii=1,ne(ms)
             index = (ii) + (ii-1)*n + (ms-1)*nn
-            eorbit = eorbit + hml(index)
+            sum = hml(index)
+            if (fractional) sum=sum*dbl_mb(fweight(1)+ii-1+(ms-1)*ne(1))
+            eorbit = eorbit + sum
          end do
       end do
       if (ispin.eq.1) eorbit = eorbit+eorbit

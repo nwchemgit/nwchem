@@ -1,3 +1,6 @@
+*
+* $Id: nose-hoover.F,v 1.4 2004-03-08 22:51:27 bylaska Exp $
+*
 
 *     ***************************
 *     *				*
@@ -9,26 +12,24 @@
       implicit none
       real*8 eke0
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
 
-      real*8 eke0_init
-      common / nose_hoover1 / eke0_init
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "nose-hoover.fh"
+
 
 *     **** boltzman constant ****
       double precision kb
       parameter (kb=3.16679d-6)
 
 
-
 *     **** local variables ****
-      integer i
-      real*8 pi,am,fmass
-      real*8 Pe,Te
-      real*8 Pr,Tr
+      logical value
+      integer i,rtdb
+      real*8 pi,am,fmass,tmpe
+      real*8 Te
+      real*8 Tr
 
 *     **** external functions ****
       real*8   control_fake_mass
@@ -37,14 +38,14 @@
       real*8   control_Nose_Pr
       real*8   control_Nose_Tr
       real*8   ion_amass
-      integer  ion_nion
+      integer  ion_nion,control_rtdb
       external control_fake_mass
       external control_Nose_Pe
       external control_Nose_Te
       external control_Nose_Pr
       external control_Nose_Tr
       external ion_amass
-      external ion_nion
+      external ion_nion,control_rtdb
 
 *     ************************************
 *     **** initialize the thermostats ****
@@ -75,16 +76,65 @@
          am = am + ion_amass(i)
       end do
 
-*     **** Set Ee0 ****
-      Ee0 = 4.0*kb*Te*fmass*dble(ion_nion())/am * eke0
+*     **** Set Ee0 - read from rtdb otherwise use current KE ****
+      rtdb  = control_rtdb()
+      value = rtdb_get(rtdb,'cpmd:eke0',mt_dbl,1,tmpe)
+      if (value) then
+        eke0_init = tmpe
+      end if
+      Ee0 = 4.0*kb*Te*fmass*dble(ion_nion())/am * eke0_init
 
-*     **** Set Qe and Qr ****
+*     **** Set Qe and Qr - read from rtdb otherwise set using periods ****
       pi = 4.0d0*datan(1.0d0)
-      Qe = Pe*Pe*Ee0/(pi*pi)
-      Qr = Pr*Pr*Er0/(pi*pi)
+      value = rtdb_get(rtdb,'cpmd:Qe',  mt_dbl,1,Qe)
+     >   .and.rtdb_get(rtdb,'cpmd:Qr',  mt_dbl,1,Qr)
+      if (.not.value) then
+        Qe = Pe*Pe*Ee0/(pi*pi)
+        Qr = Pr*Pr*Er0/(pi*pi)
+      else
+        Pe = pi*dsqrt(Qe/Ee0)
+        Pr = pi*dsqrt(Qr/Er0)
+      end if
 
       return
       end
+
+
+*     ***************************
+*     *                         *
+*     *      Nose_end           *
+*     *                         *
+*     ***************************
+
+      subroutine Nose_end()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "nose-hoover.fh"
+
+
+      !**** local variables ****
+      logical value
+      integer rtdb
+
+      !**** external functions ****
+      integer  control_rtdb
+      external control_rtdb
+
+      rtdb  = control_rtdb()
+      value = rtdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
+     >   .and.rtdb_put(rtdb,'cpmd:Qe',  mt_dbl,1,Qe)
+     >   .and.rtdb_put(rtdb,'cpmd:Qr',  mt_dbl,1,Qr)
+      if (.not.value)
+     >  call errquit(
+     >       'Nose_End: error writing to rtdb', 0, RTDB_ERR)
+
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -96,14 +146,7 @@
       implicit none
       real*8 Te_new,Tr_new
      
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
-
-      real*8 eke0_init
-      common / nose_hoover1 / eke0_init
+#include "nose-hoover.fh"
 
 *     **** boltzman constant ****
       double precision kb
@@ -153,11 +196,7 @@
       implicit none
       real*8 eke,eki
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     **** local variables ****
       real*8 FXe,FXr,dt
@@ -188,11 +227,7 @@
       implicit none
       real*8 eke,eki
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     **** local variables ****
       real*8 FXe,FXr,dt
@@ -221,11 +256,7 @@
       real*8 function Nose_dXe()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     **** local variables ****
       real*8 dt
@@ -248,11 +279,7 @@
       real*8 function Nose_dXr()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     **** local variables ****
       real*8 dt
@@ -275,11 +302,8 @@
       real*8 function Nose_sse()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
+
 
 *     ***** local variables ****
       real*8 dXe,dt
@@ -304,11 +328,7 @@
       real*8 function Nose_ssr()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     ***** local variables ****
       real*8 dXr,dt
@@ -333,11 +353,7 @@
       subroutine Nose_shift()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
       Xem = Xe0
       Xe0 = Xe1
@@ -357,11 +373,7 @@
       real*8 function Nose_e_energy()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     **** local variables ****
       real*8 dXe,dt
@@ -386,11 +398,7 @@
       real*8 function Nose_r_energy()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
 *     **** local variables ****
       real*8 dXr,dt
@@ -416,13 +424,25 @@
       real*8 function Nose_Qe()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
       Nose_Qe = Qe
+      return
+      end
+
+
+*     *********************
+*     *                   *
+*     *      Nose_Pe      *
+*     *                   *
+*     *********************
+
+      real*8 function Nose_Pe()
+      implicit none
+
+#include "nose-hoover.fh"
+
+      Nose_Pe = Pe
       return
       end
 
@@ -436,15 +456,27 @@
       real*8 function Nose_Qr()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
       Nose_Qr = Qr
       return
       end
+
+*     *********************
+*     *                   *
+*     *      Nose_Pr      *
+*     *                   *
+*     *********************
+
+      real*8 function Nose_Pr()
+      implicit none
+
+#include "nose-hoover.fh"
+
+      Nose_Pr = Pr
+      return
+      end
+
 
 *     *********************
 *     *                   *
@@ -455,11 +487,7 @@
       real*8 function Nose_Ee0()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
       Nose_Ee0 = Ee0
       return
@@ -474,11 +502,7 @@
       real*8 function Nose_Er0()
       implicit none
 
-*     **** nose-hoover common block ****
-      real*8 Xem,Xe0,Xe1,Xe2,Ee0,Qe
-      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr
-      common / nose_hoover / Xem,Xe0,Xe1,Xe2,Ee0,Qe,
-     >                       Xrm,Xr0,Xr1,Xr2,Er0,Qr
+#include "nose-hoover.fh"
 
       Nose_Er0 = Er0
       return

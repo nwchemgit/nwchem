@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.53 2004-03-02 00:10:22 bylaska Exp $
+* $Id: psi.F,v 1.54 2004-03-08 22:51:27 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.53  2004/03/02 00:10:22  bylaska
+* ....EJB
+*
 * Revision 1.52  2004/03/01 05:14:33  bylaska
 * Mulliken and DOS fixes.
 * Added Mulliken projections based on atomic orbitals
@@ -3428,11 +3431,12 @@ c     real*8 sum1,sum2
 *     ***********************************
       subroutine psi1to2_sd_update(dte)
       implicit none
-#include "errquit.fh"
       real*8 dte
 
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "frac_occ.fh"
+#include "errquit.fh"
 
 
 *     ***** rhoall common block ****
@@ -3444,6 +3448,10 @@ c     real*8 sum1,sum2
       logical value
       integer nemax,ierr
       integer lmd(2),tmp_L(2)
+
+*     **** external functions ****
+      logical  pspw_SIC
+      external pspw_SIC
 
       call electron_run(dcpl_mb(psi1(1)),
      >                  dbl_mb(rho1(1)),
@@ -3465,10 +3473,24 @@ c     real*8 sum1,sum2
      >        MA_push_get(mt_dbl,(2*nemax*nemax),
      >                    'lmd',lmd(2),lmd(1))
 
-      call psi_lmbda(ispin,ne,nemax,npack1,
+        if (fractional) then
+        call psi_lmbda2(ispin,ne,nemax,npack1,
+     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
+     >                 dte,dbl_mb(fweight(1)),
+     >                 dbl_mb(lmd(1)),
+     >                 dbl_mb(tmp_L(1)),ierr)
+        else if (pspw_SIC()) then
+        call psi_lmbda_sic(ispin,ne,nemax,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
+        else
+        call psi_lmbda(ispin,ne,nemax,npack1,
+     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
+     >                 dbl_mb(lmd(1)),
+     >                 dbl_mb(tmp_L(1)),ierr)
+        end if
+
 
       value = value.and.MA_pop_stack(lmd(2))
       value = value.and.MA_pop_stack(tmp_L(2))
@@ -3827,8 +3849,13 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
 #include "mafdecls.fh"
 #include "psi.fh"
+#include "frac_occ.fh"
 
-      psi_eigenvalue = dbl_mb(eig(1) + (i-1) + (ms-1)*ne(1))
+      real*8 sum
+
+      sum = dbl_mb(eig(1)+(i-1)+(ms-1)*ne(1))
+      if (fractional) sum=sum/dbl_mb(fweight(1)+(i-1)+(ms-1)*ne(1))
+      psi_eigenvalue = sum
 
       return
       end
@@ -4024,7 +4051,7 @@ c        end do
 
 *     ***** local variables ****
       logical value
-      integer ms,shift1,shift2,ierr
+      integer ms,shift1,shift2,ierr,i,j,indx
       integer tmp1(2)
 
 
@@ -4051,7 +4078,8 @@ c    >              dbl_mb(tmp1(1)),ierr)
      >              dbl_mb(eig(1)+shift1),
      >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >              ierr)
-        call eigsrt(dbl_mb(eig(1)+shift1),
+
+         call eigsrt(dbl_mb(eig(1)+shift1),
      >              dbl_mb(hml(1)+shift2),
      >              ne(ms),ne(ms))
 

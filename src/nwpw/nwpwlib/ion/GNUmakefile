@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2002-02-11 19:00:25 edo Exp $
+# $Id: GNUmakefile,v 1.12 2004-03-08 22:51:25 bylaska Exp $
 #
  SUBDIRS = shake
 
@@ -7,6 +7,7 @@
             center.o \
 			ion_FixIon.o \
             incell1.o \
+            incell2.o \
             incell3.o \
 			xyz.o \
             ion.o \

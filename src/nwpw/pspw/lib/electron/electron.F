@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.31 2004-01-29 01:40:14 bylaska Exp $
+* $Id: electron.F,v 1.32 2004-03-08 22:51:26 bylaska Exp $
 *
 
 
@@ -290,7 +290,6 @@ c      end
      >                       psi_k(1+(ii-1)*npack1),
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
      >                       sum)
-
            eorbit = eorbit + sum
 
          end do
@@ -1079,10 +1078,12 @@ c    >                     hmlt(shift+1))
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
+#include "frac_occ.fh"
 
 
 *     **** local variables ****
       logical move
+      integer n
       real*8  fion(3,1)
 
 *     **** external functions ****
@@ -1120,6 +1121,13 @@ c    >                     hmlt(shift+1))
      >                    dcpl_mb(Hpsi_k(1)),
      >                    dcpl_mb(Hpsi_k(1)))
 
+      if (fractional) then
+        do n=1,(ne(1)+ne(2))
+          call Pack_c_SMul(1,dbl_mb(fweight(1)+n-1),
+     >                    dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
+     >                    dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
+        end do
+      end if
       return
       end
 
@@ -1331,6 +1339,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
+#include "frac_occ.fh"
 
      
 *     **** local variables ****
@@ -1361,6 +1370,19 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     **** generate dn ****
 *     *********************
       call dcopy(2*n2ft3d,0.0d0,0,dn,1)
+      if (fractional) then
+      do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            do i=1,n2ft3d
+               dn(i+(ms-1)*n2ft3d)
+     >            = dn(i+(ms-1)*n2ft3d)
+     >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
+     >             *dbl_mb(fweight(1)+n-1)
+            end do
+         end do
+         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+      end do
+      else
       do ms=1,ispin
          do n=n1(ms),n2(ms)
             do i=1,n2ft3d
@@ -1371,6 +1393,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
       end do
+      end if
 
 *     **** generate dng and dnall ****
       call electron_gen_dng_dnall(dn,dng,dnall)
@@ -1915,6 +1938,7 @@ c    >                         sum)
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
+#include "frac_occ.fh"
 
 
 *     **** local variables ****
@@ -1955,6 +1979,7 @@ c    >                         sum)
             call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
      >                         dbl_mb(tmp1(1)),
      >                         sum)
+            if (fractional) sum=sum*dbl_mb(fweight(1)+n-1)
             enlocal = enlocal - sum
          end do
       end do

@@ -1,8 +1,24 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.3 2003-10-21 02:05:15 marat Exp $
+* $Id: paw_inner_loop_md.F,v 1.4 2004-03-08 22:51:25 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.3  2003/10/21 02:05:15  marat
+* switched to new errquit by running global replace operation
+* see the script below (note it will not work on multiline errquit calls)
+* *********************************************************
+* #!/bin/sh
+*
+* e=`find . -name "*F" -print`
+*
+* for f in $e
+* do
+* cp $f $f.bak
+* sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+* #rm $f.bak
+* done
+* **********************************************************
+*
 * Revision 1.2  2003/09/26 16:37:32  bylaska
 * bug fix...EJB
 *
@@ -497,7 +513,7 @@
               call Pack_cc_daxpy(1,-1.0d0,psi0(1,n),psi2(1,n))
               call Pack_cc_daxpy(1,2.0d0,psi1(1,n),psi2(1,n))
              end do
-             call ion_verlet_step(dbl_mb(fion(1)))
+             call ion_verlet_step(dbl_mb(fion(1)),1.0d0)
 
            end if
 
@@ -510,7 +526,7 @@
               call Pack_cc_daxpy(1,dt,psi0(1,n),psi2(1,n))
               call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            end do
-           call ion_newton_step(dbl_mb(fion(1)))
+           call ion_newton_step(dbl_mb(fion(1)),1.0d0)
 
         end if
 

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.5 2004-01-30 21:36:34 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.6 2004-03-08 22:51:28 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -185,10 +185,10 @@
      >   call errquit('pspw_wannier:out of heap memory',1,0)
 
       
-      if (taskid.eq.MASTER) then
-        write(6,*) "Computing Integrals"
-      end if
       do ms=1,ispin
+
+        if ((oprint).and.(ms.eq.1)) write(6,1300)
+        if ((oprint).and.(ms.eq.2)) write(6,1301)
        
         b(1) = lattice_unitg(1,1)
         b(2) = 0.0d0
@@ -244,17 +244,24 @@ c          write(*,*)
 c        end if
 
         if (oprint) then       
-          write(6,*) "Initial Wannier Centers"
+          write(6,1380)
           do i=1,ne(ms)
             wx = dcpl_mb(X(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
             wy = dcpl_mb(Y(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
             wz = dcpl_mb(Z(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
 
-            write(6,'(A,i3,a3,f8.3,a3,f8.3,a3,f8.3)') 
-     >      "psi=", i,
-     >      "x=", datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
-     >      "y=", datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
-     >      "z=", datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+            if (ms.eq.1)
+     >        write(6,1390) i,
+     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
+     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
+     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+
+            if (ms.eq.2)
+     >        write(6,1391) i+ne(1),
+     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
+     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
+     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+
           end do	
         end if
 
@@ -264,6 +271,30 @@ c        end if
      >                             dcpl_mb(Z(1)+(ms-1)*ne(1)*ne(1)),
      >                             dcpl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
    
+
+        if (oprint) then
+          write(6,1381)
+          do i=1,ne(ms)
+            wx = dcpl_mb(X(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
+            wy = dcpl_mb(Y(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
+            wz = dcpl_mb(Z(1)+(i-1)+(i-1)*ne(ms)+(ms-1)*ne(1)*ne(1))
+
+            if (ms.eq.1)
+     >        write(6,1390) i,
+     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
+     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
+     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+
+            if (ms.eq.2)
+     >        write(6,1391)  i+ne(1),
+     >        datan2(dimag(wx),dble(wx))/lattice_unitg(1,1),
+     >        datan2(dimag(wy),dble(wy))/lattice_unitg(2,2),
+     >        datan2(dimag(wz),dble(wz))/lattice_unitg(3,3)
+
+
+          end do
+        end if
+
 
 
 c        if (oprint) then       
@@ -355,4 +386,10 @@ c        end if
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
 
+ 1300 FORMAT(/' Wannier orbital generation for spin up orbitals')
+ 1301 FORMAT(/' Wannier orbital generation for spin down orbitals')
+ 1380 FORMAT(/' initial position of Wannier centers:')
+ 1381 FORMAT(/' final position of Wannier centers:')
+ 1390 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin up orbital')
+ 1391 FORMAT(5X,'psi',I5,' (',3F11.5,' ) - spin down orbital')
       end

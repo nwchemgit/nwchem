@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.19 2004-03-04 15:12:20 bylaska Exp $
+c $Id: nwpw_input.F,v 1.20 2004-03-08 22:51:20 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -275,9 +275,9 @@ c
 
 
 
-**************************************************
-****************** cgsd/band input ***************
-**************************************************
+*******************************************************
+****************** cgsd/band/cpsd input ***************
+*******************************************************
 c     
 c  cell_name
 c     
@@ -285,9 +285,9 @@ c
      >     call errquit(
      >          'nwpw_input: failed to read cell_name', 0, INPUT_ERR)
       ind = index(cell_name,' ') - 1
-      value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
-      value = value.and.
-     >        rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+      value =      rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
+     >        .and.rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+     >        .and.rtdb_cput(rtdb,'cpsd:cell_name',1,cell_name(1:ind))
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 1900, RTDB_ERR)
@@ -344,6 +344,7 @@ c
      >          'nwpw_input: failed to fake mass', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
      >   .and.rtdb_put(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
+     >   .and.rtdb_put(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2200, RTDB_ERR)
@@ -356,6 +357,7 @@ c
      >          'nwpw_input: failed to time step', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
      >   .and.rtdb_put(rtdb,'band:time_step',mt_dbl,1,time_step)
+     >   .and.rtdb_put(rtdb,'cpsd:time_step',mt_dbl,1,time_step)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2300, RTDB_ERR)
@@ -371,6 +373,7 @@ c
      >          'nwpw_input: failed to read loop(2)', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
      >   .and.rtdb_put(rtdb,'band:loop',mt_int,2,loop)
+     >   .and.rtdb_put(rtdb,'cpsd:loop',mt_int,2,loop)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2400, RTDB_ERR)
@@ -398,6 +401,7 @@ c
      >          'nwpw_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
      >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
+     >   .and.rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2600, RTDB_ERR)
@@ -411,6 +415,7 @@ c
      >          'nwpw_nwpwt: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
+     >   .and.rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2700, RTDB_ERR)
@@ -423,6 +428,7 @@ c
      >          'nwpw_input: failed to read rcut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
      >   .and.rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
+     >   .and.rtdb_put(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2800, RTDB_ERR)
@@ -435,6 +441,7 @@ c
      >          'nwpw_input: failed to read ncut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
      >   .and.rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
+     >   .and.rtdb_put(rtdb,'cpsd:ncut',mt_int,1,ncut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2900, RTDB_ERR)
@@ -450,6 +457,8 @@ c
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
      >   .and.rtdb_cput(rtdb,'band:exchange_correlation',
+     >                    1,exchange_correlation(1:ind))
+     >   .and.rtdb_cput(rtdb,'cpsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
       if (.not.value)
      >  call errquit(
@@ -503,8 +512,10 @@ c
       end if
       value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
      >   .and.rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
+     >   .and.rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
      >   .and.rtdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
      >   .and.rtdb_put(rtdb,'band:mult',mt_int,1,multiplicity)
+     >   .and.rtdb_put(rtdb,'cpsd:mult',mt_int,1,multiplicity)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3300, RTDB_ERR)
@@ -515,6 +526,7 @@ c
  3400 ispin = 1
       value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
      >   .and.rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
+     >   .and.rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3400, RTDB_ERR)
@@ -525,6 +537,7 @@ c
  3500 ispin = 2
       value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
      >   .and.rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
+     >   .and.rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3500, RTDB_ERR)
@@ -546,7 +559,8 @@ c
 c  geometry_optimize
 c 
  3800 move = .true.
-      value = rtdb_put(rtdb,'cgsd:geometry_optimize',mt_log,1,move)
+      value =     rtdb_put(rtdb,'cgsd:geometry_optimize',mt_log,1,move)
+     >       .and.rtdb_put(rtdb,'cpsd:geometry_optimize',mt_log,1,move)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3800, RTDB_ERR)

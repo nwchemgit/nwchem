@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.11 2004-01-28 00:08:46 bylaska Exp $
+* $Id: ke.F,v 1.12 2004-03-08 22:51:27 bylaska Exp $
 *
       subroutine ke_init()
       implicit none 
@@ -100,7 +100,6 @@ c     real*8 tg(nfft3d)
       do n=1,(ne(1)+ne(2))
          call Pack_tc_Mul(1,dbl_mb(tg_indx),psi1(1+(n-1)*npack1),
      >                                      psi2(1+(n-1)*npack1))
-
       end do
       
       return 
@@ -113,6 +112,7 @@ c     real*8 tg(nfft3d)
       complex*16 psi2(*)
 
 #include "mafdecls.fh"
+#include "frac_occ.fh"
 
 *     **** common block used for ke.F ****
 c     real*8 tg(nfft3d)
@@ -142,6 +142,7 @@ c     real*8 tg(nfft3d)
       real*8     ave
 
 #include "mafdecls.fh"
+#include "frac_occ.fh"
 
 *     **** common block used for ke.F ****
 c     real*8 tg(nfft3d)
@@ -172,9 +173,16 @@ c     complex*16 tmp1(nfft3d)
       ave = 0.0d0
       do ms=1,ispin
          do n=n1(ms),n2(ms)
+            if (fractional) then
+            call Pack_tc_aMul(1,dbl_mb(fweight(1)+n-1),
+     >                          dbl_mb(tg_indx),
+     >                          psi1(1+(n-1)*npack1),
+     >                          dcpl_mb(tmp1(1)))
+            else
             call Pack_tc_Mul(1,dbl_mb(tg_indx),
      >                       psi1(1+(n-1)*npack1),
      >                       dcpl_mb(tmp1(1)))
+            end if
             call Pack_cc_idot(1,psi1(1+(n-1)*npack1),
      >                       dcpl_mb(tmp1(1)),
      >                       sum)
@@ -195,7 +203,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.11 2004-01-28 00:08:46 bylaska Exp $
+* $Id: ke.F,v 1.12 2004-03-08 22:51:27 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"

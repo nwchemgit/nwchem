@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.13 2004-01-29 02:27:53 bylaska Exp $
+* $Id: inner_loop.F,v 1.14 2004-03-08 22:51:26 bylaska Exp $
 *
 
 *  ************************************************************
@@ -23,7 +23,6 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
       complex*16 psi1(npack1,nemax)
@@ -40,6 +39,8 @@
 
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "frac_occ.fh"
 
 
 *     **** local variables ****
@@ -226,15 +227,27 @@ c           call D3dB_c_Copy(1,psi1(1,n),psi_r(1,n))
 *       **** generate dn ****
 *       *********************
         call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-        do ms=1,ispin
-           do n=n1(ms),n2(ms)
-              do i=1,n2ft3d
-                 dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
-              end do
-           end do
-           call D3dB_r_Zero_Ends(1,dn(1,ms))
-        end do
-
+        if (fractional) then
+          do ms=1,ispin
+             do n=n1(ms),n2(ms)
+                do i=1,n2ft3d
+                   dn(i,ms) = dn(i,ms) 
+     >                      + scal2*(psi_r(i,n)**2)
+     >                       *dbl_mb(fweight(1)+n-1)
+                end do
+             end do
+             call D3dB_r_Zero_Ends(1,dn(1,ms))
+          end do
+        else
+          do ms=1,ispin
+             do n=n1(ms),n2(ms)
+                do i=1,n2ft3d
+                   dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+                end do
+             end do
+             call D3dB_r_Zero_Ends(1,dn(1,ms))
+          end do
+        end if
 
 *       **********************
 *       **** generate dng ****
@@ -355,7 +368,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)))
 
-
         
 *       ************************************
 *       **** do a steepest descent step ****
@@ -405,7 +417,13 @@ c          call mask_C(1,psi2(1,n))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-        if (sic) then
+        if (fractional) then
+c       call psi_lmbda3(ispin,ne,nemax,npack1,psi1,psi2,dte,
+c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
+        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
+     >                  dte,dbl_mb(fweight(1)),
+     >                  lmd,dbl_mb(tmp_L(1)),ierr)
+        else if (sic) then
         call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         else
@@ -449,7 +467,9 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
       do ms=1,ispin
          do ii=1,ne(ms)
             index = (ii) + (ii-1)*n + (ms-1)*nn
-            eorbit = eorbit + hml(index)
+            sum = hml(index)
+            if (fractional) sum=sum*dbl_mb(fweight(1)+ii-1+(ms-1)*ne(1))
+            eorbit = eorbit + sum
          end do
       end do
       if (ispin.eq.1) eorbit = eorbit+eorbit
@@ -535,6 +555,7 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
       do ms=1,ispin
       do n=n1(ms),n2(ms)
          call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
+         if (fractional) sum=sum*dbl_mb(fweight(1)+n-1)
          enlocal = enlocal - sum
       end do
       end do

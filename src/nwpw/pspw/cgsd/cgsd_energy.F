@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.46 2004-02-06 01:57:22 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.47 2004-03-08 22:51:26 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -11,10 +11,11 @@ c     $Id: cgsd_energy.F,v 1.46 2004-02-06 01:57:22 bylaska Exp $
 
 #include "stdio.fh"
 #include "util.fh"
+#include "mafdecls.fh"
+#include "frac_occ.fh"
 
 
 c#include "global.fh"
-c#include "mafdecls.fh"
 c#include "rtdb.fh"
 
       logical newpsi
@@ -294,6 +295,21 @@ c#include "rtdb.fh"
            write(luout,1500)
            NN=psi_ne(1)-psi_ne(2)
            EV=27.2116
+           if (fractional) then
+           do I=1,NN
+             write(luout,1511) psi_eigenvalue(1,I),
+     >                         psi_eigenvalue(1,I)*EV,
+     >                         dbl_mb(fweight(1)+i-1)
+           end do
+           do I=1,psi_ne(2)
+             write(luout,1511)  psi_eigenvalue(1,I+NN),
+     >                          psi_eigenvalue(1,I+NN)*EV,
+     >                          dbl_mb(fweight(1)+i-1+NN),
+     >                          psi_eigenvalue(2,I),
+     >                          psi_eigenvalue(2,I)*EV,
+     >                          dbl_mb(fweight(1)+i-1+psi_ne(1))
+           end do
+           else
            do I=1,NN
              write(luout,1510) psi_eigenvalue(1,I),
      >                         psi_eigenvalue(1,I)*EV
@@ -304,6 +320,7 @@ c#include "rtdb.fh"
      >                          psi_eigenvalue(2,I),
      >                          psi_eigenvalue(2,I)*EV
            end do
+           end if
         
 
       end if
@@ -378,6 +395,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')

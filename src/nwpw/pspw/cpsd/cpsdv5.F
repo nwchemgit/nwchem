@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.27 2004-03-01 05:14:33 bylaska Exp $
+* $Id: cpsdv5.F,v 1.28 2004-03-08 22:51:26 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -23,6 +23,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "frac_occ.fh"
       
 *     **** parallel variables ****
       integer  taskid,np
@@ -38,7 +39,8 @@
       integer npack1
 
 *     **** electronic variables ****
-      integer ispin,icharge
+      real*8 icharge
+      integer ispin
       integer ne(2),n1(2),n2(2),nemax
       real*8  en(2)
       real*8  dipole(3)
@@ -363,6 +365,8 @@
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
 
+*     **** initialize frac_occ data structure ****
+      call frac_occ_init(rtdb,ispin,ne)
 
 
 *                |**************************|
@@ -389,6 +393,7 @@
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
+         if (fractional) write(6,1132)
          call pspw_print_SIC(6)
          write(6,1140)
          do ia = 1,psp_npsp()
@@ -404,6 +409,19 @@
          end do
 
          icharge = -(ne(1)+ne(ispin))
+         en(1)     = ne(1)
+         en(ispin) = ne(ispin)
+         if (fractional) then
+            icharge = 0.0d0
+            do ms=1,ispin
+            en(ms) =0.0
+            do i=n1(ms),n2(ms)
+              icharge = icharge - (3-ispin)*dbl_mb(fweight(1)+i-1)
+              en(ms) = en(ms) + dbl_mb(fweight(1)+i-1)
+            end do
+            end do
+         end if
+            
          do ia=1,ion_nkatm()
            icharge = icharge + ion_natm(ia)*psp_zv(ia)
          end do
@@ -426,7 +444,13 @@
 
          call pspw_qmmm_Print(6)
 
-         write(6,1220) ne(1),ne(ispin),' ( fourier space)'
+         if (fractional) then
+           write(6,1219) en(1),en(ispin),' (   fractional)'
+           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+         else
+           write(6,1220) ne(1),ne(ispin),' (fourier space)'
+           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+         end if
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
@@ -592,6 +616,15 @@ c        call eigen(n,ne(ms),
 c    >              dbl_mb(hml(1)+(ms-1)*nn),
 c    >              dbl_mb(eig(1)+(ms-1)*n),
 c    >              dbl_mb(lmd(1)),ierr)
+         if (fractional) then
+         do jj=1,ne(ms)
+         do ii=1,ne(ms)
+           dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
+     >     =dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
+     >     *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
+         end do
+         end do
+         end if
          call DSYEV('V','U',ne(ms),
      >              dbl_mb(hml(1)+(ms-1)*nn),n, 
      >              dbl_mb(eig(1)+(ms-1)*n),
@@ -601,6 +634,13 @@ c    >              dbl_mb(lmd(1)),ierr)
      >              dbl_mb(hml(1)+(ms-1)*nn),
      >              ne(ms),n)
 
+        if (fractional) then
+        do ii=1,ne(ms)
+           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
+        end do
+        end if
 
       end do
 
@@ -706,15 +746,32 @@ c    >              dbl_mb(lmd(1)),ierr)
          write(6,1500)
          NN=NE(1)-NE(2)
          EV=27.2116d0
-         do i=1,NN
-           write(6,1510) dbl_mb(EIG(1)+i-1),dbl_mb(EIG(1)+i-1)*EV
-         end do
-         do i=1,ne(2)
-           write(6,1510) dbl_mb(EIG(1)+i-1+NN),
-     >                   dbl_mb(EIG(1)+i-1+NN)*EV,
-     >                   dbl_mb(EIG(1)+i-1+n1(2)-1),
-     >                   dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
-         end do
+         if (fractional) then
+           do i=1,NN
+             write(6,1511) dbl_mb(EIG(1)+i-1),
+     >                     dbl_mb(EIG(1)+i-1)*EV,
+     >                     dbl_mb(fweight(1)+i-1)
+           end do
+           do i=1,ne(2)
+             write(6,1511) dbl_mb(EIG(1)+i-1+NN),
+     >                     dbl_mb(EIG(1)+i-1+NN)*EV,
+     >                     dbl_mb(fweight(1)+i-1+NN),
+     >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
+     >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV,
+     >                     dbl_mb(fweight(1)+i-1+n1(2)-1)
+           end do
+         else
+           do i=1,NN
+             write(6,1510) dbl_mb(EIG(1)+i-1),dbl_mb(EIG(1)+i-1)*EV
+           end do
+           do i=1,ne(2)
+             write(6,1510) dbl_mb(EIG(1)+i-1+NN),
+     >                     dbl_mb(EIG(1)+i-1+NN)*EV,
+     >                     dbl_mb(EIG(1)+i-1+n1(2)-1),
+     >                     dbl_mb(EIG(1)+i-1+n1(2)-1)*EV
+           end do
+         end if
+
          end if
 
 *        ***** extra energy output for QA test ****
@@ -771,6 +828,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call pspw_end_SIC()
       call pspw_end_APC()
       call pspw_qmmm_end()
+      call frac_occ_end()
 
       value = MA_free_heap(psir(2))
       value = MA_free_heap(Hpsi(2))
@@ -846,6 +904,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
+ 1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
@@ -855,7 +914,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
- 1159 FORMAT(/' total charge:',I2)
+ 1159 FORMAT(/' total charge=',F8.3)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
@@ -864,7 +923,9 @@ c    >              dbl_mb(lmd(1)),ierr)
      >       ' ) - atomic mass= ',F6.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
- 1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
+ 1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)
+ 1220 FORMAT(/' number of electrons: spin up=',I6,  '  down=',I6,A)
+ 1221 FORMAT( ' number of orbitals : spin up=',I6,  '  down=',I6,A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
@@ -922,6 +983,7 @@ c    >              dbl_mb(lmd(1)),ierr)
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')

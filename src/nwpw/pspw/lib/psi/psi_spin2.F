@@ -12,11 +12,13 @@
       real*8 Sab
 
 #include "util.fh"
+#include "mafdecls.fh"
+#include "frac_occ.fh"
 
 *     **** local variables ****
       logical oprint
-      integer i,j
-      real*8  Sexact,SS
+      integer i,j,ms
+      real*8  Sexact,SS,en(2)
        
       integer taskid,MASTER
       parameter (MASTER=0)
@@ -34,8 +36,21 @@
 *     ****************************
 
       if (ispin .eq. 2) then
-         Sexact = (dble(ne(1)-ne(2))/2.0d0)
-     >          * ((dble(ne(1)-ne(2))/2.0d0)+1.0d0)
+
+         en(1)     = ne(1)
+         en(ispin) = ne(ispin)
+         if (fractional) then
+            do ms=1,ispin
+            en(ms) =0.0
+            do i=1,ne(ms)
+              j = fweight(1)+(i-1)+(ms-1)*ne(1)
+              en(ms) = en(ms) + dbl_mb(j)
+            end do
+            end do
+         end if
+
+         Sexact = ((en(1)-en(2))/2.0d0)
+     >          * (((en(1)-en(2))/2.0d0)+1.0d0)
          Sab = 0.0d0
          do i=1,ne(1)
          do j=1,ne(2)
@@ -44,7 +59,7 @@
             Sab = Sab + SS*SS
          end do
          end do
-         Sab = Sexact + ne(2) - Sab
+         Sab = Sexact + en(2) - Sab
       else
          Sexact = 0.0d0
          Sab    = 0.0d0

@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.25 2003-10-24 19:01:35 bylaska Exp $
+* $Id: pspw_sic.F,v 1.26 2004-03-08 22:51:27 bylaska Exp $
 *
 
 *     *************************
@@ -9,39 +9,55 @@
 *     *************************
       subroutine pspw_init_SIC(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 #include "pspw_sic.fh"
 
 *     **** local variables ****
-      logical value
+      logical value,sic_on
       integer ma_type
       integer n1,n2,n3
 
 *     **** external functions ****
-      integer  control_version
-      external control_version
+      integer  control_version,psi_ne
+      external control_version,psi_ne
 
       norbs = 0
       e_sic = 0.0d0
       p_sic = 0.0d0
+      sic_on = .false.
 
 *     **** get the number of SIC orbitals ****
-      if (rtdb_ma_get(rtdb, 'pspw:SIC_orbitals', ma_type,
+      if (rtdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) then
+         sic_on = .true.
+         norbs = psi_ne(1)+psi_ne(2)
+         if(.not.MA_alloc_get(mt_int,norbs,
+     >       'orbital_list',orbital_list(2),orbital_list(1)))
+     >        call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)
+          
+         do n1=1,norbs
+            int_mb(orbital_list(1)+n1-1) = n1
+         end do
+
+      else if (rtdb_ma_get(rtdb, 'pspw:SIC_orbitals', ma_type,
      >                norbs, orbital_list(2))) then
 
          if (.not.MA_get_index(orbital_list(2),orbital_list(1))) 
      >      call errquit(
      >       'pspw_init_SIC: ma_get_index failed for actlist',911,
      &       MA_ERR)
+         sic_on = .true.
+      end if
+
+      if (sic_on) then
 
          if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_screening_radius',
      >                      mt_dbl,1,rcut)) 
-     >       rcut = -1.0d0
+     >       rcut = 8.0d0
 
          if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_screening_power',
@@ -201,41 +217,39 @@
 
       if (norbs.ne.0) then
         if (relaxed) then
-          write(unit,*) "      - SIC relaxed"
+          write(unit,1001)
         else
-          write(unit,*) "      - SIC unrelaxed"
+          write(unit,1002)
         end if
-        write(unit,*) "      - SIC orbitals:     ",
-     >      (int_mb(orbital_list(1)+i-1),i=1,norbs)
+        write(unit,1003) (int_mb(orbital_list(1)+i-1),i=1,norbs)
 
         if (solver_type.eq.1) then
-          write(unit,*) "      - SIC screened coulomb solver"
-           if (rcut.ge.0.0d0)
-     >     write(unit,'(A,E8.3)') 
-     >     "       - SIC screening radius(pspw:SIC_screening_radius):",
-     >     rcut
-           if (rcut.ge.0.0d0)
-     >     write(unit,'(A,E8.3)') 
-     >     "       - SIC screening power (pspw:SIC_screening_power) :",
-     >     pp
-           
+          write(unit,1004)
+           if (rcut.ge.0.0d0) write(unit,1006) rcut
+           if (rcut.ge.0.0d0) write(unit,1007) pp
         else
-          write(unit,*) "      - SIC free-space coulomb solver"
+          write(unit,1005)
         end if
-        if (h_parameter.ne.1.0d0)
-     >  write(unit,'(A,E8.3)')   
-     >   "       - SIC h_parameter (pspw:SIC_h_parameter) :", 
-     >   h_parameter
-        if (xc_parameter.ne.1.0d0)
-     >  write(unit,'(A,E8.3)')   
-     >   "       - SIC xc_parameter(pspw:SIC_xc_parameter):",
-     >   xc_parameter
-
+        if (h_parameter.ne.1.0d0) write(unit,1008) h_parameter
+        if (xc_parameter.ne.1.0d0)write(unit,1009) xc_parameter
         write(unit,*)
 
       end if
 
       return
+ 1001 FORMAT(6x,"- SIC relaxed")
+ 1002 FORMAT(6x,"- SIC unrelaxed")
+ 1003 FORMAT(6x,"- SIC orbitals:",10I5)
+ 1004 FORMAT(6x,"- SIC screened coulomb solver")
+ 1005 FORMAT(6x,"- SIC free-space coulomb solver")
+ 1006 FORMAT(6x,"- SIC screening radius(pspw:SIC_screening_radius):",
+     >       E10.3)
+ 1007 FORMAT(6x,"- SIC screening power (pspw:SIC_screening_power) :",
+     >       E10.3)
+ 1008 FORMAT(6x,"- SIC h_parameter     (pspw:SIC_h_parameter)     :",
+     >       E10.3)
+ 1009 FORMAT(6x,"- SIC xc_parameter    (pspw:SIC_xc_parameter)    :",
+     >       E10.3)
       end
 
 *     ****************************

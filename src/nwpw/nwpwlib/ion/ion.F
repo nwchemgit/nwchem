@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.29 2003-10-20 16:36:36 bylaska Exp $
+* $Id: ion.F,v 1.30 2004-03-08 22:51:25 bylaska Exp $
 *
 
 *     ***************************
@@ -141,9 +141,9 @@
 
 
 *     ***************************
-*     *							*
-*     *		ion_init			*
-*     *							*
+*     *				*
+*     *		ion_init	*
+*     *				*
 *     ***************************
 *
 *        This routine reads in the ion data structure from the
@@ -1076,9 +1076,10 @@ c         eki1=0.5d0*eki1
 *     *				*
 *     ***************************
 
-      subroutine ion_verlet_step(fion)
+      subroutine ion_verlet_step(fion,alpha)
       implicit none
       double precision fion(3,*)
+      double precision alpha
 
 #include "mafdecls.fh"
 
@@ -1095,6 +1096,7 @@ c         eki1=0.5d0*eki1
       integer i
       double precision scale,dt,h
       double precision vgx,vgy,vgz
+      double precision sa1,sa2
 
 *     *** external functions ****
       double precision control_time_step,ion_amass
@@ -1102,19 +1104,21 @@ c         eki1=0.5d0*eki1
 
       dt = control_time_step()
       h = 1.0d0/(2.0d0*dt)
+      sa1 = 1.0d0/(2.0d0-alpha)
+      sa2 = alpha/(2.0d0-alpha)
 
 *     **** do a verlet step ***
       do i=1,nion
          scale = (dbl_mb(dti(1)+i-1))
-         dbl_mb(r2(1)+(i-1)*3)   = 2.0d0*dbl_mb(r1(1)+(i-1)*3) 
-     >                           -       dbl_mb(r0(1)+(i-1)*3) 
-     >                           +       scale*fion(1,i)
-         dbl_mb(r2(1)+(i-1)*3+1) = 2.0d0*dbl_mb(r1(1)+(i-1)*3+1) 
-     >                           -       dbl_mb(r0(1)+(i-1)*3+1) 
-     >                           +       scale*fion(2,i)
-         dbl_mb(r2(1)+(i-1)*3+2) = 2.0d0*dbl_mb(r1(1)+(i-1)*3+2) 
-     >                           -       dbl_mb(r0(1)+(i-1)*3+2) 
-     >                           +       scale*fion(3,i)
+         dbl_mb(r2(1)+(i-1)*3)   = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3) 
+     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3) 
+     >                           +       scale*sa1*fion(1,i)
+         dbl_mb(r2(1)+(i-1)*3+1) = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3+1) 
+     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3+1) 
+     >                           +       scale*sa1*fion(2,i)
+         dbl_mb(r2(1)+(i-1)*3+2) = 2.0d0*sa1*dbl_mb(r1(1)+(i-1)*3+2) 
+     >                           -       sa2*dbl_mb(r0(1)+(i-1)*3+2) 
+     >                           +       scale*sa1*fion(3,i)
       end do
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
@@ -1159,14 +1163,15 @@ c         eki1=0.5d0*eki1
 
 
 *     ***************************
-*     *							*
+*     *				*
 *     *	   ion_newton_step   	*
-*     *							*
+*     *				*
 *     ***************************
 
-      subroutine ion_newton_step(fion)
+      subroutine ion_newton_step(fion,alpha)
       implicit none
       double precision fion(3,*)
+      double precision alpha
 
 #include "mafdecls.fh"
 
@@ -1194,13 +1199,13 @@ c         eki1=0.5d0*eki1
          scale = 0.5d0*(dbl_mb(dti(1)+i-1))
 
          dbl_mb(r2(1)+(i-1)*3)   =    dbl_mb(r1(1)+(i-1)*3) 
-     >                           + dt*dbl_mb(r0(1)+(i-1)*3) 
+     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3) 
      >                           +       scale*fion(1,i)
          dbl_mb(r2(1)+(i-1)*3+1) =    dbl_mb(r1(1)+(i-1)*3+1) 
-     >                           + dt*dbl_mb(r0(1)+(i-1)*3+1) 
+     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3+1) 
      >                           +       scale*fion(2,i)
          dbl_mb(r2(1)+(i-1)*3+2) =    dbl_mb(r1(1)+(i-1)*3+2) 
-     >                           + dt*dbl_mb(r0(1)+(i-1)*3+2) 
+     >                           + dt*alpha*dbl_mb(r0(1)+(i-1)*3+2) 
      >                           +       scale*fion(3,i)
       end do
       call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
@@ -1210,9 +1215,8 @@ c         eki1=0.5d0*eki1
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
 
 *     **** make sure ions are in cell ***
-      call incell3(nion,dbl_mb(r2(1)),
-     >                  dbl_mb(r1(1)),
-     >                  dbl_mb(r0(1)))
+      call incell2(nion,dbl_mb(r2(1)),
+     >                  dbl_mb(r1(1)))
 
 
 *     **** determine current kinetic energy and add to running average ***
@@ -1229,13 +1233,14 @@ c         eki1=0.5d0*eki1
       kg_total = kg_total + ekg
       ke_count = ke_count + 1
 
+
       return
       end
 
 *     ***************************
-*     *							*
-*     *	   ion_nose_step  	 	*
-*     *							*
+*     *				*
+*     *	   ion_nose_step   	*
+*     *				*
 *     ***************************
 
       subroutine ion_nose_step(ssr,fion)
@@ -1323,9 +1328,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***************************
-*     *							*
-*     *		ion_shift			*
-*     *							*
+*     *				*
+*     *		ion_shift	*
+*     *				*
 *     ***************************
 
       subroutine ion_shift()

@@ -1,5 +1,5 @@
 *
-* $Id: geodesic2.F,v 1.6 2004-01-28 00:08:47 bylaska Exp $
+* $Id: geodesic2.F,v 1.7 2004-03-08 22:51:27 bylaska Exp $
 *
 
 *     ***********************************
@@ -168,10 +168,6 @@ c    >                     dbl_mb(A(1)+(ms-1)*ne(1)*ne(1)))
          n     = ne(ms)
          if (n.le.0) go to 35
          shift = (ms-1)*ne(1)*ne(1)
-c        call Grsm_ggm_dot(npack1,n,                  ! R=Yt*H
-c    >                     Y(1+(ms-1)*ne(1)*npack1),
-c    >                     H(1+(ms-1)*ne(1)*npack1),
-c    >                     dbl_mb(R(1)+shift))
          call Pack_ccm_dot(1,n,                  ! R=Yt*H
      >                     Y(1+(ms-1)*ne(1)*npack1),
      >                     H(1+(ms-1)*ne(1)*npack1),
@@ -187,6 +183,8 @@ c    >                     dbl_mb(R(1)+shift))
      >                  H,
      >                  dcpl_mb(Q(1)),
      >                  dcpl_mb(Q(1)))
+c     call Grsm_gg_Copy(npack1,nemax,H,dcpl_mb(Q(1)))
+
 
 *     **** calculate QR using Modified Gram-Schmidt ****
       do ms=1,ispin
