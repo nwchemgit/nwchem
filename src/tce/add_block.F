@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.10 2003-08-01 22:59:51 sohirata Exp $
+c $Id: add_block.F,v 1.11 2003-10-26 18:08:13 sohirata Exp $
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to
@@ -16,6 +16,7 @@ c
 #include "eaf.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer d_file
       integer d_f
@@ -37,7 +38,7 @@ c
          write(LuOut,9000) ga_nodeid(),d_file,size,offset
       endif
       if (offset .eq. -1)
-     1  call errquit('add_block: illegal offset',0)
+     1  call errquit('add_block: illegal offset',0,UNKNOWN_ERR)
       if (ioalg.eq.0) then
         if (parallel) call ga_lock(0)
         used = .false.
@@ -47,7 +48,8 @@ c
             used = .true.
           endif
         enddo
-        if (.not.used) call errquit('add_block: invalid handle',d_file)
+        if (.not.used) call errquit('add_block: invalid handle',d_file,
+     1    UNKNOWN_ERR)
         if (parallel) open(d_file,file=filenames(j),
      1    access='direct',recl=bytes)
         do i = 1,size
@@ -61,7 +63,7 @@ c
       else if (ioalg.eq.1) then
         if (.not.ma_push_get(mt_dbl,size,'temporary',
      1    l_temp,k_temp))
-     2    call errquit('add_block: MA problem',0)
+     2    call errquit('add_block: MA problem',0,MA_ERR)
         if (parallel) then
           used = .false.
           do i = 1,nfiles
@@ -73,85 +75,86 @@ c
           filename = filenames(j)
           call ga_lock(0)
           if (eaf_open(filename, EAF_RW, d_f).ne.0)
-     1      call errquit('add_block: eaf problem',2)
+     1      call errquit('add_block: eaf problem',2,DISK_ERR)
           if (eaf_read(d_f,dfloat(bytes)*dfloat(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
-     2      call errquit('add_block: eaf problem',2)
+     2      call errquit('add_block: eaf problem',2,DISK_ERR)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
           if (eaf_write(d_f,dfloat(bytes)*dfloat(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
-     2      call errquit('add_block: eaf problem',2)
+     2      call errquit('add_block: eaf problem',2,DISK_ERR)
           if (eaf_close(d_f).ne.0)
-     1      call errquit('add_block: eaf problem',0)
+     1      call errquit('add_block: eaf problem',0,DISK_ERR)
           call ga_unlock(0)
         else
           if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
-     2      call errquit('add_block: eaf problem',2)
+     2      call errquit('add_block: eaf problem',2,DISK_ERR)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
           if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
      1      dbl_mb(k_temp),bytes*size).ne.0)
-     2      call errquit('add_block: eaf problem',2)
+     2      call errquit('add_block: eaf problem',2,DISK_ERR)
         endif
         if (.not.ma_pop_stack(l_temp))
-     1    call errquit('add_block: MA problem',0)
+     1    call errquit('add_block: MA problem',0,MA_ERR)
       else if (ioalg.eq.2) then
         call ga_acc(d_file,offset+1,offset+size,1,1,
      1    array,1,1.0d0)
       else if (ioalg.eq.3) then
         if (.not.ma_push_get(mt_dbl,size,'temporary',
      1    l_temp,k_temp))
-     2    call errquit('add_block: MA problem',0)
+     2    call errquit('add_block: MA problem',0,MA_ERR)
         if (parallel) then
           call ga_lock(0)
           if (sf_open(d_file).ne.0)
-     1      call errquit('add_block: sf problem',0)
+     1      call errquit('add_block: sf problem',0,DISK_ERR)
         endif
         if (sf_read(d_file,dfloat(bytes)*dfloat(offset),
      1    dfloat(bytes)*dfloat(size),dbl_mb(k_temp),request).ne.0)
-     2    call errquit('add_block: sf problem',1)
+     2    call errquit('add_block: sf problem',1,DISK_ERR)
         if (sf_wait(request).ne.0)
-     1    call errquit('add_block: sf problem',2)
+     1    call errquit('add_block: sf problem',2,DISK_ERR)
         do i = 1,size
           dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
         enddo
         if (sf_write(d_file,dfloat(bytes)*dfloat(offset),
      1    dfloat(bytes)*dfloat(size),dbl_mb(k_temp),request).ne.0)
-     2    call errquit('add_block: sf problem',3)
+     2    call errquit('add_block: sf problem',3,DISK_ERR)
         if (sf_wait(request).ne.0)
-     1    call errquit('add_block: sf problem',4)
+     1    call errquit('add_block: sf problem',4,DISK_ERR)
         if (parallel) then
           if (sf_close(d_file).ne.0)
-     1      call errquit('add_block: sf problem',5)
+     1      call errquit('add_block: sf problem',5,DISK_ERR)
           call ga_unlock(0)
         endif
         if (.not.ma_pop_stack(l_temp))
-     1    call errquit('add_block: MA problem',1)
+     1    call errquit('add_block: MA problem',1,MA_ERR)
       else if (ioalg.eq.4) then
         if (.not.ma_push_get(mt_dbl,size,'temporary',
      1    l_temp,k_temp))
-     2    call errquit('add_block: MA problem',0)
+     2    call errquit('add_block: MA problem',0,MA_ERR)
         if (eaf_read(d_file,dfloat(bytes)*dfloat(offset),
      1    dbl_mb(k_temp),bytes*size).ne.0)
-     2    call errquit('add_block: eaf problem',2)
+     2    call errquit('add_block: eaf problem',2,DISK_ERR)
         do i = 1,size
           dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
         enddo
         if (eaf_write(d_file,dfloat(bytes)*dfloat(offset),
      1    dbl_mb(k_temp),bytes*size).ne.0)
-     2    call errquit('add_block: eaf problem',2)
+     2    call errquit('add_block: eaf problem',2,DISK_ERR)
         if (.not.ma_pop_stack(l_temp))
-     1    call errquit('add_block: MA problem',0)
+     1    call errquit('add_block: MA problem',0,MA_ERR)
       else if (ioalg.eq.5) then
         if (fileisga(d_file)) then
           call ga_acc(filehandles(d_file),offset+1,offset+size,1,1,
      1      array,1,1.0d0)
         else
-          call errquit('add_block: read/write requests to DRA',0)
+          call errquit('add_block: read/write requests to DRA',0,
+     1      UNKNOWN_ERR)
         endif
       else if (ioalg.eq.6) then
         if (fileisga(d_file)) then
@@ -160,20 +163,20 @@ c
         else
           if (.not.ma_push_get(mt_dbl,size,'temporary',
      1      l_temp,k_temp))
-     2      call errquit('add_block: MA problem',0)
+     2      call errquit('add_block: MA problem',0,MA_ERR)
           if (eaf_read(filehandles(d_file),
      1      dfloat(bytes)*dfloat(offset),
      2      dbl_mb(k_temp),bytes*size).ne.0)
-     3      call errquit('add_block: eaf problem',2)
+     3      call errquit('add_block: eaf problem',2,DISK_ERR)
           do i = 1,size
             dbl_mb(k_temp+i-1) = dbl_mb(k_temp+i-1) + array(i)
           enddo
           if (eaf_write(filehandles(d_file),
      1      dfloat(bytes)*dfloat(offset),
      2      dbl_mb(k_temp),bytes*size).ne.0)
-     3      call errquit('add_block: eaf problem',2)
+     3      call errquit('add_block: eaf problem',2,DISK_ERR)
           if (.not.ma_pop_stack(l_temp))
-     1      call errquit('add_block: MA problem',0)
+     1      call errquit('add_block: MA problem',0,MA_ERR)
         endif
       endif
  9000 format(1x,'node',i3,' add_block request to file:',i10,

@@ -1,6 +1,6 @@
       subroutine tce_t3_offset(l_t3_offset,k_t3_offset,size)
 c
-c $Id: tce_t3_offset.F,v 1.4 2003-02-13 17:42:51 sohirata Exp $
+c $Id: tce_t3_offset.F,v 1.5 2003-10-26 18:08:13 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -8,6 +8,7 @@ c
 #include "sym.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 #include "tce.fh"
       integer l_t3_offset
       integer k_t3_offset
@@ -22,7 +23,7 @@ c
      1   write(LuOut,9000)
       if (.not.ma_push_get(mt_int,(nvab**3)*(noab**3),'t3 offset',
      1  l_t3_offset,k_t3_offset))
-     2  call errquit('tce_t3_offset: MA problem',0)
+     2  call errquit('tce_t3_offset: MA problem',0,MA_ERR)
       do i = 1,(nvab**3)*(noab**3)
         int_mb(k_t3_offset+i-1) = -1
       enddo
@@ -89,14 +90,14 @@ c
         write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
         write(LuOut,*) 'Use GA/SF scheme or OS large file support'
         write(LuOut,*) '--------------------------------------------'
-        call errquit('tce_t3_offset: abort',0)
+        call errquit('tce_t3_offset: abort',0,UNKNOWN_ERR)
       endif
       if (dbl_size .gt. 2.0d0*1024.0d0**3) then
         write(LuOut,*) '---------------------------------------------'
         write(LuOut,*) 'Abort: 32 bit integer overflow is anticipated'
         write(LuOut,*) 'Use a machine with a 64 bit operating system'
         write(LuOut,*) '---------------------------------------------'
-        call errquit('tce_t3_offset: abort',0)
+        call errquit('tce_t3_offset: abort',0,UNKNOWN_ERR)
       endif
 #endif
  9000 format(/,1x,'t3 offsets')
