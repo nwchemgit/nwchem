@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri)
 c
 c
-c $Id: sp_init.F,v 1.67 2000-05-12 17:25:18 d3j191 Exp $
+c $Id: sp_init.F,v 1.68 2000-05-12 17:43:04 d3j191 Exp $
 c
       implicit none
 c
@@ -23,6 +23,7 @@ c
       character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
       real*8 temp,tempw,temps,fld
+      integer itemp(2)
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri
@@ -186,7 +187,11 @@ c
       temp=rtemp(1)
       tempw=rtemp(2)
       temps=rtemp(3)
-      call ga_brdcst(msp_02,nsf,ma_sizeof(mt_int,1,mt_byte),0)
+      itemp(1)=nsm
+      itemp(2)=nsf
+      call ga_brdcst(msp_02,itemp,ma_sizeof(mt_int,2,mt_byte),0)
+      nsm=itemp(1)
+      nsf=itemp(2)
       endif
 c
       nsfi=nsf
@@ -228,7 +233,7 @@ c
       character*255 filrst
 c
       character*1 cdum
-      integer i,j,jdum,ibx,iby,ibz,itemp(9)
+      integer i,j,jdum,ibx,iby,ibz,itemp(10)
       real*8 rtemp(4)
 c
       mbbl=0
@@ -262,8 +267,8 @@ c
       if(jdum.ne.0) then
       read(lfnrst,1001) cdum
       endif
-      read(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc
- 1005 format(5i10)
+      read(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nsf
+ 1005 format(6i10)
       close(unit=lfnrst,status='keep')
 c
       bsize=max(rshort,half*rlong,rbox)
@@ -311,11 +316,12 @@ c
       itemp(7)=nbz
       itemp(8)=npbtyp
       itemp(9)=nbxtyp
+      itemp(10)=nsf
       rtemp(1)=bsize
       rtemp(2)=1.001d0*bxmin
       rtemp(3)=1.001d0*bymin
       rtemp(4)=1.001d0*bzmin
-      call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,9,mt_byte),0)
+      call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,10,mt_byte),0)
       call ga_brdcst(msp_04,rtemp,ma_sizeof(mt_dbl,4,mt_byte),0)
       call ga_brdcst(msp_05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
       call ga_brdcst(msp_06,vlat,ma_sizeof(mt_dbl,9,mt_byte),0)
@@ -328,6 +334,7 @@ c
       nbz=itemp(7)
       npbtyp=itemp(8)
       nbxtyp=itemp(9)
+      nsf=itemp(10)
       bsize=rtemp(1)
       bxmin=rtemp(2)
       bymin=rtemp(3)
@@ -504,7 +511,6 @@ c
 #endif
 c
       lpbc9=.true.
-      nsf=0
 c
       if(me.eq.0) then
 c
@@ -1805,7 +1811,7 @@ c
  1003 format(1pe12.5)
       write(lfnrst,1004) temp,tempw,temps
  1004 format(3f12.6)
-      write(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,0,0,0,0
+      write(lfnrst,1005) nwm,nwa,nsm,nsa,nwmc,nsf,0,0,0
  1005 format(7i10,2i5)
 c
       if(nwm.gt.0) then
