@@ -150,8 +150,26 @@ PSPW:
 
 
 MD: 
+  o AMBER99: Standard parameters only as default force field
+  o PME: Shifted grid approach to reduce cost of communication
+  o PMF: Optional global scaling PMF force constant
+  o      Reporting of PMF energies
+  o      Specification biasing PMF for application of bias correction
+  o      Separate data files for each window
+  o MD: Segment size used in determining pair lists
+  o     Optional recording average properties
+  o     Import of trajectories to re-evaluate forces and potential energies
+  o     Use of lambda-scaling in regular MD run
+  o     Special anisotropic pressure scaling options for membrane simulations
+  o     Expanded timing analysis data
+  o     Optional inclusion energies between fized atoms
+  o TI: Separately reported mass-contributions to free energy differences
 
-  o ...
+QM/MM:
+  o Optional ESP fitting during QM/MM simulations
+  o Charge of QM region specified in input
+  o QM region with multiple basis set levels
+  o Link atom approach using  
 
 Integrals: 
   o Performance improvements in Texas integrals (especially for 2nd
