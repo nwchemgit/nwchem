@@ -3,7 +3,7 @@ C NAME
 C     rimp2_prep_dra -- Setup DRA sizes and names
 C
 C REVISION
-C     $Id: prep_dra.F,v 1.2 1998-07-16 19:59:50 bernhold Exp $
+C     $Id: prep_dra.F,v 1.3 1998-11-09 17:43:10 bernhold Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,
@@ -228,8 +228,11 @@ C
          EndIf
       EndDo                     ! ISpin
 C
-      Write (LuOut, 9040) MaxSiz, 'Maximum File Size'
-      Write (LuOut, 9040) TotSiz, 'Total File Size'
+      If ( PrFilInfo ) then
+         Write (LuOut, 9040) MaxSiz, 'Maximum File Size'
+         Write (LuOut, 9040) TotSiz, 'Total File Size'
+      EndIf
+      Call Util_Flush(LuOut)
 C
       Return
       End
