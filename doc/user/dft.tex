@@ -1,162 +1,426 @@
 \label{sec:dft}
+\Large
+******
+It would be really nice if someone could supply a '25-words-or-less'
+description of the DFT module right here.
+******
+\normalsize
 
-\subsection{Basis Sets}
-The DFT module uses up to three different basis sets, specified 
-in the input file as described in the NWCHEM user documentation.
-These bases are recognized according to
-the following values for the $<$string name$>$ field of the basis input:
+The DFT module is invoked in NWChem 
+by specifying the keyword \verb+dft+ on the compound directive,
+
+\begin{verbatim}
+  DFT
+    ...
+  END
+\end{verbatim}
+
+The keyword \verb+dft+ tells the code that this is a compound directive
+containing input for the DFT module.  Additional subdirectives
+may be specified by the user to define a particular
+problem.  The \verb+dft+ input will be processed until the
+\verb+END+ directive is encountered.  The actual DFT calculation will
+be performed when the input encounters a \verb+TASK+ directive of the form,
+
+\begin{verbatim}
+  TASK DFT
+\end{verbatim}
+
+Refer to the \verb+TASK+ directive description in
+Section \ref{sec:task} for a complete list of operations that can be
+specified in the DFT module.)  The options that are currently working
+in the code are
+
+\Large
+****list them here.  (Is there a default operation for DFT, by the way?)
+\normalsize
+
+The following 
+subsections describe the keywords and
+optional subdirectives that can be specified for a \verb+DFT+ calculation
+in NWChem.
+
+
+\subsection{Basis Sets for the DFT Module}
+% The DFT module uses up to three different basis sets, specified 
+% in the input file as described in the NWCHEM user documentation.
+% These bases are recognized according to
+% the following values for the $<$string name$>$ field of the basis input:
+
+The DFT module requires at a minimum the basis set for the Kohn-Sham 
+molecular orbitals.  This basis set must be in the default basis set named
+{\tt "ao basis"}, or it must be assigned to this default name using the
+\verb+SET+ directive (see Section \ref{sec:set}).
+
+In addition to the basis set for the Kohn-Sham orbitals, 
+the charge density fitting basis set can also be specified in the 
+input directives for the DFT module.  This basis set is used for the 
+evaluation of the Coulomb potential in the Dunlap scheme\footnote{B.I.~Dunlap, 
+J.W.D.~Connolly and J.R.~Sabin, J.~Chem.~Phys.~{\bf 71},  4993 (1979)}.
+The charge density fitting basis set must have the name {\tt "cd basis"}.
+This can be the actual name of a basis set, or a basis set can be 
+assigned this name using the \verb+SET+ directive, as described in
+Section \ref{sec:set}.  If this basis set is not defined by input,
+the $O(N^4)$ exact Coulomb contribution is computed.
+
+The user also has the option of specifying a third basis set for the 
+evaluation of the exchange-correlation potential.  This basis set must
+have the name {\tt "xc basis"}.  If this basis set is not specified
+by input, the exchange contribution (XC) is evaluated by numerical
+quadrature.  In most applications, this approach is efficient enough,
+so the {\tt "xc basis"} basis set is not generally required.
+
+For the DFT module, the input options for defining the basis sets in a given
+calculation can be summarized as follows;
+
 \begin{itemize}
-\item {\tt "ao basis"}  ({\sl required}) \\
-   The basis set for the (Kohn-Sham) molecular orbitals.
-\item {\tt "cd basis"} ({\sl recommended}) \\
-   The charge density fitting basis set used for the
-  evaluation of the Coulomb potential according to the Dunlap scheme
-  (B.I.~Dunlap, J.W.D.~Connolly and J.R.~Sabin, J.~Chem.~Phys.~{\bf 71},
-  4993 (1979)).  If no basis set is specified,
-  the $O(N^4)$ exact Coulomb contribution is computed. 
-\item {\tt "xc basis"}  ({\sl optional})\\
-   The fitting basis for the evaluation of the
-  exchange-correlation potential.  If not specified,
-  the XC contribution will be evaluated by numerical quadrature.
-  At present, the quadrature is efficient enough so that this option
-  is rarely used.
+\item {\tt "ao basis"} -- Kohn-Sham molecular orbitals; required for all 
+calculations
+
+%  ({\sl required}) \\
+%   The basis set for the (Kohn-Sham) molecular orbitals.
+\item {\tt "cd basis"} -- charge density fitting basis set; optional, but
+recommended for evaluation of the Coulomb potential
+
+% ({\sl recommended}) \\
+%    The charge density fitting basis set used for the
+%   evaluation of the Coulomb potential according to the Dunlap scheme
+%   (B.I.~Dunlap, J.W.D.~Connolly and J.R.~Sabin, J.~Chem.~Phys.~{\bf 71},
+%   4993 (1979)).  If no basis set is specified,
+%   the $O(N^4)$ exact Coulomb contribution is computed. 
+\item {\tt "xc basis"} -- exchange-correlation (XC) fitting basis set; 
+optional, and usually not needed
+
+%  ({\sl optional})\\
+%   The fitting basis for the evaluation of the
+%  exchange-correlation potential.  If not specified,
+%  the XC contribution will be evaluated by numerical quadrature.
+%  At present, the quadrature is efficient enough so that this option
+%  is rarely used.
 \end{itemize}
 
-\subsection{Spin Multiplicity}
+\subsection{Spin Multiplicity in the DFT Module}
 
-Both {\sl closed-shell} and {\sl open-shell} systems can be studied. 
-The spin multiplicity is specified be means of the keyword {\tt MULT}.
-(where \verb+mult+ is equal to the number of alpha electrons minus
-beta electrons +1).
+Both {\sl closed-shell} and {\sl open-shell} systems can be studied using
+the DFT module.  Specifying the keyword \verb+MULT+ within the \verb+DFT+
+directive allows the user to define the spin multiplicity of the system.
+The form of the input line is as follows;
+% The spin multiplicity is specified be means of the keyword {\tt MULT}.
+% (where \verb+mult+ is equal to the number of alpha electrons minus
+% beta electrons +1).
 
 \begin{verbatim}
    mult <integer mult> 
 \end{verbatim}
 
-\subsection{Charge}
+When the keyword \verb+MULT+ is specified, the user can define the integer
+variable \verb+mult+, where \verb+mult+ is equal to the number of alpha 
+electrons minus beta electrons, plus 1.
 
-The charge is NO LONGER specified in the dft context.  See section 
-\ref{sec:charge}.
+% **********************
+% NOTE: if CHARGE is not an input option, just don't mention it.  If there
+% is something really significant about what the DFT modules assumes 
+% for the charge, it should be explained at the top of this section, with
+% the general description of the DFT module.
+%
+% \subsection{Charge}
+% 
+% The charge is NO LONGER specified in the dft context.  See section 
+% \ref{sec:charge}.
+% **********************
 
-\subsection{Guess (Initial MO Vectors)}
+\subsection{Initial MO Vectors for the DFT Module}
 
-If a file {\tt movecs} is found in the working directory, the 
-guess keyword is ignored, and the initial Kohn-Sham orbitals are read in.
-If there is no {\tt movecs} file in the working directory,
-two options are recognized for initial orbitals:
-\begin{itemize}
-\item (Default) start from a density matrix that is the superposition of HF
-  atomic solutions:
+% If a file {\tt movecs} is found in the working directory, the 
+% guess keyword is ignored, and the initial Kohn-Sham orbitals are read in.
+% If there is no {\tt movecs} file in the working directory,
+% two options are recognized for initial orbitals:
+% \begin{itemize}
+% \item (Default) start from a density matrix that is the superposition of HF
+%   atomic solutions:
+% \begin{verbatim}
+%    guess atomic
+% \end{verbatim}
+% \item start from a one-electron (core) hamiltonian eigenvectors:
+% \begin{verbatim}
+%    guess hcore
+% \end{verbatim}
+% \end{itemize}
+
+The initial guess for the molecular orbital vectors for the calculation
+in the DFT module is taken from the contents of the file {\tt atomic.movecs}.
+This  means that the calculation starts from a density matrix that is
+a superposition of Hartree-Fock atomic solutions.
+
+The keyword \verb+GUESS+ can be used within the DFT directive to specify
+an alternative starting point for the molecular orbital vectors.  The form
+of the keyword is as follows;
+
 \begin{verbatim}
-   guess atomic
+   guess <string input_movecs default atomic>
 \end{verbatim}
-\item start from a one-electron (core) hamiltonian eigenvectors:
+
+Currently, only one alternative to the default value of {\tt atomic} is
+recognized for the string \verb+input_movecs+.  This is the string {\tt hcore},
+which directs the DFT calculation to start from one-electron (core)
+hamiltonian eigenvectors.  When this option is invoked, the input line is
+as follows;
+
 \begin{verbatim}
    guess hcore
 \end{verbatim}
-\end{itemize}
 
-\subsection{SCF Optimization Control}
+\Large
+**Does this mean that the VECTORS directive doesn't work with DFT?
+\normalsize
 
-The default optimization is by iteration of the Kohn-Sham equations
-without damping for up to 30 iterations.  The following keywords
-control the optimization:
-\begin{itemize}
-\item Maximum number of SCF (Kohn-Sham) iterations (default 30):
+\subsection{Optimization Control in the DFT Module}
+\label{opt}
+
+\Large
+**What is being optimized here?  Does the SCF have anything to do
+with the SCF module described above, or is the name just a coincidence?
+***
+\normalsize
+
+The default optimization in the DFT module is to iterate on the 
+Kohn-Sham (SCF) equations for a specified number of iterations 
+without damping.  The.  The keyword that controls this optimization 
+is \verb+ITRSCF+, and has the following general form,
+
+% \begin{itemize}
+% \item Maximum number of SCF (Kohn-Sham) iterations (default 30):
 \begin{verbatim}
-   itrscf <integer itrscf>
+   itrscf <integer itrscf default 30>
 \end{verbatim}
-\item Use direct inversion of the iterative subspace (DIIS) optimization
-  (P.~Pulay,  Chem.\ Phys.\ Lett.\ {\bf 73}, 393 (1980) and P.~Pulay,
-  J.~Comp.~Chem.~{\bf 3}, 566 (1982)):
+
+The damping to be imposed after \verb+itrscf+ iterations is specified
+as a percent of ***what?***, using the following keyword,
+
+\begin{verbatim}
+   damp <integer ndamp default 0>
+\end{verbatim}
+
+As an alternative to this iterative optimization, the user can instead
+specify direct inversion\footnote {P.~Pulay,  Chem.\ Phys.\ Lett.\ {\bf 73}, 
+393 (1980) and P.~Pulay,  J.~Comp.~Chem.~{\bf 3}, 566 (1982)} of the
+iterative subspace.  This is done by specifying the keyword \verb+diis+.
+
+When the keyword \verb+diis+ is specified, the user must also define
+the number of Fock matrices to be used in computing the DIIS step.  The
+form of the input for this option is as follows,
+
+% \item Use direct inversion of the iterative subspace (DIIS) optimization
+%   (P.~Pulay,  Chem.\ Phys.\ Lett.\ {\bf 73}, 393 (1980) and P.~Pulay,
+%   J.~Comp.~Chem.~{\bf 3}, 566 (1982)):
+
 \begin{verbatim}
    diis
+   nfock <integer nfock default 10>
 \end{verbatim}
-  {\tt nfock} Fock matrices are used to compute the DIIS step
-  (Default value is 10):
-\begin{verbatim}
-   nfock <integer nfock>
-\end{verbatim}
-\item Density matrix damping. Damp by {\tt damp} percent (default 0\%):
-\begin{verbatim}
-   damp <integer ndamp>  
-\end{verbatim}
-\item Fock matrix level shifting (M.F.~Guest and V.R.~Saunders,
-  Mol.~Phys.~{\bf 28}, 819 (1974)). The diagonal elements of
-the Fock matrix corresponding to virtual orbitals are shifted by 
-{\tt  lshift} Hartree (default 0):
-\begin{verbatim}
-   lshift <real lshift> 
-\end{verbatim}
-The level shifting procedure may be switched off after {\tt ncyshft} cycles
-(default 99):
-\begin{verbatim}
-   ncyshft <integer ncyshft> 
-\end{verbatim}
-\end{itemize}
 
-\subsection{SCF Convergence Tolerances}
-\begin{itemize}
-\item Delta energy convergence tolerance $10^{-{\tt iscfcon}}$(default 7):
+The user also has the option of level-shifting\footnote {M.F.~Guest and 
+V.R.~Saunders, Mol.~Phys.~{\bf 28}, 819 (1974)} the Fock matrix by specifying
+the keyword \verb+lshift+.  The form of this directive is as follows,
+
 \begin{verbatim}
-  scfcon <integer iscfcon>
+   lshift <real lshift default 0> 
 \end{verbatim}
-\item Delta density convergence tolerance $10^{-{\tt igcon}}$
-  (default -1 [meaning ignore]):
+
+Specifying this keyword causes the diagonal elements of the Fock matrix
+corresponding to the virtual orbitals to be shifted by \verb+lshift+.
+By default, this level-shifting procedure is switched off after 99 iterations.
+The user can specify the point at which it is switched off by defining
+the keyword {\tt ncyshft}.  The form of the input line is as follows,
+
 \begin{verbatim}
-  gcon <integer igcon>
+  ncyshft <integer ncyshft default 99> 
 \end{verbatim}
-\item DIIS error norm convergence tolerance $10^{-{\tt idiisoff}}$ 
-  (only used with DIIS, default 7):
+
+% \item Density matrix damping. Damp by {\tt ndamp} percent (default 0\%):
+% \begin{verbatim}
+%    damp <integer ndamp>  
+% \end{verbatim}
+% \item Fock matrix level shifting (M.F.~Guest and V.R.~Saunders,
+%   Mol.~Phys.~{\bf 28}, 819 (1974)). The diagonal elements of
+% the Fock matrix corresponding to virtual orbitals are shifted by 
+% {\tt  lshift} Hartree (default 0):
+% \begin{verbatim}
+%    lshift <real lshift> 
+% \end{verbatim}
+% The level shifting procedure may be switched off after {\tt ncyshft} cycles
+% (default 99):
+% \begin{verbatim}
+%   ncyshft <integer ncyshft> 
+% \end{verbatim}
+% \end{itemize}
+
+\subsection{Convergence Tolerances for the SCF in the DFT Module}
+
+\Large
+**What is being tested here?  Energy error?  What does the test mean?
+I've taken a guess at it, but I may be wrong**
+\normalsize
+
+The user has the option of specifying the convergence tolerances for the
+change in energy and the change in density in the solution using the DFT
+module.  This is done by specifying the keywords {\tt scfcon} and {\tt 
+igcon}.  The input line to specify the tolerance for the change in
+energy is as follows,
+
 \begin{verbatim}
-  idiisoff <integer idiisoff>
+  scfcon <integer iscfcon default 7>
 \end{verbatim}
-\end{itemize}
+
+The input value for the variable \verb+iscfcon+ is used in the code to
+define the convergence tolerance as $10^{-{\tt iscfcon}}$.
+
+Similarly, the input line to specify the convergence tolerance for the 
+change in density is as follows,
+
+\begin{verbatim}
+  gcon <integer igcon default -1>
+\end{verbatim}
+
+The input value for the variable \verb+igcon+ is used in the code to
+define the convergence tolerance as $10^{-{\tt igcon}}$.  The default
+value is -1, which sets the tolerance so large that in effect the 
+convergence test on the change in density is ignored.
+
+When the option for direct inversion of the iterative subspace is
+specified (by entering the keyword \verb+DIIS+; see Section \ref{opt}),
+the user can define the DIIS error norm convergence tolerance.  This
+is done by specifying an input line of the form,
+
+\begin{verbatim}
+  idiisoff <integer idiisoff default 7>
+\end{verbatim}
+
+The error norm convergence tolerance is defined as $10^{-{\tt idiisoff}}$.
+
+% \begin{itemize}
+% \item Delta energy convergence tolerance $10^{-{\tt iscfcon}}$(default 7):
+% \begin{verbatim}
+%   scfcon <integer iscfcon>
+% \end{verbatim}
+% \item Delta density convergence tolerance $10^{-{\tt igcon}}$
+%   (default -1 [meaning ignore]):
+% \begin{verbatim}
+%   gcon <integer igcon>
+% \end{verbatim}
+% \item DIIS error norm convergence tolerance $10^{-{\tt idiisoff}}$ 
+%   (only used with DIIS, default 7):
+% \begin{verbatim}
+%   idiisoff <integer idiisoff>
+% \end{verbatim}
+% \end{itemize}
 
 
-\subsection{I/O Operations}
+\subsection{Matrix I/O Operations in the DFT Module}
 
-Disk storage of inverted CD and XC matrices may be turned off 
-(they are written out by default) with the keyword:
+The inverted charge-density and exchange-correlation matrices
+for a DFT calculation are normally written to disk storage.  The user
+can prevent this by specifying the keyword \verb+noio+ within the
+input for the DFT directive.  The input to exercise this option is
+as follows,
+% Disk storage of inverted CD and XC matrices may be turned off 
+% (they are written out by default) with the keyword:
+
 \begin{verbatim}
    noio
 \end{verbatim}
 
-\subsection{Exchange and Correlation Functionals}
-The default exchange-correlation treatment uses the Slater exchange 
-functional and the Vosk-Wilk-Nusair correlation functional.
-The following functionals are available:
-\paragraph{Exchange}
-\begin{itemize}
-\item  Slater $\rho^{1/3}$ functional; J.C.~Slater, 
-  {\sl Quantum Theory of Molecules and
-  Solids, Vol.~4: The Self-Consistent Field for Molecules and Solids}
-(McGraw-Hill, New York, 1974):
+\Large
+**What are the consequences of exercising this option?  Are the matrices
+needed for something later on?  Will they have to be recomputed at some
+point?***
+\normalsize
+
+\subsection{Exchange and Correlation Functionals for the DFT Module}
+
+The user has the option of specifying the exchange-correlation treatment 
+in the DFT Module.  The default for the exchange functional is the 
+Slater $\rho^{1/3}$ functional (from J.C.~Slater, 
+{\sl Quantum Theory of Molecules and
+Solids, Vol.~4: The Self-Consistent Field for Molecules and Solids}
+(McGraw-Hill, New York, 1974)).  The default for the correlation
+functional is the Vosk-Wilk-Nusair (VWN) local density functional
+(S.J.~Vosko, L.~Wilk and M.~Nusair, 
+Can.~J.~Phys.~{\bf  58}, 1200 (1980)).  The parameters used in this
+formula are obtained by fitting to the {\bf Ceperley \&
+Alder\footnotemark[1]} Quantum
+MonteCarlo solution of the {\bf homogenous electron gas}.
+
+These defaults can be invoked explicitly by specifying the following
+keywords within the DFT module input directive,
+
 \begin{verbatim}
-   slater
+  slater
+  vwn
 \end{verbatim}
-\item Becke gradient-corrected functional; 
-  A.D.~Becke, J.~Chem.~Phys.~88, 3098 (1988):
+
+The following subsections describe the options other than the defaults for
+these functionals in the DFT module.
+ 
+\Large
+**any restrictions on which exchange functional goes with which correlation
+functional?***
+\normalsize
+
+% The following functionals are available:
+% \paragraph{Exchange}
+% \begin{itemize}
+% \item  Slater $\rho^{1/3}$ functional; J.C.~Slater, 
+%   {\sl Quantum Theory of Molecules and
+%   Solids, Vol.~4: The Self-Consistent Field for Molecules and Solids}
+% (McGraw-Hill, New York, 1974):
+% \begin{verbatim}
+%    slater
+% \end{verbatim}
+
+\subsubsection{Optional Exchange Functionals}
+
+There are two options in addition to the default for the exchange functional.
+These are the Becke gradient-corrected functional (see A.D.~Becke, 
+J.~Chem.~Phys.~88, 3098 (1988)), and the Hartree-Fock
+exact exchange functional.
+
+The Becke gradient-corrected functional is invoked by specifying the input
+line,
+
+% \item Becke gradient-corrected functional; 
+%   A.D.~Becke, J.~Chem.~Phys.~88, 3098 (1988):
 \begin{verbatim}
    becke88
 \end{verbatim}
-\item Hartree-Fock exact exchange ($O(N^4)$):
+% \item Hartree-Fock exact exchange ($O(N^4)$):
+
+The Hartree-Fock exact exchange functional, (which is exact to $O(N^4)$),
+is invoked by specifying the input line,
+
+% \begin{verbatim}
 \begin{verbatim}
    HFexch
 \end{verbatim}
-\end{itemize}
 
-\paragraph{Correlation}
-%{\bf Correlation}
+% \paragraph{Correlation}
+% {\bf Correlation}
+
+\subsubsection{Optional Correlation Functionals}
+
+There are five options in addition to the default correlation functional.
+Each one is listed below with the keyword that must be specified by input
+to invoke it for the DFT calculation.
+
 \begin{itemize}
-\item VWN Local density functional; S.J.~Vosko, L.~Wilk and M.~Nusair, 
-  Can.~J.~Phys.~{\bf  58}, 1200 (1980); the parameters used in this
-  formula are obtained by fitting to the {\bf Ceperley \&
-  Alder\footnotemark[1]} Quantum
-  MonteCarlo solution of the {\bf homogenous electron gas}.
-\begin{verbatim}
-   vwn
-\end{verbatim}
+% \item VWN Local density functional; S.J.~Vosko, L.~Wilk and M.~Nusair, 
+%   Can.~J.~Phys.~{\bf  58}, 1200 (1980); the parameters used in this
+%   formula are obtained by fitting to the {\bf Ceperley \&
+%   Alder\footnotemark[1]} Quantum
+%   MonteCarlo solution of the {\bf homogenous electron gas}.
+% \begin{verbatim}
+%    vwn
+% \end{verbatim}
 \item VWN Local density functional; S.J.~Vosko, L.~Wilk and M.~Nusair, 
   Can.~J.~Phys.~{\bf  58}, 1200 (1980); ; the parameters used in this
   formula are obtained by fitting to the {\bf RPA} solution to the
@@ -169,7 +433,7 @@ The following functionals are available:
   Alder\footnotemark[1]} Quantum
   MonteCarlo solution of the {\bf homogenous electron gas}.
 \begin{verbatim}
-pw91lda
+   pw91lda
 \end{verbatim}
 \item LYP Gradient-corrected functional; 
   C.~Lee, W.~Yang and R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785 (1988):
@@ -192,24 +456,48 @@ Phys. Rev. B {\bf 46}, 6671 (1992).
 \footnotetext[1]{D.M.~Ceperley and B.J.~Alder, Phys. Rev. Lett. {\bf 45},
   566 (1980).}
 
-\paragraph{Hybrid Methods}
+% \paragraph{Hybrid Methods}
+\subsubsection{Hybrid Methods for Determining the Exchange and Correlation 
+Functionals}
 
-\begin{itemize}
-\item Becke ``{\sl half and half}'' exchange:
-  A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992); the Exchange energy is
-  computed as
+In addition to the options listed above for the exchange and correlation
+functionals, the user has the alternative of specifying a hybrid
+method.  This consists of the Becke ``{\sl half and half}'' exchange 
+functional (see A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992)), and a
+correlation functional computed by the adiabatic connection method
+(see A.D.~Becke, J.~Chem.~Phys.~98, 5648 (1993)).  
+
+This option is invoked
+by specifying input lines as follows,
+
+% \begin{itemize}
+% \item Becke ``{\sl half and half}'' exchange:
+%   A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992); the Exchange energy is
+%   computed as
+% \begin{eqnarray*}
+% E_{X} \ = \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm Slater}_{X} +
+% \frac{1}{2} \Delta E^{\rm Becke88}_{X} 
+% \end{eqnarray*}
+
+\begin{verbatim}
+   beckehandh
+   acm
+\end{verbatim}
+
+The keyword \verb+beckehandh+ specifies that the exchange energy will be
+computed as
 \begin{eqnarray*}
 E_{X} \ = \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm Slater}_{X} +
 \frac{1}{2} \Delta E^{\rm Becke88}_{X} 
 \end{eqnarray*}
 
-\begin{verbatim}
-   beckehandh
-\end{verbatim}
+The keyword \verb+acm+ specifies that the exchange-correlation energy
+is computed as
 
-\item {\sl Adiabatic connection method}:
-  A.D.~Becke, J.~Chem.~Phys.~98, 5648 (1993); the Exchange-Correlation
- energy is  computed as
+% \item {\sl Adiabatic connection method}:
+%   A.D.~Becke, J.~Chem.~Phys.~98, 5648 (1993); the Exchange-Correlation
+%  energy is  computed as
+
 \begin{eqnarray*}
 E_{XC} \ &=& \ E^{\rm VWN}_C + a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +
 a_X \Delta E^{\rm Becke88}_{X} + a_C \Delta E^{Perdew91}_C \\
@@ -217,68 +505,149 @@ a_X \Delta E^{\rm Becke88}_{X} + a_C \Delta E^{Perdew91}_C \\
 a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
 
+\Large
+**Any suggestions for the user as to when or why this might be a good option
+to select?***
+\normalsize
 
+% \begin{verbatim}
+%    acm
+% \end{verbatim}
+
+% \end{itemize}
+
+\subsection{Integral Tolerances in the DFT Module}
+
+%  Three keywords provide control of screening for the evaluation of
+% the AO Gaussian functions, exchange-correlation (XC) Gaussian fitting 
+% functions, charge-density (CD) Gaussian fitting functions, 
+% and two-electron integrals:
+
+The user has the option of controlling screening for the tolerances in
+the integral evaluations for the DFT module.  In most applications, the
+default values will be adequate for the calculation, but different values
+can be specified in the input for the DFT module using the keywords
+described below.
+
+The input to define a screening tolerance for evaluation of the AO 
+Gaussian functions is specified with the keyword \verb+accAOfunc+, as
+follows,
 
 \begin{verbatim}
-   acm
-\end{verbatim}
+   accAOfunc <integer iAOacc default 20>
 
-\end{itemize}
-
-\subsection{Integral Tolerances}
-Three keywords provide control of screening for the evaluation of
-the AO Gaussian functions, exchange-correlation (XC) Gaussian fitting 
-functions, charge-density (CD) Gaussian fitting functions, 
-and two-electron integrals:
-\begin{itemize}
-\item  A Gaussian orbital basis (AO) function with exponent $\zeta$
+A Gaussian orbital basis (AO) function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2 > {\tt iAOacc}$ (default {\tt iAOacc} value: 20)
+$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt iAOacc}$.
+
+The input to define a screening tolerance for evaluation of the exchange-
+correlation (XC) Gaussian fitting functions is specified with the
+keyword \verb+accXCfunc+, as follows,
+ 
 \begin{verbatim}
-   accAOfunc <integer iAOacc>
+   accXCfunc <integer iXCacc default 20>
 \end{verbatim}
-\item Similarly, a XC fitting function with exponent $\zeta$
+
+An exchange-correlation (XC) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2 > {\tt iXCacc}$ (default {\tt iXCacc} value: 20)
+$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt iXCacc}$.
+
+The input to define a screening tolerance for evaluation of the
+charge-density (CD) Gaussian fitting functions is specified with the
+keyword \verb+accCoul+, as follows,
+
 \begin{verbatim}
-   accXCfunc <integer iXCacc>
+   accCoul <integer itol2e default 15>
 \end{verbatim}
-\item As above, for the Coulomb fitting basis.  A  CD fitting function 
-with exponent $\zeta$
-and radial factor $e^{-\zeta\cdot r_i^2}$ is 
-evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2 > {\tt itol2e}$
-In addition, the same
-parameter {\tt itol2e} is used in Schwarz screening for the 
-Coulomb integrals: only integrals with estimated
-values greater than $10^{(-{\tt itol2e})}$ are evaluated. (Default
-{\tt itol2e} value: 15):
+% \end{itemize}
+
+A  charge-density (CD) fitting function with exponent $\zeta$
+and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
+point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt itol2e}$
+In addition, the input
+parameter {\tt itol2e} is also used to define the tolerance  in Schwarz 
+screening for the Coulomb integrals.  Only integrals with estimated
+values greater than $10^{(-{\tt itol2e})}$ are evaluated.
+
+% \begin{itemize}
+% \item  A Gaussian orbital basis (AO) function with exponent $\zeta$
+% and radial factor $e^{-\zeta\cdot r_i^2}$ is 
+% evaluated  at a point $r_i$ only if 
+% $\zeta\cdot r_i^2 > {\tt iAOacc}$ (default {\tt iAOacc} value: 20)
+% \begin{verbatim}
+%    accAOfunc <integer iAOacc>
+% \end{verbatim}
+% \item Similarly, a XC fitting function with exponent $\zeta$
+% and radial factor $e^{-\zeta\cdot r_i^2}$ is 
+% evaluated  at a point $r_i$ only if 
+% $\zeta\cdot r_i^2 > {\tt iXCacc}$ (default {\tt iXCacc} value: 20)
+% \begin{verbatim}
+%    accXCfunc <integer iXCacc>
+% \end{verbatim}
+% \item As above, for the Coulomb fitting basis.  A  CD fitting function 
+% with exponent $\zeta$
+% and radial factor $e^{-\zeta\cdot r_i^2}$ is 
+% evaluated  at a point $r_i$ only if 
+% $\zeta\cdot r_i^2 > {\tt itol2e}$
+% In addition, the same
+% parameter {\tt itol2e} is used in Schwarz screening for the 
+%  Coulomb integrals: only integrals with estimated
+% values greater than $10^{(-{\tt itol2e})}$ are evaluated. (Default
+% {\tt itol2e} value: 15):
+% \begin{verbatim}
+%    accCoul <integer itol2e>
+% \end{verbatim}
+% \end{itemize}
+
+\subsection{Quadrature Tolerances in the DFT Module}
+
+% \begin{itemize}
+% \item 
+Two types of angular grid have been implemented in the DFT module.  These
+are the Gauss-Legendre grid, and the Lebedev grid\footnote{The subroutine 
+for the Lebedev grid was supplied by M.~Caus\`a of the University of Torino.}
+The default in the DFT calculation is to select the Gauss-Legendre grid,
+but the user can specify this input explicitly using the following input
+line,
+
+%  Gauss-Legendre (default):
 \begin{verbatim}
-   accCoul <integer itol2e>
+   KEYWORD  <string grid_type default gausleg>  \
+     <string tag> <string radial_density default medium>  \
+                  <string ang_density default medium>     \
+   END
 \end{verbatim}
-\end{itemize}
-\subsection{Quadrature Tolerances}
-\begin{itemize}
-\item Two types of angular grid have been implemented.
-  Gauss-Legendre (default):
-\begin{verbatim}
-   gausleg
-\end{verbatim}
-or Lebedev (routine supplied by M.~Caus\`a of the University of Torino):
-\begin{verbatim}
-   lebedev
-\end{verbatim}
-\item Choices of grid density (default is {\tt medium}), range from 
-\begin{verbatim}
-   coarse
-\end{verbatim}
-to
-\begin{verbatim}
-   xfine
-\end{verbatim}
-with the following definitions around each center:
+
+By default, the string \verb+grid_type+ is set to \verb+gausleg+, for the
+Gauss-Legendre grid.  The Lebedev grid is specified with \verb+grid_type+
+entered as \verb+lebedev+.  The default grid density for every atom or
+center in the molecule is set to \verb+medium+ by default.  The user has the
+option of defining the radial and angular grid density for a given atom 
+or center of the molecule, within
+the range from coarse to extra-fine.  This is done by specifying the string 
+\verb+tag+ that identifies the atom or center in the basis set (see Section
+\ref{sec:basis}), and entering \verb+coarse+, \verb+medium+, \verb+fine+,
+or \verb+xfine+ for the strings \verb+radial_density+ and \verb+ang_density+.
+
+% or Lebedev (routine supplied by M.~Caus\`a of the University of Torino):
+%  \begin{verbatim}
+%    lebedev
+% \end{verbatim}
+% \item Choices of grid density (default is {\tt medium}), range from 
+% \begin{verbatim}
+%    coarse
+% \end{verbatim}
+% to
+% \begin{verbatim}
+%    xfine
+% \end{verbatim}
+
+The effect of this input on the grid size for each atom or center is listed
+in the following table.
+
+% with the following definitions around each center:
 
   \begin{tabular}[right]{|l|r r r r|} \hline
 Keyword & {\tt coarse} & {\tt medium} & {\tt fine} & {\tt xfine} \\ \hline
@@ -290,20 +659,38 @@ $N_{angular}$ & 6 & 8 & 10 & 10 \\  \hline
 %\multicolumn{5}{l}{   with a 6-31g$*$ basis} \\
   \end{tabular}
 
-\item Grid cutoff: for a given center (i.e.~atom) $A$, points that lie
-more than {\tt iRmax} bohr from center $A$ are neglected. (Default value: 40):
-\begin{verbatim}
-   accQrad <integer iRmax>
-\end{verbatim}
-\end{itemize}
+\Large
+***NOTE: I guessed at the proper form of the input for this feature, based
+on the input conventions defined earlier.  Someone needs to check this,
+and supply the correct names for the variables and keywords that I've made
+up.***
 
-\subsection{Mulliken Population Analysis}
+% \item  Grid cutoff: for a given center (i.e.~atom) $A$, points that lie
+% more than {\tt iRmax} bohr from center $A$ are neglected. (Default value: 40)
+
+The user also has the option of specifying the grid cut-off for the
+DFT calculation, using the keyword \verb+accQrad+.  The input line for
+this option is as follows,
+
+\begin{verbatim}
+   accQrad <integer iRmax default 40>
+\end{verbatim}
+% \end{itemize}
+
+The value entered for \verb+iRmax+ is the cutoff distance, in bohr, for grid
+points around a given center or atom.  Grid points that lie more than 
+\verb+iRmax+ bohr from the center or atom are neglected. 
+
+\subsection{Mulliken Population Analysis in the DFT Module}
+
 Mulliken analysis of the charge distribution is invoked by the keyword:
 \begin{verbatim}
    mulliken
 \end{verbatim}
 
-
+\Large
+**What is this, and why would the user want to do it?  What is the default?**
+\normalsize
 
 
 %%% Local Variables: 
