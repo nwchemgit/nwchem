@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.106 2002-06-04 20:28:32 d3j191 Exp $
+c $Id: sp_init.F,v 1.107 2002-07-09 10:27:38 d3j191 Exp $
 c
       implicit none
 c
@@ -250,7 +250,7 @@ c
 c
       character*1 cdum
       integer i,j,jdum,ibx,iby,ibz,itemp(10)
-      real*8 rtemp(4)
+      real*8 rtemp(5)
 c
       mbbl=0
 c
@@ -270,8 +270,8 @@ c
       read(lfnrst,1007) hist(i)
  1007 format(a80)
     6 continue
-      read(lfnrst,1002) npbtyp,nbxtyp
- 1002 format(2i5)
+      read(lfnrst,1002) npbtyp,nbxtyp,rsgm
+ 1002 format(2i5,f12.6)
       read(lfnrst,1004) ((vlat(i,j),j=1,3),i=1,3)
  1004 format(3f12.6)
       box(1)=vlat(1,1)
@@ -373,8 +373,9 @@ c
       rtemp(2)=1.001d0*bxmin
       rtemp(3)=1.001d0*bymin
       rtemp(4)=1.001d0*bzmin
+      rtemp(5)=rsgm
       call ga_brdcst(msp_03,itemp,ma_sizeof(mt_int,10,mt_byte),0)
-      call ga_brdcst(msp_04,rtemp,ma_sizeof(mt_dbl,4,mt_byte),0)
+      call ga_brdcst(msp_04,rtemp,ma_sizeof(mt_dbl,5,mt_byte),0)
       call ga_brdcst(msp_05,box,ma_sizeof(mt_dbl,3,mt_byte),0)
       call ga_brdcst(msp_06,vlat,ma_sizeof(mt_dbl,9,mt_byte),0)
       nwm=itemp(1)
@@ -391,7 +392,10 @@ c
       bxmin=rtemp(2)
       bymin=rtemp(3)
       bzmin=rtemp(4)
+      rsgm=rtemp(5)
       endif
+c
+      rbbl=rlong+half*rsgm
 c
       boxh(1)=half*box(1)
       boxh(2)=half*box(2)
@@ -1482,9 +1486,9 @@ c
 c
 c     keep only those within maximum cutoff distance
 c
-      if(rlong*rlong.gt.dist2) mbbl=mbbl+1
+      if(rbbl*rbbl.gt.dist2) mbbl=mbbl+1
       endif
-      if(rlong*rlong.gt.dist2) mbblb=mbblb+1
+      if(rbbl*rbbl.gt.dist2) mbblb=mbblb+1
  6    continue
  5    continue
  4    continue
@@ -1661,7 +1665,7 @@ c
 c
 c     keep only those within maximum cutoff distance
 c
-      if(rlong*rlong.gt.dist2) then
+      if(rbbl*rbbl.gt.dist2) then
       nbbl=nbbl+1
       if(nbbl.gt.mbbl) call errquit('Box-box list too small',mbbl)
       lbbl(nbbl,1)=jnode
@@ -1972,8 +1976,8 @@ c
       write(lfnrst,1009) hist(i)
  1009 format(a80)
    10 continue
-      write(lfnrst,1002) npbtyp,nbxtyp,((vlat(i,j),j=1,3),i=1,3)
- 1002 format(2i5,/,(3f12.6))
+      write(lfnrst,1002) npbtyp,nbxtyp,rsgm,((vlat(i,j),j=1,3),i=1,3)
+ 1002 format(2i5,f12.6,/,(3f12.6))
       write(lfnrst,1003) pres
  1003 format(1pe12.5)
       write(lfnrst,1004) temp,tempw,temps
