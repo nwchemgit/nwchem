@@ -1,7 +1,10 @@
 *
-* $Id: paw_mult_interaction.F,v 1.9 2003-02-25 02:36:49 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.10 2003-03-22 01:03:46 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.9  2003/02/25 02:36:49  bylaska
+* debug write statements removed...EJB
+*
 * Revision 1.8  2003/02/22 03:10:44  bylaska
 * debugging multipole coefficients...There is currently a bug in
 * find_comp_coeff...EJB
@@ -239,7 +242,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
            tmp_cmplx = prefactor*gaunt_coeff*Y_lm*dkummer
            fx = fx + tmp_cmplx*sin_theta*cos_phi
            fy = fy + tmp_cmplx*sin_theta*sin_phi
-           fz = fz + tmp_cmplx*dkummer*cos_theta
+           fz = fz + tmp_cmplx*cos_theta
 
            phase_factor = -phase_factor
 
