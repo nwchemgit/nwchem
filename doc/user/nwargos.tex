@@ -1064,11 +1064,17 @@ which the center of mass motion is removed.
 \item
 Updating the radial distribution functions
 \begin{verbatim}
-update rdf <i nfrdf>
+update rdf <i nfrdf> [range <r rrdf>] [bins <i ngl>]
 \end{verbatim}
 where {\bf nfrdf} is the frequency in molecular dynamics steps in 
 which contributions to the radial distribution functions are
-evaluated. The default is 0. If radial distribution function are to be
+evaluated. The default is 0. The range of the radial distribution
+functions is given by {\bf rrdf} in nm, with a default of the short
+range cutoff radius. Note that radial distribution functions is not
+be evaluated beyond the short range cutoff radius. The number of
+bins in each radial distribution function is given by {\bf ngl}, with
+a default of 1000.
+If radial distribution function are to be
 calculated, a {\bf rdi} files needs to be available in which the
 contributions are specified as follows.
 \begin{center}
@@ -1175,6 +1181,11 @@ record sync <i nfsync>
 \end{verbatim}
 where {\bf nfsync} is the frequency in molecular dynamics steps
 of writing information to this file. The default is not to record.
+The information written is the simulation time, the wall clock time
+of the previous MD step, the wall clock time of the previous force
+evaluation, the total synchronization time, the largest
+synchronization time and the node on which the largest synchronization
+time was found.
 \end{itemize}
 Record directive may be combined to a single directive.
 \subsection{Program control options}
