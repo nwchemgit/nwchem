@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.16 2000-10-23 15:52:45 windus Exp $
+c     $Id: dft_scf_so.F,v 1.17 2001-02-07 19:57:01 zzhang Exp $
 c     
       implicit none
 c     
@@ -86,8 +86,6 @@ c      integer nva
 
       integer l_occ, k_occ
       integer i, j,  i1, jstart 
-c      integer tot
-c      double precision vso(1,1)
       integer me, nproc
       integer g_tmp, g_fockt, g_wght, g_xyz,g_nq
 c     so
@@ -458,8 +456,9 @@ c
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2))
       spinor = .false. 
-      if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     &     spinor=spinor_guess(movecs_in)
+      spinor=spinor_guess(movecs_in)
+c      if (rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+c     &     spinor=spinor_guess(movecs_in)
       if(.not.spinor)then 
          if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
             if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
@@ -542,8 +541,8 @@ c     read spinors from files
 c     
 c     get MO vectors from file
 c     
-         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $        call errquit('dft_scf_so: DFT MO vectors not defined',0)
+c         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+c     $        call errquit('dft_scf_so: DFT MO vectors not defined',0)
          status = movecs_read_header_so(movecs_in, title1, basis_name1,
      $        scftype1, nbf1)
 c     
@@ -750,40 +749,12 @@ c     compute core energy
 c     
       call ga_zero(g_fock)
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'kinetic', oskel)
-
-c      tot=0
-c      write(*,*)"overlap"
-c      do i = 1,nbf_ao
-c         do j = 1, i
-c            call ga_get(g_s,i,i,j,j,vso,1)
-c            if(abs(vso(1,1)).gt.1.0e-8)then 
-c               tot=tot+1
-c               write(*,'("i,j,",i4,i4,f10.5)')i,j,vso(1,1)
-c            endif
-c         enddo
-c      enddo
-c      write(*,'("i,j,",i10)')tot
-
-c      tot=0
-c      write(*,*)"kinetic"
-c      do i = 1,nbf_ao
-c         do j = 1, i
-c            call ga_get(g_fock,i,i,j,j,vso,1)
-c            if(abs(vso(1,1)).gt.1.0e-8)then 
-c               tot=tot+1
-c               write(*,'("i,j,",i4,i4,f10.5)')i,j,vso(1,1)
-c            endif
-c         enddo
-c      enddo
-c      write(*,'("i,j,",i10)')tot
-
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
 
       call ga_fock_sf(g_fock, g_fockso(1), nbf_ao) 
 cso   Re(Dsf)=Re(Daa)+Re(Dbb)=g_dens(1) 
 cso   <Hsf> = Re(Dsf) dot T+Vsf 
       Ecore = ga_ddot(g_dens(1), g_fock)
-c      write(*,*)"Ecore=", ecore
       call ga_zero(g_so(1))
       call ga_zero(g_so(2))
       call ga_zero(g_so(3))
@@ -795,20 +766,7 @@ cso
       call ga_scale(g_so(1),dble(0.5d0))
       call ga_scale(g_so(2),dble(0.5d0))
       call ga_scale(g_so(3),dble(0.5d0))
-
-c      tot=0
-c      write(*,*)"spin-orbit"
-c      do i = 1,nbf_ao
-c         do j = 1, i
-c            call ga_get(g_so(1),i,i,j,j,vso,1)
-c            if(abs(vso(1,1)).gt.1.0e-8)then 
-c               tot=tot+1
-c               write(*,'("i,j,",i4,i4,f10.5)')i,j,2*vso(1,1)
-c            endif
-c         enddo
-c      enddo
-
-       call ga_fock_so(g_so, g_fockso, nbf_ao)
+      call ga_fock_so(g_so, g_fockso, nbf_ao)
 cso  
 cso   Accumulate z-component s.o. contribution
 cso   Re(Dz)=-Im(Daa)+Im(Dbb) 
@@ -817,7 +775,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'z') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(1)) 
-c      write(*,*)"Ecore=", ecore
+      write(*,*)"Ecore+=so(z)", ecore
 cso  
 cso   Accumulate y-component s.o. contribution 
 cso   Re(Dy)=Re(Dab)-Re(Dba) 
@@ -826,7 +784,7 @@ cso
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'y') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(2)) 
-c      write(*,*)"Ecore=", ecore
+      write(*,*)"Ecore+=so(y)", ecore
 cso  
 cso   Accumulate x-component s.o. contribution 
 cso   Re(Dx)=-Im(Dab)-Im(Dba) 
@@ -834,7 +792,7 @@ cso   <Hx>=Re(Dx) dot Vx
       call ga_zero(g_tmp) 
       call ga_dens_so(g_tmp, g_densso, nbf_ao, 'x') 
       Ecore = Ecore + ga_ddot(g_tmp, g_so(3))
-c      write(*,*)"Ecore=", ecore
+      write(*,*)"Ecore+=so(x)", ecore
       noso = Ecore-noso 
 c     
 c     Perform SPM analysis
@@ -1195,6 +1153,8 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
       enddo
 c      write(*,'("before transform")')
 c      write(*,*)(Dbl_mb(k_eval(1)+i),i=0,nbf_mo-1)
+c      call ga_print(g_moso(1))
+c      call ga_print(g_moso(2))
 c     
 c     Check HOMO/LUMO gap.
 c     

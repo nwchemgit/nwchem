@@ -1,5 +1,5 @@
       subroutine dft_gradients_so(rtdb)
-c     $Id: dft_gradients_so.F,v 1.6 2000-10-23 15:52:45 windus Exp $
+c     $Id: dft_gradients_so.F,v 1.7 2001-02-07 19:56:14 zzhang Exp $
 c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
@@ -250,8 +250,8 @@ c
 c     
 c     get MO vectors from file
 c     
-      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $     call errquit('dft_gradient: DFT MO vectors not defined',0)
+c      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+c     $     call errquit('dft_gradient: DFT MO vectors not defined',0)
       status = movecs_read_header_so
      $     (movecs_in, title_vecs, basis_vecs,
      $     scftype_vecs, nbf_vecs)
