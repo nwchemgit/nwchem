@@ -28,9 +28,15 @@ c
 c
       call uccsdt_init(rtdb)
 c
+c     Initialize performance statistics
+c
+      call uccsdt_pstat_init(rtdb)
+c
       call uccsdt_triples(rtdb)
 c     
       call uccsdt_tidy(rtdb)
+c
+      call uccsdt_pstat_print
 c
       call util_print_pop
       uccsdt = .true.
@@ -604,7 +610,6 @@ c
       integer sym3, sym4, i, j, k, l, int_sym, t1_sym
       sym3(i,j,k) = ieor(ieor(i,j),k)
       sym4(i,j,k,l) = ieor(ieor(ieor(i,j),k),l)
-c     
       spin   = asuper_spin
       spinck = csuper_spin
 c     
@@ -1335,7 +1340,6 @@ c
       call ga_sync()
 c     
       uccsdt_triples_sub_blocked = energy
-c     
       end
       subroutine uccsdt_triples_super_blocking(spina,spinc,
      $     max_nsuper_block, nasuper, ncsuper, a_super_block,
@@ -2401,6 +2405,7 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "cuccsdtP.fh"
+#include "cuccsdtps.fh"
 #include "amplitudes.fh"
 #include "mafdecls.fh"
 #include "dra.fh"
@@ -2432,6 +2437,8 @@ c
 c     
       oprint_sub = util_print('sub-blocking', print_debug) .and.
      $     ga_nodeid().eq.0
+c
+      if (ouccsdtps) call pstat_on(ps_triples)
 c     
 c     For debug purposes generate the full list of Dirac integrals
 c     in a common block
@@ -2620,9 +2627,13 @@ c
          do spinc = 1, 2
             energy(spina,spinc) = 0.0d0
 c     
+            if (ouccsdtps) call pstat_on(ps_triples_super_blocking)
+c     
             call uccsdt_triples_super_blocking(spina, spinc,
      $           max_nsuper_block, nasuper, ncsuper, a_super_block,
      $           c_super_block)
+c     
+            if (ouccsdtps) call pstat_off(ps_triples_super_blocking)
 c     
             do asuperblk = 1, nasuper
                alo = a_super_block(1,asuperblk)
@@ -2645,27 +2656,51 @@ c
                      clo = c_super_block(1,csuperblk)
                      chi = c_super_block(2,csuperblk)
 c     
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_triples_sub_blocking)
+c     
                      call uccsdt_triples_sub_blocking
      $                    (alo, ahi, blo, bhi, clo, chi, spina, spinc,
      $                    oprint_sub, .false., ma_used, ga_used)
-c                     write(6,*)' after sub_blocking before moints '
+c     
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_triples_sub_blocking)
+c     
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_triples_moints)
+c     
                      call uccsdt_triples_moints()
-c                     write(6,*)' after moints before dummy amps '
 c
-c                     call uccsdt_triples_dummy_amplitudes()
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_triples_moints)
+c     
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_triples_amplitudes)
+c     
                      call uccsdt_triples_amplitudes(d_amp, spina, spinc)
+c
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_triples_amplitudes)
+c     
                      call dfill(5000, 0.0d0, dummy, 1)
 c
-c                     write(6,*)' after dummy amps before sub_blocked '
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_triples_sub_blocked)
+c     
                      energy(spina,spinc) = energy(spina,spinc) + 
      $                    uccsdt_triples_sub_blocked()
 c     
-c                     write(6,*)' after sub_blocked before end '
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_triples_sub_blocked)
+c     
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_triples_sub_blocking_end)
+c     
                      call uccsdt_triples_sub_blocking_end()
 c     
-*                     write(6,*) ' SUPERBLOCK: ', 
-*     $                    asuperblk, bsuperblk, csuperblk,
-*     $                    energy(spina,spinc)
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_triples_sub_blocking_end)
+c     
                   end do
                end do
             end do
@@ -2708,6 +2743,8 @@ C****      if (.not. ma_pop_stack(l_t2aa)) call errquit('t2aa?',0)
       if (.not. ma_pop_stack(l_t1a)) call errquit('t1a?',0)
 *      if (.not. ma_pop_stack(l_moint)) call errquit('moint?',0)
 *      if (.not. ma_pop_stack(l_most)) call errquit('most?',0)
+c     
+      if (ouccsdtps) call pstat_off(ps_triples)
 c     
       end
       subroutine sym_map_amps_t1(

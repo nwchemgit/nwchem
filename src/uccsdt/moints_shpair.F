@@ -232,6 +232,7 @@ c
       subroutine uccsdt_triples_moints()
       implicit none
 #include "cuccsdtP.fh"
+#include "cuccsdtps.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -385,6 +386,9 @@ c
      $                    ('moints_triples: memory for (vu|wk)?', 
      $                    udim*vdim*nbf*kdim)
 c     
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_moints_shpair_one_index)
+c     
                      call moints_shpair_one_index(
      $                    basis,
      $                    ush, ulo, uhi,
@@ -397,6 +401,9 @@ c
      $                    dbl_mb(k_movecs(spink)),
      $                    dbl_mb(k_wivu), dbl_mb(k_wkvu))
 c     
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_moints_shpair_one_index)
+c     
 c     Transform the second index and transpose on the fly
 c     
                      lenwork = max(idim*adim,idim*bdim,kdim*cdim)
@@ -406,13 +413,17 @@ c
 c     
 c     (wi|vu) -> (ai|vu) -> (vu|ai)
 c     
+c     
+                     if (ouccsdtps) 
+     $                    call pstat_on(ps_moints_second_index)
+c     
                      call moints_triples_second_index(
      $                    ublocklo, ulo, uhi, vlo, vhi, 
      $                    ilo, ihi, asuper(1), asuper(2), 
      $                    nbf, nmo, dbl_mb(k_work), 
      $                    dbl_mb(k_movecs(spini)), 
      $                    dbl_mb(k_wivu), g_ai)
-c     
+c
 c     (wi|vu) -> (bi|vu) -> (vu|bi)
 c     
                      call moints_triples_second_index(
@@ -430,6 +441,9 @@ c
      $                    nbf, nmo, dbl_mb(k_work), 
      $                    dbl_mb(k_movecs(spink)), 
      $                    dbl_mb(k_wkvu), g_ck)
+c
+                     if (ouccsdtps) 
+     $                    call pstat_off(ps_moints_second_index)
 c     
                      if (.not. ma_pop_stack(l_work)) call errquit
      $                    ('moints_triples:popping work?', 0)
@@ -493,6 +507,10 @@ c
      $        l_res, k_res)) call errquit
      $        ('moints_triples: memory for temp', lenbuf)
                   
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_moints_triples_final)
+c     
 c
 c     1.  <ei||ab>  = (ea|bi) - (eb|ai) = <14|23> - <14|32>
 c     
@@ -500,6 +518,10 @@ c
          spine = asuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_1a)
+c     
          call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -512,6 +534,13 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|23>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_1a)
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_1b)
+c     
          call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -524,6 +553,10 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|32>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_1b)
+c
 c
 c     2.  <ek|ac>   = (ea|ck) = <14|23>   [-<ek|ca> = -(ec|ai) = -<14|32>]
 c
@@ -531,6 +564,10 @@ c
          spine = asuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_2a)
+c     
          call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -543,6 +580,13 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|23>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_2a)
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_2b)
+c     
          if (asuper_spin .eq. csuper_spin) call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -555,7 +599,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|32>')
-
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_2b)
 c
 c     3.  <ek|bc>   = (eb|ck) = <14|23>  [-<ek|cb> = -(ec|bk) = -<14|32>]
 c
@@ -563,6 +609,10 @@ c
          spine = asuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_3a)
+c     
          call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -575,6 +625,13 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|23>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_3a)
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_3b)
+c     
          if (asuper_spin .eq. csuper_spin) call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -587,6 +644,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|32>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_3b)
 c
 c     4.  <ei|ca>   = (ec|ai) = <14|23>  [-<ei|ac> = -(ea|ci) = -<14|32>]
 c
@@ -594,6 +654,10 @@ c
          spine = csuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_4a)
+c     
          call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -606,6 +670,13 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|23>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_4a)
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_4b)
+c     
          if (asuper_spin .eq. csuper_spin) call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -618,6 +689,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|32>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_4b)
 c
 c     5.  <ei|cb>   = (ec|bi) = <14|23>  [-<ei|bc> = -(eb|ci) = -<14|32>]
 c
@@ -625,6 +699,10 @@ c
          spine = csuper_spin
          elo = nc(spine) + no(spine) + 1
          ehi = nv(spine) + elo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_5a)
+c     
          call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -637,6 +715,13 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|23>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_5a)
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_5b)
+c     
          if (asuper_spin .eq. csuper_spin) call moints_triples_final(
      $        .false., v_sym(1,0,spine), 
      $        1, dummy, elo, ehi,
@@ -649,6 +734,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<14|32>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_5b)
 c
 c     6.  <mc|ik>   = (mi|ck) = <13|24>  [-<mc|ki> = -(mk|ci) = -<13|42>]
 c
@@ -656,6 +744,10 @@ c
          spinm = spini
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_6)
+c     
          call moints_triples_final(
      $        .false., o_sym(1,0,spinm), 
      $        1, dummy, mlo, mhi,
@@ -680,6 +772,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_6)
 c
 c     7.  <ma||ij>  = (mi|aj) - (mj|ai) = <13|24> - <13|42>
 c
@@ -687,6 +782,10 @@ c
          spinm = spini
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_7)
+c     
          call moints_triples_final(
      $        .false., o_sym(1,0,spinm), 
      $        1, dummy, mlo, mhi,
@@ -711,6 +810,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_7)
 c
 c     8.  <mb||ij>  = (mi|bj) - (mj|bi) = <13|24> - <13|42>
 c
@@ -718,6 +820,10 @@ c
          spinm = spini
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_8)
+c     
          call moints_triples_final(
      $        .false., o_sym(1,0,spinm), 
      $        1, dummy, mlo, mhi,
@@ -742,6 +848,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_8)
 c
 c     9.  <ma|ki>   = (mk|ai) = <13|24>  [-<ma|ik> = -(mi|ak) = -<13|42>]
 c
@@ -749,6 +858,10 @@ c
          spinm = spink
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_9)
+c     
          call moints_triples_final(
      $        .false., o_sym(1,0,spinm), 
      $        1, dummy, mlo, mhi,
@@ -773,6 +886,9 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_9)
 c
 c     10. <mb|ki>   = (mk|bi) = <13|24>  [-<mb|ik> = -(mi|bk) = -<13|42>]
 c
@@ -780,6 +896,10 @@ c
          spinm = spink
          mlo = nc(spinm) + 1
          mhi = no(spinm) + mlo
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_10)
+c     
          call moints_triples_final(
      $        .false., o_sym(1,0,spinm), 
      $        1, dummy, mlo, mhi,
@@ -804,10 +924,17 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_10)
 c
 c     11. <ab||ij>  = (ai|bj) - (aj|bi) = <13|24> - <13|42>
 c
          list = 11
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_11)
+c     
          call moints_triples_final(
      $        .true., dummy,
      $        nablock, ablock, asuper(1), asuper(2),
@@ -834,10 +961,17 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_11)
 c
 c     12. <ac|ik>   = (ai|ck) = <13|24>  [-<ac|ki> = -(ak|ci) = -<13|42>]
 c
          list = 12
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_12)
+c     
          call moints_triples_final(
      $        .true., dummy,
      $        nablock, ablock, asuper(1), asuper(2),
@@ -864,10 +998,17 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_12)
 c
 c     13. <bc|ik>   = (bi|ck) = <13|24>  [-<bc|ki> = -(bk|ci) = -<13|42>]
 c
          list = 13
+c     
+         if (ouccsdtps) 
+     $        call pstat_on(ps_mo_fin_13)
+c     
          call moints_triples_final(
      $        .true., dummy,
      $        nbblock, bblock, bsuper(1), bsuper(2),
@@ -894,6 +1035,12 @@ c
      $        int_mb(listinfo(2,list)), 
      $        listinfo(6,list), listinfo(7,list), listinfo(8,list), 
      $        listinfo(5,list), '<13|42>')
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_mo_fin_13)
+c     
+         if (ouccsdtps) 
+     $        call pstat_off(ps_moints_triples_final)
 c
          if (.not. ma_pop_stack(l_res))
      $        call errquit('moints_triple: popping res?', 0)
@@ -937,6 +1084,7 @@ c
      $     order)
       implicit none
 #include "global.fh"
+#include "cuccsdtps.fh"
       logical oblocke           ! [input] If true sub-block e index.
       integer e_sym(2,0:7)      ! [input] Range of e-orbitals in each irrep
       integer neblock, eblock(3,*) ![input] Sub-blocking info for e-orbitals
@@ -1026,9 +1174,17 @@ c
       cdim = (chi-clo+1)        ! Total no. of c-orbitals
       adim = (ahi-alo+1)
       me = ga_nodeid()
+c     
+      if (ouccsdtps) 
+     $     call pstat_on(ps_final_ga_dist)
+c     
       call ga_distribution(g_ck, me, vulo, vuhi, cklo, ckhi)
       if (vulo.ne.1 .and. vuhi.ne.ublockdim*nbf)
      $     call errquit('moints_triples_final: distribution?', 0)
+c     
+      if (ouccsdtps) 
+     $     call pstat_off(ps_final_ga_dist)
+c     
 c      
       do kblk = 1, nkblock
          nk = kblock(2,kblk) - kblock(1,kblk) + 1
@@ -1038,38 +1194,75 @@ c
                do c = cblock(1,cblk),cblock(2,cblk)
                   ck = 1 + c-clo + (k-klo)*cdim
                   if (ck.ge.cklo .and. ck.le.ckhi) then
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_ga_get)
+c                   
                      call ga_get(g_ck, 1, ublockdim*nbf, ck, ck,
      $                    buf, 1)
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_ga_get)
 c
 c     C(v,e)*buf(v,u) -> temp(e,u)
-c
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_dgemm1)
+c                   
                      call dgemm('t','n',edim,ublockdim,nbf,
      $                    1.0d0, evecs(1,elo), nbf, buf, nbf,
      $                    0.0d0, temp, edim)
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_dgemm1)
 c
 c     phase*temp(e,u)*C(u,a) -> result(e,a)
-c
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_dgemm2)
+c                   
                      call dgemm('n','n',edim,adim,ublockdim,
      $                    phase, temp, edim, avecs(ublocklo,alo), nbf,
      $                    0.0d0, result, edim)
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_dgemm2)
 c
 c     We just did (vu) -> (eu) -> (ea), but since we are restricting
 c     u>=v we also need to do (vu) -> (au) -> (ae).
 c
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_u_trans)
+c                   
                      call util_transpose(buf, nbf, temp, ublockdim,
      $                    nbf, ublockdim)
 c
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_u_trans)
+c                   
 c     temp(u,v)*C(v,a) -> buf(u,a)
 c
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_dgemm3)
+c                   
                      call dgemm('n', 'n', ublockdim, adim, nbf,
      $                    1.0d0, temp, ublockdim, avecs(1,alo), nbf,
      $                    0.0d0, buf, ublockdim)
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_dgemm3)
 c
 c     phase*C(u,e)*buf(u,a) -> result(e,a)
 c
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_dgemm4)
+c                   
                      call dgemm('t','n',edim,adim,ublockdim,
      $                    phase, evecs(ublocklo,elo),nbf,buf,ublockdim,
      $                    1.0d0, result, edim)
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_dgemm4)
 c
 c     Now have (ea|ck) in result ... note that if symmetry was used
 c     that only elements that are non-zero by symmetry will be correct.
@@ -1115,9 +1308,17 @@ c
      $                                   nc*(k-kblock(1,kblk) + 
      $                                   nk*(a-ablock(1,ablk))))
                                  endif
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_on(ps_final_ga_acc)
+c                   
                                  call ga_acc(g_list, ptr, ptr+ne-1,
      $                                1, 1, result(ebase,a), 
      $                                1, 1.0d0)
+c     
+                    if (ouccsdtps) 
+     $                   call pstat_off(ps_final_ga_acc)
+c                   
                               end if
                            end do
                         end do
