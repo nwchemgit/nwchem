@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.33 1999-07-03 23:51:41 d3g681 Exp $
+C$Id: inp.F,v 1.34 1999-10-18 22:39:04 nwchem Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -15,7 +15,7 @@ c
       data errmsg  /' '/
       data input_line /0/
       data xblnk /' '/
-#if defined(DECOSF) || defined(CRAY_T3E)
+#if defined(DECOSF) || defined(SGITFP) || defined(SGI_N32) || defined(CRAY_T3E)
       data xtab  /'	'/      ! Tab ... note backslash for cpp
 #else
       data xtab  /'\	'/      ! Tab ... note backslash for cpp
