@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,pot,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.5 1998-01-13 19:38:09 d3j191 Exp $
+c $Id: esp_esp.F,v 1.6 1998-08-13 21:35:19 d3j191 Exp $
 c
       implicit none
 c
@@ -12,10 +12,10 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+#include "util.fh"
 c
       logical movecs_read,movecs_read_header
-      real*8 ddot
-      external movecs_read,movecs_read_header,ddot
+      external movecs_read,movecs_read_header
 c
       real*8 ene(nbf),occ(nbf),dns(nbf,nbf),pot(nbf,nbf)
       real*8 x(3,natoms),q(natoms)
@@ -50,6 +50,14 @@ c
 c     get density matrix
 c
       call ga_get(lg_d,1,nbf,1,nbf,dns,nbf)
+      if(me.eq.0.and.util_print('where',print_debug)) then
+      write(lfnout,1000)
+ 1000 format(//,' Density matrix',/)
+      do 1002 j=1,nbf
+      write(lfnout,1001) (i,dns(i,j),i=1,nbf)
+ 1001 format(i5,f12.6,/,(5x,10f12.6))
+ 1002 continue
+      endif
 c
 c     initialize integrals
 c
@@ -96,7 +104,13 @@ c
     5 continue
     4 continue
     3 continue
-      val(i)=ddot(nbf*nbf,dns,1,pot,1)
+      val(i)=0.0d0
+      do 333 ix=1,nbf
+      do 332 jx=1,nbf
+      val(i)=val(i)+dns(ix,jx)*pot(ix,jx)
+  332 continue
+  333 continue
+c
       vt=val(i)
       imin=0
       do 9 ix=1,natoms
@@ -113,6 +127,15 @@ c
       endif
       val(i)=val(i)+q(ix)/dist
     9 continue
+      if(me.eq.0.and.util_print('where',print_debug)) then
+      if(i.eq.1) write(lfnout,1003)
+ 1003 format(//,' Electrostatic potential on grid',/)
+      write(lfnout,1004) imin,i,(grid(j,i),j=1,3),val(i)-vt,vt,val(i)
+ 1004 format(2i5,3f8.4,3f12.6)
+      if(i.eq.1) write(88,8888) spac
+      write(88,8888) (grid(j,i),j=1,3),val(i)
+ 8888 format(4f12.6)
+      endif
     2 continue
 c
 c     global sum of value array

@@ -1,6 +1,6 @@
       subroutine esp_denmat(geom,basis,g_vec,g_dns,occ)
 c
-c $Id: esp_denmat.F,v 1.2 1997-10-08 17:36:07 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.3 1998-08-13 21:35:18 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,7 @@ c
       integer g_vec,g_dns
       real*8 occ(nbf)
 c
-      integer ilo,ihi,jlo,jhi,lthi,lthj
+      integer ilo,ihi,jlo,jhi,lthi,lthj,i
       integer g_scr,k_scr,l_scr,icol
 c     
       integer  ga_create_atom_blocked
@@ -41,10 +41,16 @@ c
      + call errquit('esp_denmat: failed to allocate vector',me)
 c
       do 1 icol=jlo,jhi
-      call ga_get(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),lthi)
+      call ga_get(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+cx      write(*,6666) icol,(dbl_mb(k_scr+i),i=0,nbf-1)
+cx 6666 format(//,'Vector',i5,/,(10f10.6))
       scale=occ(icol)
+cx      write(*,'(a,i5,f12.6)') 'Scale ',icol,scale
       call dscal(lthi,scale,dbl_mb(k_scr),1)
-      call ga_put(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),lthi)
+      call ga_put(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+      call ga_get(g_scr,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
+cx      write(*,6667) (dbl_mb(k_scr+i),i=0,nbf-1)
+cx 6667 format(10f10.6)
     1 continue
 c
       if(.not.ma_pop_stack(l_scr))

@@ -1,6 +1,6 @@
-      subroutine esp_wrtinp
+      subroutine esp_wrtinp(q)
 c
-c $Id: esp_wrtinp.F,v 1.5 1998-06-15 18:18:34 d3j191 Exp $
+c $Id: esp_wrtinp.F,v 1.6 1998-08-13 21:35:20 d3j191 Exp $
 c
       implicit none
 c
@@ -12,6 +12,7 @@ c
 #include "util.fh"
 c
       integer i,j,jcon,lcon
+      real*8 q(natoms)
 c
       if(me.ne.0) return
 c
@@ -81,6 +82,18 @@ c
   614 format(/,' Hydrogen atoms are excluded from the restraints')
       endif
       endif
+c
+      write(lfnout,615)
+  615 format(/,' Atomic radii',/)
+      do 2 i=1,107
+      do 3 j=1,natoms
+      if(int(q(j)).eq.i) then
+      write(lfnout,616) i,radius(i)
+  616 format(i5,f12.6)
+      goto 2
+      endif
+    3 continue
+    2 continue
 c
       endif
 c

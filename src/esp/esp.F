@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.5 1998-06-08 21:31:57 d3j191 Exp $
+c $Id: esp.F,v 1.6 1998-08-13 21:35:18 d3j191 Exp $
 c
       implicit none
 c
@@ -53,7 +53,7 @@ c
 c
 c     write input variables to output     
 c
-      call esp_wrtinp
+      call esp_wrtinp(dbl_mb(iqptr))
 c
 c     calculate the electrostatic potential on the grid
 c

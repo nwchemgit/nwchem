@@ -1,6 +1,6 @@
       subroutine esp_getx(t,x,q,n)
 c
-c $Id: esp_getx.F,v 1.1 1997-10-06 23:00:33 d3j191 Exp $
+c $Id: esp_getx.F,v 1.2 1998-08-13 21:35:19 d3j191 Exp $
 c
       implicit none
 c
@@ -35,7 +35,7 @@ c
 c     calculate grid size
 c
       do 4 i=1,3
-      mgrid(i)=(xmax(i)-xmin(i)+2.0d0*rcut)/spac+1
+      mgrid(i)=(xmax(i)-xmin(i)+2.0d0*rcut)/spac+3
     4 continue
       mxgrid=mgrid(1)*mgrid(2)*mgrid(3)
 c
