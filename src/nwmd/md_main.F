@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.95 2000-08-15 18:00:38 d3j191 Exp $
+c $Id: md_main.F,v 1.96 2000-08-28 16:59:14 d3j191 Exp $
 c
       implicit none
 c
@@ -1484,13 +1484,6 @@ c     initialize timers
 c
       call md_timer_init()
 c
-c     initialize flags
-c
-      if(ipme.gt.0) then
-      call pme_flag(0,0,me)
-      call pme_flag(1,0,me)
-      endif
-c
 c     initialize cafe
 c
       call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
@@ -2079,7 +2072,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.95 2000-08-15 18:00:38 d3j191 Exp $
+c $Id: md_main.F,v 1.96 2000-08-28 16:59:14 d3j191 Exp $
 c
       implicit none
 c
