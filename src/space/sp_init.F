@@ -6,7 +6,7 @@
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd)
 c
 c
-c $Id: sp_init.F,v 1.35 1999-08-31 17:23:33 d3j191 Exp $
+c $Id: sp_init.F,v 1.36 1999-09-11 03:40:44 d3j191 Exp $
 c
       implicit none
 c
@@ -177,10 +177,12 @@ c
       lpbc=npbtyp.gt.0
 c
       if(me.eq.0) then
-      if(nfsync.gt.0) open(unit=lfnsyn,
-     + file=filsyn(1:index(filsyn,' ')-1),status='unknown')
+      if(nfsync.gt.0) then 
+      open(unit=lfnsyn,file=filsyn(1:index(filsyn,' ')-1),
+     + status='unknown')
       write(lfnsyn,3000) np
  3000 format(i5)
+      endif
       endif
 c
       call ga_sync()
