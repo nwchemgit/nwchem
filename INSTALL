@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.29 2000-11-17 18:49:06 windus Exp $
+$Id: INSTALL,v 1.30 2000-11-20 21:49:46 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -65,28 +65,30 @@ BASIC BUILD INSTRUCTIONS:
    NWChem will pick "reasonable" defaults:
 
    SCRATCH_DEF_DIR              default scratch directory for 
-                                temporary files
-    ex. setenv SCRATCH_DEF_DIR "\'/scratch\'"
+                                temporary files, e.g.
+    setenv SCRATCH_DEF_DIR "\'/scratch\'"
 
    PERMANENT_DEF_DIR            default permanent directory for 
-                                files to keep
-    ex. setenv PERMANENT_DEF_DIR "\'/home/user\'"
+                                files to keep, e.g.
+    setenv PERMANENT_DEF_DIR "\'/home/user\'"
 
    NWCHEM_BASIS_LIBRARY_PATH    location of the basis set library (the
                                 builder is responsible to make sure that
-                                the library gets to the place)
-    ex. setenv NWCHEM_BASIS_LIBRARY_PATH "/u/nwchem/bin/library"
+                                the library gets to the place), e.g.
+    setenv NWCHEM_BASIS_LIBRARY_PATH "/u/nwchem/bin/library"
 
-   LARGE_FILES                  needed to get passed the 2 GB limit on IBM
-    ex. setenv LARGE_FILES TRUE
+   LARGE_FILES                  needed to circumvent the 2 GB limit on IBM
+                                (note that your system administrator must also
+                                 enable large files in the file system), e.g.
+    setenv LARGE_FILES TRUE
 
    JOBTIME_PATH                 directory where jobtime and jobtime.pl will
-                                be placed by the builder on IBM SP
-    ex. setenv JOBTIME_PATH /u/nwchem/bin
+                                be placed by the builder on IBM SP, e.g.
+    setenv JOBTIME_PATH /u/nwchem/bin
 
    LIB_DEFINES                  additional defines for the C preprocessor
-                                (for both Fortran and C)
-    ex. setenv LIB_DEFINES -DDFLT_TOT_MEM=16777216
+                                (for both Fortran and C), e.g.
+    setenv LIB_DEFINES -DDFLT_TOT_MEM=16777216
        This sets the dynamic memory available for NWChem to run,
        where the units are in doubles.
 
