@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.74 1998-04-15 21:00:35 d3e129 Exp $
+C     $Id: geom_input.F,v 1.75 1998-04-23 00:23:01 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -6950,8 +6950,13 @@ C
       PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
       PARAMETER     (MAXPRM=100)
       PARAMETER     (MXIZMT=6000)
-      PARAMETER     (MAXLST= 2+1)
+      PARAMETER     (MAXLST=10+1)
       CHARACTER*16  TAGS
+      LOGICAL       GEOM_LST_PUT_COORD
+      EXTERNAL      GEOM_LST_PUT_COORD
+      LOGICAL       GEOM_LST_GET_COORD
+      EXTERNAL      GEOM_LST_GET_COORD
+      LOGICAL       STATUS
       LOGICAL       DBUG
       LOGICAL       OUT 
       LOGICAL       LST
@@ -7019,9 +7024,9 @@ C
       DIMENSION  ICFRZ(  *)    
       DIMENSION  IZFRZ(MXCOOR)
       DIMENSION  CART0(MAXGEO)
-      DIMENSION  XXLST(MAXGEO,MAXLST)
-      DIMENSION  YYLST(MAXGEO,MAXLST)
-      DIMENSION  ZZLST(MAXGEO,MAXLST)
+      DIMENSION  XXLST(MAXGEO,     2)
+      DIMENSION  YYLST(MAXGEO,     2)
+      DIMENSION  ZZLST(MAXGEO,     2)
       DIMENSION  GHOST(       MAXGEO)
       DIMENSION NUMZMT(       MAXGEO)
       DIMENSION PRSZMT(MAXWRD,MAXGEO)
@@ -7530,10 +7535,22 @@ C
                ENDDO
             ENDIF
             DO IAT=1,NAT
-               XXLST(IAT,ILST)=XX(IAT)
-               YYLST(IAT,ILST)=YY(IAT)
-               ZZLST(IAT,ILST)=ZZ(IAT)
+               XXLST(IAT,   2)=XX(IAT)
+               YYLST(IAT,   2)=YY(IAT)
+               ZZLST(IAT,   2)=ZZ(IAT)
             ENDDO
+            STATUS=GEOM_LST_PUT_COORD(XXLST(1,2),
+     1                                YYLST(1,2),ZZLST(1,2),NAT)
+            IF(.NOT.STATUS) THEN
+               CALL ERRQUIT('GEOM_LST_PUT_COORD : PUT FAILED',911)
+            ENDIF
+            IF(ILST.EQ.1) THEN
+               DO IAT=1,NAT
+                  XXLST(IAT,   1)=XX(IAT)
+                  YYLST(IAT,   1)=YY(IAT)
+                  ZZLST(IAT,   1)=ZZ(IAT)
+               ENDDO
+            ENDIF
          ENDDO
          DO IAT=1,NAT
             XX(IAT)=XXLST(IAT,1)
@@ -7608,14 +7625,19 @@ C
 C
 C     ----- -LST- GEOMETRIES IF MADE UP -----
 C
-      IF(LST) THEN
+      IF(LST.AND.OUT) THEN
          WRITE(IW,9975) MAXLST
          DO ILST=1,MAXLST
+            STATUS=GEOM_LST_GET_COORD(XXLST(1,2),
+     1                                YYLST(1,2),ZZLST(1,2),NAT,ILST)
+            IF(.NOT.STATUS) THEN
+               CALL ERRQUIT('GEOM_LST_GET_COORD : GET FAILED',911)
+            ENDIF
             WRITE(IW,8888) WRDXYZ
             DO IAT=1,NAT
                WRITE(IW,8884) ATNAME(IAT),ATNUM(IAT),
-     1                         XXLST(IAT,ILST),YYLST(IAT,ILST),
-     2                         ZZLST(IAT,ILST)
+     1                         XXLST(IAT,   2),YYLST(IAT,   2),
+     2                         ZZLST(IAT,   2)
             ENDDO
             WRITE(IW,8888) WRDEND
          ENDDO
@@ -7705,6 +7727,148 @@ C
      1       ' STOP .')
  7774 FORMAT(' ERROR WHILE READING -BIOSYM.CAR- . STOP .')
       END
+      logical function geom_lst_put_coord(x,y,z,n)        
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c
+      integer n
+      integer i
+      integer ir
+      integer iw
+      integer ift
+      integer irc
+      logical dbug
+      logical out
+      common/hnd_iofile/ir,iw
+      double precision x(*),y(*),z(*) 
+      character*255 lst_coord_fil
+      data ift /32/
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
+c
+      call util_file_name('lst.coord',
+     1     .false.,.false.,lst_coord_fil)
+      open(unit=ift, file=lst_coord_fil, form='unformatted',
+     1     access='sequential', status='unknown', err=911)
+c
+      if(out) then
+         write(iw,*) 'lst_put_coord = ',lst_coord_fil
+         write(iw,*) 'n = ',n
+      endif
+      if(dbug) then
+         call hnd_prsq(x,1,n,n)            
+         call hnd_prsq(y,1,n,n)            
+         call hnd_prsq(z,1,n,n)            
+      endif
+c
+      rewind ift
+      irc=0
+   10 read(ift,end=20,err=20)
+         irc=irc+1
+         go to 10
+   20 continue
+      if(out) then
+         write(iw,*) irc,' records found on -lst_coord_fil- '
+      endif
+      rewind ift
+      if(irc.gt.0) then
+         do i=1,irc
+            read(ift)
+         enddo
+      endif
+c
+      write(ift) (x(i),i=1,n),
+     &           (y(i),i=1,n),                  
+     &           (z(i),i=1,n)                   
+c
+      close(ift,status='keep')
+c
+      geom_lst_put_coord=.true.
+      return
+c
+      return
+c
+  911 call errquit('geom_lst_put_coord : open failed',0)
+c
+      end
+      logical function geom_lst_get_coord(x,y,z,n,irc)      
+      implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c
+      integer n
+      integer i
+      integer ir
+      integer iw
+      integer ift
+      integer irc
+      logical dbug
+      logical out
+      common/hnd_iofile/ir,iw
+      double precision x(*),y(*),z(*) 
+      character*255 lst_coord_fil
+      data ift /32/
+c
+      dbug=.false.
+      out =.false.
+      out =out.or.dbug
+c
+      call util_file_name('lst.coord',
+     1     .false.,.false.,lst_coord_fil)
+      open(unit=ift, file=lst_coord_fil, form='unformatted',
+     1     access='sequential', status='unknown', err=911)
+      if(out) then
+         write(iw,*) 'lst_coord_fil = ', lst_coord_fil
+         write(iw,*) 'n = ',n
+      endif
+c
+      rewind ift
+      if(irc.gt.1) then
+         do i=1,irc-1
+            read(ift)
+         enddo
+      endif
+      read(ift,end=910,err=910) (x(i),i=1,n),
+     &                          (y(i),i=1,n),
+     &                          (z(i),i=1,n)
+c
+      close(ift,status='keep')
+c
+      if(dbug) then
+         call hnd_prsq(x,1,n,n)         
+         call hnd_prsq(y,1,n,n)         
+         call hnd_prsq(z,1,n,n)         
+      endif
+c
+      geom_lst_get_coord=.true.
+      return
+c
+c     ----- unable to complete the read ---
+c
+ 910  close(ift,status='keep')
+      if(out) then
+         write(iw,*) 'unable to complete the read in geom_lst_get_coord'
+      endif
+      geom_lst_get_coord=.false.
+      return
+c
+c     ----- unable to open ; stop ... -----
+c
+ 911  call errquit('geom_lst_get_coord : open failed',0)
+      return
+c
+      end
       subroutine hnd_dparsc(a,la,c,lc)
       implicit double precision (a-h,o-z)
       character*(*) a
