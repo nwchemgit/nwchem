@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.36 2004-12-18 00:50:23 marat Exp $
+* $Id: task_input.F,v 1.37 2004-12-21 16:55:19 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -130,6 +130,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'structure')) then
             operation='structure'
+         else if (inp_compare(.false.,test,
+     >                        'dos')) then
+            operation='dos'
 
          else if (theory .eq. ' ') then
             theory = test
