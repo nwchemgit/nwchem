@@ -110,7 +110,10 @@ c
 c
 c     Extract high level info from the data-base setting defaults
 c
+c     load DFT parameters into common
 c     
+c      call dft_rdinput(rtdb)
+c
       nbases=1
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
