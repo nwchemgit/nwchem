@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.10 1998-08-18 16:53:55 d3j191 Exp $
+c $Id: esp_out.F,v 1.11 1998-12-23 19:41:23 d3j191 Exp $
 c
       implicit none
 c
@@ -105,9 +105,11 @@ c
       endif
     3 continue
 c
-      if(me.eq.0.and.idump.eq.1) then
+      if(me.eq.0) then
       call util_file_name('grid',.false.,.false.,grdfil)
       open(unit=lfngrd,file=grdfil,form='formatted',status='unknown')
+      rewind(lfngrd)
+      write(lfngrd,'(i10)') ngrid
       do 10 i=1,ngrid
       write(lfngrd,'(4f20.10)') (g(j,i),j=1,3),v(i)
    10 continue

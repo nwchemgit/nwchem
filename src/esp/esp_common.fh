@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.7 1998-08-18 16:53:52 d3j191 Exp $
+c $Id: esp_common.fh,v 1.8 1998-12-23 19:41:20 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -10,12 +10,14 @@ c
 c     esp_ptr : pointers and handles
 c     ------------------------------
 c
-      integer l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,l_p,ipptr,
+      integer l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,
      + l_d,idptr,l_e,ieptr,l_o,ioptr,l_v,ivptr,l_a,iaptr,l_b,ibptr,
-     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr
-      common/esp_ptr/l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,l_p,ipptr,
+     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr,
+     + lg_v,lg_d
+      common/esp_ptr/l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,
      + l_d,idptr,l_e,ieptr,l_o,ioptr,l_v,ivptr,l_a,iaptr,l_b,ibptr,
-     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr
+     + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr,
+     + lg_v,lg_d
 c
 c     esp_atm : atom information
 c     --------------------------
@@ -24,12 +26,13 @@ c
       real*8 rcon(500),resa,resb,toler,dipmom(4),rms(2,4),quamom(3,3,4)
       integer natoms,nbf,mgrid(3),mxgrid,ngrid,nset,nmo,nocc,nconst,ndim
       integer ncon,icon(2500),irest,niter,maxit,ihfree,ngto,ngfr,idump
-      integer lfngrd,nf
-      real*8 factor,probe
+      integer lfngrd,nf,mbf,lscrn,newgrd
+      real*8 factor,probe,scrtol
       common/esp_atm/rcut,spac,xmin,xmax,charge,chgnuc,chgele,radius,
-     + rcon,resa,resb,toler,dipmom,rms,quamom,factor,probe,
+     + rcon,resa,resb,toler,dipmom,rms,quamom,factor,probe,scrtol,
      + natoms,nbf,mgrid,mxgrid,ngrid,nset,nmo,nocc,nconst,ndim,
-     + ncon,icon,irest,niter,maxit,ihfree,ngto,ngfr,idump,lfngrd,nf
+     + ncon,icon,irest,niter,maxit,ihfree,ngto,ngfr,idump,lfngrd,nf,mbf,
+     + lscrn,newgrd
 c
 c     esp_chr : character variables
 c
@@ -39,3 +42,7 @@ c
       character*255 title,basnam
       common/esp_chr/title,basnam,movfil,grdfil,labelf,labelc
 c
+c     esp_bas : basis set information
+c
+      integer nshell,max1e,mem1
+      common/esp_bas/nshell,max1e,mem1

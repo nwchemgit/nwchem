@@ -1,16 +1,21 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.3 1998-08-18 16:53:54 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.4 1998-12-23 19:41:23 d3j191 Exp $
 c
       implicit none
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
+#include "bas.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
-      integer i,j
+      logical int_normalize
+      external int_normalize
+c
+      integer i,j,m,n,ish,ilo,ihi
 c
 c     allocate memory:
 c
@@ -38,27 +43,53 @@ c
       call esp_getx(byte_mb(itptr),dbl_mb(ixptr),dbl_mb(iqptr),
      + int_mb(inptr))
 c
-c     allocate memory for the grid and potential
+      if(me.eq.0.and.newgrd.eq.0) then
+      newgrd=1
+      call util_file_name('grid',.false.,.false.,grdfil)
+      open(unit=lfngrd,file=grdfil,form='formatted',status='old',err=9)
+      read(lfngrd,'(i10)',err=9) ngrid
+      mxgrid=ngrid
+      newgrd=0
+      close(unit=lfngrd)
+    9 continue
+      endif
+      call ga_brdcst(mre_011,newgrd,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mre_012,mxgrid,ma_sizeof(mt_int,1,mt_byte),0)
+      ngrid=mxgrid
 c
-c     l_g igptr 'g' : 3*mxgrid : grid point coordinates
-c     l_v ivptr 'v' :   mxgrid : grid point values
+      if(newgrd.ne.0) then
 c
-      if(.not.ma_push_get(mt_dbl,mxgrid*3,'g',l_g,igptr))
-     + call errquit('esp: ma_push_get g failed',me)
-      if(.not.ma_push_get(mt_dbl,mxgrid,'v',l_v,ivptr))
-     + call errquit('esp: ma_push_get v failed',me)
+c     initialize integrals
+c
+      if(.not.int_normalize(ibasis))
+     + call errquit('esp: int_normalize failed',me)
+      call int_init(irtdb,1,ibasis)
+c
+c     get number of shells
+c
+      if(.not.bas_numcont(ibasis,nshell))
+     + call errquit('esp: bas_numcont failed',me)
+      call int_mem_1e(max1e,mem1)
+c
+      mbf=0
+      do 1 ish=1,nshell
+      if(.not.bas_cn2bfr(ibasis,ish,ilo,ihi))
+     + call errquit('esp: bas_cn2bfr failed',me)
+      mbf=max(mbf,ihi-ilo+1)
+    1 continue
+      else
+      nbf=1
+      mbf=1
+      endif
 c
 c     allocate memory:
 c
 c     l_d idptr 'd' : nbf*nbf : density matrix
-c     l_p ipptr 'p' : nbf*nbf : potential matrix
 c     l_e ieptr 'e' :     nbf : orbital energies
 c     l_o ioptr 'o' :     nbf : orbital occupation
 c
-      if(.not.ma_push_get(mt_dbl,nbf*nbf,'d',l_d,idptr))
+      if(.not.ma_push_get(mt_dbl,nbf*mbf,'d',l_d,idptr))
      + call errquit('esp: ma_push_get d failed',me)
-      if(.not.ma_push_get(mt_dbl,nbf*nbf,'p',l_p,ipptr))
-     + call errquit('esp: ma_push_get p failed',me)
       if(.not.ma_push_get(mt_dbl,nbf,'e',l_e,ieptr))
      + call errquit('esp: ma_push_get e failed',me)
       if(.not.ma_push_get(mt_dbl,nbf,'o',l_o,ioptr))
@@ -79,6 +110,31 @@ c
       if(.not.ma_push_get(mt_dbl,ndim,'c',l_c,icptr))
      + call errquit('esp: ma_push_get c failed',me)
 c
+c     check how much memory is available
+c
+      m=ma_inquire_avail(mt_byte)/2
+c
+c     reserve memory for several workarrays
+c
+      m=m-ndim*(4*ma_sizeof(mt_int,1,mt_byte)+
+     + ma_sizeof(mt_dbl,1,mt_byte))
+      m=m-(max1e+mem1)*ma_sizeof(mt_dbl,1,mt_byte)
+      n=max(2*nbf,256)
+      m=m-(3*n+1)*n*ma_sizeof(mt_dbl,1,mt_byte)
+      if(newgrd.ne.0) mxgrid=(m/(4*ma_sizeof(mt_dbl,1,mt_byte)))-1
+c
+c     allocate memory for the grid and potential
+c
+c     l_g igptr 'g' : 3*mxgrid : grid point coordinates
+c     l_v ivptr 'v' :   mxgrid : grid point values
+c
+      if(.not.ma_push_get(mt_dbl,mxgrid*3,'g',l_g,igptr))
+     + call errquit('esp: ma_push_get g failed',me)
+      if(.not.ma_push_get(mt_dbl,mxgrid,'v',l_v,ivptr))
+     + call errquit('esp: ma_push_get v failed',me)
+c
+      if(me.eq.0.and.newgrd.eq.0)
+     + call esp_getg(dbl_mb(igptr),dbl_mb(ivptr))
+c
       return
       end
-

@@ -1,6 +1,6 @@
       subroutine esp_dalloc
 c
-c $Id: esp_dalloc.F,v 1.3 1998-08-24 19:45:52 d3j191 Exp $
+c $Id: esp_dalloc.F,v 1.4 1998-12-23 19:41:21 d3j191 Exp $
 c
       implicit none
 c
@@ -11,6 +11,10 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 c
+      if(.not.ma_pop_stack(l_v))
+     + call errquit('esp: ma_pop_stack v failed',me)
+      if(.not.ma_pop_stack(l_g))
+     + call errquit('esp: ma_pop_stack g failed',me)
       if(.not.ma_pop_stack(l_c))
      + call errquit('esp: ma_pop_stack c failed',me)
       if(.not.ma_pop_stack(l_b))
@@ -23,14 +27,8 @@ c
      + call errquit('esp: ma_pop_stack o failed',me)
       if(.not.ma_pop_stack(l_e))
      + call errquit('esp: ma_pop_stack e failed',me)
-      if(.not.ma_pop_stack(l_p))
-     + call errquit('esp: ma_pop_stack p failed',me)
       if(.not.ma_pop_stack(l_d))
      + call errquit('esp: ma_pop_stack d failed',me)
-      if(.not.ma_pop_stack(l_v))
-     + call errquit('esp: ma_pop_stack v failed',me)
-      if(.not.ma_pop_stack(l_g))
-     + call errquit('esp: ma_pop_stack g failed',me)
       if(.not.ma_pop_stack(l_n))
      + call errquit('esp: ma_pop_stack n failed',me)
       if(.not.ma_pop_stack(l_qf))

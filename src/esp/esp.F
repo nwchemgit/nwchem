@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.6 1998-08-13 21:35:18 d3j191 Exp $
+c $Id: esp.F,v 1.7 1998-12-23 19:41:20 d3j191 Exp $
 c
       implicit none
 c
@@ -49,7 +49,8 @@ c
 c
 c     setup the esp grid
 c
-      call esp_grid(dbl_mb(ixptr),dbl_mb(iqptr),dbl_mb(igptr))
+      call esp_grid(dbl_mb(ixptr),dbl_mb(iqptr),dbl_mb(igptr),
+     + dbl_mb(ivptr))
 c
 c     write input variables to output     
 c
@@ -57,9 +58,11 @@ c
 c
 c     calculate the electrostatic potential on the grid
 c
+      if(newgrd.ne.0) then
       call esp_esp(dbl_mb(ieptr),dbl_mb(ioptr),dbl_mb(idptr),
-     + dbl_mb(ipptr),dbl_mb(ixptr),dbl_mb(iqptr),dbl_mb(igptr),
+     + dbl_mb(ixptr),dbl_mb(iqptr),dbl_mb(igptr),
      + dbl_mb(ivptr))
+      endif
 c
 c     do the fitting
 c

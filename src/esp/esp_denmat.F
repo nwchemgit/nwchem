@@ -1,6 +1,6 @@
-      subroutine esp_denmat(dns,occ,ene)
+      subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.4 1998-08-18 16:53:53 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.5 1998-12-23 19:41:21 d3j191 Exp $
 c
       implicit none
 c
@@ -18,9 +18,8 @@ c
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
 c
-      real*8 ene(nbf),occ(nbf),dns(nbf,nbf)
+      real*8 ene(nbf),occ(nbf)
 c
-      integer lg_v,lg_d
       integer ilo,ihi,jlo,jhi,lthi,lthj,i,j
       integer lg_s,k_scr,l_scr,icol
 c
@@ -91,27 +90,12 @@ c
       call ga_sync()
       call ga_dgemm('n','t',nbf,nbf,nbf,1.d0,lg_v,lg_s,0.d0,lg_d)
 c
-c     copy density matrix into local array
-c
-      call ga_get(lg_d,1,nbf,1,nbf,dns,nbf)
-c
-      if(me.eq.0.and.util_print('where',print_debug)) then
-      write(lfnout,1000)
- 1000 format(//,' Density matrix',/)
-      do 1002 j=1,nbf
-      write(lfnout,1001) (i,dns(i,j),i=1,nbf)
- 1001 format(i5,f12.6,/,(5x,10f12.6))
- 1002 continue
-      endif
-c
 c     deallocate global arrays lg_s, lg_v and lg_d
 c
       if(.not.ga_destroy(lg_s))
      + call errquit('esp_denmat: failed to destroy lg_s',me)
       if(.not.ga_destroy(lg_v))
      + call errquit('esp_denmat: ga_destroy lg_v failed',me)
-      if(.not.ga_destroy(lg_d))
-     + call errquit('esp_denmat: ga_destroy lg_d failed',me)
 c
       return
       end

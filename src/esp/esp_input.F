@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.7 1998-08-18 16:53:54 d3j191 Exp $
+c $Id: esp_input.F,v 1.8 1998-12-23 19:41:22 d3j191 Exp $
 c
       implicit none
 c
@@ -13,9 +13,9 @@ c
       integer irtdb
       character*255 item
       integer i,me,np,icon(2500),ncon,nconst,jcon,irest,maxit,ihfree
-      integer idump
+      integer idump,ifrom,j,lscrn,newgrd
       real*8 rcut,spac,radius(107),rcon(500),resa,resb
-      real*8 toler,factor,probe
+      real*8 toler,factor,probe,scrtol
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -35,6 +35,9 @@ c
       irest=0
       ihfree=0
       idump=0
+      lscrn=0
+      newgrd=0
+      scrtol=1.0d-5
       toler=1.0d-4
       maxit=25
       resa=0.0d0
@@ -200,7 +203,19 @@ c
       goto 2
       endif
 c
+      if(inp_compare(.false.,'screen',item)) then
+      lscrn=1
+      if(.not.inp_f(scrtol)) scrtol=1.0d-5
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'recalculate',item)) then
+      newgrd=1
+      goto 2
+      endif
+c
       if(inp_compare(.false.,'constrain',item)) then
+      ifrom=0
       nconst=nconst+1
       if(.not.inp_f(rcon(nconst))) 
      + call errquit('esp_input: constrain error',0)
@@ -212,6 +227,22 @@ c
       icon(jcon)=icon(jcon)+1
       ncon=ncon+1
       icon(ncon)=i
+      ifrom=iabs(i)
+      goto 4
+      else
+      if(.not.inp_a(item)) goto 2
+      if(.not.inp_compare(.false.,'through',item))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_i(i))
+     + call errquit('esp_input: constrain error',0)
+      if(ifrom.eq.0) 
+     + call errquit('esp_input: constrain error',0)
+      do 40 j=ifrom+1,iabs(i)
+      icon(jcon)=icon(jcon)+1
+      ncon=ncon+1
+      icon(ncon)=j
+   40 continue
+      ifrom=0
       goto 4
       endif
       goto 2
@@ -305,6 +336,14 @@ c
 c
       if(.not.rtdb_put(irtdb,'esp:dump',mt_int,1,idump))
      + call errquit('esp: rtdb_put dump failed',0)
+c
+      if(.not.rtdb_put(irtdb,'esp:screen',mt_int,1,lscrn))
+     + call errquit('esp: rtdb_put screen failed',0)
+      if(.not.rtdb_put(irtdb,'esp:scrtol',mt_dbl,1,scrtol))
+     + call errquit('esp: rtdb_put scrtol failed',0)
+c
+      if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
+     + call errquit('esp: rtdb_put newgrd failed',0)
 c
       return
       end

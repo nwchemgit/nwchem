@@ -26,3 +26,8 @@ Aug 18 1998	changes in memory allocation
 Aug 21 1998	destroy geometry object in esp_dalloc
 
 Aug 24 1998     change 1. into one
+
+Dec 23 1998	Modified logic in esp calculation
+		Removed replicated density and potential arrays
+		Added Schwarz screening
+		Added option to read in previous esp grid
