@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,nxrep,nyrep,nzrep,drep,
      + msb,nsb,idsb,rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.24 2000-08-31 00:07:00 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.25 2000-08-31 15:05:07 d3j191 Exp $
 c
       implicit none
 c
@@ -123,9 +123,9 @@ c
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
 c
       if(iropt.eq.0) then
-      isoff=0
-      else
       icharr=ichar(' ')
+      else
+      isoff=0
       endif
 c
       do 111 k=1,nsb

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.63 2000-08-31 00:07:00 d3j191 Exp $
+c $Id: pre_input.F,v 1.64 2000-08-31 15:05:06 d3j191 Exp $
 c
       implicit none
 c
@@ -1228,7 +1228,7 @@ c
       iopt=0
       if(.not.inp_i(nxrep)) then
       if(.not.inp_a(item)) call errquit('pre_input: repeat 1',9999)
-      if(inp_compare(.false.,'single',item)) iopt=1
+      if(inp_compare(.false.,'chains',item)) iopt=1
       if(.not.inp_i(nxrep)) call errquit('pre_input: repeat 2',9999)
       endif
       if(.not.inp_i(nyrep)) call errquit('pre_input: repeat 3',9999)
