@@ -18,8 +18,8 @@ FOBJ = damax.o \
 	dlasq3.o \
 	dlasq4.o \
 	dlasrt.o \
-	dlaebz.o
-
+	dlaebz.o \
+	dlascl.o
 endif
 
 ifeq ($(peigs_CODEOBJ),SINGLE)
@@ -40,7 +40,7 @@ FOBJ = samax.o \
 	dlasq4.o \
 	dlasrt.o \
 	dlaebz.o
-
+	dlascl.o
 endif
 
 
