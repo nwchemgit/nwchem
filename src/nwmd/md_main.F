@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.45 1999-10-28 15:04:28 d3j191 Exp $
+c $Id: md_main.F,v 1.46 1999-10-29 17:26:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1115,6 +1115,7 @@ c
 c
       integer i
 c
+      return
       if(ladd) then
       dwr=zero
       do 1 i=1,nwmloc
