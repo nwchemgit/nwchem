@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 1999-07-27 21:21:20 d3e129 Exp $
+# $Id: GNUmakefile,v 1.4 2000-08-26 19:57:15 d3g681 Exp $
 #
 
 LIBRARY = libpython.a
@@ -11,13 +11,16 @@ error:
 	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
 	@exit 1
 endif
+
+# Under WIN32 only need to define PYTHONHOME
 ifndef PYTHONVERSION
 error1:
 	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
 	@exit 1
 endif
 
-LIB_INCLUDES += -I$(PYTHONHOME)/include/python$(PYTHONVERSION)
+
+LIB_INCLUDES = -I$(PYTHONHOME)/include/python$(PYTHONVERSION)
 
 
 include ../config/makefile.h
