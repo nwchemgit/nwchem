@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.22 1997-04-18 22:00:44 mdupuis Exp $
+C$Id: opt_drv.F,v 1.23 1997-04-19 02:09:46 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -93,7 +93,6 @@ c     ----- parameters for optimization driver -----
 c           may have been read in already. if
 c           not, use default.
 c
-      status = rtdb_parallel(.false.)
       if (ga_nodeid().eq.0)  then
          status=rtdb_get(rtdb,'driver:opt',mt_log,1,opt_input)
          if(.not.status) then
@@ -111,28 +110,16 @@ c
                iatfrz(i)=0
             enddo
          endif
-         call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
-         call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
-         call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
-         call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
-         call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
-         call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
-         call ga_brdcst( 7+msgint,moddir,mitob(1     ),0)
-         call ga_brdcst( 8+msgint,icfrz ,mitob(mxcoor),0)
-         call ga_brdcst( 9+msgint,iatfrz,mitob(mxatom),0)
-      else
-         call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
-         call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
-         call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
-         call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
-         call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
-         call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
-         call ga_brdcst( 7+msgint,moddir,mitob(1     ),0)
-         call ga_brdcst( 8+msgint,icfrz ,mitob(mxcoor),0)
-         call ga_brdcst( 9+msgint,iatfrz,mitob(mxatom),0)
       endif
-      call ga_sync()
-      status = rtdb_parallel(.true.) 
+      call ga_brdcst( 1+msgdbl,cvgopt,mdtob(1     ),0)
+      call ga_brdcst( 2+msgint,nptopt,mitob(1     ),0)
+      call ga_brdcst( 3+msgint,linopt,mitob(1     ),0)
+      call ga_brdcst( 4+msgint,inhess,mitob(1     ),0)
+      call ga_brdcst( 5+msgint,modupd,mitob(1     ),0)
+      call ga_brdcst( 6+msgint,modsad,mitob(1     ),0)
+      call ga_brdcst( 7+msgint,moddir,mitob(1     ),0)
+      call ga_brdcst( 8+msgint,icfrz ,mitob(mxcoor),0)
+      call ga_brdcst( 9+msgint,iatfrz,mitob(mxatom),0)
 c
       if (ga_nodeid().eq.0.or.dbug)  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
@@ -694,7 +681,7 @@ c
  9998 format(3f12.6)
       end
       subroutine hnd_opt_tfgx(rtdb,geom)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -704,20 +691,33 @@ c
       external gradients
       logical  geom_zmt_get_binv
       logical  geom_hnd_tfgx
-      logical  status
       logical  dbug
+      integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
+      integer ir, iw
       common/hnd_iofile/ir,iw
+c
+      integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      double precision c, zan
+      integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c
+      double precision x0, x, dx, g0, g, ds, func, func0, gmax, gmax0,
+     $     curv, alpha, gnorm
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      dimension gs(mxcoor)
+c
+      double precision gs(mxcoor)
+      integer ibi, i_ibi, i, ncart
+      double precision zero
       data zero /0.0d+00/
+c
 c
       dbug=.false.
 c
@@ -728,23 +728,27 @@ c
 c     ----- transform -gx- to -gs- -----
 c
       ncart=3*nat
-      status=ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi)
+      if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi))
+     $     call errquit('hnd_opt_tfgx: ma', ncart*nzvar)
       if(dbug) then
          write(iw,*) 'in opt_tfgx'
          write(iw,*) '-gx-'
          call hnd_prsq(g,1,ncart,ncart)
       endif
-      status=geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart)
+      if (.not. geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart))
+     $     call errquit('hnd_opt_tfgx: get_binv', ncart*nzvar)
       if(dbug) then
          write(iw,*) '-binv-'
          call hnd_prsq(dbl_mb(ibi),nzvar,ncart,ncart)
       endif
-      status=geom_hnd_tfgx(gs,g,dbl_mb(ibi),nvar,ncart,ncart)
+      if (.not. geom_hnd_tfgx(gs,g,dbl_mb(ibi),nvar,ncart,ncart))
+     $     call errquit('hnd_opt_tfgx: tfgx', ncart*nzvar)
       if(dbug) then
          write(iw,*) '-gs-'
          call hnd_prsq(gs,1,nvar,ncart)
       endif
-      status=ma_pop_stack(i_ibi)
+      if (.not. ma_pop_stack(i_ibi))
+     $     call errquit('hnd_opt_tfgx: ma pop', ncart*nzvar)
       do i=1,nvar
          g(i)=gs(i)
       enddo
@@ -761,7 +765,7 @@ c
       return
       end
       subroutine hnd_opt_tfds(rtdb,geom)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -771,23 +775,35 @@ c
       external gradients
       logical  geom_zmt_get_binv
       logical  geom_hnd_tfds
-      logical  status
       logical  dbug
       logical  iterate
+      integer mxiter, mxatom, mxcart, mxzmat, mxcoor
       parameter (mxiter=5 )
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
+c
+      integer ir, iw
       common/hnd_iofile/ir,iw
+c
+      integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      double precision c, zan
+      integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c
+      double precision x0, x, dx, g0, g, ds, func, func0, gmax, gmax0,
+     $     curv, alpha, gnorm
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      dimension d(mxcoor)
+      double precision d(mxcoor)
 c      dimension z(mxzmat) ! never used
 c      dimension t(mxzmat) ! never used
+      integer ncart, i, i_ibi, ibi
+      double precision zero, tol
       data zero /0.0D+00/
       data tol  /1.0d-03/
 c
@@ -809,10 +825,15 @@ c     ----- get -b- and -bi- and transform -ds- to -dx- -----
 c
          call hnd_bandbi(geom,nat,x)
 c
-         status=ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi)
-         status=geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart)
-         status=geom_hnd_tfds(d,dx,dbl_mb(ibi),nvar,ncart,ncart)
-         status=ma_pop_stack(i_ibi)
+         if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem bi',i_ibi,ibi))
+     $        call errquit('hnd_opt_tfds: ma', ncart*nzvar)
+         if (.not. geom_zmt_get_binv(dbl_mb(ibi),ncart,nzvar,ncart))
+     $        call errquit('hnd_opt_tfds: binv', ncart*nzvar)
+         if (.not. geom_hnd_tfds(d,dx,dbl_mb(ibi),nvar,ncart,ncart))
+     $        call errquit('hnd_opt_tfds: tfds', ncart*nzvar)
+         if (.not. ma_pop_stack(i_ibi))
+     $        call errquit('hnd_opt_tfds: ma pop', ncart*nzvar)
+c
          if(dbug) then
             write(iw,*) ' in -tfds- , ds = '
             write(iw,9999) (ds(i),i=1,nvar)
@@ -832,7 +853,7 @@ c
  9999 format(f15.10)
       end
       subroutine hnd_opt_tfdx(rtdb,geom)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -842,19 +863,32 @@ c
       external gradients
       logical  geom_zmt_get_bmat
       logical  geom_hnd_tfdx
-      logical  status
       logical  dbug
+c
+      integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
+c
+      integer ir, iw
       common/hnd_iofile/ir,iw
+c
+      integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      double precision c, zan
+      integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c
+      double precision x0, x, dx, g0, g, ds, func, func0, gmax, gmax0,
+     $     curv, alpha, gnorm
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
      1                  g0(mxcoor),g(mxcoor),ds(mxcoor),
      2                  func,func0,gmax,gmax0,curv,alpha,gnorm
-      dimension d(mxcoor)
+      double precision d(mxcoor)
+c
+      integer i_ib, ib, ncart, i
 c
       dbug=.false.
 c
@@ -868,10 +902,14 @@ c
       do i=1,nvar
          d(i)=dx(i)
       enddo
-      status=ma_push_get(MT_DBL,ncart*nzvar,'mem b ',i_ib,ib)
-      status=geom_zmt_get_bmat(dbl_mb(ib),ncart,nzvar,ncart)
-      status=geom_hnd_tfdx(d,dx,dbl_mb(ib),nvar,ncart,ncart)
-      status=ma_pop_stack(i_ib)
+      if (.not. ma_push_get(MT_DBL,ncart*nzvar,'mem b ',i_ib,ib))
+     $     call errquit('hnd_opt_tfdx: ma ', ncart*nzvar)
+      if (.not. geom_zmt_get_bmat(dbl_mb(ib),ncart,nzvar,ncart))
+     $     call errquit('hnd_opt_tfdx: tfdx ', ncart*nzvar)
+      if (.not. geom_hnd_tfdx(d,dx,dbl_mb(ib),nvar,ncart,ncart))
+     $     call errquit('hnd_opt_tfdx: tfdx ', ncart*nzvar)
+      if (.not. ma_pop_stack(i_ib))
+     $     call errquit('hnd_opt_tfdx: ma pop ', ncart*nzvar)
       if(dbug) then
          write(iw,*) ' in -tfdx- , dx = '
          write(iw,9999) (dx(i),i=1,ncart)
@@ -895,7 +933,7 @@ c
       return
       end
       subroutine hnd_opt_hss_init(rtdb,geom)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -938,19 +976,34 @@ c      logical geom_zmt_get_binv
       logical dbug
       logical out 
 c
-      character*16 atom_tags
 c
+      double precision zero
       parameter (zero=0.0d+00)
+      integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)     
       parameter (mxcoor=1500)
-      logical zcoord
+c
+c
+      integer ir, iw
       common/hnd_iofile/ir,iw
+c
+      logical zcoord
+      integer ncoord, mcoord
       common/hnd_optvar/zcoord,ncoord,mcoord
+c
+      integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      double precision c, zan
+      integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
-      dimension atom_tags(mxatom)
+c
+      character*16 atom_tags(mxatom)
+      integer ndimx, ndimq, ndim, need
+      integer k_hss, k_hssx, k_hssq, k_zsym, k_zmat, k_izmat, k_last
+      integer iat, ixyz
 c
       dbug=.false.
       out =.false.
@@ -1101,8 +1154,6 @@ C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
 C                 OTHERWISE MAKE UP INITIAL GUESS
 C              IN CARTESIAN OR INTERNAL COORDINATES
 C
-      LOGICAL   DRIVER_OPT_OPN_HESS
-      LOGICAL   DRIVER_OPT_PUT_HESS
 c      LOGICAL   DRIVER_OPT_GET_HESS
       LOGICAL   STATUS
 C
@@ -1204,10 +1255,10 @@ C
 C     ----- SAVE INITIAL HESSIAN -----
 C
       IF( GA_NODEID().EQ.0) THEN
-         STATUS=DRIVER_OPT_OPN_HESS()
-         IF(.NOT.STATUS) THEN
-            CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
-         ENDIF
+*         STATUS=DRIVER_OPT_OPN_HESS()
+*         IF(.NOT.STATUS) THEN
+*            CALL ERRQUIT('HSS_INIT_X:OPN_HESS?',911)
+*         ENDIF
          STATUS=DRIVER_OPT_PUT_HESS(HSS,NCOOR,NCOOR)
       ENDIF
       CALL GA_SYNC()
@@ -1540,89 +1591,89 @@ C
      2       /,1X,38(1H-))
  9008 FORMAT(' IN  OPT_HSS_INIT_ZMT , HGUESS = ',A8) 
       END
-      logical function driver_opt_opn_hess()
-      implicit none
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-
-c
-      character*255 opt_hess_fil
-      character*8   errmsg
-c      logical       status
-c
-      integer       ir
-      integer       iw
-      integer       ift
-      logical       dbug
-      common/hnd_iofile/ir,iw
-      common/hnd_optfil/opt_hess_fil
-      dimension errmsg(3)
-      data errmsg   /'program ','stop in ','opn_hess'/
-      data ift      /31/
-c
-      dbug=util_print("hess_fil", print_debug)
-c
-      call util_file_name('driver',.false.,.false.,opt_hess_fil)
-      open(unit=ift,file=opt_hess_fil,form='unformatted',
-     1     access='sequential',status='unknown',err=911)
-      if(dbug) then
-         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-      endif
-      driver_opt_opn_hess=.true.
-      return
-c
-  911 continue
-      if(dbug) then
-         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-      endif
-      call hnd_hnderr(3,errmsg)
-      driver_opt_opn_hess=.false.
-      return
-      end
-      logical function driver_opt_cls_hess()
-      implicit none
-#include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
-#include "global.fh"
-#include "rtdb.fh"
-#include "util.fh"
-c
-      character*255 opt_hess_fil
-      character*8   errmsg
-c      logical       status
-c
-      integer       ir
-      integer       iw
-      integer       ift
-      logical       dbug
-      common/hnd_iofile/ir,iw
-      common/hnd_optfil/opt_hess_fil
-      dimension errmsg(3)
-      data errmsg   /'program ','stop in ','cls_hess'/
-      data ift      /31/
-c
-      dbug=util_print("hess_fil", print_debug)
-c
-      close(unit=ift,status='keep',err=911)
-      if(dbug) then
-         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-      endif
-      driver_opt_cls_hess=.true.
-      return
-c
-  911 continue
-      if(dbug) then
-         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
-      endif
-      call hnd_hnderr(3,errmsg)
-      driver_opt_cls_hess=.false.
-      return
-      end
+c$$$      logical function driver_opt_opn_hess()
+c$$$      implicit none
+c$$$#include "mafdecls.fh"
+c$$$#include "tcgmsg.fh"
+c$$$#include "msgtypesf.h"
+c$$$#include "global.fh"
+c$$$#include "rtdb.fh"
+c$$$#include "util.fh"
+c$$$
+c$$$c
+c$$$      character*255 opt_hess_fil
+c$$$      character*8   errmsg
+c$$$c      logical       status
+c$$$c
+c$$$      integer       ir
+c$$$      integer       iw
+c$$$      integer       ift
+c$$$      logical       dbug
+c$$$      common/hnd_iofile/ir,iw
+c$$$      common/hnd_optfil/opt_hess_fil
+c$$$      dimension errmsg(3)
+c$$$      data errmsg   /'program ','stop in ','opn_hess'/
+c$$$      data ift      /31/
+c$$$c
+c$$$      dbug=util_print("hess_fil", print_debug)
+c$$$c
+c$$$      call util_file_name('driver',.false.,.false.,opt_hess_fil)
+c$$$      open(unit=ift,file=opt_hess_fil,form='unformatted',
+c$$$     1     access='sequential',status='unknown',err=911)
+c$$$      if(dbug) then
+c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+c$$$      endif
+c$$$      driver_opt_opn_hess=.true.
+c$$$      return
+c$$$c
+c$$$  911 continue
+c$$$      if(dbug) then
+c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+c$$$      endif
+c$$$      call hnd_hnderr(3,errmsg)
+c$$$      driver_opt_opn_hess=.false.
+c$$$      return
+c$$$      end
+c$$$      logical function driver_opt_cls_hess()
+c$$$      implicit none
+c$$$#include "mafdecls.fh"
+c$$$#include "tcgmsg.fh"
+c$$$#include "msgtypesf.h"
+c$$$#include "global.fh"
+c$$$#include "rtdb.fh"
+c$$$#include "util.fh"
+c$$$c
+c$$$      character*255 opt_hess_fil
+c$$$      character*8   errmsg
+c$$$c      logical       status
+c$$$c
+c$$$      integer       ir
+c$$$      integer       iw
+c$$$      integer       ift
+c$$$      logical       dbug
+c$$$      common/hnd_iofile/ir,iw
+c$$$      common/hnd_optfil/opt_hess_fil
+c$$$      dimension errmsg(3)
+c$$$      data errmsg   /'program ','stop in ','cls_hess'/
+c$$$      data ift      /31/
+c$$$c
+c$$$      dbug=util_print("hess_fil", print_debug)
+c$$$c
+c$$$      close(unit=ift,status='keep',err=911)
+c$$$      if(dbug) then
+c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+c$$$      endif
+c$$$      driver_opt_cls_hess=.true.
+c$$$      return
+c$$$c
+c$$$  911 continue
+c$$$      if(dbug) then
+c$$$         write(iw,*) 'opt_hess_fil = ',opt_hess_fil
+c$$$      endif
+c$$$      call hnd_hnderr(3,errmsg)
+c$$$      driver_opt_cls_hess=.false.
+c$$$      return
+c$$$      end
       logical function driver_opt_put_hess(hess,nint,mint)   
       implicit none
 #include "mafdecls.fh"
@@ -1645,20 +1696,29 @@ c      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint)  
+      character*255 opt_hess_fil
       data ift /31/
 c
+      call util_file_name('driver',.false.,.false.,opt_hess_fil)
+      open(unit=ift, file=opt_hess_fil, form='unformatted',
+     1     access='sequential', status='unknown', err=911)
       dbug=util_print("hess_fil", print_debug)
 c
       if(dbug) then
-         write(iw,*) ' _put_hess '
+         write(iw,*) ' _put_hess ', opt_hess_fil
          call hnd_prsq(hess,nint,nint,mint)    
       endif
 c
       rewind ift
       write(ift) hess
 c
+      close(ift,status='keep')
+c
       driver_opt_put_hess=.true.
       return
+c
+ 911  call errquit('driver_opt_put_hess: open failed',0)
+c
       end
       logical function driver_opt_get_hess(hess,nint,mint)   
       implicit none
@@ -1682,28 +1742,38 @@ c      integer ip
       logical dbug
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint) 
+      character*255 opt_hess_fil
       data ift /31/
 c
+      call util_file_name('driver',.false.,.false.,opt_hess_fil)
+      open(unit=ift, file=opt_hess_fil, form='unformatted',
+     1     access='sequential', status='unknown', err=911)
       dbug=util_print("hess_fil", print_debug)
 c
       rewind ift
       read(ift) hess
 c
+      close(ift,status='keep')
+c
       if(dbug) then
-         write(iw,*) ' _get_hess'
+         write(iw,*) ' _get_hess', opt_hess_fil
          call hnd_prsq(hess,nint,nint,mint)    
       endif
 c
       driver_opt_get_hess=.true.
       return
+c
+ 911  call errquit('driver_opt_get_hess: open failed',0)
+c
       end
       subroutine hnd_opt_search_dir(rtdb)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "global.fh"
 #include "geom.fh"
+#include "util.fh"
 c   #include "geomP.fh"   ! should not need this?
 #include "rtdb.fh"
 c
@@ -1713,25 +1783,43 @@ c
       logical    driver_opt_put_hess
       logical    geom_zmt_get_zind
 c
+      integer mxatom, mxcart, mxzmat, mxcoor
       parameter (mxatom=500)
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
+c
       logical dbug
       logical out
       logical baker
-      logical zcoord
+c
+      integer ir, iw
       common/hnd_iofile/ir,iw
+c
+      double precision c, zan
+      integer nat
       common/hnd_molxyz/c(3,mxatom),zan(mxatom),nat
+c
+      integer nzmat, nzvar, nvar
       common/hnd_zmtpar/nzmat,nzvar,nvar
+c
+      logical zcoord
+      integer ncoord, mcoord
       common/hnd_optvar/zcoord,ncoord,mcoord
-      dimension x(1)
+c
+      integer ndimx, ndimq, ndimi, ndim, ndim1
+      integer need, i, j, i_ifirst, ifirst
+      integer i10, i20, i30, i40, i50, i60, i70, i80
+      integer j10, j20, j30, j40
+c
+      double precision x(1)
       equivalence (x(1),dbl_mb(1))
+      double precision zero
       data zero /0.0d+00/
 c
-      dbug =.false.
-      out  =.false.
-      out  =out.or.dbug
+      dbug = util_print("search dir debug",print_debug)
+      out  = util_print("search dir out", print_debug)
+      out  = out.or.dbug
 c
       baker=.false.
 c
@@ -1792,28 +1880,20 @@ c
 c     ----- get current hessian matrix -----
 c
       if(zcoord) then
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_get_hess(x(j10),ndimq,ndim)     
-            call ga_brdcst(51+msgdbl,x(j10),mdtob(ndim*ndim),0)
-         else
-            call ga_brdcst(51+msgdbl,x(j10),mdtob(ndim*ndim),0)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.) 
+         call ga_brdcst(51+msgdbl,x(j10),mdtob(ndim*ndim),0)
+
          if(dbug) then
             write(iw,*) 'in -search_dir- , int.coord. hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=geom_zmt_get_zind(x(j20),ndimq,ndim)
-            call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
-         else
-            call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.) 
+         call ga_brdcst(61+msgdbl,x(j20),mdtob(ndim*ndim),0)
+
          if(dbug) then
             write(iw,*) 'in -search_dir- , zind = '                 
             call hnd_prsq(x(j20),ndimq,ndimq,ndim)
@@ -1829,15 +1909,11 @@ c
             enddo
          enddo
       else
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
+c
             status=driver_opt_get_hess(x(i10),ndimx,ndim1)       
-            call ga_brdcst(71+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
-         else
-            call ga_brdcst(71+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.) 
+         call ga_brdcst(71+msgdbl,x(i10),mdtob(ndim1*ndim1),0)
          if(dbug) then
             write(iw,*) 'in -search_dir- , cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
@@ -1872,15 +1948,10 @@ c
          if(dbug) then
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=geom_zmt_get_zind(x(j20),ndimq,ndim)
-            call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
-         else
-            call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.) 
+         call ga_brdcst(81+msgdbl,x(j20),mdtob(ndim*ndim),0)
 c
          call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
 c
@@ -1896,19 +1967,13 @@ c--            call hnd_prsq(x(j10),ndimq,ndimq,ndim)
 c--            stop
 c--         endif
          endif
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_put_hess(x(j10),ndimq,ndim)       
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.) 
       else
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
             status=driver_opt_put_hess(x(i10),ndimx,ndim1)       
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.) 
          if(dbug) then
             write(iw,*) 'in -search_dir- , cartesian hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim1)
@@ -2843,7 +2908,6 @@ C
 c      #include "geomP.fh"    ! should not need this?
 #include "rtdb.fh"
       INTEGER RTDB
-      LOGICAL STATUS
       LOGICAL DRIVER_OPT_PUT_HESS
       LOGICAL DRIVER_OPT_GET_HESS
       LOGICAL GEOM_ZMT_GET_ZIND
@@ -2886,7 +2950,8 @@ c
          need=need +ndim *ndim
          need=need +ndim
       endif
-      status=ma_push_get(mt_dbl,need,'mem update',i_ifirst,ifirst)
+      if (.not. ma_push_get(mt_dbl,need,'mem update',i_ifirst,ifirst))
+     $     call errquit('hnd_opt_hss_update: ma ', need)
       i10=ifirst   
       i20=i10+ndimi*ndimi
       i30=i20+ndimi
@@ -2900,18 +2965,14 @@ c
 c     ----- get current hessian matrix -----
 c
       if(zcoord) then
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=driver_opt_get_hess(x(j10),ndimq,ndim) 
-            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
-            call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
-            call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
-         else
-            call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
-            call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
+            if (.not. driver_opt_get_hess(x(j10),ndimq,ndim))
+     $           call errquit('hnd_opt_hss_update: get_hess',ndimq*ndim)
+            if (.not. geom_zmt_get_zind(x(j20),ndimq,ndim))
+     $           call errquit('hnd_opt_hss_update: get_zind',ndimq*ndim)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.)
+         call ga_brdcst(101+msgdbl,x(j10),mdtob(ndim*ndim),0)
+         call ga_brdcst(102+msgdbl,x(j20),mdtob(ndim*ndim),0)
 c
          if(dbug) then
             write(iw,*) 'in hss_update, current hessian = '
@@ -2930,15 +2991,11 @@ c
             call hnd_prsq(x(i10),ndimi,ndimi,ndimi)
          endif
       else
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=driver_opt_get_hess(x(i10),ndimx,ndim)
-            call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
-         else
-            call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
+            if (.not. driver_opt_get_hess(x(i10),ndimx,ndim))
+     $           call errquit('hnd_opt_hss_update: get_hess',ndimx*ndim)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.)
+         call ga_brdcst(111+msgdbl,x(i10),mdtob(ndim*ndim),0)
          if(dbug) then
          if( ga_nodeid().eq.0) then
             write(iw,*) 'in hss_update, cartesian hessian = '
@@ -2974,35 +3031,27 @@ c
                x(i+ndim*(j-1)+j10-1)=x(i+ndimi*(j-1)+i10-1)
             enddo
          enddo
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=geom_zmt_get_zind(x(j20),ndimq,ndim)
-            call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
-         else
-            call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
+            if (.not. geom_zmt_get_zind(x(j20),ndimq,ndim))
+     $           call errquit('hnd_opt_hss_update: get_zind',ndimq*ndim)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.)
+         call ga_brdcst(121+msgdbl,x(j20),mdtob(ndim),0)
 c
          call hnd_tfhsi(x(j10),x(j20),x(j30),ndimq,ndimq,ndim)
 c
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=driver_opt_put_hess(x(j10),ndimq,ndim)
+            if (.not. driver_opt_put_hess(x(j10),ndimq,ndim))
+     $           call errquit('hnd_opt_hss_update: put_hess',ndimq*ndim)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.)
          if(out) then
             write(iw,*) 'in hss_update, transformed updated hessian = '
             call hnd_prsq(x(j10),ndimq,ndimq,ndim)
          endif
       else
-         status=rtdb_parallel(.false.)
          if( ga_nodeid().eq.0) then
-            status=driver_opt_put_hess(x(i10),ndimx,ndim)
+            if (.not. driver_opt_put_hess(x(i10),ndimx,ndim))
+     $           call errquit('hnd_opt_hss_update: put_hess',ndimx*ndim)
          endif
-         call ga_sync()
-         status=rtdb_parallel(.true.)
          if(dbug) then
             write(iw,*) 'in hss_update, updated hessian = '
             call hnd_prsq(x(i10),ndimx,ndimx,ndim)
@@ -3011,7 +3060,9 @@ c
 c
 c     ----- release memory -----
 c
-      status=ma_pop_stack(i_ifirst)
+      if (.not. ma_pop_stack(i_ifirst))
+     $     call errquit('hnd_opt_hss_update: ma pop ', 0)
+
 c
       if(dbug) then
          write(iw,*) '  end of hnd_opt_hss_update'
