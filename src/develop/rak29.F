@@ -1,6 +1,6 @@
       logical function raktask_fullsc(rtdb)
 *
-* $Id: rak29.F,v 1.5 1999-06-19 00:58:16 d3e129 Exp $
+* $Id: rak29.F,v 1.6 1999-06-21 09:29:52 d3e129 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -203,6 +203,10 @@ c::-statement function
       end
       subroutine rak_hondomapnwchem()
       implicit none
+#include "mafdecls.fh"
+      logical rak_is_unit_matrix
+      external rak_is_unit_matrix
+
       integer map_hton(35)
       integer map_ntoh(35)
       double precision n2h_s(1,1)
@@ -211,8 +215,19 @@ c::-statement function
       double precision n2h_d(6,6)
       double precision n2h_f(10,10)
       double precision n2h_g(15,15)
+      double precision h2n_s(1,1)
+      double precision h2n_p(3,3)
+      double precision h2n_sp(4,4)
+      double precision h2n_d(6,6)
+      double precision h2n_f(10,10)
+      double precision h2n_g(15,15)
       integer i,j,ang, shell_off
       integer l2ang
+      integer h_tmp, k_tmp
+      integer sizei, sized
+      integer h_n2hind, k_n2hind
+      integer h_n2hcmp, k_n2hcmp
+      integer coffset, ioffset, count
 c
 c     ----- mapping of shell components from nwchem to hondo -----
 c
@@ -242,22 +257,33 @@ c
       call dfill(6*6,0.0d00,n2h_d,1)
       call dfill(10*10,0.0d00,n2h_f,1)
       call dfill(15*15,0.0d00,n2h_g,1)
+      call dfill(3*3,0.0d00,h2n_p,1)
+      call dfill(4*4,0.0d00,h2n_sp,1)
+      call dfill(6*6,0.0d00,h2n_d,1)
+      call dfill(10*10,0.0d00,h2n_f,1)
+      call dfill(15*15,0.0d00,h2n_g,1)
 * fill matrices as nwchem 2 hondo order e.g., unit matrix with map
       n2h_s(1,map_ntoh(1)) = 1.0d00
+      h2n_s(1,map_hton(1)) = 1.0d00
       do i=1,3
         n2h_p(i,map_ntoh(i+1)-1)  = 1.0d00
+        h2n_p(i,map_hton(i+1)-1)  = 1.0d00
       enddo
       do i=1,4
         n2h_sp(i,map_ntoh(i)) = 1.0d00
+        h2n_sp(i,map_hton(i)) = 1.0d00
       enddo
       do i=1,6
         n2h_d(i,map_ntoh(i+4)-4)  = 1.0d00
+        h2n_d(i,map_hton(i+4)-4)  = 1.0d00
       enddo
       do i=1,10
         n2h_f(i,map_ntoh(i+10)-10)  = 1.0d00
+        h2n_f(i,map_hton(i+10)-10)  = 1.0d00
       enddo
       do i=1,15
         n2h_g(i,map_ntoh(i+20)-20)  = 1.0d00
+        h2n_g(i,map_hton(i+20)-20)  = 1.0d00
       enddo
       write(6,*)' n2h_s '
       call output(n2h_s,1,1,1,1,1,1,1)
@@ -272,6 +298,158 @@ c
       write(6,*)' n2h_g '
       call output(n2h_g,1,15,1,15,15,15,1)
 
+      write(6,*)' h2n_s '
+      call output(h2n_s,1,1,1,1,1,1,1)
+      write(6,*)' h2n_p '
+      call output(h2n_p,1,3,1,3,3,3,1)
+      write(6,*)' h2n_sp '
+      call output(h2n_sp,1,4,1,4,4,4,1)
+      write(6,*)' h2n_d '
+      call output(h2n_d,1,6,1,6,6,6,1)
+      write(6,*)' h2n_f '
+      call output(h2n_f,1,10,1,10,10,10,1)
+      write(6,*)' h2n_g '
+      call output(h2n_g,1,15,1,15,15,15,1)
+
+*allocate memory
+      if (.not.ma_alloc_get(mt_dbl,(15*15),'rak29:tmp',
+     &      h_tmp, k_tmp)) stop 'h_tmp alloc failed'
+* products of p
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',3,3,3,1.0d00,n2h_p,3,h2n_p,3,
+     &      0.0d00,dbl_mb(k_tmp),3)
+      write(6,*)' product matrix p,nhhn',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),3,3)
+      call output(dbl_mb(k_tmp),1,3,1,3,3,3,1)
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',3,3,3,1.0d00,h2n_p,3,n2h_p,3,
+     &      0.0d00,dbl_mb(k_tmp),3)
+      write(6,*)' product matrix p,hnnh',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),3,3)
+      call output(dbl_mb(k_tmp),1,3,1,3,3,3,1)
+* products of sp
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',4,4,4,1.0d00,n2h_sp,4,h2n_sp,4,
+     &      0.0d00,dbl_mb(k_tmp),4)
+      write(6,*)' product matrix sp,nhhn',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),4,4)
+      call output(dbl_mb(k_tmp),1,4,1,4,4,4,1)
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',4,4,4,1.0d00,h2n_sp,4,n2h_sp,4,
+     &      0.0d00,dbl_mb(k_tmp),4)
+      write(6,*)' product matrix sp,hnnh',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),4,4)
+      call output(dbl_mb(k_tmp),1,4,1,4,4,4,1)
+* products of d
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',6,6,6,1.0d00,n2h_d,6,h2n_d,6,
+     &      0.0d00,dbl_mb(k_tmp),6)
+      write(6,*)' product matrix d,nhhn',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),6,6)
+      call output(dbl_mb(k_tmp),1,6,1,6,6,6,1)
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',6,6,6,1.0d00,h2n_d,6,n2h_d,6,
+     &      0.0d00,dbl_mb(k_tmp),6)
+      write(6,*)' product matrix d,hnnh',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),6,6)
+      call output(dbl_mb(k_tmp),1,6,1,6,6,6,1)
+* products of f
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',10,10,10,1.0d00,n2h_f,10,h2n_f,10,
+     &      0.0d00,dbl_mb(k_tmp),10)
+      write(6,*)' product matrix f,nhhn',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),10,10)
+      call output(dbl_mb(k_tmp),1,10,1,10,10,10,1)
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',10,10,10,1.0d00,h2n_f,10,n2h_f,10,
+     &      0.0d00,dbl_mb(k_tmp),10)
+      write(6,*)' product matrix f,hnnh',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),10,10)
+      call output(dbl_mb(k_tmp),1,10,1,10,10,10,1)
+* products of g
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',15,15,15,1.0d00,n2h_g,15,h2n_g,15,
+     &      0.0d00,dbl_mb(k_tmp),15)
+      write(6,*)' product matrix g,nhhn',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),15,15)
+      call output(dbl_mb(k_tmp),1,15,1,15,15,15,1)
+      call dfill((15*15),0.0d00,dbl_mb(k_tmp),1)
+      call dgemm('n','n',15,15,15,1.0d00,h2n_g,15,n2h_g,15,
+     &      0.0d00,dbl_mb(k_tmp),15)
+      write(6,*)' product matrix g,hnnh',
+     &      rak_is_unit_matrix(dbl_mb(k_tmp),15,15)
+      call output(dbl_mb(k_tmp),1,15,1,15,15,15,1)
+* build ma based index and compressed matrix arrays
+*                   0 1  2  3  4  5
+*                   1 2  3  4  5  6
+*                  -1 0  1  2  3  4
+      sizei = 6 ! sp, s, p, d, f, g
+      sized = 4*4 + 1*1 + 3*3 + 6*6 + 10*10 + 15*15
+      if (.not.ma_alloc_get(mt_int,sizei,'n2h:index',
+     &      h_n2hind,k_n2hind)) stop 'error'
+      if (.not.ma_alloc_get(mt_dbl,sized,'n2h:compressed',
+     &      h_n2hcmp,k_n2hcmp)) stop ' error'
+      coffset = 0 
+      ioffset = 0
+      int_mb(k_n2hind+ioffset) = coffset
+      count = 0
+      do i = 1,4
+        do j = 1,4
+          if (i.eq.map_ntoh(j)) then
+            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
+          else
+            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
+          endif
+          count = count + 1
+        enddo
+      enddo
+      coffset = coffset + count
+      ioffset = ioffset + 1
+      int_mb(k_n2hind+ioffset) = coffset
+      count = 0
+      do i = 1,1
+        do j = 1,1
+          if (i.eq.map_ntoh(j)) then
+            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
+          else
+            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
+          endif
+          count = count + 1
+        enddo
+      enddo
+      coffset = coffset + count
+      ioffset = ioffset + 1
+      int_mb(k_n2hind+ioffset) = coffset
+      count = 0
+      do i = 1,3
+        do j = 1,3
+          if (i.eq.map_ntoh(j)) then
+            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
+          else
+            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
+          endif
+          count = count + 1
+        enddo
+      enddo
+      coffset = coffset + count
+      ioffset = ioffset + 1
+      int_mb(k_n2hind+ioffset) = coffset
+      count = 0
+      do i = 1,6
+        do j = 1,6
+          if (i.eq.map_ntoh(j)) then
+            dbl_mb(k_n2hcmp+coffset+count) = 1.0d00
+          else
+            dbl_mb(k_n2hcmp+coffset+count) = 0.0d00
+          endif
+          count = count + 1
+        enddo
+      enddo
+      write(6,*)' fixed array '
+      call output(dbl_mb(k_n2hcmp+coffset),1,6,1,6,6,6,1)
+      if (.not.ma_free_heap(h_tmp)) stop 'h_tmp free failed'
+      if (.not.ma_free_heap(h_n2hind)) stop 'h_tmp free failed'
+      if (.not.ma_free_heap(h_n2hcmp)) stop 'h_tmp free failed'
 10000 format(1x,'hondo  component ',i5,' maps to nwchem component ',i5)
 10001 format(1x,'nwchem component ',i5,' maps to hondo  component ',i5)
 *
