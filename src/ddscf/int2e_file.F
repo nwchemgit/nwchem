@@ -326,7 +326,7 @@ c
 c
       if (otrace) then
          write(6,*) ' int2e_file: write file ', nints, cntr_ptr
-*         call print_integ_list(nints, i, j, k, l, g)
+         call print_integ_list(nints, i, j, k, l, g)
          call util_flush(6)
       end if
 c
