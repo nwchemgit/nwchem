@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.27 1997-03-25 17:10:10 d3e129 Exp $
+c $Id: exact_mem.F,v 1.28 1997-03-31 21:48:20 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -960,8 +960,8 @@ c:tex-% Part of the API internal routines.
 c:tex-\subsubsection{int\_nbf\_max}
 c:tex-This routine computes the maximum cartesian nbf for a given basis
 c:tex-set.  Used in many memory computing routines to deterine maximum
-c:tex-buffer sizes needed for integral computations.
-c:tex-
+c:tex-buffer sizes needed for integral computations.  This also includes
+c:tex-any general contraction information.
 ***********************************************************************
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}

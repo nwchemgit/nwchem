@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.26 1996-10-07 16:50:17 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.27 1997-03-31 21:48:22 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_2e4c}
@@ -266,6 +266,15 @@ c
 *debug:     &        stop 'cn2bfr error l'
 *debug:          write(6,*)' nbf low   :',ilo,jlo,klo,llo
 *debug:          write(6,*)' nbf hi    :',ihi,jhi,khi,lhi
+c
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+c
+          if (la.eq.-1) a_gen = 1
+          if (lb.eq.-1) b_gen = 1
+          if (lc.eq.-1) c_gen = 1
+          if (ld.eq.-1) d_gen = 1
+          
           a_nbf = int_nbf_x(La)
           b_nbf = int_nbf_x(Lb)
           c_nbf = int_nbf_x(Lc)
