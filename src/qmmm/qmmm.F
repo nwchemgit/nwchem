@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.37 2004-12-02 00:20:27 marat Exp $
+c $Id: qmmm.F,v 1.38 2004-12-04 02:59:27 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -117,6 +117,8 @@ c     local variables
       double precision mm_energy
       double precision eatoms
 c     external functions
+      logical ignore_mm
+      logical ignore_qm
       logical  task_energy_doit
       external task_energy_doit
 
@@ -156,6 +158,18 @@ c     -------------------------
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
       mm_energy = mm_energy/cau2kj
+      
+      if (.not. rtdb_get(rtdb,'qmmm:ignore_mm',mt_log,1,ignore_mm)) then
+         ignore_mm = .false.
+      end if
+
+      if (.not. rtdb_get(rtdb,'qmmm:ignore_qm',mt_log,1,ignore_qm)) then
+         ignore_qm = .false.
+      end if
+
+      if(ignore_mm) mm_energy = 0.0d0
+      if(ignore_qm) qm_energy = 0.0d0
+
       energy = qm_energy + mm_energy-eatoms
 
       if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.38 2004-12-03 19:06:12 marat Exp $
+c $Id: qmmm_geom.F,v 1.39 2004-12-04 02:59:27 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -67,18 +67,23 @@ c     -----------------------------
       do i=1,nqm
         int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
       end do
-c
+
 c     adjust link atom names and
 c     basis set if needed
 c     --------------------------
       if(nlink.gt.0) then
-       call qmmm_link_atoms(nlink,
+
+       call qmmm_adjust_link_params(nlink,
      >                      nqm,
-     >                      int_mb(i_lind),
      >                      int_mb(i_num),
      >                      dbl_mb(i_q),
      >                      byte_mb(i_t),
-     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_m))
+
+       call qmmm_link_index(nlink,
+     >                      nqm,
+     >                      int_mb(i_lind),
+     >                      int_mb(i_num),
      >                      dbl_mb(i_m))
 
        if(ga_nodeid().eq.0) then
@@ -87,6 +92,8 @@ c     --------------------------
        end if
 
       end if
+      
+      call qmmm_adjust_link_coord()
 
       if(qmmm_print_debug()) then
         call util_print_centered(6,"QM system information",
@@ -101,29 +108,22 @@ c     --------------------------
       end if
 
       if(qmmm_fixlinks() .and. nlink.gt.0) then
-
-c        namespace = "qmmm-cons"
-c        if(.not. rtdb_cput(irtdb,"constraints" , 1, namespace)) then
-c           call errquit('qmmm: Failed constraints',0,0)
-c        end if
-
         do i=1,2*nlink
           i1=int_mb(i_lind+i-1)
           log_mb(i_act+i1-1)=.false.
         end do
-
-c        call cons_add_fixed_atoms(namespace,2*nlink,
-c     >                            int_mb(i_lind),irtdb)
-c     
-c        do i=nqm-nlink+1,nqm
-c          i1=qmmm_geom_heavy_neighbor(i,nqm,int_mb(i_num),dbl_mb(i_c))
-c          tmp(1) = i
-c          tmp(2) = i1
-c          call cons_add_fixed_atoms(namespace,2,tmp,irtdb)
-c        end do
-c        call cons_info_fixed_atoms(namespace,irtdb)
-c        call cons_activate(namespace,irtdb)
       end if
+
+c 
+c     force inactivation of hydrogen links
+c     ------------------------------------
+      if(qmmm_h_link() .and. nlink.gt.0) then
+        do i=1,nlink
+          i1=int_mb(i_lind+2*(i-1))
+          log_mb(i_act+i1-1)=.false.
+        end do
+      end if
+
 
       if(ga_nodeid().eq.0) then
         write(*,*) "list of active atoms"
@@ -361,6 +361,10 @@ c      end if
       i_cbq = qmmm_get_i_cbq()
       i_qbq = qmmm_get_i_qbq()
      
+c
+c     fix hydrogen link atoms
+c     -----------------------
+      call qmmm_adjust_link_coord()
 
 
 c    --------------------------------------
@@ -583,7 +587,7 @@ c     ----------
 
       end
 
-      subroutine qmmm_link_atoms(nl,n,lind,inum,q,t,c,m)
+      subroutine qmmm_link_atoms0(nl,n,lind,inum,q,t,c,m)
       implicit none
 #include "geom.fh"
 #include "errquit.fh"
@@ -644,6 +648,178 @@ c     ---------------
         t(i)="F_L"
         if(.not.geom_tag_to_default_mass(t(i),m(i)))
      &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+      end do
+      end if
+
+      end
+
+      subroutine qmmm_adjust_link_params(nl,n,inum,q,t,m)
+      implicit none
+#include "geom.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+      integer nl
+      integer n
+      double precision inum(n)
+      double precision q(n)
+      double precision c(3,n)
+      character*16 t(n)
+      double precision m(n)
+
+c     local variables
+c     ---------------
+      integer i
+      logical h_link
+
+      if(nl.eq.0) return
+
+      h_link=qmmm_h_link()
+      if(h_link) then
+      do i=n-nl+1,n
+        t(i)="H_L"
+        q(i)=1.0
+        inum(i)=1
+        if(.not.geom_tag_to_default_mass(t(i),m(i)))
+     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+      end do
+      else
+      do i=n-nl+1,n
+        q(i)=9.0
+        t(i)="F_L"
+        inum(i)=9
+        if(.not.geom_tag_to_default_mass(t(i),m(i)))
+     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+      end do
+      end if
+
+      end
+
+      subroutine qmmm_adjust_link_coord()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+c     local variables
+      integer nqm
+      integer nlink
+      integer i,k
+      integer i_lp
+      integer i_c
+      integer h_cl,i_cl
+      integer i_ai
+      integer il,iq,ih
+      double precision l_qh,l_ql
+      double precision rh(3)
+      double precision rq(3)
+      double precision rl(3)
+      double precision rql(3)
+      double precision a,b
+      character*32 pname
+
+      double precision dnrm2
+      external dnrm2
+
+      pname = "qmmm_adjust_link_coord"
+
+      if(qmmm_print_debug())
+     >   write(*,*) "in "//pname
+
+      nlink = qmmm_get_nlink()
+
+c
+c     nothing to do if no links
+c     -------------------------
+      if(nlink.eq.0) return
+c
+c     nothing to do if links are not hydrogens
+c     ----------------------------------------
+      if(.not.qmmm_h_link()) return
+
+      nqm = qmmm_get_nqm()
+
+      if(.not.ma_push_get(mt_dbl,3*nlink,'cl',h_cl,i_cl))
+     + call errquit( pname//'Failed to allocate memory for cl',
+     + 3*nlink, MA_ERR)
+
+
+c
+c     get pointer to index of link pairs
+c     ----------------------------------
+      i_lp = qmmm_get_i_lai()
+
+c
+c     get pointer to global index
+c     ---------------------------
+      i_ai   = qmmm_get_i_ai()
+c
+c     get pointer to coord array
+c     --------------------------
+      i_c   = qmmm_get_i_c()
+c
+c     get coordinates of mm link atoms
+c     -------------------------------
+      call mm_get_solute_coord_quant(nlink,
+     &                   .true.,
+     &                   int_mb(i_ai+nqm-nlink),
+     &                   dbl_mb(i_cl))
+
+c
+c     loop over link atom pairs
+c     -------------------------
+      do i=1,nlink
+        ih = int_mb(i_lp+2*(i-1))
+        iq = int_mb(i_lp+2*(i-1)+1)
+        il = ih-nqm+nlink
+        do k=1,3
+           rq(k)  = dbl_mb(i_c+(iq-1)*3+k-1)
+           rl(k)  = dbl_mb(i_cl+(il-1)*3+k-1)
+           rql(k) = rq(k)-rl(k)
+        end do
+        l_ql=dnrm2(3,rql,1)
+        write(*,*) "link-bond distance",l_ql*0.529
+        a = 1.0d0/(l_ql*0.529)
+        do k=1,3
+           rh(k) = rq(k) - rql(k)*a
+           dbl_mb(i_c+(ih-1)*3+k-1) = rh(k)
+        end do
+      end do
+    
+      if(.not.ma_pop_stack(h_cl))
+     + call errquit( pname//'Failed to deallocate memory for cl',
+     + 3*nlink, MA_ERR)
+
+      end
+
+      subroutine qmmm_link_index(nl,n,lind,inum,c)
+      implicit none
+#include "geom.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+      integer nl
+      integer n
+      integer lind(2*nl)
+      double precision inum(n)
+      double precision c(3,n)
+
+c     local variables
+c     ---------------
+      integer i
+      integer i1
+      integer il
+      logical h_link
+      integer qmmm_geom_heavy_neighbor
+      external qmmm_geom_heavy_neighbor
+
+      il = 0
+      if(qmmm_h_link()) then
+      do i=n-nl+1,n
+        i1=qmmm_geom_heavy_neighbor(i,n,inum,c)
+        il=il+1
+        lind(il)=i
+        il=il+1
+        lind(il)=i1
       end do
       end if
 
