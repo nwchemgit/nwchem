@@ -9,6 +9,7 @@ c
       integer rtdb
       character*255 field
       double precision ascale, bscale, tscale, hscale
+      logical ignore
 c
 c     So that task knows that driver is in control
 c
@@ -126,6 +127,7 @@ c
 c
       else if (inp_compare(.false.,'clear',field)) then
          call driver_opt_del_hess()
+         ignore = rtdb_delete(rtdb,'driver:moddir')
 c
       else if (inp_compare(.false.,'redoautoz',field)) then
          if (.not. rtdb_put(rtdb,'driver:redoautoz',mt_log,1,.true.))
