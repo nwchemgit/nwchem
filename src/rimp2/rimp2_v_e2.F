@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.18 1995-06-19 16:14:16 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.19 1995-06-20 20:12:37 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -179,7 +179,6 @@ C     ***************************
 C     * Determine loop blocking *
 C     ***************************
 C
-      Call PStat_On( PS_E_Blocking)
       Call RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, NewIBlk, NewJBlk)
       If ( IBlock .le. 0) then
          IBlock = NewIBlk
@@ -191,7 +190,6 @@ C
       Else
          JBlock = Min(JBlock, NewJBlk)
       EndIf
-      Call PStat_Off( PS_E_Blocking)
 C
       If ( PrInfo .AND. GA_NodeID() .eq. 0)
      $   Write (LUOut, 9100) IBlock, JBlock
@@ -205,8 +203,6 @@ C
 C
 C        Create the global array for the I block
 C
-         Call GA_Sync
-         Call PStat_On( PS_Create)
          Status = GA_Create_One_By_Shells( MT_Dbl,
      $      Min( NOcc(ISpin), IBlock) * NVir(ISpin), FitBas,
      $      'Integral matrix 1', G_bigI)
@@ -216,7 +212,6 @@ C
             RIMP2_V_E2 = .FALSE.
             Return
          EndIf
-         Call PStat_Off( PS_Create)
 C
 C        Open integral file
 C
@@ -292,8 +287,6 @@ C                 second set of integrals (J).  Do the result matrix
 C                 first so GA's are treated like a stack to avoid
 C                 a big hole when the J is freed and we continue using A.
 C
-                  Call GA_Sync
-                  Call PStat_On( PS_Create)
                   If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
      $               NJ*NVir(JSpin), 'Temporary matrix big A', MinChunk,
      $               MinChunk, G_bigA) ) then
@@ -312,7 +305,6 @@ C
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
-                  Call PStat_Off( PS_Create)
 C
 C                 Find the integrals (jb|s') for this J
 C
@@ -371,7 +363,6 @@ C                 with a linear combination of the matrix and its
 C                 transpose. Make the necessary workspace and initialize
 C                 it with a copy of A.
 C
-                  Call PStat_On( PS_Create)
                   If ( .NOT. GA_Create( MT_Dbl, NI*NVir(ISpin),
      $               NJ*NVir(JSpin), 'Temporary matrix big B', MinChunk,
      $               MinChunk, G_bigB) ) then
@@ -379,7 +370,6 @@ C
                      RIMP2_V_E2 = .FALSE.
                      Return
                   EndIf
-                  Call PStat_Off( PS_Create)
 C
 C                 ********************************************
 C                 * Form the B matrix, which is related to A *
@@ -491,9 +481,6 @@ C                 Another data parallel routine.
 C
                   Call GA_Sync
                   Call PStat_On(PS_PrEn)
-c$$$                  Call RIMP2_Pair_Energy(G_bigA, G_BigB, ILo, JLo,
-c$$$     $               NVir(ISpin), NVir(JSpin),
-c$$$     $               Int_MB( IH_PairE + ISpin + JSpin - 2) )
 C
                   Do I = ILo, IHi
 C
