@@ -3,7 +3,7 @@ c Check if the calculation will fit in memory
 c
        logical function ccsd_memory_fit( basis, algo, 
      $            nbf, nocc, nvir, blen, mxvec, do_trip)
-C$Id: ccsd_mem.F,v 2.1 2003-11-15 00:31:26 bert Exp $
+C$Id: ccsd_mem.F,v 2.2 2004-01-06 18:54:41 bert Exp $
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,7 +21,7 @@ c
        integer max2e, mem2, maxbfsh, bsize, ma_req, nsh
        integer mem_avail, mem_min_local, noper_node, noper
        integer mem_int, mem_mo, mem_blk, mem_buf1, mem_buf2
-       integer gmem_max, noccc, nvirc
+       integer gmem_avail, gmem_max, noccc, nvirc
        integer ma_req_ccsd, ga_req_ccsd
        integer ma_req_trip, ga_req_trip
        integer ga_req, mxvec
@@ -87,42 +87,58 @@ c
 c
        endif
 c
-c Get minimum amount of memory available on nodes
+c Approximately determine the amount of GA memory needed per processor
+c
+       ga_req = ga_req / ga_nnodes()
+c
+c Get minimum amount of MA and GA memory available on the nodes
+c Note: the estimations are in numbers of doubles. However, the
+c       amount of GA memory I get from ga_memory_avail is in bytes.
+c       (MA memory is in double words).
 c
        mem_avail = ma_inquire_avail(MT_DBL)
        mem_min_local = mem_avail
        call ga_sync()
        call ga_igop(MSG_MIN_LOCAL_MEM,mem_min_local,1,'min')
        if (ga_uses_ma()) then
-         gmem_max = mem_min_local-ma_req
+         gmem_avail=mem_min_local-ma_req
        else
-         gmem_max = ga_memory_avail()
+         gmem_avail=(ga_memory_avail()/MA_sizeof(MT_DBL,1,MT_BYTE))
        endif
+       gmem_max = gmem_avail
+       call ga_sync()
+       call ga_igop(MSG_MIN_LOCAL_MEM,gmem_max,1,'min')
 c
 c Check if the memory allocation will fit
 c
        if (ma_req.gt.mem_min_local) then
           if(ga_nodeid().eq.0) then
              write(6,*) 'The CCSD calculation needs at least 
-     $                  ',ma_req*8,'of local MA memory !'
+     $                  ',ma_req*MA_sizeof(MT_DBL,1,MT_BYTE),
+     $                  'of local MA memory !',mem_min_local
              write(6,*) 'The CCSD calculation needs at least 
-     $                  ',ga_req*8,'of global GA memory !'
+     $                  ',ga_req*MA_sizeof(MT_DBL,1,MT_BYTE),
+     $                  'of global GA memory per processor !'
+             call ma_summarize_allocated_blocks()
           endif
           call errquit
      $     ('ccsd_mem: not MA local memory to do transformation',
-     $      ma_req*8, MEM_ERR)
+     $      ma_req*MA_sizeof(MT_DBL,1,MT_BYTE), MEM_ERR)
        endif
 c
        if (ga_req.gt.gmem_max) then
           if(ga_nodeid().eq.0) then
              write(6,*) 'The CCSD calculation needs at least 
-     $                  ',ga_req*8,'of global GA memory !'
+     $                  ',ga_req*MA_sizeof(MT_DBL,1,MT_BYTE),
+     $                  'of global GA memory per processor !'
              write(6,*) 'The CCSD calculation needs at least 
-     $                  ',ma_req*8,'of local MA memory !'
+     $                  ',ma_req*MA_sizeof(MT_DBL,1,MT_BYTE),
+     $                  'of local MA memory !'
+             call ga_summarize(.true.)
           endif
           call errquit
-     $     ('ccsd_mem: not GA local memory to do transformation',
-     $      ga_req*8, GA_ERR)
+     $     ('ccsd_mem: not enough GA memory to do transformation',
+     $      ga_req*MA_sizeof(MT_DBL,1,MT_BYTE), GA_ERR)
        endif
 c
        ccsd_memory_fit = .true.
