@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.58 1996-10-01 18:51:13 d3e129 Exp $
+c $Id: raktest.F,v 1.59 1996-10-07 21:04:12 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -14,7 +14,7 @@ c
      &    raktask = rak_tmp
 c
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100) raktask
+     &    00090, 00100, 00110) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
@@ -50,6 +50,9 @@ c
       goto 00001
 00100 write(6,*)' test of ecp stuff '
       call raktest_ecp(rtdb)
+      goto 00001
+00110 write(6,*)' bug in integrals test '
+      call raktest_bug(rtdb)
       goto 00001
 c
 00001 continue
@@ -2793,5 +2796,63 @@ c
       if (.not.bas_destroy(ecpid)) stop ' bas_dest error 2'
       if (.not.geom_destroy(geom)) stop ' geom_dest error 1'
       if (.not.bas_version()) stop ' bas_version error'
+c
+      end
+      subroutine raktest_bug(rtdb)
+      implicit none
+#include "geom.fh"
+#include "bas.fh"
+c
+      logical int_normalize
+      external int_normalize
+c
+      integer rtdb
+c
+      integer basseg, basnoseg
+      integer geom
+      logical ignore
+      integer bases(2)
+c
+      ignore = geom_create(geom,'geometry')
+      ignore = ignore.and.geom_rtdb_load(rtdb,geom,'geometry')
+      ignore = ignore.and.bas_create(basseg,'basseg')
+      ignore = ignore.and.bas_rtdb_load(rtdb,geom,basseg,'basseg')
+      ignore = ignore.and.bas_create(basnoseg,'basnoseg')
+      ignore = ignore.and.bas_rtdb_load(rtdb,geom,basnoseg,'basnoseg')
+      ignore = ignore.and.int_normalize(basseg)
+      ignore = ignore.and.int_normalize(basnoseg)
+      ignore = ignore.and.geom_print(geom)
+      ignore = ignore.and.bas_print(basseg)
+      ignore = ignore.and.gbs_map_print(basseg)
+      ignore = ignore.and.bas_print(basnoseg)
+      ignore = ignore.and.gbs_map_print(basnoseg)
+      if (.not.ignore) stop ' something failed'
+c
+*rak:      bases(1) = basseg
+*rak:      bases(2) = basnoseg
+*rak:      call int_init(rtdb,2,bases)
+*rak:      call int_mem_2e4c(maxg,maxs)
+*rak:c
+*rak:c
+*rak:      ignore =
+*rak:     &    ma_push_get(mt_dbl,maxg,'segbuf',hseg,kseg)
+*rak:      ignore=ignore.and.
+*rak:     &    ma_push_get(mt_dbl,maxg,'nosegbuf',hnoseg,knoseg)
+*rak:      ignore=ignore.and.
+*rak:     &    ma_push_get(mt_dbl,maxs,'scr',hscr,kscr)
+*rak:
+*rak:      call int_acc_get(cur_acc)
+*rak:*      do iacc = 1,20
+*rak:        write(6,*) 'current accuracy ',cur_acc
+*rak:        call int_2e4c(
+*rak:     &      basnoseg,13,5,
+*rak:     &      basnoseg,13,5,
+*rak:     &      maxs,dbl_mb(kscr),
+*rak:     &      maxg,dbl_mb(knoseg))
+*rak:*      enddo
+*rak:c
+*rak:      ignore = ma_pop_stack(hscr)  
+*rak:      ignore = ma_pop_stack(hnoseg)  
+*rak:      ignore = ma_pop_stack(hseg)  
 c
       end
