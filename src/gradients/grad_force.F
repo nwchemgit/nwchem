@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.52 2001-08-09 19:26:08 bjohnson Exp $
+c     $Id: grad_force.F,v 1.53 2001-08-10 18:37:26 bjohnson Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -749,7 +749,7 @@ c
 c           Calculate Coulomb only with unscreened operator
             kfac_save = kfac
             kfac = 0d0
-            if (bettis_screened_operator_enabled()) then
+            if (bs_scroperator_enabled()) then
                call errquit('Screened operator active in grad_force',0)
             endif
          endif
