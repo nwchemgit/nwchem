@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.8 2003-01-08 22:59:13 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.9 2003-02-13 17:42:51 sohirata Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -77,8 +77,7 @@ c
         enddo
       enddo
 #if !defined(EXT_INT)
-      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.
-     1   ((ioalg.eq.0).or.(ioalg.eq.1).or.(ioalg.eq.4))) then
+      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.(ioalg.eq.0)) then
         write(LuOut,*) '--------------------------------------------'
         write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
         write(LuOut,*) 'Use GA/SF scheme or OS large file support'

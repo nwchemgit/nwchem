@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.13 2003-01-28 23:05:07 sohirata Exp $
+# $Id: tce.py,v 1.14 2003-02-13 17:42:51 sohirata Exp $
 
 import string
 import types
@@ -939,7 +939,7 @@ class Tensor:
          index = self.indexes[nindex]
          if (index.label == oldlabel):
             self.indexes[nindex].label = newlabel
-      if (self.type == "i"):
+      if ((self.type == "i") or (self.type == "j")):
          parity = self.sortindexes()
 
    def swapindexes(self,indexone,indextwo):
@@ -950,7 +950,7 @@ class Tensor:
             self.indexes[nindex] = indextwo
          elif (index.isidenticalto(indextwo)):
             self.indexes[nindex] = indexone
-      if (self.type == "i"):
+      if ((self.type == "i") or (self.type == "j")):
          parity = self.sortindexes()
 
    def sortindexes(self):
@@ -1637,12 +1637,15 @@ class Tensor:
       newcode.pointer = newcode.pointer + 1
       return newcode
 
-   def utchemy(self,globaltargetindexes,subroutinename="NONAME"):
+   def utchemy(self,globaltargetindexes,subroutinename="NONAME",relativistic=0):
       """Precompute offsets and size"""
 
       errquit = 0
 
-      newcode = Code("Fortran90","OFFSET_"+subroutinename)
+      if (relativistic):
+         newcode = Code("Fortran90","R4D_OFFSET_"+subroutinename)
+      else:
+         newcode = Code("Fortran90","OFFSET_"+subroutinename)
  
       # header
       newline = "!" + self.show()
@@ -1651,7 +1654,10 @@ class Tensor:
       newcode.add("headers",newline)
       newline = "USE UT_MOLINP_MODULE"
       newcode.add("headers",newline)
-      newline = "USE UT_TCE_MODULE"
+      if (relativistic):
+         newline = "USE UT_R4DTCE_MODULE"
+      else:
+         newline = "USE UT_TCE_MODULE"
       newcode.add("headers",newline)
       newline = "IMPLICIT NONE"
       newcode.add("headers",newline)
@@ -1703,8 +1709,9 @@ class Tensor:
       newcode.inserttileddoloops(localsuper)
       newcode.inserttileddoloops(globalsub)
       newcode.inserttileddoloops(localsub)
-      newcode.inserttiledifsymmetry(super,sub)
-      newcode.inserttiledifrestricted(super+sub)
+      newcode.inserttiledifsymmetry(super,sub,relativistic)
+      if (not relativistic):
+         newcode.inserttiledifrestricted(super+sub)
 
       # offsets and size (offset first!)
       newline = ""
@@ -2754,6 +2761,10 @@ class ElementaryTensorContraction:
       if ((self.tensors[1].type == "i") or (self.tensors[2].type == "i")):
          return 0
       if ((another.tensors[1].type == "i") or (another.tensors[2].type == "i")):
+         return 0
+      if ((self.tensors[1].type == "j") or (self.tensors[2].type == "j")):
+         return 0
+      if ((another.tensors[1].type == "j") or (another.tensors[2].type == "j")):
          return 0
       if (self.tensors[1].type != another.tensors[1].type):
          return 0
@@ -3948,7 +3959,7 @@ class ElementaryTensorContraction:
 
       return newcode
 
-   def utchem(self,globaltargetindexes,subroutinename="NONAME"):
+   def utchem(self,globaltargetindexes,subroutinename="NONAME",relativistic=0):
       """Suggests an implementation in Fortran77 for an elementary tensor contraction C = A * B"""
 
       if (len(self.tensors) == 3):
@@ -3958,7 +3969,10 @@ class ElementaryTensorContraction:
 
       errquit = 0
 
-      newcode = Code("Fortran90",subroutinename)
+      if (relativistic):
+         newcode = Code("Fortran90","R4D_"+subroutinename)
+      else:
+         newcode = Code("Fortran90",subroutinename)
 
       # header
       newline = "!" + self.show(0)
@@ -3967,7 +3981,10 @@ class ElementaryTensorContraction:
       newcode.add("headers",newline)
       newline = "USE UT_MOLINP_MODULE"
       newcode.add("headers",newline)
-      newline = "USE UT_TCE_MODULE"
+      if (relativistic):
+         newline = "USE UT_R4DTCE_MODULE"
+      else:
+         newline = "USE UT_TCE_MODULE"
       newcode.add("headers",newline)
       newline = "IMPLICIT NONE"
       newcode.add("headers",newline)
@@ -4148,12 +4165,13 @@ class ElementaryTensorContraction:
       newcode.pointer = newcode.getamark(4) + 1
 
       # spin restriction on output tensor
-      newcode.inserttiledifrestricted(superglobalzero + superlocalzero + subglobalzero + sublocalzero)
+      if (not relativistic):
+         newcode.inserttiledifrestricted(superglobalzero + superlocalzero + subglobalzero + sublocalzero)
 
       # symmetry of output tensor
       super = superglobalzero + superlocalzero
       sub = subglobalzero + sublocalzero
-      newcode.inserttiledifsymmetry(super,sub)
+      newcode.inserttiledifsymmetry(super,sub,relativistic)
 
       # loop over summation indexes
       newcode.inserttileddoloops(supercommon)
@@ -4163,11 +4181,11 @@ class ElementaryTensorContraction:
       if (three):
          super = superglobalone + superlocalone + supercommonone
          sub = subglobalone + sublocalone + subcommonone
-         newcode.inserttiledifsymmetry(super,sub)
+         newcode.inserttiledifsymmetry(super,sub,relativistic)
 
       # spin restriction on input tensor one
       indexesone = superglobalone + superlocalone + supercommonone + subglobalone + sublocalone + subcommonone
-      if (indexesone):
+      if (indexesone and (not relativistic)):
          newline = "IF ((restricted).and.("
          conjugation = ""
          for index in indexesone:
@@ -4178,7 +4196,10 @@ class ElementaryTensorContraction:
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          for index in indexesone:
-            newint = string.join([index.show(),"b_1"],"")
+            if (relativistic):
+               newint = string.join([index.show(),"b"],"")
+            else:
+               newint = string.join([index.show(),"b_1"],"")
             newcode.add("integers",newint)
             newline = string.join([newint," = alpha(",index.show(),"b)"],"")
             newcode.statements.insert(newcode.pointer,newline)
@@ -4187,7 +4208,10 @@ class ElementaryTensorContraction:
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          for index in indexesone:
-            newint = string.join([index.show(),"b_1"],"")
+            if (relativistic):
+               newint = string.join([index.show(),"b"],"")
+            else:
+               newint = string.join([index.show(),"b_1"],"")
             newcode.add("integers",newint)
             newline = string.join([newint," = ",index.show(),"b"],"")
             newcode.statements.insert(newcode.pointer,newline)
@@ -4199,7 +4223,7 @@ class ElementaryTensorContraction:
       # spin restriction on input tensor one
       if (three):
          indexestwo = superglobaltwo + superlocaltwo + supercommontwo + subglobaltwo + sublocaltwo + subcommontwo
-         if (indexestwo):
+         if (indexestwo and (not relativistic)):
             newline = "IF ((restricted).and.("
             conjugation = ""
             for index in indexestwo:
@@ -4210,7 +4234,10 @@ class ElementaryTensorContraction:
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
             for index in indexestwo:
-               newint = string.join([index.show(),"b_2"],"")
+               if (relativistic):
+                  newint = string.join([index.show(),"b"],"")
+               else:
+                  newint = string.join([index.show(),"b_2"],"")
                newcode.add("integers",newint)
                newline = string.join([newint," = alpha(",index.show(),"b)"],"")
                newcode.statements.insert(newcode.pointer,newline)
@@ -4219,7 +4246,10 @@ class ElementaryTensorContraction:
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
             for index in indexestwo:
-               newint = string.join([index.show(),"b_2"],"")
+               if (relativistic):
+                  newint = string.join([index.show(),"b"],"")
+               else:
+                  newint = string.join([index.show(),"b_2"],"")
                newcode.add("integers",newint)
                newline = string.join([newint," = ",index.show(),"b"],"")
                newcode.statements.insert(newcode.pointer,newline)
@@ -4284,11 +4314,17 @@ class ElementaryTensorContraction:
       newcode.statements.insert(newcode.pointer,newline)
 
       # allocate sorted and unsorted tensor 1
-      newcode.add("doubleallocatables","a_sort")
+      if (relativistic):
+         newcode.add("doublecomplexallocatables","a_sort")
+      else:
+         newcode.add("doubleallocatables","a_sort")
       newline = "ALLOCATE(a_sort(dima))"
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
-      newcode.add("doubleallocatables","a")
+      if (relativistic):
+         newcode.add("doublecomplexallocatables","a")
+      else:
+         newcode.add("doubleallocatables","a")
       newline = "ALLOCATE(a(dima))"
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = newcode.pointer + 1
@@ -4399,12 +4435,21 @@ class ElementaryTensorContraction:
             argumentsend = ""
             for nindex in range(len(permutedindexes)-1,-1,-1):
                if (permutedindexes[nindex].type == "hole"):
-                  boffset = "b_1 - 1"
+                  if (relativistic):
+                     boffset = "b - 1"
+                  else:
+                     boffset = "b_1 - 1"
                else:
                   if ((self.tensors[1].type == "f") or (self.tensors[1].type == "v")):
-                     boffset = "b_1 - 1"
+                     if (relativistic):
+                        boffset = "b - 1"
+                     else:
+                        boffset = "b_1 - 1"
                   else:
-                     boffset = "b_1 - noab - 1"
+                     if (relativistic):
+                        boffset = "b - noab - 1"
+                     else:
+                        boffset = "b_1 - noab - 1"
                if (arguments == ""):
                   arguments = string.join(["d_a,a,dima,a_offset(1 + ",permutedindexes[nindex].show(),boffset],"")
                else:
@@ -4420,7 +4465,10 @@ class ElementaryTensorContraction:
                arguments = "d_a,a,dima,a_offset"
             else:
                arguments = string.join([arguments,argumentsend,")"],"")
-            newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_GET_BLOCK(",arguments,")"],"")
+            else:
+               newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
 
@@ -4486,11 +4534,17 @@ class ElementaryTensorContraction:
 
       # allocate sorted and unsorted tensor 2
       if (three):
-         newcode.add("doubleallocatables","b_sort")
+         if (relativistic):
+            newcode.add("doublecomplexallocatables","b_sort")
+         else:
+            newcode.add("doubleallocatables","b_sort")
          newline = "ALLOCATE(b_sort(dimb))"
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
-         newcode.add("doubleallocatables","b")
+         if (relativistic):
+            newcode.add("doublecomplexallocatables","b")
+         else:
+            newcode.add("doubleallocatables","b")
          newline = "ALLOCATE(b(dimb))"
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
@@ -4601,12 +4655,21 @@ class ElementaryTensorContraction:
                argumentsend = ""
                for nindex in range(len(permutedindexes)-1,-1,-1):
                   if (permutedindexes[nindex].type == "hole"):
-                     boffset = "b_2 - 1"
+                     if (relativistic):
+                        boffset = "b - 1"
+                     else:
+                        boffset = "b_2 - 1"
                   else:
                      if ((self.tensors[2].type == "f") or (self.tensors[2].type == "v")):
-                        boffset = "b_2 - 1"
+                        if (relativistic):
+                           boffset = "b - 1"
+                        else:
+                           boffset = "b_2 - 1"
                      else:
-                        boffset = "b_2 - noab - 1"
+                        if (relativistic):
+                           boffset = "b - noab - 1"
+                        else:
+                           boffset = "b_2 - noab - 1"
                   if (arguments == ""):
                      arguments = string.join(["d_b,b,dimb,b_offset(1 + ",permutedindexes[nindex].show(),boffset],"")
                   else:
@@ -4622,7 +4685,10 @@ class ElementaryTensorContraction:
                   arguments = "d_b,b,dimb,b_offset"
                else:
                   arguments = string.join([arguments,argumentsend,")"],"")
-               newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
+               if (relativistic):
+                  newline = string.join(["CALL R4D_GET_BLOCK(",arguments,")"],"")
+               else:
+                  newline = string.join(["CALL GET_BLOCK(",arguments,")"],"")
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
    
@@ -4732,20 +4798,30 @@ class ElementaryTensorContraction:
             factor = "1.0d0"
    
          # perform contraction and store the result
-         newcode.add("doubleallocatables","c_sort")
+         if (relativistic):
+            newcode.add("doublecomplexallocatables","c_sort")
+         else:
+            newcode.add("doubleallocatables","c_sort")
          if (three):
             newline = "ALLOCATE(c_sort(dima_sort*dimb_sort))"
          else:
             newline = "ALLOCATE(c_sort(dima_sort))"
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
-         newline = string.join(["CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,",factor,\
-                                ",a_sort,dim_common,b_sort,dim_common,0.0d0,c_sort,dima_sort)"],"")
+         if (relativistic):
+            newline = string.join(["CALL ZGEMM('T','N',dima_sort,dimb_sort,dim_common,DCMPLX(",factor,\
+                                   ",0.0d0),a_sort,dim_common,b_sort,dim_common,DCMPLX(0.0d0,0.0d0),c_sort,dima_sort)"],"")
+         else:
+            newline = string.join(["CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,",factor,\
+                                   ",a_sort,dim_common,b_sort,dim_common,0.0d0,c_sort,dima_sort)"],"")
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
 
       # create an MA for unsorted tensor 0
-      newcode.add("doubleallocatables","c")
+      if (relativistic):
+         newcode.add("doublecomplexallocatables","c")
+      else:
+         newcode.add("doubleallocatables","c")
       if (three):
          newline = "ALLOCATE(c(dima_sort*dimb_sort))"
       else:
@@ -4908,7 +4984,10 @@ class ElementaryTensorContraction:
                arguments = "d_c,c,dima_sort,c_offset(1"
             argumentsend = ""
          arguments = string.join([arguments,argumentsend,")"],"")
-         newline = string.join(["CALL ADD_BLOCK(",arguments,")"],"")
+         if (relativistic):
+            newline = string.join(["CALL R4D_ADD_BLOCK(",arguments,")"],"")
+         else:
+            newline = string.join(["CALL ADD_BLOCK(",arguments,")"],"")
          newcode.statements.insert(newcode.pointer,newline)
          if (not ifblock):
             newcode.setamark(3)
@@ -5819,7 +5898,7 @@ class OperationTree:
       newcode.reverse()
       return newcode
 
-   def utchem(self,filename="NONAME"):
+   def utchem(self,filename="NONAME",relativistic=0):
       """Suggests an implementation in Fortran90 for the whole operation tree"""
 
       newlistofcodes = ListofCodes()
@@ -5840,7 +5919,10 @@ class OperationTree:
       else:
          return "The tree top must be an addition"
 
-      newcode = Code("Fortran90",filename)
+      if (relativistic):
+         newcode = Code("Fortran90","R4D_"+filename)
+      else:
+         newcode = Code("Fortran90",filename)
 
       # header
       for newline in self.show(0,0):
@@ -5850,7 +5932,10 @@ class OperationTree:
       newcode.add("headers",newline)
       newline = "USE UT_MOLINP_MODULE"
       newcode.add("headers",newline)
-      newline = "USE UT_TCE_MODULE"
+      if (relativistic):
+         newline = "USE UT_R4DTCE_MODULE"
+      else:
+         newline = "USE UT_TCE_MODULE"
       newcode.add("headers",newline)
       newline = "IMPLICIT NONE"
       newcode.add("headers",newline)
@@ -5860,7 +5945,7 @@ class OperationTree:
       newcode.add("headers",newline)
       
       # loop over the tree
-      newcode.join(selfcopy.utchema(filename,globaltargetindexes,callees).expand())
+      newcode.join(selfcopy.utchema(filename,globaltargetindexes,callees,relativistic).expand())
 
       # antisymmetrizer
       newcode.pointer = len(newcode.statements)
@@ -5890,7 +5975,7 @@ class OperationTree:
       newlistofcodes.list[0].sortarguments()
       return newlistofcodes
 
-   def utchema(self,subroutinename,globaltargetindexes,callees):
+   def utchema(self,subroutinename,globaltargetindexes,callees,relativistic=0):
       """Returns a part of program that is generated by recursively interpreting the tree"""
 
       newcode = Code("Fortran90",subroutinename)
@@ -5940,7 +6025,7 @@ class OperationTree:
             newcode.add("integers",size_c)
  
             # generate the contraction callee
-            callee = sister.utchem(globaltargetindexes,name)
+            callee = sister.utchem(globaltargetindexes,name,relativistic)
             callees.add(callee)
 
             # Tensor 2
@@ -5974,28 +6059,46 @@ class OperationTree:
                   arguments = factor
             if (arguments == ""):
                arguments = "1"
-            newline = string.join(["ALLOCATE(",c_offset,"(",arguments,"))"],"")
+            if (relativistic):
+               newline = string.join(["R4D_ALLOCATE(",c_offset,"(",arguments,"))"],"")
+            else:
+               newline = string.join(["ALLOCATE(",c_offset,"(",arguments,"))"],"")
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
 
             # dump the caller
-            newline = string.join(["CALL OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
+            else:
+               newline = string.join(["CALL OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
             newchar = "filename"
             newcode.add("characters",newchar)
             filename = string.join([name,"_j",repr(sister.tensors[0].label)],"")
-            newline = string.join(["CALL UT_TCE_FILENAME('",filename,"',filename)"],"")
+            if (relativistic):
+               newline = string.join(["CALL UT_R4DTCE_FILENAME('",filename,"',filename)"],"")
+            else:
+               newline = string.join(["CALL UT_TCE_FILENAME('",filename,"',filename)"],"")
             newcode.statements.insert(0,newline)
-            newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_CREATEFILE(filename,",d_c,",",size_c,")"],"")
+            else:
+               newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
-            callee = sister.tensors[0].utchemy(globaltargetindexes,name)
+            callee = sister.tensors[0].utchemy(globaltargetindexes,name,relativistic)
             callees.add(callee)
             argument = string.join([d_a,",",a_offset],"")
             argument = string.join([argument,",",d_b,",",b_offset],"")
             argument = string.join([argument,",",d_c,",",c_offset],"")
-            newline = string.join(["CALL ",name,"(",argument,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_",name,"(",argument,")"],"")
+            else:
+               newline = string.join(["CALL ",name,"(",argument,")"],"")
             newcode.statements.insert(0,newline)
-            newline = string.join(["CALL RECONCILEFILE(",d_c,",",size_c,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_RECONCILEFILE(",d_c,",",size_c,")"],"")
+            else:
+               newline = string.join(["CALL RECONCILEFILE(",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
  
       # get a filename for intermediate storage
@@ -6045,7 +6148,7 @@ class OperationTree:
                   sublocalzero.append(index)
 
             # generate the contraction callee
-            callee = child.contraction.utchem(globaltargetindexes,name)
+            callee = child.contraction.utchem(globaltargetindexes,name,relativistic)
             callees.add(callee)
 
             if (child.contraction.tensors[1].type == "i"):
@@ -6114,40 +6217,64 @@ class OperationTree:
 
                newint = string.join(["size_i",repr(self.children[0].contraction.tensors[0].label)],"")
                newcode.add("integers",newint)
-               newline = string.join(["CALL OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
+               if (relativistic):
+                  newline = string.join(["CALL R4D_OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
+               else:
+                  newline = string.join(["CALL OFFSET_",name,"(",d_c,",",c_offset,",",size_c,")"],"")
                newcode.statements.insert(0,newline)
                newchar = "filename"
                newcode.add("characters",newchar)
                filename = string.join([name,"_i",repr(child.contraction.tensors[0].label)],"")
-               newline = string.join(["CALL UT_TCE_FILENAME('",filename,"',filename)"],"")
+               if (relativistic):
+                  newline = string.join(["CALL UT_R4DTCE_FILENAME('",filename,"',filename)"],"")
+               else:
+                  newline = string.join(["CALL UT_TCE_FILENAME('",filename,"',filename)"],"")
                newcode.statements.insert(0,newline)
-               newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
+               if (relativistic):
+                  newline = string.join(["CALL R4D_CREATEFILE(filename,",d_c,",",size_c,")"],"")
+               else:
+                  newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
                newcode.statements.insert(0,newline)
-               callee = child.contraction.tensors[0].utchemy(globaltargetindexes,name)
+               callee = child.contraction.tensors[0].utchemy(globaltargetindexes,name,relativistic)
                callees.add(callee)
                createfile = 0
-            newcode.statements.insert(0,child.utchema(name,globaltargetindexes,callees))
+            newcode.statements.insert(0,child.utchema(name,globaltargetindexes,callees,relativistic))
             if (child.contraction.tensors[1].type == "i"):
-               newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
+               if (relativistic):
+                  newline = string.join(["CALL R4D_RECONCILEFILE(",d_a,",",size_a,")"],"")
+               else:
+                  newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
                newcode.statements.insert(0,newline)
             if (d_b):
                if (child.contraction.tensors[2].type == "i"):
-                  newline = string.join(["CALL RECONCILEFILE(",d_b,",",size_b,")"],"")
+                  if (relativistic):
+                     newline = string.join(["CALL R4D_RECONCILEFILE(",d_b,",",size_b,")"],"")
+                  else:
+                     newline = string.join(["CALL RECONCILEFILE(",d_b,",",size_b,")"],"")
                   newcode.statements.insert(0,newline)
             argument = string.join([d_a,",",a_offset],"")
             if (d_b):
                argument = string.join([argument,",",d_b,",",b_offset],"")
             argument = string.join([argument,",",d_c,",",c_offset],"")
-            newline = string.join(["CALL ",name,"(",argument,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_",name,"(",argument,")"],"")
+            else:
+               newline = string.join(["CALL ",name,"(",argument,")"],"")
             newcode.statements.insert(0,newline)
             if (child.contraction.tensors[1].type == "i"):
-               newline = string.join(["CALL DELETEFILE(",d_a,")"],"")
+               if (relativistic):
+                  newline = string.join(["CALL R4D_DELETEFILE(",d_a,")"],"")
+               else:
+                  newline = string.join(["CALL DELETEFILE(",d_a,")"],"")
                newcode.statements.insert(0,newline)
                newline = string.join(["DEALLOCATE(",a_offset,")"],"")
                newcode.statements.insert(0,newline)
             if (d_b):
                if (child.contraction.tensors[2].type == "i"):
-                  newline = string.join(["CALL DELETEFILE(",d_b,")"],"")
+                  if (relativistic):
+                     newline = string.join(["CALL R4D_DELETEFILE(",d_b,")"],"")
+                  else:
+                     newline = string.join(["CALL DELETEFILE(",d_b,")"],"")
                   newcode.statements.insert(0,newline)
                   newline = string.join(["DEALLOCATE(",b_offset,")"],"")
                   newcode.statements.insert(0,newline)
@@ -6160,7 +6287,10 @@ class OperationTree:
             d_c = string.join(["d_j",repr(sister.tensors[0].label)],"")
             c_offset = string.join(["j",repr(sister.tensors[0].label),"_offset"],"")
             name = string.join([subroutinename,"_r_",repr(counter)],"")
-            newline = string.join(["CALL DELETEFILE(",d_c,")"],"")
+            if (relativistic):
+               newline = string.join(["CALL R4D_DELETEFILE(",d_c,")"],"")
+            else:
+               newline = string.join(["CALL DELETEFILE(",d_c,")"],"")
             newcode.statements.insert(0,newline)
             newline = string.join(["DEALLOCATE(",c_offset,")"],"")
             newcode.statements.insert(0,newline)
@@ -7630,6 +7760,9 @@ class Code:
       self.doubles = []
       self.doublearrays = []
       self.doubleallocatables = []
+      self.doublecomplexs = []
+      self.doublecomplexarrays = []
+      self.doublecomplexallocatables = []
       self.logicals = []
       self.logicalarrays = []
       self.characters = []
@@ -7652,7 +7785,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.13 2003-01-28 23:05:07 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.14 2003-02-13 17:42:51 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
@@ -7693,6 +7826,12 @@ class Code:
          result.add("doublearrays",n)
       for n in self.doubleallocatables:
          result.add("doubleallocatables",n)
+      for n in self.doublecomplexs:
+         result.add("doublecomplexs",n)
+      for n in self.doublecomplexarrays:
+         result.add("doublecomplexarrays",n)
+      for n in self.doublecomplexallocatables:
+         result.add("doublecomplexallocatables",n)
       for n in self.logicals:
          result.add("logicals",n)
       for n in self.logicalarrays:
@@ -7789,6 +7928,12 @@ class Code:
          for n in self.doublearrays:
             show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION ",n,"(*)"],""))
             pointer = pointer + 1
+         for n in self.doublecomplexs:
+            show.insert(pointer,string.join([self.indent,"DOUBLE COMPLEX ",n],""))
+            pointer = pointer + 1
+         for n in self.doublecomplexarrays:
+            show.insert(pointer,string.join([self.indent,"DOUBLE COMPLEX ",n,"(*)"],""))
+            pointer = pointer + 1
          for n in self.logicals:
             show.insert(pointer,string.join([self.indent,"LOGICAL ",n],""))
             pointer = pointer + 1
@@ -7852,6 +7997,18 @@ class Code:
          for n in self.doubleallocatables:
 #           show.insert(pointer,string.join([self.indent,"DOUBLE PRECISION, ALLOCATABLE :: ",n,"(:)"],""))
             show.insert(pointer,string.join([self.indent,"REAL*8, ALLOCATABLE :: ",n,"(:)"],""))
+            pointer = pointer + 1
+         for n in self.doublecomplexs:
+#           show.insert(pointer,string.join([self.indent,"DOUBLE COMPLEX :: ",n],""))
+            show.insert(pointer,string.join([self.indent,"COMPLEX*16 :: ",n],""))
+            pointer = pointer + 1
+         for n in self.doublecomplexarrays:
+#           show.insert(pointer,string.join([self.indent,"DOUBLE COMPLEX :: ",n,"(*)"],""))
+            show.insert(pointer,string.join([self.indent,"COMPLEX*16 :: ",n,"(*)"],""))
+            pointer = pointer + 1
+         for n in self.doublecomplexallocatables:
+#           show.insert(pointer,string.join([self.indent,"DOUBLE COMPLEX, ALLOCATABLE :: ",n,"(:)"],""))
+            show.insert(pointer,string.join([self.indent,"COMPLEX*16, ALLOCATABLE :: ",n,"(:)"],""))
             pointer = pointer + 1
          for n in self.logicals:
             show.insert(pointer,string.join([self.indent,"LOGICAL :: ",n],""))
@@ -7931,6 +8088,12 @@ class Code:
          self.add("doublearrays",n)
       for n in another.doubleallocatables:
          self.add("doubleallocatables",n)
+      for n in another.doublecomplexs:
+         self.add("doublecomplexs",n)
+      for n in another.doublecomplexarrays:
+         self.add("doublecomplexarrays",n)
+      for n in another.doublecomplexallocatables:
+         self.add("doublecomplexallocatables",n)
       for n in another.logicals:
          self.add("logicals",n)
       for n in another.logicalarrays:
@@ -7987,6 +8150,27 @@ class Code:
                redundant = 1
          if (not redundant):
             self.doubleallocatables.append(what)
+      elif (towhat == "doublecomplexs"):
+         redundant = 0
+         for n in self.doublecomplexs:
+            if (n == what):
+               redundant = 1
+         if (not redundant):
+            self.doublecomplexs.append(what)
+      elif (towhat == "doublecomplexarrays"):
+         redundant = 0
+         for n in self.doublecomplexarrays:
+            if (n == what):
+               redundant = 1
+         if (not redundant):
+            self.doublecomplexarrays.append(what)
+      elif (towhat == "doublecomplexallocatables"):
+         redundant = 0
+         for n in self.doublecomplexallocatables:
+            if (n == what):
+               redundant = 1
+         if (not redundant):
+            self.doublecomplexallocatables.append(what)
       elif (towhat == "logicals"):
          redundant = 0
          for n in self.logicals:
@@ -8133,7 +8317,7 @@ class Code:
       newline = "END IF"
       self.statements.insert(self.pointer,newline)
  
-   def inserttiledifsymmetry(self,super,sub):
+   def inserttiledifsymmetry(self,super,sub,relativistic=0):
       """Inserts an IF-ENDIF pair for screening spin/spatial symmetry"""
 
       if ((not super) and (not sub)):
@@ -8142,31 +8326,32 @@ class Code:
          raise ValueError, "asymmetric IF encountered"
 
       # spin symmetry
-      newline = "IF ("
-      conjugation = ""
-      for index in super:
-         newint = string.join([index.show(),"b"],"")
+      if (not relativistic):
+         newline = "IF ("
+         conjugation = ""
+         for index in super:
+            newint = string.join([index.show(),"b"],"")
+            if (self.language == "Fortran77"):
+               newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+            elif (self.language == "Fortran90"):
+               newline = string.join([newline,conjugation,"spin(",newint,")"],"")
+            conjugation = "+"
          if (self.language == "Fortran77"):
-            newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+            conjugation = " .eq. "
          elif (self.language == "Fortran90"):
-            newline = string.join([newline,conjugation,"spin(",newint,")"],"")
-         conjugation = "+"
-      if (self.language == "Fortran77"):
-         conjugation = " .eq. "
-      elif (self.language == "Fortran90"):
-         conjugation = " == "
-      for index in sub:
-         newint = string.join([index.show(),"b"],"")
-         if (self.language == "Fortran77"):
-            newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
-         elif (self.language == "Fortran90"):
-            newline = string.join([newline,conjugation,"spin(",newint,")"],"")
-         conjugation = "+"
-      newline = string.join([newline,") THEN"],"")
-      self.statements.insert(self.pointer,newline)
-      self.pointer = self.pointer + 1
-      newline = "END IF"
-      self.statements.insert(self.pointer,newline)
+            conjugation = " == "
+         for index in sub:
+            newint = string.join([index.show(),"b"],"")
+            if (self.language == "Fortran77"):
+               newline = string.join([newline,conjugation,"int_mb(k_spin+",newint,"-1)"],"")
+            elif (self.language == "Fortran90"):
+               newline = string.join([newline,conjugation,"spin(",newint,")"],"")
+            conjugation = "+"
+         newline = string.join([newline,") THEN"],"")
+         self.statements.insert(self.pointer,newline)
+         self.pointer = self.pointer + 1
+         newline = "END IF"
+         self.statements.insert(self.pointer,newline)
 
       # spatial symmetry
       all = super + sub

@@ -1,6 +1,6 @@
       subroutine tce_t2_offset(l_t2_offset,k_t2_offset,size)
 c
-c $Id: tce_t2_offset.F,v 1.3 2003-01-08 22:59:14 sohirata Exp $
+c $Id: tce_t2_offset.F,v 1.4 2003-02-13 17:42:51 sohirata Exp $
 c 
       implicit none
 #include "global.fh"
@@ -62,8 +62,7 @@ c
         enddo
       enddo
 #if !defined(EXT_INT)
-      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.
-     1   ((ioalg.eq.0).or.(ioalg.eq.1).or.(ioalg.eq.4))) then
+      if ((dbl_size .gt. 16.0d0*1024.0d0**3).and.(ioalg.eq.0)) then
         write(LuOut,*) '--------------------------------------------'
         write(LuOut,*) 'Abort: 2 GB file size limit will be exceeded'
         write(LuOut,*) 'Use GA/SF scheme or OS large file support'
