@@ -1,3 +1,4 @@
+# $Id: cytosine_ccsd.nw,v 1.2 2003-04-07 20:01:10 edo Exp $
 start cytosine
 
 echo
@@ -32,6 +33,7 @@ end
 ccsd
   freeze core atomic
   thresh 1d-8
+  maxiter 25
 end
 
 task ccsd(t)
