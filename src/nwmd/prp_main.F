@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.17 1999-08-25 18:28:24 d3j191 Exp $
+c $Id: prp_main.F,v 1.18 1999-09-08 16:49:34 d3j191 Exp $
 c
       implicit none
 c
@@ -13,13 +13,13 @@ c
       external frequency
 c
       integer mdstep
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme,vol
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3),vol
       real*8 epot,epotw,epotsw,epots,stime,esk(msf),uqmd,uqmmm
 c
 c      call prp_proper(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm,
 c     + epot,epotw,epotsw,epots,vol)
 c
-      if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme)
+      if(me.eq.0) call prp_stat(mdstep,stime,eww,esw,ess,esk,epme(iset))
 c
       if(frequency(mdstep,nfprop)) call prp_record()
 c
@@ -39,7 +39,7 @@ c
       real*8 timer_wall
 c
       integer mdstep
-      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme
+      real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
       real*8 epot,epotw,epotsw,epots,vol
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3
@@ -103,8 +103,8 @@ c
       if(lspac) then
       endif
 c
-      ep=ep+epme
-      eq=eq+epme
+      ep=ep+epme(iset)
+      eq=eq+epme(iset)
       ek=ewk
       do 111 i=1,msf
       ek=ek+esk(i)
@@ -202,7 +202,7 @@ c
       call ga_dgop(mrg_d40,eww,mpe,'+')
       call ga_dgop(mrg_d41,esw,msf*mpe,'+')
       call ga_dgop(mrg_d42,ess,msf*msf*mpe,'+')
-      call ga_dgop(mrg_d43,epme,1,'+')
+      call ga_dgop(mrg_d43,epme,3,'+')
       endif
 c
       p(38)=exp(-p(36)/(rgas*temp))

@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.34 1999-08-31 17:24:41 d3j191 Exp $
+c $Id: md_main.F,v 1.35 1999-09-08 16:49:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1256,8 +1256,8 @@ c
       call timer_stop(10)
 c
       if(ipme.gt.0) then
-      call pme_chgrid(dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),isl(1,lsct1),
-     + nsaloc,epme)
+      call pme_chgrid(iset,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
+     + isl(1,lsct1),nsaloc,epme(iset))
       endif
 c
       locali=.true.

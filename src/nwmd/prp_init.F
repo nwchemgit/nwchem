@@ -1,9 +1,9 @@
       subroutine prp_start(nserie,ntyp,lfn,fil,iout,iprp,igib,
      + nf1,nf2,nf3,
      + lcf,lsp,ltwn,lpol,lpme,
-     + nwm,msfi,nsfi,mpei,mdacq,mrn,iset,isetp1,isetp2,tstp)
+     + nwm,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp)
 c
-c $Id: prp_init.F,v 1.13 1999-08-25 18:28:24 d3j191 Exp $
+c $Id: prp_init.F,v 1.14 1999-09-08 16:49:34 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 c
       integer nserie,ntyp,lfn,iout,iprp,igib
       integer nwm,msfi,nsfi,mpei,nf1,nf2,nf3
-      integer mdacq,mrn,iset,isetp1,isetp2
+      integer mdacq,mrn,ipset,isetp1,isetp2
       logical lcf,lsp,ltwn,lpol,lpme
       real*8 tstp
       character*255 fil
@@ -39,6 +39,10 @@ c
       nfstat=nf2
       nfprop=nf3
       mrun=mrn
+c
+      iset=ipset
+      ipset1=isetp1
+      ipset2=isetp2
 c
       tstep=tstp
 c
