@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.12 1999-09-11 03:39:28 d3j191 Exp $
+c $Id: prp_common.fh,v 1.13 1999-10-21 20:05:22 d3j191 Exp $
 c
 c
       real*8 zero,tiny,one
@@ -9,6 +9,9 @@ c
 c
       real*8 rgas
       parameter(rgas=8.31441d-03)
+c
+      integer maxpro
+      parameter(maxpro=500)
 c
       integer me,np,lfnout,lfnprp,lfngib
       integer nsf,msf,mpe,nfoutp,nfstat,nfprop,maxp,mrun
@@ -24,17 +27,17 @@ c
       logical lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener
       common/prp_log/lcafe,lspac,ltwin,lhdr,lfhdr,lpstep,lpener
 c
-      character*50 pronam(250)
+      character*50 pronam(maxpro)
       common/prp_txt/pronam
 c
-      real*8 p(250),psum(250),p2sum(250),psumt(250),p2sumt(250)
-      real*8 pslop(250),pslopt(250)
+      real*8 p(maxpro),psum(maxpro),p2sum(maxpro),psumt(maxpro)
+      real*8 p2sumt(maxpro),pslop(maxpro),pslopt(maxpro)
       real*8 tsum,t2sum,tsumt,t2sumt
       real*8 dfree,deriv(24)
       real*8 tstep,wbox
-      integer ntype,nprop,isprop,ixp(250),nsum,nsumt,nderiv
+      integer ntype,nprop,isprop,ixp(maxpro),nsum,nsumt,nderiv
       integer iset,ipset1,ipset2
-      logical lp(250)
+      logical lp(maxpro)
       common/prp_pro/p,psum,psumt,p2sum,p2sumt,pslop,pslopt,
      + tsum,t2sum,tsumt,t2sumt,tstep,wbox,
      + dfree,deriv,
