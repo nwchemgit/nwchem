@@ -235,8 +235,8 @@ c
 c
       end
       subroutine input_file_info(input_filename, 
-     $     rtdb_name, ostartup)
-C$Id: util_file_name.F,v 1.3 1996-07-26 16:43:42 d3g681 Exp $
+     $     rtdb_name, ostartup, ocontinue)
+C$Id: util_file_name.F,v 1.4 1996-10-21 19:15:50 d3e129 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -246,12 +246,14 @@ C$Id: util_file_name.F,v 1.3 1996-07-26 16:43:42 d3g681 Exp $
       character*(*) input_filename ! [input]
       character*(*) rtdb_name   ! [output]
       logical ostartup           ! [output]
+      logical ocontinue          ! [output]
 c
       logical status, odirective, echo
       integer nkeys, istart, iend
-      parameter (nkeys = 5)
+      parameter (nkeys = 6)
       character*16 keys(nkeys), field
-      data keys/'start','restart','scratch_dir','permanent_dir',
+      data keys/'start','restart','continue',
+     &    'scratch_dir','permanent_dir',
      $     'echo'/
 c
 c     Scan the input for start/restart directives and attempt
@@ -279,6 +281,7 @@ c     you get a restart.  Overriden by presenting start/restart.
 c
       odirective = .false.      ! True if find a start/restart
       ostartup   = .true.
+      ocontinue  = .false.
       echo       = .false.
       rtdb_name  = ' '
       call input_default_file_prefix(input_filename,file_prefix)
@@ -290,10 +293,17 @@ c
          if (inp_compare(.false.,'start',field)) then
             odirective = .true.
             ostartup = .true.
+            ocontinue = .false.
+            call util_read_start_dir(file_prefix, rtdb_name)
+         else if (inp_compare(.false.,'continue',field)) then
+            odirective = .true.
+            ostartup = .false.
+            ocontinue = .true.
             call util_read_start_dir(file_prefix, rtdb_name)
          else if (inp_compare(.false.,'restart',field)) then
             odirective = .true.
             ostartup = .false.
+            ocontinue = .false.
             call util_read_start_dir(file_prefix, rtdb_name)
          else if (inp_compare(.false.,'scratch_dir',field)) then
             status = inp_line(scratch_dir)
@@ -373,7 +383,7 @@ c
 #include "util.fh"
       character*(*) file_prefix, rtdb_name 
 c
-c     (start|restart) [<file_prefix>] [rtdb <rtdb_name>]
+c     (start|restart|continue) [<file_prefix>] [rtdb <rtdb_name>]
 c
       character*(nw_max_path_len) test
 c

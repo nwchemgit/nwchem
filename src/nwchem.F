@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.92 1996-10-04 21:44:22 d3g681 Exp $
+c     $Id: nwchem.F,v 1.93 1996-10-21 19:16:42 d3e129 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -69,7 +69,7 @@ c
 c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
-      logical ostartup
+      logical ostartup, ocontinue, orestart
       logical  input_parse
       external input_parse
 c
@@ -155,11 +155,13 @@ c
       if (.not. pstat_init(20, 1, ' ')) call errquit
      $     ('nwchem: pstat_init failed', 0)
 c
-      call input_file_info(input_filename, rtdb_name, ostartup)
+      call input_file_info(input_filename, rtdb_name,
+     &    ostartup, ocontinue)
 c
 c     Now are ready to summarize the environment
 c
-      call nwchem_banner(input_filename, rtdb_name, ostartup)
+      call nwchem_banner(input_filename, rtdb_name,
+     &    ostartup, ocontinue)
 c
 c     Actually open the database and store the file prefix 
 c
@@ -173,7 +175,21 @@ c
      $        call errquit('start: rtdb_open old failed ', 0)
       endif
 c
+      if (ostartup.or.ocontinue) then
+        orestart = .false.
+      else
+        orestart = .true.
+      endif
+c
+      call util_set_rtdb_state(rtdb,ostartup,ocontinue,orestart)
+c
       call util_file_info_rtdb(rtdb) ! Save file info for restart
+c
+c if continue then go right to task stored on rtdb do not further parse
+c input.  If input is required then user should have used restart
+c
+      if (ocontinue) call task(rtdb) 
+c
 c
 c     Parse input data, shove into the database and execute tasks
 c
@@ -253,7 +269,8 @@ c
 c     Done
 c
       end
-      subroutine nwchem_banner(input_filename, rtdb_name, ostartup)
+      subroutine nwchem_banner(input_filename, rtdb_name, ostartup,
+     &    ocontinue)
       implicit none
 #include "global.fh"
 #include "inp.fh"
@@ -265,6 +282,7 @@ c     of the code along with hostname, no. of processors, date, ...
 c
       character*(*) input_filename, rtdb_name
       logical ostartup
+      logical ocontinue
 c
       character*80 hostname, compiled
       character*(nw_max_path_len) executable, srcdir, file_prefix
@@ -275,7 +293,7 @@ c
       integer heap, stack, global, global_b, total, nproc
       logical status
       character*3 cstatus, fstatus
-      character*8 cstart
+      character*10 cstart
       Character*40 GStatus
 c
       if (ga_nodeid() .ne. 0) return
@@ -317,7 +335,12 @@ c
       if (ostartup) then
          cstart = 'startup'
       else
-         cstart = 'restart'
+        if (ocontinue) then
+*                   12345678
+          cstart = 'continue'
+        else
+          cstart = 'restart'
+        endif
       endif
       call util_file_prefix(' ',file_prefix)
 c
