@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 2000-08-28 18:47:58 edo Exp $
+# $Id: GNUmakefile,v 1.11 2000-08-28 19:00:27 edo Exp $
 
 SUBDIRS = dft 
 
@@ -32,7 +32,7 @@ LIB_INCLUDES = -I../../../nwdft/include
 		xc_rhogen_pert.F \
 		xc_tabcd_cpks_lhs.F \
 		xc_tabcd_cpks_rhs.F \
-    onedd_calc.F    hess_restart.F
+    onedd_calc.F    hess_restart.F shell_fock_build.F  twodd_cont.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
