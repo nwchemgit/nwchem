@@ -1,10 +1,10 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
-     $   MxEBatch, Approx, TopSpin, SpinMap, MaxSpin)
-C$Id: rimp2_parm.F,v 1.1 1995-12-13 01:36:58 d3g681 Exp $
+     $   MxEBatch, Approx, MinEVal, TopSpin, SpinMap, MaxSpin)
+C$Id: rimp2_parm.F,v 1.2 1997-02-17 22:17:31 gg502 Exp $
       Implicit NONE
       Integer RTDB, MxTBatch, MxEBatch(2), TopSpin, MaxSpin,
      $   SpinMap(MaxSpin)
-      Double precision Thresh
+      Double precision Thresh, MinEVal
       Character*(*) Approx
       Character*(*) Mem_Opt
 C
@@ -46,6 +46,8 @@ C     ********************
 C
       If ( .NOT. RTDB_CGet( RTDB, 'mp2:ri approximation',
      $   1, Approx) ) Approx = 'V'
+      If ( .NOT. RTDB_Get( RTDB, 'mp2:fit min eval',
+     $   MT_Dbl, 1, MinEVal) ) MinEVal = 1.0d-8
 C
 C     *******************
 C     * Reference games *

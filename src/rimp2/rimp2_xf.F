@@ -4,16 +4,16 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.2 1996-04-18 16:36:01 gg502 Exp $
+C     $Id: rimp2_xf.F,v 1.3 1997-02-17 22:17:31 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi,
-     $   NILimit, Neglect, Approx, G_C)
+     $   NILimit, Neglect, MinEVal, Approx, G_C)
       Implicit NONE
       Integer RTDB, Geom, AOBas, FitBas, TopSpin, NILimit
       Integer ALo(TopSpin), AHi(TopSpin), ILo(TopSpin), IHi(TopSpin)
-      Double precision Neglect
+      Double precision Neglect, MinEVal
       Character*(*) FNInt, Approx
       Integer G_C(TopSpin), D_Int(TopSpin)
 C
@@ -33,6 +33,8 @@ C     NILiimit  Limit on the number of I blocks which be treated
 C               simultaneously.  Determines maximum size of G_Int
 C               and G_Out [IN]
 C     Neglect   Threshold for neglect of integrals [IN]
+C     MinEVal   Smallest eigenvalue to be retained in matrix inversions for
+C               fiting procedure [IN]
 C     Approx    RI approximation choice [IN]
 C     G_C       Handles for transformation matrices [IN]
 C
@@ -68,11 +70,6 @@ c$$$      Double precision Max_V_Diagonal
 c$$$      External Max_V_Diagonal
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C CONSTANTS
-      Double precision MinEVal
-c$$$      Parameter (MinEval = 1.0e-4)
-c$$$      Parameter (MinEval = 1.0e-9)
-      Parameter (MinEval = FP_Zero)
-C
 C     GA_DGEMM is currently using 128x128 blocking internally, so we
 C     want a minimum block size that is going to make sure we are
 C     not forcing too many small messages.

@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.33 1997-02-14 10:15:02 d3e129 Exp $
+C$Id: rimp2.F,v 1.34 1997-02-17 22:17:30 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -52,7 +52,7 @@ C
      $   RefIHi(MaxSpin)
       Integer NMO(MaxSpin), RefNMO(MaxSpin),I, Me, SpinMap(MaxSpin)
       Integer H_Contrib, Contrib_Idx
-      Double precision Thresh, CorEner, RefEner, TotEner
+      Double precision Thresh, CorEner, RefEner, TotEner, MinEVal
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
       character*20 scftype
       Character*(255) AOName, AONameT, FitName, FitNameT, JobTitle
@@ -133,16 +133,13 @@ C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
       Call RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt, MxEBatch,
-     $   Approx, TopSpin, SpinMap, MaxSpin)
+     $   Approx, MinEVal, TopSpin, SpinMap, MaxSpin)
 C
-C     Figure out file names
+C     Figure out file names.  Munging to get the full name is done in
+C     open_3ci, not here!
 C
       if (.not. RTDB_CGet(rtdb, 'mp2:mo 3-center integral file',
-     $     1, FNInt))
-     $ FNInt = Def_Int
-*
-*rak: do not call util_file_name here since this is done in open_3ci.F
-*
+     $     1, FNInt)) FNInt = Def_Int
 C
 C     Get some info about the basis sets for later use
 C
@@ -341,6 +338,8 @@ C
          Write (LuOut, 8500) 'RI integral approximation:',
      $      Approx(:LNBlnk(Approx))
          Write (LuOut, 8510) 'Threshold for Schwarz screening:', Thresh
+         Write (LuOut, 8510)
+     $      'Smallest eigenvalue retained in fit:', MinEVal
          If ( MxTBatch .gt. 0) then
             Write (LuOut, 8520) 'Max. batch size for transformation:',
      $         MxTBatch
@@ -476,7 +475,7 @@ C
       Status = Status .AND.
      $   RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
-     $   Approx, G_AOXF)
+     $   MinEVal, Approx, G_AOXF)
 C
 C     Finished with the AO transformation
 C
