@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.8 1999-05-06 19:33:49 d3j191 Exp $
+c $Id: util_md.F,v 1.9 1999-05-13 21:26:42 windus Exp $
 c
       implicit none
 c
@@ -852,7 +852,7 @@ c
       integer ndata,lacf,nacf
       real*8 data(ndata),acf(lacf),aver,ratio
 c
-      integer i,j,nacf
+      integer i,j
       real*8 dsum,dvar
 c
       nacf=min(ndata,lacf)
