@@ -102,3 +102,4 @@ Sep 23 1998      Allow non-AA atom naming from PDB
 		 Fix use of fraction in sequence file
 Sep 24 1998	 Fix bug in read pdb file commands
 		 Set fixed atom types to 2
+Oct 05 1998	 Fix bug in parameter search

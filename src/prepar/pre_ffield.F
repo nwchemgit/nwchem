@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.12 1998-06-08 23:29:30 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.13 1998-10-05 20:16:34 d3j191 Exp $
 c
       implicit none
 c
@@ -34,7 +34,7 @@ c
       integer limp(9,mimp)
       real*8 rimp(6,mimp)
 c
-      integer i,j,length,nt,ng,latnum,mult,ifnd
+      integer i,j,length,nt,ng,latnum,mult,ifnd,nd
       character*80 card
       character*6 atyp1,atyp2,atyp3,atyp4,btyp1,btyp2,btyp3,btyp4
       real*8 rmass,p1,p2,p3,p4,pt1,pt2,pt3,pt4
@@ -237,7 +237,7 @@ c
      + (atyp2.eq.btyp1.and.atyp1.eq.btyp2)) then
       rbnd(j*2-1,i)=p1
       rbnd(j*2,i)=p2
-      lbnd(3,i)=lbnd(3,i)-2**(j-1)
+      lbnd(3,i)=-(ior(iabs(lbnd(3,i)),2**(j-1)))
       endif
    11 continue
       endif
@@ -278,7 +278,7 @@ c
      + (atyp3.eq.btyp1.and.atyp1.eq.btyp3))) then
       rang(j*2-1,i)=p1
       rang(j*2,i)=p2
-      lang(4,i)=lang(4,i)-2**(j-1)
+      lang(4,i)=-(ior(iabs(lang(4,i)),2**(j-1)))
       endif
    14 continue
       endif
@@ -298,6 +298,7 @@ c
       btyp2(6:6)=' '
       btyp3(6:6)=' '
       btyp4(6:6)=' '
+      nd=0
    15 continue
       read(lfnpar,1000,end=999) card
       if(card(1:5).eq.'Atoms') goto 2
@@ -309,6 +310,7 @@ c
       read(card,1007,err=2) atyp1(1:5),atyp2(1:5),atyp3(1:5),atyp4(1:5),
      + p1,p2,mult
  1007 format(a5,1x,a5,1x,a5,1x,a5,f10.5,e12.5,i5)
+      nd=nd+1
       if(atyp2.eq.'      ') goto 1
       if(atyp3.eq.'      ') goto 1
       do 16 i=1,ndih
@@ -325,19 +327,16 @@ c
      + ((atyp1.eq.'      '.or.atyp1.eq.btyp4).and.
      + atyp2.eq.btyp3.and.atyp3.eq.btyp2.and.
      + (atyp4.eq.'      '.or.atyp4.eq.btyp1))) then
-      if(mult.gt.0) then
-      ldih(6+j,i)=1
-      else
-      ldih(6+j,i)=ldih(6+j,i)+1
-      endif
+      ldih(6+j,i)=nd
       kdih(ldih(6+j,i),j,i)=mult
       rdih(ldih(6+j,i),2*j-1,i)=p1 
       rdih(ldih(6+j,i),2*j,i)=p2 
-      ldih(5,i)=ldih(5,i)-2**(j-1)
+      ldih(5,i)=-(ior(iabs(ldih(5,i)),2**(j-1)))
       endif
    17 continue
       endif
    16 continue
+      if(mult.gt.0) nd=0
       goto 15
       endif
 c
@@ -452,7 +451,7 @@ c
       limp(6+j,i)=mult
       rimp(2*j-1,i)=ifnd*p1 
       rimp(2*j,i)=p2 
-      limp(5,i)=limp(5,i)-2**(j-1)
+      limp(5,i)=-(ior(iabs(limp(5,i)),2**(j-1)))
       endif
 c
    20 continue
