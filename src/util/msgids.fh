@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.120 2000-02-29 21:49:30 windus Exp $
+c     $Id: msgids.fh,v 1.121 2000-03-24 04:02:17 d3j191 Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -72,6 +72,16 @@ c
       integer mag_d10
       integer mag_d11
       integer mag_d12
+      integer mag_d13
+      integer mag_d14
+      integer mag_d15
+      integer mag_d16
+      integer mag_d17
+      integer mag_d18
+      integer mag_d19
+      integer mag_d20
+      integer mag_d21
+      integer mag_d22
 c
       integer mrg_000
       integer mrg_d01
@@ -1017,3 +1027,14 @@ c
       parameter(msg_j302 = msg_ftn_base-783)
       parameter(msg_u01 = msg_ftn_base-784)
       parameter(msg_u02 = msg_ftn_base-785)
+c
+      parameter (mag_d13=msg_ftn_base-786) ! analysis module
+      parameter (mag_d14=msg_ftn_base-787) ! analysis module
+      parameter (mag_d15=msg_ftn_base-788) ! analysis module
+      parameter (mag_d16=msg_ftn_base-789) ! analysis module
+      parameter (mag_d17=msg_ftn_base-790) ! analysis module
+      parameter (mag_d18=msg_ftn_base-791) ! analysis module
+      parameter (mag_d19=msg_ftn_base-792) ! analysis module
+      parameter (mag_d20=msg_ftn_base-793) ! analysis module
+      parameter (mag_d21=msg_ftn_base-794) ! analysis module
+      parameter (mag_d22=msg_ftn_base-795) ! analysis module
