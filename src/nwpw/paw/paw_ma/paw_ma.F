@@ -42,3 +42,11 @@
  
       end 
  
+      subroutine paw_ma_print(v)
+
+        implicit none
+
+        integer v(4)
+
+
+        end do

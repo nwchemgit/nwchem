@@ -3,7 +3,12 @@
 !
 
 
-      integer          get_tot_ntype
+      integer          paw_basis_orb_l
+      external          paw_basis_orb_l
+      integer          paw_basis_nbasis
+      external          paw_basis_nbasis
+
+      external         get_tot_ntype
       external         get_tot_ntype
       integer          get_tot_nbasis
       external         get_tot_nbasis

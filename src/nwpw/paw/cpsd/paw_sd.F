@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.16 2003-01-24 19:35:43 marat Exp $
+* $Id: paw_sd.F,v 1.17 2003-01-27 06:40:12 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -305,6 +305,7 @@
       call paw_ovlp_init()
       call paw_ovlp_set(dcpl_mb(psi2(1)))
 
+      call paw_comp_charge_update()
 
 *                |**************************|
 ******************   summary of input data  **********************

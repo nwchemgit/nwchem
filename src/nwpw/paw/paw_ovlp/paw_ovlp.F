@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.9 2003-01-27 02:32:25 marat Exp $
+* $Id: paw_ovlp.F,v 1.10 2003-01-27 06:40:12 marat Exp $
 *
 
 !**************************************************
@@ -144,6 +144,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       external ion_nion,ion_katm,psi_ne 
       real*8 lattice_omega
       external lattice_omega
+
       call Pack_npack(1,npack1)
 
       !*** allocate temporary space ***
@@ -187,9 +188,6 @@ c      pause
            do n=1,neall
              indx_psi   = (n-1)*npack1    + 1
              indx_coeff = (nlmii-1)*neall + (n-1)
-c             write(*,*) "psi=",psi(indx_psi)
-c             write(*,*) "prj=",dcpl_mb(tmp(1))
-c		pause
              call Pack_cc_izdot(1,
      >                         dcpl_mb(tmp(1)),
      >                         psi(indx_psi),
