@@ -9,7 +9,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: pre_wrttop.F,v 1.47 2003-10-31 16:48:06 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.48 2003-10-31 17:12:51 d3j191 Exp $
 c
       implicit none
 c
@@ -381,7 +381,8 @@ c
       write(lfntop,1024) cseq(latm(5,i)),catm(1,i)(1:5),ifrac,imol,
      + lseq(1,latm(5,i)),latm(1,i),latm(2,i),latm(3,i),iql,iq,
      + latm(10,i),latm(11,i),i
- 1024 format(a10,a5,1x,12i5,i7)
+ 1024 format(a10,a5,1x,i3,4i7,6i5,i3,i7)
+c 1024 format(a10,a5,1x,12i5,i7)
 c
       do 589 k=ipfr,ipto
       qtot(k)=qtot(k)+qatm(k,1,iql(1))

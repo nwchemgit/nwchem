@@ -3,7 +3,7 @@
      + csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu,slvnam,mseq,nseq,lseq,ihop,istat)
 c
-c $Id: pre_toprd.F,v 1.20 2003-07-17 19:38:57 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.21 2003-10-31 17:12:51 d3j191 Exp $
 c
       implicit none
 c
@@ -105,7 +105,8 @@ c 1010 format(f12.6)
       do 12 i=1,nsa
       read(lfntop,1339) csa(i),mf,m,isgm(i),isat(i),idummy,
      + ihop(i),istat(i)
- 1339 format(a16,3i5,10x,2i5,15x,2i5)
+ 1339 format(a16,i3,2i7,14x,2i5,15x,i5,i3)
+c 1339 format(a16,3i5,10x,2i5,15x,2i5)
       isml(i)=m
       isfr(i)=mf
       qsa(i)=qu(idummy)

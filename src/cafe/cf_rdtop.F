@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.31 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.32 2003-10-31 17:12:49 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -176,7 +176,8 @@ c
       endif
       do 10 i=1,nas
       read(lfntop,1017,end=9997,err=9998) stemp,j,k,l,m,m2,m3,m4
- 1017 format(a16,3i5,15x,3i5,5x,i5)
+ 1017 format(a16,i3,2i7,19x,3i5,5x,i5)
+c 1017 format(a16,3i5,15x,3i5,5x,i5)
       if(i.eq.1) then
       iqfr=min(m,m2,m3)
       iqto=max(m,m2,m3)
