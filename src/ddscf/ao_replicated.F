@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.29 1998-01-14 10:27:17 d3e129 Exp $
+c     $Id: ao_replicated.F,v 1.30 1998-03-13 01:39:47 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -631,7 +631,7 @@ c     fock matrix, optionally caching them on disk/memory.
 c     
       integer lenscr, leneri, lenlab
       integer l_eri, k_eri, l_lab, k_lab, l_scr, k_scr
-      integer k_i, k_j, k_k, k_l
+      integer k_i, k_j, k_k, k_l, kkk
 c     
       integer neri, ntries
       double precision block_eff
@@ -714,6 +714,20 @@ c
      $     nq, q4, .true., tol2e, .false.,
      $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
      $     dbl_mb(k_eri), leneri, neri, lenscr, dbl_mb(k_scr))
+*
+*
+*      do kkk = 0, neri-1
+*         if (int_mb(k_i+kkk).le.0 .or. int_mb(k_i+kkk).gt.nbf)
+*     $        call errquit('bad i label ', kkk)
+*         if (int_mb(k_j+kkk).le.0 .or. int_mb(k_j+kkk).gt.nbf)
+*     $        call errquit('bad j label ', kkk)
+*         if (int_mb(k_k+kkk).le.0 .or. int_mb(k_k+kkk).gt.nbf)
+*     $        call errquit('bad k label ', kkk)
+*         if (int_mb(k_l+kkk).le.0 .or. int_mb(k_l+kkk).gt.nbf)
+*     $        call errquit('bad l label ', kkk)
+*      enddo
+*
+*
 c     
       if (neri .gt. 0) then
 c
