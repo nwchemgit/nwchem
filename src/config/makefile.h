@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.406 2003-02-20 18:12:38 edo Exp $
+# $Id: makefile.h,v 1.407 2003-02-26 17:24:29 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -728,16 +728,20 @@ ifeq ($(TARGET),HPUX)
 #
 # HPUX 11.0
 #
+# removed reference to MLIB since 8.3 version of MLIB 
+# does not support +ppu
+#
 
-#  CORE_SUBDIRS_EXTRA = blas lapack
+  CORE_SUBDIRS_EXTRA = blas lapack
   MAKEFLAGS = -j 1 --no-print-directory
   CPP = /lib/cpp -P
   CC = cc
   FC = f90
-  LDOPTIONS =  -Wl,+vallcompatwarnings  -L/usr/lib +U77  #-Wl,+FPD
+  LDOPTIONS = -g -Wl,+vallcompatwarnings  +U77   
   LDOPTIONS +=  +DA2.0 +DS2.0 +O2
+  LDOPTIONS +=   +O2
   LINK.f = f90   $(LDFLAGS) 
-  CORE_LIBS +=   -llapack $(BLASOPT) -lveclib   -lm
+  CORE_LIBS +=  $(BLASOPT) -llapack -lblas   -lm
   FDEBUG = -g
   FOPTIONS =  +ppu -Wl,-a,archive
   COPTIONS = -Aa -D_HPUX_SOURCE +e 
