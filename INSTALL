@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.66 2004-04-23 22:36:33 edo Exp $
+$Id: INSTALL,v 1.67 2004-04-24 21:25:31 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -371,10 +371,11 @@ F) Contents of the default.nwchemrc file based on the above
 
    nwchem_basis_library /usr/local/NWChem/data/libraries/
    ffield amber
-   amber_s /usr/local/NWChem/data/amber_s/
-   amber_q /usr/local/NWChem/data/amber_q/
-   amber_x /usr/local/NWChem/data/amber_x/
-   spce /usr/local/NWChem/data/solvents/spce.rst
+   amber_1 /usr/local/NWChem/data/amber_s/
+   amber_2 /usr/local/NWChem/data/amber_q/
+   amber_3 /usr/local/NWChem/data/amber_x/
+   amber_4 /usr/local/NWChem/data/amber_u/
+   spce    /usr/local/NWChem/data/solvents/spce.rst
    charmm_s /usr/local/NWChem/data/charmm_s/
    charmm_x /usr/local/NWChem/data/charmm_x/
 
