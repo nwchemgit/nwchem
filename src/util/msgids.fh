@@ -13,9 +13,10 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.122 2000-04-17 22:37:08 zzhang Exp $
+c     $Id: msgids.fh,v 1.123 2000-05-02 21:59:35 bert Exp $
       parameter (msg_ftn_base = 25000)
 c     
+      integer msg_vec_type
       integer msg_prsum
       integer msg_mxelt, Msg_NormF
       integer msg_ichki, msg_ichkd
@@ -1040,3 +1041,5 @@ c
       parameter (mag_d20=msg_ftn_base-793) ! analysis module
       parameter (mag_d21=msg_ftn_base-794) ! analysis module
       parameter (mag_d22=msg_ftn_base-795) ! analysis module
+c
+      parameter (msg_vec_type = msg_ftn_base - 796) ! movecs_read_header
