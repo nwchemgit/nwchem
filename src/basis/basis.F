@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.104 2000-11-08 00:36:51 d3g681 Exp $
+c $Id: basis.F,v 1.105 2001-12-05 21:25:58 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -752,6 +752,7 @@ c
 #include "basdeclsP.fh"
 #include "inp.fh"
 #include "ecpso_decP.fh"
+#include "bas_starP.fh"
 c::-functions
       logical bas_check_handle
       external bas_check_handle
@@ -780,6 +781,11 @@ c::-local
       integer cnt_type(0:6)
 *
 #include "ecpso_sfnP.fh"
+*
+      if (star_nr_tags .gt. 0) then
+         bas_summary_print = .true.
+         return
+      endif
 *
       bas_summary_print =
      &    bas_check_handle(basisin,'bas_summary_print')
@@ -898,6 +904,7 @@ c
 #include "geom.fh"
 #include "ecpso_decP.fh"
 #include "stdio.fh"
+#include "bas_starP.fh"
 c
 c function declarations
 c      
@@ -957,9 +964,12 @@ c
      $       '                      -----')
       mytags  = infbs_head(HEAD_NTAGS,basis)
       if (mytags.le.0) then
-        write(LuOut,*)' Empty basis set '
+        write(LuOut,*)'No explicit basis set is defined !'
         write(LuOut,*)
-        return
+c
+c there could be star tags defined, so check that before returning
+c
+        goto 00010
       endif
 c
       myucont = infbs_head(HEAD_NCONT,basis)
@@ -1010,6 +1020,28 @@ c
           ifcont = ifcont + 1
 00200   continue
 00100 continue
+c
+c  Check if we have star tag definitions in the basis set
+c
+00010 if (star_nr_tags .gt. 0) then
+         write(LuOut,*)
+         write(LuOut,8) 
+  8      format(' In addition, one or more string tags have been',
+     &         ' defined containing a * .'/' These tags, and ',
+     &         'their exceptions list are printed below.'//
+     &         ' Tag ',12(' '),' Description ',18(' '), 
+     &         ' Excluding '/' ',16('-'),' ',30('-'),' ',30('-'))
+         do i=1,star_nr_tags
+           k = 1
+           if (i .gt. 1) k = star_nr_excpt(i-1) + 1
+           write(LuOut,9) star_tag(i), star_bas_typ(i)(1:30),
+     &          (star_excpt(j)(1:inp_strlen(star_excpt(j))),
+     &           j=k,star_nr_excpt(i))
+  9        format(1x,a16,1x,a30,1x,10(a)) 
+         enddo
+         write(LuOut,*)
+         write(LuOut,*)
+      endif
 c
 c  If geom is set print out the info about total basis info 
 c  associated with the geometry also
@@ -1168,6 +1200,8 @@ c
 #include "inp.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "bas_starP.fh"
+#include "bas.fh"
 c
 c function declarations
 c
@@ -1175,8 +1209,12 @@ c::function
 c:bas
       logical bas_check_handle
       logical bas_geobas_build
+      logical bas_add_ucnt_init
+      logical bas_add_ucnt_tidy
       external bas_check_handle
       external bas_geobas_build
+      external bas_add_ucnt_init
+      external bas_add_ucnt_tidy
 c:: passed  
       integer rtdb        ! [input] rtdb handle      
       integer geom        ! [input] geometry handle with info loaded
@@ -1190,7 +1228,12 @@ c:: local
       integer lentmp, basis, nexcf
       character*256 tmp
       logical rtdb_status
-      integer h_tmp, k_tmp
+      integer h_tmp, k_tmp, h_new, k_new
+      integer iunique, uniquecent, istar 
+      integer istart, iexcpt, ilen, junique
+      integer array(nw_max_unq_tags)
+      logical oIsexcept
+      character*16 tag_to_add, tag_in_lib
 c:: statement functions
 #include "bas_exndcf.fh"
 c:: initalize local
@@ -1291,6 +1334,153 @@ c
      &       rtdb_get(
      &       rtdb, tmp, mt_int,
      &       ndbs_ucont*nucont_bsmx, infbs_cont(1,1,basis))
+c
+c now deal with the star tags from the input. We have the geometry, so
+c we extract the tags from the geometry, load the star tag info, and
+c add the basis sets
+c
+c first check if we have any star tags to deal with at all
+c account for old rtdbs without star tag info
+c
+      tmp(lentmp:) = ' '
+      tmp(lentmp:) = ':star nr tags'
+      star_nr_tags = 0
+      if (rtdb_status) rtdb_status = rtdb_status .and. rtdb_get(rtdb,
+     &       tmp,mt_int,1,star_nr_tags)
+c
+c read remaining star tag info and analyze only if we have actually a star
+c tag input (hence, if star_nr_tags > 0)
+c
+      if (star_nr_tags .gt. 0) then
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star tag names'
+        rtdb_status = rtdb_status .and. rtdb_cget(
+     &         rtdb,tmp,star_nr_tags,star_tag)
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star tag_in_lib'
+        rtdb_status = rtdb_status .and. rtdb_cget(
+     &         rtdb,tmp,star_nr_tags,star_in_lib)
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star bas type'
+        rtdb_status = rtdb_status .and. rtdb_cget(
+     &         rtdb,tmp,star_nr_tags,star_bas_typ)
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star filename'
+        rtdb_status = rtdb_status .and. rtdb_cget(
+     &         rtdb,tmp,star_nr_tags,star_file)
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star tot except'
+        rtdb_status = rtdb_status .and. rtdb_get(
+     &         rtdb,tmp,mt_int,1,star_tot_excpt)
+        if (star_tot_excpt .gt. 0) then
+           tmp(lentmp:) = ' '
+           tmp(lentmp:) = ':star except'
+           rtdb_status = rtdb_status .and. rtdb_cget(
+     &            rtdb,tmp,star_tot_excpt,star_excpt)
+        endif
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star nr except'
+        rtdb_status = rtdb_status .and. rtdb_get(
+     &         rtdb,tmp,mt_int,star_nr_tags,star_nr_excpt)
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star rel'
+        rtdb_status = rtdb_status .and. rtdb_get(
+     &         rtdb,tmp,mt_log,star_nr_tags,star_rel)
+        tmp(lentmp:) = ' '
+        tmp(lentmp:) = ':star segment'
+        rtdb_status = rtdb_status .and. rtdb_get(
+     &         rtdb,tmp,mt_log,1,star_segment)
+c
+c get a list of tags from the current geometry
+c
+        if (.not. geom_ncent_unique(geom,uniquecent)) 
+     &     call errquit('bas_rtdb_do_load: geom_ncent_unique',211)
+        if (.not. geom_uniquecent_get(geom,uniquecent,array)) 
+     &     call errquit('bas_rtdb_do_load: geom_uniquecent_get',211)
+c
+c We got the tag_to_add info from the geometry object
+c
+        do iunique = 1, uniquecent
+           if (.not. geom_cent_tag(geom,array(iunique),tag_to_add))
+     &        call errquit('bas_rtdb_do_load: geom_cen_tag',211)
+c
+c First check if we did this geometry tag already
+c
+           do junique = 1, iunique - 1
+              if (.not. geom_cent_tag(geom,array(junique),tag_in_lib))
+     &           call errquit('bas_rtdb_do_load: geom_cen_tag',211)
+              if (inp_compare(.true.,tag_to_add,tag_in_lib)
+     &              .and. (inp_strlen(tag_to_add) .eq. 
+     &                     inp_strlen(tag_in_lib))) goto 00012
+           enddo
+c
+c
+c Now for each star tag, check if tag_to_add matches and add basis set
+c
+           do istar = 1, star_nr_tags
+c
+c For * input, directly check exceptions list
+c For aa*, first check if tag_to_add matches star tag itself
+c For Bq, if B* is used and geometry tag is Bq, skip, only when Bq* 
+c is used we need to go on
+c
+              if (inp_contains(.true.,'*',star_tag(istar),ilen)) then
+                 if (ilen .gt. 1) then
+                    if (tag_to_add(1:ilen-1) .ne. 
+     &                 star_tag(istar)(1:ilen-1)) goto 00011
+                 endif
+                 if (inp_compare(.false.,'Bq',tag_to_add(1:2)).and..not.
+     &               inp_compare(.false.,'Bq',star_tag(istar)(1:2))) 
+     &               goto 00011
+              endif
+c
+c There is a match between the tag_to_add and the star_tag, check for
+c matches in exceptions list
+c
+              oIsexcept = .false.
+              istart = 1
+              if (istar .gt. 1) istart = star_nr_excpt(istar-1) + 1
+              do iexcpt = istart, star_nr_excpt(istar)
+                 ilen = inp_strlen(tag_to_add)
+                 if (inp_compare(.true.,tag_to_add,star_excpt(iexcpt))
+     &              .and. (inp_strlen(tag_to_add) .eq. 
+     &                     inp_strlen(star_excpt(iexcpt))))
+     &              oIsexcept = .true.
+              enddo
+c
+c If not in exceptions list, add basis set to the basis object
+c
+              if (.not. oIsexcept) then
+                 tag_in_lib = star_in_lib(istar)
+                 if (inp_contains(.true.,'*',star_in_lib(istar),ilen))
+     &              tag_in_lib = tag_to_add
+                 call bas_tag_lib(basisin,star_segment,tag_to_add, 
+     &                tag_in_lib, star_bas_typ(istar), star_file(istar), 
+     &                star_rel(istar))
+              endif
+00011         continue
+           enddo
+00012   continue
+        enddo
+c
+c We messed around with the memory. The basis set sould have room for 
+c two (2) extra variables, which are added below. Add them now.
+c
+        h_tmp = exndcf(H_exndcf,basis)
+        k_tmp = exndcf(K_exndcf,basis) 
+        ilen = exndcf(SZ_exndcf,basis)
+        if (.not. ma_alloc_get(mt_dbl,ilen+2,nameex,h_new,k_new)) call
+     &     errquit('bas_rtdb_do_load: ma_alloc_get failed',ilen+2)
+        exndcf(H_exndcf,basis) = h_new
+        exndcf(K_exndcf,basis) = k_new
+        exndcf(SZ_exndcf,basis) = ilen + 2
+        call dcopy(ilen,dbl_mb(k_tmp),1,dbl_mb(k_new),1)
+        if (.not.ma_free_heap(h_tmp)) call errquit
+     &      ('bas_rtdb_do_load: error freeing old exponents',211)
+c
+      endif
+c
+      star_nr_tags = 0
 c
 c read the basis now get check status of read operations
 c
@@ -1850,6 +2040,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "ecpso_decP.fh"
+#include "bas_starP.fh"
 c::passed
       integer rtdb              ! [input] handle to database
       character*(*) name        ! [input] name to use when storing db
@@ -1888,13 +2079,19 @@ c
      $    infbs_head(HEAD_NCONT,basis), 
      $    size_ex,
      &    bs_stdname(1,basis),
-     &    name_assoc(1,basis))
+     &    name_assoc(1,basis),
+     &    star_nr_tags, star_tag, star_in_lib, star_bas_typ,
+     &    star_file, star_nr_excpt, star_excpt, star_tot_excpt,
+     &    star_rel, star_segment)
 c
       end
 *.....................................................................
       logical function bas_rtdb_do_store(rtdb, name, tagsin, 
      &       head_array, tags_array, ucont_array, excfin, ntagsin, 
-     &       nucontin, nexcf, stdnamein, ecp_name)
+     &       nucontin, nexcf, stdnamein, ecp_name,
+     &       star_nr_tags, star_tag, star_in_lib, star_bas_typ,
+     &       star_file, star_nr_excpt, star_excpt, star_tot_excpt,
+     &       star_rel, star_segment)
       implicit none
 c
 c stores from argument data structures the basis set information to
@@ -1936,6 +2133,16 @@ c::: passed
 *. . . . . . . . . . . . . . . . . . . . . . .   normal basis
       double precision excfin(nexcf) ! [input] exponents 
 c. . . . . . . . . . . . . . . . . . .         contractions coeffs.
+      integer star_nr_tags ! [input] number of star containing tags
+      character*16 star_tag(star_nr_tags) ! [input] star tag data
+      character*16 star_in_lib(star_nr_tags) ! [input] star in lib data
+      character*255 star_bas_typ(star_nr_tags) ! [input] star basis data
+      character*255 star_file(star_nr_tags) ! [input] star filename data
+      logical star_rel(star_nr_tags) ! [input] star relativistic data
+      logical star_segment ! [input] star segment or not ?
+      integer star_tot_excpt ! [input] star total number of except tags
+      integer star_nr_excpt(star_nr_tags) ! [input] number of except per tag
+      character*16 star_excpt(star_nr_tags) ! [input] except tag list
 c::: local
       character*256 tmp
       integer len_name, lentmp
@@ -1987,6 +2194,58 @@ c
       tmp(lentmp:) = ':contraction info'
       status = status .and. rtdb_put(
      &       rtdb,tmp,mt_int,(ndbs_ucont*nucontin),ucont_array)
+      tmp(lentmp:) = ' ' 
+      tmp(lentmp:) = ':star nr tags'
+      status = status .and. rtdb_put(
+     &       rtdb,tmp,mt_int,1,star_nr_tags)
+c
+c store remaining star tag info only if we have actually a star 
+c tag input (hence, if star_nr_tags > 0)
+c
+      if (star_nr_tags .gt. 0) then
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star tag names'
+        status = status .and. rtdb_cput(rtdb,tmp,star_nr_tags,
+     &                                  star_tag)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star tag_in_lib'
+        status = status .and. rtdb_cput(rtdb,tmp,star_nr_tags,
+     &                                  star_in_lib)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star bas type'
+        status = status .and. rtdb_cput(rtdb,tmp,star_nr_tags,
+     &                                  star_bas_typ)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star filename'
+        status = status .and. rtdb_cput(rtdb,tmp,star_nr_tags,
+     &                                  star_file)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star tot except'
+        status = status .and. rtdb_put(
+     &         rtdb,tmp,mt_int,1,star_tot_excpt)
+        if ( star_tot_excpt .gt. 0) then
+           tmp(lentmp:) = ' ' 
+           tmp(lentmp:) = ':star except'
+           status = status .and. rtdb_cput(rtdb,tmp,star_tot_excpt,
+     &                                     star_excpt)
+        endif
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star nr except'
+        status = status .and. rtdb_put(
+     &         rtdb,tmp,mt_int,star_nr_tags,star_nr_excpt)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star rel'
+        status = status .and. rtdb_put(
+     &         rtdb,tmp,mt_log,star_nr_tags,star_rel)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star segment'
+        status = status .and. rtdb_put(
+     &         rtdb,tmp,mt_log,1,star_segment)
+      endif
+c
+c reset the stag tag data array for reuse
+c
+      star_nr_tags = 0
 c
 c read the basis now get check status of read operations
 c
@@ -3269,6 +3528,7 @@ c
 #include "inp.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "bas_starP.fh"
 c
 c function declarations
 c      
@@ -3316,9 +3576,12 @@ c
      $       '                -----')
       mytags  = infbs_head(HEAD_NTAGS,ecpid)
       if (mytags.le.0) then
-        write(LuOut,*)' Empty ECP '
+        write(LuOut,*)'No explicit ECP functions are defined !'
         write(LuOut,*)
-        return
+c
+c there could be star tags defined, so check that before returning
+c
+        goto 00010
       endif
 c
       myucont = infbs_head(HEAD_NCONT,ecpid)
@@ -3369,6 +3632,28 @@ c
 00200   continue
 00100 continue
 c
+c  Check if we have star tag definitions in the basis set
+c
+00010 if (star_nr_tags .gt. 0) then
+         write(LuOut,*)
+         write(LuOut,8)
+  8      format(' In addition, one or more string tags have been',
+     &         ' defined containing a * .'/' These tags, and ',
+     &         'their exceptions list are printed below.'//
+     &         ' Tag ',12(' '),' Description ',18(' '),
+     &         ' Excluding '/' ',16('-'),' ',30('-'),' ',30('-'))
+         do i=1,star_nr_tags
+           k = 1
+           if (i .gt. 1) k = star_nr_excpt(i-1) + 1
+           write(LuOut,9) star_tag(i), star_bas_typ(i)(1:30),
+     &          (star_excpt(j)(1:inp_strlen(star_excpt(j))),
+     &           j=k,star_nr_excpt(i))
+  9        format(1x,a16,1x,a30,1x,10(a))
+         enddo
+         write(LuOut,*)
+         write(LuOut,*)
+      endif
+c
 c  If geom is set print out the info about total basis info 
 c  associated with the geometry also
 c
@@ -3390,6 +3675,7 @@ c
 #include "inp.fh"
 #include "geom.fh"
 #include "stdio.fh"
+#include "bas_starP.fh"
 c
 c function declarations
 c      
@@ -3433,9 +3719,12 @@ c
  2    format('    SO Basis is spherical, 5d, 7f, 9g ... ')
       mytags  = infbs_head(HEAD_NTAGS,soid)
       if (mytags.le.0) then
-        write(LuOut,*)' Empty SO Basis set '
+        write(LuOut,*)'No explicit SO ECP functions are defined !'
         write(LuOut,*)
-        return
+c
+c there could be star tags defined, so check that before returning
+c
+        goto 00010
       endif
 c
       myucont = infbs_head(HEAD_NCONT,soid)
@@ -3484,6 +3773,28 @@ c
           ifcont = ifcont + 1
 00200   continue
 00100 continue
+c
+c  Check if we have star tag definitions in the basis set
+c
+00010 if (star_nr_tags .gt. 0) then
+         write(LuOut,*)
+         write(LuOut,8)
+  8      format(' In addition, one or more string tags have been',
+     &         ' defined containing a * .'/' These tags, and ',
+     &         'their exceptions list are printed below.'//
+     &         ' Tag ',12(' '),' Description ',18(' '),
+     &         ' Excluding '/' ',16('-'),' ',30('-'),' ',30('-'))
+         do i=1,star_nr_tags
+           k = 1
+           if (i .gt. 1) k = star_nr_excpt(i-1) + 1
+           write(LuOut,9) star_tag(i), star_bas_typ(i)(1:30),
+     &          (star_excpt(j)(1:inp_strlen(star_excpt(j))),
+     &           j=k,star_nr_excpt(i))
+  9        format(1x,a16,1x,a30,1x,10(a))
+         enddo
+         write(LuOut,*)
+         write(LuOut,*)
+      endif
 c
 c  If geom is set print out the info about total basis info 
 c  associated with the geometry also

@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.52 2000-10-23 17:25:34 edo Exp $
+c $Id: bas_input.F,v 1.53 2001-12-05 21:25:44 bert Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -301,6 +301,7 @@ c
 #include "basdeclsP.fh"
 #include "ecpso_decP.fh"
 #include "stdio.fh"
+#include "bas_starP.fh"
 c::passed
       integer basis             ! [input]
       logical osegment          ! [input]
@@ -332,7 +333,7 @@ c
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
       integer nopts             ! No. of options
-      parameter (nltypes = 7, nsptypes = 3, nopts = 4)
+      parameter (nltypes = 7, nsptypes = 3, nopts = 5)
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
       character*8 opts(nopts)
@@ -340,18 +341,27 @@ c
       logical oIs_so
       logical oIs_rel
       logical oshell_is_rel
+      logical oIs_star
       integer spvalues(nsptypes)
       integer num_elec
-      integer l_value, ind
+      integer l_value, ind, icount
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1 ,   -1 /
-      data opts / 'library', 'file', 'rel', 'nelec' /
+      data opts / 'except', 'library', 'file', 'rel', 'nelec' /
 c
 #include "ecpso_sfnP.fh"
 c
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
+c
+c     Reset data structures for reading '*' tags
+c
+      star_nr_tags = 0
+      star_tot_excpt = 0
+      do icount = 1, max_star_tag
+         star_nr_excpt(icount) = 0
+      enddo
 c
 c     Input a new line
 c
@@ -364,7 +374,21 @@ c
       standard = ' '            ! Must reset these for every tag
       filename = user_library_name
       oshell_is_rel = oIs_rel
+      oIs_star = .false.
       if (.not. inp_a(tag)) goto 10000
+c
+c  Check if we have a tag that contains a '*'. If so, we have to store
+c  the data "as is" in the RTDB until we know the full geometry without 
+c  processing
+c
+      ind = inp_strlen(tag)
+      if (tag(ind:ind) .eq. '*') then
+        oIs_star = .true.
+        star_nr_tags = star_nr_tags + 1
+        star_tag(star_nr_tags) = tag
+        if (star_nr_tags .gt. max_star_tag) 
+     &     call errquit('bas_input_body: max_star_tag limit',211)
+      endif
 c
 *. . . . . . . . . . . . . . . . . . . . . . ! End of basis directive
       if (inp_compare(.false., 'end', tag)) goto 9000 
@@ -375,7 +399,11 @@ c
 c     
 c  The contraction is a simple shell or an ecp projector shell of the 
 c  given type
+c  Check if we do a * basis, if so bail out as we only do this for 
+c  basis sets read from the library
 c     
+        if (oIs_star) goto 10000
+c
         l_value = ind - 1
 c
 c     check if it is a relativistic shell
@@ -410,11 +438,30 @@ c
          call inp_prev_field
  22      if (inp_a(field)) then
             if (inp_match(nopts, .false., field, opts, ind)) then
-               goto (24, 26, 27, 28) ind
+               goto (23, 25, 26, 27, 28) ind
+c     
+c     except
+c     
+ 23            if (.not. oIs_star) goto 10000
+ 24            if (inp_a(field)) then
+                 if (inp_match(nopts, .false., field, opts, ind)) then
+                   call inp_prev_field
+                   star_nr_excpt(star_nr_tags) = star_tot_excpt
+                   goto 22
+                 else
+                   star_tot_excpt = star_tot_excpt + 1
+                   if (star_tot_excpt .gt. max_star_excpt) call 
+     &                errquit('bas_input_body: max_star_excpt',211)
+                   star_excpt(star_tot_excpt) = field
+                   goto 24
+                 endif
+               endif
+               star_nr_excpt(star_nr_tags) = star_tot_excpt
+               goto 22
 c     
 c     library
 c     
- 24            if (.not. inp_a(standard)) goto 10000
+ 25            if (.not. inp_a(standard)) goto 10000
                tag_in_lib = tag
                if (inp_a(field)) then
                  if (inp_match(nopts, .false., field, opts, ind)) then
@@ -434,7 +481,7 @@ c
                goto 22
 c     
 c     relativistic shell
-c     
+c    
  27            oshell_is_rel = .true.
                goto 22
 c
@@ -459,7 +506,20 @@ c
       endif
 c
 c     Line with tag on has been parsed ... either a standard set
-c     or explicit input
+c     or explicit input or a *-tag
+c
+      if (oIs_star) then
+         if (tag_in_lib .ne. ' ' .and. standard .ne. ' ') then
+            star_in_lib(star_nr_tags) = tag_in_lib
+            star_bas_typ(star_nr_tags) = standard
+         else
+            goto 10000
+         endif
+         star_file(star_nr_tags) = filename
+         star_rel(star_nr_tags) = oshell_is_rel
+         star_segment = osegment
+         goto 10
+      endif
 c
       if (standard .ne. ' ') then
          call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,

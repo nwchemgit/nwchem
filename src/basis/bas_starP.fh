@@ -1,0 +1,21 @@
+* $Id: bas_starP.fh,v 1.1 2001-12-05 21:26:29 bert Exp $
+c
+c Common blocks used at input and bas_rtdb_load/store, handling 
+c basis directive input lines containing a * in their tag
+c
+      integer max_star_tag, max_star_excpt
+      parameter (max_star_tag = 10, max_star_excpt = 10 * max_star_tag)
+
+      character*16 star_tag, star_in_lib, star_excpt
+      character*255 star_bas_typ, star_file
+      integer star_nr_tags, star_nr_excpt, star_tot_excpt
+      logical star_rel, star_segment
+
+      common /startagsc/
+     &       star_tag(max_star_tag), star_in_lib(max_star_tag),
+     &       star_bas_typ(max_star_tag), star_file(max_star_tag),
+     &       star_excpt(max_star_excpt)
+
+      common /startags/
+     &       star_nr_tags, star_nr_excpt(max_star_tag), 
+     &       star_tot_excpt, star_rel(max_star_tag), star_segment
