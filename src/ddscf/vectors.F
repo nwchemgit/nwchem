@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.48 2003-06-19 01:36:16 edo Exp $
+C$Id: vectors.F,v 1.49 2003-08-15 23:32:07 bert Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -884,7 +884,7 @@ c
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
-           call errquit('vectors: eaf_open failed', ierr)
+           goto 1000
         endif
         lgth=ma_sizeof(MT_INT,1,MT_BYTE)
         ierr = eaf_read(unitno, offset, len1,lgth)
@@ -1138,7 +1138,7 @@ c
          if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
-           call errquit('vectors: eaf_open failed', ierr)
+           goto 1000
         endif
         lgth=ma_sizeof(MT_INT,1,MT_BYTE)
         ierr = eaf_read(unitno, offset, len1,lgth)
@@ -1156,7 +1156,7 @@ c
            write(LuOut,*) ' IO offset ', offset
            write(LuOut,*) ' IO error message ',
      $          errmsg(1:inp_strlen(errmsg))
-           call errquit('vectors read failed',0)
+           goto 1001
         endif
         offset=offset+lgth
         if ((nrow.ne.grow).and.(ncol.ne.gcol)) goto 2000
@@ -1170,7 +1170,7 @@ c
              write(LuOut,*) ' IO offset ', offset
              write(LuOut,*) ' IO error message ',
      $            errmsg(1:inp_strlen(errmsg))
-             call errquit('vectors read failed',j)
+          goto 1001
         endif
         offset=offset+lgth
         call ga_put(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
@@ -1185,7 +1185,6 @@ c
             write(LuOut,*) ' IO error message ',
      $           errmsg(1:inp_strlen(errmsg))
             call util_flush(luout)
-            call errquit('vectors: eaf_close failed',0)
             goto 1002
          endif
         ok = 1
@@ -1221,7 +1220,6 @@ c
          write(LuOut,*) ' IO error message ',
      $        errmsg(1:inp_strlen(errmsg))
          call util_flush(luout)
-         call errquit('vectors: eaf_close failed',0)
          goto 1002
       endif
       goto 10
