@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.16 1999-03-15 21:16:33 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.17 1999-06-09 23:47:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -120,7 +120,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.16 1999-03-15 21:16:33 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.17 1999-06-09 23:47:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -246,7 +246,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.16 1999-03-15 21:16:33 d3j191 Exp $
+c     $Id: task_optimize.F,v 1.17 1999-06-09 23:47:19 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -280,50 +280,51 @@ c
 c
       character*20 theory
 c
-      logical  drv_lst 
-      external drv_lst
-c
-      call ecce_print_module_entry('task lst')
-c
-      cpu  = util_cpusec()
-      wall = util_wallsec()
-c
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_lst: failed to invalidate status',0)
-c
-      if (ga_nodeid().eq.0 .and.
-     $     util_print('task_lst', print_low)) then
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6,
-     $        'NWChem LST Path Calculation',
-     $        40,.true.)
-         write(6,*)
-         write(6,*)
-      endif
-c
-      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     +     call errquit('task_lst: failed rtdb_cget task:theory',0)
-c
-      status = drv_lst(rtdb)
-c
-      cpu  = util_cpusec() - cpu
-      wall = util_wallsec() - wall
-      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_lst: failed storing cputime',0)
-      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_lst: failed storing walltime',0)
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_lst: failed to set status',0)
-c
-      call ecce_print1('cpu time', mt_dbl, cpu, 1)
-      call ecce_print1('wall time', mt_dbl, wall, 1)
-      if (status) then
-         call ecce_print_module_exit('task lst', 'ok')
-      else
-         call ecce_print_module_exit('task lst', 'failed')
-      endif
-c
-      task_lst = status
-c
+      call errquit('lst broken by rjh ',0)
+c$$$      logical  drv_lst 
+c$$$      external drv_lst
+c$$$c
+c$$$      call ecce_print_module_entry('task lst')
+c$$$c
+c$$$      cpu  = util_cpusec()
+c$$$      wall = util_wallsec()
+c$$$c
+c$$$      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
+c$$$     $     call errquit('task_lst: failed to invalidate status',0)
+c$$$c
+c$$$      if (ga_nodeid().eq.0 .and.
+c$$$     $     util_print('task_lst', print_low)) then
+c$$$         write(6,*)
+c$$$         write(6,*)
+c$$$         call util_print_centered(6,
+c$$$     $        'NWChem LST Path Calculation',
+c$$$     $        40,.true.)
+c$$$         write(6,*)
+c$$$         write(6,*)
+c$$$      endif
+c$$$c
+c$$$      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+c$$$     +     call errquit('task_lst: failed rtdb_cget task:theory',0)
+c$$$c
+c$$$      status = drv_lst(rtdb)
+c$$$c
+c$$$      cpu  = util_cpusec() - cpu
+c$$$      wall = util_wallsec() - wall
+c$$$      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
+c$$$     $     call errquit('task_lst: failed storing cputime',0)
+c$$$      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
+c$$$     $     call errquit('task_lst: failed storing walltime',0)
+c$$$      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
+c$$$     $     call errquit('task_lst: failed to set status',0)
+c$$$c
+c$$$      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+c$$$      call ecce_print1('wall time', mt_dbl, wall, 1)
+c$$$      if (status) then
+c$$$         call ecce_print_module_exit('task lst', 'ok')
+c$$$      else
+c$$$         call ecce_print_module_exit('task lst', 'failed')
+c$$$      endif
+c$$$c
+c$$$      task_lst = status
+c$$$c
       end
