@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.11 1994-11-24 04:40:16 og845 Exp $
+# $Id: GNUmakefile,v 1.12 1994-11-24 05:06:03 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	dzero.o		\
 	ga_chol.o	\
-	ga_inverse.o	ga_scac.o	\
+	ga_inverse.o		\
 	gacrea.o	gat_lab_can.o	\
 	gather.o	\
 	header.o	\
