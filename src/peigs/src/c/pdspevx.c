@@ -848,10 +848,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
 
-#ifdef DEBUG11
       printf(" me = %d just before pstein5 %d \n", me, *info );
       fflush(stdout);
-#endif
 
       
       pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
