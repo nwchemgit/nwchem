@@ -1,7 +1,7 @@
 
         Guide to Installing NWChem  
         ==========================
-        $Id: INSTALL,v 1.6 1996-06-05 21:10:25 ng716 Exp $
+        $Id: INSTALL,v 1.7 1996-09-09 16:57:32 d3h325 Exp $
 
 
   DO THESE STEPS IN ORDER OR THE BUILD WILL FAIL
@@ -27,10 +27,11 @@
     Symb.Name  Platform               OS/Version    Precision
     ----------------------------------------------------------
     SUN         Sun                    SunOS        double
+    SOLARIS     Sun                    Solaris 2.X  double
     IBM         IBM RS/6000            AIX          double
     DECOSF      DEC AXP                OSF/1        double
     SGI         SGI ?                  IRIX         double
-    SGITFP      SGI Power Challenge    IRIX         double
+    SGITFP      SGI PowerChallenge     IRIX         double
     CRAY_T3D    Cray T3D               UNICOS       single
     PARAGON     Intel Paragon          OSF/1        double
     DELTA       Intel Delta            NX           double
@@ -124,11 +125,11 @@ uncomment a section in src/config/makefile.h to handle the Fortran/C
 interface renaming for PeIGS MPI calls.
 
 For SP systems running AIX 3.2.5, there are two main MPI
-implementations available (not at all sites).  MPICH from ANL/Missippi
+implementations available (not at all sites).  MPICH from ANL/Missisippi
 State, and MPI-F from IBM itself.  Because NWChem uses both MPL and
 MPI on the SP, it is necessary to link against appropriate libraries
 for both packages.  This is easily done using MPICH, but is not easily
 done using MPI-F.  Rather than spending time getting MPI-F to work,
 we've elected to wait for SPs to upgrade to AIX 4, in which a native
-MPI implementation will be available, and is prupported to link (and
+MPI implementation is available, and is supported to link (and
 work) okay with MPL.
