@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.134 1999-09-02 17:39:02 edo Exp $
+c     $Id: dft_scf.F,v 1.135 1999-10-11 15:41:24 jolguin Exp $
 c     
       implicit none
 c
@@ -47,8 +47,9 @@ c
       double precision dft_n3cdbl
       external dft_n3cdbl
 cc    Jorge Garza/Begin
-      integer test_sic, condfukui
-      double precision totsic
+      integer test_sic, condfukui, l_degen, i_degen(2), isp, j_d,
+     &        tot_oc
+      double precision totsic, homo_test, start
 cc    Jorge Garza/End
       Integer l_eval
       integer k_eval(2)
@@ -688,6 +689,26 @@ c         call gadest(g_s)
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_scf: could not destroy g_s', 0)
       endif
+c Jorge Garza/Begin
+      tot_oc = noc(1) + noc(2)
+      if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
+     &                 l_degen, i_degen(1)))
+     &         call errquit('dft_scf: cannot allocate degen homo',0)
+      do isp=1,ipol
+        if (isp.eq.2) i_degen(2) = i_degen(1) + noc(1)
+        if (noc(isp).ne.0) then
+         homo_test = Dbl_MB(k_eval(isp)+noc(isp)-1)
+         do j = 1,noc(isp)
+           start = Dbl_MB(k_eval(isp)+j-1)
+           if (dabs(start-homo_test).le.1.0d-04) then
+               Int_MB(i_degen(isp) + j - 1) = 1
+           else
+               Int_MB(i_degen(isp) + j -1) = 0
+           end if
+         end do
+        end if
+      end do
+c Jorge Garza/End
       iter = 1
 c     
 c     Top of infinite SCF iteration loop
@@ -862,6 +883,7 @@ c
 c
 c  Jorge Garza/Begin
 c       
+      if (ipol.eq.2.and.noc(2).eq.0) call ga_zero(g_vxc(2))
       totsic=0.0d00
       if (test_sic.eq.2.or.test_sic.eq.4.or.test_sic.eq.3) then
          if (test_sic.eq.4) then
@@ -871,7 +893,7 @@ c
      &               g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA, rho_n,
      &               dbl_mb(irdens_atom), int_mb(icntoce), 
      &               int_mb(icntobfr), int_mb(icetobfr), natoms,
-     &               g_movecs, noc, k_eval, totsic)
+     &               g_movecs, noc, k_eval, totsic, i_degen)
          Exc(1) = Exc(1) + totsic
       end if
 c
@@ -1775,6 +1797,10 @@ c
       if (nexc.gt. 1)then
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
+c Jorge Garza/Begin
+      if (.not.ma_pop_stack(l_degen))
+     &   call errquit('dft_scf: cannot pop stack',0)
+c Jorge Garza/End
       if (.not.ma_pop_stack(l_ir))
      &   call errquit('dft_scf: cannot pop stack',0)
 c     
