@@ -1,5 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
+c $Id: raktest.F,v 1.13 1994-06-09 09:50:30 d3e129 Exp $
       integer rtdb
 c
       write(6,*)' run rjh test '
