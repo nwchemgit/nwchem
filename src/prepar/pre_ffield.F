@@ -8,7 +8,7 @@ c
 c
       integer idir,lfnpar,lfnout
       integer lprint
-      character*80 filpar
+      character*255 filpar
       real*8 q14fac,releps
       integer matt,natt,icomb
       integer latt(3,matt)
@@ -217,7 +217,7 @@ c
      + (atyp2.eq.btyp1.and.atyp1.eq.btyp2)) then
       rbnd(j*2-1,i)=p1
       rbnd(j*2,i)=p2
-      lbnd(3,i)=lbnd(3,i)-1
+      lbnd(3,i)=lbnd(3,i)-2**(j-1)
       endif
    11 continue
       endif
@@ -253,7 +253,7 @@ c
      + (atyp3.eq.btyp1.and.atyp1.eq.btyp3))) then
       rang(j*2-1,i)=p1
       rang(j*2,i)=p2
-      lang(4,i)=lang(4,i)-1
+      lang(4,i)=lang(4,i)-2**(j-1)
       endif
    14 continue
       endif
@@ -303,6 +303,7 @@ c
       kdih(ldih(6+j,i),j,i)=mult
       rdih(ldih(6+j,i),2*j-1,i)=p1 
       rdih(ldih(6+j,i),2*j,i)=p2 
+      ldih(5,i)=ldih(5,i)-2**(j-1)
       endif
    17 continue
       endif

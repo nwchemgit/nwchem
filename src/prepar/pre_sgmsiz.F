@@ -6,7 +6,7 @@ c
       implicit none
 c
       integer lfnsgm,natm,nbnd,nang,ndih,nimp
-      character*80 filsgm
+      character*255 filsgm
 c
       integer length
       character*80 card

@@ -36,8 +36,9 @@ c
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
 c
-      character*80 filpdb,ffield,filtyp,filseq
-      character*80 dir_s,dir_x,dir_u,dir_t
+      character*255 filpdb,filtyp,filseq
+      character*255 dir_s,dir_x,dir_u,dir_t
+      character*80 ffield
       character*3 namslv
 c
       integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm

@@ -22,7 +22,7 @@ c
       integer iunit,lfnout,mseq,msgm
       integer kseq(3,mseq),ksgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
-      character*80 dirnam,filnam
+      character*255 dirnam,filnam
       integer lprint
 c
       character*80 card

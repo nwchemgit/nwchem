@@ -44,7 +44,7 @@ c
       character*6 catm(3,matm)
       real*8 xatm(3,matm),qatm(matm)
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
-      character*80 dir_t,filtyp,filnam
+      character*255 dir_t,filtyp,filnam
       integer lprint
 c
       integer len_t,length,len_f
@@ -54,7 +54,7 @@ c
       integer mtyp,i_ltyp,l_ltyp
       integer nring5,nring6
 c
-      integer i,j,k,isgm,natoms,ilo,ihi,iseq,jlo,jhi,ioff
+      integer i,j,k,isgm,natoms,ilo,ihi,iseq,jlo,jhi,ioff,ilist
       integer link1,link2,link3,link4,link5,link
       integer ibnd,nbnd,nang,ndih,nconn
       real*8 rlink,dist
@@ -65,6 +65,7 @@ c
       endif
 c
       len_t=index(dir_t,' ')-1
+      ilist=0
 c
       do 1 i=1,nsgm
       if(lsgm(2,i).eq.0) then
@@ -94,6 +95,9 @@ c      jlo=ilo
 c      if(iseq.gt.1) jlo=lseq(3,iseq-1)
 c      jhi=ihi
 c      if(iseq.lt.nseq) jhi=lseq(3,iseq+2)-1
+c
+      if(ilist.eq.0) then
+c
       jlo=1
       jhi=natm
       if(csgm(i)(5:5).eq.'N'.or.csgm(i)(5:5).eq.'M') jlo=ilo
@@ -140,6 +144,9 @@ c
       latm(3,lbnd(2,ibnd))=latm(3,lbnd(2,ibnd))+1
    14 continue
 c
+      ilist=1
+      endif
+c
 c     determine center types
 c     ----------------------
 c
@@ -158,7 +165,8 @@ c
 c     determine atom types
 c     --------------------
 c
-      if(.not.pre_atype(lfntyp,filtyp,latm,catm,matm,lbnd,mbnd,nbnd,
+      if(.not.pre_atype(lfnout,lprint,
+     + lfntyp,filtyp,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,
      + int_mb(i_ltyp),mtyp,lring,aring,mring,nring5,nring6))
      + call errquit('pre_atype failed',9999)

@@ -26,7 +26,7 @@ c
       integer lseq(4,mseq),latm(5,matm)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
-      character*80 filnam
+      character*255 filnam
       integer lprint
 c
       integer isgm,nsgm,i,j,nchain,iatm

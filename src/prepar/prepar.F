@@ -27,6 +27,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "util.fh"
 #include "inp.fh"
 c
       logical pre_rtdbin,pre_mkseq,pre_mktop
@@ -34,15 +35,19 @@ c
 c
       integer irtdb0,irtdb
 c
-      character*80 filpdb,ffield,filtyp,filseq,filtop,filpar
-      character*80 dir_s,dir_x,dir_u,dir_t,sysnam
-      character*3 namslv
+      character*255 filpdb,filtyp,filseq,filtop,filpar
+      character*255 dir_s,dir_x,dir_u,dir_t
+      character*80 sysnam,ffield,slvmdl
+      character*3 slvnam
 c
       integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm,lfntop,lfnpar
       integer len,lend,lprint
+      integer newtop,newseq
 c
-      namslv='HOH'
-      lprint=1
+      irtdb=irtdb0
+c
+      call util_print_push
+      call util_print_rtdb_load(irtdb,'prepar')
 c
 c     node 0 only please
 c     ------------------
@@ -63,8 +68,8 @@ c
 c     get info from rtdb
 c     ------------------
 c
-      irtdb=irtdb0
-      if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,sysnam))
+      if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,sysnam,
+     + slvnam,slvmdl,newtop,newseq))
      + call errquit('pre_rtdbin failed',9999)
 c
 c     construct file names
@@ -93,15 +98,28 @@ c
       lfntop=17
       lfnpar=18
 c
+      lprint=10
+      if(util_print('sequence',print_none)) lprint=0
+      if(util_print('sequence',print_low)) lprint=1
+      if(util_print('sequence',print_medium)) lprint=2
+      if(util_print('sequence',print_high)) lprint=4
+      if(util_print('sequence',print_debug)) lprint=5
+c
 c     check if the topology file exists
 c     ---------------------------------
 c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=1)
+      if(newtop.eq.0) then
       close(unit=lfntop)
       write(lfnout,1000) filtop(1:index(filtop,' ')-1)
- 1000 format('TOPOLOGY FILE ',a,' EXISTS')
+ 1000 format('USING EXISTING TOPOLOGY FILE ',a)
       goto 4
+      else
+      close(unit=lfntop,status='delete')
+      write(lfnout,1005) filtop(1:index(filtop,' ')-1)
+ 1005 format('DELETED EXISTING TOPOLOGY FILE ',a)
+      endif
 c
     1 continue
 c
@@ -110,10 +128,16 @@ c     ---------------------------------
 c
       open(unit=lfnseq,file=filseq(1:index(filseq,' ')-1),
      + form='formatted',status='old',err=2)
+      if(newseq.eq.0) then
       close(unit=lfnseq)
       write(lfnout,1001) filseq(1:index(filseq,' ')-1)
- 1001 format('SEQUENCE FILE ',a,' EXISTS')
+ 1001 format('USING EXISTING SEQUENCE FILE ',a)
       goto 3
+      else
+      close(unit=lfnseq,status='delete')
+      write(lfnout,1006) filseq(1:index(filseq,' ')-1)
+ 1006 format('DELETED EXISTING SEQUENCE FILE ',a)
+      endif
 c
     2 continue
 c
@@ -122,10 +146,10 @@ c     ---------------------------------------------
 c
       if(.not.pre_mkseq(lfnout,lprint,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfntyp,filtyp,
-     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,namslv))
+     + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam))
      + call errquit('pre_mkseq failed',9999)
       write(lfnout,1002) filseq(1:index(filseq,' ')-1)
- 1002 format('SEQUENCE FILE ',a,' CREATED')
+ 1002 format('CREATED SEQUENCE FILE ',a)
 c
     3 continue
 c
@@ -137,12 +161,12 @@ c
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_mktop failed',9999)
       write(lfnout,1003) filtop(1:index(filtop,' ')-1)
- 1003 format('TOPOLOGY FILE ',a,' CREATED')
+ 1003 format('CREATED TOPOLOGY FILE ',a)
 c
     4 continue
 c
-c     generate topology
-c     -----------------
+c
+      call util_print_pop
 c
       prepar=.true.
       return

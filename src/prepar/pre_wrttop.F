@@ -7,7 +7,8 @@ c
       implicit none
 c
       integer lfntop
-      character*80 filtop,ffield
+      character*80 ffield
+      character*255 filtop
       real*8 releps,q14fac
       integer mseq,nseq
       integer lseq(4,mseq)
@@ -67,17 +68,20 @@ c
     3 continue
     2 continue
 c
-c
       nd=0
       do 30 i=1,ndih
       nd=nd+max(ldih(7,i),ldih(8,i),ldih(9,i))
    30 continue
-      write(lfntop,1009) natm,nbnd,nang,nd,nimp,n3rd
+      if(ffield(1:5).eq.'amber') then
+      write(lfntop,1009) natm,nbnd,nang,nd+nimp,0,n3rd,nexc
+      else
+      write(lfntop,1009) natm,nbnd,nang,nd,nimp,n3rd,nexc
  1009 format(5i7,2i10)
+      endif
 c
       do 10 i=1,natm
       write(lfntop,1010) latm(3,i),0,latm(1,i),latm(2,i),latm(5,i),
-     + cseq(latm(5,i)),catm(2,i)(1:5),i,0,1
+     + cseq(latm(5,i)),catm(1,i)(1:5),i,0,1
  1010 format(5i7,a10,a5,i10,2i5)
       write(lfntop,1011) (qatm(2*j-1,i),j=1,3),(qatm(2*j,i),j=1,3)
  1011 format(6f12.6)

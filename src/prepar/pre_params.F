@@ -7,12 +7,12 @@
 c
       implicit none
 c
-      logical pre_ffield,pre_parcnv
-      external pre_ffield,pre_parcnv
+      logical pre_ffield,pre_parcnv,pre_check
+      external pre_ffield,pre_parcnv,pre_check
 c
       integer lfnpar,lfnout
       integer lprint
-      character*80 filpar,dir_s,dir_x,dir_u,dir_t
+      character*255 filpar,dir_s,dir_x,dir_u,dir_t
       integer matm,natm
       integer latm(8,matm)
       character*6 catm(4,matm)
@@ -34,7 +34,7 @@ c
       real*8 patt(4,2,matt,matt),ratt(matt)
 c
       integer i,j,k,lp,ld,icomb
-      character*80 filnam
+      character*255 filnam
       real*8 releps,q14fac
 c
 c     make atom type list
@@ -119,6 +119,14 @@ c     -------------------------------------------
 c
       if(.not.pre_parcnv(icomb,latt,patt,matt,natt))
      + call errquit('pre_parcnv failed',9999)
+c
+c     check if all required parameters have been found
+c     ------------------------------------------------
+c
+      if(.not.pre_check(lfnout,lprint,
+     + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
+     + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp))
+     + call errquit('pre_check failed',9999)
 c
       pre_params=.true.
       return

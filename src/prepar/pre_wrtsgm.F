@@ -10,7 +10,7 @@ c
       integer limp(4,mimp)
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
-      character*80 filsgm
+      character*255 filsgm
       integer lprint
 c
       integer i,j,length
@@ -48,14 +48,14 @@ c
     4 continue
 c
       do 5 i=1,nimp
-      write(lfnsgm,2006) i,(limp(j,i),j=1,4),0,0,(0.0d0,0.0d0,j=1,3)
- 2006 format(i5,6i5,/,3(f12.6,e12.5))
+      write(lfnsgm,2006) i,(limp(j,i),j=1,4),0,0,(0,0.0d0,0.0d0,j=1,3)
+ 2006 format(i5,6i5,/,3(i5,f12.6,e12.5))
     5 continue
 c
       close(unit=lfnsgm)
 c
-c      write(*,1000) filsgm(1:length)
-c 1000 format('SEGMENT FILE WRITTEN ',a)
+      if(lprint.ge.1) write(lfnout,1000) filsgm(1:length)
+ 1000 format('SEGMENT FILE WRITTEN ',a)
 c
       pre_wrtsgm=.true.
       return

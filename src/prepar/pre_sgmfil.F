@@ -5,7 +5,7 @@ c
 c
       integer lfnsgm
       character*10 sgmnam
-      character*80 filsgm,dir_s,dir_x,dir_u,dir_t
+      character*255 filsgm,dir_s,dir_x,dir_u,dir_t
 c
       integer lens,lend,lenf
 c

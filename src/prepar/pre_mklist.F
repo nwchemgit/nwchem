@@ -16,7 +16,8 @@ c
 c
       integer lfnout,lfnsgm
       integer lprint
-      character*80 ffield,dir_s,dir_x,dir_u,dir_t
+      character*80 ffield
+      character*255 dir_s,dir_x,dir_u,dir_t
       integer mseq,nseq
       integer lseq(4,mseq),lmat(10,mseq)
       character*10 cseq(mseq)
@@ -43,7 +44,7 @@ c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
       integer no,ndi,ltemp,igrp,ipgrp
       real*8 rtemp
-      character*80 filsgm
+      character*255 filsgm
 c
       igrp=0
       ipgrp=0
@@ -61,7 +62,7 @@ c
 c     append the atom and bonded lists
 c     --------------------------------
 c
-      if(.not.pre_rdsgm(i,igrp,ipgrp,lfnsgm,filsgm,
+      if(.not.pre_rdsgm(lfnout,lprint,i,igrp,ipgrp,lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp))

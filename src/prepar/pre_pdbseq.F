@@ -28,7 +28,7 @@ c
       character*4 clnk(2,mlnk)
       character*3 namslv
       real*8 xatm(3,matm)
-      character*80 filnam
+      character*255 filnam
       integer lprint
 c
       character*80 card

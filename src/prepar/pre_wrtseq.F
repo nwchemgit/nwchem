@@ -9,7 +9,7 @@ c
       integer lseq(4,mseq),lssb(2,mssb),llnk(2,mlnk)
       character*4 clnk(2,mlnk)
       character*5 cseq(2,mseq)
-      character*80 filseq
+      character*255 filseq
       integer i,j,length,mol
 c
       length=index(filseq,' ')-1

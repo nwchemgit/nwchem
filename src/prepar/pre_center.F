@@ -74,6 +74,22 @@ c
       endif
     1 continue
 c
+c     planar C=O
+c     ----------
+c
+      do 26 i=jlo,jhi
+      if(latm(2,i).eq.6.and.latm(3,i).eq.3) then
+      do 27 li=1,nbnd
+      j=0
+      if(lbnd(1,li).eq.i) j=lbnd(2,li)
+      if(lbnd(2,li).eq.i) j=lbnd(1,li)
+      if(j.ge.jlo.and.j.le.jhi) then
+      if(latm(2,j).eq.8.and.latm(3,j).eq.1) latm(4,i)=1
+      endif
+   27 continue
+      endif
+   26 continue
+c
 c     5 membered rings
 c     ----------------
 c

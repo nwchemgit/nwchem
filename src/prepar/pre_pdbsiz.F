@@ -22,7 +22,7 @@ c
       implicit none
 c
       integer iunit,lfnout,model,natm,nseq,nssb,nchain,nlnk
-      character*80 filnam
+      character*255 filnam
       integer lprint
       character*3 namslv
 c

@@ -32,7 +32,7 @@ c
       integer iunit,lfnout,mseq,nseq,msgm,nsgm
       integer lseq(4,mseq),lsgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
-      character*80 dir_s,dir_x,dir_u,dir_t,filnam
+      character*255 dir_s,dir_x,dir_u,dir_t,filnam
       integer lprint
 c
       integer len_s,len_x,len_u,len_t,length

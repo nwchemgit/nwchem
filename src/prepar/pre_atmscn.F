@@ -3,7 +3,7 @@ c
       implicit none
 c
       integer lfnsgm,num,link
-      character*80 filsgm
+      character*255 filsgm
       character*4 atmnam
 c
       character*80 card

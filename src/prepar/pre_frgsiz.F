@@ -14,7 +14,7 @@ c
       implicit none
 c
       integer lfnfrg,lfnout,natm,nbnd
-      character*80 filfrg
+      character*255 filfrg
       integer lprint
 c
       character*80 card

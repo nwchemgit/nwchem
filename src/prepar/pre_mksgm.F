@@ -19,7 +19,8 @@ c
 c
       integer lfnout,lfnfrg,lfnsgm
       integer lprint
-      character*80 ffield,filfrg,filsgm
+      character*80 ffield
+      character*255 filfrg,filsgm
 c
       integer length
       integer matm,mbnd,mang,mdih,mimp

@@ -5,7 +5,8 @@ c
       implicit none
 c
       integer lfnout,lfnseq,nseq,nlnk
-      character*80 filseq,card
+      character*255 filseq
+      character*80 card
       integer lprint
       integer length,ival,ncrd,ncnt
 c

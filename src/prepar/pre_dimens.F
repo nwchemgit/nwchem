@@ -12,10 +12,10 @@ c
       integer lfnout,lfnsgm,mseq,nseq,natm,nbnd,nang,ndih,nimp
       integer lseq(4,mseq)
       character*10 cseq(mseq)
-      character*80 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_u,dir_t
       integer lprint
 c
-      character*80 filsgm
+      character*255 filsgm
       integer i,nsatm,nsbnd,nsang,nsdih,nsimp
 c
       natm=0

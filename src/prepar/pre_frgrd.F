@@ -17,7 +17,7 @@ c
       integer latm(5,matm),lbnd(2,mbnd)
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
-      character*80 filfrg
+      character*255 filfrg
       integer lprint
 c
       character*80 card

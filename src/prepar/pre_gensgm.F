@@ -28,9 +28,10 @@ c
       integer msgm,nsgm
       integer lsgm(3,msgm)
       character*5 csgm(msgm)
-      character*80 ffield,dir_s,dir_x,dir_u,dir_t
+      character*80 ffield
+      character*255 dir_s,dir_x,dir_u,dir_t
 c
-      character*80 filfrg,filsgm
+      character*255 filfrg,filsgm
 c
       integer len_s,len_x,len_u,len_t,length
       integer i

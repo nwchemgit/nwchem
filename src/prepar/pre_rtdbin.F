@@ -1,14 +1,18 @@
       logical function pre_rtdbin(irtdb,ffield,
-     + dir_s,dir_x,dir_u,dir_t,sysnam)
+     + dir_s,dir_x,dir_u,dir_t,sysnam,slvnam,slvmdl,newtop,newseq)
 c
 c     function to read input for prepare module from rtdb
 c
       implicit none
 c
 #include "rtdb.fh"
+#include "mafdecls.fh"
 c
       integer irtdb
-      character*80 ffield,dir_s,dir_x,dir_u,dir_t,sysnam
+      character*3 slvnam
+      character*80 ffield,sysnam,slvmdl
+      character*255 dir_s,dir_x,dir_u,dir_t
+      integer newtop,newseq
 c
       if(.not.rtdb_cget(irtdb,'prep:ffield',1,ffield))
      + call errquit('rtdb_get failed on ffield',9999)
@@ -24,6 +28,16 @@ c
 c
       if(.not.rtdb_cget(irtdb,'prep:sysnam',1,sysnam))
      + call errquit('rtdb_get failed on sysnam',9999)
+c
+      if(.not.rtdb_cget(irtdb,'prep:slvnam',1,slvnam))
+     + call errquit('rtdb_get failed on slvnam',9999)
+      if(.not.rtdb_cget(irtdb,'prep:slvmdl',1,slvmdl))
+     + call errquit('rtdb_get failed on slvmdl',9999)
+c
+      if(.not.rtdb_get(irtdb,'prep:newtop',mt_int,1,newtop))
+     + call errquit('rtdb_get failed on newtop',9999)
+      if(.not.rtdb_get(irtdb,'prep:newseq',mt_int,1,newseq))
+     + call errquit('rtdb_get failed on newseq',9999)
 c
       pre_rtdbin=.true.
       return

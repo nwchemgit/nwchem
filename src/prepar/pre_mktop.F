@@ -24,8 +24,9 @@ c
       external pre_params,pre_natyps,pre_wrttop,pre_third,pre_excl
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar
-      character*80 ffield,filseq,filtop,filpar
-      character*80 dir_s,dir_x,dir_u,dir_t
+      character*80 ffield
+      character*255 filseq,filtop,filpar
+      character*255 dir_s,dir_x,dir_u,dir_t
       integer lprint
 c
       integer mseq,nseq
@@ -61,14 +62,17 @@ c
 c
       real*8 releps,q14fac
 c
-c      write(lfnout,1000)
-c 1000 format('TOPOLOGY GENERATION')
+      if(lprint.ge.5) write(lfnout,1000)
+ 1000 format('TOPOLOGY GENERATION')
 c
       if(.not.pre_seqsiz(lfnout,lprint,lfnseq,filseq,nseq,nlnk))
      + call errquit('pre_seqsize failed',9999)
 c
       mseq=nseq+1
       mlnk=nlnk
+c
+      if(lprint.ge.5) write(lfnout,1001) nseq
+ 1001 format('sequence lenght is',i10)
 c
 c     allocate memory for sequence
 c     ----------------------------
@@ -108,6 +112,9 @@ c
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_rdseq failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,1002)
+ 1002 format('sequence is read')
+c
 c     determine termini
 c     -----------------
 c
@@ -116,6 +123,9 @@ c
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_term failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,1003)
+ 1003 format('termini are determined')
+c
 c     determine array dimensions
 c     --------------------------
 c
@@ -123,6 +133,10 @@ c
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + natm,nbnd,nang,ndih,nimp))
      + call errquit('pre_dimens failed',9999)
+c
+      if(lprint.ge.5) write(lfnout,1004)
+ 1004 format('list dimensions are determined')
+
 c
 c     adjust dimension to account for links
 c     -------------------------------------
@@ -269,6 +283,9 @@ c
      + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_lmat)))
      + call errquit('pre_mklist failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,1005)
+ 1005 format('lists are generated')
+c
 c     deallocate memory for link matrix
 c     ---------------------------------
 c
@@ -281,6 +298,9 @@ c
       if(.not.pre_natyps(byte_mb(i_catm),matm,natm,natt))
      + call errquit('pre_natyps failed',9999)
       matt=natt
+c
+      if(lprint.ge.5) write(lfnout,1006) natt
+ 1006 format('number of atom types is ',i10)
 c
 c     allocate memory for atom type lists
 c     -----------------------------------
@@ -310,6 +330,9 @@ c
      + dbl_mb(i_ratt),matt,natt,nats))
      + call errquit('pre_params failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,1007)
+ 1007 format('force field parameters are substituted')
+c
 c     allocate memory for third neighbor list
 c     ---------------------------------------
 c
@@ -324,6 +347,9 @@ c
       if(.not.pre_third(int_mb(i_lbnd),mbnd,nbnd,int_mb(i_lang),
      + mang,nang,int_mb(i_l3rd),m3rd,n3rd))
      + call errquit('pre_third failed',9999)
+c
+      if(lprint.ge.5) write(lfnout,1008) n3rd
+ 1008 format('third neighbor list length is',i10)
 c
 c     allocate memory for excluded pair list
 c     --------------------------------------
@@ -340,6 +366,9 @@ c
      + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc))
      + call errquit('pre_excl failed',9999)
 c
+      if(lprint.ge.5) write(lfnout,1009) nexc
+ 1009 format('excluded pair list length is',i10)
+c
 c     write the topology file
 c     -----------------------
 c
@@ -354,6 +383,9 @@ c
      + int_mb(i_limp),dbl_mb(i_rimp),mimp,nimp,int_mb(i_l3rd),
      + m3rd,n3rd,int_mb(i_lexc),mexc,nexc))
      + call errquit('pre_wrttop failed',9999)
+c
+      if(lprint.ge.5) write(lfnout,1010)
+ 1010 format('topology file is written')
 c
 c     deallocate memory
 c     -----------------

@@ -1,4 +1,4 @@
-      logical function pre_atype(lfntyp,filtyp,
+      logical function pre_atype(lfnout,lprint,lfntyp,filtyp,
      + latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,nring5,nring6)
 c
@@ -27,8 +27,8 @@ c                4            = number of hydrogen neigbors
 c                5            = number of neighbors
 c                5+i          = index of i-th neighbor
 c
-      integer lfntyp
-      character*80 filtyp
+      integer lfntyp,lfnout,lprint
+      character*255 filtyp
       integer matm,mtyp
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -166,6 +166,7 @@ c     read the atom type data
 c     -----------------------
 c
       l=index(filtyp,' ')-1
+      write(*,'(a,a)') 'TYPES FROM ',filtyp(1:l)
       open(unit=lfntyp,file=filtyp(1:l),status='old',form='formatted',
      + err=9999)
       ntype=0
@@ -183,10 +184,12 @@ c
 c     determine the atom types
 c     ------------------------
 c
-c      write(*,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
+      if(lprint.ge.5)
+     +write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
 c
       do 18 i=ilo,ihi
-c      write(*,'(a,a4,5i5)') 'Atom ',catm(2,i),(ltyp(j,i),j=1,5)
+      if(lprint.ge.5)
+     + write(lfnout,'(a,a4,5i5)') 'Atom ',catm(2,i),(ltyp(j,i),j=1,5)
       if(latm(2,i).gt.0) then
       do 19 j=1,ntype
       iatnum=itype(1,j)
@@ -201,8 +204,9 @@ c      write(*,'(a,a4,5i5)') 'Atom ',catm(2,i),(ltyp(j,i),j=1,5)
       do 21 k=1,4
       if(iatnum.ge.200)  then
       nhydr=nhydr+1
-      iatnum=iatnum-100
+      iatnum=iatnum-200
       endif
+      if(nhydr.eq.4) nhydr=5
    21 continue
 c
 c     itype(1,*) match atom number
@@ -224,7 +228,8 @@ c
      +   (itype(4,j).eq.13.and.(ltyp(3,i).eq.11.or.ltyp(3,i).eq.12)).or.
      +   (itype(4,j).eq.ltyp(3,i))).and.
      + (itype(5,j).eq.0.or.itype(5,j).eq.ltyp(5,i))) then
-c      write(*,'(a,a4)') 'Type ',atype(j)(1:4)
+      if(lprint.ge.5)
+     + write(lfnout,'(a,a4)') 'Type ',atype(j)(1:4)
 c
 c     initialize skip vectors for neighbor atoms : skipa(1:neighbors)
 c     ----------------------- for atom type cond : skipt(1:3)
@@ -242,14 +247,17 @@ c     -------------------------------------------------------
 c
       do 24 l=1,3
       if(.not.skipt(l)) then
-c      write(*,'(5x,a,i5)') 'neighbor condition ',itype(1+l*5,j)
+      if(lprint.ge.5)
+     + write(lfnout,'(5x,a,i5)') 'neighbor condition ',itype(1+l*5,j)
 c
 c     loop over neighbor atoms for the current atom : k (1:neighbors)
 c     ---------------------------------------------
 c
       do 25 k=1,ltyp(5,i)
       if(.not.skipa(k).and..not.skipt(l)) then
-c      write(*,'(5x,a,i5)') 'neighbor atom      ',latm(2,ltyp(5+k,i))
+      if(lprint.ge.5)
+     + write(lfnout,'(5x,a,i5)') 'neighbor atom      ',
+     + latm(2,ltyp(5+k,i))
       iatnum=itype(1+l*5,j)
       nonh=0
       do 26 m=1,4
@@ -260,14 +268,11 @@ c      write(*,'(5x,a,i5)') 'neighbor atom      ',latm(2,ltyp(5+k,i))
    26 continue
       nhydr=0
       do 27 m=1,4
-      if(iatnum.eq.200)  then
+      if(iatnum.ge.200)  then
       nhydr=nhydr+1
       iatnum=iatnum-200
       endif
-      if(iatnum.ge.200)  then
-      nhydr=nhydr+1
-      iatnum=iatnum-100
-      endif
+      if(nhydr.eq.4) nhydr=5
    27 continue
 c
 c     check atomic number of neighbor k
@@ -299,8 +304,9 @@ c
       if(itype(2+l*5,j).gt.0.and.
      + itype(2+l*5,j).ne.ltyp(5,ltyp(5+k,i))) goto 25
 c
-c      write(*,'(5x,a,2i5)') 'neighbor accepted ',
-c     + itype(1+l*5,j),latm(2,ltyp(5+k,i))
+      if(lprint.ge.5)
+     + write(lfnout,'(5x,a,2i5)') 'neighbor accepted ',
+     + itype(1+l*5,j),latm(2,ltyp(5+k,i))
 c
 c     set skip vectors
 c     ----------------
@@ -317,15 +323,18 @@ c     ---------------------------------------------
 c
       do 30 ll=1,3
       if(.not.skiptt(ll)) then
-c      write(*,'(10x,a,i5)') 'neighbor condition ',itype(2+l*5+ll,j)
+      if(lprint.ge.5)
+     + write(lfnout,'(10x,a,i5)') 'neighbor condition ',
+     + itype(2+l*5+ll,j)
 c
 c     loop over neighbor of neighbor atoms
 c     ------------------------------------
 c
       do 31 kk=1,ltyp(5,ltyp(5+k,i))
       if(.not.skipaa(kk).and..not.skiptt(ll)) then
-c      write(*,'(10x,a,i5)') 'neighbor atom      ',
-c     + latm(2,ltyp(5+kk,ltyp(5+k,i)))
+      if(lprint.ge.5)
+     + write(lfnout,'(10x,a,i5)') 'neighbor atom      ',
+     + latm(2,ltyp(5+kk,ltyp(5+k,i)))
 c
       iatnum=itype(2+l*5+ll,j)
       nonh=0
@@ -337,20 +346,20 @@ c
    32 continue
       nhydr=0
       do 33 m=1,4
-      if(iatnum.eq.200) then
+      if(iatnum.ge.200) then
       nhydr=nhydr+1
       iatnum=iatnum-200
       endif
-      if(iatnum.ge.200)  then
-      nhydr=nhydr+1
-      iatnum=iatnum-100
-      endif
+      if(nhydr.eq.4) nhydr=5
    33 continue
-c      write(*,'(30x,a,3i5)') 'condition ia nn nh ',iatnum,nonh,nhydr
-c      write(*,'(30x,a,3i5)') 'found     ia nn nh ',
-c     + latm(2,ltyp(5+kk,ltyp(5+k,i))),
-c     + ltyp(5,ltyp(5+k,ltyp(5+k,i)))-ltyp(4,ltyp(5+k,ltyp(5+k,i))),
-c     + ltyp(4,ltyp(5+kk,ltyp(5+k,i)))
+      if(lprint.ge.5) then
+      write(lfnout,'(30x,a,3i5)') 'condition ia nn nh ',
+     + iatnum,nonh,nhydr
+      write(lfnout,'(30x,a,3i5)') 'found     ia nn nh ',
+     + latm(2,ltyp(5+kk,ltyp(5+k,i))),
+     + ltyp(5,ltyp(5+k,ltyp(5+k,i)))-ltyp(4,ltyp(5+k,ltyp(5+k,i))),
+     + ltyp(4,ltyp(5+kk,ltyp(5+k,i)))
+      endif
 c
 c     check atomic number of neighbor of neighbor k
 c     ---------------------------------------------
@@ -376,8 +385,9 @@ c
       if(nonh.ne.ltyp(5,ltyp(5+k,ltyp(5+k,i)))-
      + ltyp(4,ltyp(5+k,ltyp(5+k,i)))) goto 31
       endif
-c      write(*,'(10x,a,4i5)') 'neighbor accepted ',itype(2+l*5+ll,j),
-c     + latm(2,ltyp(5+kk,ltyp(5+k,i))),kk,ll
+      if(lprint.ge.5)
+     + write(lfnout,'(10x,a,4i5)') 'neighbor accepted ',
+     + itype(2+l*5+ll,j),latm(2,ltyp(5+kk,ltyp(5+k,i))),kk,ll
 c
 c     neighbor of neighbor condition satisfied
 c     ----------------------------------------
@@ -395,7 +405,8 @@ c
       do 34 ll=1,3
       if(.not.skiptt(ll)) goto 25
    34 continue
-c      write(*,'(20x,a)') 'neighbors of neighbor accepted'
+      if(lprint.ge.5)
+     + write(lfnout,'(20x,a)') 'neighbors of neighbor accepted'
 c
 c     neighbor condition satisfied
 c     ----------------------------
@@ -413,7 +424,8 @@ c
       do 35 l=1,3
       if(.not.skipt(l)) goto 19
    35 continue
-c      write(*,'(30x,a)') 'neighbor accepted'
+      if(lprint.ge.5)
+     + write(lfnout,'(30x,a)') 'neighbor accepted'
 c
       catm(3,i)(1:4)=atype(j)
 c
@@ -422,9 +434,11 @@ c
       endif
    18 continue
 c
-c      do 100 i=jlo,jhi
-c      write(*,'(16i5)') i,(ltyp(j,i),j=1,15)
-c  100 continue
+      if(lprint.ge.5) then
+      do 100 i=jlo,jhi
+      write(lfnout,'(16i5)') i,(ltyp(j,i),j=1,15)
+  100 continue
+      endif
 c
       pre_atype=.true.
       return

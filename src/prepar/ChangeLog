@@ -1,3 +1,6 @@
 Apr 14 1998	 Initial prepar module routines
 		 Add routines for rtdb input, third and excluded lists
 		 Make lprint integer print control
+Apr 15 1998	 Print control compliant with nwchem
+		 Bug fix in atom type generation
+		 Parameter checks
