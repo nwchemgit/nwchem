@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.38 2003-10-17 22:55:35 carlfahl Exp $
+* $Id: dft_fitcd.F,v 1.39 2003-12-20 00:28:42 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -633,7 +633,7 @@ c
 c        Compute Lagrange multiplier, alpha
 c
          F(1) = ddot(nbf_cd,DBL_mb(icgtf),1,CD_coef(1,ifit),1)
-         alpha = (Q - F(1))/F(2)
+            alpha = (Q - F(1))/F(2)
 c         write(*,*)'F alpha',f(1),f(2),alpha
 c
 c        Correct unconstrained coefficients by alpha*S**(-1)*cgtf
