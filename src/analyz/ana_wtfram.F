@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.31 2000-08-17 16:54:23 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.32 2000-08-17 22:24:13 d3j191 Exp $
 c
       implicit none
 c
@@ -297,7 +297,7 @@ c
      + color(1:index(color,' ')-1)
       else
       write(iunit,8001) (scale*x(i,j),j=1,3),
-     +scale*abs(cpk)*ana_atrad(1),
+     +scale*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
  8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -324,7 +324,7 @@ c
       if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
       if(tag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
       write(iunit,8002) (scale*x(ib,j),j=1,3),
-     + (scale*xh(j),j=1,3),scale*abs(cpk)*ana_atrad(1),
+     + (scale*xh(j),j=1,3),scale*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
  8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
      + '  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -336,7 +336,7 @@ c
       if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
       if(tag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
       write(iunit,8002) (scale*x(jb,j),j=1,3),
-     + (scale*xh(j),j=1,3),scale*abs(cpk)*ana_atrad(1),
+     + (scale*xh(j),j=1,3),scale*abs(stick)*ana_atrad(1),
      + color(1:index(color,' ')-1)
       endif
       endif
