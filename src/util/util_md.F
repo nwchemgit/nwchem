@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.15 1999-12-16 03:01:36 d3j191 Exp $
+c $Id: util_md.F,v 1.16 2000-01-21 17:32:38 d3j191 Exp $
 c
       implicit none
 c
@@ -327,6 +327,9 @@ c
 c
       character*10 today,now
 c
+#if defined(LINUX)
+      character*26 string
+#endif
 #if defined(IBM)
       character*26 string
 #endif
@@ -399,8 +402,20 @@ c
       now=string(11:20)
 #endif
 #if defined(LINUX)
-      today='          '
-      now='          '
+      call util_date(string)
+      if(string(5:7).eq.'Jan') today(4:5)='01'
+      if(string(5:7).eq.'Feb') today(4:5)='02'
+      if(string(5:7).eq.'Mar') today(4:5)='03'
+      if(string(5:7).eq.'Apr') today(4:5)='04'
+      if(string(5:7).eq.'May') today(4:5)='05'
+      if(string(5:7).eq.'Jun') today(4:5)='06'
+      if(string(5:7).eq.'Jul') today(4:5)='07'
+      if(string(5:7).eq.'Aug') today(4:5)='08'
+      if(string(5:7).eq.'Sep') today(4:5)='09'
+      if(string(5:7).eq.'Oct') today(4:5)='10'
+      if(string(5:7).eq.'Nov') today(4:5)='11'
+      if(string(5:7).eq.'Dec') today(4:5)='12'
+      now=string(11:20)
 #endif
 #if defined(SGI)
       call date(string)
