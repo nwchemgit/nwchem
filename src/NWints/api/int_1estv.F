@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.2 2000-01-04 00:15:04 windus Exp $
+c $Id: int_1estv.F,v 1.3 2000-01-25 20:00:11 mg201 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -24,6 +24,7 @@ c:tex-\end{verbatim}
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
+#include "geom.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
@@ -62,6 +63,7 @@ c:tex-\begin{verbatim}
       logical doV                ! [input] flag for potential energy integrals
 c:tex-\end{verbatim}
 c::local
+      logical ohnd_ok, onw_ok, onw1e_ok
       logical shells_ok, orel, oirel, ojrel, oNR, canAB
       integer i_geom, j_geom, ibas, jbas, ucont, uconts
       integer lbas, sbas, abas, isbas, jsbas
@@ -119,7 +121,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1eke: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -149,7 +151,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1eke: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -178,9 +180,29 @@ c
         write(luout,*)'j_basis geometry handle:',j_geom
         WarnP = 1
       endif
-        
-      if (cando_hnd_1e(i_basis,ish,0).and.cando_hnd_1e(j_basis,jsh,0)
-     &    .and..not.dyall_mod_dir) then
+
+      ohnd_ok = cando_hnd_1e(i_basis,ish,0)
+     &    .and. cando_hnd_1e(j_basis,jsh,0)
+     &    .and. (.not.geom_any_finuc (i_geom))
+     &    .and. (.not.geom_any_finuc (j_geom))
+      onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
+      onw1e_ok = cando_nw_1e(i_basis,ish,0)
+     &    .and. cando_nw_1e(j_basis,jsh,0)
+      if (orel) then
+        call rel_onel (
+     &      coords(1,i_cent,i_geom),
+     &      dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfpS,isbas)),i_prim,i_gen,Li,
+     &      coords(1,j_cent,j_geom),
+     &      dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfpS,jsbas)),j_prim,j_gen,Lj,
+     &      coords(1,1,i_geom),charge(1,i_geom),
+     &      geom_invnucexp(1,i_geom),ncenter(i_geom),
+     &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
+     &      scr,lscr,rel_dbg,rel_typ)
+      else if (ohnd_ok) then
         call hnd_stvint(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &      dbl_mb(mb_exndcf(i_icfp,ibas)),
@@ -191,23 +213,7 @@ c
      &      coords(1,1,i_geom),charge(1,i_geom),ncenter(i_geom),
      &      S,T,V,lstv,doS,doT,doV,scr,lscr)
 c
-      elseif (cando_nw_1e(i_basis,ish,0).and.
-     &        cando_nw_1e(j_basis,jsh,0)) then
-        if (orel) then
-          call rel_onel (
-     &        coords(1,i_cent,i_geom),
-     &        dbl_mb(mb_exndcf(i_iexp,ibas)),
-     &        dbl_mb(mb_exndcf(i_icfp,ibas)),
-     &        dbl_mb(mb_exndcf(i_icfpS,isbas)),i_prim,i_gen,Li,i_cent,
-     &        coords(1,j_cent,j_geom),
-     &        dbl_mb(mb_exndcf(j_iexp,jbas)),
-     &        dbl_mb(mb_exndcf(j_icfp,jbas)),
-     &        dbl_mb(mb_exndcf(j_icfpS,jsbas)),j_prim,j_gen,Lj,j_cent,
-     &        coords(1,1,i_geom),charge(1,i_geom),
-     &        geom_invnucexp(1,i_geom),ncenter(i_geom),
-     &        S,T,V,lstv,doS,doT,doV,canAB,oNR,.false.,
-     &        scr,lscr,'int_1eov',rel_dbg,rel_typ)
-        else
+      elseif (onw1e_ok) then
           call int_hf1sp(
      &        coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &        dbl_mb(mb_exndcf(i_icfp,ibas)),
@@ -219,9 +225,7 @@ c
      &        geom_invnucexp(1,i_geom),ncenter(i_geom),
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &        scr,lscr,'int_1eov')
-        end if
-      elseif (cando_nw(i_basis,ish,0).and.cando_nw(j_basis,jsh,0)
-     &      .and..not.dyall_mod_dir) then
+      elseif (onw_ok) then
         call hf1(
      &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
      &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
