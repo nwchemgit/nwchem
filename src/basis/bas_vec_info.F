@@ -1,6 +1,6 @@
       logical function bas_vec_info(basis, info)
 *
-* $Id: bas_vec_info.F,v 1.3 1997-10-31 20:23:19 d3e129 Exp $
+* $Id: bas_vec_info.F,v 1.4 1999-05-31 23:19:02 d3g681 Exp $
 *
       implicit none
 #include "bas.fh"
@@ -244,3 +244,31 @@ c$$$c
 c$$$      if (.not. bas_vec_info(basis, info)) call errquit('u',0)
 c$$$c
 c$$$      end
+      subroutine bas_print_labels(basis)
+      implicit none
+#include "mafdecls.fh"
+#include "bas.fh"
+      integer basis
+c
+      integer i, j, k_bftags, l_bftags, nbf
+c
+      if (.not. bas_numbf(basis, nbf)) call errquit
+     $     ('bas_print_labels: invalid basis handle',basis)
+      if (.not. ma_push_get(mt_byte,nbf*16,'bftags',
+     $     l_bftags,k_bftags))
+     $     call errquit('bas_print_labels: ma failed', nbf*16)
+      call bas_vec_info(basis, byte_mb(k_bftags))
+      write(6,*)
+      call util_print_centered(6, 'Basis function labels',
+     $     13, .true.)
+      write(6,780)
+ 780  format(4x,'   No.  Atm El Type'/
+     $       4x,'   ---  --- -- ----')
+      do i = 1, nbf
+         write(6,781) i, (byte_mb(k_bftags+(i-1)*16-1+j),j=1,16)
+ 781     format(4x,i5,4x,16a1)
+      enddo
+      if (.not. ma_pop_stack(l_bftags)) call errquit
+     $     ('bas_print_labels: ma corrupt after bas func labs',0)
+c
+      end
