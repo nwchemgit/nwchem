@@ -1,6 +1,8 @@
       subroutine dft_tstamp (name)
-C$Id: dft_tstamp.F,v 1.5 1995-11-22 07:32:06 d3e129 Exp $
-      implicit real*8 (a-h,o-z)
+C$Id: dft_tstamp.F,v 1.6 1995-12-20 03:53:24 og845 Exp $
+      implicit none
+
+
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
