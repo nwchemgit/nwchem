@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.143 2001-06-06 17:01:55 edo Exp $
+C     $Id: geom_input.F,v 1.144 2001-11-07 02:25:00 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -93,7 +93,7 @@ c
       oprint = .true.           ! Default is to print the geometry
       ozmatrix = .false.        ! Default is cartesian input
       oautoz   = .true.         ! Default is try -autoz-
-      oautosym = .false.        ! Default is don't try -autosym-
+      oautosym = .true.         ! Default is try -autosym-
       found_cart = .false.      ! Default is no cartesians in zmat
       osymmetry = .false.
       oprint_sym = .false.
@@ -4169,7 +4169,7 @@ c
      1                                          (C3(I,IAT),I=1,3)
          ENDDO
       ENDIF
-      IF(ONLY) THEN
+      IF(OUT) THEN
          WRITE(IW,9977)
          DO IAT=1,NAT
             WRITE(IW,9984) IAT,(C3(I,IAT),I=1,3)
