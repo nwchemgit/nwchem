@@ -11,7 +11,7 @@ peigs_stamp:	include_stamp
 
 
 # no include files needed
-include_stamp:
+include_stamp:	./h/blas_lapack.h
 	touch include_stamp
 
 clean:
