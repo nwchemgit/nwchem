@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.12 1996-10-20 06:10:04 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.13 1997-04-22 20:22:01 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -112,6 +112,7 @@ c::local
       integer bra_prim, ket_prim, ket_lim
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket, nat
+      integer bra_fact, ket_fact
 c
 #include "bas_exndcf_sfn.fh"
 c
@@ -135,9 +136,16 @@ c
       nat = ncenter(bra_geom)
 c
       do 00100 ibc = 1, bra_ucont
+        bra_fact = 1.0d00
+        ket_fact = 1.0d00
+c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_gen.gt.1) then
+          bra_gen = 1
+          bra_fact = 1.05d00
+        endif
         if (bra_type.lt.0) then
           bra_type = abs(bra_type)
           bra_gen  = 1
@@ -153,6 +161,10 @@ c
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_gen.gt.1) then
+            ket_gen = 1
+            ket_fact = 1.05d00
+          endif
           if (ket_type.lt.0) then
             ket_type = abs(ket_type)
             ket_gen  = 1
@@ -171,7 +183,7 @@ c
      &          dbl_mb(mb_exndcf(1,1)), dbl_mb(mb_exndcf(1,1)),
      &          nint, .true., .true., .true., .false., .true.,
      &          dbl_mb(mb_exndcf(1,1)), memdum)
-          memsize = max(memsize,memdum)
+          memsize = max(memsize,(bra_fact*ket_fact*memdum))
 00200   continue
 00100 continue
 c
@@ -224,6 +236,7 @@ c::local
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket
       integer bra_geom, ket_geom, nat
+      integer bra_fact, ket_fact
 *debug:-start-debug
 *debug:      integer fbra, fket, find
 *debug:-start-end
@@ -250,9 +263,16 @@ c
       nat = ncenter(bra_geom)
 c
       do 00100 ibc = 1, bra_ucont
+        bra_fact = 1.00d00
+        ket_fact = 1.00d00
+c
         bra_type = infbs_cont(CONT_TYPE,ibc,bra)
         bra_prim = infbs_cont(CONT_NPRIM,ibc,bra)
         bra_gen  = infbs_cont(CONT_NGEN,ibc,bra)
+        if (bra_gen.gt.1) then
+          bra_gen = 1
+          bra_fact = 1.05d00
+        endif
         if (bra_type.lt.0) then
           bra_type = abs(bra_type)
           bra_gen  = 1
@@ -268,6 +288,10 @@ c
           ket_type = infbs_cont(CONT_TYPE,ikc,ket)
           ket_prim = infbs_cont(CONT_NPRIM,ikc,ket)
           ket_gen  = infbs_cont(CONT_NGEN,ikc,ket)
+          if (ket_gen.gt.1) then
+            ket_gen = 1
+            ket_fact = 1.05d00
+          endif
           if (ket_type.lt.0) then
             ket_type = abs(ket_type)
             ket_gen  = 1
@@ -373,7 +397,7 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
 *debug:          write(luout,*)'===============================================',
 *debug:     &        '================================='
 *debug:-end-debug
-            memsize = max(memsize,memdum)
+            memsize = max(memsize,(bra_fact*ket_fact*memdum))
           endif
 00200   continue
 00100 continue
