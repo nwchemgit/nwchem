@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.77 2000-12-13 19:52:26 d3j191 Exp $
+c $Id: pre_input.F,v 1.78 2001-01-04 19:28:27 d3j191 Exp $
 c
       implicit none
 c
@@ -72,7 +72,7 @@ c
       newrst=0
       source=' '
       mgrid=24
-      rgrid=0.2d0
+      rgrid=0.4d0
       mnoe=0
       maxscf=0
       qscale=-1.0d0
@@ -1153,6 +1153,8 @@ c
       else
       write(68,6806) nkeepw,item(1:index(item,' ')-1)
  6806 format('wr_pdb solute ',i10,a)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       endif
       elseif(inp_compare(.false.,'xyz',item)) then
       if(.not.inp_a(item)) then
@@ -1160,6 +1162,8 @@ c
       else
       write(68,6824) nkeepw,item(1:index(item,' ')-1)
  6824 format('wr_xyz solute ',i10,a)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       endif
       elseif(index(item,'.pdb').gt.0) then
       write(68,6806) nkeepw,item(1:index(item,' ')-1)
@@ -1174,6 +1178,8 @@ c
       else
       write(68,6807) item(1:index(item,' ')-1)
  6807 format('wr_pdb ',a)
+      lwrcoo=.true.
+      numcmd=numcmd+1
       endif
       elseif(inp_compare(.false.,'rst',item)) then
       if(.not.inp_a(item)) then
@@ -1182,6 +1188,7 @@ c
       write(68,6808) item(1:index(item,' ')-1)
  6808 format('wr_rst ',a)
       lwrcoo=.true.
+      numcmd=numcmd+1
       endif
       elseif(inp_compare(.false.,'rst_old',item)) then
       if(.not.inp_a(item)) then
@@ -1190,6 +1197,7 @@ c
       write(68,6848) item(1:index(item,' ')-1)
  6848 format('wr_old ',a)
       lwrcoo=.true.
+      numcmd=numcmd+1
       endif
       elseif(inp_compare(.false.,'xyz',item)) then
       if(.not.inp_a(item)) then
@@ -1198,6 +1206,7 @@ c
       write(68,6823) item(1:index(item,' ')-1)
  6823 format('wr_xyz ',a)
       lwrcoo=.true.
+      numcmd=numcmd+1
       endif
       elseif(index(item,'.pdb').gt.0) then
       write(68,6807) item(1:index(item,' ')-1)
