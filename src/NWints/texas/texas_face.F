@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.20 1996-07-10 18:15:25 d3g681 Exp $
+c $Id: texas_face.F,v 1.21 1996-07-10 23:57:26 rg240 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -719,7 +719,7 @@ c setup common /cpu/ intsize,iacc,icache,memreal
 c
 c machine characteristics - integer size, cache memory, real fast
 c memory (as distinct from virtual memory)
-#if defined(SGITFP) || defined(KSR) || defined(CRAY) || defined(CRAY_T3D)
+#if defined(SGITFP) || defined(KSR) || defined(CRAY) || defined(CRAY_T3D) || defined(DECOSF)
       intsize=1
 #else
       intsize=2
