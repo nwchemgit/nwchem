@@ -14,7 +14,7 @@ c
       character*1 cdummy
       integer i,j,nat,naq,i_tmp,l_tmp,i_itmp,l_itmp
       integer naw,nbw,nhw,ndw,now,ntw,nnw
-      integer nas,nbs,num
+      integer nas,nbs,num,nparms,nseq
       character*5 sname,aname
 c
       ltop=.false.
@@ -35,29 +35,34 @@ c
      + form='formatted',status='old',err=999)
 c
       read(lfntop,1000,end=999,err=999) cdummy
-      read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
-      read(lfntop,1000) cdummy
  1000 format(a1)
+      read(lfntop,1000) cdummy
+      read(lfntop,1000) cdummy
+      read(lfntop,1000) cdummy
+      read(lfntop,1001) nparms
+ 1001 format(i5)
       read(lfntop,1001) nat
       read(lfntop,1001) naq
- 1001 format(i5)
-      do 1 i=1,nat
+      read(lfntop,1001) nseq
+      read(lfntop,1000) cdummy
+      do 1 i=1,nat*nparms
       read(lfntop,1000) cdummy
     1 continue
       do 2 i=1,nat
-      do 3 j=i,nat
+      do 3 j=i,nat*nparms
       read(lfntop,1000) cdummy
       read(lfntop,1000) cdummy
     3 continue
     2 continue
-      if(.not.ma_push_get(mt_dbl,naq,'tmp',l_tmp,i_tmp))
+      if(.not.ma_push_get(mt_dbl,naq*nparms,'tmp',l_tmp,i_tmp))
      + call errquit('Failed to allocate tmp',0)
-      do 4 i=1,naq
+      do 4 i=1,naq*nparms
       read(lfntop,1002) dbl_mb(i_tmp-1+i)
  1002 format(f12.6)
     4 continue
+      do 55 i=1,nseq
+      read(lfntop,1000) cdummy
+   55 continue
       read(lfntop,1003) naw,nbw,nhw,ndw,now,ntw,nnw
  1003 format(5i7,2i10)
       read(lfntop,1003) nas,nbs
@@ -67,15 +72,17 @@ c
       write(44,2003) naw,nas,nbs
  2003 format(3i10)
       do 7 i=1,naw
-      read(lfntop,1005) sname,aname,num,j
+      read(lfntop,1005) sname,aname
       write(44,2004) sname,aname
  2004 format(2a5,i6)
     7 continue
       do 19 i=1,nbw
       read(lfntop,'(2i7)') ibndw(i,1),ibndw(i,2)
+      do 119 j=1,nparms
       read(lfntop,1000) cdummy
+  119 continue
    19 continue
-      nat=2*(nhw+ndw+now)
+      nat=(nhw+ndw+now)*(nparms+1)
       do 5 i=1,nat
       read(lfntop,1000) cdummy
     5 continue
@@ -89,6 +96,9 @@ c
       read(lfntop,1004) (j,i=1,nnw)
       endif
       read(lfntop,1000) cdummy
+      do 20 i=1,nparms
+      read(lfntop,1000) cdummy
+   20 continue
       if(.not.ma_push_get(mt_int,nas,'itmp',l_itmp,i_itmp))
      + call errquit('Failed to allocate itmp',0)
       do 6 i=1,nas
@@ -106,10 +116,12 @@ c
     6 continue
       do 8 i=1,nbs
       read(lfntop,1006) j,num
+ 1006 format(2i7)
       ibnd(i,1)=j
       ibnd(i,2)=num
+      do 108 j=1,nparms
       read(lfntop,1000) cdummy
- 1006 format(2i7)
+  108 continue
       write(44,2005) j,num
  2005 format(2i8)
       if(int_mb(i_itmp-1+j).ne.int_mb(i_itmp-1+num)) then
