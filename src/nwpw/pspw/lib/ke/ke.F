@@ -1,7 +1,7 @@
 
       subroutine ke_init()
 *
-* $Id: ke.F,v 1.1 2001-08-30 00:35:12 edo Exp $
+* $Id: ke.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
 *
       implicit none 
 
@@ -159,7 +159,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.1 2001-08-30 00:35:12 edo Exp $
+* $Id: ke.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
 *
       implicit none 
       integer ispin,ne(2)
@@ -256,11 +256,12 @@ c     real*8 G(nfft3d,3)
          Aus(s,u) = Aus(u,s)
       end do
       end do
+      if (ispin.eq.1) call dscal(9,2.0d0,Aus,1)
 
 *     *** calculate euv = -Sum(s) hm(s,v)*Aus(u,s)
       call dcopy(9,0.0d0,0,euv,1)
-      do u=1,3
       do v=1,3
+      do u=1,3
          do s=1,3
             euv(u,v) = euv(u,v) - Aus(u,s)*hm(s,v) 
          end do

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.1 2001-08-30 00:25:12 edo Exp $
+* $Id: cpsdv5.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -137,8 +137,10 @@
       character*12 control_boundry
       external     control_boundry
 
+      logical      pspw_SIC,pspw_SIC_relaxed
       logical      psp_semicore,control_Mulliken,Waterpsp_found
       real*8       psp_rcore,psp_ncore,psp_rlocal
+      external     pspw_SIC,pspw_SIC_relaxed
       external     psp_semicore,control_Mulliken,Waterpsp_found
       external     psp_rcore,psp_ncore,psp_rlocal
 
@@ -567,12 +569,16 @@
          write(6,1440) E(2),E(2)/n2(ispin)
          write(6,1450) E(3),E(3)/n2(ispin)
          write(6,1460) E(4),E(4)/n2(ispin)
+         if (pspw_SIC())
+     >     write(6,1455) E(14),E(14)/n2(ispin)
          write(6,1470) E(5),E(5)/ion_nion()
          write(6,1480) E(6),E(6)/n2(ispin)
          write(6,1490) E(7),E(7)/n2(ispin)
          write(6,1495) E(8),E(8)/n2(ispin)
          write(6,1496) E(9),E(9)/n2(ispin)
          write(6,1497) E(10),E(10)/n2(ispin)
+         if (pspw_SIC().and.pspw_SIC_relaxed())
+     >     write(6,1499) E(15),E(15)/n2(ispin)
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(6,1498) virial
  
@@ -781,6 +787,7 @@
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
+ 1455 FORMAT( ' SIC       energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
@@ -789,6 +796,7 @@
  1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
+ 1499 FORMAT( ' K.S. SIC  energy    :',E19.10,' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)

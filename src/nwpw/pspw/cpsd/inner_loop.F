@@ -19,7 +19,7 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
 *
-* $Id: inner_loop.F,v 1.1 2001-08-30 00:25:12 edo Exp $
+* $Id: inner_loop.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -73,10 +73,12 @@ c     real*8     fion(3,natmx)
 
 *     ***** external functions ****
       logical  control_move,psp_semicore,Waterpsp_found
+      logical  pspw_SIC,pspw_SIC_relaxed
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e,psp_amass
       external control_move,psp_semicore,Waterpsp_found
+      external pspw_SIC,pspw_SIC_relaxed
       external ion_nion,control_gga
       external control_time_step,control_fake_mass,ion_dti
       external lattice_omega,coulomb_e,ewald_e,psp_amass
@@ -538,6 +540,18 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
          E(11) = e_elc_water
          E(12) = e_ion_water
          E(13) = e_water_water
+      end if
+
+*     **** SIC corrections ****
+      if (pspw_SIC()) then
+         call pspw_energy_SIC(exc,pxc)
+         E(1) = E(1) + exc
+         E(14) = exc
+         E(15) = 0.0d0
+         if (pspw_SIC_relaxed()) then
+            E(1)  = E(1) - pxc
+            E(15) = pxc
+         end if
       end if
 
 

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.1 2001-08-30 00:25:11 edo Exp $                       
+c     $Id: cgsd_energy.F,v 1.2 2001-09-29 00:28:06 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -352,15 +352,15 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     **** Kinetic energy component : dE_kin/dhuv ****
       call psi_1ke_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-c     write(*,*) "KE "
-c     call write_stress(stress)
+      write(*,*) "KE "
+      call write_stress(tstress)
 
 
 *     **** Coulomb energy component : dE_Coul/dhuv ****
       call psi_1coulomb_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-c     write(*,*) "+coulomb"
-c     call write_stress(stress)
+      write(*,*) "+coulomb"
+      call write_stress(tstress)
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
 *     call electron_semicore_stress(tstress)
@@ -369,26 +369,33 @@ c     call write_stress(stress)
 *     **** Local pseudo energy component : dE_local/dhuv ****
       call dng_1vlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-c     write(*,*) "+local"
-c     call write_stress(stress)
+      write(*,*) "+local"
+      call write_stress(tstress)
 
 *     **** Nonlocal pseudo energy component : dE_nolocal/dhuv ****
+      call dcopy(9,0.0d0,0,tstress,1)
       call psi_1vnonlocal_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-c     write(*,*) "nonlocal"
-c     call write_stress(tstress)
+      write(*,*) "nonlocal"
+      call write_stress(tstress)
 
 *     **** xc energy component : dE_xc/dhuv ****
+      call dcopy(9,0.0d0,0,tstress,1)
+      write(*,*) " xc 0"
+      call write_stress(tstress)
       call rho_1exc_stress(tstress)
+      write(*,*) " xc a"
+      call write_stress(tstress)
+
       call daxpy(9,1.0d0,tstress,1,stress,1)
-c     write(*,*) "+xc"
-c     call write_stress(stress)
+      write(*,*) " xc"
+      call write_stress(tstress)
 
 *     **** Ewald energy component : dE_ewald/dhuv ****
       call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
-c     write(*,*) "+ewald"
-c     call write_stress(stress)
+      write(*,*) "+ewald"
+      call write_stress(tstress)
 
 **     **** define ht ****
 *      do v=1,3

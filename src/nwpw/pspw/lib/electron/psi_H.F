@@ -3,7 +3,7 @@
      >                 move,fion)
 
 *
-* $Id: psi_H.F,v 1.1 2001-08-30 00:33:39 edo Exp $
+* $Id: psi_H.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -34,7 +34,9 @@ c     complex*16 vpsi(nfft3d)
 
 
 *     **** external functions ****
+      logical  pspw_SIC,pspw_SIC_relaxed
       real*8   lattice_omega
+      external pspw_SIC,pspw_SIC_relaxed
       external lattice_omega
 
 *     ***** timing variables *****
@@ -93,6 +95,12 @@ c     complex*16 vpsi(nfft3d)
 *     **************************
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
 
+*     **************************
+*     **** SIC corrections?? ***
+*     **************************
+      if (pspw_SIC().and.pspw_SIC_relaxed()) then
+         call pspw_potential_SIC(ispin,psi_r,Hpsi_k)
+      end if
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****

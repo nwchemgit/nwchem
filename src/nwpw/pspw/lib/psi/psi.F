@@ -1108,6 +1108,9 @@ c    >                            dcpl_mb(dng1(1)))
          stress(u,v) = (exc-pxc)*hm(u,v)
       end do
       end do
+      write(*,*) "hm(1,1):",hm(1,1),1.0d0/hm(1,1)
+      write(*,*) "exc:",exc,pxc
+      write(*,*) "D:",stress(1,1)
 
 *     **** GGA part ****
 *     **** not finished ****

@@ -3,7 +3,7 @@
      >                 move,fion)
 
 *
-* $Id: psi_Hv4.F,v 1.1 2001-08-30 00:33:39 edo Exp $
+* $Id: psi_Hv4.F,v 1.2 2001-09-29 00:28:07 bylaska Exp $
 *
       implicit none
       integer    ispin,ne(2)
@@ -53,9 +53,6 @@ c     complex*16 vpsi(nfft3d)
 *    12 - allocate/deallocate time
       real*8 times(50),tim1,tim2
       common / timing / times
-
-
-
 
 
       call Pack_npack(1,npack1)

@@ -1,5 +1,7 @@
 *     **** PSPW_SIC common block ****
-      real*8  rcut
+      logical relaxed
+      real*8  rcut,e_sic,p_sic
       integer norbs
       integer orbital_list(2)
-      common / PSPW_SIC_Block / rcut,orbital_list,norbs
+      common / PSPW_SIC_Block / e_sic,p_sic,rcut,
+     >                          orbital_list,norbs,relaxed
