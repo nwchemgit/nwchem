@@ -82,6 +82,8 @@ c --
       integer map1(nd3), map2(nd3), doMap
       integer d1, d2, d3
       double precision fftime(2), util_wallsec
+      integer idum(1)
+      double precision rdum(1)
 c------------------------------
 c     print*,me,' enters fft3 with: ',id1,id2,id3
  
@@ -116,13 +118,15 @@ c     *initialize scratch arrays y1 and y2
 c ** forward fft
       doMap = 1
       isign = 1
-      call nwfft3d(id1,id2,id3,isign,x1,x2,map1,map2,doMap,istatus)
+      call nwfft3d(id1,id2,id3,isign,x1,x2,map1,map2,doMap,
+     .             0,idum,0,rdum,istatus)
 
 
 c ** reverse fft
       doMap = 0
       isign = -1
-      call nwfft3d(id1,id2,id3,isign,x2,x3,map1,map2,doMap,istatus)
+      call nwfft3d(id1,id2,id3,isign,x2,x3,map1,map2,doMap,
+     .             0,idum,0,rdum,istatus)
 
 #ifdef FFTTIME
       fftime(2) = util_wallsec()
