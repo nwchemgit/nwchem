@@ -45,7 +45,7 @@ C
 C     Rik Littlefield, 1/16/91.
 C
 #ifdef ALOG
-#include "alogevents.h"
+      include 'alogevents.h'
 #endif
       subroutine mxtime( job, xtime )
       double precision xtime
@@ -85,7 +85,7 @@ c            used by the diagonalizer is 'ialnod', meaning "all nodes".)
 c
 
       common /xpress/ nocare, norder, nonode, ihost, ialnod, ialprc
-#include "mxsubs.h"
+      include 'mxsubs.h'
       integer ienv(4)
 #ifdef ALOG
 #include "alogf.h"
@@ -183,7 +183,7 @@ c
       integer nodeid, nnodes, mynodes, numnodes
 #include "mxsubs.h"
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef iPSC_NATIVE
@@ -293,7 +293,7 @@ c
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR, STATUS(MPI_STATUS_SIZE)
 #endif
 #ifdef TIMING
@@ -313,7 +313,7 @@ c      stop 999
 #endif
 #ifdef TCGMSG
         icopy = mxmynd() + 100*iproc
-	icopy = mod(icopy, 399) + 25001
+	icopy = mod(icopy, 32767) + 1
 c      write(*,*) ' me ', mxmynd(), ' rcv ', iproc, ' isize ',
 c     $     isize, ' itype ', itype
       call rcv(icopy, data, isize, len, iproc, ifrom, 1)
@@ -332,9 +332,7 @@ c
 	call crecv (10000*iproc+me,data,isize)
 #endif
 #ifdef MPI
-c      icopy = mod(itype, 32767) + 1
-c      icopy = mod(icopy, 999) + 10001
-      icopy = mod(icopy, 399) + 25001
+      icopy = mod(itype, 32767) + 1
       CALL MPI_RECV( DATA, ISIZE, MPI_BYTE, IPROC, ICOPY,
      $               MPI_COMM_WORLD, STATUS, IERROR )
 
@@ -388,7 +386,7 @@ c
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef TIMING
@@ -408,9 +406,7 @@ c
 c	write(*,*) ' me ', mxmynd(), 'snd ', iproc,  ' isize ',
 c     $ 	    isize, ' itype ', itype
 c
-c	icopy = mod(icopy, 32767) + 1
-c	icopy = mod(icopy, 999) + 10001
-      icopy = mod(icopy, 399) + 25001
+	icopy = mod(icopy, 32767) + 1
 c
 c to get within range of tcgmsg message types
 c
@@ -418,9 +414,7 @@ c
       mxwrit = isize
 #endif
 #ifdef MPI
-c      icopy = mod(itype, 32767) + 1
-c	icopy = mod(icopy, 999) + 10001
-      icopy = mod(icopy, 399) + 25001
+      icopy = mod(itype, 32767) + 1
       CALL MPI_SEND( DATA, ISIZE, MPI_BYTE, IPROC, ICOPY,
      $               MPI_COMM_WORLD, IERROR )
 
@@ -464,7 +458,7 @@ c
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef UNIPROC
@@ -534,11 +528,11 @@ c.      write (*,*) me,' in mxsync returned from sync0'
       call alogfg (ipid, AE_SYNC, 0, sdata, 0)
 #endif
 #ifdef TCGMSG
-      ijunk = 25401
-      call synch(ijunk)
-      mxsync = 0
+	ijunk = 1000*mxnprc() + 1
+	call synch(ijunk)
+        mxsync = 0
 #endif
-      mxsync = 0
+	mxsync = 0
       return
       end
 
@@ -581,7 +575,7 @@ c.      call mxsync ()
 #include "alogf.h"
 #endif
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
 #endif
 #ifdef PICL
@@ -678,7 +672,7 @@ c	external clock
 
 	subroutine mxend
 #ifdef MPI
-#include "mpif.h"
+	include 'mpif.h'
       INTEGER IERROR
       CALL MPI_FINALIZE( IERROR )
 
@@ -688,11 +682,11 @@ c	external clock
       ENDIF
 #endif
 #ifdef PICL
-      call close0(1)
+	call close0(1)
 #endif
 #ifdef TCGMSG
-      call pend()
+	call pend()
 #endif
-      return
-      end	
+	return
+	end	
 
