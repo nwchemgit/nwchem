@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.72 2000-04-14 19:58:31 d3j191 Exp $
+c $Id: md_main.F,v 1.73 2000-04-21 17:40:09 d3j191 Exp $
 c
       implicit none
 c
@@ -1461,6 +1461,21 @@ c
      + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
       call timer_stop(10)
 c
+      if(ipme.gt.0) then
+      if(lpert2) then
+      call pme_energy(2,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
+     + isl(1,lsct1),nsaloc,epme(2))
+      call pme_init()
+      endif
+      if(lpert3) then
+      call pme_energy(3,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
+     + isl(1,lsct1),nsaloc,epme(3))
+      call pme_init()
+      endif
+      call pme_chgrid(iset,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
+     + isl(1,lsct1),nsaloc,epme(iset))
+      endif
+c
       return
       end
       subroutine md_forces(iwl,isl,xw,xwm,xs,fw,fs)
@@ -1583,26 +1598,11 @@ c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer nbbl
 c
-      if(ipme.gt.0) then
-      if(lpert2) then
-      call pme_energy(2,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
-     + isl(1,lsct1),nsaloc,epme(2))
-      call pme_init()
-      endif
-      if(lpert3) then
-      call pme_energy(3,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
-     + isl(1,lsct1),nsaloc,epme(3))
-      call pme_init()
-      endif
-      call pme_chgrid(iset,dbl_mb(i_xw),nwmloc,dbl_mb(i_xs),
-     + isl(1,lsct1),nsaloc,epme(iset))
-      endif
-c
       locali=.true.
       call timer_start(13)
 c
-      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
-     + isl(1,lsatt),isl(1,lsmol),dbl_mb(i_xs),dbl_mb(i_xsm))
+cx      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+cx     + isl(1,lsatt),isl(1,lsmol),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
       if(ipolt.gt.0) then
       call md_induce(iwl,isl,xw,xwm,xs,dbl_mb(i_pw),
@@ -1969,7 +1969,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.72 2000-04-14 19:58:31 d3j191 Exp $
+c $Id: md_main.F,v 1.73 2000-04-21 17:40:09 d3j191 Exp $
 c
       implicit none
 c
