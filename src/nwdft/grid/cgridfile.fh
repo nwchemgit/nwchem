@@ -1,0 +1,82 @@
+*
+* $Id: cgridfile.fh,v 1.1 1999-04-23 16:30:27 d3h449 Exp $
+*
+c
+c     Internal common for grid routines
+c     
+c     want to dynamically allocate most of this soon
+c     
+      double precision values   ! Buffer for grid_pt values
+      integer n_in_rec          ! No. of entries in buffer
+      integer next_value        ! Next value to be read/inserted
+      integer n_rec_in_file     ! No. of records in file
+      integer cur_rec           ! Current record no. (1, 2, ...)
+      integer cur_rec_ctr       ! Atom center of current record
+      integer buffer_size       ! Size of buffer ... MUST BE EVEN
+      integer n_per_rec         ! No. of grid_pts a buffer can hold
+      integer rec_len_in_dbl    ! Size of total record in doubles
+      character*256 actualname  ! Name of file
+      logical otrace            ! True if debugging enabled
+      logical oinfo             ! True if to print brief info
+      integer l_cache, k_cache  ! MA space for grid_pt cache
+      integer max_file_rec      ! Max no. of records to put in file
+      integer max_cache_rec     ! Max no. of records to put in cache
+      logical file_opened       ! True if a physical file is open
+c
+      logical oasyncio          ! If true use asynchronous IO
+      logical oiopending        ! If true asynchronous IO is pending
+      integer aioreq            ! EAF handle to AIO request
+c
+      integer fd                ! CHEMIO fd
+c
+      integer posinfo           ! Used to record current position
+c
+      double precision buf      ! Compressed buffer for IO only
+      integer n_in_buf          ! n_in_rec info for this buf
+      integer pad               ! Padding for 32 bit machines
+c
+      double precision buf2     ! Compressed buffer for IO only - ASYNC
+      integer n_in_buf2         ! n_in_rec info for this buf    - ASYNC
+      integer pad2              ! Padding for 32 bit machines   - ASYNC
+c
+#ifdef CRAY_T3D
+c     save on memory since have only physical memory
+      parameter (buffer_size = 8192)
+#else
+      parameter (buffer_size = 32768)
+#endif
+c
+      common/cgridbuf/
+     $     buf(4,buffer_size),
+     $     n_in_buf, pad
+c
+      common/cgridbuf2/
+     $     buf2(4,buffer_size),
+     $     n_in_buf2, pad2
+c
+      common/cgridfile/
+     $     values(4,buffer_size),
+     $     n_in_rec
+c
+      common/cgridinfo/
+     $     n_rec_in_file,
+     $     n_per_rec,
+     $     cur_rec,
+     $     cur_rec_ctr,
+     $     rec_len_in_dbl,
+     $     next_value,
+     $     otrace,
+     $     oinfo,
+     $     file_opened,
+     $     l_cache, k_cache,
+     $     max_file_rec, max_cache_rec,
+     $     fd,
+     $     oasyncio,
+     $     oiopending,
+     $     aioreq,
+     $     posinfo(16)
+c
+      common/ccgridinfo/
+     $     actualname
+c
+
