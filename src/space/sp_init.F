@@ -1926,12 +1926,12 @@ c
       if(lvw) then
       do 6 i=1,numw
       write(lfntrj,1004) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
- 1004 format(6f13.8)
+ 1004 format(6f8.3)
     6 continue
       else
       do 7 i=1,numw
       write(lfntrj,1005) ((bxw(i,j,k),j=1,3),k=1,nwa)
- 1005 format(3f13.8)
+ 1005 format(3f8.3)
     7 continue
       endif
     1 continue
@@ -1971,12 +1971,12 @@ c
       if(lvs) then
       do 11 i=1,nums
       write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
- 1006 format(6f13.8)
+ 1006 format(6f8.3)
    11 continue
       else
       do 12 i=1,nums
       write(lfntrj,1007) (bxs(i,j),j=1,3)
- 1007 format(3f13.8)
+ 1007 format(3f8.3)
    12 continue
       endif
     8 continue
