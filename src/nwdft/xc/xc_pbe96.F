@@ -1,8 +1,8 @@
-      Subroutine xc_pbe96(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
+      Subroutine xc_cpbe96(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c$Id: xc_pbe96.F,v 1.2 1998-03-24 22:46:32 d3h449 Exp $
+c$Id: xc_pbe96.F,v 1.3 1999-01-04 19:12:45 edo Exp $
 c
       Implicit none
 c
