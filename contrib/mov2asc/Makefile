@@ -1,5 +1,5 @@
 # Makefile for movecs <--> ASCII translators
-# $Id: Makefile,v 1.5 2002-03-13 18:38:01 windus Exp $
+# $Id: Makefile,v 1.6 2004-08-02 11:25:04 edo Exp $
 
 # Tested on KSR, Cray-T3D
 # Requires NWCHEM_TARGET to be set.
@@ -31,7 +31,10 @@ ifeq ($(NWCHEM_TARGET),IBM)
 else
    CPPFLAGS = -I../../src/tools/include			# Needs MA includes
 endif
-LDFLAGS = -L../../src/tools/lib/${NWCHEM_TARGET} -lma	# Needs MA library
+LDFLAGS = -L../../src/tools/lib/${NWCHEM_TARGET} -lma -larmci	# Needs MA library
+ifeq ($(USE_MPI),y)
+LDFLAGS += -L${MPI_LIB} ${LIBMPI}
+endif
 
 all:    mov2asc asc2mov
 
