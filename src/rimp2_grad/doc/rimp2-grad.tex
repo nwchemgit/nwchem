@@ -500,8 +500,8 @@ The matrix $L^4_{pq}$ can be computed in one direct Fock build in
 the AO basis as follows.
 \begin{eqnarray}
   T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
-  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right) \\ L^4_{pq} &
-  = & J[T]_{pq} - K[T]_{pq}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right)^{-1} \\
+  L^4_{pq} & = & J[T]_{pq} - K[T]_{pq}
 \end{eqnarray}
 $J$ and $K$ being the usual Coulomb and exchange matrices and $T$
 being a symmetric effective density.
@@ -1045,8 +1045,8 @@ integrals.
 \end{eqnarray}
 \begin{eqnarray}
   T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
-  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right) \\ L^4_{pq} &
-  = & J[T]_{pq} - K[T]_{pq}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right)^{-1} \\
+  L^4_{pq} & = & J[T]_{pq} - K[T]_{pq}\\
 \end{eqnarray}
 
 \begin{equation}
@@ -1089,8 +1089,8 @@ the need to store any four-index quantities.
 
 \begin{eqnarray}
   T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
-  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right) \\ L^4_{pq} &
-  = & J[T]_{pq} - K[T]_{pq}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right)^{-1} \\
+   L^4_{pq} & = & J[T]_{pq} - K[T]_{pq}
 \end{eqnarray}
 
 \begin{eqnarray}
@@ -1201,6 +1201,7 @@ $\Gamma^{NS}$ contribution can be further contracted, so that only the
 $V^{x}_{\Phi\Omega}$ itself remains to contracted.  This entirely
 avoids the backtransformation, but it is not yet clear if this step is
 useful in practice or not.
+
 
 \end{changebar}
 
