@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.59 1997-02-27 23:49:23 d3g681 Exp $
+C$Id: geom.F,v 1.60 1997-03-05 07:36:32 gutowski Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -260,11 +260,12 @@ c
       integer geom              ! [input]
       character*(*) name        ! [input]
 c     
+      double precision scale
       character*256 tmp
       integer k, nelem, ma_type
       logical status
-      logical geom_check_handle, geom_rtdb_in
-      external geom_check_handle, geom_rtdb_in
+      logical geom_check_handle, geom_rtdb_in, geom_get_user_scale
+      external geom_check_handle, geom_rtdb_in, geom_get_user_scale
 c     
       geom_rtdb_load = geom_check_handle(geom, 'geom_rtdb_load')
       if (.not. geom_rtdb_load) return
@@ -407,14 +408,21 @@ c
       active(geom) = .true.
       geom_rtdb_load = .true.
 c
+c periodic systems: find conversion factor for geometrical parameters
+c
+      if (isystype(geom) .gt. 0) then 
+        if (.not. geom_get_user_scale(geom,scale))
+     $       call errquit('geom_rtdb_load: failed getting user scale',0)
+      endif
+c
 c setup geometry related stuff particular to the dimension of the system
 c
       if (isystype(geom) .eq. 3) then
-         call geom_3d(geom)
+         call geom_3d(geom,scale)
       elseif(isystype(geom).eq.2) then
-         call geom_2d(geom)
+         call geom_2d(geom,scale)
       elseif(isystype(geom).eq.1) then
-         call geom_1d(geom)
+         call geom_1d(geom,scale)
       endif
 c
 *      do node = 0, ga_nnodes()-1
@@ -1117,7 +1125,10 @@ c
 c     ... it would be nice to have one routine that prints all
 c     possible geometries but ...
 c
-      if (isystype(geom) .ne. 0) return
+      if (isystype(geom) .ne. 0) then 
+        geom_print = .true.
+        return
+      endif
 c     
       if (.not. geom_get_user_scale(geom, scale))
      $     call errquit('geom_print: user units?',0)

@@ -59,17 +59,18 @@ c    the geometry
 c
 c --> Important Conventions
 c
-c    The lattice constants are input and stored in Angstroms and Degrees
+c     The lattice angles are input in Degrees
 c
 c                                                   AC Hess
 c***********************************************************************
-      subroutine geom_2d(geom)
+      subroutine geom_2d(geom,c2au)
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "geomP.fh"
 c
       integer geom,i,j
+      double precision c2au
       double precision cdist(3),cang(3),gmat(3,3),amat(3,3),vol
       double precision c3,s3,rad,ainv(3,3)
       double precision pi,bmat(3,3)
@@ -81,7 +82,7 @@ c
 c--> get direct space lattice vectors
 c
       do 100 i=1,2
-        cdist(i)=lattice_vectors(i,geom)*angstrom_to_au
+        cdist(i)=lattice_vectors(i,geom)*c2au
   100 continue
         cang(3) =lattice_angles(3,geom)/rad
 c

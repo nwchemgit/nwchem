@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.54 1997-02-27 23:49:26 d3g681 Exp $
+C     $Id: geom_input.F,v 1.55 1997-03-05 07:36:37 gutowski Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -199,7 +199,7 @@ c
             goto 20
          else if (inp_compare(.false.,'system', field)) then
             osymmetry = .true.
-            call geom_sys_input(geom)
+            call geom_sys_input(geom,scale)
             goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
             call geom_autoz_input(rtdb)
@@ -264,7 +264,7 @@ c
          call errquit('geom_input: premature end of file', 0)
       end if
 c     
-c     Apply requested conversion of units after we have
+c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
  30   if (.not. geom_systype_get(geom, isys)) call errquit
@@ -276,10 +276,7 @@ c
      $           f12.9/' (inverse scale = ',f12.9,')',/)
             call dscal(3*ncenter, scale, coords, 1)
          end if
-      else if (isys .gt. 0) then
-         if (scale .ne. 1.0d0) call errquit
-     $        ('geom_input: specified units for fractional coords', 0)
-      else
+      else if (isys .lt. 0) then
          call errquit('geom_input: invalid system type', 0)
       end if
 c     
@@ -293,7 +290,7 @@ c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c     
       nata=ncenter
-      call sym_nwc(geom,rtdb,nata,oprint_sym)
+      call sym_nwc(geom,rtdb,nata,oprint_sym,scale)
 c     
 c     Center origin at the center of charge if requested
 c     
@@ -358,7 +355,7 @@ c
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
       end
-      subroutine geom_sys_input(geom)
+      subroutine geom_sys_input(geom,scale)
       implicit none
 #include "geom.fh"
 #include "geomP.fh"
@@ -366,6 +363,9 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
       integer geom
 c
       integer nopt_system, ntokens, ind
+c
+      double precision scale
+c
       double precision value
       logical status
       parameter (nopt_system=4, ntokens=7)
@@ -433,12 +433,12 @@ c
 c--> 2d and 1d systems not active yet
 c
    30 if(isystype(geom).eq.3) then
-        call geom_3d(geom)
-        status = geom_set_user_units(geom,'fractional')
+        call geom_3d(geom,scale)
+c        status = geom_set_user_units(geom,'fractional')
       elseif (isystype(geom).eq.2) then
-        call geom_2d(geom)
+        call geom_2d(geom,scale)
       elseif (isystype(geom).eq.1) then
-        call geom_1d(geom)
+        call geom_1d(geom,scale)
       end if
       return
       end

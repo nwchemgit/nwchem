@@ -13,16 +13,17 @@ c 4) computes reciprocal space lattice constants & volume
 c
 c --> Important Conventions
 c
-c     The lattice constants are input and stored in Angstroms and Degrees
+c     The lattice angles are input in Degrees
 c***********************************************************************
-      subroutine geom_3d(geom)
-C$Id: geom_3d.F,v 1.4 1996-07-12 23:47:05 gutowski Exp $
+      subroutine geom_3d(geom,c2au)
+C$Id: geom_3d.F,v 1.5 1997-03-05 07:36:34 gutowski Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "geomP.fh"
 c
       integer geom,i,j,iang,indx(3)
+      double precision c2au
       double precision cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol
       double precision c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),rang(3)
       double precision bmat(3,3),scale,pi
@@ -34,7 +35,7 @@ c
 c--> get direct space lattice vectors
 c
       do 100 i=1,3
-        cdist(i)=lattice_vectors(i,geom)*angstrom_to_au
+        cdist(i)=lattice_vectors(i,geom)*c2au
         cang(i) =lattice_angles(i,geom)/rad
   100 continue
 c

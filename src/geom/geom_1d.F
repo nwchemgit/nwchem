@@ -1,4 +1,4 @@
-      subroutine geom_1d(geom)
+      subroutine geom_1d(geom,c2au)
 c
       implicit none
 #include "inp.fh"
@@ -6,6 +6,7 @@ c
 #include "geomP.fh"
 c
       integer geom
+      double precision c2au
       write(*,*) 'SYSTYPE=POLYMER IS NOT A VALID OPTION AT THIS TIME'
 c
       call errquit('geom_1d:invalid system type',isystype(1))
