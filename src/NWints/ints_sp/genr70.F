@@ -1,6 +1,6 @@
       subroutine genr70(bra, ish, xi, jsh, xj, ket, ksh, xk, lsh, xl,
      $     eri)
-c $Id: genr70.F,v 1.2 1994-04-08 20:35:14 d3g681 Exp $
+c $Id: genr70.F,v 1.3 1994-08-19 01:22:47 d3g681 Exp $
 c
 c     Generic interface to the gaussian two electron integral package.
 c     Evaluates those integrals involving only s, p and sp functions.
@@ -35,8 +35,10 @@ c
       double precision x(3,4)   ! used to permute coordinates
       double precision gout(256) ! Internal integral buffer
 c
+#ifdef BASIS_DEBUG
       logical bas_check_handle
       external bas_check_handle
+#endif
       save firstcall
       data firstcall /.true. /
 c
@@ -47,9 +49,11 @@ c
 c
 c     check basis handles, prepare to get data from basis structures
 c
+#ifdef BASIS_DEBUG
       if (.not. (bas_check_handle(bra,'genr70 bra') .and.
      $     bas_check_handle(ket,'genr70 ket'))) call errquit
      $     ('genr70: invalid bra/ket basis ', 0)
+#endif
       bas(1) = bra + BASIS_HANDLE_OFFSET
       bas(2) = bra + BASIS_HANDLE_OFFSET
       bas(3) = ket + BASIS_HANDLE_OFFSET

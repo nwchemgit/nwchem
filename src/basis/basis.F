@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.23 1994-08-03 06:40:30 d3g681 Exp $
+c $Id: basis.F,v 1.24 1994-08-19 01:23:16 d3g681 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1219,8 +1219,11 @@ c::passed
 c::local 
       integer basis
 c
+      bas_cn2bfr = .true.
+#ifdef BASIS_DEBUG      
       bas_cn2bfr = bas_check_handle(basisin,'bas_cn2bfr')
       if(.not.bas_cn2bfr) return
+#endif
 c
       basis = basisin + BASIS_HANDLE_OFFSET
       bas_cn2bfr = cont.gt.0 .and. cont.le.ncont_tot_gb(basis)
@@ -1279,8 +1282,11 @@ c::passed
 c::local 
       integer basis, nat
 c
+      bas_ce2cnr = .true.
+#ifdef BASIS_DEBUG
       bas_ce2cnr = bas_check_handle(basisin,'bas_ce2cnr')
       if(.not.bas_ce2cnr) return
+#endif
 c
       basis = basisin + BASIS_HANDLE_OFFSET
       bas_ce2cnr = geom_ncent(ibs_geom(basis),nat)
