@@ -124,7 +124,7 @@ c   Initialize DetCI internals
 c
       call detci_init( nact, nela, nelb, nsym, symstate,
      $                 actsym, iprint, acteps,
-     $                 dbl_mb(k_h1), dbl_mb(k_eri) )
+     $                 dbl_mb(k_h1), dbl_mb(k_eri))
 c
 c   Create CI-vectors
 c

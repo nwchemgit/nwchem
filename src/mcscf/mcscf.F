@@ -47,7 +47,7 @@ c
 c     
       character*255 title, movecs_in
 c     
-      integer maxop, maxireps
+      integer maxop, maxireps, nci
       parameter (maxop = 120, maxireps=20)
       integer nop, nir,  class_dim(maxireps)
       character*8 zir(maxireps), zclass(maxireps), zname
@@ -61,7 +61,7 @@ c
       external movecs_converged
       logical int_normalize
       external int_normalize
-      logical moints_aodisk_init
+      logical moints_aodisk_init, status, detci_memsiz
       external moints_aodisk_init
 c
       character*1 mchar(9)
@@ -288,6 +288,11 @@ c
       if (nmixed .ne. 0) call errquit(
      $     'mcscf: symmetry contamination in starting MOs', nmixed)
       call ga_orthog_mos(basis, g_movecs)
+c
+      status = detci_memsiz(nact, nela, nelb, nsym,
+     $     int_mb(k_sym+nclosed), nci )
+      if (oprinfo) write(6,7761) nci
+ 7761 format(7x,'No. of determinants:'6x,i8/)
 c     
 c     Print orbital info
 c     
@@ -301,6 +306,8 @@ c
          write(6,888) (zir(int_mb(k_sym+i)),i=0,nbf-1)
  888     format(15(a4,1x))
       endif
+
+
       if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
      $     call errquit('mcscf: cannot dup MO vectors',0)
 c     
