@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.29 2003-10-17 22:55:13 carlfahl Exp $
+c $Id: shell_fock_build.F,v 1.30 2004-12-02 21:16:58 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -220,7 +220,7 @@ c
          call ga_symmetrize(g_fock)
 !         call nga_symmetrize(g_fock)
       else
-         call nga_antisymmetrize(g_fock)
+         call ga_antisymmetrize(g_fock)
       endif
 c
       return
