@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 1994-12-11 07:29:32 og845 Exp $
+# $Id: GNUmakefile,v 1.15 1994-12-14 02:13:59 og845 Exp $
 ifeq ($(NWCHEM_TARGET),SGITFP)
 	OBJ = bas_ncontr_cn_max.o 	nbf_to_mbf.o \
 	int_eval_gbsets.o 
@@ -40,7 +40,7 @@ endif
 
      LIBRARY = libnwdft.a
 
-   USES_BLAS = simltr.F int_eval_gbsets.F second.F
+   USES_BLAS = int_eval_gbsets.F second.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
