@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.46 1996-10-08 07:30:40 d3e129 Exp $
+c $Id: basis.F,v 1.47 1996-10-11 10:08:28 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -769,8 +769,14 @@ c::passed
       integer basisin
       character*(*) name
 c
+c::local
       character*256 ecp_name
       integer ecpid
+      logical status
+      logical status_bas_cr
+      logical status_ecp_load
+      logical status_ecp_ph
+      logical status_ecp
 c
       bas_rtdb_load =
      &    bas_rtdb_do_load(rtdb, geom, basisin, name)
@@ -781,21 +787,36 @@ c
       if (ecp_name .eq. '  ') then
         ecp_name = 'ecp basis'
         if (.not.bas_set_ecp_name(basisin,ecp_name)) call errquit
-     &    ('bas_rtdb_load: bas_set_ecp_name failed',911)
+     &      ('bas_rtdb_load: bas_set_ecp_name failed',911)
       endif
-      if (bas_name_exist_rtdb(rtdb,ecp_name)) then
+      status = bas_name_exist_rtdb(rtdb,ecp_name)
+      if (status) then
 *
 * ecp_name is on rtdb so load it
 *
-        if (.not.bas_create(ecpid,ecp_name)) call errquit
-     &      ('bas_rtdb_load: bas_create failed for ecpid',911)
-        if (.not.bas_rtdb_do_load(rtdb,geom,ecpid,ecp_name))
-     &      call errquit
-     &      ('bas_rtdb_load: bas_rtdb_do_load failed for ecpid',911)
-        if (.not.bas_set_ecp_handle(basisin,ecpid)) call errquit
+        status_bas_cr = bas_create(ecpid,ecp_name)
+        if (.not.status_bas_cr) then
+          call errquit
+     &        ('bas_rtdb_load: bas_create failed for ecpid',911)
+        endif
+
+        status_ecp_load = bas_rtdb_do_load(rtdb,geom,ecpid,ecp_name)
+        if (.not.status_ecp_load) then
+          call errquit
+     &        ('bas_rtdb_load: bas_rtdb_do_load failed for ecpid',911)
+        endif
+
+        status_ecp = bas_set_ecp_handle(basisin,ecpid)
+        if (.not.status_ecp) then
+          call errquit
      &        ('bas_rtdb_load: bas_set_ecp_handle failed',911)
-        if (.not.ecp_set_parent_handle(ecpid,basisin)) call errquit
+        endif
+        
+        status_ecp_ph = ecp_set_parent_handle(ecpid,basisin)
+        if (.not.status_ecp_ph) then
+          call errquit
      &        ('bas_rtdb_load: ecp_set_parent_handle failed',911)
+        endif
       endif
       end
 *.....................................................................
