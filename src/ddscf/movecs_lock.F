@@ -1,6 +1,6 @@
       subroutine movecs_lock(geom, basis, g_old, g_new, evals, occ)
 *
-* $Id: movecs_lock.F,v 1.6 1999-06-16 00:10:13 d3e129 Exp $
+* $Id: movecs_lock.F,v 1.7 2003-03-29 01:51:27 edo Exp $
 *
       implicit none
 #include "global.fh"
@@ -22,7 +22,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      integer k_e, l_e, k_v, l_v, k_o, l_o
+      integer k_e, l_e, k_v, l_v, k_o, l_o,l_t,k_t
       integer i, j
       integer idamax
       external idamax
@@ -50,6 +50,8 @@ c
      $     call errquit('movecs_lock: insufficient memory',nmo)
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:v',l_v, k_v))
      $     call errquit('movecs_lock: insufficient memory',nbf)
+      if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:t',l_t, k_t))
+     $     call errquit('movecs_lock: insufficient memory',nbf)
 c
       call two_index_transf(g_s, g_new, g_old, g_tmp, g_sno)
 c
@@ -58,14 +60,22 @@ c
       call ga_copy(g_new, g_tmp)
       call dcopy(nmo, evals, 1, dbl_mb(k_e), 1)
       call dcopy(nmo, occ, 1, dbl_mb(k_o), 1)
+      call ga_sync
 c
-      do j = 1+ga_nodeid(), nmo, ga_nnodes() ! Should really use locality
+      if(ga_nodeid().eq.0) then
+      do j = 1, nmo 
          call ga_get(g_sno, 1, nmo, j, j, dbl_mb(k_v), 1)
          i = idamax(nmo, dbl_mb(k_v), 1)
 c
 c     new vector i corresponds to old vector j
 c
          if (i. ne. j) then
+C
+C         invalidate column that you have taken
+C
+          call dcopy(nmo, 0.0d0,0, dbl_mb(k_t), 1)
+         call ga_put(g_sno, i, i, 1, nmo, dbl_mb(k_t), 1)
+
             if (util_print('movecs_lock', print_default)) then
                write(6,*) ' movecs_lock', i, j
                call util_flush(6)
@@ -80,18 +90,18 @@ c
 c
 c     Verify that all vectors have been used
 c
-      call ga_sync
-      call ga_dgop(1, dbl_mb(k_e), nmo, 'max')
       do i = 1, nmo
          if (dbl_mb(k_e+i-1) .ne. 1.0d99) call errquit
      $        ('movecs_lock: maximum overlap test neglected vectors',i)
       enddo
+            if (util_print('movecs_lock', print_default)) then
+               call util_flush(6)
+            endif
+      endif
 c
 c     Clean up
 c
-      if (.not. ma_pop_stack(l_v)) call errquit('movecs_lock: ma?',0)
-      if (.not. ma_pop_stack(l_o)) call errquit('movecs_lock: ma?',0)
-      if (.not. ma_pop_stack(l_e)) call errquit('movecs_lock: ma?',0)
+      if (.not. ma_chop_stack(l_e)) call errquit('movecs_lock: ma?',0)
       if (.not. ga_destroy(g_sno)) call errquit('movecs_lock: ga?',0)
       if (.not. ga_destroy(g_tmp)) call errquit('movecs_lock: ga?',0)
       if (.not. ga_destroy(g_s))   call errquit('movecs_lock: ga?',0)
