@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.289 1999-07-01 22:06:50 d3e129 Exp $
+# $Id: makefile.h,v 1.290 1999-07-06 17:22:45 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -301,11 +301,14 @@ ifeq ($(TARGET),SOLARIS)
    FOPTIONS = -Nl199 -fast -dalign -stackvar
 # Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
 # -fsimple=2 enables more rearranging of floating point expressions
-# -depend enables more loop restructuring
-  FOPTIMIZE = -O3 -fsimple=2 -depend 
+# -depend enables more loop restructuring ... now implicit in -fast?
+# -xvector requires -mvec library
+  FOPTIMIZE = -O3 -fsimple=2 -depend -xvector=yes 
+# This for ultra-2 -xarch=v8plusa
 # Under Solaris -g no longer disables optimization ... -O2 seems solid
-# but is slow and impairs debug ... use -O1 for speed and debugability
-     FDEBUG = -g -O1
+# but is slow and impairs debug ... use -O1 for speed and debugability.
+# -fast now turns on -depend so must turn it off
+     FDEBUG = -g -O1 -nodepend
    LIBPATH += -L/usr/ucblib
     DEFINES = -DSOLARIS  -DNOAIO
 
@@ -315,7 +318,7 @@ ifeq ($(TARGET),SOLARIS)
 
        CORE_LIBS = -lutil -lchemio -lglobal -lma -lpeigs -llapack -lblas
 # First four needed for parallel stuff, last for linking with profiling
-      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -ldl 
+      EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lmvec -ldl 
 ifeq ($(BUILDING_PYTHON),python)
 # needed if python was compiled with gcc (common)
       EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/sparc-sun-solaris2.6/2.8.1/ -lgcc
