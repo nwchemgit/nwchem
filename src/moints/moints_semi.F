@@ -1,4 +1,3 @@
-
 c==========================================================
 c  This stupid section is to try an localize the
 c  interface differences between CRAY and the rest
@@ -198,7 +197,7 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.42 1997-08-08 18:11:39 rg240 Exp $
+c  $Id: moints_semi.F,v 1.43 1997-08-11 17:24:21 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -372,7 +371,7 @@ c
        endif
 c
        if (oprint_mem) 
-     $      write(6,900) lmemreq, nint(gmem/numnodes), mxrlen
+     $      write(6,900) lmemreq, nint(gmem/numnodes), mxrlen, blen
 900   format(/,'Semi-direct integral transformation',
      $     /,' Local Memory required:   ',i10,' words '
      $     /,' Global Memory remaining: ',i10,' words per node',
@@ -639,6 +638,7 @@ c
        integer kgr, lgr
        integer qlo, qhi
        integer l_ssbb, k_ssbb
+       integer l_ssbbt, k_ssbbt
        integer l_hlp, k_hlp, l_ssni,k_ssni
        integer l_hlp2, k_hlp2
        integer l_eri, k_eri, l_iscr,k_iscr
@@ -647,7 +647,7 @@ c
        integer iz, jz, kz, bsize
        integer mem2, max2e, jopass, iocnt
        integer num_nodes, ploop, next
-       double precision scale, schw_ij
+       double precision schw_ij
        double precision tpass, tio, ttmp, nwrbytes, iorate
        double precision t0, t1, ttask
        logical st
@@ -676,11 +676,16 @@ c
        bsize = max(blen,maxbfsh)
        n_ssbb = maxbfsh*maxbfsh*bsize*bsize
        n_ssbb1 = max((nmo1*nmo1),n_ssbb)
+#ifdef NEW_SPARSE
        n_hlp = max(nmo1,maxbfsh*maxbfsh)*nbf
        n_hlp2 = maxbfsh*maxbfsh
+#else
+       n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
+       n_hlp2 = maxbfsh*maxbfsh*nmo2
+#endif
        n_ssni = maxbfsh*maxbfsh*nbf*nmo1
-       st=st.and.ma_push_get(MT_DBL,(nbf*vhi),'r movecs',l_xmo,k_xmo)
-       st=ma_push_get(MT_DBL,(nbf*vhi),'movecs cols',l_mo,k_mo)
+       st=ma_push_get(MT_DBL,(nbf*vhi),'r movecs',l_xmo,k_xmo)
+       st=st.and.ma_push_get(MT_DBL,(nbf*vhi),'movecs cols',l_mo,k_mo)
        if (.not.(st)) call errquit
      $      ('moints_semi: cannot allocate local memory',0)
 
@@ -690,13 +695,15 @@ c
 #else
        call row_exch( nbf, nmo, rbfmap, dbl_mb(k_mo), dbl_mb(k_xmo) )
 #endif
-
        if (.not. ma_pop_stack(l_mo))
      $     call errquit('moints: failed to pop', l_mo)
 
        st=st.and.ma_push_get(MT_DBL, max2e,'ibuf', l_eri, k_eri)
        st=st.and.ma_push_get(MT_DBL, mem2, 'int scr', l_iscr, k_iscr)
        st=st.and.ma_push_get(MT_DBL,n_ssbb1,'ssbb blk',l_ssbb,k_ssbb)
+#ifndef NEW_SPARSE
+       st=st.and.ma_push_get(MT_DBL,n_ssbb,'ssbbt',l_ssbbt,k_ssbbt)
+#endif
        st=st.and.ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
        st=st.and.ma_push_get(MT_DBL,n_hlp2,'hlp2 blk',l_hlp2,k_hlp2)
        st=st.and.ma_push_get(MT_DBL,n_ssni,'ssni blk',l_ssni,k_ssni)
@@ -705,6 +712,7 @@ c
      $      ('moints_semi: cannot allocate local memory',0)
 
        call moints_xmot(nbf,qhi-qlo+1,dbl_mb(k_xmo),dbl_mb(k_xmo_t))
+
 c     
 c
 c Initialize
@@ -729,8 +737,6 @@ c
            ilen = ibfhi - ibflo + 1
            jlen = jbfhi - jbflo + 1
            schw_ij = schwarz_shell(ish,jsh)
-           scale = 1.d0
-           if (ish.eq.jsh) scale = scale*0.5d0
            if (schw_ij*schwarz_max().ge.tol2e) then
              if (next.eq.ploop) then
 c
@@ -818,14 +824,36 @@ c
      $                               dbl_mb(k_ssbb) )
                    mi_tint = mi_tint + util_cpusec() - t0
 #endif
+                   t0 = util_cpusec()
                    mi_flop1 = mi_flop1 + 
      $                   4.d-6*ilen*jlen*kblen*lblen*(oseghi-oseglo+1)
+#ifdef NEW_SPARSE
                    call moints_trf1_new(nbf, qlo, qhi, oseglo, oseghi,
      $                  ilen, jlen, kbflo, kbfhi,
      $                  lbflo, lbfhi,
      $                  dbl_mb(k_ssbb),
      $                  dbl_mb(k_xmo_t),
      $                  dbl_mb(k_ssni), dbl_mb(k_hlp))
+#else
+                   if (lgr.ne.kgr) then
+                     call moints_blktr( ilen, jlen, kblen, lblen,
+     $                                  dbl_mb(k_ssbb),
+     $                                  dbl_mb(k_ssbbt))
+                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
+     $                                 ilen, jlen, kbflo, kbfhi,
+     $                                 lbflo, lbfhi, 1.d0,
+     $                                 dbl_mb(k_ssbb),
+     $                                 dbl_mb(k_ssbbt), dbl_mb(k_xmo),
+     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
+                   else
+                     call moints_trf1( nbf, qlo, qhi, oseglo, oseghi,
+     $                                 ilen, jlen, kbflo, kbfhi,
+     $                                 lbflo, lbfhi, 0.5d0,
+     $                                 dbl_mb(k_ssbb),
+     $                                 dbl_mb(k_ssbb), dbl_mb(k_xmo),
+     $                                 dbl_mb(k_ssni), dbl_mb(k_hlp) )
+                   endif
+#endif
                    mi_t1 = mi_t1 + util_cpusec() - t0
                   enddo
                enddo
@@ -841,14 +869,27 @@ c ... is this ever called ?
      $                              dbl_mb(k_xmo), g_jbuf )
                if (oexch) then
                  t0 = util_cpusec()
+#ifdef NEW_SPARSE
                  call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
      $                              vlo, vhi, ibflo, ibfhi, 
      $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
      $                              dbl_mb(k_xmo_t), g_kbuf )
+#else
+                 call moints_trf2Ky(nbf, qlo, qhi, oseglo, oseghi, 
+     $                              vlo, vhi, ibflo, ibfhi, 
+     $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
+     $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                              dbl_mb(k_xmo), g_kbuf )
+#endif
                  mi_t2k = mi_t2k + util_cpusec() - t0
                endif
 
+               ttask = util_cpusec() - ttask
+               mi_mintask = min(mi_mintask,ttask)
+               mi_maxtask = max(mi_maxtask,ttask)
+               mi_aggtask = mi_aggtask + ttask
+c
                next = nxtval(num_nodes)
 c
 c  End parallel task
@@ -856,10 +897,6 @@ c  -----------------
 c
              endif
              ploop = ploop + 1
-             ttask = util_cpusec() - ttask
-             mi_mintask = min(mi_mintask,ttask)
-             mi_maxtask = max(mi_maxtask,ttask)
-             mi_aggtask = mi_aggtask + ttask
            endif
          enddo
        enddo
@@ -909,6 +946,10 @@ c
      $     call errquit('moints: failed to pop', l_hlp2)
        if (.not. ma_pop_stack(l_hlp))
      $     call errquit('moints: failed to pop', l_hlp)
+#ifndef NEW_SPARSE
+       if (.not. ma_pop_stack(l_ssbbt))
+     $     call errquit('moints: failed to pop', l_ssbbt)
+#endif
        if (.not. ma_pop_stack(l_ssbb))
      $     call errquit('moints: failed to pop', l_ssbb)
        if (.not. ma_pop_stack(l_iscr))
@@ -933,8 +974,7 @@ c
 
 
 
-c
-c 
+
 c
       subroutine moints_trf2Ky( nbf, qlo, qhi, oseglo, oseghi, 
      $                          vlo, vhi, ilo, ihi, jlo, jhi, gloc,
@@ -965,7 +1005,9 @@ c$$$ 881  FORMAT('&&',2(2I4,2X), 'RANGE:',I4,1X,'-',1X,I4,10x,'[',i3,']')
           call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,o),
      $                nbf,c(1,v),nbf,0.d0,h,ijlen)
           if (ihi.ne.jhi) then
+#ifndef NOCOMMS
             call ga_put(g_buf,glo,ghi,vo,vo,h,1)
+#endif
           else
             ij = 0
             do i=ilo,ihi
@@ -974,7 +1016,9 @@ c$$$ 881  FORMAT('&&',2(2I4,2X), 'RANGE:',I4,1X,'-',1X,I4,10x,'[',i3,']')
                 h2(ij) = h(i,j) 
               enddo
             enddo
+#ifndef NOCOMMS
             call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
+#endif
           endif
         enddo
       enddo
@@ -998,7 +1042,7 @@ c$$$ 881  FORMAT('&&',2(2I4,2X), 'RANGE:',I4,1X,'-',1X,I4,10x,'[',i3,']')
       integer g_buf
       integer ilen, jlen, ijlen
       integer glo, ghi, i, j, ij,k
-      integer o, v, vo
+      integer o, v, vo, jtop
 c
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
@@ -1007,43 +1051,35 @@ c
       ghi = gloc(ihi,jhi)
 
       do o = oseglo, oseghi
-         call dfill((vhi-vlo+1)*ilen*jlen,0.0d0,h,1)
-         do i = ilo, ihi
-            do j = jlo, jhi
-               do k = 1, nbf
-                  s = ssni(k,j,i,o)
-                  if (abs(s) .gt. 1d-12) then
-                     do v = vlo,vhi
-                        h(v,j,i) = h(v,j,i) + s*ct(v,k)
-                     enddo
-                  endif
-               enddo
+        call dfill((vhi-vlo+1)*ilen*jlen,0.0d0,h,1)
+        do i = ilo, ihi
+          do j = jlo, jhi
+            do k = 1, nbf
+              s = ssni(k,j,i,o)
+              if (abs(s) .gt. 1d-12) then
+                do v = vlo,vhi
+                  h(v,j,i) = h(v,j,i) + s*ct(v,k)
+                enddo
+              endif
             enddo
-         enddo
-         do v=vlo,vhi
-            vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
-            ij = 0
-            sum = 0.0d0
-            if (ihi .ne. jhi) then
-               do i=ilo,ihi
-                  do j=jlo,jhi
-                     ij =   ij + 1
-                     h2(ij) = h(v,j,i) 
-                     sum = sum + h(v,j,i)*h(v,j,i)
-                  enddo
-               enddo
-            else
-               do i=ilo,ihi
-                  do j=ilo,i
-                     ij =   ij + 1
-                     h2(ij) = h(v,j,i) 
-                     sum = sum + h(v,j,i)*h(v,j,i)
-                  enddo
-               enddo
-            endif
+          enddo
+        enddo
+        do v=vlo,vhi
+          vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
+          ij = 0
+          sum = 0.0d0
+          do i=ilo,ihi
+            jtop = jhi
+            if (ihi.eq.jhi) jtop = i
+            do j=jlo,jtop
+              ij =   ij + 1
+              h2(ij) = h(v,j,i) 
+              sum = sum + h(v,j,i)*h(v,j,i)
+            enddo
+          enddo
 c     Note that sum is the sum of squares hence test against tol**2
-            if (sum .gt. 1d-20) call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
-         enddo
+          if (sum .gt. 1d-20) call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
+        enddo
       enddo
 
 
