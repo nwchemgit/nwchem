@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 1994-10-31 21:22:14 gg502 Exp $
+# $Id: GNUmakefile,v 1.15 1994-11-14 20:00:22 gg502 Exp $
 
 LIBRARY =	librimp2.a
 
@@ -7,7 +7,7 @@ OBJ =		rimp2_v_e2.o \
 		xf3ci_step12.o	xf3ci_step3.o xform_3cints.o \
 		occ_ranges.o	rimp2_xf_driver.o \
 		close_3ci_file.o	open_3ci_file.o	put_3cints.o \
-		get_3cints.o	banner.o	rimp2.o	\
+		get_3cints.o	rimp2.o	\
 		dgezer.o	dgecop.o	lnblnk.o \
 		dgewr.o		atoi.o		indint.o \
 		int_2c_ga.o     max_v_diagonal.o	rimp2_get_param.o \
