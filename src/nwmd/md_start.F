@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.26 1999-08-25 18:28:23 d3j191 Exp $
+c $Id: md_start.F,v 1.27 1999-08-25 23:21:37 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,8 @@ c
 c     start the spacial decomposition API
 c     -----------------------------------
 c
-      call sp_start(lfntop,filtop,lfnrst,filrst,rshort,rlong,zero,
+      call sp_start(lfntop,filtop,lfnrst,filrst,lfnsyn,filsyn,
+     + nfsync,rshort,rlong,zero,
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
