@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.109 1998-10-05 21:20:43 og845 Exp $
+c     $Id: dft_scf.F,v 1.110 1999-01-20 19:33:12 d3e129 Exp $
 c     
       implicit none
 c
@@ -1327,12 +1327,31 @@ c
                ilo = 1
                ihi = nbf_ao
             endif
-            call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
-     &           g_movecs(ispin), 
-     &           'DFT Final Molecular Orbital Analysis', 
-     &           .true., dbl_mb(k_eval(ispin)), oadapt, 
-     &           int_mb(k_ir+(ispin-1)*nbf_ao),
-     &           .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+            if (ipol.eq.1) then
+              call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+     &            g_movecs(ispin), 
+     &            'DFT Final Molecular Orbital Analysis', 
+     &            .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &            int_mb(k_ir+(ispin-1)*nbf_ao),
+     &            .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+            else if(ipol.eq.2.and.ispin.eq.1) then
+              call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+     &            g_movecs(ispin), 
+     &            'DFT Final Alpha Molecular Orbital Analysis', 
+     &            .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &            int_mb(k_ir+(ispin-1)*nbf_ao),
+     &            .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+            else if(ipol.eq.2.and.ispin.eq.2) then
+              call movecs_print_anal(ao_bas_han, ilo, ihi, 0.15d0, 
+     &            g_movecs(ispin), 
+     &            'DFT Final Beta Molecular Orbital Analysis', 
+     &            .true., dbl_mb(k_eval(ispin)), oadapt, 
+     &            int_mb(k_ir+(ispin-1)*nbf_ao),
+     &            .true., dbl_mb(k_occ+(ispin-1)*nbf_ao))
+            else 
+              call errquit
+     &            ('dft_scf: unknown case for movecs analysis',911)
+            endif
          endif
       enddo
 c     
