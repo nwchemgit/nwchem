@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.12 2000-10-23 15:53:26 windus Exp $
+* $Id: wnbofile.F,v 1.13 2002-09-05 14:48:43 edo Exp $
 *
       implicit none
 #include "bas.fh"
@@ -202,7 +202,11 @@ c
           index = itags+(iat-1)*16
 
           if(.not.geom_tag_to_element(Byte_MB(index),sym,elem,atn))
-     $         call errquit('wnbofile: geom_tag_to_element failed',1)
+cedo     $         call errquit('wnbofile: geom_tag_to_element failed',1)
+     .         then
+          atn=0
+          charge=0
+       endif
 
           charge = Dbl_MB(ichg+iat-1)
           write(lfn,9150)atn, charge, Dbl_MB(ix), Dbl_MB(iy), Dbl_MB(iz)
