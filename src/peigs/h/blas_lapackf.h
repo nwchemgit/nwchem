@@ -281,29 +281,29 @@ peigs
 #define  mxm2_         MXM2
 #define  mxm4_         MXM4
 #define  mxm5x_        MXM5X
-#define  mxm88_                    MXM88
-#define  mxm_                      MXM
-#define ortho_                     ORTHO
-#define pdspevx_                   PDSPEVX
-#define pdspgvx_                   PDSPGVX
-#define pdsptri_                   PDSPTRI
-#define pstein_                    PSTEIN
-#define resid_                     RESID
-#define xstop_                     XSTOP
-#define dgetavec_                  DGETAVEC
-#define dlasq1_                    SLASQ1
-#define dshellsort2_               DSHELLSORT2
+#define  mxm88_                 MXM88
+#define  mxm_                   MXM
+#define ortho_                  ORTHO
+#define pdspevx_                PDSPEVX
+#define pdspgvx_                PDSPGVX
+#define pdsptri_                PDSPTRI
+#define pstein_                 PSTEIN
+#define resid_                  RESID
+#define xstop_                  XSTOP
+#define dgetavec_               DGETAVEC
+#define dlasq1_                 SLASQ1
+#define DLASQ1			SLASQ1
+#define dshellsort2_            DSHELLSORT2
 #define dshellsort_             DSHELLSORT
 #define maxd_                   MAXD
 #define maxi_                   MAXI
 #define dgetavec_               DGETAVEC
-#define dlas2_                  DLAS2
-#define dlascl_                 DLASCL
+#define dlas2_                  SLAS2
+#define dlascl_                 SLASCL
 #define DNRM2 SNRM2
 #define DLASCL SLASCL
 #define DLAMCH SLAMCH
 #define DLAS2  SLAS2
 #define DCOPY  SCOPY
-
 
 #endif

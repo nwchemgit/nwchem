@@ -1,3 +1,4 @@
+/* c defines */
 #define NO_EVEC 0
 
 /*
@@ -13,7 +14,7 @@
 #define DLAMCHU        2.22507385850720138E-308
 #define SLAMCHE        2.22044604925031308E-16
 #define SLAMCHP        2.22044604925031308E-16
-#define SLAMCHB        2.E0
+#define SLAMCHB        2.e0
 #define SLAMCHS        2.22507385850720138E-308
 #define SLAMCHU        2.22507385850720138E-308
 
@@ -29,7 +30,7 @@
 #ifdef HPPA
 #define DLAMCHE 1.1102230246251564E-16
 #define DLAMCHP 1.1102230246251564E-16
-#define DLAMCHB 2.0000000000000000E+00
+#define DLAMCHB 2.0000000000000000D+00
 #define DLAMCHS 2.2250738585072028E-308
 #define DLAMCHU 2.2250738585072028E-308
 
@@ -43,8 +44,8 @@
 /*
  Double Precision results
    depsilon      1.1102230246251565E-16
-      dbase      2.0000000000000000E+00
-   dsafeulp      2.2250738585072014-308
+      dbase      2.0000000000000000D+00
+   dsafeulp      2.2250738585072014E-308
 
  Single Precision results
    depsilon      5.9604644775390625E-08
@@ -54,7 +55,7 @@
 
 #define DLAMCHE        1.1102230246251565E-16
 #define DLAMCHP        1.1102230246251565E-16
-#define DLAMCHB        2.e0
+#define DLAMCHB        2.E0
 #define DLAMCHS        2.2250738585072014E-308
 #define DLAMCHU        2.2250738585072014E-308
 
@@ -78,7 +79,7 @@
 
 #define DLAMCHE 1.1102230246251565E-16
 #define DLAMCHP 1.1102230246251565E-16
-#define DLAMCHB 2.E0
+#define DLAMCHB 2.e0
 #define DLAMCHS 2.2250738585072014E-308
 #define DLAMCHU 2.2250738585072014E-308
 
@@ -88,11 +89,11 @@
 
 /* rs6000 */
 
-#define DLAMCHE        0.111022302462515654E-15
-#define DLAMCHP        0.111022302462515654E-15
-#define DLAMCHB        2.e0
-#define DLAMCHS        0.22250738585072013E-307
-#define DLAMCHU        0.22250738585072013E-307
+#define DLAMCHE 0.111022302462515654E-15
+#define DLAMCHP 0.111022302462515654E-15
+#define DLAMCHB 2.e0
+#define DLAMCHS 0.22250738585072013E-307
+#define DLAMCHU 0.22250738585072013E-307
 
 
 /*
@@ -110,51 +111,51 @@
   with -Knoieee
   */ 
 
-#define DLAMCHE        1.1102230246251565E-016
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHE        1.1102230246251565E-016
-#define DLAMCHP        1.1102230246251565E-016
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHU        2.2250738585072014E-308
+#define DLAMCHE 1.1102230246251565E-016
+#define DLAMCHB 2.e0
+#define DLAMCHS 2.2250738585072014E-308
+#define DLAMCHE  1.1102230246251565E-016
+#define DLAMCHP  1.1102230246251565E-016
+#define DLAMCHB  2.e0
+#define DLAMCHS  2.2250738585072014E-308
+#define DLAMCHU  2.2250738585072014E-308
 
 
 #endif
 #ifdef FUJITSU_VPP
 
-#define DLAMCHE        1.1102230246251565E-016
-#define DLAMCHP        1.1102230246251565E-016
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHU        2.2250738585072014E-308
+#define DLAMCHE  1.1102230246251565E-016
+#define DLAMCHP  1.1102230246251565E-016
+#define DLAMCHB  2.E0
+#define DLAMCHS  2.2250738585072014E-308
+#define DLAMCHU  2.2250738585072014E-308
 
 
 #endif
 #ifdef KSR
 
-#define DLAMCHE        1.1102230246251565E-16
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHE        1.1102230246251565E-16
-#define DLAMCHP        1.1102230246251565E-16
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHU        2.2250738585072014E-308
+#define DLAMCHE  1.1102230246251565E-16
+#define DLAMCHB  2.
+#define DLAMCHS  2.2250738585072014E-308
+#define DLAMCHE  1.1102230246251565E-16
+#define DLAMCHP  1.1102230246251565E-16
+#define DLAMCHB  2.
+#define DLAMCHS  2.2250738585072014E-308
+#define DLAMCHU  2.2250738585072014E-308
 
 
 
 #endif
 #ifdef KSR8
 
-#define DLAMCHE        1.1102230246251565E-16
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHE        1.1102230246251565E-16
-#define DLAMCHP        1.1102230246251565E-16
-#define DLAMCHB        2.
-#define DLAMCHS        2.2250738585072014E-308
-#define DLAMCHU        2.2250738585072014E-308
+#define DLAMCHE  1.1102230246251565E-16
+#define DLAMCHB  2.E0
+#define DLAMCHS  2.2250738585072014E-308
+#define DLAMCHE  1.1102230246251565E-16
+#define DLAMCHP  1.1102230246251565E-16
+#define DLAMCHB  2.e0
+#define DLAMCHS  2.2250738585072014E-308
+#define DLAMCHU  2.2250738585072014E-308
 
 
 #define dscal_  sscal_
@@ -187,16 +188,16 @@
 
 #ifdef CRAY_T3D
 
-#define DLAMCHE        2.22044604925031308E-16
-#define DLAMCHP        2.22044604925031308E-16
-#define DLAMCHB        2.E0
-#define DLAMCHS        2.22507385850720138E-308
-#define DLAMCHU        2.22507385850720138E-308
-#define SLAMCHE        2.22044604925031308E-16
-#define SLAMCHP        2.22044604925031308E-16
-#define SLAMCHB        2.E0
-#define SLAMCHS        2.22507385850720138E-308
-#define SLAMCHU        2.22507385850720138E-308
+#define DLAMCHE  2.22044604925031308E-16
+#define DLAMCHP  2.22044604925031308E-16
+#define DLAMCHB  2.E0
+#define DLAMCHS  2.22507385850720138E-308
+#define DLAMCHU  2.22507385850720138E-308
+#define SLAMCHE  2.22044604925031308E-16
+#define SLAMCHP  2.22044604925031308E-16
+#define SLAMCHB  2.E0
+#define SLAMCHS  2.22507385850720138E-308
+#define SLAMCHU  2.22507385850720138E-308
  
 
 #define dscal_  SSCAL
@@ -269,19 +270,18 @@ peigs
   peigs ctof 
 */
 
-#define  choleski_                 CHOLESKI
-#define  inversel_                 INVERSEL
-#define  fmemreq_                  FMEMREQ
-#define  pdspev_                   PDSPEV
-#define  pdspgv_                   PDSPGV
-
-#define  tresid_                   TRESID
-#define  sonenrm_                  SONENRM
-#define  bortho_                   BORTHO
-#define  mxm35_                    MXM35
-#define  mxm2_                     MXM2
-#define  mxm4_                     MXM4
-#define  mxm5x_                    MXM5X
+#define  choleski_     CHOLESKI
+#define  inversel_     INVERSEL
+#define  fmemreq_      FMEMREQ
+#define  pdspev_       PDSPEV
+#define  pdspgv_       PDSPGV
+#define  tresid_       TRESID
+#define  sonenrm_      SONENRM
+#define  bortho_       BORTHO
+#define  mxm35_        MXM35
+#define  mxm2_         MXM2
+#define  mxm4_         MXM4
+#define  mxm5x_        MXM5X
 #define  mxm88_                    MXM88
 #define  mxm_                      MXM
 #define ortho_                     ORTHO
@@ -292,14 +292,14 @@ peigs
 #define resid_                     RESID
 #define xstop_                     XSTOP
 #define dgetavec_                  DGETAVEC
-#define dlasq1_                    DLASQ1
+#define dlasq1_                    SLASQ1
 #define dshellsort2_               DSHELLSORT2
 #define dshellsort_             DSHELLSORT
 #define maxd_                   MAXD
 #define maxi_                   MAXI
 #define dgetavec_               DGETAVEC
-#define dlas2_                  DLAS2
-#define dlascl_                 DLASCL
+#define dlas2_                  SLAS2
+#define dlascl_                 SLASCL
 
 
 #endif
