@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.18 1999-06-28 15:56:41 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.19 1999-07-01 00:07:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -122,7 +122,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.18 1999-06-28 15:56:41 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.19 1999-07-01 00:07:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -177,7 +177,8 @@ c
      $     call errquit('task_saddle: failed to invalidate status',0)
 c     
       if (ga_nodeid().eq.0 .and. 
-     $     util_print('task_saddle', print_low)) then
+     $     util_print('task_saddle', print_low) .and. 
+     $     (.not. ousedriver) ) then
          write(6,*)
          write(6,*)
          call util_print_centered(6,
@@ -248,7 +249,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.18 1999-06-28 15:56:41 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.19 1999-07-01 00:07:55 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
