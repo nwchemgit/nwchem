@@ -1,7 +1,7 @@
       logical function pre_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: pre_select.F,v 1.14 2002-06-27 23:48:45 d3j191 Exp $
+c $Id: pre_select.F,v 1.15 2002-07-09 15:28:08 d3j191 Exp $
 c
       implicit none
 c
@@ -174,6 +174,7 @@ c
       if(list(j).eq.-1) then
       aname(1:6)=atomname(j)(11:16)
       if(string(1:1).eq.'_') aname(1:1)='_'
+      if(string(1:1).eq.'?') aname(1:1)='?'
       if(string(2:2).eq.'?') aname(2:2)='?'
       if(string(3:3).eq.'?') aname(3:3)='?'
       if(string(4:4).eq.'?') aname(4:4)='?'
@@ -189,6 +190,10 @@ c
       ip=ip+1
       endif
  8    continue
+      else
+      do 10 i=1,natoms
+      if(list(i).lt.0) list(i)=1
+   10 continue
       endif
 c
       return
