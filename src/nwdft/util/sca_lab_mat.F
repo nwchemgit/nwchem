@@ -31,45 +31,20 @@ c******************************************************************************
 
       nshbfb=ilastb-ifirstb+1
       
-c            call ga_put(ig_a,
-c     *           ifirsta,ilasta,
-c     *           ifirstb,ilastb,
-c     *           vec,nshbfa)
-c            if(isha.ne.ishb)
-c     *      call ga_put(ig_a,
-c     *           ifirstb,ilastb,
-c     *           ifirsta,ilasta,
-c     *           vec,nshbfb)
-      ioffseta = ifirsta - 1
-      ioffsetb = ifirstb - 1
-        ii=ifirsta
-        call ga_put(ig_a,
+      call ga_acc(ig_a,
+     *     ifirstb,ilastb,
+     *     ifirsta,ilasta,
+     *     vec,nshbfb,1.d0)
+      if(isha.ne.ishb) then
+        n=1
+        do ii=ifirsta,ilasta
+             call ga_acc(ig_a,
      *       ii,ii,
-     *       ifirstb,ioffsetb+nshbfb,
-     *       vec,1)
-        if(isha.ne.ishb)
-     *  call ga_put(ig_a,
-     *       ifirstb,ioffsetb+nshbfb,
-     *       ii,ii,
-     *       vec,1)
-        if(nshbfa.gt.1) then
-          n = nshbfb
-          do 20 ma = 2,nshbfa
-            ii=ii+1
-            call ga_put(ig_a,
-     *           ii,ii,
-     *           ifirstb,ioffsetb+nshbfb,
-     *           vec(n+1),1)
-        if(isha.ne.ishb)
-     *       call ga_put(ig_a,
-     *           ifirstb,ioffsetb+nshbfb,
-     *           ii,ii,
-     *           vec(n+1),1)
-
-            n=n+nshbfb
-            
-  20     continue
-       endif
+     *       ifirstb,ilastb,
+     *       vec(n),1,1.d0)
+          n=n+nshbfb
+        enddo
+      endif
 
 
       return
