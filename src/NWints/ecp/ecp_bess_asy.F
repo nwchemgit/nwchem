@@ -1,4 +1,4 @@
-C $Id: ecp_bess_asy.F,v 1.2 2000-05-16 20:36:44 windus Exp $
+C $Id: ecp_bess_asy.F,v 1.3 2000-05-16 21:48:23 windus Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_bess_asy (n,m,x,bess,temp,xt)
@@ -23,7 +23,7 @@ C $Id: ecp_bess_asy.F,v 1.2 2000-05-16 20:36:44 windus Exp $
 #include "ecp_consts.fh"
 *
       integer i,n,m,j,mm
-      double precision x(n),bess(n),temp(n),xt(n),top,bot,fact,one
+      double precision x(n),bess(n),temp(n),xt(n),top,bot,fact
 *
       if (n .le. 0) return
 *
