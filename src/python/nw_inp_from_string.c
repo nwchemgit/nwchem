@@ -1,11 +1,11 @@
 /*
- $Id: nw_inp_from_string.c,v 1.10 2000-11-28 20:30:33 edo Exp $
+ $Id: nw_inp_from_string.c,v 1.11 2005-02-22 01:48:22 edo Exp $
 */
 #include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef CRAY
+#ifdef CRAY_T3E
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif
@@ -15,11 +15,11 @@
 #include "typesf2c.h"
 #endif
 
-#if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(CRAY) || defined(WIN32)
+#if defined(CRAY_T3E)  || defined(WIN32)
 #define nw_inp_from_file_ NW_INP_FROM_FILE
 #endif
 
-#if defined(CRAY) || defined(USE_FCD) || defined(WIN32)
+#if defined(CRAY_T3E) || defined(USE_FCD) || defined(WIN32)
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, _fcd filename);
 #else
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, char *filename, int flen);
@@ -29,7 +29,7 @@ int nw_inp_from_string(Integer rtdb, const char *input)
 {
     char *filename = "temp.nw";
     FILE *file;
-#if defined(USE_FCD) || defined(CRAY) || defined(WIN32)
+#if defined(USE_FCD) || defined(CRAY_T3E) || defined(WIN32)
     _fcd fstring;
 #else
     char fstring[255];
@@ -49,7 +49,7 @@ int nw_inp_from_string(Integer rtdb, const char *input)
       (void) fclose(file);
     }
 
-#if defined(CRAY)
+#if defined(CRAY_T3E)
       fstring = _cptofcd(filename, strlen(filename));
       status = nw_inp_from_file_(&rtdb, fstring);
 #elif defined(WIN32)
