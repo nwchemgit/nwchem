@@ -102,7 +102,7 @@ c
       print*,'epot0=',epot
 c
       epsd=epot
-      dxf=0.001d0
+      dxf=dx0sd/fmax
       mdstep=0
 c
     1 continue
@@ -399,6 +399,8 @@ c
     4 continue
     1 continue
       endif
+c
+      call cf_fnorm(fw,nwmloc,isl(1,lsatt),fs,nsaloc,fnorm,fmax)
 c
       return
       end
