@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.59 1998-09-09 13:07:06 bjohnson Exp $
+C$Id: scf.F,v 1.60 1999-05-31 23:16:23 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -143,6 +143,10 @@ c
             if (.not. bas_print(basis)) 
      $           call errquit('scf: bas_print', 0)
             write(6,*)
+         endif
+         if (util_print('basis labels',print_high) .and.
+     $        ga_nodeid().eq.0) then
+            call bas_print_labels(basis)
          endif
          if (util_print('geombas', print_debug)) then
             if (.not. gbs_map_print(basis)) 
