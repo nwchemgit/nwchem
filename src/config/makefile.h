@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.274 1999-02-09 22:29:59 d3e129 Exp $
+# $Id: makefile.h,v 1.275 1999-03-05 23:21:21 d3e129 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1085,8 +1085,13 @@ endif
 
 ifeq ($(TARGET),LINUX)
 #
+# Most distributions are using EGCS
+#
+  EGCS = YES
+#
 # Linux running on an x86 using g77
 # to use f2c/gcc, define environment variable USE_F2C
+# f2c has not been tested in years and is not supported
 #
        NICE = nice
       SHELL := $(NICE) /bin/sh
@@ -1116,11 +1121,12 @@ endif
   LDOPTIONS = -g
 ifdef EGCS
      LINK.f = g77 $(LDFLAGS)
+ EXTRA_LIBS = -lm
 else
      LINK.f = gcc $(LDFLAGS)
+ EXTRA_LIBS = -lf2c -lm
 endif
   CORE_LIBS = -lutil -lchemio -lglobal -lpeigs -llapack -lblas
- EXTRA_LIBS = -lf2c -lm
 
         CPP = gcc -E -nostdinc -undef -P
    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
