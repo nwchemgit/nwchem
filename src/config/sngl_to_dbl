@@ -1,9 +1,34 @@
 #!/bin/csh -f
+#
+# $Id: sngl_to_dbl,v 1.7 1997-03-17 20:34:21 d3e129 Exp $
+#
 
-set sed_script = {$NWCHEM_TOP}/src/config/sngl_to_dbl.sed
-set sed_script2 = {$NWCHEM_TOP}/src/config/sngl_to_dbl.2.sed
+@ useperl = 1
+
+if ($useperl) then
+
+  if (-x /msrc/apps/bin/perl) then
+     set perlexe    = /msrc/apps/bin/perl
+  else if (-x /usr/local/bin/perl) then
+     set perlexe    = /usr/local/bin/perl
+  else if (-x /usr/local/gnu/bin/perl) then
+     set perlexe    = /usr/local/gnu/bin/perl
+  else if (-x /usr/gnu/bin/perl) then
+     set perlexe    = /usr/gnu/bin/perl
+  else
+# assume perl is in your path
+     set perlexe = perl
+  endif
+  set perlscript = {$NWCHEM_TOP}/src/config/sngl2dbl.pl
+
+else
+
+  set sed_script = {$NWCHEM_TOP}/src/config/sngl_to_dbl.sed
+  set sed_script2 = {$NWCHEM_TOP}/src/config/sngl_to_dbl.2.sed
 
 set sufx = .dbl
+
+endif
 
 set JOB_LIMIT = 4
 if (`hostname` == circus) set JOB_LIMIT = 20
@@ -13,8 +38,12 @@ if (`hostname` == mcurie) set JOB_LIMIT = 2
 foreach file ($argv)
 
   echo converting $file to double precision
-  (sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file;\
-   sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file)&
+  if ($useperl) then
+     ($perlexe $perlscript $file) &	
+  else
+     (sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file;\
+      sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file)&
+  endif
 
    @ njob ++
    if ($njob >= $JOB_LIMIT) then
