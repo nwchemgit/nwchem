@@ -1,16 +1,18 @@
-      Subroutine xc_tarad(znumber,r,w,nr)
+      subroutine xc_tarad(znumber,r,w,nr,origin,which)
 
-C$Id: xc_tarad.F,v 1.1 1999-01-13 03:07:13 edo Exp $
+C$Id: xc_tarad.F,v 1.2 1999-03-03 03:22:42 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
       double precision w(*) ! grid pts weights [output]
+      double precision origin ! origin of the grid [input]
       integer znumber !   atomic number [input]
 c
       integer nr,i
       double precision xi,wi
-      double precision ri,wi,zetad(36),zeta
-      double precision alpha,wsum
+      double precision ri,zetad(36),zeta
+      character*8 which
+      double precision alpha,rsc(400),wsc(400)
       parameter (alpha=0.6d0)
       data zetad/ 0.8d0, 0.9d0,
 c Li-N
@@ -30,32 +32,84 @@ c O Treutler and R Alrhichs, J Chem Phys 102, 346 (1995)
 c
 c***************************************************************************
       zeta=1.d0
-      wsum=0.d0
       if(znumber.lt.37) zeta = zetad(znumber)
 
+      if(which.eq.'chebyshe') then
       do  i = 1,nr
-
         call gausscheb(wi,xi,i,nr)
         ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
-c        ri=(1d0+xi)/(1d0-xi)
-c        write(6,*) znumber,xi,ri,wi
-
-        r(i) = ri
-c        w(i) = wi*ri*ri/(1d0-xi)**2*2d0
-        w(i)=wi*ri*ri*ri*(alpha/(1d0+xi)+
+        r(i) = ri+origin
+        w(i)=wi*r(i)*r(i)*ri*(alpha/(1d0+xi)+
      +       1d0/(1d0-xi)/log(2d0/(1d0-xi)))
 c
-c       check normalization
-c
-        wsum=wsum+wi
+c       becke transf
+c        ri=(1d0+xi)/(1d0-xi)
+c        w(i) = wi*ri*ri/(1d0-xi)**2*2d0
       enddo
-      write(6,*) ' sum is ',wsum
+      elseif(which.eq.'legendre') then
+        call gaussleg(nr, rsc, 
+     &       wsc)
+        do i=1,nr
+          xi=rsc(nr-i+1)
+          ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
+          r(i) = ri+origin
+          r(i) = ri+origin
+          wi = wsc(nr-i+1)
+          w(i)=wi*r(i)*r(i)*ri*(alpha/(1d0+xi)+
+     +         1d0/(1d0-xi)/log(2d0/(1d0-xi)))
+        enddo
+      endif
       return
       end
+      subroutine xc_interv(rmin,rmax,r,w,nr,which)
+      implicit none
+c
+c     compute Gauss-Chebyshev quadrature for the 
+c     interval rmin<r<rmax 
+c     
+      double precision rmin ! interval minimum [input]
+      double precision rmax ! interval maximum [input]
+      double precision r(*) ! grid pts coord [output]
+      double precision w(*) ! grid pts weights [output]
+      integer nr            ! [input]
+      character*8 which
+c
+      double precision slope,intercept
+      double precision wi,xi,ri,wsc(300),rsc(300)
+      integer i
+c
+      if(nr.gt.300) call errquit(
+     (    ' xc_interv: too many radial pts ',nr)
+      slope=(rmax-rmin)*.5d0
+      intercept=(rmin+rmax)*.5d0
+      if(which.eq.'chebyshe') then
+        do i=1,nr
+          call gausscheb(wi,xi,i,nr)
+          ri = slope*xi + intercept
+          r(i) = ri
+          w(i) = wi*ri*ri*slope
+        enddo
+      elseif(which.eq.'legendre') then
+        call gaussleg(nr, rsc, 
+     &       wsc)
+        do i=1,nr
+          ri = slope*rsc(nr-i+1) + intercept
+          r(i) = ri
+          w(i) = wsc(nr-i+1)*ri*ri*slope
+        enddo
+          else
+        call errquit('unrecognized quadr. ',999)
+      endif
+      return
+      end
+
       subroutine gausscheb(wi,xi,i_in,n)
       implicit none
       double precision wi,xi ! [output]
       integer i_in,n ! [input]
+c
+c     Gauss Chebyshev quadrature scheme
+c     JM Perez-Yorda and E San-Fabian, CPC 77, 46 (1993)
 c
       double precision pi
       integer i

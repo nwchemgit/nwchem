@@ -1,21 +1,21 @@
-      Subroutine xc_murakn(alpha,r,w,nr,rm)
+      Subroutine xc_murakn(znumber,r,w,nr,rm)
 
-C$Id: xc_murakn.F,v 1.1 1999-01-12 22:24:45 edo Exp $
+C$Id: xc_murakn.F,v 1.2 1999-03-03 03:22:43 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
       double precision w(*) ! grid pts weights [output]
-      double precision alpha !   [input]
+      integer znumber !   atomic number [input]
       double precision rm    !   [input]
 c
       integer nr,i
-      double precision fmn,qi,ri,wi
+      double precision fmn,qi,ri,wi,alpha
 c
-      double precision alpha
+      double precision wsum
 c
 c Definition of Euler-Maclaurin numerical quadrature points and weights
 c for radial integrals.
-c Transformation from 0<r<intfy to 0<x<1 according to
+c Transformation from 0<r<infty to 0<x<1 according to
 c ME Mura and PJ Knowles, J Chem Phys 104, 9848 (1996)
 c
 c***************************************************************************
@@ -33,7 +33,6 @@ c***************************************************************************
        w(i) = wi
 
    10 continue
-
       nr = nr-1
 
       end
