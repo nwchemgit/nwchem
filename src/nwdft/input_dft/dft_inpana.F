@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.12 1996-10-18 00:53:08 d3h449 Exp $
+C$Id: dft_inpana.F,v 1.13 1996-10-22 01:32:08 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -84,6 +84,37 @@ c****
 c
 c-->  Write new data to checkpoint file.
 c
+c     Analyze any user specified XC functionals ... set if none
+c
+      cksetd = .true.
+c
+c     Check if user has specified some type of functional,
+c     if so, do not set defaults.
+c
+      do n = 1, 10
+        if(lcfac(n).or.nlcfac(n).or.lxfac(n).or.nlxfac(n))
+     &    cksetd = .false.
+      enddo
+      if(cksetd)then
+c
+c       Set functional defaults.
+c
+         cfac(1) = 1.0d0
+        lcfac(1) = .true.
+         xfac(2) = 1.0d0
+        lxfac(2) = .true.
+c
+c       Update rtdb.
+c
+        if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
+     $     call errquit('dft_input: rtdb_put failed', 210)
+        if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
+     $     call errquit('dft_input: rtdb_put failed', 211)
+        if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 10, lcfac ))
+     $     call errquit('dft_input: rtdb_put failed', 9)
+        if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 10, lxfac ))
+     $     call errquit('dft_input: rtdb_put failed', 11)
+      endif
       if(me.eq.0) then
 c
 c-->    Write to output.
@@ -114,38 +145,6 @@ c
         write(LuOut,9035)iscfcon
         if(igcon.gt.0)then
           write(LuOut,9040)igcon
-        endif
-c
-c       Analyze any user specified XC functionals ... set if none
-c
-        cksetd = .true.
-c
-c       Check if user has specified some type of functional,
-c       if so, do not set defaults.
-c
-        do n = 1, 10
-          if(lcfac(n).or.nlcfac(n).or.lxfac(n).or.nlxfac(n))
-     &      cksetd = .false.
-        enddo
-        if(cksetd)then
-c
-c         Set functional defaults.
-c
-           cfac(1) = 1.0d0
-          lcfac(1) = .true.
-           xfac(2) = 1.0d0
-          lxfac(2) = .true.
-c
-c         Update rtdb.
-c
-          if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
-     $       call errquit('dft_input: rtdb_put failed', 210)
-          if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
-     $       call errquit('dft_input: rtdb_put failed', 211)
-          if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 10, lcfac ))
-     $       call errquit('dft_input: rtdb_put failed', 9)
-          if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 10, lxfac ))
-     $       call errquit('dft_input: rtdb_put failed', 11)
         endif
 c
 c       Write out XC info. Combo info first, than X components,

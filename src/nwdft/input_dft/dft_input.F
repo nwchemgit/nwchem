@@ -1,5 +1,10 @@
       subroutine dft_input(rtdb)
-c     $Id: dft_input.F,v 1.7 1996-10-18 21:50:02 d3h449 Exp $
+c
+c     $Id: dft_input.F,v 1.8 1996-10-22 01:32:12 d3h449 Exp $
+c
+c     The main purpose of this subroutine is to parse the input
+c     and place any "found" parameters into the rtdb.
+c
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -35,12 +40,11 @@ c>>>  temporarily)
 c     
 
       integer  n,
-     &     iqrot, nagrid, nrmax,
-     &     nrinc, idecomp, mult, 
+     &     nagrid,
+     &     idecomp, mult, 
      &     itrscf, ipol, noio,
      &     iguess,
      &     ndamp, iscfcon, igcon, idirect, nfock, ifield,
-     &     numset, igeotype, numgrp,
      &     iAOacc,iXCacc,irqmax,itol2e,imull,iangquad,
      &     ncydp, ncysh, ncyds,
      &     nquad_task
@@ -61,71 +65,13 @@ c
       logical xccomb(10)
 c
       integer nrad(dft_ntags_bsmx)
-      double precision rscale,  cdist(3), cang(3)
 c     
 c     XC functionals coefficients
 c     
-      character*40 xname(10),cname(10),xcname(10),blank_40c
       double precision cfac(10),xfac(10)
-c--   >  defaults from rdcalc.F
-c     
-      ipol=1
-C
-C     noio is the default
-C
-      noio=1
-      iguess=0
-      cang(1)=0.d0
-      cang(2)=0.d0
-      cang(3)=0.d0
-      cdist(1)=0.d0
-      cdist(2)=0.d0
-      cdist(3)=0.d0
-      mult=1
-C
-C     Convergence aids defaults:
-C
-      nodamping = .false.
-      nolevelshifting = .false.
-      nodiis = .false.
-      dampon = 1.d8
-      dampoff = 1.d-1
-      levlon = 1.d-1
-      levloff = 1.d-4
-      diison = 1.d-1
-      diisoff = 0.d0
-      ncydp = 0
-      ncysh = 0
-      ncyds = 0
-      ndamp=70
-      rlshift=0.5d0
 c
-      ltight=.false.
-      incore=.true.
-      lmaxov=.false.      
-      itrscf=30
-      igcon=-1
-      iscfcon=7
-      pseudo=.false.
-      nfock=10
-      idirect=0
-C
-      iAOacc=20
-      iXCacc=20
-      irqmax=40
-C
-C     bi-eletronic tolerance of 12 used as a default
-C
-      itol2e=12
-      imull=0
-      iangquad=0
-      rm = 2.0d0
-      TOLL=1.D-15
-      radius=16.d0
-      nquad_task = 1
-      ldelley = .false.
-      store_wght = .false.
-      blank_40c = '                                        '
+c     Only these few arrays are initialized (not defaults).
+c
       do iline=1,10
           xfac(iline)=0.d0
           cfac(iline)=0.d0
@@ -134,52 +80,9 @@ C
          lxfac(iline)=.false.
         nlxfac(iline)=.false.
         xccomb(iline)=.false.
-         cname(iline)=blank_40c
-         xname(iline)=blank_40c
-        xcname(iline)=blank_40c
       enddo
-c
-c      Correlation functional name defaults.
-c
-       cname(1)='Vosko-Wilk-Nusair Correlation Functional'
-       cname(2)='    Lee-Yang-Parr Correlation Functional'
-       cname(3)='      Perdew 1981 Correlation Functional'
-       cname(4)='      Perdew 1986 Correlation Functional'
-       cname(5)='      Perdew 1991 Correlation Functional'
-       cname(6)='  Perdew 1991 LDA Correlation Functional'
-       cname(7)='          VWN RPA Correlation Functional'
-c
-c      Exchange functional name defaults.
-c
-       xname(1)='           Hartree-Fock (Exact) Exchange'
-       xname(2)='              Slater Exchange Functional'
-       xname(3)='          Becke 1988 Exchange Functional'
-c
-c      Exchange-Correlation combination functional name defaults.
-c
-      xcname(1)='Adiabatic Connection Method XC Potential'
-      xcname(2)='               B3LYP Method XC Potential'
-      xcname(3)=' Becke half-and-half Method XC Potential'
 c     
-c>>>  sym input defaults
-c     
-      numgrp = 1 ! sym group P1 or C1
-      numset = 1 ! space group setting number
-      igeotype = 0 ! no periodic dimensions
-c     
-c>>>  defaults from rdprop.F
-c     
-      idecomp = 0
-c     
-c     set default grid to  'MEDIUM'
-c     
-      gridtype='medium'
-      nagrid = 8
-      do n = 1,dft_ntags_bsmx
-        nrad(n) = 40
-      enddo 
-c     
-c>>>  read inputs; slam them in the rtdb
+c>>>  Read inputs; slam them in the rtdb.
 c     
       do iline = 1,infinity !  infinite loop over input lines
 
@@ -188,7 +91,7 @@ c
 
         nfield = inp_n_field()
         do ifield = 1,nfield
-
+c
           if (inp_a(test)) then
 c           
             if ( inp_compare(.false., 'dft', test)) then
@@ -196,11 +99,19 @@ c
 c>>>          dft
 c             
               ipol=1
+              if (.not. rtdb_put(rtdb, 'dft:ipol',
+     &           mt_int, 1, ipol))
+     &           call errquit('dft_input: rtdb_put failed', 105)
+c
             elseif ( inp_compare(.false., 'odft', test)) then
 c             
 c>>>          odft
 c             
               ipol=2
+              if (.not. rtdb_put(rtdb, 'dft:ipol',
+     &           mt_int, 1, ipol))
+     &           call errquit('dft_input: rtdb_put failed', 105)
+c
             elseif ( inp_compare(.false., 'guess', test)) then
 c             
 c>>>          guess; next keyword gives type of initial guess
@@ -220,16 +131,10 @@ c
      &               'guess option not found; ignored'
                 goto 10000 !  die with error
               endif 
-            elseif ( inp_compare(.false., 'hcore', test)) then
-c             
-c>>>          atomic
-c             
-              iguess = 0
-            elseif ( inp_compare(.false., 'atomic', test)) then
-c             
-c>>>          hcore
-c             
-              iguess = 1
+              if (.not. rtdb_put(rtdb, 'dft:iguess',
+     &           mt_int, 1, iguess))
+     &           call errquit('dft_input: rtdb_put failed', 103)
+c
             elseif ( inp_compare(.false., 'mult', test)) then
 c             
 c>>>          mult
@@ -239,6 +144,10 @@ c
      &               ' dft_input: spin multiplicity value not found'
                 goto 10000 !  die with error
               endif 
+              if (.not. rtdb_put(rtdb, 'dft:mult', 
+     &           mt_int, 1, mult))
+     &           call errquit('dft_input: rtdb_put failed', 104)
+c
             elseif ( inp_compare(.false., 'itrscf', test)) then
 c             
 c>>>          itrscf
@@ -247,11 +156,19 @@ c
                 write(6,*) ' dft_input: itrscf value not found'
                 goto 10000 !  die with error
               endif 
+              if (.not. rtdb_put(rtdb, 'dft:itrscf',
+     &           mt_int, 1, itrscf))
+     &           call errquit('dft_input: rtdb_put failed', 101) 
+c
             elseif ( inp_compare(.false., 'direct', test)) then
 c             
 c>>>          direct
 c             
               idirect = 1
+              if (.not. rtdb_put(rtdb, 'dft:idirect',
+     &           mt_int, 1, idirect))
+     &           call errquit('dft_input: rtdb_put failed', 111)
+c
             elseif ( inp_compare(.false., 'scfcon', test)) then
 c             
 c>>>          scfcon
@@ -260,6 +177,10 @@ c
                 write(6,*) ' dft_input: iscfcon value not found'
                 goto 10000 !  die with error
               endif 
+              if (.not. rtdb_put(rtdb, 'dft:iscfcon',
+     &           mt_int, 1, iscfcon))
+     &           call errquit('dft_input: rtdb_put failed', 102)
+c
             elseif ( inp_compare(.false., 'gcon', test)) then
 c             
 c>>>          gcon
@@ -268,6 +189,10 @@ c
                 write(6,*) ' dft_input: igcon value not found'
                 goto 10000 !  die with error
               endif 
+              if (.not. rtdb_put(rtdb, 'dft:igcon',
+     &           mt_int, 1, igcon))
+     &           call errquit('dft_input: rtdb_put failed', 106)
+c
             elseif ( inp_compare(.false., 'ecp', test)) then
 c             
 c>>>          ecp
@@ -286,6 +211,10 @@ c
      &               ' to 1.d8 Hartree'
                 dampon = 1.d8
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:dampon',
+     &           mt_dbl, 1, dampon))
+     &           call errquit('dft_input: rtdb_put failed', 201)
+c
             elseif ( inp_compare(.false., 'dampoff', test)) then
 c             
 c>>>          dampoff
@@ -296,6 +225,10 @@ c
      &               ' to 0.0d0 Hartree'
                 dampoff = 0.0d0
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:dampoff',
+     &           mt_dbl, 1, dampoff))
+     &           call errquit('dft_input: rtdb_put failed', 202)
+c
             elseif ( inp_compare(.false., 'levlon', test)) then
 c             
 c>>>          levlon
@@ -306,6 +239,10 @@ c
      &               ' to 1.d8 Hartree'
                 levlon = 1.d8
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:levlon',
+     &           mt_dbl, 1, levlon))
+     &           call errquit('dft_input: rtdb_put failed', 203)
+c
             elseif ( inp_compare(.false., 'levloff', test)) then
 c             
 c>>>          levloff
@@ -316,6 +253,10 @@ c
      &               ' to 0.0d0 Hartree'
                 levloff = 0.0d0
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:levloff',
+     &           mt_dbl, 1, levloff))
+     &           call errquit('dft_input: rtdb_put failed', 204)
+c
             elseif ( inp_compare(.false., 'diison', test)) then
 c             
 c>>>          diison
@@ -326,6 +267,10 @@ c
      &               ' to 1.d8 Hartree'
                 diison = 1.d8
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:diison',
+     &           mt_dbl, 1, diison))
+     &           call errquit('dft_input: rtdb_put failed', 205)
+c
             elseif ( inp_compare(.false., 'diisoff', test)) then
 c             
 c>>>          diisoff
@@ -336,6 +281,10 @@ c
      &               ' to 0.0d0 Hartree'
                 diisoff = 0.0d0
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:diisoff',
+     &           mt_dbl, 1, diisoff))
+     &           call errquit('dft_input: rtdb_put failed', 206)
+c
             elseif ( inp_compare(.false., 'lshift', test)) then
 c             
 c>>>          lshift
@@ -346,6 +295,10 @@ c
      &               ' to  0.5 Hartree'
                 rlshift = 0.5
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:lshift',
+     &           mt_dbl, 1,rlshift))
+     &           call errquit('dft_input: rtdb_put failed', 212)
+c
             elseif ( inp_compare(.false., 'ncysh', test)) then
 c             
 c>>>          ncysh (# cycle level shifter is active)
@@ -354,6 +307,10 @@ c
                 write(6,*) ' dft_input: ncysh value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:ncysh',
+     &           mt_int, 1, ncysh))
+     &           call errquit('dft_input: rtdb_put failed', 109)
+c
             elseif ( inp_compare(.false., 'damp', test)) then
 c             
 c>>>          damp
@@ -362,6 +319,10 @@ c
                 write(6,*) ' dft_input: ndamp value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:ndamp',
+     &           mt_int, 1, ndamp))
+     &           call errquit('dft_input: rtdb_put failed', 113)
+c
             elseif ( inp_compare(.false., 'ncydp', test)) then
 c             
 c>>>          ncydp (# cycle damping is active)
@@ -370,6 +331,10 @@ c
                 write(6,*) ' dft_input: ncydp value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:ncydp',
+     &           mt_int, 1, ncydp))
+     &           call errquit('dft_input: rtdb_put failed', 108)
+c
             elseif ( inp_compare(.false., 'ncyds', test)) then
 c             
 c>>>          ncyds (# cycle DIIS is active)
@@ -378,21 +343,38 @@ c
                 write(6,*) ' dft_input: ncyds value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:ncyds',
+     &           mt_int, 1, ncyds))
+     &           call errquit('dft_input: rtdb_put failed', 110)
+c
             elseif ( inp_compare(.false., 'nodamping', test)) then
 c             
 c>>>          nodamping
 c             
               nodamping = .true.
+
+              if (.not. rtdb_put(rtdb, 'dft:nodamping',
+     &           mt_log, 1, nodamping))
+     &           call errquit('dft_input: rtdb_put failed', 1)
+c
             elseif ( inp_compare(.false., 'nolevelshifting', test)) then
 c             
 c>>>          nolevelshifting
 c             
               nolevelshifting = .true.
+              if (.not. rtdb_put(rtdb, 'dft:nolevelshifting',
+     &           mt_log, 1, nolevelshifting))
+     &           call errquit('dft_input: rtdb_put failed', 2)
+c
             elseif ( inp_compare(.false., 'nodiis', test)) then
 c             
 c>>>          nodiis
 c             
               nodiis = .true.
+              if (.not. rtdb_put(rtdb, 'dft:nodiis',
+     &           mt_log, 1, nodiis))
+     &           call errquit('dft_input: rtdb_put failed', 3)
+c
             elseif ( inp_compare(.false., 'nfock', test)) then
 c             
 c>>>          nfock
@@ -401,16 +383,28 @@ c
                 write(6,*) ' dft_input: nfock value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:nfock',
+     &           mt_int, 1, nfock))
+     &           call errquit('dft_input: rtdb_put failed', 107)
+c
             elseif ( inp_compare(.false., 'noio', test)) then
 c             
 c>>>          noio
 c             
               noio = 1
+              if (.not. rtdb_put(rtdb, 'dft:noio',
+     &           mt_int, 1, noio))
+     &           call errquit('dft_input: rtdb_put failed', 112)
+c
             elseif ( inp_compare(.false., 'decomp', test)) then
 c             
 c>>>          decomp
 c             
               idecomp = 1
+              if (.not. rtdb_put(rtdb, 'dft:idecomp',
+     &           mt_int, 1, idecomp))
+     &           call errquit('dft_input: rtdb_put failed', 114)
+c
             elseif ( inp_compare(.false., 'grid', test)) then
 c             
 c>>>          grid
@@ -452,165 +446,15 @@ c
               else 
                 write(6,*) ' dft_input: grid type not found'
               endif 
-            elseif ( inp_compare(.false., 'coarse', test)) then
-c             
-c>>>          coarse
-c             
-              gridtype=test
-              do n = 1,dft_ntags_bsmx
-                nrad(n) = 30
-              enddo 
-              nagrid = 6
-            elseif ( inp_compare(.false., 'medium', test)) then
-c             
-c>>>          medium
-c             
-              gridtype=test
-              do n = 1,dft_ntags_bsmx
-                nrad(n) = 40
-              enddo 
-              nagrid = 8
-            elseif ( inp_compare(.false., 'fine', test)) then
-c             
-c>>>          fine
-c             
-              gridtype=test
-              do n = 1,dft_ntags_bsmx
-                nrad(n) = 60
-              enddo 
-              nagrid = 10
-            elseif ( inp_compare(.false., 'xfine', test)) then
-c             
-c>>>          xfine
-c             
-              gridtype=test
-              do n = 1,dft_ntags_bsmx
-                nrad(n) = 90
-              enddo 
-              nagrid = 10
-            elseif ( inp_compare(.false., 'user', test)) then
-c             
-c>>>          user
-c             
-              write(6,*)
-     &             ' dft_input: grid option user not implemented'
-
-c             
-c>>>          next are inputs for translational symmetry routines
-c             
-c             numgrp:    Space group number.    Default=1 (P1)
-c             numset:    Setting number for space group.  Default=1
-c             igeotype:  Defines number of periodic dimensions in system.
-c             0=Molecule, 1=Polymer, 2=Surface, 3=Crystal
-c             Default = -1.  If not changed by user -1 flags abort.
-c             cang(3):   Angles for cell parameters.
-c             cdist(3):  Lattice constants.
-c             
-c>>>          keywords are:  system molecule polymer surface crystal 
-c>>>          group setting A B C alpha beta gamma
-c             
-            elseif ( inp_compare(.false., 'system', test)) then
-c             
-c>>>          system 
-c             
-              if (inp_a(test)) then
-                if ( test .eq. 'molecule' ) then ! molecule
-                  igeotype = 0
-                elseif ( test .eq. 'polymer' ) then ! polymer
-                  igeotype = 1
-                elseif ( test .eq. 'surface' ) then ! surface
-                  igeotype = 2
-                elseif ( test .eq. 'crystal' ) then ! crystal
-                  igeotype = 3
-                endif 
-              else 
-                write(6,*) ' dft_input: system type not recognized'
-                go to 10000 !  die with error
-              endif 
-            elseif ( inp_compare(.false., 'molecule', test)) then
-c             
-c>>>          molecule 
-c             
-              igeotype = 0
-            elseif ( inp_compare(.false., 'polymer', test)) then
-c             
-c>>>          polymer 
-c             
-              igeotype = 1
-            elseif ( inp_compare(.false., 'surface', test)) then
-c             
-c>>>          surface 
-c             
-              igeotype = 2
-            elseif ( inp_compare(.false., 'crystal', test)) then
-c             
-c>>>          crystal 
-c             
-              igeotype = 3
-            elseif ( inp_compare(.false., 'group', test)) then
-c             
-c>>>          group 
-c             
-              if ( .not. inp_i(numgrp) ) then
-                write(6,*) ' dft_input: numgrp value not found'
-                goto 10000 !  die with error
-              endif            
-            elseif ( inp_compare(.false., 'setting', test)) then
-c             
-c>>>          setting 
-c             
-              if ( .not. inp_i(numset) ) then
-                write(6,*) ' dft_input: numset value not found'
-                goto 10000 !  die with error
-              endif            
-            elseif ( inp_compare(.false., 'A', test)) then
-c             
-c>>>          A (first lattice constant)
-c             
-              if ( .not. inp_f(cdist(1)) ) then
-                write(6,*) ' dft_input: A value not found'
-                goto 10000 !  die with error
-              endif            
-            elseif ( inp_compare(.false., 'B', test)) then
-c             
-c>>>          B 
-c             
-            elseif ( inp_compare(.false., 'C', test)) then
-              if ( .not. inp_f(cdist(2)) ) then
-                write(6,*) ' dft_input: B value not found'
-                goto 10000 !  die with error
-              endif            
-c             
-c>>>          C 
-c             
-              if ( .not. inp_f(cdist(3)) ) then
-                write(6,*) ' dft_input: C value not found'
-                goto 10000 !  die with error
-              endif            
-            elseif ( inp_compare(.false., 'alpha', test)) then
-c             
-c>>>          alpha 
-c             
-              if ( .not. inp_f(cang(1)) ) then
-                write(6,*) ' dft_input: alpha value not found'
-                goto 10000 !  die with error
-              endif            
-            elseif ( inp_compare(.false., 'beta', test)) then
-c             
-c>>>          beta 
-c             
-              if ( .not. inp_f(cang(2)) ) then
-                write(6,*) ' dft_input: beta value not found'
-                goto 10000 !  die with error
-              endif            
-            elseif ( inp_compare(.false., 'gamma', test)) then
-c             
-c>>>          gamma
-c             
-              if ( .not. inp_f(cang(3)) ) then
-                write(6,*) ' dft_input: gamma value not found'
-                goto 10000 !  die with error
-              endif            
+              if (.not. rtdb_put(rtdb,'dft:nrad',
+     &           mt_int, dft_ntags_bsmx, nrad))
+     &           call errquit('dft_input: rtdb_put failed', 115)
+              if (.not. rtdb_put(rtdb, 'dft:nagrid',
+     &           mt_int, 1, nagrid))
+     &           call errquit('dft_input: rtdb_put failed', 116)
+              if (.not. rtdb_cput(rtdb, 'dft:gridtype', 
+     &           1, gridtype))
+     &           call errquit('dft_input: rtdb_put failed', 301) 
 c
 c  Input for correlation functionals read here.
 c
@@ -1088,6 +932,10 @@ c
                 write(6,*) ' dft_input: accAOfunc value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:iAOacc',
+     &           mt_int, 1, iAOacc))
+     &           call errquit('dft_input: rtdb_put failed', 124)
+c
             elseif ( inp_compare(.false., 'accXCfunc', test)) then
 c             
 c>>>          for use in int_eval_gbsets (called by quadvxc1)
@@ -1097,6 +945,10 @@ c
                 write(6,*) ' dft_input: accXCfunc value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:iXCacc',
+     &           mt_int, 1, iXCacc))
+     &           call errquit('dft_input: rtdb_put failed', 125)
+c
             elseif ( inp_compare(.false., 'accQrad', test)) then
 c             
 c>>>          for use in setquad
@@ -1106,6 +958,10 @@ c
                 write(6,*) ' dft_input: accQrad value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:irqmax',
+     &           mt_int, 1, irqmax))
+     &           call errquit('dft_input: rtdb_put failed', 126)
+c
             elseif ( inp_compare(.false., 'accCoul', test)) then
 c             
 c>>>          for use in fitcd fitvcoul
@@ -1115,35 +971,56 @@ c
                 write(6,*) ' dft_input: accCoul value not found'
                 goto 10000 !  die with error
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:itol2e',
+     &           mt_int, 1, itol2e))
+     &           call errquit('dft_input: rtdb_put failed', 127)
+c
             elseif ( inp_compare(.false., 'tight', test)) then
 c             
 c>>>          Set screening threshholds tight
 c             
               ltight = .true.
-
+              if (.not. rtdb_put(rtdb, 'dft:tight',
+     &           mt_log, 1, ltight))
+     &           call errquit('dft_input: rtdb_put failed', 4)
+c
             elseif ( inp_compare(.false., 'max_ovl', test)) then
 c             
 c>>>          Move orbitals around in movecs to maintain max 
 c             overlap between iterations
 c             
               lmaxov = .true.
-
+              if(.not. rtdb_put(rtdb, 'dft:max_ovl',
+     &          mt_log, 1, lmaxov))
+     &          call errquit('dft_input: rtdb_put failed', 6)
+c
             elseif ( inp_compare(.false., 'incore', test)) then
 c             
 c>>>          Try to do an incore coulomb construction
 c             
               incore = .true.
-
+              if(.not.rtdb_put(rtdb,'dft:incore',
+     &          mt_log, 1, incore)) 
+     &          call errquit('dft_input: rtdb_put failed', 5)
+c
             elseif ( inp_compare(.false., 'mulliken', test)) then
 c             
 c>>>          do Mulliken pop analysis
 c             
               imull=1
+              if (.not. rtdb_put(rtdb, 'dft:imull',
+     &           mt_int, 1, imull))
+     &           call errquit('dft_input: rtdb_put failed', 128)
+c
             elseif ( inp_compare(.false., 'gausleg', test)) then
 c             
 c>>>          use Gauss-Legendre for angular quadr (Handy)
 c             
               iangquad=0
+              if (.not. rtdb_put(rtdb, 'dft:iangquad',
+     &           mt_int, 1, iangquad))
+     &           call errquit('dft_input: rtdb_put failed', 129)
+c
             elseif ( inp_compare(.false., 'lebedev', test)) then
 c             
 c>>>          use Lebedev angular quadrature
@@ -1155,10 +1032,16 @@ c
             elseif ( inp_compare(.false., 'store_wght', test)) then
 c             
               store_wght = .true.
+              if(.not. rtdb_put(rtdb, 'dft:store_wght',
+     &          mt_log, 1, store_wght ))
+     &          call errquit('dft_input: rtdb_put failed', 7)
 c
             elseif ( inp_compare(.false., 'delley', test)) then
 c             
               ldelley = .true.
+              if(.not. rtdb_put(rtdb, 'dft:delley',
+     &          mt_log, 1, ldelley ))
+     &          call errquit('dft_input: rtdb_put failed', 8)
 c
             elseif ( inp_compare(.false., 'nquad_task', test)) then
 c             
@@ -1168,6 +1051,9 @@ c
      &               ' defaulting to 1 '
                 nquad_task = 1
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:nquad_task',
+     &           mt_int, 1,nquad_task))
+     &           call errquit('dft_input: rtdb_put failed', 123)
 c
             elseif ( inp_compare(.false., 'tol_rho', test)) then
 c             
@@ -1179,6 +1065,9 @@ c
      &               ' to 1.d-15 '
                 TOLL=1.D-15
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:tol_rho',
+     &           mt_dbl, 1,TOLL))
+     &           call errquit('dft_input: rtdb_put failed', 214)
 c
             elseif ( inp_compare(.false., 'rm', test)) then
 c             
@@ -1190,6 +1079,9 @@ c
      &               ' to 2.0d0 '
                 rm = 2.0d0
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:rm',
+     &           mt_dbl, 1,rm))
+     &           call errquit('dft_input: rtdb_put failed', 215)
 c
             elseif ( inp_compare(.false., 'radius', test)) then
 c             
@@ -1201,6 +1093,9 @@ c
      &               ' to 16.d0 '
                 radius=16.d0
               endif            
+              if (.not. rtdb_put(rtdb, 'dft:radius',
+     &           mt_dbl, 1,radius))
+     &           call errquit('dft_input: rtdb_put failed', 213)
 c
             else if (inp_compare(.false.,'print',test)) then
               call util_print_input(rtdb, 'dft')
@@ -1224,151 +1119,35 @@ c
       enddo              ! end of infinite loop over input lines
 99999 continue 
 c
-      nrinc = 1
-      nrmax = 0
-      do n = 1,dft_ntags_bsmx
-        nrmax = max(nrmax,nrad(n))
-      enddo 
-c
-c     Set the switch to rotate the quadrature points. Eventually this switch
-c     will control whether the user wants the grid rotationally invariant.
-c
-      iqrot = 0
-      rscale = 0.0d0
+c     No alternative but to dump all array's associated
+c     with type of XC into rtdb (whether specified or not).
 c     
-c>>>  place logical parameters in rtdb
+c>>>  place logical XC parameters in rtdb
 c     
-      if (.not. rtdb_put(rtdb, 'dft:nodamping', mt_log, 1, nodamping))
-     $     call errquit('dft_input: rtdb_put failed', 1)
-      if (.not. rtdb_put(rtdb, 'dft:nolevelshifting', mt_log, 1, 
-     $  nolevelshifting))call errquit('dft_input: rtdb_put failed', 2)
-      if (.not. rtdb_put(rtdb, 'dft:nodiis', mt_log, 1, nodiis))
-     $     call errquit('dft_input: rtdb_put failed', 3)
-      if (.not. rtdb_put(rtdb, 'dft:tight', mt_log, 1, ltight))
-     $     call errquit('dft_input: rtdb_put failed', 4)
-      if(.not.rtdb_put(rtdb,'dft:incore', mt_log, 1, incore)) 
-     $     call errquit('dft_input: rtdb_put failed', 5)
-      if(.not. rtdb_put(rtdb, 'dft:max_ovl', mt_log, 1, lmaxov ))
-     $     call errquit('dft_input: rtdb_put failed', 6)
-      if(.not. rtdb_put(rtdb, 'dft:store_wght', mt_log, 1, store_wght ))
-     $     call errquit('dft_input: rtdb_put failed', 7)
-      if(.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1, ldelley ))
-     $     call errquit('dft_input: rtdb_put failed', 8)
-      if(.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, 10, lcfac ))
-     $     call errquit('dft_input: rtdb_put failed', 9)
-      if(.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, 10, nlcfac ))
-     $     call errquit('dft_input: rtdb_put failed', 10)
-      if(.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, 10, lxfac ))
-     $     call errquit('dft_input: rtdb_put failed', 11)
-      if(.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, 10, nlxfac ))
-     $     call errquit('dft_input: rtdb_put failed', 12)
-      if(.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, 10, xccomb ))
-     $     call errquit('dft_input: rtdb_put failed', 13)
+      if(.not. rtdb_put(rtdb, 'dft:lcfac',
+     &   mt_log, 10, lcfac ))
+     &   call errquit('dft_input: rtdb_put failed', 9)
+      if(.not. rtdb_put(rtdb, 'dft:nlcfac',
+     &   mt_log, 10, nlcfac ))
+     &   call errquit('dft_input: rtdb_put failed', 10)
+      if(.not. rtdb_put(rtdb, 'dft:lxfac',
+     &   mt_log, 10, lxfac ))
+     &   call errquit('dft_input: rtdb_put failed', 11)
+      if(.not. rtdb_put(rtdb, 'dft:nlxfac',
+     &   mt_log, 10, nlxfac ))
+     &   call errquit('dft_input: rtdb_put failed', 12)
+      if(.not. rtdb_put(rtdb, 'dft:xccomb',
+     &   mt_log, 10, xccomb ))
+     &   call errquit('dft_input: rtdb_put failed', 13)
 c     
-c>>>  place integer parameters in rtdb
+c>>>  place real XC parameters in rtdb
 c     
-      if (.not. rtdb_put(rtdb, 'dft:itrscf', mt_int, 1, itrscf))
-     $     call errquit('dft_input: rtdb_put failed', 101) 
-      if (.not. rtdb_put(rtdb, 'dft:iscfcon', mt_int, 1, iscfcon))
-     $     call errquit('dft_input: rtdb_put failed', 102)
-      if (.not. rtdb_put(rtdb, 'dft:iguess', mt_int, 1, iguess))
-     $     call errquit('dft_input: rtdb_put failed', 103)
-      if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
-     $     call errquit('dft_input: rtdb_put failed', 104)
-      if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     $     call errquit('dft_input: rtdb_put failed', 105)
-      if (.not. rtdb_put(rtdb, 'dft:igcon', mt_int, 1, igcon))
-     $     call errquit('dft_input: rtdb_put failed', 106)
-      if (.not. rtdb_put(rtdb, 'dft:nfock', mt_int, 1, nfock))
-     $     call errquit('dft_input: rtdb_put failed', 107)
-      if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
-     $     call errquit('dft_input: rtdb_put failed', 108)
-      if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
-     $     call errquit('dft_input: rtdb_put failed', 109)
-      if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
-     $     call errquit('dft_input: rtdb_put failed', 110)
-      if (.not. rtdb_put(rtdb, 'dft:idirect', mt_int, 1, idirect))
-     $     call errquit('dft_input: rtdb_put failed', 111)
-      if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, noio))
-     $     call errquit('dft_input: rtdb_put failed', 112)
-      if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     $     call errquit('dft_input: rtdb_put failed', 113)
-      if (.not. rtdb_put(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
-     $     call errquit('dft_input: rtdb_put failed', 114)
-      if (.not. rtdb_put(rtdb,'dft:nrad',mt_int,dft_ntags_bsmx,nrad))
-     $     call errquit('dft_input: rtdb_put failed', 115)
-      if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     $     call errquit('dft_input: rtdb_put failed', 116)
-      if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-     $     call errquit('dft_input: rtdb_put failed', 117)
-      if (.not. rtdb_put(rtdb, 'dft:nrinc', mt_int, 1, nrinc))
-     $     call errquit('dft_input: rtdb_put failed', 118)
-      if (.not. rtdb_put(rtdb, 'dft:nrmax', mt_int, 1, nrmax))
-     $     call errquit('dft_input: rtdb_put failed', 119)
-      if (.not. rtdb_put(rtdb, 'dft:igeotype', mt_int, 1, igeotype))
-     $     call errquit('dft_input: rtdb_put failed', 120)
-      if (.not. rtdb_put(rtdb, 'dft:numgrp', mt_int, 1, numgrp))
-     $     call errquit('dft_input: rtdb_put failed', 121)
-      if (.not. rtdb_put(rtdb, 'dft:numset', mt_int, 1, numset))
-     $     call errquit('dft_input: rtdb_put failed', 122)
-      if (.not. rtdb_put(rtdb, 'dft:nquad_task', mt_int, 1,nquad_task))
-     $     call errquit('dft_input: rtdb_put failed', 123)
-      if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
-     $     call errquit('dft_input: rtdb_put failed', 124)
-      if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
-     $     call errquit('dft_input: rtdb_put failed', 125)
-      if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
-     $     call errquit('dft_input: rtdb_put failed', 126)
-      if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     $     call errquit('dft_input: rtdb_put failed', 127)
-      if (.not. rtdb_put(rtdb, 'dft:imull', mt_int, 1, imull))
-     $     call errquit('dft_input: rtdb_put failed', 128)
-      if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
-     $     call errquit('dft_input: rtdb_put failed', 129)
-c     
-c>>>  store real parameters in rtdb
-c     
-      if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
-     $     call errquit('dft_input: rtdb_put failed', 201)
-      if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
-     $     call errquit('dft_input: rtdb_put failed', 202)
-      if (.not. rtdb_put(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
-     $     call errquit('dft_input: rtdb_put failed', 203)
-      if (.not. rtdb_put(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
-     $     call errquit('dft_input: rtdb_put failed', 204)
-      if (.not. rtdb_put(rtdb, 'dft:diison', mt_dbl, 1, diison))
-     $     call errquit('dft_input: rtdb_put failed', 205)
-      if (.not. rtdb_put(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
-     $     call errquit('dft_input: rtdb_put failed', 206)
-      if (.not. rtdb_put(rtdb, 'dft:rscale', mt_dbl, 1, rscale))
-     $     call errquit('dft_input: rtdb_put failed', 207)
-      if (.not. rtdb_put(rtdb, 'dft:cang', mt_dbl, 3, cang))
-     $     call errquit('dft_input: rtdb_put failed', 208)
-      if (.not. rtdb_put(rtdb, 'dft:cdist', mt_dbl, 3, cdist))
-     $     call errquit('dft_input: rtdb_put failed', 209)
-      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
-     $     call errquit('dft_input: rtdb_put failed', 210)
-      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
-     $     call errquit('dft_input: rtdb_put failed', 211)
-      if (.not. rtdb_put(rtdb, 'dft:lshift', mt_dbl, 1,rlshift))
-     $     call errquit('dft_input: rtdb_put failed', 212)
-      if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1,radius))
-     $     call errquit('dft_input: rtdb_put failed', 213)
-      if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1,TOLL))
-     $     call errquit('dft_input: rtdb_put failed', 214)
-      if (.not. rtdb_put(rtdb, 'dft:rm', mt_dbl, 1,rm))
-     $     call errquit('dft_input: rtdb_put failed', 215)
-c     
-c>>>  store character parameters in rtdb
-c     
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     $     call errquit('dft_input: rtdb_put failed', 301) 
-      if (.not. rtdb_cput(rtdb, 'dft:cname', 10, cname))
-     $     call errquit('dft_input: rtdb_put failed', 302) 
-      if (.not. rtdb_cput(rtdb, 'dft:xname', 10, xname))
-     $     call errquit('dft_input: rtdb_put failed', 303) 
-      if (.not. rtdb_cput(rtdb, 'dft:xcname', 10, xcname))
-     $     call errquit('dft_input: rtdb_put failed', 304) 
+      if (.not. rtdb_put(rtdb, 'dft:cfac',
+     &   mt_dbl, 10, cfac))
+     &   call errquit('dft_input: rtdb_put failed', 210)
+      if (.not. rtdb_put(rtdb, 'dft:xfac',
+     &   mt_dbl, 10, xfac))
+     &   call errquit('dft_input: rtdb_put failed', 211)
       return
 c       
 10000 continue !  die with error
