@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.53 1999-01-15 01:01:02 d3e129 Exp $
+c $Id: texas_face.F,v 1.54 1999-05-05 04:46:28 d3e129 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -428,7 +428,9 @@ c----------------------------------------------------------------------
 c Add one uncontracted s-shell with zero exponent for 2- and 3-center 
 c integrals . Do so if there is more than ONE basis set specified :
 c
-      if(nbas.gt.1) call add_s_zero( dbl_mb(ibas))
+*:rak always add the zero s function
+*:rak      if(nbas.gt.1) call add_s_zero( dbl_mb(ibas))
+      call add_s_zero( dbl_mb(ibas))
 c
 c----------------------------------------------------------------------
 c Re-arrange a basis set according to the Texas convention
