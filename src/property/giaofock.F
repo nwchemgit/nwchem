@@ -1,4 +1,4 @@
-      subroutine new_giao_2e(geom, basis, tol2e, g_dens, g_fock)
+      subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -6,12 +6,13 @@
 #include "bas.fh"
 #include "hnd_giao.fh"
 #include "hnd_pointers.fh"
+#include "global.fh"
 c
-      integer geom, basis, g_dens, g_fock
-      double precision tol2e
+      integer geom, basis, g_dens, g_fock, nbf
+      double precision tol2e,kfac
 c
-      integer nshell, maxang, blen, lend, leri
-      integer l_eri,k_eri,l_scr,k_scr
+      integer nshell, maxang, blen, lend, leri, ii
+      integer l_eri,k_eri,l_scr,k_scr,alo(4),ahi(4),g_xc
 c
       integer       k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
      $     k_f_ij,  k_f_ji,  k_f_ik,  k_f_jl,  k_f_il,  k_f_jk,
@@ -65,7 +66,7 @@ c
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen)
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, kfac)
 c
 c  Clean up memory allocated in this routine
 c
@@ -73,11 +74,36 @@ c
      $  call errquit('new_giao_2e:failed chopping MA stack',555,
      &       MA_ERR)
 c
+c     Add DFT XC if running DFT calculation
+c
+      if (kfac.lt.1.0d0) then
+         alo(1) = 1
+         ahi(1) = 3
+         alo(2) = 1
+         ahi(2) = nbf
+         alo(3) = 1
+         ahi(3) = nbf
+         if (.not.nga_create(MT_DBL,3,ahi,'xc matrix',alo,g_xc)) 
+     &      call errquit('hnd_giaox: nga_create failed g_xc',0,GA_ERR)
+         call ga_zero(g_xc)
+         call fock_xc(geom,nbf,basis,3,g_dens,g_xc,.false.)
+         do ii = 1, 3
+            alo(1) = ii
+            ahi(1) = ii
+            alo(4) = ii
+            ahi(4) = ii
+            call nga_add_patch(-2.0d0,g_xc,alo,ahi,1.0d0,g_fock,
+     &                         alo(2),ahi(2),g_fock,alo(2),ahi(2))
+         enddo
+         if (.not.ga_destroy(g_xc)) call
+     &      errquit('giao_aotomo: ga_destroy failed g_xc',0,GA_ERR)
+      endif
+c
       end
       subroutine giaofock(basis, geom, g_dens, g_fock,
      $                    d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $                    f_ij,  f_ji,  f_ik,  f_jl,  f_il,  f_jk, 
-     $                    lscr, scr, leri, eri, tol2e, nshell, blen)
+     $                    lscr, scr, leri, eri, tol2e, nshell,blen,kfac)
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -107,6 +133,7 @@ c
       integer leri                ! [input] Size of eri buffer
       double precision eri(leri,6)! [scratch] Derivative integral buffer
       double precision tol2e      ! [input] Integral screening threshold
+      double precision kfac       ! [input] kfactor depends on DFT or SCF
       integer nshell              ! [input] Number of shells
 c
       integer  next, ijklblock
@@ -184,7 +211,7 @@ c
                      call new_giao_doit(leri,eri,tol2e,
      $                          d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_ji, f_ik, f_jl, f_il, f_jk, 
-     $                    blen, idim, jdim, kdim, ldim, ieqj, keql)
+     $                    blen, idim, jdim, kdim, ldim, ieqj, keql,kfac)
 c
                      call new_acc_giaofock_block(g_fock, blen, 
      $                    ibflo, ibfhi, jbflo, jbfhi, f_ij)
@@ -248,13 +275,13 @@ c
 c
       subroutine new_giao_doit(leri,eri,tol2e, d_kl, d_ik, d_jl, d_il, 
      $                         d_jk, f_ij, f_ji, f_ik, f_jl, f_il, f_jk,
-     $                         blen, idim, jdim, kdim, ldim, ieqj, keql)
+     $                         blen,idim,jdim,kdim,ldim,ieqj,keql,kfac)
       implicit none
 c
       integer blen
       integer leri
       double precision eri(leri,6)
-      double precision tol2e
+      double precision tol2e, kfac
       double precision
      $                      d_kl(blen,blen), 
      $     d_ik(blen,blen), d_jl(blen,blen), 
@@ -285,13 +312,13 @@ c
             f_ij(i,j,v) = f_ij(i,j,v) + d_kl(k,l)*eri(integ,v)*2.0d0*fac
             f_ji(j,i,v) = f_ji(j,i,v) - d_kl(k,l)*eri(integ,v)*2.0d0*fac
             f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*
-     &                        (eri(integ,v)-eri(integ,v+3))*0.5d0*fac
+     &                    (eri(integ,v)-eri(integ,v+3))*0.5d0*fac*kfac
             f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*
-     &                        (eri(integ,v)+eri(integ,v+3))*0.5d0*fac
+     &                    (eri(integ,v)+eri(integ,v+3))*0.5d0*fac*kfac
             f_jk(j,k,v) = f_jk(j,k,v) - d_il(i,l)*
-     &                        (-eri(integ,v)-eri(integ,v+3))*0.5d0*fac
+     &                    (-eri(integ,v)-eri(integ,v+3))*0.5d0*fac*kfac
             f_jl(j,l,v) = f_jl(j,l,v) - d_ik(i,k)*
-     &                        (-eri(integ,v)+eri(integ,v+3))*0.5d0*fac
+     &                    (-eri(integ,v)+eri(integ,v+3))*0.5d0*fac*kfac
                   end do
                end do
             end do

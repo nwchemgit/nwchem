@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.7 2004-12-08 23:57:39 bert Exp $
+c $Id: hnd_giaox.F,v 1.8 2004-12-16 18:46:12 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -8,9 +8,10 @@ c $Id: hnd_giaox.F,v 1.7 2004-12-08 23:57:39 bert Exp $
 #include "geom.fh"
 #include "rtdb.fh"
 #include "bas.fh"
-#include "nwc_const.fh"
 #include "stdio.fh"
 #include "apiP.fh"
+#include "prop.fh"
+#include "bgj.fh"
 c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -25,9 +26,9 @@ c
       integer l_xyz, k_xyz, l_zan, k_zan
       integer l_tmp, k_tmp
       integer g_dens(3), g_s10, g_h01, g_h11, g_d1, g_rhs, g_fock, g_u
-      integer vectors(2), geomnew, i, j, ij
+      integer vectors(2), geomnew, i, j, ij, g_xc(3)
       double precision atn, tol2e, val, isotr, aniso
-      double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3)
+      double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3),xfac
       character*3 scftyp
       character*16 tag
       character*32 element
@@ -48,6 +49,11 @@ c     Current CPHF does not handle symmetry
 c     Making C1 geometry and store it on rtdb
 c     
       oskel = .false.
+c
+c     If DFT get part of the exact exchange defined
+c
+      xfac = 1.0d0
+      if (use_theory.eq.'dft') xfac = bgj_kfac()
 c
 c     Integral initialization
 c
@@ -230,7 +236,7 @@ c     Create "perturbed density matrix" for closed-closed g_u block
 c
       do ifld = 1, 3
          jfac(ifld) = 0.0d0
-         kfac(ifld) = -1.0d0
+         kfac(ifld) = -1.0d0*xfac
          alo(3) = ifld
          ahi(3) = ifld
          clo(1) = ifld
@@ -255,6 +261,17 @@ c
 c
 c     Build "first order fock matrix"
 c
+      if (use_theory.eq.'dft') then
+         if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $     call errquit('hess_cphf: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
+     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0,
+     &       RTDB_ERR)
+      endif
       call shell_fock_build(geom, basis, 0, 3,
      $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
 c
@@ -350,7 +367,20 @@ c
       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',alo,g_fock)) call 
      &    errquit('hnd_giaox: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
-      call new_giao_2e(geom, basis, tol2e, g_dens, g_fock)
+      if(use_theory.eq.'dft') then
+         ifld = 4
+         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+      endif
+      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+      if(use_theory.eq.'dft') then
+         ifld = 0
+         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $       call errquit('hess_cphf: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
+      endif
 c
 c     Transform to MO basis and add to right-hand-side
 c

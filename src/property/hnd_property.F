@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.15 2004-12-08 23:57:39 bert Exp $
+* $Id: hnd_property.F,v 1.16 2004-12-16 18:46:12 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -14,11 +14,18 @@
 #include "cfock.fh"
 #include "prop.fh"
 c
-c     property module.
+c     Property module.
 c
-c     Assumes energy has been completed, MO vectors stored
-c     and all information is still in the RTDB
+c     Does energy run to check if energy was converged far enough,
+c     then will do the properties. Some checking. If we want to do 
+c     spin-spin or shielding we need to make the geometry C1 during
+c     the property calculation. After that we have to reset it back
+c     to the proper symmetry.
 c
+c     1. Initialize all necessary SCF/DFT information
+c     2. Do energy
+c     3. Get geometry and basis
+c     4. Run properties
 c
       logical  int_normalize
       external int_normalize
@@ -36,6 +43,8 @@ c
       logical grid_clinit, task_energy
       external grid_clinit, task_energy
       integer nopen,mult,ipol
+c
+c     Initialization
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
       call util_print_push
@@ -64,27 +73,18 @@ c
 c
 c     Get geometry and make C1 if necessary
 c
-      if (.not. geom_create(geomold, 'geometry'))
-     $     call errquit('property: geom_create?', 0, GEOM_ERR)
-      if (.not. geom_rtdb_load(rtdb, geomold, 'geometry'))
-     $     call errquit('property: no geometry ', 0, RTDB_ERR)
       if (usec1) then
+         if (.not. geom_create(geomold, 'geometry'))
+     $      call errquit('hnd_property: geom_create?', 0, GEOM_ERR)
+         if (.not. geom_rtdb_load(rtdb, geomold, 'geometry'))
+     $      call errquit('hnd_property: no geometry ', 0, RTDB_ERR)
          if (.not. geom_makec1(geomold, geom)) call
-     $    errquit('hnd_spinspin: failed decrease symmetry',555,GEOM_ERR)
+     $    errquit('hnd_property: failed decrease symmetry',555,GEOM_ERR)
          if (.not.geom_rtdb_store(rtdb,geom,'geometry')) call
-     &    errquit('hnd_spinspin: geom_rtdb_store failed',555,RTDB_ERR)
-      else
-         geom = geomold
+     &    errquit('hnd_property: geom_rtdb_store failed',555,RTDB_ERR)
+         if (.not.geom_destroy(geom)) call
+     &    errquit('hnd_property: geom_destroy failed',555,RTDB_ERR)
       endif
-c
-c     Get the basis set
-c
-      if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('property: bas_create?', 0, BASIS_ERR)
-      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('property: no ao basis ', 0, RTDB_ERR)
-      if (.not. int_normalize(rtdb,basis))
-     $     call errquit('property: normalization failed',911, INT_ERR)
 c
 c     Some printout
 c
@@ -116,6 +116,7 @@ c
       endif
 c
 c     Set up SCF and DFT stuff for shielding and spinspin CPHF
+c     Also for general more improved accuracy of properties
 c
       ithresh = 1.0d-6
       if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
@@ -171,7 +172,7 @@ c
          if (.not.rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho))
      .        call errquit(' hnd_property: rtdbput failed ',11,0)
 c
-c     kill symmetry for XC grid build
+c     kill symmetry for XC grid build when doing C1 symmetry CPHF
 c
          if (usec1) then
            if (.not. rtdb_put(rtdb, 'dft:gridsym',
@@ -207,10 +208,10 @@ c
 c
 c     Making sure scf_init realizes that ODFT is UHF
 c
-      if (theory.eq.'dft') then
-         if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, 'UHF')) call
-     &       errquit('hnd_property: rtdb_cput failed',100,RTDB_ERR)
-      endif
+c     if (theory.eq.'dft') then
+c        if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, 'UHF')) call
+c    &       errquit('hnd_property: rtdb_cput failed',100,RTDB_ERR)
+c     endif
 c
 c     Depending on calculation write prop:input vectors to rtdb
 c
@@ -226,6 +227,22 @@ c
       if (.not. rtdb_cput(rtdb,'prop:input vectors',1,vectors_in))
      &    call errquit('hnd_property: rtdb_cput failed', 100,
      &                 RTDB_ERR)
+c
+c    Get geometry and basis set
+c
+      if (.not. geom_create(geom, 'geometry'))
+     $    call errquit('hnd_property: geom_create?', 0, GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     $    call errquit('hnd_property: no geometry ', 0, RTDB_ERR)
+c
+c     Get the basis set
+c
+      if (.not. bas_create(basis, 'ao basis'))
+     $     call errquit('property: bas_create?', 0, BASIS_ERR)
+      if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
+     $     call errquit('property: no ao basis ', 0, RTDB_ERR)
+      if (.not. int_normalize(rtdb,basis))
+     $     call errquit('property: int_normalize', 0, INT_ERR)
 c
 c     call hondo property calculation routines
 c
@@ -244,7 +261,7 @@ c
      &    ('hnd_property:error destroying geom and basis handles',911,
      &       GEOM_ERR)
 c
-c     Reset geometry if necessary
+c     Reset geometry if necessary (i.e. after C1 run)
 c
       if (usec1) then
          if (.not.geom_rtdb_store(rtdb,geomold,'geometry')) call
