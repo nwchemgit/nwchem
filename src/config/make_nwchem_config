@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.18 1995-07-29 23:55:33 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.19 1995-07-30 06:49:51 d3e129 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -29,7 +29,7 @@ EXPANSIONS = all qm md qmmd
 
 EXP_all = $(filter-out ideaz scfaux cphf vib,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 riscf \
-	stepper symmetry vib
+	stepper symmetry ccsd vib
 EXP_md  = ideaz
 EXP_qmmd = gradients ideaz
 
@@ -115,9 +115,9 @@ STUBROUTINES = $(EXCLUDED_SUBDIRS)
 STUBROUTINES := $(patsubst NWints,task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft dft_optimize dft_freq,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,rjhtest raktest debtest,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst gradients,scf_gradient,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst gradients,scf_gradient scf_optimize scf_freq,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft dft_input,$(STUBROUTINES) )
