@@ -1,0 +1,154 @@
+      subroutine intpd_2e2c(brain, ish, ketin, jsh, Rj,
+     &       lscr, scr, leri, eri, idatom2)
+*
+* $Id: intpd_2e2c.F,v 1.1 1998-05-06 00:50:12 d3e129 Exp $
+*
+      implicit none
+c
+c basic api routine to generate a block of 2 center two electron integrals
+c eri = <bra_g(ish)|ket_g(jsh)>
+c
+#include "apiP.fh"
+#include "bas.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+c
+c::external subroutines used
+c errquit
+c::functions
+      logical cando_nw
+      logical int_chk_sh
+      logical int_chk_init
+      external cando_nw
+      external int_chk_sh
+      external int_chk_init
+      integer int_nint_cart
+      external int_nint_cart
+c:: passed
+      integer brain  ! basis set handle for bra function
+      integer ketin  ! basis set handle for ket function
+      integer ish    ! lexical contraction/shell index
+      integer jsh    ! lexical contraction/shell index
+      integer lscr   ! length of scratch array
+      integer leri   ! length of ERI array
+      integer idatom2(*) ! [output]  array identifying centers for derivatives externalized
+      double precision scr(lscr) ! scratch array 
+      double precision eri(leri) ! ERI array
+      double precision Rj(3)  ! translation vector for jsh center (fractional coordinates)
+c:: local
+      integer idatom(4)
+      logical shells_ok
+      integer bra, ket 
+      integer p_geom, q_geom, ucont, mynint
+      integer Lp, p_prim, p_gen, p_iexp, p_icfp, p_cent
+      integer Lq, q_prim, q_gen, q_iexp, q_icfp, q_cent
+      double precision xyz_new_j(3)  ! new coordinates for jsh function center
+c
+      integer WarnP
+      save WarnP
+      data WarnP /0/
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+c check initialization
+c
+      if (.not.int_chk_init('intpd_2e2c'))
+     &       call errquit('intpd_2e2c: int_init was not called' ,0)
+c
+c     check input shell ranges
+c
+      shells_ok = int_chk_sh(brain,ish)
+      shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
+c
+      if (.not.shells_ok)
+     &       call errquit('intpd_2e2c: invalid contraction/shell',0)
+c
+c  check if spherical/gencon/sp shell
+c
+      call int_nospherical_check(brain,'intpd_2e2c:bra')
+      call int_nospherical_check(ketin,'intpd_2e2c:ket')
+      call int_nogencont_check(brain,'intpd_2e2c:bra')
+      call int_nogencont_check(ketin,'intpd_2e2c:ket')
+      call int_nospshell_check(brain,'intpd_2e2c:bra')
+      call int_nospshell_check(ketin,'intpd_2e2c:ket')
+c
+c     define center information required 
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+      p_geom = ibs_geom(bra)
+      q_geom = ibs_geom(ket)
+c
+      if (p_geom.ne.q_geom.and.WarnP.eq.0) then
+        write(luout,*)
+     &      'intpd_2e2c: WARNING: possible geometry inconsistency'
+        write(luout,*)'bra geometry handle:',p_geom
+        write(luout,*)'ket geometry handle:',q_geom
+        WarnP = 1
+      endif
+      mynint = int_nint_cart(brain,ish,ketin,jsh,0,0,0,0)
+      if (mynint*3*4.gt.leri) then
+        write(6,*) 'nint*3*4 = ',mynint*3*4
+        write(6,*) 'leri     = ',leri
+        call errquit('intpd_2e2c: nint>leri error',911)
+      endif
+c
+      p_cent  = (sf_ibs_cn2ce(ish,bra))
+      q_cent  = (sf_ibs_cn2ce(jsh,ket))
+      if (p_cent.eq.q_cent) then
+        call dfill((mynint*3*4),0.0d00,eri,1)
+        call ifill(2,-1,idatom2,1)
+        return
+      endif
+c
+c.. translate jsh center coordinates based on Rj
+      call intp_txyz(q_cent,q_geom,Rj,xyz_new_j)
+      if(cando_nw(brain,ish,0).and.cando_nw(ketin,jsh,0)) then
+c
+        ucont   = (sf_ibs_cn2ucn(ish,bra))
+        Lp      = infbs_cont(CONT_TYPE ,ucont,bra)
+        p_prim  = infbs_cont(CONT_NPRIM,ucont,bra)
+        p_gen   = infbs_cont(CONT_NGEN ,ucont,bra)
+        p_iexp  = infbs_cont(CONT_IEXP ,ucont,bra)
+        p_icfp  = infbs_cont(CONT_ICFP ,ucont,bra)
+c
+        ucont   = (sf_ibs_cn2ucn(jsh,ket))
+        Lq      = infbs_cont(CONT_TYPE ,ucont,ket)
+        q_prim  = infbs_cont(CONT_NPRIM,ucont,ket)
+        q_gen   = infbs_cont(CONT_NGEN ,ucont,ket)
+        q_iexp  = infbs_cont(CONT_IEXP ,ucont,ket)
+        q_icfp  = infbs_cont(CONT_ICFP ,ucont,ket)
+c
+        call hf2d(
+     &      coords(1,p_cent,p_geom), dbl_mb(mb_exndcf(p_iexp,bra)),
+     &      dbl_mb(mb_exndcf(p_icfp,bra)), p_prim, p_gen, Lp, p_cent,
+     &      coords(1,p_cent,p_geom), DCexp,
+     &      DCcoeff           ,      1,     1, 0, p_cent,
+     &      xyz_new_j, dbl_mb(mb_exndcf(q_iexp,ket)),
+     &      dbl_mb(mb_exndcf(q_icfp,ket)), q_prim, q_gen, Lq, q_cent,
+     &      xyz_new_j, DCexp,
+     &      DCcoeff           ,      1,     1, 0, q_cent,
+c...................... canAB    canCD    canPQ
+     &      eri, mynint, .false., .false., .false.,
+c........... dryrun
+     &      .false., scr, lscr)
+c
+        call intd_sum2c(eri,mynint,idatom,p_cent,q_cent)
+        idatom2(1) = idatom(1)
+        idatom2(2) = idatom(3)
+      else
+        write(luout,*)'intpd_2e2c: could not do nw integrals'
+        write(luout,*)' brain :',brain
+        write(luout,*)' ketin :',ketin
+        write(luout,*)' ish   :',ish
+        write(luout,*)' jsh   :',jsh
+        call errquit('intpd_2e2c: fatal error ',0)
+      endif
+      end
