@@ -10,7 +10,7 @@ Format: <select name=format>
 <option value=builtin-short>Short
 </select>
 </font>
-<input type=hidden name=config value=nwchem_user>
+<input type=hidden name=config value=nwchem_user_pub>
 <input type=hidden name=restrict value="">
 <input type=hidden name=exclude value="">
 <br>
