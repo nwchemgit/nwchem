@@ -1,20 +1,54 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.16 1994-07-29 22:39:08 d3e129 Exp $
+c $Id: raktest.F,v 1.17 1994-08-17 05:49:46 d3e129 Exp $
       integer rtdb
 c
       logical scf
       logical gradients
       logical stpr_walk
+      real etime,tarray(2)
+      real t1
       external scf
       external gradients
       external stpr_walk
+      external etime
 c
 c      logical status
 c
       write(6,*) ' rak test'
-      call size_integ(rtdb,'geometry', 'mo basis')
-*rak:      call dointsum(rtdb,'geometry', 'mo basis')
+*rak:      call size_integ(rtdb,'geometry', 'mo basis')
+      write(6,*)'====================================================='
+      write(6,*)' acc = high '
+      call int_acc_high()
+      t1 = etime(tarray)
+      call dointsum(rtdb,'geometry', 'mo basis')
+      t1 = etime(tarray) - t1 
+      write(6,'(a,f10.3)')' dointsum time: ',t1
+      write(6,*)'====================================================='
+      write(6,*)'====================================================='
+      write(6,*)' acc = std '
+      call int_acc_std()
+      t1 = etime(tarray)
+      call dointsum(rtdb,'geometry', 'mo basis')
+      t1 = etime(tarray) - t1 
+      write(6,'(a,f10.3)')' dointsum time: ',t1
+      write(6,*)'====================================================='
+      write(6,*)'====================================================='
+      write(6,*)' acc = 1.0d-06 '
+      call int_acc_set(1.0d-06)
+      t1 = etime(tarray)
+      call dointsum(rtdb,'geometry', 'mo basis')
+      t1 = etime(tarray) - t1 
+      write(6,'(a,f10.3)')' dointsum time: ',t1
+      write(6,*)'====================================================='
+      write(6,*)'====================================================='
+      write(6,*)' acc = 1.0d-03 '
+      call int_acc_set(1.0d-03)
+      t1 = etime(tarray)
+      call dointsum(rtdb,'geometry', 'mo basis')
+      t1 = etime(tarray) - t1 
+      write(6,'(a,f10.3)')' dointsum time: ',t1
+      write(6,*)'====================================================='
 *rak:      call derivtest(rtdb,'geometry', 'mo basis')
 *rak:00001 continue
 *rak:      status = .false.
@@ -27,7 +61,73 @@ c
 *rak:     if (.not.status) goto 00001
 
       end
-      subroutine size_integ(rtdb,geom_name, basis_name)
+*rak:      subroutine size_integ(rtdb,geom_name, basis_name)
+*rak:      implicit none
+*rak:#include "geom.fh"
+*rak:#include "bas.fh"
+*rak:#include "mafdecls.fh"
+*rak:c
+*rak:      integer rtdb
+*rak:      integer basis, geom
+*rak:      character*(*) geom_name, basis_name
+*rak:c
+*rak:      integer max1e,max2e,scr1,scr2,maxuse,scruse
+*rak:      double precision xscruse
+*rak:c
+*rak:      logical int_normalize
+*rak:      double precision ddot
+*rak:      external int_normalize
+*rak:      external ddot
+*rak:c
+*rak:      call hf_print_set(0)
+*rak:c
+*rak:      write(6,*)' rtdb      :',rtdb
+*rak:      write(6,*)' geom_name : <',geom_name,'>'
+*rak:      write(6,*)' basis_name: <',basis_name,'>'
+*rak:c
+*rak:      if (.not. geom_create(geom, geom_name))
+*rak:     $     call errquit('size_integ: geom_create failed?', 0)
+*rak:      if (.not. geom_rtdb_load(rtdb, geom, geom_name))
+*rak:     $     call errquit('size_integ: geom_load failed', 0)
+*rak:      if (.not. geom_print(geom))
+*rak:     $     call errquit('size_integ: geom_print failed', 0)
+*rak:      if (.not. bas_create(basis, basis_name))
+*rak:     $     call errquit('size_integ: basis create failed', 0)
+*rak:      if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
+*rak:     $      call errquit('size_integ: basis load failed', 0)
+*rak:      if (.not. bas_print(basis))
+*rak:     $      call errquit('size_integ: basis print failed', 0)
+*rak:      if (.not. gbs_map_print(basis))
+*rak:     $     call errquit('size_integ: gbs_map_print failed', 0)
+*rak:c
+*rak:c normalize basis set
+*rak:c
+*rak:      if (.not.int_normalize(basis))
+*rak:     &       call errquit('size_integ: basis norm. failed', 0)
+*rak:      write(6,*)' after normalization'
+*rak:      if (.not. bas_print(basis))
+*rak:     $      call errquit('size_integ: basis print failed', 0)
+*rak:c
+*rak:c      write(6,*)' with integrals  printed '
+*rak:c      call int_chk_sum(basis,.true.)
+*rak:      call int_init(1,basis)
+*rak:      call int_terminate()
+*rak:      call intd_init(1,basis)
+*rak:      call int_mem(max1e,max2e,scr1,scr2)
+*rak:      maxuse=max(max1e,max2e)
+*rak:      scruse=max(scr1,scr2)
+*rak:      scruse=scruse+maxuse
+*rak:      scruse=scruse*8
+*rak:      xscruse=dble(scruse)*1.0d-06
+*rak:      write(6,'(1x,a,f10.3,a)')' int deriv memory ',xscruse,' Mbytes'
+*rak:      call int_terminate()
+*rak:      if (.not.(
+*rak:     &       (bas_destroy(basis)).and.(geom_destroy(geom))
+*rak:     &       ))
+*rak:     &       call errquit('rak:error destroying gbs pair',0)
+*rak:c
+*rak:      end
+      subroutine dointsum(rtdb,geom_name, basis_name)
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -36,9 +136,6 @@ c
       integer rtdb
       integer basis, geom
       character*(*) geom_name, basis_name
-c
-      integer max1e,max2e,scr1,scr2,maxuse,scruse
-      double precision xscruse
 c
       logical int_normalize
       double precision ddot
@@ -79,80 +176,17 @@ c      call int_chk_sum(basis,.true.)
       call int_init(1,basis)
       call int_terminate()
       call intd_init(1,basis)
-      call int_mem(max1e,max2e,scr1,scr2)
-      maxuse=max(max1e,max2e)
-      scruse=max(scr1,scr2)
-      scruse=scruse+maxuse
-      scruse=scruse*8
-      xscruse=dble(scruse)*1.0d-06
-      write(6,'(1x,a,f10.3,a)')' int deriv memory ',xscruse,' Mbytes'
+      write(6,*)' without integrals  printed '
+      call int_chk_sum(basis,.false.)
+c
       call int_terminate()
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
      &       call errquit('rak:error destroying gbs pair',0)
+      call MA_summarize_allocated_blocks()
 c
       end
-*rak:      subroutine dointsum(rtdb,geom_name, basis_name)
-*rak:      implicit none
-*rak:#include "geom.fh"
-*rak:#include "bas.fh"
-*rak:#include "mafdecls.fh"
-*rak:c
-*rak:      integer rtdb
-*rak:      integer basis, geom
-*rak:      character*(*) geom_name, basis_name
-*rak:c
-*rak:      logical int_normalize
-*rak:      double precision ddot
-*rak:      external int_normalize
-*rak:      external ddot
-*rak:c
-*rak:      call hf_print_set(0)
-*rak:c
-*rak:      write(6,*)' rtdb      :',rtdb
-*rak:      write(6,*)' geom_name : <',geom_name,'>'
-*rak:      write(6,*)' basis_name: <',basis_name,'>'
-*rak:c
-*rak:      if (.not. geom_create(geom, geom_name))
-*rak:     $     call errquit('dointsum: geom_create failed?', 0)
-*rak:      if (.not. geom_rtdb_load(rtdb, geom, geom_name))
-*rak:     $     call errquit('dointsum: geom_load failed', 0)
-*rak:      if (.not. geom_print(geom))
-*rak:     $     call errquit('dointsum: geom_print failed', 0)
-*rak:      if (.not. bas_create(basis, basis_name))
-*rak:     $     call errquit('dointsum: basis create failed', 0)
-*rak:      if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
-*rak:     $      call errquit('dointsum: basis load failed', 0)
-*rak:      if (.not. bas_print(basis))
-*rak:     $      call errquit('dointsum: basis print failed', 0)
-*rak:      if (.not. gbs_map_print(basis))
-*rak:     $     call errquit('dointsum: gbs_map_print failed', 0)
-*rak:c
-*rak:c normalize basis set
-*rak:c
-*rak:      if (.not.int_normalize(basis))
-*rak:     &       call errquit('dointsum: basis norm. failed', 0)
-*rak:      write(6,*)' after normalization'
-*rak:      if (.not. bas_print(basis))
-*rak:     $      call errquit('dointsum: basis print failed', 0)
-*rak:c
-*rak:c      write(6,*)' with integrals  printed '
-*rak:c      call int_chk_sum(basis,.true.)
-*rak:      call int_init(1,basis)
-*rak:      call int_terminate()
-*rak:      call intd_init(1,basis)
-*rak:      write(6,*)' without integrals  printed '
-*rak:      call int_chk_sum(basis,.false.)
-*rak:c
-*rak:      call int_terminate()
-*rak:      if (.not.(
-*rak:     &       (bas_destroy(basis)).and.(geom_destroy(geom))
-*rak:     &       ))
-*rak:     &       call errquit('rak:error destroying gbs pair',0)
-*rak:      call MA_summarize_allocated_blocks()
-*rak:c
-*rak:      end
 *rak:      subroutine derivtest(rtdb,geom_name, basis_name)
 *rak:      implicit none
 *rak:#include "geom.fh"
