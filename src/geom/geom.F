@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.68 1997-11-07 17:32:17 d3g681 Exp $
+C$Id: geom.F,v 1.69 1997-11-07 23:18:16 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -814,66 +814,6 @@ c
       geom_rtdb_delete = .true.
 c
       end
-      logical function geom_create(geom, name)
-      implicit none
-#include "geomP.fh"
-#include "inp.fh"
-c     
-      integer geom              ! [output]
-      character*(*) name        ! [input]
-c
-      integer i,j
-      external geom_data  ! This for T3D linker
-c
-c     Assign the next free slot for a geometry
-c
-      do geom = 1, max_geom
-         if (.not. active(geom)) goto 10
-      end do
-      write(6,1) name
- 1    format(' geom_create: too many geoms trying to create ', a)
-      call geom_err_info('geom_create')
-      geom_create = .false.
-      return
- 10   continue
-c
-c     store info about the geometry
-c
-      names(geom) = name
-      trans(geom) = ' '
-      lenn(geom) = inp_strlen(name)
-      ncenter(geom) = 0
-      active(geom) = .true.
-      geom_create = .true.
-      oefield(geom) = .false.
-      operiodic(geom) = .false.
-      ncenter_unique(geom) = 0
-      isystype(geom) = 0
-      group_number(geom) = 1
-      setting_number(geom) = 0
-      sym_center_map_handle(geom) = -1
-      sym_center_map_index(geom) = 1
-      group_name(geom) = 'C1'
-      sym_num_ops(geom) = 0
-      user_units(geom) = 'angstroms'
-      include_bqbq(geom) = .false.
-      zmt_nizmat(geom) = 0
-      usr_nizmat(geom) = 0
-c
-      do i = 1, 3
-        lattice_vectors(i,geom) = 0
-        lattice_angles(i,geom) = 0
-        do j = 1, 3
-           amatrix(j,i,geom) = 0.0d0
-           amatrix_inv(j,i,geom) = 0.0d0
-           bmatrix(j,i,geom) = 0.0d0
-        end do
-        amatrix(i,i,geom) = 1.0d0
-        amatrix_inv(i,i,geom) = 1.0d0
-        bmatrix(i,i,geom) = 1.0d0
-      end do
-c
-      end
       logical function geom_strip_sym(geom)
       implicit none
 #include "geomP.fh"
@@ -914,6 +854,7 @@ c
 #include "mafdecls.fh"
 c
       integer geom              ! [input]
+      integer i
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c     
@@ -921,6 +862,11 @@ c
       if (.not. geom_destroy) return
 c
       active(geom) = .false.
+* this is set for a geometry at every basis set load
+* This info needs to be nullified when the geometry is gone
+      do i = 1,ncenter(geom)
+        oecpcent(i,geom) = .false.
+      enddo
       geom_destroy = .true.
       if (sym_center_map_handle(geom) .ne. -1) then
          if (.not. ma_free_heap(sym_center_map_handle(geom)))
@@ -2999,4 +2945,73 @@ C data for 87-103 RA Kendall
       endif
       rcoval = rcoval*angstrom_to_au
       geom_get_def_rcov = .true.
+      end
+      logical function geom_create(geom, name)
+      implicit none
+#include "geomP.fh"
+#include "inp.fh"
+c     
+      integer geom              ! [output]
+      character*(*) name        ! [input]
+c
+      integer i,j
+      external geom_data  ! This for T3D linker
+c
+c     Assign the next free slot for a geometry
+c
+      do geom = 1, max_geom
+         if (.not. active(geom)) goto 10
+      end do
+      write(6,1) name
+ 1    format(' geom_create: too many geoms trying to create ', a)
+      call geom_err_info('geom_create')
+      geom_create = .false.
+      return
+ 10   continue
+c
+c     store info about the geometry
+c
+      names(geom) = name
+      trans(geom) = ' '
+      lenn(geom) = inp_strlen(name)
+      ncenter(geom) = 0
+      active(geom) = .true.
+      geom_create = .true.
+      oefield(geom) = .false.
+      operiodic(geom) = .false.
+      ncenter_unique(geom) = 0
+      isystype(geom) = 0
+      group_number(geom) = 1
+      setting_number(geom) = 0
+      sym_center_map_handle(geom) = -1
+      sym_center_map_index(geom) = 1
+      group_name(geom) = 'C1'
+      sym_num_ops(geom) = 0
+      user_units(geom) = 'angstroms'
+      include_bqbq(geom) = .false.
+      zmt_nizmat(geom) = 0
+      usr_nizmat(geom) = 0
+c
+      do i = 1, 3
+        lattice_vectors(i,geom) = 0
+        lattice_angles(i,geom) = 0
+        do j = 1, 3
+           amatrix(j,i,geom) = 0.0d0
+           amatrix_inv(j,i,geom) = 0.0d0
+           bmatrix(j,i,geom) = 0.0d0
+        end do
+        amatrix(i,i,geom) = 1.0d0
+        amatrix_inv(i,i,geom) = 1.0d0
+        bmatrix(i,i,geom) = 1.0d0
+      end do
+c
+*      call dfill((3*max_cent),0.0d00,coord(1,1,geom),1)
+*      call dfill(max_cent,0.0d00,charge(1,geom),1)
+*      call dfill(3,0.0d00,efield(1,geom),1)
+*      erep(geom) = 0.0d00
+*      call dfill(3,0.0d00,ndipole(1,geom),1)
+*      do i = 1,max_cent
+*        oecpcent(i,geom) = .false.
+*      enddo
+c
       end
