@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.1 2001-10-05 09:15:59 edo Exp $
+c     $Id: dft_diagn.F,v 1.2 2001-10-05 09:22:31 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -29,6 +29,7 @@ c
       integer  ga_create_atom_blocked,info
       external ga_create_atom_blocked
       integer i,ncanorg,g_vecstt
+      double precision fjj
 c     
 c     Level shifting is implemented here (similarity 
 c     transformation before standard eigensolver).  Note,
@@ -73,7 +74,9 @@ c
 c     Build upper diagonal matrix. in MO basis
 c     
          do j = noc+1+me, nmo, nproc
-            call ga_put(g_fockt, j, j, j, j, rlshift, 1)
+            call ga_get(g_fockt, j, j, j, j, fjj, 1)
+            fjj=fjj+rlshift
+            call ga_put(g_fockt, j, j, j, j, fjj, 1)
          enddo
       else
          rlshift = 0.0
