@@ -1,10 +1,10 @@
 c
-c $Id: model_charge.F,v 1.1 2002-02-27 22:39:27 bylaska Exp $
+c $Id: model_charge.F,v 1.2 2002-03-03 17:42:42 bylaska Exp $
 c
  
 ***********************************************************
 *                                                         *
-*               Switching Charge module                   *
+*                Model Charge module                      *
 *                                                         *
 *          Interfaced to nwchem-PSPW code                 *
 *                                                         *
@@ -17,17 +17,17 @@ c
 
 *     **********************************
 *     *                                *
-*     *     Switching_Charge_init      *
+*     *     Model_Charge_init      *
 *     *                                *
 *     **********************************
 
-      subroutine Switching_Charge_init(rtdb)
+      subroutine Model_Charge_init(rtdb)
       implicit none
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "switching_charge.fh"
+#include "model_charge.fh"
 
 *       **** local variables ****
         integer MASTER,taskid
@@ -35,17 +35,17 @@ c
 
         call Parallel_taskid(taskid)
 
-
+  
       return
       end
 
 *     **********************************
 *     *                                *
-*     *     Switching_Charge_end       *
+*     *     Model_Charge_end       *
 *     *                                *
 *     **********************************
 
-      subroutine Switching_Charge_end()
+      subroutine Model_Charge_end()
       implicit none
       integer i
 
@@ -55,11 +55,11 @@ c
 
 
 *     *************************************
-*     *           			              *
-*     *   Switching_Charge_Generate_V     *
-*     *                         			*
+*     *           	                  *
+*     *   Model_Charge_Generate_V         *
+*     *                 	          *
 *     *************************************
-      subroutine Switching_Charge_Generate_V(n2ft3d,rgrid,Vqm)
+      subroutine Model_Charge_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
       integer n2ft3d
       real*8  rgrid(3,*)
@@ -111,11 +111,11 @@ c
 
 *     *************************************
 *     *                                   *
-*     *  Switching_Charge_Potential_Fmm   *
+*     *  Model_Charge_Potential_Fmm   *
 *     *                                   *
 *     *************************************
 
-      subroutine Switching_Charge_Potential_Fmm(n2ft3d,rgrid,rho,dv,fmm)
+      subroutine Model_Charge_Potential_Fmm(n2ft3d,rgrid,rho,dv,fmm)
       implicit none
       integer n2ft3d
       real*8 rgrid(3,*)

@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.5 2002-02-25 02:11:34 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.6 2002-03-03 17:42:41 bylaska Exp $
 *
       subroutine coulomb_screened_init(rcut,pp)
       implicit none 
@@ -24,9 +24,9 @@
 *     **** external functions ****
 *     real*8 G(nfft3d,3)
       integer  G_indx
-      real*8   kiril_coulomb_transform
+      real*8   kiril_coulomb_transform,kiril_coulomb_transform0
       external G_indx
-      external kiril_coulomb_transform
+      external kiril_coulomb_transform,kiril_coulomb_transform0
 
       call nwpw_timing_start(7)
 
@@ -69,7 +69,11 @@
 
 
          if ((pzero.eq.taskid) .and. (i.eq.zero)) then
-            dbl_mb(tmp1(1)+i-1) = 0.0d0
+           if (rcut.le.0.0d0) then
+             dbl_mb(tmp1(1)+i-1) = 0.0d0
+           else
+             dbl_mb(tmp1(1)+i-1) = kiril_coulomb_transform0(rcut,pp)
+           end if
          else
 c          f = 1.0d0 - dexp(-0.25d0*rr*gg)
 c          dbl_mb(tmp1(1)+i-1) = f*fourpi/gg
@@ -189,7 +193,7 @@ c     real*8  tmp1(*)
 *     Exit - returns 
 *                              /infty
 *                             | 
-*      v_kiril(g) = (4*pi/g)* | r**2 * v_kiril(r)* j0(gr) dr
+*      v_kiril(g) = (4*pi)  * | r**2 * v_kiril(r)* j0(gr) dr
 *                             |
 *                            / 0
 
@@ -218,10 +222,61 @@ c        sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
       end do
       r = drho*(nrho-1)
 c      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
-      sum = sum + sin(q*r)
+      sum = sum + 0.5d0*sin(q*r)
      >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
 
       kiril_coulomb_transform = (fourpi/q)*sum*drho
       return
       end
 
+*     *******************************
+*     *                             *
+*     *   kiril_coulomb_transform0  *
+*     *                             *
+*     *******************************
+
+*     This function returns the fourier transform of 
+*
+*            v_kiril = exp(-(r/rcut)**pp)/r
+*
+*     Entry - 
+*             rcut: 
+*             pp:
+*                                           
+*     Exit - returns 
+*                              /infty
+*                             | 
+*      v_kiril(g=0) = (4*pi)* | r**2 * v_kiril(r) dr
+*                             |
+*                            / 0
+
+      real*8 function kiril_coulomb_transform0(rcut,pp)
+      implicit none
+      real*8 rcut,pp
+
+*     **** local variables ****
+      integer nrho
+      parameter (nrho=15000)
+
+      integer i
+      real*8  fourpi,r,sum,drho,pp2
+
+      pp2    = pp + 2.0d0
+      drho   = 2.0d0*rcut/dble(nrho)
+      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
+
+      sum = 0.0d0
+      do i=2,nrho-1
+         r = (i-1)*drho
+c        sum = sum + r*dexp(-(r/rcut)**pp)
+         sum = sum + r*
+     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+      end do
+      r = drho*(nrho-1)
+c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
+      sum = sum + 0.5d0*r*
+     >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+
+      kiril_coulomb_transform0 = (fourpi)*sum*drho
+      return
+      end

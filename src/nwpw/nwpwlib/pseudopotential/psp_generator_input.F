@@ -1,12 +1,13 @@
+c
+c $Id: psp_generator_input.F,v 1.14 2002-03-03 17:42:33 bylaska Exp $
+c
+
 *     ***************************************
 *     *										*
 *     *          psp_generator_input    	*
 *     *										*
 *     ***************************************
       subroutine psp_generator_input(rtdb)
-c
-c $Id: psp_generator_input.F,v 1.13 2002-03-02 02:08:50 bylaska Exp $
-c
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"

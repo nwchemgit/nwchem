@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.4 2002-02-27 20:34:16 bylaska Exp $
+c $Id: switching_charge.F,v 1.5 2002-03-03 17:42:42 bylaska Exp $
 c
 
 ***********************************************************
@@ -29,34 +29,165 @@ c
 #include "rtdb.fh"
 #include "switching_charge.fh"
 
-*       **** local variables ****
-        integer MASTER,taskid
-        parameter (MASTER=0)
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
 
-        call Parallel_taskid(taskid)
+      integer npack0,nfft3d,G(3)
+      integer i,j,k
+      integer zero,qzero,pzero,taskid
+      integer nx,ny,nxh,nyh
+      real*8  gg
+      logical value
+      integer tmp1(2)
 
-        if (.not.rtdb_get(rtdb,
+
+*     **** external functions ****
+      integer  G_indx
+      real*8   Truncating_Function_transform
+      external G_indx
+      external Truncating_Function_transform
+
+
+      call Parallel_taskid(taskid)
+
+      if (.not.rtdb_get(rtdb,
      >      'nwpw:charge_dielectric_d',mt_dbl,1,s_d))
      >    s_d = 0.5d0/0.529177d0
 
-        if (.not.rtdb_get(rtdb,
+      if (.not.rtdb_get(rtdb,
      >      'nwpw:charge_dielectric_rho',mt_dbl,1,s_rho))
      >    s_rho = 2.5d0/0.529177d0
 
-        if (.not.rtdb_get(rtdb,
+      if (.not.rtdb_get(rtdb,
      >      'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >    s_sigma = 0.8d0/0.529177d0
 
+      if (.not.rtdb_get(rtdb,'nwpw:truncating_rcut',mt_dbl,1,rcut))
+     >   rcut = 2.0d0/0.529177d0
+
+      if (.not.rtdb_get(rtdb,'nwpw:truncating_power',mt_dbl,1,pp))
+     >   pp = 8.0d0
+
+
       if (taskid.eq.MASTER) then
+          write(*,1160)
+          write(*,1161) rcut
+          write(*,1162 pp
           write(*,1170)
           write(*,1171) s_d,s_rho,s_sigma
       end if
-
+ 1160 FORMAT(/' Truncating Function definition:')
+ 1161 FORMAT(5X, '- Truncating rcut  = (', E11,3,' )  ')
+ 1162 FORMAT(5X, '- Truncating power = (', E11,3,' )  ')
  1170 FORMAT(/' Switching charges used:')
- 1171 FORMAT(5X, '(d,rho,sigma) = (',3E11.3,' )  ')
+ 1171 FORMAT(5X, '- (d,rho,sigma)    = (',3E11.3,' )  ')
+
+
+*     **** define Truncating Function ****      
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
+      G(1) = G_indx(1)
+      G(2) = G_indx(2)
+      G(3) = G_indx(3)
+
+      value = MA_alloc_get(mt_dbl,(npack0),'Trnc',Trnc(2),Trnc(1))
+      if (.not. value) 
+     >  call errquit('Switching_Charge_init: out of heap memory',0)
+      call dcopy(npack0,0.0d0,0,dbl_mb(Trnc(1)), 1)
+
+
+      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) 
+     >   call errquit('Switching_Charge_init: pushing stack',0)
+
+
+*     ***** Generate Fourier transform of Trunctaing Function *****
+      do i = 1,nfft3d
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+         dbl_mb(tmp1(1)+i-1) = 
+     >       Truncating_Function_transform(gg,rcut,pp)
+      end do
+      call Pack_t_pack(0,dbl_mb(tmp1(1)))
+      call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(Trnc(1)))
+      value = MA_pop_stack(tmp1(2))
 
       return
       end
+
+*     *************************************
+*     *                                   *
+*     *   Truncating_Function_transform   *
+*     *                                   *
+*     *************************************
+
+*     This function returns the fourier transform of
+*
+*            T(r) = (1.0d0-(1.0d0-dexp(-(r/rcut)**(pp+2)))**pp)
+*
+*      May want to use:
+*            T(r) = exp(-(r/rcut)**pp)
+*
+*     Entry - gg: g squared
+*             rcut:
+*             pp:
+*
+*     Exit - returns
+*                      /infty
+*                     |
+*      T(g) = (4*pi)* | r**2 * T(r)* j0(gr) dr
+*                     |
+*                     / 0
+
+      real*8 function Truncating_Function_transform(gg,rcut,pp)
+      implicit none
+      real*8 gg,rcut,pp
+
+*     **** local variables ****
+      integer nrho
+      parameter (nrho=5000)
+
+      integer i
+      real*8 q,fourpi,r,sum,drho,pp2,transform
+
+      pp2    = pp + 2.0d0
+      drho   = 2.0d0*rcut/dble(nrho)
+      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
+
+*     **** gg > 0 ****
+      if (gg.gt.1.0d-9) then
+         q  = dsqrt(gg)
+         sum = 0.0d0
+         do i=2,nrho-1
+            r = (i-1)*drho
+            sum = sum + r*sin(q*r)
+     >           *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+         end do
+         r = drho*(nrho-1)
+         sum = sum + r*sin(q*r)
+     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+         transform = (fourpi/q)*sum*drho
+
+*     **** gg == 0 *****
+      else
+         sum = 0.0d0
+         do i=2,nrho-1
+            r = (i-1)*drho
+            sum = sum + r*r*
+     >           *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+         end do
+         r = drho*(nrho-1)
+         sum = sum + r*r*
+     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+         transform = (fourpi)*sum*drho
+      end if
+
+      Truncating_Function_transform = transform
+      return
+      end
+
 
 *     **********************************
 *     *                                *
@@ -66,17 +197,20 @@ c
 
       subroutine Switching_Charge_end()
       implicit none
-      integer i
 
-      i = 0
+#include "mafdecls.fh"
+#include "switching_charge.fh"
+
+      if (.not. MA_free_heap(Trnc(2))) 
+     >  call errquit('Switching_Charge_end: freeing heap',0)
       return
       end
 
 
 *     *************************************
-*     *           			              *
+*     *           	                  *
 *     *   Switching_Charge_Generate_V     *
-*     *                         			*
+*     *                                   *
 *     *************************************
       subroutine Switching_Charge_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
@@ -218,4 +352,17 @@ c
       end
 
 
+*     *************************************
+*     *           	                  *
+*     *   Generate_Truncating_Function    *
+*     *                                   *
+*     *************************************
+      subroutine Generate_Truncating_Function(T)
+
+C
+      data (vander(i),i=1,36)
+     1                  /1.20D+00,1.20D+00,1.37D+00,1.45D+00,
+     2 1.45D+00,1.50D+00,1.50D+00,1.40D+00,1.35D+00,1.30D+00,
+     3 1.57D+00,1.36D+00,1.24D+00,1.17D+00,1.80D+00,1.75D+00,
+     4 1.70D+00,19*0.0D+00/
 
