@@ -1,4 +1,4 @@
-C$Id: ecp_t2_p0pow.F,v 1.7 2003-02-12 02:20:20 edo Exp $ 
+C$Id: ecp_t2_p0pow.F,v 1.8 2003-02-12 20:18:33 bert Exp $ 
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p0pow (n,m,k,alpha,beta,gamma,term,test,temp,
@@ -106,10 +106,10 @@ C      write (6,'(5F10.4)') fac1,fac2,fac3,fac4,fac5
        write(6,*) 'R0',renorm
        endif
 #endif
-               temp(i,1) = temp(i,1) / 10.0**(int(renorm))
-               temp(i,2) = temp(i,2) / 10.0**(int(renorm))
-               temp(i,3) = temp(i,3) / 10.0**(int(renorm))
-               term(i) = term(i) * 10.0**(int(renorm))
+               temp(i,1) = temp(i,1) / 10.0d0**(int(renorm))
+               temp(i,2) = temp(i,2) / 10.0d0**(int(renorm))
+               temp(i,3) = temp(i,3) / 10.0d0**(int(renorm))
+               term(i) = term(i) * 10.0d0**(int(renorm))
 #ifdef DEBUG
       if(abs(renorm).gt.35d0) then
        write(6,*) 'R ',renorm
