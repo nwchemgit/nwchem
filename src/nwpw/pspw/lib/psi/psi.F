@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.28 2003-04-22 18:05:11 bylaska Exp $
+* $Id: psi.F,v 1.29 2003-04-22 18:39:35 bylaska Exp $
 *
 
 *     ***********************************
@@ -87,7 +87,6 @@
 
            !*** swap ***
            if (ej.lt.ei) then
-             write(*,*) "swap:",ii,jj,ei,ej
              dbl_mb(eig_excited(1)+i-1) = ej
              dbl_mb(eig_excited(1)+j-1) = ei
              call Pack_c_Copy(1,dcpl_mb(psi1_excited(1)+(i-1)*npack1),
