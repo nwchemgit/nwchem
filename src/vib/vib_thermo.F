@@ -2,7 +2,7 @@
      &    eigvals,masses,coords,scr)
       implicit none
 *
-* $Id: vib_thermo.F,v 1.4 2000-01-05 00:25:54 windus Exp $
+* $Id: vib_thermo.F,v 1.5 2000-02-25 00:36:04 windus Exp $
 *
 * routine to compute the thermodynamic properties under the 
 * rigid rotor harmonic approximation:
@@ -179,6 +179,8 @@ c::-statement function
       sigma = 1
       if (linear) then
         S_rot = R_gas*(1 + log(Ivals(2)/Sigma*1.0d00))
+        if (rtdb_put(rtdb,'vib:linear',mt_log,1,.true.))
+     &    call errquit('vib_thermo: failed to set linear',555)
       else
       endif
 *

@@ -1,21 +1,25 @@
       SUBROUTINE vib_PRDATA(ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
      &    ,first_pass)
-* $Id: vib_prdata.F,v 1.4 1997-04-22 20:01:43 d3e129 Exp $
+* $Id: vib_prdata.F,v 1.5 2000-02-25 00:36:04 windus Exp $
 C*MODULE VIB  *DECK PRDATA
 c
       IMPLICIT NONE ! DOUBLE PRECISION(A-H,O-Z)
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "eaf.fh"
 c
       integer nr, nc, nrp, ncp, npri
       double precision ARRAY(NR,NC), VECT(NR)
       CHARACTER*11 FREQ
+      character*255 filename
       LOGICAL PVEC
       logical first_pass
       logical projected
 c
       integer i, j, l
       integer ncl, ncu, nloops
+      integer fd, offset
 c
       FREQ = 'Frequency'
       projected = .not.first_pass
@@ -55,6 +59,23 @@ C
         call ecce_print2('projected normal modes',mt_dbl,
      &      array,nr,nr,nc)
       endif
+c
+c print frequencies and normal modes to file in case it is needed for vscf
+c
+      if ((.not.first_pass).and.(ga_nodeid().eq.0)) then
+        call util_file_name('nmode',.false.,.false.,filename)
+        if (eaf_open(filename,eaf_rw,fd).ne.0)
+     &    call errquit('vib_prdata:eaf_open failed',555)
+        offset = 0
+        if (eaf_write(fd,offset,vect,nr).ne.0)
+     &    call errquit('vib_prdata:error writing frequencies',555)
+        offset = offset + nr
+        if (eaf_write(fd,offset,array,nr*nc).ne.0)
+     &    call errquit('vib_prdata:error writing modes',555)
+        if (eaf_close(fd).ne.0)
+     &    call errquit('vib_prdata:file close problem',555)
+      endif
+c
       RETURN
 C
  9110 FORMAT(/18X,6(I3,9X))
