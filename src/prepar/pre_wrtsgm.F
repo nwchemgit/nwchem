@@ -11,7 +11,7 @@ c
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
       character*80 filsgm
-      logical lprint
+      integer lprint
 c
       integer i,j,length
 c

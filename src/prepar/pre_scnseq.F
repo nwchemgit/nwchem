@@ -10,7 +10,7 @@ c
 c     in  : iunit     = dbase logical file number
 c           filnam    = dbase file name
 c           lfnout    = output file logical file number
-c           lprint    = boolean for print to output
+c           lprint    = integer for print to output
 c           mseq      = dimension of the sequence list
 c     out : kseq(1,*) = segment numbers
 c           kseq(2,*) = number of atoms
@@ -23,7 +23,7 @@ c
       integer kseq(3,mseq),ksgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*80 dirnam,filnam
-      logical lprint
+      integer lprint
 c
       character*80 card
       integer length,lseq,isgm,i
@@ -33,10 +33,10 @@ c
 c
       length=index(dirnam,' ')-1
 c
-c      if(lprint) then
-c      write(lfnout,2006) dirnam(1:length)
-c 2006 format(/,'pre_scnseq  ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2006) dirnam(1:length)
+ 2006 format(/,'pre_scnseq  ',a)
+      endif
 c
 c     initialize the lists
 c

@@ -13,7 +13,7 @@ c
       integer lseq(4,mseq)
       character*10 cseq(mseq)
       character*80 dir_s,dir_x,dir_u,dir_t
-      logical lprint
+      integer lprint
 c
       character*80 filsgm
       integer i,nsatm,nsbnd,nsang,nsdih,nsimp

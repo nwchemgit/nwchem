@@ -10,7 +10,7 @@ c           dir_x     = dbase directory name
 c           dir_u     = dbase directory name
 c           dir_t     = dbase directory name
 c           lfnout    = output file logical file number
-c           lprint    = boolean for print to output
+c           lprint    = integer for print to output
 c           mseq      = dimension of the sequence list
 c           lsgm(1,i) = number of segments of type i
 c           lsgm(2,i) = source: 0=not found; 1=s; 2=x; 3=u; 4=t;
@@ -24,7 +24,7 @@ c
       external pre_mksgm
 c
       integer lfnout,lfnfrg,lfnsgm
-      logical lprint
+      integer lprint
       integer msgm,nsgm
       integer lsgm(3,msgm)
       character*5 csgm(msgm)
@@ -35,10 +35,10 @@ c
       integer len_s,len_x,len_u,len_t,length
       integer i
 c
-c      if(lprint) then
-c      write(lfnout,2000)
-c 2000 format(/,'pre_gensgm ')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000)
+ 2000 format(/,'pre_gensgm ')
+      endif
 c
       len_s=index(dir_s,' ')-1
       len_x=index(dir_x,' ')-1

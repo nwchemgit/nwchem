@@ -15,7 +15,7 @@ c
       external pre_sgmfil,pre_rdsgm,pre_atnum
 c
       integer lfnout,lfnsgm
-      logical lprint
+      integer lprint
       character*80 ffield,dir_s,dir_x,dir_u,dir_t
       integer mseq,nseq
       integer lseq(4,mseq),lmat(10,mseq)

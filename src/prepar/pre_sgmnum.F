@@ -6,7 +6,7 @@ c
 c     in  : iunit     = dbase logical file number
 c           filnam    = dbase file name
 c           lfnout    = output file logical file number
-c           lprint    = boolean for print to output
+c           lprint    = integer for print to output
 c           lseq(1,*) = sequence segment numbers
 c           cseq(2,*) = sequence segment names
 c           mseq      = dimension of the sequence list
@@ -19,14 +19,14 @@ c
       integer iunit,lfnout,mseq,nseq,nsgm
       integer lseq(4,mseq)
       character*5 cseq(2,mseq)
-      logical lprint
+      integer lprint
 c
       integer i,j
 c
-c      if(lprint) then
-c      write(lfnout,2000)
-c 2000 format(/,'pre_sgmnum  ')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000)
+ 2000 format(/,'pre_sgmnum  ')
+      endif
 c
       nsgm=0
       do 1 i=1,nseq

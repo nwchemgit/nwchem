@@ -13,7 +13,7 @@ c
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*80 filseq,card
-      logical lprint
+      integer lprint
       integer i,j,iseq,ilnk,length,ival,ncrd,ncnt
 c
       length=index(filseq,' ')-1

@@ -6,7 +6,7 @@ c
 c     in  : lfnfrg = frg file logical file number
 c           filfrg = frg file name
 c           lfnout = output file logical file number
-c           lprint = boolean for print to output
+c           lprint = integer for print to output
 c
 c     out : natm = number of atoms
 c           nbnd = number of bonds
@@ -18,7 +18,7 @@ c
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
       character*80 filfrg
-      logical lprint
+      integer lprint
 c
       character*80 card
       integer i,icon(16),j,l,length
@@ -28,15 +28,15 @@ c
 c
       length=index(filfrg,' ')-1
 c
-c      if(lprint) then
-c      write(lfnout,2000) filfrg(1:length)
-c 2000 format(/,'pre_frgrd  ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000) filfrg(1:length)
+ 2000 format(/,'pre_frgrd  ',a)
+      endif
 c
       open(unit=lfnfrg,file=filfrg(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint) write(lfnout,2001) filfrg(1:length)
+      if(lprint.ge.1) write(lfnout,2001) filfrg(1:length)
  2001 format('FRAGMENT FILE ',a)
 c
     1 continue
@@ -105,21 +105,21 @@ c
     8 continue
       endif
 c
-c      if(lprint) then
-c      write(lfnout,2002) natm,nbnd,filfrg(1:length)
-c 2002 format(i20,' atoms',/,i20,' bonds',//,
-c     + 'FRG CLOSE ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2002) natm,nbnd,filfrg(1:length)
+ 2002 format(i20,' atoms',/,i20,' bonds',//,
+     + 'FRG CLOSE ',a)
+      endif
 c
       pre_frgrd=.true.
       return
 c
  9999 continue
 c
-c      if(lprint) then
-c      write(lfnout,2003) filfrg(1:length)
-c 2003 format('FRG ERROR ',a)
-c      endif
+      if(lprint.ge.1) then
+      write(lfnout,2003) filfrg(1:length)
+ 2003 format('FRG ERROR ',a)
+      endif
 c
       pre_frgrd=.false.
       return

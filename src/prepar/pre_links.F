@@ -16,7 +16,7 @@ c
       external pre_short
 c
       integer lfnout,matm,mseq,nseq,mlnk,nlnk
-      logical lprint
+      integer lprint
       real*8 xatm(3,matm)
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -29,10 +29,10 @@ c
       integer i,j,iu,ib,k,l
       integer link1,link2,link3,mol
 c
-c      if(lprint) then
-c      write(lfnout,2000)
-c 2000 format(/,'pre_links ')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000)
+ 2000 format(/,'pre_links ')
+      endif
 c
       mol=0
 c

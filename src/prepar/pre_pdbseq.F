@@ -7,7 +7,7 @@ c
 c     in  : iunit       = pdb logical file number
 c           filnam      = pdb file name
 c           lfnout      = output file logical file number
-c           lprint      = boolean for print to output
+c           lprint      = integer for print to output
 c           model       = model number
 c           mseq        = dimension of the sequence list
 c           nseq        = expected length of the sequence list
@@ -29,7 +29,7 @@ c
       character*3 namslv
       real*8 xatm(3,matm)
       character*80 filnam
-      logical lprint
+      integer lprint
 c
       character*80 card
       integer length,mdl,iseq,isgm,i,j,k,nchain,iatm
@@ -43,10 +43,10 @@ c
 c
       length=index(filnam,' ')-1
 c
-c      if(lprint) then
-c      write(lfnout,2006) filnam(1:length)
-c 2006 format(/,'pre_pdbseq ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2006) filnam(1:length)
+ 2006 format(/,'pre_pdbseq ',a)
+      endif
 c
 c     initialize the lists
 c
@@ -73,7 +73,7 @@ c
       open(iunit,file=filnam(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint) write(lfnout,2000) filnam(1:length)
+      if(lprint.ge.1) write(lfnout,2000) filnam(1:length)
  2000 format('PDB FILE ',a)
 c
     1 continue
@@ -87,10 +87,10 @@ c
       if(card(1:6).eq.'MODEL ') then
       read(card(7:14),1002) mdl
  1002 format(i8)
-c      if(model.eq.mdl.and.lprint) then
-c      write(lfnout,2005) model
-c 2005 format(10x,'MODEL ',i8)
-c      endif
+      if(model.eq.mdl.and.lprint.ge.5) then
+      write(lfnout,2005) model
+ 2005 format(10x,'MODEL ',i8)
+      endif
       goto 1
       endif
       endif
@@ -103,8 +103,8 @@ c
 c     HEADER
 c
       if(card(1:6).eq.'HEADER') then
-c      if(lprint) write(lfnout,2001) card
-c 2001 format(10x,a)
+      if(lprint.ge.5) write(lfnout,2001) card
+ 2001 format(10x,a)
       goto 1
       endif
 c
@@ -206,7 +206,7 @@ c
 c
   999 continue
 c
-      if(lprint) then
+      if(lprint.ge.1) then
       write(lfnout,2004)
  2004 format('PDB EOF encountered')
       endif
@@ -235,18 +235,18 @@ c
    12 continue
 c
       if(iseq.ne.nseq) then
-c      if(lprint) then
-c      write(lfnout,2008) iseq,nseq
-c 2008 format(10x,'number of segments read',i8,' while expecting ',i8)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2008) iseq,nseq
+ 2008 format(10x,'number of segments read',i8,' while expecting ',i8)
+      endif
       nseq=iseq
       endif
 c
-c      if(lprint) then
-c      write(lfnout,2002) nseq,filnam(1:length)
-c 2002 format(i20,' segments',//,
-c     + 'PDB CLOSE ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2002) nseq,filnam(1:length)
+ 2002 format(i20,' segments',//,
+     + 'PDB CLOSE ',a)
+      endif
 c
 c     since mseq>nseq lseq(3,nseq+1) can hold natm+1
 c
@@ -257,7 +257,7 @@ c
 c
  9999 continue
 c
-      if(lprint) then
+      if(lprint.ge.1) then
       write(lfnout,2003) filnam(1:length)
  2003 format('PDB ERROR ',a)
       endif

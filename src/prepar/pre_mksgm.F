@@ -6,7 +6,7 @@ c
 c     in  : lfnfrg    = fragment file logical file number
 c           lfnsgm    = segment file logical file number
 c           lfnout    = output file logical file number
-c           lprint    = boolean for print to output
+c           lprint    = integer for print to output
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       external pre_dihsel,pre_dihimp,pre_wrtsgm
 c
       integer lfnout,lfnfrg,lfnsgm
-      logical lprint
+      integer lprint
       character*80 ffield,filfrg,filsgm
 c
       integer length
@@ -30,10 +30,10 @@ c
 c
       length=index(filsgm,' ')-1
 c
-c      if(lprint) then
-c      write(lfnout,2000) filsgm(1:length)
-c 2000 format(//,'SEGMENT FILE ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000) filsgm(1:length)
+ 2000 format(//,'SEGMENT FILE ',a)
+      endif
 c
       if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,lprint,natm,nbnd))
      + call errquit('pre_frgsiz failed',9999)

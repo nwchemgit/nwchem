@@ -9,7 +9,7 @@ c           dir_x        = extensions dbase directory
 c           dir_u        = user preferences dbase directory
 c           dir_t        = temporary dbase directory
 c           lfnout       = output file logical file number
-c           lprint       = boolean for print to output
+c           lprint       = integer for print to output
 c           lseq(1,mseq) = segment number
 c           lseq(2,mseq) = index to segment list
 c           cseq(2,mseq) = segment name on topology
@@ -33,7 +33,7 @@ c
       integer lseq(4,mseq),lsgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*80 dir_s,dir_x,dir_u,dir_t,filnam
-      logical lprint
+      integer lprint
 c
       integer len_s,len_x,len_u,len_t,length
       integer i,j
@@ -43,10 +43,10 @@ c
       len_u=index(dir_u,' ')-1
       len_t=index(dir_t,' ')-1
 c
-c      if(lprint) then
-c      write(lfnout,2000)
-c 2000 format(/,'pre_sgmndx ')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000)
+ 2000 format(/,'pre_sgmndx ')
+      endif
       pre_sgmndx=.true.
 c
 c     initialize  number of segments to zero

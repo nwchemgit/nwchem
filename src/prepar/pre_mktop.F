@@ -26,7 +26,7 @@ c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar
       character*80 ffield,filseq,filtop,filpar
       character*80 dir_s,dir_x,dir_u,dir_t
-      logical lprint
+      integer lprint
 c
       integer mseq,nseq
       integer l_lseq,i_lseq,l_cseq,i_cseq,i_lmat,l_lmat

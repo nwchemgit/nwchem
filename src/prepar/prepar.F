@@ -39,27 +39,10 @@ c
       character*3 namslv
 c
       integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm,lfntop,lfnpar
-      integer len,lend
+      integer len,lend,lprint
 c
-      ffield='amber '
-      filpdb='/usr/people/d3j191/crown.pdb '
-      filseq='/usr/people/d3j191/test/crown.seq '
-      filtop='/usr/people/d3j191/test/crown.top '
-      filtyp='/usr/people/d3j191/nwdata/amber.typ '
-      filpar='amber.par'
-      dir_s='/usr/people/d3j191/data/amber_s/ '
-      dir_x='/usr/people/d3j191/data/amber_x/ '
-      dir_u='/usr/people/d3j191/data/amber_u/ '
-      dir_t='/usr/people/d3j191/test/ '
       namslv='HOH'
-      lfnout=6
-      lfnpdb=12
-      lfnfrg=13
-      lfntyp=14
-      lfnseq=15
-      lfnsgm=16
-      lfntop=17
-      lfnpar=18
+      lprint=1
 c
 c     node 0 only please
 c     ------------------
@@ -87,11 +70,28 @@ c
 c     construct file names
 c     --------------------
 c
+      len=index(ffield,' ')-1
+      lend=index(dir_s,' ')-1
+      filtyp=dir_s(1:lend)//ffield(1:len)//'.typ '
+      filpar=ffield(1:len)//'.par '
+c
       len=index(sysnam,' ')-1
       lend=index(dir_t,' ')-1
       filpdb=sysnam(1:len)//'.pdb '
       filtop=sysnam(1:len)//'.top '
       filseq=dir_t(1:lend)//sysnam(1:len)//'.seq '
+c
+c     set logical file numbers to be used
+c     -----------------------------------
+c
+      lfnout=6
+      lfnpdb=12
+      lfnfrg=13
+      lfntyp=14
+      lfnseq=15
+      lfnsgm=16
+      lfntop=17
+      lfnpar=18
 c
 c     check if the topology file exists
 c     ---------------------------------
@@ -120,7 +120,7 @@ c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
-      if(.not.pre_mkseq(lfnout,ffield,
+      if(.not.pre_mkseq(lfnout,lprint,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfntyp,filtyp,
      + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,namslv))
      + call errquit('pre_mkseq failed',9999)
@@ -132,7 +132,7 @@ c
 c     generate topology
 c     -----------------
 c
-      if(.not.pre_mktop(lfnout,.true.,ffield,
+      if(.not.pre_mktop(lfnout,lprint,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_mktop failed',9999)

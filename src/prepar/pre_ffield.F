@@ -7,7 +7,7 @@ c
       implicit none
 c
       integer idir,lfnpar,lfnout
-      logical lprint
+      integer lprint
       character*80 filpar
       real*8 q14fac,releps
       integer matt,natt,icomb
@@ -39,7 +39,7 @@ c
       open(unit=lfnpar,file=filpar(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint) write(lfnout,1111) filpar(1:length)
+      if(lprint.ge.1) write(lfnout,1111) filpar(1:length)
  1111 format('PARAMETER FILE ',a)
 c
       icomb=0

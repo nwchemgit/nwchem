@@ -4,7 +4,7 @@ c
 c     function to comply with IUPAC atom naming
 c
 c     in  : lfnout    = output file logical file number
-c           lprint    = boolean for print to output
+c           lprint    = integer for print to output
 c           kse
 c           mseq      = dimension of the sequence list
 c           nseq      = length of the sequence list
@@ -27,15 +27,15 @@ c
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
       character*80 filnam
-      logical lprint
+      integer lprint
 c
       integer isgm,nsgm,i,j,nchain,iatm
       logical flag1
 c
-c      if(lprint) then
-c      write(lfnout,2000)
-c 2000 format(/,'pre_namiup ')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000)
+ 2000 format(/,'pre_namiup ')
+      endif
 c
       flag1=.false.
       do 1 i=1,natm

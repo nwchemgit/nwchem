@@ -6,7 +6,7 @@ c
 c
       integer lfnout,lfnseq,nseq,nlnk
       character*80 filseq,card
-      logical lprint
+      integer lprint
       integer length,ival,ncrd,ncnt
 c
       length=index(filseq,' ')-1

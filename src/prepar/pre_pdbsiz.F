@@ -6,7 +6,7 @@ c
 c     in  : iunit  = pdb file logical file number
 c           filnam = pdb file name
 c           lfnout = output file logical file number
-c           lprint = boolean for print to output
+c           lprint = integer for print to output
 c           model  = model number
 c
 c     out : natm = number of atoms
@@ -23,7 +23,7 @@ c
 c
       integer iunit,lfnout,model,natm,nseq,nssb,nchain,nlnk
       character*80 filnam
-      logical lprint
+      integer lprint
       character*3 namslv
 c
       character*80 card
@@ -40,16 +40,16 @@ c
 c
       length=index(filnam,' ')-1
 c
-c      if(lprint) then
-c      write(lfnout,2006) filnam(1:length)
-c 2006 format(/,'pdb_size  ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2006) filnam(1:length)
+ 2006 format(/,'pdb_size  ',a)
+      endif
 c
       open(iunit,file=filnam(1:length),form='formatted',
      + status='old',err=9999)
 c
-c      if(lprint) write(lfnout,2000) filnam(1:length)
-c 2000 format('PDB OPEN  ',a)
+      if(lprint.ge.5) write(lfnout,2000) filnam(1:length)
+ 2000 format('PDB OPEN  ',a)
 c
     1 continue
 c
@@ -62,10 +62,10 @@ c
       if(card(1:6).eq.'MODEL ') then
       read(card(7:14),1002) mdl
  1002 format(i8)
-c      if(model.eq.mdl.and.lprint) then
-c      write(lfnout,2005) model
-c 2005 format(10x,'MODEL ',i8)
-c      endif
+      if(model.eq.mdl.and.lprint.ge.5) then
+      write(lfnout,2005) model
+ 2005 format(10x,'MODEL ',i8)
+      endif
       goto 1
       endif
       endif
@@ -78,8 +78,8 @@ c
 c     HEADER
 c
       if(card(1:6).eq.'HEADER') then
-c      if(lprint) write(lfnout,2001) card
-c 2001 format(10x,a)
+      if(lprint.ge.5) write(lfnout,2001) card
+ 2001 format(10x,a)
       goto 1
       endif
 c
@@ -154,7 +154,7 @@ c
 c
   999 continue
 c
-      if(lprint) then
+      if(lprint.ge.1) then
       write(lfnout,2004)
  2004 format('PDB EOF encountered')
       endif
@@ -165,24 +165,24 @@ c
 c
       if(nsgm.gt.nseq) then
       nseq=nsgm
-c      if(lprint) then
-c      write(lfnout,2008)
-c 2008 format(10x,'number of segments read from ATOM cards')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2008)
+ 2008 format(10x,'number of segments read from ATOM cards')
+      endif
       endif
 c
-c      if(lprint) then
-c      write(lfnout,2002) natm,nseq,nssb,filnam(1:length)
-c 2002 format(i20,' atoms',/,i20,' segments',/,i20,' SS-bonds',//,
-c     + 'PDB CLOSE ',a)
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2002) natm,nseq,nssb,filnam(1:length)
+ 2002 format(i20,' atoms',/,i20,' segments',/,i20,' SS-bonds',//,
+     + 'PDB CLOSE ',a)
+      endif
 c
       pre_pdbsiz=.true.
       return
 c
  9999 continue
 c
-      if(lprint) then
+      if(lprint.ge.1) then
       write(lfnout,2003) filnam(1:length)
  2003 format('PDB ERROR ',a)
       endif

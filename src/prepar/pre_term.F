@@ -14,7 +14,7 @@ c
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*80 dir_s,dir_x,dir_u,dir_t
-      logical lprint
+      integer lprint
 c
       character*80 filsgm
       integer i,isgm,iu,j,jsgm,num,link

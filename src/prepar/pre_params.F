@@ -11,7 +11,7 @@ c
       external pre_ffield,pre_parcnv
 c
       integer lfnpar,lfnout
-      logical lprint
+      integer lprint
       character*80 filpar,dir_s,dir_x,dir_u,dir_t
       integer matm,natm
       integer latm(8,matm)

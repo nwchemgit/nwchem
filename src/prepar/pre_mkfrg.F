@@ -8,7 +8,7 @@ c
 c     in  : iunit     = dbase logical file number
 c           dir_t     = dbase directory name
 c           lfnout    = output file logical file number
-c           lprint    = boolean for print to output
+c           lprint    = integer for print to output
 c           mseq      = dimension of the sequence list
 c
 c     out : lseq(1,*) = segment numbers
@@ -45,7 +45,7 @@ c
       real*8 xatm(3,matm),qatm(matm)
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       character*80 dir_t,filtyp,filnam
-      logical lprint
+      integer lprint
 c
       integer len_t,length,len_f
       integer ishort,jshort
@@ -59,10 +59,10 @@ c
       integer ibnd,nbnd,nang,ndih,nconn
       real*8 rlink,dist
 c
-c      if(lprint) then
-c      write(lfnout,2000)
-c 2000 format(/,'pre_mkfrg ')
-c      endif
+      if(lprint.ge.5) then
+      write(lfnout,2000)
+ 2000 format(/,'pre_mkfrg ')
+      endif
 c
       len_t=index(dir_t,' ')-1
 c
