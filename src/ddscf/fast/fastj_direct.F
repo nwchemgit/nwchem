@@ -7,7 +7,7 @@
       integer basis, g_dens, data(2)
       double precision eps
 c
-c     Initialized the direct sum of the Coulomb potential for
+c     Initializ the direct sum of the Coulomb potential for
 c     the DFT by replicating the density (eventually lower
 c     triangular and prescreening for significant pairs
 c     of shells)

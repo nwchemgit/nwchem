@@ -66,7 +66,7 @@ c
             d3 = d*d2
             do ind = 1, anl_nlsum(nmax)
                values(ind) = anl_table(1,i,ind) + d*anl_table(2,i,ind) +
-     $              + d2*anl_table(3,i,ind) + d3*anl_table(4,i,ind)
+     $              d2*anl_table(3,i,ind) + d3*anl_table(4,i,ind)
             enddo
          else
             do ind = 1, anl_nlsum(nmax)
