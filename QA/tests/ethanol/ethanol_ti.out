@@ -1,7 +1,7 @@
 
- FREE ENERGY EVALUATION                                                                                      00/06/01  13:03:42  
+ FREE ENERGY EVALUATION                                                                                      00/10/25  11:05:12  
 
- Title   NWChem:MD input                                                                                     00/06/01  13:03:42  
+ Title   NWChem:MD input                                                                                     00/10/25  11:05:12  
                                                                                          
                                                                                          
 
@@ -141,6 +141,12 @@
    14   -0.700000   -0.700000    0.000000       0.000000    0.000000    0.000000
    15    0.435000    0.435000    0.000000       0.000000    0.000000    0.000000
 
+ SOLUTE
+
+
+ Total solute charge is         0.0000000000
+
+
  DOMAIN DECOMPOSITION
 
  Processor count     1 =    1 x    1 x    1
@@ -150,16 +156,16 @@
 
       0:    8(    786+      9)
 
- THERMODYNAMIC INTEGRATION, LAMBDA=   0.00000     FTFFFFFFFFFF FTFTFFFFFFFF                                  00/06/01  13:03:42  
+ THERMODYNAMIC INTEGRATION, LAMBDA=   0.00000     FTFFFFFFFFFF FTFTFFFFFFFF                                  00/10/25  11:05:13  
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:13  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.00200  303.13 1.29E+06     7.765 0.9998 0.9998 1.0000-1.3198E+04 2.2974E+03-1.0882E+04 2.0074E+03-8.8743E+03
+    0.00200  300.90 1.44E+06     7.765 0.9998 0.9998 1.0000-1.3198E+04 2.2974E+03-1.0882E+04 1.9927E+03-8.8891E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:13  
 
                                            Statistics over last        1 steps     Statistics over last        1 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -173,20 +179,18 @@
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00 nan                      
  Volume                                  7.76528E+00  0.00000E+00 nan            7.76528E+00  0.00000E+00 nan                 nm**3
  Mass density                            1.01921E+03  0.00000E+00 nan            1.01921E+03  0.00000E+00 nan               kg/m**3
- Pressure                                1.28762E+06  0.00000E+00 nan            1.28762E+06  0.00000E+00 nan                    Pa
+ Pressure                                1.43601E+06  0.00000E+00 nan            1.43601E+06  0.00000E+00 nan                    Pa
  Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  0.00000E+00 nan                      
- Temperature                             3.03128E+02  0.00000E+00 nan            3.03128E+02  0.00000E+00 nan                     K
- Temperature solvent                     3.04271E+02  0.00000E+00 nan            3.04271E+02  0.00000E+00 nan                     K
- Temperature solute                      2.17578E+02  0.00000E+00 nan            2.17578E+02  0.00000E+00 nan                     K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                     K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                     K
+ Temperature                             3.00895E+02  0.00000E+00 nan            3.00895E+02  0.00000E+00 nan                     K
+ Temperature solvent                     3.02058E+02  0.00000E+00 nan            3.02058E+02  0.00000E+00 nan                     K
+ Temperature solute                      2.13864E+02  0.00000E+00 nan            2.13864E+02  0.00000E+00 nan                     K
  Temperature scaling solvent             9.99830E-01  0.00000E+00 nan            9.99830E-01  0.00000E+00 nan                      
  Temperature scaling solute              9.99830E-01  0.00000E+00 nan            9.99830E-01  0.00000E+00 nan                      
  Energy electrostatic                   -1.31979E+04  0.00000E+00 nan           -1.31979E+04  0.00000E+00 nan                kJ/mol
  Energy van der Waals                    2.29738E+03  0.00000E+00 nan            2.29738E+03  0.00000E+00 nan                kJ/mol
  Energy potential                       -1.08818E+04  0.00000E+00 nan           -1.08818E+04  0.00000E+00 nan                kJ/mol
- Energy kinetic                          2.00744E+03  0.00000E+00 nan            2.00744E+03  0.00000E+00 nan                kJ/mol
- Energy total                           -8.87433E+03  0.00000E+00 nan           -8.87433E+03  0.00000E+00 nan                kJ/mol
+ Energy kinetic                          1.99266E+03  0.00000E+00 nan            1.99266E+03  0.00000E+00 nan                kJ/mol
+ Energy total                           -8.88912E+03  0.00000E+00 nan           -8.88912E+03  0.00000E+00 nan                kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                kJ/mol
  Energy perturbation 2                   5.85631E+00  0.00000E+00 nan            5.85631E+00  0.00000E+00 nan                kJ/mol
  Derivative free energy wrt lambda       2.33957E+02  0.00000E+00 nan            2.33957E+02  0.00000E+00 nan                kJ/mol
@@ -198,12 +202,12 @@
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                kJ/mol
- Energy solvent kinetic                  1.98845E+03  0.00000E+00 nan            1.98845E+03  0.00000E+00 nan                kJ/mol
+ Energy solvent kinetic                  1.97399E+03  0.00000E+00 nan            1.97399E+03  0.00000E+00 nan                kJ/mol
  Mean square displacement solvent /6     1.95587E-04  0.00000E+00 nan            1.95587E-04  0.00000E+00 nan                 nm**2
  Diffusion constant solvent * e9         9.77935E-08  0.00000E+00 nan            9.77935E-08  0.00000E+00 nan                m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  0.00000E+00 nan                     s
- Efficiency load balancing               9.99589E-01  0.00000E+00 nan            9.99589E-01  0.00000E+00 nan                      
- Time per step                           8.75000E-02  0.00000E+00 nan            8.75000E-02  0.00000E+00 nan                     s
+ Synchronization time                    5.60000E-05  0.00000E+00 nan            5.60000E-05  0.00000E+00 nan                     s
+ Efficiency load balancing               9.99562E-01  0.00000E+00 nan            9.99562E-01  0.00000E+00 nan                      
+ Time per step                           1.27910E-01  0.00000E+00 nan            1.27910E-01  0.00000E+00 nan                     s
  Energy solute   1 intra-electrostatic   3.13974E+01  0.00000E+00 nan            3.13974E+01  0.00000E+00 nan                kJ/mol
  Energy solute   1 intra-van der Waals   3.61185E+00  0.00000E+00 nan            3.61185E+00  0.00000E+00 nan                kJ/mol
  Energy solute   1-solvent electrostatic-1.09662E+02  0.00000E+00 nan           -1.09662E+02  0.00000E+00 nan                kJ/mol
@@ -212,18 +216,18 @@
  Energy solute   1 angles                1.63670E+01  0.00000E+00 nan            1.63670E+01  0.00000E+00 nan                kJ/mol
  Energy solute   1 proper dihedrals      2.32490E+00  0.00000E+00 nan            2.32490E+00  0.00000E+00 nan                kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00 nan                kJ/mol
- Energy solute   1 kinetic               1.89948E+01  0.00000E+00 nan            1.89948E+01  0.00000E+00 nan                kJ/mol
+ Energy solute   1 kinetic               1.86706E+01  0.00000E+00 nan            1.86706E+01  0.00000E+00 nan                kJ/mol
  Energy solute   1 potential            -5.79899E+00  0.00000E+00 nan           -5.79899E+00  0.00000E+00 nan                kJ/mol
  Moment of inertia solute molecule    1  6.13934E-01  0.00000E+00 nan            6.13934E-01  0.00000E+00 nan            kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:13  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.00400  302.59 2.49E+06     7.765 0.9998 0.9998 1.0000-1.3203E+04 2.2996E+03-1.0883E+04 2.0039E+03-8.8788E+03
+    0.00400  300.50 2.58E+06     7.765 0.9999 0.9999 1.0000-1.3203E+04 2.2996E+03-1.0883E+04 1.9901E+03-8.8927E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:13  
 
                                            Statistics over last        1 steps     Statistics over last        2 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -235,59 +239,57 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  0.00000E+00             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00 -1.38778E-11             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76531E+00  0.00000E+00 nan            7.76530E+00  1.67619E-05  1.67623E-02        nm**3
- Mass density                            1.01920E+03  0.00000E+00 nan            1.01920E+03  2.20010E-03 -2.20008E+00      kg/m**3
- Pressure                                2.48509E+06  0.00000E+00 nan            1.88636E+06  5.98734E+05  5.98734E+08           Pa
- Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  1.08503E-06  1.08491E-03             
- Temperature                             3.02594E+02  0.00000E+00 nan            3.02861E+02  2.67102E-01 -2.67102E+02            K
- Temperature solvent                     3.03840E+02  0.00000E+00 nan            3.04056E+02  2.15395E-01 -2.15395E+02            K
- Temperature solute                      2.09302E+02  0.00000E+00 nan            2.13440E+02  4.13770E+00 -4.13770E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99836E-01  0.00000E+00 nan            9.99833E-01  3.04779E-06  3.04780E-03             
- Temperature scaling solute              9.99836E-01  0.00000E+00 nan            9.99833E-01  3.04779E-06  3.04780E-03             
- Energy electrostatic                   -1.32028E+04  0.00000E+00 nan           -1.32004E+04  2.44246E+00 -2.44246E+03       kJ/mol
- Energy van der Waals                    2.29959E+03  0.00000E+00 nan            2.29849E+03  1.10432E+00  1.10432E+03       kJ/mol
- Energy potential                       -1.08827E+04  0.00000E+00 nan           -1.08823E+04  4.84735E-01 -4.84735E+02       kJ/mol
- Energy kinetic                          2.00391E+03  0.00000E+00 nan            2.00568E+03  1.76886E+00 -1.76886E+03       kJ/mol
- Energy total                           -8.87884E+03  0.00000E+00 nan           -8.87658E+03  2.25360E+00 -2.25360E+03       kJ/mol
+ Volume                                  7.76532E+00  0.00000E+00 nan            7.76530E+00  1.74339E-05  1.74338E-02        nm**3
+ Mass density                            1.01920E+03  0.00000E+00 nan            1.01920E+03  2.28821E-03 -2.28821E+00      kg/m**3
+ Pressure                                2.58053E+06  0.00000E+00 nan            2.00827E+06  5.72263E+05  5.72263E+08           Pa
+ Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  1.03700E-06  1.03694E-03             
+ Temperature                             3.00504E+02  0.00000E+00 nan            3.00700E+02  1.95884E-01 -1.95884E+02            K
+ Temperature solvent                     3.01908E+02  0.00000E+00 nan            3.01983E+02  7.48432E-02 -7.48432E+01            K
+ Temperature solute                      1.95350E+02  0.00000E+00 nan            2.04607E+02  9.25662E+00 -9.25662E+03            K
+ Temperature scaling solvent             9.99909E-01  0.00000E+00 nan            9.99869E-01  3.95465E-05  3.95465E-02             
+ Temperature scaling solute              9.99909E-01  0.00000E+00 nan            9.99869E-01  3.95465E-05  3.95465E-02             
+ Energy electrostatic                   -1.32028E+04  0.00000E+00 nan           -1.32004E+04  2.44002E+00 -2.44002E+03       kJ/mol
+ Energy van der Waals                    2.29959E+03  0.00000E+00 nan            2.29848E+03  1.10196E+00  1.10196E+03       kJ/mol
+ Energy potential                       -1.08827E+04  0.00000E+00 nan           -1.08823E+04  4.84652E-01 -4.84652E+02       kJ/mol
+ Energy kinetic                          1.99006E+03  0.00000E+00 nan            1.99136E+03  1.29722E+00 -1.29722E+03       kJ/mol
+ Energy total                           -8.89268E+03  0.00000E+00 nan           -8.89090E+03  1.78188E+00 -1.78188E+03       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   5.62375E+00  0.00000E+00 nan            5.74003E+00  1.16281E-01 -1.16281E+02       kJ/mol
- Derivative free energy wrt lambda       2.23212E+02  0.00000E+00 nan            2.28584E+02  5.37265E+00 -5.37265E+03       kJ/mol
+ Energy perturbation 2                   5.62375E+00  0.00000E+00 nan            5.74003E+00  1.16279E-01 -1.16279E+02       kJ/mol
+ Derivative free energy wrt lambda       2.23212E+02  0.00000E+00 nan            2.28585E+02  5.37252E+00 -5.37252E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.44898E+04  0.00000E+00 nan           -1.44886E+04  1.25679E+00 -1.25679E+03       kJ/mol
- Energy solvent inter van der Waals      2.30535E+03  0.00000E+00 nan            2.30431E+03  1.03839E+00  1.03839E+03       kJ/mol
+ Energy solvent inter electrostatic     -1.44898E+04  0.00000E+00 nan           -1.44886E+04  1.25437E+00 -1.25437E+03       kJ/mol
+ Energy solvent inter van der Waals      2.30534E+03  0.00000E+00 nan            2.30430E+03  1.03605E+00  1.03605E+03       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.98563E+03  0.00000E+00 nan            1.98704E+03  1.40764E+00 -1.40764E+03       kJ/mol
- Mean square displacement solvent /6     2.04958E-04  0.00000E+00 nan            2.00272E-04  4.68529E-06  4.68529E-03        nm**2
- Diffusion constant solvent * e9         5.12394E-08  0.00000E+00 nan            7.45165E-08  2.32771E-08 -2.32771E-05       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  4.54747E-13  2.77536E-14            s
- Efficiency load balancing               9.99565E-01  0.00000E+00 nan            9.99577E-01  1.16508E-05 -1.16508E-02             
- Time per step                           8.28100E-02  0.00000E+00 nan            8.51550E-02  2.34500E-03 -2.34500E+00            s
+ Energy solvent kinetic                  1.97301E+03  0.00000E+00 nan            1.97350E+03  4.89110E-01 -4.89110E+02       kJ/mol
+ Mean square displacement solvent /6     2.04958E-04  0.00000E+00 nan            2.00273E-04  4.68563E-06  4.68563E-03        nm**2
+ Diffusion constant solvent * e9         5.12396E-08  0.00000E+00 nan            7.45165E-08  2.32770E-08 -2.32770E-05       m**2/s
+ Synchronization time                    5.00000E-05  0.00000E+00 nan            5.30000E-05  3.00000E-06 -3.00000E-03            s
+ Efficiency load balancing               9.99662E-01  0.00000E+00 nan            9.99612E-01  4.97289E-05  4.97289E-02             
+ Time per step                           1.47776E-01  0.00000E+00 nan            1.37843E-01  9.93300E-03  9.93300E+00            s
  Energy solute   1 intra-electrostatic   3.15803E+01  0.00000E+00 nan            3.14889E+01  9.14300E-02  9.14300E+01       kJ/mol
  Energy solute   1 intra-van der Waals   2.95182E+00  0.00000E+00 nan            3.28183E+00  3.30019E-01 -3.30019E+02       kJ/mol
- Energy solute   1-solvent electrostatic-1.12216E+02  0.00000E+00 nan           -1.10939E+02  1.27710E+00 -1.27710E+03       kJ/mol
- Energy solute   1-solvent van der Waals-8.70619E+00  0.00000E+00 nan           -9.10214E+00  3.95950E-01  3.95950E+02       kJ/mol
+ Energy solute   1-solvent electrostatic-1.12216E+02  0.00000E+00 nan           -1.10939E+02  1.27708E+00 -1.27708E+03       kJ/mol
+ Energy solute   1-solvent van der Waals-8.70624E+00  0.00000E+00 nan           -9.10217E+00  3.95928E-01  3.95928E+02       kJ/mol
  Energy solute   1 bonds                 7.98505E-01  0.00000E+00 nan            4.39076E-01  3.59429E-01  3.59429E+02       kJ/mol
  Energy solute   1 angles                1.76000E+01  0.00000E+00 nan            1.69835E+01  6.16516E-01  6.16516E+02       kJ/mol
  Energy solute   1 proper dihedrals      2.07982E+00  0.00000E+00 nan            2.20236E+00  1.22543E-01 -1.22543E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               1.82723E+01  0.00000E+00 nan            1.86336E+01  3.61226E-01 -3.61226E+02       kJ/mol
- Energy solute   1 potential            -5.45051E+00  0.00000E+00 nan           -5.62475E+00  1.74237E-01  1.74237E+02       kJ/mol
- Moment of inertia solute molecule    1  6.13893E-01  0.00000E+00 nan            6.13913E-01  2.04629E-05 -2.04629E-02   kg nm2/mol
+ Energy solute   1 kinetic               1.70543E+01  0.00000E+00 nan            1.78625E+01  8.08115E-01 -8.08115E+02       kJ/mol
+ Energy solute   1 potential            -5.45052E+00  0.00000E+00 nan           -5.62475E+00  1.74237E-01  1.74237E+02       kJ/mol
+ Moment of inertia solute molecule    1  6.13893E-01  0.00000E+00 nan            6.13913E-01  2.04626E-05 -2.04626E-02   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:13  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.00600  302.64 3.79E+06     7.765 0.9999 0.9999 1.0000-1.3203E+04 2.3013E+03-1.0881E+04 2.0042E+03-8.8769E+03
+    0.00600  300.29 3.83E+06     7.765 0.9999 0.9999 1.0000-1.3203E+04 2.3013E+03-1.0881E+04 1.9886E+03-8.8925E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:13  
 
                                            Statistics over last        1 steps     Statistics over last        3 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -299,59 +301,57 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  0.00000E+00             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00 -6.93889E-12             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76536E+00  0.00000E+00 nan            7.76532E+00  3.51160E-05  2.13409E-02        nm**3
- Mass density                            1.01920E+03  0.00000E+00 nan            1.01920E+03  4.60900E-03 -2.80100E+00      kg/m**3
- Pressure                                3.78665E+06  0.00000E+00 nan            2.51979E+06  1.02052E+06  6.24758E+08           Pa
- Pressure scaling                        1.00001E+00  0.00000E+00 nan            1.00000E+00  1.84923E-06  1.13206E-03             
- Temperature                             3.02642E+02  0.00000E+00 nan            3.02788E+02  2.41309E-01 -1.21550E+02            K
- Temperature solvent                     3.03575E+02  0.00000E+00 nan            3.03896E+02  2.86769E-01 -1.73973E+02            K
- Temperature solute                      2.32788E+02  0.00000E+00 nan            2.19889E+02  9.72655E+00  3.80270E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99853E-01  0.00000E+00 nan            9.99840E-01  9.94012E-06  5.86563E-03             
- Temperature scaling solute              9.99853E-01  0.00000E+00 nan            9.99840E-01  9.94012E-06  5.86563E-03             
- Energy electrostatic                   -1.32032E+04  0.00000E+00 nan           -1.32013E+04  2.38649E+00 -1.30579E+03       kJ/mol
- Energy van der Waals                    2.30126E+03  0.00000E+00 nan            2.29941E+03  1.58911E+00  9.70034E+02       kJ/mol
- Energy potential                       -1.08811E+04  0.00000E+00 nan           -1.08819E+04  6.68810E-01  1.64733E+02       kJ/mol
- Energy kinetic                          2.00423E+03  0.00000E+00 nan            2.00519E+03  1.59805E+00 -8.04958E+02       kJ/mol
- Energy total                           -8.87689E+03  0.00000E+00 nan           -8.87669E+03  1.84575E+00 -6.40225E+02       kJ/mol
+ Volume                                  7.76537E+00  0.00000E+00 nan            7.76532E+00  3.58566E-05  2.18116E-02        nm**3
+ Mass density                            1.01920E+03  0.00000E+00 nan            1.01920E+03  4.70614E-03 -2.86277E+00      kg/m**3
+ Pressure                                3.82502E+06  0.00000E+00 nan            2.61385E+06  9.75593E+05  5.97252E+08           Pa
+ Pressure scaling                        1.00001E+00  0.00000E+00 nan            1.00000E+00  1.76778E-06  1.08222E-03             
+ Temperature                             3.00288E+02  0.00000E+00 nan            3.00562E+02  2.51397E-01 -1.51834E+02            K
+ Temperature solvent                     3.01579E+02  0.00000E+00 nan            3.01849E+02  2.00037E-01 -1.19725E+02            K
+ Temperature solute                      2.03642E+02  0.00000E+00 nan            2.04285E+02  7.57168E+00 -2.55541E+03            K
+ Temperature scaling solvent             9.99922E-01  0.00000E+00 nan            9.99887E-01  4.06733E-05  2.30030E-02             
+ Temperature scaling solute              9.99922E-01  0.00000E+00 nan            9.99887E-01  4.06733E-05  2.30030E-02             
+ Energy electrostatic                   -1.32031E+04  0.00000E+00 nan           -1.32013E+04  2.38251E+00 -1.30294E+03       kJ/mol
+ Energy van der Waals                    2.30126E+03  0.00000E+00 nan            2.29941E+03  1.58614E+00  9.68235E+02       kJ/mol
+ Energy potential                       -1.08811E+04  0.00000E+00 nan           -1.08819E+04  6.70426E-01  1.65843E+02       kJ/mol
+ Energy kinetic                          1.98864E+03  0.00000E+00 nan            1.99045E+03  1.66486E+00 -1.00551E+03       kJ/mol
+ Energy total                           -8.89248E+03  0.00000E+00 nan           -8.89142E+03  1.63378E+00 -8.39665E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   5.32195E+00  0.00000E+00 nan            5.60067E+00  2.18763E-01 -1.33591E+02       kJ/mol
- Derivative free energy wrt lambda       2.09887E+02  0.00000E+00 nan            2.22352E+02  9.84527E+00 -6.01747E+03       kJ/mol
+ Energy perturbation 2                   5.32193E+00  0.00000E+00 nan            5.60067E+00  2.18770E-01 -1.33595E+02       kJ/mol
+ Derivative free energy wrt lambda       2.09887E+02  0.00000E+00 nan            2.22352E+02  9.84554E+00 -6.01762E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  1.76193E-05  0.00000E+00       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.44916E+04  0.00000E+00 nan           -1.44896E+04  1.75395E+00 -1.06856E+03       kJ/mol
- Energy solvent inter van der Waals      2.30706E+03  0.00000E+00 nan            2.30522E+03  1.55033E+00  9.47944E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.44916E+04  0.00000E+00 nan           -1.44896E+04  1.74942E+00 -1.06575E+03       kJ/mol
+ Energy solvent inter van der Waals      2.30705E+03  0.00000E+00 nan            2.30522E+03  1.54740E+00  9.46162E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.98390E+03  0.00000E+00 nan            1.98600E+03  1.87407E+00 -1.13694E+03       kJ/mol
- Mean square displacement solvent /6     2.14289E-04  0.00000E+00 nan            2.04944E-04  7.63484E-06  4.67536E-03        nm**2
- Diffusion constant solvent * e9         3.57148E-08  0.00000E+00 nan            6.15826E-08  2.63778E-08 -1.55197E-05       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  0.00000E+00 -1.38834E-14            s
- Efficiency load balancing               9.99558E-01  0.00000E+00 nan            9.99571E-01  1.29496E-05 -7.57230E-03             
- Time per step                           8.15000E-02  0.00000E+00 nan            8.39367E-02  2.57579E-03 -1.50000E+00            s
- Energy solute   1 intra-electrostatic   3.12268E+01  0.00000E+00 nan            3.14015E+01  1.44325E-01 -4.26478E+01       kJ/mol
- Energy solute   1 intra-van der Waals   2.25695E+00  0.00000E+00 nan            2.94021E+00  5.53199E-01 -3.38727E+02       kJ/mol
- Energy solute   1-solvent electrostatic-1.10440E+02  0.00000E+00 nan           -1.10772E+02  1.06893E+00 -1.94585E+02       kJ/mol
- Energy solute   1-solvent van der Waals-8.05483E+00  0.00000E+00 nan           -8.75304E+00  5.90141E-01  3.60816E+02       kJ/mol
- Energy solute   1 bonds                 1.97593E+00  0.00000E+00 nan            9.51362E-01  7.81665E-01  4.74072E+02       kJ/mol
- Energy solute   1 angles                1.70500E+01  0.00000E+00 nan            1.70057E+01  5.04359E-01  1.70755E+02       kJ/mol
- Energy solute   1 proper dihedrals      1.74755E+00  0.00000E+00 nan            2.05076E+00  2.36599E-01 -1.44339E+02       kJ/mol
+ Energy solvent kinetic                  1.97086E+03  0.00000E+00 nan            1.97262E+03  1.30726E+00 -7.82417E+02       kJ/mol
+ Mean square displacement solvent /6     2.14291E-04  0.00000E+00 nan            2.04945E-04  7.63569E-06  4.67588E-03        nm**2
+ Diffusion constant solvent * e9         3.57151E-08  0.00000E+00 nan            6.15827E-08  2.63776E-08 -1.55196E-05       m**2/s
+ Synchronization time                    4.80000E-05  0.00000E+00 nan            5.13333E-05  3.39935E-06 -2.00000E-03            s
+ Efficiency load balancing               9.99593E-01  0.00000E+00 nan            9.99605E-01  4.16212E-05  7.58093E-03             
+ Time per step                           1.17796E-01  0.00000E+00 nan            1.31161E-01  1.24533E-02 -2.52850E+00            s
+ Energy solute   1 intra-electrostatic   3.12268E+01  0.00000E+00 nan            3.14015E+01  1.44335E-01 -4.26542E+01       kJ/mol
+ Energy solute   1 intra-van der Waals   2.25690E+00  0.00000E+00 nan            2.94019E+00  5.53217E-01 -3.38738E+02       kJ/mol
+ Energy solute   1-solvent electrostatic-1.10440E+02  0.00000E+00 nan           -1.10772E+02  1.06893E+00 -1.94535E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-8.05485E+00  0.00000E+00 nan           -8.75306E+00  5.90130E-01  3.60810E+02       kJ/mol
+ Energy solute   1 bonds                 1.97604E+00  0.00000E+00 nan            9.51398E-01  7.81713E-01  4.74099E+02       kJ/mol
+ Energy solute   1 angles                1.70501E+01  0.00000E+00 nan            1.70057E+01  5.04363E-01  1.70792E+02       kJ/mol
+ Energy solute   1 proper dihedrals      1.74753E+00  0.00000E+00 nan            2.05075E+00  2.36608E-01 -1.44345E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.03227E+01  0.00000E+00 nan            1.91966E+01  8.49140E-01  3.31981E+02       kJ/mol
- Energy solute   1 potential            -4.99007E+00  0.00000E+00 nan           -5.41319E+00  3.31291E-01  2.02229E+02       kJ/mol
- Moment of inertia solute molecule    1  6.13319E-01  0.00000E+00 nan            6.13715E-01  2.80717E-04 -1.53725E-01   kg nm2/mol
+ Energy solute   1 kinetic               1.77782E+01  0.00000E+00 nan            1.78344E+01  6.61017E-01 -2.23091E+02       kJ/mol
+ Energy solute   1 potential            -4.98982E+00  0.00000E+00 nan           -5.41311E+00  3.31399E-01  2.02292E+02       kJ/mol
+ Moment of inertia solute molecule    1  6.13319E-01  0.00000E+00 nan            6.13715E-01  2.80733E-04 -1.53733E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:13  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.00800  303.39 3.04E+06     7.765 0.9999 0.9999 1.0000-1.3207E+04 2.3026E+03-1.0885E+04 2.0092E+03-8.8755E+03
+    0.00800  300.77 3.03E+06     7.765 0.9999 0.9999 1.0000-1.3207E+04 2.3026E+03-1.0885E+04 1.9918E+03-8.8928E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:13  
 
                                            Statistics over last        1 steps     Statistics over last        4 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -363,59 +363,57 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  3.46945E-13             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  0.00000E+00             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76541E+00  0.00000E+00 nan            7.76534E+00  4.84494E-05  2.16016E-02        nm**3
- Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  6.35898E-03 -2.83520E+00      kg/m**3
- Pressure                                3.04245E+06  0.00000E+00 nan            2.65045E+06  9.12313E+05  3.28301E+08           Pa
- Pressure scaling                        1.00001E+00  0.00000E+00 nan            1.00000E+00  1.65316E-06  5.94882E-04             
- Temperature                             3.03395E+02  0.00000E+00 nan            3.02940E+02  3.35658E-01  4.23703E+01            K
- Temperature solvent                     3.03787E+02  0.00000E+00 nan            3.03868E+02  2.52781E-01 -8.59139E+01            K
- Temperature solute                      2.74051E+02  0.00000E+00 nan            2.33430E+02  2.49196E+01  9.64537E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99852E-01  0.00000E+00 nan            9.99843E-01  1.00656E-05  4.15326E-03             
- Temperature scaling solute              9.99852E-01  0.00000E+00 nan            9.99843E-01  1.00656E-05  4.15326E-03             
- Energy electrostatic                   -1.32071E+04  0.00000E+00 nan           -1.32027E+04  3.24029E+00 -1.38681E+03       kJ/mol
- Energy van der Waals                    2.30258E+03  0.00000E+00 nan            2.30020E+03  1.94308E+00  8.63188E+02       kJ/mol
- Energy potential                       -1.08847E+04  0.00000E+00 nan           -1.08826E+04  1.34211E+00 -3.53502E+02       kJ/mol
- Energy kinetic                          2.00921E+03  0.00000E+00 nan            2.00620E+03  2.22287E+00  2.80595E+02       kJ/mol
- Energy total                           -8.87547E+03  0.00000E+00 nan           -8.87638E+03  1.68366E+00 -7.29070E+01       kJ/mol
+ Volume                                  7.76541E+00  0.00000E+00 nan            7.76534E+00  4.90653E-05  2.18843E-02        nm**3
+ Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  6.43980E-03 -2.87231E+00      kg/m**3
+ Pressure                                3.02980E+06  0.00000E+00 nan            2.71784E+06  8.63872E+05  3.01293E+08           Pa
+ Pressure scaling                        1.00001E+00  0.00000E+00 nan            1.00000E+00  1.56526E-06  5.45942E-04             
+ Temperature                             3.00768E+02  0.00000E+00 nan            3.00614E+02  2.35205E-01 -2.99029E+01            K
+ Temperature solvent                     3.01607E+02  0.00000E+00 nan            3.01788E+02  2.02362E-01 -8.41217E+01            K
+ Temperature solute                      2.37958E+02  0.00000E+00 nan            2.12704E+02  1.59874E+01  4.02876E+03            K
+ Temperature scaling solvent             9.99929E-01  0.00000E+00 nan            9.99897E-01  3.96619E-05  1.55162E-02             
+ Temperature scaling solute              9.99929E-01  0.00000E+00 nan            9.99897E-01  3.96619E-05  1.55162E-02             
+ Energy electrostatic                   -1.32070E+04  0.00000E+00 nan           -1.32027E+04  3.22952E+00 -1.38182E+03       kJ/mol
+ Energy van der Waals                    2.30257E+03  0.00000E+00 nan            2.30020E+03  1.94069E+00  8.62193E+02       kJ/mol
+ Energy potential                       -1.08846E+04  0.00000E+00 nan           -1.08826E+04  1.33295E+00 -3.49304E+02       kJ/mol
+ Energy kinetic                          1.99181E+03  0.00000E+00 nan            1.99079E+03  1.55763E+00 -1.98030E+02       kJ/mol
+ Energy total                           -8.89283E+03  0.00000E+00 nan           -8.89178E+03  1.54096E+00 -5.47334E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   5.18261E+00  0.00000E+00 nan            5.49615E+00  2.62036E-01 -1.16145E+02       kJ/mol
- Derivative free energy wrt lambda       2.03755E+02  0.00000E+00 nan            2.17703E+02  1.17279E+01 -5.19653E+03       kJ/mol
+ Energy perturbation 2                   5.18256E+00  0.00000E+00 nan            5.49614E+00  2.62053E-01 -1.16153E+02       kJ/mol
+ Derivative free energy wrt lambda       2.03753E+02  0.00000E+00 nan            2.17702E+02  1.17286E+01 -5.19689E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  0.00000E+00  1.77636E-10       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.44962E+04  0.00000E+00 nan           -1.44912E+04  3.25741E+00 -1.42563E+03       kJ/mol
- Energy solvent inter van der Waals      2.30856E+03  0.00000E+00 nan            2.30606E+03  1.97241E+00  8.79708E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.44962E+04  0.00000E+00 nan           -1.44912E+04  3.24584E+00 -1.42069E+03       kJ/mol
+ Energy solvent inter van der Waals      2.30856E+03  0.00000E+00 nan            2.30605E+03  1.97010E+00  8.78722E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.98528E+03  0.00000E+00 nan            1.98582E+03  1.65195E+00 -5.61458E+02       kJ/mol
- Mean square displacement solvent /6     2.23572E-04  0.00000E+00 nan            2.09601E-04  1.04297E-05  4.66429E-03        nm**2
- Diffusion constant solvent * e9         2.79465E-08  0.00000E+00 nan            5.31735E-08  2.70920E-08 -1.12533E-05       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.60000E-05  0.00000E+00  2.77933E-15            s
- Efficiency load balancing               9.99558E-01  0.00000E+00 nan            9.99567E-01  1.25378E-05 -4.97091E-03             
- Time per step                           8.14040E-02  0.00000E+00 nan            8.33035E-02  2.48570E-03 -9.79900E-01            s
- Energy solute   1 intra-electrostatic   3.03863E+01  0.00000E+00 nan            3.11477E+01  4.57043E-01 -1.69348E+02       kJ/mol
- Energy solute   1 intra-van der Waals   1.79118E+00  0.00000E+00 nan            2.65295E+00  6.90704E-01 -3.07845E+02       kJ/mol
- Energy solute   1-solvent electrostatic-1.08866E+02  0.00000E+00 nan           -1.10296E+02  1.24039E+00  2.08161E+02       kJ/mol
- Energy solute   1-solvent van der Waals-7.77305E+00  0.00000E+00 nan           -8.50804E+00  6.64281E-01  2.91324E+02       kJ/mol
- Energy solute   1 bonds                 2.58129E+00  0.00000E+00 nan            1.35884E+00  9.77945E-01  4.34118E+02       kJ/mol
- Energy solute   1 angles                1.58677E+01  0.00000E+00 nan            1.67212E+01  6.58465E-01 -1.02388E+02       kJ/mol
- Energy solute   1 proper dihedrals      1.35830E+00  0.00000E+00 nan            1.87764E+00  3.63168E-01 -1.61605E+02       kJ/mol
+ Energy solvent kinetic                  1.97104E+03  0.00000E+00 nan            1.97222E+03  1.32246E+00 -5.49746E+02       kJ/mol
+ Mean square displacement solvent /6     2.23576E-04  0.00000E+00 nan            2.09603E-04  1.04313E-05  4.66501E-03        nm**2
+ Diffusion constant solvent * e9         2.79470E-08  0.00000E+00 nan            5.31738E-08  2.70918E-08 -1.12532E-05       m**2/s
+ Synchronization time                    5.40000E-05  0.00000E+00 nan            5.20000E-05  3.16228E-06 -4.00000E-04            s
+ Efficiency load balancing               9.99627E-01  0.00000E+00 nan            9.99611E-01  3.71820E-05  6.19322E-03             
+ Time per step                           1.44588E-01  0.00000E+00 nan            1.34517E-01  1.22522E-02  1.00270E+00            s
+ Energy solute   1 intra-electrostatic   3.03862E+01  0.00000E+00 nan            3.11477E+01  4.57085E-01 -1.69365E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   1.79110E+00  0.00000E+00 nan            2.65292E+00  6.90735E-01 -3.07859E+02       kJ/mol
+ Energy solute   1-solvent electrostatic-1.08865E+02  0.00000E+00 nan           -1.10296E+02  1.24050E+00  2.08236E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-7.77303E+00  0.00000E+00 nan           -8.50805E+00  6.64287E-01  2.91329E+02       kJ/mol
+ Energy solute   1 bonds                 2.58156E+00  0.00000E+00 nan            1.35894E+00  9.78046E-01  4.34164E+02       kJ/mol
+ Energy solute   1 angles                1.58688E+01  0.00000E+00 nan            1.67215E+01  6.58152E-01 -1.02227E+02       kJ/mol
+ Energy solute   1 proper dihedrals      1.35823E+00  0.00000E+00 nan            1.87762E+00  3.63192E-01 -1.61615E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.39250E+01  0.00000E+00 nan            2.03787E+01  2.17552E+00  8.42053E+02       kJ/mol
- Energy solute   1 potential            -6.33464E+00  0.00000E+00 nan           -5.64355E+00  4.91440E-01 -5.73250E+01       kJ/mol
- Moment of inertia solute molecule    1  6.12330E-01  0.00000E+00 nan            6.13369E-01  6.47195E-04 -2.69267E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.07741E+01  0.00000E+00 nan            1.85693E+01  1.39572E+00  3.51716E+02       kJ/mol
+ Energy solute   1 potential            -6.33335E+00  0.00000E+00 nan           -5.64317E+00  4.91073E-01 -5.71196E+01       kJ/mol
+ Moment of inertia solute molecule    1  6.12330E-01  0.00000E+00 nan            6.13369E-01  6.47251E-04 -2.69289E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:42  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:13  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.01000  304.29 9.71E+04     7.765 0.9998 0.9998 1.0000-1.3217E+04 2.3036E+03-1.0895E+04 2.0151E+03-8.8795E+03
+    0.01000  301.69 4.72E+04     7.765 0.9999 0.9999 1.0000-1.3217E+04 2.3036E+03-1.0895E+04 1.9979E+03-8.8966E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:42  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:13  
 
                                            Statistics over last        1 steps     Statistics over last        5 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -427,59 +425,57 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  0.00000E+00             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  2.77556E-12             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76541E+00  0.00000E+00 nan            7.76535E+00  5.05875E-05  1.73258E-02        nm**3
- Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  6.63960E-03 -2.27401E+00      kg/m**3
- Pressure                                9.71109E+04  0.00000E+00 nan            2.13978E+06  1.30728E+06 -9.11835E+07           Pa
- Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  2.36875E-06 -1.65225E-04             
- Temperature                             3.04287E+02  0.00000E+00 nan            3.03209E+02  6.16831E-01  1.55895E+02            K
- Temperature solvent                     3.04211E+02  0.00000E+00 nan            3.03937E+02  2.64320E-01 -8.72737E+00            K
- Temperature solute                      3.09993E+02  0.00000E+00 nan            2.48743E+02  3.78775E+01  1.24790E+04            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99827E-01  0.00000E+00 nan            9.99839E-01  1.09106E-05  5.35743E-04             
- Temperature scaling solute              9.99827E-01  0.00000E+00 nan            9.99839E-01  1.09106E-05  5.35743E-04             
- Energy electrostatic                   -1.32173E+04  0.00000E+00 nan           -1.32057E+04  6.52195E+00 -2.15406E+03       kJ/mol
- Energy van der Waals                    2.30356E+03  0.00000E+00 nan            2.30088E+03  2.19650E+00  7.67394E+02       kJ/mol
- Energy potential                       -1.08947E+04  0.00000E+00 nan           -1.08850E+04  4.97797E+00 -1.38452E+03       kJ/mol
- Energy kinetic                          2.01512E+03  0.00000E+00 nan            2.00798E+03  4.08492E+00  1.03240E+03       kJ/mol
- Energy total                           -8.87954E+03  0.00000E+00 nan           -8.87701E+03  1.96521E+00 -3.52115E+02       kJ/mol
+ Volume                                  7.76541E+00  0.00000E+00 nan            7.76536E+00  5.10131E-05  1.74442E-02        nm**3
+ Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  6.69545E-03 -2.28954E+00      kg/m**3
+ Pressure                                4.71937E+04  0.00000E+00 nan            2.18371E+06  1.31841E+06 -1.16418E+08           Pa
+ Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  2.38891E-06 -2.10950E-04             
+ Temperature                             3.01692E+02  0.00000E+00 nan            3.00829E+02  4.79918E-01  9.28865E+01            K
+ Temperature solvent                     3.02006E+02  0.00000E+00 nan            3.01832E+02  2.00898E-01 -2.02672E+01            K
+ Temperature solute                      2.78192E+02  0.00000E+00 nan            2.25801E+02  2.98443E+01  8.56325E+03            K
+ Temperature scaling solvent             9.99913E-01  0.00000E+00 nan            9.99900E-01  3.60286E-05  9.33148E-03             
+ Temperature scaling solute              9.99913E-01  0.00000E+00 nan            9.99900E-01  3.60286E-05  9.33148E-03             
+ Energy electrostatic                   -1.32173E+04  0.00000E+00 nan           -1.32056E+04  6.49625E+00 -2.14559E+03       kJ/mol
+ Energy van der Waals                    2.30356E+03  0.00000E+00 nan            2.30087E+03  2.19602E+00  7.67390E+02       kJ/mol
+ Energy potential                       -1.08946E+04  0.00000E+00 nan           -1.08850E+04  4.94986E+00 -1.37569E+03       kJ/mol
+ Energy kinetic                          1.99793E+03  0.00000E+00 nan            1.99222E+03  3.17822E+00  6.15134E+02       kJ/mol
+ Energy total                           -8.89665E+03  0.00000E+00 nan           -8.89275E+03  2.38591E+00 -7.60553E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   5.30921E+00  0.00000E+00 nan            5.45877E+00  2.46012E-01 -7.67666E+01       kJ/mol
- Derivative free energy wrt lambda       2.09219E+02  0.00000E+00 nan            2.16006E+02  1.10250E+01 -3.44661E+03       kJ/mol
+ Energy perturbation 2                   5.30915E+00  0.00000E+00 nan            5.45874E+00  2.46033E-01 -7.67758E+01       kJ/mol
+ Derivative free energy wrt lambda       2.09217E+02  0.00000E+00 nan            2.16005E+02  1.10259E+01 -3.44701E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.45048E+04  0.00000E+00 nan           -1.44940E+04  6.17431E+00 -2.07373E+03       kJ/mol
- Energy solvent inter van der Waals      2.30987E+03  0.00000E+00 nan            2.30682E+03  2.33233E+00  8.21254E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.45048E+04  0.00000E+00 nan           -1.44939E+04  6.14841E+00 -2.06530E+03       kJ/mol
+ Energy solvent inter van der Waals      2.30987E+03  0.00000E+00 nan            2.30682E+03  2.33206E+00  8.21254E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.98805E+03  0.00000E+00 nan            1.98627E+03  1.72737E+00 -5.70345E+01       kJ/mol
- Mean square displacement solvent /6     2.32806E-04  0.00000E+00 nan            2.14242E-04  1.31596E-05  4.65260E-03        nm**2
- Diffusion constant solvent * e9         2.32806E-08  0.00000E+00 nan            4.71950E-08  2.70214E-08 -8.61594E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.64000E-05  8.00000E-07  2.00000E-04            s
- Efficiency load balancing               9.99532E-01  0.00000E+00 nan            9.99560E-01  1.80355E-05 -6.01677E-03             
- Time per step                           8.12240E-02  0.00000E+00 nan            8.28876E-02  2.37379E-03 -6.97900E-01            s
- Energy solute   1 intra-electrostatic   2.92832E+01  0.00000E+00 nan            3.07748E+01  8.50496E-01 -2.71127E+02       kJ/mol
- Energy solute   1 intra-van der Waals   1.61356E+00  0.00000E+00 nan            2.44507E+00  7.44655E-01 -2.57861E+02       kJ/mol
- Energy solute   1-solvent electrostatic-1.09429E+02  0.00000E+00 nan           -1.10122E+02  1.16240E+00  1.90795E+02       kJ/mol
- Energy solute   1-solvent van der Waals-7.92465E+00  0.00000E+00 nan           -8.39136E+00  6.38335E-01  2.04002E+02       kJ/mol
- Energy solute   1 bonds                 2.04416E+00  0.00000E+00 nan            1.49591E+00  9.16649E-01  2.85591E+02       kJ/mol
- Energy solute   1 angles                1.60933E+01  0.00000E+00 nan            1.65956E+01  6.40262E-01 -1.13981E+02       kJ/mol
- Energy solute   1 proper dihedrals      9.91090E-01  0.00000E+00 nan            1.70033E+00  4.80904E-01 -1.69458E+02       kJ/mol
+ Energy solvent kinetic                  1.97365E+03  0.00000E+00 nan            1.97251E+03  1.31289E+00 -1.32448E+02       kJ/mol
+ Mean square displacement solvent /6     2.32814E-04  0.00000E+00 nan            2.14245E-04  1.31623E-05  4.65356E-03        nm**2
+ Diffusion constant solvent * e9         2.32814E-08  0.00000E+00 nan            4.71953E-08  2.70211E-08 -8.61584E-06       m**2/s
+ Synchronization time                    5.20000E-05  0.00000E+00 nan            5.20000E-05  2.82843E-06 -2.00000E-04            s
+ Efficiency load balancing               9.99639E-01  0.00000E+00 nan            9.99616E-01  3.51678E-05  5.95550E-03             
+ Time per step                           1.44168E-01  0.00000E+00 nan            1.36448E-01  1.16187E-02  1.46640E+00            s
+ Energy solute   1 intra-electrostatic   2.92829E+01  0.00000E+00 nan            3.07747E+01  8.50588E-01 -2.71156E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   1.61347E+00  0.00000E+00 nan            2.44503E+00  7.44691E-01 -2.57875E+02       kJ/mol
+ Energy solute   1-solvent electrostatic-1.09428E+02  0.00000E+00 nan           -1.10122E+02  1.16253E+00  1.90870E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-7.92459E+00  0.00000E+00 nan           -8.39136E+00  6.38350E-01  2.04011E+02       kJ/mol
+ Energy solute   1 bonds                 2.04442E+00  0.00000E+00 nan            1.49604E+00  9.16756E-01  2.85631E+02       kJ/mol
+ Energy solute   1 angles                1.60961E+01  0.00000E+00 nan            1.65964E+01  6.39610E-01 -1.13649E+02       kJ/mol
+ Energy solute   1 proper dihedrals      9.90988E-01  0.00000E+00 nan            1.70029E+00  4.80943E-01 -1.69471E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.70628E+01  0.00000E+00 nan            2.17155E+01  3.30676E+00  1.08944E+03       kJ/mol
- Energy solute   1 potential            -8.65130E+00  0.00000E+00 nan           -6.24510E+00  1.28088E+00 -3.29437E+02       kJ/mol
- Moment of inertia solute molecule    1  6.11164E-01  0.00000E+00 nan            6.12928E-01  1.05483E-03 -3.55084E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.42865E+01  0.00000E+00 nan            1.97127E+01  2.60544E+00  7.47583E+02       kJ/mol
+ Energy solute   1 potential            -8.64836E+00  0.00000E+00 nan           -6.24421E+00  1.27981E+00 -3.29079E+02       kJ/mol
+ Moment of inertia solute molecule    1  6.11164E-01  0.00000E+00 nan            6.12928E-01  1.05495E-03 -3.55123E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:13  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.01200  304.42-1.49E+06     7.765 0.9998 0.9998 1.0000-1.3221E+04 2.3043E+03-1.0897E+04 2.0160E+03-8.8805E+03
+    0.01200  302.29-1.56E+06     7.765 0.9999 0.9999 1.0000-1.3221E+04 2.3043E+03-1.0896E+04 2.0019E+03-8.8944E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:13  
 
                                            Statistics over last        1 steps     Statistics over last        6 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -491,59 +487,57 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  0.00000E+00             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  0.00000E+00             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76538E+00  0.00000E+00 nan            7.76536E+00  4.74950E-05  1.20279E-02        nm**3
- Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  6.23371E-03 -1.57865E+00      kg/m**3
- Pressure                               -1.49064E+06  0.00000E+00 nan            1.53471E+06  1.80408E+06 -3.11421E+08           Pa
- Pressure scaling                        9.99997E-01  0.00000E+00 nan            1.00000E+00  3.26899E-06 -5.64294E-04             
- Temperature                             3.04417E+02  0.00000E+00 nan            3.03411E+02  7.20923E-01  1.75366E+02            K
- Temperature solvent                     3.04183E+02  0.00000E+00 nan            3.03978E+02  2.58138E-01  1.25939E+01            K
- Temperature solute                      3.21950E+02  0.00000E+00 nan            2.60944E+02  4.40448E+01  1.23600E+04            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99798E-01  0.00000E+00 nan            9.99833E-01  1.82846E-05 -2.63278E-03             
- Temperature scaling solute              9.99798E-01  0.00000E+00 nan            9.99833E-01  1.82846E-05 -2.63278E-03             
- Energy electrostatic                   -1.32206E+04  0.00000E+00 nan           -1.32082E+04  8.16282E+00 -2.30121E+03       kJ/mol
- Energy van der Waals                    2.30429E+03  0.00000E+00 nan            2.30144E+03  2.37524E+00  6.82551E+02       kJ/mol
- Energy potential                       -1.08965E+04  0.00000E+00 nan           -1.08869E+04  6.25402E+00 -1.61469E+03       kJ/mol
- Energy kinetic                          2.01598E+03  0.00000E+00 nan            2.00931E+03  4.77426E+00  1.16135E+03       kJ/mol
- Energy total                           -8.88054E+03  0.00000E+00 nan           -8.87760E+03  2.22463E+00 -4.53346E+02       kJ/mol
+ Volume                                  7.76539E+00  0.00000E+00 nan            7.76536E+00  4.77716E-05  1.20099E-02        nm**3
+ Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  6.26998E-03 -1.57630E+00      kg/m**3
+ Pressure                               -1.56269E+06  0.00000E+00 nan            1.55931E+06  1.84333E+06 -3.34125E+08           Pa
+ Pressure scaling                        9.99997E-01  0.00000E+00 nan            1.00000E+00  3.34010E-06 -6.05434E-04             
+ Temperature                             3.02295E+02  0.00000E+00 nan            3.01074E+02  7.00170E-01  1.57759E+02            K
+ Temperature solvent                     3.02290E+02  0.00000E+00 nan            3.01908E+02  2.50605E-01  2.11533E+01            K
+ Temperature solute                      3.02667E+02  0.00000E+00 nan            2.38612E+02  3.95326E+01  1.03837E+04            K
+ Temperature scaling solvent             9.99883E-01  0.00000E+00 nan            9.99897E-01  3.35506E-05  4.06197E-03             
+ Temperature scaling solute              9.99883E-01  0.00000E+00 nan            9.99897E-01  3.35506E-05  4.06197E-03             
+ Energy electrostatic                   -1.32205E+04  0.00000E+00 nan           -1.32081E+04  8.11664E+00 -2.28822E+03       kJ/mol
+ Energy van der Waals                    2.30430E+03  0.00000E+00 nan            2.30144E+03  2.37804E+00  6.83682E+02       kJ/mol
+ Energy potential                       -1.08964E+04  0.00000E+00 nan           -1.08869E+04  6.20107E+00 -1.60007E+03       kJ/mol
+ Energy kinetic                          2.00193E+03  0.00000E+00 nan            1.99384E+03  4.63683E+00  1.04475E+03       kJ/mol
+ Energy total                           -8.89444E+03  0.00000E+00 nan           -8.89303E+03  2.26727E+00 -5.55320E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   5.67233E+00  0.00000E+00 nan            5.49436E+00  2.38263E-01 -2.86121E+01       kJ/mol
- Derivative free energy wrt lambda       2.24983E+02  0.00000E+00 nan            2.17502E+02  1.06058E+01 -1.32831E+03       kJ/mol
+ Energy perturbation 2                   5.67228E+00  0.00000E+00 nan            5.49433E+00  2.38279E-01 -2.86191E+01       kJ/mol
+ Derivative free energy wrt lambda       2.24981E+02  0.00000E+00 nan            2.17501E+02  1.06065E+01 -1.32861E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  1.76193E-05  1.01506E-10       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.45040E+04  0.00000E+00 nan           -1.44956E+04  6.77333E+00 -1.90493E+03       kJ/mol
- Energy solvent inter van der Waals      2.31098E+03  0.00000E+00 nan            2.30752E+03  2.63427E+00  7.66594E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.45039E+04  0.00000E+00 nan           -1.44956E+04  6.73010E+00 -1.89196E+03       kJ/mol
+ Energy solvent inter van der Waals      2.31100E+03  0.00000E+00 nan            2.30751E+03  2.63755E+00  7.67727E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.98787E+03  0.00000E+00 nan            1.98653E+03  1.68696E+00  8.23026E+01       kJ/mol
- Mean square displacement solvent /6     2.41991E-04  0.00000E+00 nan            2.18867E-04  1.58509E-05  4.64065E-03        nm**2
- Diffusion constant solvent * e9         2.01659E-08  0.00000E+00 nan            4.26901E-08  2.66445E-08 -6.85404E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.66667E-05  9.42809E-07  2.28571E-04            s
- Efficiency load balancing               9.99532E-01  0.00000E+00 nan            9.99556E-01  1.94988E-05 -5.44043E-03             
- Time per step                           8.12620E-02  0.00000E+00 nan            8.26167E-02  2.25005E-03 -5.14914E-01            s
- Energy solute   1 intra-electrostatic   2.82137E+01  0.00000E+00 nan            3.03480E+01  1.23035E+00 -3.37862E+02       kJ/mol
- Energy solute   1 intra-van der Waals   1.70091E+00  0.00000E+00 nan            2.32104E+00  7.34170E-01 -2.00504E+02       kJ/mol
- Energy solute   1-solvent electrostatic-1.12466E+02  0.00000E+00 nan           -1.10513E+02  1.37449E+00 -5.84195E+01       kJ/mol
- Energy solute   1-solvent van der Waals-8.39294E+00  0.00000E+00 nan           -8.39163E+00  5.82718E-01  1.16460E+02       kJ/mol
- Energy solute   1 bonds                 8.58965E-01  0.00000E+00 nan            1.38975E+00  8.69800E-01  1.17699E+02       kJ/mol
- Energy solute   1 angles                1.82529E+01  0.00000E+00 nan            1.68718E+01  8.50336E-01  5.32437E+01       kJ/mol
- Energy solute   1 proper dihedrals      7.18286E-01  0.00000E+00 nan            1.53666E+00  5.71551E-01 -1.66979E+02       kJ/mol
+ Energy solvent kinetic                  1.97550E+03  0.00000E+00 nan            1.97301E+03  1.63774E+00  1.38239E+02       kJ/mol
+ Mean square displacement solvent /6     2.42003E-04  0.00000E+00 nan            2.18871E-04  1.58551E-05  4.64186E-03        nm**2
+ Diffusion constant solvent * e9         2.01669E-08  0.00000E+00 nan            4.26906E-08  2.66442E-08 -6.85394E-06       m**2/s
+ Synchronization time                    4.80000E-05  0.00000E+00 nan            5.13333E-05  2.98142E-06 -4.00000E-04            s
+ Efficiency load balancing               9.99664E-01  0.00000E+00 nan            9.99624E-01  3.67138E-05  6.81699E-03             
+ Time per step                           1.42956E-01  0.00000E+00 nan            1.37532E-01  1.08802E-02  1.30283E+00            s
+ Energy solute   1 intra-electrostatic   2.82133E+01  0.00000E+00 nan            3.03478E+01  1.23050E+00 -3.37902E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   1.70085E+00  0.00000E+00 nan            2.32100E+00  7.34203E-01 -2.00513E+02       kJ/mol
+ Energy solute   1-solvent electrostatic-1.12466E+02  0.00000E+00 nan           -1.10513E+02  1.37452E+00 -5.83562E+01       kJ/mol
+ Energy solute   1-solvent van der Waals-8.39290E+00  0.00000E+00 nan           -8.39162E+00  5.82731E-01  1.16468E+02       kJ/mol
+ Energy solute   1 bonds                 8.59026E-01  0.00000E+00 nan            1.38987E+00  8.69900E-01  1.17717E+02       kJ/mol
+ Energy solute   1 angles                1.82580E+01  0.00000E+00 nan            1.68733E+01  8.51101E-01  5.37428E+01       kJ/mol
+ Energy solute   1 proper dihedrals      7.18169E-01  0.00000E+00 nan            1.53661E+00  5.71597E-01 -1.66992E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.81067E+01  0.00000E+00 nan            2.27807E+01  3.84517E+00  1.07904E+03       kJ/mol
- Energy solute   1 potential            -1.06850E+01  0.00000E+00 nan           -6.98508E+00  2.02609E+00 -5.05382E+02       kJ/mol
- Moment of inertia solute molecule    1  6.10041E-01  0.00000E+00 nan            6.12447E-01  1.44393E-03 -4.09130E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.64232E+01  0.00000E+00 nan            2.08312E+01  3.45125E+00  9.06508E+02       kJ/mol
+ Energy solute   1 potential            -1.06801E+01  0.00000E+00 nan           -6.98352E+00  2.02431E+00 -5.04892E+02       kJ/mol
+ Moment of inertia solute molecule    1  6.10040E-01  0.00000E+00 nan            6.12447E-01  1.44415E-03 -4.09188E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:14  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.01400  303.26-9.93E+05     7.765 0.9998 0.9998 1.0000-1.3213E+04 2.3049E+03-1.0886E+04 2.0083E+03-8.8779E+03
+    0.01400  301.82-1.08E+06     7.765 0.9999 0.9999 1.0000-1.3213E+04 2.3049E+03-1.0886E+04 1.9988E+03-8.8872E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:14  
 
                                            Statistics over last        1 steps     Statistics over last        7 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -555,59 +549,57 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  0.00000E+00             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  1.98254E-12             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76537E+00  0.00000E+00 nan            7.76536E+00  4.40949E-05  8.02157E-03        nm**3
- Mass density                            1.01920E+03  0.00000E+00 nan            1.01920E+03  5.78748E-03 -1.05283E+00      kg/m**3
- Pressure                               -9.92571E+05  0.00000E+00 nan            1.17367E+06  1.88993E+06 -3.30028E+08           Pa
- Pressure scaling                        9.99998E-01  0.00000E+00 nan            1.00000E+00  3.42456E-06 -5.98011E-04             
- Temperature                             3.03255E+02  0.00000E+00 nan            3.03388E+02  6.69650E-01  1.01291E+02            K
- Temperature solvent                     3.03259E+02  0.00000E+00 nan            3.03875E+02  3.47008E-01 -3.06459E+01            K
- Temperature solute                      3.02994E+02  0.00000E+00 nan            2.66951E+02  4.33512E+01  9.97767E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99794E-01  0.00000E+00 nan            9.99827E-01  2.16308E-05 -3.70701E-03             
- Temperature scaling solute              9.99794E-01  0.00000E+00 nan            9.99827E-01  2.16308E-05 -3.70701E-03             
- Energy electrostatic                   -1.32132E+04  0.00000E+00 nan           -1.32089E+04  7.76181E+00 -1.70923E+03       kJ/mol
- Energy van der Waals                    2.30486E+03  0.00000E+00 nan            2.30193E+03  2.50346E+00  6.09763E+02       kJ/mol
- Energy potential                       -1.08862E+04  0.00000E+00 nan           -1.08868E+04  5.79549E+00 -9.70934E+02       kJ/mol
- Energy kinetic                          2.00829E+03  0.00000E+00 nan            2.00917E+03  4.43471E+00  6.70789E+02       kJ/mol
- Energy total                           -8.87791E+03  0.00000E+00 nan           -8.87765E+03  2.06253E+00 -3.00145E+02       kJ/mol
+ Volume                                  7.76537E+00  0.00000E+00 nan            7.76536E+00  4.42993E-05  7.89166E-03        nm**3
+ Mass density                            1.01920E+03  0.00000E+00 nan            1.01920E+03  5.81427E-03 -1.03578E+00      kg/m**3
+ Pressure                               -1.07908E+06  0.00000E+00 nan            1.18240E+06  1.94032E+06 -3.50170E+08           Pa
+ Pressure scaling                        9.99998E-01  0.00000E+00 nan            1.00000E+00  3.51584E-06 -6.34508E-04             
+ Temperature                             3.01817E+02  0.00000E+00 nan            3.01180E+02  6.98442E-01  1.38409E+02            K
+ Temperature solvent                     3.01872E+02  0.00000E+00 nan            3.01903E+02  2.32356E-01  1.12952E+01            K
+ Temperature solute                      2.97673E+02  0.00000E+00 nan            2.47049E+02  4.20320E+01  9.65375E+03            K
+ Temperature scaling solvent             9.99863E-01  0.00000E+00 nan            9.99892E-01  3.33293E-05  6.88888E-04             
+ Temperature scaling solute              9.99863E-01  0.00000E+00 nan            9.99892E-01  3.33293E-05  6.88888E-04             
+ Energy electrostatic                   -1.32130E+04  0.00000E+00 nan           -1.32088E+04  7.70539E+00 -1.69105E+03       kJ/mol
+ Energy van der Waals                    2.30489E+03  0.00000E+00 nan            2.30194E+03  2.51098E+00  6.12144E+02       kJ/mol
+ Energy potential                       -1.08859E+04  0.00000E+00 nan           -1.08867E+04  5.75046E+00 -9.49752E+02       kJ/mol
+ Energy kinetic                          1.99876E+03  0.00000E+00 nan            1.99454E+03  4.62538E+00  9.16600E+02       kJ/mol
+ Energy total                           -8.88717E+03  0.00000E+00 nan           -8.89220E+03  2.93443E+00 -3.31521E+01       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   5.88072E+00  0.00000E+00 nan            5.54955E+00  2.58723E-01  2.81526E+00       kJ/mol
- Derivative free energy wrt lambda       2.34925E+02  0.00000E+00 nan            2.19991E+02  1.15579E+01  1.03195E+02       kJ/mol
+ Energy perturbation 2                   5.88070E+00  0.00000E+00 nan            5.54953E+00  2.58737E-01  2.81146E+00       kJ/mol
+ Derivative free energy wrt lambda       2.34925E+02  0.00000E+00 nan            2.19990E+02  1.15585E+01  1.03031E+02       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  2.30691E-05  1.26883E-10       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.45007E+04  0.00000E+00 nan           -1.44964E+04  6.51983E+00 -1.46376E+03       kJ/mol
- Energy solvent inter van der Waals      2.31178E+03  0.00000E+00 nan            2.30812E+03  2.85901E+00  7.07530E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.45005E+04  0.00000E+00 nan           -1.44963E+04  6.46356E+00 -1.44560E+03       kJ/mol
+ Energy solvent inter van der Waals      2.31181E+03  0.00000E+00 nan            2.30813E+03  2.86730E+00  7.09906E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.98183E+03  0.00000E+00 nan            1.98586E+03  2.26774E+00 -2.00275E+02       kJ/mol
- Mean square displacement solvent /6     2.51130E-04  0.00000E+00 nan            2.23476E-04  1.85153E-05  4.62879E-03        nm**2
- Diffusion constant solvent * e9         1.79379E-08  0.00000E+00 nan            3.91541E-08  2.61445E-08 -5.60979E-06       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.65714E-05  9.03508E-07  1.07143E-04            s
- Efficiency load balancing               9.99559E-01  0.00000E+00 nan            9.99556E-01  1.80851E-05 -3.23374E-03             
- Time per step                           8.16040E-02  0.00000E+00 nan            8.24720E-02  2.11307E-03 -3.76071E-01            s
- Energy solute   1 intra-electrostatic   2.74497E+01  0.00000E+00 nan            2.99339E+01  1.52514E+00 -3.66427E+02       kJ/mol
- Energy solute   1 intra-van der Waals   2.01833E+00  0.00000E+00 nan            2.27780E+00  6.87914E-01 -1.41532E+02       kJ/mol
- Energy solute   1-solvent electrostatic-1.07573E+02  0.00000E+00 nan           -1.10093E+02  1.63628E+00  1.20963E+02       kJ/mol
- Energy solute   1-solvent van der Waals-8.93337E+00  0.00000E+00 nan           -8.46902E+00  5.71830E-01  4.37652E+01       kJ/mol
- Energy solute   1 bonds                 7.10374E-02  0.00000E+00 nan            1.20136E+00  9.28123E-01  2.91643E+00       kJ/mol
- Energy solute   1 angles                2.15323E+01  0.00000E+00 nan            1.75376E+01  1.81090E+00  2.82945E+02       kJ/mol
- Energy solute   1 proper dihedrals      5.47908E-01  0.00000E+00 nan            1.39541E+00  6.32228E-01 -1.57331E+02       kJ/mol
+ Energy solvent kinetic                  1.97277E+03  0.00000E+00 nan            1.97297E+03  1.51848E+00  7.38154E+01       kJ/mol
+ Mean square displacement solvent /6     2.51148E-04  0.00000E+00 nan            2.23482E-04  1.85212E-05  4.63025E-03        nm**2
+ Diffusion constant solvent * e9         1.79391E-08  0.00000E+00 nan            3.91547E-08  2.61441E-08 -5.60968E-06       m**2/s
+ Synchronization time                    4.80000E-05  0.00000E+00 nan            5.08571E-05  2.99660E-06 -4.28571E-04            s
+ Efficiency load balancing               9.99660E-01  0.00000E+00 nan            9.99629E-01  3.61913E-05  6.16334E-03             
+ Time per step                           1.41144E-01  0.00000E+00 nan            1.38048E-01  1.01521E-02  1.00775E+00            s
+ Energy solute   1 intra-electrostatic   2.74492E+01  0.00000E+00 nan            2.99337E+01  1.52534E+00 -3.66475E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   2.01836E+00  0.00000E+00 nan            2.27776E+00  6.87940E-01 -1.41533E+02       kJ/mol
+ Energy solute   1-solvent electrostatic-1.07573E+02  0.00000E+00 nan           -1.10093E+02  1.63637E+00  1.21020E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-8.93335E+00  0.00000E+00 nan           -8.46901E+00  5.71840E-01  4.37707E+01       kJ/mol
+ Energy solute   1 bonds                 7.10012E-02  0.00000E+00 nan            1.20146E+00  9.28230E-01  2.91946E+00       kJ/mol
+ Energy solute   1 angles                2.15398E+01  0.00000E+00 nan            1.75400E+01  1.81310E+00  2.83579E+02       kJ/mol
+ Energy solute   1 proper dihedrals      5.47816E-01  0.00000E+00 nan            1.39535E+00  6.32272E-01 -1.57341E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.64517E+01  0.00000E+00 nan            2.33052E+01  3.78461E+00  8.71064E+02       kJ/mol
- Energy solute   1 potential            -6.63415E+00  0.00000E+00 nan           -6.93494E+00  1.87981E+00 -2.97064E+02       kJ/mol
- Moment of inertia solute molecule    1  6.09085E-01  0.00000E+00 nan            6.11966E-01  1.78076E-03 -4.35811E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.59872E+01  0.00000E+00 nan            2.15677E+01  3.66945E+00  8.42785E+02       kJ/mol
+ Energy solute   1 potential            -6.62694E+00  0.00000E+00 nan           -6.93258E+00  1.87829E+00 -2.96455E+02       kJ/mol
+ Moment of inertia solute molecule    1  6.09084E-01  0.00000E+00 nan            6.11966E-01  1.78109E-03 -4.35889E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:14  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.01600  301.03 2.27E+06     7.765 0.9998 0.9998 1.0000-1.3198E+04 2.3055E+03-1.0867E+04 1.9936E+03-8.8739E+03
+    0.01600  300.09 2.17E+06     7.765 0.9999 0.9999 1.0000-1.3198E+04 2.3056E+03-1.0867E+04 1.9873E+03-8.8797E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:14  
 
                                            Statistics over last        1 steps     Statistics over last        8 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
@@ -619,190 +611,184 @@
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  1.65212E-13             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  1.32169E-12             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76540E+00  0.00000E+00 nan            7.76536E+00  4.31753E-05  6.95521E-03        nm**3
- Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  5.66678E-03 -9.12870E-01      kg/m**3
- Pressure                                2.27106E+06  0.00000E+00 nan            1.31085E+06  1.80474E+06 -1.74294E+08           Pa
- Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  3.27019E-06 -3.15821E-04             
- Temperature                             3.01032E+02  0.00000E+00 nan            3.03094E+02  9.99930E-01 -3.06697E+01            K
- Temperature solvent                     3.01418E+02  0.00000E+00 nan            3.03568E+02  8.75037E-01 -1.22809E+02            K
- Temperature solute                      2.72107E+02  0.00000E+00 nan            2.67595E+02  4.05872E+01  6.86664E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99832E-01  0.00000E+00 nan            9.99828E-01  2.02896E-05 -2.28195E-03             
- Temperature scaling solute              9.99832E-01  0.00000E+00 nan            9.99828E-01  2.02896E-05 -2.28195E-03             
- Energy electrostatic                   -1.31980E+04  0.00000E+00 nan           -1.32075E+04  8.10741E+00 -6.84964E+02       kJ/mol
- Energy van der Waals                    2.30550E+03  0.00000E+00 nan            2.30238E+03  2.62209E+00  5.55126E+02       kJ/mol
- Energy potential                       -1.08675E+04  0.00000E+00 nan           -1.08844E+04  8.38705E+00  1.58969E+02       kJ/mol
- Energy kinetic                          1.99356E+03  0.00000E+00 nan            2.00722E+03  6.62197E+00 -2.03108E+02       kJ/mol
- Energy total                           -8.87390E+03  0.00000E+00 nan           -8.87718E+03  2.29230E+00 -4.41386E+01       kJ/mol
+ Volume                                  7.76540E+00  0.00000E+00 nan            7.76537E+00  4.30450E-05  6.72895E-03        nm**3
+ Mass density                            1.01919E+03  0.00000E+00 nan            1.01920E+03  5.64962E-03 -8.83172E-01      kg/m**3
+ Pressure                                2.16782E+06  0.00000E+00 nan            1.30558E+06  1.84403E+06 -1.92388E+08           Pa
+ Pressure scaling                        1.00000E+00  0.00000E+00 nan            1.00000E+00  3.34138E-06 -3.48607E-04             
+ Temperature                             3.00090E+02  0.00000E+00 nan            3.01044E+02  7.46215E-01  4.68479E+01            K
+ Temperature solvent                     3.00501E+02  0.00000E+00 nan            3.01728E+02  5.11931E-01 -5.08655E+01            K
+ Temperature solute                      2.69263E+02  0.00000E+00 nan            2.49826E+02  3.99978E+01  7.36139E+03            K
+ Temperature scaling solvent             9.99879E-01  0.00000E+00 nan            9.99891E-01  3.15171E-05 -1.22804E-04             
+ Temperature scaling solute              9.99879E-01  0.00000E+00 nan            9.99891E-01  3.15171E-05 -1.22804E-04             
+ Energy electrostatic                   -1.31976E+04  0.00000E+00 nan           -1.32074E+04  8.10119E+00 -6.61419E+02       kJ/mol
+ Energy van der Waals                    2.30555E+03  0.00000E+00 nan            2.30239E+03  2.63601E+00  5.58842E+02       kJ/mol
+ Energy potential                       -1.08671E+04  0.00000E+00 nan           -1.08843E+04  8.44441E+00  1.86953E+02       kJ/mol
+ Energy kinetic                          1.98732E+03  0.00000E+00 nan            1.99364E+03  4.94176E+00  3.10247E+02       kJ/mol
+ Energy total                           -8.87973E+03  0.00000E+00 nan           -8.89064E+03  4.95216E+00  4.97199E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   6.11842E+00  0.00000E+00 nan            5.62066E+00  3.06537E-01  2.55795E+01       kJ/mol
- Derivative free energy wrt lambda       2.45914E+02  0.00000E+00 nan            2.23232E+02  1.37980E+01  1.14891E+03       kJ/mol
+ Energy perturbation 2                   6.11840E+00  0.00000E+00 nan            5.62064E+00  3.06550E-01  2.55774E+01       kJ/mol
+ Derivative free energy wrt lambda       2.45913E+02  0.00000E+00 nan            2.23231E+02  1.37986E+01  1.14883E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  1.52588E-05  8.45884E-11       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.44871E+04  0.00000E+00 nan           -1.44952E+04  6.81728E+00 -5.92030E+02       kJ/mol
- Energy solvent inter van der Waals      2.31229E+03  0.00000E+00 nan            2.30864E+03  3.00774E+00  6.45087E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.44868E+04  0.00000E+00 nan           -1.44951E+04  6.81153E+00 -5.68494E+02       kJ/mol
+ Energy solvent inter van der Waals      2.31234E+03  0.00000E+00 nan            2.30865E+03  3.02235E+00  6.48791E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.96980E+03  0.00000E+00 nan            1.98386E+03  5.71848E+00 -8.02574E+02       kJ/mol
- Mean square displacement solvent /6     2.60232E-04  0.00000E+00 nan            2.28070E-04  2.11596E-05  4.61735E-03        nm**2
- Diffusion constant solvent * e9         1.62645E-08  0.00000E+00 nan            3.62929E-08  2.56007E-08 -4.69359E-06       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.65000E-05  8.66025E-07  4.76190E-05            s
- Efficiency load balancing               9.99556E-01  0.00000E+00 nan            9.99556E-01  1.69171E-05 -2.15493E-03             
- Time per step                           8.11180E-02  0.00000E+00 nan            8.23028E-02  2.02668E-03 -3.07131E-01            s
- Energy solute   1 intra-electrostatic   2.71871E+01  0.00000E+00 nan            2.95906E+01  1.69131E+00 -3.58735E+02       kJ/mol
- Energy solute   1 intra-van der Waals   2.50213E+00  0.00000E+00 nan            2.30584E+00  6.47747E-01 -8.50073E+01       kJ/mol
- Energy solute   1-solvent electrostatic-1.05649E+02  0.00000E+00 nan           -1.09538E+02  2.12194E+00  2.65802E+02       kJ/mol
- Energy solute   1-solvent van der Waals-9.28815E+00  0.00000E+00 nan           -8.57141E+00  5.99587E-01 -4.95392E+00       kJ/mol
- Energy solute   1 bonds                 1.39728E-01  0.00000E+00 nan            1.06866E+00  9.36488E-01 -4.22905E+01       kJ/mol
- Energy solute   1 angles                2.44361E+01  0.00000E+00 nan            1.83999E+01  2.84157E+00  4.76068E+02       kJ/mol
- Energy solute   1 proper dihedrals      4.33386E-01  0.00000E+00 nan            1.27515E+00  6.71545E-01 -1.44971E+02       kJ/mol
+ Energy solvent kinetic                  1.96382E+03  0.00000E+00 nan            1.97183E+03  3.34554E+00 -3.32413E+02       kJ/mol
+ Mean square displacement solvent /6     2.60256E-04  0.00000E+00 nan            2.28079E-04  2.11675E-05  4.61906E-03        nm**2
+ Diffusion constant solvent * e9         1.62660E-08  0.00000E+00 nan            3.62936E-08  2.56003E-08 -4.69348E-06       m**2/s
+ Synchronization time                    4.40000E-05  0.00000E+00 nan            5.00000E-05  3.60555E-06 -5.71429E-04            s
+ Efficiency load balancing               9.99620E-01  0.00000E+00 nan            9.99628E-01  3.40109E-05  3.69762E-03             
+ Time per step                           1.15670E-01  0.00000E+00 nan            1.35251E-01  1.20398E-02 -2.60595E-01            s
+ Energy solute   1 intra-electrostatic   2.71865E+01  0.00000E+00 nan            2.95903E+01  1.69154E+00 -3.58783E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   2.50232E+00  0.00000E+00 nan            2.30583E+00  6.47780E-01 -8.49992E+01       kJ/mol
+ Energy solute   1-solvent electrostatic-1.05648E+02  0.00000E+00 nan           -1.09537E+02  2.12210E+00  2.65858E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-9.28811E+00  0.00000E+00 nan           -8.57140E+00  5.99591E-01 -4.94891E+00       kJ/mol
+ Energy solute   1 bonds                 1.39897E-01  0.00000E+00 nan            1.06876E+00  9.36571E-01 -4.22854E+01       kJ/mol
+ Energy solute   1 angles                2.44457E+01  0.00000E+00 nan            1.84032E+01  2.84472E+00  4.76792E+02       kJ/mol
+ Energy solute   1 proper dihedrals      4.33352E-01  0.00000E+00 nan            1.27510E+00  6.71578E-01 -1.44977E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.37553E+01  0.00000E+00 nan            2.33614E+01  3.54331E+00  5.99466E+02       kJ/mol
- Energy solute   1 potential            -2.77021E+00  0.00000E+00 nan           -6.41435E+00  2.23362E+00 -2.45124E+01       kJ/mol
- Moment of inertia solute molecule    1  6.08352E-01  0.00000E+00 nan            6.11515E-01  2.05019E-03 -4.41124E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.35070E+01  0.00000E+00 nan            2.18101E+01  3.49186E+00  6.42659E+02       kJ/mol
+ Energy solute   1 potential            -2.76044E+00  0.00000E+00 nan           -6.41106E+00  2.23402E+00 -2.37981E+01       kJ/mol
+ Moment of inertia solute molecule    1  6.08351E-01  0.00000E+00 nan            6.11514E-01  2.05065E-03 -4.41222E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:14  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.01800  298.74 6.11E+06     7.765 0.9999 0.9999 1.0000-1.3186E+04 2.3061E+03-1.0855E+04 1.9784E+03-8.8763E+03
+    0.01800  297.77 5.90E+06     7.765 0.9999 0.9999 1.0000-1.3186E+04 2.3062E+03-1.0854E+04 1.9720E+03-8.8825E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:14  
 
                                            Statistics over last        1 steps     Statistics over last        9 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
 
  Step                                    9.00000E+00  0.00000E+00 nan            5.00000E+00  2.58199E+00  5.00000E+02             
  Time                                    1.80000E-02  0.00000E+00 nan            1.00000E-02  5.16398E-03  1.00000E+00           ps
- Number solvent-solvent interactions SR  1.33570E+04  0.00000E+00 nan            1.33611E+04  6.09999E+00  1.08333E+02             
+ Number solvent-solvent interactions SR  1.33580E+04  0.00000E+00 nan            1.33612E+04  6.03283E+00  1.41667E+02             
  Number solvent-solute interactions  SR  1.59000E+02  0.00000E+00 nan            1.59667E+02  4.71405E-01 -2.50000E+01             
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  2.31296E-13             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  1.85037E-12             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76548E+00  0.00000E+00 nan            7.76538E+00  5.51388E-05  8.81353E-03        nm**3
- Mass density                            1.01918E+03  0.00000E+00 nan            1.01919E+03  7.23691E-03 -1.15676E+00      kg/m**3
- Pressure                                6.11412E+06  0.00000E+00 nan            1.84454E+06  2.27461E+06  3.81030E+07           Pa
- Pressure scaling                        1.00001E+00  0.00000E+00 nan            1.00000E+00  4.12159E-06  6.90426E-05             
- Temperature                             2.98735E+02  0.00000E+00 nan            3.02609E+02  1.66284E+00 -1.66755E+02            K
- Temperature solvent                     2.99180E+02  0.00000E+00 nan            3.03080E+02  1.60685E+00 -2.32220E+02            K
- Temperature solute                      2.65410E+02  0.00000E+00 nan            2.67353E+02  3.82721E+01  4.73380E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99904E-01  0.00000E+00 nan            9.99836E-01  3.07511E-05  9.56395E-04             
- Temperature scaling solute              9.99904E-01  0.00000E+00 nan            9.99836E-01  3.07511E-05  9.56395E-04             
- Energy electrostatic                   -1.31865E+04  0.00000E+00 nan           -1.32052E+04  1.01038E+01  2.21371E+02       kJ/mol
- Energy van der Waals                    2.30608E+03  0.00000E+00 nan            2.30279E+03  2.73179E+00  5.11884E+02       kJ/mol
- Energy potential                       -1.08546E+04  0.00000E+00 nan           -1.08811E+04  1.22509E+01  1.10377E+03       kJ/mol
- Energy kinetic                          1.97835E+03  0.00000E+00 nan            2.00401E+03  1.10120E+01 -1.10432E+03       kJ/mol
- Energy total                           -8.87627E+03  0.00000E+00 nan           -8.87708E+03  2.18005E+00 -5.53900E-01       kJ/mol
+ Volume                                  7.76548E+00  0.00000E+00 nan            7.76538E+00  5.38127E-05  8.45849E-03        nm**3
+ Mass density                            1.01918E+03  0.00000E+00 nan            1.01919E+03  7.06284E-03 -1.11016E+00      kg/m**3
+ Pressure                                5.90327E+06  0.00000E+00 nan            1.81643E+06  2.26062E+06  1.85849E+07           Pa
+ Pressure scaling                        1.00001E+00  0.00000E+00 nan            1.00000E+00  4.09625E-06  3.36759E-05             
+ Temperature                             2.97771E+02  0.00000E+00 nan            3.00680E+02  1.24607E+00 -7.62904E+01            K
+ Temperature solvent                     2.98439E+02  0.00000E+00 nan            3.01362E+02  1.14072E+00 -1.45234E+02            K
+ Temperature solute                      2.47775E+02  0.00000E+00 nan            2.49598E+02  3.77158E+01  5.08461E+03            K
+ Temperature scaling solvent             9.99935E-01  0.00000E+00 nan            9.99896E-01  3.28594E-05  1.40193E-03             
+ Temperature scaling solute              9.99935E-01  0.00000E+00 nan            9.99896E-01  3.28594E-05  1.40193E-03             
+ Energy electrostatic                   -1.31864E+04  0.00000E+00 nan           -1.32051E+04  1.00938E+01  2.36943E+02       kJ/mol
+ Energy van der Waals                    2.30616E+03  0.00000E+00 nan            2.30281E+03  2.75312E+00  5.16833E+02       kJ/mol
+ Energy potential                       -1.08545E+04  0.00000E+00 nan           -1.08810E+04  1.22981E+01  1.12505E+03       kJ/mol
+ Energy kinetic                          1.97197E+03  0.00000E+00 nan            1.99123E+03  8.25198E+00 -5.05228E+02       kJ/mol
+ Energy total                           -8.88248E+03  0.00000E+00 nan           -8.88973E+03  5.32586E+00  6.19820E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   6.40964E+00  0.00000E+00 nan            5.70833E+00  3.80795E-01  4.42050E+01       kJ/mol
- Derivative free energy wrt lambda       2.58577E+02  0.00000E+00 nan            2.27159E+02  1.71061E+01  1.98242E+03       kJ/mol
+ Energy perturbation 2                   6.40956E+00  0.00000E+00 nan            5.70830E+00  3.80793E-01  4.42018E+01       kJ/mol
+ Derivative free energy wrt lambda       2.58574E+02  0.00000E+00 nan            2.27158E+02  1.71061E+01  1.98229E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  2.03451E-05  1.18424E-10       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.44717E+04  0.00000E+00 nan           -1.44926E+04  9.79020E+00  3.68865E+02       kJ/mol
- Energy solvent inter van der Waals      2.31233E+03  0.00000E+00 nan            2.30905E+03  3.06314E+00  5.74409E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.44716E+04  0.00000E+00 nan           -1.44925E+04  9.77999E+00  3.84405E+02       kJ/mol
+ Energy solvent inter van der Waals      2.31241E+03  0.00000E+00 nan            2.30907E+03  3.08423E+00  5.79331E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.95518E+03  0.00000E+00 nan            1.98067E+03  1.05010E+01 -1.51759E+03       kJ/mol
- Mean square displacement solvent /6     2.69306E-04  0.00000E+00 nan            2.32652E-04  2.37891E-05  4.60668E-03        nm**2
- Diffusion constant solvent * e9         1.49615E-08  0.00000E+00 nan            3.39227E-08  2.50503E-08 -3.99656E-06       m**2/s
- Synchronization time                    3.80000E-05  0.00000E+00 nan            3.66667E-05  9.42809E-07  8.33333E-05            s
- Efficiency load balancing               9.99537E-01  0.00000E+00 nan            9.99554E-01  1.70834E-05 -2.15758E-03             
- Time per step                           8.20220E-02  0.00000E+00 nan            8.22716E-02  1.91281E-03 -2.24350E-01            s
- Energy solute   1 intra-electrostatic   2.75212E+01  0.00000E+00 nan            2.93606E+01  1.72210E+00 -3.20092E+02       kJ/mol
- Energy solute   1 intra-van der Waals   3.03350E+00  0.00000E+00 nan            2.38669E+00  6.52113E-01 -3.52499E+01       kJ/mol
- Energy solute   1-solvent electrostatic-1.09941E+02  0.00000E+00 nan           -1.09582E+02  2.00461E+00  1.72598E+02       kJ/mol
- Energy solute   1-solvent van der Waals-9.28565E+00  0.00000E+00 nan           -8.65077E+00  6.08230E-01 -2.72757E+01       kJ/mol
- Energy solute   1 bonds                 5.46006E-01  0.00000E+00 nan            1.01059E+00  8.98077E-01 -4.70251E+01       kJ/mol
- Energy solute   1 angles                2.49114E+01  0.00000E+00 nan            1.91234E+01  3.37120E+00  5.50297E+02       kJ/mol
- Energy solute   1 proper dihedrals      3.36764E-01  0.00000E+00 nan            1.17089E+00  6.98452E-01 -1.32760E+02       kJ/mol
+ Energy solvent kinetic                  1.95034E+03  0.00000E+00 nan            1.96944E+03  7.45476E+00 -9.49121E+02       kJ/mol
+ Mean square displacement solvent /6     2.69337E-04  0.00000E+00 nan            2.32663E-04  2.37992E-05  4.60862E-03        nm**2
+ Diffusion constant solvent * e9         1.49632E-08  0.00000E+00 nan            3.39235E-08  2.50498E-08 -3.99645E-06       m**2/s
+ Synchronization time                    4.60000E-05  0.00000E+00 nan            4.95556E-05  3.62433E-06 -5.33333E-04            s
+ Efficiency load balancing               9.99651E-01  0.00000E+00 nan            9.99631E-01  3.28261E-05  3.33332E-03             
+ Time per step                           1.31652E-01  0.00000E+00 nan            1.34851E-01  1.14074E-02 -3.02383E-01            s
+ Energy solute   1 intra-electrostatic   2.75208E+01  0.00000E+00 nan            2.93604E+01  1.72232E+00 -3.20133E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   3.03388E+00  0.00000E+00 nan            2.38673E+00  6.52185E-01 -3.52312E+01       kJ/mol
+ Energy solute   1-solvent electrostatic-1.09940E+02  0.00000E+00 nan           -1.09582E+02  2.00474E+00  1.72671E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-9.28548E+00  0.00000E+00 nan           -8.65074E+00  6.08215E-01 -2.72669E+01       kJ/mol
+ Energy solute   1 bonds                 5.46424E-01  0.00000E+00 nan            1.01073E+00  8.98137E-01 -4.70111E+01       kJ/mol
+ Energy solute   1 angles                2.49218E+01  0.00000E+00 nan            1.91275E+01  3.37492E+00  5.51043E+02       kJ/mol
+ Energy solute   1 proper dihedrals      3.36807E-01  0.00000E+00 nan            1.17085E+00  6.98467E-01 -1.32761E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.31707E+01  0.00000E+00 nan            2.33402E+01  3.34120E+00  4.13267E+02       kJ/mol
- Energy solute   1 potential            -3.26464E+00  0.00000E+00 nan           -6.06439E+00  2.32692E+00  8.78317E+01       kJ/mol
- Moment of inertia solute molecule    1  6.07906E-01  0.00000E+00 nan            6.11114E-01  2.24104E-03 -4.29069E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.16311E+01  0.00000E+00 nan            2.17902E+01  3.29264E+00  4.43893E+02       kJ/mol
+ Energy solute   1 potential            -3.25303E+00  0.00000E+00 nan           -6.06017E+00  2.32837E+00  8.86090E+01       kJ/mol
+ Moment of inertia solute molecule    1  6.07904E-01  0.00000E+00 nan            6.11113E-01  2.24165E-03 -4.29187E-01   kg nm2/mol
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/06/01  13:03:43  
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    00/10/25  11:05:14  
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
 
-    0.02000  297.06 1.15E+07     7.766 1.0000 1.0000 1.0000-1.3169E+04 2.3065E+03-1.0840E+04 1.9672E+03-8.8724E+03
+    0.02000  295.76 1.13E+07     7.766 1.0000 1.0000 1.0000-1.3168E+04 2.3066E+03-1.0839E+04 1.9587E+03-8.8803E+03
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/06/01  13:03:43  
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  00/10/25  11:05:14  
 
                                            Statistics over last        1 steps     Statistics over last       10 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
 
  Step                                    1.00000E+01  0.00000E+00 nan            5.50000E+00  2.87228E+00  5.00000E+02             
  Time                                    2.00000E-02  0.00000E+00 nan            1.10000E-02  5.74456E-03  1.00000E+00           ps
- Number solvent-solvent interactions SR  1.33510E+04  0.00000E+00 nan            1.33601E+04  6.53376E+00 -1.96970E+02             
+ Number solvent-solvent interactions SR  1.33510E+04  0.00000E+00 nan            1.33602E+04  6.49307E+00 -1.75758E+02             
  Number solvent-solute interactions  SR  1.59000E+02  0.00000E+00 nan            1.59600E+02  4.89898E-01 -3.63636E+01             
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00 nan            3.00000E+00  0.00000E+00  0.00000E+00             
  Number of solvent SHAKE iterations      2.60000E+01  0.00000E+00 nan            2.60000E+01  0.00000E+00  2.69145E-12             
  Number of solute SHAKE iterations       4.00000E+00  0.00000E+00 nan            4.00000E+00  0.00000E+00  0.00000E+00             
- Volume                                  7.76564E+00  0.00000E+00 nan            7.76540E+00  9.51775E-05  1.36384E-02        nm**3
- Mass density                            1.01916E+03  0.00000E+00 nan            1.01919E+03  1.24916E-02 -1.78999E+00      kg/m**3
- Pressure                                1.14627E+07  0.00000E+00 nan            2.80636E+06  3.60310E+06  2.90026E+08           Pa
- Pressure scaling                        1.00002E+00  0.00000E+00 nan            1.00000E+00  6.52880E-06  5.25526E-04             
- Temperature                             2.97058E+02  0.00000E+00 nan            3.02054E+02  2.29399E+00 -2.72685E+02            K
- Temperature solvent                     2.97111E+02  0.00000E+00 nan            3.02483E+02  2.35184E+00 -3.31698E+02            K
- Temperature solute                      2.93097E+02  0.00000E+00 nan            2.69927E+02  3.71204E+01  4.14487E+03            K
- Temperature translations                0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature rotations                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00            K
- Temperature scaling solvent             9.99980E-01  0.00000E+00 nan            9.99851E-01  5.21878E-05  4.62941E-03             
- Temperature scaling solute              9.99980E-01  0.00000E+00 nan            9.99851E-01  5.21878E-05  4.62941E-03             
- Energy electrostatic                   -1.31687E+04  0.00000E+00 nan           -1.32015E+04  1.45433E+01  1.15532E+03       kJ/mol
- Energy van der Waals                    2.30646E+03  0.00000E+00 nan            2.30316E+03  2.81543E+00  4.72288E+02       kJ/mol
- Energy potential                       -1.08396E+04  0.00000E+00 nan           -1.08769E+04  1.70214E+01  1.93327E+03       kJ/mol
- Energy kinetic                          1.96724E+03  0.00000E+00 nan            2.00033E+03  1.51918E+01 -1.80584E+03       kJ/mol
- Energy total                           -8.87239E+03  0.00000E+00 nan           -8.87661E+03  2.50096E+00  1.27434E+02       kJ/mol
+ Volume                                  7.76564E+00  0.00000E+00 nan            7.76540E+00  9.26084E-05  1.31758E-02        nm**3
+ Mass density                            1.01916E+03  0.00000E+00 nan            1.01919E+03  1.21544E-02 -1.72928E+00      kg/m**3
+ Pressure                                1.13029E+07  0.00000E+00 nan            2.76508E+06  3.56354E+06  2.72239E+08           Pa
+ Pressure scaling                        1.00002E+00  0.00000E+00 nan            1.00000E+00  6.45711E-06  4.93298E-04             
+ Temperature                             2.95763E+02  0.00000E+00 nan            3.00188E+02  1.89029E+00 -1.89580E+02            K
+ Temperature solvent                     2.96250E+02  0.00000E+00 nan            3.00851E+02  1.87718E+00 -2.45065E+02            K
+ Temperature solute                      2.59352E+02  0.00000E+00 nan            2.50574E+02  3.58998E+01  3.96391E+03            K
+ Temperature scaling solvent             1.00001E+00  0.00000E+00 nan            9.99907E-01  4.69536E-05  4.21161E-03             
+ Temperature scaling solute              1.00001E+00  0.00000E+00 nan            9.99907E-01  4.69536E-05  4.21161E-03             
+ Energy electrostatic                   -1.31681E+04  0.00000E+00 nan           -1.32014E+04  1.46440E+01  1.17953E+03       kJ/mol
+ Energy van der Waals                    2.30658E+03  0.00000E+00 nan            2.30319E+03  2.84660E+00  4.78787E+02       kJ/mol
+ Energy potential                       -1.08389E+04  0.00000E+00 nan           -1.08768E+04  1.71802E+01  1.96469E+03       kJ/mol
+ Energy kinetic                          1.95867E+03  0.00000E+00 nan            1.98798E+03  1.25183E+01 -1.25548E+03       kJ/mol
+ Energy total                           -8.88026E+03  0.00000E+00 nan           -8.88878E+03  5.79737E+00  7.09209E+02       kJ/mol
  Energy perturbation 1                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy perturbation 2                   6.39526E+00  0.00000E+00 nan            5.77702E+00  4.15900E-01  5.08835E+01       kJ/mol
- Derivative free energy wrt lambda       2.58341E+02  0.00000E+00 nan            2.30277E+02  1.87314E+01  2.29217E+03       kJ/mol
+ Energy perturbation 2                   6.39506E+00  0.00000E+00 nan            5.77697E+00  4.15874E-01  5.08767E+01       kJ/mol
+ Derivative free energy wrt lambda       2.58332E+02  0.00000E+00 nan            2.30275E+02  1.87303E+01  2.29189E+03       kJ/mol
  Energy solvent intra electrostatic      1.36764E+03  0.00000E+00 nan            1.36764E+03  0.00000E+00  8.61264E-11       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.44566E+04  0.00000E+00 nan           -1.44890E+04  1.42455E+01  1.25022E+03       kJ/mol
- Energy solvent inter van der Waals      2.31179E+03  0.00000E+00 nan            2.30933E+03  3.01986E+00  4.92444E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.44560E+04  0.00000E+00 nan           -1.44889E+04  1.43467E+01  1.27436E+03       kJ/mol
+ Energy solvent inter van der Waals      2.31192E+03  0.00000E+00 nan            2.30936E+03  3.04782E+00  4.98896E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent angles                   0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent kinetic                  1.94166E+03  0.00000E+00 nan            1.97677E+03  1.53696E+01 -2.16769E+03       kJ/mol
- Mean square displacement solvent /6     2.78366E-04  0.00000E+00 nan            2.37224E-04  2.64084E-05  4.59704E-03        nm**2
- Diffusion constant solvent * e9         1.39183E-08  0.00000E+00 nan            3.19223E-08  2.45108E-08 -3.45217E-06       m**2/s
- Synchronization time                    3.60000E-05  0.00000E+00 nan            3.66000E-05  9.16515E-07  4.24242E-05            s
- Efficiency load balancing               9.99560E-01  0.00000E+00 nan            9.99555E-01  1.63197E-05 -1.39494E-03             
- Time per step                           8.18940E-02  0.00000E+00 nan            8.22338E-02  1.81819E-03 -1.73461E-01            s
- Energy solute   1 intra-electrostatic   2.84422E+01  0.00000E+00 nan            2.92688E+01  1.65680E+00 -2.57842E+02       kJ/mol
- Energy solute   1 intra-van der Waals   3.45059E+00  0.00000E+00 nan            2.49308E+00  6.96129E-01  3.37906E+00       kJ/mol
- Energy solute   1-solvent electrostatic-1.08211E+02  0.00000E+00 nan           -1.09445E+02  1.94576E+00  1.62941E+02       kJ/mol
- Energy solute   1-solvent van der Waals-8.78639E+00  0.00000E+00 nan           -8.66433E+00  5.78450E-01 -2.35357E+01       kJ/mol
- Energy solute   1 bonds                 5.88894E-01  0.00000E+00 nan            9.68417E-01  8.61332E-01 -4.57008E+01       kJ/mol
- Energy solute   1 angles                2.17808E+01  0.00000E+00 nan            1.93891E+01  3.29606E+00  4.72689E+02       kJ/mol
- Energy solute   1 proper dihedrals      2.62703E-01  0.00000E+00 nan            1.08007E+00  7.16439E-01 -1.21321E+02       kJ/mol
+ Energy solvent kinetic                  1.93603E+03  0.00000E+00 nan            1.96610E+03  1.22676E+01 -1.60153E+03       kJ/mol
+ Mean square displacement solvent /6     2.78405E-04  0.00000E+00 nan            2.37237E-04  2.64210E-05  4.59922E-03        nm**2
+ Diffusion constant solvent * e9         1.39202E-08  0.00000E+00 nan            3.19232E-08  2.45103E-08 -3.45205E-06       m**2/s
+ Synchronization time                    4.40000E-05  0.00000E+00 nan            4.90000E-05  3.82099E-06 -5.39394E-04            s
+ Efficiency load balancing               9.99605E-01  0.00000E+00 nan            9.99628E-01  3.20701E-05  1.72775E-03             
+ Time per step                           1.11446E-01  0.00000E+00 nan            1.32511E-01  1.29003E-02 -8.58236E-01            s
+ Energy solute   1 intra-electrostatic   2.84421E+01  0.00000E+00 nan            2.92685E+01  1.65700E+00 -2.57869E+02       kJ/mol
+ Energy solute   1 intra-van der Waals   3.45117E+00  0.00000E+00 nan            2.49317E+00  6.96265E-01  3.40754E+00       kJ/mol
+ Energy solute   1-solvent electrostatic-1.08209E+02  0.00000E+00 nan           -1.09445E+02  1.94598E+00  1.63033E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-8.78590E+00  0.00000E+00 nan           -8.66425E+00  5.78426E-01 -2.35168E+01       kJ/mol
+ Energy solute   1 bonds                 5.89279E-01  0.00000E+00 nan            9.68581E-01  8.61377E-01 -4.56839E+01       kJ/mol
+ Energy solute   1 angles                2.17901E+01  0.00000E+00 nan            1.93937E+01  3.29987E+00  4.73375E+02       kJ/mol
+ Energy solute   1 proper dihedrals      2.62842E-01  0.00000E+00 nan            1.08005E+00  7.16431E-01 -1.21317E+02       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00 nan            0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 kinetic               2.55877E+01  0.00000E+00 nan            2.35650E+01  3.24066E+00  3.61853E+02       kJ/mol
- Energy solute   1 potential            -3.97330E+00  0.00000E+00 nan           -5.85528E+00  2.29492E+00  1.20907E+02       kJ/mol
- Moment of inertia solute molecule    1  6.07901E-01  0.00000E+00 nan            6.10792E-01  2.33435E-03 -3.99680E-01   kg nm2/mol
+ Energy solute   1 kinetic               2.26418E+01  0.00000E+00 nan            2.18754E+01  3.13410E+00  3.46054E+02       kJ/mol
+ Energy solute   1 potential            -3.96181E+00  0.00000E+00 nan           -5.85033E+00  2.29684E+00  1.21671E+02       kJ/mol
+ Moment of inertia solute molecule    1  6.07898E-01  0.00000E+00 nan            6.10792E-01  2.33510E-03 -3.99815E-01   kg nm2/mol
 
 
- MULTICONFIGURATION THERMODYNAMIC INTEGRATION                                                                00/06/01  13:03:43  
+ MULTICONFIGURATION THERMODYNAMIC INTEGRATION                                                                00/10/25  11:05:14  
 
  Run Lambda   Size  Derivative  Derivative  Derivative Lambda Free Energy Free Energy Free Energy  Sampling
                        Average       Error       Drift        Accumulated       Error       Drift     Ratio
                         kJ/mol      kJ/mol   kJ/mol ps             kJ/mol      kJ/mol   kJ/mol ps
 
-   1  0.000     10     230.277   14.644125 2292.168853  0.025       5.757    0.366103   57.304221   2.34539
+   1  0.000     10     230.275   14.643524 2291.885728  0.025       5.757    0.366088   57.297143   2.34542
 
 
- MULTISTEP THERMODYNAMIC PERTURBATION                                                                        00/06/01  13:03:43  
+ MULTISTEP THERMODYNAMIC PERTURBATION                                                                        00/10/25  11:05:14  
 
  Run Lambda   Size     Reverse     Forward    Ensemble Lambda Accumulated 
                         kJ/mol      kJ/mol      kJ/mol             kJ/mol
@@ -815,4 +801,4 @@
 
                                                Wall            CPU
 
- MD step                   10                 0.086          0.084
+ MD step                   10                 0.151          0.094
