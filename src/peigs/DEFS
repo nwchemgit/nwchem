@@ -384,7 +384,8 @@ peigs_COMM = TCGMSG
 peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL -P -DDECOSF
 peigs_CODEOBJ = DBLE
 peigs_CC  += -D${CPU} -DSTD_DBL -D_fastmath -O3 -DDECOSF
-peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM)
+#peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DALPHA
+peigs_FC += -O3 -D${CPU} -DSTD_DBL -D_fastmath -O3 -D$(peigs_COMM) -DDECOSF
 endif
 
 ifeq ($(peigs_TARGET),LINUX)
