@@ -1,6 +1,6 @@
       subroutine xc_hessian(g_dens, oactive, nactive, hess)
 c
-c     $Id: xc_nucder_gen.F,v 1.4 1998-09-25 11:36:52 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.5 2000-05-05 02:03:04 bjohnson Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -20,7 +20,7 @@ c
 c
       subroutine xc_cpks_rhs(g_dens, oactive, nactive, g_rhs)
 c
-c     $Id: xc_nucder_gen.F,v 1.4 1998-09-25 11:36:52 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.5 2000-05-05 02:03:04 bjohnson Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -41,7 +41,7 @@ c
       subroutine xc_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.4 1998-09-25 11:36:52 bjohnson Exp $
+c     $Id: xc_nucder_gen.F,v 1.5 2000-05-05 02:03:04 bjohnson Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -96,6 +96,9 @@ c
 c      write(*,*)'natoms',natoms
       if (.not. bgj_get_scf_method(name))
      $     call errquit('get_scf_method failed',0)
+#if 0
+c     !!! Commented out so that routines will accumulate, allowing
+c     !!! more efficient use of storage
 c
 c     Initialize output quantities
 c
@@ -117,6 +120,7 @@ c
             endif
          enddo
       endif
+#endif
 c
 c     Set up indexing arrays needed by dftgh_quadv0
 c

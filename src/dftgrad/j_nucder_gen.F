@@ -5,7 +5,7 @@ c     dftg_cdfit_gen for fitted J quantities
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.8 2000-04-13 17:12:09 hvd Exp $
+c     $Id: j_nucder_gen.F,v 1.9 2000-05-05 02:01:43 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,7 +44,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.8 2000-04-13 17:12:09 hvd Exp $
+c     $Id: j_nucder_gen.F,v 1.9 2000-05-05 02:01:43 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -102,6 +102,9 @@ c
       rtdb = bgj_get_rtdb_handle()
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('j_deriv_gen: geom_ncent failed',1)
+#if 0
+c     !!! Comment out initialization so that routines accumulate
+c     !!! for storage efficiency
 c
 c     Initialize output quantities
 c
@@ -115,14 +118,16 @@ c
                call ga_zero(g_rhs(3,i))
             endif
          enddo
-         if (CDFIT) then
+      endif
+#endif
 c
-c           Need additional space for fit required in CPKS RHS
+      if (do_cpks_r .and. CDFIT) then
 c
-            if (.not. MA_push_get(MT_DBL, nbf_cd*3*natoms, 'db',
-     &           l_db, k_db))
-     &           call errquit('j_nucder_gen: could not alloc db',0)
-         endif
+c     Need additional space for fit required in CPKS RHS
+c
+         if (.not. MA_push_get(MT_DBL, nbf_cd*3*natoms, 'db',
+     &        l_db, k_db))
+     &        call errquit('j_nucder_gen: could not alloc db',0)
       endif
 c
 c     Set up temporary arrays needed by dftg_grad2_gen / dftg_cdfit_gen
