@@ -1,4 +1,4 @@
-C $Id: ecp_init_con.F,v 1.1 1996-10-15 20:42:45 mg201 Exp $
+C $Id: ecp_init_con.F,v 1.2 1996-10-16 18:26:07 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_init_con
@@ -10,7 +10,6 @@ C $Id: ecp_init_con.F,v 1.1 1996-10-15 20:42:45 mg201 Exp $
 ************************************************************************
       implicit none
 #include "ecp_consts.fh"
-      double precision 
 *
       zero = 0.0d00
       half = 0.5d00
