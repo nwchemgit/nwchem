@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.20 2004-09-28 22:58:57 marat Exp $
+c $Id: qmmm_geom.F,v 1.21 2004-09-30 06:46:30 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -809,7 +809,7 @@ c     local variables
       i_ai = qmmm_get_i_ai()
       i_c = qmmm_get_i_c()
 
-      call mm_set_solute_coord_quant(nqm,
+      call mm_get_solute_coord_quant(nqm,
      &                   link,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_c))

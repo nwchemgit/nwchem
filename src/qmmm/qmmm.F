@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.21 2004-09-30 06:11:20 marat Exp $
+c $Id: qmmm.F,v 1.22 2004-09-30 06:46:30 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -84,7 +84,7 @@ c
 
       if(optimize.eq.'mm') then
         write(*,*) "optimize mm no initialization"
-        return
+c        return
       end if
 
 

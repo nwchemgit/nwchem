@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.20 2004-09-28 22:58:57 marat Exp $
+c $Id: mm_interface.F,v 1.21 2004-09-30 06:46:30 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -454,6 +454,7 @@ c
       end
 
       subroutine mm_get_solute_coord_quant(nt,
+     >                       link,
      >                       ai,
      >                       c)
       implicit none
@@ -468,15 +469,21 @@ c
 #include "mm_utils.fh"
 
       integer nt
+      logical link
       integer ai(nt)
       double precision c(3,nt)
 c
-
-      call mm_get_solute_coord_gen(nt,
-     >                       mm_quant_link,
-     >                       ai,
-     >                       c)
-
+      if(link) then
+        call mm_get_solute_coord_gen(nt,
+     >                         mm_quant_link,
+     >                         ai,
+     >                         c)
+      else
+        call mm_get_solute_coord_gen(nt,
+     >                         mm_quant,
+     >                         ai,
+     >                         c)
+      end if
 
       end
 
