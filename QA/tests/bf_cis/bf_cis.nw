@@ -6,9 +6,10 @@ echo
 
 title "CIS/6-31G* BF Optimization"
 
-geometry
-B 0.0 0.0 0.0
-F 0.0 0.0 1.2
+geometry 
+     B   0.00000000     0.00000000     0.
+     F   0.00000000     0.00000000     1.2
+symmetry c2v
 end
 
 basis
