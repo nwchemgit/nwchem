@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.10 2002-10-31 01:57:55 edo Exp $
+c     $Id: dft_fockbld.F,v 1.11 2003-01-30 01:15:02 bert Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -49,13 +49,6 @@ c
       external ga_create_atom_blocked
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
 c
-c     ----- cosmo -----
-c
-      logical ocosmo
-      logical odbug
-      logical osome
-
-c
       me=ga_nodeid()
 c
 
@@ -90,34 +83,12 @@ c
          endif
       endif
       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
-
 c
-c     ----- cosmo potential -----
+c     ----- Add cosmo potential when needed -----
 c
-      odbug=.false.
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(ocosmo) then
-c
-            if(odbug) then
-               osome=.true.
-            else
-               osome=.false.
-            endif
-            odbug=odbug.and.ga_nodeid().eq.0
-            osome=osome.and.ga_nodeid().eq.0
-c
-            if(odbug) then
-               call ga_print(g_fock)
-            endif
-c
-            call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
-     &                     'cos_chg_pot',.false.)
-c
-            if(odbug) then
-               call ga_print(g_fock)
-            endif
-c
-         endif
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
+     &                  'cos_chg_pot',.false.)
       endif
       call ga_sync()
 c

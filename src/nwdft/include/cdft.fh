@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.57 2002-08-15 02:37:35 edo Exp $
+C$Id: cdft.fh,v 1.58 2003-01-30 01:15:02 bert Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -24,7 +24,7 @@ c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
-     &     oadapt, lssw, lkeeps,trunc_neigh
+     &     oadapt, lssw, lkeeps,trunc_neigh, cosmo_on
       integer
      &     iAOacc, iCDacc, iXCacc, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
@@ -36,6 +36,7 @@ c
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
      &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc, numfunc,
+     &     cosmo_phase,
 c
 c     old common handles 
 c
@@ -62,7 +63,7 @@ c
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac(numfunc), 
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
-     &     direct, oskel, oadapt, lssw, lkeeps,trunc_neigh,
+     &     direct, oskel, oadapt, lssw, lkeeps,trunc_neigh, cosmo_on,
 c
 c     Integers
 c
@@ -76,6 +77,7 @@ c
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
      &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
+     &     cosmo_phase,
 c
 c     old common handles 
 c

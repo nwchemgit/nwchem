@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.227 2002-12-18 02:41:27 edo Exp $
+c     $Id: dft_scf.F,v 1.228 2003-01-30 01:15:02 bert Exp $
 c     
       implicit none
 c
@@ -126,12 +126,9 @@ c
 c     ----- cosmo -----
 c
       logical odbug
-      logical ocosmo
-      logical ogas_phase
-      logical osol_phase
       double precision egas
       double precision esol
-      double precision ecosmo,dft_cosmoe,dft_cosmoadde
+      double precision ecosmo
 c
 c     slow switching of annealing
 c
@@ -139,7 +136,7 @@ c
       integer n_dep
       integer n_rabuck
       logical rabuck_act,spinset
-      external dft_cosmoe,dft_cosmoadde,dft_rabuck
+      external dft_rabuck
 
 
       integer g_focks(2)
@@ -555,8 +552,6 @@ c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken) call dft_mulwrap(me,g_dens,g_s)
 c
-      call dft_cosmoinit(rtdb,ocosmo,odbug)
-c
 c    The loop associated with the label 135 is to find the exact exchange-
 c    correlation potential.
 c
@@ -580,8 +575,6 @@ c
 c
       if (oprint_time)
      &     call dft_tstamp('   Before SCF iter loop. ')
-c
-      call dft_cosmochk(rtdb,ocosmo,odbug,ogas_phase,osol_phase)
 c
       iter = 0
 c
@@ -638,9 +631,8 @@ c
       Exc(2) = ZERO
       rms(1) = 0.d0
       rms(2) = 0.d0
-      ecosmo=dft_cosmoe(rtdb,ocosmo,odbug,
-     .     geom,iter,g_movecs,ao_bas_han)
-
+      if (cosmo_on.and.cosmo_phase.eq.2) call cosmo_charges
+     .   (rtdb,ao_bas_han,geom,ecosmo,iter,odbug,2,g_movecs)
 c
 c     build DFT Fock matrix
 c
@@ -668,10 +660,9 @@ c
          write(LuOut,*)'Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic: ',
      &                  Etnew, Ecore, Ecoul, Exc(1), Exc(2), Totsic
       endif
-      etnew=dft_cosmoadde(rtdb,ocosmo,odbug,
-     .     ecosmo,etnew)
+      if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 c     
-      if (last_time_energy)then
+      if (last_time_energy) then
          etnew=etnew+tdots
 c     
 c        If open shell put the total density matrix back in 
@@ -872,8 +863,6 @@ c
 c     
       if (oprint_conv.and.iter.eq.1.and.me.eq.0)then
 c
-         if(ogas_phase.or.osol_phase) then
-c
          nheap = MA_Inquire_Heap(MT_Dbl)
          nstack = MA_Inquire_Stack(MT_Dbl)
          write(LuOut,21)
@@ -884,17 +873,15 @@ c
          call util_flush(LuOut)
          write(LuOut,1)
 c
-         endif
-c
 c     ----- cosmo message -----
 c
-         if(ogas_phase.and.osol_phase) then
+         if(cosmo_on.and.cosmo_phase.eq.1) then
             write(LuOut,909)
-         elseif(.not.ogas_phase.and..not.osol_phase) then
+         elseif(cosmo_on) then
             write(LuOut,910)
          endif
- 909     format(2x,'   gas_phase')
- 910     format(2x,'   sol_phase')
+ 909     format(2x,'   COSMO gas phase')
+ 910     format(2x,'   COSMO solvation phase')
 c
       endif
       if (oprint_conv.and.me.eq.0)then
@@ -1022,8 +1009,7 @@ c
       else
         Etnew = Ecore + Ecoul + Exc(1) + Exc(2) + tdots
       endif
-      etnew=dft_cosmoadde(rtdb,ocosmo,odbug,
-     .     ecosmo,etnew)
+      if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0)
@@ -1067,16 +1053,12 @@ c
 c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
-      if(ogas_phase.and.osol_phase) then
+      if(cosmo_on.and.cosmo_phase.eq.1) then
          converged =.false.
          egas      =etnew+enuc
-         ogas_phase=.false.
-         osol_phase=.false.
-         if (.not. rtdb_put(rtdb,'slv:cosmo',mt_log,1,.true.))
-     $       call errquit('dft_scf: rtdb_put failed',0)
-         if(odbug) then
-            write(LuOut,*) 'gas_phase done, do sol-phase now ...'
-         endif
+         cosmo_phase=2
+         if(odbug) write(LuOut,*) 
+     &     'gas_phase done, do sol-phase now ...'
 c
 c     ----- reset convergence aids -----
 c
@@ -1094,7 +1076,7 @@ c
 c
          call ga_sync()
          go to 3000
-      elseif(.not.ogas_phase.and..not.osol_phase) then
+      elseif(cosmo_on) then
          esol      =etnew+enuc
       endif
       call ga_sync()
@@ -1114,8 +1096,20 @@ c
             write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time
          endif
-         if(ocosmo) call dft_cosmosum(egas,esol)
+         if(cosmo_on.and.cosmo_phase.eq.2) then
+           write(LuOut,*) '                 COSMO solvation results'
+           write(LuOut,*) '                 -----------------------'
+           write(LuOut,*) ' '
+           write(LuOut,912) egas
+           write(LuOut,913) esol
+           write(LuOut,914) (egas-esol),(egas-esol)*627.509451d+00
+           call util_flush(LuOut)
+         endif
       endif
+ 912  format('                 gas phase energy = ',f20.10)
+ 913  format('                 sol phase energy = ',f20.10)
+ 914  format(' (electrostatic) solvation energy = ',f20.10,
+     $     ' (',f8.2,' kcal/mol)'                       )
  1970 continue
 c
 c     Vector analysis stolen from rohf.F

@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.59 2002-01-14 20:37:30 edo Exp $
+C$Id: nwdft.F,v 1.60 2003-01-30 01:14:35 bert Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -120,15 +120,18 @@ c     old checkpoint files, etc.
 c
       call dft_rdinput(rtdb)
 c
-c     bail out if cosmo active and spherical bfns
+c     ----- cosmo initialization ----
 c
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-         if(ocosmo.and.bas_is_spherical(ao_bas_han)) call errquit(
-     .        ' cosmo does not handle spherical basis yet',0)
-         if(.not.geom_ncent_ecp(geom, necp)) call errquit(
-     .        'scf: failed call to geom_ncent_ecp',0)
-         if(ocosmo.and.necp.gt.0) call errquit(
-     .        ' cosmo does not support ECPs yet',0)
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+         if(cosmo_on) then
+            call cosmo_initialize(rtdb,geom,ao_bas_han,oprint)
+c
+c           Turn cosmo on, we want to run the calculation
+c           Start with gas_phase run
+c
+            cosmo_on = .true.
+            cosmo_phase = 1
+         endif
       endif
 c
 c     Can we check here to see if system if already converged?
@@ -250,6 +253,14 @@ c
 c     Go here if already converged
 c
  1101 continue
+c
+c     Clean up cosmo stuff if necessary
+c
+      if (cosmo_on) then
+         call cosmo_tidy()
+         cosmo_on = .false.
+         cosmo_phase = 1
+      endif
 c     
 c     destroy BS handles and geom object
 c
