@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.56 1999-11-13 02:30:00 bjohnson Exp $
+c  $Id: moints_semi.F,v 1.57 2000-03-27 17:20:29 edo Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -629,7 +629,11 @@ c
 c I/O stats
 c
        nwrbytes = nwrbytes*8.e-6
-       iorate = nwrbytes/mi_tio
+       if(mi_tio.eq.0) then
+          iorate=0d0
+       else
+          iorate = nwrbytes/mi_tio
+       endif
        call ga_dgop(MSG_SEMI_IO_RATE,iorate,1,'+')
        if ((ga_nodeid().eq.0).and.
      $     (util_print('io_stats',print_default))) then
