@@ -8,9 +8,9 @@ critical path
 ... two electron
 ...   4 center 2e integrals
 ... eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
- int_2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, lscr, scr, eri)
- lab_2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, zerotol,
-             canonicalize, eri, nints, ilab, jlab, klab, llab, scr, lscr)
+. int_2e4c (bra_basis, ish, jsh, ket_basis, ksh, lsh, lscr, scr, leri, eri)
+. int_l2e4c(bra_basis, ish, jsh, ket_basis, ksh, lsh, zerotol,
+             canonicalize, leri, eri, nints, ilab, jlab, klab, llab, scr, lscr)
 
 ... one electron integrals 
  int_1eke (i_basis, j_basis, ish, jsh, lscr, scr, T)

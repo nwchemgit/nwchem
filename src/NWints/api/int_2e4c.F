@@ -9,12 +9,11 @@ c
 #include "bas.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
-#include "geom.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
 c::functions
-      logical int_check_shell
-      external int_check_shell
+      logical int_chk_sh
+      external int_chk_sh
 c:: passed
       integer brain, ketin, lscr, leri
       integer ish,jsh,ksh,lsh, i,j
@@ -39,10 +38,10 @@ c
 c
 c     check input shell ranges
 c
-      status = int_check_shell(brain,ish)
-      status = status .and. int_check_shell(brain,jsh)
-      status = status .and. int_check_shell(ketin,ksh)
-      status = status .and. int_check_shell(ketin,lsh)
+      status = int_chk_sh(brain,ish)
+      status = status .and. int_chk_sh(brain,jsh)
+      status = status .and. int_chk_sh(ketin,ksh)
+      status = status .and. int_chk_sh(ketin,lsh)
       if (.not.status) then
         write(6,*)'int_2e4c: invalid shell input '
         stop 'error'
