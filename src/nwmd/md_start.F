@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.92 2001-07-03 17:34:36 d3j191 Exp $
+c $Id: md_start.F,v 1.93 2001-07-31 17:58:26 d3j191 Exp $
 c
       implicit none
 c
@@ -62,7 +62,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr)
+     + nsa,ddacq,edacq,iprof,npmf,npener,ndistr,lpbc)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
@@ -109,7 +109,7 @@ c
      + call errquit('Failed to allocate memory for xscr',0)
       if(.not.ma_push_get(mt_dbl,msm,'dsr',l_dsr,i_dsr))
      + call errquit('Failed to allocate memory for dsr',0)
-      if(.not.ma_push_get(mt_dbl,6*msm,'zs',l_zs,i_zs))
+      if(.not.ma_push_get(mt_dbl,18*msm,'zs',l_zs,i_zs))
      + call errquit('Failed to allocate memory for zs',0)
       if(.not.ma_push_get(mt_dbl,2*mpe*msf,'esw',l_esw,i_esw))
      + call errquit('Failed to allocate memory for esw',0)

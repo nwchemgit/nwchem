@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
-c $Id: cf_init.F,v 1.61 2001-07-03 17:34:24 d3j191 Exp $
+c $Id: cf_init.F,v 1.62 2001-07-31 17:58:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1299,7 +1299,7 @@ c
 #include "mafdecls.fh"
 c
 c      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),vs(msa,3),vst(msa,3)
-      real*8 bx(3),vl(3,3),vli(3,3),zwi(3,2),zs(msf,3,2)
+      real*8 bx(3),vl(3,3),vli(3,3),zwi(3,3,2),zs(msf,3,3,2)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2)
       real*8 esa(nsa,2)
       logical lp,llng
@@ -1333,13 +1333,15 @@ c
     5 continue
     4 continue
     3 continue
+      do 16 k=1,3
       do 6 i=1,3
-      zw(i,l)=zero
-      zwi(i,l)=zero
+      zw(k,i,l)=zero
+      zwi(k,i,l)=zero
       do 7 j=1,msf
-      zs(j,i,l)=zero
+      zs(j,k,i,l)=zero
     7 continue
     6 continue
+   16 continue
       vpme(1)=zero
       vpme(2)=zero
       vpme(3)=zero

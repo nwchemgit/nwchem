@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.16 2000-10-31 18:40:46 d3j191 Exp $
+c $Id: cf_forces.fh,v 1.17 2001-07-31 17:58:18 d3j191 Exp $
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,
@@ -69,7 +69,7 @@ c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
-      real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),zwi(3,2)
+      real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),zwi(3,3,2)
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
 #if defined(CAFE_POLARIZATION)
       real*8 pw(mwm,3,mwa,2),pwp(mwm,3,mwa,2,2)
@@ -81,7 +81,7 @@ c
       integer iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer lstptr
       logical lself,lpbc,lupden,lpbcs
-      real*8 rtos(mwm),zs(msf,2)
+      real*8 rtos(mwm),zs(msf,3,32)
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),esa(nsa)
 c
       integer nwloc,nsloc,nwnon,nsnon,npairs
@@ -92,7 +92,9 @@ c      print*,'CAFE forces'
 c
       do 1 j=1,2
       do 2 i=1,3
-      zw(i,j)=zwi(i,j)
+      zw(1,i,j)=zwi(1,i,j)
+      zw(2,i,j)=zwi(2,i,j)
+      zw(3,i,j)=zwi(3,i,j)
     2 continue
     1 continue
 c
@@ -349,7 +351,9 @@ c
 c
       do 3 j=1,2
       do 4 i=1,3
-      zwi(i,j)=zw(i,j)
+      zwi(1,i,j)=zw(1,i,j)
+      zwi(2,i,j)=zw(2,i,j)
+      zwi(3,i,j)=zw(3,i,j)
     4 continue
     3 continue
 c

@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.97 2001-07-14 05:11:24 d3j191 Exp $
+c $Id: cf_main.F,v 1.98 2001-07-31 17:58:19 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -681,24 +681,28 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),yw(mwm,3,mwa)
       real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa)
       real*8 xs(msa,3),xsm(msm,3),ys(msa,3),vs(msa,3),vst(msa,3)
-      real*8 zs(msf,3,2),bx(3),prs,tmp,tmpw,tmps,esk(msf),vl(3,3)
+      real*8 zs(msf,3,3,2),bx(3),prs,tmp,tmpw,tmps,esk(msf),vl(3,3)
       integer isat(msa),ismol(msa),isdyn(msa),isfrc(msa)
       integer numw,nums
 c
       integer i,j,k
-      real*8 z(3,3),prssc3,rdata(4),xwcd,xscd,eskin,ekc(3),ekinc
-      real*8 prx(3),pscx(3)
+      real*8 prssc3,rdata(4),xwcd,xscd,eskin,ekinc
+      real*8 pscx(3)
 c
       call cf_vw(xw,yw,vw,vwt,numw,int_mb(i_iwa),dbl_mb(i_mas))
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
 c
       if(ltwin) then
       do 1 i=1,3
-      zw(i,1)=zw(i,1)+zw(i,2)
+      zw(1,i,1)=zw(1,i,1)+zw(1,i,2)
+      zw(2,i,1)=zw(2,i,1)+zw(2,i,2)
+      zw(3,i,1)=zw(3,i,1)+zw(3,i,2)
     1 continue
       do 2 i=1,nsf
       do 3 j=1,3
-      zs(i,j,1)=zs(i,j,1)+zs(i,j,2)
+      zs(i,1,j,1)=zs(i,1,j,1)+zs(i,1,j,2)
+      zs(i,2,j,1)=zs(i,2,j,1)+zs(i,2,j,2)
+      zs(i,3,j,1)=zs(i,3,j,1)+zs(i,3,j,2)
     3 continue
     2 continue
       ep2(1)=ep2(1)+ep2(2)
@@ -710,45 +714,69 @@ c
       endif
       endif
 c
-      z(1,1)=zw(1,1)
-      z(1,2)=zero
-      z(1,3)=zero
-      z(2,1)=zero
-      z(2,2)=zw(2,1)
-      z(2,3)=zero
-      z(3,1)=zero
-      z(3,2)=zero
-      z(3,3)=zw(3,1)
+      z(1,1)=zw(1,1,1)
+      z(1,2)=zw(1,2,1)
+      z(1,3)=zw(1,3,1)
+      z(2,1)=zw(2,1,1)
+      z(2,2)=zw(2,2,1)
+      z(2,3)=zw(2,3,1)
+      z(3,1)=zw(3,1,1)
+      z(3,2)=zw(3,2,1)
+      z(3,3)=zw(3,3,1)
       do 5 i=1,nsf
-      z(1,1)=z(1,1)+zs(i,1,1)
-      z(2,2)=z(2,2)+zs(i,2,1)
-      z(3,3)=z(3,3)+zs(i,3,1)
+      z(1,1)=z(1,1)+zs(i,1,1,1)
+      z(2,1)=z(2,1)+zs(i,2,1,1)
+      z(3,1)=z(3,1)+zs(i,3,1,1)
+      z(1,2)=z(1,2)+zs(i,1,2,1)
+      z(2,2)=z(2,2)+zs(i,2,2,1)
+      z(3,2)=z(3,2)+zs(i,3,2,1)
+      z(1,3)=z(1,3)+zs(i,1,3,1)
+      z(2,3)=z(2,3)+zs(i,2,3,1)
+      z(3,3)=z(3,3)+zs(i,3,3,1)
     5 continue
 c
       z(1,1)=z(1,1)+half*vpme(1)
       z(2,2)=z(2,2)+half*vpme(4)
       z(3,3)=z(3,3)+half*vpme(6)
 c
-      ekc(1)=ewkc(1)+eskc(1)
-      ekc(2)=ewkc(2)+eskc(2)
-      ekc(3)=ewkc(3)+eskc(3)
+      ekc(1,1)=ewkc(1,1)+eskc(1,1)
+      ekc(2,1)=ewkc(2,1)+eskc(2,1)
+      ekc(3,1)=ewkc(3,1)+eskc(3,1)
+      ekc(1,2)=ewkc(1,2)+eskc(1,2)
+      ekc(2,2)=ewkc(2,2)+eskc(2,2)
+      ekc(3,2)=ewkc(3,2)+eskc(3,2)
+      ekc(1,3)=ewkc(1,3)+eskc(1,3)
+      ekc(2,3)=ewkc(2,3)+eskc(2,3)
+      ekc(3,3)=ewkc(3,3)+eskc(3,3)
       call ga_dgop(mcf_38,z,9,'+')
-      call ga_dgop(mcf_38,ekc,3,'+')
+      call ga_dgop(mcf_38,ekc,9,'+')
 c
       volume=box(1)*box(2)*box(3)
 c
       virial=z(1,1)+z(2,2)+z(3,3)
-      ekinc=ekc(1)+ekc(2)+ekc(3)
+      ekinc=ekc(1,1)+ekc(2,2)+ekc(3,3)
 c
       pres=0.0d0
-      prx(1)=0.0d0
-      prx(2)=0.0d0
-      prx(3)=0.0d0
+      prx(1,1)=0.0d0
+      prx(2,1)=0.0d0
+      prx(3,1)=0.0d0
+      prx(1,2)=0.0d0
+      prx(2,2)=0.0d0
+      prx(3,2)=0.0d0
+      prx(1,3)=0.0d0
+      prx(2,3)=0.0d0
+      prx(3,3)=0.0d0
       if(lpress) then
       pres=(two*ekinc-virial)/(three*volume*avoga)
-      prx(1)=(two*ekc(1)-z(1,1))/(three*volume*avoga)
-      prx(2)=(two*ekc(2)-z(2,2))/(three*volume*avoga)
-      prx(3)=(two*ekc(3)-z(3,3))/(three*volume*avoga)
+      prx(1,1)=(two*ekc(1,1)-z(1,1))/(three*volume*avoga)
+      prx(2,1)=(two*ekc(2,1)-z(2,1))/(three*volume*avoga)
+      prx(3,1)=(two*ekc(3,1)-z(3,1))/(three*volume*avoga)
+      prx(1,2)=(two*ekc(1,2)-z(2,2))/(three*volume*avoga)
+      prx(2,2)=(two*ekc(2,2)-z(2,2))/(three*volume*avoga)
+      prx(3,2)=(two*ekc(3,2)-z(2,2))/(three*volume*avoga)
+      prx(1,3)=(two*ekc(1,3)-z(3,3))/(three*volume*avoga)
+      prx(2,3)=(two*ekc(2,3)-z(3,3))/(three*volume*avoga)
+      prx(3,3)=(two*ekc(3,3)-z(3,3))/(three*volume*avoga)
       endif
 c
       pscale=one
@@ -762,7 +790,7 @@ c
       pscx(3)=pscale
       if(iabs(ipscal).gt.1) then
       do 17 i=1,3
-      prssc3=facpsc*(three*prx(i)-prsext)+one
+      prssc3=facpsc*(three*prx(i,i)-prsext)+one
       if(prssc3.lt.small) prssc3=small
       pscx(i)=prssc3**third
    17 continue
@@ -828,7 +856,7 @@ c
       if(np.gt.1) then
       call ga_dgop(mcf_40,ewk,1,'+')
       call ga_dgop(mcf_41,esk,msf,'+')
-      call ga_dgop(mcf_42,ewkc,1,'+')
+      call ga_dgop(mcf_42,ewkc,9,'+')
       endif
 c
       eskin=zero
@@ -866,8 +894,8 @@ c
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),vwt(mwm,3,mwa)
       real*8 wgt(mat,6)
 c
-      integer i,j,k
-      real*8 vvsum,ww
+      integer i,j,k,l
+      real*8 vvsum,ww,visum,vjsum
 c
       ewk=zero
       if(numw.gt.0) then
@@ -894,38 +922,58 @@ c
       ewk=half*ewk
       endif
 c
-      ewkc(1)=zero
-      ewkc(2)=zero
-      ewkc(3)=zero
+      ewkc(1,1)=zero
+      ewkc(2,1)=zero
+      ewkc(3,1)=zero
+      ewkc(1,2)=zero
+      ewkc(2,2)=zero
+      ewkc(3,2)=zero
+      ewkc(1,3)=zero
+      ewkc(2,3)=zero
+      ewkc(3,3)=zero
       if(numw.gt.0) then
       ww=zero
       do 6 i=1,mwa
       ww=ww+wgt(iwat(i),iset)
     6 continue
       if(mdalgo.eq.1) then
+      do 17 l=1,3
       do 7 j=1,3
       do 8 i=1,numw
-      vvsum=zero
+      visum=zero
+      vjsum=zero
       do 9 k=1,mwa
-      vvsum=vvsum+wgt(iwat(k),iset)*vwt(i,j,k)
+      visum=visum+wgt(iwat(k),iset)*vwt(i,j,k)
+      vjsum=vjsum+wgt(iwat(k),iset)*vwt(i,l,k)
     9 continue
-      ewkc(j)=ewkc(j)+vvsum*vvsum
+      ewkc(l,j)=ewkc(l,j)+visum*vjsum
     8 continue
     7 continue
+   17 continue
       else
+      do 110 l=1,3
       do 10 j=1,3
       do 11 i=1,numw
-      vvsum=zero
+      visum=zero
+      vjsum=zero
       do 12 k=1,mwa
-      vvsum=vvsum+wgt(iwat(k),iset)*vw(i,j,k)
+      visum=visum+wgt(iwat(k),iset)*vw(i,j,k)
+      vjsum=vjsum+wgt(iwat(k),iset)*vw(i,l,k)
    12 continue
-      ewkc(j)=ewkc(j)+vvsum*vvsum
+      ewkc(l,j)=ewkc(l,j)+visum*vjsum
    11 continue
    10 continue
+  110 continue
       endif
-      ewkc(1)=half*ewkc(1)/ww
-      ewkc(2)=half*ewkc(2)/ww
-      ewkc(3)=half*ewkc(3)/ww
+      ewkc(1,1)=half*ewkc(1,1)/ww
+      ewkc(2,1)=half*ewkc(2,1)/ww
+      ewkc(3,1)=half*ewkc(3,1)/ww
+      ewkc(1,2)=half*ewkc(1,2)/ww
+      ewkc(2,2)=half*ewkc(2,2)/ww
+      ewkc(3,2)=half*ewkc(3,2)/ww
+      ewkc(1,3)=half*ewkc(1,3)/ww
+      ewkc(2,3)=half*ewkc(2,3)/ww
+      ewkc(3,3)=half*ewkc(3,3)/ww
       endif
 c
       return
@@ -967,9 +1015,15 @@ c
     1 continue
       endif
 c
-      eskc(1)=zero
-      eskc(2)=zero
-      eskc(3)=zero
+      eskc(1,1)=zero
+      eskc(2,1)=zero
+      eskc(3,1)=zero
+      eskc(1,2)=zero
+      eskc(2,2)=zero
+      eskc(3,2)=zero
+      eskc(1,3)=zero
+      eskc(2,3)=zero
+      eskc(3,3)=zero
       do 4 k=1,nsm
       vv(1)=zero
       vv(2)=zero
@@ -993,9 +1047,15 @@ c
       endif
       if(np.gt.1) call ga_dgop(mcf_43,vv,4,'+')
       if(me.eq.0) then
-      eskc(1)=eskc(1)+half*vv(1)*vv(1)/vv(4)
-      eskc(2)=eskc(2)+half*vv(2)*vv(2)/vv(4)
-      eskc(3)=eskc(3)+half*vv(3)*vv(3)/vv(4)
+      eskc(1,1)=eskc(1,1)+half*vv(1)*vv(1)/vv(4)
+      eskc(2,1)=eskc(2,1)+half*vv(2)*vv(1)/vv(4)
+      eskc(3,1)=eskc(3,1)+half*vv(3)*vv(1)/vv(4)
+      eskc(1,2)=eskc(1,2)+half*vv(1)*vv(1)/vv(4)
+      eskc(2,2)=eskc(2,2)+half*vv(2)*vv(2)/vv(4)
+      eskc(3,2)=eskc(3,2)+half*vv(3)*vv(2)/vv(4)
+      eskc(1,3)=eskc(1,3)+half*vv(1)*vv(3)/vv(4)
+      eskc(2,3)=eskc(2,3)+half*vv(2)*vv(3)/vv(4)
+      eskc(3,3)=eskc(3,3)+half*vv(3)*vv(3)/vv(4)
       endif
     4 continue
 c
@@ -1060,7 +1120,7 @@ c
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
      + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3,
-     + edistr,epomef,vir)
+     + edistr,epomef,vir,prest,virt,ekct)
 c
       implicit none
 c
@@ -1068,7 +1128,10 @@ c
 c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
       real*8 edistr,epomef,vir
+      real*8 prest(3,3),virt(3,3),ekct(3,3)
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
+c
+      integer i,j
 c
       vol=volume
       tmp=temp
@@ -1097,6 +1160,14 @@ c
 c
       edistr=edrs
       epomef=epmf
+c
+      do 1 i=1,3
+      do 2 j=1,3
+      prest(i,j)=prx(i,j)
+      virt(i,j)=z(i,j)
+      ekct(i,j)=ekc(i,j)
+    2 continue
+    1 continue
 c
       return
       end

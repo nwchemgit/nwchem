@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
       implicit none
 c
@@ -145,15 +145,21 @@ c
       df=ff*rx
       fw(iwm,1,iwa,ipww)=fw(iwm,1,iwa,ipww)+df
       fw(jwm,1,jwa,ipww)=fw(jwm,1,jwa,ipww)-df
-      zw(1,ipww)=zw(1,ipww)-df*rwc(jwm,1)
+      zw(1,1,ipww)=zw(1,1,ipww)-df*rwc(jwm,1)
+      zw(2,1,ipww)=zw(2,1,ipww)-df*rwc(jwm,2)
+      zw(3,1,ipww)=zw(3,1,ipww)-df*rwc(jwm,3)
       df=ff*ry
       fw(iwm,2,iwa,ipww)=fw(iwm,2,iwa,ipww)+df
       fw(jwm,2,jwa,ipww)=fw(jwm,2,jwa,ipww)-df
-      zw(2,ipww)=zw(2,ipww)-df*rwc(jwm,2)
+      zw(1,2,ipww)=zw(1,2,ipww)-df*rwc(jwm,1)
+      zw(2,2,ipww)=zw(2,2,ipww)-df*rwc(jwm,2)
+      zw(3,2,ipww)=zw(3,2,ipww)-df*rwc(jwm,3)
       df=ff*rz
       fw(iwm,3,iwa,ipww)=fw(iwm,3,iwa,ipww)+df
       fw(jwm,3,jwa,ipww)=fw(jwm,3,jwa,ipww)-df
-      zw(3,ipww)=zw(3,ipww)-df*rwc(jwm,3)
+      zw(1,3,ipww)=zw(1,3,ipww)-df*rwc(jwm,1)
+      zw(2,3,ipww)=zw(2,3,ipww)-df*rwc(jwm,2)
+      zw(3,3,ipww)=zw(3,3,ipww)-df*rwc(jwm,3)
   107 continue
       eww(7,ipww)=eww(7,ipww)+c12*e12-c6*e6
       eww(8,ipww)=eww(8,ipww)+q*eq
@@ -179,15 +185,21 @@ c
       df=ff*rx
       fw(iwm,1,iwa,ipww)=fw(iwm,1,iwa,ipww)+df
       fw(jwm,1,jwa,ipww)=fw(jwm,1,jwa,ipww)-df
-      zw(1,ipww)=zw(1,ipww)-df*rwc(jwm,1)
+      zw(1,1,ipww)=zw(1,1,ipww)-df*rwc(jwm,1)
+      zw(2,1,ipww)=zw(2,1,ipww)-df*rwc(jwm,2)
+      zw(3,1,ipww)=zw(3,1,ipww)-df*rwc(jwm,3)
       df=ff*ry
       fw(iwm,2,iwa,ipww)=fw(iwm,2,iwa,ipww)+df
       fw(jwm,2,jwa,ipww)=fw(jwm,2,jwa,ipww)-df
-      zw(2,ipww)=zw(2,ipww)-df*rwc(jwm,2)
+      zw(1,2,ipww)=zw(1,2,ipww)-df*rwc(jwm,1)
+      zw(2,2,ipww)=zw(2,2,ipww)-df*rwc(jwm,2)
+      zw(3,2,ipww)=zw(3,2,ipww)-df*rwc(jwm,3)
       df=ff*rz
       fw(iwm,3,iwa,ipww)=fw(iwm,3,iwa,ipww)+df
       fw(jwm,3,jwa,ipww)=fw(jwm,3,jwa,ipww)-df
-      zw(3,ipww)=zw(3,ipww)-df*rwc(jwm,3)
+      zw(1,3,ipww)=zw(1,3,ipww)-df*rwc(jwm,1)
+      zw(2,3,ipww)=zw(2,3,ipww)-df*rwc(jwm,2)
+      zw(3,3,ipww)=zw(3,3,ipww)-df*rwc(jwm,3)
   108 continue
       eww(7,ipww)=eww(7,ipww)+c12*e12-c6*e6
       eww(8,ipww)=eww(8,ipww)+q*eq
@@ -232,15 +244,21 @@ c
       df=ff*rx
       fw(iwm,1,iwa,ipww)=fw(iwm,1,iwa,ipww)+df
       fw(jwm,1,jwa,ipww)=fw(jwm,1,jwa,ipww)-df
-      zw(1,ipww)=zw(1,ipww)-df*rwc(jwm,1)
+      zw(1,1,ipww)=zw(1,1,ipww)-df*rwc(jwm,1)
+      zw(2,1,ipww)=zw(2,1,ipww)-df*rwc(jwm,2)
+      zw(3,1,ipww)=zw(3,1,ipww)-df*rwc(jwm,3)
       df=ff*ry
       fw(iwm,2,iwa,ipww)=fw(iwm,2,iwa,ipww)+df
       fw(jwm,2,jwa,ipww)=fw(jwm,2,jwa,ipww)-df
-      zw(2,ipww)=zw(2,ipww)-df*rwc(jwm,2)
+      zw(1,2,ipww)=zw(1,2,ipww)-df*rwc(jwm,1)
+      zw(2,2,ipww)=zw(2,2,ipww)-df*rwc(jwm,2)
+      zw(3,2,ipww)=zw(3,2,ipww)-df*rwc(jwm,3)
       df=ff*rz
       fw(iwm,3,iwa,ipww)=fw(iwm,3,iwa,ipww)+df
       fw(jwm,3,jwa,ipww)=fw(jwm,3,jwa,ipww)-df
-      zw(3,ipww)=zw(3,ipww)-df*rwc(jwm,3)
+      zw(1,3,ipww)=zw(1,3,ipww)-df*rwc(jwm,1)
+      zw(2,3,ipww)=zw(2,3,ipww)-df*rwc(jwm,2)
+      zw(3,3,ipww)=zw(3,3,ipww)-df*rwc(jwm,3)
   117 continue
       eww(7,ipww)=eww(7,ipww)+c12*e12-c6*e6
       eww(8,ipww)=eww(8,ipww)+q*eq
@@ -485,9 +503,15 @@ c
    25 continue
       endif
       do 26 iax=1,nax
-      zw(1,ipww)=zw(1,ipww)-f(iax)*rwx(iax,1)*rwc(iax,1)
-      zw(2,ipww)=zw(2,ipww)-f(iax)*rwx(iax,2)*rwc(iax,2)
-      zw(3,ipww)=zw(3,ipww)-f(iax)*rwx(iax,3)*rwc(iax,3)
+      zw(1,1,ipww)=zw(1,1,ipww)-f(iax)*rwx(iax,1)*rwc(iax,1)
+      zw(2,1,ipww)=zw(2,1,ipww)-f(iax)*rwx(iax,1)*rwc(iax,2)
+      zw(3,1,ipww)=zw(3,1,ipww)-f(iax)*rwx(iax,1)*rwc(iax,3)
+      zw(1,2,ipww)=zw(1,2,ipww)-f(iax)*rwx(iax,2)*rwc(iax,1)
+      zw(2,2,ipww)=zw(2,2,ipww)-f(iax)*rwx(iax,2)*rwc(iax,2)
+      zw(3,2,ipww)=zw(3,2,ipww)-f(iax)*rwx(iax,2)*rwc(iax,3)
+      zw(1,3,ipww)=zw(1,3,ipww)-f(iax)*rwx(iax,3)*rwc(iax,1)
+      zw(2,3,ipww)=zw(2,3,ipww)-f(iax)*rwx(iax,3)*rwc(iax,2)
+      zw(3,3,ipww)=zw(3,3,ipww)-f(iax)*rwx(iax,3)*rwc(iax,3)
    26 continue
 c
 #if defined(CAFE_POLARIZATION)
@@ -528,9 +552,15 @@ c
       fj(iax,1,jwa)=fj(iax,1,jwa)-(fri*rx+fmi*pix+fmj*pjx)
       fj(iax,2,jwa)=fj(iax,2,jwa)-(fri*ry+fmi*piy+fmj*pjy)
       fj(iax,3,jwa)=fj(iax,3,jwa)-(fri*rz+fmi*piz+fmj*pjz)
-      zw(1,ipww)=zw(1,ipww)-(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
-      zw(2,ipww)=zw(2,ipww)-(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
-      zw(3,ipww)=zw(3,ipww)-(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
+      zw(1,1,ipww)=zw(1,1,ipww)-(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
+      zw(2,1,ipww)=zw(2,1,ipww)-(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,2)
+      zw(3,1,ipww)=zw(3,1,ipww)-(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,3)
+      zw(1,2,ipww)=zw(1,2,ipww)-(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,1)
+      zw(2,2,ipww)=zw(2,2,ipww)-(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
+      zw(3,2,ipww)=zw(3,2,ipww)-(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,3)
+      zw(1,3,ipww)=zw(1,3,ipww)-(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,1)
+      zw(2,3,ipww)=zw(2,3,ipww)-(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,2)
+      zw(3,3,ipww)=zw(3,3,ipww)-(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
       ewwpsm=ewwpsm+facu(iax)*(qai*rmj-qaj*rmi)*ri1
       ewwqsm=ewwqsm+facu(iax)*ri1
   117 continue
@@ -725,7 +755,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
       implicit none
 c
@@ -734,7 +764,7 @@ c
 #include "bitops_decls.fh"
 c
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
-      real*8 zs(msf,3,2),esw(msf,mpe,2)
+      real*8 zs(msf,3,3,2),esw(msf,mpe,2)
       integer isga(msa),isat(msa),isdt(msa),ismf(msa)
       integer isml(msa),isss(msa),isq1(msa)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),fw(mwm,3,mwa,2),rtos(mwm)
@@ -767,7 +797,7 @@ c
 c
       integer isatm,nswlen(2)
       integer isfr,iwm,ipsw,number,isa,ispm,isf,nax,ism
-      integer ispj,ismn,lswptr,iwa,iax,iwatmi,ix
+      integer ispj,ismn,lswptr,iwa,iax,iwatmi,ix,iy
       integer iwatyp
       real*8 c6,cf6,c12,cf12,sumen
       real*8 c64,c124,dercon,qj,qj4,derco1,derco2
@@ -777,7 +807,8 @@ c
 #endif
 #if defined(CAFE_POLARIZATION)
       real*8 qi,qai,qaj,pai,paj,pix,piy,piz,pjx,pjy,pjz
-      real*8 rx,ry,rz,ri1,ri2,ri3,rmi,rmj,fri,fmi,fmj,rmm,zx,zy,zz
+      real*8 rx,ry,rz,ri1,ri2,ri3,rmi,rmj,fri,fmi,fmj,rmm
+      real*8 zxx,zxy,zxz,zyx,zyy,zyz,zzx,zzy,zzz
       real*8 eswqsm,eswpsm,qfaci
 #else
       real*8 boxi(3),dx,ri1,ri2,ri6,eq,e6,e8,e12,e14,ff,df
@@ -863,18 +894,30 @@ c
       df=ff*rx
       fs(isa,1,ipsw)=fs(isa,1,ipsw)+df
       fw(jwm,1,jwa,ipsw)=fw(jwm,1,jwa,ipsw)-df
-      zs(isf,1,ipsw)=zs(isf,1,ipsw)-half*df*rwc(jwm,1)
-      zw(1,ipsw)=zw(1,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,1,1,ipsw)=zs(isf,1,1,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,1,ipsw)=zs(isf,2,1,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,1,ipsw)=zs(isf,3,1,ipsw)-half*df*rwc(jwm,3)
+      zw(1,1,ipsw)=zw(1,1,ipsw)-half*df*rwc(jwm,1)
+      zw(2,1,ipsw)=zw(2,1,ipsw)-half*df*rwc(jwm,2)
+      zw(3,1,ipsw)=zw(3,1,ipsw)-half*df*rwc(jwm,3)
       df=ff*ry
       fs(isa,2,ipsw)=fs(isa,2,ipsw)+df
       fw(jwm,2,jwa,ipsw)=fw(jwm,2,jwa,ipsw)-df
-      zs(isf,2,ipsw)=zs(isf,2,ipsw)-half*df*rwc(jwm,2)
-      zw(2,ipsw)=zw(2,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,1,2,ipsw)=zs(isf,1,2,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,2,ipsw)=zs(isf,2,2,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,2,ipsw)=zs(isf,3,2,ipsw)-half*df*rwc(jwm,3)
+      zw(1,2,ipsw)=zw(1,2,ipsw)-half*df*rwc(jwm,1)
+      zw(2,2,ipsw)=zw(2,2,ipsw)-half*df*rwc(jwm,2)
+      zw(3,2,ipsw)=zw(3,2,ipsw)-half*df*rwc(jwm,3)
       df=ff*rz
       fs(isa,3,ipsw)=fs(isa,3,ipsw)+df
       fw(jwm,3,jwa,ipsw)=fw(jwm,3,jwa,ipsw)-df
-      zs(isf,3,ipsw)=zs(isf,3,ipsw)-half*df*rwc(jwm,3)
-      zw(3,ipsw)=zw(3,ipsw)-half*df*rwc(jwm,3)
+      zs(isf,1,3,ipsw)=zs(isf,1,3,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,3,ipsw)=zs(isf,2,3,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,3,ipsw)=zs(isf,3,3,ipsw)-half*df*rwc(jwm,3)
+      zw(1,3,ipsw)=zw(1,3,ipsw)-half*df*rwc(jwm,1)
+      zw(2,3,ipsw)=zw(2,3,ipsw)-half*df*rwc(jwm,2)
+      zw(3,3,ipsw)=zw(3,3,ipsw)-half*df*rwc(jwm,3)
   107 continue
       esw(isf,5,ipsw)=esw(isf,5,ipsw)+c12*e12-c6*e6
       esw(isf,6,ipsw)=esw(isf,6,ipsw)+q*eq
@@ -903,18 +946,30 @@ c
       df=ff*rx
       fs(isa,1,ipsw)=fs(isa,1,ipsw)+df
       fw(jwm,1,jwa,ipsw)=fw(jwm,1,jwa,ipsw)-df
-      zs(isf,1,ipsw)=zs(isf,1,ipsw)-half*df*rwc(jwm,1)
-      zw(1,ipsw)=zw(1,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,1,1,ipsw)=zs(isf,1,1,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,1,ipsw)=zs(isf,2,1,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,1,ipsw)=zs(isf,3,1,ipsw)-half*df*rwc(jwm,3)
+      zw(1,1,ipsw)=zw(1,1,ipsw)-half*df*rwc(jwm,1)
+      zw(2,1,ipsw)=zw(2,1,ipsw)-half*df*rwc(jwm,2)
+      zw(3,1,ipsw)=zw(3,1,ipsw)-half*df*rwc(jwm,3)
       df=ff*ry
       fs(isa,2,ipsw)=fs(isa,2,ipsw)+df
       fw(jwm,2,jwa,ipsw)=fw(jwm,2,jwa,ipsw)-df
-      zs(isf,2,ipsw)=zs(isf,2,ipsw)-half*df*rwc(jwm,2)
-      zw(2,ipsw)=zw(2,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,1,2,ipsw)=zs(isf,1,2,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,2,ipsw)=zs(isf,2,2,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,2,ipsw)=zs(isf,3,2,ipsw)-half*df*rwc(jwm,3)
+      zw(1,2,ipsw)=zw(1,2,ipsw)-half*df*rwc(jwm,1)
+      zw(2,2,ipsw)=zw(2,2,ipsw)-half*df*rwc(jwm,2)
+      zw(3,2,ipsw)=zw(3,2,ipsw)-half*df*rwc(jwm,3)
       df=ff*rz
       fs(isa,3,ipsw)=fs(isa,3,ipsw)+df
       fw(jwm,3,jwa,ipsw)=fw(jwm,3,jwa,ipsw)-df
-      zs(isf,3,ipsw)=zs(isf,3,ipsw)-half*df*rwc(jwm,3)
-      zw(3,ipsw)=zw(3,ipsw)-half*df*rwc(jwm,3)
+      zs(isf,1,3,ipsw)=zs(isf,1,3,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,3,ipsw)=zs(isf,2,3,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,3,ipsw)=zs(isf,3,3,ipsw)-half*df*rwc(jwm,3)
+      zw(1,3,ipsw)=zw(1,3,ipsw)-half*df*rwc(jwm,1)
+      zw(2,3,ipsw)=zw(2,3,ipsw)-half*df*rwc(jwm,2)
+      zw(3,3,ipsw)=zw(3,3,ipsw)-half*df*rwc(jwm,3)
   108 continue
       esw(isf,5,ipsw)=esw(isf,5,ipsw)+c12*e12-c6*e6
       esw(isf,6,ipsw)=esw(isf,6,ipsw)+q*eq
@@ -960,18 +1015,30 @@ c
       df=ff*rx
       fs(isa,1,ipsw)=fs(isa,1,ipsw)+df
       fw(jwm,1,jwa,ipsw)=fw(jwm,1,jwa,ipsw)-df
-      zs(isf,1,ipsw)=zs(isf,1,ipsw)-half*df*rwc(jwm,1)
-      zw(1,ipsw)=zw(1,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,1,1,ipsw)=zs(isf,1,1,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,1,ipsw)=zs(isf,2,1,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,1,ipsw)=zs(isf,3,1,ipsw)-half*df*rwc(jwm,3)
+      zw(1,1,ipsw)=zw(1,1,ipsw)-half*df*rwc(jwm,1)
+      zw(2,1,ipsw)=zw(2,1,ipsw)-half*df*rwc(jwm,2)
+      zw(3,1,ipsw)=zw(3,1,ipsw)-half*df*rwc(jwm,3)
       df=ff*ry
       fs(isa,2,ipsw)=fs(isa,2,ipsw)+df
       fw(jwm,2,jwa,ipsw)=fw(jwm,2,jwa,ipsw)-df
-      zs(isf,2,ipsw)=zs(isf,2,ipsw)-half*df*rwc(jwm,2)
-      zw(2,ipsw)=zw(2,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,1,2,ipsw)=zs(isf,1,2,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,2,ipsw)=zs(isf,2,2,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,2,ipsw)=zs(isf,3,2,ipsw)-half*df*rwc(jwm,3)
+      zw(1,2,ipsw)=zw(1,2,ipsw)-half*df*rwc(jwm,1)
+      zw(2,2,ipsw)=zw(2,2,ipsw)-half*df*rwc(jwm,2)
+      zw(3,2,ipsw)=zw(3,2,ipsw)-half*df*rwc(jwm,3)
       df=ff*rz
       fs(isa,3,ipsw)=fs(isa,3,ipsw)+df
       fw(jwm,3,jwa,ipsw)=fw(jwm,3,jwa,ipsw)-df
-      zs(isf,3,ipsw)=zs(isf,3,ipsw)-half*df*rwc(jwm,3)
-      zw(3,ipsw)=zw(3,ipsw)-half*df*rwc(jwm,3)
+      zs(isf,1,3,ipsw)=zs(isf,1,3,ipsw)-half*df*rwc(jwm,1)
+      zs(isf,2,3,ipsw)=zs(isf,2,3,ipsw)-half*df*rwc(jwm,2)
+      zs(isf,3,3,ipsw)=zs(isf,3,3,ipsw)-half*df*rwc(jwm,3)
+      zw(1,3,ipsw)=zw(1,3,ipsw)-half*df*rwc(jwm,1)
+      zw(2,3,ipsw)=zw(2,3,ipsw)-half*df*rwc(jwm,2)
+      zw(3,3,ipsw)=zw(3,3,ipsw)-half*df*rwc(jwm,3)
   117 continue
       esw(isf,5,ipsw)=esw(isf,5,ipsw)+c12*e12-c6*e6
       esw(isf,6,ipsw)=esw(isf,6,ipsw)+q*eq
@@ -1359,15 +1426,33 @@ c      dswqps=dswqps+dqai*rmj*ri1
 c      dswpss=dswpss-drmi*ri1
 c      dswpws=dswpws+qai*drmj*ri1
 c      endif
-      zx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
-      zy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
-      zz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
-      zw(1,ipsw)=zw(1,ipsw)+zx
-      zw(2,ipsw)=zw(2,ipsw)+zy
-      zw(3,ipsw)=zw(3,ipsw)+zz
-      zs(isf,1,ipsw)=zs(isf,1,ipsw)+zx
-      zs(isf,2,ipsw)=zs(isf,2,ipsw)+zy
-      zs(isf,3,ipsw)=zs(isf,3,ipsw)+zz
+      zxx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
+      zyx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,2)
+      zzx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,3)
+      zxy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,1)
+      zyy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
+      zzy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,3)
+      zxz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,1)
+      zyz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,2)
+      zzz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
+      zw(1,1,ipsw)=zw(1,1,ipsw)+zxx
+      zw(2,1,ipsw)=zw(2,1,ipsw)+zyx
+      zw(3,1,ipsw)=zw(3,1,ipsw)+zzx
+      zw(1,2,ipsw)=zw(1,2,ipsw)+zxy
+      zw(2,2,ipsw)=zw(2,2,ipsw)+zyy
+      zw(3,2,ipsw)=zw(3,2,ipsw)+zzy
+      zw(1,3,ipsw)=zw(1,3,ipsw)+zxz
+      zw(2,3,ipsw)=zw(2,3,ipsw)+zyz
+      zw(3,3,ipsw)=zw(3,3,ipsw)+zzz
+      zs(isf,1,1,ipsw)=zs(isf,1,1,ipsw)+zxx
+      zs(isf,2,1,ipsw)=zs(isf,2,1,ipsw)+zyx
+      zs(isf,3,1,ipsw)=zs(isf,3,1,ipsw)+zzx
+      zs(isf,1,2,ipsw)=zs(isf,1,2,ipsw)+zxy
+      zs(isf,2,2,ipsw)=zs(isf,2,2,ipsw)+zyy
+      zs(isf,3,2,ipsw)=zs(isf,3,2,ipsw)+zzy
+      zs(isf,1,3,ipsw)=zs(isf,1,3,ipsw)+zxz
+      zs(isf,2,3,ipsw)=zs(isf,2,3,ipsw)+zyz
+      zs(isf,3,3,ipsw)=zs(isf,3,3,ipsw)+zzz
    21 continue
 #endif
 c
@@ -1379,14 +1464,16 @@ c
       fj(iax,2,iwa)=fj(iax,2,iwa)-f(iax)*rwx(iax,2)
       fj(iax,3,iwa)=fj(iax,3,iwa)-f(iax)*rwx(iax,3)
    35 continue
+      do 136 iy=1,3
       do 36 ix=1,3
       sumen=zero
       do 37 iax=1,nax
-      sumen=sumen-half*f(iax)*rwx(iax,ix)*rwc(iax,ix)
+      sumen=sumen-half*f(iax)*rwx(iax,iy)*rwc(iax,ix)
    37 continue
-      zs(isf,ix,ipsw)=zs(isf,ix,ipsw)+sumen
-      zw(ix,ipsw)=zw(ix,ipsw)+sumen
+      zs(isf,ix,iy,ipsw)=zs(isf,ix,iy,ipsw)+sumen
+      zw(ix,iy,ipsw)=zw(ix,iy,ipsw)+sumen
    36 continue
+  136 continue
 c
 c     Radial distribution functions
 c
@@ -1782,14 +1869,14 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
-      real*8 zs(msf,3,2),ess(msf,msf,mpe,2)
+      real*8 zs(msf,3,3,2),ess(msf,msf,mpe,2)
       real*8 esa(nsa)
       integer isga(msa),isat(msa),isdt(msa),ismf(msa)
       integer isml(msa),isss(msa),isq2(msa),isq3(msa)
@@ -1816,7 +1903,7 @@ c
       real*8 pl(mscr,3),pj(mscr,3)
 #endif
 c
-      integer isa,jsa,i,isf,jsf
+      integer isa,jsa,i,isf,jsf,ix
       integer isfr,isfrom,ism,jsm
       integer ipss,number,isslen,nax,jsaptr
       integer jnum,lssptr,iax
@@ -1832,7 +1919,7 @@ c
 #if defined(CAFE_POLARIZATION)
       real*8 qfaci,qi,qj,pai,paj,qai,qaj,rx,ry,rz,ri1,ri2,ri3
       real*8 pix,piy,piz,pjx,pjy,pjz,rmi,rmj,fri,fmi,fmj,rmm
-      real*8 zx,zy,zz,etermp
+      real*8 zxx,zyx,zzx,zxy,zyy,zzy,zxz,zyz,zzz,etermp
 #endif
 c
 #include "cf_funcs_dec.fh"
@@ -2194,15 +2281,33 @@ c      dssp=zero
       fj(iax,3)=(fri*rz+fmi*piz+fmj*pjz)
       jsf=jfal(iax)
       if(isf.ne.jsf) then
-      zx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
-      zy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
-      zz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
-      zs(isf,1,ipss)=zs(isf,1,ipss)+zx
-      zs(isf,2,ipss)=zs(isf,2,ipss)+zy
-      zs(isf,3,ipss)=zs(isf,3,ipss)+zz
-      zs(jsf,1,ipss)=zs(jsf,1,ipss)+zx
-      zs(jsf,2,ipss)=zs(jsf,2,ipss)+zy
-      zs(jsf,3,ipss)=zs(jsf,3,ipss)+zz
+      zxx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,1)
+      zyx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,2)
+      zzx=(-half)*(fri*rx+fmi*pix+fmj*pjx)*rwc(iax,3)
+      zxy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,1)
+      zyy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,2)
+      zzy=(-half)*(fri*ry+fmi*piy+fmj*pjy)*rwc(iax,3)
+      zxz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,1)
+      zyz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,2)
+      zzz=(-half)*(fri*rz+fmi*piz+fmj*pjz)*rwc(iax,3)
+      zs(isf,1,1,ipss)=zs(isf,1,1,ipss)+zxx
+      zs(isf,2,1,ipss)=zs(isf,2,1,ipss)+zyx
+      zs(isf,3,1,ipss)=zs(isf,3,1,ipss)+zzx
+      zs(isf,1,2,ipss)=zs(isf,1,2,ipss)+zxy
+      zs(isf,2,2,ipss)=zs(isf,2,2,ipss)+zyy
+      zs(isf,3,2,ipss)=zs(isf,3,2,ipss)+zzy
+      zs(isf,1,3,ipss)=zs(isf,1,3,ipss)+zxz
+      zs(isf,2,3,ipss)=zs(isf,2,3,ipss)+zyz
+      zs(isf,3,3,ipss)=zs(isf,3,3,ipss)+zzz
+      zs(jsf,1,1,ipss)=zs(jsf,1,1,ipss)+zxx
+      zs(jsf,2,1,ipss)=zs(jsf,2,1,ipss)+zyx
+      zs(jsf,3,1,ipss)=zs(jsf,3,1,ipss)+zzx
+      zs(jsf,1,2,ipss)=zs(jsf,1,2,ipss)+zxy
+      zs(jsf,2,2,ipss)=zs(jsf,2,2,ipss)+zyy
+      zs(jsf,3,2,ipss)=zs(jsf,3,2,ipss)+zzy
+      zs(jsf,1,3,ipss)=zs(jsf,1,3,ipss)+zxz
+      zs(jsf,2,3,ipss)=zs(jsf,2,3,ipss)+zyz
+      zs(jsf,3,3,ipss)=zs(jsf,3,3,ipss)+zzz
       endif
       etermp=facu(iax)*(qi*qj-qfac*qfac*(qai*rmj-qaj*rmi))*ri1
       if(npener.ne.0) then
@@ -2289,6 +2394,7 @@ cx    commented out to allow virial contributions from interactions
 cx    between a solute molecule and its own image
 cx
 cx      if(msm.gt.1) then
+      do 132 ix=1,3
       do 32 jsf=1,msf
       sumen1=zero
       sumen2=zero
@@ -2296,18 +2402,19 @@ cx      if(msm.gt.1) then
       do 33 iax=1,nax
 cx      if(jfal(iax).eq.jsf.and.jmal(iax).eq.1) then
       if(jfal(iax).eq.jsf) then
-      sumen1=sumen1-half*f(iax)*rwx(iax,1)*rwc(iax,1)
-      sumen2=sumen2-half*f(iax)*rwx(iax,2)*rwc(iax,2)
-      sumen3=sumen3-half*f(iax)*rwx(iax,3)*rwc(iax,3)
+      sumen1=sumen1-half*f(iax)*rwx(iax,1)*rwc(iax,ix)
+      sumen2=sumen2-half*f(iax)*rwx(iax,2)*rwc(iax,ix)
+      sumen3=sumen3-half*f(iax)*rwx(iax,3)*rwc(iax,ix)
       endif
    33 continue
-      zs(isf,1,ipss)=zs(isf,1,ipss)+sumen1
-      zs(jsf,1,ipss)=zs(jsf,1,ipss)+sumen1
-      zs(isf,2,ipss)=zs(isf,2,ipss)+sumen2
-      zs(jsf,2,ipss)=zs(jsf,2,ipss)+sumen2
-      zs(isf,3,ipss)=zs(isf,3,ipss)+sumen3
-      zs(jsf,3,ipss)=zs(jsf,3,ipss)+sumen3
+      zs(isf,ix,1,ipss)=zs(isf,ix,1,ipss)+sumen1
+      zs(jsf,ix,1,ipss)=zs(jsf,ix,1,ipss)+sumen1
+      zs(isf,ix,2,ipss)=zs(isf,ix,2,ipss)+sumen2
+      zs(jsf,ix,2,ipss)=zs(jsf,ix,2,ipss)+sumen2
+      zs(isf,ix,3,ipss)=zs(isf,ix,3,ipss)+sumen3
+      zs(jsf,ix,3,ipss)=zs(jsf,ix,3,ipss)+sumen3
    32 continue
+  132 continue
 cx      endif
 c
 c     generate radial distribution functions
@@ -2869,7 +2976,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3148,7 +3255,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3414,7 +3521,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3747,7 +3854,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4064,7 +4171,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4408,7 +4515,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.37 2001-06-28 18:11:45 d3j191 Exp $
+c $Id: cf_f.fh,v 1.38 2001-07-31 17:58:18 d3j191 Exp $
 c
       implicit none
 c

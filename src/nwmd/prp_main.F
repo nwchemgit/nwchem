@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.57 2001-02-12 21:50:36 d3j191 Exp $
+c $Id: prp_main.F,v 1.58 2001-07-31 17:58:26 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       end
       subroutine prp_proper(mdstep,stime,eww,esw,ess,esk,epme,
      + uqmd,uqmmm,epot,epotw,epotsw,epots,vol,dwr,dsr,ekin,etot,
-     + npolit,gsm,esa)
+     + npolit,gsm,esa,box)
 c
       implicit none
 c
@@ -39,10 +39,11 @@ c
       integer mdstep
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
       real*8 epot,epotw,epotsw,epots,vol,ekin,etot,epmec
-      real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
+      real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm,box(3)
       real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,npolit
       real*8 dwr,dsr(msm),gsm(msm,4),esa(nsa,2)
+      real*8 prest(3,3),virt(3,3),ekct(3,3)
 c
       integer i,j,k,it
 c
@@ -96,7 +97,7 @@ c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
      + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3,
-     + edrs,epmf,virial)
+     + edrs,epmf,virial,prest,virt,ekct)
       endif
 c
 c     if using space get properties from it
@@ -176,9 +177,39 @@ c
       if(lpmf) p(75)=epmf
       p(76)=epme(iset)
       p(77)=epmec
-      p(97)=timer_wall(2)
-      p(98)=timer_wall(3)
-      if(me.eq.0) p(99)=timer_wall(3)
+      p(79)=timer_wall(2)
+      p(80)=timer_wall(3)
+      if(me.eq.0) p(81)=timer_wall(3)
+      p(82)=virt(1,1)
+      p(83)=virt(1,2)
+      p(84)=virt(1,3)
+      p(85)=virt(2,1)
+      p(86)=virt(2,2)
+      p(87)=virt(2,3)
+      p(88)=virt(3,1)
+      p(89)=virt(3,2)
+      p(90)=virt(3,3)
+      p(91)=prest(1,1)
+      p(92)=prest(1,2)
+      p(93)=prest(1,3)
+      p(94)=prest(2,1)
+      p(95)=prest(2,2)
+      p(96)=prest(2,3)
+      p(97)=prest(3,1)
+      p(98)=prest(3,2)
+      p(99)=prest(3,3)
+      p(100)=ekct(1,1)
+      p(101)=ekct(1,2)
+      p(102)=ekct(1,3)
+      p(103)=ekct(2,1)
+      p(104)=ekct(2,2)
+      p(105)=ekct(2,3)
+      p(106)=ekct(3,1)
+      p(107)=ekct(3,2)
+      p(108)=ekct(3,3)
+      p(109)=box(1)
+      p(110)=box(2)
+      p(111)=box(3)
 c
       maxp=isprop
       it=isprop
@@ -289,8 +320,8 @@ c
       if(npener.gt.0) call ga_dgop(mrg_d47,esa,2*nsa,'+')
       endif
 c
-      if(p(98).ne.0.0d0) then
-      p(98)=(p(98)-p(97))/p(98)
+      if(p(80).ne.0.0d0) then
+      p(80)=(p(80)-p(79))/p(80)
       endif
 c
       if(temp.eq.0d0) then
