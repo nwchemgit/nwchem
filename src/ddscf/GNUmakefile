@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.63 1996-02-07 00:41:23 vg038 Exp $
+# $Id: GNUmakefile,v 1.64 1996-02-08 01:43:10 vg038 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -70,7 +70,7 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 #activate disk array use of RI-SCF
-#  DEFINES += -DRISCF_USE_DA
+  DEFINES += -DRISCF_USE_DA
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(ao_fock_2e.o):	 $(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 

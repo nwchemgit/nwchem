@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.6 1996-02-07 23:43:23 vg038 Exp $
+C$Id: riscf_init.F,v 1.7 1996-02-08 01:43:13 vg038 Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -60,7 +60,7 @@ C     calculate V**(-1/2) with Daves routine
       MinEval = 1.D-8
       if (oscfps) call pstat_on(ps_vhalf)
       if ( ga_nodeid().eq.0 ) then
-        call util_print_centered (LUOUT,'creating V**-1/2', 30, .false.)
+        call util_print_centered (LUOUT,'creating V**-1/2', 20, .false.)
       endif
       status = Mk_Fit_Xf('V', 'Y', ri_basis, MinEval, g_Vsqrt)
       if (oscfps) call pstat_off(ps_vhalf)
@@ -111,7 +111,7 @@ C     disk-based method requested?
 #ifdef RISCF_USE_DA
         if ( ga_nodeid().eq.0 ) then
           call util_print_centered (LUOUT,'using disk based algorithm', 
-     $         30, .false.)
+     $         20, .false.)
         endif
 C       transformed 3-center integrals on disk
         istat = da_init ( 10, 1.D10, 1.D10, 1.D7 ) 
@@ -127,9 +127,9 @@ C         (max_arrays, max_array_size, total_disk_space, max_memory)
         if ( ga_nodeid().eq.0 ) then
           write (LUOUT,*)
           call util_print_centered ( LUOUT, 'DISK ARRAYS NOT AVAILABLE', 
-     $         30, .true. )
+     $         20, .true. )
           call util_print_centered ( LUOUT, 'attempting in-core method', 
-     $         30, .false. )
+     $         20, .false. )
           write (LUOUT,*)
         endif
 C       switch to in-core and jump back
@@ -139,7 +139,7 @@ C       switch to in-core and jump back
       else      ! in-core
         if ( ga_nodeid().eq.0 ) then
           call util_print_centered (LUOUT,'using in-core algorithm', 
-     $         30, .false.)
+     $         20, .false.)
         endif
         status = ga_create ( MT_DBL, npair, Nff, '3c-eri', npair, 1, 
      $                      g_three )
@@ -149,7 +149,7 @@ C       switch to in-core and jump back
 
       if ( ga_nodeid().eq.0 ) then
         call util_print_centered (LUOUT,'calculating 3-center integrals'
-     $       , 30, .false.)
+     $       , 20, .false.)
       endif
 
       if (oscfps) call pstat_on(ps_transform)
@@ -163,7 +163,8 @@ C       switch to in-core and jump back
 
       if ( ga_nodeid().eq.0 ) then
         call util_print_centered (LUOUT,'3-center integrals done'
-     $       , 30, .false.)
+     $       , 20, .false.)
+        write (LUOUT,*)
       endif
 
       status = riscf_put_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
