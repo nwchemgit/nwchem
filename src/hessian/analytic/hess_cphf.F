@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.40 2002-01-03 15:41:23 windus Exp $
+C $Id: hess_cphf.F,v 1.41 2002-01-04 23:45:02 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -157,7 +157,7 @@ c  scale by four, and populate g_aa and g_wax
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num, .false.)
+     $          nocc, nvirt, ndens, n3xyz, num)
       call ga_dscal(g_rhs,four)
       call hess_getaawax(g_rhs, g_aa, g_wax, nocc, nvirt,
      $          ndens, n3xyz, num, ocphfprint)
@@ -166,12 +166,12 @@ c We are now done with the Fock derivatives.
 c Will reuse g_rhs for the ds/dx term.
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
-      call sx_read(g_rhs,nc,num,sx_dra_handle)
+      call sx_read(g_rhs,nc*ndens,num,sx_dra_handle)
 c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num, .true.)
+     $          nocc, nvirt, ndens, n3xyz, num)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -190,9 +190,9 @@ c dbl_mb(k_evals) and wxy is dbl_mb(k_exy)
 c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Hessian'
       do ndns = 1, ndens
-c      write(6,*) 'nocc and ncent before hess_sxsy ',nocc(ndns),ncent
-       call hess_sxsy2(dbl_mb(k_exy),dbl_mb(k_evals),g_rhs,
-     &    log_mb(k_act),ncent,nocc(ndns),hf_job)
+       call hess_sxsy(dbl_mb(k_exy),
+     &    dbl_mb(k_evals+(ndns-1)*num),g_rhs,
+     &    log_mb(k_act),ncent,nocc(ndns),(ndns-1)*n3xyz,ouhf)
       enddo
 c
 c
@@ -235,7 +235,7 @@ c
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num, .false.)
+     $          nocc, nvirt, ndens, n3xyz, num)
 c
 c Now form the Wax and Aa contributions
 c
@@ -245,11 +245,11 @@ c
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
       write(LuOut,*) 'Getting Ta again'
-      call sx_read(g_rhs,nc,num,sx_dra_handle)
+      call sx_read(g_rhs,nc*ndens,num,sx_dra_handle)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num, .true.)
+     $          nocc, nvirt, ndens, n3xyz, num)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -413,7 +413,7 @@ c
 c
       subroutine hess_aotomo(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphf,
-     $          nocc, nvirt, ndens, n3xyz, num, useone)
+     $          nocc, nvirt, ndens, n3xyz, num)
 c
       implicit none
 c
@@ -422,12 +422,10 @@ c
 #include "stdio.fh"
 c
       logical oprint, ocphf
-      logical useone         ! [input] Use the alpha for the beta
       integer ndens, n3xyz, num, nocc(ndens), nvirt(ndens)
       integer g_rhs_x, g_vecs(ndens)
-      integer g_modx, ind, ind2, ndns, in
+      integer g_modx, ind, ndns, in
       integer alo(2), ahi(2), blo(3), bhi(3)
-      integer blo2(3), bhi2(3)
 c
 c  Transform the current AO based Fock derivatives to the MO basis
 c
@@ -446,25 +444,16 @@ c
       bhi(2) = num
       blo(3) = 1
       bhi(3) = num
-      blo2(2) = 1
-      bhi2(2) = num
-      blo2(3) = 1
-      bhi2(3) = num
       ind = 0
-      ind2 = 0
       do ndns = 1, ndens
-        if (useone) ind2 = 0
         do in = 1, n3xyz
           ind = ind + 1
-          ind2 = ind2 + 1
           blo(1) = ind
           bhi(1) = ind
-          blo2(1) = ind2
-          bhi2(1) = ind2
           call ga_zero(g_modx)
           call nga_matmul_patch ('t','n', 1.D0, 0.D0,
      $                           g_vecs(ndns), alo, ahi,
-     $                           g_rhs_x     , blo2, bhi2,
+     $                           g_rhs_x     , blo, bhi,
      $                           g_modx      , alo, ahi)
           call nga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                           g_modx      , alo, ahi,
@@ -476,7 +465,7 @@ c
 c
       if (ocphf) then
         if(ga_nodeid().eq.0) write(LuOut,*) 
-     $        'Transformed RHS after symmetrization',ind
+     $        'Transformed RHS after symmetrization'
         call ga_print(g_rhs_x)
       endif
 c
@@ -743,6 +732,7 @@ c
       integer ind, ndns, in
       integer l_jfac, k_jfac, l_kfac, k_kfac
       double precision tol2e, jfac(ndens), kfac(ndens)
+      double precision multfac
       logical ocphfprint
 c
 c
@@ -760,11 +750,15 @@ c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
      $     l_kfac, k_kfac))
      $     call errquit
      $     ('hess_modfock: could not allocate l_kfac',ndens*n3xyz)
+c
+      multfac = 8.0d+00
+      if (ndens.gt.1) multfac = 4.0d+00
       ind = 0
       do ndns = 1, ndens
         do in = 1, n3xyz
-          dbl_mb(k_jfac+ind) =  8.0d+00*jfac(ndns)
-          dbl_mb(k_kfac+ind) =  8.0d+00*kfac(ndns)
+          dbl_mb(k_jfac+ind) =  multfac*jfac(ndns)
+c         dbl_mb(k_kfac+ind) =  0.0d+00*kfac(ndns)
+          dbl_mb(k_kfac+ind) =  multfac*kfac(ndns)
           ind = ind + 1
         enddo
       enddo
@@ -812,7 +806,7 @@ c
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
-          write(LuOut,*) 'fock matrix after fock_2e'
+          write(LuOut,*) 'fock matrix after shell_fock_build'
         endif
         call ga_print(g_rhs_x)
       endif

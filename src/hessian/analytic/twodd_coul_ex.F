@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.11 2001-12-20 01:31:56 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.12 2002-01-04 23:45:02 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -116,11 +116,6 @@ C-------------------------local variables-----------------------------
       logical intbd_init4c, intbd_2e4c
       external intbd_init4c, intbd_2e4c
       logical oprint
-c     
-c Silent scaling to handle the "standard" values
-c
-      kfac(1) = -2.0d0*kfac(1)
-      if (ouhf)  kfac(2) = -2.0d0*kfac(2)
 c
       oprint = util_print('twodd_cont',print_debug)
       smax  = schwarz_max()
@@ -142,7 +137,11 @@ c     MCSCF is the same as RHF except for the 2pdm piece
       ouhf  = (scftype .eq. 'UHF')
       orohf = (scftype .eq. 'ROHF')
       ogso = .false.    ! this is for SO contribution for gradient, not hessian
-
+c     
+c Silent scaling to handle the "standard" values for RHF
+c
+      if (.not.ouhf) kfac(1) = -2.0d0*kfac(1)
+c
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
@@ -523,10 +522,9 @@ c
       next = nxtask(-nproc,task_size)
       call ga_sync()
 c     
-c Silent scaling back to the "standard" values
+c Silent scaling back to the "standard" values for RHF
 c
-      kfac(1) = kfac(1)/(-2.0d0)
-      if (ouhf)  kfac(2) = kfac(2)/(-2.0d0)
+      if (.not.ouhf) kfac(1) = kfac(1)/(-2.0d0)
 c
       return
       end

@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.15 2001-12-22 02:07:06 edo Exp $
+c $Id: shell_fock_build.F,v 1.16 2002-01-04 23:45:02 windus Exp $
 c
       subroutine shell_fock_build(basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -654,12 +654,6 @@ c
             k = rbfmap(k) - kbflo + 1
             l = rbfmap(l) - lbflo + 1
             do nf = 1, nfock
-c              f_ij(nf,i,j)=f_ij(nf,i,j)+4.0d+00*g*d_kl(nf,k,l)
-c              f_kl(nf,k,l)=f_kl(nf,k,l)+4.0d+00*g*d_ij(nf,i,j)
-c              f_ik(nf,i,k)=f_ik(nf,i,k)-g*d_jl(nf,j,l)
-c              f_il(nf,i,l)=f_il(nf,i,l)-g*d_jk(nf,j,k)
-c              f_jl(nf,j,l)=f_jl(nf,j,l)-g*d_ik(nf,i,k)
-c              f_jk(nf,j,k)=f_jk(nf,j,k)-g*d_il(nf,i,l)
                f_ij(nf,i,j)=f_ij(nf,i,j)+g*d_kl(nf,k,l)
                f_kl(nf,k,l)=f_kl(nf,k,l)+g*d_ij(nf,i,j)
                f_ik(nf,i,k)=f_ik(nf,i,k)+g*d_jl(nf,j,l)

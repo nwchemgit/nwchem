@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.22 2002-01-03 15:41:23 windus Exp $
+C $Id: onedd_cont.F,v 1.23 2002-01-04 23:45:02 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -184,31 +184,6 @@ c
      *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
 !     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,geom,basis,ncent)
-c
-      if (oneprint) then
-        if(ga_nodeid().eq.0)write(LuOut,*)
-        if(ga_nodeid().eq.0)write(LuOut,*) 'Sx term'
-        call ga_print(g_rhs)
-      endif
-c
-c write out Sx terms to disk
-c
-      write(LuOut,*) 'before the sx_write statement'
-      call flush(LuOut)
-      call sx_write(g_rhs,n3xyz,nbf,sx_dra_handle)
-c
-c Clear g_rhs again
-c
-      call ga_zero(g_rhs)
-c
-      if (oprint) write(LuOut,*) 'HESS: getting the Hx term'
-      doS = .false.
-      doV = .true.
-      doT = .true.
-      call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
-!     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
-     *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
-     *  doS,doT,doV,geom,basis,ncent)
       if (ndens.gt.1) then     ! UHF case
         alo(1) = 1
         ahi(1) = n3xyz
@@ -224,6 +199,33 @@ c
         bhi(3) = nbf
         call nga_copy_patch('N', g_rhs, alo, ahi, g_rhs, blo, bhi)
       endif
+c
+      if (oneprint) then
+        if(ga_nodeid().eq.0)write(LuOut,*)
+        if(ga_nodeid().eq.0)write(LuOut,*) 'Sx term'
+        call ga_print(g_rhs)
+      endif
+c
+c write out Sx terms to disk
+c
+      write(LuOut,*) 'before the sx_write statement'
+      call flush(LuOut)
+      call sx_write(g_rhs,n3xyz*ndens,nbf,sx_dra_handle)
+c
+c Clear g_rhs again
+c
+      call ga_zero(g_rhs)
+c
+      if (oprint) write(LuOut,*) 'HESS: getting the Hx term'
+      doS = .false.
+      doV = .true.
+      doT = .true.
+      call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
+!     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
+     *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
+     *  doS,doT,doV,geom,basis,ncent)
+      if (ndens.gt.1) call nga_copy_patch('N', g_rhs, 
+     *  alo, ahi, g_rhs, blo, bhi)
 c
 c  Print out the rhs values if requested
 c
