@@ -1,7 +1,7 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
 *
-* $Id: mp2_make_dip_mom.F,v 1.7 1997-04-11 18:41:14 d3g681 Exp $
+* $Id: mp2_make_dip_mom.F,v 1.8 1997-07-25 16:54:16 d3g681 Exp $
 *
       implicit none
 #include "util.fh"
@@ -22,6 +22,8 @@ c
       double precision mp2z, scfz
       double precision ndip(3)
       integer geom
+c
+      if (.not. bas_cando_mpoles(basis)) return
 c
       if (.not. bas_geom(basis, geom)) 
      $     call errquit('mp2_dip: bad basis?',0)
