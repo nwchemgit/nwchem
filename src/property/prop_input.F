@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.4 1997-08-22 19:49:12 mdupuis Exp $
+* $Id: prop_input.F,v 1.5 1998-03-05 23:06:29 mdupuis Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -37,6 +37,7 @@ c
       integer stoneanalysis
       integer boyslocalization
       integer iglo
+      integer giao
 
 c     
 c>>>  declarations from NWdft
@@ -68,6 +69,7 @@ c
       stoneanalysis     = 1
       boyslocalization  = 1
       iglo              = 1
+      giao              = 1
 c     
 c>>>  read inputs; store in rtdb
 c     
@@ -86,6 +88,9 @@ c
 c             
       elseif ( inp_compare(.false., 'iglo', test)) then
          iglo = 0
+         iglo = 1
+      elseif ( inp_compare(.false., 'giao', test)) then
+         giao = 0
       elseif ( inp_compare(.false., 'boyslocalization', test)) then
          boyslocalization = 0
          boyslocalization = 1
@@ -198,6 +203,9 @@ c
      $      call errquit('prop_input: rtdb_put failed', 0)
       if (.not. rtdb_put(rtdb, 'prop:iglo', mt_int, 1,
      $                               iglo              ))
+     $      call errquit('prop_input: rtdb_put failed', 0)
+      if (.not. rtdb_put(rtdb, 'prop:giao', mt_int, 1,
+     $                               giao              ))
      $      call errquit('prop_input: rtdb_put failed', 0)
 c       
 c>>>    store real parameters in rtdb

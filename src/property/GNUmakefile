@@ -1,9 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.12 1997-10-31 23:54:47 d3e129 Exp $
+# $Id: GNUmakefile,v 1.13 1998-03-05 23:06:28 mdupuis Exp $
 #
 
 
-   OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o prp2.o
+#  OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o giao.o gia2.o prp2.o
+   OBJ = prop.o wnbofile.o prop_input.o hnd_property.o prp.o prp2.o 
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
