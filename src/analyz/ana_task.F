@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.45 2000-09-07 15:31:45 d3j191 Exp $
+c $Id: ana_task.F,v 1.46 2000-09-07 19:19:48 d3j191 Exp $
 c
       implicit none
 c
@@ -53,6 +53,7 @@ c
       lfntop=91
       lfnhis=92
       lfnepz=93
+      lfngrp=94
       lsonly=.false.
       lsuper=.false.
 c
@@ -89,6 +90,8 @@ c
 c
       ifr=1
       indx=1
+c
+      ngroup=0
 c
       if(me.eq.0) then
       if(.not.rtdb_cget(irtdb,'ana:filcmd',1,filcmd))
@@ -567,6 +570,7 @@ c
       filrms=string(1:index(string,' ')-1)//'.rms'
       filana=string(1:index(string,' ')-1)//'.ana'
       filhis=string(1:index(string,' ')-1)//'.his'
+      filgrp=string(1:index(string,' ')-1)//'.grp'
 c      write(*,'(a,a)') 'filrms=',filrms(1:index(filrms,' ')-1)
       time=0.0d0
 c
@@ -587,6 +591,10 @@ c
       endif
       if(lrms) then
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
+     + form='formatted',status='unknown')
+      endif
+      if(ngroup.gt.0) then
+      open(unit=lfngrp,file=filgrp(1:index(filgrp,' ')-1),
      + form='formatted',status='unknown')
       endif
       endif
@@ -656,8 +664,17 @@ c
       call ana_rmsdev(dbl_mb(i_xdat),int_mb(i_idat),nsa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
       endif
-      ndata=ndata+1
       endif
+c
+      if(ngroup.gt.0) then
+      do 3301 i=1,ngroup
+      if(igroup(i,3).eq.1)
+     + call ana_grpdis(byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
+     + dbl_mb(i_xdat),i)
+ 3301 continue
+      endif
+c
+      ndata=ndata+1
 c
       endif
       nframe=nframe+1
@@ -683,6 +700,12 @@ c
       write(*,'(a)') ' Closing scn file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
      + filrms(1:index(filrms,' ')-1)
+      endif
+      if(ngroup.gt.0) then
+      close(unit=lfngrp)
+      write(*,'(a)') ' Closing grp file '
+      write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
+     + filgrp(1:index(filgrp,' ')-1)
       endif
       endif
 c

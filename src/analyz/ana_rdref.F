@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.7 2000-05-04 20:54:51 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.8 2000-09-07 19:19:48 d3j191 Exp $
 c
       implicit none
 c
@@ -42,9 +42,12 @@ c
       read(lfnref,1002) nbxt,npbt
  1002 format(2i5)
 c
-      read(lfnref,1000) cdum
-      read(lfnref,1000) cdum
-      read(lfnref,1000) cdum
+      read(lfnref,1007) box(1)
+      read(lfnref,1008) box(2)
+      read(lfnref,1009) box(3)
+ 1007 format(f12.6)
+ 1008 format(12x,f12.6)
+ 1009 format(24x,f12.6)
 c
       read(lfnref,1000) cdum
       read(lfnref,1000) cdum

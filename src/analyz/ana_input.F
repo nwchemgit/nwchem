@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.32 2000-09-07 15:31:45 d3j191 Exp $
+c $Id: ana_input.F,v 1.33 2000-09-07 19:19:48 d3j191 Exp $
 c
       implicit none
 c
@@ -341,11 +341,15 @@ c
       ipbc=1
       if(.not.inp_a(item)) call errquit('No group function',0)
       endif
+      ksel=0
+      if(inp_compare(.false.,'distances',item)) ksel=1
       if(.not.inp_f(rsel)) rsel=0.0d0
-      if(.not.inp_f(rval)) rval=0.0d0
-      write(lfncmd,1021) isel,jsel,rsel,rval,ipbc,
+      if(.not.inp_f(rval)) rval=rsel
+      if(.not.inp_a(item)) item=' '
+      write(lfncmd,1021) isel,jsel,ksel,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
- 1021 format('groups ',2i7,2f12.6,i3,a)
+ 1021 format('groups ',2i7,i5,i3,2f12.6,a)
+      numcmd=numcmd+1
       goto 2
       endif
 c
