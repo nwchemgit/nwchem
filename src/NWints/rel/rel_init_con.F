@@ -1,4 +1,4 @@
-C $Id: rel_init_con.F,v 1.2 1998-09-23 21:48:27 mg201 Exp $
+C $Id: rel_init_con.F,v 1.3 1998-10-20 20:16:31 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine rel_init_con
@@ -12,6 +12,7 @@ C $Id: rel_init_con.F,v 1.2 1998-09-23 21:48:27 mg201 Exp $
 #include "rel_consts.fh"
 *
       cau = 137.0359895d00
+      csq = cau*cau
       alpha = 1.0d00/cau
       halp = 0.5d00*alpha
       halsq = halp*alpha

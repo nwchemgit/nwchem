@@ -1,10 +1,11 @@
 *
       double precision cau         ! Value of c in atomic units
+      double precision csq         ! Value of c**2 in atomic units
       double precision alpha       ! Value of fine structure constant
       double precision halp        ! Value of alpha/2
       double precision halsq       ! Value of alpha**2/2
       double precision qalsq       ! Value of alpha**2/4
       double precision salf        ! Value of alpha**4/16
 *
-      common/rel_consts/cau,alpha,halp,halsq,qalsq,salf
+      common/rel_consts/cau,csq,alpha,halp,halsq,qalsq,salf
 
