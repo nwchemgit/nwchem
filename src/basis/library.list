@@ -92,3 +92,16 @@ cd-demon
 H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
 Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
 Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
+
+6-31g*
+
+Al, Ar, B, Be, C, Cl, F, H, He, Li, Mg, N, Na, Ne, O, P, S, Si
+
+6-31+g*
+
+Al, Ar, B, Be, C, Cl, F, H, He, Li, Mg, N, Na, Ne, O, P, S, Si
+
+ahlrichs_vdz
+
+Al, Ar, As, B, Be, Br, C, Ca, Cl, Co, Cr, Cu, F, Fe, Ga, Ge, H, He, K, Kr, 
+Li, Mg, Mn, N, Na, Ne, Ni, O, P, S, Sc, Se, Si, Ti, V, Zn
