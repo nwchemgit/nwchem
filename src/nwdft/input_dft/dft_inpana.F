@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.68 2003-10-17 22:55:43 carlfahl Exp $
+c     $Id: dft_inpana.F,v 1.69 2003-11-24 20:57:33 d3g681 Exp $
 c
 c*********************************************************************
 c     
@@ -554,7 +554,7 @@ c
             write(LuOut,3233)strng1,strng2,strng3,strng4,strng5,strng6
             call util_flush(LuOut)
          endif
-         if(lsigma) then
+         if(lsigma .and. oprint_general) then
             write(luout,
      .           "(10x,'Smearing applied: ',d8.2,' (hartree)')"
      .           ) smear_sigma

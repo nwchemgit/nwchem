@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.38 2003-10-17 22:55:44 carlfahl Exp $
+C$Id: dft_densm.F,v 1.39 2003-11-24 20:56:58 d3g681 Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -14,6 +14,7 @@ C$Id: dft_densm.F,v 1.38 2003-10-17 22:55:44 carlfahl Exp $
 #include "global.fh"
 #include "msgids.fh"
 #include "dftps.fh"
+#include "util.fh"
 
       integer geom
       integer AO_bas_han
@@ -153,7 +154,8 @@ c
             endif
          enddo
          tdots=tdots-cksum*ssmear*0.5d0*rhfuhf
-         if(ga_nodeid().eq.0) then 
+         if(ga_nodeid().eq.0 .and.
+     $        util_print('general information',print_default) ) then 
             write(LuOut,1688) ssmear,
      ,             efermi(1),tdots,(i,ntot(i),i=1,ipol)
  1688       format(' sigma= ',d7.2,
