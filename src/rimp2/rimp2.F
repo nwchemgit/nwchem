@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.20 1995-04-19 22:14:07 gg502 Exp $
+C$Id: rimp2.F,v 1.21 1995-04-21 21:50:11 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -130,11 +130,7 @@ C
       Status = Status .AND. Bas_Name(AOBas, AOName, AONameT)
       Status = Status .AND. Bas_Name(FitBas, FitName, FitNameT)
 C
-C     ****************************
-C     * Get/create SCF reference *
-C     ****************************
-C     If the user hasn't specified a set of vectors, then default
-C     to the SCF output vectors.  
+C     Figure out where to get the reference from
 C
       if (.not. RTDB_CGet(rtdb, 'mp2:input vectors',
      $     1, FNVec)) then
@@ -142,20 +138,28 @@ C
      $      1, FNVec)) call util_file_prefix(Def_movec, FNVec)
       EndIf
 C
-C     Check MOVecs file for number of spin cases
+C     Check MOVecs file for number of spin cases, and the number of MOs
+C     contained.
 C
       If ( .NOT.  MOVecs_Read_Header(FNVec, Title, SCFBasNam, NAOBF,
      $   TopSpin, NMO, MaxSpin) )
      $   Call ErrQuit('RIMP2: Unable to open SCF eigenvectors', 0)
 C
-C
-C     Create space for all of the data from the MOVECS file
-C     and for the mapping functions
-C
       MxNMO = 0
       Do I = 1, TopSpin
          MxNMO = Max( MxNMO, NMO(I) )
       EndDo
+C
+C     *************************************
+C     * Get info about full SCF reference *
+C     *************************************
+C     All this effort is to get the occupation vevctors and reduce
+C     them to ranges so we can tell the user as a purely informational
+C     point.  I think this is useful to helping verify that the
+C     calculation is setup correctly, so I'm willing to do the work.
+C
+C     It might be convenient if we had a way to read only the
+C     occupation vector or just the 1-d data from the movecs file.
 C
       Status = .TRUE.
       Status = Status .AND. MA_Alloc_Get(MT_Dbl, MxNMO * TopSpin,
@@ -167,9 +171,6 @@ C
          Status = Status .AND.  GA_Create(MT_Dbl, NAOBF, NMO(I),
      $      'AO transformation', MinChunk, MinChunk, G_Full_AOXF(I))
       EndDo
-C
-      Status = Status .AND. MA_Push_Get(MT_Int, MxNMO * TopSpin,
-     $      'Correlation->SCF basis map', H_CorMap, I_CorMap)
 C
       If ( .NOT. Status) Call ErrQuit(
      $   'RIMP2: Insufficient space for SCF reference info', 0)
@@ -185,14 +186,34 @@ C
       If ( .NOT. Status) Call ErrQuit(
      $   'RIMP2: Unable to read SCF reference info', 0)
 C
-C     Create the mapping functions
+C     Determine size of occupied and virtual spaces in full SCF ref.
 C
-c$$$      Call Mk_Correl_Map(RTDB, MxNMO, TopSpin, NMO, NCorBF,
-c$$$     $   Int_MB(I_CorMap), FullRef )
-      Call Mk_Correl_Map(RTDB, MxNMO, TopSpin, NMO, Dbl_MB(I_Full_Occ),
-     $   Dbl_MB(I_Full_Eval), NCorBF, Int_MB(I_CorMap), FullRef )
+      Do I = 1, TopSpin
+         Call Occ_Ranges( NMO(I), Dbl_MB(I_Full_Occ + MxNMO * (I-1) ),
+     $      RefILo(I), RefIHi(I), RefALo(I), RefAHi(I) )
+      EndDo
 C
-C     Create space for all of the data we'll use in the calculation
+      Status = .TRUE.
+      Status = Status .AND. MA_Free_Heap( H_Full_Occ  )
+      Status = Status .AND. MA_Free_Heap( H_Full_Eval )
+      Do I = 1, TopSpin
+         Status = Status .AND. GA_Destroy(G_Full_AOXF(I) )
+      EndDo
+      If (.NOT. Status) Call ErrQuit(
+     $   'RIMP2: Unable destroy local arrays', 1)
+C
+C     **********************************
+C     * Create wave reference function *
+C     **********************************
+C     Create the gather vector which maps the full SCF reference into
+C     the "correlated basis" in which some orbitals may be frozen.
+C
+      If ( .NOT. MA_Push_Get(MT_Int, MxNMO * TopSpin,
+     $      'Correlation->SCF basis map', H_CorMap, I_CorMap) )
+     $   Call ErrQuit('RIMP2: ma failed', MxNMO*TopSpin)
+C
+      Call Mk_Correl_Map(RTDB, Geom, TopSpin, NMO, NCorBF, MxNMO,
+     $   Int_MB(I_CorMap), FullRef )
 C
       MxNCorBF = 0
       Do I = 1, TopSpin
@@ -213,8 +234,7 @@ C
       If ( .NOT. Status) Call ErrQuit(
      $   'RIMP2: Insufficient space for SCF reference info', 1)
 C
-C     Form the new occupation, eigenvalues, and orbitals for
-C     the correlated calculation
+C     Read in the correlated basis occupation and eigenstuff.
 C
       Do I = 1, TopSpin
          If ( .NOT. MOVecs_Gather( FNVec, I, NCorBF(I),
@@ -224,27 +244,12 @@ C
      $      Call ErrQuit('RIMP2: Unable to read reference', I)
       EndDo
 C
-C     Determine ranges to transform.  We also determine the info for 
-C     the SCF reference, but only for informational purposes.
+C     Determine ranges to transform.
 C
       Do I = 1, TopSpin
-         Call Occ_Ranges( NMO(I), Dbl_MB(I_Full_Occ + MxNMO * (I-1) ),
-     $      RefILo(I), RefIHi(I), RefALo(I), RefAHi(I) )
          Call Occ_Ranges( NCorBF(I), Dbl_MB(I_Occ + MxNCorBF * (I-1) ),
      $      ILo(I), IHi(I), ALo(I), AHi(I) )
       EndDo
-C
-C     Now we can get rid of the full reference 
-C     & correlated basis occ. vector
-C
-      Status = .TRUE.
-      Status = Status .AND. MA_Free_Heap( H_Full_Occ  )
-      Status = Status .AND. MA_Free_Heap( H_Full_Eval )
-      Do I = 1, TopSpin
-         Status = Status .AND. GA_Destroy(G_Full_AOXF(I) )
-      EndDo
-      If (.NOT. Status) Call ErrQuit(
-     $   'RIMP2: Unable destroy local arrays', 1)
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
      $   'RIMP2: Unable to free local array H_Occ', H_Occ)
@@ -273,7 +278,7 @@ C
      $         (RefAHi(i)-RefALo(i)+1, i = 1, TopSpin)
          EndIf
          Write (LuOut, 8520) 'Nr. of MOs to be correlated:',
-     $      (NMO(i), i = 1, TopSpin)
+     $      (NCorBF(i), i = 1, TopSpin)
          Write (LuOut, 8520) 'Nr. of occupied MOs correlated:',
      $      (IHi(i)-ILo(i)+1, i = 1, TopSpin)
          Write (LuOut, 8520) 'Nr. of virtual MOs correlated:',
