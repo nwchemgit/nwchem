@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.1 1996-07-26 16:42:30 d3g681 Exp $
+c     $Id: task_optimize.F,v 1.2 1996-09-27 22:16:08 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -30,8 +30,14 @@ c     task:walltime
 c     geometry             - final geometry from optimization
 c
       double precision cpu, wall
-      logical  task_gradient, stpr_walk
-      external task_gradient, stpr_walk
+c
+      logical ousedriver
+c
+      logical  task_gradient, stpr_walk, drv_opt
+      external task_gradient, stpr_walk, drv_opt
+c
+      if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
+     $     ousedriver = .false.
 c     
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -49,14 +55,18 @@ c
          write(6,*)
       endif
 c
-   10 if (task_gradient(rtdb)) then
-         if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
-         task_optimize = .true. ! Finished
-      else if (ga_nodeid().eq.0) then
-         write(luout,*)' task_optimize: energy+gradients failed ',
-     $        ' ... optimization incomplete'
-         call util_flush(6)
-         task_optimize = .false.
+      if (ousedriver) then
+         task_optimize = drv_opt(rtdb)
+      else
+ 10      if (task_gradient(rtdb)) then
+            if (.not. stpr_walk(rtdb)) goto 10 ! Take next step
+            task_optimize = .true. ! Finished
+         else if (ga_nodeid().eq.0) then
+            write(luout,*)' task_optimize: energy+gradients failed ',
+     $           ' ... optimization incomplete'
+            call util_flush(6)
+            task_optimize = .false.
+         endif
       endif
 c
       cpu  = util_cpusec() - cpu
