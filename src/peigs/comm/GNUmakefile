@@ -14,6 +14,10 @@ all:		$(MXOBJ)
 
 clean:		
 		-rm -f *.o
+		-rm -f mxbrod.f
+		-rm -f mxcombv1.f
+		-rm -f mxsubs.f
+		-rm -f sum.f
 
 realclean:
 		clean
