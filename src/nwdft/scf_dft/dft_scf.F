@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.243 2004-07-27 16:20:20 bert Exp $
+c     $Id: dft_scf.F,v 1.244 2004-09-15 17:53:13 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -453,13 +453,25 @@ c
      &                       .true.) 
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       if (odftps) call pstat_off(ps_guess)
+      if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
+     .     quickguess=.false.
+      if(quickguess.and.movecs_in.eq.'atomic') then
+      if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
+     $     call errquit('dft_scf: DFT MO vectors not defined',0,
+     &       RTDB_ERR)
+        if (oskel) call ga_symmetrize(g_dens(1))
+         if(ipol.eq.2) then
+            call ga_copy(g_dens(1),g_dens(2))
+            call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
+            call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
+            if(oskel) call ga_symmetrize(g_dens(2))
+         endif
+         goto 1789
+      endif
       if(oskel) then
         call ga_symmetrize(g_dens(1))
         if(ipol.eq.2) call ga_symmetrize(g_dens(2))
       endif
-      if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
-     .     quickguess=.false.
-      if(quickguess) goto 1789
 
       if(ldmix) then
          tdots=0.d0
