@@ -1,21 +1,23 @@
       logical function pre_misfit(lfnout,isfnd,xs,qsa,msa,nsa,
-     + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist)
+     + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
+     + qwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_misfit.F,v 1.5 1998-08-24 17:28:11 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.6 1998-09-11 15:14:39 d3j191 Exp $
 c
       implicit none
 c
 #include "util.fh"
 c
-      integer lfnout,msa,nsa,msb,nsb,mgrid
-      integer isfnd(msa),idsb(2,msb)
+      integer lfnout,msa,nsa,msb,nsb,mgrid,iwater,mwm,mwa,nwm,nwa
+      integer isfnd(msa),idsb(2,msb),iwfnd(mwm)
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
+      real*8 xw(3,mwa,mwm),qwa(mwa)
 c
       real*8 grid(4,mgrid)
       integer i,ic,j,nn,nndx(10),nnn,nnndx(10),nm,miss
-      real*8 d(3),c(3),p(3),t(3),r,dr
-      real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2
-      integer ix,iy,iz,k,imax,imin,ngrid
+      real*8 d(3),c(3),p(3),t(3),r,dr,dd,px(3),pn(3),pz(3),pw(3)
+      real*8 xmax(3),xmin(3),dx(3),dist2,gdist,gdist2,angle
+      integer ix,iy,iz,k,imax,imin,ngrid,iwm,isa,iwm2,iwa
 c
       gdist2=gdist*gdist
 c
@@ -32,7 +34,7 @@ c     ---------------------------------
 c
       if(isfnd(i).ne.1) then
       if(util_print('coordinates',print_debug)) then
-      write(*,'(a,i7)') 'Not found: atom ',i
+      write(lfnout,'(a,i7)') 'Not found: atom ',i
       endif
       nn=0
 c
@@ -342,6 +344,66 @@ c
 c
       if(miss.ne.0) then
       call errquit('pre_misfit: missing non hydrogen coordinates',9999)
+      endif
+c
+c     crystal waters
+c
+      if(iwater.gt.0) then
+      do 23 iwm=1,nwm
+      if(iwfnd(iwm).eq.1) then
+      px(1)=0.0d0
+      px(2)=0.0d0
+      px(3)=0.0d0
+      do 24 isa=1,nsa
+      dx(1)=(xs(1,isa)-xw(1,1,iwm))
+      dx(2)=(xs(2,isa)-xw(2,1,iwm))
+      dx(3)=(xs(3,isa)-xw(3,1,iwm))
+      dd=sqrt(dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3))
+      px(1)=px(1)+qsa(isa)*dx(1)/dd
+      px(2)=px(2)+qsa(isa)*dx(2)/dd
+      px(3)=px(3)+qsa(isa)*dx(3)/dd
+   24 continue
+      do 25 iwm2=1,nwm
+      if(iwfnd(iwm).eq.3) then
+      do 26 iwa=1,3
+      dx(1)=(xw(1,iwa,iwm2)-xw(1,1,iwm))
+      dx(2)=(xw(2,iwa,iwm2)-xw(2,1,iwm))
+      dx(3)=(xw(3,iwa,iwm2)-xw(3,1,iwm))
+      dd=sqrt(dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3))
+      px(1)=px(1)+qwa(iwa)*dx(1)/dd
+      px(2)=px(2)+qwa(iwa)*dx(2)/dd
+      px(3)=px(3)+qwa(iwa)*dx(3)/dd
+   26 continue
+      endif
+   25 continue
+      pw(1)=0.0d0
+      pw(2)=0.0d0
+      pw(3)=0.055d0
+      angle=acos((pw(1)*px(1)+pw(2)*px(2)+pw(3)*px(3))/
+     + sqrt((pw(1)*pw(1)+pw(2)*pw(2)+pw(3)*pw(3))*
+     + (px(1)*px(1)+px(2)*px(2)+px(3)*px(3))))
+      pn(1)=pw(2)*px(3)-pw(3)*px(2)
+      pn(2)=pw(3)*px(1)-pw(1)*px(3)
+      pn(3)=pw(1)*px(2)-pw(2)*px(1)
+      pz(1)=0.0d0
+      pz(2)=0.0d0
+      pz(3)=0.0d0
+      pw(1)=0.0d0
+      pw(2)=-0.083d0
+      pw(3)=0.055d0
+      call rotate(pz,pn,angle,pw,dx)
+      xw(1,2,iwm)=xw(1,1,iwm)+dx(1)
+      xw(2,2,iwm)=xw(2,1,iwm)+dx(2)
+      xw(3,2,iwm)=xw(3,1,iwm)+dx(3)
+      pw(1)=0.0d0
+      pw(2)=0.083d0
+      pw(3)=0.055d0
+      call rotate(pz,pn,angle,pw,dx)
+      xw(1,3,iwm)=xw(1,1,iwm)+dx(1)
+      xw(2,3,iwm)=xw(2,1,iwm)+dx(2)
+      xw(3,3,iwm)=xw(3,1,iwm)+dx(3)
+      endif
+   23 continue
       endif
 c
       pre_misfit=.true.

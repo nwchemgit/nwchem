@@ -1,12 +1,12 @@
       logical function pre_center(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
-c $Id: pre_center.F,v 1.7 1998-04-29 18:35:12 d3j191 Exp $
+c $Id: pre_center.F,v 1.8 1998-09-11 15:14:38 d3j191 Exp $
 c
       implicit none
 c
       integer mwa,mwm,nwa,nwm,msa,nsa,mwmc,nwmc
-      real*8 xw(3,mwa,mwm),xwc(2,mwa,mwmc),xs(3,msa)
+      real*8 xw(3,mwa,mwm),xwc(3,mwa,mwmc),xs(3,msa)
 c
       integer i,j,k
       real*8 s

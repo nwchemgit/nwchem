@@ -1,8 +1,8 @@
       logical function pre_rdpdb(lfnout,filpdb,lfnpdb,filtmp,lfntmp,
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
-     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv)
+     + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater)
 c
-c $Id: pre_rdpdb.F,v 1.8 1998-07-14 15:47:29 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.9 1998-09-11 15:14:40 d3j191 Exp $
 c
       implicit none
 c
@@ -17,6 +17,7 @@ c
       real*8 xs(3,msa),vs(3,msa)
       real*8 xw(3,mwa,mwm),vw(3,mwa,mwm)
       character*3 namslv
+      integer iwater
 c
       character*6 name1,name2
       character*80 card
@@ -29,6 +30,7 @@ c
 c
       lnames=lnams
       iw=0
+      iwater=0
 c
       length=index(filpdb,' ')-1
       if(util_print('where',print_debug)) then
@@ -128,8 +130,12 @@ c
       endif
       iwfnd(nwm)=iwfnd(nwm)+1
       iwmr(nwm)=0
+      if(namslv.eq.'HOH') iwater=1
       do 5 i=1,nwa
-      if(cwa(i)(11:14).eq.nama) then
+      if(cwa(i)(11:14).eq.nama.or.
+     + (namslv.eq.'HOH'.and.
+     +  ((nama.eq.' O  '.and.cwa(i)(11:14).eq.' OW ').or.
+     +   (nama.eq.' H  '.and.cwa(i)(11:14).eq.' HW ')))) then
       xw(1,i,nwm)=1.0d-01*x
       xw(2,i,nwm)=1.0d-01*y
       xw(3,i,nwm)=1.0d-01*z

@@ -1,10 +1,10 @@
-      logical function pre_rstsiz(lfnrst,filrst,nwm,nwa,nsa)
+      logical function pre_rstsiz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.2 1998-07-16 01:45:02 d3j191 Exp $
+c $Id: pre_rstsiz.F,v 1.3 1998-09-11 15:14:40 d3j191 Exp $
 c
       implicit none
 c
-      integer lfnrst,nwm,nwa
+      integer lfnrst,nwm,nwa,nwmc
       character*255 filrst
 c
       character*1 cdummy
@@ -29,8 +29,8 @@ c
     2 continue
       endif
 c
-      read(lfnrst,1003) nwm,nwa,nsa
- 1003 format(2i10,10x,i10)
+      read(lfnrst,1003) nwm,nwa,nsa,nwmc
+ 1003 format(2i10,10x,2i10)
 c
       close(unit=lfnrst)
 c

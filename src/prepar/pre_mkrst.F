@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.19 1998-08-24 17:28:13 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.20 1998-09-11 15:14:39 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
 c
       integer nsa,nwa,nwm,nmis,npbtyp,noe,nwms,nwas,mwmc,nwmc,mat
       integer msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa
+      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
@@ -38,11 +38,11 @@ c
       integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr
       integer l_inoe,i_inoe,l_dnoe,i_dnoe
       integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
-      integer l_wfnd,i_wfnd,l_wcmr,i_wcmr
+      integer l_wfnd,i_wfnd,l_wcmr,i_wcmr,l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
-      integer length,len,islv,idum1,idum2,idum3,idum4
+      integer length,len,islv,idum1,idum2,idum3,idum4,iwater
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -93,6 +93,8 @@ c
      + call errquit('Memory allocation failed for amass',9999)
       if(.not.ma_push_get(mt_byte,16*mwa,'cwa',l_cwa,i_cwa))
      + call errquit('Memory allocation failed for cwa',9999)
+      if(.not.ma_push_get(mt_dbl,mwa,'qwa',l_qwa,i_qwa))
+     + call errquit('Memory allocation failed for qwa',9999)
       if(.not.ma_push_get(mt_byte,16*msa,'csa',l_csa,i_csa))
      + call errquit('Memory allocation failed for csa',9999)
       if(.not.ma_push_get(mt_int,msa,'sar',l_sar,i_sar))
@@ -165,7 +167,7 @@ c     ------------------
 c
       if(.not.pre_toprd(lfntop,filtop,lfnout,
      + int_mb(i_num),dbl_mb(i_mas),mat,
-     + byte_mb(i_cwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
+     + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
      + dbl_mb(i_csb),msb,nsb))
      + call errquit('pre_toprd failed',9999)
@@ -238,7 +240,7 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
@@ -249,7 +251,8 @@ c
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
       if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
      + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
-     + dbl_mb(i_grid),mgrid,ngrid,gdist))
+     + dbl_mb(i_grid),mgrid,ngrid,gdist,iwater,int_mb(i_wfnd),
+     + dbl_mb(i_xwc),dbl_mb(i_qwa),mwmc,mwa,nwmc,nwa))
      + call errquit('pre_misfit failed',9999)
       if(.not.ma_pop_stack(l_grid))
      + call errquit('Memory deallocation failed for grid',9999)
@@ -410,7 +413,7 @@ c
       filnam=card(8:80)
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filrst
-      if(.not.pre_rstsiz(lfnrst,filnam,nnwm,nnwa,nnsa))
+      if(.not.pre_rstsiz(lfnrst,filnam,nnwm,nnwa,nnsa,nnwmc))
      + call errquit('pre_rstsiz failed',9999)
       if(nnwm.gt.mwm) then
       if(lsolva) then
@@ -431,6 +434,28 @@ c
      + call errquit('ma_alloc_get failed for iwmr',9999)
       lsolva=.true.
       endif
+      if(lcryst) then
+      if(.not.ma_free_heap(l_xwc))
+     + call errquit('ma_free_heap failed on l_xwc',9999)
+      if(.not.ma_free_heap(l_vwc))
+     + call errquit('ma_free_heap failed on l_vwc',9999)
+      if(.not.ma_free_heap(l_wfnd))
+     + call errquit('ma_free_heap failed on l_wfnd',9999)
+      if(.not.ma_free_heap(l_wcmr))
+     + call errquit('ma_free_heap failed on l_wcmr',9999)
+      lcryst=.false.
+      endif
+      nwmc=0
+      mwmc=nnwmc
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'xwc',l_xwc,i_xwc))
+     + call errquit('ma_alloc_get failed for xwc',9999)
+      if(.not.ma_alloc_get(mt_dbl,3*mwa*mwmc,'vwc',l_vwc,i_vwc))
+     + call errquit('ma_alloc_get failed for vwc',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,'wfnd',l_wfnd,i_wfnd))
+     + call errquit('ma_alloc_get failed for wfnd',9999)
+      if(.not.ma_alloc_get(mt_int,mwmc,'wcmr',l_wcmr,i_wcmr))
+     + call errquit('ma_alloc_get failed for wcmr',9999)
+      lcryst=.true.
       if(.not.pre_rdrst(lfnout,lfnrst,filnam,npbtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
@@ -456,7 +481,7 @@ c
       if(.not.pre_wrtpdb(lfnpdb,filnam,iopt,int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),dbl_mb(i_xs),
      + dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),dbl_mb(i_xw),dbl_mb(i_vw),
-     + mwm,mwa,nwm,nwa,slvnam))
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam))
      + call errquit('pre_wrtpdb failed',9999)
       endif
 c
@@ -824,6 +849,8 @@ c
      + call errquit('Memory deallocation failed for sar',9999)
       if(.not.ma_pop_stack(l_csa))
      + call errquit('Memory deallocation failed for csa',9999)
+      if(.not.ma_pop_stack(l_qwa))
+     + call errquit('Memory deallocation failed for qwa',9999)
       if(.not.ma_pop_stack(l_cwa))
      + call errquit('Memory deallocation failed for cwa',9999)
       if(.not.ma_pop_stack(l_mas))

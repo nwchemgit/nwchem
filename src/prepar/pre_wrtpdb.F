@@ -1,19 +1,21 @@
       logical function pre_wrtpdb(lfnpdb,filpdb,iopt,num,amass,mat,
-     + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,slvnam)
+     + csa,isat,isgm,xs,vs,msa,nsa,cwa,xw,vw,mwm,mwa,nwm,nwa,
+     + xwc,vwc,mwmc,nwmc,slvnam)
 c
-c $Id: pre_wrtpdb.F,v 1.1 1998-04-28 23:10:55 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.2 1998-09-11 15:14:41 d3j191 Exp $
 c
       implicit none
 c
       character*2 pre_atnam
       external pre_atnam
 c
-      integer lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat
+      integer lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
       character*255 filpdb
       integer num(mat),isat(msa),isgm(msa)
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc)
 c
       integer length
 c
@@ -57,8 +59,13 @@ c
       do 2 i=1,numslv
       do 3 j=1,nwa
       nats=nats+1
+      if(i.le.nwmc) then
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,(1.0d1*xw(k,j,i),k=1,3)
+     + i+nums,(1.0d1*xwc(k,j,i),k=1,3)
+      else
+      write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
+     + i+nums,(1.0d1*xw(k,j,i-nwmc),k=1,3)
+      endif
  1003 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3)
     3 continue
     2 continue

@@ -1,8 +1,8 @@
       logical function pre_rtdbin(irtdb,ffield,
      + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
-     + newtop,newseq,newrst,mgrid,gdist,mnoe,maxscf,qscale)
+     + newtop,newseq,newrst,icount,mgrid,gdist,mnoe,maxscf,qscale)
 c
-c $Id: pre_rtdbin.F,v 1.9 1998-04-30 06:06:24 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.10 1998-09-11 15:14:40 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -20,7 +20,7 @@ c
       character*80 ffield,sysnam,calc
       character*10 slvmdl
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer newtop,newseq,newrst
+      integer newtop,newseq,newrst,icount
       integer len,ndx,mgrid,mnoe,maxscf
       real*8 gdist,qscale
 c
@@ -59,6 +59,7 @@ c
       if(.not.rtdb_get(irtdb,'prep:newseq',mt_int,1,newseq)) newseq=0
       if(.not.rtdb_get(irtdb,'prep:newrst',mt_int,1,newrst)) newrst=0
 c
+      if(.not.rtdb_get(irtdb,'prep:icount',mt_int,1,newrst)) icount=0
       if(.not.rtdb_get(irtdb,'prep:mgrid',mt_int,1,mgrid)) mgrid=24
       if(.not.rtdb_get(irtdb,'prep:rgrid',mt_dbl,1,gdist)) gdist=0.2d0
 c

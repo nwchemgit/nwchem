@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.16 1998-07-16 15:31:56 d3j191 Exp $
+c $Id: pre_input.F,v 1.17 1998-09-11 15:14:38 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       character*10 slvmdl
       character*80 ffield,sysnam
       character*255 dir_s,dir_x,dir_u,dir_t,commnd,modify
-      integer newtop,newseq,newrst
+      integer newtop,newseq,newrst,icount
 c
       integer len,numcmd,nummod,mgrid,mnoe,inoe(2),maxscf,num,mset
       integer isgm
@@ -59,6 +59,7 @@ c
       mnoe=0
       maxscf=0
       qscale=-1.2d0
+      icount=0
 c
       touch=0.25
       xpndw=0.20
@@ -233,6 +234,10 @@ c
 c     fix commands
 c     ------------
 c
+      if(inp_compare(.false.,'counter',item)) then
+      icount=1
+      goto 2
+      endif
       if(inp_compare(.false.,'fix',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: fix',9999)
       if(inp_compare(.false.,'atoms',item)) then
@@ -617,6 +622,8 @@ c
       if(.not.rtdb_put(irtdb,'prep:newrst',mt_int,1,newrst))
      + call errquit('pre_input: rtdb_put failed',0)
 c
+      if(.not.rtdb_put(irtdb,'prep:icount',mt_int,1,icount))
+     + call errquit('pre_input: rtdb_put failed',0)
       if(mgrid.gt.0) then
       if(.not.rtdb_put(irtdb,'prep:mgrid',mt_int,1,mgrid))
      + call errquit('pre_input: rtdb_put failed',0)
