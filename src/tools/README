@@ -1,0 +1,2 @@
+Tools libraries reside under /msrc/proj/hpctools AFS volume.
+Use get-tools script to checkout the files for the first time.

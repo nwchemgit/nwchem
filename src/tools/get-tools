@@ -1,0 +1,6 @@
+#!/bin/csh
+setenv CVSROOT /msrc/proj/hpctools
+set subdirs = "config global armci LinAlg pario ma tcgmsg tcgmsg-mpi server"
+foreach d ( $subdirs )
+   cvs co $d
+end
