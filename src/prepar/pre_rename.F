@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.7 1999-01-29 21:12:46 d3j191 Exp $
+c $Id: pre_rename.F,v 1.8 1999-06-16 23:57:00 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -19,15 +19,22 @@ c
       character*6 catm(3,matm)
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
+      character*1 dorr
+      character*2 ctest
 c
       integer i,j,k,l
 c
+      dorr='D'
+c
       do 1 i=1,nseq
       cseq(2,i)=cseq(1,i)
+      if(cseq(1,i)(1:3).eq.'U  ') dorr='R'
+      if(cseq(1,i)(1:2).eq.'U_') dorr='R'
     1 continue
 c
       if(ffield(1:5).eq.'amber') then
       do 2 i=1,natm
+c
       if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HD1  ')
      + cseq(2,latm(1,i))(1:3)='HID'
       if(cseq(2,latm(1,i))(1:3).eq.'HIS'.and.catm(2,i).eq.' HE2  ')
@@ -53,6 +60,16 @@ c
       endif
       endif
       endif
+c
+      ctest=cseq(2,latm(1,i))(1:2)
+c
+      if(ctest.eq.'A '.or.ctest.eq.'A_'.or.
+     + ctest.eq.'C '.or.ctest.eq.'C_'.or.
+     + ctest.eq.'G '.or.ctest.eq.'G_')
+     + cseq(2,latm(1,i))=dorr//cseq(2,latm(1,i))(1:4)
+      if(ctest.eq.'T '.or.ctest.eq.'T_'.or.
+     + ctest.eq.'U '.or.ctest.eq.'U_')
+     + cseq(2,latm(1,i))='R'//cseq(2,latm(1,i))(1:4)
 c
     2 continue
       do 3 i=1,nseq

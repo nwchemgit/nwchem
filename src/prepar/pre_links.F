@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.10 1999-01-29 21:12:42 d3j191 Exp $
+c $Id: pre_links.F,v 1.11 1999-06-16 23:56:59 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -16,8 +16,8 @@ c
 c
 #include "util.fh"
 c
-      logical pre_short,pre_protein
-      external pre_short,pre_protein
+      logical pre_short,pre_protein,pre_nucleic
+      external pre_short,pre_protein,pre_nucleic
 c
       integer lfnout,matm,mseq,nseq,mlnk,nlnk,nlnkf,lfnmod
       character*255 filmod
@@ -211,6 +211,7 @@ c     ----------------------------------------------
 c
       do 11 i=1,nseq
       if(pre_protein(ffield,cseq(1,i))) goto 14
+      if(pre_nucleic(ffield,cseq(1,i))) goto 16
       do 15 j=lseq(3,i),lseq(3,i+1)-1
       if(latm(5,j).eq.1) latm(5,j)=3
       if(latm(5,j).eq.2) latm(5,j)=3
@@ -232,6 +233,27 @@ c
       else
       if(link2.gt.0) then
       cseq(1,i)(iu:iu+1)='_N'
+      else
+      cseq(1,i)(iu:iu+1)='_M'
+      endif
+      endif
+      goto 11
+   16 continue
+      link1=0
+      link2=0
+      link3=0
+      do 17 j=lseq(3,i),lseq(3,i+1)-1
+      if(latm(5,j).eq.1) link1=link1+1
+      if(latm(5,j).eq.2) link2=link2+1
+      if(latm(5,j).ge.3) link3=link3+1
+   17 continue
+      iu=index(cseq(1,i),'_')
+      if(iu.eq.0) iu=index(cseq(1,i),' ')
+      if(link1.gt.0) then
+      if(link2.eq.0) cseq(1,i)(iu:iu+1)='_3'
+      else
+      if(link2.gt.0) then
+      cseq(1,i)(iu:iu+1)='_5'
       else
       cseq(1,i)(iu:iu+1)='_M'
       endif
