@@ -1,6 +1,9 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.2 1995-12-22 01:39:47 d3e129 Exp $
+* $Id: intb_chk_sum.F,v 1.3 1995-12-23 01:09:40 d3e129 Exp $
 * does checksum for 2 electron eri blocking integral interface only
+*
+* geom and basis data structures initiated and destroyed outside 
+* this routine
       implicit none
 c::includes
 #include "stdio.fh"
@@ -174,11 +177,11 @@ c
      &      ma_push_get(MT_DBL,(5*3),'summary stats',h_stats,i_stats)
         if(.not.status) call errquit
      &      ('intb_chk_sum: ma_push_get failed somewhere',911)
-        call intb_all_at_once_gen(basis,nat,max_shell_q,
+        call intb_all_at_once_gen(
+     &      geom,basis,nat,max_shell_q,
      &      int_mb(i_iqtet),int_mb(i_jqtet),
-     &      int_mb(i_kqtet),int_mb(i_lqtet),num_quart,debug)
-
-        call dfill(num_quart,1.0d00,dbl_mb(k_q4),1)
+     &      int_mb(i_kqtet),int_mb(i_lqtet),num_quart,
+     &      dbl_mb(k_q4),debug)
 
         num_ints_total = 0
         status = intb_init4c(basis,int_mb(i_iqtet),int_mb(i_jqtet),
@@ -199,6 +202,11 @@ c
         call intb_simple_canon(int_mb(i_ilab),int_mb(i_jlab),
      &      int_mb(i_klab),int_mb(i_llab),
      &      dbl_mb(i_eri), neri, zerotol)
+        write(6,*)' stsum_inve called 1'
+        call stsum_inve(neri,
+     &      dbl_mb(i_eri),
+     &      int_mb(i_ilab),int_mb(i_jlab),
+     &      int_mb(i_klab),int_mb(i_llab))
         call stsum2(neri,num_ints_total,
      &      dbl_mb(i_eri),
      &      int_mb(i_ilab),int_mb(i_jlab),
@@ -264,7 +272,8 @@ c
      &      ('intb_chk_sum: ma_push_get failed somewhere',911)
         call intb_atom_blocks_chksum(
      &      memb,memscr,max_shell_q,atom_blk_sz,nat,
-     &      basis,dbl_mb(i_eri),int_mb(i_ilab),int_mb(i_jlab),
+     &      geom,basis,
+     &      dbl_mb(i_eri),int_mb(i_ilab),int_mb(i_jlab),
      &      int_mb(i_klab),int_mb(i_llab),
      &      int_mb(i_iqtet),int_mb(i_jqtet),
      &      int_mb(i_kqtet),int_mb(i_lqtet),
@@ -274,7 +283,6 @@ c
      &      dbl_mb(i_scr),dbl_mb(i_stats),zerotol,
      &      print_ints,print69,debug)
       endif
-
 *free memory in order
       status = .true.
       if (.not.all_at_once) then
@@ -300,8 +308,8 @@ c
       end
       subroutine intb_atom_blocks_chksum(
      &    leri,memscr,max_q,a_blk,nat,
-     &    basis,eri,ilb,jlb,klb,llb,iq,jq,kq,lq,
-     &    q4,
+     &    geom,basis,eri,ilb,jlb,klb,llb,
+     &    iq,jq,kq,lq,q4,
      &    iiat,jjat,kkat,llat,scr,stats,zerotol,
      &    printem,print69,debug)
       implicit none
@@ -311,7 +319,7 @@ c::includes
       logical intb_init4c, intb_2e4c
       external intb_init4c, intb_2e4c
 c::passed
-      integer leri,memscr,max_q,a_blk,nat,basis
+      integer leri,memscr,max_q,a_blk,nat,basis,geom
       double precision eri(leri)
       integer ilb(leri),jlb(leri),klb(leri),llb(leri)
       integer iq(max_q),jq(max_q),kq(max_q),lq(max_q)
@@ -395,7 +403,8 @@ c same part for both loop structures - start
 c---------------------------------------------------------------------
 *.. do group of atoms work              
               num_q = 0
-              call intb_quart_from_atoms(basis,iiat,jjat,kkat,llat,
+              call intb_quart_from_atoms(
+     &            geom, basis,iiat,jjat,kkat,llat,
      &            nat_cache,max_q,iq,jq,kq,lq,num_q,q4,debug)
 *rak:              write(6,*)'iiat  =',iiat
 *rak:              write(6,*)'jjat  =',jjat
@@ -431,6 +440,8 @@ c---------------------------------------------------------------------
 *rak:              status = ma_verify_allocator_stuff()
               call stsum2(neri,num_ints_total,eri,ilb,jlb,klb,llb,
      &            stats,printem,print69)
+              write(6,*)' stsum_inve called 2'
+              call stsum_inve(neri,eri,ilb,jlb,klb,llb)
 *rak:              write(6,*)
 *rak:     &          ' max_q, leri, memscr, a_blk, nat, neri 5',
 *rak:     &            max_q, leri, memscr, a_blk, nat, neri
@@ -467,7 +478,7 @@ c---------------------------------------------------------------------
 *
       end
       subroutine intb_quart_from_atoms(
-     &    basis,iiat,jjat,kkat,llat,num_at,
+     &    geom,basis,iiat,jjat,kkat,llat,num_at,
      &    max_q,iq,jq,kq,lq,num_q,q4,debug)
       implicit none
 c
@@ -476,7 +487,11 @@ c
 c::includes
 #include "stdio.fh"
 #include "bas.fh"
+#if defined(SUM_WITH_SYM)
+#include "sym.fh"
+#endif
 c::passed
+      integer geom
       integer basis
       integer num_at
       integer iiat(num_at),jjat(num_at),kkat(num_at),llat(num_at)
@@ -504,7 +519,12 @@ c
         jat = jjat(iatom)
         kat = kkat(iatom)
         lat = llat(iatom)
-        q4_atom  = 1.0d00   ! later some function of iat,jat,kat,lat
+#if defined(SUM_WITH_SYM)
+        if (.not.sym_atom_quartet(geom,iat,jat,kat,lat,q4_atom))
+     &      goto 00001
+#else
+        q4_atom  = 1.0d00  
+#endif
         status = .true.
         status = status .and. bas_ce2cnr(basis, iat, islo, ishi)
         status = status .and. bas_ce2cnr(basis, jat, jslo, jshi)
@@ -533,6 +553,9 @@ c
                   kq(count) = ksh
                   lq(count) = lsh
                   q4(count) = q4_atom
+                  if (q4_atom.gt.1.0d00) then
+                    write(6,*)' 1 ',ish,jsh,ksh,lsh,q4_atom
+                  endif
                   if (debug) 
      &                write(luout,10000)count,
      &                iat,jat,kat,lat,ish,jsh,ksh,lsh
@@ -546,6 +569,9 @@ c
             enddo
           enddo
         enddo
+#if defined(SUM_WITH_SYM)
+00001   continue
+#endif
       enddo
 *
       num_q = count
@@ -553,8 +579,8 @@ c
 10000 format(1x,'quartet ',i6,' (atoms|<',i3,i3,'|',i3,i3,
      &    '>) (shells|<',i3,i3,'|',i3,i3,'>)')
       end
-      subroutine intb_all_at_once_gen(basis,nat,
-     &    max_q,iq,jq,kq,lq,num_q,debug)
+      subroutine intb_all_at_once_gen(geom,basis,nat,
+     &    max_q,iq,jq,kq,lq,num_q,q4,debug)
 c
 c generate all quartets ddscf style
 c
@@ -562,7 +588,11 @@ c
 c::includes
 #include "stdio.fh"
 #include "bas.fh"
+#if defined(SUM_WITH_SYM)
+#include "sym.fh"
+#endif
 c::passed
+      integer geom
       integer basis
       integer nat
       integer max_q
@@ -571,15 +601,17 @@ c::passed
       integer kq(max_q)
       integer lq(max_q)
       integer num_q
+      double precision q4(max_q)
       logical debug
 c::local      
+      double precision q4_atom
       integer count
       integer iat,jat,kat,lat
       integer islo,jslo,kslo,lslo
       integer ishi,jshi,kshi,lshi
       integer ish,jsh,ksh,lsh
       integer kstop,jstop,lstop
-      integer lathi
+      integer lathi 
       logical oaij,oakl,oaikjl,status
 c
 *   reset debug to off
@@ -602,6 +634,12 @@ c
               oaij = iat.eq.jat
               oakl = kat.eq.lat
               oaikjl = iat.eq.kat .and. jat.eq.lat
+#if defined(SUM_WITH_SYM)
+              if (.not.sym_atom_quartet(geom,iat,jat,kat,lat,q4_atom))
+     &            goto 00001
+#else
+              q4_atom = 1.0d00
+#endif
               do ish = islo,ishi
                 jstop = jshi
                 if (oaij) jstop = ish
@@ -619,6 +657,10 @@ c
                         jq(count) = jsh
                         kq(count) = ksh
                         lq(count) = lsh
+                        q4(count) = q4_atom
+                        if (q4_atom.gt.1.0d00) then
+                          write(6,*)' 1 ',ish,jsh,ksh,lsh,q4_atom
+                        endif
                         if (debug) 
      &                      write(luout,10000)count,
      &                      iat,jat,kat,lat,ish,jsh,ksh,lsh
@@ -633,6 +675,8 @@ c
                   enddo
                 enddo
               enddo
+00001         continue
+c... end of atom loops
             enddo
           enddo
         enddo
@@ -663,6 +707,7 @@ c
       integer i,j,isym2
       isym2(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)          
 *
+*************      if (neri.gt.1) return
       count = 0
       do 00100 i=1,neri
         if (abs(eri(i)).gt.zerotol) then

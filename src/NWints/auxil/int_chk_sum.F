@@ -1,5 +1,5 @@
       subroutine int_chk_sum(rtdb,basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.17 1995-12-16 02:18:21 d3g681 Exp $
+c $Id: int_chk_sum.F,v 1.18 1995-12-23 01:09:39 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -462,6 +462,55 @@ c
         stats(5,3) = stats(5,3) + x2/denom * d1
 c
 00100 continue
+      end
+      subroutine stsum_inve(num,Eri,ilab,jlab,klab,llab)
+      implicit none
+c::passed
+      integer num                   ! number of 2e moieties
+      integer ilab(num),jlab(num)   ! labels for moieties
+      integer klab(num),llab(num)   ! labels for moieties
+      double precision Eri(num)     ! 2e moieties
+c
+      integer ii, i, j, k, l
+      double precision x
+      logical coul, exch
+c
+      double precision ene
+      integer icall, nused, nout
+      save icall, nused, nout
+      save ene
+      data icall /0/
+      data nused /0/
+      data nout /0/
+c
+      if (icall.eq.0) ene = 0.0d00
+      icall = icall + 1
+c
+      do ii = 1,num
+        i = ilab(ii)
+        j = jlab(ii)
+        k = klab(ii)
+        l = llab(ii)
+        x = Eri(ii)
+        coul = (i.eq.j).and.(k.eq.l)
+        exch = (i.eq.k).and.(j.eq.l)
+        if (coul.and.exch) then
+          ene = ene + 2*x
+          nused = nused + 1
+        elseif (coul.or.exch) then
+          ene = ene + x
+          nused = nused + 1
+        else
+          nout = nout + 1
+        endif
+      enddo
+c
+      write(6,*)' stsum_inve: icall  =',icall
+      write(6,*)' stsum_inve: nused  =',nused
+      write(6,*)' stsum_inve: nout   =',nout
+      write(6,*)' stsum_inve: n_sum  =',(nused+nout)
+      write(6,*)' stsum_inve: energy =',ene
+c
       end
       subroutine stsum2(num,numtot,Eri,ilab,jlab,klab,llab,
      &       stats,printem,print69)
