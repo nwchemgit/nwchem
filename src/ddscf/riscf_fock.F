@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.3 1995-12-29 02:04:12 vg038 Exp $
+C$Id: riscf_fock.F,v 1.4 1995-12-29 22:10:56 vg038 Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
@@ -252,7 +252,7 @@ C     at the moment a dummy (hoping for better memory control routines)
 C       memory cannot be determined
         riscf_nr_nu = 10
       else
-        call ga_igop ( 90462, localmem, 1, 'min' )
+        call ga_igop ( msg_riscf_mem, localmem, 1, 'min' )
         total = localmem / 8 * ga_nnodes()
 
         ndens = ( total - nbf**2 ) / ( 2 * nbf**2 )
