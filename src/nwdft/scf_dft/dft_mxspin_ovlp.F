@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(basis, noc, g_alpha, g_beta, g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.10 2002-01-07 21:14:57 d3k958 Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.11 2002-01-08 18:02:19 d3k958 Exp $
       Implicit none
       integer basis
       integer g_s              ! overlap
@@ -15,8 +15,11 @@ C$Id: dft_mxspin_ovlp.F,v 1.10 2002-01-07 21:14:57 d3k958 Exp $
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "util.fh"   
 c
 c     local
+c
+      logical oprint
 c
       integer me,nproc
 c
@@ -24,7 +27,7 @@ c
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
       integer g_ss, g_vt, g_u, g_t, k_vals, l_vals, noc(2), g_alphaT
       integer nalp, g_ualpha, k_unp, l_unp, l_part, k_part
-      integer nct, l_non, k_non, ind, g_a
+      integer nct, l_non, k_non, ind
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -58,9 +61,50 @@ c
       call ga_dgemm('N','N',nbf,nbf,nbf,1.d0,g_tmp,g_beta,0.d0,g_s)
 c
 c
-c-----------------------------------------------------------------
+      if(me.eq.0) then
+        write(LuOut, 9996)
+c        call ga_print(g_s)
+      endif
+      if(me.eq.0) then
+        jbig = 1         ! take care of compiler warnings
+        do i = 1, nbf
+c
+c         get row of g_s 
+c
+          call ga_get(g_s,i,i,1,nbf,DBL_MB(k_tmpr1),1)
+          prodbig=0.0d0
+          do j = 1, nbf
+            prodtmp = abs(dbl_mb(k_tmpr1+j-1))
+            if(prodtmp.gt.prodbig) then
+              prodbig = prodtmp
+              jbig = j
+            endif
+          enddo
+          dbl_mb(k_tmpr2+i-1) = prodbig
+          int_mb(k_tmpi1+i-1) = jbig
+        enddo
+        ichunks = nbf/10
+        if(ichunks*10.lt.nbf)ichunks = ichunks +1
+        do i = 1, ichunks
+          nbe = 10*(i-1) + 1
+          nend = nbe + 9
+          if(nend.gt.nbf)nend = nbf
+          write(LuOut,9997)(n,n=nbe,nend)
+          write(LuOut,9998)(int_mb(k_tmpi1+n-1),n=nbe,nend)
+          write(LuOut,9999)(dbl_mb(k_tmpr2+n-1),n=nbe,nend)
+        enddo
+      endif
+ 9996 format(/,1x,'  alpha - beta orbital overlaps ',/,
+     &         1x,'  ----------------------------- ',/)
+ 9997 format(/,1x,'  alpha ',10(1x,i5,1x))
+ 9998 format(  1x,'   beta ',10(1x,i5,1x))
+ 9999 format(  1x,'overlap ',10(f7.3),/)
+c
+c
+c -------------------------------------------------------------
 c If the number of occupied alpha orbitals is greater than the
 c number of occupied beta orbitals, print some useful information
+c about the un-paired alpha orbitals:
 c
       if (noc(1).gt.noc(2)) then
 c
@@ -86,6 +130,7 @@ c
       enddo !j
 c
       if(me.eq.0) then
+      write(6,*)
       write(6,*)'ALPHA/BETA PARTNERS'
       endif
 c
@@ -105,18 +150,21 @@ c
 c
 c determine which alpha orbitals are left over:
 c
+      call ga_sync()
       if(.not.MA_Push_Get(MT_int,noc(1)-noc(2),'non',l_non, k_non))
      &    call errquit('dft_mxspin_ovlp: cannot allocate values',0)
-      call ga_sync()
 c
       nct=1
       do 160 i = 1,noc(1)
       do 150 j = 1,noc(2)
         if(int_mb(k_part+j-1).EQ.i) goto 160
-        int_mb(k_non+nct-1) = i
+          if(nct.le.noc(1)-noc(2)) then
+            int_mb(k_non+nct-1) = i
+          endif 
   150 continue    
         nct = nct + 1
   160 continue
+c
       if(me.eq.0) then
       if (nct.GT.1) then
          write(6,9995) (int_mb(k_non+n-1),n=1,nct-1)
@@ -127,18 +175,11 @@ c
 c
 c print the un-partnered alpha orbitals
 c
-      call ga_sync()
-      if(.not.ga_create(mt_dbl,nbf,nct,'unp alpha',0,0,g_a))
-     $        call errquit('ga_create failed', g_a)
-c
       nct=nct-1
-      do i = 1,nct
-       ind = int_mb(k_non+i-1)
-       call ga_copy_patch('N',g_alpha,1,nbf,ind,ind
-     &         ,g_a,1,nbf,i,i)
-      enddo
 c
       call ga_sync()
+c
+      write(6,*)
       call movecs_print_anal(basis,int_mb(k_non),int_mb(k_non)
      & ,0.15d0,g_alpha,'Alpha Orbitals without Beta Partners',
      &   .false., 0.0 ,.false., 0 , .false., 0 )
@@ -152,10 +193,6 @@ c
       enddo
       endif
 c
-      if (.not. ga_destroy(g_a)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_a', 0)
-c
-c-----------------------------------------------------------------
 c Overlap Diagonalization
 c
 c SVD diagonalizes Sab*SabT (Sab is the S' calculated above). 
@@ -165,6 +202,11 @@ c with partners, the overlap is very nearly 1.0. For
 c un-partnered orbitals, the overlap is zero.
 c See J. Chem. Phys. (1967) 47, 1936.
 c
+      oprint = util_print('svd vectors', print_high)
+c
+c if the SVD vectors and overlap aren't desired in the output,
+c don't bother calculating them.
+      if (oprint) then
 c
 c calculate Sab*SabT
 c 
@@ -270,68 +312,47 @@ c
         endif
       enddo
       call ga_sync()
-c
-      if (.not. ga_destroy(g_alphaT)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_alphaT', 0)
-c
+
 c      call ga_print(g_ualpha)                 
 c
-c  resulting orbitals are printed after the alpha/beta overlap 
+c associate SVD transformed alpha orbitals with the original
+c alpha orbitals:
 c
-       endif !if na>nb
-c-----------------------------------------------------------------
+ 9990 format(/,18x,'THERE ARE',i3,1x,'UN-PARTNERED ALPHA ORBITALS')
+       write(6,9990) nalp
 c
-      if(me.eq.0) then
-        write(LuOut, 9996)
-c        call ga_print(g_s)
-      endif
-      if(me.eq.0) then
-        jbig = 1         ! take care of compiler warnings
-        do i = 1, nbf
-c
-c         get row of g_s 
-c
-          call ga_get(g_s,i,i,1,nbf,DBL_MB(k_tmpr1),1)
-          prodbig=0.0d0
-          do j = 1, nbf
-            prodtmp = abs(dbl_mb(k_tmpr1+j-1))
-            if(prodtmp.gt.prodbig) then
-              prodbig = prodtmp
-              jbig = j
-            endif
-          enddo
-          dbl_mb(k_tmpr2+i-1) = prodbig
-          int_mb(k_tmpi1+i-1) = jbig
-        enddo
-        ichunks = nbf/10
-        if(ichunks*10.lt.nbf)ichunks = ichunks +1
-        do i = 1, ichunks
-          nbe = 10*(i-1) + 1
-          nend = nbe + 9
-          if(nend.gt.nbf)nend = nbf
-          write(LuOut,9997)(n,n=nbe,nend)
-          write(LuOut,9998)(int_mb(k_tmpi1+n-1),n=nbe,nend)
-          write(LuOut,9999)(dbl_mb(k_tmpr2+n-1),n=nbe,nend)
-        enddo
-      endif
- 9996 format(/,1x,'  alpha - beta orbital overlaps ',/,
-     &         1x,'  ----------------------------- ',/)
- 9997 format(/,1x,'  alpha ',10(1x,i5,1x))
- 9998 format(  1x,'   beta ',10(1x,i5,1x))
- 9999 format(  1x,'overlap ',10(f7.3),/)
-c
-c
-c -------------------------------------------------------------
-c  print alpha orbitals without beta partners which resulted
-c  from diagonalization above
-c
-      call ga_sync()
-c
-      if (noc(1).gt.noc(2)) then
        call movecs_print_anal(basis, 1, nalp, 0.15d0, g_ualpha,
      &'Alpha Orbitals without Beta Partners (after maximizing alpha/beta
      & overlap)', 
      &   .false., 0.0 ,.false., 0 , .false., 0 )
+c
+c print the SVD eigenvalues
+c 
+      call ga_sync()
+      if(me.eq.0) then
+      write(LuOut,9994)
+        ichunks = noc(1)/10
+        if(ichunks*10.lt.noc(1))ichunks = ichunks +1
+        do i = 1, ichunks
+          nbe = 10*(i-1) + 1
+          nend = nbe + 9
+          if(nend.gt.noc(1)) nend = noc(1)
+          write(LuOut,9997)(n,n=nbe,nend)
+          write(LuOut,9998)(n,n=nbe,nend)
+          write(LuOut,9999)(dbl_mb(k_vals+n-1),n=nbe,nend)
+        enddo
+        write(6,*)
+      endif
+c
+ 9994 format(/,1x,'  MAXIMIZED alpha - beta orbital overlaps ',/,
+     &         1x,'  --------------------------------------- ',/)
+c
+c
+      if (.not. ga_destroy(g_ualpha)) call errquit
+     &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0)
+c
+      if (.not. ga_destroy(g_alphaT)) call errquit
+     &   ('dft_mxspin_ovlp: could not destroy g_alphaT', 0)
 c
       if(.not.MA_Pop_Stack(l_unp))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
@@ -339,19 +360,19 @@ c
       if(.not.MA_Pop_Stack(l_vals))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
+c
+      endif !oprint
+c
       if(.not.MA_Pop_Stack(l_non))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c  
       if(.not.MA_Pop_Stack(l_part))
      & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
 c
-      if (.not. ga_destroy(g_ualpha)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0)
 c
-      endif
+      endif !if na>nb
 c
-c -------------------------------------------------------------
-c      call gadest(g_s)
+c---------------------------------------------------------------
       if (.not. ga_destroy(g_s)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_s', 0)
 c
