@@ -1,6 +1,6 @@
       Subroutine localize_sic(g_movecs, noc, evals)
 c
-C$Id: localize_sic.F,v 1.6 2000-06-09 23:10:28 jolguin Exp $
+C$Id: localize_sic.F,v 1.7 2003-03-07 01:11:38 edo Exp $
 c
       implicit none
 c      
@@ -76,7 +76,7 @@ c
      $          nbf, 1, g_sc)) call errquit('g_sc_loc_sic',0)
            do x = 1, 3
              call ga_dgemm('n', 'n', nbf, nbf, nbf, 
-     $                     1.0d0, g_uc(x), g_movecs, 0.0d0, g_sc)
+     $                     1.0d0, g_uc(x), g_movecs(isp), 0.0d0, g_sc)
              call ga_copy_patch('n',g_sc,1,nbf,1,nbf,g_uc(x),1,
      &                           nbf,1,nbf)
            end do
