@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c     
 c*********************************************************************
       subroutine dft_inpana(rtdb)
-C     $Id: dft_inpana.F,v 1.22 1997-03-18 01:18:10 d3h449 Exp $
+C     $Id: dft_inpana.F,v 1.23 1997-03-28 18:53:41 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -143,15 +143,24 @@ c
             if(idirect.eq.1)write(LuOut,9110)
             if(nbf_xc.gt.0)write(LuOut,9120)
             if(nbf_cd.gt.0)write(LuOut,9130)
-            write(LuOut,9135)gridtype
-            if(iangquad.eq.0)then
-              write(LuOut,9136)nradpts,nagrid,2*nagrid
-            else
-              write(LuOut,9137)nradpts,nang_leb_pts
-            endif
             write(LuOut,9035)e_conv
             if(d_conv.gt.0)then
                write(LuOut,9040)d_conv
+            endif
+            write(LuOut,9135)gridtype
+            write(LuOut,9136)
+            if(iangquad.eq.0)then
+              write(LuOut,9137)nradpts,nagrid,2*nagrid
+            else
+              write(LuOut,9138)nradpts,nang_leb_pts
+            endif
+            if (ldelley)then
+               write(LuOut,9139)
+            else
+               write(LuOut,9140)
+            endif
+            if (nquad_task.ne.1)then
+               write(LuOut,9141)
             endif
 c     
 c     Write out XC info. Combo info first, than X components,
@@ -267,9 +276,18 @@ c
  9120 format(10x,'An Exch-Corr fitting basis will be used.',/)
  9130 format(10x,'A Charge density fitting basis will be used.',/)
  9135 format(10x,'Grid used for XC integration:  ',a)
- 9136 format(14x,i4,' radial pts. ',i3,' theta pts. ',i3,' phi pts.',/)
- 9137 format(14x,i4,' radial pts. ',i3,' angular pts.',/)
- 9222 format(10x,'Exchange-Correlation Functional Information',/,
+ 9136 format(14x,'radial quadrature: Euler-MacLaurin, ')
+ 9137 format(14x,'angular quadrature: Gauss-Legendre, with ',/,
+     &       14x,i4,' radial points, ',i3,' theta points, and ',
+     &           i3,' phi points.')
+ 9138 format(14x,'angular quadrature: Lebedev, with ',/,
+     &       14x,i4,' radial points and ',
+     &           i3,' angular points.')
+ 9139 format(14x,'spatial weights used: Delley. ')
+ 9140 format(14x,'spatial weights used: Becke. ')
+ 9141 format(14x,'parallel task size associated with evaluation of ',/,
+     &           'grid based components has been modified to: ',i2)
+ 9222 format(//,10x,'Exchange-Correlation Functional Information',/,
      &     10x,43('-'))
  9223 format(10x,a40)
  9224 format(10x,a40,1x,f6.2,1x,a9)
