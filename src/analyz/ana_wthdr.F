@@ -1,6 +1,6 @@
-      subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel)
+      subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel,logw)
 c
-c $Id: ana_wthdr.F,v 1.15 2000-07-31 22:51:51 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.16 2001-03-08 18:48:09 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,7 @@ c
       character*4 cnum
       character*255 fname
       character*24 tag(msa,2)
+      logical logw
 c
       character*80 label
 c
@@ -81,19 +82,23 @@ c
       rewind(44)
       read(44,4401) nwa,nsa,nsb,nwb
 c      if(nsa.eq.nsel) then
+      if(logw) then
       write(iunit,4401) nwa,nsa,nsb,nwb,nwm
+      else
+      write(iunit,4401) nwa,nsa,nsb,nwb,0
+      endif
 c      else
 c      write(iunit,4401) nwa,nsel,0,0,0
 c      endif
  4401 format(5i10)
       do 1 i=1,nwa
       read(44,4402) cwa
- 4402 format(a16,i10)
+ 4402 format(a16,i10,i5)
       write(iunit,4402) cwa,i
     1 continue
       do 2 i=1,nsa
       read(44,4402) cwa
-      write(iunit,4402) cwa,i
+      write(iunit,4402) cwa,i,isel(i)
     2 continue
 c      if(nsa.eq.nsel) then
       do 3 i=1,nsb+nwb

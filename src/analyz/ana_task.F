@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.61 2001-02-22 18:42:13 d3j191 Exp $
+c $Id: ana_task.F,v 1.62 2001-03-08 18:47:57 d3j191 Exp $
 c
       implicit none
 c
@@ -624,7 +624,7 @@ c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
       call ana_wthdr(lfncop,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel))
+     + int_mb(i_isel),.true.)
 c
       nread=0
       nwrit=0
@@ -671,7 +671,7 @@ c     write header
 c
       call ana_rdhdr(byte_mb(i_snam))
       call ana_wthdr(lfnsup,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel))
+     + int_mb(i_isel),.true.)
 c
       nread=0
       nwrit=0
@@ -1104,7 +1104,7 @@ c
       endif
 c
       call ana_wthdr(lfnprj,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel))
+     + int_mb(i_isel),.false.)
 c
       k=int_mb(i_ord+ivec-1)
       call ga_get(ga_vec,1,3*nsel,k,k,dbl_mb(i_cov),1)
