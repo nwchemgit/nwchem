@@ -1,6 +1,6 @@
       subroutine tce_tile
 c
-c $Id: tce_tile.F,v 1.11 2002-11-20 05:03:06 sohirata Exp $
+c $Id: tce_tile.F,v 1.12 2002-11-21 01:11:57 sohirata Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -33,6 +33,13 @@ c
       character*4 irrepname
       character*5 spinname(2)
       data spinname/'alpha','beta '/
+c
+c     For orbital rotation test
+c
+      integer l_unitary, k_unitary
+      integer l_movecs_rotated, k_movecs_rotated
+      integer n, orb1, orb2
+      double precision angle
 c
 c     ====================
 c     Retrieve Memory Info
@@ -376,9 +383,70 @@ c
      1         1x,'-------------------------------------------------')
  9060 format(1x,i3,4x,a5,5x,a4,i4,' doubles',i8,i8)
 c
-c     ======
-c     Return
-c     ======
+c     =============================================
+c     Test for a unitary transformation of orbitals
+c     =============================================
+c
+c     n = nmo(1)-nfv(1)-nfc(1)+nmo(ipol)-nfv(ipol)-nfc(ipol)
+c     if (nodezero) then
+c       write(LuOut,*)
+c       write(LuOut,*) " *************************************"
+c       write(LuOut,*) " !!! CAUTION !!! Orbitals rotation !!!"
+c       write(LuOut,*) " !!! CAUTION !!! Turn off symmetry !!!"
+c       write(LuOut,*) " !!! CAUTION !!! Spin unrestricted !!!"
+c       write(LuOut,*) " *************************************"
+c       write(LuOut,*) " Jacobi can diverge even when the "
+c       write(LuOut,*) " theory is intrinsically invariant"
+c     endif
+c     if (.not.ma_push_get(mt_dbl,n*n,"Unitary",
+c    1  l_unitary,k_unitary)) call errquit("tce_tile: MA problem",-1)
+c     if (.not.ma_push_get(mt_dbl,nbf*n,"rotated MO coeffs",
+c    2  l_movecs_rotated,k_movecs_rotated))
+c    3  call errquit("tce_tile: MA problem",-2)
+c     call ma_print(dbl_mb(k_movecs_sorted),nbf,n,
+c    1  "Original MO coeffs")
+c
+c     Change from here ---------------------------------
+c
+c     orb1 = 4
+c     orb2 = 5
+c     angle = datan(1.0d0)*1.0d0
+c
+c     ------------------------------------------ to here
+c
+c     do i = 1,n
+c       do j = 1,n
+c         dbl_mb(k_unitary+(i-1)*(n)+j-1) = 0.0d0
+c       enddo
+c       dbl_mb(k_unitary+(i-1)*(n)+i-1) = 1.0d0
+c     enddo
+c     dbl_mb(k_unitary+(orb1-1)*n+orb1-1) = dcos(angle)
+c     dbl_mb(k_unitary+(orb1-1)*n+orb2-1) = dsin(angle)
+c     dbl_mb(k_unitary+(orb2-1)*n+orb1-1) = - dsin(angle)
+c     dbl_mb(k_unitary+(orb2-1)*n+orb2-1) = dcos(angle)
+c     call dgemm('N','N',nbf,n,n,1.0d0,
+c    1  dbl_mb(k_movecs_sorted),nbf,dbl_mb(k_unitary),n,
+c    2  0.0d0,dbl_mb(k_movecs_rotated),nbf)
+c     do i = 1,nbf
+c       do j = 1,n
+c         dbl_mb(k_movecs_sorted+(i-1)*n+j-1) = 
+c    1    dbl_mb(k_movecs_rotated+(i-1)*n+j-1)
+c       enddo
+c     enddo
+c     write(LuOut,*) " Orbitals ",orb1," and ",orb2," are rotated by ",
+c    1  angle
+c     call ma_print(dbl_mb(k_unitary),n,n,
+c    1  "Unitary rotation")
+c     call ma_print(dbl_mb(k_movecs_sorted),nbf,n,
+c    1  "Rotated MO coeffs")
+c     if (.not.ma_pop_stack(l_movecs_rotated))
+c    1  call errquit("tce_tile: MA problem",-3)
+c     if (.not.ma_pop_stack(l_unitary))
+c    1  call errquit("tce_tile: MA problem",-4)
+c
+c     ========
+c     Test end
+c     ========
 c
       return
       end

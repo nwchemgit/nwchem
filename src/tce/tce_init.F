@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.18 2002-11-20 05:03:06 sohirata Exp $
+c $Id: tce_init.F,v 1.19 2002-11-21 01:11:57 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -180,14 +180,26 @@ c
       if (.not.rtdb_get(rtdb,'tce:frozen virtual',
      1  mt_int,1,nfv(1))) nfv(1) = 0
       if (ipol.eq.2) nfv(2) = nfv(1)
-      if (.not.rtdb_cget(rtdb,'tce:model',1,model))
-     1  call errquit('tce_init: failed to read model',0)
-      if (.not.rtdb_get(rtdb,'tce:thresh',mt_dbl,1,thresh))
-     1  call errquit('tce_init: failed to read thresh',0)
-      if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter))
-     1  call errquit('tce_init: failed to read maxiter',0)
-      if (.not.rtdb_get(rtdb,'tce:ioalg',mt_int,1,ioalg))
-     1  call errquit('tce_init: failed to read ioalg',0)
+      if (.not.rtdb_cget(rtdb,'tce:model',1,model)) then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1  call errquit('tce_init: failed to write model',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:thresh',mt_dbl,1,thresh)) then
+        thresh = 1.0d-6
+        if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
+     1  call errquit('tce_init: failed to write thresh',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter)) then
+        maxiter = 100
+        if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
+     1  call errquit('tce_init: failed to write maxiter',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:ioalg',mt_int,1,ioalg)) then
+        ioalg = 2
+        if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
+     1  call errquit('tce_init: failed to write ioalg',0)
+      endif
 c
 c     ----------------------
 c     2-e integral tolerance
