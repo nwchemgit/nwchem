@@ -8,7 +8,7 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
-      integer i,xx
+      integer i
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
       integer sym_lo_va(0:*),sym_hi_va(0:*)
@@ -38,6 +38,7 @@
       parameter(msg_p_ab_b_sum=9997)
       double precision eval_a(*),eval_b(*)
       double precision eaa,eab,e2back
+      integer tcounta,tcountb
 c     
       eaa=0.0d0
       eab=0.0d0
@@ -61,12 +62,13 @@ c
          do a_a=nva_lo_local,nva_hi_local 
             syma=irs_a(a_a)
             symia=ieor(syma,symi)
+            tcounta=1
             do b=nva_lo,nva_hi
                symb=irs_a(b)
                symj=ieor(symb,symia)
                if(num_oa(symj).ne.0)then
                   counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                  call getwa(tunita,t_a(sym_lo_oa(symj)),
+                  call getwa(tunita,t_a(tcounta),
      $                 tunitptra,counta,ierr)
                   if(ierr.ne.0)call errquit(
      $                 'problem reading t_a back in',ierr)
@@ -74,17 +76,20 @@ c
                   do j=sym_lo_oa(symj),sym_hi_oa(symj)
                      denom=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
-                     eaa=eaa+t_a(j)*t_a(j)*denom
+                     eaa=eaa+t_a(tcounta+j-sym_lo_oa(symj))
+     $                    *t_a(tcounta+j-sym_lo_oa(symj))*denom
                   enddo
+                  tcounta=tcounta+counta
                endif
             enddo
+            tcountb=1
             do b=nvb_lo,nvb_hi
                symb=irs_b(b)
                syma=irs_a(a_a)
                symj=ieor(symb,ieor(symi,syma))
                if(num_ob(symj).ne.0)then
                   countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                  call getwa(tunitb,t_b(sym_lo_ob(symj)),
+                  call getwa(tunitb,t_b(tcountb),
      $                 tunitptrb,countb,ierr)
                   if(ierr.ne.0)call errquit(
      $                 'problem reading t_b back in',ierr)
@@ -92,31 +97,41 @@ c
                   do j=sym_lo_ob(symj),sym_hi_ob(symj)
                      denom=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)
-                     eab=eab+t_b(j)*t_b(j)*denom
+                     eab=eab+t_b(tcountb+j-sym_lo_ob(symj))
+     $                    *t_b(tcountb+j-sym_lo_ob(symj))*denom
                   enddo
+                  tcountb=tcountb+countb
                endif
             enddo
+            tcounta=1
+            tcountb=1
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
                   call dgemm('n','t',num_oa(symj),
      $                 num_oa(symj),num_va(symb),mhalf,
-     $                 t_a,num_oa(symj),t_a,num_oa(symj),
-     $                 zero,p_ij_a,num_oa(symj))
+     $                 t_a(tcounta),num_oa(symj),
+     $                 t_a(tcounta),num_oa(symj),
+     $                 one,p_ij_a,num_oa(symj))
                   call dgemm('t','n',num_va(symb),
      $                 num_va(symb),num_oa(symj),half,
-     $                 t_a,num_oa(symj),t_a,num_oa(symj),
-     $                 zero,p_ab_a,num_va(symb))
+     $                 t_a(tcounta),num_oa(symj),
+     $                 t_a(tcounta),num_oa(symj),
+     $                 one,p_ab_a,num_va(symb))
+                  tcounta=tcounta+num_oa(symj)*num_va(symb)
                endif
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   call dgemm('n','t',num_ob(symj),
      $                 num_ob(symj),num_vb(symb),mhalf,
-     $                 t_b,num_ob(symj),t_b,num_ob(symj),
-     $                 zero,p_ij_b,num_ob(symj))
+     $                 t_b(tcountb),num_ob(symj),
+     $                 t_b(tcountb),num_ob(symj),
+     $                 one,p_ij_b,num_ob(symj))
                   call dgemm('t','n',num_vb(symb),
      $                 num_vb(symb),num_ob(symj),half,
-     $                 t_b,num_ob(symj),t_b,num_ob(symj),
-     $                 zero,p_ab_b,num_vb(symb))
+     $                 t_b(tcountb),num_ob(symj),
+     $                 t_b(tcountb),num_ob(symj),
+     $                 one,p_ab_b,num_vb(symb))
+                  tcountb=tcountb+num_ob(symj)*num_vb(symb)
                endif
             enddo
          enddo
@@ -134,11 +149,23 @@ c
       call ga_dgop(msg_p_ij_b_sum,p_ij_b,nob*nob,'+')
       call ga_dgop(msg_p_ab_b_sum,p_ab_b,nvb*nvb,'+')
       call ga_sync()
+c$$$      write(6,*) 'p_ij_a'
+c$$$      call output(p_ij_a,1,noa,1,noa,noa,noa,1)
+c$$$      write(6,*) 'p_ij_b'
+c$$$      call output(p_ij_b,1,nob,1,nob,nob,nob,1)
+c$$$      write(6,*) 'p_ab_a'
+c$$$      call output(p_ab_a,1,nva,1,nva,nva,nva,1)
+c$$$      write(6,*) 'p_ab_b'
+c$$$      call output(p_ab_b,1,nvb,1,nvb,nvb,nvb,1)
       if(ga_nodeid().eq.0)then
          call ga_put(g_p_ij_a,1,noa,1,noa,p_ij_a,noa)
          call ga_put(g_p_ij_b,1,nob,1,nob,p_ij_b,nob)
          call ga_put(g_p_ab_a,1,nva,1,nva,p_ab_a,nva)
-         call ga_put(g_p_ab_b,1,nvb,1,nvb,p_ij_a,nvb)
+         call ga_put(g_p_ab_b,1,nvb,1,nvb,p_ab_b,nvb)
+c$$$      call ga_print(g_p_ij_a)
+c$$$      call ga_print(g_p_ij_b)
+c$$$      call ga_print(g_p_ab_a)
+c$$$      call ga_print(g_p_ab_b)
       endif
       end
       

@@ -36,7 +36,7 @@
       integer pass
       integer noa,nob,nva,nvb
       integer noper_a,noper_b
-      double precision tol2e,e2,e2back
+      double precision tol2e,e2,e2back,trace
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
@@ -214,6 +214,7 @@ c
 c     
       e2=0.0d0
       e2back=0.0d0
+      trace=0.0d0
       if(scftype.eq.'RHF')then
          call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
@@ -284,7 +285,7 @@ c$$$      call ga_zero(g_lai_b)
      $        pass,e2back,oblk,
      $        dbl_mb(k_p_ij_a),dbl_mb(k_p_ij_b),dbl_mb(k_p_ab_a),
      $        dbl_mb(k_p_ab_b),g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
-     $        g_lai_a,g_lai_b)
+     $        g_lai_a,g_lai_b,trace)
          pass=2
          call mp2_grad_uhf(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
@@ -295,7 +296,7 @@ c$$$      call ga_zero(g_lai_b)
      $        pass,e2back,oblk,
      $        dbl_mb(k_p_ij_b),dbl_mb(k_p_ij_a),dbl_mb(k_p_ab_b),
      $        dbl_mb(k_p_ab_a),g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
-     $        g_lai_b,g_lai_a)
+     $        g_lai_b,g_lai_a,trace)
       endif
 c     
 c$$$      call mp2_lai_fock_uhf(geom,basis,g_p_ab_a,g_p_ab_b,g_p_ij_a,
@@ -303,8 +304,12 @@ c$$$     $     g_p_ij_b,g_vecs_a,g_vecs_b,noa,nob,nva,nvb,g_lai_a,g_lai_b)
 c     
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ', e2
       if(ga_nodeid().eq.0.and.task.eq.'gradient')
-     $     write(6,*) 'E2 read back = ',e2back
+     $     write(6,*) 'trace of weighted density = ',trace
 c     
+c$$$      call ga_print(g_p_ij_a)
+c$$$      call ga_print(g_p_ij_b)
+c$$$      call ga_print(g_p_ab_a)
+c$$$      call ga_print(g_p_ab_b)
       if(.not.ga_destroy(g_p_ij_a))call errquit(
      $     'could not destroy p_ij_a handle',1)
       if(.not.ga_destroy(g_p_ij_b))call errquit(
