@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.40 2004-04-21 06:32:02 marat Exp $
+* $Id: task_gradient.F,v 1.41 2004-04-21 23:27:29 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -82,9 +82,10 @@ c
          endif
       endif
 c
-      if(rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
-        call cons_add_egrad(rtdb,energy,gradient)
+      if(.not.rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
+        ocons = .false.
       end if
+      if(ocons)  call cons_add_egrad(rtdb,energy,gradient)
 c
       if (status) then
          call geom_print_rtdb_ecce(rtdb)
@@ -138,7 +139,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.40 2004-04-21 06:32:02 marat Exp $
+* $Id: task_gradient.F,v 1.41 2004-04-21 23:27:29 marat Exp $
 *
       implicit none
 #include "errquit.fh"

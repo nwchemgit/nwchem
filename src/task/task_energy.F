@@ -58,9 +58,10 @@ c
             endif
          endif
       endif
-      if(rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
-        call cons_add_energy(rtdb,energy)
+      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
+        ocons=.false.
       end if
+      if(ocons) call cons_add_energy(rtdb,energy)
 
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
      $     call errquit('task_energy: failed storing energy',0,
@@ -93,7 +94,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.39 2004-04-21 06:32:02 marat Exp $
+* $Id: task_energy.F,v 1.40 2004-04-21 23:27:29 marat Exp $
 *
       implicit none
 #include "errquit.fh"
