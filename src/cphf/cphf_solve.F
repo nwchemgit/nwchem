@@ -41,10 +41,12 @@ c
      $     ga_nodeid() .eq. 0
       oprint_solve = util_print('solve',print_default)
 c     
+c
       call scf_init(rtdb)
       call int_normalize(basis)
       call int_init(rtdb,1,basis)
       call schwarz_init(geom, basis)
+      oskel=sym_number_ops(geom).gt.0
       call int_1e_cache_ga(basis,oskel)
       call scf_vectors_guess(rtdb)
 c
@@ -92,7 +94,6 @@ c
 c
 c     Compute necessary Fock matrices
 c
-      oskel=sym_number_ops(geom).gt.0
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
