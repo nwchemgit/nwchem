@@ -7,21 +7,24 @@ Integer *clen, *flen;
 char *cstr;
 char *fstr;
 {
+    int flenl, clenl;
+
+    flenl = *flen; clenl = *clen;
     /* remove trailing blanks from fstr */
-    while ((*flen)-- && fstr[*flen] == ' ') ;
+    while (flenl-- && fstr[flenl] == ' ') ;
 
     /* the postdecrement above went one too far */
-    (*flen)++;
+    flenl++;
 
     /* truncate fstr to cstr size */
-    if (*flen >= *clen)
-        *flen = *clen - 1;
+    if (flenl >= clenl)
+        flenl = clenl - 1;
 
     /* ensure that cstr is NUL-terminated */
-    cstr[*flen] = '\0';
+    cstr[flenl] = '\0';
 
     /* copy fstr to cstr */
-    while ((*flen)--)
-        cstr[*flen] = fstr[*flen];
+    while (flenl--)
+        cstr[flenl] = fstr[flenl];
 
 }
