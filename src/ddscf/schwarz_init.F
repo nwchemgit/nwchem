@@ -84,7 +84,7 @@ c
                      jdim = jsh_bfhi - jsh_bflo + 1
 c     
                      call int_2e4c(basis, ish, jsh, basis, ish, jsh,
-     $                    dbl_mb(k_scr), mem2, max2e, dbl_mb(k_g))
+     $                    mem2, dbl_mb(k_scr), max2e, dbl_mb(k_g))
 c     
                      sh_max = 0.0d0
                      numint = idim*jdim*idim*jdim
