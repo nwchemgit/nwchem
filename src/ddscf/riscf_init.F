@@ -1,0 +1,207 @@
+      logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
+     $        tol2e)
+C$Id: riscf_init.F,v 1.1 1995-05-22 22:28:26 vg038 Exp $
+
+C     calculate three center ERIs, transform them with V**(-1/2)
+C     (V-approximation: V(i,j)=(i|j))
+C
+C     parameters:
+C     geom:      geometry handle [input]
+C     ao_basis:  basis set handle (AO) [input]
+C     ri_basis:  basis set handle (fit) [input]
+C     tol2e:     integral threshold [input]
+C     g_three:   global array handle for transformed three-center ERIs [output]
+C 
+      implicit double precision (a-h,o-z)
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "schwarz.fh"
+#include "pstat.fh"
+#include "cscfps.fh"
+
+      integer rtdb, geom, ao_basis, ri_basis, g_three, g_Vsqrt, g_indx,
+     $        bases(2), bfsquare
+      double precision tol2e, MinEval
+      logical status, riscf_put_3c_ints, Mk_Fit_Xf
+
+C     get basis set information
+      status = bas_numbf (ao_basis, nbf)
+      if (.not.status) call errquit ('RI-SCF: can''t get nbf', 110)
+      status = bas_numbf (ri_basis, Nff)
+      if (.not.status) call errquit ('RI-SCF: can''t get Nff', 110)
+      status = bas_nbf_cn_max (ao_basis, max_bf_ao)
+      if (.not.status) call errquit ('RI-SCF: can''t get max_bf_ao', 11)
+      bfsquare = max_bf_ao * max_bf_ao
+      status = bas_nbf_cn_max (ri_basis, max_bf_ri)
+
+C     initialize for integral calculation
+      bases(1) = ao_basis
+      bases(2) = ri_basis
+      call int_normalize (ri_basis)
+      call int_init (rtdb, 2, bases)
+      call schwarz_init(geom, ao_basis)
+
+C  get memory from integral API
+      call int_mem_2e3c (lbuf, lscr)
+
+C     calculate V**(-1/2) with Daves routine
+      MinEval = 1.D-8
+      if (oscfps) call pstat_on(ps_vhalf)
+      status = Mk_Fit_Xf('V', 'Y', ri_basis, MinEval, g_Vsqrt)
+      if (oscfps) call pstat_off(ps_vhalf)
+      if (.not. status) call errquit ('error creating V**-1/2',110)
+
+C     temporary arrays (local and global)
+C     integral buffer
+      status = ma_alloc_get (MT_DBL, lbuf, 'RI buffer', l_buf, k_buf)
+      if (.not.status) 
+     $     call errquit ('RI-SCF: can''t get buffer space',110)
+C     scratch space
+      lscr = max (lscr, bfsquare*Nff) !reuse for transformed 3c-ints
+      status = ma_alloc_get (MT_DBL, lscr, 'RI scratch', l_scr, 
+     $                       k_scr)
+      if (.not.status) 
+     $     call errquit ('RI-SCF: can''t get scratch space',110)
+C     (ij|t) for one block of ij
+      status = ma_alloc_get (MT_DBL, bfsquare*Nff, 'RI T',
+     $                       l_T_tmp, k_T_tmp)
+      if (.not.status) 
+     $     call errquit ('RI-SCF: can''t get temporary space',110)
+C     local block of V**(-1/2)
+      status = ma_alloc_get (MT_DBL, max_bf_ri*Nff,'RI V_row',
+     $                       l_V_row, k_V_row)
+      if (.not.status) call errquit ('RI-SCF: can''t get V_row',110)
+
+C     get and fill indexing array, determine space needed for 3c-ERIs
+      if (oscfps) call pstat_on(ps_index)
+      status = bas_check_handle(ao_basis,'RI: ao_basis: invalid handle')
+      status = bas_check_handle(ri_basis,'RI: ri_basis: invalid handle')
+      status = bas_numcont (ao_basis, nsh)
+      status = bas_numcont (ri_basis, nsh_F)
+      nsqhalf = (nsh*(nsh+1))/2
+      status = ga_create (MT_INT, nsh, nsh,'3c index', nsh, 1, g_indx)
+*     status = ga_create (MT_INT, nsh, nsh,'3c index', 1, nsh, g_indx)
+      if (.not.status) call errquit ('RI-SCF: can''t get indx arr.',110)
+C     does this work for integer arrays?
+      call ga_zero (g_indx)
+      call riscf_make_index (g_indx, npair,nsh,nsqhalf,tol2e,ao_basis)
+      if (oscfps) call pstat_off(ps_index)
+      
+C     transformed 3-center integrals
+      status = ga_create (MT_DBL, npair, Nff, '3c-eri', npair, 1, 
+     $                    g_three )
+*     status = ga_create (MT_DBL, npair, Nff, '3c-eri', 1, npair, 
+*    $                    g_three )
+      if (.not.status) 
+     $     call errquit ('RI-SCF: can''t create global 3c-ERIs',110)
+
+      if (oscfps) call pstat_on(ps_transform)
+      call ga_zero (g_three)
+
+      call riscf_trans_int (g_three, ao_basis, nsh, nbf, nsqhalf,
+     $     bfsquare,
+     $     ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, tol2e, 
+     $     g_indx, 
+     $     dbl_mb(k_V_row), dbl_mb(k_T_tmp), dbl_mb(k_buf), lbuf, 
+     $     dbl_mb(k_scr), lscr)
+      if (oscfps) call pstat_off(ps_transform)
+
+      status = riscf_put_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
+     $     npair)
+      if (.not.status) 
+     $     call errquit ('RI-SCF: can''t put 3c-ERIS in list',110)
+
+C     free the temporary arrays
+      status = ma_free_heap ( l_V_row )
+      status = status .and. ma_free_heap ( l_T_tmp )
+      status = status .and. ma_free_heap ( l_scr )
+      status = status .and. ma_free_heap ( l_buf )
+      status = status .and. ga_destroy ( g_Vsqrt )
+      if (.not.status)
+     $     call errquit ('RI-SCF: problem freeing arrays',110)
+
+C     destroy integral setup for expansion basis
+      call int_terminate()
+      call schwarz_tidy()
+
+      riscf_init = status
+
+      return
+
+      end
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+      subroutine riscf_make_index (g_indx, npair, nsh, nsqhalf, tol2e,
+     $     ao_basis)
+
+      implicit double precision (a-h,o-z)
+      integer g_indx, nsh, ao_basis
+      logical status
+#include "tcgmsg.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "schwarz.fh"
+#include "bas.fh"
+#include "msgids.fh"
+
+      me = nodeid()
+      nproc = nnodes()
+
+      status = ma_alloc_get (MT_INT, nsh,'RI indices', l_indx, k_indx)
+      if (.not. status) call errquit ('couldn''t get local index array',
+     $     110)
+      npair = 0
+      do i=1, nsh
+        if ( mod(i,nproc) .eq. me ) then
+          call ifill (i, 0, int_mb(k_indx), 1)
+          do j=1, i
+            if (schwarz_shell (i,j) .gt. tol2e) then
+              status = bas_cn2bfr(ao_basis, i, ifirst, ilast)
+              nfi = ilast - ifirst + 1
+              if ( i.ne.j ) then
+                status = bas_cn2bfr(ao_basis, j, jfirst, jlast)
+                nfj = jlast - jfirst + 1
+                int_mb(k_indx+j-1) = nfi * nfj
+              else
+                int_mb(k_indx+j-1) = nfi*(nfi+1)/2
+              endif
+              npair = npair + int_mb(k_indx+j-1)
+            endif
+          enddo
+          call ga_put (g_indx, 1, i, i, i, int_mb(k_indx), i)
+C         only one of them is probably necessary
+C         check distribution (ga_create above)
+        endif
+      enddo
+      call ga_sync()
+
+C     sum up
+C     is there a way to do it in parallel?
+      icount = 0
+      isum = 1
+      if (me .eq. 0) then
+        do i=1, nsh
+          call ga_get (g_indx, 1, i, i, i, int_mb(k_indx), i)
+          do j=0, i-1
+            if ( int_mb(k_indx+j) .gt. 0 ) then
+              icount = icount+1
+              idum = int_mb(k_indx+j)
+              int_mb(k_indx+j) = isum !starting point in compressed (i,j)
+              isum = isum + idum
+            endif
+          enddo
+          call ga_put (g_indx, 1, i, i, i, int_mb(k_indx), i)
+          if ( i .gt. 1 ) then
+            call ga_put (g_indx, i, i, 1, i-1, int_mb(k_indx), 1)
+          endif
+        enddo
+        npair = isum - 1
+      endif
+      len = mitob(1)
+      call brdcst (Msg_3c_index, npair, len, 0)
+
+      status = ma_free_heap (l_indx)
+
+      return
+      end

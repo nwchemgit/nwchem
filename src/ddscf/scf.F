@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.26 1995-04-05 19:51:44 d3g681 Exp $
+C$Id: scf.F,v 1.27 1995-05-22 22:28:30 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -28,8 +28,8 @@ c
       character*255 name
 c
       integer natoms
-      logical rohf, uhf
-      external rohf, uhf
+      logical rohf, uhf, riscf_init
+      external rohf, uhf, riscf_init
 c
 c     Make sure database is parallel, push context down to SCF,
 c     and initialize performance statistics
@@ -41,14 +41,14 @@ c
       call util_print_rtdb_load(rtdb, 'scf')
       oprint = util_print('information', print_low)
 c
-c     Initialize performance statistics
-c
-      call scf_pstat_init(rtdb)
-c
 c     Extract high level info from the data-base setting defaults
 c     return parameters here and also shoving stuff into commons
 c
       call scf_init(rtdb)
+c
+c     Initialize performance statistics
+c
+      call scf_pstat_init(rtdb)
 c
 c     Print info
 c 
@@ -112,10 +112,29 @@ c
          call util_flush(6)
       endif
 c
+      call int_normalize(basis)
+c
+c     initialize for RI and calculate 3c integrals if necessary
+c
+      if (nriscf.gt.0) then
+        status = riscf_init(rtdb, geom, basis, riscf_basis, tol2e)
+        if (.not. status) call errquit('scf: riscf_init failed', 0)
+        if (ga_nodeid().eq.0 .and. oprint) then
+          if (nriscf.eq.1) then
+            call util_print_centered(6, 'RI hessian', 40, .true.)
+          else if (nriscf.eq.2) then
+            call util_print_centered(6, 'RISCF', 40, .true.)
+          else if (nriscf.eq.3) then
+            call util_print_centered(6, 'preconverge with RISCF', 40, 
+     $           .true.)
+          endif
+          write(6,*)
+        endif
+      endif
+c
 c     Initialize integral library, schwarz screening
 c
       call int_init(rtdb,1, basis)
-      call int_normalize(basis)
       call schwarz_init(geom, basis)
 c
 c     Form intial guess vectors
@@ -130,6 +149,22 @@ c
          converged = uhf(rtdb, energy)
       else
          converged = rohf(rtdb, energy)
+      endif
+c
+c     reconverge with exact energy/gradient if requested
+c
+      if (nriscf.eq.3) then
+        if (ga_nodeid().eq.0 .and. oprint) then
+          call util_print_centered(6,
+     $         'switching to exact energy/gradient', 40, .true.)
+          write(6,*)
+        endif
+        nriscf = 1
+        if (scftype .eq. 'UHF') then
+          converged = uhf(rtdb, energy)
+        else
+          converged = rohf(rtdb, energy)
+        endif
       endif
 c
 c     Store energy and convergence status ... not sure if better to
@@ -152,6 +187,9 @@ c
 c     SCF is done ... tidy up memory etc.
 c
       call scf_tidy
+      if (nriscf.ne.0) then
+        call riscf_tidy
+      endif
 c
 c     Nothing else for now ... return convergence status
 c
@@ -161,4 +199,6 @@ c
 c
       call scf_pstat_print
 c
+CHF
+      status = rtdb_print(rtdb,0)
       end

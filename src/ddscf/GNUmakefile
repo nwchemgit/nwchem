@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.34 1995-05-22 14:18:49 d3g681 Exp $
+# $Id: GNUmakefile,v 1.35 1995-05-22 22:28:23 vg038 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -14,6 +14,7 @@
 	ga_create_cont_blocked.o \
         matrix_exp.o              scf_pstat.o \
         schwarz_max.o             movecs_project.o \
+        ao_fock_2e.o \
 	fock_2e.o                 \
 	fock_2e_a.o               \
 	fock_2e_b.o               \
@@ -29,8 +30,12 @@
         rohf_fock2grad.o        scf_movecs.o \
         rohf_hessv_1e.o         rohf_hessv_2e.o \
         rohf_dens.o             movecs_fix_phase.o \
+        riscf_fock_2e.o         riscf_init.o \
+        riscf_list.o            riscf_tidy.o \
+        riscf_trans_int.o \
         uhf.o                   fock_2e_report.o fock_2e_task.o \
         print_integ_list.o
+
 
 
 
@@ -45,14 +50,14 @@
                 fock_density_screen.o \
 		schwarz_atom.o \
 		comp4_extract.o \
-                int2e_file.o \
-                schwarz_shell.o
+		schwarz_shell.o \
+                riscf_square.o \
+                int2e_file.o 
 
       LIBRARY =	libddscf.a
 
     USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F k2cf.F \
-                uhf.F scf_movecs.F scf_vectors_guess.F int2e_file.F
-
+                uhf.F scf_movecs.F scf_vectors_guess.F riscf_trans_int int2e_file.F
 
 #
  LIB_DEFINES = 

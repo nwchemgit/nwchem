@@ -1,6 +1,6 @@
       block data dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.13 1995-03-01 01:18:25 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.14 1995-05-22 22:28:33 vg038 Exp $
       data oscfps /.false./     ! So that other codes don't break
 c
       end
@@ -8,6 +8,7 @@ c
       implicit none
 #include "pstat.fh"
 #include "cscfps.fh"
+#include "cscf.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
       integer rtdb
@@ -44,7 +45,7 @@ c
 c
       if (.not. pstat_allocate('scf: diag', pstat_qstat, 0, junk,
      $     ps_diag)) call errquit('scf: scf_pstat_init', 0)
-c
+c     
       if (.not. pstat_allocate('scf: vecio', pstat_qstat, 0, junk,
      $     ps_vecio)) call errquit('scf: scf_pstat_init', 0)
 c
@@ -53,7 +54,29 @@ c
 c
       if (.not. pstat_allocate('scf: dipole', pstat_qstat, 0, junk,
      $     ps_int_dip)) call errquit('scf: scf_pstat_init', 0)
-c
+
+C     additional for RI-SCF
+      if ( nriscf.ne.0 ) then
+c       
+        if (.not. pstat_allocate('riscf: Vhalf', pstat_qstat, 0,junk,
+     $       ps_vhalf)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: index', pstat_qstat, 0, junk,
+     $       ps_index)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: transform', pstat_qstat,0,junk,
+     $       ps_transform)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: extract', pstat_qstat, 0, junk,
+     $       ps_extract)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: exchange', pstat_qstat, 0,junk,
+     $       ps_exchange)) call errquit('riscf: ri_scf_pstat_init', 0)
+c       
+        if (.not. pstat_allocate('riscf: coulomb', pstat_qstat, 0, junk,
+     $       ps_coulomb)) call errquit('riscf: ri_scf_pstat_init', 0)
+      endif
+c       
       call pstat_on(ps_total)
       oscfps = .true.
 c
@@ -62,6 +85,7 @@ c
       implicit none
 #include "pstat.fh"
 #include "cscfps.fh"
+#include "cscf.fh"
 c     
       if (oscfps) then
          call pstat_off(ps_total)
@@ -82,6 +106,22 @@ c
          if (.not. pstat_free(ps_vecio))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_int_dip))call errquit('scf_pstat?', 0)
+
+C        additional for RI-SCF
+         if ( nriscf.ne.0 ) then
+           if (.not. pstat_free(ps_vhalf))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_index))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_transform))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_extract))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_exchange))
+     $          call errquit('scf_pstat?', 0)
+           if (.not. pstat_free(ps_coulomb))
+     $          call errquit('scf_pstat?', 0)
+         endif
 c
       endif
 c

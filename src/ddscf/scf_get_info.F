@@ -53,6 +53,18 @@ c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('scf_init: basis info',0)
 c
+c     is RI approximation to be used?
+c
+      if (rtdb_get(rtdb, 'scf:ri', MT_INT, 1, nriscf)) then
+        if (.not. bas_create(riscf_basis, 'riscf basis'))
+     $       call errquit('scf_init: bas_create?', 0)
+        if (.not. bas_rtdb_load(rtdb, geom, riscf_basis, 'riscf basis'))
+     $       call errquit('scf_init: no riscf basis set', 0)
+      else
+        nriscf = 0
+        riscf_basis = 0
+      endif
+c
 c     For now just set NMO=NBF but need to detect linear dependence
 c
       nmo = nbf
@@ -156,7 +168,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.5 1995-05-22 06:56:15 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.6 1995-05-22 22:28:32 vg038 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,6 +1,6 @@
 c
 c     Common for parameters to do with convergence and common details
-c     of the NR/PCG UHF and ROHF SCF
+c     of the NR/PCG UHF, ROHF SCF, and RI-SCF
 c
 c     These are determined by scf_get_info from input/default
 c
@@ -53,6 +53,13 @@ c     These are determined by rohf_nr_solve
 c
 c     iter = current macro iteration number
 c
+c     for RI-SCF
+c
+c     nriscf      = 1: RI hessian
+c                 = 2: pure RI-SCF
+c                 = 3: reconverge without RI after RI_SCF convergence
+c     riscf_basis = basis set handle for expansion basis
+c
       integer geom, basis, nopen, nclosed, nelec, nbf, nmo
       integer nalpha, nbeta
       double precision gnorm_tol, shifts, nr_gswitch, tol2e
@@ -63,6 +70,7 @@ c
       character*255 movecs_in, movecs_out, title, trans
       character*4 scftype
       integer l_eval, k_eval, l_occ, k_occ
+      integer nriscf, riscf_basis
 c
       common /cscf/
 c
@@ -81,7 +89,8 @@ c
      $     pflg, pflg_prev, maxiter, iter,
      $     geom, basis, nopen, nclosed, nelec, nbf, nmo,
      $     nalpha, nbeta,
-     $     l_eval, k_eval, l_occ, k_occ, g_movecs(2)
+     $     l_eval, k_eval, l_occ, k_occ, g_movecs(2),
+     $     nriscf, riscf_basis
 c
 c     Characters
 c
