@@ -262,7 +262,7 @@ c
      $     nva,1,g_p_ab_a))call errquit(
      $     'could not alloc g_p_ab_a',1)
       if(.not.ga_create(mt_dbl,nvb,nvb,'g_p_ab_b',
-     $     noa,1,g_p_ab_b))call errquit(
+     $     nvb,1,g_p_ab_b))call errquit(
      $     'could not alloc g_p_ab_b',1)
       if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,1,g_lai_a))
      $     call errquit('could not alloc ga for lai_a',1)
