@@ -1,5 +1,7 @@
       SubRoutine Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nGrid,
-     &                          nSet,nSetTri,g_Dns,Grid,Values,g_Vls)
+     &                          nSet,nSetTri,g_Dns,g_Vec,
+     &                          Grid,Values,g_Vls,
+     &                          What,Spin,Orb_No)
       Implicit None
 *
 ************************************************************************
@@ -15,8 +17,9 @@
 *---- NWChem handles
       Integer rtdb,Geom,AO_Bas_Han
 *---- Arguments of a Create_Contour call
-      Integer nBF,nGrid,nSet,nSetTri,g_Dns,g_Vls,Lth_Tit
+      Integer nBF,nGrid,nSet,nSetTri,g_Dns,g_Vec(2),g_Vls,Orb_No
       Double Precision Grid(3,nGrid),Values(nGrid)
+      Character*8 What,Spin
 *---- Geometry variables
       Integer nAtom, iAtom, nxyz, l_xyz, k_xyz
       Integer l_Charge, k_Charge, l_Tags, k_Tags
@@ -37,7 +40,8 @@
       Integer max_at_bf, ilo, ihi, max_at_bf2, lthB, lthZ, nelem, lthDel
       Logical ldelley
       Integer l_FMat,k_FMat,l_PMat,k_PMat,l_BMat,k_BMat,l_ZMat,k_ZMat,
-     &        l_DelRho,k_DelRho,l_gamma,k_gamma,l_bp,k_bp
+     &        l_DelRho,k_DelRho,l_gamma,k_gamma,l_bp,k_bp,
+     &        l_MOVec,k_MOVec
 *---- Other variables
       Integer i,j,iOff,iProc,nProc,nGrPP,lthPP,iOffG
       Logical LResult,DeBug,GRAD
@@ -139,14 +143,17 @@
       Call dcopy(nXPrim,0.0d0,0,Dbl_mb(k_Expo),1)
       Call dcopy(nCoef_Max,0.0d0,0,Dbl_mb(k_Coef),1)
       Acc_AO_Gauss = 20.d0
+      If (What.eq.'VIEW') Acc_AO_Gauss = 1.d20
       mBF = nBF
       Call nBF_to_mBF(Geom,AO_Bas_Han,
      &                Dbl_mb(k_rq0),mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      &                Dbl_mb(k_Expo),nXPrim,Acc_AO_Gauss)
+      If (What.eq.'VIEW' . and . nBF.ne.mBF)
+     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',0)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
 *
-*---- Compute values of the basis functions ant the grid points (use
+*---- Compute values of the basis functions and the grid points (use
 *     Int_Eval_GBSets from the NWDFT module)
 *
       lth1 = nGrPP*mBF
@@ -175,7 +182,7 @@
       If ( nXang .eq. 0 ) Then
          Max_Elem_Ang_Scr = Max_Component *  3
       ElseIf ( nXang .le. 3 ) Then
-         Max_Elem_Ang_Scr = Max_Component * 9
+         Max_Elem_Ang_Scr = Max_Component *  9
       Else
          Max_Elem_Ang_Scr = Max_Component * 28
       Endif 
@@ -199,72 +206,88 @@
 *
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of each
 *     basis function at a given set of points. The value of the density
-*     at a given point is now obtained as a matrix-vector producd
-*     Rho(i) = Vi x D x Vi(T), where Vi is the row of the Scr1 matrix.
+*     at a given point (i) is now obtained as a matrix-vector producd
+*     Rho(i) = Vi x D x Vi(T), and the values of the orbitals are
+*     obtained as Phi(i) = Vi x C, where Vi is the row of the Scr1
+*     matrix, D is the density matrix and C is the Phi-th column of the
+*     moleculat orbitals.
 *
-*---- Get the values of the density at the grid points (use xc_rhogen
-*     from the NWDFT module)
+      If (What.eq.'DENSITY') Then
+*------- Get the values of the density at the grid points (use xc_rhogen
+*        from the NWDFT module)
+         TOLL=1.D-15
+         max_at_bf = 0
+         Do iAtom = 1, nAtom
+            LResult = bas_ce2bfr(AO_Bas_Han,iAtom,ilo,ihi)
+            max_at_bf = max(max_at_bf,ihi-ilo+1)
+         End Do
+         max_at_bf2 = max_at_bf*max_at_bf
+         ldelley=.FALSE.
+*        If (.not.rtdb_get(rtdb,'dft:delley',mt_log,1,ldelley))
+*    &       ldelley=.FALSE.
 *
-      TOLL=1.D-15
-      max_at_bf = 0
-      Do iAtom = 1, nAtom
-         LResult = bas_ce2bfr(AO_Bas_Han,iAtom,ilo,ihi)
-         max_at_bf = max(max_at_bf,ihi-ilo+1)
-      End Do
-      max_at_bf2 = max_at_bf*max_at_bf
-      ldelley=.FALSE.
-*     If (.not.rtdb_get(rtdb,'dft:delley',mt_log,1,ldelley))
-*    &    ldelley=.FALSE.
+         lthB = max_at_bf*nGrPP
+         lthZ=1
+         If (GRAD) lthZ = 3*nGrPP*max_at_bf
 *
-      lthB = max_at_bf*nGrPP
-      lthZ=1
-      If (GRAD) lthZ = 3*nGrPP*max_at_bf
+         LResult = MA_Push_Get(MT_dbl,max_at_bf2,'DENSF',l_FMat,k_FMat)
+         Call ErrMem(LResult,'C_C: Failed to allocate DENSF',0)
+         LResult = MA_Push_Get(MT_dbl,max_at_bf2,'DENS',l_PMat,k_PMat)
+         Call ErrMem(LResult,'C_C: Failed to allocate DENS',0)
+         LResult = MA_Push_Get(MT_dbl,lthB,'BMat',l_BMat,k_BMat)
+         Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)
+         LResult = MA_Push_Get(MT_dbl,lthZ,'ZMat',l_ZMat,k_ZMat)
+         Call ErrMem(LResult,'C_C: Failed to allocate ZMat',0)
 *
-      LResult = MA_Push_Get(MT_dbl,max_at_bf2,'DENSF',l_FMat,k_FMat)
-      Call ErrMem(LResult,'C_C: Failed to allocate DENSF',0)
-      LResult = MA_Push_Get(MT_dbl,max_at_bf2,'DENS',l_PMat,k_PMat)
-      Call ErrMem(LResult,'C_C: Failed to allocate DENS',0)
-      LResult = MA_Push_Get(MT_dbl,lthB,'BMat',l_BMat,k_BMat)
-      Call ErrMem(LResult,'C_C: Failed to allocate BMat',0)
-      LResult = MA_Push_Get(MT_dbl,lthZ,'ZMat',l_ZMat,k_ZMat)
-      Call ErrMem(LResult,'C_C: Failed to allocate ZMat',0)
+         lthDel=3*nGrPP
+         LResult = MA_Push_Get(MT_dbl,lthDel,'DelRho',l_DelRho,k_DelRho)
+         Call ErrMem(LResult,'C_C: Failed to allocate DelRho',0)
+         nelem=1
+         if(GRAD) nelem=nGrPP
+         LResult = MA_Push_Get(MT_Dbl,nelem,'gamma',l_gamma,k_gamma)
+         Call ErrMem(LResult,'C_C: Failed to allocate Gamma',0)
+         LResult = MA_Push_Get(MT_dbl,nGrPP*nAtom,'bp',l_bp,k_bp)
+         Call ErrMem(LResult,'C_C: Failed to allocate bp',0)
+         Call DFill(nGrPP*nAtom,0.d0,Dbl_mb(k_bp),1)
 *
-      lthDel=3*nGrPP
-      LResult = MA_Push_Get(MT_dbl,lthDel,'DelRho',l_DelRho,k_DelRho)
-      Call ErrMem(LResult,'C_C: Failed to allocate DelRho',0)
-      nelem=1
-      if(GRAD) nelem=nGrPP
-      LResult = MA_Push_Get(MT_Dbl,nelem,'gamma',l_gamma,k_gamma)
-      Call ErrMem(LResult,'C_C: Failed to allocate Gamma',0)
-      LResult = MA_Push_Get(MT_dbl,nGrPP*nAtom,'bp',l_bp,k_bp)
-      Call ErrMem(LResult,'C_C: Failed to allocate bp',0)
-      Call DFill(nGrPP*nAtom,0.d0,Dbl_mb(k_bp),1)
+         call rhogen(TOLL,AO_Bas_Han,g_Dns,
+     &                  max_at_bf,nAtom,1,nGrPP,nBF,mBF,
+     &                  ldelley,GRAD,
+     &                  Dbl_mb(k_FMat),Dbl_mb(k_PMat),
+     &                  Dbl_mb(k_BMat),Dbl_mb(k_ZMat),
+     &                  Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),Int_mb(k_Scr3),
+     &                  Int_mb(k_iniz),Int_mb(k_ifin),
+     &                  Values(iOffG),Dbl_mb(k_DelRho),Dbl_mb(k_gamma),
+     &                  Dbl_mb(k_bp))
 *
-      call rhogen(TOLL,AO_Bas_Han,g_Dns,
-     &               max_at_bf,nAtom,1,nGrPP,nBF,mBF,
-     &               ldelley,GRAD,
-     &               Dbl_mb(k_FMat),Dbl_mb(k_PMat),
-     &               Dbl_mb(k_BMat),Dbl_mb(k_ZMat),
-     &               Dbl_mb(k_Scr1),Dbl_mb(k_Scr2),Int_mb(k_Scr3),
-     &               Int_mb(k_iniz),Int_mb(k_ifin),
-     &               Values(iOffG),Dbl_mb(k_DelRho),Dbl_mb(k_gamma),
-     &               Dbl_mb(k_bp))
+*------- Deallocate Scratch memory needed by xc_rhogen
+         LResult = MA_Pop_Stack(l_bp)
+         Call ErrMem(LResult,'C_C: Failed to deallocate bp',0)
+         LResult = MA_Pop_Stack(l_gamma)
+         Call ErrMem(LResult,'C_C: Failed to deallocate gamma',0)
+         LResult = MA_Pop_Stack(l_DelRho)
+         Call ErrMem(LResult,'C_C: Failed to deallocate DelRho',0)
+         LResult = MA_Pop_Stack(l_ZMat)
+         Call ErrMem(LResult,'C_C: Failed to deallocate ZMat',0)
+         LResult = MA_Pop_Stack(l_BMat)
+         Call ErrMem(LResult,'C_C: Failed to deallocate BMat',0)
+         LResult = MA_Pop_Stack(l_PMat)
+         Call ErrMem(LResult,'C_C: Failed to deallocate DENS',0)
+         LResult = MA_Pop_Stack(l_FMat)
+         Call ErrMem(LResult,'C_C: Failed to deallocate DENSF',0)
+      Else
+*------- Get the values of the orbital at the grid points
+         LResult = MA_Push_Get(MT_Dbl,nBF,'MOVec',l_MOVec,k_MOVec)
+         Call ErrMem(LResult,'C_C: Failed to allocate MOVec',0)
+*
+         Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffG),
+     &               nGrPP,nBF,g_Vec(1),nSet,Spin,Orb_No)
+*
+         LResult = MA_Pop_Stack(l_MOVec)
+         Call ErrMem(LResult,'C_C: Failed to deallocate MOVec',0)
+      End If
 *
 *---- Deallocate Scratch memory
-      LResult = MA_Pop_Stack(l_bp)
-      Call ErrMem(LResult,'C_C: Failed to deallocate bp',0)
-      LResult = MA_Pop_Stack(l_gamma)
-      Call ErrMem(LResult,'C_C: Failed to deallocate gamma',0)
-      LResult = MA_Pop_Stack(l_DelRho)
-      Call ErrMem(LResult,'C_C: Failed to deallocate DelRho',0)
-      LResult = MA_Pop_Stack(l_ZMat)
-      Call ErrMem(LResult,'C_C: Failed to deallocate ZMat',0)
-      LResult = MA_Pop_Stack(l_BMat)
-      Call ErrMem(LResult,'C_C: Failed to deallocate BMat',0)
-      LResult = MA_Pop_Stack(l_PMat)
-      Call ErrMem(LResult,'C_C: Failed to deallocate DENS',0)
-      LResult = MA_Pop_Stack(l_FMat)
-      Call ErrMem(LResult,'C_C: Failed to deallocate DENSF',0)
       LResult = MA_Pop_Stack(l_Scr4)
       Call ErrMem(LResult,'C_C: Failed to deallocate Scr4',0)
       LResult = MA_Pop_Stack(l_Scr3)
@@ -301,4 +324,51 @@
 *---- Error exit
   111 Continue
       Call ErrQuit('Create_Contour: Failed to open output file',0)
+      End
+*
+*-----------------------------------------------------------------------
+*
+      SubRoutine PhiGen(Chi,Vector,Values,
+     &                  nPoint,nBF,g_Vec,nSet,Spin,Orb_No)
+      Implicit None
+*     
+************************************************************************
+#include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "bas.fh"
+#include "context.fh"
+************************************************************************
+*
+*---- Arguments of a PhiGen call
+      Integer nPoint,nBF,Orb_No,nSet
+      Integer g_Vec(nSet)
+      Character*8 Spin
+      Double Precision Chi(nPoint,nBF),Vector(nBF),Values(nPoint)
+*---- Local variables
+      Integer jFrom,g_From,iPoint
+      Logical DeBug
+      Double Precision DDot
+      External DDot
+*
+************************************************************************
+*
+      DeBug = .False.
+*
+*---- Pick up the relevant orbital vector
+      jFrom = Orb_No
+      g_From = g_Vec(1)
+      If (nSet.eq.2 . and . Spin.eq.'BETA') g_From = g_Vec(2)
+      Call GA_Get(g_From,1,nBF,jFrom,jFrom,Vector,nBF)
+*
+*---- Loop over the grid points to get the orbital values
+      Do iPoint = 1, nPoint
+         Values(iPoint) = ddot(nBF,Chi(iPoint,1),nPoint,Vector,1)
+*        Write(*,'(e10.4)')Values(iPoint)
+      End Do
+*
+      Call GA_Sync
+*
+*---- Normal termination
+      Return
       End

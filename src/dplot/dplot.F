@@ -24,14 +24,16 @@
      &        nMO(2),nMO2(2)
       Integer g_Vec(2),g_Dns(2),g_Dns2(2)
 *---- Local variables
-      Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit
-      Integer nGrid,k_Grid,l_Grid
+      Integer iProc,i,j,No_Of_Spacings(3),Lth_Tit,Out_Unit,iOff
+      Integer nGrid,k_Grid,l_Grid,nPoint,nAtom,iAtom,Atom_Off
+      Integer k_Tags,l_Tags,k_Charge,l_Charge
       Integer k_Vls,l_Vls,g_Vls
+      Integer k_Ene,l_Ene,k_Occ,l_Occ
       Integer Lth_Vec,Lth_Out
       Integer nOrb,k_Orb,l_Orb
-      Double Precision Ext_From_To(3,2),Scale,Volume,Factor,Sum
+      Double Precision Ext_From_To(3,2),Scale,Volume,Factor,Sum,AppCh
       Character Coord(3)
-      Character*8 Units,What,Spin
+      Character*8 Units,What,Spin,Where
       Character*80 File_Out
       Character*255 Title
       Logical LResult, DeBug
@@ -95,7 +97,6 @@
       Lth_Vec = Inp_StrLen(File_Vec2)
       If (iProc.eq.0 . and . File_Vec2.ne.' ') Then
          Write(LuOut,*)' 2-nd set of MOs      : ',File_Vec2(1:Lth_Vec)
-         Write(*,*)' The density is formed as Rho = Rho(1) - Rho(2)'
       End If
 *
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,File_Out))
@@ -112,12 +113,27 @@
 *
       If (.not.rtdb_cget(rtdb,'dplot:What',1,What))
      &   Call ErrQuit('DPlot: rtdb_get failed - What',0)
+      If (iProc.eq.0) Then
+         If (What.eq.'DENSITY') Then
+            Write(LuOut,*)' Type of picture      : CHARGE DENSITY'
+         Else
+            Write(LuOut,*)' Type of picture      : ORBITAL VIEW'
+         End If
+      End If
+*
+      If (.not.rtdb_cget(rtdb,'dplot:Spin',1,Spin))
+     &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0)
+      If (What.eq.'VIEW' . and . Spin.ne.'BETA')          ! ***Set Up***
+     &   Spin = 'ALPHA'
       If (iProc.eq.0)
-     &   Write(LuOut,*)' Type of picture      : ',What
+     &   Write(LuOut,*)' Spin                 : ',Spin
+*
       If (.not.rtdb_get(rtdb,'dplot:nOrb',mt_int,1,nOrb))
      &   Call ErrQuit('DPlot: rtdb_get failed - nOrb',0)
       If (DeBug . and . iProc.eq.0)
      &   Write(LuOut,*)' nOrb                 = ', nOrb
+      If (File_Vec2.ne.' ' . and . What.eq.'VIEW')         ! ***Check***
+     &   Call ErrQuit('DPlot: VIEW is meningless for 2 orbital sets',0)
       If (nOrb.ne.999999) Then
          LResult = MA_Push_Get(MT_Int,nOrb,'Orb',l_Orb,k_Orb)
          Call ErrMem(LResult,'DPlot: Failed to allocate Orb.',0)
@@ -125,33 +141,50 @@
      &      nOrb,Int_mb(k_Orb)))
      &      Call ErrQuit('DPlot: rtdb_get failed - OrbNo',0)
          If (iProc.eq.0) Then
-            Write(LuOut,*)' The density is computed using orbitals :'
-            Write(LuOut,'(1x,30i3)')(Int_mb(k_Orb-1+j),j=1,nOrb)
+            If (What.eq.'DENSITY') Then
+               Write(LuOut,'(a,50(1x,i3))')
+     &         '  The density is computed using orbitals : ',
+     &         (Int_mb(k_Orb-1+j),j=1,nOrb)
+            Else
+               If (nOrb.gt.1 .and . What.eq.'VIEW')        ! ***Check***
+     &            Call ErrQuit('DPlot: VIEW and nOrb > 1 conflict',0)
+               Write(LuOut,'(a,i3,a)')
+     &         '  The orbital ',Int_mb(k_Orb),' is plotted'
+            End If
          End If
       Else
          If (iProc.eq.0)
      &      Write(LuOut,*)' The density is computed using all orbitals'
       End If
+      If (iProc.eq.0 . and . File_Vec2.ne.' ') Then
+         Write(LuOut,*)
+     &   ' The density is computed as Rho = Rho(1) - Rho(2)'
+      End If
 *
-      If (.not.rtdb_cget(rtdb,'dplot:Spin',1,Spin))
-     &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0)
-      If (iProc.eq.0)
-     &   Write(LuOut,*)' Spin                 : ',Spin
-*
-*---- Check for conflicts in the input
-      If (nOrb.gt.1 .and . What.eq.'VIEW')
-     &   Call ErrQuit('DPlot: VIEW can be combined with nOrb = 1',0)
-      If (File_Vec2.ne.' ' . and . What.eq.'VIEW')
-     &   Call ErrQuit('DPlot: VIEW is meningless for 2 orbitla sets',0)
+      If (.not.rtdb_cget(rtdb,'dplot:Where',1,Where))
+     &   Call ErrQuit('DPlot: rtdb_get failed - Where',0)
+      If (What.eq.'VIEW') Where = 'GRID'                  ! ***Set Up***
+      If (iProc.eq.0 . and . What.eq.'DENSITY') Then
+         If (Where.eq.'GRID') Then
+            Write(LuOut,*)' The density is computed on the specified',
+     &                    ' grid'
+         Else If (Where.eq.'NUCLEI') Then
+            Write(LuOut,*)' The density is computed at the position',
+     &                    ' of nuclei'
+         Else If (Where.eq.'G+N') Then
+            Write(LuOut,*)' The density is computed on the grid and',
+     &                    ' at the position of nuclei'
+         End If
+      End If
 *
 *********************************
 *     Start the calculation     *
 *********************************
 *
 *---- Open the output file
-      If (iProc.eq.0) Then
-         Out_Unit=6
-         If (File_Out.ne.'OUTPUT' . and . iProc.eq.0) Then
+      Out_Unit = LuOut
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
+     &    File_Out.ne.'OUTPUT') Then
             Out_Unit=20
             Open(unit=Out_Unit,
      &           file=File_Out,
@@ -159,28 +192,32 @@
      &           access='sequential',
      &           form='formatted',
      &           err=111)
-         End If
       End If
 *
 *---- Write the title and the format to the output file
-      If (iProc.eq.0) Then
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          Write(Out_Unit,*)Title(1:Lth_Tit)
          Write(Out_Unit,*)'(1F15.10)'
       End If
-*
-*---- Allocate memory for grid points and get the grid
-      LResult = MA_Push_Get(MT_Dbl,3*nGrid,'Grid',l_Grid,k_Grid)
-      Call ErrMem(LResult,'DPlot: Failed to allocate grid',0)
-      Call Get_Grid(Dbl_mb(k_Grid),nGrid,
-     &              Ext_From_To(1,1),Ext_From_To(1,2),
-     &              No_Of_Spacings,Volume,Out_Unit,iProc)
-      Call GA_Sync
 *
 *---- Get the geometry
       If (.not.Geom_Create(Geom,'geometry'))
      &     Call ErrQuit('DPlot: Geom_Create failed',0)
       If (.not.Geom_RTDB_Load(rtdb,Geom,'geometry'))
      &     Call ErrQuit('DPlot: Geom_RTDB_Load failed',0)
+*
+      LResult = Geom_Ncent(Geom,nAtom)
+      If (Where.eq.'GRID') Then
+         nPoint   = nGrid
+         Atom_Off = -1
+      Else If (Where.eq.'NUCLEI') Then
+         nPoint   = nAtom
+         Atom_Off = 0
+      Else If (Where.eq.'G+N') Then
+         nPoint   = nAtom + nGrid
+         Atom_Off = nGrid
+      End If
+*
 *---- Get the basis set
       If (.not.Bas_Create(AO_Bas_Han,'ao basis'))
      &   Call ErrQuit('DPlot: Bas_Create failed',0)
@@ -192,6 +229,27 @@
      &   Call ErrQuit('DPlot: Bas_NumBF failed',0)
       If (Debug . and . iProc.eq.0)
      &   Write(LuOut,*)' nBF_AO     = ',nBF_AO
+*
+*---- Allocate memory for grid points and get the grid
+      LResult = MA_Push_Get(MT_Dbl,3*nPoint,'Grid',l_Grid,k_Grid)
+      Call ErrMem(LResult,'DPlot: Failed to allocate grid',0)
+*
+      If (Where.ne.'NUCLEI') Then
+         Call Get_Grid(Dbl_mb(k_Grid),nGrid,
+     &                 Ext_From_To(1,1),Ext_From_To(1,2),
+     &                 No_Of_Spacings,Volume,Out_Unit,iProc,Where)
+         Call GA_Sync
+      End If
+*
+      If (Where.ne.'GRID') Then
+         LResult = MA_Push_Get(MT_Byte,nAtom*16,'Tags',l_Tags,k_Tags)
+         Call ErrMem(LResult,'C_C: Failed to allocate Tags',0)
+         LResult = MA_Push_Get(MT_Dbl,nAtom,'Charge',l_Charge,k_Charge)
+         Call ErrMem(LResult,'C_C: Failed to allocate Charge',0)
+         If (.not.Geom_Cart_Get(Geom,nAtom,Byte_mb(k_Tags),
+     &      Dbl_mb(k_Grid + 3*Atom_Off),Dbl_mb(k_Charge)))
+     &      Call ErrQuit('C_C: Geom_Cart_Get failed',0)
+      End If
 *
 *---- Read the info from the first MO file
       If (.not.movecs_read_header(File_Vec,Title_Vec,Basis_Name, 
@@ -215,15 +273,35 @@
       Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(1),'atom')
       If (nSet.eq.2)
      &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Vec1',g_Vec(2),'atom')
-      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
-      If (nSet.eq.2)
-     &   Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
+      If (What.eq.'DENSITY') Then
+         Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns1',g_Dns(1),'atom')
+         If (nSet.eq.2)
+     &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dns2',g_Dns(2),'atom')
+      End If
 *
-*---- Get the density matrix for the first orbital file
-      Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
-     &              Spin,What,File_Vec,nOrb,k_Orb,iProc)
+      If (What.eq.'DENSITY') Then
+*------- Get the density matrix for the first orbital file
+         Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns,
+     &                 Spin,File_Vec,nOrb,k_Orb,iProc)
+      Else
+*------- Read the orbital file
+         LResult = MA_Push_Get(MT_Dbl,nBF,'Ene',l_Ene,k_Ene)
+         Call ErrMem(LResult,'DPlot: Failed to allocate orb. en.',0)
+         LResult = MA_Push_Get(MT_Dbl,nBF,'Occ',l_Occ,k_Occ)
+         Call ErrMem(LResult,'DPlot: Failed to allocate occ. num.',0)
+         Do iSet = 1, nSet
+            If (.not.movecs_read(File_Vec,iSet,Dbl_mb(k_Occ),
+     &         Dbl_mb(k_Ene),g_Vec(iSet)))
+     &         Call ErrQuit('DPlot: movecs_read failed',0)
+         End Do
+         LResult = MA_Pop_Stack(l_Occ)
+         Call ErrMem(LResult,'DPlot: Failed to deallocate occ. num.',0)
+         LResult = MA_Pop_Stack(l_Ene)
+         Call ErrMem(LResult,'DPlot: Failed to deallocate orb. en.',0)
+      End If
 *
-*---- Compute the density matrix difference (if necessary)
+*---- Compute the density matrix difference (if necessary). The check
+*---- for the conflict with the VIEW option has been done before.
       If (File_Vec2.ne.' ') Then
 *------- Read the info from the second orbital file
          If (.not.movecs_read_header(File_Vec2,Title_Vec2,Basis_Name2, 
@@ -238,7 +316,7 @@
      &      Call GACrea(Geom,AO_Bas_Han,nBF,nBF,'Dn2',g_Dns2(2),'atom')
 *------- Get the density matrix for the second orbital file
          Call Get_Dens(Geom,AO_Bas_Han,nSet,nBF,g_Vec,g_Dns2,
-     &                 Spin,What,File_Vec2,nOrb,k_Orb,iProc)
+     &                 Spin,File_Vec2,nOrb,k_Orb,iProc)
 *------- Form the final density
          Call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))
 *------- Deallocate memory
@@ -247,29 +325,58 @@
       End If
 *
 *---- Get the values of the density at the grid points
-      LResult = MA_Push_Get(MT_Dbl,nGrid,'Vls',l_Vls,k_Vls)
+      LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
-      Call GACrea(Geom,AO_Bas_Han,nGrid,1,'Vls',g_Vls,'column')
-      Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nGrid,
-     &                    nSet,nSetTri,g_Dns(1),
-     &                    Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls)
+      Call GACrea(Geom,AO_Bas_Han,nPoint,1,'Vls',g_Vls,'column')
+      Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
+     &                    nSet,nSetTri,g_Dns(1),g_Vec(1),
+     &                    Dbl_mb(k_Grid),Dbl_mb(k_Vls),g_Vls,
+     &                    What,Spin,Int_mb(k_Orb))
 *
 *---- Print out the values of the density matrix to the output
-      If (iProc.eq.0) Then
-         Call GA_Get(g_Vls,1,nGrid,1,1,Dbl_mb(k_Vls),nGrid)
+      Call GA_Get(g_Vls,1,nPoint,1,1,Dbl_mb(k_Vls),nPoint)
+      Call GA_Sync
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI') Then
          Sum = 0.d0
          Do i = 1, nGrid
             Sum = Sum + Dbl_mb(k_Vls-1+i)
             Write(Out_Unit,'(f15.10)')Dbl_mb(k_Vls-1+i)
          End Do
+         AppCh = Sum*Volume
+         If (What.eq.'DENSITY') Then
+            Write(LuOut,*)
+            Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',AppCh
+         End If
+      End If
+*
+      If (iProc.eq.0 . and . Where.ne.'GRID') Then
          Write(LuOut,*)
-         Write(LuOut,'(a,f8.2)')'  Aproximate Charge    = ',Sum*Volume
+         Write(LuOut,*)'             Tag',
+     &                 '         C o o r d i n a t e s',
+     &                 '            Density'
+         Write(LuOut,*)'             -------------------------------',
+     &                 '-------------------------'
+         Do iAtom = 1, nAtom
+            iOff = (iAtom - 1)*3
+            Write(LuOut,'(A16,3f12.6,3x,f15.10)')
+     &           Byte_mb(k_Tags-1 + iAtom),
+     &           (Dbl_mb(k_Grid+3*Atom_Off+iOff+j),j=0,2),
+     &           Dbl_mb(k_Vls+Atom_Off-1 + iAtom)
+         End Do
+         Write(LuOut,*)'             -------------------------------',
+     &                 '-------------------------'
          Write(LuOut,*)
       End If
 *
 *---- Deallocate memory
       LResult = MA_Pop_Stack(l_Vls)
       Call ErrMem(LResult,'DPlot: Failed to deallocate values',0)
+      If (Where.ne.'GRID') Then
+         LResult = MA_Pop_Stack(l_Charge)
+         Call ErrMem(LResult,'DPlot: Failed to deallocate charge',0)
+         LResult = MA_Pop_Stack(l_Tags)
+         Call ErrMem(LResult,'DPlot: Failed to deallocate tags',0)
+      End If
       LResult = MA_Pop_Stack(l_Grid)
       Call ErrMem(LResult,'DPlot: Failed to deallocate grid',0)
       If (nOrb.ne.999999) Then
@@ -279,13 +386,16 @@
 *
 *---- Destroy global arrays
       Call GADest(g_Vls)
-      If (nSet.eq.2) Call GADest(g_Dns(2))
-      Call GADest(g_Dns(1))
+      If (What.eq.'DENSITY') Then
+         If (nSet.eq.2) Call GADest(g_Dns(2))
+         Call GADest(g_Dns(1))
+      End If
       If (nSet.eq.2) Call GADest(g_Vec(2))
       Call GADest(g_Vec(1))
 *
 *---- Close the output file
-      If (File_Out.ne.'OUTPUT' . and . iProc.eq.0) Close(Out_Unit)
+      If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
+     &    File_Out.ne.'OUTPUT') Close(Out_Unit)
 *
 *---- Pop context
       If (.not.context_pop('dplot')) 

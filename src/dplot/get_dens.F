@@ -1,5 +1,5 @@
       SubRoutine Get_Dens(Geom,Basis,nSet,nBF,g_Vec,g_Dns,
-     &                    Spin,What,File_Vec,nOrb,k_Orb,iProc)
+     &                    Spin,File_Vec,nOrb,k_Orb,iProc)
       Implicit None
 *     
 ************************************************************************
@@ -13,7 +13,7 @@
 *---- Arguments of a Get_Dens call
       Integer Geom,Basis,nSet,nBF,g_Vec(2),g_Dns(2)
       Integer nOrb,k_Orb,iProc
-      Character*8 Spin,What
+      Character*8 Spin
       Character*80 File_Vec
 *---- Local variables
       Integer iSet,nOcc(2),k_Occ(2),k_Ene(2),l_Occ(2),l_Ene(2)
@@ -27,15 +27,15 @@
       DeBug = .False.
 *
 *---- Allocate memory for orbital energies and occupation numbers
-      LResult = MA_Push_Get(MT_Dbl,nBF,'Vec1',l_Ene(1),k_Ene(1))
-      Call ErrMem(LResult,'DPlot: Failed to allocate orb. ener.',0)
+      LResult = MA_Push_Get(MT_Dbl,nBF,'Ene1',l_Ene(1),k_Ene(1))
+      Call ErrMem(LResult,'Get_Dens: Failed to allocate orb. en.',0)
       LResult = MA_Push_Get(MT_Dbl,nBF,'Occ1',l_Occ(1),k_Occ(1))
-      Call ErrMem(LResult,'DPlot: Failed to allocate occ. num.',0)
+      Call ErrMem(LResult,'Get_Dens: Failed to allocate occ. num.',0)
       If (nSet.eq.2) Then
-         LResult = MA_Push_Get(MT_Dbl,nBF,'Vec2',l_Ene(2),k_Ene(2))
-         Call ErrMem(LResult,'DPlot: Failed to allocate orb. ener.',0)
+         LResult = MA_Push_Get(MT_Dbl,nBF,'Ene2',l_Ene(2),k_Ene(2))
+         Call ErrMem(LResult,'Get_Dens: Failed to allocate orb. en.',0)
          LResult = MA_Push_Get(MT_Dbl,nBF,'Occ2',l_Occ(2),k_Occ(2))
-         Call ErrMem(LResult,'DPlot: Failed to allocate occ. num.',0)
+         Call ErrMem(LResult,'Get_Dens: Failed to allocate occ. num.',0)
       End If
 *
 *---- Generate the density matrix
@@ -43,7 +43,7 @@
 *------- Read the orbital file
          If (.not.movecs_read(File_Vec,iSet,Dbl_mb(k_Occ(iSet)),
      &      Dbl_mb(k_Ene(iSet)),g_Vec(iSet)))
-     &      Call ErrQuit('DPlot: movecs_read failed',0)
+     &      Call ErrQuit('Get_Dens: movecs_read failed',0)
 *------- Get the number of occ. orbitals (for DFT_DensM, no longer used)
          nOcc(iSet) = 0
          Do iBF = 0, nBF-1
@@ -57,7 +57,7 @@
      &      Call ChangeOcc(Dbl_mb(k_Occ(iSet)),nBF,Spin)
 *------- Eliminate orbitals from the calculation of the density
          If (nOrb.ne.999999) Call Eliminate(Int_mb(k_Orb),nOrb,
-     &                       Dbl_mb(k_Occ(iSet)),nBF,What,iProc)
+     &                       Dbl_mb(k_Occ(iSet)),nBF,iProc)
 *------- Finally, get the density in AO basis: D(AO) = C x D(MO) x C(T)
          Call DMat(Geom,Basis,
      &             g_Vec(iSet),g_Dns(iSet),Dbl_mb(k_Occ(iSet)),nBF)
@@ -79,14 +79,16 @@
 *---- Deallocate memory
       If (nSet.eq.2) Then
          LResult = MA_Pop_Stack(l_Occ(2))
-         Call ErrMem(LResult,'DPlot: Failed to deallocate occ. num.',0)
+         Call ErrMem(LResult,
+     &        'Get_Dens: Failed to deallocate occ. num.',0)
          LResult = MA_Pop_Stack(l_Ene(2))
-         Call ErrMem(LResult,'DPlot: Failed to deallocate orb. ener.',0)
+         Call ErrMem(LResult,
+     &        'Get_Dens: Failed to deallocate orb. en.',0)
       End If
       LResult = MA_Pop_Stack(l_Occ(1))
-      Call ErrMem(LResult,'DPlot: Failed to deallocate occ. num.',0)
+      Call ErrMem(LResult,'Get_Dens: Failed to deallocate occ. num.',0)
       LResult = MA_Pop_Stack(l_Ene(1))
-      Call ErrMem(LResult,'DPlot: Failed to deallocate orb. ener.',0)
+      Call ErrMem(LResult,'Get_Dens: Failed to deallocate orb. en.',0)
 *
       Call GA_Sync
 *
@@ -96,13 +98,12 @@
 *
 *-----------------------------------------------------------------------
 *
-      SubRoutine Eliminate(OrbNo,nOrb,OccNo,nBF,What,iProc)
+      SubRoutine Eliminate(OrbNo,nOrb,OccNo,nBF,iProc)
       Implicit None
 *---- Arguments of a Eliminate call
       Integer nOrb,nBF,iProc
       Integer OrbNo(nOrb)
       Double Precision OccNo(nBF)
-      Character*8 What
 *---- Local Variables
       Integer i,iCount
       Logical DeBug
@@ -115,7 +116,6 @@
       Do i = 1, nBF
          If (i.eq.OrbNo(iCount)) Then
             iCount = iCount + 1
-            If (What.eq.'VIEW') OccNo(i) = 1.d0
          Else
             OccNo(i) = 0.d0
          End If
