@@ -10,7 +10,7 @@ c
       integer rtdb
 c
       character*255 token
-      double precision Eatoms
+      real*8 eatoms,qatoms
       integer linkatm,nobq
 c
       call inp_set_field(0)
@@ -29,9 +29,17 @@ c
       if(.not.inp_a(token)) goto 1
 c
       if (token.eq.'eatoms') then
-      if (.not.inp_f(Eatoms))
+      if (.not.inp_f(eatoms))
      +  call errquit('qmmm_input: failed to read eatoms',0)
-      write(luout,*)' QM/MM separated atom energy:',Eatoms
+      write(luout,*)' QM/MM separated atom energy:',eatoms
+      call util_flush(luout)
+      goto 2
+      endif
+c
+      if (token.eq.'qatoms') then
+      if (.not.inp_f(qatoms))
+     +  call errquit('qmmm_input: failed to read qatoms',0)
+      write(luout,*)' QM/MM atom charge:',qatoms
       call util_flush(luout)
       goto 2
       endif
@@ -63,7 +71,9 @@ c
       endif
 c
       if (token.eq.'end') then
-      if (.not.rtdb_put(rtdb,'qmmm:uqmatm',mt_dbl,1,Eatoms))
+      if (.not.rtdb_put(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+     + call errquit('qmmm_input: failed to store qmmm:uqmatm',0)
+      if (.not.rtdb_put(rtdb,'qmmm:qqmatm',mt_dbl,1,qatoms))
      + call errquit('qmmm_input: failed to store qmmm:uqmatm',0)
       if (.not.rtdb_put(rtdb,'qmmm:linkatm',mt_int,1,linkatm))
      + call errquit('qmmm_input: failed to store qmmm:linkatm',linkatm)

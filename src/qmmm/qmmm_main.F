@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
 c
-c $Id: qmmm_main.F,v 1.10 2003-01-14 16:31:19 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.11 2003-04-04 18:16:35 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa)
       real*8 energy,xw(mwm,3,mwa),fw(mwm,3,mwa),xs(msa,3),fs(msa,3)
 c
-      integer i,np,me,ioffq,ioffz,igeom
+      integer i,np,ioffq,ioffz,igeom
       integer i_ioff,l_ioff,i_c,l_c,i_q,l_q,i_t,l_t
       integer i_i,l_i,i_j,l_j,i_m,l_m
       integer nzatom,nqatom,nzatomt,nqatomt
@@ -131,7 +131,7 @@ c
       do 3 i=1,nsa
       if(iand(isdt(i),lquant).ne.0) nqatom=nqatom+1
     3 continue
-      call qmmm_offset(me,np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
+      call qmmm_offset(np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
      + int_mb(i_ioff))
       if(.not.ma_pop_stack(l_ioff))
      + call errquit('qmmm: Failed to deallocate memory for ioff',me)
@@ -181,7 +181,7 @@ c
 c
       return
       end
-      subroutine qmmm_offset(me,np,nqa,nza,ioffq,ioffz,nqat,nzat,loff)
+      subroutine qmmm_offset(np,nqa,nza,ioffq,ioffz,nqat,nzat,loff)
 c
       implicit none
 c
@@ -189,7 +189,7 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
-      integer me,np,nqa,nza,nqat,nzat,ioffq,ioffz
+      integer np,nqa,nza,nqat,nzat,ioffq,ioffz
       integer loff(np,2)
 c
       integer i
@@ -240,7 +240,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3)
 c
       integer i,j,ioq,ioz
-      real*8 atc,bqc
+      real*8 atc,bqc,qqmatm
 c
       ioq=ioffq
       ioz=ioffz
@@ -312,7 +312,12 @@ c
     4 continue
       endif
     3 continue
+c
+      if(.not.rtdb_get(irtdb,'qmmm:qqmatm',mt_dbl,1,qqmatm)) then
       bqc=bqc+dble(nint(atc))
+      else
+      if(me.eq.0) bqc=bqc+qqmatm
+      endif
 c
       call ga_dgop(mrg_d02,c,3*ndim,'+')
       call ga_dgop(mrg_d03,q,ndim,'+')
