@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.15 1998-06-11 18:51:52 d3j191 Exp $
+c $Id: pre_charge.F,v 1.16 1998-08-13 21:49:33 d3j191 Exp $
 c
       implicit none
 c
@@ -64,6 +64,9 @@ c
       endif
       endif
    16 continue
+c
+c     C with 3 bonds
+c
       if(latm(2,i).eq.6.and.nb.eq.3) then
       nox=0
       do 17 j=1,nb
@@ -71,6 +74,9 @@ c
    17 continue
       if(nox.eq.2) charge=charge-1.0d0
       endif
+c
+c     N with 4 bonds
+c
       if(latm(2,i).eq.7.and.nb.eq.4) then
       nhx=0
       do 18 j=1,nb
@@ -78,6 +84,22 @@ c
    18 continue
       if(nhx.eq.3) charge=charge+1.0d0
       endif
+c
+c     P with 4 bonds
+c
+      if(latm(2,i).eq.15.and.nb.eq.4) then
+      nox=0
+      do 19 j=1,nb
+      if(latm(2,iab(j)).eq.8.and.latm(3,iab(j)).eq.1) nox=nox+1
+   19 continue
+      if(nox.eq.2) charge=charge-1.0d0
+      if(nox.eq.3) charge=charge-2.0d0
+      if(nox.eq.4) charge=charge-3.0d0
+      endif
+c
+c
+c     other
+c
       if(latm(2,i).eq.3.and.nb.eq.0) charge=charge+1.0d0
       if(latm(2,i).eq.11.and.nb.eq.0) charge=charge+1.0d0
       if(latm(2,i).eq.19.and.nb.eq.0) charge=charge+1.0d0
