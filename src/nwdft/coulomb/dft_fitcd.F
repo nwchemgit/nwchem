@@ -3,7 +3,7 @@
      &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms)
 *
-* $Id: dft_fitcd.F,v 1.24 1997-11-28 07:32:34 d3e129 Exp $
+* $Id: dft_fitcd.F,v 1.25 1998-12-19 01:01:58 edo Exp $
 *
       implicit none
 c
@@ -65,7 +65,9 @@ c
       character*(nw_max_path_len) cdfit_filename
       double precision dabsmax
       integer nxtask
+      integer          itype,nprimo,isphere
       external dabsmax,nxtask
+      logical spherical
       
 #if defined(DFT_TIMER)
       integer nsh_blocks,niter
@@ -92,9 +94,9 @@ c     Project the Coulomb potential onto each of the CD fitting functions.
 c
 c     Allocate scratch space.
 c      
+      spherical=bas_is_spherical(CD_bas_han)
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tvec',lTvec,iTvec))
      &  call errquit('dft_fitcd: cannot allocate Tvec',0)
-c      call ga_sync
       
 c     Initialize the T vector.
       
@@ -412,10 +414,25 @@ c     Compute the CD expansion coefficients.
 c     
 c     Allocate scratch space.
 c      
-      if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'cgtf',lcgtf,icgtf))
-     &  call errquit('dft_fitcd: cannot allocate cgtf',0)
 c
       call int_mem_1e(max1e,nscr1e) 
+c
+c     correct for last shell length
+c     necessary for spherical when calling int_1cg
+c
+      max1e=nbf_cd
+      if(spherical) then
+        if (.not. bas_cn2bfr( CD_bas_han,nshells_cd,
+     &       ifirst,ilast))
+     &      call errquit('Exiting in fitcd.',44)
+        if(.not.bas_continfo(CD_bas_han,nshells_cd,
+     &       itype,nprimo,nshbf,isphere))
+     &       call errquit('Exiting in fitcd.',44)
+          nshbf=((itype+1)*(itype+2))/2+2
+          max1e=nbf_cd+nshbf
+        endif
+        if(.not.MA_Push_Get(MT_Dbl,max1e,'cgtf',lcgtf,icgtf))
+     &  call errquit('dft_fitcd: cannot allocate cgtf',0)
       nscr = max(nscr1e, nbf_cd)
 c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
@@ -430,7 +447,10 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         if (.not. bas_cn2bfr( CD_bas_han,ish,
      &                       ifirst,ilast))
      &      call errquit('Exiting in fitcd.',44)
-                nshbf = ilast-ifirst+1
+          if(.not.bas_continfo(CD_bas_han,ish,
+     &         itype,nprimo,nshbf,isphere))
+     &      call errquit('Exiting in fitcd.',44)
+          nshbf=((itype+1)*(itype+2))/2+2
         call int_1cg( CD_bas_han, ish, nscr, Dbl_MB(iscr), 
      &              nshbf, Dbl_MB(icgtf+ifirst-1) )
       enddo 
