@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.23 2000-05-30 18:56:03 edo Exp $
+C$Id: dft_3cincor.F,v 1.24 2000-05-30 19:09:39 edo Exp $
 c
       implicit none
 c    
@@ -372,5 +372,35 @@ c
  3242 format(10x,'The percent of 3c 2e- integrals held on-disk is: ',
      &       f6.2,/,
      &       10x,' in ',i6,' integral buffers.',/)
+      return
+      end
+      subroutine nxtask_nleft (nproc, ichunk, nxtask_n, nstill)
+      implicit none
+#include "global.fh"      
+c
+      integer nproc, ichunk     ! [input]
+c
+      integer icount, nleft, nxtval, junk, nxtask_n, nstill
+      external nxtval
+      save icount, nleft
+      data nleft, icount /0, 0/
+c     
+c     This is a copy of nxtask (from ddscf) but returning
+c     copy of nleft as argument.
+c     
+      if(nproc.gt.0) then
+         if(nleft.eq.0) then
+            icount = nxtval(nproc) * ichunk
+            nleft = ichunk
+         endif
+         nxtask_n = icount
+         icount = icount + 1
+         nleft = nleft -1
+      else
+         nleft = 0
+         nxtask_n = -1
+         junk = nxtval(nproc)
+      endif
+      nstill = nleft
       return
       end
