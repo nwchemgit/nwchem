@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.8 2002-11-20 05:03:06 sohirata Exp $
+# $Id: tce.py,v 1.9 2002-11-26 21:28:59 sohirata Exp $
 
 import string
 import types
@@ -449,6 +449,11 @@ class Index:
       show = string.join([self.type[0], repr(self.label)], "")
       return show
 
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      show = string.join([self.type[0],"_{",repr(self.label),"}"], "")
+      return show
+
    def isidenticalto(self,another):
       """Returns true if self and another indexes are identical"""
       if ((self.type == another.type) and (self.label == another.label)):
@@ -544,6 +549,66 @@ class Factor:
          show = repr(self.coefficients[0])
          if (len(self.coefficients) > 1):
             show = string.join([show,"* P(",repr(len(self.coefficients)),")"])
+      return show
+ 
+   def tex(self,verbose=1):
+      """Returns a LaTeX string of contests"""
+      if (verbose):
+         coefficient = self.coefficients[0]
+         for n in range(len(self.coefficients)):
+            if (abs(self.coefficients[n]) != abs(coefficient)):
+               raise RuntimeError, "unrealistic factor"
+         fraction = abs(int(1.0/coefficient))
+         if (1.0/float(fraction) != abs(coefficient)):
+            print " !!! WARNING !!! inaccurate arithmatic"
+         if (fraction == 1):
+            frac = ""
+         else:
+            frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
+         if (coefficient >= 0.0):
+            show = string.join(["+",frac])
+         elif (coefficient < 0.0):
+            show = string.join(["-",frac])
+         if (len(self.coefficients) > 1):
+            show = string.join([show,"\\left("],"")
+            for n in range(len(self.coefficients)):
+               if (self.coefficients[n]/coefficient > 0.0):
+                  show = string.join([show,"+"],"")
+               else:
+                  show = string.join([show,"-"],"")
+               if (self.permutations[n]):
+                  show = string.join([show,"P^{"])
+                  for nindex in range(len(self.permutations[n])/2,3*len(self.permutations[n])/4):
+                     index = self.permutations[n][nindex]
+                     show = string.join([show,index.tex()])
+                  for nindex in range(len(self.permutations[n])/4,len(self.permutations[n])/2):
+                     index = self.permutations[n][nindex]
+                     show = string.join([show,index.tex()])
+                  show = string.join([show,"}_{"])
+                  for nindex in range(len(self.permutations[n])/4):
+                     index = self.permutations[n][nindex]
+                     show = string.join([show,index.tex()])
+                  for nindex in range(3*len(self.permutations[n])/4,len(self.permutations[n])):
+                     index = self.permutations[n][nindex]
+                     show = string.join([show,index.tex()])
+                  show = string.join([show,"}"])
+               else:
+                  show = string.join([show,"1"],"")
+            show = string.join([show,"\\right)"])
+      else:
+         fraction = abs(int(1.0/self.coefficients[0]))
+         if (1.0/float(fraction) != abs(self.coefficients[0])):
+            print " !!! WARNING !!! inaccurate arithmatic"
+         if (fraction == 1):
+            frac = ""
+         else:
+            frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
+         if (self.coefficients[0] >= 0.0):
+            show = string.join(["+",frac])
+         elif (self.coefficients[0] < 0.0):
+            show = string.join(["-",frac])
+         if (len(self.coefficients) > 1):
+            show = string.join([show,"P_{",repr(len(self.coefficients)),"}"])
       return show
 
    def duplicate(self):
@@ -716,6 +781,18 @@ class Summation:
       show = string.join([show,")"])
       return show
 
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      show = ""
+      for index in self.indexes:
+         if (show):
+            show = string.join([show,","],"")
+         else:
+            show = "\\sum_{"
+         show = string.join([show,index.tex()])
+      show = string.join([show,"}"])
+      return show
+
    def hastheindex(self,another):
       """Returns true if the summation has the input index"""
       has = 0
@@ -748,6 +825,25 @@ class Tensor:
       for index in self.indexes:
          show = string.join([show, index.show()])
       show = string.join([show,")"])
+      return show
+ 
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      intermediatelist = ["chi","xi","kappa","eta","zeta"]
+      if (self.type == "i"):
+         show = string.join(["\\",intermediatelist[self.label]],"")
+      else:
+         show = self.type
+      show = string.join([show, "^{"])
+      for index in self.indexes[0:len(self.indexes)/2]:
+         show = string.join([show, index.tex()])
+      show = string.join([show,"}"])
+      show = string.join([show, "_{"])
+      for index in self.indexes[len(self.indexes)/2:len(self.indexes)]:
+         show = string.join([show, index.tex()])
+      show = string.join([show,"}"])
+      if (self.conjugate):
+         show = string.join(["\\left(",show,"\\right)^{\\dagger}"],"")
       return show
  
    def duplicate(self):
@@ -1492,6 +1588,16 @@ class TensorContraction:
          show = string.join([show, "*", selftensor.show()])
       return show 
 
+   def tex(self,verbose=1):
+      """Returns a LaTeX string of the content"""
+      show = self.factor.tex(verbose)
+#     if (self.summation):
+#        if (len(self.summation.indexes) > 0):
+#           show = string.join([show, self.summation.tex()])
+      for selftensor in self.tensors:
+         show = string.join([show, selftensor.tex()])
+      return show 
+
    def duplicate(self):
       """Returns a deepcopy"""
       duplicate = TensorContraction(copy.deepcopy(self.factor),copy.deepcopy(self.summation),copy.deepcopy(self.tensors))
@@ -2006,6 +2112,21 @@ class ListTensorContractions:
       for tensorcontraction in self.list:
          show.append(tensorcontraction.show(verbose))
       return show
+ 
+   def tex(self,verbose=1):
+      """Prints the tensor contractions"""
+      show = []
+      for ntensorcontraction in range(len(self.list)):
+         tensorcontraction = self.list[ntensorcontraction]
+         if (ntensorcontraction == 0):
+            show.append("\\begin{eqnarray}")
+            show.append(string.join(["&&",tensorcontraction.tex(verbose),"\\nonumber\\\\"],""))
+         elif (ntensorcontraction == len(self.list)-1):
+            show.append(string.join(["&&",tensorcontraction.tex(verbose),"\\nonumber"],""))
+            show.append("\\end{eqnarray}")
+         else:
+            show.append(string.join(["&&",tensorcontraction.tex(verbose),"\\nonumber\\\\"],""))
+      return show
 
    def findthebestbreakdown(self,verbose=0):
       """Iteratively calls findthebestbreakdown() for all tensor contractions"""
@@ -2159,6 +2280,10 @@ class NoOperation:
       show = "No operation"
       return show
 
+   def tex(self):
+      """Returns nothing"""
+      return
+
    def isoperation(self):
       """Returns false"""
       return 0
@@ -2195,6 +2320,18 @@ class ElementaryTensorContraction:
       show = string.join([show, "*", self.tensors[1].show()])
       if (len(self.tensors) == 3):
          show = string.join([show, "*", self.tensors[2].show()])
+      return show 
+
+   def tex(self,verbose=1):
+      """Returns a LaTeX string of the content"""
+      show = string.join([self.tensors[0].tex(),"=",self.tensors[0].tex()])
+      show = string.join([show,self.factor.tex(verbose)])
+#     if (self.summation):
+#        if (len(self.summation.indexes) > 0):
+#           show = string.join([show, self.summation.tex()])
+      show = string.join([show, self.tensors[1].tex()])
+      if (len(self.tensors) == 3):
+         show = string.join([show, self.tensors[2].tex()])
       return show 
 
    def isoperation(self):
@@ -3288,6 +3425,30 @@ class OperationTree:
       for child in self.children:
          if (child.isoperation()):
             show = show + child.show(ntab+1,verbose)
+      return show
+
+   def tex(self,ntab=0,verbose=1):
+      """Returns the contents as a list of strings in LaTeX format"""
+      show = []
+      show.append("\\begin{eqnarray}")
+      if (self.contraction.isoperation()):
+         show.append(string.join(["&&\\hspace{",repr(ntab-1),"cm}",self.contraction.tex(verbose),"\\nonumber\\\\"],""))
+      for child in self.children:
+         if (child.isoperation()):
+            show = show + child.texa(ntab+1,verbose)
+      originallength = len(show[len(show)-1])
+      show[len(show)-1] = show[len(show)-1][0:originallength-2]
+      show.append("\\end{eqnarray}")
+      return show
+
+   def texa(self,ntab=0,verbose=1):
+      """Returns the contents as a list of strings in LaTeX format"""
+      show = []
+      if (self.contraction.isoperation()):
+         show.append(string.join(["&&\\hspace{",repr(ntab-1),"cm}",self.contraction.tex(verbose),"\\nonumber\\\\"],""))
+      for child in self.children:
+         if (child.isoperation()):
+            show = show + child.texa(ntab+1,verbose)
       return show
  
    def tensorslist(self,list=[]):
@@ -5292,7 +5453,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.8 2002-11-20 05:03:06 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.9 2002-11-26 21:28:59 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)

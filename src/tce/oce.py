@@ -1,6 +1,6 @@
 # Operator Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: oce.py,v 1.3 2002-11-07 19:02:21 sohirata Exp $
+# $Id: oce.py,v 1.4 2002-11-26 21:28:56 sohirata Exp $
 
 import string
 
@@ -286,6 +286,13 @@ class Operator:
          show = string.join([show, "+"], "")
       return show
 
+   def tex(self):
+      """Returns a LaTex form of output"""
+      show = string.join([self.type[0],"_{",repr(self.index),"}"], "")
+      if (self.dagger == "creation"):
+         show = string.join([show, "^{\dagger}"], "")
+      return show
+
    def duplicate(self):
       """Returns a deepcopy of self"""
       duplicate = Operator(self.type,self.dagger,self.index)
@@ -315,6 +322,11 @@ class Operator:
    def showwithoutdagger(self):
       """Returns a human-friendly string of the content"""
       show = string.join([self.type[0], repr(self.index)], "")
+      return show
+
+   def texwithoutdagger(self):
+      """Returns a human-friendly string of the content"""
+      show = string.join([self.type[0],"_{",repr(self.index),"}"], "")
       return show
 
    def isgreaterthan(self,another,summation):
@@ -367,6 +379,18 @@ class Summation:
       for index in self.indexes:
          show = string.join([show, index.showwithoutdagger()])
       show = string.join([show,")"])
+      return show
+
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      show = ""
+      for index in self.indexes:
+         if (show):
+            show = string.join([show,","],"")
+         else:
+            show = "\\sum_{"
+         show = string.join([show,index.texwithoutdagger()])
+      show = string.join([show,"}"])
       return show
 
    def duplicate(self):
@@ -467,6 +491,21 @@ class Amplitude:
       for index in self.indexes:
          show = string.join([show, index.showwithoutdagger()])
       show = string.join([show,")"])
+      return show
+
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      show = self.type
+      show = string.join([show, "^{"])
+      for index in self.indexes[0:len(self.indexes)/2]:
+         show = string.join([show, index.texwithoutdagger()])
+      show = string.join([show,"}"])
+      show = string.join([show, "_{"])
+      for index in self.indexes[len(self.indexes)/2:len(self.indexes)]:
+         show = string.join([show, index.texwithoutdagger()])
+      show = string.join([show,"}"])
+      if (self.conjugate):
+         show = string.join(["\\left(",show,"\\right)^{\\dagger}"],"")
       return show
       
    def duplicate(self):
@@ -658,6 +697,51 @@ class Factor:
       show = string.join([show,"]"])
       return show
 
+   def tex(self):
+      """Returns a LaTeX string of contests"""
+      coefficient = self.coefficients[0]
+      for n in range(len(self.coefficients)):
+         if (abs(self.coefficients[n]) != abs(coefficient)):
+            raise RuntimeError, "unrealistic factor"
+      fraction = abs(int(1.0/coefficient))
+      if (1.0/float(fraction) != abs(coefficient)):
+         print " !!! WARNING !!! inaccurate arithmatic"
+      if (fraction == 1):
+         frac = ""
+      else:
+         frac = string.join(["\\frac{1}{",str(fraction),"}"],"")
+      if (coefficient >= 0.0):
+         show = string.join(["+",frac])
+      elif (coefficient < 0.0):
+         show = string.join(["-",frac])
+      if (len(self.coefficients) > 1):
+         show = string.join([show,"\\left("],"")
+         for n in range(len(self.coefficients)):
+            if (self.coefficients[n]/coefficient > 0.0):
+               show = string.join([show,"+"],"")
+            else:
+               show = string.join([show,"-"],"")
+            if (self.permutations[n]):
+               show = string.join([show,"P^{"])
+               for nindex in range(len(self.permutations[n])/2,3*len(self.permutations[n])/4):
+                  index = self.permutations[n][nindex]
+                  show = string.join([show,index.texwithoutdagger()])
+               for nindex in range(len(self.permutations[n])/4,len(self.permutations[n])/2):
+                  index = self.permutations[n][nindex]
+                  show = string.join([show,index.texwithoutdagger()])
+               show = string.join([show,"}_{"])
+               for nindex in range(len(self.permutations[n])/4):
+                  index = self.permutations[n][nindex]
+                  show = string.join([show,index.texwithoutdagger()])
+               for nindex in range(3*len(self.permutations[n])/4,len(self.permutations[n])):
+                  index = self.permutations[n][nindex]
+                  show = string.join([show,index.texwithoutdagger()])
+               show = string.join([show,"}"])
+            else:
+               show = string.join([show,"1"],"")
+         show = string.join([show,"\\right)"])
+      return show
+
    def multiply(self,factor):
       """Multiply a factor to all coefficients"""
       for n in range(len(self.coefficients)):
@@ -704,6 +788,24 @@ class OperatorSequence:
                show = string.join([show, operator.show()])
             show = string.join([show, "}"])
          show = string.join([show, "|0>"])
+      return show
+
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      show = self.factor.tex()
+#     if (self.summation):
+#        if (len(self.summation.indexes) > 0):
+#           show = string.join([show, self.summation.tex()])
+      for index in self.amplitudes:
+         show = string.join([show, index.tex()])
+      if (self.sequence):
+         show = string.join([show, "\\langle 0 |"])
+         for sequence in self.sequence:
+            show = string.join([show, "\{"])
+            for operator in sequence:
+               show = string.join([show, operator.tex()])
+            show = string.join([show, "\}"])
+         show = string.join([show, "|0\\rangle"])
       return show
 
    def duplicate(self):
@@ -1477,6 +1579,22 @@ class ListOperatorSequences:
             show.append("deleted")
          else:
             show.append(operatorsequence.show())
+      return show
+
+   def tex(self):
+      """Returns a LaTeX string of the content"""
+      show = []
+      for noperatorsequence in range(len(self.list)):
+         operatorsequence = self.list[noperatorsequence]
+         if (operatorsequence != "deleted"):
+            if (noperatorsequence == 0):
+               show.append("\\begin{eqnarray}")
+               show.append(string.join(["&&",operatorsequence.tex(),"\\nonumber\\\\"],""))
+            elif (noperatorsequence == len(self.list)-1):
+               show.append(string.join(["&&",operatorsequence.tex(),"\\nonumber"],""))
+               show.append("\\end{eqnarray}")
+            else:
+               show.append(string.join(["&&",operatorsequence.tex(),"\\nonumber\\\\"],""))
       return show
 
    def duplicate(self):
