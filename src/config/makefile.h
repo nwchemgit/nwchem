@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.97 1995-02-05 20:43:06 d3g681 Exp $
+# $Id: makefile.h,v 1.98 1995-02-07 00:08:34 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -187,10 +187,12 @@ ifeq ($(TARGET),SUN)
 # Sun running SunOS
 #
 
+       NICE = nice 19
+      SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
      RANLIB = ranlib
-  MAKEFLAGS = -j2
+  MAKEFLAGS = -j1
     INSTALL = @echo $@ is built
 
    FOPTIONS = -Nl199
