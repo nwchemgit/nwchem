@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.25 2000-02-23 18:52:55 d3j191 Exp $
+c $Id: md_common.fh,v 1.26 2000-03-29 17:46:46 d3j191 Exp $
 c
 c     parameters
 c
@@ -73,15 +73,15 @@ c
      + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
      + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
-     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,lfndrs,
-     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,lfnpmf,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
       common/md_lfn/
      + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
      + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
-     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,lfndrs,
-     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,lfnpmf,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
 c
 c     socket stuff
@@ -95,14 +95,14 @@ c     -------------------
 c
       character*80 filnam,fdarg,fdlog,fsum,server,projct
       character*70 filday,filinp,filrst,filtop,filcoo,filprp,filfld,
-     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,fildrs,
-     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,filpmf,
+     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
+     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
       common/md_nam/
      + filnam,filday,filinp,filrst,filtop,filcoo,filprp,filfld,
-     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,fildrs,
-     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,filpmf,
+     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
+     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + fdarg,fdlog,fsum,server,projct

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.38 2000-03-28 23:15:18 d3j191 Exp $
+c $Id: pre_input.F,v 1.39 2000-03-29 17:46:57 d3j191 Exp $
 c
       implicit none
 c
@@ -631,7 +631,7 @@ c
       if(.not.inp_i(kgroup)) call errquit('pre_input: pmf',9999)
       if(.not.inp_i(lgroup)) call errquit('pre_input: pmf',9999)
       endif
-      if(type(1:5).ne.'align') then
+      if(type(1:5).ne.'align'.and.type(1:6).ne.'planar') then
       if(.not.inp_f(value1)) call errquit('pre_input: pmf',9999)
       if(.not.inp_f(value2)) call errquit('pre_input: pmf',9999)
       else
@@ -643,6 +643,9 @@ c
       if(type(1:5).eq.'align') then
       write(68,6844) igroup,forcon,forc2
  6844 format('pmf line',i5,15x,24x,2e12.5)
+      elseif(type(1:5).eq.'planar') then
+      write(68,6845) igroup,forcon,forc2
+ 6845 format('pmf plan',i5,15x,24x,2e12.5)
       elseif(type(1:8).eq.'distance') then
       write(68,6840) igroup,jgroup,value1,value2,forcon,forc2
  6840 format('pmf dist',2i5,10x,2f12.6,2e12.5)

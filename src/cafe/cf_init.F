@@ -1,12 +1,11 @@
-      subroutine cf_start(irtdbi,logqmd,lfntop,filtop,
-     + ndistr,lfndrs,fildrs,npmf,lfnpmf,filpmf,
+      subroutine cf_start(irtdbi,logqmd,lfntop,filtop,ndistr,npmf,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc)
-c $Id: cf_init.F,v 1.40 2000-03-28 23:15:33 d3j191 Exp $
+c $Id: cf_init.F,v 1.41 2000-03-29 17:47:05 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -14,8 +13,8 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfntop,lfndrs,lfnpmf,irtdbi
-      character*(*) filtop,fildrs,filpmf
+      integer lfntop,irtdbi
+      character*(*) filtop
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf
       real*8 spmet,step,tols,bx(3)
@@ -27,6 +26,7 @@ c
       logical logqmd,lpbc
 c
       integer i,itemp(2)
+      character*3 string
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -196,9 +196,14 @@ c     -------------------
 c
       if(ndistr.gt.0) then
       if(me.eq.0) then
-      open(unit=lfndrs,file=fildrs(1:index(fildrs,' ')-1),
+      open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=9999)
-      read(lfndrs,1000) ndrs
+      rewind(lfntop)
+    5 continue
+      read(lfntop,100,end=9999,err=9999) string
+  100 format(a3)
+      if(string.ne.'noe') goto 5
+      read(lfntop,1000) ndrs
  1000 format(i5)
       endif
       call ga_brdcst(mcf_55,ndrs,ma_sizeof(mt_int,1,mt_byte),0)
@@ -210,9 +215,9 @@ c
       if(.not.ma_push_get(mt_dbl,6*ndrs,'xdrs',l_xdrs,i_xdrs))
      + call errquit('Failed to allocate xdrs',0)
       endif
-      call cf_rddrs(lfndrs,int_mb(i_idrs),dbl_mb(i_rdrs))
+      call cf_rddrs(lfntop,int_mb(i_idrs),dbl_mb(i_rdrs))
       if(me.eq.0) then
-      close(unit=lfndrs)
+      close(unit=lfntop)
       endif
       endif
 c
@@ -221,10 +226,13 @@ c     -----------------------
 c
       if(lpmf) then
       if(me.eq.0) then
-      open(unit=lfnpmf,file=filpmf(1:index(filpmf,' ')-1),
+      open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
      + form='formatted',status='old',err=9999)
-      rewind(lfnpmf)
-      read(lfnpmf,2000) itemp
+      rewind(lfntop)
+    6 continue
+      read(lfntop,100,end=9999,err=9999) string
+      if(string.ne.'pmf') goto 6
+      read(lfntop,2000) itemp
  2000 format(2i5)
       endif
       call ga_brdcst(mcf_59,itemp,ma_sizeof(mt_int,2,mt_byte),0)
@@ -242,9 +250,9 @@ c
       if(.not.ma_push_get(mt_dbl,12*numpmf,'ypmf',l_ypmf,i_ypmf))
      + call errquit('Failed to allocate ypmf',0)
       endif
-      call cf_rdpmf(lfnpmf,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
+      call cf_rdpmf(lfntop,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
       if(me.eq.0) then
-      close(unit=lfnpmf)
+      close(unit=lfntop)
       endif
       endif
 c
@@ -280,7 +288,7 @@ c
 c
       return
       end
-      subroutine cf_rddrs(lfndrs,idrs,rdrs)
+      subroutine cf_rddrs(lfntop,idrs,rdrs)
 c
       implicit none
 c
@@ -289,7 +297,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfndrs
+      integer lfntop
       integer idrs(ndrs,2)
       real*8 rdrs(ndrs,6)
 c
@@ -297,7 +305,7 @@ c
 c
       if(me.eq.0) then
       do 1 i=1,ndrs
-      read(lfndrs,1000) (idrs(i,j),j=1,2),(rdrs(i,j),j=1,5)
+      read(lfntop,1000) (idrs(i,j),j=1,2),(rdrs(i,j),j=1,5)
  1000 format(2i10,3f12.6,/,20x,2e12.5)
       rdrs(i,6)=zero
     1 continue
@@ -309,7 +317,7 @@ c
 c
       return
       end
-      subroutine cf_rdpmf(lfnpmf,ipmf,jpmf,rpmf)
+      subroutine cf_rdpmf(lfntop,ipmf,jpmf,rpmf)
 c
       implicit none
 c
@@ -318,7 +326,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer lfnpmf
+      integer lfntop
       integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
       real*8 rpmf(2,6,numpmf)
 c
@@ -329,7 +337,7 @@ c
 c
       if(me.eq.0) then
       do 1 i=1,numpmf
-      read(lfnpmf,1000) ipmf(i,1),(rpmf(j,1,i),rpmf(j,3,i),j=1,2),
+      read(lfntop,1000) ipmf(i,1),(rpmf(j,1,i),rpmf(j,3,i),j=1,2),
      + (ipmf(i,j),j=2,5)
  1000 format(i5,2f12.6,2e12.5,4i5)
       do 2 j=1,2
@@ -339,9 +347,9 @@ c
       rpmf(j,6,i)=rpmf(j,3,i)
     2 continue
       m=ipmf(i,1)
-      if(ipmf(i,1).eq.5) m=2
+      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       do 3 j=1,m
-      read(lfnpmf,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
+      read(lfntop,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
  1001 format(10i7)
     3 continue
     1 continue

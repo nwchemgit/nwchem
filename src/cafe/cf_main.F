@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.34 2000-03-28 23:15:33 d3j191 Exp $
+c $Id: cf_main.F,v 1.35 2000-03-29 17:47:05 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1198,7 +1198,7 @@ c
       xpmf(j,3,i)=zero
     2 continue
       m=ipmf(i,1)
-      if(ipmf(i,1).eq.5) m=2
+      if(ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) m=2
       do 3 j=1,m
       do 4 k=1,ipmf(i,j+1)
       do 5 l=1,nums
@@ -1214,13 +1214,17 @@ c
       xpmf(j,3,i)=xpmf(j,3,i)/dble(ipmf(i,j+1))
     3 continue
       if(ipmf(i,1).eq.5) xpmf(2,3,i)=xpmf(1,3,i)
+      if(ipmf(i,1).eq.6) then
+      xpmf(2,1,i)=xpmf(1,1,i)
+      xpmf(2,2,i)=xpmf(1,2,i)
+      endif
     1 continue
 c
       call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
 c
       do 6 i=1,numpmf
 c
-      if(ipmf(i,1).eq.2.or.ipmf(i,1).eq.5) then
+      if(ipmf(i,1).eq.2.or.ipmf(i,1).eq.5.or.ipmf(i,1).eq.6) then
       do 7 j=1,2
       ign(j)=j
       iml(j)=1

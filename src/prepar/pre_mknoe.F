@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.5 2000-03-29 00:45:29 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.6 2000-03-29 17:46:58 d3j191 Exp $
 c
       implicit none
 c
@@ -182,11 +182,19 @@ c
     9 continue
       close(unit=lfncmd,err=999)
 c
-      if(nnoe.gt.0) call pre_wrtnoe(lfnnoe,filnoe,mnoe,nnoe,
+      if(nnoe.gt.0) then
+      call pre_wrtnoe(lfntop,filtop,mnoe,nnoe,
      + int_mb(i_inoe),dbl_mb(i_dnoe))
+      write(lfnout,1004)
+ 1004 format(/,' Distance restraints appended to topology')
+      endif
 c
-      if(numpmf.gt.0) call pre_wrtpmf(lfnpmf,filpmf,numpmf,
+      if(numpmf.gt.0) then
+      call pre_wrtpmf(lfntop,filtop,numpmf,
      + maxpmf,ipmf,rpmf,maxgrp,maxatm,igroup,lgroup)
+      write(lfnout,1005)
+ 1005 format(/,' Potential of mean force appended to topology')
+      endif
 c
   999 continue
 c

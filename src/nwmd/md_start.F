@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.49 2000-03-14 22:50:30 d3j191 Exp $
+c $Id: md_start.F,v 1.50 2000-03-29 17:46:46 d3j191 Exp $
 c
       implicit none
 c
@@ -36,8 +36,7 @@ c
 c     start the classical forces API
 c     ------------------------------
 c
-      call cf_start(irtdb,lqmd,lfntop,filtop,
-     + ndistr,lfndrs,fildrs,npmf,lfnpmf,filpmf,
+      call cf_start(irtdb,lqmd,lfntop,filtop,ndistr,npmf,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
@@ -258,8 +257,6 @@ c
       filinp=filnam(1:ibl)//'.inp'
       filrst=filnam(1:ibl)//'.rst'
       filtop=filnam(1:iun)//'.top'
-      fildrs=filnam(1:iun)//'.drs'
-      filpmf=filnam(1:iun)//'.pmf'
       filcoo=filnam(1:ibl)//'.trj'
       filprp=filnam(1:ibl)//'.prp'
       filvel=filnam(1:ibl)//'.vel'
@@ -307,12 +304,10 @@ c
       lfnprp=15
       lfnvel=16
       lfngib=17
-      lfndrs=18
       lfnrdf=19
       lfnppd=20
       lfnsco=21
       lfnsvl=22
-      lfnpmf=23
       lfndip=25
       lfndef=26
       lfnemt=27
