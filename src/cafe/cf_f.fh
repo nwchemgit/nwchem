@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
       implicit none
 c
@@ -758,7 +758,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
       implicit none
 c
@@ -1875,7 +1875,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
       implicit none
 c
@@ -1936,8 +1936,6 @@ c
 #if defined(CAFE_POLARIZATION)
       qfaci=one/qfac
 #endif
-      etermq=zero
-      eterml=zero
 c
       do 112 i=1,msa
       if(isq2(i).le.0.or.isq3(i).le.0.or.
@@ -1979,6 +1977,10 @@ c
 c     loop over number of cycles to complete pairlists
 c
       do 13 isslen=1,nsslen(ipss)
+c
+      etermq=zero
+      eterml=zero
+c
       nax=0
       isf=ismf(isfr+lssndx(isslen,ipss))
 c
@@ -2963,7 +2965,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3242,7 +3244,7 @@ c
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,dera)
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3508,7 +3510,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -3841,7 +3843,7 @@ c
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + dera)
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4158,7 +4160,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa)
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4504,7 +4506,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.45 2002-05-02 20:06:08 d3j191 Exp $
+c $Id: cf_f.fh,v 1.46 2002-05-20 20:33:23 d3j191 Exp $
 c
       implicit none
 c
