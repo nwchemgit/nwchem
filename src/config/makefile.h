@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.350 2000-11-30 03:21:48 edo Exp $
+# $Id: makefile.h,v 1.351 2000-12-04 18:28:11 d3g681 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -941,7 +941,7 @@ ifeq ($(NWCHEM_TARGET_CPU),604)
   LDOPTIONS = -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpxlf_r   $(LDFLAGS)
 else
-  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x20000000 -bloadmap:nwchem.lapi_map
+  LDOPTIONS = -lc_r -lxlf90_r -lm_r -qEXTNAME -qnosave -qalign=4k -g -bmaxdata:0x40000000 -bloadmap:nwchem.lapi_map
    LINK.f   = mpcc_r   $(LDFLAGS)
 endif
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k 
