@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.16 2000-05-25 21:56:34 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.17 2000-06-28 22:01:55 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -59,6 +59,10 @@ c
       logical osol_phase
       double precision egas
       double precision esol
+c
+      integer itype_wfn
+      integer   g_movecs_dum
+      dimension g_movecs_dum(2)
 c     
       vlen = crohf_vlen
       aoff = nclosed + 1
@@ -195,7 +199,9 @@ c
               endif
               osome=osome.and.ga_nodeid().eq.0
 c
-              call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome)
+              itype_wfn=1
+              call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome,
+     $                           itype_wfn,g_movecs_dum)
 c
               osome=.false.
            else
