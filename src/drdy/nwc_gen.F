@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.7 2001-05-01 23:49:56 windus Exp $
+C $Id: nwc_gen.F,v 1.8 2002-01-11 19:56:05 edo Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -14,7 +14,7 @@ C
       Integer natom, n3, n3tm, ndbar, op
       Double Precision v
       Double Precision x(n3),dx(n3),fmat(n3tm,n3),
-     &      hess(ndbar),xs(n3)
+     &      hess(ndbar),xs(n3), velocities(3,n3)
 *
       Integer ndima
       Parameter (ndima=3)
@@ -72,7 +72,7 @@ c
         enddo
         call geom_auto_sym(my_rtdb,geom,dx,
      &      copy_charge,copy_labels,ncenter,
-     &      threquiv,groupname)
+     &      threquiv,groupname,velocities)
         if (op.ne.DRDY_CODE_SPENERGY)
      &    write(luout,10) groupname
         if (groupname(1:2).ne."C1") then
