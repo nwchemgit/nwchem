@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.108 2004-09-23 16:38:34 marat Exp $
+* $Id: opt_drv.F,v 1.109 2004-11-29 16:00:04 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -3057,6 +3057,7 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
       integer rtdb, geom
+      character*32 theory
 c
 c     Get the gradient.
 c     
@@ -3074,9 +3075,23 @@ c
      $        call errquit('driver: frac_to_cart?',0,0)
       end if
       if (ostress) then
-         if (.not. rtdb_get(rtdb, 'pspw:stress', mt_dbl, 9,
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $   call errquit('driver: stress theory not specified',0,RTDB_ERR)
+         if (theory.eq.'pspw') then
+          if (.not. rtdb_get(rtdb, 'pspw:stress', mt_dbl, 9,
      $        gx(3*nat_real+1))) call errquit
      $        ('driver: could not get stress',0,0)
+         else if (theory.eq.'band') then
+          if (.not. rtdb_get(rtdb, 'band:stress', mt_dbl, 9,
+     $        gx(3*nat_real+1))) call errquit
+     $        ('driver: could not get stress',0,0)
+         else if (theory.eq.'paw') then
+          if (.not. rtdb_get(rtdb, 'paw:stress', mt_dbl, 9,
+     $        gx(3*nat_real+1))) call errquit
+     $        ('driver: could not get stress',0,0)
+         else
+           call errquit('driver: no stress in theory',0,RTDB_ERR)
+         end if
       endif
 c
       end
