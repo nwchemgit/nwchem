@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 1994-11-07 02:09:18 og845 Exp $
+# $Id: GNUmakefile,v 1.7 1994-11-07 02:52:37 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	dzero.o		\
@@ -8,7 +8,7 @@
 	gather.o	\
 	header.o	\
 	ijcanon.o	\
-	invio.o		izero.o	\
+	invio.o		\
 	pertbl.o	\
 	sca_lab_mat.o	sca_lab_can.o		scatter.o	\
 	second.o	\
