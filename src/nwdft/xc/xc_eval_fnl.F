@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau)
 c
-c     $Id: xc_eval_fnl.F,v 1.41 2003-02-19 05:19:57 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.42 2003-04-10 17:49:33 sohirata Exp $
 c
       implicit none
 c
@@ -367,8 +367,16 @@ c     meta GGA
             call xc_xpkzb99_d2()
          endif
       endif
-
-
+c
+c     LB94 or CS00 correction is added to xc potential only
+c     (xc functional and functional 2nds are unchanged)
+c
+      if (cs00) then
+         call xc_cs00(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol, 
+     &   delta_ac)
+      else if (lb94) then
+         call xc_lb94(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol)
+      endif
 c     
 c     Combine with quadrature weights
 c
