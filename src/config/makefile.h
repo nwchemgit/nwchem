@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.241 1997-09-08 15:10:42 d3j191 Exp $
+# $Id: makefile.h,v 1.242 1997-10-16 08:37:46 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -391,7 +391,7 @@ endif
 ifeq ($(TARGET),CRAY-T3E)
 #
 #
-   CORE_SUBDIRS_EXTRA = blas lapack # Only a couple of routines not in scilib
+   CORE_SUBDIRS_EXTRA = peigs blas lapack # Only a couple of routines not in scilib
                RANLIB = echo
             MAKEFLAGS = -j 1 --no-print-directory
               INSTALL = @echo $@ is built
