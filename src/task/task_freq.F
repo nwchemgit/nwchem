@@ -79,7 +79,6 @@ c
        call inp_ucase(scftype)
       endif
 c
-
       if (.not.numerical.and.theory.eq.'scf'.and.scftype.eq.'RHF') then 
          hess_analy = .true.
 
@@ -100,6 +99,12 @@ c
          write(6,*)
 
       else           
+* overide numerical since task gradient knows what to do for theory
+        if (numerical) then
+          if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,.false.))
+        endif
+
+
         if (ga_nodeid().eq.0 .and. 
      $     util_print('task_freq', print_low)) then
          write(6,*)
@@ -114,6 +119,10 @@ c
         if (.not.stpr_gen_hess_at(rtdb,delta_pass))
      $     call errquit
      $     ('task_freq: stpr_gen_hess_at failed ',911)
+* reset numerical since task may not be the only task
+        if (numerical) then
+          if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,numerical))
+        endif
       endif
 c     
       if ((ga_nodeid()).eq.0) then
