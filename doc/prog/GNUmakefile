@@ -57,13 +57,6 @@ pdf:    $(SOURCE) .IGNORE
 .IGNORE:
 
 clean:
-        /bin/rm -f *.dvi *.ps *.toc *.aux *.log *~
-        /bin/rm -rf user
-realclean:
-        $(MAKE) clean
-        rm -f userpdf.pdf userpdf.out
-
-clean:
 	/bin/rm -f *.dvi *.ps *.toc *.aux *.log *~
 	/bin/rm -rf prog
 realclean:
