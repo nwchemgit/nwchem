@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.38 2000-05-15 18:53:00 d3j191 Exp $
+c $Id: prp_main.F,v 1.39 2000-05-16 01:18:43 edo Exp $
 c
       implicit none
 c
@@ -251,8 +251,8 @@ c
       p(38)=exp(-p(36)/(rgas*temp))
       p(39)=exp(-p(37)/(rgas*temp))
 c
-      dwr=p(69)/dble(6*nwm)
       if(nwm.gt.0) then
+      dwr=p(69)/dble(6*nwm)
       p(69)=dwr
       p(70)=1.0d-6*dwr/stime
       endif
@@ -347,7 +347,7 @@ c
      + p(24),p(25),p(26),p(27),p(32)
  1001 format(1x,f10.5,0pf8.2,1pe9.2,0pf10.3,3f7.4,5(1pe11.4),i5,i7)
       if(lpstep) then
-      rt=one/nwm
+cedo      rt=one/nwm
       if(nwm.gt.0) then
       rt=one/nwm
       write(lfnout,1011) rt*p(56),rt*p(57),rt*p(58),rt*p(59),rt*p(52),
