@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.6 1995-12-20 23:53:48 pg481 Exp $
+c $Id: texas_face.F,v 1.7 1995-12-21 18:59:26 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -549,7 +549,6 @@ c
 c----------------------------------------
       common /index/ maxsh,ifp,inx(1)
       common /inde1/ inxx
-      common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
       common /ganz/ lcore,iov,last,lflag(4),inuc,ibas,na,nbf,nsh,ncf,ncs
      1,nsy(4),nsym,nganz(35),lopt(30)
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
@@ -598,11 +597,6 @@ c
       time_pr2sm=0.d0
       call timepr(zero)
 c------------------------------pnl time--------------------------
-* par(1), par(2) and par(26) set in texas_set_accy now
-*...old      do 10 i=1,30
-      do 10 i=3,30
-        if (i.ne.26) par(i)=0.0           
-   10 continue
 c
       do 20 i=1,4
    20 nsy(i)=0
@@ -717,7 +711,10 @@ c make setup like in Twoint :
 c common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
 c common /runtype/ scftype,where
 c
-      eps=par(1)
+c     eps=par(1)
+c threshold is already setup by subroutine texas_set_accy(pnl_thresh1)
+c--
+      eps=0.d0   
       icache=icache*ncache
       nprint=iprint
       iblok=iblock
@@ -802,7 +799,6 @@ c------------------------------------
      1pl(9),nbl(9),nen(9),lentry(9),nam(200),num(200),irec(200),icode(20
      20),inpf,ioutf
       common /unit/ ang,debye,cbm,ajoule,evolt,ckalmo,dkel,cmm1,hertz
-      common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
       common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
      1i,acc
       common /ganz/ lcore,iov,last,nganz(67)
@@ -959,7 +955,6 @@ c=================================================================
       implicit real*8 (a-h,o-z)
       implicit integer (i-n)
       logical firstd
-      common /ener/ title(16),etot,enuc,qx(3),qtot,time,tlast,par(30)
       common /intgop/ ncache,maxprice,iprint,iblock
       common /intlim/ limxmem,limblks,limpair
       common /infor/ icheck,firstd,ndirect,nprint,iblok,nbeg,nend
