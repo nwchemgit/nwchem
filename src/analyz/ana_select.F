@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_select.F,v 1.8 2001-05-16 15:56:20 d3j191 Exp $
+c $Id: ana_select.F,v 1.9 2002-07-18 01:23:07 d3j191 Exp $
 c
       implicit none
 c
@@ -15,36 +15,40 @@ c
       integer isel(nsa)
       real*8 x(nsa,3)
 c
-      integer i,j,k
-      integer is,js,it
+      integer i,j
+      integer it
       character*5 cs,ct
       real*8 rtag,rtag2,r2
-      character*80 card
+      character*80 card,target
+      integer l_list,i_list
 c
 c     do selection on node 0
 c
       if(me.eq.0) then
 c
-      read(card(8:38),1000) is,js,rtag,cs
- 1000 format(2i7,f12.6,a5)
-      if(cs(1:1).eq.'_') cs(1:1)=' '
-      do 3 i=1,nsa
-      read(sgmnam(i),'(5x,a5,i6)') ct,it
-      do 4 j=1,5
-      if(cs(j:j).eq.'?') ct(j:j)='?'
-    4 continue
-      if((is.eq.0.or.(is.le.it.and.js.ge.it)).and.
-     + (cs.eq.'     '.or.cs.eq.ct)) then
+      read(card(8:80),1000) rtag,target
+ 1000 format(f12.6,a)
+c
+      if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
+     + call errquit('Failed to allocate list',0)
+c
+      call ana_selection(sgmnam,nsa,target,int_mb(i_list))
+c
+      do 1 i=1,nsa
+      if(int_mb(i_list-1+i).eq.1) then
       isel(i)=1
       if(rtag.gt.0.0d0) then
       rtag2=rtag*rtag
-      do 5 k=1,nsa
-      r2=(x(k,1)-x(i,1))**2+(x(k,2)-x(i,2))**2+(x(k,3)-x(i,3))**2
-      if(r2.le.rtag2) isel(k)=1
-    5 continue
+      do 2 j=1,nsa
+      r2=(x(j,1)-x(i,1))**2+(x(j,2)-x(i,2))**2+(x(j,3)-x(i,3))**2
+      if(r2.le.rtag2) isel(j)=1
+    2 continue
       endif
       endif
-    3 continue
+    1 continue
+c
+      if(.not.ma_pop_stack(l_list))
+     + call errquit('Failed to deallocate list',0)
 c
       endif
 c

@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.58 2002-06-25 22:43:10 d3j191 Exp $
+c $Id: ana_input.F,v 1.59 2002-07-18 01:23:07 d3j191 Exp $
 c
       implicit none
 c
@@ -301,20 +301,9 @@ c     ------------
 c
       if(inp_compare(.false.,'select',item)) then
       lsuper=.false.
+      if(.not.inp_f(rsel)) rsel=0.0d0
  1255 continue
-      rsel=0.0d0
-      isel=0
-      jsel=0
-      if(inp_i(isel)) then
-      if(.not.inp_i(jsel)) jsel=isel
-      else
-      if(inp_f(rsel)) then
-      if(inp_i(isel)) then
-      if(.not.inp_i(jsel)) jsel=isel
-      endif
-      endif
-      endif
-      if(.not.inp_a(atom)) atom=' '
+      if(.not.inp_a(atom)) call errquit('Error in select',0)
       if(atom(1:5).eq.'super') then
       lsuper=.true.
       goto 1255
@@ -353,14 +342,13 @@ c
       endif
     4 continue
       if(lsuper) then
-      write(lfncmd,1056) isel,jsel,rsel,atom(1:index(atom,' ')-1)
- 1056 format('selecs ',2i7,f12.6,a)
+      write(lfncmd,1056) rsel,atom(1:index(atom,' ')-1)
+ 1056 format('selecs ',f12.6,a)
       else
-      write(lfncmd,1006) isel,jsel,rsel,atom(1:index(atom,' ')-1)
- 1006 format('select ',2i7,f12.6,a)
+      write(lfncmd,1006) rsel,atom(1:index(atom,' ')-1)
+ 1006 format('select ',f12.6,a)
       endif
       numcmd=numcmd+1
-      if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 4
       goto 2
       endif
@@ -369,33 +357,21 @@ c     define groups of solute atoms
 c     -----------------------------
 c
       if(inp_compare(.false.,'define',item)) then
-      if(.not.inp_i(ksel)) call errquit('ana_input: define',0)
-      rsel=0.0d0
-      isel=0
-      jsel=0
-      if(inp_i(isel)) then
-      if(.not.inp_i(jsel)) jsel=isel
-      else
-      if(inp_f(rsel)) then
-      if(inp_i(isel)) then
-      if(.not.inp_i(jsel)) jsel=isel
-      endif
-      endif
-      endif
-      if(.not.inp_a(atom)) atom=' '
+      if(.not.inp_i(isel)) call errquit('ana_input: define',0)
+      if(.not.inp_f(rsel)) rsel=0.0d0
+      if(.not.inp_a(atom)) call errquit('ana_input: define',0)
       if(atom(1:7).eq.'solvent') then
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_a(atom)) atom=' '
-      write(lfncmd,1207) ksel,isel,jsel,rsel,atom(1:index(atom,' ')-1)
- 1207 format('wdefin ',3i7,f12.6,a)
+      write(lfncmd,1207) isel,rsel,atom(1:index(atom,' ')-1)
+ 1207 format('wdefin ',i7,f12.6,a)
       numcmd=numcmd+1
       goto 2
       endif
     6 continue
-      write(lfncmd,1020) ksel,isel,jsel,rsel,atom(1:index(atom,' ')-1)
- 1020 format('define ',3i7,f12.6,a)
+      write(lfncmd,1020) isel,rsel,atom(1:index(atom,' ')-1)
+ 1020 format('define ',i7,f12.6,a)
       numcmd=numcmd+1
-      if(atom(1:1).eq.' ') goto 2
       if(inp_a(atom)) goto 6
       goto 2
       endif

@@ -1,6 +1,6 @@
       subroutine ana_define(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_define.F,v 1.3 2000-10-06 07:09:25 d3j191 Exp $
+c $Id: ana_define.F,v 1.4 2002-07-18 01:23:07 d3j191 Exp $
 c
       implicit none
 c
@@ -19,16 +19,23 @@ c
       integer id,is,js,it
       character*5 cs,ct
       real*8 rtag,rtag2,r2
-      character*80 card
+      character*80 card,target
+      integer l_list,i_list
 c
 c     do selection on node 0
 c
       if(me.eq.0) then
 c
-      read(card(8:45),1000) id,is,js,rtag,cs
- 1000 format(3i7,f12.6,a5)
+      read(card(8:80),1000) id,rtag,target
+ 1000 format(i7,f12.6,a)
+c
+      if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))
+     + call errquit('Failed to allocate list',0)
+c
+      call ana_selection(sgmnam,nsa,target,int_mb(i_list))
 c
       if(abs(id).gt.mxdef) call errquit('Group number too large',id)
+c
       if(id.eq.0) then
       ndef=0
       else
@@ -41,40 +48,36 @@ c
       ldef(id)=0
       endif
       if(id.gt.ndef) call errquit('Groups to be defined in order',id)
+      endif
 c
-      if(cs(1:1).eq.'_') cs(1:1)=' '
       do 3 i=1,nsa
-      read(sgmnam(i),'(5x,a5,i6)') ct,it
-      do 4 j=1,5
-      if(cs(j:j).eq.'?') ct(j:j)='?'
+      if(int_mb(i_list-1+i).eq.1) then
+      do 4 k=1,ldef(id)
+      if(idef(id,k).eq.i) goto 3
     4 continue
-      if((is.eq.0.or.(is.le.it.and.js.ge.it)).and.
-     + (cs.eq.'     '.or.cs.eq.ct)) then
-      do 6 k=1,ldef(id)
-      if(idef(id,k).eq.i) goto 7
-    6 continue
       ldef(id)=ldef(id)+1
       if(ldef(id).gt.mxnum) call errquit('Too many atoms in group',id)
       idef(id,ldef(id))=i
-    7 continue
       if(rtag.gt.0.0d0) then
       rtag2=rtag*rtag
       do 5 k=1,nsa
       r2=(x(k,1)-x(i,1))**2+(x(k,2)-x(i,2))**2+(x(k,3)-x(i,3))**2
       if(r2.le.rtag2) then
-      do 8 l=1,ldef(id)
-      if(idef(id,l).eq.i) goto 9
-    8 continue
+      do 6 l=1,ldef(id)
+      if(idef(id,l).eq.k) goto 5
+    6 continue
       ldef(id)=ldef(id)+1
       if(ldef(id).gt.mxnum) call errquit('Too many atoms in group',id)
-      idef(id,ldef(id))=i
-    9 continue
+      idef(id,ldef(id))=k
+    7 continue
       endif
     5 continue
-      endif
+      endif      
       endif
     3 continue
-      endif
+c
+      if(.not.ma_pop_stack(l_list))
+     + call errquit('Failed to deallocate list',0)
 c
       write(*,1001) id,ldef(id)
  1001 format(' Atom group',i5,' contains ',i7,' atoms')
@@ -106,13 +109,13 @@ c
 c
       character*80 card
 c
-      integer id,is,js
+      integer id
       character*5 cs,ct
       real*8 rtag
       integer i,j,k
 c
-      read(card(8:45),1000) id,is,js,rtag,cs
- 1000 format(3i7,f12.6,a5)
+      read(card(8:31),1000) id,rtag,cs
+ 1000 format(i7,f12.6,a5)
 c 
       if(id.eq.0) then
       ndef=0
@@ -161,6 +164,130 @@ c
      + ldef(i)*ma_sizeof(mt_int,1,mt_byte),0)
    10 continue
       endif
+c
+      return
+      end
+      subroutine ana_selection(atomname,natoms,target,list)
+c
+      implicit none
+c
+      integer natoms
+      character*16 atomname(natoms)
+      character*80 target
+      character*10 string,aname
+      integer list(natoms)
+c
+      integer i,j,ip,ndxcol,length,isgmfr,isgmto,isegment
+      logical lsgm,latm
+c
+      do 1 i=1,natoms
+      list(i)=0
+ 1    continue
+c
+      length=index(target,' ')-1
+      ndxcol=index(target,':')
+      lsgm=ndxcol.gt.0
+      latm=ndxcol.gt.0
+      if(ndxcol.eq.0) then
+      latm=.false.
+      do 2 i=1,length
+      lsgm=.false.
+      if(target(i:i).eq.'1') lsgm=.true.
+      if(target(i:i).eq.'2') lsgm=.true.
+      if(target(i:i).eq.'3') lsgm=.true.
+      if(target(i:i).eq.'4') lsgm=.true.
+      if(target(i:i).eq.'5') lsgm=.true.
+      if(target(i:i).eq.'6') lsgm=.true.
+      if(target(i:i).eq.'7') lsgm=.true.
+      if(target(i:i).eq.'8') lsgm=.true.
+      if(target(i:i).eq.'9') lsgm=.true.
+      if(target(i:i).eq.'0') lsgm=.true.
+      if(target(i:i).eq.',') lsgm=.true.
+      if(target(i:i).eq.'-') lsgm=.true.
+      if(.not.lsgm) latm=.true.
+      if(latm) goto 3
+ 2    continue
+ 3    continue
+      if(lsgm) then
+      ndxcol=length+1
+      else
+      ndxcol=0
+      endif
+      endif
+c
+      if(lsgm) then
+      string='          '
+      isgmto=0
+      isgmfr=0
+      ip=1
+      do 4 i=1,ndxcol
+      if(target(i:i).eq.','.or.i.eq.ndxcol) then
+      string(10+ip-i:10)=target(ip:i-1)
+      read(string,'(i10)') isgmto
+      string='          '
+      ip=i+1
+      if(isgmfr.eq.0) isgmfr=isgmto
+      elseif(target(i:i).eq.'-') then
+      string(10+ip-i:10)=target(ip:i-1)
+      read(string,'(i10)') isgmfr
+      string='          '
+      ip=i+1
+      endif
+      if(isgmto.gt.0) then
+      do 5 j=1,natoms
+      read(atomname(j)(12:16),'(i5)') isegment
+      if(isegment.ge.isgmfr.and.isegment.le.isgmto) list(j)=-1
+ 5    continue
+      isgmto=0
+      isgmfr=0
+      endif
+ 4    continue
+      else
+      if(latm) then
+      do 6 j=1,natoms
+      list(j)=-1
+ 6    continue
+      else
+      do 7 j=1,natoms
+      list(j)=1
+ 7    continue
+      endif
+      endif
+c
+      if(latm) then
+      string='          '
+      ip=1
+      do 8 i=ndxcol+1,length+1
+      if(target(i:i).eq.','.or.i.eq.length+1) then
+      do 9 j=1,natoms
+      if(list(j).eq.-1) then
+      aname(1:6)=atomname(j)(6:11)
+      if(string(1:1).eq.'_') aname(1:1)='_'
+      if(string(1:1).eq.'?') aname(1:1)='?'
+      if(string(2:2).eq.'?') aname(2:2)='?'
+      if(string(3:3).eq.'?') aname(3:3)='?'
+      if(string(4:4).eq.'?') aname(4:4)='?'
+      if(string(5:5).eq.'?') aname(5:5)='?'
+      if(string(6:6).eq.'?') aname(6:6)='?'
+      if(string(1:6).eq.aname(1:6)) list(j)=1
+      endif
+ 9    continue
+      string='          '
+      ip=1
+      else
+      string(ip:ip)=target(i:i)
+      ip=ip+1
+      endif
+ 8    continue
+      else
+      do 10 i=1,natoms
+      if(list(i).lt.0) list(i)=1
+   10 continue
+      endif
+c
+      do 11 i=1,natoms
+      if(list(i).lt.0) list(i)=0
+   11 continue
 c
       return
       end
