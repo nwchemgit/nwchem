@@ -1,5 +1,5 @@
 /*
- $Id: util.c,v 1.4 2000-02-28 21:41:48 d3g270 Exp $
+ $Id: util.c,v 1.5 2002-05-17 19:10:01 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -80,13 +80,14 @@ Integer count_list ( me, list, size )
   
    Integer i, j;
    Integer *ptr;
+	Integer isize  = *size;
   
-  if ( *size <= 0 )
+  if ( isize <= 0 )
     return(0);
   
   ptr = list;
   j = 0;  
-  for ( i = 0; i < *size; i++ ) {
+  for ( i = 0; i < isize; i++ ) {
     if ( *(ptr++) == me  ) 
       j++;
   }
@@ -132,12 +133,14 @@ Integer indxlf_ ( k, nvecs, map)
 {
   Integer i;
   Integer *ptr;
+	Integer nnvecs = *nvecs;
+	Integer kk = *k;
   
   ptr = map;
 
-  for ( i = 0; i < *nvecs; i++ )
+  for ( i = 0; i < nnvecs; i++ )
     {
-      if ( *(ptr++) == *k )
+      if ( *(ptr++) == kk )
 	return(i);
     }
   return(-1);  /* failed */
