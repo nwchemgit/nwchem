@@ -1,4 +1,4 @@
-/*$Id: rtdbtest.c,v 1.5 2004-01-02 21:58:02 edo Exp $*/
+/*$Id: rtdbtest.c,v 1.6 2004-08-12 15:26:24 edo Exp $*/
 #include <stdio.h>
 #include "rtdb.h"
 #include "misc.h"
@@ -107,6 +107,6 @@ int main(int argc, char *argv[])
   if (!rtdb_close(rtdb, "delete"))
     error("rtdbtest: close failed\n", 0);
   
-  PEND_();
+  pend_();
   return 0;
 }

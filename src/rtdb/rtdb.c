@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.19 2004-08-05 14:57:21 edo Exp $*/
+/*$Id: rtdb.c,v 1.20 2004-08-12 15:26:23 edo Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
@@ -43,7 +43,6 @@ int rtdb_parallel(const int mode)
     parallel_mode = PARALLEL;
   else
     parallel_mode = SEQUENTIAL;
-  
   return old;
 }
 

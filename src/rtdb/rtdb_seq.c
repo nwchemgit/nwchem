@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.19 2004-08-05 14:57:21 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.20 2004-08-12 15:26:24 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -611,6 +611,7 @@ int rtdb_seq_next(const int handle, const int namelen, char *name)
 }
 
 
+#include "global.h"
 int rtdb_seq_close(const int handle, const char *mode)
 /*
   Close the data base
@@ -1167,15 +1168,8 @@ int rtdb_seq_copy(const int handle, const char *suffix)
   suffix    = new file will be called rtdb_name.suffix
 */
 {
-  int l = (int) strlen(rtdb[handle].filename) + (int) strlen(suffix)+1;
-  char *tmp = malloc((size_t) l);
-    if (!tmp) {
-	(void) fprintf(stderr,"rtdb_seq_copy: no memory\n");
-	return 0;
-    }
-    
-    strcpy(tmp,rtdb[handle].filename);
-    for (l=0; l<strlen(suffix); l++){
+    //    strcpy(tmp,rtdb[handle].filename);
+    /*    for (l=0; l<strlen(suffix); l++){
       tmp[strlen(rtdb[handle].filename) + l] = suffix[l];
 	  }
       tmp[strlen(rtdb[handle].filename) + strlen(suffix)] = 0;
@@ -1185,17 +1179,17 @@ int rtdb_seq_copy(const int handle, const char *suffix)
     (void) fprintf(stderr, "rdtb_seq_copy: handle (%d) is invalid\n", handle);
     return 0;
   }
-
+    */
 
 #ifdef USE_HDBM
-    if (!hdbm_file_copy(rtdb[handle].filename, tmp)) {
+    if (!hdbm_file_copy(rtdb[handle].filename, suffix)) {
 	(void) fprintf(stderr,
-		       "rtdb_seq_copy: copy from %s failed\n", tmp);
+		       "rtdb_seq_copy: copy from %s failed\n", suffix);
       return 0;
     }
 #else
 fixme
 #endif
-  free(tmp);
+  //  free(tmp);
   return 1;
 }

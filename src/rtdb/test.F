@@ -1,5 +1,5 @@
       program test
-C$Id: test.F,v 1.4 1995-02-02 23:22:14 d3g681 Exp $
+C$Id: test.F,v 1.5 2004-08-12 15:26:24 edo Exp $
       implicit none
 c
 #include "rtdb.fh"
@@ -12,7 +12,8 @@ c
       character *20 cbuf(4), ccbuf(4)
       character *20 name
       character *26 date
-      integer status, type, nelem, i
+      logical status
+      integer type, nelem, i
 c
       data itest/1, 2, 3/
       data ftest/1.0e0, 2.0e0, 3.0e0, 4.0e0/
@@ -25,6 +26,7 @@ c
 c
       call pbeginf()
       if (.not. ma_init(MT_DBL, -1, -1)) stop 99
+      call ga_initialize()
       if (.not. rtdb_open('fortran.db', 'empty', rtdb)) stop 1
 c
       if (.not. rtdb_put(rtdb, 'Integer array', MT_INT, 3, itest))
@@ -80,7 +82,58 @@ c
          goto 10
       endif
 c
-      if (.not. rtdb_close(rtdb, 'delete')) stop 10
+      if (.not. rtdb_close(rtdb, 'keep')) stop 10
+      call testclone(rtdb,'fortran.db')
+c
       call pend()
 c
+      end
+      subroutine testclone(rtdb,rtdbname)
+      implicit none
+#include "global.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      integer rtdb
+c
+      character*(*) rtdbname           
+      character*256 grtdbname
+      logical ortdbstate
+      double precision dtest(5)
+c
+      integer ii,ngroups
+c
+      ngroups=12
+
+      if(ga_nodeid().eq.0) write(0,*) '**Testing rtdb_clone'
+      ortdbstate=rtdb_parallel(.true.)
+
+      do ii=1,ngroups
+         call util_pname0(rtdbname,grtdbname,ii,ngroups)
+c     
+c     creates rtdb file grtdbname=rtdbname.ii
+c     
+         if(.not.rtdb_clone(rtdb,grtdbname))
+     .        call errquit('oo ',0,0)
+      enddo
+c
+c     try  to open fortran.db.2
+c
+      call util_pname0(rtdbname,grtdbname,2,ngroups)
+      if (.not. rtdb_open(grtdbname, 'old', rtdb)) stop 123
+      if (.not. rtdb_get(rtdb, 'Double array', MT_DBL, 5, dtest))
+     $     stop 4
+      write(0,*) 'me=',ga_nodeid(),' got dtest(2) =',dtest(2)
+      dtest(2)=dtest(2)-.33d0
+      if (.not. rtdb_put(rtdb, 'Double array', MT_DBL, 5, dtest))
+     $     stop 5
+      if (.not. rtdb_get(rtdb, 'Double array', MT_DBL, 5, dtest))
+     $     stop 6
+      write(0,*) 'me=',ga_nodeid(),' got dtest(2) =',dtest(2)
+      if (.not. rtdb_close(rtdb, 'keep')) stop 103
+      do ii=1,ngroups
+         call util_pname0(rtdbname,grtdbname,ii,ngroups)
+         if (.not. rtdb_open(grtdbname, 'old', rtdb)) stop 123
+         if (.not. rtdb_close(rtdb, 'delete')) stop 103
+      enddo
+      return
       end
