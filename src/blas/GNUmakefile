@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.35 2003-12-31 22:30:52 nwchem Exp $
+#$Id: GNUmakefile,v 1.36 2004-11-14 04:43:42 edo Exp $
 
 include ../config/makefile.h
 
@@ -53,7 +53,7 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
                 ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o        \
-                xerbla.o     zgeru.o dzasum.o
+                xerbla.o     zgeru.o dzasum.o dsyr.o
 
 
 else
