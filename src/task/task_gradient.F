@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.27 2000-11-04 03:28:52 d3g681 Exp $
+* $Id: task_gradient.F,v 1.28 2000-11-15 03:00:55 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -66,7 +66,7 @@ c
      $        3,3,nelem/3)
          gmax = 0.0d0
          gnorm = 0.0d0
-         do i = 0, nelem-1
+         do i = 1, nelem/3
             do k = 1, 3
                gnorm = gnorm + gradient(k,i)**2
                gmax  = max(abs(gradient(k,i)),gmax)
@@ -106,7 +106,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.27 2000-11-04 03:28:52 d3g681 Exp $
+* $Id: task_gradient.F,v 1.28 2000-11-15 03:00:55 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
