@@ -2,7 +2,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa)
 c
-c $Id: pre_misfit.F,v 1.9 1999-07-14 22:43:03 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.10 1999-09-24 15:22:47 d3j191 Exp $
 c
       implicit none
 c
@@ -248,7 +248,7 @@ c
 c
 c     three missing hydrogens from atom with other than 4 neighbors
 c
-      call errquit('pre_misfit: case not implemented',9999)
+      call errquit('pre_misfit: case not implemented involving atom',i)
       endif
       endif
 c
