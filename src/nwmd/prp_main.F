@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.66 2002-01-28 21:17:26 d3j191 Exp $
+c $Id: prp_main.F,v 1.67 2002-02-07 00:13:38 d3j191 Exp $
 c
       implicit none
 c
@@ -253,7 +253,7 @@ c
       endif
       maxp=it
 c
-      if(nsm.gt.0) then
+      if(nsm.gt.0.and.npstat.gt.0) then
       it=maxp
       do 37 i=1,nsm
       it=it+1
@@ -270,7 +270,7 @@ c
       endif
 c
       if(iprof.eq.1) then
-      do 56 i=1,41
+      do 56 i=1,51
       it=it+1
       p(it)=timer_wall_total(i+9)
    56 continue

@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.45 2002-02-03 16:46:17 d3j191 Exp $
+c $Id: prp_init.F,v 1.46 2002-02-07 00:13:38 d3j191 Exp $
 c
       implicit none
 c
@@ -349,20 +349,20 @@ c
     5 continue
       endif
 c
-      if(msm.gt.0) then
+      if(msm.gt.0.and.npstat.gt.0) then
       if(it+2*nsm.gt.maxpro)
      + call errquit('Increase dimension maxpro',0)
       do 7 i=1,nsm
       it=it+1
       pronam(it)='Moment of inertia solute molecule       kg nm2/mol'
       write(pronam(it)(34:38),'(i5)') i
-      if(npstat.gt.0) lp(it)=.true.
+      lp(it)=.true.
     7 continue
       do 8 i=1,nsm
       it=it+1
       pronam(it)='Radius of gyration solute molecule              nm'
       write(pronam(it)(34:38),'(i5)') i
-      if(npstat.gt.0) lp(it)=.true.
+      lp(it)=.true.
     8 continue
       endif
 c
@@ -405,7 +405,37 @@ c
       pronam(it)='Prof: Synchronization                            s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: Replicated Data Forces Evaluation          s'
+      pronam(it)='Prof: Collapse Option Calculation                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: External Field Contribution                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Multiprocs Data Initialization             s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Multiprocs Data Communication              s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Multiprocs Data Forces Evaluation          s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Restraints Data Initialization             s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Restraints Data Communication              s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Restraints Data Forces Evaluation          s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PMF Data Initialization                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PMF Data Communication                     s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PMF Data Forces Evaluation                 s'
       lp(it)=.true.
       it=it+1
       pronam(it)='Prof: Induced Dipoles Evaluation                 s'
