@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.81 2004-06-24 01:50:31 edo Exp $ 
+% $Id: dft.tex,v 1.82 2004-10-06 20:21:47 pollack Exp $ 
 %
 \label{sec:dft}
 
@@ -12,6 +12,7 @@ in the:
 \item non-local density approximation (NLDA), 
 \item local spin-density approximation (LSD), 
 \item non-local spin-density approximation (NLSD),
+\item non-local meta-GGA approximation (metaGGA),
 \item any empirical mixture of local and non-local approximations
 (including exact exchange), and
 \item asymptotically corrected exchange-correlation potentials.
@@ -48,7 +49,8 @@ the DFT module are:
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
       [hcth407] [becke97gga1]  [hcth407p]\
-      [mpw91] [mpw1k] [xft97] [cft97] [ft97] [xpkzb99] [cpkzb99]\
+      [mpw91] [mpw1k] [xft97] [cft97] [ft97] \
+      [xpkzb99] [cpkzb99] [xtpss03] [ctpss03] [xctpssh]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -510,25 +512,19 @@ and run them in one iteration in the meta-GGA functional.
 It is expected that meta-GGA energies obtained
 this way will be close to fully self consistent
 meta-GGA calculations. 
-This can be easily accomplished in NWChem,
-and is illustrated in
-the example below.
-This kind of calculation
-will obviously not converge the energy.
-To avoid an error  in
-the standard Unix output of NWChem,
-you must tell NWChem
- to ignore 
-the returned result of the task, 
-which may be accomplished in the input file
- with \verb+ task dft ignore+
-You may still get a warning in the output to the effect,
-\verb+!! warning: dft energy failed+.
-This simply means the energy failed to converge
-since you  ran  only one iteration of
-the  functional.
 
-(For more information,  see
+It is possible to calculate metaGGA energies both ways
+in NWChem, that is, self-consistently or with
+GGA/LDA orbitals and densities.  However, second derivatives
+are not available for metaGGAs so in order to
+calculate geometries, one must use
+\verb+ task dft optimize numerical+.
+A sample file with this is shown below,
+in \ref{sec:DFTsample}.  In this instance, the
+energy is calculated self-consistently.
+
+
+(For more information on metaGGAs,  see
 S. Kurth, J. Perdew, P. Blaha, Int. J. Quant. Chem 75, 889 (1999)
 for a brief description of meta-GGAs, and  citations 14-27
 therein for thorough background )
@@ -568,62 +564,35 @@ Chapter 14.
 
 \section{Sample input file}
 \label{sec:DFTsample}
-A simple example  calculates the meta-GGA 
-exchange
-energy of water, using converged GGA orbitals and
-densities to evaluate the meta-GGA energy functional,
-and also highlights some of
-the print features in the DFT module:
+A simple example  calculates the geometry
+ of water, using the metaGGA functionals
+\verb+ xtpss03+ and \verb+ctpss03+.
+This also highlights some of
+the print features in the DFT module.  Note
+that you must use the line
+\verb+task dft optimize numerical+ because
+analytic gradients are not available for the metaGGAs:
 \begin{verbatim}
-title "WATER 6-311G* meta-GGA X with PBE orbitals"
+title "WATER 6-311G* meta-GGA XC geometry"
 echo
 geometry units angstroms
   O       0.0  0.0  0.0
   H       0.0  0.0  1.0
   H       0.0  1.0  0.0
 end
-
 basis
   H library 6-311G*
   O library 6-311G*
 end
- 
 dft
+ iterations 50
  print  kinetic_energy
- xc xpbe96 cpbe96
+ xc xtpss03 ctpss03
  decomp
 end
-task dft optimize
-
-
-dft
- iterations 1
- xc xpkzb99
- decomp
- print  quadrature kinetic_energy
-end
-task dft ignore
+task dft optimize numerical
 \end{verbatim}
 
-Below are
-the results of the exchange-only
-meta-GGA calculation part, and as expected
-we are reminded the calculation was not allowed
-to converge:
-
-\begin{verbatim}
-      Calculation failed to converge
-      ------------------------------
-
-         Total DFT energy =    -75.948526603774
-      One electron energy =   -122.899234375708
-           Coulomb energy =     46.745269703266
-          Exchange energy =     -8.857824284365
-       Correlation energy =      0.000000000000
- Nuclear repulsion energy =      9.063262353032
-
- Numeric. integr. density =     10.000001055407
-\end{verbatim}
 
 
 
@@ -676,6 +645,7 @@ xpkzb99    & $\star$  &             &           &$\star$&   &  N   &[27]\\
 cpkzb99    &          &  $\star$    &           &$\star$&   &  N   &[27]\\
 xtpss03    & $\star$  &             &           &$\star$&   &  N   &[29]\\
 ctpss03    &          &  $\star$    &           &$\star$&   &  N   &[29]\\
+xctpssh    &          &             &       &$\star$&$\star$&  N   &[30]\\
 
 \hline
 beckehandh & $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
@@ -749,7 +719,10 @@ Phys. Rev. Lett. {\bf 82}, 2544 (1999) \\
 \item A.~D.~Boese, A.~Chandra, J.~M.~L.~Martin and D.~Marx,
   J. Chem. Phys. {\bf 119}, 5965 (2003) \\
 \item J. Tao,J.Perdew,V. Staroverov and G. Scuseria,
-Phys. Rev. Let. {\bf 91}, 146401-1 (2003)
+Phys. Rev. Let. {\bf 91}, 146401-1 (2003)\\
+\item V. Staroverov, G. Scuseria,
+J. Tao and J.Perdew,
+J. Chem Phys. {\bf 119}, 12129 (2003)
 \end{enumerate}
 }
 %\end{table}
