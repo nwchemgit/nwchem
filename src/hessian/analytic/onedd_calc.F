@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.7 2000-05-30 14:47:30 windus Exp $
+c $Id: onedd_calc.F,v 1.8 2000-07-26 23:37:04 windus Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,
@@ -79,6 +79,7 @@ c
             do 70 ish1 = iac1f, iac1l
               if ( iat1.eq.iat2 ) iac2l = ish1
               do 60 ish2 = iac2f, iac2l
+c               write(6,*) 'ish1,ish2 ',ish1,ish2
 
 c
 c               shell block in atomic (D/Dw)-matrix block
@@ -174,11 +175,15 @@ c
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
                         dE = dE + dens(ip1,ip2) * Ibuf(ic)
+c                       write(6,*) 'dens and int ',dens(ip1,ip2),
+c    *                     Ibuf(ic)
                         ic = ic + 1
  30                   continue
  31                 continue
                     if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                     dE = dE * qfac
+c                   write(6,*) 'at1,at2,icart1,icart2,dE ',at1,at2,
+c    *               icart1,icart2,dE
                     Hxy(icart1,at1,icart2,at2) = 
      *               Hxy(icart1,at1,icart2,at2) + dE
                     Hxy(icart2,at2,icart1,at1) = 
