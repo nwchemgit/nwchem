@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.10 1998-08-06 00:34:47 d3e129 Exp $
+# $Id: nwparse.pl,v 1.11 1999-07-15 22:41:18 d3e129 Exp $
 #
 #
 # perl script to parse nwchem output files
@@ -96,9 +96,17 @@ foreach $filename (@FILES_TO_PARSE) {
 	    printf FILE_OUTPUT "----------  ------------- ------------ -------\n";
 	    for ($itok = 0;$itok < $num_energies; $itok++){
 		if (! $quiet){
-		    printf "%11.5f %13.5f %12.5f %7.3f\n", $ci_energy[$itok], $pt_correc[$itok], $cipt_ene[$itok], $pt_norm[$itok];
+		    printf "%11.5f %13.5f %12.5f %7.3f\n", 
+		           set_to_digits($ci_energy[$itok],5), 
+		           set_to_digits($pt_correc[$itok],5),
+                           set_to_digits($cipt_ene[$itok],5),
+                           set_to_digits($pt_norm[$itok],3);
 		}
-		    printf FILE_OUTPUT "%11.5f %13.5f %12.5f %7.3f\n", $ci_energy[$itok], $pt_correc[$itok], $cipt_ene[$itok], $pt_norm[$itok];
+		    printf FILE_OUTPUT "%11.5f %13.5f %12.5f %7.3f\n", 
+		           set_to_digits($ci_energy[$itok],5), 
+		           set_to_digits($pt_correc[$itok],5),
+                           set_to_digits($cipt_ene[$itok],5),
+                           set_to_digits($pt_norm[$itok],3);
 	    }
 	    
 	}
@@ -132,9 +140,17 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", $atoms[$iatom], $coords[$indx1], $coords[$indx2], $coords[$indx3] ;
+		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		           $atoms[$iatom], 
+                           set_to_digits($coords[$indx1],4), 
+                           set_to_digits($coords[$indx2],4), 
+		           set_to_digits($coords[$indx3],4) ;
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", $atoms[$iatom], $coords[$indx1], $coords[$indx2], $coords[$indx3] ;
+		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		       $atoms[$iatom], 
+                       set_to_digits($coords[$indx1],4), 
+                       set_to_digits($coords[$indx2],4), 
+                       set_to_digits($coords[$indx3],4);
 	    }
 #               SSSSSSSSSS FFFFFFFFFF FFFFFFFFFF FFFFFFFFFF
 	    if (! $quiet) {
@@ -146,9 +162,17 @@ foreach $filename (@FILES_TO_PARSE) {
 		$indx2 = $indx1 + 1;
 		$indx3 = $indx1 + 2;
 		if (! $quiet) {
-		    printf " %10s %10.4f %10.4f %10.4f\n", $atoms[$iatom], $grads[$indx1], $grads[$indx2], $grads[$indx3];
+		    printf " %10s %10.4f %10.4f %10.4f\n", 
+		         $atoms[$iatom], 
+		         set_to_digits($grads[$indx1],4), 
+		         set_to_digits($grads[$indx2],4),
+  		         set_to_digits($grads[$indx3],4);
 		}
-		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", $atoms[$iatom], $grads[$indx1], $grads[$indx2], $grads[$indx3];
+		printf FILE_OUTPUT " %10s %10.4f %10.4f %10.4f\n", 
+		         $atoms[$iatom], 
+		         set_to_digits($grads[$indx1],4), 
+		         set_to_digits($grads[$indx2],4),
+  		         set_to_digits($grads[$indx3],4);
 	    }
 	    
 	    @atoms = ();
@@ -173,9 +197,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    printf FILE_OUTPUT "%s", @line_tokens[0];
 	    for($itok = 1;$itok < $num_line_tokens; $itok++){
 		if (! $quiet) {
-		    printf "%10.0f ", @line_tokens[$itok];
+		    printf "%10.0f ", set_to_digits(@line_tokens[$itok],0);
 		}
-		printf FILE_OUTPUT "%10.0f ", @line_tokens[$itok];
+		printf FILE_OUTPUT "%10.0f ", set_to_digits(@line_tokens[$itok],0);
 	    }
 	    if (! $quiet) {
 		printf "\n";
@@ -198,9 +222,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.5f\n", @line_tokens[$itok];
+		printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
-	    printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok];
+	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
 	if (/nuclear/ && /repulsion/ && /energy/){
 	    if ($debug) {print "\ndebug: $_";}
@@ -218,9 +242,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.5f\n", @line_tokens[$itok];
+		printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
-	    printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok];
+	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
 	if (/Total/ && /energy/) {
 	    if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ ) {
@@ -239,9 +263,9 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    printf "%.5f\n", @line_tokens[$itok];
+		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 		}
-		printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok];
+		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
 	}
 	if ($gradient_block == 2) {
@@ -319,8 +343,8 @@ foreach $filename (@FILES_TO_PARSE) {
 		    printf FILE_OUTPUT "%s ", @line_tokens[$itok];
 		}
 	    }
-	    if (! $quiet){printf "%.5f\n", @line_tokens[$itok]}
-	    printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok]
+	    if (! $quiet){printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);}
+	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
     }
     
@@ -344,4 +368,15 @@ sub Usage
     print " -s := override default suffix of .nwparse to user supplied 'suffix'\n";
     print " -h := prints this help message (equivalent to -help or -H)\n";
     print "\n **:Note: if -d is set -q is ignored\n";
+}
+sub set_to_digits
+{
+    $value  = shift;
+    $digits = shift;
+    for ($i = 0; $i < $digits ; $i++) {$value *= 10.0;}
+    if ($value < 0.0) {$value -= 0.5;}
+    else              {$value += 0.5;}
+    $value = int ($value);
+    for ($i = 0; $i < $digits ; $i++) {$value /= 10.0;}
+    return $value;
 }
