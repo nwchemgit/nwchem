@@ -1,12 +1,14 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.86 1999-03-18 01:54:10 d3e129 Exp $
+c $Id: raktest.F,v 1.87 1999-04-09 23:09:29 windus Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "global.fh"
 #include "stdio.fh"
 c::functions
+      logical task_hondo_deriv_check
+      external task_hondo_deriv_check
       logical task_ecp_deriv_check, task_ecp_print_integrals
       external task_ecp_deriv_check, task_ecp_print_integrals
       logical task_computeSld, task_printsoints, task_pderiv
@@ -142,6 +144,10 @@ c
         if (me.eq.0) write(luout,*)
      &      ' raktest: ecp print integrals'        
         raktest = task_ecp_print_integrals(rtdb)
+      else if (raktask.eq.27) then !................................. 27
+        if (me.eq.0) write(luout,*)
+     &      ' raktest: hondo deriv code test'        
+        raktest = task_hondo_deriv_check(rtdb)
       else
         if (me.eq.0) then
           write(luout,*)' unknown raktask number :',raktask
