@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.11 1998-06-11 18:51:55 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.12 1998-06-15 22:38:16 d3j191 Exp $
 c
       implicit none
 c
@@ -109,8 +109,8 @@ c
 c
       if(nangt.gt.nang) then
       do 21 i=nang+1,nangt
-      write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(5,i)-natm,
-     + lang(4,i),i-nang
+      write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(3,i)-natm,
+     + lang(5,i),i-nang
  1114 format(5i7)
       write(lfntop,1115) (rang(j,i),j=1,6)
  1115 format(3(0pf10.6,1pe12.5))
@@ -148,13 +148,13 @@ c
       if(n3rdt.gt.n3rd) then
       write(lfntop,1120) (l3rd(1,i)-natm,i=n3rd+1,n3rdt)
       write(lfntop,1120) (l3rd(2,i)-natm,i=n3rd+1,n3rdt)
- 1120 format(15i7)
+ 1120 format(11i7)
       endif
 c
       if(nnon.gt.0) then
       write(lfntop,1121) (lnon(1,i)-natm,i=1,nnon)
       write(lfntop,1121) (lnon(2,i)-natm,i=1,nnon)
- 1121 format(15i7)
+ 1121 format(11i7)
       endif
 c
       write(lfntop,1122) cseq(nseq+1),wcorr

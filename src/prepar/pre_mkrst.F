@@ -2,7 +2,7 @@
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.10 1998-06-11 18:51:52 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.11 1998-06-15 22:38:15 d3j191 Exp $
 c
       implicit none
 c
@@ -256,6 +256,8 @@ c
       endif
       endif
 c
+      if(nsa.gt.0) then
+c
 c     center the solute
 c     -----------------
 c
@@ -270,10 +272,12 @@ c
      + dbl_mb(i_xwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_orient failed',9999)
 c
+      endif
+c
 c     determine the boxsize
 c     ---------------------
 c
-      if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
+      if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
      + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
       if(util_print('where',print_debug)) then
       write(lfnout,1007) box

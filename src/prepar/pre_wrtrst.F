@@ -3,7 +3,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.4 1998-06-08 23:29:40 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.5 1998-06-15 22:38:16 d3j191 Exp $
 c
       implicit none
 c
@@ -81,8 +81,8 @@ c
 c
 c     write reference coordinates
 c
-      if(nwm.gt.0) then
-      write(lfnrst,1010) ((0.0d0,k=1,3),i=1,nwm)
+      if(nwm+nwmc.gt.0) then
+      write(lfnrst,1010) ((0.0d0,k=1,3),i=1,nwm+nwmc)
  1010 format(6f13.8)
       endif
 c

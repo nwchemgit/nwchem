@@ -48,3 +48,4 @@ Jun 09 1998	 Avoid geom_rtdb_load error message
 Jun 11 1998	 Add topology modification commands
 		 Fix bugs in reading solvent from pdb file
 		 Keep name file
+Jun 15 1998	 Bug fixes: pre_boxsiz, pre_orient, pre_wrtrst, pre_wrttop

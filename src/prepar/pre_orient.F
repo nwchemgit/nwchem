@@ -1,7 +1,7 @@
       logical function pre_orient(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
-c $Id: pre_orient.F,v 1.2 1998-04-29 18:35:19 d3j191 Exp $
+c $Id: pre_orient.F,v 1.3 1998-06-15 22:38:16 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,10 @@ c
 c
       if(nsa.le.0) then
       pre_orient=.false.
+      return
+      endif
+      if(nsa.le.1) then
+      pre_orient=.true.
       return
       endif
 c
@@ -48,6 +52,10 @@ c     rotate
 c
       call pre_rotate(o,p,angle,xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
+      if(nsa.le.2) then
+      pre_orient=.true.
+      return
+      endif
 c
 c     find largest distance in xy plane
 c
