@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.31 1995-02-06 20:40:51 d3e129 Exp $
+c $Id: raktest.F,v 1.32 1995-02-06 22:56:51 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -13,7 +13,7 @@ c
       if (rtdb_get(rtdb,'raktask',MT_INT,1,rak_tmp))
      &    raktask = rak_tmp
 c
-      goto (00100,00200) raktask
+      goto (00100,00200,00300) raktask
 c
       write(6,*)' default raktest task '
       call raktest0(rtdb)
@@ -25,6 +25,10 @@ c
 c
 00200 write(6,*)' raktest task 2 '
       call raktest2(rtdb)
+      goto 00001
+c
+00300 write(6,*)' raktest task 3 '
+      call raktest3(rtdb)
       goto 00001
 c
 00001 continue
@@ -3508,3 +3512,356 @@ c
 *rak:00200   continue
 *rak:00100 continue
 *rak:      end
+      subroutine raktest3(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer rtdb
+      logical  stpr_walk
+      external stpr_walk
+c
+      integer geom
+      integer nat
+      integer k_grad, h_grad
+      logical flag
+      double precision energy
+c
+      if (ga_nodeid().eq.0)  then
+        if (.not. geom_create(geom, 'geometry'))
+     &         call errquit('raktest3: geom_create?', 911)
+        if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &         call errquit('raktest3: no geometry ', 911)
+c get number of atoms = nat
+        if (.not. geom_ncent(geom,nat))
+     &      call errquit('raktest3: geom_ncent?',911)
+        if (.not. geom_destroy(geom))
+     &      call errquit('raktest3: geom_destroy?',911)
+        if (.not.
+     &         MA_Push_Get(MT_DBL,(3*nat),'stpr fake gradient',
+     &         h_grad,k_grad))
+     &         call errquit
+     &         ('raktest3: allocation for gradient failed?',911)
+        dbl_mb((k_grad+   0)) =  -0.008697D00
+        dbl_mb((k_grad+   1)) =  -0.004076D00
+        dbl_mb((k_grad+   2)) =   0.004591D00
+        dbl_mb((k_grad+   3)) =   0.000926D00
+        dbl_mb((k_grad+   4)) =   0.000922D00
+        dbl_mb((k_grad+   5)) =  -0.001206D00
+        dbl_mb((k_grad+   6)) =   0.000639D00
+        dbl_mb((k_grad+   7)) =   0.000263D00
+        dbl_mb((k_grad+   8)) =  -0.003188D00
+        dbl_mb((k_grad+   9)) =   0.007578D00
+        dbl_mb((k_grad+  10)) =  -0.002686D00
+        dbl_mb((k_grad+  11)) =   0.005190D00
+        dbl_mb((k_grad+  12)) =  -0.000872D00
+        dbl_mb((k_grad+  13)) =   0.000692D00
+        dbl_mb((k_grad+  14)) =  -0.001103D00
+        dbl_mb((k_grad+  15)) =  -0.000782D00
+        dbl_mb((k_grad+  16)) =   0.000717D00
+        dbl_mb((k_grad+  17)) =  -0.001393D00
+        dbl_mb((k_grad+  18)) =  -0.008078D00
+        dbl_mb((k_grad+  19)) =   0.006782D00
+        dbl_mb((k_grad+  20)) =   0.000074D00
+        dbl_mb((k_grad+  21)) =   0.000549D00
+        dbl_mb((k_grad+  22)) =  -0.000865D00
+        dbl_mb((k_grad+  23)) =  -0.002881D00
+        dbl_mb((k_grad+  24)) =   0.006377D00
+        dbl_mb((k_grad+  25)) =   0.001920D00
+        dbl_mb((k_grad+  26)) =   0.000909D00
+        dbl_mb((k_grad+  27)) =  -0.000695D00
+        dbl_mb((k_grad+  28)) =  -0.000362D00
+        dbl_mb((k_grad+  29)) =  -0.000411D00
+        dbl_mb((k_grad+  30)) =  -0.001585D00
+        dbl_mb((k_grad+  31)) =  -0.000732D00
+        dbl_mb((k_grad+  32)) =  -0.000523D00
+        dbl_mb((k_grad+  33)) =  -0.001062D00
+        dbl_mb((k_grad+  34)) =  -0.000824D00
+        dbl_mb((k_grad+  35)) =  -0.000303D00
+        dbl_mb((k_grad+  36)) =  -0.022866D00
+        dbl_mb((k_grad+  37)) =   0.011419D00
+        dbl_mb((k_grad+  38)) =  -0.010230D00
+        dbl_mb((k_grad+  39)) =   0.013343D00
+        dbl_mb((k_grad+  40)) =  -0.017703D00
+        dbl_mb((k_grad+  41)) =  -0.018748D00
+        dbl_mb((k_grad+  42)) =   0.002823D00
+        dbl_mb((k_grad+  43)) =   0.000704D00
+        dbl_mb((k_grad+  44)) =   0.000638D00
+        dbl_mb((k_grad+  45)) =   0.001783D00
+        dbl_mb((k_grad+  46)) =   0.000141D00
+        dbl_mb((k_grad+  47)) =   0.000499D00
+        dbl_mb((k_grad+  48)) =   0.003863D00
+        dbl_mb((k_grad+  49)) =   0.007955D00
+        dbl_mb((k_grad+  50)) =  -0.003668D00
+        dbl_mb((k_grad+  51)) =  -0.000253D00
+        dbl_mb((k_grad+  52)) =  -0.000335D00
+        dbl_mb((k_grad+  53)) =   0.003427D00
+        dbl_mb((k_grad+  54)) =   0.003510D00
+        dbl_mb((k_grad+  55)) =  -0.004396D00
+        dbl_mb((k_grad+  56)) =  -0.000280D00
+        dbl_mb((k_grad+  57)) =  -0.001050D00
+        dbl_mb((k_grad+  58)) =   0.000598D00
+        dbl_mb((k_grad+  59)) =   0.000407D00
+        dbl_mb((k_grad+  60)) =  -0.001190D00
+        dbl_mb((k_grad+  61)) =   0.000896D00
+        dbl_mb((k_grad+  62)) =   0.000453D00
+        dbl_mb((k_grad+  63)) =  -0.000536D00
+        dbl_mb((k_grad+  64)) =   0.000599D00
+        dbl_mb((k_grad+  65)) =   0.000487D00
+        dbl_mb((k_grad+  66)) =   0.008229D00
+        dbl_mb((k_grad+  67)) =   0.006460D00
+        dbl_mb((k_grad+  68)) =  -0.000069D00
+        dbl_mb((k_grad+  69)) =  -0.000490D00
+        dbl_mb((k_grad+  70)) =  -0.000613D00
+        dbl_mb((k_grad+  71)) =  -0.003029D00
+        dbl_mb((k_grad+  72)) =  -0.006348D00
+        dbl_mb((k_grad+  73)) =   0.002016D00
+        dbl_mb((k_grad+  74)) =   0.000844D00
+        dbl_mb((k_grad+  75)) =   0.001549D00
+        dbl_mb((k_grad+  76)) =  -0.000898D00
+        dbl_mb((k_grad+  77)) =  -0.000570D00
+        dbl_mb((k_grad+  78)) =   0.000697D00
+        dbl_mb((k_grad+  79)) =  -0.000361D00
+        dbl_mb((k_grad+  80)) =  -0.000393D00
+        dbl_mb((k_grad+  81)) =   0.001078D00
+        dbl_mb((k_grad+  82)) =  -0.000863D00
+        dbl_mb((k_grad+  83)) =  -0.000271D00
+        dbl_mb((k_grad+  84)) =  -0.007499D00
+        dbl_mb((k_grad+  85)) =  -0.002478D00
+        dbl_mb((k_grad+  86)) =   0.005769D00
+        dbl_mb((k_grad+  87)) =   0.000808D00
+        dbl_mb((k_grad+  88)) =   0.000701D00
+        dbl_mb((k_grad+  89)) =  -0.001448D00
+        dbl_mb((k_grad+  90)) =   0.000827D00
+        dbl_mb((k_grad+  91)) =   0.000750D00
+        dbl_mb((k_grad+  92)) =  -0.001107D00
+        dbl_mb((k_grad+  93)) =   0.007929D00
+        dbl_mb((k_grad+  94)) =  -0.004455D00
+        dbl_mb((k_grad+  95)) =   0.003384D00
+        dbl_mb((k_grad+  96)) =  -0.000671D00
+        dbl_mb((k_grad+  97)) =   0.000441D00
+        dbl_mb((k_grad+  98)) =  -0.003097D00
+        dbl_mb((k_grad+  99)) =  -0.000863D00
+        dbl_mb((k_grad+ 100)) =   0.000987D00
+        dbl_mb((k_grad+ 101)) =  -0.001353D00
+        dbl_mb((k_grad+ 102)) =   0.007929D00
+        dbl_mb((k_grad+ 103)) =   0.004455D00
+        dbl_mb((k_grad+ 104)) =  -0.003384D00
+        dbl_mb((k_grad+ 105)) =  -0.000671D00
+        dbl_mb((k_grad+ 106)) =  -0.000441D00
+        dbl_mb((k_grad+ 107)) =   0.003097D00
+        dbl_mb((k_grad+ 108)) =  -0.000863D00
+        dbl_mb((k_grad+ 109)) =  -0.000987D00
+        dbl_mb((k_grad+ 110)) =   0.001353D00
+        dbl_mb((k_grad+ 111)) =  -0.007499D00
+        dbl_mb((k_grad+ 112)) =   0.002477D00
+        dbl_mb((k_grad+ 113)) =  -0.005768D00
+        dbl_mb((k_grad+ 114)) =   0.000808D00
+        dbl_mb((k_grad+ 115)) =  -0.000701D00
+        dbl_mb((k_grad+ 116)) =   0.001448D00
+        dbl_mb((k_grad+ 117)) =   0.000827D00
+        dbl_mb((k_grad+ 118)) =  -0.000751D00
+        dbl_mb((k_grad+ 119)) =   0.001107D00
+        dbl_mb((k_grad+ 120)) =   0.008230D00
+        dbl_mb((k_grad+ 121)) =  -0.006460D00
+        dbl_mb((k_grad+ 122)) =   0.000068D00
+        dbl_mb((k_grad+ 123)) =  -0.000491D00
+        dbl_mb((k_grad+ 124)) =   0.000613D00
+        dbl_mb((k_grad+ 125)) =   0.003029D00
+        dbl_mb((k_grad+ 126)) =  -0.006349D00
+        dbl_mb((k_grad+ 127)) =  -0.002015D00
+        dbl_mb((k_grad+ 128)) =  -0.000844D00
+        dbl_mb((k_grad+ 129)) =   0.001078D00
+        dbl_mb((k_grad+ 130)) =   0.000863D00
+        dbl_mb((k_grad+ 131)) =   0.000270D00
+        dbl_mb((k_grad+ 132)) =   0.001549D00
+        dbl_mb((k_grad+ 133)) =   0.000898D00
+        dbl_mb((k_grad+ 134)) =   0.000570D00
+        dbl_mb((k_grad+ 135)) =   0.000697D00
+        dbl_mb((k_grad+ 136)) =   0.000361D00
+        dbl_mb((k_grad+ 137)) =   0.000393D00
+        dbl_mb((k_grad+ 138)) =   0.003863D00
+        dbl_mb((k_grad+ 139)) =  -0.007955D00
+        dbl_mb((k_grad+ 140)) =   0.003667D00
+        dbl_mb((k_grad+ 141)) =  -0.000253D00
+        dbl_mb((k_grad+ 142)) =   0.000335D00
+        dbl_mb((k_grad+ 143)) =  -0.003427D00
+        dbl_mb((k_grad+ 144)) =   0.003510D00
+        dbl_mb((k_grad+ 145)) =   0.004397D00
+        dbl_mb((k_grad+ 146)) =   0.000279D00
+        dbl_mb((k_grad+ 147)) =  -0.001190D00
+        dbl_mb((k_grad+ 148)) =  -0.000897D00
+        dbl_mb((k_grad+ 149)) =  -0.000453D00
+        dbl_mb((k_grad+ 150)) =  -0.000536D00
+        dbl_mb((k_grad+ 151)) =  -0.000599D00
+        dbl_mb((k_grad+ 152)) =  -0.000487D00
+        dbl_mb((k_grad+ 153)) =  -0.001050D00
+        dbl_mb((k_grad+ 154)) =  -0.000598D00
+        dbl_mb((k_grad+ 155)) =  -0.000407D00
+        dbl_mb((k_grad+ 156)) =   0.013343D00
+        dbl_mb((k_grad+ 157)) =   0.017702D00
+        dbl_mb((k_grad+ 158)) =   0.018749D00
+        dbl_mb((k_grad+ 159)) =   0.002823D00
+        dbl_mb((k_grad+ 160)) =  -0.000703D00
+        dbl_mb((k_grad+ 161)) =  -0.000639D00
+        dbl_mb((k_grad+ 162)) =   0.001783D00
+        dbl_mb((k_grad+ 163)) =  -0.000141D00
+        dbl_mb((k_grad+ 164)) =  -0.000499D00
+        dbl_mb((k_grad+ 165)) =  -0.022865D00
+        dbl_mb((k_grad+ 166)) =  -0.011418D00
+        dbl_mb((k_grad+ 167)) =   0.010231D00
+        dbl_mb((k_grad+ 168)) =   0.000385D00
+        dbl_mb((k_grad+ 169)) =   0.023722D00
+        dbl_mb((k_grad+ 170)) =   0.016418D00
+        dbl_mb((k_grad+ 171)) =   0.022263D00
+        dbl_mb((k_grad+ 172)) =  -0.013938D00
+        dbl_mb((k_grad+ 173)) =  -0.000893D00
+        dbl_mb((k_grad+ 174)) =   0.000883D00
+        dbl_mb((k_grad+ 175)) =  -0.000287D00
+        dbl_mb((k_grad+ 176)) =  -0.002376D00
+        dbl_mb((k_grad+ 177)) =  -0.022844D00
+        dbl_mb((k_grad+ 178)) =  -0.010601D00
+        dbl_mb((k_grad+ 179)) =  -0.000400D00
+        dbl_mb((k_grad+ 180)) =  -0.000446D00
+        dbl_mb((k_grad+ 181)) =  -0.001743D00
+        dbl_mb((k_grad+ 182)) =  -0.001937D00
+        dbl_mb((k_grad+ 183)) =   0.020689D00
+        dbl_mb((k_grad+ 184)) =  -0.010232D00
+        dbl_mb((k_grad+ 185)) =   0.017869D00
+        dbl_mb((k_grad+ 186)) =  -0.022845D00
+        dbl_mb((k_grad+ 187)) =   0.010601D00
+        dbl_mb((k_grad+ 188)) =   0.000400D00
+        dbl_mb((k_grad+ 189)) =  -0.000446D00
+        dbl_mb((k_grad+ 190)) =   0.001743D00
+        dbl_mb((k_grad+ 191)) =   0.001937D00
+        dbl_mb((k_grad+ 192)) =   0.022264D00
+        dbl_mb((k_grad+ 193)) =   0.013938D00
+        dbl_mb((k_grad+ 194)) =   0.000892D00
+        dbl_mb((k_grad+ 195)) =   0.000883D00
+        dbl_mb((k_grad+ 196)) =   0.000287D00
+        dbl_mb((k_grad+ 197)) =   0.002376D00
+        dbl_mb((k_grad+ 198)) =   0.020690D00
+        dbl_mb((k_grad+ 199)) =   0.010232D00
+        dbl_mb((k_grad+ 200)) =  -0.017869D00
+        dbl_mb((k_grad+ 201)) =   0.002430D00
+        dbl_mb((k_grad+ 202)) =  -0.022402D00
+        dbl_mb((k_grad+ 203)) =   0.003835D00
+        dbl_mb((k_grad+ 204)) =  -0.001212D00
+        dbl_mb((k_grad+ 205)) =  -0.000669D00
+        dbl_mb((k_grad+ 206)) =   0.002178D00
+        dbl_mb((k_grad+ 207)) =  -0.002379D00
+        dbl_mb((k_grad+ 208)) =   0.025844D00
+        dbl_mb((k_grad+ 209)) =  -0.005825D00
+        dbl_mb((k_grad+ 210)) =   0.001510D00
+        dbl_mb((k_grad+ 211)) =   0.000491D00
+        dbl_mb((k_grad+ 212)) =  -0.001989D00
+        dbl_mb((k_grad+ 213)) =   0.000386D00
+        dbl_mb((k_grad+ 214)) =  -0.023721D00
+        dbl_mb((k_grad+ 215)) =  -0.016418D00
+        dbl_mb((k_grad+ 216)) =   0.022354D00
+        dbl_mb((k_grad+ 217)) =  -0.009889D00
+        dbl_mb((k_grad+ 218)) =  -0.001034D00
+        dbl_mb((k_grad+ 219)) =   0.000445D00
+        dbl_mb((k_grad+ 220)) =  -0.001737D00
+        dbl_mb((k_grad+ 221)) =  -0.001918D00
+        dbl_mb((k_grad+ 222)) =  -0.023384D00
+        dbl_mb((k_grad+ 223)) =  -0.006755D00
+        dbl_mb((k_grad+ 224)) =   0.020970D00
+        dbl_mb((k_grad+ 225)) =  -0.000504D00
+        dbl_mb((k_grad+ 226)) =   0.001171D00
+        dbl_mb((k_grad+ 227)) =   0.000301D00
+        dbl_mb((k_grad+ 228)) =  -0.019164D00
+        dbl_mb((k_grad+ 229)) =   0.008952D00
+        dbl_mb((k_grad+ 230)) =  -0.018541D00
+        dbl_mb((k_grad+ 231)) =  -0.023385D00
+        dbl_mb((k_grad+ 232)) =   0.006755D00
+        dbl_mb((k_grad+ 233)) =  -0.020970D00
+        dbl_mb((k_grad+ 234)) =  -0.000503D00
+        dbl_mb((k_grad+ 235)) =  -0.001171D00
+        dbl_mb((k_grad+ 236)) =  -0.000301D00
+        dbl_mb((k_grad+ 237)) =   0.022354D00
+        dbl_mb((k_grad+ 238)) =   0.009888D00
+        dbl_mb((k_grad+ 239)) =   0.001034D00
+        dbl_mb((k_grad+ 240)) =   0.000445D00
+        dbl_mb((k_grad+ 241)) =   0.001737D00
+        dbl_mb((k_grad+ 242)) =   0.001918D00
+        dbl_mb((k_grad+ 243)) =  -0.019164D00
+        dbl_mb((k_grad+ 244)) =  -0.008951D00
+        dbl_mb((k_grad+ 245)) =   0.018541D00
+        dbl_mb((k_grad+ 246)) =  -0.002378D00
+        dbl_mb((k_grad+ 247)) =  -0.025843D00
+        dbl_mb((k_grad+ 248)) =   0.005825D00
+        dbl_mb((k_grad+ 249)) =   0.001510D00
+        dbl_mb((k_grad+ 250)) =  -0.000491D00
+        dbl_mb((k_grad+ 251)) =   0.001990D00
+        dbl_mb((k_grad+ 252)) =   0.002430D00
+        dbl_mb((k_grad+ 253)) =   0.022402D00
+        dbl_mb((k_grad+ 254)) =  -0.003835D00
+        dbl_mb((k_grad+ 255)) =  -0.001213D00
+        dbl_mb((k_grad+ 256)) =   0.000669D00
+        dbl_mb((k_grad+ 257)) =  -0.002178D00
+        dbl_mb((k_grad+ 258)) =  -0.008078D00
+        dbl_mb((k_grad+ 259)) =  -0.006781D00
+        dbl_mb((k_grad+ 260)) =  -0.000074D00
+        dbl_mb((k_grad+ 261)) =   0.000549D00
+        dbl_mb((k_grad+ 262)) =   0.000865D00
+        dbl_mb((k_grad+ 263)) =   0.002881D00
+        dbl_mb((k_grad+ 264)) =   0.006378D00
+        dbl_mb((k_grad+ 265)) =  -0.001920D00
+        dbl_mb((k_grad+ 266)) =  -0.000909D00
+        dbl_mb((k_grad+ 267)) =  -0.000695D00
+        dbl_mb((k_grad+ 268)) =   0.000362D00
+        dbl_mb((k_grad+ 269)) =   0.000411D00
+        dbl_mb((k_grad+ 270)) =  -0.001585D00
+        dbl_mb((k_grad+ 271)) =   0.000732D00
+        dbl_mb((k_grad+ 272)) =   0.000524D00
+        dbl_mb((k_grad+ 273)) =  -0.001062D00
+        dbl_mb((k_grad+ 274)) =   0.000824D00
+        dbl_mb((k_grad+ 275)) =   0.000303D00
+        dbl_mb((k_grad+ 276)) =   0.007577D00
+        dbl_mb((k_grad+ 277)) =   0.002686D00
+        dbl_mb((k_grad+ 278)) =  -0.005190D00
+        dbl_mb((k_grad+ 279)) =  -0.000782D00
+        dbl_mb((k_grad+ 280)) =  -0.000716D00
+        dbl_mb((k_grad+ 281)) =   0.001394D00
+        dbl_mb((k_grad+ 282)) =  -0.000872D00
+        dbl_mb((k_grad+ 283)) =  -0.000692D00
+        dbl_mb((k_grad+ 284)) =   0.001103D00
+        dbl_mb((k_grad+ 285)) =  -0.008696D00
+        dbl_mb((k_grad+ 286)) =   0.004077D00
+        dbl_mb((k_grad+ 287)) =  -0.004592D00
+        dbl_mb((k_grad+ 288)) =   0.000639D00
+        dbl_mb((k_grad+ 289)) =  -0.000263D00
+        dbl_mb((k_grad+ 290)) =   0.003187D00
+        dbl_mb((k_grad+ 291)) =   0.000926D00
+        dbl_mb((k_grad+ 292)) =  -0.000923D00
+        dbl_mb((k_grad+ 293)) =   0.001207D00
+        energy = -317.5656589D00
+        flag  = .true.
+c put scf:converged = logical true
+        if (.not. rtdb_put(rtdb,'scf:converged', MT_LOG, 1, flag))
+     &      call errquit
+     &      ('raktest3: failed to read converged in rtdb', 911)
+c put scf:energy   =  real value
+        if (.not. rtdb_put(rtdb,'scf:energy', MT_DBL, 1, energy))
+     &      call errquit
+     &      ('raktest3: failed to read energy in rtdb', 911)
+c put scf:gradients = 3*nat reals
+        if (.not. rtdb_put(rtdb, 'scf:gradients', MT_DBL, 
+     &       (3*nat),dbl_mb(k_grad)))
+     &      call errquit
+     &        ('raktest3: reading gradients failed',911)
+c free memory
+        if (.not. ma_pop_stack(h_grad))
+     &      call errquit('raktest3: pop failed')
+      endif
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+      if (stpr_walk('scf',rtdb)) then
+        write(6,*)' walk converged'
+      else
+        write(6,*)' walk NOT converged'
+      endif
+      end
