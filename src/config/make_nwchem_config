@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.130 2000-09-14 19:34:19 edo Exp $
+# $Id: make_nwchem_config,v 1.131 2000-10-12 19:45:34 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -116,7 +116,7 @@ MODULES := $(patsubst vib,vib stepper driver gradients,$(MODULES) )
 MODULES := $(patsubst driver, driver stepper gradients,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
-MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
+MODULES := $(patsubst gradients,gradients ddscf dftgrad,$(MODULES) )
 MODULES := $(patsubst hessian,hessian ddscf gradients nwdft dftgrad cphf property stepper vib,$(MODULES) )
 
 MODULES := $(patsubst rimp2_grad,rimp2_grad rimp2 cphf ddscf mp2_grad NWints,$(MODULES) )
@@ -144,7 +144,7 @@ MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
 MODULES := $(patsubst pspw,pspw fft,$(MODULES) )
 
-MODULES := $(patsubst ddscf,ddscf  atomscf NWints,$(MODULES) )
+MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #
@@ -214,7 +214,7 @@ STUBROUTINES := $(patsubst selci,selci selci_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mp2_grad,mp2_grad mp2_input semi_dir_mp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst NWints,int_input task_check_sum,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input rel_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dftgrad,dft_grad_top grad_dft,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,uccsdtest rjhtest jantest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
