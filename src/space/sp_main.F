@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.49 2000-05-16 16:56:56 d3j191 Exp $
+c $Id: sp_main.F,v 1.50 2000-05-16 17:11:15 d3j191 Exp $
 c
       implicit none
 c
@@ -1901,7 +1901,7 @@ c
       integer ibbl
       logical local
 c
-      call sp_gtself(ibbl,local,int_mb(i_bb))
+      call sp_gtlocal(ibbl,local,int_mb(i_bb))
 c
       sp_local=local
 c
