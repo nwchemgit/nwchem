@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.63 2004-03-15 19:50:19 edo Exp $
+$Id: INSTALL,v 1.64 2004-04-20 16:49:06 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -535,6 +535,12 @@ OPTIMIZATION TIPS:
     2) Intel MKL
        http://www.intel.com/software/products/mkl/mkl60/
    
+   
+   If you are using AMD Opteron computers (a.k.a. x86-64), you might
+   want to try the ACML library
+   http://www.developwithamd.com/acml 
+   (download the 64-bit library and not the 32-bit one)
+
    If you are using HP computers (either PA-RISC or IA-64), you might
    want to try the MLIB library
    http://www.hp.com/go/mlib
