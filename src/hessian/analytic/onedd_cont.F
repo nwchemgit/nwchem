@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.10 2000-08-10 03:00:06 windus Exp $
+C $Id: onedd_cont.F,v 1.11 2000-08-14 17:56:26 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -49,8 +49,9 @@ c
       nbf2 = nbf
       if (scftype .eq. 'UHF') nbf2 = nbf + nbf
 C     eigenvalue diagonal matrix for forming energy weighted density
-      nocc = nopen + nclosed                                                    
-      if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 0, nocc,
+      nocc = nopen + nclosed
+
+      if (.not. ga_create(MT_DBL, nocc, nocc,'eigen_diag', 0, nocc,
      $  g_eigen_diag)) call errquit('onedd_cont: ga diags?',nocc*nocc)
       call ga_zero(g_eigen_diag)                                                
 C     eigenvalues
