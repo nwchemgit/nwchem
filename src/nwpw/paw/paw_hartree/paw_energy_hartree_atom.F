@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_hartree_atom.F,v 1.1 2003-02-20 01:00:11 marat Exp $
+* $Id: paw_energy_hartree_atom.F,v 1.2 2003-02-24 20:53:26 marat Exp $
 *
 
 
@@ -60,7 +60,7 @@
          end do !j
       end do
   
-      paw_energy_hartree_atom = ehartree
+      paw_energy_hartree_atom = 0.5d0*ehartree
 
       end
 
