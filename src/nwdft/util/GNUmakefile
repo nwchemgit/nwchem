@@ -25,6 +25,7 @@ else
 	ga_inverse.o		\
 	gacrea.o	gat_lab_can.o	\
 	gather.o	\
+	get_col.o	\
 	header.o	\
 	ijcanon.o	\
 	invio.o		\
@@ -46,6 +47,7 @@ ifeq ($(NWCHEM_TARGET),CRAY-T3D)
 	ga_inverse.o		\
 	gacrea.o	gat_lab_can.o	\
 	gather.o	\
+	get_col.o	\
 	header.o	\
 	ijcanon.o	\
 	pertbl.o	\
