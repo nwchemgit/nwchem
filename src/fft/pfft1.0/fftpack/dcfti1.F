@@ -1,9 +1,9 @@
       subroutine dcfti1 (n,wa,ifac)
 *
-* $Id: dcfti1.F,v 1.3 1997-11-04 10:07:19 d3e129 Exp $
+* $Id: dcfti1.F,v 1.4 2001-11-30 23:59:08 d3e129 Exp $
 *
       double precision wa(1), arg, argh, argld, fi, tpi
-      integer ifac(1), ntryh(4)
+      integer ifac(*), ntryh(4)
       data ntryh(1), ntryh(2), ntryh(3), ntryh(4) /3, 4, 2, 5/
       data tpi   /  6.2831853071 7958647692 5286766559 00577d0/
 c

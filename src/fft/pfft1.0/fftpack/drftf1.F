@@ -1,9 +1,9 @@
       subroutine drftf1 (n,c,ch,wa,ifac)
 *
-* $Id: drftf1.F,v 1.2 1997-11-04 10:07:30 d3e129 Exp $
+* $Id: drftf1.F,v 1.3 2001-11-30 23:59:08 d3e129 Exp $
 *
       double precision c(1), ch(1), wa(1)
-      integer ifac(1)
+      integer ifac(*)
 c
       nf = ifac(2)
       na = 1

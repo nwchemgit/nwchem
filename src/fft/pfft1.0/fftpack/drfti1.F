@@ -1,9 +1,9 @@
       subroutine drfti1 (n,wa,ifac)
 *
-* $Id: drfti1.F,v 1.4 2000-10-25 22:50:10 windus Exp $
+* $Id: drfti1.F,v 1.5 2001-11-30 23:59:08 d3e129 Exp $
 *
       double precision wa(1), arg, argh, argld, fi, tpi
-      integer ifac(1), ntryh(4)
+      integer ifac(*), ntryh(4)
       data ntryh(1), ntryh(2), ntryh(3), ntryh(4) /4, 2, 3, 5/
       data tpi   /  6.2831853071 7958647692 5286766559 00577d0/
 c
