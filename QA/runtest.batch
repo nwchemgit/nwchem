@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: runtest.batch,v 1.2 1997-07-01 00:52:36 d3e129 Exp $
+# $Id: runtest.batch,v 1.3 1997-07-01 18:53:15 d3e129 Exp $
 #
 # Batch system based parallel and sequential execution of test jobs
 #
@@ -40,7 +40,10 @@
 # and the script returns a non-zero status.
 #
 
-
+# parse arguments etc
+if ($#argv == 0) then
+   goto USAGE
+endif
 #  get batch system information information
 @ argv_set_nproc = 0
 
@@ -111,7 +114,7 @@ set TESTOUTPUTS = $CURDIR/testoutputs
 if ($BATCH == "NQE") then
   set SCRATCHDIR  = \$BIG/scratchdir
 else if ($BATCH == "LL") then
-  set SCRATCHDIR  = /scratch/scratchdir
+  set SCRATCHDIR  = /scratch
 else 
   set SCRATCHDIR  = $CURDIR/scratchdir
 endif
@@ -183,63 +186,69 @@ foreach TEST ($argv[*])
      echo  "#QSUB -l mpp_p=$NPROC"               >> $BATCH_SCRIPT
      echo  "#"                                   >> $BATCH_SCRIPT
   else if ($BATCH == "LL") then
-     echo  "#!/bin/csh -x"
+     echo  "#\!/bin/csh -x"                                        >> $BATCH_SCRIPT
      echo  "# @ job_type         =    parallel"                    >> $BATCH_SCRIPT
      echo  "# @ class            =    mss_large"                   >> $BATCH_SCRIPT
-     echo  "# @ requirements     =    (Adapter == "hps_user")"     >> $BATCH_SCRIPT
+     echo  '# @ requirements     =    (Adapter == "hps_user")'     >> $BATCH_SCRIPT
      echo  "# @ input            =    /dev/null"                   >> $BATCH_SCRIPT
      echo  "# @ output           =    $BATCH_SCRIPT.outlog"        >> $BATCH_SCRIPT
      echo  "# @ error            =    $BATCH_SCRIPT.errlog"        >> $BATCH_SCRIPT
-     echo  "# @ environment      =    COPY_ALL; MP_EUILIB=us; MP_CSS_INTERRUPT=yes; MP_INFOLEVEL=2; MP_EUIDEVICE=css0; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yeild"    >> $BATCH_SCRIPT
+     echo  "# @ environment      =    COPY_ALL; MP_EUILIB=us; MP_CSS_INTERRUPT=yes; MP_INFOLEVEL=2; MP_EUIDEVICE=css0; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield"    >> $BATCH_SCRIPT
      echo  "# @ min_processors   =    $NPROC"                      >> $BATCH_SCRIPT
      echo  "# @ max_processors   =    $NPROC"                      >> $BATCH_SCRIPT
      echo  "# @ cpu_limit        =    2:00:00"                     >> $BATCH_SCRIPT
      echo  "# @ queue"                                             >> $BATCH_SCRIPT
      echo  "#"                                                     >> $BATCH_SCRIPT
      echo  "#"                                                     >> $BATCH_SCRIPT
-     continue
   else
      echo " unknown setup for batch script"
      continue
   endif
-  if ($BATCH == "NQE")
-     echo "set echo timestamp"              >> $BATCH_SCRIPT
+  if ($BATCH == "NQE") then
+     echo "set echo timestamp"                        >> $BATCH_SCRIPT
   else
-     echo "set echo"                        >> $BATCH_SCRIPT
+     echo "set echo"                                  >> $BATCH_SCRIPT
+     echo 'set path = (/usr/lpp/ssp/perl/bin $path)'  >> $BATCH_SCRIPT
   endif
-  echo "set batchjob_status = 0"            >> $BATCH_SCRIPT
-  echo "cd $CURDIR"                         >> $BATCH_SCRIPT
-  echo "if(! -d $TESTOUTPUTS) then"         >> $BATCH_SCRIPT
-  echo "   mkdir $TESTOUTPUTS"              >> $BATCH_SCRIPT
-  echo '   if($status) then'                >> $BATCH_SCRIPT
+  echo "set batchjob_status = 0"               >> $BATCH_SCRIPT
+  echo "cd $CURDIR"                            >> $BATCH_SCRIPT
+  echo "if(! -d $TESTOUTPUTS) then"            >> $BATCH_SCRIPT
+  echo "   mkdir $TESTOUTPUTS"                 >> $BATCH_SCRIPT
+  echo '   if($status) then'                   >> $BATCH_SCRIPT
   echo "      echo cannot make directory $TESTOUTPUTS" >> $BATCH_SCRIPT
-  echo "      set batchjob_status = 1"      >> $BATCH_SCRIPT
-  echo "      goto notify_status"           >> $BATCH_SCRIPT
-  echo "   endif"                           >> $BATCH_SCRIPT
-  echo "endif"                              >> $BATCH_SCRIPT
-  echo "set TESTDIR = $TESTDIR"             >> $BATCH_SCRIPT
-  echo "# "                                 >> $BATCH_SCRIPT
-  echo "# Running $TESTDIR/$STUB "          >> $BATCH_SCRIPT
-  echo "# "                                 >> $BATCH_SCRIPT
-  echo " "                                  >> $BATCH_SCRIPT
-  echo "#"                                  >> $BATCH_SCRIPT
+  echo "      set batchjob_status = 1"         >> $BATCH_SCRIPT
+  echo "      goto notify_status"              >> $BATCH_SCRIPT
+  echo "   endif"                              >> $BATCH_SCRIPT
+  echo "endif"                                 >> $BATCH_SCRIPT
+  echo "set TESTDIR = $TESTDIR"                >> $BATCH_SCRIPT
+  echo "# "                                    >> $BATCH_SCRIPT
+  echo "# Running $TESTDIR/$STUB "             >> $BATCH_SCRIPT
+  echo "# "                                    >> $BATCH_SCRIPT
+  echo " "                                     >> $BATCH_SCRIPT
+  echo "#"                                     >> $BATCH_SCRIPT
   echo "# Clean the scratch directory and copy the input and verified output"  >> $BATCH_SCRIPT
   echo "# files to the scratch and test output directories"                    >> $BATCH_SCRIPT
-  echo "#"                                  >> $BATCH_SCRIPT
-  echo "#    cleaning scratch"              >> $BATCH_SCRIPT
-  echo " "                                  >> $BATCH_SCRIPT
-  echo "/bin/rm -rf $SCRATCHDIR"            >> $BATCH_SCRIPT
-  echo "#    making scratch"                >> $BATCH_SCRIPT
-  echo " "                                  >> $BATCH_SCRIPT
-  echo "mkdir $SCRATCHDIR"                  >> $BATCH_SCRIPT
-  echo 'if ($status) then'                  >> $BATCH_SCRIPT
-  echo "  echo failed to make $SCRATCHDIR"  >> $BATCH_SCRIPT
-  echo "  set batchjob_status = 1"          >> $BATCH_SCRIPT
-  echo "  goto notify_status"               >> $BATCH_SCRIPT
-  echo "endif"                              >> $BATCH_SCRIPT
-  echo " "                                  >> $BATCH_SCRIPT
+  echo "#"                                     >> $BATCH_SCRIPT
+  echo " "                                     >> $BATCH_SCRIPT
+  echo "if (-d $SCRATCHDIR) then"              >> $BATCH_SCRIPT
+  echo "#.................  cleaning scratch"  >> $BATCH_SCRIPT
+  echo "   touch $SCRATCHDIR/goober"           >> $BATCH_SCRIPT
+  echo "   rm -rf $SCRATCHDIR/*"               >> $BATCH_SCRIPT
+  echo "else"                                  >> $BATCH_SCRIPT
+  echo "#.................. removing scratch"  >> $BATCH_SCRIPT
+  echo "   /bin/rm -rf $SCRATCHDIR"            >> $BATCH_SCRIPT
+  echo "#.................... making scratch"  >> $BATCH_SCRIPT
+  echo " "                                     >> $BATCH_SCRIPT
+  echo "   mkdir $SCRATCHDIR"                  >> $BATCH_SCRIPT
+  echo '   if ($status) then'                  >> $BATCH_SCRIPT
+  echo "     echo failed to make $SCRATCHDIR"  >> $BATCH_SCRIPT
+  echo "     set batchjob_status = 1"          >> $BATCH_SCRIPT
+  echo "     goto notify_status"               >> $BATCH_SCRIPT
+  echo "   endif"                              >> $BATCH_SCRIPT
+  echo "endif"                                 >> $BATCH_SCRIPT
+  echo " "                                     >> $BATCH_SCRIPT
 # copying input and verified output files
-  echo "# set input and output files"       >> $BATCH_SCRIPT
+  echo "# set input and output files"          >> $BATCH_SCRIPT
   set OUTPUTFILE   = $STUB.out
   set INPUTFILE    = $STUB.nw
   echo "# OUTPUTFILE is $OUTPUTFILE"  >> $BATCH_SCRIPT
@@ -366,12 +375,14 @@ foreach TEST ($argv[*])
 
   echo "# . . . . . . . . . . . . . . . .     verifying output ... "   >> $BATCH_SCRIPT
   echo "   perl $NWPARSE $STUB.out >& /dev/null"                       >> $BATCH_SCRIPT
+# echo "   perl $NWPARSE $STUB.out "                                   >> $BATCH_SCRIPT
   echo '   if($status) then'                                           >> $BATCH_SCRIPT
   echo "      echo nwparse.pl failed on test output $STUB.out"         >> $BATCH_SCRIPT
   echo "      set batchjob_status = 1"                                 >> $BATCH_SCRIPT
   echo "      goto notify_status"                                      >> $BATCH_SCRIPT
   echo "   endif "                                                     >> $BATCH_SCRIPT
   echo "   perl $NWPARSE $STUB.ok.out >& /dev/null"                    >> $BATCH_SCRIPT
+# echo "   perl $NWPARSE $STUB.ok.out "                                >> $BATCH_SCRIPT
   echo '   if ($status) then'                                          >> $BATCH_SCRIPT
   echo "      echo nwparse.pl failed on verified output $STUB.ok.out"  >> $BATCH_SCRIPT
   echo "      set batchjob_status = 1"                                 >> $BATCH_SCRIPT
@@ -442,8 +453,7 @@ foreach TEST ($argv[*])
   if ($BATCH == "NQE") then
      cqsub  $BATCH_SCRIPT
   else if ($BATCH == "LL") then
-     echo " LL submission not tested yet"
-#     llsubmit $BATCH_SCRIPT
+     llsubmit $BATCH_SCRIPT
   else
      echo " $BATCH not configured for submission     
      exit 911
@@ -453,7 +463,6 @@ foreach TEST ($argv[*])
      exit 911
   endif
 end
-if ($BATCH == "LL") exit 12345
 @ jobs_total = $run_count
 echo " "
 echo " A total of $jobs_total jobs were submitted to $BATCH"
@@ -488,3 +497,9 @@ if ($jobs_failed == 0) then
 else
    exit 0
 endif
+
+
+
+USAGE:
+  echo "runtest.batch [-procs nproc] [-wait|-nowait] testdir1 [testdir2 ...]"
+  exit 0
