@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.3 2001-11-29 22:59:01 bylaska Exp $
+c $Id: nwpw_default.F,v 1.4 2001-11-30 17:30:28 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -7,7 +7,6 @@ c
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "geom.fh"
 
 c
 *     ***** local variables *****
@@ -25,9 +24,14 @@ c
       character*30 rtdb_name
       character*25 boundry
       double precision unita(3,3)
-      integer ngrid(3),geom
+      integer ngrid(3)
 
        
+*     **** don't set defaults if they already exist ****
+      value = rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut)
+      if (value) return
+
+
 *     ***** initializations ****
       cell_name             = 'cell_default'
       call util_file_prefix('movecs',input_wavefunction_filename)
