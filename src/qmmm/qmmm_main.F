@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.35 2005-03-04 01:16:25 marat Exp $
+c $Id: qmmm_main.F,v 1.36 2005-03-09 00:22:55 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -290,7 +290,6 @@ c
       do i=1,nact
        int_mb(i_cons+i-1) = j
        j = j + 1
-       write(*,*) "debug 1 ",int_mb(i_cons+i-1)
       end do
 
       ignore = rtdb_delete(rtdb, 'geometry:actlist')
