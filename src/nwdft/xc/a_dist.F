@@ -1,6 +1,6 @@
-      Subroutine a_dist(xyz, Rij, nctrs)
+      Subroutine a_dist(xyz, Rij, nctrs,dopts)
 c
-C$Id: a_dist.F,v 1.11 1997-11-14 01:14:32 d3h449 Exp $
+C$Id: a_dist.F,v 1.12 2001-03-08 03:00:07 edo Exp $
 c
       implicit none
 c
@@ -17,6 +17,7 @@ c
       double precision Rij((nctrs*(nctrs+1))/2)
 c
       integer i, j, ij
+      logical dopts
 c
 c     Evaluate the distance between each pair of centers.
 c
@@ -26,7 +27,7 @@ c
       do 20 i = 1, nctrs
          do 10 j = 1, i
             ij = ij + 1
-            if (iatype_pt_chg(i).or.iatype_pt_chg(j))then
+            if (dopts.and.(iatype_pt_chg(i).or.iatype_pt_chg(j)))then
                Rij(ij) = -1.0d0
             elseif (i.eq.j)then
                Rij(ij) = 0.0d0
