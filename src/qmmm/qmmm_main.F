@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq)
 c
-c $Id: qmmm_main.F,v 1.5 2002-02-09 05:49:43 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.6 2002-02-09 18:39:07 d3j191 Exp $
 c
       implicit none
 c
@@ -77,7 +77,7 @@ c
      + call errquit('qmmm: Failed to allocate memory for t',me)
       if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'i',l_i,i_i))
      + call errquit('qmmm: Failed to allocate memory for i',me)
-      if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'j',l_j,i_j))
+      if(.not.ma_push_get(mt_int,2*nqatomt+nzatomt,'j',l_j,i_j))
      + call errquit('qmmm: Failed to allocate memory for i',me)
 c
       call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
@@ -178,7 +178,7 @@ c
       integer ndim,mwm,nwm,mwa,msa,nsa,ioffq,ioffz
       real*8 c(3,ndim),q(ndim),m(ndim)
       character*16 t(ndim)
-      integer inum(ndim),ndx(ndim)
+      integer inum(ndim),ndx(ndim,2)
       integer iwz(mwm),isat(msa),isdt(msa),isq(msa),isz(msa)
       real*8 xw(mwm,3,mwa),xs(msa,3)
 c
@@ -194,7 +194,8 @@ c
       c(3,i)=0.0d0
       q(i)=0.0d0
       inum(i)=0
-      ndx(i)=0
+      ndx(i,1)=0
+      ndx(i,2)=0
     1 continue
 c
       atc=0.0d0
@@ -206,7 +207,8 @@ c
       c(2,ioq)=xs(i,2)*cnm2au
       c(3,ioq)=xs(i,3)*cnm2au
       inum(ioq)=cf_element(isat(i))
-      ndx(ioq)=isdt(i)
+      ndx(ioq,1)=isdt(i)
+      ndx(ioq,2)=inum(ioq)
       q(ioq)=dble(inum(ioq))
       atc=atc+cf_charge(isq(i))
       endif
@@ -219,8 +221,10 @@ c
       if(linkatm.gt.0) then
       q(ioz)=dble(linkatm)
       inum(ioz)=linkatm
+      ndx(ioz,2)=linkatm
       else
       j=cf_element(isat(i))
+      ndx(ioz,2)=j
       if(j.le.85) inum(ioz)=85
       if(j.le.53) inum(ioz)=53
       if(j.le.35) inum(ioz)=35
@@ -234,7 +238,7 @@ c
       bqc=bqc+q(ioz)
       inum(ioz)=0
       endif
-      ndx(ioz)=isdt(i)
+      ndx(ioz,1)=isdt(i)
       endif
     2 continue
       do 3 i=1,nwm
@@ -246,6 +250,7 @@ c
       c(3,ioz)=xw(i,3,j)*cnm2au
       q(ioz)=cf_wcharge(j)
       inum(ioz)=0
+      ndx(ioz,2)=0
       bqc=bqc+q(ioz)
     4 continue
       endif
@@ -255,7 +260,7 @@ c
       call ga_dgop(mrg_d02,c,3*ndim,'+')
       call ga_dgop(mrg_d03,q,ndim,'+')
       call ga_igop(mrg_d04,inum,ndim,'+')
-      call ga_igop(mrg_d05,ndx,ndim,'+')
+      call ga_igop(mrg_d05,ndx,2*ndim,'+')
       call ga_dgop(mrg_d06,bqc,1,'+')
       bqchrg=bqc
 c
@@ -264,14 +269,14 @@ c
 c
       do 5 i=1,ndim
       call cf_num2tag(inum(i),t(i))
-      if(iand(ndx(i),lqhigh).ne.0)
+      if(iand(ndx(i,1),lqhigh).ne.0)
      + t(i)=t(i)(1:index(t(i),' ')-1)//'_H'
-      if(iand(ndx(i),lqlink).ne.0)
+      if(iand(ndx(i,1),lqlink).ne.0)
      + t(i)=t(i)(1:index(t(i),' ')-1)//'_L'
-      if(iand(ndx(i),lquant).ne.0.and.iand(ndx(i),lqsoft).ne.0)
+      if(iand(ndx(i,1),lquant).ne.0.and.iand(ndx(i,1),lqsoft).ne.0)
      + t(i)=t(i)(1:index(t(i),' ')-1)//'_S'
-      if(inum(i).gt.0) then
-      if(.not.geom_atn_to_default_mass(inum(i),m(i))) m(i)=0.0d0
+      if(ndx(i,2).gt.0) then
+      if(.not.geom_atn_to_default_mass(ndx(i,2),m(i))) m(i)=0.0d0
       else
       m(i)=0.0d0
       endif
