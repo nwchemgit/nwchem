@@ -724,7 +724,7 @@ procedures deemed undesirable with the obvious keywords,
        [(gausleg||lebedev ) default lebedev ] \
        [(old||new) default new ] \
        [(becke||erf1||erf2||ssf) default erf1] \
-       [(euler||mura||treutler||lindh) default mura] \
+       [(euler||mura||treutler) default mura] \
        [rm <real rm default 2.0>]
 \end{verbatim}
 
@@ -799,8 +799,8 @@ to generate the desired energy accuracy (with utter disregard for speed).
 %%observed that with Lebedev angular quadratures a reduction in the
 %%number of radial shells (perhaps by as much as 30\%) might be possible
 %%while continuing to provide the same level of accuracy.
-%%% g94/Sg-1 grid lebedev 50 4
-%%% g98/fine              75 5
+%%% g94/Sg-1        grid ssf lebedev  gausleg  50 8
+%%% g98/fine        grid ssf lebedev gausleg  75 11
 
 
 \begin{table}[h]
@@ -1009,7 +1009,7 @@ erf(\mu^\prime_{AB})\right] \\
 \subsection{Radial grids}
 
 \begin{verbatim}
-  GRID [[euler||mura||treutler||lindh]  default mura]
+  GRID [[euler||mura||treutler]  default mura]
 \end{verbatim}
 
 \begin{description}
@@ -1024,7 +1024,6 @@ M.E.Mura and P.J.Knowles, J Chem Phys {\bf 104}, 9848
 in this paper).\\
 \item[\tt treutler] Gauss-Chebyshev using the transformation suggested
   by O.Treutler and R.Alrhichs, J.Chem.Phys {\bf 102}, 346 (1995).\\
-\item[\tt lindh] R.Lindh (1999)
 \end{description}
 
 \subsection{Grid Scheme}
