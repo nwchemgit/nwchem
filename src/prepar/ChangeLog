@@ -40,4 +40,6 @@ Jun 04 1998      Bug fix in atom typing (pre_atype)
 		 Charge constraint of zero on set of cap atoms (pre_charge)
 		 Handle charmm improper dihedrals (pre_ffield)
 		 List atoms not found (pre_misfit)
-	         Rename residues (CYS,HIS) appropriately for force field 
+	         Rename residues (CYS,HIS) appropriately for force field
+ 	         Bug fix in index to array cseq (pre_rename)
+Jun 05 1998	 Bug fix in residue renaming (pre_rename)
