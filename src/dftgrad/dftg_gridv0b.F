@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr,donewbf)
 c      
-c     $Id: dftg_gridv0b.F,v 1.16 2001-05-05 05:20:31 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.17 2001-11-14 23:35:56 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -111,6 +111,8 @@ c           within int_eval_gbsets mbf is # of orbs with nonzero
 c           points in sampling set.  iniz is a mapping array.
 c           currently set up only for cartesian (6d) sets
 c         
+      Ex=0
+      Ec=0
       if (der3chi) then
          maxdbas = 3
       elseif (hesschi) then
