@@ -1,4 +1,4 @@
-1\label{sec:dft}
+\label{sec:dft}
 
 The NWChem density functional theory (DFT) module uses the
 Gaussian basis set approach to compute
@@ -401,10 +401,9 @@ functional
 \fussy
 
 Any combination of the supported correlation functional options can be
-used.  For example the correlation component of the popular B3LYP
-could be specified as:
+used.  For example  B3LYP could be specified as:
 \begin{verbatim}
-   XC vwn_1_rpa 0.19 lyp 0.81
+XC vwn_1_rpa 0.19 lyp 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72
 \end{verbatim}
 
   
