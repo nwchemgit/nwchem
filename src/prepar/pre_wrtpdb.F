@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist)
 c
-c $Id: pre_wrtpdb.F,v 1.17 2000-05-03 18:03:58 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.18 2000-06-01 05:32:32 d3j191 Exp $
 c
       implicit none
 c
@@ -32,6 +32,7 @@ c
       integer i,j,k,nats,nums,numslv,isoff,iaoff
       integer ixrep,iyrep,izrep
       real*8 temp,dbx,dby,dbz,dist,dbz0
+      character*3 sname
 c
       isoff=0
       iaoff=0
@@ -76,7 +77,11 @@ c
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
-      write(lfnpdb,1001) i,csa(i)(11:14),csa(i)(1:3),
+      sname=csa(i)(1:3)
+      if(sname(1:1).eq.'_') sname(1:1)=' '
+      if(sname(2:2).eq.'_') sname(2:2)=' '
+      if(sname(3:3).eq.'_') sname(3:3)=' '
+      write(lfnpdb,1001) i,csa(i)(11:14),sname,
      + isgm(i),(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
  1001 format('ATOM',i7,1x,a4,1x,a3,2x,i4,4x,3f8.3,6x,f6.2,4x,a2)
       if(isgm(i).gt.nums) nums=isgm(i)
