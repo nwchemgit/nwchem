@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.50 1999-06-01 20:48:09 d3h325 Exp $
+* $Id: int2e_file.F,v 1.51 1999-09-01 21:48:08 d3g681 Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -61,7 +61,7 @@ c
       nlarge = 0
       cur_rec = 1
       n_rec_in_file = 0
-      rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
+      rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl) + 1 !!
       call int2e_buf_clear()
       call dfill(buffer_size, 0.0d0, values, 1)
 #ifdef NOAIO
@@ -1291,7 +1291,7 @@ c
 *      write(6,*) ' nq 1 ', nq
          nq = nq / ga_nnodes()
 *      write(6,*) ' nq 1 ', nq
-         nq = nq * 1.1d0 + 2*rec_len_in_dbl ! Fudge factors for safety
+         nq = nq * 2d0 + 2*rec_len_in_dbl ! Allow for labels and EOF blocks
 *      write(6,*) ' nq 1 ', nq
 c
          if (nq .lt. avail) then

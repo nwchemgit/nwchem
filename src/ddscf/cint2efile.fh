@@ -1,5 +1,5 @@
 *
-* $Id: cint2efile.fh,v 1.15 1997-11-07 11:35:08 d3e129 Exp $
+* $Id: cint2efile.fh,v 1.16 1999-09-01 21:48:07 d3g681 Exp $
 *
 c
 c     Internal common for int2e routines
@@ -56,19 +56,19 @@ c
 *      parameter (buffer_size = 16) ! About the minimum
 #ifdef CRAY_T3D
 c     save on memory since have only physical memory
-      parameter (buffer_size = 8192)
+      parameter (buffer_size = 8192    - 2)
 #else
-      parameter (buffer_size = 32768)
+      parameter (buffer_size = 32768*2 - 2)
 #endif
 c
       common/cint2ebuf/
      $     buf(buffer_size),
-     $     n_in_buf, pad
+     $     n_in_buf, pad(3)
       equivalence(ibuf(1),buf(1))
 c
       common/cint2ebuf2/
      $     buf2(buffer_size),
-     $     n_in_buf2, pad2
+     $     n_in_buf2, pad2(3)
 c
       common/cint2efile/
      $     values(buffer_size),
