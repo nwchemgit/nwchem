@@ -1,10 +1,9 @@
-# $Id: GNUmakefile,v 1.1 1994-10-20 23:51:12 pg511 Exp $
+# $Id: GNUmakefile,v 1.2 1994-10-25 20:00:09 og845 Exp $
 
       OBJ_OPTIMIZE = \
 	bsolve.o			   conden.o	\
-	cortho.o			   decomp.o	\
-	dencvg.o			   dft.o	\
-	diag.o				   diis.o	\
+	dft.o	\
+	diis.o	\
 	diisdriver.o			   gacond.o	\
 	gacortho.o			   gafact.o	\
 	gethcore.o			   guess.o	\
