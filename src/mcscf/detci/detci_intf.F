@@ -50,6 +50,14 @@ c
       detci_density_etime = 0.d0
       detci_sigma_calls = 0
       detci_density_calls = 0
+      detci_spinadp_etime = 0.d0
+      detci_symmadp_etime = 0.d0
+      detci_aaff_etime = 0.d0
+      detci_aadot_etime = 0.d0
+      detci_abstr_etime = 0.d0
+      detci_abgath_etime = 0.d0
+      detci_abdotab_etime = 0.d0
+      detci_abscat_etime = 0.d0
 c
 c  Copy CI parameters
 c
@@ -99,7 +107,7 @@ c  Toggle spin-adaption
 c  Need some way of automatically turning this on and off 
 c  depending requested spin-state
 c
-      cdetci_spinadapt = .true.
+      cdetci_spinadapt = .false.
       cdetci_squant = (nela - nelb)/2.d0
 c     
 c  Info print
@@ -153,6 +161,15 @@ c
         call detci_excit( norb, nelb, nsym, nstrb, nexb, cdetci_osym,
      $                    ijmap, cdetci_atabb, int_mb(k_detci_exb) )
       endif
+c$$$      IF (GA_NODEID().EQ.0) THEN
+c$$$        IJ = 6*(NEXA*(NSTRA+1) + NEXB*(NSTRB+1))
+c$$$        I = MA_INQUIRE_AVAIL( MT_DBL )
+c$$$        WRITE(6,913) IJ, I
+c$$$ 913    FORMAT('ALLOCATED AND GENERATED EXCITATION TABLE',/,
+c$$$     $          'Requested ',I10,' Free',I10,' words')
+c$$$        CALL UTIL_FLUSH(6)
+c$$$      ENDIF
+c$$$      CALL GA_SYNC()
 c
 c  Allocate ERI block
 c  Copy integrals into internal block
@@ -178,7 +195,7 @@ c
      $     'detci: rhsscr', l_detci_rhsscr, k_detci_rhsscr))
      $     call errquit('detci: cannot allocate rhs',0)
 
-      if (.not.ma_push_get(MT_INT, nekla,
+      if (.not.ma_push_get(MT_INT, max(nekla,neklb),
      $     'detci: lhsscr', l_detci_lhsscr, k_detci_lhsscr))
      $     call errquit('detci: cannot allocate lhs',0)
 
@@ -193,6 +210,16 @@ c
       if (.not.ma_push_get(MT_DBL, (nstrb*nekla),
      $     'detci: sprime', l_detci_sprime, k_detci_sprime))
      $     call errquit('detci: cannot allocate sprime',0)
+c
+c$$$      IF (GA_NODEID().EQ.0) THEN
+c$$$        IJ = MAX(NSTRA,NSTRB) + 3*NEKLA + 2*(NSTRB*NEKLA)
+c$$$        I = MA_INQUIRE_AVAIL( MT_DBL )
+c$$$        WRITE(6,914) IJ, I
+c$$$ 914    FORMAT('ALLOCATED SCRATCH ARRAYS',/,
+c$$$     $         'Requested ',I10,' Free',I10,' words')
+c$$$        CALL UTIL_FLUSH(6)
+c$$$      ENDIF
+c$$$      CALL GA_SYNC()
 c
 c  Validate internals
 c
@@ -265,18 +292,34 @@ c
 c
 c Print stats
 c
-      if (ga_nodeid().eq.0) write(6,901) detci_sigma_calls,
-     $                                   detci_saa_etime,
-     $                                   detci_sbb_etime,
-     $                                   detci_sab_etime,
-     $                                   detci_sigma_etime,
-     $                                   detci_density_etime
- 901  format(/,10x,'Number of sigma calls:',4x,i5,
-     $       /,10x,5('>'),'Elapsed time (aa):',4x,f10.2,
-     $       /,23x,5('>'),'(bb):',4x,f10.2,
-     $       /,23x,5('>'),'(ab):',4x,f10.2,
-     $       /,23x,5('>'),'(total)',2x,f10.2,
-     $       /,23x,5('>'),'Density',2x,f10.2)
+c$$$      if (ga_nodeid().eq.0) write(6,901) detci_sigma_calls,
+c$$$     $                                   detci_saa_etime,
+c$$$     $                                   detci_sbb_etime,
+c$$$     $                                   detci_sab_etime,
+c$$$     $                                   detci_sigma_etime,
+c$$$     $                                   detci_aaff_etime,
+c$$$     $                                   detci_aadot_etime,
+c$$$     $                                   detci_abstr_etime,
+c$$$     $                                   detci_abgath_etime,
+c$$$     $                                   detci_abdotab_etime,
+c$$$     $                                   detci_abscat_etime,
+c$$$     $                                   detci_density_etime,
+c$$$     $                                   detci_spinadp_etime,
+c$$$     $                                   detci_symmadp_etime
+c$$$ 901  format(/,10x,'Number of sigma calls:',4x,i5,
+c$$$     $       /,23x,'o',5('<'),' (aa):',7x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (bb):',7x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (ab):',7x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (total)',5x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (aa) ff',5x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (aa) dot',4x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (ab) str',4x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (ab) gath',3x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (ab) dotab',2x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' (ab) scat',3x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' Density',5x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' Spin adapt',2x,f10.2,
+c$$$     $       /,23x,'o',5('<'),' Symm adapt',2x,f10.2)
 c
 c  Free scratch memory
 c
@@ -369,9 +412,11 @@ c
       implicit none
 c
 #include "global.fh"
+#include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "cdetci.fh"
+#include "cdetcistats.fh"
 c
       integer ngs
       integer cfggs(*)
@@ -383,7 +428,7 @@ c
       integer nstrb
       integer rcfg(detci_maxelec_tot*detci_maxguess_cfg)
       integer i, j, jj
-      double precision mxcnt, xx
+      double precision mxcnt, xx, tx
 c
 c
 c     
@@ -413,18 +458,22 @@ c
 c  Spin adapt
 c
       if (cdetci_spinadapt) then
+        tx = util_cpusec()
         call detci_spinadapt( g_civec, g_workvec )
+        detci_spinadp_etime = detci_spinadp_etime + util_cpusec() - tx
       endif
 c
 c  Symmetry adapt
 c
       if (cdetci_nsym.gt.1) then
+        tx = util_cpusec()
         call detci_symmproject( cdetci_norb, cdetci_nsym,
      $                          cdetci_nela, cdetci_nelb, nstra,
      $                          nstrb, cdetci_osym, 
      $                          cdetci_ataba, cdetci_atabb,
      $                          cdetci_symstate, .true.,
      $                          mxcnt, g_civec )
+        detci_symmadp_etime = detci_symmadp_etime + util_cpusec() - tx
       endif
 c
 c  Check for zero projected vector
@@ -591,15 +640,17 @@ c
       subroutine detci_ciprecon( g_civec, g_workvec )
       implicit none
 #include "global.fh"
+#include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
 #include "cdetci.fh"
+#include "cdetcistats.fh"
 c
       integer g_civec
       integer g_workvec
       integer nstra, nstrb
 c
-      double precision xx, yy
+      double precision xx, yy, tx
       double precision mxcnt
 c
 c  Check internals
@@ -628,7 +679,9 @@ c$$$        CALL DETCI_PRINT(G_CIVEC,1.D-3)
 CCCCC        CALL DETCI_RANDOM_ERROR( G_CIVEC )       ! INTRODUCE CONTAMINATION TO DEBUG
 c$$$        XX = SQRT( GA_DDOT( G_CIVEC, G_CIVEC ) )
 
+        tx = util_cpusec()
         call detci_spinadapt( g_civec, g_workvec )
+        detci_spinadp_etime = detci_spinadp_etime + util_cpusec() - tx
 
 c$$$        YY = SQRT( GA_DDOT( G_CIVEC, G_CIVEC ) )
 c$$$        WRITE(6,988) (1.d0 - YY/XX)
@@ -642,12 +695,14 @@ c
 c$$$      PRINT*,'=== AFTER PRECON ==='
 c$$$      CALL DETCI_PRINT(G_CIVEC,1.D-3)
       if (cdetci_nsym.gt.1) then
+        tx = util_cpusec()
         call detci_symmproject( cdetci_norb, cdetci_nsym,
      $                          cdetci_nela, cdetci_nelb, nstra,
      $                          nstrb, cdetci_osym, 
      $                          cdetci_ataba, cdetci_atabb,
      $                          cdetci_symstate, .true.,
      $                          mxcnt, g_civec )
+        detci_symmadp_etime = detci_symmadp_etime + util_cpusec() - tx
       endif
 
 c$$$      PRINT*,'=== AFTER SYMMPROJ ==='

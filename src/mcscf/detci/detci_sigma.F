@@ -11,8 +11,10 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
+#include "cdetcistats.fh"
       integer norb                            ! [input] Orbitals
       integer nsym                            ! [input] Irreps
       integer nela                            ! [input] Alpha electrons
@@ -36,6 +38,9 @@ c
       integer g_civec                         ! [input] CI-vector          
       integer g_sigma                         ! [input/output] Sigma vector
 c
+      integer Msg_detci_sum
+      parameter(Msg_detci_sum=1059)
+c
 c
 c
       integer istr, kstr, jstr
@@ -48,16 +53,17 @@ c
       integer kphase, jphase
       integer isym, ksym, jsym, iksym
       integer trii(detci_maxorb)
-      double precision xx, yy
-      double precision ddot
-      external ddot
+      double precision xx, yy, tx, tff, tdot
+c$$$      double precision sdot
+c$$$      external sdot
 c
 #include "symmdef.fh"
 #include "bitops.fh"
 #include "symmmul.fh"
 c
 c
-
+      tff = 0.d0
+      tdot = 0.d0
       do i=1,norb
         trii(i) = (i*(i-1))/2
       enddo
@@ -77,24 +83,27 @@ c
       do istr=1,nstrb
         if ((isym.lt.nsym).and.(istr.gt.ataba(1,1,isym+1)))
      $    isym = isym + 1
+        tx = util_cpusec()
         call dfill(nstrb,0.d0,f,1)
+
+
+#ifdef NEW_AAFF
+        do iex=ga_nodeid()+1,nexb,ga_nnodes()
+#else
         do iex=1,nexb
+#endif
           kstr   = exb(1,iex,istr)
-C          ksym   = exb(2,iex,istr)
           kl     = exb(3,iex,istr)
           kphase = exb(4,iex,istr)
           k      = exb(5,iex,istr)
           l      = exb(6,iex,istr)
-C          iksym  = MULX(isym,ksym)
-C          if (iksym.eq.1) then
-            xx = 0.d0
-            do j=1,norb
-              kj = ijmap(k,j)
-              lj = ijmap(l,j)
-              xx = xx + g(kj,lj)
-            enddo
-            f(kstr) = f(kstr) + kphase*(h(kl) - 0.5d0*xx)
-C          endif
+          xx = 0.d0
+          do j=1,norb
+            kj = ijmap(k,j)
+            lj = ijmap(l,j)
+            xx = xx + g(kj,lj)
+          enddo
+          f(kstr) = f(kstr) + kphase*(h(kl) - 0.5d0*xx)
 c
           do kex=1,nexb
             jstr   = exb(1,kex,kstr)
@@ -103,6 +112,11 @@ c
             f(jstr) = f(jstr) + 0.5d0*jphase*g(ij,kl)
           enddo
         enddo
+#ifdef NEW_AAFF
+        call ga_dgop(Msg_detci_sum, f, nstrb, '+' )
+#endif
+        tff = tff + util_cpusec() - tx
+        tx = util_cpusec()
 c
 c Data parallel here....
 c
@@ -110,15 +124,18 @@ c
           if ((i.ge.cilo).and.(i.le.cihi)) then
             call ga_access( g_civec, rlo, rhi, i, i, k_ci, ldc )
             call ga_access( g_sigma, rlo, rhi, i, i, k_sig, lds )
-            xx = ddot(nstrb,f,1,dbl_mb(k_ci),1)
+            xx = ddot( nstrb, f, 1, dbl_mb(k_ci), 1 )
             dbl_mb(k_sig+istr-1) = dbl_mb(k_sig+istr-1) + xx
             call ga_release( g_civec, rlo, rhi, i, i )
             call ga_release_update( g_sigma, rlo, rhi, i, i )
           endif
         enddo
+        tdot = tdot + util_cpusec() - tx
 c
 c            
       enddo
+      detci_aaff_etime = detci_aaff_etime + tff
+      detci_aadot_etime = detci_aadot_etime + tdot
       return
       end
 
@@ -292,8 +309,10 @@ c
      $                          cprime, sprime, g_civec, g_sigma )
       implicit none
 #include "global.fh"
+#include "util.fh"
 #include "detciP.fh"
 #include "detci.fh"
+#include "cdetcistats.fh"
       integer norb                            ! [input] Orbitals
       integer nsym                            ! [input] Irreps
       integer nela                            ! [input] Alpha electrons
@@ -313,17 +332,16 @@ c
       integer ntij                            ! [input] Symmtery-blocked triangular sum
       double precision g(ntij,ntij)           ! [input] ERI's
       integer vrhs(nekla)                     ! [scratch] Array of RHS Strings for E_kl
-      integer vlhs(nekla)                     ! [scratch] Array of LHS Strings for E_kl
+      integer vlhs(*)                         ! [scratch] Array of LHS Strings for E_kl
       integer vphase(nekla)                   ! [scratch] Array of Phases for E_kl
       double precision f(nstrb)               ! [scratch] Scratch space
       double precision cprime(nstrb,nekla)    ! [scratch] Gathered CI-vector
       double precision sprime(nstrb,nekla)    ! [scratch] Gathered sigma vector
       integer g_civec                         ! [input] CI-vector          
       integer g_sigma                         ! [input/output] Sigma vector
-c$$$      double precision civec(nstrb,nstra)     ! [input] CI-vector
-c$$$      double precision sigma(nstrb,nstra)     ! [input/output] Sigma vector
 c
 c
+
       integer i, ij, kl
       integer ak, al, iph
       integer ksym
@@ -335,14 +353,17 @@ c
       integer ip(detci_maxelec)
       integer ploop, numnodes, next, myid
       double precision phase
+      double precision tstr, tgath, tdotab, tscat, tx
       integer nxtval
       external nxtval
 c
-c$$$      INTEGER IREV
-c$$$      INTEGER REV_RHS(1000)
 c
 c Initialize parallel stuff
 c
+      tstr = 0.d0
+      tgath = 0.d0
+      tdotab = 0.d0
+      tscat = 0.d0
       ploop = -1
       numnodes = ga_nnodes()
       myid = ga_nodeid()
@@ -359,6 +380,7 @@ c
         do al=1,norb
           ploop = ploop + 1
           if (ploop.eq.next) then
+            tx = util_cpusec()
             kl = ijmap(ak,al)
             ne_kl = 0
 c
@@ -382,9 +404,7 @@ c LHS and RHS strings where
 c
 c        |LHS> = E  |RHS>
 c                 kl
-
-c$$$          CALL IFILL(NSTRA,0,REV_RHS,1)
-          
+c          
             if (nela.gt.1) then
  101          continue
               ne_kl = ne_kl + 1
@@ -396,16 +416,11 @@ c$$$          CALL IFILL(NSTRA,0,REV_RHS,1)
 c
 c Put index into gather/scatter arrays
 c
-
               vphase(ne_kl) = iph
               vrhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,
      $                                    ataba,relv)
               vlhs(ne_kl) = detci_elv2str(norb,nela,nsym,osym,
      $                                    ataba,lelv)
-
-c$$$          IREV =  DETCI_ELV2STR(NORB,NELA,NSYM,OSYM,ATABA,RELV)
-c$$$          REV_RHS(IREV) = NE_KL
-
               if (detci_getnextelv(nidx,(nela-1),ip)) goto 101
             else
               ne_kl = 1
@@ -413,21 +428,43 @@ c$$$          REV_RHS(IREV) = NE_KL
               vlhs(i) = ak
               vphase(i) = 1
             endif
-
-C          WRITE(6,'(20I4)') (VRHS(I),I=1,NE_KL)
-C          WRITE(6,'(20I4)') (REV_RHS(I),I=1,NSTRA)
-
+            tstr = tstr + util_cpusec() - tx
+            tx = util_cpusec()
 c
 c End loop over possible strings
 c
-c Gather in CI and sigma blocks
+c Gather in CI blocks
 c
+
+#ifdef NEW_DOTAB
+            call detci_cigather( nstrb, nstra, ne_kl, g_civec, vlhs,
+     $                       vphase, sprime )
+            call dfill((nstrb*ne_kl), 0.d0, cprime, 1 )
+            call transpose( nstrb, ne_kl, sprime, cprime )
+#else
             call detci_cigather( nstrb, nstra, ne_kl, g_civec, vlhs,
      $                       vphase, cprime )
+#endif
             call dfill((nstrb*ne_kl),0.d0,sprime,1)
+            tgath = tgath + util_cpusec() - tx
+            tx = util_cpusec()
 c
 c Loop over all beta strings
 c
+
+#ifdef NEW_DOTAB
+            do jstr=1,nstrb
+              call dfill( nstrb, 0.d0, f, 1 )
+              do iex=1,nexb
+                ij        = exb(3,iex,jstr)
+                phase     = exb(4,iex,jstr)
+                f(iex)    = phase*g(ij,kl)
+                vlhs(iex) = exb(1,iex,jstr)
+              enddo
+              call detci_dotabx(jstr, ne_kl, nstrb, nexb, f, vlhs,
+     $                          cprime, sprime )
+            enddo
+#else
             do jstr=1,nstrb
               call dfill(nstrb,0.d0,f,1)
               do iex=1,nexb
@@ -436,25 +473,23 @@ c
                 ij    = exb(3,iex,jstr)
                 phase = exb(4,iex,jstr)
                 f(kstr) = f(kstr) + phase*g(ij,kl)
-
-c$$$              I     = EXB(5,IEX,JSTR)
-c$$$              J     = EXB(6,IEX,JSTR)
-c$$$              IF ((JSTR.EQ.1).AND.(G(IJ,KL).GT.0.D0))
-c$$$     $            WRITE(6,'(A,4I5,2F12.6)') '===',
-c$$$     $            AK,AL,I,J,(PHASE*G(IJ,KL)),F(KSTR)
-
               enddo
               call detci_dotab(jstr,ne_kl,nstrb,f,cprime,sprime)
-
-c$$$            IF ((JSTR.EQ.1).AND.(REV_RHS(1).NE.0))
-c$$$     $            WRITE(6,'(A,20X,2F12.6)')
-c$$$     $            '>>>',SPRIME(1,REV_RHS(1))
-c$$$
             enddo
+#endif
+            tdotab = tdotab + util_cpusec() - tx
+            tx = util_cpusec()
 c
 c Scatter accumulate result into sigma vector
 c
+#ifdef NEW_DOTAB
+            call transpose( ne_kl, nstrb, sprime, cprime )
+            call detci_ciscatter(nstrb, nstra, ne_kl, cprime,
+     $                           vrhs, g_sigma )
+#else
             call detci_ciscatter(nstrb,nstra,ne_kl,sprime,vrhs,g_sigma)
+#endif
+            tscat = tscat + util_cpusec() - tx
 c
 c End parallel task
 c
@@ -463,6 +498,10 @@ c
         enddo
       enddo
       next = nxtval(-numnodes)
+      detci_abstr_etime   = detci_abstr_etime + tstr
+      detci_abgath_etime  = detci_abgath_etime + tgath
+      detci_abdotab_etime = detci_abdotab_etime + tdotab
+      detci_abscat_etime  = detci_abscat_etime + tscat
       return
       end
 

@@ -695,6 +695,33 @@ c
 
 
 c
+c  Sparse dot product
+c
+      subroutine detci_dotabx( istr, n, nstr, nex, f, idx, c, s )
+      implicit none
+      integer istr, n, nex, nstr
+      integer idx(nex)
+      double precision f(nex)
+      double precision c(n,nstr)
+      double precision s(n,nstr)
+      double precision xx
+      integer i, j
+
+
+      do j=1,nex
+        xx = f(j)
+        do i=1,n
+          s(i,istr) = s(i,istr) + xx*c(i,idx(j))
+        enddo
+      enddo
+      return
+      end
+
+
+
+
+
+c
 c
 c CI vector scatter accumulate
 c
@@ -1318,6 +1345,32 @@ c
 
       return
       end
+
+
+
+
+
+
+
+
+
+
+
+       subroutine transpose( n, m, x, y )
+       implicit none
+       integer n, m
+       double precision x(n,m)
+       double precision y(m,n)
+       integer i, j
+
+       do i=1,n
+         do j=1,m
+           y(j,i) = x(i,j)
+         enddo
+       enddo
+       return
+       end
+
 
 
 

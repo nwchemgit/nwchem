@@ -310,6 +310,7 @@ c
         write(6,881) iter,e(1),(e(1)-eold),rnorm,rnormscal,
      $               abs(b(ibas)),tx
  881    format(i3,f20.14,4e12.2,3x,f10.2)
+        call util_flush(6)
       endif
       tx = util_cpusec()
       if (rnormscal.lt.tol) goto 199
