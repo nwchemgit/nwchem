@@ -3,7 +3,7 @@ C NAME
 C     pstatP.fh -- Private include file for performance statistics routines
 C
 C REVISION
-C     $Id: pstatP.fh,v 1.1 1994-07-14 21:33:27 gg502 Exp $
+C     $Id: pstatP.fh,v 1.2 1994-08-20 00:26:13 d3g681 Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #include "pstat_consts.fh"
 C
@@ -21,14 +21,13 @@ C
       Double precision PStat_Times(PStat_Max_Items, 2),
      $                 PStat_Start_Times(PStat_Max_Items, 2)
 C
+      logical pstat_active(pstat_max_items) ! True if handle is active
+c
       Logical PStat_Functions(PStat_Max_Items, PStat_Nr_Stats)
-C
-      Integer PStat_Assigned
 C
       Common /PStatCommon/
      $   PStat_Times, PStat_Start_Times,
      $   PStat_Functions,
-     $   PStat_Nr_Calls, PStat_Unmatched_Starts,
-     $   PStat_Assigned
+     $   PStat_Nr_Calls, PStat_Unmatched_Starts, pstat_active
 C
       Common/PStatCharCom/ PStat_Name

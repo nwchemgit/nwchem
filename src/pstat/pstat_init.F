@@ -14,13 +14,11 @@ C
          PStat_Init = .FALSE.
          Return
       EndIf
-
-C
-      PStat_Assigned = 0
 C
 C     Clear out the names
 C
       Do I = 1, PStat_Max_Items
+         pstat_active(i) = .false. ! Mark as inactive
          PStat_Name( I ) = ' '
          Do J = 1, PStat_Nr_Stats
             PStat_Functions( I , J ) = .FALSE.

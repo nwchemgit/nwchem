@@ -11,10 +11,13 @@ C
 C
       Double precision Zero
       Parameter (Zero = 0.0d0)
+      logical status
 C
-      If ( Handle .gt. PStat_Assigned )
-     $   Call ErrQuit('pstat_on: Timer not assigned', Handle)
-C
+      status = handle.gt.0 .and. handle.le.pstat_max_items
+      if (status) status = pstat_active(handle)
+      if (.not. status) Call ErrQuit
+     $     ('pstat_on: Timer not assigned', Handle)
+c
       If ( PStat_Unmatched_Starts( Handle ) .ne. 0  ) then
          Call ErrQuit('pstat_on: Timer is already on', Handle)
       Else

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1994-08-06 08:52:28 d3e129 Exp $
+# $Id: GNUmakefile,v 1.3 1994-08-20 00:26:10 d3g681 Exp $
 
 
 OBJ =		pstat_init.o	pstat_terminate.o	pstat_allocate.o \
@@ -10,3 +10,5 @@ LIBRARY =	libpstat.a
 
 include ../config/makefile.h
 include ../config/makelib.h
+
+$(OBJ): pstatP.fh pstat_consts.fh pstat.fh
