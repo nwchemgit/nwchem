@@ -6,6 +6,12 @@
 /*
   All routines return TRUE (1) on success, FALSE (0) on failure.
 
+  int rtdb_parallel(const int mode)
+  
+    Set the parallel access mode of all databases to mode and
+    return the previous setting
+
+
   int rtdb_open(const char *filename, const char *mode, int *handle)
 
     Filename = path to file associated with the data base
@@ -70,6 +76,7 @@
     nelem    = size of array in units of ma_type
     array    = user provided buffer that returns data
 
+
   int rtdb_ma_get(const int handle, const char *name, int *ma_type,
                   int *nelem, int *ma_handle)
 
@@ -80,6 +87,7 @@
     ma_type  = returns MA type of the entry
     nelem    = returns no. of elements of type ma_type in data
     ma_handle= returns MA handle to data
+
 
   int rtdb_first(const int handle, const int namelen, char *name)
 
@@ -135,25 +143,25 @@ extern int rtdb_first(const int, const int, char *);
 extern int rtdb_next(const int, const int, char *);
 extern int rtdb_print(const int, const int);
 extern int rtdb_delete(const int, const char *);
+extern int rtdb_parallel(const int);
 
 /*
-  Following are 'parallel' versions of the above where only
-  process 0 actually accesses the data base and all others
-  just get its output.
+  Following are 'sequential' versions of the above
+  for internal use only
 */
 
-extern int rtdb_par_open(const char *, const char *, int *);
-extern int rtdb_par_close(const int, const char *);
-extern int rtdb_par_put(const int, const char *, const int, const int, 
+extern int rtdb_seq_open(const char *, const char *, int *);
+extern int rtdb_seq_close(const int, const char *);
+extern int rtdb_seq_put(const int, const char *, const int, const int, 
 		    const void *);
-extern int rtdb_par_get(const int, const char *, const int, const int,
+extern int rtdb_seq_get(const int, const char *, const int, const int,
 		    void *);
-extern int rtdb_par_get_info(const int, const char *, int *, int *, char [26]);
-extern int rtdb_par_ma_get(const int, const char *, int *, int *, int *);
-extern int rtdb_par_first(const int, const int, char *);
-extern int rtdb_par_next(const int, const int, char *);
-extern int rtdb_par_print(const int, const int);
-extern int rtdb_par_delete(const int, const char *);
+extern int rtdb_seq_get_info(const int, const char *, int *, int *, char [26]);
+extern int rtdb_seq_ma_get(const int, const char *, int *, int *, int *);
+extern int rtdb_seq_first(const int, const int, char *);
+extern int rtdb_seq_next(const int, const int, char *);
+extern int rtdb_seq_print(const int, const int);
+extern int rtdb_seq_delete(const int, const char *);
 
 #endif
 

@@ -2,7 +2,7 @@
       implicit none
 c
 #include 'rtdb.fh'
-#include 'mafdecls.h'
+#include 'mafdecls.fh'
 c
       integer rtdb
       integer itest(3), ibuf(3)
@@ -22,7 +22,8 @@ c
       cbuf(3) = 'nice'
       cbuf(4) = 'day, Robert!'
 c
-      if (.not. ma_initialize(MT_DBL, -1, -1)) stop 99
+      call pbeginf()
+      if (.not. ma_init(MT_DBL, -1, -1)) stop 99
       if (.not. rtdb_open('fortran.db', 'empty', rtdb)) stop 1
 c
       if (.not. rtdb_put(rtdb, 'Integer array', MT_INT, 3, itest))
@@ -61,5 +62,6 @@ c
       endif
 c
       if (.not. rtdb_close(rtdb, 'delete')) stop 10
+      call pend()
 c
       end

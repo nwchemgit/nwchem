@@ -1,8 +1,8 @@
-# $Id: GNUmakefile,v 1.1.1.1 1994-03-29 06:44:27 d3g681 Exp $
+# $Id: GNUmakefile,v 1.2 1994-06-01 19:10:01 d3g681 Exp $
 
 include ../config/makefile.h
 
-             OBJ = rtdb_f2c.o rtdb.o rtdb_par.o rtdb_par_f2c.o \
+             OBJ = rtdb_f2c.o rtdb.o rtdb_seq.o \
                    context.o context_f2c.o
          LIBRARY = librtdb.a
 
@@ -19,10 +19,7 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 davetest:	davetest.o $(LIBRARY)
-	$(FC) $(FFLAGS) -o $@ davetest.o librtdb.a ../db/libdb.a ../util/libutil.a ../ma/libma.a
-
-rtdb_par_f2c.c:	rtdb_f2c.c
-	sed 's/rtdb_/rtdb_par_/g' rtdb_f2c.c > rtdb_par_f2c.c
+	$(FC) $(FFLAGS) -o $@ davetest.o $(TEST_LIBS) 
 
 cntx:	cntx.o $(LIBRARY) 
 	$(FC) $(FFLAGS) -o $@ cntx.o $(LIBS)

@@ -1,0 +1,72 @@
+
+
+Previous RTDB interface had separate parallel and sequential
+routines for
+
+      open
+      close
+
+      put
+
+      get
+      ma_get
+
+      first
+      next
+
+      delete
+
+      get_info
+      
+      print
+
+The problem with this is that a piece of code cannot be used in both
+sequential and parallel modes.  So now have a single interface and
+a run time parameter for switching between parallel and sequential
+access modes
+
+
+      logical function rtdb_parallel(mode)
+      logical mode
+
+         mode = .true. -> routine broadcast results to all processes
+
+         mode = .false. -> only process 0 can access the database
+
+         returns previous setting
+
+
+How to implement this?
+
+   1) Rename current sequential access routines with _seq in middle
+
+   2) Rename current parallel access routines by removing _par
+
+   3) Add layer inside to check parallel/sequential access mode.
+
+
+-----------------------------------------------------
+
+1) By default are running in parallel mode
+
+2) DBs opened in parallel mode can be used 
+
+   a) In parallel mode by all processes
+
+   b) In sequential mode by process 0
+
+3) DBs opened in sequential mode can be used
+   only in sequential mode by the opening process
+
+4) Puts in parallel mode get all of their input from process
+   zero ... input from other processes are quietly ignored
+   ... not even consistency is checked ... completion status
+   is returned to all processes.
+
+5) Gets in parallel mode get input from process zero and
+   results and status are broadcast back to all other processes
+   ... the size of arrays etc. are checked for consistency.
+
+6) Mode for close must match that of all opening.
+
+

@@ -1,6 +1,6 @@
       program dumpdb
       implicit none
-#include "rtdb_fort.h"
+#include "rtdb.fh"
 #include "mafdecls.h"
       character*128 name
       integer rtdb
@@ -8,7 +8,8 @@
 c
       name = 'h2o.db'
 c
-      if (.not. ma_initialize(MT_DBL, -1,-1))
+      call pbeginf
+      if (.not. ma_init(MT_DBL, -1,-1))
      $     call errquit(' ma_init failed ', 0)
       if (.not.rtdb_open( name, 'empty', rtdb))
      $     call errquit(' open 1 failed', 1)
@@ -36,12 +37,8 @@ c
      $     call errquit(' print failed ', 1)
       if (.not. rtdb_close(rtdb, 'keep'))
      $     call errquit(' close failed ', 1)
+      call pend
 c
-      end
-      subroutine parerr()
-      end
-      integer function nodeid()
-      nodeid = 0
       end
       subroutine ffflush(i)
       call flush(i)

@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "rtdb.h"
 #include "misc.h"
-#include "ma.h"
+#include "macdecls.h"
+#include "sndrcv.h"
 
 int main(int argc, char *argv[])
 {
@@ -10,8 +11,11 @@ int main(int argc, char *argv[])
   int ibuf;
   double dbuf;
 
-  (void) MA_initialize(MT_CHAR, -1, -1);
-
+  PBEGIN_(argc, argv);
+  
+  (void) MA_init(MT_CHAR, -1, -1);
+  (void) MA_set_auto_verify(1);
+  
   if (!rtdb_open("test.db", "unknown", &rtdb))
     error("rtdbtest: open failed on %s\n", "test.db");
 
@@ -67,13 +71,40 @@ int main(int argc, char *argv[])
 	     names[n], nelem, ma_type, date);
     }
   }
+  
+  /* Now loop all processes thru the entire db doing parallel ma gets */
+  
+  {
+    char name[256];
+    int available;
+    
+    for (available=rtdb_first(rtdb, sizeof name, name);
+	 available;
+	 available=rtdb_next(rtdb, sizeof name, name)) {
+      int ma_type, nelem, ma_handle;
+      void *data;
+      
+      if (!rtdb_ma_get(rtdb, name, &ma_type, &nelem, &ma_handle))
+	error("rtdbtest: ma_get failed\n", 0);
 
+      if (!MA_get_pointer(ma_handle, &data))
+	error("rtdbtest: MA_get_pointer failed\n", 0);
+      
+      (void) printf("%2ld: name=%s, t=%d, n=%d, ",
+		    NODEID_(), name, ma_type, nelem);
+      ma_print(stdout, ma_type, nelem, data);
+      (void) fflush(stdout);
+      (void) MA_free_heap(ma_handle);
+    }
+  }
+  
   /* Now print the entire data base out */
-
+  
   rtdb_print(rtdb, 1);
-
+  
   if (!rtdb_close(rtdb, "delete"))
     error("rtdbtest: close failed\n", 0);
-
+  
+  PEND_();
   return 0;
 }

@@ -10,6 +10,7 @@ typedef long integer;		/* Equivalent C type to FORTRAN integer */
 #define FORTRAN_TRUE  ((logical) 1)
 #define FORTRAN_FALSE ((logical) 0)
 
+
 static int fortchar_to_string(const char *f, int flen, char *buf, 
 			      const int buflen)
 {
@@ -41,6 +42,19 @@ static int string_to_fortchar(char *f, int flen, const char *buf)
 
   return 1;
 }
+
+
+logical rtdb_parallel_(const logical *mode)
+{
+  int new = (*mode == FORTRAN_TRUE);
+  int old = rtdb_parallel(new);
+
+  if (old)
+    return FORTRAN_TRUE;
+  else
+    return FORTRAN_FALSE;
+}
+
 
 logical rtdb_open_(const char *filename, const char *mode, integer *handle,
 		   const integer flen, const integer mlen)
