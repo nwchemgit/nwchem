@@ -1,12 +1,14 @@
-      subroutine rohf_fock(geom, basis, nclosed, nopen, nmo,
+      subroutine rohf_fock(rtdb, geom, basis, nclosed, nopen, nmo,
      $     tol2e, g_vecs,
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel)
 *
-* $Id: rohf_fock.F,v 1.11 2000-04-27 21:00:03 zzhang Exp $
+* $Id: rohf_fock.F,v 1.12 2000-05-23 05:39:07 mdupuis Exp $
 *
       implicit none
+#include "mafdecls.fh"
 #include "global.fh"
+#include "rtdb.fh"
 #include "bas.fh"
 #include "util.fh"
 #include "cscfps.fh"
@@ -15,6 +17,7 @@ c     Build fock matrices and energies for ROHF wavefunction
 c     
 c     Arguments
 c     
+      integer rtdb
       integer geom, basis       ! [input] Handles to environment
       integer nclosed, nopen    ! [input] no. of closed and open shells
       integer nmo               ! [input] no. of MO vectors
@@ -44,6 +47,12 @@ c
       external ga_create_atom_blocked
       logical oforcesym
       data oforcesym /.false./
+c
+      integer g_cos1e
+      dimension g_cos1e(3)
+      logical ocosmo
+      logical odbug
+      logical osome
 c
       data jfactor / 1.0d0, 1.0d0, 0.0d0/
       data kfactor /-0.5d0, 0.0d0,-0.5d0/
@@ -115,6 +124,51 @@ c
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
       if (util_print('rohf_fock',print_debug)) call ga_print(g_hcore)
+c
+c     ----- cosmo potential -----
+c
+      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+           if(ocosmo) then
+c
+              odbug=.true.
+              if(odbug) then
+                 osome=.true.
+              else
+                 osome=.false.
+              endif
+              odbug=odbug.and.ga_nodeid().eq.0
+              osome=osome.and.ga_nodeid().eq.0
+c
+              g_cos1e(1)  = ga_create_atom_blocked(geom, basis,
+     $                                         'rohf_diis_solve:cos1e')
+              if(odbug) then
+                 write(6,*) 'rohf_fock ... g-cos1e'
+              endif
+              if(odbug) then
+                 call ga_zero(g_cos1e(1))
+                 call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
+     $                                                       .false.)
+              endif
+              if(odbug) then
+                 call ga_print(g_cos1e(1))
+                 call ga_print(g_hcore)
+              endif
+c
+              call int_1e_ga(basis,basis,g_hcore   ,'cos_chg_pot',
+     $                                                    .false.)
+c
+              if(odbug) then
+                 call ga_print(g_hcore)
+              endif
+              odbug=.false.
+              osome=.false.
+c
+              if (.not. ga_destroy(g_cos1e)) call errquit
+     $           ('rohf_diis_solve: ga_destroy cos1e', 0)
+           endif
+      endif
+      call ga_sync()
+c
       eone_closed = ga_ddot(g_hcore, g_cdens)
       eone_open = 0.0d0
       if (nopen .gt. 0) eone_open = ga_ddot(g_hcore, g_odens)

@@ -1,7 +1,7 @@
       subroutine rohf_step_energy(rtdb, step, g_search,
      $     eone, etwo, enrep, energy, g_grad)
 *
-* $Id: rohf_step.F,v 1.4 1997-11-07 11:35:18 d3e129 Exp $
+* $Id: rohf_step.F,v 1.5 2000-05-23 05:39:07 mdupuis Exp $
 *
       implicit none
 #include "crohf.fh"
@@ -41,7 +41,8 @@ c
 c
 c     Compute energy and gradient
 c     
-      call rohf_energy( g_tmp, eone, etwo, enrep, energy, g_grad)
+      call rohf_energy( g_tmp, eone, etwo, enrep, energy, g_grad,
+     $                  rtdb)
 c     
 c     Tidy up
 c

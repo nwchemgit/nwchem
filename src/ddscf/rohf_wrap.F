@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.15 2000-05-23 05:39:07 mdupuis Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.15 2000-05-23 05:39:07 mdupuis Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.15 2000-05-23 05:39:07 mdupuis Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -84,7 +84,7 @@ c
       endif
       end
       subroutine rohf_energy( g_vecs, eone, etwo, enrep, energy,
-     $     g_grad )
+     $     g_grad, rtdb )
       implicit none
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -93,8 +93,10 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.15 2000-05-23 05:39:07 mdupuis Exp $
 c
+      integer rtdb
+
       integer g_vecs
       double precision energy
       integer g_grad
@@ -110,7 +112,7 @@ c
       if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
      $     call errquit('rohf_energy: invalid vector length',grow)
 c     
-      call rohf_fock(geom, basis,
+      call rohf_fock(rtdb, geom, basis,
      $     nclosed, nopen, nmo, tol2e, g_vecs,
      $     eone, etwo,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp, oskel )
@@ -140,7 +142,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.15 2000-05-23 05:39:07 mdupuis Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -184,7 +186,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.14 1998-08-26 16:24:57 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.15 2000-05-23 05:39:07 mdupuis Exp $
 c
       integer g_x
       double precision solveshift

@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.12 2000-05-22 23:27:26 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.13 2000-05-23 05:39:06 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -50,8 +50,6 @@ c
 c
 c     cosmo code
 c
-      integer g_cos1e
-      dimension g_cos1e(3)
       logical odbug
       logical ocosmo
       logical osome
@@ -152,51 +150,8 @@ c
         endif
         call ga_sync()
 c
-c     ----- cosmo 1-electron potential operator -----
-c
-        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
-           if(ocosmo) then
-c
-              odbug=.true.
-              if(odbug) then
-                 osome=.true.
-              else
-                 osome=.false.
-              endif
-              odbug=odbug.and.ga_nodeid().eq.0
-              osome=osome.and.ga_nodeid().eq.0
-c
-              if(odbug) then
-                 write(6,*) 'cos1e-pot ... try g_over'
-              endif
-              call ga_zero(g_over)
-              call int_1e_ga(basis,basis,g_over,'overlap',.false.)
-              if(odbug) then
-                 call ga_print(g_over)
-              endif
-c
-              g_cos1e(1)  = ga_create_atom_blocked(geom, basis, 
-     $                                         'rohf_diis_solve:cos1e')
-              if(odbug) then
-                 write(6,*) 'cos1e-pot ... try g-cos1e'
-              endif
-              call ga_zero(g_cos1e(1))
-              call int_1e_ga(basis,basis,g_cos1e(1),'cos_chg_pot',
-     $                                                    .false.)
-              if(odbug) then
-                 call ga_print(g_cos1e(1))
-              endif
-c
-              odbug=.false.
-              osome=.false.
-c
-              if (.not. ga_destroy(g_cos1e)) call errquit
-     $           ('rohf_diis_solve: ga_destroy cos1e', 0)
-           endif
-        endif
-        call ga_sync()
-c
-        call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad)
+        call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad,
+     $                    rtdb)
 c
 c     ----- add cosmo energy contribution -----
 c
@@ -204,9 +159,8 @@ c
            if(ocosmo) then
               energy=energy+ecosmo
 c
-              osome=.true.
-              osome=osome.and.ga_nodeid().eq.0 
               osome=.false.
+              osome=osome.and.ga_nodeid().eq.0 
               if(osome) then
                  write(6,9999) (energy-ecosmo),ecosmo,energy
  9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
