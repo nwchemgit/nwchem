@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.7 2003-02-06 06:15:06 marat Exp $
+# $Id: GNUmakefile,v 1.8 2003-02-17 05:01:44 marat Exp $
 #
 
 
           OBJ = paw_utils.o integrate.o io_utils.o error.o double_factorial.o bessel_transform.o \
-                paw_gauss_weights.o
+                paw_gauss_weights.o paw_spher_grid.o
 
           HEADERS = bessel_transform.fh integrate.fh paw_utils.fh paw_params.fh
 
