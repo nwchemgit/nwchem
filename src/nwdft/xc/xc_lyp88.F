@@ -1,7 +1,7 @@
       Subroutine xc_lyp88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ec, qwght, ldew, func)
 c
-C$Id: xc_lyp88.F,v 1.12 2000-04-25 19:30:26 edo Exp $
+C$Id: xc_lyp88.F,v 1.13 2000-04-26 17:43:37 jolguin Exp $
 c
       implicit none 
 c
@@ -179,7 +179,6 @@ c
             else
                omega = P2*Rx*exp(-xc)/CD43
             endif
-            dElypdGaa = -omega*(Faa - Rbb)
             if(cdb.gt.eps) then
                CD13b = rho(n,3)**(1.d0/3.D0)
                Gbb = delrho(n,1,2)*delrho(n,1,2) +
@@ -217,6 +216,7 @@ c
                t2a=0d0
                t2b=0d0
             endif
+            dElypdGaa = -omega*(Faa - Rbb)
             dElypdGbb = -omega*(Fbb - Raa)
             dElypdGab = -omega*(Fab - P43)
             T2 = T2a + T2b
