@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.60 2001-11-09 16:20:06 d3j191 Exp $
+c $Id: sp_main.F,v 1.61 2001-11-09 17:17:34 d3j191 Exp $
 c
       implicit none
 c
@@ -1070,6 +1070,7 @@ c
       real*8 factor,xscx,xscy,xscz,boxi(3)
       integer itemps,nfold
       logical lend
+      character*255 string
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
       real*8 util_nint
       external util_nint
@@ -1296,7 +1297,10 @@ c
       do 444 k=1,27
       if(isl(isa,lsnod).eq.neighb(k,1)) goto 445
   444 continue
-      call errquit('sp_travel: solute atom to non-neighbor node',me)
+      write(string,'(a,i4,a,i4,a,i4)') 'sp_travel: solute segment ',
+     + isl(isa,lssgm),' moving to non-neighbor ',isl(isa,lsnod),
+     + ' from ',me
+      call errquit(string,me)
   445 continue
 c
       endif
