@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.75 1998-08-04 23:34:28 d3e129 Exp $
+C$Id: geom.F,v 1.76 1998-08-12 16:35:59 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2532,12 +2532,12 @@ c
         write(luout,10005)
         write(luout,10006)
       endif
-10000 format(1x,79('='),/,
-     &    32x,'internuclear distances',/,1x,79('-'),/,
+10000 format(1x,78('='),/,
+     &    32x,'internuclear distances',/,1x,78('-'),/,
      &    7x,'center one',6x,'|',
      &    6x,'center two',6x,'|',
      &    ' atomic units |',1x,a10,
-     &    /,1x,79('-'))
+     &    /,1x,78('-'))
 10001 format(1x,
      &    i4,1x,a16,1x,'|',
      &    i4,1x,a16,1x,'|',
@@ -2545,9 +2545,9 @@ c
 10002 format(1x,'debug:distance(',
      &    a,'|',a2,'|',i4,',',
      &    a,'|',a2,'|',i4,') =',f12.6)
-10003 format(1x,79('-'))
+10003 format(1x,78('-'))
 10004 format(25x,'number of included internuclear distances: ',i10)
-10005 format(1x,79('='))
+10005 format(1x,78('='))
 10006 format(/,/)
       geom_print_distances = .true.
       end
@@ -2897,21 +2897,21 @@ c initialize variables
         write(luout,10004)
         write(luout,10005)
       endif
-10000 format(1x,79('='),/,
-     &    33x,'internuclear angles',/,1x,79('-'),/,
+10000 format(1x,78('='),/,
+     &    33x,'internuclear angles',/,1x,78('-'),/,
      &    8x,'center 1',7x,'|',
      &    7x,'center 2',7x,'|',
      &    7x,'center 3',7x,'|',
      &    '  degrees',
-     &    /,1x,79('-'))
+     &    /,1x,78('-'))
 10001 format(1x,
      &    i4,1x,a16,1x,'|',
      &    i4,1x,a16,1x,'|',
      &    i4,1x,a16,1x,'|',
      &    1x,f8.2)
-10002 format(1x,79('-'))
+10002 format(1x,78('-'))
 10003 format(28x,'number of included internuclear angles: ',i10)
-10004 format(1x,79('='))
+10004 format(1x,78('='))
 10005 format(/,/)
       geom_prt_angles = FT
       end
@@ -3705,23 +3705,23 @@ c
         write(luout,10004)
         write(luout,10005)
       endif
-10000 format(1x,79('='),/,
-     &    29x,'internuclear dihedral angles',/,1x,79('-'),/,
-     &    3x,'center 1',3x,'|',
+10000 format(1x,78('='),/,
+     &    29x,'internuclear dihedral angles',/,1x,78('-'),/,
+     &    4x,'center 1',3x,'|',
      &    3x,'center 2',3x,'|',
      &    3x,'center 3',3x,'|',
      &    3x,'center 4',3x,'|',
      &    '  degrees',
-     &    /,1x,79('-'))
+     &    /,1x,78('-'))
 10001 format(1x,
      &    i4,1x,a8,1x,'|',
      &    i4,1x,a8,1x,'|',
      &    i4,1x,a8,1x,'|',
      &    i4,1x,a8,1x,'|',
      &    1x,f8.2)
-10002 format(1x,79('-'))
+10002 format(1x,78('-'))
 10003 format(28x,'number of included dihegral angles: ',i10)
-10004 format(1x,79('='))
+10004 format(1x,78('='))
 10005 format(/,/)
       geom_prt_dihedrals = .true.
       end
