@@ -66,7 +66,7 @@ c    $            ilo, ihi, jlo, jhi
          call gai_subtr(nrow, ncol, dbl_mb(adrA), lda, dbl_mb(adrB),
      &                ncol, alpha)
 #ifdef  BAD_GACCESS
-         call ga_put(g_a, ilo, ihi, jlo, jhi, adrA, lda)
+         call ga_put(g_a, ilo, ihi, jlo, jhi, dbl_mb(adrA), lda)
 #else
          call ga_release_update(g_a, ilo, ihi, jlo, jhi)
 #endif
@@ -100,7 +100,7 @@ c
       Integer myproc, proc 
       Integer flo, fhi,ilo, ihi, jlo, jhi, myelem, nrow,ncol, lda(2)
       Integer lo(3), hi(3), lob(3), hib(3), ldb(2)
-      Integer dim0, dim1, dim2, type, nmat
+      Integer dim1, dim2, type, nmat
       Integer ndim, dims(3)
       Logical have_data
 
