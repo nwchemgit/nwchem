@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.13 2001-11-21 02:06:26 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.14 2002-01-19 03:02:42 edo Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -33,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.13 2001-11-21 02:06:26 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.14 2002-01-19 03:02:42 edo Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -63,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.13 2001-11-21 02:06:26 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.14 2002-01-19 03:02:42 edo Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -78,6 +78,8 @@ c
 c!!! BGJ
 #include "bgj.fh"
 #include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
 c!!! BGJ
 c
       integer geom,rtdb,nbf,basis
@@ -102,25 +104,27 @@ c
 c !!! BGJ test
 c
       integer l_ti_hess, k_ti_hess, g_ti(3)
+      integer alo(3),ahi(3),blo(3),bhi(3)
 c
       external xc_gotxc
       logical xc_gotxc
+      logical oprint
 c
       if(.not.xc_gotxc()) return
+      oprint= util_print('xc_hessian',print_debug)
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &     grid_on_file))then
          grid_on_file = .false.
       endif
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'--------Entered xc_deriv_gen-------------'
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_hess .or. do_cpks_r))
      &     call errquit('xc_deriv_gen: illegal calculation type',0)
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'logicals ', do_hess, do_cpks_r
-      if (bgj_print() .gt. 0)
-     &     write(*,*)'rtdb geom ipol',rtdb,geom,ipol
+      if (oprint.and.ga_nodeid().eq.0) then
+          write(luout,*)'--------Entered xc_deriv_gen-------------'
+          write(luout,*)'logicals ', do_hess, do_cpks_r
+          write(luout,*)'rtdb geom ipol',rtdb,geom,ipol
+       endif
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('xc_deriv_gen: geom_ncent failed',1)
 c      write(*,*)'natoms',natoms
@@ -203,11 +207,13 @@ c
          enddo
       endif
 c
-      if (bgj_print() .gt. 0) then
+      if (oprint) then
          if (do_hess) then
 c
-            write(6,*) 'xc_deriv_gen: xc hessian'
+            if(ga_nodeid().eq.0) then
+            write(luout,*) 'xc_deriv_gen: xc hessian'
             call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
+            endif
 c
 c     TI check
 c
@@ -244,13 +250,22 @@ c
             do j = 1, 3
               call ga_zero(g_ti(j))
             enddo
-#if 0
-c switched off after 3d transition
+            blo(1)=1
+            bhi(1)=nbf
+            blo(2)=1
+            bhi(2)=nbf
+            alo(2)=1
+            ahi(2)=nbf
+            alo(3)=1
+            ahi(3)=nbf
             do i = 1, natoms
                if (oactive(i)) then
                   do j = 1, 3
-                      call ga_add(1d0, g_rhs(j,i,i1), 1d0, g_ti(j),
-     &                            g_ti(j))
+                     ahi(1)=j+(i-1)*3+(i1-1)*3*natoms
+                     alo(1)=ahi(1)
+                     call nga_add_patch(1d0,g_rhs,alo,ahi,
+     &                    1d0,g_ti(j),blo,bhi,
+     &                    g_ti(j),blo,bhi)
                   enddo
                endif
             enddo
@@ -258,14 +273,13 @@ c switched off after 3d transition
                write(*,*)'*** TI check',j, i1
                call ga_print(g_ti(j))
             enddo
-#endif
             enddo
             do j = 1, 3
                if (.not. ga_destroy(g_ti(j)))
      &         call errquit('xc_deriv_gen: could not destroy temp GA',0)
             enddo
          endif
-         write(*,*)'--------Leaving xc_deriv_gen-------------'
+         write(luout,*)'--------Leaving xc_deriv_gen-------------'
 c
       endif
       return

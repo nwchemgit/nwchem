@@ -3,7 +3,7 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.7 2000-10-26 21:08:47 bjohnson Exp $
+c     $Id: xc_d2expl.F,v 1.8 2002-01-19 03:02:42 edo Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Acof2, Cmat,
      &     Cmat2, Ccof2, F, Pmat, ff, s, chi, delchi, heschi, d3chi,
@@ -11,9 +11,12 @@ c
      &     natoms, iniz, ifin, drho, ddelrho, delrho, g_dens, hess, ibf,
      &     rchi_atom, rdelchi_atom, rdens_atom, cetobfr)
 c
-#include "dft2drv.fh"
 c
       implicit none
+#include "dft2drv.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "global.fh"
 c
       integer basis
       integer max_at_bf ! [input]
@@ -24,7 +27,7 @@ c
       integer ncuratoms ! Number of current "active" atoms [input]
       integer curatoms(natoms) ! Mapping array for current atoms [input]
       double precision tol_rho
-      logical GRAD
+      logical GRAD,oprint
 c
 c     Explicit first derivatives of density wrt current nuclei [input]
 c
@@ -124,6 +127,7 @@ c     { ra, rb, gaa, gab, gbb }, and the i, j indices run over this set
 c
 c     First step: separable part of 2nd derivative contribution
 c
+      oprint= util_print('xc_hessian',print_debug)
       do 10 iat = 1, natoms
          iatcur = curatoms(iat)
          if (iatcur.eq.0) goto 10
@@ -583,7 +587,9 @@ c
   210       continue
   220    continue
   230 continue
-c      write(6,*) ' xc_d2expl: hess '
-c      call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
+      if(oprint.and.ga_nodeid().eq.0) then
+         write(luout,*) ' xc_d2expl: hess '
+         call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
+      endif
       return
       end
