@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.415 2003-07-01 20:25:55 edo Exp $
+# $Id: makefile.h,v 1.416 2003-07-11 22:52:21 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1422,12 +1422,17 @@ endif
 #        FOPTIONS  +=  -fno-globals# -Wno-globals # 
         FOPTIONS  += -Wunused  -fno-silent
         FOPTIONS  += -fno-second-underscore  -fno-f90 
-        FOPTIMIZE  += -O3 -ffast-math #-fssa 
-        FOPTIMIZE  += -funroll-loops -fstrength-reduce -fno-move-all-movables -fno-reduce-all-givs
-        FOPTIMIZE  += -finline-functions -funroll-all-loops
-        FOPTIMIZE  += -mfpmath=sse -fstrict-aliasing 
+        FOPTIMIZE  += -O3 -ffast-math 
+        FOPTIMIZE  += -fstrength-reduce -fno-move-all-movables -fno-reduce-all-givs
+        FOPTIMIZE  += -finline-functions -fschedule-insns2 
+        FOPTIMIZE  += -mfpmath=sse -fstrict-aliasing  #-fprefetch-loop-arrays
+        FOPTIMIZE  +=  -fexpensive-optimizations  
         ifdef USE_GCC34
           FOPTIMIZE  += -march=k8 -mtune=k8
+          FOPTIMIZE  +=  -fold-unroll-all-loops
+        else
+          FOPTIONS  +=  -Wno-globals  
+          FOPTIMIZE  +=  -funroll-all-loops
         endif
         FDEBUG = -Os -g
         LDOPTIONS =   -Wl,--relax  
