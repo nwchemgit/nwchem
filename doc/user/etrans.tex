@@ -1,5 +1,5 @@
 %
-% $Id: etrans.tex,v 1.9 2004-04-22 04:50:28 edo Exp $
+% $Id: etrans.tex,v 1.10 2004-12-18 00:58:47 bert Exp $
 %
 \label{sec:etrans}
 
@@ -18,11 +18,7 @@ V_{RP}^{2}
 
 The ET module utilizes the method of {\em Corresponding Orbital Transformation} to calculate $V_{RP}$.
 The only input required are the names
-of the files containing the open-shell (UHF or ODFT) MO vectors for the ET reactant and product states ($R$ and $P$).
-
-Although open-shell DFT orbitals can be used as input, the current implementation of the ET module uses a Hartree-Fock 
-formalism (ref.3).  Therefore, for consistency, UHF orbitals should be used for the calculation of $V_{RP}$, although this
-is not required.
+of the files containing the open-shell (UHF) MO vectors for the ET reactant and product states ($R$ and $P$).
 
 The basis set used in the calculation of $V_{RP}$ must be the same as the basis set used to calculate the MO vectors of
 $R$ and $P$.  The magnitude of $V_{RP}$ depends on the amount of overlap between $R$ and $P$,
