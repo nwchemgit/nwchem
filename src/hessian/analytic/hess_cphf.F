@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.44 2002-01-09 00:54:46 windus Exp $
+C $Id: hess_cphf.F,v 1.45 2002-01-15 22:53:15 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -159,6 +159,10 @@ c
      $          oprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, num)
       call ga_dscal(g_rhs,four)
+      write(Luout,*) 'after scale by four'
+      call ga_print(g_rhs)
+      call ga_zero(g_wax)
+      call ga_zero(g_aa)
       call hess_getaawax(g_rhs, g_aa, g_wax, nocc, nvirt,
      $          ndens, n3xyz, num, ocphfprint)
 c
@@ -281,6 +285,7 @@ c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
 c Ta([i-1]*nocc+j,y)*AA([i-1]*nocc+j,x)
 c
       if (oprint) write(LuOut,*) 'HESS: Ta and AA contributions'
+      if (ndens.gt.1) call ga_dscal(g_aa,0.5d0)
       call hess_taaa(dbl_mb(k_exy),g_rhs, g_aa, nocc, 
      $               ndens, n3xyz)
 c
@@ -310,6 +315,10 @@ c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
  
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+c
+c quick and dirty scale of g_wax for UHF
+c
+       if (ndens.gt.1) call ga_dscal(g_wax,0.5d0)
 c
 c Create a temporary array to reshape the CPHF RHS and send to the CPHF
 c
@@ -429,10 +438,9 @@ c
 c
 c  Transform the current AO based Fock derivatives to the MO basis
 c
-      if (oprint) write(LuOut,*) 'HESS: setting up Wax and AA'
       if (ocphf) then
         if(ga_nodeid().eq.0) 
-     $        write(LuOut,*) 'RHS before MO transformation', ind
+     $        write(LuOut,*) 'RHS before MO transformation'
         call ga_print(g_rhs_x)
       endif
 c

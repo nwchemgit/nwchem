@@ -1,5 +1,5 @@
 C
-C $Id: hess_sxsy.F,v 1.5 2002-01-04 23:45:02 windus Exp $
+C $Id: hess_sxsy.F,v 1.6 2002-01-15 22:53:15 windus Exp $
 C
       subroutine hess_sxsy(hess, e, g_tx, oactive, ncent, nocc, 
      &                      noffset, urestr)
@@ -44,9 +44,9 @@ c
 c     Prefactor of hessian contribution
 c
       if (urestr) then
-         fac = 4d0
+         fac = 4.0d0
       else
-         fac = 8d0
+         fac = 8.0d0
       endif
 c
 c     Allocate local scratch space for overlap integral derivatives
