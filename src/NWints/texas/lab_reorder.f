@@ -1,5 +1,5 @@
       subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc)
-c $Id: lab_reorder.f,v 1.6 1996-06-27 22:33:31 d3g681 Exp $
+c $Id: lab_reorder.f,v 1.7 1996-08-02 22:03:15 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)
@@ -39,19 +39,21 @@ c------------------------------------
         ina0=inx(2,ics0)
         ina1=inx(2,ics1)
 charge:
-        nzi0=datnuc(1,ina0)
-        nzi1=datnuc(1,ina1)
+        if(ina0.eq.0) then
+          nzi0=0
+        else
+          nzi0=datnuc(1,ina0)
+        endif
+        if(ina1.eq.0) then
+          nzi1=0
+        else
+          nzi1=datnuc(1,ina1)
+        endif
+charge:
 c
         iclen0=inx(5,ics0)-inx(1,ics0)-1
         iclen1=inx(5,ics1)-inx(1,ics1)-1
-cccccc  if (nzi0.lt.nzi1) then
-c         iexch=1
-c         do 405 k=1,12
-c            itemp=inx(k,ics0)
-c            inx(k,ics0)=inx(k,ics1)
-c            inx(k,ics1)=itemp
-c405      continue
-c       else
+c
           if (ict1.lt.ict0) then
             iexch=1
             do 410 k=1,12

@@ -272,8 +272,17 @@ cc
 c atoms and charges:
          iat0=inx(2,ics0)
          jat0=inx(2,jcs0)
-         nzi0=datnuc(1,iat0)
-         nzj0=datnuc(1,jat0)
+c charge
+         if(iat0.eq.0) then
+            nzi0=0
+         else
+            nzi0=datnuc(1,iat0)
+         endif
+         if(jat0.eq.0) then
+            nzj0=0
+         else
+            nzj0=datnuc(1,jat0)
+         endif
 c types:
          it0=inx(12,ics0)
          jt0=inx(12,jcs0)
@@ -296,8 +305,16 @@ ccc
            jcs1=jjs(ijcs1)
            iat1=inx(2,ics1)
            jat1=inx(2,jcs1)
-           nzi1=datnuc(1,iat1)
-           nzj1=datnuc(1,jat1)
+           if(iat1.eq.0) then
+              nzi1=0
+           else
+              nzi1=datnuc(1,iat1)
+           endif
+           if(iat1.eq.0) then
+              nzj1=0
+           else
+              nzj1=datnuc(1,jat1)
+           endif
            it1=inx(12,ics1)
            jt1=inx(12,jcs1)
            ic1=inx(5,ics1)-inx(1,ics1)
@@ -444,8 +461,16 @@ cc
 c atoms and charges:
          iat0=inx(2,ics0)
          jat0=inx(2,jcs0)
-         nzi0=datnuc(1,iat0)
-         nzj0=datnuc(1,jat0)
+         if(iat0.eq.0) then
+            nzi0=0
+         else
+            nzi0=datnuc(1,iat0)
+         endif
+         if(jat0.eq.0) then
+            nzj0=0
+         else
+            nzj0=datnuc(1,jat0)
+         endif
 c types and contractions :
          it0=inx(12,ics0)
          jt0=inx(12,jcs0)
@@ -468,8 +493,16 @@ cc
            jcs1=jjs(ijcs1)
            iat1=inx(2,ics1)
            jat1=inx(2,jcs1)
-           nzi1=datnuc(1,iat1)
-           nzj1=datnuc(1,jat1)
+           if(iat1.eq.0) then
+              nzi1=0
+           else
+              nzi1=datnuc(1,iat1)
+           endif
+           if(iat1.eq.0) then
+              nzj1=0
+           else
+              nzj1=datnuc(1,jat1)
+           endif
            it1=inx(12,ics1)
            jt1=inx(12,jcs1)
            ic1=inx(5,ics1)-inx(1,ics1)
@@ -2375,34 +2408,46 @@ c======================================================================
       subroutine whichblk(datnuc,natoms,iroute)
       implicit real*8 (a-h,o-z)
       dimension datnuc(5,*)
-      dimension n(104)
-c
+      dimension n(0:104)        ! rjh
+c     
+c     RJH. I think that this routine attempts to decide if texas
+c     93 would be faster than 95.  It breaks if the charge
+c     on a dummy center is less than one or greater than 104.
+c     
+c     For now extend n() to start from 0 and ignore atoms with 
+c     negative or >104 charge since the probably won't have 
+c     any basis functions on them.
+c     
       iroute=1
       if(natoms.eq.1) return
 c
       iqmax=0
       do 10 iat=1,natoms
-      iq=int( datnuc(1,iat) )
-         if(iq.gt.iqmax) iqmax=iq
-   10 continue
-c    
-      do 15 iel=1,iqmax
-      n(iel)=0
-   15 continue
-c
+         iq=int( datnuc(1,iat) )
+         if (iq.ge.0 .and. iq.le.104) then ! rjh
+            if(iq.gt.iqmax) iqmax=iq
+         endif                  ! rjh
+ 10   continue
+c     
+      do 15 iel=0,iqmax         ! rjh
+         n(iel)=0
+ 15   continue
+c     
       do 20 iat=1,natoms
-      iq=int( datnuc(1,iat) )
-         do 25 iel=1,iqmax
-         if(iq.eq.iel) n(iel)=n(iel)+1
-   25    continue
-   20 continue
-c
+         iq=int( datnuc(1,iat) )
+         if (iq.ge.0 .and. iq.le.104) then ! rjh
+            do 25 iel=0,iqmax   ! rjh
+               if(iq.eq.iel) n(iel)=n(iel)+1
+ 25         continue
+         endif                  ! rjh
+ 20   continue
+c     
       ntypes=0
-      do 30 iel=1,iqmax
-      if(n(iel).gt.0) ntypes=ntypes+1
-   30 continue
-c
+      do 30 iel=0,iqmax         ! rjh
+         if(n(iel).gt.0) ntypes=ntypes+1
+ 30   continue
+c     
       if( (natoms/ntypes) .ge.2 ) iroute=2
-c
+c     
       end
 c======================================================================

@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.14 1996-07-26 17:03:24 pg481 Exp $
+c $Id: texas_hf.F,v 1.15 1996-08-02 22:03:21 d3g681 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -345,16 +345,16 @@ c
         lat=inx(2,lcs)
 c
           do 10 ii=1,3
-            ri(ii)=datnuc(ii+1,iat)
-            rj(ii)=datnuc(ii+1,jat)
-            rk(ii)=datnuc(ii+1,kat)
-            rl(ii)=datnuc(ii+1,lat)
+            if(iat.gt.0) ri(ii)=datnuc(ii+1,iat)
+            if(jat.gt.0) rj(ii)=datnuc(ii+1,jat)
+            if(kat.gt.0) rk(ii)=datnuc(ii+1,kat)
+            if(lat.gt.0) rl(ii)=datnuc(ii+1,lat)
    10     continue
           do 20 ii=1,3
-            datnuc(ii+1,iat)=ra(ii)
-            datnuc(ii+1,jat)=rb(ii)
-            datnuc(ii+1,kat)=rc(ii)
-            datnuc(ii+1,lat)=rd(ii)
+            if(iat.gt.0) datnuc(ii+1,iat)=ra(ii)
+            if(jat.gt.0) datnuc(ii+1,jat)=rb(ii)
+            if(kat.gt.0) datnuc(ii+1,kat)=rc(ii)
+            if(lat.gt.0) datnuc(ii+1,lat)=rd(ii)
    20     continue
   100   continue
       endif
@@ -371,10 +371,10 @@ c
         kat=inx(2,kcs)
         lat=inx(2,lcs)
           do 30 ii=1,3
-            datnuc(ii+1,iat)=ri(ii)
-            datnuc(ii+1,jat)=rj(ii)
-            datnuc(ii+1,kat)=rk(ii)
-            datnuc(ii+1,lat)=rl(ii)
+            if(iat.gt.0) datnuc(ii+1,iat)=ri(ii)
+            if(jat.gt.0) datnuc(ii+1,jat)=rj(ii)
+            if(kat.gt.0) datnuc(ii+1,kat)=rk(ii)
+            if(lat.gt.0) datnuc(ii+1,lat)=rl(ii)
    30     continue
   200   continue
       endif

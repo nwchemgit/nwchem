@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.26 1996-07-27 01:38:52 d3g681 Exp $
+c $Id: texas_face.F,v 1.27 1996-08-02 22:03:19 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -1524,8 +1524,16 @@ c
               if(iroute.eq.0 .or. iroute.eq.2) then
                  iat0=inx(2,ics0)
                  iat1=inx(2,ics1)
-                 nzi0=datnuc(1,iat0)
-                 nzi1=datnuc(1,iat1)
+                 if(iat0.eq.0) then
+                    nzi0=0
+                 else
+                    nzi0=datnuc(1,iat0)
+                 endif
+                 if(iat1.eq.0) then
+                    nzi1=0
+                 else
+                    nzi1=datnuc(1,iat1)
+                 endif
 c first primitive exponent:
                  icb0=inx(1,ics0)+1
                  icb1=inx(1,ics1)+1
