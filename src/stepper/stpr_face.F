@@ -17,7 +17,7 @@ c
      &     CONVGG, NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.11 1995-12-01 16:58:45 d3g681 Exp $
+c     $Id: stpr_face.F,v 1.12 1997-03-26 18:19:11 d3h449 Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
@@ -341,7 +341,7 @@ C
 C     Get energy.
 C     
       ENERGY = ETOT
-      CALL stpr_wlkchk(ETOT,CONVGE,BCKSTP)
+      CALL stpr_wlkchk(ETOT,CONVGE,BCKSTP,NMODE)
       IF(BCKSTP)RETURN
 C     
 C     Get coordinates.

@@ -1,5 +1,5 @@
-      SUBROUTINE stpr_wlkchk(ENEW,CONVGE,BCKSTP)
-c $Id: stpr_wlkchk.F,v 1.1 1995-03-31 18:05:49 d3g681 Exp $
+      SUBROUTINE stpr_wlkchk(ENEW,CONVGE,BCKSTP,NMODE)
+c $Id: stpr_wlkchk.F,v 1.2 1997-03-26 18:19:12 d3h449 Exp $
 C
 C     Determination of walk information.
 C
