@@ -99,13 +99,13 @@ H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
 Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
 Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
 
-dzvp-dgauss-dft-spherical
+dzvp-dgauss-dft-cartesian
 
 H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
 Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr,
 Rb, Sr, Y, Zr, Nb, Tc, Ru, Rh, Ag, Cd, In, Sn, Sb, Te, I, Xe
 
-dzvp2-dgauss-dft-spherical
+dzvp2-dgauss-dft-cartesian
 
 H, He, Li, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
 Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn
