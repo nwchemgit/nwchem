@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.60 2004-04-21 18:19:53 marat Exp $
+c     $Id: grad_force.F,v 1.61 2005-01-21 19:14:04 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -452,23 +452,20 @@ C     initialize for integral gradients
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el), 1)
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
-      max2e = max2e/12
-      max1e = max1e/12
-      max2e = max(max2e,1296*100)          ! 100 D quartets 
       lbuf = max(max1e, max2e)
       lscratch = max(mscratch_1e, mscratch_2e)
 C     one-electron contribution
 C     buffers for one electron integral derivatives
 
-      if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,k_buf))
-     $     call errquit('grad:could not allocate buffer',12*lbuf,
+      if (.not. ma_push_get(mt_dbl,lbuf,'deriv buffer',l_buf,k_buf))
+     $     call errquit('grad:could not allocate buffer',lbuf,
      &       MA_ERR)
 *      call ma_summarize_allocated_blocks()
       if (.not. ma_push_get(mt_dbl,lscratch,'deriv scratch', 
      $     l_scr, k_scr))call errquit('grad: scratch alloc failed',
      $     lscratch, MA_ERR)
-      if (.not. ma_push_get(mt_int,4*lbuf,'labels',l_labels,k_labels))
-     $     call errquit('grad: could not allocate labels',4*lbuf,
+      if (.not. ma_push_get(mt_int,lbuf/3,'labels',l_labels,k_labels))
+     $     call errquit('grad: could not allocate labels',lbuf/3,
      &       MA_ERR)
 c     
 C     local density matrix block 
