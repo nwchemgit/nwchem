@@ -96,14 +96,10 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   Integer n_procs, *mapvecA, *mapvecQ;
   Integer *iscrat, *proclist, blksiz;
 
-  DoublePrecision norm2,              /* 2 norm of a vector */
-  new_norm,           /* 2 norm of a vector */
-  first,              /* first component of a vector */
-  onenorm,            /* one norm of a vector */
-  p_t_v;              /* p'v */
+  DoublePrecision   onenorm;
   
   DoublePrecision w, temp_factor;     /* temp vars */
-  DoublePrecision *HH_vec, *workMX, t, *ptr, syncco[1];
+  DoublePrecision t, *ptr, syncco[1];
 
   Integer me;                    /* my node number */
   
@@ -214,49 +210,36 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   n_procs = reduce_list2( ii, &mapA[c1], proclist);  
   iscrat += n_procs;
   
-  /*
-     initialize Q matrix to the identity matrix
-     */
-  
-  /* apply the n-2 HH transformations */
-  
-  
   ii = -1;
-  iii = -1;
-  column_indx = -1;
-  for ( iii = 0; iii < *n; iii ++ ){
-    if ( mapA[iii] == me ) {
-      ii++;
-      if (( iii >= c1 ) && ( iii <= cn)) {
-	column_indx = 1;
-	break;
-      }
-      if ( iii > cn )
-	break;
+  for ( i = 0; i < *n; i++ ) {
+    if ( mapvecA[i] >= c1 && mapvecA[i] <= cn ){
+      ii = i;
+      break;
     }
   }
   
-  if ( column_indx != 1 )
+  if ( ii = -1 )
     return 0;
+  
   
 #ifdef DEBUG7
   printf(" me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
   fflush(stdout);
 #endif
 
-  /*
-  syncco[0] = 0.0e0;
-  gsum00( (char *) syncco, 1, 5, 10, mapA[c1], n_procs, proclist, work);
-  */
+/*
+   printf("n = %d  me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", *n, me, c1, cn, b1, bn, n_procs);
+   fflush(stdout);
+   */
   
-  
+
   column_indx = ii;
   csize = bn - b1 + 1 ;
   for (i=c1; i<= cn; i++) {
     if ( mapA[i] == me ) {
       ptr = &vecA[column_indx][b1];
-      t = dnrm2_(&csize, ptr, &IONE);
-      t = 1.0e0/t;
+      onenorm = dnrm2_(&csize, ptr, &IONE);
+      t = 1.0e0/onenorm;
       dscal_( &csize, &t, ptr, &IONE);
       dcopy_( &csize, &vecA[column_indx][b1], &IONE, work, &IONE);
       column_indx++;
@@ -267,25 +250,23 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
       bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), c1, 
 	       mapA[i], n_procs, proclist);
     
-    
-    
     k = column_indx ;
     for ( j = i+1; j <= cn; j++ ){
       if ( mapA[j] == me ) {
 	t = -ddot_( &csize, work, &IONE, &vecA[k][b1], &IONE);
-	if ( FABS(t) > DLAMCHE )
-	  daxpy_( &csize, &t, work, &IONE, &vecA[k][b1], &IONE);
+	daxpy_( &csize, &t, work, &IONE, &vecA[k][b1], &IONE);
 	k++;
       }
     }
   }
   
-  /*
-     syncco[0] = 0.0e0;
-     gsum00( (char *) syncco, 1, 5, 10, mapA[c1], n_procs, proclist, work);
-     */
-  
-  
+
+  if ( n_procs > 1 ) {
+    syncco[0] = 0.0e0;
+    gsum00( (char *) syncco, 1, 5, 1, mapA[c1], n_procs, proclist, work);
+  }
+    
+    
   return 0;
 }
 
