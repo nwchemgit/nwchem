@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.38 1998-12-31 01:12:56 edo Exp $
+C$Id: nwdft.F,v 1.39 1999-02-10 20:11:58 d3g681 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -132,7 +132,7 @@ c      endif
      &      ('nwdft: No current support for spherical bases',0)
       endif
 c
-      call int_app_set_no_texas(rtdb)
+      if (i3 .gt. 1) call int_app_set_no_texas(rtdb)
       call int_init(rtdb, i3, bases)
 c     
 c--> determine system type (molecule, polymer,surface,crystal)
