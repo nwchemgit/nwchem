@@ -43,7 +43,7 @@ C
       Integer NAOBF, TopSpin, NFit
       Integer ALo(MaxSpin), AHi(MaxSpin), ILo(MaxSpin), IHi(MaxSpin)
       Integer NMO(MaxSpin), I, Me
-      Integer H_Eval, Eval_Idx, H_Contrib, Contrib_Idx
+      Integer H_Contrib, Contrib_Idx
       Double precision Thresh, CorEner, RefEner, TotEner
       Character*(80) Title, SCFBasNam, FNVec, FNInt, String, Approx
       Character*(255) AOName, AONameT, FitName, FitNameT
