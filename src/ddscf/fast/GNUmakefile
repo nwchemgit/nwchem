@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 2000-08-02 01:21:22 bjohnson Exp $
+# $Id: GNUmakefile,v 1.15 2001-05-24 20:03:05 edo Exp $
 #
 
  LIBRARY = libddscf.a
@@ -8,8 +8,8 @@
 
   OBJ = 
 
-  OBJ_OPTIMIZE = xlm_poles.o cheby.o dposv.o fastj.o anlfit.o cart_trans.o \
-           gauleg.o solver.o vsint.o dgels.o pot_shell.o  fastj_direct.o \
+  OBJ_OPTIMIZE = xlm_poles.o cheby.o  fastj.o anlfit.o cart_trans.o \
+           gauleg.o solver.o vsint.o pot_shell.o  fastj_direct.o \
            fastj_range.o newfmm.o potential.o sint.o
 
 LIB_DEFINES = -DFMM_LMAX=30
@@ -19,7 +19,7 @@ ifdef TESTING
   OBJ_OPTIMIZE = 
 endif
 
- USES_BLAS = potential.F pot_shell.F dgels.f fmm.F newfmm.F testfmm.F cart_trans.f
+ USES_BLAS = potential.F pot_shell.F fmm.F newfmm.F testfmm.F cart_trans.f
  LIB_TARGETS = solver testcheby testcarttrans testfmm
 
 

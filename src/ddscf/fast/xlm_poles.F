@@ -1,6 +1,6 @@
       subroutine xlm_norm(lmax, q, lq)
 *
-* $Id: xlm_poles.F,v 1.13 2000-03-13 19:54:16 edo Exp $
+* $Id: xlm_poles.F,v 1.14 2001-05-24 20:03:05 edo Exp $
 *
       implicit none
 #include "xlm.fh"
@@ -346,7 +346,9 @@ c
                   sum = sum + d(ijk,m,l)*dinv(loff(l)+ijk,m,l)
                enddo
             enddo
-            if (abs(sum-1.0d0) .gt. 1d-10) stop 321
+            if (abs(sum-1.0d0) .gt. 1d-10) then
+               write(0,*) ' errror ',abs(sum-1.0d0)
+	    endif
          enddo
       enddo
 c
