@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.38 2001-03-12 15:27:18 bjohnson Exp $
+c $Id: ana_wtfram.F,v 1.39 2001-07-06 03:43:44 d3j191 Exp $
 c
       implicit none
 c
@@ -300,7 +300,8 @@ c
       open(unit=iunit,file=fname(1:index(fname,' ')-1),
      + form='formatted',status='unknown')
       write(iunit,8000)
- 8000 format('#include "camera.inc"',/,'#include "colors.inc"')
+ 8000 format('#include "camera.inc"',/,'#include "colors.inc"',/,
+     + '#include "plane.inc"')
       do 10 i=1,nsa
       if(isel(i).ne.0) then
       write(iunit,8003) sgmnam(i)
