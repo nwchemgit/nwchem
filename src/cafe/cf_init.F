@@ -5,7 +5,7 @@
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg)
-c $Id: cf_init.F,v 1.54 2000-08-29 15:45:04 d3j191 Exp $
+c $Id: cf_init.F,v 1.55 2000-09-02 02:57:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -741,8 +741,8 @@ c
       endif
 c
       if(id.eq.2.and.msm.gt.0) then
-      if(.not.ma_push_get(mt_dbl,msa,'wsm',l_wsm,i_wsm))
-     + call errquit('Allocation failed forwsm',0)
+      if(.not.ma_push_get(mt_dbl,msm,'wsm',l_wsm,i_wsm))
+     + call errquit('Allocation failed for wsm',0)
       endif
 c
       return
