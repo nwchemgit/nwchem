@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.24 2000-01-06 21:20:44 d3j191 Exp $
+c $Id: cf_main.F,v 1.25 2000-01-26 16:29:15 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -352,6 +352,9 @@ c
      + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
      + dbl_mb(i_mas),iwgmn,isgan)
       elseif(mdalgo.eq.2) then
+      call cf_lpfrog_bc(iwdt,xw,yw,vw,vwt,fw,numw,
+     + isdt,isat,xs,ys,vs,vst,fs,nums,int_mb(i_iwa),
+     + dbl_mb(i_mas),iwgmn,isgan)
       else
       call errquit('Unknown integration algorithm',mdalgo)
       endif
@@ -397,11 +400,6 @@ c
       integer iwa,iwm,isa
       real*8 factor
 c
-c      write(70,7000) (iwgmn(iwm),(xw(iwm,ix,1),ix=1,3),
-c     + (fw(iwm,ix,1),ix=1,3), iwm=1,numw)
-c 7000 format(i5,3f10.3,3f12.3)
-c      write(71,7000) (isgan(isa),(xs(isa,ix),ix=1,3),
-c     + (fs(isa,ix),ix=1,3),isa=1,nums)
       if(numw.gt.0) then
       do 1 iwa=1,mwa
       factor=tstep/wgt(iwat(iwa),iset)
@@ -456,6 +454,112 @@ c
       xs(isa,3)=xs(isa,3)+vs(isa,3)*tstep
       endif
     3 continue
+      endif
+c
+      return
+      end
+      subroutine cf_lpfrog_bc(iwdt,xw,yw,vw,vwt,fw,numw,
+     + isdt,isat,xs,ys,vs,vst,fs,nums,iwat,wgt,iwgmn,isgan)
+c
+c     leap frog variant by Brown and Clarke, Mol.Phys., 51, 1243 (1984)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer numw,nums
+      integer iwdt(mwm),isdt(msa),isat(msa),isgan(msa),iwgmn(mwm)
+      real*8 xw(mwm,3,mwa),yw(mwm,3,mwa)
+      real*8 vw(mwm,3,mwa),vwt(mwm,3,mwa),fw(mwm,3,mwa)
+      real*8 xs(msa,3),ys(msa,3),vs(msa,3),vst(msa,3),fs(msa,3)
+      integer iwat(mwa)
+      real*8 wgt(mat,6)
+c
+      integer iwa,iwm,isa
+      real*8 factor,chi,ekin(2)
+c
+      if(numw.gt.0) then
+      do 1 iwa=1,mwa
+      factor=tstep/wgt(iwat(iwa),iset)
+      do 2 iwm=1,numw
+      yw(iwm,1,iwa)=xw(iwm,1,iwa)
+      yw(iwm,2,iwa)=xw(iwm,2,iwa)
+      yw(iwm,3,iwa)=xw(iwm,3,iwa)
+      if(iand(iwdt(iwm),mfixed).eq.lfixed) then
+      vw(iwm,1,iwa)=zero
+      vw(iwm,2,iwa)=zero
+      vw(iwm,3,iwa)=zero
+      vwt(iwm,1,iwa)=zero
+      vwt(iwm,2,iwa)=zero
+      vwt(iwm,3,iwa)=zero
+      else
+      vwt(iwm,1,iwa)=vw(iwm,1,iwa)+half*fw(iwm,1,iwa)*factor
+      vwt(iwm,2,iwa)=vw(iwm,2,iwa)+half*fw(iwm,2,iwa)*factor
+      vwt(iwm,3,iwa)=vw(iwm,3,iwa)+half*fw(iwm,3,iwa)*factor
+      endif
+    2 continue
+    1 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 3 isa=1,nums
+      factor=tstep/wgt(isat(isa),iset)
+      ys(isa,1)=xs(isa,1)
+      ys(isa,2)=xs(isa,2)
+      ys(isa,3)=xs(isa,3)
+      if(iand(isdt(isa),mfixed).eq.lfixed) then
+      vs(isa,1)=zero
+      vs(isa,2)=zero
+      vs(isa,3)=zero
+      vst(isa,1)=zero
+      vst(isa,2)=zero
+      vst(isa,3)=zero
+      else
+      vst(isa,1)=vs(isa,1)+half*fs(isa,1)*factor
+      vst(isa,2)=vs(isa,2)+half*fs(isa,2)*factor
+      vst(isa,3)=vs(isa,3)+half*fs(isa,3)*factor
+      endif
+    3 continue
+      endif
+c
+      call cf_tw(vwt,numw,iwat,dbl_mb(i_mas),ekin(1))
+      call cf_ts(vst,nums,isat,dbl_mb(i_mas),ekin(2))
+c
+      call ga_dgop(mcf_65,ekin,2,'+')
+c
+      chi=sqrt(tmpext/(factmp*(ekin(1)+ekin(2))))
+c
+      if(numw.gt.0) then
+      do 4 iwa=1,mwa
+      factor=tstep/wgt(iwat(iwa),iset)
+      do 5 iwm=1,numw
+      if(iand(iwdt(iwm),mfixed).ne.lfixed) then
+      vw(iwm,1,iwa)=(two*chi-one)*vw(iwm,1,iwa)+chi*fw(iwm,1,iwa)*factor
+      vw(iwm,2,iwa)=(two*chi-one)*vw(iwm,2,iwa)+chi*fw(iwm,2,iwa)*factor
+      vw(iwm,3,iwa)=(two*chi-one)*vw(iwm,3,iwa)+chi*fw(iwm,3,iwa)*factor
+      xw(iwm,1,iwa)=yw(iwm,1,iwa)+vw(iwm,1,iwa)*tstep
+      xw(iwm,2,iwa)=yw(iwm,2,iwa)+vw(iwm,2,iwa)*tstep
+      xw(iwm,3,iwa)=yw(iwm,3,iwa)+vw(iwm,3,iwa)*tstep
+      endif
+    5 continue
+    4 continue
+      endif
+c
+      if(nums.gt.0) then
+      do 6 isa=1,nums
+      factor=tstep/wgt(isat(isa),iset)
+      if(iand(isdt(isa),mfixed).ne.lfixed) then
+      vs(isa,1)=(two*chi-one)*vs(isa,1)+chi*fs(isa,1)*factor
+      vs(isa,2)=(two*chi-one)*vs(isa,2)+chi*fs(isa,2)*factor
+      vs(isa,3)=(two*chi-one)*vs(isa,3)+chi*fs(isa,3)*factor
+      xs(isa,1)=xs(isa,1)+vs(isa,1)*tstep
+      xs(isa,2)=xs(isa,2)+vs(isa,2)*tstep
+      xs(isa,3)=xs(isa,3)+vs(isa,3)*tstep
+      endif
+    6 continue
       endif
 c
       return
@@ -833,6 +937,63 @@ c
       eskc=eskc+half*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))/vv(4)
       endif
     4 continue
+c
+      return
+      end
+      subroutine cf_tw(vw,numw,iwat,wgt,ekinw)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      integer numw
+      integer iwat(mwa)
+      real*8 vw(mwm,3,mwa)
+      real*8 wgt(mat,6)
+c
+      integer i,j,k
+      real*8 ekinwa,ekinw
+c
+      ekinw=zero
+      if(numw.gt.0) then
+      do 1 k=1,mwa
+      ekinwa=zero
+      do 2 j=1,3
+      do 3 i=1,numw
+      ekinwa=ekinwa+vw(i,j,k)*vw(i,j,k)
+    3 continue
+    2 continue
+      ekinw=ekinw+wgt(iwat(k),iset)*ekinwa
+    1 continue
+      ekinw=half*ekinw
+      endif
+c
+      return
+      end
+      subroutine cf_ts(vs,nums,isat,wgt,ekins)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nums
+      integer isat(msa)
+      real*8 vs(msa,3),wgt(mat,6)
+c
+      integer i,j,k
+      real*8 ekins
+c
+      ekins=zero
+      if(nums.gt.0) then
+      do 1 j=1,3
+      do 2 i=1,nums
+      ekins=ekins+wgt(isat(i),iset)*vs(i,j)*vs(i,j)
+    2 continue
+    1 continue
+      ekins=half*ekins
+      endif
 c
       return
       end
