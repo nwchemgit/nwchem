@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult_interaction.F,v 1.5 2003-02-21 03:01:48 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.6 2003-02-21 03:13:11 bylaska Exp $
 *
 
 !*************************************************
@@ -191,7 +191,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         gaunt_coeff = gen_gaunt_coeff(l,m,l2,m2,l1,-m1)
 
             
-        CALL find_Y_lm_deriv(l,m,cos_theta,phi,Y_lm_x,Y_lm_y,Y_lm_z)
+        !CALL find_Y_lm_deriv(l,m,cos_theta,phi,Y_lm_x,Y_lm_y,Y_lm_z)
         Y_lm =  find_Y_lm(l,m,cos_theta,phi)
 
         kummer = paw_hypergeom1F1((l1+l2+l)/2,l,-(r_over_s)**2/2)
