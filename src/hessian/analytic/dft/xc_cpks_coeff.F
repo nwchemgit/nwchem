@@ -4,7 +4,7 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.5 1999-03-04 14:14:16 bjohnson Exp $
+c     $Id: xc_cpks_coeff.F,v 1.6 2000-10-20 16:16:49 bjohnson Exp $
 c
       Subroutine xc_cpks_coeff(prho, pdelrho, Amat2, Cmat2, Cmat,
      &                         delrho, npert, ipol, nq, GRAD)
@@ -210,17 +210,14 @@ c
 c
 c                 Perturbed functional argument contribution
 c
-c!!!                  write(*,*)'*** Simplify restricted GC expression'
                   t(1) =((Cmat2(n,D2_RA_GAA)
-     &                 +  Cmat2(n,D2_RB_GAA)) *pz(1)
+     &                 +  Cmat2(n,D2_RA_GBB)) *pz(1)
      &                 + (Cmat2(n,D2_GAA_GAA)
      &                 +  Cmat2(n,D2_GAA_GAB)
      &                 +  Cmat2(n,D2_GAA_GBB))*pz(3))*2d0
-                  t(2) =(Cmat2(n,D2_RA_GAB)
-     &                 + Cmat2(n,D2_RB_GAB)) *pz(1)
-     &                 +(Cmat2(n,D2_GAA_GAB)
-     &                 + Cmat2(n,D2_GAB_GAB)
-     &                 + Cmat2(n,D2_GAB_GBB))*pz(3)
+                  t(2) = Cmat2(n,D2_RA_GAB)*2d0*pz(1)
+     &                 +(Cmat2(n,D2_GAA_GAB)*2d0
+     &                 + Cmat2(n,D2_GAB_GAB))*pz(3)
                   pdelrho(n,1,1,ipert) = pdelrho(n,1,1,ipert)
      &                 + delrho(n,1,1)*(t(1) + t(2))
                   pdelrho(n,2,1,ipert) = pdelrho(n,2,1,ipert)
