@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.12 2003-10-17 22:57:13 carlfahl Exp $
+* $Id: inner_loop.F,v 1.13 2004-01-29 02:27:53 bylaska Exp $
 *
 
 *  ************************************************************
@@ -43,7 +43,7 @@
 
 
 *     **** local variables ****
-      logical move
+      logical move,sic
       integer n2ft3d,np
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
@@ -117,6 +117,7 @@ c     real*8     fion(3,natmx)
       deltamm = 0.0d0
 
       field_exist = pspw_charge_found().or.pspw_qmmm_found()
+      sic        = pspw_SIC()
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
@@ -404,8 +405,13 @@ c          call mask_C(1,psi2(1,n))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
+        if (sic) then
+        call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
+     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+        else
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
+        end if
 
       end do
 

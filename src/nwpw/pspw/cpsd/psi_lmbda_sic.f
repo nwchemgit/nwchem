@@ -1,11 +1,12 @@
-      subroutine psi_lmbda(ispin,ne,nemax,npack1,
+*
+* $Id: psi_lmbda_sic.f,v 1.1 2004-01-29 02:27:53 bylaska Exp $
+*
+
+      subroutine psi_lmbda_sic(ispin,ne,nemax,npack1,
      >                     psi1,psi2,
      >                     dte,
      >                     lmbda,tmp,ierr)
 
-*
-* $Id: psi_lmbda.f,v 1.4 2004-01-29 02:27:53 bylaska Exp $
-*
       implicit none
       integer ispin,ne(2),nemax,npack1
       complex*16 psi1(npack1,nemax)
@@ -64,6 +65,39 @@
         IF(ne(ms).le.0) GO TO 640
 
 *       ***** compute the overlap matrices ****
+c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
+c     >                          psi2(1,n1(ms)),
+c     >                          psi2(1,n1(ms)),
+c     >                          tmp(s22))
+c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
+c     >                          psi2(1,n1(ms)),
+c     >                          psi1(1,n1(ms)),
+c     >                          tmp(s21))
+c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
+c     >                          psi1(1,n1(ms)),
+c     >                          psi2(1,n1(ms)),
+c     >                          tmp(s12))
+c        call D3dB_cc_Vector_dot(1,nfft3d,n,ne(ms),
+c     >                          psi1(1,n1(ms)),
+c     >                          psi1(1,n1(ms)),
+c     >                          tmp(s11))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi2(1,n1(ms)),
+c    >                          psi2(1,n1(ms)),
+c    >                          tmp(s22))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi2(1,n1(ms)),
+c    >                          psi1(1,n1(ms)),
+c    >                          tmp(s21))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi1(1,n1(ms)),
+c    >                          psi2(1,n1(ms)),
+c    >                          tmp(s12))
+c       call Grsm_ggm_dot2(npack1,n,ne(ms),
+c    >                          psi1(1,n1(ms)),
+c    >                          psi1(1,n1(ms)),
+c    >                          tmp(s11))
+
         call Pack_ccm_sym_dot2(1,n,ne(ms),
      >                          psi2(1,n1(ms)),
      >                          psi2(1,n1(ms)),
@@ -72,15 +106,35 @@
      >                          psi2(1,n1(ms)),
      >                          psi1(1,n1(ms)),
      >                          tmp(s21))
-        call dcopy(nn,tmp(s21),1,tmp(s12),1)
-c       call Pack_ccm_sym_dot2(1,n,ne(ms),
-c    >                          psi1(1,n1(ms)),
-c    >                          psi2(1,n1(ms)),
-c    >                          tmp(s12))
+        call Pack_ccm_sym_dot2(1,n,ne(ms),
+     >                          psi1(1,n1(ms)),
+     >                          psi2(1,n1(ms)),
+     >                          tmp(s12))
         call Pack_ccm_sym_dot2(1,n,ne(ms),
      >                          psi1(1,n1(ms)),
      >                          psi1(1,n1(ms)),
      >                          tmp(s11))
+
+
+****  Begin  ADDED by Kiril *****
+
+        do ii=1,ne(ms)
+           do jj=1,ne(ms)
+             ii1 = -1+ii+jj*(ii-1)
+             tmp1(ii1+1)=0.5d0*(tmp(s12+ii1)+tmp(s21+ii1))
+
+           enddo
+        enddo
+
+        do ii=1,ne(ms)
+           do jj=1,ii-1
+             ii1 = -1+ii+jj*(ii-1)
+             tmp(s12+ii1)=tmp1(ii1+1)
+             tmp(s21+ii1)=tmp1(ii1+1)
+           enddo
+        enddo
+
+****  End    ADDED by Kiril *****
 
 
 *       ***** scale the overlap matrices ****

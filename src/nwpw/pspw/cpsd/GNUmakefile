@@ -1,14 +1,14 @@
 
-# $Id: GNUmakefile,v 1.4 2002-10-09 19:38:58 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2004-01-29 02:27:53 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
-				cpsd_input.o \
-				cpmd_input.o \
+		cpsd_input.o \
+		cpmd_input.o \
                 cpsdv5.o \
                 cpmdv5.o \
                 inner_loop.o \
                 inner_loop_md.o \
-                psi_lmbda.o \
+                psi_lmbda.o psi_lmbda_sic.o \
 		fei_output.o
 
 
@@ -19,7 +19,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psi_lmbda.f \
+    USES_BLAS = psi_lmbda.f psi_lmbda_sic.f \
                 inner_loop.F inner_loop_md.F cpsdv5.F cpmdv5.F
                 
 
