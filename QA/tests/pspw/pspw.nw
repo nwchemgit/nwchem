@@ -2,7 +2,7 @@ title Si2
 
 start Si2
 
-memory global 12 mb stack 12 mb heap 15 mb
+memory global 55 mb 
 
 geometry units angstroms
 Si  1.1230000000 0.00000000  0.00000000
@@ -21,8 +21,8 @@ PSPW
       mass_number: 28.0                 # mass (a.u.) of carbon atom
       solver_type: pauli                # Pauli or Schrodinger op
       pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
-      #exchange_type: pbe96              # dirac and pbe96 options
-      #correlation_type: pbe96           # vosko and pbe96 options
+      exchange_type: pbe96              # dirac and pbe96 options
+      correlation_type: pbe96           # vosko and pbe96 options
 
       atomic_filling: 3 2   # Ncore and Nvalence states
         1 s 2.0             # core state  1s^2
@@ -30,6 +30,9 @@ PSPW
         2 p 6.0             # coren state 2p^2
         3 s 2.0             # valence state 3s^2
         3 p 2.0             # valence state 3p^2
+   END
+   ANALYSIS
+      psp_filename: Si.psp
    END
 END
 
@@ -42,14 +45,52 @@ PSPW
          17.0  17.0   0.0 
          17.0   0.0  17.0
           0.0  17.0  17.0 
-      ngrid: 16 16 16
+      ngrid: 8 8 8
    END
+   SIMULATION_CELL
+      cell_name: medium
+      boundry_conditions: periodic
+      lattice_vectors:
+         17.0  17.0   0.0 
+         17.0   0.0  17.0
+          0.0  17.0  17.0 
+      ngrid: 32 32 32
+   END
+   SIMULATION_CELL
+      cell_name: charge
+      boundry_conditions: aperiodic
+      lattice_vectors:
+         17.0  17.0   0.0 
+         17.0   0.0  17.0
+          0.0  17.0  17.0 
+      ngrid: 32 32 32
+   END
+END
 
-   #******* Generate a Formmatted pseudopotential for silicon *****
+#******* Generate a Formmatted pseudopotential for silicon *****
+PSPW
    PSP_FORMATTER
       cell_name: small
       psp_filename: Si.psp
-      formatted_filename: Si.vpp
+      formatted_filename: Si.small.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   PSP_FORMATTER
+      cell_name: medium
+      psp_filename: Si.psp
+      formatted_filename: Si.medium.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   PSP_FORMATTER
+      cell_name: charge
+      psp_filename: Si.psp
+      formatted_filename: Si.charge.vpp
    END
 END
 task pspw psp_formatter
@@ -71,7 +112,7 @@ PSPW
                0 1 0    -1
       wavefunction_filename: Si2.movecs
       cell_name: small
-   END 
+   END
 END
 task pspw wavefunction_initializer
 
@@ -79,14 +120,13 @@ task pspw wavefunction_initializer
 PSPW
    STEEPEST_DESCENT
       cell_name: small
-      formatted_filename: Si.vpp
-      input_wavefunction_filename:  Si2.movecs
-      output_wavefunction_filename: Si2.movecs
+      formatted_filename: Si.small.vpp
+      input_wavefunction_filename:  Si2.elc00
+      output_wavefunction_filename: Si2.elc00
       fake_mass: 400000.0d0
       time_step: 51.8d0
-      loop: 10 10
-      tolerances: 1.0d-9 1.0d-9 1.0d-4
-      exchange_correlation: pbe96
+      loop: 10 100
+      Mulliken
    END 
 END
 task pspw steepest_descent
@@ -95,55 +135,55 @@ task pspw steepest_descent
 PSPW
    CONJUGATE_GRADIENT
       cell_name: small
-      formatted_filename: Si.vpp
-      input_wavefunction_filename:  Si2.movecs
-      output_wavefunction_filename: Si2.movecs
-      fake_mass: 400000.0d0
-      time_step: 51.8d0
+      formatted_filename: Si.small.vpp
+      input_wavefunction_filename:  Si2.elc00
+      output_wavefunction_filename: Si2.elc00
       loop: 10 100
-      tolerances: 1.0d-15 1.0d-9 1.0d-4
-      exchange_correlation: pbe96
+      Mulliken
    END 
 END
-task pspw conjugate_gradient
+task cg_pspw energy
 task pspw steepest_descent
 
-
-#******* Generate a initial wavefunction based on planewaves ****
+#***** expand the wavefunction to larger grid *****
 PSPW
-   V_WAVEFUNCTION_INITIALIZER
-      unrestricted
-      up_filling:   5
-      down_filling: 3
-      v_wavefunction_filename: Si2.velc
-      cell_name: small
-   END 
+   WAVEFUNCTION_EXPANDER
+      old_wavefunction_filename: Si2.elc00
+      new_wavefunction_filename: Si2.elc01
+      new_ngrid: 32 32 32
+   END
 END
-TASK PSPW v_wavefunction_initializer
+task pspw wavefunction_expander
 
-
-#***** Perform a Car-Parrinello simulation ****
+#***** re-setup conjugate gradient code ****
 PSPW
-   Car-Parrinello
-      cell_name: small
-      formatted_filename: Si.vpp
-      input_wavefunction_filename:    Si2.movecs
-      output_wavefunction_filename:   Si2.movecs
-      input_v_wavefunction_filename:  Si2.velc
-      output_v_wavefunction_filename: Si2.velc
-      fake_mass: 1000.0d0
-      time_step: 5.0d0
-      loop: 1 1000
-      scaling: 1.0d0 1.0d0
-      xyz_filename: Si2.01.xyz
+   CONJUGATE_GRADIENT
+      cell_name: medium
+      formatted_filename: Si.medium.vpp
+      input_wavefunction_filename:  Si2.elc01
+      output_wavefunction_filename: Si2.elc01
+      loop: 25 100
       exchange_correlation: pbe96
    END 
 END
-task pspw Car-Parrinello
-
-
 
 #**** Now optimize geometry  and find the frequency *****
 task cg_pspw optimize
 task cg_pspw freq
 
+
+#***** re-setup conjugate gradient code  to use aperiodic convoultion ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: charge
+      formatted_filename: Si.charge.vpp
+      input_wavefunction_filename:  Si2.elc01
+      output_wavefunction_filename: Si2.elc01
+      loop: 25 100
+      exchange_correlation: pbe96
+   END 
+END
+
+#**** Now optimize geometry  and find the frequency *****
+task cg_pspw optimize
+task cg_pspw freq
