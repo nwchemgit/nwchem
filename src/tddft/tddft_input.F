@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.3 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_input.F,v 1.4 2002-04-16 01:51:56 sohirata Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -14,7 +14,7 @@ c        [NROOTS <integer nroots default 1>]
 c        [MAXVECS <integer maxvecs default 1000>]
 c        [(SINGLET||NOSINGLET) default SINGLET]
 c        [(TRIPLET||NOTRIPLET) default TRIPLET]
-c        [THRESH <double thresh default 1e-5>]
+c        [THRESH <double thresh default 1e-4>]
 c        [MAXITER <integer maxiter default 100>]
 c        [TARGET <integer target default 1>]
 c        [TARGETSYM <integer targetsym default 0>]
@@ -77,7 +77,7 @@ c
 c
 c     THRESH (convergence threshold for Davidson iteration)
 c
-      thresh=1.0d-5
+      thresh=1.0d-4
       if (.not.rtdb_put(rtdb,'tddft:thresh',mt_dbl,1,thresh))
      1  call errquit('tddft_input: failed writing to rtdb',0)
 c
@@ -188,8 +188,8 @@ c
       else if (inp_compare(.false.,test,'thresh')) then
         if (.not.inp_f(thresh)) then
           write(LuOut,*) 'tddft_input: thresh value not found; ',
-     1      'default value of 1e-5 will be used'
-          thresh=1.0d-5
+     1      'default value of 1e-4 will be used'
+          thresh=1.0d-4
         endif
         if (.not.rtdb_put(rtdb,'tddft:thresh',mt_dbl,1,thresh))
      1    call errquit('tddft_input: failed writing to rtdb',0)
