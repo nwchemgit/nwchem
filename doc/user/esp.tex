@@ -45,6 +45,20 @@ The van der Waals radius of an element can be specified by
 where \verb+iatnum+ is the atomic number for which a van der Waals radius
 of \verb+atrad+ in $nm$ will be used in the grid point determination.
 Default values will be used for atoms not specified.
+\item
+The probe radius in nm determining the envelope around the molecule is
+specified by
+\begin{verbatim}
+  probe <real probe default 0.07> 
+\end{verbatim}
+\item
+The distance between atomic center and probe center can be multiplied
+by a constant factor specified by
+\begin{verbatim}
+  factor <real factor default 1.0> 
+\end{verbatim}
+All grid points are discarded that lie within a distance 
+\verb-factor*(radius(i)+probe)- from any atom $i$.
 \end{itemize}
 
 \section{Constraints}
