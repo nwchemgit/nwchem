@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.30 2000-04-26 23:29:10 edo Exp $
+c$Id: grid_tasks.F,v 1.31 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c
@@ -89,7 +89,6 @@ c
 c     get partitioning function
 c
 
-      if(lssw) do_interp = xc_interp(whichssw)
 c
 c     Allocate some scratch space for construction of the spatial weights
 c

@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.51 2000-04-28 22:44:34 edo Exp $
+c     $Id: dft_inpana.F,v 1.52 2000-06-08 02:06:29 edo Exp $
 c
 c*********************************************************************
 c     
@@ -466,7 +466,7 @@ c
    40          continue
                bsr = bsrad_atom_type(n)*AUTOANG
                radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
-               if (leb.or.daul)then
+               if (leb)then
                   write(LuOut,9138)tag,bsr,nrad(n),radang,
      &                nang(n)
                else

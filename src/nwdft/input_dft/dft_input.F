@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.24 2000-04-28 22:44:35 edo Exp $
+c     $Id: dft_input.F,v 1.25 2000-06-08 02:06:29 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -37,6 +37,9 @@ c
 c     Any DFT input causes calculation to be marked as not converged
 c
       status = rtdb_delete(rtdb,'dft:converged')
+c
+c     Lebedev on by default
+c
 c
  10   if (.not. inp_read()) call errquit
      $     ('dft_input: inp_read failed', 0)

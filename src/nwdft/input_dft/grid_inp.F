@@ -25,9 +25,6 @@ c     coarse  = energy accuracy 1.d-5
 c     medium  = energy accuracy 1.d-6
 c     fine    = energy accuracy 1.d-7
 c     xfine   = energy accuracy 1.d-8
-c     lebmed  = energy accuracy 1.d-6
-c     lebfine    = energy accuracy 1.d-7
-c     lebxfine   = energy accuracy 1.d-8
 c     user
 c     store_wght
 c     nquad_task
@@ -36,7 +33,7 @@ c
       integer num_dirs, ind, mlen
       integer atn
       character*2 symbol
-      parameter (num_dirs = 24)
+      parameter (num_dirs = 20)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical lbecke
@@ -45,10 +42,12 @@ c
      &            'coarse', 'medium', 'fine', 'xfine', 'user', 
      .            'euler','mura','treutler','lindh',
      .            'ssf','erf1','erf2',
-     &            'store_wght', 'nquad_task', 'rm',
-     .     'lebmed','lebfine','lebxfine','daul'/
+     &            'store_wght', 'nquad_task', 'rm'/
 c     
       ngridin=0
+c
+c     Lebedev on by default
+c
       mlen = inp_strlen(module)
 c     
  10   if (.not. inp_a(test)) goto 1999
@@ -62,7 +61,7 @@ c
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
      .     2001,2100,2200,2300,1700, 1800,1900,1100, 
-     &      1200, 1300, 1400, 1500, 1600,  2700,1999) ind
+     &      1200, 1300, 1999) ind
       call errquit('grid_inp: unimplemented directive', ind)
 c     
 c     delley; use delley spatial weights
@@ -120,6 +119,9 @@ c
 c     gausleg; use Gauss-Legendre for angular quadrature (ala Handy) 
 c     
   300 gridtype='gausleg'
+      leb=.false.
+      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   call errquit('grid_inp: rtdb_put failed', 590)
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 300) 
@@ -144,47 +146,16 @@ c     lebedev; use Lebedev angular quadrature
 c     
   400 gridtype='lebedev'
       leb=.true.
-      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     &   call errquit('grid_inp: rtdb_put failed', 590)
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 400) 
 c
-      if (.not. inp_i(nradpts)) then
-cedo         write(LuOut,*)' grid_inp: nradpts value not found. '
-         goto 1400
-      else
+      if (inp_i(nradpts)) then
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
      &      call errquit('grid_inp: rtdb_put failed', 400)
       endif
 c
-      if (.not. inp_i(iangquad)) then
-         write(LuOut,*)' grid_inp: iangquad value not found. '
-      else
-         if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
-     &      call errquit('grid_inp: rtdb_put failed', 400)
-      endif
-c
-      goto 10
- 2700 gridtype='daul'
-      daul=.true.
-      if (.not. rtdb_put(rtdb, 'dft:daul', mt_log, 1, daul))
-     &   call errquit('grid_inp: rtdb_put failed', 590)
-c
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 400) 
-c
-      if (.not. inp_i(nradpts)) then
-cedo         write(LuOut,*)' grid_inp: nradpts value not found. '
-         goto 1400
-      else
-         if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
-     &      call errquit('grid_inp: rtdb_put failed', 400)
-      endif
-c
-      if (.not. inp_i(iangquad)) then
-         write(LuOut,*)' grid_inp: iangquad value not found. '
-      else
+      if (inp_i(iangquad)) then
          if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
      &      call errquit('grid_inp: rtdb_put failed', 400)
       endif
@@ -282,37 +253,6 @@ c
      &   call errquit('grid_inp: rtdb_put failed', 1300)
 c
       goto 10
-c     
-c     
-c     medleb; use medium Lebedev grid definition
-c             
- 1400 gridtype='lebmed'
-      leb=.true.
-      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     &   call errquit('grid_inp: rtdb_put failed', 590)
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 1400) 
-      goto 10
-
-c     
-c     
-c     medleb; use medium Lebedev grid definition
-c             
- 1500 gridtype='lebfine'
-      leb=.true.
-      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     &   call errquit('grid_inp: rtdb_put failed', 590)
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 1500) 
-      goto 10
-
- 1600 gridtype='lebxfine'
-      leb=.true.
-      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     &   call errquit('grid_inp: rtdb_put failed', 590)
-      if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 1500) 
-      goto 10
 c
 c     Euler_McLaurin
 c
@@ -389,7 +329,6 @@ c
 10001 format(/,' grid [ [becke], [gausleg], 
      &       [lebedev ival ival], ',
      &       /,' [xcoarse], [coarse], [medium], [fine], [xfine], ',
-     &       /,' [lebedev], [lebmed], [lebfine], [lebxfine], ',
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
      &       /,' [rm rval] ')
       call util_flush(LuOut)

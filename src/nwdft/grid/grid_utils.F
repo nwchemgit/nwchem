@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.17 2000-06-07 23:29:17 edo Exp $
+c$Id: grid_utils.F,v 1.18 2000-06-08 02:06:28 edo Exp $
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -122,7 +122,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb,  rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.17 2000-06-07 23:29:17 edo Exp $
+C$Id: grid_utils.F,v 1.18 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c      
@@ -190,7 +190,7 @@ c
          nq = 0
          call dfill(ncenters,0.d0,rq0,1)
 c
-         if (leb.or.daul) then
+         if (leb) then
 c         
            nq=nq+ntheta(iang)
          else
@@ -499,7 +499,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.17 2000-06-07 23:29:17 edo Exp $
+C$Id: grid_utils.F,v 1.18 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c

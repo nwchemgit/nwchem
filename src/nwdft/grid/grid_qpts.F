@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     fnxyz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.19 2000-04-26 23:29:09 edo Exp $
+c$Id: grid_qpts.F,v 1.20 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c      
@@ -48,7 +48,7 @@ c
      &               ictr, irsh, iang, ia_ictr
       endif
 c
-      if (leb.or.daul) then
+      if (leb) then
 c         
          do k = 1, ntheta(iang)
 c           

@@ -1,11 +1,6 @@
 *
-* $Id: xc_erftab.fh,v 1.7 2000-06-07 23:29:18 edo Exp $
+* $Id: xc_erftab.fh,v 1.8 2000-06-08 02:06:29 edo Exp $
 *
-      integer nsampl, order
-      parameter (nsampl=8000, order=2)
-      double precision f, xlo, xhi, table,scale
-      common /xcerf/ f(0:nsampl), xlo, xhi, table(0:order+1,0:nsampl+1),
-     ,  scale
       double precision ass_erf1,ass_erf2,ass_ssf
       double precision alpha_erf1,alpha_erf2,eps
 
@@ -21,7 +16,7 @@ c
      ,     alpha_erf1=1d0/0.30d0,
      ,     alpha_erf2=1d0/0.28d0,
      ,     eps=0.002d0)	
-      double precision erf1,erf2
+      double precision erf1,erf2,taux,erfcc,erf1c,erf2c
 #if defined(SGI)|| defined (DECOSF) ||defined (WIN32)|| defined(LINUX64)
       erf1(x)=0.5d0*derfc((x/(1d0-x*x))*alpha_erf1)
       erf2(x)=0.5d0*derfc((x/(1d0-x*x)**2)*alpha_erf2)
@@ -29,3 +24,15 @@ c
       erf1(x)=0.5d0*erfc((x/(1d0-x*x))*alpha_erf1)
       erf2(x)=0.5d0*erfc((x/(1d0-x*x)**2)*alpha_erf2)
 #endif
+      taux(x)=1d0/(1d0+0.5d0*abs(x))
+      erfcc(x)=taux(x)*
+     .     exp(-abs(x)*abs(x)-1.26551223d0+taux(x)*
+     *     (1.00002368d0+taux(x)*(.37409196d0+
+     *     taux(x)*(.09678418d0+taux(x)*
+     *     (-.18628806d0+taux(x)*(.27886807d0+
+     +     taux(x)*(-1.13520398d0+taux(x)*
+     (     (1.48851587d0+taux(x)*(-.82215223d0+taux(x)*.17087277d0)
+     )     ))))))))
+      erf1c(x)=0.5d0*erfcc((x/(1d0-x*x))*alpha_erf1)
+      erf2c(x)=0.5d0*erfcc((x/(1d0-x*x)**2)*alpha_erf2)
+

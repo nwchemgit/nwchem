@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.5 2000-03-07 02:02:32 edo Exp $
+c$Id: grid_setang.F,v 1.6 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c      
@@ -30,9 +30,6 @@ c
       if (ga_nodeid().ne.0) oprint = .false.
       if (leb) then ! lebedev
          call xc_lebedev(l_ang, oprint)
-         nang_leb_pts = l_ang
-      elseif (daul) then
-         call grid_daul(l_ang, oprint)
          nang_leb_pts = l_ang
       else ! gauss-legendre
 c

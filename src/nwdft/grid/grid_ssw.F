@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.9 2000-06-05 23:54:42 edo Exp $
+C$Id: grid_ssw.F,v 1.10 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -23,7 +23,7 @@ c
 
 c
       integer i, j,   ij
-      integer  AA,NN,ipoint
+      integer  AA,NN
       double precision mu, nu,radwgh
       double precision x, y, z, x0i, y0i, z0i
       double precision sk
@@ -123,15 +123,16 @@ c
                   sk=0.5d0-(7.d0*(5.d0+3.d0*mu)-
      -                 5.d0*nu*nu*(7.d0+mu))*nu/32.d0
                   
-                elseif(inota.and.jnota.and.do_interp) then
+                elseif(inota.and.jnota) then
 c                 
 c                 use interpolation for erfs
 c
-                  ipoint=int(scale*abs(mu))
-                  nu = abs(mu) - table(0,ipoint)
-                  sk= (table(1,ipoint) + nu*(table(2,ipoint) + 
-     $                 nu*table(3,ipoint)))
-                  if(mu.lt.0d0) sk=1d0-sk
+                     if(iw.eq.1) then
+                        sk=erf1c(mu)
+                     else
+                        sk=erf2c(mu)
+                     endif
+                   if(mu.lt.0d0) sk=1d0-sk
                 else
                    if(iw.eq.1) then
                       sk=erf1(mu)

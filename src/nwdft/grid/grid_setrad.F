@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.30 2000-04-22 01:05:45 edo Exp $
+c$Id: grid_setrad.F,v 1.31 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c      
@@ -58,7 +58,7 @@ c
 c     define radial grid type
 c
       if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) 
-     *     radgrid='eumac'
+     .     call errquit('grid_setrad: radgrid not defined',9)
       if(radgrid.eq.'eumac') then
          wradgrid=1
       elseif(radgrid.eq.'murakn') then

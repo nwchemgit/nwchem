@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.12 2000-04-22 01:05:44 edo Exp $
+c$Id: grid_list.F,v 1.13 2000-06-08 02:06:28 edo Exp $
 c
       implicit none
 c      
@@ -77,7 +77,7 @@ c
 c
 c        parameter for pruning
 c
-         if (leb.or.daul) then
+         if (leb) then
             izat = nint(znuc_atom_type(iti))
             RR = bsrad_atom_type(iti)
             if (izat.lt.3)then
@@ -120,15 +120,13 @@ c              iang = grid_params (or nang) for all other gauss-legendre quadrat
 c
                if (leb)then
                   iang_mx = xc_leb_nrd2acc(nang(iti))
-               elseif (daul) then
-                  iang_mx = xc_dau_nrd2acc(nang(iti))
                else
                   iang_mx = nang(iti)
                endif
                iang = iang_mx
                if (no_prune)goto 405
 c            
-               if (leb.or.daul) then ! lebedev angular quadrature
+               if (leb) then ! lebedev angular quadrature
                   if (iang_mx.eq.1) then
                      iang = iang_mx
                   elseif (iang_mx.eq.2) then 
@@ -182,7 +180,7 @@ c     &         qsh(3,iqsh)
 c
 c              determine nqmax
 c
-               if (leb.or.daul)then
+               if (leb)then
                   nqmax = max(nqmax,nang_leb_pts)
                   nq_ctr_tot = nq_ctr_tot + nang_leb_pts
                else
