@@ -96,7 +96,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.22 1996-07-25 00:06:55 rg240 Exp $
+c  $Id: moints_semi.F,v 1.23 1996-07-25 18:44:25 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -269,6 +269,9 @@ c
      $                      int_mb(k_glo), int_mb(k_ghi),
      $                      int_mb(k_shmap),
      $                      int_mb(k_bfmap), int_mb(k_rbfmap) )
+c
+c  ------- Old stuff
+c
        ngrp = moints_numgr( basis, blen )
        status = ma_push_get(MT_INT,(ngrp*4),'grp map', l_gmap, k_gmap)
        call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))

@@ -30,7 +30,7 @@ c
 c Local variables
 c
       integer nmo1, nmo2, nbf, nsh, maxbfsh
-      integer nblk, bsize, blocksize
+      integer bsize, ngrp
       integer l_gmap, k_gmap
       integer ish0, jsh0, ish, jsh, ilen, jlen
       integer ibflo,ibfhi,jbflo,jbfhi,kbflo,kbfhi,lbflo,lbfhi
@@ -41,7 +41,8 @@ c
       integer l_hlp2, k_hlp2
       integer l_eri, k_eri, l_iscr,k_iscr
       integer l_mo, k_mo
-      integer l_shmap, k_shmap
+      integer l_shmap, k_shmap, l_bfmap, k_bfmap, l_rbfmap, k_rbfmap
+      integer l_glo, k_glo, l_ghi, k_ghi
       integer n_ssbb, n_ssbb1, n_ssni, n_ssai, n_hlp, n_hlp2
       integer mem2, max2e, n_ijni
       integer num_nodes, ploop, next, idummy
@@ -88,21 +89,32 @@ c
 c
 c  Shell group mapping
 c
-      blocksize = blen
-      nblk = moints_numgr( basis, blocksize )
-      status = ma_push_get(MT_INT,(nblk*4),'shell group map',
-     $                      l_gmap, k_gmap)
-      call moints_grmap( basis, blocksize, nblk, int_mb(k_gmap))
 c
 c  Reorder shells by descending shell-length
 c
       status = ma_push_get(MT_INT,nsh,'shell order map',
      $                      l_shmap, k_shmap)
-      call moints_shorder( basis, nsh, maxbfsh, int_mb(k_shmap) )
+      status = ma_push_get(MT_INT,nsh,'group lo', l_glo, k_glo )
+      status = ma_push_get(MT_INT,nsh,'group hi', l_ghi, k_ghi)
+      status = ma_push_get(MT_INT,nbf,'basis map',
+     $                      l_bfmap, k_bfmap)
+      status = ma_push_get(MT_INT,nbf,'rev basis map',
+     $                      l_rbfmap, k_rbfmap)
+      call moints_shorder( basis, nsh, nbf, blen, ngrp,
+     $                     int_mb(k_glo), int_mb(k_ghi),
+     $                     int_mb(k_shmap),
+     $                     int_mb(k_bfmap), int_mb(k_rbfmap) )
+c
+c  ------ Old stuff
+c
+      ngrp = moints_numgr( basis, blen )
+      status = ma_push_get(MT_INT,(ngrp*4),'shell group map',
+     $                      l_gmap, k_gmap)
+      call moints_grmap( basis, blen, ngrp, int_mb(k_gmap))
 c
 c  Temporary partially-transformed arrays
 c     
-      bsize = max(blocksize,maxbfsh)
+      bsize = max(blen,maxbfsh)
       n_ssbb = maxbfsh*maxbfsh*bsize*bsize
       n_ssbb1 = max((nmo1*nmo1),n_ssbb)
       n_hlp = max((bsize*maxbfsh*maxbfsh*nmo1),(maxbfsh*nbf))
@@ -141,13 +153,13 @@ c
             if (next.eq.ploop) then
               n_ijni = ilen*jlen*nbf*nmo1
               call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
-              do kb=1,nblk
-                call gr_sh_idx(nblk,int_mb(k_gmap),kb,kshlo,kshhi)
-                kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
+              do kb=1,ngrp
+                call gr_sh_idx(ngrp,int_mb(k_gmap),kb,kshlo,kshhi)
+                kblen = gr_len(ngrp,int_mb(k_gmap),kb,kbflo,kbfhi)
                 do lb=1,kb
-                  call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
-                  lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-                   call moints_gblk( basis, ish, jsh, kshlo, kshhi,
+                  call gr_sh_idx(ngrp,int_mb(k_gmap),lb,lshlo,lshhi)
+                  lblen = gr_len(ngrp,int_mb(k_gmap),lb,lbflo,lbfhi)
+                   call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
      $                               lshlo, lshhi, schw_ij, tol2e,
      $                               max2e, dbl_mb(k_eri),
      $                               mem2, dbl_mb(k_iscr),
@@ -175,7 +187,7 @@ c
                 enddo
               enddo
               if (oexch) then
-                call moints2x_trf2K( nbf, occ_start, mo1_lo, mo1_hi,
+                call moints2x_trf2K_old( nbf, occ_start, mo1_lo, mo1_hi,
      $                               ibflo, ibfhi, jbflo, jbfhi,
      $                               scale, dbl_mb(k_ssni),
      $                               dbl_mb(k_hlp), dbl_mb(k_hlp),
@@ -208,10 +220,18 @@ c
      $     call errquit('moints: failed to pop', l_ssbbt)
       if (.not. ma_pop_stack(l_ssbb))
      $     call errquit('moints: failed to pop', l_ssbb)
-      if (.not. ma_pop_stack(l_shmap))
-     $     call errquit('moints: failed to pop', l_shmap)
       if (.not. ma_pop_stack(l_gmap))
      $     call errquit('moints: failed to pop', l_gmap)
+      if (.not. ma_pop_stack(l_rbfmap))
+     $     call errquit('moints: failed to pop', l_rbfmap)
+      if (.not. ma_pop_stack(l_bfmap))
+     $     call errquit('moints: failed to pop', l_bfmap)
+      if (.not. ma_pop_stack(l_ghi))
+     $     call errquit('moints: failed to pop', l_ghi)
+      if (.not. ma_pop_stack(l_glo))
+     $     call errquit('moints: failed to pop', l_glo)
+      if (.not. ma_pop_stack(l_shmap))
+     $     call errquit('moints: failed to pop', l_shmap)
       if (.not. ma_pop_stack(l_iscr))
      $     call errquit('moints: failed to pop', l_iscr)
       if (.not. ma_pop_stack(l_eri))
