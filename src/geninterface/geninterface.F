@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.1 2003-03-31 23:16:56 windus Exp $
+C $Id: geninterface.F,v 1.2 2003-04-18 22:27:17 windus Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -229,6 +229,8 @@ C
 #include "geninterface.fh"
 
       integer geom
+      character*12 units
+      double precision scale
       double precision coords(*)
 
       setCoordinates = .false.
@@ -238,6 +240,17 @@ C
 
       if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
      $      call errquit('setCoordinates: geom_rtdb_load failed',555)
+
+      if (.not. geom_set_user_units(geom,'angstroms'))
+     $     call errquit
+     $     ('setInitCoordinates: failed setting user units',0)
+
+      if (.not. geom_get_user_scale(geom,scale))
+     $     call errquit
+     $     ('setInitCoordinates:: failed getting user scale',0)
+
+      if (scale.ne.1.0d0) 
+     $   call dscal(3*numatoms, scale, coords, 1)
 
       if (.not.geom_cart_coords_set(geom,coords))
      $      call errquit
@@ -267,6 +280,8 @@ C
       double precision coordinates(3,natoms)
       character*16 labels(natoms), element
       character*2 symbol
+      character*12 units
+      double precision scale
       double precision masses(natoms), charges(natoms)
       logical is_atom
 
@@ -274,6 +289,12 @@ C
 
       if (.not.geom_create(geom,'geometry'))
      $      call errquit('setCoordinates: geom_create failed',555)
+      if (.not. geom_set_user_units(geom,'angstroms'))
+     $     call errquit
+     $     ('setInitCoordinates: failed setting user units',0)
+      if (.not. geom_get_user_scale(geom,scale))
+     $     call errquit
+     $     ('setInitCoordinates:: failed getting user scale',0)
 
 c      if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
 c     $      call errquit
@@ -301,6 +322,9 @@ C  Map labels to atoms and charges
 
       call geom_check_input_quants
      $     (labels,masses,natoms,1.0d-8,'mass')
+
+      if (scale.ne.1.0d0) 
+     $   call dscal(3*natoms, scale, coordinates, 1)
 
       if (.not.geom_cart_set(geom,natoms,labels,coordinates,charges))
      $     call errquit
