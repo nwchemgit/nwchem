@@ -19,9 +19,11 @@ c
       integer type, nprim, ngen, sphcart, atn, nat
       character symbol*2, tag*16, element*20
       character*1 shtypes(-1:7)
+*
+      character*8 cartbf(-1:7,1:36)
+*
       data shtypes/'l','s', 'p', 'd', 'f', 'g', 'h', 'i', 'k'/
 c
-      character*8 cartbf(-1:7,1:36)
 c
 c     Sleazy initialization of cartesian bf info
 c
