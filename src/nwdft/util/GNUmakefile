@@ -1,30 +1,23 @@
-# $Id: GNUmakefile,v 1.5 1994-11-05 04:16:30 og845 Exp $
+# $Id: GNUmakefile,v 1.6 1994-11-07 02:09:18 og845 Exp $
 
       OBJ_OPTIMIZE = \
-	addarray.o 	\
 	dzero.o		\
-	fndgrp.o	\
 	ga_chol.o	\
-	ga_inverse.o			ga_scac.o	\
+	ga_inverse.o	ga_scac.o	\
 	gacrea.o	gat_lab_can.o	\
-	gather.o			getarray.o	\
+	gather.o	\
 	header.o	\
 	ijcanon.o	\
-	invio.o				izero.o	\
+	invio.o		izero.o	\
 	pertbl.o	\
 	sca_lab_mat.o	sca_lab_can.o		scatter.o	\
 	second.o	\
-	stdio_init.o	\
 	tmpfiles.o	\
 	tstamp.o	\
 	int_eval_gbsets.o \
-	bas_ncoef_cn_max.o		ga_chol_seq.o	\
-	ga_inv_seq.o			nmcoef.o	\
-	int_2e2c_can.o  int_2e3c_can.o
-#
-#	dsyrk.o				dlauum.o	\
-#	dtrtri.o
-#
+	bas_ncontr_cn_max.o		ga_chol_seq.o	\
+	ga_inv_seq.o \
+	int_2e3c_can.o	nbf_to_mbf.o
 
      LIBRARY = libnwdft.a
 
