@@ -56,6 +56,8 @@ c
       else
       call errquit('Error in ana_index',me)
       endif
+      ia=ia-nsgm
+      if(ia.le.0) call errquit('Error in ana_index',me)  
       atom=card(i+2:80)
       j=index(atom,' ')-1
       if(atom(1:1).eq.'_') atom(1:1)=' '
