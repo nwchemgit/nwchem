@@ -1,5 +1,5 @@
 /* 
-   $Id: paw_atom.c,v 1.4 2004-12-16 16:50:59 edo Exp $
+   $Id: paw_atom.c,v 1.5 2005-01-01 00:38:06 bylaska Exp $
 */
 
 
@@ -388,18 +388,16 @@ void   paw_init_paw_atom(char *infile)
 
   paw_init_comp_charge(r_comp);
 
-  paw_init_paw_basis(
-    nodal_constraint,
-    projector_method,
-    nbasis,
-    n,
-    l,
-    r_orb
-    );
+  paw_init_paw_basis(nodal_constraint,projector_method,nbasis,n,l,r_orb);
 
   V_ks = paw_get_kohn_sham_potential();
 
   paw_init_paw_potential(nbasis,c0,r_pot,r_orb,V_ks);
+
+  /* deallocate memory */
+  free(r_orb);
+  free(n);
+  free(l);
 
 }
 

@@ -1,5 +1,5 @@
 /*
-   $Id: paw_basis.c,v 1.6 2004-12-24 18:05:48 bylaska Exp $
+   $Id: paw_basis.c,v 1.7 2005-01-01 00:38:06 bylaska Exp $
 */
 
  /************************************
@@ -123,25 +123,29 @@ void paw_init_paw_basis(
   strcpy(projector_method,a_projector_method);
 
   nbasis = a_nbasis;
-  prin_n = a_n;
-  orb_l  = a_l;
-  r_orbital = r_match;
+  /*  prin_n = a_n; */
+  /*  orb_l  = a_l; */
+  /* r_orbital = r_match; */
+  
 
 
   /*maximum angular momentum in the basis*/
   max_orb_l = 0;
   for(i=0;i<=nbasis-1;i++)    
   {
-    if(max_orb_l < orb_l[i]) 
-      max_orb_l = orb_l[i];
+    if(max_orb_l < a_l[i]) 
+      max_orb_l = a_l[i];
   }  
 
   delta_ekin  = (int *) malloc( nbasis*      sizeof(int));
 
   orb_type    = (int *)    malloc( nbasis*      sizeof(int));  
   prin_n_ps   = (int *)    malloc( nbasis*      sizeof(int));
+  prin_n      = (int *)    malloc( nbasis*      sizeof(int));
+  orb_l       = (int *)    malloc( nbasis*      sizeof(int));
   l_counter   = (int *)    malloc((max_orb_l+1)*sizeof(int));
   i_r_orbital = (int *)    malloc( nbasis*      sizeof(int));
+  r_orbital   = (double *) malloc( nbasis*      sizeof(double));
   fill        = (double *) malloc( nbasis*      sizeof(double));
   e           = (double *) malloc( nbasis*      sizeof(double));
   e_ps        = (double *) malloc( nbasis*      sizeof(double));
@@ -167,6 +171,8 @@ void paw_init_paw_basis(
 
   for (i = 0; i < nbasis; ++i)
   {
+    prin_n[i] = a_n[i];
+    orb_l[i]  = a_l[i];
     
     phi0[i]         = paw_alloc_LogGrid();
     phi[i]          = paw_alloc_LogGrid();
@@ -212,8 +218,9 @@ void paw_init_paw_basis(
   /* set matching point for pseudoorbitals*/
   for(i=0;i<=nbasis-1;i++)    
   {
-    i_r_orbital[i] = paw_get_grid_index(r_orbital[i]);
-    r_orbital[i]   = rgrid[i_r_orbital[i]];  
+    i_r_orbital[i] = paw_get_grid_index(r_match[i]);
+    /*r_orbital[i] = rgrid[i_r_orbital[i]];  */
+    r_orbital[i]   = r_match[i];
   }
 
   /*largest sphere in the basis*/
@@ -341,8 +348,11 @@ void paw_end_paw_basis()
   free(delta_ekin);
   free(orb_type);
   free(prin_n_ps);
+  free(prin_n);
+  free(orb_l);
   free(l_counter); 
   free(i_r_orbital);
+  free(r_orbital);
   free(fill);  
   free(e);      
   free(e_ps);    

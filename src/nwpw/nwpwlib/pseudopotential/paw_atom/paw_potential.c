@@ -1,5 +1,5 @@
 /*
-   $Id: paw_potential.c,v 1.3 2004-10-14 22:05:03 bylaska Exp $
+   $Id: paw_potential.c,v 1.4 2005-01-01 00:38:06 bylaska Exp $
 */
 
 /************************************
@@ -284,7 +284,8 @@ void paw_init_paw_potential(int a_nbasis,
   for(i=0; i <= nbasis-1;i++)
   {
     i_r_potential[i] = paw_get_grid_index(a_r_potential[i]);
-    r_potential[i]   = rgrid[i_r_potential[i]];
+    /*r_potential[i]   = rgrid[i_r_potential[i]];*/
+    r_potential[i] = a_r_potential[i];
     rc_pot[i] = paw_find_rc_pot(r_potential[i]);
   }
 
@@ -320,8 +321,12 @@ void paw_init_paw_potential(int a_nbasis,
       fcut[i][k] = exp(-pow((rgrid[k]/rc_pot[i]),lambda));
 
   /*Initialize coefficients for the construction of PS potential*/
+  for (i=0; i<nbasis; ++i)
+    c[i] = V_ks[i_r_potential[i]];
+/*
   for (i = 0; i < nbasis; ++i)
     c[i] = V_ks[paw_get_grid_index(r_potential[i])];
+*/
 
 
   /* set initial paw potential*/
