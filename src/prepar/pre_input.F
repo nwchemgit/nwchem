@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.111 2003-09-26 15:44:05 d3j191 Exp $
+c $Id: pre_input.F,v 1.112 2003-09-26 16:46:21 d3j191 Exp $
 c
       implicit none
 c
@@ -417,8 +417,9 @@ c     --------------------------
 c
       if(inp_compare(.false.,'grid',item)) then
       if(.not.inp_i(mgrid)) call errquit('pre_input: grid',9999)
-      do 6865 i=1,3
+      do 6865 i=1,4
       if(inp_f(rgrid)) goto 6867
+      if(i.eq.4) goto 6867
       if(.not.inp_a(item)) call errquit('pre_input: grid',9999)
       j=-1
       if(inp_compare(.false.,'inside',item)) j=0
