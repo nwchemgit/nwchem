@@ -65,6 +65,12 @@ class nwchem_Main extends JFrame implements ActionListener, WindowListener {
     view.add(rasmol = new JMenuItem("Rasmol"));
     view.add(gopmol = new JMenuItem("gOpenMol"));
     view.add(proper = new JMenuItem("property"));
+    proper.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+	System.out.println("Property Viewer");
+	nwchem_Property proper_View = new nwchem_Property();
+	proper_View.setVisible(true);
+      }});
     view.add(synch  = new JMenuItem("synchronization"));
     synch.addActionListener(new ActionListener(){
       public void actionPerformed(ActionEvent e){
