@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.43 1999-02-22 05:14:41 gutowski Exp $
+# $Id: GNUmakefile,v 1.44 1999-06-11 17:24:50 edo Exp $
 #
 
    OBJ = dft_grad_top.o  dftg_force.o \
@@ -19,7 +19,7 @@ ifeq ($(NWCHEM_TARGET),SGITFP)
    OBJ_OPTIMIZE = dftg_quadv0b.o 
 endif
 
-   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F
+   USES_BLAS = dftg_cdfit.F dftg_quadv0a.F dftg_quadv0b.F dftg_wderiv.F j_nucder_gen.F dft_gradients.o
 
 LIB_INCLUDES = -I../nwdft/include
 
