@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.28 2005-01-26 23:57:22 bylaska Exp $
+c $Id: nwpw_input.F,v 1.29 2005-01-28 01:31:43 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -521,6 +521,27 @@ c
      >                    1,exchange_correlation(1:ind))
      >   .and.rtdb_cput(rtdb,'cpmd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
+
+      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
+      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
+
+      if ((inp_compare(.false.,exchange_correlation,'lda-sic')).or.
+     >    (inp_compare(.false.,exchange_correlation,'pbe96-sic'))) then
+       if (inp_f(fe)) then
+         value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,fe)
+         value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,fe)
+       end if
+      end if
+
+
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 3000, RTDB_ERR)
