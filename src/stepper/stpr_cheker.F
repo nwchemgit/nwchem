@@ -4,7 +4,7 @@
      &       CONVGE, CONVGG, CONVGGM,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.7 1998-04-21 06:57:26 mdupuis Exp $
+c $Id: stpr_cheker.F,v 1.8 1998-04-21 19:17:09 mdupuis Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD
 #include "chow.fh"
@@ -57,11 +57,12 @@ C       1. Structure of HESS (proper number of negative eigenvalues),
 C       2. Energy convergence, and
 C       3. Gradient convergence.
 C
-      write(6,9875)
-      write(6,9876) ediff,glngth,gmxmum
-      write(6,9876) convge,convgg,convggm
- 9875 format('       e-diff       ','  g-norm  ','  g-max   ')
- 9876 format(f20.10,f10.6,f10.6)
+      write(6,9876)
+      write(6,9875) ediff,glngth,gmxmum
+      write(6,9874) convge,convgg,convggm
+ 9876 format('               e-diff       ','  g-norm  ','   g-max   ')
+ 9875 format(' value',f20.10,f10.6,f10.6)
+ 9874 format(' thres',f20.10,f10.6,f10.6)
       IF((NNEG.EQ.0.AND..NOT.TS).OR.(NNEG.EQ.1.AND.TS))THEN
         IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG
      &                         .AND.GMXMUM.LT.CONVGGM)THEN
