@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.27 1994-09-22 13:39:01 d3e129 Exp $
+c $Id: raktest.F,v 1.28 1994-09-28 00:15:41 d3e129 Exp $
 #include "global.fh"
       integer rtdb
 c::functions
@@ -35,6 +35,11 @@ c
      &      'time for rak test',t1
       endif
       end
+      logical function gen_apphess_opt(rtdb,delta)
+      implicit none
+      integer rtdb
+      double precision delta
+      end
       logical function gen_apphess_at(rtdb,delta)
       implicit none
 #include "mafdecls.fh"
@@ -52,7 +57,7 @@ c::passed
       double precision delta
 c::local
       integer whoiam, master
-      integer geom,geom_ref, geom_delta
+      integer geom
       integer nat, rank_hess
       integer basis
       integer h_grad0, k_grad0 ! handle/index for central gradient
@@ -61,8 +66,10 @@ c::local
       integer iatom, ixyz
       logical ignore_status
       double precision xyz(3), chg
+      character*5 tmpname
       character*16 tag_name
-      character*255 mo_basis, fd_basis
+      character*40 new_geom_name
+      character*255 mo_basis, fd_basis, mo_basis_ref
 c
       whoiam = ga_nodeid()
       master = 0
@@ -79,26 +86,20 @@ c..  get the number of atoms
      &      ('gen_apphess_at:geom_ncent failed?',3)
 c
 c.. copy reference geometry and store on rtdb
-        if (.not.geom_create_copy(geom,geom_ref,'reference'))
-     &      call errquit
-     &      ('gen_apphess_at:geom_create_copy failed?',4)
         if (.not.
-     &      geom_rtdb_store(rtdb,geom_ref,'reference'))
+     &      geom_rtdb_store(rtdb,geom,'reference'))
      &      call errquit('gen_apphess_at: geom_rtdb_store failed',5)
-c.. destroy incore copy of reference geometry
-c
-        if(.not.geom_destroy(geom_ref)) call errquit
-     &      ('gen_apphess_at: geom_destroy failed?',6)
 c
 c.. determine what fd basis name is
 c
         if (.not.context_rtdb_match(rtdb,'mo basis',mo_basis))
      &      mo_basis = 'mo basis'
+        mo_basis_ref = mo_basis
         if (.not.context_rtdb_match(rtdb,'fd basis',fd_basis))
      &      fd_basis = 'fd basis'
 c
 c.. try to load "fd basis"
-c.. create basis hangle
+c.. create basis handle
         if(.not.bas_create(basis,'fd basis')) call errquit
      &      ('gen_apphess_at: bas_create failed?',7)
         if(bas_rtdb_load(rtdb,geom,basis,'fd basis')) then
@@ -108,14 +109,21 @@ c...  if fd basis not defined use current mo_basis
           fd_basis = mo_basis
         endif
 c
+c set "mo basis" to point to "fd basis"
         if (.not.rtdb_cput(rtdb,'mo basis',1,fd_basis)) call errquit
      &      ('gen_apphess_at: rtdb_cpu failed?',8)
 c
-        if (.not.(bas_destroy(basis).and.
-     &      geom_destroy(geom))) call errquit
-     &      ('gen_apphess_at: {geom,bas}_destroy failed?',9)
-c all nodes work here 
+        if (.not.(bas_destroy(basis))) call errquit
+     &      ('gen_apphess_at: bas_destroy failed?',9)
+        if (.not.(geom_destroy(geom))) call errquit
+     &      ('gen_apphess_at: geom_destroy failed?',9)
+c set "geometry" to "reference"
+        new_geom_name='reference'
+        if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     &      call errquit
+     &        ('gen_apphess_at: rtdb_cput failed ?',911)
       endif
+c all nodes work here 
 c
 c..      broadcast number of atoms
 c
@@ -154,35 +162,39 @@ c.. get central gradient
      &      call errquit('gen_apphess_at: rtdb_get failed',13)
 c
       endif
+c
+c... all nodes doing work here
       call ga_sync()
       call util_flush(6)
       do 00100 iatom = 1,nat
         do 00200 ixyz = 1,3
           if(whoiam.eq.master) then
-            if (.not.geom_create(geom_ref,'reference')) call errquit
+c... master node only
+            if (.not.geom_create(geom,'reference')) call errquit
      &          ('gen_apphess_at:geom_create failed?',14)
-            if (.not.geom_rtdb_load(rtdb,geom_ref,'reference'))
+            if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &          call errquit
      &          ('gen_apphess_at:geom_rtdb_load failed?',15)
-            if (.not.geom_cent_get(geom_ref,iatom,tag_name,xyz,chg))
+            if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
      &          call errquit
      &          ('gen_apphess_at:geom_cent_get failed?',16)
             xyz(ixyz) = xyz(ixyz) + delta
-            if (.not.geom_cent_set(geom_ref,iatom,tag_name,xyz,chg))
+            if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
      &          call errquit
      &          ('gen_apphess_at:geom_cent_get failed?',17)
 c.. copy modified geometry and store on rtdb
-            if (.not.geom_create_copy(geom_ref,geom_delta,'geometry'))
-     &          call errquit
-     &          ('gen_apphess_at:geom_create_copy failed?',18)
+            write(tmpname,'(i3,1x,i1)')iatom,ixyz
+            new_geom_name = 'reference '//tmpname
             if (.not.
-     &          geom_rtdb_store(rtdb,geom_delta,'geometry'))
+     &          geom_rtdb_store(rtdb,geom,new_geom_name))
      &          call errquit
      &          ('gen_apphess_at: geom_rtdb_store failed',19)
-            if (.not.geom_destroy(geom_ref))
+            if (.not.geom_destroy(geom))
      &          call errquit('gen_apphess_at: geom_destroy failed?',20)
-            if (.not.geom_destroy(geom_delta))
-     &          call errquit('gen_apphess_at: geom_destroy failed?',20)
+c set "geometry" to "reference atom/xyz"
+            if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
+     &          call errquit
+     &          ('gen_apphess_at: rtdb_cput failed ?',911)
           endif
           call ga_sync()
           ignore_status = rtdb_parallel(.true.)
@@ -193,8 +205,8 @@ c.. copy modified geometry and store on rtdb
             if(.not. rtdb_get(rtdb,'scf:gradients',MT_DBL,
      &          rank_hess,dbl_mb(k_gradp)))
      &          call errquit('gen_apphess_at: rtdb_get failed',21)
-            call fd_cdupd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
-     &          dbl_mb(k_gradp),delta,nat,iatom,ixyz)
+            call fd_upd_hess(dbl_mb(k_hess),dbl_mb(k_grad0),
+     &          dbl_mb(k_gradp),1.0d00,delta,nat,iatom,ixyz)
           endif
 00200   continue
 00100 continue
@@ -203,31 +215,18 @@ c
         write(6,*)' finite difference hessian delta = ',delta
         call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
      &      rank_hess,rank_hess,1)
-        call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'new_fd_hess')
-        write(6,*)' triangle hessian written to new_fd_hess'
+        call wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,'hess_ascii')
+        write(6,*)' triangle hessian written to hess_ascii'
         
 c.. redefine mo basis to it's original setting
-        if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis)) call errquit
+        if (.not.rtdb_cput(rtdb,'mo basis',1,mo_basis_ref))
+     &      call errquit
      &      ('gen_apphess_at: rtdb_cpu failed?',22)
-c.. reinstate reference geometry as current geometry
-        if (.not.geom_create(geom_ref,'reference')) call errquit
-     &      ('gen_apphess_at:geom_create failed?',23)
-        if (.not.geom_rtdb_load(rtdb,geom_ref,'reference'))
-     &      call errquit
-     &      ('gen_apphess_at:geom_rtdb_load failed?',24)
-c.. copy reference geometry and store on rtdb
-        if (.not.geom_create_copy(geom_ref,geom,'geometry'))
-     &      call errquit
-     &      ('gen_apphess_at:geom_create_copy failed?',25)
-        if (.not.
-     &      geom_rtdb_store(rtdb,geom,'geometry'))
-     &      call errquit('gen_apphess_at: geom_rtdb_store failed',26)
-c.. destroy incore copy of reference and geometry geometries
+c set "geometry" to "geometry"
+            if(.not.rtdb_cput(rtdb,'geometry',1,'geometry'))
+     &          call errquit
+     &          ('gen_apphess_at: rtdb_cput failed ?',911)
 c
-        if(.not.geom_destroy(geom))
-     &      call errquit('gen_apphess_at: geom_destroy failed?',27)
-        if(.not.geom_destroy(geom_ref))
-     &      call errquit('gen_apphess_at: geom_destroy failed?',27)
         if(.not.ma_pop_stack(h_hess)) call errquit
      &      ('gen_apphess_at: ma_pop_stack(h_hess) failed?',27)
         if(.not.ma_pop_stack(h_gradp)) call errquit
@@ -264,26 +263,29 @@ c
 10000 format(1x,1pd20.10)
 c
       end
-      subroutine fd_cdupd_hess(hess,grad0,gradp,delta,nat,
+      subroutine fd_upd_hess(hess,gradm,gradp,s_delta,delta,nat,
      &    iatom_t,ixyz_t)
       implicit none
 c::passed
       integer nat
       integer iatom_t, ixyz_t
       double precision hess(3,nat,3,nat)
-      double precision grad0(3,nat)
+      double precision gradm(3,nat)
       double precision gradp(3,nat)
-      double precision delta
+      double precision delta, s_delta
 c::local
       integer iatom,ixyz
       double precision rdelta, value
 c
-c central difference [f(x+delta) - f(x)]/delta
+c 
+c finite difference  [g(x+delta) - g(x-delta)]/(s_delta*delta) (s_delta = 2.0)
+c central difference [g(x+delta) - g(x)]/(s_delta*delta) (s_delta = 1.0)
+c 
 c
-      rdelta = 1.0d00/delta
+      rdelta = 1.0d00/(s_delta*delta)
       do 00100 iatom = 1,nat
         do 00200 ixyz = 1,3
-          value = rdelta*(gradp(ixyz,iatom)-grad0(ixyz,iatom))
+          value = rdelta*(gradp(ixyz,iatom)-gradm(ixyz,iatom))
           hess(ixyz_t,iatom_t,ixyz,iatom) = value
           hess(ixyz,iatom,ixyz_t,iatom_t) = value
 00200   continue

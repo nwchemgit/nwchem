@@ -944,55 +944,6 @@ c
       enddo
 c
       end
-      logical function geom_create_copy(geom_exist,geom_new,new_name)
-      implicit none
-c
-c routine to copy a current/loaded geometry to a new one. 
-c
-#include "geomP.fh"
-#include "inp.fh"
-c::functions
-      logical geom_create
-      external geom_create
-c::passed
-      integer geom_exist  ! handle that exists
-      integer geom_new    ! handle of new geometry
-      character *(*) new_name  ! name of new geometry
-c::local
-      integer i
-c
-      if (.not.active(geom_exist)) call errquit
-     &    ('geom_create_copy: existing geometry not active',911)
-c
-      if (.not.geom_create(geom_new,new_name)) call errquit
-     &    ('geom_create_copy: new handle not available',911)
-c
-      call dcopy((3*ncenter(geom_exist)),coords(1,1,geom_exist),1,
-     &    coords(1,1,geom_new),1)
-      call dcopy(ncenter(geom_exist),charge(1,geom_exist),1,
-     &    charge(1,geom_new),1)
-      call dcopy(3,efield(1,geom_exist),1,efield(1,geom_new),1)
-      call dcopy((3*3),latvec(1,1,geom_exist),1,latvec(1,1,geom_new),1)
-      erep(geom_new) = erep(geom_exist)
-      call dcopy(3,ndipole(1,geom_exist),1,ndipole(1,geom_new),1)
-      ncenter(geom_new) = ncenter(geom_exist)
-      lenn(geom_new) = inp_strlen(new_name)
-      lent(geom_new) = inp_strlen(new_name)
-      lenr(geom_new) = inp_strlen(new_name)
-      operiodic(geom_new) = operiodic(geom_exist)
-      oefield(geom_new) = oefield(geom_exist)
-      do 00100 i = 1,ncenter(geom_exist)
-        tags(i,geom_new) = tags(i,geom_exist)
-00100 continue
-c     compute effective nuclear repulsion energy, dipole and
-c     interaction with external fields
-c
-      call geom_compute_values(geom_new)
-      geom_create_copy = .true.
-      return
-10000 continue
-      geom_create_copy = .false.
-      end
 c
       logical function geom_verify_coords(geom)
       implicit none
@@ -1046,66 +997,7 @@ c
 *      write(6,*)' distance minimum =',
 *     &    dist_min, geom_verify_coords
 c
+      if (geom_verify_coords) return
+      write(6,*)' ************ WARNING ******************' 
+      write(6,*)' at least two atoms are at the same physical location'
       end
-      logical function geom_create_rtdb_copy
-     &    (rtdb, e_geom,e_name,n_geom,n_name,keepit)
-      implicit none
-c
-c routine to copy a current rtdb geometry to a new one with a new name. 
-c optionally keeps new handle active.
-c current status of e_geom is preserved.
-c
-#include "geomP.fh"
-c::functions
-      logical geom_create
-      external geom_create
-      logical geom_create_copy
-      external geom_create_copy
-      logical geom_rtdb_load
-      external geom_rtdb_load
-      logical geom_rtdb_store
-      external geom_rtdb_store
-      logical geom_destroy
-      external geom_destroy
-c::passed
-      integer rtdb    ! [input] rtdb handle
-      integer e_geom  ! [input] handle that exists on rtdb
-      integer n_geom  ! [output] handle of new geometry
-      character *(*) e_name  ! [input] name of existing geometry
-      character *(*) n_name  ! [input] name of new geometry
-      logical keepit         ! [input] keep new geometry handle active??
-c::local
-      logical e_status
-c
-      e_status = e_geom.gt.0.and.e_geom.le.max_geom
-      if(e_status)e_status = e_status.and.active(e_geom)
-      if (.not.e_status) then
-        if (.not.geom_create(e_geom,e_name)) call errquit
-     &      ('geom_create_rtdb_copy: new handle not available',911)
-      endif
-c
-      if (.not.geom_rtdb_load(rtdb,e_geom,e_name)) call errquit
-     &    ('geom_create_rtdb_copy: geom_rtdb_load failed?',911)
-c
-      if (.not.geom_create_copy(e_geom,n_geom,n_name)) call errquit
-     &    ('geom_create_rtdb_copy: geom_create_copy failed?',911)
-c
-      if (.not.geom_rtdb_store(rtdb,n_geom,n_name)) call errquit
-     &    ('geom_create_rtdb_copy: geom_rtdb_store failed?',911)
-c
-      if (.not.keepit) then
-        if (.not.geom_destroy(n_geom)) call errquit
-     &      ('geom_create_rtdb_copy: geom_destroy failed?',911)
-      endif
-c
-      if (.not.e_status) then
-        if (.not.geom_destroy(e_geom)) call errquit
-     &      ('geom_create_rtdb_copy: geom_destroy failed?',911)
-      endif
-c
-      geom_create_rtdb_copy = .true.
-      return
-10000 continue
-      geom_create_rtdb_copy = .false.
-      end
-c
