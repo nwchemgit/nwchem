@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.7 2002-06-06 16:22:57 bylaska Exp $
+* $Id: cstrfac.F,v 1.8 2002-06-06 19:38:08 bylaska Exp $
 *
 
 *     ***********************************
@@ -76,7 +76,7 @@
         int_mb(k_indx_list(1)+2*nb+1)=k_indx(2) 
       
         do k=0,nz-1
-         call D3dB_ktoqp(1,(k+1),q,p)
+         call C3dB_ktoqp(1,(k+1),q,p)
          if (p.eq.taskid) then
             do j=0,ny-1
             do i=0,nx-1
