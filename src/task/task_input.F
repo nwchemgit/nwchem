@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.37 2004-12-21 16:55:19 bylaska Exp $
+* $Id: task_input.F,v 1.38 2005-04-01 03:13:14 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -168,6 +168,7 @@ c
      &       RTDB_ERR)
         if (operation.ne.'energy' .and.
      >      operation.ne.'optimize' .and.
+     >      operation.ne.'neb' .and.
      >      operation.ne.'saddle' .and.
      >      operation.ne.'frequencies' .and.
      >      operation.ne.'hessian' .and.

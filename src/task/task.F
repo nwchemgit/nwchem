@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.67 2005-01-13 23:19:00 marat Exp $
+* $Id: task.F,v 1.68 2005-04-01 03:13:14 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -31,6 +31,7 @@ c
       character*80 errmsg
       double precision task_cpu, task_wall
       logical oprint_task_times, odebug
+      character*32 bqname
 c
       logical ocons
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
@@ -40,7 +41,7 @@ c
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
-      logical task_qmmm, task_python, task_thermo
+      logical task_qmmm, task_python, task_thermo,task_bq
       logical task_version, task_vscf
       logical task_paw 
       logical task_pspw,task_band
@@ -68,6 +69,9 @@ c
       external task_drdy
       external task_et
       external task_property
+
+      logical bq_init
+      external bq_init
 c
       logical task_qmmm_optimize
       external task_qmmm_optimize
@@ -92,6 +96,12 @@ c
 *
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
+c
+      if (rtdb_cget(rtdb,'bq',1,bqname)) then
+         task_bq = .true.
+      else
+         task_bq = .false. 
+      end if
 c      
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
@@ -102,7 +112,7 @@ c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
 c
-c     if neede initialize qmmm for the duration of the task
+c     if needed initialize qmmm for the duration of the task
 c
       if (task_qmmm) then
         status = qmmm_init(rtdb)
@@ -113,6 +123,13 @@ c
 c
       ocons = cons_active(rtdb)
       if(ocons) call cons_init(rtdb)
+c
+      if(task_bq) then
+       status = bq_init(rtdb)
+       if ((ga_nodeid().eq.0) .and. (.not. status)) then
+              call errquit("failed to initialize bq", 0, CALC_ERR)
+        end if
+      end if
 c
 c Look for speciallized routine tasks here 
 c
