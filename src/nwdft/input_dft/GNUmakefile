@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.20 1996-10-23 05:49:07 d3g681 Exp $
+# $Id: GNUmakefile,v 1.21 1996-12-20 00:51:55 d3h449 Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -9,7 +9,7 @@
      LIBRARY = libnwdft.a
 LIB_INCLUDES = -I../include
 
-#   USES_BLAS =
+   USES_BLAS = xc_setquad.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

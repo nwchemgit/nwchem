@@ -5,7 +5,7 @@ c     Analyze input to deduce nature of system, and set key flags.
 c
 c***********************************************************************
       subroutine dft_inpana(rtdb)
-C$Id: dft_inpana.F,v 1.14 1996-10-23 01:18:40 gutowski Exp $
+C$Id: dft_inpana.F,v 1.15 1996-12-20 00:51:54 d3h449 Exp $
       implicit none
       logical even, cksetd
       integer noc(2)
@@ -121,7 +121,7 @@ c-->    Write to output.
 c
         write(LuOut,8150)ncenters
 c
-        write(LuOut,8200)nel,ichg,mult
+        write(LuOut,8200)nel,noc(1),noc(2),ichg,mult
 c
         write(LuOut,9000)
 c     
@@ -241,6 +241,8 @@ c
      &       /,5x,'Stopping program in subroutine inpana.')
  8150 format(/,10x,'No. of atoms      :',15x,i4)
  8200 format(/,10x,'No. of electrons  :',15x,i4,
+     &       /,10x,' Alpha electrons  :',15x,i4,
+     &       /,10x,'  Beta electrons  :',15x,i4,
      &      //,10x,'Charge            :',15x,i4,
      &      //,10x,'Spin multiplicity :',15x,i4)
       end
