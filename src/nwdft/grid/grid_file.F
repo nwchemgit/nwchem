@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.60 2005-01-11 05:32:37 edo Exp $
+* $Id: grid_file.F,v 1.61 2005-01-28 18:52:33 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -156,6 +156,10 @@ c
          open(unit=gr_unit,file=grinfo,status='unknown',
      .        form='formatted')
 #else
+#if defined(AIX) || defined(XLFLINUX) 
+         close(unit=gr_unit,status='keep',iostat=ioserr)
+C         write(0,*) ' ios_out ',ioserr
+#endif	
          open(unit=gr_unit,file=grinfo,status='replace',
      .        form='formatted')
 #endif
