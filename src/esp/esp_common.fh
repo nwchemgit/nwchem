@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.9 1999-01-27 18:17:59 d3j191 Exp $
+c $Id: esp_common.fh,v 1.10 2000-05-04 07:09:56 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -37,7 +37,6 @@ c
 c     esp_chr : character variables
 c
       character*12 labelf(4),labelc(4)
-      character*20 scftyp
       character*80 movfil,grdfil,erfil,pltfil,xyzfil,chgfil
       character*255 title,basnam
       common/esp_chr/title,basnam,movfil,grdfil,labelf,labelc,erfil,

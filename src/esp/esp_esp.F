@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.17 2000-03-14 06:20:33 d3j191 Exp $
+c $Id: esp_esp.F,v 1.18 2000-05-04 07:09:57 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
 c
       integer l_bt,ibtptr,l_st,istptr
 c
-      integer i,j,ish,jsh,ix,jx,ifr
+      integer i,j,ish,jsh,ix
       integer ilo,ihi,jlo,jhi
       real*8 dist,vt
       integer imin,nval,jshi

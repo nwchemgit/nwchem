@@ -1,6 +1,6 @@
       subroutine esp_matinv(a,n,is,iad1,iad2,d,mdm)
 c
-c $Id: esp_matinv.F,v 1.3 1997-10-08 17:36:08 d3j191 Exp $
+c $Id: esp_matinv.F,v 1.4 2000-05-04 07:09:57 d3j191 Exp $
 c
       implicit none
 c
@@ -16,6 +16,9 @@ c
 c
       integer i,j,k,l,m,ima
       real*8 b,e
+c
+      i=0
+      k=0
 c
       do 1 l=1,n
       is(1,l)=0

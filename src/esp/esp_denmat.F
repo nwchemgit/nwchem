@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.6 1998-12-28 21:54:36 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.7 2000-05-04 07:09:56 d3j191 Exp $
 c
       implicit none
 c
@@ -20,11 +20,11 @@ c
 c
       real*8 ene(nbf),occ(nbf)
 c
-      integer ilo,ihi,jlo,jhi,lthi,lthj,i,j
+      integer ilo,ihi,jlo,jhi,lthi,lthj,i
       integer lg_s,k_scr,l_scr,icol
 c
       real*8 scale
-      logical lresult
+      character*20 scftyp
 c
 c     allocate global arrays
 c
