@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.11 1998-09-15 00:01:29 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.12 1998-09-23 21:59:02 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -101,6 +101,7 @@ c
       lseq(1,iseq+1)=0
       lseq(2,iseq+1)=0
       lseq(4,iseq+1)=0
+      imol=iabs(imol)
       goto 1
 c
     9 continue
