@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.94 1999-03-15 21:15:07 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.95 1999-05-19 20:37:52 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -70,7 +70,7 @@ EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
 EXP_argos = prepar nwargos analyz
-EXP_md  = prepar nwmd analyz
+EXP_md  = prepar nwargos nwmd analyz ddscf nwdft
 EXP_qmmd = gradients ideaz
 
 # Check each expansion
