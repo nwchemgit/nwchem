@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.15 1995-11-28 23:56:36 hltaylor Exp $
+C$Id: dft_scf.F,v 1.16 1995-11-29 23:16:47 hltaylor Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -17,7 +17,8 @@ C$Id: dft_scf.F,v 1.15 1995-11-28 23:56:36 hltaylor Exp $
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri
       
-**  #define SC95
+c**** patches for SC95,  ECCE' parsing
+***** #define SC95
 
 #include "bas.fh"
 #include "geom.fh"
@@ -88,7 +89,7 @@ C$Id: dft_scf.F,v 1.15 1995-11-28 23:56:36 hltaylor Exp $
       double precision dft_dencvg,dabssum
       external dft_dencvg,dabssum
 
-#ifdef SC95
+#if defined(SC95)
       double precision homo_lumo_gap
       logical movecs_to_logfile
       integer n_homo, n_lumo            ! # of HOMOs, LUMOs to output to stdout
@@ -924,7 +925,7 @@ c****
      &         call errquit('rhf: movec_write failed', 0)
           call ga_sync()
           if(me.eq.0) then
-#ifdef SC95
+#if defined(SC95)
             homo_lumo_gap = min( dbl_mb( ISbn2(1)+noc(1)),
      &                           dbl_mb( ISbn2(2)+noc(2) ) )
      &           - max( dbl_mb( ISbn2(1)+noc(1)-1),
@@ -967,12 +968,32 @@ c****
 
         endif 
 c-----------------------------------------------------------------------
-#ifdef SC95
-          if (.not.
-     &         movecs_to_logfile( rtdb, 
-     &         nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
-     &         dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
-     &         call errquit('rhf: movecs_to_logfile failed', 2)
+#if defined(SC95)
+c****   number of HOMOs and LUMOs to output to logfile, if any
+        if ( converged ) then
+
+          if (.not. rtdb_get(rtdb, 'dft:n_HOMO_to_logfile',
+     &         mt_int, 1, n_homo)) n_homo = 0
+          if (.not. rtdb_get(rtdb, 'dft:n_LUMO_to_logfile',
+     &         mt_int, 1, n_lumo)) n_lumo = 0
+c****     check values
+          if ( nsets.eq.2 ) then ! spin-unrestricted
+            n_homo = min( n_homo, noc(1), noc(2) )
+            n_lumo = min( n_lumo, nbf_ao-noc(1), nbf_ao-noc(2) )
+          else  ! ! spin-restricted
+            n_homo = min( n_homo, noc(1) )
+            n_lumo = min( n_lumo, nbf_ao-noc(1) )
+          endif 
+
+          if ( n_homo.gt.0 .or. n_lumo.gt.0 ) then ! yes, output MO coeff.
+
+            if (.not.
+     &           movecs_to_logfile( rtdb, n_homo, n_lumo,
+     &           nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
+     &           dbl_mb(ISbn2(1)), nbf_ao, g_evecs))
+     &           call errquit('dft_scf: movecs_to_logfile failed', 2)
+          endif 
+        endif 
 #endif
 
 c****   
