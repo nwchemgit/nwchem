@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.31 1999-08-25 18:28:23 d3j191 Exp $
+c $Id: md_main.F,v 1.32 1999-08-26 14:37:24 d3j191 Exp $
 c
       implicit none
 c
@@ -994,7 +994,7 @@ c
 c
 c     dynamic load balancing
 c
-      call sp_balanc(timer_wall(2))
+      call sp_balanc(stime,timer_wall(2))
 c
 c     atom redistribution
 c
