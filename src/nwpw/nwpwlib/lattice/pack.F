@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.9 2003-02-20 18:40:20 bylaska Exp $
+* $Id: pack.F,v 1.10 2003-03-19 00:45:58 bylaska Exp $
 *
 
 
@@ -1472,11 +1472,11 @@ c      end do
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
-      integer i,p,q,taskid
+      integer p,q,taskid
 
       call Parallel_taskid(taskid)
       call D3dB_ktoqp(1,1,q,p)
-      if (p.eq.taskid) A(1) = vzero
+      if (p.eq.taskid) A(1) = dcmplx(vzero,0.0d0)
 
       return
       end

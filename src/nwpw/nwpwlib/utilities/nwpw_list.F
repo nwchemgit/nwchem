@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_list.F,v 1.1 2002-12-11 18:14:01 bylaska Exp $ 
+*     $Id: nwpw_list.F,v 1.2 2003-03-19 00:45:59 bylaska Exp $ 
 *
       subroutine nwpw_list_start(size_list0,nsize0)
       implicit none
@@ -127,6 +127,51 @@
          indx(i) = indx(i+1)
       end do
       indx(size_list) = tmp
+      
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *        nwpw_list_remove          *
+*     *                                  *
+*     ************************************
+      subroutine nwpw_list_remove(k)
+      implicit none
+      integer k
+
+#include "nwpw_list_common.fh"
+
+*     **** local variables ****
+      integer i,tmp
+      
+      tmp = indx(k)
+      do i=k,size_list-1
+         indx(i) = indx(i+1)
+      end do
+      indx(size_list) = tmp
+      
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *        nwpw_list_swap            *
+*     *                                  *
+*     ************************************
+      subroutine nwpw_list_swap(j,k)
+      implicit none
+      integer j,k
+
+#include "nwpw_list_common.fh"
+
+*     **** local variables ****
+      integer tmp
+      
+      tmp     = indx(k)
+      indx(k) = indx(j)
+      indx(j) = tmp
+
       
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.36 2003-03-06 03:19:31 bylaska Exp $
+* $Id: control.F,v 1.37 2003-03-19 00:45:58 bylaska Exp $
 *
 
 *     ***********************************
@@ -212,7 +212,7 @@ c
       end if
 
       if (.not. rtdb_get(rtdb,'cgsd:ks_alpha',mt_dbl,1,ks_alpha))
-     >   ks_alpha = 0.25d0
+     >   ks_alpha = 1.00d0
 
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
@@ -346,6 +346,10 @@ c
 
 *     **** paw_sd: stuff ****
       else if (code.eq.6) then
+
+      if (.not.rtdb_get(rtdb,'cgsd:geometry_optimize',mt_log,1,move))
+     >   move = .false.
+
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
       value = value.and.
@@ -362,7 +366,6 @@ c
       else
          gga = 1
       end if
-      move = .false.
       value = value.and.
      >        rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp)
       value = value.and.

@@ -1,5 +1,5 @@
 *
-* $Id: matrix.f,v 1.1 2001-11-14 17:49:59 edo Exp $
+* $Id: matrix.f,v 1.2 2003-03-19 00:45:59 bylaska Exp $
 *
       SUBROUTINE EIGEN(NEMAX,NE,HML,EIG,WORK,IERR)
 *     =======================================
@@ -23,6 +23,29 @@
  1000 FORMAT(I8,E20.10)
       RETURN
       END
+
+*     =======================================
+*     DIAGONALIZATION OF HAMILTONIAN MATRIX 
+*     =======================================
+      SUBROUTINE EIGEN_UNSORT(NEMAX,NE,HML,EIG,WORK,IERR)
+      implicit double precision(a-h, o-z)
+      DIMENSION EIG(*),HML(NEMAX,*),WORK(*)
+
+      CALL DCOPY(NEMAX,0.0d0,0,EIG,1)
+      IF(NE.EQ.0) RETURN
+      IF(NE.EQ.1) THEN
+        EIG(1)=HML(1,1)
+        HML(1,1)=1.0d0
+        RETURN
+      ENDIF
+      CALL TRED3(HML,NE,NEMAX,EIG,WORK)
+      CALL TQLI(EIG,WORK,NE,NEMAX,HML,IERR)
+
+      RETURN
+      END
+
+
+
 
       SUBROUTINE EIGSRT(D,V,N,NP)
 *     -----------------------------------------------------------------
