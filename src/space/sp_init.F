@@ -4,10 +4,10 @@
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
-     + ldbg,idbg,prjct,mbbi)
+     + ldbg,idbg,prjct,mbbi,nseri)
 c
 c
-c $Id: sp_init.F,v 1.66 2000-05-12 14:58:17 d3j191 Exp $
+c $Id: sp_init.F,v 1.67 2000-05-12 17:25:18 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
       real*8 temp,tempw,temps,fld
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi
+      integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
@@ -73,6 +73,7 @@ c
       msa=msai
       mbbreq=mbbi
       mbblp=0
+      nserie=nseri
 c
       iguide=iguidi
 c
@@ -764,7 +765,15 @@ c
  2009 format(16x,10i5)
   113 continue
       do 14 k=1,nums
+      if(nserie.eq.0) then
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
+      if(nsm.lt.ibs(k,2)) nsm=ibs(k,2)
+      else
+      if(nsf.lt.ibs(k,1))
+     + call errquit('Error in number of solute fractions',nsf)
+      if(nsm.lt.ibs(k,2))
+     + call errquit('Error in number of solute molecules',nsm)
+      endif
       if(.not.lforces) then
       bfs(k,1)=zero
       bfs(k,2)=zero

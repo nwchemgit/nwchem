@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.59 2000-05-08 20:16:30 d3j191 Exp $
+c $Id: md_start.F,v 1.60 2000-05-12 17:25:29 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
-     + iguide,lfndbg,idebug,projct,mbbreq)
+     + iguide,lfndbg,idebug,projct,mbbreq,nserie)
       endif
 c
 c     start the analysis API
