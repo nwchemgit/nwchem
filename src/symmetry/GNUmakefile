@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.33 1999-11-13 03:12:28 bjohnson Exp $
+#$Id: GNUmakefile,v 1.34 2000-07-27 16:29:05 bjohnson Exp $
 # makefile,v 1.4 1994/11/23 18:48:11 og845 Exp
 
 LIBRARY = libutil.a
@@ -44,7 +44,7 @@ OBJ =     dosymops.o \
           sym_g_sym.o \
           wrcell.o \
           dctr.o \
-          sym_abelian.o \
+          sym_abelian.o
 
 
 include ../config/makefile.h
