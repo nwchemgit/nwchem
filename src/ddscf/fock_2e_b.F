@@ -6,7 +6,7 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.11 1996-07-02 19:25:00 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.12 2001-04-27 23:35:55 edo Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
@@ -18,6 +18,7 @@ c
 #include "cfock.fh"
 #include "util.fh"
 #include "cscfps.fh"
+#include "stdio.fh"
 c
 c     WARNING ... this piece of code will soon retire forever.
 c     
@@ -183,7 +184,14 @@ c
                             if (.not. int2e_file_write(neri,
      $                         int_mb(k_i), int_mb(k_j),
      $                         int_mb(k_k), int_mb(k_l), dbl_mb(k_g)))
-     $                           call errquit('Arrgggghh',0)
+     .                            then
+                  write(luout,*) 
+                  write(luout,*) ' CHANGE TO DIRECT SCF '
+                  write(luout,*) 
+                  call util_flush(luout)
+                               call errquit(
+     .        ' fock_2e_b: write failed with neri=',neri)
+                            endif
                         if (util_print('int2efile write',print_never))
      $                          call print_integ_list(neri, 
      $                          int_mb(k_i), int_mb(k_j),

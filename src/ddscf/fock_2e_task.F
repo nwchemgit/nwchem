@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.31 2001-01-10 00:31:38 edo Exp $
+c     $Id: fock_2e_task.F,v 1.32 2001-04-27 23:35:55 edo Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -327,8 +327,8 @@ c
                jat = cn_to_ce(jsh)-jatlo+1
                q2 = 1.0d0
                if (oij .and. ish.eq.jsh) q2 = q2*0.5d0
-               do kl = int_mb(k_klinfo+(ijt-1)*2), 
-     ,              int_mb(k_klinfo+(ijt-1)*2+1) 
+               do kl = int_mb(k_klinfo+(klt-1)*2), 
+     ,              int_mb(k_klinfo+(klt-1)*2+1) 
                   qq4 = q2
                   ksh = kllist(1,kl)
                   lsh = kllist(2,kl)
@@ -405,6 +405,7 @@ c
 #include "mafdecls.fh"
 #include "cfock.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
       double precision ncomputed
       common /ctemp/ ncomputed
@@ -474,7 +475,13 @@ c
          if (owritefile) then
             if (.not. int2e_file_write(neri,
      $           int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
-     $           dbl_mb(k_eri))) call errquit('Arrgggghh',0)
+     $           dbl_mb(k_eri))) then
+                  write(luout,*) 
+                  write(luout,*) ' CHANGE TO DIRECT SCF '
+                  write(luout,*) 
+               call errquit(
+     .        ' fock_2e_task: write failed with neri=',neri)
+            endif
          end if
 c     
          call fock_2e_label(nfock, tol2e, neri,
