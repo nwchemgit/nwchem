@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.13 2000-01-08 02:42:00 edo Exp $
+c$Id: grid_setrad.F,v 1.14 2000-01-10 21:40:34 edo Exp $
 c
       implicit none
 c      
@@ -55,6 +55,7 @@ c
          wradgrid=4
       elseif(radgrid.eq.'gcinterv') then
          wradgrid=5
+         tol_reset=.true.
       elseif(radgrid.eq.'rlindh') then
          llind=.true.
          tol_reset=.true.
@@ -93,7 +94,7 @@ c
      &   call errquit('grid_setrad: cannot pop stack expo',1)
 
       if (.not. rtdb_get(rtdb, 'dft:lindh_acc', mt_dbl, 
-     ,     1, lindh_acc)) lindh_acc=1d-10
+     ,     1, lindh_acc)) lindh_acc=1d-17
 c
 c     Define the Euler-Maclaurin radial quadrature points and weights.
 c

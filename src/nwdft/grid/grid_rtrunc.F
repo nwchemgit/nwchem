@@ -213,9 +213,9 @@ c
                s_max=dabsmax(dimi*dimj,pmat)
             endif
             if(abs(s_max).gt.ov_trunc) then
-               write(0,*) '  - neighbor ',jat,s_max
-               range=grid_rnegl(l_iat+l(jat),exp_iat+expo(jat),my_acc) 
-               write(0,*) ' range ',range
+               write(0,*) ' atom ',iat,' - neighbor  & S ',jat,s_max
+               range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
+     .              my_acc) 
 c
 c     bit to add from gaussian product formula
 c               
@@ -224,7 +224,6 @@ c
      .              (exp_iat*coord(2,iat)-expo(jat)*coord(2,jat))**2+
      .              (exp_iat*coord(3,iat)-expo(jat)*coord(3,jat))**2)/
      /              (exp_iat+expo(jat))
-               write(0,*) ' gaNge ',range
                if(range.gt.range_max) then
                   range_max =  range
                   iat_diff=jat
@@ -280,7 +279,7 @@ c
             do  iprimo = 1,nprimo
                min_exp = min(zprim(iprimo),min_exp)
             enddo
-            range = grid_rnegl(l+l, min_exp+min_exp, job_grid_acc)
+            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
             if(range.gt.range_max) then
                range_max =  range
                cs(iat)=icset
