@@ -213,6 +213,17 @@ c
          if (.not. rtdb_put(rtdb,'driver:tscale',mt_dbl,1,tscale))
      $        call errquit('driver_input: rtdb put failed',0)
 c
+      else if(inp_compare(.false.,'xyz',field)) then
+         if (.not. inp_a(xyz)) then
+            call util_file_prefix('x',xyz)
+            xyz(inp_strlen(xyz)-1:) = ' '
+         endif
+         if (.not. rtdb_cput(rtdb,'driver:xyz',1,xyz))
+     $        call errquit('driver_input: rtdb put failed',0)
+c
+      else if(inp_compare(.false.,'noxyz',field)) then
+         ignore = rtdb_delete(rtdb,'driver:xyz')
+c
       else
          call errquit('driver_input: unknown directive',0)
       endif

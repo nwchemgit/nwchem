@@ -65,7 +65,9 @@ c
      $     odebug               ! print debug data
 c
       character*8
-     $     zvarname(max_nzvar)  ! name of user specified zmatrix variables
+     $     zvarname(max_nzvar) ! name of user specified zmatrix variables
+      character*16 
+     $     xyz                  ! [user] prefix for xyz files or blank
 c
       common/cdrv_optopt/
 c     doubles
@@ -78,7 +80,7 @@ c     logicals
      $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug
 c     characters
       common/ccdrv_optopt/
-     $     zvarname
+     $     zvarname, xyz
 c
 c     Contents of /coptimize/
 c

@@ -912,6 +912,8 @@ c
             trust = 0.1d0
          endif
       endif
+      if (.not. rtdb_cget(rtdb,'driver:xyz',1,xyz))
+     $     xyz = ' '
       if (.not. rtdb_get(rtdb,'driver:eprec',mt_dbl,1,eprec)) 
      $     eprec=1d-7
       if (.not. rtdb_get(rtdb,'driver:gmax_tol',mt_dbl,1,gmax_tol))
@@ -1879,6 +1881,7 @@ c
 #include "coptopt.fh"
 #include "global.fh"
 #include "util.fh"
+#include "inp.fh"
       integer geom, istep
 c
 c     Print out stuff
@@ -1888,6 +1891,8 @@ c
       logical geom_print_zmatrix, oprint_grad
       character*9 cvg1, cvg2, cvg3, cvg4
       character*1 mark
+      character*255 filename, dir
+      logical geom_print_xyz
 c
       de = 0d0
       if (istep .gt. 1) de = energy-energyp
@@ -1939,6 +1944,23 @@ c
      $           call errquit('tfgx: print internal gradient?',geom)
          endif
       endif
+c
+      if (ga_nodeid().eq.0 .and. xyz.ne.' ') then
+         dir      = ' '
+         filename = ' ' 
+         call util_directory_name(dir, .false., 0)
+         write(filename,13) dir(1:inp_strlen(dir)), 
+     $        xyz(1:inp_strlen(xyz)),istep-1
+ 13      format(a,'/',a,'-',i3.3,'.xyz')
+         open(88,file=filename,form='formatted',status='unknown',
+     $        err=133)
+         if (.not. geom_print_xyz(geom, 88))
+     $        call errquit('driver: geom_print_xyz?',0)
+         close(88,status='keep',err=133)
+      endif
+c
+      return
+ 133  call errquit('driver: error opening/closing xyz file',0)
 c
       end
       logical function driver_converged()
