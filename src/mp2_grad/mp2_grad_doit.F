@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.36 1997-08-13 19:18:30 rg240 Exp $
+* $Id: mp2_grad_doit.F,v 1.37 1997-08-22 23:37:31 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -394,8 +394,6 @@ c
 c     
             if (eaf_close(kunit).ne.0)
      $        call errquit('mp2_grad_doit: close half int file',0)
-            if(ierr.ne.0)call errquit
-     $           ('mp2_grad: problem closing kunit', ierr)
             call util_file_unlink(fnamek)
 c     
             call mp2_nonsep_uhf( rtdb, geom,
