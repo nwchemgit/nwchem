@@ -1,7 +1,7 @@
 #ifdef HAVE_FORTRAN_INTEGER2
       subroutine util_pack_16(nunpacked, packed, unpacked)
 *
-* $Id: util_pack.F,v 1.12 1999-08-06 21:35:37 d3g681 Exp $
+* $Id: util_pack.F,v 1.13 1999-08-06 22:02:50 d3g681 Exp $
 *
       implicit none
       integer nunpacked
@@ -17,14 +17,13 @@ c
       subroutine util_unpack_16(nunpacked, packed, unpacked)
       implicit none
       integer nunpacked
-      integer*2 packed(*)
-      integer unpacked(*)
+      integer*2 packed(*), unpacked(2,*)
 c
       integer i
 c
-      do i = 1, nunpacked, 2
-         unpacked(i  ) = packed(i  )
-         unpacked(i+1) = packed(i+1)
+      do i = 1, nunpacked
+         unpacked(1,i) = 0
+         unpacked(2,i) = packed(i)
       enddo
 c
       end
@@ -119,24 +118,17 @@ c
       subroutine util_unpack_8(nunpacked, packed, unpacked)
       implicit none
       integer nunpacked
-      byte packed(*)
-      integer unpacked(*)
+      byte packed(*), unpacked(4,*)
 c
       integer i, ilo, ihi, ndo
 c
-c$$$      do ilo = 1, nunpacked, 32768       ! 128 K cache
-c$$$         ihi = min(nunpacked, ilo+32768-1)
-c$$$         ndo = ihi - ilo + 1
-c$$$*         call ifill(ndo, 0, unpacked(1,ilo), 1)
-c$$$         do i = ilo, ihi
-c$$$            unpacked(i) = packed(i)
-c$$$         enddo
-c$$$      enddo
-      do i = 1, nunpacked, 4
-         unpacked(i  ) = packed(i  )
-         unpacked(i+1) = packed(i+1)
-         unpacked(i+2) = packed(i+2)
-         unpacked(i+3) = packed(i+3)
+      do ilo = 1, nunpacked, 32768       ! 128 K cache
+         ihi = min(nunpacked, ilo+32768-1)
+         ndo = ihi - ilo + 1
+         call ifill(ndo, 0, unpacked(1,ilo), 1)
+         do i = ilo, ihi
+            unpacked(4,i) = packed(i)
+         enddo
       enddo
 c
       end
