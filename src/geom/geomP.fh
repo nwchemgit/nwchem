@@ -87,17 +87,17 @@ c     Members of /ccgeometry/
 c
 c     names(1:max_geom) = names of open geometries
 c     trans(1:max_geom) = translations of names of open geoms
-c     names_rtdb(1:max_geom) = names of geometries in the rtdb
+c     names_rtdb(1:max_geom_rtdb) = names of geometries in the rtdb
 c     tag(1:max_cent,1:max_geom) = tags associated with centers
 c     lenn(1:max_geom) = length of names(geom) minus trailing blanks
 c     lent(1:max_geom) = length of trans(geom) ...
-c     lenr(1:max_geom) = length of names_rtdb(geom) ...
+c     lenr(1:max_geom_rtdb) = length of names_rtdb(geom) ...
 c     symbols(1:nelements) = symbols for elements
 c     elements(1:nelements) = names of elements
 c     
       integer max_geom, max_cent, max_geom_rtdb, nelements,
      $     max_sym_ops
-C$Id: geomP.fh,v 1.10 1995-11-19 19:32:22 d3g681 Exp $
+C$Id: geomP.fh,v 1.11 1995-11-30 11:23:16 d3e129 Exp $
       parameter (max_sym_ops = 192)
       parameter (max_geom=2, max_geom_rtdb = 100)
       parameter (max_cent=500)
@@ -133,7 +133,7 @@ c
      $     active(max_geom),
      $     lenn(max_geom),
      $     lent(max_geom),
-     $     lenr(max_geom),
+     $     lenr(max_geom_rtdb),
      $     operiodic(max_geom), ! Obsolete ?
      $     oefield(max_geom),
      $     isystype(1:max_geom),
