@@ -1,7 +1,7 @@
       subroutine grid_setspac(rtdb, xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad,trunc_neigh)
 c
-c$Id: grid_setspac.F,v 1.8 2000-02-02 22:47:27 edo Exp $
+c$Id: grid_setspac.F,v 1.9 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
       integer rtdb
@@ -25,13 +25,9 @@ c
       integer iscr,lscr,lgth_scr,ixyzm,lxyzm
       integer ncenters_scr ! no. of centers after screening
       integer ictr_scr  ! grid center in the screened reduced list
+      integer ga_nodeid
+      external ga_nodeid
 c
-      if (.not. rtdb_get(rtdb, 'dft:ssw', mt_log, 1, lssw))
-     &   lssw=.false.
-      if(lssw) then
-         if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichssw))
-     &        call errquit('grsps0: rtdb_cget failed', 1700)
-      endif
 c
 c     set scratch space for grid compression
 c
@@ -66,7 +62,7 @@ c
      .        call grid_signf(AO_bas_han,  nbf_ao, ncenters_scr, 
      &        xyz,dbl_mb(ixyzm),ictr_scr,
      &        rad, expo, int_mb(iscr),iatype_pt_chg)
-         call grid_ssw(xyzw, dbl_mb(ixyzm),rij, rq, 
+         call grid_ssw(xyzw, dbl_mb(ixyzm), rij,rq, 
      &        p, ictr_scr, ncenters_scr, nq,
      ,        int_mb(iscr),whichssw)
       endif

@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.19 2000-03-18 07:14:22 edo Exp $
+c$Id: grid_tasks.F,v 1.20 2000-03-20 21:11:50 edo Exp $
 c
       implicit none
 c
@@ -23,10 +23,9 @@ c
       logical oreadfile, owritefile
       integer filesize, memsize
       character*255 gridfilename
-      character*4 whichf
 c
       integer iqsh, irsh, ictr, iang, npts_iqsh
-      integer nq,nproc,me,g_buck,g_buckind,
+      integer nq,nproc,me,
      ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
      ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube,ncubenz,iaia
 
@@ -37,6 +36,8 @@ c
       external grid_file_close
       logical grid_test_mem
       external grid_test_mem
+      integer nxtask,n1,n2,icount
+      external nxtask
 c
 c     input   
 c        qsh(1,iqsh) = irsh | where within nrad
@@ -53,10 +54,10 @@ c     Grid_pts caching/file information (from scf_get_info)
 c
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
-      write(0,*) ' filesize ',filesize
+!      write(0,*) ' filesize ',filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
-      write(0,*) ' memsize ',memsize
+!      write(0,*) ' memsize ',memsize
 c
 c     The opening routine will put the .pid on the grid_pts filename
 c     (hence even tho' parallel file, open as sequential)
@@ -80,7 +81,7 @@ c
 c     get partitioning function
 c
 
-      if(lssw) do_interp = xc_interp(whichf)
+      if(lssw) do_interp = xc_interp(whichssw)
 c
 c     Allocate some scratch space for construction of the spatial weights
 c
@@ -102,11 +103,19 @@ c
 c
       if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
      &   trunc_neigh))trunc_neigh=.true.
+      call dft_tstamp(' Before buckinit.')
 
-      call grid_buckinit(g_buck,g_buckind)
+      call grid_buckinit()
 
       nqtotc=0
       ncubenz=0
+      call dft_tstamp(' Before atom loop')
+c
+c     parallel loop init
+c
+      icount = 1
+      n1 = 0
+      n2 = nxtask(nproc,icount)
       do i_a =1,ncenters
 c
 c     get shells centers on i_a
@@ -123,77 +132,79 @@ c     get no of segment
 c
          iaia=iatype(i_a)
          rad=dble(rad_cutoff(1,iaia))
-c         nxyz=nint((rad*2d0-l_rect)/(l_rect*2d0))
          nxyz=nint((rad*2d0-lcube(iaia))/(lcube(iaia)*2d0))
 c
 c     loop over cubes centers on i_a
 c
          do ncu=1,ncubes_type(iatype(i_a))
-            fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
-cedo            write(0,*) ' ncu ',ncu,nxyz
-            call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
-            
-!            write(0,*) ' nxyz ',fnxyz,nx,ny,nz
-            call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia))
-            call dfill(4*npts_per_ang, 0.0d0, aqbuf, 1)
-            rad_write=rmax
-            nq_cube=0
-         do 100 iii = 1, nqsh_at
-            iqsh=int_mb(k_qat+iii-1)          
-c
-
-            irsh = qsh(1,iqsh)         
-            rad_sh=rpts(irsh,iatype(i_a))
-c
+            if (n1.eq.n2 )then
+c     parallelization here ... might need file exchange when done
+c     for load balancing
+               fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
+               call grid_n2nxyz(nxyz,fnxyz,nx,ny,nz)
+               
+               call grid_rmaxmin(nx,ny,nz,rmax,rmin,lcube(iaia))
+               rad_write=rmax
+               nq_cube=0
+               do 100 iii = 1, nqsh_at
+                  iqsh=int_mb(k_qat+iii-1)          
+                  irsh = qsh(1,iqsh)         
+                  rad_sh=rpts(irsh,iatype(i_a))
+c     
 c     check if radius between rmin and rmax
-c            
-            if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
-cedo               rad_write=max(rad_write,rad_sh)
-               ictr = qsh(2,iqsh)
-               iang = qsh(3,iqsh)
-               nq = npts_per_ang
+c     
+                  if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
+                     ictr = qsh(2,iqsh)
+                     iang = qsh(3,iqsh)
+                     nq = npts_per_ang
 c     
 c     Generate all angular quadrature points for this radial shell
+c     and keep only those inside cube
 c     
-c     
-            call grid_qpts(rad_sh,coord(1,ictr), ictr, irsh, iang, 
-     ,              aqbuf, nq, 
-     ,           nx,ny,nz)
-cedo            if(nq.ne.0) write(0,*) ' nq ',nq
+                     call grid_qpts(rad_sh,coord(1,ictr), ictr, 
+     ,                    irsh, iang, 
+     ,                    aqbuf, nq,  nx,ny,nz)
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     
-            call grid_setspac(rtdb, coord, aqbuf,
-     ,           dbl_mb(irij), 
-     &           dbl_mb(irq), dbl_mb(ip), ictr, nq,
-     ,           dbl_mb(iexpo), rad_sh, trunc_neigh)
-            npts_iqsh = nq
-            
-            
+                     if(ncenters.gt.1) then
+                        call grid_setspac(rtdb, coord, aqbuf,
+     ,                       dbl_mb(irij), 
+     &                       dbl_mb(irq), dbl_mb(ip), ictr, nq,
+     ,                       dbl_mb(iexpo), rad_sh, trunc_neigh)
+                     endif
+                     npts_iqsh = nq
 c     
 c     since only generating symmetry unique quadrature 
 c     scale weights with symmetry factor if desired
 c     
-            if(npts_iqsh.ne.0) then
-               call grid_sym(ictr, aqbuf, npts_iqsh)
-c            
-c     now pack this aqbuf into the write buffer (write and update task counter as needed)
+                     if(npts_iqsh.ne.0) then
+                        if(oskel) call grid_sym(ictr,aqbuf,npts_iqsh)
 c     
-c               write(0,*) ' nq in cube ',npts_iqsh,rad_sh
-               call grid_file_write(npts_iqsh, ictr, rad_write, aqbuf)
-               
-               nqtotc=nqtotc+npts_iqsh
-               nq_cube=nq_cube+npts_iqsh
+c     now pack this aqbuf into the write buffer 
+c     (write and update task counter as needed)
+c     
+                        call grid_file_write(npts_iqsh, ictr, 
+     ,                       rad_write, aqbuf,  ncu)
+                        
+                        nqtotc=nqtotc+npts_iqsh
+                        nq_cube=nq_cube+npts_iqsh
+                     endif
+                  endif
+ 100           continue
+               if(nq_cube.ne.0) ncubenz=ncubenz+1
+               n1 = n1 + 1
+               n2 = nxtask(nproc,icount)
+            else
+               n1 = n1 + 1
             endif
-         endif
- 100     continue
-c         if(nq_cube.ne.0)write(0,*) ' nq_cube ',nq_cube,rad_write
-         if(nq_cube.ne.0) ncubenz=ncubenz+1
-         enddo ! end loop over cubes
-      enddo !end loop over atoms
+         enddo                  ! end loop over cubes
+      enddo                     !end loop over atoms
+      n1 = nxtask(-nproc,icount)
+      call dft_tstamp(' done atom loop')
 
       write(0,*) ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
-      call grid_buckend(g_buck,g_buckind)
+      call grid_buckend()
 !      if(.true.) call errquit(' out ',1948)
 c
 c     Write last buffer of grid pts and close file     
@@ -201,7 +212,7 @@ c
       nq = 1
       n_tot_tasks = 0 ! sets nctr to 0; writes last buf and returns #tasks
       call grid_file_write(nq, n_tot_tasks, rad, aqbuf)
-c      write(6,*)' n_tot_tasks = ', n_tot_tasks
+      write(6,*)' n_tot_tasks = ', n_tot_tasks
 c
 c     clean up
 c

@@ -1,6 +1,6 @@
       logical function grid_insidesp(nx,ny,nz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.5 2000-03-18 07:14:22 edo Exp $
+c$Id: grid_sphere.F,v 1.6 2000-03-20 21:11:50 edo Exp $
 c
       implicit none
       integer nx,ny,nz            ! [in]
@@ -46,7 +46,7 @@ c
       nxyz2n(onx,ony,onz,onxyz)=(onx+onxyz)+
      +( (ony+onxyz)+(onz+onxyz)*(2*onxyz+1) )*(2*onxyz+1)
       nxyz=nint((rad*2d0-l_rect)/(l_rect*2d0))
-      write(0,*) ' rad l_rect',rad,l_rect,nxyz
+!      write(0,*) ' rad l_rect',rad,l_rect,nxyz
       ninside=0
       do nx=-nxyz,nxyz
          do ny=-nxyz,nxyz
@@ -55,20 +55,20 @@ c
                   ninside=ninside+1
                   if(ynxyz) then
                      fnxyz(ninside)=nxyz2n(nx,ny,nz,nxyz)
-                     call grid_n2nxyz(
-     .                    nxyz,fnxyz(ninside),onx,ony,onz)
-                     if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
-                        write(0,*) ' IN nx ny nz ',nx,ny,nz,
-     ,                    fnxyz(ninside)
-                        write(0,*) ' OUT nx ny nz ',onx,ony,onz
-                        call errquit('grid_ncube: mapping wrong',9)
-                     endif
+cedo                     call grid_n2nxyz(
+cedo     .                    nxyz,fnxyz(ninside),onx,ony,onz)
+cedo                     if(onx.ne.nx.or.ony.ne.ny.or.onz.ne.nz) then
+cedo                        write(0,*) ' IN nx ny nz ',nx,ny,nz,
+cedo     ,                    fnxyz(ninside)
+cedo                        write(0,*) ' OUT nx ny nz ',onx,ony,onz
+cedo                        call errquit('grid_ncube: mapping wrong',9)
+cedo                     endif
                   endif
               endif
             enddo
          enddo
       enddo
-      write(6,*) ' nxyz ninside',nxyz,ninside
+!      write(6,*) ' nxyz ninside',nxyz,ninside
       grid_ncubes=ninside
       return
       end

@@ -1,6 +1,6 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.6 1999-08-11 00:56:07 edo Exp $
+c$Id: grid_setquad.F,v 1.7 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
       logical oprint, grid_on_file,ogrdebug
@@ -23,47 +23,39 @@ c     Set up needed info by atom type (ntypes info; e.g., nuclear charge,
 c     Bragg-Slater radii, etc)
 c
       call grid_atom_type_info
-      call ga_sync()
 c
 c     Determine desired integration accuracy and set 
 c     corresponding quadrature definition.
 c
       call grid_acc_def(rtdb)
-      call ga_sync()
 c
 c     Define the radial quadrature points and weights.
 c
       call grid_setrad(rtdb)
-      call ga_sync()
 c
 c     Define the angular quadrature points and weights.
 c
       call grid_setang(rtdb)
-      call ga_sync()
 c
 c     Define the rotation matrix that will be used to ensure that 
 c     the quadrature grid is rotationally invariant.
 c
       call grid_invariant
-      call ga_sync()
 c
 c     Compute/set any spatial weight parameters.
 c
       call grid_setspac_params
-      call ga_sync()
 c
 c     Generate the complete grid and decompose it into blocks
 c     which can define a computational task size on a file system (if desired).
 c  
       call grid_gen_pts(rtdb)
       if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done genpts'
-      call ga_sync()
 c
 c     Update any req'd data in rtdb
 c
       call grid_update_rtdb(rtdb)
       if(ogrdebug) write(6,*) ' me ',ga_nodeid(),'  done uprt'
-      call ga_sync()
 c
 c     Setup reduced matrices (eval gaussian on grid pts and reduce to 
 c     atom centers) - only if points are on file system
@@ -72,16 +64,8 @@ c
      &   grid_on_file))then
          grid_on_file = .false.
       endif
-      if (grid_on_file)then
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' before init_init'
-         call int_init(rtdb, 1, AO_bas_han)
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' before rchi'
-         call grid_rchi
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' done grrchi'
-         call int_terminate
-      endif
-      if(ogrdebug) write(6,*) ' me ',ga_nodeid(),' done intt'
-      call ga_sync()
+cedo rchi stuff moved in grid_quadv
+      call grid_rchi0
 c
 c     Memory management (as before)
 c

@@ -1,6 +1,6 @@
       subroutine grid_read_ck(rtdb)
 c
-c$Id: grid_read_ck.F,v 1.3 1999-08-11 18:57:32 edo Exp $
+c$Id: grid_read_ck.F,v 1.4 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
       integer rtdb
@@ -32,7 +32,7 @@ c
       do 100 iqt = 1, n_tot_tasks
 c
          call grid_file_read(nqpts_per_buf, nqpts, ictr, rad,
-     ,        dbl_mb(irqbuf))
+     ,        dbl_mb(irqbuf),nsubb)
           if(nqpts.eq.0) goto 100
 c         write(6,*)' ictr, nqpts: ', ictr, nqpts
 c

@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.14 2000-03-18 07:14:22 edo Exp $
+* $Id: grid_file.F,v 1.15 2000-03-20 21:11:49 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -54,6 +54,9 @@ c
       file_opened = .false.
       cur_rec = 1
       n_rec_in_file = 0
+      cur_cub = -99
+      nsubb=0
+      ntot_sub=0
       rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)
@@ -429,6 +432,8 @@ c     in the buffer is present.
 c
       n_in_rec = 1
       next_value = 2
+      nsubb=0
+      cur_cub=-99
 c
       end
       subroutine grid_buf_unpack()
@@ -451,6 +456,7 @@ c
       cur_rec_ctr = nint(values(1,1))
       n_in_rec = nint(values(2,1))
       cur_rec_rad = values(3,1)
+      nsubb = nint(values(4,1))
 c
       end
       subroutine grid_buf_pack()
@@ -466,6 +472,8 @@ c
       values(1,1) = dble(cur_rec_ctr)
       values(2,1) = dble(n_in_rec)
       values(3,1) = cur_rec_rad
+      values(4,1) = dble(nsubb)
+      ntot_sub=ntot_sub+nsubb
 c
 c     Total dbls to copy is 4*(n_per_rec + 1)
 c
@@ -518,13 +526,13 @@ c
       grid_test_mem = .false.
 c
       if (file_opened) return
-      write(6,*)' file_opened: ', file_opened
+!      write(6,*)' file_opened: ', file_opened
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
-      write(0,*)' filesize: ', filesize
+!      write(0,*)' filesize: ', filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
-      write(0,*)' memsize: ', memsize
+!      write(0,*)' memsize: ', memsize
       if (filesize.lt.0 .and. memsize.lt.0) return
 c
 c     Determine if we should automatically run an in-core calculation
@@ -542,16 +550,16 @@ c
       else
          memsize = memsize/8
       endif
-      write(0,*) ' mems ',memsize
+!      write(0,*) ' mems ',memsize
       avail = MA_inquire_avail(mt_dbl)
-      write(6,*) ' 1 avail ', avail
+!      write(6,*) ' 1 avail ', avail
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $   avail = avail - ga_memory_avail()
-      write(6,*) ' 2 avail ', avail
+!      write(6,*) ' 2 avail ', avail
       call ga_igop(msg_grid_file, avail, 1, 'min')
-      write(6,*) ' 3 avail ', avail
+!      write(6,*) ' 3 avail ', avail
       avail = min(avail, memsize)
-      write(6,*) ' 4 avail ', avail
+!      write(6,*) ' 4 avail ', avail
 c     
 c     Assume that for the small systems for which can hold the
 c     grid_pts, that there is no sparsity except for symmetry.
@@ -562,23 +570,23 @@ c      write(6,*)' nq_tot = ', nq_tot
 c
 c     need 4*nq_tot (x,y,z,w)
 c
-      write(0,*) ' NQTOT ',nq_tot
+c      write(0,*) ' NQTOT ',nq_tot
       nq=dble(4*nq_tot)
       nq = nq / dble(ga_nnodes())
       nq = nq * 1.1d0 + dble(2*rec_len_in_dbl) ! Fudge factors for safety
 c
-      write(6,*) ' needed', int(nq)
-      write(6,*) ' avail ', avail
-!      if (int(nq) .lt. avail) then
-!         localmemsize = max(8*buffer_size,int(nq))
-!      else
-!         localmemsize = 0
-!      endif
+!      write(6,*) ' needed', int(nq)
+!      write(6,*) ' avail ', avail
+      if (int(nq) .lt. avail) then
+         localmemsize = max(8*buffer_size,int(nq))
+      else
+         localmemsize = 0
+      endif
 c
 c     let's grab 1/4 memory
 c
-      localmemsize=avail/4
-      write(6,*)' localme ', localmemsize
+!      localmemsize=avail/4
+!      write(6,*)' localme ', localmemsize
 c
       if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
      $        call errquit('grid_file: opening gridpts?', 0)
@@ -597,7 +605,7 @@ c
       ofirst = .false.
 c
       end
-      logical function grid_file_write(nqpts, nctr, rad, aqbuf)
+      logical function grid_file_write(nqpts, nctr, rad, aqbuf,ncube)
 c      logical function grid_file_write(nints, i, j, k, l, g)
       implicit none
 #include "cgridfile.fh"
@@ -610,10 +618,13 @@ c
       integer nctr
       double precision aqbuf(4,nqpts)
       double precision rad
+      integer ncube ! [in] cube
+!      integer nsubb ! [in] no. cubes in buffer
       logical grid_buf_write
       external grid_buf_write
 c
-      integer ind
+      integer ind,ptr_cube
+      save ptr_cube
 c
       grid_file_write = .true.
 c
@@ -630,29 +641,56 @@ c
 c     Check to see if buffer needs dumping before adding more pts.
 c
       if ((nctr .eq. 0) .or. 
-     &    (nctr. ne. cur_rec_ctr).or.
-     .     (cur_rec_rad.ne.rad)) then
+     &    (nctr. ne. cur_rec_ctr)) then
+!        write(0,*)  '0write rec ',n_per_rec
          grid_file_write = grid_buf_write(.false.)
          cur_rec_ctr = nctr
          if (nctr.eq.0)nctr =  n_rec_in_file
          if (.not. grid_file_write) return
          cur_rec_rad=0d0
       end if
-cedo      write(6,*) ' RAD ',nctr,rad,cur_rec_rad
       cur_rec_rad = max(rad,cur_rec_rad)
-c
 c     This copy can be made a lot more efficient
+      if (n_in_rec .ge. n_per_rec-1) then
+!         write(0,*)  '1write rec ',n_per_rec
+         grid_file_write = grid_buf_write(.false.)
+         if (.not. grid_file_write) return
+      endif
+      if(cur_cub.ne.ncube) then
+         nsubb=nsubb+1
+         cur_cub=ncube
+         n_in_rec   = next_value
+         next_value = next_value + 1
+         values(1,n_in_rec)   = 0d0
+         ptr_cube=n_in_rec
+         values(2,n_in_rec)   = rad
+      endif
+c after 1st shell contribution to cube
+         do ind = 1, nqpts
+            if (n_in_rec .eq. n_per_rec) then
+!               write(0,*)  '2write rec ',n_per_rec
+               grid_file_write = grid_buf_write(.false.)
+               if (.not. grid_file_write) return
+               nsubb=1
+               cur_cub=ncube
+               n_in_rec   = next_value
+               next_value = next_value + 1
+               values(1,n_in_rec)   = 0d0
+               ptr_cube=n_in_rec
+               values(2,n_in_rec)   = rad
+            end if
 c     
-cedo      write(0,*) ' nqpts ',nqpts
-      do ind = 1, nqpts
-         if (n_in_rec .eq. n_per_rec) then
-            grid_file_write = grid_buf_write(.false.)
-            if (.not. grid_file_write) return
-         end if
-c     
+            
          n_in_rec   = next_value
          next_value = next_value + 1
 c     
+         values(1,ptr_cube)=values(1,ptr_cube)+1d0
+!            write(0,'(A,i4,4F16.9)') 
+!     .           ' FF ',n_in_rec,
+cedo            write(ga_nodeid(),'(A,4F16.9)') 
+cedo     .           ' FF ',
+cedo     ,        aqbuf(1,ind),aqbuf(2,ind),aqbuf(3,ind),
+cedo     .              aqbuf(4,ind)
          values(1,n_in_rec)   = aqbuf(1,ind)
          values(2,n_in_rec)   = aqbuf(2,ind)
          values(3,n_in_rec)   = aqbuf(3,ind)
@@ -661,14 +699,15 @@ c
       end do
 c
       end
-      logical function grid_file_read(maxqpts, nqpts, nctr,rad,aqbuf)
+      logical function grid_file_read(maxqpts, nqpts, nctr,rad,aqbuf,
+     .     nsub_out)
       implicit none
 c
 #include "cgridfile.fh"
 c
       integer maxqpts
       integer nqpts
-      integer nctr
+      integer nctr,nsub_out
       double precision aqbuf(4,maxqpts),rad
 c
 c     Return grid pts corresponding to the same atom center.
@@ -691,6 +730,10 @@ c
       nctr = cur_rec_ctr
       nqpts = n_in_rec - 1
       rad =cur_rec_rad
+c      write(0,*) ' rad ',rad
+      nsub_out=nsubb
+c      write(0,*) ' nsub_o ',nsub_out
+c      write(0,*) ' nqpts ',nqpts
 c
       if (otrace) then
          write(6,*) ' grid_file read: nqpts,nctr,n_in_rec,next_value', 

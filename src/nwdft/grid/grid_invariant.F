@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.6 2000-03-10 02:03:15 edo Exp $
+c$Id: grid_invariant.F,v 1.7 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
 c      
@@ -66,20 +66,20 @@ c
 c
 c     rotate by Ahlrichs prescription
 c
-      if(leb) then
-         matalr(1,1)= sqrt(6d0)/3d0
-         matalr(2,1)=0d0
-         matalr(3,1)= sqrt(3d0)/3d0
-         matalr(1,2)=-sqrt(6d0)/6d0
-         matalr(2,2)= sqrt(2d0)/2d0
-         matalr(3,2)= sqrt(3d0)/3d0
-         matalr(1,3)=-sqrt(6d0)/6d0
-         matalr(2,3)=-sqrt(2d0)/2d0
-         matalr(3,3)= sqrt(3d0)/3d0
-         call dcopy(9,qrot,1,c,1)
-         call dgemm('N','N',3,3,3,1d0,matalr,3,c,3,
-     ,        0d0,qrot,3)
-      endif
+cedo      if(leb) then
+cedo         matalr(1,1)= sqrt(6d0)/3d0
+cedo         matalr(2,1)=0d0
+cedo         matalr(3,1)= sqrt(3d0)/3d0
+cedo         matalr(1,2)=-sqrt(6d0)/6d0
+cedo         matalr(2,2)= sqrt(2d0)/2d0
+cedo         matalr(3,2)= sqrt(3d0)/3d0
+cedo         matalr(1,3)=-sqrt(6d0)/6d0
+cedo         matalr(2,3)=-sqrt(2d0)/2d0
+cedo         matalr(3,3)= sqrt(3d0)/3d0
+cedo         call dcopy(9,qrot,1,c,1)
+cedo         call dgemm('N','N',3,3,3,1d0,matalr,3,c,3,
+cedo     ,        0d0,qrot,3)
+cedo      endif
 c
 c     debug writes
 c
@@ -91,7 +91,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.6 2000-03-10 02:03:15 edo Exp $
+c$Id: grid_invariant.F,v 1.7 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
 c

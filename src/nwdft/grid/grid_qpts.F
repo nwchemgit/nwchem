@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     nx,ny,nz)
 c
-c$Id: grid_qpts.F,v 1.9 2000-03-18 07:14:22 edo Exp $
+c$Id: grid_qpts.F,v 1.10 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
 c      
@@ -15,7 +15,7 @@ c
 #include "global.fh"
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
-      double precision aqbuf(4,nq), qwght_nq ! quadr pts and wght
+      double precision aqbuf(4,*), qwght_nq ! quadr pts and wght
       integer nx,ny,nz      ! [in] cube def
       double precision r ! [in]
       logical grid_incube
@@ -66,6 +66,7 @@ c
             if(grid_incube(xor,yor,zor,nx,ny,nz,
      ,           lcube(ia_ictr))) then
                nq = nq + 1
+               
                aqbuf(1,nq) = xyz(1) + xor
                aqbuf(2,nq) = xyz(2) + yor
                aqbuf(3,nq) = xyz(3) + zor
@@ -108,9 +109,9 @@ c
                aqbuf(3,nq) = xyz(3) + zor
 c             
                aqbuf(4,nq) = qwght_nq
-cedo            write(0,'(A,4F20.12)') 
-cedo     .           ' ww ',aqbuf(1,nq),aqbuf(2,nq),aqbuf(3,nq),
-cedo     .              aqbuf(4,nq)
+!            write(0,'(A,4F18.11)') 
+!     .           ' Qp ',aqbuf(1,nq),aqbuf(2,nq),aqbuf(3,nq),
+!     .              aqbuf(4,nq)
                
             endif
 c

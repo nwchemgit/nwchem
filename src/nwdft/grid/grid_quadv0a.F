@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.9 2000-03-18 07:14:22 edo Exp $
+c$Id: grid_quadv0a.F,v 1.10 2000-03-20 21:11:49 edo Exp $
 c
       implicit none
 c
@@ -51,15 +51,15 @@ c
       integer nat_tot,nat_scr
       integer nqpts_per_buf, nqpts, ictr_buf
       integer lrqbuf, irqbuf,ldmat,idmat,i,iii,k_rq,l_rq,
-     .     grid_nbfm
+     .     grid_nbfm,ncube,istep,ntot_cube
       logical grid_file_rewind
       external grid_file_rewind,grid_nbfm
       Logical GRAD, oprint
-      logical xc_chkgrad,trunc_neigh
+      logical xc_chkgrad,trunc_neigh,firsttime
       external xc_chkgrad
 c
       oprint = util_print('quadrature', print_high)
-c      write(*,*)'grid_den_2: pmat 1'
+c      write(*,*)'grid_quadv0a: pmat 1'
 c      call ga_print(g_dens(1))
 c
 c     see if any Gradient Corrected Functional is not null
@@ -67,6 +67,7 @@ c
       nat_tot=0
       nat_scr=0
       grad=.true.
+      firsttime=.true.
       grad=xc_chkgrad(xfac,cfac)
       me=ga_nodeid()
 c
@@ -74,7 +75,7 @@ c     allocate scratch array for grid compression
 c
       if (.not.MA_Push_Get(mt_int, nbf_ao, 'ibf_ao', libf_ao,
      &     iibf_ao))
-     &     call errquit('grid_den_2: cannot allocate ibf_ao',2)
+     &     call errquit('grid_quadv0a: cannot allocate ibf_ao',2)
 c
 c     Determine the XC energy functionals.
 c
@@ -92,59 +93,63 @@ c
       nqpts_per_buf = n_per_rec
       if (.not.MA_Push_Get(mt_dbl,nqpts_per_buf*natoms,
      ,     'bp',lbp,ibp))
-     &     call errquit('grid_den_2: cannot allocate bp',4)
+     &     call errquit('grid_quadv0a: cannot allocate bp',4)
       if (.not.MA_Push_Get(mt_dbl,nqpts_per_buf,
      ,     'rho scr',lrscr,irscr))
-     &     call errquit('grid_den_2: cannot allocate rho scr',5)
+     &     call errquit('grid_quadv0a: cannot allocate rho scr',5)
 
       if (.not.MA_Push_Get(MT_Dbl,natoms,'rchi_atom',
      &     lrchi_atom,irchi_atom))
      &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+      if(grad) then
       if (.not.MA_Push_Get(MT_Dbl,natoms,'rdelchi_atom',
      &     lrdelchi_atom,irdelchi_atom))call errquit
      &        ('dft_scf: cannot allocate rdelchi_atom',0)
+      endif
       if (.not.MA_Push_get(MT_dbl, buffer_size, 
-     &                     'quad pts buffer', l_rq, k_rq))
+     &                     'quad rq buffer', l_rq, k_rq))
      &   call errquit('grid_gen: cannot allocate quad pt buffer', 3)
 C
+      ntot_cube=0
       do 200 iqsh = 1, n_tot_tasks
 c
 c     Define the current range of radial shells and integration center.
 c     
          call grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
-     &        rad,dbl_mb(irqbuf))
+     &        rad,dbl_mb(irqbuf),nsubb)
          if(nqpts.gt.buffer_size) call
      '        errquit(' buffersize exceed by qpts ',nqpts)
-cedo         write(0,*) ' nq ',nqpts
+c         write(0,*) ' nq ',nqpts
         if(nqpts.eq.0) goto 200
-
+        istep=0
+        do 110 ncube=1,nsubb
 c     
 c        temp put buf into currently used arrays qxyz and qwght
 c     
-         call grid_repack(dbl_mb(irqbuf), qxyz, qwght, nqpts)
-c         do iii=1,nqpts
-c            write(0,'(A,4F20.12)') 
-c     .           ' ww ',qxyz(iii,1),qxyz(iii,2),qxyz(iii,3),
-c     .           qwght(iii)
-c         enddo
+         call grid_repack(dbl_mb(irqbuf), qxyz, qwght, nqpts,
+     ,          rad,istep)
+!         do iii=1,nqpts
+!            write(0,'(A,4F16.9)') 
+!     .           ' RR ',
+!     ,           qxyz(1,iii),qxyz(2,iii),qxyz(3,iii),
+!     .           qwght(iii)
+!         enddo
+         if(nqpts.eq.0) goto 110
 c     
 c
 c           Evaluate the AO basis set at each of the quad. points.
-c
 c           allocate arrays for exponents and contraction coefficients
 c           within int_eval_gbsets
-c
 c           Evaluate the distances (squared) between each center and the qpoints.
 c
          mbf_ao=nbf_ao
          if(natoms.gt.1) then
          call ifill(mbf_ao, 0, int_mb(iibf_ao), 1)
          mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
-     &        ictr_buf,xyz,qxyz,nqpts,dbl_mb(k_rq),
+     &        ictr_buf,rad,xyz,qxyz,nqpts,dbl_mb(k_rq),
      &        int_mb(iibf_ao),  iniz, ifin, expo, 
      &        acc_ao_gauss)
-c         write(0,*) ' mbf ',mbf_ao,' out of ',nbf_ao
-         if (mbf_ao.eq.0) goto 200
+         if (mbf_ao.eq.0) goto 110
          else
             iniz(1)=1
             ifin(1)=nbf_ao
@@ -155,13 +160,13 @@ c         write(0,*) ' mbf ',mbf_ao,' out of ',nbf_ao
 c
          if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &        lchi_ao, ichi_ao))
-     &        call errquit('grid_den_2: cannot allocate chi_ao',0)
-         call dfill(nqpts*mbf_ao, 0.0d0, dbl_mb(ichi_ao), 1)
+     &        call errquit('grid_quadv0a: cannot allocate chi_ao',0)
 c     
-         if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao, 'delchi_ao',
-     &        ldelchi_ao, idelchi_ao))
-     &        call errquit('grid_den_2: cannot allocate delchi_ao',0)
-         call dfill(3*nqpts*mbf_ao, 0.0d0, dbl_mb(idelchi_ao), 1)
+         if(GRAD) then
+            if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
+     .           'delchi_ao', ldelchi_ao, idelchi_ao))
+     &           call errquit('grid_quadv0a: cant alloc delchi_ao',0)
+         endif
 c     
 c     assumes cartesian; spherical set would only require 2*MXang + 1
 c     
@@ -182,8 +187,7 @@ c
      &        nqpts*max_elem_ang_scr) + 1
 c     
          if (.not.MA_Push_Get(mt_dbl,nscr,'scrCD',lscr,iscr))
-     &        call errquit('grid_den_2: cannot allocate scrCD',12)
-         call dfill(nscr, 0.0d0, dbl_mb(iscr), 1)
+     &        call errquit('grid_quadv0a: cannot allocate scrCD',12)
 c     
          call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
          call new_eval_gbsets(ao_bas_han, grad, .false., 
@@ -195,23 +199,19 @@ c
      &        iniz,ifin)
 c     
          if (.not.ma_pop_stack(lscr))
-     &        call errquit('grid_den_2: cannot pop stack',0)
+     &        call errquit('grid_quadv0a: cannot pop stack',0)
          
 c     
 c        get reduced Xi(r) and dXi(r) over atoms
 c     
-         call dfill(natoms, 0.0d0, dbl_mb(irchi_atom), 1)
-c     
-         call dfill(natoms, 0.0d0, dbl_mb(irdelchi_atom), 1)
 c
-         call grid_getrchi(iqsh,grad,
-     ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),natoms)
+         call grid_rchi3(ntot_cube+1,
+     ,        irchi, irdelchi,
+     ,        nqpts, natoms,iniz,ifin,
+     ,        dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
+     ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
+     ,        grad)
 c     
-         call dfill(nqpts*natoms, 0.0d0, dbl_mb(ibp), 1)
-         call dfill(nqpts, 0.0d0, dbl_mb(irscr), 1)
-         call dfill(nbf_ao_mxnbf_ce2, 0.0d0, Fmat, 1)
-         call dfill(nbf_ao_mxnbf_ce2, 0.0d0, Pmat, 1)
-         call dfill(nbf_ao_mxnbf_ce*nqpts, 0.0d0, Bmat, 1)
          call xc_rhogen(tol_rho, AO_bas_han, g_dens,
      &        nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
      &        mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
@@ -238,9 +238,7 @@ c
 
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &         'Dmat', lDmat,iDmat))
-     &         call errquit('xc_quadv0_a: cannot allocate Dmat',0)
-            call dfill(nbf_ao_mxnbf_ce*nqpts*3, 0.0d0, 
-     &                 dbl_mb(idmat), 1)
+     &         call errquit('grdi_quadv0_a: cannot allocate Dmat',0)
 c     
             call xc_tabcd(tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
      &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
@@ -252,31 +250,35 @@ c
      &           rdens_atom, cetobfr)
 
 
-               if (.not.ma_pop_stack(lDmat))
-     &         call errquit('xc_quadv0_a: cannot pop stack', 0)
-         if (.not.ma_pop_stack(ldelchi_ao))
-     &        call errquit('grid_den_2: cannot pop stack', 0)
+            if (.not.ma_pop_stack(lDmat))
+     &           call errquit('grid_quadv0_a: cannot pop stack', 1)
+            if(grad) then
+               if (.not.ma_pop_stack(ldelchi_ao)) call
+     &              errquit('grid_quadv0a: cannot pop stack', 2)
+            endif
          if (.not.ma_pop_stack(lchi_ao))
-     &        call errquit('grid_den_2: cannot pop stack', 0)
-c      write(6,*)' task completed: ',iqsh
+     &        call errquit('grid_quadv0a: cannot pop stack', 3)
+ 110      ntot_cube=ntot_cube+1
   200 continue
       if (.not.ma_pop_stack(l_rq))
-     &     call errquit('grid_den_2: cannot pop stack',-1)
-      if (.not.ma_pop_stack(lrdelchi_atom))
-     &     call errquit('grid_den_2: cannot pop stack',0)
+     &     call errquit('grid_quadv0a: cannot pop stack',4)
+      if(grad) then
+         if (.not.ma_pop_stack(lrdelchi_atom))
+     &        call errquit('grid_quadv0a: cannot pop stack',5)
+      endif
       if (.not.ma_pop_stack(lrchi_atom))
-     &     call errquit('grid_den_2: cannot pop stack',0)
+     &     call errquit('grid_quadv0a: cannot pop stack',6)
       if (.not.ma_pop_stack(lrscr))
-     &     call errquit('grid_den_2: cannot pop stack',5)
+     &     call errquit('grid_quadv0a: cannot pop stack',7)
       if (.not.ma_pop_stack(lbp))
-     &     call errquit('grid_den_2: cannot pop stack',4)
+     &     call errquit('grid_quadv0a: cannot pop stack',8)
 c
       if (.not.ma_pop_stack(lrqbuf))
-     &     call errquit('grid_den_2: cannot pop stack', 3)
+     &     call errquit('grid_quadv0a: cannot pop stack', 9)
 c
 
       if (.not.ma_pop_stack(libf_ao))
-     &     call errquit('grid_den_2: cannot pop stack', 2)
+     &     call errquit('grid_quadv0a: cannot pop stack', 10)
 c
       call ga_sync
 c

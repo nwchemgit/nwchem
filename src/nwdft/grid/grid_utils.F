@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.13 2000-03-07 02:02:32 edo Exp $
+c$Id: grid_utils.F,v 1.14 2000-03-20 21:11:50 edo Exp $
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -122,7 +122,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb, qxyz, rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.13 2000-03-07 02:02:32 edo Exp $
+C$Id: grid_utils.F,v 1.14 2000-03-20 21:11:50 edo Exp $
 c
       implicit none
 c      
@@ -676,26 +676,34 @@ c
 c
       end
 
-      Subroutine grid_repack(xyzw, qxyz, qwght, nq)
+      Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.13 2000-03-07 02:02:32 edo Exp $
+C$Id: grid_utils.F,v 1.14 2000-03-20 21:11:50 edo Exp $
 c
       implicit none
 c
-      integer nq      
-      double precision xyzw(4,nq), qxyz(3,nq), qwght(nq)
+      integer nq
+      double precision xyzw(4,nq), qxyz(3,nq), qwght(nq),
+     .     rad
 c
-      integer n
+      integer n,istep
 c
+      istep=istep+1
+      nq=dble(xyzw(1,istep))
+      rad=xyzw(2,istep)
       do 30 n = 1, nq
 c
-        qxyz(1,n) = xyzw(1,n)
-        qxyz(2,n) = xyzw(2,n)
-        qxyz(3,n) = xyzw(3,n)
+        qxyz(1,n) = xyzw(1,n+istep)
+        qxyz(2,n) = xyzw(2,n+istep)
+        qxyz(3,n) = xyzw(3,n+istep)
 c
-        qwght(n) = xyzw(4,n)
+        qwght(n) = xyzw(4,n+istep)
 c
+!            write(0,'(A,i4,4F16.9)') 
+!     .           ' RE ',n+istep,
+!     ,       qxyz(1,n),qxyz(2,n),qxyz(3,n),qwght(n)
    30 continue
+      istep=istep+nq
 c      write(6,*)' repacked buffer '
       return
       end

@@ -1,9 +1,8 @@
-      subroutine grid_buckinit(g_buck,g_buckind)
+      subroutine grid_buckinit()
 c
-c$Id: grid_bucket.F,v 1.7 2000-03-18 07:14:21 edo Exp $
+c$Id: grid_bucket.F,v 1.8 2000-03-20 21:11:48 edo Exp $
 c
       implicit none
-      integer g_buck,g_buckind
 c     
 #include "mafdecls.fh"
 #include "global.fh"
@@ -29,7 +28,7 @@ c
      ,        .false.,dum,lcube(i))
          ncubesmx=max(ncubesmx,ncubes_type(i))
       enddo
-      write(6,*) ' NCUBES ',ncubesmx
+!      write(6,*) ' NCUBES ',ncubesmx
       if (.not.MA_alloc_Get(MT_int,ntypes*ncubesmx,'howmany cubes',
      ,     l_nxyz,k_nxyz))
      ,     call errquit('grid_buckinit: cannot allocate nxyz',0)
@@ -40,8 +39,7 @@ c
       enddo
       return
       end
-      subroutine grid_buckend(g_buck,g_buckind)
-      integer g_buck,g_buckind
+      subroutine grid_buckend()
 c     
 #include "mafdecls.fh"
 #include "global.fh"
