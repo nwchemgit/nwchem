@@ -4,7 +4,7 @@
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.17 2000-04-12 17:21:25 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.18 2001-09-28 15:45:44 d3j191 Exp $
 c
       implicit none
 c
@@ -235,7 +235,7 @@ c
       if(atyp1.eq.'      ') goto 1
       if(atyp2.eq.'      ') goto 1
       do 10 i=1,nbnd
-      if(lbnd(3,i).le.0) then
+      if(lbnd(3,i).le.0.and.lbnd(4,i).eq.0) then
       do 11 j=1,3
       btyp1(1:5)=catm(1+j,lbnd(1,i))(1:5)
       btyp2(1:5)=catm(1+j,lbnd(2,i))(1:5)
@@ -276,7 +276,7 @@ c
       if(atyp2.eq.'      ') goto 1
       if(atyp3.eq.'      ') goto 1
       do 13 i=1,nang
-      if(lang(4,i).le.0) then
+      if(lang(4,i).le.0.and.lang(5,i).eq.0) then
       do 14 j=1,3
       btyp1(1:5)=catm(1+j,lang(1,i))(1:5)
       btyp2(1:5)=catm(1+j,lang(2,i))(1:5)
@@ -322,7 +322,7 @@ c
       if(atyp2.eq.'      ') goto 1
       if(atyp3.eq.'      ') goto 1
       do 16 i=1,ndih
-      if(ldih(5,i).le.0) then
+      if(ldih(5,i).le.0.and.ldih(6,i).eq.0) then
       do 17 j=1,3
       btyp1(1:5)=catm(1+j,ldih(1,i))(1:5)
       btyp2(1:5)=catm(1+j,ldih(2,i))(1:5)
@@ -380,7 +380,7 @@ c
       if(atyp1.eq.'      ') goto 1
       if(atyp4.eq.'      ') goto 1
       do 19 i=1,nimp
-      if(limp(5,i).le.0) then
+      if(limp(5,i).le.0.and.limp(6,i).eq.0) then
       do 20 j=1,3
       btyp1(1:5)=catm(1+j,limp(1,i))(1:5)
       btyp2(1:5)=catm(1+j,limp(2,i))(1:5)

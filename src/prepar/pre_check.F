@@ -2,7 +2,7 @@
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_check.F,v 1.12 1999-07-14 22:16:15 d3j191 Exp $
+c $Id: pre_check.F,v 1.13 2001-09-28 15:45:44 d3j191 Exp $
 c
       implicit none
 c
@@ -40,7 +40,7 @@ c
     1 continue
 c
       do 2 i=1,nbnd
-      if(lbnd(3,i).le.0.and.lbnd(3,i).gt.-7) then
+      if(lbnd(3,i).le.0.and.lbnd(3,i).gt.-7.and.lbnd(4,i).eq.0) then
       k=-lbnd(3,i)
       do 3 j=1,3
       if(catm(1+j,lbnd(1,i))(6:6).eq.'Q'.and.
@@ -77,7 +77,7 @@ c
     2 continue
 c
       do 4 i=1,nang
-      if(lang(4,i).le.0.and.lang(4,i).gt.-7) then
+      if(lang(4,i).le.0.and.lang(4,i).gt.-7.and.lang(5,i).eq.0) then
       k=-lang(4,i)
       do 5 j=1,3
       if(catm(1+j,lang(1,i))(6:6).eq.'Q'.and.
@@ -116,7 +116,7 @@ c
     4 continue
 c
       do 6 i=1,ndih
-      if(ldih(5,i).le.0.and.ldih(5,i).gt.-7) then
+      if(ldih(5,i).le.0.and.ldih(5,i).gt.-7.and.ldih(6,i).eq.0) then
       k=-ldih(5,i)
       do 7 j=1,3
       if(catm(1+j,ldih(1,i))(6:6).eq.'Q'.and.
@@ -159,7 +159,7 @@ c
     6 continue
 c
       do 8 i=1,nimp
-      if(limp(5,i).le.0.and.limp(5,i).gt.-7) then
+      if(limp(5,i).le.0.and.limp(5,i).gt.-7.and.limp(6,i).eq.0) then
       k=-limp(5,i)
       do 9 j=1,3
       if(catm(1+j,limp(1,i))(6:6).eq.'Q'.and.
