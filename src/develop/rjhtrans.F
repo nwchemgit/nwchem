@@ -1,6 +1,6 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.2 1998-12-14 20:21:23 jhvan Exp $
+*     $Id: rjhtrans.F,v 1.3 1998-12-17 22:25:18 d3e129 Exp $
 *
       implicit none
 #include "global.fh"
@@ -699,7 +699,7 @@ c
          i2_occ = 1             ! k
          i3_occ = 2             ! e
          i4_occ = 2             ! a
-      else if (type .eq. 'T(ij,ce)(ijec)') then   ! ??????? ORDERING OF INDICES
+      else if (type .eq. 'T(ij,ce)(ijec)') then   ! ? ORDERING OF INDICES
 c
 c     i1=i,   i2=j,  i3=e,  i4=c
 c
@@ -775,7 +775,7 @@ c
                   enddo
                enddo
 c
-               if (ind .ne. reclen) call errquit('ind??',ind)
+               if (ind .ne. reclen) call errquit('ind?',ind)
 c
                i3i4 = 1 + i3-i3_lo_spatial + 
      $              (i3_hi-i3_lo+1)*(i4-i4_lo_spatial)
