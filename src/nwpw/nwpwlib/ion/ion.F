@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.21 2003-07-29 20:12:53 bylaska Exp $
+* $Id: ion.F,v 1.22 2003-07-30 17:42:38 bylaska Exp $
 *
 
 *     ***************************
@@ -692,9 +692,9 @@ c     call ion_shift()
       end
 
 *     ***************************
-*     *							*
-*     *		ion_TotalCharge		*
-*     *							*
+*     *                         *
+*     *    ion_TotalCharge      *
+*     *                         *
 *     ***************************
       real*8 function ion_TotalCharge()
       implicit none
@@ -704,15 +704,25 @@ c     call ion_shift()
       real*8  icharge
 
 *     **** external functions ****
-      real*8   psp_zv
-      integer  ion_natm,ion_nkatm
-      external psp_zv
-      external ion_natm,ion_nkatm
+      real*8   psp_zv,cpsp_zv
+      integer  ion_natm,ion_nkatm,control_code
+      external psp_zv,cpsp_zv
+      external ion_natm,ion_nkatm,contol_code
 
-      icharge = 0.0d0
-      do ia=1,ion_nkatm()
-         icharge = icharge + ion_natm(ia)*psp_zv(ia)
-      end do
+      !**** band structure code ****
+      if (control_code().eq.5) then
+         icharge = 0.0d0
+         do ia=1,ion_nkatm()
+            icharge = icharge + ion_natm(ia)*cpsp_zv(ia)
+         end do
+
+      !**** pspw codes ****
+      else
+         icharge = 0.0d0
+         do ia=1,ion_nkatm()
+            icharge = icharge + ion_natm(ia)*psp_zv(ia)
+         end do
+      end if
 
       ion_TotalCharge = icharge
       return
