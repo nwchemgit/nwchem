@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.26 1996-08-19 15:23:33 d3g681 Exp $
+C$Id: inp.F,v 1.27 1996-09-20 18:11:38 d3g681 Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -629,7 +629,6 @@ c
 #include "inpP.fh"
       character*(*) a
       integer i
-      integer len
       logical ois_ws
       intrinsic len
       character*1 xtest
