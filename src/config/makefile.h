@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.227 1997-03-25 17:37:33 d3g681 Exp $
+# $Id: makefile.h,v 1.228 1997-03-28 00:17:12 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -1010,9 +1010,15 @@ else
 
 # First time thru you need the -L... option. Next time remove it
 # and move the library file name to the last but one argument and add -g
-.F.o:; flint $(CPPFLAGS) -g -m -P SGI,SUN,CRAY -u $(SRCDIR)/nwchem.lbt $<
+ifeq ($(FLINT),1)
+.F.o:; flint $(CPPFLAGS) -L $(SRCDIR)/nwchem.lbt $<
 
-.f.o:; flint $(CPPFLAGS) -g -m -P SGI,SUN,CRAY -u $(SRCDIR)/nwchem.lbt $<
+.f.o:; flint $(CPPFLAGS) -L $(SRCDIR)/nwchem.lbt $<
+else
+.F.o:; flint $(CPPFLAGS) -g -f -u $(SRCDIR)/nwchem.lbt $<
+
+.f.o:; flint $(CPPFLAGS) -g -f -u $(SRCDIR)/nwchem.lbt $<
+endif
 
 endif
 
