@@ -7,7 +7,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.36 2001-11-06 06:15:20 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.37 2002-01-11 23:14:27 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -64,7 +64,7 @@ c
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
 c
-      integer len_t,length,len_f
+      integer len_c,length,len_f
 c
       integer mtyp,i_ltyp,l_ltyp
       integer nring3,nring4,nring5,nring6
@@ -82,7 +82,7 @@ c
  2000 format(/,'pre_mkfrg ')
       endif
 c
-      len_t=index(dir_t,' ')-1
+      len_c=index(dir_c,' ')-1
       ilist=0
 c
       nbndt=0
@@ -268,7 +268,7 @@ c     -----------------------
 c
       length=index(csgm(i),' ')-1
       if(length.le.0) length=5
-      filnam=dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
+      filnam=dir_c(1:len_c)//csgm(i)(1:length)//'.frg '
       len_f=index(filnam,' ')-1
       if(.not.found) filnam=filnam(1:len_f)//'_TMP'
       len_f=index(filnam,' ')-1
