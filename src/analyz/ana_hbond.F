@@ -186,7 +186,7 @@ c
      + (xw(i,k,3)-xw(j,l,3))**2)
       if(d.gt.rhbmin.and.d.lt.rhbmax) then
       if(ihbndw(i).gt.0) then
-      a=ana_angle(xs,msa,xw,mwm,mwa,i,ihbndw(i),1,k,j,l)
+      a=ana_angle(xs,msa,xw,mwm,mwa,i,ihbndw(i),i,k,j,l)
       else
       a=ana_angle(xs,msa,xw,mwm,mwa,j,ihbndw(l),j,l,i,k)
       endif
