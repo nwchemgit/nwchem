@@ -360,7 +360,7 @@ c
       endif
       if (.not. rtdb_put(rtdb, 'dft:smear_sigma', mt_dbl, 1, 1d-3))
      &   call errquit('conv_inp: rtdb_put failed', 2021)
-      if (rtdb_put(rtdb, 'dft:n_rabuck', mt_int, 1, n_rabuck))
+      if (.not.rtdb_put(rtdb, 'dft:n_rabuck', mt_int, 1, n_rabuck))
      &   call errquit('conv_inp: rtdb_put failed', 2022)
 c
       goto 10
