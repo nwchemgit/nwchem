@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.138 2000-02-05 00:38:51 edo Exp $
+c     $Id: dft_scf.F,v 1.139 2000-02-24 22:45:40 edo Exp $
 c     
       implicit none
 c
@@ -559,8 +559,9 @@ c
 	vecs_or_dens='density'
 	ldmix=.false.
 C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
-	if(movecs_in.ne.'atomic'.and.
-     *movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore' ) then
+	if((movecs_in.ne.'atomic'.and.
+     *       movecs_in.ne.'fragment'.and.movecs_in.ne.'hcore')
+     .       .or.check_deg) then
            vecs_or_dens='vectors'
            ldmix=.true.
          endif
