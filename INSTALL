@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.15 1998-10-08 21:22:02 d3e129 Exp $
+$Id: INSTALL,v 1.16 1998-10-10 00:08:21 windus Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -201,7 +201,7 @@ C) cp $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem /usr/local/NWChem/bin
 	 or read the README files in $NWCHEM_TOP/src/tcgmsg    
 
 D) cp $NWCHEM_TOP/src/basis/library /usr/local/NWChem/data
-   cd $NWCHEM/src/nwadata
+   cd $NWCHEM_TOP/src/nwadata
    cp -r * /usr/local/NWChem/data
 
 E) Each user will need a .nwchemrc file to point to these default data
