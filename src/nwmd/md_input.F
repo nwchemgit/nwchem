@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.11 1999-12-16 16:55:09 d3j191 Exp $
+c $Id: md_input.F,v 1.12 2000-01-26 16:28:41 d3j191 Exp $
 c
       implicit none
 c
@@ -445,7 +445,7 @@ c
       goto 2
       endif
 c
-      if(inp_compare(.false.,'vverlet',item)) then
+      if(inp_compare(.false.,'leapfrog_bc',item)) then
       mdalgo=2
       goto 2
       endif
