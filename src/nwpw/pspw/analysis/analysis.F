@@ -61,9 +61,9 @@
 
 
 *     **** external functions ****
-      logical  control_DOS
+      logical  control_DOS,nwpw_filefind
       logical  control_mulliken_kawai,aorbs_init,aorbs_readall
-      external control_DOS
+      external control_DOS,nwpw_filefind
       external control_mulliken_kawai,aorbs_init,aorbs_readall
       character   spdf_name
       external    spdf_name
@@ -101,6 +101,19 @@
      >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
+
+
+*      ***********************************************
+*      **** create psp1 files if they don't exist ****
+*      ***********************************************
+       do k=1,npsp
+         DD = '                          '
+         DD = psp_atom(k)
+         ind = index(DD,' ') - 1
+         test = DD(1:ind)//'.psp1'
+         if (.not.nwpw_filefind(test))
+     >      call aorbs_formatter_auto(psp_atom(k))
+       end do
 
 *      ****************************************
 *      **** read in expansion coefficients ****
