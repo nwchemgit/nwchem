@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.128 2001-04-24 01:26:34 edo Exp $
+# $Id: GNUmakefile,v 1.129 2001-05-05 01:50:44 edo Exp $
 
 include ../config/makefile.h
 
@@ -54,6 +54,11 @@ ifeq ($(TARGET),IBM)
 endif
 
 ifeq ($(TARGET),IBM64)
+  EXTRA_OBJ = ibm_cputime.o 
+  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+endif
+
+ifeq ($(TARGET),IBM64_32)
   EXTRA_OBJ = ibm_cputime.o 
   LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
