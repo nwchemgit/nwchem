@@ -1,6 +1,10 @@
 *
-* $Id: paw_inner_loop.F,v 1.22 2003-02-23 23:55:11 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.23 2003-02-24 21:05:00 bylaska Exp $
 *
+
+* $Log: not supported by cvs2svn $
+
+
 
       subroutine paw_inner_loop(ispin,ne,
      >                      npack1,nfft3d,nemax,
