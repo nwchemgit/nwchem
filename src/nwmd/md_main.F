@@ -134,7 +134,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme,epot)
+     + dbl_mb(i_ess),eskin,epme,epot)
 c
       epsd=epot
       dx=dx0sd
@@ -170,7 +170,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme,epot)
+     + dbl_mb(i_ess),eskin,epme,epot)
 c
 c     if energy goes up restore coordinates and forces
 c
@@ -234,7 +234,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme,epot)
+     + dbl_mb(i_ess),eskin,epme,epot)
 c
       dxf=dx/fmax
 c
@@ -309,7 +309,7 @@ c
      + dbl_mb(i_fs),pcgs,nsaloc,beta3,ypb)
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme,epot)
+     + dbl_mb(i_ess),eskin,epme,epot)
 c
       if(ypb.gt.zero.and.epot.lt.epcg) then
       alpha=beta2
@@ -350,7 +350,7 @@ c
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
       call prp_proper(isdit,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),epme,epot)
+     + dbl_mb(i_ess),eskin,epme,epot)
 c
       beta5=beta4*pnorm/fnorm
 c
@@ -798,8 +798,6 @@ c
       call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
      + isl(1,lsatt),isl(1,lsmol),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
-      lpbc=.true.
-c
       do 1 ibbl=1,nbbl
 c
       call sp_getxbl(ibbl,lhandl,
@@ -836,7 +834,7 @@ c
       character*255 fil
 c
       if(me.eq.0) then
-      open(unit=lfn,file=filrst(1:index(filrst,' ')-1),
+      open(unit=lfn,file=fil(1:index(fil,' ')-1),
      + form='formatted',status='unknown',err=9999)
       endif
 c

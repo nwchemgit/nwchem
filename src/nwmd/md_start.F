@@ -21,7 +21,7 @@ c     -----------------------------------
 c
       call sp_start(lfntop,filtop,lfnrst,filrst,rshort,rlong,zero,
      + npx,npy,npz,nbx,nby,nbz,
-     + npbtyp,nbxtyp,box,vlat,
+     + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,.false.,.false.,temp,tempw,temps)
 c
