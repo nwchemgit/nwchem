@@ -1,5 +1,10 @@
       subroutine util_pack_info(bytes_per_int, obigendian)
       implicit none
+#if defined(LINUX) || defined(LINUX64)
+#define INTEGER_1 integer*1
+#else
+#define INTEGER_1 byte
+#endif
 #include "mafdecls.fh"
       integer bytes_per_int
       logical obigendian
@@ -74,7 +79,7 @@ c
       end
       subroutine util_pack_16(nunpacked, packed, unpacked)
 *
-* $Id: util_pack.F,v 1.15 2000-08-01 19:58:42 d3g681 Exp $
+* $Id: util_pack.F,v 1.16 2003-09-04 15:18:10 edo Exp $
 *
       implicit none
       integer nunpacked

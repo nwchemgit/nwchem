@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.418 2003-08-13 22:13:32 edo Exp $
+# $Id: makefile.h,v 1.419 2003-09-04 15:18:09 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1259,14 +1259,14 @@ ifeq ($(LINUXCPU),x86)
       FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
     endif
     ifeq ($(_CPU),i786)
-      FOPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
+      FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
     endif
     DEFINES   += -DIFCLINUX
   endif
 
   ifeq ($(CC),icc)
     COPTIONS   =   -mp1 -w -g -vec_report3
-    COPTIMIZE = -O3 -prefetch  -unroll 
+    COPTIMIZE = -O3   -unroll 
     ifeq ($(_CPU),i586)
       COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
     endif
@@ -1274,7 +1274,7 @@ ifeq ($(LINUXCPU),x86)
       COPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
     endif
     ifeq ($(_CPU),i786)
-      COPTIMIZE +=  -tpp7 -xW -mP3OPT_pcg_ftz   # this are for PentiumIV
+      COPTIMIZE +=  -tpp7 -xW   # this are for PentiumIV
     endif
   endif
 endif

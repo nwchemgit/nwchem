@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.166 2003-08-14 02:52:12 edo Exp $
+# $Id: GNUmakefile,v 1.167 2003-09-04 15:18:10 edo Exp $
 
 include ../config/makefile.h
 
@@ -23,53 +23,53 @@ endif
 ifeq ($(TARGET),SOLARIS64)
 # This assumes f77 ... use -DINTEGER_1='integer*1' for f90
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 ifeq ($(TARGET),SOLARIS)
 # This assumes f77 ... use -DINTEGER_1='integer*1' for f90
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),SUN)
   EXTRA_OBJ = ieeetrap.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),SP)
   EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
   LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),LAPI)
   EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
   LIB_ALSO_BUILD = $(BINDIR)/jobtime $(BINDIR)/jobtime.pl
 endif
 
 ifeq ($(TARGET),IBM)
   EXTRA_OBJ = ibm_cputime.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),IBM64)
   EXTRA_OBJ = ibm_cputime.o 
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),LAPI64)
   EXTRA_OBJ = ibm_cputime.o 
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),HPUX64)
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGWIN CYGNUS))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o
-  LIB_DEFINES += -DINTEGER_1='integer*1' -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
   ifeq ($(FC),ifc)
     EXTRA_OBJ += erfc.o
   endif
@@ -81,17 +81,12 @@ endif
 
 
 ifeq ($(TARGET),HPUX)
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 #  EXTRA_OBJ = util_hp_extra.o
 endif
 
-ifeq ($(TARGET),KSR)
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
-  EXTRA_OBJ = ksr_cputime.o
-endif
-
 ifeq ($(TARGET),DECOSF)
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  -D_POSIX_PII_SOCKET
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  -D_POSIX_PII_SOCKET
   EXTRA_OBJ = dec_fpe.o
 endif
 ifeq ($(TARGET),LINUX64)
@@ -100,7 +95,7 @@ ifeq ($(FC),fort)
   EXTRA_OBJ += dec_fpe.o
 endif
 endif
-  LIB_DEFINES += -DINTEGER_1='integer*1' -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DBYTE_SHORT_PACKING  
 ifeq ($(_CPU),ia64)
   EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o erfc.o
 endif
