@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.32 2004-11-12 20:14:30 marat Exp $
+c $Id: qmmm_geom.F,v 1.33 2004-11-12 22:25:25 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -107,12 +107,15 @@ c     --------------------------
      +      call errquit('qmmm: Failed to print geometry',0)
       end if
 
-      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+      if(.not.geom_rtdb_store(irtdb,igeom,'qm_geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
        
+      if(.not.rtdb_cput(irtdb,'geometry',1,'qm_geometry'))
+     + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
+
 c
 c     set link atoms ecp if any
 c     ------------------------
@@ -178,6 +181,12 @@ c     local variables
       integer i_c
       integer i_cbq
       integer i_c_all, h_c_all
+      character*32 pname
+
+ 
+
+      pname = "qmmm_get_all_coord_qm"
+
       nbq  = qmmm_get_nbq()
       
       nqm  = qmmm_get_nqm()
@@ -191,21 +200,20 @@ c     get coord information from combined
 c     qm and bq geometry
 c     -----------------------------------
       if(.not.ma_push_get(mt_dbl,3*ntot,'c_all',h_c_all,i_c_all))
-     + call errquit('qmmm_sync_geom: 
-     +              Failed to allocate memory for c_all',
+     + call errquit( pname//'Failed to allocate memory for c_all',
      + 3*ntot, MA_ERR)
 
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+     + call errquit(pname//': Failed to create geometry',0, GEOM_ERR)
 
       if(.not.geom_rtdb_load(irtdb,igeom,"geometry"))
-     >    call errquit("qmmm:load geometry",0,0)
+     >    call errquit(pname//":load geometry",0,0)
 
       if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c_all))) 
-     >    call errquit("qmmm:geom_cart_coords_get",0,0)
+     >    call errquit(pname//":geom_cart_coords_get",0,0)
 
       if(.not.geom_destroy(igeom))
-     >    call errquit("qmmm:load geometry",0,0)
+     >    call errquit(pname//":load geometry",0,0)
 
 c
 c     copy coordinates
@@ -324,8 +332,6 @@ c    --------------------------------------
        if(.not.geom_destroy(igeom))
      + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 
-      if(.not.geom_rtdb_delete(irtdb,'geometry'))
-     + call errquit(pname//'Failed to delete geometry',0, GEOM_ERR)
 
 c    --------------------------------------
 c    create combined qm bq geometry
@@ -392,11 +398,14 @@ c     +    call errquit('qmmm: Failed to print geometry',0)
 c      end if
 
 
-      if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
+      if(.not.geom_rtdb_store(irtdb,igeom,'full_geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      if(.not.rtdb_cput(irtdb,'geometry',1,'full_geometry'))
+     + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
 
 c
 c     release temporary memory
@@ -446,6 +455,10 @@ c     local variables
       integer i_c
       integer i_c_all, h_c_all
       double precision charge
+      character*32 pname
+
+
+      pname = "qmmm_restore_qm_geom"
       nbq  = qmmm_get_nbq()
       
 c     nothing to do if no bq's
@@ -470,13 +483,13 @@ c     -----------------------------------
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
       if(.not.geom_rtdb_load(irtdb,igeom,"geometry"))
-     >    call errquit("qmmm:load geometry",0,0)
+     >    call errquit(pname//":load geometry",0,0)
 
       if(.not. geom_cart_coords_get(igeom,dbl_mb(i_c_all))) 
      >    call errquit("qmmm:geom_cart_coords_get",0,0)
 
       if(.not.geom_destroy(igeom))
-     >    call errquit("qmmm:load geometry",0,0)
+     >    call errquit(pname//":destroy geometry",0,0)
 
       if(.not.geom_rtdb_delete(irtdb,"geometry"))
      >    call errquit("qmmm:delete geometry",0,0)
@@ -496,20 +509,24 @@ c     ------------------
 c
 c     create geometry out qm coordnates only
 c     --------------------------------------
+
+      if(.not.rtdb_cput(irtdb,'geometry',1,'qm_geometry'))
+     + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
+
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      if(.not.geom_rtdb_load(irtdb,igeom,"qm_geometry"))
-     >    call errquit("qmmm:load geometry",0,0)
-
+      if(.not.geom_rtdb_load(irtdb,igeom,"geometry"))
+     >    call errquit(pname//":load geometry",0,0)
+   
       if(.not. geom_cart_coords_set(igeom,dbl_mb(i_c))) 
      >    call errquit("qmmm:geom_cart_coords_set",0,0)
 
       if(.not.geom_rtdb_store(irtdb,igeom,"geometry"))
-     >    call errquit("qmmm:load geometry",0,0)
+     >    call errquit(pname//":store geometry",0,0)
 
       if(.not.geom_destroy(igeom))
-     >    call errquit("qmmm:load geometry",0,0)
+     >    call errquit(pname//": destroy geometry",0,0)
 
 c    
 c     return charge to normal
