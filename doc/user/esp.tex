@@ -1,0 +1,85 @@
+\label{sec:esp}
+
+The NWChem Electrostatic Potential (ESP) module derives partial atomic 
+charges that fit the quantum mechanical electrostatic potential on selected
+grid points.
+
+The ESP module is specified by the NWChem task directive
+\begin{verbatim}
+task esp
+\end{verbatim}
+
+The input for the module is taken from the ESP input block
+\begin{verbatim}
+esp
+end
+\end{verbatim}
+
+\section{Grid specification}
+The grid points for which the quantum mechanical electrostatic potential is 
+evaluated and used in the fitting procedure of the partial atomic charges
+all lie outside the van der Waals radius of the atoms and within a cutoff
+distance from the atomic centers. The following input parameters determine
+the selection of grid points.
+\begin{itemize}
+\item
+The extent of the grid is determined by
+\begin{verbatim}
+  range <real rcut>
+\end{verbatim}
+where \verb+rcut+ is the maximum distance in $nm$ between a grid point and
+any of the atomic centers. When omitted, a default value for \verb+rcut+ of
+0.3 $nm$ is used.
+\item
+The grid spacing is specified by
+\begin{verbatim}
+  spacing <real spac>
+\end{verbatim}
+where \verb+spac+ is the grid spacing in $nm$ for the regularly spaced
+grid points. If not specified, a default spacing of 0.1 $nm$ is used.
+\item
+The van der Waals radius of an element can be specified by
+\begin{verbatim}
+  radius <integer iatnum> <real atrad>
+\end{verbatim}
+where \verb+iatnum+ is the atomic number for which a van der Waals radius
+of \verb+atrad+ in $nm$ will be used in the grid point determination.
+Default values will be used for atoms not specified.
+\end{itemize}
+
+\section{Constraints}
+Additional constraints to the partial atomic charges can be imposed during
+the fitting procedure.
+\begin{itemize}
+\item
+The net charge of a subset of atoms can be constrained using
+\begin{verbatim}
+  constrain <real charge> {<integer iatom>}
+\end{verbatim}
+where \verb+charge+ is the net charge of the set of atoms \verb+{iatom}+.
+A negative atom number \verb+iatom+ can be used to specify that the
+partial charge of that atom is substracted in the sum for the set.
+\end{itemize}
+
+\section{Restraints}
+Restraints can be applied to each partial charge using the RESP charge
+fitting procedure.
+\begin{itemize}
+\item
+The directive for charge restraining is
+\begin{verbatim}
+  restrain [hfree] (harmonic [<real scale>] || \
+   hyperbolic [<real scale> [<real tight>]]  \
+    [maxiter <integer maxit>]  [tolerance <real toler>])
+\end{verbatim}
+where \verb+hfree+ can be specified to exclude hydrogen atoms from the
+restaining procecure. Variable \verb+scale+ is the strength of the 
+restraint potential, with a default of $0.005 au$ for the harmonic
+restraint and a default value of $0.001 au$ for the hyperbolic restraint.
+For the hyperbolic restraints the tightness \verb+tight+ can be specified
+to change the default value of $0.1 e$. The iteration count that needs to
+be carried out for the hyperbolic restraint is determined by the
+maximum number of allowed iterations \verb+maxiter+, with a default value
+of 25, and the tolerance in the convergence of the partial charges
+\verb+toler+, with a default of $0.001 e$.
+\end{itemize}
