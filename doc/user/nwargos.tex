@@ -1059,7 +1059,7 @@ only \verb+<mshitw>+ is specified, the value will also be used for \verb+<mshits
 The default maximum number of iterations is 100 for both.
 \verb+<tlwsha>+ is the solvent SHAKE tolerance in nm, and \verb+<tlssha>+ is
 the solute SHAKE tolerance in nm. If only \verb+<tlwsha>+ is specified, the
-value given will also be used for \verb+<tlwsha>+. The default tolerance
+value given will also be used for \verb+<tlssha>+. The default tolerance
 is 0.001 for both.
 \item
 \begin{verbatim}
@@ -1075,8 +1075,8 @@ particle mesh Ewald technique.
 \begin{itemize}
 \item
 \begin{verbatim}
-  ewald [grid <integer ngx> [<integer ngy> [<integer ngz>]]] \
-        [alpha <real ealpha>]
+  pme [grid <integer ngx> [<integer ngy> [<integer ngz>]]] \
+      [alpha <real ealpha>]
 \end{verbatim}
 where $ngx$, $ngy$ and $ngz$ are the number of grid points per
 dimension, and $ealpha$ is the argument of the error function in
