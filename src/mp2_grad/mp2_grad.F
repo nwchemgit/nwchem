@@ -8,11 +8,12 @@
 #include "rtdb.fh"
 #include "schwarz.fh"
 #include "util.fh"
+#include "cmp2ps.fh"
       integer rtdb 
       integer geom, basis
       character*255 title
       character*255 movecs_in
-      logical status,converged
+      logical status
       character*8 task
 c
       logical cphf, scf
@@ -26,6 +27,8 @@ c
          semi_dir_mp2 = .false.
          return
       endif
+c
+      call mp2_pstat_init()
 c
       if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task))
      $     call errquit('could not determine task for semi dir mp2',1)
@@ -73,6 +76,9 @@ c
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit
      $    ('mp2_grad:error destroying geom or basis handles',0)
+c
+      call mp2_pstat_tidy()
+c
       call util_print_pop
 c
       semi_dir_mp2 = .true.

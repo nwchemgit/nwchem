@@ -1,0 +1,10 @@
+c
+c     Pstat handles for the MP2
+c
+      integer ps_total, ps_moints, ps_maket, ps_pijab, ps_wijab, 
+     $     ps_lai, ps_backt, ps_nonsep, ps_laifock, ps_cphf, 
+     $     ps_wijfock, ps_sep
+c
+      common /cmp2ps/ ps_total, ps_moints, ps_maket, ps_pijab, ps_wijab, 
+     $     ps_lai, ps_backt, ps_nonsep, ps_laifock, ps_cphf, 
+     $     ps_wijfock, ps_sep

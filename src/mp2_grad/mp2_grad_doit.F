@@ -11,6 +11,9 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "cmp2ps.fh"
+#include "eaf.fh"
+#include "util.fh"
       integer rtdb, g_vecs_a,g_vecs_b,pass
       integer noa_lo,noa_hi,nob_lo,nob_hi
       integer irs_a(*),irs_b(*)
@@ -48,8 +51,6 @@
       integer nva_lo_local,nva_hi_local
       parameter(kunit=11)
       integer tunita,tunitb
-      parameter(tunita=13)
-      parameter(tunitb=14)
       logical ocoul,oexch
       double precision tol2e,e2
       double precision eval_a(*),eval_b(*)
@@ -106,12 +107,14 @@ c     Generate the part transformed integrals on disk (ia|uv)
 c     
 c     i in batch, a distributed, (u>=v) with zeroes removed.
 c     
+         call pstat_on(ps_moints)
          call int_init(rtdb,1,basis)
          call schwarz_init(geom,basis)
          call moints_semi(basis,tol2e,ocoul,oexch,oseg_lo,oseg_hi,
      $        noa_lo,noa_hi,nva_lo,nva_hi,g_vecs_a,oblk)
          call int_terminate()
          call schwarz_tidy()
+         call pstat_off(ps_moints)
 c     
 c     make t-pure-spin in tunita, t-mixed-spin in tunitb
 c
@@ -140,9 +143,12 @@ c
          if(task.eq.'gradient')then
             call util_file_name('ta',.true.,.true.,fnameta)
             call util_file_name('tb',.true.,.true.,fnametb)
-            call waopen(tunita,fnameta,1,0,ierr)
-            call waopen(tunitb,fnametb,1,0,ierr)
+            if (eaf_open(fnameta,eaf_rw,tunita) .ne. 0)
+     $           call errquit('mp2_grad: eaf open of ta failed',0)
+            if (eaf_open(fnametb,eaf_rw,tunitb) .ne. 0)
+     $           call errquit('mp2_grad: eaf open of tb failed',0)
          endif
+         call pstat_on(ps_maket)
          call mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $        nob_lo,nob_hi,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
@@ -152,6 +158,7 @@ c
      $        nva,noa,nvb,nob,nir,ioff,nnbf,
      $        int_mb(k_v),nva_lo_local,nva_hi_local,
      $        e2,task,tunita,tunitb,kunit)
+         call pstat_off(ps_maket)
 c     
          if(task.eq.'gradient')then
             if(.not.ma_push_get(mt_dbl,noa*nva,
@@ -167,6 +174,7 @@ c
      $           't_eps_b',l_t_eps_b,k_t_eps_b))call errquit(
      $           'could not alloc t_eps_b in grad_uhf',1)
 c     
+            call pstat_on(ps_pijab)
             call mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,
      $           sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
@@ -176,6 +184,8 @@ c
      $           tunita,tunitb,
      $           eval_a,eval_b,g_p_ij_a,g_p_ij_b,
      $           g_p_ab_a,g_p_ab_b)
+            call pstat_off(ps_pijab)
+            call pstat_on(ps_wijab)
             call mp2_wijab_uhf(nir,nva_lo,nva_hi,
      $           sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,sym_lo_vb,
      $           sym_hi_vb,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
@@ -186,6 +196,7 @@ c
      $           dbl_mb(k_t_eps_a),dbl_mb(k_t_eps_b),
      $           tunita,tunitb,eval_a, eval_b,
      $           g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
+            call pstat_off(ps_wijab)
 c
 c...  Form the terms in the Lagrangian which are not Fock builds:
 c     
@@ -210,6 +221,7 @@ c
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
      $           call errquit('could not alloc temp',1)
 c
+            call pstat_on(ps_lai)
             call mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
      $           sym_lo_va,sym_hi_va,num_oa,nvb_lo,nvb_hi,
      $           sym_lo_ob,sym_hi_ob,num_ob,sym_lo_vb,sym_hi_vb,
@@ -223,6 +235,7 @@ c
      $           tunita,tunitb,dbl_mb(k_lai3_a),dbl_mb(k_lai3_b),
      $           dbl_mb(k_lai1_a),dbl_mb(k_lai1_b),
      $           g_lai_a,g_lai_b,g_wai_a,g_wai_b,kunit)
+            call pstat_off(ps_lai)
 c
             if(.not. ma_chop_stack(l_vvvo))
      $           call errquit('mp2_grad_doit: failed chopping vvvo',0)
@@ -245,12 +258,15 @@ c
      $           nva_lo_local, nva_hi_local, 
      $           tunita, tunitb, grad)
 c     
-            call waclose(tunita,ierr)
-            if(ierr.ne.0)call errquit('problem closing ta file',
-     $           ierr)
-            call waclose(tunitb,ierr)
-            if(ierr.ne.0)call errquit('problem closing tb file',
-     $           ierr)
+            if (util_print('iostats', print_high) .and. 
+     $           ga_nodeid().eq.0) then
+               call eaf_print_stats(tunita)
+               call eaf_print_stats(tunitb)
+            endif
+            if (eaf_close(tunita) .ne. 0) call errquit
+     $           ('mp2_grad: error closing ta',0)
+            if (eaf_close(tunitb) .ne. 0) call errquit
+     $           ('mp2_grad: error closing tb',0)
             call util_file_unlink(fnameta)
             call util_file_unlink(fnametb)
          endif

@@ -10,6 +10,7 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "eaf.fh"
       integer i,a_a,nbf
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer nob_lo,nob_hi,nvb_lo,nvb_hi
@@ -31,7 +32,8 @@
       double precision t_a(*),t_b(*),t_eps_a(*),t_eps_b(*)
       double precision zero,one,minusone,half,mhalf
       integer symi,syma,symia,symb,symj
-      integer b,tunitptra,tunitptrb,counta,countb,ierr
+      integer b,counta,countb
+      double precision tunitptra,tunitptrb
       integer j
       double precision epsilon_a,epsilon_b
       integer msg_w_ij_a_sum,msg_w_ij_b_sum
@@ -77,18 +79,16 @@ c
          do a_a=nva_lo_local,nva_hi_local
             syma=irs_a(a_a)
             symia=ieor(syma,symi)
+c
+            call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
+     $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
+c
             tcounta=1
-            tcountb=1
             do b=nva_lo,nva_hi
                symb=irs_a(b)
                symj=ieor(symb,symia)
                if(num_oa(symj).ne.0)then
                   counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                  call getwa(tunita,t_a(tcounta),
-     $                 tunitptra,counta,ierr)
-                  if(ierr.ne.0)call errquit(
-     $                 'problem reading t_a back in',ierr)
-                  tunitptra=tunitptra+counta
                   do j=sym_lo_oa(symj),sym_hi_oa(symj)
                      epsilon_a=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
@@ -98,16 +98,16 @@ c
                   tcounta=tcounta+counta
                endif
             enddo
+c
+            call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
+     $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
+c
+            tcountb=1
             do b=nvb_lo,nvb_hi
                symb=irs_b(b)
                symj=ieor(symb,symia)
                if(num_ob(symj).ne.0)then
                   countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                  call getwa(tunitb,t_b(tcountb),
-     $                 tunitptrb,countb,ierr)
-                  if(ierr.ne.0)call errquit(
-     $                 'problem reading t_b back in',ierr)
-                  tunitptrb=tunitptrb+countb
                   do j=sym_lo_ob(symj),sym_hi_ob(symj)
                      epsilon_b=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)

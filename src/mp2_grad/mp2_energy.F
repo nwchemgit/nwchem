@@ -9,6 +9,7 @@
 #include "util.fh"
 #include "stdio.fh"
 #include "sym.fh"
+#include "cmp2ps.fh"
       character*8 task
       integer num_oa_sym(0:7),num_va_sym(0:7)    
       integer num_ob_sym(0:7),num_vb_sym(0:7)
@@ -229,7 +230,7 @@ c
       if (.not. ma_pop_stack(l_work)) call errquit
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
-      tol2e=1d-12
+      tol2e=1d-10
 c     
       e2=0.0d0
 c     
@@ -342,8 +343,11 @@ c
 c     
          if (.not. ma_pop_stack(l_work)) call errquit
      $        ('mp2_grad: ma failed popping workspace(2)', 0)
-c
+c     
+         call pstat_on(ps_cphf)
          if(.not.cphf(rtdb))call errquit('could not do cphf',1)
+         call pstat_off(ps_cphf)
+c
 c...  the g_rhs now holds the solution         
          call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
          if(.not.file_read_ga(cphf_sol,g_rhs))
@@ -363,9 +367,13 @@ c...  the g_rhs now holds the solution
          call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,
      $        g_vecs_a,g_vecs_b,basis,rtdb)
+c
+         call pstat_on(ps_wijfock)
          call mp2_wij_fock_uhf(rtdb, geom,basis, tol2e,
      $        g_p_tot_a,g_p_tot_b,noa,nob,g_vecs_a,g_vecs_b,
      $        g_w_ij_a,g_w_ij_b)
+         call pstat_off(ps_wijfock)
+c
          call mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $        g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
      $        noa,nva,nob,nvb,nbf,g_vecs_a,g_vecs_b,g_rhs,
@@ -376,22 +384,19 @@ c$$$  $        g_vecs_a,g_vecs_b)
 c...  
 c...  call to Herbert's stuff
 c...  
-c$$$  call intd_init(rtdb,1,basis)
-c$$$  call schwarz_init(geom,basis)
          if(scftype.eq.'RHF')then
-            scftype='UHF'
-            if(.not.rtdb_cput(rtdb,'scf:scftype',1,scftype))
-     $           call errquit('could not put scftype',1)
-            call grad_force(rtdb,basis,geom,movecs) 
-            scftype='RHF'
-            if(.not.rtdb_cput(rtdb,'scf:scftype',1,scftype))
+            if(.not.rtdb_cput(rtdb,'scf:scftype',1,'UHF'))
      $           call errquit('could not put scftype',1)
          endif
-         if(scftype.eq.'UHF')
-     $        call grad_force(rtdb,basis,geom,movecs)
-c$$$  call schwarz_tidy()
-c$$$  call intd_terminate()
-c     
+c
+         call pstat_on(ps_sep)
+         call grad_force(rtdb,basis,geom,movecs) 
+         call pstat_off(ps_sep)
+c
+         if(scftype.eq.'RHF')then
+            if(.not.rtdb_cput(rtdb,'scf:scftype',1,'RHF'))
+     $           call errquit('could not put scftype',1)
+         endif
 c     
          call ga_dgop(1,dbl_mb(k_grad),3*natoms,'+')
          if(ga_nodeid().eq.0)then

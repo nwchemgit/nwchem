@@ -11,6 +11,7 @@
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "eaf.fh"
       integer i
       integer noa_lo,noa_hi,nva_lo,nva_hi
       integer sym_lo_oa(0:*),sym_hi_oa(0:*)
@@ -29,12 +30,13 @@
       double precision c_a(nbf,nbf),c_b(nbf,nbf)
       double precision zero,one,minusone,half
       integer syma,symi,symb,symj,symia,symc,symk
-      integer irs_a(*),irs_b(*),b
+      integer irs_a(*),irs_b(*)
       integer nva_lo_local,nva_hi_local
       double precision l_ai3_a(*),l_ai3_b(*),l_ai1_a(*),l_ai1_b(*)
       double precision t_a(*),t_b(*),ia_cb(*),ia_jk(*),tmp(*),ia_uv(*)
       integer g_lai_a,g_lai_b
-      integer counta,countb,tunitptra,tunitptrb,tunita,tunitb,ierr
+      integer tunita,tunitb
+      double precision tunitptra,tunitptrb
       integer tcounta,tcountb
       integer msg_l_ai3_a_sum,msg_l_ai3_b_sum
       parameter(msg_l_ai3_a_sum=9992)
@@ -68,21 +70,11 @@ c
             call scatter(nnbf,tmp,indx_v,ia_uv)
             call dfill((nbf*nbf),zero,ia_uv,1)
             call upper2square(nbf,tmp,ia_uv)
+c
 c...  form pure spin t*(vv|vo) and t*(vo|oo) terms 
-            tcounta=1
-            do b=nva_lo,nva_hi
-               symb=irs_a(b)
-               symj=ieor(symb,symia)
-               if(num_oa(symj).ne.0)then
-                  counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                  call getwa(tunita,t_a(tcounta),
-     $                 tunitptra,counta,ierr)
-                  if(ierr.ne.0)call errquit(
-     $                 'could not read t_a back',ierr)
-                  tunitptra=tunitptra+counta
-                  tcounta=tcounta+counta
-               endif
-            enddo
+c
+            call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
+     $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t_a)
             tcounta=1
             laiacnt=1
             do symb=0,nir-1
@@ -127,21 +119,11 @@ c...  form pure spin t*(vv|vo) and t*(vo|oo) terms
                   laiacnt=laiacnt+num_oa(symk)*num_va(symb)
                endif
             enddo
+c
 c...  form mixed spin t*(vv|vo) and t*(vo|oo) terms
-            tcountb=1
-            do b=nvb_lo,nvb_hi
-               symb=irs_b(b)
-               symj=ieor(symb,symia)
-               if(num_ob(symj).ne.0)then
-                  countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                  call getwa(tunitb,t_b(tcountb),
-     $                 tunitptrb,countb,ierr)
-                  if(ierr.ne.0)call errquit(
-     $                 'could not read t_b back',ierr)
-                  tunitptrb=tunitptrb+countb
-                  tcountb=tcountb+countb
-               endif
-            enddo
+c
+            call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
+     $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t_b)
             tcountb=1
             laibcnt=1
             do symb=0,nir-1

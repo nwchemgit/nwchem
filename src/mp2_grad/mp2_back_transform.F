@@ -17,6 +17,7 @@
 #include "util.fh"
 #include "bas.fh"
 #include "eaf.fh"
+#include "cmp2ps.fh"
       integer basis, rtdb, geom
       integer nbf               ! No. of basis functions
       integer nir               ! No. of irreducible representations
@@ -51,7 +52,8 @@ c
 c
       double precision tol2e
 c
-      tol2e = 1d-12
+
+      tol2e = 1d-9
       if (.not. bas_numcont(basis, nsh)) call errquit
      $     ('mp2: backt bad basis handle ', basis)
       ninseg = oseg_hi - oseg_lo + 1
@@ -115,6 +117,7 @@ c
 c     
 c     Now do the back transformation
 c
+      call pstat_on(ps_backt)
       call mp2_back_transform_uhf(
      $     nbf, 
      $     nir, 
@@ -132,6 +135,7 @@ c
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     dbl_mb(k_t), dbl_mb(k_iauv), dbl_mb(k_tmp),
      $     int_mb(k_map), g_buf)
+      call pstat_off(ps_backt)
 c
 c     Free up some memory and then contract with gradient integrals.
 c
@@ -155,6 +159,7 @@ c
          call dcopy(nbf, c_a(1,i), 1, dbl_mb(k_c_t+i-oseg_lo), ninseg)
       end do
 c      
+      call pstat_on(ps_nonsep)
       call mp2_nonsep_test(basis,
      $     twopdmunit,
      $     dbl_mb(k_c_t),
@@ -163,7 +168,8 @@ c
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     dbl_mb(k_t), dbl_mb(k_tmp), grad,
      $     tol2e)
-
+      call pstat_off(ps_nonsep)
+c
       call intd_terminate()
       call schwarz_tidy()
 c
@@ -172,6 +178,8 @@ c
       if (.not. ma_chop_stack(l_shpairs)) call errquit
      $     ('mp2: backt: failed chopping stack',0)
 c
+      if (util_print('iostats', print_high) .and. 
+     $     ga_nodeid().eq.0) call eaf_print_stats(twopdmunit)
       if (eaf_close(twopdmunit) .ne. 0)
      $     call errquit('mp2: backt: closing 2pdm',ierr)
       call util_file_unlink(fname)
@@ -233,11 +241,11 @@ c
 *     double precision tsum
 
       double precision zero, one, scale
-      integer tunitptra, tunitptrb ! Pointers into files
+      double precision tunitptra, tunitptrb ! Pointers into files
       double precision twopdmunitptr
-      integer count, tcount, ind, ierr, ptr
+      integer count, tcount, ind,  ptr
       integer symi, symj, syma, symb, symia
-      integer i, a, b, u, v, ush, vsh, udim, vdim, ishpair
+      integer i, a, u, v, ush, vsh, udim, vdim, ishpair
 c     
       zero=0.0d0
       one=1.0d0
@@ -254,19 +262,8 @@ c
             symia=ieor(syma,symi)
             call dfill((nbf*nbf),zero,ia_uv,1) ! Will add pure and mixed in
 c     
-            tcount=1            ! Read pure spin t(ia,**) from disk 
-            do b=nva_lo,nva_hi
-               symb=irs_a(b)
-               symj=ieor(symb,symia)
-               if(num_oa(symj).ne.0)then
-                  count=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                  call getwa(tunita,t(tcount),
-     $                 tunitptra,count,ierr)
-                  if(ierr.ne.0)call errquit('mp2_back: reading ta',ierr)
-                  tunitptra=tunitptra+count
-                  tcount=tcount+count
-               end if
-            end do
+            call mp2_read_tijab(nva_lo, nva_hi, irs_a, symia,
+     $           num_oa, sym_hi_oa, sym_lo_oa, tunita, tunitptra, t)
 c     
             tcount=1
             do symb=0,nir-1
@@ -286,19 +283,8 @@ c
                end if
             end do
 c     
-            tcount=1            ! Read mixed spin t(ia,**) from disk 
-            do b=nvb_lo,nvb_hi
-               symb=irs_b(b)
-               symj=ieor(symb,symia)
-               if(num_ob(symj).ne.0)then
-                  count=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                  call getwa(tunitb,t(tcount),
-     $                 tunitptrb,count,ierr)
-                  if(ierr.ne.0)call errquit('mp2_back: reading tb',ierr)
-                  tunitptrb=tunitptrb+count
-                  tcount=tcount+count
-               end if
-            end do
+            call mp2_read_tijab(nvb_lo, nvb_hi, irs_b, symia,
+     $           num_ob, sym_hi_ob, sym_lo_ob, tunitb, tunitptrb, t)
 c     
             tcount=1
             do symb=0,nir-1
@@ -576,19 +562,22 @@ c
       integer ishpair
       integer ush, vsh, xsh, ysh, u, v, x, y
       integer udim, vdim, xdim, ydim, xlo, ylo
-      double precision energy, scale
+      double precision energy, g
+      double precision scale
       integer l_g, k_g, l_scr, k_scr
       integer duvxy, uvxy, vuoff, xvuoff, yvuoff
 c     
-      double precision g
+      double precision psum
 c     
       integer nat, idatom, lengd, lenscrd, l_gd, k_gd, iat, icart, 
      $     k_scrd, l_scrd, idum, geom, idum2
       dimension idatom(4)
-      logical status
+      logical status, odebug
       double precision ddot
       external ddot
 c     
+      odebug = util_print('mp2_backt', print_debug)
+c
       energy = 0.0d0
 c     
       call int_mem_2e4c(leng, lenscr)
@@ -606,7 +595,7 @@ c
       if (.not. ma_push_get(mt_dbl, lengd, 'mp2:test', l_gd, k_gd))
      $     call errquit('mp2:test ma', lengd)
 c     
-      if (util_print('mp2_backt', print_debug)) then
+      if (odebug) then
          write(6,*) ' Transposed occupied MOS in segment '
          call output(c_t, 1, ninseg, 1, nbf, ninseg, nbf, 1)
       end if
@@ -643,17 +632,16 @@ c
                   xlo  = shlo(xsh)
                   ylo  = shlo(ysh)
 
-                  call int_2e4c(basis, ush, vsh, basis, xsh, ysh,
-     $                 lenscr, dbl_mb(k_scr), leng, dbl_mb(k_g))
-
-                  call intd_2e4c(basis, ush, vsh, basis, xsh, ysh,
-     $                 lenscrd, dbl_mb(k_scrd), lengd, dbl_mb(k_gd), 
-     $                 idatom)
-
 c     first the energy just to validate the 2pdm
-c     overwrite the energy integral  with the value of the 2PDM
+                  if (odebug) then
+                     call int_2e4c(basis, ush, vsh, basis, xsh, ysh,
+     $                    lenscr, dbl_mb(k_scr), leng, dbl_mb(k_g))
+                  endif
+
+c     overwrite the energy integrals with the value of the 2PDM
 
                   uvxy = k_g
+                  psum = 0.0d0
                   do u = 1, udim
                      do v = 1, vdim
                         vuoff = nbf*(v-1 + vdim*(u-1))
@@ -661,19 +649,20 @@ c     overwrite the energy integral  with the value of the 2PDM
                            xvuoff = ninseg*(x-1 + vuoff)
                            do y = ylo, ylo+ydim-1
                               yvuoff = ninseg*(y-1 + vuoff)
-                              g = dbl_mb(uvxy)
                               p = 0.0d0
 c
-                              if (abs(g).gt.tol2e) then
-                                 do i = 1, ninseg
-                                    p = p +
-     $                                   t(i+xvuoff)*c_t(i,y)+
-     $                                   t(i+yvuoff)*c_t(i,x)
-                                 end do
-                              endif
+                              do i = 1, ninseg
+                                 p = p +
+     $                                t(i+xvuoff)*c_t(i,y)+
+     $                                t(i+yvuoff)*c_t(i,x)
+                              end do
 c
                               p = p*scale
-                              energy = energy + p * g
+                              psum = psum + p*p
+                              if (odebug) then
+                                 g = dbl_mb(uvxy)
+                                 energy = energy + p * g
+                              endif
                               dbl_mb(uvxy) = p
 c
                               uvxy = uvxy + 1
@@ -681,32 +670,42 @@ c
                         end do
                      end do
                   end do
+                  psum = sqrt(psum) 
 
-c     and then the gradient
+c     and then the gradient if it will be significant
 
-                  duvxy = k_gd
-                  do iat = 1, 4
-                     if ( idatom(iat) .gt. 0 ) then
-                        do icart = 1, 3
-                           grad(icart,idatom(iat)) = 
-     $                          grad(icart,idatom(iat)) + 
-     $                          ddot(udim*vdim*xdim*ydim,
-     $                          dbl_mb(k_g), 1, dbl_mb(duvxy), 1)
-                           duvxy = duvxy + udim*vdim*xdim*ydim
-                        end do   ! icart
-                     else
-                        duvxy = duvxy + 3*udim*vdim*xdim*ydim
-                     end if      ! idatom
-                  end do         ! iat
-               end if
+                  if (schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)*psum
+     $                 .gt. tol2e) then
+                     
+                     call intd_2e4c(basis, ush, vsh, basis, xsh, ysh,
+     $                    lenscrd, dbl_mb(k_scrd), lengd, dbl_mb(k_gd), 
+     $                    idatom)
+                     
+                     duvxy = k_gd
+                     do iat = 1, 4
+                        if ( idatom(iat) .gt. 0 ) then
+                           do icart = 1, 3
+                              grad(icart,idatom(iat)) = 
+     $                             grad(icart,idatom(iat)) + 
+     $                             ddot(udim*vdim*xdim*ydim,
+     $                             dbl_mb(k_g), 1, dbl_mb(duvxy), 1)
+                              duvxy = duvxy + udim*vdim*xdim*ydim
+                           end do ! icart
+                        else
+                           duvxy = duvxy + 3*udim*vdim*xdim*ydim
+                        end if  ! idatom
+                     end do     ! iat
+                  endif         ! Density * Schwarz screening
+               end if           ! Schwarz screening
             end do
          end do
       end do
 c     
-      call ga_dgop(1,energy,1,'+')
 c
-      if (util_print('mp2_backt', print_debug))
-     $     write(6,*) ' The energy from the two PDM is ', energy
+      if (odebug) then
+         call ga_dgop(1,energy,1,'+')
+         write(6,*) ' The energy from the two PDM is ', energy
+      endif
 c
 c     DGOP must be deferred until have everything or will double count
 c

@@ -39,7 +39,7 @@ c$$$      call ga_print(g_rhs)
      $     'could not open p_b_ao file',1)
       one=1.0d0
       zero=0.0d0
-      call int_init(rtdb,1,basis)
+c$$$      call int_init(rtdb,1,basis)
       call ga_dscal(g_rhs,2.0d0)
       call ga_zero(g_p_tot_a)
       call ga_zero(g_p_tot_b)

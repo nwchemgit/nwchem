@@ -10,6 +10,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "eaf.fh"
       character*8 task
       integer nbf,i
       integer noa_lo,noa_hi,nva_lo,nva_hi
@@ -21,12 +22,15 @@
       integer sym_lo_vb(0:*),sym_hi_vb(0:*)
       integer num_ob(0:*),num_vb(0:*)
       integer noa,nva,nob,nvb,counter,g_t_a,g_t_b
-      integer a_a,tunita,tunitb,tunitptra,tunitptrb,counta,countb,ierr
+      integer a_a,tunita,tunitb,counta,countb
       integer oseg_lo,oseg_hi
       integer nir
       integer toff_a(nva_lo:nva_hi,0:nir-1),
      $     toff_b(nvb_lo:nvb_hi,0:nir-1)
       double precision eaa,eab
+c
+      double precision tunitptra,tunitptrb
+c
       double precision c_a(nbf,nbf),c_b(nbf,nbf)
       integer i_batch
       double precision e2,denom,t,minusone
@@ -142,6 +146,7 @@ c
          enddo
          call ga_sync()
          do a_a=nva_lo_local,nva_hi_local
+            counta = 0
             do b=nva_lo,nva_hi
                symb=irs_a(b)
                syma=irs_a(a_a)
@@ -150,25 +155,24 @@ c
                   call ga_get(g_t_a,toff_a(b,syma)+1,
      $                 toff_a(b,syma)+num_oa(symj),
      $                 a_a-nva_lo+1,a_a-nva_lo+1,
-     $                 dbl_mb(k_ia_jb-1+sym_lo_oa(symj)),1)
+     $                 dbl_mb(counta+k_ia_jb),1)
                   do j=sym_lo_oa(symj),sym_hi_oa(symj)
                      denom=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
-                     t=dbl_mb(k_ia_jb-1+j)/denom
+                     t=dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))/denom
                      eaa=eaa+t*t*denom
-                     dbl_mb(k_ia_jb-1+j)=t
+                     dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))=t
                   enddo
-                  if(task.eq.'gradient')then
-                     counta=sym_hi_oa(symj)-sym_lo_oa(symj)+1
-                     call putwa(tunita,
-     $                    dbl_mb(k_ia_jb-1+sym_lo_oa(symj)),
-     $                    tunitptra,counta,ierr)
-                     if(ierr.ne.0)call errquit(
-     $                    'problem with writing t_a in make_t',ierr)
-                     tunitptra=tunitptra+counta
-                  endif
+                  counta=counta+(sym_hi_oa(symj)-sym_lo_oa(symj)+1)
                endif
             enddo
+            if(task.eq.'gradient')then
+               if (eaf_write(tunita,tunitptra,dbl_mb(k_ia_jb),8*counta)
+     $              .ne. 0) call errquit('mp2_make_t:IO on ta?',0)
+               tunitptra=tunitptra+8*counta
+            endif
+c
+            countb = 0
             do b=nvb_lo,nvb_hi
                symb=irs_b(b)
                syma=irs_a(a_a)
@@ -177,28 +181,26 @@ c
                   call ga_get(g_t_b,toff_b(b,syma)+1,
      $                 toff_b(b,syma)+num_ob(symj),
      $                 a_a-nva_lo+1,a_a-nva_lo+1,
-     $                 dbl_mb(k_ia_jb-1+sym_lo_ob(symj)),1)
+     $                 dbl_mb(countb+k_ia_jb),1)
                   do j=sym_lo_ob(symj),sym_hi_ob(symj)
                      denom=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)
-                     t=dbl_mb(k_ia_jb-1+j)/denom
+                     t=dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))/denom
                      if(abs(t).lt.1d-12)t=0.0d0
                      eab=eab+t*t*denom
-                     dbl_mb(k_ia_jb-1+j)=t
+                     dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))=t
                   enddo
-                  if(task.eq.'gradient')then
-                     countb=sym_hi_ob(symj)-sym_lo_ob(symj)+1
-                     call putwa(tunitb,
-     $                    dbl_mb(k_ia_jb-1+sym_lo_ob(symj)),
-     $                    tunitptrb,countb,ierr)
-                     if(ierr.ne.0)call errquit(
-     $                    'problem with writing t_b in make_t',ierr)
-                     tunitptrb=tunitptrb+countb
-                  endif
+                  countb=countb+(sym_hi_ob(symj)-sym_lo_ob(symj)+1)
                endif
             enddo
+            if(task.eq.'gradient')then
+               if (eaf_write(tunitb,tunitptrb,dbl_mb(k_ia_jb),8*countb)
+     $              .ne. 0) call errquit('mp2_make_t:IO on tb?',0)
+               tunitptrb=tunitptrb+8*countb
+            endif
          enddo
       enddo
+c
       call ga_dgop(1,eaa,1,'+')
       call ga_dgop(1,eab,1,'+')
       e2=e2-0.25d0*eaa-0.5d0*eab
