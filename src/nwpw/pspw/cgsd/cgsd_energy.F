@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.45 2004-01-28 00:08:46 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.46 2004-02-06 01:57:22 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -21,7 +21,7 @@ c#include "rtdb.fh"
       integer MASTER
       parameter (MASTER=0)
 
-      logical stalled,value,oprint
+      logical stalled,value,oprint,psitmp
       integer taskid
       integer minimizer
       integer i,j,ms,neall,NN
@@ -37,7 +37,7 @@ c#include "rtdb.fh"
 *     **** external functions ****
       logical     psp_semicore,pspw_qmmm_found,pspw_charge_found
       logical     control_out_of_time,pspw_SIC,control_DOS
-      logical     control_print
+      logical     control_print,control_psi_tmp
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
@@ -48,13 +48,15 @@ c#include "rtdb.fh"
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
-      external    control_print
+      external control_print,control_psi_tmp
       external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
 
 
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
+
+      psitmp = control_psi_tmp()
 
 *     **** set the minimizer ****
       minimizer = control_minimizer()
@@ -141,6 +143,10 @@ c#include "rtdb.fh"
          end if
          !stalled = .false. !debug
         
+         if (psitmp) then
+            call psi_tmp_write()
+         end if
+
          if ((oprint).and.(minimizer.ne.5)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)

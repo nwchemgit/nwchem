@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.50 2004-01-28 00:08:47 bylaska Exp $
+* $Id: psi.F,v 1.51 2004-02-06 01:57:22 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.50  2004/01/28 00:08:47  bylaska
+* Bug fixes...EJB
+*
 * Revision 1.49  2003/12/13 21:07:41  bylaska
 * Kohn-Sham scf minimizer added to pspw. Mixing includes
 * 	- simple mixing
@@ -4430,6 +4433,23 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       end if
 
       psi_initialize = value
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *	  psi_tmp_write  	*
+*     *				*
+*     ***************************
+      subroutine psi_tmp_write()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     ***** write psi1 wavefunctions ****
+      call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+
       return
       end
 

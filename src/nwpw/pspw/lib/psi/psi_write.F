@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.7 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: psi_write.F,v 1.8 2004-02-06 01:57:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -83,7 +83,7 @@ c    >                       full_filename)
          call iwrite(6,ne,2)
       end if
 
-*     *** read in 3d blocks ***
+*     *** write out 3d blocks ***
       do n=1,(ne(1)+ne(2))
          call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
          call Pack_c_unpack(1,dcpl_mb(tmp2(1)))          

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.48 2004-01-28 01:29:37 bylaska Exp $
+* $Id: control.F,v 1.49 2004-02-06 01:57:21 bylaska Exp $
 *
 
 *     ***********************************
@@ -2088,6 +2088,32 @@ c      end
       if (rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) dos = .true.
 
       control_DOS = dos
+      return
+      end
+
+
+*     *****************************
+*     *                           *
+*     *    control_psi_tmp        *
+*     *                           *
+*     *****************************
+      logical function control_psi_tmp()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical psitmp
+
+      psitmp = .false.
+      if (.not.rtdb_get(rtdb,'nwpw:psi_tmp',mt_log,1,psitmp))
+     >   psitmp = .false.
+
+      control_psi_tmp = psitmp
       return
       end
 
