@@ -1,21 +1,22 @@
-      Subroutine dft_scf(rtdb,geom,AO_bas_han,CD_bas_han,XC_bas_han,
+      Subroutine dft_scf(rtdb,
      &     ipol,Etold,Enuc,iVcoul_opt,iVxc_opt,
      &     iconst,nconst,iter,
      &     iga_dens,iga_evecs,iga_olddens,iga_vxc,
      &     iga_fock,iga_diis,iga_svecs,isvals,
      &     iga_cdinv,iga_xcinv,iga_2ceri)
 
-C$Id: dft_scf.F,v 1.10 1995-10-17 08:54:56 d3g681 Exp $
+C$Id: dft_scf.F,v 1.11 1995-10-25 18:41:15 og845 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
       Logical LResult,CDFIT,IOLGC,mulliken,do_gradients,lSPM
       logical converged,XCFIT,wght_GA
+      logical lfrac,lfocka,lfockb,lunpol
       parameter(itol_min=6,iAOacc_min=15)
       
 c**** 
 c**** nwchem handles
 c**** 
-      integer rtdb, geom, AO_bas_han, CD_bas_han, XC_bas_han
+      integer rtdb
 
 #include "bas.fh"
 #include "geom.fh"
@@ -25,6 +26,8 @@ c****
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "cfock.fh"
+#include "cdft.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
@@ -39,13 +42,17 @@ c****
       Dimension iconst(nconst)
       Dimension Exc(2),noc(2),nmo(2),nmo_read(2),icall(2)
 
-      Integer lSbn2
+      Integer lSbn2,Type
       Dimension iSbn2(2)
       Character*255 movecs_out,movecs_in
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
       Double Precision rmoments(3)  ! dipole
       logical ltight ! if TRUE always tight computing tolerances
+      integer lmax   ! CMM
+      integer finest ! CMM
+      character*255 filename
+      logical int2e_file_open
 c-----------------------------------------------------------------------
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
@@ -54,6 +61,108 @@ c
       if ( .not. bas_numbf(AO_bas_han,nbf_ao) ) then
         call errquit('Exiting from dft',1)
       endif 
+      if (.not. geom_ncent(geom, natoms))
+     &     call errquit('dft_scf: geom_ncent failed',73)      
+      if (.not. geom_nuc_charge(geom, anucl_charg))
+     $     call errquit('scf: geom_nuc_charge failed', 0)
+      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, rcharge)) 
+     %     rcharge = 0.0d0
+      anel = int(anucl_charg) - rcharge
+C
+C     determine pattern of orbitals' occupancy
+C
+      if(.not. MA_Push_Get(
+     &     MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
+     &     call errquit('dft: failed to alloc',999)
+      
+      if( ipol.eq.1 )then
+c       
+c       noc(1) = No. of electrons
+c       
+        noc(1) = iconst(15)
+        noc(2) = 0
+        nTotEl = 2*noc(1)
+        nmo(1)=nbf_ao
+      else
+c       
+c       noc(1) = No. of spin alpha electrons
+c       noc(2) = No. of spin beta  electrons
+c       
+        noc(1) = iconst(16)
+        noc(2) = iconst(17)
+        nTotEl = noc(1) + noc(2)
+        nmo(1)=nbf_ao
+        nmo(2)=nbf_ao
+      end if
+      anoca=noc(1)
+      anocb=noc(2)
+      if ( ipol .eq. 1 ) then
+c****   RHF occupations
+        call dfill(nbf_ao, 0.0d0, dbl_mb(k_occ), 1)
+        do i = 1, noc(1)
+          dbl_mb(i-1+k_occ) = 2.0d0
+        enddo
+      else  
+c****   UHF occupations
+        call dfill(2*nbf_ao, 0.0d0, dbl_mb(k_occ), 1)
+        do i = 1, noc(1)
+          dbl_mb(i-1+k_occ) = 1.0d0
+        enddo
+        do i = nbf_ao+1, nbf_ao+noc(2)
+          dbl_mb(i-1+k_occ) = 1.0d0
+        enddo
+      endif 
+C
+C     stuff for IPS
+C      
+      lfrac = RTDB_MA_Get(RTDB, 'dft:excitation', Type,
+     $   n_excit, l_excit)
+      if(lfrac) then
+        if(me.eq.0) write(LuOut,*) ' excitation'
+        If ( Type .ne. MT_Int)  Call ErrQuit(
+     $       'dft_scf: Bad MA type from RTDB_MA_Get', Type)
+        If ( .NOT. MA_Get_Index(l_excit, i_excit) ) Call ErrQuit(
+     $       'dft_scf: Bad MA handle from RTDB_MA_Get', l_excit)
+        n_excit=n_excit/2
+        do ii=1,n_excit
+          n_empty=int_mb(i_excit+(ii-1)*2)
+          n_full =int_mb(i_excit+(ii-1)*2+1)
+          dbl_mb(k_occ+n_empty-1)=0.d0
+          dbl_mb(k_occ+n_full-1)=1.d0
+          if(me.eq.0) write(LuOut,*) ' from ',n_empty,' to ',n_full
+        enddo
+        anew_nel=  dabssum(ipol*nbf_ao,dbl_mb(k_occ))
+        if(dabs(anel-anew_nel).gt..001)
+     $       call errquit(' dft_scf: changed number of electrons to',
+     $       int(anew_nel))
+         If ( .NOT. MA_Free_Heap(l_excit) ) Call ErrQuit(
+     $      'dft_scf: Unable to free MA handle', l_excit)
+      endif
+C     
+C     shift on Fock matrix to change occupancy
+C
+      n_ashift=0
+      n_bshift=0
+      lfocka = RTDB_MA_Get(RTDB, 'dft:alpha empty', Type,
+     $   n_afshift, l_afshift)
+      lfockb = RTDB_MA_Get(RTDB, 'dft:beta empty', Type,
+     $   n_bfshift, l_bfshift)
+      if(lfocka) then
+        if(me.eq.0) write(LuOut,*) ' Fock shifta'
+        If ( Type .ne. MT_Int)  Call ErrQuit(
+     $       'dft_scf: Bad MA type from RTDB_MA_Get', Type)
+        If ( .NOT. MA_Get_Index(l_afshift, i_afshift) ) Call ErrQuit(
+     $       'dft_scf: Bad MA handle from RTDB_MA_Get', l_afshift)
+      endif
+      if(lfockb) then
+        if(me.eq.0) write(LuOut,*) ' Fock shiftb'
+        If ( Type .ne. MT_Int)  Call ErrQuit(
+     $       'dft_scf: Bad MA type from RTDB_MA_Get', Type)
+        If ( .NOT. MA_Get_Index(l_bfshift, i_bfshift) ) Call ErrQuit(
+     $       'dft_scf: Bad MA handle from RTDB_MA_Get', l_bfshift)
+      endif
+
+
       wght_GA=.false.
 c     
 c     Determine whether to fit the electronic charge density.
@@ -94,11 +203,31 @@ c
         itol2e=min(itol_min,itol_max)
         iAOacc=min(iAOacc_min,iAOacc_max)
       endif
+c
+c     check if you want to cache ints to disk
+c
+      tol2e=10.d0**(-itol_max)
+      if (.not. rtdb_get(rtdb, 'int2e:filesize',
+     $     MT_INT, 1, filesize)) filesize = 0
+      if (.not. rtdb_get(rtdb, 'int2e:memsize',
+     $     MT_INT, 1, memsize)) memsize = 0
+c
+      oreadfile = .false.
+      owritefile= .false.
+c
+      if (filesize.gt.0 .or. memsize.gt.0) then
+         owritefile = .true.
+         if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, filename)) 
+     $        call util_file_prefix('aoints',filename)
+         if (.not. int2e_file_open(filename, memsize, filesize,
+     $        tol2e*0.01d0))
+     $        call errquit('get_fock_param: opening aoints?', 0)
+      endif
       mulliken=.false.
       if(imull.eq.1) mulliken=.true.
       itrscf  = iconst(8)
       iscfcon = iconst(9)
-      ichg    = iconst(12) 
+C      ichg    = iconst(12) 
       igcon   = iconst(18)
       icvgtyp = iconst(36)
       nfock   = iconst(37)
@@ -117,25 +246,6 @@ c
       nExc    = iconst(39) + 1
       Etnew=0.d0
 
-      if( ipol.eq.1 )then
-c       
-c       noc(1) = No. of electrons
-c       
-        noc(1) = iconst(15)
-        noc(2) = 0
-        nTotEl = 2*noc(1)
-        nmo(1)=nbf_ao
-      else
-c       
-c       noc(1) = No. of spin alpha electrons
-c       noc(2) = No. of spin beta  electrons
-c       
-        noc(1) = iconst(16)
-        noc(2) = iconst(17)
-        nTotEl = noc(1) + noc(2)
-        nmo(1)=nbf_ao
-        nmo(2)=nbf_ao
-      end if
 c     
 c     SCF energy convergence criterion. 
 c     
@@ -207,9 +317,6 @@ c
      &     (ipol.eq.nsets).and.
      &     (nmo(1).eq.nmo_read(1)).and.
      &     (nbf_vecs.eq.nbf_ao))then
-        if(.not. MA_Push_Get(
-     &       MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
-     &  call errquit('dft: failed to alloc',999)
         LResult=.true.
         do ispin = 1,ipol
 c****     
@@ -223,8 +330,6 @@ c****
      &         call dft_densm(iga_dens(ispin),iga_evecs(ispin),
      &         nbf_ao,ipol,noc(ispin))
         enddo 
-        if(.not.MA_Pop_Stack(l_occ))
-     &       call errquit(' failed pop_stack in dft ',333)
       else
         LResult=.false.
       endif
@@ -275,15 +380,24 @@ c
       Exc(1) = ZERO
       Exc(2) = ZERO
       if(iguess.eq.0.and.iter.eq.0) then
+C
+C       call to atomscf for initial density matrix
+C
         call ga_zero(iga_dens(1))
         call guess_dens(geom,AO_bas_han,iga_dens,ipol)
         if(ipol.eq.2) then
           call ga_copy(iga_dens(1),iga_dens(2))
-          rb=dble(noc(2))/dble(nTotEl)
-          call ga_dscal(iga_dens(2),rb)
+          if((lfocka).or.(lfockb)) then
+            call ga_dscal(iga_dens(2),.5d0)
+          else
+            rb=anocb/anel
+            if(me.eq.0) write(0,*) ' scaling beta DM by',rb
+            call ga_dscal(iga_dens(2),rb)
+          endif
         endif
-        if(ichg.ne.0) then
-          afact=dble(ntotEl)/dble(ntotEl+ichg)
+
+        if(abs(rcharge).gt.0.001) then
+          afact=anel/dble(anel+rcharge)
           call ga_dscal(iga_dens(1),afact)
           if(ipol.eq.2) call ga_dscal(iga_dens(2),afact)
         endif
@@ -295,11 +409,10 @@ c
         call ga_zero(iga_s)
         call int_1e_ga(AO_bas_han,AO_bas_han,
      &       iga_s,'overlap',.false.)
-        if(ichg.ne.0) then
+        if(abs(rcharge).gt.0.001) then
           anPS = ga_ddot(iga_dens(1),iga_s)
-          anel=dble(ntotEl)
           if(dabs(anPS-anel).gt.1.d-7) then
-            if(me.eq.0) write(LuOut,*) ' renormalizing DM'
+            if(me.eq.0) write(LuOut,*) ' renormalizing tot DM '
             facto=anel/anPS
             if(me.eq.0) write(LuOut,*) ' noc anel ',anPS,anel
             call ga_dscal(iga_dens(1),facto)
@@ -307,11 +420,10 @@ c
         endif
         if(ipol.eq.2) then
           anPS = ga_ddot(iga_dens(2),iga_s)
-          anel=dble(noc(2))
-          if(dabs(anPS-anel).gt.1.d-7) then
-            if(me.eq.0) write(luOut,*) ' renormalizing DM'
-            facto=anel/anPS
-            if(me.eq.0) write(LuOut,*) ' noc anel ',anPS,anel
+          if(dabs(anPS-anocb).gt.1.d-7) then
+            if(me.eq.0) write(luOut,*) ' renormalizing beta DM'
+            facto=anocb/anPS
+            if(me.eq.0) write(LuOut,*) ' noc anel ',anPS,anocb
             call ga_dscal(iga_dens(2),facto)
           endif
         endif
@@ -338,25 +450,6 @@ c
         endif
       endif
       if( iter.gt.0 )then
-c       
-c       Construct goofy scaled density for fitcd, getvcoul, etc.
-c       
-        call ga_copy(iga_dens(1),iga_tmp)
-        do i=me+1,nbf_ao,nproc
-          call ga_get(iga_tmp,
-     *         i,i,i,i,aaz,1)
-          aaz=aaz*0.5d0
-          call ga_put(iga_tmp,
-     *         i,i,i,i,aaz,1)
-        enddo
-        call ga_sync
-        call ga_dscal(iga_tmp,2.D0)
-C       
-C       initialize fock matrix
-C       
-#ifdef DATA_SERVER
-        call ga_release(iga_fock,1,nbf_ao,1,nbf_ao)
-#endif  
         call ga_zero(iga_fock)
 C       
 C       accumulate core hamiltonian into Fock matrix
@@ -373,7 +466,7 @@ c
 c       perform SPM analysis
 c
         LSPM=.true.
-      if (.not. rtdb_get(rtdb, 'dft:SPM', mt_int, 1, lmax))
+      if (.not. rtdb_get(rtdb, 'dft:cmm', mt_int, 1, lmax))
      &     LSPM=.false.
         
 
@@ -382,7 +475,11 @@ c
         lresult=geom_charge_center(geom)
 
 
-        call dft_getspm(geom,lmax,iga_dens,AO_bas_han)
+      if (.not. rtdb_get(rtdb, 'dft:finest', mt_int, 1, finest))
+     &     finest=4
+          call dft_tstamp(' Before call to CMM.   ')
+        call dft_getspm(geom,lmax,finest,iga_dens,AO_bas_han)
+        call errquit(' end of CMM ',1234)
 
       endif
 
@@ -390,6 +487,8 @@ c
 #if defined(DFT_TIMER)
         call dft_second(tp3)
 #endif  
+      if (oreadfile .or. owritefile) call int2e_file_rewind
+
         if( CDFIT ) then
 c         
 c         Fit the electron charge density.
@@ -400,7 +499,7 @@ c
           
           call dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
      &         Dbl_MB(icd_coef),  nbf_cd,
-     &         iga_cdinv, iga_tmp, nTotEl, IOLGC,itol2e,
+     &         iga_cdinv, iga_dens, nTotEl, IOLGC,itol2e,
      &         Ecoul)
         endif
 c       
@@ -518,9 +617,6 @@ C
           if(icvgtyp.eq.2.and.ispin.eq.2) 
      *         call ga_copy(iga_jeff,iga_fock)
           if(ispin.eq.2) then
-#ifdef DATA_SERVER
-            call ga_release(iga_fock,1,nbf_ao,1,nbf_ao)
-#endif      
             call ga_dadd(one,iga_vxc(ispin),one,iga_fock,iga_fock)
           endif
 c         
@@ -551,6 +647,42 @@ c
           endif
           iswitc=iswitc+1
         endif
+C
+C       rape the Fock matrix
+C
+        if(lfocka.and.iter.lt.2.and.ispin.eq.1) then
+          if(me.eq.0) then
+C           
+C           alpha
+C           
+            do ii=0,n_afshift-1
+              ielem= int_mb(i_afshift+ii)
+              call ga_get(iga_fock, ielem, ielem,
+     *             ielem, ielem, fock_el, 1)
+              fock_el = fock_el +5.d0
+              write(0,*) ' alpha ',ii,fock_el
+              call ga_put(iga_fock, ielem, ielem,
+     *             ielem, ielem, fock_el, 1)
+            enddo
+          endif
+        endif
+C       
+C       beta
+C       
+        if(lfockb.and.ispin.eq.2.and.iter.lt.2) then
+          if(me.eq.0) then
+            do ii=0,n_bfshift-1
+              ielem= int_mb(i_bfshift+ii)
+              call ga_get(iga_fock, ielem, ielem,
+     *             ielem, ielem, fock_el, 1)
+              fock_el = fock_el +5.d0
+              call ga_put(iga_fock, ielem, ielem,
+     *             ielem, ielem, fock_el, 1)
+              write(0,*) ' beta ',ii,fock_el
+            enddo
+          endif
+          call ga_sync
+        endif
 
           if( icvgtyp.eq.2.and.delta.gt.10.d0**(-idisoff)) then
             if(ispin.eq.1.and.ipol.gt.1) 
@@ -579,7 +711,7 @@ C
      &       iga_evecs(ispin),iga_fock,zero,iga_tmp)
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
      &       iga_tmp,iga_evecs(ispin),zero,iga_fockt)
-c        if(lshift.ne.0.and.iter.gt.1.and.iter.lt.ncysh) then
+
         if(lshift.ne.0.and.iter.lt.ncysh) then
           bb=0.1d0*lshift
           do j=noc(ispin)+1+me,nbf_ao,nproc
@@ -652,32 +784,12 @@ c     save eigenvectors to movecs file
 c
       if(iter.gt.0) then
         
-        LResult = MA_Push_Get(
-     &       MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ)
-        if ( ipol .eq. 1 ) then
-c****     RHF occupations
-          call dfill(nbf_ao, 0.0d0, dbl_mb(k_occ), 1)
-          do i = 1, noc(1)
-            dbl_mb(i-1+k_occ) = 2.0d0
-          enddo
-        else  
-c****     UHF occupations
-          call dfill(2*nbf_ao, 0.0d0, dbl_mb(k_occ), 1)
-          do i = 1, noc(1)
-            dbl_mb(i-1+k_occ) = 1.0d0
-          enddo
-          do i = nbf_ao+1, nbf_ao+noc(2)
-            dbl_mb(i-1+k_occ) = 1.0d0
-          enddo
-        endif 
         if (.not.
      &       movecs_write(movecs_out, 'Kohn-Sham orbitals',
      &       'AO_basis',
      &       nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &       dbl_mb(ISbn2(1)), nbf_ao, iga_evecs))
      &       call errquit('dft_scf: movec_write failed', 0)
-
-        LResult = MA_Pop_Stack(l_occ)
 
         call ga_sync
 
@@ -687,6 +799,8 @@ c     Form the total density matrix.
 c     
       if( ipol.eq.2 )then
         call ga_dadd(one,iga_dens(1),one,iga_dens(2),iga_dens(1))
+          
+        
       end if
       call ga_sync
 c     
@@ -756,28 +870,6 @@ c****
 c****     collect the eigenvectors from global storage; output
 c****     to disk, allowing for RHF and UHF cases
 c****     
-          LResult = MA_Push_Get(
-     &         MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ)
-c****     
-c****     not sure what this occupation number array is good for,
-c****     but filling it anyway...  NOT TESTED
-c****     
-          if ( ipol .eq. 1 ) then
-c****       RHF occupations
-            call dfill(nbf_ao, 0.0d0, dbl_mb(k_occ), 1)
-            do i = 1, noc(1)
-              dbl_mb(i-1+k_occ) = 2.0d0
-            enddo
-          else  ! UHF
-c****       UHF occupations
-            call dfill(2*nbf_ao, 0.0d0, dbl_mb(k_occ), 1)
-            do i = 1, noc(1)
-              dbl_mb(i-1+k_occ) = 1.0d0
-            enddo
-            do i = nbf_ao+1, nbf_ao+noc(2)
-              dbl_mb(i-1+k_occ) = 1.0d0
-            enddo
-          endif 
 
 
 c****     
@@ -804,7 +896,6 @@ c****
               write (LuOut,*) 
           endif 
           endif
-          LResult = MA_Pop_Stack(l_occ)
 
         endif 
 c-----------------------------------------------------------------------
@@ -812,6 +903,7 @@ c****
 c****   eval deallocation moved here from inside iteration loop
 c****   
         LResult = MA_Pop_Stack(lSbn2)
+        LResult = MA_Pop_Stack(l_occ)
 
         if(icvgtyp.eq.2.and.icall(1).gt.0) then
 c         
@@ -835,14 +927,23 @@ c
         call gadest(iga_wght)
         call gadest(iga_xyz)
       endif
-
+      if(lfocka) then
+        If ( .NOT. MA_Free_Heap(l_afshift) ) Call ErrQuit(
+     $       'dft_scf: Unable to free MA handle', l_bfshift)
+        endif
+        if(lfockb) then
+        If ( .NOT. MA_Free_Heap(l_bfshift) ) Call ErrQuit(
+     $       'dft_scf: Unable to free MA handle', l_afshift)
+        endif
+        if(lunpol) then
+        If ( .NOT. MA_Free_Heap(l_unpol) ) Call ErrQuit(
+     $       'dft_scf: Unable to free MA handle', l_unpol)
+        endif
 c-----------------------------------------------------------------------
 c
 c     computation of dipole moments
 c
       
-      if (.not. geom_ncent(geom, natoms))
-     &     call errquit('dft_scf: geom_ncent failed',73)      
       if( .not. bas_high_angular(AO_bas_han,NXang) )
      &     call errquit('exiting in dft_scf.',2)
       if(natoms.gt.1.and.NXang.gt.1) 
