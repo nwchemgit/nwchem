@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 1998-09-15 18:25:50 bjohnson Exp $
+# $Id: GNUmakefile,v 1.12 1998-09-15 18:38:44 d3e129 Exp $
 #
 
  SUBDIRS = analytic/dft
@@ -11,8 +11,6 @@
    USES_BLAS = hess_blas.F 
 
    LIBRARY = libhessian.a
-
-   SUBDIRS = analytic/dft
 
 include ../config/makefile.h
 
