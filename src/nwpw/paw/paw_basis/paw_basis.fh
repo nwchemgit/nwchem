@@ -2,6 +2,9 @@
 ! $id: paw_basis.fh,v 1.4 2002/07/15 20:26:25 bylaska exp $
 !
 
+      integer          paw_basis_max_i_cut
+      external         paw_basis_max_i_cut
+
       integer          paw_basis_ngrid 
       external         paw_basis_ngrid
 

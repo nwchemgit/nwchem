@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.19 2003-02-16 23:45:48 bylaska Exp $
+* $Id: paw_basis.F,v 1.20 2003-02-21 18:39:38 marat Exp $
 *
 
 !**************************************************
@@ -23,6 +23,7 @@
       integer i_nb,i_ng
       integer i_lo,i_hi,ii,mult_l
       integer  max_mult_l
+      integer max_ic
       logical ok
       double precision log_amesh,amesh
       character*255 fname
@@ -99,15 +100,13 @@ c      !*** external functions ***
          
 c       !***** determine max orbital moment for this kind of atom ****
          i_lo =  paw_basis_i_orb_l(it)
-	 i_hi =  paw_basis_i_orb_l(it)  
+         i_hi =  paw_basis_i_orb_l(it)  
      >        + int_mb(paw_basis_i_nbasis(it)) - 1
          mult_l = int_mb(i_lo)
          do ii=i_lo+1,i_hi
            if (int_mb(ii).gt.mult_l) mult_l = int_mb(ii)
          end do
-	 int_mb(paw_basis_i_mult_l(it)) = 2*mult_l
-
-         write(*,*) "mult_l:",it, int_mb(paw_basis_i_mult_l(it))
+         int_mb(paw_basis_i_mult_l(it)) = 2*mult_l
            
       end do
 
@@ -118,10 +117,15 @@ c     !***** determine largest max orbital moment ****
         if (int_mb(paw_basis_i_mult_l(it)).gt.max_mult_l) 
      >    max_mult_l = int_mb(paw_basis_i_mult_l(it))
       end do
-
-
-c     !*****enter max orbital moment into paw_basis_data structure
       call set_max_mult_l(max_mult_l)
+
+c     !***** determine largest sphere cutoff ****
+      max_ic = 0
+      do it=1,nt
+        if (int_mb(paw_basis_i_i_cut(it)).gt.max_ic) 
+     >    max_ic = int_mb(paw_basis_i_i_cut(it))
+      end do
+      call set_max_i_cut(max_ic)
 
 
 c     !*** set core charges ***

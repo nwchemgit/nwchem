@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.16 2003-02-18 01:08:11 marat Exp $
+! $Id: paw_basis_data.F,v 1.17 2003-02-21 18:39:38 marat Exp $
 
 !**************************************************
 !
@@ -1074,22 +1074,40 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       return
       END 
 
+      subroutine set_max_i_cut(ic)
+      implicit none
+      integer ic
+#include "paw_basis_data.fh"
+
+        max_i_cut = ic
+
+       end
+
 
 
       subroutine set_max_mult_l(l)
       implicit none
-	integer l
+      integer l
 #include "paw_basis_data.fh"
 
         max_mult_l = l
 
-	end
+       end
+
+      integer function paw_basis_max_i_cut()
+      implicit none
+
+#include "paw_basis_data.fh"
+
+        paw_basis_max_i_cut= max_i_cut
+
+      end
 
       integer function paw_basis_max_mult_l()
       implicit none
-	
+
 #include "paw_basis_data.fh"
 
         paw_basis_max_mult_l= max_mult_l
 
-	end
+      end
