@@ -576,6 +576,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    i1split = 0;
    work[*n-1] = 0.;
    dummy = ulp*ulp;
+   /*
    for ( j = 1; j < *n; j++ ){
      tmp1 = e[j]*e[j];
      if ( (ffabs(d[j]*d[j-1])*dummy+safemn) > tmp1 ) {
@@ -583,6 +584,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
        i1split++;
      }
    }
+   */
    isplit[i1split] = *n;
    *nsplit = i1split+1;
    
