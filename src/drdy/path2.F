@@ -1,3 +1,4 @@
+C $Id: path2.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       Subroutine drdy_path2(iopt,delss,sold,smax,xsign)
 C
 C  Calculate steepest descent path from saddle point

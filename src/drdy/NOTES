@@ -1,3 +1,4 @@
+$Id: NOTES,v 1.2 2001-01-08 15:51:58 windus Exp $
 rphwrt and sort have really stupid file 30 access patterns.
 too many opens. 
 

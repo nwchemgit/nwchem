@@ -1,3 +1,4 @@
+C $Id: dsdt.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       SUBROUTINE drdy_DSDT (N, G0, XLAM, TS, F)
       implicit real*8 (a-h,o-z)
       DIMENSION G0(N), XLAM(N)

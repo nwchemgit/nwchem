@@ -1,3 +1,4 @@
+C $Id: saddle.F,v 1.2 2001-01-08 15:52:01 windus Exp $
       Subroutine drdy_saddle
 c
 C Calculate potential and hessian for saddle point geometry

@@ -1,3 +1,4 @@
+C $Id: react2.F,v 1.2 2001-01-08 15:52:00 windus Exp $
       Subroutine drdy_react2 (iop)
 C
 C  put correct parts of hessian matrix into fsv and call rphwrt

@@ -1,3 +1,4 @@
+C $Id: drdy_nwc_get.F,v 1.3 2001-01-08 15:51:59 windus Exp $
       subroutine drdy_nwc_get_energy(rtdb,energy)
       implicit none
 #include "stdio.fh"

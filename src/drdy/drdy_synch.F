@@ -1,3 +1,4 @@
+C $Id: drdy_synch.F,v 1.7 2001-01-08 15:51:59 windus Exp $
       subroutine drdy_synch(opcode,calling_routine)
       implicit none
 #include "drdyP.fh"

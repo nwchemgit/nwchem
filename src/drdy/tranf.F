@@ -1,3 +1,4 @@
+C $Id: tranf.F,v 1.2 2001-01-08 15:52:01 windus Exp $
       Subroutine drdy_tranf (iop,ndim,n3,amass,f)
 C
       Implicit Double Precision (A-H,O-Z)

@@ -1,3 +1,4 @@
+C $Id: rphwrt.F,v 1.2 2001-01-08 15:52:00 windus Exp $
 #if defined(LINUX)
 #define APPEND_OK
 #endif

@@ -1,3 +1,4 @@
+C $Id: drdy_input.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck

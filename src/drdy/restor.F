@@ -1,3 +1,4 @@
+C $Id: restor.F,v 1.2 2001-01-08 15:52:00 windus Exp $
       Subroutine drdy_restor(fu30,lhead,jop,lsad,llopt)
 C
 C Read reactant, product, and saddle point information from fu30 file

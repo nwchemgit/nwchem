@@ -1,3 +1,4 @@
+C $Id: moiten.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       Subroutine drdy_moiten (x,amat,apack,eig,vec,scr1,scr2,lcol,
      *   natom,ndim,ndima)
 C

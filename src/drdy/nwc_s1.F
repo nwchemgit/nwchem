@@ -1,3 +1,4 @@
+C $Id: nwc_s1.F,v 1.5 2001-01-08 15:51:59 windus Exp $
       Subroutine nwc_s1 (x,v,dx,xs,amass,natom,n3)
 C
 C  Run NWChem task to get potential and first derivatives

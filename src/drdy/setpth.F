@@ -1,3 +1,4 @@
+C $Id: setpth.F,v 1.2 2001-01-08 15:52:01 windus Exp $
       Subroutine drdy_setpth
 C
 C Setup for first step off saddle point

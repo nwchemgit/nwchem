@@ -1,3 +1,4 @@
+C $Id: pot2.F,v 1.2 2001-01-08 15:52:00 windus Exp $
       Subroutine drdy_pot2
      &      (x,v,dx,fmat,hess,xs,amass,natom,n3,n3tm,ndbar)
       Implicit Double Precision (A-H,O-Z)

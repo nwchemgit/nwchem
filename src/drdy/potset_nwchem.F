@@ -1,3 +1,4 @@
+C $Id: potset_nwchem.F,v 1.3 2001-01-08 15:52:00 windus Exp $
       subroutine potset_nwchem(rtdb)
 *
 * check for basis sets and theoretical method

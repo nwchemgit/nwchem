@@ -1,3 +1,4 @@
+C $Id: diagf.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       Subroutine drdy_diagf (n3tm,n3,fmat,hess,xlam,u0,
      &      scr1,scr2,ierr,ipr)
 *

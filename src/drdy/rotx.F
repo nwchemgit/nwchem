@@ -1,3 +1,4 @@
+C $Id: rotx.F,v 1.2 2001-01-08 15:52:00 windus Exp $
       Subroutine drdy_rotx (x1,x2,scr,natom,ndim)
 C
 C  Rotate orientation x2 so principle moments of interia align with those

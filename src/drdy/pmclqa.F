@@ -1,3 +1,4 @@
+C $Id: pmclqa.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       Subroutine drdy_pmclqa (n3tm,n3,ndbar,x,dx,fmat,fold,hess,amass,
      *    dels,delsf,vec0,vec1,u0,xlam,alpha,ierr)
 C
