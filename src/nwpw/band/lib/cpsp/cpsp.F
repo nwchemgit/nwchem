@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.7 2002-01-11 18:25:59 bylaska Exp $
+* $Id: cpsp.F,v 1.8 2002-01-12 02:18:05 bylaska Exp $
 *
 
 #define TCGMSG
@@ -271,26 +271,29 @@ c     cpsp_rc = rc(i,ia)
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not. value) call errquit('out of stack memory',0)
-      G(1)  = G_indx(1)
-      G(2)  = G_indx(2)
-      G(3)  = G_indx(3)
+      if (.not. value) call errquit('cpsp_v_local: pushing stack',0)
 
-*     **** define Gx,Gy and Gz in packed space ****
-      call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
-      call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
-      call Cram_r_pack(0,dbl_mb(Gx(1)))
-      call Cram_r_pack(0,dbl_mb(Gy(1)))
-      call Cram_r_pack(0,dbl_mb(Gz(1)))
+      if (move) then
+        value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+        if (.not. value) call errquit('cpsp_v_local: pushing stack',1)
+        G(1)  = G_indx(1)
+        G(2)  = G_indx(2)
+        G(3)  = G_indx(3)
+
+*       **** define Gx,Gy and Gz in packed space ****
+        call C3dB_r_Copy(1,dbl_mb(G(1)),dbl_mb(Gx(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(2)),dbl_mb(Gy(1)))
+        call C3dB_r_Copy(1,dbl_mb(G(3)),dbl_mb(Gz(1)))
+        call Cram_r_pack(0,dbl_mb(Gx(1)))
+        call Cram_r_pack(0,dbl_mb(Gy(1)))
+        call Cram_r_pack(0,dbl_mb(Gz(1)))
+      end if
 
       call dcopy((2*npack0),0.0d0,0,vl_out,1)
       do ii=1,ion_nion()
@@ -322,12 +325,16 @@ c     cpsp_rc = rc(i,ia)
         
 
       end do
-      value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(xtmp(2))
+      if (move) then
+        value = MA_pop_stack(Gz(2))
+        value = value.and.MA_pop_stack(Gy(2))
+        value = value.and.MA_pop_stack(Gx(2))
+        value = value.and.MA_pop_stack(xtmp(2))
+        if (.not. value) call errquit('cpsp_v_local: popping stack',0)
+      end if
       value = MA_pop_stack(vtmp(2))
-      value = MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) call errquit('cpsp_v_local: popping stack',1)
 
       call nwpw_timing_end(5)
       return 
