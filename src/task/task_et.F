@@ -56,7 +56,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.7 2001-12-18 21:05:14 d3k958 Exp $
+* $Id: task_et.F,v 1.8 2001-12-18 21:39:31 d3k958 Exp $
 c
 *
 #include "rtdb.fh"
@@ -83,11 +83,11 @@ c
 c     Also returns status through the function value
 c
       integer rtdb
-      integer i, j, k,l
+      integer i, j, k
       integer l_evals,k_evals,l_vals,k_vals
       integer g_tmp,g_s,g_ahandle(2),g_bhandle(2),g_d,g_temp
       integer nocc(2)
-      integer g_u,g_vt,g_v,g_phandle(2),g_pt
+      integer g_u,g_vt,g_v,g_phandle(2)
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
 c
@@ -105,9 +105,7 @@ c
       double precision Vba,values(nbf*nbf)
       double precision t(nbf,nbf),prod(2)
       double precision Sba,pa_val,pb_val,omega1,h1_val
-      double precision omega2,pt1, pt2, pa1, pa2, pb1, pb2
-      double precision int2e1,int2e2
-      double precision detu(2),detv(2),detprod,scr(3056)
+      double precision detu(2),detv(2),detprod,omega2
       double precision haa,hbb,hba,val
 c
       task_et_doit = .false.
@@ -412,19 +410,19 @@ c
 c
 c  check that D is diagonal after SVD
 c
-      if(.not.ga_create(mt_dbl,nocc(j),nbf,'temp',0,0,g_temp))
-     $        call errquit('task_et ga_create failed', g_temp)
-      call ga_dgemm('T','N',nocc(j),nbf,nbf,1.d0,g_bu
-     &               ,g_s,0.d0,g_temp)
-      call ga_dgemm('N','N',nocc(j),nocc(j),nbf,1.d0,g_temp
-     &               ,g_av,0.d0,g_d)
-      call ga_print(g_d)
-      DO i = 1,nocc(j)
-      DO k = 1,nocc(j)
-         call ga_get(g_d, i, i, k, k, val, 1)
-         write (6,*) i,k,val
-      ENDDO
-      ENDDO
+c      if(.not.ga_create(mt_dbl,nocc(j),nbf,'temp',0,0,g_temp))
+c     $        call errquit('task_et ga_create failed', g_temp)
+c      call ga_dgemm('T','N',nocc(j),nbf,nbf,1.d0,g_bu
+c     &               ,g_s,0.d0,g_temp)
+c      call ga_dgemm('N','N',nocc(j),nocc(j),nbf,1.d0,g_temp
+c     &               ,g_av,0.d0,g_d)
+c      call ga_print(g_d)
+c      DO i = 1,nocc(j)
+c      DO k = 1,nocc(j)
+c         call ga_get(g_d, i, i, k, k, val, 1)
+c         write (6,*) i,k,val
+c      ENDDO
+c      ENDDO
 c
 C                                   N
 C                                -------
@@ -539,32 +537,8 @@ c
 c      ============================================
 c      calculate the 2e contribution to Vba, omega2
 c      ============================================
-c      create array pt = pa + pb
-c 
-      if(.not.ga_create(mt_dbl,nbf,nbf,'pt',0,0,g_pt))
-     $        call errquit('task_et ga_create failed', g_pt)
-      call ga_dadd (1.0d0,g_phandle(1),1.0d0,g_phandle(2),g_pt)
 c
-      omega2 = 0.0d0
-c
-       DO i = 1,nbf
-       DO j = 1,nbf
-       DO k = 1,nbf
-       DO l = 1,nbf
-         call ga_get(g_pt, i, i, j, j, pt1, 1)
-         call ga_get(g_pt, k, k, l, l, pt2, 1)
-         call ga_get(g_phandle(1), i, i, j, j, pa1, 1)
-         call ga_get(g_phandle(1), k, k, l, l, pa2, 1)
-         call ga_get(g_phandle(2), i, i, j, j, pb1, 1)
-         call ga_get(g_phandle(2), k, k, l, l, pb2, 1)
-         call int_2e4c(basis,i,j,basis,k,l,mem_2e4c,scr,1,int2e1)
-         call int_2e4c(basis,i,l,basis,k,j,mem_2e4c,scr,1,int2e2)
-        omega2 = omega2 + ( pt1*pt2 )*int2e1
-        omega2 = omega2 + ( -pa1*pa2-pb1*pb2 )*int2e2
-       ENDDO
-       ENDDO
-       ENDDO
-       ENDDO
+       call vab2e(g_phandle(1),g_phandle(2),omega2)
 c
        omega2 = omega2 * (detprod/ ( prod(1)*prod(2) ) ) 
        omega2 = omega2 / 2.0d0
@@ -585,21 +559,21 @@ c      =============
 c      Print results
 c      =============
 c
- 1111 FORMAT(1x,a10,F15.10,1x,a10)
+ 1111 FORMAT(1x,a15,1x,F15.10,1x,a10)
        write(6,*) 
        write(6,*) '-------------------------------------'
        write(6,*) 'Summary of Electron Transport Results'
        write(6,*) '-------------------------------------'
        write(6,*) 
-       write(6,1111)  '       SBA',Sba
+       write(6,1111)  'overlap, Sba   ',Sba
        write(6,*) 
-       write (6,1111) '<B|H(1)|A>',omega1
-       write (6,1111) '<B|H(2)|A>',omega2
-       write (6,1111) '       HBA',Hba
+       write (6,1111) '1e contribution',omega1
+       write (6,1111) '2e contribution',omega2
+       write (6,1111) 'Hba            ',Hba
        write (6,*)
-       write (6,1111) 'VBA       ',Vba*2.194746d5,'CM-1'
-       write (6,1111) 'VBA       ',Vba*27.2114d0,'EV'
-       write (6,1111) 'VBA       ',Vba*627.510d0,'KCAL/MOL'
+       write (6,1111) 'Vba            ',Vba*2.194746d5,'CM-1'
+       write (6,1111) '               ',Vba*27.2114d0,'EV'
+       write (6,1111) '               ',Vba*627.510d0,'KCAL/MOL'
        write (6,*) 
 c
 c
@@ -646,6 +620,54 @@ c
       return
       end
 
+c=======================================================================
+       subroutine vab2e(g_pa,g_pb,omega2)
+c
+c      calculates the two-electron contribution to Vba
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+#include "apiP.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "cscf.fh"
+c
+       integer g_pa,g_pb,g_pt,i,j,k,l
+       double precision int2e1,int2e2,omega2
+       double precision pa1,pa2,pb1,pb2,pt1,pt2
+       double precision scr(mem_2e4c)
+c
+c      create array pt = pa + pb
+c 
+      if(.not.ga_create(mt_dbl,nbf,nbf,'pt',0,0,g_pt))
+     $        call errquit('task_et ga_create failed', g_pt)
+      call ga_dadd (1.0d0,g_pa,1.0d0,g_pb,g_pt)
+c
+      omega2 = 0.0d0
+c
+       DO i = 1,nbf
+       DO j = 1,nbf
+       DO k = 1,nbf
+       DO l = 1,nbf
+         call ga_get(g_pt, i, i, j, j, pt1, 1)
+         call ga_get(g_pt, k, k, l, l, pt2, 1)
+         call ga_get(g_pa, i, i, j, j, pa1, 1)
+         call ga_get(g_pa, k, k, l, l, pa2, 1)
+         call ga_get(g_pb, i, i, j, j, pb1, 1)
+         call ga_get(g_pb, k, k, l, l, pb2, 1)
+         call int_2e4c(basis,i,j,basis,k,l,mem_2e4c,scr,1,int2e1)
+         call int_2e4c(basis,i,l,basis,k,j,mem_2e4c,scr,1,int2e2)
+        omega2 = omega2 + ( pt1*pt2 )*int2e1
+        omega2 = omega2 + ( -pa1*pa2-pb1*pb2 )*int2e2
+       ENDDO
+       ENDDO
+       ENDDO
+       ENDDO
+c
+       return
+       end
 
 
 
