@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nclosed, nopen,
      $     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.3 1995-10-17 08:53:01 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.4 1995-10-21 19:39:34 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -64,7 +64,7 @@ c
 c     
 c     Get a unitary 2nd order approximation to exp(K)
 c     
-      call matrix_exp( basis, g_temp )
+      call matrix_exp(g_temp )
 c     
 c     Transform MO's
 c     

@@ -12,6 +12,16 @@
 #include "bas.fh"
 #include "cfock.fh"
 c
+c     $Id: fock_2e_task.F,v 1.4 1995-10-21 19:39:23 d3g681 Exp $
+c
+c     Given an atomic quartet, fetch the necessary blocks
+c     of the density matrices, call fock_2e_b to add in
+c     in the fock matrix contribution and then accumulate
+c     the contributions.
+c
+c     This routine will change soon to accomodate more general
+c     blocking strategies
+c
       integer geom
       integer basis
       integer iat, jat, kat, lat

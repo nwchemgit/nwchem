@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.1 1995-03-31 01:35:50 d3g681 Exp $
+C$Id: rohf_canon.F,v 1.2 1995-10-21 19:39:33 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -22,7 +22,8 @@ c
 c     If (oaufbau) 
 c        diagonalize the whole thing and allow mixing of closed-open-virt
 c     else
-c        diagonalize separately the cloed-closed, open-open, and virt-virt parts
+c        diagonalize separately the cloed-closed, open-open, and 
+c        virt-virt parts
 c
 c     Transform Fock matrices and MO coefficients into the new canonical basis
 c

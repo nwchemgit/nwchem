@@ -2,7 +2,10 @@
      $     ocoul, oexch, oskel )
       implicit none
 c     
-c     arguments
+c     Convenience wrapper routine that computes the standard
+c     closed shell fock matrix from the input density matrix
+c     no questions asked.  It is only called from the initial
+c     guess routine with a superposition of atomic densities.
 c     
       integer geom, basis
       integer g_dens, g_fock    ! [input] handles

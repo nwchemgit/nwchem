@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.16 1995-06-17 20:12:48 gg502 Exp $
+C$Id: vectors.F,v 1.17 1995-10-21 19:39:37 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -377,72 +377,107 @@ c
       goto 10
 c
       end
-      subroutine movecs_swap(rtdb,g_vecs,occ,eval)
+      subroutine movecs_swap(rtdb,scftype,g_vecs,occ,eval)
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "inp.fh"
 c
-      integer rtdb, g_vecs
+      character*(*) scftype
+      integer rtdb, g_vecs(*)
       double precision occ(*), eval(*)
+c
+c     In the database may be an entry 'scf:swap' (with
+c     alpha/beta appended for UHF) which is a list of pairs
+c     of vectors to swap.  Apply these to the input vectors, 
+c     occupation numbers and eigenvalues.  In the case of
+c     UHF g_vecs is assumed to be an array with 2 handles.
+c     When finished delete the databse entries so that
+c     a restart does not re-swap the vectors.
 c
       double precision tmp
       integer type, nelem, handle, index
       integer l_veci, k_veci, l_vecj, k_vecj, dim1, dim2
-      integer pair, i, j
+      integer pair, i, j, ioff, joff, set, nset
       logical oprint
+      character*20 name
+      character*8 text
 c
       oprint = util_print('mo guess', print_default)
-      if (.not. rtdb_ma_get(rtdb, 'scf:swap', type, nelem, 
-     $     handle)) return
-      if (.not. ma_get_index(handle,index)) call errquit
-     $     ('movecs_swap: get index failed', handle)
-      if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
-     $     ('movecs_swap: invalid list of pairs',nelem)
 c
-      call ga_sync()
-      if (ga_nodeid() .eq. 0) then
-         if (oprint) write(6,*)
-         call ga_inquire(g_vecs, type, dim1, dim2)
-         if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
-     $        call errquit('movecs_swap: no scratch space', dim1)
-         if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
-     $        call errquit('movecs_swap: no scratch space', dim1)
-         do pair = 1, nelem, 2
-            i = int_mb(index+pair-1)
-            j = int_mb(index+pair  )
-            if (oprint) write(6,1) i, j
- 1          format(' Swapping orbitals ', 2i5)
-            if (i.lt.0 .or. i.gt.dim2) call errquit
-     $           ('movecs_swap: invalid vector ', i)
-            if (j.lt.0 .or. j.gt.dim2) call errquit
-     $           ('movecs_swap: invalid vector ', j)
-c     
-            call ga_get(g_vecs, 1, dim1, i, i, dbl_mb(k_veci), 1)
-            call ga_get(g_vecs, 1, dim1, j, j, dbl_mb(k_vecj), 1)
-            call ga_put(g_vecs, 1, dim1, i, i, dbl_mb(k_vecj), 1)
-            call ga_put(g_vecs, 1, dim1, j, j, dbl_mb(k_veci), 1)
-c
-            tmp = occ(i)
-            occ(i) = occ(j)
-            occ(j) = tmp
-            tmp = eval(i)
-            eval(i) = eval(j)
-            eval(j) = tmp
-
-c     
-         enddo
-         if (oprint) call util_flush(6)
-         if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
-         if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
+      if (scftype .eq. 'UHF') then
+         nset = 2
+      else
+         nset = 1
       endif
 c
-      call ga_sync
+      do set = 1, nset
+         if (scftype .eq. 'UHF') then
+            if (set.eq.1) then
+               name = 'scf:swap alpha'
+               text = 'alpha'
+            else
+               name = 'scf:swap beta'
+               text = 'beta'
+            endif
+         else
+            name = 'scf:swap'
+            text = scftype
+         endif
+         if (.not. rtdb_ma_get(rtdb, name, type, nelem, 
+     $        handle)) goto 1000
+         if (.not. ma_get_index(handle,index)) call errquit
+     $        ('movecs_swap: get index failed', handle)
+         if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
+     $        ('movecs_swap: invalid list of pairs',nelem)
 c
-      if (.not. rtdb_delete(rtdb, 'scf:swap')) call errquit
-     $     ('movecs_swap: delete of swap entry failed', 0)
+         call ga_sync()
+         if (ga_nodeid() .eq. 0) then
+            if (oprint) write(6,*)
+            call ga_inquire(g_vecs, type, dim1, dim2)
+            if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
+     $           call errquit('movecs_swap: no scratch space', dim1)
+            if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
+     $           call errquit('movecs_swap: no scratch space', dim1)
+            do pair = 1, nelem, 2
+               i = int_mb(index+pair-1)
+               j = int_mb(index+pair  )
+               if (oprint) write(6,1) text(1:inp_strlen(text)), i, j
+ 1             format(' Swapping ',a,' orbitals ', 2i5)
+               if (i.lt.0 .or. i.gt.dim2) call errquit
+     $              ('movecs_swap: invalid vector ', i)
+               if (j.lt.0 .or. j.gt.dim2) call errquit
+     $              ('movecs_swap: invalid vector ', j)
+c     
+               call ga_get(g_vecs(set), 1, dim1, i, i, dbl_mb(k_veci),1)
+               call ga_get(g_vecs(set), 1, dim1, j, j, dbl_mb(k_vecj),1)
+               call ga_put(g_vecs(set), 1, dim1, i, i, dbl_mb(k_vecj),1)
+               call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_veci),1)
 c
-      if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
+               ioff = i + (set-1)*dim1
+               joff = j + (set-1)*dim1
+               tmp = occ(ioff)
+               occ(ioff) = occ(joff)
+               occ(joff) = tmp
+               tmp = eval(ioff)
+               eval(ioff) = eval(joff)
+               eval(joff) = tmp
+c     
+            enddo
+            if (oprint) call util_flush(6)
+            if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
+            if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
+         endif
+c
+         call ga_sync
+c
+         if (.not. rtdb_delete(rtdb, name)) call errquit
+     $        ('movecs_swap: delete of swap entry failed', 0)
+c
+         if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
+ 1000    continue
+      enddo
 c
       end

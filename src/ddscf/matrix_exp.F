@@ -1,5 +1,5 @@
-      subroutine matrix_exp(basis, g_k)
-C$Id: matrix_exp.F,v 1.7 1995-10-10 06:11:07 d3g681 Exp $
+      subroutine matrix_exp(g_k)
+C$Id: matrix_exp.F,v 1.8 1995-10-21 19:39:29 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -19,13 +19,16 @@ c     d) Compute (exp(K/n))**n
 c     
 c     e) If necessary make exp(-K) unitary
 c
-      integer g_k, basis
+      integer g_k               ! [input] GA handle to matrix
 c     
       integer nbf, nmo, type, g_tmp1, g_tmp2, i
       double precision knorm, scale, third, one, half, tmp, zero
       parameter (third = 1.0d0/3.0d0, one = 1.0d0, half = 0.5d0,
      $     zero = 0.0d0)
       integer power
+      integer dummy_basis
+c
+      dummy_basis = -1          ! Not used but passed to ga_iter_orthog
 c
       if (oscfps) call pstat_on(ps_matexp)
 c
@@ -38,7 +41,6 @@ c
 c     
 c     Determine how to scale the matrix
 c     
-*      knorm = dsqrt(ga_ddot(g_k, g_k)/(nbf*nbf))
       call ga_maxelt(g_k, knorm)
       power = 1
  10   if (knorm .gt. 0.01d0) then
@@ -93,7 +95,7 @@ c
 c     Make this unitary and then scale if necessary
 c     
       if (power.gt.1 .or. knorm.gt.1d-3)
-     $     call ga_iter_orthog(basis, g_k, .false., .true.)
+     $     call ga_iter_orthog(dummy_basis, g_k, .false., .true.)
 c     
       if (power .ne. 1) then
          if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp1',
@@ -109,7 +111,7 @@ c
 c     Make sure the final result is also unitary
 c     
          if (knorm.gt.1)
-     $        call ga_iter_orthog(basis, g_k, .false., .true.)
+     $        call ga_iter_orthog(dummy_basis, g_k, .false., .true.)
       endif
 c     
       if (oscfps) call pstat_off(ps_matexp)

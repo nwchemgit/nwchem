@@ -1,13 +1,13 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.12 1995-06-26 00:21:33 gg502 Exp $
+c$Id: fock_2e_a.F,v 1.13 1995-10-21 19:39:15 d3g681 Exp $
 c
 #include "cfock.fh"
-      data task_chunks/-1/
-      data filesize /0/
-      data memsize  /0/
-      data oreadfile /.false./
-      data owritefile/.false./
+      data task_chunks/-1/      ! Defines size of parallel tasks
+      data filesize /0/         ! Max size of integral file on disk
+      data memsize  /0/         ! Max size of integral file in memory
+      data oreadfile /.false./  ! If reading integrals from file
+      data owritefile/.false./  ! If writing integrals to file
 
 c     see scf_init for input of task_chunks etc.
 
@@ -19,7 +19,7 @@ c     see scf_init for input of task_chunks etc.
      $     tmp, vg_dens, vg_fock )
       implicit none
 c     
-c     $Id: fock_2e_a.F,v 1.12 1995-06-26 00:21:33 gg502 Exp $
+c     $Id: fock_2e_a.F,v 1.13 1995-10-21 19:39:15 d3g681 Exp $
 c     
 #include "tcgmsg.fh"
 #include "global.fh"

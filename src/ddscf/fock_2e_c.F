@@ -6,12 +6,14 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_c.F,v 1.4 1995-03-31 01:35:13 d3g681 Exp $
-c     
+c     $Id: fock_2e_c.F,v 1.5 1995-10-21 19:39:18 d3g681 Exp $
+
       implicit none
 c     
-c     Add integrals into atomic fock matrix blocks ... 
+c     Add integrals without labels into atomic fock matrix blocks ... 
 c     symmetrization will be needed later
+c
+c     !! THIS ROUTINE IS OBSOLETED BY ROUTINES THAT USE LABELS
 c     
       integer nfock
       double precision tol2e

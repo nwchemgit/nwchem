@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 1995-10-17 08:52:58 d3g681 Exp $
+# $Id: GNUmakefile,v 1.41 1995-10-21 19:39:28 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -57,7 +57,7 @@
 
       LIBRARY =	libddscf.a
 
-    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F k2cf.F \
+    USES_BLAS =	movecs_fix_phase.F rohf_k2cf.F fock_2e.F \
                 uhf.F scf_movecs.F scf_vectors_guess.F riscf_trans_int.F \
 		int2e_file.F fock_2e_shell_to_labels.F fock_2e_a.F \
 		rhf_dens_to_mo.F scf.F schwarz_init.F vectors.F \
@@ -89,7 +89,6 @@ fock_2e_report.o :	 $(INCDIR)/global.fh cfock.fh
 fock_2e_task.o :	 cfock.fh $(INCDIR)/bas.fh 
 fock_get_atom_blk.o :	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
 fock_upd_atom_blk.o :	 $(INCDIR)/global.fh $(INCDIR)/bas.fh 
-ga_conform.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 ga_create_atom_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 ga_create_cont_blocked.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
 ga_mxv.o :	 $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 

@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.3 1995-10-10 06:11:11 d3g681 Exp $
+C$Id: rohf.F,v 1.4 1995-10-21 19:39:33 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -10,9 +10,9 @@ C$Id: rohf.F,v 1.3 1995-10-10 06:11:11 d3g681 Exp $
 #include "crohf.fh"
 #include "cscf.fh"
 c
-c     Compute ROHF wavefunction.k  This interface is provided to
-c
-c     Initial vectors are assumed to be loaded in common/cscf/
+c     Compute ROHF wavefunction.
+c     Initial vectors etc. are assumed to be loaded in common/cscf/
+c     by the driver routines
 c
       integer rtdb
       double precision energy   ! [output] Total SCF energy

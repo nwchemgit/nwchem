@@ -3,7 +3,10 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.4 1995-10-10 06:11:03 d3g681 Exp $
+c     $Id: fock_2e_b.F,v 1.5 1995-10-21 19:39:16 d3g681 Exp $
+c
+c     Called by fock_2e_task once density matrix blocks have 
+c     been fetched.
 c     
       implicit none
 #include "mafdecls.fh"

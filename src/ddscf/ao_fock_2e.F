@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $                    tol2e, oskel, vg_dens, vg_fock )
 c
-c$Id: ao_fock_2e.F,v 1.1 1995-05-22 22:28:18 vg038 Exp $
+c$Id: ao_fock_2e.F,v 1.2 1995-10-21 19:39:13 d3g681 Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -59,11 +59,11 @@ c
 c     Determine maximum no. of basis functions on any atom
 c     
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('rhf_fock_2e: geom_ncent failed', 0)
+     $     ('ao_fock_2e: geom_ncent failed', 0)
       max_at_bf = 0
       do iatom = 1, natoms
          if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
-     $        call errquit('rhf_fock_2e: bas_ce2bfr failed', iatom)
+     $        call errquit('ao_fock_2e: bas_ce2bfr failed', iatom)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       end do
       ablklen = max_at_bf**2
