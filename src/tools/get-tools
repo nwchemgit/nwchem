@@ -1,6 +1,11 @@
 #!/bin/csh
+# We need to rename CVS associated with nwchem repository while
+# checking out tools for the first time
+mv CVS CVS0
 setenv CVSROOT /msrc/proj/hpctools
 set subdirs = "config global armci LinAlg pario ma tcgmsg tcgmsg-mpi server"
 foreach d ( $subdirs )
    cvs co $d
 end
+# restore the nwchem CVS directory 
+mv CVS0 CVS
