@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.21 2003-02-25 02:35:21 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.22 2003-02-27 01:35:19 bylaska Exp $
 *
 
 
@@ -103,7 +103,7 @@
         integer i_w,i_w0
         integer nb2,nb
         integer mult_l
-        complex qlm_tmp
+        complex*16 qlm_tmp
         
         integer i,j,li,lj,mi,mj
         integer l,m
@@ -143,7 +143,7 @@ c       !*** set values for l=0 m=0 elements ***
           lj = paw_basis_orb_l(j,ia)
           nlmi = 0
           do l=0,mult_l
-              qlm_tmp = dcmplx(0.0,0.0)
+              qlm_tmp = dcmplx(0.0d0,0.0d0)
               if(l.le.(li+lj) .and. l.ge.abs(li-lj)) then
                 do m=-l,l
                 do mi=-li,li
