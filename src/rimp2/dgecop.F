@@ -4,12 +4,13 @@
       Subroutine DGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgecop.F,v 1.1 1994-06-14 21:54:10 gg502 Exp $
+C $Id: dgecop.F,v 1.2 1995-12-16 21:06:31 gg502 Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgecop, sgecop -- copies one matrix into another
 C
 C SYNOPSIS
+      Implicit NONE
       Character*1 TRANSA
       Integer M, N, LDA, LDB
 #ifdef SNGLPR

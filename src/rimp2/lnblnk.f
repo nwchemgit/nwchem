@@ -9,10 +9,13 @@ C            right.  The intrinsic function LEN returns the dimension
 C            of the character object, not the length of the contents.
 C            
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Header: /tmp/mss/nwchem/src/rimp2/lnblnk.f,v 1.3 1995-02-02 23:21:12 d3g681 Exp $
+C $Header: /tmp/mss/nwchem/src/rimp2/lnblnk.f,v 1.4 1995-12-16 21:06:36 gg502 Exp $
 C
 C    Revision 0.0  87/07/24  bernholdt (VAX)
 C $Log: not supported by cvs2svn $
+c Revision 1.3  1995/02/02  23:21:12  d3g681
+c RJH: A CVS ID for every file and automated generation of a version output
+c
 c Revision 1.2  1994/09/01  21:07:41  d3e129
 c removed call to char from parameter statement.  not allowed by
 c fortran standard.
@@ -32,7 +35,8 @@ C System:     Standard FORTRAN 77
 C
 C Copyright 1987 David E. Bernholdt
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C$Id: lnblnk.f,v 1.3 1995-02-02 23:21:12 d3g681 Exp $
+C$Id: lnblnk.f,v 1.4 1995-12-16 21:06:36 gg502 Exp $
+       IMPLICIT NONE
        INTEGER I
        CHARACTER*(*) STRING
        CHARACTER*1 BLANK, NULL
