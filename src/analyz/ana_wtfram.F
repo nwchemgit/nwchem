@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.35 2000-09-29 00:08:13 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.36 2000-11-07 21:30:23 d3j191 Exp $
 c
       implicit none
 c
@@ -295,7 +295,7 @@ c
       endif
       call povinc(iunit,xbmin,xbmax,ybmin,ybmax,zbmin,zbmax)
       npov=npov+1
-      write(fname,'(a,i3.3,a)') filpov(1:index(filpov,'.pov')-1),
+      write(fname,'(a,i5.5,a)') filpov(1:index(filpov,'.pov')-1),
      + npov,'.pov '
       open(unit=iunit,file=fname(1:index(fname,' ')-1),
      + form='formatted',status='unknown')
@@ -390,9 +390,9 @@ c
       endif
 c
       if(fmt.eq.'esp') then
-      write(filchg,'(a,i3.3,a)') root(1:index(root,'.')-1),indx,'.xyz '
-      write(filplt,'(a,i3.3,a)') root(1:index(root,'.')-1),indx,'.plt '
-      write(filepz,'(a,i3.3,a)') root(1:index(root,'.')-1),indx,'.epz '
+      write(filchg,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.xyz '
+      write(filplt,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.plt '
+      write(filepz,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.epz '
       call ana_wrtxyz(lfnchg,filchg,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
      + .false.,.not.lsonly,int_mb(i_ndxw))
