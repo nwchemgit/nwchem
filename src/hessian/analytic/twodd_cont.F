@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.5 2000-08-07 17:40:54 windus Exp $
+C $Id: twodd_cont.F,v 1.6 2000-08-07 20:08:45 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -155,6 +155,7 @@ c
      $     l_pdm2d, k_pdm2d)) call errquit
      $     ('twodd_cont:failed allocating pdm2d',blen**4)
 c initialize for integral gradients
+      call schwarz_tidy()    ! need to get rid of temp buffers
       call intdd_terminate()
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom, basis)
@@ -170,7 +171,8 @@ c initialize for integral gradients
 C     one-electron contribution
 C     buffers for one electron integral derivatives
  
-      if (.not. ma_push_get(mt_dbl,78*lbuf,'deriv buffer',l_buf,
+c probably need the 12 to be 78  CHECK
+      if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
      $    k_buf)) call errquit('twodd_cont:could not allocate buffer'
      $    ,78*lbuf)
 *      call ma_summarize_allocated_blocks()
@@ -263,7 +265,6 @@ c
 c
 c  Actually do the deed
 c
-c     if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) call grad2(
       if (jfac.ne.0.0d0 .or. kfac.ne.0.0d0) call twodd_coul_ex(
      $     dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
      $     dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk),
@@ -333,21 +334,29 @@ c
         call xc_cpks_rhs(g_dens, log_mb(k_act), nactive, g_rhs_xc)
         if (ocdfit) call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
      *     g_rhs_xc)
+c
+c  The next statements are only temporarily in until we are confident the
+c  dft code is giving the correct contributions.
+c
+        do i = 1,ncent
+          call ga_add(1.0d+00,g_rhs_xc(i),1.0d+00,g_rhs(i),g_rhs(i))
+        enddo
+        call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
+     *    dbl_mb(k_exy),1)
       endif
+c
+c Print out the hessian before adding anything else
+c
+      write(6,*) 'The Hessian after the dft contribution'
+      call flush(6)
+      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      call flush(6)
 
 c
 c call terminate since cphf will call it's own integral initialization
 c
       call schwarz_tidy()    ! need to get rid of temp buffers
       call intdd_terminate()
-c
-c  Temporary copy to real spot (needs to be an add in the very near future)
-c
-      do i = 1,ncent
-        call ga_copy(g_rhs_xc(i), g_rhs(i))
-      enddo
-
-      call dcopy(n3xyz2,dbl_mb(k_hess_xc),1,dbl_mb(k_exy),1)
 c
       return
       end
