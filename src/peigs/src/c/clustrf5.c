@@ -174,7 +174,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
   Integer max_clustr_size;
   Integer beg_of_block, end_of_block, ime;
   Integer bn;
-  Integer clustrptr, blksiz;
+  Integer clustrptr=0, blksiz;
   Integer me;
   Integer *c_ptr;
   Integer iflag, k, imax;
@@ -527,6 +527,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
     }
   }
   
+  /*
   ime = -1;
   ii = -1;
   for ( ii = 0; ii < *n; ii++ ){
@@ -535,28 +536,26 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
       break;
     }
   }
-  
-  /*
+
   if ( ime % 2 == 1 ) {
-    if ( *num_clustr > 1 ) {
+    if ( num_all_cls > 1 ) {
       iscratch[0] = clustr_info[0];
       iscratch[1] = clustr_info[1];
       iscratch[2] = clustr_info[2];
       iscratch[3] = clustr_info[3];
-      c_ptr = clustr_info + 4 * ( *num_clustr - 1);
-      clustr_info[0] = *(c_ptr++);
-      clustr_info[1] = *(c_ptr++);
-      clustr_info[2] = *(c_ptr++);
-      clustr_info[3] = *(c_ptr++);
-      c_ptr = clustr_info + 4 * ( *num_clustr - 1);
-      *(c_ptr++) = iscratch[0];
-      *(c_ptr++) = iscratch[1];
-      *(c_ptr++) = iscratch[2];
-      *(c_ptr++) = iscratch[3];
+      c_ptr = &clustr_info[ 4 * ( num_all_cls - 1)];
+      clustr_info[0] = c_ptr[0];
+      clustr_info[1] = c_ptr[1];
+      clustr_info[2] = c_ptr[2];
+      clustr_info[3] = c_ptr[3];
+      c_ptr = &clustr_info[0];
+      c_ptr[0] = iscratch[0];
+      c_ptr[1] = iscratch[1];
+      c_ptr[2] = iscratch[2];
+      c_ptr[3] = iscratch[3];
     }
-}
+  }
   */
-  
   
   c_ptr = clustr_info;
   *num_clustr = num_cls;
@@ -575,14 +574,11 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
     */
   
   
-  /*
-    if ( me == 0 ) {
+/*
     for ( ii = 0; ii < 4* *num_clustr; ii++ )
     printf("me = %d clustrf5 close clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
     
-    printf("me = %d exiting clustrf5 num fine clustr =  %d \n", me, *num_clustr);
-    }
-  */
+*/
   
     return(max_clustr_size);
 }

@@ -183,7 +183,7 @@ void fil_int_lst ( n, list, item)
 
 void fil_dbl_lst ( n, list, item)
      Integer n;
-     DoublePrecision *list, item;
+     DoublePrecision list[], item;
      
 {
   /*
@@ -193,12 +193,10 @@ void fil_dbl_lst ( n, list, item)
   
    Integer i;
    DoublePrecision w;
-  DoublePrecision *j;
   
-  j = list;
   w = item;
   for ( i = 0; i < n; i++ ) {
-    *(j++) = w;
+    list[i] = w;
   }
   return;
 }

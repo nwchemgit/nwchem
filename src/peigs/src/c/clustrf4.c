@@ -40,43 +40,43 @@
       tridiagonal matrix, but not necessarily relative to norm(Ti)
       if norm(Ti) < norm(T), where Ti is one of the submatrices into 
       which T breaks (as per isplit, nsplit).  If eigenvalues in block
-      Ti are always accurate relative to norm(Ti), then ortol should be
-      based on norm(Ti) rather than norm(T). 
+	      Ti are always accurate relative to norm(Ti), then ortol should be
+	      based on norm(Ti) rather than norm(T). 
 
-      This assumption means that the orthogonalization criterion for
-      all blocks is based on norm(T), not norm(Ti) for each block.  This
-      means we do orthogonalization more often than we would if the 
-      orthogonalization criterion for each block was based on norm(Ti).
+	      This assumption means that the orthogonalization criterion for
+	      all blocks is based on norm(T), not norm(Ti) for each block.  This
+	      means we do orthogonalization more often than we would if the 
+	      orthogonalization criterion for each block was based on norm(Ti).
 
-      This assumption about accuracy is consistent with taking 
-      abstol <= 0.0 in dstebz, pdspev, etc., i.e., then dstebz/pstebz
-      computes eigenvalues with an error less than eps * norm(T).
+	      This assumption about accuracy is consistent with taking 
+	      abstol <= 0.0 in dstebz, pdspev, etc., i.e., then dstebz/pstebz
+	      computes eigenvalues with an error less than eps * norm(T).
 
-      In principle the user could specify 0.0 < abstol < eps * norm(T) 
-      in dstebz/pstebz
-      in which case the assumption of this routines may be violated.
-      Violation of this assumption will not reduce the accuracy of the
-      results, it will only cause the code to run slower since it
-      will cause more eigenvectors to be orthogonalized than is strictly
-      necessary.
+	      In principle the user could specify 0.0 < abstol < eps * norm(T) 
+	      in dstebz/pstebz
+	      in which case the assumption of this routines may be violated.
+	      Violation of this assumption will not reduce the accuracy of the
+	      results, it will only cause the code to run slower since it
+	      will cause more eigenvectors to be orthogonalized than is strictly
+	      necessary.
 
-      If we do not make this assumption, and compute the orthogonalization
-      criterion based on norm(Ti), but the eigenvalues are only accurate
-      relative to norm(T) but not norm(Ti), then the computed eigenvectors
-      are likely to have poor (possible no) orthogonality.
-      
- 
-      Integer clustrf_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,ptbeval, num_clustr, clustr_info, *imin,
- , proclist, iscratch )
- 
- Integer *n, *m, *mapZ, *iblock, *nsplit, *isplit, *num_clustr, *clustr_info, *imin, *proclist, *iscratch;
- DoublePrecision *d, *e, *w, **vecZ, *ptbeval;
- 
- 
- not intended for separate call
- not protected from user input errors
- 
- */
+	      If we do not make this assumption, and compute the orthogonalization
+	      criterion based on norm(Ti), but the eigenvalues are only accurate
+	      relative to norm(T) but not norm(Ti), then the computed eigenvectors
+	      are likely to have poor (possible no) orthogonality.
+	      
+	 
+	      Integer clustrf_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,ptbeval, num_clustr, clustr_info, *imin,
+	 , proclist, iscratch )
+	 
+	 Integer *n, *m, *mapZ, *iblock, *nsplit, *isplit, *num_clustr, *clustr_info, *imin, *proclist, *iscratch;
+	 DoublePrecision *d, *e, *w, **vecZ, *ptbeval;
+	 
+	 
+	 not intended for separate call
+	 not protected from user input errors
+	 
+	 */
 
 #include <stdio.h>
 #include <malloc.h>
@@ -86,7 +86,7 @@
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
-#define ffabs(a) ((a) > (0.) ? (a) : (-a))
+#define ffabs(a) ((a) > ((DoublePrecision) 0.e0) ? (a) : (-a))
 
 #define R_ZERO (DoublePrecision) 0.0e0
 #define R_ONE  (DoublePrecision) 1.0e0
@@ -102,36 +102,36 @@
 
 #define I_ZERO 0
 
-  static Integer clustr_check(c1, cn, imin, imax)
+static Integer clustr_check(c1, cn, imin, imax)
      Integer c1, cn, imin, imax;
 {
   /*
     routine to determine if
     the cluster is
     actually in the desired region of the clustr finder
-    */
+  */
   
   if ( cn < imin )
     return(-1);
   
   if ( imax  < c1 )
-    return(-1);
-  
+      return(-1);
+
   return(1);
 }
 
 
-Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, num_clustr,
-		   clustr_info,  imin, proclist , nacluster, icsplit, iscratch)
-     Integer *n, *m, *mapZ, *iblock, *nsplit, *isplit, *num_clustr,
-  *clustr_info, *imin, *proclist, *nacluster, *icsplit, *iscratch;
-     DoublePrecision *d, *e, *w, **vecZ, *ptbeval;
+Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit,
+		   clustr_info,  nacluster, icsplit, iscratch)
+     Integer *n, *m, *mapZ, *iblock, *nsplit, *isplit,
+  *clustr_info, *nacluster, *icsplit, *iscratch;
+     DoublePrecision *d, *e, *w, **vecZ;
      /*
-       this routine finds the cluster information for symmetric tridiagonal matrices
-       
-       on input:
-       
-       n = dimension of the matrix
+	       this routine finds the cluster information for symmetric tridiagonal matrices
+	       
+	       on input:
+	       
+	       n = dimension of the matrix
        d = array of n DoublePrecision; diagonal of the tridiagonal matrices
        e = array of n DoublePrecision; e[0] is junk -- left over from eispack--should remove
        super-diagonal of the tridiagonal matrices; 
@@ -170,15 +170,15 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 {
   Integer jblk, nblk;
   Integer i, j, num_cls, num_all_cls;
-  Integer b1, num_eig;
-  Integer max_clustr_size;
-  Integer beg_of_block, end_of_block, ime;
-  Integer bn;
-  Integer clustrptr, blksiz;
-  Integer me;
-  Integer *c_ptr;
-  Integer iflag, k, imax;
-  Integer ii, nn_proc;
+  Integer b1=0, num_eig=0;
+  Integer max_clustr_size=0;
+  Integer beg_of_block=0, end_of_block=0, ime;
+  Integer bn=0;
+  Integer clustrptr=0, blksiz=0;
+  Integer me=-1;
+  Integer *c_ptr=0;
+  Integer iflag=-1, k=0,imin=0, imax=0, msize=0;
+  Integer ii=0, nn_proc=0;
   
   DoublePrecision tmp, *eval, sep, eps;
   DoublePrecision onenrm, pertol;
@@ -209,11 +209,13 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
     */
   
   extern void xerbla_(), dlagts_(), dlagtf_(), dlarnv_();
+
+  FILE *file;
+  char filename[40];
   
   me = mxmynd_ ();
   num_eig = *m;
   
-  *num_clustr = 0;
   num_cls = 0;
   num_all_cls = I_ZERO;
   *nacluster = I_ZERO;
@@ -231,21 +233,23 @@ Integer clustrf4_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
       based on norm(Ti) rather than norm(T) (the commented out computation
       of ortol latter in the code was used to do this before even though
       the eigenvalues weren't really accurate relative to norm(Ti). ).
-   */
-      
+  */
+  
+  msize = *n;
   onenrm = ffabs( d[0] ) + ffabs( e[1] );
-  for (i = 1; i < *n-1; ++i) {
+  for (i = 1; i < msize-1; ++i) {
     tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
     onenrm = MAX(onenrm, tmp);
   }
-  tmp = ffabs(d[*n-1]) + ffabs(e[*n-1]);
+  tmp = ffabs(d[msize-1]) + ffabs(e[msize-1]);
   onenrm = MAX(onenrm, tmp);
-      
+  
   ortol = onenrm * (DoublePrecision ) 1.e-3 ;
+
   /*
-sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
-  sepfine = sepfine*MAX(ortol, 1.);
-*/
+    sepfine = MAX(1000., (DoublePrecision) msize)*DLAMCHE;
+    sepfine = sepfine*MAX(ortol, 1.);
+  */
   
   c_ptr = iscratch;
   nn_proc = reduce_list2( num_eig, mapZ, c_ptr);
@@ -258,62 +262,38 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
     }
   }    
   
+  
   k = 0;
   imax = -1;
-  *imin = -1;
+  imin = -1;
+  
   for ( j = 0; j < iflag; j++ ) {
     imax = count_list(c_ptr[j], mapZ, &num_eig);
     k += imax;
   }	
 
-  
-  /*
-    this processor finds the eigenvectors between imin <= and <= imax
-    */
-
   if ( iflag == -1 ){
-    *imin = -1;
+    imin = -1;
     imax = -1;
   }
   else {
-    *imin = k;
+    imin = k;
     imax = k + count_list( me, mapZ, &num_eig) - 1;
   }
-  
-  c_ptr = iscratch;
-  nn_proc = reduce_list2(num_eig, mapZ, c_ptr );
-  
-  c_ptr += nn_proc;
-  for ( j = 0; j < num_eig; j++ )
-    *(c_ptr++ ) = mapZ[j];
-  
-  c_ptr = iscratch + nn_proc;
-  
-  k = 0;
-  for ( j = 0; j < nn_proc; j++ ) {
-    ii = iscratch[j];
-    end_of_block = count_list(ii, c_ptr, &num_eig);
-    fil_int_lst (end_of_block, &mapZ[k], ii);
-    k += end_of_block;
-  }
-  
-  eval = ptbeval;
-  c_ptr = clustr_info;
+
+
+
+
+  c_ptr = &clustr_info[0];
+
   
   /*
     cluster information
     */
   
-  for ( j = 0; j <  4 * *n; j++ )
-    *(c_ptr++) = -1;
-  
-  for ( j = 0; j < num_eig; j++ )
-    icsplit[j] = -5;
-
-  if ( iflag == -1 )
-    return(-50);
-  
-  c_ptr = clustr_info;
+  for ( j = 0; j <  4 * msize; j++ )
+    c_ptr[j] = -1;
+  c_ptr = &clustr_info[0];
   
   /*
     should have the same error messages as lapack
@@ -323,7 +303,7 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
     get machine precision 
     */
   
-  eps = DLAMCHE;    
+  eps = ( DoublePrecision ) DLAMCHE;    
   
   /*
     
@@ -343,25 +323,20 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
       find the end of the block
       */
     
-
-    
     while (( iblock[end_of_block] == iblock[beg_of_block] ) && ( end_of_block < num_eig )) {
       end_of_block++;
     }
     
-    --end_of_block;
+    end_of_block--;
     
     /*
      */
     
     nblk = iblock[beg_of_block] - 1;
-    
     if (nblk == 0 ) 
       b1 = 0 ;
     else
       b1 = isplit[nblk-1];
-
-
     
     bn = isplit[nblk]-1;
     blksiz = bn - b1 + 1;
@@ -370,21 +345,9 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
       Skip all the work if the block size is one.
       */
     
-#ifdef DEBUG1
-    fprintf(stderr, "me = %d b1 = %d  bn = %d blksiz1 = %d \n", me, b1, bn, blksiz );    
-#endif
-    
     if (blksiz == 1) {
-      if ( clustr_check(beg_of_block, end_of_block, *imin, imax) == 1 ) { 
-	ii = beg_of_block - *imin;
-	fil_dbl_lst ( *n, vecZ[ii], 0.0e0);
-	vecZ[ii][b1] = 1.0e0;
-      }
-
-      icsplit[ num_all_cls ] = end_of_block;
       num_all_cls++;
       *nacluster = num_all_cls;
-
     }
     
 #ifdef DEBUG1
@@ -399,31 +362,53 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
 	should use pointers or loop unrooling here to speed things up; this is a O(n) operation
 	so things aren't that expensive
 	
+      */
+      
+      /*
+       *  This is how one would compute ortol if the eigenvalues of block i
+       *  of T, Ti, were accurate relative to norm(Ti).
+       */
+
+      /*
+      imin = b1-1;
+      imax = bn+1;
+      */
+      
+      /*
+      if ( b1 != bn ) {
+	onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
+	tmp = ffabs(d[bn]) + ffabs(e[bn]);
+	onenrm = MAX(onenrm, tmp);
+	if ( bn < *n-1 ){
+	  for (i = b1 + 1; i < bn; ++i) {
+	    tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+	    onenrm = MAX(onenrm, tmp);
+	  }}
+	else {
+	  for (i = b1 + 1; i < *n-1; ++i) {
+	    tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
+	    onenrm = MAX(onenrm, tmp);
+	  }
+	  tmp = ffabs(d[msize-1]) + ffabs(e[msize-1]);
+	  onenrm = MAX(onenrm, tmp);
+	}
+      }
+      else
+	onenrm = ffabs(d[msize-1]) + ffabs(e[msize-1]);
+
+	ortol = onenrm * (DoublePrecision ) 1.e-3 ;
 	*/
       
-/*
- *  This is how one would compute ortol if the eigenvalues of block i
- *  of T, Ti, were accurate relative to norm(Ti).
- *
- *     onenrm = ffabs( d[b1] ) + ffabs( e[b1+1] );
- *     tmp = ffabs(d[bn]) + ffabs(e[bn]);
- *     onenrm = max(onenrm, tmp);
- *     for (i = b1 + 1; i < bn; ++i) {
-*	tmp = ffabs(d[i]) + ffabs(e[i]) + ffabs(e[i + 1]);
-*	onenrm = max(onenrm, tmp);
-*      }
- *     
- *     ortol = onenrm * (DoublePrecision ) 1.e-3 ;
- */
+
       
 #ifdef DEBUG1
-    fprintf(stderr, " got here 2 me = %d \n", me );
+      fprintf(stderr, " got here 2 me = %d \n", me );
 #endif
-
+      
       
       /*
 	Loop through eigenvalues of block nblk.
-	*/
+      */
       
       jblk = 0;
       for (j = beg_of_block; j < ( end_of_block + 1) ; ++j) {
@@ -434,11 +419,11 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
 	  If eigenvalues j and j-1 are too close, add a relatively small
 	  perturbation.  If the eigenvalues are not in increasing 
 	  order in the block, exit.
-	  */
+	*/
 	
 	if (jblk > 1) {
-	  eps1 = ffabs(eps * xj);
-	  if ((xj - w[j-1]) < -eps1) {
+	  eps1 = ffabs((DoublePrecision) eps * xj);
+	  if ((xj - w[j-1]) < (DoublePrecision) -eps1) {
 	    /*
 	     *info = -5;
 	     i__3 = -(*info);
@@ -448,14 +433,11 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
 	    fprintf(stderr, " Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
 	    return(-5);
 	  }
-	pertol = eps1 * R_TEN;
 	  sep = xj - xjm;
-	  /*
-	if (sep < pertol*MAX(ffabs(xj), ffabs(xjm)))
-	      xj = xjm + pertol;
-	*/
 	}
-	eval[j] = xj;
+	/*
+	  eval[j] = xj;
+	*/
 	
 #ifdef DEBUG1
 	fprintf(stderr, " got here 3 me = %d \n", me );
@@ -466,19 +448,18 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
 	
 	/*
 	  tight cluster
-	  */
+	*/
 	
 	if ( jblk > 1 )  {            /* jblk > 1 */
 	  sep = ffabs(xj - xjm);
-	  if ( sep >= MAX(ffabs(xj),ffabs(xjm))*1.e-3*onenrm) {
-	  /*
-	if ( sep >= 1.e-3*onenrm) {
-*/
+	  if ( sep >= MAX(ffabs(xj),ffabs(xjm))* (DoublePrecision) 1.e-3*onenrm) {
+	    /*
+	      if ( sep >= (DoublePrecision) 1.e-3*onenrm) {
+	    */
 #ifdef DEBUG1
 	    fprintf(stderr, " got here 4 me = %d \n", me );
 #endif
-	    
-	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {
+	    if ( clustr_check(clustrptr, j-1, imin, imax) == 1 ) {
 	      *(c_ptr++) = clustrptr;
 	      *(c_ptr++) = j-1;
 	      *(c_ptr++) = b1;
@@ -488,25 +469,26 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
 	    }
 	    clustrptr = j;
 	    jblk = 1;
-
+	    
             icsplit[ num_all_cls ] = j-1;
             num_all_cls++;
             *nacluster = num_all_cls;
-
-
+	    
+	    
 #ifdef DEBUG1
 	    fprintf(stderr, " out of 4 me = %d \n", me );
 #endif
-
+	    
 	  }
 	}
 	
 	/* 
-	  assume that xj - xjm < ortol but we're at the end of the blk 
-	  */
+	   assume that xj - xjm < ortol but we're at the end of the blk 
+	*/
+	
 	if ( j == end_of_block ) {
-	  if ( clustr_check(clustrptr, end_of_block, *imin, imax) == 1 ) {
-
+	  if ( clustr_check(clustrptr, end_of_block, imin, imax) == 1 ) {
+	    
 #ifdef DEBUG1
 	    fprintf(stderr, " got here 5 me = %d \n", me );
 #endif
@@ -534,63 +516,51 @@ sepfine = MAX(1000., (DoublePrecision) *n)*DLAMCHE;
     }
   }
   
+/*
   ime = -1;
-  ii = -1;
   for ( ii = 0; ii < *n; ii++ ){
-    if ( mapZ[ii] == me ){
-      ime = ii;
-      break;
-    }
+  if ( mapZ[ii] == me ){
+  ime = ii;
+  break;
+  }
   }
   
-  /*
-  if ( ime % 2 == 1 ) {
-    if ( *num_clustr > 1 ) {
-      iscratch[0] = clustr_info[0];
-      iscratch[1] = clustr_info[1];
-      iscratch[2] = clustr_info[2];
-      iscratch[3] = clustr_info[3];
-      c_ptr = clustr_info + 4 * ( *num_clustr - 1);
-      clustr_info[0] = *(c_ptr++);
-      clustr_info[1] = *(c_ptr++);
-      clustr_info[2] = *(c_ptr++);
-      clustr_info[3] = *(c_ptr++);
-      c_ptr = clustr_info + 4 * ( *num_clustr - 1);
-      *(c_ptr++) = iscratch[0];
-      *(c_ptr++) = iscratch[1];
-      *(c_ptr++) = iscratch[2];
-      *(c_ptr++) = iscratch[3];
+  if ( ime % 2 != 0 ) {
+  if ( num_all_cls > 1 ) {
+  iscratch[0] = clustr_info[0];
+  iscratch[1] = clustr_info[1];
+  iscratch[2] = clustr_info[2];
+  iscratch[3] = clustr_info[3];
+  c_ptr =&clustr_info[ 4 * ( num_all_cls - 1)];
+  clustr_info[0] = c_ptr[0];
+  clustr_info[1] = c_ptr[1];
+  clustr_info[2] = c_ptr[2];
+  clustr_info[3] = c_ptr[3];
+  c_ptr = &clustr_info[0];
+      c_ptr[0] = iscratch[0];
+      c_ptr[1] = iscratch[1];
+      c_ptr[2] = iscratch[2];
+      c_ptr[3] = iscratch[3];
     }
-}
-  */
-  
-  
-  c_ptr = clustr_info;
-  *num_clustr = num_cls;
-
-  
-/*
-  for ( ii = 0; ii < 4* *num_clustr; ii++ )
-    printf("me = %d clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
+  }
 */
   
-  /*
-    for ( ii = 0; ii < num_eig ; ii++ )
-    printf("me = %d mapZ[%d] =  %d \n", me, ii, mapZ[ii]);
-    
-    printf("me = %d exiting clustrf2 imin =  %d \n", me, *imin);
-    */
+  c_ptr = clustr_info;
+/*
+  sprintf(filename, "junk%d", me);
+  file = fopen(filename, "w");
+  for ( ii = 0; ii < 4* num_all_cls; ii++ )
+    fprintf(file, "me = %d clustrf4 clustr_info[%d] = %d \n", me, ii, *(c_ptr++));
+  
+  for ( ii = 0; ii < msize; ii++ )
+    fprintf(file, "me = %d iblock %d = %d \n", me, ii, iblock[ii]);
+
+  close(file);
+  fflush(file);
+*/
   
   
-  /*
-    if ( me == 0 ) {
-    for ( ii = 0; ii < 4* *num_clustr; ii++ )
-    printf("me = %d clustrf5 close clustr_info[%d] =  %d \n", me, ii, *(c_ptr++));
-    
-    printf("me = %d exiting clustrf5 num fine clustr =  %d \n", me, *num_clustr);
-    }
-  */
   
-    return(max_clustr_size);
+  return(max_clustr_size);
 }
 

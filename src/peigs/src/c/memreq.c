@@ -176,7 +176,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
      for ( indx = 0; indx < *n; indx++ ) {
        if ( (iptr++ ) == NULL ) {
          linfo = -4;
-         fprintf(stderr, " me = %d error in mapB in memreq.c \n",me);
+         fprintf(stderr, " me = %d error in mapB in memreq.c \n");
          l_exit_(&linfo,msg);
          return;
        }
@@ -192,7 +192,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
    for ( indx = 0; indx < *n; indx++ ) {
      if ( (iptr++ ) == NULL ) {
        linfo = -5;
-       fprintf(stderr, " me = %d error in mapZ in memreq.c \n",me);
+       fprintf(stderr, " me = %d error in mapZ in memreq.c \n");
        l_exit_(&linfo,msg);
        return;
      }
@@ -254,7 +254,7 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
    /* MXCOMBV1 workspace. */
 
    i_bufsiz = msize;
-
+   
    /*
     *====================
     *     pdsptri
@@ -558,9 +558,9 @@ void memreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   
   ppd_tmp = max(  ppd_tmp, ptr_pdspevx );
 
-  *isize    =  i_tmp + nextra + 4*msize;
-  *rsize    =  d_tmp + nextra + 8*msize;
-  *ptr_size =  ppd_tmp + nextra + 8*msize;
+  *isize    =  i_tmp + nextra + 4*msize + 10*naproc + 16*naproc ;
+  *rsize    =  d_tmp + nextra + 8*msize + msize*msize/naproc;
+  *ptr_size =  ppd_tmp + nextra + 8*msize + 10*msize;
   
   return;
 }

@@ -270,9 +270,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     Integer         *i_scrat, *mapQ, *iblock,ii, *isplit;
 
     char            msg[ 35 ];
-    char            msg2[ 30]; 
+    char            msg2[ 256]; 
 
-    Integer         **iptr, num_procs, *proclist;
+    Integer         **iptr, num_procs, *proclist, *clustr_info;
     
     DoublePrecision vec[2], fnormA, fnormT, ulp;
     DoublePrecision *d_scrat, *ld, *lld, dummy, dummy1,
@@ -312,6 +312,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern void     pstebz_(), mxm25(), sfnorm(), pstein4(), pstein5(), pscale_();
 	extern void synch_();
 
+
+
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements
@@ -335,10 +337,16 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     test_timing.pdspgvx  = 0.0e0;
 #endif
 
+    FILE *file;
+    char filename[40];
+
 
     me    = mxmynd_();
     nproc = mxnprc_();
     strcpy( msg,  "Error in pdspevx." );
+
+    sprintf( filename, "pdspevx.%d", me);
+    
 /*
 setdbg_(&peigs_DEBUG);
 */
@@ -528,7 +536,7 @@ setdbg_(&peigs_DEBUG);
     proclist = iscratch;
     reduce_maps( *n, mapA, *n, mapZ, 0, mapZ, &nn_proc, proclist );
 
-    i_scrat = iscratch + nn_proc;
+    i_scrat = &iscratch[nn_proc];
 
     /*
      *  Check scaler Integer inputs.
@@ -611,9 +619,12 @@ setdbg_(&peigs_DEBUG);
      */
 
     nvecsQ = nvecsA;
-
+    
     mapQ = i_scrat;
-    i_scrat += msize;
+    i_scrat = &i_scrat[msize];
+
+    clustr_info = i_scrat;
+    i_scrat += 4*msize;
 
     iblock = i_scrat;
     i_scrat += msize;
@@ -791,6 +802,7 @@ setdbg_(&peigs_DEBUG);
      */
     
     mdiff1_( n, mapA, n, mapZ, i_scrat, &num_procs ); 
+    
     if( num_procs > 0 ){
       i_scrat[num_procs] = mapZ_0;
       num_procs++;
@@ -827,12 +839,12 @@ setdbg_(&peigs_DEBUG);
     t1 = mxclock_();
 #endif
     
-    if (nvecsZ2 > 0) {
-      
-      /*
-	do fine cluster and mgs
-	*/
-      
+
+    
+    /*      
+      do fine cluster and mgs
+    */
+    
       
 #ifdef DEBUG7
       printf(" me = %d just before pstein5 %d \n", me, *info );
@@ -851,14 +863,27 @@ setdbg_(&peigs_DEBUG);
       
       pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
-		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
+		mapZ, vecZ, clustr_info, d_scrat,i_scrat, iptr, info);
 
-	linfo = 26001;
-/*      synch_(&linfo );
+/*
+      file = fopen(filename, "w");
+
+
+      for ( iii = 0; iii < 4*msize; iii++)
+	fprintf(file, " me = %d pstein5 clustr_info %d %d \n", me, iii, clustr_info[iii]);
+      for ( iii = 0; iii < msize; iii++)
+	fprintf(file, " me = %d pstein5 iblock %d %d \n", me, iii, iblock[iii]);
+      for ( iii = 0; iii < msize; iii++)
+	fprintf(file, " me = %d pstein5 isplit %d %d \n", me, iii, isplit[iii]);
+      fflush(file);
 */
+      
+      linfo = 26001;
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 11, mapA[0], nn_proc, proclist, d_scrat);
-
+      
+      bbcast00( (char * ) eval, msize*sizeof(DoublePrecision), 111, proclist[0], nn_proc, proclist);
+      
       
 #ifdef DEBUG7
       printf(" me = %d just after pstein5 %d \n", me, *info );
@@ -871,10 +896,21 @@ setdbg_(&peigs_DEBUG);
 #ifdef DEBUG7
       printf(" me = %d just before pstein4 %d \n", me, *info );
 #endif
+      
+      pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
+		&neigval, eval, iblock, &nsplit, isplit,
+		&mapZ[0], vecZ, clustr_info, d_scrat,
+		i_scrat, iptr, &linfo);
+      
+/*
+      for ( iii = 0; iii < 4*msize; iii++)
+	  fprintf(file, " me = %d pstein4 clustr_info %d %d \n", me, iii, clustr_info[iii]);
+      for ( iii = 0; iii < msize; iii++)
+	fprintf(file, " me = %d pstein4 iblock %d %d \n", me, iii, iblock[iii]);
+      for ( iii = 0; iii < msize; iii++)
+	fprintf(file, " me = %d pstein4 isplit %d %d \n", me, iii, isplit[iii]);
+*/
 
-	pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
-	&neigval, eval, iblock, &nsplit, isplit,
-		  mapZ, vecZ, d_scrat,i_scrat, iptr, info);
 	
 	/*
 	  synch_(&linfo);
@@ -894,7 +930,6 @@ setdbg_(&peigs_DEBUG);
         *info = 2;
       }
       
-    }
       
 #ifdef TIMING
       mxsync_();

@@ -87,10 +87,14 @@
 #define INV_TIME 2
 #define ITIME1  2
 
-Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
-     Integer *n, *schedule, *num_clustr, *mapZ, *mapvecZ, *imin,
-  *nacluster, *icsplit, *iscratch;
-     DoublePrecision *d, *e, *ld, *lld, *eval, **vecZ, *scratch, *dplus, *lplus;
+Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
+		    eval, schedule, num_clustr, mapZ,
+		    mapvecZ, vecZ, imin, nacluster,
+		    icsplit, iscratch, scratch)
+     Integer *n, *schedule, *num_clustr, *mapZ,
+  *mapvecZ, *imin, *nacluster, *icsplit, *iscratch;
+     DoublePrecision *d, *e, *ld, *lld, *eval, **vecZ,
+  *scratch, *dplus, *lplus;
 {
   /*
     n = dimension of the tridiagonal matrix
@@ -121,9 +125,6 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
   
-#ifndef RIOS
-  DoublePrecision sqrt();
-#endif
   
   extern void xerbla_();
   extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
@@ -226,6 +227,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
   send_num = 0; 
   recv_num = 0;
+  send_to = -100;
+	recv_from = -100;
+
   if( naproc > 1 ) {
     for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {
 
@@ -335,6 +339,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       if ( mapZ[i] == me )
 	break;
     }
+
+	printf("me = %d send_to %d send_num %d recv_from %d recv_num %d \n", me, send_to, send_num, recv_from, recv_num);
+	fflush(stdout);
 
 
     if( iscratch[j] != -1 ) {

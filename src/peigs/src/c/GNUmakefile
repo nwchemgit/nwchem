@@ -167,9 +167,6 @@ pstebz9.o:	pstebz9.c
 		$(peigs_CC) $(OPTC) -c pstebz9.c
 
 
-pstebz10.o:	pstebz10.c
-		$(peigs_CC) $(OPTC) -c pstebz10.c
-
 pstein4.o:	pstein4.c
 		$(peigs_CC) $(OPTC) -c pstein4.c
 
@@ -258,10 +255,10 @@ peigs_cmod.o:	peigs_cmod.f
 		$(peigs_FC) -c peigs_cmod.f
 
 clustrxx5.o:	clustrxx5.c
-		$(peigs_CC) -g -c clustrxx5.c
+		$(peigs_CC) -c clustrxx5.c
 
 clustrxx4.o:	clustrxx4.c
-		$(peigs_CC) -g -c clustrxx4.c
+		$(peigs_CC) -c clustrxx4.c
 
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<

@@ -40,10 +40,10 @@
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
 void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, isplit,
-	       mapZ, vecZ, ddwork, iiwork, ppiwork, info )
+	       mapZ, vecZ, clustr_info, ddwork, iiwork, ppiwork, info )
      
      Integer            *n, *meigval, *iblock, *nsplit, *isplit, *mapZ,
-  *iiwork, *info, **ppiwork;
+  *iiwork, *info, **ppiwork, *clustr_info;
      DoublePrecision        *dd, *ee, *dplus, *lplus, *ld, *lld,  *eval, **vecZ, *ddwork;
 {
   
@@ -138,7 +138,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
                    numclstr, nproc, nn_proc, neigval, nvecsZ,
                    ibad, linfo, maxinfo, imin, nacluster;
   
-   Integer            *iwork, *clustr_info, *proclist,
+   Integer            *iwork, *proclist,
                   *i_scrat, *iscrat, *mapvZ,
                   *iscratch, *icsplit;
 
@@ -407,7 +407,6 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
   icsplit = iscrat;
 
-  clustr_info = iwork;
   iwork += 4 * msize;
   
   mapvZ   = iwork;
@@ -433,7 +432,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   nacluster = 0;
   isize = 0;
   isize = clustrf5_(&msize, dplus, lplus, &neigval, eval, mapZ, vecZ, iblock, nsplit, isplit,
-		    ptbeval, &numclstr, clustr_info, &imin, proclist, 
+		    ptbeval, &nacluster, clustr_info, &imin, proclist, 
 		    &nacluster, icsplit, i_scrat);
   
   if ( isize < 0 ){
@@ -484,7 +483,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   ibad = 0;
   if ( nvecsZ != 0 ) 
     ibad = clustrinv5_( &msize, dd, ee, dplus, lplus, ld, lld, ptbeval, clustr_info,
-			&numclstr, mapZ,
+			&nacluster, mapZ,
 			mapvZ, vecZ, &imin, &nacluster, icsplit, i_scrat, d_scrat);
   
   /*
@@ -523,7 +522,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 #ifdef DEBUG
   printf(" in pstein4 me = %d \n", me);
 #endif
-
+  
   for ( ii = 0; ii < nproc ; ii++ )
     i_scrat[ii] = 0;
   i_scrat[ me ] = isize;

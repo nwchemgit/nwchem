@@ -121,10 +121,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
   
-#ifndef RIOS
-  DoublePrecision sqrt();
-#endif
-  
   extern void xerbla_();
   extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
   extern DoublePrecision dasum_(), dnrm2_(), ddot_(), dlarnd_();
@@ -189,13 +185,15 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       }    
     }
     
-    if ((iii == 1 ) && (csiz > 1 ))
+    if ((iii == 1 ) && (csiz > 1 )) {
       mgscs( n, vecZ, mapZ, bb1, bn, c1, cn, iscratch, dscrat);
+    }
   }
   
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Exiting clustrinv_ \n", me );
-#endif
+/*
+  printf( " me = %d Exiting clustr4_ \n", me );
+  fflush(stdout);
+*/
   
   return(ibad);
 }

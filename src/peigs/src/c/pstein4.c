@@ -1,3 +1,4 @@
+
 /*======================================================================
  *
  * DISCLAIMER
@@ -45,9 +46,10 @@
 
 
 void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, isplit,
-	       mapZ, vecZ, ddwork, iiwork, ppiwork, info )
+	       mapZ, vecZ, clustr_info, ddwork, iiwork, ppiwork, info )
      
-     Integer            *n, *meigval, *iblock, *nsplit, *isplit, *mapZ,
+     Integer            *n, *meigval, *iblock, *nsplit, *isplit,
+  *mapZ, *clustr_info,
   *iiwork, *info, **ppiwork;
      DoublePrecision        *dd, *ee, *dplus, *lplus, *ld, *lld, *eval, **vecZ, *ddwork;
 {
@@ -143,7 +145,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
                    numclstr, nproc, nn_proc, neigval, nvecsZ,
                    ibad, linfo, maxinfo, imin, nacluster;
   
-   Integer            *iwork, *clustr_info, *proclist,
+   Integer            *iwork, *proclist,
                   *i_scrat, *iscrat, *mapvZ,
                   *iscratch, *icsplit;
 
@@ -152,7 +154,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
    Integer           **piwork, max_sz, sync_proc;
 
-   DoublePrecision         *dwork, *ptbeval, *d_scrat, dbad, res;
+   DoublePrecision         *dwork, *d_scrat, dbad[1], res;
    extern DoublePrecision tcgtime_();
 
 
@@ -318,8 +320,8 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   proclist = iiwork;
   reduce_maps( *meigval, mapZ, 0, mapZ, 0, mapZ, &nn_proc, proclist );
-
   iscratch = iiwork + nn_proc;
+  iscratch += 4 * msize;
 
   /*
    *  Check scaler inputs.
@@ -405,21 +407,19 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   nn_proc = reduce_list2( neigval, mapZ, iwork );
   proclist = iwork;
-  iwork   += nn_proc;
+  iscrat =   iwork + nn_proc ;
   
   /*
    * Set up remaining integer work arrays.
    */
   
-  iscrat = iwork;
-  iwork += 6 * msize + 1;
+  iwork += (6 * msize + 1);
   
   /* iscrat is not used, so take it over for icsplit which is of length neigval. */
-
+  
   icsplit = iscrat;
-
-  clustr_info = iwork;
-  iwork += 6 * msize;
+  iscrat += 6*msize + 1;
+  
   
   mapvZ   = iwork;
   iwork  += nvecsZ;
@@ -429,8 +429,6 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    * Set up DoublePrecision precision work arrays.
    */
   
-  ptbeval = dwork;
-  dwork += msize;
   d_scrat = dwork;
   
   /*
@@ -442,11 +440,14 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    */
   
   nacluster = 0;
+  numclstr = 0;
   isize = 0;
   isize = clustrf4_(&msize, dplus, lplus, &neigval,
 		    eval, mapZ, vecZ, iblock, nsplit, isplit,
-		    ptbeval, &numclstr, clustr_info, &imin, proclist, 
-		    &nacluster, icsplit, i_scrat);
+		    clustr_info,
+		    &numclstr, icsplit, i_scrat);
+  nacluster = numclstr;
+
   
   if ( isize < 0 ){
     *info = -99;
@@ -460,12 +461,6 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   /*
    * syncronize processors
    */
-  
-  for ( ii = 0; ii < nproc ; ii++ )
-    i_scrat[ii] = 0;
-  i_scrat[ me ] = isize;
-  
-  gsum01( (char *) i_scrat, nproc, 5, 111, mapZ[0], nn_proc, proclist, d_scrat );
   
   max_sz = 0;
   for ( ii = 0; ii < nproc; ii++ )
@@ -491,13 +486,26 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 #ifdef DEBUG  
   printf(" in pstein4 me = %d \n", me);
 #endif
+
+  /*
+     printf(" in pstein4 bbcast00 me = %d numclstr \n", me, numclstr);
+     fflush(stdout);
+     */
+  
+  nacluster= numclstr;
+  
+  bbcast00( (char *) &clustr_info[0], 4*msize*sizeof(Integer), 9, proclist[0], nn_proc, proclist);
+  
+  /*
+     printf(" in pstein4 after bbcast00 me = %d \n", me);
+     fflush(stdout);
+     */
   
   ibad = 0;
-  if ( nvecsZ != 0 ) 
-    ibad = clustrinv4_( &msize, dd, ee, dplus, lplus, ld, lld,
-			ptbeval, clustr_info, &numclstr, mapZ,
-			mapvZ, vecZ, &imin, &nacluster, icsplit,
-			i_scrat, d_scrat);
+  ibad = clustrinv4_( &msize, dd, ee, dplus, lplus, ld, lld,
+		     eval, clustr_info, &numclstr, mapZ,
+		     mapvZ, vecZ, &imin, &nacluster, icsplit,
+		     i_scrat, d_scrat);
   
   /*
    * syncronize processors
@@ -507,21 +515,16 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    * Get same value of ibad for all processors in proclist.
    */
   
+	  
   bbcast00( (char *) &ibad, 1, 999, sync_proc, nn_proc, proclist);
   
+  dbad[0] = (DoublePrecision) ibad;
+  gmax00( (char *) dbad, 1, 1, 888, proclist[0], nn_proc, proclist, dwork );
   
+  ibad = (Integer) dbad[0];
   ibad = -ibad;
-  if( ibad == 0 )
-    ibad = -(msize+10);
-  
-  dbad = (DoublePrecision) ibad;
-  
-  gmax00( (char *) &dbad, 1, 1, 888, proclist[0], nn_proc, proclist, dwork );
     
-    ibad = (Integer) dbad;
-    ibad = -ibad;
-    
-    if( ibad == msize+10 )
+  if( ibad == msize+10 )
     ibad = 0;
   
   /*
@@ -538,4 +541,9 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   return;
 }
+
+
+
+
+
 

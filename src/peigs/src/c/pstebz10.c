@@ -503,6 +503,8 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    for ( m = 0; m < *n; m++ )
      printf(" on entrance to pstebz10 i = %d d %g e %g \n", m, d[m], e[m]);
 #endif
+
+   fil_int_lst(*n, (Integer *) isplit, 0);
    
    il = 1;
    iu = 1;
