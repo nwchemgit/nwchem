@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.13 1997-04-04 21:01:51 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.14 1997-04-11 00:32:38 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -44,6 +44,7 @@ c
 c
       double precision tol2e_save ! Used with variable integral tolerance
       double precision eprec_tol
+      double precision tlastwrite  ! time last wrote the MO vectors
 c     
 c     Functions
 c     
@@ -64,6 +65,8 @@ c
      $     1, 1, g_search)) call errquit('rohf_nr_solve: ga_cre grad',0)
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: work',
      $     1, 1, g_work)) call errquit('rohf_nr_solve: ga_cre work', 0)
+c
+      tlastwrite = util_cpusec()
 c     
       oprint_parm = util_print('parameters', print_default)
       oprint_conv = util_print('convergence', print_default)
@@ -193,7 +196,10 @@ c
                   endif
                   call ga_print(g_movecs)
                endif
-               call scf_movecs_write(rtdb)
+               if ((util_cpusec()-tlastwrite) .gt. 300) then
+                 call scf_movecs_write(rtdb)
+                 tlastwrite = util_cpusec()
+               endif
                goto 10
             endif
 c            

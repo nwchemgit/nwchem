@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s)
 
-C$Id: mull_pop.F,v 1.7 1997-04-10 02:03:27 d3g681 Exp $
+C$Id: mull_pop.F,v 1.8 1997-04-11 00:32:38 d3g681 Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -79,10 +79,14 @@ c
 
       integer ifirst,ilast,nbf_at,max_at_bf2
       integer ish1,ish2,ish,nn,iat,mu
-      integer me,nproc
+      integer me,nproc, geom
       double precision psmu
       double precision qatom(natoms),qshell(nshells),PSmat(max_at_bf2)
-
+      character*2 symbol
+      character*16 tag
+      character*32 element
+      integer atn
+#include "geom.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -95,6 +99,9 @@ c
       
       call dfill(natoms,0.D0,qatom,1)
       call dfill(nshells,0.D0,qshell,1)
+
+      if (.not. bas_geom(basis, geom)) call errquit
+     $     ('mull_pop: bas_geom failed',basis)
 
       do iat=me+1,natoms,nproc
         if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
@@ -118,17 +125,21 @@ c
       call ga_dgop(Msg_Mull2,qshell,nshells,'+')
       if(me.eq.0) then
         write(LuOut,1)
-    1   format(/' Atom   Charge   Shell Charges')
+    1   format(/'  Atom     Charge   Shell Charges')
         write(luout,11)
- 11     format( ' ----   ------   -------------------------------',
+ 11     format( ' -------   ------   -------------------------------',
      $       '---------------------------')
         do iat=1,natoms
           if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
      &         call errquit(' exiting in mull_pop',4)
+          if (.not. geom_cent_tag(geom, iat, tag)) call errquit
+     $         ('mull_pop: geom_cent_tag failed',0)
+          if (.not. geom_tag_to_element(tag, symbol, element, atn))
+     $         symbol = 'X'
           if (ish2.ge.ish1) then
-             write(LuOut,2) iat,qatom(iat),
+             write(LuOut,2) iat,symbol,qatom(iat),
      &            (qshell(ish),ish=ish1,ish2)
- 2           format(1x,i4,1x,f8.2,1x,25(f6.2))
+ 2           format(1x,i4,1x,a2,1x,f8.2,1x,25(f6.2))
           endif
         enddo
       endif
