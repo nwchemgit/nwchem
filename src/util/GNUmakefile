@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.105 1999-07-01 22:22:45 d3e129 Exp $
+# $Id: GNUmakefile,v 1.106 1999-07-02 00:30:11 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -135,16 +135,27 @@ ifdef SPEECH
    OBJ += udp.o
 endif
 
+ifeq ($(TARGET),SGI)
+   OBJ += sgi_flush6.o
+endif
+ifeq ($(TARGET),SGI_N32)
+   OBJ += sgi_flush6.o
+endif
+ifeq ($(TARGET),SGITFP)
+   OBJ += sgi_flush6.o
+endif
 
 include ../config/makelib.h
 
 util_version.F:	util_v_stub.F
 	cp $^ $@
 
-version:	../config/nwchem_config.h
+version:	largeversion
+	@ls -l util_version.F
+largeversion:	../config/nwchem_config.h
 	catsrc nwchem.F config $(NWSUBDIRS) | \
 		awk -f ids.awk > util_version.F
-smallversion:
+smallversion:	../config/nwchem_config.h
 	@echo " "
 	@echo " perl must be in your path"
 	@echo " "
