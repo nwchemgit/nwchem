@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.65 1996-02-08 01:47:18 vg038 Exp $
+# $Id: GNUmakefile,v 1.66 1996-02-27 00:29:14 d3e129 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -77,7 +77,6 @@ $(LIBRARY_PATH)(ao_fock_2e.o):	 $(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/mafdecl
 $(LIBRARY_PATH)(comp4_bins.o):	 $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
 $(LIBRARY_PATH)(comp4_ext.o):	 $(INCDIR)/bitops_funcs.fh $(INCDIR)/bitops_decls.fh 
 $(LIBRARY_PATH)(comp4_insert.o):	 $(INCDIR)/bitops.fh 
-$(LIBRARY_PATH)(do_ri.o):	 ./cfock.fh 
 $(LIBRARY_PATH)(do_riscf.o):	 ./cfock.fh 
 $(LIBRARY_PATH)(fock_2e.o):	 ./cscf.fh ./cfock.fh 
 $(LIBRARY_PATH)(fock_2e_a.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh 
@@ -101,11 +100,13 @@ $(LIBRARY_PATH)(movecs_proj.o):	 $(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/m
 $(LIBRARY_PATH)(nxtask.o):	 $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(rhf_dens_mo.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(riscf_dovecs.o):	 ./cfock.fh 
-$(LIBRARY_PATH)(riscf_fock.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./cfock.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(riscf_init.o):	 $(INCDIR)/tcgmsg.fh ./schwarz.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(riscf_list.o):	 ./riscf.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(riscf_fock.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/da.fh ./cscfps.fh ./cscf.fh ./cfock.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(riscf_init.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh ./schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/da.fh ./cscfps.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(riscf_io.o):	 $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/da.fh 
+$(LIBRARY_PATH)(riscf_list.o):	 ./riscf.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/da.fh 
 $(LIBRARY_PATH)(riscf_square.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(riscf_trans.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(riscf_tidy.o):	 $(INCDIR)/geom.fh $(INCDIR)/da.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(riscf_trans.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/da.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_canon.o):	 $(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_dens.o):	 $(INCDIR)/global.fh 
