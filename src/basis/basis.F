@@ -1321,6 +1321,9 @@ c..... add diagnostics later
         return
       endif
 c
+      ifirst = ibs_ce2cnr(1, center, basis)
+      ilast  = ibs_ce2cnr(2, center, basis)
+c
       return
       end
       logical function bas_get_exponent(basisin,icont,exp)
