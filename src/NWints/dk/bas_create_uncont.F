@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.8 2000-01-11 01:35:51 bert Exp $
+c $Id: bas_create_uncont.F,v 1.9 2000-01-12 19:02:43 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -293,6 +293,12 @@ c     Store the uncontracted basis on the RTDB
 c
       if (.not. bas_rtdb_store(usertdb,name,basis_out))
      $   call errquit('bas_create_uncont: bas_rtdb_store failed',0)
+c
+c     Do a delete for bas_add_ucnt_init with the strange name tidy
+c
+      if (.not. bas_add_ucnt_tidy(basis_out)) call errquit
+     &      ('bas_create_uncont: bas_add_ucnt_tidy failed',0)
+c
       if (.not. bas_destroy(basis_out))
      $   call errquit('bas_create_uncont: bas_destroy failed',0)
 c
@@ -302,11 +308,6 @@ c
      $   call errquit('bas_create_uncont: bas_create failed',0)
       if (.not. bas_rtdb_load(usertdb,usegeom,basis_out,name))
      $   call errquit('bas_create_uncont: bas_rtdb_load failed',0)
-c
-c     Do a delete for bas_add_ucnt_init with the strange name tidy
-c
-      if (.not. bas_add_ucnt_tidy(basis_out)) call errquit
-     &      ('bas_create_uncont: bas_add_ucnt_tidy failed',0)
 c
       return
 c
