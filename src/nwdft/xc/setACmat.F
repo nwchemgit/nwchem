@@ -1,20 +1,23 @@
       Subroutine setACmat(Amat,Cmat,qwght,
      &                    ipol,nq,GRAD)
 
-C$Id: setACmat.F,v 1.3 1995-02-02 23:20:44 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: setACmat.F,v 1.4 1995-12-19 20:18:11 og845 Exp $
+      implicit none
 
+      integer ipol,nq
+      
       Logical GRAD
 
 c--> Sampling Matrices for the XC Potential & Energy
 
-      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
+      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
 
 c--> Quadrature Weights
 
-      Dimension qwght(nq)
-
+      double precision qwght(nq)
+c
+      integer ii,jj
+c
       if( GRAD )then
       do ii=1,ipol
 

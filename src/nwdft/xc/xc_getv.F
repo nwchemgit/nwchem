@@ -1,11 +1,15 @@
       Subroutine xc_getv( rtdb, geom, AO_bas_han, 
      &     XC_bas_han, Exc,ipol,nExc,
-     &     iVxc_opt,iga_xcinv,
-     &     iga_dens,iga_vxc,IOLGC,iAOacc,
-     &     iga_wght,iga_xyz,wght_GA)
-C$Id: xc_getv.F,v 1.3 1995-10-17 08:55:33 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+     &     iVxc_opt,g_xcinv,
+     &     g_dens,g_vxc,IOLGC,iAOacc,
+     &     g_wght,g_xyz,wght_GA)
+C$Id: xc_getv.F,v 1.4 1995-12-19 20:21:54 og845 Exp $
+      implicit none
+      
+      integer ipol,nExc
+      integer iVxc_opt
+      integer g_xcinv,g_dens(*),g_vxc(*),g_wght,g_xyz
+      integer iAOacc ! [input]
 
       Logical LResult,IOLGC,wght_GA
 c****
@@ -22,17 +26,12 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 
-c removed include bas_dft.fh
-c
-c--> Matrix Elements of the XC Potential & Energy
-c
-      Dimension iga_vxc(*), iga_dens(2)
       double precision jfac(4),kfac(4),xfac(10),cfac(10)
       integer d(4),f(4)
 c
 c--> XC Energy
 c
-      Dimension Exc(nExc)
+      double precision Exc(nExc)
 c
 c This driver routine solves for the XC energy and potential (Vxc) via 
 c numerical quadrature methods. The results are obtained either by direct 
@@ -54,6 +53,12 @@ c              2        2   |   Vxc^up   Vxc^dw
 c
 c           nTcols = ipol 
 c
+c
+      integer g_scr,me,nproc,i,nTrows,nbf_xc,nbf_ao,nTcols
+      integer lTmat,iTmat,itol2e
+      double precision zero,one,onem
+      parameter(zero=0.d0,one=1.d0,onem=-1.d0)
+      double precision tol2e,tot
 c******************************************************************************
 c
 c Compute the matrix elements for the XC potential and energy.
@@ -62,9 +67,6 @@ c
       Exc(2)=0.d0
       me=ga_nodeid()
       nproc=ga_nnodes()
-      zero = 0.0d0
-      one = 1.0d0
-      onem = -1.0d0
       if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, 10, cfac))
      $     call errquit('xc_getv: rtdb_put failed', 0)
       if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, 10, xfac))
@@ -87,14 +89,14 @@ c
           call fock_2e(geom, AO_bas_han, 1,
      &         jfac,kfac,
      &         tol2e,.false.,
-     &         iga_dens(1), iga_vxc(1))
+     &         g_dens(1), g_vxc(1))
         else
 C
 C         bogus Ga
 C
           call gacrea(geom,AO_bas_han,
-     &         nbf_ao,nbf_ao,'ga scratch',iga_scr,'atom')
-          call ga_zero(iga_scr)
+     &         nbf_ao,nbf_ao,'ga scratch',g_scr,'atom')
+          call ga_zero(g_scr)
           jfac(1)=0.d0
           jfac(2)=0.d0
           jfac(3)=0.d0
@@ -103,21 +105,21 @@ C
           kfac(2)=-1.0d0*xfac(1)
           kfac(3)=0.0d0
           kfac(4)=-1.0d0*xfac(1)
-          d(1) = iga_dens(1)
-          d(2) = iga_dens(1)
-          d(3) = iga_dens(2)
-          d(4) = iga_dens(2)
+          d(1) = g_dens(1)
+          d(2) = g_dens(1)
+          d(3) = g_dens(2)
+          d(4) = g_dens(2)
 C          f(1) = g_a_coul
-          f(1) = iga_scr
-          f(2) = iga_vxc(1)
+          f(1) = g_scr
+          f(2) = g_vxc(1)
 C          f(3) = g_b_coul
-          f(3) = iga_scr
-          f(4) = iga_vxc(2)
+          f(3) = g_scr
+          f(4) = g_vxc(2)
           call fock_2e(geom, AO_bas_han,4, 
      &         jfac,kfac,
      &         tol2e,.false.,
      &         d, f)
-          call gadest(iga_scr)
+          call gadest(g_scr)
         endif
         call ga_sync
 c       
@@ -125,11 +127,11 @@ c       Compute the exact exchange energy.
 c       
         if( ipol.eq.1 )then
           Exc(1) = Exc(1)+0.5d0*
-     *         ga_ddot(iga_dens(1),iga_vxc(1))
+     *         ga_ddot(g_dens(1),g_vxc(1))
         else
           Exc(1) = Exc(1)+0.5d0*
-     *         (ga_ddot(iga_dens(1),iga_vxc(1))+
-     &         ga_ddot(iga_dens(2),iga_vxc(2)))
+     *         (ga_ddot(g_dens(1),g_vxc(1))+
+     &         ga_ddot(g_dens(2),g_vxc(2)))
         end if
       endif
       tot=-xfac(1)
@@ -143,8 +145,8 @@ c         Option A:  Compute via direct numerical quadrature.
 c         
           call xc_quadv0(rtdb,geom, AO_bas_han, 
      &         ipol,nExc,
-     &     iga_vxc,iga_dens,iAOacc,
-     &     iga_wght,iga_xyz,wght_GA,
+     &     g_vxc,g_dens,iAOacc,
+     &     g_wght,g_xyz,wght_GA,
      &     Exc)
  
 
@@ -167,10 +169,10 @@ c
      &         MA_Push_Get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,iTmat)
           call xc_quadv1(rtdb,geom, AO_bas_han, XC_bas_han,
      &         Dbl_MB(iTmat),nbf_xc,ipol,nExc,
-     &         iga_dens,Exc,iAOacc)
+     &         g_dens,Exc,iAOacc)
           call xc_fitv(AO_bas_han, XC_bas_han,geom,
      &         Dbl_MB(iTmat),nTrows,nTcols,
-     &         1,iga_vxc,iga_xcinv,IOLGC)
+     &         1,g_vxc,g_xcinv,IOLGC)
 
           LResult = MA_Pop_Stack(lTmat)
 

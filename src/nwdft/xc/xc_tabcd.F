@@ -1,34 +1,52 @@
       Subroutine xc_tabcd(TOLL,
      &     Tmat,TTmat,Amat,Bmat,Cmat,Dmat,chi,delchi,
      &     ipol,nq,nbf,max_at_bf,max_at_bf2,GRAD,basis,
-     &     natoms,iniz,ifin,igVxc,ibf)
+     &     natoms,iniz,ifin,g_vxc,ibf)
 
-C$Id: xc_tabcd.F,v 1.3 1995-12-18 04:17:14 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: xc_tabcd.F,v 1.4 1995-12-19 20:18:35 og845 Exp $
+      implicit none
 #include "bas.fh"
       Logical GRAD
       integer basis
+      
+      integer max_at_bf ! [input]
+      integer max_at_bf2 ! [input]
+      integer ipol  ! [input]
+      integer nq    ! [input]
+      integer nbf    ! [input]
+      integer natoms ! [input]
+      double precision TOLL
+      integer g_vxc(*)   ! GA handle [input]
 
 c-->
 
-      Dimension Tmat(max_at_bf2),TTmat(max_at_bf2)
+      double precision Tmat(max_at_bf2),TTmat(max_at_bf2)
 
 c--> Sampling Matrices for the XC Potential & Energy
 
-      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
+      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
 
 c--> Sampling Matrices for [Products of] Basis Functions & Gradients
 
-      Dimension Bmat(nq,max_at_bf)
-      Dimension Dmat(3,nq,max_at_bf)
-      dimension iniz(natoms),ifin(natoms)
+      double precision Bmat(nq,max_at_bf)
+      double precision Dmat(3,nq,max_at_bf)
+      integer iniz(natoms),ifin(natoms)
 
 c--> Basis Functions & Gradients
 
-      Dimension chi(nq,nbf),delchi(3,nq,nbf)
+      double precision chi(nq,nbf),delchi(3,nq,nbf)
 
-      Dimension igVxc(*),ibf(nbf)
+      integer ibf(nbf)
+c
+      double precision A_MAX,FUNC_MAX,AXF_MAX,ATOM_MAX,
+     ,     B_MAX,FUNC_MAXJ
+      integer iat,inizia,ifinia,nbfia,nnia,ifirst,ilast
+      integer jat,inizja,ifinja,nbfja,nnja,jfirst,jlast
+      integer ii,mu,mu1
+      integer n
+      double precision chi1
+      double precision dabsmax
+      external dabsmax
 c
 c Compute the matrix product for the XC potential and energy:
 c
@@ -95,11 +113,11 @@ cdir$ UNROLL 3
      &               delchi(1,1,inizja),3*nq,1.d0,Tmat,nnia)
                 call scat_mat(TTmat,Tmat,nbfia,nbfja,nnia,nnja,
      &               ifirst,jfirst,ibf(inizia),ibf(inizja))
-                call upd_atom_block(igVxc(ii), basis,
+                call upd_atom_block(g_vxc(ii), basis,
      $               iat, jat, TTmat)
                 if(iat.ne.jat) then
                   call transp_mat(TTmat,Tmat,nbfia,nbfja)
-                  call upd_atom_block(igVxc(ii), basis,
+                  call upd_atom_block(g_vxc(ii), basis,
      $                 jat, iat, Tmat)
                 endif
 

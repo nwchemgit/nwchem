@@ -1,9 +1,39 @@
       Subroutine xc_perdew86(fac,rho,delrho,gamma,Amat,Cmat,
      *     nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew86.F,v 1.4 1995-05-19 00:22:28 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C     $Id: xc_perdew86.F,v 1.5 1995-12-19 20:18:59 og845 Exp $
+      implicit none
+
+      double precision fac ! [input]
+      integer nq,ipol      ! [input]
+      double precision Ec  ! [input/output]
+
+c
+c--   > Charge Density 
+c
+
+      double precision rho(ipol*(ipol+1)/2,nq)
+
+c--   > Charge Density Gradient
+
+      double precision delrho(ipol,3,nq)
+
+c--   > Charge Density Gradient Dot Products
+
+      double precision gamma(ipol*(ipol+1)/2,nq)
+
+c--   > Quadrature Weights
+
+      double precision qwght(nq)
+
+c--   > Sampling Matrices for the XC Potential & Energy
+
+      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
+      double precision TOLL,EXPTOL,
+     ,     alpha,beta,pgamma,delta,beta10,
+     ,     ftilde,zzz,fff,pfff,CINF,
+     ,     ONE,ONETHIRD,THREE,FOURTHIRDS,SEV6,
+     ,     FIVE3,TWO3,FIVE6,pi
 
       Parameter (TOLL=1.E-40,EXPTOL=80.d0)
       Parameter (alpha=0.023266D0,beta = 7.389D-6,
@@ -15,33 +45,19 @@ C     $Id: xc_perdew86.F,v 1.4 1995-05-19 00:22:28 og845 Exp $
       Parameter (FOURTHIRDS=4.D0/3.D0,SEV6=7.d0/6.d0)
       parameter (FIVE3=5.d0/3.d0,TWO3=2.d0/3.d0,FIVE6=5.d0/6.d0)
       parameter (pi=3.1415926535897932385d0)
-
-c
-c--   > Charge Density 
-c
-
-      Dimension rho(ipol*(ipol+1)/2,nq)
-
-c--   > Charge Density Gradient
-
-      Dimension delrho(ipol,3,nq)
-
-c--   > Charge Density Gradient Dot Products
-
-      Dimension gamma(ipol*(ipol+1)/2,nq)
-
-c--   > Quadrature Weights
-
-      Dimension qwght(nq)
-
-c--   > Sampling Matrices for the XC Potential & Energy
-
-      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
 c     
 c     
 c     Mlynarski Salahub PRB 43, 1399 (1991)
 c     
-c***************************************************************************
+      integer n
+      double precision rsfact,rs,rs2,rs3
+      double precision rhoval,rho13,rho43,rho76,arho
+      double precision drsdrho,gammaval,dsqgamma
+      double precision anum,aden,CC,CCPRIME,expfac,phi,func,dphidrho
+      double precision AAadd,g,zeta,add,adp,dzetada,dzetadb
+      double precision gaa,gab,gbb
+      double precision dzeta,dprime
+      double precision x
       dzeta(x)=2.d0**ONETHIRD*
      *     dsqrt( ((ONE+x)*.5d0)**FIVE3 + ((ONE-x)*.5d0)**FIVE3 )
       dprime(x)=(2.d0**ONETHIRD*FIVE6)*
@@ -120,7 +136,7 @@ c       ======> SPIN-UNRESTRICTED <======
           rs3=rs2*rs
           drsdrho = -ONETHIRD*rs*arho
           gammaval=gamma(1,n)+gamma(2,n)+2.d0*gamma(3,n)
-          dsqgamma=dsqrt(gammaval)
+          dsqgamma=sqrt(gammaval)
           zeta=(rho(2,n)-rho(3,n))*arho
           add=1.d0/dzeta(zeta)
           adp=dprime(zeta)
@@ -187,8 +203,25 @@ c
 c     Ceperley Alder LDA from
 c     Perdew Zunger PRB 23, 5048 (1981)
 c
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+      implicit none
+      integer nq,ipol
+      double precision Ec,fac
+c--   > Charge Density 
+
+      double precision rho(ipol*(ipol+1)/2,nq)
+
+c--   > Quadrature Weights
+
+      double precision qwght(nq)
+
+c--   > Sampling Matrices for the XC Potential & Energy
+
+      double precision Amat(ipol,nq)
+c
+      double precision AU,BU,CU,DU,
+     *     GU,B1U,B2U,AP,BP,CP,DP,
+     *     GP,B1P,B2P,pi,TOLL,ONE3,SEV6,
+     *     FOUR3,TWO3
       parameter(
      *     AU=0.0311d0,BU=-0.048d0,CU=0.0020d0,DU=-0.0116d0,
      *     GU=-.1423d0,B1U=1.0529d0,B2U=0.3334d0,
@@ -198,22 +231,16 @@ c
       Parameter (TOLL=1.D-40)
       Parameter (ONE3=1.d0/3.d0,SEV6=7.d0/6.d0)
       Parameter (FOUR3=4.D0/3.D0,TWO3=2.d0/3.d0)
-c--   > Charge Density 
 
-      Dimension rho(ipol*(ipol+1)/2,nq)
-
-c--   > Quadrature Weights
-
-      Dimension qwght(nq)
-
-c--   > Sampling Matrices for the XC Potential & Energy
-
-      Dimension Amat(ipol,nq)
-
+      integer n
+      double precision rhoval,rs,alnrs,eU,vU,drs,adU,ePol,
+     ,     fz,zeta,eP,vP,adP,AAadd
+      double precision x,fzeta,fzzprime,rsfact
       fzeta(x)=( (1.+x)**FOUR3 + (1.-x)**FOUR3 - 2.d0 ) /
      /     (2.d0**FOUR3-2.d0)
       fzzprime(x)=FOUR3*( (1.d0+x)**ONE3 - (1.d0-x)**ONE3 ) /
      /     (2.d0**FOUR3-2.d0)
+C
 
       rsfact=(0.75d0/pi)**ONE3
 
@@ -278,7 +305,7 @@ c       ======> SPIN-UNRESTRICTED <======
      +             ONE3*(DP+DP-CP)*rs
             else
 
-              drs=dsqrt(rs)
+              drs=sqrt(rs)
 
               adU=1.d0/(1.d0+B1U*drs+B2U*rs)
               adP=1.d0/(1.d0+B1P*drs+B2P*rs)

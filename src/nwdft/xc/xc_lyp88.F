@@ -1,9 +1,36 @@
       Subroutine xc_lyp88(fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C$Id: xc_lyp88.F,v 1.2 1995-05-19 00:22:27 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: xc_lyp88.F,v 1.3 1995-12-19 20:20:07 og845 Exp $
+      implicit none 
+
+      double precision fac ! [input]
+      integer nq
+      integer ipol
+      double precision Ec
+c--> Charge Density & Its Cube Root
+
+      double precision rho(ipol*(ipol+1)/2,nq)
+
+c--> Charge Density Gradient
+
+      double precision delrho(ipol,3,nq)
+
+c--> Charge Density Gradient Dot Products
+
+      double precision gamma(ipol*(ipol+1)/2,nq)
+
+c--> Quadrature Weights
+
+      double precision qwght(nq)
+
+c--> Sampling Matrices for the XC Potential & Energy
+
+      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
+c
+      double precision P13,P43,P83,P19,EPS,
+     ,     P1,TOLL,A,B,C,D,
+     ,     P2, P3
 
       Parameter (P13=1.D0/3.D0,P43=4.D0*P13,P83=8.D0*P13,P19=1.D0/9.D0)
       Parameter (EPS=1.D-32)
@@ -21,27 +48,6 @@ c--> Colle-Salvetti Empirical Parameters
       Parameter (D = 0.34900D0)
 
       Parameter (P2 = A*B/D, P3 = 4.D0*A/D)
-
-c--> Charge Density & Its Cube Root
-
-      Dimension rho(ipol*(ipol+1)/2,nq)
-
-c--> Charge Density Gradient
-
-      Dimension delrho(ipol,3,nq)
-
-c--> Charge Density Gradient Dot Products
-
-      Dimension gamma(ipol*(ipol+1)/2,nq)
-
-c--> Quadrature Weights
-
-      Dimension qwght(nq)
-
-c--> Sampling Matrices for the XC Potential & Energy
-
-      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
-c
 c Compute the partial derivatives of the correlation functional of Lee, Yang
 c and Parr.
 c
@@ -52,6 +58,20 @@ c    Lee, Yang & Parr, Phys. Rev. B 37, 785 (1988)
 c    Miehlich, Savin, Stoll & Preuss, Chem. Phys. Lett. 157, 200 (1989)
 c    Johnson, Gill & Pople, J. Chem. Phys. 98, 5612 (1993)
 c
+      integer n
+      double precision Cd,CDa,Cdb,CD13,CD13a,CD13b,CD43,CD83a,CD83b
+      double precision gaa,Gbb,Gab,Ra,Rb,Rab,Raa,Rbb,Rab9
+      double precision xc,xd,Rx,delta,omega
+      double precision Faa,Fbb,Fab,dElypdGaa,dElypdGbb,dElypdGab
+      double precision T1,T2a,T2b,T2,Elyp
+      double precision deltap,Ro,dFaadCDa,dFbbdCDa,dFabdCDa,
+     ,     d2ElypdCDadGaa,d2ElypdCDadGbb,d2ElypdCDadGab,dT1dCDa,
+     ,  dT2dCDa, dElypdCDa
+      double precision zeta
+      double precision  dFaadCDb, dFbbdCDb, dFabdCDb,
+     , d2ElypdCDbdGaa, d2ElypdCDbdGbb, d2ElypdCDbdGab,
+     , dT1dCDb, dT2dCDb, dElypdCDb
+
 c***************************************************************************
 
       if( ipol.eq.1 )then

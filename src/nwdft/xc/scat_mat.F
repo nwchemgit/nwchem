@@ -1,9 +1,13 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.4 1995-04-09 08:09:26 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      dimension T(mi,mj),TT(Ni,Nj),ibf(mi),jbf(mj)
+C$Id: scat_mat.F,v 1.5 1995-12-19 20:16:55 og845 Exp $
+      implicit none
+      integer mi,mj,Ni,Nj
+      integer ifirst,jfirst
+      integer ibf(mi),jbf(mj)
+      double precision T(mi,mj),TT(Ni,Nj)
+c
+      integer i,j,jj
 
 c
 c     scatter into matrix
@@ -21,9 +25,11 @@ c
 C
       Subroutine transp_mat(TT,T,Ni,Nj)
 
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-      dimension T(Nj,Ni),TT(Ni,Nj)
+      implicit none
+      integer Ni,Nj
+      double precision T(Nj,Ni),TT(Ni,Nj)
+c
+      integer jj,ii
 
 c
 c     transpose a matrix 

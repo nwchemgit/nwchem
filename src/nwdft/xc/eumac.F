@@ -1,10 +1,15 @@
       Subroutine eumac(alpha,r,w,nr,rm)
 
-C$Id: eumac.F,v 1.3 1995-02-02 23:20:27 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: eumac.F,v 1.4 1995-12-19 20:14:44 og845 Exp $
+      implicit none
 
-      Dimension r(*),w(*)
+      double precision r(*) ! grid pts coord [output]
+      double precision w(*) ! grid pts weights [output]
+      double precision alpha !   [input]
+      double precision rm    !   [input]
+c
+      integer nr,i
+      double precision fmn,qi,ri,wi
 c
 c Definition of Euler-Maclaurin numerical quadrature points and weights
 c for radial integrals.

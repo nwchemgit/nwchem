@@ -1,19 +1,20 @@
       Subroutine xc_fitv( AO_bas_han, XC_bas_han,geom,
      &                   Tmat,nTrows,nTcols,
-     &                   idirect,iga_vxc,iga_xcinv,IOLGC)
+     &                   idirect,g_vxc,g_xcinv,IOLGC)
 
-C$Id: xc_fitv.F,v 1.4 1995-10-17 08:55:31 d3g681 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
-
+C$Id: xc_fitv.F,v 1.5 1995-12-19 20:19:39 og845 Exp $
+      implicit none
+      
 c****
 c**** nwchem handles
 c****
       integer AO_bas_han, XC_bas_han,geom
 c**** 
 
+      integer nTrows,nTcols,idirect
       Logical LResult,  IOLGC
 
+      double precision itmp
       Parameter (itmp=98)
 
 #include "bas.fh"
@@ -29,11 +30,11 @@ c****
 c
 c--> XC Energy & Potential
 c
-      dimension iga_vxc(4)
+      integer  g_vxc(4),g_xcinv
 c
 c--> T matrix
 c
-      Dimension Tmat(nTrows,nTcols)
+      double precision Tmat(nTrows,nTcols)
 c
 c Compute the fitted XC energy and potential. The fitting coefficients are
 c obtained by solving the normal equations for a standard linear least
@@ -71,6 +72,20 @@ c              2        2   |   Vxc^up   Vxc^dw   Ex       Ec
 c
 c           nTcols = ipol + nExc
 c
+c
+      integer me,nproc,nshells_ao,nbf_ao,MXnshbf_ao,
+     ,     nshells_XC,nbf_XC,MXnshbf_XC
+      integer ndbl
+      integer lxc_coef,ixc_coef,lscr,iscr,lmiss
+      integer ia,ii,j,k,next,istart,n3OI,l3OI,i3OI,lvvxc,ivvxc,
+     ,     lvec2,ivec2,lscr2,iscr2
+      integer n1,n2,ishb,ifirstb,ilastb,nshbfb,
+     ,     ishc,ifirstc,ilastc,nshbfc,Nao2,iixc,
+     ,     isha,ifirsta,ilasta,nshbfa,nscr2
+      integer Nint,npint,mag,Max_scr,nxc
+      double precision fact
+      integer nextval
+      external nextval
 c******************************************************************************
 #if defined(DFT_TIMER)
       call ga_sync
@@ -108,9 +123,9 @@ c
 
       if(IOLGC)             
      &     call gacrea(
-     &     geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',iga_xcinv,'row')
+     &     geom,XC_bas_han,nbf_xc,nbf_xc,'XCinv',g_xcinv,'row')
       if(me.eq.0.and.IOLGC) then
-        call dft_invio('XC',iga_xcinv,nbf_xc,'READ',lmiss)
+        call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
       endif
       call ga_sync
 c
@@ -126,9 +141,9 @@ c
       do k=1,nbf_xc
         if (k.eq.next) then
           next=nxtval(nproc)+1
-c          call ga_get(iga_xcinv,
+c          call ga_get(g_xcinv,
 c     *         1,nbf_xc,k,k,Dbl_MB(iscr),1)
-          call get_col(iga_xcinv,nbf_xc,k,Dbl_MB(iscr))
+          call get_col(g_xcinv,nbf_xc,k,Dbl_MB(iscr))
           istart=ixc_coef
           do j=1,nTcols
             call daxpy(nbf_xc,Tmat(k,j),DBL_MB(iscr),1,DBL_MB(istart),1)
@@ -139,7 +154,7 @@ c     *         1,nbf_xc,k,k,Dbl_MB(iscr),1)
       LResult = MA_pop_stack(lscr)
       next=nxtval(-nproc)
       call ga_dgop(Msg_XC_Coef,DBL_MB(ixc_coef),ndbl,'+')
-      if(IOLGC)  call gadest(iga_xcinv)
+      if(IOLGC)  call gadest(g_xcinv)
 c
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -216,7 +231,7 @@ c
                 do 220 k = 1,nTcols
                   call sca_lab_mat(AO_bas_han,
      &                 ishb,ishc,nshbfb,nshbfc,
-     &                 iga_vxc(k),DBL_MB(ivvxc+(k-1)*Nao2),
+     &                 g_vxc(k),DBL_MB(ivvxc+(k-1)*Nao2),
      &                 dbl_mb(ivec2))
  220            continue
               endif

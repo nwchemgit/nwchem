@@ -1,15 +1,43 @@
       Subroutine xc_becke88(fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ex,qwght)
 
-C$Id: xc_becke88.F,v 1.2 1995-05-19 00:22:26 og845 Exp $
-      Implicit real*8 (a-h,o-z)
-      Implicit integer (i-n)
+C$Id: xc_becke88.F,v 1.3 1995-12-19 20:21:24 og845 Exp $
+      implicit none
+      
+      double precision fac,Ex
+      integer nq,ipol
 
       logical grad_corr
 c
 c     logical grad_corr true if only GCA part needed
 c
+c--> Charge Density & Its Cube Root
+
+      double precision rho(ipol*(ipol+1)/2,nq)
+
+c--> Charge Density Gradient
+
+      double precision delrho(ipol,3,nq)
+
+c--> Charge Density Gradient Dot Products
+
+      double precision gamma(ipol*(ipol+1)/2,nq)
+
+c--> Quadrature Weights
+
+      double precision qwght(nq)
+
+c--> Sampling Matrices for the XC Potential & Energy
+
+      double precision Amat(ipol,nq),Cmat(ipol,3,nq)
+
+c
+c Compute the partial derivatives of the exchange functional of Becke.
+c
 c--> Becke Empirical Parameter
+
+      double precision BETA,TOLL,P2,
+     ,     ONE,TWO,SIX,ONEHALF,FOURTHIRDS
 
       Parameter (BETA = 0.0042D0,TOLL=1.E-20)
 
@@ -20,35 +48,20 @@ c--> P2 = -(3/4)*(6/PI)**(1/3)
       Parameter (ONE=1.D0,TWO=2.D0,SIX=6.D0)
       Parameter (ONEHALF=0.5D0,FOURTHIRDS=4.D0/3.D0)
 
-c--> Charge Density & Its Cube Root
-
-      Dimension rho(ipol*(ipol+1)/2,nq)
-
-c--> Charge Density Gradient
-
-      Dimension delrho(ipol,3,nq)
-
-c--> Charge Density Gradient Dot Products
-
-      Dimension gamma(ipol*(ipol+1)/2,nq)
-
-c--> Quadrature Weights
-
-      Dimension qwght(nq)
-
-c--> Sampling Matrices for the XC Potential & Energy
-
-      Dimension Amat(ipol,nq),Cmat(ipol,3,nq)
-
-c
-c Compute the partial derivatives of the exchange functional of Becke.
-c
 c References:
 c
 c    Becke, Phys. Rev. A 38, 3098 (1988)
 c    Johnson, Gill & Pople, J. Chem. Phys. 98, 5612 (1993)
 c
 c***************************************************************************
+
+      integer n
+      double precision x,sinhm1
+      double precision CD13a,CD43a,Gna,Xa,Sa,Ha,Ta,Ca,P2LDA,Ga,Pa,
+     ,     GNb,Xb,Sb,Hb,Tb,Cb,Gb,Pb,CD13b,CD43b,
+     ,     gaa,g,gbb
+c
+
       sinhm1(x)=log(x+dsqrt(1+x*x))
       grad_corr=.false.
       if(abs(fac-1.d0).gt.1.e-8) grad_corr=.true.
