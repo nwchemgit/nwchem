@@ -86,6 +86,18 @@ c
             write(6,*)
          enddo
       endif
+      call ecce_print1('total dipole', mt_dbl, totalmoments(2), 3)
+      call ecce_print1('alpha electronic dipole', mt_dbl, 
+     $     alphamoments(2), 3)
+      call ecce_print1('beta electronic dipole', mt_dbl, 
+     $     betamoments(2), 3)
+      call ecce_print1('nuclear dipole', mt_dbl, nuclmoments(2), 3)
+      call ecce_print1('total quadrupole', mt_dbl, totalmoments(5), 6)
+      call ecce_print1('alpha electronic quadrupole',mt_dbl,
+     $     alphamoments(5),6)
+      call ecce_print1('beta electronic quadrupole',mt_dbl,
+     $     betamoments(5),6)
+      call ecce_print1('nuclear quadrupole', mt_dbl, nuclmoments(5), 6)
 c
 c     Store the dipole moment
 c
