@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.2 2004-11-24 22:57:51 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.3 2004-11-29 19:59:58 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -120,6 +120,8 @@ c     h_g will hold QM gradient for the full system
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      3*ntot, MA_ERR)
       call dfill(3*ntot,0,dbl_mb(i_g),1)
+c
+c      call qmmm_create_fixed_atoms(rtdb)
 
 c     calculate gradients from qm
       status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
@@ -208,7 +210,6 @@ c     local variables
           icent = icent + 1
           do k=1,3
             dbl_mb(i_gtmp+3*(icent-1)+k-1) = g(3*(i-1)+k)
-            write(*,*) "qmmm_push_qm_grad_qm", g(3*(i-1)+k)
           end do
         end if
       end do
@@ -224,3 +225,67 @@ c     local variables
 
       end
 
+      subroutine qmmm_create_fixed_atoms(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+c
+      logical prior_cons
+      character*32 namespace
+      character*32 pname
+      integer nqm,nbq
+      integer i
+      integer i_cons,h_cons
+     
+      pname = "qmmm_create_fixed_atoms"
+     
+      call cons_inquire_fixed_atoms
+     >   (
+     >   prior_cons,
+     >   rtdb
+     >   )
+
+      if(prior_cons) then
+        write(*,*) "found prior constraints"
+        namespace = "qmmm_old_cons"
+        call cons_save_fixed_atoms(namespace,rtdb)
+        namespace = "qmmm_new_cons"
+        call cons_save_fixed_atoms(namespace,rtdb)
+        call cons_unload_fixed_atoms(rtdb)
+      end if
+
+      nqm  = qmmm_get_nqm()
+      nbq  = qmmm_get_nbq()
+
+      if(.not.ma_push_get(MT_INT, nbq, 'qmmm cons list',
+     &      h_cons, i_cons) ) call errquit(
+     &      pname//' unable to allocate stack',
+     &      nbq, MA_ERR)
+
+
+      do i=1,nbq
+        int_mb(i_cons+i-1)=nqm+i
+      end do
+
+      namespace = "qmmm_new_cons"
+      call cons_add_fixed_atoms(namespace,nbq,int_mb(i_cons),rtdb)
+      call cons_load_fixed_atoms(namespace,rtdb)
+
+      if (.not. ma_pop_stack(h_cons) ) call errquit(
+     &    pname//' ma_pop_stack ',
+     &    0, MA_ERR)
+
+
+
+      end
+ 
