@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf)
 c
-c $Id: pre_mknoe.F,v 1.9 2000-04-11 05:11:59 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.10 2000-04-24 14:42:48 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       integer nnoe,nqu
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
-      integer l_csa,i_csa,l_sgm,i_sgm,l_qsa,i_qsa
+      integer l_csa,i_csa,l_sgm,i_sgm,l_sml,i_sml,l_qsa,i_qsa
       integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb
@@ -92,6 +92,8 @@ c
      + call errquit('Memory allocation failed for sat',9999)
       if(.not.ma_push_get(mt_int,msa,'sgm',l_sgm,i_sgm))
      + call errquit('Memory allocation failed for sgm',9999)
+      if(.not.ma_push_get(mt_int,msa,'sml',l_sml,i_sml))
+     + call errquit('Memory allocation failed for sml',9999)
       if(.not.ma_push_get(mt_dbl,msa,'qsa',l_qsa,i_qsa))
      + call errquit('Memory allocation failed for qsa',9999)
       if(.not.ma_push_get(mt_int,2*msb,'idsb',l_isb,i_isb))
@@ -114,7 +116,8 @@ c     ------------------
 c
       if(.not.pre_toprd(lfntop,filtop,lfnout,
      + int_mb(i_num),dbl_mb(i_mas),mat,
-     + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
+     + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,
+     + int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
      + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu))
      + call errquit('pre_toprd failed',9999)
@@ -207,6 +210,8 @@ c
      + call errquit('Memory deallocation failed for idsb',9999)
       if(.not.ma_pop_stack(l_qsa))
      + call errquit('Memory deallocation failed for qsa',9999)
+      if(.not.ma_pop_stack(l_ssl))
+     + call errquit('Memory deallocation failed for sml',9999)
       if(.not.ma_pop_stack(l_sgm))
      + call errquit('Memory deallocation failed for sgm',9999)
       if(.not.ma_pop_stack(l_sat))
