@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.14 1999-07-14 00:28:40 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.15 1999-09-21 21:34:53 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -213,6 +213,9 @@ c
 c............overlap, k-e,     pot-e,
      &       .false.,  doT, .true.,
      &       scr,lscr)
+      else
+        call errquit('intd_1eh1: could not do hnd or nw integrals',
+     &                0)
       endif
 c
 c if needed add in Ta derivative integrals

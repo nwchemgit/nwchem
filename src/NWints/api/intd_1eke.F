@@ -1,6 +1,6 @@
       subroutine intd_1eke(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lTa,Ta,idatom)
-c $Id: intd_1eke.F,v 1.2 1999-07-14 00:28:40 d3e129 Exp $
+c $Id: intd_1eke.F,v 1.3 1999-09-21 21:34:53 windus Exp $
 c
 c This routine has NOT been extensively tested. - TLW
 c
@@ -136,10 +136,6 @@ c::local
       integer nint_x, nint_s
       integer zatom, zyx
 c
-c  Temporary variable that needs to be taken out after testing!
-c
-      integer itemp
-c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
@@ -205,15 +201,6 @@ c
 c............overlap, k-e,     pot-e,    canab,  dryrun
      &       .false.,  .true., .false., .false., .false.,
      &       scr,lscr)
-      write(luout,*) 'K 1e- derivative integrals from nwchem'
-      do itemp = 1,nint
-        write(luout,*) itemp,' 1,1,',Ta(itemp,1,1)
-        write(luout,*) itemp,' 2,1,',Ta(itemp,2,1)
-        write(luout,*) itemp,' 3,1,',Ta(itemp,3,1)
-        write(luout,*) itemp,' 1,2,',Ta(itemp,1,2)
-        write(luout,*) itemp,' 2,2,',Ta(itemp,2,2)
-        write(luout,*) itemp,' 3,2,',Ta(itemp,3,2)
-      enddo
       elseif (cando_hnd_1e(i_basis,ish,0).and.
      &  cando_hnd_1e(j_basis,jsh,0)) then
         call hnd_stvintd(
@@ -232,15 +219,9 @@ c
 c............overlap, k-e,     pot-e,
      &       .false.,  .true., .false., 
      &       scr,lscr)
-      write(luout,*) 'K 1e- derivative integrals from hondo'
-      do itemp = 1,nint
-        write(luout,*) itemp,' 1,1,',Ta(itemp,1,1)
-        write(luout,*) itemp,' 2,1,',Ta(itemp,2,1)
-        write(luout,*) itemp,' 3,1,',Ta(itemp,3,1)
-        write(luout,*) itemp,' 1,2,',Ta(itemp,1,2)
-        write(luout,*) itemp,' 2,2,',Ta(itemp,2,2)
-        write(luout,*) itemp,' 3,2,',Ta(itemp,3,2)
-      enddo
+      else
+        call errquit('intd_1eke: could not do hnd or nw integrals',
+     &                0)
       endif
 c
 *     Ta now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,2)

@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
+C $Id: intdd_1eh1.F,v 1.5 1999-09-21 21:34:53 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -218,6 +218,9 @@ c         write(luout,*) itemp,nxyz,jtemp,H1a(itemp,nxyz,jtemp)
 c       enddo
 c       enddo
 c     enddo
+      else
+        call errquit('intdd_1eh1: could not do hnd integrals',
+     &                0)
       endif
 c
 c if needed add in Ta derivative integrals

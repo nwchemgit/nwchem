@@ -1,6 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.11 1999-07-14 00:28:41 d3e129 Exp $
+c $Id: intd_1eov.F,v 1.12 1999-09-21 21:34:53 windus Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -216,6 +216,9 @@ c
 c............overlap, k-e,     pot-e,
      &       .true.,  .false., .false., 
      &       scr,lscr)
+      else
+        call errquit('intd_1eov: could not do hnd or nw integrals',
+     &                0)
       endif
 c
 *     Ova now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,2)

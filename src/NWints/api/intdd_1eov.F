@@ -1,6 +1,6 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.2 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intdd_1eov.F,v 1.3 1999-09-21 21:34:53 windus Exp $
       implicit none
 #include "stdio.fh"
 c::functions
@@ -211,6 +211,9 @@ c       write(luout,*) itemp,' 1,2,',Ova(itemp,1,2)
 c       write(luout,*) itemp,' 2,2,',Ova(itemp,2,2)
 c       write(luout,*) itemp,' 3,2,',Ova(itemp,3,2)
 c     enddo
+      else
+        call errquit('intdd_1eov: could not do hnd integrals',
+     $        0)
       endif
 c
 *     Ova now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,3,2)
