@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.30 2003-10-27 02:34:17 edo Exp $
+* $Id: create_contour.F,v 1.31 2005-02-11 21:03:46 edo Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -169,7 +169,7 @@ c
      &        call errquit('cre_cont: cannot allocate scr',0,0)
          call util_ga_mat_reduce(nbf, natom, int_mb(k_cetobfr), g_dns, 
      &        1, dbl_mb(k_rdat), 'rms', 
-     &        dbl_mb(iscr), nbf_ao_mxnbf_ce)
+     &        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
          if(.not.ma_pop_stack(lscr)) call errquit(
      .        'CreateCont: Failed to deallocate DENSF',0,0)
 *     
