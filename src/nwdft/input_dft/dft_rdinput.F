@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.23 1997-01-21 20:38:39 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.24 1997-02-13 01:07:36 d3g681 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -21,6 +21,7 @@ c
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
       integer bases(3)
       integer iproc,ichg,itype,
@@ -756,7 +757,7 @@ c
       if (.not. rtdb_put(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
      $     call errquit('inpana: dft:ipol put failed', 0)
 c
-      if( iproc.eq.0 )then
+      if( iproc.eq.0 .and. util_print('information', print_low))then
         write(LuOut,*)
         write(LuOut,1) 
      &       '       AO basis - No. of functions:   ',nbf,

@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.28 1996-10-18 21:49:47 d3h449 Exp $
+C$Id: nwdft.F,v 1.29 1997-02-13 01:07:32 d3g681 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -35,7 +35,12 @@ c
       integer iproc,itype
       logical LResult,oprint
 c>>>  
+
+      logical dft_main0d
+      external dft_main0d
 c     
+
+      nwdft = .false.
 
       iproc  = ga_nodeid()
 c
@@ -80,7 +85,7 @@ c
      &    itype = 0
 c
       if(itype.eq.0) then
-        call dft_main0d(rtdb)
+        nwdft = dft_main0d(rtdb)
       else
         call errquit('nwdft: problem with system type',0)
       endif
@@ -115,7 +120,6 @@ c--> Flush ouput buffer.
 c
       if(iproc.eq.0) call flush(LuOut)
 
-      nwdft = .true.
       call util_print_pop
 c
 #ifdef DFT_TIMER

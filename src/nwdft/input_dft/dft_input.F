@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.11 1997-02-06 21:22:14 gutowski Exp $
+c     $Id: dft_input.F,v 1.12 1997-02-13 01:07:35 d3g681 Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -52,7 +52,7 @@ c
       double precision dampon, dampoff, levlon, levloff, 
      &                 diison, diisoff
       integer nfield, iline
-      logical pseudo
+      logical pseudo, status
       logical nodamping, nolevelshifting, nodiis
       logical levelshift, damp, diis, direct
       logical ltight, lmaxov, incore
@@ -70,6 +70,10 @@ c
 c     XC functionals coefficients
 c     
       double precision cfac(15),xfac(15)
+c
+c     Any DFT input causes calculation to be marked as not converged
+c
+      status = rtdb_delete(rtdb,'dft:converged')
 c
 c     Only these few arrays are initialized (not defaults).
 c
