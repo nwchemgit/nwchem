@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.9 1994-09-14 14:32:23 d3g681 Exp $
+c $Id: bas_input.F,v 1.10 1994-10-01 21:09:35 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "context.fh"
@@ -9,7 +9,7 @@ c $Id: bas_input.F,v 1.9 1994-09-14 14:32:23 d3g681 Exp $
 #include "inp.fh"
 c
 c     basis [<name>] [library <standard set>] [file <filename>] \
-c           [spherical|cartesian] [segment] [print]
+c           [spherical|cartesian] [segment||nosegment] [print]
 c
 c     tag library <standard set> [file <filename>]
 c     tag <shell type>
@@ -21,13 +21,13 @@ c     parse the main directive
 c
       integer rtdb              ! [input] handle to database
       integer nopt
-      parameter (nopt = 6)
+      parameter (nopt = 7)
       character*10 opts(nopt)
       character*255 test, name, filename, standard
       logical status, ospherical, osegment, oprint
       integer ind, basis
-      data opts /'spherical', 'cartesian', 'segment', 'library', 'file',
-     $     'print'/
+      data opts /'spherical', 'cartesian', 'segment', 'nosegment',
+     $     'library', 'file', 'print'/
 c
 c     Check is a basis directive and read in name of the basis
 c
@@ -43,7 +43,7 @@ c
       test = ' '
       standard = ' '
       ospherical = .false.      ! Default is cartesian
-      osegment   = .false.      ! Default is to NOT force segmentation
+      osegment   = .true.       ! Default is to force segmentation
       oprint     = .false.      ! Default is NOT to print basis on input
 c
  10   if (inp_a(test)) then
@@ -60,7 +60,8 @@ c
             goto 10
          endif
 c
-         goto (100, 200, 300, 400, 500, 600) ind
+         goto (100, 200, 300, 400, 500, 600, 700) ind
+         goto 10000
 c
 c     spherical
 c
@@ -77,33 +78,30 @@ c
  300     osegment = .true.
          goto 10
 c
+c     nosegment
+c
+ 400     osegment = .false.
+         goto 10
+c
 c     library
 c
- 400     if (.not. inp_a(standard)) goto 10000
+ 500     if (.not. inp_a(standard)) goto 10000
          goto 10
 c
 c     file
 c
- 500     if (.not. inp_a(filename)) goto 10000
+ 600     if (.not. inp_a(filename)) goto 10000
          goto 10
 c
 c     print
 c
- 600     oprint = .true.
+ 700     oprint = .true.
          goto 10
 c
       endif
 c
 c     Now check reality against input
 c
-*      if (.not. osegment) then
-*         write(6,*) ' Integral code requires segmentation'
-*         osegment = .true.
-*      endif
-*      if (standard .ne. ' ') then
-*         write(6,*) ' Standard basis ', standard(1:inp_strlen(standard))
-*         call errquit('bas_input: standard basis set not yet' ,0)
-*      endif
       if (ospherical) call errquit
      $     ('bas_input: spherical harmonics not yet', 0)
 c
@@ -430,6 +428,9 @@ c     Open the library file and try to locate the basis
 c
       if (filename .eq. ' ') filename = 'library'
       open(33, file=filename, status='old', err=1000)
+
+      call inp_save_state()     ! Save state for unit 5.
+
       call inp_init(33,6)
  33   if (inp_search(.false., 'basis')) then
          status = inp_a(field)
@@ -477,7 +478,7 @@ c
       goto 20
 c
  9000 close(33)
-      call inp_init(5,6)        ! reset input to be from unit 5
+      call inp_restore_state    ! Restore state for unit 5
       return
 c
  1000 write(6,*) ' bas_tag_lib: looking for ', tag, standard, filename

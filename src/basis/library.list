@@ -1,435 +1,88 @@
-basis h_sto-2g
-basis he_sto-2g
-basis li_sto-2g
-basis be_sto-2g
-basis b_sto-2g
-basis c_sto-2g
-basis n_sto-2g
-basis o_sto-2g
-basis f_sto-2g
-basis ne_sto-2g
-basis na_sto-2g
-basis mg_sto-2g
-basis al_sto-2g
-basis si_sto-2g
-basis p_sto-2g
-basis s_sto-2g
-basis cl_sto-2g
-basis ar_sto-2g
-basis k_sto-2g
-basis ca_sto-2g
-basis h_sto-3g
-basis he_sto-3g
-basis li_sto-3g
-basis be_sto-3g
-basis b_sto-3g
-basis c_sto-3g
-basis n_sto-3g
-basis o_sto-3g
-basis f_sto-3g
-basis ne_sto-3g
-basis na_sto-3g
-basis mg_sto-3g
-basis al_sto-3g
-basis si_sto-3g
-basis p_sto-3g
-basis s_sto-3g
-basis cl_sto-3g
-basis ar_sto-3g
-basis k_sto-3g
-basis ca_sto-3g
-basis sc_sto-3g
-basis ti_sto-3g
-basis v_sto-3g
-basis cr_sto-3g
-basis mn_sto-3g
-basis fe_sto-3g
-basis co_sto-3g
-basis ni_sto-3g
-basis cu_sto-3g
-basis zn_sto-3g
-basis ga_sto-3g
-basis ge_sto-3g
-basis as_sto-3g
-basis se_sto-3g
-basis br_sto-3g
-basis kr_sto-3g
-basis h_sto-6g
-basis he_sto-6g
-basis li_sto-6g
-basis be_sto-6g
-basis b_sto-6g
-basis c_sto-6g
-basis n_sto-6g
-basis o_sto-6g
-basis f_sto-6g
-basis ne_sto-6g
-basis na_sto-6g
-basis mg_sto-6g
-basis al_sto-6g
-basis si_sto-6g
-basis p_sto-6g
-basis s_sto-6g
-basis cl_sto-6g
-basis ar_sto-6g
-basis k_sto-6g
-basis ca_sto-6g
-basis sc_sto-6g
-basis ti_sto-6g
-basis v_sto-6g
-basis cr_sto-6g
-basis mn_sto-6g
-basis fe_sto-6g
-basis co_sto-6g
-basis ni_sto-6g
-basis cu_sto-6g
-basis zn_sto-6g
-basis ga_sto-6g
-basis ge_sto-6g
-basis as_sto-6g
-basis se_sto-6g
-basis br_sto-6g
-basis kr_sto-6g
-basis h_3-21g
-basis he_3-21g
-basis li_3-21g
-basis be_3-21g
-basis b_3-21g
-basis c_3-21g
-basis n_3-21g
-basis o_3-21g
-basis f_3-21g
-basis ne_3-21g
-basis na_3-21g
-basis mg_3-21g
-basis al_3-21g
-basis si_3-21g
-basis p_3-21g
-basis s_3-21g
-basis cl_3-21g
-basis ar_3-21g
-basis k_3-21g
-basis ca_3-21g
-basis sc_3-21g
-basis ti_3-21g
-basis v_3-21g
-basis cr_3-21g
-basis mn_3-21g
-basis fe_3-21g
-basis co_3-21g
-basis ni_3-21g
-basis cu_3-21g
-basis zn_3-21g
-basis ga_3-21g
-basis ge_3-21g
-basis as_3-21g
-basis se_3-21g
-basis br_3-21g
-basis kr_3-21g
-basis h_3-21++g
-basis he_3-21++g
-basis li_3-21++g
-basis be_3-21++g
-basis b_3-21++g
-basis c_3-21++g
-basis n_3-21++g
-basis o_3-21++g
-basis f_3-21++g
-basis ne_3-21++g
-basis na_3-21++g
-basis mg_3-21++g
-basis al_3-21++g
-basis si_3-21++g
-basis p_3-21++g
-basis s_3-21++g
-basis cl_3-21++g
-basis ar_3-21++g
-basis k_3-21++g
-basis ca_3-21++g
-basis sc_3-21++g
-basis ti_3-21++g
-basis v_3-21++g
-basis cr_3-21++g
-basis mn_3-21++g
-basis fe_3-21++g
-basis co_3-21++g
-basis ni_3-21++g
-basis cu_3-21++g
-basis zn_3-21++g
-basis ga_3-21++g
-basis ge_3-21++g
-basis as_3-21++g
-basis se_3-21++g
-basis br_3-21++g
-basis kr_3-21++g
-basis h_4-31g
-basis he_4-31g
-basis li_4-31g
-basis be_4-31g
-basis b_4-31g
-basis c_4-31g
-basis n_4-31g
-basis o_4-31g
-basis f_4-31g
-basis ne_4-31g
-basis p_4-31g
-basis s_4-31g
-basis cl_4-31g
-basis h_6-31g
-basis he_6-31g
-basis li_6-31g
-basis be_6-31g
-basis b_6-31g
-basis c_6-31g
-basis n_6-31g
-basis o_6-31g
-basis f_6-31g
-basis ne_6-31g
-basis na_6-31g
-basis mg_6-31g
-basis al_6-31g
-basis si_6-31g
-basis p_6-31g
-basis s_6-31g
-basis cl_6-31g
-basis ar_6-31g
-basis h_6-31++g
-basis he_6-31++g
-basis li_6-31++g
-basis be_6-31++g
-basis b_6-31++g
-basis c_6-31++g
-basis n_6-31++g
-basis o_6-31++g
-basis f_6-31++g
-basis ne_6-31++g
-basis na_6-31++g
-basis mg_6-31++g
-basis al_6-31++g
-basis si_6-31++g
-basis p_6-31++g
-basis s_6-31++g
-basis cl_6-31++g
-basis ar_6-31++g
-basis h_6-31g(3df,3pd)
-basis he_6-31g(3df,3pd)
-basis li_6-31g(3df,3pd)
-basis be_6-31g(3df,3pd)
-basis b_6-31g(3df,3pd)
-basis c_6-31g(3df,3pd)
-basis n_6-31g(3df,3pd)
-basis o_6-31g(3df,3pd)
-basis f_6-31g(3df,3pd)
-basis ne_6-31g(3df,3pd)
-basis na_6-31g(3df,3pd)
-basis mg_6-31g(3df,3pd)
-basis al_6-31g(3df,3pd)
-basis si_6-31g(3df,3pd)
-basis p_6-31g(3df,3pd)
-basis s_6-31g(3df,3pd)
-basis cl_6-31g(3df,3pd)
-basis ar_6-31g(3df,3pd)
-basis h_6-311g
-basis he_6-311g
-basis li_6-311g
-basis be_6-311g
-basis b_6-311g
-basis c_6-311g
-basis n_6-311g
-basis o_6-311g
-basis f_6-311g
-basis ne_6-311g
-basis na_6-311g
-basis mg_6-311g
-basis al_6-311g
-basis si_6-311g
-basis p_6-311g
-basis s_6-311g
-basis cl_6-311g
-basis ar_6-311g
-basis h_6-311++g(2d,2p)
-basis he_6-311++g(2d,2p)
-basis li_6-311++g(2d,2p)
-basis be_6-311++g(2d,2p)
-basis b_6-311++g(2d,2p)
-basis c_6-311++g(2d,2p)
-basis n_6-311++g(2d,2p)
-basis o_6-311++g(2d,2p)
-basis f_6-311++g(2d,2p)
-basis ne_6-311++g(2d,2p)
-basis na_6-311++g(2d,2p)
-basis mg_6-311++g(2d,2p)
-basis al_6-311++g(2d,2p)
-basis si_6-311++g(2d,2p)
-basis p_6-311++g(2d,2p)
-basis s_6-311++g(2d,2p)
-basis cl_6-311++g(2d,2p)
-basis ar_6-311++g(2d,2p)
-basis h_6-311g(2df,2pd)
-basis he_6-311g(2df,2pd)
-basis li_6-311g(2df,2pd)
-basis be_6-311g(2df,2pd)
-basis b_6-311g(2df,2pd)
-basis c_6-311g(2df,2pd)
-basis n_6-311g(2df,2pd)
-basis o_6-311g(2df,2pd)
-basis f_6-311g(2df,2pd)
-basis ne_6-311g(2df,2pd)
-basis na_6-311g(2df,2pd)
-basis mg_6-311g(2df,2pd)
-basis al_6-311g(2df,2pd)
-basis si_6-311g(2df,2pd)
-basis p_6-311g(2df,2pd)
-basis s_6-311g(2df,2pd)
-basis cl_6-311g(2df,2pd)
-basis ar_6-311g(2df,2pd)
-basis h_6-311++g(3df,3pd)
-basis he_6-311++g(3df,3pd)
-basis li_6-311++g(3df,3pd)
-basis be_6-311++g(3df,3pd)
-basis b_6-311++g(3df,3pd)
-basis c_6-311++g(3df,3pd)
-basis n_6-311++g(3df,3pd)
-basis o_6-311++g(3df,3pd)
-basis f_6-311++g(3df,3pd)
-basis ne_6-311++g(3df,3pd)
-basis na_6-311++g(3df,3pd)
-basis mg_6-311++g(3df,3pd)
-basis al_6-311++g(3df,3pd)
-basis si_6-311++g(3df,3pd)
-basis p_6-311++g(3df,3pd)
-basis s_6-311++g(3df,3pd)
-basis cl_6-311++g(3df,3pd)
-basis ar_6-311++g(3df,3pd)
-basis h_cc-pvdz
-basis he_cc-pvdz
-basis li_cc-pvdz
-basis be_cc-pvdz
-basis b_cc-pvdz
-basis c_cc-pvdz
-basis n_cc-pvdz
-basis o_cc-pvdz
-basis f_cc-pvdz
-basis ne_cc-pvdz
-basis na_cc-pvdz
-basis al_cc-pvdz
-basis si_cc-pvdz
-basis p_cc-pvdz
-basis s_cc-pvdz
-basis cl_cc-pvdz
-basis ar_cc-pvdz
-basis h_cc-pvtz
-basis he_cc-pvtz
-basis li_cc-pvtz
-basis be_cc-pvtz
-basis b_cc-pvtz
-basis c_cc-pvtz
-basis n_cc-pvtz
-basis o_cc-pvtz
-basis f_cc-pvtz
-basis ne_cc-pvtz
-basis na_cc-pvtz
-basis al_cc-pvtz
-basis si_cc-pvtz
-basis p_cc-pvtz
-basis s_cc-pvtz
-basis cl_cc-pvtz
-basis ar_cc-pvtz
-basis h_cc-pvqz
-basis he_cc-pvqz
-basis li_cc-pvqz
-basis be_cc-pvqz
-basis b_cc-pvqz
-basis c_cc-pvqz
-basis n_cc-pvqz
-basis o_cc-pvqz
-basis f_cc-pvqz
-basis ne_cc-pvqz
-basis na_cc-pvqz
-basis al_cc-pvqz
-basis si_cc-pvqz
-basis p_cc-pvqz
-basis s_cc-pvqz
-basis cl_cc-pvqz
-basis ar_cc-pvqz
-basis h_cc-pv5z
-basis he_cc-pv5z
-basis be_cc-pv5z
-basis b_cc-pv5z
-basis c_cc-pv5z
-basis n_cc-pv5z
-basis o_cc-pv5z
-basis f_cc-pv5z
-basis ne_cc-pv5z
-basis al_cc-pv5z
-basis si_cc-pv5z
-basis p_cc-pv5z
-basis s_cc-pv5z
-basis cl_cc-pv5z
-basis ar_cc-pv5z
-basis h_aug-cc-pvdz
-basis he_aug-cc-pvdz
-basis li_aug-cc-pvdz
-basis be_aug-cc-pvdz
-basis b_aug-cc-pvdz
-basis c_aug-cc-pvdz
-basis n_aug-cc-pvdz
-basis o_aug-cc-pvdz
-basis f_aug-cc-pvdz
-basis ne_aug-cc-pvdz
-basis na_aug-cc-pvdz
-basis al_aug-cc-pvdz
-basis si_aug-cc-pvdz
-basis p_aug-cc-pvdz
-basis s_aug-cc-pvdz
-basis cl_aug-cc-pvdz
-basis ar_aug-cc-pvdz
-basis h_aug-cc-pvtz
-basis he_aug-cc-pvtz
-basis li_aug-cc-pvtz
-basis be_aug-cc-pvtz
-basis b_aug-cc-pvtz
-basis c_aug-cc-pvtz
-basis n_aug-cc-pvtz
-basis o_aug-cc-pvtz
-basis f_aug-cc-pvtz
-basis ne_aug-cc-pvtz
-basis na_aug-cc-pvtz
-basis al_aug-cc-pvtz
-basis si_aug-cc-pvtz
-basis p_aug-cc-pvtz
-basis s_aug-cc-pvtz
-basis cl_aug-cc-pvtz
-basis ar_aug-cc-pvtz
-basis h_aug-cc-pvqz
-basis he_aug-cc-pvqz
-basis li_aug-cc-pvqz
-basis be_aug-cc-pvqz
-basis b_aug-cc-pvqz
-basis c_aug-cc-pvqz
-basis n_aug-cc-pvqz
-basis o_aug-cc-pvqz
-basis f_aug-cc-pvqz
-basis ne_aug-cc-pvqz
-basis na_aug-cc-pvqz
-basis al_aug-cc-pvqz
-basis si_aug-cc-pvqz
-basis p_aug-cc-pvqz
-basis s_aug-cc-pvqz
-basis cl_aug-cc-pvqz
-basis ar_aug-cc-pvqz
-basis h_aug-cc-pv5z
-basis he_aug-cc-pv5z
-basis be_aug-cc-pv5z
-basis b_aug-cc-pv5z
-basis c_aug-cc-pv5z
-basis n_aug-cc-pv5z
-basis o_aug-cc-pv5z
-basis f_aug-cc-pv5z
-basis ne_aug-cc-pv5z
-basis al_aug-cc-pv5z
-basis si_aug-cc-pv5z
-basis p_aug-cc-pv5z
-basis s_aug-cc-pv5z
-basis cl_aug-cc-pv5z
-basis ar_aug-cc-pv5z
+sto-2g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca
+
+sto-3g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+
+sto-6g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+
+3-21g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca, 
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+
+3-21++g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar, K, Ca,
+Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu, Zn, Ga, Ge, As, Se, Br, Kr
+
+4-31g
+
+H, He, LI, Be, B, C, N, O, F, Ne, P, S, Cl
+
+6-31g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+6-31++g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+6-31g(3df,3pd)
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+6-311g
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+6-311++g(2d,2p)
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+6-311g(2df,2pd)
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+6-311++g(3df,3pd)
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Mg, Al, Si, P, S, Cl, Ar
+
+cc-pvdz
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+
+cc-pvtz
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+
+cc-pvqz
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+
+cc-pv5z
+
+H, He, Be, B, C, N, O, F, Ne, Al, Si, P, S, Cl, Ar
+
+aug-cc-pvdz
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+
+
+aug-cc-pvtz
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+
+aug-cc-pvqz
+
+H, He, LI, Be, B, C, N, O, F, Ne, Na, Al, Si, P, S, Cl, Ar
+
+aug-cc-pv5z
+
+H, He, Be, B, C, N, O, F, Ne, Al, Si, P, S, Cl, Ar
