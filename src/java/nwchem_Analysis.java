@@ -148,6 +148,7 @@ class nwchem_Analysis extends JFrame implements ActionListener, ChangeListener, 
 	plotButton.addActionListener(new ActionListener(){
 		public void actionPerformed(ActionEvent e){ 
 		    anaPlot.fillPlot(); }});
+	anaPlot.setSize(700,400);
 	addComponent(header,anaPlot,1,iy,20,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	iy++;

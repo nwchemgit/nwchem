@@ -63,11 +63,17 @@ class nwchem_RMS extends JFrame implements ActionListener, ChangeListener, Windo
 		public void actionPerformed(ActionEvent e){ 
 		    setVisible(false); }});
 
-	addComponent(header,rmsPlot,0,1,20,20,10,10,
+	rmsPlot.setTitle("RMS Deviation vs Time");
+	rmsaPlot.setTitle("Atomic RMS Deviation");
+	rmsrPlot.setTitle("Segment RMS Deviation");
+	rmsPlot.setSize(700,300);
+	rmsaPlot.setSize(350,300);
+	rmsrPlot.setSize(350,300);
+	addComponent(header,rmsPlot,0,1,20,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,rmsaPlot,21,1,20,10,10,10,
+	addComponent(header,rmsaPlot,0,11,10,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
-	addComponent(header,rmsrPlot,21,21,20,10,10,10,
+	addComponent(header,rmsrPlot,11,11,10,10,10,10,
 		     GridBagConstraints.NONE,GridBagConstraints.NORTHWEST);
 	try{
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
