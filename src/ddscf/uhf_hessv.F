@@ -1,6 +1,6 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.5 1999-06-16 00:10:14 d3e129 Exp $
+* $Id: uhf_hessv.F,v 1.6 2000-04-27 21:00:03 zzhang Exp $
 *
       implicit none
 #include "cuhf.fh"
@@ -231,7 +231,7 @@ c
       nfock = 4*nvec
 c
       call fock_2e(geom, basis, nfock, jfac, kfac,
-     $     tol2e_local, oskel_local, g_dens, g_fock)
+     $     tol2e_local, oskel_local, g_dens, g_fock, .false.)
 c
 c     Again, note that this is NOT what you want except for
 c     a totally symmetric input vector

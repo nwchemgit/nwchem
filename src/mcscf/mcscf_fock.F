@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.16 1999-06-16 00:10:21 d3e129 Exp $
+c     $Id: mcscf_fock.F,v 1.17 2000-04-27 20:58:00 zzhang Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -102,7 +102,7 @@ c
       iv_fock(1) = g_tmp2
       iv_fock(2) = g_tmp3
       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
-     $     iv_dens, iv_fock )
+     $     iv_dens, iv_fock, .false. )
 c     
 c     
 c     Symmetrize Fock AO components

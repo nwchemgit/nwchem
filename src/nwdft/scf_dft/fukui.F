@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.13 2000-04-24 19:37:15 edo Exp $
+c     $Id: fukui.F,v 1.14 2000-04-27 20:54:03 zzhang Exp $
 c     
       implicit none
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
@@ -193,26 +193,26 @@ c
       kfac(2) = 0.0d0
       call ga_zero(g_orb)
       call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens_HOMO(1), g_orb)
+     &             tol2e, oskel, g_dens_HOMO(1), g_orb, .false.)
       int_HaHa = ga_ddot(g_dens_HOMO(1), g_orb)
 c
       int_HaLb = ga_ddot(g_dens_LUMO(2), g_orb)
 c
       call ga_zero(g_orb)
       call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens_HOMO(2), g_orb)
+     &             tol2e, oskel, g_dens_HOMO(2), g_orb, .false.)
       int_HbHb = ga_ddot(g_dens_HOMO(2), g_orb)
 c
       int_LaHb = ga_ddot(g_dens_LUMO(1), g_orb)
 c
       call ga_zero(g_orb)
       call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens_LUMO(1), g_orb)
+     &             tol2e, oskel, g_dens_LUMO(1), g_orb, .false.)
       int_LaLa = ga_ddot(g_dens_LUMO(1), g_orb)
 c
       call ga_zero(g_orb)
       call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens_LUMO(2), g_orb)
+     &             tol2e, oskel, g_dens_LUMO(2), g_orb, .false.)
       int_LbLb = ga_ddot(g_dens_LUMO(2), g_orb)
 c
 c
@@ -247,7 +247,7 @@ c
       Exc_zero = Exc(1)
       call ga_zero(g_orb)
       call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens_HOMO(1), g_orb)
+     &             tol2e, oskel, g_dens_HOMO(1), g_orb, .false.)
       do isp = 1, ipol
         int_vxc_H(isp) = ga_ddot(g_dens_HOMO(isp), g_vxc(isp))
         int_vxc_L(isp) = ga_ddot(g_dens_LUMO(isp), g_vxc(isp))
@@ -499,7 +499,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.13 2000-04-24 19:37:15 edo Exp $
+C$Id: fukui.F,v 1.14 2000-04-27 20:54:03 zzhang Exp $
       Implicit none
       integer geom,basis
       integer iga_s              ! overlap   GA handle
@@ -656,7 +656,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.13 2000-04-24 19:37:15 edo Exp $
+C$Id: fukui.F,v 1.14 2000-04-27 20:54:03 zzhang Exp $
 c
       implicit none
 #include "stdio.fh"
@@ -754,7 +754,7 @@ c
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
               g_dens(2)=g_dens(1)
               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &             tol2e, oskel, g_dens(1), g_vxc(1))
+     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               call ga_zero(g_vxc(2))
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
@@ -763,7 +763,7 @@ c
      $             ('xc_getv: ga corrupt?',0)
             else
               call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
-     &             tol2e, oskel, g_dens(1), g_vxc(1))
+     &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
             Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
             endif
          else
@@ -773,7 +773,7 @@ c
                kfac(1)=-1.0d0*xfac(1)
                kfac(2)=-1.0d0*xfac(1)
                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
-     &              tol2e, oskel, g_dens, g_vxc)
+     &              tol2e, oskel, g_dens, g_vxc, .false.)
                Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
      &              ga_ddot(g_dens(2),g_vxc(2)))
             else
@@ -796,7 +796,7 @@ c
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
                call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &              tol2e, oskel, g_d(1), g_jk(1))
+     &              tol2e, oskel, g_d(1), g_jk(1),.false. )
                call ga_zero(g_jk(1))
                call ga_zero(g_jk(3))
                ecoul = 0.5d0*( ! Alpha coulomb energy

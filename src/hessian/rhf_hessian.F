@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.29 2000-02-29 19:31:00 windus Exp $
+c $Id: rhf_hessian.F,v 1.30 2000-04-27 20:58:39 zzhang Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -17939,7 +17939,7 @@ c     ----- load symmetry information from scf_get_info.F -----
        call schwarz_init(geom,basis)
        call scf_get_fock_param(rtdb,tol2e)
        call fock_2e(geom,basis,nfock,jfac,kfac,tol2e,oskel,
-     &             g_tmpfock(1),g_mafock(1))
+     &             g_tmpfock(1),g_mafock(1), .false.)
        call fock_2e_tidy(rtdb)
        call int_terminate()
        call schwarz_tidy()

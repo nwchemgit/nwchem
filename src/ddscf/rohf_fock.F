@@ -3,7 +3,7 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel)
 *
-* $Id: rohf_fock.F,v 1.10 1997-11-07 11:35:16 d3e129 Exp $
+* $Id: rohf_fock.F,v 1.11 2000-04-27 21:00:03 zzhang Exp $
 *
       implicit none
 #include "global.fh"
@@ -147,7 +147,7 @@ C     don't do it if RI HESSIAN is active
 C     Dyalls method for RHF
       if ( nopen .eq. 0 ) call riscf_dovecs(.true., g_vecs)
       call fock_2e(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, iv_fock)
+     $     tol2e, oskel, iv_dens, iv_fock, .false.)
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_vecs)
 c     

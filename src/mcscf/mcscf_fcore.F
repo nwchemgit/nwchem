@@ -13,7 +13,7 @@ c
        subroutine mcscf_fcore( basis, nbf, nclosed, nact,
      $                         g_movecs, g_coul, g_exch, g_fcore )
 *
-* $Id: mcscf_fcore.F,v 1.6 1997-11-04 09:59:43 d3e129 Exp $
+* $Id: mcscf_fcore.F,v 1.7 2000-04-27 20:57:41 zzhang Exp $
 *
        implicit none
 #include "mafdecls.fh"       
@@ -181,7 +181,7 @@ c
        iv_dens(1) = g_cdens
        iv_fock(1) = g_tmp
        call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
-     $               iv_dens, iv_fock )
+     $               iv_dens, iv_fock, .false. )
 c
 c  Symmetrize Fock AO components
 c

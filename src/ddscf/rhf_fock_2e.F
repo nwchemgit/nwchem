@@ -1,7 +1,7 @@
       subroutine rhf_fock_2e( geom, basis, g_dens, g_fock, tol2e,
      $     ocoul, oexch, oskel )
 *
-* $Id: rhf_fock_2e.F,v 1.17 1997-11-07 11:35:15 d3e129 Exp $
+* $Id: rhf_fock_2e.F,v 1.18 2000-04-27 21:00:03 zzhang Exp $
 *
       implicit none
 c     
@@ -39,7 +39,7 @@ c
       vg_fock(1) = g_fock
 
       call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
-     $     vg_dens, vg_fock )
+     $     vg_dens, vg_fock, .false.)
       
       return
       end

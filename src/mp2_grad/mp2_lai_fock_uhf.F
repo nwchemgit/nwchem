@@ -46,7 +46,7 @@ c
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b, rtdb, tol2e)
 *
-* $Id: mp2_lai_fock_uhf.F,v 1.15 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_lai_fock_uhf.F,v 1.16 2000-04-27 20:56:46 zzhang Exp $
 *
       implicit none
 #include "global.fh"
@@ -129,7 +129,7 @@ c
       call schwarz_init(geom,basis)
 
       call fock_2e(geom, basis, nfock, jfac, kfac,
-     $     tol2e, oskel, g_dens, g_fock)
+     $     tol2e, oskel, g_dens, g_fock,.false. )
 c     
       call int_terminate()
       call schwarz_tidy()
@@ -252,7 +252,7 @@ c
       call schwarz_init(geom,basis)
 
       call fock_2e(geom, basis, nfock, jfac, kfac,
-     $     tol2e, oskel, g_dens, g_fock)
+     $     tol2e, oskel, g_dens, g_fock, .false.)
 c     
       call int_terminate()
       call schwarz_tidy()

@@ -1,5 +1,5 @@
 *
-* $Id: mcscf_ohvao.F,v 1.7 1997-11-04 09:59:45 d3e129 Exp $
+* $Id: mcscf_ohvao.F,v 1.8 2000-04-27 20:57:41 zzhang Exp $
 *
        subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
      $                               tol2e, oskel, dm1, g_movecs,
@@ -212,7 +212,7 @@ c
        iv_fock(5) = g_f5
        iv_fock(6) = g_f6
        call fock_2e( geom, basis, nn, jfac, kfac, tol2e, oskel,
-     $               iv_dens, iv_fock )
+     $               iv_dens, iv_fock, .false. )
 c
 c  Symmetrize AO Fock matrices
 c

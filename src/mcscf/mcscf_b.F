@@ -12,7 +12,7 @@ c
      $                    dm1, dm2, oskel, tol2e, bshift, g_vecs0,
      $                    g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
 *
-* $Id: mcscf_b.F,v 1.8 1999-06-16 00:10:20 d3e129 Exp $
+* $Id: mcscf_b.F,v 1.9 2000-04-27 20:57:41 zzhang Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -248,7 +248,7 @@ c
       iv_fock(1) = g_f1
       iv_fock(2) = g_f2
       call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
-     $              iv_dens, iv_fock )
+     $              iv_dens, iv_fock, .false. )
       if (oskel) then
         call sym_symmetrize(geom, basis, .false., g_f1)
         call sym_symmetrize(geom, basis, .false., g_f2)
@@ -643,7 +643,7 @@ c
         iv_dens(1) = g_d1
         iv_fock(1) = g_f1
         call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
-     $                iv_dens, iv_fock )
+     $                iv_dens, iv_fock, .false. )
         if (oskel) call sym_symmetrize(geom, basis, .false., g_f1)
 c     
 c  Transform to MO

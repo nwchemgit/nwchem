@@ -7,7 +7,7 @@ c
      $                          oact, oskel, tol2e, dm1, dm2,
      $                          g_movecs, g_coul, eone, etwo, ecore )
 *
-* $Id: mcscf_etr.F,v 1.6 1997-11-04 09:59:42 d3e129 Exp $
+* $Id: mcscf_etr.F,v 1.7 2000-04-27 20:57:41 zzhang Exp $
 *
        implicit none
 #include "mafdecls.fh"
@@ -71,7 +71,7 @@ c
        iv_dens(1) = g_cdens
        iv_fock(1) = g_ifock
        call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
-     $               iv_dens, iv_fock )
+     $               iv_dens, iv_fock, .false. )
 c
 c  Symmetrize Fock AO components
 c
@@ -194,7 +194,7 @@ c$$$c
 c$$$       iv_dens(1) = g_cdens
 c$$$       iv_fock(1) = g_ifock
 c$$$       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
-c$$$     $               iv_dens, iv_fock )
+c$$$     $               iv_dens, iv_fock, .false. )
 c$$$c
 c$$$c  Symmetrize Fock AO components
 c$$$c

@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.54 1999-12-10 17:35:01 windus Exp $
+C$Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -206,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.54 1999-12-10 17:35:01 windus Exp $
+C     $Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -506,7 +506,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.54 1999-12-10 17:35:01 windus Exp $
+C$Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -597,7 +597,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.54 1999-12-10 17:35:01 windus Exp $
+c     $Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -707,7 +707,7 @@ c
 c
       call do_riscf (.false.)
       call fock_2e(geom, basis, 4, jfac, kfac, tol2e,
-     $     oskel, d, f)
+     $     oskel, d, f, .false.)
       call do_riscf (.true.)
 c
       e_a_coul = 0.5d0*
@@ -1083,7 +1083,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.54 1999-12-10 17:35:01 windus Exp $
+C$Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
