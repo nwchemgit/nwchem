@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.4 1996-07-03 17:11:35 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.5 1996-07-10 10:09:58 d3e129 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -506,7 +506,8 @@ c     in which case int_mem_2e4c is used, otherwise the user input
 c     is taken.
 c
       if (maxscr .eq. 0) then
-         call int_mem_2e4c(maxg, lenscr)
+*1 quartet         call int_mem_2e4c(maxg, lenscr)
+         call intb_mem_2e4c(maxg, lenscr) ! blocking algorithm
       else
          lenscr = maxscr
       end if
