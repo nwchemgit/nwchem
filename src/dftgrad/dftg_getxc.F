@@ -2,7 +2,7 @@
      &                      nactive, s34, rdens_atom, cntoce,
      &                      cntobfr, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.20 2000-04-13 17:12:09 hvd Exp $
+* $Id: dftg_getxc.F,v 1.21 2000-05-05 02:00:27 bjohnson Exp $
 *
       implicit none
 c      
@@ -85,6 +85,7 @@ c
             if (.not.status) 
      &         call errquit('dftg_getxc: could not allocate xc hessian',
      &                      1)
+            call dfill(9*natom*natom, 0.0d0, dbl_mb(k_hess), 1)
             if (bgj_print() .gt. 0)
      &           write(LuOut,*)'*** In dftg_getxc: calling xc_hessian'
             call xc_hessian(iga_dens, oactive, nactive, dbl_mb(k_hess))
@@ -102,7 +103,7 @@ c
      &        1, status)) status = .false.
          if (status) then
 c
-c           Allocate temp GA's for RHS
+c           Allocate and initialize temp GA's for RHS
 c
             if (bgj_print() .gt. 0)
      &           write(*,*)'*** xc cpks rhs test: nactive =',nactive
@@ -114,26 +115,32 @@ c
                j = j + 1
                g_rhs(j) = ga_create_atom_blocked
      &              (geom, ao_bas_han, 'CPKS RHS test a x')
+               call ga_zero(g_rhs(j))
                if (ipol.eq.2) then
                   j = j + 1
                   g_rhs(j) = ga_create_atom_blocked
      &                 (geom, ao_bas_han, 'CPKS RHS test b x')
+                  call ga_zero(g_rhs(j))
                endif
                j = j + 1
                g_rhs(j) = ga_create_atom_blocked
      &              (geom, ao_bas_han, 'CPKS RHS test a y')
+               call ga_zero(g_rhs(j))
                if (ipol.eq.2) then
                   j = j + 1
                   g_rhs(j) = ga_create_atom_blocked
      &                 (geom, ao_bas_han, 'CPKS RHS test b y')
+                  call ga_zero(g_rhs(j))
                endif
                j = j + 1
                g_rhs(j) = ga_create_atom_blocked
      &              (geom, ao_bas_han, 'CPKS RHS test a z')
+               call ga_zero(g_rhs(j))
                if (ipol.eq.2) then
                   j = j + 1
                   g_rhs(j) = ga_create_atom_blocked
      &                 (geom, ao_bas_han, 'CPKS RHS test b z')
+                  call ga_zero(g_rhs(j))
                endif
              endif
             enddo

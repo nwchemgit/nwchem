@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.10 2000-04-13 17:12:08 hvd Exp $
+* $Id: dft_gradients.F,v 1.11 2000-05-05 02:00:27 bjohnson Exp $
 *
       implicit none
 c      
@@ -501,6 +501,7 @@ c
          if (.not.status) 
      &        call errquit('dft_gradients: could not alloc j hessian',
      &        1)
+         call dfill(9*nat*nat, 0.0d0, dbl_mb(k_hess), 1)
          if (bgj_print() .gt. 0)
      &        write(LuOut,*)'*** In dft_gradients: calling j_hessian'
          call j_hessian(iga_dens, log_mb(k_act), nactive,
@@ -538,7 +539,7 @@ c
 c        !!! Do this to be consistent with DFT gradient
 c!!!         call int_app_set_no_texas(rtdb)
 c
-c        Allocate temp GA's for RHS
+c        Allocate and initialize temp GA's for RHS
 c
          if (bgj_print() .gt. 0)
      &        write(*,*)'*** j cpks rhs test: nactive =',nactive
@@ -552,6 +553,9 @@ c
      &              (geom, ao_bas_han, 'CPKS RHS test y')
                g_rhs(3,i) = ga_create_atom_blocked
      &              (geom, ao_bas_han, 'CPKS RHS test z')
+               call ga_zero(g_rhs(1,i))
+               call ga_zero(g_rhs(2,i))
+               call ga_zero(g_rhs(3,i))
             endif
          enddo
 
