@@ -1,0 +1,58 @@
+#!/bin/env expect
+#
+# $Id: get-tools-remote-expect,v 1.1 1999-06-05 00:58:40 d3e129 Exp $
+#
+send_user "We need three pieces of information to check out the code:\n"
+send_user " 1) the hostname which will be used to check out the tools (e.g., fermi.emsl.pnl.gov) \n"
+send_user " 2) the user-id or login-id on the given hostname (e.g., d322156)\n"
+send_user " 3) the password for that account\n\n\n"
+send_user " Enter hostname: "
+expect_user -indices -re ".*\n"
+#send_user "buffer <|$expect_out(buffer)|> \n"
+#send_user "0      <|$expect_out(0,string)|> \n"
+set hostname [string trimright $expect_out(buffer) "\n"]
+send_user " Enter  user-id: "
+expect_user -indices -re ".*\n"
+set userid [string trimright $expect_out(buffer) "\n"]
+send_user " Enter password: "
+expect_user -indices -re ".*\n"
+set password [string trimright $expect_out(buffer) "\n"]
+send_user "hostname is :$hostname \n"
+send_user "user-id  is :$userid \n"
+set myexpectstring [format "%s%s%s" $userid "@" $hostname ]
+send_user "myexpectstring is $myexpectstring \n"
+set timeout -1
+spawn csh 
+send "set prompt = 'expect_script% ' \r"
+expect -re ".*expect_script.*"
+expect -re ".*expect_script.*"
+sleep 1
+send "ls -l \r"
+sleep 1
+expect -re ".*expect_script.*"
+set timeout -1
+send "date;date;date \r"
+expect -re ".*expect_script.*"
+send "mv CVS CVS0 \r"
+expect -re ".*expect_script.*"
+send "setenv CVS_RSH ssh \r"
+expect -re ".*expect_script.*"
+send "setenv CVSROOT :ext:$userid\@$hostname:/msrc/proj/hpctools \r"
+expect -re ".*expect_script.*"
+expect -re ".*expect_script.*"
+set list_of_dirs {config global armci LinAlg pario ma tcgmsg tcgmsg-mpi server}
+set timeout -1
+foreach mydirectory $list_of_dirs {
+   send_user " checking out $mydirectory \n"
+   send "cvs co $mydirectory \r"
+   expect -re "$myexpectstring.*"
+   send "$password\r"
+   expect -re ".*expect_script.*"
+}
+send "mv CVS0 CVS \r"
+expect -re ".*expect_script.*"
+
+send_user "\nexiting\n"
+send "exit\r"
+
+exit
