@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.75 2003-09-19 19:32:14 edo Exp $ 
+% $Id: dft.tex,v 1.76 2003-10-14 19:07:57 pollack Exp $ 
 %
 \label{sec:dft}
 
@@ -47,7 +47,7 @@ the DFT module are:
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
       [h407] [becke97gga1]  [hcth407p]\
-      [mpw91] [mpw1k] [xft97] [cft97] [ft97] [xpkzb99] \
+      [mpw91] [mpw1k] [xft97] [cft97] [ft97] [xpkzb99] [cpkzb99]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -494,8 +494,13 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 
 \subsection{Meta-GGA Functionals}
 
+One way to compute Meta-GGA energies is self consistently, 
+which we have implemented in the code, 
+using the method outlined in 
+R. Neumann, R.H. Nobes, and N.C. Handy, Mol.Phys.
+{\bf 87}, 1 1996.
 
-One way to calculate meta-GGA energies is to use
+Another way to calculate meta-GGA energies is to use
  orbitals and densities 
 from fully self-consistent GGA or LDA calculations
 and run them in one iteration in the meta-GGA functional.
@@ -503,9 +508,8 @@ It is expected that meta-GGA energies obtained
 this way will be close to fully self consistent
 meta-GGA calculations. 
 This can be easily accomplished in NWChem,
-and is our current implementation, which is illustrated in
+and is illustrated in
 the example below.
-
 This kind of calculation
 will obviously not converge the energy.
 To avoid an error  in
@@ -550,7 +554,7 @@ basis
 end
  
 dft
- print low kinetic_energy
+ print  kinetic_energy
  xc xpbe96 cpbe96
  decomp
 end
@@ -561,7 +565,7 @@ dft
  iterations 1
  xc xpkzb99
  decomp
- print low quadrature kinetic_energy
+ print  quadrature kinetic_energy
 end
 task dft ignore
 \end{verbatim}
@@ -634,6 +638,8 @@ ft97       & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[24,25]\\
 htch407p   & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[28]\\
 \hline                                                  
 xpkzb99    & $\star$  &             &           &$\star$&   &  N   &[27]\\
+cpkzb99    &          &  $\star$    &           &$\star$&   &  N   &[27]\\
+
 \hline
 beckehandh & $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
 b3lyp      & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
