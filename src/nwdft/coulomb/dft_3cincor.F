@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd)
 c 
-C$Id: dft_3cincor.F,v 1.20 2000-05-03 22:45:08 edo Exp $
+C$Id: dft_3cincor.F,v 1.21 2000-05-26 18:44:42 edo Exp $
 c
       implicit none
 c    
@@ -9,7 +9,7 @@ c
       integer n_bmax  ! max no. batches [in]
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl ! max no. ints [in]
-      double precision i3c_ERI(n3c_dbl) ! int values [out]
+      double precision i3c_ERI(n3c_dbl) ! int 1alues [out]
 c
 #include "bas.fh"
 #include "inp.fh"
@@ -89,8 +89,11 @@ c
             if (me.eq.0.and.oprint_semi_file)then
                write(6,*) ' dft_3cincor: opening 3c-2e integral file: ',
      &         actualname(1:inp_strlen(actualname))
-               write(6,*)' 1 availkb: ',availkb,' fstype: ',fstype,
-     &         ' fd: ',fd
+               write(6,111)ga_nodeid(),
+     ,              ' 1 availkb: ',availkb,
+     &              ' bufsz  ',n3c_b,
+     ,              ' currb',current_nbuf,' done',ndone
+ 111           format('me',I3,A,I7,A,I8,A,I3,A,I8)
                call util_flush(6)
             endif
          endif
@@ -124,7 +127,8 @@ c
          nbf_cd_cart=nbf_cd_cart+
      ,        (itype+1)*(itype+2)/2*nshbfc
       enddo
-      batch_max = nao2_max*nbf_cd_cart*icount
+cedo      batch_max = nao2_max*nbf_cd_cart*icount
+      batch_max= icount*nshells_cd*maxg
 c
       nERI_max = Nao2_max*nbf_cd_mxnbf_cn
 c
@@ -183,6 +187,11 @@ c               of ao shells and cd shell.
 c
 c                n_chk = ndone+nintegrals-1
                 n_chk = ndone+maxg-1
+#ifdef(DEBUG)
+                write(6,'(A,I6,A,2I6)') 
+     ,               ' me ',me,' ndone ',ndone,n_chk
+#endif
+                call flush(6)
                 if( (n_chk) .gt. n3c_dbl) then
                   write(LuOut,*) ' ishc ishd ishp ',ishc,ishd,Ishp
                   write(LuOut,*) ' nshao nshcd ',
@@ -275,14 +284,12 @@ c
                 if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
      &            call errquit('dft_3cincor: unable to get disk info',0)
 c
-c               need global space available check here
-c
-c                call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
-c
                 if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
                    if (me.eq.0.and.oprint_semi_file)then
-                      write(6,*)' 2 availkb: ',availkb,' fstype: ',
-     &                fstype,' fd: ',fd
+                      write(6,111) ga_nodeid(),
+     ,                     ' 2 availkb: ',availkb,
+     &                ' bufsz  ',n3c_b,
+     ,                     ' currb',current_nbuf, ' done ',ndone
                       call util_flush(6)
                    endif
 c
