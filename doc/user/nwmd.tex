@@ -1086,14 +1086,14 @@ load pairs 10 size 0.75
 
 \item
 \begin{verbatim}
-nodes <integer npx> <integer npy> <integer npz>
+procs <integer npx> <integer npy> <integer npz>
 \end{verbatim}
-specifies the distribution of the available nodes over the three 
+specifies the distribution of the available processors over the three 
 Cartesian dimensions. The default distribution is chosen such that, 
 \verb+<npx>+$*$\verb+<npy>+$*$\verb+<npz>+=\verb+<np>+
 and \verb+<npx>+ $<=$ \verb+<npy>+ $<=$ \verb+<npz>+, 
-where \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are the nodes in the
-x, y and z dimension respectively, and \verb+<np>+ is the number of nodes
+where \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are the processors in the
+x, y and z dimension respectively, and \verb+<np>+ is the number of processors
 allocated for the calculation. Where more than one combination
 of \verb+<npx>+, \verb+<npy>+ and \verb+<npz>+ are possible, the 
 combination is chosen with the minimum value of 
