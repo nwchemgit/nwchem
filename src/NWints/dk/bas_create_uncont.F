@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.3 1999-12-01 00:34:10 d3j191 Exp $
+c $Id: bas_create_uncont.F,v 1.4 1999-12-08 22:05:55 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -61,10 +61,18 @@ c
      $   call errquit('bas_create_uncont: bas_geom failed',0)
       usertdb = bgj_get_rtdb_handle()
 c
-c     Create a new uncontracted basis and initialize adding function
+c     Create a new fitting basis set
 c
       if (.not. bas_create(basis_out,name))
      $   call errquit('bas_create_uncont: bas_create failed',0)
+c
+c     Check if the user generated a fitting basis on input called
+c     "D-K basis", if so load and return
+c
+      if (bas_rtdb_load(usertdb,usegeom,basis_out,'D-K basis')) return
+c
+c     Create a new uncontracted basis and initialize adding function
+c
       if (.not. bas_add_ucnt_init(basis_out)) call errquit
      &      ('bas_create_uncont: bas_add_ucnt_init failed',0)
 c
@@ -157,7 +165,7 @@ c
 
 c
 c        Check if sp or spd combined basis is used, they cannot be handled
-c        in the flexible basis set construction code
+c        in the flexible basis set construction code below
 c
          do 9 iprim = 1, nuniqprim
             if (int_mb(LIm_a+iprim-1) .lt.0) call errquit(
