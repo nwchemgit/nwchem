@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.10 2000-03-20 22:50:46 d3j191 Exp $
+c $Id: ana_finish.F,v 1.11 2000-05-04 20:54:50 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,8 @@ c
      + call errquit('Failed to deallocate xp',0)
       if(.not.ma_pop_stack(l_xadat))
      + call errquit('Failed to deallocate xadat',0)
+      if(.not.ma_pop_stack(l_qdat))
+     + call errquit('Failed to deallocate qdat',0)
       if(.not.ma_pop_stack(l_xdat))
      + call errquit('Failed to deallocate xdat',0)
       if(.not.ma_pop_stack(l_snam))

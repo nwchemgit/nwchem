@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.6 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.7 2000-05-04 20:54:51 d3j191 Exp $
 c
       implicit none
 c
@@ -86,6 +86,19 @@ c
       if(np.gt.1) then
       call ga_brdcst(mag_d02,x(1,1),3*nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
+c
+      do 6 i=1,nsa
+      if(i.eq.1) then
+      xsmin=x(1,3)
+      xsmax=x(1,3)
+      else
+      if(x(i,3).lt.xsmin) xsmin=x(i,3)
+      if(x(i,3).gt.xsmax) xsmax=x(i,3)
+      endif
+    6 continue
+c
+      xsmin=xsmin-0.5d0
+      xsmax=xsmax+0.5d0
 c
       return
 c

@@ -1,6 +1,6 @@
       subroutine ana_init(nsai,msai,ltask)
 c
-c $Id: ana_init.F,v 1.9 2000-03-20 22:50:46 d3j191 Exp $
+c $Id: ana_init.F,v 1.10 2000-05-04 20:54:50 d3j191 Exp $
 c
       implicit none
 c
@@ -83,6 +83,8 @@ c
      + call errquit('Failed to allocate memory for sgmnam',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xdat',l_xdat,i_xdat))
      + call errquit('Failed to allocate memory for xdat',me)
+      if(.not.ma_push_get(mt_dbl,nsa,'qdat',l_qdat,i_qdat))
+     + call errquit('Failed to allocate memory for qdat',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xadat',l_xadat,i_xadat))
      + call errquit('Failed to allocate memory for xadat',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xp',l_xp,i_xp))

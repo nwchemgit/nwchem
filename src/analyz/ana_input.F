@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.19 2000-05-03 21:33:54 d3j191 Exp $
+c $Id: ana_input.F,v 1.20 2000-05-04 20:54:50 d3j191 Exp $
 c
       implicit none
 c
@@ -11,13 +11,13 @@ c
 c
       integer irtdb
 c
-      character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml
+      character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan
+      integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
       real*8 timoff,rsel,rtag,rcut
       logical lref,lfil,lsol
-      integer iesppb
+      integer iesppb,lent
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Analysis Input Module',40,.true.)
@@ -57,6 +57,9 @@ c
       filxyz=prefix(1:len)//'.xyz '
       filref=prefix(1:len)//'.rst '
       filtrj=prefix(1:len)//'.trj '
+      lent=index(prefix,'_')-1
+      if(lent.le.0) lent=len
+      filtop=prefix(1:lent)//'.top '
 c
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='unknown',err=9999)
@@ -71,14 +74,22 @@ c     ---------------------
 c
       if(inp_compare(.false.,'reference',item)) then
       if(.not.inp_a(filref)) call errquit('Error in reference file',0)
+      lent=index(filref,'_')-1
+      if(lent.le.0) lent=index(filref,'.')-1
+      if(lent.le.0) call errquit('Error in topology file',0)
+      filtop=filref(1:lent)//'.top '
       write(lfncmd,1000) filref(1:index(filref,' ')-1)
+      write(lfncmd,2000) filtop(1:index(filtop,' ')-1)
  1000 format('refer  ',a)
+ 2000 format('topol  ',a)
       numcmd=numcmd+1
       lref=.true.
       goto 2
       endif
       if(.not.lref) then
       write(lfncmd,1000) filref(1:index(filref,' ')-1)
+      numcmd=numcmd+1
+      write(lfncmd,2000) filtop(1:index(filtop,' ')-1)
       numcmd=numcmd+1
       lref=.true.
       endif
@@ -278,6 +289,16 @@ c
       write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
       write(lfncmd,1013) atomk(1:index(atomk,' ')-1)
       write(lfncmd,1013) atoml(1:index(atoml,' ')-1)
+      goto 2
+      endif
+c
+c     charge distribution
+c     -------------------
+c
+      if(inp_compare(.false.,'charge_distribution',item)) then
+      if(.not.inp_i(icd)) call errquit('Error in improper',0)
+      write(lfncmd,1018) icd
+ 1018 format('chgdst ',i5)
       goto 2
       endif
 c

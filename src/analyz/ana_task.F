@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.22 2000-05-01 18:46:30 d3j191 Exp $
+c $Id: ana_task.F,v 1.23 2000-05-04 20:54:51 d3j191 Exp $
 c
       implicit none
 c
@@ -48,6 +48,8 @@ c
       lfnvec=88
       lfnmin=89
       lfnmax=90
+      lfntop=91
+      lfnhis=92
       lsonly=.false.
 c
       ifrfr=1
@@ -70,6 +72,7 @@ c
       ndata=0
       time=0.0d0
       timr=0.0d0
+      ldist=0
 c
       ifr=1
 c
@@ -125,6 +128,20 @@ c
       write(*,'(a,a)') ' Reference coordinates read from ',
      + filref(1:index(filref,' ')-1)
       write(*,'(/,a,i5)') ' Number of atoms is ',nsai
+      endif
+      goto 1
+      endif
+c
+c     read topology file
+c     ------------------
+c
+      if(card(1:6).eq.'topol ') then
+      filtop=card(8:80)
+      call ana_rdtop(dbl_mb(i_qdat))
+c
+      if(me.eq.0) then
+      write(*,'(a,a)') ' Topology read from ',
+     + filtop(1:index(filtop,' ')-1)
       endif
       goto 1
       endif
@@ -259,6 +276,14 @@ c      write(*,'(4i5)') (iimps(it,i),i=1,4)
       goto 1
       endif
 c
+c     charge distribution
+c     -------------------
+c
+      if(card(1:6).eq.'chgdst') then
+      read(card(8:12),'(i5)') ldist
+      goto 1
+      endif
+c
 c     atom tag
 c     --------
 c
@@ -377,7 +402,8 @@ c
       read(card(8:80),'(a)') string
       filrms=string(1:index(string,' ')-1)//'.rms'
       filana=string(1:index(string,' ')-1)//'.ana'
-      write(*,'(a,a)') 'filrms=',filrms(1:index(filrms,' ')-1)
+      filhis=string(1:index(string,' ')-1)//'.his'
+c      write(*,'(a,a)') 'filrms=',filrms(1:index(filrms,' ')-1)
       time=0.0d0
 c
 c     read file header
@@ -399,6 +425,13 @@ c
       open(unit=lfnrms,file=filrms(1:index(filrms,' ')-1),
      + form='formatted',status='unknown')
       endif
+      endif
+c
+      if(ldist.gt.0) then
+      if(.not.ma_push_get(mt_dbl,2*ldist,'hist',l_hist,i_hist))
+     + call errquit('Failed to allocate hist',0)
+      open(unit=lfnhis,file=filhis(1:index(filhis,' ')-1),
+     + form='formatted',status='unknown')
       endif
 c
       nread=0
@@ -433,6 +466,12 @@ c
      + itors(i,3,1),itors(i,3,2),itors(i,4,1),itors(i,4,2))
    14 continue
 c
+c     charge histogram
+c
+      if(ldist.gt.0) then
+      call ana_chgdst(dbl_mb(i_hist),dbl_mb(i_xdat),dbl_mb(i_qdat))
+      endif
+c
 c     write bonded interaction values to file
 c
       if(me.eq.0.and.lana) then
@@ -460,6 +499,12 @@ c
       if(ifrto.le.ifrfr.or.nread.lt.ifrto) goto 10
       endif
 c
+      if(ldist.gt.0) then
+      if(.not.ma_pop_stack(l_hist))
+     + call errquit('Failed to deallocate hist',0)
+      close(unit=lfnhis)
+      endif
+c
       if(me.eq.0) then
       close(unit=lfntrj)
       write(*,'(a)') ' Closing trj file '
@@ -475,6 +520,7 @@ c
       nimps=0
       lrms=.false.
       lana=.false.
+      ldist=0
 c
       goto 1
       endif
