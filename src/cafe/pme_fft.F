@@ -9,8 +9,8 @@ c
       integer nd1,nd2,nd3,isign,map1(*),map2(*),itype,istat
       real*8 x1(*),x2(*)
       integer knode(ngz)
-      intrinsic abs, max
-      integer mxnprc
+c
+      integer ignr
 c
 c     3D-FFT interface
 c
@@ -27,8 +27,6 @@ c
       integer i,ndim,jstat,isgn
       real*8 scale
       integer liwrk,lrwrk,i_rwrk,l_rwrk,i_iwrk,l_iwrk,icntxt
-      integer icounter, i2counter, mxmynd
-      external mxmynd
 c
 c     IBM-SP2 specific
 c
@@ -61,71 +59,26 @@ c
 c
 c     generic 3d-fft routine
 c
-c
-      do i=1,ngz
-         map1(i)=knode(i)
-         map2(i)=knode(i)
-      enddo
+      do 1 i=1,ngz
+      map1(i)=knode(i)
+      map2(i)=knode(i)
+    1 continue
 c     
       if(ngzloc.gt.0) then
-         do 2 i=1,nd1*nd2*mgz*2
-            x2(i)=x1(i)
- 2       continue
-c     
-         me = mxmynd()
-         icounter = 0
-         i2counter = 0
-         do i=1,ngz
-            if ( map1(i).eq.me )
-     $           icounter = icounter + 1
-            if ( map2(i).eq.me )
-     $           i2counter = i2counter + 1
-         enddo
-         icounter = max(icounter, i2counter)
-         lrwrk=7*ngx*ngy*icounter + 1
-c     
-c     write(*,*) ' ngx, ngy, ngz, ic ',
-c     $        ngx, ngy, ngz, icounter
-c     
-c     write(*,*) ' ngx, ngy, ngz, x2, bytes ',
-c     $        ngx, ngy, ngz, x2(1), lrwrk*8
-c     write(*,*) ' size of avail stack memory ',
-c     $        MA_inquire_stack(mt_dbl)
-c     write(*,*) ' size of avail heap memory ',
-c     $        MA_inquire_heap(mt_dbl)
-c     write(*,*) ' want int memory ', liwrk
-c     
-         if(.not.ma_push_get(mt_dbl,lrwrk,'rwork',
-     $        l_rwrk,i_rwrk))
-     +        call errquit('Failed to allocate rwork',0)
-c     
-c     write(*,*) ' size of avail stack int memory ',
-c     $        MA_inquire_stack(mt_int)
-c     write(*,*) ' size of avail int memory ', MA_inquire_heap(mt_int)
+      do 2 i=1,nd1*nd2*mgz*2
+      x2(i)=x1(i)
+    2 continue
 c
-         if(.not.ma_verify_allocator_stuff()) then
-         call errquit('FFT buffer problems before dbl',me)
-         call ffflush(6)
-      endif
-      liwrk=7*lrwrk + mxnprc()
+      call wrkspc2(1,ngx,ngy,ngz,map1,map2,liwrk,lrwrk,ignr)
 c
-c      write(*,*) ' want int memory ', liwrk
+      if(.not.ma_push_get(mt_dbl,lrwrk,'rwork',l_rwrk,i_rwrk))
+     + call errquit('Failed to allocate rwork',0)
 c
-      if(.not.ma_push_get(mt_int,liwrk,'iwork',
-     $     l_iwrk,i_iwrk))
-     +  call errquit('Failed to allocate iwork',0)
-c
-      if(.not.ma_verify_allocator_stuff()) then
-         call errquit('FFT buffer problems before int ',me)
-         call ffflush(6)
-      endif
-      call ffflush(6)
+      if(.not.ma_push_get(mt_int,liwrk,'iwork',l_iwrk,i_iwrk))
+     + call errquit('Failed to allocate iwork',0)
 c
       call pfft3d(isign,nd1,nd2,nd3,x2,map1,map2,
      + lrwrk,dbl_mb(i_rwrk),liwrk,int_mb(i_iwrk),jstat)
-c
-c      write(*,*) ' after pfft3d jstat *** ', jstat
-c      call ffflush(6)
 c
       if(.not.ma_verify_allocator_stuff())
      +     call errquit('FFT buffer problems after',me)
