@@ -424,6 +424,8 @@ c
 c
       uccsdt_ampfile_read_t2 = dra_wait(request) .eq. 0
 c
+c      call ga_print(g_t2)
+c
       end
       logical function uccsdt_ampfile_write_t1(d_amp, spin, g_t1)
       implicit none
@@ -683,4 +685,720 @@ c
       if (.not. uccsdt_ampfile_close(d_amp,.false.)) call errquit
      $     ('close delete failed',0)
 c
+      end
+      subroutine uccsdt_ampfile_test_write_t1(t1a, t1b,
+     &                                  oloa, ohia, vloa, vhia, 
+     &                                  olob, ohib, vlob, vhib,
+     &                                  d_amp)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer d_amp, g_t1
+      integer symjb
+      integer symj, symb, spinj, spinb
+      integer jb, j, b
+      integer oloa, ohia, olob, ohib, vloa, vhia, vlob, vhib
+      integer max_len_t1buf, l_t1buf, k_t1buf
+      double precision t1a(vloa:vhia,oloa:ohia)
+      double precision t1b(vlob:vhib,olob:ohib)
+      double precision test
+c
+c     write t1a, t1b
+c
+c      call debug_print_t1('k_t1a', t1a, vloa, vhia, oloa, ohia)
+c      call debug_print_t1('k_t1b', t1b, vlob, vhib, olob, ohib)
+c
+c
+c     putting t1 from ma -> ga -> dra (for testing purposes)
+c
+c     Get a chunk of MA (max(len_t1(1),len_t1(2)))
+c
+      max_len_t1buf = max(t1_len(1),t1_len(2))
+      if (.not. ma_push_get(mt_dbl, max_len_t1buf, 't buffer',
+     $     l_t1buf, k_t1buf)) call errquit(' t1 read buffer: ma?', 1)
+      symjb = 0
+      do spinb = 1, 2
+         spinj = spinb
+         if (.not. uccsdt_ampfile_read_t1(d_amp, spinb, g_t1, 
+     $        .true.)) call errquit('read of t1 failed',0)
+         jb = 0
+c         do symb = 0,7
+c            symj = ieor(symb,symjb)
+c            write(6,*)' spinb, spinj: ',
+c     &                  spinb, spinj
+c            write(6,*)' symb, symjb, symj: ',
+c     &                  symb, symjb, symj
+c            write(6,*)' v_sym(1,symb,spinb), v_sym(2,symb,spinb): ',
+c     &                  v_sym(1,symb,spinb), v_sym(2,symb,spinb)
+c            write(6,*)' o_sym(1,symj,spinj),o_sym(2,symj,spinj): ',
+c     &                  o_sym(1,symj,spinj),o_sym(2,symj,spinj)
+c            do b = v_sym(1,symb,spinb),v_sym(2,symb,spinb)
+c               do j = o_sym(1,symj,spinj),o_sym(2,symj,spinj)
+c                  jb = jb + 1
+c                  if (spinb.eq.1)then
+c                     test = t1a(b,j)
+c                  elseif (spinb.eq.2)then
+c                     test = t1b(b,j)
+c                  endif
+c                  write(6,*)' b, j, jb, test: ',b,j,jb,test
+c            
+c                  call ga_put(g_t1, jb, jb, 1, 1, test, 1)
+c               end do
+c            end do
+c         end do
+         if (spinb.eq.1) then
+           write(6,*)' packing t1a buffer '
+           call pack_t1buf(t1a, dbl_mb(k_t1buf),
+     &          t1_len(1), symjb, jb, 
+     &          oloa, ohia, vloa, vhia, 
+     &          spinb, spinj)
+         elseif (spinb.eq.2) then
+           write(6,*)' packing t1b buffer '
+           call pack_t1buf(t1b, dbl_mb(k_t1buf),
+     &          t1_len(2), symjb, jb, 
+     &          olob, ohib, vlob, vhib, 
+     &          spinb, spinj)
+         endif
+         call ga_put(g_t1, 1, jb, 1, 1, dbl_mb(k_t1buf), jb)
+         if (.not. uccsdt_ampfile_write_t1(d_amp, spinb, g_t1)) 
+     $        call errquit('write of t1 failed',0)
+c
+c         call ga_print(g_t1)
+c
+         if (.not. ga_destroy(g_t1)) call errquit('GA?',0)
+      end do
+c
+      if (.not. ma_pop_stack(l_t1buf)) call errquit('t1buf?',0)
+c
+      return
+      end
+      subroutine uccsdt_ampfile_test_write_t2(t2aa, t2bb, t2ab,
+     &                                  oloa, ohia, vloa, vhia, 
+     &                                  olob, ohib, vlob, vhib,
+     &                                  d_amp)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer d_amp, g_t2
+      integer symia, symjb
+      integer blo, bhi, ia, jb, i, a, j, b
+      integer symi, syma, symj, symb, spini, spina, spinj, spinb
+      integer oloa, ohia, olob, ohib, vloa, vhia, vlob, vhib
+      integer lenia, lenjb, max_lenjb, l_t2buf, k_t2buf, spinsum
+      double precision t2aa(vloa:vhia,vloa:vhia,oloa:ohia,oloa:ohia)
+      double precision t2bb(vlob:vhib,vlob:vhib,olob:ohib,olob:ohib)
+      double precision t2ab(vloa:vhia,vlob:vhib,oloa:ohia,olob:ohib)
+      double precision test
+c
+c     write t2aa, t2bb, t2ab
+c
+c      call debug_print_t2('k_t2aa', t2aa, vloa, vhia, vloa, vhia, 
+c     &                                    oloa, ohia, oloa, ohia)
+c      call debug_print_t2('k_t2bb', t2bb, vlob, vhib, vlob, vhib, 
+c     &                                    olob, ohib, olob, ohib)
+c      call debug_print_t2('k_t2ab', t2ab, vloa, vhia, vlob, vhib, 
+c     &                                    oloa, ohia, olob, ohib)
+c
+c     putting t2 from ma -> ga -> dra (for testing purposes)
+c     Get a chunk of MA (needs to be max_lenia*max_lenjb (for now))
+c
+      max_lenjb = 0
+      do spinb = 1, 2
+         do spinj = 1, 2
+           do symjb = 0, 7
+             max_lenjb = max(ov_len(symjb,spinj,spinb),max_lenjb)
+           enddo
+         enddo
+      enddo
+      if (.not. ma_push_get(mt_dbl, max_lenjb*max_lenjb, 't buffer',
+     $     l_t2buf, k_t2buf)) call errquit(' t2 read buffer: ma?', 1)
+c      write(6,*)' max_lenjb = ', max_lenjb
+c
+      do spinb = 1, 2
+         do spinj = 1, 2
+            do spina = 1, 2
+               do spini = 1, 2
+                  if ((spini+spinj).eq.(spina+spinb)) then
+                     spinsum = spinb + spinj + spina + spini
+c                     write(6,*) ' SPINS ', spini,spina,spinj,spinb
+                     do symjb = 0, 7
+                        symia = symjb
+c                        write(6,*) '        symjb', symjb, 
+c     $                       ov_len(symjb,spinj,spinb),
+c     $                       ov_len(symia,spini,spina)
+                        if ( ov_len(symjb,spinj,spinb).gt.0 .and.
+     $                       ov_len(symia,spini,spina).gt.0) then
+                        blo = nc(spinb)+no(spinb)+1
+                        bhi = nmo
+                        if (.not. uccsdt_ampfile_read_t2(d_amp,
+     $                       spini, spina, spinj, spinb, symjb,
+     $                       blo, bhi, g_t2, .true., 'block')) 
+     $                       call errquit
+     $                       ('read of all failed',0)
+c                        jb = 0
+c                        do symb = 0,7
+c                           symj = ieor(symb,symjb)
+c                           do b = v_sym(1,symb,spinb),
+c     $                          v_sym(2,symb,spinb)
+c                              if (jb.ne.ov_off(b,symjb,spinj,spinb))
+c     $                             call errquit('bad jb',0)
+c                              do j = o_sym(1,symj,spinj),
+c     $                             o_sym(2,symj,spinj)
+c                                 jb = jb + 1
+cc
+c                                 ia = 0
+c                                 do syma = 0,7
+c                                    symi = ieor(syma,symia)
+c                                    do a = v_sym(1,syma,spina),
+c     $                                   v_sym(2,syma,spina)
+c                                       if (ia.ne.ov_off(a,symia,spini,
+c     $                                      spina))
+c     $                                      call errquit('bad ia',0)
+c                                       do i = o_sym(1,symi,spini),
+c     $                                      o_sym(2,symi,spini)
+c                                          ia = ia + 1
+c                                          if (spinsum.eq.4)then
+c                                             test = t2aa(a,b,i,j)
+c                                          elseif (spinsum.eq.8)then
+c                                             test = t2bb(a,b,i,j)
+c                                          else
+c                                             test = t2ab(a,b,i,j)
+c                                             if (spina.ne.spini)
+c     &                                          test = -test
+c                                          endif
+cc
+c                write(6,*)' spinsum, ia, jb, a, b, i, j, test ',
+c     &                      spinsum, ia, jb, a, b, i, j, test
+c                                          call ga_put(g_t2,
+c     $                                         ia,ia,jb,jb,test,1)
+c                                       end do
+c                                    end do
+c                                 end do
+c                              end do
+c                           end do
+c                        end do
+c
+c                       stuff t2 elements into a buffer to be put into ga
+c
+                        lenia = ov_len(symia,spini,spina)
+                        lenjb = ov_off(bhi+1,symjb,spinj,spinb) - 
+     $                          ov_off(blo,symjb,spinj,spinb)
+c                        write(6,*)' putting lenia, lenjb ',
+c     &                                      lenia, lenjb
+                        if (spinsum.eq.4)then
+                          write(6,*)' packing t2aa buffer '
+                          call pack_t2buf(t2aa, dbl_mb(k_t2buf),
+     &                         lenia, lenjb, symjb,
+     &                         oloa, ohia, vloa, vhia, 
+     &                         oloa, ohia, vloa, vhia,
+     &                         spina, spinb, spini, spinj)
+                        elseif (spinsum.eq.8)then
+                          write(6,*)' packing t2bb buffer '
+                          call pack_t2buf(t2bb, dbl_mb(k_t2buf),
+     &                         lenia, lenjb, symjb,
+     &                         olob, ohib, vlob, vhib, 
+     &                         olob, ohib, vlob, vhib,
+     &                         spina, spinb, spini, spinj)
+                        else
+                          write(6,*)' packing t2ab buffer '
+                          if ((spinj.gt.spini).and.
+     &                        (spinb.gt.spina))
+     &                         call pack_t2buf(t2ab, dbl_mb(k_t2buf),
+     &                         lenia, lenjb, symjb,
+     &                         oloa, ohia, vloa, vhia, 
+     &                         olob, ohib, vlob, vhib,
+     &                         spina, spinb, spini, spinj)
+                        endif
+c
+                        call ga_put(g_t2, 1, lenia, 1, lenjb, 
+     &                              dbl_mb(k_t2buf), lenia)
+c
+                        if (.not. uccsdt_ampfile_write_t2(d_amp,
+     $                       spini, spina, spinj, spinb, symjb,
+     $                       blo, bhi, g_t2)) call errquit
+     $                       ('write of all failed',0)
+c
+                        if (.not. ga_destroy(g_t2)) call errquit
+     $                       ('ga???',0)
+                        endif
+                     end do
+                  end if
+               end do
+            end do
+         end do
+      end do
+c
+      if (.not. ma_pop_stack(l_t2buf)) call errquit('t2buf?',0)
+c
+      return
+      end
+      subroutine debug_print_t2(string, t2, vlo1, vhi1, vlo2, vhi2, 
+     &                          olo1, ohi1, olo2, ohi2)
+      implicit none
+      character*(*) string
+      integer vlo1, vhi1, vlo2, vhi2, olo1, ohi1, olo2, ohi2
+      double precision t2(vlo1:vhi1,vlo2:vhi2,olo1:ohi1,olo2:ohi2)
+c
+      integer a, b, i, j
+      write(6,*) ' DEBUG FOR ', string, vlo1, vhi1, vlo2, vhi2, 
+     &                          olo1, ohi1, olo2, ohi2
+      do j = olo2, ohi2
+         do i = olo1, ohi1
+            do b = vlo2, vhi2
+               do a = vlo1, vhi1
+                  if (abs(t2(a,b,i,j)).gt.1e-6) then
+                     write(6,1) a,b,i,j,t2(a,b,i,j)
+ 1                   format(4i5,2x,f14.8)
+                  end if
+               end do
+            end do
+         end do
+      end do
+c
+      end
+      subroutine debug_print_t1(string, t1, vlo1, vhi1, olo1, ohi1)
+      implicit none
+      character*(*) string
+      integer vlo1, vhi1, olo1, ohi1
+      double precision t1(vlo1:vhi1,olo1:ohi1)
+c
+      integer a, i
+      write(6,*) ' DEBUG FOR ', string, vlo1, vhi1, olo1, ohi1
+      do i = olo1, ohi1
+        do a = vlo1, vhi1
+          if (abs(t1(a,i)).gt.1e-6) then
+            write(6,1) a,i,t1(a,i)
+    1       format(2i5,2x,f14.8)
+          end if
+        end do
+      end do
+c
+      end
+      subroutine amps_copy(t1a, t1b,
+     &               t2aa, t2bb, t2ab,
+     &               t1ar, t1br,
+     &               t2aar, t2bbr, t2abr,
+     &               nva, nvb, noa, nob, nbf,
+     &               oloa, ohia, vloa, vhia, 
+     &               olob, ohib, vlob, vhib)
+      implicit none
+      integer nva, nvb, noa, nob, nbf,
+     &        oloa, ohia, vloa, vhia, 
+     &        olob, ohib, vlob, vhib
+      double precision t1a(nva,noa)
+      double precision t1b(nvb,nob)
+      double precision t2aa(nbf,nbf,nbf,nbf)
+      double precision t2bb(nbf,nbf,nbf,nbf)
+      double precision t2ab(nbf,nbf,nbf,nbf)
+      double precision t1ar(vloa:vhia,oloa:ohia)
+      double precision t1br(vlob:vhib,olob:ohib)
+      double precision t2aar(vloa:vhia,vloa:vhia,oloa:ohia,oloa:ohia)
+      double precision t2bbr(vlob:vhib,vlob:vhib,olob:ohib,olob:ohib)
+      double precision t2abr(vloa:vhia,vlob:vhib,oloa:ohia,olob:ohib)
+      integer v1, v2, o1, o2
+c
+      do o2 = oloa, ohia
+        do o1 = oloa, ohia
+          do v2 = vloa, vhia
+            do v1 = vloa, vhia
+              t2aar(v1,v2,o1,o2) = t2aa(v1,v2,o1,o2)
+            enddo
+          enddo
+        enddo
+      enddo
+      do o2 = olob, ohib
+        do o1 = olob, ohib
+          do v2 = vlob, vhib
+            do v1 = vlob, vhib
+              t2bbr(v1,v2,o1,o2) = t2bb(v1,v2,o1,o2)
+            enddo
+          enddo
+        enddo
+      enddo
+      do o2 = olob, ohib
+        do o1 = oloa, ohia
+          do v2 = vlob, vhib
+            do v1 = vloa, vhia
+              t2abr(v1,v2,o1,o2) = t2ab(v1,v2,o1,o2)
+            enddo
+          enddo
+        enddo
+      enddo
+      do o1 = oloa, ohia
+        do v1 = vloa, vhia
+          t1ar(v1,o1) = t1a(v1-noa,o1)
+        enddo
+      enddo
+      do o1 = olob, ohib
+        do v1 = vlob, vhib
+          t1br(v1,o1) = t1b(v1-nob,o1)
+        enddo
+      enddo
+      return
+      end
+      subroutine amps_diff(t1a, t1b,
+     &               t2aa, t2bb, t2ab,
+     &               t1ar, t1br,
+     &               t2aar, t2bbr, t2abr,
+     &               nva, nvb, noa, nob, nbf,
+     &               oloa, ohia, vloa, vhia, 
+     &               olob, ohib, vlob, vhib)
+      implicit none
+      integer nva, nvb, noa, nob, nbf,
+     &        oloa, ohia, vloa, vhia, 
+     &        olob, ohib, vlob, vhib
+      double precision t1a(nva,noa)
+      double precision t1b(nvb,nob)
+      double precision t2aa(nbf,nbf,nbf,nbf)
+      double precision t2bb(nbf,nbf,nbf,nbf)
+      double precision t2ab(nbf,nbf,nbf,nbf)
+      double precision t1ar(vloa:vhia,oloa:ohia)
+      double precision t1br(vlob:vhib,olob:ohib)
+      double precision t2aar(vloa:vhia,vloa:vhia,oloa:ohia,oloa:ohia)
+      double precision t2bbr(vlob:vhib,vlob:vhib,olob:ohib,olob:ohib)
+      double precision t2abr(vloa:vhia,vlob:vhib,oloa:ohia,olob:ohib)
+      integer v1, v2, o1, o2
+c
+c     diff 2 sets of t1 and t2 amplitudes to make sure they are the same
+c
+      write(6,*)' diffing 2 sets of amplitudes '
+      do o2 = oloa, ohia
+        do o1 = oloa, ohia
+          do v2 = vloa, vhia
+            do v1 = vloa, vhia
+              if (dabs(t2aar(v1,v2,o1,o2)-t2aa(v1,v2,o1,o2)).gt.1d-8)
+     &             write(6,*)' v1, v2, o1, o2, t2aar, t2aa: ',
+     &          v1, v2, o1, o2, t2aar(v1,v2,o1,o2), t2aa(v1,v2,o1,o2)
+            enddo
+          enddo
+        enddo
+      enddo
+      do o2 = olob, ohib
+        do o1 = olob, ohib
+          do v2 = vlob, vhib
+            do v1 = vlob, vhib
+              if (dabs(t2bbr(v1,v2,o1,o2)-t2bb(v1,v2,o1,o2)).gt.1d-8)
+     &             write(6,*)' v1, v2, o1, o2, t2bbr, t2bb: ',
+     &          v1, v2, o1, o2, t2bbr(v1,v2,o1,o2), t2bb(v1,v2,o1,o2)
+            enddo
+          enddo
+        enddo
+      enddo
+      do o2 = olob, ohib
+        do o1 = oloa, ohia
+          do v2 = vlob, vhib
+            do v1 = vloa, vhia
+              if (dabs(t2abr(v1,v2,o1,o2)-t2ab(v1,v2,o1,o2)).gt.1d-8)
+     &             write(6,*)' v1, v2, o1, o2, t2abr, t2ab: ',
+     &          v1, v2, o1, o2, t2abr(v1,v2,o1,o2), t2ab(v1,v2,o1,o2)
+            enddo
+          enddo
+        enddo
+      enddo
+      do o1 = oloa, ohia
+        do v1 = vloa, vhia
+          t1ar(v1,o1) = t1a(v1-noa,o1)
+          if (dabs(t1ar(v1,o1)-t1a(v1-noa,o1)).gt.1d-8)
+     &         write(6,*)' v1, o1, t1ar, t1a: ',
+     &         v1, o1, t1ar(v1,o1), t1a(v1-noa,o1)
+        enddo
+      enddo
+      do o1 = olob, ohib
+        do v1 = vlob, vhib
+          if (dabs(t1br(v1,o1)-t1b(v1-nob,o1)).gt.1d-8)
+     &         write(6,*)' v1, o1, t1br, t1b: ',
+     &         v1, o1, t1br(v1,o1), t1b(v1-nob,o1)
+        enddo
+      enddo
+      return
+      end
+      subroutine uccsdt_ampfile_test_read_t1(t1a, t1b,
+     &                                  oloa, ohia, vloa, vhia, 
+     &                                  olob, ohib, vlob, vhib,
+     &                                  d_amp)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer d_amp
+      integer oloa, ohia, olob, ohib, vloa, vhia, vlob, vhib
+      double precision t1a(vloa:vhia,oloa:ohia)
+      double precision t1b(vlob:vhib,olob:ohib)
+c
+      call uccsdt_get_unpacked_t1(d_amp, 1, t1a)
+      call uccsdt_get_unpacked_t1(d_amp, 2, t1b)
+c
+c     write t1a, t1b
+c
+c      call debug_print_t1('k_t1a', t1a, vloa, vhia, oloa, ohia)
+c      call debug_print_t1('k_t1b', t1b, vlob, vhib, olob, ohib)
+      return
+      end
+      subroutine uccsdt_ampfile_test_read_t2(t2aa, t2bb, t2ab,
+     &                                  oloa, ohia, vloa, vhia, 
+     &                                  olob, ohib, vlob, vhib,
+     &                                  d_amp)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer d_amp, g_t2
+      integer symia, symjb
+      integer blo, bhi, ia, jb, i, a, j, b
+      integer symi, syma, symj, symb, spini, spina, spinj, spinb
+      integer oloa, ohia, olob, ohib, vloa, vhia, vlob, vhib
+      integer lenia, lenjb, max_lenjb, l_t2buf, k_t2buf, spinsum
+      double precision t2aa(vloa:vhia,vloa:vhia,oloa:ohia,oloa:ohia)
+      double precision t2bb(vlob:vhib,vlob:vhib,olob:ohib,olob:ohib)
+      double precision t2ab(vloa:vhia,vlob:vhib,oloa:ohia,olob:ohib)
+      double precision test
+c
+c     putting t2 from dra -> ga -> ma (for testing purposes)
+c     Get a chunk of MA (needs to be max_lenia*max_lenjb (for now))
+c
+      max_lenjb = 0
+      do spinb = 1, 2
+         do spinj = 1, 2
+           do symjb = 0, 7
+             max_lenjb = max(ov_len(symjb,spinj,spinb),max_lenjb)
+           enddo
+         enddo
+      enddo
+      if (.not. ma_push_get(mt_dbl, max_lenjb*max_lenjb, 't buffer',
+     $     l_t2buf, k_t2buf)) call errquit(' t2 read buffer: ma?', 1)
+      call dfill (max_lenjb*max_lenjb, 0.0d0, dbl_mb(k_t2buf),1)
+c      write(6,*)' max_lenjb = ', max_lenjb
+      do spinb = 1, 2
+         do spinj = 1, 2
+            do spina = 1, 2
+               do spini = 1, 2
+                  if ((spini+spinj).eq.(spina+spinb)) then
+                     spinsum = spinb + spinj + spina + spini
+c                     write(6,*) ' SPINS ', spini,spina,spinj,spinb
+                     do symjb = 0, 7
+                        symia = symjb
+c                        write(6,*) '        symjb', symjb, 
+c     $                       ov_len(symjb,spinj,spinb),
+c     $                       ov_len(symia,spini,spina)
+                        if ( ov_len(symjb,spinj,spinb).gt.0 .and.
+     $                       ov_len(symia,spini,spina).gt.0) then
+                        blo = nc(spinb)+no(spinb)+1
+                        bhi = nmo
+                        if (.not. uccsdt_ampfile_read_t2(d_amp,
+     $                       spini, spina, spinj, spinb, symjb,
+     $                       blo, bhi, g_t2, .true., 'block')) 
+     $                       call errquit
+     $                       ('read of t2 block failed',0)
+c
+c                        call ga_print(g_t2)
+c
+                        lenia = ov_len(symia,spini,spina)
+                        lenjb = ov_off(bhi+1,symjb,spinj,spinb) - 
+     $                          ov_off(blo,symjb,spinj,spinb)
+c                        write(6,*)' getting lenia, lenjb ',
+c     &                                      lenia, lenjb
+                        call ga_get(g_t2, 1, lenia, 1, lenjb, 
+     &                              dbl_mb(k_t2buf), lenia)
+c
+c                       stuff these elements into t2
+c
+                        if (spinsum.eq.4)then
+                          write(6,*)' unpacking t2aa buffer '
+                          call unpack_t2buf(t2aa, dbl_mb(k_t2buf),
+     &                         lenia, lenjb, symjb,
+     &                         oloa, ohia, vloa, vhia, 
+     &                         oloa, ohia, vloa, vhia,
+     &                         spina, spinb, spini, spinj)
+                        elseif (spinsum.eq.8)then
+                          write(6,*)' unpacking t2bb buffer '
+                          call unpack_t2buf(t2bb, dbl_mb(k_t2buf),
+     &                         lenia, lenjb, symjb,
+     &                         olob, ohib, vlob, vhib, 
+     &                         olob, ohib, vlob, vhib,
+     &                         spina, spinb, spini, spinj)
+                        else
+                          write(6,*)' unpacking t2ab buffer '
+                          if ((spinj.gt.spini).and.
+     &                        (spinb.gt.spina))
+     &                         call unpack_t2buf(t2ab, dbl_mb(k_t2buf),
+     &                         lenia, lenjb, symjb,
+     &                         oloa, ohia, vloa, vhia, 
+     &                         olob, ohib, vlob, vhib,
+     &                         spina, spinb, spini, spinj)
+                        endif
+c
+                        if (.not. ga_destroy(g_t2)) call errquit
+     $                       ('ga???',0)
+                        endif
+                     end do
+                  end if
+                  
+               end do
+            end do
+         end do
+      end do
+c
+      if (.not. ma_pop_stack(l_t2buf)) call errquit('t2buf?',0)
+c
+c     write t2aa, t2bb, t2ab
+c
+c      call debug_print_t2('dra_t2aa', t2aa, vloa, vhia, vloa, vhia, 
+c     &                                    oloa, ohia, oloa, ohia)
+c      call debug_print_t2('dra_t2bb', t2bb, vlob, vhib, vlob, vhib, 
+c     &                                    olob, ohib, olob, ohib)
+c      call debug_print_t2('dra_t2ab', t2ab, vloa, vhia, vlob, vhib, 
+c     &                                    oloa, ohia, olob, ohib)
+      end
+      subroutine unpack_t2buf(t2, t2buf,
+     &                        lenia, lenjb, symjb,
+     &                        olo1, ohi1, vlo1, vhi1, 
+     &                        olo2, ohi2, vlo2, vhi2,
+     &                        spina, spinb, spini, spinj)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer lenia, lenjb
+      integer symia, symjb
+      integer ia, jb, i, a, j, b
+      integer symi, syma, symj, symb, spini, spina, spinj, spinb
+      integer olo1, ohi1, olo2, ohi2, vlo1, vhi1, vlo2, vhi2
+      double precision t2(vlo1:vhi1,vlo2:vhi2,olo1:ohi1,olo2:ohi2)
+      double precision t2buf(lenia,lenjb)
+c      call output(t2buf, 1, lenia, 1, lenjb, lenia, lenjb, 1)
+      symia = symjb
+      jb = 0
+      do symb = 0,7
+        symj = ieor(symb,symjb)
+        do b = v_sym(1,symb,spinb),
+     $       v_sym(2,symb,spinb)
+          if (jb.ne.ov_off(b,symjb,spinj,spinb))
+     $         call errquit('bad jb',0)
+          do j = o_sym(1,symj,spinj),
+     $         o_sym(2,symj,spinj)
+            jb = jb + 1
+c           
+            ia = 0
+            do syma = 0,7
+              symi = ieor(syma,symia)
+              do a = v_sym(1,syma,spina),
+     $             v_sym(2,syma,spina)
+                if (ia.ne.ov_off(a,symia,spini,
+     $               spina))
+     $               call errquit('bad ia',0)
+                do i = o_sym(1,symi,spini),
+     $               o_sym(2,symi,spini)
+                  ia = ia + 1
+c                  write(6,*)' ia, jb, a, b, i, j, t2buf(ia,jb) ',
+c     &                        ia, jb, a, b, i, j, t2buf(ia,jb)
+                  t2(a,b,i,j) = t2buf(ia,jb)
+                end do
+              end do
+            end do
+          end do
+        end do
+      end do
+      return
+      end
+      subroutine pack_t2buf(t2, t2buf,
+     &                      lenia, lenjb, symjb,
+     &                      olo1, ohi1, vlo1, vhi1, 
+     &                      olo2, ohi2, vlo2, vhi2,
+     &                      spina, spinb, spini, spinj)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer lenia, lenjb
+      integer symia, symjb
+      integer ia, jb, i, a, j, b
+      integer symi, syma, symj, symb, spini, spina, spinj, spinb
+      integer olo1, ohi1, olo2, ohi2, vlo1, vhi1, vlo2, vhi2
+      double precision t2(vlo1:vhi1,vlo2:vhi2,olo1:ohi1,olo2:ohi2)
+      double precision t2buf(lenia,lenjb)
+      call dfill (lenia*lenjb, 0.0d0, t2buf,1)
+      symia = symjb
+      jb = 0
+      do symb = 0,7
+        symj = ieor(symb,symjb)
+        do b = v_sym(1,symb,spinb),
+     $       v_sym(2,symb,spinb)
+          if (jb.ne.ov_off(b,symjb,spinj,spinb))
+     $         call errquit('bad jb',0)
+          do j = o_sym(1,symj,spinj),
+     $         o_sym(2,symj,spinj)
+            jb = jb + 1
+c           
+            ia = 0
+            do syma = 0,7
+              symi = ieor(syma,symia)
+              do a = v_sym(1,syma,spina),
+     $             v_sym(2,syma,spina)
+                if (ia.ne.ov_off(a,symia,spini,
+     $               spina))
+     $               call errquit('bad ia',0)
+                do i = o_sym(1,symi,spini),
+     $               o_sym(2,symi,spini)
+                  ia = ia + 1
+c                  write(6,*)' ia, jb, a, b, i, j, t2(a,b,i,j) ',
+c     &                        ia, jb, a, b, i, j, t2(a,b,i,j)
+                  t2buf(ia,jb) = t2(a,b,i,j)
+                end do
+              end do
+            end do
+          end do
+        end do
+      end do
+      return
+      end
+      subroutine pack_t1buf(t1, t1buf,
+     &                      lent1buf, symjb, jb, 
+     &                      olo1, ohi1, vlo1, vhi1, 
+     &                      spinb, spinj)
+      implicit none
+c
+#include "cuccsdtP.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "amplitudes.fh"
+c
+      integer lent1buf
+      integer symjb
+      integer jb, j, b
+      integer symj, symb, spinj, spinb
+      integer olo1, ohi1, vlo1, vhi1
+      double precision t1(vlo1:vhi1,olo1:ohi1)
+      double precision t1buf(lent1buf)
+      call dfill (lent1buf, 0.0d0, t1buf,1)
+      jb = 0
+      do symb = 0,7
+        symj = ieor(symb,symjb)
+        do b = v_sym(1,symb,spinb),v_sym(2,symb,spinb)
+          do j = o_sym(1,symj,spinj),o_sym(2,symj,spinj)
+            jb = jb + 1
+            t1buf(jb) = t1(b,j)
+          end do
+        end do
+      enddo
+      return
       end

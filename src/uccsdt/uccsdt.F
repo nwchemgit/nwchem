@@ -2368,6 +2368,7 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "cuccsdtP.fh"
+#include "amplitudes.fh"
 #include "mafdecls.fh"
       integer rtdb
 c     
@@ -2385,8 +2386,14 @@ c
       integer nasuper, ncsuper  ! No. of super blocks for current spin case
       integer a_super_block(2,max_nsuper_block) ! Super block info
       integer c_super_block(2,max_nsuper_block)
+      integer d_amp
       integer l_ttemp, k_ttemp
       integer noa, nob, nva, nvb
+      integer oloa, ohia, olob, ohib, vloa, vhia, vlob, vhib
+      integer k_t1ar, l_t1ar, k_t1br, l_t1br
+      integer k_t2aar, l_t2aar, k_t2bbr, l_t2bbr
+      integer k_t2abr, l_t2abr
+      integer lent1a, lent1b, lent2aa, lent2bb, lent2ab
 c     
       oprint_sub = util_print('sub-blocking', print_debug) .and.
      $     ga_nodeid().eq.0
@@ -2413,8 +2420,9 @@ c
       nob = nc(2) + no(2)
       nva = nv(1)
       nvb = nv(2)
-c      write(6,*)' nva, nvb, noa, nob, nbf: ',
-c     &            nva, nvb, noa, nob, nbf
+      write(6,*)' nva, nvb, noa, nob, nbf: ',
+     &            nva, nvb, noa, nob, nbf
+c
       if (.not. ma_push_get(mt_dbl, (noa*nva), 't1a', l_t1a, k_t1a))
      $     call errquit('ma t1a', (noa*nva))
       if (.not. ma_push_get(mt_dbl, (nob*nvb), 't1b', l_t1b, k_t1b))
@@ -2430,6 +2438,11 @@ c
      $     noa, nob, nva, nvb, 
      $     dbl_mb(k_t1a), dbl_mb(k_t1b),
      $     dbl_mb(k_t2aa),dbl_mb(k_t2bb),dbl_mb(k_t2ab))
+c      call jan_debug_print('Ta', dbl_mb(k_t1a), nva, noa, 1, 1)
+c      call jan_debug_print('Tb', dbl_mb(k_t1b), nvb, nob, 1, 1)
+c      call jan_debug_print('k_t2aa', dbl_mb(k_t2aa), nbf, nbf, nbf, nbf)
+c      call jan_debug_print('k_t2bb', dbl_mb(k_t2bb), nbf, nbf, nbf, nbf)
+c      call jan_debug_print('k_t2ab', dbl_mb(k_t2ab), nbf, nbf, nbf, nbf)
 c
 c     re-map these t1 and t2 amplitudes into symmetry blocks
 c
@@ -2437,29 +2450,115 @@ c
      $     call errquit('ma ttemp', nbf**4)
       call sym_map_amps_t1(
      $     dbl_mb(k_t1a), dbl_mb(k_ttemp), nva, noa, 1)
-c      write(6,*)' re-mapped t1a '
+      write(6,*)' re-mapped t1a '
       call sym_map_amps_t1(
      $     dbl_mb(k_t1b), dbl_mb(k_ttemp), nvb, nob, 2)
-c      write(6,*)' re-mapped t1b '
+      write(6,*)' re-mapped t1b '
       call sym_map_amps_t2(
      $     dbl_mb(k_t2aa), dbl_mb(k_ttemp), 1, 1)
-c      write(6,*)' re-mapped t2aa '
+      write(6,*)' re-mapped t2aa '
       call sym_map_amps_t2(
      $     dbl_mb(k_t2bb), dbl_mb(k_ttemp), 2, 2)
-c      write(6,*)' re-mapped t2bb '
+      write(6,*)' re-mapped t2bb '
       call sym_map_amps_t2(
      $     dbl_mb(k_t2ab), dbl_mb(k_ttemp), 1, 2)
-c      write(6,*)' re-mapped t2ab '
+      write(6,*)' re-mapped t2ab '
       if (.not. ma_pop_stack(l_ttemp)) call errquit('ttemp?',0)
 c
+c      call jan_debug_print('Ta', dbl_mb(k_t1a), nva, noa, 1, 1)
+c      call jan_debug_print('Tb', dbl_mb(k_t1b), nvb, nob, 1, 1)
 c      call jan_debug_print('k_t2aa', dbl_mb(k_t2aa), nbf, nbf, nbf, nbf)
 c      call jan_debug_print('k_t2bb', dbl_mb(k_t2bb), nbf, nbf, nbf, nbf)
 c      call jan_debug_print('k_t2ab', dbl_mb(k_t2ab), nbf, nbf, nbf, nbf)
 c
-c     debug: temp zero t1a
+c     check reading and writing t1 and t2 amps.
 c
-c      call dfill (nva*noa, 0.0d0, dbl_mb(k_t1a), 1)
+c     debug note: write real t1 and t2 to dra in uccsdt_ampfile_test_write_t1
+c     and uccsdt_ampfile_test_write_t2 read back in uccsdt_ampfile_test_read_t1
+c     and uccsdt_ampfile_test_read_t2
 c
+      oloa = nc(1) + 1
+      ohia = nc(1) + no(1)
+      vloa = nc(1) + no(1) + 1
+      vhia = nmo
+      olob = nc(2) + 1
+      ohib = nc(2) + no(2)
+      vlob = nc(2) + no(2) + 1
+      vhib = nmo
+c
+      lent1a = (vhia-vloa+1)*(ohia-oloa+1)
+      lent1b = (vhib-vlob+1)*(ohib-olob+1)
+      lent2aa = lent1a**2
+      lent2bb = lent1b**2
+      lent2ab = lent1a*lent1b
+c
+      if (.not. ma_push_get(mt_dbl, lent1a, 't1ar', l_t1ar, k_t1ar))
+     $     call errquit('ma t1ar', lent1a)
+      if (.not. ma_push_get(mt_dbl, lent1b, 't1br', l_t1br, k_t1br))
+     $     call errquit('ma t1br', lent1b)
+      if (.not. ma_push_get(mt_dbl, lent2aa, 't2aar', l_t2aar, k_t2aar))
+     $     call errquit('ma t2_aar', lent2aa)
+      if (.not. ma_push_get(mt_dbl, lent2bb, 't2bbr', l_t2bbr, k_t2bbr))
+     $     call errquit('ma t2_bbr', lent2bb)
+      if (.not. ma_push_get(mt_dbl, lent2ab, 't2abr', l_t2abr, k_t2abr))
+     $     call errquit('ma t2_abr', lent2ab)
+c
+c     copy t1 and t2 into more compact local arrays (for now)
+c
+      call amps_copy(dbl_mb(k_t1a), dbl_mb(k_t1b),
+     &               dbl_mb(k_t2aa), dbl_mb(k_t2bb), dbl_mb(k_t2ab),
+     &               dbl_mb(k_t1ar), dbl_mb(k_t1br),
+     &               dbl_mb(k_t2aar), dbl_mb(k_t2bbr), dbl_mb(k_t2abr),
+     &               nva, nvb, noa, nob, nbf,
+     &               oloa, ohia, vloa, vhia, 
+     &               olob, ohib, vlob, vhib)
+c
+      if (.not. uccsdt_ampfile_open('fred','/tmp/fred','new',d_amp))
+     $     call errquit('open failed',0)
+c
+      call uccsdt_ampfile_test_write_t1(dbl_mb(k_t1ar), 
+     &                                  dbl_mb(k_t1br),
+     &                                  oloa, ohia, vloa, vhia, 
+     &                                  olob, ohib, vlob, vhib,
+     &                                  d_amp)
+c
+      call uccsdt_ampfile_test_write_t2(dbl_mb(k_t2aar), 
+     &                                  dbl_mb(k_t2bbr), 
+     &                                  dbl_mb(k_t2abr),
+     &                                  oloa, ohia, vloa, vhia, 
+     &                                  olob, ohib, vlob, vhib,
+     &                                  d_amp)
+c
+c     zero out test t2 arrays and try to read in correctly
+c
+      call dfill(lent1a, 0.0d0, dbl_mb(k_t1ar), 1)
+      call dfill(lent1b, 0.0d0, dbl_mb(k_t1br), 1)
+      call dfill(lent2aa, 0.0d0, dbl_mb(k_t2aar), 1)
+      call dfill(lent2bb, 0.0d0, dbl_mb(k_t2bbr), 1)
+      call dfill(lent2ab, 0.0d0, dbl_mb(k_t2abr), 1)
+c
+      call uccsdt_ampfile_test_read_t1(dbl_mb(k_t1ar), 
+     &                                 dbl_mb(k_t1br),
+     &                                 oloa, ohia, vloa, vhia, 
+     &                                 olob, ohib, vlob, vhib,
+     &                                 d_amp)
+c
+      call uccsdt_ampfile_test_read_t2(dbl_mb(k_t2aar), 
+     &                                 dbl_mb(k_t2bbr), 
+     &                                 dbl_mb(k_t2abr),
+     &                                 oloa, ohia, vloa, vhia, 
+     &                                 olob, ohib, vlob, vhib,
+     &                                 d_amp)
+c
+c     diff new t1 and t2 with prior values
+c
+      call amps_diff(dbl_mb(k_t1a), dbl_mb(k_t1b),
+     &               dbl_mb(k_t2aa), dbl_mb(k_t2bb), dbl_mb(k_t2ab),
+     &               dbl_mb(k_t1ar), dbl_mb(k_t1br),
+     &               dbl_mb(k_t2aar), dbl_mb(k_t2bbr), dbl_mb(k_t2abr),
+     &               nva, nvb, noa, nob, nbf,
+     &               oloa, ohia, vloa, vhia, 
+     &               olob, ohib, vlob, vhib)
 c
       call uccsdt_triples_moints_init()
       call uccsdt_flops_init()
@@ -2503,6 +2602,13 @@ c                     write(6,*)' after sub_blocking before moints '
                      call uccsdt_triples_moints()
 c                     write(6,*)' after moints before dummy amps '
 c
+c
+c  here now load g_t2 and and fill t2 lists 
+c  do this as many times as required to fill all lists
+c
+c                     call uccsdt_load_g_t2_superblock
+c     $                    (alo, ahi, blo, bhi, clo, chi, spina, spinc)
+c
                      call uccsdt_triples_dummy_amplitudes()
                      call dfill(5000, 0.0d0, dummy, 1)
 c
@@ -2536,6 +2642,11 @@ c
       call uccsdt_triples_moints_tidy()
       call uccsdt_flops_print()
 c     
+      if (.not. ma_pop_stack(l_t2abr)) call errquit('t2abr?',0)
+      if (.not. ma_pop_stack(l_t2bbr)) call errquit('t2bbr?',0)
+      if (.not. ma_pop_stack(l_t2aar)) call errquit('t2aar?',0)
+      if (.not. ma_pop_stack(l_t1br)) call errquit('t1br?',0)
+      if (.not. ma_pop_stack(l_t1ar)) call errquit('t1ar?',0)
       if (.not. ma_pop_stack(l_t2ab)) call errquit('t2ab?',0)
       if (.not. ma_pop_stack(l_t2bb)) call errquit('t2bb?',0)
       if (.not. ma_pop_stack(l_t2aa)) call errquit('t2aa?',0)
@@ -2813,10 +2924,10 @@ c
          if (no_sym(sym,spin)*nv_sym(sym,spin) .gt. 0) then
             ai = 1 + v_sym(1,sym,spin)-v_sym(1,0,spin) + 
      $           (o_sym(1,sym,spin)-o_sym(1,0,spin))*nv(spin)
-            write(6,*) ' T1 block ', sym
-            call output(dbl_mb(k_tmp), 1, no_sym(sym,spin), 
-     $           1, nv_sym(sym,spin), no_sym(sym,spin), 
-     $           nv_sym(sym,spin), 1)
+c            write(6,*) ' T1 block ', sym
+c            call output(dbl_mb(k_tmp), 1, no_sym(sym,spin), 
+c     $           1, nv_sym(sym,spin), no_sym(sym,spin), 
+c     $           nv_sym(sym,spin), 1)
             call util_transpose(
      $           dbl_mb(k_tmp), no_sym(sym,spin), 
      $           t1(ai), nv(spin),
@@ -2825,8 +2936,8 @@ c
          end if
       end do
 c
-      write(6,*) ' Full T1'
-      call output(t1, 1, nv(spin), 1, no(spin), nv(spin), no(spin), 1)
+c      write(6,*) ' Full T1'
+c      call output(t1, 1, nv(spin), 1, no(spin), nv(spin), no(spin), 1)
 c
       if (.not. ma_pop_stack(l_tmp)) call errquit
      $     ('uccsdt_get_t1: MA corrupt?',0)
