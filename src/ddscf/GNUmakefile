@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.74 1996-07-08 23:39:16 rg240 Exp $
+# $Id: GNUmakefile,v 1.75 1996-07-22 05:53:12 d3e129 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -57,15 +57,17 @@
 
       LIBRARY =	libddscf.a
 
-    USES_BLAS =	movecs_phase.F rohf_k2cf.F fock_2e.F \
-                uhf.F scf_movecs.F scf_vec_guess.F riscf_trans.F \
-		int2e_file.F fock_2e_slab.F fock_2e_a.F \
-		rhf_dens_mo.F scf.F schwarz_init.F vectors.F \
-		movecs_proj.F fock_2e_b.F rohf.F rohf_nr_sol.F \
-		rohf_precon.F \
-		fock_2e_file.F rohf_fock.F rohf_h2e.F \
-		scf_get_info.F ao_fock_2e.F rohf_diis.F movecs_lock.F \
-                ao_replicated.F
+    USES_BLAS = ao_fock_2e.F ao_replicated.F fock_2e_file.F fock_2e_slab.F int2e_file.F \
+                movecs_lock.F movecs_phase.F riscf_fock.F riscf_trans.F rohf_diis.F \
+                rohf_k2cf.F scf_movecs.F scf_vec_guess.F uhf.F
+#
+# do not have blas routines
+#    USES_BLAS =	fock_2e.F fock_2e_a.F \
+#		rhf_dens_mo.F scf.F schwarz_init.F vectors.F \
+#		movecs_proj.F fock_2e_b.F rohf.F rohf_nr_sol.F \
+#		rohf_precon.F \
+#		rohf_fock.F rohf_h2e.F \
+#		scf_get_info.F 
 
 HEADERS = schwarz.fh cscfps.fh cfock.fh
 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 1995-12-13 01:35:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.20 1996-07-22 05:53:24 d3e129 Exp $
 
 ifeq ($(TARGET),SGITFP)
      OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_getdens.o \
@@ -9,7 +9,7 @@ else
      OBJ_OPTIMIZE = grad2.o
 endif
 
-   USES_BLAS = grad_force.F grad_dens.F
+   USES_BLAS = grad_dens.F
 
    LIBRARY = libgradients.a
 

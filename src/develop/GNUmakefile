@@ -1,8 +1,8 @@
-#$Id: GNUmakefile,v 1.15 1996-07-10 10:08:40 d3e129 Exp $
+#$Id: GNUmakefile,v 1.16 1996-07-22 05:53:15 d3e129 Exp $
        OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o
    LIBRARY = libtest.a
 
-USES_BLAS =     raktest.F rjhtest.F
+USES_BLAS =     raktest.F 
 
 include ../config/makefile.h
 include ../config/makelib.h
