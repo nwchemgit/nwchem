@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.42 2001-01-18 23:54:57 d3j191 Exp $
+c $Id: ana_input.F,v 1.43 2001-02-21 23:46:16 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       integer itag,iatag,jatag,ipbc
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax
       logical lref,lfil,lsol,lsuper
-      integer iesppb,lent,idpdb,indx
+      integer iesppb,lent,idpdb,indx,icent
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -38,6 +38,7 @@ c
       scale=1.0d0
       cpk=1.0d0
       stick=1.0d0
+      icent=0
 c
     1 continue
 c
@@ -122,6 +123,17 @@ c
       if(.not.inp_f(timoff)) call errquit('Error in time offset',0)
       write(lfncmd,1002) timoff
  1002 format('time   ',f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     define centering fraction
+c     -------------------------
+c
+      if(inp_compare(.false.,'center',item)) then
+      if(.not.inp_i(icent)) call errquit('Error in center',0)
+      write(lfncmd,1306) icent
+ 1306 format('center ',i5)
       numcmd=numcmd+1
       goto 2
       endif

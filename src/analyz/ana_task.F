@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.58 2001-02-21 23:30:16 d3j191 Exp $
+c $Id: ana_task.F,v 1.59 2001-02-21 23:46:16 d3j191 Exp $
 c
       implicit none
 c
@@ -30,8 +30,6 @@ c
       external ana_bond,ana_angle,ana_torsion
       integer idpdb
       logical lsuper,lsaver
-c
-      integer i_iram,l_iram,i_imol,l_imol
 c
 c     set sequential access to rtdb
 c     and ignore current state
@@ -101,6 +99,7 @@ c
       time=0.0d0
       timr=0.0d0
       ldist=0
+      icent=0
       scale=1.0d0
       cpk=1.0d0
       stick=1.0d0
@@ -502,6 +501,13 @@ c     -------------------
 c
       if(card(1:6).eq.'chgdst') then
       read(card(8:12),'(i5)') ldist
+      goto 1
+      endif
+c
+c     center fraction
+c     ---------------
+      if(card(1:6).eq.'center') then
+      read(card(8:12),'(i5)') icent
       goto 1
       endif
 c

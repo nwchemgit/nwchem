@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.8 2000-09-07 19:19:48 d3j191 Exp $
+c $Id: ana_rdref.F,v 1.9 2001-02-21 23:46:16 d3j191 Exp $
 c
       implicit none
 c
@@ -82,6 +82,13 @@ c
       endif
 c
       close(unit=lfnref)
+      endif
+c
+c     center and fold
+c
+      if(me.eq.0.and.icent.gt.0) then
+      if(.not.ltop) call errquit('No topology for center',0)
+      call ana_center_fold(x,x,int_mb(i_imol),0)
       endif
 c
 c     broadcast coordinates to all nodes
