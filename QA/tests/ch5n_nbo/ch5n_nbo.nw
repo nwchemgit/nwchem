@@ -28,5 +28,5 @@ property
  nbofile 
 end
 
-task property 
+task scf property 
 
