@@ -1,5 +1,5 @@
 /*
- $Id: util_system.c,v 1.2 1997-10-31 20:45:39 d3e129 Exp $
+ $Id: util_system.c,v 1.3 1999-02-16 07:42:04 d3e129 Exp $
  */
 
 #include <stdio.h>
@@ -31,7 +31,7 @@ Integer util_system_(const char *input, int lin)
 #endif
     char in[1024];
     if (!fortchar_to_string(input, lin, in, sizeof(in)))
-	ga_error("util_file_unlink: fortchar_to_string failed for in",0);
+	ga_error("util_system: fortchar_to_string failed for in",0);
 
 #ifdef CRAY
     return 1;			/* Does not work on the Cray? */
