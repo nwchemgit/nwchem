@@ -1,5 +1,6 @@
-C $Id: nwc_s2.F,v 1.7 2001-01-19 17:43:12 windus Exp $
+C $Id: nwc_s2.F,v 1.8 2001-01-31 21:42:07 windus Exp $
       Subroutine nwc_s2 (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar)
+C THIS ROUTINE IS NOW DEAD.  LOOK AT NWC_GEN INSTEAD.
 C
 C  Run NWChem task to get potential and first and second derivatives
 C   for geometry x.

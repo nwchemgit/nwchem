@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.4 2001-01-26 00:59:05 windus Exp $
+C $Id: drdy_input.F,v 1.5 2001-01-31 21:42:07 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -79,7 +79,11 @@ C $Id: drdy_input.F,v 1.4 2001-01-26 00:59:05 windus Exp $
       integer count ! number of lines read in block
       character*255 rtdbstring
       character*255 field
-      logical block_end_found
+      double precision threquiv
+      logical block_end_found, oautosym, status
+*
+      oautosym = .true.
+      threquiv = 1d-2
 *
       if (ga_nodeid().ne.0) return
       call inp_set_field(0) ! goto start of the line
@@ -87,6 +91,23 @@ C $Id: drdy_input.F,v 1.4 2001-01-26 00:59:05 windus Exp $
      &      ('drdy_input: no input present',911)
       if (.not.(inp_compare(.false.,'drdy',field))) call errquit
      &      ('drdy_input:fatal error: not the DRDY input block',911)
+c
+c see if we are going to use autosym or not and then send the information
+c to the RTDB.
+c
+      if (inp_a(field)) then
+        if (inp_compare(.false.,'autosym',field)) then
+          oautosym     = .true. 
+          status = inp_f(threquiv)
+        else if (inp_compare(.false.,'noautosym',field)) then
+          oautosym     = .false.
+        endif
+      endif
+      if (.not. rtdb_put(rtdb,'drdy:autosym',mt_log,1,oautosym))
+     &  call errquit('drdy_input: rtdb_put:oautosym:failed',555)
+      if (.not. rtdb_put(rtdb,'drdy:threquiv',mt_dbl,1,threquiv))
+     &  call errquit('drdy_input: rtdb_put:threquiv:failed',555)
+c
       count = 0
 00100 continue
       if (inp_read()) then  ! read first line
@@ -106,7 +127,29 @@ C $Id: drdy_input.F,v 1.4 2001-01-26 00:59:05 windus Exp $
             if (.not.rtdb_cput(rtdb,'drdy:sptheory',1,field))
      &            call errquit(
      &            'drdy_input: cput of sptheory failed',911)
-            goto 00100
+ 10         if (.not. inp_a(field)) goto 00100
+            if (inp_compare(.false.,'basis',field(1:5))) then
+               if (.not. inp_a(field)) call errquit
+     &              ('drdy_input: failed reading basname',0)
+               if (.not.rtdb_cput(rtdb,'drdy:spbasis',1,field))
+     &            call errquit(
+     &            'drdy_input: cput of spbasis failed',555)
+            else if (inp_compare(.false.,'ecp',field(1:3))) then
+               if (.not. inp_a(field)) call errquit
+     &              ('drdy_input: failed reading ecpname',0)
+               if (.not.rtdb_cput(rtdb,'drdy:specp',1,field))
+     &            call errquit(
+     &            'drdy_input: cput of specp failed',555)
+            else if (inp_compare(.false.,'input',field(1:5))) then
+               if (.not. inp_a(field)) call errquit
+     &              ('drdy_input: failed reading input [input]',0)
+               if (.not.rtdb_cput(rtdb,'drdy:spinput',1,field))
+     &            call errquit(
+     &            'drdy_input: cput of spinput failed',555)
+            else
+               call errquit('drdy: unknown keyword for sptheory',0)
+            end if
+            goto 10
           elseif(inp_compare(.false.,'*',field(1:1))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
