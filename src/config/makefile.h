@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.390 2003-01-03 22:58:53 edo Exp $
+# $Id: makefile.h,v 1.391 2003-01-07 02:32:36 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1375,7 +1375,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        DEFINES  += -DEXT_INT  
      endif
 
-     CORE_LIBS += -llapack $(BLASOPT) -lblas
+     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
