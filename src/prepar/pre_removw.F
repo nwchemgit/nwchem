@@ -1,17 +1,20 @@
       logical function pre_removw(ir,xr,
-     + xw,vw,mwm,mwa,nwm,nwa,xwc,vwc,mwmc,nwmc)
+     + xw,vw,mwm,mwa,nwm,nwa,xwc,vwc,mwmc,nwmc,xs,msa,nsa)
 c
-c $Id: pre_removw.F,v 1.2 2000-05-02 23:01:01 d3j191 Exp $
+c $Id: pre_removw.F,v 1.3 2004-02-14 20:09:18 d3j191 Exp $
 c
       implicit none
 c
       integer ir
       real*8 xr(3,2)
-      integer mwa,mwm,nwa,nwm,mwmc,nwmc
+      integer mwa,mwm,nwa,nwm,mwmc,nwmc,msa,nsa
       real*8 xw(3,mwa,mwm),xwc(3,mwa,mwmc)
       real*8 vw(3,mwa,mwm),vwc(3,mwa,mwmc)
+      real*8 xs(3,msa)
 c
       integer i,j,k,l,idel,new
+      real*8 x2,d2
+c
       write(*,1000)
  1000 format(/,' Removing selected solvent')
 c
@@ -50,7 +53,7 @@ c
       nwmc=new
       endif
     1 continue
-      else
+      elseif(ir.eq.1) then
       new=0
       do 10 j=1,nwm
       idel=0
@@ -96,6 +99,62 @@ c
    18 continue
       endif
    15 continue
+      nwmc=new
+      elseif(ir.eq.2) then
+      new=0
+      x2=xr(1,1)**2
+      do 20 j=1,nwm
+      idel=1
+      do 21 k=1,nwa
+      do 22 i=1,nsa
+      d2=(xs(1,i)-xw(1,k,j))**2+(xs(2,i)-xw(2,k,j))**2+
+     + (xs(3,i)-xw(3,k,j))**2
+      if(d2.lt.x2) then
+      idel=0
+      goto 23
+      endif
+   22 continue
+   21 continue
+   23 continue
+      if(idel.eq.0) then
+      new=new+1
+      do 24 k=1,nwa
+      xw(1,k,new)=xw(1,k,j)
+      xw(2,k,new)=xw(2,k,j)
+      xw(3,k,new)=xw(3,k,j)
+      vw(1,k,new)=vw(1,k,j)
+      vw(2,k,new)=vw(2,k,j)
+      vw(3,k,new)=vw(3,k,j)
+   24 continue
+      endif
+   20 continue
+      nwm=new
+      new=0
+      do 25 j=1,nwmc
+      idel=1
+      do 26 k=1,nwa
+      do 27 i=1,nsa
+      d2=(xs(1,i)-xwc(1,k,j))**2+(xs(2,i)-xwc(2,k,j))**2+
+     + (xs(3,i)-xwc(3,k,j))**2
+      if(d2.lt.x2) then
+      idel=0
+      goto 28
+      endif
+   27 continue
+   26 continue
+   28 continue
+      if(idel.eq.0) then
+      new=new+1
+      do 29 k=1,nwa
+      xwc(1,k,new)=xwc(1,k,j)
+      xwc(2,k,new)=xwc(2,k,j)
+      xwc(3,k,new)=xwc(3,k,j)
+      vwc(1,k,new)=vwc(1,k,j)
+      vwc(2,k,new)=vwc(2,k,j)
+      vwc(3,k,new)=vwc(3,k,j)
+   29 continue
+      endif
+   25 continue
       nwmc=new
       endif
 c

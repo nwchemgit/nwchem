@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.116 2003-12-05 20:46:42 d3j191 Exp $
+c $Id: pre_input.F,v 1.117 2004-02-14 20:09:14 d3j191 Exp $
 c
       implicit none
 c
@@ -1342,6 +1342,11 @@ c
       zrmax=0.0d0
       if(.not.inp_a(item)) call md_abort('pre_input: remove',9999)
       j=-1
+      if(inp_compare(.false.,'beyond',item)) then
+      j=2
+      if(.not.inp_f(xrmin)) call md_abort('pre_input remove',0)
+      goto 6857
+      endif
       if(inp_compare(.false.,'inside',item)) j=1
       if(inp_compare(.false.,'outside',item)) j=0
       if(j.eq.-1) call md_abort('pre_input: remove',9999)

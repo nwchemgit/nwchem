@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.96 2003-11-14 18:19:59 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.97 2004-02-14 20:09:18 d3j191 Exp $
 c
       implicit none
 c
@@ -1089,7 +1089,7 @@ c
       if(card(1:6).eq.'removw') then
       read(card(8:80),'(6f12.6,i1)') ((xr(i,j),j=1,2),i=1,3),k
       if(.not.pre_removw(k,xr,dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
+     + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,dbl_mb(i_xs),msa,nsa))
      + call md_abort('Error in pre_removw',0)
       endif
 c
