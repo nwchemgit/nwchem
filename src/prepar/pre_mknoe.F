@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.24 2001-08-10 21:16:56 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.25 2001-10-23 23:03:31 d3j191 Exp $
 c
       implicit none
 c
@@ -162,7 +162,6 @@ c
 c
       read(lfncmd,1101,end=9,err=9997) card
  1101 format(a)
-      print*,card
 c
       if(util_print('where',print_high)) then
       write(lfnout,1099) card
