@@ -9,6 +9,7 @@
       LIBRARY = libmcscf.a
 
     USES_BLAS = detci_aux.F \
+	 	detci_dens.F \
 	        detci_diag.F \
 		detci_intf.F \
 		detci_sigma.F \
@@ -18,3 +19,4 @@
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
