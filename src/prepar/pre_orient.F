@@ -1,7 +1,7 @@
       logical function pre_orient(xw,mwm,mwa,nwm,nwa,xwc,mwmc,nwmc,
      + xs,msa,nsa)
 c
-c $Id: pre_orient.F,v 1.3 1998-06-15 22:38:16 d3j191 Exp $
+c $Id: pre_orient.F,v 1.4 2000-07-27 20:56:01 d3j191 Exp $
 c
       implicit none
 c
@@ -10,6 +10,9 @@ c
 c
       integer i,ismax
       real*8 angle,dist,o(3),p(3),rsmax
+c
+      write(*,1000)
+ 1000 format(/,' Orientation solute')
 c
       if(nsa.le.0) then
       pre_orient=.false.
