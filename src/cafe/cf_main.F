@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.113 2001-11-09 04:06:14 d3j191 Exp $
+c $Id: cf_main.F,v 1.114 2001-11-09 19:54:46 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1752,6 +1752,7 @@ c
       call ga_dgop(mcf_46,xmul,3*mmult,'+')
       call ga_igop(mcf_47,imul,4*mmult,'+')
 c
+      if(me.eq.0) then
       if(nmult(1).gt.0) then
       ix=1
       call cf_fsb(nmult(1),ixmul(ix),mbt(2),mbp(2),
@@ -1783,6 +1784,9 @@ c
      + nmul,mmult,imul(1,1),imul(1,2),imul(1,3),
      + xmul,fmul,ess,.true.,.true.,me.eq.0,dbl_mb(i_sti))
       endif
+      endif
+c
+      call ga_brdcst(mcf_74,fmul,3*mmult*ma_sizeof(mt_dbl,1,mt_byte),0)
 c
       do 3 i=1,nmul
       do 4 j=1,nums
