@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.28 2001-11-21 06:40:26 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.29 2001-12-11 18:51:38 d3j191 Exp $
 c
       implicit none
 c
@@ -203,6 +203,7 @@ c
       numpmf=numpmf+1
       if(numpmf.gt.maxpmf) call errquit('Increase maxpmf',maxpmf)
       ipmf(numpmf,1)=0
+      if(card(5:7).eq.'con') ipmf(numpmf,1)=-1
       if(card(5:7).eq.'dis') ipmf(numpmf,1)=1
       if(card(5:7).eq.'ang') ipmf(numpmf,1)=2
       if(card(5:7).eq.'tor') ipmf(numpmf,1)=3

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.89 2001-12-11 16:20:47 d3j191 Exp $
+c $Id: pre_input.F,v 1.90 2001-12-11 18:51:38 d3j191 Exp $
 c
       implicit none
 c
@@ -825,7 +825,8 @@ c
       goto 6883
       endif
       if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
-      if(type(1:8).eq.'distance'.or.type(1:8).eq.'basepair') then
+      if(type(1:8).eq.'distance'.or.type(1:10).eq.'constraint'.or.
+     + type(1:8).eq.'basepair') then
       if(.not.inp_i(jgroup)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:5).eq.'angle') then
@@ -854,7 +855,10 @@ c
       value1=0.0d0
       value2=0.0d0
       endif
-      if(type(1:8).eq.'basepair') then
+      if(type(1:10).eq.'constraint') then
+      if(.not.inp_f(forcon)) forcon=0.0d0
+      if(.not.inp_f(forc2)) forc2=0.0d0
+      elseif(type(1:8).eq.'basepair') then
       if(.not.inp_f(forcon)) forcon=1.0d4
       if(.not.inp_f(forc2)) forc2=1.0d4
       else
@@ -873,6 +877,11 @@ c
       write(68,6840) iopt,jopt,kopt,igroup,jgroup,
      +value1,value2,forcon,forc2
  6840 format('pmf dis',5i5,10x,2f12.6,2e12.5)
+      numcmd=numcmd+1
+      elseif(type(1:10).eq.'constraint') then
+      write(68,6860) iopt,jopt,kopt,igroup,jgroup,
+     +value1,value2,forcon,forc2
+ 6860 format('pmf con',5i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:5).eq.'angle') then
       write(68,6842) iopt,jopt,kopt,igroup,jgroup,kgroup,
