@@ -1,4 +1,4 @@
-c $Id: int_mpole.F,v 1.8 1996-10-11 10:10:18 d3e129 Exp $
+c $Id: int_mpole.F,v 1.9 1997-04-25 00:40:53 d3e129 Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsubsection{int\_mpole}
@@ -82,8 +82,12 @@ c
 c
 c  check if spherical
 c
-      call int_nospherical_check(i_basis,'int_mpole')
-      call int_nospherical_check(j_basis,'int_mpole')
+      call int_nospherical_check(i_basis,'int_mpole:i_basis')
+      call int_nospherical_check(j_basis,'int_mpole:j_basis')
+      call int_nogencont_check(i_basis,'int_mpole:i_basis')
+      call int_nogencont_check(j_basis,'int_mpole:j_basis')
+      call int_nospshell_check(i_basis,'int_mpole:i_basis')
+      call int_nospshell_check(j_basis,'int_mpole:j_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

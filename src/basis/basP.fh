@@ -1,4 +1,4 @@
-c $Id: basP.fh,v 1.9 1997-04-02 00:42:06 d3e129 Exp $
+c $Id: basP.fh,v 1.10 1997-04-25 00:41:21 d3e129 Exp $
 c:basP.fh
 c
 c basis set object/api  
@@ -225,6 +225,8 @@ c.. incore sturctures
       integer ecp_handle_assoc, ecp_parent_assoc
       logical bsactive 
       logical bas_spherical
+      logical bas_any_gc
+      logical bas_any_sp_shell
 c
       common /cbsdatac/
      &       bs_name(nbasis_bsmx),
@@ -246,6 +248,8 @@ c......... above for each basis is stored ... below is in-core
      &       len_bs_rtdb(nbasis_rtdb_mx),
      &       bsactive(nbasis_bsmx),
      &       bas_spherical(nbasis_bsmx),
+     &       bas_any_gc(nbasis_bsmx),
+     &       bas_any_sp_shell(nbasis_bsmx),
      &       bas_norm_id(nbasis_bsmx),
      &       angular_bs(nbasis_bsmx),
      &       nbfmax_bs(nbasis_bsmx),

@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.7 1996-10-20 06:10:05 d3e129 Exp $
+C $Id: intd_1eh1.F,v 1.8 1997-04-25 00:41:00 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -119,13 +119,21 @@ c::local
       integer nintV
       integer offset
 c
+      logical any_spherical
+      integer i_nbf_x, j_nbf_x
+      integer i_nbf_s, j_nbf_s
+      integer nint_x, nint_s
+      integer zatom, zyx
+c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
-c  check if spherical
+c  check if gencon/sp shells
 c
-      call int_nospherical_check(i_basis,'intd_1eh1P')
-      call int_nospherical_check(j_basis,'intd_1eh1P')
+      call int_nogencont_check(i_basis,'intd_1eh1P:i_basis')
+      call int_nogencont_check(j_basis,'intd_1eh1P:j_basis')
+      call int_nospshell_check(i_basis,'intd_1eh1P:i_basis')
+      call int_nospshell_check(j_basis,'intd_1eh1P:j_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -183,10 +191,13 @@ c if needed add in Ta derivative integrals
         call daxpy(nint*3,1.0d00,Ta(1,1,2),1,H1a(1,1,jatom),1)
       endif
 c
-c check for ecp
+c check for ecp 
 c
+*
+* this should move to hf1dsp when sp is enabled.
+*
+      nat = ncenter(igeom)  ! needed for both ecp and spherical
       if (any_ecp) then
-        nat = ncenter(igeom)
         nintV = int_nbf_x(itype)*int_nbf_x(jtype)
         offset = nintV*3*nat + 1
 *       write(6,*)' lscr to ecp_hf1:',(lscr-nintV)
@@ -205,11 +216,85 @@ c
      &      scr,nintV,nat,
      &      scr(offset),(lscr-offset-1),
      &      .false.)
-        
-c
 c 
 *... sum ecp into derivative H1 block
         call daxpy(nintV*3*nat,1.0d00,scr,1,H1a,1)
       endif
+c
+*     H1a now has the cartesian integral block  (jlo:jhi,ilo:ihi)
+*      
+      any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
+      if (.not.any_spherical) return
+c
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+c
+      if (itype.eq.-1) igen = 1
+      if (jtype.eq.-1) jgen = 1
+c
+      if (bas_spherical(ibas).and.bas_spherical(jbas)) then
+*... transform both i and j integrals
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+c        
+        do zatom = 1,nat
+          do zyx = 1,3
+            call spcart_tran1e(H1a(1,zyx,zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+        enddo
+      else if (bas_spherical(ibas)) then
+*.. transform on i component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = j_nbf_x
+        do zatom = 1,nat
+          do zyx = 1,3
+            call spcart_tran1e(H1a(1,zyx,zatom),scr,
+     &          j_nbf_x,i_nbf_x,0,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+        enddo
+      else if (bas_spherical(ibas)) then
+*.. transform on i component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = i_nbf_x
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+        do zatom = 1,nat
+          do zyx = 1,3
+            call spcart_tran1e(H1a(1,zyx,zatom),scr,
+     &        j_nbf_x,i_nbf_x,Jtype,jgen,
+     &        j_nbf_s,i_nbf_s,0,igen,
+     &        .false.)
+          enddo
+        enddo
+      else
+        call errquit(
+     &        'int_1eh1: should never reach transform blocked else',
+     &        911)
+      endif
+c
+c now shuffle transformed buffers to contiguous space
+c
+      nint_x = i_nbf_x*j_nbf_x
+      nint_s = i_nbf_s*j_nbf_s
+      if (nint_s.gt.nint_x) then
+        call errquit
+     &      ('intd_1eh1: nint_s >.nint_x diff=',(nint_s-nint_x))
+      elseif (nint_s.eq.nint_x) then
+        return
+      else
+        call intd_c2s_mv
+     &      (H1a,nint_x,nint_s,(3*nat),scr,lscr,'intd_1eh1')
+      endif
+c
+
       end
       

@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.8 1996-10-07 16:49:50 d3e129 Exp $
+c $Id: int_1e3ov.F,v 1.9 1997-04-25 00:40:39 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_1e3ov}
@@ -19,6 +19,7 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c:: external subroutines used
 c..  errquit
 c::functions
@@ -45,6 +46,7 @@ c::local
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
       integer Lj, j_prim, j_gen, j_iexp, j_icfp, j_cent
       integer Lk, k_prim, k_gen, k_iexp, k_icfp, k_cent
+      integer nintx, ninta, nintb
 c
       integer WarnP
       save WarnP
@@ -62,11 +64,19 @@ c
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       shells_ok = shells_ok .and. int_chk_sh(k_basis,ksh)
       if (.not.shells_ok)
-     &       call errquit('int_1e3ov: invalid contraction/shell',0)
+     &    call errquit('int_1e3ov: invalid contraction/shell',0)
+c
+* spherical code here but not debugged
 c
       call int_nospherical_check(i_basis,'int_1e3ov')
       call int_nospherical_check(j_basis,'int_1e3ov')
       call int_nospherical_check(k_basis,'int_1e3ov')
+      call int_nogencont_check(i_basis,'int_1e3ov:i_basis')
+      call int_nogencont_check(j_basis,'int_1e3ov:j_basis')
+      call int_nogencont_check(k_basis,'int_1e3ov:k_basis')
+      call int_nospshell_check(i_basis,'int_1e3ov:i_basis')
+      call int_nospshell_check(j_basis,'int_1e3ov:j_basis')
+      call int_nospshell_check(k_basis,'int_1e3ov:k_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -122,4 +132,137 @@ c
      &      k_prim, Lk,
 c.....................TriDiag..DryRun
      &       OV3,lov3,.false.,.false.,scr,lscr)
+c
+*  OV3 has the cartesian block (klo:khi,jlo:jhi,ilo:ihi)
+*
+      if (.not.(bas_spherical(ibas).or.
+     &          bas_spherical(jbas).or.
+     &          bas_spherical(kbas))) return  ! no spherical
+
+*... when general contraction reset sp function ngen to 1
+*
+
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      if (bas_spherical(ibas).and.
+     &    bas_spherical(jbas).and.
+     &    bas_spherical(kbas)) then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (1)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        call dcopy(nintx,OV3,1,scr,1)
+*........   scr now has (k-cart,j-cart,i-cart)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_x(Lk)*k_gen
+        call spcart_a_s(scr,OV3,ninta,Li,i_gen,.false.,.false.)
+*.........  OV3 has (k-cart,j-cart,i-spherical)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_s(Li)*i_gen
+        call spcart_s_a(OV3,scr,ninta,Lk,k_gen,.false.,.false.)
+*.........  scr has (k-spherical,j-cart,i-spherical)
+        ninta = int_nbf_s(Lk)*k_gen
+        nintb = int_nbf_s(Li)*i_gen
+        call spcart_a_s_b(scr,OV3,ninta,nintb,Lj,j_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-spherical,j-spherical,i-spherical)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else if(bas_spherical(ibas).and.
+     &    bas_spherical(jbas)) then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (2)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_x(Lk)*k_gen
+        call spcart_a_s(OV3,scr,ninta,Li,i_gen,.false.,.false.)
+*.........  scr has (k-cart,j-cart,i-spherical)
+        ninta=int_nbf_x(Lk)*k_gen
+        nintb=int_nbf_s(Li)*i_gen
+        call spcart_a_s_b(scr,OV3,ninta,nintb,Lj,j_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-cart,j-spherical,i-spherical)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else if(bas_spherical(jbas).and.
+     &    bas_spherical(kbas)) then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (3)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_x(Li)*i_gen
+        call spcart_a_s(OV3,scr,ninta,Lk,k_gen,.false.,.false.)
+*.........  scr has (k-spherical,j-cart,i-cart)
+        ninta = int_nbf_s(Lk)*k_gen
+        nintb = int_nbf_x(Li)*i_gen
+        call spcart_a_s_b(scr,OV3,ninta,nintb,Lj,j_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-spherical,j-spherical,i-cart)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else if(bas_spherical(ibas).and.
+     &    bas_spherical(kbas)) then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (4)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_x(Lk)*k_gen
+        call spcart_a_s(OV3,scr,ninta,Li,i_gen,.false.,.false.)
+*.........  scr has (k-cart,j-cart,i-spherical)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_s(Li)*i_gen
+        call spcart_s_a(scr,OV3,scr,ninta,Lk,k_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-spherical,j-cart,i-spherical)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else if(bas_spherical(ibas))then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (5)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        call dcopy(nintx,OV3,1,scr,1)
+*........   scr now has (k-cart,j-cart,i-cart)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_x(Lk)*k_gen
+        call spcart_a_s(scr,OV3,ninta,Li,i_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-cart,j-cart,i-spherical)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else if(bas_spherical(jbas))then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (6)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        call dcopy(nintx,OV3,1,scr,1)
+*........   scr now has (k-cart,j-cart,i-cart)
+        ninta = int_nbf_x(Lk)*k_gen
+        nintb = int_nbf_x(Li)*i_gen
+        call spcart_a_s_b(scr,OV3,ninta,nintb,Lj,j_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-cart,j-spherical,i-cart)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else if(bas_spherical(kbas))then
+*--------------------------------------------------------------------------------
+        nintx = int_nbf_x(Li)*int_nbf_x(Lj)*int_nbf_x(Lk)
+        nintx = nintx*i_gen*j_gen*k_gen
+        if (nintx.gt.lscr) call errquit
+     &      ('int_1e3ov: error in scratch size for spherical (7)',911)
+*........   OV3 has (k-cart,j-cart,i-cart)
+        call dcopy(nintx,OV3,1,scr,1)
+*........   scr now has (k-cart,j-cart,i-cart)
+        ninta=int_nbf_x(Lj)*j_gen*int_nbf_x(Li)*i_gen
+        call spcart_s_a(scr,OV3,ninta,Lk,k_gen,.false.,.false.)
+*.........  OV3 has spherical result (k-spherical,j-cart,i-cart)
+*--------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------
+      else
+        call errquit
+     &      ('int_1e3ov: transform else should never be reached',911)
+      endif
+c
       end

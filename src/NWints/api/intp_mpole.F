@@ -1,7 +1,7 @@
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
-c $Id: intp_mpole.F,v 1.6 1996-07-18 23:59:02 d3e129 Exp $
+c $Id: intp_mpole.F,v 1.7 1997-04-25 00:41:20 d3e129 Exp $
 c
 c routine to compute multipole integrals up to level lmax with the
 c jsh translated by the fractional coordinate vector R.
@@ -86,10 +86,14 @@ c
       if (.not.int_chk_init('intp_mpole'))
      &       call errquit('intp_mpole: int_init was not called' ,0)
 c
-c  check if spherical
+c  check if spherical/gencon/sp shells
 c
-      call int_nospherical_check(i_basis,'intp_mpole')
-      call int_nospherical_check(j_basis,'intp_mpole')
+      call int_nospherical_check(i_basis,'intp_mpole:i_basis')
+      call int_nospherical_check(j_basis,'intp_mpole:j_basis')
+      call int_nogencont_check(i_basis,'intp_mpole:i_basis')
+      call int_nogencont_check(j_basis,'intp_mpole:j_basis')
+      call int_nospshell_check(i_basis,'intp_mpole:i_basis')
+      call int_nospshell_check(j_basis,'intp_mpole:j_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.6 1996-10-07 16:49:49 d3e129 Exp $
+c $Id: int_1cg.F,v 1.7 1997-04-25 00:40:36 d3e129 Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -42,9 +43,11 @@ c:tex-\begin{verbatim}
       double precision G1e(l1g)   ! [output] one center gaussian integrals
 c:tex-\end{verbatim}
 c::local
+      logical any_spherical
       logical shells_ok
       integer i_geom, ibas, ucont
       integer Li, i_prim, i_gen, i_iexp, i_icfp, i_cent
+      integer i_nbf_x, i_nbf_s
 c
       integer WarnP
       save WarnP
@@ -61,8 +64,6 @@ c
       shells_ok = int_chk_sh(i_basis,ish)
       if (.not.shells_ok)
      &       call errquit('int_1cg: invalid contraction/shell',0)
-c
-      call int_nospherical_check(i_basis,'int_1cg')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
@@ -104,5 +105,23 @@ c.............. dryrun
       else
         call errquit('int_1cg: could not do sp or nw integrals',0)
       endif
+c
+*     G1e now has the cartesian integral block  (ilo:ihi)
+*      
+      any_spherical = bas_spherical(ibas)
+      if (.not.any_spherical) return
+c
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+c
+      if (li.eq.-1) i_gen = 1
+c
+*.. transform on i component
+      i_nbf_x = int_nbf_x(Li)
+      i_nbf_s = int_nbf_s(Li)
+      call spcart_tran1e(G1e,scr,
+     &    1,i_nbf_x,0,1,
+     &    1,i_nbf_s,Li,i_gen,
+     &    .false.)
 c
       end

@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.12 1997-02-20 09:08:52 d3e129 Exp $
+c $Id: int_2e3c.F,v 1.13 1997-04-25 00:40:46 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_2e3c}
@@ -95,8 +95,14 @@ c
 c
 c  check if spherical
 c
-      call int_nospherical_check(brain,'int_2e3c')
-      call int_nospherical_check(ketin,'int_2e3c')
+#ifndef USE_TEXAS_BROKE
+      call int_nospherical_check(brain,'int_2e3c:bra')
+      call int_nospherical_check(ketin,'int_2e3c:ket')
+      call int_nogencont_check(brain,'int_2e3c:bra')
+      call int_nogencont_check(ketin,'int_2e3c:ket')
+      call int_nospshell_check(brain,'int_2e3c:bra')
+      call int_nospshell_check(ketin,'int_2e3c:ket')
+#endif
 c
 c     define center information required 
 c

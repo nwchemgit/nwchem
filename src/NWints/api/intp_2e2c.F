@@ -1,6 +1,6 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.5 1996-07-18 23:58:58 d3e129 Exp $
+c $Id: intp_2e2c.F,v 1.6 1997-04-25 00:41:16 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
@@ -64,10 +64,14 @@ c
       if (.not.shells_ok)
      &       call errquit('intp_2e2c: invalid contraction/shell',0)
 c
-c  check if spherical
+c  check if spherical/gencon/sp shell
 c
-      call int_nospherical_check(brain,'intp_2e2c')
-      call int_nospherical_check(ketin,'intp_2e2c')
+      call int_nospherical_check(brain,'intp_2e2c:bra')
+      call int_nospherical_check(ketin,'intp_2e2c:ket')
+      call int_nogencont_check(brain,'intp_2e2c:bra')
+      call int_nogencont_check(ketin,'intp_2e2c:ket')
+      call int_nospshell_check(brain,'intp_2e2c:bra')
+      call int_nospshell_check(ketin,'intp_2e2c:ket')
 c
 c     define center information required 
 c

@@ -1,5 +1,5 @@
       subroutine int_terminate()
-c $Id: int_term.F,v 1.6 1996-10-20 06:10:05 d3e129 Exp $
+c $Id: int_term.F,v 1.7 1997-04-25 00:40:55 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "candoP.fh"
@@ -54,6 +54,9 @@ c
       subroutine intd_terminate()
       implicit none
 #include "apiP.fh"
+c::functions
+      logical spcart_terminate 
+      external spcart_terminate 
 c
       if (init_intd.eq.0) then
         write(6,*)' warning: intd_init has not been called '
@@ -66,6 +69,10 @@ c.. parameters for int derivative (hf2d)
       numd_red       = 0
 c
       call sp_terminate()
+c
+      if (.not.spcart_terminate()) then
+        call errquit('int_terminate: spcart_terminate failed',0)
+      endif
 c
       if (any_ecp) then
         call int_ecp_terminate()

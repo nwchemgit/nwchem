@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.27 1997-03-31 21:48:22 d3e129 Exp $
+c $Id: int_2e4c.F,v 1.28 1997-04-25 00:40:49 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{int\_2e4c}
@@ -108,8 +108,7 @@ c
       if (.not. bas_check_handle(ketin,'int_2e4c:ket')) call errquit
      $     ('int_2e4c: invalid ket basis handle', ketin)
 #endif
-*      call int_nospherical_check(brain,'int_2e4c')
-*      call int_nospherical_check(ketin,'int_2e4c')
+*
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
       ab_geom = ibs_geom(bra)

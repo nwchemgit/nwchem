@@ -1,6 +1,6 @@
       subroutine intd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom2)
-c $Id: intd_2e2c.F,v 1.5 1996-07-18 23:58:40 d3e129 Exp $
+c $Id: intd_2e2c.F,v 1.6 1997-04-25 00:41:03 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -81,10 +81,14 @@ c
         call errquit('intd_2e2c: nint>leri error',911)
       endif
 c
-c  check if spherical
+c  check if spherical/gencont/sp shell
 c
-      call int_nospherical_check(brain,'intd_2e2c')
-      call int_nospherical_check(ketin,'intd_2e2c')
+      call int_nospherical_check(brain,'intd_2e2c:bra')
+      call int_nospherical_check(ketin,'intd_2e2c:ket')
+      call int_nogencont_check(brain,'intd_2e2c:bra')
+      call int_nogencont_check(ketin,'intd_2e2c:ket')
+      call int_nospshell_check(brain,'intd_2e2c:bra')
+      call int_nospshell_check(ketin,'intd_2e2c:ket')
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET

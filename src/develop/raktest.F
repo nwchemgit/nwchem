@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.65 1997-03-25 20:13:08 d3e129 Exp $
+c $Id: raktest.F,v 1.66 1997-04-25 00:41:28 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -14,7 +14,7 @@ c
      &    raktask = rak_tmp
 c
       goto (00010,00020,00030,00040,00050,00060,00070,00080,
-     &    00090, 00100, 00110, 00120, 00130) raktask
+     &    00090, 00100, 00110, 00120, 00130, 00140) raktask
 c
       write(6,*)' default raktest task '
       write(6,*)' test semi empirical interface '
@@ -60,6 +60,8 @@ c
 00130 write(6,*)' test 3 center derivatives '
       call raktest_3cd(rtdb)
       goto 00001
+00140 write(6,*)' test derivative overlap '
+      call raktest_ovd(rtdb)
 c
 00001 continue
       raktest = .true.
@@ -1600,7 +1602,7 @@ c
       if (.not.geom_destroy(geom)) call errquit
      &      ('raktest_initd: _destroy failed',911)
 c
-      call int_terminate()
+      call intd_terminate()
 c
       end
       subroutine raktest_init(rtdb)
@@ -3756,4 +3758,215 @@ c
 10000 format(1x,'<',i6,'>','(i=',i3,',j=',
      &    i3,',k=',i3,',x=',i3,',at=',i3,') fd=',
      &    1pd12.5,' o=',1pd12.5,' diff=',1pd12.5)
+      end
+      subroutine raktest_ovd(rtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "bas.fh"
+      integer rtdb
+c
+      integer maxg1, maxs1
+      integer h_buf, h_scr, h_cm, h_o, h_fdo, h_fdp, h_fdm
+      integer k_buf, k_scr, k_cm, k_o, k_fdo, k_fdp, k_fdm
+      integer geom, basis
+      integer nat, nbf,  bufsz, szscr, osz
+c
+      logical int_normalize
+      external int_normalize
+c
+*      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
+c
+      if (.not.geom_create(geom,'geometry'))
+     &    call errquit('raktest_ovd: geom_create failed?',911)
+      if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
+     &    ('raktest_ovd: geom_rtdb_load -ref failed',911)
+      if (.not.geom_print(geom)) stop ' print error'
+c
+      if (.not.bas_create(basis,'ao basis')) call errquit
+     &      ('raktest_ovd:bas_create failed',911)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+     &    call errquit
+     &      ('raktest_ovd:bas_rtdb_load failed',911)
+      if (.not.bas_print(basis)) stop ' print error'
+      if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
+      if (.not.int_normalize(basis)) stop ' norm error 1'
+      call intd_init(rtdb,1,basis)
+      call int_mem_print()
+c
+      if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
+      if (.not.bas_numbf(basis,nbf)) stop 'bas_numbf fe'
+      call int_mem_1e(maxg1,maxs1)      
+      bufsz = 2*maxg1
+      szscr = 2*maxs1
+      osz   = nbf*nbf*3*nat
+      if (.not.ma_push_get(mt_dbl,bufsz,'buf',h_buf,k_buf))
+     &    stop ' ma buf failed'
+      if (.not.ma_push_get(mt_dbl,szscr,'scr',h_scr,k_scr))
+     &    stop ' ma scr failed'
+      if (.not.ma_push_get(mt_dbl,(3*nat),'cm',h_cm,k_cm))
+     &    stop ' ma cm failed'
+      if (.not.ma_push_get(mt_dbl,osz,'o',h_o,k_o))
+     &    stop ' ma o failed'
+      if (.not.ma_push_get(mt_dbl,osz,'fdo',h_fdo,k_fdo))
+     &    stop ' ma fdo failed'
+      if (.not.ma_push_get(mt_dbl,osz,'fdp',h_fdp,k_fdp))
+     &    stop ' ma fdp failed'
+      if (.not.ma_push_get(mt_dbl,osz,'fdm',h_fdm,k_fdm))
+     &    stop ' ma fdm failed'
+      call raktest_ovd1(dbl_mb(k_buf),bufsz,dbl_mb(k_scr),szscr,
+     &    dbl_mb(k_fdo),dbl_mb(k_o),dbl_mb(k_fdp),dbl_mb(k_fdm),
+     &    nbf,nat,dbl_mb(k_cm),basis,geom)
+      end
+      subroutine raktest_ovd1(buf,lbuf,scr,lscr,fdo,o,fdp,fdm,
+     &    nbf,nat,cmaster,basis,geom)
+      implicit none
+#include "geomP.fh"
+#include "geom.fh"
+#include "bas.fh"
+      double precision ddot
+      external ddot
+c
+      integer lbuf, lscr
+      double precision buf(lbuf),scr(lscr)
+      integer nbf, nat
+      double precision fdo(nbf,nbf,3,nat)
+      double precision fdp(nbf,nbf,3,nat),fdm(nbf,nbf,3,nat)
+      double precision o(nbf,nbf,3,nat) 
+      double precision cmaster(3,nat)
+      integer basis, geom
+      integer idatom(2)
+c
+      double precision delta, delta2i, norm
+      integer ncont, count, zatom, ratom, ixyz
+      integer ish,ilo,ihi,ibf
+      integer jsh,jlo,jhi,jbf
+c
+      if (.not.bas_numcont(basis,ncont)) stop ' bas_numcont'
+      write(6,*)' buf size ', lbuf
+      write(6,*)' lscr ',lscr
+      call dfill(lbuf,0.0d00,buf,1)
+      call dfill(lscr,0.0d00,scr,1)
+      call dfill((nbf*nbf*3*nat),0.0d00,fdo,1)
+      call dfill((nbf*nbf*3*nat),0.0d00,fdp,1)
+      call dfill((nbf*nbf*3*nat),0.0d00,fdm,1)
+      call dfill((nbf*nbf*3*nat),0.0d00,o,1)
+      do ish = 1,ncont
+        if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
+        do jsh = 1,ncont
+          if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr i'
+*          call intd_1eov(basis,ish,basis,jsh,lscr,scr,lbuf,buf,idatom)
+          call intd_1eh1(basis,ish,basis,jsh,lscr,scr,lbuf,buf)
+          count = 0
+*          do zatom = 1,2
+*            if (idatom(zatom).gt.0) then
+*              ratom = idatom(zatom)
+          do zatom = 1,nat
+            ratom = zatom
+            do ixyz = 1,3
+              do ibf = ilo,ihi
+                do jbf = jlo,jhi
+                  count = count + 1
+                  o(ibf,jbf,ixyz,ratom) = buf(count)
+                enddo
+              enddo
+            enddo
+*            endif    
+          enddo
+        enddo
+      enddo
+c
+      call dcopy((3*nat),coords(1,1,geom),1,cmaster,1)
+      delta = 0.00001d00
+      delta2i = 1.0d00/(2.0d00*delta)
+      do zatom = 1,nat
+        do ixyz = 1,3
+*--
+* +
+          call dcopy((3*nat),cmaster,1,coords(1,1,geom),1)
+          coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) + delta
+          do ish = 1,ncont
+            if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
+            do jsh = 1,ncont
+              if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr i'
+*              call int_1eov(basis,ish,basis,jsh,lscr,scr,lbuf,buf)
+              call int_1eh1(basis,ish,basis,jsh,lscr,scr,lbuf,buf)
+              count = 0
+              do ibf = ilo,ihi
+                do jbf = jlo,jhi
+                  count = count + 1
+                  fdp(ibf,jbf,ixyz,zatom) = buf(count)
+                enddo
+              enddo
+            enddo
+          enddo
+* -
+          call dcopy((3*nat),cmaster,1,coords(1,1,geom),1)
+          coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) - delta
+          do ish = 1,ncont
+            if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
+            do jsh = 1,ncont
+              if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) stop 'cn2bfr i'
+*              call int_1eov(basis,ish,basis,jsh,lscr,scr,lbuf,buf)
+              call int_1eh1(basis,ish,basis,jsh,lscr,scr,lbuf,buf)
+              count = 0
+              do ibf = ilo,ihi
+                do jbf = jlo,jhi
+                  count = count + 1
+                  fdm(ibf,jbf,ixyz,zatom) = buf(count)
+                enddo
+              enddo
+            enddo
+          enddo
+*--
+        enddo
+      enddo
+      call dcopy((nbf*nbf*3*nat),fdp,1,fdo,1)
+      call daxpy((nbf*nbf*3*nat),-1.0d00,fdm,1,fdo,1)
+      call dscal((nbf*nbf*3*nat),delta2i,fdo,1)
+      call printboth_ovd(nbf,nat,fdo,o)
+      call dcopy((nbf*nbf*3*nat),fdo,1,fdm,1)
+      call daxpy((nbf*nbf*3*nat),-1.0d00,o,1,fdm,1)
+      norm = ddot((nbf*nbf*3*nat),fdm,1,fdm,1)
+c
+      write(6,*)' difference norm: ',norm
+      end
+      subroutine printboth_ovd(nbf,nat,fdo,o)
+      implicit none
+      integer nbf
+      integer nat
+      double precision fdo(nbf,nbf,3,nat)
+      double precision   o(nbf,nbf,3,nat)
+c
+      double precision diff, thresh
+      integer i,j,ixyz,ic, count, nval_good
+c
+      thresh =  1.0d-06
+c
+      nval_good = 0
+      count = 0
+      do ic = 1,nat
+        do ixyz=1,3
+          do j=1,nbf
+            do i=1,nbf
+              count = count + 1
+              diff = fdo(i,j,ixyz,ic) - o(i,j,ixyz,ic)
+              diff = abs(diff)
+              if (diff.gt.thresh) then
+                write(6,10000)count,i,j,ixyz,ic,
+     &              fdo(i,j,ixyz,ic),
+     &              o(i,j,ixyz,ic), diff
+              else
+                if (abs(o(i,j,ixyz,ic)).gt.thresh)
+     &              nval_good = nval_good + 1
+              endif
+            enddo
+          enddo
+        enddo
+      enddo
+10000 format(1x,'<',i6,'>','(i=',i3,',j=',
+     &    i3,',x=',i3,',at=',i3,') fd=',
+     &    1pd12.5,' o=',1pd12.5,' diff=',1pd12.5)
+      write(6,*)' good values',nval_good
       end

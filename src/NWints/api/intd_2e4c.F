@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.9 1996-07-18 23:58:45 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.10 1997-04-25 00:41:07 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -97,9 +97,12 @@ c::local
       integer knp, kgen, kexp, kcf, ktype, katom
       integer lnp, lgen, lexp, lcf, ltype, latom
 c
+      logical used_nw
+c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
+      used_nw = .false.
       nint = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint*3*4.gt.leri) then
         write(6,*) 'nint*3*4 = ',nint*3*4
@@ -107,10 +110,12 @@ c
         call errquit('intd_2e4c: nint>leri error',911)
       endif
 c
-c  check if spherical
+c  check if spherical/gencon/sp shell
 c
-      call int_nospherical_check(brain,'intd_2e4c')
-      call int_nospherical_check(ketin,'intd_2e4c')
+      call int_nogencont_check(brain,'intd_2e4c:bra')
+      call int_nogencont_check(ketin,'intd_2e4c:ket')
+      call int_nospshell_check(brain,'intd_2e4c:bra')
+      call int_nospshell_check(ketin,'intd_2e4c:ket')
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET
@@ -163,6 +168,7 @@ c... new logic
         return
       endif
 c
+      
       call hf2d(
      &       coords(1,iatom,ab_geom),dbl_mb(mb_exndcf(iexp,bra)),
      &       dbl_mb(mb_exndcf(icf,bra)),inp,igen,itype,iatom,
@@ -178,8 +184,13 @@ c
 c
      &       eri,nint,.false.,.false.,.false.,.false.,
      &       scr,lscr)
+      used_nw = .true.
 c
       call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
+c
+      if (used_nw) call intd_2ec2s(eri,nint,scr,lscr,
+     &    itype,jtype,ktype,ltype,igen,jgen,kgen,lgen,
+     &    bas_spherical(bra),bas_spherical(ket),idatom)
 c
       end
       subroutine intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
@@ -237,4 +248,127 @@ c
           idat(4) = idat(3)
         endif
       endif
+      end
+      subroutine intd_2ec2s(eri,nint,scr,lscr,
+     &    it,jt,kt,lt,igin,jgin,kgin,lgin,
+     &    bra_sph,ket_sph,idatom)
+      implicit none
+#include "int_nbf.fh"
+c::passed
+      integer nint
+      integer lscr
+      double precision eri(nint,3,4)
+      double precision scr(lscr)
+      integer it,jt,kt,lt
+      integer igin,jgin,kgin,lgin
+      logical bra_sph, ket_sph
+      integer idatom(4)
+c::local      
+      integer ig,jg,kg,lg
+      integer nint_x, nint_s
+      integer i_nbf,j_nbf,k_nbf,l_nbf
+      integer i_nbf_s,j_nbf_s,k_nbf_s,l_nbf_s
+      integer zatom
+      integer zyx
+c
+      ig = igin
+      jg = jgin
+      kg = kgin
+      lg = lgin
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+      if (it.eq.-1) ig = 1
+      if (jt.eq.-1) jg = 1
+      if (kt.eq.-1) kg = 1
+      if (lt.eq.-1) lg = 1
+      if (bra_sph.or.ket_sph) then
+        i_nbf = int_nbf_x(It)
+        j_nbf = int_nbf_x(Jt)
+        k_nbf = int_nbf_x(Kt)
+        l_nbf = int_nbf_x(Lt)
+        nint_x = i_nbf*j_nbf*k_nbf*l_nbf
+        if (nint.ne.nint_x) call errquit
+     &      ('intd_2ec2s: nint.ne.nint_x diff=',(nint-nint_x))
+        if(bra_sph) then
+          i_nbf_s = int_nbf_s(It)
+          j_nbf_s = int_nbf_s(Jt)
+          do zatom = 1,4
+            if (idatom(zatom).gt.0) then
+              do zyx = 1,3
+                call spcart_bra2etran(eri(1,zyx,zatom),scr,
+     &              j_nbf,i_nbf,j_nbf_s,i_nbf_s,
+     &              Jt, It, jg, ig,
+     &              (k_nbf*l_nbf),.false.)
+              enddo
+            endif
+          enddo
+          i_nbf = i_nbf_s
+          j_nbf = j_nbf_s
+        endif
+        if(ket_sph) then
+          k_nbf_s = int_nbf_s(Kt)
+          l_nbf_s = int_nbf_s(Lt)
+          do zatom = 1,4
+            if (idatom(zatom).gt.0) then
+              do zyx = 1,3
+                call spcart_ket2etran(eri(1,zyx,zatom),scr,
+     &              l_nbf,k_nbf,l_nbf_s,k_nbf_s,
+     &              Lt, Kt, lg, kg,
+     &              (i_nbf*j_nbf),.false.)
+              enddo
+            endif
+          enddo
+          k_nbf = k_nbf_s
+          l_nbf = l_nbf_s
+        endif
+        nint_s = i_nbf*j_nbf*k_nbf*l_nbf
+        if (nint_s.gt.nint_x) then
+          call errquit
+     &      ('intd_2ec2s: nint_s >.nint_x diff=',(nint_s-nint_x))
+        elseif (nint_s.eq.nint_x) then
+          return
+        else
+          call intd_c2s_mv
+     &        (eri,nint_x,nint_s,(3*4),scr,lscr,'intd_2e4c')
+        endif
+      endif
+      end
+      subroutine intd_c2s_mv
+     &    (int_buf,nint_x,nint_s,nblocks,scr,lscr,ctine)
+      implicit none
+c::passed
+      integer lscr
+      integer nint_x
+      integer nint_s
+      integer nblocks
+      double precision int_buf(*)
+      double precision scr(lscr)
+      character*(*) ctine
+c::local
+      integer z
+      integer offset_x, offset_s
+#if defined(VECTOR_MODE)
+      if (nint_x*nblocks.gt.lscr) then
+        write(6,*)' calling routine: ',ctine
+        call errquit
+     &    ('intd_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr))
+      endif
+      call dcopy((nint_x*nblocks),int_buf,1,scr,1)
+      call dfill((nint_x*nblocks),0.0d00,int_buf,1)
+      do z = 1,nblocks
+        offset_x = (z-1)*nint_x + 1
+        offset_s = (z-1)*nint_s + 1
+        call dcopy(nint_s,scr(offset_x),1,int_buf(offset_s),1)
+      enddo
+#else
+c** scalar  (in place)
+      integer i
+      do z = 2,nblocks
+        offset_x = (z-1)*nint_x 
+        offset_s = (z-1)*nint_s 
+        do i = 1,nint_s
+          int_buf(offset_s+i) = int_buf(offset_x+i)
+        enddo
+      enddo
+#endif
       end

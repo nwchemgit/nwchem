@@ -1,5 +1,5 @@
       subroutine intd_init(rtdb,nbas,bases)
-c $Id: intd_init.F,v 1.7 1996-10-20 06:10:06 d3e129 Exp $
+c $Id: intd_init.F,v 1.8 1997-04-25 00:41:10 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -9,7 +9,10 @@ c
 #include "bas.fh"
 #include "apiP.fh"
 #include "rtdb.fh"
+#include "int_nbf.fh"
 c::functions
+      logical spcart_init
+      external spcart_init
       logical int_ecp_init
       external int_ecp_init
 c::passed
@@ -20,8 +23,15 @@ c::local
       integer ibas, ang2use, angm
       logical status
       integer intd_memtmp
+      integer type
 c
 *      call int_init(nbas,bases)
+c
+      call int_mem_zero()
+c
+      DCexp     = 0.0D00
+      DCcoeff   = 1.0D00
+      val_int_acc = 0.0d00
 c
       if(init_intd.eq.1) then
         write(6,*)' warning nested intd_inits'
@@ -32,7 +42,16 @@ c
       do 00100 ibas=1,nbas
         status = status .and. bas_check_handle(bases(ibas),'intd_init')
 00100 continue
-
+c
+c initialize type-> nbf maps
+c
+      int_nbf_x(-1) = 4
+      int_nbf_s(-1) = 4
+      do type = 0,int_nbf_max_ang
+        int_nbf_x(type) = (type+1)*(type+2)/2
+        int_nbf_s(type) = 2*type+1
+      enddo
+c
       if (.not.status) then
         write(6,*)' at least one basis handle not valid'
         do 00200 ibas = 1,nbas
@@ -53,6 +72,12 @@ c
 00300 continue
 c.. for first derivatives add 1
       call defNxyz(ang2use+1)
+c
+c initialize spcart stuff 
+c
+      if (.not.(spcart_init((ang2use+1),.true.,.false.))) then
+        call errquit('intd_init: spcart_init failed',911)
+      endif
 c.. read in approximate memory from rtdb
 c.  
 c.. parameter is default value used in hf2d

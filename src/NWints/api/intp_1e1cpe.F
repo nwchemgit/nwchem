@@ -1,5 +1,5 @@
       subroutine intp_1e1cpe(i_basis,ish,Ri,lscr,scr,lpe,Pe)
-c $Id: intp_1e1cpe.F,v 1.4 1996-07-18 23:58:47 d3e129 Exp $
+c $Id: intp_1e1cpe.F,v 1.5 1997-04-25 00:41:11 d3e129 Exp $
       implicit none
 #include "apiP.fh"
 #include "basP.fh"
@@ -46,7 +46,7 @@ c
       if (.not.shells_ok)
      &       call errquit('intp_1e1cpe: invalid contraction/shell',0)
 c
-c  check if spherical
+c  check if spherical/gencon/sp shell
 c
       call int_nospherical_check(i_basis,'intp_1e1cpe')
 c

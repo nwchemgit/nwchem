@@ -1,4 +1,4 @@
-c $Id: intd_1e3ov.F,v 1.1 1997-01-21 07:40:42 d3e129 Exp $
+c $Id: intd_1e3ov.F,v 1.2 1997-04-25 00:40:58 d3e129 Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsubsection{intd\_1e3ov}
@@ -111,9 +111,15 @@ c
       if (.not.shells_ok)
      &       call errquit('intd_1e3ov: invalid contraction/shell',0)
 c
-      call int_nospherical_check(i_basis,'intd_1e3ov')
-      call int_nospherical_check(j_basis,'intd_1e3ov')
-      call int_nospherical_check(k_basis,'intd_1e3ov')
+      call int_nospherical_check(i_basis,'intd_1e3ov:i_basis')
+      call int_nospherical_check(j_basis,'intd_1e3ov:j_basis')
+      call int_nospherical_check(k_basis,'intd_1e3ov:k_basis')
+      call int_nogencont_check(i_basis,'intd_1e3ov:i_basis')
+      call int_nogencont_check(j_basis,'intd_1e3ov:j_basis')
+      call int_nogencont_check(k_basis,'intd_1e3ov:k_basis')
+      call int_nospshell_check(i_basis,'intd_1e3ov:i_basis')
+      call int_nospshell_check(j_basis,'intd_1e3ov:j_basis')
+      call int_nospshell_check(k_basis,'intd_1e3ov:k_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.29 1996-10-20 06:10:05 d3e129 Exp $
+c $Id: int_init.F,v 1.30 1997-04-25 00:40:52 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsubsection{int\_init}
@@ -64,7 +64,6 @@ c
         write(6,*)' int_init already called '
         call util_flush(6)
       endif
-     
 c
 c initialize type-> nbf maps
 c
@@ -74,6 +73,7 @@ c
         int_nbf_x(type) = (type+1)*(type+2)/2
         int_nbf_s(type) = 2*type+1
       enddo
+     
 c
 c initialize cando information from rtdb
 c

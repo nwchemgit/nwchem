@@ -1,19 +1,6 @@
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intd_1eov.F,v 1.4 1996-07-18 23:58:38 d3e129 Exp $
-      implicit none
-c
-c returns 1e overlap derivative integrals for shells/contractions ish,jsh
-c
-#include "basP.fh"
-#include "basdeclsP.fh"
-#include "geomP.fh"
-#include "geobasmapP.fh"
-#include "mafdecls.fh"
-#include "bas_exndcf_dec.fh"
-#include "bas_ibs_dec.fh"
-c::external subroutines used
-c... errquit
+c $Id: intd_1eov.F,v 1.5 1997-04-25 00:41:02 d3e129 Exp $
 c::functions
       integer int_nint_cart
       external int_nint_cart
@@ -55,28 +42,96 @@ c                                          \
 c                       nint,d <ij>         |
 c                            -------------- |
 c                            d[idatom(2),z]/
-c
-      double precision scr(lscr) ! [input] scratch array
-      double precision Ova(*)    ! [output] derivative integrals
-c::local
-      integer nint, ucont
-      integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
-      integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
-c
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
-c
+      double precision scr(lscr)
+      double precision Ova(lOva)
+*
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*2.gt.lOva) then
         write(6,*) 'nint*3*2 = ',nint*3*2
         write(6,*) 'lOva     = ',lOva
         call errquit('intd_1eov: nint>lOva error',911)
       endif
+      call intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
+     &    OVa,idatom)
+      end
+      
+      subroutine intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       nint,Ova,idatom)
+      implicit none
 c
-c  check if spherical
+c returns 1e overlap derivative integrals for shells/contractions ish,jsh
 c
-      call int_nospherical_check(i_basis,'intd_1eov')
-      call int_nospherical_check(j_basis,'intd_1eov')
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+c::external subroutines used
+c... errquit
+c::passed
+      integer i_basis   ! [input] ish basis set handle
+      integer ish       ! [input] "i" contraction index
+      integer j_basis   ! [input] jsh basis set handle
+      integer jsh       ! [input] "j" contraction index
+      integer lscr      ! [input] length of scratch space "scr"
+      integer nint      ! [input] number of overlap integral derivatives in shells ish and jsh
+c                       ! NOTE: nint*3 integral derivatives returned per unique center
+      integer idatom(*) ! [output] array identifying centers for derivatives
+c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
+c                       !       the second nint*3 derivatives go to center idatom(2)
+c
+c Order is...   nint*3*2 (3=> xyz, 2=atoms)
+c
+c  /                   |   
+c | nint,d <ij>        |
+c |      --------------|
+c  \     d[idatom(1),x]|
+c                          |
+c       nint,d <ij>        |
+c            --------------|
+c            d[idatom(1),y]|
+c                              |
+c           nint,d <ij>        |
+c                --------------|
+c                d[idatom(1),z]|
+c                                  |
+c               nint,d <ij>        |
+c                    --------------|
+c                    d[idatom(2),x]|
+c                                      |
+c                   nint,d <ij>        |
+c                        --------------|
+c                        d[idatom(2),y]|
+c                                          \
+c                       nint,d <ij>         |
+c                            -------------- |
+c                            d[idatom(2),z]/
+c
+      double precision scr(lscr)     ! [input] scratch array
+      double precision Ova(nint,3,2) ! [output] derivative integrals
+c::local
+      integer nint, ucont
+      integer ibas,iatom,inp,igen,iexp,icf,itype,igeom
+      integer jbas,jatom,jnp,jgen,jexp,jcf,jtype,jgeom
+      logical any_spherical
+      integer i_nbf_x, j_nbf_x
+      integer i_nbf_s, j_nbf_s
+      integer nint_x, nint_s
+      integer zatom, zyx
+c
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+c
+c  check if gencont, or spshell
+c
+      call int_nogencont_check(i_basis,'intd_1eovP:i_basis')
+      call int_nogencont_check(j_basis,'intd_1eovP:j_basis')
+      call int_nospshell_check(i_basis,'intd_1eovP:i_basis')
+      call int_nospshell_check(j_basis,'intd_1eovP:j_basis')
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -109,9 +164,9 @@ c
       jgeom = ibs_geom(jbas)
 c
       if (igeom.ne.jgeom) then
-        write(6,*)'intd_1eov.F: two different geometries for',
+        write(6,*)'intd_1eovP: two different geometries for',
      &         ' derivatives?'
-        call errquit('intd_1eov: geom error ',911)
+        call errquit('intd_1eovP: geom error ',911)
       endif
 c
       call hf1d(
@@ -130,5 +185,79 @@ c
 c............overlap, k-e,     pot-e,    canab,  dryrun
      &       .true.,  .false., .false., .false., .false.,
      &       scr,lscr)
+c
+*     Ova now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,2)
+*      
+      any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
+      if (.not.any_spherical) return
+c
+c ... reset general contractions for sp shells to 1 since they are handled
+c     as a block of 4.
+c
+      if (itype.eq.-1) igen = 1
+      if (jtype.eq.-1) jgen = 1
+c
+      if (bas_spherical(ibas).and.bas_spherical(jbas)) then
+*... transform both i and j integrals
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+c        
+        do zatom = 1,2
+          do zyx = 1,3
+            call spcart_tran1e(Ova(1,zyx,zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+        enddo
+      else if (bas_spherical(ibas)) then
+*.. transform on i component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = int_nbf_s(Itype)
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = j_nbf_x
+        do zatom = 1,2
+          do zyx = 1,3
+            call spcart_tran1e(Ova(1,Zyx,Zatom),scr,
+     &          j_nbf_x,i_nbf_x,0,jgen,
+     &          j_nbf_s,i_nbf_s,Itype,igen,
+     &          .false.)
+          enddo
+        enddo
+      else if (bas_spherical(ibas)) then
+*.. transform on i component
+        i_nbf_x = int_nbf_x(Itype)
+        i_nbf_s = i_nbf_x
+        j_nbf_x = int_nbf_x(Jtype)
+        j_nbf_s = int_nbf_s(Jtype)
+        do zatom = 1,2
+          do zyx = 1,3
+            call spcart_tran1e(Ova(1,Zyx,Zatom),scr,
+     &          j_nbf_x,i_nbf_x,Jtype,jgen,
+     &          j_nbf_s,i_nbf_s,0,igen,
+     &          .false.)
+          enddo
+        enddo
+      else
+        call errquit(
+     &        'intd_1eovP: should never reach transform blocked else',
+     &        911)
+      endif
+c
+c now shuffle transformed buffers to contiguous space
+c
+      nint_x = i_nbf_x*j_nbf_x
+      nint_s = i_nbf_s*j_nbf_s
+      if (nint_s.gt.nint_x) then
+        call errquit
+     &      ('intd_1eh1: nint_s >.nint_x diff=',(nint_s-nint_x))
+      elseif (nint_s.eq.nint_x) then
+        return
+      else
+        call intd_c2s_mv
+     &      (Ova,nint_x,nint_s,(3*2),scr,lscr,'intd_1eov')
+      endif
 c
       end

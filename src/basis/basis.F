@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.67 1997-04-23 18:09:08 d3e129 Exp $
+c $Id: basis.F,v 1.68 1997-04-25 00:41:24 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -37,6 +37,8 @@ c.. integer data in basis set object common
       idata = idata + nbasis_rtdb_mx              ! len_bs_rtdb
       idata = idata + nbasis_bsmx                 ! bsactive (int==logical)
       idata = idata + nbasis_bsmx                 ! bas_spherical (int==logical)
+      idata = idata + nbasis_bsmx                 ! bas_any_gc (int==logical)
+      idata = idata + nbasis_bsmx                 ! bas_any_sp_shell (int==logical)
       idata = idata + nbasis_bsmx                 ! bas_norm_id
       idata = idata + nbasis_bsmx                 ! angular_bs
       idata = idata + nbasis_bsmx                 ! nbfmax_bs
@@ -251,10 +253,12 @@ c
       endif
 
 c
-      angular_bs(basis)    = -565
-      bas_norm_id(basis)   = -565
-      bsactive(basis)      = .false.
-      bas_spherical(basis) = .false.
+      angular_bs(basis)       = -565
+      bas_norm_id(basis)      = -565
+      bsactive(basis)         = .false.
+      bas_spherical(basis)    = .false.
+      bas_any_gc(basis)       = .false.
+      bas_any_sp_shell(basis) = .false.
 c
       if (exndcf(SZ_exndcf,basis).gt.0) then
         h_tmp = exndcf(H_exndcf,basis)
@@ -1185,6 +1189,7 @@ c::local
       integer j, jstart, jend, jsize
       integer kstart, kend, ksize, lsize, icount
       integer nbf, iu_cont, myang
+      integer my_gen, my_type
       integer atn
       character*16 element
       character*2  symbol
@@ -1232,6 +1237,33 @@ c.... set spherical flag
         bas_spherical(basis) = .true.
       else
         bas_spherical(basis) = .false.
+      endif
+c.... set flag if any general contractions are present
+      bas_any_gc(basis)       = .false.
+      if(.not. Is_ECP(basis)) then
+        do i = 1,(infbs_head(Head_Ncont,basis))
+          if (.not.bas_any_gc(basis)) then
+            my_gen  = infbs_cont(Cont_Ngen,i,basis)
+            my_type = infbs_cont(Cont_Type,i,basis)
+            if (my_gen.gt.1.and.my_type.ge.0)
+     &          bas_any_gc(basis) = .true.
+          endif
+        enddo
+      endif
+c.... set flag if any sp (spd,spdf) shells are present
+      bas_any_sp_shell(basis) = .false.
+      if(.not. Is_ECP(basis)) then
+        do i = 1,(infbs_head(Head_Ncont,basis))
+          if (.not.bas_any_sp_shell(basis)) then
+            if (my_type.lt.0) then
+              if (my_gen.ne.2) then
+                write(luout,*)' sp shell with n_gen = ',my_gen
+                call errquit ('bas_geobas_build: fatal error',911)
+              endif
+              bas_any_sp_shell(basis) = .true.
+            endif
+          endif
+        enddo
       endif
 c
 c... clear old ibs_ce2uce if it exists

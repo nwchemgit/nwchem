@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.13 1997-04-22 20:22:01 d3e129 Exp $
+c $Id: exactd_mem.F,v 1.14 1997-04-25 00:40:32 d3e129 Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -113,6 +113,7 @@ c::local
       integer bra_gen, ket_gen
       integer max_nbf_bra,max_nbf_ket, nat
       integer bra_fact, ket_fact
+      double precision factor
 c
 #include "bas_exndcf_sfn.fh"
 c
@@ -195,9 +196,14 @@ c
       endif
 c
       max1e = max_nbf_bra*max_nbf_ket*nat*3
+      memsize = max(max1e,memsize)
 c
-*     write(6,'(a,i10)')'emem_d1e: memsize =',memsize
-*     write(6,'(a,i10)')'emem_d1e: max1e   =',max1e
+      factor = 1.10d00
+      memsize = int(dble(memsize)*factor)
+      max1e   = int(dble(max1e)*factor)
+*debug:      write(6,'(a,i10)')'emem_d1e: memsize =',memsize
+*debug:      write(6,'(a,i10)')'emem_d1e: max1e   =',max1e
+*debug:      write(6,*)' factor =',factor
 c
       end
 c:tex-% part of the API Internal Routines
@@ -237,6 +243,7 @@ c::local
       integer max_nbf_bra,max_nbf_ket
       integer bra_geom, ket_geom, nat
       integer bra_fact, ket_fact
+      double precision factor
 *debug:-start-debug
 *debug:      integer fbra, fket, find
 *debug:-start-end
@@ -402,18 +409,23 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . triple (bk|kk)
 00200   continue
 00100 continue
 c
-      if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_d2e4c:bas_nbf_cn_max error ',2)
-      if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_d2e4c:bas_nbf_cn_max error ',2)
-c
+      call int_nbf_max(brain,max_nbf_bra)
+      if (ketin.eq.brain) then
+        max_nbf_ket = max_nbf_bra
+      else
+        call int_nbf_max(ketin,max_nbf_ket)
+      endif
       maxg = max_nbf_bra*max_nbf_bra
       maxg = maxg*max_nbf_ket*max_nbf_ket
       maxg = maxg*12
-      
+      memsize = max(memsize,maxg)
+      factor = 1.10d00
+      memsize = int(dble(memsize)*factor)
+      maxg    = int(dble(maxg)*factor)
 c
 *debug:      write(6,'(a,i10)')'emem_d2e4c: memsize =',memsize
 *debug:      write(6,'(a,i10)')'emem_d2e4c: maxg    =',maxg
+*debug:      write(6,*)' factor =',factor
 c
       end
 
