@@ -1,5 +1,5 @@
       logical function stpr_walk(flag,rtdb)
-c $Id: stpr_walk.F,v 1.17 1995-11-20 23:31:59 d3e129 Exp $
+c $Id: stpr_walk.F,v 1.18 1995-11-28 20:50:25 hltaylor Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -218,7 +218,7 @@ c
      &      call errquit
      &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)
 c
-********************#define SC95
+#define SC95
 #if defined(SC95)
         write(luout,*)'<stepper updated geometry> start '
         if(.not. geom_print(geom)) call errquit
@@ -267,7 +267,7 @@ c
         if (stpr_walk) int_val = 1
         if(step_number.le.0) then
           write(6,*)' maximum number of geometry optimization ',
-     &        'iterations exceded:  graceful shutdown will occur'
+     &        'iterations exceeded:  graceful shutdown will occur'
           int_val = -1
         endif
       endif
