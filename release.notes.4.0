@@ -85,6 +85,9 @@ Basis Sets:
   o Basis set library has been updated to include all new basis sets at the EMSL
     Gaussian Basis Set Order Form page of David Feller 
     (http://www.emsl.pnl.gov:2080/forms/basisform.html)
+  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the 
+    Douglas-Kroll and DmD approximations.
+  o Dyall double-zeta basis sets for the 4p, 5p and 6p elements added
   o Some of the old basis sets were corrected:
     o Basis Set "Ag_Hay-Wadt_VDZ_(n+1)_ECP", correction coefficient in first 
       s-contraction
@@ -93,9 +96,6 @@ Basis Sets:
       sets
     o ECP "Ce_SBKJC_VDZ_ECP", correction switched integer powers for d-f 
       component
-  o Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the 
-    Douglas-Kroll and DmD approximations.
-  o Dyall double-zeta basis sets for the 4p, 5p and 6p elements added
 
 Geometry: 
 
@@ -188,6 +188,8 @@ MD:
 
 Analysis:
 
+  o ANALYSIS module can not be used on WIN32 platforms because of problems with
+    the Global Array tools.
   o Essential dynamics analysis.
   o Structural analysis: internal degrees of freedom, RMS deviations, atom 
     and charge distributions, atomic distances.
