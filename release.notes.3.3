@@ -1,0 +1,272 @@
+NWChem Version 3.3 Release Notes
+(Also available at http://www.emsl.pnl.gov/pub/docs/nwchem/support/release.3.3.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 3.3. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+Several new major capabilities are available in NWChem, including several new
+modules. The new modules are: 
+
+  o Car-Parrinello simulations (the PSPW module), 
+  o Python interface (the PYTHON module), and 
+  o analysis of trajectory information during a molecular dynamics calculation
+    and of ESP calculations(the ANALYSIS module). 
+
+For each of these capabilities, the user is referred to the User Manual for more
+information. 
+
+Additional major additions to the capabilities include: 
+
+  o GIAO NMR chemical shift capabilities for closed shells (GIAO in the
+    PROPERTY module), 
+  o The DRIVER module has been greatly improved, with many new features, 
+  o Several new DFT functionals have been added: 
+        Exchange Perdew91, Gill96, and PBE96 functionals 
+        Correlation PBE96 functional 
+        Exchange-Correlation Becke97, Becke97-1, and HCTH functionals 
+  o The ElectroStatic Potential (ESP) module has several new features, 
+  o Automatic recognition of molecular symmetry (AUTOSYM in the
+    GEOMETRY module), 
+  o Addition of Hondo 1e- energy and gradient integrals, 
+  o Increased accuracy in the integral API. 
+
+Again, for each of these capabilities, the user is referred to the User Manual for
+more information. 
+
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+Task level directives: 
+
+  o Unrecognized directives will now cause NWChem to stop and print an
+    error message 
+  o Task analysis added for MD runs 
+  o Task python added for python interface 
+  o Task pspw added for pseudopotential plane-wave (Car-Parrinello) runs 
+
+Initial orbital Guess: 
+
+  o New code from Paul Sherwood to generate reasonable initial atomic
+    guesses for heavy elements with ECPs. This generates guess densities for
+    those atoms that previously didn't work and produces much better guess
+    densities than the previous version. 
+  o The atomic guess code now generates f orbital density fragments in the
+    correct order for both cartesian and spherical basis sets. 
+  o Higher accuracy is now used in the initial guess to accomodate large basis
+    sets. If linear dependencies are found, even higher accuracy is used. 
+  o Users are warned if initial guess can lead to symmetry problems. 
+  o BUG FIX: UHF projections of small basis sets to large basis sets will now
+    work 
+
+Basis Sets: 
+
+  o Basis set library has been updated to include all new basis sets at the EMSL
+    Gaussian Basis Set Order Form page of David Feller 
+    (http://www.emsl.pnl.gov:2080/forms/basisform.html)
+  o BUG FIX: Some of the Stuttgart ECPs which had the coefficients and
+    exponents switched are now correct. 
+
+Geometry: 
+
+  o Extended redundant internals to allow user constraints. 
+  o Adjustable geometries. 
+  o AUTOZ is now the default. 
+  o A tolerance is now available in SYMMETRY directive of GEOMETRY
+    directive. 
+  o AUTOSYM is now available (with a tolerance) on the GEOMETRY line
+    directive. 
+  o Optional velocity input for Car Parinello code. 
+  o More robust z-matrix code. 
+  o C7 and D6 symmetries are properly set up. 
+
+DFT: 
+
+  o Introduced X Perdew91, Gill96, and PB96 functionals. 
+  o Introduced C PB96 functional. 
+  o Introduced XC Becke97, Becke97-1, and HCTH. 
+  o DFT is now able to use spherical basis functions as well as cartesian. 
+  o DFT gradients can now use the Texas integrals. 
+  o Linear scaling is acheived in the exchange contribution when charge fitting
+    basis sets are used with hybrid density functionals. 
+  o If the vectors directive is used with SCF or DFT and a problem occurs, the
+    atomic guess will be used. 
+  o Lebedev grids have been significantly modified. 
+  o Delley weights are no longer allowed. 
+  o Modified grid input: you can now add nrad nang accqrad. 
+  o Better screening on the exchange correlation numerical grid, which
+    improves performance by at least 20%. 
+  o Default convergence parameters was modified to produce more robust
+    results. 
+  o Introduced check on integrated density: a warning message is printed if the
+    claimed accuracy criteria for the XC numerical grid are not met. 
+  o Default finite difference step for nuclear hessian generation for DFT
+    changed to 0.01 au and for all other methods it is 0.001 au. 
+  o BUG FIX: In cases in which the spin polarization is large in open shell
+    systems, wrong wave functions and gradients were obtained using
+    Perdew86 C functionals. This has been fixed. 
+  o BUG FIX: If the user has a CD fitting basis set with a shell larger than any
+    shell in the AO basis set, the program would stop. This no longer applies. 
+  o BUG FIX: All hybrid functionals were giving incorrect results when using
+    open shell wavefunctions because the total density was being used instead
+    of separate alpha and beta Hartree-Fock exchange contributions. This is
+    now fixed. (It was also fixed in later releases of 3.2.1.) 
+
+SCF: 
+
+  o Eliminated or tightened screening options to make integral selection
+    threshold more consistent between file and direct routines. 
+  o Improved precision in linear solve to stabilize direct SCF. 
+  o If the vectors directive is used with SCF or DFT and a problem occurs, the
+    atomic guess will be used. 
+
+Driver: 
+
+  o Revamped Driver capabilities. 
+  o Ensure constraints are imposed after geometry step. 
+  o Extended redundant internals to allow user constraints. 
+  o AUTOZ is now the default. 
+
+Properties: 
+
+  o Note that spherical functions do not work yet with properties. 
+  o Input for the NBO program are produced. 
+  o Addition of GIAO NMR chemical shift calculations. 
+  o Added "all" keyword. 
+  o BUG FIX:Property package will correctly skip property evaluation for
+    generally contracted basis sets and basis sets with pure sp functions (to get
+    the properties use the "segement" keyword when specifying a basis set). 
+
+MP2: 
+
+  o TIGHT directive MP2 for higher precision energy and gradients 
+  o BUG FIX: Non-abelian point groups are now handled properly in the MP2
+    gradient code. 
+  o Make RI-MP2 compute SCF reference if it is not already done (or done
+    with sufficient accuracy). 
+  o BUG FIX: RIMP2 - Fix overflow memory problem for large jobs. 
+
+Hessian and Frequencies: 
+
+  o Default finite difference step for nuclear hessian generation for DFT
+    changed to 0.01 au and for all other methods it is 0.001 au. 
+  o BUG FIX: Numerical hessian restarts now work properly. 
+
+ESP: 
+
+  o Use of fast routines for ESP calculations. 
+  o Write name.xyz and name.plt file (plot with gOpenMol). 
+  o Write name.er file to recover previous runs. 
+  o Write name.q file with partial charges. 
+  o Added Schwarz screening - screen option in ESP block. 
+  o Added option to read in previous esp grid, if name.grid is present, it will
+    automatically get used unless you give a command recalculate. 
+  o Print atom radii. 
+  o Additional constraint options. 
+
+Prepare module: 
+
+  o Changed topology and restart format printed out. 
+  o New ALTLOC, MODEL, LINK, and CHAIN commands. 
+  o Allow comment lines in sequence file - begin line with #. 
+  o Always recalculate grid if ESP required on a fragment. 
+  o Implement 'modify segment' and 'update lists' commands. 
+  o Force PDB link cards. 
+  o Add modify commands for bonded interaction parameters. 
+  o Recode pre_mklist to allow and identify multiple node (greater than 3)
+    bonded interactions. 
+  o Automatically identifies cysteine-sulphur bridges. 
+  o Default HIS to HID for amber when reading PDB without hydrogens. 
+  o Write out segment charges when writing topology file. 
+  o Add support for DNA and RNA with AMBER force field. 
+  o Add ignore keyword so that bonded parameters between quantum atoms
+    do not need to be defined in the database. 
+  o Make 1.0 default scaling for ESP fitted charges. 
+  o BUG FIX:Multiple node bonded interaction error takes care of itself. 
+  o BUG FIX:If last segment was a single atom, the atom would be lost. This
+    is now fixed. 
+  o KNOWN BUG:In some systems, when converting a restart file to a PDB
+    file, the restart file gets corrupted. 
+
+MD: 
+
+  o Changed topology format - cannot use old files with the new code!! 
+  o Added ability to analyze the trajectory on the fly - see the ANALYSIS
+    module of User Manual. 
+  o Implement periodic boundary conditions for bonded interactions. 
+  o Improved load balancing. 
+  o Dynamic assignment of subset of nodes for performing the FFT
+    calculation. 
+  o Split PME calculation now default - see pme keyword in MD block. 
+  o Improved periodic boundary condition scheme. 
+  o Exclude constraints between atoms fixed in space - improves reliability of
+    Shake algorithm. 
+  o Remove the restriction that bonded interactions can involve atoms on at
+    most two segments. 
+  o Improved printing SHAKE dev-too-large error message identifying the
+    atoms that are involved. 
+  o BUG FIX: Fix J-Box or I-Box is Illegal problem. Prevent dimension
+    problems if box index list from previous run exceeds current dimension. 
+
+Integral changes: 
+
+  o Inclusion of energy and gradient one-electron integrals from HONDO. 
+  o Turn off SP integral code due to accuracy problems. 
+  o Several fixes to the integral code with respect to memory and bugs in
+    TEXAS when high angular momentum and large exponents are present in
+    the basis set. 
+  o Fix of ECP integral bug when the ECP contained a zero r-exponent. 
+  o Routines for relativistic integral code (include?) 
+  o Generates relativistic one-electron integrals (include?) 
+
+Tests, manuals and misc script changes: 
+
+  o Updated User's Manual to reflect new and modified functionality in
+    NWChem. 
+  o QA tests have been updated to reflect the new functionality in NWChem. 
+  o Updated scripts to run NWChem in LoadLeveller and NQE and to test
+    results. 
+  o Addition of some scripts to create animated gifs based on using RASMOL
+    and files printed out by NWChem during optimizations and frequency
+    calculations. 
+  o Updates in the Programmer's Manual (much more is still left to come!). 
+
+Installation availability: 
+
+The current tested platforms and O/S versions are: 
+
+  o IBM SP with P2SC nodes, AIX 4.2.1, and PSSP 2.3 
+  o IBM SP with silver nodes (SMP nodes with two 604e processors), AIX
+    4.3.2, and PSSP 3.1. 
+  o IBM RS6000 workstation, AIX 3.2, 4.1. and 4.3 
+  o Cray T3E, 2.0.4.61 UNICOSMK 
+  o SGI R8000/10000, IRIX 6.2, 6.5 
+  o SGI R4000, IRIX 5.3 
+  o SUN workstations, SunOS 4.1.3 and Solaris 5.5 
+  o Compaq DEC alpha workstion (600 MHz EV6), Digital UNIX V4.0E Rev.
+    1091, DEC C V5.8-009, Digital Fortran V5.2 
+  o Linux. Since there are at least 8 popular distributions of the Linux
+    operating system and numerous others in existence, including
+    downloading everything and building your own Linux OS, it is impossible
+    to test all possible versions of Linux with NWChem. NWChem Release 3.3
+    has been tested on Slackware 3.4, 3.5, 4.0, RedHat 5.1, 5.2, and 6.0,
+    Mandrake based on RedHat 6.0, and RedHat 6.0 for the Power PC
+    Macintosh. These all use the EGCS compilers at different levels. Those
+    distributed from Slackware are somewhat different than those distributed
+    from RedHat but the code is configured to run on all of them. The Linux
+    Alpha version 5.2 from Red Hat fails to compile the code as well as the beta
+    release of the Digital Fortran compiler for Linux based Alpha systems. 
+
+NOTE:In releases of NWChem prior to 3.3 additional processes had to be
+created on workstation clusters to support remote access to shared memory.
+This is no longer the case. The TCGMSG process group file just needs to refer
+to processes running NWChem. 
+
+A general FAQ is available at 
+http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
+
+A list of Known Bugs is available at
+http://www.emsl.pnl.gov:2080/docs/nwchem/support/known_bugs.3.3.html
