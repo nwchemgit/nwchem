@@ -1,6 +1,6 @@
-      subroutine ana_wthdr(iunit,fmt,sgmnam)
+      subroutine ana_wthdr(iunit,fmt,sgmnam,tag)
 c
-c $Id: ana_wthdr.F,v 1.1 1999-01-29 18:10:44 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.2 1999-03-15 21:27:53 d3j191 Exp $
 c
       implicit none
 c
@@ -11,11 +11,16 @@ c
       character*3 fmt
       character*4 cnum
       character*255 fname
+      character*24 tag(msa,2)
 c
       character*80 label
 c
-      integer i,ib,jb,nsb,lq
+      integer i,ib,j,jb,nsb,lq
       logical binary
+c
+      character*1 cdummy
+      character*2 elemnt
+      character*18 name
 c
       if(me.eq.0) then
 c
@@ -108,18 +113,18 @@ c
       write(iunit) label
       endif
 c
-      if(fmt.eq.'mdm') then
-      label='ecce mdm trajectory file'
+      if(fmt.eq.'mvm') then
+      label='ecce mvm trajectory file'
       write(iunit,4000) label
- 4000 format('title:          ',a)
-      write(iunit,4001)
- 4001 format('type:           molecule')
-      write(iunit,4002)
- 4002 format('centering:      0')
-      write(iunit,4003) nsa
- 4003 format('num_atoms:      ',i7)
-      write(iunit,4004)
- 4004 format('atom_info:      symbol cart')
+ 4000 format('# ',a)
+c      write(iunit,4001)
+c 4001 format('type:           molecule')
+c      write(iunit,4002)
+c 4002 format('centering:      0')
+c      write(iunit,4003) nsa
+c 4003 format('num_atoms:      ',i7)
+c      write(iunit,4004)
+c 4004 format('atom_info:      symbol cart')
 c      open(unit=44,file='bond.list',form='formatted',
 c     + status='unknown')
 c      rewind(44)
@@ -136,6 +141,40 @@ c
       label='EcceImport 1.1'
       write(iunit,5000) label
  5000 format(a,/,' ')
+      endif
+c
+      if(fmt.eq.'frm') then
+      write(iunit,6001) nsa
+ 6001 format('Atoms {',/,i8)
+      do 2 i=1,nsa
+      elemnt=sgmnam(i)(6:7)
+      name=sgmnam(i)(11:16)//':'//sgmnam(i)(1:5)//':'//sgmnam(i)(6:10)
+      do 3 j=8,14
+      if(name(j:j).eq.' ') name(j:j)='_'
+    3 continue
+      if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
+     + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
+      write(iunit,6002) elemnt,name,tag(i,1)(1:index(tag(i,1),' ')-1),
+     + tag(i,2)(1:index(tag(i,2),' ')-1)
+ 6002 format(a2,1x,a18,1x,a,1x,a)
+    2 continue
+      open(unit=44,file='bond.list',form='formatted',
+     + status='unknown')
+      rewind(44)
+      read(44,4401) nsb
+ 4401 format(11x,i8)
+      read(44,4402) cdummy
+ 4402 format(a1)
+      write(iunit,6005) nsb
+ 6005 format('}',/,'Bonds {',/,i8)
+      do 4 i=1,nsb
+      read(44,6006) ib,jb
+      write(iunit,6006) ib,jb
+ 6006 format(2i8)
+    4 continue
+      close(unit=44)
+      write(iunit,6007)
+ 6007 format('}')
       endif
 c
       endif

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 1999-02-01 16:58:49 d3j191 Exp $
+# $Id: GNUmakefile,v 1.5 1999-03-15 21:27:54 d3j191 Exp $
 #
  OBJ_OPTIMIZE = ana_data.o\
                 ana_finish.o\
@@ -16,6 +16,7 @@
                 ana_select.o\
                 ana_sizref.o\
                 ana_super.o\
+                ana_tag.o\
                 ana_task.o\
                 ana_trajct.o\
                 ana_wtfram.o\
@@ -23,7 +24,7 @@
                 analyz.o\
                 super.o
 
-LIBRARY=libnwargos.a
+LIBRARY=libanalyze.a
 
 HEADERS=
 

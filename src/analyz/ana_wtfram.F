@@ -1,6 +1,6 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam)
 c
-c $Id: ana_wtfram.F,v 1.1 1999-01-29 18:10:43 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.2 1999-03-15 21:27:51 d3j191 Exp $
 c
       implicit none
 c
@@ -18,6 +18,9 @@ c
       character*4 cnum
       character*255 fname
       character*2 elemnt
+c
+      character*1 cdummy
+      integer nsb,ib,jb
 c
       if(me.eq.0) then
 c
@@ -59,7 +62,7 @@ c
       endif
 c
       if(fmt.eq.'arc') then
-      call arg_swatch(today,now)
+      call swatch(today,now)
       write(iunit,2000) time,today,now
  2000 format('title ',t67,f10.3,/,'!DATE ',2a10)
       do 2 i=1,nsa
@@ -103,6 +106,46 @@ c
     3 continue
       write(iunit,5003)
  5003 format('}')
+      endif
+c
+      if(fmt.eq.'mvm') then
+      write(iunit,6001) nsa
+ 6001 format('Geometry{',/,'num_atoms:',i7,/,'atom_list:')
+      do 4 i=1,nsa
+      elemnt=sgmnam(i)(6:7)
+      if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
+     + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
+      write(iunit,6002) elemnt,(1.0d1*x(i,j),j=1,3)
+ 6002 format(a2,3f12.4)
+    4 continue
+      open(unit=44,file='bond.list',form='formatted',
+     + status='unknown')
+      rewind(44)
+      read(44,4401) nsb
+ 4401 format(11x,i8)
+      read(44,4402) cdummy
+ 4402 format(a1)
+      write(iunit,6003) nsb
+ 6003 format('num_bonds:      ',i7,/,'bond_list:')
+      do 5 i=1,nsb
+      read(44,6004) ib,jb
+      write(iunit,6004) ib,jb
+ 6004 format(2i8)
+    5 continue
+      close(unit=44)
+      write(iunit,6005)
+ 6005 format('}')
+      endif
+c
+      if(fmt.eq.'frm') then
+      write(iunit,7001)
+ 7001 format(/,'Geometry {')
+      do 6 i=1,nsa
+      write(iunit,7002) (1.0d1*x(i,j),j=1,3)
+ 7002 format(3f12.4)
+    6 continue
+      write(iunit,7003)
+ 7003 format('}')
       endif
 c
       endif

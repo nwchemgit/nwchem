@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.3 1999-01-29 18:10:40 d3j191 Exp $
+c $Id: ana_input.F,v 1.4 1999-03-15 21:27:47 d3j191 Exp $
 c
       implicit none
 c
@@ -10,20 +10,21 @@ c
 #include "mafdecls.fh"
 c
       integer irtdb
-      character*255 item,select,fpref,project
+      character*255 item,select,filtag,fpref,project
       character*255 filref,filsco,filcop,filsup
       integer lcop,lsup,lrms
       character*3 fmtcop,fmtsup
 c
       integer irmsd
-      integer isel,jsel,numsel
+      integer isel,jsel,numsel,iatag,jatag,numtag
       character*255 atom
       real*8 timoff
       integer ifrfr,ifrto,mcopf,msupf,ifrst,ilast
 c
-      real*8 rcut,spac
-      integer lplt
+      real*8 rcut,spac,rtag,rsel
+      integer lplt,itag
       character*255 filchg,filplt,filxyz
+      character*24 tag
 c
       irmsd=0
       lcop=0
@@ -39,6 +40,8 @@ c
       lplt=0
       rcut=0.3d0
       spac=0.05d0
+      rtag=0.0d0
+      rsel=0.0d0
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Analysis Input Module',40,.true.)
@@ -48,6 +51,7 @@ c
      + call errquit('rtdb_cget failed on file_prefix',9999)
 c
       select=fpref(1:index(fpref,' ')-1)//'.sel '
+      filtag=fpref(1:index(fpref,' ')-1)//'.tag '
 c
 c     default reference taken from ${file_prefix}.rst
 c
@@ -79,6 +83,11 @@ c
      + form='formatted',status='unknown',err=9999)
       rewind(unit=69)
       numsel=0
+c
+      open(unit=68,file=filtag(1:index(filtag,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      rewind(unit=68)
+      numtag=0
 c
     1 continue
 c
@@ -131,8 +140,8 @@ c
       fmtsup='amb'
       if(.not.inp_a(item)) goto 1
       endif
-      if(inp_compare(.false.,'mdm',item)) then
-      fmtsup='mdm'
+      if(inp_compare(.false.,'mvm',item)) then
+      fmtsup='mvm'
       if(.not.inp_a(item)) goto 1
       endif
       if(inp_compare(.false.,'xyz',item)) then
@@ -141,6 +150,10 @@ c
       endif
       if(inp_compare(.false.,'eci',item)) then
       fmtsup='eci'
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'frm',item)) then
+      fmtsup='frm'
       if(.not.inp_a(item)) goto 1
       endif
       filsup=item
@@ -163,8 +176,8 @@ c
       fmtcop='amb'
       if(.not.inp_a(item)) goto 1
       endif
-      if(inp_compare(.false.,'mdm',item)) then
-      fmtcop='mdm'
+      if(inp_compare(.false.,'mvm',item)) then
+      fmtcop='mvm'
       if(.not.inp_a(item)) goto 1
       endif
       if(inp_compare(.false.,'xyz',item)) then
@@ -175,23 +188,59 @@ c
       fmtcop='eci'
       if(.not.inp_a(item)) goto 1
       endif
+      if(inp_compare(.false.,'frm',item)) then
+      fmtcop='frm'
+      if(.not.inp_a(item)) goto 1
+      endif
       filcop=item
       goto 2
       endif
 c
       if(inp_compare(.false.,'select',item)) then
+      rsel=0.0d0
       isel=0
       jsel=0
       atom=' '
       if(inp_i(isel)) then
       if(.not.inp_i(jsel)) jsel=isel
+      else
+      if(inp_f(rsel)) then
+      if(inp_i(isel)) then
+      if(.not.inp_i(jsel)) jsel=isel
+      endif
+      endif
       endif
       if(.not.inp_a(atom)) goto 4
     4 continue
       numsel=numsel+1
-      write(69,6900) isel,jsel,atom(1:index(atom,' ')-1)
- 6900 format(2i7,a)
+      write(69,6900) isel,jsel,rsel,atom(1:index(atom,' ')-1)
+ 6900 format(2i7,f12.6,a)
       if(inp_a(atom)) goto 4
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'label',item)) then
+      rtag=0.0d0
+      if(.not.inp_i(itag)) call errquit('ana_input: label failed',0)
+      if(.not.inp_a(tag)) call errquit('ana_input: label failed',0)
+      iatag=0
+      jatag=0
+      atom=' '
+      if(inp_i(iatag)) then
+      if(.not.inp_i(jatag)) jatag=iatag
+      else
+      if(inp_f(rtag)) then
+      if(inp_i(iatag)) then
+      if(.not.inp_i(jatag)) jatag=iatag
+      endif
+      endif
+      endif
+      if(.not.inp_a(atom)) goto 44
+   44 continue
+      numtag=numtag+1
+      write(68,6800) itag,tag,iatag,jatag,rtag,atom(1:index(atom,' ')-1)
+ 6800 format(i3,a24,2i7,f12.6,a)
+      if(inp_a(atom)) goto 44
       goto 2
       endif
 c
@@ -333,6 +382,12 @@ c
       close(unit=69)
       else
       close(unit=69,status='delete')
+      endif
+c
+      if(numtag.gt.0) then
+      close(unit=68)
+      else
+      close(unit=68,status='delete')
       endif
 c
       return

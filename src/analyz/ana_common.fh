@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.3 1999-01-29 18:10:38 d3j191 Exp $
+c $Id: ana_common.fh,v 1.4 1999-03-15 21:27:41 d3j191 Exp $
 c
       integer irtdb,me,np,lfnana,lfnref,lfnsco,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz
@@ -23,10 +23,10 @@ c
 c
       integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,l_isel,
      + i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
-     + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid
+     + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag
       common/ana_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,
      + l_isel,i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
-     + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid
+     + i_x,l_x,i_q,l_q,i_t,l_t,i_grid,l_grid,i_tag,l_tag
 c
       integer nsa,msa,ndata,nq
       common/ana_dim/nsa,msa,ndata,nq
