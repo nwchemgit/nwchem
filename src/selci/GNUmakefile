@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2000-08-01 20:59:54 d3g681 Exp $
+# $Id: GNUmakefile,v 1.21 2000-10-14 16:18:48 d3g681 Exp $
 #
 
 
@@ -10,7 +10,7 @@ BLAS     = mxma.o
 
 UOBJ = \
 iprtri.o	prtri.o  \
-input.o		icopy.o		output.o	yacobi.o \
+	icopy.o		output.o	yacobi.o \
 tred1.o		tqlrat.o	loadw.o		rdhint.o 	rdhcon.o \
 rdhwmt.o	rdconf.o	upkcon.o	prtcon.o	wrtcon.o \
 iodiff.o	bserch.o	popcnt32.o	readh.o  \
