@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.127 2004-02-01 01:12:17 d3j191 Exp $
+c $Id: sp_init.F,v 1.128 2004-02-24 03:21:36 d3j191 Exp $
 c
       implicit none
 c
@@ -2774,7 +2774,7 @@ c
       ltemp(1,1)=node
       ltemp(1,2)=nbl
       do 4 j=1,nbl
-      read(lfn,1004) (ltemp(j+1,k),k=1,4)
+      read(lfn,1004) (ltemp(j+1,k),k=1,mbb2)
  1004 format(8i10)
       if(mbb2.gt.4) then
       do 44 k=5,mbb2
