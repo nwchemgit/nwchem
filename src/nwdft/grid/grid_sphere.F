@@ -1,6 +1,6 @@
       logical function grid_insidesp(nx,ny,nz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.3 2000-03-17 02:58:57 edo Exp $
+c$Id: grid_sphere.F,v 1.4 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
       integer nx,ny,nz            ! [in]
@@ -82,39 +82,6 @@ c
       ny=nresid/(2*nxyz+1)-nxyz
       nresid=nresid-(ny+nxyz)*(2*nxyz+1)
       nx=nresid-nxyz
-      return
-      end
-      integer function grid_wcube(x,y,z,fnxyz,rad,ncubes)
-      integer ncubes
-      double precision x,y,z, rad
-      double precision fnxyz(*) ! remember to pass it as f(ntypes,1)
-#include "cdft.fh"      
-c     
-      integer nx,ny,nz,nn
-      integer lrec2
-      integer nxyz2n,onx,ony,onz,onxyz
-      nxyz2n(onx,ony,onz,onxyz)=(onx+onxyz)+
-     +( (ony+onxyz)+(onz+onxyz)*(2*onxyz+1) )*(2*onxyz+1)
-c
-      nxyz=nint((rad*2d0-l_rect)/(l_rect*2d0))
-
-c     get the cube
-c
-      lrec2=l_rec*2d0
-      nx=nint(x/lrect2)
-      ny=nint(y/lrect2)
-      nz=nint(z/lrect2)
-      nn=nxyz2n(nx,ny,nz,nxyz)
-c
-c     see which cube is associated by nn
-c
-      do i=1,ncubes
-         if(fnxyz(i).eq.nn) then
-            grid_wcube=i
-            return
-         endif
-      enddo
-      call errquit(' grid_wcube: failed',ncubes)
       return
       end
       subroutine grid_rmaxmin(nx,ny,nz,rmax,rmin,l)

@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.16 2000-03-17 02:58:57 edo Exp $
+c$Id: grid_tasks.F,v 1.17 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       integer iqsh, irsh, ictr, iang, npts_iqsh
       integer nq,nproc,me,g_buck,g_buckind,
      ,     k_qat,l_qat,nqsh_at,iii,i_a,ncu,
-     ,     nx,ny,nz,fnxyz,nxyz,nqtotc
+     ,     nx,ny,nz,fnxyz,nxyz,nqtotc,nq_cube
 
       logical trunc_neigh
       logical grid_file_open
@@ -53,8 +53,10 @@ c     Grid_pts caching/file information (from scf_get_info)
 c
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
+      write(0,*) ' filesize ',filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
+      write(0,*) ' memsize ',memsize
 c
 c     The opening routine will put the .pid on the grid_pts filename
 c     (hence even tho' parallel file, open as sequential)
@@ -123,22 +125,16 @@ c
 c
 c     loop over cubes centers on i_a
 c
-         do nx=-nxyz,nxyz
-            do ny=-nxyz,nxyz
-               do nz=-nxyz,nxyz
-                  write(0,*) ' nx ny nz ',nx,ny,nz
-!         do ncu=1,ncubes_type(iatype(i_a))
-!            fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
-!            write(0,*) ' ncu ',ncu,nxyz
-!            call n2nxyz(nxyz,fnxyz,nx,ny,nz)
+         do ncu=1,ncubes_type(iatype(i_a))
+            fnxyz=int_mb(k_nxyz+(iatype(i_a)-1)*ncubesmx+ncu-1)
+cedo            write(0,*) ' ncu ',ncu,nxyz
+            call n2nxyz(nxyz,fnxyz,nx,ny,nz)
             
 !            write(0,*) ' nxyz ',fnxyz,nx,ny,nz
             call grid_rmaxmin(nx,ny,nz,rmax,rmin,l_rect)
-            write(0,*) ' rmax rmin ',rmax,rmin
-            npts_iqsh = 0
-!            call dfill(4*npts_per_ang, 0.0d0, aqbuf, 1)
-            call dfill(4*5810, 0.0d0, aqbuf, 1)
-            rad_write=0d0
+            call dfill(4*npts_per_ang, 0.0d0, aqbuf, 1)
+            rad_write=rmax
+            nq_cube=0
          do 100 iii = 1, nqsh_at
             iqsh=int_mb(k_qat+iii-1)          
 c
@@ -149,7 +145,7 @@ c
 c     check if radius between rmin and rmax
 c            
             if(rad_sh.ge.rmin.and.rad_sh.le.rmax) then
-               rad_write=max(rad_write,rad_sh)
+cedo               rad_write=max(rad_write,rad_sh)
                ictr = qsh(2,iqsh)
                iang = qsh(3,iqsh)
                nq = npts_per_ang
@@ -158,22 +154,19 @@ c     Generate all angular quadrature points for this radial shell
 c     
 c     
             call grid_qpts(rad_sh,coord(1,ictr), ictr, irsh, iang, 
-     ,              aqbuf(1,npts_iqsh+1), nq, 
+     ,              aqbuf, nq, 
      ,           nx,ny,nz)
-            if(nq.ne.0) write(0,*) ' nq ',nq
+cedo            if(nq.ne.0) write(0,*) ' nq ',nq
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     
-            call grid_setspac(rtdb, coord, aqbuf(1,npts_iqsh+1),
+            call grid_setspac(rtdb, coord, aqbuf,
      ,           dbl_mb(irij), 
      &           dbl_mb(irq), dbl_mb(ip), ictr, nq,
      ,           dbl_mb(iexpo), rad_sh, trunc_neigh)
-            npts_iqsh = npts_iqsh+nq
-            write(0,*) ' nqsp nn ',nq,npts_iqsh
+            npts_iqsh = nq
             
             
-         endif
- 100     continue
 c     
 c     since only generating symmetry unique quadrature 
 c     scale weights with symmetry factor if desired
@@ -183,13 +176,15 @@ c
 c            
 c     now pack this aqbuf into the write buffer (write and update task counter as needed)
 c     
-               write(0,*) ' nq in cube ',npts_iqsh
+c               write(0,*) ' nq in cube ',npts_iqsh,rad_sh
                call grid_file_write(npts_iqsh, ictr, rad_write, aqbuf)
                
                nqtotc=nqtotc+npts_iqsh
+               nq_cube=nq_cube+npts_iqsh
             endif
-         enddo
-         enddo
+         endif
+ 100     continue
+         if(nq_cube.ne.0)write(0,*) ' nq_cube ',nq_cube,rad_write
          enddo ! end loop over cubes
       enddo !end loop over atoms
 

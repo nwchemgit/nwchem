@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.12 2000-03-17 02:58:56 edo Exp $
+* $Id: grid_file.F,v 1.13 2000-03-17 22:44:43 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -518,13 +518,13 @@ c
       grid_test_mem = .false.
 c
       if (file_opened) return
-c      write(6,*)' file_opened: ', file_opened
+      write(6,*)' file_opened: ', file_opened
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
-c      write(6,*)' filesize: ', filesize
+      write(0,*)' filesize: ', filesize
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
-c      write(6,*)' memsize: ', memsize
+      write(0,*)' memsize: ', memsize
       if (filesize.lt.0 .and. memsize.lt.0) return
 c
 c     Determine if we should automatically run an in-core calculation
@@ -538,19 +538,20 @@ c     How much memory?  If not input by user, then try to
 c     allocate memory for 250K gridpts; 250K*4 dble words or 250K*4*8 bytes = 8MB
 c
       if (memsize.eq.0)then
-         memsize = 1000000
+         memsize = 10000000
       else
          memsize = memsize/8
       endif
+      write(0,*) ' mems ',memsize
       avail = MA_inquire_avail(mt_dbl)
-c      write(6,*) ' 1 avail ', avail
+      write(6,*) ' 1 avail ', avail
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $   avail = avail - ga_memory_avail()
-c      write(6,*) ' 2 avail ', avail
+      write(6,*) ' 2 avail ', avail
       call ga_igop(msg_grid_file, avail, 1, 'min')
-c      write(6,*) ' 3 avail ', avail
+      write(6,*) ' 3 avail ', avail
       avail = min(avail, memsize)
-c      write(6,*) ' 4 avail ', avail
+      write(6,*) ' 4 avail ', avail
 c     
 c     Assume that for the small systems for which can hold the
 c     grid_pts, that there is no sparsity except for symmetry.
@@ -561,17 +562,19 @@ c      write(6,*)' nq_tot = ', nq_tot
 c
 c     need 4*nq_tot (x,y,z,w)
 c
+      write(0,*) ' NQTOT ',nq_tot
       nq=dble(4*nq_tot)
       nq = nq / dble(ga_nnodes())
       nq = nq * 1.1d0 + dble(2*rec_len_in_dbl) ! Fudge factors for safety
 c
-c      write(6,*) ' 5 nq, avail ', nq, avail
+      write(6,*) ' needed', int(nq)
+      write(6,*) ' avail ', avail
       if (int(nq) .lt. avail) then
          localmemsize = max(8*buffer_size,int(nq))
       else
          localmemsize = 0
       endif
-c      write(6,*)' localmemsize = ', localmemsize
+      write(6,*)' localme ', localmemsize
 c
       if (.not. rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
      $        call errquit('grid_file: opening gridpts?', 0)
@@ -623,19 +626,20 @@ c
 c     Check to see if buffer needs dumping before adding more pts.
 c
       if ((nctr .eq. 0) .or. 
-     &    (nctr. ne. cur_rec_ctr)) then
+     &    (nctr. ne. cur_rec_ctr).or.
+     .     (cur_rec_rad.ne.rad)) then
          grid_file_write = grid_buf_write(.false.)
          cur_rec_ctr = nctr
          if (nctr.eq.0)nctr =  n_rec_in_file
          if (.not. grid_file_write) return
          cur_rec_rad=0d0
       end if
-      write(6,*) ' RAD ',nctr,rad,cur_rec_rad
+cedo      write(6,*) ' RAD ',nctr,rad,cur_rec_rad
       cur_rec_rad = max(rad,cur_rec_rad)
 c
 c     This copy can be made a lot more efficient
 c     
-      write(0,*) ' nqpts ',nqpts
+cedo      write(0,*) ' nqpts ',nqpts
       do ind = 1, nqpts
          if (n_in_rec .eq. n_per_rec) then
             grid_file_write = grid_buf_write(.false.)

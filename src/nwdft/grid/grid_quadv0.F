@@ -1,6 +1,6 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.3 1999-07-22 01:21:19 edo Exp $
+C$Id: grid_quadv0.F,v 1.4 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
 c
@@ -252,15 +252,9 @@ c
       if (me.eq.0.and.oprint)then
          write(LuOut,*)
          write(LuOut,'(a,f14.6,a,i8,a,i8)')
-     &        ' XC quadr. integrated density (from den): ',
+     &        ' XC quadr. integrated density : ',
      &        rho_int,' npts: ',nqtot,' nctrs: ',nctrs
         write(LuOut,*)
-C        write(LuOut,'(/a)')'         Num. Quad. of the Electron Density'
-c        write(LuOut,'(a,f20.10,2x,f20.10)')
-c     &        ' integrated electron density:  ',rho_int, rho_n
-C        write(LuOut,'(a,i20)')   ' no. of quad. points/center :  ',
-C    &        nqtot/nctrs
-C        write(LuOut,*)
       endif
 c
       if (.not.MA_Free_Heap(lxyz))

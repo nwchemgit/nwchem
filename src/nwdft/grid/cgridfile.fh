@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.7 1999-12-17 00:20:12 edo Exp $
+* $Id: cgridfile.fh,v 1.8 2000-03-17 22:44:43 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -39,18 +39,20 @@ c
       double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_buf2         ! n_in_rec info for this buf    - ASYNC
       integer pad2              ! Padding for 32 bit machines   - ASYNC
+      integer cur_nsubb ! number of sub-buffer (with a given rad)
 c
 c
 #ifdef CRAY_T3D
 c     save on memory since have only physical memory
-      parameter (buffer_size = 8192)
+      parameter (buffer_size = 8192/4)
 #else
 cedo      parameter (buffer_size = 8000)
-      parameter (buffer_size = 3000)
-c      parameter (buffer_size = 32768)
+      parameter (buffer_size = 8192/16)
+!      parameter (buffer_size = 32768)
 c      parameter (buffer_size = 100)
 #endif
-
+      integer mxsub
+      parameter(mxsub=30)
 c
       common/cgridbuf/
      $     buf(4,buffer_size),
@@ -76,12 +78,14 @@ c
      $     oinfo,
      $     file_opened,
      $     l_cache, k_cache,
-     $     max_file_rec, max_cache_rec,
+     $     max_file_rec, max_cache_rec, cur_nsubb,
+c     doubles
      $     fd,
      $     oasyncio,
      $     oiopending,
      $     aioreq,
      $     posinfo(16)
+c     .     radsub
 c
       common/ccgridinfo/
      $     actualname

@@ -1,6 +1,6 @@
       subroutine grid_buckinit(g_buck,g_buckind)
 c
-c$Id: grid_bucket.F,v 1.4 2000-03-17 02:58:55 edo Exp $
+c$Id: grid_bucket.F,v 1.5 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
       integer g_buck,g_buckind
@@ -35,14 +35,14 @@ c
          ipts=k_nxyz+(i-1)*ncubesmx
          dum=grid_ncubes(dble(rad_cutoff(1,i)),.true.,int_mb(ipts))
       enddo
-      if(.not. ga_create(mt_dbl,ncenters*ncubesmx,mxpt_rect*4,
-     ,     'grid bucket', 0,mxpt_rect*4,g_buck))
-     . call errquit(' gridb_buck: ga_create failed',0)
-      if(.not. ga_create(mt_int,ncenters,ncubesmx,
-     ,     'grid bucket', 0,ncubesmx,g_buckind))
-     . call errquit(' gridb_buck: ga_create failed',1)
-      call ga_zero(g_buck)
-      call ga_zero(g_buckind)
+cedo      if(.not. ga_create(mt_dbl,ncenters*ncubesmx,mxpt_rect*4,
+cedo     ,     'grid bucket', 0,mxpt_rect*4,g_buck))
+cedo     . call errquit(' gridb_buck: ga_create failed',0)
+cedo      if(.not. ga_create(mt_int,ncenters,ncubesmx,
+cedo     ,     'grid bucket', 0,ncubesmx,g_buckind))
+cedo     . call errquit(' gridb_buck: ga_create failed',1)
+cedo      call ga_zero(g_buck)
+cedo      call ga_zero(g_buckind)
       return
       end
       subroutine grid_buckend(g_buck,g_buckind)
@@ -56,10 +56,10 @@ c
       if (.not. MA_free_heap(l_nxyz))
      .     call errquit(' grid_buckend:cannot popstack',0)
 
-      if(.not. ga_destroy(g_buck))
-     . call errquit(' gridb_buck: ga_destroy failed',0)
-      if(.not. ga_destroy(g_buckind))
-     . call errquit(' gridb_buck: ga_destroy failed',0)
+cedo      if(.not. ga_destroy(g_buck))
+cedo     . call errquit(' gridb_buck: ga_destroy failed',0)
+cedo      if(.not. ga_destroy(g_buckind))
+cedo     . call errquit(' gridb_buck: ga_destroy failed',0)
       return
       end
       subroutine grid_bucket()

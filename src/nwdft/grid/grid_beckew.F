@@ -1,7 +1,7 @@
       Subroutine grid_beckew(xyzw, xyz,  rq, p, ictr, nq,iscr,
      , ncenters_scr)
 c
-C$Id: grid_beckew.F,v 1.4 1999-05-12 22:01:45 edo Exp $
+C$Id: grid_beckew.F,v 1.5 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       double precision p(nq,*)
       double precision rq(nq,*)  ! sum of p(n) [ output]
 c
-      integer i, j, n, ij
+      integer i, j, n
       integer iind, jind, istep, iti
       double precision mu, nu
       double precision x, y, z, x0i, y0i, z0i
@@ -57,11 +57,8 @@ c         iind = iandex(i)
          do 40 j = 1, i
 c
             if (i.eq.j) goto 40
-c            jind = iandex(j)
             jind = j
 c
-c            ij = istep + jind
-c            rrij = Rij(ij)
             rrij = 1.0d0/sqrt(  (xyz(1,i) - xyz(1,j))**2 +
      &                                (xyz(2,i) - xyz(2,j))**2 +
      &                                (xyz(3,i) - xyz(3,j))**2   )
@@ -69,8 +66,8 @@ c
             aaij = aratio(iti,iatype(jind))
 c
             if (aaij.eq.-1234.d0)then
-               write(*,*)' i, j, iind, jind, ij, aaij ',
-     &                     i, j, iind, jind, ij, aaij
+               write(*,*)' i, j, iind, jind,  aaij ',
+     &                     i, j, iind, jind,  aaij
                call errquit('trouble in beckew; aratio .eq. -1234',911)
             endif
 c

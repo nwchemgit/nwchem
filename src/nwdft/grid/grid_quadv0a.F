@@ -6,7 +6,7 @@
      &                       Pmat, rq, rq0, rdens_atom, cntoce,
      &                       cntobfr, cetobfr, Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.6 2000-03-17 02:58:56 edo Exp $
+c$Id: grid_quadv0a.F,v 1.7 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
 c
@@ -104,18 +104,18 @@ c     Define the current range of radial shells and integration center.
 c     
          call grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,dbl_mb(irqbuf))
-         write(0,*) ' nqpts ',nqpts, ' rad ',rad
+         write(0,*) ' nq ',nqpts
         if(nqpts.eq.0) goto 200
 
 c     
 c        temp put buf into currently used arrays qxyz and qwght
 c     
          call grid_repack(dbl_mb(irqbuf), qxyz, qwght, nqpts)
-         do iii=1,nqpts
-            write(0,'(A,4F20.12)') 
-     .           ' ww ',qxyz(iii,1),qxyz(iii,2),qxyz(iii,3),
-     .           qwght(iii)
-         enddo
+c         do iii=1,nqpts
+c            write(0,'(A,4F20.12)') 
+c     .           ' ww ',qxyz(iii,1),qxyz(iii,2),qxyz(iii,3),
+c     .           qwght(iii)
+c         enddo
 c     
 c
 c           Evaluate the AO basis set at each of the quad. points.
@@ -140,7 +140,6 @@ c
                int_mb(iibf_ao+i)=i+1
             enddo
          endif
-         write(0,*) ' mbf ',mbf_ao
 c
          if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &        lchi_ao, ichi_ao))

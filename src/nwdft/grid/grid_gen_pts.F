@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.11 2000-03-17 02:58:56 edo Exp $
+c$Id: grid_gen_pts.F,v 1.12 2000-03-17 22:44:43 edo Exp $
 c
       implicit none
 c      
@@ -59,11 +59,11 @@ c     with fixed number of points (buffer size).
 c
 c     buffer size needed to hold largest angular quadrature is nqmax
 c
-!      ang_quad_buf_size = nqmax
-c
-c     hardwire!!
-c
-      ang_quad_buf_size = 5810
+      ang_quad_buf_size = nqmax
+cedoc
+cedoc     hardwire!!
+cedoc
+cedo      ang_quad_buf_size = 5810
 c
       if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
      &                     'ang quad pts buffer', laqbuf, iaqbuf))
