@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.31 1997-05-12 20:05:17 d3h449 Exp $
+C$Id: nwdft.F,v 1.32 1997-06-11 18:16:38 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -32,19 +32,16 @@ c
 #ifdef DFT_TIMER
       character*(nw_max_path_len) timings
 #endif
+      double precision energy
       integer iproc,itype
       integer bases(3), i3
-      logical LResult,oprint
-c>>>  
-
-      logical dft_main0d
-      external dft_main0d
-c     
-
-      nwdft = .false.
-
-      iproc  = ga_nodeid()
+      logical LResult, oprint, converged
 c
+      logical dft_main0d, movecs_converged
+      external dft_main0d, movecs_converged
+c     
+      nwdft = .false.
+      iproc  = ga_nodeid()
 c
 c     Make sure database is parallel, push context down to DFT.
 c
@@ -60,10 +57,10 @@ c     only process 0 will write to it
       oprint = util_print('information', print_low)
       if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
-     $       title = ' '
+     &       title = ' '
         if(iproc.eq.0) then
           call util_print_centered(
-     .         LuOut, 'NWCHEM DFT Module', 40, .true.)
+     &         LuOut, 'NWCHEM DFT Module', 40, .true.)
           write(LuOut,*)
           write(LuOut,*)
           if (title .ne. ' ') then
@@ -74,13 +71,32 @@ c     only process 0 will write to it
         endif
       endif
 c
-c-->  Gather input from all available resources e.g. input unit,
+c     Gather input from all available resources e.g. input unit,
 c     old checkpoint files, etc.
 c
       call dft_rdinput(rtdb)
-c****
-c**** initialize the integral object
-c****
+c
+c     Can we check here to see if system if already converged?
+c
+      if (movecs_in .eq. movecs_out) then
+         if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))then
+            if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, energy))
+     &         call errquit('dft_scf: failed getting converged energy',
+     &         0)
+            if (ga_nodeid().eq.0 .and. oprint)then
+               write(6,1011)energy
+ 1011          format(/'  The DFT is already converged '//,
+     &              '         Total DFT energy =', f20.12/)
+               call util_flush(6)
+            endif
+            converged = .true.
+            nwdft = .true.
+            goto 1101
+         endif
+      endif
+c    
+c     Initialize the integral object
+c    
       if(XCFIT.and.CDFIT) then
         i3 = 3
         bases(1) = AO_bas_han
@@ -118,6 +134,10 @@ c     terminate integrals
 c     
       call int_terminate
       call int_app_unset_no_texas(rtdb)
+c
+c     Go here if already converged
+c
+ 1101 continue
 c     
 c     destroy BS handles and geom object
 c
@@ -128,18 +148,16 @@ c
 
       if(XCFIT)then
        if(.not.bas_destroy(XC_bas_han))
-     $     call errquit ('dft:destroying XC basis handle',0)
+     &     call errquit ('dft:destroying XC basis handle',0)
       endif
       if(CDFIT)then
        if(.not.bas_destroy(CD_bas_han))
-     $     call errquit ('dft:destroying CD basis handle',0)
+     &     call errquit ('dft:destroying CD basis handle',0)
       endif
       if (.not.(
      &     bas_destroy(AO_bas_han)
      &     .and. geom_destroy(geom)))
-     $     call errquit ('dft:destroying geom and basis handles',0)
-
-
+     &     call errquit ('dft:destroying geom and basis handles',0)
 c
 c--> Flush ouput buffer.
 c

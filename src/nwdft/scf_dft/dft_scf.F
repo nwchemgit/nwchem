@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.79 1997-05-23 21:46:53 d3e129 Exp $
+c     $Id: dft_scf.F,v 1.80 1997-06-11 18:16:52 d3h449 Exp $
 c     
       implicit none
 c
@@ -71,7 +71,7 @@ c
       double precision pp, delta
       double precision anucl_charg, anel
       double precision anoca, anocb, onempp
-      double precision etnew, tol2e
+      double precision etnew, tol2e, tol2e_sleazy
 c     convergence declarations
       double precision rlshift_input, rlshift_def
       integer ndamp_input, ndamp_def
@@ -94,7 +94,11 @@ c
       integer itol_min, iAOacc_min
       double precision zero, onem, one
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
+c
+c     early convergence tolerances
+c
       parameter(itol_min = 6, iAOacc_min = 15)
+c
       double precision dft_dencvg, dft_time
       external dft_dencvg
       double precision homo, lumo, homo_lumo_gap
@@ -102,6 +106,9 @@ c
       logical status, last_time, last_time_vecs, last_time_energy
       logical check_shift
       character*7 name
+      character*4 scftype
+      character*255 basis_name, basis_trans
+      integer nopen, nclosed
 c
       call ecce_print_module_entry('dft')
 c
@@ -321,10 +328,6 @@ c
       endif
 c     
       tol2e = 10.d0**(-itol_max)
-c     
-c     get info for int2e_
-c     
-      call scf_get_fock_param(rtdb, tol2e)
       mulliken = .false.
       if (imull.eq.1)mulliken = .true.
       IOLGC = .TRUE.
@@ -404,36 +407,119 @@ c     Get initial density.
 c     
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_INIT.')
-      call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
+c      call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
+      if (ipol.eq.1)then
+         scftype = 'RHF'
+      elseif (ipol.eq.2)then
+         scftype = 'UHF'
+      endif
+c
+c     allocate array for irreps
+c
+      if (.not.MA_Push_Get(mt_dbl, nbf_ao,'dft:irreps', l_ir, k_ir))
+     &   call errquit('dft_scf: cannot allocate irreps',0)
+      nopen = mult - 1
+      nclosed = (nTotEl - nopen) / 2
+c
+      if (.not. bas_name(ao_bas_han, basis_name, basis_trans))
+     $     call errquit('dft_scf: bas_name?', 0)
+c
+c     get info for int2e_ and set sleazy tolerance
+c     
+      tol2e_sleazy = 1.d-5
+      call scf_get_fock_param(rtdb, tol2e_sleazy)
+c
+c     Force sleazy SCF into "direct" mode.
+c
+      call fock_force_direct(rtdb)
+c
+      call scf_vectors_guess(rtdb, tol2e, geom, ao_bas_han, basis_trans, 
+     &                       movecs_in, movecs_out, movecs_guess,
+     &                       scftype, nclosed, nopen, nbf, nbf,
+     &                       noc(1), noc(2),  k_eval, k_occ, k_ir,
+     &                       g_movecs, g_dens, 'density', 
+     &                       'dft', title, oskel, oadapt, 
+     &                       .true.) 
+c
+c     Tidy up SCF
+c
+      call fock_2e_tidy(rtdb)
+c 
+c     Restore SCF parameters
+c
+      call scf_get_fock_param(rtdb, tol2e)
+c     
+c     If open shell put the total density matrix in g_dens(1)
+c
+      if(ipol.eq.2)then             
+         call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
+      endif
+c     
+c     Call to Mulliken Pop Ananlysis for initial density
+c     
+      if (mulliken)then
+c         call gacrea(geom,ao_bas_han,nbf_ao,nbf_ao,'ovl ',g_s,'atom')
+         g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
+         call ga_zero(g_s)
+         call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+         if (me.eq.0)call dft_header
+     &      (' Total Density - Mulliken Population Analysis')
+         call mull_pop(geom,ao_bas_han,g_dens(1),g_s,'total')
+         if (ipol.eq.2)then
+c         
+c           Analysis of spin density
+c         
+            if (me.eq.0) call dft_header
+     &         (' Spin Density - Mulliken Population Analysis')
+            call ga_dadd(one,g_dens(1),-2.d0,g_dens(2),g_dens(2))
+            call mull_pop(geom,ao_bas_han,g_dens(2),g_s,'spin') 
+c
+c           Restore beta density in g_dens(2)
+c
+            call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
+            call ga_dscal(g_dens(2),0.5d0)
+         endif
+c         call gadest(g_s)
+         if (.not. ga_destroy(g_s)) call errquit
+     &      ('dft_scf: could not destroy g_s', 0)
+      endif
       iter = 1
 c     
-c     Figure input/output MO vectors (done prev in dft_init_guess)
+c     Figure input/output MO vectors
 c     
 c     See if we are already converged
 c     
-      if (iguess .eq. 999)then ! If MO starting guess 
-         if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))then
-            if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, energy))
-     &         call errquit('dft_scf: failed getting converged energy',
-     &         0)
-            if (ga_nodeid().eq.0 .and. oprint)then
-               write(6,1011)energy
- 1011          format(/'  The DFT is already converged '//,
-     &              '         Total DFT energy =', f20.12/)
-               call util_flush(6)
-            endif
-            converged = .true.
-            goto 1101
-         endif
-      endif
-      if (oprint_time)
-     &     call dft_tstamp('   Before SCF iter loop. ')
+c      if (iguess .eq. 999)then ! If MO starting guess 
+c         if (movecs_converged(rtdb, ao_bas_han, 'dft', movecs_in))then
+c            if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, energy))
+c     &         call errquit('dft_scf: failed getting converged energy',
+c     &         0)
+c            if (ga_nodeid().eq.0 .and. oprint)then
+c               write(6,1011)energy
+c 1011          format(/'  The DFT is already converged '//,
+c     &              '         Total DFT energy =', f20.12/)
+c               call util_flush(6)
+c            endif
+c            converged = .true.
+c            goto 1101
+c         endif
+c      endif
 c     
 c     Top of infinite SCF iteration loop
+c
+c     Write prep time required
+c
+      if (me.eq.0.and.oprint)then
+         write(LuOut,20)util_cpusec()
+   20    format(2x,' Time prior to 1st pass: ',f8.1)
+      endif
 c     
-c     start timer
+c     start DFT_SCF timer
 c     
       dft_time = -util_cpusec()
+c
+      if (oprint_time)
+     &     call dft_tstamp('   Before SCF iter loop. ')
 c
       last_time = .false.
       last_time_vecs = .false.
@@ -1021,7 +1107,7 @@ c
      &        '           Coulomb energy =', f20.12/
      &        '    Exchange-Corr. energy =', f20.12/
      &        ' Nuclear repulsion energy =', f20.12//
-     &        '        Time for solution =', f9.1,'s'//)
+     &        '     Total iterative time =', f9.1,'s'//)
  223     format(//
      &        '         Total DFT energy =', f20.12/
      &        '      One electron energy =', f20.12/
@@ -1029,7 +1115,7 @@ c
      &        '          Exchange energy =', f20.12/
      &        '       Correlation energy =', f20.12/
      &        ' Nuclear repulsion energy =', f20.12//
-     &        '        Time for solution =', f9.1,'s'//)
+     &        '     Total iterative time =', f9.1,'s'//)
          call util_flush(LuOut)
       endif
 c
@@ -1080,28 +1166,14 @@ c
       if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
      &   call errquit('dft_scf: failed to store converged in rtdb', 0)
 c
-c     (if gradients to be calculated) output energies and eigenvectors
-c     to disk
-c     
-      do_gradients = .true.
-      if (do_gradients)then
-c-----------------------------------------------------------------------
-c     
-c     Save the mo vectors (this code from ddscf, generalized for
-c     spin-unrestricted case)
-c     
-c     collect the eigenvectors from global storage; output
-c     to disk, allowing for RHF and UHF cases
-c     
-c     Should distinguish occupied and virtual here...
+c     output energies and eigenvectors to disk
 c     
       if (.not.movecs_write(rtdb, ao_bas_han, movecs_out, 'dft', title,
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &                      call errquit('dft_scf: movec_write failed',
      &                      0)
-         call ga_sync()
-      endif 
+      call ga_sync()
 c     
 c     Shut down DIIS.
 c     
@@ -1217,9 +1289,6 @@ c
       call ga_brdcst(12321, stat1, ma_sizeof(mt_int,1,mt_byte), 0)
       if (stat1 .eq. 1)then
 c
-c     allocate array for irreps
-c
-         status = ma_push_get (mt_dbl, nbf_ao,'dft:irreps', l_ir, k_ir)
          if (.not. status)
      &      call errquit ('dft_scf:error allocating ir array', 110)
          if (oadapt)then
@@ -1244,7 +1313,6 @@ c
      &                       dbl_mb(k_occ+nbf_ao), int_mb(k_ir), 
      &                       g_movecs(2), 'dft', 'alpha')
          endif
-         status = ma_pop_stack (l_ir)
          call ecce_print1 ('total energy', mt_dbl, (Etold+Enuc), 1)
          call ecce_print1 ('nuclear repulsion energy', mt_dbl, Enuc, 1)
          call ecce_print1 ('coulomb energy', mt_dbl, Ecoul, 1)
@@ -1255,6 +1323,9 @@ c
       endif
 c
  1101 continue                  ! Jump here if already converged
+c
+      if (.not.ma_pop_stack(l_ir))
+     &   call errquit('dft_scf: cannot pop stack',0)
 c     
       if (ipol.gt.1)then
 c         call gadest(g_fockt)

@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.25 1997-03-31 23:46:43 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.26 1997-06-11 18:16:47 d3h449 Exp $
 c
 c*********************************************************************
 c     
@@ -228,6 +228,21 @@ c     convergence control specified
 c
       if (ncysh.eq.0 .and. ncyds.eq.0 .and. ncydp.eq.2) 
      &   ncydp = iterations
+c
+c     check integral tolerances to make sure they match 
+c     requested convergence tolerances.
+c
+c     make sure itol2e is less than 0.01*e_conv or (0.01*g_conv**2)
+c
+      if (10.d0**(-itol2e).gt.(1.0d-2*e_conv))then
+         itol2e = -nint(log10(5.0d-3*e_conv))
+         if (.not. rtdb_put(rtdb, 'dft:itol2e',
+     &      mt_int, 1, itol2e))
+     &      call errquit('dft_inpana: rtdb_put failed', 127)
+         if (me.eq.0.and.oprint_general)then
+            write(LuOut,*)' itol2e modified to match energy convergence'
+         endif
+      endif
 c
       if (me.eq.0) then
 c     

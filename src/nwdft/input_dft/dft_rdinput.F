@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.42 1997-05-12 20:05:29 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.43 1997-06-11 18:16:48 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -783,7 +783,24 @@ c****       center icenter is of type itype; assign charge
         enddo 
     9   continue 
       enddo 
-
+c
+c     Figure input/output MO vectors
+c     
+      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+     $     movecs_in = 'atomic'
+      if (.not. rtdb_cget(rtdb, 'dft:output vectors', 1, movecs_out))
+     $     movecs_out = ' '
+      if (movecs_out.eq.' ') then
+         if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
+     $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment') then
+            call util_file_name('movecs', .false.,.false.,movecs_out)
+         else
+            movecs_out = movecs_in
+         endif
+      endif
+c
+c     Check/set quadrature
+c
       if ( .not. Ma_Push_Get(MT_Dbl,ntypes,'ratom',lratom,iratom))
      &     call errquit('dft_rdinput: failed to alloc ratom',0)
       nqshells = MXqshells
