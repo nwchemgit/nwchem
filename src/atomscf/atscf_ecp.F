@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.5 1997-10-03 01:52:06 mg201 Exp $
+* $Id: atscf_ecp.F,v 1.6 1997-10-03 17:08:57 mg201 Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
@@ -430,7 +430,7 @@ c..  do dryrun to check memory for scratch array
      &          atscf_n_zetac,
      &          l_c,i_cent_C,1,lmax_all,0,
      &          dbl_mb(k_ecp_c2s),mem_c2s,
-     &          ecp_ints,sz_ints,
+     &          ecp_ints,sz_ints, 
      &          .true.,
      &          scr,lscr_guess,
      &          0)            
@@ -442,7 +442,7 @@ c..  do dryrun to check memory for scratch array
      &            ind_c, ind_c, atscf_n_zetac, atscf_n_zetac,
      &            l_c,i_cent_C,1,lmax_all,0,
      &            dbl_mb(k_ecp_c2s),mem_c2s,
-     &            ecp_ints,sz_ints,
+     &            ecp_ints,sz_ints,1,  ! nblk = 1 for ecp integrals
      &            .true.,
      &            scr,lscr_guess,
      &            0)            
@@ -477,7 +477,7 @@ c.. compute ecp integrals <bra|ecp|ket>
      &            ind_c, ind_c, atscf_n_zetac, atscf_n_zetac,
      &            l_c,i_cent_C,1,lmax_all,0,
      &            dbl_mb(k_ecp_c2s),mem_c2s,
-     &            ecp_ints,sz_ints,
+     &            ecp_ints,sz_ints,1,      ! nblk = 1 for ecp integrals
      &            .false.,
      &            scr,lscr,
      &            0)            
