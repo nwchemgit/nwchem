@@ -178,7 +178,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   me    = mxmynd_();
   nproc = mxnprc_();
   
-  strcpy( msg,  "Error in pstein." );
+  strcpy( msg,  "Error in pstein5." );
   
   
 #ifdef DEBUG1

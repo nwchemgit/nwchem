@@ -633,9 +633,15 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   gsum00((char * ) diag, msize, 5, MSG_START+2, mapA[0], n_procs, proclist, workMX);
   gsum00((char * ) &upperdiag[1], msize-1, 5, MSG_START+4, mapA[0], n_procs, proclist, workMX);
 
+  
+  /*
+    printf(" out tred22.c me = %d \n", me );
+    */
 
-/*
-  printf(" out tred22.c me = %d \n", me );
-*/
+  /*
+  for (k=0; k<msize; k++)
+    printf(" k = %d tridiag d = %f e = %f \n", k, diag[k], upperdiag[k]);
+    */
+
   return 0;
 }

@@ -741,18 +741,18 @@ JUNK:
     /*
       for ( indx = 0; indx < *n; indx++ )
       work[indx] = d[indx];
-    
-    for ( indx = 0; indx < *n; indx++ )
+      
+      for ( indx = 0; indx < *n; indx++ )
       work[msize + indx] = e[indx];
-
-    dsterf_(&msize, work, &work[msize], info);
-    
-    for ( indx = 0; indx < *n; indx++ )
+      
+      dsterf_(&msize, work, &work[msize], info);
+      
+      for ( indx = 0; indx < *n; indx++ )
       eval[indx] = work[indx];
-    
-    *neigval = msize;
-    leig = work[0];
-*/
+      
+      *neigval = msize;
+      leig = work[0];
+      */
     
     if ( leig <= 0. ){
       psgn = 1.;
@@ -779,7 +779,7 @@ JUNK:
       peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
       i1split = jsplit;
     }
-
+    
     
 #ifdef DEBUG1
     printf(" me = %d ifakeme = %d Exiting pstebz \n", me, ifakeme);
@@ -787,7 +787,9 @@ JUNK:
       printf(" me = %d iii  %d iblock = %d isplit %d \n", me, iii, iblock[iii], isplit[iii]);
     }
 #endif
-/*   printf(" exiting pstebz9.c \n"); */
-   
+    /*
+      printf(" exiting pstebz9.c \n");
+      */
+    
    return;
 }

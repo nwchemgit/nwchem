@@ -504,63 +504,100 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      printf(" on entrance to pstebz10 i = %d d %g e %g \n", m, d[m], e[m]);
 #endif
 
+   for (i = 0; i < msize; i++ )
+     work[i] = d[i];
+     
+   
+   for (i = 0; i < msize; i++ )
+     work[msize + i] = e[i];
+   
+   /*
+     peigs_dlasq2a( msize, &work[0], &e[0], &eval[0], &work[2*msize], info );
+   */
+   
+   dsterf_( &msize, &work[0], &work[msize+1], info);
+   
+   if (*info != 0 )
+     {
+       printf(" error from dsterf %d \n", *info );
+     }
+   leig = work[0];
+   for (i = 0; i < msize; i++ )
+     eval[i] = work[i];
+
+   
+   if ( *info != 0 ) {
    fil_int_lst(*n, (Integer *) isplit, 0);
    
    il = 1;
-   iu = 1;
+   iu = msize;
    range = 3;
    order = 1;
    m = 0;
    *info = 0;
-
+ 
    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	     &m, nsplit, eval, iblock, isplit, work,
+	  &m, nsplit, eval, iblock, isplit, work,
 	     i_work, info);
-   leig = eval[0]; /* left most e-val */
-   if ( *info != 0 ) {
-     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, leig);
    }
-   *info = 0;
+   
+   
+   if ( *info != 0 ) {
+     printf(" error in dstebz3 %d info %d leig %g  \n", me, *info, leig);
+     if ( me == 0 ) {
+       printf("  n %d \n", msize);
+       for ( il = 0; il < msize; il++ ) {
+	 printf(" %d  %20.16g %20.16g  \n", il, d[il], e[il]);
+       }
+     }
+   }
+   
+   leig = eval[0];
    
    
 #ifdef DEBUG3
    for ( il = 0; il < m;  il++ )
      printf(" il = %d eval %f info = %d \n", il, eval[il], *info);
-
+   
 #endif
    
+   /*
    il = msize;
    iu = msize;
    range = 3;
    order = 1;
    m = 0;
    *info = 0;
-   dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
-	     &m, nsplit, eval, iblock, isplit, work, i_work, info);
-   
-   reig = eval[0];
-   if ( *info != 0 ) {
-     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, reig);
-   }
-   *info = 0;
-   
-   /*
-     if ( me == 0 ){
-     for (i = 0; i < *nsplit; i++ )
-     printf(" theirs i= %d isplit = %d nsplit %d  \n", i, isplit[i], *nsplit);
-     for (i = 0; i < *n; i++ )
-     printf(" theirs i= %d eval %f  \n", i, eval[i]);
-     
-     printf(" theirs i= %d iblock %d  \n", i, iblock[i]);
-     for (i = 0; i < *n; i++ )
-     printf(" theirs i= %d isplit %d  \n", i, isplit[i]);
-     }
    */
+   /*
+     dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
+     &m, nsplit, eval, iblock, isplit, work, i_work, info);
+     
+     reig = eval[0];
+     if ( *info != 0 ) {
+     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, reig);
+     }
+     
+*/
+
    
    /*
-     computing split
-     */
-
+    if ( me == 0 ){
+    for (i = 0; i < *nsplit; i++ )
+    printf(" theirs i= %d isplit = %d nsplit %d  \n", i, isplit[i], *nsplit);
+    for (i = 0; i < *n; i++ )
+    printf(" theirs i= %d eval %f  \n", i, eval[i]);
+    
+    printf(" theirs i= %d iblock %d  \n", i, iblock[i]);
+    for (i = 0; i < *n; i++ )
+    printf(" theirs i= %d isplit %d  \n", i, isplit[i]);
+    }
+    */
+  
+  /*
+    computing split
+    */
+  
    eps = 2.0*sqrt(DLAMCHE);
    ulp = DLAMCHU;
    safemn = DLAMCHS;
@@ -576,15 +613,16 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    i1split = 0;
    work[*n-1] = 0.;
    dummy = ulp*ulp;
+   
    /*
-   for ( j = 1; j < *n; j++ ){
+     for ( j = 1; j < *n; j++ ){
      tmp1 = e[j]*e[j];
      if ( (ffabs(d[j]*d[j-1])*dummy+safemn) > tmp1 ) {
-       isplit[i1split] = j;
-       i1split++;
+     isplit[i1split] = j;
+     i1split++;
      }
-   }
-   */
+     }
+     */
    isplit[i1split] = *n;
    *nsplit = i1split+1;
    
@@ -635,20 +673,20 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      }
      */
 
-   psigma = onenrm;
-   if ( psigma = 0.0e0 )
-     psigma = DLAMCHE;
-   
    psgn = 1.0e0;
    psigma = 0.e0;
+   leig = eval[0]; 
    if ( leig <= 0. ){
      psgn = 1.;
-     if (onenrm > 1.0e0 )
-       psigma = -(ffabs(leig)+1.0e3*DLAMCHE*onenrm );
-     else
-       psigma = -(ffabs(leig)+1.0e3*DLAMCHE);
+     psigma = -(ffabs(leig)+1.0e3*sqrt(DLAMCHE));
+     
+     for ( i = 0; i < msize; i++ )
+       eval[i] = eval[i] - psgn*psigma; 
    }
    
+   if ( me == 0 ) 
+     for ( i =0; i < msize; i++ )
+       printf(" eval  i %d eval %f \n", i, eval[i]);
    
    /*
      should delete this and reshift all psigma back after inverse iteration
@@ -663,9 +701,13 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    printf(" psigma = %f psgn = %f onenrm %g  \n", psigma, psgn, onenrm);
 #endif
    
-   for (i = 0; i < *n; i++ )
-     work[i] = d[i] - psgn*psigma;
-   
+
+   /*
+     for ( m = 0; m < msize; m++ )
+     printf(" m = %d eval %g \n", m, eval[m]);
+     */
+
+
    /*
      factor shifted matrix into dplus and lplus
      */
@@ -697,7 +739,16 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    /*
      for ( m = 0; m < *n; m++ )
      printf(" before split m = %d d %g e %g \n", m, d[m], e[m]);
-*/
+     */
+
+   *nsplit = 1;
+   isplit[0] = *n;
+   for(i = 0;i < *n;i++){
+     iblock[i] = 1;
+   }
+
+   for (i = 0; i < *n; i++ )
+     work[i] = d[i] - psgn*psigma;
    
    i1split = 0;
    for ( iii = 0; iii < *nsplit; iii++ ){
@@ -708,73 +759,22 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      /*
        LDL' factorization of tridiagonal
        */
+     
      peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
-     peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
+     
+     /*
+       peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
+     */
      j = iii+1; /* for fortran indexing */
      for ( jjj = i1split; jjj < jsplit; jjj++ )
        iblock[jjj] = j;
      i1split = jsplit;
    }
    
-   /*
-     for (i = 0; i < *n; i++ )
-     printf(" i= %d shifted eval = %f \n", i, eval[i] );
-     
-     for (i = 0; i < *n; i++ )
-     printf(" i= %d dplus = %20.16f lplus %20.16f  \n", i, dplus[i], lplus[i] );
-     
-     for (i = 0; i < *n; i++ )
-     printf(" i= %d iblock %d shifted eval = %20.16f \n", i, iblock[i], eval[i] );
-     
-     for (i = 0; i < *n; i++ )
-     printf(" i= %d isplit %d \n", i, isplit[i] );
-     */
-   
+
    
    /* The following assumes that the matrix does not split */
    
-   *nsplit = 1;
-   isplit[0] = *n;
-   for(i = 0;i < *n;i++){
-     iblock[i] = 1;
-   }
-   
-   
-/*
-  if ( *info != 0 ) {
-  fprintf(stderr, " me = %d ifakeme=%d dlasq1 returned info = %d to pstebz \n",
-  me, ifakeme, *info );
-  fprintf(stderr, " me = %d ifakeme=%d dlasq1 also returned neig= %d il=%d iu=%d \n",
-  me, ifakeme, m, il, iu );
-  *info = 1;
-  exit(-30);
-  }
-  */
-   
-   /*
-     if ( iu >= il ) {
-     range = 3;
-     order = 1;
-     m = 0;
-     dstebz31_( &range, &order, n, lb, ub, &il, &iu, abstol, lplus, dplus,
-     &m, nsplit, eval, iblock, isplit, work,
-     i_work, info);
-     
-     if ( *info != 0 ) {
-     fprintf(stderr, " me = %d ifakeme=%d dstebz3 returned info = %d to pstebz \n",
-     me, ifakeme, *info );
-     fprintf(stderr, " me = %d ifakeme=%d dstebz3 also returned neig= %d il=%d iu=%d \n",
-     me, ifakeme, m, il, iu );
-     
-     *info = 1;
-     }
-     }
-     */
-   
-   /*
-    *  Broadcast nsplit and isplit, and make sure they are the same
-    *  on all processors which computed eigenvalues.  This is just paranoia.
-    */
    
    return;
 }

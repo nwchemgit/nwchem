@@ -188,7 +188,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   peigs_timer = tcgtime_();
   */
   
-  strcpy( msg,  "Error in pstein." );
+  strcpy( msg,  "Error in pstein4." );
   
   
 #ifdef DEBUG1
