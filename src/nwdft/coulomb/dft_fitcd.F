@@ -1,6 +1,6 @@
       Subroutine dft_fitcd( rtdb,AO_bas_han, CD_bas_han,geom,
      &     CD_coef,  nbf_cd,
-     &     iga_cdinv, iga_tmp, nTotEl, IOLGC,itol2e,
+     &     iga_cdinv, iga_dens, nTotEl, IOLGC,itol2e,
      &     Ecoul1)
       
       Implicit real*8 (a-h,o-z)
@@ -9,6 +9,7 @@ c****
 c**** nwchem handles
 c****
       integer AO_bas_han, CD_bas_han,geom,rtdb
+      integer iga_dens       ! GA DM handle
 c**** 
       Logical LResult,IOLGC, doesit, isit
       
@@ -23,7 +24,8 @@ c****
 #include "schwarz.fh"
 #include "msgids.fh"
 
-      DIMENSION F(2)
+      double precision F(2)
+      double precision fac
       
 #if defined(DFT_TIMER)
 #include "timer.fh"
@@ -103,7 +105,7 @@ c
             
 c           Gather the needed density matrix elements.
             call gat_lab_can(AO_bas_han, ishc, ishd, 
-     &                       iga_tmp, DBL_MB(igvec),Nao2)
+     &                       iga_dens, DBL_MB(igvec),Nao2)
             
             
 c           Determine the maximum density matrix element for this product of AO shells.
@@ -121,23 +123,23 @@ c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (c
                 
 c               Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
                 
-            if (.not. bas_cn2bfr( CD_bas_han,ishp,
-     &                      ifirstp,ilastp))
+            if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
      &        call errquit('Exiting in fitcd.',5)
                 nshbfp=ilastp-ifirstp+1
 
                 Nint = nshbfp*Nao2
-c                Nint = maxg
                 nscr=mscratch_2e3c
 
-                call int_2e3c_can(CD_bas_han,ishp,AO_bas_han,ishc,
+                call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
      &               ishd,nscr,Dbl_MB(iscr),Nint,Dbl_MB(istart))
+                istart=istart+Nint
+  220         continue
+              fac=2.0d0
+              if(ishc.eq.ishd) fac=1.d0
 c
 c        Multiply the matrix of 3-ctr ERIs by the density matrix elements.
 c
-                istart=istart+Nint
-  220         continue
-                  call dgemv('T',Nao2,nbf_cd,1.d0,Dbl_MB(iERI),Nao2,
+                  call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
      &                 Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
               
             end if
