@@ -1,5 +1,5 @@
       program compare
-* $Id: compare.F,v 1.2 2000-06-13 22:07:57 bert Exp $
+* $Id: compare.F,v 1.3 2002-01-02 21:54:04 bert Exp $
       implicit none
 #include "nwc_const.fh"
 #include "stdio.fh"
@@ -23,14 +23,13 @@ c
       logical okay, find
       integer ip, ig, nprim, ng, nbasis, nwrong, ncomp, nnew
 c
-      open(unit=7,file='../library',status='old',
+      open(unit=7,file='library',status='old',
      &    access='sequential',form='formatted',err=90000)
-      open(unit=8,file='library',status='old',
+      open(unit=8,file='library.new',status='old',
      &    access='sequential',form='formatted',err=90000)
 c
 c     First do basis sets
 c
-      goto 0611
       write(*,*) 'Checking basis sets !!!!'
       write(*,*) ' '
       ncomp = 0
