@@ -1389,7 +1389,7 @@ task tce energy
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062148
+         Total S#F energy =    -74.962663062148
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
@@ -1511,8 +1511,8 @@ task tce energy
    23   0.0000000960125  -0.0502556603762    25.4    26.9
  --------------------------------------------------------
  Iterations converged
- CCSDTQ correlation energy / hartree =        -0.050255660376239
- CCSDTQ total energy / hartree       =       -75.012918722524034
+ C#SDTQ correlation energy / hartree =        -0.050255660376239
+ C#SDTQ total energy / hartree       =       -75.012918722524034
 
  Parallel integral file used       1 records with       0 large values
 
@@ -2055,7 +2055,7 @@ task tce energy
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062148
+         Total S#F energy =    -74.962663062148
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
@@ -2179,8 +2179,8 @@ task tce energy
    25   0.0000000615039  -0.0502556606980     4.5     4.6
  --------------------------------------------------------
  Iterations converged
- CISDTQ correlation energy / hartree =        -0.050255660698002
- CISDTQ total energy / hartree       =       -75.012918722845797
+ C#SDTQ correlation energy / hartree =        -0.050255660698002
+ C#SDTQ total energy / hartree       =       -75.012918722845797
 
  Parallel integral file used       1 records with       0 large values
 
@@ -2528,7 +2528,7 @@ task tce energy
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062148
+         Total S#F energy =    -74.962663062148
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
@@ -2628,8 +2628,8 @@ task tce energy
     1   0.0000000000001  -0.0358672469179     0.0     0.0
  --------------------------------------------------------
  Iterations converged
- MBPT(2) correlation energy / hartree =        -0.035867246917894
- MBPT(2) total energy / hartree       =       -74.998530309065686
+ M#PT(2) correlation energy / hartree =        -0.035867246917894
+ M#PT(2) total energy / hartree       =       -74.998530309065686
 
  MBPT(3) iterations
  --------------------------------------------------------
@@ -2639,8 +2639,8 @@ task tce energy
     2   0.0000000000001  -0.0098015862583     1.1     1.2
  --------------------------------------------------------
  Iterations converged
- MBPT(3) correlation energy / hartree =        -0.009801586258269
- MBPT(3) total energy / hartree       =       -75.008331895323963
+ M#PT(3) correlation energy / hartree =        -0.009801586258269
+ M#PT(3) total energy / hartree       =       -75.008331895323963
 
  MBPT(4) iterations
  --------------------------------------------------------
@@ -2650,8 +2650,8 @@ task tce energy
     2   0.0000000000000  -0.0030104405169     0.5     0.5
  --------------------------------------------------------
  Iterations converged
- MBPT(4) correlation energy / hartree =        -0.003010440516877
- MBPT(4) total energy / hartree       =       -75.011342335840837
+ M#PT(4) correlation energy / hartree =        -0.003010440516877
+ M#PT(4) total energy / hartree       =       -75.011342335840837
 
  Parallel integral file used       1 records with       0 large values
 

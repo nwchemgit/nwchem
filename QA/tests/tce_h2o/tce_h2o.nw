@@ -74,7 +74,7 @@ tce
 ccsdtq
 end
 
-task tce energy
+#task tce energy
 
 tce
 qcisd
@@ -98,7 +98,7 @@ tce
 cisdtq
 end
 
-task tce energy
+#task tce energy
 
 tce
 mbpt2
@@ -116,4 +116,4 @@ tce
 mbpt4
 end
 
-task tce energy
+#task tce energy

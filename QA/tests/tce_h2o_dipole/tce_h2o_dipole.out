@@ -861,7 +861,7 @@ task uccsdtq energy
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062151
+         Total S#F energy =    -74.962663062151
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
@@ -1001,8 +1001,8 @@ task uccsdtq energy
    25   0.0000000000006  -0.0502556613686     3.9     4.0
  --------------------------------------------------------
  Iterations converged
- CCSDTQ correlation energy / hartree =        -0.050255661368563
- CCSDTQ total energy / hartree       =       -75.012918723519232
+ C#SDTQ correlation energy / hartree =        -0.050255661368563
+ C#SDTQ total energy / hartree       =       -75.012918723519232
 
  CCSDTQ Lambda iterations
  --------------------------------------
