@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.39 1999-12-09 01:29:53 bert Exp $
+c $Id: exact_mem.F,v 1.40 1999-12-30 22:17:24 mg201 Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -91,7 +91,7 @@ c.... 1e
 c
 c.. memory for relativistic one-electron integrals
 c
-      if (any_rel) then
+      if (dyall_mod_dir) then
         call emem_1e_rel(sc_bsh, sc_bsh, lsz_1e, lmem_1e)
         mem_1e = max(mem_1e, lmem_1e)
         isz_1e = max(isz_1e, lsz_1e)

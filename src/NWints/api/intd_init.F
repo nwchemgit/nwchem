@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.24 1999-12-10 01:47:40 bert Exp $
+c $Id: intd_init.F,v 1.25 1999-12-30 22:21:03 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -302,8 +302,7 @@ c
 c
 c Initialize relativistic basis set stuff
 c
-      any_rel = bas_rel_exists(rtdb)
-      if (any_rel) then
+      if (dyall_mod_dir) then
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
      &      ('int_init: int_rel_init failed ',911)
       end if

@@ -1,3 +1,4 @@
+c $Id: int_term.F,v 1.19 1999-12-30 22:15:15 mg201 Exp $
 c:tex-
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_terminate}
@@ -10,7 +11,6 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
 c:tex-No formal arguments
 c:tex-
-c $Id: int_term.F,v 1.18 1999-12-10 01:38:00 bert Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -47,7 +47,7 @@ c   Terminate relativistic integrals. This is an unconditional call
 c   because the call to int_rel_init is also unconditional, and the
 c   flag init_rel_int must be set to .false.
 c
-      if (any_rel) call int_rel_term
+      if (dyall_mod_dir) call int_rel_term
 c
 c   Terminate Douglas-Kroll integrals. The fitting basis set will
 c   be destroyed and the handle put to -1.
@@ -112,7 +112,7 @@ c
         ecp_bsh = 0
       endif
 c
-      if (any_rel) call int_rel_term
+      if (dyall_mod_dir) call int_rel_term
 c
 c   Terminate Douglas-Kroll integrals. The fitting basis set will
 c   be destroyed and the handle put to -1.
