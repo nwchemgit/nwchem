@@ -102,16 +102,20 @@ c
       character*255 task_name
       integer ntasks, ind
       logical status
-      parameter (ntasks = 5)
+      parameter (ntasks = 4)
       character*10 task_list(ntasks)
-      data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf', ' '/
+      data task_list /'rjhtest', 'raktest', 'rtdbprint', 'scf'/
 c     
-      if (.not. rtdb_par_cget(rtdb, 'task', 1, task_name))
-     $     task_name = ' '
+      if (.not. rtdb_par_cget(rtdb, 'task', 1, task_name)) then
+c
+c     Default action ... do nothing
+c
+         return
+      endif
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          
-         goto (10, 20, 30, 40, 50) ind
+         goto (10, 20, 30, 40) ind
 c
          write(6,*) ' Unimplemented task ', 
      $        task_name(1:inp_strlen(task_name))
@@ -137,10 +141,6 @@ c     scf ... eventually there will be no such task name
 c     
  40      write(6,*) ' SCF not working yet'
          goto 1000
-c
-c     Default task ... task_name is blank
-c
- 50      goto 1000
 c
       else
 c
