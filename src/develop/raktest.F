@@ -1,6 +1,7 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.18 1994-08-22 23:29:36 d3e129 Exp $
+c $Id: raktest.F,v 1.19 1994-08-25 08:21:55 d3e129 Exp $
+#include "global.fh"
       integer rtdb
 c
       logical scf
@@ -15,15 +16,19 @@ c
 c
 c      logical status
 c
-      write(6,*) ' rak test'
+      if(ga_nodeid().eq.0) then
+        write(6,*) ' rak test'
 *rak:      call size_integ(rtdb,'geometry', 'mo basis')
-      write(6,*)'====================================================='
-      write(6,*)' acc = high ,1.0d-20'
+        write(6,*)'==================================================='
+        write(6,*)' acc = high ,1.0d-20'
+      endif
       t1 = etime(tarray)
       call dointsum(rtdb,'geometry', 'mo basis',1.0d-20)
       t1 = etime(tarray) - t1 
-      write(6,'(a,f10.3)')' dointsum time: ',t1
-      write(6,*)'====================================================='
+      if(ga_nodeid().eq.0) then
+        write(6,'(a,f10.3)')' dointsum time: ',t1
+        write(6,*)'==================================================='
+      endif
       call ga_sync()
       call ga_sync()
       call ga_sync()
@@ -130,6 +135,8 @@ c
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
 c
       integer rtdb
       integer basis, geom
@@ -147,28 +154,33 @@ c
       write(6,*)' geom_name : <',geom_name,'>'
       write(6,*)' basis_name: <',basis_name,'>'
 c
+      if (.not.rtdb_parallel(1))
+     &     call errquit('dointsum: rtdb_parallel failed?', 0)
       if (.not. geom_create(geom, geom_name))
      $     call errquit('dointsum: geom_create failed?', 0)
       if (.not. geom_rtdb_load(rtdb, geom, geom_name))
      $     call errquit('dointsum: geom_load failed', 0)
-      if (.not. geom_print(geom))
-     $     call errquit('dointsum: geom_print failed', 0)
       if (.not. bas_create(basis, basis_name))
      $     call errquit('dointsum: basis create failed', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
      $      call errquit('dointsum: basis load failed', 0)
-      if (.not. bas_print(basis))
+
+      if (ga_nodeid().ne.0) then
+        if (.not. geom_print(geom))
+     $      call errquit('dointsum: geom_print failed', 0)
+        if (.not. bas_print(basis))
      $      call errquit('dointsum: basis print failed', 0)
-      if (.not. gbs_map_print(basis))
-     $     call errquit('dointsum: gbs_map_print failed', 0)
+        if (.not. gbs_map_print(basis))
+     $      call errquit('dointsum: gbs_map_print failed', 0)
+      endif
 c
 c normalize basis set
 c
       if (.not.int_normalize(basis))
      &       call errquit('dointsum: basis norm. failed', 0)
-      write(6,*)' after normalization'
-      if (.not. bas_print(basis))
-     $      call errquit('dointsum: basis print failed', 0)
+*      write(6,*)' after normalization'
+*      if (.not. bas_print(basis))
+*     $      call errquit('dointsum: basis print failed', 0)
 c
 c      write(6,*)' with integrals  printed '
 c      call int_chk_sum(basis,.true.)
@@ -176,7 +188,7 @@ c      call int_chk_sum(basis,.true.)
       call int_acc_set(tol2e)
       call int_terminate()
       call intd_init(1,basis)
-      write(6,*)' without integrals  printed '
+*      write(6,*)' without integrals  printed '
       call int_chk_sum(basis,.false.)
 c
       call int_terminate()
@@ -184,7 +196,7 @@ c
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
      &       call errquit('rak:error destroying gbs pair',0)
-      call MA_summarize_allocated_blocks()
+      if (ga_nodeid().eq.0) call MA_summarize_allocated_blocks()
 c
       end
 *rak:      subroutine derivtest(rtdb,geom_name, basis_name)
