@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.11 2000-05-04 20:54:50 d3j191 Exp $
+c $Id: ana_finish.F,v 1.12 2000-05-24 19:33:51 d3j191 Exp $
 c
       implicit none
 c
@@ -88,7 +88,7 @@ c
       if(me.eq.0) then
       write(lfnrms,1001) (sgmnam(i),i,isel(i),
      + sqrt(xrms(i)/dble(ndata)),i=1,nsa)
- 1001 format(a16,2i5,f12.6)
+ 1001 format(a16,i10,i5,f12.6)
       arms=0.0d0
       n=0
       if(me.eq.0) write(lfnrms,1000)
