@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.7 2005-02-10 05:53:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.8 2005-02-15 06:39:44 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -67,6 +67,7 @@ c
      $     call errquit('task_optimize: failed to set status',0,
      &       RTDB_ERR)
 c     
+      call mm_write_restart()
       task_qmmm_optimize = status
 c
       call util_print_pop()
