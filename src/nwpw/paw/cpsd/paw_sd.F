@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.41 2003-02-22 01:54:27 marat Exp $
+* $Id: paw_sd.F,v 1.42 2003-02-23 22:51:05 marat Exp $
 *
 ***********************************************************************
 *                      paw_sd                                         *
@@ -226,16 +226,24 @@
       write(*,*) "generating PAW basis - debug"
       value = MA_set_auto_verify(.true.)
       call init_paw_basis()
+
+*     *** initialize paw matrices ***      
       call init_paw_kin_matrix()
       call init_paw_ion_matrix()
-Cedo      call init_paw_vloc_matrix()
+      call init_paw_vloc_matrix()
       call init_paw_core_matrix()
       call init_paw_hartree_matrix()
       call init_paw_overlap_matrix()
       call init_paw_comp_charge_matrix()
       call init_paw_comp_pot_matrix()
+
+*     *** initialize paw projectors ***      
       call paw_proj_init()
+      
+*     *** initialize compensation charge ***
       call paw_comp_charge_init()
+      
+*     *** initialize paw atomc potentials ***      
       call init_paw_pot_hartree()
       call init_paw_pot_comp()
       call paw_mult_init()
@@ -295,19 +303,14 @@ Cedo      call init_paw_vloc_matrix()
      >                     'psir',psir(2),psir(1))
       if (.not. value) call errquit('paw_sd: out of heap memory',1)
 
-      !**** intialize overlap coefficient data structure ***
+*     *** intialize overlap coefficient data structure ***
       call phafac()
       call paw_ovlp_init(ispin,ne)
       call init_paw_density(0)
       call init_paw_xc(ispin,0)
       call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       call paw_ovlp_weights_set()
-      call paw_comp_charge_update()
 
-      call paw_pot_hartree_solve()
-      call paw_pot_comp_solve()
-      call paw_density_solve()
-      call paw_xc_solve()
 
       !**** Ortho Check ****
       do ms=1,ispin
@@ -337,7 +340,6 @@ Cedo      call init_paw_vloc_matrix()
         end if
      
       end do
-      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 *                |**************************|
@@ -492,6 +494,7 @@ Cedo      call init_paw_vloc_matrix()
       if (taskid.eq.MASTER) call current_second(cpu3)
 
 
+      call psi_marat_write("marat.elc",ispin,ne,dcpl_mb(psi2(1)))
 
 
 *         |****************************************|
@@ -701,7 +704,7 @@ c         write(6,1498) virial
       call paw_comp_charge_end()
       call paw_mult_end()
       call end_paw_kin_matrix()
-Cedo      call end_paw_vloc_matrix()
+      call end_paw_vloc_matrix()
       call end_paw_ion_matrix()
       call end_paw_overlap_matrix()
       call end_paw_hartree_matrix()

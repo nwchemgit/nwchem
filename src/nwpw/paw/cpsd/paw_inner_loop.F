@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.19 2003-02-22 01:54:27 marat Exp $
+* $Id: paw_inner_loop.F,v 1.20 2003-02-23 22:51:04 marat Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -41,17 +41,17 @@
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
       integer index,indext
-      real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
+      double precision evloc_pw,evloc_atom
+      real*8  sum,Eold,eorbit,eion,ehartr,eke,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  deltamm,vzero
-      double precision paw_ekin_atom
-      double precision paw_evloc_atom
-      double precision paw_eion_atom
-      double precision paw_ecore_atom
-      double precision paw_ecore_ion_atom
-      double precision paw_ecore_self_atom
-      double precision paw_ehartree_atom
-      double precision paw_exc_atom
+      double precision ekin_atom
+      double precision eion_atom
+      double precision ecore_atom
+      double precision ecore_ion_atom
+      double precision ecore_self_atom
+      double precision ehartree_atom
+      double precision exc_atom
 
 
 *     **** MA local variables ****
@@ -184,19 +184,18 @@
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
 
-*       ***************************
-*       ****generate comp charge***
-*       ***************************
+*       *******************
+*       **** set overlaps *
+*       *******************
         call paw_ovlp_coeff_set(psi1)
         call paw_ovlp_weights_set()
+
+*       *************************************
+*       ****generate comp charge potential***
+*       *************************************
         call paw_comp_charge_update()
+        call paw_pot_comp_solve()
 
-
-*       **********************************
-*       ***generate atomic potentials*****
-*       **********************************
-*        call paw_pot_hartree_solve()
-*        call paw_pot_comp_solve()
 
 *       *********************
 *       **** generate dn ****
@@ -232,9 +231,13 @@
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
 
-*       ************************************
-*       **** generate coulomb potential ****
-*       ************************************
+*      ************************************
+*      **** generate coulomb potential ****
+*      ************************************
+       call paw_pot_hartree_solve()
+        
+*      *** atomic portion ***
+           
         call paw_mult_dn_cmp_get(dcpl_mb(tmp1(1)),
      >                           dn_cmp_smooth)
 
@@ -268,10 +271,15 @@
         end if
 
 
-
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
+
+*       *** local portion
+        call paw_density_solve()
+        call paw_xc_solve()
+        
+*       *** plane wave 
         if (control_gga().eq.0) then
           call vxc(n2ft3d,ispin,dn,
      >                      dbl_mb(xcp(1)),
@@ -452,13 +460,13 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
 
 
 *     **** average Kohn-Sham v_local energy ****
-      call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
+      call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),evloc_pw)
 
 
 *     *** add in long range part ****
       if (control_version().eq.4) then
       call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vlr_l(1)),sum)
-      elocal = elocal + sum*dv
+      evloc_pw = evloc_pw + sum*dv
       end if
 
  
@@ -476,51 +484,44 @@ c     end do
 c     if (np.gt.1) call D3dB_SumAll(enlocal)
 c     if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
-c     get paw atom energies
-      paw_ehartree_atom = paw_energy_hartree_atom()
-      paw_ekin_atom = paw_energy_kin_atom()
-      paw_evloc_atom = paw_energy_vloc_atom()
-      paw_eion_atom = paw_energy_ion_atom()
-      paw_ecore_atom = paw_energy_core_atom()
-      paw_ecore_ion_atom = paw_energy_core_ion_atom()
-      paw_ecore_self_atom = paw_energy_core_self_atom()
-      paw_exc_atom = paw_energy_xc_atom()
-c      write(*,*) "paw atom kin energy",paw_ekin_atom
-c      write(*,*) "paw atom vloc energy",paw_evloc_atom 
-c      write(*,*) "paw atom ion energy",paw_eion_atom 
-c      write(*,*) "paw atom core energy",paw_ecore_atom 
-c      write(*,*) "paw atom hartree energy",paw_ehartree_atom 
-c      write(*,*) "paw atom core_ion energy",paw_ecore_ion_atom
-c      write(*,*) "paw atom core_self energy",paw_ecore_self_atom
-c      write(*,*) "paw atom xc energy",paw_exc_atom
+*     **** atomic energies ***
+      ehartree_atom = paw_energy_hartree_atom()
+      ekin_atom = paw_energy_kin_atom()
+      evloc_atom = paw_energy_vloc_atom()
+      eion_atom = paw_energy_ion_atom()
+c      ecore_atom = paw_energy_core_atom()
+c      ecore_ion_atom = paw_energy_core_ion_atom()
+c      ecore_self_atom = paw_energy_core_self_atom()
+      exc_atom = paw_energy_xc_atom()
 
+*?????????????????????? what is this ??????????????      
       call Pack_c_unpack(0,dn_cmp_smooth)
       call D3dB_cr_fft3b(1,dn_cmp_smooth)
       call D3dB_r_Zero_Ends(1,dn_cmp_smooth)
 
 
-*     *** kinetic energy ***
+*     *** fill in total energy array ***
+
+*     *** kinetic energy 
       E(2) = eke
-      E(3) = paw_ekin_atom 
+      E(3) = ekin_atom 
       E(4) = ehartr
 
-*     *** coulomb contributions ***      
+*     *** coulomb contributions 
 *      WARNING!!!!
 *      contributions from compensation charges are missing here
-      E(5) = paw_eion_atom + paw_ecore_atom + paw_ehartree_atom +
-     >       paw_ecore_ion_atom + paw_ecore_self_atom  
+      E(5) = eion_atom + ecore_atom + ehartree_atom +
+     >       ecore_ion_atom + ecore_self_atom  
 *     E(6)=multipole interaction energy      
       E(6)=0.0d0
       
-*     *** exch-corr ***
-*     *** plane wave ?????***
-      E(7) = 0.0d0
-      E(8) = paw_exc_atom
+*     *** exch-correlation
+      E(7) = exc
+      E(8) = exc_atom
       
 *     *** local pseudopot ***
-*     *** plane wave ?????***
-      E(9) = 0.0d0
-      E(10) = paw_evloc_atom
+      E(9)  = evloc_pw 
+      E(10) = evloc_atom
 
 
 *     *** total energy ***
