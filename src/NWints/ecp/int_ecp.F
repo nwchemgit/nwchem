@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.24 2002-04-04 22:00:40 bert Exp $
+* $Id: int_ecp.F,v 1.25 2002-06-17 22:31:22 bert Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -382,6 +382,17 @@ c
      &                          dbl_mb(mb_exndcf(jcf,bas_id)),
      &                          jnp,jng,jl,jc,
      &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+                        elseif (indx_grad.eq.2) then
+                           call intdd_ecp_hf1(
+     &                          coords(1,ic,ig),
+     &                          dbl_mb(mb_exndcf(ie,bas_id)),
+     &                          dbl_mb(mb_exndcf(icf,bas_id)),
+     &                          inp,ing,il,ic,
+     &                          coords(1,jc,jg),
+     &                          dbl_mb(mb_exndcf(je,bas_id)),
+     &                          dbl_mb(mb_exndcf(jcf,bas_id)),
+     &                          jnp,jng,jl,jc,
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
                         else
                            call errquit(
      .                          'int_ecp_init:unknown initializ',911)
@@ -403,6 +414,11 @@ c     ! nint block used in api routine int_hf1sp
       mem_1e = max(mem_1e,mem_ecp)
 *     write(6,*)' scr 1e memory with    ecp',mem_1e
 *     
+      call int_nbf_max(basis_handle,mem_ecp)
+c
+      mem_ecp = mem_ecp*mem_ecp*3*3*(ncenters*(ncenters-1)/2+ncenters)
+      isz_1e = max (isz_1e,mem_ecp)
+c
       int_ecp_init = .true.
 *     
       end
@@ -870,6 +886,59 @@ c
      &      0,
      &      dbl_mb(k_ecp_c2s),mem_c2s,
      &      ecp_ints,sz_ints,1,   ! nblk 1 for ecp integrals only 
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+*
+      end
+      subroutine intdd_ecp_hf1(
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
+     &    ecp_grad,sz_grad,nat,scr,lscr,dryrun)
+      implicit none
+#include "mafdecls.fh"
+#include "ecp_nwc.fh"
+*
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
+      integer nat
+      double precision expa(a_nprim), expb(b_nprim)
+      double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
+      integer sz_grad  ! [input] buffer size for ecp_grad
+      integer lscr     ! [input] length of scratch array
+      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
+      double precision ecp_grad(sz_grad,3,3,(nat*(nat-1)/2+nat)) ! [output] ecp integrals
+      double precision scr(lscr)         ! [scratch] array
+      logical dryrun   ! [input] compute vs calculate memory requirements.
+*
+*      write(6,*)' lscr IN d_ecp_hf1:',lscr
+*      if (.not.dryrun) then
+*        write(6,*)' intd_ecp_hf1: coords a ',xyza
+*        write(6,*)' intd_ecp_hf1: coords b ',xyzb
+*      endif
+c
+      call ecp_hessian(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e),dbl_mb(k_ecp_c),
+     &      int_mb(k_ecp_nprim_c),
+     &      int_mb(k_ecp_ncoef_c),
+     &      int_mb(k_ecp_ind_z),
+     &      int_mb(k_ecp_ind_c),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c),
+     &      int_mb(k_ecp_lip), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_grad,sz_grad,1,nat,          ! nblock = 1 for ECP only 
      &      dryrun,scr,lscr,
      &      0)  ! ibug
 *
