@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.21 1998-04-23 00:10:46 d3h449 Exp $
+c     $Id: dft_main0d.F,v 1.22 1998-09-10 21:13:31 d3h449 Exp $
 c     
       implicit none
 c
@@ -36,7 +36,7 @@ c
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals, iw, idum, i
       double precision toll_s
-      parameter(toll_s = 1.e-6)
+      parameter(toll_s = 1.d-7)
       logical dft_scf
       external dft_scf
 c     

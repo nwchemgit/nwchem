@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.105 1998-09-09 13:29:32 bjohnson Exp $
+c     $Id: dft_scf.F,v 1.106 1998-09-10 21:13:32 d3h449 Exp $
 c     
       implicit none
 c
@@ -115,7 +115,7 @@ c
       double precision homo, lumo, homo_lumo_gap
       integer stat1, stat2, l_ir, k_ir
       logical last_time_energy
-      logical check_shift
+      logical check_shift, lmaxov_sv
       character*7 name
       character*4 scftype
       character*255 basis_name, basis_trans
@@ -128,6 +128,7 @@ c
       call ecce_print_module_entry('dft')
 c
       dft_scf = .false.
+      lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
       oprint_info = util_print('common', print_debug)
       oprint_parm = util_print('parameters', print_default)
@@ -580,6 +581,10 @@ c
       last_time_energy = .false.
 c
  1000 continue
+      if (me.eq.0 .and. oprint_conv)
+     &   write(LuOut,124)damping, levelshifting, diising
+ 124  format(10x,' DAMPING=',l1,' LEVELSHIFTING=',l1,
+     &           ' DIISING=',l1)
 c
       if (me.eq.0.and.oprint_tol)write(LuOut,3234)itol2e,iAOacc,iXCacc
  3234 format(10x,'itol2e=',i2,' iAOacc=',i2,' iXCacc=',i2)
@@ -900,10 +905,13 @@ c        Keep orbital ordering according to principle
 c        of maximum overlap with previous iteration.
 c     
          if (lmaxov)then
+            if (me.eq.0 .and. oprint_conv)
+     &         write(LuOut,3224)homo, lumo
             call dft_mxovl(ao_bas_han, dbl_mb(k_eval(ispin)),
      &                     g_fock, g_movecs(ispin), g_tmp)
-            homo = -100.0d0
-            lumo =  100.0d0
+
+            homo = -1.0d8
+            lumo =  1.0d8
             if(noc(ispin).gt.0) then
               do i = 1, noc(ispin)
                  homo = max(homo,(Dbl_MB(k_eval(ispin)+i-1)))
@@ -912,12 +920,19 @@ c
                  lumo = min(lumo,(Dbl_MB(k_eval(ispin)+i-1)))
               enddo
             endif
+            if (me.eq.0 .and. oprint_conv)
+     &         write(LuOut,3224)homo, lumo
          endif
+ 3224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2)
          call ga_copy(g_fock, g_movecs(ispin))
 c        
 c        determine homo-lumo gap 
 c
          homo_lumo_gap = min(homo_lumo_gap, (lumo-homo-rlshift))
+         if (me.eq.0 .and. oprint_conv)
+     &      write(LuOut,4224)homo,lumo,rlshift, homo_lumo_gap
+ 4224    format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 c     
          call ga_sync
 #if defined(DFT_TIMER)
@@ -1132,13 +1147,13 @@ c
          if (homo_lumo_gap.lt.hl_tol)then
             levelshifting = .true.
             rlshift = rlshift_input
-c            if (check_shift)then
-c               if (lumo .lt. homo)then
-c                  levelshifting = .false.
-c                  if (me.eq.0 .and. oprint_conv)
-c     &               write(LuOut,2224)homo, lumo
-c               endif
-c            endif
+            if (check_shift)then
+               if (lumo .lt. homo)then
+                  levelshifting = .false.
+                  if (me.eq.0 .and. oprint_conv)
+     &               write(LuOut,2224)homo, lumo
+               endif
+            endif
          else
             levelshifting = .false.
             rlshift = rlshift_def
@@ -1174,15 +1189,16 @@ c
       if (nodiis)diising = .false.
 c     
       Etold = Etnew
-c     
-c      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-c         lmaxov = .false.
-c         if (me.eq.0 .and. oprint_conv)write(LuOut,224)homo, lumo
-c 224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-c     &        /,10x,'Significant orbital reordering with',
-c     &        ' maximum overlap',
-c     &        /,10x,'turned ON.  Turning max_ovl OFF.')
-c      endif
+c
+      lmaxov = lmaxov_sv
+      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
+         lmaxov = .false.
+         if (me.eq.0 .and. oprint_conv)write(LuOut,224)homo, lumo
+ 224     format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
+     &        /,10x,'Significant orbital reordering with',
+     &        ' maximum overlap',
+     &        /,10x,'turned ON.  Turning max_ovl OFF.')
+      endif
 c     
       if (oprint_energy_step.and.me.eq.0)then         
          current_cpu = util_cpusec()
