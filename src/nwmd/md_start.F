@@ -1083,6 +1083,93 @@ c
       write(lfnout,1002) filnam(1:index(filnam,' ')-1)
  1002 format(/,' System ',a)
 c
+      if(ntype.le.2) then
+      write(lfnout,1003) iset
+ 1003 format(/,' Force field parameter set ',i4)
+      endif
+c
+      if(rshort.le.rlong) then
+      write(lfnout,1004) rshort
+ 1004 format(/,' Cutoff radius ',f12.6, ' nm')
+      else
+      write(lfnout,1005) rshort,rlong
+ 1005 format(/,' Cutoff radius short range ',f12.6, ' nm',
+     +       /,' Cutoff radius long range  ',f12.6, ' nm')
+      endif
+c
+      if(ntype.ge.2) then
+      if(ivreas.gt.0) then
+      write(lfnout,1022)
+ 1022 format(/,' Velocity reassignment temperature ',f12.6,' K')
+      endif
+      if(itscal.gt.0) then
+      write(lfnout,1021) tmpext,tmprlx,tmsrlx
+ 1021 format(' Isothermal ensemble external temperature ',f12.6,' K',/,
+     + ' Temperature relaxation time solvent ',f12.6,' ps',/,
+     + ' Temperature relaxation time solute  ',f12.6,' ps')
+      endif
+      if(ipscal.gt.0) then
+      write(lfnout,1023) prsext,prsrlx,compr
+ 1023 format(' Isobaric ensemble external pressure ',1pe12.5,' Pa',/,
+     + ' Pressure relaxation time ',0pf12.6,' ps',/,
+     + ' Compressebility ',1pe12.5,' m**2/N')
+      endif
+      endif
+c
+      if(ntype.eq.1) then
+      if(msdit.gt.0) then
+      write(lfnout,1006) msdit,dx0sd,dxmsd,dxsdmx
+ 1006 format(/,' Maximum number of steepest descent steps ',i5,/,
+     + ' Initial step size ',f12.6,' nm',/,
+     + ' Maximum step size ',f12.6,' nm',/,
+     + ' Minimum step size ',f12.6,' nm')
+      endif
+      if(mcgit.gt.0) then
+      write(lfnout,1007) mcgit,ncgcy,dx0cg,dxsdmx
+ 1007 format(/,' Maximum number of conjugate gradient steps ',i5,/,
+     + ' Number of conjugate gradient steps per cycle ',i5,/,
+     + ' Initial interval size ',f12.6,' nm',/,
+     + ' Minimum step size ',f12.6,' nm')
+      endif
+      endif
+c
+      write(lfnout,1008) mshitw,tlwsha,mshits,tlssha
+ 1008 format(/,' Maximum number of solvent SHAKE iterations ',i5,
+     + ', solvent SHAKE tolerance ',f12.6,' nm',/,
+     + ' Maximum number of solute SHAKE iterations  ',i5,
+     + ', solute SHAKE tolerance  ',f12.6,' nm',/)
+c
+      if(ntype.ge.2) then
+      write(lfnout,1019) nfpair
+ 1019 format(' Frequency update pair lists ',t55,i5)
+      if(rshort.lt.rlong) write(lfnout,1020) nflong
+ 1020 format(' Frequency update long range forces ',t55,i5)
+      write(lfnout,1017) nfslow
+ 1017 format(' Frequency removal overall motion ',t55,i5)
+      write(lfnout,1018) nfcntr
+ 1018 format(' Frequency solute centering ',t55,i5)
+      write(lfnout,1009) nfoutp
+ 1009 format(' Frequency printing step information ',t55,i5)
+      write(lfnout,1010) nfstat
+ 1010 format(' Frequency printing statistical information ',t55,i5)
+      endif
+      if(ntype.eq.1) then
+      write(lfnout,1011) nfqrs
+ 1011 format(' Frequency recording minimum energy structure ',t55,i5)
+      endif
+      if(ntype.ge.2) then
+      write(lfnout,1012) nfrest
+ 1012 format(' Frequency recording restart file ',t55,i5)
+      write(lfnout,1013) nfcoor
+ 1013 format(' Frequency recording system coordinates ',t55,i5)
+      write(lfnout,1014) nfscoo
+ 1014 format(' Frequency recording solute coordinates ',t55,i5)
+      write(lfnout,1015) nfvelo
+ 1015 format(' Frequency recording system velocities ',t55,i5)
+      write(lfnout,1016) nfsvel
+ 1016 format(' Frequency recording solute velocities ',t55,i5)
+      endif
+c
       endif
 c
       return

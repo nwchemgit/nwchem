@@ -443,7 +443,7 @@ c
       integer i,j,k,number
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
       real*8 freeti,errti,drftti,taver,ep2ave,ep3ave
-      real*8 epr,epf,etp
+      real*8 epr,epf,etp,slambd
 c
       if(me.eq.0) then
 c
@@ -455,19 +455,19 @@ c
  1000 format(/' MULTICONFIGURATION THERMODYNAMIC INTEGRATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
-     + '  Derivative  Derivative  Derivative',
+     + '  Derivative  Derivative  Derivative Lambda',
      + ' Free Energy Free Energy Free Energy  Sampling',/,18x,
-     + '     Average       Error       Drift',
+     + '     Average       Error       Drift       ',
      + ' Accumulated       Error       Drift     Ratio',/,18x,
-     + '      kJ/mol      kJ/mol   kJ/mol ps',
+     + '      kJ/mol      kJ/mol   kJ/mol ps       ',
      + '      kJ/mol      kJ/mol   kJ/mol ps',/)
       else
       write(lfnout,1001) pdate,ptime
  1001 format(/' MULTISTEP THERMODYNAMIC PERTURBATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
-     + '     Reverse     Forward    Ensemble Accumulated ',/,18x,
-     + '      kJ/mol      kJ/mol      kJ/mol      kJ/mol',/)
+     + '     Reverse     Forward    Ensemble Lambda Accumulated ',/,18x,
+     + '      kJ/mol      kJ/mol      kJ/mol             kJ/mol',/)
       endif
 c
       rewind(lfngib)
@@ -476,6 +476,7 @@ c
       errti=zero
       drftti=zero
       etp=zero
+      slambd=zero
       do 2 i=1,mrun
       read(lfngib,2000) nderiv,nda,rlambd,dlambd
  2000 format(2i7,2f12.6)
@@ -486,6 +487,8 @@ c
       read(lfngib,2003) number,taver,ep2ave,ep3ave
  2003 format(i10,3e20.12)
 c
+      slambd=slambd+dlambd
+c
       if(k.eq.1) then
       call error(.true.,.true.,1000,dfr,nda,
      + dfree,ddrft,dsterr,dcerr,ratio)
@@ -495,15 +498,15 @@ c
       drftti=drftti+ddrft*dlambd
 c
       write(lfnout,1002) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
-     + freeti,sqrt(errti),drftti/tstep,ratio
- 1002 format(i4,f7.3,i7,2(f12.3,2f12.6),f10.5)
+     + slambd,freeti,sqrt(errti),drftti/tstep,ratio
+ 1002 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f10.5)
 c
       else
       epr=-rgas*taver*log(ep2ave)
       epf=-rgas*taver*log(ep3ave)
       etp=etp-epr+epf
-      write(lfnout,1003) i,rlambd,number,epr,epf,epf-epr,etp
- 1003 format(i4,f7.3,i7,4f12.3)
+      write(lfnout,1003) i,rlambd,number,epr,epf,epf-epr,slambd,etp
+ 1003 format(i4,f7.3,i7,3f12.3,f7.3,f12.3)
       endif
 c
     2 continue
