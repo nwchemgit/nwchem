@@ -1,0 +1,69 @@
+#!/bin/csh 
+#
+# $Id: freq.gifs,v 1.1 1999-07-26 22:25:01 d3e129 Exp $
+#
+#
+# script to generate all vibrational mode gifs using the rasmolmovie script
+#
+# This script blindly builds all mode gifs from the xyz information produced by
+# the vibrational analysis code:
+#
+# to get the xyz files:
+#  1) add 'set "vib:animate" logical true' to your input deck
+#  2) if the default step size (.15 au) for the animation does not give you
+#     enough animation add 'set "vib:animate:step_size" real 0.2' or whatever
+#     step size you think appropriate to animate the system in question.
+# 
+# Assumptions:
+# this script assumes that all freq.*.xyz files are in the current working directory
+# if any modes are missing then the script will stop at the first missing mode.  
+# 
+#
+# Written by Ricky A. Kendall, July 1999
+#
+
+@ count = 1
+@ done = 0
+while (!($done))
+  if ($count < 10) then
+     if (-e freq.m-00${count}.s-001.xyz) then
+	rasmolmovie freq.m-00${count}.s-???.xyz
+	mv animation+x.gif mode.00${count}.+x.gif
+	mv animation+y.gif mode.00${count}.+y.gif
+	mv animation+z.gif mode.00${count}.+z.gif
+	mv animation-x.gif mode.00${count}.-x.gif
+	mv animation-y.gif mode.00${count}.-y.gif
+	mv animation-z.gif mode.00${count}.-z.gif
+	ls -l mode.00${count}.*.gif
+     else
+        @ done = 1
+     endif
+  else if ($count < 100) then
+     if (-e freq.m-0${count}.s-001.xyz) then
+	rasmolmovie freq.m-0${count}.s-???.xyz
+	mv animation+x.gif mode.0${count}.+x.gif
+	mv animation+y.gif mode.0${count}.+y.gif
+	mv animation+z.gif mode.0${count}.+z.gif
+	mv animation-x.gif mode.0${count}.-x.gif
+	mv animation-y.gif mode.0${count}.-y.gif
+	mv animation-z.gif mode.0${count}.-z.gif
+	ls -l mode.0${count}.*.gif
+     else
+        @ done = 1
+     endif
+  else
+     if (-e freq.m-${count}.s-001.xyz) then
+	rasmolmovie freq.m-0${count}.s-???.xyz
+	mv animation+x.gif mode.${count}.+x.gif
+	mv animation+y.gif mode.${count}.+y.gif
+	mv animation+z.gif mode.${count}.+z.gif
+	mv animation-x.gif mode.${count}.-x.gif
+	mv animation-y.gif mode.${count}.-y.gif
+	mv animation-z.gif mode.${count}.-z.gif
+	ls -l mode.${count}.*.gif
+     else
+        @ done = 1
+     endif
+  endif
+  @ count++
+end
