@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.21 1995-06-15 21:16:33 gg502 Exp $
+# $Id: GNUmakefile,v 1.22 1995-07-16 02:58:13 gg502 Exp $
 
 LIBRARY =	librimp2.a
 
@@ -16,9 +16,14 @@ OBJ =		rimp2_v_e2.o \
 		xf3ci_mem12.o	iamax.o		rimp2_e_mem.o
 
 OBJ_OPTIMIZE =      rimp2_denom.o   \
-                sum_pairs.o     eval_3ci_block.o xf3ci_step12a.o \
+                sum_pairs.o     xf3ci_step12a.o \
 		xf3ci_step12b.o
 
+ifeq ($(NWCHEM_TARGET),SGITFP)
+   OBJ += eval_3ci_block.o
+else
+   OBJ_OPTIMIZE += eval_3ci_block.o
+endif
 
 USES_BLAS =	rimp2_v_e2.F    xf3ci_step12.F  xf3ci_step12a.F \
 		xf3ci_step12b.F xform_3cints.F open_3ci_file.F \
