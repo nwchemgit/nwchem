@@ -1,10 +1,12 @@
-      logical function pre_atype(lfnout,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
+      logical function pre_atype(lfnout,lfnpar,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.14 2000-02-20 16:05:13 d3j191 Exp $
+c $Id: pre_atype.F,v 1.15 2001-11-06 06:15:20 d3j191 Exp $
 c
       implicit none
 c
@@ -38,8 +40,8 @@ c
       parameter (maty=1000)
 c
       integer lfnpar,lfnout
-      character*255 filpar
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*255 filnam
       integer matm,matmt,mtyp,natmt
       integer latm(5,matm),latmt(5,matmt)
@@ -264,10 +266,10 @@ c     read the atom type data
 c     -----------------------
 c
       ntype=0
-      lt=index(filpar,' ')-1
+      lt=index(par_s,' ')-1
       ld=index(dir_s,' ')-1
       l=ld+lt
-      filnam=dir_s(1:ld)//filpar(1:lt)
+      filnam=dir_s(1:ld)//par_s(1:lt)
       open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=901)
    18 continue
@@ -296,10 +298,10 @@ c
       endif
 c
   901 continue
-      lt=index(filpar,' ')-1
+      lt=index(par_x,' ')-1
       ld=index(dir_x,' ')-1
       l=ld+lt
-      filnam=dir_x(1:ld)//filpar(1:lt)
+      filnam=dir_x(1:ld)//par_x(1:lt)
       open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=902)
   118 continue
@@ -324,10 +326,10 @@ c
       endif
 c
   902 continue
-      lt=index(filpar,' ')-1
-      ld=index(dir_u,' ')-1
+      lt=index(par_q,' ')-1
+      ld=index(dir_q,' ')-1
       l=ld+lt
-      filnam=dir_u(1:ld)//filpar(1:lt)
+      filnam=dir_q(1:ld)//par_q(1:lt)
       open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=903)
   218 continue
@@ -352,10 +354,10 @@ c
       endif
 c
   903 continue
-      lt=index(filpar,' ')-1
-      ld=index(dir_t,' ')-1
+      lt=index(par_u,' ')-1
+      ld=index(dir_u,' ')-1
       l=ld+lt
-      filnam=dir_t(1:ld)//filpar(1:lt)
+      filnam=dir_u(1:ld)//par_u(1:lt)
       open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=904)
   318 continue
@@ -378,7 +380,63 @@ c
       if(util_print('where',print_debug)) then
       write(lfnout,'(a,a)') filnam(1:l),' closed' 
       endif
+c
   904 continue
+      lt=index(par_t,' ')-1
+      ld=index(dir_t,' ')-1
+      l=ld+lt
+      filnam=dir_t(1:ld)//par_t(1:lt)
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
+     + err=905)
+  418 continue
+      read(lfnpar,1000,end=417,err=9999) card
+      if(card(1:10).ne.'Atom types') goto 418
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+      endif
+  416 continue
+      read(lfnpar,1000,end=417,err=9999) card
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 416
+      ntype=ntype+1
+      if(ntype.gt.maty) call errquit('increase maty',9999)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
+      read(lfnpar,1002) (itype(i,ntype),i=11,15)
+      read(lfnpar,1002) (itype(i,ntype),i=16,20)
+      goto 416
+  417 continue
+      close(unit=lfnpar)
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
+c
+  905 continue
+      lt=index(par_c,' ')-1
+      ld=index(dir_c,' ')-1
+      l=ld+lt
+      filnam=dir_c(1:ld)//par_c(1:lt)
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
+     + err=906)
+  518 continue
+      read(lfnpar,1000,end=517,err=9999) card
+      if(card(1:10).ne.'Atom types') goto 518
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+      endif
+  516 continue
+      read(lfnpar,1000,end=517,err=9999) card
+      if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 516
+      ntype=ntype+1
+      if(ntype.gt.maty) call errquit('increase maty',9999)
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
+      read(lfnpar,1002) (itype(i,ntype),i=11,15)
+      read(lfnpar,1002) (itype(i,ntype),i=16,20)
+      goto 516
+  517 continue
+      close(unit=lfnpar)
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
+  906 continue
       if(util_print('files',print_medium)) then
       write(lfnout,2001)
  2001 format(' ')

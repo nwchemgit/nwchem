@@ -1,11 +1,12 @@
       logical function pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
-     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
+     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,
-     + dir_s,dir_x,dir_u,dir_t,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: pre_mkseq.F,v 1.37 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.38 2001-11-06 06:15:20 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -14,7 +15,6 @@ c          char*80 filpdb    = file name of pdb file
 c          integer lfnseq    = logical file number for seq file
 c          char*80 filseq    = file name of seq file
 c          integer lfnpar    = logical file number for typ file
-c          char*80 filpar    = file name of typ file
 c          integer lfnfrg    = logical file number for frg file
 c          char*80 dir_s     = directory standard ffield files
 c          char*80 dir_x     = directory extensions ffield files
@@ -50,8 +50,9 @@ c
 c
       real*8 qscale
 c
-      character*255 filpdb,filpar,filseq,filtmp,filmod
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 filpdb,filseq,filtmp,filmod
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*80 ffield
       character*80 sysnam
       character*3 slvnam
@@ -276,7 +277,8 @@ c
 c     scan the database directories for segment files
 c     -----------------------------------------------
 c
-      if(.not.pre_sgmndx(lfnfrg,dir_s,dir_x,dir_u,dir_t,lfnout,
+      if(.not.pre_sgmndx(lfnfrg,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,mato)) then
 c
@@ -333,8 +335,10 @@ c
 c
 c     generate fragment files for missing segments in dir_t
 c
-      if(.not.pre_mkfrg(irtdb,source,lfnfrg,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,lfnout,iconst,
+      if(.not.pre_mkfrg(irtdb,source,lfnfrg,lfnpar,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + lfnout,iconst,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,
@@ -372,7 +376,7 @@ c     generate segment files
 c     ----------------------
 c
       if(.not.pre_gensgm(lfnout,lfnfrg,lfnsgm,
-     + ffield,dir_s,dir_x,dir_u,dir_t,
+     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm))
      + call errquit('pre_gensgm failed',9999)
 c

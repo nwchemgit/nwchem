@@ -1,12 +1,13 @@
-      logical function pre_mkfrg(irtdb,source,iunit,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,
+      logical function pre_mkfrg(irtdb,source,iunit,lfnpar,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
      + lfnout,iconst,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lato,cato,xato,qato,mato,nato,lbnd,mbnd,lbndt,mbndt,
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_mkfrg.F,v 1.35 2000-10-23 15:53:16 windus Exp $
+c $Id: pre_mkfrg.F,v 1.36 2001-11-06 06:15:20 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
@@ -56,8 +57,9 @@ c
       real*8 xatm(3,matm),qatm(matm),xato(3,mato),qato(mato),qscale,qsum
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       integer lbndt(2,mbndt)
-      character*255 filpar,filnam
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 filnam
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       integer mlnk,nlnk
       integer llnk(4,mlnk)
       character*4 clnk(2,mlnk)
@@ -216,8 +218,10 @@ c
 c     determine atom types
 c     --------------------
 c
-      if(.not.pre_atype(lfnout,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,lato,cato,mato,lbnd,mbnd,nbnd,
+      if(.not.pre_atype(lfnout,lfnpar,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + lato,cato,mato,lbnd,mbnd,nbnd,
      + 1,1,nato,nato,int_mb(i_ltyp),mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6,
      + latm,matm,natm,lbndt,mbndt,nbndt)) then
@@ -244,13 +248,17 @@ c     guestimate partial charges
 c     --------------------------
 c
       if(found) then
-      if(.not.pre_charge(irtdb,lfnout,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
+      if(.not.pre_charge(irtdb,lfnout,lfnpar,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
       else
-      if(.not.pre_charge(irtdb,lfnout,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,source,jlo,ilo,ihi,jhi,
+      if(.not.pre_charge(irtdb,lfnout,lfnpar,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + source,jlo,ilo,ihi,jhi,
      + lato,cato,xato,qato,mato,nato,lbnd,mbnd,nbnd,0,qscale))
      + call errquit('pre_charge failed',9999)
       endif

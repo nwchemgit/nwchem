@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.85 2001-08-29 23:04:04 d3j191 Exp $
+c $Id: pre_input.F,v 1.86 2001-11-06 06:15:20 d3j191 Exp $
 c
       implicit none
 c
@@ -21,7 +21,8 @@ c
       character*80 source
       character*10 slvmdl
       character*80 ffield,sysnam
-      character*255 dir_s,dir_x,dir_u,dir_t,commnd,modify
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 commnd,modify
       integer newtop,newseq,newrst,icount(10),multip,ncount
       integer nfract,ifract(mfract)
 c
@@ -39,7 +40,7 @@ c
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
       real*8 scale,cpk,rshell
-      integer irepeat,nrepeat,iopt,irrand
+      integer irepeat,nrepeat,iopt,jopt,kopt,irrand
       integer iskip,jskip,kskip
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
@@ -60,8 +61,10 @@ c
       ffield=' '
       dir_s=' '
       dir_x=' '
+      dir_q=' '
       dir_u=' '
       dir_t=' '
+      dir_c=' '
       sysnam=' '
       slvnam='HOH'
       slvmdl='spce      '
@@ -193,12 +196,20 @@ c
       if(.not.inp_a(dir_x)) call errquit('pre_input: error dir_x',0)
       goto 2
       endif
+      if(inp_compare(.false.,'quality',item)) then
+      if(.not.inp_a(dir_q)) call errquit('pre_input: error dir_q',0)
+      goto 2
+      endif
       if(inp_compare(.false.,'user',item)) then
       if(.not.inp_a(dir_u)) call errquit('pre_input: error dir_u',0)
       goto 2
       endif
       if(inp_compare(.false.,'temporary',item)) then
       if(.not.inp_a(dir_t)) call errquit('pre_input: error dir_t',0)
+      goto 2
+      endif
+      if(inp_compare(.false.,'current',item)) then
+      if(.not.inp_a(dir_c)) call errquit('pre_input: error dir_c',0)
       goto 2
       endif
 c
@@ -793,6 +804,8 @@ c     ---
 c
       if(inp_compare(.false.,'pmf',item)) then
       iopt=0
+      jopt=0
+      kopt=0
  6883 continue
       if(.not.inp_a(type)) call errquit('pre_input: pmf',9999)
       if(inp_compare(.false.,'all',type)) then
@@ -801,6 +814,10 @@ c
       endif
       if(inp_compare(.false.,'combine',type)) then
       iopt=2
+      goto 6883
+      endif
+      if(inp_compare(.false.,'bias',type)) then
+      jopt=1
       goto 6883
       endif
       if(.not.inp_i(igroup)) call errquit('pre_input: pmf',9999)
@@ -841,35 +858,37 @@ c
       if(.not.inp_f(forc2)) call errquit('pre_input: pmf',9999)
       endif
       if(type(1:6).eq.'zalign') then
-      write(68,6844) iopt,igroup,forcon,forc2
- 6844 format('pmf lin',2i5,15x,24x,2e12.5)
+      write(68,6844) iopt,jopt,kopt,igroup,forcon,forc2
+ 6844 format('pmf lin',4i5,15x,24x,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:7).eq.'xyplane') then
-      write(68,6845) iopt,igroup,forcon,forc2
- 6845 format('pmf pla',2i5,15x,24x,2e12.5)
+      write(68,6845) iopt,jopt,kopt,igroup,forcon,forc2
+ 6845 format('pmf pla',4i5,15x,24x,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:8).eq.'distance') then
-      write(68,6840) iopt,igroup,jgroup,value1,value2,forcon,forc2
- 6840 format('pmf dis',3i5,10x,2f12.6,2e12.5)
+      write(68,6840) iopt,jopt,kopt,igroup,jgroup,
+     +value1,value2,forcon,forc2
+ 6840 format('pmf dis',5i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:5).eq.'angle') then
-      write(68,6842) iopt,igroup,jgroup,kgroup,value1,value2,forcon,
-     + forc2
- 6842 format('pmf ang',4i5,5x,2f12.6,2e12.5)
+      write(68,6842) iopt,jopt,kopt,jopt,kopt,igroup,jgroup,kgroup,
+     + value1,value2,forcon,forc2
+ 6842 format('pmf ang',6i5,5x,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:7).eq.'torsion') then
-      write(68,6843) iopt,igroup,jgroup,kgroup,lgroup,value1,value2,
-     + forcon,forc2
- 6843 format('pmf tor',5i5,2f12.6,2e12.5)
+      write(68,6843) iopt,jopt,kopt,igroup,jgroup,kgroup,lgroup,
+     + value1,value2,forcon,forc2
+ 6843 format('pmf tor',7i5,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:8).eq.'improper') then
-      write(68,6847) iopt,igroup,jgroup,kgroup,lgroup,value1,value2,
-     + forcon,forc2
- 6847 format('pmf imp',5i5,2f12.6,2e12.5)
+      write(68,6847) iopt,jopt,kopt,igroup,jgroup,kgroup,lgroup,
+     + value1,value2,forcon,forc2
+ 6847 format('pmf imp',7i5,2f12.6,2e12.5)
       numcmd=numcmd+1
       elseif(type(1:8).eq.'basepair') then
-      write(68,6858) iopt,igroup,jgroup,value1,value2,forcon,forc2
- 6858 format('pmf bas',3i5,10x,2f12.6,2e12.5)
+      write(68,6858) iopt,jopt,kopt,igroup,jgroup,
+     + value1,value2,forcon,forc2
+ 6858 format('pmf bas',5i5,10x,2f12.6,2e12.5)
       numcmd=numcmd+1
       endif
       goto 2
@@ -1466,13 +1485,23 @@ c
     9 continue
 c
       len=index(dir_s,' ')-1
-      if(len.gt.0.and.dir_s(len:len).ne.'/') dir_s(len+1:len+2)='/ '
+      if(len.gt.0.and.dir_s(len:len).ne.'/'.and.
+     + dir_s(len-3:len).ne.'.par') dir_s(len+1:len+2)='/ '
       len=index(dir_x,' ')-1
-      if(len.gt.0.and.dir_x(len:len).ne.'/') dir_x(len+1:len+2)='/ '
+      if(len.gt.0.and.dir_x(len:len).ne.'/'.and.
+     + dir_x(len-3:len).ne.'.par') dir_x(len+1:len+2)='/ '
+      len=index(dir_q,' ')-1
+      if(len.gt.0.and.dir_q(len:len).ne.'/'.and.
+     + dir_q(len-3:len).ne.'.par') dir_q(len+1:len+2)='/ '
       len=index(dir_u,' ')-1
-      if(len.gt.0.and.dir_s(len:len).ne.'/') dir_u(len+1:len+2)='/ '
+      if(len.gt.0.and.dir_u(len:len).ne.'/'.and.
+     + dir_u(len-3:len).ne.'.par') dir_u(len+1:len+2)='/ '
       len=index(dir_t,' ')-1
-      if(len.gt.0.and.dir_t(len:len).ne.'/') dir_t(len+1:len+2)='/ '
+      if(len.gt.0.and.dir_t(len:len).ne.'/'.and.
+     + dir_t(len-3:len).ne.'.par') dir_t(len+1:len+2)='/ '
+      len=index(dir_c,' ')-1
+      if(len.gt.0.and.dir_c(len:len).ne.'/'.and.
+     + dir_c(len-3:len).ne.'.par') dir_c(len+1:len+2)='/ '
 c
 c     put on rtdb
 c     -----------
@@ -1490,12 +1519,20 @@ c
       if(.not.rtdb_cput(irtdb,'prep:dir_x',1,dir_x))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
+      if(dir_q(1:1).ne.' ') then
+      if(.not.rtdb_cput(irtdb,'prep:dir_q',1,dir_q))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
       if(dir_u(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:dir_u',1,dir_u))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
       if(dir_t(1:1).ne.' ') then
       if(.not.rtdb_cput(irtdb,'prep:dir_t',1,dir_t))
+     + call errquit('pre_input: rtdb_put failed',0)
+      endif
+      if(dir_c(1:1).ne.' ') then
+      if(.not.rtdb_cput(irtdb,'prep:dir_c',1,dir_c))
      + call errquit('pre_input: rtdb_put failed',0)
       endif
 c

@@ -1,11 +1,13 @@
       logical function pre_rtdbin(irtdb,ffield,
-     + dir_s,dir_x,dir_u,dir_t,source,sysnam,calc,slvnam,slvmdl,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + source,sysnam,calc,slvnam,slvmdl,
      + newtop,newseq,newrst,mcount,ncount,icount,mgrid,gdist,mnoe,
      + maxscf,qscale,
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + mfract,nfract,ifract,scale,cpk,his)
 c
-c $Id: pre_rtdbin.F,v 1.28 2001-01-16 22:16:35 d3j191 Exp $
+c $Id: pre_rtdbin.F,v 1.29 2001-11-06 06:15:21 d3j191 Exp $
 c
 c     function to read input for prepare module from rtdb
 c
@@ -22,7 +24,8 @@ c
       character*80 source
       character*80 ffield,sysnam,calc
       character*10 slvmdl
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       integer newtop,newseq,newrst,icount(mcount),icyren,ignore
       integer len,ndx,mgrid,mnoe,maxscf,model,nxlnk,mdold
       integer mfract,nfract,iconst
@@ -31,14 +34,23 @@ c
       character*1 altloc,chain,his
       character*4 scount(mcount)
       real*8 scale,cpk
+      integer i
 c
       character*255 key,value
 c
       ffield=' '
       dir_s=' '
       dir_x=' '
+      dir_q=' '
       dir_u=' '
       dir_t=' '
+      dir_c=' '
+      par_s=' '
+      par_x=' '
+      par_q=' '
+      par_u=' '
+      par_t=' '
+      par_c=' '
       source=' '
 c
 c     read from rtdb
@@ -48,8 +60,16 @@ c
 c
       if(.not.rtdb_cget(irtdb,'prep:dir_s',1,dir_s)) continue
       if(.not.rtdb_cget(irtdb,'prep:dir_x',1,dir_x)) continue
+      if(.not.rtdb_cget(irtdb,'prep:dir_x',1,dir_q)) continue
       if(.not.rtdb_cget(irtdb,'prep:dir_u',1,dir_u)) continue
       if(.not.rtdb_cget(irtdb,'prep:dir_t',1,dir_t)) continue
+c
+      if(.not.rtdb_cget(irtdb,'prep:par_s',1,par_s)) continue
+      if(.not.rtdb_cget(irtdb,'prep:par_x',1,par_x)) continue
+      if(.not.rtdb_cget(irtdb,'prep:par_x',1,par_q)) continue
+      if(.not.rtdb_cget(irtdb,'prep:par_u',1,par_u)) continue
+      if(.not.rtdb_cget(irtdb,'prep:par_t',1,par_t)) continue
+      if(.not.rtdb_cget(irtdb,'prep:par_c',1,par_c)) continue
 c
       if(.not.rtdb_cget(irtdb,'prep:sysnam',1,sysnam)) then
       if(.not.rtdb_cget(irtdb,'arg:project',1,sysnam)) then
@@ -140,6 +160,11 @@ c
       if(util_nwchemrc_get(key,value))
      + dir_x=value(1:index(value,' '))
       endif
+      if(dir_q(1:1).eq.' ') then
+      key=ffield(1:index(ffield,' ')-1)//'_q '
+      if(util_nwchemrc_get(key,value))
+     + dir_q=value(1:index(value,' '))
+      endif
       if(dir_u(1:1).eq.' ') then
       key=ffield(1:index(ffield,' ')-1)//'_u '
       if(util_nwchemrc_get(key,value))
@@ -150,7 +175,126 @@ c
       if(util_nwchemrc_get(key,value))
      + dir_t=value(1:index(value,' '))
       endif
-      if(dir_t(1:1).eq.' ') dir_t='./ '
+      if(dir_c(1:1).eq.' ') then
+      key=ffield(1:index(ffield,' ')-1)//'_c '
+      if(util_nwchemrc_get(key,value))
+     + dir_c=value(1:index(value,' '))
+      endif
+      if(dir_c(1:1).eq.' ') dir_c='./ '
+c
+      len=index(dir_s,' ')-1
+      if(len.gt.0) then
+      if(dir_s(len-3:len).eq.'.par') then
+      ndx=0
+      do 1 i=1,len
+      if(dir_s(i:i).eq.'/') ndx=i
+    1 continue
+      if(ndx.eq.0) then
+      par_s=dir_s
+      dir_s='./'
+      elseif(ndx.eq.len) then
+      par_s=' '
+      else
+      par_s=dir_s(ndx+1:len)
+      dir_s=dir_s(1:ndx)
+      endif
+      endif
+      endif
+c
+      len=index(dir_x,' ')-1
+      if(len.gt.0) then
+      if(dir_x(len-3:len).eq.'.par') then
+      ndx=0
+      do 2 i=1,len
+      if(dir_x(i:i).eq.'/') ndx=i
+    2 continue
+      if(ndx.eq.0) then
+      par_x=dir_x
+      dir_x='./'
+      elseif(ndx.eq.len) then
+      par_x=' '
+      else
+      par_x=dir_x(ndx+1:len)
+      dir_x=dir_x(1:ndx)
+      endif
+      endif
+      endif
+c
+      len=index(dir_q,' ')-1
+      if(len.gt.0) then
+      if(dir_q(len-3:len).eq.'.par') then
+      ndx=0
+      do 3 i=1,len
+      if(dir_q(i:i).eq.'/') ndx=i
+    3 continue
+      if(ndx.eq.0) then
+      par_q=dir_q
+      dir_q='./'
+      elseif(ndx.eq.len) then
+      par_q=' '
+      else
+      par_q=dir_q(ndx+1:len)
+      dir_q=dir_q(1:ndx)
+      endif
+      endif
+      endif
+c
+      len=index(dir_u,' ')-1
+      if(len.gt.0) then
+      if(dir_u(len-3:len).eq.'.par') then
+      ndx=0
+      do 4 i=1,len
+      if(dir_u(i:i).eq.'/') ndx=i
+    4 continue
+      if(ndx.eq.0) then
+      par_u=dir_u
+      dir_u='./'
+      elseif(ndx.eq.len) then
+      par_u=' '
+      else
+      par_u=dir_u(ndx+1:len)
+      dir_u=dir_u(1:ndx)
+      endif
+      endif
+      endif
+c
+      len=index(dir_t,' ')-1
+      if(len.gt.0) then
+      if(dir_t(len-3:len).eq.'.par') then
+      ndx=0
+      do 5 i=1,len
+      if(dir_t(i:i).eq.'/') ndx=i
+    5 continue
+      if(ndx.eq.0) then
+      par_t=dir_t
+      dir_t='./'
+      elseif(ndx.eq.len) then
+      par_t=' '
+      else
+      par_t=dir_t(ndx+1:len)
+      dir_t=dir_t(1:ndx)
+      endif
+      endif
+      endif
+c
+      len=index(dir_c,' ')-1
+      if(len.gt.0) then
+      if(dir_c(len-3:len).eq.'.par') then
+      ndx=0
+      do 6 i=1,len
+      if(dir_c(i:i).eq.'/') ndx=i
+    6 continue
+      if(ndx.eq.0) then
+      par_c=dir_c
+      dir_c='./'
+      elseif(ndx.eq.len) then
+      par_c=' '
+      else
+      par_c=dir_c(ndx+1:len)
+      dir_c=dir_c(1:ndx)
+      endif
+      endif
+      endif
 c
       key='histidine'
       if(his.eq.' ') then

@@ -1,11 +1,13 @@
-      logical function pre_params(lfnpar,filpar,lfnout,
-     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,ignore,
+      logical function pre_params(lfnpar,lfnout,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + ffield,releps,q14fac,ignore,
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,mats,nats)
 c
-c $Id: pre_params.F,v 1.14 2001-10-23 20:46:29 d3j191 Exp $
+c $Id: pre_params.F,v 1.15 2001-11-06 06:15:21 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +18,8 @@ c
       external pre_ffield,pre_parcnv,pre_check,pre_dummy
 c
       integer lfnpar,lfnout,ignore
-      character*255 filpar,dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*80 ffield
       integer matm,natm
       integer latm(9,matm)
@@ -83,37 +86,60 @@ c     substitute parameters parameter files
 c     -------------------------------------
 c
       icomb=0
-      lp=index(filpar,' ')
+      lp=index(par_s,' ')
       ld=index(dir_s,' ')-1
       if(ld.gt.0) then
-      filnam=dir_s(1:ld)//filpar(1:lp)
+      filnam=dir_s(1:ld)//par_s(1:lp)
       if(.not.pre_ffield(1,lfnpar,filnam,lfnout,q14fac,releps,
      + ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
       endif
+      lp=index(par_x,' ')
       ld=index(dir_x,' ')-1
       if(ld.gt.0) then
-      filnam=dir_x(1:ld)//filpar(1:lp)
+      filnam=dir_x(1:ld)//par_x(1:lp)
       if(.not.pre_ffield(2,lfnpar,filnam,lfnout,q14fac,releps,
      +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
       endif
+      lp=index(par_q,' ')
+      ld=index(dir_q,' ')-1
+      if(ld.gt.0) then
+      filnam=dir_q(1:ld)//par_q(1:lp)
+      if(.not.pre_ffield(2,lfnpar,filnam,lfnout,q14fac,releps,
+     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
+     + limp,rimp,mimp,nimp)) then
+      endif
+      endif
+      lp=index(par_u,' ')
       ld=index(dir_u,' ')-1
       if(ld.gt.0) then
-      filnam=dir_u(1:ld)//filpar(1:lp)
+      filnam=dir_u(1:ld)//par_u(1:lp)
       if(.not.pre_ffield(3,lfnpar,filnam,lfnout,q14fac,releps,
      +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
       endif
+      lp=index(par_t,' ')
       ld=index(dir_t,' ')-1
       if(ld.gt.0) then
-      filnam=dir_t(1:ld)//filpar(1:lp)
+      filnam=dir_t(1:ld)//par_t(1:lp)
+      if(.not.pre_ffield(4,lfnpar,filnam,lfnout,q14fac,releps,
+     +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
+     + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
+     + limp,rimp,mimp,nimp)) then
+      endif
+      endif
+      lp=index(par_c,' ')
+      ld=index(dir_c,' ')-1
+      if(ld.gt.0) then
+      filnam=dir_c(1:ld)//par_c(1:lp)
       if(.not.pre_ffield(4,lfnpar,filnam,lfnout,q14fac,releps,
      +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,

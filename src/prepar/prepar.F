@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.41 2001-08-06 23:40:27 d3j191 Exp $
+c $Id: prepar.F,v 1.42 2001-11-06 06:15:21 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -48,7 +48,8 @@ c
       character*255 filpdb,filseq,filtop,filrst,filpar,filtmp,filcmd
       character*255 filmod,prefix,filxyz,filqqq,filnoe,filpmf,filpov
       character*255 filmrg
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*80 sysnam,calc,ffield
       character*10 slvmdl
       character*3 slvnam
@@ -123,29 +124,16 @@ c
 c     get info from rtdb
 c     ------------------
 c
-      if(.not.pre_rtdbin(irtdb,ffield,dir_s,dir_x,dir_u,dir_t,source,
+      if(.not.pre_rtdbin(irtdb,ffield,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mcount,ncount,
      + icount,mgrid,
      + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
      + ignore,scount,mfract,nfract,ifract,scale,cpk,his))
      + call errquit('pre_rtdbin failed',9999)
-c
-c     directories
-c     -----------
-c
-      if(util_print('files',print_default)) then
-      write(lfnout,2000) ffield(1:index(ffield,' ')-1)
-      write(lfnout,2001) dir_s(1:index(dir_s,' ')-1)
-      write(lfnout,2002) dir_x(1:index(dir_x,' ')-1)
-      write(lfnout,2003) dir_u(1:index(dir_u,' ')-1)
-      write(lfnout,2004) dir_t(1:index(dir_t,' ')-1)
- 2000 format(/,' Force field',t40,a,/)
- 2001 format(' Directory standard files',t40,a)
- 2002 format(' Directory extensions files',t40,a)
- 2003 format(' Directory user preferences files',t40,a)
- 2004 format(' Directory temporary files',t40,a,/)
-      endif
 c
 c     construct file names
 c     --------------------
@@ -176,6 +164,51 @@ c
       filcmd=prefix(1:index(prefix,' ')-1)//'.cmd '
       filmod=prefix(1:index(prefix,' ')-1)//'.mod '
 c
+      if(par_s(1:1).eq.' '.and.dir_s(1:1).ne.' ') par_s=filpar
+      if(par_x(1:1).eq.' '.and.dir_x(1:1).ne.' ') par_x=filpar
+      if(par_q(1:1).eq.' '.and.dir_q(1:1).ne.' ') par_q=filpar
+      if(par_u(1:1).eq.' '.and.dir_u(1:1).ne.' ') par_u=filpar
+      if(par_t(1:1).eq.' '.and.dir_t(1:1).ne.' ') par_t=filpar
+      if(par_c(1:1).eq.' '.and.dir_c(1:1).ne.' ') par_c=filpar
+c
+c     directories
+c     -----------
+c
+      if(util_print('files',print_default)) then
+      write(lfnout,2000) ffield(1:index(ffield,' ')-1)
+      if(dir_s(1:1).ne.' ')
+     + write(lfnout,2001) dir_s(1:index(dir_s,' ')-1),
+     + par_s(1:index(par_s,' ')-1)
+      if(dir_x(1:1).ne.' ')
+     + write(lfnout,2002) dir_x(1:index(dir_x,' ')-1),
+     + par_x(1:index(par_x,' ')-1)
+      if(dir_q(1:1).ne.' ')
+     + write(lfnout,2003) dir_q(1:index(dir_q,' ')-1),
+     + par_q(1:index(par_q,' ')-1)
+      if(dir_u(1:1).ne.' ')
+     + write(lfnout,2004) dir_u(1:index(dir_u,' ')-1),
+     + par_u(1:index(par_u,' ')-1)
+      if(dir_t(1:1).ne.' ')
+     + write(lfnout,2005) dir_t(1:index(dir_t,' ')-1),
+     + par_t(1:index(par_t,' ')-1)
+      if(dir_c(1:1).ne.' ')
+     + write(lfnout,2006) dir_c(1:index(dir_c,' ')-1),
+     + par_c(1:index(par_c,' ')-1)
+ 2000 format(/,' Force field',t40,a,/)
+ 2001 format(' Directory standard files',t40,a,/,
+     + ' File name standard parameters',t40,a,/)
+ 2002 format(' Directory extensions files',t40,a,/,
+     + ' File name extensions parameters',t40,a,/)
+ 2003 format(' Directory QA test files',t40,a,/,
+     + ' File name QA test parameters',t40,a,/)
+ 2004 format(' Directory user preferences files',t40,a,/,
+     + ' File name user preference parameters',t40,a,/)
+ 2005 format(' Directory temporary files',t40,a,/,
+     + ' File name temporary parameters',t40,a,/)
+ 2006 format(' Directory current files',t40,a,/,
+     + ' File name current parameters',t40,a,//)
+      endif
+c
 c     check if the source file exists
 c     -------------------------------
 c
@@ -201,15 +234,15 @@ c
       if(newtop.eq.0) then
       close(unit=lfntop)
       if(util_print('files',print_default)) then
-      write(lfnout,2005) filtop(1:index(filtop,' ')-1)
- 2005 format(' Using existing topology',t40,a)
+      write(lfnout,2015) filtop(1:index(filtop,' ')-1)
+ 2015 format(' Using existing topology',t40,a)
       endif
       goto 4
       else
       close(unit=lfntop,status='delete')
       if(util_print('files',print_default)) then
-      write(lfnout,2006) filtop(1:index(filtop,' ')-1)
- 2006 format(' Deleted existing topology',t40,a)
+      write(lfnout,2016) filtop(1:index(filtop,' ')-1)
+ 2016 format(' Deleted existing topology',t40,a)
       endif
       endif
 c
@@ -241,9 +274,10 @@ c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
       if(.not.pre_mkseq(irtdb,lfnout,source,ffield,sysnam,
-     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
+     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,lfnmod,filmod,
-     + dir_s,dir_x,dir_u,dir_t,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his))
      + call errquit('pre_mkseq failed',9999)
@@ -258,8 +292,10 @@ c     generate topology
 c     -----------------
 c
       if(.not.pre_mktop(lfnout,ffield,
-     + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,slvnam))
+     + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,lfnmod,filmod,lfnmat,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + ignore,slvnam))
      + call errquit('pre_mktop failed',9999)
       if(util_print('files',print_default)) then
       write(lfnout,2010) filtop(1:index(filtop,' ')-1)

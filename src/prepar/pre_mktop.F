@@ -1,9 +1,11 @@
       logical function pre_mktop(lfnout,ffield,
-     + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
-     + lfnmod,filmod,lfnmat,dir_s,dir_x,dir_u,dir_t,ignore,
-     + slvnam)
+     + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,
+     + lfnmod,filmod,lfnmat,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + ignore,slvnam)
 c
-c $Id: pre_mktop.F,v 1.27 2001-10-23 20:46:28 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.28 2001-11-06 06:15:21 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -31,8 +33,9 @@ c
 c
       integer lfnout,lfnseq,lfntop,lfnsgm,lfnpar,lfnmod,ignore,lfnmat
       character*80 ffield
-      character*255 filseq,filtop,filpar,filmod
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 filseq,filtop,filmod
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
+      character*255 par_s,par_x,par_q,par_u,par_t,par_c
       character*3 slvnam
 c
       integer mseq,nseq
@@ -374,8 +377,10 @@ c
 c     substitute force field parameters
 c     ---------------------------------
 c
-      if(.not.pre_params(lfnpar,filpar,lfnout,
-     + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,ignore,
+      if(.not.pre_params(lfnpar,lfnout,
+     + dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,
+     + par_s,par_x,par_q,par_u,par_t,par_c,
+     + ffield,releps,q14fac,ignore,
      + int_mb(i_latm),byte_mb(i_catm),matm,natmt,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nangt,

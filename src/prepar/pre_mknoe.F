@@ -1,7 +1,7 @@
       logical function pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: pre_mknoe.F,v 1.25 2001-10-23 23:03:31 d3j191 Exp $
+c $Id: pre_mknoe.F,v 1.26 2001-11-06 06:15:20 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       parameter(maxpmf=500)
 c
       integer igroup(maxgrp,maxatm),lgroup(maxgrp),mgroup(maxgrp)
-      integer numpmf,ipmf(maxpmf,5),iopt(maxpmf)
+      integer numpmf,ipmf(maxpmf,5),iopt(maxpmf,3)
       real*8 rpmf(maxpmf,4)
       integer npmfr,ipmfr,nsarep
 c
@@ -210,8 +210,9 @@ c
       if(card(5:7).eq.'lin') ipmf(numpmf,1)=5
       if(card(5:7).eq.'pla') ipmf(numpmf,1)=6
       if(card(5:7).eq.'bas') ipmf(numpmf,1)=7
-      read(card(8:80),'(5i5,2f12.6,2e12.5)')
-     + iopt(numpmf),(ipmf(numpmf,i),i=2,5),(rpmf(numpmf,i),i=1,4)
+      read(card(8:80),'(7i5,2f12.6,2e12.5)')
+     + (iopt(numpmf,i),i=1,3),(ipmf(numpmf,i),i=2,5),
+     + (rpmf(numpmf,i),i=1,4)
       endif
 c
       if(card(1:3).ne.'end') goto 1

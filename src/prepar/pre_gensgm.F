@@ -1,7 +1,7 @@
       logical function pre_gensgm(lfnout,lfnfrg,lfnsgm,
-     + ffield,dir_s,dir_x,dir_u,dir_t,lsgm,csgm,msgm,nsgm)
+     + ffield,dir_s,dir_x,dir_q,dir_u,dir_t,dir_c,lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_gensgm.F,v 1.6 1998-06-08 23:29:31 d3j191 Exp $
+c $Id: pre_gensgm.F,v 1.7 2001-11-06 06:15:20 d3j191 Exp $
 c
 c     function to generate segment files
 c
@@ -30,11 +30,11 @@ c
       integer lsgm(3,msgm)
       character*5 csgm(msgm)
       character*80 ffield
-      character*255 dir_s,dir_x,dir_u,dir_t
+      character*255 dir_s,dir_x,dir_q,dir_u,dir_t,dir_c
 c
       character*255 filfrg,filsgm
 c
-      integer len_s,len_x,len_u,len_t,length
+      integer len_s,len_x,len_q,len_u,len_t,len_c,length
       integer i
 c
       if(util_print('where',print_debug)) then
@@ -44,8 +44,10 @@ c
 c
       len_s=index(dir_s,' ')-1
       len_x=index(dir_x,' ')-1
+      len_q=index(dir_q,' ')-1
       len_u=index(dir_u,' ')-1
       len_t=index(dir_t,' ')-1
+      len_c=index(dir_c,' ')-1
 c
       do 1 i=1,nsgm
       if(lsgm(2,i).lt.0) then
@@ -55,21 +57,31 @@ c
 c
       if(lsgm(2,i).eq.-1) then
       filfrg=dir_s(1:len_s)//csgm(i)(1:length)//'.frg '
-      filsgm=dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
+      filsgm=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
       else
       if(lsgm(2,i).eq.-2) then
       filfrg=dir_x(1:len_x)//csgm(i)(1:length)//'.frg '
-      filsgm=dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
+      filsgm=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
       else
       if(lsgm(2,i).eq.-3) then
-      filfrg=dir_u(1:len_u)//csgm(i)(1:length)//'.frg '
-      filsgm=dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
+      filfrg=dir_q(1:len_q)//csgm(i)(1:length)//'.frg '
+      filsgm=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
       else
       if(lsgm(2,i).eq.-4) then
+      filfrg=dir_u(1:len_u)//csgm(i)(1:length)//'.frg '
+      filsgm=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
+      else
+      if(lsgm(2,i).eq.-5) then
       filfrg=dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
-      filsgm=dir_t(1:len_t)//csgm(i)(1:length)//'.sgm '
+      filsgm=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
+      else
+      if(lsgm(2,i).eq.-6) then
+      filfrg=dir_c(1:len_c)//csgm(i)(1:length)//'.frg '
+      filsgm=dir_c(1:len_c)//csgm(i)(1:length)//'.sgm '
       else
       goto 9999
+      endif
+      endif
       endif
       endif
       endif
