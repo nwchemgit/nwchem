@@ -1,4 +1,7 @@
       subroutine dradf5 (ido,l1,cc,ch,wa1,wa2,wa3,wa4)
+*
+* $Id: dradf5.F,v 1.2 1997-11-04 10:07:27 d3e129 Exp $
+*
       double precision cc(ido,l1,5), ch(ido,5,l1), wa1(1), wa2(1),
      1  wa3(1), wa4(1), ci2, ci3, ci4, ci5, cr2, cr3, cr4, cr5, di2,
      2  di3, di4, di5, dr2, dr3, dr4, dr5, ti11, ti12, ti2, ti3, ti4,

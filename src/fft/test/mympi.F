@@ -1,4 +1,7 @@
       subroutine mpiInit
+*
+* $Id: mympi.F,v 1.2 1997-11-04 10:07:53 d3e129 Exp $
+*
       implicit none
 #include "myprocs.fh"
       call MPI_INIT( ierr )

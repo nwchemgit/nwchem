@@ -1,3 +1,7 @@
+/*
+ $Id: mympic.c,v 1.2 1997-11-04 10:07:55 d3e129 Exp $
+ */
+
 #include "mpi.h"
 
 

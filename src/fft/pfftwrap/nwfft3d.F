@@ -1,4 +1,6 @@
-
+*
+* $Id: nwfft3d.F,v 1.10 1997-11-04 10:07:52 d3e129 Exp $
+*
 c************************************************************************
 c Complex 3D FFT interface.
 c Based on a blockwise distribution of slabs dimensioned id1xid2.

@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.7 1997-11-04 10:09:06 d3e129 Exp $
+#
 
 LIBRARY = libdriver.a
 

@@ -1,4 +1,7 @@
       subroutine dradb2 (ido,l1,cc,ch,wa1)
+*
+* $Id: dradb2.F,v 1.2 1997-11-04 10:07:24 d3e129 Exp $
+*
       double precision cc(ido,2,l1), ch(ido,l1,2), wa1(1), ti2, tr2
 c
       do 101 k=1,l1

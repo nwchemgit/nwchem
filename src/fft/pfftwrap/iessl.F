@@ -1,3 +1,6 @@
+*
+* $Id: iessl.F,v 1.2 1997-11-04 10:07:51 d3e129 Exp $
+*
 c************************************************************************
       INTEGER FUNCTION initESSL(icontext)
       IMPLICIT NONE

@@ -1,4 +1,7 @@
       subroutine dcftb1 (n,c,ch,wa,ifac)
+*
+* $Id: dcftb1.F,v 1.2 1997-11-04 10:07:18 d3e129 Exp $
+*
       double precision c(1), ch(1), wa(1)
       integer ifac(1)
 c
