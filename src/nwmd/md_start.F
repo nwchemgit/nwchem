@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.48 2000-02-23 18:52:56 d3j191 Exp $
+c $Id: md_start.F,v 1.49 2000-03-14 22:50:30 d3j191 Exp $
 c
       implicit none
 c
@@ -1165,6 +1165,10 @@ c
      + form='formatted',status='unknown')
       write(lfntim,1200) np
  1200 format(i5)
+      endif
+      if(itest.gt.0) then
+      open(unit=lfntst,file=filtst(1:index(filtst,' ')-1),
+     + form='formatted',status='unknown')
       endif
       endif
 c

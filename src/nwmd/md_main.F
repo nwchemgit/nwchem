@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.65 2000-03-09 00:34:15 d3j191 Exp $
+c $Id: md_main.F,v 1.66 2000-03-14 22:50:29 d3j191 Exp $
 c
       implicit none
 c
@@ -77,6 +77,8 @@ c
 c
       call sp_printf(lfnout,filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs))
+c
+      if(itest.gt.0) call md_test()
 c
       return
       end
@@ -320,6 +322,8 @@ c
       write(lfnout,600) isdit,cqrs,edif,epsd,epsdw,epsdsw,epsds,dxmax
   600 format(i7,1x,a1,3x,5(1pe13.5),0pf12.8)
       endif
+c
+      if(itest.gt.0) call md_test()
 c
       dx=min(1.2d0*dx,dxmsd)
 c
@@ -809,6 +813,8 @@ c
   600 format(i7,1x,a1,3x,5(1pe13.5),0pf12.8)
       endif
 c
+      if(itest.gt.0) call md_test()
+c
       call timer_stop(1)
       if(.not.ldone) goto 100
 c
@@ -1185,6 +1191,8 @@ c
       if(.not.lqmd) call sp_update(me,vlat,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_xwcr),dbl_mb(i_vw),nwmloc,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),nsaloc)
+c
+      if(itest.gt.0) call md_test()
 c
       lfirst=.false.
 c
@@ -1817,3 +1825,46 @@ c
 c
       return
       end
+      subroutine md_test
+c
+c $Id: md_main.F,v 1.66 2000-03-14 22:50:29 d3j191 Exp $
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      itest=itest-1
+c
+      if(me.ne.0) return
+c
+      if(iquant.eq.0) then
+c
+      if(ntype.eq.1) then
+      write(lfntst,1000) etot
+ 1000 format('Energy           = ',1pe12.3)
+      endif
+c
+      if(ntype.eq.2) then
+      write(lfntst,1100) stime,temp,volume,pres,etot
+ 1100 format('Time             = ',0pf9.3,/,
+     + 'Temperature      = ',0pf8.2,/,
+     + 'Volume           = ',0pf8.2,/,
+     + 'Pressure         = ',1pe12.2,/,
+     + 'Energy           = ',1pe12.3,/)
+      endif
+c
+      if(ntype.eq.3) write(lfntst,1200) isdit+icgit,etot
+ 1200 format('Iteration        = ',i10,/,
+     + 'Energy           = ',1pe12.3,/)
+c
+      else
+c
+c     quantum MD
+c
+      endif
+c
+      if(itest.eq.0) close(lfntst)
+c
+      return
+      end
+
