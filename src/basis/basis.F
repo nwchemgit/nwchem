@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.105 2001-12-05 21:25:58 bert Exp $
+c $Id: basis.F,v 1.106 2001-12-06 02:34:38 edo Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -1207,11 +1207,9 @@ c function declarations
 c
 c::function
 c:bas
-      logical bas_check_handle
       logical bas_geobas_build
       logical bas_add_ucnt_init
       logical bas_add_ucnt_tidy
-      external bas_check_handle
       external bas_geobas_build
       external bas_add_ucnt_init
       external bas_add_ucnt_tidy
