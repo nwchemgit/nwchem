@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.142 2002-06-12 19:18:30 d3j191 Exp $
+c $Id: cf_main.F,v 1.143 2002-06-12 19:30:34 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -273,7 +273,7 @@ c
       do 8 j=1,3
       gsm(i,j,2)=sqrt(gsm(i,j,1)/gsm(i,j,2))
     8 continue
-      gsm(i,4,1)=sqrt(gsm(i,4,1))/gsm(i,4,2)
+      gsm(i,4,1)=sqrt(gsm(i,4,1)/gsm(i,4,2))
     9 continue
 c
       return
