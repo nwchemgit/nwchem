@@ -1,100 +1,12 @@
-       subroutine moint_mp2_eval_1(nbf,noper,orbe,xk,emp2,epair)
-       implicit none
-       integer nbf, noper
-       double precision orbe(nbf), emp2, epair(*)
-       double precision xk(nbf,nbf,noper,noper)
-       integer vir_start
-       integer i,j,k,l,ij
-       double precision xx, yy, denom_ij
 
-       vir_start = noper + 1
-       do i=1,noper
-         do j=1,i
-           ij = (i*(i-1))/2 + j
-           denom_ij = orbe(i) + orbe(j)
-           xx = 0.d0
-           do k=vir_start,nbf
-             do l=vir_start,nbf
-               yy = xk(l,k,j,i)*(4.d0*xk(l,k,j,i) - 2.d0*xk(k,l,j,i))
-               xx = xx + yy/(denom_ij - orbe(k) - orbe(l))
-             enddo
-           enddo
-           if (i.eq.j) xx = xx/2.d0
-           emp2 = emp2 + xx
-           epair(ij) = xx
-         enddo
-       enddo
-
-       call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
-       write(6,901) emp2
- 901   format(/,10x,'MP2 correction:',f15.10,/)
-       write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,noper)
- 902   format(4(f10.4,1x,'[',2i3,']',2x))
-       
-         
-       return
-       end
-
-
-
-
-
+c
+c This is the interface to use if the exchange operator
+c matrices are (nvir*nvir) size. I.e. only unique integrals.
 c
 c Should really use ga_access to use the global K-operator
 c matrices directly
 c
-       subroutine moints_mp2_eval(nbf,noper,orbe,g_k,emp2,epair)
-       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-       integer nbf, noper
-       double precision orbe(nbf), emp2, epair(*)
-       integer g_k
-       integer l_scr,k_scr
-       integer i,j,ij,vstart
-       double precision xx,denom
-       logical status
-       double precision moint_epair_eval
-
-
-       status = ma_push_get(MT_DBL,(nbf*nbf),'N2 scratch',l_scr,k_scr)
-       if (.not.(status)) call errquit('mp2: cannot allocate',0)
-       vstart = noper + 1
-       do i=1,noper
-         do j=1,i
-           ij = (i*(i-1))/2 + j
-           denom = orbe(i) + orbe(j)
-           call ga_get(g_k,1,nbf*nbf,ij,ij,dbl_mb(k_scr),nbf)
-           xx = moint_epair_eval(nbf,vstart,dbl_mb(k_scr),orbe,denom)
-           if (i.eq.j) xx = xx/2.d0
-           emp2 = emp2 + xx
-           epair(ij) = xx
-         enddo
-       enddo
-       status = ma_pop_stack(l_scr)
-       if (.not.(status)) call errquit('mp2: pop stack failed',0)
-
-       call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
-       write(6,901) emp2
- 901   format(//,10x,'MP2 correction:',f15.10,/)
-       write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,noper)
- 902   format(4(f10.4,1x,'[',2i3,']',2x))
-         
-       return
-       end
-
-
-
-
-
-
-
-
-c
-c Should really use ga_access to use the global K-operator
-c matrices directly
-c
-       subroutine moints_mp2_eval_a(nbf,nocc,nvir,orbe,
+       subroutine moints_mp2_eval(nbf,nocc,nvir,orbe,
      $                              g_k,emp2,epair)
        implicit none
 #include "global.fh"
@@ -137,6 +49,62 @@ c
          
        return
        end
+
+
+
+
+
+c
+c
+c This should never have to be used (only for debugging)
+c
+c This is the interface to use if the exchange operator
+c matrices are (nbf*nbf) size.
+c
+c Should really use ga_access to use the global K-operator
+c matrices directly
+c
+       subroutine moints_mp2_eval_a(nbf,noper,orbe,g_k,emp2,epair)
+       implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+       integer nbf, noper
+       double precision orbe(nbf), emp2, epair(*)
+       integer g_k
+       integer l_scr,k_scr
+       integer i,j,ij,vstart
+       double precision xx,denom
+       logical status
+       double precision moint_epair_eval
+
+
+       status = ma_push_get(MT_DBL,(nbf*nbf),'N2 scratch',l_scr,k_scr)
+       if (.not.(status)) call errquit('mp2: cannot allocate',0)
+       vstart = noper + 1
+       do i=1,noper
+         do j=1,i
+           ij = (i*(i-1))/2 + j
+           denom = orbe(i) + orbe(j)
+           call ga_get(g_k,1,nbf*nbf,ij,ij,dbl_mb(k_scr),nbf)
+           xx = moint_epair_eval(nbf,vstart,dbl_mb(k_scr),orbe,denom)
+           if (i.eq.j) xx = xx/2.d0
+           emp2 = emp2 + xx
+           epair(ij) = xx
+         enddo
+       enddo
+       status = ma_pop_stack(l_scr)
+       if (.not.(status)) call errquit('mp2: pop stack failed',0)
+
+       call util_print_centered(6,'MP2 and Pair Energies',40,.true.)
+       write(6,901) emp2
+ 901   format(//,10x,'MP2 correction:',f15.10,/)
+       write(6,902) ((epair((i*(i-1))/2+j),i,j,j=1,i),i=1,noper)
+ 902   format(4(f10.4,1x,'[',2i3,']',2x))
+         
+       return
+       end
+
+
 
 
 
