@@ -81,6 +81,15 @@ root mean square of the Cartesian step.
          XRMS   0.0036d0   0.00120   0.00004
 \end{verbatim}
 
+ Note that GMAX and GRMS used for convergence of geometry may significantly vary in 
+different coordinate systems such as Z-matrix, redundant internals, or Cartesian. 
+The coordinate system is defined in the input file (default is Z-matrix). 
+Therefore the choice of coordinate system may slightly affect converged energy. 
+Although in most cases XMAX and XRMS are last to converge which are always done 
+in Cartesian coordinates, which insures convergence to the same geometry in 
+different coordinate systems.
+
+
 The old criterion may be recovered with the input
 \begin{verbatim}
    gmax 0.0008; grms 1; xrms 1; xmax 1
