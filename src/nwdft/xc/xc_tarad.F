@@ -1,6 +1,6 @@
       subroutine xc_tarad(znumber,r,w,nr,origin,which)
 
-C$Id: xc_tarad.F,v 1.4 2000-01-06 00:41:36 edo Exp $
+C$Id: xc_tarad.F,v 1.5 2000-01-08 02:40:21 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -33,13 +33,35 @@ c
 c***************************************************************************
       zeta=1.d0
       if(znumber.lt.37) zeta = zetad(znumber)
-      write(0,*) ' zz ',znumber,zeta
 
       if(which.eq.'chebyshe') then
       do  i = 1,nr
         call grid_gausscheb(wi,xi,i,nr)
         ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
         r(i) = ri+origin
+        w(i)=wi*r(i)*r(i)*ri*(alpha/(1d0+xi)+
+     +       1d0/(1d0-xi)/log(2d0/(1d0-xi)))
+c
+c       becke transf
+c        ri=(1d0+xi)/(1d0-xi)
+c        w(i) = wi*ri*ri/(1d0-xi)**2*2d0
+      enddo
+      elseif(which.eq.'chebyshr') then
+c
+c     get zeta from rmax
+c
+         call grid_gausscheb(wi,xi,nr,nr)
+         zeta=origin*log(2d0)/
+     /        ((1.d0+xi)**alpha*log(2d0/(1d0-xi)))
+        ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
+        r(nr) = ri
+        w(nr)=wi*ri*ri*ri*(alpha/(1d0+xi)+
+     +       1d0/(1d0-xi)/log(2d0/(1d0-xi)))
+         
+      do  i = 1,nr-1
+         call grid_gausscheb(wi,xi,i,nr)
+        ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
+        r(i) = ri
         w(i)=wi*r(i)*r(i)*ri*(alpha/(1d0+xi)+
      +       1d0/(1d0-xi)/log(2d0/(1d0-xi)))
 c

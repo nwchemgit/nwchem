@@ -1,6 +1,6 @@
       Subroutine xc_murakn(znumber,r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.6 2000-01-08 00:47:56 edo Exp $
+C$Id: xc_murakn.F,v 1.7 2000-01-08 02:40:20 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -15,6 +15,16 @@ c
       double precision range ! max extent of basis f
 c
       logical lreset
+      double precision alphad(36)
+      data alphad/ 5d0, 5d0,
+c Li-N
+     *       7d0,  7d0,  5d0,  5d0,  5d0,  5d0,  5d0,  5d0,
+C Na-Ar
+     *       7d0,  7d0,  5d0,  5d0,  5d0,  5d0,  5d0,  5d0,
+C K-Kr
+     *       7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,
+C Cu-Kr
+     *       7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0,  7d0/
 c
 c Definition of Euler-Maclaurin numerical quadrature points and weights
 c for radial integrals.
@@ -27,6 +37,7 @@ c***************************************************************************
          alpha=-range/log(1d0-(nr/(1d0+nr))**3)
       else
          alpha=5d0
+         if(znumber.lt.37) alpha=alphad(znumber)
       endif
       fmn = rm/dble(nr)
 
