@@ -1,9 +1,8 @@
-# $Id: makefile.h,v 1.174 1996-10-01 19:20:59 d3j191 Exp $
+# $Id: makefile.h,v 1.175 1996-10-02 00:48:16 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
 # include statement, or on the command line
-
 
 #
 # TOPDIR points to your top-level directory that contains 
@@ -15,7 +14,7 @@ ifndef NWCHEM_TOP
 error1:
 	@echo You must define NWCHEM_TOP in your environment to be the path
 	@echo of the top level nwchem directory ... something like
-	@echo     setenv NWCHEM_TOP /msrc/home/hillary_clinton/nwchem
+	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
 	@exit 1
 endif
 
@@ -29,7 +28,7 @@ error2:
 	@echo You must define NWCHEM_TARGET in your environment to be the name
 	@echo of the machine you wish to build for ... for example
 	@echo     setenv NWCHEM_TARGET SUN
-	@echo Known targets are SUN, DELTA, KSR, PARAGON, IBM, CRAY-T3D, DECOSF
+	@echo Known targets are SUN, DELTA, ...
 	@exit 1
 endif
 
@@ -195,8 +194,13 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
           FDEBUG = -g
           CDEBUG = -g
               AR = ar
+
+ifndef SCRATCH_DIR
  SCRATCH_DEF_DIR = "'.'"
+endif
+ifndef PERM_DEF_DIR
  PERM_DEF_DIR   = "'.'"
+endif
 
 #
 # Machine specific stuff
