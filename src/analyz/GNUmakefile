@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 1999-01-29 18:10:44 d3j191 Exp $
+# $Id: GNUmakefile,v 1.4 1999-02-01 16:58:49 d3j191 Exp $
 #
  OBJ_OPTIMIZE = ana_data.o\
                 ana_finish.o\
@@ -20,7 +20,8 @@
                 ana_trajct.o\
                 ana_wtfram.o\
                 ana_wthdr.o\
-                analyz.o
+                analyz.o\
+                super.o
 
 LIBRARY=libnwargos.a
 
