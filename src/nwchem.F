@@ -77,7 +77,7 @@ c
 c
 c     Done
 c
-      return
+      stop 'nwchem done'
 c
 10000 call errquit('nwchem: failed to open the input file', 0)
       end
