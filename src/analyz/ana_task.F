@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.12 2000-03-16 20:45:38 d3j191 Exp $
+c $Id: ana_task.F,v 1.13 2000-03-16 21:14:02 d3j191 Exp $
 c
       implicit none
 c
@@ -61,6 +61,7 @@ c
       rmsdev=.false.
 c
       nave=0
+      ndata=0
       time=0.0d0
       timr=0.0d0
 c
@@ -160,6 +161,7 @@ c     --------------------------
 c
       if(card(1:6).eq.'rmsdev') then
       rmsdev=.true.
+      ndata=0
       goto 1
       endif
 c
@@ -402,6 +404,7 @@ c
       call ana_rmsdev(dbl_mb(i_xdat),int_mb(i_idat),nsa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms))
       endif
+      ndata=ndata+1
       endif
 c
       endif
