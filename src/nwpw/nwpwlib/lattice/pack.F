@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.11 2003-06-30 18:02:33 bylaska Exp $
+* $Id: pack.F,v 1.12 2003-07-01 13:39:09 bylaska Exp $
 *
 
 
@@ -702,6 +702,53 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       call nwpw_timing_end(2)
       return
       end 
+
+*     ***********************************
+*     *					*
+*     *	         Pack_ccmn_dot		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_ccmn_dot(nb,m,n,A,B,matrix)
+      implicit none
+      integer    nb,m,n
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     matrix(m,n)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer np,npack
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+
+      npack = 2*(nida(nb)+nidb(nb))
+
+        call DGEMM('T','N',m,n,npack,
+     >             2.0d0,
+     >             A,npack, 
+     >             B,npack, 
+     >             0.0d0,
+     >             matrix,m)
+        call DGEMM('T','N',m,n,2*nida(nb),
+     >             -1.0d0,
+     >             A,npack, 
+     >             B,npack, 
+     >             1.0d0,
+     >             matrix,m)
+
+      if (np.gt.1) call D3dB_Vector_SumAll(m*n,matrix)
+
+      call nwpw_timing_end(2)
+      return
+      end 
+
 
 
 
