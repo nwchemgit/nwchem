@@ -116,6 +116,7 @@ c
       if (.not.int_normalize(basis))
      &       call errquit('dointsum: basis norm. failed', 0)
       write(6,*)' after normalization'
+      call int_init(1,basis)
       if (.not. bas_print(basis))
      $      call errquit('dointsum: basis print failed', 0)
 c
@@ -176,6 +177,14 @@ c..... space for Ta&Tafd so to sum it to Va&Fafd
       call dfill(nscr,0.0,dbl_mb(iscr),1)
       call buildSa(dbl_mb(isa),nat,nshells,nbf,basis,geom,
      &       dbl_mb(iscr),nscr,.true.)
+#if defined(SUN)
+      call flush(6)
+#endif
+      call buildSanew(dbl_mb(isafd),nat,nshells,nbf,basis,
+     &       dbl_mb(iscr),nscr,.true.)
+      call daxpy(sa_size,-1.0d00,dbl_mb(isa),1,dbl_mb(isafd),1)
+      write(6,*)' Sanew difference norm =',
+     &       ddot(sa_size,dbl_mb(isafd),1,dbl_mb(isafd),1)
 #if defined(SUN)
       call flush(6)
 #endif
@@ -243,6 +252,13 @@ c... print H derivs
       call daxpy(sa_size,-1.0d00,dbl_mb(ita),1,dbl_mb(itafd),1)
       write(6,*)' Ha difference norm =',
      &       ddot(sa_size,dbl_mb(itafd),1,dbl_mb(itafd),1)
+c
+      call buildHa(dbl_mb(itafd),nat,nshells,nbf,basis,
+     &       dbl_mb(iscr),nscr,.true.)
+      call printdmat(' Ha New',dbl_mb(itafd),nat,nbf)
+      call daxpy(sa_size,-1.0d00,dbl_mb(ita),1,dbl_mb(itafd),1)
+      write(6,*)' Ha new difference norm =',
+     &       ddot(sa_size,dbl_mb(itafd),1,dbl_mb(itafd),1)
 #if defined(SUN)
       call flush(6)
 #endif
@@ -254,7 +270,7 @@ c
       if (.not.MA_Pop_Stack(hscr))
      &       call errquit('raktest: ma_pop_stack hscr failed',911)
       if (.not.MA_Pop_Stack(hbuf1e))
-     &       call errquit('raktest: ma_pop_stack hbuf1e failed',911)
+     &       call errquit('raktest: ma_pop_stack hbu1e failed',911)
       if (.not.MA_Pop_Stack(hxyz))
      &       call errquit('raktest: ma_pop_stack hxyz failed',911)
       if (.not.MA_Pop_Stack(hsafd))
@@ -310,7 +326,7 @@ c
       
       call build_d2e(geom,basis,nbf,nshells,nat,size2e,dbl_mb(i2e),
      &       maxg,dbl_mb(ibuf2e),nscr,dbl_mb(iscr))
-      call print2de(nat,size2e,dbl_mb(i2e),1.0d-05,nbf,'anal:d2e')
+*      call print2de(nat,size2e,dbl_mb(i2e),1.0d-05,nbf,'anal:d2e')
       call dfill(nscr,0.0,dbl_mb(iscr),1)
       call dfill(maxg,0.0,dbl_mb(ibuf2e),1)
       call build_d2efd(geom,basis,nbf,nshells,nat,size2e,
@@ -318,10 +334,21 @@ c
      &       dbl_mb(i2ep),dbl_mb(i2em),dbl_mb(ixyz),
      &       dbl_mb(ixyz+threen),
      &       maxg,dbl_mb(ibuf2e),nscr,dbl_mb(iscr))
-      call print2de(nat,size2e,dbl_mb(i2efd),1.0d-05,nbf,'fd:d2e')
+*      call print2de(nat,size2e,dbl_mb(i2efd),1.0d-05,nbf,'fd:d2e')
       call dcopy(size2ed,dbl_mb(i2efd),1,dbl_mb(i2ediff),1)
       call daxpy(size2ed,-1.0d00,dbl_mb(i2e),1,dbl_mb(i2ediff),1)
       write(6,*)' 2ed difference norm = ',
+     &       ddot(size2ed,dbl_mb(i2ediff),1,dbl_mb(i2ediff),1)
+*      call print2de_diff(nat,size2e,dbl_mb(i2ediff),
+*     &       dbl_mb(i2e),dbl_mb(i2efd),1.0d-05,nbf)
+      call dfill(size2ed,0.0,dbl_mb(i2efd),1)
+      call dfill(nscr,0.0,dbl_mb(iscr),1)
+      call dfill(maxg,0.0,dbl_mb(ibuf2e),1)
+      call build_d2e_new(basis,nbf,nshells,nat,size2e,dbl_mb(i2efd),
+     &       maxg,dbl_mb(ibuf2e),nscr,dbl_mb(iscr))
+      call dcopy(size2ed,dbl_mb(i2efd),1,dbl_mb(i2ediff),1)
+      call daxpy(size2ed,-1.0d00,dbl_mb(i2e),1,dbl_mb(i2ediff),1)
+      write(6,*)' new 2ed difference norm = ',
      &       ddot(size2ed,dbl_mb(i2ediff),1,dbl_mb(i2ediff),1)
 
       call print2de_diff(nat,size2e,dbl_mb(i2ediff),
@@ -343,6 +370,7 @@ c
      &       call errquit('raktest: ma_pop_stack h2e failed',911)
       if (.not.MA_Pop_Stack(h2ediff))
      &       call errquit('raktest: ma_pop_stack h2ediff failed',911)
+      call int_terminate()
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
@@ -2268,4 +2296,210 @@ c
 00100 continue
 10000 format(' <',i2,i2,'|',i2,i2,'||',i5,'|xyz:',i2,'|a:',i2,'>  ',
      &       '<',a,':',1pd14.6,'> ')
+      end
+c.......................................................................
+      subroutine buildSanew(Sa,nat,ncont,nbf,basis,
+     &       scr,nscr,printit)
+      implicit none
+c
+#include "bas.fh"
+c
+      integer nat,ncont,nbf,basis,nscr,idatom(2)
+      double precision sa(nbf,nbf,3,nat),scr(nscr)
+      logical printit
+c
+      integer used, iscr, newnscr, nbfmax
+      integer ish, ibf, ibflo, ibfhi
+      integer jsh, jbf, jbflo, jbfhi
+      integer id, dxyz, datom, icount
+c
+      call dfill(nbf*nbf*3*nat,0.0,sa,1)
+      call dfill(nscr,0.0,scr,1)
+c
+      if(.not.bas_nbf_cn_max(basis,nbfmax))
+     &       call errquit('raktest:',922)
+c
+      used = nbfmax*nbfmax*3*2
+      iscr = used + 1
+      newnscr = nscr - used
+
+      do 00100 ish = 1,ncont
+        do 00200 jsh = 1,ish
+
+          call intd_1eov(basis,ish,basis,jsh,newnscr,scr(iscr),
+     &           used,scr,idatom)
+
+          if(.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &           call errquit('error',911)
+          if(.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &           call errquit('error',911)
+          
+          icount = 0
+          do 00300 id = 1,2
+            if (idatom(id).gt.0) then
+              do 00400 dxyz = 1,3
+                do 00500 ibf = ibflo,ibfhi
+                  do 00600 jbf = jbflo,jbfhi
+                    icount = icount + 1
+                    sa(ibf,jbf,dxyz,idatom(id)) = scr(icount)
+                    sa(jbf,ibf,dxyz,idatom(id)) = scr(icount)
+00600             continue
+00500           continue
+00400         continue
+            else
+              icount = icount + 3*(ibfhi-ibflo+1)*(jbfhi-jbflo+1)
+            endif
+00300     continue
+00200   continue
+00100 continue
+
+      if (.not.printit) return
+      do 00900 datom = 1,nat
+        do 01000 dxyz = 1,3
+          write(6,'(//,a,i2,a,i2,a)')
+     &           ' SaNEW <atom:',datom,'>  <xyz:',dxyz,'>'
+          call myoutput(sa(1,1,dxyz,datom),1,nbf,1,nbf,nbf,nbf,1,
+     &           ' SaNEW ',1.0d-05)
+01000   continue
+00900 continue
+      end
+c.......................................................................
+      subroutine buildHa(Ha,nat,ncont,nbf,basis,
+     &       scr,nscr,printit)
+      implicit none
+c
+#include "bas.fh"
+c
+      integer nat,ncont,nbf,basis,nscr
+      double precision ha(nbf,nbf,3,nat),scr(nscr)
+      logical printit
+c
+      integer used, iscr, newnscr, nbfmax
+      integer ish, ibf, ibflo, ibfhi
+      integer jsh, jbf, jbflo, jbfhi
+      integer dxyz, datom, icount
+c
+      call dfill(nbf*nbf*3*nat,0.0,ha,1)
+      call dfill(nscr,0.0,scr,1)
+c
+      if(.not.bas_nbf_cn_max(basis,nbfmax))
+     &       call errquit('raktest:',922)
+c
+      used = nbfmax*nbfmax*3*nat
+      iscr = used + 1
+      newnscr = nscr - used
+c
+      do 00100 ish = 1,ncont
+        do 00200 jsh = 1,ish
+c
+          call intd_1eh1(basis,ish,basis,jsh,newnscr,scr(iscr),
+     &           used,scr)
+c
+          if(.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &           call errquit('error',911)
+          if(.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &           call errquit('error',911)
+c          
+          icount = 0
+          do 00300 datom = 1,nat
+              do 00400 dxyz = 1,3
+                do 00500 ibf = ibflo,ibfhi
+                  do 00600 jbf = jbflo,jbfhi
+                    icount = icount + 1
+                    ha(ibf,jbf,dxyz,datom) = scr(icount)
+                    ha(jbf,ibf,dxyz,datom) = scr(icount)
+00600             continue
+00500           continue
+00400         continue
+00300     continue
+00200   continue
+00100 continue
+
+      if (.not.printit) return
+      do 00900 datom = 1,nat
+        do 01000 dxyz = 1,3
+          write(6,'(//,a,i2,a,i2,a)')
+     &           ' HaNEW <atom:',datom,'>  <xyz:',dxyz,'>'
+          call myoutput(ha(1,1,dxyz,datom),1,nbf,1,nbf,nbf,nbf,1,
+     &           ' HaNEW ',1.0d-05)
+01000   continue
+00900 continue
+      end
+c......................................................................
+      subroutine build_d2e_new(basis,nbf,ncont,nat,intsize,d2e,
+     &       maxg,gbuf,nscr,scr)
+      implicit none
+#include "bas.fh"
+c::passed
+      integer basis,nbf,nat,intsize,maxg,nscr,ncont
+      double precision d2e(intsize,3,nat)
+      double precision gbuf(maxg)
+      double precision scr(nscr)
+c::local
+      integer idatom(4)
+      integer dxyz,id,index,icount
+      integer ish,ibf,ibflo,ibfhi
+      integer jsh,jbf,jbflo,jbfhi
+      integer ksh,kbf,kbflo,kbfhi
+      integer lsh,lbf,lbflo,lbfhi
+c
+C     SET-UP FUNCTIONS
+c
+c...  statement function
+C
+C     SET-UP FUNCTIONS
+      integer min,max
+      intrinsic min,max
+      integer i,j,k,l,isym2,isym4
+      isym2(i,j)=max(i,j)*(max(i,j)-1)/2+min(i,j)
+      isym4(i,j,k,l)=max(isym2(i,j),isym2(k,l))*
+     &               (max(isym2(i,j),isym2(k,l))-1)/2+
+     &               min(isym2(i,j),isym2(k,l))
+c
+c      
+      do 00100 ish = 1,ncont
+        do 00200 jsh= 1,ish
+          do 00300 ksh = 1,jsh
+            do 00400 lsh = 1,ksh
+c
+              call intd_2e4c(basis,ish,jsh,basis,ksh,lsh,
+     &               nscr,scr,maxg,gbuf,idatom)
+c
+          if(.not.bas_cn2bfr(basis,ish,ibflo,ibfhi))
+     &           call errquit('error',911)
+          if(.not.bas_cn2bfr(basis,jsh,jbflo,jbfhi))
+     &           call errquit('error',911)
+          if(.not.bas_cn2bfr(basis,ksh,kbflo,kbfhi))
+     &           call errquit('error',911)
+          if(.not.bas_cn2bfr(basis,lsh,lbflo,lbfhi))
+     &           call errquit('error',911)
+c
+c ... fill integral buffers              
+                icount = 0
+                do 00600 id = 1,4
+                  if (idatom(id).gt.0) then
+                    do 00700 dxyz = 1,3
+                      do 00800 ibf = ibflo,ibfhi
+                        do 00900 jbf = jbflo,jbfhi
+                          do 01000 kbf = kbflo,kbfhi
+                            do 01100 lbf = lbflo,lbfhi
+                              index = isym4(ibf,jbf,kbf,lbf)
+                              icount = icount + 1
+                              d2e(index,dxyz,idatom(id)) = gbuf(icount)
+01100                       continue
+01000                     continue
+00900                   continue
+00800                 continue
+00700               continue
+                  else
+                    icount = icount +
+     &                     3*(ibfhi-ibflo+1)*(jbfhi-jbflo+1)*
+     &                     (kbfhi-kbflo+1)*(lbfhi-lbflo+1)
+                  endif
+00600           continue
+c
+00400       continue
+00300     continue
+00200   continue
+00100 continue
       end
