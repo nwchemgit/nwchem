@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.10 1994-10-29 16:41:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.11 1994-11-22 05:26:52 d3e129 Exp $
 
     OBJ_OPTIMIZE = hfmkr_9.o hfmkr_8.o hfmkr_7.o \
                    hfmkr_6.o hfmkr_5.o hfmkr_4.o \
@@ -14,3 +14,7 @@
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+write:
+	f77 -g -Nl99   -c hferi.w.f -o hferi.o
+	$(MAKE)
+	(cd ../..;make link)
