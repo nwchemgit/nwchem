@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.9 1999-02-14 22:28:28 d3j191 Exp $
+c $Id: esp_input.F,v 1.10 1999-05-27 18:21:19 d3j191 Exp $
 c
       implicit none
 c
@@ -10,10 +10,13 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 c
+      integer maxcon
+      parameter(maxcon=5000)
+c
       integer irtdb
       character*255 item
-      integer i,me,np,icon(2500),ncon,nconst,jcon,irest,maxit,ihfree
-      integer idump,ifrom,j,lscrn,newgrd
+      integer i,me,np,icon(maxcon),ncon,nconst,jcon,irest,maxit,ihfree
+      integer idump,ifrom,j,lscrn,newgrd,k,l,m
       real*8 rcut,spac,radius(107),rcon(500),resa,resb
       real*8 toler,factor,probe,scrtol
 c
@@ -217,15 +220,105 @@ c
       if(inp_compare(.false.,'constrain',item)) then
       ifrom=0
       nconst=nconst+1
-      if(.not.inp_f(rcon(nconst))) 
+      if(.not.inp_f(rcon(nconst))) then
+      if(.not.inp_a(item))
      + call errquit('esp_input: constrain error',0)
+      if(inp_compare(.false.,'equal',item)) then
+      if(.not.inp_i(i))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_i(j))
+     + call errquit('esp_input: constrain error',0)
+   41 continue
       ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+      icon(ncon)=2
+      icon(ncon+1)=-i
+      icon(ncon+2)=j
+      rcon(nconst)=0.0d0
+      ncon=ncon+2
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+      if(inp_i(j)) then
+      nconst=nconst+1
+      goto 41
+      endif
+      goto 2
+      elseif(inp_compare(.false.,'group',item)) then
+      if(.not.inp_i(i))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_i(j))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_a(item))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_compare(.false.,'to',item))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_i(k))
+     + call errquit('esp_input: constrain error',0)
+      if(.not.inp_i(l))
+     + call errquit('esp_input: constrain error',0)
+      if(j.lt.i.or.l.lt.k.or.j-i.ne.l-k)
+     + call errquit('esp_input: constrain error',0)
+      do 42 m=0,j-i
+      nconst=nconst+1
+      ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+      icon(ncon)=2
+      icon(ncon+1)=-(i+m)
+      icon(ncon+2)=k+m
+      rcon(nconst)=0.0d0
+      ncon=ncon+2
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+   42 continue
+      goto 2
+      elseif(inp_compare(.false.,'xhn',item)) then
+      ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+      jcon=ncon
+      icon(jcon)=0
+      rcon(nconst)=0.0d0
+   43 continue
+      if(inp_i(i)) then
+      icon(jcon)=icon(jcon)+1
+      ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+      icon(ncon)=i
+      goto 43
+      elseif(icon(jcon).gt.2) then
+      do 44 j=1,icon(jcon)-2
+      nconst=nconst+1
+      rcon(nconst)=0.0d0
+      ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+      icon(ncon)=2
+      icon(ncon+1)=icon(jcon+j+1)
+      icon(ncon+2)=-icon(jcon+j+2)
+      ncon=ncon+2
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
+   44 continue
+      endif
+      goto 2
+      else
+      call errquit('esp_input: constrain error',0)
+      endif
+      endif
+      ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
       jcon=ncon
       icon(jcon)=0
     4 continue
       if(inp_i(i)) then
       icon(jcon)=icon(jcon)+1
       ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
       icon(ncon)=i
       ifrom=iabs(i)
       goto 4
@@ -240,6 +333,8 @@ c
       do 40 j=ifrom+1,iabs(i)
       icon(jcon)=icon(jcon)+1
       ncon=ncon+1
+      if(ncon+2.gt.maxcon)
+     + call errquit('Increase dimension maxcon',ncon)
       icon(ncon)=j
    40 continue
       ifrom=0
