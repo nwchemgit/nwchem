@@ -168,6 +168,7 @@ sufficient for nearly all such purposes.
                    (project <string basisname> <string filename>) || \
                    (fragment <string file1> [<string file2> ...])] \
           [swap [alpha||beta] <integer vec1 vec2> ...] \
+          [reorder <integer atom1 atom2> ...] \
           [output <string output_filename default input_movecs>] \
           [lock]
 \end{verbatim}
@@ -307,6 +308,27 @@ previous geometry, despite flipping of the orbital energies.  For such
 a case, the \verb+LOCK+ directive can be used to prevent the SCF
 calculation from changing the ordering, even if the orbital energies
 change.
+
+The mapping of the MO's to the nuclei can be changed using the \verb+REORDER+ keyword.
+Once starting vectors have been obtained using any of the possible
+options, the \verb+REORDER+ keyword moves the MO coefficients between atoms
+listed in the integer list.  This keyword is particularly useful for calculating localized
+electron and hole states.
+
+This optional keyword requires a list of atom pairs whose MO's will be
+swapped.  It is not necessary to provide seperate lists for alpha and 
+beta orbitals. 
+
+An example of use of the \verb+REORDER+ directive:
+\begin{verbatim}
+  vectors input try1.movecs reorder 1 20 output try2.movecs
+\end{verbatim}
+This directive will cause the initial orbitals to be read from the
+file \verb+"try1.movecs"+.  The MO coefficients for the basis functions
+on atom 1 
+will be swapped with those on atom 20.
+The final orbitals obtained in
+the calculation will be written to the file \verb+"try2.movecs"+.
 
 \subsection{Superposition of fragment molecular orbitals}
 \label{sec:fragguess}

@@ -88,52 +88,45 @@ directive is, for example:
   tol2e 1e-9
 \end{verbatim}
 
-\section{{\tt INPUT/OUTPUT EXAMPLE}}
+\section{{\tt Example}}
 
 The following example is for a simple electron transfer reaction, $He_{}$ $\rightarrow$ $He^{ +}$.
 The ET calculation is easy to execute, but it is crucial ET reactant and product
 wavefunctions reflect {\em localized states}. This can be accomplished
 using either a fragment guess (shown in the example, see \ref{sec:fragguess}), or a charged atomic
-density guess (see \ref{sec:atomscf}).
+density guess (see \ref{sec:atomscf}). 
+Once the localized orbitals for the ET reactants have been calculated, you can use the 
+reactants' vectors with the
+\verb+REORDER+ keyword to move the electron from the first helium to the second see \ref{sec:vectors}).
 
 Example input :
 \begin{verbatim}
-start he_et
-title  "he...he(+) ET using fragment guess"
-echo
 
-geometry he
- He 0.0 0.0 0.0
-end
-
-geometry he2
- He 0.0 0.0  2.0
- He 0.0 0.0 -2.0
-end
-
-basis ;  He   library 3-21G ; end
-
-set geometry he      ! He(+) fragment
+#ET reactants:
 charge 1
-scf ;  doublet; uhf; vectors input atomic output hep.mo ; end ; task scf
+scf 
+  doublet
+  uhf
+  vectors input fragment hep.mo he.mo output hea.mo 
+# hep.mo are the vectors for He(+), 
+# he.mo  are the vectors for neutral He.
+end 
+task scf
 
-set geometry he      ! neutral He fragment
-charge 0
-scf ; singlet; uhf; vectors input atomic output he.mo ; end ; task scf
-
-set geometry he2     ! ET reactants
+#ET products:
 charge 1
-scf ; doublet; uhf; vectors input fragment hep.mo he.mo output hea.mo ; end ; task scf
-
-set geometry he2     ! ET products
-charge 1
-scf ; doublet; uhf; vectors input fragment he.mo hep.mo output heb.mo ; end ; task scf
+scf 
+  doublet
+  uhf
+  vectors input hea.mo reorder 1 2 output heb.mo 
+end 
+task scf
 
 et
  vectors reactants hea.mo 
  vectors products heb.mo
 end
-task scf et          ! Calculate V(RP)
+task scf et       
 
 \end{verbatim}
 It is important to verify the localization of the electron in the calculation 
