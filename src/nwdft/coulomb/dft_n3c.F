@@ -1,6 +1,6 @@
-      integer function dft_n3cdbl( AO_bas_han, CD_bas_han,
+      double precision function dft_n3cdbl( AO_bas_han, CD_bas_han,
      &     itol2e)
-C$Id: dft_n3c.F,v 1.4 1996-11-23 00:50:43 d3h449 Exp $
+C$Id: dft_n3c.F,v 1.5 1996-11-27 23:48:18 d3h449 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -17,13 +17,10 @@ c
 c     compute no. of 3-ctr integrals non null 
 c     according to Schwarz screening
 c
-      integer nshells_ao
-      integer me,nproc,ischw1,
-     ,     ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,
-     ,     nbf_cd,nbf_ao,n3,mxshbf_ao,nao2_max,batch_max
-      double precision THRESHOLD,
-     ,     ERI_est
+      integer nshells_ao,me,nproc,ishc,ifirstc,ilastc,nshbfc,ishd,
+     &        ifirstd,ilastd,nshbfd,nbf_cd,nbf_ao,mxshbf_ao,
+     &        nao2_max,icount
+      double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
 c
       THRESHOLD=10.d0**(-itol2e)
       nproc=ga_nnodes()
@@ -50,7 +47,7 @@ c
 c      
 c     Determine number of 3 center 2e- integrals based on Schwarz screening.
 c
-      ischw1 = 0
+      ischw1 = 0.0d0
 c      
       do 240 ishc = 1,nshells_ao
 c
@@ -72,7 +69,7 @@ c
      &           call errquit('Exiting in fitvcoul.',4)
 c
             nshbfd=ilastd-ifirstd+1
-            ischw1 = ischw1 + nbf_cd*nshbfc*nshbfd
+            ischw1 = ischw1 + dble(nbf_cd*nshbfc*nshbfd)
 c
           end if
 c          
@@ -81,13 +78,20 @@ c
   240 continue
 c
 c     add max 3-center 2e- batch size
-c
-      nao2_max = mxshbf_ao**2
-      batch_max = nao2_max*nbf_cd
 c      
+c     Loops are parallelized over the products of AO shells
+c     (check for zero ... must be at least 1).
+c      
+      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      icount = max(icount,1)
+      if(nproc.eq.1)icount = 1
+c      
+      nao2_max = mxshbf_ao**2
+      batch_max = dble(nao2_max)*dble(nbf_cd)*dble(icount)
+c
 c     Define n3 = maximum number of 3 center 2e- integrals. 
 c
-      n3=nbf_ao*nbf_ao*nbf_cd
+      n3=dble(nbf_ao**2)*dble(nbf_cd)
 c
 c     Define dft_n3cdbl=total number of non-zero 3 center 2e- ints.
 c
@@ -96,22 +100,23 @@ c
 c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals per 
 c     processor and allow for some load-unbalance, e.g., 1.5
 c
-      dft_n3cdbl = dft_n3cdbl/nproc + batch_max + 1024
+      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
 c
 c     cannot be smaller than mxsh*mxsh*nbf_cd
 c
-      dft_n3cdbl = max(dft_n3cdbl,4*batch_max)
+      dft_n3cdbl = max(dft_n3cdbl,batch_max)
 c
       if(me.eq.0)write(LuOut,1111)n3, ischw1, dft_n3cdbl
- 1111 format(/,10x,'Maximum number of 3-center 2e- integrals is: ',i15,
-     &       /,10x,'  This is reduced with Schwarz screening to: ',i15,
-     &       /,10x,'  Incore requires a per proc buffer size of: ',i15)
+ 1111 format(/,
+     &       10x,'Maximum number of 3-center 2e- integrals is: ',f15.0,
+     &     /,10x,'  This is reduced with Schwarz screening to: ',f15.0,
+     &     /,10x,'  Incore requires a per proc buffer size of: ',f15.0)
 c      
       return
       end
       integer function dft_n3cint(AO_bas_han, CD_bas_han, 
      &      itol2e)
-C$Id: dft_n3c.F,v 1.4 1996-11-23 00:50:43 d3h449 Exp $
+C$Id: dft_n3c.F,v 1.5 1996-11-27 23:48:18 d3h449 Exp $
       implicit none
             
 c****

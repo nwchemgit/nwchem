@@ -1,7 +1,7 @@
       Subroutine dft_3cincor(rtdb, geom, AO_bas_han, CD_bas_han, 
      &      nbf_cd, itol2e,n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl,
      &      iwhat_max)
-C$Id: dft_3cincor.F,v 1.4 1996-11-22 19:08:23 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.5 1996-11-27 23:48:17 d3h449 Exp $
       implicit none
             
 c****
@@ -35,7 +35,7 @@ c
      ,     nshbfd,ifirstp,ilastp,nint,
      ,     nshbf_cd,ndone
       integer lscr,iscr
-      integer nlast, ntasks, nxtbuf
+      integer nlast, ntasks, nxtbuf, nbufs
       integer iwhat_max, nao2_max, batch_max, neri_max
       double precision THRESHOLD, ERI_est, ratio
       integer nxtask
@@ -47,19 +47,19 @@ c
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
       if( .not. bas_nbf_cn_max(AO_bas_han,MXshbf_ao) )then
-        call errquit('Exiting in fitvcoul.',1)
+        call errquit('Exiting in dft_3cincor.',1)
       end if
 c      
       if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
-        call errquit('Exiting in fitvcoul.',2)
+        call errquit('Exiting in dft_3cincor.',2)
       end if
 c      
       if( .not. bas_numcont(CD_bas_han,nshells_cd) )then
-        call errquit('Exiting in fitvcoul.',3)
+        call errquit('Exiting in dft_3cincor.',3)
       end if
 c      
       if( .not. bas_nbf_cn_max(CD_bas_han,MXshbf_cd) )then
-        call errquit('Exiting in fitvcoul.',4)
+        call errquit('Exiting in dft_3cincor.',4)
       end if
 c      
       me=ga_nodeid()
@@ -75,7 +75,7 @@ c
       if(nproc.eq.1)icount = 1
 c      
       nao2_max = MXshbf_ao**2
-      batch_max = nao2_max*nbf_cd
+      batch_max = nao2_max*nbf_cd*icount
       nERI_max = Nao2_max*MXshbf_cd
 c
 c      write(LuOut,*)' me, rtdb, geom, AO_bas_han, CD_bas_han: ',
@@ -98,7 +98,10 @@ c
 c
       call ga_sync
 c
-      n1 = nxtask(nproc,icount)
+      nxtbuf = batch_max
+      nbufs = icount
+      call nxtask_nleft (nproc, icount, n1, nbufs)
+c      n1 = nxtask(nproc,icount)
       n2 = 0
 c      
       ndone=1
@@ -161,7 +164,7 @@ c             Check to see if there is room to store another batch of
 c             integrals in the local buffer.  If so, do next task,
 c             otherwise go wait for global sync.
 c
-              nxtbuf = ndone + batch_max
+              if(nbufs.eq.0)nxtbuf = ndone + batch_max
 c
 c              write(LuOut,1111)me,ishc,ishd,n1,n2,nxtbuf,n3c_dbl, 
 c     &                         n_batch, iwhat(n_batch), ndone
@@ -170,7 +173,8 @@ c     &                     ' n_batch, iwhat(n_batch), ndone ',/,10i5)
 c              call util_flush(LuOut)
 c
               if( nxtbuf.lt.n3c_dbl) then
-                n1 = nxtask(nproc,icount)
+                call nxtask_nleft (nproc, icount, n1, nbufs)
+c                n1 = nxtask(nproc,icount)
               else
                 go to 241
               endif
@@ -225,7 +229,8 @@ c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_3cincor: cannot pop stack',0)
 c
-      n1 = nxtask(-nproc,icount)
+      call nxtask_nleft (-nproc, icount, n1, nbufs)
+c      n1 = nxtask(-nproc,icount)
 c
 c      call ga_sync
 c      do n1 = 0, nproc
@@ -269,7 +274,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.4 1996-11-22 19:08:23 d3h449 Exp $
+C$Id: dft_3cincor.F,v 1.5 1996-11-27 23:48:17 d3h449 Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
@@ -319,4 +324,34 @@ C$Id: dft_3cincor.F,v 1.4 1996-11-22 19:08:23 d3h449 Exp $
 c
  1000 format (/1h ,8x,7('   ',i3,3x),('   ',i3))
  2000 format (a1,i4,1x,8i9)
+      end
+      subroutine nxtask_nleft (nproc, ichunk, nxtask_n, nstill)
+      implicit none
+#include "global.fh"      
+c
+      integer nproc, ichunk     ! [input]
+c
+      integer icount, nleft, nxtval, junk, nxtask_n, nstill
+      external nxtval
+      save icount, nleft
+      data nleft, icount /0, 0/
+c     
+c     This is a copy of nxtask (from ddscf) but returning
+c     copy of nleft as argument.
+c     
+      if(nproc.gt.0) then
+         if(nleft.eq.0) then
+            icount = nxtval(nproc) * ichunk
+            nleft = ichunk
+         endif
+         nxtask_n = icount
+         icount = icount + 1
+         nleft = nleft -1
+      else
+         nleft = 0
+         nxtask_n = -1
+         junk = nxtval(nproc)
+      endif
+      nstill = nleft
+      return
       end

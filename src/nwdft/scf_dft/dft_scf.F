@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.47 1996-11-23 00:50:50 d3h449 Exp $
+C$Id: dft_scf.F,v 1.48 1996-11-27 23:48:27 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -36,14 +36,16 @@ c
       Logical movecs_write, movecs_read_header, movecs_read
       External movecs_write,movecs_read_header, movecs_read
       logical oprint,oprint_sym,oadapt
-      double precision Exc(2), rms(2), derr(2)
+      double precision Exc(2), rms(2), derr(2), n3c_dbl_r, availm_r
       integer noc(2),nmo(2),icall(2)
       integer n3c_dbl,n3c_int,n_batch
       integer avail, availm
       integer iwhat_max
       integer l_3cwhat,k_3cwhat,l_3cERI,k_3cERI
-      integer dft_n3cdbl,dft_n3cint
-      external dft_n3cdbl,dft_n3cint
+      integer dft_n3cint
+      external dft_n3cint
+      double precision dft_n3cdbl
+      external dft_n3cdbl
       Integer l_eval
       integer k_eval(2)
       Character*(nw_max_path_len) movecs_out,movecs_in
@@ -61,7 +63,7 @@ c
       integer nexc
       integer iswitc
       integer itol_max,iaoacc_max
-      integer mxshbf_ao, nao2_max, batch_max
+      integer mxshbf_ao, nao2_max, batch_max, nshells_ao, icount
       integer idmtot,nshells,nprint
       integer leneval,lcd_coef,icd_coef
       double precision ecoul,ecore,aaz
@@ -201,8 +203,8 @@ c       2e- integrals.
 c
 c        - amount needed for all incore:
 c
-        n3c_dbl=dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
-        n3c_int=dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
+        n3c_dbl_r = dft_n3cdbl(AO_bas_han,CD_bas_han,itol_max)
+        n3c_int = dft_n3cint(AO_bas_han,CD_bas_han,itol_max)
 c
 c        - (minimum) amount available on stack (all nodes):
 c        
@@ -213,14 +215,28 @@ c
 c        - subtract off a few bits for later use, e.g., quadrature
 c
         availm = avail - ipol*(nbf_ao + nbf_cd + nbf_xc) - 125000
-        n3c_dbl=min(availm,n3c_dbl)
-        if(me.eq.0)write(LuOut,3228)avail, availm, n3c_dbl
 c
+        availm_r = dble(availm)
+        availm_r = min(availm_r,n3c_dbl_r)
+        n3c_dbl=nint(availm_r)
+        if(me.eq.0)write(LuOut,3228)avail, availm, n3c_dbl
+c      
+c       Loops are parallelized over the products of AO shells
+c       (check for zero ... must be at least 1).
+c      
         if( .not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao) )then
           call errquit('Exiting in dft_scf.',1)
         end if
+        if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
+          call errquit('Exiting in dft_scf.',2)
+        end if
+c
+        icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+        icount = max(icount,1)
+        if(nproc.eq.1)icount = 1
+c      
         nao2_max = mxshbf_ao**2
-        batch_max = nao2_max*nbf_cd
+        batch_max = nao2_max*nbf_cd*icount
 c
         if(n3c_dbl.lt.batch_max.or.(.not.incore))then
           incore = .false.
