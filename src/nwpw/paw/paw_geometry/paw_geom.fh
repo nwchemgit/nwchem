@@ -1,3 +1,5 @@
       integer  ion_nion,ion_natm,ion_nkatm,ion_katm
       external ion_nion,ion_natm,ion_nkatm,ion_katm
+      real*8   ion_rion,ion_vion
+      external ion_rion,ion_vion
 
