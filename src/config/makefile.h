@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.320 2000-05-07 16:39:25 edo Exp $
+# $Id: makefile.h,v 1.321 2000-05-10 17:23:46 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1310,20 +1310,6 @@ ifdef EGCS
   FOPTIMIZE += -fforce-mem -fforce-addr -ffloat-store
 endif
 
-ifeq ($(NWCHEM_TARGET_CPU),ALPHA)
-# using COMPAQ/DEC compilers (EA 3/13/2000)
-  FC         = fort
-  CC         = ccc      
-  LINK.f = fort $(LDFLAGS)
-  DEFINES   +=  -DNOAIO
-  FOPTIONS   = -i8 -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive
-  FOPTIMIZE  = -g3 -O2 
-#  COPTIMIZE  =  -O2 -g
-#  FOPTIONS   = -fno-second-underscore
-#  FOPTIMIZE  = -g -O2 
-#  COPTIONS   = -Wall
-#  COPTIMIZE  = -g -O2
-endif
 ifeq ($(NWCHEM_TARGET_CPU),POWERPC)
   FOPTIONS   = -fno-second-underscore -fno-globals
   FOPTIMIZE  = -g -O2 
@@ -1345,11 +1331,6 @@ ifndef EGCS
  EXTRA_LIBS += -lf2c -lm
 endif
 endif
-ifeq ($(NWCHEM_TARGET_CPU),ALPHA)
-#using COMPAQ/DEC compilers (EA 3/13/2000)
-  EXTRA_LIBS = 
-  LINK.f = fort $(LDFLAGS)
-endif
 
   CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
 
@@ -1361,6 +1342,20 @@ endif
 # end of Linux, Cygnus
 endif
 
+ifeq ($(NWCHEM_TARGET),LINUX64)
+# using COMPAQ/DEC compilers (EA 3/13/2000)
+    CORE_SUBDIRS_EXTRA = blas lapack
+     RANLIB = echo
+  FC         = fort
+  CC         = ccc      
+  LINK.f = fort $(LDFLAGS)
+  DEFINES   +=  -DNOAIO -DEXT_INT -DLINUX
+  FOPTIONS   = -i8 -assume no2underscore -align dcommons -fpe2 -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow -automatic 
+  EXTRA_LIBS = 
+  FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
+  FVECTORIZE = -fast -O5 -tune host -arch host
+  CORE_LIBS = -lutil -lpario -lglobal -lma -lpeigs -llapack -lblas
+endif
 ifeq ($(TARGET),FUJITSU_VPP)
 #
 # FUJITSU VX/VPP
