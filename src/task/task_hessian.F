@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.18 2002-01-31 00:55:15 windus Exp $
+* $Id: task_hessian.F,v 1.19 2003-02-20 02:04:50 bert Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -81,7 +81,8 @@ c  Make sure that we don't do analytic for anything other than
 c  scf and dft.
 c
       if ((.not.inp_compare(.false.,theory,'scf')).and.
-     $    (.not.inp_compare(.false.,theory,'dft'))) then
+     $    (.not.inp_compare(.false.,theory,'dft')).and.
+     $    (.not.hess_check(rtdb))) then
         numerical = .true.
         analytic  = .false.
       endif
