@@ -214,6 +214,10 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
 
   extern void     pdspevx();
   
+#ifndef RIOS
+  extern char    *strcpy();
+#endif
+  
   /*
    *  ---------------------------------------------------------------
    *                      Executable Statements
@@ -393,68 +397,71 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
 
    i_scrat[ 0 ] = *n;
 
-  isize = 1 * sizeof( Integer );
-  strcpy( msg2,  "n " );
-  pdiff( &isize, (char *) i_scrat, proclist, &nn_proc, i_scrat+2, msg, msg2 , &linfo );
-  
-  pgexit( &linfo, msg, proclist, &nn_proc, scratch );
-  
-  if ( linfo != 0 ) {
-      *info = -51;
-      return;
-  }
-  
-  /*
-   *  Check rest of inputs.
-   */
-  
-  maxinfo = 0;
-
-  isize   = msize * sizeof( Integer );
-  strcpy( msg2,  "mapA " );
-  pdiff( &isize, (char *) mapA, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
-  maxinfo = max( maxinfo, linfo );
-  
-  strcpy( msg2,  "mapZ " );
-  pdiff( &isize, (char *) mapZ, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
-  maxinfo = max( maxinfo, linfo );
-  
-  linfo = maxinfo;
-  
-  pgexit( &linfo, msg, proclist, &nn_proc, scratch );
-  
-  if ( linfo != 0 ) {
-      *info = -51;
-      return;
-  }
-  
-  
-  /* -------------------------------------
-   * All input data is good.  Call pdspevx.
-   * -------------------------------------
-   */
-  
-  /*
-   * Set "extra" arguments so pdspevx  will compute all eigenvalues
-   * and eigenvectors.
-   */
-  
-  irange  =  1;
-  ivector =  1;
-  meigval =  0;
-  ilb     =  0;
-  iub     = -1;
-  lb      = (DoublePrecision )  0.0e0;
-  ub      = (DoublePrecision ) -1.0e0;
-  abstol  = (DoublePrecision )  0.0e0;
-  
-  pdspevx( &ivector, &irange, n, vecA, mapA, &lb, &ub, &ilb, &iub, &abstol,
-	  &meigval, vecZ, mapZ, eval, iscratch, iscsize,
-	  dblptr, ibuffsize, scratch, ssize, info);
-  
+   isize = 1 * sizeof( Integer );
+   strcpy( msg2,  "n " );
+   pdiff( &isize, (char *) i_scrat, proclist, &nn_proc, i_scrat+2, msg, msg2 , &linfo );
+   
+   pgexit( &linfo, msg, proclist, &nn_proc, scratch );
+   
+   if ( linfo != 0 ) {
+     *info = -51;
+     return;
+   }
+   
+   /*
+    *  Check rest of inputs.
+    */
+   
+   maxinfo = 0;
+   
+   isize   = msize * sizeof( Integer );
+   strcpy( msg2,  "mapA " );
+   pdiff( &isize, (char *) mapA, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+   maxinfo = max( maxinfo, linfo );
+   
+   strcpy( msg2,  "mapZ " );
+   pdiff( &isize, (char *) mapZ, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+   maxinfo = max( maxinfo, linfo );
+   
+   linfo = maxinfo;
+   
+   pgexit( &linfo, msg, proclist, &nn_proc, scratch );
+   
+   if ( linfo != 0 ) {
+     *info = -51;
+     return;
+   }
+   
+   
+   /* -------------------------------------
+    * All input data is good.  Call pdspevx.
+    * -------------------------------------
+    */
+   
+   /*
+    * Set "extra" arguments so pdspevx  will compute all eigenvalues
+    * and eigenvectors.
+    */
+   
+   irange  =  1;
+   ivector =  1;
+   meigval =  0;
+   ilb     =  0;
+   iub     = -1;
+   lb      = (DoublePrecision )  0.0e0;
+   ub      = (DoublePrecision ) -1.0e0;
+   abstol  = (DoublePrecision )  0.0e0;
+   
+   pdspevx( &ivector, &irange, n, vecA, mapA, &lb, &ub, &ilb, &iub, &abstol,
+	    &meigval, vecZ, mapZ, eval, iscratch, iscsize,
+	    dblptr, ibuffsize, scratch, ssize, info);
+   
 #ifdef DEBUG1
    fprintf(stderr, "me = %d Exiting pdspev \n", me );
 #endif
 
     return;
 }
+
+
+

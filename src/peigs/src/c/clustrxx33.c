@@ -87,10 +87,10 @@
 #define INV_TIME 2
 #define ITIME1  1
 
-Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
+Integer clustrinv4_(n, d, e, dplus, lplus, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
      Integer *n, *schedule, *num_clustr, *mapZ, *mapvecZ, *imin,
-             *nacluster, *icsplit, *iscratch;
-     DoublePrecision *d, *e, *eval, **vecZ, *scratch;
+  *nacluster, *icsplit, *iscratch;
+     DoublePrecision *d, *e, *eval, **vecZ, *scratch, *dplus, *lplus;
 {
   /*
     n = dimension of the tridiagonal matrix
@@ -452,15 +452,15 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
     if( clustr_ptr == 0 && send_num > 0 )
       first = 1;
     
-    itime = 2;
+    itime = 1;
     for ( j = 0; j < INV_TIME; j++ ) {
-      itmp = inv_it( n, &c1, &cn, &bb1, &bn, &Zvec, &mapZ[c1], mapvecZ, vecZ,
-		       d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+      itmp = inv_it4( n, &c1, &cn, &bb1, &bn, &Zvec, &mapZ[c1], mapvecZ, vecZ,
+		      dplus, lplus, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
       
       if( itmp >  0 )
         if( ibad == 0 || itmp < ibad ) 
-           ibad = itmp;
-
+	  ibad = itmp;
+      
       if ( c1 != cn ) {
 	for ( i = 0; i < itime ; i++ ) {
 	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
@@ -468,7 +468,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
 	itime = 1;
       }
     }
-
+    
 #ifdef DEBUG1
   fprintf(stderr, " clustrxx3 me = %d before send/rec \n", me );
 #endif

@@ -112,6 +112,10 @@ void sorteig( n, neigval, vecZ, mapZ, eval, iwork, work )
 	}
       }
     }
+
+    if (NO_EVEC)
+      goto END;
+
     
     /*
      * Compute required permutation of vecZ.
@@ -216,6 +220,8 @@ void sorteig( n, neigval, vecZ, mapZ, eval, iwork, work )
        }
     }
 
+END:
+    
     return;
 }
     

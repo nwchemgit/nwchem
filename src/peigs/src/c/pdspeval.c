@@ -44,28 +44,39 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
-void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol,
+extern DoublePrecision psigma, psgn;
+
+void pdspeval ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	      meigval, vecZ, mapZ, eval, iscratch, iscsize,
-	      dblptr, ibuffsize, scratch, ssize, info)
-     Integer  *ivector, *irange, *n, *ilb, *iub, *meigval, *mapZ, *iscratch, *iscsize, *ibuffsize, *ssize, *info;
-     DoublePrecision   *dd, *ee, *dplus, *lplus, *lb, *ub, *abstol, *eval, *scratch;
-     DoublePrecision  **vecZ, **dblptr;
+	       dblptr, ibuffsize, scratch, ssize, info)
+     Integer                 *ivector, *irange, *n, *mapA, *ilb, *iub, *meigval;
+     Integer                 *mapZ, *iscratch, *iscsize, *ibuffsize, *ssize, *info;
+     DoublePrecision         *lb, *ub, *abstol, *eval, *scratch;
+     DoublePrecision         **vecA, **vecZ, **dblptr;
 {
   
-  /*
+/*
+ *
+ *  Our parallel version of LAPACK's dspevx.
+ *
  *
  *  Purpose
  *  =======
  *
- *  pdsptri computes some or all of the eigenvalues and, optionally,
- *  eigenvectors of a real tri-diagonal eigenproblem of the form
+ *  pdspevx computes some or all of the eigenvalues and, optionally,
+ *  eigenvectors of a real symmetric eigenproblem, of the form
  *
  *  A*x=(lambda) * x.
  *
- *  Here A is assumed to be symmetric, tri-diagonal.
+ *  Here A is assumed to be symmetric.
+ *  A uses packed storage.
  *
  *  Arguments
  *  =========
+ *
+ * The current code assumes mapA and mapZ each contain
+ * exactly the same set of processor id's, though not necessarily
+ * in the same order.
  *
  * All arguments are POINTERS to date of the specified type unless
  * otherwise mentioned.  In particular, INTEGER = (Integer *) and
@@ -76,6 +87,8 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *    n      = dimension of matrix A
  *    me     = this processors id (= mxmynd_())
  *    nprocs = number of allocated processors ( = mxnprc_())
+ *    nvecsA = number of entries in mapA equal to me
+ *             (= count_list( me, mapA, n ))
  *    nvecsZ = number of entries in mapZ equal to me
  *             (= count_list( me, mapZ, n ))
  *
@@ -92,15 +105,22 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *
  *
  *  n       (input) INTEGER
- *          The number of rows and columns of the matrix A.
+ *          The number of rows and columns of the matrices A and B.
  *          N >= 0.
  *
- *  dd      (input) DOUBLE PRECISION array, dimension ( n )
- *          The diagonal elements of A.
+ *  vecA    (input/workspace) array of pointers to DoublePrecision (DoublePrecision **)
+ *                            dimension ( nvecsA )
+ *          On entry, vecA[i], i = 0 to nvecsA-1, points to an
+ *          array containing the lower triangular part of the i-th
+ *          column of A which is owned by this processor.  The
+ *          columns of A owned by this processer are determined by mapA
+ *          (See below).
  *
- *  ee      (input) DOUBLE PRECISION array, dimension ( n )
- *          The off-diagonal elements of A.  ee[0] is junk, the
- *          actual off-diagonal starts at ee[1].
+ *          On exit, the contents of matrixA are destroyed.
+ *
+ *  mapA    (input) INTEGER array, dimension (N)
+ *          mapA(i) = the id of the processor which owns column i
+ *                    of the A matrix, i = 0 to n-1.
  *
  *  lb      (input) DOUBLE PRECISION
  *          If IRANGE=2,  the lower bound of the interval to be searched
@@ -133,8 +153,9 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *                  ABSTOL + EPS *   max( |a|,|b| ) ,
  *
  *          where EPS is the machine precision.  If ABSTOL is less than
- *          or equal to zero, then  EPS*|A|  will be used in its place,
- *          where |A| is the 1-norm of A.
+ *          or equal to zero, then  EPS*|T|  will be used in its place,
+ *          where |T| is the 1-norm of the tridiagonal matrix obtained
+ *          by reducing matrix A to tridiagonal form.
  *
  *          See "Computing Small Singular Values of Bidiagonal Matrices
  *          with Guaranteed High Relative Accuracy," by Demmel and
@@ -146,8 +167,8 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *
  *  vecZ    (output) array of pointers to DoublePrecision (DoublePrecision **)
  *                   dimension ( nvecsZ )
- *          On entry, vecZ[i], i = 0 to nvecsZ-1, should point to a
- *          DOUBLE PRECISION array of length n.
+ *          On entry, vecZ[i], i = 0 to nvecsZ-1, should point to an
+ *          array of length n.
  *
  *          On exit:
  *
@@ -171,28 +192,31 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *          If INFO = 0, the eigenvalues  of the matrix
  *          in no particular order.
  *
- *  iscratch (workspace) INTEGER array,
- *           Length must be >= that returned from utility routine memreq_
+ *  iscratch (workspace) INTEGER array, dimension
+ *           Must be >= that returned from utility routine memreq_
  *
  *  iscsize  (input) INTEGER
  *           The number of usable elements in array "iscratch".
  *           Must be >= that returned from utility routine memreq_
  *
  *  dblptr   (workspace) DoublePrecision pointer to DoublePrecision (DoublePrecision **),
- *           Length must be >= that returned from utility routine memreq_
+ *           dblprt[0] must point to the start of an array consising of
+ *           pointers to DoublePrecision (DoublePrecision *).
+ *           Must be >= that returned from utility routine memreq_
  *
  *  ibuffsize(input) INTEGER
  *           The number of usable elements in array "dblptr".
  *           Must be >= that returned from utility routine memreq_
  *
- *  scratch  (workspace) DOUBLE PRECISION array
- *           Length must be >= that returned from utility routine memreq_
+ *  scratch  (workspace) DOUBLE PRECISION array, dimension
+ *           Must be >= that returned from utility routine memreq_
  *
  *  ssize    (input) INTEGER
  *           The number of usable elements in array "scratch".
  *           Must be >= that returned in utility routine memreq_
  *
  *  INFO    (output) INTEGER
+ *
  *          = 0:  successful exit.
  *
  *          -50 <= INFO < 0, the -INFOth argument had an illegal value.
@@ -201,13 +225,15 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *                           processors is NOT the same on all processors
  *                           in mapZ.
  *
- *          = 1,             Error computing eigenvalues. PSTEBZ returned
- *                           a non-zero info, whose value was printed to
- *                           stderr.
+ *          = 1,             Error computing the eigenvalues of the
+ *                           tridiagonal eigenproblem.  In this case
+ *                           'pstebz_' returned a non-zero info, whose
+ *                           value was printed to stderr.
  *
- *          = 2,             Error computing eigenvectors.  PSTEIN returned
- *                           a non-zero info, whose value was printed to
- *                           stderr.
+ *          = 2,             Error computing the eigenvectors of the
+ *                           tridiagonal eigenproblem.  In this case
+ *                           'pstein' returned a non-zero info, whose
+ *                           value was printed to stderr.
  *
  *          Any processor with a negative INFO stops program execution.
  *
@@ -216,7 +242,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  *                              INFO is the same on all processors.
  *        
  *          All other INFO      INFO should be the same on all processors in
- *                              mapZ.  If this routine calls a routine
+ *                              mapA,Z.  If this routine calls a routine
  *                              which returns a negative info, then info
  *                              may not be the same on all processors.
  *                              This, however, should never happen.
@@ -227,44 +253,61 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
  * Local variables
  * ---------------
  */
-    static Integer      IONE = 1;
+    static Integer  IONE = 1;
+    static Integer  ITWO = 2;
 
-    Integer             k, me, nn_proc, indx, msize, nsplit, neigval,
-                        nproc, itmp, isize, nZ2, mapZ_0, nvecsZ, nvecsZ2,
-                        linfo, maxinfo, i, j, num_procs;
+    Integer         iii, k, me, jndx, nn_proc, indx, msize, nsplit, neigval,
+                    nproc, itmp,
+                    isize, nZ2,
+                    mapZ_0, nvecsQ, nvecsA, nvecsZ, nvecsZ2,
+                    linfo, maxinfo, i, j;
 
-    Integer            *i_scrat, *iblock, *isplit, *proclist;
+    Integer         *i_scrat, *mapQ, *iblock,ii, *isplit;
 
-    char                msg[ 35 ];
-    char                msg2[ 35 ];
+    char            msg[ 35 ];
+    char            msg2[ 30]; 
 
-    Integer           **iptr;
-    DoublePrecision    *d_scrat;
-    DoublePrecision   **dd_scrat;
+    Integer         **iptr, num_procs, *proclist;
     
+    DoublePrecision vec[2], fnormA, fnormT, ulp;
+    DoublePrecision *d_scrat,
+      *dd,                    /* diagonal of tridiagonal */
+      *ee,                    /* lower diagonal of tridiagonal */
+      *matrixQ,
+      *dplus,                 /* diagonal from bidiagonal of tridiagonal */
+      *lplus;                 /* lower diagonal from bidiagonal */
+    
+    DoublePrecision **buff_ptr, **vecQ, res;
+
 #ifdef TIMING
     extern DoublePrecision mxclock_();
     extern TIMINGG test_timing;
     DoublePrecision  t1, t2;
 #endif
 
+
 /*
  * External procedures
  * -------------------
  */
-    extern Integer  count_list(), reduce_list2();
-    extern void     xstop_(), pdiff(), pgexit();
-    extern void     mdiff1_(), bbcast00();
-    extern void     memreq_();
-
-    extern void     pstebz_(), pstein();
-    extern void     dshellsort_(), sorteig();
-
     extern Integer  mxmynd_(), mxnprc_();
     extern void     mxinit_();
 
+    extern Integer  mapchk_(), count_list();
+    extern void     memreq_();
+    extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps_();
+    extern void     mdiff1_(), mdiff2_(), bbcast00();
+    extern void     mem_cpy();
+    extern void     dshellsort_(), sorteig();
+
+    extern DoublePrecision dnrm2_();
+
+    extern Integer  tred2();
+    extern void     pstebz_(), pstein32(), mxm25(), sfnorm();
+
 #ifndef RIOS
     char    *strcpy();
+    extern DoublePrecision sqrt (), fabs ();
 #endif
 
 /*
@@ -277,24 +320,16 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     *  Get this processor's id, and the number of allocated nodes.
     */
 
-   mxinit_();
+    mxinit_();
 
-   me    = mxmynd_();
-   nproc = mxnprc_();
+    me    = mxmynd_();
+    nproc = mxnprc_();
+    strcpy( msg,  "Error in pdspevx." );
 
-   strcpy( msg,  "Error in pdsptri." );
-
+    
 #ifdef DEBUG1
-   fprintf(stderr, "me = %d In pdsptri \n", me );
+   fprintf(stderr, "me = %d In pdspevx \n", me );
 #endif
-
-   /*
-    * Set workspace pointers.
-    */
-
-   i_scrat  = iscratch;
-   d_scrat  = scratch;
-   dd_scrat = dblptr;
 
    /*
     *     Test the input parameters.
@@ -308,9 +343,9 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
       linfo = -2;
    else if ( n == NULL )
      linfo = -3;
-   else if ( dd == NULL )
+   else if ( vecA == NULL )
      linfo = -4;
-   else if ( ee == NULL )
+   else if ( mapA == NULL )
      linfo = -5;
    else if ( lb == NULL )
      linfo = -6;
@@ -355,24 +390,20 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
      return;
    }
 
+    msize   = *n;
    *info    = 0;
    *meigval = 0;
-
-   msize = *n;
 
    /*
     *  Quick return if possible.
     */
 
-   if ( msize == 0 )
+   if ( *n == 0 )
       return;
 
    /*
     *  Continue error checking.
     */
-
-    itmp = 2;
-    memreq_( &itmp, n, mapZ, mapZ, mapZ, &i, &j, &k, i_scrat );
 
    if ( *ivector < 0  || *ivector > 1 )
       *info = -1;
@@ -386,36 +417,84 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
       *info = -8;
    else if ( *irange == 3  && ( *iub < *ilb  ||  *iub > *n ) )
       *info = -9;
-   else if ( *iscsize < i )
-      *info = -16;
-   else if ( *ibuffsize < k )
-      *info = -18;
-   else if ( *ssize < j )
-      *info = -20;
-   else
-
-      for ( k = 0; k < *n; k++ )
-         if ( mapZ[ k ] < 0  ||  mapZ[ k ] > nproc - 1 )
-          *info = -13;
-    
-   if ( *info == 0 ) {
-
-	nvecsZ = count_list( me, mapZ, &msize );
-
-	if ( nvecsZ <= 0 )
-	  return;
-
-        for ( k = 0; k < nvecsZ; k++ )
-	  if ( vecZ[ k ] == NULL )
-	    *info = -12;
-   }
+   else if( mapchk_( n, mapA ) != 0 )
+     *info = -5;
+   else if( mapchk_( n, mapZ ) != 0 )
+     *info = -13;
     
    if ( *info != 0 ) {
-      linfo = *info;
-      fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-               msg, me, -linfo);
-      xstop_( info );
+       linfo = *info;
+       fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
+                msg, me, -linfo);
+       xstop_( info );
+       return;
+   }
+
+   /*
+    * Count the number of columns of A and Z owned by this processor.
+    * Must own something.
+    */
+
+    nvecsA = count_list( me, mapA, &msize );
+    nvecsZ = count_list( me, mapZ, &msize );
+
+    if ( nvecsA + nvecsZ <= 0 )
       return;
+
+    for ( k = 0; k < nvecsZ; k++ )
+      if ( vecZ[ k ] == NULL )
+        *info = -12;
+	 
+    for ( k = 0; k < nvecsA; k++ )
+      if ( vecA[ k ] == NULL )
+        *info = -4;
+    
+   if ( *info != 0 ) {
+       linfo = *info;
+       fprintf( stderr, " %s me = %d argument %d contains a pointer to NULL. \n",
+                msg, me, -linfo);
+       xstop_( info );
+       return;
+   }
+    
+   /*
+    *  REQUIRE mapA, mapZ to contain exactly the same
+    *  set of processors, but not necessarily in the same order.
+    */
+   
+   mapdif_( n, mapA, mapZ, iscratch, &linfo );
+   if ( linfo != 0 )
+     *info = -13;
+    
+   if ( *info != 0 ) {
+       fprintf( stderr, " %s me = %d mapA,Z differ \n", msg, me );
+       xstop_( info );
+       return;
+   }
+    
+   /*
+    * check memory allocation
+    * i is the integer scratch size
+    * j is the DoublePrecision precision scratch size
+    * k is the pointer scratch size
+    */
+    
+   itmp = 1;
+   memreq_( &itmp, n, mapA, mapZ, mapZ, &i, &j, &k, iscratch );
+  
+   linfo = 0;
+   if ( *iscsize < i )
+     linfo = -16;
+   else if ( *ibuffsize < k )
+     linfo = -18;
+   else if ( *ssize < j )
+     linfo = -20;
+   
+   if ( linfo != 0 ) {
+     *info = linfo;
+     fprintf( stderr, " %s me = %d Insufficient workspace provided. \n", msg, me );
+     xstop_( info );
+     return;
    }
     
     /*
@@ -425,13 +504,13 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
      */
     
     /*
-     *  Reduce mapZ to a single sorted list of processors.
+     *  Reduce mapA and mapZ to a single sorted list of processors.
      */
     
-    proclist = i_scrat;
-    nn_proc = reduce_list2( *n, mapZ, proclist);
-    
-    i_scrat += nn_proc;
+    proclist = iscratch;
+    reduce_maps( *n, mapA, *n, mapZ, 0, mapZ, &nn_proc, proclist );
+
+    i_scrat = iscratch + nn_proc;
 
     /*
      *  Check scaler Integer inputs.
@@ -444,10 +523,10 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     i_scrat[ 4 ] = *iub;
     
     isize = 5 * sizeof( Integer );
-    strcpy( msg2,  "ivector,irange,n,ilb,or iub ");
-    pdiff( &isize, (char *)i_scrat, proclist, &nn_proc, &i_scrat[5], msg, msg2, &linfo );
+    strcpy(msg2, "ivector,irange,n,ilb,or iub\n");
+    pdiff( &isize, (char *) i_scrat, proclist, &nn_proc, i_scrat+5, msg, msg2, &linfo );
     
-    pgexit( &linfo, msg, proclist, &nn_proc, d_scrat );
+    pgexit( &linfo, msg, proclist, &nn_proc, scratch );
     
     if ( linfo != 0 ) {
 	*info = -51;
@@ -461,22 +540,26 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     maxinfo = 0;
 
     isize   = msize * sizeof( Integer );
-    strcpy( msg2,  "mapZ ");
-    pdiff( &isize, (char *)mapZ, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+    strcpy(msg2, "mapA ");
+    pdiff( &isize, (char *) mapA, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
     maxinfo = max( maxinfo, linfo );
     
-    *d_scrat = *lb;
-    *(d_scrat + 1) = *ub;
-    *(d_scrat + 2) = *abstol;
+    strcpy(msg2, "mapZ ");
+    pdiff( &isize, (char *) mapZ, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+    maxinfo = max( maxinfo, linfo );
+    
+    *scratch       = *lb;
+    *(scratch + 1) = *ub;
+    *(scratch + 2) = *abstol;
     
     isize = 3 * sizeof( DoublePrecision );
-    strcpy( msg2,  "lb,ub,or abstol ");
-    pdiff( &isize, (char *)d_scrat, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
+    strcpy(msg2, "lb,ub,or abstol ");
+    pdiff( &isize, (char *) scratch, proclist, &nn_proc, (Integer *) (scratch+3), msg, msg2, &linfo );
     maxinfo = max( maxinfo, linfo );
     
     linfo = maxinfo;
     
-   pgexit( &linfo, msg, proclist, &nn_proc, d_scrat );
+   pgexit( &linfo, msg, proclist, &nn_proc, scratch );
 
    if ( linfo != 0 ) {
       *info = -51;
@@ -489,15 +572,21 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     */
 
     /*
-     * Release proclist.
-     */
-
-    proclist = NULL;
-    i_scrat -= nn_proc;
-
-    /*
      * Initialize workspace.
      */
+
+    i_scrat = iscratch;
+    d_scrat = scratch;
+    buff_ptr = dblptr;
+
+    /*
+     * Assume mapA and mapQ are the same.
+     */
+
+    nvecsQ = nvecsA;
+
+    mapQ = i_scrat;
+    i_scrat += msize;
 
     iblock = i_scrat;
     i_scrat += msize;
@@ -505,118 +594,142 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
     isplit = i_scrat;
     i_scrat += msize;
 
+    matrixQ = d_scrat;
+    d_scrat += nvecsQ * msize;
 
-    iptr = (Integer **) dd_scrat;
+
+    /*
+    dd = d_scrat;
+    d_scrat += msize;
     
+    ee = d_scrat;
+    d_scrat += msize;
+    */
 
+    dplus = (double *) malloc( msize * sizeof(double));
+    lplus = (double *) malloc( msize * sizeof(double));
+    
+    dplus = d_scrat;
+    d_scrat += msize;
+    
+    lplus = d_scrat;
+    d_scrat += msize;
+    
+    vecQ = buff_ptr;
+    buff_ptr += nvecsQ;
+
+    iptr = (Integer **) buff_ptr;
+    
+    /*
+     * Copy mapA to mapQ.
+     */
+
+    mem_cpy(mapA, mapQ, msize);
+
+    /*
+     * Set DoublePrecision pointers to actual data.
+     */
+
+    for (indx = 0; indx < nvecsQ; indx++)
+        vecQ[indx] = &matrixQ[msize * indx];
+
+    /*
+     * Reduce A to tridiagonal form.
+     */
+
+    if (nvecsA + nvecsQ > 0) {
+
+      fnormA = 0.0;
+      if( nvecsA > 0 )
+	sfnorm( &msize, vecA, mapA, &fnormA, i_scrat, d_scrat, &linfo);
+
+#ifdef TIMING
+      t1 = mxclock_();
+#endif
+      
+      tred2( &msize, vecA, mapA, vecQ, mapQ, dd, &ee[0], i_scrat, d_scrat);
+      
+#ifdef TIMING
+      mxsync_();
+      t2 = mxclock_();
+      test_timing.householder = t2 - t1;
+#endif
+
+      if( mapA[0] ==me ) {
+        isize = msize - 1;
+        vec[0] = sqrt((DoublePrecision) 2.e0 ) * dnrm2_( &isize, &ee[1], &IONE );
+        vec[1] = dnrm2_( &msize, dd, &IONE );
+        fnormT = dnrm2_( &ITWO, vec, &IONE );
+	
+        ulp = DLAMCHE * DLAMCHB ;
+
+        if( fabs( fnormA - fnormT ) > ( fnormA * ulp * (DoublePrecision) 1000.e0 ))
+	  fprintf(stderr, " me = %d Warning fnormA = %26.16e fnormT = %26.16e \n",
+		  me, fnormA, fnormT );
+      }
+    }
+    
     mapZ_0 = *mapZ;
+    
+    /*
+     * Send dd, ee to all processors in {mapZ} - {mapA}.
+     */
+    
+    mdiff1_( n, mapZ, n, mapA, i_scrat, &num_procs ); 
+    
+    if( num_procs > 0 ){
+      i_scrat[num_procs] = mapA[0];
+      num_procs++;
+      bbcast00( (char *) dd, msize*sizeof(DoublePrecision), 1, mapA[0], num_procs, i_scrat);
+      bbcast00( (char *) ee, msize*sizeof(DoublePrecision), 2, mapA[0], num_procs, i_scrat);
+    }
     
     /*
      * Compute eigenvalues.
      */
     
-#ifdef TIMING
-	t1 = mxclock_();
-#endif
-	
-	pstebz_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
-		 dplus, lplus,
-		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
-		 d_scrat, i_scrat, info);
-	
-#ifdef TIMING
-	mxsync_();
-	t2 = mxclock_();
-	test_timing.pstebz = t2 - t1;
-#endif
-
-    *meigval = neigval;
-
-    if( *info != 0 ) {
-      fprintf(stderr, " %s me = %d pstebz returned info = %d \n", msg, me, *info );
-      *info = 1;
-      return;
-    }
-    
-    /*
-     * Sort eigenvalues and return if there aren't any eigenvectors
-     * to be computed.
-     */
-    
-    if ( neigval == 0 )
-      return;
-    
-    if ( *ivector == 0 ) {
-      dshellsort_( &neigval, eval );
-      return;
-    }
-    
-    /*
-     * Compute eigenvectors.
-     */
-    
-    nvecsZ2 = count_list( me, mapZ, meigval );
-    if (nvecsZ2 > 0) {
+    if (nvecsZ > 0){
       
 #ifdef TIMING
       t1 = mxclock_();
 #endif
       
-      pstein( &msize, dd, ee, &neigval, eval, iblock, &nsplit, isplit,
-	     mapZ, vecZ, d_scrat, i_scrat, iptr, info);
+      pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee, dplus, lplus,
+		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		 d_scrat, i_scrat, info);
       
 #ifdef TIMING
       mxsync_();
       t2 = mxclock_();
-      test_timing.pstein = t2 - t1;
+      test_timing.pstebz = t2 - t1;
 #endif
-      
+
       if( *info != 0 ) {
-        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, me, *info );
-        *info = 2;
+        fprintf(stderr, " %s me = %d pstebz_ returned info = %d \n", msg, me, *info );
+        *info = 1;
       }
+
     }
     
     /*
-     * Release iblock and isplit.
-     */
-
-    iblock = NULL;
-    i_scrat -= msize;
-
-    isplit = NULL;
-    i_scrat -= msize;
-    
-    /*
-     * Send info, mapZ to any processors in 
-     * {mapZ[neigval:*n-1]}) - {mapZ[0:neigval-1]}
+     * Send info, neigval and eval to all processors in {mapA} - {mapZ}
      */
     
-    nZ2 = *n - neigval;
-    mdiff1_( &nZ2, &mapZ[neigval], meigval, mapZ, i_scrat, &num_procs ); 
+    mdiff1_( n, mapA, n, mapZ, i_scrat, &num_procs ); 
     
-    if( num_procs > 0 ){ /* make sure everyone has the same maps */
+    if( num_procs > 0 ){
       i_scrat[num_procs] = mapZ_0;
       num_procs++;
-      bbcast00( (char *)info, sizeof(Integer),       2, mapZ_0, num_procs, i_scrat );
-      bbcast00( (char *)mapZ, msize*sizeof(Integer), 3, mapZ_0, num_procs, i_scrat);
+      bbcast00( (char *) info,     sizeof(Integer),                 2, mapZ_0, num_procs, i_scrat );
+      bbcast00( (char *) &neigval, sizeof(Integer),                 3, mapZ_0, num_procs, i_scrat );
+      bbcast00( (char *) eval,     neigval*sizeof(DoublePrecision), 4, mapZ_0, num_procs, i_scrat );
     }
     
-    for ( indx = neigval; indx < msize; indx++ )
-      mapZ[indx] = -1;
-    
-    if ( *info != 0 )
-      return;
-    
-    /*
-     * Sort eigenvalues, mapZ and eigenvectors
-     */
-    
-    sorteig( &msize, &neigval, vecZ, mapZ, eval, iscratch, scratch );
-    
-#ifdef DEBUG1
-    fprintf(stderr, "me = %d Exiting pdsptri \n", me );
-#endif
-     
+    dshellsort_( &neigval, eval );
+
+    free(lplus);
+    free(dplus);
+
+
     return;
-  }
+}

@@ -181,8 +181,10 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
     return;
   
   iscrat += nvecsW;
+
   proclist = iscrat;
-  
+
+
   ijunk = (Integer *) work;
   
   for ( indx = 0; indx < l1; indx++ )
@@ -331,7 +333,8 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
       /*
 	the current processor id number
 	*/
-      
+
+
       isize = fil_mapvec_( &indx, &l1, mapQ, mapvec_in);
       nvecsQ = isize;
       isize *= l2;
@@ -393,6 +396,9 @@ void mxm25 ( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
       }
     }
   }
-  
+
+  /*
+    c    free(proclist);
+  */
   return;
 }

@@ -29,7 +29,6 @@
  *
  *======================================================================
  */
-
 #include <stdio.h>
 
 #define MSG_START 25000
@@ -126,29 +125,28 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
        
    ort..... (output) INTEGER
             the residual described above.
-	    
-    info.... (output) INTEGER
+
+   info.... (output) INTEGER
             = 0, not currently used
-	    
-	    */
+       
+ */
 {
   
   static Integer IONE = 1;
   
-  Integer ll, i, j, *iscrat, *mapvecB, *mapvecZ;
+  Integer ll, i, j, *iscrat, *mapvecA, *mapvecB, *mapvecZ;
   Integer nvecsB, nvecsZ;
   Integer me, nprocs;
   
-  DoublePrecision ulp;
+  DoublePrecision t, derror, ulp;
   DoublePrecision *ptr, *scrat;
-  DoublePrecision **vecZ1, **vecZ2; /* copies of the vecZ matrix */
+  DoublePrecision **vecZ1, **vecZ2, anorm; /* copies of the vecZ matrix */
   
   /*
     blas call
     */
   
   extern DoublePrecision dnrm2_();
-  extern DoublePrecision dlamch_();
   extern void mxm88();
   extern void mxm25();
   extern DoublePrecision ddot_();
@@ -248,10 +246,6 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   
   *ort = 0.0e0;
   mat_max ( m, m, vecZ2, mapZ, ort, iscrat, scrat);
-
-  /*
-    dlamche and dlamchb are defined in h/blas_lapack.h
-    */
   
   ulp = DLAMCHE * DLAMCHB;
   
@@ -259,11 +253,11 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   mdiff1_( n, mapB, m, mapZ, iscrat, &nprocs ); 
   
   if( nprocs > 0 ){
-      iscrat[nprocs] = mapZ[0];
-      nprocs++;
-      bbcast00( (char *) ort, sizeof(DoublePrecision), 1, mapZ[0], nprocs, iscrat );
+    iscrat[nprocs] = mapZ[0];
+    nprocs++;
+    bbcast00( (char *) ort, sizeof(DoublePrecision), 1, mapZ[0], nprocs, iscrat );
   }
-    
+  
   return;
 }
 

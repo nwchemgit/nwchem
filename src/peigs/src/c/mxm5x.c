@@ -320,7 +320,7 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
   
   idummy = indx - 1;
   idummy += nproc;
-  last_proc = peigs_cmod_( &idummy, &nproc );
+  last_proc = (idummy+nproc) % nproc;
   last_proc = proclist[last_proc];
   
   /*
@@ -329,7 +329,7 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
   
   idummy = indx + 1;
   idummy += nproc;
-  next_proc = peigs_cmod_( &idummy, &nproc );
+  next_proc = (idummy + nproc ) % nproc;
   next_proc = proclist[next_proc];
   
   maxsz = 0;
@@ -394,7 +394,7 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
   for ( i = 0; i < nproc-1 ; i++ ) {
     dcopy_(&osize, in_buffer, &ONE, out_buffer, &ONE);
     idummy = 2;
-    if ( peigs_cmod_( &me_indx, &idummy) ==  0 ) {
+    if ( (me_indx + nproc) % idummy ==  0 ) {
       rsize = osize * sizeof(DoublePrecision);
       if ( rsize != 0 )
 	rsize = mxwrit_( out_buffer, &rsize, &next_proc, &i );
@@ -404,7 +404,7 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
         */
       idummy = me_indx - i - 1;
       idummy += nproc;
-      indx = peigs_cmod_( &idummy , &nproc);
+      indx = (idummy + nproc ) % nproc;
       indx = proclist[indx]; /* the current processor id number */
       nvecsU = fil_mapvec_( &indx, &ll, mapU, mapvec_in);
       isize = ci_size_( &indx, &ll, mapU);   /* the number Q vectors that I own */
@@ -423,7 +423,7 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
         */
       idummy = me_indx - i - 1;
       idummy += nproc;
-      indx = peigs_cmod_(&idummy, &nproc );
+      indx = (idummy + nproc) % nproc;
       indx = proclist[indx]; /* the current processor id number */
       nvecsU = fil_mapvec_( &indx, &ll, mapU, mapvec_in);
       isize = ci_size_( &indx, &ll, mapU);   /* the number Q vectors that I own */

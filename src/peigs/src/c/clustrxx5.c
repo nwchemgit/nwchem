@@ -37,7 +37,7 @@
   Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
   
   Integer *n, *schedule, *num_clustr, *mapZ, *mapvecZ, *Zbegn, *nacluster,
-          *icsplit, *iscratch;
+  *icsplit, *iscratch;
   
   DoublePrecision *d, *e, *eval, **vecZ, *scratch;
   
@@ -79,18 +79,18 @@
 #include "clustr_inv.h"
 
 /*
-#define DEBUG1
-#define DEBUG5
-*/
+  #define DEBUG1
+  #define DEBUG5
+  */
 #define CLUSTRLEN  4
 #define LOOP  3
 #define INV_TIME 2
-#define ITIME1  1
+#define ITIME1  2
 
-Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
+Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
      Integer *n, *schedule, *num_clustr, *mapZ, *mapvecZ, *imin,
-             *nacluster, *icsplit, *iscratch;
-     DoublePrecision *d, *e, *eval, **vecZ, *scratch;
+  *nacluster, *icsplit, *iscratch;
+     DoublePrecision *d, *e, *ld, *lld, *eval, **vecZ, *scratch, *dplus, *lplus;
 {
   /*
     n = dimension of the tridiagonal matrix
@@ -107,7 +107,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
     */
   
   static Integer three = 3, IONE = 1;
-  Integer indx, i, j, iseed[4], bb1, bn;
+  Integer indx, i, j, iseed[4], bb1, bn, jjj;
   Integer blksiz, clustr_ptr, cn;
   Integer me, naproc, Zvec;
   Integer *cl_ptr;
@@ -127,7 +127,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   
   extern void xerbla_();
   extern Integer idamax_(), mclock_(), succ_(), mxmynd_(), mxnprc_();
-  extern DoublePrecision dasum_(), dlamch_(), dnrm2_(), ddot_(), dlarnd_();
+  extern DoublePrecision dasum_(), dnrm2_(), ddot_(), dlarnd_();
   extern void dlagtf_(), dlarnv_();
   extern void printff_(), mgs_3();
   extern void mgspnl_(), dscal_(), dlagts_();
@@ -135,7 +135,6 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   extern Integer count_list ();
   extern Integer inv_it();
   extern void mgs ();
-  extern DoublePrecision dlamch_();
   extern void fil_dbl_lst ();
   
   /*
@@ -188,10 +187,6 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
     Get machine constants. should set this up somewhere to call it only once
     */
 
-  /*
-    eps = dlamch_("E");
-    */
-  
   eps = DLAMCHE;
   
   /*
@@ -204,7 +199,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   for (i = 0; i < 4; ++i)
     iseed[i] = 1;
   
-  iseed[3] = 2*me + 1;
+  iseed[3] = 2*me+1;
   
   /*
     Compute eigenvectors of matrix blocks.
@@ -420,27 +415,39 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
     }
     
     stpcrt = sqrt((DoublePrecision ) 1.0e-1 / (DoublePrecision ) blksiz);
-
-    for (i = 0; i < 4; ++i)
-      iseed[i] = 1;
-    iseed[3] = 1;
     
     indx = 0;
-    for (j = c1; j <= cn; j++ ){
-      if ( mapZ[j] == me ) {
-	i = indx + Zvec;
-	
-	/*
-	  mapvecZ[ i ] = j;
-	  */
-	
-        /*
-	  Initialize vector to zero.
-	  */
-	
-        fil_dbl_lst (*n, vecZ[i], 0.0e0);
-	dlarnv_(&three, &iseed[0], &blksiz, &vecZ[i][bb1]);
-	indx++;
+    if ( csiz > 1 ){
+      for (j = c1; j <= cn; j++ ){
+	if ( mapZ[j] == me ) {
+	  i = indx + Zvec;
+	  /*
+	    mapvecZ[ i ] = j;
+	    */
+	  
+	  /*
+	    Initialize vector to zero.
+	    */
+	  
+	  /*
+	    fil_dbl_lst (*n, vecZ[i], 0.0e0);
+	    */
+	  
+  	  for ( jjj = 0; jjj < bb1; jjj++ )
+	    vecZ[i][jjj] = 0.0;
+
+	  /*
+	    fill with random entries
+	    */
+	  
+	  dlarnv_(&three, iseed, &blksiz, &vecZ[i][bb1]);
+	  
+  	  for ( jjj = bn ; jjj < *n; jjj++ )
+	    vecZ[i][jjj] = 0.0;
+	  
+	  
+	  indx++;
+	}
       }
     }
     
@@ -452,34 +459,65 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
     if( clustr_ptr == 0 && send_num > 0 )
       first = 1;
     
-    itime = 2;
-    for ( j = 0; j < INV_TIME; j++ ) {
-      itmp = inv_it( n, &c1, &cn, &bb1, &bn, &Zvec, &mapZ[c1], mapvecZ, vecZ,
-		       d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
-      
-      if( itmp >  0 )
-        if( ibad == 0 || itmp < ibad ) 
-           ibad = itmp;
+    /*
+      fine problem
+      */
 
-      if ( c1 != cn ) {
-	for ( i = 0; i < itime ; i++ ) {
-	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
-	}
-	itime = 1;
-      }
+    if ( csiz < 2 ){
+      itmp = inv_it5( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ,
+		      dplus, lplus, ld, lld, eval, &eps, &stpcrt,\
+		      &onenrm, iscratch, dscrat);
     }
-
-#ifdef DEBUG1
-  fprintf(stderr, " clustrxx3 me = %d before send/rec \n", me );
+    else {
+      /*
+	fine cluster
+	*/
+      itime = 2;
+      /*
+	printf(" fine clustr csiz = %d  c1 = %d cn = %d \n", csiz, c1, cn );
+	*/
+      
+      for ( j = 0; j < INV_TIME; j++ ) {
+	/*
+	  itmp = inv_it4( &j, n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, dplus, lplus, ld, lld, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+	  */
+	
+#ifdef DEBUG
+	printf(" inv_it3 me = %d before inv_it3 \n", me );
+	fflush(stdout);
 #endif
-
+	/*
+	  old tridiagonal inverse iteration
+	  */
+	
+	itmp = inv_it3( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+	
+#ifdef DEBUG
+	printf(" inv_it3 me = %d after inv_it3 \n", me );
+	fflush(stdout);
+#endif
+	
+	if( itmp >  0 )
+	  if( ibad == 0 || itmp < ibad ) 
+	    ibad = itmp;
+	
+	for ( i = 0; i < itime ; i++ )
+	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
+	  itime = 0;
+      }
+  }
+    
+#ifdef DEBUG1
+    fprintf(stderr, " clustrxx3 me = %d before send/rec \n", me );
+#endif
+    
     /*
      * Swap beginning portions of clusters which are distributed
      * across more than one processor.
      */
 
-    if( clustr_ptr == 0 && send_num > 0 ) {
-
+  if( clustr_ptr == 0 && send_num > 0 ) {
+    
       itype = 999999;
 
       if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) { 
@@ -500,7 +538,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   
         ival = mxread_( first_buf, &isize, &recv_from, &itype );
       }
-
+      
       nvecs = 0;
       for (j = c1; j <= cn; j++ ){
         if ( mapZ[j] == me ) {
@@ -520,15 +558,14 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
 
-      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) {
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
-
         xblksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;
-
+	
         nvecs  = count_list( recv_from, &mapZ[xc1], &xcsiz);
         isize = sizeof( DoublePrecision ) * xblksiz * nvecs;
-
+	
         first_buf = dscrat;
         dscrat += nvecs * xblksiz;
 

@@ -38,7 +38,7 @@
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
 
-void residual( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
+void residual2( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
                 ibuffptr, iwork, work, res, info)
      Integer *n, *mapA, *mapB, *m, *mapZ, *iwork, *info;
      DoublePrecision **colA, **colB, **colZ, *eval, **ibuffptr, *work, *res;
@@ -181,7 +181,6 @@ void residual( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
   extern DoublePrecision ddot_();
   extern void dcopy_();
   extern void daxpy_();
-  extern DoublePrecision dlamch_();
   extern DoublePrecision damax_();
   
   extern Integer mxwrit_(), mxread_();
@@ -232,20 +231,20 @@ void residual( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
     return;
   
   scrat = work;
-
-/*
+  
   vecZ1 = (DoublePrecision **) malloc( nvecsZ*sizeof(DoublePrecision *));
   vecZ2 = (DoublePrecision **) malloc( nvecsZ*sizeof(DoublePrecision *));
- */
   
   dbuffptr = ibuffptr;
+  
+  /*
+    vecZ1 = dbuffptr;
+    dbuffptr += nvecsZ + 1;
 
-  vecZ1 = dbuffptr;
-  dbuffptr += nvecsZ + 1;
-
-  vecZ2 = dbuffptr;
-  dbuffptr += nvecsZ + 1;
-
+    vecZ2 = dbuffptr;
+    dbuffptr += nvecsZ + 1;
+    */
+  
   /*
     copy over the matrix to a buffer area
     */
@@ -315,9 +314,6 @@ void residual( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
     
   if( nvecsZ > 0 ) {
 
-    /*
-      ulp = dlamch_("epsilon") * dlamch_("base");
-      */
     ulp = DLAMCHE * DLAMCHB ;
 
     *res = derror / normA / ulp;
@@ -335,7 +331,10 @@ void residual( n, colA, mapA, colB, mapB, m, colZ, mapZ, eval,
       nprocs++;
       bbcast00( (char *) res, sizeof(DoublePrecision), 3, mapZ[0], nprocs, iscrat );
   }
-    
+
+  free(vecZ2);
+  free(vecZ1);
+
   return;
 }
 

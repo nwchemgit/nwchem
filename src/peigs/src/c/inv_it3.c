@@ -29,6 +29,7 @@
  *
  *======================================================================
  */
+
 /* **********************************************
 
    PeIGS internal routine
@@ -53,8 +54,10 @@ Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps,
 
 #define    ITS   1
 #define    MAXITR 100
+extern DoublePrecision psigma, psgn;
 
-Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps, stpcrt, onenrm, iwork, work)
+
+Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps, stpcrt, onenrm, iwork, work)
      Integer *n, *c1, *cn, *b1, *bn, *Zbegin, *map, *mapvec, *iwork;
      DoublePrecision *d, *e, **vector, *eval, *work, *eps, *stpcrt, *onenrm;
      /*
@@ -86,6 +89,9 @@ Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps,
   extern DoublePrecision dnrm2_(), dasum_(), ddot_();
   extern Integer mxmynd_();
 
+#ifndef RIOS
+  extern DoublePrecision fabs();
+#endif
 
   extern void mgs_prev ();
   
@@ -118,11 +124,11 @@ Integer inv_it( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps,
 
   
   for ( j = 0; j < csiz ;  j++ ) {
-    
-    if ( map[ j ] == me ) {
-      i_1 = j + *c1;
+	i_1 = j+*c1;
+    if ( map[ i_1 ] == me ) {
       mapvec[k] = i_1;
       xj = eval[i_1];
+      xj += psgn*psigma;
       
 #ifdef DEBUG  
       fprintf(stderr, "xj = %g \n", xj);

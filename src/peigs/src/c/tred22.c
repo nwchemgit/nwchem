@@ -57,7 +57,6 @@
 /* ================================================================= */
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
 
 #include "globalp.c.h"
@@ -98,6 +97,45 @@ void bbcast00(buf, len, type, root, snumprocs, plist)
   mxbrod_(buf,&root,&len,&snumprocs,plist,&type);
 }
 
+void ibcast00(buf, len, type, root, snumprocs, plist)
+     Integer *buf;
+     Integer len;
+     Integer type;
+     Integer root, snumprocs;
+     Integer *plist;
+{
+  /*
+    mkplist ();  assume that plist has the list of all the processors
+    */
+  
+  extern Integer mxbrod_();
+  
+  mxbrod_(buf,&root,&len,&snumprocs,plist,&type);
+}
+
+void peigs_gmax00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
+     char *buf;
+     Integer items;
+     Integer datatype;
+     Integer msgtype;
+     Integer root;
+     Integer *plist, snumprocs;
+     DoublePrecision *work;  /* workspace containing at least bufsiz bytes (see cmbbrf.h) */
+{
+  Integer eight = sizeof(DoublePrecision);
+  extern Integer maxd_();
+  extern Integer mxcombv1_();
+  
+  if (datatype != 5) {
+    fprintf (stderr,"gsum00: invalid datatype = %d\n",datatype);
+  }
+  
+  mxcombv1_( buf, maxd_, &eight, &items, &snumprocs, plist, &msgtype, (char *)work);
+}
+
+
+
+
 void gsum00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
      /*
 	Note that this implementation of gsum00 differs from Chinchalkar's
@@ -116,7 +154,7 @@ void gsum00(buf, items, datatype, msgtype, root, snumprocs, plist, work)
   Integer eight = sizeof(DoublePrecision);
   extern Integer sumdv_();
   extern Integer mxcombv1_();
-
+  
   if (datatype != 5) {
     fprintf (stderr,"gsum00: invalid datatype = %d\n",datatype);
   }
@@ -235,6 +273,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   extern void dscal_();
   extern void dcopy_();
   extern void daxpy_();
+  extern DoublePrecision dasum_();
 
   
   Integer size, nrowsA, nrowsQ;
@@ -317,7 +356,12 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   if ( upperdiag == NULL )
     linfo = -7;
   
-  sprintf(msg, "TRED22:Error in argument %d \n", linfo);      
+  sprintf(msg, "TRED22:Error in argument %d \n", linfo);
+
+  /*
+  printf(" in tred22.c me = %d \n", me );
+  */
+  
   
   g_exit_( &linfo, msg, mapA, n, iwork, work);
   
@@ -561,7 +605,6 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
     }
   }
   
-  
   /*
     now whatever is left over
     */
@@ -597,6 +640,10 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   
   gsum00((char * ) diag, msize, 5, MSG_START+2, mapA[0], n_procs, proclist, workMX);
   gsum00((char * ) &upperdiag[1], msize-1, 5, MSG_START+4, mapA[0], n_procs, proclist, workMX);
-  
+
+
+/*
+  printf(" out tred22.c me = %d \n", me );
+*/
   return 0;
 }

@@ -44,41 +44,41 @@
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
-void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol,
+void pdsptri2( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol,
 	      meigval, vecZ, mapZ, eval, iscratch, iscsize,
-	      dblptr, ibuffsize, scratch, ssize, info)
+	       dblptr, ibuffsize, scratch, ssize, info)
      Integer  *ivector, *irange, *n, *ilb, *iub, *meigval, *mapZ, *iscratch, *iscsize, *ibuffsize, *ssize, *info;
      DoublePrecision   *dd, *ee, *dplus, *lplus, *lb, *ub, *abstol, *eval, *scratch;
      DoublePrecision  **vecZ, **dblptr;
 {
   
   /*
- *
- *  Purpose
- *  =======
- *
- *  pdsptri computes some or all of the eigenvalues and, optionally,
- *  eigenvectors of a real tri-diagonal eigenproblem of the form
- *
- *  A*x=(lambda) * x.
- *
- *  Here A is assumed to be symmetric, tri-diagonal.
- *
- *  Arguments
- *  =========
- *
- * All arguments are POINTERS to date of the specified type unless
- * otherwise mentioned.  In particular, INTEGER = (Integer *) and
- * DOUBLE PRECISION = (DoublePrecision *)
- *
- *
- * In the following let:
- *    n      = dimension of matrix A
- *    me     = this processors id (= mxmynd_())
- *    nprocs = number of allocated processors ( = mxnprc_())
- *    nvecsZ = number of entries in mapZ equal to me
- *             (= count_list( me, mapZ, n ))
- *
+   *
+   *  Purpose
+   *  =======
+   *
+   *  pdsptri computes some or all of the eigenvalues and, optionally,
+   *  eigenvectors of a real tri-diagonal eigenproblem of the form
+   *
+   *  A*x=(lambda) * x.
+   *
+   *  Here A is assumed to be real, symmetric, tri-diagonal.
+   *
+   *  Arguments
+   *  =========
+   *
+   * All arguments are POINTERS to date of the specified type unless
+   * otherwise mentioned.  In particular, INTEGER = (Integer *) and
+   * DOUBLE PRECISION = (DoublePrecision *)
+   *
+   *
+   * In the following let:
+   *    n      = dimension of matrix A
+   *    me     = this processors id (= mxmynd_())
+   *    nprocs = number of allocated processors ( = mxnprc_())
+   *    nvecsZ = number of entries in mapZ equal to me
+   *             (= count_list( me, mapZ, n ))
+   *
  *-----------------------------------------------------------------
  *  ivector (input) INTEGER
  *          = 0:    Compute eigenvalues only;
@@ -519,8 +519,7 @@ void pdsptri( ivector, irange, n, dd, ee, dplus, lplus, lb, ub, ilb, iub, abstol
 	t1 = mxclock_();
 #endif
 	
-	pstebz_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
-		 dplus, lplus,
+	pstebz_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee, dplus, lplus,
 		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, info);
 	

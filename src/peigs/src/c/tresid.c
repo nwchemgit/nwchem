@@ -30,7 +30,6 @@
  *======================================================================
  */
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
 
 #include "globalp.c.h"
@@ -114,14 +113,17 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   
   Integer           ll, i, j, nvecsZ, me, nprocs, k;
   Integer          *iscrat, *proclist;
-  DoublePrecision   t, derror, normA, ulp;
+  DoublePrecision   t, derror, normA, ulp, dumb;
   DoublePrecision  *ptr, *scrat;
   
-  extern DoublePrecision  dlamch_();
   extern Integer          mxmynd_();
   extern Integer          count_list(), reduce_list2();
   extern void             gmax00();
 
+#ifndef RIOS  
+  extern DoublePrecision fabs ();
+#endif
+  
   /*
     usual story about error handling
     should perform global sync to check for errors
@@ -148,54 +150,52 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   proclist = iscrat;
   nprocs = reduce_list2( *m, mapZ, proclist );
 
-  k      = 0;
-  derror =  0.0e0;
-
-  for ( i = 0; i < *m; i++ ) {
-
-    if ( mapZ[i] == me ) {
-
-      ptr = colZ[k];
-
-      if( ll > 1 ) {
-        t = fabs( ( d[0] * ptr[0] + e[1] * ptr[1] ) - eval[i] * ptr[0] );
-        t = max( t, fabs( ( d[ll-1] * ptr[ll-1] + e[ll-1] * ptr[ll-2] ) - eval[i] * ptr[ll-1] ));
-
-        for ( j = 1; j < ll-1; j++ )
-           t = max( t, fabs( ( e[j] * ptr[j-1] + d[j] * ptr[j] + e[j+1] * ptr[j+1] ) - eval[i] * ptr[j] ));
-      } 
-      else {
-        t  = fabs( d[0] * ptr[0] - eval[i] * ptr[0] );
-
-      } 
-      derror = max( t, derror);
-
-      k++;
-    }
-  }
-  
-  gmax00( (char *) &derror, 1, 5, 16, proclist[0], nprocs, proclist, scrat);
-  
-      
   if( ll > 1 ) {
-
     normA = fabs( d[0] ) + fabs( e[1] );
     normA = max(normA, fabs(d[*n-1]) + fabs(e[*n-1]) );
     for (i = 1; i < *n-1; ++i)
-       normA = max( normA, fabs(d[i]) + fabs(e[i]) + fabs(e[i+1]) );
-      
+      normA = max( normA, fabs(d[i]) + fabs(e[i]) + fabs(e[i+1]) );
+    
   }
   else {
     normA = fabs( d[0] );
   }
   if( normA == 0.0e0 ) normA = 1.0e0;
 
-  /*
-    ulp = dlamch_("epsilon") * dlamch_("base");
-    */
-  ulp = DLAMCHE * DLAMCHB ;
+  ulp = DLAMCHE * DLAMCHB ;  
 
+
+  k      = 0;
+  derror =  0.0e0;
+  
+  for ( i = 0; i < *m; i++ ) {
+    if ( mapZ[i] == me ) {
+      ptr = colZ[k];
+      if( ll > 1 ) {
+        t = fabs( ( d[0] * ptr[0] + e[1] * ptr[1] ) - eval[i] * ptr[0] );
+        t = max( t, fabs( ( d[ll-1] * ptr[ll-1] + e[ll-1] * ptr[ll-2] ) - eval[i] * ptr[ll-1] ));
+        for ( j = 1; j < ll-1; j++ )
+	  t = max( t, fabs( ( e[j] * ptr[j-1] + d[j] * ptr[j] + e[j+1] * ptr[j+1] ) - eval[i] * ptr[j] ));
+      } 
+      else {
+        t  = fabs( d[0] * ptr[0] - eval[i] * ptr[0] );
+      } 
+/*
+      dumb = t/normA/ulp;
+      if ( dumb > 10. ){
+	printf(" me = %d evec # = %d  eval = %20.16g resid error = %20.16g %g \n", me, i, eval[i], t, dumb ); 
+      }
+*/
+      derror = max( t, derror);
+      k++;
+    }
+  }
+  
+  gmax00( (char *) &derror, 1, 5, 16, proclist[0], nprocs, proclist, scrat);
+  
   *res = derror / normA / ulp;
   
   return;
 }
+
+

@@ -95,7 +95,7 @@ void de_sym(n, msgtype, buffer, matrix, map, matrix2, iwork, buf_ptr )
   DoublePrecision *read_buffer, *write_buffer;
   
   extern Integer mxnprc_ (), mxmynd_ ();
-  extern Integer mxread_ (), mxwrit_();
+  extern Integer mxread_ (), mxwrit();
   
   extern void pairup_ ();
   extern Integer fil_mapvec_ ();

@@ -1,0 +1,10 @@
+#! /bin/csh
+perl -pi.bak -e 's/\b dlamch_("base") \b/DLAMCHB/g' *.c
+perl -pi.bak -e 's/dlamch_("base")/DLAMCHB/g' *.c
+perl -pi.bak -e 's/\bdlamch_\(\"s\"\)\b/DLAMCHB/g' *.c
+perl -pi.bak -e 's/dlamch_\(\"s\"\)/DLAMCHB/g' *.c
+perl -pi.bak -e 's/dlamch_\(\"epsilon\"\)/DLAMCHE/g' *.c
+perl -pi.bak -e 's/dlamch_\(\"e\"\)/DLAMCHE/g' *.c
+perl -pi.bak -e 's/dlamch_\(\"b\"\)/DLAMCHB/g' *.c
+perl -pi.bak -e 's/dlamch_\(\"base\"\)/DLAMCHB/g' *.c
+

@@ -132,7 +132,6 @@ void ortho( n, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
     */
   
   extern void dcopy_();
-  extern DoublePrecision dlamch_();
   extern void mxm25();
   
   extern Integer mxmynd_();
@@ -207,13 +206,9 @@ void ortho( n, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
   
   mat_max ( m, m, vecZ1, mapZ, ort, iscrat, scrat);
   
-  /*
-    ulp = dlamch_("epsilon") * dlamch_("base");
-    */
-
   ulp = DLAMCHE * DLAMCHB;
   
   *ort = *ort / ulp;
-
+  
   return;
 }

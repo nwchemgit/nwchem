@@ -89,63 +89,64 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
   extern Integer reduce_list4();
   extern Integer indxL();
   
-
+  
   me = mxmynd_();
   naproc = mxnprc_();
-
+  
 #ifdef DEBUG1
    fprintf(stderr, " me = %d in mgs \n", me );
 #endif
 #ifdef DEBUG2
-  fprintf(stderr, " \n" );
-  i = *nvecsZ-1;
-  for( iii = 0; iii < *n; iii++)
-    if( mapF[iii] == me ) {
-      i++;
-      for( j = *b1; j <= *bn; j++)
-       fprintf(stderr, " mgs1b me = %d vecZ[%d][%d] = %g \n",
-                     me, iii, j, colF[i][j]);
-    }
-
-  fprintf(stderr, " \n" );
-  for( iii = 0; iii < *n; iii++)
-    fprintf(stderr, " mgs1b me = %d mapZ[%d] = %d \n", me, iii, mapF[iii]);
+   fprintf(stderr, " \n" );
+   i = *nvecsZ-1;
+   for( iii = 0; iii < *n; iii++)
+     if( mapF[iii] == me ) {
+       i++;
+       for( j = *b1; j <= *bn; j++)
+	 fprintf(stderr, " mgs1b me = %d vecZ[%d][%d] = %g \n",
+		 me, iii, j, colF[i][j]);
+     }
+   
+   fprintf(stderr, " \n" );
+   for( iii = 0; iii < *n; iii++)
+     fprintf(stderr, " mgs1b me = %d mapZ[%d] = %d \n", me, iii, mapF[iii]);
 #endif
-
-  nvecs = count_list( me, mapF, n );
-  
-  if ( nvecs == 0 )
-    return;
-  
-  vec_len = *bn - *b1 + 1;
-  bb      = *b1;
-  
-  iscrat = iscratch;
-
-  proclist = iscrat;
-  nproc = reduce_list4( *n, mapF, proclist, iscrat + naproc );
-  iscrat += nproc;
-
-  nleft = iscrat;
-  iscrat += nproc;
-
+   
+   nvecs = count_list( me, mapF, n );
+   
+   if ( nvecs == 0 )
+     return;
+   
+   vec_len = *bn - *b1 + 1;
+   bb      = *b1;
+   
+   iscrat = iscratch;
+   
+   proclist = iscrat;
+   nproc = reduce_list4( *n, mapF, proclist, iscrat + naproc );
+   iscrat += nproc;
+   
+   nleft = iscrat;
+   iscrat += nproc;
+   
 #ifdef DEBUG1
-  fprintf(stderr, " me = %d mgs nprocs = %d nvecs = %d \n", me , nproc, nvecs);
+   fprintf(stderr, " me = %d mgs nprocs = %d nvecs = %d \n", me , nproc, nvecs);
 #endif
 
-  if( *first == 1  || nproc == 1 ) {
-  
-    /* mgs local block and return */
-      
-    k = *nvecsZ;
+   if( *first == 1  || nproc == 1 ) {
+     
+     /* mgs local block and return */
+     
+     k = *nvecsZ;
     for ( jndx = k; jndx < k + nvecs; jndx++ ){
-	dptr = &colF[jndx][bb];
+      dptr = &colF[jndx][bb];
 	t = dnrm2_( &vec_len, dptr, &IONE );
 	t = 1.0e0/t;
 	dscal_( &vec_len, &t, dptr, &IONE);
 	for ( indx = jndx + 1; indx < k + nvecs; indx++ ){
 	  dptr1 = &colF[indx][bb];
 	  t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+	if ( fabs(t) > DLAMCHE ) 
 	  daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
 	}
     }
@@ -183,6 +184,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
     dptr1 = in_buffer;
     for ( jndx = 0; jndx < nvecs_in; jndx++ ){
       t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
+if ( fabs(t) > DLAMCHE )
       daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
       dptr1 += vec_len;
     }
@@ -205,7 +207,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
     nleft[i] = kk;
     max_vecs = max( max_vecs, kk );
   }
-
+  
   max_panel = max_vecs / PANELSIZE;
   if( max_panel * PANELSIZE != max_vecs )
     max_panel++;
@@ -232,6 +234,7 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
 	  for ( indx = jndx + 1; indx < kk + mvecs; indx++ ){
 	    dptr1 = &colF[indx][bb];
 	    t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE );
+if ( fabs(t) > DLAMCHE )
 	    daxpy_( &vec_len, &t, dptr, &IONE, dptr1, &IONE );
 	  }
         }
@@ -255,20 +258,21 @@ void mgs_3( n, colF, mapF, b1, bn, nvecsZ, first, first_buf, iscratch, scratch)
       /*
        * the buffer contains incoming orthonormal vectors
        */
-
+      
       dptr = in_buffer;
       for ( iii = kk; iii < k + nvecs; iii++ ){
         dptr = &colF[iii][bb];
         dptr1 = in_buffer;
         for ( jndx = 0; jndx < mvecs; jndx++ ){
           t = -ddot_( &vec_len, dptr, &IONE, dptr1, &IONE);
-          daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
+	  if ( fabs(t) > DLAMCHE )
+	    daxpy_( &vec_len, &t, dptr1, &IONE, dptr, &IONE );
           dptr1 += vec_len;
         }
       }
     }
   }
-
+  
 #ifdef DEBUG2
   i = *nvecsZ-1;
   for( iii = 0; iii < *n; iii++)

@@ -99,6 +99,10 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   extern void   memreq_(); 
   extern void     mxinit_();
   
+#ifndef RIOS
+  extern char    *strcpy();
+#endif
+  
    mxinit_();
 
    me     = mxmynd_();
@@ -193,8 +197,8 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
 #ifdef DEBUG0
   fprintf(stderr, " just before memreq_ in memreq_f me = %d \n", me);
 #endif
+  
   memreq_( type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch);
-
   
   nvecsA = 0;
   if( *type == 1  || *type == 0 ) nvecsA = count_list( me, mapA, n);  
@@ -211,7 +215,7 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   
   *isize += 0;
   *rsize += 0;
-  *ptr_size += nvecsA + nvecsB + nvecsZ + 3;
+  *ptr_size += (nvecsA + nvecsB + nvecsZ + 3);
   
    return;
 }

@@ -82,9 +82,10 @@
 #define DEBUG1
 #define DEBUG5
 */
+
 #define CLUSTRLEN  4
-#define LOOP  3
-#define INV_TIME 2
+#define LOOP  1
+#define INV_TIME 1
 #define ITIME1  1
 
 Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
@@ -112,7 +113,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   Integer me, naproc, Zvec;
   Integer *cl_ptr;
   Integer c1, csiz, xc1, xcsiz, xblksiz;
-  Integer cl_num;
+  Integer cl_num, iii;
   Integer itime;
   Integer send_num, send_cl, send_to,
           recv_num, recv_cl, recv_from,
@@ -120,6 +121,12 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   
   DoublePrecision stpcrt, onenrm, eps;
   DoublePrecision tmp, *dscrat, *first_buf;
+
+  /*
+  extern DoublePrecision dplus[1000], lplus[1000];
+  */
+  extern DoublePrecision psigma;
+
   
 #ifndef RIOS
   DoublePrecision sqrt();
@@ -152,7 +159,6 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
 #ifdef DEBUG5
 
   if( me == mapZ[0] ){
-    fprintf(stderr, " nacluster = %d \n", *nacluster );
     cn = -1;
     for( j = 0; j < *nacluster; j++ ) {
       c1 = cn + 1;
@@ -161,16 +167,11 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
         fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
                  j,c1,cn, mapZ[c1], mapZ[cn] );
     }
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " eval[%d] = %g \n", j, eval[j]);
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
   }
   mxsync_();
   exit(-1);
 #endif
 #ifdef DEBUG1
-  fprintf(stderr, " in clustrxx me = %d \n", me );
 
   if( me == mapZ[0] ){
     cn = -1;
@@ -442,6 +443,9 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
 	dlarnv_(&three, &iseed[0], &blksiz, &vecZ[i][bb1]);
 	indx++;
       }
+      else {
+	dlarnv_(&three, &iseed[0], &blksiz, dscrat);
+      }
     }
     
 #ifdef DEBUG1
@@ -451,24 +455,31 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
     first = 0;
     if( clustr_ptr == 0 && send_num > 0 )
       first = 1;
-    
+
     itime = 2;
     for ( j = 0; j < INV_TIME; j++ ) {
       itmp = inv_it( n, &c1, &cn, &bb1, &bn, &Zvec, &mapZ[c1], mapvecZ, vecZ,
-		       d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+	       d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+      
+	/*
+	  itmp = inv_it( n, &c1, &cn, &bb1, &bn, &Zvec, &mapZ[c1], mapvecZ, vecZ,
+                     dplus, lplus, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
+		     */
+      
       
       if( itmp >  0 )
         if( ibad == 0 || itmp < ibad ) 
-           ibad = itmp;
+	  ibad = itmp;
 
       if ( c1 != cn ) {
 	for ( i = 0; i < itime ; i++ ) {
-	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
+	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec,
+		 &first, first_buf, iscratch, dscrat);
 	}
 	itime = 1;
       }
     }
-
+    
 #ifdef DEBUG1
   fprintf(stderr, " clustrxx3 me = %d before send/rec \n", me );
 #endif
@@ -545,9 +556,6 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
 
   }
   
-#ifdef DEBUG1
-  fprintf(stderr, " me = %d Exiting clustrinv_ \n", me );
-#endif
   
   return(ibad);
 }

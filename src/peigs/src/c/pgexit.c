@@ -34,6 +34,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+#define ffabs(a) ((a) >= (0.) ? (a) : (-a))
+
 #include "globalp.c.h"
 
 void pgexit( info, msg, proclist, nprocs, work )
@@ -69,10 +71,10 @@ void pgexit( info, msg, proclist, nprocs, work )
   extern void    xstop_();
   extern Integer mxmynd_();
 
-  m = abs( *info );
+  m = ffabs( *info );
   
   *info = 0;
-
+  
   if ( *nprocs > 1 )
     gi_sum( &m, 1, TYPE, proclist[0], *nprocs, proclist, work);
   

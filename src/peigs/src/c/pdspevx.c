@@ -39,14 +39,17 @@
 
 #ifdef TIMING
 #include "timing.h"
+TIMINGG test_timing;
 #endif
 
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 
+extern DoublePrecision psigma, psgn;
+
 void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
-	      meigval, vecZ, mapZ, eval, iscratch, iscsize,
-	      dblptr, ibuffsize, scratch, ssize, info)
+	       meigval, vecZ, mapZ, eval, iscratch, iscsize,
+	       dblptr, ibuffsize, scratch, ssize, info)
      Integer                 *ivector, *irange, *n, *mapA, *ilb, *iub, *meigval;
      Integer                 *mapZ, *iscratch, *iscsize, *ibuffsize, *ssize, *info;
      DoublePrecision         *lb, *ub, *abstol, *eval, *scratch;
@@ -268,14 +271,22 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     Integer         **iptr, num_procs, *proclist;
     
     DoublePrecision vec[2], fnormA, fnormT, ulp;
-    DoublePrecision *d_scrat, *dd, *ee, *matrixQ;
+    DoublePrecision *d_scrat, *ld, *lld, dummy, dummy1,
+      *dd,                    /* diagonal of tridiagonal */
+      *ee,                    /* lower diagonal of tridiagonal */
+      *matrixQ,
+      *dplus,                 /* diagonal from bidiagonal of tridiagonal */
+      *lplus,                 /* lower diagonal from bidiagonal */
+      *dptr;
+    
     DoublePrecision **buff_ptr, **vecQ, res;
 
 #ifdef TIMING
     extern DoublePrecision mxclock_();
     extern TIMINGG test_timing;
-    DoublePrecision  t1, t2;
+    DoublePrecision  t1, t2, tt1;
 #endif
+
 
 
 /*
@@ -293,15 +304,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern void     dshellsort_(), sorteig();
 
     extern DoublePrecision dnrm2_();
-    extern DoublePrecision dlamch_();
 
     extern Integer  tred2();
-    extern void     pstebz_(), pstein(), mxm25(), sfnorm();
-
-#ifndef RS6000
-    char    *strcpy();
-    extern DoublePrecision sqrt (), fabs ();
-#endif
+    extern void     pstebz_(), pstein32(), mxm25(), sfnorm();
 
 /*
  *  ---------------------------------------------------------------
@@ -313,6 +318,20 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     *  Get this processor's id, and the number of allocated nodes.
     */
 
+#ifdef TIMING
+    test_timing.choleski = 0.0e0;
+    test_timing.inverse  = 0.0e0;
+    test_timing.conjug  = 0.0e0;
+    test_timing.householder  = 0.0e0;
+    test_timing.pstebz  = 0.0e0;
+    test_timing.pstein  = 0.0e0;
+    test_timing.mxm5x  = 0.0e0;
+    test_timing.mxm25  = 0.0e0;
+    test_timing.pdspevx  = 0.0e0;
+    test_timing.pdspgvx  = 0.0e0;
+#endif
+
+
     mxinit_();
 
     me    = mxmynd_();
@@ -320,10 +339,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     strcpy( msg,  "Error in pdspevx." );
 
     
-#ifdef DEBUG1
-   fprintf(stderr, "me = %d In pdspevx \n", me );
-#endif
-
    /*
     *     Test the input parameters.
     */
@@ -500,6 +515,10 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      *  Reduce mapA and mapZ to a single sorted list of processors.
      */
     
+#ifdef DEBUG7
+   printf(" in pdspevx me = %d \n", mxmynd_());
+#endif
+
     proclist = iscratch;
     reduce_maps( *n, mapA, *n, mapZ, 0, mapZ, &nn_proc, proclist );
 
@@ -596,8 +615,20 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     ee = d_scrat;
     d_scrat += msize;
 
+    dplus = d_scrat;
+    d_scrat += msize;
+    
+    lplus = d_scrat;
+    d_scrat += msize;
+    
     vecQ = buff_ptr;
     buff_ptr += nvecsQ;
+    
+    ld = d_scrat;
+    d_scrat += msize;
+    lld = d_scrat;
+    d_scrat += msize;
+    
 
     iptr = (Integer **) buff_ptr;
     
@@ -611,12 +642,17 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      * Set DoublePrecision pointers to actual data.
      */
 
-    for (indx = 0; indx < nvecsQ; indx++)
-        vecQ[indx] = &matrixQ[msize * indx];
+
+    dptr = matrixQ;
+    for (indx = 0; indx < nvecsQ; indx++){
+        vecQ[indx] = dptr;
+	dptr += msize;
+    }
 
     /*
      * Reduce A to tridiagonal form.
      */
+
 
     if (nvecsA + nvecsQ > 0) {
 
@@ -625,29 +661,33 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	sfnorm( &msize, vecA, mapA, &fnormA, i_scrat, d_scrat, &linfo);
 
 #ifdef TIMING
-      t1 = mxclock_();
+      tt1 = t1 = mxclock_();
 #endif
-      
+#ifdef DEBUG7
+   printf(" in pdspevx tred2 me = %d \n", mxmynd_());
+#endif
+
       tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
-      
+
+#ifdef DEBUG7
+   printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
+#endif
+
+
 #ifdef TIMING
       mxsync_();
       t2 = mxclock_();
       test_timing.householder = t2 - t1;
 #endif
-
+      
       if( mapA[0] ==me ) {
         isize = msize - 1;
         vec[0] = sqrt((DoublePrecision) 2.e0 ) * dnrm2_( &isize, &ee[1], &IONE );
         vec[1] = dnrm2_( &msize, dd, &IONE );
         fnormT = dnrm2_( &ITWO, vec, &IONE );
 	
-	/*
-	  ulp = dlamch_("e") * dlamch_("b");
-	  */
-	
         ulp = DLAMCHE * DLAMCHB ;
-
+	
         if( fabs( fnormA - fnormT ) > ( fnormA * ulp * (DoublePrecision) 1000.e0 ))
 	  fprintf(stderr, " me = %d Warning fnormA = %26.16e fnormT = %26.16e \n",
 		  me, fnormA, fnormT );
@@ -674,25 +714,56 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      */
     
     if (nvecsZ > 0){
-      
 #ifdef TIMING
-	t1 = mxclock_();
+      t1 = mxclock_();
 #endif
-      pstebz_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
-	      mapZ, &neigval, &nsplit, eval, iblock, isplit,
-	      d_scrat, i_scrat, info);
-      
+#ifdef DEBUG7
+   printf(" in pdspevx pstebz10 me = %d \n", mxmynd_());
+#endif
+
+      if (nproc < 24 ) {
+	pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
+		   dd, ee, dplus, lplus,
+		   mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		   d_scrat, i_scrat, info);
+	
+      }
+      else {
+	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
+		  dplus, lplus,
+		  mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		  d_scrat, i_scrat, info);
+	
+      }
+
+
+#ifdef DEBUG7
+   printf(" out pdspevx pstebz10 me = %d \n", mxmynd_());
+#endif
+
 #ifdef TIMING
       mxsync_();
       t2 = mxclock_();
       test_timing.pstebz = t2 - t1;
 #endif
 
-      if( *info != 0 ) {
-        fprintf(stderr, " %s me = %d pstebz_ returned info = %d \n", msg, me, *info );
-        *info = 1;
-      }
 
+      if ( NO_EVEC ) 
+	goto END;
+      
+      for(indx = 0;indx < msize;indx++){
+	dummy1 = lplus[indx];
+	dummy = dplus[indx]*dummy1;
+	ld[indx] = dummy;
+	lld[indx] = dummy*dummy1;
+      }
+      
+      
+      if( *info != 0 ) {
+	fprintf(stderr, " %s me = %d pstebz_ returned info = %d \n", msg, me, *info );
+	*info = 1;
+      }
+      
     }
     
     /*
@@ -700,12 +771,11 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      */
     
     mdiff1_( n, mapA, n, mapZ, i_scrat, &num_procs ); 
-    
     if( num_procs > 0 ){
       i_scrat[num_procs] = mapZ_0;
       num_procs++;
-      bbcast00( (char *) info,     sizeof(Integer),                 2, mapZ_0, num_procs, i_scrat );
-      bbcast00( (char *) &neigval, sizeof(Integer),                 3, mapZ_0, num_procs, i_scrat );
+      ibcast00( info,     sizeof(Integer),                 2, mapZ_0, num_procs, i_scrat );
+      ibcast00( (char *) &neigval, sizeof(Integer),                 3, mapZ_0, num_procs, i_scrat );
       bbcast00( (char *) eval,     neigval*sizeof(DoublePrecision), 4, mapZ_0, num_procs, i_scrat );
     }
     
@@ -729,16 +799,66 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     /*
      * Compute eigenvectors.
      */
-      
+
     nvecsZ2 = count_list( me, mapZ, meigval );
+    
+#ifdef TIMING
+    mxsync_();
+    t1 = mxclock_();
+#endif
+    
     if (nvecsZ2 > 0) {
       
-#ifdef TIMING
-      t1 = mxclock_();
+      /*
+	do fine cluster and mgs
+	*/
+      
+      
+#ifdef DEBUG7
+      printf(" me = %d just before pstein5 %d \n", me, *info );
 #endif
       
-      pstein( &msize, dd, ee, &neigval, eval, iblock, &nsplit, isplit,
-	     mapZ, vecZ, d_scrat,i_scrat, iptr, info);
+      /*
+	tight cluster
+	*/
+      
+
+
+      pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
+		&neigval, eval, iblock, &nsplit, isplit,
+		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
+      
+#ifdef DEBUG7
+      printf(" me = %d just after pstein5 %d \n", me, *info );
+#endif
+      
+      /*
+	mgs looks cluster
+	*/
+      
+      /*
+	loose cluster
+	*/
+      
+#ifdef DEBUG7
+      printf(" me = %d just before pstein4 %d \n", me, *info );
+#endif
+      
+      pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
+		&neigval, eval, iblock, &nsplit, isplit,
+		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
+      
+#ifdef DEBUG7
+      printf(" me = %d just after pstein4 %d \n", me, *info );
+#endif
+      
+      
+      if( *info != 0 ) {
+        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, me, *info );
+        *info = 2;
+      }
+      
+    }
       
 #ifdef TIMING
       mxsync_();
@@ -746,17 +866,21 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       test_timing.pstein = t2 - t1;
 #endif
 
-      if( *info != 0 ) {
-        fprintf(stderr, " %s me = %d pstein returned info = %d \n", msg, me, *info );
-        *info = 2;
-      }
-
-    }
     
     /*
-     * Send info, mapZ to any processors in 
+      fprintf(stderr, " me = %d neigval %d \n",  me, neigval );
+      */
+    
+      /*
+	for ( iii = 0; iii < neigval; iii++)
+	eval[iii] += psgn*psigma;
+	*/
+      
+      /*
+       * Send info, mapZ to any processors in 
      * ({mapA} U {mapZ[neigval:*n-1]}) - {mapZ[0:neigval-1]}
      */
+    
     
     nZ2 = *n - neigval;
     mdiff2_( n, mapA, &nZ2, &mapZ[neigval], meigval, mapZ, i_scrat, &num_procs ); 
@@ -771,41 +895,73 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     for ( indx = neigval; indx < msize; indx++ )
       mapZ[indx] = -1;
     
-    if ( *info != 0 )
+    
+    if ( *info != 0 ) {
+      printf(" me = %d info = %d \n", me, *info);
       return;
+    }
+    
     
     /*
      * Compute product of Q from tred2 and Z, the eigenvectors of the
      * tridiagonal matrix.  This gives the eigenvectors of A.
      */
-    
+
     nvecsZ = count_list( me, mapZ, &neigval );
-    
-    if (nvecsQ + nvecsZ > 0) {
-      
+
 #ifdef TIMING
       t1 = mxclock_();
 #endif
-
-      mxm25 ( &msize, &msize, vecQ, mapQ, &neigval, vecZ, mapZ, vecZ, i_scrat, d_scrat);
-
+    
+      if (nvecsQ + nvecsZ > 0) {
+	mxm25 ( &msize, &msize, vecQ, mapQ, &neigval, vecZ, mapZ, vecZ, i_scrat, d_scrat);
+    }
 #ifdef TIMING
       mxsync_();
-      t2 = mxclock_();
-      test_timing.mxm25 = t2 - t1;
+    t2 = mxclock_();
+    test_timing.mxm25 = t2 - t1;
 #endif
-      
-    }
-
+    
+    
     /*
      * Sort eigenvalues, mapZ and eigenvectors
      */
+
+END:
+    
+    for ( iii = 0; iii < neigval; iii++)
+      eval[iii] += psgn*psigma;
     
     sorteig( &msize, &neigval, vecZ, mapZ, eval, iscratch, scratch );
     
-#ifdef DEBUG1
-   fprintf(stderr, "me = %d Exiting pdspevx \n", me );
+    /*
+      if ( me == 0 )
+      fprintf(stderr, "me = %d Exiting pdspevx \n", me );
+      */
+    
+#ifdef DEBUG7
+    fprintf(stderr, "me = %d Exiting pdspevx \n", me );
 #endif
-
+#ifdef TIMING
+	t2 = mxclock_();
+	test_timing.pdspevx = t2 - tt1;
+  if (me == 0 ){
+    fprintf(stderr, " n = %d nprocs = %d \n", msize, nproc);
+    fprintf(stderr, " pdspevx = %f \n", test_timing.pdspevx);
+    fprintf(stderr, " choleski = %f \n", test_timing.choleski);
+    fprintf(stderr, " inverse = %f \n", test_timing.inverse);
+    fprintf(stderr, " conjug = %f \n", test_timing.conjug);
+    fprintf(stderr, " householder = %f \n", test_timing.householder);
+    fprintf(stderr, " mxm5x = %f \n", test_timing.mxm5x);
+    fprintf(stderr, " mxm25 = %f \n", test_timing.mxm25);
+    fprintf(stderr, " pstein = %f \n", test_timing.pstein);
+    fprintf(stderr, " pstebz = %f \n", test_timing.pstebz);
+  }
+#endif
     return;
 }
+
+
+
+
+

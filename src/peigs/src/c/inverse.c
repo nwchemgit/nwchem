@@ -203,8 +203,6 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   Integer *myvecs, *iscrat;
   
   DoublePrecision temp, *q, safeulp;
-  extern DoublePrecision dlamch_();
-  
   extern Integer mxmynd_();
   extern void pipe_bcst_prev_col();
   extern void xerbla_();
@@ -292,10 +290,6 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   if ( nvecs == 0 )
     return;
   
-  
-  /*
-    safeulp = dlamch_("s");
-    */
   
   safeulp = DLAMCHS;
   

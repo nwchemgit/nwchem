@@ -30,7 +30,6 @@
  *======================================================================
  */
 #include <stdio.h>
-#include <string.h>
 #include <math.h>
 
 #include "globalp.c.h"
@@ -99,6 +98,10 @@ void sonenrm ( n, colA, mapA, norm, iwork, work, info)
   DoublePrecision *normvec, *workMX;
   
   extern DoublePrecision dasum_ ();
+
+#ifndef RIOS
+  extern DoublePrecision fabs();
+#endif
 
   extern void gsum00();
   extern void fil_dbl_list ();

@@ -71,6 +71,9 @@ void g_exit2_( n, array, procmap, len, iwork )
   extern void mxpend_ ();
   extern Integer mxmynd_();
 
+#ifndef RIOS
+  extern char *strcpy();
+#endif
   
   me = mxmynd_ ();
   
@@ -138,6 +141,9 @@ void g_exit_( n, array, procmap, len, iwork, work )
   extern Integer mxmynd_();
   extern Integer mxnprc_();
 
+#ifndef RIOS
+  extern char *strcpy();
+#endif
   
   me = mxmynd_ ();
   maxprocs = mxnprc_ ();       /* the maximum number of processors allocated */
@@ -175,9 +181,7 @@ void g_exit_( n, array, procmap, len, iwork, work )
 
 void gi_sum(buf, items, msgtype, root, snumprocs, plist, work)
      /*
-       
        this is a integer global sum on buf
-       
        */
      Integer *buf;
      Integer items;
@@ -188,11 +192,14 @@ void gi_sum(buf, items, msgtype, root, snumprocs, plist, work)
 {
   Integer isize;
   extern Integer sumiv_();
-  extern Integer mxcombv1_ ();
+  extern Integer mxcombv1_();
   
   isize = sizeof(Integer);
-  mxcombv1_ ( buf, sumiv_ , &isize, &items, &snumprocs, plist, &msgtype, (char *)work);
+
+  mxcombv1_ ( (char *) buf, sumiv_ , &isize, &items, &snumprocs, plist, &msgtype, (char *)work);
+
   return;
 }
 
   
+

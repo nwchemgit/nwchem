@@ -99,7 +99,6 @@ void upperUF_ ( n, rowU, mapU, nW, colW, mapW, iwork, work)
   
   extern void dcopy_ ();
   extern DoublePrecision ddot_ ();
-  extern DoublePrecision dlamch_();
 
   
   /*
@@ -116,9 +115,6 @@ void upperUF_ ( n, rowU, mapU, nW, colW, mapW, iwork, work)
     info = 0;
    */
 
-/*
-  safeulp = dlamch_("s");
-*/
   safeulp = DLAMCHS;
 
   iscrat = iwork;

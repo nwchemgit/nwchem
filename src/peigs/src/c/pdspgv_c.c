@@ -250,6 +250,10 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
     extern void     pdspgvx();
     extern void     mxinit_();
 
+#ifndef RIOS
+    extern char    *strcpy();
+#endif
+
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements
@@ -441,6 +445,10 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
     /*
      *  Reduce mapA, mapB and mapZ to a single sorted list of processors.
      */
+
+#ifdef DEBUG7
+   printf("me = %d pdspgv 1 \n", me );
+#endif
     
     proclist = iscratch;
     reduce_maps( *n, mapA, *n, mapB, *n, mapZ, &nn_proc, proclist );
@@ -457,7 +465,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
   isize = 2 * sizeof( Integer );
   strcpy( msg2,  "n or ifact " );
   pdiff( &isize, (char *) i_scrat, proclist, &nn_proc, i_scrat+2, msg, msg2, &linfo );
-  
+
   pgexit( &linfo, msg, proclist, &nn_proc, scratch );
   
   if ( linfo != 0 ){
@@ -475,7 +483,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
   strcpy( msg2,  "mapA " );
   pdiff( &isize, (char *) mapA, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
   maxinfo = max( maxinfo, linfo );
-  
+
   strcpy( msg2,  "mapB " );
   pdiff( &isize, (char *) mapB, proclist, &nn_proc, i_scrat, msg, msg2, &linfo );
   maxinfo = max( maxinfo, linfo );
@@ -485,7 +493,7 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
   maxinfo = max( maxinfo, linfo );
 
   linfo = maxinfo;
-  
+
   pgexit( &linfo, msg, proclist, &nn_proc, scratch );
 
   if ( linfo != 0 ){
@@ -511,15 +519,20 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
   lb      = (DoublePrecision )  0.0e0;
   ub      = (DoublePrecision ) -1.0e0;
   abstol  = (DoublePrecision )  0.0e0;
+
+#ifdef DEBUG7
+   printf("me = %d pdspgv 2\n", me );
+#endif
   
   pdspgvx( ifact, &ivector, &irange, n, vecA, mapA, vecB, mapB,
           &lb, &ub, &ilb, &iub, &abstol, &meigval,
           vecZ, mapZ, eval, iscratch, iscsize,
           dblptr, ibuffsize, scratch, ssize, info);
   
-#ifdef DEBUG1
-   fprintf(stderr, "me = %d Exiting pdspgv \n", me );
+#ifdef DEBUG7
+   printf("me = %d Exiting pdspgv \n", me );
 #endif
 
   return;
 }
+

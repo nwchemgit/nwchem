@@ -123,7 +123,7 @@ void choleski( n, vecA, mapA, iscratch, scratch, info )
 
   char            msg[30];
   Integer             linfo,k, i;
-  Integer             me, nprocs, nvecsA;
+  Integer             me, nprocs, mk, nvecsA;
   Integer            *myvecsA, *iwork;
  
   
@@ -137,7 +137,6 @@ void choleski( n, vecA, mapA, iscratch, scratch, info )
   
   void     sub_chol0() ;
   extern char    *strcpy();
-  extern void xerbla_();
   
   /*
    *  ---------------------------------------------------------------
@@ -307,7 +306,7 @@ void sub_chol0( me, n, col, map, ncols, mycols, i_scratch, scratch, info )
     *  Intrinsic Procedures
     */
 
-#ifndef RS6000
+#ifndef RIOS
    DoublePrecision          sqrt();
 #endif
 
