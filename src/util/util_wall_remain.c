@@ -1,10 +1,10 @@
 /*
- $Id: util_wall_remain.c,v 1.12 2002-12-10 22:03:42 edo Exp $
+ $Id: util_wall_remain.c,v 1.13 2003-08-13 20:53:27 edo Exp $
 */
 #include <stdio.h>
 #include "typesf2c.h"
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(CRAY_T3E) || defined(USE_FCD)
+#if defined(USE_FCD)
 #define util_batch_job_time_remaining_ UTIL_BATCH_JOB_TIME_REMAINING
 #endif
 

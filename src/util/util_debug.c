@@ -1,8 +1,8 @@
-#if defined(CRAY) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1)
 
 #include "typesf2c.h"
 
-#ifdef CRAY
+#if defined(CRAY) && !defined(__crayx1)
 #define util_debug_ UTIL_DEBUG
 #include <fortran.h>
 #endif
