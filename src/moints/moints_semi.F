@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.55 1999-08-20 21:48:49 d3g681 Exp $
+c  $Id: moints_semi.F,v 1.56 1999-11-13 02:30:00 bjohnson Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -906,7 +906,17 @@ c$$$            CALL MOINTS_MATPRINT(NVIR,NVIR,DBL_MB(K_LOCAL))
 c$$$            CALL UTIL_FLUSH(6)
 c$$$
 
-            xx = moints_epair_eval( nvir, 0, nvir, dbl_mb(k_local),
+c
+c     The following call is suspect since the definition of this
+c     function has 8 arguments (4 integers at the start, not 3.
+c     Added dummy arg to get it to link under WIN32, but someone
+c     should fix this properly.
+c     BGJ (9/99)
+c
+c            xx = moints_epair_eval( nvir, 0, nvir, dbl_mb(k_local),
+c     $                              orbe(ohi+1), denom )
+            call errquit('suspect call to moints_epair_eval',0)
+            xx = moints_epair_eval( nvir, 0, nvir, 0, dbl_mb(k_local),
      $                              orbe(ohi+1), denom )
             call ga_release(g_exch, rlo, rhi, jj, jj )
             if (o.eq.j) xx = xx*0.5d0
