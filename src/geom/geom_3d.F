@@ -16,13 +16,16 @@ c
 c     The lattice angles are input in Degrees
 c***********************************************************************
       subroutine geom_3d(geom,c2au)
-C$Id: geom_3d.F,v 1.5 1997-03-05 07:36:34 gutowski Exp $
+C$Id: geom_3d.F,v 1.6 1997-03-30 21:11:58 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "geom.fh"
 #include "geomP.fh"
 c
-      integer geom,i,j,iang,indx(3)
+      double precision deter3
+      external deter3
+      integer geom,i,j,iang
+*      integer indx(3)
       double precision c2au
       double precision cdist(3),cang(3),gmat(3,3),amat(3,3),dperm,vol
       double precision c1,c2,c3,s1,s2,s3,rad,ainv(3,3),rdist(3),rang(3)
@@ -67,10 +70,14 @@ c
 c     
 c----------> compute the volume (atomic units)
 c     
-      call ludcmp(gmat,3,3,indx,dperm)
-      do 245 i=1,3
-        dperm=dperm*gmat(i,i)
-  245 continue
+*      call ludcmp(gmat,3,3,indx,dperm)
+*      do 245 i=1,3
+*        dperm=dperm*gmat(i,i)
+*  245 continue
+      write(6,*)
+      write(6,*) ' !!!!!!!!!  THIS CODE NEEDS TESTING !!!!!!!!!! '
+      dperm = deter3(gmat)
+*
       vol=dsqrt(dperm)             
       volume_direct(geom)=vol
 c     

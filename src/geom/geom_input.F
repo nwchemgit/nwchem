@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.60 1997-03-25 19:58:13 mdupuis Exp $
+C     $Id: geom_input.F,v 1.61 1997-03-30 21:12:00 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -1039,6 +1039,11 @@ c
 c
       integer geom
       integer nizmat
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_zmt_put_nizmat = geom_check_handle(geom, 'geom_zm_p_ni')
+      if (.not. geom_zmt_put_nizmat) return
 c
       zmt_nizmat(geom) = nizmat
 c
@@ -1051,6 +1056,12 @@ c
 c
       integer geom
       integer nizmat            
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_zmt_get_nizmat = geom_check_handle(geom, 'geom_zm_g_ni')
+      if (.not. geom_zmt_get_nizmat) return
+c
 c
       nizmat = zmt_nizmat(geom)
 c
@@ -1067,6 +1078,12 @@ c
       integer izmat             
       integer i
       dimension izmat(*)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_zmt_put_izmat = geom_check_handle(geom, 'geom_zm_p_i')
+      if (.not. geom_zmt_put_izmat) return
+c
 c
       do i = 1, nizmat
          zmt_izmat(i,geom) = izmat(i)
@@ -1085,6 +1102,11 @@ c
       integer izmat             
       integer i
       dimension izmat(*)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_zmt_get_izmat = geom_check_handle(geom, 'geom_zm_g_i')
+      if (.not. geom_zmt_get_izmat) return
 c
       do i = 1, nizmat
          izmat(i) = zmt_izmat(i,geom)
@@ -1099,6 +1121,12 @@ c
 c
       integer geom
       integer nizmat
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_put_nizmat = geom_check_handle(geom, 'geom_us_p_ni')
+      if (.not. geom_usr_put_nizmat) return
+c
 c
       usr_nizmat(geom) = nizmat
 c
@@ -1111,6 +1139,12 @@ c
 c
       integer geom
       integer nizmat            
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_get_nizmat = geom_check_handle(geom, 'geom_us_g_ni')
+      if (.not. geom_usr_get_nizmat) return
+c
 c
       nizmat = usr_nizmat(geom)
 c
@@ -1127,6 +1161,12 @@ c
       integer izmat
       integer i
       dimension izmat(*)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_put_izmat = geom_check_handle(geom, 'geom_us_p_i')
+      if (.not. geom_usr_put_izmat) return
+c
 c
       do i = 1, nizmat
          usr_izmat(i,geom) = izmat(i)
@@ -1145,6 +1185,12 @@ c
       integer izmat
       integer i
       dimension izmat(*)
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_usr_get_izmat = geom_check_handle(geom, 'geom_us_g_i')
+      if (.not. geom_usr_get_izmat) return
+c
 c
       do i = 1, nizmat
          izmat(i) = usr_izmat(i,geom)
