@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.71 2002-01-08 17:36:45 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.72 2002-01-30 20:26:45 d3j191 Exp $
 c
       implicit none
 c
@@ -318,8 +318,8 @@ c
 c     determine the boxsize
 c     ---------------------
 c
-      if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
-     + dbl_mb(i_xs),msa,nsa,box,0))
+      if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
+     + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,0))
      +  call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1007) box
@@ -664,8 +664,8 @@ c
       if(length.eq.0) filnam=filpdb
       len=index(filpdb,' ')-1
       if(irrand.eq.3) then
-      if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
-     + dbl_mb(i_xs),msa,nsa,box,irrand))
+      if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
+     + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,irrand))
      +  call errquit('pre_boxsiz failed',9999)
       if(drep(1).lt.box(1)) drep(1)=box(1)
       if(drep(2).lt.box(2)) drep(2)=box(2)
@@ -814,8 +814,8 @@ c
 c     determine the boxsize
 c     ---------------------
 c
-      if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xs),msa,nsa,box,0))
+      if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
+     + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,0))
      + call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1012) box
@@ -1152,8 +1152,8 @@ c     set minimum box size
 c     --------------------
 c
       if(card(1:6).eq.'boxsiz') then
-      if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xs),msa,nsa,box,0))
+      if(.not.pre_boxsiz(dbl_mb(i_xw),dbl_mb(i_xwc),mwm,mwmc,mwa,
+     + nwm,nwmc,nwa,dbl_mb(i_xs),msa,nsa,box,0))
      +  call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1033) box
