@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.51 1996-08-22 21:33:39 d3e863 Exp $
+C$Id: geom.F,v 1.52 1996-08-27 23:00:25 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -789,7 +789,7 @@ c
 c     
       integer geom              ! [input]
       integer ncent             ! [input]
-      character*(*) t(ncent)    ! [input]
+      character*16 t(ncent)     ! [input]
       double precision c(3, ncent) ! [input]
       double precision q(ncent) ! [input]
       logical geom_check_handle, geom_check_cent
@@ -829,7 +829,7 @@ c
 c     
       integer geom              ! [input]
       integer ncent             ! [output]
-      character*(*) t(ncent)    ! [output]
+      character*16 t(ncent)     ! [output]
       double precision c(3, ncent) ! [output]
       double precision q(ncent) ! [output]
       logical geom_check_handle, geom_check_cent
@@ -855,7 +855,7 @@ c
 c     
       integer geom              ! [input]
       integer icent             ! [input]
-      character*(*) t           ! [output]
+      character*16 t            ! [output]
       double precision c(3)     ! [output]
       double precision q        ! [output]
       logical geom_check_handle, geom_check_cent
@@ -881,7 +881,7 @@ c
 c     
       integer geom              ! [input]
       integer icent             ! [input]
-      character*(*) t           ! [input]
+      character*16 t            ! [input]
       double precision c(3)     ! [input]
       double precision q        ! [input]
       logical geom_check_handle, geom_check_cent
@@ -938,7 +938,7 @@ c
 c     
       integer geom              ! [input]
       integer icent             ! [input]
-      character*(*) tag         ! [output]
+      character*16 tag          ! [output]
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -1226,7 +1226,7 @@ c
 #include "geomP.fh"
       character*2 symbols(nelements)
       character*16 elements(nelements)
-      character*(*) tag         ! [input]
+      character*16 tag          ! [input]
       character*(*) symbol      ! [output]
       character*(*) element     ! [output]
       integer atn               ! [output]
@@ -1657,7 +1657,7 @@ c
 c this routine takes a tag matches it to the atomic number
 c and returns the default atomic mass.
 c
-      character*(*) tag      ! [input] geometry tag
+      character*16 tag          ! [input] geometry tag
       double precision mass  ! [output] corresponding elemental default mass
 c
       logical geom_tag_to_element
