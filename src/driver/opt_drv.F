@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.17 1997-03-25 19:59:09 mdupuis Exp $
+C$Id: opt_drv.F,v 1.18 1997-03-25 20:16:36 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -36,6 +36,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
+      logical       geom_zmt_get_nizmat
       integer       rtdb
       integer       geom
       logical       status
@@ -149,6 +150,8 @@ c
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &       call errquit('hnd_opt: no geometry ', 911)
       if (ga_nodeid().eq.0)  then
+         if(.not.geom_zmt_get_nizmat(geom,nzmat))
+     1   call errquit('geom_input: geom_zmt_get_nizmat failed',0)
          call ga_brdcst(11+msgint,nzmat ,mitob(1     ),0)
          call ga_brdcst(12+msgint,nzvar ,mitob(1     ),0)
          call ga_brdcst(13+msgint,nvar  ,mitob(1     ),0)
