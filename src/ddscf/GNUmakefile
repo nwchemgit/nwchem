@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 1994-08-27 13:35:51 d3g681 Exp $
+# $Id: GNUmakefile,v 1.13 1994-09-14 14:33:55 d3g681 Exp $
 
 
   OBJ = comp4_bins.o              rhf_dens_to_mo.o \
@@ -44,4 +44,4 @@ rhf_hessv.o rhf_nr_solve.o:	crhf.fh
 
 int_1e_ga.o matrix_exp.o rhf_fock_2e.o rhf_fock_2e_b.o \
 rhf_nr_solve.o scf_pstat.o rhf_dens_to_mo.o \
-rhf_do_canon:      cscfps.fh
+rhf_do_canon.o vectors.o:      cscfps.fh

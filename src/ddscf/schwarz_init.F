@@ -45,20 +45,29 @@ c
       nb_per_i = MA_sizeof(MT_INT, 1, MT_BYTE)
       natri = natoms*(natoms+1)/2
       len_cat = (natri - 1) / (2*nb_per_i) + 1
-      status = ma_alloc_get(MT_INT, len_cat, 'schwarz: atoms',
-     $     l_cat, k_cat)
+      if (.not. ma_alloc_get(MT_INT, len_cat, 'schwarz: atoms',
+     $     l_cat, k_cat))
+     $     call errquit('schwarz_init: ma_alloc 1', len_cat)
+      
       call ifill(len_cat, 0, int_mb(k_cat), 1)
 c
       nshtri = nshell*(nshell+1)/2
       len_csh = (nshtri - 1) / (2*nb_per_i) + 1
-      status = ma_alloc_get(MT_INT, len_csh, 'schwarz: shells',
-     $     l_csh, k_csh)
+      if (.not. ma_alloc_get(MT_INT, len_csh, 'schwarz: shells',
+     $     l_csh, k_csh))
+     $     call errquit('schwarz_init: ma_alloc 2', len_csh)
+
       call ifill(len_csh, 0, int_mb(k_csh), 1)
 c     
 c     scratch space needed for 2-electron routines
 c     
-      status = ma_push_get(MT_DBL, max2e, 'fock_2e: buf', l_g, k_g)
-      status = ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
+      status = .true.
+      status = status .and. 
+     $     ma_push_get(MT_DBL, max2e, 'fock_2e: buf', l_g, k_g)
+      status = status .and.
+     $     ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
+      if (.not. status)
+     $     call errquit('schwarz_init: insufficient memory', mem2)
 c
 c     make sure that the integrals are being evaluated to sufficient precision
 c
@@ -109,6 +118,7 @@ c
                         write(6,1) ' shell ', ish, jsh, sh_max,
      $                       schwarz_shell(ish,jsh),
      $                       schwarz_shell(ish,jsh)/sh_max
+                        call util_flush(6)
  1                      format(1x,a7,2i5,3d16.8)
                      endif
                   enddo
@@ -124,6 +134,7 @@ c
                   write(6,1) ' atoms ', iat, jat, at_max,
      $                 schwarz_atom(iat,jat),
      $                 schwarz_atom(iat,jat)/at_max
+                  call util_flush(6)
                endif
             endif
             ijat = ijat + 1
@@ -136,10 +147,11 @@ c
       call ga_igop(Msg_SchSh, int_mb(k_csh), len_csh, 'or')
       call ga_dgop(Msg_SchMx, sch_max, 1, 'max')
 c
-      if (odebug) write(6,*) ' sch_max ', sch_max
+      if (odebug .and. ga_nodeid().eq.0)
+     $     write(6,*) ' sch_max ', sch_max
 c
-      status = ma_pop_stack(l_scr)
-      status = ma_pop_stack(l_g)
+      if (.not. ma_pop_stack(l_scr)) call errquit('schwarz_init: pop',0)
+      if (.not. ma_pop_stack(l_g)) call errquit('schwarz_init: pop', 1)
 c
       if (ga_nodeid().eq.0) then
          write(6,2) natri, nshtri
@@ -156,6 +168,7 @@ c
  4       format(/' Shell screening '/)
          call comp4_bins(int_mb(k_csh), nshtri, nb_per_i)
          write(6,*)
+         call util_flush(6)
       endif
 c
 c     zero counts for screening information

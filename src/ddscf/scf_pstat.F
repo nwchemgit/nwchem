@@ -32,6 +32,9 @@ c
       if (.not. pstat_allocate('scf: diag', pstat_qstat, 0, junk,
      $     ps_diag)) call errquit('scf: scf_pstat_init', 0)
 c
+      if (.not. pstat_allocate('scf: vecio', pstat_qstat, 0, junk,
+     $     ps_vecio)) call errquit('scf: scf_pstat_init', 0)
+c
       if (.not. pstat_allocate('scf: total', pstat_qstat, 0, junk,
      $     ps_total)) call errquit('scf: scf_pstat_init', 0)
 c
@@ -59,6 +62,7 @@ c
          if (.not. pstat_free(ps_fock_add))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_matexp))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_diag))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_vecio))call errquit('scf_pstat?', 0)
          if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
 c
       endif

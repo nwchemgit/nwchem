@@ -46,18 +46,31 @@ c
       enddo
       maxd = max_at_bf**2
 c     
-      status = ma_push_get(MT_DBL, maxd, 'dij', l_dij, k_dij)
-      status = ma_push_get(MT_DBL, maxd, 'dik', l_dik, k_dik)
-      status = ma_push_get(MT_DBL, maxd, 'dli', l_dli, k_dli)
-      status = ma_push_get(MT_DBL, maxd, 'djk', l_djk, k_djk)
-      status = ma_push_get(MT_DBL, maxd, 'dlj', l_dlj, k_dlj)
-      status = ma_push_get(MT_DBL, maxd, 'dlk', l_dlk, k_dlk)
-      status = ma_push_get(MT_DBL, maxd, 'fij', l_fij, k_fij)
-      status = ma_push_get(MT_DBL, maxd, 'fik', l_fik, k_fik)
-      status = ma_push_get(MT_DBL, maxd, 'fli', l_fli, k_fli)
-      status = ma_push_get(MT_DBL, maxd, 'fjk', l_fjk, k_fjk)
-      status = ma_push_get(MT_DBL, maxd, 'flj', l_flj, k_flj)
-      status = ma_push_get(MT_DBL, maxd, 'flk', l_flk, k_flk)
+      status = .true.
+      status = status .and. ma_push_get(MT_DBL, maxd, 'dij',
+     $     l_dij, k_dij)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'dik',
+     $     l_dik, k_dik)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'dli',
+     $     l_dli, k_dli)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'djk',
+     $     l_djk, k_djk)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'dlj',
+     $     l_dlj, k_dlj)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'dlk',
+     $     l_dlk, k_dlk)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'fij',
+     $     l_fij, k_fij)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'fik',
+     $     l_fik, k_fik)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'fli',
+     $     l_fli, k_fli)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'fjk',
+     $     l_fjk, k_fjk)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'flj',
+     $     l_flj, k_flj)
+      status = status .and. ma_push_get(MT_DBL, maxd, 'flk',
+     $     l_flk, k_flk)
       if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
 c     
 c     Zero screening statistics
@@ -72,18 +85,20 @@ c
      $     tol2e, ocoul, oexch)
 c     call ga_print(g_fock)
 c     
-      status = ma_pop_stack(l_flk)
-      status = ma_pop_stack(l_flj)
-      status = ma_pop_stack(l_fjk)
-      status = ma_pop_stack(l_fli)
-      status = ma_pop_stack(l_fik)
-      status = ma_pop_stack(l_fij)
-      status = ma_pop_stack(l_dlk)
-      status = ma_pop_stack(l_dlj)
-      status = ma_pop_stack(l_djk)
-      status = ma_pop_stack(l_dli)
-      status = ma_pop_stack(l_dik)
-      status = ma_pop_stack(l_dij)
+      status = .true.
+      status = status .and. ma_pop_stack(l_flk)
+      status = status .and. ma_pop_stack(l_flj)
+      status = status .and. ma_pop_stack(l_fjk)
+      status = status .and. ma_pop_stack(l_fli)
+      status = status .and. ma_pop_stack(l_fik)
+      status = status .and. ma_pop_stack(l_fij)
+      status = status .and. ma_pop_stack(l_dlk)
+      status = status .and. ma_pop_stack(l_dlj)
+      status = status .and. ma_pop_stack(l_djk)
+      status = status .and. ma_pop_stack(l_dli)
+      status = status .and. ma_pop_stack(l_dik)
+      status = status .and. ma_pop_stack(l_dij)
+      if (.not. status) call errquit('rhf_fock_2e: ma_pop?', 0)
 c     
       call ga_sync()
 c     
