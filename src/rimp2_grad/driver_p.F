@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_P -- Master routine for RI-MP2 density evaluation
 C
 C REVISION
-C     $Id: driver_p.F,v 1.2 1998-10-06 18:36:32 bernhold Exp $
+C     $Id: driver_p.F,v 1.3 1998-10-09 21:23:43 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_P(RTDB, Geom, AOBas, NAO,
@@ -172,6 +172,15 @@ C
          If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
      $        'RIMP2_Driver_P: can''t free L', ISpin)
       EndDo
+C
+      If ( Util_Print('partial p2', Print_Debug) .OR.
+     $     Util_Print('p2', Print_Debug) ) then
+         Call Banner(LuOut, 'Correlated Density (MO basis)', '-',
+     $        .TRUE., .TRUE., .FALSE.)
+         Do ISpin = 1, TopSpin
+            Call GA_Print( g_P2(ISpin) )
+         EndDo
+      EndIf
 C
 C     *************************
 C     * Save correlated 1-PDM *
