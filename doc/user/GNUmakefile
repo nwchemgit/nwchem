@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.16 2000-07-20 02:14:53 d3e129 Exp $
+# $Id: GNUmakefile,v 1.17 2000-08-22 18:59:14 d3e129 Exp $
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex  top-level.tex \
@@ -54,3 +54,4 @@ clean:
 	/bin/rm -rf user
 realclean:
 	$(MAKE) clean
+	rm -f userpdf.pdf userpdf.out

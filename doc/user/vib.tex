@@ -1,34 +1,125 @@
-% $Id: vib.tex,v 1.9 1999-07-30 00:47:20 d3e129 Exp $
+% $Id: vib.tex,v 1.10 2000-08-22 18:59:14 d3e129 Exp $
 \label{sec:vib}
 
 The nuclear hessian which is used to compute the vibrational
 frequencies can be computed by finite difference for any ab initio
-wave-function that has analytic gradients.  An analytic nuclear hessian
-is available only for small, closed-shell SCF.  The appropriate
+wave-function that has analytic gradients.  The appropriate
 nuclear hessian generation algorithm is chosen based on the user input
 when \verb+TASK <theory> frequencies+ is the task directive.
 
 The vibrational package was integrated from the Utah Messkit and can
-use any nuclear hessian generated from the driver routines.  There is
-no required input for the ``VIB'' package.  VIB computes the
-frequencies and intensities\footnote{Intensities are only computed if
-  the dipole derivatives are available; these are computed by default
-  for most methods that use the finite difference driver routines} for
-for the computed nuclear hessian and the ``projected'' nuclear
-hessian.  The VIB module projects out the translations and rotations
-of the nuclear hessian using the standard Eckart projection algorithm.
-The VIB module also computes the zero point energy for the molecular
-system based on the frequencies obtained from the projected hessian.
+use any nuclear hessian generated from the driver routines, finite
+difference routines or any analytic hessian modules.  There is no required
+input for the ``VIB'' package.  VIB computes the Infra Red frequencies
+and intensities\footnote{Intensities are only computed if the dipole
+derivatives are available; these are computed by default for most
+methods that use the finite difference driver routines} for the
+computed nuclear hessian and the ``projected'' nuclear hessian.  The
+VIB module projects out the translations and rotations of the nuclear
+hessian using the standard Eckart projection algorithm.  The VIB
+module also computes the zero point energy for the molecular system
+based on the frequencies obtained from the projected hessian.
 
 The default mass of each atom is used unless an alternative mass is
-provided via the geometry input, (c.f., \ref{sec:geom}).  The default
-mass is the mass of the most abundant isotope of each
-element.\footnote{c.f., "The Elements" by John Emsley, Oxford
-  University Press, (C) 1989, ISBN 0-19-855237-8.} If the abundance
-was roughly equal the mass of the isotope with the longest half life
-was used.
+provided via the geometry input, (c.f., \ref{sec:geom}) or redefined
+using the vibrational module input.  The default mass is the mass of
+the most abundant isotope of each element.\footnote{c.f., "The
+Elements" by John Emsley, Oxford University Press, (C) 1989, ISBN
+0-19-855237-8.} If the abundance was roughly equal the mass of the
+isotope with the longest half life was used.
 
-\section{Animation} 
+\section{Vibrational Module Input}
+
+All input for the Vibrational Module is optional since the default
+definitions will compute the frequencies and IR
+intensities\footnote{The geometry specification at the point where the
+hessian is computed must be the default ``geometry'' on the current
+run-time-data-base for the projection to work properly.}.  The generic
+module input can begin with \verb+vib+, \verb+freq+, \verb+frequency+
+and has the form:
+\begin{verbatim}
+  {freq || vib || frequency}
+    reuse [<string> hessian_filename]
+    mass <integer> lexical_index <real> new_mass
+    mass <string> tag_identifier <real> new_mass
+    animate [<real> step_size_for_animation]     
+  end
+\end{verbatim}
+
+\subsection{Hessian File Reuse}
+By default the \verb+task <theory> frequencies+ directive will
+recompute the hessian to reuse the previously computed hessian you
+need only specify \verb+reuse+ in the module input block.  If you
+have stored the hessian in an alternate place you may redirect the 
+reuse to that file by specifying the path to that file.
+\begin{verbatim}
+  reuse /path_to_hessian_file
+\end{verbatim}
+This will reuse your saved Hessian data but one caveat is that the
+geometry specification at the point where the hessian is computed must
+be the default ``geometry'' on the current run-time-data-base for the
+projection to work properly.
+
+\subsection{Redefining Masses of Elements}
+You may also modify the mass of a specific center or a group of
+centers via the input.  
+
+To modify the mass of a specific center you can simply use:
+\begin{verbatim}
+  mass 3 4.00260324
+\end{verbatim}
+which will set the mass of center 3 to 4.00260324 AMUs.  The lexical
+index of centers is determined by the geometry object. 
+
+To modify all Hydrogen atoms in a molecule you may use the tag based
+mechanism:
+\begin{verbatim}
+  mass hydrogen 2.014101779
+\end{verbatim}
+
+The mass redefinitions always start with the default masses and
+change the masses in the order input.  Care must be taken to change
+the masses properly.  For example, if you want all hydrogens to have
+the mass of Deuterium and the third hydrogen (which is the 6th atomic
+center) to have the mass of Tritium you must set the Deuterium masses
+first with the tag based mechanism and then set the 6th center's mass
+to that of Tritium using the lexical center index mechanism.  
+
+The mass redefinitions are not fully persistent on the
+run-time-data-base.  Each input block that redefines masses will
+invalidate the mass definitions of the previous input block.
+For example, 
+\begin{verbatim}
+freq
+  reuse
+  mass hydrogen 2.014101779
+end
+task scf frequencies
+freq
+  reuse
+  mass oxygen 17.9991603
+end
+task scf frequencies
+\end{verbatim}
+will use the new mass for all hydrogens in the first frequency
+analysis.  The mass of oxygen atoms will be redefined in the second
+frequency analysis but the hydrogen atoms will use the default mass.
+To get a modified oxygen and hydrogen analysis you would have to use:
+\begin{verbatim}
+freq
+  reuse
+  mass hydrogen 2.014101779
+end
+task scf frequencies
+freq
+  reuse
+  mass hydrogen 2.014101779
+  mass oxygen 17.9991603
+end
+task scf frequencies
+\end{verbatim}
+
+\subsection{Animation} 
 The ``VIB'' module also can generate mode animation input files in the
 form standard xyz format files for graphics packages like
 RasMol or XMol\footnote{There are scripts to automate this for RasMol in
@@ -37,18 +128,57 @@ files generated that cycle from the equilibrium geometry to 5 steps in
 the positive direction of the mode vector, back to 5 steps in the
 negative direction of the mode vector, and finally back to the
 equilibrium geometry.  By default these files are {\bf not} generated.
-\subsection{Activating the Animation File Generation}
-To activate this mechanism simply use the following set directive 
+To activate this mechanism simply use the following input directive 
 \begin{verbatim}
-set ``vib:animate'' logical true
+  animate
 \end{verbatim}
-anywhere in the input deck prior to the task frequencies specification.  
-\subsection{Controlling the Step Size Along the Mode Vector}
+anywhere in the frequency/vib input block.
+\subsubsection{Controlling the Step Size Along the Mode Vector}
 By default, the step size used is 0.15 a.u. which will give reliable
-animation for most systems.  This can be changed via another set
-directive:
+animation for most systems.  This can be changed via the input system
 \begin{verbatim}
-set ``vib:animate:step_size'' real <step_size>
+  animate real <step_size>
 \end{verbatim}
 where \verb+<step_size>+ is the real number that is the magnitude of
-each step along the eigenvector of each nuclear hessian mode.
+each step along the eigenvector of each nuclear hessian mode in atomic
+units.
+
+\newpage
+
+\subsection{An Example Input Deck}
+This example input deck will optimize the geometry for the given basis
+set, compute the frequencies for H$_2$O, D$_2$O, HDO, and TDO.
+\begin{verbatim}
+start  h2o
+title Water 
+geometry units au autosym
+  O      0.00000000    0.00000000    0.00000000
+  H      0.00000000    1.93042809   -1.10715266
+  H      0.00000000   -1.93042809   -1.10715266
+end
+basis noprint
+  H library sto-3g 
+  O library sto-3g
+end
+scf; thresh 1e-6; end
+driver; tight; end
+task scf optimize
+
+scf; thresh 1e-8; print none; end
+task scf freq 
+
+freq 
+ reuse; mass H 2.014101779
+end
+task scf freq
+
+freq
+ reuse; mass 2 2.014101779
+end
+task scf freq
+
+freq
+ reuse; mass 2 2.014101779 ; mass 3 3.01604927
+end
+task scf freq
+\end{verbatim}
