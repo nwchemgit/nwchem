@@ -1,4 +1,4 @@
-c $Id: hess_pxfy.F,v 1.4 2001-12-28 20:49:09 windus Exp $
+c $Id: hess_pxfy.F,v 1.5 2001-12-28 21:54:02 windus Exp $
       subroutine hess_pxfy(hess, g_sol, g_rhs, oactive, ncent,
      &     restr, nocc, nvirt, ndens)
 c
@@ -44,27 +44,28 @@ c
           index = ipert + (ndns-1)*ncent*3
           alo(2) = index
           ahi(2) = index
-          do jcent = 1, ncent
+          do jcent = 1, icent
            if (oactive(jcent)) then
             jpert = 3*(jcent-1)
             do jdir = 1, 3
-               jpert = jpert + 1
+              jpert = jpert + 1
+              if (jpert.le.ipert) then ! take advantage of symmetry of hessian
                jindex = jpert + (ndns-1)*ncent*3
                blo(2) = jindex
                bhi(2) = jindex
                deltah = nga_ddot_patch(g_sol, 'n', alo, ahi,
      $                                 g_rhs, 'n', blo, bhi)
-c              write(6,*) 'deltah for i,j ',deltah,ipert,jpert
+               write(6,*) 'deltah for i,j ',deltah,ipert,jpert
 c              if (restr) then
 c                 deltah = deltah * 2.d0
 c              endif
                if (ipert .ne. jpert) then
-                  deltah = deltah * 0.5d+00
                   hess(ipert,jpert) = hess(ipert,jpert) - deltah
                   hess(jpert,ipert) = hess(jpert,ipert) - deltah
                else
                   hess(ipert,jpert) = hess(ipert,jpert) - deltah
                endif
+              endif
             enddo
            endif
           enddo
