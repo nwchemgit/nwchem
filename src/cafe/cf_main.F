@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.77 2000-09-13 19:32:32 d3j191 Exp $
+c $Id: cf_main.F,v 1.78 2000-09-13 19:35:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2111,7 +2111,7 @@ c
 c
       if(me.eq.0) then
       write(*,1000) numfix
- 1000 format('Number of fix directives is ',i5)
+ 1000 format(' Number of fix directives is ',i5)
       endif
 c
       number=0
@@ -2265,7 +2265,7 @@ c
       endif
 c
       if(me.eq.0) write(*,'(a,i8,a,i8,a)')
-     +  'Solute fix applied to ',number,' out of ',nsa,' atoms'
+     +  ' Solute fix applied to ',number,' out of ',nsa,' atoms'
 c
 c      if(numw.gt.0) then
 c      if(iand(ifix,1).eq.1) then
