@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.6 2002-01-21 00:55:49 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.7 2002-02-04 23:21:49 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
@@ -18,7 +18,7 @@
       integer ngrid(3)
       integer cfull(2),cfull_out(2)
       integer nfft3d,n2ft3d,nfft3d_out
-      integer ms,n,l,nb
+      integer n,l,nb
 
       double precision unita(3,3)
 
@@ -84,7 +84,7 @@
 
       neall = ne(1) + ne(2) 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d*neall,
+      value = MA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d_out,
@@ -92,14 +92,13 @@
       if (.not.value) call errquit("out of memory",0)
 
        
-      call  dread(5,dcpl_mb(cfull(1)),n2ft3d*neall)
       do nb=1,nbrill
         do n=1,neall
           write(*,111) "converting ... psi:",n," nb:",nb
   111 format(A,I4,A,I2,A,I4)
+          call  dread(5,dcpl_mb(cfull(1)),n2ft3d)
           call  convert_real_to_complex(ngrid(1),ngrid(2),ngrid(3),
-     >                                  dcpl_mb(cfull(1)
-     >                                         +(n-1)*nfft3d),
+     >                                  dcpl_mb(cfull(1)),
      >                                  dcpl_mb(cfull_out(1)))
           call dwrite(6,dcpl_mb(cfull_out(1)),2*nfft3d_out)
         end do
