@@ -1,5 +1,5 @@
 /*
- $Id: inv_it3.c,v 1.5 1999-07-28 00:39:24 d3e129 Exp $
+ $Id: inv_it3.c,v 1.6 1999-11-04 22:41:36 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -90,7 +90,7 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
   extern Integer idamax_();
   extern DoublePrecision dnrm2_(), dasum_(), ddot_();
   extern Integer mxmynd_();
-
+  
   extern void mgs_prev ();
   
   me = mxmynd_();
@@ -118,11 +118,11 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
   
   /*
     Compute LU factors with partial pivoting  ( PT = LU )
-    */
-
+  */
+  
   
   for ( j = 0; j < csiz ;  j++ ) {
-	i_1 = j+*c1;
+    i_1 = j+*c1;
     if ( map[ i_1 ] == me ) {
       mapvec[k] = i_1;
       xj = eval[i_1];
@@ -162,36 +162,37 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
       
       if (niter > MAXITR){
         /*
-	fprintf(stderr, " \n me = %d MAXITS exceeded in inv_it \n \n", me);
-	fprintf(stderr, " c1= %d cn= %d b1= %d bn = %d \n", *c1,*cn,*b1,*bn);
-	fprintf(stderr, " nrm = %g stpcrt = %g \n", nrm, *stpcrt );
-	fprintf(stderr, "xj = %g onenrm = %g \n", xj, *onenrm);
-	for (indx22  = *b1; indx22 < *bn + 1; indx22++ )
+	  fprintf(stderr, " \n me = %d MAXITS exceeded in inv_it \n \n", me);
+	  fprintf(stderr, " c1= %d cn= %d b1= %d bn = %d \n", *c1,*cn,*b1,*bn);
+	  fprintf(stderr, " nrm = %g stpcrt = %g \n", nrm, *stpcrt );
+	  fprintf(stderr, "xj = %g onenrm = %g \n", xj, *onenrm);
+	  for (indx22  = *b1; indx22 < *bn + 1; indx22++ )
 	  fprintf(stderr, "d[%d] = %g e[%d] = %g \n",
-		  indx22, d[indx22], indx22, e[indx22]);
-	exit (-1);
+	  indx22, d[indx22], indx22, e[indx22]);
+	  exit (-1);
         */
-
-	fprintf(stderr, " \n me = %d Eigenvector %d failed to convergve in inv_it \n \n", me, *c1 + j );
-
+	
+	printf(" \n me = %d Eigenvector %d failed to convergve in inv_it \n \n", me, *c1 + j );
+	
         if( ibad == 0 )
-           ibad = *c1 + j + 1;   /* note +1 needed since *c1 may be 0 */
-
+	  ibad = *c1 + j + 1;   /* note +1 needed since *c1 may be 0 */
+	
         continue;
       }
       
       
       /*
 	Normalize and scale the righthand side vector Pb.
-	*/
+      */
       
       scl = dasum_(&blksz, ptr, &IONE);
       scl = ((DoublePrecision) 1.0e0)/scl;
       scl *= (DoublePrecision) blksz ;
       scl *= *onenrm ;
-/*
-      scl *= max(*eps, fabs(work[indrv4 + blksz - 1]));
-*/
+      /*
+	scl *= max(*eps, fabs(work[indrv4 + blksz - 1]));
+      */
+
       scl *= max(*eps, fabs(work[indrv4 + blksz - 1]) / *onenrm );
       dscal_(&blksz, &scl, ptr, &IONE );
       
@@ -215,7 +216,7 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
 	for ( indx22 = 0; indx22 < blksz; indx22++ ) {
 	fprintf(stderr, "ptr[%d] = %g \n", indx22, ptr[indx22]);
 	}
-	*/
+      */
       
       jmax = idamax_(&blksz, ptr, &IONE);
       nrm = fabs( *(ptr + jmax - 1 ) );

@@ -1,5 +1,5 @@
 /*
- $Id: tresid.c,v 1.6 1999-07-28 00:39:37 d3e129 Exp $
+ $Id: tresid.c,v 1.7 1999-11-04 22:41:37 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -179,12 +179,8 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
       else {
         t  = fabs( d[0] * ptr[0] - eval[i] * ptr[0] );
       } 
-/*
+
       dumb = t/normA/ulp;
-      if ( dumb > 10. ){
-	printf(" me = %d evec # = %d  eval = %20.16g resid error = %20.16g %g \n", me, i, eval[i], t, dumb ); 
-      }
-*/
       derror = max( t, derror);
       k++;
     }
@@ -192,9 +188,9 @@ void tresid( n, m, d, e, colZ, mapZ, eval, iwork, work, res, info)
   
   gmax00( (char *) &derror, 1, 5, 16, proclist[0], nprocs, proclist, scrat);
 
+
+/*
   printf(" derror = %g normA %g ulp %g \n", derror, normA, ulp);
-  printf(" derror = %g normA %g ulp %g \n", derror, normA, ulp);
-  /*
   for ( j = 0; j < *n; j++ )
     printf(" d[%d] = %g \n", j, d[j]);
   for ( j = 0; j < *n; j++ )

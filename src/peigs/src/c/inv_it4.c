@@ -1,5 +1,4 @@
 /*
- $Id: inv_it4.c,v 1.3 1999-07-28 00:39:24 d3e129 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -148,7 +147,9 @@ Integer inv_it4(iii,  n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, 
 		    5* lsiz, wwork1 + 6* lsiz, vector[k], &kk, &ztz, &zbegin1, &zend, &j, iwork1 );
       }
       ztz = 1./ztz;      
-      printf(" inv_it4 me = %d xj = %f j = %d c1 = %d cn = %d ztz %f k = %d \n", me,  xj, j, *c1, *cn, ztz, k);
+      /*
+	printf(" inv_it4 me = %d xj = %f j = %d c1 = %d cn = %d ztz %f k = %d \n", me,  xj, j, *c1, *cn, ztz, k);
+      */
       dscal_(&blksz, &ztz, vector[k] + *b1, &IONE);
       i_1++;
       k++;

@@ -1,5 +1,4 @@
-#
-# $Id: GNUmakefile,v 1.18 1999-07-28 00:39:19 d3e129 Exp $
+## $Id: GNUmakefile,v 1.19 1999-11-04 22:41:36 d3g270 Exp $
 #
 
 include ../../../config/makefile.h
@@ -13,7 +12,7 @@ COBJ  = clustrfix.o \
 	clustrxx4.o \
 	pstein4.o \
 	pstein5.o \
-	peigs_dlasq2a.o \
+	peigs_dlasq1.o \
 	b_ortho.o \
          chol_bcst.o \
          choleski9.o \

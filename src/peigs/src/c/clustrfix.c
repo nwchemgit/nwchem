@@ -1,5 +1,5 @@
 /*
- $Id: clustrfix.c,v 1.7 1999-07-28 00:39:21 d3e129 Exp $
+ $Id: clustrfix.c,v 1.8 1999-11-04 22:41:36 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -135,7 +135,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   Integer me;
   Integer *c_ptr;
   Integer iflag, k, imax, tail;
-  Integer ii, nn_proc, clustr_size=-1;
+  Integer ii, nn_proc, clustr_size=-1, iii, jjj;
   
   DoublePrecision tmp, *eval, sep, eps, xj1, xj2, xj3;
   DoublePrecision onenrm, pertol;
@@ -306,8 +306,6 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
       clustr_size = 1;
       xj = w[ptr];
 
-
-      
       for (j = beg_of_block+1; j < end_of_block+1 ; ++j) {
 	if ( j == (end_of_block )){
 	  *(c_ptr++) = ptr;
@@ -364,7 +362,11 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
       }
     }
   }
-  
+
+  jjj =0;
+  for ( iii = 0; iii < num_cls; iii++ ) {
+    printf(" cptr c1 %d cn  %d b1 %d bn %d \n", clustr_info[jjj++], clustr_info[jjj++], clustr_info[jjj++], clustr_info[jjj++]);
+  }
   
   *num_clustr = num_cls;
   

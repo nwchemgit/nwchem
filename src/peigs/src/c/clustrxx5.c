@@ -1,5 +1,4 @@
 /*
- $Id: clustrxx5.c,v 1.15 1999-07-28 00:39:22 d3e129 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -86,7 +85,7 @@
   */
 #define CLUSTRLEN  4
 #define LOOP  3
-#define INV_TIME 2
+#define INV_TIME 3
 #define ITIME1  2
 
 Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
@@ -438,13 +437,11 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       for (j = c1; j <= cn; j++ ){
 	if ( mapZ[j] == me ) {
 	  i = indx + Zvec;
-	  /*
-	    mapvecZ[ i ] = j;
-	  */
+	  mapvecZ[ i ] = j;
 	  
 	  /*
-	     Initialize vector to zero.
-	     */
+	    Initialize vector to zero.
+	  */
 	  
 	  for ( jjj = 0; jjj < bb1; jjj++ )
 	    vecZ[i][jjj] = 0.0;
@@ -480,7 +477,9 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
       /*
 	fine cluster
       */
+      
       itime = 2;
+      
       /*
 	printf(" fine clustr csiz = %d  c1 = %d cn = %d \n", csiz, c1, cn );
       */
@@ -496,7 +495,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 #endif
 	/*
 	  old tridiagonal inverse iteration
-	  */
+	*/
 	
 	itmp = inv_it3( n, &c1, &cn, &bb1, &bn, &Zvec, mapZ, mapvecZ, vecZ, d, e, eval, &eps, &stpcrt, &onenrm, iscratch, dscrat);
 	
@@ -511,7 +510,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
 	
 	for ( i = 0; i < itime ; i++ )
 	  mgs_3( &csiz, vecZ, &mapZ[c1], &bb1, &bn, &Zvec, &first, first_buf, iscratch, dscrat);
-	itime = 0;
+	itime = itime-1 ;
       }
     }
     

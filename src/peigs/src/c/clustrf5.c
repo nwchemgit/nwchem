@@ -1,5 +1,5 @@
 /*
- $Id: clustrf5.c,v 1.11 1999-10-28 17:11:12 d3g270 Exp $
+ $Id: clustrf5.c,v 1.12 1999-11-04 22:41:36 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -443,14 +443,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	if (jblk > 1) {
 	  eps1 = fabs(eps * xj);
 	  if ((xj - w[j-1]) < -eps1) {
-	    /*
-	     *info = -5;
-	     i__3 = -(*info);
-	     xerbla_("DSTEIN", &i__3);
-	     xerbla_("DSTEIN", &i__3);
-	     */
-	    fprintf(stderr, " Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
-	    return(-5);
+	    printf(" Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
 	  }
 	  pertol = eps1 * R_TEN;
 	  sep = xj - xjm;
@@ -474,7 +467,7 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  sep = fabs(xj - xjm);
 	  /*
 	    printf(" got here 4 me = %d sep xj %20.16g xjm %20.16g  sep %20.16g \n", me, xj, xjm, sep-sepfine*MAX(fabs(xj), fabs(xjm)));
-	    */
+	  */
 	  
 	  if (fabs(sep) > 1.*fabs(sepfine*MAX(fabs(xj),fabs(xjm)))) {
 	    if ( clustr_check(clustrptr, j-1, *imin, imax) == 1 ) {

@@ -1,5 +1,4 @@
 /*
- $Id: inv_it5.c,v 1.7 1999-07-28 00:39:24 d3e129 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -104,12 +103,12 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
   iwork1 = iwork;
   lplus = work;
 
-  dplus = &lplus[lsiz];
-  uminus = &lplus[2*lsiz];
-  dminus = &lplus[3*lsiz];
-  t = &lplus[4*lsiz];
-  p = &lplus[5* lsiz];
-  gamma = &lplus[6*lsiz];
+  dplus = lplus + lsiz;
+  uminus = dplus + lsiz;
+  dminus = uminus + lsiz;
+  t = dminus + lsiz;
+  p = t + lsiz;
+  gamma = p + lsiz;
   
   ibad = 0;
   
@@ -128,7 +127,7 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
       dgetavec_( &j, &xj, &delta, n, &bb1, &bbn, e, d, ld, lld, lplus,
 		 dplus, uminus, dminus, t, p, gamma,
 		 vector[k], &kk, &ztz, &zbegin1, &zend, &j, iwork1 );
-      
+
 #ifdef DEBUG
       printf(" invit5 me = %d csiz = %d j = %d xj = %f c1 = %d cn = %d ztz = %f \n", me, csiz, j, xj, *c1, *cn, ztz);
 #endif
@@ -139,10 +138,10 @@ Integer inv_it5( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, lld, 
       k++;
     }
   }
-
+  
   /*
-  free(lplus);
-  free(iwork1);
+    free(lplus);
+    free(iwork1);
   */
   return(ibad);
 }  

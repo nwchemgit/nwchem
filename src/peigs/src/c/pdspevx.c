@@ -1,5 +1,5 @@
 /*
- $Id: pdspevx.c,v 1.33 1999-10-28 17:11:13 d3g270 Exp $
+ $Id: pdspevx.c,v 1.34 1999-11-04 22:41:37 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -286,7 +286,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       *lplus,                 /* lower diagonal from bidiagonal */
       *dptr;
     
-    DoublePrecision **buff_ptr, **vecQ, res, syncco[1];
+    DoublePrecision **buff_ptr, **vecQ, res, syncco[1], *perturbeval;
     DoublePrecision smlnum, bignum, eps, rmin, rmax, anrm, sigma;
     Integer iscale;
     extern void dscal_();
@@ -614,8 +614,10 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      */
 
     i_scrat = iscratch;
-    d_scrat = scratch;
+    perturbeval = scratch+msize;
+    d_scrat = perturbeval + msize;
     buff_ptr = dblptr;
+
 
     /*
      * Assume mapA and mapQ are the same.
@@ -784,18 +786,16 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
   
 
    /*
-     if ( me == 0 ) {
+  if ( me == 0 ) {
      file = fopen(filename, "a+");
      fprintf(file, "info = %d \n", linfo);
      fprintf(file, "%d \n", msize);
      for ( iii = 0; iii < msize; iii++)
-     
-     
      fprintf(file, "%d %20.16f %20.16f \n", iii, dd[iii], ee[iii]);
      fflush(file);
      fclose(file);
      }
-   */
+*/
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
@@ -864,10 +864,10 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		 &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, &linfo);
 
-      /*
-	for ( iii = 0; iii < msize; iii++)
+/*
+for ( iii = 0; iii < msize; iii++)
 	printf(" me = %d iii %d lplus %g dplus %g \n", me, iii, lplus[iii], dplus[iii]);
-      */
+*/
       
       
       if ( msize == 1 ) {
@@ -1007,13 +1007,15 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       fflush(stderr);
     */
 
-    
-    
+    for(indx = 0;indx < msize;indx++)
+      perturbeval[indx]=eval[indx];
+      
     syncco[0] = 0.0e0;
     gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
 
+
     pstein5( &msize, dd, ee, dplus, lplus, ld, lld,
-	     &neigval, eval, iblock, &nsplit, isplit,
+	     &neigval, perturbeval, iblock, &nsplit, isplit,
 	     mapZ, vecZ, clustr_info, d_scrat,i_scrat, iptr, info);
 
     syncco[0] = 0.0e0;
@@ -1037,7 +1039,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       fflush(stdout);
 #endif
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
-		&neigval, eval, iblock, &nsplit, isplit,
+		&neigval, perturbeval, iblock, &nsplit, isplit,
 		&mapZ[0], vecZ, clustr_info, d_scrat,
 		i_scrat, iptr, &linfo);
 

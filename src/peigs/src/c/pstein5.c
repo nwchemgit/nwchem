@@ -1,5 +1,5 @@
 /*
- $Id: pstein5.c,v 1.12 1999-07-28 00:39:35 d3e129 Exp $
+ $Id: pstein5.c,v 1.13 1999-11-04 22:41:37 d3g270 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -498,13 +498,7 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   /*
     reshift eigenvalues back to original
-    */
-  
-  /*
    * syncronize processors
-   */
-
-  /*
    * Get same value of ibad for all processors in proclist.
    */
   

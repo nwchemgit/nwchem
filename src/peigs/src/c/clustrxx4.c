@@ -1,5 +1,4 @@
 /*
- $Id: clustrxx4.c,v 1.15 1999-07-28 00:39:22 d3e129 Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -93,7 +92,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   extern void mgspnl_(), dscal_(), dlagts_();
   extern void dcopy_(), daxpy_();
   extern Integer count_list ();
-  extern Integer inv_it();
   extern void mgs (), msgcs();
   extern void fil_dbl_lst ();
   
@@ -135,14 +133,14 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   ibad = 0;
 
   /*
-  bb1 = 0;
-  bn = *n-1;
-  c1 = 0;
-  cn = *n-1;
-  mgscs( n, vecZ, mapZ, bb1, bn, c1, cn, iscratch, dscrat);
-  return(ibad);
+    bb1 = 0;
+    bn = *n-1;
+    c1 = 0;
+    cn = *n-1;
+    mgscs( n, vecZ, mapZ, bb1, bn, c1, cn, iscratch, dscrat);
+    return(ibad);
   */
-
+  
   
   for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {
     c1 = *(cl_ptr++);
