@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem  
 ====================================================
-$Id: INSTALL,v 1.20 1999-08-05 21:29:32 d3e129 Exp $
+$Id: INSTALL,v 1.21 2000-01-12 18:38:23 windus Exp $
 ----------------------------------------------------
 
 SOURCE CODE PROTECTION:
@@ -72,7 +72,7 @@ BUILDING NWCHEM:
                    R10000          R10000
     SGI_N32        R8000           R8000
                    R10000          R10000
-    SP or LAPI     Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
+    LAPI* OR SP    Power 2         DO __NOT__ set NWCHEM_TARGET_CPU
                    Power 2 super   P2SC
                    604e chip       604
     LINUX          Intel Pentium   DO __NOT__ set NWCHEM_TARGET_CPU
@@ -85,8 +85,10 @@ BUILDING NWCHEM:
           automatic z-matrix code hangs but other functionality works. 
           This has not been robustly tested.
 
-   Note: LAPI is now the primary way to use NWChem on an IBM SP system.
-         If you don't have it get it from IBM.
+   *Note: LAPI is now the primary way to use NWChem on an IBM SP system.
+          If you don't have it get it from IBM.  Also, the environment
+          variable LARGE_FILES should be set to YES during the compile to
+          allow larger than 2 GB scratch files.
 
 4) Configure to build the modules you need.  As a first shot build
    everything, and if you start running out of memory you can exclude
