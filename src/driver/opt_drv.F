@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.56 1999-05-08 19:10:06 d3g681 Exp $
+C$Id: opt_drv.F,v 1.57 1999-05-11 23:42:45 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -108,7 +108,8 @@ c
       out =out.or.dbug
       some=.false.
       some=some.or.out
-      if (ga_nodeid().eq.0.or.some)  then
+      if ((ga_nodeid().eq.0.or.some) .and.
+     $     util_print('information', print_low))  then
          write(iw,9999)
       endif
 c
@@ -167,7 +168,8 @@ c
            endif
       endif
 c
-      if (ga_nodeid().eq.0.or.dbug)  then
+      if (util_print('information', print_low) .and. 
+     $     (ga_nodeid().eq.0.or.dbug))  then
          write(iw,9996) cvgopt,nptopt,linopt,inhess,modupd,
      1                                       modsad,moddir,
      2                                       sadstp
@@ -187,7 +189,8 @@ c
          hnd_optx=hnd_sadx(rtdb,idriver)
          return
       else
-         if (ga_nodeid().eq.0.or.some)  then
+         if ((ga_nodeid().eq.0.or.some) .and.
+     $        util_print('information', print_low))  then
             write(iw,9994)
          endif
       endif
@@ -235,7 +238,8 @@ c
       endif
       call ga_sync()
       status = rtdb_parallel(.true.)
-      if (ga_nodeid().eq.0.or.dbug)  then
+      if ((ga_nodeid().eq.0.or.dbug) .and.
+     $     util_print('information', print_low)) then
          if(nzfrz.gt.0) then
             write(iw,9993) nzfrz
             write(iw,9992) (izfrz(i),i=1,nzfrz) 
@@ -364,7 +368,8 @@ c
 c     ----- exit if converged -----                     
 c
       if(cvged) then
-         if (ga_nodeid().eq.0.or.dbug)  then
+         if ((ga_nodeid().eq.0.or.dbug) .and.
+     $        util_print('geometry',print_low))  then
             write(iw,9998)
             if (.not. geom_print(geom)) call errquit
      $           ('hnd_opt_drv: geom_print?',0)
@@ -444,7 +449,9 @@ c
       call hnd_opt_converge(rtdb,cvged)
       call hnd_opt_print(rtdb)
       if(cvged) then
-         if (ga_nodeid().eq.0.or.dbug)  then
+         if ((ga_nodeid().eq.0.or.dbug)
+     $       .and. util_print('geometry',print_low))  then
+
             write(iw,9998)
             if (.not. geom_print(geom)) call errquit
      $           ('hnd_opt_drv: geom_print?',0)
@@ -835,6 +842,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
+#include "util.fh"
       integer    rtdb
       logical    cvged
       parameter (mxatom=500)
@@ -849,16 +857,17 @@ c
      1                                                     modsad,
      2                  convggm,convgg,convge,maxiter
 c
-      if( ga_nodeid().eq.0) then
+      if((ga_nodeid().eq.0) .and.
+     $     util_print('optimization',print_low)) then
          write(iw,9999) gmax,cvgopt,gmax0
       endif
 c
       cvged=gmax.lt.cvgopt
 c
       return
- 9999 format('          largest component of the gradient = ',F14.7,
-     1       ' ( cvgopt = ',F14.7,' ) ',/,
-     2       ' previous largest component of the gradient = ',F14.7)
+ 9999 format('          largest component of the gradient =',F11.7,
+     1       ' (cvgopt =',F11.7,') ',/,
+     2       ' previous largest component of the gradient =',F11.7)
       end
       subroutine hnd_opt_energy(rtdb,geom)
       implicit double precision (a-h,o-z)
@@ -866,6 +875,7 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 #include "global.fh"
+#include "util.fh"
       integer  rtdb
       integer  geom
       logical  task_energy
@@ -885,7 +895,8 @@ c
 c
       dbug=.false.
 c
-      if( ga_nodeid().eq.0.or.dbug) then
+      if((ga_nodeid().eq.0.or.dbug) .and.
+     $     util_print('optimization',print_low)) then
          write(iw,9999) nserch,npts
          if(dbug) then
             write(iw,9996)
@@ -900,8 +911,10 @@ c
 c
       if(nzmat.gt.0) then
          call hnd_bandbi(geom,nat,c)
-         call hnd_zmtprt(geom)
-         if (ga_nodeid().eq.0) write(iw,9997)
+         if (util_print('geometry', print_low)) then
+            call hnd_zmtprt(geom)
+            if (ga_nodeid().eq.0) write(iw,9997)
+         endif
       endif
 c
       if (task_energy(rtdb)) then
@@ -1577,6 +1590,7 @@ c::   -- read  information
 #include "msgtypesf.h"
 #include "global.fh"
 #include "rtdb.fh"
+#include "util.fh"
 C
 C      -----        INITIALIZE THE HESSIAN MATRIX           -----
 C      ----- IF -INHESS- EQUALS 1, INPUT THE HESSIAN MATRIX -----
@@ -1630,12 +1644,14 @@ C
          IF(GA_NODEID().EQ.0) THEN
             OLD_HESSIAN=DRIVER_OPT_GET_HESS(HSS,NCOOR,NCOOR)
             IF(OLD_HESSIAN) THEN
-               WRITE(IW,9993)
+               if (util_print('information', print_low))
+     $              WRITE(IW,9993)
                IF(SOME) THEN
                   CALL HND_PRSQ(HSS,NCOOR,NCOOR,NCOOR)
                ENDIF
             ELSE
-               WRITE(IW,9992)
+               if (util_print('information', print_low))
+     $              WRITE(IW,9992)
             ENDIF
          ENDIF
          CALL GA_SYNC()
@@ -2230,6 +2246,7 @@ c
       endif
 c
       rewind ift
+      write(ift) mint
       write(ift) ((hess(i,j),i=1,mint),j=1,mint)
 c
       close(ift,status='keep')
@@ -2258,6 +2275,9 @@ c
       integer ift
       logical dbug
       logical out
+c
+      integer mmint
+c
       common/hnd_iofile/ir,iw
       double precision hess(mint,mint) 
       character*255 opt_hess_fil
@@ -2278,6 +2298,8 @@ c
       endif
 c
       rewind ift
+      read(ift,end=910,err=910) mmint
+      if (mint .ne. mmint) goto 910
       read(ift,end=910,err=910) ((hess(i,j),i=1,mint),j=1,mint)
 c
       close(ift,status='keep')
@@ -3099,9 +3121,9 @@ C
       END
       SUBROUTINE HND_OPT_PRINT(RTDB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-#include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
+#include "util.fh"
       INTEGER   RTDB
       PARAMETER (MXATOM=500)
       PARAMETER (MXCART=3*MXATOM)
@@ -3128,7 +3150,8 @@ C
 C     ----- PRINT OPTIMIZATION SUMMARY -----
 C
       DELF=FUNC-FUNC0
-      IF( GA_NODEID().EQ.0.OR.DBUG) THEN
+      IF((GA_NODEID().EQ.0.OR.DBUG) .and.
+     $     util_print('options', print_low)) THEN
          WRITE(IW,9999) NSERCH,NUPDAT,NPTS,FUNC,
      1                  GNORM,ALPHA,CVGED,FUNC0,DELF 
       ENDIF
