@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.4 2003-02-19 03:19:56 edo Exp $
+C$Id: xc_xmpw91.F,v 1.5 2003-02-19 05:19:57 edo Exp $
 c
       implicit none
 c
@@ -81,16 +81,16 @@ c
      &           delrho(n,3,1)*delrho(n,3,1)
             gamma=0.25d0*gamma
 #ifndef SECOND_DERIV
-               call xc_xpw91core(DPOW,BETA,n,1,
+            call xc_xpw91core(DPOW,BETA,n,1,
      &           rho(n,1),gamma,qwght(n),func(n),
-     &              tol_rho, fac, lfac, nlfac, 
-     &              Amat, Cmat, nq, ipol, Ex, ldew)     
-#else
+     &           tol_rho, fac, lfac, nlfac, 
+     &           Amat, Cmat, nq, ipol, Ex, ldew)     
+#else 
                call xc_xpw91core_d2(DPOW,BETA,n,1,
      &           rho(n,1),gamma,qwght(n),func(n),
-     &              tol_rho, fac, lfac, nlfac, 
-     &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                         ldew)
+     &           tol_rho, fac, lfac, nlfac, 
+     &           Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
+     &           ldew)
 #endif
 
    10    continue
@@ -130,16 +130,16 @@ c
      &           delrho(n,2,2)*delrho(n,2,2) +
      &           delrho(n,3,2)*delrho(n,3,2)   
 #ifndef SECOND_DERIV
-               call xc_xpw91core(DPOW,BETA,n,2,
+            call xc_xpw91core(DPOW,BETA,n,2,
      &           rho(n,3),gamma,qwght(n),func(n),
-     &              tol_rho, fac, lfac, nlfac, 
-     &              Amat, Cmat, nq, ipol, Ex, ldew)     
-#else
+     &           tol_rho, fac, lfac, nlfac, 
+     &           Amat, Cmat, nq, ipol, Ex, ldew)     
+#else 
                call xc_xpw91core_d2(DPOW,BETA,n,2,
      &           rho(n,3),gamma,qwght(n),func(n),
-     &              tol_rho, fac, lfac, nlfac, 
-     &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                         ldew)
+     &           tol_rho, fac, lfac, nlfac, 
+     &           Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
+     &           ldew)
 #endif
             endif
 c        
@@ -158,11 +158,11 @@ c
       Subroutine xc_xpw91core_d2(DPOW,BETA,n,ispin,
      .     rho,gamma,qwght,func,
      &     tol_rho, fac, lfac, nlfac,
-     &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                         ldew)
+     &     Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
+     &     ldew)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.4 2003-02-19 03:19:56 edo Exp $
+C$Id: xc_xmpw91.F,v 1.5 2003-02-19 05:19:57 edo Exp $
 c
       implicit none
 c
