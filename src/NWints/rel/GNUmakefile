@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 2000-01-25 19:44:22 mg201 Exp $
+# $Id: GNUmakefile,v 1.7 2000-02-04 01:01:15 mg201 Exp $
 
 HEADERS = rel_consts.fh \
           rel_nwc.fh
@@ -17,7 +17,11 @@ OBJ_ENERGY = \
       dmd_input.o
 
 OBJ_GRAD = \
-      rel_oneld.o 
+      rel_oneld.o \
+      rel_2e4cd_sf.o \
+      rel_LLSSd.o \
+      rel_SSLLd.o \
+      rel_SSSSd.o 
 
 OBJ = \
       int_rel_init.o
@@ -39,6 +43,10 @@ USES_BLAS = \
       rel_LLSS.F \
       rel_SSLL.F \
       rel_SSSS.F \
+      rel_2e4cd_sf.F \
+      rel_LLSSd.F \
+      rel_SSLLd.F \
+      rel_SSSSd.F \
       rel_pot.F  \
       rel_pot2.F
 
