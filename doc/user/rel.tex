@@ -30,8 +30,11 @@ J.~Chem.~Phys.~{\bf 106}, 9618 (1997); K.~G.~Dyall and T.~Enevoldsen,
 J.~Chem.~Phys.~{\bf 111}, 10000 (1999).}.
 
 Since these approximations only modify the integrals, they can in principle
-be used at all levels of theory. The derivatives have been implemented, allowing
-them to be used for geometry optimizations and frequency calculations.
+be used at all levels of theory. At present the Douglas-Kroll implementation
+can be used at all levels of theory whereas Dyall's approach s currently
+available at the Hartree-Fock level. 
+The derivatives have been implemented, allowing both methods to be used in 
+geometry optimizations and frequency calculations.
 
 The \verb+RELATIVISTIC+ directive provides input for the implemented relativistic 
 approximations and is a compound directive that encloses additional directives 
