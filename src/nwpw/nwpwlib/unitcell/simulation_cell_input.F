@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.6 2003-10-17 22:56:50 carlfahl Exp $
+c $Id: simulation_cell_input.F,v 1.7 2004-02-22 18:56:37 bylaska Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -14,6 +14,7 @@ c
       parameter(rad=57.295779513082343d0)
 
 
+      logical bset,lset,nset
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
       parameter (num_dirs = 15)
@@ -70,6 +71,10 @@ c     **** intialize stuff ****
       unita(3,3) = 0.0d0
       boundry = 'periodic'
       name    = 'cell_default'
+
+      nset = .false.
+      lset = .false.
+      bset = .false.
 c
 c
 c
@@ -113,6 +118,7 @@ c
      >     call errquit(
      >          'simulation_cell_input: failed to read keyword', 0,
      &       INPUT_ERR)
+      bset = .true.
       goto 10
 
 
@@ -170,6 +176,7 @@ c
      >     call errquit(
      >           'simulation_cell_input: failed to read unita', 11,
      &       INPUT_ERR)
+      lset = .true.
       goto 10
 
 
@@ -188,6 +195,7 @@ c
      >     call errquit(
      >          'simulation_cell_input: failed to read ngrid', 0,
      &       INPUT_ERR)
+      nset = .true.
       goto 10
 
 c
@@ -242,6 +250,7 @@ c
       call generate_amatrix(lat_a,lat_b,lat_c,
      >                      alpha,beta,gamma,
      >                      unita)
+      lset = .true.
       goto 10
 
 c
@@ -259,6 +268,7 @@ c
       unita(1,3) = 0.0d0
       unita(2,3) = 0.0d0
       unita(3,3) = ll
+      lset = .true.
       goto 10
 
 c
@@ -277,6 +287,7 @@ c
       unita(1,3) = 0.0d0
       unita(2,3) = ll/2.0d0
       unita(3,3) = ll/2.0d0
+      lset = .true.
       goto 10
 
 c
@@ -295,6 +306,7 @@ c
       unita(1,3) =  ll/2.0d0
       unita(2,3) =  ll/2.0d0
       unita(3,3) = -ll/2.0d0
+      lset = .true.
       goto 10
 
 *     ***** add simulation_cell to rtdb ****
@@ -304,12 +316,14 @@ c
      &       INPUT_ERR)
       l = index(name,' ') -1
 
+      if (bset) then
       rtdb_name = name(1:l)//':boundry'
       ind = index(boundry,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,1,boundry(1:ind)))
      >     call errquit(
      >     'simulation_cell_input: rtdb_cput(boundry) failed', 0,
      &       INPUT_ERR)
+      end if
 
 *     **** convert to bohrs using scale variable ****
       unita(1,1) = unita(1,1) * scale
@@ -324,17 +338,21 @@ c
       unita(2,3) = unita(2,3) * scale
       unita(3,3) = unita(3,3) * scale
 
+      if (lset) then
       rtdb_name = name(1:l)//':unita'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_dbl,9,unita))
      >     call errquit(
      >     'simulation_cell_input: rtdb_put(unita) failed', 0,
      &       INPUT_ERR)
+      end if
 
+      if (nset) then
       rtdb_name = name(1:l)//':ngrid'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid))
      >     call errquit(
      >     'simulation_cell_input: rtdb_put(ngrid) failed', 0,
      &       INPUT_ERR)
+      end if
       
 
       end

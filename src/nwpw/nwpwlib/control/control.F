@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.49 2004-02-06 01:57:21 bylaska Exp $
+* $Id: control.F,v 1.50 2004-02-22 18:56:37 bylaska Exp $
 *
 
 *     ***********************************
@@ -32,7 +32,7 @@
       integer print_level
       common / control_print1 / print_level
 
-      character*30 cell_name
+      !character*30 cell_name
       character*30 rtdb_unita,rtdb_ngrid,rtdb_boundry
       character*30 exchange_correlation
       integer i,l
@@ -48,8 +48,9 @@
 *     **** cpsd: stuff ****
 
       if (code.eq.1) then
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpsd:cell_name',1,cell_name)
+      if (.not.rtdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
       value = value.and.
      >        rtdb_cget(rtdb,'cpsd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)
@@ -99,8 +100,9 @@
 
 *     **** cpmd code: stuff ****
       else if (code.eq.2) then
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)
+      if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
       value = value.and.
      >        rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)
@@ -186,8 +188,9 @@ c     end do
 *     **** cgsd: stuff ****
 
       else if (code.eq.3) then
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
+      if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
 c
 c     **** Figure input/output MO vectors ****
 c
@@ -308,8 +311,9 @@ c     end do
 *     **** band: stuff ****
 
       else if (code.eq.5) then
-      value = value.and.
-     >        rtdb_cget(rtdb,'band:cell_name',1,cell_name)
+      if (.not.rtdb_cget(rtdb,'band:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
 cc      value = value.and.
 cc     >        rtdb_cget(rtdb,'band:input_wavefunction_filename',
 cc     >                  1,input_wavefunction_filename)
@@ -379,8 +383,9 @@ c
       if (.not.rtdb_get(rtdb,'cgsd:geometry_optimize',mt_log,1,move))
      >   move = .false.
 
-      value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
+      if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
       value = value.and.
      >        rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)
@@ -425,8 +430,9 @@ c
 *     **** paw_cpmd: stuff ****
       else if (code.eq.7) then
 
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)
+      if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
+        cell_name = 'cell_default'
+      end if
       value = value.and.
      >        rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)
@@ -558,13 +564,19 @@ c
       rtdb_boundry = cell_name(1:l)//':boundry'
 
            
-      value = value.and.
-     >        rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
-      value = value.and.
-     >        rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)
-      value = value.and.
-     >        rtdb_cget(rtdb,rtdb_boundry,1,boundry)
+      if (.not.rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)) then
+        call dcopy(9,0.0d0,0,unita,1)
+      end if
 
+      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+        ngrid(1) = 32
+        ngrid(2) = 32
+        ngrid(3) = 32
+      end if
+
+      if (.not.rtdb_cget(rtdb,rtdb_boundry,1,boundry)) then
+         boundry = 'periodic'
+      end if
 
       call check_unita_for_default(rtdb,unita)
 
@@ -1227,7 +1239,20 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *                                 *
+*     *         control_cell_name       *
+*     *                                 *
+*     ***********************************
+      character*30 function control_cell_name()
+      implicit none
 
+
+#include "control.fh"
+
+      control_cell_name = cell_name
+      return
+      end
 
 
 

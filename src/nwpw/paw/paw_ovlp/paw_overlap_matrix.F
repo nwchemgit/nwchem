@@ -1,5 +1,5 @@
 c
-c $Id: paw_overlap_matrix.F,v 1.12 2003-10-23 01:41:05 bylaska Exp $
+c $Id: paw_overlap_matrix.F,v 1.13 2004-02-22 18:56:37 bylaska Exp $
 c
 
 !**************************************************
@@ -230,7 +230,7 @@ c
       call Pack_npack(1,npack1)
 
 *    **** neede to change Grsm_ggm_dot for unrestricted calculations ***
-      call Grsm_ggm2_dot(npack1,ne,    
+      call Grsm_ggm2_sym_dot(npack1,ne,    
      >                  psi1,psi2,
      >                  Sij,n)
 

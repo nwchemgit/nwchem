@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.10 2004-01-31 01:46:30 bylaska Exp $
+c $Id: nwpw_default.F,v 1.11 2004-02-22 18:56:28 bylaska Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
@@ -77,8 +77,14 @@ c
 
 
  9999 continue
-      if (cell_name.eq.' ') 
-     >  call errquit('nwpw_default: nead a cell_name', 0, INPUT_ERR)
+
+c ---- commented out default handled in control read ----
+c     if (cell_name.eq.' ') 
+c    >  call errquit('nwpw_default: nead a cell_name', 0, INPUT_ERR)
+c     ind = index(cell_name,' ') - 1
+c     value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
+c     value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+
       if (input_wavefunction_filename.eq.' ') 
      >  call errquit(
      >       'nwpw_default: nead an input wavefunction_filename', 0,
@@ -88,9 +94,6 @@ c
      >       'nwpw_default: nead an output wavefunction_filename', 0,
      &       INPUT_ERR)
 
-      ind = index(cell_name,' ') - 1
-      value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
-      value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
 
       ind = index(zone_name,' ') - 1
       value = rtdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
@@ -206,21 +209,24 @@ c
 
 
 *     **** unit cell stuff ****
-      ind = index(cell_name,' ') -1
-      rtdb_name = cell_name(1:ind)//':boundry'
-      ind = index(boundry,' ') - 1
-      value = value.and.
-     >        rtdb_cput(rtdb,rtdb_name,1,boundry(1:ind))
+c---commented out - defaults handled in control_read ---
+c     ind = index(cell_name,' ') -1
+c     rtdb_name = cell_name(1:ind)//':boundry'
+c     ind = index(boundry,' ') - 1
+c     value = value.and.
+c    >        rtdb_cput(rtdb,rtdb_name,1,boundry(1:ind))
 
-      ind = index(cell_name,' ') -1
-      rtdb_name = cell_name(1:ind)//':unita'
-      value = value.and.
-     >        rtdb_put(rtdb,rtdb_name,mt_dbl,9,unita)
+c---commented out - defaults handled in control_read ---
+c     ind = index(cell_name,' ') -1
+c     rtdb_name = cell_name(1:ind)//':unita'
+c     value = value.and.
+c    >        rtdb_put(rtdb,rtdb_name,mt_dbl,9,unita)
 
-      ind = index(cell_name,' ') -1
-      rtdb_name = cell_name(1:ind)//':ngrid'
-      value = value.and.
-     >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
+c---commented out - defaults handled in control_read ---
+c     ind = index(cell_name,' ') -1
+c     rtdb_name = cell_name(1:ind)//':ngrid'
+c     value = value.and.
+c    >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
 
 
 *     **** unit brillouin_zone stuff ***

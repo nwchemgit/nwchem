@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.25 2004-02-10 04:27:25 edo Exp $
+* $Id: cpsdv5.F,v 1.26 2004-02-22 18:56:38 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -843,7 +843,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')

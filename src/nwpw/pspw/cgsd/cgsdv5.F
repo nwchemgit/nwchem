@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.41 2004-02-18 01:22:25 bylaska Exp $
+* $Id: cgsdv5.F,v 1.42 2004-02-22 18:56:37 bylaska Exp $
 *
 
 ***********************************************************************
@@ -99,6 +99,8 @@
 
       character*12 control_boundry
       external     control_boundry
+      character*30 control_cell_name
+      external     control_cell_name
 
       logical      psp_semicore
       real*8       psp_rcore,psp_ncore,psp_rlocal
@@ -330,6 +332,7 @@ c     value = psi_initialize()
 
          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
          write(6,1230)
+         write(6,1233) control_cell_name()
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
      >                 lattice_unita(3,1)
@@ -578,7 +581,7 @@ c     end if
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
@@ -605,9 +608,10 @@ c     end if
  1220 FORMAT(/' number of active electrons: spin up=',I3,
      >        '  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
- 1231 FORMAT(5x,' volume : ',F10.1)
- 1232 FORMAT(/5x,' lattice:    a=',f8.3,'    b=',f8.3,'     c=',f8.3,
-     >       /5x,'         alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
+ 1231 FORMAT(5x,'             omega=',F8.1)
+ 1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,
+     >      /5x,'             alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
+ 1233 FORMAT(5x,' cell_name:  ',A)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')
@@ -615,7 +619,7 @@ c     end if
  1245 FORMAT(5x,'             b2=<',3f8.3,' >')
  1246 FORMAT(5x,'             b3=<',3f8.3,' >')
 
- 1250 FORMAT(5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1250 FORMAT(/5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')

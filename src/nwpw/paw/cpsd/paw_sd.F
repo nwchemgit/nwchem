@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.65 2004-02-10 04:27:25 edo Exp $
+* $Id: paw_sd.F,v 1.66 2004-02-22 18:56:37 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2004/02/10 04:27:25  edo
+* spellinggggggggggggg
+*
 * Revision 1.64  2003/10/21 02:05:15  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -127,6 +130,7 @@
 *     **** lattice variables ****
       integer ngrid(3),nwave,nfft3d,n2ft3d
       integer npack1
+      real*8  a,b,c,alpha,beta,gamma
 
 *     **** electronic variables ****
       logical first_iteration,psi_nogrid
@@ -218,6 +222,9 @@
 
       character*12 control_boundry
       external     control_boundry
+      character*30 control_cell_name
+      external     control_cell_name
+
 
       logical      control_Mulliken
       external     control_Mulliken
@@ -592,6 +599,7 @@
 
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
          write(6,1230)
+         write(6,1233) control_cell_name()
          write(6,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
      >                 lattice_unita(3,1)
@@ -610,6 +618,8 @@
          write(6,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
+         call lattice_abc_abg(a,b,c,alpha,beta,gamma)
+         write(6,1232) a,b,c,alpha,beta,gamma
          write(6,1231) lattice_omega()
          write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(0),pack_nwave(0)
@@ -1002,7 +1012,7 @@ c         write(6,1498) virial
  1111 FORMAT(/' number of processors used:',I3)
  1115 FORMAT(/' options:')
  1120 FORMAT(5X,' ionic motion         = ',A)
- 1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
+ 1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
@@ -1034,15 +1044,17 @@ c    .   ' (',F6.3,' smooth)')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
  1230 FORMAT(/' supercell:')
- 1231 FORMAT(5x,' volume : ',F10.1)
+ 1231 FORMAT(5x,'             omega=',F8.1)
+ 1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,
+     >      /5x,'             alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
+ 1233 FORMAT(5x,' cell_name:  ',A)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')
  1244 FORMAT(5x,' reciprocal: b1=<',3f8.3,' >')
  1245 FORMAT(5x,'             b2=<',3f8.3,' >')
  1246 FORMAT(5x,'             b3=<',3f8.3,' >')
-
- 1250 FORMAT(5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1250 FORMAT(/5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
