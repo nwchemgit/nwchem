@@ -1,0 +1,9 @@
+      integer maxdepth, maxnames
+      parameter (maxdepth = 4, maxnames = 32)
+      integer depth, n_print, n_no_print, print_level
+      character*32 print_names, no_print_names
+c
+      common /printcommon/ depth, print_level(maxdepth),
+     $     n_print(maxdepth), n_no_print(maxdepth)
+      common /cprintcommon/print_names(maxnames,maxdepth),
+     $     no_print_names(maxnames,maxdepth)
