@@ -1,0 +1,14 @@
+[lmax] -1
+[locp] -1
+[rlocal] 1.0
+<atom>
+H
+1.0 1.0 0 1 
+1  0      1.0
+<end>
+<solver>          pauli         <end>
+<pseudopotential> hamann        <end>
+<linear> 501 0.02 <end>
+<rcut> 0 0.800
+       1 0.800
+<end>
