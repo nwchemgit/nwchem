@@ -32,8 +32,8 @@ c
       integer vlen, nvirt, nmos(2), nbf_vecs, nsets
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
-      logical movecs_read_header
-      external movecs_read_header
+      logical movecs_read_header, cphf_poliz
+      external movecs_read_header, cphf_poliz
       logical int_normalize
       external int_normalize
 c
@@ -196,6 +196,7 @@ c
 c
       return
 c
-      call cphf_poliz(rtdb)     ! Never executed.
+      if (.not. cphf_poliz(rtdb))     ! Never executed.
+     $     call errquit(' cphf: not possible!',0)
 c
       end
