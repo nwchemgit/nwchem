@@ -1,26 +1,25 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,gamma,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.6 1995-10-29 02:53:52 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.7 1995-11-01 03:06:10 og845 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
       double precision alpha,beta,pgamma,delta,beta10
       double precision zzz,fff,CINF
-      double precision CX37,akf_par,aa
+      double precision CX37,aa
 
       double precision ONE,ONE3,THREE
       double precision FOURTHIRDS,SEV6
       double precision FIVE3,TWO3,FIVE6
       double precision pi
 
-      Parameter (TOLL=1.E-40,EXPTOL=80.d0)
+      Parameter (TOLL=1.D-20,EXPTOL=40.d0)
       Parameter (alpha=0.023266D0,beta = 7.389D-6,
      ,   pgamma=8.723d0,delta=0.472d0, beta10=10000.d0*beta)
       parameter (zzz=0.001667d0,fff=0.002568d0)
       parameter(CINF=zzz+fff)
       parameter(CX37=-zzz*3.d0/7.d0)
-      parameter(akf_par=1.91915829d0)
       parameter(aa=0.09d0)
 
       Parameter (ONE=1.D0,ONE3=1.d0/3.d0,THREE=3.d0)
@@ -28,6 +27,7 @@ C     $Id: xc_perdew91.F,v 1.6 1995-10-29 02:53:52 og845 Exp $
       parameter (FIVE3=5.d0/3.d0,TWO3=2.d0/3.d0,FIVE6=5.d0/6.d0)
       parameter (pi=3.1415926535897932385d0)
 
+      integer ipol,nq
 
       logical grad_corr
 c
@@ -61,25 +61,24 @@ c--   > Sampling Matrices for the XC Potential & Energy
 
       double precision dp81drho(2)
       
-      integer ipol
 c     
 c     J.P.Perdew, J.A.Chevary, S.H.Vosko, K.A.Jackson, M.R.Pederson, 
 c     D.J.~Singh and C.~Fiolhais,  Phys. Rev. B  46, 6671 (1992).     
 c     
 C
-      integer nq,n
+      integer n
       double precision expo1,expo2,dexpo1,dexpo2
       double precision TPP,nu,bb,twoab,twoab2,atwob2
       double precision rsfact,rhoval,rho13,rs,rs2,rs3,
      *     drsdrho,arho,drho
-      double precision gammaval,dsqgamma
+      double precision gammaval,dsqgamma,dtdgamma
       double precision anum,aden,CC,CCPRIME
       double precision egas,degasda,degasdb
       double precision g,g2,g3
       double precision gzeta,gzprime,x
       double precision dgzetadag,dgzetadbg,gggr,ggg
       double precision akf,aks,dksdrho,dkfdrho
-      double precision t,t2,t3,t4,dtdrhoa,dtdrhob,dtdgamma
+      double precision t,t2,t3,t4,dtdrhoa,dtdrhob
       double precision A,A1p2At2,aden1,alognd,dAdrhoa,dAdrhob
       double precision func,H0,H1,dH1drhoa,dH0drhoa,
      *     dH1drhob,dH0drhob
@@ -145,21 +144,31 @@ C
           t2=t*t
           t3=t2*t
           t4=t3*t
-          dtdrhoa=-t*(dksdrho/aks+arho)
+          dtdrhoa=-t*arho*SEV6
           dtdgamma=0.5d0*t/gammaval
 
           dexpo1=twoab2*(egas*arho)
           dexpo2=(10.d0*(aks/akf)*t)**2
-          expo1=1.e-20
-          if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
-          expo2=1.e-20
-          if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
+          if(dexpo1.gt.EXPTOL) then
+            expo1=0.
+          else
+            expo1=exp(-dexpo1)
+          endif
+          if(dexpo2.gt.EXPTOL) then
+            expo2=0.
+          else
+            expo2=exp(-dexpo2)
+          endif
 
           A=twoab/(expo1-ONE)
           A1p2At2=ONE+2.d0*A*t2
           aden1=ONE/(ONE+A*t2+A*A*t4)
           alognd=(t2+A*t4)*aden1
-          H0=atwob2*log(ONE+twoab*alognd)
+          if(twoab*alognd.gt.TOLL) then
+            H0=atwob2*log(ONE+twoab*alognd)
+          else
+            H0=0.d0
+          endif
           H1=nu*(CC-CINF-CX37)*t2*expo2
 
 
@@ -179,15 +188,13 @@ c
      *         2.d0*dexpo2*(
      *         dtdrhoa/t + dksdrho/aks - dkfdrho/akf))
 
-C          dAdrhoa = A/(expo1-ONE)*expo1*
-C     *         twoab2*degasda
           dAdrhoa = A/(expo1-ONE)*
      *         twoab2*degasda
           dH0drhoa = 
-     =         bb*aden1/(ONE+twoab*alognd)*(
-     (         2.d0*t*dtdrhoa*A1p2At2 + dAdrhoa*t4 -
-     -         alognd*A1p2At2*(2.d0*A*t*dtdrhoa +
-     +         dAdrhoa*t2))
+     =         bb*aden1*A1p2At2*(
+     (         2.d0*t*dtdrhoa + dAdrhoa*t4/A1p2At2 -
+     -         alognd*(2.d0*A*t*dtdrhoa +
+     +         dAdrhoa*t2))/(ONE+twoab*alognd)
           if(.not.grad_corr) then
             Amat(1,n) = Amat(1,n) +  (dp81drho(1) + func +
      +           rhoval*(dH0drhoa+dH1drhoa))*fac
@@ -201,15 +208,13 @@ c
 
           if(dsqgamma.gt.TOLL) then
 
-            dH1dgamma = H1*2.d0*dtdgamma/t*(
-     (           ONE - dexpo2 )
+            dH1dgamma = H1/gammaval*(ONE - dexpo2 )
 
             dH0dgamma = bb/(ONE+twoab*alognd)*
      *           aden1*2.d0*t*dtdgamma*A1p2At2*
-     *           (aden1-alognd*A)
+     *           (ONE-alognd*A)
 
-            gaa = (dH0dgamma +dH1dgamma)*rhoval*fac
-            gbb = gaa
+            gaa = (dH0dgamma +dH1dgamma)*rhoval*fac*2.d0
             
             Cmat(1,1,n) = Cmat(1,1,n) + gaa*delrho(1,1,n)
             Cmat(1,2,n) = Cmat(1,2,n) + gaa*delrho(1,2,n)
@@ -358,14 +363,14 @@ c
 
           if(dsqgamma.gt.TOLL) then
 
-            dH1dgamma = H1*2.d0*dtdgamma/t*(
+            dH1dgamma = H1/gammaval*(
      (           ONE - dexpo2 )
 
             dH0dgamma = g3*bb/(ONE+twoab*alognd)*
      *           aden1*2.d0*t*dtdgamma*A1p2At2*
      *           (aden1-alognd*A)
 
-            gaa = (dH0dgamma +dH1dgamma)*rhoval*fac
+            gaa = 2.d0*(dH0dgamma +dH1dgamma)*rhoval*fac
             gbb = gaa*fac
             
             Cmat(1,1,n) = Cmat(1,1,n) + 
