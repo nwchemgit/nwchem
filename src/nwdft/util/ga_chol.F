@@ -1,11 +1,10 @@
       subroutine ga_chol(g_a, g_s,info)
-C$Id: ga_chol.F,v 1.4 1995-02-02 23:19:51 d3g681 Exp $
+C$Id: ga_chol.F,v 1.5 1995-04-26 18:11:34 og845 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
-      integer ii
       integer g_a               ! input matrix
       integer g_s               ! output matrix
 c
@@ -41,7 +40,6 @@ c
       logical oactive           ! true iff this process participates
       integer dimA1, dimA2, typeA
       integer dimS1, dimS2, typeS
-      integer ga_chol_msg
 c
       integer Elem
       Elem(istart,iend,n)=((iend-istart+1)*(2*n-istart-iend+2))/2

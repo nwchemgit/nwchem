@@ -1,5 +1,5 @@
       subroutine ga_chol_seq(g_a, g_s,info)
-C$Id: ga_chol_seq.F,v 1.4 1995-02-02 23:19:52 d3g681 Exp $
+C$Id: ga_chol_seq.F,v 1.5 1995-04-26 18:11:56 og845 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -8,7 +8,6 @@ C$Id: ga_chol_seq.F,v 1.4 1995-02-02 23:19:52 d3g681 Exp $
       integer g_a ! input matrix
       integer g_s ! output matrix
       integer l_a_in, i_a_in ! ma handle and pointer
-      integer ga_chol_msg,myelem
 c     
 c     
 c     This subroutine performs a submatrix Choleski factorization of a 
@@ -24,8 +23,8 @@ c
 c     
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c     
-      integer iproc, pan, istart, iend, k, n, npan, proc, myproc
-      integer ik, info
+      integer n,  proc, myproc
+      integer info
       logical status
 c     
 c     

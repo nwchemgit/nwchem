@@ -1,5 +1,5 @@
       subroutine ga_inv_seq(g_a, g_s)
-C$Id: ga_inv_seq.F,v 1.4 1995-02-02 23:19:53 d3g681 Exp $
+C$Id: ga_inv_seq.F,v 1.5 1995-04-26 18:11:59 og845 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -22,15 +22,15 @@ c
 c
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c
-      integer iproc, k, n,proc, myproc
-      integer ik, info
+      integer k, n,proc, myproc
+      integer info
       logical status
 c
       logical oactive           ! true iff this process participates
       integer dimA1, dimA2, typeA
       integer dimS1, dimS2, typeS
       integer i_a_in, l_a_in
-      integer istart,myelem
+      integer istart
 c
 c***  check environment
 c
