@@ -1,21 +1,23 @@
       subroutine cf_start(lfntop,filtop,
+     + ndistr,lfndrs,fildrs,npmf,lfnpmf,filpmf,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta)
-c $Id: cf_init.F,v 1.26 1999-09-11 03:41:41 d3j191 Exp $
+c $Id: cf_init.F,v 1.27 1999-09-17 22:21:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
-      integer lfntop
-      character*(*) filtop
-      integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh
+      integer lfntop,lfndrs,lfnpmf
+      character*(*) filtop,fildrs,filpmf
+      integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
+      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt
       real*8 rcs,rcl,rqm,compr,delta
@@ -23,7 +25,7 @@ c
       integer issscl
       real*8 rtmpx,rprsx,rtmpw,rtmps,rpres,tempi,tempwi,tempsi
 c
-      integer i
+      integer i,itemp(2)
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -47,6 +49,8 @@ c
       llst=.false.
       lpair=.true.
       llist=.false.
+      lpmf=npmf.gt.0
+      lpmfc=npmf.eq.2
       ndxp=0
       maxl=0
 c
@@ -154,6 +158,8 @@ c
       shift1(5)=delta
       shift1(6)=zero
 c
+      numpmf=0
+c
       ithint=ntype.eq.3
       ipert2=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
       ipert3=ithint.or.(iset.eq.1.and.(ipset1.eq.2.or.ipset2.eq.2))
@@ -170,6 +176,63 @@ c
       ip2(i)=ith(i)
       ip3(i)=ith(i)
     3 continue
+      endif
+c
+c     distance restraints
+c     -------------------
+c
+      if(ndistr.gt.0) then
+      if(me.eq.0) then
+      open(unit=lfndrs,file=fildrs(1:index(fildrs,' ')-1),
+     + form='formatted',status='old',err=9999)
+      read(lfndrs,1000) ndrs
+ 1000 format(i5)
+      endif
+      call ga_brdcst(mcf_55,ndrs,ma_sizeof(mt_int,1,mt_byte),0)
+      if(ndrs.gt.0) then
+      if(.not.ma_push_get(mt_int,2*ndrs,'idrs',l_idrs,i_idrs))
+     + call errquit('Failed to allocate idrs',0)
+      if(.not.ma_push_get(mt_dbl,6*ndrs,'rdrs',l_rdrs,i_rdrs))
+     + call errquit('Failed to allocate rdrs',0)
+      if(.not.ma_push_get(mt_dbl,6*ndrs,'xdrs',l_xdrs,i_xdrs))
+     + call errquit('Failed to allocate xdrs',0)
+      endif
+      call cf_rddrs(lfndrs,int_mb(i_idrs),dbl_mb(i_rdrs))
+      if(me.eq.0) then
+      close(unit=lfndrs)
+      endif
+      endif
+c
+c     potential of mean force
+c     -----------------------
+c
+      if(lpmf) then
+      if(me.eq.0) then
+      open(unit=lfnpmf,file=filpmf(1:index(filpmf,' ')-1),
+     + form='formatted',status='old',err=9999)
+      rewind(lfnpmf)
+      read(lfnpmf,2000) itemp
+ 2000 format(2i5)
+      endif
+      call ga_brdcst(mcf_59,itemp,ma_sizeof(mt_int,2,mt_byte),0)
+      numpmf=itemp(1)
+      npmfa=itemp(2)
+      if(numpmf.gt.0) then
+      if(.not.ma_push_get(mt_int,5*numpmf,'ipmf',l_ipmf,i_ipmf))
+     + call errquit('Failed to allocate ipmf',0)
+      if(.not.ma_push_get(mt_int,4*numpmf*npmfa,'jpmf',l_jpmf,i_jpmf))
+     + call errquit('Failed to allocate jpmf',0)
+      if(.not.ma_push_get(mt_dbl,12*numpmf,'rpmf',l_rpmf,i_rpmf))
+     + call errquit('Failed to allocate rpmf',0)
+      if(.not.ma_push_get(mt_dbl,16*numpmf,'xpmf',l_xpmf,i_xpmf))
+     + call errquit('Failed to allocate xpmf',0)
+      if(.not.ma_push_get(mt_dbl,12*numpmf,'ypmf',l_ypmf,i_ypmf))
+     + call errquit('Failed to allocate ypmf',0)
+      endif
+      call cf_rdpmf(lfnpmf,int_mb(i_ipmf),int_mb(i_jpmf),dbl_mb(i_rpmf))
+      if(me.eq.0) then
+      close(unit=lfnpmf)
+      endif
       endif
 c
 c     particle-mesh Ewald initialization
@@ -196,6 +259,83 @@ c
      + mit(1),numi(1),mip(1),dbl_mb(i_imp(1)),
      + mbt(2),mbp(2),dbl_mb(i_bnd(2)),mht(2),mhp(2),dbl_mb(i_ang(2)),
      + mdt(2),mdp(2),dbl_mb(i_dih(2)),mit(2),mip(2),dbl_mb(i_imp(2)))
+c
+      return
+
+ 9999 continue
+      call errquit('Distance restraints file not found',0)
+c
+      return
+      end
+      subroutine cf_rddrs(lfndrs,idrs,rdrs)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer lfndrs,ndrs
+      integer idrs(ndrs,2)
+      real*8 rdrs(ndrs,6)
+c
+      integer i,j
+c
+      if(me.eq.0) then
+      do 1 i=1,ndrs
+      read(lfndrs,1000) (idrs(i,j),j=1,2),(rdrs(i,j),j=1,5)
+ 1000 format(2i10,3f12.6,/,20x,2e12.5)
+      rdrs(i,6)=zero
+    1 continue
+      endif
+c
+      call ga_sync()
+      call ga_brdcst(mcf_57,idrs,ma_sizeof(mt_int,ndrs*2,mt_byte),0)
+      call ga_brdcst(mcf_58,rdrs,ma_sizeof(mt_dbl,ndrs*6,mt_byte),0)
+c
+      return
+      end
+      subroutine cf_rdpmf(lfnpmf,ipmf,jpmf,rpmf)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer lfnpmf
+      integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
+      real*8 rpmf(numpmf,2,6)
+c
+      integer i,j,k,lenint,lendbl
+c
+      lenint=ma_sizeof(mt_int,1,mt_byte)
+      lendbl=ma_sizeof(mt_dbl,1,mt_byte)
+c
+      if(me.eq.0) then
+      do 1 i=1,numpmf
+      read(lfnpmf,1000) ipmf(i,1),(rpmf(i,j,1),rpmf(i,j,3),j=1,2),
+     + (ipmf(i,j),j=2,5)
+ 1000 format(i5,2f12.6,2e12.5,4i5)
+      do 2 j=1,2
+      rpmf(i,j,2)=rpmf(i,j,1)
+      rpmf(i,j,4)=rpmf(i,j,1)
+      rpmf(i,j,5)=rpmf(i,j,2)
+      rpmf(i,j,6)=rpmf(i,j,3)
+    2 continue
+      do 3 j=1,ipmf(i,1)
+      read(lfnpmf,1001) (jpmf(i,j,k),k=1,ipmf(i,j+1))
+ 1001 format(10i7)
+    3 continue
+    1 continue
+      endif
+c
+      call ga_sync()
+      call ga_brdcst(mcf_60,ipmf,5*numpmf*lenint,0)
+      call ga_brdcst(mcf_61,jpmf,4*numpmf*npmfa*lenint,0)
+      call ga_brdcst(mcf_62,rpmf,12*numpmf*lendbl,0)
 c
       return
       end
@@ -1402,6 +1542,7 @@ c
       implicit none
 c
 #include "cf_common.fh"
+#include "mafdecls.fh"
 c
       integer lamtyp,lambda,maxlam,lfnout
       real*8 explam,rlambd,dlambd
@@ -1504,6 +1645,8 @@ c
       shift1(k)=rlam(k)*shift1(6)+slam(k)*shift1(5)
     1 continue
 c
+      if(lpmf) call cf_lampmf(rlam,slam,dbl_mb(i_rpmf))
+c
       if(me.eq.0) then
       call swatch(pdate,ptime)
       write(lfnout,1000) rlam(1),ith,pdate,ptime
@@ -1513,6 +1656,26 @@ c
 c
       rlambd=rlam(1)
       dlambd=rlam(3)-rlam(2)
+c
+      return
+      end
+      subroutine cf_lampmf(rlam,slam,rpmf)
+c
+      implicit none
+c
+#include "cf_common.fh"
+c
+      real*8 rlam(3),slam(3),rpmf(numpmf,2,6)
+c
+      integer i,j,k
+c
+      do 1 i=1,numpmf
+      do 2 j=1,2
+      do 3 k=1,3
+      rpmf(i,j,k)=rlam(k)*rpmf(i,j,6)+slam(k)*rpmf(i,j,5)
+    3 continue
+    2 continue
+    1 continue
 c
       return
       end

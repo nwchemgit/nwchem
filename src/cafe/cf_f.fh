@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
       implicit none
 c
@@ -512,7 +512,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1190,7 +1190,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
       implicit none
 c
@@ -1527,13 +1527,18 @@ c
 c
 c     evaluate and accumulate the solute-solute virial contributions
 c
-      if(msm.gt.1) then
+cx
+cx    commented out to allow virial contributions from interactions
+cx    between a solute molecule and its own image
+cx
+cx      if(msm.gt.1) then
       do 32 jsf=1,msf
       sumen1=zero
       sumen2=zero
       sumen3=zero
       do 33 iax=1,nax
-      if(jfal(iax).eq.jsf.and.jmal(iax).eq.1) then
+cx      if(jfal(iax).eq.jsf.and.jmal(iax).eq.1) then
+      if(jfal(iax).eq.jsf) then
       sumen1=sumen1-half*f(iax)*rwx(iax,1)*rwc(iax,1)
       sumen2=sumen2-half*f(iax)*rwx(iax,2)*rwc(iax,2)
       sumen3=sumen3-half*f(iax)*rwx(iax,3)*rwc(iax,3)
@@ -1546,7 +1551,7 @@ c
       zs(isf,3,ipss)=zs(isf,3,ipss)+sumen3
       zs(jsf,3,ipss)=zs(jsf,3,ipss)+sumen3
    32 continue
-      endif
+cx      endif
 c
 c     generate radial distribution functions
 c
@@ -2049,9 +2054,9 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
-c     cf_forsb returns forces and energies for solute bonds
+c     cf_fsb returns forces and energies for solute bonds
 c
 c     =====================================================
 c
@@ -2322,7 +2327,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2581,7 +2586,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2907,7 +2912,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3218,7 +3223,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3534,7 +3539,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.12 1999-09-11 03:41:40 d3j191 Exp $
+c $Id: cf_f.fh,v 1.13 1999-09-17 22:21:40 d3j191 Exp $
 c
       implicit none
 c

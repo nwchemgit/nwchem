@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.20 1999-09-11 03:41:41 d3j191 Exp $
+c $Id: cf_main.F,v 1.21 1999-09-17 22:21:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -836,13 +836,15 @@ c
       return
       end
       subroutine cf_proper(vol,tmp,tmpw,tmps,prs,tsw,tss,psc,
-     + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3)
+     + ewkin,nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs,ept2,ept3,
+     + edistr,epomef)
 c
       implicit none
 c
 #include "cf_common.fh"
 c
       real*8 vol,tmp,tmpw,tmps,prs,tsw,tss,psc,ewkin,ept2,ept3
+      real*8 edistr,epomef
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshw,nshs
 c
       vol=volume
@@ -868,6 +870,9 @@ c
 c
       ept2=ep2(1)
       ept3=ep3(1)
+c
+      edistr=edrs
+      epomef=epmf
 c
       return
       end
@@ -945,12 +950,211 @@ c
       real*8 xs(msa,3),fs(msa,3),ess(msf,msf,mpe,2)
       integer isgan(msa),isfrc(msa),isdyn(msa),isct1(msa)
 c
-      if(mmult.eq.0) return
+      edrs=zero
+      epmf=zero
 c
+      if(mmult.gt.0) then
       call cf_mlist(nums,xs,fs,isgan,isfrc,isdyn,isct1,
      + mbt(2),int_mb(i_ibnd(2)),mht(2),int_mb(i_iang(2)),
      + mdt(2),int_mb(i_idih(2)),mit(2),int_mb(i_iimp(2)),
      + int_mb(i_ixmul),int_mb(i_imul),dbl_mb(i_xmul),dbl_mb(i_fmul),ess)
+      endif
+c
+      if(ndrs.gt.0) then
+      call cf_dlist(nums,xs,fs,isgan,int_mb(i_idrs),dbl_mb(i_rdrs),
+     + dbl_mb(i_xdrs))
+      endif
+c
+      if(lpmf) then
+      call cf_plist(nums,xs,fs,isgan,int_mb(i_ipmf),int_mb(i_jpmf),
+     + dbl_mb(i_rpmf),dbl_mb(i_xpmf))
+      endif
+c
+      return
+      end
+      subroutine cf_plist(nums,xs,fs,isgan,ipmf,jpmf,rpmf,xpmf)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer nums
+      real*8 xs(msa,3),fs(msa,3)
+      integer isgan(msa)
+      integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
+      real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,3)
+      real*8 et(2),ft(4,3)
+      integer ip(3)
+      real*8 rp(2,6),rv(2),chg(2)
+      integer it(2),ign(4),iml(4),idt(4),ich(4)
+c
+      integer i,j,k,l,m
+c
+      epmf=zero
+c
+      chg(1)=zero
+c
+      do 1 i=1,numpmf
+      do 2 j=1,4
+      xpmf(i,j,1)=zero
+      xpmf(i,j,2)=zero
+      xpmf(i,j,3)=zero
+    2 continue
+      do 3 j=1,ipmf(i,1)
+      do 4 k=1,ipmf(i,j+1)
+      do 5 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      xpmf(i,j,1)=xpmf(i,j,1)+xs(l,1)
+      xpmf(i,j,2)=xpmf(i,j,2)+xs(l,2)
+      xpmf(i,j,3)=xpmf(i,j,3)+xs(l,3)
+      endif
+    5 continue
+    4 continue
+      xpmf(i,j,1)=xpmf(i,j,1)/dble(ipmf(i,j+1))
+      xpmf(i,j,2)=xpmf(i,j,2)/dble(ipmf(i,j+1))
+      xpmf(i,j,3)=xpmf(i,j,3)/dble(ipmf(i,j+1))
+    3 continue
+    1 continue
+c
+      call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
+c
+      do 6 i=1,numpmf
+c
+      if(ipmf(i,1).eq.2) then
+      do 7 j=1,2
+      ign(j)=j
+      iml(j)=1
+      idt(j)=0
+      ich(j)=1
+      do 8 k=1,3
+      ft(j,k)=zero
+    8 continue
+    7 continue
+      it(1)=1
+      ip(1)=1
+      ip(2)=2
+      ip(3)=0
+      call cf_fsb(1,it,1,2,ip,rpmf(i,1,1),rv,2,4,ign,iml,idt,ich,chg,
+     + xpmf(i,1,1),ft,et,.true.,.false.)
+      if(me.eq.0) epmf=epmf+rv(2)
+      do 9 j=1,2
+      do 10 k=1,ipmf(i,j+1)
+      do 11 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      fs(l,1)=fs(l,1)+ft(j,1)
+      fs(l,2)=fs(l,2)+ft(j,2)
+      fs(l,3)=fs(l,3)+ft(j,3)
+      endif
+   11 continue
+   10 continue
+    9 continue      
+c
+      endif
+      if(ipmf(i,1).eq.3) then
+      call errquit('Angle pmf not implemented',0)
+      endif
+      if(ipmf(i,1).eq.4) then
+      call errquit('Torsion pmf not implemented',0)
+      endif
+    6 continue
+c
+      return
+      end
+      subroutine cf_dlist(nums,xs,fs,isgan,idrs,rdrs,xdrs)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer nums
+      real*8 xs(msa,3),fs(msa,3)
+      integer isgan(msa)
+      integer idrs(ndrs,2)
+      real*8 rdrs(ndrs,6),xdrs(ndrs,6),ft(2,6)
+c
+      integer i,j,k
+      real*8 d,di,dd,dn,dx(3),dfor,df(3),en
+c
+      edrs=zero
+c
+      do 1 i=1,ndrs
+      do 2 j=1,6
+      xdrs(i,j)=zero
+    2 continue
+      do 3 j=1,nums
+      if(isgan(j).eq.idrs(i,1)) then
+      xdrs(i,1)=xs(j,1)
+      xdrs(i,2)=xs(j,2)
+      xdrs(i,3)=xs(j,3)
+      endif
+      if(isgan(j).eq.idrs(i,2)) then
+      xdrs(i,4)=xs(j,1)
+      xdrs(i,5)=xs(j,2)
+      xdrs(i,6)=xs(j,3)
+      endif
+    3 continue
+    1 continue
+c
+      call ga_dgop(mcf_59,xdrs,6*ndrs,'+')
+c
+      do 4 i=1,ndrs
+      dx(1)=xdrs(i,1)-xdrs(i,4)
+      dx(2)=xdrs(i,2)-xdrs(i,5)
+      dx(3)=xdrs(i,3)-xdrs(i,6)
+      d=sqrt(dx(1)*dx(1)+dx(2)*dx(2)+dx(3)*dx(3))
+      if(d.lt.tiny) then
+      di=one
+      else
+      di=one/d
+      endif
+      dn=d-rdrs(i,2)
+      k=0
+      if(d.lt.rdrs(i,1)) then
+      k=1
+      dd=rdrs(i,1)-rdrs(i,2)
+      en=rdrs(i,4)*(dn-half*dd)*dd
+      dfor=rdrs(i,4)*di*dd
+      elseif(d.gt.rdrs(i,3)) then
+      k=4
+      dd=rdrs(i,3)-rdrs(i,2)
+      en=rdrs(i,5)*(dn-half*dd)*dd
+      dfor=rdrs(i,5)*di*dd
+      elseif(d.lt.rdrs(i,2)) then
+      k=2
+      en=half*rdrs(i,4)*dn*dn
+      dfor=rdrs(i,4)*di*dn
+      else
+      k=3
+      en=half*rdrs(i,5)*dn*dn
+      dfor=rdrs(i,5)*di*dn
+      endif
+      edrs=edrs+en
+      df(1)=dfor*dx(1)
+      df(2)=dfor*dx(2)
+      df(3)=dfor*dx(3)
+      if(me.eq.0) then
+      write(*,2222) k,d,(rdrs(i,j),j=1,3),en,dfor,df
+ 2222 format(i3,4f12.6,e12.5,4f15.3)
+      endif
+      do 5 j=1,nums
+      if(isgan(j).eq.idrs(i,1)) then
+      fs(j,1)=fs(j,1)-df(1)
+      fs(j,2)=fs(j,2)-df(2)
+      fs(j,3)=fs(j,3)-df(3)
+      endif
+      if(isgan(j).eq.idrs(i,2)) then
+      fs(j,1)=fs(j,1)+df(1)
+      fs(j,2)=fs(j,2)+df(2)
+      fs(j,3)=fs(j,3)+df(3)
+      endif
+    5 continue
+    4 continue
 c
       return
       end
@@ -982,8 +1186,8 @@ c
       xmul(i,2)=zero
       xmul(i,3)=zero
       imul(i,2)=0
-      imul(1,3)=0
-      imul(1,4)=0
+      imul(i,3)=0
+      imul(i,4)=0
       do 2 j=1,nums
       if(isgan(j).eq.imul(i,1)) then
       imul(i,2)=isfrc(j)

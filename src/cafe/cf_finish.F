@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.4 1999-07-29 00:57:12 d3e129 Exp $
+c $Id: cf_finish.F,v 1.5 1999-09-17 22:21:40 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -8,6 +8,28 @@ c
       integer id
 c
 c     deallocate memory
+c
+      if(numpmf.gt.0) then
+      if(.not.ma_pop_stack(l_ypmf))
+     + call errquit('Failed to deallocate ypmf',0)
+      if(.not.ma_pop_stack(l_xpmf))
+     + call errquit('Failed to deallocate xpmf',0)
+      if(.not.ma_pop_stack(l_rpmf))
+     + call errquit('Failed to deallocate rpmf',0)
+      if(.not.ma_pop_stack(l_jpmf))
+     + call errquit('Failed to deallocate jpmf',0)
+      if(.not.ma_pop_stack(l_ipmf))
+     + call errquit('Failed to deallocate ipmf',0)
+      endif
+c
+      if(ndrs.gt.0) then
+      if(.not.ma_pop_stack(l_xdrs))
+     + call errquit('Failed to deallocate xdrs',0)
+      if(.not.ma_pop_stack(l_rdrs))
+     + call errquit('Failed to deallocate rdrs',0)
+      if(.not.ma_pop_stack(l_idrs))
+     + call errquit('Failed to deallocate idrs',0)
+      endif
 c
       if(ipme.gt.0) call pme_finish()
 c

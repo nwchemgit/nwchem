@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop)
-c $Id: cf_rdtop.F,v 1.10 1999-09-11 03:41:41 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.11 1999-09-17 22:21:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -195,14 +195,14 @@ c      if(j.gt.nsm) nsm=j
       read(lfntop,1022,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nts)
  1022 format(11i7)
       read(lfntop,1022,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nts)
-      call cf_ndxtrd(2,int_mb(i_i),int_mb(i_j),nts)
       endif
+      call cf_ndxtrd(2,int_mb(i_i),int_mb(i_j),nts)
       if(nxs.gt.0) then
       read(lfntop,1023,end=9997,err=9998) (int_mb(i_i+i-1),i=1,nxs)
  1023 format(11i7)
       read(lfntop,1023,end=9997,err=9998) (int_mb(i_j+i-1),i=1,nxs)
-      call cf_ndxxcl(2,int_mb(i_i),int_mb(i_j),nxs)
       endif
+      call cf_ndxxcl(2,int_mb(i_i),int_mb(i_j),nxs)
       if(.not.ma_pop_stack(l_j)) call errquit('Dealloc failed',0)
       if(.not.ma_pop_stack(l_i)) call errquit('Dealloc failed',0)
 c

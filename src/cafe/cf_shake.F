@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.3 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: cf_shake.F,v 1.4 1999-09-17 22:21:41 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -35,8 +35,146 @@ c
       if(nbonds.gt.0) then
       call cf_shks(nbonds,int_mb(lptr+1),mbt(2),mbp(2),
      + int_mb(i_ibnd(2)),dbl_mb(i_bnd(2)),dbl_mb(i_rbnd(2)),
-     + isto,igan,isat,isdt,xs,ys,dbl_mb(i_mas))
+     + msa,isto,igan,isat,isdt,xs,ys,dbl_mb(i_mas))
       endif
+c
+      return
+      end
+      logical function cf_shakep(xs,ys,igan,isat,isdt,nums)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer nums
+      real*8 xs(msa,3),ys(msa,3)
+      integer igan(msa),isat(msa),isdt(msa)
+      integer nitall
+c
+      cf_shakep=.true.
+c
+      if(lpmf.and.lpmfc) then
+      call cf_shkp(nums,xs,ys,igan,isat,int_mb(i_ipmf),int_mb(i_jpmf),
+     + dbl_mb(i_rpmf),dbl_mb(i_xpmf),dbl_mb(i_ypmf),dbl_mb(i_mas))
+      nitall=niters-1
+      call ga_igop(mcf_64,nitall,1,'+')
+      cf_shakep=nitall.le.0
+      endif
+c
+      return
+      end
+      subroutine cf_shkp(nums,xs,ys,isgan,isat,
+     + ipmf,jpmf,rpmf,xpmf,ypmf,wgt)
+c
+      implicit none
+c
+#include "cf_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+      integer nums
+      real*8 xs(msa,3),ys(msa,3),fs(msa,3)
+      integer isgan(msa),isat(msa)
+      integer ipmf(numpmf,5),jpmf(numpmf,4,npmfa)
+      real*8 rpmf(numpmf,2,6),xpmf(numpmf,4,4),ypmf(numpmf,4,3)
+      real*8 wgt(mat,6)
+      real*8 et(2),ft(4,3)
+      integer ip(3)
+      real*8 rp(2,6),rv(2),w(4)
+      integer it(2),ign(4),iml(4),idt(4),ich(4)
+c
+      integer i,j,k,l,m
+c
+      epmf=zero
+c
+      do 1 i=1,numpmf
+      do 2 j=1,4
+      xpmf(i,j,1)=zero
+      xpmf(i,j,2)=zero
+      xpmf(i,j,3)=zero
+      xpmf(i,j,4)=zero
+      ypmf(i,j,1)=zero
+      ypmf(i,j,2)=zero
+      ypmf(i,j,3)=zero
+    2 continue
+      do 3 j=1,ipmf(i,1)
+      do 4 k=1,ipmf(i,j+1)
+      do 5 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      xpmf(i,j,1)=xpmf(i,j,1)+xs(l,1)
+      xpmf(i,j,2)=xpmf(i,j,2)+xs(l,2)
+      xpmf(i,j,3)=xpmf(i,j,3)+xs(l,3)
+      xpmf(i,j,4)=xpmf(i,j,4)+wgt(isat(l),iset)
+      ypmf(i,j,1)=ypmf(i,j,1)+xs(l,1)
+      ypmf(i,j,2)=ypmf(i,j,2)+xs(l,2)
+      ypmf(i,j,3)=ypmf(i,j,3)+xs(l,3)
+      endif
+    5 continue
+    4 continue
+      xpmf(i,j,1)=xpmf(i,j,1)/dble(ipmf(i,j+1))
+      xpmf(i,j,2)=xpmf(i,j,2)/dble(ipmf(i,j+1))
+      xpmf(i,j,3)=xpmf(i,j,3)/dble(ipmf(i,j+1))
+      ypmf(i,j,1)=ypmf(i,j,1)/dble(ipmf(i,j+1))
+      ypmf(i,j,2)=ypmf(i,j,2)/dble(ipmf(i,j+1))
+      ypmf(i,j,3)=ypmf(i,j,3)/dble(ipmf(i,j+1))
+      do 14 k=1,ipmf(i,j+1)
+      do 15 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      xs(l,1)=xs(l,1)-xpmf(i,j,1)
+      xs(l,2)=xs(l,2)-xpmf(i,j,2)
+      xs(l,3)=xs(l,3)-xpmf(i,j,3)
+      endif
+   15 continue
+   14 continue
+    3 continue
+    1 continue
+c
+      call ga_dgop(mcf_59,xpmf,12*numpmf,'+')
+      call ga_dgop(mcf_63,ypmf,12*numpmf,'+')
+c
+      do 6 i=1,numpmf
+c
+      if(ipmf(i,1).eq.2) then
+      do 7 j=1,2
+      w(j)=xpmf(i,j,4)
+      ign(j)=j
+      iml(j)=1
+      idt(j)=0
+      ich(j)=1
+      do 8 k=1,3
+      ft(j,k)=zero
+    8 continue
+    7 continue
+      it(1)=1
+      ip(1)=1
+      ip(2)=2
+      ip(3)=1
+      call cf_shks(1,it,1,2,ip,rpmf(i,1,1),rv,2,4,ign,iml,idt,
+     + xpmf(i,1,1),ypmf(i,1,1),w)
+      do 9 j=1,ipmf(i,1)
+      do 10 k=1,ipmf(i,j+1)
+      do 11 l=1,nums
+      if(isgan(l).eq.jpmf(i,j,k)) then
+      xs(l,1)=xs(l,1)+xpmf(i,j,1)
+      xs(l,2)=xs(l,2)+xpmf(i,j,2)
+      xs(l,3)=xs(l,3)+xpmf(i,j,3)
+      endif
+   11 continue
+   10 continue
+    9 continue
+c
+      endif
+c      if(ipmf(i,1).eq.3) then
+c      call errquit('Angle pmf not implemented',0)
+c      endif
+c      if(ipmf(i,1).eq.4) then
+c      call errquit('Torsion pmf not implemented',0)
+c      endif
+    6 continue
 c
       return
       end
@@ -234,7 +372,7 @@ c
       return
       end
       subroutine cf_shks(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
-     + natoms,igan,isat,isdt,xs,ys,wgt)
+     + natoms,matoms,igan,isat,isdt,xs,ys,wgt)
 c
       implicit none
 c
@@ -245,9 +383,9 @@ c
       real*8 bnd(msb,msp,6),rbnd(msb,2)
       integer nbonds
       integer indexl(nbonds)
-      integer natoms
-      integer igan(msa),isat(msa),isdt(msa)
-      real*8 xs(msa,3),ys(msa,3)
+      integer matoms,natoms
+      integer igan(matoms),isat(matoms),isdt(matoms)
+      real*8 xs(matoms,3),ys(matoms,3)
       real*8 wgt(mat,6)
 c
       real*8 wsai,wsaj
@@ -327,6 +465,11 @@ c
       xs(jsa,1)=xs(jsa,1)-ff1*wsaj
       xs(jsa,2)=xs(jsa,2)-ff2*wsaj
       xs(jsa,3)=xs(jsa,3)-ff3*wsaj
+      endif
+      if(ithint) then
+      deriv(19,1)=deriv(19,1)+half*tstepi*tstepi*
+     + (rsx1*ff1+rsx2*ff2+rsx3*ff3)*bnd(isb,1,4)/
+     + sqrt(rsx1*rsx1+rsx2*rsx2+rsx3*rsx3)
       endif
       endif
       endif

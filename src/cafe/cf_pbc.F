@@ -1,6 +1,6 @@
       subroutine cf_pbc(iopt,xd,ndd,xc,ndc,noff,n0,n1)
 c
-c $Id: cf_pbc.F,v 1.3 1999-03-15 21:20:01 d3j191 Exp $
+c $Id: cf_pbc.F,v 1.4 1999-09-17 22:21:41 d3j191 Exp $
 c
       implicit none
 c
@@ -9,9 +9,13 @@ c
       integer iopt,ndd,ndc,noff,n0,n1
       real*8 xd(ndd,3),xc(ndc,3),xt(3),xts
       integer i,ix,jx,ndim
-      real*8 rin(3),pbcor
+      real*8 rin(3),pbcor,boxi(3)
 c
       if(npbtyp.eq.0) return
+c
+      boxi(1)=one/box(1)
+      boxi(2)=one/box(2)
+      boxi(3)=one/box(3)
 c
 c     correction vector returned in xc
 c     --------------------------------
@@ -33,7 +37,11 @@ c
       do 2 ix=1,ndim
       do 3 i=n0,n1
       if(abs(xd(noff+i,ix)).gt.boxh(ix)) then
-      xc(i,ix)=sign(box(ix),xd(noff+i,ix))
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
+      xc(i,ix)=arg_nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+#else
+      xc(i,ix)=nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+#endif
       endif
     3 continue
     2 continue
@@ -83,8 +91,14 @@ c
       if(nbxtyp.eq.0.or.nbxtyp.eq.2) then
       do 12 ix=1,ndim
       do 13 i=n0,n1
+#if defined(CRAY_T3D) || defined(CRAY_T3E)
       if(abs(xd(noff+i,ix)).gt.boxh(ix))
-     + xd(noff+i,ix)=xd(noff+i,ix)-sign(box(ix),xd(noff+i,ix))
+     + xd(noff+i,ix)=xd(noff+i,ix)-
+     + arg_nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+#else
+      if(abs(xd(noff+i,ix)).gt.boxh(ix))
+     + xd(noff+i,ix)=xd(noff+i,ix)-nint(xd(noff+i,ix)*boxi(ix))*box(ix)
+#endif
    13 continue
    12 continue
       endif
