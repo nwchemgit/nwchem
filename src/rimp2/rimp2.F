@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.21 1995-04-21 21:50:11 gg502 Exp $
+C$Id: rimp2.F,v 1.22 1995-06-02 04:45:05 gg502 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -78,11 +78,6 @@ C
       Logical PrInfo, PrWarn, PrRef
 C
       Logical FullRef
-C
-C     Start by flushing all previous output
-C
-      Call Util_Flush(LuOut)
-      Call Util_Flush(LuErr)
 C
 C     Initialize this module
 C
@@ -355,8 +350,8 @@ C
 C
             Write (LuOut, 9051)
          EndIf
+         Call Util_Flush(LuOut)
       EndIF
-      Call Util_Flush(LuOut)
 C
  8500 Format(1X, A35, 1X, '''', A, '''')
  8505 Format(1X, A35, 2X, A)
@@ -488,11 +483,11 @@ C
       Status = Status .AND. Context_Pop(My_Ctx)
       If (.NOT. Status) Call ErrQuit(
      $   'RIMP2: Failed to pop context', 0)
-C
-C     Make sure the user gets everything we've written before going on
-C
-      Call Util_Flush(LuOut)
-      Call Util_Flush(LuErr)
+c$$$C
+c$$$C     Make sure the user gets everything we've written before going on
+c$$$C
+c$$$      Call Util_Flush(LuOut)
+c$$$      Call Util_Flush(LuErr)
 C
       RIMP2 = .TRUE.
       Return
