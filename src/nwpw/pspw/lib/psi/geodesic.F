@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.14 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: geodesic.F,v 1.15 2003-10-21 21:38:06 bylaska Exp $
 *
 
 *     ***********************************
@@ -375,7 +375,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 *     **** local variables ****
       logical    value
       integer    npack1,nemax
-      integer    ms,j,k,n,shift1,shift2
+      integer    ms,j,k,n,shift1,shift2,shift
       real*8     scal1,scal2
       real*8     zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
@@ -418,10 +418,9 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
           scal2 = dsin(dbl_mb(S(1)+j-1+shift1)*t)
 
           do k=1,n
-           dbl_mb(tmp1(1)+j-1+(k-1)*n+shift2) 
-     >          = scal1 * dbl_mb(Vt(1)+j-1+(k-1)*n+shift2)
-           dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2) 
-     >          = scal2 * dbl_mb(Vt(1)+j-1+(k-1)*n+shift2)
+           shift = j-1 + (k-1)*n + shift2
+           dbl_mb(tmp1(1)+shift) = scal1 * dbl_mb(Vt(1)+shift)
+           dbl_mb(tmp3(1)+shift) = scal2 * dbl_mb(Vt(1)+shift)
           end do
 
         end do
@@ -528,7 +527,7 @@ c     end if
 *     **** local variables ****
       logical    value
       integer    npack1,nemax
-      integer    ms,j,k,n,shift1,shift2
+      integer    ms,j,k,n,shift1,shift2,shift
       real*8     zero,one
       real*8     scal1,scal3
       integer    tmp1(2),tmp2(2),tmp3(2)
