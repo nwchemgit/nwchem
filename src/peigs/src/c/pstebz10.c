@@ -542,12 +542,15 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    if ( *info != 0 ) {
      printf(" error in dstebz3 %d info %d leig %g  \n", me, *info, leig);
-     if ( me == 0 ) {
+      xstop_(info);
+/*
+if ( me == 0 ) {
        printf("  n %d \n", msize);
        for ( il = 0; il < msize; il++ ) {
 	 printf(" %d  %20.16g %20.16g  \n", il, d[il], e[il]);
        }
-     }
+}
+     */
    }
    
    leig = eval[0];
