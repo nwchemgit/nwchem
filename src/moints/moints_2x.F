@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.8 1995-10-17 16:51:14 rg240 Exp $
+c  $Id: moints_2x.F,v 1.9 1995-10-19 00:23:59 d3g681 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -36,6 +36,7 @@ c
 #include "util.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
+#include "sym.fh"
 c
 c Arguments
 c
@@ -77,11 +78,13 @@ c
        double precision tz, thalf, tint, t1idx, t2kidx, t3kidx, t4kidx
        double precision t34jidx, ttotal, t2jidx, tsynch
        double precision ttask, ttaskmax, ttaskmin, ttaskagg
-       double precision flop1
+       double precision flop1, q2
        integer tottask
+       integer geom
        logical status
        logical oprint
        logical osym
+       logical odoit
 c
 #include "moints_stats.fh"
 c
@@ -98,8 +101,10 @@ c
 c
        data tol2e/1.d-12/
        data oprint/.true./
-       data osym /.false./
 c
+       if (.not. bas_geom(basis, geom)) call errquit
+     $      ('moints: cannot get geometry', 0)
+       osym = (sym_number_ops(geom) .gt. 0) 
 c
 c  General basis info
 c
@@ -204,7 +209,11 @@ c
            schw_ij = schwarz_shell(ish,jsh)
            scale = 1.d0
            if (ish.eq.jsh) scale = scale*0.5d0
-           if (schw_ij*schwarz_max().ge.tol2e) then
+           odoit = schw_ij*schwarz_max().ge.tol2e
+           if (odoit .and. osym) then
+              odoit = sym_shell_pair(basis, ish, jsh, q2)
+           endif
+           if (odoit) then
              if (next.eq.ploop) then
                tottask = tottask + 1
                ttask = tcgtime()

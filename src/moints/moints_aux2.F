@@ -2,7 +2,7 @@
      $     lshlo, lshhi, schw_ij, tol2e,
      $     max2e, eri, mem2, iscr, ilen,
      $     jlen, kblo, kbhi, lblo, lbhi, ssbb, osym )
-C     $Id: moints_aux2.F,v 1.4 1995-10-17 16:59:33 rg240 Exp $
+C     $Id: moints_aux2.F,v 1.5 1995-10-19 00:24:00 d3g681 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -34,11 +34,9 @@ c
             if (odoit .and. osym) then
                odoit = odoit .and. 
      $              sym_shell_quartet(basis, ish, jsh, ksh, lsh, q4)
-               write(6,1) ish, jsh, ksh, lsh, odoit, q4
- 1             format(1x,4i5,2x,l,2x,f6.2)
+*               write(6,1) ish, jsh, ksh, lsh, odoit, q4
+* 1             format(1x,4i5,2x,l,2x,f6.2)
             endif
-            q4 = 1.0d0
-            odoit = .true.
             if (odoit) then
                status = bas_cn2bfr(basis,lsh,lbflo,lbfhi)
                llen = lbfhi - lbflo + 1
@@ -348,7 +346,7 @@ c
       integer ieor
       intrinsic ieor
 c
-      write(6,*) ' moints_sym_zero ', i, j
+*      write(6,*) ' moints_sym_zero ', i, j
 c
       symij = ieor(syms(i),syms(j))
       do p = vlo, vhi
