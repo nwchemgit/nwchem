@@ -1,6 +1,8 @@
 c
 c
-c  $Id: moints_trp.F,v 1.5 1995-11-19 07:19:57 rg240 Exp $
+c
+c
+c  $Id: moints_trp.F,v 1.6 1995-11-20 18:12:42 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
