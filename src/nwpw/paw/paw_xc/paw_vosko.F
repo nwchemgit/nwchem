@@ -1,5 +1,5 @@
 *
-* $Id: paw_vosko.F,v 1.1 2003-02-17 22:03:36 marat Exp $
+* $Id: paw_vosko.F,v 1.2 2003-02-18 01:57:31 marat Exp $
 *
 
       subroutine paw_vosko(n2ft3d,ng,ispin,dn,xcp,xce,x)
@@ -48,7 +48,6 @@
 
       pi=4.0d0*datan(1.0d0)
 
-      write(*,*) "paw vosko 1",ng,n2ft3d,ispin
 *     square root of wigner radius
       do 100 k=1,ng
         rho=dn(k,1)+dn(k,ispin)+dncut
