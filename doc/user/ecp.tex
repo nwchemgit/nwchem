@@ -13,10 +13,11 @@ literature and implementations, i.e., an $n_{lk} = 0$ implies
 $r^{-2}$.  The current implementation allows $n_{lk}$ values
 of only 0, 1, or 2. 
 
-Basis sets using these functions must be specified explicitly by user
-input in the \verb+ECP+ directive.  This directive has essentially the
-same form as the standard \verb+BASIS+ directive, except for essential
-differences required for ECPs.  The form of the input for the
+Potentials using these functions must be specified explicitly by user input
+in the \verb+ECP+ directive.  This directive has essentially the same form
+and properties as the standard \verb+BASIS+ directive, except for essential
+differences required for ECPs.  Because of this, the ECP is treated
+internally as a basis set. The form of the input for the
 \verb+ECP+ directive is as follows:
 
 %        [spherical || cartesian default cartesian]
@@ -40,10 +41,12 @@ differences required for ECPs.  The form of the input for the
   END
 \end{verbatim}    
 
-ECPs are automatically segmented and Cartesian, even if general
-contractions are input.  ECPs are associated with centers in
-geometries through tags or names of centers.  These tags must match in
-the same manner as for basis sets the tags in a \verb+GEOMETRY+ and
+ECPs are automatically segmented, even if general contractions are input.
+The projection operators defined in an ECP are spherical by default, so
+there is no need to include the \verb+CARTESIAN+ or \verb+SPHERICAL+ keyword
+as there is for a standard basis set.  ECPs are associated with centers in
+geometries through tags or names of centers.  These tags must match in the
+same manner as for basis sets the tags in a \verb+GEOMETRY+ and
 \verb+ECP+ directives, and are limited to sixteen (16) characters.
 Each center with the same tag will have the same ECP.  By default, the
 input module prints each ECP that it encounters.  The \verb+NOPRINT+
