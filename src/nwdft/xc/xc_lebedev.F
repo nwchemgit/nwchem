@@ -1,17 +1,19 @@
-      subroutine xc_lebedev(iacc,nang,lpri1)
+      subroutine xc_lebedev(iacc,nang,oprint)
       implicit none
 
-C$Id: xc_lebedev.F,v 1.3 1996-02-21 09:46:55 d3e129 Exp $
+C$Id: xc_lebedev.F,v 1.4 1996-05-01 23:31:28 og845 Exp $
 
 #include "quad.fh"
 #include "stdio.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
 C
 C     routine for Lebedev weights, supplied by Mauro Causa`
 C
       integer iacc  ! [input]
       integer MAXN,i
       parameter(MAXN=61)
-      logical lpri1,lpri2
+      logical oprint
       double precision gjk(3,MAXN),wleb(MAXN),fasf(6),goh(3,3,48)
       integer  njk(6,IAC_MAX),ivj(48,IAC_MAX),nvj(IAC_MAX),
      *     jkv(IAC_MAX+1),nridv(IAC_MAX),
@@ -207,7 +209,6 @@ c
      *     37,38,39,40,41,42,43,44,45,46,47,48/
       data nridv/38,50,110,194,266,302,434/
 c
-      lpri2=.false.
       nop=0
       n48=1
       do 57 iv=1,6
@@ -243,7 +244,7 @@ c
               x0=gjk(1,jk)
               y0=gjk(2,jk)
               z0=gjk(3,jk)
-              if(lpri2) write(LuOut,207)
+              if(oprint) write(LuOut,207)
 
             do  l=1,nvjj
               iv=ivj(l,j)
@@ -258,12 +259,12 @@ c
               wa_leb(nang,iaz)=wleb(jk)*fourpi
               wtest=wtest+wa_leb(nang,ia)
 
-              if(lpri2) write(LuOut,209)
+              if(oprint) write(LuOut,209)
      &             wa_leb(nang,iaz),(za_leb(i,nang,iaz),i=1,3)
             enddo
 
    20   continue
-        if(lpri1) write(LuOut,410) nang,wtest/fourpi
+        if(oprint) write(LuOut,410) nang,wtest/fourpi
         endif
         ntheta(ia)=nang
         nphi(ia)=-99
