@@ -1593,7 +1593,7 @@ c
     5 continue
       do 7 i=1,nbbl
       do 8 j=1,n
-      if(lbbl(i,1)+1.eq.nen(me+1,j)) goto 7
+      if(lbbl(i,1)+1.eq.nen(me+1,j).or.lbbl(i,1).eq.me) goto 7
     8 continue
       n=n+1
       nen(me+1,n)=lbbl(i,1)+1
