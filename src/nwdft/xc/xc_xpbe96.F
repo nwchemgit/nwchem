@@ -1,8 +1,20 @@
-      Subroutine xc_xpbe96(tol_rho, fac, lfac, nlfac, rho, delrho, 
-     &                     Amat, Cmat, nq, ipol, Ex, qwght,
-     &                     ldew,func)     
+c     Perdew-Burke-Ernzerhof '96 exchange functional 
 c
-c$Id: xc_xpbe96.F,v 1.5 1999-02-15 16:47:17 bjohnson Exp $
+c     References:
+c     [a] J.P. Perdew, K. Burke, and M. Ernzerhof, PRL 77, 3865 (1996).
+c     [b] J.P. Perdew and Y. Wang, Phys. Rev. B 33, 8800 (1986).;
+c                                               40, 3399 (1989) (E).
+c
+#ifndef SECOND_DERIV
+      Subroutine xc_xpbe96(tol_rho, fac, lfac, nlfac, rho, delrho, 
+     &                     Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
+#else
+      Subroutine xc_xpbe96_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
+     &                        Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
+     &                        qwght,ldew,func)
+#endif
+c
+c$Id: xc_xpbe96.F,v 1.6 2000-07-27 16:22:28 bjohnson Exp $
 c
       implicit none
 c
@@ -28,42 +40,33 @@ c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision amat(nq,ipol), cmat(nq,*)
-
+#ifdef SECOND_DERIV
+      double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
+#endif
 c
-c     Compute the partial derivatives of the PBE exchange functional 
+      double precision tol_rho, pi, um, uk, umk
+      double precision C, Cs
+      double precision F43, F13
+#ifdef SECOND_DERIV
+      double precision F73
+#endif
+      parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
+      parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
+#ifdef SECOND_DERIV
+      parameter (F73=7.d0/3.d0)
+#endif
 c
-      double precision TOLL, tol_rho, p2, p2t,
-     &        FOURTHIRDS
-      double precision pi,tp3,um,uk,ul
-      double precision fx,fxp,x
-
-      Parameter (TOLL=1.E-20)
-c
-c     p2 = -(3/4)*(6/pi)**(1/3)
-c
-      parameter (p2 = -0.9305257363490993d+00)
-
-      parameter (fourthirds=4.d0/3.d0)
-      parameter(um=0.2195149727645171d0,uk=0.8040d0,ul=um/uk)
-c
-c References:
-c [a]J.P.~Perdew, K.~Burke, and M.~Ernzerhof, submiited to PRL, May96
-c [b]J.P. Perdew and Y. Wang, Phys. Rev.  B {\bf 33},  8800  (1986);
-c     {\bf 40},  3399  (1989) (E).
-c
-c***************************************************************************
-
       integer n
-      double precision cd13a, cd43a, gna,  sa,  ca,
-     &                 pa, gnb, sb, cb,  pb, cd13b, 
-     &                 cd43b, g,  gamma,
-     &     cd13,cd43, exlda, vxlda
+      double precision rrho, rho43, rho13, gamma, gam12, s, d1s(2),
+     &     s2, d, d2, g, gp, d1g(2)
+#ifdef SECOND_DERIV
+      double precision rhom23, d2s(3), gpp, d2g(3)
+#endif
 c
-      fx(x)=uk-uk/(1.d0+ul*x*x)
-      fxp(x)=2.d0*x*um/(1.d0+ul*x*x)**2
-      pi=acos(-1.d0)
-      tp3=0.5d0/((3.d0*pi*pi)**(1.d0/3.d0))
-      p2t=-0.75d0*(3.d0/pi)**(1.d0/3.d0)
+      pi = acos(-1.d0)
+      C = -3d0/(4d0*pi)*(3d0*pi*pi)**F13
+      Cs = 0.5d0/(3d0*pi*pi)**F13
+      Cs = Cs * C               ! account for including C in rho43
 c
       if (ipol.eq.1 )then
 c
@@ -71,148 +74,204 @@ c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
             if (rho(n,1).lt.tol_rho) goto 10
-            cd13 = rho(n,1)**(1.d0/3.d0)
-            cd43 = cd13**4 
-            gamma = delrho(n,1,1)*delrho(n,1,1) +
-     &              delrho(n,2,1)*delrho(n,2,1) +
-     &              delrho(n,3,1)*delrho(n,3,1)
-            if (dsqrt(gamma).gt.tol_rho)then
-               gna = dsqrt( gamma )
-               sa=gna*tp3/cd43
-            else
-               gna = 0.d0
-               sa=0.d0
-            endif
-            ca=fx(sa)
-            pa=fxp(sa)
-c
-            exlda=cd43*p2t
-            vxlda=cd13*p2t*fourthirds
-c
-            if (lfac)then
-               ex = ex + exlda*qwght(n)*fac
-               if(ldew)func(n)=func(n)+exlda*fac
-               amat(n,1) = amat(n,1) + vxlda*fac
-            endif
-c
-            if (nlfac)then
-               ex = ex + exlda*ca*qwght(n)*fac
-               if(ldew)func(n)=func(n)+exlda*ca*fac
-               amat(n,1) = amat(n,1) + vxlda*fac*(ca - sa*pa)
-            endif
-c
-            if (gna.gt.tol_rho)  then
-               g = tp3*p2t*pa/gna*fac
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g
-#if 0
-               cmat(n,1,1) = cmat(n,1,1) + g*delrho(n,1,1)
-               cmat(n,2,1) = cmat(n,2,1) + g*delrho(n,2,1)
-               cmat(n,3,1) = cmat(n,3,1) + g*delrho(n,3,1)
+            rho43 = C*rho(n,1)**F43
+            rrho = 1d0/rho(n,1)
+            rho13 = F43*rho43*rrho
+#ifdef SECOND_DERIV
+            rhom23 = F13*rho13*rrho
+#endif
+            if (lfac) then
+               Ex = Ex + rho43*qwght(n)*fac
+               if(ldew)func(n) = func(n) + rho43*fac
+               Amat(n,1) = Amat(n,1) + rho13*fac
+#ifdef SECOND_DERIV
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 2d0*rhom23*fac
 #endif
             endif
 c
-   10    continue
+            gamma = delrho(n,1,1)*delrho(n,1,1) +
+     &              delrho(n,2,1)*delrho(n,2,1) +
+     &              delrho(n,3,1)*delrho(n,3,1)
+            gam12 = dsqrt(gamma)
+            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 10
+c
+            s = Cs*gam12/rho43
+            d1s(1) = -F43*s*rrho
+            d1s(2) = 0.5d0*s/gamma
+c
+c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
+c
+            s2 = s*s
+            d = 1d0/(1d0+umk*s2)
+            d2 = d*d
+            g = uk - uk*d
+            gp = 2d0*um*s*d2
+c
+            d1g(1) = gp*d1s(1)
+            d1g(2) = gp*d1s(2)
+            Ex = Ex + rho43*g*qwght(n)*fac
+            if(ldew)func(n) = func(n) + rho43*g*fac
+            Amat(n,1) = Amat(n,1) + (rho13*g+rho43*d1g(1))*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2d0*rho43*d1g(2)*fac
+#ifdef SECOND_DERIV
+            d2s(1) = -F73*d1s(1)*rrho
+            d2s(2) = -F43*d1s(2)*rrho
+            d2s(3) = -0.5d0*d1s(2)/gamma
+            gpp = 2d0*um*d2*(1d0-4d0*umk*s2*d)
+            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &           +(rhom23*g
+     &           + 2.d0*rho13*d1g(1)
+     &           + rho43*d2g(1))*fac*2d0
+            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+     &           +(rho13*d1g(2)
+     &           + rho43*d2g(2))*fac*4d0
+            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+     &           + rho43*d2g(3)*fac*8d0
+#endif
+ 10      continue
 c
       else
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
-C
-C          alpha bit
-C
             if (rho(n,1).lt.tol_rho) goto 20
-            if (rho(n,2).gt.tol_rho) then
-              cd13a = (2.d0*rho(n,2))**(1.d0/3.d0)
-              cd43a = cd13a**4 
+c
+c     Alpha
+c
+            if (rho(n,2).lt.tol_rho) goto 25
+            rho43 = C*(2d0*rho(n,2))**F43
+            rrho = 0.5d0/rho(n,2)
+            rho13 = F43*rho43*rrho
+#ifdef SECOND_DERIV
+            rhom23 = F13*rho13*rrho
+#endif
+            if (lfac) then
+               Ex = Ex + rho43*qwght(n)*fac*0.5d0
+               if(ldew)func(n) = func(n) + rho43*fac
+               Amat(n,1) = Amat(n,1) + rho13*fac
+#ifdef SECOND_DERIV
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 2d0*rhom23*fac
+#endif
+            endif
+c
             gamma = delrho(n,1,1)*delrho(n,1,1) +
-     &           delrho(n,2,1)*delrho(n,2,1) +
-     &           delrho(n,3,1)*delrho(n,3,1)
-            if (gamma.gt.tol_rho**2)then
-              gna = 2d0*dsqrt( gamma )
-              sa=gna*tp3/cd43a
-            else
-              gna = 0.d0
-              sa=0.d0
-            endif
-            ca=fx(sa)
-            pa=fxp(sa)
+     &              delrho(n,2,1)*delrho(n,2,1) +
+     &              delrho(n,3,1)*delrho(n,3,1)
+            gam12 = 2d0*dsqrt(gamma)
+            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 25
 c
-            exlda=cd43a*p2t
-            vxlda=cd13a*p2t*fourthirds
-c           
-            if (lfac)then
-              ex = ex + exlda*qwght(n)*fac*0.5d0
-              if(ldew)func(n)=func(n)+exlda*fac*0.5d0
-              amat(n,1) = amat(n,1) + vxlda*fac
-            endif
-c           
-            if (nlfac)then
-              ex = ex + exlda*ca*qwght(n)*fac*0.5d0
-              if(ldew)func(n)=func(n)+exlda*ca*fac*0.5d0
-              amat(n,1) = amat(n,1) + vxlda*fac*(ca - sa*pa)
-            endif
-c           
-            if (gna.gt.tol_rho)  then
-              g = 2.d0*tp3*p2t*pa/gna*fac
-              Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + g*0.5d0
-#if 0
-              cmat(n,1,1) = cmat(n,1,1) + g*delrho(n,1,1)
-              cmat(n,2,1) = cmat(n,2,1) + g*delrho(n,2,1)
-              cmat(n,3,1) = cmat(n,3,1) + g*delrho(n,3,1)
+            s = Cs*gam12/rho43
+            d1s(1) = -F43*s*rrho
+            d1s(2) = 0.5d0*s/gamma
+c
+c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
+c
+            s2 = s*s
+            d = 1d0/(1d0+umk*s2)
+            d2 = d*d
+            g = uk - uk*d
+            gp = 2d0*um*s*d2
+c
+            d1g(1) = gp*d1s(1)
+            d1g(2) = gp*d1s(2)
+            Ex = Ex + rho43*g*qwght(n)*fac*0.5d0
+            if(ldew)func(n) = func(n) + rho43*g*fac
+            Amat(n,1) = Amat(n,1) + (rho13*g+rho43*d1g(1))*fac
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 0.5d0*rho43*d1g(2)*fac
+#ifdef SECOND_DERIV
+            d2s(1) = -F73*d1s(1)*rrho
+            d2s(2) = -F43*d1s(2)*rrho
+            d2s(3) = -0.5d0*d1s(2)/gamma
+            gpp = 2d0*um*d2*(1d0-4d0*umk*s2*d)
+            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &           +(rhom23*g
+     &           + 2.d0*rho13*d1g(1)
+     &           + rho43*d2g(1))*fac*2d0
+            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+     &           +(rho13*d1g(2)
+     &           + rho43*d2g(2))*fac
+            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+     &           + rho43*d2g(3)*fac*0.5d0
+#endif
+c
+c     Beta
+c
+ 25         continue
+            if (rho(n,3).lt.tol_rho) goto 20
+            rho43 = C*(2d0*rho(n,3))**F43
+            rrho = 0.5d0/rho(n,3)
+            rho13 = F43*rho43*rrho
+#ifdef SECOND_DERIV
+            rhom23 = F13*rho13*rrho
+#endif
+            if (lfac) then
+               Ex = Ex + rho43*qwght(n)*fac*0.5d0
+               if(ldew)func(n) = func(n) + rho43*fac
+               Amat(n,2) = Amat(n,2) + rho13*fac
+#ifdef SECOND_DERIV
+               Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + 2d0*rhom23*fac
 #endif
             endif
-            endif
-C
-C          beta bit
-C
-            if (rho(n,3).gt.tol_rho) then
-              cd13b = (2d0*rho(n,3))**(1.d0/3.d0)
-              cd43b = cd13b**4 
+c
             gamma = delrho(n,1,2)*delrho(n,1,2) +
-     &           delrho(n,2,2)*delrho(n,2,2) +
-     &           delrho(n,3,2)*delrho(n,3,2)
-            if (gamma.gt.tol_rho**2)then
-              gnb = 2d0*sqrt( gamma )
-              sb=gnb*tp3/cd43b
-            else
-              gnb = 0.d0
-              sb=0.d0
-            endif
-            cb=fx(sb)
-            pb=fxp(sb)
+     &              delrho(n,2,2)*delrho(n,2,2) +
+     &              delrho(n,3,2)*delrho(n,3,2)
+            gam12 = 2d0*dsqrt(gamma)
+            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 20
 c
-            exlda=cd43b*p2t
-            vxlda=cd13b*p2t*fourthirds
-c           
-            if (lfac)then
-              ex = ex + exlda*qwght(n)*fac*0.5d0
-              if(ldew)func(n)=func(n)+exlda*fac*0.5d0
-              amat(n,2) = amat(n,2) + vxlda*fac
-            endif
-c           
-            if (nlfac)then
-              ex = ex + exlda*cb*qwght(n)*fac*0.5d0
-              if(ldew)func(n)=func(n)+exlda*cb*fac*0.5d0
-              amat(n,2) = amat(n,2) + vxlda*fac*(cb- sb*pb)
-            endif
-c           
-            if (gnb.gt.0d0)  then
-              g = 2.d0*tp3*p2t*pb/gnb*fac
-              Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + g*0.5d0
-#if 0
-              cmat(n,1,2) = cmat(n,1,2) + g*delrho(n,1,2)
-              cmat(n,2,2) = cmat(n,2,2) + g*delrho(n,2,2)
-              cmat(n,3,2) = cmat(n,3,2) + g*delrho(n,3,2)
+            s = Cs*gam12/rho43
+            d1s(1) = -F43*s*rrho
+            d1s(2) = 0.5d0*s/gamma
+c
+c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
+c
+            s2 = s*s
+            d = 1d0/(1d0+umk*s2)
+            d2 = d*d
+            g = uk - uk*d
+            gp = 2d0*um*s*d2
+c
+            d1g(1) = gp*d1s(1)
+            d1g(2) = gp*d1s(2)
+            Ex = Ex + rho43*g*qwght(n)*fac*0.5d0
+            if(ldew)func(n) = func(n) + rho43*g*fac
+            Amat(n,2) = Amat(n,2) + (rho13*g+rho43*d1g(1))*fac
+            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + 0.5d0*rho43*d1g(2)*fac
+#ifdef SECOND_DERIV
+            d2s(1) = -F73*d1s(1)*rrho
+            d2s(2) = -F43*d1s(2)*rrho
+            d2s(3) = -0.5d0*d1s(2)/gamma
+            gpp = 2d0*um*d2*(1d0-4d0*umk*s2*d)
+            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+     &           +(rhom23*g
+     &           + 2.d0*rho13*d1g(1)
+     &           + rho43*d2g(1))*fac*2d0
+            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
+     &           +(rho13*d1g(2)
+     &           + rho43*d2g(2))*fac
+            Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
+     &           + rho43*d2g(3)*fac*0.5d0
 #endif
-            endif
-c           
-            endif
-   20     continue
-c          g=33.d0
-c          if(g.eq.g) call errquit(' alt ',1)
 c
+ 20      continue
       endif
 c
       return
       end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "xc_xpbe96.F"
+#endif
