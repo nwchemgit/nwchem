@@ -64108,8 +64108,3 @@ basis "Ar_TZVP_(DFT_Orbital)" CARTESIAN
   Ar   D
          0.850000000      1.00000000
 end
-basis "H_rakk" CARTESIAN
-  H    S
-         1.309756377      0.43012850
-         0.233135974      0.67891353
-end
