@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.39 2003-04-22 20:51:08 bylaska Exp $
+* $Id: control.F,v 1.40 2003-07-18 20:51:42 bylaska Exp $
 *
 
 *     ***********************************
@@ -1863,5 +1863,30 @@ c      end
       end if
 
       control_excited_ne = ne(ii)
+      return
+      end
+
+*     *****************************
+*     *                	 	  *
+*     *    control_oep            *
+*     *                 	  *
+*     *****************************
+      logical function control_oep()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical oep
+
+      if (.not.rtdb_get(rtdb,'nwpw:oep',mt_log,1,oep)) then
+         oep = .false.
+      end if
+
+      control_oep = oep
       return
       end
