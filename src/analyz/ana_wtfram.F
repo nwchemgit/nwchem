@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.45 2002-02-12 15:06:50 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.46 2002-07-23 21:07:27 d3j191 Exp $
 c
       implicit none
 c
@@ -415,6 +415,10 @@ c
       ry(2)=w(i,j,2)
       ry(3)=w(i,j,3)
       call rotate(rv,rw,rotang,ry,rx)
+      else
+      rx(1)=w(i,j,1)
+      rx(2)=w(i,j,2)
+      rx(3)=w(i,j,3)
       endif
       k=pre_atnum(wnam(j)(6:7))
       color=atom_color(k)

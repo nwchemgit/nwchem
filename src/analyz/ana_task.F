@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.85 2002-07-21 18:01:20 d3j191 Exp $
+c $Id: ana_task.F,v 1.86 2002-07-23 21:07:25 d3j191 Exp $
 c
       implicit none
 c
@@ -1428,15 +1428,30 @@ c
 #include "ana_params.fh"
 c
       character*16 sgmnam(nsa)
+      character*11 atomi,atomj
       integer i,j
 c
       write(lfnana,1000) nbnds,nangs,ntors,nimps
  1000 format(4i10)
 c
       do 1 i=1,nbnds
-      write(lfnana,1001) (sgmnam(ibnds(i,j,1))(13:16),
-     + sgmnam(ibnds(i,j,1))(6:10),j=1,2)
- 1001 format(a4,':',a5,' - ',a4,':',a5)
+      if(ibnds(i,1,2).eq.0) then
+      write(atomi,'(a5,a,a5)') sgmnam(ibnds(i,1,1))(12:16),':',
+     + sgmnam(ibnds(i,1,1))(6:10)
+      else
+      write(atomi,'(i5,a,a5)') nsgm+ibnds(i,1,1),':',
+     + wnam(ibnds(i,1,2))(6:10)
+      endif
+      if(ibnds(i,2,2).eq.0) then
+      write(atomj,'(a5,a,a5)') sgmnam(ibnds(i,2,1))(12:16),':',
+     + sgmnam(ibnds(i,2,1))(6:10)
+      else
+      write(atomj,'(i5,a,a5)') nsgm+ibnds(i,2,1),':',
+     + wnam(ibnds(i,2,2))(6:10)
+      endif
+c
+      write(lfnana,1001) atomi,atomj
+ 1001 format(a10,'-',a10)
     1 continue
 c
       do 2 i=1,nangs
