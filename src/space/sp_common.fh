@@ -1,0 +1,62 @@
+c
+      real*8 zero,half,one
+      parameter(zero=0.0d0)
+      parameter(half=5.0d-1)
+      parameter(one=1.0d0)
+c
+      integer mip2,miw2,mis2,mbb2
+      parameter(mip2=7)
+      parameter(miw2=5)
+      parameter(mis2=14)
+      parameter(mbb2=4)
+c
+      integer lwgmn,lwbox,lwnod,lwdyn
+c
+      parameter(lwgmn=1)
+      parameter(lwbox=2)
+      parameter(lwnod=3)
+      parameter(lwdyn=4)
+c
+      integer lsgan,lsbox,lsnod,lsatt,lsmol,lssgm,lsgrp
+      integer lspgr,lsdyn,lsfrc,lssss,lsct1,lsct2,lsct3
+      parameter(lsgan=1)
+      parameter(lsbox=2)
+      parameter(lsnod=3)
+      parameter(lsatt=4)
+      parameter(lsmol=5)
+      parameter(lssgm=6)
+      parameter(lsgrp=7)
+      parameter(lspgr=8)
+      parameter(lsdyn=9)
+      parameter(lsfrc=10)
+      parameter(lssss=11)
+      parameter(lsct1=12)
+      parameter(lsct2=13)
+      parameter(lsct3=14)
+c
+      integer madbox
+      parameter(madbox=6)
+c
+      integer me,np,mex,mey,mez,nwm,nwa,nsm,nsa,mwm,mwa,msa,nsf,
+     + npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
+     + nwmloc,nsaloc,icbox,jcbox,jcnode
+      common/sd_dim/me,np,mex,mey,mez,nwm,nwa,nsm,nsa,mwm,mwa,msa,
+     + nsf,npx,npy,npz,nbx,nby,nbz,mbox,maxbox,nbtot,mdtype,mbbl,nbbl,
+     + nwmloc,nsaloc,icbox,jcbox,jcnode
+c
+      integer i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr
+      integer i_ipl,l_ipl,i_jpl,l_jpl
+      integer ga_ip,ga_iw,ga_w,ga_is,ga_s
+      integer i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb
+      integer i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
+      common/sd_ptr/i_iown,l_iown,i_boxs,l_boxs,i_boxr,l_boxr,
+     + i_ipl,l_ipl,i_jpl,l_jpl,ga_ip,ga_iw,ga_w,ga_is,ga_s,
+     + i_x,l_x,i_v,l_v,i_r,l_r,i_i,l_i,i_bb,l_bb,
+     + i_bx,l_bx,i_bv,l_bv,i_br,l_br,i_bi,l_bi,i_n,l_n
+c
+      real*8 rshort,rlong,rbox,box(3),boxh(3),bsize,vlat(3,3),vlati(3,3)
+      integer npbtyp,nbxtyp,neighb(27,2),loadb,npprev,ntwin
+      logical lpbc0,ltwin,lpola,lfree,llong
+      common/sd_var/rshort,rlong,rbox,box,boxh,bsize,vlat,vlati,
+     + npbtyp,nbxtyp,neighb,loadb,npprev,ntwin,
+     + lpbc0,ltwin,lpola,lfree,llong
