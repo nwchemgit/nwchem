@@ -288,9 +288,9 @@ c
       call util_print_centered(6, 'Memory information', 20, .true.)
       write(6,3) heap, stack, total
  3    format(/
-     $     '    heap     = ', i8/
-     $     '    stack    = ', i8/
-     $     '    avail    = ', i8//)
+     $     '    heap     = ', i8,' doubles'/
+     $     '    stack    = ', i8,' doubles'/
+     $     '    avail    = ', i8,' doubles'//)
 c
       call util_flush(6)
 c
