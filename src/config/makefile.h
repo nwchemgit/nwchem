@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.96 1995-02-03 18:21:54 d3h449 Exp $
+# $Id: makefile.h,v 1.97 1995-02-05 20:43:06 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -303,7 +303,7 @@ ifeq ($(TARGET),DELTA)
 #
 # DELTA/IPSC running NX
 #
-    CORE_SUBDIRS_EXTRA = lapack
+    CORE_SUBDIRS_EXTRA = lapack blas # -lkamth not reliable
 # blas
         FC = if77
         CC = icc
@@ -317,13 +317,13 @@ ifeq ($(TARGET),DELTA)
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
  FOPTIMIZE = -O2 		# -Minline=1000 ## Inlining bombs for dtrtri.f
-FVECTORIZE = -O2 -Mvect		# -Minline=1000 ## Inlining bombs for dtrtri.f
+FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
  COPTIMIZE = -O2
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
       LIBPATH += -L/home/delilah11/gifann/lib
       CORE_LIBS = -lglobal -lutil -lglobal -lpeigs_delta -ltcgmsg \
-	$(LIBDIR)/liblapack.a -llapack -lkmath -node
+	$(LIBDIR)/liblapack.a -llapack -lblas -node
 
  EXPLICITF = FALSE
 endif
