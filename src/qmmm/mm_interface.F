@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.22 2004-09-30 19:50:03 marat Exp $
+c $Id: mm_interface.F,v 1.23 2004-10-09 00:23:50 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1153,15 +1153,13 @@ c     mm local variables
       pname = " mm_set_solute_force_quant"
 
       write(*,*) "in "//pname
-      do i=1,nt
-        write(*,*) g(1,i),g(2,i),g(3,i)
-      end do
 
       if(link) then
       call mm_set_solute_force_gen(nt,mm_quant_link,ai,g)
       else
       call mm_set_solute_force_gen(nt,mm_quant,ai,g)
       end if
+
       end
 
       subroutine mm_get_solute_force_bq(nt,ai,g)
