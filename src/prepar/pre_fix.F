@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: pre_fix.F,v 1.6 2000-02-20 16:05:13 d3j191 Exp $
+c $Id: pre_fix.F,v 1.7 2000-10-20 20:26:51 edo Exp $
 c
       implicit none
 c
@@ -86,7 +86,7 @@ c
     2 continue
 c
       if(iatom.eq.0.or.ifrst.eq.0.or.ilast.eq.0) then
-      write(*,'(a,i,a,a)') 'Unable to find ',isgmnt,':',aname
+      write(*,'(a,i8,a,a)') 'Unable to find ',isgmnt,':',aname
       call errquit('pre_fix: center not found',9999)
       endif
 c
