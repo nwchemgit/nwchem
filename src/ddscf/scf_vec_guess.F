@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.21 1997-09-26 22:03:15 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.22 1997-11-09 19:14:16 d3g681 Exp $
 c
       implicit none
 c
@@ -431,7 +431,7 @@ c
 c
 c     Print out an analysis if explicitly requested
 c
-      if (util_print("initial vector analysis", print_debug)) then
+      if (util_print('initial vector analysis', print_debug)) then
          nprint = min(nclosed+nopen+20,nmo)
          if (scftype.eq.'RHF' .or. scftype.eq.'ROHF') then
             call movecs_print_anal(basis, max(1,nclosed-20),

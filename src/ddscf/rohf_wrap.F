@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -93,7 +93,7 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -125,7 +125,7 @@ c
       energy = eone + etwo + enrep
 c
       if (ga_nodeid().eq.0 .and.
-     $    util_print("rohf energy",print_debug)) then
+     $    util_print('rohf energy',print_debug)) then
        write(6,33) energy, eone, etwo, enrep
 33     format(' total energy = ',f20.12/
      $        ' 1-e energy   = ',f20.12/
@@ -140,7 +140,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -184,7 +184,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.12 1997-05-29 20:38:12 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.13 1997-11-09 19:14:14 d3g681 Exp $
 c
       integer g_x
       double precision solveshift

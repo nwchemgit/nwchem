@@ -264,7 +264,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.11 1997-05-29 17:17:21 d3g681 Exp $
+C$Id: util_file_name.F,v 1.12 1997-11-09 19:15:03 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -505,7 +505,7 @@ c
       nuse = 0
 c
 #if defined(SP) || defined(SP1) || defined(SP2)
-      if (inp_compare(.true.,mine,"/scratch") .or.
+      if (inp_compare(.true.,mine,'/scratch') .or.
      $     inp_compare(.true.,mine,
      $ SCRATCH_DEF_DIR
      $     )) then
@@ -565,6 +565,3 @@ c
       endif
 c
       end
-
-         
-      
