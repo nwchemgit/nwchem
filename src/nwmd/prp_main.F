@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.75 2002-05-02 19:43:59 d3j191 Exp $
+c $Id: prp_main.F,v 1.76 2002-05-02 20:10:20 d3j191 Exp $
 c
       implicit none
 c
@@ -903,14 +903,14 @@ c
       epf=-rgas*taver*log(ep3ave)
       etp=etp-epr+epf
       write(lfnout,1107) i,rlambd,number,taver,epr,epf,epf-epr,
-     + slambd,etp,-gbias,etp-gbias+freem
+     + slambd,etp,-gbias,etp-gbias
  1107 format(i4,f7.3,i7,4f12.3,f7.3,3f12.3)
       else
       epr=-rgas*taver*log(ep2avm)
       epf=-rgas*taver*log(ep3avm)
       etp=etp-epr+epf
       write(lfnout,1108) i,rlambd,number,taver,epr,epf,epf-epr,
-     + slambd,etp,-gbias,etp-gbias+freem
+     + slambd,etp,-gbias,etp-gbias
  1108 format(i4,f7.3,i7,4f12.3,f7.3,3f12.3)
       endif
 c
