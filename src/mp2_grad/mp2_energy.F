@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.47 1998-08-29 00:39:40 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.48 1999-01-21 00:16:42 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -411,7 +411,7 @@ c
 
      $     dbl_mb(k_eval_a),
      $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,nmo,task,
-     $     pass,oblk,oskel,
+     $     pass,oblk,oskel,osym,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a,g_liy_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
@@ -430,7 +430,7 @@ c
 
      $        dbl_mb(k_eval_b),
      $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,nmo,task,
-     $        pass,oblk,oskel,
+     $        pass,oblk,oskel,osym,
      $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,g_liy_b,g_liy_a,
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,

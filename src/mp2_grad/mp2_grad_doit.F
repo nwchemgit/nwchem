@@ -8,13 +8,13 @@
      $     sym_lo_fob,sym_hi_fob,num_fob,
 
      $     eval_a,eval_b,basis,geom,tol2e,e2,nbf,nmo,
-     $     task,passab,oblk,oskel,
+     $     task,passab,oblk,oskel,osym,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,g_liy_a,g_liy_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.39 1998-03-07 01:31:41 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.40 1999-01-21 00:16:43 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -38,7 +38,7 @@
       integer basis
       integer geom
       integer nbf,nmo
-      logical oskel
+      logical oskel,osym
       character*(*) scftype
       integer num_i_perseg,npass,npasses
       integer k_amos,k_bmos,l_amos,l_bmos
@@ -108,10 +108,14 @@ c
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
 c     
-      call sym_group_name(geom,group_name)
-      if(.not.sym_char_table(group_name,nop,nir,iclass_dim,
-     $     zir,zclass,chars))
-     $     call errquit('mp2_grad: no char table',0)
+      if (osym) then
+         call sym_group_name(geom,group_name)
+         if(.not.sym_char_table(group_name,nop,nir,iclass_dim,
+     $        zir,zclass,chars))
+     $        call errquit('mp2_grad: no char table',0)
+      else
+         nir = 1
+      endif
 c     
       call util_file_name('kh',.true.,.true.,fnamek)
 *      if(eaf_stat(fnamek,iavail_file,fstype).ne.0)
