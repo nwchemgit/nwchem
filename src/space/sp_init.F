@@ -1128,7 +1128,7 @@ c
       integer ibx,iby,ibz,ipx,ipy,ipz,ibox,inode
       integer jbx,jby,jbz,kbx,kby,kbz,jpx,jpy,jpz
       integer ilx,ihx,ily,ihy,ilz,ihz
-      integer jbox,jnode
+      integer i,j,jbox,jnode,ltemp
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
 c
 c     Construction of the box-box pairlist
@@ -1253,7 +1253,7 @@ c
 c
 c     keep half of the box pairs
 c
-c     this test also appears in arg_numbb
+c     this test also appears in sp_numbb
 c     any changes need to be made in both routines
 c
       if((inode.eq.jnode.and.ibox.ge.jbox).or. (inode.ne.jnode.and.
@@ -1278,6 +1278,29 @@ c
  2    continue
  1    continue
       npprev=0
+c
+      nbbloc=0
+      do 7 i=1,nbbl-1
+      do 8 j=i+1,nbbl
+      if((lbbl(i,1).ne.me.and.lbbl(j,1).eq.me).or.
+     + (lbbl(i,1).gt.lbbl(j,1).and.lbbl(i,1).ne.me).or.
+     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).gt.lbbl(j,2)).or.
+     + (lbbl(i,1).eq.lbbl(j,1).and.lbbl(i,2).eq.lbbl(j,2).and.
+     + lbbl(i,3).gt.lbbl(j,3))) then
+      ltemp=lbbl(i,1)
+      lbbl(i,1)=lbbl(j,1)
+      lbbl(j,1)=ltemp
+      ltemp=lbbl(i,2)
+      lbbl(i,2)=lbbl(j,2)
+      lbbl(j,2)=ltemp
+      ltemp=lbbl(i,3)
+      lbbl(i,3)=lbbl(j,3)
+      lbbl(j,3)=ltemp
+      endif
+    8 continue
+      if(lbbl(i,1).eq.me) nbbloc=i
+    7 continue
+      if(lbbl(nbbl,1).eq.me) nbbloc=nbbl
 c
       return
       end
