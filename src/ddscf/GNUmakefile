@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.88 1996-10-14 05:50:37 d3g681 Exp $
+# $Id: GNUmakefile,v 1.89 1996-10-19 23:37:46 d3g681 Exp $
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 
@@ -79,10 +79,12 @@ include ../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
 $(LIBRARY_PATH)(int2e_balance_save.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/eaf.fh ./cint2efile.fh 
+$(LIBRARY_PATH)(fock_2e_task.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ao_rep_old.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(ao_fock_2e.o):	$(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(uhf_hessv.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cuhf.fh ./cscfps.fh ./cscf.fh 
 $(LIBRARY_PATH)(nxtask.save.o):	$(INCDIR)/global.fh 
+$(LIBRARY_PATH)(scf_sym_scr.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
 $(LIBRARY_PATH)(matrix_exp.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh 
 $(LIBRARY_PATH)(matrix_exp.new.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh 
 $(LIBRARY_PATH)(schwarz_init.o):	$(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cschwarz.fh $(INCDIR)/bas.fh 
@@ -91,7 +93,6 @@ $(LIBRARY_PATH)(print_aoints.o):	$(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDI
 $(LIBRARY_PATH)(ao_replicated.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/itri.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_lagr.o):	$(INCDIR)/tcgmsg.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(fock_2e_task.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh ./schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(scf_get_info.o):	$(INCDIR)/util.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cscf.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(fock_2e_file.o):	$(INCDIR)/util.fh ./cscfps.fh ./cfock.fh 
 $(LIBRARY_PATH)(riscf_list.o):	./riscf.fh $(INCDIR)/global.fh 
@@ -151,7 +152,6 @@ $(LIBRARY_PATH)(fock_2e_lab.o):	./cfockmul.fh
 $(LIBRARY_PATH)(scf_sym_adap.o):	$(INCDIR)/sym.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh ./cscfps.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(rohf_precon.o):	$(INCDIR)/util.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh 
 $(LIBRARY_PATH)(rohf_fock.o):	$(INCDIR)/util.fh $(INCDIR)/global.fh ./cscfps.fh ./cscf.fh ./crohf.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(scf_sym_scr.o):	$(INCDIR)/global.fh 
 $(LIBRARY_PATH)(fock_2e_b.o):	$(INCDIR)/util.fh ./schwarz.fh $(INCDIR)/mafdecls.fh ./cscfps.fh ./cfock.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(fock_2e.o):	./cscf.fh ./cfock.fh 
 $(LIBRARY_PATH)(do_riscf.o):	./cfock.fh 

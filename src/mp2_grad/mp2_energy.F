@@ -23,20 +23,18 @@
       integer sym_hi_vb(0:7)
       integer nmixed
       integer rtdb,basis,geom
-      integer g_vecs_a,g_vecs_b,nalpha,nbeta
+      integer g_vecs_a,g_vecs_b
       integer nocc
       character*4 scftype
-      integer i,nbf_vecs,nsets,nmo,nbf
+      integer i,nbf_vecs,nsets,nmos(2),nbf, nmo
       integer l_eval_a,k_eval_a,l_eval_b,k_eval_b
       integer noa_frozen,nva_frozen,nob_frozen,nvb_frozen
       integer noa_lo,noa_hi,nob_lo,nob_hi,nva_lo,nva_hi,nvb_lo,nvb_hi
       integer noa_correl,nob_correl
-      integer nmo2_a,nmo2_b
       integer k_irs_a,k_irs_b,l_irs_a,l_irs_b
       integer k_occ_a,k_occ_b,l_occ_a,l_occ_b
       integer pass
       integer noa,nob,nva,nvb
-      integer noper_a,noper_b
       double precision tol2e,escf,e2,e_total
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -76,39 +74,44 @@ c
 c     
       if(.not.rtdb_get(rtdb,'fourindex:aoblock',mt_log,oblk,1))
      $     oblk=.false.
-      noa_frozen = 0
+c
+c     Get no. of MOs ... nmo != nbf if linear dependence present
+c
+      if (.not. bas_numbf(basis,nbf))
+     $     call errquit('mp2_grad: could not get nbf',0)
+      if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
+     $     nbf_vecs,nsets,nmos,2))
+     $     call errquit('mp2_grad: problem with movecs_read_header',1)
+      if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
+      nmo = nmos(1)
+c
+      noa_frozen = 0            ! No freezing yet
       nva_frozen = 0
       nob_frozen = 0
       nvb_frozen = 0
 c     
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('mp2:scftype absent',1)
-      if (.not. bas_numbf(basis,nbf))
-     $     call errquit('mp2_grad: could not get nbf',0)
       if(scftype.eq.'UHF')then
-         if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,nalpha))
+         if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
      $        call errquit('no alphas',1)
-         if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nbeta))
+         if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
      $        call errquit('no betas',1)
-         noa=nalpha
-         nva=nbf-noa
-         nob=nbeta
-         nvb=nbf-nob
       endif
       if(scftype.eq.'RHF')then
          if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nocc))
      $        call errquit('no occ',1)
          noa=nocc
          nob=nocc
-         nva=nbf-noa
-         nvb=nbf-nob
       endif
+      nva=nmo-noa
+      nvb=nmo-nob
 c     
 c     Get the MO vectors and symmetry block them
 c     
-      if(.not.ga_create(mt_dbl,nbf,nbf,'alpha_vecs',nbf,1,
+      if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,1,
      $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0)
-      if(.not.ga_create(mt_dbl,nbf,nbf,'beta_vecs',nbf,1,g_vecs_b))
+      if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,1,g_vecs_b))
      $     call errquit('mp2_energy: ga_create failed',0)
 c
       if(.not.ma_push_get(mt_dbl,nbf,'occ alpha',
@@ -119,9 +122,6 @@ c
      $     l_occ_b,k_occ_b))
      $     call errquit('mp2_energy ma problem with beta occ',1)
 c
-      if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
-     $     nbf_vecs,nsets,nmo,2))
-     $     call errquit('problem with movecs_read_header',1)
       if(.not.ma_push_get(mt_dbl,nbf,'alpha evals',
      $     l_eval_a,k_eval_a))
      $     call errquit('problem with ma for a evals',1)
@@ -130,26 +130,23 @@ c
      $     l_eval_b,k_eval_b))
      $     call errquit('problem with ma for b evals',1)
 c
-      if(nbf.eq.nbf_vecs)then
-         if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
-     $        dbl_mb(k_eval_a),g_vecs_a))
-     $        call errquit('could not read alpha vecs',1)
-         if(scftype.eq.'UHF')then
-            if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
-     $           dbl_mb(k_eval_b),g_vecs_b))
-     $           call errquit('could not read beta vecs',1)
-         else 
-            call ga_copy(g_vecs_a,g_vecs_b) ! RHF just duplicate vectors
-         endif
-      else
-         call errquit('mp2: MO vectors mismatch?',0)
+      if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
+     $     dbl_mb(k_eval_a),g_vecs_a))
+     $     call errquit('could not read alpha vecs',1)
+      if(scftype.eq.'UHF')then
+         if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
+     $        dbl_mb(k_eval_b),g_vecs_b))
+     $        call errquit('could not read beta vecs',1)
+      else 
+         call ga_copy(g_vecs_a,g_vecs_b) ! RHF just duplicate vectors
+         call dcopy(nmo, dbl_mb(k_eval_a), 1, dbl_mb(k_eval_b), 1)
       endif
 c     
-      if(.not.ma_push_get(mt_int,nbf,'irs_a',l_irs_a,k_irs_a))
-     $     call errquit('scf_movecs_sym_adapt: memory?',nbf)
+      if(.not.ma_push_get(mt_int,nmo,'irs_a',l_irs_a,k_irs_a))
+     $     call errquit('scf_movecs_sym_adapt: memory?',nmo)
 c
-      if(.not.ma_push_get(mt_int,nbf,'irs_b',l_irs_b,k_irs_b))
-     $     call errquit('scf_movecs_sym_adapt: memory?',nbf)
+      if(.not.ma_push_get(mt_int,nmo,'irs_b',l_irs_b,k_irs_b))
+     $     call errquit('scf_movecs_sym_adapt: memory?',nmo)
 c     
       call int_init (rtdb, 1, basis) ! Needed for overlap
 c     
@@ -163,7 +160,7 @@ c
 c     
 c     Change irreps to start counting at 0
 c     
-      do i=1,nbf
+      do i=1,nmo
          int_mb(k_irs_a+i-1)=int_mb(k_irs_a+i-1)-1
          int_mb(k_irs_b+i-1)=int_mb(k_irs_b+i-1)-1
       enddo
@@ -172,54 +169,53 @@ c
       noa_hi=noa
       noa_correl=noa_hi-noa_lo+1
       nva_lo=noa+1
-      nva_hi=nbf-nva_frozen
-      nmo2_a=nva_hi-nva_lo+1
-      noper_a=noa_hi-noa_lo+1
+      nva_hi=nmo-nva_frozen
 c
       nob_lo=nob_frozen+1
       nob_hi=nob
       nob_correl=nob_hi-noa_lo+1
       nvb_lo=nob+1
-      nvb_hi=nbf-nvb_frozen
-      nmo2_b=nvb_hi-nvb_lo+1
-      noper_b=nob_hi-nob_lo+1
+      nvb_hi=nmo-nvb_frozen
 c     
-      if(.not.ma_push_get(mt_int,nbf,'map_a',l_map_a,k_map_a))
-     $     call errquit('could not alloc map_a',1)
+c     map_a/b hold reordering vector from MO file to symmetry blocked
 c
-      if(.not.ma_push_get(mt_int,nbf,'map_b',l_map_b,k_map_b))
+      if(.not.ma_push_get(mt_int,nmo,'map_a',l_map_a,k_map_a))
+     $     call errquit('could not alloc map_a',1)
+      if(.not.ma_push_get(mt_int,nmo,'map_b',l_map_b,k_map_b))
      $     call errquit('could not alloc map_b',1)
-c     
-      if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work))
+      if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work)) ! Holds an MO
      $     call errquit('could not alloc work',1)
 c     
       call moints_vecs_sym_sort(g_vecs_a,nbf,noa_lo,noa_hi,
      $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_oa_sym,
      $     sym_lo_oa,sym_hi_oa)
-c
       call moints_vecs_sym_sort(g_vecs_b,nbf,nob_lo,nob_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_ob_sym,
      $     sym_lo_ob,sym_hi_ob)
       call moints_vecs_sym_sort(g_vecs_a,nbf,nva_lo,nva_hi,
      $     int_mb(k_irs_a),int_mb(k_map_a),dbl_mb(k_work),num_va_sym,
      $     sym_lo_va,sym_hi_va)
-c
       call moints_vecs_sym_sort(g_vecs_b,nbf,nvb_lo,nvb_hi,
      $     int_mb(k_irs_b),int_mb(k_map_b),dbl_mb(k_work),num_vb_sym,
      $     sym_lo_vb,sym_hi_vb)
 c     
+c     Also reorder the evals
+c
       call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_work),1)
       do i=noa_lo,nva_hi
          dbl_mb(k_eval_a-1+int_mb(k_map_a+i-1))=dbl_mb(k_work+i-1)
       enddo
 c
-      call dcopy(nbf,dbl_mb(k_eval_b),1,dbl_mb(k_work),1)
+      call dcopy(nmo,dbl_mb(k_eval_b),1,dbl_mb(k_work),1)
       do i=nob_lo,nvb_hi
          dbl_mb(k_eval_b-1+int_mb(k_map_b+i-1))=dbl_mb(k_work+i-1)
       enddo
 c     
-      call dfill(nbf,0.0d0,dbl_mb(k_eval_b),1)
-      call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_eval_b),1)
+c     These look as if should only be done for RHF ... now copy
+c     the apha evals over above so don't need it here?
+c$$$      call dfill(nbf,0.0d0,dbl_mb(k_eval_b),1)
+c$$$      call dcopy(nbf,dbl_mb(k_eval_a),1,dbl_mb(k_eval_b),1)
+c
       if (.not. ma_pop_stack(l_work)) call errquit
      $     ('mp2_grad: ma failed popping workspace(1)', 0)
 c     
@@ -289,12 +285,12 @@ c
      $     num_oa_sym,num_va_sym,g_vecs_b,nob_lo,nob_hi,nvb_lo,
      $     nvb_hi,int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,
      $     sym_hi_vb,num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),
-     $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,task,
+     $     dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,nmo,task,
      $     pass,oblk,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_w_ai_a,g_w_ai_b,g_lai_a,g_lai_b,
-     $     dbl_mb(k_grad))
+     $     dbl_mb(k_grad),scftype)
       if(scftype.eq.'UHF') then
          pass=2
          call mp2_grad_uhf(rtdb,g_vecs_b,nob_lo,nob_hi,
@@ -303,12 +299,12 @@ c
      $        num_vb_sym,g_vecs_a,noa_lo,noa_hi,nva_lo,
      $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
      $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
-     $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,task,
+     $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,nmo,task,
      $        pass,oblk,
      $        g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
      $        g_w_ij_b,g_w_ij_a,g_w_ab_b,g_w_ab_a,
      $        g_w_ai_b,g_w_ai_a,g_lai_b,g_lai_a,
-     $        dbl_mb(k_grad))
+     $        dbl_mb(k_grad),scftype)
       else
 c
 c     For RHF basically just need to add the mixed and pure
@@ -385,21 +381,15 @@ c
          call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
          if(.not.file_read_ga(cphf_sol,g_rhs))
      $        call errquit('could not read cphf_rhs',1)
-         if(.not.ga_create(mt_dbl,nbf,nbf,'tot alpha dens',nbf,1,
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha dens',nmo,1,
      $        g_p_tot_a))call errquit(
      $        'mp2_energy: ga_create failed',0)
-         if(.not.ga_create(mt_dbl,nbf,nbf,'tot beta dens',nbf,1,
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta dens',nmo,1,
      $        g_p_tot_b))call errquit(
-     $        'mp2_energy: ga_create failed',0)
-         if(.not.ga_create(mt_dbl,nbf,nbf,'tot alpha wdens',nbf,1,
-     $        g_w_tot_a))call errquit(
-     $        'mp2_energy: ga_create failed',0)
-         if(.not.ga_create(mt_dbl,nbf,nbf,'tot beta wdens',nbf,1,
-     $        g_w_tot_b))call errquit(
      $        'mp2_energy: ga_create failed',0)
 c
          call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
-     $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,
+     $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,nmo,
      $        g_vecs_a,g_vecs_b,basis,scftype)
 c     
          call pstat_on(ps_wijfock)
@@ -408,9 +398,15 @@ c
      $        g_w_ij_a,g_w_ij_b)
          call pstat_off(ps_wijfock)
 c     
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha wdens',nmo,1,
+     $        g_w_tot_a))call errquit(
+     $        'mp2_energy: ga_create failed',0)
+         if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta wdens',nmo,1,
+     $        g_w_tot_b))call errquit(
+     $        'mp2_energy: ga_create failed',0)
          call mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $        g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
-     $        noa,nva,nob,nvb,nbf,g_vecs_a,g_vecs_b,
+     $        noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $        dbl_mb(k_eval_a),dbl_mb(k_eval_b),
      $        g_p_tot_a,g_p_tot_b,scftype)
 c$$$  call mp2_make_dip_mom(g_p_tot_a,g_p_tot_b,basis,rtdb,nbf,
@@ -450,7 +446,7 @@ c
             if(.not.ma_get_index(l_grad2,k_grad2))
      $           call errquit('frc2?',0)
 c
-            if (util_print('gradient',print_default)) then
+            if (util_print('gradient',print_low)) then
                write(6,*)
                write(6,*) ' Total MP2 gradient '
                write(6,*)

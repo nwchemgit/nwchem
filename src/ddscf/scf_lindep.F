@@ -1,5 +1,5 @@
       subroutine scf_lindep(rtdb, geom, basis, g_u, n_indep)
-c     $Id: scf_lindep.F,v 1.1 1996-01-19 07:31:18 d3g681 Exp $
+c     $Id: scf_lindep.F,v 1.2 1996-10-19 23:37:47 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -95,7 +95,7 @@ c
        if (n_dep.gt.0 .and. oprint .and. ga_nodeid().eq.0) then
           write(6,334) n_dep
  334      format(/' !! The overlap matrix has ',i3,' vectors deemed '
-     $         'linearly dependent with eigenvalues:')
+     $         'linearly dependent with'/'    eigenvalues:')
           write(6,33) (dbl_mb(k_ev+j),j=0,n_dep-1)
  33       format(1p,8d9.2)
           write(6,*)

@@ -57,7 +57,7 @@ c
      $        +batch_size*nbf+lenscr+lenscrd+leng+lengd)
       endif
 c     
-      call intd_terminate
+*      call intd_terminate
       call int_terminate
 c     
       end

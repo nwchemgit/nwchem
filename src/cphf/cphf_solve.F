@@ -23,13 +23,23 @@ c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
       external rohf_hessv_precond,rohf_hessv
       external uhf_precond,uhf_hessv
-      logical oprint
+      logical oprint, oprint_conv
 c     
       character*(nw_max_path_len) cphf_rhs
       character*(nw_max_path_len) cphf_sol
       logical file_write_ga,file_read_ga
       external file_write_ga,file_read_ga
       integer vlen, nvirt
+c
+c     Print levels assume that CPHF is being invoked from within
+c     another application.  By default be informative.
+c     At low print, just indicate convergence or failure.
+c
+      oprint = util_print('information',print_default) .and.
+     $     ga_nodeid() .eq. 0
+      oprint_conv = util_print('information',print_low) .and.
+     $     ga_nodeid() .eq. 0
+      oprint_solve = util_print('solve',print_default)
 c     
       call scf_init(rtdb)
       call int_normalize(basis)
@@ -47,19 +57,35 @@ c
          call errquit('cphf: unknown SCF type',0)
       endif
 c
+      lshift=0.0d0
+      precond_tol=1d-6
+      pflg=2
+      max_precond_iter = 50
+      max_precond_sub = 20
+      if (oprint) then
+         write(6,170) scftype
+ 170     format('    scftype = ',a)
+         if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
+            write(6,171) nclosed, nopen
+ 171        format('    nclosed = ', i4/
+     $             '      nopen = ', i4)
+         else
+            write(6,172) nalpha, nbeta
+ 172        format('     nalpha = ', i4/
+     $             '       nbeta = ', i4)
+         endif
+         write(6,173) vlen, precond_tol, max_precond_iter
+ 173     format('  variables = ', i8/
+     $          '  tolerance = ', 1p,d9.1,0p/
+     $          '  max. iter = ', i4/)
+      endif
+c
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',1,1,g_grad))
      $     call errquit('cphf_solve: ga_cre grad',vlen)
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
       if(.not.file_read_ga(cphf_rhs, g_grad))
      $     call errquit('cphf_solve: could not read cphf_rhs',1)
-c
-      lshift=0.0d0
-      precond_tol=1d-6
-      pflg=2
-      max_precond_iter=20
-      max_precond_sub=10
-      oprint=.true.
 c
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: grad',
      $     1,1,g_work))call errquit('cphf_solve: ga_cre grad',0)
@@ -79,7 +105,8 @@ c
      $     call errquit('cphf_solve:the available MOs do not satisfy'//
      $     ' the SCF equations',0)
 c
-      call ga_zero(g_work)      ! Essential
+      call ga_zero(g_work)      ! Essential to get default initial guess
+c
 c
       if (scftype .eq. 'UHF') then
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
@@ -94,7 +121,13 @@ c
      $        g_grad, g_work, precond_acc,precond_iter))
      $        call errquit('cphf did not converge', precond_iter)
       endif
-
+c
+      if (oprint_conv) then
+         write(6,174) precond_acc, precond_iter
+ 174     format(/' CPHF converged to ',1p,d9.1,0p,' in ', i4, ' iters'/)
+         call util_flush(6)
+      endif
+c
 c$$$  if(.not.ga_it_ls_mrhs(cuhf_vlen,1,max_iter,
 c$$$  $        max_sub,accuracy, 
 c$$$  $        uhf_precond,uhf_hessv,oprint, 
@@ -113,6 +146,8 @@ c
      $     call errquit('cphf_solve: could not write cphf_sol',1)
       if(.not.ga_destroy(g_work))call errquit(
      $     'cphf_solve: could not destroy work array',1)
+      if(.not.ga_destroy(g_grad))call errquit(
+     $     'cphf_solve: could not destroy gradient handle',1)
 c
       call int_1e_uncache_ga()
       call schwarz_tidy()
@@ -123,7 +158,5 @@ c
          call rohf_tidy
       endif
       call scf_tidy(rtdb)
-      if(.not.ga_destroy(g_grad))call errquit(
-     $     'cphf_solve: could not destroy gradient handle',1)
 c
       end

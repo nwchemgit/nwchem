@@ -2,19 +2,20 @@
      $     irs_a,sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,  
      $     num_oa,num_va,g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $     irs_b,sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
-     $     num_ob,num_vb,eval_a,eval_b,basis,geom,tol2e,e2,nbf,
-     $     task,pass,oblk,
+     $     num_ob,num_vb,eval_a,eval_b,basis,geom,tol2e,e2,nbf,nmo,
+     $     task,passab,oblk,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
-     $     grad)
+     $     grad,scftype)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "cmp2ps.fh"
 #include "eaf.fh"
 #include "util.fh"
-      integer rtdb, g_vecs_a,g_vecs_b,pass
+      integer rtdb, g_vecs_a,g_vecs_b
+      integer passab            ! 1 on first call (aa+ab) 2 on second (bb+ba)
       integer noa_lo,noa_hi,nob_lo,nob_hi
       integer irs_a(*),irs_b(*)
       integer nva_lo,nva_hi,nvb_lo,nvb_hi
@@ -26,7 +27,8 @@
       integer num_ob(0:*),num_vb(0:*)
       integer basis
       integer geom
-      integer nbf
+      integer nbf,nmo
+      character*(*) scftype
       integer num_i_perseg,npass,npasses,ierr
       integer k_amos,k_bmos,l_amos,l_bmos
       integer k_toff_a,k_toff_b
@@ -51,7 +53,7 @@
       integer nva_lo_local,nva_hi_local
       parameter(kunit=11)
       integer tunita,tunitb
-      logical ocoul,oexch
+      logical ocoul,oexch, oprint_mem
       double precision tol2e,e2
       double precision eval_a(*),eval_b(*)
       integer oseg_lo,oseg_hi
@@ -72,6 +74,7 @@ c
       double precision grad(3,*)
       character*20 fstype
       integer max_ga,max_file,max_ma,avail_ga,avail_ma,avail_file
+      character*20 info
 c     
 c...  for texas blocking in moints_semi
 c     
@@ -83,6 +86,14 @@ c
          ocoul=.false.
       endif
       oexch=.true.
+c
+      if (scftype .eq. 'RHF') then
+         info = ' for RHF alpha+beta'
+      else if (passab .eq. 1) then
+         info = ' for UHF alpha'
+      else
+         info = ' for UHF beta'
+      endif
 c     
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
@@ -106,60 +117,55 @@ c
       else
          avail_ga=0
       endif
-      if(ga_nodeid().eq.0)then
-         write(6,*) 'avail_ma',avail_ma
-         write(6,*) 'avail_ga',avail_ga
-         write(6,*) 'avail_file',avail_file
+      oprint_mem = util_print('multipass',print_default) .and. 
+     $     ga_nodeid().eq.0
+      if (oprint_mem) then
+         write(6,201) ga_uses_ma(), ga_memory_limited()
+ 201     format(/' GA uses MA = ',l1,'    GA memory limited = ',l1)
+         write(6,21) avail_ma, avail_ga, avail_file
+ 21      format(/' Available: local mem=',i10,' global mem=',i10,
+     $        ' local disk=',i10)
+         call util_flush(6)
       endif
-      do num_i_perseg=noa_hi-noa_lo+1,1,-1
+c
+      do npasses = 1, noa_hi-noa_lo+1
+         num_i_perseg = (noa_hi-noa_lo)/npasses + 1
          call mp2_memory(basis,rtdb,tol2e,nbf,noa,nva,nob,nvb,
      $        num_i_perseg,max_ma,max_ga,max_file,task)
-         if(ga_nodeid().eq.0)then
-            write(6,*) 'num_i_perseg',num_i_perseg
-            write(6,*) 'max_ma',max_ma
-            write(6,*) 'max_ga',max_ga
-            write(6,*) 'max_file',max_file
+         if(oprint_mem) then
+            write(6,22) npasses, max_ma, max_ga, max_file
+ 22         format(1x,i4,' pass:      '
+     $        '     ',i10,'            ',i10,
+     $        '            ',i10)
+            call util_flush(6)
          endif
          if(ga_uses_ma().and..not.ga_memory_limited())then
             if(max_ma+max_ga.le.avail_ma.and.max_file.le.
-     $           avail_file)then
-               if(ga_nodeid().eq.0)then
-                  write(6,*) 
-     $    'max_ma+max_ga.le.avail_ma.and.max_file.le.avail_file'
-               endif
-               goto 999
-            endif
+     $           avail_file) goto 999
          elseif(ga_memory_limited())then
             if(max_ma.le.avail_ma.and.max_file.le.avail_file.
-     $           and.max_ga.le.avail_ga)then
-               if(ga_nodeid().eq.0)then
-                  write(6,*) 
-     $            'max_ma.le.avail_ma.and.max_file.le.avail_file.'
-                  write(6,*)
-     $            'and.max_ga.le.avail_ga'     
-               endif
-               goto 999
-            endif
+     $           and.max_ga.le.avail_ga) goto 999
          elseif(max_ma.le.avail_ma.and.max_file.le.avail_file)then
-            if(ga_nodeid().eq.0)then
-               write(6,*)
-     $              'max_ma.le.avail_ma.and.max_file.le.avail_file'
-            endif
-            goto 999
+            if(ga_nodeid().eq.0) goto 999
          endif
       enddo
       call errquit('mp2_grad:insufficient resources',1)
  999  continue
-      npass=0
-      npasses = (noa_hi - noa_lo - 1)/num_i_perseg + 1
+      if (oprint_mem) then
+         write(6,*)
+         call util_flush(6)
+      endif
+c
       if (npasses .gt. 100) call errquit
      $     ('mp2_grad: too many passes',npasses)
+c
+      npass=0
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
          npass=npass+1
          if(ga_nodeid().eq.0 .and. 
      $        util_print('passes',print_default)) then
-            write(6,1101) npass, npasses
- 1101       format(' Semi-direct pass number', i4, ' of',i4)
+            write(6,1101) npass, npasses,info
+ 1101       format(' Semi-direct pass number', i4, ' of',i4,1x,a)
             call util_flush(6)
          endif
          oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
@@ -179,9 +185,9 @@ c
 c     
 c     make t-pure-spin in tunita, t-mixed-spin in tunitb
 c
-         if(.not.ma_push_get(mt_dbl,nbf*nbf,'amos',l_amos,k_amos))
+         if(.not.ma_push_get(mt_dbl,nbf*nmo,'amos',l_amos,k_amos))
      $        call errquit('mp2_grad_doit: error with ma',1)
-         if(.not.ma_push_get(mt_dbl,nbf*nbf,'bmos',l_bmos,k_bmos))
+         if(.not.ma_push_get(mt_dbl,nbf*nmo,'bmos',l_bmos,k_bmos))
      $        call errquit('mp2_grad_doit: error with ma',1)
          if(.not.ma_push_get(mt_int,nva*nir,'toff_a',
      $        l_toff_a,k_toff_a))
@@ -189,8 +195,8 @@ c
          if(.not.ma_push_get(mt_int,nvb*nir,'toff_b',
      $        l_toff_b,k_toff_b))
      $        call errquit('mp2_grad_doit: could not alloc toff_b',1)
-         call ga_get(g_vecs_a,1,nbf,1,nbf,dbl_mb(k_amos),nbf)
-         call ga_get(g_vecs_b,1,nbf,1,nbf,dbl_mb(k_bmos),nbf)
+         call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
+         call ga_get(g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
 c     
          call util_file_name('khlf',.true.,.true.,fnamek)
          call waopen(kunit,fnamek,1,0,itmp)

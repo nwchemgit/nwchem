@@ -138,7 +138,7 @@ c
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
-*
+c
       end
       subroutine mp2_wij_fock_uhf(rtdb, geom, basis, tol2e,
      $     g_ppq_a, g_ppq_b, 
@@ -159,36 +159,19 @@ c
 c
 c     w_ij += J[Paa] - K[Paa] + J[Pbb]
 c
-
       integer g_dens(4), g_fock(4), nfock, nmo, nbf, gtype
       integer g_tmp1, g_tmp2, i
       double precision jfac(4), kfac(4), one, zero, mone
       logical oskel
 c
-*      integer syms(13)
       data nfock /4/
       data jfac / 1.0d0, 1.0d0, 1.0d0, 1.0d0/
       data kfac /-1.0d0, 0.0d0,-1.0d0, 0.0d0/
       data oskel /.false./
-*      data syms/0,0,2,0,3,0,2,2,0,3,0,2,0/
 c
       one = 1.0d0
       zero= 0.0d0
       mone = -1.0d0
-c
-c$$$      call ga_zero(g_wij_a)
-c$$$      call ga_zero(g_wij_b)
-*      write(6,*) ' WIJ_A on entry to WIJ_FOCK '
-*      call ga_print(g_wij_a)
-*      write(6,*) ' PPQ_A on entry '
-*      call ga_print(g_ppq_a)
-*      do i = 1, 13
-*         do j = 1, 13
-*            call ga_get(g_ppq_a, i, i, j, j, xx, 1)
-*            if (abs(xx).gt.1d-8 .and. syms(i).ne.syms(j)) 
-*     $           write(6,*) ' BAD P ', i, j, xx
-*         enddo
-*      enddo
 c
 c     Allocate space for AO fock and density matrices
 c
@@ -227,9 +210,6 @@ c
      $     g_vecs_b, zero, g_dens(3))
       call ga_symmetrize(g_dens(3))
 c
-*      write(6,*) ' ALPHA AO density '
-*      call ga_print(g_dens(1))
-c
       if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0)
 c
 c     Make the fock matrices
@@ -248,11 +228,6 @@ c
       call ga_dadd(one, g_fock(3), one, g_fock(2), g_fock(3))
       call ga_symmetrize(g_fock(1))
       call ga_symmetrize(g_fock(3))
-c
-*      write(6,*) ' ALPHA AO FOCK ', nbf, no_a, nmo
-*      call ga_print(g_fock(1))
-*      write(6,*) ' ALPHA MOS'
-*      call ga_print(g_vecs_a)
 c
 c     Transform back ... just want wij
 c
@@ -282,9 +257,6 @@ c
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
-c
-*      write(6,*) ' WIJ_A on exit from WIJ_FOCK '
-*      call ga_print(g_wij_a)
 c
       end
 

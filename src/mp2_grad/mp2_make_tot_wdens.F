@@ -1,18 +1,18 @@
       subroutine mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,
      $     g_w_ab_b,g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
-     $     noa,nva,nob,nvb,nbf,g_vecs_a,g_vecs_b,
+     $     noa,nva,nob,nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $     evals_a, evals_b, g_p_tot_a, g_p_tot_b)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer nbf,noa,nva,nob,nvb
+      integer nbf,noa,nva,nob,nvb, nmo
       integer g_vecs_a,g_vecs_b
       integer g_w_ij_a,g_w_ij_b
       integer g_w_ab_a,g_w_ab_b
       integer g_w_ai_a,g_w_ai_b
       integer g_w_tot_a,g_w_tot_b
       integer g_w_ai_a_tr,g_w_ai_b_tr
-      integer g_scratch
+      integer g_scratch, g_tmp
 c     
       double precision evals_a(*), evals_b(*)
       integer g_p_tot_a, g_p_tot_b
@@ -37,24 +37,29 @@ c
       call ga_zero(g_w_tot_a)
       call ga_zero(g_w_tot_b)
       call ga_copy_patch('n',g_w_ai_a,1,noa,1,nva,g_w_tot_a,
-     $     1, noa, noa+1, nbf)
+     $     1, noa, noa+1, nmo)
 c     
       call ga_transpose(g_w_ai_a,g_w_ai_a_tr)
       call ga_copy_patch('n',g_w_ai_a_tr,1,nva,1,noa,g_w_tot_a,
-     $     noa+1,nbf,1,noa)
+     $     noa+1,nmo,1,noa)
       call ga_copy_patch('n',g_w_ij_a,1,noa,1,noa,g_w_tot_a,
      $     1,noa,1,noa)
       call ga_copy_patch('n',g_w_ab_a,1,nva,1,nva,g_w_tot_a,
-     $     noa+1,nbf,noa+1,nbf)
+     $     noa+1,nmo,noa+1,nmo)
       call ga_copy_patch('n',g_w_ai_b,1,nob,1,nvb,g_w_tot_b,
-     $     1, nob, nob+1,nbf)
+     $     1, nob, nob+1,nmo)
       call ga_transpose(g_w_ai_b,g_w_ai_b_tr)
       call ga_copy_patch('n',g_w_ai_b_tr,1,nvb,1,nob,g_w_tot_b,
-     $     nob+1,nbf,1,nob)
+     $     nob+1,nmo,1,nob)
       call ga_copy_patch('n',g_w_ij_b,1,nob,1,nob,g_w_tot_b,
      $     1,nob,1,nob)
       call ga_copy_patch('n',g_w_ab_b,1,nvb,1,nvb,g_w_tot_b,
-     $     nob+1,nbf,nob+1,nbf)
+     $     nob+1,nmo,nob+1,nmo)
+c
+      if(.not.ga_destroy(g_w_ai_a_tr))call errquit(
+     $     'could not destroy g_w_ai_a_tr handle',1)
+      if(.not.ga_destroy(g_w_ai_b_tr))call errquit(
+     $     'could not destroy g_w_ai_b_tr handle',1)
 c     
 c     Wij += - Ei Pij
 c     Wab += - Ea Pab
@@ -67,30 +72,31 @@ c
 c     
 c...  transform to AO basis and write
 c     
-      if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',1,1,g_scratch))
-     $     call errquit('scratch',1)
-      call ga_dgemm('n','t',nbf,nbf,nbf,one,g_w_tot_a,g_vecs_a,
+      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',1,1,g_scratch))
+     $     call errquit('mp2_grad: scratch',1)
+      if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',1,1,g_tmp))
+     $     call errquit('mp2_grad: scratch',2)
+c
+      call ga_dgemm('n','t',nmo,nbf,nmo,one,g_w_tot_a,g_vecs_a,
      $     zero,g_scratch)
-      call ga_dgemm('n','n',nbf,nbf,nbf,one,g_vecs_a,g_scratch,
-     $     zero,g_w_tot_a)
-      call ga_dgemm('n','t',nbf,nbf,nbf,one,g_w_tot_b,g_vecs_b,
+      call ga_dgemm('n','n',nbf,nbf,nmo,one,g_vecs_a,g_scratch,
+     $     zero,g_tmp)
+      call ga_symmetrize(g_tmp)
+      if(.not.file_write_ga(w_a_ao,g_tmp))
+     $     call errquit('mp2_grad: could not write w_tot_a',1)
+c     
+      call ga_dgemm('n','t',nmo,nbf,nmo,one,g_w_tot_b,g_vecs_b,
      $     zero,g_scratch)
-      call ga_dgemm('n','n',nbf,nbf,nbf,one,g_vecs_b,g_scratch,
-     $     zero,g_w_tot_b)
+      call ga_dgemm('n','n',nbf,nbf,nmo,one,g_vecs_b,g_scratch,
+     $     zero,g_tmp)
+      call ga_symmetrize(g_tmp)
+      if(.not.file_write_ga(w_b_ao,g_tmp))
+     $     call errquit('mp2_grad: could not write w_tot_b',1)
 c     
-      call ga_symmetrize(g_w_tot_a)
-      call ga_symmetrize(g_w_tot_b)
-c     
-      if(.not.file_write_ga(w_a_ao,g_w_tot_a))
-     $     call errquit('could not write w_tot_a',1)
-      if(.not.file_write_ga(w_b_ao,g_w_tot_b))
-     $     call errquit('could not write w_tot_b',1)
+      if(.not.ga_destroy(g_tmp))call errquit(
+     $     'mp2_grad: could not destroy g_scratch',1)
       if(.not.ga_destroy(g_scratch))call errquit(
-     $     'could not destroy g_scratch',1)
-      if(.not.ga_destroy(g_w_ai_a_tr))call errquit(
-     $     'could not destroy g_w_ai_a_tr handle',1)
-      if(.not.ga_destroy(g_w_ai_b_tr))call errquit(
-     $     'could not destroy g_w_ai_b_tr handle',1)
+     $     'mp2_grad: could not destroy g_scratch',1)
       end
 
       subroutine mp2_w_hack(g_w, g_p, e, no, nv)

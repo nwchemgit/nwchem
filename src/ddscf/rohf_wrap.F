@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
 c     
 c     Invalidate data
 c     
@@ -19,7 +19,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -29,7 +29,7 @@ c
      $     call errquit('rohf internals already initialised?',0)
 c     
       crohf_init_flag = 1
-      crohf_vlen = (nbf-nclosed-nopen)*(nclosed+nopen)+(nclosed*nopen)
+      crohf_vlen = (nmo-nclosed-nopen)*(nclosed+nopen)+(nclosed*nopen)
 c
 c     Special case for no degrees of freedom ... avoid breaking GA
 c
@@ -63,7 +63,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -91,7 +91,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
 c
       integer g_vecs
       double precision energy
@@ -106,7 +106,7 @@ c
      $     call errquit('rohf_energy: ROHF internal block invalid',0)
       call ga_inquire(g_grad, gtype, grow, gcol)
       if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
-     $     call errquit('rohf_energy: invalid vector length',0)
+     $     call errquit('rohf_energy: invalid vector length',grow)
 c     
       call rohf_fock(geom, basis,
      $     nclosed, nopen, nmo, tol2e, g_vecs,
@@ -128,7 +128,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -172,7 +172,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.9 1996-08-06 05:33:04 d3g681 Exp $
+c     $Id: rohf_wrap.F,v 1.10 1996-10-19 23:37:47 d3g681 Exp $
 c
       integer g_x
       double precision solveshift
