@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.119 2000-02-25 00:36:53 windus Exp $
+c     $Id: msgids.fh,v 1.120 2000-02-29 21:49:30 windus Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_prsum
@@ -437,6 +437,9 @@ C
 c
       integer msg_rq, msg_dq, msg_diagv, msg_dmx, msg_dmy, msg_dmz
       integer msg_coupv, msg_dm2x, msg_dm2y, msg_dm2z
+c
+      integer msg_j21, msg_j20, msg_j301, msg_j302
+      integer msg_u01, msg_u02
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -1007,3 +1010,10 @@ c
       parameter(msg_dm2x = msg_ftn_base-757)
       parameter(msg_dm2y = msg_ftn_base-758)
       parameter(msg_dm2z = msg_ftn_base-759)
+c
+      parameter(msg_j21 = msg_ftn_base-780)
+      parameter(msg_j20 = msg_ftn_base-781)
+      parameter(msg_j301 = msg_ftn_base-782)
+      parameter(msg_j302 = msg_ftn_base-783)
+      parameter(msg_u01 = msg_ftn_base-784)
+      parameter(msg_u02 = msg_ftn_base-785)
