@@ -171,7 +171,7 @@ c
       if (.not. rtdb_get(rtdb, 'oniom:model:charge', mt_dbl, 1, 
      $        model_charge)) call errquit('oniom:model charge',0)
       if (.not. rtdb_get(rtdb, 'oniom:inter:charge', mt_dbl, 1, 
-     $        inter_charge)) call errquit('oniom:inter charge',0)
+     $        inter_charge)) inter_charge = 0.0d0
 c     
       model_nbonds = 0
       if (rtdb_get(rtdb,'oniom:model:nbonds',mt_int,1,model_nbonds))then
