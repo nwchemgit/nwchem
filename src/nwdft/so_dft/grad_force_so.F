@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.11 2001-05-07 00:06:22 zzhang Exp $
+c     $Id: grad_force_so.F,v 1.12 2001-06-08 19:30:31 edo Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -151,7 +151,7 @@ c
 *     Stuff for DFT
 
       integer ipol, numfunc, noc(2)
-      parameter (numfunc = 20)
+      parameter (numfunc = 30)
       logical oskel, omp2, odft, ocdfit, status,frac_occ, exso 
       double precision xfac(numfunc), jfac, kfac
 
