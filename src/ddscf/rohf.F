@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.10 1996-05-15 02:28:41 d3g681 Exp $
+C$Id: rohf.F,v 1.11 1996-05-18 01:10:34 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -133,20 +133,20 @@ c
       implicit none
 #include "cscf.fh"
 #include "global.fh"
-c
+c     
       integer g_cdens, g_odens, g_over
-c
+c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-c
+c     
 c     First analyze the total density
-c
+c     
       g_cdens = ga_create_atom_blocked(geom, basis, 'rohf_mull:cdens')
       g_over  = ga_create_atom_blocked(geom, basis, 'rohf_mull:over')
       call ga_zero(g_cdens)
       call ga_zero(g_over)
       call int_1e_ga(basis, basis, g_over, 'overlap', .false.)
-c
+c     
       if (nopen .gt. 0) then
          g_odens = ga_create_atom_blocked(geom, basis,'rohf_mull:odens')
          call ga_zero(g_odens)
@@ -156,25 +156,30 @@ c
       call rohf_dens(g_movecs, nbf, nclosed, nopen, g_cdens, g_odens)
       if (nopen .gt. 0)
      $     call ga_dadd(1.0d0, g_cdens, 1.0d0, g_odens, g_cdens)
-c
-      write(6,*)
-      call util_print_centered(6,
-     $     'Mulliken analysis of the total density', 20,.true.)
-      write(6,*)
-      call mull_pop(geom, basis, g_cdens, g_over)
-c      
-c     Do the open shell(s)
-c
-      if (nopen .gt. 0) then
+c     
+      if (ga_nodeid() .eq. 0) then
          write(6,*)
          call util_print_centered(6,
-     $        'Mulliken analysis of the open-shell density', 20,.true.)
+     $        'Mulliken analysis of the total density', 20,.true.)
          write(6,*)
+      endif
+      call mull_pop(geom, basis, g_cdens, g_over)
+c     
+c     Do the open shell(s)
+c     
+      if (nopen .gt. 0) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,*)
+            call util_print_centered(6,
+     $           'Mulliken analysis of the open-shell density', 
+     $           20,.true.)
+            write(6,*)
+         endif
          call mull_pop(geom, basis, g_odens, g_over)
          if (.not. ga_destroy(g_odens)) call errquit('rohf_mull: ga?',0)
       endif
-c
+c     
       if (.not. ga_destroy(g_over)) call errquit('rohf_mull: ga?',0)
       if (.not. ga_destroy(g_cdens)) call errquit('rohf_mull: ga?',0)
-c
+c     
       end
