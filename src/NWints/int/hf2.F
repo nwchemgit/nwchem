@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.16 2000-05-12 03:04:28 d3j191 Exp $
+c $Id: hf2.F,v 1.17 2000-05-19 19:35:51 mg201 Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -7,6 +7,7 @@ c $Id: hf2.F,v 1.16 2000-05-12 03:04:28 d3j191 Exp $
      &               DryRun,W0,maxW0)
 
       Implicit none
+#include "stdio.fh"
 
       Integer NPA,NCA,La
       Integer NPB,NCB,Lb
@@ -46,7 +47,7 @@ c--> Local variables
       Integer MPP,MPQ,MPR,NPP,NPQ,NPR
       Integer lszp,lszq,ninti
       Integer i_R0,i_IJK,i_P,i_Q,i_PQ,i_ff,i_Rj
-      Integer i_E3,i_sum,i_eri,i_tran,i_top
+      Integer i_E3,i_t1,i_t2,i_t3,i_t4,i_eri,i_top
       Integer i,j
 
       Logical doit_PQ
@@ -98,14 +99,14 @@ c Assign pointers to scratch space.
         NPP = NPA*NPB
       else
         if (i_left.ge.i_right) then
-          write(*,*) 'HF2:  Insufficient scratch space.'
-          write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
-          write(*,*) '      allocated ',maxW0
-          write(*,*) 'From the left '
-          write(*,*) 'ALPHAp:  ',i_ALPHAp 
-          write(*,*) 'IPAIRp:  ',i_IPAIRp 
-          write(*,*) 'From the right '
-          write(*,*) 'ESp   :  ',i_ESp 
+          write(LuOut,*) 'HF2:  Insufficient scratch space.'
+          write(LuOut,*) '      needed    ',i_left + (maxW0-(i_right-1))
+          write(LuOut,*) '      allocated ',maxW0
+          write(LuOut,*) 'From the left '
+          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
+          write(LuOut,*) 'From the right '
+          write(LuOut,*) 'ESp   :  ',i_ESp 
           call errquit('hf2: out of scratch space',0)
         end if
         call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
@@ -128,17 +129,17 @@ c Assign pointers to scratch space.
         NPQ = NPC*NPD
       else
         if (i_left.ge.i_right) then
-          write(*,*) 'HF2:  Insufficient scratch space.'
-          write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
-          write(*,*) '      allocated ',maxW0
-          write(*,*) 'From the left '
-          write(*,*) 'ALPHAp:  ',i_ALPHAp 
-          write(*,*) 'IPAIRp:  ',i_IPAIRp 
-          write(*,*) 'ALPHAq:  ',i_ALPHAq 
-          write(*,*) 'IPAIRq:  ',i_IPAIRq 
-          write(*,*) 'From the right '
-          write(*,*) 'ESp   :  ',i_ESp 
-          write(*,*) 'ESq   :  ',i_ESq 
+          write(LuOut,*) 'HF2:  Insufficient scratch space.'
+          write(LuOut,*) '      needed    ',i_left + (maxW0-(i_right-1))
+          write(LuOut,*) '      allocated ',maxW0
+          write(LuOut,*) 'From the left '
+          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
+          write(LuOut,*) 'ALPHAq:  ',i_ALPHAq 
+          write(LuOut,*) 'IPAIRq:  ',i_IPAIRq 
+          write(LuOut,*) 'From the right '
+          write(LuOut,*) 'ESp   :  ',i_ESp 
+          write(LuOut,*) 'ESq   :  ',i_ESq 
           call errquit('hf2: out of scratch space',1)
         end if
         call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
@@ -178,20 +179,20 @@ c Assign pointers to scratch space.
         MaxMem = max( MaxMem, i_left + (maxW0 - (i_right-1)) )
       else
         if (i_left.ge.i_right) then
-          write(*,*) 'HF2:  Insufficient scratch space.'
-          write(*,*) '      needed    ',i_left + (maxW0-(i_right-1))
-          write(*,*) '      allocated ',maxW0
-          write(*,*) 'From the left '
-          write(*,*) 'ALPHAp:  ',i_ALPHAp 
-          write(*,*) 'IPAIRp:  ',i_IPAIRp 
-          write(*,*) 'ALPHAq:  ',i_ALPHAq 
-          write(*,*) 'IPAIRq:  ',i_IPAIRq 
-          write(*,*) 'Ep    :  ',i_Ep
-          write(*,*) 'Eq    :  ',i_Eq
-          write(*,*) 'pf    :  ',i_pf
-          write(*,*) 'From the right '
-          write(*,*) 'ESp   :  ',i_ESp 
-          write(*,*) 'ESq   :  ',i_ESq 
+          write(LuOut,*) 'HF2:  Insufficient scratch space.'
+          write(LuOut,*) '      needed    ',i_left + (maxW0-(i_right-1))
+          write(LuOut,*) '      allocated ',maxW0
+          write(LuOut,*) 'From the left '
+          write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+          write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
+          write(LuOut,*) 'ALPHAq:  ',i_ALPHAq 
+          write(LuOut,*) 'IPAIRq:  ',i_IPAIRq 
+          write(LuOut,*) 'Ep    :  ',i_Ep
+          write(LuOut,*) 'Eq    :  ',i_Eq
+          write(LuOut,*) 'pf    :  ',i_pf
+          write(LuOut,*) 'From the right '
+          write(LuOut,*) 'ESp   :  ',i_ESp 
+          write(LuOut,*) 'ESq   :  ',i_ESq 
           call errquit('hf2: out of scratch space',3)
         end if
 
@@ -215,17 +216,18 @@ c   If insufficient memory, do multipassing.
       MaxAvail = maxW0-i_R0-3*(NPP+NPQ)+1
       MemPerPair = (Lr+2)*Lr3 + 5
       if (MaxAvail-MemPerPair .le. 0) then
-        write(*,*) 'HF2:  Insufficient scratch space.'
-        write(*,*) '      needed    ',i_R0+3*(NPP+NPQ)+MemPerPair*NPR
-        write(*,*) '      allocated ',maxW0
-        write(*,*) 'ALPHAp:  ',i_ALPHAp 
-        write(*,*) 'IPAIRp:  ',i_IPAIRp 
-        write(*,*) 'ALPHAq:  ',i_ALPHAq 
-        write(*,*) 'IPAIRq:  ',i_IPAIRq 
-        write(*,*) 'Ep    :  ',i_Ep
-        write(*,*) 'Eq    :  ',i_Eq
-        write(*,*) 'R0    :  ',i_R0
-        write(*,*) 'IJK   :  ',i_IJK
+        write(LuOut,*) 'HF2:  Insufficient scratch space.'
+        write(LuOut,*) '      needed    ',i_R0+3*(NPP+NPQ)
+     &      +MemPerPair*NPR
+        write(LuOut,*) '      allocated ',maxW0
+        write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+        write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
+        write(LuOut,*) 'ALPHAq:  ',i_ALPHAq 
+        write(LuOut,*) 'IPAIRq:  ',i_IPAIRq 
+        write(LuOut,*) 'Ep    :  ',i_Ep
+        write(LuOut,*) 'Eq    :  ',i_Eq
+        write(LuOut,*) 'R0    :  ',i_R0
+        write(LuOut,*) 'IJK   :  ',i_IJK
           call errquit('hf2: out of scratch space',4)
       end if
 
@@ -305,51 +307,56 @@ c Compute the ERI.
 c Assign pointers to scratch space.
 
           i_eri = i_P
-          i_sum = i_eri + ninti
-          i_E3 = i_sum + MPR*Lpq3
+          i_t2 = i_eri + ninti
+          i_E3 = i_t2 + MPR*Lpq3
           if (gencon) then
+            i_t1 = i_E3
             if (doit_PQ) then
-              i_tran = i_E3 + max(MPP,MPQ*Lq**3)
-              i_top = i_tran + max(MPQ*Lpq3*NPB*NCA,MPQ+NPD)
+              i_t3 = i_t1+MPQ*Lq3
+              i_t4 = i_t3+MPQ
+              i_top = max(i_t1+MPQ*Lq3*NPB*NCA,i_E3+MPP,i_t4+NPD)-1
             else
-              i_tran = i_E3 + max(MPQ,MPP*Lp**3)
-              i_top = i_tran + max(MPP*Lpq3*NPD*NCC,MPP+NPB)
+              i_t3 = i_t1+MPP*Lp3
+              i_t4 = i_t3+MPP
+              i_top = max(i_t1+MPP*Lp3*NPD*NCC,i_E3+MPQ,i_t4+NPB)-1
             end if
           else
-            i_top  = i_E3 + max(MPP,MPQ)
+            i_top  = i_E3 + max(MPP,MPQ)-1
           end if
-
           if( DryRun )then
             MaxMem = max( MaxMem, i_top )
           else
             if (i_top.gt.maxW0) then
-              write(*,*) 'HF2:  Insufficient scratch space.'
-              write(*,*) '      needed    ',i_top
-              write(*,*) '      allocated ',maxW0
-              write(*,*) 'ALPHAp:  ',i_ALPHAp 
-              write(*,*) 'IPAIRp:  ',i_IPAIRp 
-              write(*,*) 'ALPHAq:  ',i_ALPHAq 
-              write(*,*) 'IPAIRq:  ',i_IPAIRq 
-              write(*,*) 'Ep    :  ',i_Ep
-              write(*,*) 'Eq    :  ',i_Eq
-              write(*,*) 'R0    :  ',i_R0
-              write(*,*) 'IJK   :  ',i_IJK
-              write(*,*) 'E3    :  ',i_E3
-              write(*,*) 'sum   :  ',i_sum
+              write(LuOut,*) 'HF2:  Insufficient scratch space.'
+              write(LuOut,*) '      needed    ',i_top
+              write(LuOut,*) '      allocated ',maxW0
+              write(LuOut,*) 'ALPHAp:  ',i_ALPHAp 
+              write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
+              write(LuOut,*) 'ALPHAq:  ',i_ALPHAq 
+              write(LuOut,*) 'IPAIRq:  ',i_IPAIRq 
+              write(LuOut,*) 'Ep    :  ',i_Ep
+              write(LuOut,*) 'Eq    :  ',i_Eq
+              write(LuOut,*) 'IJK   :  ',i_IJK
+              write(LuOut,*) 'R0    :  ',i_R0
+              write(LuOut,*) 'eri   :  ',i_eri
+              write(LuOut,*) 't2   :  ',i_t2
+              write(LuOut,*) 'E3    :  ',i_E3
+              if (gencon) write(LuOut,*) 't1  :  ',i_t1
               call errquit('hf2: out of scratch space',5)
             end if
             if (doit_PQ) then
               if (GenCon) then
                 call hferi_gen(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
      &              W0(i_IPAIRp+2*ipp),W0(i_IPAIRq+2*ipq),W0(i_R0),
-     &              W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_sum),W0(i_tran),
+     &              W0(i_IJK),W0(i_eri),W0(i_E3),
+     &              W0(i_t1),W0(i_t2),W0(i_t3),W0(i_t4),
      &              MPP,MPQ,NPP,NPQ,La,Lb,Lc,Ld,La2,Lb2,Lc2,Ld2,
      &              Lq,Lq3,Lr,Acoefs,Bcoefs,Ccoefs,Dcoefs,
      &              NPA,NPB,NPC,NPD,NCA,NCB,NCC,NCD,
      &              MXD,canAB,canCD,canPQ)
               else
                 call hferi(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),
-     &              W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_sum),
+     &              W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_t2),
      &              MPP,MPQ,NPP,NPQ,Nints,La,Lb,Lc,Ld,Lr,MXD,
      &              canAB,canCD,canPQ)
               end if
@@ -358,14 +365,15 @@ c Assign pointers to scratch space.
               if (GenCon) then
                 call hferi_gen(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
      &              W0(i_IPAIRq+2*ipq),W0(i_IPAIRp+2*ipp),W0(i_R0),
-     &              W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_sum),W0(i_tran),
+     &              W0(i_IJK),W0(i_eri),W0(i_E3),
+     &              W0(i_t1),W0(i_t2),W0(i_t3),W0(i_t4),
      &              MPQ,MPP,NPQ,NPP,Lc,Ld,La,Lb,Lc2,Ld2,La2,Lb2,
      &              Lp,Lp3,Lr,Ccoefs,Dcoefs,Acoefs,Bcoefs,
      &              NPC,NPD,NPA,NPB,NCC,NCD,NCA,NCB,
      &              MXD,canCD,canAB,canPQ)
               else
                 call hferi(W0(i_Eq+3*ipq),W0(i_Ep+3*ipp),
-     &              W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_sum),
+     &              W0(i_R0),W0(i_IJK),W0(i_eri),W0(i_E3),W0(i_t2),
      &              MPQ,MPP,NPQ,NPP,Ninti,Lc,Ld,La,Lb,Lr,MXD,
      &              canCD,canAB,canPQ)
               end if
@@ -374,7 +382,7 @@ c Assign pointers to scratch space.
                 call daxpy(lszq,1.0d0,W0(i_eri+i),lszp,beri(j),1)
                 j = j+lszq
               end do
-            endif
+            end if
           end if
 
         end do
