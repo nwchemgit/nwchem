@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.80 2002-07-18 01:46:22 d3j191 Exp $
+c $Id: ana_task.F,v 1.81 2002-07-18 01:55:16 d3j191 Exp $
 c
       implicit none
 c
@@ -1397,22 +1397,26 @@ c
  1000 format(4i10)
 c
       do 1 i=1,nbnds
-      write(lfnana,1001) (sgmnam(ibnds(i,j,1)),j=1,2)
- 1001 format(2a16)
+      write(lfnana,1001) (sgmnam(ibnds(i,j,1))(13:16),
+     + sgmnam(ibnds(i,j,1))(6:10),j=1,2)
+ 1001 format(a4,':',a5,' - ',a4,':',a5)
     1 continue
 c
       do 2 i=1,nangs
-      write(lfnana,1002) (sgmnam(iangs(i,j,1)),j=1,3)
- 1002 format(3a16)
+      write(lfnana,1002) (sgmnam(iangs(i,j,1))(13:16),
+     + sgmnam(iangs(i,j,1))(6:10),j=1,3)
+ 1002 format(2(a4,':',a5,' - '),a4,':',a5)
     2 continue
 c
       do 3 i=1,ntors
-      write(lfnana,1003) (sgmnam(itors(i,j,1)),j=1,4)
- 1003 format(4a16)
+      write(lfnana,1003) (sgmnam(itors(i,j,1))(13:16),
+     + sgmnam(itors(i,j,1))(6:10),j=1,4)
+ 1003 format(3(a4,':',a5,' - '),a4,':',a5)
     3 continue
 c
       do 4 i=1,nimps
-      write(lfnana,1003) (sgmnam(iimps(i,j,1)),j=1,4)
+      write(lfnana,1003) (sgmnam(iimps(i,j,1))(13:16),
+     + sgmnam(iimps(i,j,1))(6:10),j=1,4)
     4 continue
 c
       return
