@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.14 2003-01-31 01:01:31 marat Exp $
+* $Id: paw_ovlp.F,v 1.15 2003-01-31 06:46:57 marat Exp $
 *
 
 !**************************************************
@@ -15,7 +15,7 @@
 
 #include "mafdecls.fh"
 #include "paw_proj.fh"
-#include "paw_ovlp.fh" 
+#include "paw_ovlp_data.fh" 
 #include "paw_geom.fh" 
 #include "paw_ma.fh" 
   
@@ -31,7 +31,6 @@
 
 c     !*** calculate total number of (n,l,m) projectors  ***
       total_nbasis = 0
-c     !-- loop over diff kinds of atoms --
       do ia=1,ion_nkatm()
 c        !-- ion_natm(ia) is number of atoms of kind ia --
          total_nbasis = total_nbasis 
@@ -39,7 +38,8 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       end do
 
 
-c     !*** total number of electron states ***
+c     !*** allocate storage for paw_ovlp arrays*** 
+c     !-- total number of electron states
       neall = (psi_ne(1) + psi_ne(2))
 
       value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
@@ -51,12 +51,10 @@ c     !*** total number of electron states ***
      >                               'indx2',indx2(2),indx2(1))
       value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
      >                               'sgn',sgn(2),sgn(1))
-c      value = value.and.MA_alloc_get(mt_dcpl,(total_nbasis**2),
-c     >                               'w',w(2),w(1))
+
       value = value.and.my_alloc(mt_dcpl,(total_nbasis**2),"w",w)
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',1)
 
-      write(*,*) "paw_ovlp:w",w(3),total_nbasis
 
 c    !    atom=1                        atom=2
 c    !l : 0  1  1  1  2  2  2  2  2 ... 0  1  1  1 ... 
@@ -64,10 +62,9 @@ c    !m : 0 -1  0  1 -2 -1  0  1  1 ... 0 -1  0  1 ...
 c    !
 c    !
 
-c     !*** set unsrcrambled arrays ***
+c     !*** set sign array (isgn) and location of -m elements(indx2)
       nion = ion_nion()
       nlmii = 0
-c     !-- loop over total number of ions --
       do ii=1,nion
 c        !-- the atom kind is ia --
          ia = ion_katm(ii)
@@ -108,7 +105,7 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       subroutine paw_ovlp_end()
       implicit none      
 #include "mafdecls.fh"
-#include "paw_ovlp.fh"
+#include "paw_ovlp_data.fh"
 
       !*** local variables ***
       logical value
@@ -135,7 +132,9 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       complex*16 psi(*)
       
 #include "mafdecls.fh"
-#include "paw_ovlp.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_proj.fh"
+#include "paw_geom.fh"
 
       !*** local variables ***
       logical value
@@ -146,10 +145,9 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       integer nx,ny,nz
       real*8 scal_factor
 
-      !*** external functions ****
-#include "paw_proj.fh"
-      integer  ion_nion,ion_katm,psi_ne
-      external ion_nion,ion_katm,psi_ne 
+      !*** nwpw external functions ****
+      integer  psi_ne
+      external psi_ne 
       real*8 lattice_omega
       external lattice_omega
 
@@ -161,23 +159,8 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0)
 
 
-c      call D3DB_nx(1,nx)
-c      call D3DB_ny(1,ny)
-c      call D3DB_nz(1,nz)
 
-c      scal_factor = sqrt(lattice_omega())/(nx*ny*nz)
-c      write(*,*) "scal_factor=",scal_factor
-
-      do n=1,neall
-         indx_psi   = (n-1)*npack1    + 1
-         do ii=1,npack1
-            write(87,*) psi(indx_psi+ii-1)
-         enddo
-      enddo
-c      write(*,*)"neall,npack1",neall,npack1
-c      pause
-
-      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) ***
+c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion) ***
       nlmii = 0
       nion  = ion_nion()
       do ii=1,nion
@@ -200,13 +183,25 @@ c      pause
      >                         dcpl_mb(tmp(1)),
      >                         psi(indx_psi),
      >                         dcpl_mb(toeff(1)+indx_coeff))
-c             dcpl_mb(toeff(1)+indx_coeff) = dcpl_mb(toeff(1)+indx_coeff)*scal_factor
-           write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
-     >                 dcpl_mb(toeff(1)+indx_coeff)
+c           write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
+c     >                 dcpl_mb(toeff(1)+indx_coeff)
            end do
         end do
       end do 
 
+      nlmii = 0
+      do ii=1,nion
+        ia = ion_katm(ii)
+        nbasis = paw_proj_nbasis(ia)
+        do nlm=1,nbasis
+           nlmii = nlmii + 1
+           do n=1,neall
+             indx_coeff = (nlmii-1)*neall + (n-1)
+             write(*,*) "toeff:",n,nlmii,'(',nlm,ii,')',
+     >                 dcpl_mb(toeff(1)+indx_coeff)
+           end do
+        end do
+      end do 
 
 
 
@@ -238,17 +233,51 @@ c             dcpl_mb(toeff(1)+indx_coeff) = dcpl_mb(toeff(1)+indx_coeff)*scal_f
       return
       end
  
+**************************************************
+!
+!	Name: paw_ovlp_weigths_set
+!
+!	Purpose: sets the overlap weight coefficients
+!
+!	Created:	8/07/2002
+!**************************************************
       subroutine paw_ovlp_weights_set()
+      
+      implicit none
 
+#include "mafdecls.fh"
+#include "paw_geom.fh"
+#include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
-#include "paw_ma.fh"
 
-        integer tot_nbasis
+      integer nlmii
+      integer i,nlm,ia,n
+      integer neall,nbasis
+      integer indx_coeff
+      double complex w_tmp
+      
+c     **** external functions ****
+      integer  psi_ne
+      external psi_ne
+      
+c     !*** total number of electron states ***
+      neall = (psi_ne(1) + psi_ne(2))
 
-c        tot_nbasis = paw_proj_total_nbasis()
-        
-
-     
+      nlmii = 0
+      do i=1,ion_nion()
+        nbasis = paw_proj_nbasis(ia)
+        ia = ion_katm(i)
+        do nlm=1,nbasis
+           nlmii = nlmii + 1
+           w_tmp = cmplx(0.0,0.0)
+           do n=1,neall
+             indx_coeff = (nlmii-1)*neall + (n-1)
+             w_tmp = w_tmp + dcpl_mb(coeff(1)+indx_coeff)*
+     >        conjg(dcpl_mb(coeff(1)+indx_coeff)) 
+              write(*,*) "paw_ovlp:w",w_tmp
+           end do
+        end do
+      end do 
 
       end
      
