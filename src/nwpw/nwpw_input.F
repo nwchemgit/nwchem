@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.26 2004-12-21 16:58:34 bylaska Exp $
+c $Id: nwpw_input.F,v 1.27 2005-01-25 22:27:33 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 67)
+      parameter (num_dirs = 68)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -82,6 +82,7 @@ c
      >            'cg',
      >            'lmbfgs',
      >            'scf',
+     >            'rotation',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -131,7 +132,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
-     >       4100,4200,4300,4400,4500,4600,4700,4800,
+     >       4100,4200,4300,4400,4500,4600,4700,4800,4900,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -787,6 +788,27 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
 
       goto 10
+
+
+c
+c  rotation
+c
+ 4900 if (.not.inp_a(zone_name)) goto 4901
+       if (inp_compare(.false.,zone_name,'on'))     move = .true.
+       if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+       if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+       if (inp_compare(.false.,zone_name,'T'))      move = .true.
+       if (inp_compare(.false.,zone_name,'off'))     move = .false.
+       if (inp_compare(.false.,zone_name,'no'))      move = .false.
+       if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+       if (inp_compare(.false.,zone_name,'F'))       move = .false.
+       if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+      if (.not.rtdb_put(rtdb,'nwpw:rotation',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',4900,RTDB_ERR)
+
+ 4901 continue
+      goto 10
+
 
 
 
