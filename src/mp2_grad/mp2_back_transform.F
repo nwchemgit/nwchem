@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.27 2000-11-02 21:00:52 bert Exp $
+* $Id: mp2_back_transform.F,v 1.28 2000-11-03 01:35:19 bert Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -126,7 +126,7 @@ c     the array.
 c
       nblock = 0
       do i = 1, ga_nnodes()
-         if (int_mb(k_map+i-1) .gt. nbfpair) nblock = nblock + 1
+         if (int_mb(k_map+i-1) .le. nbfpair) nblock = nblock + 1
       end do
 c
       if (.not. ga_create_irreg(mt_dbl, nva, nbfpair,
