@@ -95,9 +95,10 @@ c     Enter ... behave as if we just hit end of input
 c
  900     goto 99999
 c
-c     Stop ... literally just stop
+c     Stop ... literally just stop ... well allow for parallel world
 c
- 1000    stop
+ 1000    call errquit('input_parse: STOP', 0)
+         goto 10                ! Not executed
 c
 c     Title
 c
