@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.79 1998-04-29 07:29:52 d3e129 Exp $
+c $Id: basis.F,v 1.80 1998-07-02 20:31:17 ng972 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3619,6 +3619,10 @@ c
 c
       gstring = tag_from_geom               !  copy tag to work on it
 c
+      if (gstring(1:4).eq.'bqgh') then
+        gstring = gstring(5:)
+      endif
+c
 c... first match full geometry tag to full basis tag list 
 c          did the user specifically assign a tag ??
 
@@ -3869,7 +3873,7 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-C$Id: basis.F,v 1.79 1998-04-29 07:29:52 d3e129 Exp $
+C$Id: basis.F,v 1.80 1998-07-02 20:31:17 ng972 Exp $
       integer basis_hand ! nwchem basis handle
       integer ncontr_max  ! max no of contractions for any contraction set
 c::locals
