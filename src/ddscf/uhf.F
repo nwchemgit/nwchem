@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
+C$Id: uhf.F,v 1.56 2000-10-14 16:14:58 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -67,6 +67,10 @@ c
 c     Print out results
 c
       call uhf_spin(sz,s2)
+      if (.not. rtdb_put(rtdb,'scf:sz', mt_dbl, 1, sz)) call errquit
+     $     ('uhf: storing sz failed', 0)
+      if (.not. rtdb_put(rtdb,'scf:s2', mt_dbl, 1, s2)) call errquit
+     $     ('uhf: storing s2 failed', 0)
 c
       if (ga_nodeid().eq.0 .and. (oprint .or. .not.converged)) then
          if (.not. converged) then
@@ -206,7 +210,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
+C     $Id: uhf.F,v 1.56 2000-10-14 16:14:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -506,7 +510,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
+C$Id: uhf.F,v 1.56 2000-10-14 16:14:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -597,7 +601,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
+c     $Id: uhf.F,v 1.56 2000-10-14 16:14:58 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1083,7 +1087,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.55 2000-04-27 21:00:03 zzhang Exp $
+C$Id: uhf.F,v 1.56 2000-10-14 16:14:58 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
