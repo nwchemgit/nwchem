@@ -1,7 +1,7 @@
       subroutine ao_replicated( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock )
 c     
-c     $Id: ao_replicated.F,v 1.23 1997-04-16 16:52:24 d3g681 Exp $
+c     $Id: ao_replicated.F,v 1.24 1997-04-25 23:13:22 d3g681 Exp $
 c     
       implicit none
 #include "mafdecls.fh"
@@ -367,7 +367,7 @@ c     assume a dense integral list but with symmetry and figure out
 c     no. of pairs per pair block dividing quartets between processors
 c     and allowing for the max no. of quartets to be processed per block
 c     
-      ntp = 10
+      ntp = 100
       nshpair = nsh*(nsh+1)/2
       if (ga_nnodes() .gt. 1) then
          max_p = int(dble(nshpair)*dsqrt(dnops))

@@ -210,7 +210,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.39 1997-04-16 16:52:28 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.40 1997-04-25 23:13:23 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -370,6 +370,20 @@ c
      $        '                    dentol    :', d8.1/)
          call util_flush(6)
       endif
+c
+      end
+      subroutine fock_force_direct(rtdb)
+      implicit none
+#include "cfock.fh"
+      integer rtdb
+c
+c     Call after scf_get_fock_param to force a fock build
+c     to be direct
+c
+      call fock_2e_tidy(rtdb)
+c
+      filesize = -1
+      memsize  = -1
 c
       end
       subroutine scf_tidy(rtdb)
