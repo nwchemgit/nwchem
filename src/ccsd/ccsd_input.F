@@ -1,5 +1,5 @@
       subroutine ccsd_input(rtdb)
-C     $Id: ccsd_input.F,v 2.5 1997-06-05 17:45:40 gg502 Exp $
+C     $Id: ccsd_input.F,v 2.6 1997-07-29 21:00:19 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 16)
       character*8 dirs(num_dirs)
       character*255 test
       integer maxit, iprt, MaxDIIS
@@ -26,7 +26,7 @@ C
       data dirs /'maxiter','thresh','tol2e','iprt',
      $   'print','noprint',
      $   'doa', 'dob', 'dog', 'doh', 'dojk', 'dos', 'dod',
-     $   'diisbas', 'end'/
+     $   'diisbas', 'freeze', 'end'/
 c
  10   if (.not. inp_read()) call errquit
      $     ('ccsd_input: inp_read failed', 0)
@@ -36,7 +36,7 @@ c
      $     call errquit('ccsd_input: unknown directive', 0)
 c     
       goto (100, 200, 300, 400, 500, 600,
-     $   700, 705, 710, 715, 720, 725, 730, 800, 9999) ind
+     $   700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 9999) ind
       call errquit('ccsd_input: unimplemented directive', ind)
 c     
 c     Maximum iterations
@@ -88,7 +88,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:doa', MT_Int, NGiven,
      $   IList)) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
- 705  Continue                  ! dob
+ 800  Continue                  ! dob
       if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
       If ( NGiven .ne. LenDbg ) Call ErrQuit(
@@ -96,7 +96,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dob', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
- 710  Continue                  ! dog
+ 900  Continue                  ! dog
       if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
       If ( NGiven .ne. LenDbg ) Call ErrQuit(
@@ -104,7 +104,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dog', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
- 715  Continue                  ! doh
+ 1000  Continue                  ! doh
       if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
       If ( NGiven .ne. LenDbg ) Call ErrQuit(
@@ -112,7 +112,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:doh', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
- 720  Continue                  ! dojk
+ 1100  Continue                  ! dojk
       if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
       If ( NGiven .ne. LenDbg ) Call ErrQuit(
@@ -120,7 +120,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dojk', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
- 725  Continue                  ! dos
+ 1200  Continue                  ! dos
       if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
       If ( NGiven .ne. LenDbg ) Call ErrQuit(
@@ -128,7 +128,7 @@ C
       If ( .NOT. RTDB_Put( RTDB, 'ccsd:dos', MT_Int, NGiven,
      $   IList) ) Call ErrQuit('ccsd: rtdb_put failed', 0)
       Goto 10
- 730  Continue                  ! dod
+ 1300  Continue                  ! dod
       if ( .not. Inp_IList(LenDbg, IList, Ngiven) ) Call ErrQuit(
      $   'ccsd: bad format for debugging term switch', 0)
       If ( NGiven .ne. LenDbg ) Call ErrQuit(
@@ -139,10 +139,15 @@ C
 C
 C     Maximum size of DIIS basis
 C
- 800  if (.not. inp_i(maxdiis)) call errquit
+ 1400  if (.not. inp_i(maxdiis)) call errquit
      $     ('ccsd_input: failed reading maxdiis', 0)
       if (.not. rtdb_put(rtdb, 'ccsd:maxdiis', mt_int, 1, maxdiis))
      $     call errquit('ccsd-input: rtdb_put failed', 0)
+      goto 10
+c
+c     Freeze
+c
+ 1500 call freeze_input(rtdb,'ccsd')
       goto 10
 c
 c     end

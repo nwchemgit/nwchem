@@ -1,5 +1,5 @@
        subroutine ccsd_driver( rtdb, geom, basis, movecs_in )
-C     $Id: ccsd_driver.F,v 2.19 1997-07-29 17:19:01 d3g681 Exp $
+C     $Id: ccsd_driver.F,v 2.20 1997-07-29 21:00:18 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -145,10 +145,22 @@ c
 c
 c Get frozen core & virtual offsets
 c
-       if (.not.rtdb_get(rtdb,'occ_frozen',MT_INT,1,occ_frozen))
-     $      occ_frozen = 0
-       if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
-     $      vir_frozen = 0
+       if (rtdb_get(rtdb,'ccsd:frozen core:freeze by atoms',mt_log, 1, 
+     $      status)) then
+          if (.not. geom_num_core(geom,occ_frozen)) 
+     $        call errquit('ccsd: geom_num_core?',0)
+       else if (rtdb_get(rtdb, 'ccsd:frozen core', MT_INT, 1,
+     $         occ_frozen)) then
+      else
+         if (.not.rtdb_get(rtdb,'occ_frozen',MT_INT,1,occ_frozen))
+     $        occ_frozen = 0
+         occ_frozen = 0
+      endif
+      if (.not.rtdb_get(rtdb, 'ccsd:frozen virtual', MT_INT, 1,
+     $     vir_frozen)) then
+         if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
+     $        vir_frozen = 0
+      endif
 c
 c Set index ranges
 c
