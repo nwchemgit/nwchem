@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.25 1994-12-29 06:50:59 og845 Exp $
+# $Id: GNUmakefile,v 1.26 1995-01-04 00:56:27 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -25,9 +25,10 @@ OBJ_OPTIMIZE= ga_matpow.o
               ga_orthog_vec.o ga_ran_fill.o ga_mix.o \
               ga_iter_project.o ga_screen.o ga_get_diag.o \
 	      fortchar.o sequential_output.o ga_mat2col.o \
-	      banner.o $(BLAS) $(EXTRA_OBJ) 
+	      banner.o util_print.o $(BLAS) $(EXTRA_OBJ) 
     LIBRARY = libutil.a
-    HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh
+    HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
+              printlevels.fh
 
     USES_BLAS = util.fh ga_iter_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F

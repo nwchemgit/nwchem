@@ -1,0 +1,5 @@
+      integer print_none, print_low, print_medium, print_high, 
+     $     print_debug, print_default
+      parameter (print_none=0, print_low=10, print_medium=20,
+     $     print_high=30, print_debug=100)
+      parameter (print_default = print_medium)

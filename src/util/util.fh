@@ -1,2 +1,6 @@
+#include "printlevels.fh"
+c      
+      logical util_print
       double precision ddot
+      external util_print
       external ddot
