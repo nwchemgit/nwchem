@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.10 1999-01-29 21:15:34 d3j191 Exp $
+c $Id: esp_esp.F,v 1.11 1999-02-01 15:59:18 d3j191 Exp $
 c
       implicit none
 c
@@ -103,7 +103,7 @@ c
       write(lfner) (val(i),i=1,ngrid)
       close(unit=lfner)
       if(util_print('output',print_medium)) then
-      call arg_swatch(today,now)
+      call esp_swatch(today,now)
       write(lfnout,1001) today,now,jsh,nshell
  1001 format(/,2a10,' er shell ',i6,' of ',i6)
       call util_flush(lfnout)
