@@ -1,4 +1,4 @@
-C $Id: ecp_radint2.F,v 1.1 1996-10-12 01:04:08 mg201 Exp $
+C $Id: ecp_radint2.F,v 1.2 1996-10-16 20:37:42 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint2 (p_min,p_max,
@@ -55,6 +55,7 @@ C $Id: ecp_radint2.F,v 1.1 1996-10-12 01:04:08 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "ecp_consts.fh"
       integer h,i,j,ibug,ind_a,ind_b,ind_p,ind_even,ind_odd,
      &    ind_max,ind_mid,ind_min,ind_hi,ind_mi,ind_lo,
      &    k,k_max,k_p,
@@ -73,8 +74,7 @@ C $Id: ecp_radint2.F,v 1.1 1996-10-12 01:04:08 mg201 Exp $
      &    coeff_a(n_prim_a,n_cont_a),coeff_b(n_prim_b,n_cont_b),
      &    Qabc(n_abc,m_count,3),Qab(n_ab,0:l_a,0:l_b),Q(n_ab,n_Q),
      &    temp(n_abc,20),Q_int(n_cont_a*n_cont_b,n_int_a,n_int_b),
-     &    tol,zero,one
-      parameter (zero = 0.0d00, one = 1.0d00)
+     &    tol
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1

@@ -1,4 +1,4 @@
-C $Id: ecp_int0.F,v 1.1 1996-10-12 01:10:12 mg201 Exp $
+C $Id: ecp_int0.F,v 1.2 1996-10-16 20:36:47 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int0 (mem_max,DryRun,
@@ -60,6 +60,7 @@ C $Id: ecp_int0.F,v 1.1 1996-10-12 01:10:12 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "ecp_consts.fh"
       integer l_a,n_prim_a,n_cont_a,n_na,l_b,n_prim_b,n_cont_b,n_nb,
      &    l_ecp_max,n_c_tot,l_tmp,p_min,p_max,sphcart,mem_max,ibug
       integer n_coef_c(-1:l_ecp_max),n_prim_c(p_min:p_max,-1:l_ecp_max),
@@ -73,16 +74,14 @@ C $Id: ecp_int0.F,v 1.1 1996-10-12 01:10:12 mg201 Exp $
      &    coef_a(n_prim_a,n_cont_a),coef_b(n_prim_b,n_cont_b),
      &    zeta_a(n_prim_a),zeta_b(n_prim_b),
      &    tmp(l_tmp),ecp_ints(n_na,n_cont_a,n_nb,n_cont_b),
-     &    tol,zero,one,four,pi,wa,wb
+     &    tol,wa,wb
       double precision csco(lcsco)
-      parameter (zero = 0.0d00, one = 1.0d00, four = 4.0d00)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
 *
       if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_int0 ...'
-      pi = atan(one)*four
 *
       if (debug_addresses) then
         write (LuOut,*) 'n_prim_a,n_prim_b,n_cont_a,n_cont_b',

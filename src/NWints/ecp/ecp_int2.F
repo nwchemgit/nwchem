@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.1 1996-10-12 01:06:09 mg201 Exp $
+C $Id: ecp_int2.F,v 1.2 1996-10-16 20:37:02 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -64,6 +64,7 @@ C $Id: ecp_int2.F,v 1.1 1996-10-12 01:06:09 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "ecp_consts.fh"
       integer i,k,l,
      &    i_ai,ibug,i_ca,i_Ga,i_bi,i_cb,i_Gb,i_free,
      &    i_a,i_b,i_c,i_d,i_k,i_t,i_x,i_y,i_z,i_int_a,i_int_b,
@@ -85,10 +86,8 @@ C $Id: ecp_int2.F,v 1.1 1996-10-12 01:06:09 mg201 Exp $
      &    zeta_a(n_prim_a),zeta_b(n_prim_b),
      &    tmp(l_tmp),ecp_ints(n_ints),
      &    R_AC,X_AC,Y_AC,Z_AC,R_BC,X_BC,Y_BC,Z_BC,
-     &    tol,zero,one,two,four,fac,pi,log_prefactor
+     &    tol,fac,log_prefactor
       double precision csco(lcsco)
-      parameter (zero = 0.0d00, one = 1.0d00, two = 2.0d00, 
-     &    four = 4.0d00)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -98,7 +97,6 @@ C $Id: ecp_int2.F,v 1.1 1996-10-12 01:06:09 mg201 Exp $
         write (LuOut,'(//A,/)') 'Entering ecp_int2 ...'
         write (LuOut,*) 'l_a,l_b',l_a,l_b
       end if
-      pi = atan(one)*four
 *
 *   Allocate memory for ecp-independent quantities
 *

@@ -1,4 +1,4 @@
-C $Id: ecp_radint0.F,v 1.1 1996-10-12 01:10:27 mg201 Exp $
+C $Id: ecp_radint0.F,v 1.2 1996-10-16 20:37:18 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint0 (p_min,p_max,n_prim_c,n_c,
@@ -40,21 +40,19 @@ C $Id: ecp_radint0.F,v 1.1 1996-10-12 01:10:27 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "ecp_consts.fh"
       integer p_min,p_max
       integer ibug,i_a,i_b,i_c,ind_c,l_a,n_prim_a,n_cont_a,l_b,
      &    n_prim_b,n_cont_b,n_ab,n_c,n_p,n_prim_c(p_min:p_max),
      &    p,pow
       logical debug_gen,debug_addresses,debug_arrays
       double precision
-     &    zero,one,two,half,prefac,term,fac,
+     &    prefac,term,fac,
      &    coeff_c(n_c),zeta_c(n_c),
      &    coeff_a(n_prim_a,n_cont_a),zeta_a(n_prim_a),
      &    coeff_b(n_prim_b,n_cont_b),zeta_b(n_prim_b),
      &    prim(n_prim_a,n_prim_b,n_c),temp(n_prim_a*n_prim_b),
      &    wrk(n_prim_a,n_cont_b),radint(n_cont_a,n_cont_b)
-*
-      parameter (zero = 0.0d00, one = 1.0d00, two = 2.0d00, 
-     &    half = one/two)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -76,7 +74,7 @@ C $Id: ecp_radint0.F,v 1.1 1996-10-12 01:10:27 mg201 Exp $
         if (i_b .eq. 1) then
           prefac = half
         else
-          prefac = sqrt(atan(one))
+          prefac = qpirt+qpirt
         end if
         do i_c = i_b+1,pow-2,2
           term = i_c

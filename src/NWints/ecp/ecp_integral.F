@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.1 1996-10-12 00:59:40 mg201 Exp $
+C $Id: ecp_integral.F,v 1.2 1996-10-16 20:36:31 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_integral (
@@ -69,6 +69,7 @@ C $Id: ecp_integral.F,v 1.1 1996-10-12 00:59:40 mg201 Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "ecp_consts.fh"
       integer i,l,n,
      &    n_prim_A,n_cont_A,l_A,n_prim_B,n_cont_B,l_B,n_zeta_C,n_C,
      &    l_ecp_max,n_int,sphcart,lscr,ibug
@@ -87,11 +88,9 @@ C $Id: ecp_integral.F,v 1.1 1996-10-12 00:59:40 mg201 Exp $
      &    scr(lscr),ecp_ints(n_int)
       double precision 
      &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
-     &    tiny,tol,zero,one
+     &    tiny,tol
       double precision csco(lcsco)
-      parameter (zero = 0.0d00, one = 1.0d00)
-      data tol/1.0d-16/
-      tiny = tol*100
+      data tol/1.0d-16/,tiny/1.0d-13/
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
