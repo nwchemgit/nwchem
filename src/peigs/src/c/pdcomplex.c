@@ -163,8 +163,10 @@ from the peigs output to n real u + iv that are linear independent over i
     */
 
    m = msize/2;
-   for ( jjj = 1; jjj < m; jjj++ )
+   /*
+     for ( jjj = 1; jjj < m; jjj++ )
      eval[jjj] = eval[2*jjj];
+   */
    
    l_good = 1;
 
@@ -190,7 +192,7 @@ from the peigs output to n real u + iv that are linear independent over i
      */
      
      dddot = 0.;
-
+     
      for ( jjj = 0; jjj < l_good; jjj++ ){
        ccvecZ = 0;
        if ( mapZ[jjj] == me ){
@@ -213,8 +215,10 @@ from the peigs output to n real u + iv that are linear independent over i
      /*
        gmax of dot
      */
+     
      if ( ddddot < 1.e-10 ){
        if ( mapZ[l_good] == me ) {
+	 eval[cvecZ] = eval[k];
 	 dcopy_(&msize, buffer, &IONE, vecZ[cvecZ], &IONE);
 	 cvecZ++;
        }
