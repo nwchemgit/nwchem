@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.9 2001-02-06 19:14:23 windus Exp $
+C $Id: drdy_input.F,v 1.10 2001-07-03 22:38:03 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -187,6 +187,9 @@ c
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'ssave',field(1:5))) then
+            call drdy_input_add_line(rtdb,count)  ! count incremented
+            goto 00100
+          elseif(inp_compare(.false.,'shess',field(1:5))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'slp',field(1:3))) then
