@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.62 2001-12-17 04:00:32 d3j191 Exp $
+c $Id: prp_main.F,v 1.63 2002-01-15 23:03:43 d3j191 Exp $
 c
       implicit none
 c
@@ -631,22 +631,24 @@ c
       integer ndec
 c
       call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),
-     + psumt(16),psumt(38),psumt(39))
+     + psumt(16),psumt(38),psumt(39),psumt(51))
 c
       return
       end
-      subroutine prp_mcti_r(rlambd,dlambd,ndec,dfr,taver,ep2ave,ep3ave)
+      subroutine prp_mcti_r(rlambd,dlambd,ndec,dfr,taver,
+     + ep2ave,ep3ave,ebias)
 c
       implicit none
 c
 #include "prp_common.fh"
 c
-      real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave
+      real*8 rlambd,dlambd,dfr(mda),taver,ep2ave,ep3ave,ebias
       integer i,ndec
 c
       if(me.eq.0) then
-      write(lfngib,1000) nderiv,nda,rlambd,dlambd,ndec,nsa
- 1000 format(2i7,2f12.6,2i8)
+      write(lfngib,1000) nderiv,nda,rlambd,dlambd,ndec,nsa,
+     + nbias,ebias/dble(nsumt)
+ 1000 format(2i7,2f12.6,2i8,i4,e20.12)
       write(lfngib,1001) deriv
  1001 format(4e20.12)
       write(lfngib,1002) (dfr(i),i=1,nda)
@@ -697,8 +699,10 @@ c
       character*10 pdate,ptime
       integer i,j,k,number,ndec
       real*8 rlambd,dlambd,ddrft,dsterr,dcerr,ratio
-      real*8 freeti,errti,drftti,taver,ep2ave,ep3ave
-      real*8 epr,epf,etp,slambd,rnum,fterm(24)
+      real*8 freeti,errti,drftti,taver,ep2ave,ep3ave,ebias
+      real*8 epr,epf,etp,slambd,rnum,fterm(24),gbias
+c
+      gbias=zero
 c
       if(me.eq.0) then
 c
@@ -713,11 +717,13 @@ c
      + t110,2a10,//,
      + ' Run Lambda   Size',
      + '  Derivative  Derivative  Derivative Lambda',
-     + ' Free Energy Free Energy Free Energy  Sampling',/,18x,
+     + ' Free Energy Free Energy Free Energy Free Energy  Sampling',/,
+     + 18x,
      + '     Average       Error       Drift       ',
-     + ' Accumulated       Error       Drift     Ratio',/,18x,
+     + ' Accumulated       Error       Drift   Corrected     Ratio',/,
+     + 18x,
      + '      kJ/mol      kJ/mol   kJ/mol ps       ',
-     + '      kJ/mol      kJ/mol   kJ/mol ps',/)
+     + '      kJ/mol      kJ/mol   kJ/mol ps      kJ/mol',/)
       elseif(k.eq.2) then
       write(lfnout,1001)
  1001 format(//,' MULTICONFIGURATION THERMODYNAMIC INTEGRATION ',
@@ -736,8 +742,10 @@ c
  1003 format(//' MULTISTEP THERMODYNAMIC PERTURBATION',
      + t110,2a10,//,
      + ' Run Lambda   Size',
-     + '     Reverse     Forward    Ensemble Lambda Accumulated ',/,18x,
-     + '      kJ/mol      kJ/mol      kJ/mol             kJ/mol',/)
+     + '     Reverse     Forward    Ensemble Lambda Accumulated ',
+     + 'Correction    Corrected',/,18x,
+     + '      kJ/mol      kJ/mol      kJ/mol             kJ/mol ',
+     + '    kJ/mol       kJ/mol',/)
       endif
 c
       rewind(lfngib)
@@ -747,6 +755,7 @@ c
       drftti=zero
       etp=zero
       slambd=zero
+      gbias=zero
       do 2 i=1,24
       fterm(i)=zero
     2 continue
@@ -760,14 +769,15 @@ c
    22 continue
       endif
       do 3 i=1,mrun
-      read(lfngib,2000) nderiv,nda,rlambd,dlambd,ndec
- 2000 format(2i7,2f12.6,2i8)
+      read(lfngib,2000) nderiv,nda,rlambd,dlambd,ndec,nsa,nbias,ebias
+ 2000 format(2i7,2f12.6,2i8,i4,e20.12)
       read(lfngib,2001) deriv
  2001 format(4e20.12)
       read(lfngib,2002) (dfr(j),j=1,nda)
  2002 format(4e20.12)
       read(lfngib,2003) number,taver,ep2ave,ep3ave
  2003 format(i10,3e20.12)
+      if(nbias.gt.0) gbias=-rgas*taver*log(ebias)
       if(ndec.gt.0) call cf_rdgib(lfngib,dec,dlambd/dble(ndec))
 c
       slambd=slambd+dlambd
@@ -786,8 +796,8 @@ c
       drftti=drftti+ddrft*dlambd
 c
       write(lfnout,1004) i,rlambd,nderiv,dfree,dcerr,ddrft/tstep,
-     + slambd,freeti,sqrt(errti),drftti/tstep,ratio
- 1004 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f10.5)
+     + slambd,freeti,sqrt(errti),drftti/tstep,freeti-gbias,ratio
+ 1004 format(i4,f7.3,i7,f12.3,2f12.6,f7.3,f12.3,2f12.6,f12.3,f10.5)
 c
       elseif(k.eq.2) then
       write(lfnout,1005) i,slambd,(fterm(j),j=1,12)
@@ -799,8 +809,9 @@ c
       epr=-rgas*taver*log(ep2ave)
       epf=-rgas*taver*log(ep3ave)
       etp=etp-epr+epf
-      write(lfnout,1007) i,rlambd,number,epr,epf,epf-epr,slambd,etp
- 1007 format(i4,f7.3,i7,3f12.3,f7.3,f12.3)
+      write(lfnout,1007) i,rlambd,number,epr,epf,epf-epr,slambd,etp,
+     + -gbias,etp-gbias
+ 1007 format(i4,f7.3,i7,3f12.3,f7.3,3f12.3)
       endif
 c
     3 continue
