@@ -43,8 +43,8 @@ the DFT module are:
 
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147]\
-      [h402] [becke97gga1] \
+     [becke97]  [becke97-1] [becke98] [hcth] [hcth120] [hcth147]\
+      [h407] [becke97gga1] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -90,7 +90,7 @@ the DFT module are:
        [(gausleg||lebedev ) default lebedev ] \
        [(old||new) default new ] \
        [(becke||erf1||erf2||ssf) default erf1] \
-       [(euler||mura||treutler||lindh) default mura] \
+       [(euler||mura||treutler) default mura] \
        [rm <real rm default 2.0>]
         
 
@@ -169,8 +169,8 @@ has the same effect.
 \label{sec:xc}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke98] [hcth] [h120] [h147] \
-      [h402] [becke97gga1] \
+     [becke97]  [becke97-1] [becke98] [hcth] [hcth120] [hcth147] \
+      [hcth407] [becke97gga1] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -426,9 +426,10 @@ These options can be invoked by specifying any of the following input lines,
    xc becke98
    xc pbe0
    xc hcth
-   xc h120
-   xc h147
-   xc h402
+   xc hcth120
+   xc hcth147
+   xc hcth407
+   xc hcthp14
    xc becke97gga1
 \end{verbatim}
 
@@ -501,6 +502,7 @@ becke88    & $\star$    &             &  $\star$  &        &[5]\\
 xperdew91  & $\star$    &             &  $\star$  &        &[6]\\
 xpbe96     & $\star$    &             &  $\star$  &        &[7]\\
 gill96     & $\star$    &             &  $\star$  &        &[8]\\
+optx       & $\star$    &             &  $\star$  &        &[20]\\
 \hline                                                  
 perdew86   &          &   $\star$     &  $\star$  &        &[9]\\
 lyp        &          &   $\star$     &  $\star$  &        &[10]\\
@@ -508,16 +510,17 @@ perdew91   &          &   $\star$     &  $\star$  &        &[6]\\
 cpbe96     &          &   $\star$     &  $\star$  &        &[7]\\
 \hline                                                  
 hcth       & $\star$    &   $\star$     &  $\star$  &        &[11]\\
-h120       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
-h147       & $\star$    &   $\star$     &  $\star$  &        &[12]\\
-h402       & $\star$    &   $\star$     &  $\star$  &        &[19]\\
+hcth120    & $\star$    &   $\star$     &  $\star$  &        &[12]\\
+hcth147    & $\star$    &   $\star$     &  $\star$  &        &[12]\\
+hcth407    & $\star$    &   $\star$     &  $\star$  &        &[19]\\
+hcthp14    & $\star$    &   $\star$     &  $\star$  &        &[21]\\
 \hline                                                  
 beckehandh & $\star$    &   $\star$     &           & $\star$  &[13]\\
 b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 acm        & $\star$    &   $\star$     &  $\star$  & $\star$  &[14]\\
 becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
 becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[15]\\
-becke97gga1  & $\star$    &   $\star$     &  $\star$  & $\star$  &[18]\\
+becke97gga1  & $\star$    &   $\star$     &  $\star$  &        &[18]\\
 becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &[16]\\
 pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &[17]\\
 \hline
@@ -557,7 +560,12 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 9624 1998). \\
 \item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998).\\
 \item  A.J.Cohen and N.C. Handy, Chem. Phys. Lett. {\bf 316}, 160 (2000).\\
-\item   A.D.Boese,  N.C.Handy  J. Chem. Phys., submitted (2000). \\
+\item  A.D.Boese,  N.C.Handy, J. Chem. Phys. {\bf 114}, 5497
+(2001). \\
+\item  N.C.Handy, A.J. Cohen, Mol. Phys. {\bf 99}, 403 (2001).\\
+\item G. Menconi, P.J. Wilson, D.J. Tozer, J. Chem. Phys {\bf 114}, 3958 (2001).\\
+
+
 \end{enumerate}
 }
 %\end{table}
