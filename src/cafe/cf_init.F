@@ -4,8 +4,8 @@
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
-     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg)
-c $Id: cf_init.F,v 1.55 2000-09-02 02:57:17 d3j191 Exp $
+     + issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl)
+c $Id: cf_init.F,v 1.56 2000-09-18 18:36:46 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -18,7 +18,7 @@ c
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq
-      integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal
+      integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl
       real*8 rcs,rcl,rqm,compr,delta
       integer iitmps,iiprss,iislow,nodpme,ntyp,idset,ipset1,ipset2
       integer issscl,npenrg
@@ -60,6 +60,7 @@ c
       maxl=0
       lanal=nfanal.gt.0
       npener=npenrg
+      icntrl=ictrl
 c
       npgdec=npgi
 c
@@ -285,7 +286,8 @@ c
       if(ipme.gt.0) then
       if(morder.gt.25) call errquit('morder too large',0)
       call cf_alpha
-      call pme_start(alpha,morder,1,nodpme,ngx,ngy,ngz,mwm,mwa,msa)
+      call pme_start(alpha,morder,1,nodpme,
+     + ngx,ngy,ngz,mwm,mwa,msa,icntrl)
       endif
 c
       call cf_pardif(dbl_mb(i_mas),dbl_mb(i_vdw),dbl_mb(i_chg),

@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.30 2000-09-16 07:26:34 d3j191 Exp $
+c $Id: md_input.F,v 1.31 2000-09-18 18:36:34 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf,nopack
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,nfanal,iport,iguide
-      integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload
+      integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -124,6 +124,7 @@ c
       ireset=0
       mropt=1
       idebug=0
+      icntrl=0
       ifield=0
       iapprx=0
       nacfl=1000
@@ -1228,6 +1229,10 @@ c
       nopack=0
       goto 2
       endif
+      if(inp_compare(.false.,'control',item)) then
+      if(.not.inp_i(icntrl)) call errquit('md_input: error control',15)
+      goto 2
+      endif
 c
       if(.not.inp_compare(.false.,'end',item)) then
       write(6,9999) item
@@ -1388,6 +1393,8 @@ c
       if(.not.rtdb_put(irtdb,'md:mropt',mt_int,1,mropt))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:idebug',mt_int,1,idebug))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:idebug',mt_int,1,icntrl))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_input: rtdb_put failed',0)

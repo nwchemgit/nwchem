@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.78 2000-09-06 17:12:26 d3j191 Exp $
+c $Id: md_start.F,v 1.79 2000-09-18 18:36:34 d3j191 Exp $
 c
       implicit none
 c
@@ -44,7 +44,7 @@ c
      + iqmmm,ipolt,itscal,ipscal,tmpext,prsext,tmprlx,tmsrlx,prsrlx,
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
-     + npener)
+     + npener,icntrl)
 c
 c     print topology information
 c     --------------------------
@@ -765,6 +765,8 @@ c
       if(.not.rtdb_get(irtdb,'md:mropt',mt_int,1,mropt))
      + call errquit('md_rtdbin: rtdb_get failed',63)
       if(.not.rtdb_get(irtdb,'md:idebug',mt_int,1,idebug))
+     + call errquit('md_rtdbin: rtdb_get failed',64)
+      if(.not.rtdb_get(irtdb,'md:idebug',mt_int,1,icntrl))
      + call errquit('md_rtdbin: rtdb_get failed',64)
       if(.not.rtdb_get(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_rtdbin: rtdb_get failed',65)

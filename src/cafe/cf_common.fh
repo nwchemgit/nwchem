@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.23 2000-08-29 15:45:04 d3j191 Exp $
+c $Id: cf_common.fh,v 1.24 2000-09-18 18:36:45 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -97,7 +97,7 @@ c
      + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
      + i_ypmf,l_ypmf
 c
-      integer ntype,npbtyp,nbxtyp,iqmmm,lstype
+      integer ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl
       integer ngc,ngl,nfrdf,ifstep,ngrww,ireact,iset,npener
       integer lpww,lpsw,lpss,ngrsw,ngrss,nrwrec
       integer isolvo,npww,npsw,npss,ipme,morder,ngx,ngy,ngz,ngmax
@@ -123,7 +123,7 @@ c
      + tstep,tstepi,wbox,xbm,tmpext,prsext,tmwrlx,tmsrlx,prsrlx,pres,
      + temp,tempw,temps,factmp,factmw,factms,scalew,scales,ewk,ek,edrs,
      + ewkc,eskc,facpsc,pscale,ewc,epmf,virial,field,fvect,ffreq,totchg,
-     + ntype,npbtyp,nbxtyp,iqmmm,lstype,iset,
+     + ntype,npbtyp,nbxtyp,iqmmm,lstype,icntrl,iset,
      + ngc,ngl,nfrdf,ifstep,ngrww,ireact,npener,ipme,lpww,lpsw,
      + lpss,ngrsw,ngrss,nrwrec,isolvo,npww,npsw,npss,morder,
      + ngx,ngy,ngz,ngmax,ipolt,niterw,niters,mshitw,mshits,noshak,

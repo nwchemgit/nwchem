@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.18 2000-09-06 19:57:28 d3j191 Exp $
+c $Id: pme_grid.F,v 1.19 2000-09-18 18:36:46 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -61,6 +61,8 @@ c     set flag on all nodes to indicate that potential
 c     grid calculation has completed
 c
       if(me.eq.int_mb(i_nodp)) call pme_flag(0,1,-1)
+c
+      if(icntrl.eq.1) call ga_sync()
 c
       call timer_stop(16)
 c

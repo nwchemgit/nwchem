@@ -1,8 +1,10 @@
-      subroutine pme_start(a,m,imffti,nodpmi,ngxi,ngyi,ngzi,nwm,nwa,nsa)
-c $Id: pme_init.F,v 1.16 2000-09-06 16:51:56 d3j191 Exp $
+      subroutine pme_start(a,m,imffti,nodpmi,
+     + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl)
+c $Id: pme_init.F,v 1.17 2000-09-18 18:36:46 d3j191 Exp $
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m
+      integer ictrl
       real*8 a
 c
       integer mem
@@ -19,6 +21,7 @@ c
       alpha=a
       morder=m
       nodpme=nodpmi
+      icntrl=ictrl
 c
       imfft=imffti
       lcorr(1)=.false.
