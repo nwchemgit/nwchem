@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.65 2000-10-20 17:23:07 edo Exp $
+# $Id: GNUmakefile,v 1.66 2001-03-03 10:52:20 bjohnson Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o 
 	OBJ_OPTIMIZE = \
@@ -13,6 +13,7 @@
 	xc_beckew.o \
 	xc_delleyw.o \
 	xc_dirac.o \
+	xc_dirac_screened.o \
 	xc_fitv.o \
 	xc_lebedev.o \
 	xc_lyp88.o \
