@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.63 2003-10-17 22:54:17 carlfahl Exp $
+c $Id: bas_input.F,v 1.64 2004-03-15 19:50:22 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -1107,8 +1107,13 @@ c
       if (debug) write(luout,*)' calls:calls: ',calls
       compiled_name = 
      &BASIS_LIBRARY
+c
+c     add here basis/libraries bit
+c
+      compiled_name=compiled_name(1:inp_strlen(compiled_name))
+     $     //"/basis/libraries/"
 *
-* order of precidence for choosing name
+* order of precedence for choosing name
 * 1) value of NWCHEM_BASIS_LIBRARY environment variable
 * 2) value of NWCHEM_BASIS_LIBRARY set in $HOME/.nwchemrc file
 * 3) value of the compiled in library name
@@ -1140,7 +1145,7 @@ c
         endif
       endif
 *2: check for NWCHEM_BASIS_LIBRARY defined in users .nwchemrc file
-*   assumed structue in .nwchemrc file is variable [whitespace] value
+*   assumed structure in .nwchemrc file is variable [whitespace] value
 *   one setting per line
 *
       call util_getenv('HOME',userhome)

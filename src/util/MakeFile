@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.24 2003-10-28 22:14:36 edo Exp $	
+#	$Id: MakeFile,v 1.25 2004-03-15 19:50:22 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -137,9 +137,6 @@ HEADERS =      util.fh \
                nwc_const.fh
 
 LIBRARY = nwcutil.lib
-LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-              -DPERM_DEF_DIR=$(PERM_DEF_DIR) \
-              -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 LIB_INCLUDES = -I..\ddscf
 
 LIB_TARGETS = testsolve testecce
@@ -149,11 +146,6 @@ LIB_TARGETS = testsolve testecce
 
 !IF 0
 
-ifdef JOBTIME_PATH
-   LIB_DEFINES += -DJOBTIMEPATH=\"$(JOBTIME_PATH)\"
-else
-   LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
-endif
 
 # !!! Need any EXTRA_OBJ's here?
 # ..example..

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.45 2002-02-01 00:50:49 windus Exp $
+#$Id: GNUmakefile,v 1.46 2004-03-15 19:50:22 edo Exp $
 TARGET = $(NWCHEM_TARGET)
 include ../tools/armci/config/makecoms.h
 include ../tools/armci/config/makemp.h
@@ -20,23 +20,21 @@ ifeq ($(TARGET),CRAY-T3E)
 endif
 
    LIB_TARGETS = testbasis testbasis.o libcheck
-
-ifeq ($(TARGET),DELTA)
-   LIB_DEFINES = -DBASIS_LIBRARY="'libraries/'"
-else
-ifdef NWCHEM_BASIS_LIBRARY_PATH
-   LIB_DEFINES = -DBASIS_LIBRARY="'$(NWCHEM_BASIS_LIBRARY_PATH)'"
-else
-   LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/libraries/'"
+   LONGNWTOP = $(shell if [`echo $(SRCDIR) |wc -m` -gt 64 ]; then echo "Y"; fi  )
+ifeq ($(LONGNWTOP),Y)
+errorlongpwd:
+	@echo " "
+	@echo "The directory name chosen for NWCHEM_TOP is longer than "
+	@echo "the maximum allowed value of 65 characters"
+	@echo "      current NWCHEM_TOP="$(SRCDIR)" equal to" $(shell echo $(BSRCDIR) |wc -m) "characters"
+	@echo "please chose a directory with a shorter name"
+	@echo "E.g., setenv NWCHEM_TOP /home/nwchem_user/nwchem"
+	@exit 1
 endif
-endif
+   LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)'"
 
 ifeq ($(TARGET),FUJITSU_VPP)
-ifdef NWCHEM_BASIS_LIBRARY_PATH
-   LIB_DEFINES = -Wp,-DBASIS_LIBRARY=$(NWCHEM_BASIS_LIBRARY_PATH)
-else
-   LIB_DEFINES = -Wp,-DBASIS_LIBRARY="'$(SRCDIR)/basis/libraries/'"
-endif
+   LIB_DEFINES = -Wp,-DBASIS_LIBRARY="'$(SRCDIR)'"
 endif
 
      USES_BLAS = bas_blas.F bas_blasP.F basis.F

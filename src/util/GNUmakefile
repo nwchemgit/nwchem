@@ -1,9 +1,7 @@
-# $Id: GNUmakefile,v 1.174 2004-01-30 04:27:20 edo Exp $
+# $Id: GNUmakefile,v 1.175 2004-03-15 19:50:22 edo Exp $
 
 include ../config/makefile.h
 
-   LIB_DEFINES = -DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-                 -DPERM_DEF_DIR=$(PERM_DEF_DIR)
 ifdef JOBTIME_PATH
    LIB_DEFINES += -DJOBTIMEPATH=\"$(JOBTIME_PATH)\"
 else
@@ -108,8 +106,7 @@ endif
 endif                                                                           
 
 ifeq ($(TARGET),FUJITSU_VPP)
-   LIB_DEFINES = -Wp,-DSCRATCH_DEF_DIR=$(SCRATCH_DEF_DIR) \
-                 -Wp,-DPERM_DEF_DIR=$(PERM_DEF_DIR) \
+   LIB_DEFINES = \
                  -Wp,-DBINDIR=\"$(BINDIR)\" \
                  -Wp,-DBYTE_SHORT_PACKING \
                  -Wp,-DINTEGER_1=byte

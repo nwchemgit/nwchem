@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.6 2002-01-03 01:27:22 bert Exp $	
+#	$Id: MakeFile,v 1.7 2004-03-15 19:50:22 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -26,11 +26,8 @@ HEADERS =      bas.fh \
                bas_ibs_sfn.fh
 
 LIBRARY = nwcutil.lib
-!IFDEF NWCHEM_BASIS_LIBRARY_PATH
-LIB_DEFINES = -DBASIS_LIBRARY="'$(NWCHEM_BASIS_LIBRARY_PATH)'"
-!ELSE
-LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)\basis\libraries\'"
-!ENDIF
+
+LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)'"
 
 LIB_TARGETS = testbasis $(OBJDIR)\testbasis.obj libcheck
 TESTLIBS = -lnwcutil
