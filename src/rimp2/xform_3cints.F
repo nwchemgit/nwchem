@@ -3,17 +3,17 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.8 1994-11-01 20:43:51 gg502 Exp $
+C     $Id: xform_3cints.F,v 1.9 1994-11-03 16:46:01 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
-     $   G_Int, ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
+     $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
      $   Dest, G_Out, IntFil, Neglect)
       Implicit NONE
       Integer RTDB, AOBas, FitBas
       Integer IntFil
       Integer ALo, AHi, ILo, IHi
-      Integer G_Int, G_Out, G_C, G_V, Geom
+      Integer G_Out, G_C, G_V, Geom
       Character*1 Type3ci, XFFit, Dest
       Double precision Neglect
 C
@@ -21,7 +21,6 @@ C ARGUMENTS
 C     Type3ci  Type of 3-center integrals to be used ('E'RI or 'O'verlap) [IN]
 C     AOBas    Handle to basis for two of the indices ("AO basis") [IN]
 C     FitBas   Handle to basis for the third index ("fitting basis") [IN]
-C     G_Int    GA handle for use in first 2/3 of transformation [IN]
 C     ALo      Lower limit of target index range for first AO basis index [IN]
 C     AHi      Upper limit of target index range for first AO basis index [IN]
 C     ILo      Lower limit of target index range for 2nd AO basis index [IN]
@@ -41,7 +40,7 @@ C
 C DESCRIPTION
 C     Produce transformed three-center integrals either in disk or in memory.
 C
-C     The global arrays G_Int, G_Out, G_C, G_V must be created and filled
+C     The global arrays G_Out, G_C, G_V must be created and filled
 C     as appropriate before entry.
 C
 C NOTES
@@ -56,7 +55,7 @@ c     misleading.
 C
 C LIMITATIONS
 C     Currently DEST must be 'D'isk.
-C     G_Int and G_Out must be the same size
+C     G_Out must be the same size
 C
 C MEMORY USE
 C     Not here, but our dependents do use some.  I'd rather not talk about
@@ -68,6 +67,7 @@ C INCLUDE FILES
 #include "bas.fh"
 #include "global.fh"
 #include "rimp2_timers.fh"
+#include "mafdecls.h"
 C
 C EXTERNAL ROUTINES
       Logical LSame     ! From BLAS-[23]
@@ -76,10 +76,12 @@ C EXTERNAL ROUTINES
       External XF3cI_Step12, XF3cI_Step3, Put_3cInts
       Integer LNBlnk
       External LNBlnk
+      Logical GA_Create_One_by_Shells
+      External GA_Create_One_by_Shells
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Logical Status, TransFit, Disk
-      Integer Dim1, Dim2, GAType, NFit
+      Integer Dim1, Dim2, GAType, NFit, G_Int
       Integer IBlkSiz, OutBlkSiz, NA, NI, NJ, NK, JLo, JHi, KLo, KHi
       Character*256 String1, String2
 C
@@ -127,7 +129,6 @@ C
 C
 C     Global arrays which should be already created
 C
-      Call GA_Check_Handle( G_Int, 'XForm_3cInts: integral array')
       Call GA_Check_Handle( G_C, 'XForm_3cInts: AO transformation')
       If ( TransFit )
      $   Call GA_Check_Handle( G_V, 'XForm_3cInts: Fit transformation')
@@ -176,7 +177,7 @@ C     Use the sizes of the GAs passed in to determine block sizes.
 C     This may have to change somewhat when we want to put results
 C     in GAs instead of to disk.
 C
-      Call GA_Inquire( G_Int, GAType, Dim1, Dim2)
+      Call GA_Inquire( G_Out, GAType, Dim1, Dim2)
       IBlkSiz = Dim1 / NA
 C
 C     Also verify the size
@@ -263,12 +264,19 @@ C
 C     ****************************************************
 C     * Cover the requested range of I in several passes *
 C     ****************************************************
-C     The block size is determined by the global array G_Int.
+C     The block size is determined by the global array G_Out.
 C     The current range of I is [JLo,JHi].
 C
       Do JLo = ILo, IHi, IBlkSiz
          JHi = Min( JLo+IBlkSiz-1, IHi)
          NJ = JHi - JLo + 1
+C
+C        Create the GA needed for the first 2/3 transformation
+C
+         If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, NA * NJ,
+     $      FitBas, 'xf3ci: 2/3 integral matrix', G_Int) )
+     $        Call ErrQuit(
+     $        'XForm_3cInts: Unable to allocate temporary GA', 0)
 C
 C        Generate blocks of (ai|s) (or (ais) ) integrals for the
 C        specified range of I.
@@ -357,6 +365,11 @@ C
  9030    Format( 1X, 'XForm_3cInts: Error occurred in output block ',
      $      I5, ':', I5, ' of integral block ', I5, ':', I5,
      $      ' of requested ', I5, ':', I5, '.')
+C
+C        Free 2/3 integral array to allow it to be resized next pass
+C
+         If ( .NOT. GA_Destroy( G_Int) ) Call ErrQuit(
+     $        'XForm_3cInts: Unable to deallocate temporary GA', 0)
 C
 C        Print out a progress report.  Eventually want to make this
 C        dependent on user desires and time required by each pass.
