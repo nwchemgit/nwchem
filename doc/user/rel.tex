@@ -39,7 +39,7 @@ specific to the approximations:
 \begin{verbatim}
   RELATIVISTIC
    [DOUGLAS-KROLL [<string (ON||OFF) default ON> \
-                 <string (FPP||DKH||DKFULL) default DKH>]  ||
+                 <string (FPP||DKH||DKFULL||DK3||DK3FULL) default DKH>]  ||
     DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
                   [ (NESC1E || NESC2E) default NESC1E ] ]
    [CLIGHT <real clight default 137.0359895>]
@@ -68,7 +68,7 @@ approximation can be invoked by specifying:
 
 \begin{verbatim}
   DOUGLAS-KROLL [<string (ON||OFF) default ON> \
-                 <string (FPP||DKH||DKFULL) default DKH>]
+                 <string (FPP||DKH||DKFULL|DK3|DK3FULL) default DKH>]
 \end{verbatim}
 
 The \verb+ON|OFF+ string is used to turn on or off the
@@ -89,7 +89,12 @@ is the Douglas-Kroll-Hess approach and is the approach that is generally
 implemented in quantum chemistry codes. \verb+DKFULL+ includes certain 
 cross-product integral terms ignored in the \verb+DKH+ approach (see for example 
 H\"{a}berlen and R\"{o}sch\footnote{O.D.~H\"{a}berlen, N.~R\"{o}sch, 
-Chem.~Phys.~Lett.~{\bf 199}, 491 (1992)}).
+Chem.~Phys.~Lett.~{\bf 199}, 491 (1992)}). The third-order Douglas-Kroll 
+approximation has been implemented by T. Nakajima and K. Hirao\footnote{T. Nakajima 
+and K. Hirao, Chem.~Phys.~Lett.~{\bf 329}, 5111 (2000); T. Nakajima and K. Hirao, 
+J.~Chem.~Phys.~{\bf 113}, 7786 (2000)}. This approximation can be called using
+\verb+DK3+ (DK3 without cross-product integral terms) or \verb+DK3FULL+ (DK3 with
+cross-product integral terms).
 
 The contracted basis sets used in the calculations should reflect the relativistic
 effects, i.e. one should use contracted basis sets which were generated using the 
