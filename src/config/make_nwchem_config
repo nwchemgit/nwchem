@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.85 1998-10-07 17:09:00 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.86 1998-10-07 20:00:43 bernhold Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -114,7 +114,7 @@ MODULES := $(patsubst dftgrad,dftgrad gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf,$(MODULES) )
 MODULES := $(patsubst hessian,hessian ddscf gradients nwdft dftgrad cphf property,$(MODULES) )
 
-MODULES := $(patsubst rimp2_grad,rimp2_grad rimp2 ddscf mp2_grad NWints,$(MODULES) )
+MODULES := $(patsubst rimp2_grad,rimp2_grad rimp2 cphf ddscf mp2_grad NWints,$(MODULES) )
 MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst selci,selci moints,$(MODULES) )
@@ -124,7 +124,6 @@ MODULES := $(patsubst mcscf,mcscf moints ddscf,$(MODULES) )
 MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
-
 
 MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
 
