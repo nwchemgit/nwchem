@@ -36,6 +36,7 @@ C
       Integer Msg_rms_dens,Msg_Ecoul2
       Integer Msg_tot_min,Msg_tot_max,Msg_nqtot
       Integer Msg_t_min,Msg_t_max
+      integer msg_orthog_1, msg_orthog_2
 
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
@@ -129,4 +130,6 @@ C
 C
       Parameter (Msg_tot_max  = MSG_Ftn_Base - 70)  ! DFT: dgop total max times
 C
-      Parameter (Msg_tot_min  = MSG_Ftn_Base - 71)  ! DFT: dgop total min times
+      parameter (msg_orthog_1  = msg_ftn_base - 71)  ! util: ga_orthog 1st dgop
+C
+      parameter (msg_orthog_2  = msg_ftn_base - 72)  ! util: ga_orthog 2nd dgop

@@ -2,6 +2,7 @@
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "msgids.fh"
       integer g_vecs, g_over
       logical ometric
 c
@@ -90,7 +91,7 @@ c
       subroutine ga_orthog_vecs(vecs, ld, ni, ulo, uhi, s, o, nu, w, 
      $     ometric)
       implicit none
-#include "global.fh"
+#include "msgids.fh"
 c     
       integer ld, ni, ulo, uhi, nu
       double precision 
@@ -106,10 +107,6 @@ c
 c     Orthogonalize columns of a matrix distributed so that
 c     each process has vecs(ulo:uhi,1:ni) ... uses global sums only.
 c     
-*      write(6,*) ga_nodeid(), ometric, nu, ni
-*      call util_flush(6)
-*      call ga_sync
-c
       do i = 1, ni
          npass = 0
  10      npass = npass + 1
@@ -121,17 +118,12 @@ c
  	    if ((uhi-ulo+1) .gt. 0) 
      $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
      $             vecs(ulo,i), 1, 0.0d0, w, 1)
-            call dgop(12, w, nu, '+') ! Actually only need ulo:hi local
+            call dgop(msg_orthog_1, w, nu, '+') ! Actually only need ulo:hi local
          else
             do u = ulo, uhi
                w(u) = vecs(u,i)
             enddo
          endif
-
-*         write(6,*) ga_nodeid(), (w(u),u=1,nu)
-*         call util_flush(6)
-*         call ga_sync
-         
 c     
 c     Now form overlap between vector i and vectors 1...i
 c     
@@ -140,12 +132,7 @@ c
      $        call dgemv('t', (uhi-ulo+1), i, 1.0d0,
      $        vecs(ulo,1), ld, w(ulo), 1, 0.0d0, s(1), 1)
 
-         call ga_dgop(11, s, i, '+')
-
-*         write(6,*) ga_nodeid(), (s(u),u=1,nu)
-*         call util_flush(6)
-*         call ga_sync
-
+         call ga_dgop(msg_orthog_2, s, i, '+')
 c
 c     Apply the rotation
 c     
