@@ -1,8 +1,8 @@
 c
-c $Id: onedd_calc.F,v 1.11 2001-05-23 17:44:43 windus Exp $
+c $Id: onedd_calc.F,v 1.12 2002-06-17 22:36:02 bert Exp $
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
-     *      skelsym,doS,doT,doV,
+     *      skelsym,doS,doT,doV,doECP,
      *      g_wdens,g_dens,geom,basis,nat,ndens,dens,wdens,matb)
 c
       implicit none
@@ -22,6 +22,7 @@ c
       logical doS                  ! [input] do overlap contribution?
       logical doT                  ! [input] do kinetic contribution?
       logical doV                  ! [input] do potential contribution?
+      logical doECP                ! [input] do ECP contribution?
       integer ndens                ! [input] number of density matrices
       integer g_wdens              ! [input] the weighted density handle
       integer g_dens(ndens)        ! [input] the density handle
@@ -87,7 +88,6 @@ c
               if ( iat1.eq.iat2 ) iac2l = ish1
               do 60 ish2 = iac2f, iac2l
 c               write(6,*) 'ish1,ish2 ',ish1,ish2
-
 c
 c               shell block in atomic (D/Dw)-matrix block
 c
@@ -144,8 +144,7 @@ c
 C     D x ddH
 c
 c
-c    Handle (i|d2V|j) first.  This also has (d2i|V|j), (i|V|d2j),
-c    (d2i|T|j) and (i|T|d2j) terms
+c    Handle (i|d2V|j) first.  
 c
                 ic = 1
                 do at1 = 1, nat
@@ -166,8 +165,7 @@ c
                   enddo
                 enddo
 c
-c    Handle (di|dV|j), (i|dV|dj) which also has the (di|V|dj) and
-c    the (di|T|dj) components
+c    Handle (di|dV|j), (i|dV|dj) 
 c
                 do 50 attemp1 = 1, 2
                 if (attemp1.eq.1) then
@@ -236,8 +234,42 @@ c
                   enddo  
                 enddo
                 enddo
-c
                 endif   ! doV and doT
+c
+c If there are ECPs we need the derivatives for those too
+c
+                if (doECP) then
+                call intdd_1eecp1(basis,ish1,basis,ish2,
+     &               lscr,Iscr,
+     &               lbuf,Ibuf)
+                ic = 0
+                do at2 = 1, nat
+                do at1 = 1, at2
+                  do icart2 = 1, 3
+                  do icart1 = 1, 3
+                    dE = 0.D0
+                    do ip2 = if2, il2
+                      do ip1 = if1, il1
+                        ic = ic + 1
+                        dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
+                      enddo
+                    enddo
+                    if (iat1.ne.iat2 .or. ish1.ne.ish2) dE = dE + dE
+                    dE = dE * qfac
+                    if (at1.eq.at2) then
+                      Hxy(icart1,at1,icart2,at2) =
+     *                 Hxy(icart1,at1,icart2,at2) + dE 
+                    else 
+                      Hxy(icart1,at1,icart2,at2) =
+     *                 Hxy(icart1,at1,icart2,at2) + dE 
+                      Hxy(icart2,at2,icart1,at1) =
+     *                 Hxy(icart2,at2,icart1,at1) + dE 
+                    endif
+                  enddo
+                  enddo
+                enddo
+                enddo
+                endif
 
  60           continue
  70         continue
