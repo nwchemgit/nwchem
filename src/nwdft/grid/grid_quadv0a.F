@@ -10,7 +10,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf)
 c
-c$Id: grid_quadv0a.F,v 1.26 2001-05-05 05:20:15 edo Exp $
+c$Id: grid_quadv0a.F,v 1.27 2001-05-25 23:59:01 edo Exp $
 c
       implicit none
 c
@@ -104,19 +104,13 @@ c
       enddo
  200  continue
 c
-      if (.not.MA_Pop_Stack(ldocset)) then
-      write(6,'(A,2i10,A,3i10)') ' 0Afme ',ga_nodeid(), 
-     .     ' ld id lgth ',ldocset,idocset,ncontrset
-         call MA_summarize_allocated_blocks()
-          call errquit('grid_quadv0a: pop stack failed.',3)
-      endif
- 100  continue
+      if (.not.MA_Pop_Stack(ldocset)) 
+     .    call errquit('grid_quadv0a: pop stack failed.',3)
       if(donewbf) then
-      if (.not.MA_Pop_Stack(lbas_cset_info))
-     &     call errquit('grid_quadv0a: pop stack failed.',2)
-      if (.not.MA_Pop_Stack(lbas_cent_info))
+      if (.not.ma_chop_stack(lbas_cent_info))
      &     call errquit('grid_quadv0a: pop stack failed.',1)
       endif
+ 100  continue
 c
       call ga_sync
       return
