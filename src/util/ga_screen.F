@@ -1,5 +1,5 @@
        subroutine ga_screen(g_a, value)
-C$Id: ga_screen.F,v 1.6 2000-10-30 21:37:52 windus Exp $
+C$Id: ga_screen.F,v 1.7 2000-11-03 00:43:28 edo Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -28,10 +28,10 @@ c
        end
       integer function ga_screenb(
      $     g_a, ilo, ihi, jlo, jhi, a, ld, value, 
-     $     idum2, idum3, idum4, idum5, idum6)
+     $     idum2, idum3, idum4, idum5, idum6,idum7)
       implicit none
       integer g_a, ilo, ihi, jlo, jhi, ld, 
-     $     idum2, idum3, idum4, idum5, idum6
+     $     idum2, idum3, idum4, idum5, idum6,idum7
       double precision a(ilo:ilo+ld-1,jlo:jhi), value
       integer i, j
       double precision zero

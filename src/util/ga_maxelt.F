@@ -1,5 +1,5 @@
       subroutine ga_maxelt(g_a, value)
-C     $Id: ga_maxelt.F,v 1.8 2000-10-26 19:21:44 edo Exp $
+C     $Id: ga_maxelt.F,v 1.9 2000-11-03 00:43:27 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -34,10 +34,10 @@ c
       end
       integer function ga_maxelt_doit(
      $     g_a, ilo, ihi, jlo, jhi, a, ld, value, 
-     $     idum2, idum3, idum4, idum5, idum6)
+     $     idum2, idum3, idum4, idum5, idum6,idum7)
       implicit none
       integer g_a, ilo, ihi, jlo, jhi, ld, 
-     $     idum2, idum3, idum4, idum5, idum6
+     $     idum2, idum3, idum4, idum5, idum6,idum7
       double precision a(ilo:ilo+ld-1,jlo:jhi), value
       integer i, j
 c
