@@ -13,3 +13,7 @@ ftest:	ftest.o $(OBJ)
 mddriver:	mddriver.o $(OBJ)
 	$(CC) -o $@ $^ -lm
 
+# DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(mddriver.o):	./mdglobal.h 
+$(LIBRARY_PATH)(md5wrap.o):	./md5.h 
+$(LIBRARY_PATH)(md5.o):	./md5.h 
