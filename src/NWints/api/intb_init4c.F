@@ -1,10 +1,10 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
-     &    num_q, lscr, scr, l_erilab, block_eff)
-c $Id: intb_init4c.F,v 1.5 1996-09-03 06:02:50 d3e129 Exp $  
+     &    num_q, q4, use_q4, lscr, scr, l_erilab, block_eff)
+c $Id: intb_init4c.F,v 1.6 1996-10-04 18:18:05 d3g681 Exp $  
       implicit none
 *
 c
-c blocking initialization routien for 2 electron 4 center integrals
+c blocking initialization routine for 2 electron 4 center integrals
 c
 *
       integer brain      ! [input] basis set handle for bra basis
@@ -14,36 +14,132 @@ c
       integer jcl(num_q) ! [input] j-contraction labels for quartets
       integer kcl(num_q) ! [input] k-contraction labels for quartets
       integer lcl(num_q) ! [input] l-contraction labels for quartets
+      double precision q4(num_q) ! [input] scaling factors
+      logical use_q4            ! [input] true if scaling
       integer l_erilab   ! [input] size of eri and label arrays that will 
 *................................. be used in intb_2e4c.F
       integer lscr       ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
       double precision block_eff  ! [output] blocking efficiency parameter
+#include "mafdecls.fh"
+#include "candoP.fh"
 #include "numb_qP.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geobasmapP.fh"
+#include "bas_ibs_dec.fh"
 c
       logical status
-      integer i_q
 c
       logical cando_txs
       external cando_txs
 c
-      num_q_start = 1
+      integer iu, ju, ku, lu
+      integer itype, jtype, ktype, ltype
+      integer inprim, jnprim, knprim, lnprim
+      integer ingen, jngen, kngen, lngen
+      integer nprimtest
+      integer iq, bra, ket
+      double precision tmp
+#include "bas_ibs_sfn.fh"
+c
+      num_q_start = 1           
       num_q_last  = -1
 c
       more_ints_txs = .false. 
       intb_init4c = .true.
       block_eff = -1.0d00
-*
+c
+      bra = brain + BASIS_HANDLE_OFFSET
+      ket = ketin + BASIS_HANDLE_OFFSET
+c
+c     The SP integrals are faster than texas for S and SP shells with
+c     contraction of 3 or greater.  Select quartets which have only
+c     S or SP shells of which all have contraction greater than or
+c     equal to 3.  These shells are put onto the end of the list and
+c     then evaluated first using the existing NW blocking interface.
+c
+#if (defined(SUN) || defined(SOLARIS))
+c     scalar machines
+      nprimtest = 1
+#else 
+c     pipelined/vector machines
+      nprimtest = 3
+#endif
+      nsp = 0
+      if (.not. (user_cando_sp.and.(.not.def_cando_sp))) then
+         do 10 iq = 1, num_q
+            iu = (sf_ibs_cn2ucn(icl(iq),bra))
+            itype = infbs_cont(CONT_TYPE,  iu, bra)
+            if (itype .gt. 0) goto 10
+            inprim= infbs_cont(CONT_NPRIM, iu, bra)
+            if (inprim .lt. nprimtest) goto 10
+            ingen = infbs_cont(CONT_NGEN,  iu, bra)
+            if (itype.eq.0 .and. ingen.gt.1) goto 10
+c     
+            ju = (sf_ibs_cn2ucn(jcl(iq),bra))
+            jtype = infbs_cont(CONT_TYPE,  ju, bra)
+            if (jtype .gt. 0) goto 10
+            jnprim= infbs_cont(CONT_NPRIM, ju, bra)
+            if (jnprim .lt. nprimtest) goto 10
+            jngen = infbs_cont(CONT_NGEN,  ju, bra)
+            if (jtype.eq.0 .and. jngen.gt.1) goto 10
+c     
+            ku = (sf_ibs_cn2ucn(kcl(iq),bra))
+            ktype = infbs_cont(CONT_TYPE,  ku, ket)
+            if (ktype .gt. 0) goto 10
+            knprim= infbs_cont(CONT_NPRIM, ku, ket)
+            if (knprim .lt. nprimtest) goto 10
+            kngen = infbs_cont(CONT_NGEN,  ku, ket)
+            if (ktype.eq.0 .and. kngen.gt.1) goto 10
+c     
+            lu = (sf_ibs_cn2ucn(lcl(iq),bra))
+            ltype = infbs_cont(CONT_TYPE,  lu, ket)
+            if (ltype .gt. 0) goto 10
+            lnprim= infbs_cont(CONT_NPRIM, lu, ket)
+            if (lnprim .lt. nprimtest) goto 10
+            lngen = infbs_cont(CONT_NGEN,  lu, ket)
+            if (ltype.eq.0 .and. lngen.gt.1) goto 10
+c     
+c     Now have a shell quartet that fits the criteria.  Swap to beginning
+c     of the list
+c     
+            nsp = nsp + 1
+            if (iq .ne. nsp) then
+               iu       = icl(iq)
+               ju       = jcl(iq)
+               ku       = kcl(iq)
+               lu       = lcl(iq)
+               icl(iq)  = icl(nsp)
+               jcl(iq)  = jcl(nsp)
+               kcl(iq)  = kcl(nsp)
+               lcl(iq)  = lcl(nsp)
+               icl(nsp) = iu
+               jcl(nsp) = ju
+               kcl(nsp) = ku
+               lcl(nsp) = lu
+               if (use_q4) then
+                  tmp     = q4(iq)
+                  q4(iq)  = q4(nsp)
+                  q4(nsp) = tmp
+               endif
+            endif
+ 10      enddo
+*         write(6,*) ' num_q nsp ', num_q, nsp
+      endif
+c
+
 *.... check shells for txs only after intb_init is called and established        
       txs_b2e4c = .true.
       status = .true.
 *.... check first 20 quartets but every other one
-      do i_q = 1,min(20,num_q),2
-        status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
-        status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
+      do iq = 1,min(20,num_q),2
+        status = status.and. (cando_txs(brain,icl(iq),jcl(iq)))
+        status = status.and. (cando_txs(ketin,kcl(iq),lcl(iq)))
         if (.not.status) then
           txs_b2e4c = .false.
           return
         endif
       enddo
       end
+
