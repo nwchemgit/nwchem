@@ -1,5 +1,5 @@
 /*
- $Id: pred_cor.c,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id: pred_cor.c,v 1.2 2002-07-12 18:38:13 bylaska Exp $
    Pred_Cor.c - 6/9/95
    author      - Eric Bylaska
 
@@ -414,7 +414,7 @@ double  f[];
    double tmp;
 
    tmp =  one_over_60*( +10.0*f[i+1]
-                       -  77.0*f[i]
+                       +  77.0*f[i]
                        - 150.0*f[i-1]
                        + 100.0*f[i-2]
                        -  50.0*f[i-3]
