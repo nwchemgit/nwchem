@@ -262,6 +262,9 @@ c
 c     medleb; use medium Lebedev grid definition
 c             
  1400 gridtype='lebmed'
+      leb=.true.
+      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   call errquit('grid_inp: rtdb_put failed', 590)
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 1400) 
       goto 10
@@ -271,11 +274,17 @@ c
 c     medleb; use medium Lebedev grid definition
 c             
  1500 gridtype='lebfine'
+      leb=.true.
+      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   call errquit('grid_inp: rtdb_put failed', 590)
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 1500) 
       goto 10
 
  1600 gridtype='lebxfine'
+      leb=.true.
+      if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
+     &   call errquit('grid_inp: rtdb_put failed', 590)
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
      &   call errquit('grid_inp: rtdb_put failed', 1500) 
       goto 10

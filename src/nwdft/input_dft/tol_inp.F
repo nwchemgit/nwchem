@@ -1,5 +1,5 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.8 1997-12-12 17:46:20 d3h449 Exp $
+C$Id: tol_inp.F,v 1.9 2000-02-23 23:13:41 edo Exp $
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -76,8 +76,8 @@ c                accuracy for evaluating AO gaussians
 c             
   300 if (.not. inp_i(iAOacc)) then
          write(6,*)' tol_inp: accAOfunc value not found; defaulting ',
-     &             ' to 20.'
-         iAOacc = 20
+     &             ' to 14.'
+         iAOacc = 14
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
      &   call errquit('tol_inp: rtdb_put failed', 300)
