@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.46 2000-04-10 20:29:19 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.47 2000-04-24 14:40:44 d3j191 Exp $
 c
       implicit none
 c
@@ -20,8 +20,8 @@ c
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       logical util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
-      logical pre_align,pre_repeat
-      external pre_align,pre_repeat
+      logical pre_align,pre_repeat,pre_transl
+      external pre_align,pre_repeat,pre_transl
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       integer lfnslv,model,mdold,lfnxyz,lfnqqq
@@ -39,7 +39,7 @@ c
 c
       integer l_cwa,i_cwa,l_mas,i_mas,l_num,i_num,l_sat,i_sat
       integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
-      integer l_sfnd,i_sfnd,l_xs,i_xs,l_vs,i_vs
+      integer l_sml,i_sml,l_sfnd,i_sfnd,l_xs,i_xs,l_vs,i_vs
       integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr
       integer l_inoe,i_inoe,l_dnoe,i_dnoe,l_qu,i_qu
       integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
@@ -48,7 +48,8 @@ c
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater
-      integer nxrep,nyrep,nzrep
+      integer nxrep,nyrep,nzrep,itran,jtran
+      real*8 xtran(3)
 c
       if(util_print('where',print_debug)) then
       write(lfnout,1000)
@@ -115,6 +116,8 @@ c
      + call errquit('Memory allocation failed for sat',9999)
       if(.not.ma_push_get(mt_int,msa,'sgm',l_sgm,i_sgm))
      + call errquit('Memory allocation failed for sgm',9999)
+      if(.not.ma_push_get(mt_int,msa,'sml',l_sml,i_sml))
+     + call errquit('Memory allocation failed for sml',9999)
       if(.not.ma_push_get(mt_int,msa,'sfnd',l_sfnd,i_sfnd))
      + call errquit('Memory allocation failed for sfnd',9999)
       if(.not.ma_push_get(mt_dbl,msa,'qsa',l_qsa,i_qsa))
@@ -179,7 +182,8 @@ c     ------------------
 c
       if(.not.pre_toprd(lfntop,filtop,lfnout,
      + int_mb(i_num),dbl_mb(i_mas),mat,
-     + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
+     + byte_mb(i_cwa),dbl_mb(i_qwa),mwa,nwa,
+     + int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
      + dbl_mb(i_csb),msb,nsb,dbl_mb(i_qu),nqu))
      + call errquit('pre_toprd failed',9999)
@@ -770,6 +774,16 @@ c
      + call errquit('pre_orient failed',9999)
       endif
 c
+c     translate molecule
+c     ------------------
+c
+      if(card(1:6).eq.'tramol') then
+      read(card(8:53),'(2i5,3f12.6)',err=9999) itran,jtran,xtran
+      if(.not.pre_transl(itran,jtran,xtran,
+     + int_mb(i_sml),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_transl failed',9999)
+      endif
+c
 c     solvate solute
 c     --------------
 c
@@ -1042,6 +1056,8 @@ c
      + call errquit('Memory deallocation failed for qsa',9999)
       if(.not.ma_pop_stack(l_sfnd))
      + call errquit('Memory deallocation failed for sfnd',9999)
+      if(.not.ma_pop_stack(l_sml))
+     + call errquit('Memory deallocation failed for sml',9999)
       if(.not.ma_pop_stack(l_sgm))
      + call errquit('Memory deallocation failed for sgm',9999)
       if(.not.ma_pop_stack(l_sat))

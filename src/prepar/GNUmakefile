@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 1999-12-16 23:55:44 d3j191 Exp $
+# $Id: GNUmakefile,v 1.23 2000-04-24 14:40:43 d3j191 Exp $
 #
 
 include ../config/makefile.h
@@ -82,6 +82,7 @@ OBJ_OPTIMIZE=prepar.o\
              pre_toprd.o\
              pre_topsiz.o\
              pre_torang.o\
+             pre_transl.o\
              pre_wrtnam.o\
              pre_wrtnoe.o\
              pre_wrtpdb.o\
