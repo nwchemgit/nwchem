@@ -1151,6 +1151,7 @@ C
       SUBROUTINE HND_BINVR(NVAR,NZVAR,NCART,B,BINV,
      1                 G,V,E,H,S,T,IA,NDIM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "util.fh"
 C
 C     ----- CONSTRUCT THE INVERSE OF THE -B- MATRIX -----
 C
@@ -1186,7 +1187,7 @@ C
 C
       DBUG=.FALSE.
       DBUG=DBUG.OR.IPRZMT.GE.2
-      OUT =.FALSE.
+      OUT =util_print('binvr',print_never)
       OUT =OUT.OR.DBUG
       OUT =OUT.OR.NPRINT.EQ.1
       OUT =OUT.OR.IPRZMT.EQ.1
@@ -3223,15 +3224,18 @@ C
             NIMODS(IAT)=NIBOND(IAT)
          ENDDO
 c
+c     Check for disconnected clusters and attempt
+c     to join them by putting extra bonds into ijxtra
+c
          call geom_check_all_connected(nat,nbnds,ijmods,
      $        c, numijxtra, ijxtra, mxbond, 2d0*cvfac, okay)
-
+c
          if (.not. okay) then
             if (numijxtra .eq. 0) then
                goto 55555       ! Reconnection failed
             else
                write(6,*) ' Regenerating connections with new bonds'
-               goto 10101       ! Should work now
+               goto 10101
             endif
          endif
 c
@@ -3436,7 +3440,7 @@ c     Get here if something went wrong and we are trying to recover
 c     by adjusting cvr_scaling.
 c     
 55555 continue
-      if (cvfac .lt. 2.5d0) then
+      if (cvfac .lt. (cvr_scaling + 0.5d0)) then ! Used to be 2.5 upper bound
          write(6,9876) ncvrpass, cvfac, cvfac+0.1d0
  9876    format(1x,i5,' AUTOZ failed with cvr_scaling =',f4.1,
      $        ' changing to',f4.1)
@@ -3748,8 +3752,8 @@ C
  9996 FORMAT(' $END   ')
       END
       SUBROUTINE HND_ZMTYP2(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1           NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
-     2           DOLINB)
+     1     NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKANG,NUMANG,
+     2     DOLINB)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITWO=2)
       PARAMETER (MXATOM=500)        
@@ -3771,25 +3775,26 @@ C
       DIMENSION NIBNDS(  *)
       DIMENSION ERRMSG(3)        
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP2-'/
-      DATA TOL    /1.0D-08/
+      data tol    /1.0d-01/     ! 5.7 degrees
+*     DATA TOL    /1.0D-08/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
-C
+C     
       DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
-     1                (C(2,IAT)-C(2,JAT))**2+
-     2                (C(3,IAT)-C(3,JAT))**2
+     1     (C(2,IAT)-C(2,JAT))**2+
+     2     (C(3,IAT)-C(3,JAT))**2
       DOTPRD(IAT,JAT,KAT)=(C(1,IAT)-C(1,JAT))*(C(1,KAT)-C(1,JAT))+
-     1                    (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
-     2                    (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
-C
+     1     (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
+     2     (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
+C     
       DBUG=.FALSE.
       IF(DBUG) THEN
          WRITE(IW,9999)
       ENDIF
-C
+C     
 C     ----- ANGLES -----
-C
+C     
       NBOND=NBNDS
       DO IJBND=1,NBOND
          IJBOND(1,IJBND)=IJBNDS(1,IJBND)
@@ -3799,9 +3804,9 @@ C
          IIBOND(IAT)=IIBNDS(IAT)
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
-C
+C     
       IF(NAT.LE.2) RETURN
-C
+C     
       NANG=0
       DO IAT=1,NAT
          DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
@@ -3821,17 +3826,78 @@ C
                      CALL HND_HNDERR(3,ERRMSG)
                   ENDIF
                   KAT=KCON
-                  IF(KAT.LT.IAT) THEN ! RJH to avoid duplicates at outset
-*                  IF(KAT.NE.IAT) THEN
-                     IF(NANG.EQ.MXANGS) THEN
-                        WRITE(IW,*) 'TOO MANY BOND ANGLES',
-     1                              ' NANG,MXANG = ',NANG,MXANGS
-                        CALL HND_HNDERR(3,ERRMSG)
-                     ENDIF
-                     NANG=NANG+1
-                     IJKANG(1,NANG)=IAT
-                     IJKANG(2,NANG)=JAT
-                     IJKANG(3,NANG)=KAT
+                  IF(KAT.NE.IAT) THEN
+                     rijsq=distsq(iat,jat)
+                     rij  =sqrt(rijsq)                          
+                     rjksq=distsq(jat,kat)
+                     rjk  =sqrt(rjksq)                           
+                     riksq=distsq(iat,kat)
+                     cosb =(rijsq+rjksq-riksq)/(two*rij*rjk)
+                     linbnd = sin(acos(min(1d0,abs(cosb)))) .le. tol
+                     if (linbnd .and. nibond(jat).eq.2) then
+c
+c     IJK is (nearly) linear.  If J is only bonded to I & K
+c     then try to generate IKL where L is bonded to K.
+c     Note we'll generate KJI at another time and also KIM, where M
+c     is bonded to I.
+c
+                        do klbnd=iibond(kat)+1,iibond(kat)+nibond(kat)
+                           lat = ijbond(2,klbnd)
+                           if (lat.ne.iat .and. lat.ne.jat) then
+                              riksq=distsq(iat,kat)
+                              rik  =sqrt(riksq)                          
+                              rklsq=distsq(kat,lat)
+                              rkl  =sqrt(rklsq)                           
+                              rilsq=distsq(iat,lat)
+                              cosb =(riksq+rklsq-rilsq)/(two*rik*rkl)
+                              linbnd = sin(acos(min(1d0,abs(cosb)))) 
+     $                             .le. tol
+                              if (linbnd) then
+                                 if (nibond(kat) .eq. 2) then
+c
+c     Darn it.  IKL is also (nearly) linear and there is only one
+c     choice for L.  Try ILM.  Could be even more open-ended but not
+c     necessary (?).
+c
+                                    do lmbnd=iibond(lat)+1,
+     $                                   iibond(lat)+nibond(lat)
+                                       mat = ijbond(2,lmbnd)
+                                       if (mat.ne.iat .and. mat.ne.jat
+     $                                      .and. mat.ne.kat) then
+c
+c     Logic needed here to check for linear just in case !!!!!!!!!!!!
+c
+                                          if(nang.eq.mxangs)call errquit
+     $                                         ('autoz:too many angles',
+     $                                         nang)
+                                          nang=nang+1
+                                          ijkang(1,nang)=iat
+                                          ijkang(2,nang)=lat
+                                          ijkang(3,nang)=mat
+                                       endif
+                                    enddo
+                                 endif
+                              else 
+                                 if(nang.eq.mxangs) call errquit
+     $                                ('autoz: too many angles',nang)
+                                 nang=nang+1
+                                 ijkang(1,nang)=iat
+                                 ijkang(2,nang)=kat
+                                 ijkang(3,nang)=lat
+                              endif
+                           endif
+                        enddo
+                     else
+                        IF(NANG.EQ.MXANGS) THEN
+                           WRITE(IW,*) 'TOO MANY BOND ANGLES',
+     1                          ' NANG,MXANG = ',NANG,MXANGS
+                           CALL HND_HNDERR(3,ERRMSG)
+                        ENDIF
+                        NANG=NANG+1
+                        IJKANG(1,NANG)=IAT
+                        IJKANG(2,NANG)=JAT
+                        IJKANG(3,NANG)=KAT
+                     endif
                   ENDIF
                ENDDO
             ENDIF
@@ -3842,15 +3908,15 @@ C
             WRITE(IW,9994)
             DO MANG=1,NANG
                WRITE(IW,9993) MANG,IJKANG(1,MANG),
-     1                             IJKANG(2,MANG),IJKANG(3,MANG)
+     1              IJKANG(2,MANG),IJKANG(3,MANG)
             ENDDO
          ELSE
             WRITE(IW,9992)
          ENDIF
       ENDIF
-C
+C     
 C     ----- ELIMINATE DUPLICATES AND CLEAN UP -----
-C
+C     
       IF(NANG.GE.2) THEN
          DO IANG=1,NANG-1
             II=IJKANG(1,IANG)
@@ -3863,7 +3929,7 @@ C
                   JK=IJKANG(3,JANG)
                   IF(JJ.EQ.IJ) THEN
                      IF((II.EQ.JI.AND.IK.EQ.JK).OR.
-     1                  (II.EQ.JK.AND.IK.EQ.JI)    ) THEN
+     1                    (II.EQ.JK.AND.IK.EQ.JI)    ) THEN
                         IJKANG(1,JANG)=0
                         IJKANG(2,JANG)=0
                         IJKANG(3,JANG)=0
@@ -3873,67 +3939,74 @@ C
             ENDIF
          ENDDO
       ENDIF
-C
+C     
       IANG=0
-  100 IANG=IANG+1
+ 100  IANG=IANG+1
       IF(IANG.GT.NANG) GO TO 110
-         IF(IJKANG(1,IANG).EQ.0) THEN
-            IF(IANG.LT.NANG) THEN
-               DO JANG=IANG+1,NANG
-                  IJKANG(1,JANG-1)=IJKANG(1,JANG)
-                  IJKANG(2,JANG-1)=IJKANG(2,JANG)
-                  IJKANG(3,JANG-1)=IJKANG(3,JANG)
-               ENDDO
-               IANG=IANG-1
-            ENDIF
-            NANG=NANG-1
-         ELSE
-            RIJSQ=DISTSQ(IJKANG(1,IANG),IJKANG(2,IANG))
-            RIJ  =SQRT(RIJSQ)                          
-            RJKSQ=DISTSQ(IJKANG(2,IANG),IJKANG(3,IANG))
-            RJK  =SQRT(RJKSQ)                           
-            RIKSQ=DISTSQ(IJKANG(1,IANG),IJKANG(3,IANG))
-            COSB =(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
-            DUM  =ABS(COSB)-ONE
-            IF(DUM.GT.ZERO) THEN
-               IF(DUM.LE.TOL) THEN
-                  LINBND=.TRUE.
-                  DOLINB=DOLINB.OR.LINBND
-               ELSE
-                  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
-            ELSE
-               DUM=-DUM
-               IF(DUM.LE.TOL) THEN
-                   LINBND=.TRUE.
-                   DOLINB=DOLINB.OR.LINBND
-               ELSE
-                  LINBND=.FALSE.
-               ENDIF
-            ENDIF
-            IF(.NOT.LINBND) THEN
-               if (nizmat+4 .gt. mxizmt) call errquit
-     $              ('autoz angles: too many internals ... reduce '//
-     $              'cvr_scaling or individual radii',0)
-                IZMAT(NIZMAT+1)=ITWO
-                IZMAT(NIZMAT+2)=IJKANG(1,IANG)
-                IZMAT(NIZMAT+3)=IJKANG(2,IANG)
-                IZMAT(NIZMAT+4)=IJKANG(3,IANG)
-               NIZMAT=NIZMAT+4
-               NZVAR =NZVAR +1
-               NUMANG=NUMANG+1
-            ENDIF
+      IF(IJKANG(1,IANG).EQ.0) THEN
+         IF(IANG.LT.NANG) THEN
+            DO JANG=IANG+1,NANG
+               IJKANG(1,JANG-1)=IJKANG(1,JANG)
+               IJKANG(2,JANG-1)=IJKANG(2,JANG)
+               IJKANG(3,JANG-1)=IJKANG(3,JANG)
+            ENDDO
+            IANG=IANG-1
          ENDIF
-         GO TO 100
-  110 CONTINUE
-C
+         NANG=NANG-1
+      ELSE
+         RIJSQ=DISTSQ(IJKANG(1,IANG),IJKANG(2,IANG))
+         RIJ  =SQRT(RIJSQ)                          
+         RJKSQ=DISTSQ(IJKANG(2,IANG),IJKANG(3,IANG))
+         RJK  =SQRT(RJKSQ)                           
+         RIKSQ=DISTSQ(IJKANG(1,IANG),IJKANG(3,IANG))
+         COSB =(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
+         linbnd = sin(acos(min(1d0,abs(cosb)))) .le. tol
+         if (linbnd) dolinb = .true.
+c$$$  DUM  =ABS(COSB)-ONE
+c$$$  IF(DUM.GT.ZERO) THEN
+c$$$  IF(DUM.LE.TOL) THEN
+c$$$  LINBND=.TRUE.
+c$$$  DOLINB=DOLINB.OR.LINBND
+c$$$  ELSE
+c$$$  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
+c$$$  CALL HND_HNDERR(3,ERRMSG)
+c$$$  ENDIF
+c$$$  ELSE
+c$$$  DUM=-DUM
+c$$$  IF(DUM.LE.TOL) THEN
+c$$$  LINBND=.TRUE.
+c$$$  DOLINB=DOLINB.OR.LINBND
+c$$$  ELSE
+c$$$  LINBND=.FALSE.
+c$$$  ENDIF
+c$$$  ENDIF
+         IF(.NOT.LINBND) THEN
+            if (nizmat+4 .gt. mxizmt) call errquit
+     $           ('autoz angles: too many internals ... reduce '//
+     $           'cvr_scaling or individual radii',0)
+            IZMAT(NIZMAT+1)=ITWO
+            IZMAT(NIZMAT+2)=IJKANG(1,IANG)
+            IZMAT(NIZMAT+3)=IJKANG(2,IANG)
+            IZMAT(NIZMAT+4)=IJKANG(3,IANG)
+            NIZMAT=NIZMAT+4
+            NZVAR =NZVAR +1
+            NUMANG=NUMANG+1
+         else
+            write(6,303) ijkang(1,iang), ijkang(2,iang), ijkang(3,iang), 
+     $           linbnd
+ 303        format(' rejecting bond angle due to linearity ',
+     $           (2x,3i4,2x,l1))
+         ENDIF
+      ENDIF
+      GO TO 100
+ 110  CONTINUE
+C     
       IF(DBUG) THEN
          IF(NANG.GT.1) THEN
             WRITE(IW,9994)
             DO MANG=1,NANG
                WRITE(IW,9993) MANG,IJKANG(1,MANG),
-     1                             IJKANG(2,MANG),IJKANG(3,MANG)
+     1              IJKANG(2,MANG),IJKANG(3,MANG)
             ENDDO
             IF(DOLINB) THEN
                WRITE(IW,9991)
@@ -3942,28 +4015,28 @@ C
             WRITE(IW,9992)
          ENDIF
       ENDIF
-C
+C     
       IF(DBUG) THEN
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
          WRITE(IW,*)    'NZVAR = ',NZVAR
       ENDIF
-C
+C     
       RETURN
  9999 FORMAT(' IN -ZMTYP2- ',/,' ----------- ')
  9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
  9997 FORMAT(12(I4,1H,))
  9996 FORMAT(' $END   ')
  9995 FORMAT(' SOMETHING WRONG WITH BOND ',I2,' OF ATOM ',I4,
-     1       ' WITH -ICON-, -JCON- = ',2I5)
+     1     ' WITH -ICON-, -JCON- = ',2I5)
  9994 FORMAT(' TABLE OF ANGLES = ')
  9993 FORMAT(4I5)
  9992 FORMAT(' NO BOND ANGLES FOUND ')
  9991 FORMAT(' COLLINEAR ATOMS FOUND. DO -LINEAR BENDS- ... ')
       END
       SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1     NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
+     1     numatom,NBNDS,IJBNDS,IIBNDS,NIBNDS, ! note rename nat -> numatom
      2     IJKLTO,NUMTOR, max_tor_per_bond)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITHREE=3)
@@ -3986,7 +4059,8 @@ C
       DIMENSION NIBNDS(  *)
       DIMENSION ERRMSG(3)        
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP3-'/
-      DATA TOL    /1.0D-08/
+      data tol    /1.0d-01/     ! sin(5.7 degrees) = 0.1
+*     DATA TOL    /1.0D-08/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
@@ -4010,90 +4084,205 @@ C
          IJBOND(1,IJBND)=IJBNDS(1,IJBND)
          IJBOND(2,IJBND)=IJBNDS(2,IJBND)
       ENDDO
-      DO IAT=1,NAT
+      DO IAT=1,numatom
          IIBOND(IAT)=IIBNDS(IAT)
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
 C     
-      IF(NAT.LE.3) RETURN
+      ntor=0
+      IF(numatom.LE.3) RETURN
 C     
-      NTOR=0
-      DO IAT=1,NAT
-         DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
-            ICON=IJBOND(1,IJBND)
-            JCON=IJBOND(2,IJBND)
-            IF(ICON.NE.IAT) THEN
-               WRITE(IW,9995) IJBND,IAT,ICON,JCON
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-            JAT=JCON
-            ntor_for_ij = 0
-            IF(NIBOND(JAT).GT.1) THEN
-               DO JKBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
-                  JCON=IJBOND(1,JKBND)
-                  KCON=IJBOND(2,JKBND)
-                  IF(JCON.NE.JAT) THEN
-                     WRITE(IW,9995) JKBND,JAT,JCON,KCON
-                     CALL HND_HNDERR(3,ERRMSG)
-                  ENDIF
-                  KAT=KCON
-                  IF(KAT.NE.IAT) THEN
-                     IF(NIBOND(KAT).GT.1) THEN
-                        DO KLBND=IIBOND(KAT)+1,IIBOND(KAT)+NIBOND(KAT)
-                           KCON=IJBOND(1,KLBND)
-                           LCON=IJBOND(2,KLBND)
-                           IF(KCON.NE.KAT) THEN
-                              WRITE(IW,9995) KLBND,KAT,KCON,LCON
-                              CALL HND_HNDERR(3,ERRMSG)
-                           ENDIF
-                           LAT=LCON
+      if (max_tor_per_bond .eq. 0) return
 c     
-c     (H2O)5 test case showed some logic was missing.  Can avoid 
-c     some duplicates by restricting i>l unless are restricting 
-c     to a subset of the torsions.
+c     Currently construct the torsions from the bond info.
+c     It might be easier if we instead drove off the angle info
+c     since we already know that the angles are good and much
+c     of the same logic is reproduced here.
 c
-                           if (max_tor_per_bond .lt. 100) then
-                              odoit = (
-     $                             iat.ne.jat .and.
-     $                             iat.ne.kat .and. 
-     $                             iat.ne.lat .and.
-     $                             jat.ne.kat .and.
-     $                             jat.ne.lat .and.
-     $                             kat.ne.lat)
-                           else
-                              odoit = (
-     $                             iat.ne.jat .and.
-     $                             iat.ne.kat .and. 
-     $                             iat.gt.lat .and.
-     $                             jat.ne.kat .and.
-     $                             jat.ne.lat .and.
-     $                             kat.ne.lat)
-                           endif
-                           if (odoit) then
-                              IF(NTOR.EQ.MXTORS) THEN
-                                 WRITE(IW,*) 'TOO MANY TORSIONS',
-     1                                ' NTOR, MXTORS = ',NTOR,
-     2                                MXTORS
-                                 CALL HND_HNDERR(3,ERRMSG)
-                              ENDIF
-                              NTOR=NTOR+1
-                              IJKLTO(1,NTOR)=IAT
-                              IJKLTO(2,NTOR)=JAT
-                              IJKLTO(3,NTOR)=KAT
-                              IJKLTO(4,NTOR)=LAT
+      do iat=1,numatom
+         do ijbnd=iibond(iat)+1,iibond(iat)+nibond(iat)
+            jat=ijbond(2,ijbnd)
+            if(ijbond(1,ijbnd).ne.iat) 
+     $           call errquit('zmtyp3: iat not my bond?',ijbnd)
+            ntor_for_ij = 0
+            do jkbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
+               kat=ijbond(2,jkbnd)
+               if(ijbond(1,jkbnd).ne.jat) 
+     $              call errquit('zmtyp3: jat not my bond?',jkbnd)
+               if(kat.ne.iat) then
+                  rij=sqrt(distsq(iat,jat))
+                  rjk=sqrt(distsq(jat,kat))
+                  rik=sqrt(distsq(iat,kat))
+                  cosbj=(rij**2+rjk**2-rik**2)/(two*rij*rjk)
+                  linijk = sin(acos(min(1d0,abs(cosbj)))) .le. tol
 c     
-                              ntor_for_ij = ntor_for_ij + 1
-                              if (ntor_for_ij.eq.max_tor_per_bond)
-     $                             goto 1212 ! Next ij
-                           endif
-                        ENDDO
-                     ENDIF
-                  ENDIF
-               ENDDO
-            ENDIF
- 1212       continue            ! Jump here for next ij
-         ENDDO
-      ENDDO
+                  do klbnd=iibond(kat)+1,iibond(kat)+nibond(kat)
+                     lat=ijbond(2,klbnd)
+                     if(ijbond(1,klbnd).ne.kat) 
+     $                    call errquit('zmtyp3: kat not my bond?',klbnd)
+c     
+c     (H2O)5 test case showed some logic was missing.  Also, can avoid
+c     generating some duplicates by restricting i>l unless are restricting 
+c     to a subset of the torsions or have linear angles.
+c     
+                     odoit = ( 
+     $                    iat.ne.jat .and. iat.ne.kat .and. 
+     $                    iat.ne.lat .and. jat.ne.kat .and.
+     $                    jat.ne.lat .and. kat.ne.lat )
+c     
+                     if (odoit) then
+                        rkl=sqrt(distsq(kat,lat))
+                        rjl=sqrt(distsq(jat,lat))
+                        cosbk=(rjk**2+rkl**2-rjl**2)/(two*rjk*rkl)
+                        linjkl = sin(acos(min(1d0,abs(cosbk)))) 
+     $                       .le. tol
+c     
+                        if (linijk .and. linjkl) then
+c     
+c     Both bonds are linear.  Go fishing for ILMN.
+c     
+                           write(6,*) ' Four colinear centers ',
+     $                          iat, jat, kat, lat
+                           do lmbnd=iibond(lat)+1,
+     $                          iibond(lat)+nibond(lat)
+                              mat=ijbond(2,lmbnd)
+                              if (mat.ne.iat .and. mat.ne.jat
+     $                             .and. mat.ne.kat) then
+                                 do mnbnd=iibond(mat)+1,
+     $                                iibond(mat)+nibond(mat)
+                                    nat=ijbond(2,mnbnd)
+                                    if (nat.ne.iat .and. nat.ne.jat
+     $                                   .and. nat.ne.kat .and.
+     $                                   nat.ne.lat) then
+                                       write(6,*) ' Colinear IJKL -',
+     $                                      ' use ILMN', 
+     $                                iat, jat, kat, lat, mat, nat
+                                       call geom_add_tor(
+     $                                      iat,lat,mat,nat,
+     $                                      ntor, ijklto, mxtors, 
+     $                                      ntor_for_ij)
+                                    endif
+                                 enddo
+                              endif
+                           enddo
+                        else if (linijk) then
+c     
+c     IJK is linear.  Instead of IJKL use IJLK.  Don't do this
+c     now since it will be done as LKJI.
+c     
+                           continue
+c$$$  write(6,*) ' Linear IJK ', iat, jat, kat, lat
+c$$$  iii = iat
+c$$$  jjj = jat
+c$$$  kkk = lat
+c$$$  lll = kat
+                        else if (linjkl) then
+c     
+c     JKL is linear.  First try IJLM where M is bonded to L.
+c     Also add JIKL.  Fails jeff.nw without this.
+c     
+                           do lmbnd=iibond(lat)+1,
+     $                          iibond(lat)+nibond(lat)
+                              mat=ijbond(2,lmbnd)
+                              if (mat.ne.iat .and. mat.ne.jat
+     $                             .and. mat.ne.kat) then
+                                 write(6,*) ' Linear JKL - use IJLM', 
+     $                                iat, jat, kat, lat, mat
+                                 call geom_add_tor(iat,jat,lat,mat,
+     $                                ntor, ijklto, mxtors, ntor_for_ij)
+                              endif
+                           enddo
+                           call geom_add_tor(jat,iat,kat,lat,
+     $                          ntor, ijklto, mxtors, ntor_for_ij)
+                        else
+c     
+c     Nothing is linear.  Wow.
+c     
+                           call geom_add_tor(iat,jat,kat,lat,
+     $                          ntor, ijklto, mxtors, ntor_for_ij)
+                        endif
+                        if (ntor_for_ij.eq.max_tor_per_bond)
+     $                       goto 1212 ! next ij
+c     
+                     endif      ! if (odoit)
+                  enddo         ! do klbnd
+               endif            ! if (kat.ne.iat)
+            enddo               ! do jkbnd
+c     
+            if (ntor_for_ij.eq.0 .and. numatom.gt.3) then
+c     
+c     Sigh.  We have not found a valid torsion for this bond.
+c     This can happen because of linear angles or even for
+c     simple things like formaldehyde.  We've looked at all
+c     sequences i-j-k-l ... try now 
+c     .           k
+c     .          /
+c     .     i - j
+c     .          \
+c     .           l
+c     specifying the torsion as i-j-k-l.  Could do this as an 
+c     out-of-plane bend, but this will work also.
+c     
+c     Another catch is that for four such atoms there is only
+c     one independent out-of-plane bend ... so comparison
+c     for duplicates must be done without regard to order.
+c     
+c     But only putting in the unique one will break symmetry
+c     so bite the big enchilada.
+c     
+c     Using i as the central atom will be considered later.
+c     
+               do jkbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
+                  kat=ijbond(2,jkbnd)
+                  if(kat.ne.iat) then
+                     do jlbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
+                        lat=ijbond(2,jlbnd)
+                        if(lat.ne.iat .and. lat.ne.kat) then
+                           call geom_add_tor(iat, jat, kat, lat,
+     $                          ntor, ijklto, mxtors, ntor_for_ij)
+c$$$  iii = iat
+c$$$  jjj = jat
+c$$$  kkk = kat
+c$$$  lll = lat
+c$$$  if (iii .gt. lll) then
+c$$$  itmp = iii
+c$$$  iii  = lll
+c$$$  lll  = itmp
+c$$$  itmp = jjj
+c$$$  jjj  = kkk
+c$$$  kkk  = itmp
+c$$$  endif
+c$$$  call geom_sort4(iii,jjj,kkk,lll,i1,i2,i3,i4)
+c$$$  do itor = 1, ntor
+c$$$  call geom_sort4(ijklto(1,itor),
+c$$$  $                             ijklto(2,itor), ijklto(3,itor),
+c$$$  $                             ijklto(4,itor), j1, j2, j3, j4)
+c$$$  if (i1.eq.j1 .and. i2.eq.j2 .and.
+c$$$  $                             i3.eq.j3 .and. i4.eq.j4) goto 777
+c$$$  c$$$                              if ( iii.eq.ijklto(1,itor) .and.
+c$$$  c$$$     $                             jjj.eq.ijklto(2,itor) .and.
+c$$$  c$$$     $                             kkk.eq.ijklto(3,itor) .and.
+c$$$  c$$$     $                             lll.eq.ijklto(4,itor) ) goto 777
+c$$$  enddo
+c$$$  if(ntor.eq.mxtors) call errquit
+c$$$  $                          ('autoz: too many torsions',ntor)
+c$$$  c
+c$$$  write(6,*) ' OOPB ', iat, jat, kat, lat
+c$$$  ntor=ntor+1
+c$$$  ijklto(1,ntor)=iii
+c$$$  ijklto(2,ntor)=jjj
+c$$$  ijklto(3,ntor)=kkk
+c$$$  ijklto(4,ntor)=lll
+c$$$  777                       goto 1212 ! One torsion is enuf ... next IJ
+                        endif   ! if (4 distinct atoms)
+                     enddo      ! do jlbnd
+                  endif         ! if (kat .ne. iat)
+               enddo            ! do jkbnd
+            endif               ! if (missing a torsion)
+ 1212       continue            ! jump here for next ij
+         enddo                  ! do ijbnd
+      enddo                     ! do iat
+c     
       IF(DBUG) THEN
          IF(NTOR.GT.1) THEN
             WRITE(IW,9994)
@@ -4165,38 +4354,40 @@ C
          RJLSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(4,ITOR))
          COSBJ=(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
          COSBK=(RJKSQ+RKLSQ-RJLSQ)/(TWO*RJK*RKL)
-         DUM  =ABS(COSBJ)-ONE
-         IF(DUM.GT.ZERO) THEN
-            IF(DUM.LE.TOL) THEN
-               LINIJK=.TRUE.
-            ELSE
-               WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-         ELSE
-            DUM=-DUM
-            IF(DUM.LE.TOL) THEN
-               LINIJK=.TRUE.
-            ELSE
-               LINIJK=.FALSE.
-            ENDIF
-         ENDIF
-         DUM  =ABS(COSBK)-ONE
-         IF(DUM.GT.ZERO) THEN
-            IF(DUM.LE.TOL) THEN
-               LINJKL=.TRUE.
-            ELSE
-               WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
-               CALL HND_HNDERR(3,ERRMSG)
-            ENDIF
-         ELSE
-            DUM=-DUM
-            IF(DUM.LE.TOL) THEN
-               LINJKL=.TRUE.
-            ELSE
-               LINJKL=.FALSE.
-            ENDIF
-         ENDIF
+         linijk = sin(acos(min(1d0,abs(cosbj)))) .le. tol
+         linjkl = sin(acos(min(1d0,abs(cosbk)))) .le. tol
+c$$$  DUM  = ABS(COSBJ)-ONE
+c$$$  IF(DUM.GT.ZERO) THEN
+c$$$  IF(DUM.LE.TOL) THEN
+c$$$  LINIJK=.TRUE.
+c$$$  ELSE
+c$$$  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP3-'
+c$$$  CALL HND_HNDERR(3,ERRMSG)
+c$$$  ENDIF
+c$$$  ELSE
+c$$$  DUM=-DUM
+c$$$  IF(DUM.LE.TOL) THEN
+c$$$  LINIJK=.TRUE.
+c$$$  ELSE
+c$$$  LINIJK=.FALSE.
+c$$$  ENDIF
+c$$$  ENDIF
+c$$$  DUM  =ABS(COSBK)-ONE
+c$$$  IF(DUM.GT.ZERO) THEN
+c$$$  IF(DUM.LE.TOL) THEN
+c$$$  LINJKL=.TRUE.
+c$$$  ELSE
+c$$$  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP3-'
+c$$$  CALL HND_HNDERR(3,ERRMSG)
+c$$$  ENDIF
+c$$$  ELSE
+c$$$  DUM=-DUM
+c$$$  IF(DUM.LE.TOL) THEN
+c$$$  LINJKL=.TRUE.
+c$$$  ELSE
+c$$$  LINJKL=.FALSE.
+c$$$  ENDIF
+c$$$  ENDIF
          IF(.NOT.LINIJK.AND..NOT.LINJKL) THEN
             if (nizmat+5 .gt. mxizmt) call errquit
      $           ('autoz torsions: too many internals. reduce '//
@@ -4208,6 +4399,12 @@ C
             IZMAT(NIZMAT+5)=IJKLTO(4,ITOR)
             NIZMAT=NIZMAT+5
             NZVAR =NZVAR +1
+         else
+            write(6,303) ijklto(1,itor), ijklto(2,itor), ijklto(3,itor), 
+     $           linijk, ijklto(2,itor), ijklto(3,itor), ijklto(4,itor),
+     $           linjkl
+ 303        format(' rejecting torsion due to linear angle ',
+     $           2(2x,3i4,2x,l1))
          ENDIF
       ENDIF
       GO TO 100
@@ -6123,9 +6320,9 @@ c
                ijxtra(2,numijxtra) = jmin
                nnew = nnew + 1
             else
-*               if (oprint) write(6,45) iclus, jclus, imin, jmin, rmin
-* 45            format(' Clusters',2i4,' closest atoms are',
-*     $              2i5,' r =',f5.2, ' ... too long?')
+               if (oprint) write(6,45) iclus, jclus, imin, jmin, rmin
+ 45            format(' Clusters',2i4,' closest atoms are',
+     $              2i5,' r =',f5.2, ' ... too long?')
                continue
             endif
          enddo
@@ -6220,5 +6417,85 @@ c
       call errquit('geom_hnd_get_data: reading m failed',0)
  102  write(6,*) ' name = ', name, ' n = ', n, ' m = ', m
       call errquit('geom_hnd_get_data: dimension mismatch',0)
+c
+      end
+      subroutine geom_sort4(iii,jjj,kkk,lll,i1,i2,i3,i4)
+      implicit none
+      integer iii,jjj,kkk,lll,i1,i2,i3,i4
+c
+c     Return in i[1-4] iii...lll sorted into ascending order
+c
+      integer i, j, k(4), itmp
+c
+      k(1) = iii
+      k(2) = jjj
+      k(3) = kkk
+      k(4) = lll
+      do i = 1, 4
+         do j = i, 4
+            if (k(i).gt.k(j)) then
+               itmp = k(i)
+               k(i) = k(j)
+               k(j) = itmp
+            endif
+         enddo
+      enddo
+      i1 = k(1)
+      i2 = k(2)
+      i3 = k(3)
+      i4 = k(4)
+c
+      end
+      subroutine geom_add_tor(iat, jat, kat, lat,
+     $     ntor, ijklto, mxtors, ntor_for_ij)
+      implicit none
+c
+      integer iat, jat, kat, lat
+      integer ntor
+      integer ijklto(4,*)
+      integer mxtors, ntor_for_ij
+c
+c     Add the torsion to the list checking for duplicates
+c
+      integer iii, jjj, kkk, lll
+      integer itmp, itor
+c     
+c     Put indices into a standard order
+c     
+      iii = iat
+      jjj = jat
+      kkk = kat
+      lll = lat
+c
+      if (iii .gt. lll) then
+         itmp = iii
+         iii  = lll
+         lll  = itmp
+         itmp = jjj
+         jjj  = kkk
+         kkk  = itmp
+      endif
+c     
+c     Figure out if this is a duplicate.  Must remove duplicates
+c     now otherwise we will not know if something is missing.
+c     
+c     But this should count in the overall number for this bond.  Really???
+c     
+      ntor_for_ij = ntor_for_ij + 1
+      do itor = 1, ntor
+         if ( iii.eq.ijklto(1,itor) .and.
+     $        jjj.eq.ijklto(2,itor) .and.
+     $        kkk.eq.ijklto(3,itor) .and.
+     $        lll.eq.ijklto(4,itor) ) goto 666
+      enddo
+      if(ntor.eq.mxtors) call errquit
+     $     ('autoz: too many torsions',ntor)
+      ntor=ntor+1
+      ijklto(1,ntor)=iii
+      ijklto(2,ntor)=jjj
+      ijklto(3,ntor)=kkk
+      ijklto(4,ntor)=lll
+c
+ 666  return
 c
       end

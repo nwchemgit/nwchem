@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.87 1999-06-03 21:14:35 d3e129 Exp $
+C$Id: geom.F,v 1.88 1999-06-03 21:58:35 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -339,6 +339,8 @@ c
 c
 c     Zmatrix info
 c
+      tmp(k:) = ':zmt_source'
+      s = s .and. rtdb_cget(rtdb, tmp, 1, zmt_source(geom))
       tmp(k:) = ':zmt_nizmat'
       if (rtdb_get(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))) then
          tmp(k:) = ':zmt_izmat'
@@ -358,8 +360,6 @@ c
          tmp(k:) = ':zmt_varname'
          s = s .and. rtdb_cget(rtdb, tmp, zmt_nzvar(geom), 
      $        zmt_varname(1,geom))
-         tmp(k:) = ':zmt_source'
-         s = s .and. rtdb_cget(rtdb, tmp, 1, zmt_source(geom))
          tmp(k:) = ':zmt_maxtor'
          s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, zmt_maxtor(geom))
          tmp(k:) = ':zmt_ijbond'
@@ -658,7 +658,9 @@ c
 c
 c     Zmatrix info
 c
-      if (zmt_nizmat(geom) .gt. 0) then
+      tmp(k:) = ':zmt_source'
+      s = s .and. rtdb_cput(rtdb, tmp, 1, zmt_source(geom))
+      if (zmt_source(geom) .ne. ' ') then
          tmp(k:) = ':zmt_nizmat'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_nizmat(geom))
          tmp(k:) = ':zmt_izmat'
@@ -679,8 +681,6 @@ c
          tmp(k:) = ':zmt_varname'
          s = s .and. rtdb_cput(rtdb, tmp, zmt_nzvar(geom), 
      $        zmt_varname(1,geom))
-         tmp(k:) = ':zmt_source'
-         s = s .and. rtdb_cput(rtdb, tmp, 1, zmt_source(geom))
          tmp(k:) = ':zmt_maxtor'
          s = s .and. rtdb_put(rtdb, tmp, mt_int, 1, zmt_maxtor(geom))
          tmp(k:) = ':zmt_ijbond'

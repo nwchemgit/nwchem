@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.98 1999-06-02 05:49:55 d3e129 Exp $
+C     $Id: geom_input.F,v 1.99 1999-06-03 21:58:36 d3g681 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -21,7 +21,6 @@ c
       logical oautoz
       logical oautosym
       logical ocenter
-      logical oforce_autoz
       logical include_bqbq
       logical oprint_sym
       integer nzinput
@@ -89,7 +88,6 @@ c
       oprint_sym = .false.
       include_bqbq = .false.
       ocenter = .true.
-      oforce_autoz = .false.
       nzinput=0
       threquiv = 1d-4
 c     
@@ -113,7 +111,6 @@ c
      &           ('error parsing real value of angstrom_to_au',911)
          else if (inp_compare(.false.,'autoz',field)) then
             oautoz       = .true.  
-            oforce_autoz = .true.
          else if (inp_compare(.false.,'noautoz',field)) then
             oautoz       = .false.
          else if (inp_compare(.false.,'autosym',field)) then
@@ -364,20 +361,20 @@ c     Force exact symetry on the coordinates
 c     
       call sym_geom_project(geom, threquiv)
 c     
-      if(oautoz) then
-         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_get failed', 0)
+      if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
+     $     call errquit('geom_input: geom_cart_get failed', 0)
+      if (ncenter .eq. 1) oautoz = .false. ! No point for atoms
+c
+c     call auto-z-matrix generation
 c     
-c     ----- call auto-z-matrix generation -----
-c     
-         call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter,
-     $        nzinput,oforce_autoz,oprint)
-      else
-c     
-c     ----- no auto-z -----
-c     
-         if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_get failed', 0)
+      if(oautoz) 
+     $     call geom_zmt_autoz(rtdb,geom,coords,charge,tags,ncenter,
+     $     nzinput,oautoz,oprint)
+c
+c     Autoz may have failed and set autoz=.false.
+c
+      if (.not. oautoz) then
+c     This now seems dead code since no longer pass via common.
          call geom_no_autoz(geom,coords,charge,tags,ncenter,nzinput)
       endif
 c
@@ -409,9 +406,6 @@ c
      &     call errquit
      &     ('geom_input: geom_verify_coords failed',911)
 c
-c
-c
-c     
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0)
 c     
@@ -948,45 +942,50 @@ c                   mxcoor=max(mxcart,mxzmat)
       dimension coords(3,*)
       dimension charge(  *)
       dimension   tags(  *)
-      dimension errmsg(3)
-      data errmsg /'program ','stop in ','-auto_z-'/
 c
       some=.false.
       dbug=.false.
 c
       ir=LuIN 
       iw=LuOut 
-      if(some) then
-         write(iw,9999)
-      endif
+c$$$      if(some) then
+c$$$         write(iw,9999)
+c$$$      endif
 c
-      nat=ncenter
-      do i=1,ncenter
-         atmlab(i)=tags(i)
-         nuc(i)=nint(charge(i))
-         c(1,i)=coords(1,i)
-         c(2,i)=coords(2,i)
-         c(3,i)=coords(3,i)
-      enddo
-      if(dbug) then
-         do i=1,nat    
-            write(iw,9998) i,nuc(i),c(1,i),c(2,i),c(3,i)
-         enddo
-      endif
+c     what the %^$#! is this shit? Passing input via common ?????
 c
-c     ----- no z-matrix data -----
+      nat = 9999999999
+      nzmat = 888888888
+      nzvar = 777777777
+      nvar = 666666666
 c
-      nzmat=0
-      nzvar=0
-      nvar =3*nat
-c
-      return
- 9999 format(' in -geom_no_autoz- ')
- 9998 format(1x,i5,i5,3f10.6)
+c$$$      nat=ncenter
+c$$$      do i=1,ncenter
+c$$$         atmlab(i)=tags(i)
+c$$$         nuc(i)=nint(charge(i))
+c$$$         c(1,i)=coords(1,i)
+c$$$         c(2,i)=coords(2,i)
+c$$$         c(3,i)=coords(3,i)
+c$$$      enddo
+c$$$      if(dbug) then
+c$$$         do i=1,nat    
+c$$$            write(iw,9998) i,nuc(i),c(1,i),c(2,i),c(3,i)
+c$$$         enddo
+c$$$      endif
+c$$$c
+c$$$c     ----- no z-matrix data -----
+c$$$c
+c$$$      nzmat=0
+c$$$      nzvar=0
+c$$$      nvar =3*nat
+c$$$c
+c$$$      return
+c$$$ 9999 format(' in -geom_no_autoz- ')
+c$$$ 9998 format(1x,i5,i5,3f10.6)
       end
       subroutine  geom_zmt_autoz(rtdb,geom,
      1                           coords,charge,tags,ncenter,
-     2                           nzinput,oforce_autoz, oprint)
+     2                           nzinput,oautoz, oprint)
       implicit none
 #include "stdio.fh"
       integer      rtdb
@@ -1013,7 +1012,7 @@ c
       integer      nuc
       integer      nat
       integer      geom
-      logical      oforce_autoz
+      logical      oautoz
       logical      zdone
       logical      dbug 
       logical      some 
@@ -1025,7 +1024,6 @@ c
       double precision zan
       character*16 tags(*)
       character*16 atmlab
-      character*8  errmsg(3)
       common/hnd_iofile/ir,iw
       common/hnd_molnuc/nuc(mxatom)
       common/hnd_mollab/atmlab(mxatom)
@@ -1036,13 +1034,6 @@ c
       double precision zvarsign(mxcoor)
       logical geom_zmt_put_data
       external geom_zmt_put_data
-      data errmsg /'program ','stop in ','-auto_z-'/
-c
-      if(.not.oforce_autoz) then
-         if(nzinput.eq.(3*ncenter-6)) then
-            return
-         endif
-      endif
 c
       dbug=.false.
       some=.false.
@@ -1050,9 +1041,6 @@ c
 c
       ir=LuIN 
       iw=LuOut 
-      if(some) then
-         write(iw,9999)
-      endif
 c
 c     ----- call auto-zmat -----
 c
@@ -1064,43 +1052,38 @@ c
          c(2,i)=coords(2,i)
          c(3,i)=coords(3,i)
       enddo
-      if(dbug) then
-         do i=1,nat    
-            write(iw,9998) i,nuc(i),c(1,i),c(2,i),c(3,i)
-         enddo
-      endif
 c
       call hnd_zmtmak(zdone,geom,oprint)
 c
-      if(.not.zdone) then
-         write(iw,9997)
-         nzmat=0
-      endif
+      if(zdone) then
 c
 c     ----- save -izmat- and -zmat- -----
 c
-      do i = 1, nzvar
-         zvarname(i) = ' '
-         zvarsign(i) = 1d0
-      enddo
-      if (.not. geom_zmt_put_data(geom, nizmat, izmat,
-     $     0, 0, nzvar, zvarname, zvarsign,'autoz'))
-     $     call errquit('geom_zmt_input: bad geom handle',geom)
+         do i = 1, nzvar
+            zvarname(i) = ' '
+            zvarsign(i) = 1d0
+         enddo
+         if (.not. geom_zmt_put_data(geom, nizmat, izmat,
+     $        0, 0, nzvar, zvarname, zvarsign,'autoz'))
+     $        call errquit('geom_zmt_input: bad geom handle',geom)
 c
 c     ----- print -zmat- data -----
 c
-      if (oprint) 
-     $     call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
-c
-      if (.not. zdone) call errquit
-     $     ('geom_input: autoz failed ... adjust AUTOZ options'//
-     $     ' or use NOAUTOZ',0)
+         if (oprint) 
+     $        call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+      else
+         if (oprint) then 
+            write(6,9997)
+            call geom_prt_autoz(zmat,nzvar,izmat,nizmat,c)
+         endif
+         oautoz = .false.
+      endif
 c
       return
- 9999 format(' in -geom_zmt_autoz- ')
- 9998 format(1x,i5,i5,3f10.6)
- 9997 format(' -auto_z- has failed to create a good z-matrix.',/,
-     1       ' program will print the z-matrix, but will not use it.')
+ 9997 format(' AUTOZ has failed to create a good z-matrix.  The',
+     $     ' z-matrix will be printed but not used.',/,
+     $     ' Any geometry optimization will be performed in ',
+     $     'Cartesian coordinates.',/)
  9996 format(' $zmat izmat = ')
  9995 format(12(i5,','))
  9994 format(' $end ')
