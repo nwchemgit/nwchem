@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.7 1998-06-12 21:01:22 d3h449 Exp $
+* $Id: movecs_pr_anal.F,v 1.8 1998-06-12 21:40:36 d3h449 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -204,7 +204,7 @@ c
 c     create a global array to store x, y, z and x^2, y^2, z^2 for each AO
 c
       if (.not. ga_create(mt_dbl, 6*nbf, nbf, 'GXLM',
-     $     32,32,g_xlm)) call errquit('dft_scf: g_xlm',6*nbf*nbf)
+     $     32,32,g_xlm)) call errquit('mo_r_and_r2: g_xlm',6*nbf*nbf)
 c
 c     compute dipoles and quadrupole components for each AO
 c
@@ -239,6 +239,8 @@ c         write(6,*)' x, y, z, x^2, y^2, z^2, r^2 shifted'
 c         call output(r_and_r2, 1, 7, 1, nmo, 7, nmo, 1)
       endif
 c      
+      if (.not. ga_destroy(g_xlm)) call errquit('mo_r_and_r2: ga?',0)
+c
       return
       end
       subroutine xlm_make_ao_poles(basis, center, g_xlm)
