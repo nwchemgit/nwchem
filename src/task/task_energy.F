@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.11 1997-04-10 02:05:56 d3g681 Exp $
+* $Id: task_energy.F,v 1.12 1997-05-04 19:45:23 d3g681 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -129,7 +129,7 @@ c
          if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
      $        call errquit('task_energy: failed storing walltime',0)
 c
-         call geom_print_rtdb_ecce(rtdb)
+         if (theory .ne. 'md') call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
       endif
 c
