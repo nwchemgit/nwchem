@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.8 2000-05-18 21:29:57 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.9 2000-05-20 19:53:34 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -145,6 +145,25 @@ c
         call ga_sync()
 c
         call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad)
+c
+c     ----- add cosmo energy contribution -----
+c
+        if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+           if(ocosmo) then
+              energy=energy+ecosmo
+              osome=.true.
+              osome=osome.and.ga_nodeid().eq.0 
+              if(osome) then
+                 write(6,9999) (energy-ecosmo),ecosmo,energy
+ 9999 format(' energ0 = ',f20.10,/,' ecosmo = ',f20.10,/,
+     $       ' energy = ',f20.10)
+              endif
+           endif
+        endif
+        call ga_sync()
+c
+c   Check convergence
+c
         gnorm = sqrt(ga_ddot(g_grad, g_grad))
         converged = (gnorm.lt.gnorm_tol)
         if (converged) goto 333
