@@ -1,4 +1,4 @@
-* $Id: precalc2.F,v 1.22 1999-07-29 01:05:48 d3e129 Exp $
+* $Id: precalc2.F,v 1.23 2000-03-23 22:51:21 edo Exp $
 c--------------------------------------------------------------------
       subroutine prec2ij(ibl,nblock1, bl,inx)
       implicit real*8 (a-h,o-z)
@@ -2986,7 +2986,11 @@ ctest
                xost_digit  = (nskl-1)*log10(boa_max*cpd_max) 
                lost_digit  = nint( xost_digit)
                if(lost_digit.GT.0) then
-                  lost_const  = nint( log10(const_max) )
+                  if(const_max.gt.1d-14) then
+                     lost_const  = nint( log10(const_max) )
+                  else
+                     lost_const=-14
+                  endif
                   lost_const  = max( -14, lost_const )
                   lost_digit  = lost_digit + lost_const
                   if(lost_digit.gt.lost_allow) stable_kind_1=.false.
@@ -3010,7 +3014,11 @@ c
             xost_digit_1= log10(abcd_max) ! RJH was 0.5d0*
 *            xost_digit  = (nskl-3)*xost_digit_1 ! RJH BAD
             xost_digit  = (nskl-1)*xost_digit_1
-            lost_const  = nint( log10(const_max) )
+            if(const_max.gt.1d-14) then
+               lost_const  = nint( log10(const_max) )
+            else
+               lost_const=-14
+            endif
             lost_const  = max( -14, lost_const )
             lost_digit  = nint( xost_digit ) + lost_const
             if(lost_digit.gt.lost_allow) stable_kind_2=.false.
