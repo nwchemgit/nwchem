@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.22 1998-10-07 23:20:29 og845 Exp $
+c     $Id: xc_perdew91.F,v 1.23 1998-10-21 15:21:49 og845 Exp $
 c
       Implicit none
 c
@@ -160,7 +160,8 @@ c
                 lfacl = lcfac(6)
                nlfacl = nlcfac(6)
                call xc_pw91lda(tol_rho,facl,lfacl,nlfacl,rhoval,
-     &                         dp81drho,lnq,ipol,egas,lqwght)
+     &                         dp81drho,lnq,ipol,egas,lqwght,
+     ,              ldew,func)
             endif
 c
             if (abs(cfac(7)).gt.eps)then
