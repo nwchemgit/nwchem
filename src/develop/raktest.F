@@ -1,6 +1,6 @@
       subroutine raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.17 1994-08-17 05:49:46 d3e129 Exp $
+c $Id: raktest.F,v 1.18 1994-08-22 23:29:36 d3e129 Exp $
       integer rtdb
 c
       logical scf
@@ -18,37 +18,36 @@ c
       write(6,*) ' rak test'
 *rak:      call size_integ(rtdb,'geometry', 'mo basis')
       write(6,*)'====================================================='
-      write(6,*)' acc = high '
-      call int_acc_high()
+      write(6,*)' acc = high ,1.0d-20'
       t1 = etime(tarray)
-      call dointsum(rtdb,'geometry', 'mo basis')
+      call dointsum(rtdb,'geometry', 'mo basis',1.0d-20)
       t1 = etime(tarray) - t1 
       write(6,'(a,f10.3)')' dointsum time: ',t1
       write(6,*)'====================================================='
-      write(6,*)'====================================================='
-      write(6,*)' acc = std '
-      call int_acc_std()
-      t1 = etime(tarray)
-      call dointsum(rtdb,'geometry', 'mo basis')
-      t1 = etime(tarray) - t1 
-      write(6,'(a,f10.3)')' dointsum time: ',t1
-      write(6,*)'====================================================='
-      write(6,*)'====================================================='
-      write(6,*)' acc = 1.0d-06 '
-      call int_acc_set(1.0d-06)
-      t1 = etime(tarray)
-      call dointsum(rtdb,'geometry', 'mo basis')
-      t1 = etime(tarray) - t1 
-      write(6,'(a,f10.3)')' dointsum time: ',t1
-      write(6,*)'====================================================='
-      write(6,*)'====================================================='
-      write(6,*)' acc = 1.0d-03 '
-      call int_acc_set(1.0d-03)
-      t1 = etime(tarray)
-      call dointsum(rtdb,'geometry', 'mo basis')
-      t1 = etime(tarray) - t1 
-      write(6,'(a,f10.3)')' dointsum time: ',t1
-      write(6,*)'====================================================='
+      call ga_sync()
+      call ga_sync()
+      call ga_sync()
+*rak:      write(6,*)'====================================================='
+*rak:      write(6,*)' acc = std 1.0d-10'
+*rak:      t1 = etime(tarray)
+*rak:      call dointsum(rtdb,'geometry', 'mo basis',1.0d-10)
+*rak:      t1 = etime(tarray) - t1 
+*rak:      write(6,'(a,f10.3)')' dointsum time: ',t1
+*rak:      write(6,*)'====================================================='
+*rak:      write(6,*)'====================================================='
+*rak:      write(6,*)' acc = 1.0d-06 '
+*rak:      t1 = etime(tarray)
+*rak:      call dointsum(rtdb,'geometry', 'mo basis',1.0d-06)
+*rak:      t1 = etime(tarray) - t1 
+*rak:      write(6,'(a,f10.3)')' dointsum time: ',t1
+*rak:      write(6,*)'====================================================='
+*rak:      write(6,*)'====================================================='
+*rak:      write(6,*)' acc = 1.0d-03 '
+*rak:      t1 = etime(tarray)
+*rak:      call dointsum(rtdb,'geometry', 'mo basis', 1.0d-03)
+*rak:      t1 = etime(tarray) - t1 
+*rak:      write(6,'(a,f10.3)')' dointsum time: ',t1
+*rak:      write(6,*)'====================================================='
 *rak:      call derivtest(rtdb,'geometry', 'mo basis')
 *rak:00001 continue
 *rak:      status = .false.
@@ -59,7 +58,6 @@ c
 *rak:      status = stpr_walk(rtdb)
 *rak:      write(6,*)' status of step is ',status
 *rak:     if (.not.status) goto 00001
-
       end
 *rak:      subroutine size_integ(rtdb,geom_name, basis_name)
 *rak:      implicit none
@@ -127,7 +125,7 @@ c
 *rak:     &       call errquit('rak:error destroying gbs pair',0)
 *rak:c
 *rak:      end
-      subroutine dointsum(rtdb,geom_name, basis_name)
+      subroutine dointsum(rtdb,geom_name, basis_name, tol2e)
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -135,6 +133,7 @@ c
 c
       integer rtdb
       integer basis, geom
+      double precision tol2e
       character*(*) geom_name, basis_name
 c
       logical int_normalize
@@ -174,6 +173,7 @@ c
 c      write(6,*)' with integrals  printed '
 c      call int_chk_sum(basis,.true.)
       call int_init(1,basis)
+      call int_acc_set(tol2e)
       call int_terminate()
       call intd_init(1,basis)
       write(6,*)' without integrals  printed '
