@@ -22,12 +22,9 @@ c
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
 c
-      status=rtdb_get(rtdb,'scf:converged',mt_log,1,converged)
-      if (.not. status) then
-         if (.not. scf(rtdb)) then
-            semi_dir_mp2 = .false.
-            return
-         endif
+      if (.not. scf(rtdb)) then
+         semi_dir_mp2 = .false.
+         return
       endif
 c
       if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task))
