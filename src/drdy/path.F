@@ -1,4 +1,4 @@
-C $Id: path.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: path.F,v 1.3 2001-01-19 17:43:12 windus Exp $
       Subroutine drdy_path(ns)
 C
 C  Calculate steepest descent path from saddle point
@@ -8,7 +8,12 @@ C              =2, use Page-McIver LQA algorithm
 C              =3, use Page-McIver CLQA algorithm
 C              =4, use Page-McIver CUBE algorithm
 C
-      Implicit Double Precision (A-H,O-Z)
+      Implicit none
+      Integer ns
+      Integer i,ierr,ii,iopt,j,nbar
+      Double Precision delss,delsh,dxmag,smax,sold,swf,xsign
+
+      Double Precision eps
 c
 #include "drdyP.fh"
 C
@@ -16,132 +21,157 @@ C
 C
       iopt = lgs(31)
       nbar = (n3*(n3+1))/2
-      write (6,600) dels,delsv,dir,slm,slp
+      write (fu6,600) dels,delsv,delhss,dir,slm,slp
       if (iopt.le.1) then
-         write (6,601)
+         write (fu6,601)
       else if (iopt.eq.2) then
-         write (6,602)
+         write (fu6,602)
       else if (iopt.eq.3) then
-         write (6,603)
+         write (fu6,603)
       else
-         write (6,604)
+         write (fu6,604)
       end if
 C
-C Set up for calculation on reactant side          
-      xsign = -1.0d00
-      smax = slm
-      if (ns.gt.0 .and. sgrid(1).lt.0.0d00) then
+      if (lgs(1).ne.0) then
+C Set up for calculation on reactant side (if lgs(1)=0 then no saddle
+C    point and reaction path is in product direction only)
+         xsign = -1.0d00
+         smax = slm
+         if (ns.gt.0 .and. sgrid(1).lt.0.0d00) then
 C Restart from grid point with most negative s value
-         write (6,608)
-         write (6,610) sgrid(1),vgrid(1),(xgrid(i,1),i=1,n3)
-         write (6,611) (dxgrid(i,1),i=1,n3)
-         ii = 0
-         do i = 1,n3
-            x(i) = xgrid(i,1)
-            dx(i) = dxgrid(i,1)
-            do j = 1,i
-               ii = ii + 1
-               f(j,i) = hgrid(ii,1)
-            enddo
-         enddo
-         do i = 2,n3
-            do j = 1,i-1
-               f(i,j) = f(j,i)
-            enddo
-         enddo
-         if (iopt.gt.3) then
-            if (ns.ge.2) then
-               sold = sgrid(2)
-               ii = 0
-               do i = 1,n3
-                  do j = 1,i
-                     ii = ii + 1
-                     fold(j,i) = hgrid(ii,2)
-                  enddo
+            ii = 0
+            dxmag = 0.0d00
+            do i = 1,n3
+               x(i) = xgrid(i,1)
+               dx(i) = dxgrid(i,1)
+               dxmag = dxmag + dx(i)*dx(i)
+               do j = 1,i
+                  ii = ii + 1
+                  f(j,i) = hgrid(ii,1)
+                  f(i,j) = hgrid(ii,1)
                enddo
-               do i = 2,n3
-                  do j = 1,i-1
-                     fold(i,j) = fold(j,i)
+            enddo
+            dxmag = sqrt(dxmag)
+            if (iopt.ge.3) then
+C For PG CLQA and CUBE algorithms we need the Hessian at a previous point
+               if (ns.ge.2) then
+                  sold = sgrid(2)
+                  ii = 0
+                  do i = 1,n3
+                     do j = 1,i
+                        ii = ii + 1
+                        fold(j,i) = hgrid(ii,2)
+                        fold(i,j) = hgrid(ii,2)
+                     enddo
                   enddo
+               else
+C Use saddle point Hessian as previous one
+                  sold = 0.0
+                  do i = 1,n3
+                     do j = 1,n3
+                        fold(j,i) = fspsv(j,i)
+                     enddo
+                  enddo
+               endif
+            endif
+            write(fu6,605)
+            write(fu6,606)
+            write(fu6,607) sgrid(1),vgrid(1),(x(i),i=1,n3)
+            write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
+            s = sgrid(1)
+            delss = 0.0d00
+            delsh = 0.0d00
+            do i = 1,n3
+               dxold(i) = dx(i)/dxmag
+            enddo
+C
+         else
+C Take step off saddle point in reactant direction
+            write(fu6,609)
+            write(fu6,606)
+            write(fu6,607) 0,vspsv-vzero,(xspsv(i),i=1,n3)
+            write(fu6,608) 0,(vec0sv(i),i=1,n3)
+            if (lgs(39).ne.0) write (fu6,6001) vspspsv-vzerosp
+            do i = 1,n3
+               x(i) = xspsv(i)-dels*(vec0sv(i)-0.5d00*dels*vec1sv(i))
+               do j = 1,n3
+                  f(j,i) = fspsv(j,i)
                enddo
-            else
-               sold = sgrid(1) + dels
+            enddo
+            if (iopt.ge.3) then
+C For CLQA and CUBE, store hessian matrix in fold
+               sold = 0.0d00
                do i = 1,n3
                   do j = 1,n3
-                     fold(i,j) = f(i,j)
+                     fold(j,i) = f(j,i)
                   enddo
                enddo
             endif
-         endif
-         s = sgrid(1)
-         delss = 0.0d00
-C
-         Call drdy_path2(iopt,delss,sold,smax,xsign)
-C
-      elseif(lgs(1).ne.0) then
-C Calculation for step off saddle point
-         write (6,605)
-         write (6,610) 0,vspsv-vzero,(xspsv(i),i=1,n3)
-         write (6,611) (vec0sv(i),i=1,n3)
-C Take step off saddle point in reactant direction
-         do i = 1,n3
-            x(i) = xspsv(i) - dels*(vec0sv(i) -
-     &           0.5d00*dels*vec1sv(i))
-            do j = 1,n3
-               f(j,i) = fspsv(j,i)
-            enddo
-         enddo
-C Store hessian matrix in fold
-         if (iopt.ge.3) then
-            sold = 0.0d00
-            do i = 1,n3
-               do j = 1,n3
-                  fold(j,i) = f(j,i)
-               enddo
-            enddo
-         endif
-         s = -dels
-         delss = dels
+            s = -dels
+            delss = dels
+            delsh = dels
 C Calculate g and optionally f at new geometry
-         if (iopt.eq.1 .and. delss.lt.delsv*(1.0d00-eps)) then
-            Call drdy_pot1 (x,v,dx,scr1,amass,natom,n3)
-         else
-            Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,n3tm,nbar)
-         endif
-         write (6,610) s,v-vzero,(x(i),i=1,n3)
-         write (6,611) (dx(i),i=1,n3)
-         if (delss.ge.delsv*(1.0-eps)) then
-            call drdy_rphwrt (7)
-            delss = 0.0d00
+            if (iopt.lt.3 .and. delss.lt.delsv*(1.0d00-eps) .and.
+     *       delsh.lt.delhss*(1.0d00-eps)) then
+               Call drdy_pot1 (x,v,dx,scr1,amass,natom,n3)
+            else
+               Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,
+     *            n3tm,nbar)
+               delsh = 0.0d00
+            endif
+            write(fu6,607) s,v-vzero,(x(i),i=1,n3)
+            dxmag = 0.0d00
+            do i = 1,n3
+               dxmag = dxmag + dx(i)*dx(i)
+            enddo
+            dxmag = sqrt(dxmag)
+            write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
+            do i = 1,n3
+               dxold(i) = dx(i)/dxmag
+            enddo
+            if (delss.ge.delsv*(1.0d00-eps)) then
+               swf = s
+               if(lgs(38).gt.0) call drdy_wfiles(swf,0)
+               if (lgs(39).ne.0) then
+                  call drdy_potsp(x,vspc,scr1,amass,natom,n3)
+                  write (fu6,6001) vspc-vzerosp
+                  if(lgs(38).eq.4) call drdy_wfiles(swf,1)
+               endif
+               call drdy_rphwrt (7)
+               if(lgs(2).ne.0) then
+                  ierr = 0
+                  call drdy_projct(ierr)
+                  if (ierr.eq.0) call drdy_fdiag(n3,nf(5),ierr,lgs(2))
+               endif
+               delss = 0.0d00
+            endif
          endif
 C
-         Call drdy_path2(iopt,delss,sold,smax,xsign)
+         Call drdy_path2(iopt,delss,delsh,sold,smax,xsign)
 C
       endif
 C
 C Calculation on product side
       xsign = 1.0d00
       smax = slp
-      if (ns.gt.0 .and. sgrid(ns).gt.0.0d00) then
+      if (((lgs(1).ne.0.and.ns.gt.0) .or. ns.gt.1) .and. 
+     *   sgrid(ns).gt.0.0d00) then
 C Restart from grid point with most positive s value
-         write (6,609)
-         write (6,610) sgrid(ns),vgrid(ns),(xgrid(i,ns),i=1,n3)
-         write (6,611) (dxgrid(i,ns),i=1,n3)
          ii = 0
+         dxmag = 0.0
          do i = 1,n3
             x(i) = xgrid(i,ns)
             dx(i) = dxgrid(i,ns)
+            dxmag = dxmag + dx(i)*dx(i)
             do j = 1,i
                ii = ii + 1
                f(j,i) = hgrid(ii,ns)
+               f(i,j) = hgrid(ii,ns)
             enddo
          enddo
-         do i = 2,n3
-            do j = 1,i-1
-               f(i,j) = f(j,i)
-            enddo
-         enddo
-         if (iopt.gt.3) then
+         dxmag = sqrt(dxmag)
+         if (iopt.ge.3) then
+C For PM CLQA and CUBE algorithms we need the Hessian at a previous point
             if (ns.ge.2) then
                sold = sgrid(ns-1)
                ii = 0
@@ -149,32 +179,38 @@ C Restart from grid point with most positive s value
                   do j = 1,i
                      ii = ii + 1
                      fold(j,i) = hgrid(ii,ns-1)
-                  enddo
-               enddo
-               do i = 2,n3
-                  do j = 1,i-1
-                     fold(i,j) = fold(j,i)
+                     fold(i,j) = hgrid(ii,ns-1)
                   enddo
                enddo
             else
-               sold = sgrid(ns) - dels
+C Use saddle point Hessian as previous one (note that for lgs(1)=0,
+C  ns>1 so this section will not be called
+               sold = 0.0d00
                do i = 1,n3
                   do j = 1,n3
-                     fold(i,j) = f(i,j)
+                     fold(j,i) = fspsv(j,i)
                   enddo
                enddo
             endif
          endif
+         write(fu6,610)
+         write(fu6,606)
+         write(fu6,607) sgrid(ns),vgrid(ns),(x(i),i=1,n3)
+         write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
+         do i = 1,n3
+            dxold(i) = dx(i)/dxmag
+         enddo
          s = sgrid(ns)
          delss = 0.0d00
-         Call drdy_path2(iopt,delss,sold,smax,xsign)
+         delsh = 0.0d00
 C 
-      elseif(lgs(1).ne.0) then
+      elseif (lgs(1).ne.0) then
 C Calculation for step off saddle point
-         write (6,607)
-         write (6,610) 0,vspsv-vzero,(xspsv(i),i=1,n3)
-         write (6,611) (vec0sv(i),i=1,n3)
-C Take step off saddle point in reactant direction
+         write(fu6,611)
+         write(fu6,606)
+         write(fu6,607) 0,vspsv-vzero,(xspsv(i),i=1,n3)
+         write(fu6,608) 0,(vec0sv(i),i=1,n3)
+C Take step off saddle point in product direction
          do i = 1,n3
             x(i) = xspsv(i) + dels*(vec0sv(i) +
      &           0.5d0*dels*vec1sv(i))
@@ -182,8 +218,8 @@ C Take step off saddle point in reactant direction
                f(j,i) = fspsv(j,i)
             enddo
          enddo
-C Store hessian matrix in fold
          if (iopt.ge.3) then
+C For CLQA and CUBE, store hessian matrix in fold
             sold = 0.0d00
             do i = 1,n3
                do j = 1,n3
@@ -193,79 +229,129 @@ C Store hessian matrix in fold
          endif
          s = dels
          delss = dels
+         delsh = dels
 C Calculate g and optionally f at new geometry
-         if (iopt.eq.1 .and. delss.lt.delsv*(1.0d00-eps)) then
+         if (iopt.lt.3 .and. delss.lt.delsv*(1.0d00-eps) .and.
+     *    delsh.lt.delhss*(1.0-eps)) then
             Call drdy_pot1 (x,v,dx,scr1,amass,natom,n3)
          else
             Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,n3tm,nbar)
+            delsh = 0.0d00
          endif
-         write (6,610) s,v-vzero,(x(i),i=1,n3)
-         write (6,611) (dx(i),i=1,n3)
-         if (delss.ge.delsv*(1.0-eps)) then
+         write(fu6,607) s,v-vzero,(x(i),i=1,n3)
+         dxmag = 0.0
+         do i = 1,n3
+            dxmag = dxmag + dx(i)*dx(i)
+         enddo
+         dxmag = sqrt(dxmag)
+         write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
+         do i = 1,n3
+            dxold(i) = dx(i)/dxmag
+         enddo
+         if (delss.ge.delsv*(1.0d00-eps)) then
+            swf = s
+            if(lgs(38).gt.0) call drdy_wfiles(swf,0)
+            if (lgs(39).ne.0) then
+               call drdy_potsp(x,vspc,scr1,amass,natom,n3)
+               write (fu6,6001) vspc-vzerosp
+               if(lgs(38).eq.4) call drdy_wfiles(swf,1)
+            endif
             call drdy_rphwrt (7)
+            if(lgs(2).ne.0) then
+               ierr = 0
+               call drdy_projct(ierr)
+               if (ierr.eq.0) call drdy_fdiag(n3,nf(5),ierr,lgs(2))
+            endif
             delss = 0.0d00
          endif
-         Call drdy_path2(iopt,delss,sold,smax,xsign)
       else
-C No saddle point, take step from geometry in product valley along MEP
-         write (6,606)
-         write (6,610) 0,vspsv-vzero,(xspsv(i),i=1,n3)
-         write (6,611) (dxspsv(i),i=1,n3)
-         if (iopt.eq.1) then
-            call drdy_euler (n3tm,n3,xspsv,dxspsv,dels)
-         elseif (iopt.ge.2) then
-            ndbar = (n3*(n3+1))/2
-            call drdy_pmlqa (n3tm,n3,ndbar,xspsv,
-     &            dxspsv,fspsv,hess,amass,
-     &            dels,vec0,vec1,u0,scr1,vec2,ierr)
+C No saddle point, take step from starting geometry
+         dxmag = 0.0d00
+         do i = 1,n3
+            x(i) = xspsv(i)
+            dx(i) = dxspsv(i)
+            dxmag = dxmag + dx(i)*dx(i)
+            do j = 1,n3
+               f(j,i) = fspsv(j,i)
+C For CLQA and CUBE, store hessian matrix in fold
+               fold(j,i) = fspsv(j,i)
+            enddo
+         enddo
+         dxmag = sqrt(dxmag)
+         write(fu6,612)
+         write(fu6,606)
+         write(fu6,607) 0,vspsv-vzero,(x(i),i=1,n3)
+         write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
+         if (iopt.le.1) then
+            call drdy_euler (n3tm,n3,x,dx,dels)
+         else
+            ierr = 0
+            call drdy_pmlqa (n3tm,n3,nbar,x,dx,f,hess,amass,
+     *       dels,vec0,vec1,u0,scr1,vec2,ierr)
+            sold = 0.0
          endif
          s = dels
          delss = dels
-C Store hessian matrix in fold
-         if (iopt.ge.3) then
-            sold = 0.0d00
-            do i = 1,n3
-               do j = 1,n3
-                  fold(j,i) = fspsv(j,i)
-               enddo
-            enddo
-         endif
+         delsh = dels
 C Calculate g and f at new geometry
-         if (iopt.eq.1 .and. delss.lt.delsv*(1.0d00-eps)) then
+         if (iopt.lt.3 .and. delss.lt.delsv*(1.0d00-eps) .and.
+     *    delsh.lt.delhss*(1.0d00-eps)) then
             Call drdy_pot1 (x,v,dx,scr1,amass,natom,n3)
          else
             Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,n3tm,nbar)
+            delsh = 0.0d00
          endif
-         write (6,610) s,v-vzero,(x(i),i=1,n3)
-         write (6,611) (dx(i),i=1,n3)
-         if (delss.ge.delsv*(1.0-eps)) then
+         write(fu6,607) s,v-vzero,(x(i),i=1,n3)
+         dxmag = 0.0d00
+         do i = 1,n3
+            dxmag = dxmag + dx(i)*dx(i)
+         enddo
+         dxmag = sqrt(dxmag)
+         write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
+         do i = 1,n3
+            dxold(i) = dx(i)/dxmag
+         enddo
+         if (delss.ge.delsv*(1.0d00-eps)) then
+            swf = s
+            if(lgs(38).gt.0) call drdy_wfiles(swf,0)
+            if (lgs(39).ne.0) then
+               call drdy_potsp(x,vspc,scr1,amass,natom,n3)
+               write (fu6,6001) vspc-vzerosp
+               if(lgs(38).eq.4) call drdy_wfiles(swf,1)
+            endif
             call drdy_rphwrt (7)
-            delss = 0.0d00
+            if(lgs(2).ne.0) then
+               ierr = 0
+               call drdy_projct(ierr)
+               if (ierr.eq.0) call drdy_fdiag(n3,nf(5),ierr,lgs(2))
+            endif
+            delss = 0.0
          endif
-         Call drdy_path2(iopt,delss,sold,smax,xsign)
       endif
 C
-c     Call path2(iopt,delss,sold,smax,xsign)
+      Call drdy_path2(iopt,delss,delsh,sold,smax,xsign)
 C
       Return
-600   Format(//,' Calculate points along reaction path',//,
+600   Format(//,' ********** Calculate points along reaction path',//,
      *   5x,' dels=',T20,1pe13.5,/,5x,' delsv=',T20,1pe13.5,/,
-     *   5x,' dir=',T20,1pe13.5,/,
+     *   5x,' delhss=',T20,1pe13.5,/,5x,' dir=',T20,1pe13.5,/,
      *   5x,' slm=', T20,1pe13.5,/,5x,' slp=',T20,1pe13.5)
 601   Format(/,' Path followed using Euler integrator')
 602   Format(/,' Path followed using Page-McIver LQA algorithm')
 603   Format(/,' Path followed using Page-McIver CLQA algorithm')
 604   Format(/,' Path followed using Page-McIver CUBE algorithm')
-605   Format(/,' Take step from saddle point in reactant direction',
-     *   /,7x,'s',9x,'v',10x,'x/dx=')
-606   Format(/,' Take step from initial geometry along gradient',
-     *   /,7x,'s',9x,'v',10x,'x/dx=')
-607   Format(/,' Take step from saddle point in product direction',
-     *   /,7x,'s',9x,'v',10x,'x/dx=')
-608   Format(/,' Take step from restart geometry in reactant',
-     *   ' direction',/,7x,'s',9x,'v',10x,'x/dx=')
-609   Format(/,' Take step from restart geometry in product',
-     *   ' direction',/,7x,'s',9x,'v',10x,'x/dx=')
-610   Format(1x,0pf10.5,1pe13.5,(t26,1p6e13.5))
-611   Format(t26,1p6e13.5)
+605   Format(/,' Take step from restart geometry in reactant',
+     *   ' direction')
+606   Format(/,'  All quantities in atomic units, x is vector of ',
+     *   'mass-weighted coordinates,',/,'  dx is the normalized mass-',
+     *   'weighted gradient vector, and |dV/x| is the magnitude of',
+     *   ' the gradient',/,9x,'s',7x,'V,|dV/dx|')
+607   Format (t4,0pf12.5,1pe13.5,T33,'x=',(T35,0p9f9.4))
+608   Format (15x,1pe13.5,T32,'dx=',(T35,0p9f9.4))
+6001  Format(11x,'Vsp=',1pe13.5)
+609   Format(/,' Take step from saddle point in reactant direction')
+610   Format(/,' Take step from restart geometry in product',
+     *   ' direction')
+611   Format(/,' Take step from saddle point in product direction')
+612   Format(/,' Take step from initial geometry along gradient')
       End

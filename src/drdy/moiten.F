@@ -1,19 +1,26 @@
-C $Id: moiten.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: moiten.F,v 1.3 2001-01-19 17:43:12 windus Exp $
       Subroutine drdy_moiten (x,amat,apack,eig,vec,scr1,scr2,lcol,
-     *   natom,ndim,ndima)
+     *   natom,ndim)
 C
 C Construct moment of inertia tensor and diagonalize it
 C
-      Implicit Double Precision (A-H,O-Z)
+      Implicit none
+      Integer natom,ndim
       Logical lcol
-      Dimension x(ndim),amat(ndima,ndima),apack(ndim),
-     *   eig(ndima),vec(ndima,ndima),scr1(ndima),scr2(ndima)
+      Double Precision x(ndim),amat(3,3),apack(ndim),
+     *   eig(3),vec(3,3),scr1(3),scr2(3)
+C
+      Integer i,ierr,j,jmax,k,koff,ndima,nbar
+      Double Precision eps,r1mag,vecmx,xc,yc,zc
       Data eps/1.e-6/
 C
-C      write (6,*) ' entered moiten with natom,ndim,ndima='
-C      write (6,*) natom,ndim,ndima
-C      write (6,*) ' x='
-C      write (6,*) (x(i),i=1,ndim)
+      Integer fu6
+      Data fu6/6/
+C
+C      write(fu6,*) ' entered moiten with natom,ndim='
+C      write(fu6,*) natom,ndim
+C      write(fu6,*) ' x='
+C      write(fu6,*) (x(i),i=1,ndim)
       do j = 1,3
          do k = 1,3
             amat(j,k) = 0.0
@@ -41,21 +48,38 @@ C      write (6,*) (x(i),i=1,ndim)
             apack(i) = amat(j,k)
          enddo
       enddo
-C      write (6,*) ' moment of inertia ='
-C      write (6,*) ((amat(j,i),i=1,3),j=1,3)
-C      write (6,*) ' packed ='
-C      write (6,*) (apack(i),i=1,6)
+C      write(fu6,*) ' moment of inertia ='
+C      write(fu6,*) ((amat(j,i),i=1,3),j=1,3)
+C      write(fu6,*) ' packed ='
+C      write(fu6,*) (apack(i),i=1,6)
 C diagonalize the moment of inertia tensor to get the rr1 matrix
+      ndima = 3
       nbar = 6
       call drdy_rsp(ndima,ndima,nbar,apack,eig,1,vec,scr1,scr2,ierr)
       if (ierr .ne. 0) then
-         write (6,6000) ierr
-         stop
+         write(fu6,6000) ierr
+         call errquit('drdy_moiten:problem with drdy_rsp',555)
       endif
-C      write (6,*) ' eigenvalues of tensor='
-C      write (6,*) (eig(i),i=1,3)
-C      write (6,*) ' eigenvectors='
-C      write (6,*) ((vec(j,i),i=1,3),j=1,3)
+C Change phase of eigenvectors so largest component is positive
+      do i = 1,3
+         vecmx = abs(vec(1,i))
+         jmax = 1
+         do j = 2,3
+            if(abs(vec(j,i)).gt.vecmx) then
+               jmax = j
+               vecmx = abs(vec(j,i))
+            endif
+         enddo
+         if (vec(jmax,i).lt.0.0) then
+            do j = 1,3
+               vec(j,i) = -vec(j,i)
+            enddo
+         endif
+      enddo
+C      write(fu6,*) ' eigenvalues of tensor='
+C      write(fu6,*) (eig(i),i=1,3)
+C      write(fu6,*) ' eigenvectors='
+C      write(fu6,*) ((vec(j,i),i=1,3),j=1,3)
 C test for collinear orientation (zero eigenvalue)
       lcol = abs(eig(1)).lt.eps
       if (lcol) then
@@ -69,8 +93,8 @@ C Construct normalized vector from atom 1 to 2 for orientation 1
          do k = 1,3
             vec(k,1) = vec(k,1)/r1mag
          enddo
-C         write (6,*) ' collinear, vec(k,1)='
-C         write (6,*) (vec(k,1),k=1,3)
+C         write(fu6,*) ' collinear, vec(k,1)='
+C         write(fu6,*) (vec(k,1),k=1,3)
       endif
       return
 6000  Format (' in subroutine moiten, error in call to eispack routine',

@@ -1,4 +1,4 @@
-C $Id: cfloat.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: cfloat.F,v 1.3 2001-01-19 17:43:11 windus Exp $
 C**********************************************************************
 C CFLOAT
 C**********************************************************************
@@ -7,12 +7,14 @@ C
 C
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 C
+#include "drdyP.fh"
+C
       CHARACTER*(*) STRING
       CHARACTER*80  NUMBER
       CHARACTER CH
       LOGICAL LEXP,LDEC
 C
-*      write(6,*)' drdy_cfloat:string: <',string,'>'
+*      write(fu6,*)' drdy_cfloat:string: <',string,'>'
       LEXP = .FALSE.
       LDEC = .FALSE.
       LENGTH = LEN(STRING)
@@ -20,7 +22,7 @@ C
          DRDY_CFLOAT = 0.0D0
          RETURN
       ENDIF
-C     WRITE(6,*) LENGTH,STRING
+C     WRITE(fu6,*) LENGTH,STRING
 C
 C     Find the first nonblank character
 C
@@ -55,7 +57,7 @@ C
 C     Make sure there is no blank left
 C
       IF (INDEX(NUMBER,' ') .LE. LENGTH) THEN
-         WRITE(6,1000) STRING
+         WRITE(fu6,1000) STRING
          call errquit ('drdy_cfloat:1: fatal error',911)
       ENDIF
 C
@@ -73,7 +75,7 @@ C
       ISUM = IUE + ILE + IUD + ILD
       IEXP = MAX0(IUE,ILE,IUD,ILD)
       IF (ISUM .GT. IEXP) THEN
-         WRITE(6,1000) STRING
+         WRITE(fu6,1000) STRING
          call errquit('drdy_cfloat:2: fatal error',911)
       ENDIF
       IF (IEXP .NE. 0) THEN
@@ -106,7 +108,7 @@ C
             N = ICHAR(CH) - ICHAR('0')
             F1 = F1 * 10.0D0 + DBLE(N)
          ELSE
-            WRITE(6,1000) STRING
+            WRITE(fu6,1000) STRING
             call errquit('drdy_cfloat:3: fatal error',911)
          ENDIF
 50    CONTINUE
@@ -123,7 +125,7 @@ C
                F2 = F2 * 10.0D0 + DBLE(N)
                J = J + 1
             ELSE
-               WRITE(6,1000) STRING
+               WRITE(fu6,1000) STRING
                call errquit('drdy_cfloat:4: fatal error',911)
             ENDIF
 60       CONTINUE
@@ -150,7 +152,7 @@ C
                N = ICHAR(CH) - ICHAR('0')
                F3 = F3 * 10.0D0 + DBLE(N)
             ELSE
-               WRITE(6,1000) STRING
+               WRITE(fu6,1000) STRING
                call errquit('drdy_cfloat:5: fatal error',911)
             ENDIF
 70       CONTINUE

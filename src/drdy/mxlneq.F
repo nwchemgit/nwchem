@@ -1,10 +1,5 @@
-C $Id: mxlneq.F,v 1.2 2001-01-08 15:51:59 windus Exp $
-C
-C***********************************************************************
-C  MXLNEQ
-C***********************************************************************
-C
-      SUBROUTINE drdy_MXLNEQ (A,NN,IDA,DETT,JRANK,EPS,IN,MM)
+C $Id: mxlneq.F,v 1.3 2001-01-19 17:43:12 windus Exp $
+      Subroutine drdy_mxlneq (a,nn,ida,dett,jrank,eps,in,mm)
 C
 C PROGRAMMED BY R. HOTCHKISS, U. COMP. CTR., U. OF MINN., REVISED OCT.73
 C      modified for the VAX by Bruce Garrett, Nov. 1980
@@ -21,22 +16,18 @@ C*
 C     CALLED BY:
 C                FIVPT,NEWT,PROJCT,TREPT
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 MACHEP
-*:non:f77:std      DIMENSION A(IDA,NN+ABS(MM)),IN(IDA)
-      DIMENSION A(IDA,NN+MM),IN(IDA)
+      Implicit Double Precision (A-H,O-Z)
+C
+      Double Precision MACHEP
+      DIMENSION A(IDA,NN),IN(IDA)
 C
 C     DATA ZERO,ONE/0.0D0,1.0D0/,MACHEP/1.D35/
 C     REVISED BY N.ABUSALBI TO ALLOW A DET OF THE ORDER OF 10**37
 C
       DATA ZERO,ONE / 0.0D0,1.0D0 /,MACHEP / 1.D35 /
       DATA INTMX / 400000 /
-c
-*     check mm => 0
-      if (mm.lt.0) then
-        write(6,*)' mm .lt. 0  mm = ',mm
-        call errquit('drdy_mxlneq: mm fatal error ', 911)
-      endif
+      Integer fu6
+      Data fu6/6/
 C
 C INITIATE SOME LOCAL AND OUTPUT VARIABLES
 C
@@ -49,32 +40,32 @@ C
 C error checking
 C
       IF (N.GT.0.AND.N.LE.ID) GO TO 10
-      WRITE (6,1700)
-      WRITE (6,1000) N,ID
+      WRITE(FU6,1700)
+      WRITE(FU6,1000) N,ID
 *     CALL EXIT
       call errquit('drdy_mxlneq: fatal error',911)
    10 IF (ID.GE.N.AND.ID.LT.INTMX) GO TO 20
-      WRITE (6,1700)
-      WRITE (6,1100) ID,N,INTMX
+      WRITE(FU6,1700)
+      WRITE(FU6,1100) ID,N,INTMX
 *     CALL EXIT
       call errquit('drdy_mxlneq: fatal error',911)
    20 IF ((ONE+OPS).NE.ONE.AND.OPS.GE.ZERO) GO TO 30
-      WRITE (6,1700)
-      WRITE (6,1200) OPS
+      WRITE(FU6,1700)
+      WRITE(FU6,1200) OPS
 *     CALL EXIT
       call errquit('drdy_mxlneq: fatal error',911)
    30 MOD = MM
       NM = IABS(MM)
       IF (NM.LT.INTMX) GO TO 40
-      WRITE (6,1700)
-      WRITE (6,1300) MM,INTMX
+      WRITE(FU6,1700)
+      WRITE(FU6,1300) MM,INTMX
 *     CALL EXIT
       call errquit('drdy_mxlneq: fatal error',911)
    40 NM = NN+NM
       NMIDA = NM*ID*2
       IF (NMIDA.LT.INTMX) GO TO 50
-      WRITE (6,1700)
-      WRITE (6,1400) NMIDA,INTMX
+      WRITE(FU6,1700)
+      WRITE(FU6,1400) NMIDA,INTMX
 *     CALL EXIT
       call errquit('drdy_mxlneq: fatal error',911)
    50 CONTINUE
@@ -122,15 +113,15 @@ C PIVOT IS ZERO, TERMINATE PROGRAM UNLESS MOD=-1,IE, DET ONLY CASE
 C      this version does not have the det only mode
 C ZERO PIVOT MEANS ZERO DET AND EXIT IF DET ONLY MODE
 C
-         WRITE (6,1700)
-         WRITE (6,1500) K
+         WRITE(FU6,1700)
+         WRITE(FU6,1500) K
          jrank = 0
          return
 C
 C ISSUE NON-FATAL MESSAGE, PIV .LE. EPS
 C
-   70    WRITE (6,1700)
-         WRITE (6,1600) K,EPS
+   70    WRITE(FU6,1700)
+         WRITE(FU6,1600) K,EPS
 C
 C SET OPS TO 0 SO SOLUTION MAY CONTINUE AFTER ERROR MESSAGE
 C
@@ -141,8 +132,8 @@ C CALCULATE DETERMINANT AND CHECK FOR OVERFLOW
 C
    80    DET = PIVOT*DET
          IF (ABS(DET).LT.MACHEP) GO TO 90
-         WRITE (6,1700)
-         WRITE (6,1800) K,DET
+         WRITE(FU6,1700)
+         WRITE(FU6,1800) K,DET
          jrank = 0
          return
 C
@@ -296,5 +287,4 @@ C
 *holerith_replaced: 1800 FORMAT(4H k = ,I10/6H det = ,1PE13.5/
 *holerith_replaced:     &        27H at step k det is too large )
 C
-      end
-
+      END

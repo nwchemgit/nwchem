@@ -1,31 +1,23 @@
-C $Id: rgeom.F,v 1.2 2001-01-08 15:52:00 windus Exp $
-c***********************************************************************
-c     rgeom
-c***********************************************************************
+C $Id: rgeom.F,v 1.3 2001-01-19 17:43:14 windus Exp $
       subroutine drdy_rgeom(string,istrt,jtype)
 c     jtype = 1  first reactant 
 c     jtype = 2  second reactant 
 c     jtype = 3  first product 
 c     jtype = 4  second product
 c
-      implicit none             ! double precision (a-h,o-z)
+      Implicit none
 #include "drdyP.fh"
 #include "stdio.fh"
 *::functions:
-      double precision drdy_cfloat
-      external drdy_cfloat
-      integer drdy_icint
-      external drdy_icint
+      Double Precision drdy_cfloat
+      External drdy_cfloat
+      Integer drdy_icint
+      External drdy_icint
 *::passed:
+      Integer istrt,jtype
       character * 80 string
-      integer istrt
-      integer jtype
 *::local:
-      integer nratm, isect, iend, ierr, ibegin
-      integer j, jatm
-      integer fu6
-      
-      fu6 = luout
+      Integer ibegin,iend,ierr,isect,jatm,nratm,j
 c
 c     read in each line of the geometry until an 'end' is found
 c
@@ -36,61 +28,61 @@ c
 c
 c        check for input error
 c
-        if (isect.eq.1.or.iend.eq.1) then
-          write(fu6,1000)
-1000      format(3x,'ERROR:  stationary point geometry specification',
-     *          ' must end with and END')
-          call errquit('drdy_rgeom: fatal error',911)
-        end if
+         if (isect.eq.1.or.iend.eq.1) then
+            write(fu6,1000)
+1000        format(3x,'ERROR:  stationary point geometry specification',
+     *               ' must end with and END')
+            call errquit('drdy_rgeom: fatal error',911)
+         end if
 c
 c        parse line to get atom number
 c
-        ibegin = istrt
-        call drdy_rword(string,istrt,ierr)
-        iend = istrt - 1
-        jatm = drdy_icint(string(ibegin:iend))
+         ibegin = istrt
+         call drdy_rword(string,istrt,ierr)
+         iend = istrt - 1
+         jatm = drdy_icint(string(ibegin:iend))
 c
 c        check that jatm is a legal atom number
 c
-        if (jatm.le.0.or.jatm.gt.natom) then
-          write(fu6,1100) string
-1100      format(3x,'ERROR:  invalid atom number in stationary',
-     *          ' point geometry specification.  Invalid line is: ',
-     *          /1x,a80)
-          call errquit('drdy_rgeom: fatal error',911)
-        end if
+         if (jatm.le.0.or.jatm.gt.natom) then
+             write(fu6,1100) string
+1100         format(3x,'ERROR:  invalid atom number in stationary',
+     *       ' point geometry specification.  Invalid line is: ',
+     *       /1x,a80)
+             call errquit('drdy_rgeom: fatal error',911)
+         end if
 c
 c        save atom number
 c
-        iatsv(nratm,jtype) = jatm
+         iatsv(nratm,jtype) = jatm
 c
 c        parse the x, y and z coordinates off the rest of the line
 c
-        do 2 j=2,0,-1
-          ibegin = istrt
-          call drdy_rword(string,istrt,ierr)
-          iend = istrt - 1
+         do 2 j=2,0,-1
+             ibegin = istrt
+             call drdy_rword(string,istrt,ierr)
+             iend = istrt - 1
 c
 c             check that the coordinate was found on the line
 c
-          if (ierr.eq.1.and.j.ne.0) then
-            write(fu6,1200) string
-1200        format(3x,'ERROR:  invalid cartesian coordinate in',
-     *            ' stationary point.  Invalid line is: ',/a80)
-            call errquit('drdy_rgeom: fatal error',911)
-          end if
+             if (ierr.eq.1.and.j.ne.0) then
+                write(fu6,1200) string
+1200            format(3x,'ERROR:  invalid cartesian coordinate in',
+     *          ' stationary point.  Invalid line is: ',/a80)
+                call errquit('drdy_rgeom: fatal error',911)
+             end if
 c
 c            save coordinate
 c
-          if (jtype.eq.1.or.jtype.eq.2) 
-     *          xr(jatm*3-j,1) = drdy_cfloat(string(ibegin:iend))
-          if (jtype.eq.3.or.jtype.eq.4) 
-     *          xr(jatm*3-j,3) = drdy_cfloat(string(ibegin:iend))
+             if (jtype.eq.1.or.jtype.eq.2) 
+     *           xr(jatm*3-j,1) = drdy_cfloat(string(ibegin:iend))
+             if (jtype.eq.3.or.jtype.eq.4) 
+     *           xr(jatm*3-j,3) = drdy_cfloat(string(ibegin:iend))
 c
-2       continue
+2        continue
 c
-9000    nratm = nratm+1
-        call drdy_rline(string,istrt,isect,iend)
+9000     nratm = nratm+1
+         call drdy_rline(string,istrt,isect,iend)
       end do
       nratom(jtype) = nratm - 1
       return

@@ -1,4 +1,4 @@
-C $Id: nwc_s1.F,v 1.5 2001-01-08 15:51:59 windus Exp $
+C $Id: nwc_s1.F,v 1.6 2001-01-19 17:43:12 windus Exp $
       Subroutine nwc_s1 (x,v,dx,xs,amass,natom,n3)
 C
 C  Run NWChem task to get potential and first derivatives
@@ -25,10 +25,6 @@ C
       Integer i, ncenter_B4_autosym, ncenter, nata
       Integer current_print_level
       logical copy_sym, copy_c1
-C 
-C Transform to cartesian coordinates
-*      write(6,*)' x before ',x
-      Call drdy_trans (2,n3,amass,x,dx)
 *
       call util_print_get_level(current_print_level)
       call util_print_set_level(print_none)
@@ -88,7 +84,7 @@ C Transform to cartesian coordinates
       if (.not.geom_destroy(geom))
      &      call errquit('nwc_s1: geom_destroy failed',911)
       call util_print_set_level(current_print_level)
-*      write(6,*)' x after  ',x
+*      write(luout,*)' x after  ',x
       call drdy_synch(DRDY_CODE_GRADIENT,'nwc_s1')
       call drdy_nwc_get_energy(my_rtdb,v)
       call drdy_nwc_get_coords(my_rtdb,xs)
@@ -99,8 +95,6 @@ C  Get transformation matrix (rotation matrix amat) from the gaussian
 C     standard orientation (xs) to the original orientation (x)
       call drdy_rotmat(x,xs,amat,rr,rrs,rri,natom,n3,ndima)
       call drdy_rotg(dx,amat,rr,natom,n3,ndima)
-C  Transform coordinates and gradient to mass-weight cartesians
-      Call drdy_trans (1,n3,amass,x,dx)
 *
       return
 1000  Format (1x,79a1)

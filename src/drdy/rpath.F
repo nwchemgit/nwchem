@@ -1,26 +1,19 @@
-C $Id: rpath.F,v 1.2 2001-01-08 15:52:00 windus Exp $
-c ***************************************************************************
-c     rpath
-c ***************************************************************************
+C $Id: rpath.F,v 1.3 2001-01-19 17:43:14 windus Exp $
       subroutine drdy_rpath(string,iend,istrt)
 c     Subroutine to read in the input for following the reaction path
-      implicit none ! double precision (a-h,o-z)
+      Implicit none
 #include "stdio.fh"
 #include "drdyP.fh"
 *::functions:
-      double precision drdy_cfloat
-      external drdy_cfloat
+      Double Precision drdy_cfloat
+      External drdy_cfloat
 *::passed
+      Integer iend,istrt
       character * 80 string
-      integer iend
-      integer istrt
 *::local
-      integer isect, ierr
+      Integer ierr,isect
       character * 7 psign
       character * 5 minte
-      integer fu6
-
-      fu6 = luout
 c     read in first keyword in this section
       call drdy_rline(string,istrt,isect,iend)
       do while (isect.eq.0.and.iend.eq.0)
@@ -51,6 +44,16 @@ c SSAVE
                delsv = drdy_cfloat(string(istrt:80))
             else
                write(fu6,*)' ERROR:  variable SSAVE must ',
+     *                    'have an argument'
+               call errquit('drdy_rpath: fatal error',911)
+            end if
+c SHESS
+         else if (string(istrt:istrt+4).eq.'shess') then
+            call drdy_rword(string,istrt,ierr)
+            if(ierr.ne.1) then
+               delhss = drdy_cfloat(string(istrt:80))
+            else
+               write(fu6,*)' ERROR:  variable SHESS must ',
      *                    'have an argument'
                call errquit('drdy_rpath: fatal error',911)
             end if
@@ -106,7 +109,10 @@ c INTEGRA
      *              'have a character argument'
               call errquit('drdy_rpath: fatal error',911)
             endif
-          else
+c PRINTFREQ
+         else if (string(istrt:istrt+8).eq.'printfreq') then
+            lgs(2) = 1
+         else
             write(fu6,1000) string(istrt:80)
             call errquit('drdy_rpath: fatal error',911)
          end if

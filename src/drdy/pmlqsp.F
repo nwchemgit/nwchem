@@ -1,15 +1,18 @@
 c
-c$Id: pmlqsp.F,v 1.2 2000-07-27 16:09:20 bjohnson Exp $
+c$Id: pmlqsp.F,v 1.3 2001-01-19 17:43:13 windus Exp $
 c
-      SUBROUTINE drdy_pmlqsp
+      Subroutine drdy_pmlqsp
 C
 C Calculate second-order term in Taylor series of x(s) at the saddle
 C   point
 C
-      Implicit Double Precision (A-H,O-Z)
+      Implicit none
 C
 #include "drdyP.fh"
-      integer fu6 
+      Integer i,j,jrank,neq
+      Double Precision det,d3lx,tdx,sum1,sum2,vfv,vgvv
+C
+      Double Precision eps
 C
       Data eps/1.d-9/
 c
@@ -27,7 +30,7 @@ C Initial step on the reactant side
          x(i)=xspsv(i)-vec0sv(i)*d3lx
       enddo
 C Calculate the force constant matrix
-      call drdy_pot2 (x,v,vec1sv,f,hess,scr1,amass,natom,n3,n3tm,nbar)
+      call drdy_pot2 (x,v,vec1sv,f,hess,scr1,amass,natom,n3,n3tm,nbardm)
 c Calculate third derivatives of the energy with respect to x with 
 C   and use it to calculate vector with vec0sv.
       tdx = 2.0d00*d3lx
@@ -53,21 +56,18 @@ c Construct matrix for linear equations
          u0(i,n3+1) = vec1sv(i) + vgvv*vec0sv(i)
       enddo
 c
-      fu6 = 6
-c
-c!!! BGJ - The following call does not match the definition in mxnleq.F.
-c!!! BGJ - I removed the last argument to allow it to link under WIN32.
-c!!! BGJ - Someone who knows what this code should make sure this is
-c!!! BGJ - the correct argument to delete.  It doesn't look like it based
-c!!! BGJ - on the mxlneq code but I'm not sure what the proper fix is.
-c!!!      call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,-1,n3+1)
-      call errquit('Bad call in pmlqsp.F - see code comments',0)
-      call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,-1)
-      if (jrank .lt. n3) write (fu6,*) 'jrank = ', jrank
+      neq = 1
+      call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,neq)
+      if (jrank .lt. n3) then
+         write (fu6,6000) jrank
+         call errquit('Problem in pmlqsp.F',0)
+      endif
 c
       do i = 1, n3
          vec1sv(i) = u0(i,n3+1)
       enddo
 c
       return
+6000  Format(' Problem with mxlneq in subroutine pmlqsp, jrank = ',
+     * i5)
       end

@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: drdy_input.F,v 1.3 2001-01-19 17:43:11 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -133,7 +133,10 @@ C $Id: drdy_input.F,v 1.2 2001-01-08 15:51:59 windus Exp $
           elseif(inp_compare(.false.,'sign',field(1:4))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
-          elseif(inp_compare(.false.,'integra',field(1:8))) then
+          elseif(inp_compare(.false.,'integra',field(1:7))) then
+            call drdy_input_add_line(rtdb,count)  ! count incremented
+            goto 00100
+          elseif(inp_compare(.false.,'printfreq',field(1:9))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'title',field(1:5))) then
@@ -217,7 +220,7 @@ C $Id: drdy_input.F,v 1.2 2001-01-08 15:51:59 windus Exp $
       rtdbstring = ' '
       count = count + 1
       write(rtdbstring,10000)count
-*      write(6,*)rtdbstring(1:inp_strlen(rtdbstring)),
+*      write(luout,*)rtdbstring(1:inp_strlen(rtdbstring)),
 *     &      '|||',drdyline(1:inp_strlen(drdyline))
       if (.not.rtdb_cput(rtdb,rtdbstring,1,drdyline))
      &      call errquit(

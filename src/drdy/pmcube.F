@@ -1,4 +1,4 @@
-C $Id: pmcube.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: pmcube.F,v 1.3 2001-01-19 17:43:12 windus Exp $
       Subroutine drdy_pmcube (n3tm,n3,x,dx,fmat,fold,amass,dels,delsf,
      *    vec0,vec1,vec2)
 C
@@ -15,9 +15,13 @@ C   delsf - step size in s for forward difference derivative of f
 C   vec0,vec1,vec2 - scratch arrays
 C   ierr  - error flag
 C
-      Implicit Double Precision (A-H,O-Z)
-      Dimension x(n3tm),dx(n3tm),fmat(n3tm,n3tm),fold(n3tm,n3tm),
-     *   amass(n3tm),vec0(n3tm),vec1(n3tm),vec2(n3tm)
+      Implicit none
+      Integer n3tm,n3
+      Double Precision x(n3tm),dx(n3tm),fmat(n3tm,n3tm),fold(n3tm,n3tm),
+     *   amass(n3tm),dels,delsf,vec0(n3tm),vec1(n3tm),vec2(n3tm)
+C
+      Integer i,ierr,j
+      Double Precision sum,sum1,sum2,vfv1,vfv,vgvv,xnorm
 C
       ierr = 0
 C Normalize gradient
@@ -50,7 +54,7 @@ C use backward difference to approximate G0v0 by (fmat-fold)/delsf
          sum2 = 0.0d00
          do j = 1,n3
             sum1 = sum1 + (fmat(i,j)-fold(i,j))*vec0(j)/delsf
-            sum2 = sum2 + fmat(j,i)*vec1(j)
+            sum2 = sum2 + fmat(i,j)*vec1(j)
          enddo
          vec2(i) = -sum1 - sum2
          vgvv = vgvv + sum1*vec0(i)

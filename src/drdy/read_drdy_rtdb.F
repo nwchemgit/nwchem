@@ -1,10 +1,10 @@
-C $Id: read_drdy_rtdb.F,v 1.2 2001-01-08 15:52:00 windus Exp $
+C $Id: read_drdy_rtdb.F,v 1.3 2001-01-19 17:43:13 windus Exp $
 c
 c ***************************************************************************
 c     read5 -> read_drdy_rtdb
 c ***************************************************************************
       subroutine read_drdy_rtdb(rtdb)
-      implicit none ! double precision (a-h,o-z)
+      implicit none 
 * set up local input file from master nwchem input on rtdb.
 #include "drdyP.fh"
 #include "stdio.fh"
@@ -17,15 +17,12 @@ c ***************************************************************************
       character*255 filename
 *
       character * 80 string
-      integer fu6 
       integer istrt, isect, iend
       integer i, j
       character*255 rtdbname
       character*255 drdystring
       integer len_drdy
       integer count
-*
-      fu6 = luout 
 c
 c read and write file
 c
@@ -40,14 +37,14 @@ c
       count = 0
       rtdbname = 'drdy:nwchem:line:count'
       if (.not.rtdb_get(rtdb,rtdbname,mt_int,1,count)) then
-        write(luout,*)' no input for drdy '
+        write(fu6,*)' no input for drdy '
         call errquit('read_drdy_rtdb: fatal error ',911)
       endif
 c
       do i = 1,count
         write(rtdbname,10000)i
         if (.not.rtdb_cget(rtdb,rtdbname,1,drdystring)) then
-          write(luout,*)' could not rtdb_cget ',
+          write(fu6,*)' could not rtdb_cget ',
      &          rtdbname(1:(inp_strlen(rtdbname)))
           call errquit('read_drdy_rtdb: fatal error ',911)
         endif
@@ -113,7 +110,7 @@ c
 c
       return
 99999 continue
-      write(luout,*)' read_drdy_rtdb: could not open: ',filename
+      write(fu6,*)' read_drdy_rtdb: could not open: ',filename
       call errquit('read_drdy_rtdb: fatal error',911)
 10000 format('drdy:',i10)
       end

@@ -1,11 +1,20 @@
-C $Id: pot2.F,v 1.2 2001-01-08 15:52:00 windus Exp $
-      Subroutine drdy_pot2
-     &      (x,v,dx,fmat,hess,xs,amass,natom,n3,n3tm,ndbar)
-      Implicit Double Precision (A-H,O-Z)
-      Dimension x(n3),dx(n3),fmat(n3tm,n3),hess(ndbar),xs(n3),amass(n3)
+C $Id: pot2.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+      Subroutine drdy_pot2 (x,v,dx,fmat,hess,xs,amass,
+     * natom,ndim,maxdim,maxbar)
 C
+      Implicit none
+      Integer natom,ndim,maxdim,maxbar
+      Double Precision x(ndim),v,dx(ndim),fmat(maxdim,ndim),
+     * hess(maxbar),xs(ndim),amass(ndim)
+C
+C Transform to cartesian coordinates
+      Call drdy_trans (2,ndim,amass,x,dx)
 C potential routine specific for NWChem
-      Call nwc_s2 (x,v,dx,fmat,hess,xs,amass,natom,n3,n3tm,ndbar)
+      Call nwc_s2 (x,v,dx,fmat,hess,xs,natom,ndim,maxdim,maxbar)
+C  Transform coordinates and gradient to mass-weight cartesians
+      Call drdy_trans (1,ndim,amass,x,dx)
+C  Transform hessian matrix to mass-weighted coordinates
+      Call drdy_tranf (1,maxdim,ndim,amass,fmat)
 C
       return
       end

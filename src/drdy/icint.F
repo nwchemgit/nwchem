@@ -1,7 +1,9 @@
-C $Id: icint.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: icint.F,v 1.3 2001-01-19 17:43:12 windus Exp $
 c ***************************************************************************
 c     icint
 c ***************************************************************************
+c
+c This routine is no longer used!  It is now part of io.F.
 c
       integer function drdy_icint(svalue)
 c

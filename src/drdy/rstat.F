@@ -1,9 +1,5 @@
 c
-c$Id: rstat.F,v 1.2 2000-07-27 16:09:20 bjohnson Exp $
-c
-c ***************************************************************************
-c     rstat
-c ***************************************************************************
+c$Id: rstat.F,v 1.3 2001-01-19 17:43:14 windus Exp $
       subroutine drdy_rstat(string,iend,istrt,jtype)
 c     Generic subroutine to read in the input for all the stationary points.
 c     Jtype = 1  first reactant 
@@ -12,13 +8,14 @@ c     Jtype = 3  first product
 c     Jtype = 4  second product
 c     Jtype = 5  saddle point or starting stationary point
 c
-      implicit double precision (a-h,o-z)
+      Implicit none
 #include "stdio.fh"
 #include "drdyP.fh"
+      Integer iend,istrt,jtype
       character * 80 string
+C
+      Integer ierr,isect
       character * 8  idmn 
-      integer fu6
-      fu6 = luout
 c
 c     read in first keyword in this section
 c

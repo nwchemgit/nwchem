@@ -1,5 +1,5 @@
-C $Id: nwc_s2.F,v 1.6 2001-01-08 15:51:59 windus Exp $
-      Subroutine nwc_s2 (x,v,dx,fmat,hess,xs,amass,natom,n3,n3tm,ndbar)
+C $Id: nwc_s2.F,v 1.7 2001-01-19 17:43:12 windus Exp $
+      Subroutine nwc_s2 (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar)
 C
 C  Run NWChem task to get potential and first and second derivatives
 C   for geometry x.
@@ -12,7 +12,7 @@ C
       Integer natom, n3, n3tm, ndbar
       Double Precision v
       Double Precision x(n3),dx(n3),fmat(n3tm,n3),
-     &      hess(ndbar),xs(n3),amass(n3)
+     &      hess(ndbar),xs(n3)
 *
       Integer ndima
       Parameter (ndima=3)
@@ -28,10 +28,6 @@ C
       Integer ncenter_B4_autosym, ncenter, nata
       Integer current_print_level
       logical copy_sym, copy_c1
-C 
-C Transform to cartesian coordinates
-*      write(6,*)' x before ',x
-      Call drdy_trans (2,n3,amass,x,dx)
 *
       call util_print_get_level(current_print_level)
       call util_print_set_level(print_none)
@@ -50,14 +46,22 @@ C Transform to cartesian coordinates
      &      call errquit('nwc_s2: geom_cart_set failed',911)
 *      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
 *     &      call errquit('nwc_s2: geom_rtdb_store failed',911)
+      write(6,*) 'natom and n3 ',natom,n3
       ncenter_B4_autosym = natom
       ncenter = natom
       threquiv = 0.01d00
       call dcopy(n3,x,1,dx,1)   ! temporary use of dx 
+      write(6,*) 'x is ', (x(i), i=1,n3)
+      write(6,*) 'dx is ', (dx(i), i=1,n3)
+      call util_flush(6)
       call dcopy(ncenter,atomic_charge,1,copy_charge,1)
       do i = 1,ncenter
         copy_labels(i) = atomic_labels(i)
       enddo
+      write(6,*) 'my_rtdb,geom ',my_rtdb,geom
+      write(6,*) 'copy_charge ',(copy_charge(i),i=1,ncenter)
+      write(6,*) 'copy_labels ',(copy_labels(i),i=1,ncenter)
+      write(6,*) 'threquiv ',threquiv
       call geom_auto_sym(my_rtdb,geom,dx,
      &      copy_charge,copy_labels,ncenter,
      &      threquiv,groupname)
@@ -96,7 +100,7 @@ C Transform to cartesian coordinates
       if (.not.geom_destroy(geom))
      &      call errquit('nwc_s2: geom_destroy failed',911)
       call util_print_set_level(current_print_level)
-*      write(6,*)' x after  ',x
+*      write(luout,*)' x after  ',x
       call drdy_synch(DRDY_CODE_HESSIAN,'nwc_s2')
       call drdy_nwc_get_energy(my_rtdb,v)
       call drdy_nwc_get_coords(my_rtdb,xs)
@@ -120,10 +124,6 @@ C
 C  Transform hessian matrix from gaussian standard orientation to the
 C     original orientation
       call drdy_rotf(fmat,amat,rr,natom,n3,ndima,n3tm)
-C  Transform coordinates and gradient to mass-weight cartesians
-      Call drdy_trans (1,n3,amass,x,dx)
-C  Transform hessian matrix to mass-weighted coordinates
-      Call drdy_tranf (1,n3tm,n3,amass,fmat)
 *
       return
 1000  Format (1x,79a1)

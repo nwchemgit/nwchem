@@ -1,4 +1,4 @@
-C $Id: pmclqa.F,v 1.2 2001-01-08 15:51:59 windus Exp $
+C $Id: pmclqa.F,v 1.3 2001-01-19 17:43:12 windus Exp $
       Subroutine drdy_pmclqa (n3tm,n3,ndbar,x,dx,fmat,fold,hess,amass,
      *    dels,delsf,vec0,vec1,u0,xlam,alpha,ierr)
 C
@@ -15,9 +15,14 @@ C   delsf - step size in s for forward difference derivative of f
 C   vec0,vec1,u0,xlam,alpha - scratch arrays
 C   ierr  - error flag
 C
-      Implicit Double Precision (A-H,O-Z)
-      Dimension x(n3),dx(n3),fmat(n3tm,n3),fold(n3tm,n3),hess(ndbar),
-     *   amass(n3),vec0(n3),vec1(n3),u0(n3tm,n3),xlam(n3),alpha(n3)
+      Implicit none
+      Integer n3tm,n3,ndbar,ierr
+      Double Precision x(n3),dx(n3),fmat(n3tm,n3),fold(n3tm,n3),
+     * hess(ndbar),amass(n3),dels,delsf,vec0(n3),vec1(n3),u0(n3tm,n3),
+     * xlam(n3),alpha(n3)
+C
+      Integer i,j
+      Double Precision sum,vgvv,xnorm
 C
       Call drdy_pmlqa (n3tm,n3,ndbar,x,dx,fmat,hess,amass,dels,
      *    vec0,vec1,u0,xlam,alpha,ierr)

@@ -1,6 +1,41 @@
-C $Id: Input_for_drdy.F,v 1.2 2001-01-08 15:44:17 windus Exp $
+C $Id: Input_for_drdy.F,v 1.3 2001-01-19 17:43:11 windus Exp $
       Subroutine Input_for_drdy(rtdb)
-*     Implicit Double Precision (A-H,O-Z)
+C
+C Options in lgs array
+C   1 - is there a saddle point?
+C       =0, no
+C       =1, yes
+C   2 - are frequencies and eigenvectors printed at save points along MEP?
+C       =0, no
+C       =1, yes
+C   6 - what is the number of reactants and products?
+C	=1,  2 reactants and 2 products
+C	=2,  2 reactants and 1 product
+C	=3,  1 reactant and 2 products
+C	=4,  1 reactant and 1 product
+C   8 - is this a job that is restarted from data on file 30?
+C       =0, no
+C       =1, yes (requires that file 30 exists)
+C  27 - is direction of unbound eigenvector at saddle point switched?
+C       =0, no 
+C       =+1 or -1, yes, change sign of unbound eigenvector
+C  31 - which integrator is used for MEP calculation?
+C       =1, Euler integrator
+C       =2, use Page-McIver LQA algorithm
+C       =3, use Page-McIver CLQA algorithm
+C       =4, use Page-McIver CUBE algorithm
+C  38 - are electronic structure files save?
+C       =0, no files saved
+C       =1, yes, the output file is saved
+C       =2, yes, the checkpoint file is saved
+C       =3, yes, the output and checkpoint files are saved
+C       =4, yes, the output and checkpoint files and the output from the single point calculation are saved 
+C  39 - is a single point calculation performed at each save point?
+C       =0, no
+C	=1, yes
+C
+C  All other lgs variables are not used in this version of the code
+C
       Implicit none
 #include "stdio.fh"
 #include "drdyP.fh"
@@ -10,13 +45,8 @@ C $Id: Input_for_drdy.F,v 1.2 2001-01-08 15:44:17 windus Exp $
       logical nwc_start
       logical nwc_continue
       logical nwc_restart
-      Integer fu5,fu6
-      Logical lexit
-      Integer i, j, l, iop
-C
-C Read in data from unit fu5
-      fu5 = luin
-      fu6 = luout
+      Integer i,ii,j,l,iop
+      Logical  lexit
 C
 C     Initialize values
 C
@@ -30,6 +60,7 @@ C
       lgs(1) = 1
       dels = 0.01d0
       delsv = 0.1d0
+      delhss = 1.0d11
       slp = 1.0d0
       slm = -1.0d0
 C     
@@ -59,6 +90,11 @@ C
       else
          lgs(1) = 1
          write (fu6,602) lgs(1)
+      endif
+      if (lgs(2).eq.0) then
+         write (fu6,661) lgs(2)
+      else
+         write (fu6,662) lgs(2)
       endif
       if (lgs(6).le.1) then
          lgs(6) = 1
@@ -96,9 +132,25 @@ C
       else 
          write (fu6,611) lgs(31)
       endif
+      if(lgs(38).eq.0) then
+         write (fu6,6110) lgs(38)
+      else if (lgs(38).eq.1) then
+         write (fu6,6111) lgs(38)
+      else if (lgs(38).eq.2) then
+         write (fu6,6112) lgs(38)
+      else if (lgs(38).eq.3) then
+         write (fu6,6113) lgs(38)
+      else 
+         write (fu6,6114) lgs(38)
+      endif
+      if(lgs(39).eq.0) then
+         write (fu6,6115) lgs(39)
+      else
+         write (fu6,6116) lgs(39)
+      endif
       write (fu6,612) ctitle
       n3 = 3*natom 
-      write (fu6,613) natom,n3
+      write (fu6,613) natom
       if (natom.gt.natoms) then
          lexit = .true.
          write (fu6,*) ' number of atoms is greater than max=',natoms
@@ -119,6 +171,8 @@ c  redefine xmass array to hold coordinate mass factors repeated for each coordi
             amass(l) = xmass(i)
          enddo
       enddo
+C convert redm to atomic units
+      redm = redm/cau
 c input for reactant and product properties
 C   icode = 1 for an atomic, 
 C         = 2 for a diatomic treated as a Morse oscillator
@@ -161,10 +215,49 @@ C Input for saddle point
       write(fu6,623)
       write(fu6,624) (i,(xr(3*i-3+j,iop),j=1,3),i=1,natom)
       write(fu6,626) icode(iop)
+      do iop = 1,4
+         if (icode(iop).le.1) then
+            icode(iop) = 1
+            nf(iop) = 0
+         elseif (icode(iop).eq.2) then
+            write(fu6,6000) iop
+            call errquit('This option is not supported',555)
+         elseif (icode(iop).eq.3) then
+            nf(iop) = 3*nratom(iop) - 5
+         elseif (icode(iop).ge.4) then
+            nf(iop) = 3*nratom(iop) - 6
+            icode(iop) = 4
+         endif
+      enddo
+      iop = 5
+      if (icode(iop).le.1) then
+         icode(iop) = 1
+         nf(iop) = 0
+      elseif (icode(iop).eq.2) then
+         write(fu6,6000) iop
+         call errquit('This option is not supported',555)
+      elseif (icode(iop).eq.3) then
+         nf(iop) = n3 - 6
+      elseif (icode(iop).ge.4) then
+         nf(iop) = n3 - 7
+         icode(iop) = 4
+      endif
 c transform to mass-scaled coordinates
-      call drdy_trans(1,n3,amass,xr(1,iop),dx)
+      call drdy_trans(1,n3,amass,xr(1,5),dx)
 C move center of mass to origin
-      call drdy_center(natom,n3,amass,xr(1,iop),scr1)
+      call drdy_center(natom,n3,amass,xr(1,5),scr1)
+      if (icode(5).eq.3) then
+C if linear transition state then rotate saddle point to be along z axis
+C  set up vector along z axis
+         ii = 0
+         do i = 1,natom
+            x(ii+1) = 0.0d00
+            x(ii+2) = 0.0d00
+            x(ii+3) = i
+            ii = ii + 3
+         enddo
+         call drdy_rotx(x,xr(1,5),scr1,natom,n3)
+      endif
 C rotate reactant coordinates to have prinicple axes same as saddle point
       call drdy_rotx(xr(1,5),xr,scr1,natom,n3)
 C rotate product coordinates to have prinicple axes same as saddle point
@@ -174,34 +267,42 @@ C rotate product coordinates to have prinicple axes same as saddle point
       write(fu6,624) (i,(xr(3*i-3+j,1),j=1,3),i=1,natom)
       write(fu6,629)
       write(fu6,624) (i,(xr(3*i-3+j,3),j=1,3),i=1,natom)
-      write(fu6,631)
+      write(fu6,630)
       write(fu6,624) (i,(xr(3*i-3+j,5),j=1,3),i=1,natom)
 c Input for reaction path calculation
-      write (fu6,630) dels,delsv,slp,slm
+      if (delhss.ge.1.0d11) delhss = delsv
+      write (fu6,631) dels,delsv,delhss,slp,slm
+      if (lgs(31).eq.1 .and. delhss.lt.delsv) then
+         delhss = delsv
+         write (fu6,632) delhss
+      endif
 c
       return
-500   format(80a1)
 501   Format(2i5,4f10.6,i10,g10.3)
-600   Format(
-     &      //,' DRDY_NWChem - DiRect DYnamics with the NWChem elect',
-     &      'ronic structure code',//,5x,'This code prepares the fil',
-     &      'e30 input for POLYRATE from electronic structure',/,5x,
-     &      'calculations of gradients hessians at the reactant, pro',
-     &      'duct, and saddle ',/,5x,'point geometries, and along t',
-     &      'he minimum energy path.  Cartesian geometries',/,5x,'f',
-     &      'or the reactants, products, and saddle points need to b',
-     &      'e input to this ',/,5x,'code; optimization for these g',
-     &      'eometries is not performed in this code.  ',/,5x,'Poin',
-     &      'ts along the minimum energy path are calculated here.',
-     &      //,' Options, lgs=',/,2x,39i2,
-     &      //,10x,' Note that only lgs 1,6,8,27,31 are used.')
-601   Format(/,6x,'lgs(1)=',i2,', no saddle point; MEP started at',
+600   Format(//,' DRDYVTST - DiRect DYnamics for Variational',
+     *  ' Transition State Theory with the NWChem ',
+     *  ' electronic structure code',//,5x,
+     *  'This code prepares the file30 input for POLYRATE from',
+     *  ' electronic structure calculations of gradients',/,5x,
+     *  'hessians at the reactant, product, and saddle point',
+     *  ' geometries, and along the minimum energy path.',/,5x,
+     *  'Cartesian geometries for the reactants, products, and saddle',
+     *  ' points need to be input to this code;',/,5x,'optimization',
+     *  ' for these geometries is not performed in the code.  Points',
+     *  ' along the minimum energy path',/,5x,'are calculated here.',
+     *  //,' Options, lgs=',/,2x,39i2,/,/10x,' Note that only lgs ',
+     *  '1,2,6,8,27,31,38,39 are used.')
+601   Format(/,5x,'lgs( 1)=',i2,', no saddle point; MEP started at',
      *  ' initial geometry along the gradient')
-602   Format(/,6x,'lgs(1)=',i2,', saddle point; MEP started along',
+602   Format(/,5x,'lgs( 1)=',i2,', saddle point; MEP started along',
      *  ' unbound eigenvector')
-603   Format(6x,'lgs(6)=',i2,',',i3,', reactants,',i3,', products')
-604   Format(6x,'lgs(8)=',i2,', no restart')
-605   Format(6x,'lgs(8)=',i2,', restart')
+661   Format(5x,'lgs( 2)=',i2,', frequencies and eigenvectors',
+     *  ' at save points along MEP are not printed')
+662   Format(5x,'lgs( 2)=',i2,', print frequencies and eigenvectors',
+     *  ' at save points along MEP')
+603   Format(5x,'lgs( 6)=',i2,',',i3,', reactants,',i3,', products')
+604   Format(5x,'lgs( 8)=',i2,', no restart')
+605   Format(5x,'lgs( 8)=',i2,', restart')
 606   Format(5x,'lgs(27)=',i2,', use original direction of unbound',
      * ' eigenvector at saddle point')
 607   Format(5x,'lgs(27)=',i2,', flip direction of unbound',
@@ -213,8 +314,20 @@ c
      *   ' algorithm')
 611   Format(5x,'lgs(31)=',i2,', MEP calculation uses Page-McIver CUBE',
      *   ' algorithm')
-612   Format(//,' Title:',/,1x,80a1)
-613   Format(//,' Number of atoms =',i6,',',i6,' dimensions')
+6110  Format(5x,'lgs(38)=',i2,', No electronic structure files saved')
+6111  Format(5x,'lgs(38)=',i2,', Electronic structure output file',
+     *   ' saved')
+6112  Format(5x,'lgs(38)=',i2,', Electronic structure checkpoint file',
+     *   ' saved')
+6113  Format(5x,'lgs(38)=',i2,', Electronic structure output and',
+     *   ' checkpoint files saved')
+6114  Format(5x,'lgs(38)=',i2,', Electronic structure output, ',
+     *   ' checkpoint, and single point calculation files saved')
+6115  Format(5x,'lgs(39)=',i2,', No single point calculation ',
+     *   ' performed')
+6116  Format(5x,'lgs(39)=',i2,', Single point calculation performed')
+612   Format(//,' Title:',/,1x,a80)
+613   Format(//,' Number of atoms =',i6)
 614   Format (//,' Masses',/,T35,'amu',13x,'a.u.',12x,'kg')
 615   Format(5x,'Mass of atom',i3,T30,0pf10.6,f17.6,1pe15.6)
 616   Format(5x,'Forward reduced mass',T30,0pf10.6,f17.6,1pe15.6)
@@ -222,18 +335,25 @@ c
 621   Format(//,' Products')
 622   Format(//,' Saddle point or starting geometry on MEP')
 623   Format (/,5x,'Input geometry (cartesian coordinates in au)',/,6x,
-     *   4hatom,12x,'x',13x,'y',13x,'z',/)
+     *   4hatom,12x,'x',13x,'y',13x,'z')
 624   Format (6x,i3,5x,f12.5,2x,f12.5,2x,f12.5)
 625   Format(/,5x,'Species',I2,' consists of atom(s):' ,T38,20i3,/,
      *   (T38,20i3))
 626   Format(10x,'icode=',i5)
 627   Format(/,' Mass scaled coordinates, rotated so principle axes',
      *   ' are aligned')
-628   Format(/,5x,'Reactants')
-629   Format(/,5x,'Products')
-631   Format(/,5x,'Saddle point or starting geometry on MEP')
-630   Format(//,' Parameters for MEP calculation',//,
+628   Format(/,5x,'Reactants',/,6x,'atom',12x,'x',13x,'y',13x,'z')
+629   Format(/,5x,'Products',/,6x,'atom',12x,'x',13x,'y',13x,'z')
+630   Format(/,5x,'Saddle point or starting geometry on MEP',/,6x,
+     *   'atom',12x,'x',13x,'y',13x,'z')
+631   Format(//,' Parameters for MEP calculation',//,
      *   5x,'Step size, dels=',f10.6,/,
-     *   5x,'Hessian save size, delsv =',f10.6,/,
+     *   5x,'Interval for saving Hessian data, delsv =',f10.6,/,
+     *   5x,'Interval for computing Hessian data, delhss =',f10.6,/,
      *   5x,'Path also stopped if s .gt.',f10.6,' or s .lt.',f10.6)
+632   Format(/,5x,'For the Euler integrator delhss is reset to delsv',
+     *   ' delhss=',f10.6)
+6000  Format (' For iop=',i5,', icode=2, Morse diatomic, was chosen',
+     *   /, 'This option is not supported, reset icode to 3 and try',
+     *   ' again')
       end

@@ -1,4 +1,4 @@
-C $Id: rline.F,v 1.2 2001-01-08 15:52:00 windus Exp $
+C $Id: rline.F,v 1.3 2001-01-19 17:43:14 windus Exp $
 c ***************************************************************************
 c     rline
 c ***************************************************************************
@@ -76,7 +76,7 @@ c      change to lower case
 c
 *       string = case(string)
       call inp_lcase(string)
-*      write(6,*)' rline string:<',string,'>'
+*      write(fu6,*)' rline string:<',string,'>'
       return
 9999  iend=1
       return

@@ -1,4 +1,4 @@
-C $Id: drdy_synch.F,v 1.7 2001-01-08 15:51:59 windus Exp $
+C $Id: drdy_synch.F,v 1.8 2001-01-19 17:43:11 windus Exp $
       subroutine drdy_synch(opcode,calling_routine)
       implicit none
 #include "drdyP.fh"
@@ -22,46 +22,46 @@ C $Id: drdy_synch.F,v 1.7 2001-01-08 15:51:59 windus Exp $
       logical status
       logical status_rtdb, status_ignore
 *
-*      write(6,*)' drdy_synch called with code ',opcode,
+*      write(fu6,*)' drdy_synch called with code ',opcode,
 *     &    ' from ',calling_routine,' node =',me_drdy
 *      call util_flush(6)
       if (me_drdy.eq.master) then
         if (.not.
      &        rtdb_cput(my_rtdb,'scf:input vectors',1,'atomic')) then
-          write(luout,*)' could not reset input vectors to atomic '
+          write(fu6,*)' could not reset input vectors to atomic '
           call errquit('drdy_synch: fatal error ',911)          
         endif
         if (.not.
      &        rtdb_cput(my_rtdb,'dft:input vectors',1,'atomic')) then
-          write(luout,*)' could not reset input vectors to atomic '
+          write(fu6,*)' could not reset input vectors to atomic '
           call errquit('drdy_synch: fatal error ',911)          
         endif
 *        if (.not.
 *     &        rtdb_cput(my_rtdb,'mp2:input vectors',1,'atomic')) then
-*          write(luout,*)' could not reset input vectors to atomic '
+*          write(fu6,*)' could not reset input vectors to atomic '
 *          call errquit('drdy_synch: fatal error ',911)          
 *        endif
         if (.not.
      &        rtdb_cput(my_rtdb,'mcscf:input vectors',1,'atomic')) then
-          write(luout,*)' could not reset input vectors to atomic '
+          write(fu6,*)' could not reset input vectors to atomic '
           call errquit('drdy_synch: fatal error ',911)          
         endif
         if (.not.rtdb_cget(my_rtdb,'drdy:theory',1,drdy_theory)) then
-          write(luout,*)' could not determine drdy:theory'
+          write(fu6,*)' could not determine drdy:theory'
           call errquit('drdy_synch: fatal error ',911)
         endif
         if (.not.rtdb_cput(my_rtdb,'task:theory',1,drdy_theory)) then
-          write(luout,*)' could not write drdy:theory -> theory'
+          write(fu6,*)' could not write drdy:theory -> theory'
           call errquit('drdy_synch: fatal error ',911)
         endif
       endif
 00001 continue
-*      write(6,*)' B4 msg_drdy_opcode = ',msg_drdy_opcode,
+*      write(fu6,*)' B4 msg_drdy_opcode = ',msg_drdy_opcode,
 *     &    ' opcode = ',opcode,' node=',me_drdy
 *      call util_flush(6)
       call ga_brdcst(msg_DRDY_OPCODE, opcode, mitob(1), master)
       call ga_sync()
-*      write(6,*)' AF msg_drdy_opcode = ',msg_drdy_opcode,
+*      write(fu6,*)' AF msg_drdy_opcode = ',msg_drdy_opcode,
 *     &    ' opcode = ',opcode,' node=',me_drdy
 *      call util_flush(6)
 *     call util_print_common_data
@@ -92,7 +92,7 @@ C $Id: drdy_synch.F,v 1.7 2001-01-08 15:51:59 windus Exp $
         call ga_sync()
         return
       else
-        write(luout,*)' unknown opcode ',opcode
+        write(fu6,*)' unknown opcode ',opcode
         call errquit('drdy_synch: fatal error ',911)
       endif
       call util_print_set_level(current_print_level)

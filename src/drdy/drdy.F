@@ -10,7 +10,7 @@
       end
       logical function drdy_nwchem(rtdb)
 *
-* $Id: drdy.F,v 1.3 1999-08-20 18:47:29 d3e129 Exp $
+* $Id: drdy.F,v 1.4 2001-01-19 17:43:11 windus Exp $
 *
 C
 C DRDYNWChem - DiRect DYnamics with the NWChem electronic structure code
@@ -30,10 +30,7 @@ C   NWChem predict the next step along the IRC, generate input file
 C   (via the RTDB) for NWChem initiate NWChem ab initio run
 C
 C  File useage
-*?*C     5  - standard input
-*?*C     6  - standard output 
-*?*C     9  - new Gaussian input file
-*?*C    10  - formatted checkpoint file
+C     6  - standard output 
 C    30  - RPH data
 C
       Implicit none             ! Double Precision (A-H,O-Z)
@@ -52,11 +49,13 @@ C
       integer jop
       integer ns
       integer jopmx
-      integer i
+      integer i, ii, j
       integer i_dummy
 *
       me_drdy = ga_nodeid()
       my_rtdb = rtdb
+      fu6 = luout
+      fu30 = 30
 *      call setdbg(1)
       
       status_rtdb = rtdb_parallel(.false.)
@@ -86,7 +85,7 @@ C
 C  Read restart data from file 30
          Call drdy_sort(lhead,jop,lsad,ns,0)
          if (.not.lhead) then
-            write (luout,*) ' trouble with restart, file unreadable'
+            write (fu6,*) ' trouble with restart, file unreadable'
             call errquit('drdy: fatal error',911)
          endif
       endif
@@ -94,18 +93,44 @@ C  Read restart data from file 30
       if (lgs(6).eq.1.or.lgs(6).eq.3) jopmx = 4
 C
 C  Reactant and product calculations
-      if (jop.lt.jopmx) then
-         Call drdy_react(jop)
-      endif
+      if (jop.lt.jopmx) Call drdy_react(jop)
 C
+      if (lgs(1).ne.0) then
 C  Saddle point calculations
-      if (lsad) then
-         do i = 1,n3
-            xspsv(i) = xr(i,5)
-         enddo
+         if (lsad) then
+C  Saddle point information successful read in from fort.30
+            do i = 1,n3
+               xspsv(i) = xr(i,5)
+            enddo
+         else
+C  Calculate potential and hessian at saddle point geometry
+            Call drdy_saddle
+            Call drdy_rphwrt(5)
+            Call drdy_rphwrt(6)
+         endif
       else
-         Call drdy_saddle
-         Call drdy_rphwrt(6)
+         if (ns.le.0) then
+C  No saddle point, if ns<=0 compute v, dx, h at starting geometry
+            call drdy_saddle
+C  lsad is set true in sort if the two lines beginning the MEP data
+C   are already written
+            if(.not.lsad) call drdy_rphwrt(6)
+            call drdy_rphwrt(7)
+            ns = 1
+         else
+            ii = 0
+            vspsv = vgrid(1) + vzero
+            vspspsv = vgrdsp(1) + vzerosp
+            do i = 1,n3
+               xspsv(i) = xgrid(i,1)
+               dxspsv(i) = dxgrid(i,1)
+               do j = 1,i
+                  ii = ii + 1
+                  fspsv(j,i) = hgrid(ii,1)
+                  fspsv(i,j) = hgrid(ii,1)
+               enddo
+            enddo
+         endif
       endif
       if (slp.ne.0.0d0.or.slm.ne.0.0d0) then
 C
@@ -131,9 +156,7 @@ C
 C
 C  Set up to take first step off saddle point
 C
-        if(.not.lskip) then
-           Call drdy_setpth
-        endif
+        if(.not.lskip) Call drdy_setpth
 C
 C  Calculate steepest descent path
 C
@@ -143,7 +166,7 @@ C  Sort data along reaction path and rewrite file30
 C
         Call drdy_sort(lhead,jop,lsad,ns,1)
       endif
-      write (luout,*) 'drdy_NWChem has finished corretly, bye !'
+      write (fu6,*) 'drdy_NWChem has finished corretly, bye !'
       call drdy_synch(DRDY_CODE_DONE,'drdy 2')
 99999 continue
 *      call setdbg(0)

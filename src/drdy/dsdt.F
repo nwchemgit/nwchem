@@ -1,13 +1,18 @@
-C $Id: dsdt.F,v 1.2 2001-01-08 15:51:59 windus Exp $
-      SUBROUTINE drdy_DSDT (N, G0, XLAM, TS, F)
-      implicit real*8 (a-h,o-z)
-      DIMENSION G0(N), XLAM(N)
+C $Id: dsdt.F,v 1.3 2001-01-19 17:43:11 windus Exp $
+      Subroutine drdy_dsdt (n, g0, xlam, ts, f)
+      Implicit none
+      Integer n
+      Double Precision g0(n),xlam(n),ts,f
+C
+      Integer i
+      Double Precision t
+C
 C Evaluate ds/dt for Page-McIver gradient following algorithm
-      F = 0.0d00
-      DO 10 I = 1,N
-         T = G0(I)*EXP(-XLAM(I)*TS)
-         F = F + T*T
-   10 CONTINUE
-      F = SQRT(F)
-      RETURN
-      END
+      f = 0.0d00
+      do i = 1,n
+         t = g0(i)*exp(-xlam(i)*ts)
+         f = f + t*t
+      enddo
+      f = sqrt(f)
+      return
+      end

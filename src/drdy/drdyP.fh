@@ -1,63 +1,60 @@
 *
-* $Id: drdyP.fh,v 1.1 1999-08-16 22:54:33 d3e129 Exp $
+* $Id: drdyP.fh,v 1.2 2001-01-19 17:43:11 windus Exp $
 *
-      Double Precision pi, tpi
-      Double Precision autocm
-      Double Precision bk
-      Double Precision cau, cev
-      Double Precision ckcal
-      Double Precision ckg, ckgm2
-      Parameter (pi = 3.141592654d00, tpi = 6.283185307d00)
+      Double Precision autocm,cau,ckcal,ckg,cang,sreact,sprod
       Parameter (autocm = 2.19474629d+05) 
-      Parameter (bk = 3.166830d-6) 
-      Parameter (cau = 5.48593d-04, cev = 27.21161d00) 
+      Parameter (cau = 5.48593d-04) 
       Parameter (ckcal = 627.509552d00)
-      Parameter (ckg = 1.66024d-27, ckgm2 = 2.550946698d-04)
+      Parameter (ckg = 1.66024d-27)
+      Parameter (cang = 0.52917725d00)
+      Parameter (sreact = -1.111d10)
+      Parameter (sprod  = +1.111d10)
 C
-      Integer natoms
-      Integer n3tm, n3tmp
-      Integer nbardm
-      Integer nsmax
-      Integer nchttl
-      Parameter (natoms=8)
+      Integer natoms,n3tm,n3tmp,nbardm,nsmax,fu6,fu30
+      Parameter (natoms=15)
       Parameter (n3tm=3*natoms,n3tmp=3*natoms+1)
       Parameter (nbardm=(n3tm*(n3tm+1))/2)
-      Parameter (nsmax=50)
-      Parameter (nchttl=80)
+      Parameter (nsmax=100)
 C
-      Double Precision amass, f, dlx, redm 
-      Double Precision xr
-      Double Precision slp, slm, sprnt, dels, delsv, dir
-      Double Precision v, x, xxc, dx
-      Double Precision s, fsv, vzero
-      Double Precision sgrid, vgrid, xgrid, dxgrid, hgrid,
-     &      sr, vr, sp, vp, hgrp
-      Double Precision vspsv, xspsv, dxspsv, vec0sv,
-     &      vec1sv, vec0, vec1, vec2, scr1,
-     &      fold, fspsv, u0, hess
-      Double Precision xmass, xold
-      Integer irepr
-      Integer natom, n3, n3m6, lgs, icode, nratom, iatom, nf,
-     &      lsave, nedeg, mode
-      Integer ifrgrd, ifrgrp, ifrsp
-      Integer iatsv
+      Character*2 chat(natoms)
+      Character*80 ctitle
+      Common /cttlcm/ ctitle,chat
+C
+      Integer natom,n3,lgs(39),icode(5),nratom(4), 
+     *   iatom(natoms),nf(5),mode(n3tm)
+      Integer iatsv(natoms,4)
+      Integer ifrgrd(n3tm,nsmax),ifrgrp(n3tm,4),ifrsp(n3tm)
+      Integer irepr(5)
       Integer lu_drdy_rline
-      Character*1 ctitle(nchttl)
-      Common /cttlcm/ ctitle
-      Common /amascm/ amass(n3tm),f(n3tm,n3tm),dlx,redm
-      Common /iblacm/ natom,n3,n3m6,lgs(39),icode(5),nratom(4), 
-     *   iatom(natoms),nf(5),lsave,nedeg(15),mode(n3tm)
-      Common /geocm/  xr(n3tm,5)
-      Common /imascm/ iatsv(natoms,4)
-      Common /pathcm/ slp,slm,sprnt,dels,delsv,dir
-      Common /pefcom/ v,x(n3tm),xxc(n3tm),dx(n3tm)
-      Common /rphwcm/ s,fsv(n3tm,n3tm),vzero
-      Common /gridcm/ sgrid(nsmax),vgrid(nsmax),xgrid(n3tm,nsmax),
-     *   dxgrid(n3tm,nsmax),hgrid(nbardm,nsmax),
+      Common /iblacm/ natom,n3,lgs,icode,nratom,iatom,nf,mode
+      Common /imascm/ iatsv
+      Common /igrdcm/ ifrgrd,ifrgrp,ifrsp
+      Common /cdrdy_rline/ lu_drdy_rline,fu6,fu30
+C
+      Double Precision amass(n3tm),f(n3tm,n3tm),redm
+      Double Precision xr(n3tm,5),freqr(n3tm,5)
+      Double Precision slp,slm,dels,delsv,delhss,dir
+      Double Precision v,x(n3tm),dx(n3tm)
+      Double Precision s,fsv(n3tm,n3tm),vzero
+      Double Precision sgrid(nsmax),vgrid(nsmax),xgrid(n3tm,nsmax),
+     *   dxgrid(n3tm,nsmax),hgrid(nbardm,nsmax),freqg(n3tm,nsmax),
      *   sr,vr,sp,vp,hgrp(nbardm,4)
-      Common /igrdcm/ ifrgrd(n3tm,nsmax),ifrgrp(n3tm,4),ifrsp(n3tm)
-      Common /cdrdy/ vspsv,xspsv(n3tm),dxspsv(n3tm),vec0sv(n3tm),
-     *   vec1sv(n3tm),vec0(n3tm),vec1(n3tm),vec2(n3tm),scr1(n3tm),
-     *   fold(n3tm,n3tm),fspsv(n3tm,n3tm),u0(n3tm,n3tmp),hess(nbardm)
-      Common /keycm/ xmass(natoms),xold(n3tm),irepr(5)
-      Common /cdrdy_rline/ lu_drdy_rline
+      Double Precision vspsv,xspsv(n3tm),dxspsv(n3tm),vec0sv(n3tm),
+     *   vec1sv(n3tm),vec0(n3tm),vec1(n3tm),vec2(n3tm),
+     *   fold(n3tm,n3tm),fspsv(n3tm,n3tm),u0(n3tm,n3tmp),hess(nbardm),
+     *   eigvec(n3tm,n3tm),scr1(n3tm),scr2(n3tm),scr3(n3tm),
+     *   proj(n3tm,n3tm),dxold(n3tm)
+      Double Precision xmass(natoms)
+      Double Precision vrsp,vpsp,vspspsv,vzerosp,vspc,vgrdsp(nsmax)
+C
+      Common /amascm/ amass,f,redm
+      Common /geocm/  xr,freqr
+      Common /pathcm/ slp,slm,dels,delsv,delhss,dir
+      Common /pefcom/ v,x,dx
+      Common /rphwcm/ s,fsv,vzero
+      Common /gridcm/ sgrid,vgrid,xgrid,dxgrid,hgrid,freqg,
+     *   sr,vr,sp,vp,hgrp
+      Common /cdrdy/ vspsv,xspsv,dxspsv,vec0sv,vec1sv,vec0,vec1,vec2,
+     *   fold,fspsv,u0,hess,eigvec,scr1,scr2,scr3,proj,dxold
+      Common /keycm/ xmass,irepr
+      Common /spccm/ vrsp,vpsp,vspspsv,vzerosp,vspc,vgrdsp
