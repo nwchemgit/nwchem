@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop)
-c $Id: cf_rdtop.F,v 1.8 1999-07-29 00:57:13 d3e129 Exp $
+c $Id: cf_rdtop.F,v 1.9 1999-08-30 19:43:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -86,6 +86,12 @@ c
       read(lfntop,1011,end=9997,err=9998)
      + (idata(j),j=1,3),(rdata(j),j=1,6)
  1011 format(3i7,/,3(f12.6,e12.5))
+      if(noshak.eq.1.or.noshak.eq.3) then
+      idata(3)=0
+      if(rdata(2).lt.small) rdata(2)=1.0d+05
+      if(rdata(4).lt.small) rdata(4)=1.0d+05
+      if(rdata(6).lt.small) rdata(6)=1.0d+05
+      endif
       call cf_parbnd(1,i,idata,rdata)
       if(idata(3).gt.0) nwc=nwc+1
     6 continue
@@ -143,6 +149,12 @@ c      if(j.gt.nsm) nsm=j
       read(lfntop,1018,end=9997,err=9998) (idata(j),j=1,3),
      + (rdata(j),j=1,6)
  1018 format(3i7,/,3(f12.6,e12.5))
+      if(noshak.eq.2.or.noshak.eq.3) then
+      idata(3)=0
+      if(rdata(2).lt.small) rdata(2)=1.0d+05
+      if(rdata(4).lt.small) rdata(4)=1.0d+05
+      if(rdata(6).lt.small) rdata(6)=1.0d+05
+      endif
       call cf_parbnd(2,i,idata,rdata)
       if(idata(3).gt.0) nsc=nsc+1
    11 continue

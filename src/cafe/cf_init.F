@@ -1,11 +1,11 @@
       subroutine cf_start(lfntop,filtop,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
-     + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,
+     + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
      + iiqmmm,iipolt,iitmps,iiprss,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,ipset2,
      + issscl,delta)
-c $Id: cf_init.F,v 1.24 1999-07-29 00:57:12 d3e129 Exp $
+c $Id: cf_init.F,v 1.25 1999-08-30 19:43:18 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,7 +15,7 @@ c
       integer lfntop
       character*(*) filtop
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
-      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs
+      integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh
       real*8 spmet,step,tols,bx(3)
       integer mdalg,npbt,nbxt,iiqmmm,iipolt
       real*8 rcs,rcl,rqm,compr,delta
@@ -127,6 +127,7 @@ c
       tolsha=tols
       mshitw=mshw
       mshits=mshs
+      noshak=nosh
 c
       temp=tempi
       tempw=tempwi
