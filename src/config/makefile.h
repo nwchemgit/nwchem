@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.319 2000-05-05 23:23:54 edo Exp $
+# $Id: makefile.h,v 1.320 2000-05-07 16:39:25 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -129,9 +129,10 @@ endif
 # The core libraries are usually rather platform-dependent and are
 # specified below.  Use of MPI requires substituting the tcgmsg-mpi
 # wrapper for the normal tcgmsg library.
-# MPILIB - represents the name of mpi library (with -l)
+# the 2 following environmental variables are need for linking
+# LIBMPI - represents the name of mpi library (with -l)
 # MPI_LIB - represents the path to the mpi library
-#MPILIB =  -lmpich
+#LIBMPI =  -lmpich
 #MPI_LIB= /usr/local/lib
 
 #JN: under the new structure, tools should be listed first as
