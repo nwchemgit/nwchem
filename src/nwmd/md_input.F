@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.80 2003-12-04 20:05:38 d3j191 Exp $
+c $Id: md_input.F,v 1.81 2003-12-09 02:07:27 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
-      integer icmopt
+      integer icmopt,imembr
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -189,6 +189,7 @@ c      iunfix=0
       iport=0
       iguide=0
       icmopt=0
+      imembr=0
       nopack=0
       istart=0
       ncoll=0
@@ -653,6 +654,13 @@ c
       iguide=1
       if(.not.inp_f(fguide)) fguide=0.2d0
       if(.not.inp_f(tguide)) tguide=0.2d0
+      goto 2
+      endif
+c
+c     membrane setup options
+c
+      if(inp_compare(.false.,'membrane',item)) then
+      imembr=1
       goto 2
       endif
 c
@@ -1847,6 +1855,8 @@ c     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:iguide',mt_int,1,iguide))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:icmopt',mt_int,1,icmopt))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:imembr',mt_int,1,imembr))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nopack',mt_int,1,nopack))
      + call md_abort('md_input: rtdb_put failed',0)

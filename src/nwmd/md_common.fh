@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.81 2003-12-04 20:05:37 d3j191 Exp $
+c $Id: md_common.fh,v 1.82 2003-12-09 02:07:27 d3j191 Exp $
 c
 c     parameters
 c
@@ -147,7 +147,7 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb(10),mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,nfnewf,ibatch,icmopt,inp_ptr
+     + ipbtyp,nfnewf,ibatch,icmopt,imembr,inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
      + fdacq,weight,facapp,dgscl,dgref,ddgscl,ssshft,dx0sd,dxmsd,
      + dxsdmx,dx0cg,dxcgmx,tlwsha,tlssha,rrdf,rdip,rkirk,prsext,prsrlx,
@@ -178,7 +178,7 @@ c
      + lwtype,ndistr,lbpair,noshak,numfix,isdit,icgit,npmf,npmfi,icentr,
      + irun,iequi,idacq,iguide,nopack,idscb,mbbreq,ioload,iprof,
      + isload,ncoll,ipopt,ilambd,mlambd,includ,iradgy,idifco,ndums,
-     + ipbtyp,nfnewf,ibatch,icmopt,inp_ptr
+     + ipbtyp,nfnewf,ibatch,icmopt,imembr,inp_ptr
 c
       logical lfirst,llong,ltwin,lpbc,lpair,lqmd,lqmmm,lserver,
      + lpert2,lpert3,lxw,lvw,lfw,lxs,lvs,lfs,lpack,lequi,lpmfc,lesp,

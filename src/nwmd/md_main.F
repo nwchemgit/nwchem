@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.181 2003-12-04 20:05:38 d3j191 Exp $
+c $Id: md_main.F,v 1.182 2003-12-09 02:07:27 d3j191 Exp $
 c
       implicit none
 c
@@ -233,6 +233,14 @@ c
 #include "mafdecls.fh"
 c
       integer i_pcgw,l_pcgw,i_pcgs,l_pcgs,i_wws,l_wws
+      integer i_mm,l_mm,i_fm,l_fm
+c
+      if(imembr.gt.0) then
+      if(.not.ma_push_get(mt_int,2*msa,'mm',l_mm,i_mm))
+     + call md_abort('Failed to allocate memory for mm',me)
+      if(.not.ma_push_get(mt_int,7*msm,'fm',l_fm,i_fm))
+     + call md_abort('Failed to allocate memory for fm',me)
+      endif
 c
       llong=ltwin
 c
@@ -264,9 +272,10 @@ c
 c
       if(msdit.gt.0) call md_stdesc(int_mb(i_iw+(lwdyn-1)*mwm),
      + dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_vw),dbl_mb(i_fw),
-     + int_mb(i_is+(lsdyn-1)*msa),dbl_mb(i_xs),dbl_mb(i_ys),
-     + dbl_mb(i_vs),dbl_mb(i_fs),dbl_mb(i_wws),
-     + dbl_mb(i_wws+mwa))
+     + int_mb(i_is+(lsdyn-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_vs),dbl_mb(i_fs),
+     + dbl_mb(i_wws),dbl_mb(i_wws+mwa),int_mb(i_mm),dbl_mb(i_fm),
+     + dbl_mb(i_xsm))
 c
       if(mcgit.gt.0) then
       if(.not.ma_push_get(mt_dbl,3*mwa*mwm,'pcgw',l_pcgw,i_pcgw))
@@ -291,6 +300,13 @@ c
 c
       call sp_printf(lfnout,filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
+c
+      if(imembr.gt.0) then
+      if(.not.ma_pop_stack(l_fm))
+     + call md_abort('Failed to deallocate memory for fm',me)
+      if(.not.ma_pop_stack(l_mm))
+     + call md_abort('Failed to deallocate memory for mm',me)
+      endif
 c
       return
       end
@@ -343,26 +359,62 @@ c
 c
       return
       end
-      subroutine md_stdesc(iwdt,xw,yw,vw,fw,isdt,xs,ys,vs,fs,ww,ws)
+      subroutine md_stdesc(iwdt,xw,yw,vw,fw,isdt,ismol,
+     + xs,ys,vs,fs,ww,ws,mm,fm,xsm)
 c
       implicit none
 c
 #include "md_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
 c
       logical frequency
       external frequency
 c
-      integer iwdt(mwm),isdt(msa)
+      integer iwdt(mwm),isdt(msa),ismol(msa),mm(msa,2)
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),vw(mwm,3,mwa),fw(mwm,3,mwa)
       real*8 xs(msa,3),ys(msa,3),vs(msa,3),fs(msa,3)
-      real*8 ww(mwa),ws(msa)
+      real*8 ww(mwa),ws(msa),xsm(msm,3),fm(msm,7)
 c
-      integer i,j
+      integer i,j,k
       logical ldone
       real*8 edif,epsd,epsdw,epsdsw,epsds
-      real*8 dx,dxf,dxmax,factor,dxstep,eqrs
+      real*8 dk,dx,dxf,dxmax,factor,dxstep,eqrs
       character*1 cqrs
+c
+      if(imembr.gt.0) then
+      do 11 i=1,msm
+      mm(i,1)=0
+   11 continue
+      do 12 i=1,nsaloc
+      mm(ismol(i),1)=mm(ismol(i),1)+1
+      mm(i,2)=ismol(i)
+   12 continue
+      if(np.gt.1) call ga_dgop(mrg_d49,mm,msm,'+')
+      do 13 i=1,nsaloc
+      if(mm(ismol(i),1).eq.1) then
+      k=0
+      dk=zero
+      do 14 j=1,nsm
+      if(ismol(i).ne.j) then
+      dx=(xs(i,1)-xsm(j,1))**2+(xs(i,2)-xsm(j,2))**2+
+     + (xs(i,3)-xsm(j,3))**2
+      if(k.eq.0.or.dx.lt.dk) then
+      dk=dx
+      k=j
+      endif
+      endif
+   14 continue
+      mm(i,2)=k
+      if(me.eq.0) then
+      write(lfnout,2000) i,ismol(i),k
+ 2000 format(' Grouping atom ',i5,' of molecule ',i5,
+     + ' with molecule ',i5)
+      endif
+      endif
+   13 continue
+      endif
 c
       if(me.eq.0) write(lfnout,1000)
  1000 format(/,' STEEPEST DESCENT MINIMIZATION',//,
@@ -379,7 +431,7 @@ c
       lhop=.false.
 c
 c     atomic forces and potential energies
-cl forces
+c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
      + dbl_mb(i_xsm),dbl_mb(i_xsmp))
@@ -437,6 +489,7 @@ c
       vs(i,2)=fs(i,2)
       vs(i,3)=fs(i,3)
     5 continue
+      if(imembr.eq.0) then
       do 6 i=1,nsaloc
       if(iand(isdt(i),mfixed).ne.lfixed) then
       factor=one/ws(i)
@@ -448,6 +501,31 @@ c
       xs(i,3)=xs(i,3)+dxstep
       endif
     6 continue
+      else
+      do 16 i=1,msm
+      fm(i,1)=zero
+      fm(i,2)=zero
+      fm(i,3)=zero
+      fm(i,4)=zero
+      fm(i,5)=zero
+      fm(i,6)=zero
+      fm(i,7)=zero
+   16 continue
+      do 17 i=1,nsaloc
+      factor=one/ws(i)
+      fm(mm(i,2),1)=fm(mm(i,2),1)+factor*fs(i,1)
+      fm(mm(i,2),2)=fm(mm(i,2),2)+factor*fs(i,2)
+   17 continue
+      if(np.gt.1) call ga_dgop(mrg_d50,fm,2*msm,'+')
+      do 18 i=1,nsaloc
+      if(iand(isdt(i),mfixed).ne.lfixed) then
+      dxstep=dxf*fm(mm(i,1),1)
+      xs(i,1)=xs(i,1)+dxstep
+      dxstep=dxf*fm(mm(i,1),2)
+      xs(i,2)=xs(i,2)+dxstep
+      endif
+   18 continue
+      endif
       endif
 c
 c      call cf_sdstep(int_mb(i_iw+(lwdyn-1)*mwm),dbl_mb(i_xw),
@@ -2678,7 +2756,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.181 2003-12-04 20:05:38 d3j191 Exp $
+c $Id: md_main.F,v 1.182 2003-12-09 02:07:27 d3j191 Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.157 2003-12-04 20:05:38 d3j191 Exp $
+c $Id: md_start.F,v 1.158 2003-12-09 02:07:27 d3j191 Exp $
 c
       implicit none
 c
@@ -931,6 +931,8 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:iguide',mt_int,1,iguide))
      + call md_abort('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:icmopt',mt_int,1,icmopt))
+     + call md_abort('md_rtdbin: rtdb_get failed',98)
+      if(.not.rtdb_get(irtdb,'md:imembr',mt_int,1,imembr))
      + call md_abort('md_rtdbin: rtdb_get failed',98)
       if(.not.rtdb_get(irtdb,'md:nopack',mt_int,1,nopack))
      + call md_abort('md_rtdbin: rtdb_get failed',99)
