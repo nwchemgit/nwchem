@@ -1,0 +1,11 @@
+c
+c $Id: model_charge.fh,v 1.1 2002-02-27 22:39:27 bylaska Exp $
+c
+
+*     ***** switching_charge common block ******************************
+      real*8  s_d,s_rho,s_sigma
+      common / switching_charge_block /
+     >                s_d,s_rho,s_sigma ! parameters for switching charge model
+
+*     ******************************************************************
+

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.16 2002-02-26 20:06:38 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.17 2002-02-27 22:39:26 bylaska Exp $                       
 *     ***************************
 *     *							*
 *     *		cgsd_energy			*
@@ -161,6 +161,13 @@ c        call pspw_charge_Print(6)
          write(luout,*)
          write(luout,1320) en(1),en(psi_ispin()),' (real space)'
          write(luout,1430) E(1),E(1)/ion_nion()
+
+         if (pspw_qmmm_found()) then
+            write(luout,1431)
+            write(luout,1432)
+            write(luout,1433) (E(1)-E(11)-E(12)-E(13)-E(14)-E(15)),
+     >         (E(1)-E(11)-E(12)-E(13)-E(14)-E(15))/ion_nion()
+         end if
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
@@ -240,6 +247,9 @@ c        call pspw_charge_Print(6)
  1410 FORMAT(10X,'=============  summary of results  =================')
  1420 FORMAT( ' final position of ions:')
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1431 FORMAT(/' QM Energies')
+ 1432 FORMAT( '------------')
+ 1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
