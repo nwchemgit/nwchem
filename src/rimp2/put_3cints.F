@@ -48,7 +48,7 @@ C
 C
  8000 Continue
       Write (LuErr, *) 'Put_3cInts: Error writing ', ILo, I, IHi
-      Call PError('Put_3cInts')
+      Call Errquit('Put_3cInts',0)
 C
       Put_3cInts = .FALSE.
 C

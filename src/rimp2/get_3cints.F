@@ -48,7 +48,7 @@ C
 C
  8000 Continue
       Write (LuErr, *) 'Get_3cInts: Error writing ', ILo, I, IHi
-      Call PError('Get_3cInts')
+      Call Errquit('Get_3cInts',0)
 C
       Get_3cInts = .FALSE.
 C
