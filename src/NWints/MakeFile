@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 2001-08-20 16:28:32 bjohnson Exp $	
+#	$Id: MakeFile,v 1.5 2003-01-24 19:36:17 edo Exp $	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -27,9 +27,6 @@ LIBRARY = nwints.lib
   USE_TEXAS = YEP
 export USE_TEXAS
 
-semi:
-	cp seint/se_defs.fh $(INCDIR)
-	(cd seint; $(MAKE) )
 txs:
 	@touch api/cando_sp.F texas/texas_stubs.F api/int_2e2c.F api/int_2e3c.F
 	$(MAKE) "USE_TEXAS=YEP"
