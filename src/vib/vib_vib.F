@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.10 1998-05-29 23:02:46 ng972 Exp $
+* $Id: vib_vib.F,v 1.11 1999-06-22 05:57:43 d3e129 Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -249,6 +249,14 @@ C
       IF(INTERN)CALL vib_BCALC(DBL_MB(I10),DBL_MB(I20),DBL_MB(I30),
      &    DBL_MB(I40),DBL_MB(ITOT),
      &    DBL_MB(IHESS),DBL_MB(IEGVEC),DBL_MB(IEGVAL))
+c
+      if (.not.first_pass) then
+* if any negative eigenvalues print out steps in their direction
+        call vib_istep(rtdb,nat3,natom,
+     &      dbl_mb(iegvec),dbl_mb(iegval),
+     &      dbl_mb(icoord),dbl_mb(iscr),
+     &      dbl_mb(iscr+nat3),dbl_mb(iscr+(2*nat3)))
+      endif
 c
       if (first_pass) then
         first_pass = .false.
