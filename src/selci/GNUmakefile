@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.21 2000-10-14 16:18:48 d3g681 Exp $
+# $Id: GNUmakefile,v 1.22 2000-10-20 20:24:15 edo Exp $
 #
 
 
@@ -51,6 +51,10 @@ endif
 ifeq ($(TARGET),SOLARIS64)
 #change to 'integer*1' for f90
 LIB_DEFINES = -DINTEGER_1=byte
+endif
+ifeq ($(TARGET),FUJITSU_VPP)
+#change to 'integer*1' for f90
+LIB_DEFINES = -Wp,-DINTEGER_1=byte
 endif
 
 ifeq ($(TARGET),CRAY-T3E)
