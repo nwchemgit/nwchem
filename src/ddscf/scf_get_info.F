@@ -46,6 +46,10 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
 c
+c     load dlb info
+c
+      call nxtask_init(rtdb)
+c
 c     load geometry and symmetry info
 c
       if (.not. geom_create(geom, 'geometry'))
@@ -295,7 +299,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.58 2003-10-21 23:51:25 edo Exp $
+C$Id: scf_get_info.F,v 1.59 2004-01-30 21:53:39 yuri Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
