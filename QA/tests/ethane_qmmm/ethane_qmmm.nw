@@ -1,6 +1,6 @@
 Title "qmmm of ethane with halogen links"
 
-memory noverify heap 8 mb stack 54 mb global 54 mb
+memory 800 Mb
 
 start eth
 
