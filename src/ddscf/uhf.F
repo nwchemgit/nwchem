@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
+C$Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -52,7 +52,14 @@ c
 c
 c     Newton-Raphson based SCF
 c
-      converged = uhf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+      if (maxiter .le. 0) then
+         converged = .false.
+         energy = 0.0d0
+         eone = 0.0d0
+         etwo = 0.0d0
+      else
+         converged = uhf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+      endif
 c
       call ga_sync()
       uhf_time = uhf_time + util_cpusec()
@@ -199,7 +206,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
+C     $Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -488,7 +495,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
+C$Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -579,7 +586,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
+c     $Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1065,7 +1072,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.45 1997-05-19 19:10:54 d3g681 Exp $
+C$Id: uhf.F,v 1.46 1997-09-26 22:03:16 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"

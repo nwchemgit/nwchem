@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.20 1997-09-17 23:53:17 d3g681 Exp $
+c     $Id: scf_vec_guess.F,v 1.21 1997-09-26 22:03:15 d3g681 Exp $
 c
       implicit none
 c
@@ -149,7 +149,7 @@ c
             tolguess = tol2e
          else
             call fock_force_direct(rtdb)
-            if (.not. rtdb_get(rtdb,'scf:tolguess',mt_dbl,1,tolguess))
+            if (.not. rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess))
      &        tolguess = 1d-5 ! 1e-4 broke clark still crown ether
          endif
 *         write(6,*) ' tolguess', tolguess

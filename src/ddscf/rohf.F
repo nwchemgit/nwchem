@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.27 1997-07-25 23:35:20 d3g681 Exp $
+C$Id: rohf.F,v 1.28 1997-09-26 22:03:14 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -53,7 +53,12 @@ c
 c
 c     Newton-Raphson based SCF
 c
-      if (odiis) then
+      if (maxiter .le. 0) then
+         converged = .false.
+         energy = 0.0d0
+         eone = 0.0d0
+         etwo = 0.0d0
+      else if (odiis) then
          converged = rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
       else
          converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
