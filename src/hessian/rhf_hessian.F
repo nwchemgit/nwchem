@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.34 2003-10-17 22:55:10 carlfahl Exp $
+c $Id: rhf_hessian.F,v 1.35 2004-07-27 12:27:38 edo Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
@@ -2511,7 +2511,6 @@ C
       DIMENSION W2(5),W4(5)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-HLFSPD-'/
-      DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -2869,7 +2868,6 @@ C     COMMON/HND_IJPAIR/IA(1)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','-HLFSPD-'/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -3567,7 +3565,6 @@ C
       DIMENSION DDXVDI(5,5,5),DDYVDI(5,5,5),DDZVDI(5,5,5)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- HLFD -'/
-      DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -3894,7 +3891,6 @@ C     COMMON/HND_IJPAIR/IA(1)
       DIMENSION DDXVDI(5,5,5),DDYVDI(5,5,5),DDZVDI(5,5,5)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- HLFD -'/
-      DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA PT5    /0.5D+00/
@@ -4723,7 +4719,6 @@ C
       DIMENSION DXVDIJ(5,5,5),DYVDIJ(5,5,5),DZVDIJ(5,5,5)
       DIMENSION ERRMSG(3)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- TVD  -'/
-      DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -5239,7 +5234,6 @@ C     COMMON/HND_IJPAIR/IA(1)
 c     DATA NFT17  /17/
       DATA ERRMSG /'PROGRAM ','STOP IN ','- TVD  -'/
       DATA DNAM   /3HE'X,3HE'Y,3HE'Z/
-      DATA MAXRYS /5/
       DATA RLN10  /2.30258D+00/
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
@@ -6943,7 +6937,6 @@ c
       COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ
      1                              ,NI,NJ
      1                              ,CX,CY,CZ
-      DIMENSION MIN(7),MAX(7)
       DATA MIN  /1,2,4, 7,11,16,22/
       DATA MAX  /1,3,6,10,15,21,28/
       DATA ZERO /0.0D+00/
@@ -7015,7 +7008,6 @@ c
       COMMON/HND_XYZDER/XINT,YINT,ZINT,T,X0,Y0,Z0,XI,YI,ZI,XJ,YJ,ZJ
      1                              ,NI,NJ
      1                              ,CX,CY,CZ
-      DIMENSION MIN(7),MAX(7)
       DATA MIN  /1,2,4, 7,11,16,22/
       DATA MAX  /1,3,6,10,15,21,28/
       DATA ZERO /0.0D+00/
