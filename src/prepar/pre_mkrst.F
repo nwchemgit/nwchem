@@ -5,19 +5,22 @@ c
 c
 #include "mafdecls.fh"
 c
-      logical pre_topsiz,pre_toprd,pre_rdpdb
-      external pre_topsiz,pre_toprd,pre_rdpdb
+      logical pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
+      external pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
 c
       integer lfnout,lprint,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam
       character*80 source,card
 c
-      integer nsa,nwa,nwm,nmis
-      integer msa,mwa
+      integer nsa,nwa,nwm,nmis,npbtyp,nwmx,noe
+      integer msa,mwa,mwm,mnoe,msm,nsm
+      real*8 box(3)
 c
       integer l_cwa,i_cwa
-      integer l_csa,i_csa,l_sat,i_sat,l_sgm,i_sgm,l_qsa,i_qsa
-      integer l_sfnd,i_sfnd,l_xs,i_xs
+      integer l_csa,i_csa,l_sar,i_sar,l_sgm,i_sgm,l_qsa,i_qsa
+      integer l_sfnd,i_sfnd,l_xs,i_xs,l_vs,i_vs
+      integer l_xw,i_xw,l_vw,i_vw,l_iwmr,i_iwmr,l_xwcr,i_xwcr
+      integer l_xscr,i_xscr,l_inoe,i_inoe,l_dnoe,i_dnoe
 c
       logical lslvnt,ldistr,lnames
       integer length,len
@@ -37,7 +40,7 @@ c     ---------------
 c
 c     character*16 cwa(mwa)  : solvent atom names
 c     character*16 csa(msa)  : solute atom names
-c     integer isat(msa)      : solute atom types
+c     integer isar(msa)      : solute atom types
 c     integer isgm(msa)      : solute segment numbers
 c     integer isfnd(msa)     : solute atom found flags
 c     real*8 qsa(msa)        : solute atom charges
@@ -47,8 +50,8 @@ c
      + call errquit('Memory allocation failed for cwa',9999)
       if(.not.ma_push_get(mt_byte,16*msa,"csa",l_csa,i_csa))
      + call errquit('Memory allocation failed for csa',9999)
-      if(.not.ma_push_get(mt_int,msa,"sat",l_sat,i_sat))
-     + call errquit('Memory allocation failed for sat',9999)
+      if(.not.ma_push_get(mt_int,msa,"sar",l_sar,i_sar))
+     + call errquit('Memory allocation failed for sar',9999)
       if(.not.ma_push_get(mt_int,msa,"sgm",l_sgm,i_sgm))
      + call errquit('Memory allocation failed for sgm',9999)
       if(.not.ma_push_get(mt_int,msa,"sfnd",l_sfnd,i_sfnd))
@@ -57,19 +60,36 @@ c
      + call errquit('Memory allocation failed for qsa',9999)
       if(.not.ma_push_get(mt_dbl,3*msa,"xs",l_xs,i_xs))
      + call errquit('Memory allocation failed for xs',9999)
+      if(.not.ma_push_get(mt_dbl,3*msa,"vs",l_vs,i_vs))
+     + call errquit('Memory allocation failed for xs',9999)
 c
       lslvnt=.false.
       ldistr=.false.
+      nwm=0
+      nwa=0
+      nsa=0
+      nsm=0
+      nwmx=0
+      noe=0
+      npbtyp=0
 c
 c     read topology file
 c     ------------------
 c
       if(.not.pre_toprd(lfntop,filtop,lfnout,lprint,
-     + byte_mb(i_cwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
-     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa))
+     + byte_mb(i_cwa),mwa,nwa,int_mb(i_sar),int_mb(i_sgm),
+     + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm))
      + call errquit('pre_toprd failed',9999)
       if(lprint.ge.5) write(lfnout,2000) filtop(1:index(filtop,' ')-1)
  2000 format('Topology successfully read from ',a)
+c
+      msm=nsm
+c
+c     allocate memory for solute reference coordinates
+c     ------------------------------------------------
+c
+      if(.not.ma_push_get(mt_dbl,3*msm,"xscr",l_xscr,i_xscr))
+     + call errquit('Memory allocation failed for xscr',9999)
 c
 c     open the command file
 c     ---------------------
@@ -79,11 +99,19 @@ c
       goto 1
    99 continue
       if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
-     + byte_mb(i_csa),int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),
-     + msa,nsa,nmis))
+     + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
+     + dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdpdb failed',9999)
       if(lprint.ge.5) write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
       write(lfnout,2103) nmis,nsa
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,dbl_mb(i_xs),
+     + msa,nsa)) call errquit('pre_center failed',9999)
+      if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + mwm,mwa,nwm,nwa,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,
+     + nwmx,int_mb(i_inoe),int_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_wrtrst failed',9999)
       goto 9
 c
     1 continue
@@ -113,8 +141,8 @@ c
       len=index(filpdb,' ')-1
       lnames=length.eq.len.and.filnam(1:len).eq.filpdb(1:len)
       if(.not.pre_rdpdb(filnam,lfnpdb,filtmp,lfntmp,lnames,
-     + byte_mb(i_csa),int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),
-     + msa,nsa,nmis))
+     + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
+     + dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdpdb failed',9999)
       if(lprint.ge.5) write(lfnout,2003) filnam(1:index(filnam,' ')-1)
  2003 format('PDB file successfully read from ',a)
@@ -138,12 +166,20 @@ c     write restart file
 c     ------------------
 c
       if(card(1:6).eq.'wr_rst') then
+      if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,
+     + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + mwm,mwa,nwm,nwa,
+     + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,
+     + nwmx,int_mb(i_inoe),int_mb(i_dnoe),mnoe,noe,msm,nsm))
+     + call errquit('pre_wrtrst failed',9999)
       endif
 c
 c     center solute
 c     -------------
 c
       if(card(1:6).eq.'center') then
+      if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,dbl_mb(i_xs),
+     + msa,nsa)) call errquit('pre_center failed',9999)
       endif
 c
 c     orient solute
@@ -214,6 +250,10 @@ c
 c     deallocate memory
 c     -----------------
 c
+      if(.not.ma_pop_stack(l_xscr))
+     + call errquit('Memory deallocation failed for xscr',9999)
+      if(.not.ma_pop_stack(l_vs))
+     + call errquit('Memory deallocation failed for vs',9999)
       if(.not.ma_pop_stack(l_xs))
      + call errquit('Memory deallocation failed for xs',9999)
       if(.not.ma_pop_stack(l_qsa))
@@ -222,8 +262,8 @@ c
      + call errquit('Memory deallocation failed for sfnd',9999)
       if(.not.ma_pop_stack(l_sgm))
      + call errquit('Memory deallocation failed for sgm',9999)
-      if(.not.ma_pop_stack(l_sat))
-     + call errquit('Memory deallocation failed for sat',9999)
+      if(.not.ma_pop_stack(l_sar))
+     + call errquit('Memory deallocation failed for sar',9999)
       if(.not.ma_pop_stack(l_csa))
      + call errquit('Memory deallocation failed for csa',9999)
       if(.not.ma_pop_stack(l_cwa))

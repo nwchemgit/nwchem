@@ -6,6 +6,9 @@ c     function to read input for prepare module from rtdb
 c
       implicit none
 c
+      logical util_nwchemrc_get
+      external util_nwchemrc_get
+c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 c
@@ -18,7 +21,7 @@ c
       integer newtop,newseq,newrst
       integer len,ndx
 c
-      character*255 home,filnam,card
+      character*255 home,filnam,key,value
 c
       ffield=' '
       dir_s=' '
@@ -69,40 +72,39 @@ c
 c
 c     get defaults for unspecified variables from $HOME/.nwchemrc
 c     -----------------------------------------------------------
-c 
-      call getenv('HOME',home)
 c
-      len=index(home,' ')-1
-      filnam=home(1:len)//'/.nwchemrc '
-      len=index(filnam,' ')-1
-      open(unit=69,file=filnam(1:len),form='formatted',status='old',
-     + err=9)
-   10 continue
-      read(69,6900,end=99,err=99) card
- 6900 format(a)
-      if(ffield(1:1).eq.' '.and.card(1:6).eq.'ffield') then
-      len=index(card(8:255),' ')
-      ffield=card(8:8+len)
+      if(ffield(1:1).eq.' ') then
+      key='ffield '
+      if(util_nwchemrc_get(key,value)) then
+      ffield=value(1:index(value,' ')-1)
       endif
-      goto 10
-   99 continue
-      rewind(unit=69)
-      if(ffield(1:1).eq.' ') ffield='amber '
-      len=index(ffield,' ')-1
-   11 continue
-      read(69,6900,end=199,err=199) card
-      if(dir_s(1:1).eq.' '.and.card(1:len+2).eq.ffield(1:len)//'_s')
-     + dir_s=card(len+4:index(card(len+4:255),' ')+len+3)
-      if(dir_x(1:1).eq.' '.and.card(1:len+2).eq.ffield(1:len)//'_x')
-     + dir_x=card(len+4:index(card(len+4:255),' ')+len+3)
-      if(dir_u(1:1).eq.' '.and.card(1:len+2).eq.ffield(1:len)//'_u')
-     + dir_u=card(len+4:index(card(len+4:255),' ')+len+3)
-      if(dir_t(1:1).eq.' '.and.card(1:len+2).eq.ffield(1:len)//'_t')
-     + dir_t=card(len+4:index(card(len+4:255),' ')+len+3)
-      goto 11
-  199 continue
-      close(unit=69)
-    9 continue
+      endif
+      if(dir_s(1:1).eq.' ') then
+      key=ffield(1:index(ffield,' ')-1)//'_s '
+      if(util_nwchemrc_get(key,value))
+     + dir_s=value(1:index(value,' '))
+      endif
+      if(dir_x(1:1).eq.' ') then
+      key=ffield(1:index(ffield,' ')-1)//'_x '
+      if(util_nwchemrc_get(key,value))
+     + dir_x=value(1:index(value,' '))
+      endif
+      if(dir_u(1:1).eq.' ') then
+      key=ffield(1:index(ffield,' ')-1)//'_u '
+      if(util_nwchemrc_get(key,value))
+     + dir_u=value(1:index(value,' '))
+      endif
+      if(dir_t(1:1).eq.' ') then
+      key=ffield(1:index(ffield,' ')-1)//'_t '
+      if(util_nwchemrc_get(key,value))
+     + dir_t=value(1:index(value,' '))
+      endif
+c
+      write(*,'(a,a)') 'ffield=',ffield(1:index(ffield,' ')-1)
+      write(*,'(a,a)') 'dir_s =',dir_s(1:index(dir_s,' ')-1)
+      write(*,'(a,a)') 'dir_x =',dir_x(1:index(dir_x,' ')-1)
+      write(*,'(a,a)') 'dir_u =',dir_u(1:index(dir_u,' ')-1)
+      write(*,'(a,a)') 'dir_t =',dir_t(1:index(dir_t,' ')-1)
 c
       pre_rtdbin=.true.
       return

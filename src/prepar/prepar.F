@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.12 1998-04-23 20:38:53 d3j191 Exp $
+c $Id: prepar.F,v 1.13 1998-04-23 23:50:16 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -241,14 +241,14 @@ c
 c     remove temporary file if they exist
 c     -----------------------------------
 c
-      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
-     + form='formatted',status='old',err=11)
-      close(unit=lfncmd,status='delete')
-   11 continue
-      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
-     + form='formatted',status='old',err=12)
-      close(unit=lfntmp,status='delete')
-   12 continue
+c      open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
+c     + form='formatted',status='old',err=11)
+c      close(unit=lfncmd,status='delete')
+c   11 continue
+c      open(unit=lfntmp,file=filtmp(1:index(filtmp,' ')-1),
+c     + form='formatted',status='old',err=12)
+c      close(unit=lfntmp,status='delete')
+c   12 continue
 c
 c     reset print
 c     -----------

@@ -1,14 +1,14 @@
       logical function pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,lnams,
-     + csa,isgm,isfnd,xs,msa,nsa,nmis)
+     + csa,isar,isgm,isfnd,xs,vs,xscr,msa,nsa,nmis,msm,nsm)
 c
       implicit none
 c
-      integer lfnpdb,lfntmp,msa,nsa,nmis
+      integer lfnpdb,lfntmp,msa,nsa,nmis,msm,nsm
       logical lnams,lnames
       character*255 filpdb,filtmp
       character*16 csa(msa)
-      integer isgm(msa),isfnd(msa)
-      real*8 xs(3,msa)
+      integer isar(msa),isgm(msa),isfnd(msa)
+      real*8 xs(3,msa),vs(3,msa),xscr(3,msm)
 c
       character*6 name1,name2
       character*80 card
@@ -46,11 +46,20 @@ c
       nprv=0
       do 1 i=1,msa
       isfnd(i)=0
+      isar(i)=0
       xs(1,i)=0.0d0
       xs(2,i)=0.0d0
       xs(3,i)=0.0d0
+      vs(1,i)=0.0d0
+      vs(2,i)=0.0d0
+      vs(3,i)=0.0d0
       if(isgm(i).gt.last) last=isgm(i)
     1 continue
+      do 2 i=1,nsm
+      xscr(1,i)=0.0d0
+      xscr(2,i)=0.0d0
+      xscr(3,i)=0.0d0
+    2 continue
       nsa=0
       lsolut=.true.
 c
@@ -78,23 +87,23 @@ c
       endif
 c
       if(lsolut) then
-      do 2 i=1,msa
+      do 3 i=1,msa
       if(num.eq.isgm(i)) then
       if(lnames) then
-      if(csa(i)(11:14).ne.name1(1:4)) goto 2
-      if(nama.ne.name2(1:4)) goto 2
+      if(csa(i)(11:14).ne.name2(1:4)) goto 3
+      if(nama.ne.name1(1:4)) goto 3
       else
-      if(nama.ne.csa(i)(11:14)) goto 2
+      if(nama.ne.csa(i)(11:14)) goto 3
       endif
       isfnd(i)=1
       xs(1,i)=1.0d-01*x
       xs(2,i)=1.0d-01*y
       xs(3,i)=1.0d-01*z
-      write(*,'(a6,a4,i5)') nama,namr,i
+c      write(*,'(a6,a4,i5)') nama,namr,i
       goto 100
       endif
-    2 continue
-      write(*,'(a6,a4)') nama,namr
+    3 continue
+c      write(*,'(a6,a4)') nama,namr
       else
       endif
 c
@@ -105,9 +114,9 @@ c
       close(unit=lfnpdb)
 c
       nmis=0
-      do 3 i=1,msa
+      do 4 i=1,msa
       if(isfnd(i).eq.0) nmis=nmis+1
-    3 continue
+    4 continue
       nsa=msa
 c
       pre_rdpdb=.true.

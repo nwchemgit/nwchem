@@ -35,9 +35,9 @@ c
       logical aring(mring)
 c
       integer pre_atnum
-      logical pre_short,pre_bnd,pre_ang,pre_dih,pre_center
+      logical pre_short,pre_bnd,pre_ang,pre_dih,pre_impctr
       external pre_atnum
-      external pre_short,pre_bnd,pre_ang,pre_dih,pre_center
+      external pre_short,pre_bnd,pre_ang,pre_dih,pre_impctr
       logical pre_atype,pre_charge
       external pre_atype,pre_charge
 c
@@ -161,10 +161,10 @@ c
 c     determine center types
 c     ----------------------
 c
-      if(.not.pre_center(xatm,latm,matm,jlo,ilo,ihi,jhi,
+      if(.not.pre_impctr(xatm,latm,matm,jlo,ilo,ihi,jhi,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6))
-     + call errquit('pre_center failed',9999)
+     + call errquit('pre_impctr failed',9999)
 c
 c     memory allocation for work array ltyp
 c     -------------------------------------

@@ -39,7 +39,7 @@ c
       integer igeom2,nout,icon(100),ncon,nconst
       real*8 rcon
       character*16 tag
-      real*8 coord(3),charge
+      real*8 coord(3),chrge
 c
       do 1 i=1,matm
       qatm(i)=0.0d0
@@ -66,7 +66,6 @@ c
       if(ka.gt.0) nout=nout+1
    12 continue
       nout=nout+ihi-ilo+1
-      write(*,'(a,i4)') 'nout=',nout
       if(.not.geom_cart_set(igeom2,nout,tag,xatm,xatm))
      + call errquit('pre_charge: geom_cart_set failed',9999)
       do 10 i=ilo,ihi
@@ -80,11 +79,11 @@ c
       tag(1:2)=catm(1,i)(1:2)
       endif
       endif
-      charge=dble(latm(2,i))
+      chrge=dble(latm(2,i))
       coord(1)=cnm2au*xatm(1,i)
       coord(2)=cnm2au*xatm(2,i)
       coord(3)=cnm2au*xatm(3,i)
-      if(.not.geom_cent_set(igeom2,i-ilo+1,tag,coord,charge))
+      if(.not.geom_cent_set(igeom2,i-ilo+1,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_set failed',9999)
    10 continue
       nout=ihi-ilo+1
@@ -97,11 +96,11 @@ c
       if(ka.gt.0) then
       nout=nout+1
       tag='H               '
-      charge=1.0d0
+      chrge=1.0d0
       coord(1)=cnm2au*xatm(1,ka)
       coord(2)=cnm2au*xatm(2,ka)
       coord(3)=cnm2au*xatm(3,ka)
-      if(.not.geom_cent_set(igeom2,nout,tag,coord,charge))
+      if(.not.geom_cent_set(igeom2,nout,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_set failed',9999)      
       endif
    11 continue
@@ -137,9 +136,9 @@ c
      + call errquit('pre_charge: geom_rtdb_load failed',0)
       endif
       do 9 i=1,nout
-      if(.not.geom_cent_get(igeom2,i,tag,coord,charge))
+      if(.not.geom_cent_get(igeom2,i,tag,coord,chrge))
      + call errquit('pre_charge: geom_cent_get failed',i)
-      qatm(ilo+i-1)=charge
+      qatm(ilo+i-1)=chrge
     9 continue
       if(.not.geom_destroy(igeom2))
      + call errquit('pre_charge: geom_destroy failed',9999)

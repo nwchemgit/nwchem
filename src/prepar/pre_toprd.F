@@ -1,9 +1,9 @@
       logical function pre_toprd(lfntop,filtop,lfnout,lprint,
-     + cwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa)
+     + cwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm)
 c
       implicit none
 c
-      integer lfntop,lfnout,lprint,mwa,nwa,msa,nsa
+      integer lfntop,lfnout,lprint,mwa,nwa,msa,nsa,nsm
       character*16 cwa(mwa),csa(msa)
       integer isat(msa),isgm(msa)
       real*8 qsa(msa)
@@ -11,12 +11,14 @@ c
       character*10 slvnam
       character*1 cdummy
 c
-      integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsb,nsh,nsd,nso,nst,nsx,nsm
-      integer i,j,idummy,len,n
+      integer natl,nwb,nwh,nwd,nwo,nwt,nwn,nsb,nsh,nsd,nso,nst,nsx
+      integer i,j,idummy,len,n,m
 c
       len=index(filtop,' ')-1
       open(unit=lfntop,file=filtop(1:len),form='formatted',
      + status='old',err=9999)
+c
+      nsm=0
 c
       do 1 i=1,4
       read(lfntop,1000)
@@ -69,8 +71,9 @@ c
       if(nwa.gt.0) read(lfntop,1005) slvnam
  1005 format(a10)
       do 10 i=1,nsa
-      read(lfntop,1006) isat(i),nsm,isgm(i),csa(i),n
+      read(lfntop,1006) isat(i),m,isgm(i),csa(i),n
  1006 format(i7,i7,14x,i7,a16,10x,i5)
+      if(nsm.lt.m) nsm=m
       read(lfntop,1007) qsa(i)
  1007 format(f12.6) 
       if(n.eq.3) then
