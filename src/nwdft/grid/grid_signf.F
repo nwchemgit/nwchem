@@ -3,7 +3,7 @@
      &                       zprim, iandex,iatype_pt_chg,
      &     nq,xyzw)
 c
-C$Id: grid_signf.F,v 1.7 2004-01-23 02:32:38 edo Exp $
+C$Id: grid_signf.F,v 1.8 2004-09-07 18:56:36 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -24,7 +24,7 @@ c
 c
 c     Distance Squared between Sampling Points and Centers
 c
-      double precision zprim(*),acc_sigf
+      double precision zprim(*),acc_sigf,acc_sigf2
       integer icset, ictr, 
      &        ifirst, ilast, nprim,  iprimo
       double precision zmin,r2,x,y,z,r_arg
@@ -34,7 +34,7 @@ c
 c
       logical qpts_in
 c
-      double precision alpha,logeps,bfspread
+      double precision alpha,logeps,bfspread,bfspread2
       double precision gaussian_range
       gaussian_range(n,logeps,alpha) = 
      $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
@@ -44,6 +44,7 @@ c
 c
 c
       acc_sigf=log(1d-10)
+      acc_sigf2=log(1d-13)
       mcenters_scr = 0
 c
       do ictr=1,mcenters
@@ -99,6 +100,8 @@ c       one  point in the sampling set.
 c       
            bfspread=gaussian_range(l,acc_sigf,zmin)
         if (r_arg.lt.bfspread) then
+#ifdef GRID_ASCREEN
+           bfspread2=gaussian_range(l,acc_sigf2,zmin)
 c
 c     check if all grid pts are really in the bf spread
 c
@@ -107,12 +110,15 @@ c
               y = xyzw(2,iprimo) - xyz(2,ictr)
               z = xyzw(3,iprimo) - xyz(3,ictr)
               r2 = sqrt(x*x + y*y + z*z)
-              if (r2.lt.gaussian_range(l,acc_sigf,zmin)) then
+              if (r2.lt.bfspread2) then
+#endif
                  mcenters_scr=mcenters_scr+1
                  iandex(mcenters_scr)=ictr
                  goto 2001
+#ifdef GRID_ASCREEN
               endif
            enddo
+#endif
         endif
 
       enddo
