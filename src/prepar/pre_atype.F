@@ -4,7 +4,7 @@
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.18 2003-07-23 02:38:45 d3j191 Exp $
+c $Id: pre_atype.F,v 1.19 2003-10-07 15:26:43 d3j191 Exp $
 c
       implicit none
 c
@@ -281,6 +281,7 @@ c
    16 continue
       read(lfnpar,1000,end=17,err=9999) card
  1000 format(a)
+      if(card(1:3).eq.'End') goto 17
       if(card(1:1).eq.'#'.or.card(1:4).eq.'    ') goto 16
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)

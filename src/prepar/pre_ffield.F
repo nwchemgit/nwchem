@@ -5,7 +5,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,
      + limp,kimp,rimp,mimp,nimp,nparms,mparms)
 c
-c $Id: pre_ffield.F,v 1.21 2003-07-23 02:38:46 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.22 2003-10-07 15:26:43 d3j191 Exp $
 c
       implicit none
 c
@@ -63,6 +63,7 @@ c
       read(lfnpar,1000,err=9999,end=999) card
  1000 format(a)
       if(card(1:1).eq.'#') goto 1
+      if(card(1:3).eq.'End') goto 999
     2 continue
 c
 c     1-4 electrostatic scaling
@@ -118,6 +119,7 @@ c
       if(card(1:16).eq.'Proper dihedrals') goto 2
       if(card(1:18).eq.'Improper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
+      if(card(1:3).eq.'End') goto 999
       read(card,1001,err=2) atyp1(1:5),rmass,p1,p2,p3,p4,nt,ng
  1001 format(a5,f10.5,4e12.5,i5,1x,i10)
       if(atyp1.eq.'      ') goto 1
@@ -186,6 +188,7 @@ c
       if(card(1:16).eq.'Proper dihedrals') goto 2
       if(card(1:18).eq.'Improper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
+      if(card(1:3).eq.'End') goto 999
       read(card,1003,err=2) atyp1(1:5),atyp2(1:5),p1,p2
  1003 format(a5,1x,a5,2x,2e12.5)
       if(atyp1.eq.'      ') goto 1
@@ -238,6 +241,7 @@ c
       if(card(1:16).eq.'Proper dihedrals') goto 2
       if(card(1:18).eq.'Improper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
+      if(card(1:3).eq.'End') goto 999
       read(card,1005,err=2) atyp1(1:5),atyp2(1:5),p1,p2
  1005 format(a5,1x,a5,f10.5,e12.5)
       if(atyp1.eq.'      ') goto 1
@@ -281,6 +285,7 @@ c
       if(card(1:16).eq.'Proper dihedrals') goto 2
       if(card(1:18).eq.'Improper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
+      if(card(1:3).eq.'End') goto 999
       read(card,1006,err=2) atyp1(1:5),atyp2(1:5),atyp3(1:5),p1,p2
  1006 format(a5,1x,a5,1x,a5,f10.5,e12.5)
       if(atyp1.eq.'      ') goto 1
@@ -332,6 +337,7 @@ c
       if(card(1:6).eq.'Angles') goto 2
       if(card(1:18).eq.'Improper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
+      if(card(1:3).eq.'End') goto 999
       read(card,1007,err=2) atyp1(1:5),atyp2(1:5),atyp3(1:5),atyp4(1:5),
      + p1,p2,mult
  1007 format(a5,1x,a5,1x,a5,1x,a5,f10.5,e12.5,i5)
@@ -389,6 +395,7 @@ c
       if(card(1:6).eq.'Angles') goto 2
       if(card(1:16).eq.'Proper dihedrals') goto 2
       if(card(1:10).eq.'Atom types') goto 2
+      if(card(1:3).eq.'End') goto 999
       if(ffield(1:5).eq.'amber') then
       read(card,1008,err=2) atyp2(1:5),atyp3(1:5),atyp1(1:5),atyp4(1:5),
      + p1,p2,mult

@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.90 2003-09-02 19:41:17 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.91 2003-10-07 15:26:43 d3j191 Exp $
 c
       implicit none
 c
@@ -55,7 +55,7 @@ c
       integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
       integer l_wfnd,i_wfnd,l_wcmr,i_wcmr,l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
-      integer l_wat,i_wat,l_lang,i_lang
+      integer l_wat,i_wat,l_lang,i_lang,l_ndx,i_ndx
       integer l_lseq,i_lseq,l_ips,i_ips,l_ihop,i_ihop,l_istat,i_istat
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames,lpdbbx
@@ -1053,10 +1053,20 @@ c     collapse solute
 c     ---------------
 c
       if(card(1:10).eq.'collapsexy') then
-      call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),msa,nsa,touch,3)
+      if(.not.ma_push_get(mt_int,2*msa,'ndx',l_ndx,i_ndx))
+     + call errquit('Memory allocation failed for ndx',9999)
+      call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
+     + msa,nsa,touch,3)
+      if(.not.ma_pop_stack(l_ndx))
+     + call errquit('Memory deallocation failed for ndx',9999)
       endif
       if(card(1:9).eq.'collapsez') then
-      call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),msa,nsa,touch,1)
+      if(.not.ma_push_get(mt_int,2*msa,'ndx',l_ndx,i_ndx))
+     + call errquit('Memory allocation failed for ndx',9999)
+      call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
+     + msa,nsa,touch,1)
+      if(.not.ma_pop_stack(l_ndx))
+     + call errquit('Memory deallocation failed for ndx',9999)
       endif
 c
 c     remove solvent

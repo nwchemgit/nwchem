@@ -1,26 +1,59 @@
-      subroutine pre_collaps(xs,id,msa,nsa,touch,mode)
+      subroutine pre_collaps(xs,id,ndx,msa,nsa,touch,mode)
 c
       implicit none
 c
       integer msa,nsa,mode
-      integer id(msa)
+      integer id(msa),ndx(msa,2)
       real*8 xs(3,msa)
       real*8 touch
 c
       logical first,found
       integer i,j,k,m
       integer nmol,large
-      real*8 rt
+      real*8 rt,rk,dist
       real*8 a,b,c,d,r,r1,r2,root,dt,dtran,tr(3),tran(3),xmax(3),xmin(3)
 c
       write(*,'(/,a,i4,f12.6,/)') ' Collapsing using mode ',mode,touch
 c
 c     find total number of molecules
 c
+      do 13 i=1,nsa
+      ndx(i,1)=0
+      ndx(i,2)=0
+   13 continue
+c
       nmol=0
       do 1 i=1,nsa
       nmol=max(nmol,id(i))
+      ndx(id(i),1)=ndx(id(i),1)+1
     1 continue
+c
+      do 14 i=1,nsa
+      ndx(i,2)=id(i)
+   14 continue
+c
+      do 15 i=1,nsa
+      if(ndx(id(i),1).eq.1) then
+      k=0
+      rk=1.0d10
+      do 16 j=1,nsa
+      if(ndx(id(j),1).gt.1) then
+      dist=(xs(1,i)-xs(1,j))**2+(xs(2,i)-xs(2,j))**2+
+     + (xs(3,i)-xs(3,j))**2
+      if(dist.lt.rk) then
+      k=j
+      rk=dist
+      endif
+      endif
+   16 continue
+      if(k.gt.0) then
+      ndx(i,2)=id(k)
+      write(*,'(a,i8,a,i4,a,f12.6)') 
+     + ' Single ion ',i,' grouped with molecule ',
+     + id(k),', distance is ',sqrt(rk)
+      endif
+      endif
+   15 continue
 c
     2 continue
 c
@@ -38,7 +71,7 @@ c
       found=.false.
       first=.true.
       do 4 i=1,nsa
-      if(id(i).eq.m) then
+      if(ndx(i,2).eq.m) then
       found=.true.
       if(first) then
       do 5 k=1,3
@@ -63,9 +96,9 @@ c
       dt=sqrt(tr(1)*tr(1)+tr(2)*tr(2)+tr(3)*tr(3))
 c
       do 8 i=1,nsa
-      if(id(i).eq.m) then
+      if(ndx(i,2).eq.m) then
       do 9 j=1,nsa
-      if(id(j).ne.m) then
+      if(ndx(j,2).ne.m) then
       a=0.0d0
       b=0.0d0
       c=0.0d0
@@ -131,7 +164,7 @@ c     process largest possible translation
 c
       if(large.gt.0) then
       do 11 i=1,nsa
-      if(id(i).eq.large) then
+      if(ndx(i,2).eq.large) then
       do 12 k=1,3
       xs(k,i)=xs(k,i)+root*tran(k)
    12 continue
