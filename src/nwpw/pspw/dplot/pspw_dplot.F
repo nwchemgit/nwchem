@@ -177,6 +177,11 @@
         call util_flush(6)
       end if
 
+      call dplot_gen_psi_dn(ispin,ne,
+     >                npack1,nfft3d,nemax,
+     >                dcpl_mb(psi2(1)),
+     >                dbl_mb(dn(1)),
+     >                dcpl_mb(psir(1)))
       call dplot_loop(rtdb,
      >                ispin,ne,
      >                npack1,nfft3d,nemax,
@@ -253,42 +258,29 @@
 
       end
  
-
-  
-      subroutine dplot_loop(rtdb,
-     >                      ispin,ne,
+      subroutine dplot_gen_psi_dn(ispin,ne,
      >                      npack1,nfft3d,nemax,
      >                      psi,
      >                      dn,
      >                      psi_r)
       implicit none
-      integer    rtdb
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
       complex*16 psi(npack1,nemax)
       real*8     dn(2*nfft3d,2)
       real*8     psi_r(2*nfft3d,nemax)
 
-#include "mafdecls.fh"
-#include "rtdb.fh"
 
 *     **** local variables ****
-      logical value
       integer taskid
       integer MASTER
       parameter (MASTER=0)
 
       integer n2ft3d
-      integer i,ms,n,count,number,ia
-      integer n1(2),n2(2),nn(2)
+      integer i,ms,n
+      integer n1(2),n2(2)
       integer nx,ny,nz
-      integer rho(2)
       real*8  scal1,scal2
-
-      character*72 cube_comment
-      character*30 name1,name2
-      character*30 filename
-      integer name1_len,name2_len,ind
 
 
 *     **** external functions ****
@@ -337,14 +329,74 @@ c              dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
          end do
          call D3dB_r_Zero_Ends(1,dn(1,ms))
       end do
+      return
+      end
+
+
+      subroutine dplot_loop(rtdb,
+     >                      ispin,ne,
+     >                      npack1,nfft3d,nemax,
+     >                      psi,
+     >                      dn,
+     >                      psi_r)
+      implicit none
+      integer    rtdb
+      integer    ispin,ne(2)
+      integer    npack1,nfft3d,nemax
+      complex*16 psi(npack1,nemax)
+      real*8     dn(2*nfft3d,2)
+      real*8     psi_r(2*nfft3d,nemax)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** local variables ****
+      logical value
+      integer taskid
+      integer MASTER
+      parameter (MASTER=0)
+
+      integer n2ft3d
+      integer i,count,number,ia
+      integer n1(2),n2(2),nn(2)
+      integer nx,ny,nz
+      integer rho(2)
+      real*8  scal1,scal2
+
+      character*72 cube_comment
+      character*30 name1,name2
+      character*30 filename
+      integer name1_len,name2_len,ind
+
+
+*     **** external functions ****
+      integer  control_version
+      real*8   lattice_omega
+      external control_version
+      external lattice_omega
+
+      
+      call Parallel_taskid(taskid)
+      n2ft3d = 2*nfft3d
+      value = MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1) + 1
+      n2(2) = ne(1) + ne(2)
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
 
 
 *     ********************************************
 *     **** loop over orbital and density list ****
 *     ********************************************
 
-      value = MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
-      if (.not. value) call errquit('out of stack memory',0)
 
       value = value.and.rtdb_get(rtdb,'pspw_dplot:count',
      >                            mt_int,1,count)
@@ -497,6 +549,10 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
     
       return
       end
+
+
+
+  
 
       subroutine dplot_gcube_write(rtdb,filename,
      >                             number,cube_comment,rho)
