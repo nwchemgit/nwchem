@@ -1,7 +1,7 @@
       logical function pre_sgmndx(iunit,dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_sgmndx.F,v 1.5 1998-04-29 18:35:24 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.6 1998-04-29 23:00:13 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -159,8 +159,10 @@ c
 c
 c      length=index(filnam,' ')-1
       if(lsgm(2,i).eq.0) pre_sgmndx=.false.
-c      write(lfnout,1001) i,csgm(i),lsgm(1,i),lsgm(2,i)
-c 1001 format(i5,2x,a5,i5,2x,i5)
+      if(lprint.ge.5) then
+      write(lfnout,1001) i,csgm(i),lsgm(1,i),lsgm(2,i)
+ 1001 format(i5,2x,a5,i5,2x,i5)
+      endif
     3 continue
 c
       return

@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_wrtsgm.F,v 1.5 1998-04-29 18:35:31 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.6 1998-04-29 23:00:13 d3j191 Exp $
 c
       implicit none
 c
@@ -41,17 +41,17 @@ c
 c
       do 3 i=1,nang
       write(lfnsgm,2004) i,(lang(j,i),j=1,3),0,0,(0.0d0,j=1,6)
- 2004 format(i5,5i5,/,3(f12.6,e12.5))
+ 2004 format(i5,5i5,/,3(f10.6,e12.5))
     3 continue
 c
       do 4 i=1,ndih
       write(lfnsgm,2005) i,(ldih(j,i),j=1,4),0,0,(0,0.0d0,0.0d0,j=1,3)
- 2005 format(i5,6i5,/,3(i5,f12.6,e12.5))
+ 2005 format(i5,6i5,/,3(i3,f10.6,e12.5))
     4 continue
 c
       do 5 i=1,nimp
       write(lfnsgm,2006) i,(limp(j,i),j=1,4),0,0,(0,0.0d0,0.0d0,j=1,3)
- 2006 format(i5,6i5,/,3(i5,f12.6,e12.5))
+ 2006 format(i5,6i5,/,3(i3,f10.6,e12.5))
     5 continue
 c
       close(unit=lfnsgm)

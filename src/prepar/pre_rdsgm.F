@@ -3,7 +3,7 @@
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
-c $Id: pre_rdsgm.F,v 1.6 1998-04-29 18:35:22 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.7 1998-04-29 23:00:13 d3j191 Exp $
 c
       implicit none
 c
@@ -63,7 +63,7 @@ c
       read(lfnsgm,1003) (qatm(j,natm),j=1,6)
  1003 format(6f12.6)
 c
-      if(lprint.ge.50) then
+      if(lprint.ge.5) then
       write(lfnout,1002) (catm(j,natm),j=1,4),(latm(j,natm),j=1,4)
       write(lfnout,1003) (qatm(j,natm),j=1,6)
       endif
@@ -94,7 +94,7 @@ c
       read(lfnsgm,1005) (rbnd(j,nbnd),j=1,6)
  1005 format(3(f12.6,e12.5))
 c
-      if(lprint.ge.50) then
+      if(lprint.ge.5) then
       write(lfnout,1004) (lbnd(j,nbnd),j=1,4)
       write(lfnout,1005) (rbnd(j,nbnd),j=1,6) 
       endif
@@ -111,11 +111,11 @@ c
       read(lfnsgm,1006) (lang(j,nang),j=1,5)
  1006 format(5x,5i5)
       read(lfnsgm,1007) (rang(j,nang),j=1,6)
- 1007 format(3(f12.6,e12.5))
+ 1007 format(3(f10.6,e12.5))
       lang(1,nang)=lang(1,nang)+na
       lang(2,nang)=lang(2,nang)+na
       lang(3,nang)=lang(3,nang)+na
-      if(lprint.ge.50) then
+      if(lprint.ge.5) then
       write(lfnout,1006) (lang(j,nang),j=1,5)
       write(lfnout,1007) (rang(j,nang),j=1,6)
       endif
@@ -128,9 +128,9 @@ c
       read(lfnsgm,1008) (ld(j),j=1,6)
  1008 format(5x,6i5)
       read(lfnsgm,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
- 1009 format(3(i5,f12.6,e12.5))
+ 1009 format(3(i3,f10.6,e12.5))
 c
-      if(lprint.ge.50) then
+      if(lprint.ge.5) then
       write(lfnout,1008) (ld(j),j=1,6)
       write(lfnout,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
       endif
@@ -173,9 +173,9 @@ c
  1010 format(5x,6i5)
       read(lfnsgm,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
      + rimp(2*j,nimp),j=1,3)
- 1011 format(3(i5,f12.6,e12.5))
+ 1011 format(3(i3,f10.6,e12.5))
 c
-      if(lprint.ge.50) then
+      if(lprint.ge.5) then
       write(lfnout,1010) (limp(j,nimp),j=1,6)
       write(lfnout,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
      + rimp(2*j,nimp),j=1,3)
