@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.40 2002-02-28 21:07:57 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.41 2002-08-15 20:41:32 d3j191 Exp $
 c
       implicit none
 c
@@ -195,6 +195,7 @@ c
       endif
 c
       ioff=0
+      inum=0
       if(nmerge.gt.0) then
       do 6061 k=1,nmerge
       ioff=ioff+pre_merge(lfnmrg,xmerge(1,k),filmrg(k),

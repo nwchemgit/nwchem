@@ -1,7 +1,7 @@
       integer function  pre_merge(iunit,xmerge,filnam,
      + lfnout,lfnpdb,namslv,inum)
 c
-c $Id: pre_merge.F,v 1.5 2002-02-28 21:07:57 d3j191 Exp $
+c $Id: pre_merge.F,v 1.6 2002-08-15 20:41:32 d3j191 Exp $
 c
       implicit none
 c
@@ -145,8 +145,9 @@ c
 c
       close(iunit)
 c
-      inum=isgm
-      pre_merge=isgm
+c      inum=isgm
+c      pre_merge=isgm
+      pre_merge=inum
       return
 c
  9999 continue
