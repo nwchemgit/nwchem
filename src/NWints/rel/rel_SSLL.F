@@ -1,4 +1,4 @@
-C $Id: rel_SSLL.F,v 1.3 2000-01-03 21:59:05 mg201 Exp $
+C $Id: rel_SSLL.F,v 1.4 2000-02-03 20:30:19 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSLL}
 c:tex-This routine generates the SSLL-type two-electron integrals for
@@ -108,8 +108,10 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       debug_addresses = mod(ibug,2) .eq. 1
       debug_arrays = mod(ibug,10)/2 .eq. 1
       max_mem = 0
+      if (debug_gen) write (LuOut,*) 'Entering rel_SSLL'
 *
-      if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4))
+      if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4) .and.
+     &    (ntyp .ne. 9))
      &    call errquit('Invalid value of ntyp in rel_SSLL',99)
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
@@ -211,6 +213,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_A-1, l_B+1
 *
       if (l_A .gt. 0) then
+        memscr = lscr-i_scr+1
         call hf2(
      &      Axyz,zeta_A,coef_A,NPA,NCA,l_A-1,
      &      Bxyz,zeta_B,scr(i_xcb),NPB,NCB,l_B+1,
@@ -224,6 +227,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_A+1, l_B-1
 *
       if (l_B .gt. 0) then
+        memscr = lscr-i_scr+1
         call hf2(
      &      Axyz,zeta_A,scr(i_xca),NPA,NCA,l_A+1,
      &      Bxyz,zeta_B,coef_B,NPB,NCB,l_B-1,
@@ -236,6 +240,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *         Calculate integrals for l_A-1, l_B-1
 *
         if (l_A .gt. 0) then
+          memscr = lscr-i_scr+1
           call hf2(
      &        Axyz,zeta_A,coef_A,NPA,NCA,l_A-1,
      &        Bxyz,zeta_B,coef_B,NPB,NCB,l_B-1,
@@ -249,6 +254,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
 *     Compute the relativistic integrals
 *
+      memscr = lscr-i_scr+1
       call rel_pot2 (scr(i_pp),scr(i_pm),scr(i_mp),scr(i_mm),
      &    rel_ints,n_ints,ntyp,n_cd,
      &    l_A,n_cartp_a,n_cart_a,n_cartm_a,NCA,
