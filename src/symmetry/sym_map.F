@@ -1,6 +1,6 @@
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
      &     acord, oprint, ilbl)
-C$Id: sym_map.F,v 1.5 1995-12-15 12:13:15 d3g681 Exp $
+C$Id: sym_map.F,v 1.6 1996-07-15 22:07:01 gutowski Exp $
       implicit none
 c
       integer itype
@@ -79,6 +79,20 @@ c
                      goto 3000
                   endif
  380           continue
+            elseif(itype.eq.2) then ! surfaces
+ 3020         do 382 ii=1,2
+                if(dabs(xnew(iop,ii)).lt.1.0d-10) then
+                  xnew(iop,ii)=0.0
+                endif
+                if(xnew(iop,ii).lt.0.0d0) then
+                  xnew(iop,ii)=xnew(iop,ii)+1.0d0
+                elseif (xnew(iop,ii).ge.1.0d0) then
+                  xnew(iop,ii)=xnew(iop,ii)-1.0d0
+                endif
+                if(xnew(iop,ii).lt.0.0d0.or.xnew(iop,ii).ge.1.0d0) then
+                  goto 3020
+                endif
+ 382         continue
             endif
  305     continue
 c--   > load tags equiv. to the tag of atom i for search

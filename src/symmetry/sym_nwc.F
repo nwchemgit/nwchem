@@ -22,7 +22,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint)
-C$Id: sym_nwc.F,v 1.9 1995-11-19 19:31:52 d3g681 Exp $
+C$Id: sym_nwc.F,v 1.10 1996-07-15 22:07:02 gutowski Exp $
       implicit real*8 (a-h,o-z)
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
@@ -43,33 +43,29 @@ c
       numgrp = group_number(geom)
       numset = setting_number(geom)
 c
-c--> lattice vectors & angles (cell constants)
+c   lattice vectors & angles (cell constants)
+c   values should have been read in and initialized properly for
+c   each system dimension
 c
       do 1000 i=1,3
         cdist(i)=lattice_vectors(i,geom)
         cang(i) =lattice_angles(i,geom)
  1000 continue
 c
-c--> check for system type (dimensionality) - leave dummy if structure.
+c    generate symmetry operators for whatever group (crystals, surfaces
+c    polymers or molecules) have been requested.
 c
-      if (itype.eq.3) then
-         call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $       nops,oprint, group_name(geom))
-      elseif(itype.eq.0) then
-         call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $       nops,oprint, group_name(geom))
-      endif
+      call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
+     $     nops,oprint, group_name(geom))
 c
 c     scratch space needed by dosymops: tags, coordinates
 c     space on stack: pointer list, points to the assymetric (distinct) atoms
-c     expanded coord list
+c     apply symmops to coordinate list
 c
       LResult = MA_Push_Get(MT_Byte,nata*(nops+1)*16,'scratch labels',
      &     latags, iatags)
-
       LResult = MA_Push_Get(MT_Dbl,nata*(nops+1)*3,'scratch atoms',
      &     lcoord, icoord) .and. lresult
-
       Lresult = MA_Push_Get(MT_Int,nata,'distinct atoms',ldatom,idatom)
      $     .and. lresult
       if (.not. lresult) call errquit('sym_nwc: dosymops ma failed', 0)
@@ -77,7 +73,6 @@ c
       call dosymops(sym_ops(1,1,geom),nops,coords(1,1,geom),tags,nata,
      &     itype,Byte_MB(iatags),Dbl_MB(icoord),nareal,nata*(nops+1),
      $     cdist,cang,Int_MB(idatom), oprint)
-
 c
       if(nareal.gt.max_cent) then
         write(iw,*)' Too many atoms, increase max_cent in ',
@@ -127,40 +122,73 @@ c
       call sym_put_in_geom(geom, nata, nareal,
      $     Byte_MB(iatags), int_mb(idatom), dbl_mb(icoord),
      $     lmscr, imscr, nops)
-
 c
 c---> print gmat,amat,vol evaluated by geom_nd routines
 c
-      if(isystype(geom).ne.0 .and. oprint) then
 c
-c--> Print A matrix.
+c---> print gmat,amat,vol evaluated by geom_nd routines
 c
+c
+c--> Print Amatrix, G matrix, volume for 3-d and 2-d cells.
+c
+      if(itype.eq.3) then
          write(*,9)
          do 513 i=1,3
             write(*,15) (amatrix(i,j,geom), j=1,3)
  513     continue
-c     
-c--> Print G matrix.
 c
-        write(*,10)
-        do 130 i=1,3
-          write(*,15) (metric_matrix(i,j,geom), j=1,3)
-  130   continue
+         write(*,21)
+         do 517 i=1,3
+            write(*,15) (amatrix_inv(i,j,geom), j=1,3)
+ 517     continue
+c
+         write(*,10)
+         do 130 i=1,3
+            write(*,15) (metric_matrix(i,j,geom), j=1,3)
+ 130     continue
+c
+         write(*,17) volume_direct(geom)
+c
+      elseif(itype.eq.2) then
+         write(*,9)
+         do 630 i=1,3
+            write(*,15) (amatrix(i,j,geom), j=1,3)
+ 630     continue
+         write(*,21)
+         do 631 i=1,3
+            write(*,15) (amatrix_inv(i,j,geom), j=1,3)
+ 631     continue
 c     
-c--> Print volume of unit cell.
+         write(*,10)
+         do 640 i=1,3
+            write(*,15) (metric_matrix(i,j,geom), j=1,3)
+ 640     continue
 c     
-        write(*,17) volume_direct(geom)
-        write(*,14)
+         write(*,18) volume_direct(geom)
+      endif
 c
 c--> Print cartesian coordinates of unit cell.
 c
+      if(itype.eq.3) then
         write(*,30)
         l=0
         do 510 i=1,nareal
-          write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
-          l=l+3
-  510   continue
-c
+           write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
+           l=l+3
+ 510    continue
+         write(*,14)
+c   convert z-coords of slab to bohr from angstroms         
+      elseif(itype.eq.2) then
+         do i=1,nareal
+            coords(3,i,geom)=coords(3,i,geom)*angstrom_to_au
+         enddo
+         write(*,30)
+         l=0
+         do 512 i=1,nareal
+            write(*,20) i,tags(i,geom),(coords(j,i,geom), j=1,3)
+            l=l+3
+ 512     continue
+         write(*,14)
       endif
 c
 c--> final clean up of memory: gensym and dosymops activities
@@ -173,15 +201,20 @@ c
 c
 c--> formats
 c
-    9 format(//15x,
-     & 'Crystallographic to Cartesian Transformation Matrix',/)
-   10 format(//,21x,'THE METRIC MATRIX FOR THE DIRECT LATTICE ',/)
-   15 format(20x,3(f12.6,2x))      
-   17 format(/,19x,'UNIT CELL VOLUME = ',f12.6,3x,'ANGSTOMS**3')
-   14 format(/,80('-'),/)
-c   20 format(15x,i5,5x,a16,3(f10.6,2x))
-   20 format(10x,i5,2x,a16,3(f10.6,2x))
-   30 format(/,15x,'--------- CARTESIAN COORDINATES (A.U.) ---------',
+ 9    format(//20x,
+     &     'CRYSTALLOGRAPHIC TO CARTESIAN MATRIX (A.U.)',/)
+ 10   format(//,23x,'METRIC MATRIX:DIRECT LATTICE (A.U.)',/)
+ 14   format(/,80('-'),//)
+ 15   format(20x,3(f12.6,2x))      
+ 17   format(/,19x,'UNIT CELL VOLUME = ',f12.6,3x,'BOHR**3')
+ 18   format(/,19x,'UNIT CELL AREA = ',f12.6,3x,'BOHR**3')
+ 20   format(10x,i5,2x,a16,3(f10.6,2x))
+ 21   format(//20x,
+     & 'CARTESIAN TO CRYSTALLOGRAPHIC MATRIX (A.U.)',/)
+ 30   format(/,15x,'--------- CARTESIAN COORDINATES (A.U.) ---------',
      &/)
       return
       end
+
+
+

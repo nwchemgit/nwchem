@@ -1,5 +1,5 @@
       subroutine sym_apply_op(geom, opnum, r, r1)
-C$Id: sym_apply_op.F,v 1.6 1995-11-28 01:16:21 d3g681 Exp $
+C$Id: sym_apply_op.F,v 1.7 1996-07-15 22:07:01 gutowski Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -19,25 +19,39 @@ c
       enddo
 c     
 c--> shift it into the home cell. This operation depends on sysytem type
-c--> in place for 3-d and molecules now.
-c a slightly diff. hack
+c--> in place for 3-d, 2-d and molecules now.
 c     
       if(isystype(geom).eq.3) then
- 3000   continue
-        do 380 i=1,3
-          if(dabs(r1(i)).lt.1.0d-10 .or. 
-     $         dabs((dabs(r1(i))-1.0d0)).lt.1.0d-10) then
-            r1(i)=0.0d0
-          endif
-          if(r1(i).lt.0.0) then
-            r1(i)=r1(i)+1.0d0
-          elseif (r1(i).ge.1.0d0) then
-            r1(i)=r1(i)-1.0d0
-          endif
-          if(r1(i).lt.0.0.or.r1(i).ge.1.0) then
-            goto 3000
-          endif
-  380   continue
+ 3000    continue
+         do 380 i=1,3
+            if(dabs(r1(i)).lt.1.0d-10 .or. 
+     $           dabs((dabs(r1(i))-1.0d0)).lt.1.0d-10) then
+               r1(i)=0.0d0
+            endif
+            if(r1(i).lt.0.0) then
+               r1(i)=r1(i)+1.0d0
+            elseif (r1(i).ge.1.0d0) then
+               r1(i)=r1(i)-1.0d0
+            endif
+            if(r1(i).lt.0.0d0.or.r1(i).ge.1.0d0) then
+               goto 3000
+            endif
+ 380     continue
+      elseif(isystype(geom).eq.2) then ! surfaces
+ 3020    do 382 i=1,2
+            if(dabs(r1(i)).lt.1.0d-10.or.
+     $           dabs((dabs(r1(i))-1.0d0)).lt.1.0d-10) then
+               r1(i)=0.0d0
+            endif
+            if(r1(i).lt.0.0d0) then
+               r1(i)=r1(i)+1.0d0
+            elseif (r1(i).ge.1.0d0) then
+               r1(i)=r1(i)-1.0d0
+            endif
+            if(r1(i).lt.0.0d0.or.r1(i).ge.1.0d0) then
+               goto 3020
+            endif
+ 382     continue
       endif
 c
 *      write(6,*) ' sym_apply_op r ', r

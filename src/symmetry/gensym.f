@@ -1,29 +1,5 @@
-      subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
-     $     group_name)
-C$Id: gensym.f,v 1.6 1995-12-15 12:13:01 d3g681 Exp $
-      implicit none
-      integer maxops
-      double precision tol
-      integer itype
-      integer numgrp, numset, nops
-      parameter(maxops=192,tol=1.0d-07)
-      character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
-      double precision capr(3,4),caps(3,4),symops(maxops*3,4)
-      integer indx(3)
-      double precision resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
-      character*(*) group_name
-      logical oprint
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-      integer ngen, numvec, igen, icnt1, icnt2, isquare, ipos, jpos, 
-     $     igpos, icnt, kcol
-      integer i, j, k, ij, irow, ichecks, isame, isym, ktop, nops1
-      integer kiki, ikik, itop, ibot, iold
-      double precision trace, det, sum
-      integer itrace
-      
-      data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
-*      character*1 let(5)
-*      data let/'+','-','x','y','z'/
 c
 c Program gensym:
 c
@@ -69,16 +45,34 @@ c    The matrix SYMOPS contains the matrix reps. of all group operators
 c   except the identity. The variable NOPS holds the number of operators
 c   in SYMOPS.
 c
+c   
+c
+c
 c                                        A.C. Hess 
 c                                        D.G. Clerc
 c                                        Solid State Theory Group
 c                                        MSRC/PNL
 c                                        9/13/93
+c***********************************************************************
+      subroutine gensym(itype,numgrp,numset,symops,nops,oprint,
+     $     group_name)
+C$Id: gensym.f,v 1.7 1996-07-15 22:05:56 gutowski Exp $
+      implicit real*8 (a-h,o-z) 
+      parameter(maxops=192,tol=1.0d-07,max_gen=6)
+      character*1 let(5)
+      character*2 kpos(-1:3),kneg(-3:1),rotoop(maxops)
+      dimension capr(3,4),caps(3,4),indx(3),symops(maxops*3,4)
+      dimension resop(3,4),gens(18,4),detres(3,3),cntvec(3,3)
+      character*(*) group_name
+      logical oprint
+      double precision s_vec(max_gen,3)
+      data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
+      data let/'+','-','x','y','z'/
 c
 c-->call spgen with correct system type flag to make generators
 c
       call spgen(itype,numgrp,numset,gens,cntvec,ngen,numvec,
-     $     group_name, oprint)
+     $     group_name,max_gen,s_vec,oprint)
 c
 c-----------------------------------------------------------------------
 c
@@ -141,20 +135,24 @@ c
 c**********************************************************************
 c  Screen out all point groups from the next calc   DGC 3/10/94
 c**********************************************************************
-      if(itype.eq.3) then
+      if(itype.ge.1.and.itype.le.3) then
          itrace=idint(trace)
+c
          if(det.lt.0.0d+00) then
             rotoop(nops)=kneg(itrace)
-            if (oprint) write(*,30) kneg(itrace)
+            if (oprint) write(*,30) kneg(itrace),(s_vec(igen,j),j=1,3)
          else
             rotoop(nops)=kpos(itrace)
-            if (oprint) write(*,30) kpos(itrace)
+            if (oprint) write(*,30) kpos(itrace),(s_vec(igen,j),j=1,3)
          endif
+c
+      elseif(itype.eq.0) then
+         if (oprint) write(*,31) 'PT'
       endif
-      if(itype.eq.0) then
-         if (oprint) write(*,30) 'PT'
-      endif
-30    format(/,25x,a2,' fold Rotoinversion Operator')
+c
+30    format(/,8x,a2,' fold Rotoinversion Operator at (',2(f9.6,','),f9.
+     &6,')')
+31    format(/,25x,a2,' fold Rotoinversion Operator')
 c
 c--> write out input generators
 c
@@ -316,9 +314,9 @@ c**********************************************************************
 c  Screen out all point groups from the next calc   DGC 3/10/94
 c**********************************************************************
 c
-         if(det.lt.0.0d+00.and.itype.eq.3) then
+         if(det.lt.0.0d+00.and.itype.ne.0) then
             rotoop(nops)=kneg(itrace)
-         elseif(itype.eq.3) then
+         elseif(itype.ne.0) then
             rotoop(nops)=kpos(itrace)
          endif
       endif
@@ -452,20 +450,33 @@ c--> add labels to centered symops
 25    format(a14,f10.6)
       nops=nops+numvec
 c
-c--> print dumps the symop table in unannotated form
-c
-c      do 500 i=1,nops*3
-c         write(*,25) (symops(i,j), j=1,4)
-c500   continue
-c25    format(2x,4(f10.6))
-c
 c--> print the matrix reps in operator form, with labels
+      if(oprint) then
+         call opprint(symops,rotoop,maxops,nops,itype)
+      endif
 c
-      if (oprint)
-     $     call opprint(symops,rotoop,maxops,nops,itype)
+c dgc --> decenter if necessary
+      if(numvec.gt.0) then
+         call dctr(symops,nops1,numgrp,group_name,numvec,cntvec,numset)
+         write(*,1424)
+         write(*,1425)
+         write(*,1426)
+         write(*,1427)
+         write(*,1428)
+         write(*,1429) nops1
+         nops=nops1
+         call opprint(symops,rotoop,maxops,nops1,itype)
+      endif
+c
+1424  format(/'GENSYM.F: AFTER DE-CENTERING NEED TO REDEFINE:'/)
+1425  format(10X,' (1) LATTICE VECTORS')
+1426  format(10X,' (2) ALPHA, BETA & GAMMA')
+1427  format(10X,' (3) AMAT')
+1428  format(10X,' (4) BMAT')
+1429  format(//'The ',i3,' symmetry operators (excl. E) in the de-center
+     &ed basis are as follows:'/)
 c
 c rjh hack to fix C1
-c
       if (numgrp .eq. 1) nops = 0
 c
       end
