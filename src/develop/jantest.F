@@ -430,6 +430,157 @@ c
       call int_terminate
 c
       end
+      subroutine jan_full_transform_noinit(
+     $     rtdb, basis, 
+     $     n1, n2, n3, n4,
+     $     ld1, ld2, ld3, ld4,
+     $     c1t, c2t, c3t, c4t, 
+     $     full, order)
+      implicit none
+#include "schwarz.fh"
+#include "bas.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+c
+      integer rtdb
+      integer basis             ! AO basis handle
+      integer n1, n2, n3, n4    ! Dimension of each MO set
+      integer ld1, ld2, ld3, ld4
+      double precision c1t(ld1,*), c2t(ld2,*), ! Transposed MO coeffs
+     $     c3t(ld3,*), c4t(ld4,*)
+      double precision full(n1,n2,n3,n4)
+      character*(*) order
+c
+c     Generate the specified block of MO integrals with
+c     no assumptions of equivalence between the sets of coefficients.
+c
+c     Order can be either 
+c     .    ChargeCloud -> full(p,q,r,s) = (pq|rs)
+c     or 
+c     .          Dirac -> full(p,q,r,s) = <pq|rs>
+c     or
+c     .  LeftAsymDirac -> full(p,q,r,s) = <pq|rs>-<qp|rs>
+c     .  (must have c1t=c2t, n1=n2)
+c     or
+c     . RightAsymDirac -> full(p,q,r,s) = <pq|rs>-<pq|sr>
+c     .  (must have c3t=c4t, n3=n4)
+c
+c     Presently the antisymmetrization is done at the top level
+c     and the storage of full is not reduced to use the symmetry.
+c
+c     Memory requirements are 
+c     .  n1*n2*n3*n4 + S*n2*n3*n4 + S*S*n3*n4 + S*S*S*n4 + 
+c     .  maxs2 + maxg2*(1 + 4*integer)
+c
+c     Index 4 is the first transformed so there is advantage in
+c     making it the smallest range.
+c
+      double precision tol2e
+      parameter (tol2e = 1d-12)
+C
+      integer nsh, maxbfsh, lenhalf, lenthird, geom
+      integer l_half, k_half, l_third, k_third
+      integer lsh, ksh, llo, lhi, klo, khi
+      integer p, q, r, s
+      logical ochargecloud, oasym
+      character*8 side
+c
+      ochargecloud = .false.   ! avoids compiler warning
+      oasym = .false.          ! avoids compiler warning
+      if (inp_compare(.false.,order,'chargecloud')) then
+         ochargecloud = .true.
+         oasym = .false.
+         side  = ' '
+      else if (inp_compare(.false.,order,'dirac')) then
+         ochargecloud = .false.
+         oasym = .false.
+         side  = ' '
+      else if (inp_compare(.false.,order,'leftasymdirac')) then
+         ochargecloud = .false.
+         oasym = .true.
+         side  = 'left'
+      else if (inp_compare(.false.,order,'rightasymdirac')) then
+         ochargecloud = .false.
+         oasym = .true.
+         side  = 'right'
+      else
+         call errquit('jan_full_trans: unkown integral option',0)
+      endif
+c
+c     Initialize integrals and Schwarz screening
+c
+      if (.not. bas_geom(basis, geom))
+     $     call errquit('jan_transform: basis ', basis)
+*      call int_init(rtdb, 1, basis)
+*      call schwarz_init(geom, basis)
+c      
+      if (.not. bas_numcont(basis, nsh)) call errquit(
+     $     'jan_transform: bas_numcont', basis)
+      if (.not. bas_nbf_cn_max(basis,maxbfsh)) call errquit(
+     $     'jan_transform: bas_nbf_cn_max', basis)
+c
+      lenhalf = n3*n4*maxbfsh**2
+      lenthird= n2*n3*n4*maxbfsh
+c
+      if (.not. ma_push_get(mt_dbl,lenhalf,'half',l_half, k_half))
+     $     call errquit('ma half', lenhalf)
+      if (.not. ma_push_get(mt_dbl,lenthird,'third',l_third, k_third))
+     $     call errquit('ma third', lenthird)
+c
+      call dfill(n1*n2*n3*n4, 0.0d0, full, 1)
+      do ksh = 1, nsh
+         if (.not. bas_cn2bfr(basis, ksh, klo, khi))
+     $        call errquit('jan_transform: bas_cn2bfr',basis)
+         call dfill(n2*n3*n4*(khi-klo+1), 0.0d0, dbl_mb(k_third), 1)
+         do lsh = 1, nsh
+            if (.not. bas_cn2bfr(basis, lsh, llo, lhi))
+     $           call errquit('jan_transform: bas_cn2bfr',basis)
+            if (schwarz_shell(ksh,lsh)*schwarz_max()
+     $           .gt. tol2e) then
+c     
+c     Make (rs|kl) all rs (indices 3 and 4) given shells k and l
+c     
+               call jan_half_transform(basis, ksh, lsh, n3, n4,
+     $              c3t, c4t, ld3, ld4,
+     $              dbl_mb(k_half), ochargecloud, tol2e)
+
+*               write(6,*) ' ksh, lsh ', ksh, lsh
+*               call jan_debug_print('half',
+*     $              dbl_mb(k_half), n3, n4, khi-klo+1, lhi-llo+1)
+               
+c     
+               call jan_third_transform(llo, lhi, klo, khi, 
+     $              n2, n3, n4, dbl_mb(k_half), dbl_mb(k_third), 
+     $              c2t, ld2, tol2e)
+            end if
+         end do
+*         write(6,*) ' lsh ', lsh
+*         call jan_debug_print('third',
+*     $        dbl_mb(k_third), n2, n3, n4, lhi-llo+1)
+         call jan_final_transform(klo, khi, n1, n2, n3, n4, 
+     $        dbl_mb(k_third), full, c1t, ld1, tol2e)
+      end do
+c
+      if (oasym) call jan_asym_trans(full,n1,n2,n3,n4,side)
+c
+      do s = 1, n4
+         do r = 1, n3
+            do q = 1, n2
+               do p = 1, n1
+                  if (abs(full(p,q,r,s)).lt.1d-10)
+     $                 full(p,q,r,s) = 0.0d0
+               end do
+            end do
+         end do
+      end do
+c
+      if (.not. ma_pop_stack(l_third)) call errquit('ma third',0)
+      if (.not. ma_pop_stack(l_half)) call errquit('ma half',0)
+c
+*      call schwarz_tidy()
+*      call int_terminate
+c
+      end
       subroutine jan_asym_trans(full,n1,n2,n3,n4,side)
       implicit none
 c
