@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.8 2000-01-25 19:53:35 d3j191 Exp $
+c $Id: ana_task.F,v 1.9 2000-01-26 16:29:35 d3j191 Exp $
 c
       implicit none
 c
@@ -312,7 +312,7 @@ c
 c
       if(me.eq.0) then
       close(unit=lfncop)
-      write(*,'(a)') ' Closing trj file '
+      write(*,'(a)') ' Closing scn file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',nwrit,' frames to ',
      + filcop(1:index(filcop,' ')-1)
       endif
