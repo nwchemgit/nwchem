@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.78 2000-06-08 02:06:29 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.79 2000-06-09 02:49:51 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -31,7 +31,7 @@ c
       integer nopen
       character*32 theory 
       character*40 blank_40c
-      Logical lnewtype
+      Logical lnewtype,lgridfile
       Logical int_normalize
       Logical int_norm_2c
       Logical atom_tag_check
@@ -726,11 +726,6 @@ c
 c
 c     definition of grid
 c
-      lssw=.false.
-      if (rtdb_get(rtdb, 'dft:ssw', mt_log, 1, lssw)) then
-         if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichssw))
-     &        call errquit('dftrdi: rtdb_cget failed', 1700)
-      endif
 c
 c     Leb on by default
 c
@@ -748,8 +743,32 @@ cedo     &   radgrid='eumac'
             radgrid='eumac'
           endif
           if (.not. rtdb_cput(rtdb,'dft:radgrid', 1,radgrid)) 
-     .         call errquit('dftrdinp" put radgrid failed',7)
+     .         call errquit('dftrdinp: put radgrid failed',7)
        endif
+c
+c     partitioning function
+c     erf1 on by default
+c
+      if (.not.rtdb_get(rtdb, 'dft:ssw', mt_log, 1, lssw)) then
+         lssw=.true.
+         if (.not.rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw)) 
+     .        call errquit('dftrdi: rtdb_put failed', 1710)
+         whichssw='erf1'
+         if (.not.rtdb_cput(rtdb, 'dft:ssweights',  1, whichssw))
+     &        call errquit('dftrdi: rtdb_cput failed', 1720)
+      else
+         if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichssw))
+     &        call errquit('dftrdi: rtdb_cget failed', 1700)
+      endif
+c
+c     new schem on file on by default
+c
+      if(.not.rtdb_get(rtdb,
+     .     'dft:grid_on_file',mt_log,1,lgridfile)) then
+         lgridfile=.true.
+      if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,lgridfile)) 
+     &   call errquit('dftrdinput: rtdb_put failed', 1420)
+      endif
 
 
 c
