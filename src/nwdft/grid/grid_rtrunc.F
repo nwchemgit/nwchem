@@ -225,11 +225,13 @@ c
 c     bit to add from gaussian product formula
 c               
                shift_2g=sqrt(
-     .              (exp_iat*coord(1,iat)-expo(jat)*coord(1,jat))**2+
-     .              (exp_iat*coord(2,iat)-expo(jat)*coord(2,jat))**2+
-     .              (exp_iat*coord(3,iat)-expo(jat)*coord(3,jat))**2)/
+     .              (coord(1,iat)-coord(1,jat))**2+
+     .              (coord(2,iat)-coord(2,jat))**2+
+     .              (coord(3,iat)-coord(3,jat))**2)*exp_iat/
      /              (exp_iat+expo(jat))
                range=range+shift_2g
+cedo               write(0,*) ' expA expB shift_2g ',exp_iat,
+     .              expo(jat),shift_2g
                if(range.gt.range_max) then
                   shiftm_2g=shift_2g
                   range_max =  range
