@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.64 2001-01-16 23:20:45 edo Exp $
+C$Id: scf.F,v 1.65 2002-11-16 06:28:46 sohirata Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -269,6 +269,14 @@ c
       if (.not. rtdb_put(rtdb, 'scf:converged', MT_LOG, 1, converged)) 
      $     call errquit
      $     ('scf: failed to store converged in rtdb', 0)
+      if (.not. rtdb_put(rtdb, 'scf:alpha irreps', MT_INT, nbf,
+     &   int_mb(k_irs)))
+     &   call errquit('scf: failed to MO irreps in rtdb', 0)
+      if (scftype.eq.'UHF') then
+      if (.not. rtdb_put(rtdb, 'scf:beta irreps', MT_INT, nbf,
+     &   int_mb(k_irs+nbf)))
+     &   call errquit('scf: failed to MO irreps in rtdb', 0)
+      endif
 c
 c     Must store the final MOs AFTER writing the convergence flag
 c     since the time it is put into the RTDB is used to verify
