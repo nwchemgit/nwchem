@@ -251,35 +251,31 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		if(id[k][0]>=0){idf[id[k][0]]=k;};
 		if(id[k][1]>=0){idt[id[k][1]]=k;};
 	    };
-	    //	    PrintWriter sgmFile = new PrintWriter(new FileWriter("NEW.sgm"));
-	    //	    print(sgmFile,"%#10c%",atmNumber);
-	    //	    sgmFile.close();
-	    //	    OutputStream out = OutputStream("NEW.sgm");
-	    //	    OutputStream sgmFile = new PrintStream("NEW.sgm");
-	    //	    PrintStream sgmFile = new PrintStream("NEW.sgm");
-	    
-	    
-	    // temp
-	    System.out.println("# Merged Segment File");
-	    //Format.printf("%#10c%",new Va_list().add(atmNumber));
-	    for(int k=0; k<atmNumber; k++){
-		if(id[k][0]>=0){
-		    System.out.print(FrSgm.atom[id[k][0]].Name);
-		    System.out.print(FrSgm.atom[id[k][0]].Type1+" ");
-		    System.out.print(FrSgm.atom[id[k][0]].Type1+" ");
-		    if(id[k][1]>=0){
-			System.out.println(ToSgm.atom[id[k][1]].Type1+" ");
+	    try{ 
+		PrintfWriter sgmFile = new PrintfWriter(new FileWriter("NEW.sgm"));
+		sgmFile.println("# Merged Segment File");
+		sgmFile.printf("%5d",atmNumber);
+		sgmFile.println();
+		for(int k=0; k<atmNumber; k++){
+		    sgmFile.printf("%5d",k+1);
+		    if(id[k][0]>=0){
+			sgmFile.print(FrSgm.atom[id[k][0]].Name);
+			sgmFile.print(FrSgm.atom[id[k][0]].Type1+" ");
+			sgmFile.print(FrSgm.atom[id[k][0]].Type1+" ");
+			if(id[k][1]>=0){
+			    sgmFile.println(ToSgm.atom[id[k][1]].Type1+" ");
+			} else {
+			    sgmFile.println(FrSgm.atom[id[k][0]].Type1+"D");
+			};
 		    } else {
-			System.out.println(FrSgm.atom[id[k][0]].Type1+"D");
+			sgmFile.print(ToSgm.atom[id[k][1]].Name);
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
+			sgmFile.print(ToSgm.atom[id[k][1]].Type1+"D");
+			sgmFile.println(ToSgm.atom[id[k][1]].Type1);
 		    };
-		} else {
-		    System.out.print(ToSgm.atom[id[k][1]].Name);
-		    System.out.print(ToSgm.atom[id[k][1]].Type1+"D");
-		    System.out.print(ToSgm.atom[id[k][1]].Type1+"D");
-		    System.out.println(ToSgm.atom[id[k][1]].Type1);
 		};
-	    };
-	    // temp
+		sgmFile.close();
+	    } catch (Exception ee) { System.out.println("Error writing to new segment file"); };
 	};
     };
     
