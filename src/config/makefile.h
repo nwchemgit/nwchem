@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.54 1994-08-25 08:20:35 d3e129 Exp $
+# $Id: makefile.h,v 1.55 1994-08-27 13:35:28 d3g681 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -77,39 +77,86 @@ endif
 #                                                        #
 ##########################################################
 
-# !!!! Only the SUN, KSR and PARAGON versions are up to date !!!!!
+# Only the SUN, KSR, PARAGON, DELTA and IBM versions are up to date
+
+# Each machine dependent section should define the following as necessary.
+# (defaults if any in parentheses)
+#
+#         FC = path to Fortran compiler (f77)
+#         CC = path to ANSI C compiler (cc)
+#         AS = path to the assembler (as)
+#         AR = path to archive builder (ar)
+#        CPP = path to ANSI-like C preprocessor (cpp)
+#     RANLIB = path to ranlib or something harmless if not required
+#      SHELL = path to the Bourne Shell (should always define this because
+#              SHELL is commonly defined in the environment).
+#       MAKE = DON'T define this ... it will break the passing of command
+#              arguments.  Simply use the correct path to GNU make on the 
+#              command line and all will work just dandy.
+#  MAKEFLAGS = options to GNU make ... -j controls no. of threads used
+#              for parallel builds. -s says be quiet about changing directory.
+#    INSTALL = command to install an executable when it is built
+#    
+# C/FOPTIONS = essential compiler options independent of optimization level
+#              C/FOPTIONS should not usually be overridden on the command line
+#   C/FDEBUG = compiler flags to enable enable debugging and used for
+#              all routines not vital for performance (OBJ in makelib.h)
+#C/FOPTIMIZE = compiler flags to enable optimization for important routines.
+#              (OBJ_OPTIMIZE in makelib.h)
+#
+#              C/FDEBUG and C/FOPTIMIZE can be overridden on the command 
+#              line to change the optimization level for routines normally 
+#              compiled with them.
+#
+#    DEFINES = C preprocessor defines for both C and Fortran
+#
+#       LIBS = List of libraries and paths for libraries in addition 
+#              to the LIBDIR and LIBPATH options.
+#
+# SUBDIRS_EXTRA = List of additional directories (e.g., BLAS) that
+#                 are needed on this machine.
+#
+#
+# The following are defined for all machines at the bottom of this file
+#
+#     C/FOPT = Used by C/FFLAGS to incorporate optimization information.
+#              By default C/FOPT are assigned the values of C/FDEBUG
+#              respectively. This default setting is used in makelib.h.
+#              C/FOPT can be overriden on the command line to change the
+#              optimization level for ALL files.
+#   C/FFLAGS = all options to the C/Fortran compilers (note CPPFLAGS are 
+#              separate).  These comprise C/FOPTIONS and C/FOPT.
+#   INCLUDES = C preprocessor include paths for both C and Fortran.
+#              In princpile this could be machine dependent but is not yet.
+#   CPPFLAGS = options to C preprocessor that both C and Fortran will use.
+#              This comprises the includes and defines.
+#    LDFLAGS = options for the linker.  Currently paths from LIBDIR and
+#              LIBPATH.
+#
 
 ifeq ($(TARGET),SUN)
 #
 # Sun running SunOS
 #
-# SUBDIRS_EXTRA are those machine specific libraries required 
 
     SUBDIRS_EXTRA = blas lapack
-         FC = f77
          CC = gcc
-         AR = ar
-     RANLIB = ranlib
       SHELL = /bin/sh
-       MAKE = make
-  MAKEFLAGS = -j 2
-    INSTALL = @echo nwchem is built
+     RANLIB = ranlib
+  MAKEFLAGS = -j2
+    INSTALL = @echo $@ is built
 
-       FOPT = -g -Nl99
-   FOPT_REN = $(FOPT)
-       COPT = -g
-     FLDOPT = $(FOPT)
-     CLDOPT = $(COPT)
-  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
-   WARNINGS = -Wall
+   FOPTIONS = -Nl99 -dalign
+   COPTIONS = -Wall
 #-Wshadow -Wcast-qual -Wwrite-strings -Wpointer-arith
-    DEFINES = -DSUN $(LIB_DEFINES) 
-     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
-     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES) $(WARNINGS)
-    ARFLAGS = rcv
+     FDEBUG = -g
+     CDEBUG = -g
+  FOPTIMIZE = -O3
+  COPTIMIZE = -g -O2
 
-       LIBS = -L$(LIBDIR) $(LIBPATH) \
-              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+    DEFINES = -DSUN
+
+       LIBS = -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -ltcgmsg -llapack -lblas
 
@@ -121,29 +168,21 @@ ifeq ($(TARGET),KSR)
 # KSR running OSF
 #
     SUBDIRS_EXTRA = 
-
-         FC = f77
-         CC = cc
-         AR = ar
-     RANLIB = @echo
       SHELL = /bin/sh
-       MAKE = make
-  MAKEFLAGS = -j 20
-    INSTALL = @echo nwchem is built
+     RANLIB = @echo
+  MAKEFLAGS = -j20 
+    INSTALL = @echo $@ is built
 
-       FOPT = -g -r8
-   FOPT_REN = $(FOPT)
-       COPT = -g
-     FLDOPT = $(FOPT)
-     CLDOPT = $(COPT)
-  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+   FOPTIONS = -r8
+   COPTIONS = 
+     FDEBUG = -g
+     CDEBUG = -g
+  FOPTIMIZE = -xfpu3 -O1
+  COPTIMIZE = -xfpu3 -O1
 
-    DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger $(LIB_DEFINES) 
-     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
-     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
-    ARFLAGS = rcv
+    DEFINES = -DKSR -DPARALLEL_DIAG -DLongInteger
 
-       LIBS = -L$(LIBDIR) $(LIBPATH) -L/home/d3g681/TCGMSG_DISTRIB \
+       LIBS = -L/home/d3g681/TCGMSG_DISTRIB \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -lguess -lglobal -lutil \
 	      -lpeigs -lksrlapk -lksrblas -llapack2 -lblas2  -ltcgmsg -para -lrpc
@@ -163,16 +202,16 @@ ifeq ($(TARGET),PARAGON)
          AR = ar860
      RANLIB = @echo
       SHELL = /bin/sh
-       MAKE = make
-  MAKEFLAGS = -j 4
-    INSTALL = @echo nwchem is built
 
-     FOPT = -g -Knoieee		# -Mquad is default
-   FOPT_REN = $(FOPT) -Mrecursive -Mreentrant
-       COPT = -g
-     FLDOPT = $(FOPT) -nx
-     CLDOPT = $(COPT) -nx
-  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+  MAKEFLAGS = -j4 
+    INSTALL = @echo $@ is built
+
+  FOPTIONS = -Knoieee
+  COPTIONS = -Knoieee
+    FDEBUG = -g
+    CDEBUG = -g
+ FOPTIMIZE = -O2 -Minline=1000
+ COPTIMIZE = -O2
 
 #
 # __PARAGON__ is defined by the PGI cpp, but NOT when it is invoked by
@@ -182,18 +221,15 @@ ifeq ($(TARGET),PARAGON)
 # real iPSC and Delta that is not applicable to the paragon, which is more
 # unixy since it runs OSF/1.
 #
-    DEFINES = -D__PARAGON__ $(LIB_DEFINES) 
-     FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
-     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
-    ARFLAGS = rcv
+    DEFINES = -D__PARAGON__
+    ARFLAGS = ru
 
 # CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
 # search path -- contrary to usual unix usage!!!!!
-       LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
+       LIBS = -L/home/delilah11/gifann/lib \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
               -lguess -lglobal -lutil \
-	      -lpeigs_paragon -ltcgmsg -llapack -lkmath
-#-lrpc -llapack -lblas 
+	      -lpeigs_paragon -ltcgmsg -llapack -lkmath -nx
 
   EXPLICITF = FALSE
 endif
@@ -210,24 +246,24 @@ ifeq ($(TARGET),DELTA)
         AR = ar860
     RANLIB = @echo
      SHELL = /bin/sh
-   INSTALL = rcp nwchem delta1:
-#-Mrecursive -Mnosave to force all locals onto the stack to avoid BSS exploding
-      FOPT = -O1 -Knoieee -Mquad -node -Minline=100
-  FOPT_REN = -O1 -Knoieee -Mquad -Mreentrant -Mrecursive -Mnosave -node
-      COPT = -g -Knoieee -Mreentrant -node
-  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
-   DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__ $(LIB_DEFINES)
-    FFLAGS = $(FOPT) $(INCLUDES) $(DEFINES)
-    CFLAGS = $(COPT) $(INCLUDES) $(DEFINES)
- MAKEFLAGS = -j 2
-    FLDOPT = $(FOPT) -node
-    CLDOPT = $(COPT) -node
-   ARFLAGS = rcv
-      LIBS = -L/home/delilah11/gifann/lib $(LIBPATH) -L$(LIBDIR)\
-              -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
-              -lguess -lglobal -lutil \
-              -lglobal -lpeigs -ltcgmsg -llapack -lkmath
-# -llapack -lblas 
+
+   INSTALL = rcp $@ delta1:
+ MAKEFLAGS = -j2 
+
+  FOPTIONS = -Knoieee
+  COPTIONS = -Knoieee
+    FDEBUG = -g
+    CDEBUG = -g
+ FOPTIMIZE = -O2 -Minline=1000
+ COPTIMIZE = -O2
+
+   LDFLAGS = -node
+
+   DEFINES = -DNX -DIPSC -DNO_BCOPY  -D__IPSC__
+      LIBS = -L/home/delilah11/gifann/lib \
+             -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
+             -lguess -lglobal -lutil \
+             -lglobal -lpeigs -ltcgmsg -llapack -lkmath -node
 
  EXPLICITF = FALSE
 endif
@@ -240,27 +276,21 @@ ifeq ($(TARGET),IBM)
 #
 
     SUBDIRS_EXTRA = lapack blas
-         FC = xlf -qEXTNAME 
+         FC = xlf
          CC = cc
          AR = ar
      RANLIB = ranlib
       SHELL = /bin/sh
-       MAKE = make
-  MAKEFLAGS = -j 1
-    INSTALL = @echo nwchem is built
+  MAKEFLAGS = -j1 
+    INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
 
-       FOPT = -g
-   FOPT_REN = $(FOPT)
-       COPT = -g
-     FLDOPT = $(FOPT) 
-     CLDOPT = $(COPT)
-  INCLUDES =  -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
-   WARNINGS = 
-    DEFINES = -DIBM -DEXTNAME $(LIB_DEFINES) 
-     FFLAGS = $(FOPT) $(INCLUDES) 
-     CFLAGS = $(COPT) $(INCLUDES) $(DEFINES) $(WARNINGS)
-    ARFLAGS = rcv
+   FOPTIONS = -qEXTNAME 
+   COPTIONS = 
+     FDEBUG = -g
+     CDEBUG = -g
+
+    DEFINES = -DIBM -DEXTNAM
 
        LIBS = -L$(LIBDIR) $(LIBPATH) \
               -ltest -lddscf -lrimp2 -lgradients -lnwints -lstepper -lmoints \
@@ -270,6 +300,26 @@ ifeq ($(TARGET),IBM)
  EXPLICITF = TRUE
 #
 endif
+
+
+
+###################################################################
+#  All machine dependent sections should be above here, otherwise #
+#  some of the definitions below will be 'lost'                   #
+###################################################################
+
+ifdef OPTIMIZE
+    FFLAGS = $(FOPTIMIZE) $(FOPTIONS) 
+    CFLAGS = $(COPTIMIZE) $(COPTIONS) 
+else
+    FFLAGS = $(FDEBUG) $(FOPTIONS) 
+    CFLAGS = $(CDEBUG) $(COPTIONS) 
+endif
+  INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
+  CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
+   LDFLAGS = -L$(LIBDIR) $(LIBPATH)
+   ARFLAGS = ru
+
 
 #
 # Define known suffixes mostly so that .p files don't cause pc to be invoked
@@ -296,5 +346,5 @@ ifeq ($(EXPLICITF),TRUE)
 #other	$(CPP) $(INCLUDES) $(DEFINES) < $*.F | sed '/^#/D' | sed '/^[a-zA-Z].*:$/D' > $*.f
 	$(CPP) $(INCLUDES) $(DEFINES) $*.F > $*.f
 .c.o:
-	$(CC) $(CFLAGS) -c $*.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c $*.c
 endif
