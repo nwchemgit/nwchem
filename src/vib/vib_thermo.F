@@ -2,7 +2,7 @@
      &    eigvals,masses,coords,scr)
       implicit none
 *
-* $Id: vib_thermo.F,v 1.2 1999-07-12 17:25:33 d3e129 Exp $
+* $Id: vib_thermo.F,v 1.3 1999-07-12 17:27:00 d3e129 Exp $
 *
 * routine to compute the thermodynamic properties under the 
 * rigid rotor harmonic approximation:
@@ -47,6 +47,7 @@
       double precision Boltzman
       double precision Plank
       double precision Pi
+      double precision Sigma
       character*30 theory
       character*50 my_string
 *
@@ -177,7 +178,7 @@ c::-statement function
 *
       sigma = 1
       if (linear) then
-        S_rot = R_gas(1 + log(Ivals(2)/Sigma*1.0d00)
+        S_rot = R_gas*(1 + log(Ivals(2)/Sigma*1.0d00))
       else
       endif
 *
