@@ -118,7 +118,7 @@ that details the calculations:
       MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
     [THRESH <double thresh default 1e-6>]
     [MAXITER <integer maxiter default 100>]
-    [IO (fortran||c||ga||sf||replicated) default ga]
+    [IO (fortran||eaf||ga||sf||replicated) default ga]
     [DIIS <integer diis default 5>]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
@@ -380,28 +380,17 @@ There are five parallel I/O schemes implemented for all the models, which need t
 wisely chosen for a particular problem and computer architecture. 
 \begin{itemize}
 \item \verb+fortran+ : Fortran77 direct access,
-\item \verb+c+ : C low-level unbuffered I/O,
+\item \verb+eaf+ : Exclusive Access File library,
 \item \verb+ga+ : Fully incore, Global Array virtual file,
 \item \verb+sf+ : Shared File library,
-\item \verb+replicated+ : Semi-replicated file on distributed file system with C low-level unbuffered I/O.
+\item \verb+replicated+ : Semi-replicated file on distributed file system with EAF library.
 \end{itemize}
-The Fortran77 direct access, C low-level unbuffered, and Shared File library schemes assume a
-global file system (such as NFS) supported by an OS when executed in parallel.
-The Fortran77 scheme is the slowest among
-these, and may be considered as a debug-purpose scheme and is not recommended even for a sequential
-execution.  The C low-level unbuffered scheme is recommended for a sequential execution when GA 
-scheme is not feasible.  This is subject to 2 GB disk size limit on some OS, and hence a 64 bit OS
-is prefererable.  The Shared File library, at this point, performs just as C low-level unbuffered
-scheme, albeit slightly slowly, but is not subject to 2 GB disk size limit even on a 32 bit OS (however,
-currently internal file addressing is made by an integer in the TCE program which can still cause
-2 GB size limit problem depending on the computer architecture).
-The extension of the Shared File library to distributed file
-system is being considered.  The GA algorithm, which is default, stores all input (integrals and
+The GA algorithm, which is default, stores all input (integrals and
 excitation amplitudes), output (residuals), and intermediate tensors in the shared memory area
-across all the nodes by virtue of GA library.  This fully incore algorithm replaces disk I/O by
+across all nodes by virtue of GA library.  This fully incore algorithm replaces disk I/O by
 inter-process communications.  This is a recommended algorithm whenever feasible.  Note that 
 the memory management through runtime orbital range tiling described above applies to local
-(unshared) memory of each node, which may be separately allocated from the share memory space
+(unshared) memory of each node, which may be separately allocated from the shared memory space
 for GA.  So when there is not enough shared memory space (either physically or due to software
 limitations, in particular, shmmax setting), the GA algorithm can crash due to an out-of-memory error.
 The replicated scheme is the currently the only disk-based algorithm for a genuinely distributed
@@ -410,7 +399,11 @@ it holds non-identical overlapping segments of intermediate and output tensors i
 Whenever data coherency is required, a file reconcilation process will take place to make the intermediate
 and output data identical throughout the nodes.  This algorithm, while requiring redundant data space on
 local disk, performs reasonably efficiently in parallel.  For sequential execution, this reduces 
-to the C low-level unbuffered scheme.
+to the EAF scheme.  For a global file system, the SF scheme is recommended.  This together with
+the Fortran77 direct access scheme does not usually exhibit scalability unless shared files on
+the global file system also share the same I/O buffer.  For sequential executions, the 
+SF, EAF, and replicated schemes are interchangeable, while the Fortran77 scheme is appreciably
+slower.
 
 \subsection{{\tt DIIS} --- the convergence acceleration}
 
