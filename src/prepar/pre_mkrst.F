@@ -5,7 +5,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.89 2003-07-17 22:17:41 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.90 2003-09-02 19:41:17 d3j191 Exp $
 c
       implicit none
 c
@@ -247,7 +247,7 @@ c     ---------------------
 c
       open(unit=lfncmd,file=filcmd(1:index(filcmd,' ')-1),
      + form='formatted',status='old',err=99)
-      goto 1
+      goto 11
    99 continue
       if(util_print('restart',print_default)) then
       write(lfnout,1025) 
@@ -386,12 +386,14 @@ c
 c     loop through commands from command file
 c     =======================================
 c
-    1 continue
+   11 continue
 c
       if(util_print('restart',print_default)) then
       write(lfnout,1026) 
  1026 format(' Restart generation using command file directives',/)
       endif
+c
+    1 continue
 c
       read(lfncmd,1101,end=9,err=9997) card
  1101 format(a)
