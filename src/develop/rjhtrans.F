@@ -1,6 +1,6 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.1 1998-12-12 20:20:16 d3g681 Exp $
+*     $Id: rjhtrans.F,v 1.2 1998-12-14 20:21:23 jhvan Exp $
 *
       implicit none
 #include "global.fh"
@@ -16,6 +16,7 @@ c
       character*255 movecs      ! Name of movector file
       character*80 title, name_of_basis, scftype
       integer nbf_file, nsets, nmo_file(2)
+      logical cct_uhf
       logical movecs_read, movecs_read_header
       external movecs_read, movecs_read_header
 c
@@ -187,6 +188,10 @@ c
      $     1, nvirta*nocca, 1, 1, 
      $     nocca+1, nactive, 1, 
      $     nocca+1, nactive, 1)
+
+      if (.not. ga_destroy(g_tmp)) call errquit('ga?',0)
+c
+      status = cct_uhf(rtdb)
 c
 c     Tidy up
 c
@@ -196,7 +201,7 @@ c
 c
       call rjh_tidy_file_info
 c
-      jvltest2 = .true.
+      jvltest2 = status
 c
       end
 c$$$      subroutine rjh_test_trans(rtdb, basis, amos, bmos,
@@ -501,6 +506,20 @@ c
       call rjh_integ_write(dbl_mb(k_full), occa, occb, virta, virtb,
      $     '1234', 'T(ij,ec)', 1212, 1.0d0)
 c
+c     13. T(ij,ab)            i=b=alpha j=a=beta    ijab = 1221
+c     
+      call rjh_full_transform(rtdb, basis,
+     $     occa, occb, virtb, virta,
+     $     nmo, nmo, nmo, nmo,
+     $     mos_t(1,1,1), mos_t(1,1,2), 
+     $     mos_t(occb+1,1,2), mos_t(occa+1,1,1),
+     $     dbl_mb(k_full), 'Dirac')
+      call rjh_denoms(dbl_mb(k_full), 
+     $     occa, occb, virta, virtb, 
+     $     evals(1,1), evals(1,2), evals(occb+1,2), evals(occa+1,1))
+      call rjh_integ_write(dbl_mb(k_full), occa, occb, virtb, virta,
+     $     '1234', 'T(ij,ec)', 1221, 1.0d0)
+c
       if (.not. ma_chop_stack(l_full)) call errquit
      $     ('rjh_write_integ: ma chop?',0)
 c
@@ -555,10 +574,12 @@ c
       if (eaf_open(filename, eaf_rw, fd) .ne. 0)
      $     call errquit('rjh_integ_write: opening file?',0)
       offset = 0.0d0
+c
+**      call rjh_debug_print(stub,full,dim1,dim2,dim3,dim4)
 c    
       if (order .eq. '1234') then ! full(i1,i2,i3,i4) -> file(i1,i2,i3,i4)
          do i4 = 1, dim4
-            do i3 = 1, dim1
+            do i3 = 1, dim3
                do i2 = 1, dim2
                   ierr = eaf_write(fd, offset, full(1,i2,i3,i4), 8*dim1)
                   if (ierr .ne. 0) goto 100
@@ -579,7 +600,7 @@ c
          enddo
       else if (order .eq. '1432') then ! full(i1,i2,i3,i4) -> file(i1,i4,i3,i2)
          do i2 = 1, dim2
-            do i3 = 1, dim1
+            do i3 = 1, dim3
                do i4 = 1, dim4
                   ierr = eaf_write(fd, offset, full(1,i2,i3,i4), 8*dim1)
                   if (ierr .ne. 0) goto 100
@@ -601,8 +622,9 @@ c
       stubs(filenum)     = stub
       filenames(filenum) = filename
       write(6,11) filenum, stub(1:inp_strlen(stub)), 
-     $     filename(1:inp_strlen(filename))
- 11   format(' wrote file=',i2,2x,a,2x,a)
+     $     filename(1:inp_strlen(filename)), order, dim1, dim2, 
+     $     dim3, dim4, offset
+ 11   format(' wrote file=',i2,2x,a,2x,a,' ',a,2x,4i5,f10.1)
 c
       return
 c
@@ -656,6 +678,7 @@ c
      $     i3_lo_spatial, i3_hi_spatial, i1_lo, i2_lo, i1_hi, i2_hi,
      $     reclen, i1, i2, i3, i4, i3i4, ierr
       integer i1_occ, i2_occ, i3_occ, i4_occ, ind, l_buff, k_buff
+      integer i1_top, i3_base, i4_base
       double precision offset
 c     
 c     0) determine which physical file
@@ -676,13 +699,17 @@ c
          i2_occ = 1             ! k
          i3_occ = 2             ! e
          i4_occ = 2             ! a
-      else if (type .eq. 'Tij,ce(ijec)') then   ! ??????? ORDERING OF INDICES
+      else if (type .eq. 'T(ij,ce)(ijec)') then   ! ??????? ORDERING OF INDICES
 c
 c     i1=i,   i2=j,  i3=e,  i4=c
 c
-         call rjh_which_file('Tij,ec',
+         call rjh_which_file('T(ij,ec)',
      $        i1_spin, i2_spin, i3_spin, i4_spin, filenum)
-         order = '1234'
+         if (i1_spin .eq. i2_spin) then
+            order = '1<=234'
+         else
+            order = '1234'
+         endif
          i1_occ = 1             ! i
          i2_occ = 1             ! j
          i3_occ = 2             ! c/e
@@ -692,9 +719,6 @@ c
       endif
 c
       fd = fds(filenum)
-c
-c     Not this simple because of symmetries etc. ???????????
-c     How to address lenxy ?????????????
 c
       dim12 = lenxy(1,i1_spin,i2_spin,i1_occ+i2_occ)
       dim1  = n_occ_virt(1,i1_spin,i1_occ)
@@ -712,33 +736,56 @@ c
       i1_hi = s_occ_virt(2,i1_spin,i1_occ)-1
       i2_lo = s_occ_virt(1,i2_spin,i2_occ)
       i2_hi = s_occ_virt(2,i2_spin,i2_occ)-1
+      i3_base = s_occ_virt(1,i3_spin,i3_occ)
+      if (i3_spin .eq. 2) i3_base = i3_base - orb
+      i4_base = s_occ_virt(1,i4_spin,i4_occ)
+      if (i4_spin .eq. 2) i4_base = i4_base - orb
+
 c
       reclen = i1i2_hi - i1i2_lo + 1
       if (.not. ma_push_get(mt_dbl,reclen,'buffer',l_buff, k_buff))
      $     call errquit('ma buff', reclen)
 c
-      if (order .eq. '1234') then
+*      write(6,*) ' GET_CCT: ', type, i1i2_lo, i1i2_hi, i1_spin, i2_spin, 
+*     $     i3_lo, i3_hi, i3_spin, 
+*     $     i4_lo, i4_hi, i4_spin, ' ',order
+c
+*      write(6,*) ' FAC'
+*      call output(fac,1,orb,1,2,orb,2,1)
+c
+      if (order .eq. '1234' .or. order .eq. '1<=234') then
          do i4 = i4_lo_spatial, i4_hi_spatial
             do i3 = i3_lo_spatial, i3_hi_spatial
-               offset = i1i2_lo + dim12*(i3-1 + dim3*(i4-1))
+               offset = (i1i2_lo - 1 + dim12*(i3-i3_base + 
+     $              dim3*(i4-i4_base)))*8.0d0
                ierr = eaf_read(fd, offset, dbl_mb(k_buff), 8*reclen)
                if (ierr .ne. 0) goto 100
+*               write(6,*) ' THIS IS WHAT I READ ', offset, reclen
+*               call output(dbl_mb(k_buff), 1, reclen, 1, 1, reclen,1,1)
 c
                if (i1i2_lo .ne. 1) stop 99999
                ind = 0
                do i2 = i2_lo, i2_hi
-                  do i1 = i1_lo, i1_hi
+                  i1_top = i1_hi
+                  if (order .eq. '1<=234') i1_top = i2
+                  do i1 = i1_lo, i1_top
                      dbl_mb(k_buff+ind) = dbl_mb(k_buff+ind) *
      $                    fac(i1) * fac(i2)
                      ind = ind + 1
                   enddo
                enddo
 c
+               if (ind .ne. reclen) call errquit('ind??',ind)
+c
                i3i4 = 1 + i3-i3_lo_spatial + 
      $              (i3_hi-i3_lo+1)*(i4-i4_lo_spatial)
 c
                call ga_put(g_a, 1, reclen, i3i4, i3i4, 
      $              dbl_mb(k_buff), 1)
+c
+*               write(6,*) ' ga_put ', 1, reclen, i3i4, i3i4
+*               call output(dbl_mb(k_buff), 1, reclen, 1, 1, reclen,1,1)
+c
             enddo
          enddo
       endif

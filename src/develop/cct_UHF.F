@@ -794,10 +794,10 @@ c
 c
 c...  note ;, the integrals are weighted for the summation indices
 c   
-        print *,' mata '
-       call ga_print(g_MATA)
-        print *,' matb '
-       call ga_print(g_MATB)
+*        print *,' mata '
+*       call ga_print(g_MATA)
+*        print *,' matb '
+*       call ga_print(g_MATB)
        call ga_dgemm('T','N',lea,lcf,lbk,1.0d0,g_MATA,g_MATB,
      1               1.0d0,g_RESULT)
 c

@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.5 1998-11-23 09:50:57 d3e129 Exp $
+*     $Id: jvltest.F,v 1.6 1998-12-14 20:21:22 jhvan Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -9,7 +9,6 @@ c...    rtdb is handle to database
 c
       call triple_so(rtdb)
 c
-      stop " suppress rubbish "
       jvltest = .true.
 c
       end
@@ -742,7 +741,7 @@ c        print *,' term b1b ',term_b1b/ delta
 c
 c term 2
 c
-      if (.not. ma_push_get(mt_dbl,lenijab+lenijka,'a2a', l_w, k_w))
+      if (.not. ma_push_get(mt_dbl,lenijab+lenijab,'a2a', l_w, k_w))
      1    call errquit('push a2a',0)
       term_a2a = cct_so_a2a(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijab))
@@ -1296,6 +1295,7 @@ c     weighting 0.5
 c
 c
       implicit none
+#include "mafdecls.fh"
 c
       integer nbasis,occ,virt
       double precision rint(nbasis,nbasis,nbasis,nbasis)
@@ -1318,6 +1318,7 @@ c
              wijab(f,e,i,k) =  wijab(f,e,i,k)+rint(a+occ,b+occ,e+occ,k)
      1                                       *rint(a+occ,b+occ,f+occ,i)
      2                      * fac(k)*fac(i)*fac(a+occ)*fac(b+occ)
+             if (.not. ma_verify_allocator_stuff()) call errquit('a',0)
            end do
           end do
          end do
@@ -1337,6 +1338,7 @@ c
             wijab2(f,c,j,k) = wijab2(f,c,j,k) + wijab(f,e,i,k)
      1                                        * t2(i,j,c,e)
      2                      * fac(j)*fac(c+occ)
+             if (.not. ma_verify_allocator_stuff()) call errquit('b',0)
            end do
           end do
          end do
