@@ -4,7 +4,7 @@
      &       Cxyz,zan,ncenters,
      &       bO2I,bKEI,bNAI,Nint,
      &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0)
-c $Id: hf1d.F,v 1.9 1996-07-11 22:21:22 d3e129 Exp $
+c $Id: hf1d.F,v 1.10 1998-05-05 21:49:45 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -57,9 +57,12 @@ c                   i=4-6:   d/dRx, d/dRy, d/dRz
 c
 c******************************************************************************
 
-*     call hf_print('hf1d: a shell',axyz,aprims,acoefs,npa,nca,la)
-*     call hf_print('hf1d: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
-
+#if defined(INTDEBUG)
+      call hf_print_set(1)
+      call hf_print('hf1d: a shell',axyz,aprims,acoefs,npa,nca,la)
+      call hf_print('hf1d: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
+      call hf_print_set(0)
+#endif
       MXD = 1
 
 c Determine whether general or segmented contraction is used.
@@ -184,6 +187,10 @@ c Compute the 2-center overlap integrals, <a|S|b>.
         bO2I(n,6) = -bO2I(n,3)
   200  continue
 
+#if defined(INTDEBUG)
+       write(6,*)' ints from hf1d '
+       call output(bO2i,1,nint,1,6,nint,6,1)
+#endif
       end if
        
 c Compute kinetic energy integrals, <a|T|b>.
