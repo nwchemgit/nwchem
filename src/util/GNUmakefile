@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.88 1998-05-07 18:27:15 d3e129 Exp $
+# $Id: GNUmakefile,v 1.89 1998-05-15 01:00:58 d3e129 Exp $
 
 include ../config/makefile.h
 
@@ -131,6 +131,13 @@ util_version.F:	util_v_stub.F
 version:	../config/nwchem_config.h
 	catsrc nwchem.F config $(NWSUBDIRS) | \
 		awk -f ids.awk > util_version.F
+smallversion:
+	@echo " "
+	@echo " perl must be in your path"
+	@echo " "
+	catsrc nwchem.F config $(NWSUBDIRS) | \
+		awk -f ids.awk > util_version.F
+	smallversion.pl
 
 speechserver:	speechserver.c udp.c
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
