@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.129 2002-06-26 20:06:11 d3j191 Exp $
+c $Id: md_start.F,v 1.130 2002-06-26 20:31:39 d3j191 Exp $
 c
       implicit none
 c
@@ -859,7 +859,7 @@ c     + call errquit('md_rtdbin: rtdb_get failed',72)
      + call errquit('md_rtdbin: rtdb_get failed',81)
       if(.not.rtdb_get(irtdb,'md:lfout6',mt_int,1,lfout6))
      + call errquit('md_rtdbin: rtdb_get failed',82)
-      if(.not.rtdb_get(irtdb,'md:lprpmf',mt_int,1,lprpmf))
+      if(.not.rtdb_get(irtdb,'md:iprpmf',mt_int,1,iprpmf))
      + call errquit('md_rtdbin: rtdb_get failed',82)
       if(.not.rtdb_get(irtdb,'md:imfft',mt_int,1,imfft))
      + call errquit('md_rtdbin: rtdb_get failed',83)
@@ -1253,7 +1253,7 @@ c
       open(unit=lfntri,file=filtri(1:index(filtri,' ')-1),
      + form='formatted',status='unknown')
       endif
-      if(ntype.eq.2.and.lprpmf.ne.0) then
+      if(ntype.eq.2.and.iprpmf.ne.0) then
       open(unit=lfnpmf,file=filpmf(1:index(filpmf,' ')-1),
      + form='formatted',status='unknown')
       endif
