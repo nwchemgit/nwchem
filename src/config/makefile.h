@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.453 2004-04-23 22:31:46 edo Exp $
+# $Id: makefile.h,v 1.454 2004-04-24 00:38:58 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -998,6 +998,8 @@ endif
 # Need ESSL before our own BLAS library but still need our
 # own stuff for misc. missing routines
 
+   LDOPTIONS += -bloadmap:nwchem.lapimap -bbigtoc
+   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # for bigtoc
 CORE_LIBS +=  -llapack -lblas
 
 
@@ -1040,7 +1042,8 @@ else
         DEFINES += -DEXT_INT
   CORE_LIBS +=  -llapack -lblas
 endif
-  LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi64map# IBM claims maxstack and maxdata not needed on 64-bit
+   LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
+   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed for bigtoc
 
 
  EXPLICITF = TRUE
