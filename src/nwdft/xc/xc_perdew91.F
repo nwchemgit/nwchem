@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght, 
      ,     ldew, ffunc)
 c
-c     $Id: xc_perdew91.F,v 1.26 1999-02-15 16:47:17 bjohnson Exp $
+c     $Id: xc_perdew91.F,v 1.27 2001-04-12 02:28:27 edo Exp $
 c
       Implicit none
 c
@@ -88,9 +88,9 @@ c
       double precision zeta
 c
       gzeta(x) = 0.5d0*((ONE + x)**TWO3 + 
-     &                  (ONE - x)**TWO3)
+     &                  (abs(ONE - x))**TWO3)
       gzprime(x) = 0.5d0*TWO3*((ONE + x)**(-ONE3) - 
-     &                         (ONE - x)**(-ONE3))
+     &                         (abs(ONE - x))**(-ONE3))
 c
       gzprime_1  =  0.5d0*TWO3*(2.0d0**(-ONE3))
       gzprime_m1 = -0.5d0*TWO3*(2.0d0**(-ONE3))
