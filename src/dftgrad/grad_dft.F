@@ -85,9 +85,7 @@ c-----------------------------------------------------------------------
 c
 c     Push context down to DFTGRAD
 c
-c**** debug: check database
       status = rtdb_print(rtdb,.true.)
-
       if (.not. context_push('dftgrad'))
      $     call errquit('grad_dft: context_push failed', 0)
 c
