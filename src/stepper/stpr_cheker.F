@@ -3,7 +3,7 @@
      &       CONVGE, CONVGG,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.2 1994-10-26 22:20:25 d3e129 Exp $
+c $Id: stpr_cheker.F,v 1.3 1995-01-27 21:05:36 og845 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD
 #include "chow.fh"
@@ -32,6 +32,9 @@ C
         ELSE
           CALL stpr_getnp(EOLD,E2OLD,TRUST,SOLD,NWALK)
         ENDIF
+      ELSE	
+         E2OLD=0.d0
+         EOLD=0.d0
       ENDIF
 C
 C     Initialize current step parameters.
