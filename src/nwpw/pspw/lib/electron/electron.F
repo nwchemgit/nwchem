@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.37 2005-01-27 18:24:05 bylaska Exp $
+* $Id: electron.F,v 1.38 2005-02-09 02:39:08 bylaska Exp $
 *
 
 
@@ -1744,13 +1744,13 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >     'electron_gen_scf_potentials: error popping stack memory',0,
      &       MA_ERR)
 
-      else if (gga.eq.1) then
-        call v_bwexc(n2ft3d,ispin,dnall,
+      else if ((gga.eq.1).or.(gga.eq.2)) then
+        call v_bwexc(gga,n2ft3d,ispin,dnall,
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
       else if (gga.eq.3) then
-        call v_bwexc(n2ft3d,ispin,dnall,
+        call v_bwexc(1,n2ft3d,ispin,dnall,
      >                    0.75d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
