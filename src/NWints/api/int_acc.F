@@ -1,4 +1,5 @@
       subroutine int_acc_std()
+C $Id: int_acc.F,v 1.2 1994-08-12 00:36:27 d3e129 Exp $
       implicit none
 #include "apiP.fh"
       double precision val_def

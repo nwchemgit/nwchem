@@ -1,4 +1,5 @@
       integer num_int_tim
+c $Id: int_tim.fh,v 1.2 1994-08-12 00:37:11 d3e129 Exp $
       parameter (num_int_tim = 17)
       integer hand_int(num_int_tim)
       common /int_tim_c/hand_int
