@@ -1,4 +1,4 @@
-C $Id: path.F,v 1.3 2001-01-19 17:43:12 windus Exp $
+C $Id: path.F,v 1.4 2001-05-01 23:49:57 windus Exp $
       Subroutine drdy_path(ns)
 C
 C  Calculate steepest descent path from saddle point
@@ -235,7 +235,8 @@ C Calculate g and optionally f at new geometry
      *    delsh.lt.delhss*(1.0-eps)) then
             Call drdy_pot1 (x,v,dx,scr1,amass,natom,n3)
          else
-            Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,n3tm,nbar)
+            Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,
+     *         n3tm,nbar)
             delsh = 0.0d00
          endif
          write(fu6,607) s,v-vzero,(x(i),i=1,n3)
@@ -298,7 +299,8 @@ C Calculate g and f at new geometry
      *    delsh.lt.delhss*(1.0d00-eps)) then
             Call drdy_pot1 (x,v,dx,scr1,amass,natom,n3)
          else
-            Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,n3tm,nbar)
+            Call drdy_pot2 (x,v,dx,f,hess,scr1,amass,natom,n3,
+     *        n3tm,nbar)
             delsh = 0.0d00
          endif
          write(fu6,607) s,v-vzero,(x(i),i=1,n3)
