@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.17 2003-01-30 06:17:21 marat Exp $
+* $Id: paw_proj.F,v 1.18 2003-01-30 19:03:34 bylaska Exp $
 *
 
 
@@ -471,8 +471,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       call BRDCST(9+MSGINT,nbasis,mitob(msglen),MASTER)
       
       call D3dB_nfft3d(1,nfft3d)
-      value =           MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      value = value.and.MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not.value) call errquit('paw_proj_read: push stack',0)
 
       do ii=1,nbasis
@@ -566,14 +567,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
 #include "mafdecls.fh"
 #include "bessel_transform.fh"
-#include "paw_basis.fh"
 #include "paw_params.fh"
+#include "paw_basis.fh"
 
-      !*** external functions ***
-      external G_indx
-      external lattice_unita,lattice_omega
-      integer  G_indx
-      real*8   lattice_unita,lattice_omega
 
       !*** local variables ***
       integer MASTER,taskid
@@ -590,6 +586,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
       character*20 jppname,atomname
       character*255 full_filename
+
+      !*** external functions ***
+      integer  G_indx,paw_basis_i_rgrid
+      real*8   lattice_unita,lattice_omega
+      external G_indx,paw_basis_i_rgrid
+      external lattice_unita,lattice_omega
 
 
       call ion_atom_plus_suffix(ia,'_basis',atomname)
