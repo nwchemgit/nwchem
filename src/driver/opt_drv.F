@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.49 1998-05-14 21:16:54 d3e129 Exp $
+C$Id: opt_drv.F,v 1.50 1998-07-27 04:08:34 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -2114,7 +2114,7 @@ c$$$      dimension errmsg(3)
 c$$$      data errmsg   /'program ','stop in ','opn_hess'/
 c$$$      data ift      /31/
 c$$$c
-c$$$      dbug=util_print("hess_fil", print_debug)
+c$$$      dbug=util_print('hess_fil', print_debug)
 c$$$c
 c$$$      call util_file_name('driver',.false.,.false.,opt_hess_fil)
 c$$$      open(unit=ift,file=opt_hess_fil,form='unformatted',
@@ -2156,7 +2156,7 @@ c$$$      dimension errmsg(3)
 c$$$      data errmsg   /'program ','stop in ','cls_hess'/
 c$$$      data ift      /31/
 c$$$c
-c$$$      dbug=util_print("hess_fil", print_debug)
+c$$$      dbug=util_print('hess_fil', print_debug)
 c$$$c
 c$$$      close(unit=ift,status='keep',err=911)
 c$$$      if(dbug) then
