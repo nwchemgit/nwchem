@@ -1,8 +1,13 @@
-# $Id: GNUmakefile,v 1.11 1995-11-13 16:56:40 d3g681 Exp $
+# $Id: GNUmakefile,v 1.12 1995-11-15 02:55:44 og845 Exp $
 
+ifeq ($(NWCHEM_TARGET),SGITFP)
             OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
 			grad_dens.o grad2.o
+else
+            OBJ = gradients.o grad_force.o grad1.o scf_gradient.o grad_get_dens.o \
+			grad_dens.o 
    OBJ_OPTIMIZE = grad2.o
+endif
 
    USES_BLAS = grad_force.F
 
