@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.15 1998-09-15 00:01:27 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.16 1998-09-17 06:04:57 d3j191 Exp $
 c
       implicit none
 c
@@ -78,132 +78,112 @@ c
     1 continue
       lseq(3,nseq+1)=natm+1
 c
-c     add links
-c     ---------
+c     save original number of bonds in nb
 c
-      do 2 i=1,nseq
-      do 3 j=1,10
-      lmat(j,i)=0
-    3 continue
-    2 continue
+      nb=nbnd
 c
-      do 5 i=1,nseq-1
+c     add chain links
+c     ---------------
+c
+      do 2 i=1,nseq-1
       if((lseq(2,i).eq.-1.or.lseq(2,i).eq.0).and.lseq(2,i+1).ge.0) then
       link2=0
-      do 6 j=lseq(3,i),lseq(3,i+1)-1
+      do 3 j=lseq(3,i),lseq(3,i+1)-1
       if(latm(3,j).eq.2) link2=j
-    6 continue
+    3 continue
       link1=0
-      do 7 j=lseq(3,i+1),lseq(3,i+2)-1
+      do 4 j=lseq(3,i+1),lseq(3,i+2)-1
       if(latm(3,j).eq.1) link1=j
-    7 continue
+    4 continue
       if(link1.gt.0.and.link2.gt.0) then
-      lmat(2,i)=link1
-      lmat(1,i+1)=link2
-      endif
-      endif
-    5 continue
+      nbnd=nbnd+1
+      if(nbnd.gt.mbnd) call errquit('increase mbnd',9999)
+      lbnd(1,nbnd)=link1
+      lbnd(2,nbnd)=link2
+      lbnd(3,nbnd)=0
+      lbnd(4,nbnd)=0
+      else
 c
-      if(util_print('where',print_debug)) then
-      write(lfnout,1204) (j,(lseq(i,j),i=1,4),j=1,nseq)
- 1204 format('lseq',i5,':',4i5)
+c     possible chain links appears to be missing here
+c
       endif
-      do 8 i=1,nlnk
+      endif
+    2 continue
+c
+c     add explicit links
+c     ------------------
+c
+      do 5 i=1,nlnk
+c
+c     find segment numbers involved in explicit link
+c
       isgm=0
       jsgm=0
-      do 9 j=1,nseq
+      do 6 j=1,nseq
       if(lseq(1,j).eq.llnk(1,i)) isgm=j
       if(lseq(1,j).eq.llnk(2,i)) jsgm=j
-    9 continue
-      if(util_print('where',print_debug)) then
-      write(lfnout,1205) i,llnk(1,i),llnk(2,i),isgm,jsgm,
-     + lseq(1,isgm),lseq(1,jsgm)
- 1205 format(' Link ',7i5)
+    6 continue
+      if(isgm.eq.0.or.jsgm.eq.0) then
+      call errquit('mklist: illegal segment in explicit link',9999)
       endif
-      if(isgm.eq.0.or.jsgm.eq.0)
-     + call errquit('error 1 in pre_mklist',9999)
+c
+c     find the atoms involved in explicit link
+c
       link1=0
-      do 10 j=lseq(3,isgm),lseq(3,isgm+1)-1
+      do 7 j=lseq(3,isgm),lseq(3,isgm+1)-1
       if(catm(1,j)(1:4).eq.clnk(1,i)) link1=j
-   10 continue
+    7 continue
       link2=0
-      do 11 j=lseq(3,jsgm),lseq(3,jsgm+1)-1
+      do 8 j=lseq(3,jsgm),lseq(3,jsgm+1)-1
       if(catm(1,j)(1:4).eq.clnk(2,i)) link2=j
-   11 continue
+    8 continue
+      if(link1.eq.0.or.link2.eq.0) then
+      call errquit('mklist: illegal atom in explicit link',9999)
+      endif
 c
-c     skip automatic chain links
+c     test if this appears to be a chain link already present
 c
-      if(link1.eq.2.and.link2.eq.1.and.isgm.eq.jsgm-1) goto 8
+      if((link1.eq.2.and.link2.eq.1.and.isgm.eq.jsgm-1).or.
+     + (link1.eq.1.and.link2.eq.2.and.jsgm.eq.isgm-1)) then
+      do 9 j=nb+1,nbnd
+      if(lbnd(1,j).eq.link1.and.lbnd(2,j).eq.link2) goto 5
+      if(lbnd(1,j).eq.link2.and.lbnd(2,j).eq.link1) goto 5
+    9 continue
+      endif
 c
-      if(link1.eq.0.or.link2.eq.0)
-     + call errquit('error 2 in pre_mklist',9999)
+c     test if bonding allowed when non-forced link
+c
       if(latm(3,link1).eq.0.or.latm(3,link2).eq.0) then
       if(llnk(3,i).eq.0) then
       write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
      + llnk(2,i),clnk(2,i),latm(3,link2)
  1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
-      call errquit('error 3 in pre_mklist',9999)
+      call errquit('mklist: explicit link to nonbonding atom',9999)
       else
-      ib=0
-      jb=0
-      do 60 j=1,natm
-      if(latm(5,j).eq.llnk(1,i).and.catm(1,j)(1:4).eq.clnk(1,i)) ib=j
-      if(latm(5,j).eq.llnk(2,i).and.catm(1,j)(1:4).eq.clnk(2,i)) jb=j
-cx      write(*,666) latm(5,j),llnk(1,i),llnk(2,i),catm(1,i)(1:4),
-cx     + clnk(1,i),clnk(2,i),ib,jb
-cx  666 format(3i5,3(1x,a4),2i5)
-   60 continue
-      if(ib.gt.0.and.jb.gt.0) then
-      nbnd=nbnd+1
-      lbnd(1,nbnd)=ib
-      lbnd(2,nbnd)=jb
-      lbnd(3,nbnd)=0
-      lbnd(4,nbnd)=0
       write(lfnout,1001) llnk(1,i),clnk(1,i),latm(3,link1),
-     + llnk(2,i),clnk(2,i),latm(3,link2),ib,jb
- 1001 format(' Warning: forced link ',
+     + llnk(2,i),clnk(2,i),latm(3,link2),link1,link2
+ 1001 format(' Forced link ',
      + i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,') : ',i5,'-',i5)
-      goto 8
-      else
-      call errquit('error 4 in pre_mklist',9999)
       endif
-      endif
-      endif
-      lmat(latm(3,link1),isgm)=link2
-      lmat(latm(3,link2),jsgm)=link1
-    8 continue
-c
-      if(util_print('where',print_debug)) then
-      write(lfnout,1005) (i,(lmat(j,i),j=1,10),i=1,nseq)
- 1005 format(' Link matrix',//,(i5,':',10i5))
       endif
 c
-      nb=nbnd
-      do 12 i=1,natm
-      if(latm(3,i).gt.0) then
-      if(lmat(latm(3,i),latm(5,i)).eq.0) then
-      write(lfnout,1101) i,latm(3,i),latm(5,i),
-     + (catm(j,i),j=1,4),lmat(latm(3,i),latm(5,i))
- 1101 format(' Problem with bond between atoms ',3i5,4a6,' and ',i5)
-      call errquit('error 5 in pre_mklist',9999)
-      endif
-      if(i.lt.lmat(latm(3,i),latm(5,i))) then
+c     accept explicit link
+c
       nbnd=nbnd+1
       if(nbnd.gt.mbnd) call errquit('increase mbnd',9999)
-      lbnd(1,nbnd)=i
-      lbnd(2,nbnd)=lmat(latm(3,i),latm(5,i))
+      lbnd(1,nbnd)=link1
+      lbnd(2,nbnd)=link2
       lbnd(3,nbnd)=0
       lbnd(4,nbnd)=0
-      endif
-      endif
-   12 continue
+c
+    5 continue
 c
 c     append the angle list
 c     ---------------------
 c
       na=nang
-      do 13 i=1,nb
-      do 14 j=nb+1,nbnd
+      do 13 i=nb+1,nbnd
+      do 14 j=1,i-1
       if(lbnd(1,i).eq.lbnd(1,j)) then
       if(nang.ge.mang) call errquit('increase mang',9999)
       nang=nang+1
@@ -250,9 +230,8 @@ c     append the dihedral list
 c     ------------------------
 c
       nd=ndih
-      do 15 i=1,nang
-      do 16 j=na+1,nang
-      if(i.gt.na.and.j.le.i) goto 16
+      do 15 i=na+1,nang
+      do 16 j=1,i-1
       if(lang(2,i).eq.lang(1,j).and.lang(3,i).eq.lang(2,j)) then
       if(ndih.ge.mdih) call errquit('increase mdih',9999)
       ndih=ndih+1
@@ -613,6 +592,75 @@ c
       endif
    50 continue
    49 continue
+c
+c     check number of segments involved in angles
+c     -------------------------------------------
+c
+      do 53 i=1,nang
+      if(lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(2,i))).and.
+     + lseq(1,latm(5,lang(1,i))).ne.lseq(1,latm(5,lang(3,i))).and.
+     + lseq(1,latm(5,lang(2,i))).ne.lseq(1,latm(5,lang(3,i)))) then
+      lang(5,i)=-1
+      endif
+   53 continue
+c
+c     check number of segments involved in dihedrals
+c     ----------------------------------------------
+c
+      do 57 i=1,ndih
+      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
+     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
+     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i)))) then
+      ldih(6,i)=-1
+      else
+      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(2,i))).and.
+     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
+     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
+      ldih(6,i)=-1
+      else
+      if(lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
+     + lseq(1,latm(5,ldih(1,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
+     + lseq(1,latm(5,ldih(3,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
+      ldih(6,i)=-1
+      else
+      if(lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(3,i))).and.
+     + lseq(1,latm(5,ldih(2,i))).ne.lseq(1,latm(5,ldih(4,i))).and.
+     + lseq(1,latm(5,ldih(3,i))).ne.lseq(1,latm(5,ldih(4,i)))) then
+      ldih(6,i)=-1
+      endif
+      endif
+      endif
+      endif
+   57 continue
+c
+c     check number of segments involved in improper dihedrals
+c     -------------------------------------------------------
+c
+      do 58 i=1,nimp
+      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
+     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
+     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i)))) then
+      limp(6,i)=-1
+      else
+      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(2,i))).and.
+     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(4,i))).and.
+     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(4,i)))) then
+      limp(6,i)=-1
+      else
+      if(lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(3,i))).and.
+     + lseq(1,latm(5,limp(1,i))).ne.lseq(1,latm(5,limp(4,i))).and.
+     + lseq(1,latm(5,limp(3,i))).ne.lseq(1,latm(5,limp(4,i)))) then
+      limp(6,i)=-1
+      else
+      if(lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(3,i))).and.
+     + lseq(1,latm(5,limp(2,i))).ne.lseq(1,latm(5,limp(4,i))).and.
+     + lseq(1,latm(5,limp(3,i))).ne.lseq(1,latm(5,limp(4,i)))) then
+      limp(6,i)=-1
+      endif
+      endif
+      endif
+      endif
+   58 continue
 c
 c     read solvent segment
 c     --------------------

@@ -90,3 +90,5 @@ Sep 14 1998	 Option to limit CYS -> CYX to SS-bridges
 		 Option to enforce link through LINK in sequence file
 		 Bug fix in segments length for last segment frg's
 Sep 16 1998	 Count LINK's to get dimension mlnk in seqsiz
+		 Recode pre_mklist to allow and identify multiple node
+		 bonded interactions
