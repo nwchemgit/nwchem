@@ -2,6 +2,9 @@
      &                       nbf_ao, nbf_cd, nat, tol2e, scr, 
      &                       lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                       iga_dens, force, CD_coef, oskel)
+*
+* $Id: dftg_cdfit.F,v 1.11 1997-11-04 10:12:12 d3e129 Exp $
+*
       implicit none
 c
 #include "mafdecls.fh"

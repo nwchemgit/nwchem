@@ -3,7 +3,9 @@
      &                         heschi, Amat, Cmat, ibf, iniz, ifin, 
      &                         PPP, F, zzz, hh, g_dens, force, 
      &                         oactive, nactive)
-c 
+*
+* $Id: dftg_quadv0b.F,v 1.4 1997-11-04 10:12:16 d3e129 Exp $
+*
       Implicit none
 c
 #include "mafdecls.fh"

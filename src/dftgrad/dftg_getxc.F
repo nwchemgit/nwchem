@@ -1,6 +1,8 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive, s34)
-c
+*
+* $Id: dftg_getxc.F,v 1.10 1997-11-04 10:12:14 d3e129 Exp $
+*
       implicit none
 c      
 c     compute XC component of energy gradient.  

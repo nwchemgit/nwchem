@@ -1,4 +1,7 @@
       logical function grad_dft(rtdb)
+*
+* $Id: grad_dft.F,v 1.25 1997-11-04 10:12:17 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

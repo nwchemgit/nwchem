@@ -2,6 +2,9 @@
      &                       g_Dns,Grid,Values,g_Vls,
      &                       XYZ,Charge,Tags,AMt,BMt,Dst,
      &                       STD,Tot_Charge)
+*
+* $Id: get_charges.F,v 1.4 1997-11-04 10:10:38 d3e129 Exp $
+*
       Implicit None
 *
 ************************************************************************

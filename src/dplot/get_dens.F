@@ -1,5 +1,8 @@
       SubRoutine Get_Dens(Geom,Basis,nSet,nBF,g_Vec,g_Dns,
      &                    Spin,File_Vec,nOrb,k_Orb,iProc)
+*
+* $Id: get_dens.F,v 1.3 1997-11-04 10:10:39 d3e129 Exp $
+*
       Implicit None
 *     
 ************************************************************************

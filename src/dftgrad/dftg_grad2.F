@@ -6,6 +6,9 @@ c
 c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
 c    
+*
+* $Id: dftg_grad2.F,v 1.6 1997-11-04 10:12:15 d3e129 Exp $
+*
       implicit none
 c      
 #include "mafdecls.fh"

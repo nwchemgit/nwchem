@@ -1,4 +1,7 @@
       SubRoutine DMat(Geom,Basis,g_Vec,g_Dns,nOcc,nBF)
+*
+* $Id: dmat.F,v 1.5 1997-11-04 10:10:37 d3e129 Exp $
+*
       Implicit None
 *
 ************************************************************************

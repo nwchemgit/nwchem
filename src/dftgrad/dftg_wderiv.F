@@ -1,5 +1,8 @@
       Subroutine dftg_wderiv(ictr, nat, nq, iandex, ncenters, func, 
      &                       d_qwght, force, oactive,  nactive)
+*
+* $Id: dftg_wderiv.F,v 1.3 1997-11-04 10:12:17 d3e129 Exp $
+*
       Implicit none
 c
 #include "mafdecls.fh"

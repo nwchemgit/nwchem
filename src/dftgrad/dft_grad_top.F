@@ -1,4 +1,7 @@
       subroutine dft_grad_top(rtdb)
+*
+* $Id: dft_grad_top.F,v 1.8 1997-11-04 10:12:11 d3e129 Exp $
+*
       implicit none
 c
       integer rtdb

@@ -1,4 +1,7 @@
       SubRoutine DPlot_Input(rtdb)
+*
+* $Id: dplot_input.F,v 1.4 1997-11-04 10:10:38 d3e129 Exp $
+*
       Implicit none
 *
 ************************************************************************

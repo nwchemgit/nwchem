@@ -1,3 +1,7 @@
+#
+# $Id: GNUmakefile,v 1.39 1997-11-04 10:12:18 d3e129 Exp $
+#
+
    OBJ = dft_grad_top.o  dftg_force.o \
          dftg_getxc.o \
          grad_dft.o      dftg_quadv0.o     \

@@ -1,6 +1,9 @@
       SubRoutine Get_Grid(Grid,nGrid,CooFrom,CooTo,nGridXYZ,
      &                    Volume,Out_Unit,iProc,Where,
      &                    nAtom,XYZ,What)
+*
+* $Id: get_grid.F,v 1.4 1997-11-04 10:10:39 d3e129 Exp $
+*
       Implicit None
 *
 ************************************************************************
