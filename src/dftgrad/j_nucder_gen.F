@@ -5,7 +5,7 @@ c     dftg_cdfit_gen for fitted J quantities
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.6 1999-05-08 13:48:36 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.7 1999-11-13 02:18:34 bjohnson Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,7 +44,7 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.6 1999-05-08 13:48:36 bjohnson Exp $
+c     $Id: j_nucder_gen.F,v 1.7 1999-11-13 02:18:34 bjohnson Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -144,7 +144,7 @@ c
          call dftg_cdfit_gen(rtdb, geom, AO_bas_han, CD_bas_han,
      &                       nbf_ao, nbf_cd, natoms, tol2e,
      &                       dbl_mb(k_scr), lscr, dbl_mb(k_buf), lbuf,
-     &                       dbl_mb(k_d_kla), dbl_mb(k_d_ija), ldim1,
+     &                       dbl_mb(k_d_kla), dbl_mb(k_d_ija),
      &                       ldim2, g_dens, 0d0, hess, g_rhs,
      &                       dbl_mb(k_db), dbl_mb(k_s34), oskel,
      &                       calc_type)
