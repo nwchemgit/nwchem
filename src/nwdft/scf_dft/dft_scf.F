@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.177 2001-04-07 01:02:50 edo Exp $
+c     $Id: dft_scf.F,v 1.178 2001-04-11 23:09:29 edo Exp $
 c     
       implicit none
 c
@@ -634,17 +634,29 @@ c
       last_time_energy = .false.
 c
       g_denso(1) = 
-     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
+     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDMa')
       if(ipol.eq.2)
      +     g_denso(2) = 
-     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDM')
+     =     ga_create_atom_blocked(geom,AO_bas_han,'oldDMb')
 #if defined(DFT_TIMER)
       call dft_second(tp4)
       pgmsect(5) = ' initial guess'
       call tcllct(t_pgm(1,5),tp4,tp3)
 #endif
 c
-      if(iterations.eq.0) goto 1970
+      if(iterations.eq.0) then
+         if (.not. ga_destroy(g_denso(1))) call errquit
+     &        ('dft_scf: could not destroy g_denso', 0)
+         if(ipol.eq.2) then
+            if (.not. ga_destroy(g_focks(2))) call errquit
+     &           ('dft_scf: could not destroy g_focks2', 0)
+            if (.not. ga_destroy(g_denso(2))) call errquit
+     &           ('dft_scf: could not destroy g_dens2', 0)
+         if (.not. MA_free_heap(l_gdiis))
+     .        call errquit(' dft_scf:cannot popstack',111)
+            goto 1970
+         endif
+      endif
  1000 continue
 
 c
