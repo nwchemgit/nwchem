@@ -1,6 +1,6 @@
       logical function ga_iter_diag(n, nroot, maxiter, maxsub, tol,
      $     precond, product, oprint, eval0, g_evec, eval, rnorm, iter)
-C$Id: ga_iter_diag.F,v 1.9 2001-06-21 19:19:25 zzhang Exp $
+C$Id: ga_iter_diag.F,v 1.10 2001-06-28 03:05:34 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -91,7 +91,7 @@ c      double precision shift
       logical odebug
       data odebug /.false./
 c     
-c      odebug = .true.
+      odebug = .true.
       if (maxsub .gt. maxdim) call errquit
      $     ('ga_iter_diag: maxsub > maxdim', maxdim)
       if (maxsub .lt. nroot+2) call errquit
@@ -243,7 +243,7 @@ c
      $              rnorm(iroot), tcgtime()
  3             format(7x,4i5,1p,e16.9,e12.4,0p,f8.1)
                call ga_copy_patch('n',g_x,1,n,iroot,iroot,g_tmp,1,n,1,1)
-c               call ga_print(g_tmp)
+               call ga_print(g_tmp)
 c               call ga_get(g_x, 1, n, iroot, iroot, vout(1), 21)
 c               call output(vout, 1, 3, 1, 7, 3, 7, 1)
             enddo
@@ -329,7 +329,7 @@ c         call ga_print(g_v)
             call ga_copy_patch('n', g_tmp, 1, n, 1, 1, g_v, 1, n, 
      &           i, i)
             nsub=nsub+1
-            call ga_print(g_x)
+c            call ga_print(g_x)
             call ga_copy_patch('n', g_tmp, 1, n, 1, 1, g_x, 1, n, 
      &           nsub, nsub)
          enddo
@@ -369,5 +369,7 @@ c
      $     ('ga_iter_diag: failed to destory x', 0)
       if (.not. ga_destroy(g_p)) call errquit
      $     ('ga_iter_diag: failed to destory p', 0)
+      if (.not. ga_destroy(g_tmp)) call errquit
+     $     ('ga_iter_diag: failed to destory tmp', 0)
 c     
       end
