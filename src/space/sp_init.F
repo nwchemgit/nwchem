@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.62 2000-03-14 22:50:18 d3j191 Exp $
+c $Id: sp_init.F,v 1.63 2000-04-12 00:03:35 d3j191 Exp $
 c
       implicit none
 c
@@ -2754,7 +2754,7 @@ c
       call ga_get(ga_iw,ili,ili+nwmloc-1,jli,jhi,iwl,mwm)
       else
       call ga_get(ga_iw,ili,ili+nwmloc-1,jli,jli+npackw-1,iwlp,mwm)
-      call sp_unpackw(nwmn,iwl,iwlp)
+      call sp_unpackw(nwmloc,iwl,iwlp)
       endif
       call ga_distribution(ga_w,me,ilw,ihw,jlw,jhw)
       call ga_get(ga_w,ilw,ilw+nwmloc-1,jlw,jlw+3*mwa-1,xw,mwm) 
@@ -2766,7 +2766,7 @@ c
       call ga_get(ga_is,ili,ili+nsaloc-1,jli,jhi,isl,msa)
       else
       call ga_get(ga_is,ili,ili+nsaloc-1,jli,jli+npack-1,islp,msa)
-      call sp_unpack(nsan,isl,islp)
+      call sp_unpack(nsaloc,isl,islp)
       endif
       call ga_distribution(ga_s,me,ils,ihs,jls,jhs)
       call ga_get(ga_s,ils,ils+nsaloc-1,jls,jls+2,xs,msa)
