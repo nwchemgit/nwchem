@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.54 2003-10-17 22:57:58 carlfahl Exp $
+* $Id: prp.F,v 1.55 2003-10-20 18:45:58 bert Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -5477,7 +5477,11 @@ C
       CHARACTER*8 WFNTYP, SCFTYP
       CHARACTER*8 SCF, UHF, MP2
       character*8 anam,bflab
-      character*2 bnam
+      character*2 bnam,symbol
+      character*16 element
+      integer atn, ij
+      logical geom_tag_to_element
+      external geom_tag_to_element
       COMMON/HND_MEMORY/MAXCOR,MAXLCM
       COMMON/HND_OUTPUT/NPRINT
       COMMON/HND_IOFILE/IR,IW,IP
@@ -5669,6 +5673,8 @@ C
 C
       if (ga_nodeid().eq.0) WRITE(IW,9992)
 C
+      call ecce_print_module_entry('EFG')
+C
       DO 240 IPT=1,NPTMAX
       A(1) = X(1+6*(IPT-1)+I10-1)
       A(2) = X(4+6*(IPT-1)+I10-1)
@@ -5676,8 +5682,25 @@ C
       A(4) = X(5+6*(IPT-1)+I10-1)
       A(5) = X(6+6*(IPT-1)+I10-1)
       A(6) = X(3+6*(IPT-1)+I10-1)
+C
+      ij=0
+      do 241 i=1,3
+      do 241 j=1,i
+         ij=ij+1
+         vec(i,j)=a(ij)
+  241    vec(j,i)=a(ij)
+      if (.not. geom_tag_to_element(anam(ipt),symbol,element,atn))
+     &        call errquit('hnd_efgmap: geom_tag_to_element failed',911)
+      call ecce_print1_char('atom name',symbol,1)
+      call ecce_print2('EFG tensor',MT_DBL,vec,3,3,3)
+C
       CALL HND_DIAEFG(A,VEC,EIG,3)
       ETA  = ABS( (EIG(1)-EIG(2)) / EIG(3) )
+C
+      call ecce_print1('EFG eigenvalues',MT_DBL,eig,3)
+      call ecce_print2('EFG eigenvectors',MT_DBL,vec,3,3,3)
+      call ecce_print1('EFG asymmetry',MT_DBL,eta,1)
+C
       if (ga_nodeid().eq.0) WRITE(IW,9991)
      &   IPT,EIG(1),EIG(2),EIG(3),ETA
   240 CONTINUE
@@ -5698,6 +5721,8 @@ C
       if (ga_nodeid().eq.0) WRITE(IW,9989) IPT
       if (ga_nodeid().eq.0) WRITE(IW,9988) ((VEC(I,J),J=1,3),I=1,3)
   260 CONTINUE
+C
+      call ecce_print_module_exit('EFG','ok')
 C
 C     ----- RELEASE MEMORY BLOCK -----
 C
