@@ -1,4 +1,7 @@
       subroutine task(rtdb)
+*
+* $Id: task.F,v 1.15 1997-04-02 23:25:03 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"

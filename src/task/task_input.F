@@ -1,4 +1,7 @@
       subroutine task_input(rtdb)
+*
+* $Id: task_input.F,v 1.13 1997-04-02 23:25:06 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"

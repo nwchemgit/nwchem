@@ -1,4 +1,7 @@
       logical function task_energy(rtdb)
+*
+* $Id: task_energy.F,v 1.10 1997-04-02 23:25:04 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,7 @@
       logical function task_num_grad(rtdb)
+*
+* $Id: task_num_grad.F,v 1.12 1997-04-02 23:25:06 d3e129 Exp $
+*
       implicit none
 #include "geom.fh"
 #include "rtdb.fh"

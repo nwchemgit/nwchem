@@ -21,6 +21,9 @@ c     task:status (logical)      - T/F on success/failure
 c     task:cputime
 c     task:walltime
 c
+*
+* $Id: task_freq.F,v 1.12 1997-04-02 23:25:04 d3e129 Exp $
+*
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"

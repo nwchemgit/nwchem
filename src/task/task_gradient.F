@@ -1,4 +1,7 @@
       logical function task_gradient(rtdb)
+*
+* $Id: task_gradient.F,v 1.11 1997-04-02 23:25:05 d3e129 Exp $
+*
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"

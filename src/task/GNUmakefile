@@ -1,3 +1,6 @@
+#
+# $Id: GNUmakefile,v 1.17 1997-04-02 23:25:03 d3e129 Exp $
+#
 
   LIBRARY = libtask.a
   
