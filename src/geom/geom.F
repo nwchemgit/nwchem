@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.104 2000-08-01 19:51:45 d3g681 Exp $
+C$Id: geom.F,v 1.105 2000-10-26 00:15:34 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1307,6 +1307,7 @@ c
          c(2,i) = coords(2,i,geom)
          c(3,i) = coords(3,i,geom)
       end do
+      geom_efc_cart_get = .true.
 c
       end
       logical function geom_efc_cart_set(geom, ncent, c, q)
@@ -1332,6 +1333,7 @@ c
          coords(2,i,geom) = c(2,i)
          coords(3,i,geom) = c(3,i)
       end do
+      geom_efc_cart_set = .true.
 c
       end
       logical function geom_cart_get(geom, ncent, t, c, q)
