@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.14 2003-10-17 22:56:29 carlfahl Exp $
+* $Id: D3dB-new.F,v 1.15 2003-10-22 19:45:01 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -672,20 +672,29 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***   A(nx(nb),ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ny(nb),nz(nb))]  ***
 *     *************************************************
       call drffti(nx(nb),dcpl_mb(tmp1(1)))
+
+c      do q=1,nq(nb)
+c      do j=1,ny(nb)
+c         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+c         call dcopy((nx(nb)+2),A(indx),1,dbl_mb(tmp3(1)),1)
+c         do i=2,nx(nb)
+c            dbl_mb(tmp3(1)+i-1) = dbl_mb(tmp3(1)+i)
+c         end do
+c         call drfftb(nx(nb),dbl_mb(tmp3(1)),dcpl_mb(tmp1(1)))
+c         dbl_mb(tmp3(1)+nx(nb)) = 0.0d0
+c         dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
+c         call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
+c      end do
+c      end do
+
+      call cshift1_fftb(nx(nb),ny(nb),nq(nb),A)
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-         call dcopy((nx(nb)+2),A(indx),1,dbl_mb(tmp3(1)),1)
-         do i=2,nx(nb)
-            dbl_mb(tmp3(1)+i-1) = dbl_mb(tmp3(1)+i)
-         end do
-         call drfftb(nx(nb),dbl_mb(tmp3(1)),dcpl_mb(tmp1(1)))
-         dbl_mb(tmp3(1)+nx(nb)) = 0.0d0
-         dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
-         call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
+         call drfftb(nx(nb),A(indx),dcpl_mb(tmp1(1)))
       end do
       end do
-
+      call zeroend_fftb(nx(nb),ny(nb),nq(nb),A)
     
 *     **** deallocate temporary space  ****
       value = MA_pop_stack(tmp3(2))
@@ -696,6 +705,37 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       return
       end
 
+      subroutine cshift1_fftb(nx,ny,nq,A)
+      implicit none
+      integer nx,ny,nq
+      real*8 A(*)
+
+      integer i,j,q,indx
+      do q=1,nq
+      do j=1,ny
+         indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+         do i=2,nx
+            A(indx+i-1) = A(indx+i)
+         end do
+      end do
+      end do
+      return
+      end 
+      subroutine zeroend_fftb(nx,ny,nq,A)
+      implicit none
+      integer nx,ny,nq
+      real*8 A(*)
+
+      integer i,j,q,indx
+      do q=1,nq
+      do j=1,ny
+         indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+         A(indx+nx)   = 0.0d0
+         A(indx+nx+1) = 0.0d0
+      end do
+      end do
+      return
+      end 
 
 
 
@@ -727,11 +767,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *****************************************************
 
       implicit none
-#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
       common	/ D3dB / nq,nx,ny,nz
@@ -742,7 +782,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nfft3d
       integer tmp1(2),tmp2(2),tmp3(2)
       logical value
-
 
 
       call nwpw_timing_start(1)
@@ -765,17 +804,23 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-         call dcopy((nx(nb)+2),A(indx),1,dbl_mb(tmp3(1)),1)
-         call drfftf(nx(nb),dbl_mb(tmp3(1)),dcpl_mb(tmp1(1)))
-         do i=nx(nb),2,-1
-            dbl_mb(tmp3(1)+i) = dbl_mb(tmp3(1)+i-1)
-         end do
-         dbl_mb(tmp3(1)+1)    = 0.0d0
-         dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
-         call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
-         
+
+c        call dcopy((nx(nb)+2),A(indx),1,dbl_mb(tmp3(1)),1)
+c        call drfftf(nx(nb),dbl_mb(tmp3(1)),dcpl_mb(tmp1(1)))
+c        do i=nx(nb),2,-1
+c           dbl_mb(tmp3(1)+i) = dbl_mb(tmp3(1)+i-1)
+c        end do
+c        dbl_mb(tmp3(1)+1)    = 0.0d0
+c        dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
+c        call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
+
+         call drfftf(nx(nb),A(indx),dcpl_mb(tmp1(1)))
+
       end do
       end do
+      call cshift_fftf(nx(nb),ny(nb),nq(nb),A)
+
+
 
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
@@ -839,7 +884,26 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       return
       end
 
+      subroutine cshift_fftf(nx,ny,nq,A)
+      implicit none
+      integer nx,ny,nq
+      real*8 A(*)
 
+      integer i,j,q,indx
+
+      do q=1,nq
+      do j=1,ny
+         indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
+         do i=nx,2,-1
+            A(indx+i) = A(indx+i-1)
+         end do
+         A(indx+1)    = 0.0d0
+         A(indx+nx+1) = 0.0d0
+      end do
+      end do
+
+      return
+      end 
 
 
 *     ***********************************
