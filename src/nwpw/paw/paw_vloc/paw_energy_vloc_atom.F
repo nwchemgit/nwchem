@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_vloc_atom.F,v 1.3 2003-02-14 19:25:56 marat Exp $
+* $Id: paw_energy_vloc_atom.F,v 1.4 2003-02-14 19:53:23 d3j191 Exp $
 *
 
 
@@ -41,7 +41,7 @@
               lj = paw_basis_orb_l(j,ia)
                 do mj=-lj,lj
                 i_mtr = i_mtr0 +i+(j-1)*nb
-                if(mi==mj) then
+                if(mi.eq.mj) then
                   evloc = evloc - dcpl_mb(paw_ovlp_w(1)+i_w)*
      >                          dbl_mb(paw_vloc_matrix(1) + i_mtr - 1) 
                 end if
