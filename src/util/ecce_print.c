@@ -321,7 +321,7 @@ void ecce_print1_(const char *key, Integer *ma_type,
 {
 #endif
     char buf[1024];
-
+    if (!ecce_print_enabled) return;
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
 	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
 		keylen, sizeof(buf));
@@ -341,7 +341,7 @@ void ecce_print_module_entry_(const char *module, int modlen)
 {
 #endif
     char buf[1024];
-
+    if (!ecce_print_enabled) return;
     if (!fortchar_to_string(module, modlen, buf, sizeof(buf))) {
 	fprintf(stderr,"!! ecce_print_module_entry: name too long? (%d %d)\n",
 		modlen, sizeof(buf));
@@ -364,7 +364,7 @@ void ecce_print_module_exit_(const char *module, const char *status,
 {
 #endif
     char buf[1024], buf1[1024];
-
+    if (!ecce_print_enabled) return;
     if (!fortchar_to_string(module, modlen, buf, sizeof(buf))) {
 	fprintf(stderr,"!! ecce_print_module_exit: name too long? (%d %d)\n",
 		modlen, sizeof(buf));
@@ -394,7 +394,7 @@ void ecce_print1_char_(const char *key, const char *data, Integer *dim1,
 #endif
     char buf[1024], buf1[1024];
     int i;
-
+    if (!ecce_print_enabled) return;
     if (!fortchar_to_string(key, keylen, buf, sizeof(buf))) {
 	fprintf(stderr,"!! ecce_print: key too long (%d %d)\n", 
 		keylen, sizeof(buf));
