@@ -1,8 +1,22 @@
-$Id: README,v 1.2 1997-02-17 23:58:27 gg502 Exp $
+$Id: README,v 1.3 1999-09-29 23:27:06 gg502 Exp $
 
 Here are a few small examples of RI-MP2 calculations, along with the
 associated SCF input decks.  Most of them freeze a couple of core
 orbitals, but one of the C2H6 ones doesn't.  They all take the fitting
 basis sets from fit.lib.
+
+First run the *-scf.nwc calculation, then run any of the corresponding
+*-ri*.nwc calculations.  The numbers used at the end of the input deck
+names (00, 01, 02) indicate the use of different fitting basis sets,
+and you should be able to run more than one such calculation without
+re-doing the SCF calculation.
+
+Note, however, that frozen core specifications (*-rifc*.nwc jobs) stay
+in the .db file, and so will effect future calculations restarted from
+the same .db file.  This means if you run the sequence c2h6-scf.nwc,
+c2h6-rifc00.nwc, c2h6-ri00.nwc the frozen core directive from the
+second job will also effect the third one!  The simplest approach is
+to do any all-electron calculations BEFORE any of the frozen core
+ones.
 
 These jobs were run on an SGI PowerChallenge (1 CPU) 12 February 1997 
