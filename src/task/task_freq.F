@@ -22,7 +22,7 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.12 1997-04-02 23:25:04 d3e129 Exp $
+* $Id: task_freq.F,v 1.13 1997-04-11 23:23:18 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -40,6 +40,7 @@ c
       logical status
       logical numerical
       character*(nw_max_path_len) filehess
+      integer ecce_old_print, ecce_junk_print
 c     
       double precision cpu, wall
       logical stpr_gen_hess_at
@@ -51,7 +52,7 @@ c
       external     scf_hessian
       logical      hess_analy
 c    
-      call ecce_print_module_exit('task frequencies', 'ok')
+      call ecce_print_module_entry('task frequencies')
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -77,9 +78,9 @@ c
      $     call errquit('task:frequency: theory not specified',0)
 
       if (.not.numerical.and.theory.eq.'scf') then
-       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
-     $     call errquit('task_freq:scftype not defined',0)
-       call inp_ucase(scftype)
+         if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
+     $        scftype = 'RHF'
+         call inp_ucase(scftype)
       endif
 c
       if (.not.numerical.and.theory.eq.'scf'.and.scftype.eq.'RHF') then 
@@ -118,6 +119,7 @@ c
          write(6,*)
         endif
 c
+        call ecce_print_control(0, ecce_old_print) ! Disable ECCE printing
         if (.not.stpr_gen_hess_at(rtdb,delta_pass))
      $     call errquit
      $     ('task_freq: stpr_gen_hess_at failed ',911)
@@ -126,6 +128,7 @@ c
           if (.not. rtdb_put(rtdb,'task:numerical',mt_log,1,numerical))
      &     call errquit('task_freq:numerical store failed',0)
         endif
+        call ecce_print_control(ecce_old_print, ecce_junk_print)
       endif
 c     
       if ((ga_nodeid()).eq.0) then
@@ -172,7 +175,3 @@ c
       task_freq = .true.
 c
       end
-
-
-
-
