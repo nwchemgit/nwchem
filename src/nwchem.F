@@ -21,7 +21,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.123 1999-09-29 21:43:13 windus Exp $
+c     $Id: nwchem.F,v 1.124 1999-10-14 23:11:47 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -156,7 +156,7 @@ c
 c
 c     Trap SIGFPE after GA to override handler
 c
-*****      call ieeetrap()
+      call ieeetrap()
 #ifdef DECOSF
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
 #endif
@@ -214,6 +214,8 @@ c
       call movecs_ecce_print_on()
 c
       call geom_hnd_parallel(.true.)
+c
+      if (orestart .or. ocontinue) call nw_print_restart_info(rtdb)
 c
 c if continue then go right to task stored on rtdb do not further parse
 c input.  If input is required then user should have used restart
@@ -401,7 +403,7 @@ C
          Call Util_GetEnv('LOADL_JOB_NAME', batchid)
       EndIf
 C
-      call util_print_centered(6, 'Job information', 20, .true.)
+      call util_print_centered(6, 'Job information', 17, .true.)
       write(6,2) 
      $     hostname(1:inp_strlen(hostname)),
      $     executable(1:inp_strlen(executable)),
@@ -436,7 +438,7 @@ C
      $     '    nproc         = ', i4/,
      $     '    time left     = ', i6,'s')
  22   format(
-     $     '    batch job id  = ', a//)
+     $     '    batch job id  = ', a/)
 c
 c     Determine, without altering, setting of memory verification
 c     and hardfail.
@@ -487,7 +489,7 @@ C
          GStatus = '(distinct from heap & stack)'
       EndIf
 c
-      call util_print_centered(6, 'Memory information', 20, .true.)
+      call util_print_centered(6, 'Memory information', 19, .true.)
 c
 *old:      write(6,3) heap, stack, global, GStatus, total, cstatus,
 *old:     $     fstatus
@@ -521,5 +523,68 @@ c
 c     Below here back to parallel execution
 c
 10101 call util_file_print_dirs()
+      write(6,*)
 c
       end
+      subroutine nw_print_restart_info(rtdb)
+      implicit none
+#include "global.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+      integer rtdb
+c
+c     Summarize the status of a restart calculation
+c
+      logical mode, task_qmmm, ignore, lstatus
+      character*30 theory, operation, status
+c
+      if (ga_nodeid() .eq. 0) then
+         mode = rtdb_parallel(.false.)
+*         write(6,*)
+*         call util_print_centered(6, 'Summary of restart information',
+*     $        40, .true.)
+*         write(6,*)
+         if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     &        task_qmmm = .false.
+c      
+         if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $        operation = ' '
+c
+         if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     $        theory = ' '
+c
+         if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
+     $        ignore = .false.
+c
+         if (rtdb_get(rtdb, 'task:status', mt_log, 1, lstatus)) then
+            if (lstatus) then
+               status = 'ok'
+            else
+               status = 'fail'
+            endif
+         else
+            status = 'unknown'
+         endif
+c
+         if (theory.ne.' ' .or. operation.ne.' ' .or. task_qmmm) then
+            call util_print_centered(6,'Previous task information',
+     $           22, .true.)
+            write(6,1) theory, operation, status, task_qmmm, ignore
+ 1          format(/,
+     $           '    Theory    = ', a,/,
+     $           '    Operation = ', a,/,
+     $           '    Status    = ', a,/,
+     $           '    Qmmm      = ', l1,/,
+     $           '    Ignore    = ', l1,/)
+         endif
+         call geom_print_known_geoms(rtdb)
+         call bas_print_known_bases(rtdb)
+         call util_flush(6)
+         mode = rtdb_parallel(mode)
+      endif
+c
+      call ga_sync()
+c
+      end
+      
