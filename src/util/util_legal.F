@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.17 2000-11-28 23:23:29 windus Exp $
+* $Id: util_legal.F,v 1.18 2000-12-05 18:57:30 edo Exp $
 *--------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,2000  *
 *         Pacific Northwest National Laboratory,         * 
@@ -163,30 +163,31 @@ c
      &    /,12x,
      &    'obtained with NWChem:'
      &    /,/,12x,
-     &    'Anchell, J.; Apra, E.; Bernholdt, D.; Borowski, P.; ',
-     &    'Bylaska, E.; ',
-     &    /,12x,'Clark, T.; Clerc, D.; Dachsel, H.; de Jong, W.A.; ',
-     &    'Deegan, M.; ',
-     &    /,12x,'Dupuis, M.; Dyall, K.; Elwood, D.; Fann, G.; ',
-     &    'Fruchtl, H.; ',
-     &    /,12x,'Glendenning, E.; Gutowski, M.; Harrison, R.; ',
-     &    'Hess, A.; ',
-     &    /,12x,'Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.; ',
-     &    'Kobayashi, R.; ',
-     &    /,12x,'Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; ',
-     &    'Meng, B.; ',
-     &    /,12x,'Nichols, J.; Nieplocha, J.; Rendall, A.; Rosing, M.;',
-     &    'Sandrone, G; ',
-     &    /,12x,'Stave, M.; Straatsma, T.;Taylor, H.; ',
-     &    'Thomas, G.; van Lenthe, J.; ',
+     &    'Harrison, R.; Nichols, J.; Straatsma, T.; Dupuis, M.;',
      &    /,12x,
-     &    'Windus, T; Wolinski, K.; Wong, A.; Zhang, Z.; "NWChem, A ',
-     &    /,12x,'Computational Chemistry Package for Parallel ',
-     &    'Computers, ',
+     &    'Bylaska, E.; Fann, G.; Windus, T.; Apra, E.; Anchell, J.;',
      &    /,12x,
-     &    'Version 4.0" (1999),',
-     &    /,22x,'Pacific Northwest National Laboratory,',
-     &    /,22x,'Richland, Washington 99352-0999, USA.'
+     &    'Bernholdt, D.; Borowski, P.; Clark, T.; Clerc, D.;',
+     &    /,12x,
+     &    'Dachsel, H.; de Jong, B.; Deegan, M.; Dyall, K.;',
+     &    /,12x,
+     &    'Elwood, D.; Fruchtl, H.; Glendenning, E.; Gutowski, M.;',
+     &    /,12x,
+     &    'Hess, A.; Jaffe, J.; Johnson, B.; Ju, J.; Kendall, R.;',
+     &    /,12x,
+     &    'Kobayashi, R.; Kutteh, R.; Lin, Z.; Littlefield, R.;',
+     &    /,12x,
+     &    'Long, X.; Meng, B.; Nieplocha, J.; Niu, S.; Rosing, M.;',
+     &    /,12x,
+     &    'Sandrone, G.; Stave, M.; Taylor, H.; Thomas, G.;',
+     &    /,12x,
+     &    'van Lenthe, J.; Wolinski, K.; Wong, A.; Zhang, Z.,'
+     &    /,12x,
+     &    '"NWChem, A Computational Chemistry Package',
+     &    /,12x,
+     &    'for Parallel Computers, Version 4.0" (2000),',
+     &    /,12x,'Pacific Northwest National Laboratory,',
+     &    /,12x,'Richland, Washington 99352-0999, USA.'
      &    /,/)
 10002 format(
      &    /,12x,
