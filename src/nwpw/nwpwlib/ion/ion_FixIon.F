@@ -136,6 +136,44 @@
 
       return
       end
+*     ********************************
+*     *                              *
+*     *         ion_same_FixIon      *
+*     *                              *
+*     ********************************
+
+*   make r2 = r1 for fixed ions
+*
+      subroutine ion_same_FixIon(r1,r2)
+      implicit none
+      real*8 r1(3,*)
+      real*8 r2(3,*)
+
+#include "mafdecls.fh"
+
+*     **** FixIon common block ****
+      integer count
+      integer ion_number(2)
+      common / FixIon_Block / ion_number,count
+
+*     **** local variables ****
+      integer i
+
+      if (count.ne.0) then
+         do i=1,count
+            r2(1,int_mb(ion_number(1)+i-1)) 
+     >      = r1(1,int_mb(ion_number(1)+i-1)) 
+            r2(2,int_mb(ion_number(1)+i-1))
+     >      = r1(2,int_mb(ion_number(1)+i-1)) 
+            r2(3,int_mb(ion_number(1)+i-1))
+     >      = r1(3,int_mb(ion_number(1)+i-1)) 
+         end do
+      end if
+
+      return
+      end
+
+
 
 *     *************************
 *     *                       *

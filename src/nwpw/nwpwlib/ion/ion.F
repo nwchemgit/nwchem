@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.26 2003-08-04 02:19:44 bylaska Exp $
+* $Id: ion.F,v 1.27 2003-08-09 02:43:44 bylaska Exp $
 *
 
 *     ***************************
@@ -1042,6 +1042,8 @@ c         eki1=0.5d0*eki1
          dbl_mb(r2(1)+(i-1)*3+2) = dbl_mb(r1(1)+(i-1)*3+2) 
      >                           + scale*fion(3,i)
       end do
+      call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
+
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
@@ -1098,6 +1100,8 @@ c         eki1=0.5d0*eki1
      >                           -       dbl_mb(r0(1)+(i-1)*3+2) 
      >                           +       scale*fion(3,i)
       end do
+      call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
+
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
@@ -1183,6 +1187,8 @@ c         eki1=0.5d0*eki1
      >                           + dt*dbl_mb(r0(1)+(i-1)*3+2) 
      >                           +       scale*fion(3,i)
       end do
+      call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
+
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
@@ -1258,6 +1264,7 @@ c         eki1=0.5d0*eki1
      >                           -       smr*dbl_mb(r0(1)+(i-1)*3+2) 
      >                           +       ssr*scale*fion(3,i)
       end do
+      call ion_same_FixIon(dbl_mb(r1(1)),dbl_mb(r2(1))) !** Stupid IBM **
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
