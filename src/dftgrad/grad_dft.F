@@ -162,6 +162,8 @@ c
 c     Eventually print level will be under input control. For now
 c     print verbosely
 c 
+      if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol ))
+     $     call errquit('dft_grad: dft:ipol get failed', 0)
       if (ga_nodeid() .eq. 0) then
          call util_print_centered(6,'NWCHEM DFTGRAD Module',40,.true.)
          write(6,*)
@@ -171,6 +173,7 @@ c
             write(6,*)
             write(6,*)
          endif
+
 
          if (ipol .eq. 1) then
            write(6,1) charge, 'closed shell'
