@@ -1,5 +1,5 @@
       subroutine grid_rtrunc(rtdb, zprim, 
-     .     llind,exex,ll,
+     .     llind,exex,shiftm,ll,
      &     tol_reset, range_max)
 c
 C$Id:
@@ -18,12 +18,13 @@ c
       logical llind ! [in]
       integer ll(*) ! [out] for lindh grid
       double precision exex(*) ! [out] for lindh grid
+      double precision shiftm(*) ! [out] for lindh grid
       double precision job_grid_acc
       double precision range_max
       double precision zprim(nbf_ao_mxprim)
 c
       integer ll_at
-      double precision exex_at
+      double precision exex_at,shiftm_2g
       integer g_s
       integer k_minexp,l_minexp,k_ldiff,l_ldiff,iat,
      .     lpmat,ipmat,l_ics,k_ics,iat_diff,k_coord,l_coord
@@ -56,12 +57,13 @@ c
          call grid_rtrunc1(iat,dbl_mb(k_minexp),int_mb(k_ldiff),
      .        g_s, dbl_mb(ipmat),job_grid_acc,iat_diff,range_max,
      .        dbl_mb(k_coord),
-     .        ll_at,exex_at)
+     .        ll_at,exex_at,shiftm_2g)
          if (tol_reset)then
             if((nint(range_max)).gt.rad_cutoff(1,iatype(iat))) then
                if(llind) then
                   ll(iatype(iat)) = ll_at
                   exex(iatype(iat)) = exex_at
+                  shiftm(iatype(iat)) = shiftm_2g
                endif
                rad_cutoff(1,iatype(iat)) = nint(range_max) 
                rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
@@ -181,7 +183,7 @@ c
       subroutine grid_rtrunc1(iat,expo,l,g_s,pmat,my_acc,
      .     iat_diff,range_max,
      .     coord,
-     .     ll_at,exex_at)
+     .     ll_at,exex_at,shiftm_2g)
       implicit none
 #include "cdft.fh"
       integer iat ! [in]
@@ -194,6 +196,7 @@ c
       double precision my_acc ! [in]
       integer ll_at ! [out]
       double precision exex_at ! [out]
+      double precision shiftm_2g ! [out]
       
 c
       integer jat,dimi,dimj,l_iat
@@ -202,7 +205,7 @@ c
       external dabsmax
       parameter(ov_trunc=1d-5)
       external grid_rnegl
-      double precision grid_rnegl
+      double precision grid_rnegl,shift_2g
 c
       range_max=0d0
       l_iat=l(iat)
@@ -221,12 +224,14 @@ c
 c
 c     bit to add from gaussian product formula
 c               
-               range=range+sqrt(
+               shift_2g=sqrt(
      .              (exp_iat*coord(1,iat)-expo(jat)*coord(1,jat))**2+
      .              (exp_iat*coord(2,iat)-expo(jat)*coord(2,jat))**2+
      .              (exp_iat*coord(3,iat)-expo(jat)*coord(3,jat))**2)/
      /              (exp_iat+expo(jat))
+               range=range+shift_2g
                if(range.gt.range_max) then
+                  shiftm_2g=shift_2g
                   range_max =  range
                   iat_diff=jat
                   ll_at=l_iat+l(jat)
@@ -326,6 +331,7 @@ c
       call int_init(rtdb, 1, AO_bas_han) 
       g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
       call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
+      if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
       call int_terminate
 c
 c     get coord

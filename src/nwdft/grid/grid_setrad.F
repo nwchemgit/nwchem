@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.15 2000-01-12 23:10:09 edo Exp $
+c$Id: grid_setrad.F,v 1.16 2000-01-13 00:25:42 edo Exp $
 c
       implicit none
 c      
@@ -25,7 +25,7 @@ c
       integer lexpo, iexpo
 c
       integer n1,ninf,ndivide,mxnrad,znint,me,
-     .     k_2l,l_2l,k_2ex,l_2ex
+     .     k_2l,l_2l,k_2ex,l_2ex,k_2g,l_2g
       double precision braggmult
       double precision midpoint,range_max,range_mk
       double precision lindh_acc
@@ -77,7 +77,9 @@ c
          if (.not.MA_Push_Get(mt_int,ntypes,'l+l',l_2l,k_2l))
      &        call errquit('grid_setrad: cannot allocate 2l',0)
          if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2ex,k_2ex))
-     &        call errquit('grid_setrad: cannot allocate 2e',0)
+     &        call errquit('grid_setrad: cannot allocate 2e',1)
+         if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2g,k_2g))
+     &        call errquit('grid_setrad: cannot allocate 2e',2)
       else
          k_2l=0
          k_2ex=0
@@ -87,7 +89,7 @@ c
      &   call errquit('grid_setrad: cannot allocate expo',0)
 
       if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 
-     .     llind,dbl_mb(k_2ex),int_mb(k_2l),
+     .     llind,dbl_mb(k_2ex),dbl_mb(k_2g),int_mb(k_2l),
      &     tol_reset, range_max)
 
       if (.not.ma_pop_stack(lexpo))
@@ -129,7 +131,8 @@ c
             call grid_roland(
      ,              rpts(1,itype),rwghts(1,itype),nrad(itype),
      ,              ityp2ctr(itype),dbl_mb(iexpo),
-     .              dbl_mb(k_2ex+itype-1),int_mb(k_2l+itype-1),
+     .              dbl_mb(k_2ex+itype-1),dbl_mb(k_2g+itype-1),
+     ,              int_mb(k_2l+itype-1),
      ,              mxrad,rad_cutoff(1,itype),lindh_acc)
             if (.not.ma_pop_stack(lexpo))
      &           call errquit('grid_setrad: cannot pop stack',2)
@@ -235,6 +238,8 @@ c
   100 continue
 
       if(llind) then
+         if (.not.ma_pop_stack(l_2g))
+     &        call errquit('grid_setrad: cannot pop stack',5)
          if (.not.ma_pop_stack(l_2ex))
      &        call errquit('grid_setrad: cannot pop stack',3)
          if (.not.ma_pop_stack(l_2l))

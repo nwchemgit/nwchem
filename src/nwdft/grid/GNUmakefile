@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 2000-01-12 23:10:09 edo Exp $
+# $Id: GNUmakefile,v 1.18 2000-01-13 00:25:41 edo Exp $
 
       OBJ = \
 	grid_rtrunc.o \
@@ -38,8 +38,8 @@
 
      LIBRARY = libnwdft.a
 
- LIB_DEFINES = -DDFT_TIMER
-# LIB_DEFINES =
+# LIB_DEFINES = -DDFT_TIMER
+ LIB_DEFINES =
 
 LIB_INCLUDES = -I../include
 
