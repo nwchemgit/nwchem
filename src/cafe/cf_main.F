@@ -736,7 +736,7 @@ c
       if(numw.gt.0) then
       do 1 k=1,mwa
       vvsum=zero
-      if(mdalgo.eq.1) then
+      if(mdalgo.eq.3) then
       do 2 j=1,3
       do 3 i=1,numw
       vwt(i,j,k)=vw(i,j,k)
@@ -764,7 +764,7 @@ c
       do 6 i=1,mwa
       ww=ww+wgt(iwat(i),iset)
     6 continue
-      if(mdalgo.eq.1) then
+      if(mdalgo.eq.3) then
       do 7 j=1,3
       do 8 i=1,numw
       vvsum=zero

@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
       implicit none
 c
@@ -513,7 +513,7 @@ c     + lswndx,lswjpt,lswin,lswj,qwa,iwatm,idwa,xi,xj,rwx,rwi1,rwi2,
 c     + rwi6,rw,rwc,f,fi,fj,isal,fs,facu,rdf,xs,xsm,qsa,ngt,iagc,jagc,
 c     + igrc,u,uwms,list,rtos,isrx,pwai,psai)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
       implicit none
 c
@@ -1178,25 +1178,25 @@ c
       end
 #if defined(CAFE_POLARIZATION)
       subroutine cf_fpss(xs,xsm,fs,zs,
-     + isga,isat,isdt,ismf,isml,isss,isq1,isq2,isq3,
+     + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
      + isfrom,nums,lpbc,ess,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
-     + rw,isal,jsal,jmal,jfal,isrx)
+     + rw,isal,jsal,jmal,jfal,isrx,qsa2,qsa3)
 #elif defined(CAFE_FORCES)
       subroutine cf_fss(xs,xsm,fs,zs,
-     + isga,isat,isdt,ismf,isml,isss,isq1,isq2,isq3,
+     + isga,isat,isdt,ismf,isml,isss,isq2,isq3,
      + isfrom,nums,lpbc,ess,
      + vdw,chg,iass,
      + lssndx,lssjpt,lssin,lssj,
      + xi,xj,rwx,rwi1,rwi2,rwi6,rwc,f,fi,fj,facu,
-     + rw,isal,jsal,jmal,jfal,isrx)
+     + rw,isal,jsal,jmal,jfal,isrx,qsa2,qsa3)
 #else
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
       implicit none
 c
@@ -1205,7 +1205,7 @@ c
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
       real*8 zs(msf,3,2),ess(msf,msf,mpe,2)
       integer isga(msa),isat(msa),isdt(msa),ismf(msa)
-      integer isml(msa),isss(msa),isq1(msa),isq2(msa),isq3(msa)
+      integer isml(msa),isss(msa),isq2(msa),isq3(msa)
 c
       real*8 vdw(mat,mat,map,6),chg(mqt,mqp,6)
 c      integer iass(mat,mat)
@@ -1214,6 +1214,7 @@ c
       real*8 xi(mscr,3),xj(mscr,3),rwx(mscr,3),rwi1(mscr)
       real*8 rwi2(mscr),rwi6(mscr),rwc(mscr,3),rw(mscr)
       real*8 f(mscr),fi(mscr,3,mwa),fj(mscr,3,mwa)
+      real*8 qsa2(mscr),qsa3(mscr)
 c      real*8 h(mscr)
       integer isal(mscr),jsal(mscr),jmal(mscr),jfal(mscr),isrx(mscr)
 c      real*8 ca6(mat,mat,6),ca12(mat,mat,6)
@@ -1252,6 +1253,13 @@ c
 #include "bitops_decls.fh"
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
+c
+      do 112 i=1,msa
+      if(isq2(i).le.0.or.isq3(i).le.0) goto 113
+      qsa2(i)=chg(isq2(i),1,iset)
+      qsa3(i)=chg(isq3(i),1,iset)
+  112 continue
+  113 continue
 c
 c     solute non-bonded interactions
 c     ==============================
@@ -1406,10 +1414,12 @@ c
       jsa=jsal(iax)
 c
       if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,iset)*chg(isq2(jsa),1,iset)
+ccx      q=chg(isq2(isa),1,iset)*chg(isq2(jsa),1,iset)
+      q=qsa2(isa)*qsa2(jsa)
 c      isq=2
       else
-      q=chg(isq3(isa),1,iset)*chg(isq3(jsa),1,iset)
+ccx      q=chg(isq3(isa),1,iset)*chg(isq3(jsa),1,iset)
+      q=qsa3(isa)*qsa3(jsa)
 c      isq=3
       endif
 c
@@ -1436,10 +1446,12 @@ cx      endif
       isa=isal(iax)
       jsa=jsal(iax)
       if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,iset)*chg(isq2(jsa),1,iset)
+ccx      q=chg(isq2(isa),1,iset)*chg(isq2(jsa),1,iset)
+      q=qsa2(isa)*qsa2(jsa)
 c      isq=2
       else
-      q=chg(isq3(isa),1,iset)*chg(isq3(jsa),1,iset)
+ccx      q=chg(isq3(isa),1,iset)*chg(isq3(jsa),1,iset)
+      q=qsa3(isa)*qsa3(jsa)
 c      isq=3
       endif
 c
@@ -1463,10 +1475,12 @@ c      q=qsa(isa,iset,isq)*qsa(jsa,iset,isq)
       isa=isal(iax)
       jsa=jsal(iax)
       if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,iset)*chg(isq2(jsa),1,iset)
+ccx      q=chg(isq2(isa),1,iset)*chg(isq2(jsa),1,iset)
+      q=qsa2(isa)*qsa2(jsa)
 c      isq=2
       else
-      q=chg(isq3(isa),1,iset)*chg(isq3(jsa),1,iset)
+ccx      q=chg(isq3(isa),1,iset)*chg(isq3(jsa),1,iset)
+      q=qsa3(isa)*qsa3(jsa)
 c      isq=3
       endif
 c      q=qsa(isa,iset,isq)*qsa(jsa,iset,isq)
@@ -2069,7 +2083,7 @@ c
       subroutine cf_fsb(nbonds,indexl,msb,msp,ibnd,bnd,rbnd,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
 c     cf_forsb returns forces and energies for solute bonds
 c
@@ -2349,7 +2363,7 @@ c
       subroutine cf_fsh(nangls,indexl,msh,msp,iang,ang,rang,
      + natoms,ndim,igan,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -2607,7 +2621,7 @@ c
       subroutine cf_fsd(ndihes,indexl,msd,msp,idih,dih,rdih,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -2934,7 +2948,7 @@ c
       subroutine cf_fso(nimprs,indexl,mso,msp,iimp,dimp,rimp,
      + natoms,ndim,igan,imol,idyn,xs,fs,ess,lpbc,lupden)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -3246,7 +3260,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,imol,idyn,ichg,xs,fs,ess,lpbc)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -3561,7 +3575,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.3 1999-04-02 22:36:32 d3j191 Exp $
+c $Id: cf_f.fh,v 1.4 1999-04-16 03:43:02 d3j191 Exp $
 c
       implicit none
 c

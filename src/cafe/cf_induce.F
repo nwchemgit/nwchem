@@ -168,7 +168,7 @@ c
       npairs=int_mb(lptr)
       if(npairs.gt.0) then
 c      call cf_fss(xs,xsm,fs,zs,isga,isat,isdt,ismf,isml,isss,
-c     + isq1,isq2,isq3,isfr,nsloc,essl,essq,essr,lpbc,
+c     + isq2,isq3,isfr,nsloc,essl,essq,essr,lpbc,
 c     + dbl_mb(i_vdw),dbl_mb(i_chg),
 c     + int_mb(i_ias),int_mb(i_s2i1),
 c     + int_mb(lptr+1),int_mb(lptr+1+2*nsloc),int_mb(lptr+1+4*nsloc),
@@ -176,7 +176,7 @@ c     + dbl_mb(i_smr1),dbl_mb(i_smr2),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
 c     + dbl_mb(i_s1r2),dbl_mb(i_s1r3),dbl_mb(i_s3r2),dbl_mb(i_s1r4),
 c     + dbl_mb(i_smr3),dbl_mb(i_smr4),dbl_mb(i_s1r5),dbl_mb(i_s1r6),
 c     + int_mb(i_s1i1),int_mb(i_s1i2),int_mb(i_s1i3),int_mb(i_s1i4),
-c     + int_mb(i_s1i5))
+c     + int_mb(i_s1i5),dbl_mb(i_smr5),dbl_mb(i_smr6))
       lptr=lptr+4*nsloc+1+npairs
       else
       lptr=lptr+1
