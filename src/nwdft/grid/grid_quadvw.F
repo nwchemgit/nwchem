@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.38 2004-03-19 03:25:15 edo Exp $
+c$Id: grid_quadvw.F,v 1.39 2004-03-19 03:26:25 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -35,7 +35,7 @@ c
       double precision aqbuf(4,*) ! [scr]
       double precision rij ! [scr] for ssw
       integer iqat(*) ! [scr]
-      integer ntot_cube,npts_per_ang
+      integer npts_per_ang
       logical xc_chkgrad, kske, xc_chktau
       external xc_chkgrad, xc_chktau
       logical grid_file_open
