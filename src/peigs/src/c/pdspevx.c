@@ -285,6 +285,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       *dptr;
     
     DoublePrecision **buff_ptr, **vecQ, res, syncco[1];
+    DoublePrecision smlnum, bignum, eps, rmin, rmax, anrm, sigma;
+    Integer iscale;
 
 #ifdef TIMING
     extern DoublePrecision mxclock_();
@@ -698,9 +700,56 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
    fflush(stdout);
 #endif
 
+   psgn = 1.;
+   psigma = 0.;
+   
+   /*
+     check to see if rescaling is required... a la lapack
+   */
+
+   smlnum = DLAMCHS/DLAMCHE;
+   bignum = 1.0/smlnum;
+   eps = DLAMCHE;
+   rmin = sqrt(smlnum);
+   rmax = sqrt(bignum);
+
+   anrm = 0.0;
+   k = 0;
+   for ( iii = 0; iii < msize; iii++){
+     if ( mapA[iii] == me ) {
+       for ( iii = 0; iii < msize-k; iii++)
+	 anrm = max(fabs(vecQ[k][iii]), anrm);
+       k++;
+     }
+   }
+   iscale = 0;
+   if ( anrm > 0.0 && anrm < rmin) {
+     iscale = 1;
+     sigma = rmin/anrm;
+   }
+   else
+     if ( anrm > rmax ) {
+       iscale = 1;
+       sigma = rmax/anrm;
+     }
+
+   k = 0;
+   isize = msize;
+   if ( iscale == 1 ){
+     if ( me == 0 )
+       printf(" sigma = %f \n", sigma);
+     for ( iii = 0; iii < msize; iii++){
+       if ( mapA[iii] == me ) {
+	 isize = msize - iii;
+	 dscal_(&isize, &sigma, vecQ[k], IONE );
+	 k++;
+       }
+     }
+   }
+   
    tred2( &msize, vecA, mapA, vecQ, mapQ, dd, ee, i_scrat, d_scrat);
 
-/*
+   /*
    if ( me == 0 ) {
      file = fopen(filename, "a+");
      fprintf(file, "info = %d \n", linfo);
@@ -710,9 +759,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
      fflush(file);
      fclose(file);
    }
-   
-
-*/
+   */
 
 #ifdef DEBUG7
    printf(" in pdspevx out tred2 me = %d \n", mxmynd_());
@@ -765,26 +812,23 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       psigma = 0.0;
       
       pstebz10_( irange, &msize, lb, ub, ilb, iub, abstol,
-		 dd, ee, dplus, lplus,
-		 mapZ, &neigval, &nsplit, eval, iblock, isplit,
+		 dd, ee, dplus, lplus, mapZ, &neigval, 
+		 &nsplit, eval, iblock, isplit,
 		 d_scrat, i_scrat, &linfo);
       
-/*
-      if ( me==0) {
+      /*
+	if ( me==0) {
 	for ( iii = 0; iii < msize; iii++)
-	  printf(" me = %d iii %d pstebz %f \n", me, iii, eval[iii]);
-      }
-*/
+	printf(" me = %d iii %d pstebz %f \n", me, iii, eval[iii]);
+	}
+	*/
       
       syncco[0] = 0.0e0;
       gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-
-
-
       
       
       /*      
-      if ( linfo != 0 ) {
+	      if ( linfo != 0 ) {
 	printf(" error in peigs...pstebz10 using pstebz9 me = %d \n", me);
 	fflush(stdout);
 	linfo = 0;
@@ -902,11 +946,6 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     syncco[0] = 0.0e0;
     
     gsum00( (char *) syncco, 1, 5, 10, mapA[0], nn_proc, proclist, d_scrat);
-    
-    /*
-      for ( iii = 0; iii < msize; iii++)
-      printf(" me = %d iii %d dd %f ee %f \n", me, iii, dd[iii], ee[iii]);
-      */
     
     pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
 	      &neigval, eval, iblock, &nsplit, isplit,
@@ -1094,6 +1133,18 @@ END:
       
     }
 */
+
+    sigma = 1.0/sigma;
+    if ( iscale == 1 ){
+      for ( iii = 0; iii < msize; iii++){
+	if ( mapA[iii] == me ) {
+	 isize = msize - iii;
+	 dscal_(&isize, &sigma, eval, IONE );
+	 k++;
+	}
+      }
+    }
+
     
 
     return;

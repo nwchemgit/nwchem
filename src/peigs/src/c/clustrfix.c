@@ -176,8 +176,6 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   max_clustr_size = I_ZERO;
   c_ptr = clustr_info;
 
-
-  
   
   /*
     assume that all eigenvalues are non-zero

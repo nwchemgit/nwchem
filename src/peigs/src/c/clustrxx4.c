@@ -92,7 +92,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   extern void dcopy_(), daxpy_();
   extern Integer count_list ();
   extern Integer inv_it();
-  extern void mgs ();
+  extern void mgs (), msgcs();
   extern void fil_dbl_lst ();
   
   /*
@@ -128,10 +128,20 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
    * then do my part of the last cluster and send it to the processor
    * which owns the first vector in the cluster which is not mine.
    */
-
+  
   cl_ptr = schedule;
+  ibad = 0;
 
-  cl_ptr = schedule;
+  /*
+  bb1 = 0;
+  bn = *n-1;
+  c1 = 0;
+  cn = *n-1;
+  mgscs( n, vecZ, mapZ, bb1, bn, c1, cn, iscratch, dscrat);
+  return(ibad);
+  */
+
+  
   for (clustr_ptr= 0;  clustr_ptr < cl_num ; clustr_ptr++) {
     c1 = *(cl_ptr++);
     cn = *(cl_ptr++);
@@ -152,10 +162,10 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     }
   }
   
-/*
-  printf( " me = %d Exiting clustr4_ \n", me );
-  fflush(stdout);
-*/
+  /*
+    printf( " me = %d Exiting clustr4_ \n", me );
+    fflush(stdout);
+    */
   
   return(ibad);
 }

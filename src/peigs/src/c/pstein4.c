@@ -455,12 +455,12 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   
   /*
-  for ( ii = 0; ii < 4*numclstr; ii++ ){
+    for ( ii = 0; ii < 4*numclstr; ii++ ){
     printf(" pstein4 me = %d ii %d clustrf_info %d \n", me, ii, clustr_info[ii]);
     }
     */
-    
-
+  
+  
   nacluster = numclstr;
   
   
@@ -527,9 +527,9 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   ibad = 0;
   ibad = clustrinv4_( &msize, dd, ee, dplus, lplus, ld, lld,
-		     eval, clustr_info, &numclstr, mapZ,
-		     mapvZ, vecZ, &imin, &nacluster, icsplit,
-		     i_scrat, d_scrat);
+		      eval, clustr_info, &numclstr, mapZ,
+		      mapvZ, vecZ, &imin, &nacluster, icsplit,
+		      i_scrat, d_scrat);
   
   /*
    * syncronize processors
