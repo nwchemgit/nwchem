@@ -1,0 +1,6 @@
+c
+      integer ns_log, ns_int, ns_dbl
+      parameter (ns_log  = 14)
+      parameter (ns_int  = 1)
+      parameter (ns_dbl  = 7)
+c
