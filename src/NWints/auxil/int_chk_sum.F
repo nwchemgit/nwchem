@@ -1,5 +1,5 @@
       subroutine int_chk_sum(basisin,print_ints)
-c $Id: int_chk_sum.F,v 1.8 1994-08-27 23:21:46 gg502 Exp $
+c $Id: int_chk_sum.F,v 1.9 1994-09-22 13:34:48 d3e129 Exp $
       implicit none
 #include "mafdecls.h"
 #include "global.fh"
@@ -43,7 +43,6 @@ c
       if (.not.bas_numcont(basisin,ncont))
      &    call errquit('int_chk_sum: numcont not obtained',ncont)
 c
-      call int_init(1,basisin)
       call int_mem(max1bf,maxg,mscr1,mscr2)
       memb = max(max1bf,maxg)
       mems = max(mscr1,mscr2)

@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.3 1994-08-05 19:39:14 d3e129 Exp $
+c $Id: intd_2e4c.F,v 1.4 1994-09-22 13:34:18 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -10,6 +10,11 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+
+#if defined(INT_TIMING)
+#include "int_tim.fh"
+#include "pstat.fh"
+#endif
 c
 c::external subroutines used
 c errquit
@@ -145,7 +150,10 @@ c
       ltype = infbs_cont(CONT_TYPE,ucont,ket) 
       latom = ibs_cn2ce(lsh,ket)
 c
-
+#if defined(INT_TIMING)
+      if(o_int_time.and.(int_time_level.ge.2))
+     &   call pstat_on(intt_hf2d)
+#endif
 c
       call hf2d(
      &       coords(1,iatom,ab_geom),exndcf(iexp,bra),
@@ -165,6 +173,10 @@ c
 c
       call intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
 c
+#if defined(INT_TIMING)
+      if(o_int_time.and.(int_time_level.ge.2))
+     &   call pstat_off(intt_hf2d)
+#endif
       end
       subroutine intd_sum(eri,nint,idatom,iatom,jatom,katom,latom)
       implicit none

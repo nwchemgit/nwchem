@@ -1,5 +1,5 @@
-      subroutine intd_init(nbas,bases)
-c $Id: intd_init.F,v 1.3 1994-08-17 08:40:54 d3e129 Exp $
+      subroutine intd_init(rtdb,nbas,bases)
+c $Id: intd_init.F,v 1.4 1994-09-22 13:34:19 d3e129 Exp $
 c
 c Initializes integral derivative code 
 c
@@ -7,14 +7,20 @@ c
 #include "bas.fh"
 #include "apiP.fh"
 c::passed
+      integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
       integer bases(nbas) ! basis set handles
 c::local
       integer ibas, ang2use, angm
       logical status
 c
-      call int_init(nbas,bases)
+*      call int_init(nbas,bases)
 c
+      if(init_intd.eq.1) then
+        write(6,*)' warning nested intd_inits'
+        write(6,*)' intd_init already called '
+        call util_flush(6)
+      endif
       status = .true.
       do 00100 ibas=1,nbas
         status = status .and. bas_check_handle(bases(ibas),'intd_init')
@@ -43,9 +49,13 @@ c.. for first derivatives add 1
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
+#if defined(INT_TIMING)
+      call int_tim_init(rtdb)
+#endif
       call exactd_mem(bases,nbas)
       call sp_der_init(nbas,bases)
       call int_acc_std()
+      init_int = 1
       init_intd = 1
       end
       subroutine sp_der_init(nbas,bases)

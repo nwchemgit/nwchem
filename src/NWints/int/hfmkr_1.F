@@ -1,5 +1,5 @@
       subroutine hfmkr_1(R,PQ,IJK,NAB,Lr,Lr3)
-c $Id: hfmkr_1.F,v 1.1 1994-08-12 00:43:34 d3e129 Exp $
+c $Id: hfmkr_1.F,v 1.2 1994-09-22 13:35:00 d3e129 Exp $
       implicit none
 c
       integer NAB, Lr, Lr3
@@ -9,14 +9,6 @@ c
 c
       integer m
       double precision x,y,z
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"      
-#endif
-
-#if defined(INT_TIMING)
-      call pstat_on(hand_int(1))
-#endif
 c
       IJK(0,0,0)=1
       if(Lr.eq.0) goto 00001
@@ -36,7 +28,5 @@ c
 00100 continue
 c
 00002 continue
-#if defined(INT_TIMING)
-      call pstat_off(hand_int(1))
-#endif
+c
       end

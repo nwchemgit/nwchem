@@ -5,7 +5,7 @@
      &    Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
-c $Id: hf2d.F,v 1.6 1994-07-29 22:35:27 d3e129 Exp $
+c $Id: hf2d.F,v 1.7 1994-09-22 13:34:52 d3e129 Exp $
       
       Implicit None
       
@@ -442,4 +442,5 @@ c
 c
       if (dryrun) maxW0 = MaxMem
 c
+00099 continue
       end

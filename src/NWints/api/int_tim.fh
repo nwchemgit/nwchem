@@ -1,22 +1,24 @@
-      integer num_int_tim
-c $Id: int_tim.fh,v 1.2 1994-08-12 00:37:11 d3e129 Exp $
-      parameter (num_int_tim = 17)
-      integer hand_int(num_int_tim)
-      common /int_tim_c/hand_int
-c  1:hfmkr_1
-c  2:hfmkr_2
-c  3:hfmkr_3
-c  4:hfmkr_4
-c  5:hfmkr_5
-c  6:hfmkr_6
-c  7:hfmkr_7
-c  8:hfmkr_8
-c  9:hfmkr_9
-c 10:hfmkr recursion
-c 11:all of hfmkr
-c 12:gamma
-c 13:hf2
-c 14:hfset      
-c 15:hfmke
-c 16:hf2mkr
-c 17:hferi
+c $Id: int_tim.fh,v 1.3 1994-09-22 13:34:16 d3e129 Exp $
+c
+c include file for integral timings using pstat
+c set only on the runtime data base
+c
+c o_int_time          ! logical defining if integrals should be timed
+c int_time_level = 0  ! default time nothing
+c                = 1  ! time&print hf1, hf2, 
+c                = 2  ! time&print {1} plus hf1d, and hf2d
+c                = 3  ! time&print {2} plus hfmkr, hfmke, igamma
+c 
+      integer pnum_intt
+      parameter (pnum_intt = 7)
+      integer intt_hf1 , intt_hf2                   ! pstat handles
+      integer intt_hf1d, intt_hf2d                  ! pstat handles
+      integer intt_hfmkr, intt_hfmke, intt_igamma   ! pstat handles
+      integer int_time_level, num_intt
+      logical o_int_time
+c
+      common /int_tim_c/ intt_hf1, intt_hf2,
+     &    intt_hf1d, intt_hf2d,
+     &    intt_hfmkr, intt_hfmke, intt_igamma,
+     &    int_time_level, num_intt, o_int_time
+c

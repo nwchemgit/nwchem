@@ -1,6 +1,6 @@
       subroutine hfmkr_9(R,PQ,IJK,NAB,Lr,Lr3)
       implicit none
-c $Id: hfmkr_9.F,v 1.1 1994-08-12 00:43:43 d3e129 Exp $
+c $Id: hfmkr_9.F,v 1.2 1994-09-22 13:35:13 d3e129 Exp $
 c
       integer NAB, Lr, Lr3
       integer IJK(0:Lr,0:Lr,0:Lr)
@@ -17,14 +17,6 @@ c
       double precision x_7, y_7, z_7
       double precision x_8, y_8, z_8
       double precision R11,R21,R31,R41,R51,R61,R71,R81,R91
-#if defined(INT_TIMING)
-#include "int_tim.fh"
-#include "pstat.fh"      
-#endif
-
-#if defined(INT_TIMING)
-      call pstat_on(hand_int(9))
-#endif
 c
       IJK(0,0,0)=1
       IJK(1,0,0)=2
@@ -998,10 +990,6 @@ c
      &      +210.0d00*Y*Z_4*R71+420.0d00*Y*Z_2*R61+105.0d00*Y*R51
         R(M,0,220)=Z_5*Z_4*R91+36.0d00*Z_7*R81+378.0d00*Z_5*R71
      &      +1260.0d00*Z_3*R61+945.0d00*Z*R51
-00099   continue
 00100 continue
 c
-#if defined(INT_TIMING)
-      call pstat_off(hand_int(9))
-#endif
       end

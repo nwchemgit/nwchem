@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.4 1994-06-08 22:39:58 d3e129 Exp $
+c $Id: hf1.F,v 1.5 1994-09-22 13:34:55 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -27,12 +27,20 @@ c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 c--> Scratch Space.
 
       Dimension W0(maxW0)
+#if defined(INT_TIMING)
+#include "int_tim.fh"
+#include "pstat.fh"
+#endif
 c
 c Compute the overlap, kinetic energy, and nuclear attraction integrals for 
 c two shells of contracted Gaussians functions. This driver is NOT capable of 
 c evaluating integral derivatives.
 c
 c******************************************************************************
+#if defined(INT_TIMING)
+      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.1))
+     &   call pstat_on(intt_hf1)
+#endif
 #if defined(INTDEBUG)
       write(6,*)' inside hf1 '
       write(6,*)' npa,nca,la = ',npa,nca,la
@@ -278,5 +286,9 @@ c Assign scratch space.
 c Return the maximum amount of scratch space required by a "dry run".
 
       if( DryRun ) maxW0 = MaxMem
+#if defined(INT_TIMING)
+      if((.not.dryrun).and.o_int_time.and.(int_time_level.ge.1))
+     &   call pstat_off(intt_hf1)
+#endif
 c
       end

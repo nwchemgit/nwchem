@@ -1,6 +1,6 @@
       subroutine int_l1eall(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.6 1994-05-05 17:21:18 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.7 1994-09-22 13:34:08 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -8,8 +8,6 @@ c::external subroutines used
 c dcopy
 c errquit
 c::function
-      logical int_chk_init
-      external int_chk_init
       logical int_chk_sh
       external int_chk_sh
 c::passed
@@ -22,10 +20,7 @@ c::local
       logical ijbas, shells_ok
       logical nonzero
 c
-c check initialization and shells
-c
-      if (.not.int_chk_init('int_l1eall'))
-     &       call errquit('int_l1eall: int_init was not called' ,0)
+c check shells
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)

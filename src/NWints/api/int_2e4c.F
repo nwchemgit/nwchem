@@ -1,6 +1,6 @@
       subroutine int_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri)
-c $Id: int_2e4c.F,v 1.9 1994-08-27 20:00:30 d3g681 Exp $
+c $Id: int_2e4c.F,v 1.10 1994-09-22 13:34:03 d3e129 Exp $
       implicit none
 c
 c basic api routine to generate a block of two electron integrals
@@ -11,6 +11,11 @@ c
 #include "basdeclsP.fh"
 #include "geomP.fh"
 #include "geobasmapP.fh"
+c
+#if defined(INT_TIMING)
+#include "int_tim.fh"
+#include "pstat.fh"
+#endif
 c
 c::external subroutines used
 c errquit
@@ -82,6 +87,10 @@ c
       c_cent  = ibs_cn2ce(ksh,ket)
       d_cent  = ibs_cn2ce(lsh,ket)
 c
+#if defined(INT_TIMING)
+      if(o_int_time.and.(int_time_level.ge.1))
+     &   call pstat_on(intt_hf2)
+#endif
       if (cando_sp(brain,ish,jsh).and.cando_sp(ketin,ksh,lsh)) then
 c
         call genr70(
@@ -145,4 +154,8 @@ c
         write(6,*)' lsh   :',lsh
         call errquit('int_2e4c: fatal error ',0)
       endif
+#if defined(INT_TIMING)
+      if(o_int_time.and.(int_time_level.ge.1))
+     &   call pstat_off(intt_hf2)
+#endif
       end

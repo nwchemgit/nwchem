@@ -1,6 +1,6 @@
       subroutine int_lgen1e(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.7 1994-05-05 19:07:44 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.8 1994-09-22 13:34:14 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"
@@ -9,8 +9,6 @@ c::external subroutines used
 c dcopy
 c errquit
 c::function
-      logical int_chk_init
-      external int_chk_init
       logical int_chk_sh
       external int_chk_sh
 c::passed
@@ -23,11 +21,6 @@ c::local
       logical ijbas
       logical shells_ok
       logical nonzero
-c
-c check initialization and shells
-c
-      if (.not.int_chk_init('int_lgen1e'))
-     &       call errquit('int_lgen1e: int_init was not called' ,0)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)

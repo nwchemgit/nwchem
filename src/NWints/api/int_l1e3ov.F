@@ -11,8 +11,6 @@ c::external subroutines used
 c..  dcopy
 c..  errquit
 c::function
-      logical int_chk_init
-      external int_chk_init
       logical int_chk_sh
       external int_chk_sh
 c::passed
@@ -40,10 +38,8 @@ c
       logical ijbas, jkbas, ikbas, allbas  ! check of basis set handles for canonicalization
 c
 c
-c check initialization and shells
+c check shells
 c
-      if (.not.int_chk_init('int_l1e3ov'))
-     &       call errquit('int_l1e3ov: int_init was not called' ,0)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)

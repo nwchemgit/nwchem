@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 1994-08-22 00:02:04 d3g681 Exp $
+# $Id: GNUmakefile,v 1.16 1994-09-22 13:34:20 d3e129 Exp $
 
     OBJ = int_init.o exact_mem.o int_mem.o \
           int_terminate.o int_chk_sh.o int_2e4c.o \
@@ -29,3 +29,4 @@ int_mem.o:	apiP.fh
 int_terminate.o:	apiP.fh
 int_hf1sp.o:	apispP.fh
 
+intd_init.o int_init.o:	int_tim.fh

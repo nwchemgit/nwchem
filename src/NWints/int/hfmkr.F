@@ -1,5 +1,5 @@
       Subroutine hfmkr(R,IJK,PQ,NAB,Lp,Lp3)
-c $Id: hfmkr.F,v 1.1 1994-08-12 00:43:32 d3e129 Exp $
+c $Id: hfmkr.F,v 1.2 1994-09-22 13:34:59 d3e129 Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -28,7 +28,8 @@ c
 c******************************************************************************
 
 #if defined(INT_TIMING)
-      call pstat_on(hand_int(11))
+      if(o_int_time.and.(int_time_level.ge.3))
+     &   call pstat_on(intt_hfmkr)
 #endif
       if (Lp.le.1) then
         call hfmkr_1(R,PQ,IJK,NAB,Lp,Lp3)
@@ -58,10 +59,6 @@ c******************************************************************************
         call hfmkr_9(R,PQ,IJK,NAB,Lp,Lp3)
         goto 00099
       endif
-
-#if defined(INT_TIMING)
-      call pstat_on(hand_int(10))
-#endif
 
       n0 = 1
 
@@ -164,11 +161,9 @@ c******************************************************************************
 
   180 continue
 
-#if defined(INT_TIMING)
-      call pstat_off(hand_int(10))
-#endif
 00099 continue
 #if defined(INT_TIMING)
-      call pstat_off(hand_int(11))
+      if(o_int_time.and.(int_time_level.ge.3))
+     &   call pstat_off(intt_hfmkr)
 #endif
       end

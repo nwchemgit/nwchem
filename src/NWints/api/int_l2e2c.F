@@ -1,7 +1,7 @@
       subroutine int_l2e2c(brain, ish, ketin, jsh, 
      &       zerotol, leri, eri, nint, ilab, jlab, 
      &       lscr, scr)
-c $Id: int_l2e2c.F,v 1.3 1994-04-26 19:46:02 d3g681 Exp $
+c $Id: int_l2e2c.F,v 1.4 1994-09-22 13:34:10 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -13,8 +13,6 @@ c::external subroutines used
 c dcopy
 c errquit
 c::functions
-      logical int_chk_init
-      external int_chk_init
       logical int_chk_sh
       external int_chk_sh
 c::passed
@@ -28,10 +26,8 @@ c
 c:statement function
 c
 c
-c check initialization and shells 
+c check shells 
 c
-      if (.not.int_chk_init('int_l2e2c'))
-     &       call errquit('int_l2e2c: int_init was not called' ,0)
       shells_ok = int_chk_sh(brain,ish)
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       if (.not.shells_ok)

@@ -1,5 +1,5 @@
-      subroutine int_init(nbas, bases)
-c $Id: int_init.F,v 1.11 1994-08-17 08:40:52 d3e129 Exp $
+      subroutine int_init(rtdb, nbas, bases)
+c $Id: int_init.F,v 1.12 1994-09-22 13:34:05 d3e129 Exp $
 c
 c initializes integral code to data structers for a integral computation
 c
@@ -7,11 +7,18 @@ c
 #include "bas.fh"
 #include "apiP.fh"
 c::passed
+      integer rtdb        ! run time data base handle
       integer nbas        ! number of basis sets to be used
       integer bases(nbas) ! basis set handles
 c::local
       integer ibas, ang2use, angm
       logical status
+c
+      if(init_int.eq.1) then
+        write(6,*)' warning nested int_inits'
+        write(6,*)' int_init already called '
+        call util_flush(6)
+      endif
 c
       status = .true.
       do 00100 ibas=1,nbas
@@ -36,14 +43,12 @@ c
      &         call errquit('int_init: angm error',angm)
         ang2use = max(ang2use,angm)
 00300 continue
-c.      call defNxyz(ang2use)
-c.. for derivatives
-      call defNxyz(ang2use+1)
+      call defNxyz(ang2use)
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
 #if defined(INT_TIMING)
-      call int_tim_init()
+      call int_tim_init(rtdb)
 #endif
       call exact_mem(bases,nbas)
       call sp_init(nbas,bases)
@@ -140,48 +145,56 @@ c
      &       call errquit('sp_init:ma_alloc_get scat failed',911)
       end
 #if defined(INT_TIMING)
-      subroutine int_tim_init()
+      subroutine int_tim_init(rtdb)
       implicit none
 #include "int_tim.fh"
 #include "pstat.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
 c
-      if(.not.Pstat_init(num_int_tim,0,' '))
-     &    call errquit('int_tim_init: pstat_init failed?',911)
+      integer rtdb  ! rtdb handle
 c
-      if(.not.Pstat_allocate('hfmkr_1',Pstat_Qstat,0,0,hand_int(1)))
-     &    call errquit('int_tim_init:pstat_allocate_1 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_2',Pstat_Qstat,0,0,hand_int(2)))
-     &    call errquit('int_tim_init:pstat_allocate_2 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_3',Pstat_Qstat,0,0,hand_int(3)))
-     &    call errquit('int_tim_init:pstat_allocate_3 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_4',Pstat_Qstat,0,0,hand_int(4)))
-     &    call errquit('int_tim_init:pstat_allocate_4 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_5',Pstat_Qstat,0,0,hand_int(5)))
-     &    call errquit('int_tim_init:pstat_allocate_5 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_6',Pstat_Qstat,0,0,hand_int(6)))
-     &    call errquit('int_tim_init:pstat_allocate_6 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_7',Pstat_Qstat,0,0,hand_int(7)))
-     &    call errquit('int_tim_init:pstat_allocate_7 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_8',Pstat_Qstat,0,0,hand_int(8)))
-     &    call errquit('int_tim_init:pstat_allocate_8 failed?',911)
-      if(.not.Pstat_allocate('hfmkr_9',Pstat_Qstat,0,0,hand_int(9)))
-     &    call errquit('int_tim_init:pstat_allocate_9 failed?',911)
-      if(.not.Pstat_allocate('hfmkr',Pstat_Qstat,0,0,hand_int(10)))
-     &    call errquit('int_tim_init:pstat_allocate_10 failed?',911)
-      if(.not.Pstat_allocate('hfmkr all',Pstat_Qstat,0,0,hand_int(11)))
-     &    call errquit('int_tim_init:pstat_allocate_11 failed?',911)
-      if(.not.Pstat_allocate('gamma',Pstat_Qstat,0,0,hand_int(12)))
-     &    call errquit('int_tim_init:pstat_allocate_12 failed?',911)
-      if(.not.Pstat_allocate('hf2',Pstat_Qstat,0,0,hand_int(13)))
-     &    call errquit('int_tim_init:pstat_allocate_13 failed?',911)
-      if(.not.Pstat_allocate('hfset',Pstat_Qstat,0,0,hand_int(14)))
-     &    call errquit('int_tim_init:pstat_allocate_14 failed?',911)
-      if(.not.Pstat_allocate('hfmke',Pstat_Qstat,0,0,hand_int(15)))
-     &    call errquit('int_tim_init:pstat_allocate_15 failed?',911)
-      if(.not.Pstat_allocate('hf2mkr',Pstat_Qstat,0,0,hand_int(16)))
-     &    call errquit('int_tim_init:pstat_allocate_16 failed?',911)
-      if(.not.Pstat_allocate('hferi',Pstat_Qstat,0,0,hand_int(17)))
-     &    call errquit('int_tim_init:pstat_allocate_17 failed?',911)
+      integer intt_lvl_tmp 
+      logical status, rtdb_status
+c
+      rtdb_status = rtdb_parallel(.true.)
+      if(rtdb_get(rtdb,'int:time level',MT_INT,1,intt_lvl_tmp)) then
+        int_time_level = intt_lvl_tmp
+      endif
+      status = rtdb_parallel(rtdb_status)
+      write(6,*)' integral timing at level ',int_time_level
+      if (int_time_level.gt.0) o_int_time = .true.
+c
+c.. allocate pstat handles
+c
+      if (o_int_time.and.int_time_level.ge.1) then
+        status = Pstat_allocate('all one electron',
+     &      Pstat_Qstat,0,0,intt_hf1)
+        status = status .and. 
+     &      Pstat_allocate('all two electron',
+     &      Pstat_Qstat,0,0,intt_hf2)
+      endif
+      if (o_int_time.and.int_time_level.ge.2) then
+        status = status .and.
+     &      Pstat_allocate('one e- derivs   ',
+     &      Pstat_Qstat,0,0,intt_hf1d)
+        status = status .and. 
+     &      Pstat_allocate('two e- derivs   ',
+     &      Pstat_Qstat,0,0,intt_hf2d)
+      endif
+      if (o_int_time.and.int_time_level.ge.3) then
+        status = status .and.
+     &      Pstat_allocate('all hfmkr calls ',
+     &      Pstat_Qstat,0,0,intt_hfmkr)
+        status = status .and.
+     &      Pstat_allocate('all hfmke calls ',
+     &      Pstat_Qstat,0,0,intt_hfmke)
+        status = status .and. 
+     &      Pstat_allocate('incomplete gamma',
+     &      Pstat_Qstat,0,0, intt_igamma)
+      endif
+      if (.not.status) call errquit
+     &    ('int_tim_init: pstat allocate failed for something',911)
 c
       end
       subroutine int_tim_terminate()
@@ -189,10 +202,44 @@ c
 #include "int_tim.fh"
 #include "pstat.fh"
 c
-      call pstat_print_all()
+      logical status
 c
-      if(.not.Pstat_terminate())
-     &    call errquit('int_tim_terminate:pstat_terminate failed?',911)
+      if (o_int_time) call pstat_print_all()
+      o_int_time = .false.
+      if (int_time_level.ge.1) then
+        status = pstat_free(intt_hf1)
+        status = status .and. pstat_free(intt_hf2)
+      endif
+      if (int_time_level.ge.2) then
+        status = status .and. pstat_free(intt_hf1d)
+        status = status .and. pstat_free(intt_hf2d)
+      endif
+      if (int_time_level.ge.3) then
+        status = status .and. pstat_free(intt_hfmkr)
+        status = status .and. pstat_free(intt_hfmke)
+        status = status .and. pstat_free(intt_igamma)
+      endif
+      if (.not.status)
+     &    call errquit('int_tim_terminate: pstat_free failed?',911)
 c
+      end
+      block data int_time_data
+c
+c Block data structure to initialize the common block variables in the
+c  internal basis set object data structures
+c
+      implicit none
+#include "int_tim.fh"
+c     
+      data o_int_time /.false./
+      data int_time_level /0/
+      data intt_hf1       /0/
+      data intt_hf2       /0/
+      data intt_hf1d      /0/
+      data intt_hf2d      /0/
+      data intt_hfmkr     /0/
+      data intt_hfmke     /0/
+      data intt_igamma    /0/
+      data num_intt       /pnum_intt/
       end
 #endif
