@@ -1,5 +1,5 @@
 *
-* $Id: fei_output.F,v 1.2 2002-10-09 22:17:05 bylaska Exp $
+* $Id: fei_output.F,v 1.3 2002-10-10 05:24:58 bylaska Exp $
 *
       subroutine fei_init()
       implicit none
@@ -8,6 +8,10 @@
       integer taskid,MASTER
       parameter(MASTER=0)
 
+      character*30  filename
+      character*255 full_filename
+
+
 *     **** external functions ****
       logical  control_Fei
       external control_Fei
@@ -15,8 +19,14 @@
 
       if (control_Fei()) then
 
+        filename = 'FEI'
+        call util_file_name_noprefix(filename,.false.,
+     >                               .false.,
+     >                               full_filename)
+
         call Parallel_taskid(taskid)
-        if (taskid.eq.MASTER) open(unit=35,file='FEI',form='formatted')
+        if (taskid.eq.MASTER) 
+     >    open(unit=35,file=full_filename,form='formatted')
 
       end if
       return
