@@ -841,21 +841,24 @@ c
       logical iscont, ojustfit, ohdrwrite, ojust1blk
       integer labint
       double precision sprstol
-      data issparse/1/
-      data iminus/-1/
-      data sprstol/1.d-12/
-
       integer nblk,nexpand
       double precision sparsesize, densesize
       common/aodisk_stat/nblk,nexpand,sparsesize,densesize
-
-c      
-#include "bitops_decls.fh"
-#include "bitops_funcs.fh"      
+c
       integer onbitmask
       external onbitmask
       integer dnonzero_cnt
       external dnonzero_cnt
+c      
+#include "bitops_decls.fh"
+
+*:: data statements must come after all declarations
+
+      data issparse/1/
+      data iminus/-1/
+      data sprstol/1.d-12/
+
+#include "bitops_funcs.fh"      
 c
       blkinfo(1)  = -1
       blkinfo(3)  = 0
