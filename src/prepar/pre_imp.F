@@ -78,15 +78,15 @@ c
 c
 c     aromatic ring
 c
-      if(ffield(1:5).eq.'amber'.or.ffield(1:5).eq.'charm') then
-      if(latm(2,i).ge.4.and.na.eq.3) then
+      if(latm(2,i).ge.4.and.na.eq.3.and.
+     + ((ffield(1:5).eq.'amber'.and.latm(2,i).le.6).or.
+     + (ffield(1:5).eq.'charm'))) then
       nimp=nimp+1
       limp(1,nimp)=i
       limp(2,nimp)=ia(1)
       limp(3,nimp)=ia(2)
       limp(4,nimp)=ia(3)
 c      write(*,'(6i5)') nimp,4,(limp(j,nimp),j=1,4)
-      endif
       endif
 c
       endif

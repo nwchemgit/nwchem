@@ -1,5 +1,5 @@
       logical function pre_mkseq(lfnout,lprint,ffield,
-     + lfnpdb,filpdb,lfnseq,filseq,lfntyp,filtyp,
+     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,
      + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl)
 c
 c     in : integer lfnout    = logical file number output file
@@ -8,8 +8,8 @@ c          integer lfnpdb    = logical file number for pdb file
 c          char*80 filpdb    = file name of pdb file
 c          integer lfnseq    = logical file number for seq file
 c          char*80 filseq    = file name of seq file
-c          integer lfntyp    = logical file number for typ file
-c          char*80 filtyp    = file name of typ file
+c          integer lfnpar    = logical file number for typ file
+c          char*80 filpar    = file name of typ file
 c          integer lfnfrg    = logical file number for frg file
 c          char*80 dir_s     = directory standard ffield files
 c          char*80 dir_x     = directory extensions ffield files
@@ -36,13 +36,13 @@ c
       integer l_latm,i_latm,l_catm,i_catm,l_xatm,i_xatm,l_qatm,i_qatm
       integer l_bnd,i_bnd,l_ang,i_ang,l_dih,i_dih,l_imp,i_imp
 c
-      character*255 filpdb,filtyp,filseq
+      character*255 filpdb,filpar,filseq
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       character*3 slvnam
       character*10 slvmdl
 c
-      integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm
+      integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm
 c
       if(lprint.ge.5) write(lfnout,1000)
  1000 format('SEQUENCE GENERATION')
@@ -259,7 +259,7 @@ c
 c
 c     generate fragment files for missing segments in dir_t
 c
-      if(.not.pre_mkfrg(lfnfrg,lfntyp,filtyp,
+      if(.not.pre_mkfrg(lfnfrg,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,lfnout,lprint,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),

@@ -1,11 +1,11 @@
-      logical function pre_atype(lfnout,lprint,lfntyp,filtyp,
+      logical function pre_atype(lfnout,lprint,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
 c
       implicit none
 c
-c     in  : lfntyp            = atom types file number
+c     in  : lfnpar            = atom types file number
 c           filtyp            = atom types file name
 c           latm(2,matm)      = atomic number
 c                3            = number of bonds
@@ -31,9 +31,9 @@ c
       integer maty
       parameter (maty=1000)
 c
-      integer lfntyp,lfnout,lprint
-      character*255 filtyp
-      character*255 filpar,dir_s,dir_x,dir_u,dir_t
+      integer lfnpar,lfnout,lprint
+      character*255 filpar
+      character*255 dir_s,dir_x,dir_u,dir_t
       character*255 filnam
       integer matm,mtyp
       integer latm(5,matm)
@@ -50,7 +50,7 @@ c
       character*4 atype(maty)
       integer itype(20,maty)
       character*100 card
-      integer iatnum,nhydr,nonh
+      integer iatnum,nhydr,nonh,irng
       logical skipa(5),skipt(5),skipaa(5),skiptt(5)
 c
 c     setup typ array with latm data
@@ -190,78 +190,97 @@ c     read the atom type data
 c     -----------------------
 c
       ntype=0
-      lt=index(filtyp,' ')-1
+      lt=index(filpar,' ')-1
       ld=index(dir_s,' ')-1
       l=ld+lt
-      filnam=dir_s(1:ld)//filtyp(1:lt)
-      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+      filnam=dir_s(1:ld)//filpar(1:lt)
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=901)
-      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+   18 continue
+      read(lfnpar,1000,end=17,err=9999) card
+      if(card(1:10).ne.'Atom types') goto 18
+      if(lprint.ge.2)
+     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
    16 continue
-      read(lfntyp,1000,end=17,err=9999) card
+      read(lfnpar,1000,end=17,err=9999) card
  1000 format(a)
       if(card(1:1).eq.'#') goto 16
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
-      read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
- 1001 format(a4,i4,i3,2i4,i3,3(i4,i3,3i4))
+      read(card,1001) atype(ntype),(itype(i,ntype),i=1,10)
+ 1001 format(a4,i7,i3,2i5,i3,i7,i3,3i7)
+      read(lfnpar,1002) (itype(i,ntype),i=11,15)
+      read(lfnpar,1002) (itype(i,ntype),i=16,20)
+ 1002 format(27x,i7,i3,3i7)
       goto 16
    17 continue
-      close(unit=lfntyp)
+      close(unit=lfnpar)
 c
   901 continue
-      lt=index(filtyp,' ')-1
+      lt=index(filpar,' ')-1
       ld=index(dir_x,' ')-1
       l=ld+lt
-      filnam=dir_x(1:ld)//filtyp(1:lt)
-      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+      filnam=dir_x(1:ld)//filpar(1:lt)
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=902)
-      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+  118 continue
+      read(lfnpar,1000,end=117,err=9999) card
+      if(card(1:10).ne.'Atom types') goto 118
+      if(lprint.ge.2)
+     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
   116 continue
-      read(lfntyp,1000,end=117,err=9999) card
+      read(lfnpar,1000,end=117,err=9999) card
       if(card(1:1).eq.'#') goto 116
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
       goto 116
   117 continue
-      close(unit=lfntyp)
+      close(unit=lfnpar)
 c
   902 continue
-      lt=index(filtyp,' ')-1
+      lt=index(filpar,' ')-1
       ld=index(dir_u,' ')-1
       l=ld+lt
-      filnam=dir_u(1:ld)//filtyp(1:lt)
-      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+      filnam=dir_u(1:ld)//filpar(1:lt)
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=903)
-      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+  218 continue
+      read(lfnpar,1000,end=217,err=9999) card
+      if(card(1:10).ne.'Atom types') goto 218
+      if(lprint.ge.2)
+     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
   216 continue
-      read(lfntyp,1000,end=217,err=9999) card
+      read(lfnpar,1000,end=217,err=9999) card
       if(card(1:1).eq.'#') goto 216
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
       goto 216
   217 continue
-      close(unit=lfntyp)
+      close(unit=lfnpar)
 c
   903 continue
-      lt=index(filtyp,' ')-1
+      lt=index(filpar,' ')-1
       ld=index(dir_t,' ')-1
       l=ld+lt
-      filnam=dir_t(1:ld)//filtyp(1:lt)
-      open(unit=lfntyp,file=filnam(1:l),status='old',form='formatted',
+      filnam=dir_t(1:ld)//filpar(1:lt)
+      open(unit=lfnpar,file=filnam(1:l),status='old',form='formatted',
      + err=904)
-      write(*,'(a,a)') 'TYPES FROM ',filnam(1:l)
+  318 continue
+      read(lfnpar,1000,end=317,err=9999) card
+      if(card(1:10).ne.'Atom types') goto 318
+      if(lprint.ge.2)
+     + write(*,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
   316 continue
-      read(lfntyp,1000,end=317,err=9999) card
+      read(lfnpar,1000,end=317,err=9999) card
       if(card(1:1).eq.'#') goto 316
       ntype=ntype+1
       if(ntype.gt.maty) call errquit('increase maty',9999)
       read(card,1001) atype(ntype),(itype(i,ntype),i=1,20)
       goto 316
   317 continue
-      close(unit=lfntyp)
+      close(unit=lfnpar)
   904 continue
 c
 c     determine the atom types
@@ -270,12 +289,21 @@ c
       if(lprint.ge.5)
      +write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
 c
-      do 18 i=ilo,ihi
+      do 38 i=ilo,ihi
       if(lprint.ge.5)
      + write(lfnout,'(a,a4,5i5)') 'Atom ',catm(2,i),(ltyp(j,i),j=1,5)
       if(latm(2,i).gt.0) then
       do 19 j=1,ntype
       iatnum=itype(1,j)
+      irng=0
+      if(iatnum.ge.60000) then
+      irng=6
+      iatnum=iatnum-60000
+      endif
+      if(iatnum.ge.50000) then
+      irng=5
+      iatnum=iatnum-50000
+      endif
       nonh=0
       do 20 k=1,4
       if(iatnum.ge.1000)  then
@@ -299,7 +327,7 @@ c           4    match aromatic ring
 c           5    match explicit number of neighbors
 c
       if(iatnum.eq.latm(2,i).and.
-     + (nhydr.eq.0.or.(nhydr.eq.5.and.ltyp(4,j).eq.ltyp(5,j)).or.
+     + (nhydr.eq.0.or.(nhydr.eq.5.and.ltyp(4,i).eq.0).or.
      +   nhydr.eq.ltyp(4,j)).and.
      + (itype(2,j).eq.0.or.itype(2,j).eq.ltyp(1,i)).and.
      + (itype(3,j).eq.0.or.itype(3,j).eq.ltyp(2,i).or.
@@ -338,6 +366,15 @@ c
      + write(lfnout,'(5x,a,i5)') 'neighbor atom      ',
      + latm(2,ltyp(5+k,i))
       iatnum=itype(1+l*5,j)
+      irng=0
+      if(iatnum.ge.60000) then
+      irng=6
+      iatnum=iatnum-60000
+      endif
+      if(iatnum.ge.50000) then
+      irng=5
+      iatnum=iatnum-50000
+      endif
       nonh=0
       do 26 m=1,4
       if(iatnum.ge.1000)  then
@@ -383,6 +420,13 @@ c
       if(itype(2+l*5,j).gt.0.and.
      + itype(2+l*5,j).ne.ltyp(5,ltyp(5+k,i))) goto 25
 c
+c     check if neighbor in ring
+c     -------------------------
+c
+      if(irng.gt.0) then
+      if(irng.ne.ltyp(3,ltyp(5+k,i))) goto 25
+      endif
+c
       if(lprint.ge.5)
      + write(lfnout,'(5x,a,2i5)') 'neighbor accepted ',
      + itype(1+l*5,j),latm(2,ltyp(5+k,i))
@@ -416,6 +460,15 @@ c
      + latm(2,ltyp(5+kk,ltyp(5+k,i)))
 c
       iatnum=itype(2+l*5+ll,j)
+      irng=0
+      if(iatnum.ge.60000) then
+      irng=6
+      iatnum=iatnum-60000
+      endif
+      if(iatnum.ge.50000) then
+      irng=5
+      iatnum=iatnum-50000
+      endif
       nonh=0
       do 32 m=1,4
       if(iatnum.ge.1000)  then
@@ -464,6 +517,14 @@ c
       if(nonh.ne.ltyp(5,ltyp(5+k,ltyp(5+k,i)))-
      + ltyp(4,ltyp(5+k,ltyp(5+k,i)))) goto 31
       endif
+c
+c     check if neighbor of neighbor in ring
+c     -------------------------------------
+c
+      if(irng.gt.0) then
+      if(irng.ne.ltyp(3,ltyp(5+kk,ltyp(5+k,i)))) goto 31
+      endif
+c
       if(lprint.ge.5)
      + write(lfnout,'(10x,a,4i5)') 'neighbor accepted ',
      + itype(2+l*5+ll,j),latm(2,ltyp(5+kk,ltyp(5+k,i))),kk,ll
@@ -511,9 +572,9 @@ c
       endif
    19 continue
       endif
-   18 continue
+   38 continue
 c
-      if(lprint.ge.5) then
+      if(lprint.ge.50) then
       do 100 i=jlo,jhi
       write(lfnout,'(16i5)') i,(ltyp(j,i),j=1,15)
   100 continue

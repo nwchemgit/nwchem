@@ -133,7 +133,8 @@ c
 c     switch propers to impropers
 c     ---------------------------
 c
-      if(.not.pre_dihimp(ffield,int_mb(i_ang),mang,nang,
+      if(.not.pre_dihimp(ffield,int_mb(i_latm),matm,natm,
+     + int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp))
      + call errquit('pre_dihsel failed',9999)
 c

@@ -62,7 +62,7 @@ c
       read(lfnsgm,1003) (qatm(j,natm),j=1,6)
  1003 format(6f12.6)
 c
-      if(lprint.ge.5) then
+      if(lprint.ge.50) then
       write(lfnout,1002) (catm(j,natm),j=1,4),(latm(j,natm),j=1,4)
       write(lfnout,1003) (qatm(j,natm),j=1,6)
       endif
@@ -93,7 +93,7 @@ c
       read(lfnsgm,1005) (rbnd(j,nbnd),j=1,6)
  1005 format(3(f12.6,e12.5))
 c
-      if(lprint.ge.5) then
+      if(lprint.ge.50) then
       write(lfnout,1004) (lbnd(j,nbnd),j=1,4)
       write(lfnout,1005) (rbnd(j,nbnd),j=1,6) 
       endif
@@ -114,7 +114,7 @@ c
       lang(1,nang)=lang(1,nang)+na
       lang(2,nang)=lang(2,nang)+na
       lang(3,nang)=lang(3,nang)+na
-      if(lprint.ge.5) then
+      if(lprint.ge.50) then
       write(lfnout,1006) (lang(j,nang),j=1,5)
       write(lfnout,1007) (rang(j,nang),j=1,6)
       endif
@@ -129,7 +129,7 @@ c
       read(lfnsgm,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
  1009 format(3(i5,f12.6,e12.5))
 c
-      if(lprint.ge.5) then
+      if(lprint.ge.50) then
       write(lfnout,1008) (ld(j),j=1,6)
       write(lfnout,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
       endif
@@ -174,7 +174,7 @@ c
      + rimp(2*j,nimp),j=1,3)
  1011 format(3(i5,f12.6,e12.5))
 c
-      if(lprint.ge.5) then
+      if(lprint.ge.50) then
       write(lfnout,1010) (limp(j,nimp),j=1,6)
       write(lfnout,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
      + rimp(2*j,nimp),j=1,3)

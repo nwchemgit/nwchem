@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.7 1998-04-17 16:32:02 d3j191 Exp $
+c $Id: prepar.F,v 1.8 1998-04-20 20:01:41 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -37,13 +37,13 @@ c
 c
       integer irtdb0,irtdb
 c
-      character*255 filpdb,filtyp,filseq,filtop,filpar
+      character*255 filpdb,filseq,filtop,filpar
       character*255 dir_s,dir_x,dir_u,dir_t
       character*80 sysnam,ffield
       character*10 slvmdl
       character*3 slvnam
 c
-      integer lfnpdb,lfnout,lfnfrg,lfntyp,lfnseq,lfnsgm,lfntop,lfnpar
+      integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnpar
       integer len,lend,lprint
       integer newtop,newseq
 c
@@ -80,7 +80,6 @@ c     --------------------
 c
       len=index(ffield,' ')-1
       lend=index(dir_s,' ')-1
-      filtyp=ffield(1:len)//'.typ '
       filpar=ffield(1:len)//'.par '
 c
       len=index(sysnam,' ')-1
@@ -95,11 +94,10 @@ c
       lfnout=6
       lfnpdb=12
       lfnfrg=13
-      lfntyp=14
-      lfnseq=15
-      lfnsgm=16
-      lfntop=17
-      lfnpar=18
+      lfnseq=14
+      lfnsgm=15
+      lfntop=16
+      lfnpar=17
 c
       lprint=10
       if(util_print('sequence',print_none)) lprint=0
@@ -148,7 +146,7 @@ c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
       if(.not.pre_mkseq(lfnout,lprint,ffield,
-     + lfnpdb,filpdb,lfnseq,filseq,lfntyp,filtyp,
+     + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,
      + lfnfrg,lfnsgm,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl))
      + call errquit('pre_mkseq failed',9999)
       write(lfnout,1002) filseq(1:index(filseq,' ')-1)

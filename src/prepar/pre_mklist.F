@@ -368,8 +368,8 @@ c
    20 continue
       endif
 c
-c     switch propers to impropers
-c     ---------------------------
+c     switch selected propers to impropers
+c     ------------------------------------
 c
       if(ffield(1:6).eq.'gromos'.or.ffield(1:6).eq.'charmm') then
       no=nimp

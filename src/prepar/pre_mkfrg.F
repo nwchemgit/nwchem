@@ -1,4 +1,4 @@
-      logical function pre_mkfrg(iunit,lfntyp,filtyp,
+      logical function pre_mkfrg(iunit,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,
      + lfnout,lprint,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
@@ -36,7 +36,7 @@ c
       logical pre_atype,pre_charge
       external pre_atype,pre_charge
 c
-      integer iunit,lfntyp,lfnout
+      integer iunit,lfnpar,lfnout
       integer mseq,msgm,matm
       integer nseq,nsgm,natm
       integer mbnd,mang,mdih,mimp
@@ -45,8 +45,8 @@ c
       character*6 catm(3,matm)
       real*8 xatm(3,matm),qatm(matm)
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
-      character*255 filtyp,filnam
-      character*255 filpar,dir_s,dir_x,dir_u,dir_t
+      character*255 filpar,filnam
+      character*255 dir_s,dir_x,dir_u,dir_t
       integer lprint
 c
       integer len_t,length,len_f
@@ -60,6 +60,7 @@ c
       integer link1,link2,link3,link4,link5,link
       integer ibnd,nbnd,nang,ndih,nconn
       real*8 rlink,dist
+      logical found
 c
       if(lprint.ge.5) then
       write(lfnout,2000)
@@ -163,7 +164,7 @@ c
 c     determine atom types
 c     --------------------
 c
-      if(.not.pre_atype(lfnout,lprint,lfntyp,filtyp,
+      if(.not.pre_atype(lfnout,lprint,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,int_mb(i_ltyp),mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6))
@@ -179,7 +180,7 @@ c
 c     guestimate partial charges
 c     --------------------------
 c
-      if(.not.pre_charge(latm,qatm,matm,lbnd,mbnd,nbnd))
+      if(.not.pre_charge(latm,qatm,matm,natm,lbnd,mbnd,nbnd))
      + call errquit('pre_charge failed',9999)
 c
 c     write the fragment file
@@ -206,6 +207,7 @@ c
  3002 format(/,'FRAGMENT ',a,/,
      + '  num name type   link cntr  grp pgrp    charge     polarizab',
      + /)
+      found=.true.
       do 6 j=ilo,ihi
       if(latm(2,j).gt.0) then
 c
@@ -214,6 +216,7 @@ c
       write(iunit,2003) j+1-ilo,catm(2,j),catm(3,j),
      + latm(5,j),latm(4,j),1,1,qatm(j),0.0
  2003 format(i5,a4,2x,a6,4i5,2f12.6)
+      if(catm(3,j)(1:1).eq.' ') found=.false.
       endif
     6 continue
 c
@@ -238,6 +241,12 @@ c
 c
       write(lfnout,3005) filnam(1:len_f)
  3005 format(/,'CREATED FRAGMENT FILE ',a)
+c
+      if(.not.found) then
+      write(lfnout,3006) csgm(i)(1:length)
+ 3006 format(/,'ATOM TYPES COULD NOT BE DETERMINED FOR FRAGMENT ',a)
+      goto 9999
+      endif
 c
       lsgm(2,i)=-4
 c

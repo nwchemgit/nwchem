@@ -110,7 +110,7 @@ c
      + 0,i-nang
  1114 format(5i7)
       write(lfntop,1115) (rang(j,i),j=1,6)
- 1115 format(3(0pf12.6,1pe12.5))
+ 1115 format(3(0pf10.6,1pe12.5))
    21 continue
       endif
 c
@@ -122,7 +122,7 @@ c
  1116 format(6i7)
       write(lfntop,1117)
      +  (kdih(k,j,i),rdih(k,2*j-1,i),rdih(k,2*j,i),j=1,3)
- 1117 format(3(i3,0pf12.6,1pe12.5))
+ 1117 format(3(i3,0pf10.6,1pe12.5))
    23 continue
    22 continue
       endif
@@ -137,7 +137,7 @@ c
       write(lfntop,1118) (limp(j,i)-natm,j=1,4),0,i-nimp
  1118 format(6i7)
       write(lfntop,1119) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
- 1119 format(3(i3,0pf12.6,1pe12.5))
+ 1119 format(3(i3,0pf10.6,1pe12.5))
       endif
    24 continue
       endif
@@ -183,7 +183,7 @@ c
       write(lfntop,1014) lang(1,i),lang(2,i),lang(3,i),0,i
  1014 format(5i7)
       write(lfntop,1015) (rang(j,i),j=1,6)
- 1015 format(3(0pf12.6,1pe12.5))
+ 1015 format(3(0pf10.6,1pe12.5))
    12 continue
 c
       do 13 i=1,ndih
@@ -193,7 +193,7 @@ c
  1016 format(6i7)
       write(lfntop,1017)
      +  (kdih(k,j,i),rdih(k,2*j-1,i),rdih(k,2*j,i),j=1,3)
- 1017 format(3(i3,0pf12.6,1pe12.5))
+ 1017 format(3(i3,0pf10.6,1pe12.5))
    14 continue
    13 continue
 c
@@ -205,7 +205,7 @@ c
       write(lfntop,1018) (limp(j,i),j=1,4),0,i
  1018 format(6i7)
       write(lfntop,1019) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
- 1019 format(3(i3,0pf12.6,1pe12.5))
+ 1019 format(3(i3,0pf10.6,1pe12.5))
       endif
    15 continue
 c

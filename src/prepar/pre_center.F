@@ -40,55 +40,14 @@ c
       integer nring3,nring4,nring5,nring6
       logical valid
 c
-      integer i,j,k,l,li,lj
+      integer i,j,k,l,li,lj,nh,ic
       real*8 angle
 c
       pre_center=.false.
 c
-c     peptide bonds
-c     -------------
-c
-      do 1 i=jlo,jhi
-      if(latm(2,i).eq.7.and.latm(3,i).eq.3) then
-      do 2 li=1,nbnd
-      j=0
-      if(lbnd(1,li).eq.i) j=lbnd(2,li)
-      if(lbnd(2,li).eq.i) j=lbnd(1,li)
-      if(j.ge.jlo.and.j.le.jhi) then
-      if(latm(2,j).eq.6.and.latm(3,j).eq.3) then
-      do 3 lj=1,nbnd
-      k=0
-      if(lbnd(1,lj).eq.j.and.lbnd(2,lj).ne.i) k=lbnd(2,lj)
-      if(lbnd(2,lj).eq.j.and.lbnd(1,lj).ne.i) k=lbnd(1,lj)
-      if(k.ge.jlo.and.k.le.jhi) then
-      if(latm(2,k).eq.8.and.latm(3,k).eq.1) then
-      latm(4,i)=1
-      latm(4,j)=1
-      goto 1
-      endif
-      endif
-    3 continue
-      endif
-      endif
-    2 continue
-      endif
-    1 continue
-c
-c     planar C=O
-c     ----------
-c
-      do 26 i=jlo,jhi
-      if(latm(2,i).eq.6.and.latm(3,i).eq.3) then
-      do 27 li=1,nbnd
-      j=0
-      if(lbnd(1,li).eq.i) j=lbnd(2,li)
-      if(lbnd(2,li).eq.i) j=lbnd(1,li)
-      if(j.ge.jlo.and.j.le.jhi) then
-      if(latm(2,j).eq.8.and.latm(3,j).eq.1) latm(4,i)=1
-      endif
-   27 continue
-      endif
-   26 continue
+      do 53 i=jlo,jhi
+      latm(4,i)=0
+   53 continue
 c
 c     3 membered rings
 c     ----------------
@@ -322,6 +281,80 @@ c
    25 continue
       endif
    24 continue
+c
+c     peptide bonds
+c     -------------
+c
+      do 1 i=jlo,jhi
+      if(latm(2,i).eq.7.and.latm(3,i).eq.3) then
+      do 2 li=1,nbnd
+      j=0
+      if(lbnd(1,li).eq.i) j=lbnd(2,li)
+      if(lbnd(2,li).eq.i) j=lbnd(1,li)
+      if(j.ge.jlo.and.j.le.jhi) then
+      if(latm(2,j).eq.6.and.latm(3,j).eq.3) then
+      do 3 lj=1,nbnd
+      k=0
+      if(lbnd(1,lj).eq.j.and.lbnd(2,lj).ne.i) k=lbnd(2,lj)
+      if(lbnd(2,lj).eq.j.and.lbnd(1,lj).ne.i) k=lbnd(1,lj)
+      if(k.ge.jlo.and.k.le.jhi) then
+      if(latm(2,k).eq.8.and.latm(3,k).eq.1) then
+      latm(4,i)=1
+      latm(4,j)=1
+      goto 1
+      endif
+      endif
+    3 continue
+      endif
+      endif
+    2 continue
+      endif
+    1 continue
+c
+c     planar C=O
+c     ----------
+c
+      do 26 i=jlo,jhi
+      if(latm(2,i).eq.6.and.latm(3,i).eq.3.and.latm(4,i).eq.0) then
+      do 27 li=1,nbnd
+      j=0
+      if(lbnd(1,li).eq.i) j=lbnd(2,li)
+      if(lbnd(2,li).eq.i) j=lbnd(1,li)
+      if(j.ge.jlo.and.j.le.jhi) then
+      if(latm(2,j).eq.8.and.latm(3,j).eq.1) latm(4,i)=1
+      endif
+   27 continue
+      endif
+   26 continue
+c
+c     planar NH2 in C(sp2)-NH2
+c     ------------------------
+c
+      do 45 i=jlo,jhi
+      if(latm(2,i).eq.7.and.latm(3,i).eq.3.and.latm(4,i).eq.0) then
+      nh=0
+      ic=0
+      do 46 li=1,nbnd
+      j=0
+      if(lbnd(1,li).eq.i) j=lbnd(2,li)
+      if(lbnd(2,li).eq.i) j=lbnd(1,li)
+      if(j.ge.jlo.and.j.le.jhi) then
+      if(latm(2,j).eq.1) nh=nh+1
+      if(latm(2,j).eq.6.and.latm(3,j).eq.3) ic=j
+      endif
+   46 continue
+      if((nh.eq.1.or.nh.eq.2).and.ic.gt.0) latm(4,i)=1
+      endif
+   45 continue
+c
+c     sp2 carbon
+c     ----------
+c
+      do 47 i=jlo,jhi
+      if(latm(2,i).eq.6.and.latm(3,i).eq.3.and.latm(4,i).eq.0) then
+      latm(4,i)=1
+      endif
+   47 continue
 c
       pre_center=.true.
       return
