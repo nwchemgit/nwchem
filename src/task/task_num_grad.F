@@ -4,7 +4,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.27 2000-06-16 20:24:42 edo Exp $
+* $Id: task_num_grad.F,v 1.28 2000-06-17 15:46:45 edo Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -569,9 +569,9 @@ c
       call dgemm('t','n',natoms3,natoms3,natoms3,1.0d0, 
      $     vectors, natoms3, vectors, natoms3, 0.0d0, temp, natoms3)
       call util_jacobi(natoms3,temp,natoms3,eval)
-!      call dsyev('v','u',natoms3,temp,natoms3,eval,work,
-!     $     3*nwork*maxat,info)
-      if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
+cedo      call dsyev('v','u',natoms3,temp,natoms3,eval,work,
+cedo     $     3*nwork*maxat,info)
+cedo      if (info .ne. 0) call errquit('fd_make_vectors: dsyev failed',0)
 *      write(6,*) ' Eigen values of the projected vectors metric '
 *      call output(eval, 1, natoms3, 1, 1, natoms3, 1, 1)
 *      write(6,*) ' Eigen vectors of the projected vectors metric '
