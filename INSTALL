@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.54 2003-04-02 01:03:48 edo Exp $
+$Id: INSTALL,v 1.55 2003-04-04 20:57:07 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -85,7 +85,9 @@ BASIC BUILD INSTRUCTIONS:
    NWCHEM_BASIS_LIBRARY_PATH    location of the basis set libraries (the
                                 builder is responsible to make sure that
                                 the libraries directory gets to the place),
-    e.g.  setenv NWCHEM_BASIS_LIBRARY_PATH "/u/nwchem/bin/libraries"
+    e.g.  setenv NWCHEM_BASIS_LIBRARY_PATH "/u/nwchem/bin/libraries/"
+     IMPORTANT: If you don't put the last slash ("/") after "libraries",
+                nwchem will not be able to find the basis library files.
 
    LARGE_FILES                  needed to circumvent the 2 GB limit on IBM
                                 (note that your system administrator must also
