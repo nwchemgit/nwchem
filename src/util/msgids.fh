@@ -75,6 +75,7 @@ c
       integer mrg_i01
       integer mrg_d01
       integer mrg_d02
+      integer mrg_d05
       integer mrg_d11
       integer mrg_d12
       integer mrg_d13
@@ -253,6 +254,7 @@ c
       parameter (mrg_i01=msg_ftn_base-121) ! arg_wrtinp
       parameter (mrg_d01=msg_ftn_base-131) ! arg_memor1
       parameter (mrg_d02=msg_ftn_base-132) ! arg_initti
+      parameter (mrg_d05=msg_ftn_base-135) ! arg_param2
       parameter (mrg_d11=msg_ftn_base-141) ! arg_sumloc
       parameter (mrg_d12=msg_ftn_base-142) ! arg_sumloc
       parameter (mrg_d13=msg_ftn_base-143) ! arg_sumloc
