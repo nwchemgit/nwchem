@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.29 2001-12-26 21:16:43 windus Exp $
+C $Id: twodd_cont.F,v 1.30 2002-01-03 15:41:23 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -221,9 +221,15 @@ c
         call nga_copy_patch('N',g_dens(i),blo,bhi,g_dens2,alo,ahi)
       enddo
 c
+c will eventually bring back - log_mb(k_act))
       call shell_fock_build (basis, 1, ndens, jfac, kfac,
      *   tol2e, g_dens2, g_rhs,.true.)
-c will eventually bring back - log_mb(k_act))
+c
+c Get rid of temporary memory
+c
+      if (.not. ga_destroy(g_dens2)) call errquit
+     *   ('twodd_cont: failed to free g_dens2', ndens)
+c
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
         write(LuOut,*) 'after going into shell_fock_build:'
@@ -460,8 +466,6 @@ c
         if (.not. ga_destroy(g_dens(i))) call errquit
      *     ('twodd_cont: failed to free g_dens()', ndens)
       end do
-      if (.not. ga_destroy(g_dens2)) call errquit
-     *   ('twodd_cont: failed to free g_dens2', ndens)
 c
 c  Need to get rid of extra memory
 c

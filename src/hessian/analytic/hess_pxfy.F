@@ -1,13 +1,16 @@
-c $Id: hess_pxfy.F,v 1.5 2001-12-28 21:54:02 windus Exp $
+c $Id: hess_pxfy.F,v 1.6 2002-01-03 15:41:23 windus Exp $
+c
       subroutine hess_pxfy(hess, g_sol, g_rhs, oactive, ncent,
-     &     restr, nocc, nvirt, ndens)
+     &     restr, vlen)
 c
 c     Accumulates dP/dx * dF/dy contribution to hessian, where dF/dy is
 c     the explicit contribution to the derivative of the Fock matrix, i.e.
 c     the RHS of the CPSCF.
 c
 c     Set up for current approach of doing all CPSCF solutions at a time.
-c     The solutions are contracted with all the RHS's.
+c     The solutions are contracted with all the RHS's.  Note that the alphas
+c     and betas are concatenated together in the same solution if the calculation
+c     is UHF.
 c
       implicit none
 c
@@ -19,29 +22,26 @@ c
       integer g_rhs             ! [input] GA handles for RHS's
       logical oactive(ncent)    ! [input] key to active atoms
       logical restr             ! [input] calculation is restricted
-      integer ndens             ! [input] number of densities
-      integer nocc(ndens)       ! [input] number of occupieds
-      integer nvirt(ndens)      ! [input] number of virtuals
+      integer vlen              ! [input] length of one solution
 c
       integer icent, jcent, idir, jdir, ipert, jpert
-      integer index, jindex, ndns
+      integer index, jindex
       integer alo(2), ahi(2), blo(3),bhi(3)
       double precision deltah
 c
 c     Loop over CPSCF RHS and contract with current
 c     CPSCF solution
 c
-      do ndns = 1, ndens
-       alo(1) = 1
-       ahi(1) = nocc(ndns)*nvirt(ndns)
-       blo(1) = 1
-       bhi(1) = nocc(ndns)*nvirt(ndns)
-       do icent = 1, ncent
+      alo(1) = 1
+      ahi(1) = vlen
+      blo(1) = 1
+      bhi(1) = vlen
+      do icent = 1, ncent
         if (oactive(icent)) then
          ipert = 3*(icent-1)
          do idir = 1, 3
           ipert = ipert + 1
-          index = ipert + (ndns-1)*ncent*3
+          index = ipert
           alo(2) = index
           ahi(2) = index
           do jcent = 1, icent
@@ -50,7 +50,7 @@ c
             do jdir = 1, 3
               jpert = jpert + 1
               if (jpert.le.ipert) then ! take advantage of symmetry of hessian
-               jindex = jpert + (ndns-1)*ncent*3
+               jindex = jpert
                blo(2) = jindex
                bhi(2) = jindex
                deltah = nga_ddot_patch(g_sol, 'n', alo, ahi,
@@ -71,7 +71,6 @@ c              endif
           enddo
          enddo
         endif
-       enddo
       enddo
 c
       return

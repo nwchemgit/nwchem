@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.39 2002-01-01 00:14:06 windus Exp $
+C $Id: hess_cphf.F,v 1.40 2002-01-03 15:41:23 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -17,9 +17,9 @@ c
 #include "util.fh"
 c
       integer rtdb 
-      integer ind, index
-      integer nc, nxyz, num, num2, norb, nc3 
-      integer num3, norb2, nbf2, ndns
+      integer ind, index, index1, index2
+      integer nc, num
+      integer nbf2, ndns
       integer l_evals, k_evals, l_occ, k_occ
       integer g_vecs(2), g_modx
       integer g_wax
@@ -31,7 +31,7 @@ c
 c
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
-      logical hf_job, oprint, ocphfprint
+      logical hf_job, oprint, ocphfprint, ouhf
       double precision tol2e
       double precision pt5, four
       data pt5, four      /0.5d+00, 4.0d+00/
@@ -42,6 +42,7 @@ c
       external cphf2, file_write_ga, file_read_ga, movecs_read
 c
       hf_job = theory .eq. 'hf'
+      ouhf   = scftype .eq. 'UHF'
 c
 c Set up printing
 c
@@ -54,13 +55,7 @@ c     ----- define parameters -----
 c
  
       nc   = n3xyz
-      nxyz = nc          ! substitue nc or nxyz for one or the other (later)
       num  = nbf
-      norb = num
-      nc3  = nc * nc
-      num2 =(num*(num+1))/2
-      num3 = num* num
-      norb2= norb*norb
 c
 c may need to pick up hessian off of disk, but for now assuming it is 
 c in memory
@@ -83,7 +78,7 @@ c  Get memory, note that the occ space is reused for
 c  UHF since it isn't used in the actual calculation
 c
       nbf2 = nbf
-      if (scftype .eq. 'UHF') nbf2 = nbf + nbf
+      if (ouhf) nbf2 = nbf + nbf
       g_vecs(1) = ga_create_atom_blocked(geom, basis, 'mo vectors')
 c     eigenvalues
       if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
@@ -96,7 +91,7 @@ c
      $     g_vecs(1)))
      $     call errquit('hess_cphf: could not read mo vectors', 110)
 
-      if (scftype .eq. 'UHF') then
+      if (ouhf) then
          g_vecs(2) = ga_create_atom_blocked(geom, basis, 
      $       'uhf mo vectors')
          if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), 
@@ -109,15 +104,24 @@ c beta orbitals if UHF and the evals are for the alpha orbitals
 c
       if (ocphfprint) then
          if(ga_nodeid().eq.0) then
-         write(LuOut,*)
-         write(LuOut,*) 'occupations, eigenvalues and vectors'
-         call hnd_prsq(dbl_mb(k_occ),1,num,num)
-         write(LuOut,*)
-         call hnd_prsq(dbl_mb(k_evals),1,num,num)
-         write(LuOut,*)
+           write(LuOut,*)
+           if (ouhf) write(LuOut,*) 'Please note that for the rest ',
+     $       'of the CPHF that g_wax and g_aa have the maximum ',
+     $       'alpha or beta dimension'
+           write(LuOut,*) 'occupations, eigenvalues and vectors'
+           write(LuOut,*) 'occupations are for the beta values'
+           call hnd_prsq(dbl_mb(k_occ),1,num,num)
+           write(LuOut,*)
+           call hnd_prsq(dbl_mb(k_evals),1,num,num)
+           write(LuOut,*)
+           if (ouhf) then
+             write(LuOut,*) 'Beta eigenvalues'
+             call hnd_prsq(dbl_mb(k_evals+num),1,num,num)
+             write(LuOut,*)
+           endif
          endif
          call ga_print(g_vecs(1))
-         if (scftype .eq. 'UHF') call ga_print(g_vecs(2))
+         if (ouhf) call ga_print(g_vecs(2))
          if(ga_nodeid().eq.0) write(LuOut,*)
       endif
 c
@@ -128,9 +132,13 @@ c
 c
       g_modx =ga_create_atom_blocked ( geom, basis, 'mo df' )
 c
+c Note that the maximum size of the occupied and virtual spaces are used so that
+c we need only one multidimensioned array.
+c
       dims(1) = ndens*n3xyz
-      dims(2) = nocc(1)   ! Note that this is correct only for ndens=1
-      dims(3) = nocc(1)
+      dims(2) = nocc(1)
+      if (ouhf) dims(2) = max(nocc(1), nocc(2))
+      dims(3) = dims(2)
       chunk(1) = dims(1)
       chunk(2) = -1
       chunk(3) = -1
@@ -138,7 +146,8 @@ c
      &     g_aa))
      &   call errquit('hess_cphf: could not allocate g_aa',555)
 c
-      dims(3) = nvirt(1) ! Note that this is correct only for ndens=1
+      dims(3) = nvirt(1)
+      if (ouhf) dims(3) = max(nvirt(1),nvirt(2))
       if (.not. nga_create (MT_DBL, 3, dims, 'WAX matrix',chunk,
      &     g_wax))
      &   call errquit('hess_cphf: could not allocate g_wax',555)
@@ -148,7 +157,7 @@ c  scale by four, and populate g_aa and g_wax
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, num, .false.)
       call ga_dscal(g_rhs,four)
       call hess_getaawax(g_rhs, g_aa, g_wax, nocc, nvirt,
      $          ndens, n3xyz, num, ocphfprint)
@@ -162,7 +171,7 @@ c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, num, .true.)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -226,7 +235,7 @@ c
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, num, .false.)
 c
 c Now form the Wax and Aa contributions
 c
@@ -240,7 +249,7 @@ c
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, num, .true.)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -302,30 +311,36 @@ c
  
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
 c
-c The next line obviously won't work for UHF!
+c Create a temporary array to reshape the CPHF RHS and send to the CPHF
 c
-       if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_sol',
+       if (.not.ga_create(MT_DBL,vlen,nc,'cphf_sol',
      $    0,0,g_sol))
      $    call errquit('hess_cphf: could not create g_sol',555)
 c
 c Put the CPHF matrices into one GA in the correct format
+c Note that the alpha and beta matrices are concatenated
+c (not one after the other)
 c
       alo(2) = 1
       alo(3) = 1
-      blo(1) = 1
-      index = 1
+      bhi(1) = 0
+      index1 = 1
       do ndns = 1, ndens
+        index2 = 1
         ahi(2) = nocc(ndns)
         ahi(3) = nvirt(ndns)
-        bhi(1) = nocc(ndns)*nvirt(ndns)
+        blo(1) = 1
+        if (ndns.ne.1) blo(1) = blo(1) + nocc(ndns-1)*nvirt(ndns-1)
+        bhi(1) = bhi(1) + nocc(ndns)*nvirt(ndns)
         do ind = 1, nc
-          alo(1) = index
-          ahi(1) = index
-          blo(2) = index
-          bhi(2) = index
+          alo(1) = index1
+          ahi(1) = index1
+          blo(2) = index2
+          bhi(2) = index2
           call nga_copy_patch('T',g_wax,alo,ahi,
      $      g_sol,blo,bhi)   ! put into format for current cphf
-          index = index + 1
+          index1 = index1 + 1
+          index2 = index2 + 1
         enddo
       enddo
       if (.not.ga_destroy(g_wax)) call errquit
@@ -348,12 +363,12 @@ c
 c
 c Get the RHS and solution off of disk.
 c
-      if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_rhs',
+      if (.not.ga_create(MT_DBL,vlen,nc,'cphf_rhs',
      $   0,0,g_wax))
      $   call errquit('hess_cphf: could not create g_wax',555)
       if(.not.file_read_ga(cphf_rhs,g_wax)) call errquit
      $  ('hess_cphf:could not read cphf_wax',555)
-      if (.not.ga_create(MT_DBL,nvirt(1)*nocc(1),nc*ndens,'cphf_sol',
+      if (.not.ga_create(MT_DBL,vlen,nc,'cphf_sol',
      $   0,0,g_sol))
      $   call errquit('hess_cphf: could not create g_sol',555)
       if(.not.file_read_ga(cphf_sol,g_sol)) call errquit
@@ -369,7 +384,7 @@ c
 c Combine the RHS and CPHF solution to get final contribution to hessian.
 c
       call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),
-     $  ncent, hf_job, nocc, nvirt, ndens)
+     $  ncent, hf_job, vlen)
 c
 c Get rid of temp memory
 c
@@ -398,7 +413,7 @@ c
 c
       subroutine hess_aotomo(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphf,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, num, useone)
 c
       implicit none
 c
@@ -407,10 +422,12 @@ c
 #include "stdio.fh"
 c
       logical oprint, ocphf
+      logical useone         ! [input] Use the alpha for the beta
       integer ndens, n3xyz, num, nocc(ndens), nvirt(ndens)
       integer g_rhs_x, g_vecs(ndens)
-      integer g_modx, ind, ndns, in
+      integer g_modx, ind, ind2, ndns, in
       integer alo(2), ahi(2), blo(3), bhi(3)
+      integer blo2(3), bhi2(3)
 c
 c  Transform the current AO based Fock derivatives to the MO basis
 c
@@ -429,16 +446,25 @@ c
       bhi(2) = num
       blo(3) = 1
       bhi(3) = num
+      blo2(2) = 1
+      bhi2(2) = num
+      blo2(3) = 1
+      bhi2(3) = num
       ind = 0
+      ind2 = 0
       do ndns = 1, ndens
+        if (useone) ind2 = 0
         do in = 1, n3xyz
           ind = ind + 1
+          ind2 = ind2 + 1
           blo(1) = ind
           bhi(1) = ind
+          blo2(1) = ind2
+          bhi2(1) = ind2
           call ga_zero(g_modx)
           call nga_matmul_patch ('t','n', 1.D0, 0.D0,
      $                           g_vecs(ndns), alo, ahi,
-     $                           g_rhs_x     , blo, bhi,
+     $                           g_rhs_x     , blo2, bhi2,
      $                           g_modx      , alo, ahi)
           call nga_matmul_patch ('n','n', 1.D0, 0.D0,
      $                           g_modx      , alo, ahi,
@@ -767,8 +793,6 @@ c
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
 c
-c     call shell_fock_build(basis,0,ndens,jfac,kfac,tol2e,
-c    &            g_tmp,g_rhs_x)
       call shell_fock_build(basis,0,ndens*n3xyz,dbl_mb(k_jfac),
      &            dbl_mb(k_kfac),tol2e,
      &            g_tmp,g_rhs_x,.true.)
@@ -792,39 +816,6 @@ c
         endif
         call ga_print(g_rhs_x)
       endif
-
-c     ind = 0
-c     do ndns = 1, ndens
-c     do in = 1, n3xyz
-c       ind = ind+1
-c       call ga_zero(g_tmp) ! prepare for transformation
-c       write(LuOut,*) 'before first ga_matmul_patch'
-c       call ga_matmul_patch ('t','n', 1.D0, 0.D0,
-c    $                         g_vecs(1),    1, num,    1, num,
-c    $                         g_rhs_x,   1, num,    1, num,
-c    $                         g_tmp,       1, num,    1, num )
-c
-c       write(LuOut,*) 'before second ga_matmul_patch'
-c       call ga_matmul_patch ('n','n', 1.D0, 0.D0,
-c    $                         g_tmp,       1, num,    1, num,
-c    $                         g_vecs(1),    1, num,    1, num,
-c    $                         g_rhs_x,   1, num,    1, num ) 
-c     enddo
-c     enddo
-
-c
-c Put jfac and kfac back to what they were before entering the routine
-c
-c     do ndns = 1, ndens
-c       jfac(ndns) = jfac(ndns)/8.0d+00
-c       kfac(ndns) = kfac(ndns)/-4.0d+00
-c     enddo
-c
-c     if (ocphfprint) then
-c       if(ga_nodeid().eq.0)
-c    $    write(LuOut,*) 'after transformation back to MO basis',ind
-c       call ga_print(g_rhs_x)
-c     endif
 c
       return
       end

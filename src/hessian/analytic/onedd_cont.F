@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.21 2002-01-01 00:14:06 windus Exp $
+C $Id: onedd_cont.F,v 1.22 2002-01-03 15:41:23 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -224,7 +224,9 @@ c
         bhi(3) = nbf
         call nga_copy_patch('N', g_rhs, alo, ahi, g_rhs, blo, bhi)
       endif
-c  first print out the rhs values 
+c
+c  Print out the rhs values if requested
+c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs'
