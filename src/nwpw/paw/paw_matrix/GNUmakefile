@@ -1,10 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.8 2003-02-10 02:39:36 marat Exp $
+# $Id: GNUmakefile,v 1.9 2003-02-10 22:34:06 bylaska Exp $
 #
 
           OBJ = paw_kin_matrix.o paw_ion_matrix.o paw_vloc_matrix.o paw_core_matrix.o \
-                paw_hartree_matrix.o paw_comp_charge_matrix.o paw_overlap_matrix.o \
-                 paw_comp_pot_matrix.o paw_comp_charge_matrix.o paw_overlap_matrix.o
+                paw_hartree_matrix.o paw_comp_charge_matrix.o \
+                 paw_comp_pot_matrix.o 
           
 
 
@@ -17,7 +17,7 @@
 
   LIB_DEFINES = 
 
-  HEADERS = paw_comp_charge_matrix.fh  paw_core_matrix.fh  paw_ion_matrix.fh  paw_overlap_matrix.fh \
+  HEADERS = paw_comp_charge_matrix.fh  paw_core_matrix.fh  paw_ion_matrix.fh  \
             paw_comp_pot_matrix.fh paw_hartree_matrix.fh paw_kin_matrix.fh  paw_vloc_matrix.fh
 
 

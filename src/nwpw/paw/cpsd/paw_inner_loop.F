@@ -1,5 +1,5 @@
 *
-* $Id: paw_inner_loop.F,v 1.1 2003-02-08 23:12:04 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.2 2003-02-10 22:34:06 bylaska Exp $
 *
 
       subroutine paw_inner_loop(ispin,ne,
@@ -71,7 +71,6 @@
       deltamm = 0.0d0
 
       write(*,*) "In paw_inner_loop"
-      return
 
 
       call nwpw_timing_start(12)
@@ -252,17 +251,17 @@ c        end if
 *       **** get Hpsi ****
 *       ******************
         call nwpw_timing_start(13)
-        if (control_version().eq.3) 
-     >     call paw_psi_H(ispin,ne,psi1,psi_r,
-     >             dcpl_mb(vl(1)),
-     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
-
-        if (control_version().eq.4) 
-     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
-     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
-     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
-     >             move,dbl_mb(fion(1)))
+c        if (control_version().eq.3) 
+c     >     call paw_psi_H(ispin,ne,psi1,psi_r,
+c     >             dcpl_mb(vl(1)),
+c     >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+c     >             move,dbl_mb(fion(1)))
+c
+c        if (control_version().eq.4) 
+c     >     call paw_psi_Hv4(ispin,ne,psi1,psi_r,
+c     >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
+c     >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
+c     >             move,dbl_mb(fion(1)))
 
 
         
@@ -299,8 +298,8 @@ c        end if
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
-     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+c        call paw_psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
+c     >                 lmd,dbl_mb(tmp_L(1)),ierr)
 
       end do
 

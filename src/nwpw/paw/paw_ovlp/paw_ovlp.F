@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.21 2003-02-09 22:06:17 marat Exp $
+* $Id: paw_ovlp.F,v 1.22 2003-02-10 22:34:06 bylaska Exp $
 *
 
 !**************************************************
@@ -162,8 +162,6 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       !*** nwpw external functions ****
       integer  psi_ne
       external psi_ne 
-      real*8 lattice_omega
-      external lattice_omega
 
 
 c     !*** total number of electron states ***
@@ -204,6 +202,8 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
            end do
         end do
       end do 
+      call D3dB_Vector_SumAll(2*neall*total_nbasis,
+     >                        dcpl_mb(toeff(1)))
 
 
       !*** unsrcramble to get true overlap coefficients ***
@@ -332,5 +332,130 @@ c           write(*,*) "paw_ovlp:w",w_tmp
       end do
      
      
+      return
+      end
+
+
+
+**************************************************
+!
+!	Name: paw_ovlp_calc_scramble_coeff
+!
+!	Purpose: Calculate the scrambled coefficients
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_calc_scramble_coef(ne,psi,ct)
+      implicit none
+      integer ne
+      complex*16 psi
+      complex*16 ct(ne,*)
+
+#include "mafdecls.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_proj.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+      !*** local variables ***
+      logical value
+      integer ii,ia,nbasis,nlm,nlmii,npack1
+      integer nion,prj,n
+      integer indx_psi,indx_prj
+      integer exi(2),tmp(2)
+
+
+      !*** allocate temporary space ***
+      call Pack_npack(1,npack1)
+      value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      if (.not.value) 
+     > call errquit('paw_ovlp_coeff_set: out of stack memory',0)
+
+
+c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
+      nlmii = 0
+      nion  = ion_nion()
+      do ii=1,nion
+        ia = ion_katm(ii)
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+        nbasis = paw_proj_nbasis(ia)
+        prj = paw_proj_i_prj_atom(ia)
+        do nlm=1,nbasis
+           nlmii = nlmii + 1
+           indx_prj = (nlm-1)*npack1
+           call Pack_cc_Mul(1,
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(prj+indx_prj),
+     >                      dcpl_mb(tmp(1)))
+           do n=1,ne
+             indx_psi   = (n-1)*npack1    + 1
+             call Pack_cc_izdot(1,
+     >                         dcpl_mb(tmp(1)),
+     >                         psi(indx_psi),
+     >                         ct(n,nlmii))
+           end do
+        end do
+      end do
+      call D3dB_Vector_SumAll(2*ne*total_nbasis,ct)
+
+
+      !*** allocate temporary space ***
+      value =           MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) 
+     > call errquit('paw_ovlp_coeff_set: error freeing stack memory',1)
+
+      return
+      end
+
+
+
+**************************************************
+!
+!	Name: paw_ovlp_unscramble_coeff
+!
+!	Purpose: unscrambe the coefficients
+!
+!	Created:	2/10/2002
+!**************************************************
+      subroutine paw_ovlp_unscramble_coef(ne,ct,c)
+      implicit none
+      integer ne
+      complex*16 ct(ne,*),c(ne,*)
+
+
+#include "mafdecls.fh"
+#include "paw_proj.fh"
+#include "paw_ovlp_data.fh"
+#include "paw_geom.fh"
+#include "paw_ma.fh"
+
+*     **** local variables ****
+      integer ii,ia,nlm,nlmii,n,m,mabs
+      integer nbasis,isgn,nion
+
+      nion = ion_nion()
+      nlmii = 0
+      do ii=1,nion
+         ia = ion_katm(ii)
+         nbasis = paw_proj_nbasis(ia)
+
+         do nlm=1,nbasis
+            nlmii = nlmii + 1
+            m = paw_proj_m(nlm,ia)
+            mabs = abs(m)
+            if (mod(mabs,2).eq.0) then
+              isgn = 1
+            else
+              isgn = -1
+            end if
+            do n=1,ne
+              c(n,nlmii) = 0.5d0*(ct(n,nlmii) 
+     >                   + isgn*dconjg(ct(n,nlmii-2*m)))
+            end do
+         end do
+      end do
+
       return
       end
