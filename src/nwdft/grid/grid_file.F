@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.26 2000-07-25 22:50:16 edo Exp $
+* $Id: grid_file.F,v 1.27 2000-07-27 18:07:13 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -149,10 +149,11 @@ c
          filedump_opened=.true.
          read(gr_unit,'(1E20.12)',err=199) enuc
          if(abs(enuc-enuc_in).gt.1d-4) return
-         read(gr_unit,'(I)',err=199) max_file_rec
-         read(gr_unit,'(I)',err=199) max_cache_rec
-         read(gr_unit,'(I)',err=199) n_rec_in_file
-         read(gr_unit,'(I)',err=199) file_opened
+         read(gr_unit,99,err=199) max_file_rec
+ 99      format(I72) 
+         read(gr_unit,99,err=199) max_cache_rec
+         read(gr_unit,99,err=199) n_rec_in_file
+         read(gr_unit,99,err=199) file_opened
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1)
@@ -203,10 +204,11 @@ c
           endif
       end if
       if(filedump_opened) then
-         write(gr_unit,'(I)',err=199) max_file_rec
-         write(gr_unit,'(I)',err=199) max_cache_rec
-         write(gr_unit,'(I)',err=199) n_rec_in_file
-         write(gr_unit,'(I)',err=199) file_opened
+         write(gr_unit,99,err=199) max_file_rec
+ 99      format(I72)
+         write(gr_unit,99,err=199) max_cache_rec
+         write(gr_unit,99,err=199) n_rec_in_file
+         write(gr_unit,99,err=199) file_opened
          rewind(gr_unit)
          close(gr_unit)
       endif
@@ -973,7 +975,7 @@ c
       offset=0d0
       if (.not. ma_alloc_get(MT_DBL, max_cache_rec*rec_len_in_dbl, 
      $     'grid', l_cache, k_cache)) call errquit(
-     . ' grid_dumpr: Failed to allocate cache ')
+     . ' grid_dumpr: Failed to allocate cache ',0)
       istep=0
       do ii=1,n_rec_in_file
          ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
