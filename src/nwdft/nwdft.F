@@ -2,10 +2,10 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.12 1995-02-02 23:18:59 d3g681 Exp $
+C$Id: nwdft.F,v 1.13 1995-03-01 23:00:57 og845 Exp $
       implicit real*8 (a-h,o-z)
       logical LResult,converged
-      logical ok
+      logical ok,CDFIT,XCFIT
       logical status
 c****
 c**** nwchem handles
@@ -75,6 +75,33 @@ c
 c--> Clean-up memory.
 c
       LResult = MA_Pop_Stack(lckcon) ! moved here (HLT)
+c     
+c     terminate integrals 
+c     
+      call int_terminate
+c     
+c     destroy BS handles and geom object
+c
+
+      XCFIT    = .TRUE.
+      if( XC_bas_han.eq.-99999 ) XCFIT = .FALSE.
+      CDFIT    = .TRUE.
+      if( CD_bas_han.eq.-99999 ) CDFIT = .FALSE.
+
+      if(XCFIT)then
+       if(.not.bas_destroy(XC_bas_han))
+     $     call errquit ('dft:destroying XC basis handle',0)
+      endif
+      if(CDFIT)then
+       if(.not.bas_destroy(CD_bas_han))
+     $     call errquit ('dft:destroying CD basis handle',0)
+      endif
+      if (.not.(
+     &     bas_destroy(AO_bas_han)
+     &     .and. geom_destroy(geom)))
+     $     call errquit ('dft:destroying geom and basis handles',0)
+
+
 c
 c--> Flush ouput buffer.
 c
