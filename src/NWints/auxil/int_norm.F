@@ -1,5 +1,5 @@
       logical function int_normalize(rtdb,basisin)
-c $Id: int_norm.F,v 1.10 2000-02-04 19:43:33 mg201 Exp $
+c $Id: int_norm.F,v 1.11 2000-02-04 23:07:08 mg201 Exp $
       implicit none
 #include "apiP.fh"
 #include "bas.fh"
@@ -41,7 +41,6 @@ c
       else
         norm_typ = BasNorm_STD
       end if
-      write (6,*) 'int_norm: norm_typ =',norm_typ,'; basis =',basisin
 c
 c check and set basis normalization
 c
