@@ -1,0 +1,8 @@
+$Id: README,v 1.1 1995-06-17 20:06:53 gg502 Exp $
+
+Here are a few small examples of RI-MP2 calculations, along with the
+associated SCF input decks.  Most of them freeze a couple of core
+orbitals, but one of the C2H6 ones doesn't.  They all take the fitting
+basis sets from fit.lib.
+
+These jobs were run on a KSR2 (circus) on 17 June 1995.

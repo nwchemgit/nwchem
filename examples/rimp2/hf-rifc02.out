@@ -1,0 +1,234 @@
+allocation unit: 524288K, max shmem: 52428800K
+ argument  1 = hf-rifc02.nwc
+ argument  2 = -master
+ argument  3 = circusf.pnl.gov
+ argument  4 = 1187
+ argument  5 = 1
+ argument  6 = 8
+ argument  7 = 0
+ argument  8 = 0
+                                         
+                                         
+
+
+                             North West CHEM (NWCHEM)
+                             ------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                           Pacific Northwest Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+              Job information
+              ---------------
+
+    hostname = circus
+    program  = nwchem
+    date     = Sat Jun 17 16:00:50 1995
+    compiled = Sat Jun 17 15:57:25 EDT 1995
+    source   = /home/gg502/proj/nwchem-950616
+    input    = hf-rifc02.nwc
+    nproc    =    8
+
+
+            Memory information
+            ------------------
+
+    heap   =     314573 doubles
+    stack  =     314573 doubles
+    global =    2516582 doubles (allocated separately from heap & stack)
+    total  =    3145728 doubles
+    verify = yes
+
+
+ file prefix = hf
+
+
+                                NWCHEM Input Module
+                                -------------------
+
+
+                      Basis "ri-mp2 basis" -> ""
+                      -----
+  F (Fluorine)
+  ------------
+          Exponent  Coefficients 
+       ------------ ------------------------------------------------------------
+  1 S  14710.000000  0.000721
+
+  2 S   2207.000000  0.005553
+
+  3 S    502.800000  0.028267
+
+  4 S    142.600000  0.106444
+
+  5 S     46.470000  0.286814
+
+  6 S     16.700000  0.448641
+
+  7 S      6.356000  0.264761
+
+  8 S      1.316000  0.015333
+
+  9 S      0.389700 -0.002332
+
+ 10 P     22.670000  0.044878
+
+ 11 P      4.977000  0.235718
+
+ 12 P      1.347000  0.508521
+
+ 13 P      0.347100  0.458120
+
+ 14 D      1.640000  1.000000
+
+ 15 D      0.694200  1.000000
+
+ 16 F      3.280000  1.000000
+
+  H (Hydrogen)
+  ------------
+          Exponent  Coefficients 
+       ------------ ------------------------------------------------------------
+  1 S     13.010000  0.019685
+
+  2 S      1.962000  0.137977
+
+  3 S      0.444600  0.478148
+
+  4 S      0.122000  0.501240
+
+  5 S      0.122000  1.000000
+
+  6 P      0.727000  1.000000
+
+  7 P      1.454000  1.000000
+
+  8 D      1.454000  1.000000
+
+
+ Read molecular orbitals from hf.movecs
+
+
+ Read molecular orbitals from hf.movecs
+
+                               NWCHEM RI-MP2 Energy
+                               --------------------
+                     HF, cc-pVDZ basis, SCF optimized geometry
+
+
+
+          Nr. of AO basis functions:         20
+     Nr. of fitting basis functions:         60
+               Nr. of MO spin cases:          1
+        Nr. of MOs in SCF reference:         20
+    Nr. of occupied MOs in SCF ref.:          5
+     Nr. of virtual MOs in SCF ref.:         15
+        Nr. of MOs to be correlated:         19
+     Nr. of occupied MOs correlated:          4
+      Nr. of virtual MOs correlated:         15
+
+          RI integral approximation: 'V'
+    Threshold for Schwarz screening:  1.000E-08
+     Base file name for MO integrals 'mo3cint'
+
+                 SCF reference file: 'hf.movecs'
+                SCF reference title: 'HF, cc-pVDZ basis, SCF optimized geometry'
+
+
+ ******************
+ * IMPORTANT NOTE *
+ ******************
+ This correlated calculation is based on an SCF reference in which
+ orbitals have been frozen or rearranged relative to the result of the
+ SCF calculation.  From this point on, the orbitals are labeled in the
+ 'correlated basis'.
+
+ Transformation block size    4, requiring     1 integral passes.
+ XForm_3cInts: Completed     1:    4 pass. @Sat Jun 17 16:00:54 1995
+ Energy evaluation using block sizes     4    4
+ RIMP2_V_E2: Approx. ints. done (    1:    4,    1:    4) @Sat Jun 17 16:00:54 1995
+ RIMP2_V_E2: Copy to B done (    1:    4,    1:    4) @Sat Jun 17 16:00:54 1995
+ RIMP2_V_E2: Denominators done (    1:    4,    1:    4) @Sat Jun 17 16:00:54 1995
+ RIMP2_V_E2: Completed block (    1:    4,    1:    4) @Sat Jun 17 16:00:54 1995
+ -------------
+ RI-MP2 energy
+ -------------
+ Reference energy:              -100.020126034581080
+ Correlation energy:              -0.206672874383373
+ Total RI-MP2 energy:           -100.226798908964450
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  2.26D-06 seconds/call
+
+                                   Nr. of calls                 CPU time (s)              Wall time (s)  
+                             -------------------------      ---------------------      ---------------------
+ Name                        Min        Avg        Max      Min      Avg      Max      Min      Avg      Max
+ Overall                       1          1          1   0.       0.       0.        2.4      2.5      2.5    
+ 3c integral xform.            1          1          1   0.       0.       0.       0.48     0.48     0.48    
+ Energy                        1          1          1   0.       0.       0.       0.17     0.17     0.17    
+ 3c integral generati          0          0          1   0.       0.       0.         0.     0.20     0.43    
+ First 2/3 xform.              0          1          3   0.       0.       0.         0.     1.16E-02 2.40E-02
+ Final 1/3 xform.              1          1          1   0.       0.       0.       2.10E-02 2.10E-02 2.11E-02
+ Write 3c integrals            1          1          1   0.       0.       0.       1.06E-04 3.64E-03 7.23E-03
+ Read 3c integrals             2          2          2   0.       0.       0.       1.24E-04 7.16E-03 1.44E-02
+ 2c integral generati          1          1          1   0.       0.       0.       0.38     0.38     0.38    
+ V^{-1/2}                      1          1          1   0.       0.       0.       0.22     0.22     0.22    
+ Schwarz 4c                    1          1          1   0.       0.       0.       0.22     0.22     0.22    
+ Schwarz 2c                    1          1          1   0.       0.       0.       2.04E-03 3.89E-03 7.39E-03
+ GA Create                     3          3          3   0.       0.       0.       6.29E-03 6.36E-03 6.39E-03
+ Form 4ci                      1          1          1   0.       0.       0.       1.95E-02 1.95E-02 1.95E-02
+ Form A & B                    1          1          1   0.       0.       0.       2.87E-03 2.88E-03 2.89E-03
+ Denominators                  1          1          1   0.       0.       0.       4.85E-04 5.38E-04 5.51E-04
+ Pair Energies                 1          1          1   0.       0.       0.       5.32E-04 3.54E-03 6.60E-03
+ Det. Energy Blocking          1          1          1   0.       0.       0.       3.40E-03 3.50E-03 3.53E-03
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	         2	         9
+	current total bytes		         0	         0
+	maximum total bytes		       512	    800096
+
+	calls per routine:
+		         5  MA_alloc_get
+		         6  MA_allocate_heap
+		         0  MA_chop_stack
+		         6  MA_free_heap
+		        63  MA_get_index
+		         0  MA_get_next_memhandle
+		         2  MA_get_pointer
+		         1  MA_init
+		         0  MA_init_memhandle_iterator
+		         2  MA_inquire_avail
+		         1  MA_inquire_heap
+		         1  MA_inquire_stack
+		        57  MA_pop_stack
+		         1  MA_print_stats
+		        57  MA_push_get
+		        57  MA_push_stack
+		         3  MA_set_auto_verify
+		         0  MA_set_error_print
+		         1  MA_set_hard_fail
+		       202  MA_sizeof
+		         0  MA_sizeof_overhead
+		         1  MA_summarize_allocated_blocks
+		       398  MA_verify_allocator_stuff
+ Creating: host=circus, user=gg502,
+           file=nwchem, port=1187

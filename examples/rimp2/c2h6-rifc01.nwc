@@ -1,0 +1,12 @@
+restart c2h6
+
+#set "mp2:input vectors" c2h6.movecs
+set "mp2:freeze orbitals" integer 1 2
+
+basis "ri-mp2 basis"
+C library cc-pvdz-uncon-df file fit.lib
+H library cc-pvdz-uncon-d file fit.lib
+end
+
+task rimp2
+

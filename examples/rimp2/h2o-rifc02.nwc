@@ -1,0 +1,11 @@
+restart h2o
+
+#set "mp2:input vectors" h2o.movecs
+set "mp2:freeze orbitals" integer 1
+
+basis "ri-mp2 basis"
+O library cc-pvdz-uncon-df file fit.lib
+H library cc-pvdz-uncon-pd file fit.lib
+end
+
+task rimp2

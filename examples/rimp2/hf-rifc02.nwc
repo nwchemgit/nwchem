@@ -1,0 +1,11 @@
+restart hf
+
+#set "mp2:input vectors" hf.movecs
+set "mp2:freeze orbitals" integer 1
+
+basis "ri-mp2 basis"
+F library cc-pvdz-uncon-df file fit.lib
+H library cc-pvdz-uncon-pd file fit.lib
+end
+
+task rimp2

@@ -1,0 +1,11 @@
+restart c2h6
+
+#set "mp2:input vectors" c2h6.movecs
+
+basis "ri-mp2 basis"
+C library cc-pvdz-uncon file fit.lib
+H library cc-pvdz-uncon file fit.lib
+end
+
+task rimp2
+
