@@ -1,0 +1,274 @@
+title "SiC 8 atom cubic cell"
+
+start SiC
+scratch_dir /tmp
+
+memory global 22 mb stack 22 mb heap 25 mb
+#**** define a simulation cell ****
+PSPW
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         23.890d0   0.000d0   0.000d0 
+          0.000d0  11.945d0   0.000d0
+          0.000d0   0.000d0  11.945d0
+      ngrid: 16 8 8
+   END
+END
+PSPW
+   SIMULATION_CELL
+      cell_name: medium
+      boundry_conditions: periodic
+      lattice_vectors:
+         23.890d0   0.000d0   0.000d0 
+          0.000d0  11.945d0   0.000d0
+          0.000d0   0.000d0  11.945d0
+      ngrid: 64 32 32
+   END
+END
+
+geometry units angstrom center autosym print
+Mg     0.000    0.000    0.000
+Mg     2.107    2.107    0.000
+Mg     0.000    2.107   -2.107
+Mg     2.107    0.000   -2.107
+Mg     0.000    0.000   -4.214
+Mg     2.107    2.107   -4.207
+Mg     0.000    4.214    0.000
+Mg     2.107    4.214   -2.107
+Mg     0.000    4.214   -4.214
+Mg     4.214    0.000    0.000
+Mg     4.214    2.107   -2.107
+Mg     4.214    0.000   -4.214
+Mg     4.214    4.214    0.000
+Mg     4.214    4.214   -4.214
+O      2.107    2.107   -2.107
+O      0.000    0.000   -2.107
+O      2.107    0.000    0.000
+O      0.000    2.107    0.000
+O      2.107    0.000   -4.214
+O      0.000    2.107   -4.214
+O      0.000    4.214   -2.107
+O      2.107    4.214    0.000
+O      2.107    4.214   -4.214
+O      4.214    0.000   -2.107
+O      4.214    2.107    0.000
+O      4.214    2.107   -4.214
+O      4.214    4.214   -2.107
+end
+
+
+
+
+#******* Generate a Pseudopotential for Magnesium *********************
+PSPW 
+   PSP_GENERATOR                       
+      pseudopotential_filename: Mg.psp  # Mg.psp is the name of the datafile
+                                        # generated
+
+      element: Mg                       # label used for the carbon atom
+      charge: 12.0d0                       # nuclear charge of carbon atom
+      mass_number: 24.0d0                 # mass (a.u.) of carbon atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
+      #exchange_type: pbe96              # dirac and pbe96 options
+      #correlation_type: pbe96           # vosko and pbe96 options
+
+      atomic_filling: 3 1   # Ncore and Nvalence states
+        1 s 2.0d0             # core state  1s^2
+        2 s 2.0d0             # coren state 2s^2
+        2 p 6.0d0             # coren state 2p^2
+        3 s 2.0d0             # valence state 3s^2
+   END
+END
+#******* Generate a Pseudopotential for Oxygen  **********************
+PSPW 
+   PSP_GENERATOR                       
+      pseudopotential_filename: O.psp   # O.psp is the name of the datafile
+                                        # generated
+
+      element: O                        # label used for the oxygen atom
+      charge: 8.0d0                      # nuclear charge of oxygen atom
+      mass_number: 16.0d0                 # mass (a.u.) of oxygen atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options 
+      #exchange_type: pbe96              # dirac and pbe96 options
+      #correlation_type: pbe96           # vosko and pbe96 options
+
+      atomic_filling: 1 2   # Ncore and Nvalence states
+        1 s 2.0d0             # core state    1s^2
+        2 s 2.0d0             # valence state 2s^2
+        2 p 4.0d0             # valence state 2p^2
+      cutoff: 3   # number of cutoff values
+         s 0.70d0   # cutoff value for Vs
+         p 0.70d0   # cutoff value for Vp
+         d 0.70d0   # cutoff value for Vd
+
+   END
+END
+
+
+
+
+#******* Generate a Formmatted pseudopotential for magnesium****
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: Mg.psp
+      formatted_filename: Mg.small.vpp
+   END
+END
+task pspw psp_formatter
+PSPW
+   PSP_FORMATTER
+      cell_name: medium
+      psp_filename: Mg.psp
+      formatted_filename: Mg.medium.vpp
+   END
+END
+task pspw psp_formatter
+
+#******* Generate a Formmatted pseudopotential for oxygen *****
+PSPW
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: O.psp
+      formatted_filename: O.small.vpp
+   END
+END
+task pspw psp_formatter
+PSPW
+   PSP_FORMATTER
+      cell_name: medium
+      psp_filename: O.psp
+      formatted_filename: O.medium.vpp
+   END
+END
+task pspw psp_formatter
+
+
+#******* Generate a initial wavefunction based on planewaves ****
+PSPW
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      restricted_electrons: 114
+      cell_name: small
+   END 
+END
+task pspw wavefunction_initializer
+
+#***** do coarse optimization with steepest descent ********
+PSPW
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: Mg.small.vpp
+      formatted_filename: O.small.vpp
+      fake_mass: 400000.0d0
+      time_step: 15.8d0
+      loop: 100 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      #exchange_correlation: pbe96
+      ewald_ncut: 8
+      #wavefunction_cutoff:  18.0d0
+      #energy_cutoff:        73.0d0
+   END 
+END
+task pspw steepest_descent
+#***** Setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: Mg.small.vpp
+      formatted_filename: O.small.vpp
+      fake_mass: 400000.0d0
+      time_step: 15.8d0
+      loop: 25 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      #exchange_correlation: pbe96
+      ewald_ncut: 8
+      #energy_cutoff:       73.0d0
+      #wavefunction_cutoff: 18.0d0
+   END 
+END
+task cg_pspw energy   #task pspw conjugate_gradient is equivalent
+task pspw steepest_descent
+task cg_pspw energy   
+task pspw steepest_descent
+
+
+
+
+#***** expand the wavefunction to larger grid *****
+PSPW
+   WAVEFUNCTION_EXPANDER
+      new_ngrid: 64 32 32
+   END 
+END
+task pspw wavefunction_expander
+
+#***** do finer optimization with steepest descent for a few iterations *****
+PSPW
+   STEEPEST_DESCENT
+      cell_name: medium
+      formatted_filename: Mg.medium.vpp
+      formatted_filename: O.medium.vpp
+      fake_mass: 400000.0d0
+      time_step: 15.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      #exchange_correlation: pbe96
+      ewald_ncut: 8
+      #wavefunction_cutoff:  18.0d0
+      #energy_cutoff:        73.0d0
+   END 
+END
+task pspw steepest_descent
+#***** Setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: medium
+      formatted_filename: Mg.medium.vpp
+      formatted_filename: O.medium.vpp
+      fake_mass: 400000.0d0
+      time_step: 15.8d0
+      loop: 25 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      #exchange_correlation: pbe96
+      ewald_ncut: 8
+   END 
+END
+task cg_pspw energy   #task pspw conjugate_gradient is equivalent
+task pspw steepest_descent
+
+
+#***** do geometry optimization with conjugate gradient ********
+driver
+  clear
+  maxiter 100
+end
+task cg_pspw optimize
+
+#***** do geometry optimization with steepest descent ********
+
+PSPW
+   STEEPEST_DESCENT
+      geometry_optimize
+      cell_name: medium
+      formatted_filename: Mg.medium.vpp
+      formatted_filename: O.medium.vpp
+      fake_mass: 400000.0d0
+      time_step: 5.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      #exchange_correlation: pbe96
+      ewald_ncut: 8
+      energy_cutoff:       73.0d0
+      wavefunction_cutoff: 18.0d0
+   END 
+END
+task pspw steepest_descent
+
+#***** do finite difference frequency with conjugate gradient ********
+task cg_pspw freq
+
