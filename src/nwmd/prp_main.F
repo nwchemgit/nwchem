@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.65 2002-01-17 18:47:15 d3j191 Exp $
+c $Id: prp_main.F,v 1.66 2002-01-28 21:17:26 d3j191 Exp $
 c
       implicit none
 c
@@ -270,44 +270,10 @@ c
       endif
 c
       if(iprof.eq.1) then
+      do 56 i=1,41
       it=it+1
-      p(it)=timer_wall_total(10)
-      it=it+1
-      p(it)=timer_wall_total(11)
-      it=it+1
-      p(it)=timer_wall_total(27)
-      it=it+1
-      p(it)=timer_wall_total(12)
-      it=it+1
-      p(it)=timer_wall_total(13)
-      it=it+1
-      p(it)=timer_wall_total(14)
-      it=it+1
-      p(it)=timer_wall_total(15)
-      it=it+1
-      p(it)=timer_wall_total(16)
-      it=it+1
-      p(it)=timer_wall_total(17)
-      it=it+1
-      p(it)=timer_wall_total(18)
-      it=it+1
-      p(it)=timer_wall_total(19)
-      it=it+1
-      p(it)=timer_wall_total(20)
-      it=it+1
-      p(it)=timer_wall_total(21)
-      it=it+1
-      p(it)=timer_wall_total(22)
-      it=it+1
-      p(it)=timer_wall_total(23)
-      it=it+1
-      p(it)=timer_wall_total(24)
-      it=it+1
-      p(it)=timer_wall_total(25)
-      it=it+1
-      p(it)=timer_wall_total(28)
-      it=it+1
-      p(it)=timer_wall(2)
+      p(it)=timer_wall_total(i+9)
+   56 continue
       endif
 c
       maxp=it

@@ -4,7 +4,7 @@
      + nwmtot,msfi,nsfi,mpei,mdacq,mrn,ipset,isetp1,isetp2,tstp,
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbc,nbiasi)
 c
-c $Id: prp_init.F,v 1.42 2002-01-16 06:37:12 d3j191 Exp $
+c $Id: prp_init.F,v 1.43 2002-01-28 21:17:25 d3j191 Exp $
 c
       implicit none
 c
@@ -368,64 +368,130 @@ c
       endif
 c
       if(iprof.eq.1) then
-      if(it+19.gt.maxpro)
+      if(it+42.gt.maxpro)
      + call errquit('Increase dimension maxpro',0)
       it=it+1
-      pronam(it)='Prof: replicated data interactions               s'
+      pronam(it)='Prof: Initialization velocities                  s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme charge grid calculation                s'
+      pronam(it)='Prof: Periodic Boundary Conditions               s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme charge grid communication              s'
+      pronam(it)='Prof: Dynamic Load Balancing                     s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme subset synchronization 1               s'
+      pronam(it)='Prof: Atom Redistribution                        s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: reverse fft                                s'
+      pronam(it)='Prof: Center of Mass Coordinates                 s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme reciprocal work                        s'
+      pronam(it)='Prof: Recording Trajectory                       s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme subset synchronization 2               s'
+      pronam(it)='Prof: CAFE Initialization                        s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: forward fft                                s'
+      pronam(it)='Prof: QMD Forces Evaluation                      s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: i/o                                        s'
+      pronam(it)='Prof: Synchronization                            s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: local coordinate retrieval                 s'
+      pronam(it)='Prof: SPACE Initialization                       s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: local force calculation                    s'
+      pronam(it)='Prof: Synchronization                            s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: local force accumulation                   s'
+      pronam(it)='Prof: Replicated Data Forces Evaluation          s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: remote coordinate retrieval                s'
+      pronam(it)='Prof: Induced Dipoles Evaluation                 s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: remote force calculation                   s'
+      pronam(it)='Prof: PME Initialization                         s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: remote force accumulation                  s'
+      pronam(it)='Prof: PME Charge Grid Evaluation                 s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme wait                                   s'
+      pronam(it)='Prof: PME Charge Grid Communication              s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme forces calculation                     s'
+      pronam(it)='Prof: PME Charge Grid Retrieval                  s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: pme forces communication                   s'
+      pronam(it)='Prof: PME Reverse 3D-pFFT                        s'
       lp(it)=.true.
       it=it+1
-      pronam(it)='Prof: synchronization                            s'
+      pronam(it)='Prof: PME Energy Evaluation                      s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Synchronization                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Forward 3D-pFFT                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Synchronization                        s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Local Coordinates Retrieval                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Local Forces Evaluation                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Local Force Accumulation                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Non-Local Coordinates Retrieval            s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Non-Local Forces Evaluation                s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Non-Local Force Accumulation               s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Wait                                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Forces Evaluation                      s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: PME Forces Communication                   s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Synchronization                            s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: SPACE Finalization                         s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: QM/MM Forces Evaluation                    s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Forces Normalization                       s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Guided MD Forces                           s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: MD Time Step                               s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: SHAKE                                      s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: CAFE Finalization                          s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: Center of Mass Motion Removal              s'
+      lp(it)=.true.
+      it=it+1
+      pronam(it)='Prof: SPACE Update                               s'
       lp(it)=.true.
       endif
 c

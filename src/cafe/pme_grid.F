@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,nsaloc,epme)
-c $Id: pme_grid.F,v 1.21 2001-02-12 21:52:39 d3j191 Exp $
+c $Id: pme_grid.F,v 1.22 2002-01-28 21:17:35 d3j191 Exp $
       implicit none
 c
 #include "pme_common.fh"
@@ -9,7 +9,7 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
 c
-      call timer_start(11)
+      call timer_start(23)
 c
       call pme_init()
 c
@@ -17,39 +17,42 @@ c
       call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
       endif
+      call timer_stop(23)
 c
       call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
       epme=ecorr(ipset)
-      call timer_stop(12)
 c
       if(lpnode) then
 c
-      call timer_start(13)
+      call timer_start(27)
 c
       call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
-      call timer_stop(13)
-      call timer_start(14)
+      call timer_stop(27)
+      call timer_start(28)
 c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + dbl_mb(i_bmod),dbl_mb(i_grd1),mgz,epme)
 c
       epme=epme+ecorr(ipset)
 c
-      call timer_stop(14)
-      call timer_start(15)
+      call timer_stop(28)
+      call timer_start(29)
 c
       call pme_sync(nodpme,int_mb(i_nodp))
 c
-      call timer_stop(15)
-      call timer_start(16)
+      call timer_stop(29)
+      call timer_start(30)
 c
       call pme_fft(ngx,ngy,ngz,1,dbl_mb(i_grd1),dbl_mb(i_grd2),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
+c
+      call timer_stop(30)
+      call timer_start(31)
 c
       call pme_putgrd(dbl_mb(i_grd2))
 c
@@ -62,11 +65,13 @@ c     grid calculation has completed
 c
       if(me.eq.int_mb(i_nodp)) call pme_flag(0,1,-1)
 c
-      call timer_stop(16)
-c
+      call timer_stop(31)
       endif
 c
+      call timer_start(31)
       if(icntrl.eq.1) call ga_sync()
+c
+      call timer_stop(31)
 c
       return
       end
@@ -81,38 +86,37 @@ c
       real*8 xw(mwm,3,mwa),xs(msa,3),epme
       integer isq(msa)
 c
-      call timer_start(11)
-c
+      call timer_start(23)
       call pme_init()
 c
       if(.not.lcorr(ipset)) then
       call cf_pmecor(ipset,xw,nwmloc,xs,isq,nsaloc,ecorr(ipset))
       lcorr(ipset)=.true.
       endif
+      call timer_stop(23)
 c
       call pme_grid(ipset,xw,nwmloc,xs,isq,nsaloc,
      + int_mb(i_nodp),int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + int_mb(i_lnod),log_mb(i_lsld),dbl_mb(i_grd1),dbl_mb(i_grd2))
 c
       epme=ecorr(ipset)
-      call timer_stop(12)
 c
       if(.not.lpnode) return
 c
-      call timer_start(13)
+      call timer_start(27)
 c
       call pme_fft(ngx,ngy,ngz,-2,dbl_mb(i_grd2),dbl_mb(i_grd1),
      + int_mb(i_map1),int_mb(i_map2),int_mb(i_knod),imfft)
 c
-      call timer_stop(13)
-      call timer_start(14)
+      call timer_stop(27)
+      call timer_start(28)
 c
       call cf_epme(int_mb(i_knod),int_mb(i_kfr),int_mb(i_kto),
      + dbl_mb(i_bmod),dbl_mb(i_grd1),mgz,epme)
 c
       epme=epme+ecorr(ipset)
 c
-      call timer_stop(14)
+      call timer_stop(28)
 c
       return
       end
@@ -137,6 +141,8 @@ c
       integer ilsl,ihsl,jlsl,jhsl
       logical lset,lgrid
 c
+      call timer_start(24)
+c
       lset=.true.
 c
 c     loop over all nodes
@@ -160,8 +166,9 @@ c
       if(lgrid) then
       lnode(node+1)=1
 c
-      call timer_stop(11)
-      call timer_start(27)
+      call timer_stop(24)
+      call timer_start(25)
+c
       do 21 k=1,ngznon
       if(lsldo(node+1,k)) then
       call ga_distribution(lslab(k),node,ilsl,ihsl,jlsl,jhsl)
@@ -169,8 +176,8 @@ c
      + jlsl+maxy-1,gridr(minx,miny,k),mgx,one)
       endif
    21 continue
-      call timer_stop(27)
-      call timer_start(11)
+      call timer_stop(25)
+      call timer_start(24)
 c
       endif
 c
@@ -178,15 +185,14 @@ c
 c
 c     pmenodes should wait until all nodes have finished contributions to the grid
 c
-      call timer_stop(11)
-      call timer_start(12)
+      call timer_stop(24)
+      call timer_start(26)
 c
 c     the following pme_flag/pme_wait/pme_flag combination may be
 c     replaced by a ga_sync() at loss of performance
 c
       call pme_flag(1,-1,-1)
       if(lpnode) call pme_wait(1,np)
-cx      call ga_sync()
 c
 c     retrieve local slab from global array space
 c
@@ -203,6 +209,7 @@ c
    24 continue
    23 continue
       endif
+      call timer_stop(26)
 c
       return
       end
@@ -277,10 +284,10 @@ c
 c
 c     wait until potential grid is available
 c
-      call timer_start(24)
+      call timer_start(38)
       call pme_wait(0,1)
-      call timer_stop(24)
-      call timer_start(25)
+      call timer_stop(38)
+      call timer_start(39)
 c
       do 1 inode=1,np
       node=me+inode
@@ -297,18 +304,18 @@ c
       if(kto(node+1).gt.0) ngznon=kto(node+1)-kfrom(node+1)+1
       if(ngznon.eq.0) goto 1
 c
-      call timer_stop(25)
-      call timer_start(28)
+      call timer_stop(39)
+      call timer_start(40)
       call pme_getgrd(node,ngznon,dbl_mb(i_grd1))
-      call timer_stop(28)
-      call timer_start(25)
+      call timer_stop(40)
+      call timer_start(39)
 c
       call cf_fpme(fw,nwmloc,fs,isq,nsaloc,dbl_mb(i_grd1),mgz,
      + int_mb(i_knod),int_mb(i_kfr),log_mb(i_lsld),node)
 c
     1 continue
 c
-      call timer_stop(25)
+      call timer_stop(39)
 c
       return
       end
@@ -397,27 +404,10 @@ c
       integer iflag,icolor
       integer il,ih,jl,jh,icolr
 c
-c      real*8 ftimes(200)
-c
-c     wait until flag color on this node is icolor
-c
-c      do 2 il=1,np
-c      ftimes(il)=0.0d0
-c    2 continue
-c
-c      call timer_start(30)
       call ga_distribution(ga_flg,me,il,ih,jl,jh)
     1 continue
       call ga_get(ga_flg,il,ih,jl+iflag,jl+iflag,icolr,1)
       if(icolr.ne.icolor) goto 1
-c      call timer_stop(30)
-c      ftimes(me+1)=timer_wall(30)
-c      call ga_dgop(mrg_d45,ftimes,np,'+')
-c
-c      if(me.eq.0) then
-c      write(*,1000) iflag,(ftimes(il),il=1,np)
-c 1000 format('flag',i5,/,(t10,8f12.6))
-c      endif
 c
       return
       end
