@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.117 2000-07-24 17:46:57 d3j191 Exp $
+# $Id: GNUmakefile,v 1.118 2000-07-25 17:03:57 d3j191 Exp $
 
 include ../config/makefile.h
 
@@ -149,6 +149,10 @@ ifdef SPEECH
    LIB_DEFINES += -DSPEECH
    LIB_TARGETS += speechserver speechclient
    OBJ += udp.o
+endif
+
+ifeq ($(TARGET),LINUX)
+DEFINES += -DNEED_LOC
 endif
 
 ifeq ($(TARGET),SGI)
