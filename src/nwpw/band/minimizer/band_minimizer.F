@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.33 2004-11-14 23:31:50 bylaska Exp $
+* $Id: band_minimizer.F,v 1.34 2004-11-29 16:05:17 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -18,6 +18,7 @@
 
 #include "global.fh"
 #include "mafdecls.fh"
+#include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -72,8 +73,8 @@
       external control_tole,control_tolc,control_tolr,ion_rion
       real*8   control_time_step,control_fake_mass
       external control_time_step,control_fake_mass
-      logical  control_read,control_move,ion_init
-      external control_read,control_move,ion_init
+      logical  control_read,control_move,ion_init,ion_q_FixIon
+      external control_read,control_move,ion_init,ion_q_FixIon
 
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
@@ -105,6 +106,8 @@
       external c_cgsd_energy,c_cgsd_noit_energy
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
+      integer  cpsp_nprj,cpsp_psp_type
+      external cpsp_nprj,cpsp_psp_type
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       character*2 cpsp_atom
@@ -119,6 +122,10 @@
       external control_scf_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
+
+      character*255 cpsp_comment,comment
+      external      cpsp_comment
+
     
 
 
@@ -249,6 +256,11 @@
 *     **** electron and geodesic data structures ****
       call c_electron_init()
       call c_geodesic_init()
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
+*     **** initialize linesearching ****
       call linesearch_init()
 
 
@@ -280,9 +292,13 @@
          do ia = 1,cpsp_npsp()
            write(luout,1150) ia,cpsp_atom(ia),
      >                    cpsp_zv(ia),cpsp_lmax(ia)
+           comment = cpsp_comment(ia)
+           i = inp_strlen(comment)
+           write(6,1157) comment(1:i)
+           write(6,1158) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
            write(luout,1153) cpsp_locp(ia)
-           write(luout,1154) cpsp_lmmax(ia)
+           write(luout,1154) cpsp_nprj(ia)
            if (cpsp_semicore(ia))
      >         write(luout,1155) cpsp_rcore(ia),cpsp_ncore(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
@@ -295,10 +311,15 @@
 
 
          write(luout,1180)
-         write(luout,1190) (I,ion_aname(I),
-     >                  (ion_rion(K,I),K=1,3),
-     >                  ion_amass(I)/1822.89d0,
-     >                 I=1,ion_nion())
+         do I=1,ion_nion()
+           if (ion_q_FixIon(I)) then
+           write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           else
+           write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           end if
+         end do
          write(luout,1200) cx,cy,cz
          write(luout,1210) gx,gy,gz
          write(luout,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
@@ -409,38 +430,37 @@
 
 *     **** calculate the stress tensor ****
       call dcopy(9,0.0d0,0,stress,1)
+      if (flag.eq.3) then
+         !call psp_stress_init()
+         !call psp_stress_readall()
+         call c_cgsd_energy_stress(stress)
+         !call psp_stress_end()
+      end if
 
 
 *     *************************************************************
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
-      value = rtdb_put(rtdb,'band:energy',mt_dbl,1,EV)
       if (flag.gt.-1) then
+      value = rtdb_put(rtdb,'band:energy',mt_dbl,1,EV)
       value = value.and.
      >        rtdb_put(rtdb,'band:dipole',mt_dbl,
      >                 3,dipole)
       end if
-      if (.not. value) 
-     > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
-
-
       if (flag.gt.0) then
-      value = rtdb_put(rtdb,'band:gradient',mt_dbl,
-     >                 3*nion,dbl_mb(fion(1)))
-      if (.not. value) 
-     > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
-      value = MA_pop_stack(fion(2))
-      if (.not. value) call errquit('erroring popping stack memory',0,
-     &       MA_ERR)
+        value = value.and.rtdb_put(rtdb,'band:gradient',mt_dbl,
+     >                             3*nion,dbl_mb(fion(1)))
+        value = value.and.MA_pop_stack(fion(2))
       end if
-
-      if (flag.gt.1) then
-      value = rtdb_put(rtdb,'band:stress',mt_dbl,
+      if (flag.eq.3) then
+        value = value.and.
+     >        rtdb_put(rtdb,'band:stress',mt_dbl,
      >                 9,stress)
+      end if
       if (.not. value) 
      > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
-      end if
+     
 
 
       if (taskid.eq.MASTER) call current_second(cpu3)
@@ -456,7 +476,12 @@
       call ion_write(rtdb)
 
 *     **** write wavefunctions to file and finalize psi ****
-      value=cpsi_finalize()
+      if (flag.eq.-1) then
+        value = cpsi_finalize(.false.)
+      else
+        value = cpsi_finalize(.true.)
+      end if
+
 
 *     **** deallocate heap memory ****
       call c_electron_finalize()
@@ -470,6 +495,7 @@
       call c_G_end()
       call brillioun_end()
       call ion_end()
+      call ion_end_FixIon()
       call C3dB_end(1)
       IF (control_gga().eq.1) THEN
       call mask_end()
@@ -580,11 +606,16 @@
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
+ 1157 FORMAT(12X,' comment    : ',A)
+ 1158 FORMAT(12X,' pseudpotential type            : ',i3)
+
  1159 FORMAT(/' total charge:',I2)
  1160 FORMAT(/' atomic composition:')
  1170 FORMAT(7(5X,A2,':',I3))
  1180 FORMAT(/' initial position of ions:')
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
+ 1191 FORMAT(5X, I4, A3, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)

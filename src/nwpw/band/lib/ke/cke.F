@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.6 2004-11-13 02:22:05 bylaska Exp $
+* $Id: cke.F,v 1.7 2004-11-29 16:05:17 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -130,9 +130,6 @@ c     real*8 G(nfft3d,3)
       end
 
 
-
-
-
       subroutine cke_ave(ispin,ne,psi1,ave)
       implicit none
 #include "errquit.fh"
@@ -191,3 +188,145 @@ c     real*8 G(nfft3d,3)
       value = MA_pop_stack(tmp1(2))
       return 
       end 
+
+
+
+      subroutine cke_euv(ispin,ne,psi,euv)
+      implicit none 
+      integer ispin,ne(2)
+      complex*16 psi(*)
+      real*8 euv(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer npack1,nfft3d,nbrillioun,G(2,3)
+      integer nb,i,j,ms,n,n1(2),n2(2),indx
+      integer u,v,s
+      logical value
+
+      real*8 pi,scal,sum,kx,ky,kz
+      real*8 hm(3,3),Aus(3,3)
+      integer tmp1(2),tmp2(2)
+
+*     **** external functions ****
+      integer  c_G_indx, brillioun_nbrillioun
+      real*8   brillioun_k,brillioun_weight
+      external c_G_indx, brillioun_nbrillioun
+      external brillioun_k,brillioun_weight
+
+      real*8   lattice_unitg,lattice_omega,lattice_unita
+      external lattice_unitg,lattice_omega,lattice_unita
+
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1) + 1
+      n2(2) = ne(1) + ne(2)
+
+      pi   = 4.0d0*datan(1.0d0)
+      scal = 1.0d0/(2.0d0*pi)
+
+*     *** define hm ****
+      do j=1,3
+      do i=1,3
+         hm(i,j) = scal*lattice_unitg(i,j)
+      end do
+      end do      
+
+
+
+      nbrillioun = brillioun_nbrillioun()
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
+
+      
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                     'G1',G(2,1),G(1,1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                     'G2',G(2,2),G(1,2))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                     'G3',G(2,3),G(1,3))
+      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+
+      value = MA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      value = MA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+    
+
+*     **** calculate Aus = Sum(k)Sum(n)Sum(G) psi(G+k,n)**2 (G(u)+k(u))(G(s)+k(s)) ****
+      call dcopy(9,0.0d0,0,Aus,1)    
+      do nb=1,nbrillioun
+        kx = brillioun_k(1,nb)
+        ky = brillioun_k(2,nb)
+        kz = brillioun_k(3,nb)
+        call dcopy(nfft3d,dbl_mb(c_G_indx(1)),1,dbl_mb(G(1,1)),1)
+        call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)
+        call dcopy(nfft3d,dbl_mb(c_G_indx(3)),1,dbl_mb(G(1,3)),1)
+        do i = 1,nfft3d
+          dbl_mb(G(1,1)) =  dbl_mb(G(1,1)+i-1)+kx
+          dbl_mb(G(1,2)) =  dbl_mb(G(1,2)+i-1)+ky
+          dbl_mb(G(1,2)) =  dbl_mb(G(1,3)+i-1)+kz
+        end do
+        call Cram_r_pack(nb,dbl_mb(G(1,1)))
+        call Cram_r_pack(nb,dbl_mb(G(1,2)))
+        call Cram_r_pack(nb,dbl_mb(G(1,3)))
+
+        do u=1,3
+        do s=u,3
+          call Cram_rr_Mul(nb,dbl_mb(G(1,u)),
+     >                        dbl_mb(G(1,s)),
+     >                        dbl_mb(tmp1(1)))
+          do ms=1,ispin
+          do n=n1(ms),n2(ms)    
+            indx = 1 + (n-1)*npack1 + (nb-1)*npack1*(ne(1)+ne(2))
+            call Cram_rc_Mul(nb,dbl_mb(tmp1(1)),
+     >                       psi(indx),
+     >                       dcpl_mb(tmp2(1)))
+            call Cram_cc_dot(nb,psi(indx),
+     >                       dcpl_mb(tmp2(1)),
+     >                       sum)
+           
+             Aus(u,s) = Aus(u,s) + sum*brillioun_weight(nb)
+          end do
+          end do
+        end do
+        end do
+      end do
+
+      do u=1,3
+      do s=u+1,3
+         Aus(s,u) = Aus(u,s)
+      end do
+      end do
+      if (ispin.eq.1) call dscal(9,2.0d0,Aus,1)
+
+*     *** calculate euv = -Sum(s) hm(s,v)*Aus(u,s)
+      call dcopy(9,0.0d0,0,euv,1)
+      do v=1,3
+      do u=1,3
+         do s=1,3
+            euv(u,v) = euv(u,v) - Aus(u,s)*hm(s,v) 
+         end do
+      end do
+      end do
+
+      value = MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(G(2,3)) 
+      value = value.and.MA_pop_stack(G(2,2)) 
+      value = value.and.MA_pop_stack(G(2,1))
+      if (.not. value) call errquit('error poping stack memory',0,
+     &       MA_ERR)
+      return
+      end
+
+
+
+

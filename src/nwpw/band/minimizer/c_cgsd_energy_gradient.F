@@ -1,5 +1,5 @@
 c
-c     $Id: c_cgsd_energy_gradient.F,v 1.3 2004-02-01 01:10:03 bylaska Exp $         c
+c     $Id: c_cgsd_energy_gradient.F,v 1.4 2004-11-29 16:05:17 bylaska Exp $         c
 
 *     *******************************
 *     *				    *
@@ -23,12 +23,12 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.3 2004-02-01 01:10:03 bylaska Exp $     
 
 *     **** external functions ****
       logical     cpsp_semicore
-      logical     control_allow_translation
+      logical     control_allow_translation,ion_q_FixIon
       character*2 ion_aname
       integer     ion_katm,ion_nion,control_version
       real*8      ion_rion
       external cpsp_semicore
-      external control_allow_translation
+      external control_allow_translation,ion_q_FixIon
       external ion_aname,pspw_qmmm_aname
       external ion_katm,ion_nion,control_version
       external ion_rion
@@ -43,6 +43,9 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.3 2004-02-01 01:10:03 bylaska Exp $     
       if (cpsp_semicore(0)) call c_electron_semicoreforce(G1)
 
       call c_ewald_f(G1)
+
+*     **** remove ion forces using ion_FixIon ****
+      call ion_FixIon(G1)
 
 
       if (.not.allow_translation) then
@@ -70,8 +73,13 @@ c     $Id: c_cgsd_energy_gradient.F,v 1.3 2004-02-01 01:10:03 bylaska Exp $     
         write(luout,1304)
         write(luout,1410)
         write(luout,1420)
-        write(luout,1190)(i,ion_aname(I),
-     >                  (ion_rion(K,I),K=1,3),I=1,ion_nion())
+        do I=1,ion_nion()
+          if (ion_q_FixIon(I)) then
+           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3)
+          else
+           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3)
+          end if
+        end do
         write(luout,1421)
         write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
@@ -85,6 +93,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
       return
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' )')
+ 1191 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - fixed')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1300 FORMAT(//'========================')
  1301 FORMAT(  '= Gradient calculation =')

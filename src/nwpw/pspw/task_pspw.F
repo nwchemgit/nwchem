@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.10 2004-06-16 18:01:09 bylaska Exp $
+* $Id: task_pspw.F,v 1.11 2004-11-29 16:05:20 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -41,12 +41,12 @@ c
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
-      logical  pspw_dplot,pspw_stress_numerical,pspw_noit_energy
+      logical  pspw_dplot,pspw_stress,pspw_noit_energy
       logical  pspw_wannier,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
-      external pspw_dplot,pspw_stress_numerical,pspw_noit_energy
+      external pspw_dplot,pspw_stress,pspw_noit_energy
       external pspw_wannier,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted
 c
@@ -217,7 +217,7 @@ c
       end if
       value = .true.
       value = rtdb_parallel(.true.)
-      value = pspw_stress_numerical(rtdb)
+      value = pspw_stress(rtdb)
       call ga_sync()
       goto 9999
 

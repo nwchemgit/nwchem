@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.5 2004-05-05 19:33:49 bylaska Exp $
+* $Id: c_ewald.F,v 1.6 2004-11-29 16:05:16 bylaska Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -543,3 +543,317 @@ c          erfc = 1.0d0/erfc**4
       return
       end
 
+
+*     ***********************************
+*     *					*
+*     *		c_ewald_stress		*
+*     *	        			*
+*     ***********************************
+
+      subroutine c_ewald_stress(stress)
+      implicit none
+      real*8  stress(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      integer N
+      parameter (N=40)
+
+*     **** common block for c_ewald.f ****
+      integer    ncut
+      real*8     rcut,cewald,alpha
+      integer    vg(2),rcell(2)
+      common / c_ewald_block / vg,rcell,cewald,alpha,rcut,ncut
+
+
+*     **** common block used for coulomb.f ****
+      integer vc_indx,vc_hndl
+      common / c_vc_block / vc_indx,vc_hndl
+
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+c     real*8 cerfc,b1,b2,b3,b4,b5,b6
+c     parameter (b1=0.0705230784d0,b2=0.0422820123d0,b3=0.0092705272d0)
+c     parameter (b4=0.0001520143d0,b5=0.0002765672d0,b6=0.0000430638d0)
+
+*     **** local variables ****
+      logical value
+      integer npack0,nfft3d
+      integer i,ii,j,l
+      integer n1,n2,n3
+      integer u,v,s
+      real*8 pi,fourpi,scal
+      real*8 zz,z
+      real*8 Cus(3,3),hm(3,3),energy,sum,ss,rs
+      real*8 ea,ax,ay,az,epsilon
+      real*8 dx,dy,dz,w
+      real*8 unita(3,3),unitg(3,3)
+
+      integer G(2,3),H(2),F(2),tmp1(2),tmp2(2),exi(2),strf(2)
+      integer nshl3d
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion,c_G_indx,c_ewald_nshl3d
+      real*8   cpsp_zv,lattice_unitg,lattice_unita,lattice_omega
+      real*8   util_erfc,ion_rion
+      external ion_katm,ion_nion,c_G_indx,c_ewald_nshl3d
+      external cpsp_zv,lattice_unitg,lattice_unita,lattice_omega
+      external util_erfc,ion_rion
+
+      pi     = 4.0d0*datan(1.0d0)
+      fourpi = 4.0d0*pi
+      scal   = 1.0d0/(2.0d0*pi)
+
+*     *** define hm,unita,unitg ****
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+         unitg(u,v) = lattice_unitg(u,v)
+         unita(u,v) = lattice_unita(u,v)
+      end do
+      end do
+
+
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_npack(0,npack0)
+
+
+      zz = 0.0d0
+      z  = 0.0d0
+      do i=1,ion_nion()
+         zz = zz + cpsp_zv(ion_katm(i))**2
+         z  = z  + cpsp_zv(ion_katm(i))
+      end do
+
+*     **** Miscellaneous contributions - stress from cewald term ****
+      do v=1,3
+      do u=1,3
+         stress(u,v) = 0.5d0*z*z*pi*rcut*rcut/lattice_omega()
+     >               *hm(u,v)
+      end do
+      end do
+
+
+*     **** G-space contributions ****
+
+*     **** get the structure factor ****
+      value =           MA_push_get(mt_dbl,npack0,'H',H(2),H(1))
+      value = value.and.MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
+      value = value.and.
+     >      MA_push_get(mt_dcpl,npack0,'strf',strf(2),strf(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      call dcopy((2*npack0),0.0d0,0,dcpl_mb(strf(1)),1)
+      do ii=1,ion_nion()
+         call cstrfac(ii,dcpl_mb(exi(1)))
+         call Cram_c_pack(0,dcpl_mb(exi(1)))
+         call Cram_cc_daxpy(0,cpsp_zv(ion_katm(ii)),dcpl_mb(exi(1)),
+     >                                           dcpl_mb(strf(1)))
+      end do
+      call Cram_cr_Sqr(0,dcpl_mb(strf(1)),dbl_mb(H(1)))
+      value = MA_pop_stack(strf(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
+
+*     **** calculate the ewald energy ****
+      value = MA_push_get(mt_dbl,nfft3d,'F',F(2),F(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(nfft3d,dbl_mb(vg(1)),    1,dbl_mb(F(1)),  1)
+      call Cram_r_Pack(0,dbl_mb(F(1)))
+
+      call Cram_rr_dot(0,dbl_mb(F(1)),dbl_mb(H(1)),energy)
+      energy = -0.5d0*energy/lattice_omega()
+
+
+      do v=1,3
+      do u=1,3
+         stress(u,v) = stress(u,v) + energy*hm(u,v)
+      end do
+      end do
+     
+*     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
+      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      call Cram_rr_Mul(0,dbl_mb(F(1)),
+     >                   dbl_mb(H(1)),
+     >                   dbl_mb(tmp1(1)))
+      ss = 0.25d0*rcut*rcut
+      call Cram_r_SMul(0,ss,dbl_mb(tmp1(1)),
+     >                      dbl_mb(tmp2(1)))
+      ss = 1.0d0/fourpi
+      call Cram_r_SMul(0,ss,dbl_mb(tmp1(1)),
+     >                      dbl_mb(tmp1(1)))
+      call Cram_rr_Mul(0,dbl_mb(tmp1(1)),
+     >                   dbl_mb(vc_indx),
+     >                   dbl_mb(tmp1(1)))
+      call Cram_rr_Sum(0,dbl_mb(tmp1(1)),
+     >                   dbl_mb(tmp2(1)),
+     >                   dbl_mb(tmp2(1)))
+
+
+*     **** calculate Cus ****
+      value =           MA_push_get(mt_dbl,nfft3d,
+     >                     'G1',G(2,1),G(1,1))
+      value = value.and.MA_push_get(mt_dbl,nfft3d,
+     >                     'G2',G(2,2),G(1,2))
+      value = value.and.MA_push_get(mt_dbl,nfft3d,
+     >                     'G3',G(2,3),G(1,3))
+      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+      call dcopy(nfft3d,dbl_mb(c_G_indx(1)),1,dbl_mb(G(1,1)),1)
+      call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)
+      call dcopy(nfft3d,dbl_mb(c_G_indx(3)),1,dbl_mb(G(1,3)),1)
+      call Cram_r_pack(0,dbl_mb(G(1,1)))
+      call Cram_r_pack(0,dbl_mb(G(1,2)))
+      call Cram_r_pack(0,dbl_mb(G(1,3)))
+
+      call dcopy(9,0.0d0,0,Cus,1)
+c     ss = -1.0d0/lattice_omega()
+      ss =  1.0d0/lattice_omega()
+      do u=1,3
+      do s=u,3
+         call Cram_rr_Mul(0,dbl_mb(G(1,u)),
+     >                      dbl_mb(G(1,s)),
+     >                      dbl_mb(tmp1(1)))
+         call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),sum)
+         Cus(u,s) = ss*sum
+      end do
+      end do
+      do u=1,3
+      do s=u+1,3
+         Cus(s,u) = Cus(u,s)
+      end do
+      end do
+      do v=1,3
+      do u=1,3
+        do s=1,3
+           stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+        end do
+      end do
+      end do
+
+      value =           MA_pop_stack(G(2,3))
+      value = value.and.MA_pop_stack(G(2,2))
+      value = value.and.MA_pop_stack(G(2,1))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(F(2))
+      value = value.and.MA_Pop_stack(H(2))
+      if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
+
+
+*     **** R-space contributions ****
+
+
+*     **** calculate alpha1 - stress from cewald term*****
+        call dcopy(9,0.0d0,0,Cus,1)
+        rs      = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
+        epsilon = 1.0d0/rcut
+        sum = 0.0d0
+        do n1=(-N+1),(N-1) 
+        do n2=(-N+1),(N-1) 
+        do n3=(-N+1),(N-1) 
+           if (.not.((n1.eq.0).and.(n2.eq.0).and.(n3.eq.0))) then
+              ax = n1*unita(1,1)
+     >           + n2*unita(1,2)
+     >           + n3*unita(1,3)
+
+              ay = n1*unita(2,1)
+     >           + n2*unita(2,2)
+     >           + n3*unita(2,3)
+
+              az = n1*unita(3,1)
+     >           + n2*unita(3,2)
+     >           + n3*unita(3,3)
+
+              ea = dsqrt(ax*ax + ay*ay + az*az)
+              w = ea*epsilon
+
+              ss = util_erfc(w)/ea 
+     >           + 2.0d0*epsilon/dsqrt(pi)*dexp(-w*w)
+              ss = -(0.5d0*zz)*ss/(ea*ea)
+              Cus(1,1) = Cus(1,1) + ss * ax*ax 
+              Cus(1,2) = Cus(1,2) + ss * ax*ay 
+              Cus(1,3) = Cus(1,3) + ss * ax*az 
+
+              Cus(2,1) = Cus(2,1) + ss * ay*ax 
+              Cus(2,2) = Cus(2,2) + ss * ay*ay 
+              Cus(2,3) = Cus(2,3) + ss * ay*az 
+
+              Cus(3,1) = Cus(3,1) + ss * az*ax 
+              Cus(3,2) = Cus(3,2) + ss * az*ay 
+              Cus(3,3) = Cus(3,3) + ss * az*az 
+
+           end if
+        end do
+        end do
+        end do
+
+c       do u=1,3
+c       do s=u+1,3
+c          Cus(s,u) = Cus(u,s)
+c       end do
+c       end do
+
+        do v=1,3
+        do u=1,3
+          do s=1,3
+             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+          end do
+        end do
+        end do
+
+*     *** need to make parallel ****
+*     **** calculate erfc contribution *****
+      nshl3d = c_ewald_nshl3d()
+      call dcopy(9,0.0d0,0,Cus,1)
+      epsilon = 1.0d0/rcut
+      do i=1,ion_nion()-1
+      do j=i+1,ion_nion()
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = cpsp_zv(ion_katm(i)) * cpsp_zv(ion_katm(j))
+        do l=1,nshl3d
+           ax = dbl_mb(rcell(1)+(l-1))          + dx
+           ay = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
+           az = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           ea = dsqrt(ax*ax+ay*ay+az*az)
+           w = ea*epsilon
+
+           ss = -util_erfc(w)/ea
+     >        - 2.0d0*epsilon/dsqrt(pi)*exp(-w*w)
+           ss = ss/(ea*ea)
+           Cus(1,1) = Cus(1,1) + ss * ax*ax * zz
+           Cus(1,2) = Cus(1,2) + ss * ax*ay * zz
+           Cus(1,3) = Cus(1,3) + ss * ax*az * zz
+           Cus(2,2) = Cus(2,2) + ss * ay*ay * zz
+           Cus(2,3) = Cus(2,3) + ss * ay*az * zz
+           Cus(3,3) = Cus(3,3) + ss * az*az * zz
+
+        end do
+      end do
+      end do
+        do u=1,3
+        do s=u+1,3
+           Cus(s,u) = Cus(u,s)
+        end do
+        end do
+
+        do v=1,3
+        do u=1,3
+          do s=1,3
+             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+          end do
+        end do
+        end do
+
+      return
+      end

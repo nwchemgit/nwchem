@@ -356,6 +356,7 @@ c        ********************************************
      >          + t_ndn           * Hpbe_t
 
 
+
          ec = ec_lda + Hpbe
 c        fncup  = ec + n*(ec_lda_nup + Hpbe_nup)
 c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
@@ -370,6 +371,7 @@ c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
          fdn(i,2) = x_parameter*fdnxdn 
 c        fdn(i,3) = n*t_agr*Hpbe_t
          fdn(i,3) =  c_parameter*t_agr*Hpbe_t
+
       end do
       
       

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.60 2004-11-14 23:31:51 bylaska Exp $
+* $Id: control.F,v 1.61 2004-11-29 16:05:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -297,9 +297,8 @@ c     end do
       value = value .and. rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
 
 
-*     **** cgsd: stuff ****
-
-      else if (code.eq.3) then
+*     **** cgsd: stuff or  paw: stuff ****
+      else if ((code.eq.3).or.(code.eq.8)) then
       if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
@@ -716,8 +715,6 @@ c
 
 
 
-*     **** paw: stuff ****
-      else if (code.eq.8) then
 
 
 *     **** pspw_wannier ****

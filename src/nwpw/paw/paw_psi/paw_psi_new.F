@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi_new.F,v 1.3 2004-02-23 16:55:12 bylaska Exp $
+* $Id: paw_psi_new.F,v 1.4 2004-11-29 16:05:20 bylaska Exp $
 *
 
 *     ***********************************
@@ -37,10 +37,10 @@
       external control_ngrid,control_ispin
       integer  control_multiplicity
       external control_multiplicity
-      real*8   control_totalcharge
-      external control_totalcharge
-      real*8   ion_totalcharge
-      external ion_totalcharge
+      real*8   control_TotalCharge
+      external control_TotalCharge
+      real*8   ion_TotalCharge
+      external ion_TotalCharge
       logical  lcao_wvfnc
       external lcao_wvfnc
       integer  control_rtdb,control_version
@@ -63,8 +63,8 @@
 
       ispin   = control_ispin()
       mult    = control_multiplicity()
-      tcharge = control_totalcharge()
-      icharge = ion_totalcharge()
+      tcharge = control_TotalCharge()
+      icharge = ion_TotalCharge()
       t = icharge - tcharge       !** total number of electrons **
       x = NINT(t)
       xx = x
@@ -104,7 +104,6 @@
          ne(2) = (xx-x)/2
       end if
 
-      
       call wvfnc_new(filename,
      >               version,
      >               ngrid,

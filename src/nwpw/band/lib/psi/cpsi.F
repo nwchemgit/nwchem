@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.17 2004-11-14 23:31:50 bylaska Exp $
+* $Id: cpsi.F,v 1.18 2004-11-29 16:05:17 bylaska Exp $
 *
 
 
@@ -717,6 +717,38 @@ c      end if
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         cpsi_1ke_stress         *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1ke_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      call cke_euv(ispin,ne,dcpl_mb(psi1(1)),stress)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_1coulomb_stress     *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1coulomb_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_coulomb_euv(dcpl_mb(dng1(1)),stress)
+      return
+      end
+
 
 
 
@@ -1182,7 +1214,8 @@ c      end
 
 *     **** Ortho Check ****
       if (ortho) then
-      call Stfl_g_OrthoCheckMake(ispin,ne,npack1,neall,nbrillioun,
+      call Stfl_g_OrthoCheckMake(.true.,
+     >                        ispin,ne,npack1,neall,nbrillioun,
      >                        dcpl_mb(psi1(1)))
       end if
 
@@ -1198,8 +1231,9 @@ c      end
 *     *				*
 *     ***************************
 
-      logical function cpsi_finalize()
+      logical function cpsi_finalize(wpsi)
       implicit none 
+      logical wpsi
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -1210,7 +1244,9 @@ c      end
       logical value
 
 *     ***** write psi1 wavefunctions ****
-      call cpsi_write(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
+      if (wpsi) then
+        call cpsi_write(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
+      end if
     
       value = MA_free_heap(eig(2))
       value = value.and.MA_free_heap(hml(2))

@@ -1,12 +1,12 @@
-      logical function cell_optimize(rtdb)
+      logical function paw_cell_optimize(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"
+#include "errquit.fh"
 
 *     **** local variables ***
       integer taskid,MASTER
@@ -21,10 +21,8 @@
       integer i
 
 *     **** external functions ****
-      logical  psp_stress_formatter
-      logical  pspw_stress,psp_formatter,wvfnc_reformat,update_unitcell
-      external psp_stress_formatter
-      external pspw_stress,psp_formatter,wvfnc_reformat,update_unitcell
+      logical  paw_stress,paw_update_unitcell
+      external paw_stress,paw_update_unitcell
 
       taskid = ga_nodeid()
 
@@ -56,7 +54,7 @@
       if (taskid.eq.MASTER) then
         write(*,*) '  ******************************************** '
         write(*,*) '  *                                          * '
-        write(*,*) '  *    PSPW Cell Optimize - version 0.1      * '
+        write(*,*) '  *     PAW Cell Optimize - version 0.1      * '
         write(*,*) '  *                                          * '
         write(*,*) '  *      version last updated 5/23/01        * '
         write(*,*) '  *                                          * '
@@ -84,29 +82,19 @@
       do i=1,cycles
 
 *         **** calculate stress tensor ***
-          value = pspw_stress(rtdb)
+          value = paw_stress(rtdb)
           if(.not. value) 
-     >      call errquit('pspw_stress did not converge: error',0,
+     >      call errquit('paw_stress did not converge: error',0,
      &       CALC_ERR)
 
 
 *         **** reformat/adjust unit cell ****
           value2 = rtdb_parallel(.false.)
-          if (taskid.eq.MASTER) value = update_unitcell(rtdb)
+          if (taskid.eq.MASTER) value = paw_update_unitcell(rtdb)
           value2 = rtdb_parallel(.true.)
           if(.not.value) call errquit(
      >       'cell_optimize: error reformatting unit cell',0,
      &       CALC_ERR)
-
-
-
-c*         **** reformat wavefunctions ****
-c          value2 = rtdb_parallel(.false.)
-c          if (taskid.eq.MASTER) value = wvfnc_reformat(rtdb)
-c          value2 = rtdb_parallel(.true.)
-c          if(.not. value)  call errquit(
-c     >       'cell_optimize: error reformatting wavefunctions',0,
-c     &       CALC_ERR)
 
           call ga_sync()
       end do
@@ -117,7 +105,7 @@ c     &       CALC_ERR)
 
 *     **** set to true for debugging ****
   999 value = .true.
-      cell_optimize = value
+      paw_cell_optimize = value
       return
       end
  

@@ -1,11 +1,11 @@
 c
-c     $Id: paw_gradient.F,v 1.2 2004-08-01 02:02:44 bylaska Exp $
+c     $Id: paw_gradient.F,v 1.3 2004-11-29 16:05:19 bylaska Exp $
 c
       logical function paw_gradient(rtdb)
       implicit none
       integer rtdb
-      logical  paw_minimizer
-      external paw_minimizer
+      logical  paw_minimizer,paw_stress
+      external paw_minimizer,paw_stress
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -22,7 +22,7 @@ c
 
 *     **** include stress calculation ****
       else
-         value = paw_minimizer(rtdb,3)
+         value = paw_stress(rtdb)
       end if
 
       paw_gradient = value

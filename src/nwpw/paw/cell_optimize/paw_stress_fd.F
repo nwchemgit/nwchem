@@ -1,7 +1,7 @@
 *
-* $Id: stress_fd.F,v 1.5 2004-11-29 16:05:20 bylaska Exp $
+* $Id: paw_stress_fd.F,v 1.1 2004-11-29 16:05:18 bylaska Exp $
 *
-      logical function stress_fd(rtdb)
+      logical function paw_stress_fd(rtdb)
       implicit none
       integer rtdb
       logical value
@@ -27,7 +27,6 @@
       double precision ewald_stress(3,3)
       double precision hartree_stress(3,3)
       double precision local_stress(3,3)
-      double precision nonlocal_stress(3,3)
       double precision alpha_stress(3,3)
       double precision RIJ_stress(3,3)
       double precision ewaldG_stress(3,3)
@@ -36,8 +35,8 @@
       character*40 date_string
 
 *     *** external functions ****
-      logical  pspw_noit_energy
-      external pspw_noit_energy
+      logical  paw_noit_energy
+      external paw_noit_energy
 
 
 *     **** initialize and read in geometry object ****
@@ -51,14 +50,13 @@
 
 *     **** get finite difference step and initialize ****
       if (.not.
-     >    rtdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
+     >    rtdb_get(rtdb,'nwpw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
       call dcopy(9,0.0d0,0,ke_stress,      1)
       call dcopy(9,0.0d0,0,xc_stress,      1)
       call dcopy(9,0.0d0,0,hartree_stress, 1)
       call dcopy(9,0.0d0,0,ewald_stress,   1)
       call dcopy(9,0.0d0,0,local_stress,   1)
-      call dcopy(9,0.0d0,0,nonlocal_stress,1)
 
 
       do j=1,3
@@ -83,32 +81,29 @@
       call util_flush(6)
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-      value = value.and.pspw_noit_energy(rtdb)
+      value = value.and.paw_noit_energy(rtdb)
 
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'paw:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'paw:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'paw:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'paw:E_mult',mt_dbl,1,E)
       ewald_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'paw:E_local',mt_dbl,1,E)
       local_stress(i,j) = E
 
-      value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
-      nonlocal_stress(i,j) = E
 
 
 *     *****************************
@@ -130,26 +125,24 @@
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
     
-      value = pspw_noit_energy(rtdb)
+      value = paw_noit_energy(rtdb)
 
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'paw:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = ke_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'paw:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = xc_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'paw:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = hartree_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'paw:E_mult',mt_dbl,1,E)
       ewald_stress(i,j) = ewald_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'paw:E_local',mt_dbl,1,E)
       local_stress(i,j) = local_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
-      nonlocal_stress(i,j) = nonlocal_stress(i,j) - E
 
       end do
       end do
@@ -158,12 +151,10 @@
       call dscal(9,(0.5d0/alpha),hartree_stress,1)
       call dscal(9,(0.5d0/alpha),ewald_stress,1)
       call dscal(9,(0.5d0/alpha),local_stress,1)
-      call dscal(9,(0.5d0/alpha),nonlocal_stress,1)
 
       call write_stress(ke_stress,"ke FD")
       call write_stress(hartree_stress,"coulomb FD")
       call write_stress(local_stress,"local FD")
-      call write_stress(nonlocal_stress,"nonlocal FD")
       call write_stress(xc_stress,"xc FD")
       call write_stress(ewald_stress,"ewald FD")
 
@@ -172,14 +163,13 @@
       call daxpy(9,1.0d0,hartree_stress,1,stress,1)
       call daxpy(9,1.0d0,ewald_stress,1,stress,1)
       call daxpy(9,1.0d0,local_stress,1,stress,1)
-      call daxpy(9,1.0d0,nonlocal_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
 
 
 *     **************************************
 *     **** output stress for use driver ****
 *     **************************************
-      value = value.and.rtdb_put(rtdb,'pspw:stress',mt_dbl,9,stress)
+      value = value.and.rtdb_put(rtdb,'paw:stress',mt_dbl,9,stress)
 
 
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita)
@@ -188,6 +178,6 @@
       value = value.and.geom_destroy(geom)
       value = value.and.MA_free_heap(r1(2))
  
-      stress_fd = value
+      paw_stress_fd = value
       return 
       end

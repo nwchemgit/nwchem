@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.32 2004-08-01 02:02:44 bylaska Exp $
+* $Id: ion.F,v 1.33 2004-11-29 16:05:18 bylaska Exp $
 *
 
 *     ***************************
@@ -781,7 +781,9 @@ c         eki1=0.5d0*eki1
       external ion_natm,ion_nkatm,control_code
 
       !**** paw code ****
-      if (control_code().eq.6) then
+      if ((control_code().eq.6).or.
+     >    (control_code().eq.7).or.
+     >    (control_code().eq.8)) then
          icharge = 0.0d0
          do ia=1,ion_nkatm()
             zv = paw_basis_ion_charge(ia)

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.53 2004-11-08 23:37:41 bylaska Exp $
+* $Id: cgsdv5.F,v 1.54 2004-11-29 16:05:20 bylaska Exp $
 *
 
 ***********************************************************************
@@ -476,8 +476,8 @@ c     end if
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
-      value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
       if (flag.gt.-1) then
+      value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
       value = value.and.
      >        rtdb_put(rtdb,'pspw:dipole',mt_dbl,
      >                 3,dipole)
@@ -511,7 +511,11 @@ c     end if
 *     **** calculate Mulliken Populations ***
 
 *     **** write wavefunctions to file and finalize psi ****
-      value = psi_finalize()
+      if (flag.eq.-1) then
+        value = psi_finalize(.false.)
+      else
+        value = psi_finalize(.true.)
+      end if
 
 *     **** write geometry to rtdb ****
       call pspw_charge_write(rtdb)

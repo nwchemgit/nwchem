@@ -1,9 +1,21 @@
 *
-* $Id: psi.F,v 1.55 2004-11-08 01:32:49 bylaska Exp $
+* $Id: psi.F,v 1.56 2004-11-29 16:05:21 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.55  2004/11/08 01:32:49  bylaska
+*
+* Unrestricted and closed-shell restricted Hartree-Fock has been implemented into pspw.
+*    - works with minimizers 1,2,3,4,6,and 7.
+*    - band-by-band minimizer (minimizer 5) not yet implemented
+*    - free-space coulomb and screened-coulomb kernels implemented.
+*    - the free-space coulomb kernel has been tested.
+*    - the screened-coulomb kernel needs to be debugged/tested?
+*    - restricted open-shell HF has not yet been implemented
+*
+* ....EJB
+*
 * Revision 1.54  2004/03/08 22:51:27  bylaska
 * Fractional occupation working in pspw with minimizer 4, steepest descent, and Car-Parrinello.
 *
@@ -3617,6 +3629,11 @@ c    >                            dcpl_mb(dng1(1)))
 #include "mafdecls.fh"
 #include "psi.fh"
 
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
 *     ***** local variables ****
       integer u,v
       real*8 exc,pxc
@@ -3650,9 +3667,9 @@ c    >                            dcpl_mb(dng1(1)))
       !write(*,*) "D:",stress(1,1)
 
 *     **** PBE96 GGA part ****
-*     **** not finished  -unrestricted not done ****
+*     **** finished? 11/24/04 - still need to test ***
       if (control_gga().eq.1) then
-       call v_bwexc_euv(2*nfft3d,ispin,dbl_mb(rho1(1)),tstress)
+       call v_bwexc_euv(2*nfft3d,ispin,dbl_mb(rho1_all(1)),tstress)
        do v=1,3
        do u=1,3
           stress(u,v) = stress(u,v) + tstress(u,v)
@@ -4518,10 +4535,11 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     *				*
 *     ***************************
 
-      logical function psi_finalize()
+      logical function psi_finalize(wpsi)
       implicit none 
-#include "errquit.fh"
+      logical wpsi
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "psi.fh"
 
@@ -4535,8 +4553,10 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       logical value
 
 *     ***** write psi1 wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi1(1)))
-      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
+      if (wpsi) then
+        call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+        call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
+      end if
     
       value = MA_free_heap(eig(2))
       value = value.and.MA_free_heap(hml(2))

@@ -1,7 +1,7 @@
 *
-* $Id: stress_fd.F,v 1.5 2004-11-29 16:05:20 bylaska Exp $
+* $Id: band_stress_fd.F,v 1.1 2004-11-29 16:05:16 bylaska Exp $
 *
-      logical function stress_fd(rtdb)
+      logical function band_stress_fd(rtdb)
       implicit none
       integer rtdb
       logical value
@@ -36,8 +36,8 @@
       character*40 date_string
 
 *     *** external functions ****
-      logical  pspw_noit_energy
-      external pspw_noit_energy
+      logical  band_noit_energy
+      external band_noit_energy
 
 
 *     **** initialize and read in geometry object ****
@@ -83,31 +83,31 @@
       call util_flush(6)
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-      value = value.and.pspw_noit_energy(rtdb)
+      value = value.and.band_noit_energy(rtdb)
 
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'band:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'band:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'band:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'band:E_ewald',mt_dbl,1,E)
       ewald_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'band:E_local',mt_dbl,1,E)
       local_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+     >        rtdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = E
 
 
@@ -130,25 +130,25 @@
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
     
-      value = pspw_noit_energy(rtdb)
+      value = band_noit_energy(rtdb)
 
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'band:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = ke_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'band:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = xc_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'band:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = hartree_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'band:E_ewald',mt_dbl,1,E)
       ewald_stress(i,j) = ewald_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'band:E_local',mt_dbl,1,E)
       local_stress(i,j) = local_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+      value = value.and.rtdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = nonlocal_stress(i,j) - E
 
       end do
@@ -179,7 +179,7 @@
 *     **************************************
 *     **** output stress for use driver ****
 *     **************************************
-      value = value.and.rtdb_put(rtdb,'pspw:stress',mt_dbl,9,stress)
+      value = value.and.rtdb_put(rtdb,'band:stress',mt_dbl,9,stress)
 
 
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita)
@@ -188,6 +188,6 @@
       value = value.and.geom_destroy(geom)
       value = value.and.MA_free_heap(r1(2))
  
-      stress_fd = value
+      band_stress_fd = value
       return 
       end

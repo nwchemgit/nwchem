@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.1 2004-11-13 02:25:29 bylaska Exp $ 
+c     $Id: c_nominimize.F,v 1.2 2004-11-29 16:05:17 bylaska Exp $ 
 c
 
       subroutine c_nominimize(E)
@@ -58,7 +58,7 @@ c
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
       Enew = E0
 
-      call cpsi_1toelectron() 
+c      call cpsi_1toelectron() 
 
       eion = c_ewald_e()
 

@@ -116,8 +116,7 @@
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
           write(*,*)
-          write(*,*) "Fixed ion positions:",
-     >      (int_mb(ion_number(1)+i-1),i=1,count)
+          write(*,1003) (int_mb(ion_number(1)+i-1),i=1,count)
           write(*,*)
          end if
       end if
@@ -126,6 +125,7 @@
       call molecular_init(rtdb)
 
       return
+ 1003 FORMAT(1x,"Fixed ion positions:",10I5)
       end
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.21 2004-08-01 02:02:46 bylaska Exp $
+* $Id: geodesic.F,v 1.22 2004-11-29 16:05:21 bylaska Exp $
 *
 
 *     ***********************************
@@ -456,7 +456,7 @@ c           dbl_mb(tmp3(1)+shift) = scal2 * dbl_mb(Vt(1)+shift)
 c          end do
 c
 c        end do
-        call SCtimesVtrans(t,n,dbl_mb(S(1)),
+        call SCtimesVtrans(t,n,dbl_mb(S(1)+shift1),
      >                    dbl_mb(Vt(1)+shift2),
      >                    dbl_mb(tmp1(1)+shift2),
      >                    dbl_mb(tmp3(1)+shift2),
@@ -649,7 +649,7 @@ c          dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
 c          dbl_mb(tmp3(1)+shift) = scal3*dbl_mb(Vt(1)+shift)
 c         end do
 c       end do
-        call SCtimesVtrans2(t,n,dbl_mb(S(1)),
+        call SCtimesVtrans2(t,n,dbl_mb(S(1)+shift1),
      >                    dbl_mb(Vt(1)+shift2),
      >                    dbl_mb(tmp1(1)+shift2),
      >                    dbl_mb(tmp3(1)+shift2),
@@ -836,7 +836,7 @@ c          dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2)
 c    >        = scal3 * dbl_mb(tmp3(1)+j-1+(k-1)*n + shift2)
 c         end do
 c       end do
-        call SCtimesVtrans3(t,n,dbl_mb(S(1)),
+        call SCtimesVtrans3(t,n,dbl_mb(S(1)+shift1),
      >                    dbl_mb(tmp2(1)+shift2),
      >                    dbl_mb(tmp1(1)+shift2),
      >                    dbl_mb(tmp3(1)+shift2),

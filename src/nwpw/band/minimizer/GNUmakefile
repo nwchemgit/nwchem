@@ -1,11 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.5 2004-11-13 02:22:06 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2004-11-29 16:05:17 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 				band_minimizer.o \
 				c_cgsd_energy.o \
 				c_cgsd_noit_energy.o \
 				c_cgsd_energy_gradient.o \
+				c_cgsd_energy_stress.o \
 				c_cgminimize.o \
 				c_bfgsminimize.o \
 				c_bybminimize.o \

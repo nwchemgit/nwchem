@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.5 2004-11-14 23:31:50 bylaska Exp $
+* $Id: band_structure.F,v 1.6 2004-11-29 16:05:17 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -53,6 +53,7 @@
       logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
+      real*8  pathlength,dist,kold(3)
       integer i,k,ia,nion,vers,nbrillioun,icharge
       integer mapping
       character*255 full_filename
@@ -369,12 +370,16 @@
       call c_electron_gen_vall()
       call c_electron_get_vall(dcpl_mb(vall(1)))
 
-      if (taskid.eq.MASTER) write(luout,1600) EV
+      if (taskid.eq.MASTER) then
+         write(luout,1600) EV
+         write(luout,*)
+         write(luout,*) "Self-Consistent Potential Generated"
+      end if
 
 
 
 *     **** deallocate heap memory ****
-      value=cpsi_finalize()
+      value=cpsi_finalize(.false.)
 
       call c_electron_finalize()
       call c_geodesic_finalize()
@@ -421,7 +426,7 @@
         ortho = .true.
 
         if (taskid.eq.MASTER) then
-          write(*,1301) k
+          write(luout,1301) k
         end if
 
 
@@ -484,11 +489,26 @@
 
 
       if (taskid.eq.MASTER) then
+
+         !*** determine pathlength ****
+         if (k.eq.1) then
+           pathlength = 0.0d0
+         else
+            dist = (brillioun_k(1,1) - kold(1))**2
+     >           + (brillioun_k(2,1) - kold(2))**2
+     >           + (brillioun_k(3,1) - kold(3))**2
+            dist = dsqrt(dist)     
+            pathlength = pathlength + dist
+         end if
+         kold(1) = brillioun_k(1,1)
+         kold(2) = brillioun_k(2,1)
+         kold(3) = brillioun_k(3,1)
+
          NN=cpsi_ne(1)-cpsi_ne(2)
          EV=27.2116
          nb=1
            write(luout,1508) k,
-     >                   brillioun_weight(nb),
+     >                   pathlength,
      >                   brillioun_ks(1,nb),
      >                   brillioun_ks(2,nb),
      >                   brillioun_ks(3,nb),
@@ -506,10 +526,10 @@
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
            end do
-           write(58,'(I3,1000E14.6)') k,
+           write(58,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
            if (ispin.eq.2)
-     >      write(59,'(I3,1000E14.6)') k,
+     >      write(59,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,2,i),i=1,cpsi_ne(2))
          
       end if
@@ -517,7 +537,7 @@
 
 
 *     **** deallocate heap memory ****
-      value = cpsi_finalize()
+      value = cpsi_finalize(.true.)
 
       call c_electron_finalize()
       call c_geodesic_finalize()
@@ -691,7 +711,7 @@
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
  1508 FORMAT(/' Brillouin zone point: ',i2,
-     >       /'    weight=',f10.6,
+     >       /'pathlength=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))

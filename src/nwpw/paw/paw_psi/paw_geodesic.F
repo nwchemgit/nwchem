@@ -1,5 +1,5 @@
 *
-* $Id: paw_geodesic.F,v 1.1 2004-08-12 18:39:41 bylaska Exp $
+* $Id: paw_geodesic.F,v 1.2 2004-11-29 16:05:20 bylaska Exp $
 *
 
 *     ***********************************
@@ -304,7 +304,7 @@ c      integer ierr
         shift1 = (ms-1)*paw_psi_ne(1)
         shift2 = (ms-1)*paw_psi_ne(1)*paw_psi_ne(1)
 
-        call SCtimesVtrans(t,n,dbl_mb(S(1)),
+        call SCtimesVtrans(t,n,dbl_mb(S(1)+shift1),
      >                    dbl_mb(Vt(1)+shift2),
      >                    dbl_mb(tmp1(1)+shift2),
      >                    dbl_mb(tmp3(1)+shift2),
@@ -334,22 +334,20 @@ c      integer ierr
      >              Ynew(1+shift1*npack1),2*npack1)
 
 
- 100    continue
 
-
-
-c*     **** Orthonormality Check ****     
-c      !call paw_psi_CheckOrtho2(npack1,n,Ynew(1+shift1*npack1))
-c      sum1=paw_psi_CheckOrtho(npack1,n,Ynew(1+shift1*npack1))
-c      if (dabs(sum1).gt.1.0d-10) then
+*     **** Orthonormality Check ****     
+      !call paw_psi_CheckOrtho2(npack1,n,Ynew(1+shift1*npack1))
+      sum1=paw_psi_CheckOrtho(npack1,n,Ynew(1+shift1*npack1))
+      if (dabs(sum1).gt.1.0d-10) then
 c         call Parallel_taskid(taskid)
 c         if (taskid.eq.MASTER) then
 c           write(*,*) "Gram-Schmidt performed in paw_geodesic_get"
 c           write(*,*) "sum1:",sum1
 c         end if
-c         call paw_psi_MakeOrtho(npack1,n,Ynew(1+shift1*npack1))
-c
-c      end if
+         call paw_psi_MakeOrtho(npack1,n,Ynew(1+shift1*npack1))
+      end if
+
+ 100    continue
 
       end do
 
@@ -439,7 +437,7 @@ c      end if
         shift1 = (ms-1)*paw_psi_ne(1)
         shift2 = (ms-1)*paw_psi_ne(1)*paw_psi_ne(1)
 
-        call SCtimesVtrans2(t,n,dbl_mb(S(1)),
+        call SCtimesVtrans2(t,n,dbl_mb(S(1)+shift1),
      >                    dbl_mb(Vt(1)+shift2),
      >                    dbl_mb(tmp1(1)+shift2),
      >                    dbl_mb(tmp3(1)+shift2),
@@ -568,7 +566,7 @@ c      end if
      >             tG(1+shift1*npack1),
      >             dbl_mb(tmp2(1)+shift2))
 
-        call SCtimesVtrans3(t,n,dbl_mb(S(1)),
+        call SCtimesVtrans3(t,n,dbl_mb(S(1)+shift1),
      >                    dbl_mb(tmp2(1)+shift2),
      >                    dbl_mb(tmp1(1)+shift2),
      >                    dbl_mb(tmp3(1)+shift2),

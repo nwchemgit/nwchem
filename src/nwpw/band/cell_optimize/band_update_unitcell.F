@@ -1,7 +1,7 @@
 *
-* $Id: update_unitcell.F,v 1.7 2004-11-29 16:05:20 bylaska Exp $
+* $Id: band_update_unitcell.F,v 1.1 2004-11-29 16:05:16 bylaska Exp $
 *
-      logical function update_unitcell(rtdb)
+      logical function band_update_unitcell(rtdb)
       implicit none
       integer rtdb
  
@@ -31,7 +31,7 @@
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
 *     **** read in stress ****
-      value = value.and.rtdb_get(rtdb,'pspw:stress',mt_dbl,9,stress)
+      value = value.and.rtdb_get(rtdb,'band:stress',mt_dbl,9,stress)
 
 
       write(*,*) " -------------------- "
@@ -68,7 +68,7 @@
       write(*,*) "geometry adjusted......"
 
  
-      update_unitcell = value
+      band_update_unitcell = value
       return 
       end
 

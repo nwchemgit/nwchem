@@ -1,12 +1,16 @@
-# $Id: GNUmakefile,v 1.4 2004-09-05 02:18:25 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2004-11-29 16:05:19 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_energy.o \
+		paw_noit_energy.o \
 		paw_gradient.o \
+		paw_stress.o \
 		paw_minimizer.o \
 		paw_cgsd_energy.o \
 		paw_cgminimize.o \
-		paw_bfgsminimize.o
+		paw_bfgsminimize.o \
+		paw_nominimize.o \
+		paw_cgsd_noit_energy.o
 
 
 	  OBJ = 

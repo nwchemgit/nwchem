@@ -4,9 +4,9 @@
 *     *             			*
 *     ***********************************
 
-      subroutine c_OrthoCheck(indx,ispin,ne,nbrill,psi1)
+      subroutine c_OrthoCheck(indx1,ispin,ne,nbrill,psi1)
       implicit none 
-      integer indx
+      integer indx1
       integer ispin,ne(2),nbrill
       double complex psi1(*)
 
@@ -37,7 +37,7 @@
       neall = ne(1)+ne(2)
 
 *     **** produce CHECK FILE ****
-      call util_file_name('ORTHOCHECK'//bead_index_name(indx),
+      call util_file_name('ORTHOCHECK'//bead_index_name(indx1),
      >                             .true.,
      >                             .false.,
      >                             full_filename)
@@ -101,8 +101,10 @@
 *     *             			*
 *     ***********************************
 
-      subroutine Stfl_g_OrthoCheckMake(ispin,ne,npack1,neall,nbrill,A)
+      subroutine Stfl_g_OrthoCheckMake(coutput,
+     >                                 ispin,ne,npack1,neall,nbrill,A)
       implicit none
+      logical coutput
       integer ispin,ne(2)
       integer npack1,neall,nbrill
       complex*16 A(npack1,neall,nbrill)
@@ -144,6 +146,7 @@
       end do
       end do
 
+      if (coutput) then
       if (gramschmidt) then
       call Stfl_gg_trace(ispin,ne,npack1,neall,nbrill,
      >                        A,
@@ -165,6 +168,7 @@
          end if
       end do
       end do
+      end if
       end if
 
       value = MA_pop_stack(sm3(2))

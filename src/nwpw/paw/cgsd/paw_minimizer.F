@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.5 2004-09-04 17:56:20 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.6 2004-11-29 16:05:19 bylaska Exp $
 *
 
 ***********************************************************************
@@ -116,8 +116,8 @@
       integer  paw_electron_count,linesearch_count
       external paw_electron_count,linesearch_count
       
-      real*8   ion_TotalCharge,paw_cgsd_energy
-      external ion_TotalCharge,paw_cgsd_energy
+      real*8   ion_TotalCharge,paw_cgsd_energy,paw_cgsd_noit_energy
+      external ion_TotalCharge,paw_cgsd_energy,paw_cgsd_noit_energy
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
       real*8   control_ks_alpha
@@ -147,7 +147,7 @@
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
-      value = control_read(3,rtdb)
+      value = control_read(8,rtdb)
       if (.not. value) 
      > call errquit('error reading control',0, INPUT_ERR)
 
@@ -447,12 +447,11 @@ c     end if
 
 *     **** calculate energy ****
       if (flag.eq.-1) then
-      !  EV= cgsd_noit_energy()
-       write(*,*) "doh!"
+         EV= paw_cgsd_noit_energy()
       else
          EV= paw_cgsd_energy(newpsi)
       end if
-      !EV = 0.0d0
+
 
 *     **** extra energy output for QA test ****
       if (lprint) write(6,1600) EV
@@ -475,8 +474,8 @@ c     end if
 *     **** output energy, dipole, and gradient to rtdb for use ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
-      value = rtdb_put(rtdb,'paw:energy',mt_dbl,1,EV)
       if (flag.gt.-1) then
+      value = rtdb_put(rtdb,'paw:energy',mt_dbl,1,EV)
       value = value.and.
      >        rtdb_put(rtdb,'paw:dipole',mt_dbl,
      >                 3,dipole)
@@ -506,7 +505,13 @@ c     end if
 
 
 *     **** write wavefunctions to file and finalize psi ****
-      value = paw_psi_finalize()
+      if (flag.eq.-1) then
+        value = paw_psi_finalize(.false.)
+      else
+        value = paw_psi_finalize(.true.)
+      end if
+
+
 
 
 *     **** write geometry to rtdb ****

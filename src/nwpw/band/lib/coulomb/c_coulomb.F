@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.4 2004-05-05 19:33:49 bylaska Exp $
+* $Id: c_coulomb.F,v 1.5 2004-11-29 16:05:16 bylaska Exp $
 *
       subroutine c_coulomb_init()
       implicit none 
@@ -150,3 +150,114 @@ c     real*8  tmp1(*)
 
 
 
+      subroutine c_coulomb_euv(dng,euv)
+      implicit none 
+      complex*16 dng(*)
+      real*8 euv(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "c_coulomb_common.fh"
+
+
+*     **** local variables ****
+      integer npack0,nfft3d,G(2,3)
+      integer i,j
+      integer u,v,s
+      logical value
+
+      real*8 pi,fourpi,scal,ss,sum
+      real*8 hm(3,3),Bus(3,3),ecoul 
+      integer tmp1(2),tmp2(2)
+
+*     **** external functions ****
+      integer  c_G_indx
+      external c_G_indx
+
+      real*8   lattice_unitg,lattice_omega,c_coulomb_e
+      external lattice_unitg,lattice_omega,c_coulomb_e
+
+
+      pi     = 4.0d0*datan(1.0d0)
+      fourpi = 4.0d0*pi
+      scal   = 1.0d0/(2.0d0*pi)
+
+*     *** define hm ****
+      do j=1,3
+      do i=1,3
+         hm(i,j) = scal*lattice_unitg(i,j)
+      end do
+      end do      
+
+
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_npack(0,npack0)
+
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                     'G1',G(2,1),G(1,1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                     'G2',G(2,2),G(1,2))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      value = MA_push_get(mt_dbl,nfft3d,
+     >                     'G3',G(2,3),G(1,3))
+      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
+
+      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      value = MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      call dcopy(nfft3d,dbl_mb(c_G_indx(1)),1,dbl_mb(G(1,1)),1)
+      call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)
+      call dcopy(nfft3d,dbl_mb(c_G_indx(3)),1,dbl_mb(G(1,3)),1)
+      call Cram_r_pack(0,dbl_mb(G(1,1)))
+      call Cram_r_pack(0,dbl_mb(G(1,2)))
+      call Cram_r_pack(0,dbl_mb(G(1,3)))
+
+*     **** tmp2(G) = (n(G)**2) * (4*pi/G**2)**2  ****
+      call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
+      call Cram_rr_Mul(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),
+     >                                   dbl_mb(tmp2(1)))
+      call Cram_rr_Mul(0,dbl_mb(tmp2(1)),dbl_mb(vc_indx),
+     >                                   dbl_mb(tmp2(1)))
+
+
+*     **** Bus = Sum(G) (omega/4*pi)*tmp2(G)*Gu*Gs ****
+      call dcopy(9,0.0d0,0,Bus,1)
+      ss     = lattice_omega()/fourpi
+      do u=1,3
+      do s=u,3
+        call Cram_rr_Mul(0,dbl_mb(G(1,u)),
+     >                     dbl_mb(G(1,s)),
+     >                     dbl_mb(tmp1(1)))
+        call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),sum)
+
+        Bus(u,s) = ss*sum
+      end do
+      end do
+      do u=1,3
+      do s=u+1,3
+         Bus(s,u) = Bus(u,s)
+      end do
+      end do
+
+      ecoul = c_coulomb_e(dng)
+      do v=1,3
+      do u=1,3
+         euv(u,v) = -ecoul*hm(u,v)
+         do s=1,3
+            euv(u,v) = euv(u,v) + Bus(u,s)*hm(s,v)
+         end do
+      end do
+      end do
+ 
+      value = MA_pop_stack(tmp2(2))
+      value = MA_pop_stack(tmp1(2))
+      value = MA_pop_stack(G(2,3)) 
+      value = MA_pop_stack(G(2,2)) 
+      value = MA_pop_stack(G(2,1))
+
+      return
+      end

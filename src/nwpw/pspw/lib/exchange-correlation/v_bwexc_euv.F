@@ -129,6 +129,7 @@ c        ***** calculate fdn=df/d|grad n|  ****
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
+     >                                1.0d0,1.0d0,
      >                                dbl_mb(xce(1)), !*** not used ??***
      >                                dbl_mb(fn(1)),  !*** not used ??***
      >                                dbl_mb(fdn(1)))
@@ -261,7 +262,9 @@ c        *****                          agr,fn,fdn      *****
         fdn(2) = xfdn(1) +   n2ft3d
         fdn(3) = xfdn(1) + 2*n2ft3d
         tmp(1) = xfdn(1)
-      if (.not. value) call errquit('out of stack memory',0,0)
+        value = value.and.
+     >        MA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
+        if (.not. value) call errquit('out of stack memory',0,0)
 
 
 c        ***** calculate rhoup  ****
@@ -371,7 +374,8 @@ c        ***** calculate    ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          call gen_PBE96_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
-     >                                  dbl_mb(fn(1)), !*** not used ***
+     >                                  1.0d0,1.0d0,
+     >                                  dbl_mb(xce(1)), !*** not used ***
      >                                  dbl_mb(fn(1)), !*** not used ***
      >                                  dbl_mb(fdn(1)))
 
@@ -484,44 +488,73 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          call D3dB_rc_fft3f(1,dbl_mb(grdny(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grdnz(1)))
 
-*        **** multiply sums by G vector ***
-         call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
-     >                      dbl_mb(grupx(1)),
-     >                      dbl_mb(grupx(1)))
-         call D3dB_ic_Mul(1,dbl_mb(G_indx(2)),
-     >                      dbl_mb(grupy(1)),
-     >                      dbl_mb(grupy(1)))
-         call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
-     >                      dbl_mb(grupz(1)),
-     >                      dbl_mb(grupz(1)))
-         call D3dB_ic_Mul(1,dbl_mb(G_indx(1)),
-     >                      dbl_mb(grdnx(1)),
-     >                      dbl_mb(grdnx(1)))
-         call D3dB_ic_Mul(1,dbl_mb(G_indx(2)),
-     >                      dbl_mb(grdny(1)),
-     >                      dbl_mb(grdny(1)))
-         call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
-     >                      dbl_mb(grdnz(1)),
-     >                      dbl_mb(grdnz(1)))
 
-*        **** add up two dot products ****
-         call D3dB_cc_Sum(1,dbl_mb(grupx(1)),
-     >                      dbl_mb(grupy(1)),
-     >                      dbl_mb(fdn(1)))
-         call D3dB_cc_Sum(1,dbl_mb(grupz(1)),
-     >                      dbl_mb(fdn(1)),
-     >                      dbl_mb(fdn(1)))
-         call D3dB_cc_Sum(1,dbl_mb(grdnx(1)),
-     >                      dbl_mb(grdny(1)),
-     >                      dbl_mb(fdn(2)))
-         call D3dB_cc_Sum(1,dbl_mb(grdnz(1)),
-     >                      dbl_mb(fdn(2)),
-     >                      dbl_mb(fdn(2)))
+*        **** W(u,s) = Sum(G) [i*G(u)*dcongj(rhoup)*grup(s)] ****
+*        ****         where grup(1)=grupx,grup(2)=grupy,grup(3)=grupz ****
+         call Pack_c_pack(0,dbl_mb(rhoup(1)))
+         do u=1,3
+
+*          **** agr = i*G(u)*grupx ****
+           call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
+     >                        dbl_mb(grupx(1)),
+     >                        dbl_mb(agr(1)))
+           call Pack_c_pack(0,dbl_mb(agr(1)))
+           call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           W(u,1) = sum*omega
+
+*          **** agr = i*G(u)*grupy ****
+           call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
+     >                        dbl_mb(grupy(1)),
+     >                        dbl_mb(agr(1)))
+           call Pack_c_pack(0,dbl_mb(agr(1)))
+           call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           W(u,2) = sum*omega
+
+*          **** agr = i*G(u)*grupz ****
+           call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
+     >                        dbl_mb(grupz(1)),
+     >                        dbl_mb(agr(1)))
+           call Pack_c_pack(0,dbl_mb(agr(1)))
+           call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           W(u,3) = sum*omega
+         end do
+
+
+*        **** W(u,s) = Sum(G) [i*G(u)*dcongj(rhodn)*grup(s)] ****
+*        ****         where grdn(1)=grdnx,grup(2)=grdny,grup(3)=grdnz ****
+         call Pack_c_pack(0,dbl_mb(rhodn(1)))
+         do u=1,3
+
+*          **** agr = i*G(u)*grdnx ****
+           call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
+     >                        dbl_mb(grdnx(1)),
+     >                        dbl_mb(agr(1)))
+           call Pack_c_pack(0,dbl_mb(agr(1)))
+           call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           W(u,1) = W(u,1) + sum*omega
+
+*          **** agr = i*G(u)*grdny ****
+           call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
+     >                        dbl_mb(grdny(1)),
+     >                        dbl_mb(agr(1)))
+           call Pack_c_pack(0,dbl_mb(agr(1)))
+           call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           W(u,2) = W(u,2) + sum*omega
+
+*          **** agr = i*G(u)*grdnz ****
+           call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
+     >                        dbl_mb(grdnz(1)),
+     >                        dbl_mb(agr(1)))
+           call Pack_c_pack(0,dbl_mb(agr(1)))
+           call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           W(u,3) = W(u,3) + sum*omega
+         end do
 
 
 
 *        **** deallocate temporary memory ****
-         value = MA_pop_stack(xfdn(2))
+         value = MA_pop_stack(xce(2))
+         value = value.and.MA_pop_stack(xfdn(2))
          value = value.and.MA_pop_stack(xfn(2))
          value = value.and.MA_pop_stack(xagr(2))
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.7 2004-09-30 04:20:47 edo Exp $
+* $Id: paw_psi2.F,v 1.8 2004-11-29 16:05:20 bylaska Exp $
 *
 
 
@@ -2877,11 +2877,12 @@ c     >                      dcpl_mb(psi2(1)))
 *     *				*
 *     ***************************
 
-      logical function paw_psi_finalize()
+      logical function paw_psi_finalize(wpsi)
       implicit none 
-#include "errquit.fh"
+      logical wpsi
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "paw_psi.fh"
 
 
@@ -2889,8 +2890,10 @@ c     >                      dcpl_mb(psi2(1)))
       logical value
 
 *     ***** write psi1 wavefunctions ****
-      call psi_write(ispin,ne,dcpl_mb(psi1(1)))
+      if (wpsi) then
+       call psi_write(ispin,ne,dcpl_mb(psi1(1)))
 c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
+      end if
     
       value = MA_free_heap(eig(2))
       value = value.and.MA_free_heap(hml(2))

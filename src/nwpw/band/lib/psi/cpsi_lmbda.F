@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_lmbda.F,v 1.4 2002-02-16 00:33:16 bylaska Exp $
+* $Id: cpsi_lmbda.F,v 1.5 2004-11-29 16:05:17 bylaska Exp $
 *
 
       subroutine cpsi_lmbda(ispin,ne,nfft3d,neall,nbrill,n,
@@ -221,7 +221,8 @@ cedo          write(0,*) 8*nn,iadiff,'tmp iad ',tmp(iadiff)
 
 *     **** Ortho CheckMake ****
       if (.not.ortho) then
-        call Stfl_g_OrthoCheckMake(ispin,ne,nfft3d,neall,nbrill,psi2)
+        call Stfl_g_OrthoCheckMake(.true.,
+     >                             ispin,ne,nfft3d,neall,nbrill,psi2)
       end if
 
       return

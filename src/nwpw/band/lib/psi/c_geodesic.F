@@ -1,5 +1,5 @@
 *
-* $Id: c_geodesic.F,v 1.6 2003-10-17 22:56:11 carlfahl Exp $
+* $Id: c_geodesic.F,v 1.7 2004-11-29 16:05:17 bylaska Exp $
 *
 
 
@@ -185,12 +185,12 @@
 
       subroutine c_geodesic_get(t,Yold,Ynew)
       implicit none
-#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_geodesic_common.fh"
 
 *     **** local variables ****
@@ -274,8 +274,10 @@
       end do
       end do
 
-
 *     **** Orthonormality Check ****     
+      call Stfl_g_OrthoCheckMake(.false.,
+     >                           ispin,ne,npack1,neall,nbrill,
+     >                           Ynew)
 
 *     call Grsm_gg_trace(npack1,nemax,Ynew,Ynew,sum2)
 * 

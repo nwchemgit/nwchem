@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.19 2004-11-08 01:32:48 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.20 2004-11-29 16:05:20 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -168,14 +168,14 @@ c     dte = 1.0d0
       end if
 
 *     ***** set to gradient if direction is assending *****
-      call Grsm_gg_trace(npack1,neall,
-     >                   dcpl_mb(S0(1)),
-     >                   dcpl_mb(S0(1)),
-     >                   kappa)
-      !write(*,*) "KAPPA=",kappa
-      if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
-     >                                      dcpl_mb(G0(1)),
-     >                                      dcpl_mb(S0(1)))
+c      call Grsm_gg_trace(npack1,neall,
+c     >                   dcpl_mb(S0(1)),
+c     >                   dcpl_mb(S0(1)),
+c     >                   kappa)
+c      !write(*,*) "KAPPA=",kappa
+c      if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
+c     >                                      dcpl_mb(G0(1)),
+c     >                                      dcpl_mb(S0(1)))
 
 
      
@@ -227,13 +227,13 @@ c         deltat = 1.0d0  !** debug **
          end if
 
 *        ***** set to gradient if direction is assending *****
-         call Grsm_gg_trace(npack1,neall,
-     >                      dcpl_mb(S0(1)),
-     >                      dcpl_mb(S0(1)),kappa)
-      !write(*,*) "KAPPA=",kappa
-         if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
-     >                                         dcpl_mb(G0(1)),
-     >                                         dcpl_mb(S0(1)))
+c         call Grsm_gg_trace(npack1,neall,
+c     >                      dcpl_mb(S0(1)),
+c     >                      dcpl_mb(S0(1)),kappa)
+c      !write(*,*) "KAPPA=",kappa
+c         if (kappa.le.1.0d-10) call Grsm_gg_Copy(npack1,neall,
+c     >                                         dcpl_mb(G0(1)),
+c     >                                         dcpl_mb(S0(1)))
 
 
 

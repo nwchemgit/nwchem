@@ -1,10 +1,9 @@
 *
-* $Id: pspw_stress_numerical.F,v 1.4 2004-11-29 16:05:20 bylaska Exp $
+* $Id: paw_stress_numerical.F,v 1.1 2004-11-29 16:05:19 bylaska Exp $
 *
 
-      logical function pspw_stress_numerical(rtdb)
+      logical function paw_stress_numerical(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -12,6 +11,7 @@
 #include "msgtypesf.h"
 #include "rtdb.fh"
 #include "geom.fh"
+#include "errquit.fh"
 
 *     **** local variables ***
       integer taskid,MASTER
@@ -22,8 +22,8 @@
       real*8 unita(3,3)
 
 *     **** external functions ****
-      logical  cgsdv5,stress_fd
-      external cgsdv5,stress_fd
+      logical  paw_minimizer,paw_stress_fd
+      external paw_minimizer,paw_stress_fd
 
       taskid = ga_nodeid()
 
@@ -31,7 +31,7 @@
       if (taskid.eq.MASTER) then
         write(*,*) '  ******************************************** '
         write(*,*) '  *                                          * '
-        write(*,*) '  *    PSPW Stress Numerical - version 1.0   * '
+        write(*,*) '  *     PAW Stress Numerical - version 1.0   * '
         write(*,*) '  *                                          * '
         write(*,*) '  *      version last updated 4/24/02        * '
         write(*,*) '  *                                          * '
@@ -41,24 +41,24 @@
 
 
 *     **** minimize psi ***
-      value = cgsdv5(rtdb,1)
+      value = paw_minimizer(rtdb,1)
       if(.not. value) 
      > call errquit(
-     > 'pspw_stress_numerical:pspw_energy did not converge: error',
+     > 'paw_stress_numerical:paw_gradient did not converge: error',
      >  0,CALC_ERR)
 
 *     **** calculate stress tensor ***
       value = .true.
       value = value.and.rtdb_parallel(.true.)
-      value = value.and.stress_fd(rtdb)
+      value = value.and.paw_stress_fd(rtdb)
       if(.not. value) 
-     >   call errquit('pspw_stress_numerical did not converge: error',0,
+     >   call errquit('paw_stress_numerical did not converge: error',0,
      &       CALC_ERR)
  
 
       call ga_sync()
 
-      pspw_stress_numerical = value
+      paw_stress_numerical = value
       return
       end
  
