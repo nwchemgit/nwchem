@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.9 2000-05-10 22:30:46 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.10 2000-05-10 22:32:52 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,6 @@ c
       fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
       endif
 c
-      print*,fmttrj
       if(fmttrj.eq.'trj') then
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9999)
