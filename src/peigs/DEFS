@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.72 2000-05-11 15:37:54 edo Exp $
+# $Id: DEFS,v 1.73 2000-05-15 18:27:54 edo Exp $
 #
 #======================================================================
 #
@@ -272,13 +272,24 @@ endif
 
 ifeq ($(peigs_TARGET),HPUX)
 #
-# try for HP running HPUX10.20
+# try for HP running HPUX11.00
 #
 peigs_CODEOBJ = DBLE
 peigs_COMM = TCGMSG
 peigs_CPU = HPPA
 peigs_CC += -DSTD_DBL -DSTD_INT -D$(peigs_CPU)
 peigs_FC += -DSTD_DBL -DSTD_INT  -D$(peigs_COMM) -D$(peigs_CPU)
+endif
+
+ifeq ($(peigs_TARGET),HPUX64)
+#
+# try for HP running HPUX11.00 64-bit
+#
+peigs_CODEOBJ = DBLE
+peigs_COMM = TCGMSG
+peigs_CPU = HPPA
+peigs_CC += -DSTD_DBL  -D$(peigs_CPU)
+peigs_FC += -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
 endif
 
 ifeq ($(peigs_TARGET),IBM)
