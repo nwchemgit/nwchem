@@ -1,0 +1,1454 @@
+ argument  1 = band.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 4.0
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = wv02696.emsl.pnl.gov
+    program       = nwchem
+    date          = Thu Feb  7 19:14:54 2002
+
+    compiled      = Wed Feb  6 13:31:01 PST 2002
+    source        = /home/bylaska/nwchem/nwchem
+    nwchem branch = Development
+    input         = band.nw
+    prefix        = band.
+    data base     = ./band.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =    8847354 doubles =     67.5 Mbytes
+    stack     =    2949107 doubles =     22.5 Mbytes
+    global    =   11796484 doubles =     90.0 Mbytes (within heap+stack)
+    total     =   11796461 doubles =     90.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                                                                                                      GaN 8 atom cubic cell
+                                                                                                                      ---------------------
+
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    5 N                |   1 Ga               |     3.63918  |     3.63918
+    6 N                |   1 Ga               |     3.61866  |     3.61866
+    6 N                |   2 Ga               |     3.63918  |     3.63918
+    6 N                |   4 Ga               |     3.61837  |     3.61837
+    7 N                |   1 Ga               |     3.61837  |     3.61837
+    7 N                |   3 Ga               |     3.63918  |     3.63918
+    8 N                |   4 Ga               |     3.63918  |     3.63918
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          7
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    5 N                |   1 Ga               |   6 N                |   109.15
+    5 N                |   1 Ga               |   7 N                |   109.16
+    6 N                |   1 Ga               |   7 N                |   109.79
+    6 N                |   4 Ga               |   8 N                |   109.16
+    1 Ga               |   6 N                |   2 Ga               |   109.15
+    1 Ga               |   6 N                |   4 Ga               |   109.79
+    2 Ga               |   6 N                |   4 Ga               |   109.16
+    1 Ga               |   7 N                |   3 Ga               |   109.16
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          8
+ ==============================================================================
+
+
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PSPW Calculation              *
+          *                                                  *
+          *     [   (Grassman manifold implementation)  ]    *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.00   06/01/00              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Thu Feb  7 19:14:54 2002  <<<
+          ================ input data ========================
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+  library name resolved from: compiled reference
+  library file name is: </home/bylaska/nwchem/nwchem/src/nwpw/libraryps/>
+  
+ Generating 1d pseudopotential for Ga
+ Creating datafile for Kleinman-Bylander input: ./Ga.psp
+  + Appending pseudopotentials:    s thru f
+  + Appending pseudowavefunctions: s thru f
+
+ Generated formatted_filename: ./Ga.vpp
+
+  library name resolved from: compiled reference
+  library file name is: </home/bylaska/nwchem/nwchem/src/nwpw/libraryps/>
+  
+ Generating 1d pseudopotential for N 
+ Creating datafile for Kleinman-Bylander input: ./N.psp
+  + Appending pseudopotentials:    s thru d
+  + Appending pseudowavefunctions: s thru d
+
+ Generated formatted_filename: ./N.vpp
+
+
+ Generated formatted atomic orbitals, filename: ./Ga.aorb
+
+
+ Generated formatted atomic orbitals, filename: ./N.aorb
+
+ lcao guess, initial psi:band.movecs                   
+ -   spin, nalpha, nbeta: 1 16 0
+
+ number of processors used:  1
+
+ options:
+      boundary conditions   = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Ga  core charge: 3.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   1.128   1.506   2.118
+      2: N   core charge: 5.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.700   0.700   0.700
+
+ total charge: 0
+
+ atomic composition:
+     Ga:  4     N :  4
+
+ position of ions (au):
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass=  68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass=  68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass=  68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass=  68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass=  14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass=  14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass=  14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass=  14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of active electrons: spin up= 16  spin down= 16 (fourier space)
+
+ supercell:
+      lattice:    a1=<   5.920   0.000   0.000 >
+                  a2=<   0.000  10.255   0.000 >
+                  a3=<   0.000   0.000   9.653 >
+      reciprocal: b1=<   1.061   0.000   0.000 >
+                  b2=<   0.000   0.613   0.000 >
+                  b3=<   0.000   0.000   0.651 >
+      volume :      586.0
+      density cutoff= 10.000  fft= 16x 16x 16(      446 waves      446 per task)
+      wavefnc cutoff= 10.000  fft= 16x 16x 16(      446 waves      446 per task)
+      ewald summation: cut radius=    1.88  and  8
+                        mandelung= 1.58898112
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)   0.100E-03 (ion)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ================ lmbfgs iteration ==================
+     >>>  ITERATION STARTED AT Thu Feb  7 19:15:41 2002  <<<
+     -   5 steepest descent iterations performed
+      10   -0.4668751850E+02   -0.81421E-02    0.32421E+00
+     -  10 steepest descent iterations performed
+      20   -0.4670491127E+02   -0.56737E-03    0.14281E-02
+      30   -0.4670719440E+02   -0.36964E-04    0.57221E-03
+      40   -0.4670731745E+02   -0.16271E-05    0.17809E-04
+      50   -0.4670732174E+02   -0.46064E-07    0.47602E-06
+      60   -0.4670732177E+02   -0.31139E-07    0.51074E-09
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Thu Feb  7 19:16:24 2002  <<<
+
+
+          =============  summary of results  =================
+
+ number of electrons: spin up=   16.00000  down=   16.00000 (real space)
+
+ total     energy    :  -0.4670732177E+02 (   -0.58384E+01/ion)
+ total orbital energy:   0.2046622066E+01 (    0.12791E+00/electron)
+ hartree   energy    :   0.9902942862E+01 (    0.61893E+00/electron)
+ exc-corr  energy    :  -0.1329220668E+02 (   -0.83076E+00/electron)
+ ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
+
+ K.S. kinetic energy :   0.2846757127E+02 (    0.17792E+01/electron)
+ K.S. V_l  energy    :  -0.2934384049E+02 (   -0.18340E+01/electron)
+ K.S. V_nl energy    :   0.5050248939E+00 (    0.31564E-01/electron)
+ K.S. V_Hart energy  :   0.1980588572E+02 (    0.12379E+01/electron)
+ K.S. V_xc energy    :  -0.1738801933E+02 (   -0.10868E+01/electron)
+ Virial Coefficient  :  -0.9281068959E+00
+
+ orbital energies:
+     0.2993369E+00 (   8.145eV)
+     0.2990269E+00 (   8.137eV)
+     0.2971350E+00 (   8.086eV)
+     0.2627991E+00 (   7.151eV)
+     0.2535415E+00 (   6.899eV)
+     0.2527815E+00 (   6.879eV)
+     0.1947528E+00 (   5.300eV)
+     0.1809224E+00 (   4.923eV)
+     0.1079718E+00 (   2.938eV)
+     0.6383846E-01 (   1.737eV)
+     0.1282195E-01 (   0.349eV)
+    -0.8697858E-02 (  -0.237eV)
+    -0.2553935E+00 (  -6.950eV)
+    -0.2824961E+00 (  -7.687eV)
+    -0.2865677E+00 (  -7.798eV)
+    -0.3684621E+00 ( -10.026eV)
+
+ Total PSPW energy   :  -0.4670732177E+02
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =   0.
+ <S^2>      =   0.
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.1994,   -0.6618,    0.2484 )
+spin down   (   -0.1994,   -0.6618,    0.2484 )
+     total  (   -0.1994,   -0.6618,    0.2484 )
+ionic       (    1.4800,    0.8546,    1.6712 )
+
+
+== Molecular Dipole ==
+
+mu   =  (   53.7399,   48.5240,   45.5293 ) au
+|mu| =    85.5305 au,     217.3844 Debye
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000   -0.00553    0.00129)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Ga (    2.96000    5.12750    4.82650 )
+        2 Ga (    2.96000    1.70917    0.00000 )
+        3 Ga (    0.00000   -3.41833    0.00000 )
+        4 Ga (    0.00000    0.00000    4.82650 )
+        5 N  (    2.96000    5.12750   -1.18732 )
+        6 N  (    2.96000    1.70917    3.63918 )
+        7 N  (    0.00000   -3.41833    3.63918 )
+        8 N  (    0.00000    0.00000   -1.18732 )
+ Ion Forces:
+        1 Ga (    0.00000   -0.00592    0.00052 )
+        2 Ga (    0.00000    0.01836   -0.00036 )
+        3 Ga (    0.00000    0.01835   -0.00035 )
+        4 Ga (    0.00000   -0.00592    0.00053 )
+        5 N  (    0.00000   -0.02110   -0.00054 )
+        6 N  (    0.00000   -0.04011   -0.00031 )
+        7 N  (    0.00000   -0.04013   -0.00031 )
+        8 N  (    0.00000   -0.02112   -0.00050 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.6968578130E-01
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   46.876686
+ main loop   :   43.798638
+ epilogue    :   0.03139
+ total       :   90.706714
+ cputime/step:   0.339524326   ( 129 evalulations,  51 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   18.772104  0.145520186
+   dot products               :   4.616688  0.0357882791
+   geodesic                   :   0.  0.
+   exchange correlation       :   2.20437  0.0170881395
+   local pseudopotentials     :   0.03201  0.000248139535
+   non-local pseudopotentials :   7.56262  0.0586249612
+   hartree potentials         :   0.045142  0.000349937984
+   structure factors          :   12.70328  0.0984750388
+   masking and packing        :   12.411924  0.0962164651
+
+     >>>  JOB COMPLETED     AT Thu Feb  7 19:16:25 2002  <<<
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Task  times  cpu:       85.5s     wall:       90.7s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *           NWPW Band Structure Calculation        *
+          *                                                  *
+          *     [   (Stiefel manifold implementation)   ]    *
+          *            version #1.00   01/01/02              *
+          *                                                  *
+          *  Developed by Eric J. Bylaska and Edoardo Apra   *
+          *                                                  *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Thu Feb  7 19:16:25 2002  <<<
+          ================ input data ========================
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Generated formatted_filename: ./Ga.cpp
+
+
+ Generated formatted_filename: ./N.cpp
+
+
+ + converting wavefunctions from pspw format to band format
+ filename converted    : band.movecs                   
+ pspw filename moved to: band.movecs.pspw              
+converting ... psi:   1 nb: 1
+converting ... psi:   2 nb: 1
+converting ... psi:   3 nb: 1
+converting ... psi:   4 nb: 1
+converting ... psi:   5 nb: 1
+converting ... psi:   6 nb: 1
+converting ... psi:   7 nb: 1
+converting ... psi:   8 nb: 1
+converting ... psi:   9 nb: 1
+converting ... psi:  10 nb: 1
+converting ... psi:  11 nb: 1
+converting ... psi:  12 nb: 1
+converting ... psi:  13 nb: 1
+converting ... psi:  14 nb: 1
+converting ... psi:  15 nb: 1
+converting ... psi:  16 nb: 1
+
+ number of processors used:  1
+
+ options:
+      boundary conditions  = periodic    (version3)
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Ga  core charge: 3.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   1.128   1.506   2.118
+      2: N   core charge: 5.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.700   0.700   0.700
+
+ initial position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass=  68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass=  68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass=  68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass=  68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass=  14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass=  14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass=  14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass=  14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up= 16  spin down= 16 (fourier space)
+
+ supercell:
+      lattice:    a1=<   5.920   0.000   0.000 >
+                  a2=<   0.000  10.255   0.000 >
+                  a3=<   0.000   0.000   9.653 >
+      reciprocal: b1=<   1.061   0.000   0.000 >
+                  b2=<   0.000   0.613   0.000 >
+                  b3=<   0.000   0.000   0.651 >
+      volume :      586.0
+      ewald summation: cut radius=    1.88  and  8
+                        mandelung= 1.58898112
+
+ brillouin zone:
+     number of zone points:  1
+      weight=   1.000  ks=<   0.000   0.000   0.000 >, k=<   0.000   0.000   0.000>
+
+ computational grids:
+      density     cutoff= 10.000  fft= 16x 16x 16(      891 waves      891 per task)
+      wavefnc   1 cutoff= 10.000  fft= 16x 16x 16(      891 waves      891 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ============ electron iteration ====================
+     >>>  ITERATION STARTED AT Thu Feb  7 19:16:35 2002  <<<
+     -   5 steepest descent iterations performed
+      10   -0.4670732178E+02   -0.10213E-07    0.52170E-10
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Thu Feb  7 19:16:43 2002  <<<
+
+
+          =============  summary of results  =================
+ final position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass= 68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass= 68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass= 68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass= 68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass= 14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass= 14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass= 14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass= 14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up=   16.00000  down=   16.00000 (real space)
+
+ total     energy    :  -0.4670732178E+02 (   -0.58384E+01/ion)
+ total orbital energy:   0.2046647044E+01 (    0.12792E+00/electron)
+ hartree   energy    :   0.9902970108E+01 (    0.61894E+00/electron)
+ exc-corr  energy    :  -0.1329221372E+02 (   -0.83076E+00/electron)
+ ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
+
+ K.S. kinetic energy :   0.2846761438E+02 (    0.17792E+01/electron)
+ K.S. V_l  energy    :  -0.2934389789E+02 (   -0.18340E+01/electron)
+ K.S. V_nl energy    :   0.5050189565E+00 (    0.31564E-01/electron)
+ K.S. V_Hart energy  :   0.1980594022E+02 (    0.12379E+01/electron)
+ K.S. V_xc energy    :  -0.1738802862E+02 (   -0.10868E+01/electron)
+ Virial Coefficient  :  -0.9281061273E+00
+
+ Brillion zone point:  1
+    weight=  1.000000
+    k     =<   0.000   0.000   0.000> . <b1,b2,b3> 
+          =<   0.000   0.000   0.000>
+
+ orbital energies:
+     0.2993377E+00 (   8.145eV)
+     0.2990279E+00 (   8.137eV)
+     0.2971360E+00 (   8.086eV)
+     0.2628000E+00 (   7.151eV)
+     0.2535423E+00 (   6.899eV)
+     0.2527825E+00 (   6.879eV)
+     0.1947534E+00 (   5.300eV)
+     0.1809231E+00 (   4.923eV)
+     0.1079722E+00 (   2.938eV)
+     0.6383906E-01 (   1.737eV)
+     0.1282232E-01 (   0.349eV)
+    -0.8697635E-02 (  -0.237eV)
+    -0.2553923E+00 (  -6.950eV)
+    -0.2824950E+00 (  -7.687eV)
+    -0.2865668E+00 (  -7.798eV)
+    -0.3684614E+00 ( -10.026eV)
+
+ Total BAND energy   :  -0.4670732178E+02
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000   -0.00553    0.00130)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Ga (    2.96000    5.12750    4.82650 )
+        2 Ga (    2.96000    1.70917    0.00000 )
+        3 Ga (    0.00000   -3.41833    0.00000 )
+        4 Ga (    0.00000    0.00000    4.82650 )
+        5 N  (    2.96000    5.12750   -1.18732 )
+        6 N  (    2.96000    1.70917    3.63918 )
+        7 N  (    0.00000   -3.41833    3.63918 )
+        8 N  (    0.00000    0.00000   -1.18732 )
+ Ion Forces:
+        1 Ga (    0.00000   -0.00592    0.00052 )
+        2 Ga (    0.00000    0.01836   -0.00036 )
+        3 Ga (    0.00000    0.01835   -0.00035 )
+        4 Ga (    0.00000   -0.00592    0.00053 )
+        5 N  (    0.00000   -0.02111   -0.00054 )
+        6 N  (    0.00000   -0.04011   -0.00030 )
+        7 N  (    0.00000   -0.04013   -0.00029 )
+        8 N  (    0.00000   -0.02113   -0.00051 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.6968638001E-01
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   9.732504
+ main loop   :   9.484464
+ epilogue    :   0.038612
+ total       :   19.25558
+ cputime/step:   1.05382933   ( 9 evalulations,  1 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   1.41605  0.157338889
+   dot products               :   2.671444  0.296827111
+   geodesic                   :   0.618634  0.0687371111
+   exchange correlation       :   0.112298  0.0124775556
+   local pseudopotentials     :   0.034516  0.00383511111
+   non-local pseudopotentials :   3.204068  0.356007556
+   hartree potentials         :   0.003904  0.000433777778
+   structure factors          :   0.151332  0.0168146667
+   masking and packing        :   0.292394  0.0324882222
+
+     >>>  JOB COMPLETED     AT Thu Feb  7 19:16:44 2002  <<<
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Task  times  cpu:       17.7s     wall:       19.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *           NWPW Band Structure Calculation        *
+          *                                                  *
+          *     [   (Stiefel manifold implementation)   ]    *
+          *            version #1.00   01/01/02              *
+          *                                                  *
+          *  Developed by Eric J. Bylaska and Edoardo Apra   *
+          *                                                  *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Thu Feb  7 19:16:44 2002  <<<
+          ================ input data ========================
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+ pseudopotential is not correctly formatted-bad brillioun zone:
+ Ga.cpp              
+
+ Generated formatted_filename: ./Ga.cpp
+
+ pseudopotential is not correctly formatted-bad brillioun zone:
+ N.cpp               
+
+ Generated formatted_filename: ./N.cpp
+
+ Waring - Gram-Schmidt performed on psi, spin,zone: 1 1
+  error_before,error_after:  0.0166461216  0.000283956868  15.9833539
+  15.999716
+ Waring - Gram-Schmidt performed on psi, spin,zone: 1 2
+  error_before,error_after:  0.017317531  0.000955920294  15.9826825
+  15.9990441
+ Waring - Gram-Schmidt performed on psi, spin,zone: 1 3
+  error_before,error_after:  0.0163624063  0.  15.9836376  16.
+
+ number of processors used:  1
+
+ options:
+      boundary conditions  = periodic    (version3)
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Ga  core charge: 3.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   1.128   1.506   2.118
+      2: N   core charge: 5.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.700   0.700   0.700
+
+ initial position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass=  68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass=  68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass=  68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass=  68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass=  14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass=  14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass=  14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass=  14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up= 16  spin down= 16 (fourier space)
+
+ supercell:
+      lattice:    a1=<   5.920   0.000   0.000 >
+                  a2=<   0.000  10.255   0.000 >
+                  a3=<   0.000   0.000   9.653 >
+      reciprocal: b1=<   1.061   0.000   0.000 >
+                  b2=<   0.000   0.613   0.000 >
+                  b3=<   0.000   0.000   0.651 >
+      volume :      586.0
+      ewald summation: cut radius=    1.88  and  8
+                        mandelung= 1.58898112
+
+ brillouin zone:
+     number of zone points:  3
+      weight=   0.333  ks=<   0.222   0.000   0.250 >, k=<   0.236   0.000   0.163>
+      weight=   0.333  ks=<   0.444   0.000   0.250 >, k=<   0.472   0.000   0.163>
+      weight=   0.333  ks=<   0.556   0.333   0.250 >, k=<   0.590   0.204   0.163>
+
+ computational grids:
+      density     cutoff= 10.000  fft= 16x 16x 16(      891 waves      891 per task)
+      wavefnc   1 cutoff= 10.000  fft= 16x 16x 16(      888 waves      888 per task)
+      wavefnc   2 cutoff= 10.000  fft= 16x 16x 16(      883 waves      883 per task)
+      wavefnc   3 cutoff= 10.000  fft= 16x 16x 16(      890 waves      890 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ============ electron iteration ====================
+     >>>  ITERATION STARTED AT Thu Feb  7 19:17:00 2002  <<<
+      10   -0.4713287198E+02   -0.83041E-01    0.13514E-03
+     -  10 steepest descent iterations performed
+      20   -0.4752212000E+02   -0.13926E-01    0.40644E-04
+     -  10 steepest descent iterations performed
+      30   -0.4752522848E+02   -0.48714E-05    0.98958E-07
+      40   -0.4752523390E+02   -0.88339E-07    0.16482E-08
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Thu Feb  7 19:24:48 2002  <<<
+
+
+          =============  summary of results  =================
+ final position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass= 68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass= 68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass= 68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass= 68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass= 14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass= 14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass= 14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass= 14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up=   16.00000  down=   16.00000 (real space)
+
+ total     energy    :  -0.4752523390E+02 (   -0.59407E+01/ion)
+ total orbital energy:   0.3228288400E+00 (    0.20177E-01/electron)
+ hartree   energy    :   0.8911011282E+01 (    0.55694E+00/electron)
+ exc-corr  energy    :  -0.1302196569E+02 (   -0.81387E+00/electron)
+ ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
+
+ K.S. kinetic energy :   0.2621004200E+02 (    0.16381E+01/electron)
+ K.S. V_l  energy    :  -0.2787496581E+02 (   -0.17422E+01/electron)
+ K.S. V_nl energy    :   0.1197457944E+01 (    0.74841E-01/electron)
+ K.S. V_Hart energy  :   0.1782202256E+02 (    0.11139E+01/electron)
+ K.S. V_xc energy    :  -0.1703172785E+02 (   -0.10645E+01/electron)
+ Virial Coefficient  :  -0.9876830094E+00
+
+ Brillion zone point:  1
+    weight=  0.333333
+    k     =<   0.222   0.000   0.250> . <b1,b2,b3> 
+          =<   0.236   0.000   0.163>
+
+ orbital energies:
+     0.2386434E+00 (   6.494eV)
+     0.2359578E+00 (   6.421eV)
+     0.1985764E+00 (   5.404eV)
+     0.1883913E+00 (   5.126eV)
+     0.1543225E+00 (   4.199eV)
+     0.1479653E+00 (   4.026eV)
+     0.1425622E+00 (   3.879eV)
+     0.1321080E+00 (   3.595eV)
+     0.7972303E-01 (   2.169eV)
+     0.2878970E-01 (   0.783eV)
+     0.2337217E-01 (   0.636eV)
+     0.9038576E-02 (   0.246eV)
+    -0.2983273E+00 (  -8.118eV)
+    -0.3095786E+00 (  -8.424eV)
+    -0.3235803E+00 (  -8.805eV)
+    -0.3723469E+00 ( -10.132eV)
+
+ Brillion zone point:  2
+    weight=  0.333333
+    k     =<   0.444   0.000   0.250> . <b1,b2,b3> 
+          =<   0.472   0.000   0.163>
+
+ orbital energies:
+     0.2160403E+00 (   5.879eV)
+     0.1965149E+00 (   5.347eV)
+     0.1734004E+00 (   4.719eV)
+     0.1500591E+00 (   4.083eV)
+     0.1386884E+00 (   3.774eV)
+     0.1243062E+00 (   3.383eV)
+     0.1224074E+00 (   3.331eV)
+     0.8037056E-01 (   2.187eV)
+     0.4494572E-01 (   1.223eV)
+     0.2677731E-01 (   0.729eV)
+     0.2025525E-01 (   0.551eV)
+     0.1860451E-01 (   0.506eV)
+    -0.2972662E+00 (  -8.089eV)
+    -0.3008250E+00 (  -8.186eV)
+    -0.3128906E+00 (  -8.514eV)
+    -0.3317534E+00 (  -9.028eV)
+
+ Brillion zone point:  3
+    weight=  0.333333
+    k     =<   0.556   0.333   0.250> . <b1,b2,b3> 
+          =<   0.590   0.204   0.163>
+
+ orbital energies:
+     0.2103713E+00 (   5.725eV)
+     0.2003595E+00 (   5.452eV)
+     0.1975139E+00 (   5.375eV)
+     0.1840864E+00 (   5.009eV)
+     0.1600612E+00 (   4.356eV)
+     0.1526448E+00 (   4.154eV)
+     0.1169600E+00 (   3.183eV)
+     0.1168657E+00 (   3.180eV)
+     0.2997580E-01 (   0.816eV)
+     0.2244938E-01 (   0.611eV)
+    -0.2969293E-02 (  -0.081eV)
+    -0.7199685E-02 (  -0.196eV)
+    -0.2988915E+00 (  -8.133eV)
+    -0.3005638E+00 (  -8.179eV)
+    -0.3162373E+00 (  -8.605eV)
+    -0.3264353E+00 (  -8.883eV)
+
+ Total BAND energy   :  -0.4752523390E+02
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00011   -0.00477    0.00239)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Ga (    2.96000    5.12750    4.82650 )
+        2 Ga (    2.96000    1.70917    0.00000 )
+        3 Ga (    0.00000   -3.41833    0.00000 )
+        4 Ga (    0.00000    0.00000    4.82650 )
+        5 N  (    2.96000    5.12750   -1.18732 )
+        6 N  (    2.96000    1.70917    3.63918 )
+        7 N  (    0.00000   -3.41833    3.63918 )
+        8 N  (    0.00000    0.00000   -1.18732 )
+ Ion Forces:
+        1 Ga (   -0.00011    0.00451    0.00047 )
+        2 Ga (    0.00022    0.00568    0.00008 )
+        3 Ga (    0.00022    0.00568    0.00008 )
+        4 Ga (   -0.00011    0.00451    0.00047 )
+        5 N  (    0.00055    0.00260   -0.00168 )
+        6 N  (   -0.00112   -0.05278   -0.00107 )
+        7 N  (   -0.00112   -0.05278   -0.00107 )
+        8 N  (    0.00055    0.00260   -0.00168 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.7551772872E-01
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   15.843372
+ main loop   :   470.173218
+ epilogue    :   2.868966
+ total       :   488.885556
+ cputime/step:   2.37461221   ( 198 evalulations,  39 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   88.530264  0.447122545
+   dot products               :   126.687848  0.639837616
+   geodesic                   :   142.05731  0.717461162
+   exchange correlation       :   2.423294  0.0122388586
+   local pseudopotentials     :   0.033618  0.000169787879
+   non-local pseudopotentials :   163.111514  0.823795525
+   hartree potentials         :   0.087244  0.000440626263
+   structure factors          :   1.901442  0.00960324242
+   masking and packing        :   16.34759  0.0825635859
+
+     >>>  JOB COMPLETED     AT Thu Feb  7 19:24:53 2002  <<<
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Task  times  cpu:      473.6s     wall:      488.9s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *           NWPW Band Structure Calculation        *
+          *                                                  *
+          *     [   (Stiefel manifold implementation)   ]    *
+          *            version #1.00   01/01/02              *
+          *                                                  *
+          *  Developed by Eric J. Bylaska and Edoardo Apra   *
+          *                                                  *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Thu Feb  7 19:24:53 2002  <<<
+          ================ input data ========================
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+ pseudopotential is not correctly formatted-bad brillioun zone:
+ Ga.cpp              
+
+ Generated formatted_filename: ./Ga.cpp
+
+ pseudopotential is not correctly formatted-bad brillioun zone:
+ N.cpp               
+
+ Generated formatted_filename: ./N.cpp
+
+ Waring - Gram-Schmidt performed on psi, spin,zone: 1 1
+  error_before,error_after:  0.00812949243  0.  15.9918705  16.
+
+ number of processors used:  1
+
+ options:
+      boundary conditions  = periodic    (version3)
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Ga  core charge: 3.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   1.128   1.506   2.118
+      2: N   core charge: 5.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.700   0.700   0.700
+
+ initial position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass=  68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass=  68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass=  68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass=  68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass=  14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass=  14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass=  14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass=  14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up= 16  spin down= 16 (fourier space)
+
+ supercell:
+      lattice:    a1=<   5.920   0.000   0.000 >
+                  a2=<   0.000  10.255   0.000 >
+                  a3=<   0.000   0.000   9.653 >
+      reciprocal: b1=<   1.061   0.000   0.000 >
+                  b2=<   0.000   0.613   0.000 >
+                  b3=<   0.000   0.000   0.651 >
+      volume :      586.0
+      ewald summation: cut radius=    1.88  and  8
+                        mandelung= 1.58898112
+
+ brillouin zone:
+     number of zone points:  1
+      weight=   1.000  ks=<   0.500   0.500   0.500 >, k=<   0.531   0.306   0.325>
+
+ computational grids:
+      density     cutoff= 10.000  fft= 16x 16x 16(      891 waves      891 per task)
+      wavefnc   1 cutoff= 10.000  fft= 16x 16x 16(      896 waves      896 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ============ electron iteration ====================
+     >>>  ITERATION STARTED AT Thu Feb  7 19:25:02 2002  <<<
+      10   -0.4702515312E+02   -0.58125E-01    0.55930E-04
+     -  10 steepest descent iterations performed
+      20   -0.4738726289E+02   -0.84182E-02    0.34926E-05
+     -  10 steepest descent iterations performed
+      30   -0.4742727679E+02   -0.43913E-05    0.11082E-06
+      40   -0.4742727944E+02   -0.87573E-07    0.12018E-08
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Thu Feb  7 19:27:41 2002  <<<
+
+
+          =============  summary of results  =================
+ final position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass= 68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass= 68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass= 68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass= 68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass= 14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass= 14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass= 14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass= 14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up=   16.00000  down=   16.00000 (real space)
+
+ total     energy    :  -0.4742727944E+02 (   -0.59284E+01/ion)
+ total orbital energy:   0.7588923832E+00 (    0.47431E-01/electron)
+ hartree   energy    :   0.9282096228E+01 (    0.58013E+00/electron)
+ exc-corr  energy    :  -0.1312578687E+02 (   -0.82036E+00/electron)
+ ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
+
+ K.S. kinetic energy :   0.2676831855E+02 (    0.16730E+01/electron)
+ K.S. V_l  energy    :  -0.2841575610E+02 (   -0.17760E+01/electron)
+ K.S. V_nl energy    :   0.1010662366E+01 (    0.63166E-01/electron)
+ K.S. V_Hart energy  :   0.1856419246E+02 (    0.11603E+01/electron)
+ K.S. V_xc energy    :  -0.1716852489E+02 (   -0.10730E+01/electron)
+ Virial Coefficient  :  -0.9716496058E+00
+
+ Brillion zone point:  1
+    weight=  1.000000
+    k     =<   0.500   0.500   0.500> . <b1,b2,b3> 
+          =<   0.531   0.306   0.325>
+
+ orbital energies:
+     0.1997790E+00 (   5.436eV)
+     0.1997790E+00 (   5.436eV)
+     0.1965754E+00 (   5.349eV)
+     0.1965752E+00 (   5.349eV)
+     0.1962181E+00 (   5.339eV)
+     0.1962179E+00 (   5.339eV)
+     0.1943327E+00 (   5.288eV)
+     0.1943326E+00 (   5.288eV)
+    -0.3451981E-02 (  -0.094eV)
+    -0.3452644E-02 (  -0.094eV)
+    -0.3846310E-02 (  -0.105eV)
+    -0.3846533E-02 (  -0.105eV)
+    -0.2942044E+00 (  -8.006eV)
+    -0.2942044E+00 (  -8.006eV)
+    -0.2956787E+00 (  -8.046eV)
+    -0.2956788E+00 (  -8.046eV)
+
+ Total BAND energy   :  -0.4742727944E+02
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000   -0.00498    0.00567)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Ga (    2.96000    5.12750    4.82650 )
+        2 Ga (    2.96000    1.70917    0.00000 )
+        3 Ga (    0.00000   -3.41833    0.00000 )
+        4 Ga (    0.00000    0.00000    4.82650 )
+        5 N  (    2.96000    5.12750   -1.18732 )
+        6 N  (    2.96000    1.70917    3.63918 )
+        7 N  (    0.00000   -3.41833    3.63918 )
+        8 N  (    0.00000    0.00000   -1.18732 )
+ Ion Forces:
+        1 Ga (    0.00000    0.00292    0.00216 )
+        2 Ga (    0.00000    0.00767    0.00184 )
+        3 Ga (    0.00000    0.00767    0.00184 )
+        4 Ga (    0.00000    0.00292    0.00216 )
+        5 N  (   -0.00003   -0.02921   -0.00991 )
+        6 N  (   -0.00001   -0.02291   -0.00977 )
+        7 N  (   -0.00001   -0.02291   -0.00977 )
+        8 N  (   -0.00003   -0.02921   -0.00991 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.5739984236E-01
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   8.97363
+ main loop   :   160.761758
+ epilogue    :   0.039918
+ total       :   169.775306
+ cputime/step:   0.859688545   ( 187 evalulations,  35 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   31.38215  0.167818984
+   dot products               :   41.009844  0.219303979
+   geodesic                   :   45.508194  0.243359326
+   exchange correlation       :   2.405096  0.0128614759
+   local pseudopotentials     :   0.033582  0.000179582888
+   non-local pseudopotentials :   54.108744  0.289351572
+   hartree potentials         :   0.081402  0.000435304813
+   structure factors          :   2.009602  0.0107465348
+   masking and packing        :   5.188644  0.0277467594
+
+     >>>  JOB COMPLETED     AT Thu Feb  7 19:27:43 2002  <<<
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Task  times  cpu:      160.5s     wall:      169.8s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+          ****************************************************
+          *                                                  *
+          *           NWPW Band Structure Calculation        *
+          *                                                  *
+          *     [   (Stiefel manifold implementation)   ]    *
+          *            version #1.00   01/01/02              *
+          *                                                  *
+          *  Developed by Eric J. Bylaska and Edoardo Apra   *
+          *                                                  *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Thu Feb  7 19:27:43 2002  <<<
+          ================ input data ========================
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+ pseudopotential is not correctly formatted-bad brillioun zone:
+ Ga.cpp              
+
+ Generated formatted_filename: ./Ga.cpp
+
+ pseudopotential is not correctly formatted-bad brillioun zone:
+ N.cpp               
+
+ Generated formatted_filename: ./N.cpp
+
+ Waring - Gram-Schmidt performed on psi, spin,zone: 1 1
+  error_before,error_after:  0.0161140685  3.55271368E-15  15.9838859  16.
+
+ number of processors used:  1
+
+ options:
+      boundary conditions  = periodic    (version3)
+      exchange-correlation = Vosko et al parameterization
+
+ elements involved in the cluster:
+      1: Ga  core charge: 3.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   1.128   1.506   2.118
+      2: N   core charge: 5.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.700   0.700   0.700
+
+ initial position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass=  68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass=  68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass=  68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass=  68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass=  14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass=  14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass=  14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass=  14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up= 16  spin down= 16 (fourier space)
+
+ supercell:
+      lattice:    a1=<   5.920   0.000   0.000 >
+                  a2=<   0.000  10.255   0.000 >
+                  a3=<   0.000   0.000   9.653 >
+      reciprocal: b1=<   1.061   0.000   0.000 >
+                  b2=<   0.000   0.613   0.000 >
+                  b3=<   0.000   0.000   0.651 >
+      volume :      586.0
+      ewald summation: cut radius=    1.88  and  8
+                        mandelung= 1.58898112
+
+ brillouin zone:
+     number of zone points:  1
+      weight=   1.000  ks=<   0.000   0.000   0.000 >, k=<   0.000   0.000   0.000>
+
+ computational grids:
+      density     cutoff= 10.000  fft= 16x 16x 16(      891 waves      891 per task)
+      wavefnc   1 cutoff= 10.000  fft= 16x 16x 16(      891 waves      891 per task)
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+
+
+
+
+
+======================
+= energy calculation =
+======================
+
+
+          ============ electron iteration ====================
+     >>>  ITERATION STARTED AT Thu Feb  7 19:27:52 2002  <<<
+      10   -0.4592827045E+02   -0.13420E+00    0.20330E-03
+     -  10 steepest descent iterations performed
+      20   -0.4663923505E+02   -0.12466E-01    0.71924E-05
+     -  10 steepest descent iterations performed
+      30   -0.4670241033E+02   -0.55515E-03    0.17235E-04
+      40   -0.4670632766E+02   -0.35451E-03    0.19873E-05
+      50   -0.4670710643E+02   -0.19232E-04    0.54982E-06
+      60   -0.4670726872E+02   -0.11907E-04    0.55559E-07
+      70   -0.4670730903E+02   -0.10687E-05    0.11742E-07
+      80   -0.4670735870E+02   -0.17928E-04    0.17365E-06
+     -  10 steepest descent iterations performed
+      90   -0.4670731549E+02   -0.34322E-06    0.16368E-08
+     100   -0.4670732082E+02   -0.30858E-06    0.27176E-08
+     110   -0.4670732151E+02   -0.90853E-07    0.74508E-09
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Thu Feb  7 19:34:11 2002  <<<
+
+
+          =============  summary of results  =================
+ final position of ions:
+        1 Ga (    2.96000    5.12750    4.82650 ) - atomic mass= 68.926 
+        2 Ga (    2.96000    1.70917    0.00000 ) - atomic mass= 68.926 
+        3 Ga (    0.00000   -3.41833    0.00000 ) - atomic mass= 68.926 
+        4 Ga (    0.00000    0.00000    4.82650 ) - atomic mass= 68.926 
+        5 N  (    2.96000    5.12750   -1.18732 ) - atomic mass= 14.003 
+        6 N  (    2.96000    1.70917    3.63918 ) - atomic mass= 14.003 
+        7 N  (    0.00000   -3.41833    3.63918 ) - atomic mass= 14.003 
+        8 N  (    0.00000    0.00000   -1.18732 ) - atomic mass= 14.003 
+       G.C.  (    1.48000    0.85458    1.81959 )
+      C.O.M. (    1.48000    0.85458    2.21276 )
+
+ number of electrons: spin up=   16.00000  down=   16.00000 (real space)
+
+ total     energy    :  -0.4670732151E+02 (   -0.58384E+01/ion)
+ total orbital energy:   0.2047111640E+01 (    0.12794E+00/electron)
+ hartree   energy    :   0.9903475039E+01 (    0.61897E+00/electron)
+ exc-corr  energy    :  -0.1329234095E+02 (   -0.83077E+00/electron)
+ ion-ion   energy    :  -0.4294681362E+02 (   -0.53684E+01/ion)
+
+ K.S. kinetic energy :   0.2846801533E+02 (    0.17793E+01/electron)
+ K.S. V_l  energy    :  -0.2934485263E+02 (   -0.18341E+01/electron)
+ K.S. V_nl energy    :   0.5051953223E+00 (    0.31575E-01/electron)
+ K.S. V_Hart energy  :   0.1980695008E+02 (    0.12379E+01/electron)
+ K.S. V_xc energy    :  -0.1738819645E+02 (   -0.10868E+01/electron)
+ Virial Coefficient  :  -0.9280908199E+00
+
+ Brillion zone point:  1
+    weight=  1.000000
+    k     =<   0.000   0.000   0.000> . <b1,b2,b3> 
+          =<   0.000   0.000   0.000>
+
+ orbital energies:
+     0.2993556E+00 (   8.146eV)
+     0.2990470E+00 (   8.138eV)
+     0.2971561E+00 (   8.086eV)
+     0.2628160E+00 (   7.152eV)
+     0.2535578E+00 (   6.900eV)
+     0.2527994E+00 (   6.879eV)
+     0.1947651E+00 (   5.300eV)
+     0.1809354E+00 (   4.924eV)
+     0.1079807E+00 (   2.938eV)
+     0.6384941E-01 (   1.737eV)
+     0.1282872E-01 (   0.349eV)
+    -0.8691787E-02 (  -0.237eV)
+    -0.2553713E+00 (  -6.949eV)
+    -0.2824762E+00 (  -7.687eV)
+    -0.2865489E+00 (  -7.797eV)
+    -0.3684471E+00 ( -10.026eV)
+
+ Total BAND energy   :  -0.4670732151E+02
+
+
+========================
+= Gradient calculation =
+========================
+
+
+Translation force removed: (    0.00000   -0.00551    0.00129)
+
+
+          =============  Ion Gradients =================
+ Ion Positions:
+        1 Ga (    2.96000    5.12750    4.82650 )
+        2 Ga (    2.96000    1.70917    0.00000 )
+        3 Ga (    0.00000   -3.41833    0.00000 )
+        4 Ga (    0.00000    0.00000    4.82650 )
+        5 N  (    2.96000    5.12750   -1.18732 )
+        6 N  (    2.96000    1.70917    3.63918 )
+        7 N  (    0.00000   -3.41833    3.63918 )
+        8 N  (    0.00000    0.00000   -1.18732 )
+ Ion Forces:
+        1 Ga (    0.00000   -0.00592    0.00052 )
+        2 Ga (    0.00001    0.01837   -0.00036 )
+        3 Ga (    0.00001    0.01837   -0.00036 )
+        4 Ga (    0.00000   -0.00592    0.00052 )
+        5 N  (   -0.00001   -0.02113   -0.00054 )
+        6 N  (   -0.00001   -0.04013   -0.00029 )
+        7 N  (   -0.00001   -0.04013   -0.00029 )
+        8 N  (   -0.00001   -0.02113   -0.00054 )
+      C.O.M. (    0.00000    0.00000    0.00000 )
+          ===============================================
+          |F|=     0.6971410342E-01
+
+
+
+ -----------------
+ cputime in seconds
+ prologue    :   8.875284
+ main loop   :   380.32738
+ epilogue    :   0.038132
+ total       :   389.240796
+ cputime/step:   0.814405525   ( 467 evalulations,  104 line searches)
+
+ -------------------------------
+ Time spent doing:
+   FFTs                       :   71.875166  0.153908278
+   dot products               :   98.523482  0.210971054
+   geodesic                   :   112.344072  0.240565465
+   exchange correlation       :   5.892476  0.0126177216
+   local pseudopotentials     :   0.03361  7.19700214E-05
+   non-local pseudopotentials :   128.022134  0.274137332
+   hartree potentials         :   0.205326  0.000439670236
+   structure factors          :   4.009012  0.00858460814
+   masking and packing        :   12.791468  0.0273907238
+
+     >>>  JOB COMPLETED     AT Thu Feb  7 19:34:12 2002  <<<
+
+  !!!!!!!!!  geom_3d NEEDS TESTING !!!!!!!!!! 
+
+ Task  times  cpu:      382.9s     wall:      389.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    8        8      106        5        0        0        0        0     
+bytes total:             2.56e+05 1.08e+05 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 173056 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        93	        14
+	current total bytes		         0	         0
+	maximum total bytes		  19981436	   9856604
+	maximum total K-bytes		     19982	      9857
+	maximum total M-bytes		        20	        10
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
+            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
+            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
+            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
+            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
+            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.0.1" (2001),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+                                    REFERENCES
+                                    ----------
+
+            Where appropriate, please cite the following reference(s) 
+            when publishing results obtained with NWChem:
+
+
+     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
+        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
+        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
+        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
+        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
+
+
+
+ Total times  cpu:     1120.3s     wall:     1158.2s

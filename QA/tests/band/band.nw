@@ -88,3 +88,9 @@ nwpw
 end
 task band energy
 
+### Monkhorst-Pack test added 4/22/04 ####
+nwpw
+    Monkhorst-Pack 2 1 1
+end
+task band energy
+
