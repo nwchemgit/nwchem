@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.64 1997-04-29 09:56:34 d3e129 Exp $
+C$Id: geom.F,v 1.65 1997-10-20 20:28:05 d3g681 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -868,6 +868,35 @@ c
         amatrix_inv(i,i,geom) = 1.0d0
         bmatrix(i,i,geom) = 1.0d0
       end do
+c
+      end
+      logical function geom_strip_sym(geom)
+      implicit none
+#include "geomP.fh"
+#include "mafdecls.fh"
+c
+c     Reset the given geometry to have just C1 symmetry, freeing
+c     any associated in-core data structures.
+c
+      integer geom              ! [input]
+      logical geom_check_handle
+      external geom_check_handle
+c     
+      geom_strip_sym = geom_check_handle(geom, 'geom_strip_sym')
+      if (.not. geom_strip_sym) return
+c
+      ncenter_unique(geom) = 0
+      isystype(geom) = 0
+      group_number(geom) = 1
+      setting_number(geom) = 0
+      if (sym_center_map_handle(geom) .ne. -1) then
+         if (.not. ma_free_heap(sym_center_map_handle(geom)))
+     $        call errquit('geom_strip_sum: free of atom map', 0)
+      end if
+      sym_center_map_handle(geom) = -1
+      sym_center_map_index(geom) = 1
+      group_name(geom) = 'C1'
+      sym_num_ops(geom) = 0
 c
       end
       logical function geom_destroy(geom)
