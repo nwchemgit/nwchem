@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: update_www,v 1.2 1998-09-08 18:30:51 d3e129 Exp $
+# $Id: update_www,v 1.3 1998-09-08 18:55:58 d3e129 Exp $
 
 # Script to automate updating of web pages for the
 # user and programmers manuals.
@@ -51,7 +51,12 @@ foreach WWWDIR (/dfs/www/pub/docs/nwchem/doc /dfs/www/docs/nwchem/doc)
 #
 # reset directory and file permissions
 #
+  echo "update_www: Making /dfs directories/files public"
   chmod go+rx $WWWDIR/$document
+  if ($status) then
+     echo "update_www: could not make $WWWDIR/$document public"
+     exit 911
+  endif
   find $WWWDIR/$document -type f -exec chmod go+r "{}" ";"
 
 # Now run Pawel's magic perl script to make the frames
