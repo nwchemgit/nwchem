@@ -1,39 +1,31 @@
 \label{sec:mcscf}
 
-{\bf This is junk ... I'm reworking it.}
-
 The NWChem multiconfiguration SCF (MCSCF) module can currently perform
 complete active space SCF (CASSCF) calculations with at most 20 active
-orbitals and about 500 basis functions.
+orbitals and about 500 basis functions.  It planned to extend it to 
+handle 1000+ basis functions.
 
 \begin{verbatim}
   MCSCF
+    STATE <string state>
     ACTIVE <integer nactive>
-
     ACTELEC <integer nactelec>
-
     MULTIPLICITY <integer multiplicity>
-
     [SYMMETRY <integer symmetry default 1>]
-
     [VECTORS [[input] <string input_file default $file_prefix$.movecs>] 
            [swap <integer vec1 vec2> ...] \
            [output <string output_file default input_file>] \
            [lock]
-
     [HESSIAN (exact||onel)]
-
     [MAXITER <integer maxiter default 20>]
-
     [THRESH  <real thresh default 1.0e-4>]
-
     [TOL2E <real tol2e default 1.0e-9>]
-
     [LEVEL <real shift default 0.1d0>]
   END
 \end{verbatim}
 Note that the \verb+ACTIVE+, \verb+ACTELEC+, and \verb+MULTIPLICITY+
-directives are {\em required}.
+directives are {\em required}.  The symmetry and multiplicity may
+alternatively be entered using the \verb+STATE+ directive.
 
 \section{{\tt ACTIVE} --- Number of active orbitals}
 
@@ -87,6 +79,21 @@ E.g., to specify a $B_1$ state when using the $C_{2v}$ group
   symmetry 3
 \end{verbatim}
 
+\section{{\tt STATE} --- Symmetry and multiplicity}
+
+The electronic state (spatial symmetry and multiplicity) may
+alternatively be specified using the conventional notation for an
+electronic state, such as $^3B_2$ for a triplet state of $B_2$
+symmetry.  This would be accomplished with the input
+\begin{verbatim}
+  state 3b2
+\end{verbatim}
+which is equivalent to 
+\begin{verbatim}
+  symmetry 4
+  multiplicity 3
+\end{verbatim}
+
 \section{{\tt VECTORS} --- Input/output of MO vectors}
 \label{sec:mcscfvectors}
 
@@ -102,10 +109,14 @@ See Section \ref{sec:vectors} for an example.
 Output orbitals of a converged MCSCF calculation are canonicalized as
 follows:
 \begin{itemize}
-\item Doubly occupied and occupied orbitals diagonalize the
-  corresponding blocks of an effective Fock operator.
-\item Active orbitals are chosen as natural orbitals by
+\item Doubly occupied and unoccupied orbitals diagonalize the
+  corresponding blocks of an effective Fock operator.  Note that in
+  the case of degenerate orbital energies this does not fully
+  determine the orbtials.
+\item Active-space orbitals are chosen as natural orbitals by
   diagonalization of the active space 1-particle density matrix.
+  Note that in the case of degenerate occupations that this
+  does not fully determine the orbitals.
 \end{itemize}
 
 \section{{\tt HESSIAN} --- Select preconditioner}

@@ -117,9 +117,10 @@ For example, to disable use of symmetry in Fock matrix construction:
 
 The default in the SCF module calculation is to force symmetry
 adaption of the molecular orbitals. This does not affect the speed of
-the calculation, but the resulting orbitals may be symmetry
-contaminated for some problems.  This is especially likely if the
-calculation is started using orbitals from a distorted geometry.
+the calculation, but without explicit adaption the resulting orbitals
+may be symmetry contaminated for some problems.  This is especially
+likely if the calculation is started using orbitals from a distorted
+geometry.
 
 The underlying assumption in the use of symmetry in Fock matrix
 construction is that the density is totally symmetric.  If the orbitals
@@ -147,7 +148,7 @@ typically much greater than this threshold.
 It is generally not necessary to set this parameter directly.  Specify
 instead the required precision in the wavefunction, using the
 \verb+THRESH+ directive (Section \ref{sec:thresh}). The default
-threshold is the minimum of $10^{-7}$ and $0.01$ times the requested
+threshold is the minimum of $10^{-7}$ and 0.01 times the requested
 convergence threshold for the SCF calculation (Section
 \ref{sec:thresh}).  This is suitable for nearly all purposes, though a
 more relaxed value of $10^{-6}$ might accelerate exploratory
@@ -167,7 +168,8 @@ directive is, for example:
 
 \begin{verbatim}
   VECTORS [[input] (<string input_movecs default atomic>) || \
-                   (project <string basisname> <string filename>)] \
+                   (project <string basisname> <string filename>) || \
+                   (fragment <string file1> [<string file2> ...])] \
           [swap [alpha||beta] <integer vec1 vec2> ...] \
           [output <string output_filename default input_movecs>] \
           [lock]
@@ -198,6 +200,14 @@ source of the input molecular orbital vectors as any of the following:
   the geometry used for the previous calculations must have the atoms
   in the same order and in the same orientation as the current
   geometry.
+\item \verb+FRAGMENT file1 ...+ --- assembles starting MO vectors from
+  previously performed calculations on fragments of the system and is
+  described in more detail in Section \ref{sec:fragguess}.  Even
+  though there are some significant restrictions in the use of the
+  initial implementation of this method (see Section
+  \ref{sec:fragguess}), this is the most powerful initial guess option
+  within the code.  It is particularly indispensible for open shell
+  metallic systems.
 \end{itemize}
  
 The molecular orbitals are saved every iteration if more than 600
@@ -296,6 +306,314 @@ previous geometry, despite flipping of the orbital energies.  For such
 a case, the \verb+LOCK+ directive can be used to prevent the SCF
 calculation from changing the ordering, even if the orbital energies
 change.
+
+\subsection{Superposition of fragment molecular orbitals}
+\label{sec:fragguess}
+
+The fragment initial guess is particularly useful in the following
+instances:
+\begin{itemize}
+\item The system naturally decomposes into molecules that can be
+  treated individually, e.g., a cluster.
+\item One or more fragments are particularly hard to converge and
+  therefore much time can be saved by converging them independently.
+\item A fragment (e.g., a metal atom) must be prepared with a specific
+  occupation.  This can often be readily accomplished with a
+  calculation on the fragment using dummy charges to model a ligand
+  field.
+\item The atomic initial guess currently does not work correctly in
+  the presence of ECPs.  Independenly converging fragments with ECPs 
+  can save a lot of resources.
+\item The molecular occupation predicted by the atomic initial guess
+  is often wrong for systems with heavy metals which may have
+  partially occupied orbitals with lower energy than some doubly
+  occupied orbitals.  The fragment initial guess avoids this problem.
+\end{itemize}
+
+\begin{verbatim}
+  VECTORS [input] fragment <string file1> [<string file2> ...]
+\end{verbatim}
+The molecular orbitals are formed by superimposing the previously
+generated orbitals of fragments of the molecule being studied.  These
+fragment molecular orbitals must be in the same basis as the current
+calculation.  The input specifies the files containing the fragment
+molecular orbitals.  For instance, in a calculation on the water
+dimer, one might specify
+\begin{verbatim}
+  vectors fragment h2o1.movecs h2o2.movecs
+\end{verbatim}
+where \verb+h2o1.movecs+ contains the orbitals for the first fragment, and
+\verb+h2o2.movecs+ contains the orbitals for the second fragment.
+
+A complete example of the input for a calculation on the water
+dimer using the fragment guess is as follows:
+\begin{verbatim}
+   start dimer
+
+   title
+   Water dimer SCF using fragment initial guess
+
+   geometry dimer
+     O   -0.595   1.165  -0.048
+     H    0.110   1.812  -0.170
+     H   -1.452   1.598  -0.154
+     O    0.724  -1.284   0.034
+     H    0.175  -2.013   0.348
+     H    0.177  -0.480   0.010
+   end
+
+   geometry h2o1
+     O   -0.595   1.165  -0.048
+     H    0.110   1.812  -0.170
+     H   -1.452   1.598  -0.154
+   end
+
+   geometry h2o2
+     O    0.724  -1.284   0.034
+     H    0.175  -2.013   0.348
+     H    0.177  -0.480   0.010
+   end
+
+   basis
+     o library 3-21g
+     h library 3-21g
+   end
+
+   set geometry h2o1
+   scf; vectors input atomic output h2o1.movecs; end
+   task scf
+
+   set geometry h2o2
+   scf; vectors input atomic output h2o2.movecs; end
+   task scf
+
+   set geometry dimer
+   scf
+   vectors input fragment h2o1.movecs h2o2.movecs \
+           output dimer.movecs
+   end
+   task scf
+\end{verbatim}
+First, the geometry of the dimer and the two monomers are specified
+and given names.  Then, after the basis specification, calculations
+are performed on the fragments by setting the geometry to the
+appropriate fragment (Section \ref{sec:set}) and redirecting the
+output molecular orbitals to an appropriately named file.  Note also
+that use of the atomic initial guess is forced, since the default
+initial guess is to use any existing MOs which would not be
+appropriate for the second fragment calculation.  Finally, the dimer
+calculation is performed by specifying the dimer geometry, indicating
+use of the fragment guess, and redirecting the output MOs.
+
+The following points are important in using the fragment initial guess:
+\begin{enumerate}
+\item The fragment calculations must be in the same basis set as the
+  full calculation.
+\item The order of atoms in the fragments and the order in which the
+  fragment files are specified must be such that when the fragment
+  basis sets are concatentated all the basis functions are in the same
+  order as in the full system.  This is readily accomplished by first
+  generating the full geometry with atoms for each fragment
+  contiguous, splitting this into numbered fragments and specifying
+  the fragment MO files in the correct order on the \verb+VECTORS+
+  directive.
+\item The occupation of orbitals is preserved when they are merged
+  from the fragments to the full molecule and the resulting occupation
+  must match the requested occupation for the full molecule.  E.g., a
+  triplet ROHF calculation must be comprised of fragments that have
+  a total of exactly two open-shell orbtials. 
+\item Because of these restrictions, it is not possible to introduce
+  additional atoms (or basis functions) into fragments for the purpose
+  of cleanly breaking real bonds.  However, it is possible, and highly
+  recommended, to introduce additional point charges to simulate the
+  presence of other fragments.
+\item MO vectors of partially occupied or strongly polarized systems
+  are very sensitive to orientation.  While it is possible to specify
+  the same fragment MO vector file multiple times in the
+  \verb+VECTORS+ directive, it is usually much better to do a separate
+  calculation for each fragment.
+\end{enumerate}
+
+A more involved example is now presented.  We wish to model the sextet
+state of Fe(III) complexed with water, imidazole and a heme with a net
+unit positive charge.  The default atomic guess does not give the
+correct $d^5$ occupation for the metal and also gives an incorrect
+state for the double anion of the heme.  The following performs
+calculations on the all of the fragments.  Things to note are:
+\begin{enumerate}
+\item The use
+of a dummy $+2$ charge in the initial guess on the heme which in part
+simulates the presence of the metal ion, and also automatically forces
+an additional two electrons to be added to the system (the default net
+charge being zero).
+\item The iron fragment calculation (charge +3, $d^5$, sextet) will
+  yield the correct open-shell occupation for the full system.  If,
+  instead, the {\it d}-orbitals were partially occupied (e.g., the doublet
+  state) it would be useful to introduce dummy charges around the iron
+  to model the ligand field and thereby lift the degeneracy to obtain
+  the correct occupation.
+\item $C_s$ symmetry is used for all of the calculations.  It is not
+  necessary that the same symmetry be used in  all of the
+  calculations, provided that the order and orientation of the atoms 
+  is preserved.
+\item The \verb+unset scf:*+ directive is used immediately before
+  the calculation on the full system so that the default name for the
+  output MO vector file can be used, rather than having to specify it
+  explicitly.
+\end{enumerate}
+\begin{verbatim}
+start heme6a1
+title  ;  heme-H2O (6A1) from M.Dupuis
+
+############################################################
+# Define the geometry of the full system and the fragments #
+############################################################
+
+geometry full-system
+   symmetry cs
+
+   H     0.438   -0.002    4.549
+   C     0.443   -0.001    3.457
+   C     0.451   -1.251    2.828
+   C     0.452    1.250    2.828
+   H     0.455    2.652    4.586
+   H     0.461   -2.649    4.586
+   N1    0.455   -1.461    1.441
+   N1    0.458    1.458    1.443
+   C     0.460    2.530    3.505
+   C     0.462   -2.530    3.506
+   C     0.478    2.844    1.249
+   C     0.478    3.510    2.534
+   C     0.478   -2.848    1.248
+   C     0.480   -3.513    2.536
+   C     0.484    3.480    0.000
+   C     0.485   -3.484    0.000
+   H     0.489    4.590    2.664
+   H     0.496   -4.592    2.669
+
+   H     0.498    4.573    0.000
+   H     0.503   -4.577    0.000
+   H    -4.925    1.235    0.000
+   H    -4.729   -1.338    0.000
+   C    -3.987    0.685    0.000
+   N    -3.930   -0.703    0.000
+   C    -2.678    1.111    0.000
+   C    -2.622   -1.076    0.000
+   H    -2.284    2.126    0.000
+   H    -2.277   -2.108    0.000
+   N    -1.838    0.007    0.000
+
+   Fe    0.307    0.000    0.000
+
+   O     2.673   -0.009    0.000
+   H     3.238   -0.804    0.000
+   H     3.254    0.777    0.000
+end
+
+geometry ring-only
+   symmetry cs
+   H     0.438   -0.002    4.549
+   C     0.443   -0.001    3.457
+   C     0.451   -1.251    2.828
+   C     0.452    1.250    2.828
+   H     0.455    2.652    4.586
+   H     0.461   -2.649    4.586
+   N1    0.455   -1.461    1.441
+   N1    0.458    1.458    1.443
+   C     0.460    2.530    3.505
+   C     0.462   -2.530    3.506
+   C     0.478    2.844    1.249
+   C     0.478    3.510    2.534
+   C     0.478   -2.848    1.248
+   C     0.480   -3.513    2.536
+   C     0.484    3.480    0.000
+   C     0.485   -3.484    0.000
+   H     0.489    4.590    2.664
+   H     0.496   -4.592    2.669
+
+   Bq    0.307    0.0      0.0    charge 2  # simulate the iron
+end
+
+geometry imid-only
+   symmetry cs
+   H     0.498    4.573    0.000
+   H     0.503   -4.577    0.000
+   H    -4.925    1.235    0.000
+   H    -4.729   -1.338    0.000
+   C    -3.987    0.685    0.000
+   N    -3.930   -0.703    0.000
+   C    -2.678    1.111    0.000
+   C    -2.622   -1.076    0.000
+   H    -2.284    2.126    0.000
+   H    -2.277   -2.108    0.000
+   N    -1.838    0.007    0.000
+end
+
+geometry fe-only
+   symmetry cs
+   Fe    .307    0.000    0.000
+end
+
+geometry water-only
+   symmetry cs
+   O     2.673   -0.009    0.000
+   H     3.238   -0.804    0.000
+   H     3.254    0.777    0.000
+end
+
+############################
+# Basis set for everything #
+############################
+
+basis nosegment
+  O  library 6-31g*
+  N  library 6-31g*
+  C  library 6-31g*
+  H  library 6-31g*
+ Fe  library "Ahlrichs pVDZ"
+end
+
+##########################################################
+# SCF on the fragments for initial guess for full system #
+##########################################################
+
+scf; thresh 1e-2; end
+
+set geometry ring-only
+scf; vectors atomic swap 80 81 output ring.mo; end
+task scf
+
+set geometry water-only
+scf; vectors atomic output water.mo; end
+task scf
+
+set geometry imid-only
+scf; vectors atomic output imid.mo; end
+task scf
+
+charge 3
+set geometry fe-only
+scf; sextet; vectors atomic output fe.mo; end
+task scf
+
+##########################
+# SCF on the full system #
+##########################
+
+unset scf:*     # This restores the defaults
+
+charge 1
+
+set geometry full-system
+
+scf
+ sextet
+ vectors fragment ring.mo imid.mo fe.mo water.mo
+ maxiter 50
+end
+
+task scf
+\end{verbatim}
 
 \subsection{Atomic guess orbitals with charged atoms}
 \label{sec:atomscf}
