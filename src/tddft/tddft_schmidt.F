@@ -12,7 +12,7 @@ c
       integer i,j,k
       double precision a
 
-      do i=1,n-1
+      do i=1,n
         a=0.0d0
         do k=1,n
           a=a+vector(k,i)*vector(k,i)
@@ -22,15 +22,17 @@ c
         do k=1,n
           vector(k,i)=vector(k,i)/dsqrt(a)
         enddo
-        do j=i+1,n
-          a=0.0d0
-          do k=1,n
-            a=a+vector(k,i)*vector(k,j)
+        if (i.ne.n) then
+          do j=i+1,n
+            a=0.0d0
+            do k=1,n
+              a=a+vector(k,i)*vector(k,j)
+            enddo
+            do k=1,n
+              vector(k,j)=vector(k,j)-a*vector(k,i)
+            enddo
           enddo
-          do k=1,n
-            vector(k,j)=vector(k,j)-a*vector(k,i)
-          enddo
-        enddo
+        endif
       enddo
       return
       end
