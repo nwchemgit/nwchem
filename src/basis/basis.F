@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.90 1999-07-27 17:45:11 d3e129 Exp $
+c $Id: basis.F,v 1.91 1999-07-27 20:27:35 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -4422,7 +4422,6 @@ c
 c returns true if the basis set has any sp functions or general contraction
 c functions.
 c
-      integer basisin
 c::functions
       logical  bas_check_handle
       external bas_check_handle
