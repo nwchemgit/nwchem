@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
      + ignore,slvnam,itopol)
 c
-c $Id: pre_mktop.F,v 1.34 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.35 2003-11-21 21:16:51 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -434,7 +434,7 @@ c
       if(.not.pre_excl(int_mb(i_l3rd),m3rd,n3rd,int_mb(i_lbnd),
      + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc,
      + nval,int_mb(i_ival),int_mb(i_ndx),byte_mb(i_catt),matt,
-     + int_mb(i_lats),mats,int_mb(i_latm),matm,natm,lupdat))
+     + int_mb(i_lats),nparms,mats,int_mb(i_latm),matm,natm,lupdat))
      + call md_abort('pre_excl failed',9999)
       if(.not.ma_pop_stack(l_ndx))
      + call md_abort('Memory deallocation failed for ndx',9999)

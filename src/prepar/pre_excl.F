@@ -1,18 +1,18 @@
       logical function pre_excl(l3rd,m3rd,n3rd,lbnd,mbnd,nbnd,
      + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx,catt,matt,
-     + lats,mats,latm,matm,natm,lupdat)
+     + lats,nparms,mats,latm,matm,natm,lupdat)
 c
-c $Id: pre_excl.F,v 1.9 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_excl.F,v 1.10 2003-11-21 21:16:51 d3j191 Exp $
 c
       implicit none
 c
       integer m3rd,n3rd,mbnd,nbnd,mang,nang,mexc,nexc
       integer matt,mats,matm,natm
       integer l3rd(2,m3rd),lbnd(4,mbnd),lang(5,mang),lexc(2,mexc)
-      integer nval
+      integer nval,nparms
       integer ival(nval),ndx(nval)
       character*6 catt(2,matt)
-      integer lats(3,mats)
+      integer lats(nparms,mats)
       integer latm(11,matm)
       logical lupdat
 c
@@ -38,7 +38,7 @@ c
       lexc(2,nexc)=max(lang(1,i),lang(3,i))
     3 continue
 c
-      if(lupdat) then
+      if(lupdat.and.nparms.eq.3) then
       do 4 i=1,natm-1
       if(catt(1,lats(2,latm(3,i)))(6:6).eq.'D') then
       do 5 j=i+1,natm
