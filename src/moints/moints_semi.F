@@ -93,7 +93,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.13 1996-01-29 23:55:28 mg141 Exp $
+c  $Id: moints_semi.F,v 1.14 1996-02-01 00:54:57 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -148,7 +148,8 @@ c
        integer l_rloc, k_rloc
        integer nbf, nsh, maxbfsh, nseg, nocc, nvir
        integer ngrp, blksiz, nnbf
-       integer balo, bahi, bilo, bihi
+       integer pvlo, pvhi
+       integer polo, pohi
        integer myid, numnodes, rlo, rhi, clo, chi
        integer mxrlen, itmp, ierr, vtmp(100)
        integer lmemreq, gmem, g_dummy
@@ -207,8 +208,8 @@ c
      $           call errquit('moints_semi: cannot allocate J buffer',0)
          call ga_distribution(g_jbuf, myid, rlo, rhi, clo, chi )
          if ((clo.eq.0).and.(chi.eq.-1)) then
-           bilo = 0
-           bihi = -1
+           polo = 0
+           pohi = -1
          else
            if ((nseg.ne.1).and.((mod(chi,nseg).ne.0).or.
      $         (mod(clo,nseg).ne.1))) then
@@ -216,10 +217,10 @@ c
  221         format('ME:',i3,5x,' Range:',i3,'-',i3)
              call errquit('moints_semi:wrong distrib. for J transp',0)
            endif
-           bilo = olo + (clo-1)/nseg
-           bihi = olo + (chi/nseg) - 1
+           polo = olo + (clo-1)/nseg
+           pohi = olo + (chi/nseg) - 1
          endif
-c$$$         WRITE(6,882) 'COULOMB',GA_NODEID(),CLO,CHI,ITMP,BILO,BIHI
+c$$$         WRITE(6,882) 'COULOMB',GA_NODEID(),CLO,CHI,ITMP,POLO,POHI
        endif
 c
 c  Create GA exchange buffer
@@ -231,18 +232,18 @@ c
      $           call errquit('moints_semi: cannot allocate K buffer',0)
          call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
          if ((clo.eq.0).and.(chi.eq.-1)) then
-           balo = 0
-           bahi = -1
+           pvlo = 0
+           pvhi = -1
          else
            if ((nseg.ne.1).and.((mod(chi,nseg).ne.0).or.
      $         (mod(clo,nseg).ne.1))) then
              write(6,221) ga_nodeid(),clo,chi
              call errquit('moints_semi:wrong distrib. for K transp',0)
            endif
-           balo = vlo + (clo-1)/nseg
-           bahi = vlo + (chi/nseg) - 1
+           pvlo = vlo + (clo-1)/nseg
+           pvhi = vlo + (chi/nseg) - 1
          endif
-c$$$         WRITE(6,882) 'EXCHANGE',GA_NODEID(),CLO,CHI,ITMP,BALO,BAHI
+c$$$         WRITE(6,882) 'EXCHANGE',GA_NODEID(),CLO,CHI,ITMP,PVLO,PVHI
 c$$$ 882     FORMAT(A8,5X,'ME:',I5,'  CLO:CHI ',2I5,' YCHUNK:',i5,
 c$$$     $          ' VRANGE:',2I5)
        endif
@@ -285,8 +286,8 @@ c
        if (oexch) then
          Call Util_PName('KHalf', fnameK)
          call waopen( kunit, fnameK, 1, 0, ierr )
-         vtmp(3) = balo
-         vtmp(4) = bahi
+         vtmp(3) = pvlo
+         vtmp(4) = pvhi
          call putwa( kunit, vtmp, 1,
      $               ma_sizeof(MT_INT, 10, MT_DBL), ierr )
          call putwa( kunit, int_mb(k_rloc),
@@ -296,8 +297,8 @@ c
        if (ocoul) then
          Call Util_PName('JHalf', fnameJ)
          call waopen(junit, fnameJ, 1, 0, ierr )
-         vtmp(3) = bilo
-         vtmp(4) = bihi
+         vtmp(3) = polo
+         vtmp(4) = pohi
          call putwa( junit, vtmp, 1,
      $               ma_sizeof(MT_INT, 10, MT_DBL), ierr )
          call putwa( junit, int_mb(k_rloc),
@@ -311,11 +312,12 @@ c  Call the real stuff
 c
        call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                     oseglo, oseghi, olo, ohi, vlo, vhi,
-     $                     ocoul, oexch, osym, kunit, junit,
-     $                     int_mb(k_shmap), blksiz, ngrp,
-     $                     int_mb(k_gmap), int_mb(k_gloc),
-     $                     nnbf, int_mb(k_iopass), int_mb(k_rlen),
-     $                     g_movecs, g_jbuf, g_kbuf )
+     $                     polo, pohi, pvlo, pvhi, ocoul, oexch,
+     $                     osym, kunit, junit, int_mb(k_shmap),
+     $                     blksiz, ngrp, int_mb(k_gmap),
+     $                     int_mb(k_gloc), nnbf, int_mb(k_iopass),
+     $                     int_mb(k_rlen), g_movecs, g_jbuf,
+     $                     g_kbuf )
 c
 c  Clean up
 c
@@ -362,10 +364,11 @@ c
 c
        subroutine moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                           oseglo, oseghi, olo, ohi, vlo, vhi,
-     $                           ocoul, oexch, osym, kunit, junit,
-     $                           shmap, blksiz, ngrp, gmap,
-     $                           gloc, nnbf, iopass, rlen,
-     $                           g_movecs, g_jbuf, g_kbuf )
+     $                           polo, pohi, pvlo, pvhi,
+     $                           ocoul, oexch, osym,
+     $                           kunit, junit, shmap, blksiz,
+     $                           ngrp, gmap, gloc, nnbf, iopass,
+     $                           rlen, g_movecs, g_jbuf, g_kbuf )
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -385,6 +388,8 @@ c
        integer oseglo, oseghi                 ! [input] Occupied segment range
        integer olo, ohi                       ! [input] Occupied index range
        integer vlo, vhi                       ! [input] Virtual index range
+       integer polo, pohi                     ! [input] Occupied index range for this processor
+       integer pvlo, pvhi                     ! [input] Virtual index range for this processor
        logical ocoul                          ! [input] Toggle Coulomb
        logical oexch                          ! [input] Toggle exchange
        logical osym                           ! [input] Toggle symmetry
@@ -428,6 +433,9 @@ c
        num_nodes = ga_nnodes()
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
+c
+       WRITE(6,221) GA_NODEID(),PVLO,PVHI,POLO,POHI
+ 221   FORMAT('ME:',I5,5X,' V RANGE:',2I5,5X,' O RANGE:',2I5)
 c
 c  Local MO coefficients
 c
@@ -487,19 +495,19 @@ c  -------------
 c  Parallel task
 c
 c
-c  Checkpoint for IO
+c  Checkpoint for I/O
 c
                if (iopass(next).gt.jopass) then
                  call ga_sync()
                  if (ocoul) then
 	           call moints_wrbuf( junit, oseglo, oseghi,
-     $                                olo, ohi, nnbf, iocnt,
+     $                                olo, polo, pohi, nnbf, iocnt,
      $                                rlen(jopass), g_jbuf )
                    call ga_zero(g_jbuf)
                  endif
                  if (oexch) then
                    call moints_wrbuf( kunit, oseglo, oseghi,
-     $                                vlo, vhi, nnbf, iocnt,
+     $                                vlo, pvlo,  pvhi, nnbf, iocnt,
      $                                rlen(jopass), g_kbuf )
                    call ga_zero(g_kbuf)
                  endif
@@ -574,12 +582,12 @@ c
        enddo
        call ga_sync()
        if (ocoul) then
-         call moints_wrbuf( junit, oseglo, oseghi, olo, ohi, nnbf,
-     $                      iocnt, rlen(jopass), g_jbuf )
+         call moints_wrbuf( junit, oseglo, oseghi, olo, polo, pohi,
+     $                      nnbf, iocnt, rlen(jopass), g_jbuf )
        endif
        if (oexch) then
-         call moints_wrbuf( kunit, oseglo, oseghi, vlo, vhi, nnbf,
-     $                      iocnt, rlen(jopass), g_kbuf )
+         call moints_wrbuf( kunit, oseglo, oseghi, vlo, pvlo, pvhi,
+     $                      nnbf, iocnt, rlen(jopass), g_kbuf )
        endif
        tpass = tcgtime() - tpass
 c$$$       WRITE(6,901) GA_NODEID(), NEXT, IOPASS(NEXT), JOPASS,
@@ -741,14 +749,16 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
 
 
 
-      subroutine moints_wrbuf( munit, oseglo, oseghi, plo, phi, nnbf,
-     $                         iocnt, rlen, g_buf )
+      subroutine moints_wrbuf( munit, oseglo, oseghi, alo, plo, phi,
+     $                         nnbf, iocnt, rlen, g_buf )
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
-      integer munit
-      integer oseglo, oseghi, plo, phi
-      integer nnbf, iocnt, rlen
+      integer munit                       ! I/O unit
+      integer oseglo, oseghi              ! Segment range
+      integer alo                         ! Lowest index to compute GA index
+      integer plo, phi                    ! Index range for this processor
+      integer nnbf, iocnt, rlen            
       integer g_buf
 c
       integer faddr, ierr
@@ -761,7 +771,7 @@ c
       call ga_distribution(g_buf, myid, rlo, rhi, clo, chi )
       do o=oseglo,oseghi
         do p=plo,phi
-          po = (p-plo)*nocc + o - oseglo + 1
+          po = (p-alo)*nocc + o - oseglo + 1
           faddr = ((o-oseglo)*np + p - plo)*nnbf +  iocnt
           if ((po.ge.clo).and.(po.le.chi)) then
             call ga_access(g_buf, rlo, rhi, po, po, k_local, ld )
@@ -769,6 +779,8 @@ c
             call ga_release(g_buf, rlo, rhi, po, po )
 c$$$            WRITE(6,901) O,P,FADDR
 c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',I6)
+          else
+            call errquit('Unexpected distribution for GA buffer',0)
           endif
         enddo
       enddo
@@ -795,7 +807,7 @@ c
       double precision orbe(nbf)
 c
       integer nocc, nnbf, ioff, p, o, oo
-      integer bihi, bilo, itmp, len
+      integer pohi, polo, itmp, len
       integer l_v, k_v, l_t, k_t, l_x, k_x
       logical status
       character*256 fname
@@ -805,7 +817,7 @@ c
       Call Util_PName('JHalf', fname)
       call waopen(junit, fname, 1, 0, itmp )
       nocc = ohi - olo + 1
-      call moints_vrange( junit, bilo, bihi, nnbf, ioff )
+      call moints_vrange( junit, polo, pohi, nnbf, ioff )
       status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
       call moints_getscattv( junit, nnbf, int_mb(k_v) )
 c
@@ -816,7 +828,7 @@ c
       status = ma_push_get(MT_DBL,(nbf*nbf),'U half',l_x,k_x)
       do o=oseglo,oseghi
         oo = o - oseglo + 1
-        do p=bilo,bihi
+        do p=polo,pohi
           call dfill((nbf*nbf), 0.d0, dbl_mb(k_x), 1 )
           call moints_rdhfint( junit, olo, ohi, oo, p, nnbf,
      $                         ioff, dbl_mb(k_t))
@@ -871,7 +883,7 @@ c
       integer g_epair
 c
       integer nseg, nocc, nvir, nnbf, ioff, v, o, oo
-      integer balo, bahi, itmp
+      integer pvlo, pvhi, itmp
       integer l_v, k_v, l_t, k_t, l_x, k_x
       integer j, oj, jj, vvlo, vvhi, k_local, ld, myid
       integer rlo, rhi, clo, chi, len
@@ -894,7 +906,7 @@ c
       nocc = ohi - olo + 1
       nvir = vhi - vlo + 1
       nseg = oseghi - oseglo + 1
-      call moints_vrange( kunit, balo, bahi, nnbf, ioff )
+      call moints_vrange( kunit, pvlo, pvhi, nnbf, ioff )
       status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
       call moints_getscattv( kunit, nnbf, int_mb(k_v) )
 c$$$       do i=1,nnbf
@@ -906,7 +918,7 @@ c$$$       enddo
       call ga_distribution(g_exch, myid, rlo, rhi, clo, chi )
 c
 c
-c$$$      WRITE(6,934) GA_NODEID(),BALO,BAHI,CLO,CHI
+c$$$      WRITE(6,934) GA_NODEID(),PVLO,PVHI,CLO,CHI
 c$$$ 934  FORMAT('ME:',I5,5x,'VRANGE:',2I5,5x,'OCC RANGE FOR K:',2I5)
 c$$$      CALL UTIL_FLUSH(6)
 c
@@ -918,33 +930,31 @@ c
       do o=oseglo,oseghi
         oo = o - oseglo + 1
         call ga_zero(g_exch)
-        do v=vlo,vhi
-          if ((v.ge.balo).and.(v.le.bahi)) then
-            call dfill((nbf*nbf), 0.d0, dbl_mb(k_x), 1 )
-            call moints_rdhfint( kunit, vlo, vhi, oo, v, nnbf,
-     $                           ioff, dbl_mb(k_t))
-            call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
-            call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
+        do v=pvlo,pvhi
+          call dfill((nbf*nbf), 0.d0, dbl_mb(k_x), 1 )
+          call moints_rdhfint( kunit, pvlo, pvhi, oo, v, nnbf,
+     $                        ioff, dbl_mb(k_t))
+          call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
+          call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
 
-c$$$            WRITE(6,900) O,V,BALO,BAHI
+c$$$            WRITE(6,900) O,V,PVLO,PVHI
 c$$$ 900        FORMAT(5X,' READ [O,V]:',2I5,5X,'VRANGE:',2I5)
 c$$$            CALL MOINTS_MATPRINT(NBF,NBF,DBL_MB(K_X))
 c$$$            CALL UTIL_FLUSH(6)
 
-            call dgemm( 'n', 'n', nbf, nocc, nbf, 1.d0, dbl_mb(k_x),
-     $                 nbf, c(1,olo), nbf, 0.d0, dbl_mb(k_t), nbf )
-            call dgemm( 't', 'n', nvir, nocc, nbf, 1.d0, c(1,vlo),
-     $                 nbf, dbl_mb(k_t), nbf, 0.d0, dbl_mb(k_x), nvir )
+          call dgemm( 'n', 'n', nbf, nocc, nbf, 1.d0, dbl_mb(k_x),
+     $               nbf, c(1,olo), nbf, 0.d0, dbl_mb(k_t), nbf )
+          call dgemm( 't', 'n', nvir, nocc, nbf, 1.d0, c(1,vlo),
+     $               nbf, dbl_mb(k_t), nbf, 0.d0, dbl_mb(k_x), nvir )
 
-            vvlo = (v-vlo)*nvir + 1
-            vvhi = (v-vlo+1)*nvir
-            do j=olo,o
-              oj = j-olo+1
-              jj = (j-olo)*nvir
-              call ga_put( g_exch, vvlo, vvhi, oj, oj,
-     $                     dbl_mb(k_x+jj), nvir)
-            enddo
-          endif
+          vvlo = (v-vlo)*nvir + 1
+          vvhi = (v-vlo+1)*nvir
+          do j=olo,o
+            oj = j-olo+1
+            jj = (j-olo)*nvir
+            call ga_put( g_exch, vvlo, vvhi, oj, oj,
+     $                   dbl_mb(k_x+jj), nvir)
+          enddo
         enddo
         call ga_sync()
         do j=olo,o
@@ -1034,7 +1044,7 @@ c
       integer kunit
       parameter(kunit=11)
 c
-      integer nocc, nvir, nnbf, ioff, v, o, balo, bahi, itmp
+      integer nocc, nvir, nnbf, ioff, v, o, pvlo, pvhi, itmp
       integer l_v, k_v, l_t, k_t, l_x, k_x
       integer j, jj, vv, vvlo, vvhi, k_local, ld, myid, nnvo
       integer rlo, rhi, clo, chi
@@ -1052,7 +1062,7 @@ c
       nocc = oseghi - oseglo + 1
       nvir = vhi - vlo + 1
       nnvo = nocc*nvir
-      call moints_vrange( kunit, balo, bahi, nnbf, ioff )
+      call moints_vrange( kunit, pvlo, pvhi, nnbf, ioff )
       status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
       call moints_getscattv( kunit, nnbf, int_mb(k_v) )
       if (.not.ga_create( MT_DBL, (nvir*nocc), nvir, 'exch',
@@ -1067,9 +1077,9 @@ c
       status = ma_push_get(MT_DBL,(nbf*nbf),'U half',l_x,k_x)
       do o=oseglo,oseghi
         call ga_zero(g_exch)
-        do v=balo,bahi
+        do v=pvlo,pvhi
           call dfill((nbf*nbf), 0.d0, dbl_mb(k_x), 1 )
-          call moints_rdhfint( kunit, vlo, vhi, o, v, nnbf,
+          call moints_rdhfint( kunit, pvlo, pvhi, o, v, nnbf,
      $                         ioff, dbl_mb(k_t))
           call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
           call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
@@ -1126,8 +1136,10 @@ c
 
 
 
-
-
+c
+c  Read half-integrals from local file
+c  using word-addressable I/O
+c
       subroutine moints_rdhfint( munit, plo, phi, o, p, nnbf, ioff, t )
       implicit none
       integer munit
@@ -1145,14 +1157,18 @@ c
 
 
 
+c
+c  Read header on the local file and
+c  return index ranges, offsets and 
+c  number of AO indices
+c
 
-
-      subroutine moints_vrange( munit, balo, bahi, nnbf, ioff )
+      subroutine moints_vrange( munit, plo, phi, nnbf, ioff )
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer munit
-      integer balo, bahi, nnbf, ioff
+      integer plo, phi, nnbf, ioff
       integer vtmp(10), ierr
 C      INTEGER I
 
@@ -1160,8 +1176,8 @@ C      INTEGER I
      $            ma_sizeof(MT_INT, 10, MT_DBL), ierr )
       ioff = vtmp(1)
       nnbf = vtmp(2)
-      balo = vtmp(3)
-      bahi = vtmp(4)
+      plo = vtmp(3)
+      phi = vtmp(4)
 
 c$$$      PRINT*,'ME: ',GA_NODEID(),' ERROR:',IERR
 c$$$      CALL UTIL_FLUSH(6)
@@ -1177,6 +1193,12 @@ c$$$      CALL GA_SYNC()
       end
 
 
+c
+c  Recover the scatter array from local file header.
+c  This scatter array maps the dense compound
+c  AO index (mu nu) to square array (mu,nu). 
+c  Includes sparsity by Schwarz screening and petite list.
+c
       subroutine moints_getscattv( munit, nnbf, v )
       implicit none
 #include "mafdecls.fh"
