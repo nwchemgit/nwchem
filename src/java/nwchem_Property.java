@@ -126,6 +126,8 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
       public void actionPerformed(ActionEvent e){ 
 	chooser.showOpenDialog(dialogFrame);
         numframes=0; propList.removeAllElements();
+	offstep = 0.0;
+	offtime = 0.0;
 	appendData(chooser.getSelectedFile().toString());
       }});
 
