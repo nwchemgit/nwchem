@@ -40,10 +40,10 @@ C
           z4 = zet**4
           call xc_gcor(0.01554535d0,0.20548d0,14.1189d0,6.1977d0,
      *       3.3662d0,0.62517d0,rs,ep,eprs)
-c         alfm is minus the spin stiffness alfc
-          alfc = -alfm
           call xc_gcor(0.0168869d0,0.11125d0,10.357d0,3.6231d0,
      *       0.88026d0,0.49671d0,rs,alfm,alfrsm)
+c         alfm is minus the spin stiffness alfc
+          alfc = -alfm
           f = ((1.d0+zet)**thrd4+(1.d0-zet)**thrd4-2.d0)/gam
           epw91=(eu*(1.d0-f*z4)+ep*f*z4-alfm*f*(1.d0-z4)/fzz)
         else
@@ -53,10 +53,10 @@ c         alfm is minus the spin stiffness alfc
 c       energy done. now the potential:
         if(ipol.eq.2) then
           ecrs = eurs*(1.d0-f*z4)+eprs*f*z4-alfrsm*f*(1.d0-z4)/fzz
-          comm = epw91 -rs*ecrs/3.d0-zet*eczet
           fz = thrd4*((1.d0+zet)**thrd-(1.d0-zet)**thrd)/gam
           eczet = 4.d0*(zet**3)*f*(ep-eu+alfm/fzz)+fz*(z4*ep-z4*eu
      *         -(1.d0-z4)*alfm/fzz)
+          comm = epw91 -rs*ecrs/3.d0-zet*eczet
           vcup = comm + eczet
           vcdn = comm - eczet
           Amat(1,n) = Amat(1,n) + vcup*fac

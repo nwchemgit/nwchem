@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.10 1996-05-04 21:08:36 og845 Exp $
+C     $Id: xc_perdew91.F,v 1.11 1996-05-08 21:12:51 og845 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -282,8 +282,8 @@ C
             dgzetadbg=-2.d0*(gzprime(0.d0)/g)*arho
           else
             gggr=(gzprime(zeta)/g)*arho
-            dgzetadag=(1.d0-zeta)*ggg
-            dgzetadbg=-(1.d0+zeta)*ggg
+            dgzetadag=(1.d0-zeta)*gggr
+            dgzetadbg=-(1.d0+zeta)*gggr
           endif
 
           t=0.5*dsqgamma*arho/(g*aks)
