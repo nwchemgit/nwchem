@@ -15,7 +15,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.22 1996-07-10 10:09:59 d3e129 Exp $
+c     $Id: fock_2e_task.F,v 1.23 1996-08-27 22:59:11 d3g681 Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -229,7 +229,7 @@ c
       double precision q4_at(max_at,max_at,max_at,max_at)
 c
       integer maxcn
-      parameter (maxcn = 1000)
+      parameter (maxcn = 3000)
       integer cn_to_ce(maxcn)
 c
       logical status
