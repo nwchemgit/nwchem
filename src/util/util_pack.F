@@ -120,7 +120,6 @@ c
 c
       integer npacked_per_int
       integer i, ijkl,ind,mnpq,mask
-      integer lshift,rshift
 #include "bitops.fh"
 c
       npacked_per_int = ma_sizeof(mt_int, 1, mt_byte)
