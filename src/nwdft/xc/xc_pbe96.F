@@ -2,7 +2,7 @@
      &                    Amat, Cmat, nq, ipol, Ec, qwght,
      &                    ldew,ffunc)     
 c
-c$Id: xc_pbe96.F,v 1.4 1999-02-15 16:47:16 bjohnson Exp $
+c$Id: xc_pbe96.F,v 1.5 1999-02-15 18:10:06 bjohnson Exp $
 c
       Implicit none
 c
@@ -447,7 +447,7 @@ c
      &                     aden1*2.d0*t*dtdgamma*A1p2At2*
      &                     (ONE - alognd*A)
                gaa = 2.d0*dH0dgamma*rhoval*fac
-               gbb = gaa*fac
+               gbb = gaa
                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + gaa*0.5d0
                Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + gaa
                Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + gbb*0.5d0
