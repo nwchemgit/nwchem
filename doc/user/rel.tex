@@ -1,8 +1,37 @@
 \label{sec:rel}
 
-General introduction to all-electron relativistic effects.
 
-The currently implemented all-electron relativistic approximations are Douglas-Kroll and Ken's approx. They can be used at all levels of theory. The derivatives are implemented allowing them to be used for geometry optimizations and frequency calculations.
+
+All methods which include treatment of relativistic effects are ultimately
+based on the Dirac equation, which has a four component wave function. The
+solutions to the Dirac equation describe both positrons (the ``negative
+energy'' states) and electrons (the ``positive energy'' states), as well as
+both spin orientations, hence the four components. The wave function may be
+broken down into two-component functions traditionally known as the large
+and small components; these may further be broken down into the spin
+components. 
+
+The implementation of approximate all-electron relativistic methods in
+quantum chemical codes requires the removal of the negative energy states
+and the factoring out of the spin-free terms. Both of these may be achieved
+using a transformation of the Dirac Hamiltonian known in general as a
+Foldy-Wouthuysen transformation. Unfortunately this transformation cannot be
+represented in closed form for a general potential, and must be
+approximated.  One popular approach is that originally forulated by Douglas
+and Kroll\footnote{M.~Douglas and N.~M.~Kroll, Ann. Phys. (N.Y.)  {\bf 82},
+89 (1974)} and developed by Hess\footnote{B.A.~Hess, Phys.~Rev.~A~{\bf 32},
+756 (1985); {\bf 33}, 3742 (1986)}. This approach decouples the positive and
+negative energy parts to second order in the external potential (and also
+fourth order in the fine structure constant, $\alpha$). Another approach is
+based on a modification of the Dirac equation by Dyall\footnote{K.~G.~Dyall,
+J.~Chem.~Phys.~{\bf 100}, 2118 (1994)}, and involves an exact FW
+transformation on the atomic basis set level\footnote{K.~G.~Dyall,
+J.~Chem.~Phys.~{\bf 106}, 9618 (1997); K.~G.~Dyall and T.~Enevoldsen,
+J.~Chem.~Phys.~{\bf 111}, 10000 (1999).}.
+
+Since these approximations only modify the integrals, they can in principle
+be used at all levels of theory. The derivatives have been implemented, allowing
+them to be used for geometry optimizations and frequency calculations.
 
 The \verb+RELATIVISTIC+ directive provides input for the implemented relativistic 
 approximations and is a compound directive that encloses additional directives 
@@ -14,8 +43,7 @@ specific to the approximations:
   END
 \end{verbatim}
 
-A general option which is currently only used by the Douglas-Kroll 
-approximation is the definition of the speed of light:
+There is one general option, the definition of the speed of light in atomic units:
 
 \begin{verbatim}
   CLIGHT <real clight default 137.0359895>
@@ -24,10 +52,10 @@ approximation is the definition of the speed of light:
 \section{Douglas-Kroll approximation}
 \label{sec:douglas-kroll}
 
-The (spin-free) one-electron Douglas-Kroll approximation\footnote{B.A.~Hess, 
-Phys.~Rev.~A~{\bf 32}, 756 (1985) and B.A.~Hess, Phys.~Rev.~A~{\bf 33}, 3742 
-(1986)} has been implemented. The use of relativistic effects from this 
-Douglas-Kroll approximation can be invoked by specifying:
+
+The (spin-free) one-electron Douglas-Kroll approximation has been
+implemented. The use of relativistic effects from this Douglas-Kroll
+approximation can be invoked by specifying:
 
 \begin{verbatim}
   DOUGLAS-KROLL [<string (ON||OFF) default ON> \
@@ -46,30 +74,122 @@ cross-product integral terms ignored in the \verb+DKH+ approach (see for example
 H\"{a}berlen and R\"{o}sch\footnote{O.D.~H\"{a}berlen, N.~R\"{o}sch, 
 Chem.~Phys.~Lett.~{\bf 199}, 491 (1992)}).
 
-In order to compute the integrals needed for the Douglas-Kroll approximation 
-Douglas-Kroll makes use of a fitting basis set (see literature given above 
-for details). The current code will create this fitting basis set based on 
-the given {\tt "ao basis"} by simply uncontracting that basis. This again what is 
-commonly implemented in quantum chemistry codes that include Douglas-Kroll.
-Additional flexibility is available to the user having by explicitly specifying
-a Douglas-Kroll fitting basis set. This basis set must be named {\tt "D-K basis"}
-(see Chapter \ref{sec:basis}).
+In order to compute the integrals needed for the Douglas-Kroll approximation
+the implementation makes use of a fitting basis set (see literature given
+above for details). The current code will create this fitting basis set
+based on the given {\tt "ao basis"} by simply uncontracting that basis. This
+again is what is commonly implemented in quantum chemistry codes that
+include the Douglas-Kroll method.  Additional flexibility is available to
+the user having by explicitly specifying a Douglas-Kroll fitting basis
+set. This basis set must be named {\tt "D-K basis"} (see Chapter
+\ref{sec:basis}).
 
 \section{Dyall's Modified Dirac Hamitonian approximation}
 \label{sec:dyall-mod-dir}
 
 
+The approximate methods described in this section are all based on Dyall's
+modified Dirac Hamiltonian. This Hamiltonian is entirely equivalent to the
+original Dirac Hamiltonian, and its solutions will have the same properties.
+The modification is achieved by a transformation on the small component,
+extracting out $\sigma\cdot{\bf p}/2mc$. This gives the modified small
+component the same symmetry as the large component, and in fact it differs
+from the large component only at order $\alpha^2$.  The advantage of the
+modification is that the operators now resemble the operators of the
+Breit-Pauli Hamiltonian, and can be classified in a similar fashion into
+spin-free, spin-orbit and spin-spin terms. It is the spin-free terms which
+have been implemented in NWChem, with a number of further approximations.
 
+The first is that the negative energy states are removed by a normalized
+elimination of the small component (NESC), which is equivalent to an exact
+Foldy-Wouthuysen (EFW) transformation. The number of components in the wave
+function is thereby effectively reduced from 4 to 2. NESC on its own does
+not provide any advantages, and in fact complicates things because the
+transformation is energy-dependent. The second approximation therefore
+neglects blocks which couple different atoms in the EFW transformation. This
+is equivalent to making an expansion in positive energy atomic spinors only;
+the tests which have been done show that the approximation gives results
+well within chemical accuracy. The third approximation neglects the
+commutator of the EFW transformation with the two-electron Coulomb
+interaction, so that the only corrections that need to be made are in the
+one-electron integrals. This is the equivalent of the Douglas-Kroll
+approximation as it is usually applied.
 
-The use of relativistic effects from Dyall's Modified Dirac Hamiltonian 
-approximation can be invoked by specifying:
+The use of these approximations can be invoked by specifying:
 
 \begin{verbatim}
-  DYALL-MOD-DIRAC [<string (ON||OFF) default ON> 
+  DYALL-MOD-DIRAC [<string (ON||OFF) default ON> ]
 
 \end{verbatim}
 
+At present, only the one-electron approximation is available. 
 
+In addition to the selection of this keyword in the \verb+RELATIVISTIC+
+directive block, it is necessary to supply basis sets in addition to the
+\verb+ao basis+. For the one-electron approximation, three basis sets are
+needed: the atomic FW basis set, the large component basis set and the small
+component basis set. The atomic FW basis set should be included in the
+\verb+ao basis+, either directly or by indirection, using \verb+SET+
+directives.  The large and small components should similarly be incorporated
+in basis sets named \verb+large component+ and \verb+small component+,
+respectively.
 
+There is one further requirement in the specification of the basis sets. In
+the ao basis, it is necessary to add the \verb+rel+ keyword either to the
+tag line, or on the \verb+basis+ directive. The former marks the basis
+functions specified by the tag as relativistic, the latter marks the whole
+basis as relativistic. The marking is actually done at the unique shell
+level, so that it is possible not only to have relativistic and
+nonrelativistic atoms, it is also possible to have relativistic and
+nonrelativistic shells on a given atom. This would be useful, for example,
+for diffuse functions or for high angular momentum correlating functions,
+where the influence of relativity was small. The marking of shells as
+relativistic is necessary to set up a mapping between the ao basis and the
+large and/or small component basis sets. For the one-electron approximation
+the large and small component basis sets MUST be of the same size and
+construction, i.e. differing only in the contraction coefficients.
 
+Some examples follow. The first example sets up the data for a relativistic
+calculation on water, using the library basis sets.
 
+\begin{verbatim}
+  basis "ao basis" rel
+    oxygen library cc-pvdz_pt_sf_fw
+    hydrogen library cc-pvdz_pt_sf_fw
+  end
+
+  basis "large component"
+    oxygen library cc-pvdz_pt_sf_lc
+    hydrogen library cc-pvdz_pt_sf_lc
+  end
+
+  basis "small component"
+    oxygen library cc-pvdz_pt_sf_sc
+    hydrogen library cc-pvdz_pt_sf_sc
+  end
+
+  relativistic
+    dyall-mod-dirac
+  end
+\end{verbatim}
+
+The second example has oxygen as a relativistic atom and hydrogen nonrelativistic.
+
+\begin{verbatim}
+  basis "ao basis"
+    oxygen library cc-pvdz_pt_sf_fw rel
+    hydrogen library cc-pvdz
+  end
+
+  basis "large component"
+    oxygen library cc-pvdz_pt_sf_lc
+  end
+
+  basis "small component"
+    oxygen library cc-pvdz_pt_sf_sc
+  end
+
+  relativistic
+    dyall-mod-dirac
+  end
+\end{verbatim}

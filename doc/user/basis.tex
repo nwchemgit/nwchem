@@ -28,13 +28,14 @@ The general form of the \verb+BASIS+ directive is as follows:
         [(spherical || cartesian) default cartesian] \
         [(segment || nosegment) default segment] \
         [(print || noprint) default print]
+        [rel]
 
      <string tag> library [<string tag_in_lib>] \
-                  <string standard_set> [file <filename>]
+                  <string standard_set> [file <filename>] [rel]
 
         ...
 
-     <string tag> <string shell_type>
+     <string tag> <string shell_type> [rel]
         <real exponent> <real list_of_coefficients>
         ...
      
@@ -48,12 +49,12 @@ Examining the keywords on the first line of the \verb+BASIS+ directive:
 \item {\tt name}
 
   By default, the basis set is stored in the database with the name
-  \verb+"ao basis"+.  Another name may be specified in the
-  \verb+BASIS+ directive, thus, multiple basis sets may be stored
-  simultaneously in the database.  Also, the DFT (Section
-  \ref{sec:dft}), RI-SCF (Section \ref{sec:riscf}), and RIMP2 (Section
-  \ref{sec:rimp2}) modules require multiple basis sets with specific
-  names.
+  \verb+"ao basis"+.  Another name may be specified in the \verb+BASIS+
+  directive, thus, multiple basis sets may be stored simultaneously in the
+  database.  Also, the DFT (Section \ref{sec:dft}), RI-SCF (Section
+  \ref{sec:riscf}) and RIMP2 (Section \ref{sec:rimp2}) modules and the
+  Dyall-modified-Dirac relativistic method (Section \ref{sec:dyall-mod-dir})
+  require multiple basis sets with specific names.
 
 The user can associate the \verb+"ao basis"+ with another named basis
 using the \verb+SET+ directive (see Section \ref{sec:set}).  
@@ -85,6 +86,16 @@ sets, in which case {\tt NOSEGMENT} should be specified.
 
 The default is for the input module to print all basis sets encountered.
 Specifying the keyword \verb+noprint+ allows the user to suppress this output.
+
+\item {{\tt REL}}
+
+This keyword marks the entire basis as a relativistic basis for the purposes
+of the Dyall-modified-Dirac relativistic integral code. The marking of the
+basis set is necessary for the code to make the proper association between
+the relativistic shells in the ao basis and the shells in the large and/or
+small component basis. This is only necessary for basis sets which are to be
+used as the ao basis. The user is referred to Section \ref{sec:dyall-mod-dir}  
+for more details.
 
 \end{itemize}
 
@@ -160,6 +171,11 @@ respectively, the \verb+BASIS+ directive is as follows:
   end
 \end{verbatim}
 
+The library basis sets can also be marked as relativistic by adding the
+\verb+rel+ keyword to the tag line. See Section \ref{sec:dyall-mod-dir} for
+more details. The correlation consistent basis sets have been contracted for
+relativistic effects and are included in the standard library.
+
 \section{Explicit basis set definition}
 
 If the basis sets in the library or available in other external files
@@ -168,16 +184,17 @@ the basis set may be explicitly defined.
 A generally contracted Gaussian basis function is associated with a
 center using an input line of the following form:
 \begin{verbatim}
-     <string tag> <string shell_type>
+     <string tag> <string shell_type> [rel]
         <real exponent> <real list_of_coefficients>
         ...
 \end{verbatim}
 
-The variable \verb+<shell_type>+ identifies the angular momentum of the shell,
-$s$, $p$, $d$, \ldots.  NWChem is configured to handle up
-to $i$ shells.  Subsequent lines define the primitive function
-exponents and contraction coefficients.  General contractions are
-specified by including multiple columns of coefficients.
+The variable \verb+<shell_type>+ identifies the angular momentum of the
+shell, $s$, $p$, $d$, \ldots.  NWChem is configured to handle up to $i$
+shells.  The keyword \verb+rel+ marks the shell as relativistic --- see
+Section \ref{sec:dyall-mod-dir} for more details.  Subsequent lines define
+the primitive function exponents and contraction coefficients.  General
+contractions are specified by including multiple columns of coefficients.
 
 For example, the following \verb+BASIS+ directive augments the Dunning
 cc-pvdz basis set for the water molecule with a diffuse s-shell on
