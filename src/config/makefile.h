@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.210 1997-02-26 18:59:19 d3g270 Exp $
+# $Id: makefile.h,v 1.211 1997-02-27 00:23:46 d3g270 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -504,9 +504,11 @@ ifeq ($(TARGET),SGITFP)
 # JN 96/10/02:
 # Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
 
+	CPP = /usr/lib/cpp
   CORE_SUBDIRS_EXTRA = blas lapack
          FC = f77
      RANLIB = echo
+
 
     INSTALL = @echo nwchem is built
   MAKEFLAGS = --no-print-directory
@@ -544,8 +546,8 @@ ifeq ($(TARGET),SGI)
   MAKEFLAGS = -j 4 --no-print-directory
     DEFINES = -DSGI
 
-  FOPTIONS = -mips3
-  COPTIONS = -mips3 -fullwarn
+  FOPTIONS = # -mips3
+  COPTIONS =  -fullwarn #-mips3
  FOPTIMIZE = -O2
  COPTIMIZE = -O2
 
