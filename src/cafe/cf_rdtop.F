@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.12 1999-09-20 20:14:53 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.13 1999-12-09 19:41:17 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -19,7 +19,7 @@ c
       real*8 rdata(9),vadata(6),vrdata(6)
       integer idata(16)
       character*6 cdata(3)
-      integer i,ia,iq,j,k,itemp(4),i_i,i_j,l_i,l_j
+      integer i,ia,iq,j,k,l,itemp(4),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nas,nbt,nhs,nds,nos,nts,nxs
       integer numbl,numbi,numbd
@@ -141,9 +141,10 @@ c
       read(lfntop,1024,end=9997,err=9998) ewc
  1024 format(10x,3f12.6)
       do 10 i=1,nas
-      read(lfntop,1017,end=9997,err=9998) stemp,j,k
- 1017 format(a16,2i5)
-      snam(i)=stemp
+      read(lfntop,1017,end=9997,err=9998) stemp,j,k,l
+ 1017 format(a16,3i5)
+      write(snam(i),'(a5,a5,i6)') stemp(1:5),stemp(11:15),l
+c      snam(i)=stemp
 c      if(i.gt.nsf) nsf=i
 c      if(j.gt.nsm) nsm=j
    10 continue
