@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.41 2002-04-04 17:39:17 edo Exp $
+c$Id: grid_rtrunc.F,v 1.42 2003-05-20 23:48:24 edo Exp $
 c
       implicit none
 c      
@@ -19,7 +19,7 @@ c
       logical tol_reset
       logical llind,check_s ! [in]
       integer ll(*) ! [out] for lindh grid
-      double preci sion exex(*) ! [out] for lindh grid
+      double precision exex(*) ! [out] for lindh grid
       double precision shiftm(*) ! [out] for lindh grid
       double precision job_grid_acc
       double precision range_max
@@ -52,9 +52,11 @@ c
       call grid_rtinit(rtdb,k_coord,l_coord,
      .     ipmat, lpmat, l_ics,k_ics,g_s)
       call ifill(2*ntypes, 0, rad_cutoff, 1)
-      call ifill(ntypes, 0, ll, 1)
-      call dfill(ntypes, 0d0, exex, 1)
-      call dfill(ntypes, 0d0, shiftm, 1)
+      if(llind) then
+         call ifill(ntypes, 0, ll, 1)
+         call dfill(ntypes, 0d0, exex, 1)
+         call dfill(ntypes, 0d0, shiftm, 1)
+      endif
 c
 c     get desired grid accuracy
 c
@@ -98,10 +100,12 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
          endif
       enddo
       call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'absmax') 
-      call ga_dgop(msg_igop_tru1,exex,ntypes,'absmax') 
-      call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
       call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
-      call ga_dgop(msg_igop_tru4,shiftm,ntypes,'absmax') 
+      if(llind) then
+         call ga_dgop(msg_igop_tru1,exex,ntypes,'absmax') 
+         call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
+         call ga_dgop(msg_igop_tru4,shiftm,ntypes,'absmax') 
+      endif
       if(check_s) then 
       call ga_igop(msg_igop_tru5,ldiff,ncenters,'absmax') 
       call ga_dgop(msg_igop_tru6,minexp,ncenters,'absmax') 
