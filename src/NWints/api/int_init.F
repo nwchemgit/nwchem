@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.56 1999-12-30 23:05:32 bert Exp $
+c $Id: int_init.F,v 1.57 2000-01-25 20:14:23 mg201 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -51,6 +51,8 @@ c
      &    atomic_nesc = .false.
       if (.not. rtdb_get(rtdb,'nesc_1e_approx',mt_log,1,nesc_1e_approx))
      &    nesc_1e_approx = .false.
+      if (.not. rtdb_get(rtdb,'ss_one_cent',mt_log,1,ss_one_cent))
+     &    ss_one_cent = .false.
 c
 c     Setup array with basis sets from bases
 c
@@ -178,7 +180,6 @@ c
         int_nbf_x(type) = (type+1)*(type+2)/2
         int_nbf_s(type) = 2*type+1
       enddo
-     
 c
 c initialize cando information from rtdb
 c
@@ -197,7 +198,7 @@ c
         if (ga_nodeid().eq.0 .and. oprint) then
           write(luout,*)
      &        ' int_init: cando_sp set to always be ',def_cando_sp
-          call util_flush(6)
+          call util_flush(luout)
         endif
       endif
 c
@@ -207,7 +208,7 @@ c
         if (ga_nodeid().eq.0 .and. oprint) then
           write(luout,*)
      &        ' int_init: cando_nw set to always be ',def_cando_nw
-          call util_flush(6)
+          call util_flush(luout)
         endif
       endif
 c
@@ -217,7 +218,7 @@ c
         if (ga_nodeid().eq.0 .and. oprint) then
           write(luout,*)
      &        ' int_init: cando_txs set to always be ',def_cando_txs
-          call util_flush(6)
+          call util_flush(luout)
         endif
       endif
 c
@@ -227,7 +228,7 @@ c
         if (ga_nodeid().eq.0 .and. oprint) then
           write(luout,*)
      &        ' int_init: cando_hnd set to always be ',def_cando_hnd
-          call util_flush(6)
+          call util_flush(luout)
         endif
       endif
 c
@@ -239,7 +240,7 @@ c
             write(luout,*)
      &          ' int_init: internal texas instability possible cando_',
      &          'txs set to always be ',def_cando_txs
-            call util_flush(6)
+            call util_flush(luout)
           endif
         endif
       endif
@@ -254,7 +255,7 @@ c
           write(luout,*)' nw  ', def_cando_nw
           write(luout,*)' txs ', def_cando_txs
           write(luout,*)' hnd ', def_cando_hnd
-          call util_flush(6)
+          call util_flush(luout)
         endif
         call errquit
      &      ('int_init: logic error with user cando settings',911)
@@ -284,8 +285,13 @@ c
       ang2use = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &         call errquit('int_init: angm error',angm)
+     &      call errquit('int_init: angm error',angm)
         ang2use = max(ang2use,angm)
+        if (dyall_mod_dir) then
+          if(.not.bas_rel_high_ang(bases(ibas),angm))
+     &        call errquit('int_init: angm error',angm)
+          ang2use = max(ang2use,angm+1)
+        end if
 00300 continue
 *
 * test for higher than h functions  0123456
@@ -306,6 +312,17 @@ c
       if (dyall_mod_dir) then
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
      &      ('int_init: int_rel_init failed ',911)
+        if (.not. nesc_1e_approx) then
+          user_cando_sp   = .true.
+          def_cando_sp   = .false.
+          user_cando_txs = .true.
+          def_cando_txs  = .false.
+          if (ga_nodeid().eq.0 .and. oprint) then
+            write(luout,*) ' int_init: cando_sp and cando_txs',
+     &          ' turned off for NESC2E'
+            call util_flush(luout)
+          end if 
+        end if
       end if
 c
 c... generate memory requirements and store in structures in apiP.fh
