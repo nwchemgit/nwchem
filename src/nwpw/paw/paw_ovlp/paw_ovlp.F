@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.41 2003-03-05 23:16:32 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.42 2003-03-10 05:28:57 marat Exp $
 *
 
 !**************************************************
@@ -61,15 +61,15 @@ c     !-- total number of electron states
       ne_u=ne(1)
       ne_d=ne(2)
 
-      value =           MA_alloc_get(mt_dcpl,(total_nbasis*neall),
-     >                               'coeff',coeff(2),coeff(1))
-      value = value.and.MA_alloc_get(mt_dcpl,
+      value =           my_alloc(mt_dcpl,(total_nbasis*neall),
+     >                               'coeff',coeff)
+      value = value.and.my_alloc(mt_dcpl,
      >                               (total_nbasis*neall),
-     >                               'toeff',toeff(2),toeff(1))
-      value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
-     >                               'indx2',indx2(2),indx2(1))
-      value = value.and.MA_alloc_get(mt_int,(total_nbasis*neall),
-     >                               'sgn',sgn(2),sgn(1))
+     >                               'toeff',toeff)
+      value = value.and.my_alloc(mt_int,(total_nbasis*neall),
+     >                               'indx2',indx2)
+      value = value.and.my_alloc(mt_int,(total_nbasis*neall),
+     >                               'sgn',sgn)
 
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
      >                           "paw_ovlp_w",paw_ovlp_w)
@@ -615,3 +615,20 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       return
       end 
 
+**************************************************
+!
+!	Name: paw_ovlp_coeff_ptr
+!
+!	Purpose: 
+!
+!	Created:	2/10/2002
+!**************************************************
+c      function paw_ovlp_coeff_size()
+c      implicit none
+c
+c#include "paw_ovlp_data.fh"
+c
+c      paw_ovlp_coeff_size=
+c      return
+c      end 
+c
