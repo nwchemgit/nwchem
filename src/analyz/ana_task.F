@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.47 2000-09-14 21:38:23 d3j191 Exp $
+c $Id: ana_task.F,v 1.48 2000-09-14 21:42:36 d3j191 Exp $
 c
       implicit none
 c
@@ -745,7 +745,6 @@ c
       endif
       if(lrama) close(unit=lfnram)
       if(lrms) then
-      close(unit=lfnrms)
       write(*,'(a)') ' Closing scn file '
       write(*,'(/,a,i10,a,a)') ' Scanned ',ndata,' frames to ',
      + filrms(1:index(filrms,' ')-1)
