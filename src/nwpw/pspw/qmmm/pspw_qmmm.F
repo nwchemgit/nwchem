@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.10 2001-11-17 01:01:17 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.11 2001-11-29 02:00:41 bylaska Exp $
 c
 
 ***********************************************************
@@ -59,7 +59,7 @@ c
 *        **** Model potential is the default, qmmm_type = 1 ****
          if (.not.
      >      rtdb_get(rtdb,'pspw:qmmm_type',mt_int,1,qmmm_type))
-     >      qmmm_type = 1
+     >      qmmm_type = 0
 
          value = geom_create(geom,'qmmmgeometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'qmmmgeometry')
@@ -482,10 +482,11 @@ c
       real*8 q
 
       if (.not. geom_cent_tag(geom,i,t))
-     >        call errquit(' ion_aname  failed ',i)
+     >        call errquit(' pspw_qmmm_aname  failed ',i)
 
-      if (.not. geom_tag_to_element(t,symbol,name,q))
-     >        call errquit(' ion_aname  failed ',i)
+      if (.not. geom_tag_to_element(t,symbol,name,q)) then
+        symbol = 'bq'
+      end if
 
       pspw_qmmm_aname = symbol
       return
@@ -875,14 +876,15 @@ c
 
       if (nion.gt.0) then
 
+*         **** Model Charge ****
+c          if (qmmm_type.eq.0)
+c     >      call Model_Charge_Generate_V(nion,dbl_mb(r1(1)),
+c     >                                   n2ft3d,rgrid,Vqm)           
+
 *         **** Model Potential ****
           if (qmmm_type.eq.1)
      >      call Model_Potential_Generate_V(n2ft3d,rgrid,Vqm)
  
-*         **** Model Charge ****
-c          if (qmmm_type.eq.2)
-c     >      call Model_Charge_Generate_V(nion,dbl_mb(r1(1)),
-c     >                                   n2ft3d,rgrid,Vqm)           
       end if
 
       return
@@ -1163,11 +1165,12 @@ c     >                                   n2ft3d,rgrid,Vqm)
 
       if (nion.gt.0) then
 
+*        **** get forces from model charge ****
+
 *        **** get forces from model potential ****
          if (qmmm_type.eq.1)
      >      call Model_Potential_Fmm(n2ft3d,rgrid,rho,dv,f_mm)
  
-*        **** get forces from model charge ****
 
 *        **** get LJ forces ****
          call pspw_LJ_Fmm(f_mm)

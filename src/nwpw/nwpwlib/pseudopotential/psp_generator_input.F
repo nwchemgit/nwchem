@@ -5,7 +5,7 @@
 *     ***************************************
       subroutine psp_generator_input(rtdb)
 c
-c $Id: psp_generator_input.F,v 1.6 2001-11-11 01:29:06 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.7 2001-11-29 02:00:40 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -49,7 +49,7 @@ c
       real*8  r_semicore
 
       character lmax
-      integer h,i,j,k
+      integer h,i,j,k,debug
       data dirs / 'element:',
      >            'charge:',
      >            'mass_number:',
@@ -380,7 +380,9 @@ c
       j = index(pspgenerator,' ')-1
       k = index(pseudopotential_filename,' ') -1
 
-      call pspsolve(sdir_name(1:h),   h,
+      debug = 1
+      call pspsolve(debug,
+     >              sdir_name(1:h),   h,
      >              dir_name(1:i),    i,
      >              pspgenerator(1:j),j,
      >              pseudopotential_filename(1:k),k)
@@ -403,7 +405,7 @@ c
 c
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
-      integer h,i,j,k
+      integer h,i,j,k,debug
       integer nwpw_libglmax,nwpw_libglocp
       double precision nwpw_libgrlocal
       external nwpw_libglmax,nwpw_libglocp,nwpw_libgrlocal
@@ -422,7 +424,8 @@ c
 
       write(*,*) "need to generate 1d psp for ",atom
       call nwpw_libgeninp(atom,sdir_name(1:h)//'/junk.inp')
-      call pspsolve(sdir_name(1:h),h,
+      debug = 0
+      call pspsolve(debug,sdir_name(1:h),h,
      >     dir_name(1:i),i,
      >     psp_in(1:j),j,
      >     psp_out(1:k),k)

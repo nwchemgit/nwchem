@@ -1,4 +1,5 @@
-c     $Id: sdminimize.F,v 1.2 2001-11-28 21:09:18 bylaska Exp $                       
+c     $Id: sdminimize.F,v 1.3 2001-11-29 02:00:41 bylaska Exp $                       
+
       subroutine sdminimize(flag)
       implicit none
       integer flag

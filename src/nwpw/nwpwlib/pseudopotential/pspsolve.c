@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.2 2001-11-11 01:29:06 bylaska Exp $
+ $Id: pspsolve.c,v 1.3 2001-11-29 02:00:40 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -23,7 +23,8 @@
 
 void FATR pspsolve_
 #if defined(USE_FCD)
-             ( const _fcd fcd_sdir_name,
+                    Integer *debug_ptr,
+			  const _fcd fcd_sdir_name,
                     Integer *n9,
 			  const _fcd fcd_dir_name,
                     Integer *n0,
@@ -38,7 +39,8 @@ void FATR pspsolve_
   char *out_filename = _fcdtocp(fcd_out_filename);
 
 #else
-             (sdir_name,n9,dir_name,n0,in_filename,n1,out_filename,n2)
+             (debug_ptr,sdir_name,n9,dir_name,n0,in_filename,n1,out_filename,n2)
+Integer	*debug_ptr;
 char	sdir_name[];
 Integer	*n9;
 char	dir_name[];
@@ -52,6 +54,7 @@ Integer	*n2;
 #endif
 
    int		i,j,k,l,p,Nlinear,Nvalence;
+   int      debug;
    double	*rl, 
 			*rhol,
 			**psil,
@@ -72,6 +75,8 @@ Integer	*n2;
    char *outfile = (char *) malloc(m0+m2+5);
 
    char *full_filename = (char *) malloc(m9+25+5);
+   
+   debug = *debug_ptr;
 
    (void) strncpy(infile, sdir_name, m9);
    infile[m9] = '\0';
@@ -92,11 +97,11 @@ Integer	*n2;
 
    init_Atom(infile);
    solve_Atom();
-   print_Atom(stdout);
+   if (debug) print_Atom(stdout);
 
    init_Psp(infile);
    solve_Psp();
-   print_Psp(stdout);
+   if (debug) print_Psp(stdout);
 
    init_Linear(infile);
 
@@ -129,6 +134,7 @@ Integer	*n2;
       }
       Log_to_Linear(rho_Psp(),rl,rhol);
 
+	 if (debug) {
 	 /* output pseudowavefunctions argv[1].psw */
 	 strcpy(name,name_Atom());
 	 strcat(name,".psw.plt");
@@ -187,6 +193,7 @@ Integer	*n2;
      for (k=0; k<Nlinear; ++k)
        fprintf(fp,"%12.8lf %12.8lf\n", rl[k],rhol[k]);
      fclose(fp);
+	 }
 
 
       /* output datafile to be used for Kleinman-Bylander input, argv[1].dat */
@@ -319,6 +326,8 @@ Integer	*n2;
    /******************************************************************/
 
    
+   if (debug) {
+
    /* output all-electron wavefunctions */
    printf("Outputing all-electron wavefunctions:");
    Ngrid = N_LogGrid();
@@ -460,6 +469,7 @@ Integer	*n2;
 	  fprintf(fp,"%12.8lf %12.8lf %12.8lf\n", rgrid[k],vall[k],y*vall[k]+c*x);
 	}
 	fclose(fp);
+   }
 
 
    /* free malloc memory */

@@ -1,3 +1,6 @@
+*
+* $Id: ion.F,v 1.8 2001-11-29 02:00:40 bylaska Exp $
+*
 
 *     ***************************
 *     *							*
@@ -5,9 +8,6 @@
 *     *							*
 *     ***************************
       subroutine ion_end()
-*
-* $Id: ion.F,v 1.7 2001-11-28 21:09:17 bylaska Exp $
-*
       implicit none
 
 #include "mafdecls.fh"
@@ -52,7 +52,7 @@
       common / pspwqmm/ mmexist
 
 *     **** local variables ****
-      integer i,geom1,geom2,geom3,nion1,nion2,nion3,rt(2)
+      integer i
       logical value
       double precision rxyz(3),q
       character*16     t
@@ -97,55 +97,17 @@
      >    (control_code().eq.2)) then
 
 
-*       **********************************************************
-*       **** put together ions and molecular pseudopotentials ****
-*       **********************************************************
-        value = geom_create(geom1,'geometry')
-        value = value.and.geom_create(geom2,'pspwgeometry')
-        if (mmexist) 
-     >    value = value.and.geom_create(geom3,'qmmmgeometry')
-        value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
-        value = value.and.geom_ncent(geom1,nion1)
-        value = value.and.geom_rtdb_load(rtdb,geom2,'pspwgeometry')
-        value = value.and.geom_ncent(geom2,nion2)
-        if (mmexist) then
-           value = value.and.geom_rtdb_load(rtdb,geom3,'qmmmgeometry') 
-           value = value.and.geom_ncent(geom3,nion3)
-        else
-           nion3 = 0
-        end if
-        if (.not. value) 
-     >   call errquit('pspwgeometry->geometry write 1',0)
+*       *****************************************
+*       **** put together ions,charges       ****
+*       ***** and molecular pseudopotentials ****
+*       *****************************************
+        call combine_pointcharge(rtdb)
+        call combine_molpsp(rtdb)
 
-        value = MA_push_get(mt_dbl,(3*nion1),'rt',rt(2),rt(1))
-        if (.not. value) call errquit('out of stack memory',0)
-
-        do i=1,nion2
-           value = value.and.geom_cent_get(geom2,i,t,rxyz,q)
-           value = value.and.geom_cent_set(geom1,i,t,rxyz,q)
-        end do
-        do i=1,nion3
-           value = value.and.geom_cent_get(geom3,i,t,rxyz,q)
-           value = value.and.geom_cent_set(geom1,(i+nion2),t,rxyz,q)
-        end do
-        value = value.and.geom_vel_get(geom2,dbl_mb(rt(1)))
-        if (nion3.gt.0)
-     >     value = value.and.geom_vel_get(geom3,dbl_mb(rt(1+3*nion2)))
-        value = value.and.geom_vel_set(geom1, dbl_mb(rt(1)))
-
-        value = value.and.geom_rtdb_delete(rtdb,'geometry')
-        value = value.and.geom_rtdb_delete(rtdb,'pspwgeometry')
-        if (nion3.gt.0)
-     >     value = value.and.geom_rtdb_delete(rtdb,'qmmmgeometry')
-        value = value.and.geom_rtdb_store(rtdb,geom1,'geometry')
-        if (mmexist)
-     >     value = value.and.geom_destroy(geom3)
-        value = value.and.geom_destroy(geom2)
-        value = value.and.geom_destroy(geom1)
-        value = value.and.MA_pop_stack(rt(2))
-        if (.not. value) 
-     >   call errquit('pspwgeometry->geometry write 2',0)
-
+      else
+        value = geom_rtdb_delete(rtdb,'chargepspwgeometry')
+        value = geom_rtdb_delete(rtdb,'pspwgeometry')
+        value = geom_rtdb_delete(rtdb,'qmmmgeometry')
       end if
       return
       end
@@ -208,13 +170,9 @@
       common / ION3/ ekg,eki0,eki1,mass,
      >               ke_total,kg_total,ke_count
 
-      logical mmexist
-      common / pspwqmm/ mmexist
-
 *     *** local variables ***
-      integer     i,geom1,geom2,geom3,nion1,nion2,nion3
-      integer rt(2),tt(2),qt(2),mt(2)
-      double precision q,dt,vgx,vgy,vgz,rxyz(3)
+      integer     i
+      double precision q,dt,vgx,vgy,vgz
       character*16     t
       logical value
 
@@ -227,89 +185,21 @@
       external    ion_aname
       external    control_code
       
-      logical          control_frac_coord,parsecarrot
+      logical          control_frac_coord
       double precision control_time_step,ion_amass
       double precision control_rti
-      external         control_frac_coord,parsecarrot
+      external         control_frac_coord
       external         control_time_step,ion_amass
       external         control_rti
 
       call Parallel_taskid(taskid)
 
-*     *******************************************************
-*     **** seperate ions from molecular pseudopotentials ****
-*     *******************************************************
-
-*     **** generate pspwgeometry from geometry ****
-*     **** generate qmmmgeometry from geometry ****
-      value = geom_create(geom1,'geometry')
-      value = value.and.geom_create(geom2,'pspwgeometry')
-      value = value.and.geom_create(geom3,'qmmmgeometry')
-      value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
-      value = value.and.geom_ncent(geom1,nion1)
-      if (.not. value) call errquit('opening geometry',0)
-
-      value = MA_push_get(mt_dbl, (3*nion1), 'rt',rt(2),rt(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, (nion1),   'qt',qt(2),qt(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl, (nion1),   'mt',mt(2),mt(1))
-      value = value.and.
-     >        MA_push_get(mt_byte,(16*nion1),'tt',tt(2),tt(1))
-      if (.not. value) call errquit('out of stack memory',0)
-
-      nion2 = 0
-      nion3 = 0
-      do i=1,nion1
-         value = geom_cent_get(geom1,i,t,rxyz,q)
-         if (.not.parsecarrot(t)) then 
-            nion2 = nion2 + 1
-         else
-            nion3 = nion3 + 1
-         end if
-      end do
-      value = value.and.
-     >        geom_cart_get(geom1,nion1,byte_mb(tt(1)),
-     >                                  dbl_mb(rt(1)),
-     >                                  dbl_mb(qt(1)))
-      value = value.and.
-     >        geom_cart_set(geom2,nion2,byte_mb(tt(1)),
-     >                                  dbl_mb(rt(1)),
-     >                                  dbl_mb(qt(1)))
-      value = value.and.geom_masses_get(geom1,nion1,dbl_mb(mt(1)))
-      value = value.and.geom_masses_set(geom2,nion2,dbl_mb(mt(1)))
-
-      if (nion3.gt.0) then
-        value = value.and.
-     >          geom_cart_set(geom3,nion3,byte_mb(tt(1)+16*nion2),
-     >                                   dbl_mb(rt(1) + 3*nion2),
-     >                                   dbl_mb(qt(1) +   nion2))
-        value = value.and.geom_masses_set(geom3,nion3,
-     >                                   dbl_mb(mt(1) +   nion2))
-      end if
-
-      call dcopy(nion1,0.0d0,0,dbl_mb(rt(1)),1)
-      value = value.and.geom_vel_get(geom1,dbl_mb(rt(1)))
-      value = value.and.geom_vel_set(geom2,dbl_mb(rt(1)))
-      if (nion3.gt.0) 
-     > value = value.and.geom_vel_set(geom3,dbl_mb(rt(1)+3*nion2))
-
-      value = value.and.geom_rtdb_store(rtdb,geom2,'pspwgeometry')
-      if(nion3.gt.0) then
-         value = value.and.geom_rtdb_store(rtdb,geom3,'qmmmgeometry')
-         mmexist = .true.
-      else
-         mmexist = .false.
-      end if
-      value = value.and.geom_destroy(geom3)
-      value = value.and.geom_destroy(geom2)
-      value = value.and.geom_destroy(geom1)
-      if (.not. value) call errquit('geometry->pspwgeometry write',0)
-      value = MA_pop_stack(tt(2))
-      value = value.and.MA_pop_stack(mt(2))
-      value = value.and.MA_pop_stack(qt(2))
-      value = value.and.MA_pop_stack(rt(2))
-      if (.not. value) call errquit('popping stack',0)
+*     *****************************************
+*     **** seperate ions and charges       ****
+*     **** from molecular pseudopotentials ****
+*     *****************************************
+      call seperate_molpsp(rtdb)
+      call seperate_pointcharge(rtdb)
 
 
 *     **************************
@@ -415,23 +305,7 @@ c     call ion_shift()
       end
 
 
-*     ***************************
-*     *							*
-*     *	     parsecarrot		*
-*     *							*
-*     ***************************
-      logical function parsecarrot(string)
-      implicit none
-      character*16 string
 
-      logical qmmm 
-
-      qmmm = .false.
-      if (index(string,'^').gt.0) qmmm = .true.
-
-      parsecarrot = qmmm
-      return
-      end
 
 *     ***************************
 *     *							*

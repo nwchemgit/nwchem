@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2001-11-11 01:29:05 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2001-11-29 02:00:40 bylaska Exp $
 #
  SUBDIRS = shake
 
@@ -12,7 +12,9 @@
             ion.o \
 			katm_list.o \
             fcoord.o \
-			ewald.o
+			ewald.o \
+			seperate_molpsp.o \
+			seperate_pointcharge.o
 
 
 	  OBJ = 

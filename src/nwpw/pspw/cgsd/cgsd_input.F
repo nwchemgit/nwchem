@@ -1,6 +1,6 @@
       subroutine cgsd_input(rtdb)
 c
-c $Id: cgsd_input.F,v 1.4 2001-11-28 21:09:18 bylaska Exp $
+c $Id: cgsd_input.F,v 1.5 2001-11-29 02:00:41 bylaska Exp $
 c
       implicit none
 #include "inp.fh"
@@ -65,8 +65,8 @@ c     output_wavefunction_filename = ' '
       allow_translation            = .false.
       fake_mass = 400000.0d0
       time_step = 5.8d0
-      loop(1) = 10
-      loop(2) = 1
+      loop(1) = 25
+      loop(2) = 100
       tolerances(1) = 1.0d-9
       tolerances(2) = 1.0d-9
       tolerances(3) = 1.0d-4
