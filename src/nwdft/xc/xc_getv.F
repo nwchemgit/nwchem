@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.17 1997-12-08 23:48:51 d3h449 Exp $
+C$Id: xc_getv.F,v 1.18 1998-08-26 21:48:22 d3h449 Exp $
 c
       implicit none
 c      
@@ -26,8 +26,7 @@ c
       integer cntoce(nshells_ao), cntobfr(2,nshells_ao), 
      &        cetobfr(2,natoms)
       double precision rho_n, rdens_atom(ipol*natoms*natoms)
-      double precision jfac(4),kfac(4)
-      integer d(4),f(4)
+      double precision jfac(2),kfac(2)
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -56,10 +55,7 @@ c              2        2   |   Vxc^up   Vxc^dw
 c
 c           nTcols = ipol 
 c
-c
-c      integer g_scr,me,nproc,i,nTrows,nbf_xc,nbf_ao,nTcols
-      integer g_scr,me,nproc,i,nTrows,nTcols
-c      integer lTmat,iTmat,itol2e
+      integer me,nproc,i,nTrows,nTcols
       integer lTmat,iTmat
       double precision zero,one,onem
       logical oprint_intermediate_xc, oprint_time
@@ -92,47 +88,23 @@ c
 c        Compute the exact exchange potential (as in Hartree-Fock calculations).
 c       
          tol2e=10.d0**(-itol2e)
+         call ga_sync
          if (ipol.eq.1) then
-            jfac(1)=0.
+            jfac(1)=0.0d0
             kfac(1) = -0.5d0*xfac(1)
             if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
             call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &                   tol2e, oskel, g_dens(1), g_vxc(1))
             if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          else
-c
-c           bogus Ga
-c
-c            call gacrea(geom, AO_bas_han, nbf_ao, nbf_ao, 
-c     &                  'ga scratch', g_scr, 'atom')
-            g_scr = ga_create_atom_blocked(geom, AO_bas_han, 
-     &                                     'ga scratch')
-            call ga_zero(g_scr)
             jfac(1)=0.d0
             jfac(2)=0.d0
-            jfac(3)=0.d0
-            jfac(4)=0.d0
-            kfac(1)=0.0d0
+            kfac(1)=-1.0d0*xfac(1)
             kfac(2)=-1.0d0*xfac(1)
-            kfac(3)=0.0d0
-            kfac(4)=-1.0d0*xfac(1)
-            d(1) = g_dens(1)
-            d(2) = g_dens(1)
-            d(3) = g_dens(2)
-            d(4) = g_dens(2)
-c            f(1) = g_a_coul
-            f(1) = g_scr
-            f(2) = g_vxc(1)
-c            f(3) = g_b_coul
-            f(3) = g_scr
-            f(4) = g_vxc(2)
             if (oprint_time)call dft_tstamp(' Before call to fock_2e. ')
-            call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
-     &                   tol2e, oskel, d, f)
+            call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+     &                   tol2e, oskel, g_dens, g_vxc)
             if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
-c            call gadest(g_scr)
-            if (.not. ga_destroy(g_scr)) call errquit
-     &         ('xc_getv: could not destroy g_scr', 0)
          endif
          call ga_sync
 c

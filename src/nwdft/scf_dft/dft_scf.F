@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.103 1998-08-20 23:52:22 d3e129 Exp $
+c     $Id: dft_scf.F,v 1.104 1998-08-26 21:48:13 d3h449 Exp $
 c     
       implicit none
 c
@@ -101,6 +101,7 @@ c
       parameter(zero = 0.d0, one = 1.d0, onem = -one)
 c
       integer ilo, ihi          ! For printing movecs analysis
+      integer iter_by_5, iter_ck
       double precision eval_pr_tol_lo, eval_pr_tol_hi
       parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
 C
@@ -761,6 +762,7 @@ c
          if (oskel)
      &      call sym_symmetrize(geom, AO_bas_han, .false., g_fock)
 c
+         call ga_symmetrize(g_fock)
          if (diising)then
 c     
 c           DIIS step taken here.
@@ -841,6 +843,7 @@ c
 c     
 c        Solve for the eigenvalues and eigenvectors of the Hamiltonian.
 c     
+         call ga_symmetrize(g_fock)
          if (oprint_intermediate_fock)then     
             call ga_print(g_fock)
          endif
@@ -927,11 +930,19 @@ c
      &                                oprint_syma, nbf_ao, name,
      &                                .true., 
      &                                int_mb(k_ir+nbf_ao*(ispin-1)))
-c23456789012345678901234567890123456789012345678901234567890123456789012
-
          endif      
+c
+c        occasionally (every 5 iterations) clean up (by orthogonalizing
+c        away any accumulated noise) the mo vectors.
+c
+         iter_by_5 = iter/5
+         iter_ck = iter - 5*iter_by_5
+         if (iter_ck.eq.0)
+     &      call ga_orthog_mos(ao_bas_han, g_movecs(ispin))
 c     
 c        Form a new density matrix.
+c
+         call ga_sync
 c     
          call dft_densm(g_dens(ispin), g_movecs(ispin), 
      &                  nbf_ao, ipol, noc(ispin))
