@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.34 1999-10-18 22:39:04 nwchem Exp $
+C$Id: inp.F,v 1.35 2000-03-25 00:50:19 bert Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -26,6 +26,7 @@ c
       data xquote/'"'/
 c
       data save_level /0/            ! Depth of nesting in save/restore
+      data include_level /0/
 c
       end
       subroutine inp_init(ir,iw)
