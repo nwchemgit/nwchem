@@ -57,7 +57,7 @@ static struct {                 /* Used to track memory leaks */
     unsigned long n;
     int allocs;
     int frees;
-} malloc_stats;
+} hdbm_malloc_stats;
 
 static struct {			/* Curiosity */
     int reads;
@@ -80,17 +80,17 @@ static struct {			/* Used to track I/O operations */
 
 static void *hdbm_malloc(size_t n)
 {
-    malloc_stats.allocs++;
-    malloc_stats.n += n;
-    if (malloc_stats.nmax < malloc_stats.n)
-	malloc_stats.nmax = malloc_stats.n;
+    hdbm_malloc_stats.allocs++;
+    hdbm_malloc_stats.n += n;
+    if (hdbm_malloc_stats.nmax < hdbm_malloc_stats.n)
+	hdbm_malloc_stats.nmax = hdbm_malloc_stats.n;
     return malloc(n);
 }
 
 static void hdbm_free(void *p, size_t n)
 {
-    malloc_stats.frees++;
-    malloc_stats.n -= n;
+    hdbm_malloc_stats.frees++;
+    hdbm_malloc_stats.n -= n;
     free(p);
 }
 
@@ -1081,10 +1081,10 @@ void hdbm_print_usage(void)
     printf(" Extracts      = %d\n", call_stats.extracts);
     printf(" Deletes       = %d\n", call_stats.deletes);
     printf("\n");
-    printf(" Memory allocs = %d\n", malloc_stats.allocs);
-    printf(" Memory frees  = %d\n", malloc_stats.frees);
-    printf(" Memory max    = %lu\n", malloc_stats.nmax);
-    printf(" Memory in use = %lu\n", malloc_stats.n);
+    printf(" Memory allocs = %d\n", hdbm_malloc_stats.allocs);
+    printf(" Memory frees  = %d\n", hdbm_malloc_stats.frees);
+    printf(" Memory max    = %lu\n", hdbm_malloc_stats.nmax);
+    printf(" Memory in use = %lu\n", hdbm_malloc_stats.n);
     printf("\n");
     printf(" IO seeks      = %d\n", io_stats.seeks);
     printf(" IO reads      = %d\n", io_stats.reads);
