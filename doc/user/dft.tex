@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.55 2001-12-31 18:58:29 edo Exp $ 
+% $Id: dft.tex,v 1.56 2002-02-06 19:38:51 sohirata Exp $ 
 %
 \label{sec:dft}
 
@@ -97,7 +97,7 @@ the DFT module are:
         
 
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
-              [accCoul <integer accCoul default 10>] \
+              [accCoul <integer accCoul default 8>] \
               [radius <real radius default 25.0>]]
 
 
@@ -136,7 +136,7 @@ The charge density fitting basis set must have the name {\tt "cd basis"}.
 This can be the actual name of a basis set, or a basis set can be 
 assigned this name using the \verb+SET+ directive, as described in
 Section \ref{sec:set}.  If this basis set is not defined by input,
-the $O(N^4)$y exact Coulomb contribution is computed.
+the $O(N^4)$ exact Coulomb contribution is computed.
 
 The user also has the option of specifying a third basis set for the 
 evaluation of the exchange-correlation potential.  This basis set must
@@ -157,7 +157,7 @@ optional, and usually not recommended
 \end{itemize}
 
 
-\section{VECTORS and MAX\_OVL --- KS-MO Vectors}
+\section{{\tt VECTORS} and {\tt MAX\_OVL} --- KS-MO Vectors}
 
 The \verb+VECTORS+ directive is the same as that in the SCF module
 (Section \ref{sec:vectors}).  Currently, the \verb+LOCK+ keyword
@@ -167,7 +167,7 @@ is not supported by the DFT module, however the directive
 \end{verbatim}
 has the same effect.
 
-\section{XC and DECOMP --- Exchange-Correlation Potentials}
+\section{{\tt XC} and {\tt DECOMP} --- Exchange-Correlation Potentials}
 \label{sec:xc}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
@@ -407,10 +407,10 @@ appears in table \ref{tablexc}.
 
   The available hybrid functionals 
 (where a Hartree-Fock Exchange component is present) consist of the Becke
-``{\sl half and half}'' (see A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992)), the
+``{\it half and half}'' (see A.D.~Becke, J.~Chem.~Phys.~98, 1372 (1992)), the
 adiabatic connection method (see A.D.~Becke, J.~Chem.~Phys.~98, 5648
-(1993)),  b3lyp (popularized by Gaussian9X), Becke 1997 
-(``Becke V'' paper: A.D.Becke, J. Chem. Phys., {\bf 107}, 8554 (1997)
+(1993)),  B3LYP (popularized by Gaussian9X), Becke 1997 
+(``Becke V'' paper: A.D.Becke, J. Chem. Phys., {\bf 107}, 8554 (1997)).
 
 %These options can be invoked by specifying any of the following input lines,
 %\begin{verbatim}
@@ -457,7 +457,7 @@ The keyword \verb+b3lyp+ specifies that the exchange-correlation energy
 is computed as
 \begin{eqnarray*}
 E_{XC} \ &=& \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +
-a_X \Delta E^{\rm Becke88}_{X} + (1-a_C)E^{\rm \verb+VWN_1_RPA+}_C + a_C E^{LYP}_C \\
+a_X \Delta E^{\rm Becke88}_{X} + (1-a_C)E^{\rm VWN\_1\_RPA}_C + a_C E^{LYP}_C \\
 & &{\rm where } \\
 a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \end{eqnarray*}
@@ -480,7 +480,7 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
 \begin{tabular}{|l|cccc|r|}
 \hline
            &          &             &        &         &         \\
-Keyword    & X & C & GCA    &  Hybrid & Ref.\\
+Keyword    & X & C & GGA    &  Hybrid & Ref.\\
            &          &             &        &         &         \\
 \hline
  slater     & $\star$    &            &         &         &[1]\\
@@ -570,7 +570,7 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 %\end{table}
 \onecolumn
 
-\section{ITERATIONS --- Number of SCF iterations}
+\section{{\tt ITERATIONS} --- Number of SCF iterations}
 
 \begin{verbatim}
   ITERATIONS <integer iterations default 30>
@@ -588,7 +588,7 @@ is \verb+ITERATIONS+, and has the following general form,
 The optimization procedure will stop when the specified number of
 iterations is reached or convergence is met.
 
-\section{CONVERGENCE --- SCF Convergence Control}
+\section{{\tt CONVERGENCE} --- SCF Convergence Control}
 
 \begin{verbatim}
   CONVERGENCE [energy <real energy default 1e-6>] \
@@ -698,7 +698,7 @@ keyword \verb+lshift+.  For example the directive,
   CONVERGENCE lshift 0.5
 \end{verbatim}
 causes the diagonal elements of the Fock matrix
-corresponding to the virtual orbitals to be shifted by 0.5 au.
+corresponding to the virtual orbitals to be shifted by 0.5 a.u.
 By default, this level-shifting procedure is switched on whenever the
 HOMO-LUMO gap is small.  Small is defined by default to be 0.05 au but
 can be modified by the directive \verb+hl_tol+.  An example of
@@ -747,7 +747,7 @@ active, you need to use the following line
 
 
 
-\section{SMEAR --- Fractional Occupation of the Molecular Orbitals}
+\section{{\tt SMEAR} --- Fractional Occupation of the Molecular Orbitals}
 \label{smear}
 
 The {\tt \bf SMEAR} keyword is useful in cases with many degenerate states
@@ -766,7 +766,7 @@ energy in order to have
 energies and gradients consistent.
 
 
-\section{GRID --- Numerical Integration of the XC Potential}
+\section{{\tt GRID} --- Numerical Integration of the XC Potential}
 \label{grgrid}
 \begin{verbatim}
   GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
@@ -1081,7 +1081,7 @@ in this paper).\\
   GRID [[old||new]  default new]
 \end{verbatim}
 
-In Nwchem 4.0 the XC integration code has been re-written using a
+In NWChem 4.0 the XC integration code has been re-written using a
 space decomposiition scheme similar to the one proposed in R.E.Stratmann, G.Scuseria and  M.J.Frisch,
 Chem. Phys. Lett. {\bf 257}, 213 (1996) (keyword
 {\bf \tt new}). 
@@ -1090,11 +1090,11 @@ To use the XC integration routines available in
 older version of NWChem, use the keyword {\bf \tt old}.
 
 
-\section{TOLERANCES --- Screening tolerances}
+\section{{\tt TOLERANCES} --- Screening tolerances}
 
 \begin{verbatim}
   TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-10>] \
-              [accCoul <integer accCoul default 10>] \
+              [accCoul <integer accCoul default 8>] \
               [radius <real radius default 25.0>]]
 \end{verbatim}
 %              [accQrad <integer accQrad default 12>] \
@@ -1198,7 +1198,7 @@ This option sets all tolerances to their
 default/user specified values at the very first iteration.
 
 
-\section{DIRECT and NOIO --- Hardware Resource Control}
+\section{{\tt DIRECT} and {\tt NOIO} --- Hardware Resource Control}
 \begin{verbatim}
   DIRECT||INCORE
   NOIO
@@ -1224,7 +1224,7 @@ are computed ``on-the-fly''.
 
 \fussy
 
-\section{ODFT and  MULT --- Open shell systems}
+\section{{\tt ODFT} and {\tt MULT} --- Open shell systems}
 \begin{verbatim}
   ODFT
   MULT <integer mult default 1>
@@ -1244,7 +1244,8 @@ electrons minus beta electrons, plus 1.
 The keyword \verb+ODFT+ is unnecessary except in the context
 of forcing a singlet system to be computed as an open shell
 system (i.e., using a spin-unrestricted wavefunction).
-\section{SIC --- Self-Interaction Correction}
+
+\section{{\tt SIC} --- Self-Interaction Correction}
 
 \begin{verbatim}
 sic [perturbative || oep || oep-loc <default perturbative>]
@@ -1284,11 +1285,7 @@ print "SIC information"
 \end{verbatim}
 
 
-\section{MULLIKEN --- Mulliken analysis}
-\begin{verbatim}
-  MULLIKEN
-\end{verbatim}
-
+\section{{\tt MULLIKEN} --- Mulliken analysis}
 Mulliken analysis of the charge distribution is invoked by the keyword:
 \begin{verbatim}
   MULLIKEN

@@ -15,7 +15,7 @@ directives are ignored.
 The following sections describe each of the top-level directives in
 detail, noting all keywords, options, required input, and defaults.
 
-\section{START and RESTART --- Start-up mode}
+\section{{\tt START} and {\tt RESTART} --- Start-up mode}
 \label{sec:start}
 
 A {\tt START} or {\tt RESTART} directive is
@@ -50,7 +50,7 @@ If the user does not specify an entry for {\tt <file\_prefix>} on the
 altogether), the code uses the base-name of the input file as the file
 prefix.  That is, the variable {\tt <file\_prefix>} is assigned the
 name of the input file (not its full pathname), but without the last
-"dot-suffix".  For example, the input file name
+``dot-suffix''.  For example, the input file name
 \verb+/home/dave/job.2.nw+ yields \verb+job.2+ as the file prefix, if
 a name is not assigned explicitly using the \verb+START+ directive.
 
@@ -125,7 +125,7 @@ the code behaves as if the input file contained the directive,
 \end{verbatim}
 
 
-\section{SCRATCH\_DIR and PERMANENT\_DIR --- File directories}
+\section{{\tt SCRATCH\_DIR} and {\tt PERMANENT\_DIR} --- File directories}
 \label{sec:dirs}
 
 These are start-up directives that allow the user to specify the
@@ -134,7 +134,7 @@ NWChem distinguishes between permanent (or persistent) files and
 scratch (or temporary) files, and allows the user the option of
 putting them in different locations.  In most installations, however,
 permanent and scratch files are all written to the current directory
-by default.  What constitutes "local" disk space may also differ from 
+by default.  What constitutes ``local'' disk space may also differ from 
 machine to machine.
 
 The conventions for file storage are at the discretion of the specific 
@@ -211,7 +211,7 @@ given list of directories:
 \end{verbatim}
 \end{itemize}
 
-\section{MEMORY --- Control of memory limits}
+\section{{\tt MEMORY} --- Control of memory limits}
 
 This is a start-up directive that allows the user to specify the
 amount of memory that NWChem can use for the job.  If this directive
@@ -305,7 +305,7 @@ directive, the user should be aware that some of the distinctions
 among these categories of memory have been blurred in their actual
 implementation in the code.  The memory allocator (MA) allocates both
 the heap and the stack from a single memory region of size {\tt
-  heap+stack}, without enforcing the partition.  The heap vs. stack
+  heap+stack}, without enforcing the partition.  The heap vs.\ stack
 partition is meaningful only to applications developers, and can be
 ignored by most users.  Further complicating matters, the global array
 (GA) toolkit is allocated from within the MA space on distributed
@@ -359,7 +359,7 @@ Sun             & 200 \\
 
 \end{table}
 
-\section{ECHO --- Print input file}
+\section{{\tt ECHO} --- Print input file}
 \label{sec:echo}
 
 This start-up directive is provided as a convenient way to include a
@@ -375,7 +375,7 @@ the single line:
 The \verb+ECHO+ directive is processed only
 once, by Process 0 when the input file is read.
 
-\section{TITLE --- Specify job title}
+\section{{\tt TITLE} --- Specify job title}
 
 This top-level directive allows the user to identify a job or series
 of jobs that use a particular database.  It is an optional directive,
@@ -400,7 +400,7 @@ white space, it must be surrounded by double quotes.  For example,
 The title is stored in the database and will be used in all subsequent
 tasks/jobs until redefined in the input.
 
-\section{PRINT and NOPRINT --- Print control}
+\section{{\tt PRINT} and {\tt NOPRINT} --- Print control}
 \label{sec:printcontrol}
 
 The \verb+PRINT+ and \verb+NOPRINT+ directives allow the user to
@@ -490,7 +490,7 @@ within the MP2 module will cause the SCF, CPHF and gradient modules
 when invoked from the MP2 to default to low print.  Explicit user
 input of print thresholds overrides the inherited value.
 
-\section{SET --- Enter data in the RTDB}
+\section{{\tt SET} --- Enter data in the RTDB}
 \label{sec:set}
 
 This top-level directive allows the user to enter data directly into the
@@ -580,7 +580,7 @@ the sample input files (see Section \ref{sec:realsample}), and
 its usage with basis sets (Section \ref{sec:basis}) and geometries
 (Section \ref{sec:geom}).
 
-\section{UNSET --- Delete data in the RTDB}
+\section{{\tt UNSET} --- Delete data in the RTDB}
 \label{sec:unset}
 
 This directive gives the user a way to delete simple entries from the
@@ -615,7 +615,7 @@ The following example makes an entry in the database using the
 \end{verbatim}
 
 
-\section{STOP --- Terminate processing}
+\section{{\tt STOP} --- Terminate processing}
 
 This top-level directive provides a convenient way of verifying 
 an input file without actually running the calculation.  It consists 
@@ -628,7 +628,7 @@ of the single line,
 As soon as this directive is encountered, all processing ceases and
 the calculation terminates with an error condition.
 
-\section{TASK --- Perform a task}
+\section{{\tt TASK} --- Perform a task}
 \label{sec:task}
 
 The \verb+TASK+ directive is used to tell the code what to do.  The
@@ -665,7 +665,7 @@ code execution continues with the next task.
 The input options, keywords, and defaults for each of these four forms
 for the \verb+TASK+ directive are discussed in the following sections.
 
-\subsection{TASK Directive for Electronic Structure Calculations}
+\subsection{{\tt TASK} Directive for Electronic Structure Calculations}
 \label{sec:first_task}
 
 This is the most commonly used version of the \verb+TASK+ directive, and
@@ -752,7 +752,7 @@ theory, the \verb+TASK+ directive is
 The optional keyword \verb+ignore+ can be used to allow execution to
 continue even if the task fails, as discussed above.
 
-\subsection{TASK Directive for Special Operations}
+\subsection{{\tt TASK} Directive for Special Operations}
 
 This form of the \verb+TASK+ directive is used in instances where the
 task to be performed does not fit the model of the previous version
@@ -783,7 +783,7 @@ below, with the corresponding entries for string variable \verb+<task>+.
 This directive also recognizes the keyword \verb+ignore+, which allows
 execution to continue after a task has failed.
 
-\subsection{TASK Directive for the Bourne Shell}
+\subsection{{\tt TASK} Directive for the Bourne Shell}
 
 This form of the \verb+TASK+ directive is supported only on machines
 with a fully UNIX-style operating system.  This directive causes
@@ -835,7 +835,7 @@ execute all but the simplest UNIX commands, it is usually much easier
 to put the shell script in a file and execute the file from within
 NWChem.
 
-\subsection{TASK Directive for QM/MM simulations}
+\subsection{{\tt TASK} Directive for QM/MM simulations}
 
 This is very similar to the most commonly used version of the
 \verb+TASK+ directive described in Section \ref{sec:first_task}, and
@@ -885,7 +885,7 @@ level of theory the task directive input would be
 The optional keyword \verb+ignore+ can be used to allow execution to
 continue even if the task fails, as discussed above.
 
-\section{CHARGE --- Total system charge}
+\section{{\tt CHARGE} --- Total system charge}
 \label{sec:charge}
 
 This is an optional top-level directive that allows the user to specify

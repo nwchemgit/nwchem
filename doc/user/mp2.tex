@@ -14,29 +14,27 @@ the size of system that can be treated and use of other approximations
   analytic derivatives.  This is selected by specifying \verb+mp2+ on
   the task directive, e.g.
 \begin{verbatim}
-      task mp2
+      TASK MP2
 \end{verbatim}
 \item Fully-direct --- this is of utility if only limited I/O
   resources are available (up to about 2800 functions).  Only RHF
   references and energies are available. This is selected by
   specifying \verb+direct_mp2+ on the task directive, e.g.
 \begin{verbatim}
-      task direct_mp2
+      TASK DIRECT_MP2
 \end{verbatim}
-\item Resolution of the identity (RI) approximation MP2 (RIMP2) ---
+\item Resolution of the identity (RI) approximation MP2 (RI-MP2) ---
   this uses the RI approximation and is therefore only exact in the
   limit of a complete fitting basis.  However, with some care, high
   accuracy may be obtained with relatively modest fitting basis sets.
-  An RIMP2 calculation can cost over 40 times less than the
+  An RI-MP2 calculation can cost over 40 times less than the
   corresponding exact MP2 calculation.  RHF and UHF references with
   only energies are available.  This is selected by specifying
   \verb+rimp2+ on the task directive, e.g.,
 \begin{verbatim}
-      task rimp2
+      TASK RIMP2
 \end{verbatim}
 \end{itemize}
-
-\section{Input directives}
 
 All three MP2 tasks share the same input block.
 
@@ -54,7 +52,7 @@ All three MP2 tasks share the same input block.
   END
 \end{verbatim}
 
-\subsection{{\tt FREEZE} --- Freezing orbitals}
+\section{{\tt FREEZE} --- Freezing orbitals}
 \label{mp2:core}
 
 All MP2 modules support frozen core orbitals, however, only the direct
@@ -128,7 +126,7 @@ keyword.  For instance, to freeze the top 5 virtuals
 Again, note that this only works for the direct-MP2 and RI-MP2 energy
 codes.
 
-\subsection{{\tt TIGHT} --- Increased precision}
+\section{{\tt TIGHT} --- Increased precision}
 
 The \verb+TIGHT+ directive can be used to increase the precision
 in the MP2 energy and gradients.
@@ -145,7 +143,7 @@ $10^{-6}$ to $10^{-8}$) and CPHF (from $10^{-4}$ to $10^{-6}$) are
 solved, and also tightens thresholds for computation of the AO and MO
 integrals (from $10^{-9}$ to $10^{-11}$) within the MP2 code.
 
-\subsection{{\tt PRINT} and {\tt NOPRINT}}
+\section{{\tt PRINT} and {\tt NOPRINT}}
 
 The standard print control options are recognized.  The list of
 recognized names are given in Table \ref{tbl:mp2-printable}.
@@ -182,7 +180,7 @@ Item                    & Print Level   & Description \\
 \end{tabular}
 \end{table}
 
-\subsection{{\tt VECTORS} --- MO vectors}
+\section{{\tt VECTORS} --- MO vectors}
 \label{sec:mp2vectors}
 
 All of the (supported) MP2 modules require use of converged canonical
@@ -208,7 +206,7 @@ The swap capability is examined in more detail in Section
 \ref{sec:vectors}.
 
 
-\subsection{RI-MP2 fitting basis}
+\section{RI-MP2 fitting basis}
 
 \sloppy
 
@@ -244,7 +242,7 @@ the \verb+"ri-mp2 basis"+.
 \fussy
 
 
-\subsection{{\tt FILE3C} --- RI-MP2 3-center integral filename}
+\section{{\tt FILE3C} --- RI-MP2 3-center integral filename}
 
 \sloppy
 
@@ -259,7 +257,7 @@ specify the file \verb+/scratch/h2o.3c+, use this directive
 \fussy
 
 
-\subsection{{\tt RIAPPROX} --- RI-MP2 Approximation}
+\section{{\tt RIAPPROX} --- RI-MP2 Approximation}
 
 The type of RI approximation used in the RI-MP2 calculation is controlled
 by means of the RIAPPROX directive.  The two possible values are
@@ -270,12 +268,12 @@ and M.~W.~Feyereisen, {\em Chem. Phys. Lett.} {\bf 213}, 514--518
 
 %  The \verb+"S"+ approximation will also be supported eventually.
 
-\subsection{Advanced options for RI-MP2}
+\section{Advanced options for RI-MP2}
 
 These options, which functioned at the time of writing, are not
 currently supported.
 
-\subsubsection{Control of linear dependence}
+\subsection{Control of linear dependence}
 
 Construction of the RI fit requires the inversion of a matrix of
 fitting basis integrals which is carried out via diagonalization.  If
@@ -291,7 +289,7 @@ For instance, to set it to $10^{-10}$
   set "mp2:fit min eval" 1e-10
 \end{verbatim}
 
-\subsubsection{Reference Spin Mapping for RI-MP2 Calculations}
+\subsection{Reference Spin Mapping for RI-MP2 Calculations}
 
 The user has the option of specifying that the RI-MP2 calculations are
 to be done with variations of the SCF reference wavefunction.  This is
@@ -339,7 +337,7 @@ follows,
 \end{verbatim}
 
 
-\subsubsection{Batch Sizes for the RI-MP2 Calculation}
+\subsection{Batch Sizes for the RI-MP2 Calculation}
 
 The user can control the size of each batch in the transformation and
 energy evaluation in the MP2 calculation, and consequently the memory
@@ -378,7 +376,7 @@ read in from disk and multiplied together to produce $<batch isize>
 performance of the distributed matrix multiplication (which requires
 large matrices) versus memory space.
 
-\subsubsection{Energy Memory Allocation Mode: RI-MP2 Calculation}
+\subsection{Energy Memory Allocation Mode: RI-MP2 Calculation}
 
 The user must choose a  strategy for the memory allocation in the energy
 evaluation phase of the RI-MP2 calculation, either by minimizing the amount
@@ -401,7 +399,7 @@ possible so that permutational symmetry in the energy evaluation can
 be used most effectively.
 
 
-\subsubsection{Local Memory Usage in Three-Center Transformation}
+\subsection{Local Memory Usage in Three-Center Transformation}
 
 For most applications, the code will be able to size the blocks
 without help from the user.  Therefore, it is unlikely that users will

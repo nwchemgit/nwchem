@@ -82,7 +82,7 @@ detail, describing the options available and the usages of the various
 keywords in each of the three main parts.
 
 
-\section{Keywords on the GEOMETRY directive}
+\section{Keywords on the {\tt GEOMETRY} directive}
 \label{sec:geomkeys}
 
 This section presents the options that can be specified using the keywords 
@@ -109,7 +109,7 @@ list describes  all options and their defaults.
   geometry with this name.  However, multiple geometries may
   be specified by using a different name for each.  Subsequently,
   the user can direct a module to a named geometry by
-  by using the the \verb+SET+ directive (see
+  using the \verb+SET+ directive (see
   the example in Section \ref{sec:set}) to associate the default
   name of \verb+geometry+ with the alternate name.
 
@@ -124,8 +124,8 @@ list describes  all options and their defaults.
   recognizes the following possible values for the string variable
   \verb+<units>+:
 \begin{itemize}
-\item \verb+angstroms+ or \verb+an+ --- Angstroms ($\AA$), the default
-  (converts to A.U. using the $\AA$ to A.U. conversion factor)
+\item \verb+angstroms+ or \verb+an+ --- Angstroms (\AA), the default
+  (converts to A.U. using the \AA to A.U. conversion factor)
 \item \verb+au+ or \verb+atomic+ or \verb+bohr+ --- Atomic units (A.U.)
 \item \verb+nm+ or \verb+nanometers+ --- nanometers (converts to
   A.U. using a conversion factor computed as $10.0$ times the
@@ -160,7 +160,7 @@ list describes  all options and their defaults.
   of nuclear charge to the origin.
 
 \item \verb+autosym+ -- keyword to specify that the symmetry of the
-  geometric system should be automatically determined.  This option is off
+  geometric system should be automatically determined.  This option is on
   by default.  Only groups up to and including $O_{h}$ are recognized.
   Occasionally NWChem will be unable to determine the full symmetry
   of a molecular system, but will find a proper subgroup of the full 
@@ -220,7 +220,7 @@ bond length of 0.732556\ \AA):
   end                                end                   
 \end{verbatim}
       
-\section{Symmetry Group Input}
+\section{{\tt SYMMETRY} --- Symmetry Group Input}
 \label{sec:symgrp}
 
 The \verb+SYMMETRY+ directive is used (optionally) within the compound
@@ -383,7 +383,7 @@ coordinates, and then specifies the remainder of the system using the
 optional \verb+ZMATRIX+ directive described below in Section
 \ref{sec:Z-matrix}.
 
-\section{Z-matrix input}
+\section{{\tt ZMATRIX} --- Z-matrix input}
 \label{sec:Z-matrix}
 
 The \verb+ZMATRIX+ directive is an optional directive that can be used
@@ -439,7 +439,7 @@ subsequently defined using the \verb+VARIABLES+ or \verb+CONSTANTS+
 directives. The numerical values of the symbolic strings labeled
 \verb+VARIABLES+ may be subject to changes during a geometry
 optimization say, while the numerical values of the symbolic strings
-labeled |verb+CONSTANTS+ will stay frozen to the value given in the
+labeled \verb+CONSTANTS+ will stay frozen to the value given in the
 input.  The same symbolic string can be used more than once, and
 any mixture of numeric data and symbols is acceptable. Bond angles
 ($\alpha$) must be in the range $0 < \alpha < 180$.
@@ -673,7 +673,7 @@ internal coordinates.  These are arranged as follows:
 \item The third center is placed in the z-x plane.
 \end{itemize}
 
-\section{ZCOORD --- Forcing internal coordinates}
+\section{{\tt ZCOORD} --- Forcing internal coordinates}
 \label{sec:zcoord}
 
 By default redundant internal coordinates are generated for use in
@@ -742,7 +742,7 @@ an optional sign for torsions) then they are forced to have
 the same value.  This may be used to force bonds or angles to
 be equal even if they are not related by symmetry.
 
-When atoms have been specified by their cartesian coordinates, {\em
+When atoms have been specified by their Cartesian coordinates, {\em
 and} internal coordinates are not being used, it is possible to freeze
 the cartesian position of selected atoms.  This is useful for such
 purposes as optimizing a molecule absorbed on the surface of a cluster
@@ -784,7 +784,7 @@ of the \verb+UNSET+ directive is as follows:
   unset geometry:actlist
 \end{verbatim}
 
-\section{SYSTEM --- Lattice parameters for periodic systems}
+\section{{\tt SYSTEM} --- Lattice parameters for periodic systems}
 \label{sec:latticeparam}
 
 This keyword is needed only for for 1-, 2-, and 3-dimensional
@@ -805,7 +805,7 @@ This means that for crystals $x$, $y$ and $z$ are fractional, for
 surfaces $x$ and $y$  are fractional, whereas for polymers only $z$ is
 fractional.
 For example, in the following H$_2$O layer input (a 2-d  periodic
-system), $x$ and $y$ coordinates are fractionay, whereas $z$
+system), $x$ and $y$ coordinates are fractional, whereas $z$
 is expressed in \AA .
 \begin{verbatim}
 geometry units angstrom

@@ -25,11 +25,13 @@ the first derivatives.
 \begin{itemize}
 \item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
   ROHF).  
-\item Gaussian Density Functional Theory (DFT), using many local and
-  non-local exchange-correlation potentials (RHF or UHF)
+\item Gaussian Density Functional Theory (DFT), using many local,
+  non-local (gradient-corrected), and hybrid (local, non-local, and HF)
+exchange-correlation potentials 
+(spin-restricted or unrestricted)
 with formal $N^3$ and $N^4$ scaling.
-\item Spin-orbit DFT (SODFT), using many local and non-local
-  exchange-correlation potentials (UHF).
+\item Spin-orbit DFT (SODFT), using many local and non-local (gradient-corrected)
+exchange-correlation potentials (spin-unrestricted).
 \item MP2 including semi-direct using frozen core and RHF and UHF reference.
 \item Complete active space SCF (CASSCF).
 
@@ -64,8 +66,8 @@ For all methods, the following operations may be performed:
 
 For closed and open shell SCF and DFT:
 \begin{itemize}
-\item COSMO energies - the continuum solvation 'Conductor-Like Screening' Model
-    of A. Klamt and G. Schuurmann to describe dielectric screening effects in
+\item COSMO energies - the continuum solvation `COnductor-like Screening MOdel'
+    of A. Klamt and G. Sch\"{u}\"{u}rmann to describe dielectric screening effects in
     solvents.
 \end{itemize}
 
@@ -92,20 +94,20 @@ calculations are available:
 
 \section{Pseudopotential plane-wave electronic structure}
 
-The following modules are available to compute the energy, minimize the
+The following modules are available to compute the energy, optimize the
 geometry and perform ab initio molecular dynamics using pseudopotential
 plane-wave DFT.
 
 \begin{itemize}
 \item Fixed step length steepest descent 
-\item Conuugate Gradient
+\item Conuugate gradient
 \item Car-Parrinello (extended Lagrangian dynamics)
 \end{itemize}
 
 With
 
 \begin{itemize}
-\item Vosko and PBE96 exchange-correlation potentials (restricted 
+\item Vosko and PBE96 exchange-correlation potentials (spin-restricted 
 and unrestricted)
 \item (Gamma point) Periodic orthorhombic simulation cells for calculating
 molecules, liquids, crystals, and surfaces

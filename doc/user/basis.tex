@@ -12,7 +12,7 @@ functions\footnote{An $sp$ shell is two-component general contraction.
   $p$ shell.  Again, reuse of the radial functions increases the efficiency
   of integral generation.} .  The {\tt BASIS} directive is used to
 define these, and also to specify use of an effective core potential
-(ECP) that is associated with a basis set; see Section \ref{sec:ecp}.)
+(ECP) that is associated with a basis set; see Section \ref{sec:ecp}.
 
 The basis functions to be used for a given calculation can be drawn
 from a standard set in the EMSL basis set library that is included in
@@ -53,7 +53,7 @@ Examining the keywords on the first line of the \verb+BASIS+ directive:
   \verb+"ao basis"+.  Another name may be specified in the \verb+BASIS+
   directive, thus, multiple basis sets may be stored simultaneously in the
   database.  Also, the DFT (Section \ref{sec:dft}), RI-SCF (Section
-  \ref{sec:riscf}) and RIMP2 (Section \ref{sec:rimp2}) modules and the
+  \ref{sec:riscf}) and RI-MP2 (Section \ref{sec:rimp2}) modules and the
   Dyall-modified-Dirac relativistic method (Section \ref{sec:dyall-mod-dir})
   require multiple basis sets with specific names.
 
@@ -232,7 +232,7 @@ and a finite nucleus of Gaussian shape. These are usually distinguished by
 the suffixex {\tt \_pt} and {\tt \_fi}. It is the user's responsibility to
 ensure that the contraction matches the nuclear type specified in the
 geometry object. The specification of a finite nucleus basis set does NOT
-automagically set the nuclear type for that atom to be finite.  See 
+automatically set the nuclear type for that atom to be finite.  See 
 Section \ref{sec:geom} for information.
 
 \section{Explicit basis set definition}
@@ -249,7 +249,7 @@ center using an input line of the following form:
 \end{verbatim}
 
 The variable \verb+<shell_type>+ identifies the angular momentum of the
-shell, $s$, $p$, $d$, \ldots.  NWChem is configured to handle up to $i$
+shell, $s$, $p$, $d$, \ldots.  NWChem is configured to handle up to $h$
 shells.  The keyword \verb+rel+ marks the shell as relativistic --- see
 Section \ref{sec:dyall-mod-dir} for more details.  Subsequent lines define
 the primitive function exponents and contraction coefficients.  General

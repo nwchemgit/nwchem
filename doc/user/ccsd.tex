@@ -21,8 +21,8 @@ block
 \begin{verbatim}
   CCSD
     [MAXITER <integer maxiter default 20>]
-    [THRESH  <real thresh default 10^-6>]
-    [TOL2E <real tol2e default min(10^-12 , 0.01*$thresh$)>]
+    [THRESH  <real thresh default 10e-6>]
+    [TOL2E <real tol2e default min(10e-12 , 0.01*$thresh$)>]
     [DIISBAS  <integer diisbas default 5>]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
             [virtual <integer nfzv default 0>]]
@@ -53,13 +53,13 @@ calculation.  Both the RMS error in the amplitudes {\em and} the
 change in energy must be less than {\tt thresh}.
 
 \begin{verbatim}
-  THRESH  <real thresh default 10^-6>
+  THRESH  <real thresh default 10e-6>
 \end{verbatim}
 
 \section{{\tt TOL2E} --- integral screening threshold}
 
 \begin{verbatim}
-  TOL2E <real tol2e default min(10^-12 , 0.01*$thresh$)>
+  TOL2E <real tol2e default min(10e-12 , 0.01*$thresh$)>
 \end{verbatim}
 
 The variable \verb+tol2e+ is used in determining the integral

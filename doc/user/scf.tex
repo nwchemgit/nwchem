@@ -87,7 +87,7 @@ completeness. It may be necessary to specify these in order to modify
 the behavior of a previous calculation (see Section \ref{sec:persist}
 for restart behavior).
 
-\section{SYM --- use of symmetry}
+\section{{\tt SYM} --- use of symmetry}
 \label{sec:sym}
 
  \begin{verbatim}
@@ -106,7 +106,7 @@ For example, to disable use of symmetry in Fock matrix construction:
   sym off
 \end{verbatim}
 
-\section{ADAPT -- symmetry adaptation of MOs}
+\section{{\tt ADAPT} -- symmetry adaptation of MOs}
 \label{sec:adapt}
 
 \begin{verbatim}
@@ -127,11 +127,11 @@ could result in incorrect energies and poor convergence of the
 calculation.  It is thus advisable when specifying \verb+ADAPT OFF+ to
 also specify \verb+SYM OFF+ (Section \ref{sec:sym}).
 
-\section{TOL2E --- integral screening threshold}
+\section{{\tt TOL2E} --- integral screening threshold}
 \label{sec:tol2e}
 
 \begin{verbatim}
-  TOL2E <real tol2e default min(10^-7 , 0.01*$thresh$)>
+  TOL2E <real tol2e default min(10e-7 , 0.01*$thresh$)>
 \end{verbatim}
 
 The variable \verb+tol2e+ is used in determining the integral
@@ -159,7 +159,7 @@ For very diffuse basis sets, or for high-accuracy calculations it
 might be necessary to set this parameter.  A value of $10^{-12}$ is
 sufficient for nearly all such purposes.
 
-\section{VECTORS --- input/output of MO vectors}
+\section{{\tt VECTORS} --- input/output of MO vectors}
 \label{sec:vectors}
 
 
@@ -682,7 +682,7 @@ the SCF input block) and before the {\tt TASK} directive.
   set tolguess 1e-7
 \end{verbatim}
 
-\section{THRESH --- convergence threshold}
+\section{{\tt THRESH} --- convergence threshold}
 \label{sec:thresh}
 
 \begin{verbatim}
@@ -714,7 +714,7 @@ high accuracy or very weak interactions.  A threshold of $10^{-10}$
 should be regarded as the best that can be attained in most
 circumstances.
 
-\section{MAXITER --- iteration limit}
+\section{{\tt MAXITER} --- iteration limit}
 \label{sec:max}
 
 \begin{verbatim}
@@ -745,7 +745,7 @@ The following sets the maximum number of SCF iterations to 50:
   maxiter 50
 \end{verbatim}
 
-\section{PROFILE --- performance profile}
+\section{{\tt PROFILE} --- performance profile}
 
 This directive allows the user to obtain timing and parallel
 execution information about the SCF module.  It is specified by the
@@ -760,7 +760,7 @@ performance of an SCF calculation.  However,
 it can introduce a significant overhead 
 on machines that have expensive timing routines, such as the SUN.
 
-\section{DIIS --- DIIS convergence}
+\section{{\tt DIIS} --- DIIS convergence}
 
 This directive allows the user to specify DIIS convergence rather than
 second-order convergence for the SCF calculation.  The form of the
@@ -786,7 +786,7 @@ The default of 5 should be adequate for most applications, but may be
 increased if convergence is poor.  On large systems, it may be necessary
 to specify a lower value for \verb+diisbas+, to conserve memory.
 
-\section{DIRECT and SEMIDIRECT --- recomputation of integrals}
+\section{{\tt DIRECT} and {\tt SEMIDIRECT} --- recomputation of integrals}
 \label{sec:semidirect}
 
 In the context of SCF calculations direct means that all integrals are
@@ -1073,7 +1073,7 @@ time than it would with the unshifted Hessian.
 The following sections describe the directives needed to disable the
 Newton-Raphson iteration and specify level-shifting.
 
-\section{NR --- controlling the Newton-Raphson}
+\section{{\tt NR} --- controlling the Newton-Raphson}
 \label{sec:nrswitch}
 
 \begin{verbatim}
@@ -1092,7 +1092,7 @@ this is as follows:
   nr 0
 \end{verbatim}
 
-\section{LEVEL --- level-shifting the orbital Hessian}
+\section{{\tt LEVEL} --- level-shifting the orbital Hessian}
 \label{sec:level}
 
 This directive allows the user to specify level-shifting to obtain a

@@ -1,17 +1,17 @@
-% $Id: cosmo.tex,v 1.3 2001-01-22 19:24:17 windus Exp $
+% $Id: cosmo.tex,v 1.4 2002-02-06 19:38:51 sohirata Exp $
 \label{sec:cosmo}
 
-COSMO is the continuum solvation 'Conductor-Like Screening' Model 
-of A. Klamt and G. Schuurmann to describe dielectric screening
+COSMO is the continuum solvation `COnductor-like Screening MOdel'
+of A. Klamt and G. Sch\"{u}\"{u}rmann to describe dielectric screening
 effects in solvents.
 
 \begin{enumerate}
-\item A. Klamt and G. Schuurmann, J.Chem.Soc. Perkin Trans. 2, 1993,
+\item A. Klamt and G. Sch\"{u}\"{u}rmann, J.~Chem.~Soc.~Perkin Trans. 2, 1993,
 p799-805.
 \end{enumerate}
 
 The NWChem COSMO module implements algorithm for calculation of the
-energy for Hartree-Fock (RHF and ROHF) and Kohn-Sham (DFT and UDFT)
+energy for Hartree-Fock (RHF and ROHF) and Kohn-Sham (restricted and unrestricted)
 wavefunctions. At the present gradients are calculated by finite
 difference of the energy and the code does not work with spherical
 basis functions or ECPs.  In the current implementation the code
@@ -62,14 +62,12 @@ The codes uses the following Van der Waals radii by default:
      2   0.00,0.00,0.00/
 \end{verbatim}
 
-with 0.0 values replaced by 1.80 . Other radii can be used as well.
+with 0.0 values replaced by 1.80. Other radii can be used as well.
 See for examples:
 
 \begin{enumerate}
-\item E. V. Stefanovich and T. N. Truong, Chem. Phys. Lett. 244 (1995)
-p65-74.
-\item V. Barone, M. Cossi, and J. Tomasi, J. Chem. Phys. 107 (1997)
-p3210-3221.
+\item E. V. Stefanovich and T. N. Truong, Chem.~Phys.~Lett. 244, 65 (1995).
+\item V. Barone, M. Cossi, and J. Tomasi, J.~Chem.~Phys. 107, 3210 (1997).
 \end{enumerate}
 
 \verb+Rsolv+ is a parameter used to define the solvent accessible
@@ -77,36 +75,36 @@ surface. See the original reference of Klamt and Schuurmann for a
 description. The default value is 0.00 (in angstroms).
 
 \verb+Iscren+ is a flag to define the dielectric charge scaling option.
-"iscren 1" implies the original scaling from Klamt and Schuurmann,
-mainly "(eps-1)/(eps+1/2)", where 'eps' is the dielectric constant.
-"iscren 0" implies the modified scaling suggested by Stefanovich and
-Truong, mainly "(eps-1)/eps". Default is to use the modified scaling.
+``{\tt iscren 1}'' implies the original scaling from Klamt and Sch\"{u}\"{u}rmann,
+mainly ``$(\epsilon-1)/(\epsilon+1/2)$'', where $\epsilon$ is the dielectric constant.
+``{\tt iscren 0}'' implies the modified scaling suggested by Stefanovich and
+Truong, mainly ``$(\epsilon-1)/\epsilon$''. Default is to use the modified scaling.
 For high dielectric the difference between the scaling is not 
 significant.
 
 The next three parameters define the tesselation of the unit sphere.
-The approach follows the original proposal by Klamt and Schuurmann.
+The approach follows the original proposal by Klamt and Sch\"{u}\"{u}rmann.
 A very fine tesselation is generated from \verb+maxbem+ refining 
 passes starting from either an octahedron or an icosahedron. The
 boundary elements created with the fine tesselation are condensed
 down to a coarser tesselation based on \verb+minbem+. The induced
 point charges from the polarization of the medium are assigned to
 the centers of the coarser tesselation. Default values are
-"minbem 2" and "maxbem 3". The flag \verb+ificos+ serves to
-select the original tesselation, "ificos 0" for an octahedron
-(default) and "ificos 1" for an icoshedron. Starting from an icosahedron
+``{\tt minbem 2}'' and ``{\tt maxbem 3}''. The flag \verb+ificos+ serves to
+select the original tesselation, ``{\tt ificos 0}'' for an octahedron
+(default) and ``{\tt ificos 1}'' for an icoshedron. Starting from an icosahedron
 yields a somewhat finer tesselation that converges somewhat faster.
 Solvation energies are not really sensitive to this choice for
 sufficiently fine tesselations.
 
 The \verb+lineq+ parameter serves to select the numerical algorithm to solve
 the linear equations yielding the effective charges that represent
-the polarization of the medium. "lineq 0" selects an iterative method 
-(default), "lineq 1" selects a dense matrix linear equation solver.
+the polarization of the medium. ``{\tt lineq 0}'' selects an iterative method 
+(default), ``{\tt lineq 1}'' selects a dense matrix linear equation solver.
 For large molecules where the number of effective charges is large,
 the codes selects the iterative method.
 
-The following example is for a water molecule in 'water', using
+The following example is for a water molecule in `water', using
 the HF/6-31G** level of theory:
 
 \begin{verbatim}

@@ -102,7 +102,7 @@ TASK cg_pspw vib
 \end{verbatim}
 
 
-\subsection{STEEPEST\_DESCENT} 
+\subsection{\tt STEEPEST\_DESCENT} 
 
 The steepest\_descent task is used to optimize the one-electron orbitals
 with respect to the total energy.  In addition it can also be used to optimize
@@ -207,7 +207,7 @@ sub-block.
 \end{itemize}
 
 
-\subsection{CONJUGATE\_GRADIENT} 
+\subsection{\tt CONJUGATE\_GRADIENT} 
 
 The conjugate\_gradient task is used to optimize the one-electron orbitals
 with respect to the total energy.  This method should be used for finer
@@ -314,7 +314,7 @@ sub-block.
 
 
 
-\subsection{Car-Parrinello}
+\subsection{\tt Car-Parrinello}
 The Car-Parrinello task is used to perform ab initio molecular dynamics
 using the scheme developed by Car and Parrinello.  In this unified ab
 initio molecular dynamics scheme the motion of the ion cores is coupled to
@@ -466,7 +466,7 @@ sub-block.
 
 
 
-\subsection{PSP\_FORMATTER}
+\subsection{\tt PSP\_FORMATTER}
 The psp\_formatter task takes a non-separable pseudopotential defined in
 one-dimension real-space in a one-dimensional psp datafile and does two 
 things to it.  First it puts it into the semi-local form suggested by 
@@ -521,7 +521,7 @@ sub-block.
 
 
 
-\subsection{WAVEFUNCTION\_INTITIALIZER}
+\subsection{\tt WAVEFUNCTION\_INTITIALIZER}
 The wavefunction\_initializer task is used to generate an initial wavefunction
 datafile.
 Input to the WAVEFUNCTION\_INITIALIZER task is contained
@@ -575,7 +575,7 @@ sub-block.
               Not used if a RESTRICTED calculation.
 \end{itemize}
 
-\subsubsection{Old Style Input (version 3.3) to WAVEFUNCTION\_INTITIALIZER}
+\subsubsection{Old Style Input (version 3.3) to {\tt WAVEFUNCTION\_INTITIALIZER}}
 
 For backwards compatibility, the input to the WAVEFUNCTION\_INITIALIZER 
 sub-block can also be of the form
@@ -622,7 +622,7 @@ random components added and a sine function with random components
 added respectively.  
 
 
-\subsection{V\_WAVEFUNCTION\_INITIALIZER}
+\subsection{\tt V\_WAVEFUNCTION\_INITIALIZER}
 The v\_wavefunction\_initializer task is used to generate an initial velocity 
 wavefunction datafile.
 Input to the V\_WAVEFUNCTION\_INITIALIZER task is contained
@@ -673,7 +673,7 @@ sub-block.
 
 
 
-\subsection{WAVEFUNCTION\_EXPANDER}
+\subsection{\tt WAVEFUNCTION\_EXPANDER}
 The v\_wavefunction\_initializer task is used to convert a new wavefunction
 file that spans a larger grid space from an old wavefunction file.
 Input to the WAVEFUNCTION\_EXPANDER task is contained
@@ -718,7 +718,7 @@ sub-block.
 
 
 
-\subsection{PSP\_GENERATOR}
+\subsection{\tt PSP\_GENERATOR}
 
 A one-dimensional pseudopotential code has been integrated into NWChem.
 This code allows the user to modify and develop pseudopotentials.  Currently, 
@@ -785,7 +785,7 @@ sub-block.
 \end{itemize}
 
 
-\subsubsection{ATOMIC\_FILLING Block}
+\subsubsection{\tt ATOMIC\_FILLING Block}
 This required block is used to define the reference atom which is used
 to define the pseudopotential. After the ATOMIC\_FILLING: $<$ncore$>$ $<$nvalence$>$ line
 The core states are listed (one per line), and then the valence states are listed (one per line).  
@@ -813,7 +813,7 @@ ATOMIC_FILLING: 3 0
 could be used for a pseudopotential with no valence electrons.
 
 
-\subsubsection{CUTOFF Block}
+\subsubsection{{\tt CUTOFF} Block}
 This optional block specifies the cutoff distances used
 to match the all-electron atom to the pseudopotential atom.  For
 Hamann pseudopotentials $r_{cut}(l)$ defines the distance
@@ -850,7 +850,7 @@ CUTOFF: 2
 \end{verbatim}
 
 
-\subsubsection{SEMICORE\_RADIUS Option}
+\subsubsection{{\tt SEMICORE\_RADIUS} Option}
 Specifying the SEMICORE\_RADIUS option turns on the semicore correction approximation proposed
 by Louie et al (S.G. Louie, S. Froyen, and M.L. Cohen, Phys. Rev. B, \textbf{26}, 1738, (1982)).  
 This approximation is known to dramatically improve results for systems containing 
@@ -928,7 +928,7 @@ input in detail.
                                 along lattice vector directions.
 \end{itemize}
 
-\subsection{Analysis: Mulliken RTDB data}
+\subsection{{\tt ANALYSIS}: Mulliken RTDB data}
 \label{sec:pspw_analysis}
 
 To perform Mulliken analysis information is needed from one-dimensional

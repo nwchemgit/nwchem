@@ -1,5 +1,5 @@
 %
-% $Id: dplot.tex,v 1.11 2001-04-09 22:42:56 edo Exp $ 
+% $Id: dplot.tex,v 1.12 2002-02-06 19:38:52 sohirata Exp $ 
 %
 \label{sec:dplot}
 \begin{verbatim}
@@ -17,10 +17,10 @@ from SCF or DFT calculation. The output file is either in
 (default)
  or in the 
 \htmladdnormallink{Gaussian Cube}{http://www.gaussian.com/00000430.htm}  
-format.  DPLOT is not executed until the "task dplot" directive is given.  
+format.  DPLOT is not executed until the ``\verb+task dplot+'' directive is given.  
 Different sub-directives are described below.
 
-\section{GAUSSIAN --- Gaussian Cube format}
+\section{{\tt GAUSSIAN} --- Gaussian Cube format}
 
 \begin{verbatim}
   GAUSSIAN
@@ -38,7 +38,7 @@ You can visualize this file using  \htmladdnormallink{gOpenMol}
 \htmladdnormallink{Molekel}
 {http://www.cscs.ch/molekel/}.
 
-\section{TITLE --- Title directive}
+\section{{\tt TITLE} --- Title directive}
 
 \begin{verbatim}
   TITLE <string Title default Unknown Title>
@@ -48,7 +48,7 @@ This sub-directive specifies a title line for the generated
 input to the {\em Insight} program or for the Gaussian cube
 file. Only one line is allowed.
 
-\section{LIMITXYZ --- Plot limits}
+\section{{\tt LIMITXYZ} --- Plot limits}
 
 \begin{verbatim}
   LIMITXYZ [units <string Units default angstroms>]
@@ -64,7 +64,7 @@ along each direction. The known names for \verb+Units+ are
 
 
 
-\section{SPIN --- Density to be plotted}
+\section{{\tt SPIN} --- Density to be plotted}
 
 \begin{verbatim}
   SPIN <string Spin default total>
@@ -77,7 +77,7 @@ $\alpha$ and $\beta$ electron densities.
 
 
 
-\section{OUTPUT --- Filename}
+\section{{\tt OUTPUT} --- Filename}
 
 \begin{verbatim}
   OUTPUT <string File_Name default dplot>
@@ -90,7 +90,7 @@ standard NWChem output.
 
 
 
-\section{VECTORS --- MO vector file name}
+\section{{\tt VECTORS} --- MO vector file name}
 
 \begin{verbatim}
   VECTORS <string File_Name default movecs> [<string File_Name2>]
@@ -103,7 +103,7 @@ files have to match.
 
 
 
-\section{WHERE --- Density evaluation}
+\section{{\tt WHERE} --- Density evaluation}
 
 \begin{verbatim}
   WHERE <string Where default grid>
@@ -118,7 +118,7 @@ the position of the nuclei and written to the NWChem output) and
 \verb+g++\verb+n+ (both).
 
 
-\section{ORBITAL --- Orbital sub-space}
+\section{{\tt ORBITAL} --- Orbital sub-space}
 
 \begin{verbatim}
   ORBITALS [<string Option default density>]
