@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, nfock, facj, fack,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.20 2001-11-17 01:10:13 edo Exp $
+c$Id: fock_2e.F,v 1.21 2001-11-29 20:24:33 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -193,7 +193,7 @@ c     !!! BGJ test !!!
       return
       end
       subroutine dft_3dget(g_fock,buf,imat,nbf)
-C$Id: fock_2e.F,v 1.20 2001-11-17 01:10:13 edo Exp $
+C$Id: fock_2e.F,v 1.21 2001-11-29 20:24:33 edo Exp $
       implicit none
       integer g_fock
       integer imat
@@ -211,6 +211,6 @@ c
       hi(2)=nbf
       lo(3)=1
       hi(3)=nbf
-      call nga_get(g_fock, lo, hi, buf, ld, 1d0)
+      call nga_get(g_fock, lo, hi, buf, ld)
       return
       end
