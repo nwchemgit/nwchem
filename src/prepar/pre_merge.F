@@ -1,7 +1,7 @@
       integer function  pre_merge(iunit,xmerge,filnam,
-     + lfnout,lfnpdb,namslv,inum)
+     + lfnout,lfnpdb,namslv,inum,lrgpdb)
 c
-c $Id: pre_merge.F,v 1.6 2002-08-15 20:41:32 d3j191 Exp $
+c $Id: pre_merge.F,v 1.7 2003-10-31 21:32:47 d3j191 Exp $
 c
       implicit none
 c
@@ -15,9 +15,11 @@ c
 c
       character*80 card
       integer length,mdl,nsgm,isgm,i
-      logical lslvnt
-      character*4 cnum
+      logical lslvnt,lrgpdb
+      character*5 cnum
       real*8 x(3),xmerge(3)
+c
+      logical lrgmrg
 c
       natm=0
       nseq=0
@@ -28,7 +30,8 @@ c
       nsgm=0
       lslvnt=.false.
       numslv=0
-      cnum='    '
+      cnum='     '
+      lrgmrg=.false.
 c
       length=index(filnam,' ')-1
 c
@@ -62,6 +65,14 @@ c
       goto 1
       endif
 c
+c     LRGPDB
+c
+      if(card(1:6).eq.'LRGPDB') then
+      lrgmrg=.true.
+      if(.not.lrgpdb) call md_abort('Specify large on write pdb',0)
+      goto 1
+      endif
+c
 c     FORMUL
 c
       if(card(1:6).eq.'FORMUL'.and.card(19:19).eq.'*') then
@@ -75,11 +86,16 @@ c
       if(card(18:20).eq.namslv) lslvnt=.true.
       if(card(17:17).ne.' '.and.
      + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
+      if(.not.lslvnt) natm=natm+1
+      if(lrgmrg) then
+      read(card(22:26),1003) i
+ 1003 format(i5)
+      else
       if(card(22:22).ne.' '.and.
      + card(22:22).ne.chain.and.chain.ne.'*') goto 1
-      if(.not.lslvnt) natm=natm+1
-      read(card(23:26),1003) i
- 1003 format(i4)
+      read(card(23:26),1013) i
+ 1013 format(i4)
+      endif
       isgm=max(isgm,i)
       if(lslvnt) then
       numslv=numslv+1
@@ -87,11 +103,11 @@ c
       nsgm=nsgm+1
       nchain=nchain+1
       if(inum.ge.0) then
-      if(card(23:26).ne.cnum) then
+      if(card(22:26).ne.cnum) then
       inum=inum+1
-      cnum=card(23:26)
+      cnum=card(22:26)
       endif
-      write(card(23:26),'(i4)') inum
+      write(card(22:26),'(i5)') inum
       endif
       read(card(31:54),'(3f8.3)') x
       x(1)=x(1)+xmerge(1)
@@ -109,11 +125,16 @@ c
       if(card(18:20).eq.namslv) lslvnt=.true.
       if(card(17:17).ne.' '.and.
      + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
+      if(.not.lslvnt) natm=natm+1
+      if(lrgmrg) then
+      read(card(22:26),1004) i
+ 1004 format(i5)
+      else
       if(card(22:22).ne.' '.and.
      + card(22:22).ne.chain.and.chain.ne.'*') goto 1
-      if(.not.lslvnt) natm=natm+1
-      read(card(23:26),1004) i
- 1004 format(i4)
+      read(card(23:26),1014) i
+ 1014 format(i4)
+      endif
       isgm=max(isgm,i)
       if(lslvnt) then
       numslv=numslv+1
@@ -121,11 +142,11 @@ c
       nsgm=nsgm+1
       nchain=nchain+1
       if(inum.ge.0) then
-      if(card(23:26).ne.cnum) then
+      if(card(22:26).ne.cnum) then
       inum=inum+1
-      cnum=card(23:26)
+      cnum=card(22:26)
       endif
-      write(card(23:26),'(i4)') inum
+      write(card(22:26),'(i5)') inum
       endif
       read(card(31:54),'(3f8.3)') x
       x(1)=x(1)+xmerge(1)

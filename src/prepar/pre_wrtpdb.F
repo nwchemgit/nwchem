@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert,ihop,ips)
 c
-c $Id: pre_wrtpdb.F,v 1.43 2003-10-19 03:30:59 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.44 2003-10-31 21:32:47 d3j191 Exp $
 c
       implicit none
 c
@@ -107,7 +107,7 @@ c      if(filmrg(1:1).ne.' ') then
       if(nmerge.gt.0) then
       do 6060 k=1,nmerge
       ioff=ioff+pre_merge(lfnmrg,xmerge(1,k),filmrg(k),
-     + lfnout,lfnpdb,slvnam,inum)
+     + lfnout,lfnpdb,slvnam,inum,lrgpdb)
  6060 continue
       ioff=inum
 c      ioff=pre_merge(lfnmrg,filmrg,lfnout,lfnpdb,slvnam,inum)
@@ -219,7 +219,7 @@ c
       if(nmerge.gt.0) then
       do 6061 k=1,nmerge
       ioff=ioff+pre_merge(lfnmrg,xmerge(1,k),filmrg(k),
-     + lfnout,lfnpdb,slvnam,inum)
+     + lfnout,lfnpdb,slvnam,inum,lrgpdb)
  6061 continue
       ioff=inum
 c      if(filmrg(1:1).ne.' ') then
