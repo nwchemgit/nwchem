@@ -1,6 +1,6 @@
 
 *
-* $Id: ELF.F,v 1.4 2004-04-17 19:00:25 bylaska Exp $
+* $Id: ELF.F,v 1.5 2004-04-27 19:43:34 edo Exp $
 *
 
 *     ***************************
@@ -74,7 +74,7 @@
        dbl_mb(dns(1)+i-1) = log(dn(i))
       end do
       !call D3dB_r_SMul(1,scal1,dbl_mb(dns(1)),dcpl_mb(dng(1)))
-      call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),dcpl_mb(dng(1)))
+      call D3dB_r_SMul(1,scal1,dbl_mb(int(dn(1))),dcpl_mb(dng(1)))
       call D3dB_r_SMul(1,scal1,dbl_mb(dns(1)),dcpl_mb(dng2(1)))
       call D3dB_r_Zero_Ends(1,dcpl_mb(dng(1)))
       call D3dB_r_Zero_Ends(1,dcpl_mb(dng2(1)))
