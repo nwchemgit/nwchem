@@ -1,6 +1,6 @@
       subroutine uccsdt_eterm(qO_handles,qV_handles)
 c
-c$Id: eterm.F,v 1.1 2002-08-28 22:18:19 bert Exp $
+c$Id: eterm.F,v 1.2 2002-08-28 22:31:55 bert Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -30,6 +30,9 @@ c     (4) is in qV(5,sym)
 c     (5) is in qO(8,sym)
 c
 c     Who has the f blocks, they should be in format
+c     Get fock matrices
+c
+
 c
       do symf = 0, nir-1
          syma = symf
@@ -102,3 +105,34 @@ c
       end do
 c
       end
+c
+      subroutine uccsdt_fock(nmo, noa, nob, ha, iaa, iab, fa)
+      implicit none
+      integer nmo, noa, nob
+      double precision ha(nmo,nmo)
+      double precision iaa(nmo,nmo,nmo,nmo), iab(nmo,nmo,nmo,nmo)
+      double precision fa(nmo,nmo)
+c
+c     fij = hij + <ik||jk> = hij + <ik||jk>(same spin) + <ik|jk>(diff spin)
+c
+c     routine taken from test code, assumes full matrices, but we do have
+c     the integrals in GA's and we should be able to quickly construct this
+c
+      integer i, j, k
+c
+      call dfill(nmo*nmo, 0.0d0, fa, 1)
+c
+      do j = 1, nmo
+         do i = 1, nmo
+            fa(i,j) = ha(i,j)
+            do k = 1, noa
+               fa(i,j) = fa(i,j) + iaa(i,k,j,k)
+            end do
+            do k = 1, nob
+               fa(i,j) = fa(i,j) + iab(i,k,j,k)
+            end do
+         end do
+      end do
+c
+      end
+
