@@ -1,5 +1,5 @@
       subroutine exact_mem(bases,nbas)
-c $Id: exact_mem.F,v 1.16 1994-10-28 18:51:53 d3e129 Exp $
+c $Id: exact_mem.F,v 1.17 1994-11-06 12:54:27 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "apiP.fh"
@@ -652,9 +652,9 @@ c. . . . . . . . . . . . . . . . . . . . . . . . . . . . exchange
 00100 continue
 c
       if (.not.bas_nbf_cn_max(brain,max_nbf_bra))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
       if (.not.bas_nbf_cn_max(ketin,max_nbf_ket))
-     &       call errquit('emem_2e4c:bas_nbf_cn_max error ',2)
+     &       call errquit('emem_2e4c_full:bas_nbf_cn_max error ',2)
 c
       maxg = max_nbf_bra*max_nbf_bra
       maxg = maxg*max_nbf_ket*max_nbf_ket
