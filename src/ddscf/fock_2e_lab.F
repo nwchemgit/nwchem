@@ -22,7 +22,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -128,7 +128,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -200,7 +200,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -280,7 +280,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -366,7 +366,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -466,7 +466,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -553,7 +553,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -613,7 +613,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -644,6 +644,7 @@ c
       double precision g
       integer ij, lk, ik, li, lj, jk
 c
+      ind4 = 1
       do ind = 1, neri
          g = eri(ind)
          if (abs(g) .gt. tol2e) then
@@ -680,7 +681,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
@@ -754,7 +755,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.5 1996-01-19 07:28:56 d3g681 Exp $
+c     $Id: fock_2e_lab.F,v 1.6 1996-02-13 19:57:51 rg240 Exp $
 c     
       implicit none
 #include "cfockmul.fh"
