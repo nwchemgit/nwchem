@@ -1,16 +1,24 @@
 \label{sec:functionality}
 
-NWChem provides many methods to compute properties of molecular and
+NWChem provides many methods to compute the properties of molecular and
 periodic systems using standard quantum mechanical descriptions of the
 electronic wavefunction or density.  In addition, NWChem has the
 capability to perform classical molecular dynamics and free energy
 simulations.  These approaches may be combined to perform mixed
 quantum-mechanics and molecular-mechanics simulations. 
 
+NWChem is available on almost all high performance computing platforms,
+workstations, PCs running LINUX, as well as clusters of desktop platforms or
+workgroup servers. NWChem development has been devoted to providing
+maximum efficiency on massively parallel processors. It achieves this performance
+on the 512 node IBM SP system in the EMSL's MSCF and on the 512 node CRAY
+T3E-900 system in the National Energy Research Scientific Computing Center. It
+has not been optimized for high performance on single processor desktop systems.
+
 \section{Molecular electronic structure}
 
 The following quantum mechanical methods are available to calculate
-energies, and analytic first derivatives with respect to atomic
+energies and analytic first derivatives with respect to atomic
 coordinates.  Second derivatives are computed by finite difference of
 the first derivatives.
 
@@ -18,10 +26,11 @@ the first derivatives.
 \item Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
   ROHF).  
 \item Gaussian Density Functional Theory (DFT), using many local and
-  non-local exchange-correlation potentials (RHF or UHF).
+  non-local exchange-correlation potentials (RHF or UHF)
+with formal $N^3$ and $N^4$ scaling.
 \item Spin-orbit DFT (SODFT), using many local and non-local
   exchange-correlation potentials (UHF).
-\item MP2 semi-direct using frozen core and RHF and UHF reference.
+\item MP2 including semi-direct using frozen core and RHF and UHF reference.
 \item Complete active space SCF (CASSCF).
 
 \end{itemize}
@@ -34,7 +43,7 @@ energies.
 \item Selected-CI with second-order perturbation correction.
 \item MP2 fully-direct with RHF reference.
 \item Resolution of the identity integral approximation MP2 (RI-MP2), with
-  RHF or UHF reference.
+  RHF and UHF reference.
 \end{itemize}
 
 For all methods, the following operations may be performed:
@@ -45,12 +54,12 @@ For all methods, the following operations may be performed:
   surface
 \item Numerical first and second derivatives automatically computed if
   analytic derivatives are not available
-\item Normal mode vibrational analysis.
-\item ONIOM hybrid method of Morokuma and co-workers.
-\item Generation of the electron density file for the {\em Insight}
-      graphical program
-%Need to elaborate on or reference the "Insight" program?--fmr
+\item Normal mode vibrational analysis in cartesian coordinates
+\item ONIOM hybrid method of Morokuma and co-workers
+\item Generation of the electron density file for graphical display
 \item Evaluation of static, one-electron properties.
+\item Electrostatic potential fit of atomic partial charges (CHELPG method with
+    optional RESP restraints or charge constraints)
 \end{itemize}
 
 For closed and open shell SCF and DFT:
@@ -62,7 +71,38 @@ For closed and open shell SCF and DFT:
 
 In addition, automatic interfaces are provided to
 \begin{itemize}
+\item The COLUMBUS multi-reference CI package
 \item The natural bond orbital (NBO) package
+\item Python
+\end{itemize}
+
+\section{Pseudopotential plane-wave electronic structure}
+
+The following modules are available to compute the energy, minimize the
+geometry and perform ab initio molecular dynamics using pseudopotential
+plane-wave DFT.
+
+\begin{itemize}
+\item Fixed step length steepest descent 
+\item Conuugate Gradient
+\item Car-Parrinello (extended Lagrangian dynamics)
+\end{itemize}
+
+With
+
+\begin{itemize}
+\item Vosko and PBE96 exchange-correlation potentials (restricted 
+and unrestricted)
+\item (Gamma point) Periodic orthorhombic simulation cells for calculating
+molecules, liquids, crystals, and surfaces
+\item Aperiodic orthorhombic simulations cells for calculating molecules that 
+are charged or highly polar
+\item Constant energy and constant temperature Car-Parrinello simulations
+\item Hamann and Troullier-Martins norm-conserving pseudopotentials with opt
+ional semicore corrections
+\item Modules to convert between small and large plane-wave expansions
+\item Interface to DRIVER, STEPPER, and VIB modules
+\item Mulliken analysis
 \end{itemize}
 
 \section{Relativistic effects}
@@ -81,7 +121,8 @@ calculations are available:
 
 \section{Periodic system electronic structure}
 
-A module is available to compute energies by Gaussian Density
+A module  (Gaussian Approach to Polymers, Surfaces and Solids (GAPSS))
+is available to compute energies by Gaussian Density
 Functional Theory (DFT) with many local and non-local
 exchange-correlation potentials.
 
@@ -93,16 +134,32 @@ simulations:
 \item Single configuration energy evaluation
 \item Energy minimization
 \item Molecular dynamics simulation
-\item Free energy simulation 
+\item Free energy simulation  (multistep thermodynamic perturbation (MSTP) or
+    multiconfiguration thermodynamic integration (MCTI) methods with
+    options of single and/or dual topologies, double wide sampling, and
+    separation-shifted scaling)
+\end{itemize}
+
+The classical force field includes:
+\begin{itemize}
+\item Effective pair potentials (functional form used in AMBER, GROMOS,
+    CHARMM, etc.) 
+\item First order polarization
+\item Self consistent polarization
+\item Smooth particle mesh Ewald (SPME) 
+\item Twin range energy and force evaluation 
+\item Periodic boundary conditions
+\item SHAKE constraints 
+\item Consistent temperature and/or pressure ensembles
 \end{itemize}
 
 NWChem also has the capability to combine classical and quantum
 descriptions in order to perform:
 \begin{itemize}
 \item Mixed quantum-mechanics and molecular-mechanics (QM/MM)
-  minimizations, and
-\item Molecular dynamics using any of the quantum
-  mechanical wavefunctions.
+  minimizations and molecular dynamics simulation , and
+\item Quantum molecular dynamics simulation by using any of the quantum
+    mechanical methods capable of returning gradients.
 \end{itemize}
 
 \section{Python}
@@ -110,3 +167,14 @@ descriptions in order to perform:
 The Python programming language has been embedded within NWChem and
 many of the high level capabilities of NWChem can be easily combined
 and controlled by the user to perform complex operations.
+
+\section{Parallel tools and libraries (ParSoft)}
+
+\begin{itemize}
+\item Global arrays (GA)
+\item Agregate Remote Memory Copy Interface (ARMCI)
+\item Linear Algebra (PeIGS) and FFT
+\item ParIO
+\item Memory allocation (MA)
+\end{itemize}
+
