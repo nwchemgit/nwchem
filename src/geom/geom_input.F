@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.110 1999-06-14 21:28:01 d3e129 Exp $
+C     $Id: geom_input.F,v 1.111 1999-06-14 23:22:28 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -83,11 +83,11 @@ c
       ozmatrix = .false.        ! Default is cartesian input
       oautoz   = .true.         ! Default is try -autoz-
       oautosym = .false.        ! Default is don't try -autosym-
-      osymmetry = .true.
+      osymmetry = .false.
       oprint_sym = .false.
       include_bqbq = .false.
       ocenter = .true.
-      threquiv = 1d-4
+      threquiv = 1d-3
 c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
@@ -203,7 +203,7 @@ c
             goto 30
          else if (inp_compare(.false.,'symmetry',field)) then
             osymmetry = .true.
-            call geom_sym_input(geom, oprint_sym)
+            call geom_sym_input(geom, oprint_sym, threquiv)
             goto 20
          else if (inp_compare(.false.,'system', field)) then
             osymmetry = .true.
@@ -309,6 +309,18 @@ c
       if (.not. geom_masses_set(geom, ncenter, mass))
      &     call errquit('geom_input: geom_masses_set failed', 0)
 c
+c     Check to see if both autosym and symmetry are being used.  If so,
+c     set autosym off.  Note the the threquiv variable is set first by the
+c     autosym directive and thenreset by the symmetry directive input if 
+c     either of them is given.
+c
+      if (oautosym.and.osymmetry) then
+        oautosym=.false.
+        write(luout,*) 'Turning off AUTOSYM since'
+        write(luout,*) 'SYMMETRY directive was detected!'
+        write(luout,*)
+      endif
+c
       if(oautosym) then
 c
 c     ----- detect symmetry -----
@@ -331,7 +343,7 @@ c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c     
       nata=ncenter
-      call sym_nwc(geom,rtdb,nata,oprint_sym,scale)
+      call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv)
 c
 c     Check that if we used autosym that we ended up with the 
 c     same no. of atoms ... if we don't then autosym and nwchemsym
@@ -487,7 +499,7 @@ c        status = geom_set_user_units(geom,'fractional')
       end if
       return
       end
-      subroutine geom_sym_input(geom, oprint_sym)
+      subroutine geom_sym_input(geom, oprint_sym,threquiv)
       implicit none
 #include "inp.fh"
 #include "geom.fh"
@@ -496,9 +508,10 @@ c
       integer geom
       character*10 test
       logical oprint_sym
+      double precision threquiv
 c     
-c     symemtry [[group] (<string group_name>|<integer group_number>)] \
-c              [setting <integer setting>]
+c     symmetry [[group] (<string group_name>|<integer group_number>)] \
+c              [setting <integer setting>] [tol <real tol>]]
 c
       logical status
 c
@@ -516,6 +529,9 @@ c
             goto 10
          else if (inp_compare(.false.,'print',test)) then
             oprint_sym = .true.
+            goto 10
+         else if (inp_compare(.false.,'tol',test)) then
+            status = inp_f(threquiv)
             goto 10
          else if (inp_compare(.false.,'group',test)) then
             goto 10             ! Just ignore
@@ -3652,6 +3668,28 @@ C
       IF(SOME) THEN
          WRITE(IW,9991) MIRRYZ,MIRRZX,MIRRXY
       ENDIF         
+c
+c  Correct for the Cs being in the wrong mirror plane
+c
+      if ((axordr(kaxis).eq.1).and.(mirryz.or.mirrzx)) then
+        if (mirryz) then ! switch z and x coordinates
+          mirryz=.false.
+          mirrxy=.true.
+          do iat=1,nat
+            temp=c3(1,iat)
+            c3(1,iat)=c3(3,iat)
+            c3(3,iat)=temp
+          enddo
+        else             ! switch z and y coordinates
+          mirrzx=.false.
+          mirrxy=.true.
+          do iat=1,nat
+            temp=c3(2,iat)
+            c3(2,iat)=c3(3,iat)
+            c3(3,iat)=temp
+          enddo
+        endif
+      endif
 C
 C     ----- SET MOLECULAR POINT GROUP SYMBOL -----
 C
@@ -3662,6 +3700,38 @@ C
      4            CUBIC,GRPOH,GRPTH,GRPTD,GRPT,GRPO,
      5            AXORDR(KAXIS),TR,RT,ODONE,groupname)
 C
+c fix a few symmetries after the fact to go into nwchem order
+c
+      write(6,*) 'before I muck with the geometry'
+      DO IAT=1,NAT
+        WRITE(IW,9989) IAT,(C3(I,IAT),I=1,3)
+      ENDDO
+      if ((groupname(1:3).eq.'C3V').or.(groupname(1:3).eq.'C6V').or.
+     1  (groupname(1:3).eq.'D3H').or.(groupname(1:3).eq.'D6H')) then
+        pi4 = atan(1d0)
+        if (mirrzx) theta = pi4
+        if (mirryz) theta = -pi4
+        cosa = cos(theta)
+        sina = sin(theta)
+          do iat=1,nat
+            temp = c3(1,iat)
+            c3(1,iat)=cosa*c3(1,iat) - sina*c3(2,iat)
+            c3(2,iat)=sina*temp + cosa*c3(2,iat)
+          enddo
+      endif
+c
+      if ((groupname(1:3).eq.'C5V').and.mirryz) then
+        pi2 = 2*atan(1d0)
+        theta = pi2
+        cosa = cos(theta)
+        sina = sin(theta)
+          do iat=1,nat
+            temp = c3(1,iat)
+            c3(1,iat)=cosa*c3(1,iat) - sina*c3(2,iat)
+            c3(2,iat)=sina*temp + cosa*c3(2,iat)
+          enddo
+      endif
+c
       IF(OUT) THEN
          WRITE(IW,9983)
          DO IAT=1,NAT
