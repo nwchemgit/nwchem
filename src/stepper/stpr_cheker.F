@@ -3,7 +3,7 @@
      &       CONVGE, CONVGG,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.3 1995-01-27 21:05:36 og845 Exp $
+c $Id: stpr_cheker.F,v 1.4 1995-03-31 01:45:20 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL BCKSTP,CNVGRD
 #include "chow.fh"
@@ -20,7 +20,7 @@ C
       ELSEIF(ICALC.EQ.1)THEN
         ERATM = 0.0D0
       ELSE
-        WRITE(6,*)' STEPPER| Unknown calculation type. Program aborts. '
+        WRITE(6,*)'  Unknown calculation type. Program aborts. '
         call errquit('stepper:cheker fatal error',911)
       ENDIF
 C
@@ -57,11 +57,11 @@ C       3. Gradient convergence.
 C
       IF((NNEG.EQ.0.AND..NOT.TS).OR.(NNEG.EQ.1.AND.TS))THEN
         IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG)THEN
-          WRITE(6,*)' STEPPER| ENERGY = ',ENERGY
-          WRITE(6,*)' STEPPER| The hessian exhibits the "proper" '
-          WRITE(6,*)' STEPPER| structure, and the gradient and energy '
-          WRITE(6,*)' STEPPER| convergence criterion has been met.  '
-          WRITE(6,*)' STEPPER| This geometry walk is HISTORY.'
+          WRITE(6,*)'  ENERGY = ',ENERGY
+          WRITE(6,*)'  The hessian exhibits the "proper" '
+          WRITE(6,*)'  structure, and the gradient and energy '
+          WRITE(6,*)'  convergence criterion has been met.  '
+          WRITE(6,*)'  This geometry walk is HISTORY.'
           CNVGRD = .TRUE.
           TRUST = TRUSTI
           TRUSTO = TRUSTI
@@ -71,12 +71,12 @@ C
         ENDIF
       ELSE
         IF(ABS(EDIFF).LT.CONVGE.AND.GLNGTH.LT.CONVGG)THEN
-          WRITE(6,*)' STEPPER| ENERGY = ',ENERGY
-          WRITE(6,*)' STEPPER| The gradient and energy convergence '
-          WRITE(6,*)' STEPPER| criterion has been met, BUT the hessian '
-          WRITE(6,*)' STEPPER| does not exhibit proper structure. '
-          WRITE(6,*)' STEPPER| There are: ',NNEG,' negative hessian '
-          WRITE(6,*)' STEPPER| eigenvalues. '
+          WRITE(6,*)'  ENERGY = ',ENERGY
+          WRITE(6,*)'  The gradient and energy convergence '
+          WRITE(6,*)'  criterion has been met, BUT the hessian '
+          WRITE(6,*)'  does not exhibit proper structure. '
+          WRITE(6,*)'  There are: ',NNEG,' negative hessian '
+          WRITE(6,*)'  eigenvalues. '
           CNVGRD = .TRUE.
           TRUST = TRUSTI
           TRUSTO = TRUSTI
@@ -95,19 +95,18 @@ C
           TRUSTO = TRUSTI
         ELSE
           IF(BCKSTP)THEN
-            WRITE(6,*)' STEPPER| Backstep in progress; trust radius '
-            WRITE(6,*)' STEPPER| set to half of previous step length.'
+            WRITE(6,*)'  Backstep in progress; trust radius ',
+     $            'set to half of previous step length.'
             TRUSTO = TRUST
             TRUST = SOLD/2.0D0
-            write(6,*)' STEPPER| trust = ',trust
           ELSE
             TRUST = TRUSTI
             TRUSTO = TRUSTI
-            write(6,*)' STEPPER| trust = ',trust
           ENDIF
+            write(6,'(a,f8.2)') '  trust radius = ',trust
         ENDIF
       ELSE
-        WRITE(6,*)' STEPPER| Unknown calculation type. Program aborts. '
+        WRITE(6,*)'  Unknown calculation type. Program aborts. '
         call errquit('stepper:cheker fatal error',911)
       ENDIF
 C
@@ -115,11 +114,11 @@ C     Special Case: If on initial iteration there are no
 C     significant forces then stop.
 C
       IF(NWALK.EQ.1.AND.GLNGTH.LT.CONVGG)THEN
-        WRITE(6,*)' STEPPER| >>> W A R N I N G     W A R N I N G <<< '
-        WRITE(6,*)' STEPPER| >>> Negligible gradient on first',
+        WRITE(6,*)'  >>> W A R N I N G     W A R N I N G <<< '
+        WRITE(6,*)'  >>> Negligible gradient on first',
      &            ' iteration. <<< '
-        WRITE(6,*)' STEPPER| >>> Arbitrary step could be taken. <<< '
-        WRITE(6,*)' STEPPER| >>> Nudge coordinates away from',
+        WRITE(6,*)'  >>> Arbitrary step could be taken. <<< '
+        WRITE(6,*)'  >>> Nudge coordinates away from',
      &            ' minimum and restart. <<< '
         call errquit('stepper:cheker fatal error',911)
       ENDIF

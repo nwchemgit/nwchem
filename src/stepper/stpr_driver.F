@@ -6,7 +6,7 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD )
-c $Id: stpr_driver.F,v 1.3 1994-10-26 22:22:50 d3e129 Exp $
+c $Id: stpr_driver.F,v 1.4 1995-03-31 01:45:24 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
@@ -22,12 +22,12 @@ c $Id: stpr_driver.F,v 1.3 1994-10-26 22:22:50 d3e129 Exp $
      &          VECSQ(NAT3,NAT3),ATMASS(NATOM),P(NAT3TR),
      &          HMP(NAT3TR),CMASS(3),TENIN(3,3)
       IF(BCKSTP)THEN
-        WRITE(6,*)' STEPPER| Retrieving old hessian, gradient '
-        WRITE(6,*)' STEPPER| coordinates, and energy. '
+        WRITE(6,*)'  Retrieving old hessian, gradient '
+        WRITE(6,*)'  coordinates, and energy. '
         IERR = 0
         CALL stpr_retrve(HESS,GRAD,COORD,ENERGY,IERR)
         IF(IERR.NE.0)THEN
-          WRITE(6,*)' STEPPER| Unsuccessful "RETRVE" attempt. '
+          WRITE(6,*)'  Unsuccessful "RETRVE" attempt. '
           STOP
         ENDIF
       ENDIF
@@ -49,7 +49,7 @@ C
       IERR = 0
       CALL stpr_place(HESS,GRAD,COORD,ENERGY,IERR)
       IF(IERR.NE.0)THEN
-        WRITE(6,*)' STEPPER| Unsuccessful "PLACE" attempt. '
+        WRITE(6,*)'  Unsuccessful "PLACE" attempt. '
         STOP
       ENDIF
 C
@@ -74,7 +74,7 @@ C
 *      enddo
       ELSE
        CNVGRD = .TRUE.
-       WRITE(6,*)' STEPPER| ENERGY = ',ENERGY
+       WRITE(6,*)'  ENERGY = ',ENERGY
       ENDIF
       IF (.NOT.CNVGRD) THEN
         CALL stpr_output(STEP,COORD,BCKSTP)
@@ -90,13 +90,13 @@ C
       IERR = 0
       CALL stpr_recall(HESS,GRAD,COORD,ENERGY,IERR)
       IF(IERR.NE.0)THEN
-        WRITE(6,*)' STEPPER| Unsuccessful "RECALL" attempt. '
+        WRITE(6,*)'  Unsuccessful "RECALL" attempt. '
         STOP
       ENDIF
       IERR = 0
       CALL stpr_save(HESS,GRAD,COORD,ENERGY,IERR)
       IF(IERR.NE.0)THEN
-        WRITE(6,*)' STEPPER| Unsuccessful "SAVE" attempt. '
+        WRITE(6,*)'  Unsuccessful "SAVE" attempt. '
         STOP
       ENDIF
       CALL stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)

@@ -1,24 +1,26 @@
       subroutine distan(nat,coord)
-C$Id: distang.F,v 1.2 1995-02-02 23:23:01 d3g681 Exp $
+C$Id: distang.F,v 1.3 1995-03-31 01:45:16 d3g681 Exp $
       implicit none
       integer nat,i,j
       external dist
       double precision dist
       double precision coord(3,*),rij
       write(6,1000)                                                    
-      do 10 i=1,nat-1                                                   
-        write(6,1100)                                                  
-        do 10 j=i+1,nat                                                 
-          rij=dsqrt(dist(i,j,coord))                                           
-   10     if (rij.le.5)							
-     t      write(6,1200) ' ', i, ' ', j, rij, rij*0.529167d0	
+      do 20 i=1,nat-1                                                   
+         write(6,1100)                                                  
+         do 10 j=i+1,nat                                                 
+            rij=dsqrt(dist(i,j,coord))                                           
+            if (rij.le.5)							
+     $           write(6,1200) ' ', i, ' ', j, rij, rij*0.529167d0	
+ 10      continue
+ 20   continue
       write(6,1100)                                                    
       return                                                            
  1000 format(//,6x,'internuclear distances      (atomic units)',        
-     .                                     '     angstroms')            
- 1100 format(6x, 58(1h*))                                               
- 1200 format('      * ',a6,i2,' <---> ',a6,i2,'   (', f12.6,')',f14.6,  
-     .                          ' *')                                   
+     .     '     angstroms')            
+ 1100 format(6x, 58(1h-))                                               
+ 1200 format('        ',a6,i2,' <---> ',a6,i2,'   (', f12.6,')',f14.6,  
+     .     '  ')                                   
       end                                                               
       subroutine angle(nat,coord)
       integer nat,i,j,k
@@ -44,8 +46,8 @@ C$Id: distang.F,v 1.2 1995-02-02 23:23:01 d3g681 Exp $
    10     continue
       return                                                            
  1000 format(//,'      internuclear angles',30x,'degrees')              
- 1100 format(6x, 58(1h*))                                               
- 1200 format('      * ',a6,i2,2(' <---> ',a6,i2),f16.6,' *')            
+ 1100 format(6x, 58(1h-))                                               
+ 1200 format('        ',a6,i2,2(' <---> ',a6,i2),f16.6,'  ')            
       end                                                               
       double precision function  dist(at1,at2,coord)
       implicit none

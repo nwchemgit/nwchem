@@ -1,63 +1,74 @@
       SUBROUTINE stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
-c $Id: stpr_sumstc.F,v 1.3 1995-01-27 02:20:41 og845 Exp $
+c     $Id: stpr_sumstc.F,v 1.4 1995-03-31 01:45:44 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL CNVGRD
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
+#include "util.fh"
 #include "chow.fh"
       DIMENSION STEP(NAT3),COORD(3,NATOM),ATMASS(NATOM),CMASS(3),
-     &TENIN(3,3)
+     &     TENIN(3,3)
       IF(.NOT.CNVGRD)THEN
-C
-C       Add STEP to COORD.
-C
-        IJ = 0
-        DO 20 I = 1, NATOM
-          DO 10 J = 1,3
-            IJ = IJ + 1
-            COORD(J,I) = COORD(J,I) + STEP(IJ)
-   10     CONTINUE
-   20   CONTINUE
+C     
+C     Add STEP to COORD.
+C     
+         IJ = 0
+         DO 20 I = 1, NATOM
+            DO 10 J = 1,3
+               IJ = IJ + 1
+               COORD(J,I) = COORD(J,I) + STEP(IJ)
+ 10         CONTINUE
+ 20      CONTINUE
       ENDIF
-C
+C     
 C     Write new coordinates.
-C
-      IF(CNVGRD)THEN
-        WRITE(6,1003)
-      ELSE
-        WRITE(6,1000)
-      ENDIF
-      WRITE(6,1001)
-      DO 30 I = 1,NATOM
-        WRITE(6,1002)I,(COORD(J,I),J=1,3)
-   30 CONTINUE
-      CALL DISTAN(NATOM,COORD)
-      CALL ANGLE(NATOM,COORD)
-C
+C     
+      if (util_print('new coordinates',print_low)) then
+         IF(CNVGRD)THEN
+            WRITE(6,1003)
+         ELSE
+            WRITE(6,1000)
+         ENDIF
+         WRITE(6,1001)
+         DO 30 I = 1,NATOM
+            WRITE(6,1002)I,(COORD(J,I),J=1,3)
+ 30      CONTINUE
+         write(6,*)
+      endif
+      if (util_print('distances',print_default)) then
+         CALL DISTAN(NATOM,COORD)
+         write(6,*)
+      endif
+      if (util_print('angles',print_default)) then
+         CALL ANGLE(NATOM,COORD)
+         write(6,*)
+      endif
+C     
 C     Calculate the vector of center of mass and the inertia
 C     tensor for the new geometry.
-C
+C     
       IF (MWC) THEN
-      CALL stpr_mgeom(COORD,ATMASS,CMASS,TENIN)
-C
+         CALL stpr_mgeom(COORD,ATMASS,CMASS,TENIN)
+C     
 C     Shift the mass center to the origin of the coordinate system.
-C
-      DO 50 I=1,3
-        IF (ABS(CMASS(I)).LT.1.0D-06) GOTO 50
-        DO 60 J=1,NATOM
-          COORD(I,J)=COORD(I,J)-CMASS(I)
-   60   CONTINUE
-   50 CONTINUE
-      WRITE(6,1004)
-      WRITE(6,1001)
-      DO 70 I = 1,NATOM
-        WRITE(6,1002)I,(COORD(J,I),J=1,3)
-   70 CONTINUE
+C     
+         DO 50 I=1,3
+            IF (ABS(CMASS(I)).LT.1.0D-06) GOTO 50
+            DO 60 J=1,NATOM
+               COORD(I,J)=COORD(I,J)-CMASS(I)
+ 60         CONTINUE
+ 50      CONTINUE
+         WRITE(6,1004)
+         WRITE(6,1001)
+         DO 70 I = 1,NATOM
+            WRITE(6,1002)I,(COORD(J,I),J=1,3)
+ 70      CONTINUE
+         write(6,*)
       ENDIF
       RETURN
- 1000 FORMAT(' STEPPER| ',19('-'),' New coordinates ',19('-'))
- 1001 FORMAT(' STEPPER| ATOM:',12x,'X',14x,'Y',14x,'Z')
- 1002 FORMAT(' STEPPER| ',I3,6X,3(1X,F14.10))
- 1003 FORMAT(' STEPPER| ',16('-'),' Converged coordinates ',16('-'))
- 1004 FORMAT(' STEPPER| ',19('-'),' Shifted coordinates ',19('-'))
+ 1000 FORMAT('  ',19('-'),' New coordinates ',19('-'))
+ 1001 FORMAT('  ATOM:',12x,'X',14x,'Y',14x,'Z')
+ 1002 FORMAT('  ',I3,6X,3(1X,F14.10))
+ 1003 FORMAT('  ',16('-'),' Converged coordinates ',16('-'))
+ 1004 FORMAT('  ',19('-'),' Shifted coordinates ',19('-'))
       END

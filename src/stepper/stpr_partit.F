@@ -4,12 +4,13 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.3 1995-02-02 08:59:25 d3e129 Exp $
+c $Id: stpr_partit.F,v 1.4 1995-03-31 01:45:40 d3g681 Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
-      LOGICAL COOK, LPRINT
+      LOGICAL COOK, LPRINT, oprint
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
+#include "util.fh"
 #include "chow.fh"
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
@@ -29,10 +30,12 @@ C
 c
       ISYM2(I,J)=MAX(I,J)*((MAX(I,J))-1)/2 + MIN(I,J)
 c
+      LPRINT = util_print('partition', print_debug)
+      oprint = util_print('information', print_default)
+c
 *debug:      call stpr_datestamp(6,'partit: start')
       AUCM = 2.194746D+05
 *debug:      LPRINT = .TRUE.
-      LPRINT = .FALSE.
       IF (MWC) THEN
         SYMCHK=1.0D-08
       ENDIF
@@ -156,7 +159,7 @@ C
 *   64     CONTINUE
         ENDIF
    61 CONTINUE
-C      WRITE(6,*)' STEPPER| Translational & Rotational vectors'
+C      WRITE(6,*)'  Translational & Rotational vectors'
 C        DO 66 I=1,6
 C          WRITE(6,*)(VC(K,I),K=1,NAT3)
 C   66   CONTINUE
@@ -173,7 +176,7 @@ C
 *            DOT = DOT+VC(K,J)*VC(K,I)
 *   70     CONTINUE
           Dot = ddot(nat3,VC(1,J),1,VC(1,I),1)
-C          WRITE(6,*)' STEPPER| Overlap between vectors ',I,J,
+C          WRITE(6,*)'  Overlap between vectors ',I,J,
 C     &    ' is ',DOT
 *          DO 80 K=1,NAT3
 *            VC(K,I) = VC(K,I)-DOT*VC(K,J)
@@ -186,7 +189,7 @@ C     &    ' is ',DOT
 *          RNORM = RNORM+VC(K,I)*VC(K,I)
 *  100   CONTINUE
          rnorm = ddot(nat3,Vc(1,i),1,Vc(1,i),1)
-C        WRITE(6,*)' STEPPER| Squared norm of vector ',I,' is ',RNORM
+C        WRITE(6,*)'  Squared norm of vector ',I,' is ',RNORM
         IF ( RNORM.GT.1.D-8 ) THEN
           RNORM = ONE/SQRT(RNORM)
 *          DO 110 K=1,NAT3
@@ -201,8 +204,8 @@ C        WRITE(6,*)' STEPPER| Squared norm of vector ',I,' is ',RNORM
 *  120     CONTINUE
           ITEMP = I-3
           IRED = I
-          WRITE(6,*)' STEPPER| Dependent rotation vector no.',ITEMP
-          WRITE(6,*)' STEPPER| found in ECKART; linear geometry ',
+          WRITE(6,*)'  Dependent rotation vector no.',ITEMP
+          WRITE(6,*)'  found in ECKART; linear geometry ',
      &              ' assumed. '
         END IF
   130 CONTINUE
@@ -379,19 +382,19 @@ C
 *debug:     &        write(6,*)' hess (',i,') =',hess(i)
 *debug:      enddo
       IF(LPRINT)THEN
-        WRITE(6,*)' STEPPER| The eigenvalues of the internal hessian. '
+        WRITE(6,*)'  The eigenvalues of the internal hessian. '
         CALL stpr_matout(HIEIGS,NINTER,1,NINTER)
 c        WRITE(6,*)(HIEIGS(I),I=1,NINTER)
       ENDIF
       IF (MWC) THEN
-        WRITE(6,*)' STEPPER| The frequencies in cm-1 '
+        WRITE(6,*)'  The frequencies in cm-1 '
         DO 306 I=1,NINTER
           IF (HIEIGS(I).GT.0.D0) THEN
             FREQ=SQRT(HIEIGS(I))*AUCM
             WRITE(6,*) FREQ
           ELSE
             FREQ=SQRT(-HIEIGS(I))*AUCM
-            WRITE(6,*)' STEPPER| i',FREQ
+            WRITE(6,*)'  i',FREQ
           ENDIF
   306   CONTINUE
       ENDIF
@@ -408,8 +411,8 @@ C
   320 CONTINUE
       GLNGTH = SQRT(GLNGTH)
       IF(LPRINT)THEN
-        WRITE(6,*)' STEPPER| The corresponding internal gradient '
-        WRITE(6,*)' STEPPER| in the spectral representaion. '
+        WRITE(6,*)'  The corresponding internal gradient '
+        WRITE(6,*)'  in the spectral representaion. '
         CALL stpr_matout(GISR,NINTER,1,NINTER)
 c        WRITE(6,*)(GISR(I),I=1,NINTER)
       ENDIF
@@ -431,7 +434,7 @@ C     Write out the eigenvectors.
 C
       IF(LPRINT)THEN
         WRITE(6,1001)
-        WRITE(6,*)' STEPPER| The corresponding eigenvectors '
+        WRITE(6,*)'  The corresponding eigenvectors '
         CALL stpr_matout(VECSQ,NAT3,NINTER,NAT3)
 c        WRITE(6,1002)
 c        WRITE(6,1001)
@@ -451,7 +454,7 @@ C
         IERR = 0
         CALL stpr_recall(HESS,GRAD,COORD,ENERGY,IERR)
         IF(IERR.NE.0)THEN
-          WRITE(6,*)' STEPPER| Unsuccessful "RECALL" attempt. '
+          WRITE(6,*)'  Unsuccessful "RECALL" attempt. '
           STOP
         ENDIF
 C
@@ -477,8 +480,8 @@ C
           IF ((HIEIGS(I).LT.0.D0).AND.(DABS(GISR(I)).LE.SYMCHK))
      1    THEN
             WRITE(6,1001)
-            WRITE(6,*)' STEPPER| W A R N I N G '
-            WRITE(6,*)' STEPPER| In mode ',I,' you are on a ridge. '
+            WRITE(6,*)'  W A R N I N G '
+            WRITE(6,*)'  In mode ',I,' you are on a ridge. '
           ENDIF
  361    CONTINUE
       ENDIF
@@ -515,22 +518,22 @@ C
         DO 364 I = 1,NMIN
           IF (HIEIGS(I).LT.0.D0) THEN
             WRITE(6,1001)
-            WRITE(6,*)' STEPPER| W A R N I N G '
-            WRITE(6,*)' STEPPER| Negative hessian eigenvalue for'
-            WRITE(6,*)' STEPPER| tranverse mode # ',I
+            WRITE(6,*)'  W A R N I N G '
+            WRITE(6,*)'  Negative hessian eigenvalue for'
+            WRITE(6,*)'  tranverse mode # ',I
             IF (DABS(GISR(I)).LE.SYMCHK) THEN
-              WRITE(6,*)' STEPPER| In mode ',I,' you are on a ridge. '
+              WRITE(6,*)'  In mode ',I,' you are on a ridge. '
             ENDIF
           ENDIF
   364   CONTINUE
         DO 365 I = NPLUS,NINTER
           IF (HIEIGS(I).LT.0.D0) THEN
             WRITE(6,1001)
-            WRITE(6,*)' STEPPER| W A R N I N G '
-            WRITE(6,*)' STEPPER| Negative hessian eigenvalue for'
-            WRITE(6,*)' STEPPER| tranverse mode # ',I
+            WRITE(6,*)'  W A R N I N G '
+            WRITE(6,*)'  Negative hessian eigenvalue for'
+            WRITE(6,*)'  tranverse mode # ',I
             IF (DABS(GISR(I)).LE.SYMCHK) THEN
-              WRITE(6,*)' STEPPER| In mode ',I,' you are on a ridge. '
+              WRITE(6,*)'  In mode ',I,' you are on a ridge. '
             ENDIF
           ENDIF
   365   CONTINUE
@@ -545,17 +548,17 @@ C       the reaction coordinate.
 C
         IF (DABS(GISR(NMODE)).LE.SYMCHK) THEN
           IF (HIEIGS(NMODE).GT.0.D0) THEN
-            WRITE(6,*)' STEPPER| You need a nonzero force along'
-            WRITE(6,*)' STEPPER| mode # ',NMODE,' to go uphill. '
+            WRITE(6,*)'  You need a nonzero force along'
+            WRITE(6,*)'  mode # ',NMODE,' to go uphill. '
             call errquit('stepper:partit fatal error',911)
           ELSE
             TS = .FALSE.
             NMODE = 0
             OMIN = .TRUE.
-            WRITE(6,*)' STEPPER| There is no force along the reaction'
-            WRITE(6,*)' STEPPER| coordinate mode. '
-            WRITE(6,*)' STEPPER| Minimization along transverse modes'
-            WRITE(6,*)' STEPPER| will be performed. '
+            WRITE(6,*)'  There is no force along the reaction'
+            WRITE(6,*)'  coordinate mode. '
+            WRITE(6,*)'  Minimization along transverse modes'
+            WRITE(6,*)'  will be performed. '
           ENDIF
         ENDIF
       ENDIF
@@ -569,17 +572,17 @@ C       the reaction coordinate.
 C
         IF (DABS(GISR(NMODE)).LE.SYMCHK) THEN
           IF (HIEIGS(NMODE).LT.0.D0) THEN
-            WRITE(6,*)' STEPPER| You need a nonzero force along'
-            WRITE(6,*)' STEPPER| mode # ',NMODE,' to go downhill. '
+            WRITE(6,*)'  You need a nonzero force along'
+            WRITE(6,*)'  mode # ',NMODE,' to go downhill. '
             call errquit('stepper:partit fatal error',911)
           ELSE
             STD = .FALSE.
             NMODE = 0
             OMIN = .TRUE.
-            WRITE(6,*)' STEPPER| There is no force along the reaction'
-            WRITE(6,*)' STEPPER| coordinate mode. '
-            WRITE(6,*)' STEPPER| Minimization along transverse modes'
-            WRITE(6,*)' STEPPER| will be performed. '
+            WRITE(6,*)'  There is no force along the reaction'
+            WRITE(6,*)'  coordinate mode. '
+            WRITE(6,*)'  Minimization along transverse modes'
+            WRITE(6,*)'  will be performed. '
           ENDIF
         ENDIF
       ENDIF
@@ -592,7 +595,7 @@ C     Determine number of modes with no forces
 C     and softer than NMODE.
 C
       NOFORC = 0
-c      WRITE(6,*)' STEPPER| Removing modes with zero forces. '
+c      WRITE(6,*)'  Removing modes with zero forces. '
       call dfill(NAT3,0.0d00,GRAD,1)
       call dfill(NAT3TR,0.0d00,HESS,1)
       IREAL = 0
@@ -610,28 +613,34 @@ c      WRITE(6,*)' STEPPER| Removing modes with zero forces. '
           IF (N.LT.NMODE) NOFORC = NOFORC + 1
         ENDIF
   370 CONTINUE
-      WRITE(6,*)' STEPPER| Number of modes removed with force (in the',
-     &          ' spectral '
-      WRITE(6,*)' STEPPER| representation) less than: ',SYMCHK,' is: ',
-     &          IUNRL
+      if (oprint) then
+         WRITE(6,*)'  Number of modes removed with force (in the',
+     &        ' spectral representation)'
+         WRITE(6,'(a,f10.6,a,i4)')'   less than: ',SYMCHK,' is: ',
+     &        IUNRL
+      endif
       NINTER = IREAL
       DO 400 N = 1,NINTER
         HIEIGS(N) = HESS(ISYM2(N,N))
         GISR(N) = GRAD(N)
   400 CONTINUE
       IF(NINTER.EQ.0)THEN
-        WRITE(6,*)' STEPPER| There are no internal hessian eigenmodes '
-        WRITE(6,*)' STEPPER| remaining with corresponding forces '
-        WRITE(6,*)' STEPPER| greater than: ',SYMCHK
-        WRITE(6,*)' STEPPER| Convergence is set .TRUE. '
-        RETURN
+         if (oprint) then
+            WRITE(6,*)'  There are no internal hessian eigenmodes '
+            WRITE(6,*)'  remaining with corresponding forces '
+            WRITE(6,'(a,f10.6)') '  greater than: ',SYMCHK
+            WRITE(6,*)'  Convergence is set .TRUE. '
+         endif
+         RETURN
       ELSE
-        WRITE(6,*)' STEPPER| PARTIT has partitioned the input hessian '
-        WRITE(6,*)' STEPPER| and gradient into two subspaces;  An '
-        WRITE(6,*)' STEPPER| "external" hessian and gradient composed '
-        WRITE(6,*)' STEPPER| of ',NEXTER,' independent translations '
-        WRITE(6,*)' STEPPER| and rotations, and an "internal" hessian '
-        WRITE(6,*)' STEPPER| and gradient with a dimension of ',NINTER
+         if (oprint) then
+            WRITE(6,*)'  PARTIT has partitioned the input hessian '
+            WRITE(6,*)'  and gradient into two subspaces;  An '
+            WRITE(6,*)'  "external" hessian and gradient composed '
+            WRITE(6,*)'  of ',NEXTER,' independent translations '
+            WRITE(6,*)'  and rotations, and an "internal" hessian '
+            WRITE(6,*)'  and gradient with a dimension of ',NINTER
+         endif
       ENDIF
       IF (NMODE.GT.0) THEN
 C
@@ -673,19 +682,19 @@ C
           IF(DABS(GISR(N)).GT.RCONVG) IREAL = IREAL + 1
   430   CONTINUE
         IF ((IREAL.GT.0).OR.(TROUB)) THEN
-          WRITE(6,*)' STEPPER| RPATH is .TRUE.'
+          WRITE(6,*)'  RPATH is .TRUE.'
           IF (IREAL.GT.0) THEN
-            WRITE(6,*)' STEPPER| There are ',IREAL,' modes'
-            WRITE(6,*)' STEPPER| different than NMODE = ',NMODE
-            WRITE(6,*)' STEPPER| with forces bigger than ',RCONVG,'.'
+            WRITE(6,*)'  There are ',IREAL,' modes'
+            WRITE(6,*)'  different than NMODE = ',NMODE
+            WRITE(6,*)'  with forces bigger than ',RCONVG,'.'
           ENDIF
           IF (TROUB) THEN
-            WRITE(6,*)' STEPPER| There are transverse modes with '
-            WRITE(6,*)' STEPPER| negative hessian eigenvalues and '
-            WRITE(6,*)' STEPPER| nonzero forces. '
+            WRITE(6,*)'  There are transverse modes with '
+            WRITE(6,*)'  negative hessian eigenvalues and '
+            WRITE(6,*)'  nonzero forces. '
           ENDIF
-          WRITE(6,*)' STEPPER| A downhill step to the streambed'
-          WRITE(6,*)' STEPPER| will be performed. '
+          WRITE(6,*)'  A downhill step to the streambed'
+          WRITE(6,*)'  will be performed. '
           call dfill(NAT3,0.0d00,GRAD,1)
           call dfill(NAT3TR,0.0d00,HESS,1)
           IREAL = 0
@@ -719,14 +728,14 @@ C
           OMIN = .TRUE.
           NMODE = 0
         ELSE
-          WRITE(6,*)' STEPPER| You are in the streambed. '
+          WRITE(6,*)'  You are in the streambed. '
         ENDIF
       ENDIF
 *debug:      call stpr_datestamp(6,'partit: end')
       RETURN
- 1000 FORMAT(' STEPPER| Eigenvector : ',I2,/,
+ 1000 FORMAT('  Eigenvector : ',I2,/,
      &       1X,(3(2X,F12.7)))
  1001 FORMAT(/)
- 1002 FORMAT(' STEPPER| ',9('-'),' Hessian eigenvectors (3N-(6 ',
+ 1002 FORMAT('  ',9('-'),' Hessian eigenvectors (3N-(6 ',
      &          ' or 5)) ',9('-'))
       END

@@ -1,5 +1,5 @@
       SUBROUTINE stpr_mgeom(COORD,ATMASS,CMASS,TENIN)
-c $Id: stpr_mgeom.f,v 1.1 1994-06-24 20:42:31 d3e129 Exp $
+c $Id: stpr_mgeom.f,v 1.2 1995-03-31 01:45:33 d3g681 Exp $
 C
 C     This routine calculates vector of the center of mass
 C     and tensor of inertia.
@@ -17,7 +17,7 @@ C
    20   CONTINUE
         CMASS(I) = CMASS(I)/TOTM
    10 CONTINUE
-      WRITE(6,*)' STEPPER| Vector of the center of mass:'
+      WRITE(6,*)'  Vector of the center of mass:'
       WRITE(6,*) (CMASS(I),I=1,3)
       DO 30 I=1,3
         DO 40 J=1,2
@@ -37,7 +37,7 @@ C
       TENIN(1,1)=SHIT(2)+SHIT(3)
       TENIN(2,2)=SHIT(1)+SHIT(3)
       TENIN(3,3)=SHIT(2)+SHIT(1)
-      WRITE(6,*)' STEPPER| Moment of inertia'
+      WRITE(6,*)'  Moment of inertia'
       DO 80 I=1,3
         WRITE(6,*)(TENIN(I,J),J=1,3)
    80 CONTINUE

@@ -1,20 +1,21 @@
       SUBROUTINE stpr_face (
-     &       HESS, GRAD, COORD, CHARGE, SELECT, ATMASS,
-     &       AMS, G, C, ETOT, TRUST, ENERGY, CONVGE,
-     &       CONVGG, NATD, NMODE,
-     &       TRACK, BCKSTP, RPATH , rtdb, step_number)
-c
-c $Id: stpr_face.F,v 1.7 1995-01-20 01:36:20 d3e129 Exp $
-c
+     &     HESS, GRAD, COORD, CHARGE, SELECT, ATMASS,
+     &     AMS, G, C, ETOT, TRUST, ENERGY, CONVGE,
+     &     CONVGG, NATD, NMODE,
+     &     TRACK, BCKSTP, RPATH , rtdb, step_number)
+c     
+c     $Id: stpr_face.F,v 1.8 1995-03-31 01:45:26 d3g681 Exp $
+c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "util.fh"
       integer rtdb, him, kim, step_number, maxiter
       LOGICAL BCKSTP, TRACK, RPATH
       LOGICAL SECO, SWSEC, SWFIR
       LOGICAL SETM
       logical oselect, osetmass
-c      CHARACTER LINE*7
+c     CHARACTER LINE*7
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
-     &                  ITAP44, ITAP45
+     &     ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / SWITCH / SECO, SWSEC, SWFIR
@@ -22,13 +23,14 @@ c      CHARACTER LINE*7
       COMMON / MASS / TOTM, NUMAS
 #include "mafdecls.fh"
 #include "chow.fh"
+      logical oprint_info
       DIMENSION HESS(NAT3,NAT3), GRAD(NAT3), COORD(3,NATOM),
-     &          CHARGE(NATOM), SELECT(NAT3), C(3,NATOM),
-     &          ATMASS(NATOM), AMS(NUMAS), G(NATD*3)
-C
+     &     CHARGE(NATOM), SELECT(NAT3), C(3,NATOM),
+     &     ATMASS(NATOM), AMS(NUMAS), G(NATD*3)
+C     
 C     OMIN - minimization walk
 C     TS - transition state walk
-C
+C     
 C     STD - steepest descent walk
 C     The step length (norm of the x vector) can not overpass RSTD
 C     TROT and TRTR can enlarge the step length to the acceptable
@@ -40,321 +42,326 @@ C     TROT will allow scaling up in the region of a negative
 C     NMODE's eigenvalue
 C     TRTR will allow scaling up along the whole walk
 C     Using TRTR is dangerous since you can miss the minimum
-C
+C     
 C     SECO - analytic second derivatives in the first step only
 C     SWSEC - switch to second derivatives; then bomb
 C     SWFIR - switch to first derivatives; then bomb
-C
+C     
 C     Set default values.
-C
-*      write(6,*)' nat3 = ',nat3
+C     
+*     write(6,*)' nat3 = ',nat3
+      oprint_info = util_print('information',print_low)
       oselect = .false.
       osetmass = .false.
       call stpr_set_defaults(OMIN,TS,STD,TROT,TRTR,MWC,SECO,SWFIR,
-     &    SWSEC,RSTD,TRUSTC,TRUSTM,TRUST,NMODE,TRACK,RPATH,RCONVG,
-     &    SETM,convgg,convge,maxiter)
+     &     SWSEC,RSTD,TRUSTC,TRUSTM,TRUST,NMODE,TRACK,RPATH,RCONVG,
+     &     SETM,convgg,convge,maxiter)
       call stpr_load_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco, swfir,
-     &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg,rstd,
-     &    trustc, trustm, trust, convgg, convge, maxiter)
-c
+     &     swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg,rstd,
+     &     trustc, trustm, trust, convgg, convge, maxiter)
+c     
       if (oselect) then
-        call stpr_select_grtdb(natom,rtdb,select)
+         call stpr_select_grtdb(natom,rtdb,select)
       endif
-c
+c     
       if(convgg.eq.0.0d0)CONVGG=1.0D-4
       if(convge.eq.0.0d0)CONVGE=1.0D-8
       AMUAU = (1.6605656D0/9.109534D0)*1.0D+04
       if (osetmass) then
-        write(6,*)' STEPPER| atomic number and masses read '
-        call stpr_setmass_grtdb(natom,rtdb,him,kim,atmass)
-        do 00003 i=1,natom
-          if (atmass(i).eq.0.0d00) then
-            if(int_mb((kim-1+i)).gt.numas) then
-              WRITE(6,*)' STEPPER| Atomic number out of range. '
-              WRITE(6,*)' STEPPER| Masses for atomic numbers .LE. ',
-     &            NUMAS,' only. '
-              WRITE(6,*)' STEPPER| You must input the mass. '
-              call errquit('stepper:face fatal error',911)
+         write(6,*)'  atomic number and masses read '
+         call stpr_setmass_grtdb(natom,rtdb,him,kim,atmass)
+         do 00003 i=1,natom
+            if (atmass(i).eq.0.0d00) then
+               if(int_mb((kim-1+i)).gt.numas) then
+                  WRITE(6,*)'  Atomic number out of range. '
+                  WRITE(6,*)'  Masses for atomic numbers .LE. ',
+     &                 NUMAS,' only. '
+                  WRITE(6,*)'  You must input the mass. '
+                  call errquit('stepper:face fatal error',911)
+               endif
+               atmass(i) = ams(int_mb((kim-1+i)))
+            else
+               atmass(i) = atmass(i)*amuau
             endif
-            atmass(i) = ams(int_mb((kim-1+i)))
-          else
-            atmass(i) = atmass(i)*amuau
-          endif
-00003   continue
-        setm = .false.
-        write(6,*)' STEPPER| Atomic masses: '
-        write(6,*) (atmass(i),i=1,natom)
-        if(.not.MA_free_heap(him))
-     &      call errquit
-     &      ('stpr_face: failed to free dummy read array',911)
-        
+00003    continue
+         setm = .false.
+         write(6,*)'  Atomic masses: '
+         write(6,*) (atmass(i),i=1,natom)
+         if(.not.MA_free_heap(him))
+     &        call errquit
+     &        ('stpr_face: failed to free dummy read array',911)
+         
       endif
       if (TS)  omin = .false.
       if (std) omin = .false.
-c
-c        OMIN = .TRUE.
-c        TS = .FALSE.
-c        STD = .FALSE.
-c        TROT = .FALSE.
-c        TRTR = .FALSE.
-c        MWC = .FALSE.
-c        SECO = .FALSE.
-c        SWFIR = .FALSE.
-c        SWSEC = .FALSE.
-c        RSTD = 5.D-02
-c        TRUSTC = 0.1D0
-c        TRUSTM = 5.D0
-c        TRUST = 0.D0
-c        NMODE = 0
-c        TRACK = .FALSE.
-c        RPATH = .FALSE.
-c        RCONVG = 1.D-02
-c        SETM = .TRUE.
-c
-c  C
-c  C     Read input.
-c  C
-c        CALL stpr_locate (ITAP05, '&STEPPER  ', IERROR)
-c        IF (IERROR .EQ. 0) THEN
-c      1   READ (ITAP05,'(A)',ERR=2,END=2) LINE
-c          IF (LINE(1:4) .EQ. '&END') THEN
-c            GO TO 2
-c          ELSE IF (LINE(1:3) .EQ. 'MIN') THEN
-c            OMIN = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword MIN found. '
-c            WRITE(ITAP06,*)' STEPPER| MIN = ',OMIN
-c          ELSE IF (LINE(1:2) .EQ. 'TS') THEN
-c            TS = .TRUE.
-c            OMIN = .FALSE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword TS found. '
-c            WRITE(ITAP06,*)' STEPPER| TS = ',TS
-c          ELSE IF (LINE(1:3) .EQ. 'STD') THEN
-c            STD = .TRUE.
-c            OMIN = .FALSE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword STD found. '
-c            WRITE(ITAP06,*)' STEPPER| STD = ',STD
-c          ELSE IF (LINE(1:4) .EQ. 'RSTD') THEN
-c            READ (ITAP05,*,END=2,ERR=2) RSTD
-c            WRITE(ITAP06,*)' STEPPER| Keyword RSTD found. '
-c            WRITE(ITAP06,*)' STEPPER| RSTD = ',RSTD
-c          ELSE IF (LINE(1:4) .EQ. 'TROT') THEN
-c            TROT = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword TROT found. '
-c            WRITE(ITAP06,*)' STEPPER| TROT = ',TROT
-c          ELSE IF (LINE(1:4) .EQ. 'TRTR') THEN
-c            TRTR = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword TRTR found. '
-c            WRITE(ITAP06,*)' STEPPER| TRTR = ',TRTR
-c          ELSE IF (LINE(1:3) .EQ. 'MWC') THEN
-c            MWC = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword MWC found. '
-c            WRITE(ITAP06,*)' STEPPER| MWC = ',MWC
-c          ELSE IF (LINE(1:4) .EQ. 'SECO') THEN
-c            SECO = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword SECO found. '
-c            WRITE(ITAP06,*)' STEPPER| SECO = ',SECO
-c          ELSE IF (LINE(1:5) .EQ. 'SWSEC') THEN
-c            SWSEC = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword SWSEC found. '
-c            WRITE(ITAP06,*)' STEPPER| SWSEC = ',SWSEC
-c          ELSE IF (LINE(1:5) .EQ. 'SWFIR') THEN
-c            SWFIR = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword SWFIR found. '
-c            WRITE(ITAP06,*)' STEPPER| SWFIR = ',SWFIR
-c          ELSE IF (LINE(1:5) .EQ. 'TRUST') THEN
-c            READ (ITAP05,*,END=2,ERR=2) TRUST
-c            WRITE(ITAP06,*)' STEPPER| Keyword TRUST found. '
-c            WRITE(ITAP06,*)' STEPPER| TRUST = ',TRUST
-c          ELSE IF (LINE(1:5) .EQ. 'NMODE') THEN
-c            READ (ITAP05,*,END=2,ERR=2) NMODE
-c            WRITE(ITAP06,*)' STEPPER| Keyword NMODE found. '
-c            WRITE(ITAP06,*)' STEPPER| NMODE = ',NMODE
-c          ELSE IF (LINE(1:5) .EQ. 'TRACK') THEN
-c            TRACK = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword TRACK found. '
-c            WRITE(ITAP06,*)' STEPPER| TRACK = ',TRACK
-c          ELSE IF (LINE(1:6) .EQ. 'SELECT') THEN
-c            READ (ITAP05,*,END=2,ERR=2) SELECT
-c            WRITE(ITAP06,*)' STEPPER| Keyword SELECT found. '
-c            NMODE = 1
-c            WRITE(ITAP06,*)' STEPPER| SELECT: '
-c            WRITE(6,1001)
-c            DO 30 I = 1,NATOM
-c              JSTART = 3*(I-1) + 1
-c              JEND = JSTART + 2
-c              WRITE(6,1002)I,(SELECT(J),J=JSTART,JEND)
+c     
+c     OMIN = .TRUE.
+c     TS = .FALSE.
+c     STD = .FALSE.
+c     TROT = .FALSE.
+c     TRTR = .FALSE.
+c     MWC = .FALSE.
+c     SECO = .FALSE.
+c     SWFIR = .FALSE.
+c     SWSEC = .FALSE.
+c     RSTD = 5.D-02
+c     TRUSTC = 0.1D0
+c     TRUSTM = 5.D0
+c     TRUST = 0.D0
+c     NMODE = 0
+c     TRACK = .FALSE.
+c     RPATH = .FALSE.
+c     RCONVG = 1.D-02
+c     SETM = .TRUE.
+c     
+c     C
+c     C     Read input.
+c     C
+c     CALL stpr_locate (ITAP05, '&STEPPER  ', IERROR)
+c     IF (IERROR .EQ. 0) THEN
+c     1   READ (ITAP05,'(A)',ERR=2,END=2) LINE
+c     IF (LINE(1:4) .EQ. '&END') THEN
+c     GO TO 2
+c     ELSE IF (LINE(1:3) .EQ. 'MIN') THEN
+c     OMIN = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword MIN found. '
+c     WRITE(ITAP06,*)'  MIN = ',OMIN
+c     ELSE IF (LINE(1:2) .EQ. 'TS') THEN
+c     TS = .TRUE.
+c     OMIN = .FALSE.
+c     WRITE(ITAP06,*)'  Keyword TS found. '
+c     WRITE(ITAP06,*)'  TS = ',TS
+c     ELSE IF (LINE(1:3) .EQ. 'STD') THEN
+c     STD = .TRUE.
+c     OMIN = .FALSE.
+c     WRITE(ITAP06,*)'  Keyword STD found. '
+c     WRITE(ITAP06,*)'  STD = ',STD
+c     ELSE IF (LINE(1:4) .EQ. 'RSTD') THEN
+c     READ (ITAP05,*,END=2,ERR=2) RSTD
+c     WRITE(ITAP06,*)'  Keyword RSTD found. '
+c     WRITE(ITAP06,*)'  RSTD = ',RSTD
+c     ELSE IF (LINE(1:4) .EQ. 'TROT') THEN
+c     TROT = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword TROT found. '
+c     WRITE(ITAP06,*)'  TROT = ',TROT
+c     ELSE IF (LINE(1:4) .EQ. 'TRTR') THEN
+c     TRTR = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword TRTR found. '
+c     WRITE(ITAP06,*)'  TRTR = ',TRTR
+c     ELSE IF (LINE(1:3) .EQ. 'MWC') THEN
+c     MWC = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword MWC found. '
+c     WRITE(ITAP06,*)'  MWC = ',MWC
+c     ELSE IF (LINE(1:4) .EQ. 'SECO') THEN
+c     SECO = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword SECO found. '
+c     WRITE(ITAP06,*)'  SECO = ',SECO
+c     ELSE IF (LINE(1:5) .EQ. 'SWSEC') THEN
+c     SWSEC = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword SWSEC found. '
+c     WRITE(ITAP06,*)'  SWSEC = ',SWSEC
+c     ELSE IF (LINE(1:5) .EQ. 'SWFIR') THEN
+c     SWFIR = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword SWFIR found. '
+c     WRITE(ITAP06,*)'  SWFIR = ',SWFIR
+c     ELSE IF (LINE(1:5) .EQ. 'TRUST') THEN
+c     READ (ITAP05,*,END=2,ERR=2) TRUST
+c     WRITE(ITAP06,*)'  Keyword TRUST found. '
+c     WRITE(ITAP06,*)'  TRUST = ',TRUST
+c     ELSE IF (LINE(1:5) .EQ. 'NMODE') THEN
+c     READ (ITAP05,*,END=2,ERR=2) NMODE
+c     WRITE(ITAP06,*)'  Keyword NMODE found. '
+c     WRITE(ITAP06,*)'  NMODE = ',NMODE
+c     ELSE IF (LINE(1:5) .EQ. 'TRACK') THEN
+c     TRACK = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword TRACK found. '
+c     WRITE(ITAP06,*)'  TRACK = ',TRACK
+c     ELSE IF (LINE(1:6) .EQ. 'SELECT') THEN
+c     READ (ITAP05,*,END=2,ERR=2) SELECT
+c     WRITE(ITAP06,*)'  Keyword SELECT found. '
+c     NMODE = 1
+c     WRITE(ITAP06,*)'  SELECT: '
+c     WRITE(6,1001)
+c     DO 30 I = 1,NATOM
+c     JSTART = 3*(I-1) + 1
+c     JEND = JSTART + 2
+c     WRITE(6,1002)I,(SELECT(J),J=JSTART,JEND)
 c     30     CONTINUE
-c   1001     FORMAT(' STEPPER| ATOM:',12x,'X',14x,'Y',14x,'Z')
-c   1002     FORMAT(' STEPPER| ',I3,6X,3(1X,F14.10))
-c  c          CALL stpr_matout(SELECT,3,NATOM,3)
-c          ELSE IF (LINE(1:5) .EQ. 'RPATH') THEN
-c            RPATH = .TRUE.
-c            WRITE(ITAP06,*)' STEPPER| Keyword RPATH found. '
-c          ELSE IF (LINE(1:6) .EQ. 'RCONVG') THEN
-c            READ (ITAP05,*,END=2,ERR=2) RCONVG
-c            WRITE(ITAP06,*)' STEPPER| Keyword RCONVG found. '
-c            WRITE(ITAP06,*)' STEPPER| RCONVG = ',RCONVG
-c          ELSE IF (LINE(1:7) .EQ. 'SETMASS') THEN
-c            WRITE(6,*)' STEPPER| atomic number and masses read from',
-c       &              ' standard in. '
-c            DO 3 I = 1,NATOM
-c              READ(ITAP05,*,ERR=2,END=2) IREAD,ATMASS(I)
-c              write(6,*)' STEPPER| atom ',i,' mass ',atmass(i)
-c              IF(ATMASS(I).EQ.0.0D00) THEN
-c                IF(IREAD.GT.NUMAS)THEN
-c                  WRITE(6,*)' STEPPER| Atomic number out of range. '
-c                  WRITE(6,*)' STEPPER| Masses for atomic numbers .LE. ',
-c       &                            NUMAS,' only. '
-c                  WRITE(6,*)' STEPPER| You must input the mass. '
-c                  call errquit('stepper:face fatal error',911)
-c                ENDIF
-c                ATMASS(I) = AMS(IREAD)
-c              ELSE
-c                ATMASS(I)=ATMASS(I)*AMUAU
-c              ENDIF
-c      3     CONTINUE
-c            SETM = .FALSE.
-c            write(6,*)' STEPPER| Atomic masses: '
-c            write(6,*) (atmass(i),i=1,natom)
-c          END IF
-c          GO TO 1
-c        ELSE
-c  c       WRITE (ITAP06,*)' STEPPER| Label &STEPPER not found. '
-c  c       WRITE (ITAP06,*)' STEPPER| Default input used. '
-c          ICNVG = -99
-c        END IF
-c      2 CONTINUE
+c     1001     FORMAT('  ATOM:',12x,'X',14x,'Y',14x,'Z')
+c     1002     FORMAT('  ',I3,6X,3(1X,F14.10))
+c     c          CALL stpr_matout(SELECT,3,NATOM,3)
+c     ELSE IF (LINE(1:5) .EQ. 'RPATH') THEN
+c     RPATH = .TRUE.
+c     WRITE(ITAP06,*)'  Keyword RPATH found. '
+c     ELSE IF (LINE(1:6) .EQ. 'RCONVG') THEN
+c     READ (ITAP05,*,END=2,ERR=2) RCONVG
+c     WRITE(ITAP06,*)'  Keyword RCONVG found. '
+c     WRITE(ITAP06,*)'  RCONVG = ',RCONVG
+c     ELSE IF (LINE(1:7) .EQ. 'SETMASS') THEN
+c     WRITE(6,*)'  atomic number and masses read from',
+c     &              ' standard in. '
+c     DO 3 I = 1,NATOM
+c     READ(ITAP05,*,ERR=2,END=2) IREAD,ATMASS(I)
+c     write(6,*)'  atom ',i,' mass ',atmass(i)
+c     IF(ATMASS(I).EQ.0.0D00) THEN
+c     IF(IREAD.GT.NUMAS)THEN
+c     WRITE(6,*)'  Atomic number out of range. '
+c     WRITE(6,*)'  Masses for atomic numbers .LE. ',
+c     &                            NUMAS,' only. '
+c     WRITE(6,*)'  You must input the mass. '
+c     call errquit('stepper:face fatal error',911)
+c     ENDIF
+c     ATMASS(I) = AMS(IREAD)
+c     ELSE
+c     ATMASS(I)=ATMASS(I)*AMUAU
+c     ENDIF
+c     3     CONTINUE
+c     SETM = .FALSE.
+c     write(6,*)'  Atomic masses: '
+c     write(6,*) (atmass(i),i=1,natom)
+c     END IF
+c     GO TO 1
+c     ELSE
+c     c       WRITE (ITAP06,*)'  Label &STEPPER not found. '
+c     c       WRITE (ITAP06,*)'  Default input used. '
+c     ICNVG = -99
+c     END IF
+c     2 CONTINUE
       IF (MWC.AND.SETM) THEN
-C
+C     
 C     Get charges
-C
-c          DO 4 I = 1, NATOM
-c
-c no current need for mass weighted hess ... temp fix - jan.
-c
-c            CHARGE(I) = ZAN(I)
-c    4     CONTINUE
-          WRITE(6,'(/A/)')
-     +    ' Default masses from atomic number (charge) used. '
-          DO 5 I = 1,NATOM
-             IDUM = INT(CHARGE(I))
-             ATMASS(I) = AMS(IDUM)
-             WRITE(6,*)' STEPPER| Atom ',I,' Mass ',ATMASS(I)
-    5     CONTINUE
+C     
+c     DO 4 I = 1, NATOM
+c     
+c     no current need for mass weighted hess ... temp fix - jan.
+c     
+c     CHARGE(I) = ZAN(I)
+c     4     CONTINUE
+         WRITE(6,'(/A/)')
+     +        ' Default masses from atomic number (charge) used. '
+         DO 5 I = 1,NATOM
+            IDUM = INT(CHARGE(I))
+            ATMASS(I) = AMS(IDUM)
+            WRITE(6,*)'  Atom ',I,' Mass ',ATMASS(I)
+ 5       CONTINUE
       ENDIF
       IF (MWC) THEN
-C
+C     
 C     Calculate total mass.
-C
-          TOTM = 0.D0
-          DO 6 I = 1,NATOM
+C     
+         TOTM = 0.D0
+         DO 6 I = 1,NATOM
             TOTM = TOTM + ATMASS(I)
-    6     CONTINUE
-          WRITE(6,*)' STEPPER| Total mass is ',TOTM,' a.u.'
+ 6       CONTINUE
+         WRITE(6,*)'  Total mass is ',TOTM,' a.u.'
       ENDIF
       IF (TRUST.EQ.0.D0) THEN
-        IF (MWC) THEN
-          TRUST=TRUSTM
-        ELSE
-          TRUST=TRUSTC
-        ENDIF
+         IF (MWC) THEN
+            TRUST=TRUSTM
+         ELSE
+            TRUST=TRUSTC
+         ENDIF
       ENDIF
-      IF(TS)THEN
-        WRITE(ITAP06,*)' STEPPER| Step sought for transition state. '
-      ELSE IF (OMIN) THEN
-        WRITE(ITAP06,*)' STEPPER| Step sought for minimum. '
-      ELSE IF (STD) THEN
-        WRITE(ITAP06,*)' STEPPER| Finding steepest descent step. '
-      ENDIF
+      if (oprint_info) then
+         IF(TS)THEN
+            WRITE(ITAP06,*)'  Step sought for transition state. '
+         ELSE IF (OMIN) THEN
+            WRITE(ITAP06,*)'  Step sought for minimum. '
+         ELSE IF (STD) THEN
+            WRITE(ITAP06,*)'  Finding steepest descent step. '
+         ENDIF
+      endif
       IF ((NMODE.NE.0).AND..NOT.(TS.OR.STD)) THEN
-        WRITE(ITAP06,*)' STEPPER| keyword TS or STD required. '
-        call errquit('stepper:face fatal error',911)
+         WRITE(ITAP06,*)'  keyword TS or STD required. '
+         call errquit('stepper:face fatal error',911)
       ENDIF
       IF ((TS.OR.STD).AND.(NMODE.EQ.0)) THEN
-        NMODE = 1
+         NMODE = 1
       ENDIF
       IF (STD) THEN
-        TRACK = .TRUE.
+         TRACK = .TRUE.
       ENDIF
       IF (RPATH.AND.OMIN) THEN
-        RPATH = .FALSE.
-        WRITE(ITAP06,*)' STEPPER| Keyword RPATH ignored. '
+         RPATH = .FALSE.
+         WRITE(ITAP06,*)'  Keyword RPATH ignored. '
       ENDIF
-C
+C     
 C     Get constants from SUPERMOLECULE or set here.
-C
-C
+C     
+C     
 C     IWCTR = step counter.
-C
+C     
       IWCTR = IWCTR + 1
       step_number = iwctr
       if (step_number.ge.maxiter) step_number = -step_number
-C
+C     
 C     ICALC = order of derivatives.
-C
+C     
       ICALC = 1
       IF(RPATH.AND.(ICALC.NE.2)) THEN
-        RPATH = .FALSE.
-        WRITE(ITAP06,*)' STEPPER| Keyword RPATH ignored. '
+         RPATH = .FALSE.
+         WRITE(ITAP06,*)'  Keyword RPATH ignored. '
       ENDIF
       IF (SECO.AND.(IWCTR.GT.1)) THEN
-        SECO = .FALSE.
-        WRITE(6,*)' STEPPER| KEYWORD SECO IGNORED'
-      IF ((ICALC.EQ.1).AND.SECO) THEN
-        SECO = .FALSE.
-        WRITE(6,*)' STEPPER| KEYWORD SECO IGNORED'
-      ENDIF
+         SECO = .FALSE.
+         WRITE(6,*)'  KEYWORD SECO IGNORED'
+         IF ((ICALC.EQ.1).AND.SECO) THEN
+            SECO = .FALSE.
+            WRITE(6,*)'  KEYWORD SECO IGNORED'
+         ENDIF
       ENDIF
       IF ((ICALC.EQ.1).AND.SWFIR) THEN
-        SWFIR = .FALSE.
-        WRITE(6,*)' STEPPER| KEYWORD SWFIR IGNORED'
+         SWFIR = .FALSE.
+         WRITE(6,*)'  KEYWORD SWFIR IGNORED'
       ENDIF
       IF ((ICALC.EQ.2).AND.SWSEC) THEN
-        SWSEC = .FALSE.
-        WRITE(6,*)' STEPPER| KEYWORD SWSEC IGNORED'
+         SWSEC = .FALSE.
+         WRITE(6,*)'  KEYWORD SWSEC IGNORED'
       ENDIF
       IF((SECO.AND.SWSEC).OR.(SECO.AND.SWFIR).OR.
-     &(SWSEC.AND.SWFIR)) THEN
-        WRITE(6,*)' STEPPER| TOO MANY SWITCHING KEYWORDS'
-        call errquit('stepper:face fatal error',911)
+     &     (SWSEC.AND.SWFIR)) THEN
+         WRITE(6,*)'  TOO MANY SWITCHING KEYWORDS'
+         call errquit('stepper:face fatal error',911)
       ENDIF
-C
+C     
 C     Get energy.
-C
+C     
       ENERGY = ETOT
       CALL stpr_wlkchk(ETOT,CONVGE,BCKSTP)
       IF(BCKSTP)RETURN
-C
+C     
 C     Get coordinates.
-C
+C     
       DO 8 I = 1, 3
-        DO 7 N = 1, NATOM
-          COORD(I,N) = C(I,N)
-    7   CONTINUE
+         DO 7 N = 1, NATOM
+            COORD(I,N) = C(I,N)
+ 7       CONTINUE
     8 CONTINUE
-C
+C     
 C     Get gradients and if calculated, the analytic hessian.
-C
+C     
       DO 9 I = 1, NAT3
-        GRAD(I) = G(I)
+         GRAD(I) = G(I)
     9 CONTINUE
-*      write(6,*)' grad ',(grad(i), i=1,nat3)
+*     write(6,*)' grad ',(grad(i), i=1,nat3)
       IF (ICALC .EQ. 2) THEN
-        WRITE(6,*)' STEPPER| Second derivatives NOT available. '
-        call errquit('stepper:face fatal error',911)
-C
-C       Check to make sure it is symmetric
-C
-        CALL stpr_chkhess(HESS)
-C
-C       Construct triangular hessian.
-C
-        CALL stpr_mktri (HESS, HESS)
+         WRITE(6,*)'  Second derivatives NOT available. '
+         call errquit('stepper:face fatal error',911)
+C     
+C     Check to make sure it is symmetric
+C     
+         CALL stpr_chkhess(HESS)
+C     
+C     Construct triangular hessian.
+C     
+         CALL stpr_mktri (HESS, HESS)
       ELSEIF (ICALC .EQ. 1) THEN
-        WRITE(6,*)' STEPPER| Update Hessian used. '
+         if (oprint_info) then
+            WRITE(6,*)'  Update Hessian used. '
+         endif
       ELSE
-        WRITE(6,*)' STEPPER| Unknown calculation type. Program aborts. '
-        call errquit('stepper:face fatal error',911)
+         WRITE(6,*)'  Unknown calculation type. Program aborts. '
+         call errquit('stepper:face fatal error',911)
       END IF
       RETURN
       END

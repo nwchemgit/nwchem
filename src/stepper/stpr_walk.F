@@ -1,5 +1,5 @@
       logical function stpr_walk(prefix,rtdb)
-c $Id: stpr_walk.F,v 1.13 1995-01-30 21:04:43 og845 Exp $
+c $Id: stpr_walk.F,v 1.14 1995-03-31 01:45:46 d3g681 Exp $
       implicit none
 c
 #include "mafdecls.fh"
@@ -182,9 +182,24 @@ c..... set coordinates
 c
 c..... copy geom on rtdb with new name
 c
-        write(tmpname,'(i4)')abs(step_number)
-c                      123456789012345678
-        new_geom_name='g-'//tmpname//'-step'
+*        tmpname = ' '
+*        write(tmpname,'(i4)')abs(step_number)
+*        new_geom_name='g-'//tmpname//'-step'
+	new_geom_name = ' '
+        if (abs(step_number) .lt. 10) then
+           write(new_geom_name,'(''g-'',i1,''-step'')') 
+     $          abs(step_number)
+        else if (abs(step_number) .lt. 100) then
+           write(new_geom_name,'(''g-'',i2,''-step'')') 
+     $          abs(step_number)
+        else if (abs(step_number) .lt. 1000) then
+           write(new_geom_name,'(''g-'',i3,''-step'')') 
+     $          abs(step_number)
+        else
+           write(new_geom_name,'(''g-'',i4,''-step'')') 
+     $          abs(step_number)
+        endif
+
         if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &      call errquit
      &      ('stpr_walk: geom_rtdb_store (of copy) failed',911)

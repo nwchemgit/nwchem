@@ -1,5 +1,5 @@
       SUBROUTINE stpr_fndmde(STEP,SELECT,VC,NINTER,NAT3,NMODE)
-c $Id: stpr_fndmde.F,v 1.1 1994-10-26 23:26:07 d3e129 Exp $
+c $Id: stpr_fndmde.F,v 1.2 1995-03-31 01:45:28 d3g681 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL FIND
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
@@ -28,7 +28,7 @@ C
           DO 20 I = 1,NAT3
             SELECT(I) = SELECT(I)/SLNGTH
    20     CONTINUE
-          WRITE(6,*)' STEPPER| Normalized SELECT: '
+          WRITE(6,*)'  Normalized SELECT: '
 c          CALL stpr_matout(SELECT,3,NATOM,3)
           WRITE(6,1001)
           DO 30 I = 1,NATOM
@@ -44,7 +44,7 @@ C         basis) and dot the SELECT
 C         vector into these to determine maximum overlap ... this
 C         will define the vector being tracked.
 C
-          WRITE(6,*)' STEPPER| Tracking; overlaps of Hessian',
+          WRITE(6,*)'  Tracking; overlaps of Hessian',
      &          '  eigenvectors and "SELECT" vector. '
           OVRLPM = 0.0D0
           DO 60 J = 1,NINTER
@@ -67,7 +67,7 @@ C
 C       Read previous tracked mode and find current hessian
 C       eigenvector with maximum overlap.
 C
-        WRITE(6,*)' STEPPER| Tracking; overlaps of Hessian',
+        WRITE(6,*)'  Tracking; overlaps of Hessian',
      &            '  eigenvectors and previous mode. '
 #if defined(OPENCLOSE)
         OPEN (UNIT=ITAP44, FORM='UNFORMATTED',
@@ -109,7 +109,7 @@ C
       REWIND ITAP44
       WRITE(ITAP44)(VC(I,NMODE),I=1,NAT3)
 #endif
-      WRITE(6,*)' STEPPER| Eigenvector : ',NMODE,' written to disk. '
+      WRITE(6,*)'  Eigenvector : ',NMODE,' written to disk. '
       WRITE(6,1001)
       DO 90 I = 1,NATOM
         JSTART = 3*(I-1) + 1
@@ -118,8 +118,8 @@ C
    90 CONTINUE
 c      CALL stpr_matout(VC(1,NMODE),3,NATOM,3)
       RETURN
- 1001 FORMAT(' STEPPER| ATOM:',12x,'X',14x,'Y',14x,'Z')
- 1002 FORMAT(' STEPPER| ',I3,6X,3(1X,F14.10))
- 1000 FORMAT(' STEPPER| eigenvector: ',I2,' has overlap: ',F12.7)
- 1010 FORMAT(' STEPPER| eigenvector: ',I2,' defines NMODE ')
+ 1001 FORMAT('  ATOM:',12x,'X',14x,'Y',14x,'Z')
+ 1002 FORMAT('  ',I3,6X,3(1X,F14.10))
+ 1000 FORMAT('  eigenvector: ',I2,' has overlap: ',F12.7)
+ 1010 FORMAT('  eigenvector: ',I2,' defines NMODE ')
       END

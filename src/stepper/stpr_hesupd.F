@@ -1,5 +1,5 @@
       SUBROUTINE stpr_hesupd ( STEP, GRAD, HESIAN, SCR )
-c $Id: stpr_hesupd.F,v 1.1 1994-06-24 20:42:24 d3e129 Exp $
+c $Id: stpr_hesupd.F,v 1.2 1995-03-31 01:45:32 d3g681 Exp $
 C
 C     This subroutine updates the hessian using the hessian from the
 C     old geometry and the difference in the coordinates and
@@ -38,13 +38,13 @@ C
    20   CONTINUE
         IF (ABS(DM1) .LE. TOLER) THEN
           WRITE (ITAP06,1000) DM1
- 1000     FORMAT (' STEPPER| * ERROR * Dot product of STEP with',
+ 1000     FORMAT ('  * ERROR * Dot product of STEP with',
      &               '  GRAD = ',1PD12.4)
           call errquit('stepper:hesupd fatal error',911)
         ENDIF
         IF (ABS(DM2) .LE. TOLER) THEN
           WRITE (ITAP06,2000) DM2
- 2000     FORMAT (' STEPPER| * ERROR * STEP*HESIAN*STEP = ',1PD12.4)
+ 2000     FORMAT ('  * ERROR * STEP*HESIAN*STEP = ',1PD12.4)
           call errquit('stepper:hesupd fatal error',911)
         ENDIF
         DM1 = ONE/DM1
@@ -79,7 +79,7 @@ C
    60   CONTINUE
         IF (ABS(DM1) .LE. TOLER) THEN
           WRITE (ITAP06,3000) DM1
- 3000     FORMAT (' STEPPER| * ERROR * norm of step vector = ',
+ 3000     FORMAT ('  * ERROR * norm of step vector = ',
      &    1PD12.4)
           call errquit('stepper:hesupd fatal error',911)
         ENDIF
