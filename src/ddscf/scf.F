@@ -98,7 +98,7 @@ c
       integer geom, basis       ! handles
       logical converged
       logical status
-      character*255 name, title
+      character*255 name, title, trans
       double precision energy
       double precision charge
 c
@@ -130,8 +130,8 @@ c
      $     call errquit('scf: bas_create?', 0)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'mo basis'))
      $     call errquit('scf: no mo basis ', 0)
-      if (.not. bas_name(basis, 'mo basis', name))
-     $     name = 'mo basis'
+      if (.not. bas_name(basis, name, trans))
+     $     call errquit('scf: bas_name?', 0)
       if (name .eq. ' ') name = 'mo basis'
 c
 c     Figure output input/output MO vectors ... all this should be
