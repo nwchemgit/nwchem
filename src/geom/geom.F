@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.95 1999-10-26 21:24:04 mg201 Exp $
+C$Id: geom.F,v 1.96 1999-12-03 19:54:47 d3g681 Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -230,7 +230,7 @@ c     output to rtdb info about known geometries
 c     
       geom_rtdb_out  =
      $     rtdb_put(rtdb, 'geometry:ngeom', mt_int, 1, ngeom_rtdb)
-     $     .and.
+      geom_rtdb_out  =  geom_rtdb_out  .and.
      $     rtdb_cput(rtdb, 'geometry:names', ngeom_rtdb, names_rtdb)
       if (.not. geom_rtdb_out) 
      $     write(6,*) ' geom_rtdb_out: rtdb is corrupt '
@@ -981,6 +981,8 @@ c     delete each entry assoicated with a geometry in the database
 c     
          tmp = 'geometry:'//translation(1:lt)
          k = inp_strlen(tmp)
+         k = k + 1
+         tmp(k:k) = ':'
 c     
          status = rtdb_first(rtdb, test)
  20      if (status) then
