@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.10 2002-05-03 19:44:03 bylaska Exp $
+* $Id: cram.F,v 1.11 2002-06-06 00:15:21 bylaska Exp $
 *
 
 *     ***********************************
@@ -266,6 +266,53 @@
      >  call errquit('Cram_r_pack:error popping stack',0)
 
       call Balance_t_balance(nb,A)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	          Cram_i_pack	        *	
+*     *					*
+*     ***********************************
+
+      subroutine Cram_i_pack(nb,A)
+      implicit none
+      integer nb
+      integer A(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+      
+*     **** local variables ****
+      logical value
+      integer i,nfft3d
+      integer tmp1(2)
+      integer nidb,pack
+
+      call nwpw_timing_start(9)
+      nidb = int_mb(nidb_list(1)+nb)
+      pack = int_mb(pack_list(1)+2*nb)
+
+      call C3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not.value) 
+     >  call errquit('Cram_i_pack:out of stack memory',0)
+
+      call icopy(nfft3d,A,1,dbl_mb(tmp1(1)),1)
+      call icopy(nfft3d,0,0,A,1)
+      do i=1,(nidb)
+        A(i) = int_mb(tmp1(1) + int_mb(pack+i-1) - 1)
+      end do
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not.value) 
+     >  call errquit('Cram_i_pack:error popping stack',1)
+
+      call Balance_i_balance(nb,A)
 
       call nwpw_timing_end(9)
       return

@@ -1,5 +1,5 @@
 *
-* $Id: balance.F,v 1.3 2001-12-12 02:42:26 bylaska Exp $
+* $Id: balance.F,v 1.4 2002-06-06 00:15:21 bylaska Exp $
 *
 
 *     ***********************************
@@ -165,9 +165,9 @@
       end
 
 *     ***********************************
-*     *                 				*
-*     *           Balance_Init_a	    *
-*     *                 				*
+*     *                 		*
+*     *           Balance_Init_a	*
+*     *                 		*
 *     ***********************************
 *    This routine defines the balance data structure
 
@@ -373,6 +373,11 @@ c        ave = ave + nwave2(i)
       return
       end 
 
+*     ************************************
+*     *                                  *
+*     *         Balance_c_unbalance      *
+*     *                                  *
+*     ************************************
 
       subroutine Balance_c_balance(nb,A)
       implicit none
@@ -426,7 +431,11 @@ c            recieve data....
       end
 
 
-
+*     ************************************
+*     *                                  *
+*     *         Balance_t_unbalance      *
+*     *                                  *
+*     ************************************
 
       subroutine Balance_t_balance(nb,A)
       implicit none
@@ -481,7 +490,11 @@ c            recieve data....
       end
 
 
-
+*     ************************************
+*     *                                  *
+*     *         Balance_c_unbalance      *
+*     *                                  *
+*     ************************************
 
       subroutine Balance_c_unbalance(nb,A)
       implicit none
@@ -525,6 +538,64 @@ c            send data....
                call SND(9+MSGDBL,
      >                  A(indx),
      >                  mdtob(2*msglen),pto,1)
+            end if
+
+         end do
+      end if
+
+      return
+      end
+
+
+*     ************************************
+*     *                                  *
+*     *         Balance_i_balance        *
+*     *                                  *
+*     ************************************
+
+      subroutine Balance_i_balance(nb,A)
+      implicit none
+      integer nb
+      integer A(*)
+
+#include "mafdecls.fh"
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
+      integer  rcv_len,rcv_proc
+      integer j
+      integer pto,pfrom,msglen,indx
+
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            send data....
+            if (msglen.gt.0) then
+               call SND(9+MSGINT,
+     >                  A(indx),
+     >                  mitob(msglen),pto,1)
+            end if
+  
+
+         end do
+      end if
+
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)    
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            recieve data....
+            if (msglen.gt.0) then
+               call RCV(9+MSGINT,
+     >                  A(indx),
+     >                  mitob(msglen),rcv_len,
+     >                  pfrom,rcv_proc,1)
             end if
 
          end do

@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.4 2002-05-14 16:42:08 bylaska Exp $
+* $Id: psp.F,v 1.5 2002-06-06 00:15:22 bylaska Exp $
 *
 
 #define TCGMSG
@@ -751,7 +751,7 @@ c     integer    lmmax(nkatmx)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -780,9 +780,10 @@ c     integer    lmmax(nkatmx)
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(0,dcpl_mb(exi(1)))
-        
+c        call strfac(ii,dcpl_mb(exi(1)))
+c        call Pack_c_pack(0,dcpl_mb(exi(1)))
+        call strfac_pack(0,ii,dcpl_mb(exi(1)))
+       
 *       **** add to local psp ****
         call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                   dcpl_mb(exi(1)),
@@ -863,7 +864,7 @@ c     integer    lmmax(nkatmx)
       call nwpw_timing_start(5)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -891,9 +892,10 @@ c     integer    lmmax(nkatmx)
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(0,dcpl_mb(exi(1)))
-        
+c        call strfac(ii,dcpl_mb(exi(1)))
+c        call Pack_c_pack(0,dcpl_mb(exi(1)))
+        call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
 *       **** add to local psp ****
         call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
      >                   dcpl_mb(exi(1)),
@@ -990,7 +992,7 @@ c     integer    lmmax(nkatmx)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -1029,8 +1031,9 @@ c     integer    lmmax(nkatmx)
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(1,dcpl_mb(exi(1)))
+c        call strfac(ii,dcpl_mb(exi(1)))
+c        call Pack_c_pack(1,dcpl_mb(exi(1)))
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
 *       **** generate sw1's ****
         do l=1,int_mb(lmmax(1)+ia-1)
@@ -1221,7 +1224,7 @@ c     integer    lmmax(nkatmx)
       nn = ne(1)+ne(2)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
@@ -1255,8 +1258,9 @@ c     integer    lmmax(nkatmx)
         ia=ion_katm(ii)
 
 *       **** structure factor and local pseudopotential ****
-        call strfac(ii,dcpl_mb(exi(1)))
-        call Pack_c_pack(1,dcpl_mb(exi(1)))
+c        call strfac(ii,dcpl_mb(exi(1)))
+c        call Pack_c_pack(1,dcpl_mb(exi(1)))
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
         do l=1,int_mb(lmmax(1)+ia-1)
 

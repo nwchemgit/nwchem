@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.17 2002-05-18 16:29:36 bylaska Exp $
+* $Id: psi.F,v 1.18 2002-06-06 00:15:22 bylaska Exp $
 *
 
 *     ***************************
@@ -756,6 +756,77 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************
 *     *					*
+*     *		psi_1check_Tangent      *
+*     *					*
+*     ***********************************
+*
+*   This routine checks the accuracy of the tangent vector.
+*   MM = Yt*H = Yt*(I-Y*Yt)*G = Yt*G - Yt*Y*Yt*G = Yt*G - Yt*G == 0
+
+*     Updated - 5-18-2002
+*
+      subroutine psi_1check_Tangent(H)
+      implicit none
+      complex*16 H(*)
+
+#include "mafdecls.fh"
+*     ***** psi common block ****
+      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer psi1(2)
+      integer psi2(2)
+
+      integer rho1(2)
+      integer rho2(2)
+      integer dng1(2)
+      integer dng2(2)
+      integer hml(2)
+      integer eig(2)
+      common / psi_block / psi1,psi2,rho1,rho2,dng1,dng2,
+     >                     hml,eig,ne,ispin,nfft3d,npack1,npack0
+
+*     **** local variables ****
+      logical value
+      integer ms,n,indx,i,j
+      integer MM(2)
+
+      do ms=1,ispin      
+         n = ne(ms)
+         if (n.eq.0) go to 101  !*** ferromagnetic check ***
+         value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
+         if (.not. value) 
+     >   call errquit('out of stack memory in psi_1check_Tangent',0)
+
+         indx = (ms-1)*ne(1)*npack1
+
+*        **** calculate MM = Yt*H ****
+         call Grsm_ggm_dot(npack1,n,
+     >                     dcpl_mb(psi1(1)+indx),
+     >                     H(1+indx),
+     >                     dbl_mb(MM(1)))
+
+*        **** write out MM matrix  ****
+         do j=1,n
+         do i=1,n
+            indx = i+(j-1)*n
+         end do
+         end do
+            
+
+
+         value = MA_pop_stack(MM(2))
+         if (.not. value) 
+     >    call errquit(
+     >         'error popping stack memory in psi_1check_Tangent',0)
+
+ 101     continue
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
 *     *		psi_1get_Tgradient	*
 *     *					*
 *     ***********************************
@@ -981,7 +1052,6 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8   electron_energy
       external electron_energy
 
-
       if (option.le.1) then
         call electron_run(dcpl_mb(psi2(1)),
      >                    dbl_mb(rho2(1)),
@@ -1001,9 +1071,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
-*     *									*
-*     *		psi_1ke_Precondition		*
-*     *									*
+*     *					*
+*     *		psi_1ke_Precondition	*
+*     *					*
 *     ***********************************
       subroutine psi_1ke_Precondition(Hpsi)
       implicit none

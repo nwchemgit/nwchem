@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.4 2002-01-12 00:50:16 bylaska Exp $
+* $Id: strfac.F,v 1.5 2002-06-06 00:15:21 bylaska Exp $
 *
 
 *     ***********************************
@@ -14,28 +14,70 @@
 #include "mafdecls.fh"
 #include "strfac_common.fh"
 
-      integer nion,nx,ny,nz
+      integer nion,nx,ny,nz,nxh,nfft3d
+      integer i,j,k,p,q,index,nb,taskid
       logical value
 
 *     ***** external functions ****
       integer  ion_nion
       external ion_nion
 
+      call Parallel_taskid(taskid)
+
+*     **** allocate phase factors ****
       nion = ion_nion()
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
-       
-
+      nxh = nx/2
+    
       value = MA_alloc_get(mt_dcpl,(nx*nion),'ex1',ex1(2),ex1(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(ny*nion),'ex2',ex2(2),ex2(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) 
+     >  call errquit('strfac_init:out of heap memory',0)
+
+*     **** allocate indx blocks ****
+      do nb=0,1
+        call D3dB_nfft3d(1,nfft3d)
+        value = MA_alloc_get(mt_int,nfft3d,'i_indx0',
+     >                     i_indx(2,nb),i_indx(1,nb))
+        value = value.and.
+     >          MA_alloc_get(mt_int,nfft3d,'j_indx0',
+     >                     j_indx(2,nb),j_indx(1,nb))
+        value = value.and.
+     >          MA_alloc_get(mt_int,nfft3d,'k_indx0',
+     >                     k_indx(2,nb),k_indx(1,nb))
+        if (.not. value) 
+     >  call errquit('strfac_init:out of heap memory',nb+1)
+
+        do k=0,nz-1
+         call D3dB_ktoqp(1,(k+1),q,p)
+         if (p.eq.taskid) then
+            do j=0,ny-1
+            do i=0,nxh
+              index = (q-1)*(nxh+1)*ny
+     >              + j*(nxh+1)
+     >              + i+1
+              int_mb(i_indx(1,nb)+index-1) = i
+              int_mb(j_indx(1,nb)+index-1) = j
+              int_mb(k_indx(1,nb)+index-1) = k
+            end do
+            end do
+         end if
+        end do
+        write(*,*) "strfac_init 1, nb:",nb
+        call Pack_i_pack(nb,int_mb(i_indx(1,nb)))
+        call Pack_i_pack(nb,int_mb(j_indx(1,nb)))
+        call Pack_i_pack(nb,int_mb(k_indx(1,nb)))
+        write(*,*) "strfac_init 2, nb:",nb
+      end do
 
       return
       end
+
 
 C     ***********************************
 C     *					*
@@ -50,11 +92,22 @@ C     ***********************************
 #include "strfac_common.fh"
 
       logical value
+      integer nb
 
       value = MA_free_heap(ex1(2))
-      value = MA_free_heap(ex2(2))
-      value = MA_free_heap(ex3(2))
-       
+      value = value.and.MA_free_heap(ex2(2))
+      value = value.and.MA_free_heap(ex3(2))
+      if (.not. value) 
+     >  call errquit('strfac_end:error freeing heap memory',0)
+
+      do nb=0,1
+         value = MA_free_heap(i_indx(2,nb))
+         value = value.and.MA_free_heap(j_indx(2,nb))
+         value = value.and.MA_free_heap(k_indx(2,nb))
+         if (.not. value) 
+     >   call errquit('strfac_end:error freeing heap memory',nb)
+      end do
+
       return
       end
 
@@ -309,7 +362,7 @@ C
       call D3dB_nz(1,nz)
       nxh=nx/2
 
-*::::::::::::::::  structure factor ::::::::::::::::::::::::::::::::
+*     **** structure factor ****
       do k=0,nz-1
          call D3dB_ktoqp(1,(k+1),q,p)
          if (p.eq.taskid) then
@@ -328,6 +381,60 @@ C
 
       call nwpw_timing_end(8)
 
+
+      return
+      end
+
+
+
+
+C      **********************************
+C      *				*
+C      *	  strfac_pack 		*
+C      *				*
+C      **********************************
+C
+C 	This routine returns the structure factor, EXI, for
+C  a specified ion I.
+C
+C	Entry - nb:
+c               II: the Ion index 
+C	Exit  - EXI: the structure factor
+C
+C
+      subroutine strfac_pack(nb,II,exi)
+      implicit none
+      integer    nb
+      integer    II
+      complex*16 exi(*)
+
+#include "mafdecls.fh"
+#include "strfac_common.fh"
+   
+*     **** local variables ****
+      integer i,j,k,index,npack
+      integer nx,ny,nz
+
+      call nwpw_timing_start(8)
+
+      call Pack_npack(nb,npack)      
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+
+     
+*     **** structure factor in packed space ****
+      do index=1,npack
+        i = int_mb(i_indx(1,nb)+index-1)
+        j = int_mb(j_indx(1,nb)+index-1)
+        k = int_mb(k_indx(1,nb)+index-1)
+      
+        exi(index) = dcpl_mb(ex1(1)+i+(II-1)*nx)
+     >             * dcpl_mb(ex2(1)+j+(II-1)*ny)
+     >             * dcpl_mb(ex3(1)+k+(II-1)*nz)
+      end do
+
+      call nwpw_timing_end(8)
 
       return
       end

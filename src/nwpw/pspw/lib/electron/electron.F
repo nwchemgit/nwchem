@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.8 2002-01-28 19:38:00 bylaska Exp $
+* $Id: electron.F,v 1.9 2002-06-06 00:15:21 bylaska Exp $
 *
 
 
@@ -138,9 +138,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *		electron_run				*
-*     *									*
+*     *					*
+*     *		electron_run		*
+*     *					*
 *     ***********************************
       subroutine electron_run(psi_k,dn,dng,dnall)
       implicit none
@@ -165,9 +165,9 @@
 
 
 *     ***********************************
-*     *									*
-*     *		electron_sd_update  		*
-*     *									*
+*     *					*
+*     *		electron_sd_update  	*
+*     *					*
 *     ***********************************
       subroutine electron_sd_update(psi1,psi2,dte)
       implicit none

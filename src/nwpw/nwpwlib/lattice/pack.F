@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.6 2002-05-14 07:56:21 bylaska Exp $
+* $Id: pack.F,v 1.7 2002-06-06 00:15:21 bylaska Exp $
 *
 
 
@@ -280,6 +280,59 @@
 
       return
       end
+
+
+*     ***********************************
+*     *					*
+*     *	          Pack_i_pack		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_i_pack(nb,A)
+      implicit none
+      integer    nb
+      integer    A(*)
+
+#include "mafdecls.fh"
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb2(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:1)
+      common / pack2_blk / nidb
+
+      
+*     **** local variables ****
+      logical value
+      integer i,nfft3d
+      integer tmp1(2)
+
+      call nwpw_timing_start(9)
+
+      call D3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not.value) call errquit('out of stack memory',0)
+
+      call icopy(nfft3d,A,1,int_mb(tmp1(1)),1)
+      call icopy(nfft3d,0,0,A,1)
+
+      do i=1,(nida(nb)+nidb(nb))
+        A(i) = int_mb(tmp1(1) + int_mb(pack(1,nb)+i-1)-1)
+      end do
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not.value) call errquit('error popping stack',0)
+
+
+      call Balance_i_balance(nb,A)
+
+      call nwpw_timing_end(9)
+
+      return
+      end
+
+
 
 
 *     ***********************************
