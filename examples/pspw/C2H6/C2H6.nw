@@ -159,7 +159,7 @@ task cg_pspw freq
 
 PSPW
    WAVEFUNCTION_EXPANDER
-      new_grid: 48 48 48
+      new_ngrid: 48 48 48
    END
 END
 task pspw wavefunction_expander
