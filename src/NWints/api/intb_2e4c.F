@@ -1,7 +1,7 @@
       logical function intb_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &    num_q, zerotol, canonicalize, ilab, jlab, klab, llab, eri,
      &    l_erilab, nint, lscr, scr)
-* $Id: intb_2e4c.F,v 1.2 1995-10-30 20:53:41 d3e129 Exp $
+* $Id: intb_2e4c.F,v 1.3 1995-10-31 09:25:59 d3e129 Exp $
       implicit none
 #include "numb_qP.fh"
 #include "basP.fh"
@@ -44,7 +44,7 @@ c
       intb_2e4c = .true.
 *.... using texas
       status = .true.
-      status = bra .eq. ket .and. status
+      status = (bra .eq. ket) .and. status
       do i_q = num_q_start,(num_q_start+10)
         status = status.and. (cando_txs(brain,icl(i_q),jcl(i_q)))
         status = status.and. (cando_txs(ketin,kcl(i_q),lcl(i_q)))
@@ -57,7 +57,7 @@ c
 *rak:        if (.not.status) goto 00001
 *rak:      enddo
       call dfill(3,0.0d00,roff,1)
-      call texas_hf2_m(icl,jcl,kcl,lcl,num_q,
+      call texas_hf2_m(brain,icl,jcl,ketin,kcl,lcl,num_q,
      $     roff,roff,roff,roff,.false.,
      $     eri,l_erilab, ilab, jlab, klab, llab, nint, .true.,
      &    more_ints_txs, scr, lscr)

@@ -1,7 +1,7 @@
       subroutine int_l2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       zerotol, canonicalize, leri, eri, nint, ilab, jlab, klab,
      &       llab, lscr, scr)
-c $Id: int_l2e4c.F,v 1.10 1995-10-30 20:53:39 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.11 1995-10-31 09:25:58 d3e129 Exp $
       implicit none
 #include "bas.fh"
 #include "basP.fh"
@@ -85,7 +85,7 @@ c
         num_quart = 1
         dum_log_f = .false.
         dum_log_t = .true.
-        call texas_hf2_m (ish, jsh, ksh, lsh, num_quart,
+        call texas_hf2_m (brain, ish, jsh, ketin, ksh, lsh, num_quart,
      &      roff, roff, roff, roff, dum_log_f,
      &      eri, leri,
      &      ilab, jlab, klab, llab, nint, dum_log_t,
