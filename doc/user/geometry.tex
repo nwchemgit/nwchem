@@ -23,7 +23,8 @@ and complicated when presented in its general form, as follows:
     [SYMMETRY [group] <string group_name> [print] \
            [tol <real tol default 1d-2>]]
 
-    <string tag> <real x y z> [charge <real charge>] [mass <real mass>] [finite]
+    <string tag> <real x y z> [vx vy vz] [charge <real charge>] \
+           [mass <real mass>] [finite]
     ... ]
 
     [ZMATRIX || ZMT || ZMAT
@@ -273,7 +274,7 @@ appeared above (e.g, Section \ref{sec:realsample}). Each center
 (usually an atom) is identified on a line of the following form:
 \begin{verbatim}
 
-    <string tag> <real x y z> \
+    <string tag> <real x y z> [vx vy vz] \
         [charge <real charge>] [mass <real mass>] [nucleus <string nucmodel>]
 
 \end{verbatim}
@@ -327,6 +328,11 @@ real numbers supplied for the variables \verb+x+, \verb+y+, and
 supplied for the coordinates must be in the units specified by the
 value of the variable \verb+<units>+ on the first line of the
 \verb+GEOMETRY+ directive input.
+
+After the Cartesian coordinate input, optional velocities may be 
+entered as real numbers for the variables \verb+vx+, \verb+vy+, and 
+\verb+vz+.  The velocities should be given in atomic units and are 
+used in QMD and PSPW calculations.
 
 The Cartesian coordinate input line also contains the optional keywords
 \verb+charge+, \verb+mass+ and \verb+nucleus+, which allow the user to
