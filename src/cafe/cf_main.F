@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.99 2001-08-01 16:45:11 d3j191 Exp $
+c $Id: cf_main.F,v 1.100 2001-08-01 17:16:08 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -783,11 +783,11 @@ c
       prx(1,1)=(two*ekc(1,1)-z(1,1))/(three*volume*avoga)
       prx(2,1)=(two*ekc(2,1)-z(2,1))/(three*volume*avoga)
       prx(3,1)=(two*ekc(3,1)-z(3,1))/(three*volume*avoga)
-      prx(1,2)=(two*ekc(1,2)-z(2,2))/(three*volume*avoga)
+      prx(1,2)=(two*ekc(1,2)-z(1,2))/(three*volume*avoga)
       prx(2,2)=(two*ekc(2,2)-z(2,2))/(three*volume*avoga)
-      prx(3,2)=(two*ekc(3,2)-z(2,2))/(three*volume*avoga)
-      prx(1,3)=(two*ekc(1,3)-z(3,3))/(three*volume*avoga)
-      prx(2,3)=(two*ekc(2,3)-z(3,3))/(three*volume*avoga)
+      prx(3,2)=(two*ekc(3,2)-z(3,2))/(three*volume*avoga)
+      prx(1,3)=(two*ekc(1,3)-z(1,3))/(three*volume*avoga)
+      prx(2,3)=(two*ekc(2,3)-z(2,3))/(three*volume*avoga)
       prx(3,3)=(two*ekc(3,3)-z(3,3))/(three*volume*avoga)
       endif
 c
