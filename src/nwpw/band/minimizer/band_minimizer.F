@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.35 2004-11-29 16:22:59 bylaska Exp $
+* $Id: band_minimizer.F,v 1.36 2005-02-09 02:38:48 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -204,7 +204,7 @@ c      external      cpsp_comment
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      IF (control_gga().eq.1) THEN
+      IF ((control_gga().eq.1).or.(control_gga().eq.2)) THEN
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()
@@ -284,6 +284,9 @@ c      external      cpsp_comment
          ELSE IF (control_gga().eq.1) THEN
             write(luout,1131)
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(luout,1131)
+     >      'BLYP (White and Bird) parameterization'
          ELSE
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
@@ -498,7 +501,7 @@ c           write(luout,1154) cpsp_nprj(ia)
       call ion_end()
       call ion_end_FixIon()
       call C3dB_end(1)
-      IF (control_gga().eq.1) THEN
+      IF ((control_gga().eq.1).or.(control_gga().eq.2)) THEN
       call mask_end()
       call G_end()
       call D3dB_end(1)
