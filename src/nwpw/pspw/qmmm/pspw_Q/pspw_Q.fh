@@ -1,3 +1,7 @@
+c
+c $Id: pspw_Q.fh,v 1.4 2001-11-01 16:37:13 bylaska Exp $
+c
+
 *     ***** pspw_Q common block ****************************************
       integer q_mm(2)
       integer q_ion(2)

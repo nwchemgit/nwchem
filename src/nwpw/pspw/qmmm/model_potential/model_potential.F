@@ -1,3 +1,7 @@
+c
+c $Id: model_potential.F,v 1.2 2001-11-01 16:37:09 bylaska Exp $
+c
+
 *     **********************************
 *     *	                               *
 *     *    Model_Potential_init        *

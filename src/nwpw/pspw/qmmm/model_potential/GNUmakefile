@@ -1,7 +1,6 @@
-
-# $Id: GNUmakefile,v 1.2 2001-10-31 17:33:35 bylaska Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
+# $Id: GNUmakefile,v 1.3 2001-11-01 16:37:08 bylaska Exp $
+#
  OBJ_OPTIMIZE = \
                 model_potential.o 
 

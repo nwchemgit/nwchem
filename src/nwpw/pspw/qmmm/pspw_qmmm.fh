@@ -1,3 +1,6 @@
+c
+c $Id: pspw_qmmm.fh,v 1.5 2001-11-01 16:37:06 bylaska Exp $
+c
 
 *     ***** pspw_qmmm common block ************************************
       real*8 ekw,ekw_total
