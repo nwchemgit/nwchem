@@ -1,4 +1,4 @@
-c $Id: intd_1eso.F,v 1.1 1999-09-27 21:55:47 windus Exp $
+c $Id: intd_1eso.F,v 1.2 2000-04-18 16:37:26 edo Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1eso}
@@ -120,7 +120,7 @@ c
      &         coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &         dbl_mb(mb_exndcf(j_icfp,jbas)),
      &         j_prim, j_gen, Lj, j_cent,
-     &         SO, lso, scr,lscr,.false.) ! false>dryrun
+     &         SO, lso, nat,scr,lscr,.false.) ! false>dryrun
       else
         call errquit('intd_1eso: could not do nw integrals',0)
       endif

@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.4 1999-12-30 22:07:50 mg201 Exp $	
+#	$Id: MakeFile,v 1.5 2000-04-18 16:37:26 edo Exp $	
 #
 
 !MESSAGE *** Unresolved issues in this nmake file ***
@@ -78,6 +78,7 @@ OBJ =          $(OBJDIR)\cando_sp.obj \
                $(OBJDIR)\int_1epvpe.obj \
                $(OBJDIR)\int_1epxvpe.obj \
                $(OBJDIR)\int_1er.obj \
+               $(OBJDIR)\intd_1eso.obj \
                $(OBJDIR)\intso_1e.obj
 
 OBJ_OLD =      $(OBJDIR)\cando_sp.obj \
