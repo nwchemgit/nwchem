@@ -102,107 +102,29 @@ most UNIX workstations type
 \begin{verbatim}
   nwchem n2
 \end{verbatim}
-Subsequent sections provide more detailed information about the input
-and running jobs on specific platforms.
 
-\subsection{NWChem Architecture}
-\label{sec:arch}
+Let's have a closer look at he above input (the structure will be
+described in more detail in the following section). It contains only a
+neccessary amount of information, as NWChem will use default values
+for most input parameters.
 
-The high-level design of NWChem is still evolving and will undergo
-substantial modification in the coming months.  The following features
-can, however, be expected to be present in subsequent versions.
+The title is only used to give the user a means to identify
+outputs from different jobs quickly.
 
-NWChem consists of independent modules (e.g., input, SCF, RIMP2) that
-communicate through a database (similar in spirit to the GAMESS
-dumpfile or the Gaussian checkpoint file).  The only way modules can
-share data is via the database, or via files whose names are stored in
-the database (which may have default values).  Everything stored
-directly in the database comprises a typed array described by
-\begin{enumerate}
-\item a name which is a simple string of ASCII characters (e.g., 
-      \verb+"reference energies"+),
-\item the type of the data (real, integer, logical, or character), 
-\item the number of data items, and
-\item the actual data (an array of items of the specified type).
-\end{enumerate}
+The input geometry is generally given in cartesian coordinates (for
+Z-matrix inputs, see section \ref{Z-matrix}), and, if no further
+information is given, in atomic units (Bohr). 
 
-The input module provides the \verb+SET+ directive (section
-\ref{sec:set}) which stores data directly into the database.  For
-instance, the directive
-\begin{verbatim}
-  set "reference energies" real 0 1 -76.2
-\end{verbatim}
-stores a real (64 bit precision) array of three elements with the
-given values into the database.  The number of data items is automatically
-inferred from the input line.
+The basis input block is structured like the geometry block (keyword,
+..., end) and contains basis set information for every atom type in
+the geometry. In this case a default basis set from the library is
+chosen (see sections appendix A and section \ref{sec:basis} for a list of
+available basis sets or how to define your own).
 
-Objects more complex than simple arrays (e.g., a description of a
-basis set, or the history of a geometry optimization) are built up by
-providing a set of routines that manage the data associated with named
-instances of these objects.  This is done by internally establishing
-some policy about how to name quantities associated with an object.
-Current examples of this include the basis and geometry objects.  In
-this fashion multiple instances of such objects can be stored with
-different names in the same database without confusion.  E.g., the
-input
-\begin{verbatim}
-  geometry "test water geometry"
-    O     0.00000000    0.00000000    0.00000000
-    H     0.00000000    1.43042809   -1.10715266
-    H     0.00000000   -1.43042809   -1.10715266
-  end
-\end{verbatim}
-stores the geometry of water into the database with the name 
-\verb+"test water geometry"+.  If the name \verb+"test water geometry"+
-was not specified then the default name of \verb+"geometry"+ would
-have been adopted.  What is actually stored in the database is a whole
-load of stuff.  For example, for a geometry with the default name
-\verb+"geometry"+:
-\begin{verbatim}
- Contents of RTDB h2o.db
- -----------------------
-
- Entry                                   Type[nelem]
- ---------------------------  ----------------------
- geometry:geometry:efield              double[3]    
- geometry:geometry:coords              double[9]    
- geometry:names                          char[10]   
- geometry:geometry:ncenter                int[1]    
- geometry:ngeom                           int[1]    
- geometry:geometry:charges             double[3]    
- geometry:geometry:tags                  char[6]
- ...
-\end{verbatim}
-There is no need to be aware of this level of detail (which is subject
-to change) unless you have some, hopefully, very unusual problems.
-
-\sloppy
-
-Most of the computational modules require a geometry with name
-\verb+"geometry"+.  The input
-\begin{verbatim}
-  set geometry "my water geometry"
-\end{verbatim}
-makes an entry in the database that associates the name
-\verb+"geometry"+ with the value \verb+"my water geometry"+.  The
-computer code for the geometry ``object'', when asked to load a geometry
-with name \verb+"geometry"+, will first attempt to translate the name
-before actually attempting to load the geometry.  The basis set object
-functions in an identical fashion and it is intended that all such
-objects will do so.  What will change in the future is the naming
-conventions and mechanisms of associating data with specific modules
-or tasks.
-
-\fussy
-
-The database is persistent and nearly all input is permanently stored.
-This makes the input for restart jobs very simple since very little
-data must be provided.  It also makes the behaviour of successive
-restart jobs {\em identical} to that of multiple tasks within one job.
-However, sometimes this persistence is undesirable and in order to
-return an NWChem module to its default (input-free) behaviour the
-\verb+UNSET+ directive (\ref{sec:unset}) can be used to delete all
-database entries associated with a given module.
+The last line ({\tt task scf optimize})
+tells the program what to calculate with the information given so
+far. For a description of possible tasks and the format of the input
+see section \ref{sec:task}.
 
 \subsection{Input format}
 
@@ -329,3 +251,103 @@ NWChem.  If no input file name is provided, then the default name of
 \verb+"nwchem.nw+ is used.  If the file cannot be located, then
 \verb+".nw"+ is appended to the name.  If the file can sill not be
 located, then an error is reported.
+
+\subsection{NWChem Architecture}
+\label{sec:arch}
+
+The high-level design of NWChem is still evolving and will undergo
+substantial modification in the coming months.  The following features
+can, however, be expected to be present in subsequent versions.
+
+NWChem consists of independent modules (e.g., input, SCF, RIMP2) that
+communicate through a database (similar in spirit to the GAMESS
+dumpfile or the Gaussian checkpoint file).  The only way modules can
+share data is via the database, or via files whose names are stored in
+the database (which may have default values).  Everything stored
+directly in the database comprises a typed array described by
+\begin{enumerate}
+\item a name which is a simple string of ASCII characters (e.g., 
+      \verb+"reference energies"+),
+\item the type of the data (real, integer, logical, or character), 
+\item the number of data items, and
+\item the actual data (an array of items of the specified type).
+\end{enumerate}
+
+The input module provides the \verb+SET+ directive (section
+\ref{sec:set}) which stores data directly into the database.  For
+instance, the directive
+\begin{verbatim}
+  set "reference energies" real 0 1 -76.2
+\end{verbatim}
+stores a real (64 bit precision) array of three elements with the
+given values into the database.  The number of data items is automatically
+inferred from the input line.
+
+Objects more complex than simple arrays (e.g., a description of a
+basis set, or the history of a geometry optimization) are built up by
+providing a set of routines that manage the data associated with named
+instances of these objects.  This is done by internally establishing
+some policy about how to name quantities associated with an object.
+Current examples of this include the basis and geometry objects.  In
+this fashion multiple instances of such objects can be stored with
+different names in the same database without confusion.  E.g., the
+input
+\begin{verbatim}
+  geometry "test water geometry"
+    O     0.00000000    0.00000000    0.00000000
+    H     0.00000000    1.43042809   -1.10715266
+    H     0.00000000   -1.43042809   -1.10715266
+  end
+\end{verbatim}
+stores the geometry of water into the database with the name 
+\verb+"test water geometry"+.  If the name \verb+"test water geometry"+
+was not specified then the default name of \verb+"geometry"+ would
+have been adopted.  What is actually stored in the database is a whole
+load of stuff.  For example, for a geometry with the default name
+\verb+"geometry"+:
+\begin{verbatim}
+ Contents of RTDB h2o.db
+ -----------------------
+
+ Entry                                   Type[nelem]
+ ---------------------------  ----------------------
+ geometry:geometry:efield              double[3]    
+ geometry:geometry:coords              double[9]    
+ geometry:names                          char[10]   
+ geometry:geometry:ncenter                int[1]    
+ geometry:ngeom                           int[1]    
+ geometry:geometry:charges             double[3]    
+ geometry:geometry:tags                  char[6]
+ ...
+\end{verbatim}
+There is no need to be aware of this level of detail (which is subject
+to change) unless you have some, hopefully, very unusual problems.
+
+\sloppy
+
+Most of the computational modules require a geometry with name
+\verb+"geometry"+.  The input
+\begin{verbatim}
+  set geometry "my water geometry"
+\end{verbatim}
+makes an entry in the database that associates the name
+\verb+"geometry"+ with the value \verb+"my water geometry"+.  The
+computer code for the geometry ``object'', when asked to load a geometry
+with name \verb+"geometry"+, will first attempt to translate the name
+before actually attempting to load the geometry.  The basis set object
+functions in an identical fashion and it is intended that all such
+objects will do so.  What will change in the future is the naming
+conventions and mechanisms of associating data with specific modules
+or tasks.
+
+\fussy
+
+The database is persistent and nearly all input is permanently stored.
+This makes the input for restart jobs very simple since very little
+data must be provided.  It also makes the behaviour of successive
+restart jobs {\em identical} to that of multiple tasks within one job.
+However, sometimes this persistence is undesirable and in order to
+return an NWChem module to its default (input-free) behaviour the
+\verb+UNSET+ directive (\ref{sec:unset}) can be used to delete all
+database entries associated with a given module.
+
