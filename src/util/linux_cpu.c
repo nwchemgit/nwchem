@@ -1,15 +1,17 @@
 /*
- $Id: linux_cpu.c,v 1.3 1999-11-30 01:51:42 edo Exp $
+ $Id: linux_cpu.c,v 1.4 1999-11-30 21:37:04 edo Exp $
  */
 
-#include <sys/times.h>
-#include <time.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <unistd.h>
+#include <stdio.h>
 
 double linux_cputime_(void)
 {
-  struct tms cput;
+  struct rusage rusage_out;
 
-  (void) times(&cput);
+   (void) getrusage (RUSAGE_SELF, &rusage_out);
 
-  return ((clock_t) cput.tms_utime) / ((double) CLK_TCK);
+  return ((double)rusage_out.ru_utime.tv_usec* 1E-6 + (double)(rusage_out.ru_utime.tv_sec));
 }
