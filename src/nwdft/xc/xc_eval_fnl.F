@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd)
 c
-c     $Id: xc_eval_fnl.F,v 1.9 1999-03-04 14:18:57 bjohnson Exp $
+c     $Id: xc_eval_fnl.F,v 1.10 1999-06-09 23:59:22 edo Exp $
 c
       implicit none
 c
@@ -232,7 +232,16 @@ c
          else
             call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
          endif
-       endif
+      endif
+      if (abs(xfac(8)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_gill96(tol_rho, xfac(8), lxfac(8), nlxfac(8), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call errquit('xc_eval_fnl: 2nd derivs not coded yet',0)
+         endif
+      endif
 c     
 c     Combine with quadrature weights
 c
