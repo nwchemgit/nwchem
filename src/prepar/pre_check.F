@@ -2,7 +2,7 @@
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_check.F,v 1.11 1999-07-12 20:23:53 d3j191 Exp $
+c $Id: pre_check.F,v 1.12 1999-07-14 22:16:15 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
 c     check the atom types
 c     --------------------
 c
- 1000 format(/,'Undetermined force field parameters',/)
+ 1000 format(/,' Undetermined force field parameters',/)
 c
       do 1 i=1,natt
       if(latt(1,i).le.0) then
@@ -32,7 +32,7 @@ c
       if(util_print('topology',print_none)) then
       if(pre_check) write(lfnout,1000)
       write(lfnout,1001) catt(1,i)
- 1001 format('Parameters could not be found for atom type     ',
+ 1001 format(' Parameters could not be found for atom type     ',
      + a6)
       endif
       pre_check=.false.
@@ -68,7 +68,7 @@ c
       write(lfnout,1002)
      + catm(1+j,lbnd(1,i)),catm(1+j,lbnd(2,i)),
      + catm(1,lbnd(1,i)),catm(1,lbnd(2,i))
- 1002 format('Parameters could not be found for bond type     ',
+ 1002 format(' Parameters could not be found for bond type     ',
      + a6,'-',a6,' (',a6,'-',a6,')')
       endif
       pre_check=.false. 
@@ -107,7 +107,7 @@ c
       write(lfnout,1003)
      + catm(1+j,lang(1,i)),catm(1+j,lang(2,i)),catm(1+j,lang(3,i)),
      + catm(1,lang(1,i)),catm(1,lang(2,i)),catm(1,lang(3,i))
- 1003 format('Parameters could not be found for angle type    ',
+ 1003 format(' Parameters could not be found for angle type    ',
      + a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,')')
       endif
       pre_check=.false. 
@@ -150,7 +150,7 @@ c
       write(lfnout,1004) catm(1+j,ldih(1,i)),catm(1+j,ldih(2,i)),
      + catm(1+j,ldih(3,i)),catm(1+j,ldih(4,i)),catm(1,ldih(1,i)),
      + catm(1,ldih(2,i)),catm(1,ldih(3,i)),catm(1,ldih(4,i))
- 1004 format('Parameters could not be found for dihedral type ',
+ 1004 format(' Parameters could not be found for dihedral type ',
      + a6,'-',a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,'-',a6,')')
       endif
       pre_check=.false. 
@@ -212,7 +212,7 @@ c
      + catm(1,limp(1,i)),catm(1,limp(2,i)),
      + catm(1,limp(3,i)),catm(1,limp(4,i))
       endif
- 1005 format('Parameters could not be found for improper type ',
+ 1005 format(' Parameters could not be found for improper type ',
      + a6,'-',a6,'-',a6,'-',a6,' (',a6,'-',a6,'-',a6,'-',a6,')')
       endif
       pre_check=.false.

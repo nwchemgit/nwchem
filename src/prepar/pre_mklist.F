@@ -9,7 +9,7 @@
      + limp,rimp,mimp,nimp,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.20 1999-05-10 22:38:03 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.21 1999-07-14 22:16:16 d3j191 Exp $
 c
       implicit none
 c
@@ -50,6 +50,7 @@ c
       integer i,j,k,l,link1,link2,isgm,jsgm,nb,na,nd,ni,nn,iatm,ia(10)
       integer no,ndi,ltemp,igrp,ipgrp,nia(3)
       real*8 rtemp
+      character*4 atl1,atl2
       character*255 filsgm
 c
       igrp=0
@@ -161,16 +162,29 @@ c
 c     test if bonding allowed when non-forced link
 c
       if(latm(3,link1).eq.0.or.latm(3,link2).eq.0) then
+      atl1=clnk(1,i)
+      atl2=clnk(2,i)
+      if(atl1(1:1).eq.' ') atl1(1:1)='_'
+      if(atl2(1:1).eq.' ') atl2(1:1)='_'
       if(llnk(3,i).eq.0) then
-      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
-     + llnk(2,i),clnk(2,i),latm(3,link2)
- 1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
-      call errquit('mklist: explicit link to nonbonding atom',9999)
+      write(lfnout,1000) llnk(1,i),atl1,llnk(2,i),atl2,
+     + link1,link2,latm(3,link1),latm(3,link2)
+ 1000 format(' Skipped link ',i5,':',a4,i5,':',a4,' = ',i5,'-',i5,
+     + ' (',i1,',',i1,')')
+c      write(lfnout,1000) llnk(1,i),clnk(1,i),latm(3,link1),
+c     + llnk(2,i),clnk(2,i),latm(3,link2)
+c 1000 format(' Link ',i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,')')
+c      call errquit('mklist: explicit link to nonbonding atom',9999)
+      goto 5
       else
-      write(lfnout,1001) llnk(1,i),clnk(1,i),latm(3,link1),
-     + llnk(2,i),clnk(2,i),latm(3,link2),link1,link2
- 1001 format(' Forced link ',
-     + i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,') : ',i5,'-',i5)
+      write(lfnout,1001) llnk(1,i),atl1,llnk(2,i),atl2,
+     + link1,link2,latm(3,link1),latm(3,link2)
+ 1001 format(' Forced link  ',i5,':',a4,i5,':',a4,' = ',i5,'-',i5,
+     + ' (',i1,',',i1,')')
+c      write(lfnout,1001) llnk(1,i),clnk(1,i),latm(3,link1),
+c     + llnk(2,i),clnk(2,i),latm(3,link2),link1,link2
+c 1001 format(' Forced link ',
+c     + i5,':',a4,'(',i1,') - ',i5,':',a4,'(',i1,') : ',i5,'-',i5)
       endif
       endif
 c
@@ -184,6 +198,9 @@ c
       lbnd(4,nbnd)=0
 c
     5 continue
+c
+      write(lfnout,1002)
+ 1002 format(' ')
 c
 c     append the angle list
 c     ---------------------

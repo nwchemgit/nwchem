@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: pre_links.F,v 1.11 1999-06-16 23:56:59 d3j191 Exp $
+c $Id: pre_links.F,v 1.12 1999-07-14 22:16:16 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -56,7 +56,7 @@ c
  1001 format(i5,a4,i5,a4)
       write(lfnout,1002)
      +  llnk(1,nlnk),clnk(1,nlnk),llnk(2,nlnk),clnk(2,nlnk)
- 1002 format(' Input link  ',i5,':',a4,'    - ',i5,':',a4)
+ 1002 format(' Input link   ',i5,':',a4,i5,':',a4)
       endif
       goto 26
    99 continue
@@ -167,6 +167,7 @@ c
       if(nlnk.gt.0) then
       nlnko=nlnk
       nlnk=1
+      if(nlnkp.ge.1) nlnkf=1
       do 5 i=2,nlnko
       do 6 j=1,nlnk
       if(llnk(1,i).eq.llnk(1,j).and.llnk(2,i).eq.llnk(2,j).and.
