@@ -8,6 +8,9 @@ fixes that are available in NWChem Version 4.0. When there is a conflict
 between the release notes and the User Manual, the User Manual takes
 precedence. 
 
+The TITLE directive is no longer backward compatible.  The syntax is
+title <string title>
+
 Several new major capabilities are available in NWChem, including several new
 modules. The new modules are: 
 
@@ -62,13 +65,15 @@ Top level directives:
   o The CONTINUE directive is no longer supported.
   o Addition of RELATIVISTIC directive to control evaluation of relativistic 
     integrals.
+  o The default memory has been increased on most workstations.
   o BUG FIX: Task shell is now working under Linux.
   o BUG FIX: The words start and restart in the TITLE directive no longer cause
     problems.
 
 Initial orbital Guess: 
 
-  o 
+  o BUG FIX: Projection from a smaller basis set to a larger basis set now 
+    works for open shells.
 
 Basis Sets: 
 
@@ -91,10 +96,17 @@ Geometry:
 
   o Inclusion of a finite Gaussian nuclear charge distribution.
   o Inclusion of velocities for QMD and PSPW.
+  o More redundant internals are allowed.
+  o Allow linear angles.
+  o Mixed Cartesians in zmatrix input is more robust.
 
 DFT: 
 
-  o 
+  o New functionals: PBE0, HCTH402 and Becke1997GGA-1
+  o Self-interaction corrections.
+  o Lebedev + Mura grids are now the default.
+  o XC fitting can now use sphericals.
+  o BUG FIX: Code correctly executes when the number of iterations is 0.
 
 SCF: 
 
@@ -102,7 +114,7 @@ SCF:
 
 Driver: 
 
-  o 
+  o BUG FIX: Added code to avoid accidental degeneracies in the Hessian.
 
 Properties: 
 
@@ -113,6 +125,8 @@ Properties:
     changed by using the CENTER directive.
   o Relativistic corrections to multipole integrals in the Dyall-modified-Dirac
     approach have been added.
+  o BUG FIX: GIAO code now recognizes when an unsupported wavefunction is
+    trying to be used with GIAO.
 
 MP2: 
 
@@ -143,6 +157,12 @@ Integral changes:
     Mc-Murchie-Davidson 2e integrals.
   o Spin-orbit integrals for SODFT enabled.
   o Effective charge potential for COSMO added.
+
+DPLOT:
+
+  o Gaussian cube file can now be output.
+  o Format for InsightII is compatible with verison 97.0.
+  o Spherical functions can be plotted for MOs and density.
 
 Tests, manuals and misc script changes: 
 
@@ -177,9 +197,8 @@ The current tested platforms and O/S versions are:
     Mandrake based on RedHat 6.0, and RedHat 6.0 for the Power PC
     Macintosh. These all use the EGCS compilers at different levels. Those
     distributed from Slackware are somewhat different than those distributed
-    from RedHat but the code is configured to run on all of them. The Linux
-    Alpha version 5.2 from Red Hat fails to compile the code as well as the beta
-    release of the Digital Fortran compiler for Linux based Alpha systems. 
+    from RedHat but the code is configured to run on all of them.  The Portland
+    Group Compiler can now be used.
 
 A general FAQ is available at 
 http://www.emsl.pnl.gov:2080/docs/nwchem/support/NWChem_FAQ.html
