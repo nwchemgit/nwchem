@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.132 2002-06-18 15:28:45 d3j191 Exp $
+c $Id: md_main.F,v 1.133 2002-06-18 18:53:21 d3j191 Exp $
 c
       implicit none
 c
@@ -65,8 +65,7 @@ c
 c     periodic boundary conditions
 c
       call md_fold(int_mb(i_iw),int_mb(i_is),
-     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm),
-     + dbl_mb(i_xsmp))
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
 c     atom redistribution
 c
@@ -86,7 +85,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -162,8 +162,7 @@ c
 c     periodic boundary conditions
 c
       call md_fold(int_mb(i_iw),int_mb(i_is),
-     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm),
-     + dbl_mb(i_xsmp))
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
 c     atom redistribution
 c
@@ -183,7 +182,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -243,8 +243,7 @@ c
 c     periodic boundary conditions
 c
       call md_fold(int_mb(i_iw),int_mb(i_is),
-     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm),
-     + dbl_mb(i_xsmp))
+     + dbl_mb(i_xw),dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_xsm))
 c
 c     atom redistribution
 c
@@ -327,7 +326,8 @@ c
       lpair=.true.
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -375,7 +375,8 @@ c
 c     atomic forces and potential energies
 cl forces
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -461,7 +462,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -576,7 +578,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -752,7 +755,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -889,7 +893,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
@@ -1525,7 +1530,8 @@ c
       call timer_stop(15)
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
 c
       corrio=costio
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
@@ -1752,29 +1758,21 @@ c
 c
       return
       end
-      subroutine md_fold(iwl,isl,xw,xwm,xs,xsm,xsmp)
+      subroutine md_fold(iwl,isl,xw,xwm,xs,xsm)
 c
       implicit none
 c
 #include "md_common.fh"
 c
       integer iwl(mwm,miw2),isl(msa,mis2)
-      real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3),xsm(msm,3),xsmp(msm,3)
-c
-      integer i
-c
-      do 1 i=1,nsm
-      xsmp(i,1)=xsm(i,1)
-      xsmp(i,2)=xsm(i,2)
-      xsmp(i,3)=xsm(i,3)
-    1 continue
+      real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3),xsm(msm,3)
 c
       call cf_fold(nwmloc,xw,xwm,nsaloc,isl(1,lsatt),isl(1,lsmol),
      + xs,xsm)
 c
       return
       end
-      subroutine md_finit(iwl,isl,xw,xwm,xs,fw,fs)
+      subroutine md_finit(iwl,isl,xw,xwm,xs,fw,fs,xsm,xsmp)
 c
       implicit none
 c
@@ -1785,8 +1783,17 @@ c
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
+      real*8 xsm(msm,3),xsmp(msm,3)
+c
+      integer i
 c
       call timer_start(16)
+c
+      do 1 i=1,nsm
+      xsmp(i,1)=xsm(i,1)
+      xsmp(i,2)=xsm(i,2)
+      xsmp(i,3)=xsm(i,3)
+    1 continue
 c
 c     initialize cafe
 c
@@ -2437,7 +2444,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.132 2002-06-18 15:28:45 d3j191 Exp $
+c $Id: md_main.F,v 1.133 2002-06-18 18:53:21 d3j191 Exp $
 c
       implicit none
 c
@@ -2564,7 +2571,8 @@ c
 c     atomic forces and potential energies
 c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
-     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
+     + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     + dbl_mb(i_xsm),dbl_mb(i_xsmp))
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
