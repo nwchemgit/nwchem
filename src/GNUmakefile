@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.52 1997-03-25 16:49:57 d3g681 Exp $
+# $Id: GNUmakefile,v 1.53 1997-03-27 17:08:35 d3e129 Exp $
 
 include config/makefile.h
 
@@ -73,7 +73,8 @@ libraries:
 showdir: 
 	@echo "subdirectories in this build <$(SUBDIRS)>"
 
-clean:
+clean:	
+	@$(MAKE) directories
 	-$(RM) nwchem core *.o *.a *.trace
 	@for dir in $(SUBDIRS) config ../tests; do \
 		echo Making $@ in $$dir; \
@@ -81,6 +82,7 @@ clean:
 	done
 
 realclean:	
+	@$(MAKE) directories
 	-$(RM) nwchem nwchem_test core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
 	@for dir in $(SUBDIRS) config ../tests; do \
