@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.37 2001-10-09 23:51:47 windus Exp $
+#$Id: GNUmakefile,v 1.38 2001-10-10 00:02:54 windus Exp $
 
 include ../config/makefile.h
 
@@ -90,7 +90,7 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                ssterf.o      ssyev.o       ssygs2.o       ssygst.o     \
                ssygv.o       ssytd2.o      ssytrd.o       strtri.o     \
                slasq1.o      slasq2.o      slasq3.o       slasq5.o     \
-               slasq4.o      sposv.o \
+               slasq4.o      slasq6.o      sposv.o \
                ilaenv.o      lsamen.o                                  \
                cheev.o       chegs2.o      chegst.o       chegv.o      \
                chetd2.o      chetrd.o      clacgv.o       cladiv.o     \
