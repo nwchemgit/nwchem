@@ -1,5 +1,5 @@
 /*---------------------------------------------------------*\
-$Id: seetex.c,v 1.2 1996-07-02 19:43:43 d3e129 Exp $
+$Id: seetex.c,v 1.3 1996-09-25 00:20:25 d3e129 Exp $
 \*---------------------------------------------------------*/
 
 /*------------------------------------------------------------*\
@@ -15,7 +15,7 @@ $Id: seetex.c,v 1.2 1996-07-02 19:43:43 d3e129 Exp $
                  termination delimeter is found.  strip all *:tex
   *:tex-\end     terminate tex block of information. print this line
                  stripping all *:tex strings
-  these are for allowing tex files to 
+  these are for allowing tex files to be read as well
   *:tex-begin    means print lines after this one until *:tex-end
                  is found
   *:tex-end      terminates *:tex-end
@@ -36,7 +36,9 @@ $Id: seetex.c,v 1.2 1996-07-02 19:43:43 d3e129 Exp $
 
   Future Enhancements:
   1) add c code?? (hard)
+
   Usage: seetex file1.F [file2.f file3.fh ....] file.tex
+  Flags: -h or -help
 
   Designed and Written by:
      Ricky A. Kendall
@@ -47,7 +49,7 @@ $Id: seetex.c,v 1.2 1996-07-02 19:43:43 d3e129 Exp $
 
   Dates:
     Initial Version:    April 1996.
-  
+    Usage update   :    September 1996.
 \*------------------------------------------------------------*/
 #include <stdio.h>
 #include <string.h>
@@ -70,6 +72,21 @@ int main (int argc, char *argv[])
       (void) printf("\n");
     }
 
+  if (argc == 1) 
+      {
+	  (void) printf(" zero arguments: print usage/syntax only \n\n");
+	  (void) print_syntax();
+	  (void) usage(0);
+      }
+  for (i=0;i<argc;i++) 
+      {
+	  if (! strncmp(argv[i],"-h",(size_t) 2)) 
+	      {
+		  (void) printf(" [-h|-help] flag found: print usage/syntax only\n\n");
+		  (void) print_syntax();
+		  (void) usage(0);
+	      }
+      }
   file_tex = argv[(argc-1)];
   if (DEBUG_MODE >= 10) (void) printf(" seetex output file <%s>\n\n",file_tex);
   
@@ -259,9 +276,62 @@ void seetex_error(char *errmsg, int error_code)
     (void) exit((int) error_code);
 }
 
+void print_syntax()
+{
+    (void) printf("s e e t e x\n");
+    (void) printf("\n");
+    (void) printf("code to parse tex directives from specific comment lines in\n");
+    (void) printf("NWChem fortran source code, fortran include files, and latex source with\n");
+    (void) printf("seetex block begin and end statements.  \n");
+    (void) printf("\n");
+    (void) printf("Target syntax for FORTRAN Latex comments\n");
+    (void) printf("*:tex-         means print this line (stripping *:tex-)\n");
+    (void) printf("*:tex-\\begin   means print this line and all that follow until the \n");
+    (void) printf("termination delimeter is found.  strip all *:tex\n");
+    (void) printf("*:tex-\\end     terminate tex block of information. print this line\n");
+    (void) printf("                stripping all *:tex strings\n");
+    (void) printf("these are for allowing tex files to be read as well\n");
+    (void) printf("*:tex-begin    means print lines after this one until *:tex-end\n");
+    (void) printf("               is found\n");
+    (void) printf("*:tex-end      terminates *:tex-end\n");
+    (void) printf("c:tex- is equivalent to *:tex in all cases\n");
+    (void) printf("!:tex- is equivalent to *:tex but it applies to only single line \n");
+    (void) printf("       Latex strings.\n");
+    (void) printf("\n");
+    (void) printf("Assumptions:\n");
+    (void) printf("1) files have the appropriate suffix \".F\", \".f\", \".fh\", and \".th\"\n");
+    (void) printf("  \".th\" -> seetex-ed tex include file with blocked begin and ends:\n");
+    (void) printf("   *:tex-begin\n");
+    (void) printf("   %%normal latex source\n");
+    (void) printf("   *:tex-end\n");
+    (void) printf("2) output file has the appropriate \".tex\" suffix\n");
+    (void) printf("3) output file will be appended to if it exists and created if not\n");
+    (void) printf("4) performance of seetex is not critical\n");
+    (void) printf("5) files are parsed in command line order.\n");
+    (void) printf("\n");
+    (void) printf("Future Enhancements:\n");
+    (void) printf("1) add c code?? (hard)\n");
+    (void) printf("\n");
+    (void) printf("Usage: seetex file1.F [file2.f file3.fh ....] file.tex\n");
+    (void) printf("Flags: -h or -help\n");
+    (void) printf("\n");
+    (void) printf("Designed and Written by:\n");
+    (void) printf("   Ricky A. Kendall\n");
+    (void) printf("   High Performance Computational Chemistry Group\n");
+    (void) printf("   Environmental Molecular Sciences Laboratory\n");
+    (void) printf("   Pacific Northwest National Laboratory \n");
+    (void) printf("   Richland, WA 99352-0999\n");
+    (void) printf("\n");
+    (void) printf("Dates:\n");
+    (void) printf("   Initial Version:    April 1996.\n");
+    (void) printf("   Usage update   :    September 1996.\n");
+    (void) printf("\n");
+}
+
 void usage(int error_code)
 {
-  (void) printf("Usage: seetex file1.F [file2.f file3.fh ...] file.tex\n");
+  (void) printf("Usage: seetex file1.F [file2.f file3.fh ...] file.tex\n\n");
+  (void) printf("Flags: -h or -help prints the usage and syntax info\n");
   (void) printf("\nNote: tex file must be specified last with the .tex extension\n");
   (void) exit((int) error_code);
 }

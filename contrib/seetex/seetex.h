@@ -1,5 +1,5 @@
 /*---------------------------------------------------------*\
-$Id: seetex.h,v 1.2 1996-07-02 19:43:45 d3e129 Exp $
+$Id: seetex.h,v 1.3 1996-09-25 00:20:27 d3e129 Exp $
 
  seetex.h  include file for seetex
 
@@ -17,6 +17,7 @@ int seetex_process(FILE *srcid, FILE *texid);
 int get_line(FILE *file, char *buf, int size);
 void seetex_error(char *errmsg, int error_code);
 void usage(int err);
+void print_syntax();
 int seetex_end(char *line);
 int seetex_begin(char *line);
 void put_line_strip(char *line,FILE *id);
