@@ -41,6 +41,8 @@ c
      +  call errquit('qmmm_input: failed to read qatoms',0)
       write(luout,*)' QM/MM atom charge:',qatoms
       call util_flush(luout)
+      if (.not.rtdb_put(rtdb,'qmmm:qqmatm',mt_dbl,1,qatoms))
+     + call errquit('qmmm_input: failed to store qmmm:uqmatm',0)
       goto 2
       endif
 c
@@ -72,8 +74,6 @@ c
 c
       if (token.eq.'end') then
       if (.not.rtdb_put(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
-     + call errquit('qmmm_input: failed to store qmmm:uqmatm',0)
-      if (.not.rtdb_put(rtdb,'qmmm:qqmatm',mt_dbl,1,qatoms))
      + call errquit('qmmm_input: failed to store qmmm:uqmatm',0)
       if (.not.rtdb_put(rtdb,'qmmm:linkatm',mt_int,1,linkatm))
      + call errquit('qmmm_input: failed to store qmmm:linkatm',linkatm)
