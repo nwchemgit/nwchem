@@ -1,9 +1,9 @@
       logical function pre_modify(iwhich,lfnout,lfnmod,filmod,ffield,
-     + latm,catm,qatm,matm,natm,
+     + latm,catm,qatm,matm,natm,lseq,cseq,mseq,nseq,
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.13 2002-04-19 22:21:12 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.14 2002-07-29 19:00:04 d3j191 Exp $
 c
       implicit none
 c
@@ -13,11 +13,13 @@ c
       logical str_replace
       external str_replace
 c
-      integer iwhich,lfnout,lfnmod,matm,natm
+      integer iwhich,lfnout,lfnmod,matm,natm,mseq,nseq
       character*80 ffield
       character*255 filmod
       integer latm(9,matm)
       character*6 catm(4,matm)
+      integer lseq(4,mseq)
+      character*10 cseq(mseq)
       real*8 qatm(6,matm)
       integer mbnd,nbnd,nbndt
       integer lbnd(4,mbnd)
@@ -90,7 +92,7 @@ c
  2000 format(' modify atom ',i5,':',a6,' set',i2,' charge ',f12.6)
       endif
       do 2 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       do 3 j=1,3
       if(mset.eq.0.or.mset.eq.j) qatm(2*j-1,i)=charge
     3 continue
@@ -104,7 +106,7 @@ c
  2001 format(' modify atom ',i5,':',a6,' set',i2,' polar ',f12.9)
       endif
       do 4 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       do 5 j=1,3
       if(mset.eq.0.or.mset.eq.j) qatm(2*j,i)=polar
     5 continue
@@ -118,7 +120,7 @@ c
  2002 format(' modify atom ',i5,':',a6,' set',i2,' type ',a5)
       endif
       do 6 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       do 7 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(1:5)=type
     7 continue
@@ -131,7 +133,7 @@ c
  2003 format(' modify atom ',i5,':',a6,' set',i2,' dummy ')
       endif
       do 8 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       do 9 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='D'
     9 continue
@@ -144,7 +146,7 @@ c
  2004 format(' modify atom ',i5,':',a6,' set',i2,' self ')
       endif
       do 10 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       do 11 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='S'
    11 continue
@@ -158,7 +160,7 @@ c
       endif
       foundit=.false.
       do 12 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       foundit=.true.
       do 13 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
@@ -174,7 +176,7 @@ c
       endif
       foundit=.false.
       do 112 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.aname) then
       foundit=.true.
       do 113 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='H'
@@ -189,15 +191,18 @@ c     segment modifications
 c     ---------------------
 c
       if(card(1:7).eq.'segment') then
+      print*,'CARD=',card
       read(card(9:13),'(i5)') isgm
+      print*,'ISGM=',isgm
       read(card(19:19),'(i1)') mset
+      print*,'MSET=',mset
       if(card(21:23).eq.'dum') then
       if(util_print('where',print_default)) then
       write(lfnout,2006) isgm,mset
  2006 format(' modify segment ',i5,' set',i2,' dummy ')
       endif
       do 14 i=1,natm
-      if(latm(5,i).eq.isgm) then
+      if(lseq(1,latm(5,i)).eq.isgm) then
       do 15 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='D'
    15 continue
@@ -210,7 +215,7 @@ c
  2007 format(' modify segment ',i5,' set',i2,' self ')
       endif
       do 16 i=1,natm
-      if(latm(5,i).eq.isgm) then
+      if(lseq(1,latm(5,i)).eq.isgm) then
       do 17 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='S'
    17 continue
@@ -223,7 +228,7 @@ c
  2108 format(' modify segment ',i5,' set',i2,' nocharge ')
       endif
       do 218 i=1,natm
-      if(latm(5,i).eq.isgm) then
+      if(lseq(1,latm(5,i)).eq.isgm) then
       do 219 j=1,3
       if(mset.eq.0.or.mset.eq.j) qatm(2*j-1,i)=0.0d0
   219 continue
@@ -231,12 +236,15 @@ c
   218 continue
       endif
       if(card(21:23).eq.'qtm') then
+      print*,'IT IS qtm'
       if(util_print('where',print_default)) then
       write(lfnout,2008) isgm,mset
  2008 format(' modify segment ',i5,' set',i2,' quantum ')
       endif
+      print*,'NATM=',natm
       do 18 i=1,natm
-      if(latm(5,i).eq.isgm) then
+      write(*,'(3i7)') i,lseq(1,latm(5,i)),isgm
+      if(lseq(1,latm(5,i)).eq.isgm) then
       do 19 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='Q'
    19 continue
@@ -249,7 +257,7 @@ c
  2018 format(' modify segment ',i5,' set',i2,' high level quantum ')
       endif
       do 118 i=1,natm
-      if(latm(5,i).eq.isgm) then
+      if(lseq(1,latm(5,i)).eq.isgm) then
       do 119 j=1,3
       if(mset.eq.0.or.mset.eq.j) catm(j+1,i)(6:6)='H'
   119 continue
@@ -379,8 +387,8 @@ c
       iatom=0
       jatom=0
       do 20 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
-      if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
+      if(lseq(1,latm(5,i)).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
    20 continue
       if(iatom.gt.0.and.jatom.gt.0) then
       ibnd=0
@@ -439,9 +447,9 @@ c
       jatom=0
       katom=0
       do 24 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
-      if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
-      if(latm(5,i).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
+      if(lseq(1,latm(5,i)).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
+      if(lseq(1,latm(5,i)).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
    24 continue
       if(iatom.gt.0.and.jatom.gt.0.and.katom.gt.0) then
       iang=0
@@ -511,10 +519,10 @@ c
       katom=0
       latom=0
       do 28 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
-      if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
-      if(latm(5,i).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
-      if(latm(5,i).eq.lsgm.and.catm(1,i).eq.atoml(1:6)) latom=i
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
+      if(lseq(1,latm(5,i)).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
+      if(lseq(1,latm(5,i)).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
+      if(lseq(1,latm(5,i)).eq.lsgm.and.catm(1,i).eq.atoml(1:6)) latom=i
    28 continue
       if(iatom.gt.0.and.jatom.gt.0.and.katom.gt.0.and.latom.gt.0) then
       idih=0
@@ -590,10 +598,10 @@ c
       katom=0
       latom=0
       do 34 i=1,natm
-      if(latm(5,i).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
-      if(latm(5,i).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
-      if(latm(5,i).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
-      if(latm(5,i).eq.lsgm.and.catm(1,i).eq.atoml(1:6)) latom=i
+      if(lseq(1,latm(5,i)).eq.isgm.and.catm(1,i).eq.atomi(1:6)) iatom=i
+      if(lseq(1,latm(5,i)).eq.jsgm.and.catm(1,i).eq.atomj(1:6)) jatom=i
+      if(lseq(1,latm(5,i)).eq.ksgm.and.catm(1,i).eq.atomk(1:6)) katom=i
+      if(lseq(1,latm(5,i)).eq.lsgm.and.catm(1,i).eq.atoml(1:6)) latom=i
    34 continue
       if(iatom.gt.0.and.jatom.gt.0.and.katom.gt.0.and.latom.gt.0) then
       iimp=0

@@ -5,7 +5,7 @@
      + par_s,par_x,par_q,par_u,par_t,par_c,
      + ignore,slvnam)
 c
-c $Id: pre_mktop.F,v 1.30 2002-04-19 22:21:12 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.31 2002-07-29 19:00:04 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -347,6 +347,7 @@ c     ------------------------------------------
 c
       if(.not.pre_modify(1,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,
@@ -497,6 +498,7 @@ c     -------------------------------------------------
 c
       if(.not.pre_modify(2,lfnout,lfnmod,filmod,ffield,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
+     + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbnd,nbndt,
      + int_mb(i_lang),dbl_mb(i_rang),mang,nang,nangt,
      + int_mb(i_ldih),int_mb(i_kdih),dbl_mb(i_rdih),mdih,ndih,ndiht,

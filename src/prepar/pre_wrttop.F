@@ -6,7 +6,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam)
 c
-c $Id: pre_wrttop.F,v 1.38 2002-02-21 15:58:16 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.39 2002-07-29 19:00:04 d3j191 Exp $
 c
       implicit none
 c
@@ -393,7 +393,7 @@ c      endif
       if(util_print('topology',print_high)) then
       write(lfnout,2001) lseq(1,latm(5,natm)),cseq(latm(5,natm)),qsum
       write(lfnout,2002)
- 2002 format(t25,'------------------------------------',/)
+ 2002 format(t40,'------------------------------------',/)
       endif
       if(util_print('topology',print_default)) then
       write(lfnout,2003) qtot
