@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.11 2000-05-21 05:46:42 mdupuis Exp $
+C     $Id: rohf_diis.F,v 1.12 2000-05-22 23:27:26 mdupuis Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -144,7 +144,7 @@ c
               odbug=odbug.and.ga_nodeid().eq.0
               osome=osome.and.ga_nodeid().eq.0
 c
-              call cosmo_charges(rtdb,basis,ecosmo,iter,osome)
+              call cosmo_charges(rtdb,basis,geom,ecosmo,iter,osome)
 c
               odbug=.false.
               osome=.false.
@@ -177,9 +177,6 @@ c
 c
               g_cos1e(1)  = ga_create_atom_blocked(geom, basis, 
      $                                         'rohf_diis_solve:cos1e')
-c             if (.not. ga_create(MT_DBL, nbf, nbf, 
-c    $            'rohf_diis_solve:cos1e', 0, 0, g_cos1e(1))) 
-c    $            call errquit('rohf_diis_solve: ga failed for cos1e',0)
               if(odbug) then
                  write(6,*) 'cos1e-pot ... try g-cos1e'
               endif

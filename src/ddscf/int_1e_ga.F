@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.28 2000-05-22 20:28:52 zzhang Exp $
+C$Id: int_1e_ga.F,v 1.29 2000-05-22 23:27:25 mdupuis Exp $
       implicit none
 #include "cint1cache.fh"
 #include "mafdecls.fh"
@@ -53,7 +53,7 @@ c
       else if (inp_compare(.false., integ_type, 'so'))then 
          type = 5 
       else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
-         type = 3 
+         type = 6 
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
@@ -120,6 +120,23 @@ c
       external block_int1e      ! For T3D
       integer i, noffset
 c
+      logical ocache_save
+c
+      logical odbug
+      logical osome
+      odbug=.false.
+      osome=.true.
+      osome=osome.or.odbug
+      odbug=odbug.and.(ga_nodeid().eq.0)
+      osome=osome.and.(ga_nodeid().eq.0)
+      if(osome) then
+         write(6,*) 'in -int_1e_oldga- ... integ_type = ',integ_type
+      endif
+c
+c     ----- save ocache logical variable -----
+c
+      ocache_save=ocache
+c
       call ga_sync()
       if (oscfps) call pstat_on(ps_int_1e)
 c     
@@ -139,7 +156,8 @@ c
       else if (inp_compare(.false., integ_type, 'so'))then 
          type = 5 
       else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
-         type = 3 
+         type = 6 
+         ocache = .false.
       else
          write(6,*) ' integ_type = ', integ_type
          call errquit('int_1e_ga: unknown integ_type', 0)
@@ -148,6 +166,9 @@ c
 c     In-core caching
 c
 c      ocache = .false.
+      if(osome) then
+         write(6,*) 'ocache = ',ocache
+      endif
       if (ocache .and. (ibas.eq.bas1) .and. (jbas.eq.bas1)) then
 *         if (ga_nodeid().eq.0) then
 *           call ga_summarize(1)
@@ -225,7 +246,10 @@ c
                      call intso_1e (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else if (type .eq. 6) then 
-                     call int_1epe  (jbas, jshell, ibas, ishell,
+                     if(odbug) then
+                        write(6,*) 'type = 6 ... potential ...'
+                     endif
+                     call int_1epot (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_1e_ga: invalid type?', type)
@@ -241,6 +265,9 @@ c
      $                    idim, q2)
                      enddo 
                   else  
+                     if(odbug) then
+                        write(6,*) 'ga_acc = ...'
+                     endif
                      call ga_acc(g, ilo, ihi, jlo, jhi, dbl_mb(k_buf),
      $                    idim, q2) 
                   end if
@@ -256,6 +283,10 @@ c
      $     ('int_1e_ga: pop failed', 0)
       if (.not. MA_pop_stack(l_buf)) call errquit
      $     ('int_1e_ga: pop failed', 0)
+c
+c     ----- restore ocache -----
+c
+      ocache = ocache_save
 c     
       call ga_sync()            ! So that no nasty races can result
 c     
