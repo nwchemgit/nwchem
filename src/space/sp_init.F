@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri)
 c
 c
-c $Id: sp_init.F,v 1.71 2000-06-02 17:18:09 d3j191 Exp $
+c $Id: sp_init.F,v 1.72 2000-06-08 22:01:42 d3j191 Exp $
 c
       implicit none
 c
@@ -1204,9 +1204,16 @@ c
       integer ibx,iby,ibz,ipx,ipy,ipz,ibox,inode
       integer jbx,jby,jbz,kbx,kby,kbz,jpx,jpy,jpz
       integer ilx,ihx,ily,ihy,ilz,ihz
-      integer jbox,jnode,mbblb
+      integer jbox,jnode,mbblb,i
       real*8 dx,dxtmp,dy,dytmp,dz,dztmp,dist2
       character*255 string
+c
+      if(me.eq.0.and.idebug.gt.0) then
+      write(*,'(a,i6)') 'boxsiz'
+      write(*,'(6f12.6)') (boxsiz(i,1),i=1,nbx)
+      write(*,'(6f12.6)') (boxsiz(i,2),i=1,nby)
+      write(*,'(6f12.6)') (boxsiz(i,3),i=1,nbz)
+      endif
 c
 c     determine size of box-box pairlist
 c     ----------------------------------
@@ -1364,8 +1371,8 @@ c
       mbblp=mbbl
       else
       if(mbbl.gt.mbblp) then
-      write(string,1111) mbblp,mbbl
- 1111 format('error: lbbl increase from ',i6,' to ',i6)
+      write(string,1111) mbblp,mbbl,mbbreq
+ 1111 format('error: lbbl increase from ',i6,' to ',i6,'(',i6,')')
       call errquit(string,me)
 c      call errquit('lbbl increased beyond allocated memory',me)
       endif
@@ -2308,7 +2315,7 @@ c
       integer lbbl(mbbl,mbb2),ltemp(mdim,mbb2)
 c
       integer i,j,k,node,npp,nbl,nbytes
-      integer npxp,npyp,npzp,nbxp,nbyp,nbzp
+      integer npxp,npyp,npzp,nbxp,nbyp,nbzp,mbblx
       character*13 string
 c
       if(me.eq.0) then
@@ -2321,9 +2328,9 @@ c
       read(lfn,1000,end=9997) string
  1000 format(a13)
       if(string.ne.'restart space') goto 1
-      read(lfn,1001) npp,mbblp,npxp,npyp,npzp,nbxp,nbyp,nbzp
+      read(lfn,1001) npp,mbblx,npxp,npyp,npzp,nbxp,nbyp,nbzp
  1001 format(8i7)
-      if(mbbl.ne.mbblp) npp=0
+      if(mbblp.lt.mbblx) npp=0
       if(npxp.ne.npx) npp=0
       if(npyp.ne.npy) npp=0
       if(npzp.ne.npz) npp=0
