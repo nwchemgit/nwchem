@@ -1,0 +1,52 @@
+echo
+
+start scf_feco5
+
+# Sequential test of semi-direct SCF ... to run in parallel it is
+# necessary to reduce the file sizes below by a factor of NPROC.
+
+#fe(co)5  SCF total energy -1816.677508 ... should vary by 1 or 2 in last D.P.
+
+# There is a total of 2 million integrals 
+
+geometry print units au
+  symmetry group d3h
+
+  fe 0.0 0.0 0.0 
+
+  c 0.0 0.0 3.414358 
+  o 0.0 0.0 5.591323 
+
+  c 2.4417087 2.4417087 0.0 
+  o 3.9810552 3.9810552 0.0 
+end
+
+basis nosegment noprint
+  fe library 3-21g
+  o  library 3-21g
+  c  library 3-21g
+end
+
+title ; case s2: fe(co)5  --- Default SCF ... usually disk resident
+task scf
+
+title; case s3a: fe(co)5 --- Semi-direct SCF ... 75% caching
+scf; vectors atomic; semidirect memsize 0 filesize 300000; end
+task scf
+
+title; case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching
+scf; vectors atomic; semidirect memsize 0 filesize 200000; end
+task scf
+
+title; case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching
+scf; vectors atomic; semidirect memsize 0 filesize 100000; end
+task scf
+
+title; case s4: fe(co)5 --- Fully-direct SCF
+scf; vectors atomic; direct; end
+task scf
+
+
+
+
+

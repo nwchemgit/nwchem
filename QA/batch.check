@@ -1,0 +1,25 @@
+#!/bin/csh 
+if (-e BATCH_JOBS) then
+   @ jobs_total = `cat BATCH_JOBS`
+else
+   echo "file BATCH_JOBS does not exist"
+   exit 1
+endif
+echo " "
+echo " A total of $jobs_total jobs were submitted to the system"
+echo " "
+@ jobs_ok = 0
+@ jobs_failed = 0
+if (-e BATCH_OK) then
+   @ jobs_ok = `cat BATCH_OK`
+endif
+if (-e BATCH_FAILED) then
+   @ jobs_failed = `cat BATCH_FAILED`
+endif
+@ jobs_done = $jobs_ok + $jobs_failed
+echo "jobs done $jobs_done of $jobs_total, OK $jobs_ok, FAILED $jobs_failed `date`"
+if ($jobs_failed == 0) then
+   exit 0
+else
+   exit 911
+endif

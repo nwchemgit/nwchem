@@ -1,0 +1,3297 @@
+ argument  1 = scf_feco5.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+
+start scf_feco5
+
+# Sequential test of semi-direct SCF ... to run in parallel it is
+# necessary to reduce the file sizes below by a factor of NPROC.
+
+#fe(co)5  SCF total energy -1816.677508 ... should vary by 1 or 2 in last D.P.
+
+# There is a total of 2 million integrals
+
+geometry print units au
+  symmetry group d3h
+
+  fe 0.0 0.0 0.0
+
+  c 0.0 0.0 3.414358
+  o 0.0 0.0 5.591323
+
+  c 2.4417087 2.4417087 0.0
+  o 3.9810552 3.9810552 0.0
+end
+
+basis nosegment noprint
+  fe library 3-21g
+  o  library 3-21g
+  c  library 3-21g
+end
+
+title ; case s2: fe(co)5  --- Default SCF ... usually disk resident
+task scf
+
+title; case s3a: fe(co)5 --- Semi-direct SCF ... 75% caching
+scf; vectors atomic; semidirect memsize 0 filesize 300000; end
+task scf
+
+title; case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching
+scf; vectors atomic; semidirect memsize 0 filesize 200000; end
+task scf
+
+title; case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching
+scf; vectors atomic; semidirect memsize 0 filesize 100000; end
+task scf
+
+title; case s4: fe(co)5 --- Fully-direct SCF
+scf; vectors atomic; direct; end
+task scf
+
+
+
+
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 3.0
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                         COPYRIGHT (C) 1994, 1995, 1996, 1997
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname  = et0502.nwmpp1.emsl.pnl.gov
+    program   = /u/d3g681/nwchem/bin/SP1/nwchem
+    date      = Wed Jun 25 11:54:23 1997
+
+    compiled  = Tue Jun 24 19:48:51 PDT 1997
+    source    = /u/d3g681/nwchem
+    input     = scf_feco5.nw
+    prefix    = scf_feco5.
+    data base = ./scf_feco5.db
+    status    = startup
+    nproc     =    4
+
+
+            Memory information
+            ------------------
+
+    heap      =    8847361 doubles
+    stack     =    2949121 doubles
+    global    =   11796491 doubles (allocated from within heap+stack)      
+    total     =   11796482 doubles
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 fe                  26.0000      .00000000      .00000000      .00000000
+    2 c                    6.0000      .00000000      .00000000     3.41435800
+    3 c                    6.0000      .00000000      .00000000    -3.41435800
+    4 o                    8.0000      .00000000      .00000000     5.59132300
+    5 o                    8.0000      .00000000      .00000000    -5.59132300
+    6 c                    6.0000     2.44170870     2.44170870      .00000000
+    7 c                    6.0000    -3.33543611      .89372741      .00000000
+    8 c                    6.0000      .89372741    -3.33543611      .00000000
+    9 o                    8.0000     3.98105520     3.98105520      .00000000
+   10 o                    8.0000    -5.43822254     1.45716734      .00000000
+   11 o                    8.0000     1.45716734    -5.43822254      .00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      fe                55.934900
+      c                 12.000000
+      o                 15.994910
+ 
+
+ Effective nuclear repulsion energy (a.u.)     798.4956180942
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             D3h       
+ Group number             27
+ Group order              12
+ No. of unique centers     5
+ 
+      Symmetry unique atoms
+ 
+     1    2    4    6    9
+ 
+           case s2: fe(co)5  --- Default SCF ... usually disk resident
+           -----------------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+            case s2: fe(co)5  --- Default SCF ... usually disk resident
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   119
+  atoms           =    11
+  closed shells   =    48
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./scf_feco5.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ fe                          3-21g                   7       29   5s4p2d
+ o                           3-21g                   3        9   3s2p
+ c                           3-21g                   3        9   3s2p
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        a1'        29
+        a1"         0
+        a2'         4
+        a2"        18
+        e'         48
+        e"         20
+ 
+
+ Forming initial guess at       1.1s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -1815.24436401
+
+ Integral file          = ./scf_feco5.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =     25        Max. records in file   =   8857
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 2.716D+04 #integrals = 1.961D+06 #direct =   .0% #cached =100.0%
+
+
+File balance: exchanges=     0  moved=     0  time=    .0
+
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -1818.607109
+ 1-e energy   =   -4094.538473
+ 2-e energy   =    1477.435745
+ HOMO         =       -.233831
+ LUMO         =       -.015290
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a1'         8 a2"         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 e'         23 e'         24 a1'        25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 a1'        42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 a1'        50 e"      
+    51 e"         52 e'         53 e'         54 a2"        55 a2'     
+    56 e'         57 e'         58 a1'     
+ 
+
+ Starting SCF solution at       6.6s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1    -1816.3884277025  1.87D+00  5.01D-01      6.9
+                 2    -1816.6015403462  7.93D-01  2.38D-01     10.2
+                 3    -1816.6471674222  5.87D-01  2.10D-01     11.9
+                 4    -1816.6610524701  3.07D-01  8.71D-02     15.7
+                 5    -1816.6771049903  7.70D-02  3.79D-02     21.9
+                 6    -1816.6775046088  4.02D-03  1.50D-03     26.5
+                 7    -1816.6775077169  1.84D-05  6.68D-06     33.5
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =  -1816.677507716891
+      One-electron energy =  -4092.290760166209
+      Two-electron energy =   1477.117634355128
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =     28.6s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a2"        12 a1'        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 e'         42 e'         43 a1'        44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 a1'        52 a2"        53 e'         54 e'         55 a2'     
+    56 e'         57 e'         58 a2"     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1 -259.8147
+    2  -31.8753
+    3  -27.3166
+    4  -27.3115
+    5  -27.3115
+    6  -20.6092
+    7  -20.6087
+    8  -20.5806
+    9  -20.5801
+   10  -20.5801
+   11  -11.3717
+   12  -11.3710
+   13  -11.3538
+   14  -11.3529
+   15  -11.3529
+   16   -4.1718
+   17   -2.7392
+   18   -2.7276
+   19   -2.7276
+   20   -1.5608
+   21   -1.5603
+   22   -1.5360
+   23   -1.5350
+   24   -1.5350
+   25    -.8706
+   26    -.8228
+   27    -.8008
+   28    -.8008
+   29    -.7991
+   30    -.7302
+   31    -.6834
+   32    -.6834
+   33    -.6770
+   34    -.6765
+   35    -.6765
+   36    -.6546
+   37    -.6546
+   38    -.6418
+   39    -.6322
+   40    -.6322
+   41    -.6288
+   42    -.6288
+   43    -.6193
+   44    -.6050
+   45    -.4815
+   46    -.4815
+   47    -.3311
+   48    -.3311
+   49     .0763
+   50     .0763
+   51     .0986
+   52     .1049
+   53     .1093
+   54     .1093
+   55     .1213
+   56     .1242
+   57     .1242
+   58     .1382
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector   25  Occ=2.000000D+00  E=-8.706147D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .302347   3 C  ls               35       .302347   2 C  ls        
+     6      -.211003   1 Fe ls               53      -.208837   4 O  ls        
+    62      -.208837   5 O  ls               80       .206866   7 C  ls        
+    71       .206866   6 C  ls               89       .206866   8 C  ls        
+ 
+ Vector   26  Occ=2.000000D+00  E=-8.227911D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .357608   3 C  ls               35      -.357608   2 C  ls        
+    62      -.332295   5 O  ls               53       .332295   4 O  ls        
+    61       .244330   5 O  lz               52       .244330   4 O  lz        
+    65       .216737   5 O  lz               56       .216737   4 O  lz        
+ 
+ Vector   27  Occ=2.000000D+00  E=-8.007897D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .334017   8 C  ls              116      -.332250  11 O  ls        
+    80      -.312988   7 C  ls              107       .311332  10 O  ls        
+   114       .238183  11 O  ly              104      -.223213  10 O  lx        
+   118       .217109  11 O  ly              108      -.203325  10 O  lx        
+ 
+ Vector   28  Occ=2.000000D+00  E=-8.007897D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .373549   6 C  ls               98      -.371573   9 O  ls        
+    80      -.204986   7 C  ls              107       .203902  10 O  ls        
+    96      -.194956   9 O  ly               95      -.194895   9 O  lx        
+    99      -.178222   9 O  lx              100      -.177941   9 O  ly        
+    89      -.168563   8 C  ls              116       .167671  11 O  ls        
+ 
+ Vector   29  Occ=2.000000D+00  E=-7.991257D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    53       .210119   4 O  ls               62       .210119   5 O  ls        
+    61      -.195828   5 O  lz               52       .195828   4 O  lz        
+    89       .195230   8 C  ls               80       .195230   7 C  ls        
+    71       .195230   6 C  ls               65      -.184963   5 O  lz        
+    56       .184963   4 O  lz               98      -.178898   9 O  ls        
+ 
+ Vector   30  Occ=2.000000D+00  E=-7.302356D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43       .202702   3 C  lz               34      -.202702   2 C  lz        
+    61      -.195104   5 O  lz               52       .195104   4 O  lz        
+    56       .179477   4 O  lz               65      -.179477   5 O  lz        
+   114      -.164057  11 O  ly              104      -.164057  10 O  lx        
+     6      -.152766   1 Fe ls              108      -.152329  10 O  lx        
+ 
+ Vector   31  Occ=2.000000D+00  E=-6.833725D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .212698   1 Fe dxz              12       .207883   1 Fe dxz       
+    54       .202465   4 O  lx               63      -.202465   5 O  lx        
+    59      -.198115   5 O  lx               50       .198115   4 O  lx        
+    20       .160901   1 Fe dyz              14       .157258   1 Fe dyz       
+    55       .153160   4 O  ly               64      -.153160   5 O  ly        
+ 
+ Vector   32  Occ=2.000000D+00  E=-6.833725D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .212698   1 Fe dyz              14       .207883   1 Fe dyz       
+    55       .202465   4 O  ly               64      -.202465   5 O  ly        
+    60      -.198115   5 O  ly               51       .198115   4 O  ly        
+    18      -.160901   1 Fe dxz              12      -.157258   1 Fe dxz       
+    63       .153160   5 O  lx               54      -.153160   4 O  lx        
+ 
+ Vector   33  Occ=2.000000D+00  E=-6.769747D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .332188   2 C  ls               44      -.332188   3 C  ls        
+    43      -.228306   3 C  lz               34      -.228306   2 C  lz        
+    52       .174131   4 O  lz               61       .174131   5 O  lz        
+     9      -.169746   1 Fe lz               38      -.160559   2 C  lz        
+    47      -.160559   3 C  lz               56       .158358   4 O  lz        
+ 
+ Vector   34  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .205003   8 C  ls               64      -.197223   5 O  ly        
+    55      -.197223   4 O  ly               60      -.189922   5 O  ly        
+    51      -.189922   4 O  ly               80      -.183088   7 C  ls        
+    87       .163821   8 C  ly               63       .162081   5 O  lx        
+    54       .162081   4 O  lx               59       .156081   5 O  lx        
+ 
+ Vector   35  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .224064   6 C  ls               63       .197223   5 O  lx        
+    54       .197223   4 O  lx               50       .189922   4 O  lx        
+    59       .189922   5 O  lx               64       .162081   5 O  ly        
+    55       .162081   4 O  ly               60       .156081   5 O  ly        
+    51       .156081   4 O  ly        
+ 
+ Vector   36  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .327802  10 O  ly              105       .317392  10 O  ly        
+    78       .197292   7 C  ly              117       .193243  11 O  lx        
+   113       .187753  11 O  lx               82       .184059   7 C  ly        
+    17      -.180089   1 Fe dxy              11      -.159995   1 Fe dxy       
+    99      -.150977   9 O  lx        
+ 
+ Vector   37  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   117       .264785  11 O  lx              113       .255904  11 O  lx        
+   100      -.235218   9 O  ly               96      -.228709   9 O  ly        
+    99       .192083   9 O  lx               95       .184966   9 O  lx        
+    86       .181622   8 C  lx               68       .163543   6 C  lx        
+    90       .163167   8 C  lx        
+ 
+ Vector   38  Occ=2.000000D+00  E=-6.417544D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .267422  10 O  ly              117      -.267422  11 O  lx        
+   113      -.250407  11 O  lx              105       .250407  10 O  ly        
+    99       .195767   9 O  lx              100      -.195767   9 O  ly        
+    95       .183310   9 O  lx               96      -.183310   9 O  ly        
+ 
+ Vector   39  Occ=2.000000D+00  E=-6.322427D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   101       .326954   9 O  lz               97       .307684   9 O  lz        
+    70       .188795   6 C  lz               74       .182905   6 C  lz        
+   119      -.170051  11 O  lz              115      -.160029  11 O  lz        
+   110      -.156903  10 O  lz        
+ 
+ Vector   40  Occ=2.000000D+00  E=-6.322427D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   110       .286946  10 O  lz              119      -.279355  11 O  lz        
+   106       .270034  10 O  lz              115      -.262890  11 O  lz        
+    79       .165693   7 C  lz               88      -.161310   8 C  lz        
+    83       .160524   7 C  lz               92      -.156277   8 C  lz        
+ 
+ Vector   41  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .361805   8 C  ls               80      -.345193   7 C  ls        
+    87       .226089   8 C  ly               77      -.217054   7 C  lx        
+    91       .168364   8 C  ly               81      -.161844   7 C  lx        
+    55       .152008   4 O  ly               64       .152008   5 O  ly        
+ 
+ Vector   42  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .408186   6 C  ls               17       .224107   1 Fe dxy       
+    80      -.218479   7 C  ls               11       .200057   1 Fe dxy       
+    89      -.189707   8 C  ls               69      -.182731   6 C  ly        
+    68      -.179473   6 C  lx               63      -.152008   5 O  lx        
+    54      -.152008   4 O  lx        
+ 
+ Vector   43  Occ=2.000000D+00  E=-6.193136D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .347212   2 C  ls               44       .347212   3 C  ls        
+    71      -.268284   6 C  ls               80      -.268284   7 C  ls        
+    89      -.268284   8 C  ls               34      -.198417   2 C  lz        
+    43       .198417   3 C  lz               21       .195139   1 Fe dzz       
+    87      -.177194   8 C  ly               77      -.177194   7 C  lx        
+ 
+ Vector   44  Occ=2.000000D+00  E=-6.050383D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .284854   2 C  ls               44      -.284854   3 C  ls        
+   101      -.227715   9 O  lz              110      -.227715  10 O  lz        
+   119      -.227715  11 O  lz               97      -.210987   9 O  lz        
+   115      -.210987  11 O  lz              106      -.210987  10 O  lz        
+    43      -.185393   3 C  lz               34      -.185393   2 C  lz        
+ 
+ Vector   45  Occ=2.000000D+00  E=-4.815073D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .895950   1 Fe dxz              12       .873800   1 Fe dxz       
+    20       .197467   1 Fe dyz              14       .192585   1 Fe dyz       
+    63       .167564   5 O  lx               54      -.167564   4 O  lx        
+   110       .154912  10 O  lz        
+ 
+ Vector   46  Occ=2.000000D+00  E=-4.815073D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .895950   1 Fe dyz              14       .873800   1 Fe dyz       
+    18      -.197467   1 Fe dxz              12      -.192585   1 Fe dxz       
+   119       .174357  11 O  lz               55      -.167564   4 O  ly        
+    64       .167564   5 O  ly        
+ 
+ Vector   47  Occ=2.000000D+00  E=-3.311259D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23       .723303   1 Fe lx               24      -.390685   1 Fe ly        
+    16       .336791   1 Fe dxx              19      -.336791   1 Fe dyy       
+    10       .317150   1 Fe dxx              13      -.317150   1 Fe dyy       
+    80       .206017   7 C  ls               17      -.201120   1 Fe dxy       
+    11      -.189391   1 Fe dxy             100       .163863   9 O  ly        
+ 
+ Vector   48  Occ=2.000000D+00  E=-3.311259D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24       .723303   1 Fe ly               17      -.673582   1 Fe dxy       
+    11      -.634299   1 Fe dxy              23       .390685   1 Fe lx        
+   109      -.214290  10 O  ly               71      -.202909   6 C  ls        
+   117      -.159849  11 O  lx              105      -.155351  10 O  ly        
+    89       .153923   8 C  ls        
+ 
+ Vector   49  Occ=0.000000D+00  E= 7.628353D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12       .405201   1 Fe dxz              18       .386573   1 Fe dxz       
+    83       .311587   7 C  lz               45       .298987   3 C  lx        
+    36      -.298987   2 C  lx              110      -.255127  10 O  lz        
+    63      -.229269   5 O  lx               54       .229269   4 O  lx        
+    92      -.199943   8 C  lz               14      -.182887   1 Fe dyz       
+ 
+ Vector   50  Occ=0.000000D+00  E= 7.628353D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14       .405201   1 Fe dyz              20       .386573   1 Fe dyz       
+    37      -.298987   2 C  ly               46       .298987   3 C  ly        
+    74      -.295332   6 C  lz               92       .244352   8 C  lz        
+   101       .241818   9 O  lz               55       .229269   4 O  ly        
+    64      -.229269   5 O  ly              119      -.200076  11 O  lz        
+ 
+ Vector   51  Occ=0.000000D+00  E= 9.863526D-02  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      2.202279   1 Fe ls               22     -1.364420   1 Fe ls        
+    89      -.224507   8 C  ls               71      -.224507   6 C  ls        
+    80      -.224507   7 C  ls               44      -.170322   3 C  ls        
+    35      -.170322   2 C  ls        
+ 
+ Vector   52  Occ=0.000000D+00  E= 1.049466D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.309588   1 Fe lz               25      -.400114   1 Fe lz        
+    35      -.341397   2 C  ls               44       .341397   3 C  ls        
+   101      -.179071   9 O  lz              110      -.179071  10 O  lz        
+   119      -.179071  11 O  lz        
+ 
+ Vector   53  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      1.115153   1 Fe lx               28      -.719073   1 Fe ly        
+    23      -.587751   1 Fe lx               24       .378994   1 Fe ly        
+    80       .305299   7 C  ls               89      -.237613   8 C  ls        
+    54      -.168154   4 O  lx               63      -.168154   5 O  lx        
+    81      -.165252   7 C  lx               45       .161036   3 C  lx        
+ 
+ Vector   54  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.115153   1 Fe ly               27       .719073   1 Fe lx        
+    24      -.587751   1 Fe ly               23      -.378994   1 Fe lx        
+    71      -.313451   6 C  ls               11       .278671   1 Fe dxy       
+    17       .268354   1 Fe dxy              89       .215343   8 C  ls        
+    64      -.168154   5 O  ly               55      -.168154   4 O  ly        
+ 
+ Vector   55  Occ=0.000000D+00  E= 1.213410D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    82       .403846   7 C  ly               90      -.403846   8 C  lx        
+    73      -.295635   6 C  ly               72       .295635   6 C  lx        
+   109      -.285720  10 O  ly              117       .285720  11 O  lx        
+    86      -.260070   8 C  lx               78       .260070   7 C  ly        
+   100       .209162   9 O  ly               99      -.209162   9 O  lx        
+ 
+ Vector   56  Occ=0.000000D+00  E= 1.241828D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .718024   1 Fe ly               37      -.414469   2 C  ly        
+    46      -.414469   3 C  ly               24      -.376321   1 Fe ly        
+    27      -.361020   1 Fe lx               55       .258747   4 O  ly        
+    64       .258747   5 O  ly               33      -.257725   2 C  ly        
+    42      -.257725   3 C  ly               36       .208393   2 C  lx        
+ 
+ Vector   57  Occ=0.000000D+00  E= 1.241828D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .718024   1 Fe lx               36      -.414469   2 C  lx        
+    45      -.414469   3 C  lx               23      -.376321   1 Fe lx        
+    28       .361020   1 Fe ly               54       .258747   4 O  lx        
+    63       .258747   5 O  lx               41      -.257725   3 C  lx        
+    32      -.257725   2 C  lx               37      -.208393   2 C  ly        
+ 
+ Vector   58  Occ=0.000000D+00  E= 1.381888D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.419023   1 Fe lz               29     -1.157072   1 Fe lz        
+    44       .491323   3 C  ls               35      -.491323   2 C  ls        
+    47       .388577   3 C  lz               38       .388577   2 C  lz        
+    74       .272236   6 C  lz               83       .272236   7 C  lz        
+    92       .272236   8 C  lz               70       .231566   6 C  lz        
+ 
+ Vector   59  Occ=0.000000D+00  E= 1.555099D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .435561   1 Fe lx               73       .308112   6 C  ly        
+    90      -.307374   8 C  lx               72      -.295472   6 C  lx        
+    16       .288781   1 Fe dxx              19      -.288781   1 Fe dyy       
+    80      -.287367   7 C  ls               13      -.274609   1 Fe dyy       
+    10       .274609   1 Fe dxx              23      -.267652   1 Fe lx        
+ 
+ Vector   60  Occ=0.000000D+00  E= 1.555099D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17       .577562   1 Fe dxy              11       .549219   1 Fe dxy       
+    28      -.435561   1 Fe ly               82       .420542   7 C  ly        
+    90       .301240   8 C  lx               71      -.282959   6 C  ls        
+    78       .274968   7 C  ly               24       .267652   1 Fe ly        
+   109      -.267404  10 O  ly               27      -.234994   1 Fe lx        
+ 
+ Vector   61  Occ=0.000000D+00  E= 2.046552D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74       .462498   6 C  lz               92      -.368032   8 C  lz        
+    46       .331826   3 C  ly               37      -.331826   2 C  ly        
+   101      -.313635   9 O  lz               70       .308256   6 C  lz        
+   119       .249575  11 O  lz               88      -.245294   8 C  lz        
+    42       .233944   3 C  ly               33      -.233944   2 C  ly        
+ 
+ Vector   62  Occ=0.000000D+00  E= 2.046552D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83       .479507   7 C  lz               45      -.331826   3 C  lx        
+    36       .331826   2 C  lx              110      -.325170  10 O  lz        
+    92      -.321563   8 C  lz               79       .319592   7 C  lz        
+    41      -.233944   3 C  lx               32       .233944   2 C  lx        
+   119       .218063  11 O  lz               63       .216168   5 O  lx        
+ 
+ Vector   63  Occ=0.000000D+00  E= 2.805610D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21       .523678   1 Fe dzz              35      -.509030   2 C  ls        
+    44      -.509030   3 C  ls               62       .493867   5 O  ls        
+    53       .493867   4 O  ls               15       .472782   1 Fe dzz       
+    22      -.427704   1 Fe ls               47       .426302   3 C  lz        
+    38      -.426302   2 C  lz               80       .357229   7 C  ls        
+ 
+ Vector   64  Occ=0.000000D+00  E= 4.961045D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      4.252679   1 Fe lz               38      1.887974   2 C  lz        
+    47      1.887974   3 C  lz               29     -1.310400   1 Fe lz        
+    53     -1.054874   4 O  ls               62      1.054874   5 O  ls        
+    44       .974391   3 C  ls               35      -.974391   2 C  ls        
+    92      -.408064   8 C  lz               83      -.408064   7 C  lz        
+ 
+ Vector   65  Occ=0.000000D+00  E= 5.028711D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.389133   1 Fe ls               35     -1.201636   2 C  ls        
+    44     -1.201636   3 C  ls               71     -1.074803   6 C  ls        
+    89     -1.074803   8 C  ls               80     -1.074803   7 C  ls        
+    62       .626845   5 O  ls               53       .626845   4 O  ls        
+    26       .578774   1 Fe ls               98       .484522   9 O  ls        
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Fe  26    25.25   1.99  8.00  7.65  3.00  3.45   .94   .21
+    2 C    6     5.71   1.99  1.78  1.94
+    3 C    6     5.71   1.99  1.78  1.94
+    4 O    8     8.47   1.99  2.51  3.98
+    5 O    8     8.47   1.99  2.51  3.98
+    6 C    6     5.63   1.99  1.77  1.87
+    7 C    6     5.63   1.99  1.77  1.87
+    8 C    6     5.63   1.99  1.77  1.87
+    9 O    8     8.50   1.99  2.51  4.00
+   10 O    8     8.50   1.99  2.51  4.00
+   11 O    8     8.50   1.99  2.51  4.00
+
+ Parallel integral file used      62 records with       0 large values
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+              case s3a: fe(co)5 --- Semi-direct SCF ... 75% caching
+              -----------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+               case s3a: fe(co)5 --- Semi-direct SCF ... 75% caching
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   119
+  atoms           =    11
+  closed shells   =    48
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./scf_feco5.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ fe                          3-21g                   7       29   5s4p2d
+ o                           3-21g                   3        9   3s2p
+ c                           3-21g                   3        9   3s2p
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        a1'        29
+        a1"         0
+        a2'         4
+        a2"        18
+        e'         48
+        e"         20
+ 
+
+ Forming initial guess at      37.2s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -1815.24436401
+
+ Integral file          = ./scf_feco5.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      0        Max. records in file   =      8
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 2.529D+04 #integrals = 1.694D+06 #direct = 39.0% #cached = 61.0%
+
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -1818.607109
+ 1-e energy   =   -4094.538473
+ 2-e energy   =    1477.435746
+ HOMO         =       -.233831
+ LUMO         =       -.015290
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a1'         8 a2"         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 e'         23 e'         24 a1'        25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 a1'        42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 a1'        50 e"      
+    51 e"         52 e'         53 e'         54 a2"        55 a2'     
+    56 e'         57 e'         58 a1'     
+ 
+
+ Starting SCF solution at      43.7s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1    -1816.3884196610  1.87D+00  5.01D-01     43.1
+                 2    -1816.6015412407  7.93D-01  2.38D-01     47.2
+                 3    -1816.6471698423  5.87D-01  2.10D-01     49.4
+                 4    -1816.6610543197  3.07D-01  9.47D-02     54.5
+                 5    -1816.6771069618  7.70D-02  3.79D-02     63.1
+                 6    -1816.6775065891  4.02D-03  1.08D-03     69.3
+                 7    -1816.6775096964  1.84D-05  6.67D-06     79.9
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =  -1816.677509696430
+      One-electron energy =  -4092.290758581063
+      Two-electron energy =   1477.117630790442
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =     39.5s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a2"        12 a1'        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 e'         42 e'         43 a1'        44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 a1'        52 a2"        53 e'         54 e'         55 a2'     
+    56 e'         57 e'         58 a2"     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1 -259.8147
+    2  -31.8753
+    3  -27.3166
+    4  -27.3115
+    5  -27.3115
+    6  -20.6092
+    7  -20.6087
+    8  -20.5806
+    9  -20.5801
+   10  -20.5801
+   11  -11.3717
+   12  -11.3710
+   13  -11.3538
+   14  -11.3529
+   15  -11.3529
+   16   -4.1718
+   17   -2.7392
+   18   -2.7276
+   19   -2.7276
+   20   -1.5608
+   21   -1.5603
+   22   -1.5360
+   23   -1.5350
+   24   -1.5350
+   25    -.8706
+   26    -.8228
+   27    -.8008
+   28    -.8008
+   29    -.7991
+   30    -.7302
+   31    -.6834
+   32    -.6834
+   33    -.6770
+   34    -.6765
+   35    -.6765
+   36    -.6546
+   37    -.6546
+   38    -.6418
+   39    -.6322
+   40    -.6322
+   41    -.6288
+   42    -.6288
+   43    -.6193
+   44    -.6050
+   45    -.4815
+   46    -.4815
+   47    -.3311
+   48    -.3311
+   49     .0763
+   50     .0763
+   51     .0986
+   52     .1049
+   53     .1093
+   54     .1093
+   55     .1213
+   56     .1242
+   57     .1242
+   58     .1382
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector   25  Occ=2.000000D+00  E=-8.706148D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .302347   2 C  ls               44       .302347   3 C  ls        
+     6      -.211002   1 Fe ls               53      -.208837   4 O  ls        
+    62      -.208837   5 O  ls               71       .206865   6 C  ls        
+    80       .206865   7 C  ls               89       .206865   8 C  ls        
+ 
+ Vector   26  Occ=2.000000D+00  E=-8.227912D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .357609   2 C  ls               44      -.357609   3 C  ls        
+    53      -.332295   4 O  ls               62       .332295   5 O  ls        
+    61      -.244330   5 O  lz               52      -.244330   4 O  lz        
+    56      -.216736   4 O  lz               65      -.216736   5 O  lz        
+ 
+ Vector   27  Occ=2.000000D+00  E=-8.007896D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .340394   8 C  ls              116      -.338592  11 O  ls        
+    71      -.304677   6 C  ls               98       .303065   9 O  ls        
+   114       .242558  11 O  ly              118       .222052  11 O  ly        
+    95       .159300   9 O  lx               96       .158674   9 O  ly        
+    85       .150304   8 C  ls        
+ 
+ Vector   28  Occ=2.000000D+00  E=-8.007896D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .372432   7 C  ls              107      -.370461  10 O  ls        
+   104       .265458  10 O  lx              108       .242624  10 O  lx        
+    71      -.217147   6 C  ls               98       .215998   9 O  ls        
+    76       .164450   7 C  ls               89      -.155284   8 C  ls        
+   116       .154463  11 O  ls        
+ 
+ Vector   29  Occ=2.000000D+00  E=-7.991258D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    53       .210119   4 O  ls               62       .210119   5 O  ls        
+    61      -.195828   5 O  lz               52       .195828   4 O  lz        
+    80       .195231   7 C  ls               89       .195231   8 C  ls        
+    71       .195231   6 C  ls               65      -.184963   5 O  lz        
+    56       .184963   4 O  lz               98      -.178899   9 O  ls        
+ 
+ Vector   30  Occ=2.000000D+00  E=-7.302357D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43       .202702   3 C  lz               34      -.202702   2 C  lz        
+    61      -.195104   5 O  lz               52       .195104   4 O  lz        
+    56       .179477   4 O  lz               65      -.179477   5 O  lz        
+   104      -.164057  10 O  lx              114      -.164057  11 O  ly        
+     6      -.152767   1 Fe ls              108      -.152329  10 O  lx        
+ 
+ Vector   31  Occ=2.000000D+00  E=-6.833726D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .266692   1 Fe dyz              14       .260654   1 Fe dyz       
+    55       .253861   4 O  ly               64      -.253861   5 O  ly        
+    60      -.248406   5 O  ly               51       .248406   4 O  ly        
+    33       .170153   2 C  ly               42      -.170153   3 C  ly        
+    37       .162898   2 C  ly               46      -.162898   3 C  ly        
+ 
+ Vector   32  Occ=2.000000D+00  E=-6.833726D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .266692   1 Fe dxz              12       .260654   1 Fe dxz       
+    54       .253861   4 O  lx               63      -.253861   5 O  lx        
+    59      -.248406   5 O  lx               50       .248406   4 O  lx        
+    32       .170153   2 C  lx               41      -.170153   3 C  lx        
+    36       .162898   2 C  lx               45      -.162898   3 C  lx        
+ 
+ Vector   33  Occ=2.000000D+00  E=-6.769748D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .332187   2 C  ls               44      -.332187   3 C  ls        
+    43      -.228306   3 C  lz               34      -.228306   2 C  lz        
+    52       .174131   4 O  lz               61       .174131   5 O  lz        
+     9      -.169746   1 Fe lz               38      -.160558   2 C  lz        
+    47      -.160558   3 C  lz               65       .158358   5 O  lz        
+ 
+ Vector   34  Occ=2.000000D+00  E=-6.764663D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .223128   6 C  ls               64       .202939   5 O  ly        
+    55       .202939   4 O  ly               60       .195427   5 O  ly        
+    51       .195427   4 O  ly               54       .154864   4 O  lx        
+    63       .154864   5 O  lx        
+ 
+ Vector   35  Occ=2.000000D+00  E=-6.764663D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .208225   7 C  ls               63      -.202939   5 O  lx        
+    54      -.202939   4 O  lx               50      -.195427   4 O  lx        
+    59      -.195427   5 O  lx               89      -.178244   8 C  ls        
+    77       .166129   7 C  lx               64       .154864   5 O  ly        
+    55       .154864   4 O  ly        
+ 
+ Vector   36  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .299177  10 O  ly              105       .290003  10 O  ly        
+   117       .284509  11 O  lx              113       .275872  11 O  lx        
+    17      -.201740   1 Fe dxy              11      -.179230   1 Fe dxy       
+    78       .164659   7 C  ly               82       .157956   7 C  ly        
+    86       .152509   8 C  lx        
+ 
+ Vector   37  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   100       .241687   9 O  ly               99      -.236985   9 O  lx        
+    96       .234088   9 O  ly               95      -.229320   9 O  lx        
+   117      -.162814  11 O  lx              113      -.156949  11 O  lx        
+ 
+ Vector   38  Occ=2.000000D+00  E=-6.417544D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .267422  10 O  ly              117      -.267422  11 O  lx        
+   113      -.250407  11 O  lx              105       .250407  10 O  ly        
+    99       .195767   9 O  lx              100      -.195767   9 O  ly        
+    95       .183310   9 O  lx               96      -.183310   9 O  ly        
+ 
+ Vector   39  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   119       .326640  11 O  lz              115       .307389  11 O  lz        
+    88       .188614   8 C  lz               92       .182730   8 C  lz        
+   110      -.177350  10 O  lz               64      -.167805   5 O  ly        
+    55       .167805   4 O  ly              106      -.166897  10 O  lz        
+    60      -.154913   5 O  ly               51       .154913   4 O  ly        
+ 
+ Vector   40  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   101       .290979   9 O  lz              110      -.274779  10 O  lz        
+    97       .273829   9 O  lz              106      -.258584  10 O  lz        
+    70       .168022   6 C  lz               63       .167805   5 O  lx        
+    54      -.167805   4 O  lx               74       .162780   6 C  lz        
+    79      -.158668   7 C  lz               59       .154913   5 O  lx        
+ 
+ Vector   41  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .408438   7 C  ls               77       .247242   7 C  lx        
+    71      -.211472   6 C  ls               63       .200747   5 O  lx        
+    54       .200747   4 O  lx               89      -.196966   8 C  ls        
+    81       .182876   7 C  lx               50       .182525   4 O  lx        
+    59       .182525   5 O  lx              104      -.160886  10 O  lx        
+ 
+ Vector   42  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .357905   8 C  ls               71      -.349531   6 C  ls        
+    87       .209847   8 C  ly               55       .200747   4 O  ly        
+    64       .200747   5 O  ly               17      -.191903   1 Fe dxy       
+    51       .182525   4 O  ly               60       .182525   5 O  ly        
+    68       .175814   6 C  lx               11      -.171308   1 Fe dxy       
+ 
+ Vector   43  Occ=2.000000D+00  E=-6.193137D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .347213   2 C  ls               44       .347213   3 C  ls        
+    71      -.268284   6 C  ls               80      -.268284   7 C  ls        
+    89      -.268284   8 C  ls               34      -.198417   2 C  lz        
+    43       .198417   3 C  lz               21       .195139   1 Fe dzz       
+    87      -.177195   8 C  ly               77      -.177195   7 C  lx        
+ 
+ Vector   44  Occ=2.000000D+00  E=-6.050385D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .284854   3 C  ls               35      -.284854   2 C  ls        
+   101       .227715   9 O  lz              110       .227715  10 O  lz        
+   119       .227715  11 O  lz               97       .210987   9 O  lz        
+   115       .210987  11 O  lz              106       .210987  10 O  lz        
+    43       .185392   3 C  lz               34       .185392   2 C  lz        
+ 
+ Vector   45  Occ=2.000000D+00  E=-4.815080D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .915594   1 Fe dyz              14       .892958   1 Fe dyz       
+    55      -.171238   4 O  ly               64       .171238   5 O  ly        
+   119       .171119  11 O  lz        
+ 
+ Vector   46  Occ=2.000000D+00  E=-4.815080D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .915594   1 Fe dxz              12       .892958   1 Fe dxz       
+    54      -.171238   4 O  lx               63       .171238   5 O  lx        
+   110       .165370  10 O  lz        
+ 
+ Vector   47  Occ=2.000000D+00  E=-3.311258D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24       .820710   1 Fe ly               17      -.467605   1 Fe dxy       
+    11      -.440335   1 Fe dxy              16      -.262443   1 Fe dxx       
+    19       .262443   1 Fe dyy              10      -.247138   1 Fe dxx       
+    13       .247138   1 Fe dyy              89       .207365   8 C  ls        
+   109      -.200905  10 O  ly               91       .156944   8 C  ly        
+ 
+ Vector   48  Occ=2.000000D+00  E=-3.311258D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23       .820710   1 Fe lx               17      -.524887   1 Fe dxy       
+    11      -.494276   1 Fe dxy              16       .233803   1 Fe dxx       
+    19      -.233803   1 Fe dyy              13      -.220168   1 Fe dyy       
+    10       .220168   1 Fe dxx             117      -.209061  11 O  lx        
+    80       .201049   7 C  ls               71      -.158118   6 C  ls        
+ 
+ Vector   49  Occ=0.000000D+00  E= 7.628339D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14       .442857   1 Fe dyz              20       .422497   1 Fe dyz       
+    37      -.326774   2 C  ly               46       .326774   3 C  ly        
+    92       .296654   8 C  lz               55       .250576   4 O  ly        
+    64      -.250576   5 O  ly              119      -.242900  11 O  lz        
+    74      -.241929   6 C  lz              101       .198092   9 O  lz        
+ 
+ Vector   50  Occ=0.000000D+00  E= 7.628339D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12       .442857   1 Fe dxz              18       .422497   1 Fe dxz       
+    36      -.326774   2 C  lx               45       .326774   3 C  lx        
+    83       .310951   7 C  lz              110      -.254607  10 O  lz        
+    54       .250576   4 O  lx               63      -.250576   5 O  lx        
+    74      -.202868   6 C  lz               32      -.191207   2 C  lx        
+ 
+ Vector   51  Occ=0.000000D+00  E= 9.863415D-02  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      2.202292   1 Fe ls               22     -1.364464   1 Fe ls        
+    71      -.224501   6 C  ls               80      -.224501   7 C  ls        
+    89      -.224501   8 C  ls               44      -.170319   3 C  ls        
+    35      -.170319   2 C  ls        
+ 
+ Vector   52  Occ=0.000000D+00  E= 1.049467D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.309582   1 Fe lz               25      -.400101   1 Fe lz        
+    35      -.341402   2 C  ls               44       .341402   3 C  ls        
+   101      -.179072   9 O  lz              110      -.179072  10 O  lz        
+   119      -.179072  11 O  lz        
+ 
+ Vector   53  Occ=0.000000D+00  E= 1.093123D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .975206   1 Fe ly               27       .899785   1 Fe lx        
+    24      -.513992   1 Fe ly               23      -.474241   1 Fe lx        
+    71      -.320415   6 C  ls               11       .284863   1 Fe dxy       
+    17       .274316   1 Fe dxy              89       .171369   8 C  ls        
+ 
+ Vector   54  Occ=0.000000D+00  E= 1.093123D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .975206   1 Fe lx               28      -.899785   1 Fe ly        
+    23      -.513992   1 Fe lx               24       .474241   1 Fe ly        
+    80       .283932   7 C  ls               89      -.271043   8 C  ls        
+    81      -.153772   7 C  lx        
+ 
+ Vector   55  Occ=0.000000D+00  E= 1.213410D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    82       .403846   7 C  ly               90      -.403846   8 C  lx        
+    72       .295636   6 C  lx               73      -.295636   6 C  ly        
+   109      -.285720  10 O  ly              117       .285720  11 O  lx        
+    86      -.260070   8 C  lx               78       .260070   7 C  ly        
+   100       .209162   9 O  ly               99      -.209162   9 O  lx        
+ 
+ Vector   56  Occ=0.000000D+00  E= 1.241828D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .802417   1 Fe ly               37      -.463185   2 C  ly        
+    46      -.463185   3 C  ly               24      -.420550   1 Fe ly        
+    55       .289160   4 O  ly               64       .289160   5 O  ly        
+    42      -.288018   3 C  ly               33      -.288018   2 C  ly        
+    60       .170748   5 O  ly               51       .170748   4 O  ly        
+ 
+ Vector   57  Occ=0.000000D+00  E= 1.241828D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .802417   1 Fe lx               45      -.463185   3 C  lx        
+    36      -.463185   2 C  lx               23      -.420550   1 Fe lx        
+    54       .289160   4 O  lx               63       .289160   5 O  lx        
+    41      -.288018   3 C  lx               32      -.288018   2 C  lx        
+    50       .170748   4 O  lx               59       .170748   5 O  lx        
+ 
+ Vector   58  Occ=0.000000D+00  E= 1.381889D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.419024   1 Fe lz               29     -1.157078   1 Fe lz        
+    35      -.491321   2 C  ls               44       .491321   3 C  ls        
+    38       .388576   2 C  lz               47       .388576   3 C  lz        
+    74       .272236   6 C  lz               83       .272236   7 C  lz        
+    92       .272236   8 C  lz               70       .231566   6 C  lz        
+ 
+ Vector   59  Occ=0.000000D+00  E= 1.555101D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17       .507972   1 Fe dxy              28      -.483326   1 Fe ly        
+    11       .483044   1 Fe dxy              82       .429501   7 C  ly        
+    24       .297004   1 Fe ly               78       .284075   7 C  ly        
+   109      -.280466  10 O  ly               89       .262169   8 C  ls        
+    71      -.248865   6 C  ls               90       .205313   8 C  lx        
+ 
+ Vector   60  Occ=0.000000D+00  E= 1.555101D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .483326   1 Fe lx               90      -.378248   8 C  lx        
+    17      -.324633   1 Fe dxy              11      -.308702   1 Fe dxy       
+    23      -.297004   1 Fe lx               80      -.295046   7 C  ls        
+    73       .277306   6 C  ly              117       .258035  11 O  lx        
+    86      -.255043   8 C  lx               19      -.253986   1 Fe dyy       
+ 
+ Vector   61  Occ=0.000000D+00  E= 2.046554D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    92       .474914   8 C  lz               46      -.369545   3 C  ly        
+    37       .369545   2 C  ly               74      -.337358   6 C  lz        
+   119      -.322055  11 O  lz               88       .316532   8 C  lz        
+    42      -.260537   3 C  ly               33       .260537   2 C  ly        
+    55      -.240740   4 O  ly               64       .240740   5 O  ly        
+ 
+ Vector   62  Occ=0.000000D+00  E= 2.046554D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83       .468965   7 C  lz               36       .369545   2 C  lx        
+    45      -.369545   3 C  lx               74      -.353610   6 C  lz        
+   110      -.318021  10 O  lz               79       .312567   7 C  lz        
+    32       .260537   2 C  lx               41      -.260537   3 C  lx        
+    54      -.240740   4 O  lx               63       .240740   5 O  lx        
+ 
+ Vector   63  Occ=0.000000D+00  E= 2.805612D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21       .523678   1 Fe dzz              35      -.509026   2 C  ls        
+    44      -.509026   3 C  ls               53       .493873   4 O  ls        
+    62       .493873   5 O  ls               15       .472781   1 Fe dzz       
+    22      -.427736   1 Fe ls               47       .426311   3 C  lz        
+    38      -.426311   2 C  lz               80       .357235   7 C  ls        
+ 
+ Vector   64  Occ=0.000000D+00  E= 4.961051D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      4.252704   1 Fe lz               38      1.887975   2 C  lz        
+    47      1.887975   3 C  lz               29     -1.310403   1 Fe lz        
+    53     -1.054868   4 O  ls               62      1.054868   5 O  ls        
+    44       .974410   3 C  ls               35      -.974410   2 C  ls        
+    74      -.408069   6 C  lz               83      -.408069   7 C  lz        
+ 
+ Vector   65  Occ=0.000000D+00  E= 5.028705D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.389156   1 Fe ls               35     -1.201643   2 C  ls        
+    44     -1.201643   3 C  ls               71     -1.074804   6 C  ls        
+    80     -1.074804   7 C  ls               89     -1.074804   8 C  ls        
+    62       .626848   5 O  ls               53       .626848   4 O  ls        
+    26       .578768   1 Fe ls               98       .484516   9 O  ls        
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Fe  26    25.25   1.99  8.00  7.65  3.00  3.45   .94   .21
+    2 C    6     5.71   1.99  1.78  1.94
+    3 C    6     5.71   1.99  1.78  1.94
+    4 O    8     8.47   1.99  2.51  3.98
+    5 O    8     8.47   1.99  2.51  3.98
+    6 C    6     5.63   1.99  1.77  1.87
+    7 C    6     5.63   1.99  1.77  1.87
+    8 C    6     5.63   1.99  1.77  1.87
+    9 O    8     8.50   1.99  2.51  4.00
+   10 O    8     8.50   1.99  2.51  4.00
+   11 O    8     8.50   1.99  2.51  4.00
+
+------------------------------------------------------------
+EAF file 0: "./scf_feco5.aoints.0" size=2359368 bytes
+------------------------------------------------------------
+               write      read    awrite     aread      wait
+               -----      ----    ------     -----      ----
+     calls:        9        26         0       208       208
+   data(b): 2.36e+06  6.82e+06  0.00e+00  2.08e+02
+   time(s): 1.01e+00  7.64e-02                      7.63e-02
+rate(mb/s): 2.34e+00  8.92e+01
+------------------------------------------------------------
+
+
+ Parallel integral file used      32 records with       0 large values
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+              case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching
+              -----------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+               case s3b: fe(co)5 --- Semi-direct SCF ... 50% caching
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   119
+  atoms           =    11
+  closed shells   =    48
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./scf_feco5.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ fe                          3-21g                   7       29   5s4p2d
+ o                           3-21g                   3        9   3s2p
+ c                           3-21g                   3        9   3s2p
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        a1'        29
+        a1"         0
+        a2'         4
+        a2"        18
+        e'         48
+        e"         20
+ 
+
+ Forming initial guess at      85.6s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -1815.24436401
+
+ Integral file          = ./scf_feco5.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      0        Max. records in file   =      5
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 2.297D+04 #integrals = 1.460D+06 #direct = 50.8% #cached = 49.2%
+
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -1818.607109
+ 1-e energy   =   -4094.538473
+ 2-e energy   =    1477.435746
+ HOMO         =       -.233831
+ LUMO         =       -.015290
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a1'         8 a2"         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 e'         23 e'         24 a1'        25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 a1'        42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 a1'        50 e"      
+    51 e"         52 e'         53 e'         54 a2"        55 a2'     
+    56 e'         57 e'         58 a1'     
+ 
+
+ Starting SCF solution at      91.4s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1    -1816.3884213612  1.87D+00  5.01D-01     89.4
+                 2    -1816.6015416488  7.93D-01  2.38D-01     94.4
+                 3    -1816.6471707493  5.87D-01  2.10D-01     97.0
+                 4    -1816.6610541109  3.07D-01  9.45D-02    103.6
+                 5    -1816.6771065540  7.70D-02  3.79D-02    114.8
+                 6    -1816.6775061784  4.01D-03  1.47D-03    122.7
+                 7    -1816.6775092845  1.84D-05  6.66D-06    137.1
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =  -1816.677509284465
+      One-electron energy =  -4092.290763423235
+      Two-electron energy =   1477.117636044580
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =     50.7s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a2"        12 a1'        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 e'         42 e'         43 a1'        44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 a1'        52 a2"        53 e'         54 e'         55 a2'     
+    56 e'         57 e'         58 a2"     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1 -259.8147
+    2  -31.8753
+    3  -27.3166
+    4  -27.3115
+    5  -27.3115
+    6  -20.6092
+    7  -20.6087
+    8  -20.5806
+    9  -20.5801
+   10  -20.5801
+   11  -11.3717
+   12  -11.3710
+   13  -11.3538
+   14  -11.3529
+   15  -11.3529
+   16   -4.1718
+   17   -2.7392
+   18   -2.7276
+   19   -2.7276
+   20   -1.5608
+   21   -1.5603
+   22   -1.5360
+   23   -1.5350
+   24   -1.5350
+   25    -.8706
+   26    -.8228
+   27    -.8008
+   28    -.8008
+   29    -.7991
+   30    -.7302
+   31    -.6834
+   32    -.6834
+   33    -.6770
+   34    -.6765
+   35    -.6765
+   36    -.6546
+   37    -.6546
+   38    -.6418
+   39    -.6322
+   40    -.6322
+   41    -.6288
+   42    -.6288
+   43    -.6193
+   44    -.6050
+   45    -.4815
+   46    -.4815
+   47    -.3311
+   48    -.3311
+   49     .0763
+   50     .0763
+   51     .0986
+   52     .1049
+   53     .1093
+   54     .1093
+   55     .1213
+   56     .1242
+   57     .1242
+   58     .1382
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector   25  Occ=2.000000D+00  E=-8.706147D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .302347   2 C  ls               44       .302347   3 C  ls        
+     6      -.211002   1 Fe ls               53      -.208837   4 O  ls        
+    62      -.208837   5 O  ls               71       .206865   6 C  ls        
+    80       .206865   7 C  ls               89       .206865   8 C  ls        
+ 
+ Vector   26  Occ=2.000000D+00  E=-8.227912D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .357609   2 C  ls               44      -.357609   3 C  ls        
+    53      -.332295   4 O  ls               62       .332295   5 O  ls        
+    61      -.244330   5 O  lz               52      -.244330   4 O  lz        
+    65      -.216736   5 O  lz               56      -.216736   4 O  lz        
+ 
+ Vector   27  Occ=2.000000D+00  E=-8.007896D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .360366   7 C  ls              107      -.358459  10 O  ls        
+    71      -.267292   6 C  ls               98       .265878   9 O  ls        
+   104       .256823  10 O  lx              108       .234925  10 O  lx        
+    76       .159123   7 C  ls        
+ 
+ Vector   28  Occ=2.000000D+00  E=-8.007896D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .362379   8 C  ls              116      -.360461  11 O  ls        
+    71      -.261794   6 C  ls               98       .260409   9 O  ls        
+   114       .258262  11 O  ly              118       .236217  11 O  ly        
+    85       .160011   8 C  ls        
+ 
+ Vector   29  Occ=2.000000D+00  E=-7.991257D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    62       .210119   5 O  ls               53       .210119   4 O  ls        
+    52       .195828   4 O  lz               61      -.195828   5 O  lz        
+    80       .195230   7 C  ls               89       .195230   8 C  ls        
+    71       .195230   6 C  ls               56       .184963   4 O  lz        
+    65      -.184963   5 O  lz              116      -.178899  11 O  ls        
+ 
+ Vector   30  Occ=2.000000D+00  E=-7.302357D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34       .202702   2 C  lz               43      -.202702   3 C  lz        
+    52      -.195104   4 O  lz               61       .195104   5 O  lz        
+    56      -.179478   4 O  lz               65       .179478   5 O  lz        
+   104       .164057  10 O  lx              114       .164057  11 O  ly        
+     6       .152767   1 Fe ls              108       .152329  10 O  lx        
+ 
+ Vector   31  Occ=2.000000D+00  E=-6.833726D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .221890   1 Fe dyz              14       .216866   1 Fe dyz       
+    55       .211215   4 O  ly               64      -.211215   5 O  ly        
+    60      -.206676   5 O  ly               51       .206676   4 O  ly        
+ 
+ Vector   32  Occ=2.000000D+00  E=-6.833726D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .221890   1 Fe dxz              12       .216866   1 Fe dxz       
+    54       .211215   4 O  lx               63      -.211215   5 O  lx        
+    59      -.206676   5 O  lx               50       .206676   4 O  lx        
+ 
+ Vector   33  Occ=2.000000D+00  E=-6.769747D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .332187   2 C  ls               44      -.332187   3 C  ls        
+    43      -.228306   3 C  lz               34      -.228306   2 C  lz        
+    52       .174131   4 O  lz               61       .174131   5 O  lz        
+     9      -.169746   1 Fe lz               38      -.160558   2 C  lz        
+    47      -.160558   3 C  lz               56       .158358   4 O  lz        
+ 
+ Vector   34  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    54       .223518   4 O  lx               63       .223518   5 O  lx        
+    71       .216287   6 C  ls               50       .215245   4 O  lx        
+    59       .215245   5 O  lx               80      -.162259   7 C  ls        
+ 
+ Vector   35  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    55       .223518   4 O  ly               64       .223518   5 O  ly        
+    89      -.218554   8 C  ls               51       .215245   4 O  ly        
+    60       .215245   5 O  ly               87      -.173301   8 C  ly        
+    80       .156067   7 C  ls        
+ 
+ Vector   36  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   100       .243474   9 O  ly               96       .235957   9 O  ly        
+    99      -.232715   9 O  lx               95      -.225048   9 O  lx        
+   117      -.180621  11 O  lx              113      -.174218  11 O  lx        
+    68      -.153161   6 C  lx        
+ 
+ Vector   37  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .307109  10 O  ly              105       .297636  10 O  ly        
+   117       .273550  11 O  lx              113       .265304  11 O  lx        
+    17      -.200693   1 Fe dxy              11      -.178300   1 Fe dxy       
+    78       .171660   7 C  ly               82       .163861   7 C  ly        
+ 
+ Vector   38  Occ=2.000000D+00  E=-6.417544D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .267422  10 O  ly              117      -.267422  11 O  lx        
+   113      -.250407  11 O  lx              105       .250407  10 O  ly        
+    99       .195767   9 O  lx              100      -.195767   9 O  ly        
+    95       .183310   9 O  lx               96      -.183310   9 O  ly        
+ 
+ Vector   39  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   110       .294572  10 O  lz              106       .277210  10 O  lz        
+   101      -.270322   9 O  lz               97      -.254390   9 O  lz        
+    54       .173189   4 O  lx               63      -.173189   5 O  lx        
+    79       .170097   7 C  lz               83       .164790   7 C  lz        
+    59      -.159883   5 O  lx               50       .159883   4 O  lx        
+ 
+ Vector   40  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   119       .326142  11 O  lz              115       .306920  11 O  lz        
+    88       .188326   8 C  lz              101      -.184071   9 O  lz        
+    92       .182451   8 C  lz               97      -.173223   9 O  lz        
+    55       .173189   4 O  ly               64      -.173189   5 O  ly        
+    60      -.159883   5 O  ly               51       .159883   4 O  ly        
+ 
+ Vector   41  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .373045   7 C  ls               89      -.330734   8 C  ls        
+    77       .232069   7 C  lx               87      -.209056   8 C  ly        
+    81       .172654   7 C  lx               63       .160539   5 O  lx        
+    54       .160539   4 O  lx               91      -.156049   8 C  ly        
+ 
+ Vector   42  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .406327   6 C  ls               89      -.239806   8 C  ls        
+    17       .223086   1 Fe dxy              11       .199145   1 Fe dxy       
+    68      -.184426   6 C  lx               69      -.176128   6 C  ly        
+    80      -.166521   7 C  ls               64      -.160539   5 O  ly        
+    55      -.160539   4 O  ly        
+ 
+ Vector   43  Occ=2.000000D+00  E=-6.193136D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .347212   2 C  ls               44       .347212   3 C  ls        
+    71      -.268284   6 C  ls               80      -.268284   7 C  ls        
+    89      -.268284   8 C  ls               34      -.198417   2 C  lz        
+    43       .198417   3 C  lz               21       .195139   1 Fe dzz       
+    87      -.177195   8 C  ly               77      -.177195   7 C  lx        
+ 
+ Vector   44  Occ=2.000000D+00  E=-6.050384D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .284854   3 C  ls               35      -.284854   2 C  ls        
+   101       .227715   9 O  lz              110       .227715  10 O  lz        
+   119       .227715  11 O  lz               97       .210987   9 O  lz        
+   115       .210987  11 O  lz              106       .210987  10 O  lz        
+    43       .185392   3 C  lz               34       .185392   2 C  lz        
+ 
+ Vector   45  Occ=2.000000D+00  E=-4.815077D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .865872   1 Fe dyz              14       .844465   1 Fe dyz       
+    18      -.303293   1 Fe dxz              12      -.295795   1 Fe dxz       
+   119       .174041  11 O  lz               64       .161939   5 O  ly        
+    55      -.161939   4 O  ly        
+ 
+ Vector   46  Occ=2.000000D+00  E=-4.815077D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .865872   1 Fe dxz              12       .844465   1 Fe dxz       
+    20       .303293   1 Fe dyz              14       .295795   1 Fe dyz       
+    54      -.161939   4 O  lx               63       .161939   5 O  lx        
+   101      -.157273   9 O  lz        
+ 
+ Vector   47  Occ=2.000000D+00  E=-3.311258D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23       .815151   1 Fe lx               17      -.557254   1 Fe dxy       
+    11      -.524755   1 Fe dxy              19      -.214260   1 Fe dyy       
+    16       .214260   1 Fe dxx             117      -.212760  11 O  lx        
+    13      -.201765   1 Fe dyy              10       .201765   1 Fe dxx       
+    80       .195727   7 C  ls               71      -.167867   6 C  ls        
+ 
+ Vector   48  Occ=2.000000D+00  E=-3.311258D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24       .815151   1 Fe ly               17      -.428520   1 Fe dxy       
+    11      -.403529   1 Fe dxy              19       .278627   1 Fe dyy       
+    16      -.278627   1 Fe dxx              10      -.262378   1 Fe dxx       
+    13       .262378   1 Fe dyy              89       .209921   8 C  ls        
+   109      -.194431  10 O  ly               91       .156989   8 C  ly        
+ 
+ Vector   49  Occ=0.000000D+00  E= 7.628350D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14       .444190   1 Fe dyz              20       .423769   1 Fe dyz       
+    37      -.327757   2 C  ly               46       .327757   3 C  ly        
+    92       .308057   8 C  lz              119      -.252237  11 O  lz        
+    55       .251330   4 O  ly               64      -.251330   5 O  ly        
+    74      -.213942   6 C  lz               33      -.191783   2 C  ly        
+ 
+ Vector   50  Occ=0.000000D+00  E= 7.628350D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12       .444190   1 Fe dxz              18       .423769   1 Fe dxz       
+    36      -.327757   2 C  lx               45       .327757   3 C  lx        
+    83       .301376   7 C  lz               63      -.251330   5 O  lx        
+    54       .251330   4 O  lx              110      -.246767  10 O  lz        
+    74      -.232194   6 C  lz               41       .191783   3 C  lx        
+ 
+ Vector   51  Occ=0.000000D+00  E= 9.863367D-02  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      2.202299   1 Fe ls               22     -1.364487   1 Fe ls        
+    71      -.224498   6 C  ls               80      -.224498   7 C  ls        
+    89      -.224498   8 C  ls               44      -.170316   3 C  ls        
+    35      -.170316   2 C  ls        
+ 
+ Vector   52  Occ=0.000000D+00  E= 1.049468D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.309582   1 Fe lz               25      -.400103   1 Fe lz        
+    44       .341401   3 C  ls               35      -.341401   2 C  ls        
+   101      -.179072   9 O  lz              110      -.179072  10 O  lz        
+   119      -.179072  11 O  lz        
+ 
+ Vector   53  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.007179   1 Fe ly               27      -.863836   1 Fe lx        
+    24      -.530842   1 Fe ly               23       .455292   1 Fe lx        
+    89       .289150   8 C  ls               80      -.264654   7 C  ls        
+    91      -.156576   8 C  ly               64      -.151874   5 O  ly        
+    55      -.151874   4 O  ly        
+ 
+ Vector   54  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      1.007179   1 Fe lx               28       .863836   1 Fe ly        
+    23      -.530842   1 Fe lx               24      -.455292   1 Fe ly        
+    71      -.319739   6 C  ls               11       .284261   1 Fe dxy       
+    17       .273737   1 Fe dxy              80       .181084   7 C  ls        
+    54      -.151874   4 O  lx               63      -.151874   5 O  lx        
+ 
+ Vector   55  Occ=0.000000D+00  E= 1.213410D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    82       .403846   7 C  ly               90      -.403846   8 C  lx        
+    72       .295636   6 C  lx               73      -.295636   6 C  ly        
+   109      -.285720  10 O  ly              117       .285720  11 O  lx        
+    86      -.260070   8 C  lx               78       .260070   7 C  ly        
+    99      -.209162   9 O  lx              100       .209162   9 O  ly        
+ 
+ Vector   56  Occ=0.000000D+00  E= 1.241829D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .641353   1 Fe ly               27      -.484325   1 Fe lx        
+    37      -.370208   2 C  ly               46      -.370208   3 C  ly        
+    24      -.336135   1 Fe ly               45       .279567   3 C  lx        
+    36       .279567   2 C  lx               23       .253836   1 Fe lx        
+    55       .231115   4 O  ly               64       .231115   5 O  ly        
+ 
+ Vector   57  Occ=0.000000D+00  E= 1.241829D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .641353   1 Fe lx               28       .484325   1 Fe ly        
+    36      -.370208   2 C  lx               45      -.370208   3 C  lx        
+    23      -.336135   1 Fe lx               37      -.279567   2 C  ly        
+    46      -.279567   3 C  ly               24      -.253836   1 Fe ly        
+    54       .231115   4 O  lx               63       .231115   5 O  lx        
+ 
+ Vector   58  Occ=0.000000D+00  E= 1.381889D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.419030   1 Fe lz               29     -1.157080   1 Fe lz        
+    35      -.491323   2 C  ls               44       .491323   3 C  ls        
+    38       .388578   2 C  lz               47       .388578   3 C  lz        
+    74       .272235   6 C  lz               83       .272235   7 C  lz        
+    92       .272235   8 C  lz               88       .231566   8 C  lz        
+ 
+ Vector   59  Occ=0.000000D+00  E= 1.555100D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .356384   1 Fe ly               27      -.343400   1 Fe lx        
+    72       .315358   6 C  lx               73      -.314539   6 C  ly        
+    19       .301370   1 Fe dyy              16      -.301370   1 Fe dxx       
+    10      -.286581   1 Fe dxx              13       .286581   1 Fe dyy       
+    89      -.258472   8 C  ls               80       .252993   7 C  ls        
+ 
+ Vector   60  Occ=0.000000D+00  E= 1.555100D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17       .602741   1 Fe dxy              11       .573162   1 Fe dxy       
+    90       .380485   8 C  lx               82       .372762   7 C  ly        
+    27      -.356384   1 Fe lx               28      -.343400   1 Fe ly        
+    71      -.295294   6 C  ls               86       .245596   8 C  lx        
+    78       .240126   7 C  ly              117      -.234722  11 O  lx        
+ 
+ Vector   61  Occ=0.000000D+00  E= 2.046554D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74       .488707   6 C  lz              101      -.331409   9 O  lz        
+    70       .325725   6 C  lz               37      -.263492   2 C  ly        
+    46       .263492   3 C  ly               36      -.259251   2 C  lx        
+    45       .259251   3 C  lx               92      -.247787   8 C  lz        
+    83      -.240920   7 C  lz               97      -.194970   9 O  lz        
+ 
+ Vector   62  Occ=0.000000D+00  E= 2.046554D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83       .425215   7 C  lz               92      -.421250   8 C  lz        
+   110      -.288353  10 O  lz              119       .285664  11 O  lz        
+    79       .283407   7 C  lz               88      -.280765   8 C  lz        
+    36       .263492   2 C  lx               45      -.263492   3 C  lx        
+    37      -.259251   2 C  ly               46       .259251   3 C  ly        
+ 
+ Vector   63  Occ=0.000000D+00  E= 2.805613D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21       .523678   1 Fe dzz              35      -.509025   2 C  ls        
+    44      -.509025   3 C  ls               53       .493871   4 O  ls        
+    62       .493871   5 O  ls               15       .472781   1 Fe dzz       
+    22      -.427734   1 Fe ls               38      -.426309   2 C  lz        
+    47       .426309   3 C  lz               71       .357235   6 C  ls        
+ 
+ Vector   64  Occ=0.000000D+00  E= 4.961047D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      4.252714   1 Fe lz               38      1.887974   2 C  lz        
+    47      1.887974   3 C  lz               29     -1.310402   1 Fe lz        
+    53     -1.054866   4 O  ls               62      1.054866   5 O  ls        
+    44       .974418   3 C  ls               35      -.974418   2 C  ls        
+    74      -.408070   6 C  lz               83      -.408070   7 C  lz        
+ 
+ Vector   65  Occ=0.000000D+00  E= 5.028702D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.389169   1 Fe ls               35     -1.201644   2 C  ls        
+    44     -1.201644   3 C  ls               71     -1.074806   6 C  ls        
+    80     -1.074806   7 C  ls               89     -1.074806   8 C  ls        
+    62       .626847   5 O  ls               53       .626847   4 O  ls        
+    26       .578765   1 Fe ls               98       .484515   9 O  ls        
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Fe  26    25.25   1.99  8.00  7.65  3.00  3.45   .94   .21
+    2 C    6     5.71   1.99  1.78  1.94
+    3 C    6     5.71   1.99  1.78  1.94
+    4 O    8     8.47   1.99  2.51  3.98
+    5 O    8     8.47   1.99  2.51  3.98
+    6 C    6     5.63   1.99  1.77  1.87
+    7 C    6     5.63   1.99  1.77  1.87
+    8 C    6     5.63   1.99  1.77  1.87
+    9 O    8     8.50   1.99  2.51  4.00
+   10 O    8     8.50   1.99  2.51  4.00
+   11 O    8     8.50   1.99  2.51  4.00
+
+------------------------------------------------------------
+EAF file 0: "./scf_feco5.aoints.0" size=1048608 bytes
+------------------------------------------------------------
+               write      read    awrite     aread      wait
+               -----      ----    ------     -----      ----
+     calls:        6        27         0        78        78
+   data(b): 1.57e+06  7.08e+06  0.00e+00  7.80e+01
+   time(s): 6.21e-01  9.32e-02                      5.69e-02
+rate(mb/s): 2.53e+00  7.60e+01
+------------------------------------------------------------
+
+
+ Parallel integral file used      17 records with       0 large values
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+              case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching
+              -----------------------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+               case s3c: fe(co)5 --- Semi-direct SCF ... 25% caching
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   119
+  atoms           =    11
+  closed shells   =    48
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./scf_feco5.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ fe                          3-21g                   7       29   5s4p2d
+ o                           3-21g                   3        9   3s2p
+ c                           3-21g                   3        9   3s2p
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        a1'        29
+        a1"         0
+        a2'         4
+        a2"        18
+        e'         48
+        e"         20
+ 
+
+ Forming initial guess at     144.8s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -1815.24436401
+
+ Integral file          = ./scf_feco5.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =      0        Max. records in file   =      2
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 2.146D+04 #integrals = 1.377D+06 #direct = 78.0% #cached = 22.0%
+
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -1818.607109
+ 1-e energy   =   -4094.538473
+ 2-e energy   =    1477.435746
+ HOMO         =       -.233831
+ LUMO         =       -.015290
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a1'         8 a2"         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 e'         23 e'         24 a1'        25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 a1'        42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 a1'        50 e"      
+    51 e"         52 e'         53 e'         54 a2"        55 a2'     
+    56 e'         57 e'         58 a1'     
+ 
+
+ Starting SCF solution at     149.8s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1    -1816.3884200745  1.87D+00  5.01D-01    146.7
+                 2    -1816.6015420682  7.93D-01  2.38D-01    152.4
+                 3    -1816.6471712380  5.87D-01  2.10D-01    155.3
+                 4    -1816.6610543176  3.07D-01  7.15D-02    162.7
+                 5    -1816.6771066812  7.70D-02  3.79D-02    175.3
+                 6    -1816.6775062999  4.01D-03  1.33D-03    184.2
+                 7    -1816.6775094057  1.84D-05  6.66D-06    201.0
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =  -1816.677509405723
+      One-electron energy =  -4092.290760387856
+      Two-electron energy =   1477.117632887942
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =     57.4s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a2"        12 a1'        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 e'         42 e'         43 a1'        44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 a1'        52 a2"        53 e'         54 e'         55 a2'     
+    56 e'         57 e'         58 a2"     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1 -259.8147
+    2  -31.8753
+    3  -27.3166
+    4  -27.3115
+    5  -27.3115
+    6  -20.6092
+    7  -20.6087
+    8  -20.5806
+    9  -20.5801
+   10  -20.5801
+   11  -11.3717
+   12  -11.3710
+   13  -11.3538
+   14  -11.3529
+   15  -11.3529
+   16   -4.1718
+   17   -2.7392
+   18   -2.7276
+   19   -2.7276
+   20   -1.5608
+   21   -1.5603
+   22   -1.5360
+   23   -1.5350
+   24   -1.5350
+   25    -.8706
+   26    -.8228
+   27    -.8008
+   28    -.8008
+   29    -.7991
+   30    -.7302
+   31    -.6834
+   32    -.6834
+   33    -.6770
+   34    -.6765
+   35    -.6765
+   36    -.6546
+   37    -.6546
+   38    -.6418
+   39    -.6322
+   40    -.6322
+   41    -.6288
+   42    -.6288
+   43    -.6193
+   44    -.6050
+   45    -.4815
+   46    -.4815
+   47    -.3311
+   48    -.3311
+   49     .0763
+   50     .0763
+   51     .0986
+   52     .1049
+   53     .1093
+   54     .1093
+   55     .1213
+   56     .1242
+   57     .1242
+   58     .1382
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector   25  Occ=2.000000D+00  E=-8.706147D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .302347   2 C  ls               44       .302347   3 C  ls        
+     6      -.211002   1 Fe ls               53      -.208837   4 O  ls        
+    62      -.208837   5 O  ls               80       .206865   7 C  ls        
+    89       .206865   8 C  ls               71       .206865   6 C  ls        
+ 
+ Vector   26  Occ=2.000000D+00  E=-8.227911D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .357608   2 C  ls               44      -.357608   3 C  ls        
+    53      -.332295   4 O  ls               62       .332295   5 O  ls        
+    61      -.244330   5 O  lz               52      -.244330   4 O  lz        
+    65      -.216737   5 O  lz               56      -.216737   4 O  lz        
+ 
+ Vector   27  Occ=2.000000D+00  E=-8.007896D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .372475   6 C  ls               98      -.370504   9 O  ls        
+    89      -.216776   8 C  ls              116       .215629  11 O  ls        
+    95      -.194416   9 O  lx               96      -.194314   9 O  ly        
+   100      -.177805   9 O  ly               99      -.177334   9 O  lx        
+    67       .164470   6 C  ls               80      -.155699   7 C  ls        
+ 
+ Vector   28  Occ=2.000000D+00  E=-8.007896D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .340204   7 C  ls              107      -.338404  10 O  ls        
+    89      -.304941   8 C  ls              116       .303328  11 O  ls        
+   104       .242586  10 O  lx              108       .221169  10 O  lx        
+   114      -.217483  11 O  ly              118      -.198056  11 O  ly        
+    76       .150220   7 C  ls        
+ 
+ Vector   29  Occ=2.000000D+00  E=-7.991258D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    53       .210119   4 O  ls               62       .210119   5 O  ls        
+    52       .195828   4 O  lz               61      -.195828   5 O  lz        
+    80       .195231   7 C  ls               89       .195231   8 C  ls        
+    71       .195231   6 C  ls               65      -.184963   5 O  lz        
+    56       .184963   4 O  lz              107      -.178899  10 O  ls        
+ 
+ Vector   30  Occ=2.000000D+00  E=-7.302357D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43       .202702   3 C  lz               34      -.202702   2 C  lz        
+    52       .195104   4 O  lz               61      -.195104   5 O  lz        
+    56       .179477   4 O  lz               65      -.179477   5 O  lz        
+   104      -.164057  10 O  lx              114      -.164057  11 O  ly        
+     6      -.152768   1 Fe ls              108      -.152329  10 O  lx        
+ 
+ Vector   31  Occ=2.000000D+00  E=-6.833726D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .265229   1 Fe dyz              14       .259224   1 Fe dyz       
+    55       .252468   4 O  ly               64      -.252468   5 O  ly        
+    60      -.247043   5 O  ly               51       .247043   4 O  ly        
+    33       .169220   2 C  ly               42      -.169220   3 C  ly        
+    37       .162005   2 C  ly               46      -.162005   3 C  ly        
+ 
+ Vector   32  Occ=2.000000D+00  E=-6.833726D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .265229   1 Fe dxz              12       .259224   1 Fe dxz       
+    63      -.252468   5 O  lx               54       .252468   4 O  lx        
+    59      -.247043   5 O  lx               50       .247043   4 O  lx        
+    32       .169220   2 C  lx               41      -.169220   3 C  lx        
+    36       .162005   2 C  lx               45      -.162005   3 C  lx        
+ 
+ Vector   33  Occ=2.000000D+00  E=-6.769747D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .332187   3 C  ls               35      -.332187   2 C  ls        
+    43       .228306   3 C  lz               34       .228306   2 C  lz        
+    61      -.174131   5 O  lz               52      -.174131   4 O  lz        
+     9       .169746   1 Fe lz               38       .160558   2 C  lz        
+    47       .160558   3 C  lz               65      -.158358   5 O  lz        
+ 
+ Vector   34  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    55       .231244   4 O  ly               64       .231244   5 O  ly        
+    60       .222684   5 O  ly               51       .222684   4 O  ly        
+    71       .211639   6 C  ls               89      -.172305   8 C  ls        
+ 
+ Vector   35  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    63       .231244   5 O  lx               54       .231244   4 O  lx        
+    59       .222684   5 O  lx               50       .222684   4 O  lx        
+    80      -.221670   7 C  ls               77      -.175311   7 C  lx        
+ 
+ Vector   36  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .326892  10 O  ly              105       .316571  10 O  ly        
+   117       .212306  11 O  lx              113       .206174  11 O  lx        
+    78       .193953   7 C  ly               17      -.186363   1 Fe dxy       
+    82       .181731   7 C  ly               11      -.165569   1 Fe dxy       
+ 
+ Vector   37  Occ=2.000000D+00  E=-6.546475D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   117       .249760  11 O  lx              113       .241310  11 O  lx        
+   100      -.239460   9 O  ly               96      -.232669   9 O  ly        
+    99       .202727   9 O  lx               95       .195419   9 O  lx        
+    86       .174772   8 C  lx               68       .163077   6 C  lx        
+    90       .156159   8 C  lx        
+ 
+ Vector   38  Occ=2.000000D+00  E=-6.417544D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .267422  10 O  ly              117      -.267422  11 O  lx        
+   113      -.250407  11 O  lx              105       .250407  10 O  ly        
+    99       .195767   9 O  lx              100      -.195767   9 O  ly        
+    96      -.183310   9 O  ly               95       .183310   9 O  lx        
+ 
+ Vector   39  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   101       .316013   9 O  lz               97       .297388   9 O  lz        
+   119      -.230938  11 O  lz              115      -.217328  11 O  lz        
+    70       .182478   6 C  lz               74       .176785   6 C  lz        
+    55      -.152544   4 O  ly               64       .152544   5 O  ly        
+ 
+ Vector   40  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   110       .315783  10 O  lz              106       .297171  10 O  lz        
+   119      -.231568  11 O  lz              115      -.217920  11 O  lz        
+    79       .182345   7 C  lz               83       .176656   7 C  lz        
+    54       .152544   4 O  lx               63      -.152544   5 O  lx        
+ 
+ Vector   41  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    71       .405595   6 C  ls               80      -.245087   7 C  ls        
+    17       .222685   1 Fe dxy              11       .198786   1 Fe dxy       
+    69      -.184741   6 C  ly               68      -.175164   6 C  lx        
+    54      -.162610   4 O  lx               63      -.162610   5 O  lx        
+    89      -.160508   8 C  ls        
+ 
+ Vector   42  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .375671   8 C  ls               80      -.326840   7 C  ls        
+    87       .233444   8 C  ly               77      -.206885   7 C  lx        
+    91       .173638   8 C  ly               64       .162610   5 O  ly        
+    55       .162610   4 O  ly               81      -.154473   7 C  lx        
+ 
+ Vector   43  Occ=2.000000D+00  E=-6.193136D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .347212   3 C  ls               35       .347212   2 C  ls        
+    71      -.268284   6 C  ls               89      -.268284   8 C  ls        
+    80      -.268284   7 C  ls               34      -.198417   2 C  lz        
+    43       .198417   3 C  lz               21       .195139   1 Fe dzz       
+    87      -.177195   8 C  ly               77      -.177195   7 C  lx        
+ 
+ Vector   44  Occ=2.000000D+00  E=-6.050384D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .284853   3 C  ls               35      -.284853   2 C  ls        
+   110       .227715  10 O  lz              101       .227715   9 O  lz        
+   119       .227715  11 O  lz               97       .210987   9 O  lz        
+   115       .210987  11 O  lz              106       .210987  10 O  lz        
+    34       .185392   2 C  lz               43       .185392   3 C  lz        
+ 
+ Vector   45  Occ=2.000000D+00  E=-4.815077D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .911537   1 Fe dxz              12       .889002   1 Fe dxz       
+   110       .172620  10 O  lz               63       .170479   5 O  lx        
+    54      -.170479   4 O  lx        
+ 
+ Vector   46  Occ=2.000000D+00  E=-4.815077D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .911537   1 Fe dyz              14       .889002   1 Fe dyz       
+    55      -.170479   4 O  ly               64       .170479   5 O  ly        
+   119       .162377  11 O  lz        
+ 
+ Vector   47  Occ=2.000000D+00  E=-3.311258D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24       .820974   1 Fe ly               17      -.522095   1 Fe dxy       
+    11      -.491646   1 Fe dxy              16      -.235361   1 Fe dxx       
+    19       .235361   1 Fe dyy              10      -.221635   1 Fe dxx       
+    13       .221635   1 Fe dyy             109      -.208707  10 O  ly        
+    89       .201441   8 C  ls               71      -.157276   6 C  ls        
+ 
+ Vector   48  Occ=2.000000D+00  E=-3.311258D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23       .820974   1 Fe lx               17      -.470722   1 Fe dxy       
+    11      -.443270   1 Fe dxy              19      -.261047   1 Fe dyy       
+    16       .261047   1 Fe dxx              10       .245823   1 Fe dxx       
+    13      -.245823   1 Fe dyy              80       .207105   7 C  ls        
+   117      -.201393  11 O  lx               81       .156902   7 C  lx        
+ 
+ Vector   49  Occ=0.000000D+00  E= 7.628346D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12       .367042   1 Fe dxz              18       .350168   1 Fe dxz       
+    83       .297898   7 C  lz               45       .270831   3 C  lx        
+    36      -.270831   2 C  lx               14      -.250830   1 Fe dyz       
+   110      -.243919  10 O  lz               92      -.239538   8 C  lz        
+    20      -.239298   1 Fe dyz              63      -.207678   5 O  lx        
+ 
+ Vector   50  Occ=0.000000D+00  E= 7.628346D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14       .367042   1 Fe dyz              20       .350168   1 Fe dyz       
+    74      -.310289   6 C  lz               46       .270831   3 C  ly        
+    37      -.270831   2 C  ly              101       .254065   9 O  lz        
+    12       .250830   1 Fe dxz              18       .239298   1 Fe dxz       
+    55       .207678   4 O  ly               64      -.207678   5 O  ly        
+ 
+ Vector   51  Occ=0.000000D+00  E= 9.863430D-02  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      2.202294   1 Fe ls               22     -1.364471   1 Fe ls        
+    71      -.224500   6 C  ls               80      -.224500   7 C  ls        
+    89      -.224500   8 C  ls               35      -.170317   2 C  ls        
+    44      -.170317   3 C  ls        
+ 
+ Vector   52  Occ=0.000000D+00  E= 1.049468D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.309580   1 Fe lz               25      -.400102   1 Fe lz        
+    35      -.341400   2 C  ls               44       .341400   3 C  ls        
+   101      -.179073   9 O  lz              110      -.179073  10 O  lz        
+   119      -.179073  11 O  lz        
+ 
+ Vector   53  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      1.189132   1 Fe lx               23      -.626742   1 Fe lx        
+    28      -.588716   1 Fe ly               80       .314416   7 C  ls        
+    24       .310288   1 Fe ly               89      -.211811   8 C  ls        
+    54      -.179311   4 O  lx               63      -.179311   5 O  lx        
+    36       .171721   2 C  lx               45       .171721   3 C  lx        
+ 
+ Vector   54  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.189132   1 Fe ly               24      -.626742   1 Fe ly        
+    27       .588716   1 Fe lx               23      -.310288   1 Fe lx        
+    71      -.303817   6 C  ls               11       .270107   1 Fe dxy       
+    17       .260107   1 Fe dxy              89       .240768   8 C  ls        
+    55      -.179311   4 O  ly               64      -.179311   5 O  ly        
+ 
+ Vector   55  Occ=0.000000D+00  E= 1.213410D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    82       .403846   7 C  ly               90      -.403846   8 C  lx        
+    72       .295635   6 C  lx               73      -.295635   6 C  ly        
+   117       .285720  11 O  lx              109      -.285720  10 O  ly        
+    86      -.260070   8 C  lx               78       .260070   7 C  ly        
+    99      -.209162   9 O  lx              100       .209162   9 O  ly        
+ 
+ Vector   56  Occ=0.000000D+00  E= 1.241829D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .745749   1 Fe lx               36      -.430469   2 C  lx        
+    45      -.430469   3 C  lx               23      -.390849   1 Fe lx        
+    28       .299603   1 Fe ly               54       .268735   4 O  lx        
+    63       .268735   5 O  lx               41      -.267675   3 C  lx        
+    32      -.267675   2 C  lx               37      -.172940   2 C  ly        
+ 
+ Vector   57  Occ=0.000000D+00  E= 1.241829D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .745749   1 Fe ly               37      -.430469   2 C  ly        
+    46      -.430469   3 C  ly               24      -.390849   1 Fe ly        
+    27      -.299603   1 Fe lx               55       .268735   4 O  ly        
+    64       .268735   5 O  ly               42      -.267675   3 C  ly        
+    33      -.267675   2 C  ly               45       .172940   3 C  lx        
+ 
+ Vector   58  Occ=0.000000D+00  E= 1.381891D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.419018   1 Fe lz               29     -1.157078   1 Fe lz        
+    35      -.491318   2 C  ls               44       .491318   3 C  ls        
+    47       .388575   3 C  lz               38       .388575   2 C  lz        
+    92       .272237   8 C  lz               83       .272237   7 C  lz        
+    74       .272237   6 C  lz               88       .231566   8 C  lz        
+ 
+ Vector   59  Occ=0.000000D+00  E= 1.555100D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .416471   1 Fe lx               73       .312471   6 C  ly        
+    72      -.303074   6 C  lx               16       .294503   1 Fe dxx       
+    19      -.294503   1 Fe dyy              90      -.283627   8 C  lx        
+    80      -.281363   7 C  ls               13      -.280051   1 Fe dyy       
+    10       .280051   1 Fe dxx              28      -.267370   1 Fe ly        
+ 
+ Vector   60  Occ=0.000000D+00  E= 1.555100D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17       .589007   1 Fe dxy              11       .560102   1 Fe dxy       
+    28      -.416471   1 Fe ly               82       .412386   7 C  ly        
+    90       .323698   8 C  lx               71      -.288565   6 C  ls        
+    78       .268737   7 C  ly               27      -.267370   1 Fe lx        
+   109      -.260181  10 O  ly               24       .255920   1 Fe ly        
+ 
+ Vector   61  Occ=0.000000D+00  E= 2.046554D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83       .453952   7 C  lz               92      -.383767   8 C  lz        
+   110      -.307840  10 O  lz               79       .302560   7 C  lz        
+    36       .296207   2 C  lx               45      -.296207   3 C  lx        
+   119       .260245  11 O  lz               88      -.255782   8 C  lz        
+    37      -.221134   2 C  ly               46       .221134   3 C  ly        
+ 
+ Vector   62  Occ=0.000000D+00  E= 2.046554D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74       .483657   6 C  lz              101      -.327984   9 O  lz        
+    70       .322359   6 C  lz               92      -.302611   8 C  lz        
+    37      -.296207   2 C  ly               46       .296207   3 C  ly        
+    45       .221134   3 C  lx               36      -.221134   2 C  lx        
+    33      -.208832   2 C  ly               42       .208832   3 C  ly        
+ 
+ Vector   63  Occ=0.000000D+00  E= 2.805613D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21       .523678   1 Fe dzz              35      -.509026   2 C  ls        
+    44      -.509026   3 C  ls               62       .493869   5 O  ls        
+    53       .493869   4 O  ls               15       .472782   1 Fe dzz       
+    22      -.427724   1 Fe ls               38      -.426306   2 C  lz        
+    47       .426306   3 C  lz               71       .357234   6 C  ls        
+ 
+ Vector   64  Occ=0.000000D+00  E= 4.961059D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      4.252695   1 Fe lz               38      1.887974   2 C  lz        
+    47      1.887974   3 C  lz               29     -1.310403   1 Fe lz        
+    53     -1.054869   4 O  ls               62      1.054869   5 O  ls        
+    44       .974403   3 C  ls               35      -.974403   2 C  ls        
+    74      -.408066   6 C  lz               83      -.408066   7 C  lz        
+ 
+ Vector   65  Occ=0.000000D+00  E= 5.028706D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.389136   1 Fe ls               44     -1.201639   3 C  ls        
+    35     -1.201639   2 C  ls               80     -1.074803   7 C  ls        
+    71     -1.074803   6 C  ls               89     -1.074803   8 C  ls        
+    62       .626846   5 O  ls               53       .626846   4 O  ls        
+    26       .578775   1 Fe ls              107       .484521  10 O  ls        
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Fe  26    25.25   1.99  8.00  7.65  3.00  3.45   .94   .21
+    2 C    6     5.71   1.99  1.78  1.94
+    3 C    6     5.71   1.99  1.78  1.94
+    4 O    8     8.47   1.99  2.51  3.98
+    5 O    8     8.47   1.99  2.51  3.98
+    6 C    6     5.63   1.99  1.77  1.87
+    7 C    6     5.63   1.99  1.77  1.87
+    8 C    6     5.63   1.99  1.77  1.87
+    9 O    8     8.50   1.99  2.51  4.00
+   10 O    8     8.50   1.99  2.51  4.00
+   11 O    8     8.50   1.99  2.51  4.00
+
+------------------------------------------------------------
+EAF file 0: "./scf_feco5.aoints.0" size=786456 bytes
+------------------------------------------------------------
+               write      read    awrite     aread      wait
+               -----      ----    ------     -----      ----
+     calls:        3        26         0        52        52
+   data(b): 7.86e+05  6.82e+06  0.00e+00  5.20e+01
+   time(s): 1.98e-02  7.38e-02                      1.87e-02
+rate(mb/s): 3.98e+01  9.24e+01
+------------------------------------------------------------
+
+
+ Parallel integral file used      11 records with       0 large values
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                      case s4: fe(co)5 --- Fully-direct SCF
+                      -------------------------------------
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+                       case s4: fe(co)5 --- Fully-direct SCF
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =   119
+  atoms           =    11
+  closed shells   =    48
+  open shells     =     0
+  charge          =    .00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./scf_feco5.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ fe                          3-21g                   7       29   5s4p2d
+ o                           3-21g                   3        9   3s2p
+ c                           3-21g                   3        9   3s2p
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        a1'        29
+        a1"         0
+        a2'         4
+        a2"        18
+        e'         48
+        e"         20
+ 
+
+ Forming initial guess at     209.7s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -1815.24436401
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =   -1818.607109
+ 1-e energy   =   -4094.538473
+ 2-e energy   =    1477.435746
+ HOMO         =       -.233831
+ LUMO         =       -.015290
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a1'         8 a2"         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 e'         23 e'         24 a1'        25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 a1'        42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 a1'        50 e"      
+    51 e"         52 e'         53 e'         54 a2"        55 a2'     
+    56 e'         57 e'         58 a1'     
+ 
+
+ Starting SCF solution at     214.6s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           20
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1    -1816.3883849723  1.87D+00  5.01D-01    212.0
+                 2    -1816.6015411982  7.93D-01  2.38D-01    220.9
+                 3    -1816.6471730007  5.87D-01  2.10D-01    225.5
+                 4    -1816.6610529622  3.07D-01  7.54D-02    237.7
+                 5    -1816.6771050526  7.70D-02  3.79D-02    258.1
+                 6    -1816.6775046712  4.01D-03  1.48D-03    272.5
+                 7    -1816.6775077677  1.84D-05  6.65D-06    299.9
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =  -1816.677507767734
+      One-electron energy =  -4092.290758365447
+      Two-electron energy =   1477.117632503523
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =     92.5s
+
+
+ 
+       Symmetry analysis of molecular orbitals - final
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a2"        12 a1'        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 a2"        34 e'         35 e'      
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 e'         42 e'         43 a1'        44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 a1'        52 a2"        53 e'         54 e'         55 a2'     
+    56 e'         57 e'         58 a2"     
+ 
+             Final eigenvalues
+             -----------------
+
+              1      
+    1 -259.8147
+    2  -31.8753
+    3  -27.3166
+    4  -27.3115
+    5  -27.3115
+    6  -20.6092
+    7  -20.6087
+    8  -20.5806
+    9  -20.5801
+   10  -20.5801
+   11  -11.3717
+   12  -11.3710
+   13  -11.3538
+   14  -11.3529
+   15  -11.3529
+   16   -4.1718
+   17   -2.7392
+   18   -2.7276
+   19   -2.7276
+   20   -1.5608
+   21   -1.5603
+   22   -1.5360
+   23   -1.5350
+   24   -1.5350
+   25    -.8706
+   26    -.8228
+   27    -.8008
+   28    -.8008
+   29    -.7991
+   30    -.7302
+   31    -.6834
+   32    -.6834
+   33    -.6770
+   34    -.6765
+   35    -.6765
+   36    -.6546
+   37    -.6546
+   38    -.6418
+   39    -.6322
+   40    -.6322
+   41    -.6288
+   42    -.6288
+   43    -.6193
+   44    -.6050
+   45    -.4815
+   46    -.4815
+   47    -.3311
+   48    -.3311
+   49     .0763
+   50     .0763
+   51     .0986
+   52     .1049
+   53     .1093
+   54     .1093
+   55     .1213
+   56     .1242
+   57     .1242
+   58     .1382
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector   25  Occ=2.000000D+00  E=-8.706147D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .302347   3 C  ls               35       .302347   2 C  ls        
+     6      -.211002   1 Fe ls               53      -.208837   4 O  ls        
+    62      -.208837   5 O  ls               80       .206865   7 C  ls        
+    89       .206865   8 C  ls               71       .206865   6 C  ls        
+ 
+ Vector   26  Occ=2.000000D+00  E=-8.227910D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .357608   2 C  ls               44      -.357608   3 C  ls        
+    53      -.332295   4 O  ls               62       .332295   5 O  ls        
+    52      -.244330   4 O  lz               61      -.244330   5 O  lz        
+    56      -.216737   4 O  lz               65      -.216737   5 O  lz        
+ 
+ Vector   27  Occ=2.000000D+00  E=-8.007897D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .374068   7 C  ls              107      -.372089  10 O  ls        
+   104       .266640  10 O  lx              108       .243621  10 O  lx        
+    71      -.193387   6 C  ls               98       .192364   9 O  ls        
+    89      -.180681   8 C  ls              116       .179725  11 O  ls        
+    76       .165173   7 C  ls        
+ 
+ Vector   28  Occ=2.000000D+00  E=-8.007897D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .327620   8 C  ls              116      -.325887  11 O  ls        
+    71      -.320284   6 C  ls               98       .318590   9 O  ls        
+   114       .233439  11 O  ly              118       .213796  11 O  ly        
+    95       .167410   9 O  lx               96       .166853   9 O  ly        
+   100       .153980   9 O  ly               99       .151399   9 O  lx        
+ 
+ Vector   29  Occ=2.000000D+00  E=-7.991258D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    53       .210119   4 O  ls               62       .210119   5 O  ls        
+    61      -.195828   5 O  lz               52       .195828   4 O  lz        
+    71       .195230   6 C  ls               80       .195230   7 C  ls        
+    89       .195230   8 C  ls               56       .184963   4 O  lz        
+    65      -.184963   5 O  lz              116      -.178899  11 O  ls        
+ 
+ Vector   30  Occ=2.000000D+00  E=-7.302356D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43       .202702   3 C  lz               34      -.202702   2 C  lz        
+    52       .195104   4 O  lz               61      -.195104   5 O  lz        
+    56       .179477   4 O  lz               65      -.179477   5 O  lz        
+   104      -.164057  10 O  lx              114      -.164057  11 O  ly        
+     6      -.152768   1 Fe ls              108      -.152329  10 O  lx        
+ 
+ Vector   31  Occ=2.000000D+00  E=-6.833725D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .214314   1 Fe dyz              14       .209462   1 Fe dyz       
+    55       .204003   4 O  ly               64      -.204003   5 O  ly        
+    60      -.199619   5 O  ly               51       .199619   4 O  ly        
+    18       .158743   1 Fe dxz              12       .155149   1 Fe dxz       
+    63      -.151106   5 O  lx               54       .151106   4 O  lx        
+ 
+ Vector   32  Occ=2.000000D+00  E=-6.833725D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .214314   1 Fe dxz              12       .209462   1 Fe dxz       
+    54       .204003   4 O  lx               63      -.204003   5 O  lx        
+    59      -.199619   5 O  lx               50       .199619   4 O  lx        
+    20      -.158743   1 Fe dyz              14      -.155149   1 Fe dyz       
+    55      -.151106   4 O  ly               64       .151106   5 O  ly        
+ 
+ Vector   33  Occ=2.000000D+00  E=-6.769747D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .332188   2 C  ls               44      -.332188   3 C  ls        
+    43      -.228306   3 C  lz               34      -.228306   2 C  lz        
+    52       .174131   4 O  lz               61       .174131   5 O  lz        
+     9      -.169745   1 Fe lz               38      -.160558   2 C  lz        
+    47      -.160558   3 C  lz               56       .158358   4 O  lz        
+ 
+ Vector   34  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    55       .249474   4 O  ly               64       .249474   5 O  ly        
+    60       .240240   5 O  ly               51       .240240   4 O  ly        
+    89      -.224872   8 C  ls               87      -.176329   8 C  ly        
+    33       .155728   2 C  ly               42       .155728   3 C  ly        
+ 
+ Vector   35  Occ=2.000000D+00  E=-6.764662D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    54       .249474   4 O  lx               63       .249474   5 O  lx        
+    59       .240240   5 O  lx               50       .240240   4 O  lx        
+    80      -.200163   7 C  ls               71       .189327   6 C  ls        
+    32       .155728   2 C  lx               41       .155728   3 C  lx        
+    77      -.154165   7 C  lx        
+ 
+ Vector   36  Occ=2.000000D+00  E=-6.546476D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   117       .326369  11 O  lx              113       .315930  11 O  lx        
+    86       .199971   8 C  lx               90       .185560   8 C  lx        
+    17      -.170712   1 Fe dxy             100      -.168335   9 O  ly        
+   109       .167545  10 O  ly               96      -.164818   9 O  ly        
+   105       .162912  10 O  ly               11      -.151664   1 Fe dxy       
+ 
+ Vector   37  Occ=2.000000D+00  E=-6.546476D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .281749  10 O  ly              105       .272393  10 O  ly        
+    99      -.227982   9 O  lx               95      -.221883   9 O  lx        
+    78       .188875   7 C  ly              100       .177068   9 O  ly        
+    82       .170767   7 C  ly               96       .170251   9 O  ly        
+    69       .162844   6 C  ly        
+ 
+ Vector   38  Occ=2.000000D+00  E=-6.417544D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   109       .267422  10 O  ly              117      -.267422  11 O  lx        
+   113      -.250407  11 O  lx              105       .250407  10 O  ly        
+   100      -.195767   9 O  ly               99       .195767   9 O  lx        
+    96      -.183310   9 O  ly               95       .183310   9 O  lx        
+ 
+ Vector   39  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   119       .302204  11 O  lz              115       .284393  11 O  lz        
+   101      -.259370   9 O  lz               97      -.244083   9 O  lz        
+    55       .174783   4 O  ly               64      -.174783   5 O  ly        
+    88       .174504   8 C  lz               92       .169060   8 C  lz        
+    60      -.161355   5 O  ly               51       .161355   4 O  ly        
+ 
+ Vector   40  Occ=2.000000D+00  E=-6.322426D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+   110       .324225  10 O  lz              106       .305116  10 O  lz        
+   101      -.199208   9 O  lz               97      -.187467   9 O  lz        
+    79       .187220   7 C  lz               83       .181379   7 C  lz        
+    54       .174783   4 O  lx               63      -.174783   5 O  lx        
+    59      -.161355   5 O  lx               50       .161355   4 O  lx        
+ 
+ Vector   41  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    89       .387042   8 C  ls               71      -.306736   6 C  ls        
+    87       .229883   8 C  ly               64       .206314   5 O  ly        
+    55       .206314   4 O  ly               60       .187587   5 O  ly        
+    51       .187587   4 O  ly               91       .169331   8 C  ly        
+    17      -.168408   1 Fe dxy              68       .162549   6 C  lx        
+ 
+ Vector   42  Occ=2.000000D+00  E=-6.288248D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    80       .400553   7 C  ls               71      -.269823   6 C  ls        
+    77       .239881   7 C  lx               63       .206314   5 O  lx        
+    54       .206314   4 O  lx               50       .187587   4 O  lx        
+    59       .187587   5 O  lx               81       .177018   7 C  lx        
+   104      -.163172  10 O  lx              108      -.154852  10 O  lx        
+ 
+ Vector   43  Occ=2.000000D+00  E=-6.193136D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35       .347212   2 C  ls               44       .347212   3 C  ls        
+    71      -.268284   6 C  ls               80      -.268284   7 C  ls        
+    89      -.268284   8 C  ls               34      -.198417   2 C  lz        
+    43       .198417   3 C  lz               21       .195139   1 Fe dzz       
+    87      -.177194   8 C  ly               77      -.177194   7 C  lx        
+ 
+ Vector   44  Occ=2.000000D+00  E=-6.050384D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44       .284854   3 C  ls               35      -.284854   2 C  ls        
+   119       .227715  11 O  lz              110       .227715  10 O  lz        
+   101       .227715   9 O  lz               97       .210987   9 O  lz        
+   115       .210987  11 O  lz              106       .210987  10 O  lz        
+    43       .185393   3 C  lz               34       .185393   2 C  lz        
+ 
+ Vector   45  Occ=2.000000D+00  E=-4.815074D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20       .902667   1 Fe dyz              14       .880351   1 Fe dyz       
+    55      -.168821   4 O  ly               64       .168821   5 O  ly        
+    18       .164047   1 Fe dxz              12       .159991   1 Fe dxz       
+   119       .157792  11 O  lz        
+ 
+ Vector   46  Occ=2.000000D+00  E=-4.815074D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18       .902667   1 Fe dxz              12       .880351   1 Fe dxz       
+   110       .173946  10 O  lz               63       .168821   5 O  lx        
+    54      -.168821   4 O  lx               20      -.164047   1 Fe dyz       
+    14      -.159991   1 Fe dyz       
+ 
+ Vector   47  Occ=2.000000D+00  E=-3.311259D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24       .741421   1 Fe ly               23      -.355103   1 Fe lx        
+    16      -.331511   1 Fe dxx              19       .331511   1 Fe dyy       
+    10      -.312177   1 Fe dxx              13       .312177   1 Fe dyy       
+    17      -.233590   1 Fe dxy              11      -.219968   1 Fe dxy       
+    89       .208153   8 C  ls               99       .163401   9 O  lx        
+ 
+ Vector   48  Occ=2.000000D+00  E=-3.311259D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23       .741421   1 Fe lx               17      -.663021   1 Fe dxy       
+    11      -.624355   1 Fe dxy              24       .355103   1 Fe ly        
+   117      -.215752  11 O  lx               71      -.199728   6 C  ls        
+    80       .160804   7 C  ls              113      -.156375  11 O  lx        
+   109      -.152522  10 O  ly        
+ 
+ Vector   49  Occ=0.000000D+00  E= 7.628355D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12       .378578   1 Fe dxz              18       .361173   1 Fe dxz       
+    83       .302545   7 C  lz               45       .279343   3 C  lx        
+    36      -.279343   2 C  lx              110      -.247724  10 O  lz        
+    14      -.233055   1 Fe dyz              92      -.229464   8 C  lz        
+    20      -.222340   1 Fe dyz              63      -.214205   5 O  lx        
+ 
+ Vector   50  Occ=0.000000D+00  E= 7.628355D-02  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14       .378578   1 Fe dyz              20       .361173   1 Fe dyz       
+    74      -.307156   6 C  lz               46       .279343   3 C  ly        
+    37      -.279343   2 C  ly              101       .251499   9 O  lz        
+    12       .233055   1 Fe dxz              18       .222340   1 Fe dxz       
+    92       .216867   8 C  lz               64      -.214205   5 O  ly        
+ 
+ Vector   51  Occ=0.000000D+00  E= 9.863511D-02  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      2.202280   1 Fe ls               22     -1.364426   1 Fe ls        
+    71      -.224506   6 C  ls               80      -.224506   7 C  ls        
+    89      -.224506   8 C  ls               44      -.170321   3 C  ls        
+    35      -.170321   2 C  ls        
+ 
+ Vector   52  Occ=0.000000D+00  E= 1.049466D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      1.309586   1 Fe lz               25      -.400112   1 Fe lz        
+    35      -.341397   2 C  ls               44       .341397   3 C  ls        
+   101      -.179072   9 O  lz              119      -.179072  11 O  lz        
+   110      -.179072  10 O  lz        
+ 
+ Vector   53  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.201468   1 Fe ly               24      -.633245   1 Fe ly        
+    27       .563121   1 Fe lx               71      -.301550   6 C  ls        
+    23      -.296798   1 Fe lx               11       .268092   1 Fe dxy       
+    17       .258166   1 Fe dxy              89       .245247   8 C  ls        
+    55      -.181170   4 O  ly               64      -.181170   5 O  ly        
+ 
+ Vector   54  Occ=0.000000D+00  E= 1.093124D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      1.201468   1 Fe lx               23      -.633245   1 Fe lx        
+    28      -.563121   1 Fe ly               80       .315694   7 C  ls        
+    24       .296798   1 Fe ly               89      -.206607   8 C  ls        
+    63      -.181170   5 O  lx               54      -.181170   4 O  lx        
+    36       .173501   2 C  lx               45       .173501   3 C  lx        
+ 
+ Vector   55  Occ=0.000000D+00  E= 1.213410D-01  Symmetry=a2'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    90       .403846   8 C  lx               82      -.403846   7 C  ly        
+    73       .295636   6 C  ly               72      -.295636   6 C  lx        
+   109       .285720  10 O  ly              117      -.285720  11 O  lx        
+    86       .260070   8 C  lx               78      -.260070   7 C  ly        
+    99       .209162   9 O  lx              100      -.209162   9 O  ly        
+ 
+ Vector   56  Occ=0.000000D+00  E= 1.241828D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .645113   1 Fe ly               27      -.479298   1 Fe lx        
+    37      -.372381   2 C  ly               46      -.372381   3 C  ly        
+    24      -.338107   1 Fe ly               45       .276667   3 C  lx        
+    36       .276667   2 C  lx               23       .251203   1 Fe lx        
+    55       .232472   4 O  ly               64       .232472   5 O  ly        
+ 
+ Vector   57  Occ=0.000000D+00  E= 1.241828D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27       .645113   1 Fe lx               28       .479298   1 Fe ly        
+    36      -.372381   2 C  lx               45      -.372381   3 C  lx        
+    23      -.338107   1 Fe lx               37      -.276667   2 C  ly        
+    46      -.276667   3 C  ly               24      -.251203   1 Fe ly        
+    63       .232472   5 O  lx               54       .232472   4 O  lx        
+ 
+ Vector   58  Occ=0.000000D+00  E= 1.381888D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      1.419024   1 Fe lz               29     -1.157075   1 Fe lz        
+    35      -.491322   2 C  ls               44       .491322   3 C  ls        
+    47       .388577   3 C  lz               38       .388577   2 C  lz        
+    92       .272236   8 C  lz               83       .272236   7 C  lz        
+    74       .272236   6 C  lz               70       .231566   6 C  lz        
+ 
+ Vector   59  Occ=0.000000D+00  E= 1.555099D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28       .466994   1 Fe ly               82      -.350767   7 C  ly        
+    89      -.294499   8 C  ls               72       .293479   6 C  lx        
+    24      -.286968   1 Fe ly               73      -.274375   6 C  ly        
+    19       .271686   1 Fe dyy              16      -.271686   1 Fe dxx       
+    17      -.261089   1 Fe dxy              13       .258354   1 Fe dyy       
+ 
+ Vector   60  Occ=0.000000D+00  E= 1.555099D-01  Symmetry=e'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17       .543373   1 Fe dxy              11       .516707   1 Fe dxy       
+    27      -.466994   1 Fe lx               90       .429681   8 C  lx        
+    23       .286968   1 Fe lx               86       .282797   8 C  lx        
+   117      -.277418  11 O  lx               71      -.266208   6 C  ls        
+    82       .249374   7 C  ly               80       .243879   7 C  ls        
+ 
+ Vector   61  Occ=0.000000D+00  E= 2.046553D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    83       .470291   7 C  lz               92      -.350287   8 C  lz        
+   110      -.318920  10 O  lz               45      -.317559   3 C  lx        
+    36       .317559   2 C  lx               79       .313450   7 C  lz        
+   119       .237541  11 O  lz               88      -.233467   8 C  lz        
+    41      -.223885   3 C  lx               32       .223885   2 C  lx        
+ 
+ Vector   62  Occ=0.000000D+00  E= 2.046553D-01  Symmetry=e"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74       .473761   6 C  lz               92      -.340807   8 C  lz        
+   101      -.321273   9 O  lz               46       .317559   3 C  ly        
+    37      -.317559   2 C  ly               70       .315763   6 C  lz        
+   119       .231113  11 O  lz               88      -.227149   8 C  lz        
+    42       .223885   3 C  ly               33      -.223885   2 C  ly        
+ 
+ Vector   63  Occ=0.000000D+00  E= 2.805610D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21       .523678   1 Fe dzz              35      -.509030   2 C  ls        
+    44      -.509030   3 C  ls               53       .493867   4 O  ls        
+    62       .493867   5 O  ls               15       .472782   1 Fe dzz       
+    22      -.427703   1 Fe ls               38      -.426302   2 C  lz        
+    47       .426302   3 C  lz               71       .357230   6 C  ls        
+ 
+ Vector   64  Occ=0.000000D+00  E= 4.961047D-01  Symmetry=a2"
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      4.252689   1 Fe lz               38      1.887975   2 C  lz        
+    47      1.887975   3 C  lz               29     -1.310401   1 Fe lz        
+    53     -1.054872   4 O  ls               62      1.054872   5 O  ls        
+    44       .974399   3 C  ls               35      -.974399   2 C  ls        
+    74      -.408066   6 C  lz               83      -.408066   7 C  lz        
+ 
+ Vector   65  Occ=0.000000D+00  E= 5.028706D-01  Symmetry=a1'
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.389135   1 Fe ls               44     -1.201637   3 C  ls        
+    35     -1.201637   2 C  ls               71     -1.074804   6 C  ls        
+    80     -1.074804   7 C  ls               89     -1.074804   8 C  ls        
+    53       .626844   4 O  ls               62       .626844   5 O  ls        
+    26       .578775   1 Fe ls              107       .484523  10 O  ls        
+ 
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Fe  26    25.25   1.99  8.00  7.65  3.00  3.45   .94   .21
+    2 C    6     5.71   1.99  1.78  1.94
+    3 C    6     5.71   1.99  1.78  1.94
+    4 O    8     8.47   1.99  2.51  3.98
+    5 O    8     8.47   1.99  2.51  3.98
+    6 C    6     5.63   1.99  1.77  1.87
+    7 C    6     5.63   1.99  1.77  1.87
+    8 C    6     5.63   1.99  1.77  1.87
+    9 O    8     8.50   1.99  2.51  4.00
+   10 O    8     8.50   1.99  2.51  4.00
+   11 O    8     8.50   1.99  2.51  4.00
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 3055     3055     5.54e+04 1.88e+04 8.05e+04    0        0        0     
+bytes total:             3.18e+08 5.65e+07 1.82e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            2.33e+08 1.92e+07 1.39e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 396800 bytes
+Number of requests serviced: 44840
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        30	        14
+	current total bytes		         0	         0
+	maximum total bytes		   7013608	   7305148
+	maximum total K-bytes		      7014	      7306
+	maximum total M-bytes		         8	         8
+
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 2.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:      302.6s     wall:      309.1s

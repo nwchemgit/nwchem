@@ -1,0 +1,1047 @@
+TERM=dumb
+SHELL=/usr/bin/csh
+HOME=/u/d3h449
+LOGNAME=d3h449
+PATH=.:/u/d3h449/bin:/usr/local/bin:/usr/lpp/LoadL/nfs/bin:/usr/bin:/etc:/usr/sbin:/usr/ucb:/usr/bin/X11:/sbin:/usr/lpp/ssp/bin:/usr/lpp/ssp/kerberos/bin:/usr/afsws/bin
+TZ=PST8PDT
+LANG=En_US
+LOCPATH=/usr/lib/nls/loc
+NLSPATH=/usr/lib/nls/msg/%L/%N:/usr/lib/nls/msg/%L/%N.cat
+LC__FASTMSG=true
+ODMDIR=/etc/objrepos
+AUTHSTATE=compat
+USER=d3h449
+MANPATH=.:/usr/man:/source/local/man:/u/khoros/man
+LOGIN=d3h449
+NWCHEM_TOP=/u/d3h449/nwchem
+NWCHEM_TARGET=SP1
+MAKEHOSTS=et0101 et0201 et0301 et0401 et0501 et0601 et0701 et0801 et0901 et1001 et1101 et1201 et1301 et1501 et1601
+MAKESERV=/u/d3h449/bin/makeserver
+MPATH=.:/usr/man:/source/local/man:/u/khoros/man
+WORKSHOP=/source/local/etc/httpd/htdocs/training/workshop
+WWW_HOME=/source/local/etc/httpd/htdocs/mhpcc.html
+NNTPSERVER=makapu.mhpcc.edu
+SP_NAME=ce0ws1-atm.nwmpp1.emsl.pnl.gov
+TARGET=SP1
+MPI_LOC=/s/pd/msg_pass/mpich
+MP_INFOLEVEL=1
+MP_EUILIB=us
+MP_RESD=YES
+MP_EUIDEVICE=css0
+MP_CSS_INTERRUPT=YES
+MP_STDINMODE=0
+MP_PULSE=0
+MP_SINGLE_THREAD=yes
+PWD=/u/d3h449/examples/siosi
+LOADLBATCH=yes
+LOADL_ACTIVE=1.3.0.+
+LOADL_STEP_ID=sw1411.nwmpp1.emsl.pnl.gov.315.0
+LOADL_JOB_NAME=sw1411.nwmpp1.emsl.pnl.gov.315
+LOADL_STEP_NAME=0
+LOADL_STEP_OWNER=d3h449
+LOADL_STEP_COMMAND=/u/d3h449/examples/siosi/siosi3_64.job
+LOADL_STEP_ARGS=
+LOADL_STEP_IN=/dev/null
+LOADL_STEP_OUT=/u/d3h449/examples/siosi/siosi3_64.out
+LOADL_STEP_ERR=/u/d3h449/examples/siosi/siosi3_64.err
+LOADL_STEP_INITDIR=/u/d3h449/examples/siosi
+LOADL_STEP_CLASS=mss_large
+LOADL_STEP_ACCT=
+LOADL_STEP_GROUP=d3h449
+LOADL_STEP_TYPE=PARALLEL
+LOADL_STARTD_PORT=9611
+LOADL_STEP_NICE=0
+LOADL_PROCESSOR_LIST=sw0608.nwmpp1.emsl.pnl.gov sw0914.nwmpp1.emsl.pnl.gov sw1002.nwmpp1.emsl.pnl.gov sw1313.nwmpp1.emsl.pnl.gov sw0316.nwmpp1.emsl.pnl.gov sw0509.nwmpp1.emsl.pnl.gov sw0215.nwmpp1.emsl.pnl.gov sw0410.nwmpp1.emsl.pnl.gov sw1310.nwmpp1.emsl.pnl.gov sw1202.nwmpp1.emsl.pnl.gov sw0309.nwmpp1.emsl.pnl.gov sw0808.nwmpp1.emsl.pnl.gov sw0816.nwmpp1.emsl.pnl.gov sw0515.nwmpp1.emsl.pnl.gov sw1316.nwmpp1.emsl.pnl.gov sw1006.nwmpp1.emsl.pnl.gov sw2912.nwmpp1.emsl.pnl.gov sw0313.nwmpp1.emsl.pnl.gov sw1903.nwmpp1.emsl.pnl.gov sw2410.nwmpp1.emsl.pnl.gov sw0307.nwmpp1.emsl.pnl.gov sw1008.nwmpp1.emsl.pnl.gov sw2709.nwmpp1.emsl.pnl.gov sw3104.nwmpp1.emsl.pnl.gov sw0505.nwmpp1.emsl.pnl.gov sw0403.nwmpp1.emsl.pnl.gov sw0607.nwmpp1.emsl.pnl.gov sw1015.nwmpp1.emsl.pnl.gov sw0109.nwmpp1.emsl.pnl.gov sw0503.nwmpp1.emsl.pnl.gov sw2415.nwmpp1.emsl.pnl.gov sw1607.nwmpp1.emsl.pnl.gov sw2209.nwmpp1.emsl.pnl.gov sw0616.nwmpp1.emsl.pnl.gov sw0716.nwmpp1.emsl.pnl.gov sw0406.nwmpp1.emsl.pnl.gov sw0910.nwmpp1.emsl.pnl.gov sw2916.nwmpp1.emsl.pnl.gov sw0702.nwmpp1.emsl.pnl.gov sw1111.nwmpp1.emsl.pnl.gov sw1003.nwmpp1.emsl.pnl.gov sw1016.nwmpp1.emsl.pnl.gov sw0605.nwmpp1.emsl.pnl.gov sw2109.nwmpp1.emsl.pnl.gov sw0614.nwmpp1.emsl.pnl.gov sw2106.nwmpp1.emsl.pnl.gov sw0103.nwmpp1.emsl.pnl.gov sw0502.nwmpp1.emsl.pnl.gov sw0510.nwmpp1.emsl.pnl.gov sw0810.nwmpp1.emsl.pnl.gov sw0114.nwmpp1.emsl.pnl.gov sw1112.nwmpp1.emsl.pnl.gov sw1602.nwmpp1.emsl.pnl.gov sw1703.nwmpp1.emsl.pnl.gov sw2211.nwmpp1.emsl.pnl.gov sw2716.nwmpp1.emsl.pnl.gov sw0714.nwmpp1.emsl.pnl.gov sw2712.nwmpp1.emsl.pnl.gov sw0905.nwmpp1.emsl.pnl.gov sw0909.nwmpp1.emsl.pnl.gov sw2404.nwmpp1.emsl.pnl.gov sw2907.nwmpp1.emsl.pnl.gov sw2802.nwmpp1.emsl.pnl.gov sw0511.nwmpp1.emsl.pnl.gov 
+/scratch 
+Mon Apr 28 03:40:29 PDT 1997
+ 
+Processor list
+ 
+sw0608
+sw0914
+sw1002
+sw1313
+sw0316
+sw0509
+sw0215
+sw0410
+sw1310
+sw1202
+sw0309
+sw0808
+sw0816
+sw0515
+sw1316
+sw1006
+sw2912
+sw0313
+sw1903
+sw2410
+sw0307
+sw1008
+sw2709
+sw3104
+sw0505
+sw0403
+sw0607
+sw1015
+sw0109
+sw0503
+sw2415
+sw1607
+sw2209
+sw0616
+sw0716
+sw0406
+sw0910
+sw2916
+sw0702
+sw1111
+sw1003
+sw1016
+sw0605
+sw2109
+sw0614
+sw2106
+sw0103
+sw0502
+sw0510
+sw0810
+sw0114
+sw1112
+sw1602
+sw1703
+sw2211
+sw2716
+sw0714
+sw2712
+sw0905
+sw0909
+sw2404
+sw2907
+sw2802
+sw0511
+
+ 
+Mon Apr 28 03:40:29 PDT 1997
+ Broadcast /u/d3h449/nwchem/bin/SP1/nwchem to /scratch/nwchem.11252 ... OK
+Mon Apr 28 03:40:43 PDT 1997
+ 
+ argument  1 = /u/d3h449/examples/siosi/siosi3_64.nw
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 2.1
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                           COPYRIGHT (C) 1994, 1995, 1996,
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname  = et0608.nwmpp1.emsl.pnl.gov
+    program   = /scratch/nwchem.11252
+    date      = Mon Apr 28 03:41:10 1997
+
+    compiled  = Sun Apr 27 09:51:04 PDT 1997
+    source    = /u/d3h449/nwchem
+    input     = /u/d3h449/examples/siosi/siosi3_64.nw
+    prefix    = siosi3_64.
+    data base = /piofs/d3h449/siosi3/n64/siosi3_64.db
+    status    = startup
+    nproc     =   64
+
+
+            Memory information
+            ------------------
+
+    heap      =    8847361 doubles
+    stack     =    2949121 doubles
+    global    =   11796491 doubles (allocated from within heap+stack)      
+    total     =   11796482 doubles
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = /piofs/d3h449/siosi3/n64
+  0 scratch   = /scratch
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                                      siosi3
+                                      ------
+ 
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     -.42477672     1.38523214     -.37640693
+    2 Si                  14.0000     2.58979928     1.38523214     -.37640693
+    3 Si                  14.0000    -2.93345272     -.28390486     -.28605193
+    4 O                    8.0000     3.55638928      .06211014    -2.88534193
+    5 O                    8.0000     3.44549628     4.29605714     -.37640693
+    6 O                    8.0000     3.61633928     -.07980086     2.00048107
+    7 O                    8.0000    -3.08043972    -1.94354886    -2.77677493
+    8 O                    8.0000    -2.90532072    -2.05065686     2.10716607
+    9 O                    8.0000    -5.25724772     1.66607414     -.23404393
+   10 Si                  14.0000     5.21239228    -1.93394886    -4.40623693
+   11 Si                  14.0000     5.50617628     6.33833314      .41538307
+   12 Si                  14.0000     5.04346928     -.86509186     4.50878107
+   13 Si                  14.0000    -8.07916772     2.23282214      .63761607
+   14 Si                  14.0000    -3.58297072    -3.47201486     4.64989507
+   15 Si                  14.0000    -3.39892772    -4.53630286    -4.26537093
+   16 H                    1.0000     4.84528428    -4.69476586    -3.32568593
+   17 H                    1.0000     8.06989428    -1.17677186    -4.19914793
+   18 H                    1.0000     4.26378528    -1.86568286    -7.26375993
+   19 H                    1.0000     3.68933528      .37170914     6.87828107
+   20 H                    1.0000     4.96586228    -3.84446686     4.86298807
+   21 H                    1.0000     7.88633028      .01008614     4.34324507
+   22 H                    1.0000     4.81210128     8.89294114     -.99277493
+   23 H                    1.0000     5.51396228     6.74087714     3.35627107
+   24 H                    1.0000     8.19687528     5.44355214     -.46425493
+   25 H                    1.0000    -1.53240172    -6.62211286    -3.22135193
+   26 H                    1.0000    -6.18992572    -5.48611486    -3.96586993
+   27 H                    1.0000    -2.73295872    -3.98011086    -7.14930093
+   28 H                    1.0000    -3.06985672    -1.67092986     6.98885407
+   29 H                    1.0000    -1.85811572    -5.90668486     4.97462107
+   30 H                    1.0000    -6.43827872    -4.31883686     4.57758107
+   31 H                    1.0000    -8.95823272     4.73152414     -.76750693
+   32 H                    1.0000    -8.22038372     2.59033314     3.58095007
+   33 H                    1.0000    -9.84925172     -.01001886     -.16903793
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      O                 15.994910
+      Si                27.976930
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)    2313.2423767734
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     5222.902000  -.001936
+  1 S      782.539900  -.014851
+  1 S      177.267400  -.073319
+  1 S       49.516690  -.245116
+  1 S       15.666440  -.480285
+  1 S        5.179360  -.335943
+ 
+  2 S       10.601440   .078806
+  2 S         .942317  -.567695
+ 
+  3 S         .277475  1.000000
+ 
+  4 P       33.424130   .017560
+  4 P        7.622171   .107630
+  4 P        2.238209   .323526
+  4 P         .686730   .483223
+ 
+  5 P         .193813  1.000000
+ 
+  6 D         .800000  1.000000
+ 
+  Si (Silicon)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S    17268.580000  -.001797
+  1 S     2586.651000  -.013797
+  1 S      585.636400  -.068781
+  1 S      163.773600  -.235251
+  1 S       52.267030  -.476619
+  1 S       17.541680  -.350773
+ 
+  2 S       35.124140   .090214
+  2 S        3.565423  -.572255
+  2 S        1.259147  -.504554
+ 
+  3 S        1.947014  -.150835
+  3 S         .236757   .674559
+ 
+  4 S         .085897  1.000000
+ 
+  5 P      159.681700  -.012393
+  5 P       37.258170  -.085080
+  5 P       11.438250  -.290551
+  5 P        3.827834  -.498559
+  5 P        1.267900  -.332562
+ 
+  6 P         .534409  -.226437
+  6 P         .182903  -.555304
+ 
+  7 P         .061787  1.000000
+ 
+  8 D         .450000  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S       50.999180   .009660
+  1 S        7.483218   .073729
+  1 S        1.777468   .295858
+  1 S         .519329   .715905
+ 
+  2 S         .154110  1.000000
+ 
+  3 P         .750000  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                       user specified              6       15   3s2p1d
+ Si                      user specified              8       19   4s3p1d
+ H                       user specified              3        5   2s1p
+
+
+                      Basis "cd basis" -> "" (cartesian)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     2000.000000  1.000000
+ 
+  2 S      400.000000  1.000000
+ 
+  3 S      100.000000  1.000000
+ 
+  4 S       25.000000  1.000000
+ 
+  5 S        7.800000  1.000000
+ 
+  6 P        7.800000  1.000000
+ 
+  7 S        1.560000  1.000000
+ 
+  8 P        1.560000  1.000000
+ 
+  9 S         .390000  1.000000
+ 
+ 10 P         .390000  1.000000
+ 
+ 11 D        7.800000  1.000000
+ 
+ 12 D        1.560000  1.000000
+ 
+ 13 D         .390000  1.000000
+ 
+  Si (Silicon)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     9830.000000  1.000000
+ 
+  2 S     1966.000000  1.000000
+ 
+  3 S      492.000000  1.000000
+ 
+  4 S      123.000000  1.000000
+ 
+  5 S       30.720000  1.000000
+ 
+  6 S        9.600000  1.000000
+ 
+  7 P        9.600000  1.000000
+ 
+  8 S        1.920000  1.000000
+ 
+  9 P        1.920000  1.000000
+ 
+ 10 S         .480000  1.000000
+ 
+ 11 P         .480000  1.000000
+ 
+ 12 S         .120000  1.000000
+ 
+ 13 P         .120000  1.000000
+ 
+ 14 D        9.600000  1.000000
+ 
+ 15 D        1.920000  1.000000
+ 
+ 16 D         .480000  1.000000
+ 
+ 17 D         .120000  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S       45.000000  1.000000
+ 
+  2 S        7.500000  1.000000
+ 
+  3 S         .300000  1.000000
+ 
+  4 S        1.500000  1.000000
+ 
+  5 P        1.500000  1.000000
+ 
+  6 D        1.500000  1.000000
+ 
+
+
+ Summary of "cd basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                       user specified             13       34   7s3p3d
+ Si                      user specified             17       45   9s4p4d
+ H                       user specified              6       13   4s1p1d
+
+
+                                 NWCHEM DFT Module
+                                 -----------------
+ 
+ 
+                                      siosi3
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    33
+          No. of electrons :   186
+           Alpha electrons :    93
+            Beta electrons :    93
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:   347
+                     number of shells:   160
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   832
+                     number of shells:   335
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-03
+          Convergence on gradient requested:  .10D-02
+ 
+              XC Information
+              --------------
+                        Slater Exchange Functional   1.00 local    
+                      VWN V Correlation Functional   1.00 local    
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Euler-MacLaurin, 
+          Angular quadrature: Gauss-Legendre, with 
+            50 radial points,  10 theta points, and  20 phi points.
+          Number of quadrature shells:  1439
+          Spatial weights used: Becke. 
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting( .0)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:     N/A              N/A                start   
+          dE off:     N/A              N/A               30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-14
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCoul:  12
+          Schwarz screening/accCoul:  .10D-11
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Max radial quadrature (shell size)/accQrad:  .40D+02
+          Spatial weight screening/radius:  .16D+02
+
+  int_init: cando_txs set to always be  F
+
+
+     <<<<<<    Before call to DFT_SCF.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:23 >>>>>>
+
+
+
+     <<<<<<    Before 3c-2e initialize.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:23 >>>>>>
+
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:      100180288.
+            This is reduced with Schwarz screening to:       39782080.
+            Incore requires a per proc buffer size of:         652571.
+                  The minimum integral buffer size is:          29952.
+          Minimum dble words available (all nodes) is:        11755528
+                   This is reduced (for later use) to:        10728010
+                             Suggested buffer size is:          652571
+
+            .653 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+
+
+     <<<<<<    Before call to DFT_INIT.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:28 >>>>>>
+
+  movecs_read_header: failed to open /piofs/d3h449/siosi3/n64/siosi3_64.movecs
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -2842.55896057
+
+
+     <<<<<<      Before SCF iter loop.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:28 >>>>>>
+
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:28 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:29 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:29 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:38 >>>>>>
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.77             8771404
+          Stack Space remaining (MW):        2.30             2295229
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls= .0,diis     1  -2842.8839048215 -5.16D+03  1.83D-02  1.76D+02    26.0
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:41 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:41 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:41 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:51 >>>>>>
+
+ d= 0,ls= .0,diis     2  -2840.0766018065  2.81D+00  1.20D-02  6.66D+00    38.6
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:54 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:54 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:41:54 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:04 >>>>>>
+
+ d= 0,ls= .0,diis     3  -2838.1018509160  1.97D+00  8.96D-03  2.69D+01    51.5
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:07 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:07 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:07 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:17 >>>>>>
+
+ d= 0,ls= .0,diis     4  -2840.7024418921 -2.60D+00  1.48D-03  1.32D-01    64.3
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:20 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:20 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:21 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:30 >>>>>>
+
+ d= 0,ls= .0,diis     5  -2840.7179247331 -1.55D-02  4.30D-04  4.67D-02    77.1
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:33 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:34 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:34 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:43 >>>>>>
+
+ d= 0,ls= .0,diis     6  -2840.7217069850 -3.78D-03  1.97D-04  9.03D-03    90.1
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:46 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:47 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:47 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:42:56 >>>>>>
+
+ d= 0,ls= .0,diis     7  -2840.7226732173 -9.66D-04  3.45D-05  2.09D-04   102.9
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:00 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:00 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:00 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:09 >>>>>>
+
+ d= 0,ls= .0,diis     8  -2840.7226924176 -1.92D-05  8.29D-06  8.52D-06   115.7
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:13 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:13 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:13 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:24 >>>>>>
+
+ d= 0,ls= .0,diis     9  -2840.7226978778 -5.46D-06  3.04D-06  3.48D-06   130.6
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:28 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:28 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:28 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:40 >>>>>>
+
+ d= 0,ls= .0,diis    10  -2840.7226981844 -3.07D-07  1.17D-06  1.58D-07   145.7
+
+          Done. Constructing final Fock matrix, orbitals and orbital energies.
+
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:43 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:44 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:44 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:55 >>>>>>
+
+
+                Constructing final total energies.
+
+
+
+     <<<<<<    Before call to FITCD.      >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:58 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVCOUL.   >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:58 >>>>>>
+
+
+
+     <<<<<<    Before call to GETVXC.     >>>>>>
+     <<<<<< date:  Apr 28  time: 03:43:58 >>>>>>
+
+
+
+     <<<<<<    End of parallel region.    >>>>>>
+     <<<<<< date:  Apr 28  time: 03:44:09 >>>>>>
+
+
+
+         Total DFT energy =  -2840.722698206168
+      One electron energy =  -8561.210913741796
+           Coulomb energy =   3628.172451575656
+    Exchange-Corr. energy =   -220.926612813429
+ Nuclear repulsion energy =   2313.242376773401
+
+        Time for solution =    157.8s
+
+
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0       .000000    -93.000000    -93.000000    186.000000
+ 
+     1   1 0 0       .149194       .074597       .074597       .000000
+     1   0 1 0      -.472335      -.236168      -.236168       .000000
+     1   0 0 1       .393953       .196977       .196977       .000000
+ 
+     2   2 0 0   -108.745159  -2040.695345  -2040.695345   3972.645531
+     2   1 1 0      1.242690   -362.606871   -362.606871    726.456432
+     2   1 0 1      -.495385     49.145248     49.145248    -98.785882
+     2   0 2 0   -112.394710   -956.339167   -956.339167   1800.283624
+     2   0 1 1      1.456606    -95.017400    -95.017400    191.491406
+     2   0 0 2   -111.738839   -902.137767   -902.137767   1692.536694
+ 
+          Final alpha eigenvalues
+      (all occupied plus 10 virtual)
+      ------------------------------
+
+              1      
+    1  -65.2156
+    2  -65.2156
+    3  -65.1810
+    4  -65.1810
+    5  -65.1765
+    6  -65.1765
+    7  -65.1737
+    8  -65.1737
+    9  -18.6287
+   10  -18.6287
+   11  -18.6202
+   12  -18.6202
+   13  -18.6191
+   14  -18.6191
+   15  -18.6173
+   16   -5.0996
+   17   -5.0996
+   18   -5.0652
+   19   -5.0652
+   20   -5.0605
+   21   -5.0605
+   22   -5.0580
+   23   -5.0580
+   24   -3.5420
+   25   -3.5420
+   26   -3.5415
+   27   -3.5415
+   28   -3.5411
+   29   -3.5411
+   30   -3.5092
+   31   -3.5092
+   32   -3.5057
+   33   -3.5057
+   34   -3.5056
+   35   -3.5056
+   36   -3.5045
+   37   -3.5045
+   38   -3.5019
+   39   -3.5019
+   40   -3.5012
+   41   -3.5012
+   42   -3.5010
+   43   -3.5010
+   44   -3.4986
+   45   -3.4986
+   46   -3.4986
+   47   -3.4986
+   48    -.9739
+   49    -.9598
+   50    -.9283
+   51    -.9264
+   52    -.9205
+   53    -.9199
+   54    -.9117
+   55    -.6102
+   56    -.5832
+   57    -.5434
+   58    -.5415
+   59    -.5283
+   60    -.5265
+   61    -.4883
+   62    -.4285
+   63    -.4267
+   64    -.4203
+   65    -.4166
+   66    -.4135
+   67    -.4104
+   68    -.3952
+   69    -.3841
+   70    -.3808
+   71    -.3803
+   72    -.3764
+   73    -.3709
+   74    -.3692
+   75    -.3680
+   76    -.3559
+   77    -.3524
+   78    -.3447
+   79    -.3433
+   80    -.3266
+   81    -.3236
+   82    -.2902
+   83    -.2880
+   84    -.2880
+   85    -.2855
+   86    -.2847
+   87    -.2818
+   88    -.2759
+   89    -.2724
+   90    -.2720
+   91    -.2705
+   92    -.2683
+   93    -.2674
+   94    -.0518
+   95    -.0355
+   96    -.0180
+   97    -.0120
+   98    -.0081
+   99    -.0062
+  100     .0160
+  101     .0192
+  102     .0208
+  103     .0215
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  149      149     7.68e+04 1154     1.14e+05    0        0        0     
+bytes total:             1.19e+08 8.36e+06 1.30e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.11e+08 5.57e+06 1.24e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 890584 bytes
+Number of requests serviced: 242945
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        27	        27
+	current total bytes		         0	         0
+	maximum total bytes		    909868	   8928084
+	maximum total K-bytes		       910	      8929
+	maximum total M-bytes		         1	         9
+
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 2.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:      171.7s     wall:      205.0s
+1.2u 0.4s 3:49 0% 118+408k 0+0io 79pf+0w
+Mon Apr 28 03:44:39 PDT 1997

@@ -1,0 +1,1987 @@
+ argument  1 = dft_feco5.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+
+start dft_feco5
+
+# test of DFT with Fe(CO)5 using cd basis and xc basis
+
+# There are 2 million integrals
+
+geometry print units au
+  symmetry group d3h
+
+  fe 0.0 0.0 0.0
+
+  c 0.0 0.0 3.414358
+  o 0.0 0.0 5.591323
+
+  c 2.4417087 2.4417087 0.0
+  o 3.9810552 3.9810552 0.0
+end
+
+basis "ao basis" segment print
+  o library "DZVP (DFT Orbital)"
+  c library "DZVP (DFT Orbital)"
+ fe library "DZVP (DFT Orbital)"
+end
+basis "cd basis" segment print
+  o library "DGauss A1 DFT Coulomb Fitting"
+  c library "DGauss A1 DFT Coulomb Fitting"
+ fe library "DGauss A1 DFT Coulomb Fitting"
+end
+
+dft
+end
+title ; case t19 --- Default DFT (energy)
+task dft energy
+
+dft
+ xc becke88 perdew86
+end
+title ; case t20 --- DFT (energy) with Becke '88 and Perdew '86
+task dft energy
+
+dft
+ xc becke88 perdew91
+end
+title ; case t21 --- Default DFT (energy) with Becke '88 and Perdew '91
+task dft energy
+
+basis "xc basis" segment print
+  o library "DGauss A1 DFT Exchange Fitting"
+  c library "DGauss A1 DFT Exchange Fitting"
+ fe library "DGauss A1 DFT Exchange Fitting"
+end
+
+dft
+  xc acm
+end
+title ; case t22 --- (acm) DFT (energy)
+task dft energy
+
+dft
+  xc b3lyp
+end
+title ; case t23 --- (b3lyp) DFT (energy)
+task dft energy
+
+
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 2.1
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                         COPYRIGHT (C) 1994, 1995, 1996, 1997
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+              Job information
+              ---------------
+
+    hostname  = n09.nwtest.emsl.pnl.gov
+    program   = /u/d3g681/nwchem/bin/SP1/nwchem
+    date      = Thu May 29 07:25:17 1997
+
+    compiled  = Wed May 28 17:05:31 PDT 1997
+    source    = /u/d3g681/nwchem
+    input     = dft_feco5.nw
+    prefix    = dft_feco5.
+    data base = ./dft_feco5.db
+    status    = startup
+    nproc     =    4
+
+
+            Memory information
+            ------------------
+
+    heap      =    8847361 doubles
+    stack     =    2949121 doubles
+    global    =   11796491 doubles (allocated from within heap+stack)      
+    total     =   11796482 doubles
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = /scratch
+ 
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 fe                  26.0000      .00000000      .00000000      .00000000
+    2 c                    6.0000      .00000000      .00000000     3.41435800
+    3 c                    6.0000      .00000000      .00000000    -3.41435800
+    4 o                    8.0000      .00000000      .00000000     5.59132300
+    5 o                    8.0000      .00000000      .00000000    -5.59132300
+    6 c                    6.0000     2.44170870     2.44170870      .00000000
+    7 c                    6.0000    -3.33543611      .89372741      .00000000
+    8 c                    6.0000      .89372741    -3.33543611      .00000000
+    9 o                    8.0000     3.98105520     3.98105520      .00000000
+   10 o                    8.0000    -5.43822254     1.45716734      .00000000
+   11 o                    8.0000     1.45716734    -5.43822254      .00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      fe                55.934900
+      c                 12.000000
+      o                 15.994910
+ 
+
+ Effective nuclear repulsion energy (a.u.)     798.4956180942
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+      .0000000000      .0000000000      .0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name             D3h       
+ Group number             27
+ Group order              12
+ No. of unique centers     5
+ 
+      Symmetry unique atoms
+ 
+     1    2    4    6    9
+ 
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  o (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     5222.902200  -.001936
+  1 S      782.539940  -.014851
+  1 S      177.267430  -.073319
+  1 S       49.516688  -.245116
+  1 S       15.666440  -.480285
+  1 S        5.179360  -.335943
+ 
+  2 S       10.601441   .078806
+  2 S         .942317  -.567695
+ 
+  3 S         .277475  1.000000
+ 
+  4 P       33.424126   .017560
+  4 P        7.622171   .107630
+  4 P        2.238209   .323526
+  4 P         .686730   .483223
+ 
+  5 P         .193813  1.000000
+ 
+  6 D         .800000  1.000000
+ 
+  c (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     2808.064500   .002018
+  1 S      421.138280   .015433
+  1 S       95.586616   .075581
+  1 S       26.739004   .247828
+  1 S        8.432827   .479373
+  1 S        2.760582   .333834
+ 
+  2 S        5.447005  -.077841
+  2 S         .479242   .568956
+ 
+  3 S         .146156  1.000000
+ 
+  4 P       18.130852   .015855
+  4 P        4.099883   .095683
+  4 P        1.185837   .304912
+  4 P         .368597   .493502
+ 
+  5 P         .109720  1.000000
+ 
+  6 D         .600000  1.000000
+ 
+  fe (Iron)
+  ---------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S    61430.227000   .001756
+  1 S     9222.176000   .013417
+  1 S     2097.596900   .066695
+  1 S      591.490400   .228205
+  1 S      191.860620   .469450
+  1 S       65.826328   .363557
+ 
+  2 S      128.740740  -.104917
+  2 S       14.718133   .617962
+  2 S        5.950754   .456009
+ 
+  3 S       10.859879   .218492
+  3 S        1.719447  -.711331
+  3 S         .666453  -.418695
+ 
+  4 S         .975476  -.144105
+  4 S         .123114   .595813
+ 
+  5 S         .044880  1.000000
+ 
+  6 P      780.620300  -.009122
+  6 P      184.006220  -.068004
+  6 P       58.084467  -.259768
+  6 P       20.759795  -.506014
+  6 P        7.593452  -.341908
+ 
+  7 P        4.027917  -.327296
+  7 P        1.526470  -.548150
+  7 P         .557370  -.250663
+ 
+  8 P         .121000  1.000000
+ 
+  9 D       23.929316  -.063492
+  9 D        6.399901  -.278391
+  9 D        1.931742  -.493820
+  9 D         .511528  -.486269
+ 
+ 10 D         .090000  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ o                     DZVP (DFT Orbital)            6       15   3s2p1d
+ c                     DZVP (DFT Orbital)            6       15   3s2p1d
+ fe                    DZVP (DFT Orbital)           10       26   5s3p2d
+
+
+                      Basis "cd basis" -> "" (cartesian)
+                      -----
+  o (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     2000.000000  1.000000
+ 
+  2 S      400.000000  1.000000
+ 
+  3 S      100.000000  1.000000
+ 
+  4 S       25.000000  1.000000
+ 
+  5 S        7.800000  1.000000
+ 
+  6 P        7.800000  1.000000
+ 
+  7 S        1.560000  1.000000
+ 
+  8 P        1.560000  1.000000
+ 
+  9 S         .390000  1.000000
+ 
+ 10 P         .390000  1.000000
+ 
+ 11 D        7.800000  1.000000
+ 
+ 12 D        1.560000  1.000000
+ 
+ 13 D         .390000  1.000000
+ 
+  c (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S     1114.000000  1.000000
+ 
+  2 S      223.000000  1.000000
+ 
+  3 S       55.720000  1.000000
+ 
+  4 S       13.900000  1.000000
+ 
+  5 S        4.400000  1.000000
+ 
+  6 P        4.400000  1.000000
+ 
+  7 S         .870000  1.000000
+ 
+  8 P         .870000  1.000000
+ 
+  9 S         .220000  1.000000
+ 
+ 10 P         .220000  1.000000
+ 
+ 11 D        4.400000  1.000000
+ 
+ 12 D         .870000  1.000000
+ 
+ 13 D         .220000  1.000000
+ 
+  fe (Iron)
+  ---------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S    44000.000000  1.000000
+ 
+  2 S     8800.000000  1.000000
+ 
+  3 S     2200.000000  1.000000
+ 
+  4 S      550.000000  1.000000
+ 
+  5 S      137.000000  1.000000
+ 
+  6 S       43.200000  1.000000
+ 
+  7 P       43.200000  1.000000
+ 
+  8 S        8.600000  1.000000
+ 
+  9 P        8.600000  1.000000
+ 
+ 10 S        2.200000  1.000000
+ 
+ 11 P        2.200000  1.000000
+ 
+ 12 S         .540000  1.000000
+ 
+ 13 P         .540000  1.000000
+ 
+ 14 S         .135000  1.000000
+ 
+ 15 P         .135000  1.000000
+ 
+ 16 D       43.200000  1.000000
+ 
+ 17 D        8.600000  1.000000
+ 
+ 18 D        2.200000  1.000000
+ 
+ 19 D         .540000  1.000000
+ 
+ 20 D         .135000  1.000000
+ 
+
+
+ Summary of "cd basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ o                DGauss A1 DFT Coulomb Fitting     13       34   7s3p3d
+ c                DGauss A1 DFT Coulomb Fitting     13       34   7s3p3d
+ fe               DGauss A1 DFT Coulomb Fitting     20       55   10s5p5d
+
+
+                        case t19 --- Default DFT (energy)
+                        ---------------------------------
+ 
+                                 NWCHEM DFT Module
+                                 -----------------
+ 
+ 
+                         case t19 --- Default DFT (energy)
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    11
+          No. of electrons :    96
+           Alpha electrons :    48
+            Beta electrons :    48
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:   176
+                     number of shells:    70
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   395
+                     number of shells:   150
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-03
+          Convergence on gradient requested:  .10D-02
+ 
+              XC Information
+              --------------
+                        Slater Exchange Functional   1.00 local    
+                      VWN V Correlation Functional   1.00 local    
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Euler-MacLaurin, 
+          Angular quadrature: Gauss-Legendre, with 
+            50 radial points,  10 theta points, and  20 phi points.
+          Number of quadrature shells:   471
+          Spatial weights used: Becke. 
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-14
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCoul:  12
+          Schwarz screening/accCoul:  .10D-11
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Max radial quadrature (shell size)/accQrad:  .40D+02
+          Spatial weight screening/radius:  .16D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:       12235520.
+            This is reduced with Schwarz screening to:        5966475.
+            Incore requires a per proc buffer size of:        1606403.
+                  The minimum integral buffer size is:         113760.
+          Minimum dble words available (all nodes) is:        11754406
+                   This is reduced (for later use) to:        10395419
+                             Suggested buffer size is:         1606403
+
+           1.606 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+  movecs_read_header: failed to open ./dft_feco5.movecs
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:       -1824.13130503
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.65             8654277
+          Stack Space remaining (MW):        1.34             1341415
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .0,diis     1  -1825.5088777618 -2.62D+03  3.65D-02  1.51D+02    26.1
+ d=70,ls= .0,diis     2  -1824.9479990753  5.61D-01  5.04D-02  7.31D+01    35.5
+ d= 0,ls= .5,diis     3  -1823.4217440763  1.53D+00  2.95D-02  4.09D+01    45.2
+ d= 0,ls= .5,diis     4  -1816.4592391057  6.96D+00  1.19D-02  5.45D+01    55.0
+ d= 0,ls= .5,diis     5  -1819.8207674996 -3.36D+00  5.52D-03  4.06D+01    64.8
+ d= 0,ls= .0,diis     6  -1820.9230173074 -1.10D+00  1.88D-02  3.23D+01    74.4
+ d= 0,ls= .0,diis     7  -1823.3285956327 -2.41D+00  9.19D-03  4.52D+00    83.9
+ d= 0,ls= .0,diis     8  -1823.6732719034 -3.45D-01  2.01D-03  5.43D-02    93.5
+ d= 0,ls= .0,diis     9  -1823.6722408631  1.03D-03  1.23D-03  8.26D-02   103.0
+ d= 0,ls= .0,diis    10  -1823.6787533489 -6.51D-03  3.78D-04  1.08D-02   112.7
+ d= 0,ls= .0,diis    11  -1823.6790580971 -3.05D-04  4.89D-04  9.68D-03   122.2
+ d= 0,ls= .0,diis    12  -1823.6797428851 -6.85D-04  9.37D-05  6.60D-04   131.8
+ d= 0,ls= .0,diis    13  -1823.6797901515 -4.73D-05  3.30D-05  3.93D-05   141.4
+ d= 0,ls= .0,diis    14  -1823.6797970742 -6.92D-06  4.76D-06  7.28D-07   151.5
+ d= 0,ls= .0,diis    15  -1823.6797978169 -7.43D-07  6.34D-07  2.29D-08   161.7
+
+          Done. Constructing final Fock matrix, orbitals and orbital energies.
+
+
+                Constructing final total energies.
+
+
+
+         Total DFT energy =  -1823.679796668840
+      One electron energy =  -4105.875527637318
+           Coulomb energy =   1601.845560757587
+    Exchange-Corr. energy =   -118.145447883300
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =    161.0s
+
+
+ 
+       Symmetry analysis of molecular orbitals - alpha
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 e'         34 e'         35 a2"     
+    36 e'         37 e'         38 a2'        39 a1'        40 e"      
+    41 e"         42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 e'         52 e'         53 a1'        54 a2"        55 a2'     
+    56 e'         57 e'         58 e"         59 e"         60 a1'     
+    61 a2"        62 e'         63 e'         64 a1'        65 e'      
+    66 e'         67 a1'        68 e"         69 e"         70 a1'     
+    71 e"         72 e"         73 a2"        74 e'         75 e'      
+    76 a1'        77 a2'        78 e'         79 e'         80 a2"     
+    81 e'         82 e'         83 e"         84 e"         85 a1'     
+    86 e'         87 e'         88 a2"        89 a1'        90 a2"     
+    91 a1'        92 e'         93 e'         94 a1'        95 e'      
+    96 e'         97 e"         98 e"         99 a2'       100 a2"     
+   101 e'        102 e'        103 e"        104 e"        105 a1'     
+   106 e'        107 e'        108 a2"       109 a1'       110 a1"     
+   111 e"        112 e"        113 e"        114 e"        115 e'      
+   116 e'        117 a2'       118 e'        119 e'        120 e"      
+   121 e"        122 a1'       123 e'        124 e'        125 e"      
+   126 e"        127 e'        128 e'        129 a2"       130 a2"     
+   131 e'        132 e'        133 a1'       134 a1'       135 a1'     
+   136 a1"       137 e'        138 e'        139 e"        140 e"      
+   141 e"        142 e"        143 e'        144 e'        145 a1'     
+   146 e'        147 e'        148 a2"       149 a1'       150 e"      
+   151 e"        152 a2'       153 e'        154 e'        155 a2"     
+   156 e"        157 e"        158 e'        159 e'        160 a1'     
+   161 e'        162 e'        163 a1'       164 a2"       165 a1'     
+   166 e'        167 e'        168 a2"       169 a1'       170 a1'     
+   171 e'        172 e'        173 a2"       174 a1'       175 a1'     
+   176 a1'     
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0       .000000    -48.000000    -48.000000     96.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0    -53.003893   -270.345025   -270.345025    487.686157
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0    -53.003893   -270.345025   -270.345025    487.686157
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2    -51.973288   -346.036831   -346.036831    640.100373
+ 
+          Final alpha eigenvalues
+      (all occupied plus 10 virtual)
+      ------------------------------
+
+              1      
+    1 -254.1970
+    2  -29.5525
+    3  -25.5616
+    4  -25.5476
+    5  -25.5476
+    6  -18.7243
+    7  -18.7243
+    8  -18.7144
+    9  -18.7144
+   10  -18.7144
+   11   -9.9502
+   12   -9.9502
+   13   -9.9386
+   14   -9.9386
+   15   -9.9386
+   16   -3.3121
+   17   -2.1613
+   18   -2.1327
+   19   -2.1327
+   20   -1.0702
+   21   -1.0700
+   22   -1.0596
+   23   -1.0595
+   24   -1.0595
+   25    -.5740
+   26    -.5308
+   27    -.5221
+   28    -.5221
+   29    -.5184
+   30    -.4713
+   31    -.4581
+   32    -.4581
+   33    -.4496
+   34    -.4496
+   35    -.4488
+   36    -.4347
+   37    -.4347
+   38    -.4279
+   39    -.4271
+   40    -.4271
+   41    -.4271
+   42    -.4087
+   43    -.4087
+   44    -.3937
+   45    -.2904
+   46    -.2904
+   47    -.2367
+   48    -.2367
+   49    -.0980
+   50    -.0980
+   51    -.0880
+   52    -.0880
+   53    -.0864
+   54    -.0835
+   55    -.0779
+   56    -.0675
+   57    -.0675
+   58    -.0440
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+  perdew86 is a nonlocal functional; adding perdew81 local functional. 
+             case t20 --- DFT (energy) with Becke '88 and Perdew '86
+             -------------------------------------------------------
+ 
+                                 NWCHEM DFT Module
+                                 -----------------
+ 
+ 
+              case t20 --- DFT (energy) with Becke '88 and Perdew '86
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    11
+          No. of electrons :    96
+           Alpha electrons :    48
+            Beta electrons :    48
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:   176
+                     number of shells:    70
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   395
+                     number of shells:   150
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-03
+          Convergence on gradient requested:  .10D-02
+ 
+              XC Information
+              --------------
+                    Becke 1988 Exchange Functional   1.00          
+                Perdew 1981 Correlation Functional   1.00 local    
+                Perdew 1986 Correlation Functional   1.00 non-local
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Euler-MacLaurin, 
+          Angular quadrature: Gauss-Legendre, with 
+            50 radial points,  10 theta points, and  20 phi points.
+          Number of quadrature shells:   471
+          Spatial weights used: Becke. 
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-14
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCoul:  12
+          Schwarz screening/accCoul:  .10D-11
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Max radial quadrature (shell size)/accQrad:  .40D+02
+          Spatial weight screening/radius:  .16D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:       12235520.
+            This is reduced with Schwarz screening to:        5966475.
+            Incore requires a per proc buffer size of:        1606403.
+                  The minimum integral buffer size is:         113760.
+          Minimum dble words available (all nodes) is:        11754406
+                   This is reduced (for later use) to:        10395419
+                             Suggested buffer size is:         1606403
+
+           1.606 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+
+ Read molecular orbitals from ./dft_feco5.movecs
+
+  movecs set:  1  orthogonalized. 
+  movecs file used as starting guess. 
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.65             8654277
+          Stack Space remaining (MW):        1.34             1341415
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .0,diis     1  -1830.6082510761 -2.63D+03  3.11D-03  5.33D-01   204.4
+ d=70,ls= .0,diis     2  -1830.6109650411 -2.71D-03  4.94D-03  2.49D-01   216.2
+ d= 0,ls= .0,diis     3  -1830.6027641605  8.20D-03  2.79D-03  2.28D-01   228.1
+ d= 0,ls= .0,diis     4  -1830.6078548296 -5.09D-03  1.54D-03  1.17D-01   240.1
+ d= 0,ls= .0,diis     5  -1830.6170709150 -9.22D-03  1.30D-04  8.76D-04   252.2
+ d= 0,ls= .0,diis     6  -1830.6171861552 -1.15D-04  3.13D-05  1.00D-05   264.2
+ d= 0,ls= .0,diis     7  -1830.6171860309  1.24D-07  1.51D-05  1.11D-05   276.3
+ d= 0,ls= .0,diis     8  -1830.6171776212  8.41D-06  4.35D-06  5.68D-07   289.3
+ d= 0,ls= .0,diis     9  -1830.6171776565 -3.53D-08  1.61D-06  6.78D-08   302.3
+
+          Done. Constructing final Fock matrix, orbitals and orbital energies.
+
+
+                Constructing final total energies.
+
+
+
+         Total DFT energy =  -1830.617177573557
+      One electron energy =  -4106.478155075001
+           Coulomb energy =   1602.617596435478
+    Exchange-Corr. energy =   -125.252237028224
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =    132.1s
+
+
+ 
+       Symmetry analysis of molecular orbitals - alpha
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 e'         34 e'         35 a2"     
+    36 e'         37 e'         38 a1'        39 a2'        40 e"      
+    41 e"         42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 e'         52 e'         53 a1'        54 a2"        55 a2'     
+    56 e'         57 e'         58 e"         59 e"         60 a1'     
+    61 a2"        62 e'         63 e'         64 a1'        65 e'      
+    66 e'         67 a1'        68 e"         69 e"         70 a1'     
+    71 e"         72 e"         73 a2"        74 e'         75 e'      
+    76 a1'        77 a2'        78 e'         79 e'         80 a2"     
+    81 e'         82 e'         83 e"         84 e"         85 a1'     
+    86 e'         87 e'         88 a2"        89 a1'        90 a2"     
+    91 a1'        92 e'         93 e'         94 a1'        95 e'      
+    96 e'         97 e"         98 e"         99 a2'       100 a2"     
+   101 e'        102 e'        103 e"        104 e"        105 a1'     
+   106 e'        107 e'        108 a2"       109 a1'       110 a1"     
+   111 e"        112 e"        113 e"        114 e"        115 e'      
+   116 e'        117 a2'       118 e'        119 e'        120 e"      
+   121 e"        122 a1'       123 e'        124 e'        125 e"      
+   126 e"        127 e'        128 e'        129 a2"       130 a2"     
+   131 e'        132 e'        133 a1'       134 a1'       135 a1'     
+   136 a1"       137 e'        138 e'        139 e"        140 e"      
+   141 e"        142 e"        143 e'        144 e'        145 a1'     
+   146 e'        147 e'        148 a2"       149 a1'       150 e"      
+   151 e"        152 a2'       153 e'        154 e'        155 a2"     
+   156 e"        157 e"        158 e'        159 e'        160 a1'     
+   161 a1'       162 e'        163 e'        164 a2"       165 a1'     
+   166 e'        167 e'        168 a2"       169 a1'       170 a1'     
+   171 e'        172 e'        173 a2"       174 a1'       175 a1'     
+   176 a1'     
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0       .000000    -48.000000    -48.000000     96.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0    -53.006732   -270.346445   -270.346445    487.686157
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0    -53.006732   -270.346445   -270.346445    487.686157
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2    -51.896023   -345.998198   -345.998198    640.100373
+ 
+          Final alpha eigenvalues
+      (all occupied plus 10 virtual)
+      ------------------------------
+
+              1      
+    1 -254.8935
+    2  -29.6365
+    3  -25.5991
+    4  -25.5848
+    5  -25.5848
+    6  -18.8899
+    7  -18.8899
+    8  -18.8792
+    9  -18.8792
+   10  -18.8792
+   11  -10.0653
+   12  -10.0652
+   13  -10.0535
+   14  -10.0534
+   15  -10.0534
+   16   -3.3325
+   17   -2.1674
+   18   -2.1393
+   19   -2.1393
+   20   -1.0752
+   21   -1.0750
+   22   -1.0639
+   23   -1.0638
+   24   -1.0638
+   25    -.5752
+   26    -.5333
+   27    -.5240
+   28    -.5240
+   29    -.5202
+   30    -.4679
+   31    -.4515
+   32    -.4515
+   33    -.4439
+   34    -.4439
+   35    -.4429
+   36    -.4283
+   37    -.4283
+   38    -.4217
+   39    -.4214
+   40    -.4208
+   41    -.4208
+   42    -.4045
+   43    -.4045
+   44    -.3902
+   45    -.2853
+   46    -.2853
+   47    -.2300
+   48    -.2300
+   49    -.0910
+   50    -.0910
+   51    -.0811
+   52    -.0811
+   53    -.0799
+   54    -.0758
+   55    -.0704
+   56    -.0604
+   57    -.0604
+   58    -.0355
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+  perdew91 is a nonlocal functional; adding pw91lda local functional. 
+         case t21 --- Default DFT (energy) with Becke '88 and Perdew '91
+         ---------------------------------------------------------------
+ 
+                                 NWCHEM DFT Module
+                                 -----------------
+ 
+ 
+          case t21 --- Default DFT (energy) with Becke '88 and Perdew '91
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    11
+          No. of electrons :    96
+           Alpha electrons :    48
+            Beta electrons :    48
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:   176
+                     number of shells:    70
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   395
+                     number of shells:   150
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-03
+          Convergence on gradient requested:  .10D-02
+ 
+              XC Information
+              --------------
+                    Becke 1988 Exchange Functional   1.00          
+                Perdew 1991 Correlation Functional   1.00 non-local
+            Perdew 1991 LDA Correlation Functional   1.00 local    
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Euler-MacLaurin, 
+          Angular quadrature: Gauss-Legendre, with 
+            50 radial points,  10 theta points, and  20 phi points.
+          Number of quadrature shells:   471
+          Spatial weights used: Becke. 
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-14
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCoul:  12
+          Schwarz screening/accCoul:  .10D-11
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Max radial quadrature (shell size)/accQrad:  .40D+02
+          Spatial weight screening/radius:  .16D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:       12235520.
+            This is reduced with Schwarz screening to:        5966475.
+            Incore requires a per proc buffer size of:        1606403.
+                  The minimum integral buffer size is:         113760.
+          Minimum dble words available (all nodes) is:        11754406
+                   This is reduced (for later use) to:        10395419
+                             Suggested buffer size is:         1606403
+
+           1.606 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+
+ Read molecular orbitals from ./dft_feco5.movecs
+
+  movecs set:  1  orthogonalized. 
+  movecs file used as starting guess. 
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.65             8654277
+          Stack Space remaining (MW):        1.34             1341415
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .0,diis     1  -1830.5013382578 -2.63D+03  6.41D-04  2.12D-03   350.7
+ d=70,ls= .0,diis     2  -1830.5014366158 -9.84D-05  6.40D-04  8.80D-04   362.7
+ d= 0,ls= .0,diis     3  -1830.5013941628  4.25D-05  4.31D-04  1.23D-03   375.6
+ d= 0,ls= .0,diis     4  -1830.5012414273  1.53D-04  2.96D-04  4.51D-03   388.4
+ d= 0,ls= .0,diis     5  -1830.5015598590 -3.18D-04  6.23D-05  3.44D-04   401.4
+ d= 0,ls= .0,diis     6  -1830.5015933439 -3.35D-05  4.25D-06  4.06D-07   414.2
+ d= 0,ls= .0,diis     7  -1830.5015934450 -1.01D-07  2.38D-06  4.76D-07   427.1
+
+          Done. Constructing final Fock matrix, orbitals and orbital energies.
+
+
+                Constructing final total energies.
+
+
+
+         Total DFT energy =  -1830.501593398775
+      One electron energy =  -4106.827449172303
+           Coulomb energy =   1602.995056461114
+    Exchange-Corr. energy =   -125.164818781776
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =    110.6s
+
+
+ 
+       Symmetry analysis of molecular orbitals - alpha
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 e'         34 e'         35 a2"     
+    36 e'         37 e'         38 a2'        39 a1'        40 e"      
+    41 e"         42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 e'         52 e'         53 a1'        54 a2"        55 a2'     
+    56 e'         57 e'         58 e"         59 e"         60 a1'     
+    61 a2"        62 e'         63 e'         64 a1'        65 e'      
+    66 e'         67 a1'        68 e"         69 e"         70 a1'     
+    71 e"         72 e"         73 a2"        74 e'         75 e'      
+    76 a1'        77 a2'        78 e'         79 e'         80 a2"     
+    81 e'         82 e'         83 e"         84 e"         85 a1'     
+    86 e'         87 e'         88 a2"        89 a1'        90 a2"     
+    91 a1'        92 e'         93 e'         94 a1'        95 e'      
+    96 e'         97 e"         98 e"         99 a2'       100 a2"     
+   101 e'        102 e'        103 e"        104 e"        105 a1'     
+   106 e'        107 e'        108 a2"       109 a1'       110 a1"     
+   111 e"        112 e"        113 e"        114 e"        115 e'      
+   116 e'        117 a2'       118 e'        119 e'        120 e"      
+   121 e"        122 a1'       123 e'        124 e'        125 e"      
+   126 e"        127 e'        128 e'        129 a2"       130 a2"     
+   131 e'        132 e'        133 a1'       134 a1'       135 a1'     
+   136 a1"       137 e'        138 e'        139 e"        140 e"      
+   141 e"        142 e"        143 e'        144 e'        145 a1'     
+   146 e'        147 e'        148 a2"       149 a1'       150 e"      
+   151 e"        152 a2'       153 e'        154 e'        155 a2"     
+   156 e"        157 e"        158 e'        159 e'        160 a1'     
+   161 e'        162 e'        163 a1'       164 a2"       165 a1'     
+   166 e'        167 e'        168 a2"       169 a1'       170 a1'     
+   171 e'        172 e'        173 a2"       174 a1'       175 a1'     
+   176 a1'     
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0       .000000    -48.000000    -48.000000     96.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0    -52.790949   -270.238553   -270.238553    487.686157
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0    -52.790949   -270.238553   -270.238553    487.686157
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2    -51.683186   -345.891779   -345.891779    640.100373
+ 
+          Final alpha eigenvalues
+      (all occupied plus 10 virtual)
+      ------------------------------
+
+              1      
+    1 -254.8661
+    2  -29.6291
+    3  -25.5984
+    4  -25.5840
+    5  -25.5840
+    6  -18.8834
+    7  -18.8834
+    8  -18.8727
+    9  -18.8727
+   10  -18.8727
+   11  -10.0622
+   12  -10.0621
+   13  -10.0503
+   14  -10.0503
+   15  -10.0503
+   16   -3.3285
+   17   -2.1642
+   18   -2.1361
+   19   -2.1361
+   20   -1.0710
+   21   -1.0708
+   22   -1.0596
+   23   -1.0596
+   24   -1.0596
+   25    -.5712
+   26    -.5295
+   27    -.5201
+   28    -.5201
+   29    -.5163
+   30    -.4639
+   31    -.4476
+   32    -.4476
+   33    -.4400
+   34    -.4400
+   35    -.4390
+   36    -.4244
+   37    -.4244
+   38    -.4176
+   39    -.4174
+   40    -.4170
+   41    -.4170
+   42    -.4005
+   43    -.4005
+   44    -.3862
+   45    -.2812
+   46    -.2812
+   47    -.2258
+   48    -.2258
+   49    -.0867
+   50    -.0867
+   51    -.0772
+   52    -.0772
+   53    -.0757
+   54    -.0718
+   55    -.0666
+   56    -.0562
+   57    -.0562
+   58    -.0319
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                      Basis "xc basis" -> "" (cartesian)
+                      -----
+  o (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S      667.000000  1.000000
+ 
+  2 S      133.000000  1.000000
+ 
+  3 S       33.300000  1.000000
+ 
+  4 S        8.300000  1.000000
+ 
+  5 S        2.600000  1.000000
+ 
+  6 P        2.600000  1.000000
+ 
+  7 S         .520000  1.000000
+ 
+  8 P         .520000  1.000000
+ 
+  9 S         .130000  1.000000
+ 
+ 10 P         .130000  1.000000
+ 
+ 11 D        2.600000  1.000000
+ 
+ 12 D         .520000  1.000000
+ 
+ 13 D         .130000  1.000000
+ 
+  c (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S      371.000000  1.000000
+ 
+  2 S       74.200000  1.000000
+ 
+  3 S       18.600000  1.000000
+ 
+  4 S        4.640000  1.000000
+ 
+  5 S        1.470000  1.000000
+ 
+  6 P        1.470000  1.000000
+ 
+  7 S         .290000  1.000000
+ 
+  8 P         .290000  1.000000
+ 
+  9 S         .073000  1.000000
+ 
+ 10 P         .073000  1.000000
+ 
+ 11 D        1.470000  1.000000
+ 
+ 12 D         .290000  1.000000
+ 
+ 13 D         .073000  1.000000
+ 
+  fe (Iron)
+  ---------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S    14700.000000  1.000000
+ 
+  2 S     2930.000000  1.000000
+ 
+  3 S      730.000000  1.000000
+ 
+  4 S      180.000000  1.000000
+ 
+  5 S       46.000000  1.000000
+ 
+  6 S       14.400000  1.000000
+ 
+  7 P       14.400000  1.000000
+ 
+  8 S        2.900000  1.000000
+ 
+  9 P        2.900000  1.000000
+ 
+ 10 S         .720000  1.000000
+ 
+ 11 P         .720000  1.000000
+ 
+ 12 S         .180000  1.000000
+ 
+ 13 P         .180000  1.000000
+ 
+ 14 S         .045000  1.000000
+ 
+ 15 P         .045000  1.000000
+ 
+ 16 D       14.400000  1.000000
+ 
+ 17 D        2.900000  1.000000
+ 
+ 18 D         .720000  1.000000
+ 
+ 19 D         .180000  1.000000
+ 
+ 20 D         .045000  1.000000
+ 
+
+
+ Summary of "xc basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ o                DGauss A1 DFT Exchange Fitting    13       34   7s3p3d
+ c                DGauss A1 DFT Exchange Fitting    13       34   7s3p3d
+ fe               DGauss A1 DFT Exchange Fitting    20       55   10s5p5d
+
+
+                         case t22 --- (acm) DFT (energy)
+                         -------------------------------
+ 
+                                 NWCHEM DFT Module
+                                 -----------------
+ 
+ 
+                          case t22 --- (acm) DFT (energy)
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    11
+          No. of electrons :    96
+           Alpha electrons :    48
+            Beta electrons :    48
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:   176
+                     number of shells:    70
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   395
+                     number of shells:   150
+          An Exch-Corr fitting basis will be used.
+          XC basis - number of functions:   395
+                     number of shells:   150
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-03
+          Convergence on gradient requested:  .10D-02
+ 
+              XC Information
+              --------------
+          Adiabatic Connection Method XC Potential
+                     Hartree-Fock (Exact) Exchange    .20          
+                        Slater Exchange Functional    .80 local    
+                    Becke 1988 Exchange Functional    .72 non-local
+                      VWN V Correlation Functional   1.00 local    
+                Perdew 1991 Correlation Functional    .81 non-local
+  WARNING: Sum of nonlocal correlation is  0.810000000000000053
+  Sum of components do not equal unity or 0. 
+  WARNING: Sum of nonlocal exchange is  0.919999999999999929
+  Sum of components do not equal unity or 0. 
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Euler-MacLaurin, 
+          Angular quadrature: Gauss-Legendre, with 
+            50 radial points,  10 theta points, and  20 phi points.
+          Number of quadrature shells:   471
+          Spatial weights used: Becke. 
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-14
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCoul:  12
+          Schwarz screening/accCoul:  .10D-11
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Max radial quadrature (shell size)/accQrad:  .40D+02
+          Spatial weight screening/radius:  .16D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:       12235520.
+            This is reduced with Schwarz screening to:        5966475.
+            Incore requires a per proc buffer size of:        1606403.
+                  The minimum integral buffer size is:         113760.
+          Minimum dble words available (all nodes) is:        11753945
+                   This is reduced (for later use) to:        10394563
+                             Suggested buffer size is:         1606403
+
+           1.606 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+
+ Read molecular orbitals from ./dft_feco5.movecs
+
+  movecs set:  1  orthogonalized. 
+  movecs file used as starting guess. 
+
+ Integral file          = /scratch/dft_feco5.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =    113        Max. records in file   =   2900
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 4.384D+05 #integrals = 9.853D+06 #direct =   .0% #cached =100.0%
+
+
+File balance: exchanges=     4  moved=     8  time=    .0
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        4.95             4950911
+          Stack Space remaining (MW):        1.34             1341415
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .0,diis     1  -1830.0981250800 -2.63D+03  2.54D-03  4.28D-02   525.7
+ d=70,ls= .0,diis     2  -1830.0998280303 -1.70D-03  3.27D-03  2.44D-02   540.0
+ d= 0,ls= .0,diis     3  -1830.0993533393  4.75D-04  1.88D-03  2.55D-02   554.2
+ d= 0,ls= .0,diis     4  -1830.1002414092 -8.88D-04  7.22D-04  5.75D-02   568.7
+ d= 0,ls= .0,diis     5  -1830.1050316114 -4.79D-03  7.50D-05  1.79D-04   583.1
+ d= 0,ls= .0,diis     6  -1830.1050889384 -5.73D-05  2.68D-05  8.57D-06   597.4
+ d= 0,ls= .0,diis     7  -1830.1051135636 -2.46D-05  7.09D-06  5.51D-06   612.3
+ d= 0,ls= .0,diis     8  -1830.1051183388 -4.78D-06  4.91D-06  9.21D-07   627.2
+ d= 0,ls= .0,diis     9  -1830.1051225585 -4.22D-06  1.30D-06  1.17D-08   642.1
+ d= 0,ls= .0,diis    10  -1830.1051234118 -8.53D-07  5.03D-07  2.21D-09   657.1
+
+          Done. Constructing final Fock matrix, orbitals and orbital energies.
+
+
+                Constructing final total energies.
+
+
+
+         Total DFT energy =  -1830.105123924489
+      One electron energy =  -4106.739358448785
+           Coulomb energy =   1602.923321841998
+    Exchange-Corr. energy =   -124.784705411893
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =    215.1s
+
+
+ 
+       Symmetry analysis of molecular orbitals - alpha
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 e'         34 e'         35 a2"     
+    36 e'         37 e'         38 a2'        39 e"         40 e"      
+    41 a1'        42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 e'         52 e'         53 a2"        54 a2'        55 a1'     
+    56 e'         57 e'         58 e"         59 e"         60 a1'     
+    61 a2"        62 e'         63 e'         64 a1'        65 e'      
+    66 e'         67 a1'        68 e"         69 e"         70 a1'     
+    71 e"         72 e"         73 a2"        74 e'         75 e'      
+    76 a1'        77 a2'        78 e'         79 e'         80 e'      
+    81 e'         82 a2"        83 e"         84 e"         85 a1'     
+    86 e'         87 e'         88 a2"        89 a1'        90 a2"     
+    91 a1'        92 e'         93 e'         94 a1'        95 e'      
+    96 e'         97 e"         98 e"         99 a2'       100 a2"     
+   101 e'        102 e'        103 e"        104 e"        105 a1'     
+   106 e'        107 e'        108 a2"       109 a1'       110 a1"     
+   111 e"        112 e"        113 e"        114 e"        115 e'      
+   116 e'        117 a2'       118 e'        119 e'        120 e"      
+   121 e"        122 a1'       123 e'        124 e'        125 e"      
+   126 e"        127 e'        128 e'        129 a2"       130 a2"     
+   131 e'        132 e'        133 a1'       134 a1'       135 a1'     
+   136 a1"       137 e'        138 e'        139 e"        140 e"      
+   141 e"        142 e"        143 e'        144 e'        145 a1'     
+   146 a2"       147 e'        148 e'        149 a1'       150 e"      
+   151 e"        152 a2'       153 e'        154 e'        155 a2"     
+   156 e"        157 e"        158 e'        159 e'        160 a1'     
+   161 a1'       162 e'        163 e'        164 a2"       165 a1'     
+   166 e'        167 e'        168 a2"       169 a1'       170 a1'     
+   171 e'        172 e'        173 a2"       174 a1'       175 a1'     
+   176 a1'     
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0       .000000    -48.000000    -48.000000     96.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0    -53.250565   -270.468361   -270.468361    487.686157
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0    -53.250565   -270.468361   -270.468361    487.686157
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2    -52.226501   -346.163437   -346.163437    640.100373
+ 
+          Final alpha eigenvalues
+      (all occupied plus 10 virtual)
+      ------------------------------
+
+              1      
+    1 -256.1234
+    2  -30.0958
+    3  -25.9755
+    4  -25.9628
+    5  -25.9628
+    6  -19.2385
+    7  -19.2385
+    8  -19.2274
+    9  -19.2274
+   10  -19.2274
+   11  -10.3362
+   12  -10.3362
+   13  -10.3247
+   14  -10.3246
+   15  -10.3246
+   16   -3.5024
+   17   -2.2925
+   18   -2.2634
+   19   -2.2634
+   20   -1.1731
+   21   -1.1729
+   22   -1.1615
+   23   -1.1614
+   24   -1.1614
+   25    -.6407
+   26    -.5981
+   27    -.5884
+   28    -.5884
+   29    -.5846
+   30    -.5278
+   31    -.5038
+   32    -.5038
+   33    -.4968
+   34    -.4968
+   35    -.4958
+   36    -.4810
+   37    -.4810
+   38    -.4732
+   39    -.4714
+   40    -.4714
+   41    -.4705
+   42    -.4558
+   43    -.4558
+   44    -.4391
+   45    -.3197
+   46    -.3197
+   47    -.2614
+   48    -.2614
+   49    -.0582
+   50    -.0582
+   51    -.0480
+   52    -.0480
+   53    -.0424
+   54    -.0376
+   55    -.0374
+   56    -.0276
+   57    -.0276
+   58     .0043
+
+ Parallel integral file used     303 records with       0 large values
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+                        case t23 --- (b3lyp) DFT (energy)
+                        ---------------------------------
+ 
+                                 NWCHEM DFT Module
+                                 -----------------
+ 
+ 
+                         case t23 --- (b3lyp) DFT (energy)
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    11
+          No. of electrons :    96
+           Alpha electrons :    48
+            Beta electrons :    48
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:   176
+                     number of shells:    70
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   395
+                     number of shells:   150
+          An Exch-Corr fitting basis will be used.
+          XC basis - number of functions:   395
+                     number of shells:   150
+          Convergence on energy requested:  .10D-05
+          Convergence on density requested:  .10D-03
+          Convergence on gradient requested:  .10D-02
+ 
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange    .20          
+                        Slater Exchange Functional    .80 local    
+                    Becke 1988 Exchange Functional    .72 non-local
+              Lee-Yang-Parr Correlation Functional    .81          
+                  VWN I RPA Correlation Functional    .19 local    
+  WARNING: Sum of nonlocal correlation is  0.810000000000000053
+  Sum of components do not equal unity or 0. 
+  WARNING: Sum of nonlocal exchange is  0.919999999999999929
+  Sum of components do not equal unity or 0. 
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Euler-MacLaurin, 
+          Angular quadrature: Gauss-Legendre, with 
+            50 radial points,  10 theta points, and  20 phi points.
+          Number of quadrature shells:   471
+          Spatial weights used: Becke. 
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  .50D-01
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(70%)  Levelshifting( .5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  .10D-14
+          AO Gaussian exp screening on grid/accAOfunc:  20
+          CD Gaussian exp screening on grid/accCoul:  12
+          Schwarz screening/accCoul:  .10D-11
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Max radial quadrature (shell size)/accQrad:  .40D+02
+          Spatial weight screening/radius:  .16D+02
+
+  int_init: cando_txs set to always be  F
+ 
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:       12235520.
+            This is reduced with Schwarz screening to:        5966475.
+            Incore requires a per proc buffer size of:        1606403.
+                  The minimum integral buffer size is:         113760.
+          Minimum dble words available (all nodes) is:        11753945
+                   This is reduced (for later use) to:        10394563
+                             Suggested buffer size is:         1606403
+
+           1.606 MW buffer allocated for incore 3-center 
+          2e- integral storage on stack. 
+          The percent of 3c 2e- integrals held in-core is: 100.00
+
+
+ Read molecular orbitals from ./dft_feco5.movecs
+
+  movecs set:  1  orthogonalized. 
+  movecs file used as starting guess. 
+
+ Integral file          = /scratch/dft_feco5.aoints.0
+ Record size in doubles =  32769        No. of integs per rec  =  32768
+ Max. records in memory =    113        Max. records in file   =   2900
+ No. of bits per label  =      8        No. of bits per value  =     32
+
+
+ #quartets = 4.384D+05 #integrals = 9.858D+06 #direct =   .0% #cached =100.0%
+
+
+File balance: exchanges=     2  moved=     7  time=    .0
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        4.95             4950911
+          Stack Space remaining (MW):        1.34             1341415
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=70,ls= .0,diis     1  -1830.3632528041 -2.63D+03  1.68D-03  1.08D-02   757.8
+ d=70,ls= .0,diis     2  -1830.3636038221 -3.51D-04  2.10D-03  5.38D-03   772.0
+ d= 0,ls= .0,diis     3  -1830.3630897554  5.14D-04  8.38D-04  1.11D-02   786.3
+ d= 0,ls= .0,diis     4  -1830.3645528169 -1.46D-03  1.40D-04  1.31D-03   800.4
+ d= 0,ls= .0,diis     5  -1830.3646585733 -1.06D-04  3.04D-05  7.48D-05   814.6
+ d= 0,ls= .0,diis     6  -1830.3646704246 -1.19D-05  4.28D-06  1.10D-06   828.8
+ d= 0,ls= .0,diis     7  -1830.3646723410 -1.92D-06  1.90D-06  2.16D-07   843.5
+ d= 0,ls= .0,diis     8  -1830.3646736929 -1.35D-06  7.10D-07  1.60D-08   859.8
+ d= 0,ls= .0,diis     9  -1830.3646741927 -5.00D-07  3.28D-07  1.25D-09   874.8
+
+          Done. Constructing final Fock matrix, orbitals and orbital energies.
+
+
+                Constructing final total energies.
+
+
+
+         Total DFT energy =  -1830.364674591177
+      One electron energy =  -4106.541250235116
+           Coulomb energy =   1602.728980466295
+    Exchange-Corr. energy =   -125.048022916547
+ Nuclear repulsion energy =    798.495618094190
+
+        Time for solution =    200.0s
+
+
+ 
+       Symmetry analysis of molecular orbitals - alpha
+       -----------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 a1'         2 a1"         3 a2'         4 a2"         5 e'      
+     6 e"      
+ 
+  Orbital symmetries:
+ 
+     1 a1'         2 a1'         3 a2"         4 e'          5 e'      
+     6 a1'         7 a2"         8 a1'         9 e'         10 e'      
+    11 a1'        12 a2"        13 a1'        14 e'         15 e'      
+    16 a1'        17 a2"        18 e'         19 e'         20 a1'     
+    21 a2"        22 a1'        23 e'         24 e'         25 a1'     
+    26 a2"        27 e'         28 e'         29 a1'        30 a1'     
+    31 e"         32 e"         33 e'         34 e'         35 a2"     
+    36 e'         37 e'         38 a2'        39 a1'        40 e"      
+    41 e"         42 e'         43 e'         44 a2"        45 e"      
+    46 e"         47 e'         48 e'         49 e"         50 e"      
+    51 e'         52 e'         53 a2"        54 a2'        55 a1'     
+    56 e'         57 e'         58 e"         59 e"         60 a1'     
+    61 a2"        62 e'         63 e'         64 a1'        65 e'      
+    66 e'         67 a1'        68 e"         69 e"         70 a1'     
+    71 e"         72 e"         73 a2"        74 e'         75 e'      
+    76 a1'        77 a2'        78 e'         79 e'         80 e"      
+    81 e"         82 e'         83 e'         84 a2"        85 a1'     
+    86 e'         87 e'         88 a2"        89 a1'        90 a2"     
+    91 a1'        92 e'         93 e'         94 a1'        95 e'      
+    96 e'         97 e"         98 e"         99 a2'       100 a2"     
+   101 e'        102 e'        103 e"        104 e"        105 a1'     
+   106 e'        107 e'        108 a2"       109 a1'       110 a1"     
+   111 e"        112 e"        113 e'        114 e'        115 e"      
+   116 e"        117 a2'       118 e'        119 e'        120 e"      
+   121 e"        122 a1'       123 e'        124 e'        125 e"      
+   126 e"        127 e'        128 e'        129 a2"       130 a2"     
+   131 e'        132 e'        133 a1'       134 a1'       135 a1'     
+   136 e'        137 e'        138 a1"       139 e"        140 e"      
+   141 e"        142 e"        143 e'        144 e'        145 a1'     
+   146 a2"       147 e'        148 e'        149 a1'       150 e"      
+   151 e"        152 a2'       153 e'        154 e'        155 a2"     
+   156 e"        157 e"        158 e'        159 e'        160 a1'     
+   161 a1'       162 e'        163 e'        164 a2"       165 a1'     
+   166 e'        167 e'        168 a2"       169 a1'       170 a1'     
+   171 e'        172 e'        173 a2"       174 a1'       175 a1'     
+   176 a1'     
+ 
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0       .000000    -48.000000    -48.000000     96.000000
+ 
+     1   1 0 0       .000000       .000000       .000000       .000000
+     1   0 1 0       .000000       .000000       .000000       .000000
+     1   0 0 1       .000000       .000000       .000000       .000000
+ 
+     2   2 0 0    -53.633686   -270.659921   -270.659921    487.686157
+     2   1 1 0       .000000       .000000       .000000       .000000
+     2   1 0 1       .000000       .000000       .000000       .000000
+     2   0 2 0    -53.633686   -270.659921   -270.659921    487.686157
+     2   0 1 1       .000000       .000000       .000000       .000000
+     2   0 0 2    -52.667494   -346.383933   -346.383933    640.100373
+ 
+          Final alpha eigenvalues
+      (all occupied plus 10 virtual)
+      ------------------------------
+
+              1      
+    1 -256.1473
+    2  -30.0965
+    3  -25.9763
+    4  -25.9654
+    5  -25.9654
+    6  -19.2506
+    7  -19.2506
+    8  -19.2393
+    9  -19.2393
+   10  -19.2393
+   11  -10.3481
+   12  -10.3480
+   13  -10.3363
+   14  -10.3363
+   15  -10.3363
+   16   -3.4978
+   17   -2.2893
+   18   -2.2601
+   19   -2.2601
+   20   -1.1693
+   21   -1.1692
+   22   -1.1576
+   23   -1.1576
+   24   -1.1576
+   25    -.6369
+   26    -.5951
+   27    -.5854
+   28    -.5854
+   29    -.5820
+   30    -.5266
+   31    -.5014
+   32    -.5014
+   33    -.4948
+   34    -.4948
+   35    -.4938
+   36    -.4789
+   37    -.4789
+   38    -.4710
+   39    -.4704
+   40    -.4690
+   41    -.4690
+   42    -.4548
+   43    -.4548
+   44    -.4379
+   45    -.3170
+   46    -.3170
+   47    -.2588
+   48    -.2588
+   49    -.0576
+   50    -.0576
+   51    -.0478
+   52    -.0478
+   53    -.0421
+   54    -.0373
+   55    -.0370
+   56    -.0275
+   57    -.0275
+   58     .0046
+
+ Parallel integral file used     303 records with       0 large values
+
+ 
+ 
+                                NWCHEM Input Module
+                                -------------------
+ 
+ 
+
+ Summary of allocated global arrays 
+ ----------------------------------
+
+   No active global arrays
+  
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 1151     1151     3.48e+05 8.80e+04 5.15e+05    0        0        0     
+bytes total:             1.01e+09 3.36e+08 6.71e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            6.98e+08 2.27e+08 5.06e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2773920 bytes
+Number of requests serviced: 630528
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        34	        27
+	current total bytes		         0	         0
+	maximum total bytes		  32410612	  21202220
+	maximum total K-bytes		     32411	     21203
+	maximum total M-bytes		        33	        22
+
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 2.1" (1997), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:      904.0s     wall:      948.0s

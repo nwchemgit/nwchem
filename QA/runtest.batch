@@ -1,11 +1,11 @@
 #!/bin/csh 
 #
-# $Id: runtest.batch,v 1.3 1997-07-01 18:53:15 d3e129 Exp $
+# $Id: runtest.batch,v 1.4 1997-07-02 18:51:14 d3e129 Exp $
 #
 # Batch system based parallel and sequential execution of test jobs
 #
 # Usage:
-#       runtest.batch [-procs nproc] [-nowait] testdir1 [testdir2 ...]
+#       runtest.batch [-procs nproc] [-nowait|wait] testdir1 [testdir2 ...]
 #
 #
 # Gets executable from environment variable NWCHEM_EXECUTABLE or
@@ -44,8 +44,30 @@
 if ($#argv == 0) then
    goto USAGE
 endif
-#  get batch system information information
 @ argv_set_nproc = 0
+@ check_interactive = 1
+@ get_nproc = 0
+set args_2_use = removeme
+foreach argument ($argv)  
+    if ($get_nproc) then
+        @ NPROC = $argument
+        @ argv_set_nproc++
+        @ get_nproc = 0
+    else if ($argument == "-procs") then
+        @ get_nproc = 1       
+    else if ($argument == "-wait") then
+        @ check_interactive = 1
+    else if ($argument == "-nowait") then
+        @ check_interactive = 0
+    else
+        set args_2_use = ($args_2_use $argument)
+    endif
+end   
+#
+# now remove first dummy argument from args_2_use
+set args_2_use = ($args_2_use[2-])
+
+#  get batch system information information
 
 if ($?BATCH_SYSTEM) then
    set BATCH = $BATCH_SYSTEM
@@ -132,9 +154,10 @@ set overall_status = 0
 rm -f $CURDIR/BATCH_OKAY
 rm -f $CURDIR/BATCH_FAILED
 rm -f $CURDIR/BATCH_OVERALL
+rm -f $CURDIR/BATCH_JOBS
 
 @ run_count = 0
-foreach TEST ($argv[*]) 
+foreach TEST ($args_2_use) 
 
   \cd $CURDIR
 
@@ -463,7 +486,14 @@ foreach TEST ($argv[*])
      exit 911
   endif
 end
-@ jobs_total = $run_count
+touch $CURDIR/BATCH_JOBS
+echo $run_count > $CURDIR/BATCH_JOBS
+if (!($check_interactive)) then
+   echo " not doing inteactive check of jobs "
+   echo " run batch.check to see current status"
+   exit 0
+endif
+@ jobs_total = `cat $CURDIR/BATCH_JOBS`
 echo " "
 echo " A total of $jobs_total jobs were submitted to $BATCH"
 echo " "
@@ -493,13 +523,16 @@ while (!($all_jobs_done))
    if (!($all_jobs_done)) sleep $sleep_time
 end
 if ($jobs_failed == 0) then
-   exit 911
-else
    exit 0
+else
+   exit 911
 endif
 
 
 
 USAGE:
   echo "runtest.batch [-procs nproc] [-wait|-nowait] testdir1 [testdir2 ...]"
+  echo " -procs nproc sets the number of processors to use"
+  echo " -wait <the default> tries to interactively check the jobs as they are processed"
+  echo " -nowait turns off the interactive check and conformation must be done by hand"
   exit 0
