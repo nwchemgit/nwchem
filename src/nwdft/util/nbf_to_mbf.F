@@ -1,7 +1,7 @@
       Subroutine nbf_to_mbf(geom_hand, basis_hand, rq0, mbf, mcenters, 
      &                      iniz, ifin, zprim, nzprim, acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.10 1997-11-14 01:14:29 d3h449 Exp $
+C$Id: nbf_to_mbf.F,v 1.11 1998-12-19 01:29:56 edo Exp $
 c
       implicit none
 c      
@@ -82,33 +82,16 @@ c
          else
             if (iniz(ictr).eq.0) iniz(ictr)=n1+1
          endif
-         if (l.eq.0)then
-c
-c           =============>  S Contractions  <============= 
-c
-            n1 = n1 + ncontr
-         elseif (l.eq.1)then
-c
-c           =============>  P Contractions  <============= 
-c
-            n1 = n1+ncontr*3
-         elseif (l.eq.2)then
-c
-c           =============>  D Contractions  <============= 
-c
-            n1 = n1 + ncontr*6
+         if(isphere.eq.1) then
+           n1=n1+ncontr*(2*l+1)
          else
-c
-c           =============>  General Case  <============= 
-c
-            n1 = n1 + ncontr*nang
+           n1=n1 + ncontr*(((l+1)*(l+2))/2)
          endif
 c
          ifin(ictr)= n1
 c
   400 continue
 c
-c      write(*,*) ' from nbf_to_mbf: n1 = ',n1
       mbf = n1
 c
       return
