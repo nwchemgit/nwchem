@@ -3,7 +3,7 @@
      &                          Grid,Values,g_Vls,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.18 2003-01-03 22:42:21 edo Exp $
+* $Id: create_contour.F,v 1.19 2003-01-03 23:29:54 edo Exp $
 *
       Implicit None
 *
@@ -168,14 +168,12 @@ cedo      double precision rdens_atom(natom*natom)
      &     ldocset, idocset))
      &     call errquit('grid_quadv0a: cannot allocate docset',
      .     ncontrset)
-       do i=1,ncontrset
-            log_mb(idocset+i-1)=.true.
-         enddo
       Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
      &                mBF,nAtom,
      &                Int_mb(k_iniz),Int_mb(k_ifin),
      .     int_mb(k_ibf),
-     &                Dbl_mb(k_Expo),nbf_ao_mxprim,Acc_AO_Gauss)
+     &                Dbl_mb(k_Expo),nbf_ao_mxprim,
+     .        log_mb(idocset),Acc_AO_Gauss)
 !      If (What.eq.'VIEW' . and . nBF.ne.mBF)
 !     &   Call ErrQuit('Create_Contour: nBF.ne.mBF for VIEW',mbf)
       If (DeBug . and . iProc.eq.0) Write(LuOut,*)' mBF        = ',mBF
