@@ -56,8 +56,6 @@ c
      + natm,nseq,nssb,nlnk,slvnam))
      + call errquit('pre_pdbsiz failed',9999)
       else
-      if(source(1:1).eq.' ') source='geometry'
-      if(source(1:4).eq.'rtdb') source='geometry'
       if(.not.geom_create(igeom,source))
      + call errquit('pre_mkseq: geom_create failed',0)
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))

@@ -1,5 +1,6 @@
-      logical function pre_mkrst(source,lfnout,lprint,lfntop,filtop,
-     + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd)
+      logical function pre_mkrst(irtdb,source,lfnout,lprint,
+     + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
+     + lfncmd,filcmd)
 c
       implicit none
 c
@@ -7,8 +8,10 @@ c
 c
       logical pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
       external pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
+      logical pre_rdgeom
+      external pre_rdgeom
 c
-      integer lfnout,lprint,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
+      integer irtdb,lfnout,lprint,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam
       character*80 source,card
 c
@@ -98,12 +101,20 @@ c
      + form='formatted',status='old',err=99)
       goto 1
    99 continue
+      write(*,'(a,a)') 'source=',source(1:index(source,' ')-1)
+      if(source(1:8).eq.'geometry') then
+      if(.not.pre_rdgeom(irtdb,byte_mb(i_csa),int_mb(i_sar),
+     + int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
+     + call errquit('pre_rdgeom failed',9999)
+      else
       if(.not.pre_rdpdb(filpdb,lfnpdb,filtmp,lfntmp,.true.,
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_xscr),msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdpdb failed',9999)
       if(lprint.ge.5) write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
       write(lfnout,2103) nmis,nsa
+      endif
       if(.not.pre_center(dbl_mb(i_xw),mwm,mwa,nwm,nwa,dbl_mb(i_xs),
      + msa,nsa)) call errquit('pre_center failed',9999)
       if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,

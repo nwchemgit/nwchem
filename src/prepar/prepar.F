@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.13 1998-04-23 23:50:16 d3j191 Exp $
+c $Id: prepar.F,v 1.14 1998-04-24 03:35:46 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -105,6 +105,23 @@ c
      + call errquit('rtdb_cget failed on file_prefix',9999)
       filcmd=filcmd(1:index(filcmd,' ')-1)//'.cmd '
 c
+c     check if the source file exists
+c     -------------------------------
+c
+      if(source(1:1).eq.' '.or.source(1:3).eq.'pdb') then
+      open(unit=lfnpdb,file=filpdb(1:index(filpdb,' ')-1),
+     + form='formatted',status='old',err=7)
+      if(source(1:1).eq.' ') source='pdb'
+      close(unit=lfnpdb)
+      goto 8
+    7 continue
+      if(source(1:3).eq.'pdb')
+     + call errquit('pdb file could not be found',9999)
+    8 continue
+      endif
+      if(source(1:1).eq.' ') source='geometry'
+      if(source(1:4).eq.'rtdb') source='geometry'
+c
 c     set logical file numbers to be used
 c     -----------------------------------
 c
@@ -162,21 +179,6 @@ c
 c
     2 continue
 c
-c     check if the source file exists
-c     -------------------------------
-c
-      if(source(1:1).eq.' '.or.source(1:3).eq.'pdb') then
-      open(unit=lfnpdb,file=filpdb(1:index(filpdb,' ')-1),
-     + form='formatted',status='old',err=7)
-      if(source(1:1).eq.' ') source='pdb'
-      close(unit=lfnpdb)
-      goto 8
-    7 continue
-      if(source(1:3).eq.'pdb')
-     + call errquit('pdb file could not be found',9999)
-    8 continue
-      endif
-c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
@@ -232,7 +234,7 @@ c
 c     generate restart file
 c     ---------------------
 c
-      if(.not.pre_mkrst(source,lfnout,lprint,lfntop,filtop,
+      if(.not.pre_mkrst(irtdb,source,lfnout,lprint,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd))
      + call errquit('pre_mkrst failed',9999)
 c
