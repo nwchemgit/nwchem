@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.230 1997-04-09 21:03:18 d3h325 Exp $
+# $Id: makefile.h,v 1.231 1997-04-16 17:04:36 d3h325 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -158,9 +158,14 @@ NWSUBDIRS = $(NW_CORE_SUBDIRS) $(NW_MODULE_SUBDIRS)
 #    LDFLAGS = options for the linker.  Currently paths from LIBDIR and
 #              LIBPATH.
 #
-# NWCHEM_TARGET_CPU environment variable is used to select optimal compiler flags.
-# R10000 and R8000 are the only currently recognized values under SGITFP and SGI_N32
-# targets.
+# NWCHEM_TARGET_CPU environment variable is used to select compiler flags
+# optimal for given CPU. The following values are recognized on particular
+# platforms:
+#
+#        NWCHEM_TARGET                NWCHEM_TARGET_CPU          
+#           SP1                          P2SC
+#           SGITFP                       R10000/R8000
+#           SGI_N32                      R10000/R8000
 #
 
 
@@ -766,7 +771,7 @@ ifeq ($(TARGET),SP1)
    COPTIONS = 
   FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
   COPTIMIZE = -O
-#ifdef P2SC
+ifeq ($(NWCHEM_TARGET_CPU),P2SC)
 # These from George from Kent Winchell
   FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
         -qcache=type=i:level=1:size=32:line=128
