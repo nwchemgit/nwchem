@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.73 2000-04-21 17:40:09 d3j191 Exp $
+c $Id: md_main.F,v 1.74 2000-04-21 19:39:54 d3j191 Exp $
 c
       implicit none
 c
@@ -1219,6 +1219,8 @@ c
       call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
 c
+      call timer_start(16)
+c
       if(me.eq.0.and..not.lequi.and.(lxw.or.lvw.or.lxs.or.lvs)) then
       if(lqmd) then
       call qmd_wrttrj(lfntrj,mwm,nwmloc,mwa,nwa,msa,nsaloc,
@@ -1231,6 +1233,8 @@ c
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs))
       endif
       endif
+c
+      call timer_stop(16)
 c
       call md_forces(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
      + dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs))
@@ -1433,6 +1437,8 @@ c
       real*8 xw(mwm,3,mwa),xwm(mwm,3),xs(msa,3)
       real*8 fw(mwm,3,mwa,2),fs(msa,3,2)
 c
+      call md_timer_init()
+c
 c     initialize cf
 c
       call cf_init(lpair,llong,box,vlat,vlati,zw,dbl_mb(i_zs),eww,
@@ -1460,6 +1466,11 @@ c
       call cf_multi(nsaloc,dbl_mb(i_xs),dbl_mb(i_fs),isl(1,lsgan),
      + isl(1,lsfrc),isl(1,lsdyn),isl(1,lsct1),dbl_mb(i_ess))
       call timer_stop(10)
+c
+      if(ipolt.gt.0) then
+      call md_induce(iwl,isl,xw,xwm,xs,dbl_mb(i_pw),
+     + dbl_mb(i_pwp),dbl_mb(i_ps),dbl_mb(i_psp))
+      endif
 c
       if(ipme.gt.0) then
       if(lpert2) then
@@ -1597,32 +1608,31 @@ c
 c
       integer ibbl,lhandl,iwfr,iwto,jwfr,jwto,isfr,isto,jsfr,jsto
       integer nbbl
+      integer itcom1,itforc,itcom2
 c
       locali=.true.
-      call timer_start(13)
-c
-cx      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
-cx     + isl(1,lsatt),isl(1,lsmol),dbl_mb(i_xs),dbl_mb(i_xsm))
-c
-      if(ipolt.gt.0) then
-      call md_induce(iwl,isl,xw,xwm,xs,dbl_mb(i_pw),
-     + dbl_mb(i_pwp),dbl_mb(i_ps),dbl_mb(i_psp))
-      endif
+      itcom1=17
+      itforc=18
+      itcom2=19
 c
       call sp_nbbl(nbbl)
 c
       do 1 ibbl=1,nbbl
 c
+      call timer_start(itcom1)
       call sp_getxbl(ibbl,lhandl,local,
      + iwl,xw,iwfr,iwto,jwfr,jwto,isl,xs,isfr,isto,jsfr,jsto,
      + lself,lpbcs)
+      call timer_stop(itcom1)
 c
       if(locali.and..not.local) then
-      call timer_stop(13)
-      call timer_start(14)
+      itcom1=20
+      itforc=21
+      itcom2=22
       locali=.false.
       endif
 c
+      call timer_start(itforc)
       call cf_comw(xw,xwm,jwfr,jwto)
 c
       if(ipolt.eq.0) then
@@ -1641,17 +1651,14 @@ c
      + int_mb(i_isz),isfr,isto,jsfr,jsto,lpbc,lhandl,
      + .true.,eww,dbl_mb(i_esw),dbl_mb(i_ess))
       endif
+      call timer_stop(itforc)
 c
+      call timer_start(itcom2)
       call sp_accfbl(ibbl,lhandl,fw,fs,
      + lpair,int_mb(i_iwz),int_mb(i_isz))
+      call timer_stop(itcom2)
 c
     1 continue
-c
-      if(locali) then
-      call timer_stop(13)
-      else
-      call timer_stop(14)
-      endif
 c
       if(ipme.gt.0) then
       call pme_forces(fw,nwmloc,fs,isl(1,lsct1),nsaloc)
@@ -1927,6 +1934,20 @@ c
 c
       return
       end
+      subroutine md_timer_init
+c
+      implicit none
+c
+#include "md_common.fh"
+c
+      integer i
+c
+      do 1 i=10,24
+      call timer_reset(i)
+    1 continue
+c
+      return
+      end
       subroutine md_wrtime
 c
       implicit none
@@ -1935,41 +1956,52 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      external timer_wall
-      real*8 timer_wall
+      external timer_wall,timer_wall_total
+      real*8 timer_wall,timer_wall_total
 c
       integer i,j
-      real*8 tim(8,1024)
+      real*8 tim(17,1024)
 c
       do 1 i=1,np
-      do 2 j=1,8
+      do 2 j=1,17
       tim(j,i)=zero
     2 continue
     1 continue
 c
-      tim(1,me+1)=timer_wall(10)
-      tim(2,me+1)=timer_wall(11)
-      tim(3,me+1)=timer_wall(12)
-      tim(4,me+1)=timer_wall(13)
-      tim(5,me+1)=timer_wall(14)
-      tim(6,me+1)=timer_wall(15)
-      tim(7,me+1)=timer_wall(16)
-      tim(8,me+1)=timer_wall(2)
+      tim(1,me+1)=timer_wall_total(10)
+      tim(2,me+1)=timer_wall_total(11)
+      tim(3,me+1)=timer_wall_total(12)
+      tim(4,me+1)=timer_wall_total(13)
+      tim(5,me+1)=timer_wall_total(14)
+      tim(6,me+1)=timer_wall_total(15)
+      tim(7,me+1)=timer_wall_total(16)
+      tim(8,me+1)=timer_wall_total(17)
+      tim(9,me+1)=timer_wall_total(18)
+      tim(10,me+1)=timer_wall_total(19)
+      tim(11,me+1)=timer_wall_total(20)
+      tim(12,me+1)=timer_wall_total(21)
+      tim(13,me+1)=timer_wall_total(22)
+      tim(14,me+1)=timer_wall_total(23)
+      tim(15,me+1)=timer_wall_total(24)
+      tim(16,me+1)=timer_wall(2)
+      do 3 i=1,16
+      tim(17,me+1)=tim(17,me+1)+tim(i,me+1)
+    3 continue
 c
-      call ga_dgop(mrg_d04,tim,8*np,'+')
+      call ga_dgop(mrg_d04,tim,17*np,'+')
 c
       if(me.eq.0) then
       write(lfntim,1000) stime
  1000 format('timings',/,f12.6)
-      write(lfntim,1001) ((tim(i,j),i=1,8),j=1,np)
- 1001 format(8f10.3)
+      write(lfntim,1001) ((tim(i,j),i=1,17),j=1,np)
+ 1001 format(17f7.3)
       endif
 c
       return
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.73 2000-04-21 17:40:09 d3j191 Exp $
+c $Id: md_main.F,v 1.74 2000-04-21 19:39:54 d3j191 Exp $
 c
       implicit none
 c
