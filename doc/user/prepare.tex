@@ -344,12 +344,12 @@ between non-standard segments or other non-standard links.
 These links are generated based on distances found between
 atoms on the pdb file. When atoms are involved in such non-standard 
 links that have not been identified in the fragment of segment
-files as a non-chain link atom, the prepare module will abort.
-In that case the user is required to modify the sequence file
-and either remove the \verb+link+ command in question, or make
-the link a so-called forced-link by changing \verb+link+ into
-\verb+LINK+. In the latter case the link will be made regardless
-of the link status in the fragment and segment files.
+files as a non-chain link atom, the prepare module will ignore
+these links and report them as skipped. If one or more of these links
+are required, the user has to include them with explicit link
+directives in the sequence file, making them forced links.
+Alternatively, these links can be made forced-links by changing 
+\verb+link+ into \verb+LINK+ in the sequence file. 
 
 \section{Modifying a topology file}
 
