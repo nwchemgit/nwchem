@@ -1,10 +1,10 @@
-C$Id: cscfps.fh,v 1.11 1996-06-27 22:42:30 d3g681 Exp $
+C$Id: cscfps.fh,v 1.12 1996-10-22 08:33:16 d3g681 Exp $
 c
 c     pstat handles for the SCF code
 c
       integer ps_fock_2e, ps_int_1e, ps_solve, ps_search,
      $     ps_matexp, ps_total, ps_int_2e, ps_diag, ps_fock_add,
-     $     ps_vecio, ps_orthog, ps_int_dip, ps_gaops,
+     $     ps_vecio, ps_orthog, ps_int_dip, ps_gaops, ps_fock_io,
      $     ps_sym_sym, ps_sym_ad, ps_riscf_read, ps_intio
       integer ps_vhalf, ps_index, ps_transform, ps_extract, ps_exchange,
      $     ps_coulomb, ps_copy, ps_transpose, ps_k2cf
@@ -14,6 +14,6 @@ c
      $     ps_matexp, ps_total, ps_int_2e, ps_diag, ps_fock_add,
      $     ps_vecio, ps_orthog, ps_int_dip, ps_vhalf, ps_index, 
      $     ps_transform, ps_extract, ps_exchange, ps_coulomb, 
-     $     ps_copy, ps_transpose, ps_intio, ps_gaops,
+     $     ps_copy, ps_transpose, ps_intio, ps_gaops, ps_fock_io,
      $     ps_sym_sym, ps_sym_ad, ps_riscf_read, ps_k2cf
 c

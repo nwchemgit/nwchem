@@ -1,6 +1,6 @@
       block data Dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.23 1996-06-27 22:42:53 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.24 1996-10-22 08:33:17 d3g681 Exp $
       data oscfps /.false./     ! So that other codes do not break
 c
       end
@@ -29,6 +29,12 @@ c
       if (.not. pstat_allocate('scf: fock-2e', pstat_qstat, 0, junk,
      $     ps_fock_2e)) call errquit('scf: scf_pstat_init', 0)
 c
+      if (.not. pstat_allocate('scf: fock-add', pstat_qstat, 0, junk,
+     $     ps_fock_add)) call errquit('scf: scf_pstat_init', 0)
+c
+      if (.not. pstat_allocate('scf: fock-io', pstat_qstat, 0, junk,
+     $     ps_fock_io)) call errquit('scf: scf_pstat_init', 0)
+c
       if (.not. pstat_allocate('scf: int-1e', pstat_qstat, 0, junk,
      $     ps_int_1e)) call errquit('scf: scf_pstat_init', 0)
 c
@@ -37,9 +43,6 @@ c
 c
       if (.not. pstat_allocate('scf: ga ops', pstat_qstat, 0, junk,
      $     ps_gaops)) call errquit('scf: scf_pstat_init', 0)
-c
-      if (.not. pstat_allocate('scf: fock-add', pstat_qstat, 0, junk,
-     $     ps_fock_add)) call errquit('scf: scf_pstat_init', 0)
 c
       if (.not. pstat_allocate('scf: matexp', pstat_qstat, 0, junk,
      $     ps_matexp)) call errquit('scf: scf_pstat_init', 0)

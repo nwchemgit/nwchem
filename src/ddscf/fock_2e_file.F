@@ -8,7 +8,7 @@
 #include "cscfps.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.7 1996-09-19 01:09:20 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.8 1996-10-22 08:33:17 d3g681 Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -41,6 +41,8 @@ c
 c
       logical int2e_get_bf_range, int2e_file_read
       external int2e_get_bf_range, int2e_file_read
+c
+      if (oscfps) call pstat_on(ps_fock_io)
 c
       den_tol = max(tol2e*0.01d0,1.0d-300) ! To avoid a hard zero
 c
@@ -117,6 +119,8 @@ c
      $        kfac, fik, tmp )
       end if
 c     
+      if (oscfps) call pstat_off(ps_fock_io)
+c
       end
       subroutine fock_2e_rep_from_file(geom, basis, nfock, nbf,
      $     jfac, kfac, tol2e, oskel, dens, fock)
@@ -139,6 +143,8 @@ c
       external int2e_get_bf_range, int2e_file_read
       integer idamax
       external idamax
+c
+      if (oscfps) call pstat_on(ps_fock_io)
 c
       denmax = 0.0d0
       do i = 1, nfock
@@ -164,5 +170,7 @@ c
          goto 10
 c     
       end if
+c
+      if (oscfps) call pstat_off(ps_fock_io)
 c
       end
