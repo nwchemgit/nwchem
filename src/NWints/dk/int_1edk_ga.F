@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.22 1999-12-22 18:12:31 bert Exp $
+c $Id: int_1edk_ga.F,v 1.23 1999-12-30 23:06:35 bert Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "geomP.fh"
+#include "rel_consts.fh"
 #include "bgj.fh"
 c     
 c     Compute the Douglas-Kroll integrals and ADD them to a given global array.
@@ -76,9 +77,8 @@ c
       integer tempm_a, tempIm_a ! Temporary m_a vector handle and index
       integer iloop             
       logical oskel            
-      double precision c2       ! Speed of light c (in au) squared 
 c
-c     dk_clight = 137.0360000d0         ! Speed of light by Bernd Hess
+c     cau = 137.0360000d0         ! Speed of light by Bernd Hess
 c
 c     At this point we set oskel to false. We cannot use oskel because of the
 c     transformations we have to do with the full integral matrices.
@@ -145,13 +145,10 @@ c
 c     Construct vector E from eigenvalues: E = Sqrt(p^2 c^2 + c^4)
 c                                            = c*Sqrt(p^2 + c^2)
 c
-      c2 = dk_clight * dk_clight
-c
       if (.not. ma_push_get(MT_DBL,nbf,'Evector',Em_a,EIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Evector',0)
       do 10 iloop = 1, nbf
-         dbl_mb(EIm_a+iloop-1) = dk_clight*
-     $                           Sqrt(dbl_mb(p2Im_a+iloop-1)+c2)
+         dbl_mb(EIm_a+iloop-1) = cau*Sqrt(dbl_mb(p2Im_a+iloop-1)+csq)
    10 continue
 c
 c     Construct vector A from E: A = Sqrt((E+c^2)/2E) and
@@ -162,8 +159,8 @@ c
       if (.not. ma_push_get(MT_DBL,nbf,'Kvector',Km_a,KIm_a))
      $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0)
       do 20 iloop = 1, nbf
-         dbl_mb(KIm_a+iloop-1) = dk_clight/(dbl_mb(EIm_a+iloop-1)+c2)  
-         dbl_mb(AIm_a+iloop-1) = Sqrt((dbl_mb(EIm_a+iloop-1)+c2)/
+         dbl_mb(KIm_a+iloop-1) = cau/(dbl_mb(EIm_a+iloop-1)+csq)  
+         dbl_mb(AIm_a+iloop-1) = Sqrt((dbl_mb(EIm_a+iloop-1)+csq)/
      $                                (2.0d0*dbl_mb(EIm_a+iloop-1)))
    20 continue
 c
@@ -174,7 +171,7 @@ c     We have to subtract mc^2 to get the non-relativistic type integrals
 c
       call ga_zero(DKg_a)
       call ga_copy_todiag(DKg_a,dbl_mb(EIm_a))
-      call ga_add_todiag(DKg_a,-c2)
+      call ga_add_todiag(DKg_a,-csq)
 c
 c     We have our kinetic energy integrals
 c 
