@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.26 2004-04-21 17:01:42 edo Exp $
+* $Id: paw_basis.F,v 1.27 2004-10-14 00:28:08 bylaska Exp $
 *
 
 !**************************************************
@@ -358,12 +358,13 @@ c     !*** set core charges ***
       integer MASTER,taskid
       parameter (MASTER=0)
 
+      logical oldmode
       logical found
-      integer ia
+      integer ia,lmax,locp
       character*2 atom
       character*255 fname,libfile
-      real*8        sum
-      logical oldmode
+      real*8        sum,rlocal
+
 *     **** external functions ****
       character*2 ion_atom
       integer     ion_nkatm
@@ -380,12 +381,16 @@ c     !*** set core charges ***
        inquire(file=fname,exist=found)
        if (.not.found) then
 
-*         *** find location of library file ***
+*         **** generate one-dimensional pseudopotential file ****
           atom = ion_atom(ia)
-          call nwpw_libfile(2,libfile,atom)
+          call psp_generator_auto(2,atom,lmax,locp,rlocal)
 
-*         *** copy library file to fname ***
-          call util_file_copy(libfile,fname)
+c*         *** find location of library file ***
+c          atom = ion_atom(ia)
+c          call nwpw_libfile(2,libfile,atom)
+c
+c*         *** copy library file to fname ***
+c          call util_file_copy(libfile,fname)
       
        end if
 
