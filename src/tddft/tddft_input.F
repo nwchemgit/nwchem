@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.1 2002-03-22 02:10:37 sohirata Exp $
+c $Id: tddft_input.F,v 1.2 2002-03-28 17:15:47 sohirata Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -15,6 +15,7 @@ c        [(TRIPLET||NOTRIPLET) default TRIPLET]
 c        [THRESH <double thresh default 1e-5>]
 c        [MAXITER <integer maxiter default 100>]
 c        [TARGET <integer target default 1>]
+c        [TARGETSYM <integer targetsym default 0>]
 c        [ALGORITHM <integer algorithm default 1>]
 c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
@@ -27,7 +28,7 @@ c
 #include "stdio.fh"
       integer rtdb
       character*20 test
-      integer nroots,maxvecs,maxiter,target,algorithm
+      integer nroots,maxvecs,maxiter,target,targetsym,algorithm
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
@@ -84,6 +85,12 @@ c     TARGET (the target excited state for, e.g., geometry optimization)
 c
       target=1
       if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
+     1  call errquit('tddft_input: failed writing to rtdb',0)
+c
+c     TARGETSYM (the irrep of the target excited state)
+c
+      targetsym=0
+      if (.not.rtdb_put(rtdb,'tddft:targetsym',mt_int,1,targetsym))
      1  call errquit('tddft_input: failed writing to rtdb',0)
 c
 c     ALGORITHM (algorithm: =1 multiple fock build; =2: conventional)
@@ -198,6 +205,19 @@ c
         if (target.gt.nroots) call errquit
      1    ('tddft_input: an illegal value for target',target)
         if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
+     1    call errquit('tddft_input: failed writing to rtdb',0)
+c
+c     TARGETSYM (the symmetry of the target excited state)
+c
+      else if (inp_compare(.false.,test,'targetsym')) then
+        if (.not.inp_i(targetsym)) then
+          write(LuOut,*) 'tddft_input: targetsym value not found; ',
+     1      'no symmetry information will be used in specifying target'
+          targetsym=0
+        endif
+        if ((targetsym.lt.0).or.(targetsym.gt.8)) call errquit
+     1    ('tddft_input: an illegal value for targetsym',targetsym)
+        if (.not.rtdb_put(rtdb,'tddft:targetsym',mt_int,1,targetsym))
      1    call errquit('tddft_input: failed writing to rtdb',0)
 c
 c     ALGORITHM (algorithm: =1 multiple fock build; =2: conventional)

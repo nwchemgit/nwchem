@@ -3,10 +3,10 @@
      2  xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
-     5  maxiter,target,algorithm,g_movecs,l_evl,k_evl,l_occ,k_occ,
-     6  mult)
+     5  maxiter,target,targetsym,algorithm,g_movecs,
+     6  l_evl,k_evl,l_occ,k_occ,mult)
 c
-c $Id: tddft_init.F,v 1.2 2002-03-22 23:10:49 sohirata Exp $
+c $Id: tddft_init.F,v 1.3 2002-03-28 17:15:46 sohirata Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -65,6 +65,7 @@ c
       double precision thresh  ! Convergence threshold for Davidson iteration
       integer maxiter          ! Maximum number of Davidson iterations
       integer target           ! Target excited state
+      integer targetsym        ! Symmetry of target excited state
       integer algorithm        ! =1 multiple fock build; =2: conventional
       integer g_movecs(2)      ! GA handle for MO vectors
       integer l_evl,k_evl      ! MA handles for eigenvalues (AB)
@@ -169,6 +170,8 @@ c -----------
      1  call errquit('tddft_init: failed to read maxiter',0)
       if (.not.rtdb_get(rtdb,'tddft:target',mt_int,1,target))
      1  call errquit('tddft_init: failed to read target',0)
+      if (.not.rtdb_get(rtdb,'tddft:targetsym',mt_int,1,targetsym))
+     1  call errquit('tddft_init: failed to read targetsym',0)
       if (.not.rtdb_get(rtdb,'tddft:algorithm',mt_int,1,algorithm))
      1  call errquit('tddft_init: failed to read algorithm',0)
 c ----------------------
@@ -359,6 +362,12 @@ c -------------
         write(LuOut,9000) ctype  
         write(LuOut,9060) nroots
         write(LuOut,9120) target
+        if (targetsym.eq.0) then
+          write(LuOut,9160)
+        else
+          write(LuOut,9150) targetsym
+        endif
+        write(LuOut,9070) maxvecs
         write(LuOut,9070) maxvecs
         write(LuOut,9130) maxiter
         write(LuOut,9140) algorithm
@@ -387,6 +396,8 @@ c -------------
  9100 format(10x,'Schwarz screening: ',d8.2)
  9110 format(10x,'Davidson convergence threshold: ',d8.2)
  9120 format(10x,'Target root      :',2x,i8)
+ 9150 format(10x,'Target symmetry  :',2x,i8)
+ 9160 format(10x,'Target symmetry  : not specified')
  9130 format(10x,'Max iterations   :',2x,i8)
  9140 format(10x,'Algorithm        :',2x,i8)
  9300 format(10x,a40)

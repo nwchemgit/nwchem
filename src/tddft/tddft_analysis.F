@@ -1,8 +1,8 @@
       subroutine tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,
      1  ipol,nocc,nmo,ntrials,tda,g_trials,g_prod_p,g_apbvec,apbval,
-     2  g_ambvec,g_movecs,evl,singlet,triplet,target,mult)
+     2  g_ambvec,g_movecs,evl,singlet,triplet,target,targetsym,mult)
 c
-c $Id: tddft_analysis.F,v 1.2 2002-03-22 23:10:48 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.3 2002-03-28 17:15:46 sohirata Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -59,10 +59,12 @@ c
       double precision tmom(4) ! Transition moments
       double precision cntr(3) ! Center of dipole (arbitrary)
       integer target           ! Target root
+      integer targetsym        ! Target symmetry
       double precision energy  ! DFT/TDDFT energy
+      double precision tenergy ! Excitation energy of target root
       integer mult             ! Ground state spin multiplicity
 c
-      integer i,j,k,l,n
+      integer i,j,k,l,m,n
       integer g_work
       integer g_tmomd(2)       ! Transition density matrix
       double precision r,maxr
@@ -177,152 +179,170 @@ c
 c
 c Excited states
 c
-      if (util_print('excited state',print_default)) then
-        if (nodezero) write(LuOut,*)
-        do n=1,nroots
+      if (nodezero.and.util_print('excited state',print_default))
+     1  write(LuOut,*)
+c m is a counter of excited states in a certain irrep 
+c for the purpose of finding the target root
+      m=0
+      do n=1,nroots
 c
 c Identify symmetry of the excited state
 c
-          maxr=0.0d0
-          occ=0
-          vir=0
-          do i=1,ipol
-            l=0
-            do j=1,nocc(i)
-              do k=nocc(i)+1,nmo(i)
-                l=l+1
-                call ga_get(g_x(i),l,l,n,n,r,1)
-                if (dabs(r).gt.maxr) then
-                  maxr=dabs(r)
-                  pol=ipol
-                  occ=j
-                  vir=k
-                endif
-              enddo
+        maxr=0.0d0
+        occ=0
+        vir=0
+        do i=1,ipol
+          l=0
+          do j=1,nocc(i)
+            do k=nocc(i)+1,nmo(i)
+              l=l+1
+              call ga_get(g_x(i),l,l,n,n,r,1)
+              if (dabs(r).gt.maxr) then
+                maxr=dabs(r)
+                pol=ipol
+                occ=j
+                vir=k
+              endif
             enddo
           enddo
-          call sym_product(geom,isym,
-     1      int_mb(k_irs(pol)+occ-1),jsym)
-          call sym_product(geom,jsym,
-     1      int_mb(k_irs(pol)+vir-1),jsym)
-          call sym_irrepname(geom,jsym,oname)
-          if (nodezero) then
-            if (ipol.eq.2) then
-              write(LuOut,9110) n,'       ',oname,apbval(n),
-     1          apbval(n)*au2ev
-            else if (singlet) then
-              write(LuOut,9110) n,'singlet',oname,apbval(n),
-     1          apbval(n)*au2ev
-            else if (triplet) then
-              write(LuOut,9110) n,'triplet',oname,apbval(n),
-     1          apbval(n)*au2ev
-            endif
+        enddo
+        call sym_product(geom,isym,
+     1    int_mb(k_irs(pol)+occ-1),jsym)
+        call sym_product(geom,jsym,
+     1    int_mb(k_irs(pol)+vir-1),jsym)
+        call sym_irrepname(geom,jsym,oname)
+        if ((targetsym.eq.0).or.(targetsym.eq.jsym)) then
+          m=m+1
+          if (m.eq.target) tenergy=apbval(n)
+        endif
+        if (nodezero.and.
+     1    util_print('excited state',print_default)) then
+          if (ipol.eq.2) then
+            write(LuOut,9110) n,'       ',oname,apbval(n),
+     1        apbval(n)*au2ev
+          else if (singlet) then
+            write(LuOut,9110) n,'singlet',oname,apbval(n),
+     1        apbval(n)*au2ev
+          else if (triplet) then
+            write(LuOut,9110) n,'triplet',oname,apbval(n),
+     1        apbval(n)*au2ev
           endif
+        endif
 c
 c Compute transition moments and oscillator strength
 c
-          do i=1,3
-            cntr(i)=0.0d0
-          enddo
-          do i=1,4
-            tmom(i)=0.0d0
-          enddo
-          call tddft_transfm(n,g_x,g_movecs,nbf_ao,
+        do i=1,3
+          cntr(i)=0.0d0
+        enddo
+        do i=1,4
+          tmom(i)=0.0d0
+        enddo
+        call tddft_transfm(n,g_x,g_movecs,nbf_ao,
+     1    nocc,nmo,ipol,g_tmomd,1)
+        do i=1,ipol
+          call multipole_density(ao_bas_han,cntr,1,
+     1      g_tmomd(i),tmom,4)
+        enddo
+        if (.not.tda) then
+          call tddft_transfm(n,g_y,g_movecs,nbf_ao,
      1      nocc,nmo,ipol,g_tmomd,1)
           do i=1,ipol
             call multipole_density(ao_bas_han,cntr,1,
      1        g_tmomd(i),tmom,4)
           enddo
-          if (.not.tda) then
-            call tddft_transfm(n,g_y,g_movecs,nbf_ao,
-     1        nocc,nmo,ipol,g_tmomd,1)
-            do i=1,ipol
-              call multipole_density(ao_bas_han,cntr,1,
-     1          g_tmomd(i),tmom,4)
-            enddo
+        endif
+        if (ipol.eq.1) then
+          do i=2,4
+            tmom(i)=tmom(i)*dsqrt(2.0d0)
+          enddo
+        endif
+        if (nodezero.and.
+     1    util_print('excited state',print_default)) then
+          if ((singlet.and.(mult.ne.1)).or.
+     1        (triplet.and.(mult.ne.3))) then
+            write(LuOut,9210)
+          else
+            write(LuOut,9200) tmom(2),tmom(3),tmom(4),
+     1      2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
           endif
-          if (ipol.eq.1) then
-            do i=2,4
-              tmom(i)=tmom(i)*dsqrt(2.0d0)
-            enddo
-          endif
-          if (nodezero) then
-            if ((singlet.and.(mult.ne.1)).or.
-     1          (triplet.and.(mult.ne.3))) then
-              write(LuOut,9210)
-            else
-              write(LuOut,9200) tmom(2),tmom(3),tmom(4),
-     1        2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
-          endif
-          endif
+        endif
 c
 c Print dominant components of X & Y
 c
-          if (nodezero) write(LuOut,*)
-          if (ipol.eq.1) then
+        if (nodezero.and.
+     1    util_print('excited state',print_default)) write(LuOut,*)
+        if (ipol.eq.1) then
+          l=0
+          do j=1,nocc(1)
+            do k=nocc(1)+1,nmo(1)
+              l=l+1
+              if (tda) then
+                call ga_get(g_x(1),l,l,n,n,r,1)
+                call sym_irrepname
+     1            (geom,int_mb(k_irs(1)+j-1),oname)
+                call sym_irrepname
+     1            (geom,int_mb(k_irs(1)+k-1),vname)
+                if (nodezero.and.util_print('excited state',
+     1            print_default).and.(dabs(r).gt.thresh))
+     2            write(LuOut,9120) j,oname,k,vname,r
+              else
+                call ga_get(g_x(1),l,l,n,n,r,1)
+                call sym_irrepname
+     1            (geom,int_mb(k_irs(1)+j-1),oname)
+                call sym_irrepname
+     1            (geom,int_mb(k_irs(1)+k-1),vname)
+                if (nodezero.and.util_print('excited state',
+     1            print_default).and.(dabs(r).gt.thresh))
+     2            write(LuOut,9130) j,oname,k,vname,r
+                call ga_get(g_y(1),l,l,n,n,r,1)
+                if (nodezero.and.util_print('excited state',
+     1            print_default).and.(dabs(r).gt.thresh))
+     2            write(LuOut,9140) j,oname,k,vname,r
+              endif
+            enddo
+          enddo
+        else
+          do i=1,ipol
             l=0
-            do j=1,nocc(1)
-              do k=nocc(1)+1,nmo(1)
+            do j=1,nocc(i)
+              do k=nocc(i)+1,nmo(i)
                 l=l+1
                 if (tda) then
-                  call ga_get(g_x(1),l,l,n,n,r,1)
+                  call ga_get(g_x(i),l,l,n,n,r,1)
                   call sym_irrepname
-     1              (geom,int_mb(k_irs(1)+j-1),oname)
+     1              (geom,int_mb(k_irs(i)+j-1),oname)
                   call sym_irrepname
-     1              (geom,int_mb(k_irs(1)+k-1),vname)
-                  if (nodezero.and.(dabs(r).gt.thresh))
-     1              write(LuOut,9120) j,oname,k,vname,r
+     1              (geom,int_mb(k_irs(i)+k-1),vname)
+                  if (nodezero.and.util_print('excited state',
+     1              print_default).and.(dabs(r).gt.thresh))
+     2              write(LuOut,9150) j,spin(i),oname,
+     3              k,spin(i),vname,r
                 else
-                  call ga_get(g_x(1),l,l,n,n,r,1)
+                  call ga_get(g_x(i),l,l,n,n,r,1)
                   call sym_irrepname
-     1              (geom,int_mb(k_irs(1)+j-1),oname)
+     1              (geom,int_mb(k_irs(i)+j-1),oname)
                   call sym_irrepname
-     1              (geom,int_mb(k_irs(1)+k-1),vname)
-                  if (nodezero.and.(dabs(r).gt.thresh))
-     1              write(LuOut,9130) j,oname,k,vname,r
-                  call ga_get(g_y(1),l,l,n,n,r,1)
-                  if (nodezero.and.(dabs(r).gt.thresh))
-     1              write(LuOut,9140) j,oname,k,vname,r
+     1              (geom,int_mb(k_irs(i)+k-1),vname)
+                  if (nodezero.and.util_print('excited state',
+     1              print_default).and.(dabs(r).gt.thresh))
+     2              write(LuOut,9160) j,spin(i),oname,
+     3              k,spin(i),vname,r
+                  call ga_get(g_y(i),l,l,n,n,r,1)
+                  if (nodezero.and.util_print('excited state',
+     1              print_default).and.(dabs(r).gt.thresh))
+     2              write(LuOut,9170) j,spin(i),oname,
+     3              k,spin(i),vname,r
                 endif
               enddo
             enddo
-          else
-            do i=1,ipol
-              l=0
-              do j=1,nocc(i)
-                do k=nocc(i)+1,nmo(i)
-                  l=l+1
-                  if (tda) then
-                    call ga_get(g_x(i),l,l,n,n,r,1)
-                    call sym_irrepname
-     1                (geom,int_mb(k_irs(i)+j-1),oname)
-                    call sym_irrepname
-     1                (geom,int_mb(k_irs(i)+k-1),vname)
-                    if (nodezero.and.(dabs(r).gt.thresh))
-     1                write(LuOut,9150) j,spin(i),oname,
-     2                k,spin(i),vname,r
-                  else
-                    call ga_get(g_x(i),l,l,n,n,r,1)
-                    call sym_irrepname
-     1                (geom,int_mb(k_irs(i)+j-1),oname)
-                    call sym_irrepname
-     1                (geom,int_mb(k_irs(i)+k-1),vname)
-                    if (nodezero.and.(dabs(r).gt.thresh))
-     1                write(LuOut,9160) j,spin(i),oname,
-     2                k,spin(i),vname,r
-                    call ga_get(g_y(i),l,l,n,n,r,1)
-                    if (nodezero.and.(dabs(r).gt.thresh))
-     1                write(LuOut,9170) j,spin(i),oname,
-     2                k,spin(i),vname,r
-                  endif
-                enddo
-              enddo
-            enddo      
-          endif
-          call util_flush(LuOut)
-        enddo
-        if (nodezero) write(LuOut,*)
-      endif
+          enddo      
+        endif
+        call util_flush(LuOut)
+      enddo
+      if (m.lt.target) 
+     1  call errquit('tddft_analysis: target root not found',m)
+      if (nodezero.and.
+     1  util_print('excited state',print_default)) write(LuOut,*)
  9110 format(2x,
      1  '-------------------------------------------------------',
      2  /,2x,'Root',i3,1x,a7,1x,a4,f13.9,' a.u. (',f11.7,' eV)',/,
@@ -347,10 +367,15 @@ c -----------
 c
       if (nodezero.and.util_print('excited state',print_low)) then
         write(LuOut,9300) target
+        if (targetsym.eq.0) then
+          write(LuOut,9350)
+        else
+          write(LuOut,9340) targetsym
+        endif
         write(LuOut,9310) energy
-        write(LuOut,9320) apbval(target)
+        write(LuOut,9320) tenergy
       endif
-      energy=energy+apbval(target)
+      energy=energy+tenergy
       if (nodezero.and.util_print('excited state',print_low)) then
         write(LuOut,9330) energy
         write(LuOut,*)
@@ -359,6 +384,8 @@ c
       if (.not.rtdb_put(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  call errquit('tddft_analysis: failed to put tddft energy',0)
  9300 format('              Target root =',i7)
+ 9340 format('          Target symmetry =',i7)
+ 9350 format('          Target symmetry = not specified')
  9310 format('      Ground state energy =',f20.12)
  9320 format('        Excitation energy =',f20.12)
  9330 format('     Excited state energy =',f20.12)

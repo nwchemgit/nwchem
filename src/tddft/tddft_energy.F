@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.2 2002-03-22 23:10:49 sohirata Exp $
+c $Id: tddft_energy.F,v 1.3 2002-03-28 17:15:46 sohirata Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -72,6 +72,7 @@ c
       integer maxvecs          ! Maximum number of trial vectors
       integer maxiter          ! Maximum number of Davidson iterations
       integer target           ! Target excited state
+      integer targetsym        ! Symmetry of target excited state
       double precision tol2e   ! 2-e integral tolerance
       integer nov(2)           ! Number of occupied virtual pairs
       integer g_trials(2)      ! GA handle for trial vectors (XY)
@@ -125,8 +126,8 @@ c
      2  xfac,cfac,lxfac,nlxfac,lcfac,nlcfac,xccomb,
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
-     5  maxiter,target,algorithm,g_movecs,l_evl,k_evl,l_occ,k_occ,
-     6  mult)
+     5  maxiter,target,targetsym,algorithm,g_movecs,
+     6  l_evl,k_evl,l_occ,k_occ,mult)
 c
 c ----------------------------------------------------
 c Determine memory size and alter maxvecs if necessary
@@ -210,7 +211,7 @@ c
      1      nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      3      tda,oskel,.true.,.false.,tol2e,xfac(1),lhashf,thresh,
-     4      maxiter,target,algorithm,mult)
+     4      maxiter,target,targetsym,algorithm,mult)
         endif
 c
 c -------------------
@@ -239,7 +240,7 @@ c
      1      nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      3      tda,oskel,.false.,.true.,tol2e,xfac(1),lhashf,thresh,
-     4      maxiter,target,algorithm,mult)
+     4      maxiter,target,targetsym,algorithm,mult)
         endif
 c
 c ------------
@@ -266,7 +267,7 @@ c
      1    nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,
      3    tda,oskel,.false.,.false.,tol2e,xfac(1),lhashf,thresh,
-     4    maxiter,target,algorithm,mult)
+     4    maxiter,target,targetsym,algorithm,mult)
       endif
 c
 c And we close the 2-e integral evaluators

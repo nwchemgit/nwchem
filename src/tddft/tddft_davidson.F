@@ -2,9 +2,9 @@
      1  nocc,nmo,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2  g_movecs,evl,ntrials,nproducts,
      3  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
-     4  maxiter,target,algorithm,mult)
+     4  maxiter,target,targetsym,algorithm,mult)
 c
-c $Id: tddft_davidson.F,v 1.3 2002-03-27 19:56:20 sohirata Exp $
+c $Id: tddft_davidson.F,v 1.4 2002-03-28 17:15:46 sohirata Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -126,6 +126,7 @@ c
       double precision thresh  ! Convergence threshold for Davidson iteration
       integer maxiter          ! Maximum number of Davidson iterations
       integer target           ! Target excited state
+      integer targetsym        ! Symmetry of target excited state
       double precision cwall   ! Wall timings
       double precision ccpu    ! CPU timings
       double precision dcpu    ! CPU timings
@@ -602,7 +603,7 @@ c
           call tddft_analysis(rtdb,geom,ao_bas_han,nroots,nbf_ao,ipol,
      1      nocc,nmo,ntrials,tda,g_trials,g_prod_p,g_apbvec,
      2      dbl_mb(k_apbval),g_ambvec,g_movecs,evl,singlet,triplet,
-     3      target,mult)
+     3      target,targetsym,mult)
           ccpu=ccpu+util_cpusec()
           cwall=cwall+util_wallsec()
           if (nodezero.and.util_print('timings',print_high))
