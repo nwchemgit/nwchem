@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.211 1997-02-27 00:23:46 d3g270 Exp $
+# $Id: makefile.h,v 1.212 1997-02-27 09:27:33 d3e129 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -339,7 +339,7 @@ ifeq ($(TARGET),CRAY-T3E)
 #
    CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
                RANLIB = echo
-            MAKEFLAGS = -j 4 --no-print-directory
+            MAKEFLAGS = -j 1 --no-print-directory
               INSTALL = @echo $@ is built
         OUTPUT_OPTION = 
 
@@ -357,7 +357,7 @@ ifeq ($(TARGET),CRAY-T3E)
 
                LINK.f = f90 $(LDOPTIONS)
 
-            CORE_LIBS = -lchemio -lglobal -llapack -lblas
+            CORE_LIBS = -lutil -lchemio -lglobal -llapack -lblas
 
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
       EXPLICITF     = TRUE
