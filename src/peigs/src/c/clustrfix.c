@@ -174,6 +174,10 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
   num_cls = I_ZERO;
   num_all_cls = I_ZERO;
   max_clustr_size = I_ZERO;
+  c_ptr = clustr_info;
+
+
+  
   
   /*
     assume that all eigenvalues are non-zero
@@ -183,7 +187,7 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     this processor finds the eigenvectors between imin <= and <= imax
     */
 
-  c_ptr = clustr_info;
+
   
   /*
     cluster information
@@ -203,6 +207,15 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
     */
   
   eps = DLAMCHE;
+
+  *num_clustr = 1;
+  b1 = 0;
+  bn = n -1;
+  *(c_ptr++) = b1;
+  *(c_ptr++) = bn;
+  *(c_ptr++) = b1;
+  *(c_ptr++) = bn;
+  return(bn-b1+1);
   
   /*
     
@@ -308,6 +321,8 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
 	  if ( relgap(xj, xj1) < (DoublePrecision) max(100, n) ) {
 	    tail++;
 	    clustr_size = 2;
+	    xj = w[j-1];
+	    xj1 = w[j];
 	  }
 	  else {
 	    *(c_ptr++) = ptr;
@@ -318,7 +333,8 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
 	    max_clustr_size = max(( ptr - tail + 1), max_clustr_size);
 	    ptr = j;
 	    tail = j;
-	    xj = xj1;
+	    xj = w[j];
+	    clustr_size = 1;
 	  }
 	}
 	
@@ -334,13 +350,14 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit,
 	    max_clustr_size = max( (ptr-tail+1) , max_clustr_size);
 	    ptr = j;
 	    tail = j;
-	    xj = xj2;
+	    xj = w[j];
+	    clustr_size = 1;
 	  }
 	  else{
 	    tail++;
 	    clustr_size++;
-	    xj1 = xj;
-	    xj1 = xj2;
+	    xj = w[j-1];
+	    xj1 = w[j];
 	  }
 	}
       }
