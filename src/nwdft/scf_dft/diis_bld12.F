@@ -7,7 +7,7 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.2 1995-12-28 00:01:16 og845 Exp $
+C$Id: diis_bld12.F,v 1.3 1996-04-16 22:09:44 og845 Exp $
       implicit none
       integer isvals    ! MA dbl handle for S evals [input]
       integer iga_svecs ! GA handle for S evecs [input]
@@ -24,7 +24,7 @@ c
       integer me,nproc,i
       integer ltmpm,itmpm
       double precision toll,aaz
-      parameter (toll=1.d-6)
+      parameter (toll=1.d-5)
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
