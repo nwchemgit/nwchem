@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.74 2004-09-13 19:50:47 edo Exp $
+c $Id: texas_face.F,v 1.75 2004-11-02 19:21:48 edo Exp $
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -518,7 +518,7 @@ c=================================================================
 c-----------------------------------------------------------------
 c the common block /big/ bl(lcx) has been repleaced by pnl scratch 
 c-----------------------------------------------------------------
-      parameter(mxsh= 90 000)
+      parameter(mxsh= 190 000)
 c------------------------------------
       common /ctxs_index/ maxsh,ifp,inx(mxsh)
       common /inde1/ inxx
