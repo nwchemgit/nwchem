@@ -4,14 +4,15 @@ c     routine a wrapper for the more general routine
 c
 c     BGJ - 8/98
 c
-      Subroutine dftg_gridv0(rtdb, iga_dens, force, natoms, oactive,
+      Subroutine dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
+     ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.6 2000-06-09 19:11:55 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.7 2000-08-25 20:05:11 edo Exp $
 c
       implicit none      
 c
-      integer rtdb
+      integer rtdb,geom,ao_bas_han,ipol,nbf_ao
       integer natoms
       integer nactive
       logical oactive(natoms)
@@ -20,7 +21,8 @@ c
       integer cetobfr(*)
       double precision rdens_atom(*)
 c
-      call dftgh_gridv0(rtdb, iga_dens, force, 0d0, 0, 1, natoms,
+      call dftgh_gridv0(rtdb, geom, ao_bas_han,ipol,nbf_ao,
+     .     iga_dens, force, 0d0, 0, 1, natoms,
      &                  oactive, nactive, rdens_atom, cetobfr)
 c
       return
@@ -29,15 +31,16 @@ c
 c
 c     Generalized to do XC gradient and hessian
 c
-      Subroutine dftgh_gridv0(rtdb, iga_dens, force, hess, g_rhs,
+      Subroutine dftgh_gridv0(rtdb, geom, ao_bas_han,ipol,nbf_ao,
+     ,     iga_dens, force, hess, g_rhs,
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.6 2000-06-09 19:11:55 edo Exp $
+c $Id: dftg_gridv0.F,v 1.7 2000-08-25 20:05:11 edo Exp $
 c     
       implicit none      
 c
-      integer rtdb
+      integer rtdb,geom,ao_bas_han,ipol,nbf_ao ![in]
       integer natoms
       integer nactive
       logical oactive(natoms)
@@ -51,7 +54,6 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "cdft.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -93,6 +95,7 @@ c
      ,     l_d2scr, k_d2scr,lscr,iscr,lrscr,irscr
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
+      integer nbf_ao_mxnbf_ce
       integer nxtask
       external nxtask
 c     
@@ -117,7 +120,9 @@ c
 c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
-      if (.not. bas_nprim_cn_max(AO_bas_han, NXprim))
+      if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
+     .     call errquit('dftggridv0: cemax failed ',0)
+       if (.not. bas_nprim_cn_max(AO_bas_han, NXprim))
      &   call errquit('exiting in dftg_gridv0',6)
       if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
      &   call errquit('exiting in dftg_gridv0.',7)
@@ -130,7 +135,7 @@ c
 c
 c     see if any Gradient Corrected Functional is not null
 c
-      grad=xc_chkgrad(xfac,cfac)
+      grad=xc_chkgrad()
 c
 c     !!! Are these logicals ever used? Are they in a common block? !!!
       if (grad) then

@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.9 2000-08-01 19:37:14 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.10 2000-08-25 20:05:11 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -120,7 +120,7 @@ c
 c
 c     see if any Gradient Corrected Functional is not null
 c
-      grad=xc_chkgrad(xfac,cfac)
+      grad=xc_chkgrad()
 c
 c     allocate scratch array for grid compression
 c

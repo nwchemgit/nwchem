@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.35 2000-08-11 17:59:48 edo Exp $
+* $Id: grid_file.F,v 1.36 2000-08-25 20:08:22 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -897,8 +897,9 @@ c
       character*255 gridfilename
       if(.not.geom_nuc_rep_energy(geom, Enuc)) 
      .     call errquit(' gridquad: enucrep failed ',0)
+      grid_reopen=.false.
       if(.not.rtdb_cget(rtdb, 'grid:filename', 1, gridfilename)) 
-     . call errquit(' grreopen: no filename on rtdb?',0)
+     . return
       oreopen=.true.
       grid_reopen=
      .     grid_file_open(enuc,

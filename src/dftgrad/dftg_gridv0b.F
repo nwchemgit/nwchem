@@ -14,7 +14,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr)
 c      
-c     $Id: dftg_gridv0b.F,v 1.9 2000-07-21 17:23:44 bjohnson Exp $
+c     $Id: dftg_gridv0b.F,v 1.10 2000-08-25 20:05:11 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -37,8 +37,6 @@ c !!! BGJ test !!!
       integer nactive
       logical oactive(natoms)
       logical grad, gradchi, hesschi, der3chi
-      logical xc_chkgrad
-      external xc_chkgrad
       logical ldew
       logical do_force, do_hess, do_cpks_r
 c

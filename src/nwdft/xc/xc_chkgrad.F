@@ -1,10 +1,9 @@
-      logical function xc_chkgrad(xfac,cfac)
+      logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.10 2000-08-11 00:12:19 edo Exp $
+* $Id: xc_chkgrad.F,v 1.11 2000-08-25 20:08:16 edo Exp $
 *
       implicit none
-      double precision xfac(*) ! Exchange functional coeffs [input]
-      double precision cfac(*) ! Correlat functional coeffs [input]
+#include "cdft.fh"
       
 c
 c     see if any Gradient Corrected Functional is not null
@@ -38,5 +37,11 @@ c
          tot = tot + abs(xfac(i)) + abs(cfac(i))
       enddo
       xc_gotxc = tot.gt.1d-8
+      return
+      end
+      integer function xc_getnqmx()
+      implicit none
+#include "cdft.fh"
+      xc_getnqmx=nqmax
       return
       end
