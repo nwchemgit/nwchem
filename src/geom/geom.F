@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.111 2001-12-19 22:41:55 windus Exp $
+C$Id: geom.F,v 1.112 2002-01-16 23:59:07 windus Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2070,6 +2070,41 @@ c
 c     
       call geom_compute_values(geom)
 c
+      end
+      logical function geom_center_of_mass(geom, center)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+      integer geom               ! [input] geometry handle
+      double precision center(3) ! [output] center of mass
+      logical geom_ncent, geom_mass_get
+      external geom_ncent, geom_mass_get
+c
+      integer i, iat, ncent
+      double precision mass, amass
+c
+c  Get the center of mass of the geometry
+c  DOES not shift the center of mass to the origin
+c
+      if (.not. geom_ncent(geom, ncent))
+     &  call errquit('geom_mass_center: unable to get ncent',555)
+      do i = 1,3
+        center(i) = 0.0d0
+      enddo
+      amass = 0.0d0
+      do iat = 1, ncent
+         if(.not.geom_mass_get(geom, iat, mass)) call
+     &        errquit(' mass_get  failed ',iat)
+         amass = amass + mass
+         do i=1,3
+            center(i) = center(i) + mass*coords(i,iat,geom)
+         enddo
+      enddo
+      do i = 1, 3
+         center(i) = center(i)/amass
+      enddo    
+c
+      return
       end
       logical function geom_nuc_rep_energy(geom, energy)
 #include "nwc_const.fh"
@@ -5052,31 +5087,21 @@ C
       logical oprint
 c
       integer iat,i,j
-      double precision amass,mass,x,y,z
+      double precision mass,x,y,z
 c
 c
       do j=1,3
-         ci(j)=0d0
          do i=1,3
             ai(j,i)=0d0
          enddo
       enddo
-      amass=0d0
-      do iat=1,natoms
-         if(.not.geom_mass_get(geom, iat, mass)) call
-     .        errquit(' mass_get  failed ',iat)
-         amass=amass+mass
-         do i=1,3
-            ci(i)=ci(i)+mass*coord(i,iat)
-         enddo
-      enddo
-      do i=1,3
-         ci(i)=ci(i)/amass
-      enddo    
+c
+      if (.not.geom_center_of_mass(geom,ci)) call errquit
+     &   ('geom_momint0: could not get center of mass',555)
 c
       do iat=1,natoms
          if(.not.geom_mass_get(geom, iat, mass)) call
-     .        errquit(' mass_get  failed ',iat)
+     &        errquit(' mass_get  failed ',iat)
          x =coord(1,iat) - ci(1)
          y =coord(2,iat) - ci(2)
          z =coord(3,iat) - ci(3)
