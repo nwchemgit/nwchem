@@ -488,7 +488,7 @@ satisfied by meeting any or all of three criteria;
 The default optimization strategy is to immediately begin direct inversion of the
 iterative subspace\footnote {P.~Pulay,  Chem.\ Phys.\ Lett.\ {\bf 73}, 
 393 (1980) and P.~Pulay,  J.~Comp.~Chem.~{\bf 3}, 566 (1982)}.
-Damping is also initiated (using 70% of the previous density) for
+Damping is also initiated (using 70\% of the previous density) for
 the first 2 iteration.  In addition, if the HOMO - LUMO gap is small
 and the Fock matrix somewhat diagonally dominant, then levelshifting
 is automatically initiated.  There are a variety of ways to customize
@@ -540,7 +540,7 @@ density mixed with the current iterations density.  So, for example
   CONVERGENCE damp 70
 \end{verbatim}
 
-would mix 30% of the current iteration density with 70% of the
+would mix 30\% of the current iteration density with 70\% of the
 previous iteration density.
 
 Levelshifting\footnote {M.F.~Guest and 
@@ -761,8 +761,7 @@ where radius is the cutoff value in bohr.
 
 \subsection{Hardware Resource Control in the DFT Module}
 \begin{verbatim}
-  DIRECT
-  INCORE
+  DIRECT|INCORE
   NOIO
 \end{verbatim}
 
@@ -776,11 +775,13 @@ as follows,
    noio
 \end{verbatim}
 
-\Large
-**What are the consequences of exercising this option?  Are the matrices
-needed for something later on?  Will they have to be recomputed at some
-point?***
-\normalsize
+If this keyword is encountered, then the two matrices (inverted
+charge-density and exchange-correlation) are computed ``on-the-fly''
+whenever needed.  
+
+The \verb+INCORE+ option is always assumed to be true but can be
+overridden with the option \verb+DIRECT+ in which case all integrals
+are computed ``on-the-fly''.
 
 
 \subsection{Control of Open Shells in the DFT Module}
@@ -802,27 +803,33 @@ When the keyword \verb+MULT+ is specified, the user can define the integer
 variable \verb+mult+, where \verb+mult+ is equal to the number of alpha 
 electrons minus beta electrons, plus 1.
 
+The keywords \verb+DFT|ODFT+ were originally intended to specify
+closed or openshell and are really unnecessary except in the context of
+forcing a system to be computed as an openshell system.
+
 \subsection{Standard Property Control in the DFT Module}
 \begin{verbatim}
   MULLIKEN
 \end{verbatim}
 
-
 Mulliken analysis of the charge distribution is invoked by the keyword:
 \begin{verbatim}
-   mulliken
+  MULLIKEN
 \end{verbatim}
 
-\Large
-**What is this, and why would the user want to do it?  What is the default?**
-\normalsize
-
+When this keyword is encountered, mulliken analysis of both the input 
+density as well as the output density will occur.
 
 
 \subsection{Print Control in the DFT Module}
 \begin{verbatim}
   PRINT|NOPRINT
 \end{verbatim}
+
+The \verb+PRINT|NOPRINT+ options control the level of output in the
+DFT.  Known controllable print options are:
+
+
 
 %%% Local Variables: 
 %%% mode: latex
