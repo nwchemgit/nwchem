@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.27 2000-06-09 17:54:19 d3j191 Exp $
+c $Id: ana_task.F,v 1.28 2000-06-29 19:39:26 d3j191 Exp $
 c
       implicit none
 c
@@ -73,6 +73,7 @@ c
       time=0.0d0
       timr=0.0d0
       ldist=0
+      scale=1.0d0
 c
       ifr=1
 c
@@ -175,6 +176,11 @@ c
       write(*,'(/,a,a)') ' Trajectory file header from ',
      + filtrj(1:index(filtrj,' ')-1)
       endif
+      goto 1
+      endif
+c
+      if(card(1:6).eq.'scale ') then
+      read(card(7:18),'(f12.6)') scale
       goto 1
       endif
 c
@@ -338,7 +344,7 @@ c
       if(nread.lt.ifrfr) goto 2
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag))
       nwrit=nwrit+1
       endif
       nframe=nframe+1
@@ -385,7 +391,7 @@ c
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag))
       nwrit=nwrit+1
       endif
       nframe=nframe+1
@@ -719,7 +725,7 @@ c
 c
       lxw=.false.
       call ana_wtfram(lfnprj,fmt,dbl_mb(i_xp),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel))
+     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag))
 c
       nave=nave+1
 c

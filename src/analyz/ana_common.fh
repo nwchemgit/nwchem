@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.24 2000-05-10 22:30:45 d3j191 Exp $
+c $Id: ana_common.fh,v 1.25 2000-06-29 19:39:26 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -15,7 +15,7 @@ c
      + lfnvec,lfntop,lfnhis
 c
       real*8 time,timr,timoff,box(3),spac(3),rcut,xmax(3),xmin(3)
-      real*8 temp,pres,xsmin,xsmax
+      real*8 temp,pres,xsmin,xsmax,scale
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz,iesppb,mgrd,ldist
@@ -29,17 +29,17 @@ c
       real*8 rimps(mxtors)
       real*8 valmin,valmax
       common/ana_inp/time,timr,timoff,box,spac,rcut,xmax,xmin,temp,pres,
-     + rbnds,rangs,rtors,rimps,valmin,valmax,xsmin,xsmax,
+     + rbnds,rangs,rtors,rimps,valmin,valmax,xsmin,xsmax,scale,
      + irmsd,lcop,lsup,ifrfr,ifrto,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz,iesppb,mgrd,ldist,
      + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps
 c
-      character*255 filnam,filana,filref,filtrj,filcop,filsup,
+      character*255 filnam,filana,filref,filtrj,filcop,filsup,filpov,
      + filchg,filplt,filxyz,filrms,filprj,filval,filmax,filmin,
      + filcov,filvec,filtop,filhis
       character*3 fmttrj,fmtcop,fmtsup
-      common/ana_txt/filnam,filana,filref,filtrj,filcop,filsup,
+      common/ana_txt/filnam,filana,filref,filtrj,filcop,filsup,filpov,
      + filchg,filplt,filxyz,fmttrj,fmtcop,fmtsup,filrms,filprj,filval,
      + filmax,filmin,filcov,filvec,filtop,filhis
 c
@@ -54,8 +54,8 @@ c
      + i_wdat,l_wdat,i_xadat,l_xadat,ga_cov,i_ndx,l_ndx,i_cov,l_cov,
      + i_xp,l_xp,i_ord,l_ord,i_hist,l_hist,i_qdat,l_qdat
 c
-      integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
-      common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
+      integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov
+      common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov
 c
       logical lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop
       common/ana_log/lxw,lvw,lsx,lsv,lsel,lana,lrms,lsonly,ltop

@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel)
 c
-c $Id: ana_wthdr.F,v 1.11 2000-06-09 17:54:19 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.12 2000-06-29 19:39:27 d3j191 Exp $
 c
       implicit none
 c
@@ -24,6 +24,13 @@ c
       character*18 name
 c
       if(me.eq.0) then
+c
+      if(fmt.eq.'pov') then
+      if(iunit.eq.lfncop) filpov=filcop
+      if(iunit.eq.lfnsup) filpov=filsup
+      npov=0
+      return
+      endif
 c
       binary=fmt(1:1).eq.'b' 
 c

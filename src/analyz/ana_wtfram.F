@@ -1,6 +1,6 @@
-      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel)
+      subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag)
 c
-c $Id: ana_wtfram.F,v 1.13 2000-05-25 22:53:33 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.14 2000-06-29 19:39:26 d3j191 Exp $
 c
       implicit none
 c
@@ -9,6 +9,7 @@ c
 c
       real*8 x(msa,3),w(mwm,mwa,3)
       integer isel(msa)
+      character*24 tag(msa,2)
       integer iunit
       character*3 fmt
       character*16 sgmnam(msa)
@@ -19,7 +20,18 @@ c
 c
       character*1 cdummy
       character*7 string
-      integer nsb,ib,jb,nss
+      integer nsb,ib,jb,nss,nwb
+c
+      character*255 fname
+      character*255 color
+      real*8 xh(3)
+c
+      real*8 xsmax,xsmin,ysmax,ysmin,zsmax,zsmin
+c
+      real*8 ana_atrad
+      integer pre_atnum
+      character*255 ana_atcol
+      external ana_atrad,pre_atnum,ana_atcol
 c
       if(me.eq.0) then
 c
@@ -162,9 +174,9 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(44,4401) nwa,nsa,nsb
- 4401 format(3i10)
-      do 7 i=1,nwa+nsa
+      read(44,4401) nwa,nsa,nsb,nwb
+ 4401 format(4i10)
+      do 7 i=1,nwa+nsa+nwb
       read(44,4402) cdummy
  4402 format(a1)
     7 continue
@@ -191,6 +203,92 @@ c
       write(iunit,7003)
  7003 format('}')
       endif
+      endif
+c
+      if(fmt.eq.'pov') then
+      if(scale.le.0.0d0) then
+      xsmax=x(1,1)
+      xsmin=x(1,1)
+      ysmax=x(1,2)
+      ysmin=x(1,2)
+      zsmax=x(1,3)
+      zsmin=x(1,3)
+      do 234 i=2,nsa
+      xsmax=max(xsmax,x(i,1))
+      xsmin=min(xsmin,x(i,1))
+      ysmax=max(ysmax,x(i,2))
+      ysmin=min(ysmin,x(i,2))
+      zsmax=max(zsmax,x(i,3))
+      zsmin=min(zsmin,x(i,3))
+  234 continue
+      xsmax=max(xsmax-xsmin,ysmax-ysmin,zsmax-zsmin)
+      scale=2.0d0/xsmax
+      if(me.eq.0) write(*,3333) scale
+ 3333 format(' Scaling set to ',f12.6)
+      endif
+      npov=npov+1
+      write(fname,'(a,i3.3,a)') filpov(1:index(filpov,'.pov')-1),
+     + npov,'.pov '
+      open(unit=iunit,file=fname(1:index(fname,' ')-1),
+     + form='formatted',status='unknown')
+      write(iunit,8000)
+ 8000 format('#include "camera.inc"',/,'#include "colors.inc"')
+      do 10 i=1,nsa
+      if(isel(i).ne.0) then
+      k=pre_atnum(sgmnam(i)(6:7))
+      color=ana_atcol(k)
+      if(tag(i,2)(1:1).ne.' ') color=tag(i,2)
+      if(tag(i,2)(1:5).eq.'atom ') color=ana_atcol(k) 
+      if(k.gt.0) then
+      if(tag(i,1)(1:3).eq.'cpk') then
+      write(iunit,8001) (scale*x(i,j),j=1,3),scale*ana_atrad(k),
+     + color(1:index(color,' ')-1)
+      else
+      write(iunit,8001) (scale*x(i,j),j=1,3),scale*ana_atrad(1),
+     + color(1:index(color,' ')-1)
+      endif
+ 8001 format('sphere {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
+     + 3x,f12.6,/,'  texture { pigment { ',a,' } }',/,'}')
+      endif
+      endif
+   10 continue
+      open(unit=44,file='.header',form='formatted',
+     + status='unknown')
+      rewind(44)
+      read(44,4401) nwa,nsa,nsb,nwb
+      do 11 i=1,nwa+nsa+nwb
+      read(44,4402) cdummy
+   11 continue
+      do 12 i=1,nsb
+      read(44,6004) ib,jb
+      if(isel(ib).gt.0.and.isel(jb).gt.0) then
+      xh(1)=0.5d0*(x(ib,1)+x(jb,1))
+      xh(2)=0.5d0*(x(ib,2)+x(jb,2))
+      xh(3)=0.5d0*(x(ib,3)+x(jb,3))
+      if(tag(ib,1)(1:3).ne.'cpk') then
+      k=pre_atnum(sgmnam(ib)(6:7))
+      color=ana_atcol(k)
+      if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
+      if(tag(ib,2)(1:5).eq.'atom ') color=ana_atcol(k) 
+      write(iunit,8002) (scale*x(ib,j),j=1,3),
+     + (scale*xh(j),j=1,3),scale*ana_atrad(1),
+     + color(1:index(color,' ')-1)
+ 8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
+     + '  <',f12.6,',',f12.6,',',f12.6,'>,',/,
+     + 3x,f12.6,/,'  open',/,'  texture { pigment { ',a,' } }',/,'}')
+      endif
+      if(tag(jb,1)(1:3).ne.'cpk') then
+      k=pre_atnum(sgmnam(jb)(6:7))
+      color=ana_atcol(k)
+      if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
+      if(tag(jb,2)(1:5).eq.'atom ') color=ana_atcol(k) 
+      write(iunit,8002) (scale*x(jb,j),j=1,3),
+     + (scale*xh(j),j=1,3),scale*ana_atrad(1),
+     + color(1:index(color,' ')-1)
+      endif
+      endif
+   12 continue
+      close(unit=iunit)
       endif
 c
       endif
