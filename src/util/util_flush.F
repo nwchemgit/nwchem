@@ -1,15 +1,22 @@
       subroutine util_flush(unit)
-C$Id: util_flush.F,v 1.19 2005-01-12 01:34:37 edo Exp $
+C$Id: util_flush.F,v 1.20 2005-02-21 19:44:54 edo Exp $
       implicit none
 #include "stdio.fh"
       integer unit
+#ifdef CRAY
+      integer*4 iunit4
+#endif
 c
 c     Flush buffered output for the fortran unit
 c
 #if defined(SUN)      || defined(KSR)    || defined(PARAGON) || \
     defined(SOLARIS)  || \
-    defined(CRAY_T3D) || defined(CRAY_T3E) || defined(IBM)||defined(LINUX)||defined(MACX)
+    defined(IBM)||defined(LINUX)||defined(MACX)
       call flush(unit)
+#endif
+#ifdef CRAY
+      iunit4=unit
+      call flush(iunit4)
 #endif
 #ifdef PSCALE
       call util_cflush()
