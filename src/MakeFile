@@ -11,6 +11,10 @@ all: pre_build
 	@nmake -nologo foreach_subdir
 	nmake -nologo link
 
+build:
+	@nmake -nologo foreach_subdir
+	nmake -nologo link
+
 OBJ =          $(OBJDIR)\nwchem.obj \
                $(OBJDIR)\stubs_win32.obj
 
@@ -21,12 +25,13 @@ LIB_DEFINES = -DCOMPILATION_DATE="'$(COMPILATION_DATE)'" \
               -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
 
 WIN32_EXE_NAME = nw32
-WIN32_EXE = $(SRCDIR)\$(WIN32_EXE_NAME).exe
+WIN32_EXE = $(BINDIR)\$(WIN32_EXE_NAME).exe
 
 realclean: clean
 	@if exist "$(LIBDIR)\*" erase /q "$(LIBDIR)\*"
 	@if exist "$(LIBDIR)" rmdir "$(LIBDIR)"
 	@if exist "$(WIN32_EXE)" erase /q "$(WIN32_EXE)"
+	@if exist "$(BINDIR)" rmdir "$(BINDIR)"
 	@nmake -nologo LVL=src clean_MakeFiles
 	@nmake -nologo TARGET_DIR=tools SUBDIR_TARGET=clean subdir_target
 	@nmake -nologo TARGET_DIR=config\win32 SUBDIR_TARGET=clean subdir_target
@@ -36,12 +41,13 @@ realclean: clean
 pre_build:
 	@nmake -nologo TARGET_DIR=config\win32 subdir_target
 	@nmake -nologo MakeFiles VS_wrappers VS_projects
-	@nmake -nologo TARGET_DIR=tools subdir_target
 	@nmake -nologo SUBDIR_TARGET=WIN32.stamp foreach_subdir
+	-@nmake -nologo TARGET_DIR=tools subdir_target
 
-link: $(OBJDIR) $(OBJ)
-	$(FC) /Fe$(WIN32_EXE) $(OBJ) /link /debug:full /debugtype:cv /pdb:none /libpath:"..\lib\win32" \
-	/libpath:".\tools\lib\win32" /libpath:"$(MPI_LIB)" $(LIBS)
+link: $(BINDIR) $(OBJDIR) $(OBJ)
+	$(FC) /Fe"$(WIN32_EXE)" $(OBJ) /link \
+	/debug:full /debugtype:cv /pdb:none /libpath:"$(LIB_DISTRIB)" \
+	/libpath:"$(SRCDIR)\tools\lib\win32" /libpath:"$(MPI_LIB)" $(LIBS)
 	@echo $(WIN32_EXE) is built
 
 VS_wrappers:
@@ -56,4 +62,4 @@ VS_projects:
 # For convenience
 #
 $(WIN32_EXE_NAME).pg:
-	echo local 0 > $(SRCDIR)\$(WIN32_EXE_NAME).pg
+	echo local 0 > $(WIN32_EXE_NAME).pg
