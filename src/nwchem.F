@@ -17,7 +17,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.91 1996-10-01 18:55:51 d3e129 Exp $
+c     $Id: nwchem.F,v 1.92 1996-10-04 21:44:22 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996,                *
 *         Pacific Northwest National Laboratory, * 
@@ -82,7 +82,6 @@ c
 c
 c     Initialize timers so they are relative to job start
 c
-**      call ieeetrap()
 #ifdef DECOSF
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
 #endif
@@ -139,6 +138,10 @@ C
      $      call errquit('nwchem: ma_init failed', -1)
          call ga_initialize_ltd(ma_sizeof(mt_dbl, global, mt_byte) )
       endif
+c
+c     Trap SIGFPE after GA to override handler
+c
+**      call ieeetrap()
 C
 c     Hard fail is good for development but means that we cannot
 c     respond to allocation problems. Disable by default.
