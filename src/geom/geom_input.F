@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.167 2003-12-13 02:37:37 marat Exp $
+C     $Id: geom_input.F,v 1.168 2003-12-21 22:47:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -558,12 +558,12 @@ c
 c     
       if (include_bqbq) status = geom_set_bqbq(geom, .true.)
 c     
-c**** check if the total charge was already set (mv) ****
-      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, tot_charge)) then
-        if (.not. rtdb_get(rtdb, 'qcharge', MT_DBL, 1, qcharge)) then
-        qcharge = 0.0d0
-        end if
+c**** adjust the charge if qcharge keyword is present (mv) ****
+      if (rtdb_get(rtdb, 'qcharge', MT_DBL, 1, qcharge)) then
         tot_charge=qcharge
+        if ( .not. rtdb_delete(rtdb, 'qcharge')) then
+          call errquit("geom_input: qcharge",0,0)
+        end if
         do i=1,ncenter
           if(inp_compare(.false.,tags(i),'bq')) then
             tot_charge=tot_charge + charge(i)
@@ -572,7 +572,7 @@ c**** check if the total charge was already set (mv) ****
         if (.not. rtdb_put(rtdb, 'charge', MT_DBL, 1, tot_charge)) then
           call errquit("geom_input: total charge",0,0)
         end if
-      endif
+      end if
 
       if (oprint) then
          if (.not. geom_print(geom))
