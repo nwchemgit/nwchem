@@ -235,7 +235,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    extern Integer      mxmynd_(), mxnprc_(), mxwrit_(), mxread_(), mxbrod_();
 
    extern void     sort_();
-   extern void     dstebz3_();
+   extern void     dstebz_();
 
    extern Integer  menode_();
    extern Integer  neblw2_();
@@ -514,11 +514,17 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
 	     &m, nsplit, eval, iblock, isplit, work,
 	     i_work, info);
-
    leig = eval[0]; /* left most e-val */
+   if ( *info != 0 ) {
+     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, leig);
+   }
+   *info = 0;
+   
+   
 #ifdef DEBUG3
    for ( il = 0; il < m;  il++ )
-        printf(" il = %d eval %f info = %d \n", il, eval[il], *info);
+     printf(" il = %d eval %f info = %d \n", il, eval[il], *info);
+
 #endif
    
    il = msize;
@@ -529,14 +535,18 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    *info = 0;
    dstebz3_( &range, &order, n, lb, ub, &il, &iu, abstol, d, e+1,
 	     &m, nsplit, eval, iblock, isplit, work, i_work, info);
-
+   
    reig = eval[0];
-
-/*
-   for (i = 0; i < *n; i++ )
+   if ( *info != 0 ) {
+     printf(" error in stebz3 %d info %d leig %g  \n", me, *info, reig);
+   }
+   *info = 0;
+   
+   /*
+     for (i = 0; i < *n; i++ )
      printf(" theirs i= %d eval %f  \n", i, eval[i]);
-*/
-
+     */
+   
    
    /*
      if ( me == 0 ){
@@ -641,7 +651,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    /*
        shift matrix
        */
-     
+   
 #ifdef DEBUG1    
    printf(" psigma = %f psgn = %f onenrm %g  \n", psigma, psgn, onenrm);
 #endif
@@ -692,7 +702,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 	 LDL' factorization of tridiagonal
 	 */
        peigs_tldlfact(&blksz, &work[i1split], &e[i1split], dptr, lptr);
-       peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], work + *n );
+       peigs_dlasq1( blksz, dptr, lptr, &eval[i1split], &work[*n], info );
        j = iii+1; /* for fortran indexing */
        for ( jjj = i1split; jjj < jsplit; jjj++ )
 	 iblock[jjj] = j;
@@ -725,6 +735,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
     */
    
    
+/*
    if ( *info != 0 ) {
      fprintf(stderr, " me = %d ifakeme=%d dlasq1 returned info = %d to pstebz \n",
 	     me, ifakeme, *info );
@@ -733,6 +744,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      *info = 1;
      exit(-30);
    }
+*/
    
    /*
      if ( iu >= il ) {

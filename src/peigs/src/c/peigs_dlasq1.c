@@ -2,9 +2,9 @@
 #include <math.h>
 #include "globalp.c.h"
 
-void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, DoublePrecision *eval, DoublePrecision *work)
+void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, DoublePrecision *eval, DoublePrecision *work, Integer *info)
 {   
-  Integer i, j, info;
+  Integer i, j;
   DoublePrecision *dptr;
   extern void dlasq1_();
   
@@ -16,10 +16,12 @@ void peigs_dlasq1( Integer n, DoublePrecision *dplus, DoublePrecision *lplus, Do
     dptr[i]=lplus[i] * work[i];
   }
   
-  dlasq1_( &n, work, &work[n], &work[n+n], &info );
+  dlasq1_( &n, &work[0], &work[n], &work[n+n], &info );
   
-  if ( info != 0 )
+  if ( info != 0 ){
     printf(" error in dlasq1 info = %d \n", info );
+    fflush(stdout);
+  }
   
   j = n-1;
   for(i = 0;i < n;i++){

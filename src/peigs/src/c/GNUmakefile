@@ -259,6 +259,5 @@ peigs_cmod.o:	peigs_cmod.f
 
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
-
 .f.o:;	$(peigs_FC) $(OPT) -c $<
-
+.F.o:;  $(peigs_FC) $(OPT) -c $<

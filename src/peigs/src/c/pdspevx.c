@@ -727,7 +727,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	dd, ee, dplus, lplus,
 	mapZ, &neigval, &nsplit, eval, iblock, isplit,
 	d_scrat, i_scrat, info);
-/*
+	/*
       }
 	else {
 	pstebz9_( irange, &msize, lb, ub, ilb, iub, abstol, dd, ee,
@@ -735,8 +735,8 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 		mapZ, &neigval, &nsplit, eval, iblock, isplit,
 		d_scrat, i_scrat, info);
       
-		}
-		*/
+	}
+*/
       
       
 #ifdef DEBUG7
@@ -825,6 +825,9 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 	*/
       
 
+      fprintf(stderr, "me = %d pdspevx 11 \n", me );
+      fflush(stderr);
+
 
       pstein5 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
@@ -849,9 +852,10 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
       pstein4 ( &msize, dd, ee, dplus, lplus, ld, lld,
 		&neigval, eval, iblock, &nsplit, isplit,
 		mapZ, vecZ, d_scrat,i_scrat, iptr, info);
-      
+
 #ifdef DEBUG7
       printf(" me = %d just after pstein4 %d \n", me, *info );
+      fflush(stderr);
 #endif
       
       
@@ -928,11 +932,13 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     /*
      * Sort eigenvalues, mapZ and eigenvectors
      */
-
+    
 END:
     
-    for ( iii = 0; iii < neigval; iii++)
+    for ( iii = 0; iii < neigval; iii++){
       eval[iii] += psgn*psigma;
+      printf("me = %d eval %d %g \n", me, iii, eval[iii]);
+    }
     
     sorteig( &msize, &neigval, vecZ, mapZ, eval, iscratch, scratch );
     
