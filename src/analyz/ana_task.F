@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.40 2000-08-23 17:04:12 d3j191 Exp $
+c $Id: ana_task.F,v 1.41 2000-08-23 17:08:54 d3j191 Exp $
 c
       implicit none
 c
@@ -382,6 +382,8 @@ c
      + ' by',ifrsk
       endif
       timoff=0.0d0
+      time=0.0d0
+      timr=0.0d0
       goto 1
       endif
 c
