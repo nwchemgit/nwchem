@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.144 2002-06-17 18:04:01 d3j191 Exp $
+c $Id: cf_main.F,v 1.145 2002-06-26 15:23:31 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -1534,7 +1534,7 @@ c
 c
 c     10: z-axis COG pmf does not change z coordinates
 c
-      if(ipmf(i,1).eq.9) then
+      if(ipmf(i,1).eq.10) then
       xpmf(2,1,i)=zero
       xpmf(2,2,i)=zero
       xpmf(2,3,i)=xpmf(1,3,i)
