@@ -1,11 +1,6 @@
 title; siosi3
 
-#permanent_dir /piofs/d3h449/siosi3/n64
-#scratch_dir /scratch
-
 start siosi3_64
-
-#memory global 16 mb stack 32 mb heap 16 mb
 
 geometry units au
 O 0.000000 0.000000 0.000000 
@@ -49,7 +44,7 @@ dft
   print "dft timings"
 end
  
-basis "ao basis" cartesian
+basis "ao basis" 
 O s #  deMon-OXYGEN (621/41/1*)
      5222.9020000000       -0.0019363720
       782.5399000000       -0.0148506700
@@ -111,7 +106,7 @@ H p
         0.7500000000        1.0000000000
 end
 
-basis "cd basis" cartesian
+basis "cd basis" 
 O s # deMon-OXYGEN (4,3)
      2000.00000000        1.0000000000
 O s
