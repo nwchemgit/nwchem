@@ -1,4 +1,4 @@
-% $Id: interface.tex,v 1.5 2001-02-06 22:45:55 windus Exp $
+% $Id: interface.tex,v 1.6 2001-04-09 21:00:23 windus Exp $
 \label{sec:interface}
 
 NWChem has interfaces to several different packages which are listed below.
@@ -194,8 +194,8 @@ A word of caution.  Be sure to check that the options are producing
 the desired results.  Since the NWChem database is persistent,
 the input strings should fully define the calculation you wish to have happen.
 
-For instance, if the theory model is DFT/B3LYP/6-311g** and the
-sptheory model is DFT/LDA/3-21g, the \verb+DIRDYVTST+ input might look like this
+For instance, if the theory model is DFT/LDA/3-21g and the
+sptheory model is DFT/B3LYP/6-311g**, the \verb+DIRDYVTST+ input might look like this
 \begin{verbatim}
     dirdyvtst
       theory  dft basis 3-21g    input "dft\; xc\; end"
