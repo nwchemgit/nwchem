@@ -1,9 +1,10 @@
-/*$Id: rtdb.c,v 1.12 1998-06-15 23:23:01 d3g681 Exp $*/
+/*$Id: rtdb.c,v 1.13 1999-11-13 03:02:22 bjohnson Exp $*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"
 #include "macdecls.h"
 #include "sndrcv.h"
+#include "global.h"
 
 typedef long integer;		/* Equivalent C type to FORTRAN integer */
 
@@ -68,11 +69,7 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
   long len = MA_sizeof(ma_type, nelem, MT_CHAR);
   long from = 0;
   long type = msg_type;
-#ifdef CRAY
-  GA_BRDCST(&type, (char *) data, &len, &from);
-#else
   ga_brdcst_(&type, (char *) data, &len, &from);
-#endif
 }
 
 int rtdb_open(const char *filename, const char *mode, int *handle)
@@ -101,7 +98,6 @@ int rtdb_close(const int handle, const char *mode)
   int status;
   
   if (!verify_parallel_access()) return 0;
-
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_close: handle out of range %d\n", handle);
     (void) fflush(stderr);
@@ -113,13 +109,12 @@ int rtdb_close(const int handle, const char *mode)
     (void) fflush(stderr);
     return 0;
   }
-  
+
   if (par_mode[handle] == SEQUENTIAL || me == 0)
     status = rtdb_seq_close(handle, mode);
-  
+
   if (parallel_mode == PARALLEL)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
-  
   return status;
 }
 
