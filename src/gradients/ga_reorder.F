@@ -59,7 +59,7 @@ c
       logical ocol              ! [input] If true reorder the columns
       integer cmap(*)           ! [input] if (ocol) a(i,j) -> a(i,cmap(j))
 c
-      integer i, j, l_v, k_v, l_vv, k_vv, dim1, dim2, jj
+      integer i, j, l_v, k_v, l_vv, k_vv,jj
       integer l_d, k_d
 c
       if (.not. ma_alloc_get(mt_dbl, dim1*dim2, 'mareo', l_d, k_d))

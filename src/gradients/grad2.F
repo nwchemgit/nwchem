@@ -10,7 +10,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi)
-c     $Id: grad2.F,v 1.26 1997-06-26 00:36:38 d3e129 Exp $
+c     $Id: grad2.F,v 1.27 1997-07-17 03:28:07 d3j191 Exp $
       implicit none
 #include "sym.fh"
 #include "global.fh"
@@ -87,7 +87,7 @@ C-------------------------local variables-----------------------------
       integer iish, jjsh, kksh, llsh, iiat, iat
       integer nq, integ, atoms(4)
 *      integer numq
-      double precision q4max, smax, sij, sijkl, block_eff, p
+      double precision smax, sij, sijkl, block_eff, p
       
       integer ibflo_prev, jbflo_prev, kbflo_prev ! for caching
       
