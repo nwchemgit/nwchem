@@ -22,7 +22,8 @@ c
 c
       integer nmo, g_tmp, l_occ, k_occ,
      $     l_eval, k_eval, l_mos, k_mos, l_most, k_most
-      integer nocc, nvirt, nopen, nclosed
+      integer nocc, nvirt, nopen, nclosed, nso, noso
+      integer l_t, k_t, l_t2, k_t2
       logical int_normalize
       external int_normalize
 c     
@@ -98,7 +99,7 @@ c
       call jan_debug_print('AOINTS',dbl_mb(k_aoint), nbf,  nbf,  nbf,
      $     nbf)
 c
-c     Make all MO integrals in mulliken order
+c     Make all MO integrals in Dirac order
 c
       if (.not. ma_push_get(mt_dbl,nmo**4,'aoint',l_moint,k_moint))
      $     call errquit('allocation of MO integrals failed',nbf**4)
@@ -107,9 +108,22 @@ c
      $     nmo, nmo, nmo, nmo,
      $     nmo, nmo, nmo, nmo,
      $     dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most),dbl_mb(k_most), 
-     $     dbl_mb(k_moint), 'ChargeCloud')
+     $     dbl_mb(k_moint), 'Dirac')
       call jan_debug_print('MOINTS',dbl_mb(k_moint), nmo,  nmo,  nmo,
      $     nmo)
+c
+c     do some incore cc
+c     set nso=2*nmo, noso=2*nocc
+c
+      nso=2*nmo
+      noso=2*nocc
+      if (.not. ma_push_get(mt_dbl,nso**4,'t amps',l_t,k_t))
+     $     call errquit('allocation of t amplitudes failed',nso**4)
+      if (.not. ma_push_get(mt_dbl,nso**4,'t2 amps',l_t2,k_t2))
+     $     call errquit('allocation of t2 amplitudes failed',nso**4)
+      call ccsd_incore(dbl_mb(k_aoint), dbl_mb(k_moint), 
+     &                 dbl_mb(k_eval), dbl_mb(k_t), dbl_mb(k_t2),
+     &                 nbf, nmo, nocc, nso, noso)
 c
 c     Tidy up
 c
@@ -666,4 +680,582 @@ c
          end do
       end do
 c
+      end
+      subroutine ccsd_incore(g_ao, g_mo, e, t, t2, 
+     &                       nbf, nmo, nocc, nso, noso)
+      implicit none
+      integer nbf, nmo, nocc, nso, noso
+c
+c     nbf = number of basis functions
+c     nmo = number of molecular orbitals
+c     nocc = number of occupied orbitals
+c     nso = number of spin orbitals (for now set to 2*nmo)
+c     noso = number of occupied spin orbitals (for now set to 2*nocc)
+c
+c     toy coupled cluster program based on the green book
+c
+      double precision g_ao(nbf,nbf,nbf,nbf)
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision e(nmo)
+      double precision t(nso,nso,nso,nso)
+      double precision t2(nso,nso,nso,nso)
+c
+c     cc stuff (greek indices denote occupied spin-orbitals)
+c     cc stuff (r, s, t, u, ... denote unoccupied spin-orbitals)
+c
+      write(6,*)' nbf, nmo, nocc, nso, noso: ',
+     &            nbf, nmo, nocc, nso, noso
+c
+c     First generate an initial guess for t2
+c
+      call dfill(nso**4, 0.0d0, t, 1) 
+      call dfill(nso**4, 0.0d0, t2, 1) 
+
+      call t2_init(g_mo, e, t, nmo, nso, noso)
+c
+c     next put this guess into t2 expression keeping all terms linear in t2
+c
+      call t2_l(g_mo, e, t, t2, nmo, nso, noso)
+c
+c     next put this into t2 expression keeping all terms
+c
+      call dcopy(nso**4, t2, 1, t, 1)
+      call dfill(nso**4, 0.0d0, t2, 1) 
+      call t2_l_q(g_mo, e, t, t2, nmo, nso, noso)
+c
+c how did we lose symmetry in t2?????
+c
+      return
+      end
+      subroutine t2_init(g_mo, e, t, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision e(nmo)
+      double precision t(nso,nso,nso,nso)
+      double precision g, denom
+c
+c     cc stuff (greek indices denote occupied spin-orbitals)
+c     cc stuff (r, s, t, u, ... denote unoccupied spin-orbitals)
+c
+c occupied orbitals
+      integer alpha, beta
+      integer alpha_orb, beta_orb
+      integer alpha_spin, beta_spin
+c unoccupied orbitals
+      integer m, n
+      integer m_orb, n_orb
+      integer m_spin, n_spin
+c
+c     First generate an initial guess for t2
+c
+      call dfill(nso**4, 0.0d0, t, 1) 
+      do m = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         m_orb = (m-1)/2 + 1
+         m_spin = 0
+         if ((m-2*m_orb).ne.0)m_spin = 1
+         write(6,*)' m, m_orb, m_spin: ',
+     &               m, m_orb, m_spin
+         do n = noso+1, nso
+            n_orb = (n-1)/2 + 1
+            n_spin = 0
+            if ((n-2*n_orb).ne.0)n_spin = 1
+            write(6,*)' n, n_orb, n_spin: ',
+     &                  n, n_orb, n_spin
+            do alpha = 1, noso
+               alpha_orb = (alpha-1)/2 + 1
+               alpha_spin = 0
+               if ((alpha-2*alpha_orb).ne.0)alpha_spin = 1
+               write(6,*)' alpha, alpha_orb, alpha_spin: ',
+     &                     alpha, alpha_orb, alpha_spin
+               do beta = 1, noso
+                  beta_orb = (beta-1)/2 + 1
+                  beta_spin = 0
+                  if ((beta-2*beta_orb).ne.0)beta_spin = 1
+                  write(6,*)' beta, beta_orb, beta_spin: ',
+     &                        beta, beta_orb, beta_spin
+c
+                  denom = e(m_orb)+e(n_orb)-e(alpha_orb)-e(beta_orb)
+                  write(6,*)' denom: ', denom
+                  g=0.0d0
+                  if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
+                     g = g_mo(m_orb,n_orb,alpha_orb,beta_orb)
+                  endif
+                  if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
+                     g = g - g_mo(m_orb,n_orb,beta_orb,alpha_orb)
+                  endif
+                  write(6,*)' g:',g
+                  t(m,n,alpha,beta) = g/denom
+                  write(6,*)' m,n,alpha,beta,t(m,n,alpha,beta):',
+     &                        m,n,alpha,beta,t(m,n,alpha,beta)
+               enddo
+            enddo
+         enddo
+      enddo
+      write(6,*)' Initial Guess for T2 '
+      call writet(t,nso)
+      call correlation(g_mo,t,nmo,nso,noso)
+      return
+      end
+      subroutine t2_l(g_mo, e, t, t2, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision e(nmo)
+      double precision t(nso,nso,nso,nso)
+      double precision t2(nso,nso,nso,nso)
+      double precision g, denom
+c
+c     cc stuff (greek indices denote occupied spin-orbitals)
+c     cc stuff (r, s, t, u, ... denote unoccupied spin-orbitals)
+c
+c occupied orbitals
+      integer alpha, beta, delta, gamma
+      integer alpha_orb, beta_orb, delta_orb, gamma_orb
+      integer alpha_spin, beta_spin, delta_spin, gamma_spin
+c unoccupied orbitals
+      integer m, n, p, q
+      integer m_orb, n_orb, p_orb, q_orb
+      integer m_spin, n_spin, p_spin, q_spin
+c
+c     put t into t2 expression keeping all terms linear in t2
+c
+      do m = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         m_orb = (m-1)/2 + 1
+         m_spin = 0
+         if ((m-2*m_orb).ne.0)m_spin = 1
+         do n = noso+1, nso
+            n_orb = (n-1)/2 + 1
+            n_spin = 0
+            if ((n-2*n_orb).ne.0)n_spin = 1
+            do alpha = 1, noso
+               alpha_orb = (alpha-1)/2 + 1
+               alpha_spin = 0
+               if ((alpha-2*alpha_orb).ne.0)alpha_spin = 1
+               do beta = 1, noso
+                  beta_orb = (beta-1)/2 + 1
+                  beta_spin = 0
+                  if ((beta-2*beta_orb).ne.0)beta_spin = 1
+                  denom = e(m_orb)+e(n_orb)-e(alpha_orb)-e(beta_orb)
+                  write(6,*)' denom: ', denom
+                  g=0.0d0
+                  if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
+                     g = g_mo(m_orb,n_orb,alpha_orb,beta_orb)
+                  endif
+                  if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
+                     g = g - g_mo(m_orb,n_orb,beta_orb,alpha_orb)
+                  endif
+                  write(6,*)' g:',g
+                  t2(m,n,alpha,beta) = g
+c
+                  do p = noso+1, nso
+                     p_orb = (p-1)/2 + 1
+                     p_spin = 0
+                     if ((p-2*p_orb).ne.0)p_spin = 1
+                     do q = noso+1, p-1
+                        q_orb = (q-1)/2 + 1
+                        q_spin = 0
+                        if ((q-2*q_orb).ne.0)q_spin = 1
+c
+                        g=0.0d0
+                        if (m_spin.eq.p_spin.and.n_spin.eq.q_spin)then
+                           g = g_mo(m_orb,n_orb,p_orb,q_orb)
+                        endif
+                        if (m_spin.eq.q_spin.and.n_spin.eq.p_spin)then
+                           g = g - g_mo(m_orb,n_orb,q_orb,p_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(p,q,alpha,beta)
+c
+                     enddo
+                  enddo
+c
+                  do gamma = 1, noso
+                     gamma_orb = (gamma-1)/2 + 1
+                     gamma_spin = 0
+                     if ((gamma-2*gamma_orb).ne.0)gamma_spin = 1
+                     do delta = 1, gamma-1
+                        delta_orb = (delta-1)/2 + 1
+                        delta_spin = 0
+                        if ((delta-2*delta_orb).ne.0)delta_spin = 1
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.alpha_spin.and.
+     &                      delta_spin.eq.beta_spin)then
+                           g = 
+     &                     g_mo(gamma_orb,delta_orb,alpha_orb,beta_orb)
+                        endif
+                        if (gamma_spin.eq.beta_spin.and.
+     &                      delta_spin.eq.alpha_spin)then
+                           g = g - 
+     &                     g_mo(gamma_orb,delta_orb,beta_orb,alpha_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(m,n,gamma,delta)
+c
+                     enddo
+                  enddo
+c
+                  do p = noso+1, nso
+                     p_orb = (p-1)/2 + 1
+                     p_spin = 0
+                     if ((p-2*p_orb).ne.0)p_spin = 1
+                     do gamma = 1, noso
+                        gamma_orb = (gamma-1)/2 + 1
+                        gamma_spin = 0
+                        if ((gamma-2*gamma_orb).ne.0)gamma_spin = 1
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.beta_spin.and.
+     &                      n_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,n_orb,beta_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      n_spin.eq.beta_spin)then
+                           g = g - g_mo(gamma_orb,n_orb,p_orb,beta_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
+     &                                       g*t(m,p,alpha,gamma)
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.beta_spin.and.
+     &                      m_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,m_orb,beta_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      m_spin.eq.beta_spin)then
+                           g = g - g_mo(gamma_orb,m_orb,p_orb,beta_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(n,p,alpha,gamma)
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.alpha_spin.and.
+     &                      n_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,n_orb,alpha_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      n_spin.eq.alpha_spin)then
+                           g = g - g_mo(gamma_orb,n_orb,p_orb,alpha_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(m,p,beta,gamma)
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.alpha_spin.and.
+     &                      m_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,m_orb,alpha_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      m_spin.eq.alpha_spin)then
+                           g = g - g_mo(gamma_orb,m_orb,p_orb,alpha_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
+     &                                       g*t(n,p,beta,gamma)
+                     enddo
+                  enddo
+                  t2(m,n,alpha,beta) = t2(m,n,alpha,beta)/denom
+                  write(6,*)' t2(m,n,alpha,beta):',
+     &                        t2(m,n,alpha,beta)
+               enddo
+            enddo
+         enddo
+      enddo
+      write(6,*)' T2 with linear terms. '
+      call writet(t2,nso)
+      call correlation(g_mo,t2,nmo,nso,noso)
+      return
+      end
+      subroutine t2_l_q(g_mo, e, t, t2, nmo, nso, noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision e(nmo)
+      double precision t(nso,nso,nso,nso)
+      double precision t2(nso,nso,nso,nso)
+      double precision g, denom
+c
+c     cc stuff (greek indices denote occupied spin-orbitals)
+c     cc stuff (r, s, t, u, ... denote unoccupied spin-orbitals)
+c
+c occupied orbitals
+      integer alpha, beta, delta, gamma
+      integer alpha_orb, beta_orb, delta_orb, gamma_orb
+      integer alpha_spin, beta_spin, delta_spin, gamma_spin
+c unoccupied orbitals
+      integer m, n, p, q
+      integer m_orb, n_orb, p_orb, q_orb
+      integer m_spin, n_spin, p_spin, q_spin
+c
+c     put t into t2 expression keeping all terms (linear and quadratic)
+c
+      do m = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         m_orb = (m-1)/2 + 1
+         m_spin = 0
+         if ((m-2*m_orb).ne.0)m_spin = 1
+         do n = noso+1, nso
+            n_orb = (n-1)/2 + 1
+            n_spin = 0
+            if ((n-2*n_orb).ne.0)n_spin = 1
+            do alpha = 1, noso
+               alpha_orb = (alpha-1)/2 + 1
+               alpha_spin = 0
+               if ((alpha-2*alpha_orb).ne.0)alpha_spin = 1
+               do beta = 1, noso
+                  beta_orb = (beta-1)/2 + 1
+                  beta_spin = 0
+                  if ((beta-2*beta_orb).ne.0)beta_spin = 1
+                  denom = e(m_orb)+e(n_orb)-e(alpha_orb)-e(beta_orb)
+                  write(6,*)' denom: ', denom
+                  g=0.0d0
+                  if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
+                     g = g_mo(m_orb,n_orb,alpha_orb,beta_orb)
+                  endif
+                  if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
+                     g = g - g_mo(m_orb,n_orb,beta_orb,alpha_orb)
+                  endif
+                  write(6,*)' g:',g
+                  t2(m,n,alpha,beta) = g
+c
+                  do p = noso+1, nso
+                     p_orb = (p-1)/2 + 1
+                     p_spin = 0
+                     if ((p-2*p_orb).ne.0)p_spin = 1
+                     do q = noso+1, p-1
+                        q_orb = (q-1)/2 + 1
+                        q_spin = 0
+                        if ((q-2*q_orb).ne.0)q_spin = 1
+c
+                        g=0.0d0
+                        if (m_spin.eq.p_spin.and.n_spin.eq.q_spin)then
+                           g = g_mo(m_orb,n_orb,p_orb,q_orb)
+                        endif
+                        if (m_spin.eq.q_spin.and.n_spin.eq.p_spin)then
+                           g = g - g_mo(m_orb,n_orb,q_orb,p_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(p,q,alpha,beta)
+c
+                     enddo
+                  enddo
+c
+                  do gamma = 1, noso
+                     gamma_orb = (gamma-1)/2 + 1
+                     gamma_spin = 0
+                     if ((gamma-2*gamma_orb).ne.0)gamma_spin = 1
+                     do delta = 1, gamma-1
+                        delta_orb = (delta-1)/2 + 1
+                        delta_spin = 0
+                        if ((delta-2*delta_orb).ne.0)delta_spin = 1
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.alpha_spin.and.
+     &                      delta_spin.eq.beta_spin)then
+                           g = 
+     &                     g_mo(gamma_orb,delta_orb,alpha_orb,beta_orb)
+                        endif
+                        if (gamma_spin.eq.beta_spin.and.
+     &                      delta_spin.eq.alpha_spin)then
+                           g = g - 
+     &                     g_mo(gamma_orb,delta_orb,beta_orb,alpha_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(m,n,gamma,delta)
+c
+                     enddo
+                  enddo
+c
+                  do p = noso+1, nso
+                     p_orb = (p-1)/2 + 1
+                     p_spin = 0
+                     if ((p-2*p_orb).ne.0)p_spin = 1
+                     do gamma = 1, noso
+                        gamma_orb = (gamma-1)/2 + 1
+                        gamma_spin = 0
+                        if ((gamma-2*gamma_orb).ne.0)gamma_spin = 1
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.beta_spin.and.
+     &                      n_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,n_orb,beta_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      n_spin.eq.beta_spin)then
+                           g = g - g_mo(gamma_orb,n_orb,p_orb,beta_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
+     &                                       g*t(m,p,alpha,gamma)
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.beta_spin.and.
+     &                      m_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,m_orb,beta_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      m_spin.eq.beta_spin)then
+                           g = g - g_mo(gamma_orb,m_orb,p_orb,beta_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(n,p,alpha,gamma)
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.alpha_spin.and.
+     &                      n_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,n_orb,alpha_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      n_spin.eq.alpha_spin)then
+                           g = g - g_mo(gamma_orb,n_orb,p_orb,alpha_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) - 
+     &                                       g*t(m,p,beta,gamma)
+c
+                        g=0.0d0
+                        if (gamma_spin.eq.alpha_spin.and.
+     &                      m_spin.eq.p_spin)then
+                           g = g_mo(gamma_orb,m_orb,alpha_orb,p_orb)
+                        endif
+                        if (gamma_spin.eq.p_spin.and.
+     &                      m_spin.eq.alpha_spin)then
+                           g = g - g_mo(gamma_orb,m_orb,p_orb,alpha_orb)
+                        endif
+                        write(6,*)' g:',g
+                        t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
+     &                                       g*t(n,p,beta,gamma)
+                     enddo
+                  enddo
+c                  
+                  do gamma = 1, noso
+                     gamma_orb = (gamma-1)/2 + 1
+                     gamma_spin = 0
+                     if ((gamma-2*gamma_orb).ne.0)gamma_spin = 1
+                     do delta = 1, gamma-1
+                        delta_orb = (delta-1)/2 + 1
+                        delta_spin = 0
+                        if ((delta-2*delta_orb).ne.0)delta_spin = 1
+                        do p = noso+1, nso
+                           p_orb = (p-1)/2 + 1
+                           p_spin = 0
+                           if ((p-2*p_orb).ne.0)p_spin = 1
+                           do q = noso+1, p-1
+                              q_orb = (q-1)/2 + 1
+                              q_spin = 0
+                              if ((q-2*q_orb).ne.0)q_spin = 1
+c
+                              g=0.0d0
+                              if (gamma_spin.eq.p_spin.and.
+     &                           delta_spin.eq.q_spin)then
+                              g = g_mo(gamma_orb,delta_orb,p_orb,q_orb)
+                              endif
+                              if (gamma_spin.eq.q_spin.and.
+     &                            delta_spin.eq.p_spin)then
+                          g = g - g_mo(gamma_orb,delta_orb,q_orb,p_orb)
+                              endif
+                              write(6,*)' g:',g
+c                                 
+                              t2(m,n,alpha,beta) = t2(m,n,alpha,beta) + 
+     &                      g*(t(p,q,alpha,beta)*t(m,n,gamma,delta) - 
+     &                  2.0d0*(t(m,p,alpha,beta)*t(n,q,gamma,delta) + 
+     &                         t(n,q,alpha,beta)*t(m,p,gamma,delta))- 
+     &                  2.0d0*(t(m,n,alpha,gamma)*t(p,q,beta,delta) + 
+     &                         t(p,q,alpha,gamma)*t(m,n,beta,delta))+ 
+     &                  4.0d0*(t(m,p,alpha,gamma)*t(n,q,beta,delta) + 
+     &                         t(n,q,alpha,gamma)*t(m,p,beta,delta)))
+                           enddo
+                        enddo
+                     enddo
+                  enddo
+                  t2(m,n,alpha,beta) = t2(m,n,alpha,beta)/denom
+                  write(6,*)' t2(m,n,alpha,beta):',
+     &                        t2(m,n,alpha,beta)
+               enddo
+            enddo
+         enddo
+      enddo
+      write(6,*)' T2 with all terms. '
+      call writet(t2,nso)
+      call correlation(g_mo,t2,nmo,nso,noso)
+      return
+      end
+      subroutine writet(t,len)
+      implicit none
+      integer len, i, j, k, l
+      double precision t(len,len,len,len)
+      do i = 1, len
+         do j = 1, len
+            do k = 1, len
+               do l = 1, len
+                  if (abs(t(i,j,k,l)).gt.1d-6)
+     &               write(6,*)i,j,k,l,t(i,j,k,l)
+               enddo
+            enddo
+         enddo
+      enddo
+      return
+      end
+      subroutine correlation(g_mo,t,nmo,nso,noso)
+      implicit none
+      integer nmo, nso, noso
+      double precision g_mo(nmo,nmo,nmo,nmo)
+      double precision t(nso,nso,nso,nso)
+      double precision g, e2
+c occupied orbitals
+      integer alpha, beta
+      integer alpha_orb, beta_orb
+      integer alpha_spin, beta_spin
+c unoccupied orbitals
+      integer m, n
+      integer m_orb, n_orb
+      integer m_spin, n_spin
+c
+      e2 = 0.0d0
+      do m = noso+1, nso
+c get spatial orbital and whether alpha or beta spin
+         m_orb = (m-1)/2 + 1
+         m_spin = 0
+         if ((m-2*m_orb).ne.0)m_spin = 1
+         do n = noso+1, m-1
+            n_orb = (n-1)/2 + 1
+            n_spin = 0
+            if ((n-2*n_orb).ne.0)n_spin = 1
+            do alpha = 1, noso
+               alpha_orb = (alpha-1)/2 + 1
+               alpha_spin = 0
+               if ((alpha-2*alpha_orb).ne.0)alpha_spin = 1
+               do beta = 1, alpha-1
+                  beta_orb = (beta-1)/2 + 1
+                  beta_spin = 0
+                  if ((beta-2*beta_orb).ne.0)beta_spin = 1
+c
+                  g=0.0d0
+                  if (m_spin.eq.beta_spin.and.n_spin.eq.alpha_spin)then
+                     g = g_mo(beta_orb,alpha_orb,m_orb,n_orb)
+                  endif
+                  if (m_spin.eq.alpha_spin.and.n_spin.eq.beta_spin)then
+                     g = g - g_mo(beta_orb,alpha_orb,n_orb,m_orb)
+                  endif
+                  write(6,*)' g:',g
+                  e2 = e2 + g*t(m,n,alpha,beta)
+c
+               enddo
+            enddo
+         enddo
+      enddo
+      write(6,*)' e2 = ',e2
+c
+      return
       end
