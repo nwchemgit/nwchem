@@ -1,7 +1,7 @@
       integer max_proj
       parameter (max_proj = 100)
       logical oproject          ! True if supposed to project
-      double precision e_proj(max_proj) ! Eigenvalues for projection
+      double precision e_proj   ! Eigenvalues for projection
       integer g_proj            ! Handle to GA with evecs
       integer nroot_proj        ! No. of roots to project
       integer n_proj            ! Length of vectors
