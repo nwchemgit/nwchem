@@ -13,7 +13,7 @@ C
 C     We'll go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer MSG_Ftn_Base
-C$Id: msgids.fh,v 1.11 1995-03-29 06:06:09 gg502 Exp $
+C$Id: msgids.fh,v 1.12 1995-04-06 06:02:35 d3e129 Exp $
       Parameter (MSG_Ftn_Base = 25000)
 C
       Integer Msg_PrSum
@@ -41,6 +41,7 @@ C
       Integer Msg_3c_index
       Integer Msg_GblMem
       Integer Msg_RIMP2_Mem
+      Integer Msg_UHF
 C-----------------------------------------------------------------------
       Parameter (Msg_PrSum = MSG_Ftn_Base -  1) ! Sum_Pairs
 C
@@ -142,3 +143,5 @@ C
       Parameter (Msg_GblMem = MSG_Ftn_Base - 74)  ! input_mem_size
 C
       Parameter (Msg_RIMP2_Mem = MSG_Ftn_Base - 75)  ! RIMP2 memory usage igops
+c
+      Parameter (Msg_UHF = MSG_Ftn_Base - 76)  ! For uhf_spin gop
