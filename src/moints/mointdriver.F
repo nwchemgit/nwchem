@@ -121,15 +121,16 @@ c
 c
 c
 c
-       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
+C       g_coul = ga_create_moblocked(noper,nmo2,'Coulomb operator')
        g_exch = ga_create_moblocked(noper,nmo2,'exchange operator')
+       call dbg_mark('allocate operator arrays')
 c
 c
 c       
        call moints_build_JK(rtdb,basis,
      $                      mo_indx_lo,mo_indx_hi,
      $                      mo_indx2_lo,mo_indx2_hi,
-     $                      g_vecs,g_coul,.true.,g_exch,.true.)
+     $                      g_vecs,g_coul,.false.,g_exch,.true.)
 c
 c
 c

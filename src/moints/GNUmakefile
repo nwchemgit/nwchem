@@ -1,5 +1,6 @@
 
         OBJ = atwtest.o \
+              dbg_mark.o \
 	      ga_create_moblocked.o \
 	      ga_check_moblocked.o \
 	      mointdriver.o \
