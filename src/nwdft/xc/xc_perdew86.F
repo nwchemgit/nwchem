@@ -1,7 +1,7 @@
       Subroutine xc_perdew86(fac,rho,delrho,Amat,Cmat,
      *     nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew86.F,v 1.7 1996-09-19 19:16:21 d3h449 Exp $
+C     $Id: xc_perdew86.F,v 1.8 1996-10-08 18:11:58 d3h449 Exp $
       implicit none
 
       double precision fac ! [input]
@@ -242,7 +242,7 @@ c
       double precision rhoval,rs,alnrs,eU,vU,drs,adU,ePol,
      ,     fz,zeta,eP,vP,adP,AAadd
       double precision x,fzeta,fzzprime,rsfact
-      fzeta(x)=( (1.+x)**FOUR3 + (1.-x)**FOUR3 - 2.d0 ) /
+      fzeta(x)=( (1.d0+x)**FOUR3 + (1.d0-x)**FOUR3 - 2.d0 ) /
      /     (2.d0**FOUR3-2.d0)
       fzzprime(x)=FOUR3*( (1.d0+x)**ONE3 - (1.d0-x)**ONE3 ) /
      /     (2.d0**FOUR3-2.d0)

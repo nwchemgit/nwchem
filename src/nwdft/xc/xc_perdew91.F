@@ -1,7 +1,7 @@
       Subroutine xc_perdew91(tol_rho,fac,
      *     rho,delrho,Amat,Cmat,nq,ipol,Ec,qwght)
 
-C     $Id: xc_perdew91.F,v 1.13 1996-09-19 19:16:22 d3h449 Exp $
+C     $Id: xc_perdew91.F,v 1.14 1996-10-08 18:11:59 d3h449 Exp $
       Implicit none
 
       double precision TOLL,EXPTOL
@@ -137,7 +137,7 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
           dkfdrho=akf*arho*ONE3
 
 
-          t=0.5*dsqgamma*arho/aks
+          t=0.5d0*dsqgamma*arho/aks
           t2=t*t
           t3=t2*t
           t4=t3*t
@@ -147,12 +147,12 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
           dexpo1=twoab2*(egas*arho)
           dexpo2=(10.d0*(aks/akf)*t)**2
           if(dexpo1.gt.EXPTOL) then
-            expo1=0.
+            expo1=0.d0
           else
             expo1=exp(-dexpo1)
           endif
           if(dexpo2.gt.EXPTOL) then
-            expo2=0.
+            expo2=0.d0
           else
             expo2=exp(-dexpo2)
           endif
@@ -167,10 +167,9 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
             H0=0.d0
           endif
           H1=nu*(CC-CINF-CX37)*t2*expo2
-
-
+c
           func=H0+H1
-
+c
           if(.not.grad_corr) then
             Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
           else
@@ -285,31 +284,31 @@ C          call xc_vwn(1.d0,rhoval,dp81drho,1,1,egas,1.d0,.false.)
             dgzetadag=(1.d0-zeta)*gggr
             dgzetadbg=-(1.d0+zeta)*gggr
           endif
-
-          t=0.5*dsqgamma*arho/(g*aks)
+c
+          t=0.5d0*dsqgamma*arho/(g*aks)
           t2=t*t
           t3=t2*t
           t4=t3*t
           dtdrhoa=-t*(dgzetadag+dksdrho/aks+arho)
           dtdrhob=-t*(dgzetadbg+dksdrho/aks+arho)
           dtdgamma=0.5d0*t/gammaval
-
+c
           dexpo1=twoab2*(egas*arho)/g3
           dexpo2=(10.d0*g2*(aks/akf)*t)**2
-          expo1=1.e-20
+          expo1=1.d-20
           if(dexpo1.lt.EXPTOL) expo1=exp(-dexpo1)
-          expo2=1.e-20
+          expo2=1.d-20
           if(dexpo2.lt.EXPTOL) expo2=exp(-dexpo2)
-
+c
           A=twoab/(expo1-ONE)
           A1p2At2=ONE+2.d0*A*t2
           aden1=ONE/(ONE+A*t2+A*A*t4)
           alognd=(t2+A*t4)*aden1
           H0=atwob2*g3*log(ONE+twoab*alognd)
           H1=nu*(CC-CINF-CX37)*g3*t2*expo2
-
+c
           func=H0+H1
-
+c
           if(.not.grad_corr) then
             Ec = Ec + (egas+func*rhoval)*qwght(n)*fac
           else

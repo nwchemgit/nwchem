@@ -5,7 +5,7 @@
      &     g_fock,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 c
-C$Id: dft_scf.F,v 1.35 1996-10-05 00:52:23 d3h449 Exp $
+C$Id: dft_scf.F,v 1.36 1996-10-08 18:11:48 d3h449 Exp $
 c
       implicit none
       integer rtdb ! [input]
@@ -15,7 +15,7 @@ c
       integer iter
       integer g_dens(*),g_movecs(*),g_vxc(*),
      &     g_fock,g_diis,g_svecs,isvals,
-     &     g_cdinv,g_xcinv,g_2ceri
+     &     g_cdinv,g_xcinv,g_2ceri, g_scr
 c      
 c**** patches for SC95,  ECCE' parsing
 ***** #define SC95
@@ -57,7 +57,7 @@ c
       integer natoms,nTotEl
       integer l_occ,k_occ
       integer n_full,n_empty
-      integer i,ii,j
+      integer i,ii,j, iw
       integer n_ashift,n_bshift
       integer me,nproc
       integer g_tmp,g_fockt,g_s,g_wght,g_xyz
@@ -664,32 +664,65 @@ c
 #if defined(DFT_TIMER)
         call dft_second(tp3)
 #endif  
+        call gacrea(geom,ao_bas_han,
+     &    nbf_ao,nbf_ao,'ga scr',g_scr,'atom')
+c
+c       Put s-1/2 in g_scr.
+c
+        iw=2
+        call diis_bld12(dbl_mb(isvals), g_svecs, g_scr, 
+     &    g_tmp,nbf_ao,iw)
+c
+c       Transform Fock matrix.
+c
         call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &     g_movecs(ispin),g_fock,zero,g_tmp)
+     &     g_scr,g_fock,zero,g_tmp)
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &     g_tmp,g_movecs(ispin),zero,g_fock)
-        call ga_sync
+     &     g_tmp,g_scr,zero,g_fock)
 c       
-c       Level shifting implemented here (similarity 
-c       transformation+ standard eigensolver).  Note,
-c       levelshifting is appropriate once the transformation
-c       makes the resulting Fock matrix diagonally dominant
-c       e.g., in an approximate MO basis.
+c       Level shifting is implemented here (similarity 
+c       transformation before standard eigensolver).  Note,
+c       levelshifting is appropriate once a transformation
+c       is available which makes the resulting Fock matrix 
+c       diagonally dominant, e.g., in an approximate MO basis.  
+c       Also note, there are many matrix multiplies with S^+-1/2 
+c       which are redundant if one is sure that the former basis
+c       is orthonormal.
 c       
-c        write(*,*)' Fock matrix before levelshift'
-c        call ga_print(g_fock)
         if(levelshifting) then
+c
+c         Transform Fock matrix to diagonal dominant form with
+c         old MOs.
+c
+c         Build S^+1/2 * old movecs (as a transform).
+c
+          iw=3
+          call diis_bld12(dbl_mb(isvals), g_svecs, g_scr, 
+     &      g_tmp,nbf_ao,iw)
+          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
+     &      g_scr,g_movecs(ispin),zero,g_tmp)
+          call ga_copy(g_tmp, g_movecs(ispin))
+c
+c         Transform Fock matrix         
+c
+          call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,one,
+     &      g_movecs(ispin),g_fock,zero,g_scr)
+          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
+     &      g_scr,g_movecs(ispin),zero,g_fock)
+c
+c         Levelshift here.
+c
           do j=noc(ispin)+1+me,nbf_ao,nproc
             call ga_get(g_fock,j,j,j,j,AAZ,1)
             AAZ=AAZ+rlshift
             call ga_put(g_fock,j,j,j,j,AAZ,1)
           enddo
+c          write(*,*)' Fock matrix after shift '
+c          call ga_print(g_fock)
         else
           rlshift = 0.0
         endif
         call ga_sync
-c        write(*,*)' Fock matrix after levelshift'
-c        call ga_print(g_fock)
 c     
 c       Solve for the eigenvalues and eigenvectors of the Hamiltonian.
 c     
@@ -698,8 +731,35 @@ c
 #else   
         call ga_diag_std_seq(g_fock,g_tmp,Dbl_MB(k_eval(ispin)))
 #endif  
+c
+c       If levelshifting then tidy up.
+c
+        if(levelshifting)then
+c
+c         Back transform eigenvectors with S^+1/2 * old movecs.
+c
+          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
+     &      g_movecs(ispin),g_tmp,zero,g_scr)
+          call ga_copy(g_scr, g_tmp)
+c
+c         Put S^-1/2 back in g_scr (use g_fock as temp scr).
+c
+          iw=2
+          call diis_bld12(dbl_mb(isvals), g_svecs, g_scr, 
+     &      g_fock,nbf_ao,iw)
+c
+c         Put old-movecs back.
+c
+          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
+     &      g_scr,g_movecs(ispin),zero,g_fock)
+          call ga_copy(g_fock, g_movecs(ispin))
+        endif
+c
+c       Back-transform eigenvectors with S^-1/2.
+c
         call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,one,
-     &     g_movecs(ispin),g_tmp,zero,g_fock)
+     &    g_scr,g_tmp,zero,g_fock)
+        call gadest(g_scr)
         call ga_sync
 c
 c       Keep orbital ordering according to principle
@@ -713,6 +773,7 @@ c
         else
           call ga_copy(g_fock,g_movecs(ispin))
         endif
+c
         call ga_sync
 #if defined(DFT_TIMER)
         call dft_second(tp4)
@@ -722,23 +783,10 @@ c
 c       
 c       Save previous density for convergence check.
 c       
-c       Save the old alpha (ispin = 1) density matrix.
-c       and the old beta (ispin = 2) density matrix.
-c       
-        if(ispin.eq.1)then
-          call ga_copy(g_dens(1),g_tmp)
-          call ga_sync
-c          write(*,*)' Old alpha matrix '
-c          call ga_print(g_tmp)
-        else
-          call ga_copy(g_dens(2),g_tmp)
-          call ga_sync
-c          write(*,*)' Old beta matrix '
-c          call ga_print(g_tmp)
-        endif
+        call ga_copy(g_dens(ispin),g_tmp)
 c       
 c       Form a new density matrix.
-c       
+c
         call dft_densm(g_dens(ispin),g_movecs(ispin),
      &       nbf_ao,ipol,noc(ispin))
 c       
@@ -850,8 +898,6 @@ c     Form the total density matrix.
 c     
       if( ipol.eq.2 )then
         call ga_dadd(one,g_dens(1),one,g_dens(2),g_dens(1))
-          
-        
       end if
       call ga_sync
 c      
@@ -894,7 +940,7 @@ c
         endif
 c
         if((delta.lt.levlon.and.delta.gt.levloff).or.
-     &     (iter.le.ncysh+3.and.iter.gt.3))then
+     &     (iter.le.ncysh))then
           levelshifting = .true.
           rlshift = rlshift_input
         else
