@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren)
 c
-c $Id: pre_rename.F,v 1.14 2000-03-03 18:43:52 d3j191 Exp $
+c $Id: pre_rename.F,v 1.15 2000-06-01 04:38:54 d3j191 Exp $
 c
 c     function to comply with ffield segment names
 c
@@ -66,11 +66,20 @@ c
       if(ctest.eq.'A '.or.ctest.eq.'A_'.or.
      + ctest.eq.'C '.or.ctest.eq.'C_'.or.
      + ctest.eq.'G '.or.ctest.eq.'G_')
-     + cseq(2,latm(1,i))=dorr//cseq(2,latm(1,i))(1:4)
+     + cseq(2,latm(1,i))='D'//cseq(2,latm(1,i))(1:4)
       if(ctest.eq.'T '.or.ctest.eq.'T_')
      + cseq(2,latm(1,i))='D'//cseq(2,latm(1,i))(1:4)
       if(ctest.eq.'U '.or.ctest.eq.'U_')
      + cseq(2,latm(1,i))='R'//cseq(2,latm(1,i))(1:4)
+c
+      if(catm(2,i).eq.' O2*  '.and.
+     + (cseq(2,latm(1,i))(1:3).eq.'DA '.or.
+     +  cseq(2,latm(1,i))(1:3).eq.'DA_'.or.
+     +  cseq(2,latm(1,i))(1:3).eq.'DC '.or.
+     +  cseq(2,latm(1,i))(1:3).eq.'DC_'.or.
+     +  cseq(2,latm(1,i))(1:3).eq.'DG '.or.
+     +  cseq(2,latm(1,i))(1:3).eq.'DG_'))
+     + cseq(2,latm(1,i))(1:1)='R'
 c
     2 continue
       do 3 i=1,nseq
