@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.46 2003-02-24 20:18:01 bert Exp $
+C $Id: hess_init.F,v 1.47 2003-03-28 17:12:40 bert Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -493,6 +493,7 @@ c
       implicit none
 #include "bas.fh"
 #include "geom.fh"
+#include "global.fh"
 #include "hess_info.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -521,7 +522,8 @@ c
       if (.not. rtdb_get(rtdb, 'doug_kroll', MT_LOG, 1, dk_rel))
      $   dk_rel = .false.
       if (dmd_rel.or.dk_rel) then
-         write(LuOut,*) 'Relativistic all-electron method detected'
+         if (ga_nodeid().eq.0)
+     $    write(LuOut,*) 'Relativistic all-electron method detected'
          return
       endif
 c
@@ -538,7 +540,8 @@ c
           endif
         endif
         if (scftype.eq.'ROHF') then
-           write(LuOut,*) 'ROHF detected'
+           if (ga_nodeid().eq.0)
+     *       write(LuOut,*) 'ROHF detected'
            return
         endif
       endif
@@ -553,7 +556,8 @@ c
         if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol))
      $    ipol = 1
         if (ipol.gt.1.or.nopen.gt.0.or.mult.gt.1) then
-          write(LuOut,*) 'Open shell DFT detected'
+          if (ga_nodeid().eq.0)
+     $      write(LuOut,*) 'Open shell DFT detected'
           return
         endif
       endif
@@ -577,7 +581,8 @@ c
       endif
 c
       if (cdfit) then
-        write(LuOut,*) 'CD fit detected'
+        if (ga_nodeid().eq.0)
+     $    write(LuOut,*) 'CD fit detected'
         return
       endif
 c
