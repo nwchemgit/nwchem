@@ -1,7 +1,7 @@
       Subroutine dft_fitvc(rtdb, geom, AO_bas_han, CD_bas_han, CD_coef, 
      &     g_vc, Ecoul2, nbf_cd, g_2ceri,IOLGC,itol2e,incore,
      &     n_batch,n_bmax,iwhat,i3c_ERI,n3c_dbl)
-C     $Id: dft_fitvc.F,v 1.8 1996-07-03 20:58:58 d3h449 Exp $
+C     $Id: dft_fitvc.F,v 1.9 1996-08-19 15:19:56 d3g681 Exp $
       implicit none
       
 c**** 
@@ -29,7 +29,6 @@ c
       
 #include "bas.fh"
 #include "rtdb.fh"
-#include "context.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"

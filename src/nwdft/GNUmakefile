@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.22 1996-08-12 19:18:29 gutowski Exp $
+#$Id: GNUmakefile,v 1.23 1996-08-19 15:19:52 d3g681 Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ = nwdft.o
@@ -14,4 +14,4 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(nwdft.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh ./include/cdft.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(nwdft.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./include/cdft.fh $(INCDIR)/bas.fh 

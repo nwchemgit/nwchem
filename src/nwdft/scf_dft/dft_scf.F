@@ -5,7 +5,7 @@
      &     g_fock,g_diis,g_svecs,isvals,
      &     g_cdinv,g_xcinv,g_2ceri)
 
-C$Id: dft_scf.F,v 1.31 1996-08-06 06:03:12 d3g681 Exp $
+C$Id: dft_scf.F,v 1.32 1996-08-19 15:20:02 d3g681 Exp $
       implicit none
       integer rtdb ! [input]
       integer ipol
@@ -22,8 +22,6 @@ c**** patches for SC95,  ECCE' parsing
 
 #include "bas.fh"
 #include "geom.fh"
-
-#include "context.fh"
 
 #include "mafdecls.fh"
 #include "util.fh"
@@ -54,7 +52,7 @@ c**** patches for SC95,  ECCE' parsing
       Integer l_eval,Type
       integer g_rmovecs(2)
       integer k_eval(2)
-      Character*255 movecs_out,movecs_in
+      Character*(nw_max_path_len) movecs_out,movecs_in
       character*255 title_vecs, basis_vecs
       Character*255 name, trans 
       Double Precision rmoments(3)  ! dipole
@@ -366,11 +364,10 @@ c****
       endif 
 
 c
-c     Figure input/output MO vectors ... all this should be
-c     context sensitive but that design is incomplete.
+c     Figure input/output MO vectors 
 c     
       if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $     movecs_in = 'movecs'
+     $     call util_file_name('movecs', .false.,.false.,movecs_in)
       if (.not. rtdb_cget(rtdb, 'dft:output vectors', 1, movecs_out))
      $     movecs_out = ' '
       if (movecs_out.eq.' ') then
@@ -1176,13 +1173,9 @@ c
      $     call errquit('dft_scf: bas_name?', 0)
       if (name .eq. ' ') name = 'ao basis'
 
-      if (.not. context_prefix('energy', name)) call errquit
-     &     ('dft: context_prefix failed', 0)
-      if (.not. rtdb_put(rtdb, name, MT_DBL, 1, (Etold+Enuc))) 
+      if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, (Etold+Enuc))) 
      *     call errquit('dft: failed to store energy in rtdb', 0)
-      if (.not. context_prefix('converged', name)) call errquit
-     $     ('dft: context_prefix failed', 0)
-      if (.not. rtdb_put(rtdb, name, MT_LOG, 1, converged)) 
+      if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged)) 
      *     call errquit('dft: failed to store converged in rtdb', 0)
 C
 C     print stolen for uhf.F

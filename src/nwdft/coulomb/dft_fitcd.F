@@ -31,7 +31,6 @@ c****
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "context.fh"
 
 #include "stdio.fh"
 #include "global.fh"
@@ -53,6 +52,7 @@ c****
      ,     lscr,iscr
       logical oprint,dowork
       integer ndone,ipoint
+      character*(nw_max_path_len) cdfit
       double precision dabsmax
       integer nxtask
       external dabsmax,nxtask
@@ -337,18 +337,11 @@ c
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
       call ga_sync 
       if(me.eq.0) then
-      inquire(file='cdfit.dat',exist=doesit,opened=isit)
-      if(.not.isit)then
-        if(.not.doesit)then
-          open(unit=79,file='cdfit.dat',access='sequential',
-     &         form='unformatted',status='new')
-        else
-          open(unit=79,file='cdfit.dat',access='sequential',
-     &         form='unformatted',status='old')
-          endif
-        endif
-          write(79) (CD_coef(i),i=1,nbf_cd)
-      rewind 79
+         call util_file_name('cdfit', .true., .false., cdfit)
+         open(unit=79,file=cdfit,access='sequential',
+     &         form='unformatted',status='unknown')
+         write(79) (CD_coef(i),i=1,nbf_cd)
+         close(79)
       endif
       call ga_sync
       if(IOLGC) call gadest(g_cdinv)

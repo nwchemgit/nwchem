@@ -1,8 +1,7 @@
       subroutine dft_input(rtdb)
-c     $Id: dft_input.F,v 1.1 1996-07-26 22:43:35 d3g681 Exp $
+c     $Id: dft_input.F,v 1.2 1996-08-19 15:19:58 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
-#include "context.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "bas.fh"

@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.24 1996-08-12 19:19:18 gutowski Exp $
+C$Id: nwdft.F,v 1.25 1996-08-19 15:19:53 d3g681 Exp $
       implicit none
       logical CDFIT,XCFIT
 c****
@@ -25,12 +25,14 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "cdft.fh"
 #include "util.fh"
 c     
 c     local declarations
 c
+#ifdef DFT_TIMER
+      character*(nw_max_path_len) timings
+#endif
       character*255 title
       integer iproc,itype,ncent,ickcon,lckcon
       logical LResult,oprint
@@ -39,12 +41,14 @@ c
 
       iproc  = ga_nodeid()
 c
-c     Push context down to DFT (copied from scf.F)
-c
-      if (.not. context_push('dft'))
-     $     call errquit('dft: context_push failed', 0)
       call util_print_push
       call util_print_rtdb_load(rtdb, 'dft')
+#ifdef DFT_TIMER
+c     open timings file as unit 7 in the scratch directory
+c     only process 0 will write to it
+      call util_file_name('dftim',.true.,.false.,timings)
+      open(7,file=timings,form='formatted',status='unknown',err=1010)
+#endif
       oprint = util_print('information', print_low)
       if (oprint) then
         if (.not. rtdb_cget(rtdb, 'title', 1, title))
@@ -61,7 +65,6 @@ c
           endif
         endif
       endif
-c
 c
 c-->  Allocate memory for checkpoint file constants.
 c
@@ -129,9 +132,14 @@ c
 
       nwdft = .true.
       call util_print_pop
-      if (.not. context_pop('dft')) 
-     &     call errquit('context_pop failed',0)
+c
+#ifdef DFT_TIMER
       close(7)
+#endif
       return
+c
+#ifdef DFT_TIMER
+ 1010 call errquit('dft: failed to open timings file',0)
+#endif
       end
  

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput( rtdb, iconst, nconst )
 
-C$Id: dft_rdinput.F,v 1.12 1996-06-17 16:15:55 og845 Exp $
+C$Id: dft_rdinput.F,v 1.13 1996-08-19 15:19:59 d3g681 Exp $
       implicit none
       
       integer rtdb                               ! [input] database handle
@@ -11,7 +11,6 @@ C$Id: dft_rdinput.F,v 1.12 1996-06-17 16:15:55 og845 Exp $
 #include "geom.fh"
 #include "cdft.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "msgids.fh"
 #include "sym.fh"
 #include "tcgmsg.fh"
