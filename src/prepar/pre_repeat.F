@@ -2,7 +2,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_repeat.F,v 1.4 2000-01-26 19:40:11 d3j191 Exp $
+c $Id: pre_repeat.F,v 1.5 2000-01-26 19:42:51 d3j191 Exp $
 c
       implicit none
 c
@@ -62,8 +62,8 @@ c
     5 continue
     4 continue
 c
-      write(*,'(a,3f12.6)') 'x ',(dx(k),k=1,3)
-      write(*,'(a,3f12.6)') 'r ',(sqrt(r2min(k)),k=1,3)
+c      write(*,'(a,3f12.6)') 'x ',(dx(k),k=1,3)
+c      write(*,'(a,3f12.6)') 'r ',(sqrt(r2min(k)),k=1,3)
 c
       done=.true.
 c

@@ -3,7 +3,7 @@
      + lbnd,rbnd,mbnd,nbnd,nbndt,lang,rang,mang,nang,nangt,
      + ldih,kdih,rdih,mdih,ndih,ndiht,limp,rimp,mimp,nimp,nimpt)
 c
-c     $Id: pre_modify.F,v 1.6 1999-05-10 22:38:04 d3j191 Exp $
+c     $Id: pre_modify.F,v 1.7 2000-01-26 19:41:15 d3j191 Exp $
 c
       implicit none
 c
@@ -84,7 +84,7 @@ c
       read(card(25:36),'(f12.6)') charge
       if(util_print('where',print_default)) then
       write(lfnout,2000) isgm,aname,mset,charge
- 2000 format('modify atom ',i5,':',a6,' set',i2,' charge ',f12.6)
+ 2000 format(' modify atom ',i5,':',a6,' set',i2,' charge ',f12.6)
       endif
       do 2 i=1,natm
       if(latm(5,i).eq.isgm.and.catm(1,i).eq.aname) then
