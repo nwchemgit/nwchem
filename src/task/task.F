@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.44 2001-02-06 19:14:53 windus Exp $
+* $Id: task.F,v 1.45 2001-05-09 17:51:06 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -33,7 +33,7 @@ c
 c
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
      $     jantest, uccsdtest
-      logical nwargos, property, dplot, gapss, task_shell, moints_full
+      logical property, dplot, gapss, task_shell, moints_full
       logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst,task_dynamics
@@ -44,7 +44,7 @@ c
 c
       external jantest, uccsdtest
       external rjhtest, raktest, atwtest, task_check_sum, cphf
-      external nwargos, property, dplot, gapss, task_shell, moints_full
+      external property, dplot, gapss, task_shell, moints_full
       external analyz,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst,task_dynamics
@@ -72,12 +72,11 @@ c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
 c
-c for qmmm start in nwargos.  nwargos will call appropriate task routines
+c for qmmm, nwmd will call appropriate task routines
 c
       if (task_qmmm) then
-        if (theory.eq.'nwmd'.or.theory.eq.'md'.or.theory.eq.'nwargos')
+        if (theory.eq.'nwmd'.or.theory.eq.'md')
      + call errquit('task:theory must be a QM method for QMMM',911)
-*        status = nwargos(rtdb)
         status = nwmd(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
           errmsg = ' '
@@ -123,8 +122,6 @@ c
             status = rtdb_print(rtdb,.true.)
          else if (inp_compare(.false.,'checksum', theory)) then
             status = task_check_sum(rtdb)
-         else if (inp_compare(.false.,'nwargos', theory)) then
-            status = nwargos(rtdb)
          else if (inp_compare(.false.,'md', theory)) then
             status = nwmd(rtdb)
          else if (inp_compare(.false.,'cphf', theory)) then

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.89 2001-03-23 00:31:52 d3j191 Exp $
+c $Id: md_start.F,v 1.90 2001-05-09 17:51:23 d3j191 Exp $
 c
       implicit none
 c
@@ -943,7 +943,7 @@ c
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('md_rtdbin: rtdg_cget failed',137)
-      if(theory.eq.'md'.or.theory.eq.'nwargos') then
+      if(theory.eq.'md') then
       iquant=0
       iqmmm=0
       else

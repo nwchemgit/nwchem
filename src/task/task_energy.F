@@ -68,7 +68,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.25 2001-02-20 23:31:29 edo Exp $
+* $Id: task_energy.F,v 1.26 2001-05-09 17:51:06 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -100,8 +100,8 @@ c     Also returns status through the function value
 c
       logical  scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
       external scf, rimp2, oimp2, direct_mp2, ccsd, mcscf, selci
-      logical semi_dir_mp2, nwargos, rimp2g,nwmd,pspw_energy
-      external semi_dir_mp2, nwargos, rimp2g,nwmd,pspw_energy
+      logical semi_dir_mp2, rimp2g,nwmd,pspw_energy
+      external semi_dir_mp2, rimp2g,nwmd,pspw_energy
       logical dft_energy, sodft_energy
       external dft_energy, sodft_energy
 c
@@ -169,8 +169,6 @@ cedo         prefix = 'mp2'
      &         'n = energy>] [numerical || analytic] [ignore]'
          endif
          status = .false.
-      else if (theory .eq. 'nwargos') then
-         status = nwargos(rtdb)
       else
          call errquit('task_energy: unknown theory',0)
       endif

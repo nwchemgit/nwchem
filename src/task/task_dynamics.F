@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.5 2000-10-23 16:24:05 windus Exp $
+* $Id: task_dynamics.F,v 1.6 2001-05-09 17:51:06 d3j191 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -25,8 +25,8 @@ c     .  task:walltime (real) - wall time to execute the task
 c
 c     Also returns status through the function value
 c
-      logical nwargos,nwmd
-      external nwargos,nwmd
+      logical nwmd
+      external nwmd
 c
       logical status
       double precision cpu,wall
@@ -56,9 +56,6 @@ c
       prefix=theory           ! Most common scenario
       if(theory.eq.'md'.or.theory.eq.'scf'.or.theory.eq.'dft') then
       status=nwmd(rtdb)
-      elseif(theory.eq.'nwargos'.or.theory.eq.'scf'
-     + .or.theory.eq.'dft') then
-      status=nwargos(rtdb)
       else
       call errquit('task_dynamics: unknown theory',0)
       endif

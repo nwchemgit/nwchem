@@ -1,6 +1,6 @@
       logical function nwmd(irtdb0)
 c
-c $Id: nwmd.F,v 1.7 2000-01-06 21:20:14 d3j191 Exp $
+c $Id: nwmd.F,v 1.8 2001-05-09 17:51:23 d3j191 Exp $
 c
       implicit none
 c
@@ -9,17 +9,8 @@ c
 #include "md_common.fh"
 c
       integer irtdb0,mdold
-      logical nwargos
-      external nwargos
 c
       irtdb=irtdb0
-c
-      mdold=1
-      if(.not.rtdb_get(irtdb,'md:mdold',mt_int,1,mdold)) mdold=0
-      if(mdold.ne.0) then
-      nwmd=nwargos(irtdb0)
-      return
-      endif
 c
       call timer_init()
 c

@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.22 2001-05-08 22:05:39 bylaska Exp $
+* $Id: task_input.F,v 1.23 2001-05-09 17:51:06 d3j191 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -124,7 +124,7 @@ c
       if (oqmmm) then
         if (.not.rtdb_put(rtdb, 'task:QMMM', mt_log, 1, .true.))
      &       call errquit('task_input:task:QMMM rtdb is corrupt',911)
-        if (theory.eq.'md'.or.theory.eq.'nwargos') call errquit
+        if (theory.eq.'md') call errquit
      &      ('task_input:theory must be a QM method for QMMM',911)
       endif
       if (ignore) then
