@@ -3,7 +3,7 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.5 1997-04-01 03:43:42 gg502 Exp $
+C     $Id: mk_fit_xf.F,v 1.6 1998-01-07 23:02:11 bernhold Exp $
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)
@@ -110,7 +110,7 @@ C
 C
 C        The GA_Zero is SIMD, so it should sync us all
 C
-         Call Int_2c_GA( Basis, Basis, G_V, 'overlap', FP_One)
+         Call Int_2c_GA( Basis, Basis, G_S, 'overlap', FP_One)
          Call GA_Sync
 C
 C        Form S^-1
