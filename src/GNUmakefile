@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.43 1996-08-19 15:11:44 d3g681 Exp $
+# $Id: GNUmakefile,v 1.44 1997-01-14 22:46:39 twclark Exp $
 
 include config/makefile.h
 
@@ -149,7 +149,7 @@ endif
 
 .PHONY:	depend
 depend:	
-	( cd config; make depend.x ; )
+	( cd config; $(MAKE) depend.x ; )
 	config/stripdepend
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
