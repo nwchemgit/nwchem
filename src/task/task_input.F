@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.20 2000-02-25 00:40:53 windus Exp $
+* $Id: task_input.F,v 1.21 2000-04-21 21:22:46 bylaska Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -77,6 +77,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'Car-Parrinello')) then
             operation='Car-Parrinello'
+         else if (inp_compare(.false.,test,
+     >                        'conjugate_gradient')) then
+            operation='conjugate_gradient'
          else if (inp_compare(.false.,test,
      >                        'wavefunction_initializer')) then
             operation='wavefunction_initializer'
