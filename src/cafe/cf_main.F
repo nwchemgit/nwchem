@@ -83,8 +83,8 @@ c
       endif
 c
       if(np.gt.1) then
-      call ga_dgop(mcf_30,wbox,1,'+')
-      if(msm.gt.0) call ga_dgop(mcf_32,wsm,msm,'+')
+      call ga_dgop(mcf_34,wbox,1,'+')
+      if(msm.gt.0) call ga_dgop(mcf_35,wsm,msm,'+')
       endif
 c
       return
@@ -203,7 +203,7 @@ c
 c
       endif
 c
-      if(np.gt.0) call ga_dgop(mcf_33,xsm,3*msm,'+')
+      if(np.gt.0) call ga_dgop(mcf_36,xsm,3*msm,'+')
 c
       return
       end
@@ -250,7 +250,7 @@ c
 c
 c     globally accumulate box center of mass coordinates
 c
-      if(np.gt.1) call ga_dgop(mcf_31,xbm,3,'+')
+      if(np.gt.1) call ga_dgop(mcf_37,xbm,3,'+')
 c
       return
       end
@@ -638,7 +638,7 @@ c
       z=z+zs(i,1,1)+zs(i,2,1)+zs(i,3,1)
     1 continue
 c
-      call ga_dgop(mcf_30,z,1,'+')
+      call ga_dgop(mcf_38,z,1,'+')
 c
       volume=box(1)*box(2)*box(3)
 c
@@ -662,7 +662,7 @@ c
       rdata(2)=box(2)
       rdata(3)=box(3)
       rdata(4)=pscale
-      call ga_brdcst(mcf_30,rdata,ma_sizeof(mt_dbl,4,mt_byte),0)
+      call ga_brdcst(mcf_39,rdata,ma_sizeof(mt_dbl,4,mt_byte),0)
       box(1)=rdata(1)
       box(2)=rdata(2)
       box(3)=rdata(3)
@@ -704,9 +704,9 @@ c
       call cf_vs(xs,ys,vs,vst,esk,nums,isat,ismol,isfrc,dbl_mb(i_mas))
 c
       if(np.gt.1) then
-      call ga_dgop(mcf_33,ewk,1,'+')
-      call ga_dgop(mcf_34,esk,msf,'+')
-      call ga_dgop(mcf_35,ewkc,1,'+')
+      call ga_dgop(mcf_40,ewk,1,'+')
+      call ga_dgop(mcf_41,esk,msf,'+')
+      call ga_dgop(mcf_42,ewkc,1,'+')
       endif
 c
       eskin=zero
@@ -857,7 +857,7 @@ c
       endif
     5 continue
       endif
-      if(np.gt.1) call ga_dgop(mcf_34,vv,4,'+')
+      if(np.gt.1) call ga_dgop(mcf_43,vv,4,'+')
       eskc=eskc+half*(vv(1)*vv(1)+vv(2)*vv(2)+vv(3)*vv(3))/vv(4)
     4 continue
 c
@@ -953,8 +953,8 @@ c
       endif
 c
       if(np.gt.1) then
-      call ga_dgop(mrg_d46,fnorm,1,'+')
-      call ga_dgop(mrg_d47,fmax,1,'max')
+      call ga_dgop(mcf_44,fnorm,1,'+')
+      call ga_dgop(mcf_45,fmax,1,'max')
       endif
 c
       fnorm=sqrt(fnorm)
@@ -1025,8 +1025,8 @@ c
       if(me.gt.0) imul(i,1)=0
     1 continue
 c
-      call ga_dgop(mrg_d48,xmul,3*mmult,'+')
-      call ga_igop(mrg_d49,imul,4*mmult,'+')
+      call ga_dgop(mcf_46,xmul,3*mmult,'+')
+      call ga_igop(mcf_47,imul,4*mmult,'+')
 c
       if(nmult(1).gt.0) then
       ix=1
@@ -1222,7 +1222,7 @@ c     globally sum kinetic energies in ekcg
 c
       ekcg(1)=half*ekwcg
       ekcg(2)=half*ekscg
-      call ga_dgop(mrg_d21,ekcg,2,'+')
+      call ga_dgop(mcf_48,ekcg,2,'+')
       ekwcg=ekcg(1)
       ekscg=ekcg(2)
 c
