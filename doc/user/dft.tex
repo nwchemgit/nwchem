@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.63 2002-05-10 18:24:20 edo Exp $ 
+% $Id: dft.tex,v 1.64 2002-08-07 23:43:18 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -47,7 +47,7 @@ the DFT module are:
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
-      [h407] [becke97gga1] \
+      [h407] [becke97gga1] [lb94]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -172,7 +172,7 @@ has the same effect.
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147] \
-      [hcth407] [becke97gga1] [optx] [hcthp14]\
+      [hcth407] [becke97gga1] [optx] [hcthp14] [lb94]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -502,8 +502,8 @@ optx       & $\star$    &             &  $\star$  &        &  N   &[20]\\
 \hline                                                  
 perdew86   &          &   $\star$     &  $\star$  &        &  Y   &[9]\\
 lyp        &          &   $\star$     &  $\star$  &        &  Y   &[10]\\
-perdew91   &          &   $\star$     &  $\star$  &        &  N   &[6]\\
-cpbe96     &          &   $\star$     &  $\star$  &        &  N   &[7]\\
+perdew91   &          &   $\star$     &  $\star$  &        &  Y   &[6]\\
+cpbe96     &          &   $\star$     &  $\star$  &        &  Y   &[7]\\
 \hline                                                  
 hcth       & $\star$    &   $\star$     &  $\star$  &        &  N   &[11]\\
 hcth120    & $\star$    &   $\star$     &  $\star$  &        &  N   &[12]\\
@@ -511,6 +511,7 @@ hcth147    & $\star$    &   $\star$     &  $\star$  &        &  N   &[12]\\
 hcth407    & $\star$    &   $\star$     &  $\star$  &        &  N   &[19]\\
 becke97gga1  & $\star$    &   $\star$     &  $\star$  &        &  N   &[18]\\
 hcthp14    & $\star$    &   $\star$     &  $\star$  &        &  N   &[21]\\
+lb94       & $\star$    &   $\star$     &  $\star$  &        & Y    &[22]\\
 \hline                                                  
 beckehandh & $\star$    &   $\star$     &           & $\star$  &  Y   &[13]\\
 b3lyp      & $\star$    &   $\star$     &  $\star$  & $\star$  &  Y   &[14]\\
@@ -519,7 +520,7 @@ becke97    & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[15]\\
 becke97-1  & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[15]\\
 becke97-2  & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[22]\\
 becke98    & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[16]\\
-pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &  N   &[17]\\
+pbe0       & $\star$    &   $\star$     &  $\star$  & $\star$  &  Y   &[17]\\
 \hline
 \end{tabular}
 \caption{Table of available Exchange (X) and Correlation (C) functionals}
@@ -563,7 +564,7 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 \item  N.C.Handy, A.J. Cohen, Mol. Phys. {\bf 99}, 403 (2001).\\
 \item G. Menconi, P.J. Wilson, D.J. Tozer, J. Chem. Phys {\bf 114}, 3958 (2001).\\
 \item  P.J. Wilson, T.J. Bradley, D.J. Tozer,  J. Chem. Phys {\bf 115}, 9233 (2001).
-
+\item R. van Leeuwen and E.J. Baerends, Phys. Rev. A {\bf 49}, 2321 (1994).
 
 \end{enumerate}
 }
