@@ -1,5 +1,5 @@
       subroutine grad_force_so(rtdb, basis, geom)
-c     $Id: grad_force_so.F,v 1.2 2000-05-01 05:35:36 zzhang Exp $
+c     $Id: grad_force_so.F,v 1.3 2000-05-24 22:31:25 zzhang Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C     ___                 ___                         ___
@@ -68,7 +68,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
-      integer g_dens(6),        ! density matrices(up to 6)
+      integer g_dens(8),        ! density matrices(up to 8)
      $     g_wdens,             ! energy weighted density
      $     g_eigen_diag,        ! eigenvalue diagonal matrix or lagrangian
      $     g_force              ! forces on atoms(cartesian)
@@ -118,7 +118,15 @@ c
      $     lh_ij3, ld_ij3, lh_kl3, ld_kl3, lh_ik3, ld_ik3,
      $     lh_jl3, ld_jl3, lh_il3, ld_il3, lh_jk3, ld_jk3,
      $     lh_ij4, ld_ij4, lh_kl4, ld_kl4, lh_ik4, ld_ik4,
-     $     lh_jl4, ld_jl4, lh_il4, ld_il4, lh_jk4, ld_jk4
+     $     lh_jl4, ld_jl4, lh_il4, ld_il4, lh_jk4, ld_jk4,
+     $     lh_ik5, ld_ik5,
+     $     lh_jl5, ld_jl5, lh_il5, ld_il5, lh_jk5, ld_jk5,
+     $     lh_ik6, ld_ik6,
+     $     lh_jl6, ld_jl6, lh_il6, ld_il6, lh_jk6, ld_jk6,
+     $     lh_ik7, ld_ik7,
+     $     lh_jl7, ld_jl7, lh_il7, ld_il7, lh_jk7, ld_jk7,
+     $     lh_ik8, ld_ik8,
+     $     lh_jl8, ld_jl8, lh_il8, ld_il8, lh_jk8, ld_jk8
 
       double precision crd(3),  ! atomic coordinates
      $     tol2e, q
@@ -144,7 +152,7 @@ c
 
       integer ipol, numfunc, noc(2)
       parameter (numfunc = 19)
-      logical oskel, omp2, odft, ocdfit, status,frac_occ 
+      logical oskel, omp2, odft, ocdfit, status,frac_occ, exso 
       double precision xfac(numfunc), jfac, kfac
 
       nproc = ga_nnodes()
@@ -343,7 +351,7 @@ C     local replication(separate for the different pieces)
 
 C     global density
 cso   
-      ndens = 6                 !alpha, beta, x, y and z densities
+      ndens = 8                 !alpha, beta, x, y and z densities
                                 !Re(Daa), Re(Dbb), 
                                 !Im(Daa), Im(Dbb), Re(Dab), Im(Dba)
       do i=1, ndens
@@ -432,7 +440,6 @@ c
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
      $     dbl_mb(k_pdm2), dbl_mb(k_coeff))
-
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))
      $     call errquit('grad: could not destroy g_eigen_diag',1)
@@ -493,7 +500,7 @@ C     local density matrix block
 c     
       cpu_tim(1)  = util_cpusec()
       wall_tim(1) = util_wallsec()
-c      goto 11 !skip 1-e contribution 
+c      goto 111 !skip 1-e contribution 
       call grad1_so( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), lscratch,
      $     dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
      $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
@@ -501,7 +508,7 @@ c      goto 11 !skip 1-e contribution
      $     rtdb, oskel, 
      &     dbl_mb(k_frc_so), 
      &     dbl_mb(k_densx), dbl_mb(k_densy), dbl_mb(k_densz)) 
- 11   continue 
+ 111  continue
       cpu_tim(1)  = util_cpusec() - cpu_tim(1)
       wall_tim(1) = util_wallsec() - wall_tim(1)
 c     
@@ -511,16 +518,18 @@ c
       if (.not. ma_pop_stack(l_densx)) call errquit('grad: MA?',0)
       if (.not. ma_pop_stack(l_dens)) call errquit('grad: MA?',0)
       if (.not. ga_destroy(g_wdens)) call errquit('grad: GA?',0)
-
+C
 C     two-electron contribution
-C     allocate arrays for two-electron integral stuff(or rename old ones)
-C     blocks of density matrix:
+C
       if(theory .eq. 'sodft' .and. xfac(1) .ne. 0)
      &     call grad_dens_so2(geom, basis, g_dens,  
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, 
      $     dbl_mb(k_pdm2), dbl_mb(k_coeff))
-
+c
+C     allocate arrays for two-electron integral stuff(or rename old ones)
+C     blocks of density matrix:
+c
       lsqa = blen*blen
 
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij', lh_ij, ld_ij))
@@ -579,6 +588,58 @@ c
      $        call errquit('grad:could not allocate ld_il4',lsqa)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk4', lh_jk4, ld_jk4))
      $        call errquit('grad:could not allocate ld_jk4',lsqa)
+      end if
+
+      if (theory .eq. 'sodft' .and. kfac .ne. 0) then
+         exso = .true.
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik3', lh_ik3, ld_ik3))
+     $        call errquit('grad:could not allocate ld_ik3',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl3', lh_jl3, ld_jl3))
+     $        call errquit('grad:could not allocate ld_jl3',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il3', lh_il3, ld_il3))
+     $        call errquit('grad:could not allocate ld_il3',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk3', lh_jk3, ld_jk3))
+     $        call errquit('grad:could not allocate ld_jk3',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik4', lh_ik4, ld_ik4))
+     $        call errquit('grad:could not allocate ld_ik4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl4', lh_jl4, ld_jl4))
+     $        call errquit('grad:could not allocate ld_jl4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il4', lh_il4, ld_il4))
+     $        call errquit('grad:could not allocate ld_il4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk4', lh_jk4, ld_jk4))
+     $        call errquit('grad:could not allocate ld_jk4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik5', lh_ik5, ld_ik5))
+     $        call errquit('grad:could not allocate ld_ik3',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl5', lh_jl5, ld_jl5))
+     $        call errquit('grad:could not allocate ld_jl3',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il5', lh_il5, ld_il5))
+     $        call errquit('grad:could not allocate ld_il5',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk5', lh_jk5, ld_jk5))
+     $        call errquit('grad:could not allocate ld_jk5',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik6', lh_ik6, ld_ik6))
+     $        call errquit('grad:could not allocate ld_ik4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl6', lh_jl6, ld_jl6))
+     $        call errquit('grad:could not allocate ld_jl4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il6', lh_il6, ld_il6))
+     $        call errquit('grad:could not allocate ld_il4',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk6', lh_jk6, ld_jk6))
+     $        call errquit('grad:could not allocate ld_jk6',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik7', lh_ik7, ld_ik7))
+     $        call errquit('grad:could not allocate ld_ik7',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl7', lh_jl7, ld_jl7))
+     $        call errquit('grad:could not allocate ld_jl7',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il7', lh_il7, ld_il7))
+     $        call errquit('grad:could not allocate ld_il7',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk7', lh_jk7, ld_jk7))
+     $        call errquit('grad:could not allocate ld_jk7',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik8', lh_ik8, ld_ik8))
+     $        call errquit('grad:could not allocate ld_ik8',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl8', lh_jl8, ld_jl8))
+     $        call errquit('grad:could not allocate ld_jl8',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il8', lh_il8, ld_il8))
+     $        call errquit('grad:could not allocate ld_il8',lsqa)
+         if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk8', lh_jk8, ld_jk8))
+     $        call errquit('grad:could not allocate ld_jk8',lsqa)
       end if
 
 C     define threshold for Schwarz screening(same as in SCF)
@@ -661,6 +722,14 @@ c
      $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
      $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
      $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $     dbl_mb(ld_ik5),
+     $     dbl_mb(ld_jl5),dbl_mb(ld_il5),dbl_mb(ld_jk5),     
+     $     dbl_mb(ld_ik6),
+     $     dbl_mb(ld_jl6),dbl_mb(ld_il6),dbl_mb(ld_jk6),     
+     $     dbl_mb(ld_ik7),
+     $     dbl_mb(ld_jl7),dbl_mb(ld_il7),dbl_mb(ld_jk7),     
+     $     dbl_mb(ld_ik8),
+     $     dbl_mb(ld_jl8),dbl_mb(ld_il8),dbl_mb(ld_jk8),     
      $     dbl_mb(k_frc_2el), g_dens, g_force, blen,
      $     geom, basis, nproc, nat, 
      $     lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
@@ -674,113 +743,9 @@ c
      $     int_mb(k_bfglo), int_mb(k_bfghi), 
      $     int_mb(k_bfmap), int_mb(k_rbfmap), 
      $     int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
-     $     jfac, kfac)
-      if (theory .eq. 'sodft' .and. kfac.ne.0.0d0) then 
-c
-c     contribution from Im(Daa) and Im(Dbb)
-c
-         call ga_dadd(dble(1.0d0),g_dens(3),dble(1.0d0),g_dens(4),
-     &        g_dens(1))
-         call ga_dadd(dble(1.0d0),g_dens(3),dble(-1.0d0),g_dens(4),
-     &        g_dens(2))
-         call ga_symmetrize(g_dens(1))
-         call ga_symmetrize(g_dens(2))
-         call grad2(
-     $        dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
-     $        dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
-     $        dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
-     $        dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
-     $        dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
-     $        dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
-     $        dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
-     $        dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
-     $        dbl_mb(k_frc_2el), g_dens, g_force, blen,
-     $        geom, basis, nproc, nat, 
-     $        lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
-     $        int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
-     $        tol2e, nsh, 
-     $        log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
-     $        dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
-     $        dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
-     $        nshblocks,
-     $        int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
-     $        int_mb(k_bfglo), int_mb(k_bfghi), 
-     $        int_mb(k_bfmap), int_mb(k_rbfmap), 
-     $        int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
-     $        dble(0.0d0), dble(-1.0d0)*kfac)
-         cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
-         wall_tim(2) = util_wallsec() - wall_tim(2)
-c     
-c     contribution from Re(Dab) and Re(Dba)
-c     
-         call ga_transpose(g_dens(5),g_dens(3)) !5=Re(Dab),3=Re(Dba)
-         call ga_dadd(dble(1.0d0),g_dens(5),dble(1.0d0),g_dens(3),
-     &        g_dens(1))
-         call ga_dadd(dble(1.0d0),g_dens(5),dble(-1.0d0),g_dens(3),
-     &        g_dens(2))
-         call ga_symmetrize(g_dens(1))
-         call ga_symmetrize(g_dens(2))
-         call grad2(
-     $        dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
-     $        dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
-     $        dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
-     $        dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
-     $        dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
-     $        dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
-     $        dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
-     $        dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
-     $        dbl_mb(k_frc_2el), g_dens, g_force, blen,
-     $        geom, basis, nproc, nat, 
-     $        lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
-     $        int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
-     $        tol2e, nsh, 
-     $        log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
-     $        dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
-     $        dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
-     $        nshblocks,
-     $        int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
-     $        int_mb(k_bfglo), int_mb(k_bfghi), 
-     $        int_mb(k_bfmap), int_mb(k_rbfmap), 
-     $        int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
-     $        dble(0.0d0), dble(1.0d0)*kfac)
-         cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
-         wall_tim(2) = util_wallsec() - wall_tim(2)
-c     
-c     contribution from Im(Dab) and Im(Dba)
-c     
-         call ga_transpose(g_dens(6),g_dens(3)) !5=Im(Dab),3=Im(Dba)
-         call ga_dadd(dble(1.0d0),g_dens(6),dble(1.0d0),g_dens(3),
-     &        g_dens(1))
-         call ga_dadd(dble(1.0d0),g_dens(6),dble(-1.0d0),g_dens(3),
-     &        g_dens(2))
-         call ga_symmetrize(g_dens(1))
-         call ga_symmetrize(g_dens(2))
-         call grad2(
-     $        dbl_mb(ld_ij), dbl_mb(ld_kl), dbl_mb(ld_ik),
-     $        dbl_mb(ld_jl), dbl_mb(ld_il), dbl_mb(ld_jk), 
-     $        dbl_mb(ld_ij2),dbl_mb(ld_kl2),dbl_mb(ld_ik2),
-     $        dbl_mb(ld_jl2),dbl_mb(ld_il2),dbl_mb(ld_jk2),
-     $        dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
-     $        dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
-     $        dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
-     $        dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
-     $        dbl_mb(k_frc_2el), g_dens, g_force, blen,
-     $        geom, basis, nproc, nat, 
-     $        lscratch, dbl_mb(k_scr), lbuf, dbl_mb(k_buf), 
-     $        int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
-     $        tol2e, nsh, 
-     $        log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
-     $        dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
-     $        dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
-     $        nshblocks,
-     $        int_mb(k_shmap), int_mb(k_shglo), int_mb(k_shghi), 
-     $        int_mb(k_bfglo), int_mb(k_bfghi), 
-     $        int_mb(k_bfmap), int_mb(k_rbfmap), 
-     $        int_mb(k_bftoat), int_mb(k_shbflo), int_mb(k_shbfhi),
-     $        dble(0.0d0), dble(-1.0d0)*kfac)
-         cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
-         wall_tim(2) = util_wallsec() - wall_tim(2)
-      endif
+     $     jfac, kfac, exso)
+      cpu_tim(2)  = util_cpusec()  - cpu_tim(2)
+      wall_tim(2) = util_wallsec() - wall_tim(2)
 c     
 c     terminate integrals
 c     
