@@ -4027,8 +4027,8 @@ C
  9991 FORMAT(' COLLINEAR ATOMS FOUND. DO -LINEAR BENDS- ... ')
       END
       SUBROUTINE HND_ZMTYP3(NZVAR,NIZMAT,IZMAT,mxizmt,C,
-     1                      NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
-     2                                       IJKLTO,NUMTOR)
+     1     NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,
+     2     IJKLTO,NUMTOR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (ITHREE=3)
       PARAMETER (MXATOM=500)        
@@ -4053,21 +4053,23 @@ C
       DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
-C
+C     
       DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
-     1                (C(2,IAT)-C(2,JAT))**2+
-     2                (C(3,IAT)-C(3,JAT))**2
+     1     (C(2,IAT)-C(2,JAT))**2+
+     2     (C(3,IAT)-C(3,JAT))**2
       DOTPRD(IAT,JAT,KAT)=(C(1,IAT)-C(1,JAT))*(C(1,KAT)-C(1,JAT))+
-     1                    (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
-     2                    (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
-C
+     1     (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
+     2     (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
+C     
       DBUG=.FALSE.
       IF(DBUG) THEN
          WRITE(IW,9999)
       ENDIF
-C
+c     
+      max_tor_per_bond = 1      ! Minimize torsions
+C     
 C     ----- TORSIONS -----
-C
+C     
       NBOND=NBNDS
       DO IJBND=1,NBOND
          IJBOND(1,IJBND)=IJBNDS(1,IJBND)
@@ -4077,9 +4079,9 @@ C
          IIBOND(IAT)=IIBNDS(IAT)
          NIBOND(IAT)=NIBNDS(IAT)
       ENDDO
-C
+C     
       IF(NAT.LE.3) RETURN
-C
+C     
       NTOR=0
       DO IAT=1,NAT
          DO IJBND=IIBOND(IAT)+1,IIBOND(IAT)+NIBOND(IAT)
@@ -4090,6 +4092,7 @@ C
                CALL HND_HNDERR(3,ERRMSG)
             ENDIF
             JAT=JCON
+            ntor_for_ij = 0
             IF(NIBOND(JAT).GT.1) THEN
                DO JKBND=IIBOND(JAT)+1,IIBOND(JAT)+NIBOND(JAT)
                   JCON=IJBOND(1,JKBND)
@@ -4116,17 +4119,21 @@ C
      $                             jat.ne.kat .and.
      $                             jat.ne.lat .and.
      $                             kat.ne.lat) then
-                              IF(NTOR.EQ.MXTORS) THEN
-                                 WRITE(IW,*) 'TOO MANY TORSIONS',
-     1                                       ' NTOR, MXTORS = ',NTOR,
-     2                                       MXTORS
-                                 CALL HND_HNDERR(3,ERRMSG)
-                              ENDIF
+                                 IF(NTOR.EQ.MXTORS) THEN
+                                    WRITE(IW,*) 'TOO MANY TORSIONS',
+     1                                   ' NTOR, MXTORS = ',NTOR,
+     2                                   MXTORS
+                                    CALL HND_HNDERR(3,ERRMSG)
+                                 ENDIF
                                  NTOR=NTOR+1
                                  IJKLTO(1,NTOR)=IAT
                                  IJKLTO(2,NTOR)=JAT
                                  IJKLTO(3,NTOR)=KAT
                                  IJKLTO(4,NTOR)=LAT
+c     
+                                 ntor_for_ij = ntor_for_ij + 1
+                                 if (ntor_for_ij.eq.max_tor_per_bond)
+     $                                goto 1212 ! Next ij
                               endif
                            ENDIF
                         ENDDO
@@ -4134,6 +4141,7 @@ C
                   ENDIF
                ENDDO
             ENDIF
+ 1212       continue            ! Jump here for next ij
          ENDDO
       ENDDO
       IF(DBUG) THEN
@@ -4141,15 +4149,15 @@ C
             WRITE(IW,9994)
             DO MTOR=1,NTOR
                WRITE(IW,9993) MTOR,IJKLTO(1,MTOR),IJKLTO(2,MTOR),
-     1                             IJKLTO(3,MTOR),IJKLTO(4,MTOR)
+     1              IJKLTO(3,MTOR),IJKLTO(4,MTOR)
             ENDDO
          ELSE
             WRITE(IW,9992)
          ENDIF
       ENDIF
-C
+C     
 C     ----- ELIMINATE DUPLICATES AND CLEAN UP -----
-C
+C     
       IF(NTOR.GE.2) THEN
          DO ITOR=1,NTOR-1
             II=IJKLTO(1,ITOR)
@@ -4181,106 +4189,106 @@ C
             ENDIF
          ENDDO
       ENDIF
-C
+C     
       ITOR=0
-  100 ITOR=ITOR+1
+ 100  ITOR=ITOR+1
       IF(ITOR.GT.NTOR) GO TO 110
-         IF(IJKLTO(1,ITOR).EQ.0) THEN
-            IF(ITOR.LT.NTOR) THEN
-               DO JTOR=ITOR+1,NTOR
-                  IJKLTO(1,JTOR-1)=IJKLTO(1,JTOR)
-                  IJKLTO(2,JTOR-1)=IJKLTO(2,JTOR)
-                  IJKLTO(3,JTOR-1)=IJKLTO(3,JTOR)
-                  IJKLTO(4,JTOR-1)=IJKLTO(4,JTOR)
-               ENDDO
-               ITOR=ITOR-1
+      IF(IJKLTO(1,ITOR).EQ.0) THEN
+         IF(ITOR.LT.NTOR) THEN
+            DO JTOR=ITOR+1,NTOR
+               IJKLTO(1,JTOR-1)=IJKLTO(1,JTOR)
+               IJKLTO(2,JTOR-1)=IJKLTO(2,JTOR)
+               IJKLTO(3,JTOR-1)=IJKLTO(3,JTOR)
+               IJKLTO(4,JTOR-1)=IJKLTO(4,JTOR)
+            ENDDO
+            ITOR=ITOR-1
+         ENDIF
+         NTOR=NTOR-1
+      ELSE
+         RIJSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(2,ITOR))
+         RIJ  =SQRT(RIJSQ)
+         RJKSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(3,ITOR))
+         RJK  =SQRT(RJKSQ)
+         RKLSQ=DISTSQ(IJKLTO(3,ITOR),IJKLTO(4,ITOR))
+         RKL  =SQRT(RKLSQ)
+         RIKSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(3,ITOR))
+         RJLSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(4,ITOR))
+         COSBJ=(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
+         COSBK=(RJKSQ+RKLSQ-RJLSQ)/(TWO*RJK*RKL)
+         DUM  =ABS(COSBJ)-ONE
+         IF(DUM.GT.ZERO) THEN
+            IF(DUM.LE.TOL) THEN
+               LINIJK=.TRUE.
+            ELSE
+               WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
+               CALL HND_HNDERR(3,ERRMSG)
             ENDIF
-            NTOR=NTOR-1
          ELSE
-            RIJSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(2,ITOR))
-            RIJ  =SQRT(RIJSQ)
-            RJKSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(3,ITOR))
-            RJK  =SQRT(RJKSQ)
-            RKLSQ=DISTSQ(IJKLTO(3,ITOR),IJKLTO(4,ITOR))
-            RKL  =SQRT(RKLSQ)
-            RIKSQ=DISTSQ(IJKLTO(1,ITOR),IJKLTO(3,ITOR))
-            RJLSQ=DISTSQ(IJKLTO(2,ITOR),IJKLTO(4,ITOR))
-            COSBJ=(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
-            COSBK=(RJKSQ+RKLSQ-RJLSQ)/(TWO*RJK*RKL)
-            DUM  =ABS(COSBJ)-ONE
-            IF(DUM.GT.ZERO) THEN
-               IF(DUM.LE.TOL) THEN
-                  LINIJK=.TRUE.
-               ELSE
-                  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
+            DUM=-DUM
+            IF(DUM.LE.TOL) THEN
+               LINIJK=.TRUE.
             ELSE
-               DUM=-DUM
-               IF(DUM.LE.TOL) THEN
-                   LINIJK=.TRUE.
-               ELSE
-                  LINIJK=.FALSE.
-               ENDIF
-            ENDIF
-            DUM  =ABS(COSBK)-ONE
-            IF(DUM.GT.ZERO) THEN
-               IF(DUM.LE.TOL) THEN
-                  LINJKL=.TRUE.
-               ELSE
-                  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
-                  CALL HND_HNDERR(3,ERRMSG)
-               ENDIF
-            ELSE
-               DUM=-DUM
-               IF(DUM.LE.TOL) THEN
-                   LINJKL=.TRUE.
-               ELSE
-                  LINJKL=.FALSE.
-               ENDIF
-            ENDIF
-            IF(.NOT.LINIJK.AND..NOT.LINJKL) THEN
-               if (nizmat+5 .gt. mxizmt) call errquit
-     $              ('autoz torsions: too many internals. reduce '//
-     $              'cvr_scaling or individual radii',0)
-                IZMAT(NIZMAT+1)=ITHREE
-                IZMAT(NIZMAT+2)=IJKLTO(1,ITOR)
-                IZMAT(NIZMAT+3)=IJKLTO(2,ITOR)
-                IZMAT(NIZMAT+4)=IJKLTO(3,ITOR)
-                IZMAT(NIZMAT+5)=IJKLTO(4,ITOR)
-               NIZMAT=NIZMAT+5
-               NZVAR =NZVAR +1
+               LINIJK=.FALSE.
             ENDIF
          ENDIF
-         GO TO 100
-  110 CONTINUE
-C
+         DUM  =ABS(COSBK)-ONE
+         IF(DUM.GT.ZERO) THEN
+            IF(DUM.LE.TOL) THEN
+               LINJKL=.TRUE.
+            ELSE
+               WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
+               CALL HND_HNDERR(3,ERRMSG)
+            ENDIF
+         ELSE
+            DUM=-DUM
+            IF(DUM.LE.TOL) THEN
+               LINJKL=.TRUE.
+            ELSE
+               LINJKL=.FALSE.
+            ENDIF
+         ENDIF
+         IF(.NOT.LINIJK.AND..NOT.LINJKL) THEN
+            if (nizmat+5 .gt. mxizmt) call errquit
+     $           ('autoz torsions: too many internals. reduce '//
+     $           'cvr_scaling or individual radii',0)
+            IZMAT(NIZMAT+1)=ITHREE
+            IZMAT(NIZMAT+2)=IJKLTO(1,ITOR)
+            IZMAT(NIZMAT+3)=IJKLTO(2,ITOR)
+            IZMAT(NIZMAT+4)=IJKLTO(3,ITOR)
+            IZMAT(NIZMAT+5)=IJKLTO(4,ITOR)
+            NIZMAT=NIZMAT+5
+            NZVAR =NZVAR +1
+         ENDIF
+      ENDIF
+      GO TO 100
+ 110  CONTINUE
+C     
       IF(DBUG) THEN
          IF(NTOR.GT.1) THEN
             WRITE(IW,9994)
             DO MTOR=1,NTOR
                WRITE(IW,9993) MTOR,IJKLTO(1,MTOR),IJKLTO(2,MTOR),
-     1                             IJKLTO(3,MTOR),IJKLTO(4,MTOR)
+     1              IJKLTO(3,MTOR),IJKLTO(4,MTOR)
             ENDDO
          ELSE
             WRITE(IW,9992)
          ENDIF
       ENDIF
-C
+C     
       IF(DBUG) THEN
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
          WRITE(IW,*)    'NZVAR = ',NZVAR
       ENDIF
-C
+C     
       RETURN
  9999 FORMAT(' IN -ZMTYP3- ',/,' ----------- ')
  9998 FORMAT(' $ZMAT  ',/,' IZMAT= ')
  9997 FORMAT(12(I4,1H,))
  9996 FORMAT(' $END   ')
  9995 FORMAT(' SOMETHING WRONG WITH BOND ',I2,' OF ATOM ',I4,
-     1       ' WITH -ICON-, -JCON- = ',2I5)
+     1     ' WITH -ICON-, -JCON- = ',2I5)
  9994 FORMAT(' TABLE OF TORSIONS = ')
  9993 FORMAT(5I5)
  9992 FORMAT(' NO TORSIONS FOUND ')
