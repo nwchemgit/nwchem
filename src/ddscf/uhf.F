@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
+C$Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -179,7 +179,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
+C     $Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -458,7 +458,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
+C$Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -549,7 +549,7 @@ c
 #include "util.fh"
 #include "cscfps.fh"
 c     
-c     $Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
+c     $Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -1035,7 +1035,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.34 1997-03-30 20:58:51 d3g681 Exp $
+C$Id: uhf.F,v 1.35 1997-04-01 18:00:39 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -1230,7 +1230,7 @@ c
       logical oprintmulliken, oprintmultipole
 c
       integer len_moments, lmax
-      parameter (lmax = 3)
+      parameter (lmax = 2)
       parameter (len_moments = (lmax+1)*(lmax+2)*(lmax+3)/6)
       double precision totalmoments(len_moments) 
       double precision alphamoments (len_moments)

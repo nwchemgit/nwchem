@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.18 1997-02-17 17:53:51 d3g681 Exp $
+C$Id: rohf.F,v 1.19 1997-04-01 18:00:38 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -159,7 +159,7 @@ c
       logical oprintmulliken, oprintmultipole
 c
       integer len_moments, lmax
-      parameter (lmax = 3)
+      parameter (lmax = 2)
       parameter (len_moments = (lmax+1)*(lmax+2)*(lmax+3)/6)
       double precision totalmoments(len_moments) 
       double precision openmoments (len_moments)
