@@ -19,6 +19,10 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     int numframes=0;
     Vector frames = new Vector(10,5);
     double data[];
+
+    JFileChooser dataChooser;
+    PrintWriter prop;
+    ExtensionFilter dataFilter;
     
     DefaultListModel propList = new DefaultListModel();
     
@@ -34,6 +38,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     JButton clearButton = new JButton("clear");
     JButton plotButton = new JButton("plot");
     JButton plotpButton = new JButton("plot+");
+    JButton writeButton = new JButton("write");
     JButton newButton = new JButton("new");
     JButton appendButton = new JButton("append");
     JButton doneButton = new JButton("done");
@@ -62,6 +67,10 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     dialogFrame = new JFrame();
     dialogFrame.setSize(300,400);
     chooser.showOpenDialog(dialogFrame);
+
+    dataChooser = new JFileChooser("./");
+    dataFilter = new ExtensionFilter(".dat");
+    dataChooser.setFileFilter(dataFilter);
 
     JPanel header = new JPanel();
     header.setLayout(new GridBagLayout());
@@ -95,13 +104,15 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
     addComponent(header,plotpButton,5,3,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,clearButton,6,3,1,1,1,1,
+    addComponent(header,writeButton,6,3,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,appendButton,4,2,1,1,1,1,
+    addComponent(header,clearButton,7,3,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,newButton,5,2,1,1,1,1,
+    addComponent(header,newButton,4,2,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
-    addComponent(header,doneButton,6,2,1,1,1,1,
+    addComponent(header,appendButton,5,2,1,1,1,1,
+    		 GridBagConstraints.NONE,GridBagConstraints.WEST);
+    addComponent(header,doneButton,7,2,1,1,1,1,
     		 GridBagConstraints.NONE,GridBagConstraints.WEST);
 
     doneButton.addActionListener(new ActionListener(){
@@ -114,6 +125,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 
     plotButton.addActionListener(this);
     plotpButton.addActionListener(this);
+    writeButton.addActionListener(this);
     clearButton.addActionListener(this);
 
     appendButton.addActionListener(new ActionListener(){
@@ -137,7 +149,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 
     appendData(chooser.getSelectedFile().toString());
 
-    pList.setVisibleRowCount(30);
+    pList.setVisibleRowCount(15);
 
   }	
 
@@ -267,6 +279,49 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 	prp_plot.fillPlot();
 	//	prp_plot.drawPlot(prp_plot.getGraphics(),true);
       };    
+    };
+    if(e.getSource()==writeButton){
+      if(xIndex>0&&yIndex>0) {
+	int ix1 = propList.getElementAt(xIndex-1).toString().indexOf("    ");
+	int ix2 = propList.getElementAt(xIndex-1).toString().lastIndexOf("    ")+3;
+	int lx =  propList.getElementAt(xIndex-1).toString().length();
+	String xLab = new String();
+	String yLab = new String();
+	if(ix1>0&&ix2>ix1) {
+	  if(ix2<lx-1) {
+	    xLab=propList.getElementAt(xIndex-1).toString().substring(0,ix1)+" /"+propList.getElementAt(xIndex-1).toString().substring(ix2,lx);
+	  } else {
+	    xLab=propList.getElementAt(xIndex-1).toString().substring(0,ix1);
+	  };
+	} else {
+	  xLab=propList.getElementAt(xIndex-1).toString();
+	};
+	ix1 = propList.getElementAt(yIndex-1).toString().indexOf("    ");
+	ix2 = propList.getElementAt(yIndex-1).toString().lastIndexOf("    ")+3;
+	lx =  propList.getElementAt(yIndex-1).toString().length();
+	if(ix1>0&&ix2>ix1) {
+	  if(ix2<lx-1) {
+	    yLab=propList.getElementAt(yIndex-1).toString().substring(0,ix1)+" /"+propList.getElementAt(yIndex-1).toString().substring(ix2,lx);
+	  } else {
+	    yLab=propList.getElementAt(yIndex-1).toString().substring(0,ix1);
+	  };
+	} else {
+	  yLab=propList.getElementAt(yIndex-1).toString();
+	};
+	try{ 
+	    dataChooser.showOpenDialog(dialogFrame);
+	    prop = new PrintWriter( new FileWriter(dataChooser.getSelectedFile().toString()));
+	    prop.println("# "+xLab);
+	    prop.println("# "+yLab);
+	    for(int i=0; i<numframes; i++){
+		data = new double[numprop];
+		data=(double[])frames.elementAt(i);
+		prop.println(data[xIndex-1]+" "+data[yIndex-1]);
+	    };
+	    prop.close();
+	} catch (Exception ee) { System.out.println("Error writing to property file"); };
+      };
+	
     };
   }
 
