@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.16 2003-02-04 01:58:41 marat Exp $
+* $Id: paw_ovlp.F,v 1.17 2003-02-08 01:43:26 bylaska Exp $
 *
 
 !**************************************************
@@ -151,6 +151,10 @@ c              write(*,*) "i1,i2,total_nbasis,m:",i1,i2,total_nbasis,m
       external psi_ne 
       real*8 lattice_omega
       external lattice_omega
+
+
+c     !*** total number of electron states ***
+      neall = (psi_ne(1) + psi_ne(2))
 
       call Pack_npack(1,npack1)
 
