@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.121 1999-06-22 01:21:19 edo Exp $
+c     $Id: dft_scf.F,v 1.122 1999-06-25 17:08:02 edo Exp $
 c     
       implicit none
 c
@@ -116,7 +116,7 @@ c
       double precision ssmear
       integer l_ir, k_ir
       logical last_time_energy
-      logical check_shift, lmaxov_sv
+      logical check_shift, lmaxov_sv,check_deg
       character*7 name
       character*4 scftype
       character*7 vecs_or_dens
@@ -167,6 +167,9 @@ c
      &   ssmear))then
         if(me.eq.0) write(0,*) ' SMEAR = ',ssmear
       endif
+      check_deg=.false.
+      if (rtdb_get(rtdb, 'dft:smear_sigma', mt_log, 1,
+     &   ssmear))check_deg=.true.
 c
 c     see if levelshifting monitoring is desired
 c
@@ -340,9 +343,9 @@ c
          if (availm_r.lt.n3c_dbl_r)then
 c
 c           cannot all be done incore so let's restrict memory use to a
-c           max of 3 MW for semi-direct (I/O)
+c           max of 6 MW for semi-direct (I/O)
 c
-            availm_r = min(availm_r,3d+6)
+            availm_r = min(availm_r,6d+6)
          endif
          n3c_dbl = nint(availm_r)
          if (me.eq.0 .and. oprint_parm)
@@ -533,7 +536,7 @@ C	if(ssmear.gt.1.d-9.and.movecs_in.ne.'atomic'.and.
      &        nbf_ao, ipol, 
      &        geom, AO_bas_han,noc,ntotel,
      &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &        ssmear,tdots,iter,.false.,mult)
+     &        ssmear,tdots,iter,.false.,mult,check_deg)
 c
 c     compute the integrated density (numerical)
 c
@@ -1080,7 +1083,7 @@ c
      &     nbf_ao, ipol, 
      &     geom, AO_bas_han,noc,ntotel,
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &     ssmear,tdots,iter,.true.,mult)
+     &     ssmear,tdots,iter,.true.,mult,check_deg)
       
       if(ssmear.gt.1d-9.and.ipol.eq.2.and.(noc(2).gt.noc(1))) then
 c
@@ -1590,6 +1593,14 @@ c
      &        nbf_ao,g_dens(1),g_dens(2))
 
       endif
+c
+c     write to rtdb that fractional occupancy exists
+c
+      if(check_deg.or.ssmear.gt.1d-9) then
+      if (rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
+     &   .true.))call errquit('dftscf: cannot write rtdb',1)
+      endif
+
 c     
 c     computation of moments
 c

@@ -1,8 +1,8 @@
       subroutine dft_densm(g_dens,g_vecs,nbf,ipol,
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
-     ,     iter,search0,mult)
-C$Id: dft_densm.F,v 1.8 1999-06-22 19:20:21 edo Exp $
+     ,     iter,search0,mult,check_deg)
+C$Id: dft_densm.F,v 1.9 1999-06-25 17:08:01 edo Exp $
       implicit none
 #include "bas.fh"
 #include "geom.fh"
@@ -23,7 +23,7 @@ C$Id: dft_densm.F,v 1.8 1999-06-22 19:20:21 edo Exp $
       double precision evals(ipol*nbf)
       double precision ssmear       ! smearing sigma
       double precision tdots       ! total energy
-      logical search0
+      logical search0,check_deg
       integer mult
 c
       integer i,isp,g_tmp
@@ -57,7 +57,7 @@ c      nproc=1
 c
 c     check degener
 c
-      if (ipol.eq.2.and.
+      if (check_deg.and.ipol.eq.2.and.
      .     dft_checkdg(evals,nbf,ntotel,focc,noc,ipol,me,mult)) then
 c      if(ga_nodeid().eq.0) write(6,*) ' DEGEGEG'
           do isp=1,ipol
