@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.4 2000-07-10 23:02:43 edo Exp $
+C$Id: dftg_gridssw.F,v 1.5 2000-10-19 01:27:13 edo Exp $
 c
       implicit none
       logical grid_written
@@ -330,28 +330,23 @@ c
       enddo
  3300 continue
       enddo ! n loop
-      n=1
- 111  if(n.le.nq) then
-      if(abs(qwght(n)).lt.toll.and.lscreen) then
-         do j=n,nq
-            qwght(j)=qwght(j+1)
-            qxyz(1,j)=qxyz(1,j+1)
-            qxyz(2,j)=qxyz(2,j+1)
-            qxyz(3,j)=qxyz(3,j+1)
-         enddo
-         do i=1,nctrs_pruned
-            do j=n,nq
-               d_qwght(1,j,i)=d_qwght(1,j+1,i)
-               d_qwght(2,j,i)=d_qwght(2,j+1,i)
-               d_qwght(3,j,i)=d_qwght(3,j+1,i)
-            enddo
-         enddo
-         nq=nq-1
-      else
-         n=n+1
-      endif
-      goto 111
-      
-      endif
+      n=0
+      do j=1,nq
+         if(abs(qwght(j)).lt.toll.and.lscreen) then
+            n=n+1
+         else
+            if(n.ne.0) then
+               qwght(j-n)=qwght(j)
+               qxyz(1,j-n)=qxyz(1,j)
+               qxyz(2,j-n)=qxyz(2,j)
+               qxyz(3,j-n)=qxyz(3,j)
+               do i=1,nctrs_pruned
+                  d_qwght(1,j-n,i)=d_qwght(1,j,i)
+                  d_qwght(2,j-n,i)=d_qwght(2,j,i)
+                  d_qwght(3,j-n,i)=d_qwght(3,j,i)
+               enddo
+            endif
+         endif
+      enddo
       return
       end

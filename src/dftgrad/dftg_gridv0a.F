@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, cetobfr)
 c      
-c     $Id: dftg_gridv0a.F,v 1.13 2000-10-17 21:21:39 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.14 2000-10-19 01:27:14 edo Exp $
 c     
       implicit none
 #include "bas.fh"
@@ -219,14 +219,16 @@ c
       if (.not.ma_pop_stack(lrqbuf))
      &     call errquit('dftg_gridv0a: cannot pop stack', 0)
 c
-      if (.not.MA_Pop_Stack(ldocset))
-     &     call errquit('dftg_gridv0a: pop stack failed.',3)
       if(donewbf) then
-      if (.not.MA_Pop_Stack(lbas_cset_info))
-     &     call errquit('dftg_gridv0a: pop stack failed.',2)
-      if (.not.MA_Pop_Stack(lbas_cent_info))
-     &     call errquit('dftg_gridv0a: pop stack failed.',1)
+!         if (.not.MA_Pop_Stack(ibas_cset_info))
+!     &        call errquit('dftg_gridv0a: pop stack failed.',1)
+         if (.not.MA_Pop_Stack(lbas_cset_info))
+     &        call errquit('dftg_gridv0a: pop stack failed.',2)
+         if (.not.MA_Pop_Stack(lbas_cent_info))
+     &        call errquit('dftg_gridv0a: pop stack failed.',3)
       endif
+      if (.not.MA_Pop_Stack(ldocset))
+     &     call errquit('dftg_gridv0a: pop stack failed.',4)
 c
       return
       end
