@@ -1202,9 +1202,34 @@ $V^{x}_{\Phi\Omega}$ itself remains to contracted.  This entirely
 avoids the backtransformation, but it is not yet clear if this step is
 useful in practice or not.
 
-
 \end{changebar}
 
+\subsection{Use of Fock Builds}
+
+{\em (This discussion actually applies equally to the exact and the RI
+codes.) }
+
+The first Fock build is used to compute the $L^{3} + L^{4}$ Lagrangian
+contributions.  Recall the original equations,
+\begin{eqnarray}
+  L^3_{pn} & = & 2 \Ptwo_{ab} \bra ap || bn \ket + 2 \Ptwo_{ij} \bra ip
+  || jn \ket \\
+  T_{\mu \nu} & = & - \left(C_{\mu i} C_{\nu y} + C_{\nu i} C_{\mu y}
+  \right) L_{iy} \left( \epsilon_i - \epsilon_y \right)^{-1} \\
+   L^4_{pq} & = & J[T]_{pq} - K[T]_{pq}
+\end{eqnarray}
+and the definition of of the occupied-core part of $P^{(2)}$, 
+\begin{equation}
+  \Ptwo_{iy} = \half L^1_{yi} \left( \epsilon_i -  \epsilon_y  \right)^{-1},
+\end{equation}
+and it becomes clear that the effective density used to compute
+$L^{4}$ is simply twice the occupied-core block of $\Ptwo$.  In fact,
+we can write $L^{4}$ in the same form as $L^{3}$, 
+\begin{equation}
+  L^4_{pq} = 2 \Ptwo_{iy} \bra ip || yq \ket ,
+\end{equation}
+making it clear that we can easily combine their evaluation into a
+single invocation of the Fock-build routine.
 
 
 \end{document}
