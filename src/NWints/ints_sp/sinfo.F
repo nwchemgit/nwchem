@@ -4,7 +4,7 @@
      $     ksh, lk, ck, ek, ngk, xk,
      $     lsh, ll, cl, el, ngl, xl,
      $     jtype)
-c $Id: sinfo.F,v 1.1 1994-04-06 23:52:05 d3e129 Exp $
+c $Id: sinfo.F,v 1.2 1994-04-08 20:35:15 d3g681 Exp $
       implicit none
 c     
 c     Takes info about centers and shells, precomputes some axis
@@ -76,46 +76,111 @@ c
       if(ijshel .ne. ijshlo) then
          nga = ngi
          ngb = ngj
-         la  = li
-         lb  = lj
+         la  = abs(li)
+         lb  = abs(lj)
          ngangb = nga*ngb
          mab = la+lb-1
-         do i = 1, nga
-            cmaxa(i) = abs(ci(i,1))
-            if (la .eq. 1) cmaxa(i) = max(cmaxa(i),abs(ci(i,2)))
-            ag(i)    = ei(i)
-            csa(i)   = ci(i,1)
-            cpa(i)   = ci(i,2)
-         enddo
-         do j = 1, ngb
-            cmaxb(j) = abs(cj(j,1))
-            if (lb .eq. 1) cmaxb(j) = max(cmaxb(j),abs(cj(j,2)))
-            bg(j)    = ej(j)
-            csb(j)   = cj(j,1)
-            cpb(j)   = cj(j,2)
-         enddo
+c
+c     If sp shell then ci(*,1) = s coeffs, ci(*,2) = p coeffs
+c     If s  shell then ci(*,1) = s coeffs, no p coeffs
+c     If p  shell then ci(*,1) = p coeffs, no s coeffs
+c
+         if (li .eq. -1) then
+            do i = 1, nga
+               cmaxa(i) = max(abs(ci(i,1)),abs(ci(i,2)))
+               ag(i)    = ei(i)
+               csa(i)   = ci(i,1)
+               cpa(i)   = ci(i,2)
+            enddo
+         else if (li .eq. 0) then
+            do i = 1, nga
+               cmaxa(i) = abs(ci(i,1))
+               ag(i)    = ei(i)
+               csa(i)   = ci(i,1)
+               cpa(i)   = 0.0d0
+            enddo
+         else
+            do i = 1, nga
+               cmaxa(i) = abs(ci(i,1))
+               ag(i)    = ei(i)
+               csa(i)   = 0.0d0
+               cpa(i)   = ci(i,1)
+            enddo
+         endif
+         if (lj .eq. -1) then
+            do j = 1, ngb
+               cmaxb(j) = max(abs(cj(j,1)),abs(cj(j,2)))
+               bg(j)    = ej(j)
+               csb(j)   = cj(j,1)
+               cpb(j)   = cj(j,2)
+            enddo
+         else if (lj .eq. 0) then
+            do j = 1, ngb
+               cmaxb(j) = abs(cj(j,1))
+               bg(j)    = ej(j)
+               csb(j)   = cj(j,1)
+               cpb(j)   = 0.0d0
+            enddo
+         else
+            do j = 1, ngb
+               cmaxb(j) = abs(cj(j,1))
+               bg(j)    = ej(j)
+               csb(j)   = 0.0d0
+               cpb(j)   = cj(j,1)
+            enddo
+         endif
       endif
 c     
       if(klshel .ne. klshlo) then
 *     klshlo = klshel
          ngc = ngk
          ngd = ngl
-         lc  = lk
-         ld  = ll
-         do k = 1, ngc
-            cmaxc(k) = abs(ck(k,1))
-            if (lc .eq. 1) cmaxc(k) = max(cmaxc(k),abs(ck(k,2)))
-            cg(k)    = ek(k)
-            csc(k)   = ck(k,1)
-            cpc(k)   = ck(k,2)
-         enddo
-         do l = 1, ngd
-            cmaxd(l) = abs(cl(l,1))
-            if (ld .eq. 1) cmaxd(l) = max(cmaxd(l),abs(cl(l,2)))
-            dg(l)    = el(l)
-            csd(l)   = cl(l,1)
-            cpd(l)   = cl(l,2)
-         enddo
+         lc  = abs(lk)
+         ld  = abs(ll)
+         if (lk .eq. -1) then
+            do k = 1, ngc
+               cmaxc(k) = max(abs(ck(k,1)),abs(ck(k,2)))
+               cg(k)    = ek(k)
+               csc(k)   = ck(k,1)
+               cpc(k)   = ck(k,2)
+            enddo
+         else if (lk .eq. 0) then
+            do k = 1, ngc
+               cmaxc(k) = abs(ck(k,1))
+               cg(k)    = ek(k)
+               csc(k)   = ck(k,1)
+               cpc(k)   = 0.0d0
+            enddo
+         else
+            do k = 1, ngc
+               cmaxc(k) = abs(ck(k,1))
+               cg(k)    = ek(k)
+               csc(k)   = 0.0d0
+               cpc(k)   = ck(k,1)
+            enddo
+         endif
+         if (ll .eq. -1) then
+            do l = 1, ngd
+               cmaxd(l) = max(abs(cl(l,1)),abs(cl(l,2)))
+               dg(l)    = el(l)
+               csd(l)   = cl(l,1)
+               cpd(l)   = cl(l,2)
+            enddo
+         else if (ll .eq. 0) then
+            do l = 1, ngd
+               cmaxd(l) = abs(cl(l,1))
+               dg(l)    = el(l)
+               csd(l)   = cl(l,1)
+               cpd(l)   = 0.0d0
+            enddo
+         else
+            do l = 1, ngd
+               cmaxd(l) = abs(cl(l,1))
+               dg(l)    = el(l)
+               csd(l)   = 0.0d0
+               cpd(l)   = cl(l,1)
+            enddo
+         endif
       endif
 c     
 c     fill common misc

@@ -1,6 +1,6 @@
       subroutine genr70(bra, ish, xi, jsh, xj, ket, ksh, xk, lsh, xl,
      $     eri)
-c $Id: genr70.F,v 1.1 1994-04-06 23:51:51 d3e129 Exp $
+c $Id: genr70.F,v 1.2 1994-04-08 20:35:14 d3g681 Exp $
 c
 c     Generic interface to the gaussian two electron integral package.
 c     Evaluates those integrals involving only s, p and sp functions.
@@ -62,10 +62,10 @@ c
       ush(2) = ibs_cn2ucn(jsh,bas(2))
       ush(3) = ibs_cn2ucn(ksh,bas(3))
       ush(4) = ibs_cn2ucn(lsh,bas(4))
-      typ(1) = abs(infbs_cont(CONT_TYPE,ush(1),bas(1)))
-      typ(2) = abs(infbs_cont(CONT_TYPE,ush(2),bas(2)))
-      typ(3) = abs(infbs_cont(CONT_TYPE,ush(3),bas(3)))
-      typ(4) = abs(infbs_cont(CONT_TYPE,ush(4),bas(4)))
+      typ(1) = infbs_cont(CONT_TYPE,ush(1),bas(1))
+      typ(2) = infbs_cont(CONT_TYPE,ush(2),bas(2))
+      typ(3) = infbs_cont(CONT_TYPE,ush(3),bas(3))
+      typ(4) = infbs_cont(CONT_TYPE,ush(4),bas(4))
       ib(1)  = 1
       ib(2)  = 2
       ib(3)  = 3
@@ -81,7 +81,9 @@ c     Put data into arrays so that
 c
 c     Figure out the necessary permutation
 c
-      itype = 8*typ(1) + 4*typ(2) + 2*typ(3) + typ(4) + 1
+      itype = 8*abs(typ(1)) + 4*abs(typ(2)) + 2*abs(typ(3)) +
+     $     abs(typ(4)) + 1
+c
       go to (120,120,160,120,180,120,160,120,220,140,200,140,180,180,
      +     240,120),itype
       call errquit('genr70: invalid shell types', itype)
@@ -233,10 +235,10 @@ c
       goto 1080
 c
 1080  continue
-      isht = infbs_cont(CONT_TYPE,ush(1),bas(1))
-      jsht = infbs_cont(CONT_TYPE,ush(2),bas(2))
-      ksht = infbs_cont(CONT_TYPE,ush(3),bas(3))
-      lsht = infbs_cont(CONT_TYPE,ush(4),bas(4))
+      isht = typ(1)
+      jsht = typ(2)
+      ksht = typ(3)
+      lsht = typ(4)
       ibinv(ib(1)) = 1
       ibinv(ib(2)) = 2
       ibinv(ib(3)) = 3
