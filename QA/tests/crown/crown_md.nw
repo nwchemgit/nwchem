@@ -7,12 +7,12 @@ cutoff 1.8
 leapfrog
 print step 1 stat 10 topol extra
 update pairs 1 center 0 rdf 0 
-record rest 0 prop 0 sync 0
+record rest 0 prop 0 
 record coord 0 scoor 0
 record veloc 0 svelo 0
 record ascii ecce
 record sync 1
 load pairs
-test 10
+test 10    #This is for tests only, not to be used by users
 end
 task md dynamics
