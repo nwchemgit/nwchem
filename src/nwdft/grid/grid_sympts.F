@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.19 2002-04-04 17:39:17 edo Exp $
+c$Id: grid_sympts.F,v 1.20 2003-08-08 21:03:11 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -242,7 +242,7 @@ c
       double precision ops(3,nops,*)
 c
       integer k,k1,h,n_equiv
-      double precision x,y,z,x1,y1,z1,ddd
+      double precision x,y,z,x1,y1,z1,ddd,www
       
 c
       do k=1,nq_left
@@ -251,6 +251,7 @@ c
             x=xyz(1) +gridscr(1,k)
             y=xyz(2) +gridscr(2,k)
             z=xyz(3) +gridscr(3,k)
+            www=gridscr(4,k)
             do h=1,nops_out
                x1=ops(1,h,1)*x+ops(1,h,2)*y+ops(1,h,3)*z-xyz(1)
                y1=ops(2,h,1)*x+ops(2,h,2)*y+ops(2,h,3)*z-xyz(2)
@@ -259,7 +260,7 @@ c
                   ddd=(x1-gridscr(1,k1))*(x1-gridscr(1,k1))+
      +                 (y1-gridscr(2,k1))*(y1-gridscr(2,k1))+
      +                 (z1-gridscr(3,k1))*(z1-gridscr(3,k1))
-                  if(ddd.lt.1d-10) then
+                  if(ddd.lt.1d-10.and.www.eq.gridscr(4,k1)) then
                      if(gridscr(4,k1).ne.0d0) then
                         gridscr(4,k1)=0d0
                         n_equiv=n_equiv+1
