@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.86 2000-10-23 15:51:25 windus Exp $
+c $Id: cf_main.F,v 1.87 2000-10-24 18:01:31 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2542,7 +2542,7 @@ c
 c
       integer iq
 c
-      cf_wcharge=cf_chg(int_mb(i_iwa+iq-1),dbl_mb(i_chg))
+      cf_wcharge=cf_chg(int_mb(i_iwq+iq-1),dbl_mb(i_chg))
       return
       end
       subroutine cf_num2nam(i,a)
