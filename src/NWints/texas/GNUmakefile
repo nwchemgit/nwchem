@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 1996-07-26 16:19:52 d3g681 Exp $
+# $Id: GNUmakefile,v 1.24 1996-08-19 17:55:42 d3g681 Exp $
  
 USE_TEXAS = YEP
 
@@ -29,7 +29,7 @@ ifeq ($(USE_TEXAS),YEP)
 		 texas_stubs.o \
                  uniq_pairs.o \
                  transfor.o\
-                 gencon.o
+                 gencon.o 
 #                test_calc2.o
 else
       OBJ = texas_stubs.o

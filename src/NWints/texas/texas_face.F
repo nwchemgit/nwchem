@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.27 1996-08-02 22:03:19 d3g681 Exp $
+c $Id: texas_face.F,v 1.28 1996-08-19 17:55:44 d3g681 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -434,7 +434,7 @@ c----------------------------------------------------------------------
 c Re-arrange a basis set according to the Texas convention
 c 1) normalize and 2) re-order
 c
-      call txsarrag(rtdb, dbl_mb, nq_init, l_blsize)
+      call txsarrag(rtdb, nq_init, l_blsize)
 c
 c----------------------------------------------------------------------
 c print out basis sets info (in fort.8 if iprint is >0)
@@ -486,8 +486,8 @@ c        call test_cent4(num_bas_2,num_bas_2, l_blsize)
 c
 c End of tests; program will be stopped here
 c
-*      call texas_terminate()
-*      STOP ' stopped by kw in texas_face '
+c       call texas_terminate()
+c       STOP ' stopped by kw in texas_face '
 c
 c End of tests; program stopped here
 c----------------------------------------------------------------------
@@ -799,7 +799,7 @@ c
 c
       end
 c=================================================================
-      subroutine txsarrag(rtdb, basnuc, nq_init, l_blsize)
+      subroutine txsarrag(rtdb, nq_init, l_blsize)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -849,8 +849,6 @@ c------------------------------------
       common /pnl008/ last_isupb,last_nparts
 c------------------------------------
       common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
-c------------------------------------
-      dimension basnuc(*)
 c------------------------------------
 c initialize commons number,ener,ganz,type :
 c
@@ -910,7 +908,7 @@ c only texas correction to the pnl norm :
 c
       iprint0=0
 CC--> call txs_cor_norm(bl,inx(inxx),ibas,inuc,ncs,iprint0)
-      call txs_cor_norm(basnuc,inx(inxx),ibas-1,inuc-1,ncs,iprint0)
+      call txs_cor_norm(dbl_mb,inx(inxx),ibas-1,inuc-1,ncs,iprint0)
 c------------------------------------
 c reserve memory for: ncfunct,ncshell and iny :
 c
@@ -927,22 +925,9 @@ c
 c------------------------------------
 c reorder the basis set according to TEXAS needs :
 c
-cmay15call reorder(ncs,inx(inxx),
-cmay15     dbl_mb(iny),dbl_mb(ncshell),dbl_mb(ncfunct) )
       call reorder(ncs,inx(inxx),
-     *   dbl_mb(iny),dbl_mb(ncshell),dbl_mb(ncfunct),basnuc(inuc))
-c------------------------------------
-C Old memory handling :
-c Re-order a basis set according to Texas requirement :
-c (remember the originally ordered basis set under bl(ncshell) )
-c
-c     call getmem(ncf,ncfunct)    ! cont.funct. : txs-->pnl
-c     call getmem(ncs,ncshell)    ! cont.shells:  pnl-->txs
-c     call getmem(ncs*12,iny)
-c
-c     call reorder(ncs,inx(inxx),bl(iny),bl(ncshell),bl(ncfunct) )
-c
-c     call retmem(1)
+     *   dbl_mb(iny),dbl_mb(ncshell),dbl_mb(ncfunct),dbl_mb(inuc),
+     *                                               dbl_mb(ibas))
 c------------------------------------
 c Reserve memory for an array showing to which pair-block
 c a given pair of shells belongs:
@@ -998,17 +983,39 @@ c There are 10 mem. allocations :
 c 4 proportional to the NCS  : (3+nsymm)*ncs 
 c 6 proportional to the NBL2 (no of block-pairs)
 c on return size of bl() - ntxs_scr_size
+c--------
+c allocate memory needed temprorarly (ncs) in txs_scratch_siz1:
 c
-      call txs_scratch_siz1(basnuc(ibas),basnuc(inuc),iprint,
-     *                      ncs,inx(inxx),nsym,ntxs_scr_size)
+      if (.not. MA_alloc_get(MT_DBL,ncs,'for txs_scr_temp',
+     &                       h_txs_tempr , k_txs_tempr ))
+     &    call errquit('texas_init: alloc for for txs_scr_temp failed',
+     &    911)
+c--------
 c
+      call txs_scratch_siz1(dbl_mb(ibas),dbl_mb(inuc),
+     *                      dbl_mb(k_txs_tempr),
+     *             iprint,ncs,inx(inxx),nsym,ntxs_scr_size)
+c--------
+c release memory allocated temprorarly in txs_scratch_siz1:
+c
+        if (.not.MA_free_heap(h_txs_tempr))
+     &        call errquit('txs_scr_temp   : failed ?', 911)
+        h_txs_tempr  = -1
+        k_txs_tempr  =  0
+c--------
+c
+*c
+*c RJH ... brute force and ignorance ... just give it all that
+*c we have available and cross your fingers.
+*c
+*      ntxs_scr_size = ma_inquire_avail(mt_dbl)
+*
       lcore=ntxs_scr_size
 c
       call retall
 c
 c------------------------------------
 c allocate memory repleacing txs bl():
-c
 c
       if (.not. MA_alloc_get(MT_DBL,ntxs_scr_size, 'for txs scratch ',
      &                       h_txs_prep2 , k_txs_prep2 ))
@@ -1046,15 +1053,10 @@ c Preparation for the two-electron integrals calculation
 c (blocking procedure)
 c
       scftype='    '
-cold-
-c     call prepint2(bl,eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
-c    *              maxprice,scftype)
-cold-
 c
       call prepint2(dbl_mb(ntxs_bl_scr),
      *              eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
      *              maxprice,scftype,iret_limit)
-c
 c
       if(iret_limit.gt.0) then
         if (.not.MA_free_heap(h_txs_prep2 ))
@@ -1485,8 +1487,8 @@ c
 c
       end
 c======================================================================
-      subroutine txs_scratch_siz1(datbas,datnuc,iprint,
-     *                            ncs,inx,nsym,ntxs_scr_size)
+      subroutine txs_scratch_siz1(datbas,datnuc,ishell_blk,
+     *                           iprint,ncs,inx,nsym,ntxs_scr_size)
       implicit real*8 (a-h,o-z)
 c
 c estimate memory requested in texas-scratch bl() by prepint2
@@ -1497,7 +1499,12 @@ c
       dimension datbas(13,*),datnuc(5,*)
       dimension inx(12,*)
 c
-      maxshl=1
+      dimension ishell_blk(ncs)    ! blocks of shells ; max=ncs
+c
+      do 10 ics=1,ncs
+      ishell_blk(ics)=0
+   10 continue
+c
       nofshl=1
       iexch=1
       do 55 ics0=1,ncs-1
@@ -1509,21 +1516,24 @@ c
       icsc1=inx(5,ics1)-inx(1,ics1)
       icsg1=inx(4,ics1)
       if(icst0.ne.icst1) then
+        ishell_blk(iexch)=nofshl
+        nofshl=1
         iexch=iexch+1
       else
         if(icsc0.ne.icsc1) then
-           if(nofshl.gt.maxshl) maxshl=nofshl
+           ishell_blk(iexch)=nofshl
            nofshl=1
            iexch=iexch+1 
         else
            if(icsg0.ne.icsg1) then
-              if(nofshl.gt.maxshl) maxshl=nofshl
+              ishell_blk(iexch)=nofshl
               nofshl=1
               iexch=iexch+1 
            else
               if(iroute.eq.0 .or. iroute.eq.2) then
                  iat0=inx(2,ics0)
                  iat1=inx(2,ics1)
+c charge:
                  if(iat0.eq.0) then
                     nzi0=0
                  else
@@ -1540,56 +1550,72 @@ c first primitive exponent:
                  exi0=datbas(1,icb0)
                  exi1=datbas(1,icb1)
                  if(nzi0.ne.nzi1) then
-                    if(nofshl.gt.maxshl) maxshl=nofshl
+                    ishell_blk(iexch)=nofshl
                     nofshl=1
                     iexch=iexch+1
                  else
                     if(exi0.ne.exi1) then
-                       if(nofshl.gt.maxshl) maxshl=nofshl
+                       ishell_blk(iexch)=nofshl
                        nofshl=1
                        iexch=iexch+1
                     else
                        nofshl=nofshl+1
+                       ishell_blk(iexch)=nofshl
                     endif
-c----------------   nofshl=nofshl+1
                  endif
               else
                  nofshl=nofshl+1
-                 if(nofshl.gt.maxshl) maxshl=nofshl
               endif
            endif
         endif
       endif
-ctest
-c                iat0=inx(2,ics0)
-c                iat1=inx(2,ics1)
-c                nzi0=datnuc(1,iat0)
-c                nzi1=datnuc(1,iat1)
-c     write(8,*)'ics0,1=',ics0,ics1,' typ=',icst0,icst1,
-c    *' con=',icsc0,icsc1,' gc=',icsg0,icsg1,
-c    *  'nz0,nz1=',nzi0,nzi1,' IEXCH=',iexch,' maxshel=',maxshl
-ctest
    55 continue
 c
-c  number of different shells is : iexch 
+c-------------------------------------------------------
+      ishell_blk(iexch)=nofshl
+c-------------------------------------------------------
+c number of different shells is : iexch 
+c estimated number of pair-blocks :
+c
+      nbl2=iexch*(iexch+1)/2
+c
+c some of these might be too big 
+c how many pair-blocks are too big :
+c
+      iiii2=0
+      ij_maxim=0
+      nbl2_2big=0
+      nbl2_repl=0
+      do 200 ibl1=1,iexch
+      i_size=ishell_blk(ibl1)
+      ii_size=i_size*(i_size+1)/2
+      do 200 jbl1=1,ibl1
+      iiii2=iiii2+1
+        j_size=ishell_blk(jbl1)
+        ij_size=ii_size
+        if(jbl1.ne.ibl1) ij_size=i_size*j_size
+        if(ij_size.gt.ij_maxim) ij_maxim=ij_size
+        if(ij_size.gt.limpair) then
+           nbl2_2big=nbl2_2big+1
+           n_tim=ij_size/limpair
+           n_rem=mod(ij_size,limpair)
+           if(n_rem.gt.0) n_tim=n_tim + 1
+           nbl2_repl=nbl2_repl+n_tim
+        endif
+  200 continue
+c-------------------------------------------------------
+c update number of pair-blocks:
+c
+      if(nbl2_2big.gt.0) then
+         nbl2=nbl2 - nbl2_2big + nbl2_repl
+         nbl2_size=limpair
+      else
+         nbl2_size=ij_maxim
+      endif
 c-------------------------------------------------------
 c number of pairs :
 c
       ncspair=ncs*(ncs+1)/2
-c
-c estimate number of pair-blocks :
-c
-      nbl2=iexch*(iexch+1)/2
-c
-c estimate size of pair-blocks :
-c
-      nbl2_size=maxshl*maxshl
-c
-      if(nbl2_size.gt.ncspair) nbl2_size=ncspair
-      if(nbl2_size.gt.limpair) then
-         nbl2_size=limpair
-         nbl2=ncspair/nbl2_size + 1
-      endif
 c
 c estimate number of quartet-blocks (super-blocks):
 c 

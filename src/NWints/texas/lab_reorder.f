@@ -1,9 +1,9 @@
-      subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc)
-c $Id: lab_reorder.f,v 1.7 1996-08-02 22:03:15 d3g681 Exp $
+      subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc,datbas)
+c $Id: lab_reorder.f,v 1.8 1996-08-19 17:55:41 d3g681 Exp $
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)
-      dimension datnuc(5,*)
+      dimension datnuc(5,*), datbas(13,*)
 c------------------------------------
 c iny - keeps the original basis set 
 c------------------------------------
@@ -49,10 +49,18 @@ charge:
         else
           nzi1=datnuc(1,ina1)
         endif
-charge:
 c
-        iclen0=inx(5,ics0)-inx(1,ics0)-1
-        iclen1=inx(5,ics1)-inx(1,ics1)-1
+c contr. length :
+c06     iclen0=inx(5,ics0)-inx(1,ics0)-1
+c06     iclen1=inx(5,ics1)-inx(1,ics1)-1
+        iclen0=inx(5,ics0)-inx(1,ics0)
+        iclen1=inx(5,ics1)-inx(1,ics1)
+c 
+c first primitive exponent:
+                 icb0=inx(1,ics0)+1
+                 icb1=inx(1,ics1)+1
+                 exp0=datbas(1,icb0)
+                 exp1=datbas(1,icb1)
 c
           if (ict1.lt.ict0) then
             iexch=1
@@ -69,7 +77,6 @@ c
                inx(k,ics1)=itemp
  420        continue
           else if(ict1.eq.ict0.and.iclen0.eq.iclen1
-c??? *                            .and.ina0.gt.ina1) then
      *                            .and.nzi0.gt.nzi1) then
             iexch=1
             do 430 k=1,12
@@ -77,6 +84,16 @@ c??? *                            .and.ina0.gt.ina1) then
                inx(k,ics0)=inx(k,ics1)
                inx(k,ics1)=itemp
  430        continue
+          else if(ict1.eq.ict0.and.iclen0.eq.iclen1
+     *                            .and.nzi0.eq.nzi1
+     *                            .and.exp0.lt.exp1) then
+c06 NEW
+            iexch=1
+            do 440 k=1,12
+               itemp=inx(k,ics0)
+               inx(k,ics0)=inx(k,ics1)
+               inx(k,ics1)=itemp
+ 440        continue
           end if
 cccccc  endif
  500  continue
