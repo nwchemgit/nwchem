@@ -1,5 +1,5 @@
-      subroutine movecs_project(rtdb, geom, basis, g_vecs,iset)
-C$Id: movecs_proj.F,v 1.14 2002-02-04 18:34:15 bert Exp $
+      subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset)
+C$Id: movecs_proj.F,v 1.15 2002-07-03 19:44:57 d3k958 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -12,15 +12,22 @@ c
       double precision one, zero, mone
 c
 c     Project the MO vectors in old_basis_name into the current basis.  
-c     It is assumed that the old basis is smaller than the current 
-c     basis.
+c     It is no longer assumed that the old basis is smaller than the current 
+c     basis, and it now works when linear dependencies have been removed.
 c
+c     If nnew > nold
+c     --------------
 c     For i = 1, nold
 c        C_new(u,i) = sum(v,w) S^-1(u,v) Snew-old(v,w) C_old(w,i)
-c
+c  
 c     For i=nold+1, nnew
-c        C_new(u,i) = random number in -0.5,0.5
+c        C_new(u,i) = random number in -0.5,0.5 
 c
+c     If nold > nnew
+c     --------------
+c     For i = 1, nnew
+c        C_new(u,i) = sum(v,w) S^-1(u,v) Snew-old(v,w) C_old(w,i)
+c     
 c     S^-1 is the inverse overlap in the new basis
 c     Snew-old is the mixed basis overlap
 c
@@ -35,7 +42,7 @@ c
       integer l_old_occ, k_old_occ, l_old_evals, k_old_evals
       integer l_ran, k_ran
       integer old_basis
-      integer nbf, i, j
+      integer nbf, i, j, nmo
       double precision temp
       character*80 old_basis_name, old_filename, old_title
       character*80 project(2), basis_name_from_file
@@ -78,7 +85,7 @@ c
      $     call errquit('movecs_project: int_normalize failed', 0)
       if (.not. movecs_read_header(old_filename, old_title,
      $     basis_name_from_file, old_scftype, 
-     $     file_nbf, old_nsets, old_nmo, 2)) 
+     $     file_nbf, old_nsets, old_nmo, 1)) 
      $     call errquit
      $     ('movecs_project: failed to read old header', 0)
 c
@@ -88,17 +95,18 @@ c
      $     call errquit('movecs project: bas_numbf?', 0)
 c
       if (nbf .lt. old_nbf) then
-          write(6,1) 'The current basis is smaller than the basis',
+          write(6,*) 'The current basis is smaller than the basis',
      $               ' you are projecting from !!!'
-          call errquit
-     $     ('movecs_project: new bas smaller than old bas',0) 
+c          call errquit
+c     $     ('movecs_project: new bas smaller than old bas',0) 
       endif
 c
       if (file_nbf .ne. old_nbf) call errquit
      $     ('movecs_project: nbf on file inconsistent with basis', 0)
 c
 *ga:1:0
-      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
+c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
+      if (.not. ga_create(mt_dbl, old_nbf, old_nmo, 'Old vectors',
      $     0, 0, g_old_vecs)) call errquit
      $     ('movecs_project: failed creating old vectors', 0)
       if (.not. ma_push_get(mt_dbl, old_nbf, 'Old occ',
@@ -151,7 +159,8 @@ c
      $     0, 0, g_over)) call errquit
      $     ('movecs_project: create mixed overlap', 0)
 *ga:1:0
-      if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Temp',
+c      if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Temp',
+      if (.not. ga_create(mt_dbl, nbf, old_nmo, 'Temp',
      $     0, 0, g_mix)) call errquit
      $     ('movecs_project: create temp', 0)
       call ga_zero(g_mix)
@@ -174,7 +183,8 @@ c
 *      call ga_sync
 *
 
-      call ga_dgemm('n','n',nbf,old_nbf,old_nbf,one,g_over,
+c      call ga_dgemm('n','n',nbf,old_nbf,old_nbf,one,g_over,
+      call ga_dgemm('n','n',nbf,old_nmo,old_nbf,one,g_over,
      $     g_old_vecs,zero,g_mix)
       if (.not. ga_destroy(g_over)) call errquit
      $     ('movecs project: ga_destroy?', 0)
@@ -206,8 +216,8 @@ c
 *      endif
 *      call ga_sync
 *
-
-      call ga_dgemm('n','n',nbf,old_nbf,nbf,one,g_over,g_mix,
+      if (old_nmo.gt.nmo) old_nmo = nmo
+      call ga_dgemm('n','n',nbf,old_nmo,nbf,one,g_over,g_mix,
      $     zero,g_vecs(iset))
       if (.not. ga_destroy(g_over)) call errquit
      $     ('movecs project: ga_destroy?', 0)
@@ -215,12 +225,13 @@ c
      $     ('movecs project: ga_destroy?', 0)
 
 *     Fill in missing columns with random numbers
-
+      if (nbf.gt.old_nbf) then
       if (.not. ma_push_get(mt_dbl, nbf, 'ran #',
      $     l_ran, k_ran)) call errquit
      $     ('movecs_project: ma ran #', nbf)
       temp = util_random(ga_nodeid()*314159+1)
-      do i = old_nbf+1+ga_nodeid(), nbf, ga_nnodes()
+c      do i = old_nbf+1+ga_nodeid(), nbf, ga_nnodes()
+      do i = old_nbf+1+ga_nodeid(), nmo, ga_nnodes()
 *         write(6,*) ' Randomizing ', i
 *         call util_flush(6)
          do j = 1, nbf
@@ -230,5 +241,6 @@ c
       end do
       if (.not. ma_pop_stack(l_ran)) call errquit
      $     ('movecs_project: ma pop?', 0)
+      endif
 
       end

@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.38 2002-06-14 18:02:57 d3k958 Exp $
+c     $Id: scf_vec_guess.F,v 1.39 2002-07-03 19:44:57 d3k958 Exp $
 c
       implicit none
 c
@@ -306,6 +306,41 @@ c               call scf_movecs_read
                endif
 c
 c Dayle: to enable decreased linear dependence
+c
+            else if (nbf.eq.nbf_vecs .and. bas_vecs.eq.trans .and.
+     &         nmo.gt.nmo_vecs(1)) then
+               if (ga_nodeid().eq.0) then
+                 write(6,*) '******************************************'
+                 write(6,*) 'WARNING: linear dependence has decreased.'
+                 write(6,*) '  nmo > nmo_file : ', nmo, nmo_vecs(1)
+                 write(6,*) '     Reading vectors 1:nmo_file'
+                 write(6,*) 'Using atomic guess for remaining vector(s)'
+                 write(6,*) '******************************************'
+               endif
+c
+            call guess_dens(rtdb, geom, basis, g_dens(1))
+c
+               if (.not. movecs_read(movecs_in, 1,
+     &            dbl_mb(k_occ), dbl_mb(k_eval), g_movecs))
+     &            call errquit('scf_movecs_read failed ',0)
+c
+               if (scftype .eq. 'UHF') then
+                  if (.not. movecs_read(movecs_in, 2,
+     &               dbl_mb(k_occ+nbf), dbl_mb(k_eval+nbf),
+     &               g_movecs(2))) then
+                     if (ga_nodeid() .eq. 0 .and.
+     &                  util_print('information', print_default)) then
+                        write(6,*) 
+     &                  '  Duplicating RHF/ROHF vectors for UHF'
+                     endif
+                     call ga_copy(g_movecs(1), g_movecs(2))
+                     call dcopy(nbf,dbl_mb(k_occ),1,dbl_mb(k_occ+nbf),1)
+                     call dcopy(nbf,dbl_mb(k_eval),1,dbl_mb(k_eval+nbf),
+     &                          1)
+                  endif
+               endif
+c
+c Dayle: to enable increased linear dependence
 c
             else if (nbf.eq.nbf_vecs .and. bas_vecs.eq.trans .and.
      &         nmo.gt.nmo_vecs(1)) then
