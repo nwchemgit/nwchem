@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.17 2002-08-13 21:02:13 edo Exp $
+C$Id: grid_ssw.F,v 1.18 2002-08-14 00:32:53 edo Exp $
 c
       implicit none
 #include "cdft.fh"
@@ -104,6 +104,7 @@ c
 c       compute mu_AN
 c
       distnn=(ass-eps)*sqrt(distnn)
+      n2=nq
       do n=nq,n1,-1
          if ((rq(n,AA)-rq(n,nn)).gt.distnn) then
             xyzw(4,n)=0
@@ -112,8 +113,6 @@ c
             goto 32
          endif
       enddo
-c     all outside
-      if(n2.eq.1) return
 32     continue
 c
         do n=n1,n2
