@@ -4,13 +4,12 @@
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
      ,     evals, rdens_atom,dd3ceri,ii3cwhat,
-     ,     cetobfr,
-     ,     iter, ecore, ecoul,exc,noc, rho_n,ldmix,
+     ,     cetobfr, iter, ecore, ecoul,exc,noc, rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
-     ,     oprint_time)
+     ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.6 2000-04-25 09:23:41 jolguin Exp $
+c     $Id: dft_fockbld.F,v 1.7 2000-05-18 16:21:52 jolguin Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -33,7 +32,7 @@ c     double precision evals (*)
       integer cetobfr(*)
       logical oprint_time ![in]
       integer iter ! [in]
-      integer noc(2)
+      integer noc(2), n_levels(2), act_levels
       double precision ecore, ecoul,exc(2) ! [out]
       integer ntotel,n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd
       logical IOLGC, ldmix
@@ -62,7 +61,7 @@ c Jorge Garza/Begin
       end if
       if (test_sic.eq.2.or.test_sic.eq.4) then
         if (iter.ge.iter_ini) then
-           call xc_sicdeg(i_degen, evals, noc)
+           call xc_sicdeg(i_degen, evals, noc, n_levels,act_levels)
         end if
       end if
 c Jorge Garza/End
@@ -182,12 +181,12 @@ c
       if (test_sic.eq.2.or.test_sic.eq.4) then
         if (iter.ge.iter_ini) then
           if (test_sic.eq.4) then
-            call localize_sic(g_movecs, noc)
+            call localize_sic(g_movecs, noc, evals)
           end if
           call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
      &                g_vxc,  g_wght, g_xyz, g_nq, wght_GA,
      &                rdens_atom, cetobfr, natoms,
-     &                g_movecs, noc, totsic, i_degen)
+     &                g_movecs, noc, totsic, i_degen, n_levels)
           Exc(1) = Exc(1) + totsic
         end if
       end if
