@@ -1,6 +1,6 @@
       logical function intb_init4c(brain, icl, jcl, ketin, kcl, lcl,
-     &    num_q, lscr, scr, block_eff)
-c $Id: intb_init4c.F,v 1.1 1995-05-09 18:01:01 d3e129 Exp $  
+     &    num_q, lscr, scr, l_erilab, block_eff)
+c $Id: intb_init4c.F,v 1.2 1995-05-15 19:37:00 d3e129 Exp $  
       implicit none
 *
 c
@@ -14,6 +14,8 @@ c
       integer jcl(num_q) ! [input] j-contraction labels for quartets
       integer kcl(num_q) ! [input] k-contraction labels for quartets
       integer lcl(num_q) ! [input] l-contraction labels for quartets
+      integer l_erilab   ! [input] size of eri and label arrays that will 
+*................................. be used in intb_2e4c.F
       integer lscr       ! [input] length of scratch array
       double precision scr(lscr)  ! [input] scratch array
       double precision block_eff  ! [output] blocking efficiency parameter
