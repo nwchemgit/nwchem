@@ -1,5 +1,5 @@
       subroutine hf1_tran_shift(Gab,Gabcp,ngen,la,lb,nca,ncb)
-* $Id: hf1_tran.F,v 1.2 1996-01-20 00:22:41 d3e129 Exp $
+* $Id: hf1_tran.F,v 1.3 2000-04-27 22:46:03 mg201 Exp $
       implicit none
       integer la, lb
       integer nca, ncb
@@ -87,7 +87,7 @@ c::passed
       integer NPB  ! [input] number of primitives on center B
       integer NCA  ! [input] number of contractions on center A
       integer NCB  ! [input] number of contractions on center B
-      integer PAIRp (2,NPP) ! [input] kept indecies of contraction coeffs
+      integer PAIRp (2,NPP) ! [input] kept indices of contraction coeffs
       double precision Acoefs(NPA,NCA) ! [input] conctraction coeffs on center A
       double precision Bcoefs(NPB,NCB) ! [input] conctraction coeffs on center B
       double precision gctrana(NPP,NCA) ! [output] general contraction coefs for A multiply
