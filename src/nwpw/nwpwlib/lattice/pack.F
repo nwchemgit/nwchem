@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.5 2002-01-14 19:20:31 bylaska Exp $
+* $Id: pack.F,v 1.6 2002-05-14 07:56:21 bylaska Exp $
 *
 
 
@@ -490,6 +490,51 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       return
       end 
 
+*     ***********************************
+*     *					*
+*     *	         Pack_cc_indot		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_cc_indot(nb,ne,A,B,sum)
+      implicit none
+      integer    nb
+      integer    ne
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     sum(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer n,np
+      integer npack, shift
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+      npack= nida(nb)+nidb(nb)
+
+      do n=1,ne
+        shift = (n-1)*npack
+
+        sum(n) = ddot(2*nida(nb),A(1+shift),1,B,1)
+        sum(n) = sum(n) + 2*ddot(2*nidb(nb),
+     >                           A(nida(nb)+1+shift),1,
+     >                           B(nida(nb)+1),      1)
+      end do
+
+      call nwpw_timing_end(2)
+      return
+      end 
+
 
 *     ***********************************
 *     *					*
@@ -872,9 +917,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       end
 
 *     ***********************************
-*     *									*
-*     *	         Pack_tt_Sqrt			*	
-*     *									*
+*     *					*
+*     *	         Pack_tt_Sqrt		*	
+*     *					*
 *     ***********************************
 
       subroutine Pack_tt_Sqrt(nb,A,C)
@@ -1109,9 +1154,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 
 *     ***********************************
-*     *									*
+*     *					*
 *     *	         Pack_tc_Mul            *
-*     *									*
+*     *					*
 *     ***********************************
 
       subroutine Pack_tc_Mul(nb,A,B,C)
@@ -1138,9 +1183,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       end
 
 *     ***********************************
-*     *									*
+*     *					*
 *     *	         Pack_itc_Mul           *
-*     *									*
+*     *					*
 *     ***********************************
 
       subroutine Pack_itc_Mul(nb,A,B,C)
@@ -1171,9 +1216,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 
 *     ***********************************
-*     *                 *
+*     *                                 *
 *     *          Pack_cc_Mul            *
-*     *                 *
+*     *                                 *
 *     ***********************************
 
       subroutine Pack_cc_Mul(nb,A,B,C)
@@ -1200,9 +1245,9 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       end
 
 *     ***********************************
-*     *									*
-*     *	         Pack_cct_conjgMul		*	
-*     *									*
+*     *					*
+*     *	         Pack_cct_conjgMul	*	
+*     *					*
 *     ***********************************
       subroutine Pack_cct_conjgMul(nb,A,B,C)
       implicit none
@@ -1228,7 +1273,7 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 
 *     ***********************************
-*     *                				    *
+*     *                		        *
 *     *          Pack_cc_conjgMul       *
 *     *                                 *
 *     ***********************************
@@ -1261,7 +1306,7 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 *     ***********************************
 *     *					*
-*     *	         Pack_tc_iMul            *
+*     *	         Pack_tc_iMul           *
 *     *					*
 *     ***********************************
 
