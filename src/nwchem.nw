@@ -2,7 +2,7 @@ title; Water in 6-31g basis set
 
 start h2o
 
-geometry
+geometry units au
   O      0.00000000    0.00000000    0.00000000
   H      0.00000000    1.93042809   -1.10715266
   H      0.00000000   -1.43042809   -1.60715266
@@ -32,4 +32,5 @@ end
 
 scf; print high; end
 
-task direct_mp2
+task scf
+
