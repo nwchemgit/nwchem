@@ -71,9 +71,6 @@ void g_exit2_( n, array, procmap, len, iwork )
   extern void mxpend_ ();
   extern Integer mxmynd_();
 
-#ifndef RIOS
-  extern char *strcpy();
-#endif
   
   me = mxmynd_ ();
   
@@ -141,9 +138,6 @@ void g_exit_( n, array, procmap, len, iwork, work )
   extern Integer mxmynd_();
   extern Integer mxnprc_();
 
-#ifndef RIOS
-  extern char *strcpy();
-#endif
   
   me = mxmynd_ ();
   maxprocs = mxnprc_ ();       /* the maximum number of processors allocated */

@@ -99,10 +99,6 @@ void fmemreq_(type, n, mapA, mapB, mapZ, isize, rsize, ptr_size, iscratch )
   extern void   memreq_(); 
   extern void     mxinit_();
   
-#ifndef RIOS
-  extern char    *strcpy();
-#endif
-  
    mxinit_();
 
    me     = mxmynd_();

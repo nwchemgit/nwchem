@@ -29,7 +29,9 @@
  *
  *======================================================================
  */
+
 #include <stdio.h>
+#include <math.h>
 
 #include "globalp.c.h"
 
@@ -66,6 +68,8 @@ Integer ci_entry (me, n, i, j, map)
   Integer indx, jndx, label;
   Integer *iptr;
   extern void xerbla_();
+  char string[10];
+  sprintf(string, "ci_entry\n");
   
   /*
     PeIGS utility routine
@@ -91,58 +95,60 @@ Integer ci_entry (me, n, i, j, map)
     map[j] = the processor id holding column j
     
     */
-  
+
+
+
   if ( me == NULL ) {
     indx = -1;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( n == NULL ) {
     indx = -2;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   else if ( *n < 1 ) {
     indx = -2;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( i == NULL ) {
     indx = -3;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( j == NULL ) {
     indx = -4;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if (map == NULL) {
     fprintf(stderr, " Peigs: ci_entry_  node %d : Mapping problem\n", *me);
     indx = -5;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   jndx = -5;
   iptr = map;
   for ( indx = 0; indx < *j; indx++ ) {
     if ( (iptr++) == NULL )
-      xerbla_("ci_entry\n", &jndx);
+      xerbla_(string, &jndx);
   }
   
   if ( *i < 0 ) {
     indx = -4;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( *j  < 0 ) {
     indx = -5;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( *i < *j ) {
     fprintf(stderr, "PeIGS: ci_entry_ :node %d : i < j \n", me);
     indx = -4;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   jndx = 0;
@@ -200,58 +206,62 @@ Integer ci_entry_(me, n, i, j, map)
     map[j] = the processor id holding column j
     
     */
+
+  char string[11];
+  sprintf(string, "ci_entry_\n");
+
   
   if ( me == NULL ) {
     indx = -1;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( n == NULL ) {
     indx = -2;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   else if ( *n < 1 ) {
     indx = -2;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( i == NULL ) {
     indx = -3;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( j == NULL ) {
     indx = -4;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
 
   if (map == NULL) {
     fprintf(stderr, " Peigs: ci_entry_  node %d : Mapping problem\n", *me);
     indx = -5;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   jndx = -5;
   iptr = map;
   for ( indx = 0; indx < *j; indx++ ) {
     if ( (iptr++) == NULL )
-      xerbla_("ci_entry\n", &jndx);
+      xerbla_(string, &jndx);
   }
   
   if ( *i < 0 ) {
     indx = -4;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( *j  < 0 ) {
     indx = -5;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( *i < *j ) {
     fprintf(stderr, "PeIGS: ci_entry_ :node %d : i < j \n", me);
     indx = -4;
-    xerbla_("ci_entry\n", &indx);
+    xerbla_(string, &indx);
   }
   
   jndx = 0;
@@ -306,10 +316,14 @@ Integer ci_size_(me, n, map)
   extern void xerbla_();
   extern Integer mxnprc_();
   extern Integer mxmynd_();
+
+  char string[10];
+  sprintf(string, "ci_size_\n");
+
   
   if ( me == NULL ) {
     indx = -1;
-    xerbla_("ci_size\n", &indx);
+    xerbla_(string, &indx);
   }
 
   iam = mxmynd_();
@@ -317,22 +331,22 @@ Integer ci_size_(me, n, map)
   if ( *me > mxnprc_() || *me < 0 ) {
     indx = -1;
     fprintf(stdout, " Node %d Error in ci_size arg 1 with me = %d mxnprc = %d \n", iam, *me, mxnprc_());
-    xerbla_("ci_siz\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if ( n == NULL ) {
     indx = -2;
-    xerbla_("ci_siz\n", &indx);
+    xerbla_(string, &indx);
   }
   else if ( *n < 1 ) {
     indx = -2;
-    xerbla_("ci_siz\n", &indx);
+    xerbla_(string, &indx);
   }
   
   if (map == NULL) {
     fprintf(stderr, " Peigs: ci_size_  node %d : Mapping problem\n", *me);
     indx = -3;
-    xerbla_("ci_siz\n", &indx);
+    xerbla_(string, &indx);
   }
   
   jndx = -3;
@@ -340,7 +354,7 @@ Integer ci_size_(me, n, map)
   ptr = map;
   for ( indx = 0; indx < *n; indx++ ) {
     if ( (ptr++) == NULL )
-      xerbla_("ci_siz\n", &jndx);
+      xerbla_(string, &jndx);
   }
   
   jndx = 0;
@@ -388,34 +402,38 @@ Integer fil_mapvec_( me, n, map, mapvec)
   extern Integer mxmynd_();
   
   extern void xerbla_();
+  char string[12];
+
+  sprintf(string, "fil_mapvec_\n");
+
 
   if ( me == NULL ) {
     i = -1;
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : first argument is NULL \n", mxmynd_());
-    xerbla_("fil_mapvec_  \n", &i);
+    xerbla_(string, &i);
   }
   
   if (( *me > mxnprc_() ) || ( *me < 0 )) {
     i = -1;
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : first argument %d out of bounds \n", mxmynd_(), *me);
-    xerbla_("fil_mapvec_ \n", &i);
+    xerbla_(string, &i);
   }
   
   if ( n == NULL ) {
     i = -2;
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : 2nd argument is NULL i\n", *me);
-    xerbla_("fil_mapvec_ \n", &i);
+    xerbla_(string, &i);
   }
   else if ( *n < 1 ) {
     i = -2;
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : Mapping problem second argument is invalid \n", *me);
-    xerbla_("fil_mapvec_ \n", &i);
+    xerbla_(string, &i);
   }
   
   if (map == NULL) {
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : Mapping problem\n", *me);
     i = -3;
-    xerbla_("fil_mapvec_ \n", &i);
+    xerbla_(string, &i);
   }
   
   iptr = map;
@@ -423,14 +441,14 @@ Integer fil_mapvec_( me, n, map, mapvec)
     if ( (iptr++) == NULL ) {
       i = -3;
       fprintf(stderr, " Peigs: fil_mapvec_  node %d : 3rd argument error. \n", *me);
-      xerbla_("fil_mapvec_ \n", &i);
+      xerbla_(string, &i);
     }
   
   if (mapvec == NULL) {
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : Mapping problem\n", *me);
     fprintf(stderr, " Peigs: fil_mapvec_  node %d : 4th argument error. \n", *me);
     i = -4;
-    xerbla_("fil_mapvec_ \n", &i);
+    xerbla_(string, &i);
   }
   
   
@@ -442,7 +460,7 @@ Integer fil_mapvec_( me, n, map, mapvec)
       if ( mapvec + k == NULL ) {
         i = -4;
 	fprintf(stderr, " Peigs: fil_mapvec_  node %d : 4th argument error. \n", *me);
-        xerbla_("fil_mapvec_ \n", &i);
+        xerbla_(string, &i);
       }
       mapvec[k] = i;
       k++;

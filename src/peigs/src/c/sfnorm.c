@@ -81,7 +81,7 @@ void sfnorm( n, colA, mapA, norm, iwork, work, info)
   DoublePrecision s, t, y, f, c; 
   extern DoublePrecision ddot_();
   
-#ifndef RIOS
+#ifndef RS6000
   extern DoublePrecision fabs(), sqrt();
 #endif
 

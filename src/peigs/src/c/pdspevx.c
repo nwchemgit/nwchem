@@ -298,7 +298,7 @@ void pdspevx ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
     extern Integer  tred2();
     extern void     pstebz_(), pstein(), mxm25(), sfnorm();
 
-#ifndef RIOS
+#ifndef RS6000
     char    *strcpy();
     extern DoublePrecision sqrt (), fabs ();
 #endif

@@ -29,6 +29,7 @@
  *
  *======================================================================
  */
+
 #include <stdio.h>
 
 #define MSG_START 25000
@@ -125,22 +126,22 @@ void b_ortho ( n, colB, mapB, m, colZ, mapZ, ibuffptr, iwork, work, ort, info)
        
    ort..... (output) INTEGER
             the residual described above.
-
-   info.... (output) INTEGER
+	    
+    info.... (output) INTEGER
             = 0, not currently used
-       
- */
+	    
+	    */
 {
   
   static Integer IONE = 1;
   
-  Integer ll, i, j, *iscrat, *mapvecA, *mapvecB, *mapvecZ;
+  Integer ll, i, j, *iscrat, *mapvecB, *mapvecZ;
   Integer nvecsB, nvecsZ;
   Integer me, nprocs;
   
-  DoublePrecision t, derror, ulp;
+  DoublePrecision ulp;
   DoublePrecision *ptr, *scrat;
-  DoublePrecision **vecZ1, **vecZ2, anorm; /* copies of the vecZ matrix */
+  DoublePrecision **vecZ1, **vecZ2; /* copies of the vecZ matrix */
   
   /*
     blas call

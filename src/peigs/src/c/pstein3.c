@@ -163,11 +163,6 @@ void pstein ( n, dd, ee, meigval, eval, iblock, nsplit, isplit,
   extern void bbcast00(), tresid();
   extern Integer       fil_mapvec_();
   
-#ifndef RIOS
-   extern DoublePrecision   log10();
-   extern char    *strcpy();
-#endif
-
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements

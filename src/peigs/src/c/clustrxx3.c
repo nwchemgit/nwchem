@@ -89,7 +89,7 @@
 
 Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imin, nacluster, icsplit, iscratch, scratch)
      Integer *n, *schedule, *num_clustr, *mapZ, *mapvecZ, *imin,
-             *nacluster, *icsplit, *iscratch;
+  *nacluster, *icsplit, *iscratch;
      DoublePrecision *d, *e, *eval, **vecZ, *scratch;
 {
   /*
@@ -137,6 +137,7 @@ Integer clustrinv_(n, d, e, eval, schedule, num_clustr, mapZ, mapvecZ, vecZ, imi
   extern void mgs ();
   extern DoublePrecision dlamch_();
   extern void fil_dbl_lst ();
+  extern Integer mxwrit_(), mxread_();
   
   /*
     Function Body

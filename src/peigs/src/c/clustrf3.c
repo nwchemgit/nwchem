@@ -100,8 +100,10 @@
 
 #define I_ZERO 0
 
-  static Integer clustr_check(c1, cn, imin, imax)
-Integer c1, cn, imin, imax;
+static Integer clustr_check(Integer, Integer, Integer, Integer);
+
+static Integer clustr_check(c1, cn, imin, imax)
+     Integer c1, cn, imin, imax;
 {
   /*
     routine to determine if
@@ -120,9 +122,9 @@ Integer c1, cn, imin, imax;
 
 
 Integer clustrf_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, num_clustr,
-	      clustr_info,  imin, proclist , nacluster, icsplit, iscratch)
+		  clustr_info,  imin, proclist , nacluster, icsplit, iscratch)
      Integer *n, *m, *mapZ, *iblock, *nsplit, *isplit, *num_clustr,
-             *clustr_info, *imin, *proclist, *nacluster, *icsplit, *iscratch;
+  *clustr_info, *imin, *proclist, *nacluster, *icsplit, *iscratch;
      DoublePrecision *d, *e, *w, **vecZ, *ptbeval;
      /*
        this routine finds the cluster information for symmetric tridiagonal matrices
@@ -195,9 +197,6 @@ Integer clustrf_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, nu
     intrinsic DoublePrecision precision
     */
   
-#ifndef RIOS  
-  extern DoublePrecision sqrt (), fabs ();
-#endif
   
   /*
     blas calls

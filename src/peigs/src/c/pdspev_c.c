@@ -214,10 +214,6 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
 
   extern void     pdspevx();
   
-#ifndef RIOS
-  extern char    *strcpy();
-#endif
-  
   /*
    *  ---------------------------------------------------------------
    *                      Executable Statements

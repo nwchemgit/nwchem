@@ -267,10 +267,6 @@ void pdsptri( ivector, irange, n, dd, ee, lb, ub, ilb, iub, abstol,
     extern Integer  mxmynd_(), mxnprc_();
     extern void     mxinit_();
 
-#ifndef RIOS
-    char    *strcpy();
-#endif
-
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements

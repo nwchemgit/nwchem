@@ -19,7 +19,6 @@ COBJ  =  b_ortho.o \
          mapdif.o \
          mapdif1.o \
          matmax.o \
-         maxx.o \
          mdif2b.o \
          mdiff1.o \
          mdiff2.o \
@@ -73,169 +72,163 @@ all:		$(COBJ)
 .PHONY :	clean
 
 clean:		
-		-rm -f *.o maxx.f
+		-rm -f *.o
 		-rm -f *.c.*
 
 realclean:	
 		clean
 
-maxx.o :	maxx.cpp
-		-rm -f maxx.f
-		$(CPP) < maxx.cpp > maxx.f
-		$(FC) $(OPT) -c $(FCNFLAGS) maxx.f
-
 soort.o:	soort.c
-		$(CC) $(OPTC) -c soort.c
+		$(peigs_CC) $(peigs_COPT) -c soort.c
 
 lower_mxm.o:	lower_mxm.c
-		$(CC) -c lower_mxm.c
+		$(peigs_CC) -c lower_mxm.c
 
 shellsort.o:	shellsort.c
-		$(CC) $(OPTC) -c shellsort.c
+		$(peigs_CC) $(peigs_COPT) -c shellsort.c
 
 treesort.o:	treesort.c
-		$(CC) -c treesort.c
+		$(peigs_CC) -c treesort.c
 
 gmax.o:		gmax.c
-		$(CC) $(OPTC) -c gmax.c
+		$(peigs_CC) $(peigs_COPT) -c gmax.c
 
 forLL.o:	forLL.c
-		$(CC) $(OPTC) -c forLL.c
+		$(peigs_CC) $(peigs_COPT) -c forLL.c
 
 forLU.o:	forLU.c
-		$(CC) $(OPTC) -c forLU.c
+		$(peigs_CC) $(peigs_COPT) -c forLU.c
 
 ci_entry.o:	ci_entry.c
-		$(CC) $(OPTC) -c ci_entry.c
+		$(peigs_CC) $(peigs_COPT) -c ci_entry.c
 
 util.o:		util.c
-		$(CC) $(OPTC) -c util.c
+		$(peigs_CC) $(peigs_COPT) -c util.c
 
 pdspgv_c.o:	pdspgv_c.c
-		$(CC) $(OPTC) -c pdspgv_c.c
+		$(peigs_CC) $(peigs_COPT) -c pdspgv_c.c
 
 pdspev_c.o:	pdspev_c.c
-		$(CC) $(OPTC) -c pdspev_c.c
+		$(peigs_CC) $(peigs_COPT) -c pdspev_c.c
 
 pdspevx.o:	pdspevx.c
-		$(CC) $(OPTC) -c pdspevx.c
+		$(peigs_CC) $(peigs_COPT) -c pdspevx.c
 
 pdspgvx.o:	pdspgvx.c
-		$(CC) $(OPTC) -c pdspgvx.c
+		$(peigs_CC) $(peigs_COPT) -c pdspgvx.c
 
 exit.o:		exit.c
-		$(CC) $(OPTC) -c exit.c
+		$(peigs_CC) $(peigs_COPT) -c exit.c
 
 exit2.o:	exit2.c
-		$(CC) $(OPTC) -c exit2.c
+		$(peigs_CC) $(peigs_COPT) -c exit2.c
 
 pxerbla.o:	pxerbla.c
-		$(CC) $(OPTC) -c pxerbla.c
+		$(peigs_CC) $(peigs_COPT) -c pxerbla.c
 
 chol_bcst.o:	chol_bcst.c
-		$(CC) $(OPTC) -c chol_bcst.c
+		$(peigs_CC) $(peigs_COPT) -c chol_bcst.c
 
 upperxfull.o:	upperxfull.c
-		$(CC) $(OPTC) -c upperxfull.c
+		$(peigs_CC) $(peigs_COPT) -c upperxfull.c
 
 pipe_fut.o:	pipe_fut.c
-		$(CC) $(OPTC) -c pipe_fut.c
+		$(peigs_CC) $(peigs_COPT) -c pipe_fut.c
 
 choleski9.o:	choleski9.c
-		$(CC) $(OPTC) -c choleski9.c
+		$(peigs_CC) $(peigs_COPT) -c choleski9.c
 
 tred22.o:	tred22.c
-		$(CC) $(OPTC) -c tred22.c
+		$(peigs_CC) $(peigs_COPT) -c tred22.c
 
 pstebz9.o:	pstebz9.c
-		$(CC) $(OPTC) -c pstebz9.c
+		$(peigs_CC) $(peigs_COPT) -c pstebz9.c
 
 inverse.o:	inverse.c
-		$(CC) $(OPTC)  -c inverse.c
+		$(peigs_CC) $(peigs_COPT)  -c inverse.c
 
 conjug.o:	conjug.c
-		$(CC) $(OPTC) -c conjug.c 
+		$(peigs_CC) $(peigs_COPT) -c conjug.c 
 
 pmmLUL.o:	pmmLUL.c
-		$(CC) $(OPTC) -c pmmLUL.c 
+		$(peigs_CC) $(peigs_COPT) -c pmmLUL.c 
 
 pmmLSL.o:	pmmLSL.c
-		$(CC) $(OPTC) -c pmmLSL.c 
+		$(peigs_CC) $(peigs_COPT) -c pmmLSL.c 
 
 soluf.o:	soluf.c
-		$(CC) $(OPTC) -c soluf.c  
+		$(peigs_CC) $(peigs_COPT) -c soluf.c  
 
 mxm.o:		mxm.c
-		$(CC) $(OPTC) -c mxm.c    
+		$(peigs_CC) $(peigs_COPT) -c mxm.c    
 
 mxm2.o:		mxm2.c
-		$(CC) $(OPTC) -c mxm2.c    
+		$(peigs_CC) $(peigs_COPT) -c mxm2.c    
 
 mxm5x.o:	mxm5x.c
-		$(CC) $(OPTC) -c mxm5x.c    
+		$(peigs_CC) $(peigs_COPT) -c mxm5x.c    
 
 mxm3.o:		mxm3.c
-		$(CC) $(OPTC) -c mxm3.c
+		$(peigs_CC) $(peigs_COPT) -c mxm3.c
 
 mxm4.o:		mxm4.c
-		$(CC) $(OPTC) -c mxm4.c   
+		$(peigs_CC) $(peigs_COPT) -c mxm4.c   
 
 mxm5.o:		mxm5.c
-		$(CC) $(OPTC) -c mxm5.c   
+		$(peigs_CC) $(peigs_COPT) -c mxm5.c   
 
 mxm8.o:		mxm8.c
-		$(CC) $(OPTC) -c mxm8.c   
+		$(peigs_CC) $(peigs_COPT) -c mxm8.c   
 
 reducelst.o:	reducelst.c
-		$(CC) $(OPTC) -c reducelst.c
+		$(peigs_CC) $(peigs_COPT) -c reducelst.c
 
 sort.o:		sort.c
-		$(CC) $(OPTC) -c sort.c
+		$(peigs_CC) $(peigs_COPT) -c sort.c
 
 clustrf.o:	clustrf.c
-		$(CC)  -c clustrf.c
+		$(peigs_CC)  -c clustrf.c
 
 clustrxx.o:	clustrxx.c
-		$(CC) $(OPTC) -c clustrxx.c
+		$(peigs_CC) $(peigs_COPT) -c clustrxx.c
 
 inv_it2.o:	inv_it2.c
-		$(CC) $(OPTC) -c inv_it2.c
+		$(peigs_CC) $(peigs_COPT) -c inv_it2.c
 
 mgs2.o:		mgs2.c
-		$(CC) $(OPTC) -c mgs2.c
+		$(peigs_CC) $(peigs_COPT) -c mgs2.c
 
 mgs1b.o:	mgs1b.c
-		$(CC) $(OPTC) -c mgs1b.c
+		$(peigs_CC) $(peigs_COPT) -c mgs1b.c
 
 qsort.o:	qsort.c
-		$(CC) $(OPTC) -c qsort.c
+		$(peigs_CC) $(peigs_COPT) -c qsort.c
 
 qsort1.o:	qsort1.c
-		$(CC) $(OPTC) -c qsort1.c
+		$(peigs_CC) $(peigs_COPT) -c qsort1.c
 
 memreq.o:	memreq.c
-		$(CC) $(OPTC) -c memreq.c
+		$(peigs_CC) $(peigs_COPT) -c memreq.c
 
 memreq_f.o:	memreq_f.c
-		$(CC) $(OPTC) -c memreq_f.c
+		$(peigs_CC) $(peigs_COPT) -c memreq_f.c
 
 pstein.o:	pstein.c
-		$(CC) $(OPTC) -c pstein.c
+		$(peigs_CC) $(peigs_COPT) -c pstein.c
 
 dsteinsch.o:	dsteinsch.c
-		$(CC) $(OPTC) -c  dsteinsch.c
+		$(peigs_CC) $(peigs_COPT) -c  dsteinsch.c
 
 mapdif.o:	mapdif.c
-		$(CC) $(OPTC) -c mapdif.c    
+		$(peigs_CC) $(peigs_COPT) -c mapdif.c    
 
 mapdif1.o:	mapdif1.c
-		$(CC) $(OPTC) -c mapdif1.c    
+		$(peigs_CC) $(peigs_COPT) -c mapdif1.c    
 
 peigs_cmod.o:	peigs_cmod.f
-		$(FC) -c peigs_cmod.f
+		$(peigs_FC) -c peigs_cmod.f
 
 
-.c.o:;	$(CC) $(OPTC) -c $<
-
-.f.o:;	$(FC) $(OPT) -c $<
+.c.o:;	$(peigs_CC) $(peigs_COPT) -c $<
+.f.o:;	$(peigs_FC) $(peigs_FOPT) -c $<
 

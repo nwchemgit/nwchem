@@ -250,10 +250,6 @@ void pdspgv( ifact, n, vecA, mapA, vecB, mapB, vecZ, mapZ,
     extern void     pdspgvx();
     extern void     mxinit_();
 
-#ifndef RIOS
-    extern char    *strcpy();
-#endif
-
 /*
  *  ---------------------------------------------------------------
  *                      Executable Statements
