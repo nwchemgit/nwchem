@@ -1,0 +1,11 @@
+c
+c     Options to restrict loops in the fock build
+c
+c     orestrict_2 -> Only evaluate 2 center integrals
+c
+c     orestrict_3 -> Only evaluate 3 center integrals
+c
+      logical orestrict_2, orestrict_3
+      common/cfock/orestrict_2, orestrict_3
+c
+
