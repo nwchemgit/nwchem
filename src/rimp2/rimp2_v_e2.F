@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.10 1994-10-31 17:32:08 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.11 1994-10-31 19:29:06 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -80,6 +80,8 @@ C
       Double Precision Sum_Pairs
       Integer LNBlnk
       External LNBlnk
+      External GA_DDot_Patch_DP
+      Double precision GA_DDot_Patch_DP
 c$$$C
 c$$$      External GA_DASum_Patch, GA_DAMax_Patch
 c$$$      Double precision GA_DASum_Patch, GA_DAMax_Patch
@@ -96,7 +98,7 @@ C LOCAL VARIBLES
       Integer I, J, ISpin, JSpin, G_J, JTop, JTop2
       Integer A, B, Alo, Ahi, Blo, BHi, H_B, LDB, AB
       Integer Proc
-      Double Precision DenIJ, Den, Fact, EPair, ESpin
+      Double Precision DenIJ, Den, Fact, PairE, ESpin
       Logical Status, PermSym, SinglePass
       Integer Junk
       Integer G_bigI, ILo, IHi, NI, G_bigJ, JLo, JHi, NJ, G_bigA, G_BigB
@@ -438,9 +440,46 @@ C                 ***********************
 C                 Another data parallel routine.
 C
                   Call PStat_On(PS_PrEn)
-                  Call RIMP2_Pair_Energy(G_bigA, G_BigB, ILo, JLo,
-     $               NVir(ISpin), NVir(JSpin),
-     $               Int_MB( IH_PairE + ISpin + JSpin - 2) )
+c$$$                  Call RIMP2_Pair_Energy(G_bigA, G_BigB, ILo, JLo,
+c$$$     $               NVir(ISpin), NVir(JSpin),
+c$$$     $               Int_MB( IH_PairE + ISpin + JSpin - 2) )
+C
+                  Do I = ILo, IHi
+C
+C                    Use permutational symmetry if possible
+C                    (already know that ISpin .eq. JSpin)
+C                       
+                     If ( ILo .eq. JLo .AND. IHi .eq. JHi) then
+                        JTop2 = I
+                     Else
+                        JTop2 = JHi
+                     EndIf
+C
+                     Do J = JLo, JTop2
+C
+                        PairE = GA_DDot_Patch_DP(
+     $                     G_bigA, 'N', (I-ILo)*NVir(ISpin)+1,
+     $                                  (I-ILo+1)*NVir(ISpin),
+     $                                  (J-JLo)*NVir(JSpin)+1,
+     $                                  (J-JLo+1)*NVir(JSpin),
+     $                     G_bigB, 'N', (I-ILo)*NVir(ISpin)+1,
+     $                                  (I-ILo+1)*NVir(ISpin),
+     $                                  (J-JLo)*NVir(JSpin)+1,
+     $                                  (J-JLo+1)*NVir(JSpin) )
+C
+C                       If this turns out to be too much traffic, we
+C                       might want to create a local array to contain
+C                       only our IJs and accumulate into it.  But
+C                       wait until perfomance says we need to.  For
+C                       now, we'll just avoid sending zeros across
+C                       the machine.
+C
+                        If ( PairE .ne. FP_Zero )
+     $                     Call GA_Acc(
+     $                        Int_MB( IH_PairE + ISpin + JSpin - 2),
+     $                        I, I, J, J, PairE, 1, FP_One)
+                     EndDo
+                  EndDo
                   Call PStat_Off(PS_PrEn)
 C
 C                 Free up these matrices -- the space can be reused for
