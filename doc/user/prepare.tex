@@ -483,13 +483,13 @@ Directive \verb+select+ specifies a group of atoms used in the
 definition of potential of mean force potentials.
 
 \begin{verbatim}
-pmf [all] zalign <integer isel> <real forcon1> <real forcon2> 
-pmf [combine] xyplane <integer isel> <real forcon1> <real forcon2>
-pmf distance <integer isel> <integer jsel> \
+pmf [all] [bias] zalign <integer isel> <real forcon1> <real forcon2> 
+pmf [combine] [bias] xyplane <integer isel> <real forcon1> <real forcon2>
+pmf [constraint] [bias] distance <integer isel> <integer jsel> \
              <real dist1> <real dist2> <real forcon1> <real forcon2>
-pmf angle <integer isel> <integer jsel> <integer ksel> \
+pmf [bias] angle <integer isel> <integer jsel> <integer ksel> \
              <real angle1> <real angle2> <real forcon1> <real forcon2>
-pmf torsion <integer isel> <integer jsel> <integer ksel> <integer lsel> \
+pmf [bias] torsion <integer isel> <integer jsel> <integer ksel> <integer lsel> \
              <real angle1> <real angle2> <real forcon1> <real forcon2>
 \end{verbatim}
 
@@ -504,6 +504,11 @@ Option \verb+all+ may be specified to apply an equivalent pmf to each
 of the equivalent solute molecules in the system.
 Option \verb+combine+ may be specified to apply the specified pmf to 
 the atoms in all of the equivalent solute molecules.
+Option \verb+constraint+ may be specified to a distance pmf to treat
+the distance as a contraint.
+Option \verb+bias+ may be specified to indicate that this function
+should be treated as a biasing potential. Appropriate corrections
+to free energy results will be evaluated.
 
 \section{Generating a restart file}
 
