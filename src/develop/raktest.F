@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.75 1997-12-08 20:09:24 d3e129 Exp $
+c $Id: raktest.F,v 1.76 1998-01-09 15:25:28 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -3114,25 +3114,18 @@ c
 #include "stdio.fh"
       integer rtdb
 c
-*rak:      logical geom_print_distance
-*rak:      logical geom_print_angles
-*rak:      logical geom_print_dihedrals
-*rak:      external geom_print_distance
-*rak:      external geom_print_angles
-*rak:      external geom_print_dihedrals
-c
       integer geom
 c
       if (.not.geom_create(geom,'geometry'))
      &    call errquit('raktest_geomprt:create error',911)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
      &    call errquit('raktest_geomprt:load error',911)
-*rak:      if (.not.geom_print_distance(geom))
-*rak:     &    call errquit('raktest_geomprt:print_distance error',911)
-*rak:      if (.not.geom_print_angles(geom))
-*rak:     &    call errquit('raktest_geomprt:print_angles error',911)
-*rak:      if (.not.geom_print_dihedrals(geom))
-*rak:     &    call errquit('raktest_geomprt:print_dihedrals error',911)
+      if (.not.geom_print_distances(geom))
+     &    call errquit('raktest_geomprt:print_distance error',911)
+      if (.not.geom_print_angles(geom))
+     &    call errquit('raktest_geomprt:print_angles error',911)
+      if (.not.geom_print_dihedrals(geom))
+     &    call errquit('raktest_geomprt:print_dihedrals error',911)
       if (.not.geom_destroy(geom))
      &    call errquit('raktest_geomprt:destory',911)
       end

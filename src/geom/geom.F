@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.70 1997-11-14 21:58:38 d3g681 Exp $
+C$Id: geom.F,v 1.71 1998-01-09 15:25:35 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -367,11 +367,6 @@ c
      $       rtdb_get(rtdb, tmp, mt_int, usr_nizmat(geom), 
      $       usr_izmat(1,geom))
       endif
-c
-*rak: probably only incore data.  built by basis and ecp functionality
-*rak:      tmp(k:) = ':ecp centers'
-*rak:      status = status .and. 
-*rak:     $     rtdb_get(rtdb, tmp, mt_log, ncenter(geom), oecpcent(1,geom))
 c
 c--> get symmetry operators, number of operators and operator/atom
 c    map from rtdb
@@ -1341,13 +1336,6 @@ c
             return
           endif
         enddo
-*rak:         if (inp_match(nelements,.false.,buf(1:4),elements,ind)) then
-*rak:            symbol  = symbols(ind)
-*rak:            element = elements(ind)
-*rak:            atn     = ind
-*rak:            geom_tag_to_element = .true.
-*rak:            return
-*rak:         end if
       end if
 c
 c     Failed ... attempt to match the first two characters
@@ -2270,84 +2258,154 @@ c
       angle = (180.0d00/pi)*acos(xcosine)
       
       end
-      logical function geom_calc_dihedral(a,b,c,d,dihedral)
+      logical function geom_calc_dihedral(ain,bin,cin,din,dihedral)
       implicit none 
 c
 c computes the dihedral angle for the given 4 atom coordinates
 c
 c::-functions
-      logical geom_calc_distance
-      external geom_calc_distance
+      logical geom_calc_angle
+      external geom_calc_angle
 c::-passed      
-      double precision a(3) ! [input] coordinates of center a
-      double precision b(3) ! [input] coordinates of center b
-      double precision c(3) ! [input] coordinates of center c
-      double precision d(3) ! [input] coordinates of center d
+      double precision ain(3) ! [input] coordinates of center a
+      double precision bin(3) ! [input] coordinates of center b
+      double precision cin(3) ! [input] coordinates of center c
+      double precision din(3) ! [input] coordinates of center d
       double precision dihedral ! [output] the dihedral angle (in degrees)
 c::-local
-      double precision ab,pab,qab,rab
-      double precision pac,qac,rac
-      double precision pbd,qbd,rbd
-      double precision dot, aa, xcosine, xsine
+      double precision abc, bcd, abd, acd
+      double precision a(3),b(3),c(3),d(3)
       double precision pi
+      double precision BA(3), BC(3), CB(3), CD(3)
+      double precision BAxBC(3), CBxCD(3) 
+      double precision mbaxbc, mcbxcd
+      double precision cosangle
 c
       pi = 2.0d00*acos(0.0d00)
-      geom_calc_dihedral = geom_calc_distance(a,b,ab)
+      geom_calc_dihedral = .true.
+* compute appropriate angles 
+      geom_calc_dihedral = geom_calc_angle(ain,bin,cin,abc)
+      geom_calc_dihedral = geom_calc_dihedral.and.
+     &    geom_calc_angle(bin,cin,din,bcd) 
+      geom_calc_dihedral = geom_calc_dihedral.and.
+     &    geom_calc_angle(ain,bin,din,abd)
+      geom_calc_dihedral = geom_calc_dihedral.and.
+     &    geom_calc_angle(ain,cin,din,acd)
       if (.not.geom_calc_dihedral) call errquit
-     &    ('geom_calc_dihedral: error computing distance',911)
-      
-      pab = (b(1) - a(1))/ab
-      qab = (b(2) - a(2))/ab
-      rab = (b(3) - a(3))/ab
+     &    ('geom_calc_dihedral: fatal angle error',1)
 
-      pac = (c(1) - a(1))
-      qac = (c(2) - a(2))
-      rac = (c(3) - a(3))
-      dot = pac*pab + qac*qab + rac*rab
-      pac = pac - dot*pab
-      qac = qac - dot*qab
-      rac = rac - dot*rab
-      aa  = sqrt((pac*pac+qac*qac+rac*rac))
-      pac = pac/aa
-      qac = qac/aa
-      rac = rac/aa
-
-      pbd = d(1) - b(1)
-      qbd = d(2) - b(2)
-      rbd = d(3) - b(3)
-      dot = pbd*pab + qbd*qab + rbd*rab
-      pbd = pbd - dot*pab
-      qbd = qbd - dot*qab
-      rbd = rbd - dot*rab
-      aa  = sqrt((pbd*pbd+qbd*qbd+rbd*rbd))
-      pbd = pbd/aa
-      qbd = qbd/aa
-      rbd = rbd/aa
-      
-      xcosine = pac*pbd + qac*qbd + rac*rbd
-      xsine   = pab*(qbd*rac - rbd*qac)
-      xsine   = xsine + qab*(rbd*pac - pbd*rac)
-      xsine   = xsine + rab*(pbd*qac - qbd*pac)
-      
-*      dihedral = 360.0d00 - ((180.0d00/pi)*atan2(xsine,xcosine))
-      dihedral = ((180.0d00/pi)*atan2(xsine,xcosine))
-*      if (dihedral.eq.360.0d00)dihedral = 0.0d00
+* check special cases  a,b,c or b,c,d are linear
+      if (abc.eq.0.0d00.or.abc.eq.180.0d00.or.
+     &    bcd.eq.0.0d00.or.bcd.eq.180.0d00) then
+        dihedral = 0.0d00 
+        return
+      endif
+* a,b,d or a,c,d are linear
+      if (abd.eq.0.0d00.or.acd.eq.0.0d00) then
+        dihedral = 180.0d00 
+        return
+      endif
+*rak:      write(6,*)'ain       :',ain
+*rak:      write(6,*)'bin       :',bin
+*rak:      write(6,*)'cin       :',cin
+*rak:      write(6,*)'din       :',din
+c
+*... abc (b center)
+      call dcopy(3,ain,1,a,1)
+      call dcopy(3,bin,1,b,1)
+      call dcopy(3,cin,1,c,1)
+* form vectors BA and BC (make B the origin)
+      BA(1) = a(1)-b(1)
+      BA(2) = a(2)-b(2)
+      BA(3) = a(3)-b(3)
+      BC(1) = c(1)-b(1)
+      BC(2) = c(2)-b(2)
+      BC(3) = c(3)-b(3)
+* form cross product of BA and BC
+      BAxBC(1) = BA(2)*BC(3)-BA(3)*BC(2)
+      BAxBC(2) = BA(3)*BC(1)-BA(1)*BC(3)
+      BAxBC(3) = BA(1)*BC(2)-BA(2)*BC(1)
+* find magnitude of BAxBC
+      mbaxbc = BAxBC(1)*BAxBC(1) + BAxBC(2)*BAxBC(2) + BAxBC(3)*BAxBC(3)
+      mbaxbc = sqrt(mbaxbc)
+*rak:      write(6,*)'a         :',a
+*rak:      write(6,*)'b         :',b
+*rak:      write(6,*)'c         :',c
+*rak:      write(6,*)'BA        :',BA
+*rak:      write(6,*)'BC        :',BC
+*rak:      write(6,*)'BAxBC     :',BAxBC
+*rak:      write(6,*)'mbaxbc    :',mbaxbc
+c
+*... bcd (c center)  ! right hand screw!!
+      call dcopy(3,bin,1,b,1)
+      call dcopy(3,cin,1,c,1)
+      call dcopy(3,din,1,d,1)
+* form vectors CB and CD (make C the origin)
+      CB(1) = b(1) - c(1)
+      CB(2) = b(2) - c(2)
+      CB(3) = b(3) - c(3)
+      CD(1) = d(1) - c(1)
+      CD(2) = d(2) - c(2)
+      CD(3) = d(3) - c(3)
+* form cross product of CB and CD
+      CBxCD(1) = CB(2)*CD(3)-CB(3)*CD(2)
+      CBxCD(2) = CB(3)*CD(1)-CB(1)*CD(3)
+      CBxCD(3) = CB(1)*CD(2)-CB(2)*CD(1)
+* now find the angle between two vectors BAxBC and CBxCD      
+* find magnitude of CBxCD      
+      mcbxcd = CBxCD(1)*CBxCD(1) + CBxCD(2)*CBxCD(2) + CBxCD(3)*CBxCD(3)
+      mcbxcd = sqrt(mcbxcd)
+*rak:      write(6,*)'b         :',b
+*rak:      write(6,*)'c         :',c
+*rak:      write(6,*)'d         :',d
+*rak:      write(6,*)'CB        :',CB
+*rak:      write(6,*)'CD        :',CD
+*rak:      write(6,*)'CBxCD     :',CBxCD
+*rak:      write(6,*)'mcbxcd    :',mcbxcd
+*
+      cosangle = BAxBC(1)*CBxCD(1) + BAxBC(2)*CBxCD(2) +
+     &    BAxBC(3)*CBxCD(3) 
+*rak:      write(6,*)' N1 . N2  :',cosangle
+      cosangle = cosangle/mbaxbc/mcbxcd
+*rak:      write(6,*)' arccos  :',cosangle
+      if (cosangle.gt.1.0d00) then
+        abc = cosangle - 1.0d00
+*rak:        write(6,*)' cosangle .gt. 1.0 by',abc
+        if (abs(abc).lt.1.0d-6) cosangle = cosangle - abc
+      endif
+      if (cosangle.lt.-1.0d00) then
+        abc = -1.0d00 - cosangle
+*rak:        write(6,*)' cosangle .lt. -1.0 by',abc
+        if (abs(abc).lt.1.0d-6) cosangle = cosangle + abc
+      endif
+      dihedral = acos(cosangle)
+      dihedral = dihedral*180.0d00/pi
       end
-      logical function geom_print_distance(geom)
+      logical function geom_print_distances(geom)
       implicit none
 c
 c prints arbitrary i>j atom distances
 c
-#include "geom.fh"
 #include "stdio.fh"
 #include "inp.fh"
 c::-functions
+      logical geom_get_user_units
+      logical geom_get_user_scale
+      logical geom_ncent
+      logical geom_cent_get
+      logical geom_tag_to_element
       logical geom_calc_distance
+      logical geom_get_def_rcov
+      external geom_get_user_units
+      external geom_get_user_scale
+      external geom_ncent
+      external geom_cent_get
+      external geom_tag_to_element
       external geom_calc_distance
+      external geom_get_def_rcov
 c::-passed      
       integer geom ! [input] geometry handle
 c::-local
-      double precision thresh
       integer nat ! number of atoms
       integer iat ! ith atom
       integer jat ! jth atom
@@ -2356,89 +2414,171 @@ c::-local
       character*16 tagi      ! tag of atom i
       double precision cj(3) ! coords of atom j
       character*16 tagj      ! tag of atom j
+      logical status_tagi, status_tagj ! return status of call to geom-2-element
+      integer iatn, jatn ! atomic numbers for atom i and j
+      character*2 symi, symj ! atomic symbols for atom i and j
+      character*16 elei, elej ! atomic names for atom i and j
+      double precision i_rcov, j_rcov ! covalent radii for atom i and j
+      double precision rcov ! combined covalent radii
+      double precision rscale ! scale factor
       integer lmtag
       double precision dij   ! distance between atoms i and j
-      double precision dist_min
-      double precision dist_ave
-      double precision dist_max
-      double precision dist_cnt 
-      integer num_pos
+      character*10 usr_units ! units user used as input
+      double precision usr_scale ! unit scale factor
+      character*128 emsg
       integer num_prt
-
+      logical header
+      logical debug
+      integer ludbg
 c
-      thresh = 3.00001d00
-*rak:      thresh = thresh + 0.01d00
-*rak:00001 continue
-*rak:      thresh = thresh - 0.01d00
-      if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('geom_print_distance: ',911)
-
-      num_pos = nat*(nat-1)/2
+c
+      geom_print_distances = .false.
+      ludbg = 69
+      debug = .false.
+      header = .false.
       num_prt = 0
-      dist_cnt = 0.0d00
-      dist_min = 4040.0d00
-      dist_max = 0.0d00
-      dist_ave = 0.0d00
-      write(luout,'(1x,a,f10.4)')
-     &    ' geom_print_distance: threshold :',thresh
+      rscale = 1.1d00
+      if (.not.geom_get_user_units(geom,usr_units)) call errquit
+     &    ('geom_print_distances: geom_get_user_units failed',911)
+      if (.not.geom_get_user_scale(geom,usr_scale)) call errquit
+     &    ('geom_print_distances: geom_get_user_scale failed',911)
+      if (.not.geom_ncent(geom,nat)) call errquit
+     &    ('geom_print_distances: geom_ncent failed',911)
+      if (nat.eq.1) then
+        geom_print_distances = .true.
+        return
+      endif
       do iat = 1,nat
-        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
-     &      ('geom_print_distance: ',911)
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+     &      ('geom_print_distances: geom_cent_get failed:i',911)
+        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+        if ((symi.eq.'bq').and.
+     &      (.not.status_tagi))status_tagi = .true.
+        if (.not.status_tagi)call errquit
+     &      ('geom_print_distances:geom_tag_to_element failed:i',911)
+        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+     &      ('geom_print_distances: geom_get_def_rcov failed atom i',
+     &      911)
         lmtag = inp_strlen(tagi)
         do jat = 1,iat
           if (iat.ne.jat) then
 
-            if (.not.geom_cent_get(geom,jat,tagj,cj,chg))call errquit
-     &          ('geom_print_distance: ',911)
-
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
+     &          ('geom_print_distances: geom_cent_get failed:j',911)
+            status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+            if ((symj.eq.'bq').and.
+     &          (.not.status_tagj))status_tagj = .true.
+            if (.not.status_tagj) call errquit
+     &      ('geom_print_distances:geom_tag_to_element failed:j',911)
+            if (.not.geom_get_def_rcov(jatn,j_rcov)) then
+              emsg = 'geom_print_distances: '//
+     &            'geom_get_def_rcov failed atom j'
+              call errquit(emsg,911)
+            endif
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_print_distance: ',911)
+     &          ('geom_print_distances: ',911)
 
-            dist_min = min(dist_min,dij)
-            dist_max = max(dist_max,dij)
-            dist_ave = dist_ave + dij
-            dist_cnt = dist_cnt + 1.0d00
-            if (dij.lt.thresh) then
+            rcov = rscale*(j_rcov+i_rcov)
+            if (debug) then
+              write(ludbg,*)'**************** iat,jat',iat,jat
+              write(ludbg,*)' rcov ',rcov
+              write(ludbg,*)' rscale ',rscale
+              write(ludbg,*)' i_rcov ',i_rcov
+              write(ludbg,*)' j_rcov ',j_rcov
+              write(ludbg,10002)
+     &            tagi(1:lmtag),symi,iat,
+     &            tagj(1:lmtag),symj,jat,dij
+            endif
+            if ((dij.lt.rcov).or.debug) then
               lmtag = max(lmtag,inp_strlen(tagj))
-              write(luout,10000)
-     &            tagi(1:lmtag),iat,
-     &            tagj(1:lmtag),jat,dij
+              if (.not.header) then
+                write(luout,10000)usr_units(1:inp_strlen(usr_units))
+                header = .true.
+              endif
               num_prt = num_prt + 1
+              write(luout,10001)num_prt,
+     &            iat,tagi,
+     &            jat,tagj,
+     &            dij,(dij/usr_scale)
             endif
           endif
         enddo
       enddo
-10000 format(1x,'distance(',a,'|',i4,',',a,'|',i4,') =',f12.6)
-      dist_ave = dist_ave/dist_cnt
-      write(luout,'(1x,a,f12.6)')
-     &    ' minimum distance ',dist_min
-      write(luout,'(1x,a,f12.6)')
-     &    ' maximum distance ',dist_max
-      write(luout,'(1x,a,f12.6)')
-     &    ' average distance ',dist_ave
-      write(luout,'(1x,a,i7)')
-     &    'possible pairs to print:',num_pos
-      write(luout,'(1x,a,i7)')
-     &    '          pairs printed:',num_prt
-      geom_print_distance = .true.
-*      write(69,'(1x,f12.6,i10)')thresh,num_prt
-*      if (num_prt.gt.0) goto 00001
+      if (header) write(luout,10003)
+10000 format(1x,86('='),/,
+     &    32x,'internuclear distances',/,1x,86('-'),/,
+     &    1x,'count |',
+     &    6x,'center one',6x,'|',
+     &    6x,'center two',6x,'|',
+     &    ' atomic units |',1x,a10,
+     &    /,1x,86('-'))
+10001 format(1x,i5,1x,'|',
+     &    i4,1x,a16,1x,'|',
+     &    i4,1x,a16,1x,'|',
+     &    1x,f11.5,2x,'|',1x,f11.5)
+10002 format(1x,'debug:distance(',
+     &    a,'|',a2,'|',i4,',',
+     &    a,'|',a2,'|',i4,') =',f12.6)
+10003 format(1x,86('='),/,/)
+      geom_print_distances = .true.
       end
       logical function geom_print_angles(geom)
       implicit none
-#include "geom.fh"
+#include "mafdecls.fh"
+      logical geom_prt_angles
+      logical geom_ncent
+      external geom_prt_angles
+      external geom_ncent
+      integer geom
+      integer nat
+      integer max_netp, max_net
+      parameter (max_netp=12)
+      integer h_xnet, k_xnet, h_xlist, k_xlist
+*
+      if (.not.geom_ncent(geom,nat)) call errquit
+     &    ('geom_print_angles: geom_ncent',911)
+
+      max_net = min(max_netp,nat)
+      if (.not.ma_push_get(mt_int,(max_net*nat),'p_xnet',
+     &    h_xnet,k_xnet)) call errquit(
+     &    'geom_print_angles: ma get xnet failed',911)
+
+      if (.not.ma_push_get(mt_int,(nat),'p_xlist',
+     &    h_xlist,k_xlist)) call errquit(
+     &    'geom_print_angles: ma get xlist failed',911)
+
+      geom_print_angles =
+     &    geom_prt_angles(geom,nat,max_net,
+     &    int_mb(k_xnet),int_mb(k_xlist))
+      geom_print_angles = geom_print_angles .and.
+     &    ma_pop_stack(h_xlist)
+      geom_print_angles = geom_print_angles .and.
+     &    ma_pop_stack(h_xnet)
+      end
+      logical function geom_prt_angles(geom,nat,max_net,xnet,xlist)
+      implicit none
 #include "inp.fh"
 #include "stdio.fh"
+#include "mafdecls.fh"
 c::-functions
+      logical geom_cent_get
+      logical geom_tag_to_element
       logical geom_calc_distance
-      external geom_calc_distance
       logical geom_calc_angle
+      logical geom_get_def_rcov
+      external geom_cent_get
+      external geom_tag_to_element
+      external geom_calc_distance
       external geom_calc_angle
+      external geom_get_def_rcov
 c::-passed      
       integer geom ! [input] geometry handle
-c::-local
-      double precision thresh
       integer nat ! number of atoms
+      integer max_net ! maximum number of "connected" atoms for a given atom
+      integer xlist(nat)
+      integer xnet(max_net,nat)
+c::-local
+      double precision rscale
       integer iat ! ith atom
       integer jat ! jth atom
       integer kat ! kth atom
@@ -2463,14 +2603,25 @@ c::-local
       logical print_ikj      ! print angle i, k, j
       logical print_jik      ! print angle j, i, k
       logical should_print   ! should something be printed?
-      integer num_pos
+*. . . . . . . . . . . . . . ! return status of call to geom-2-element
+      logical status_tagi, status_tagj, status_tagk 
+      integer iatn, jatn, katn ! atomic numbers for atom i, j and k
+      character*2 symi, symj, symk ! atomic symbols for atom i, j and k
+      character*16 elei, elej, elek ! atomic names for atom i, j and k
+*. . . . . . . . . . . . . . . . . ! covalent radii for atom i, j and k
+      character*128 emsg
+      double precision i_rcov, j_rcov, k_rcov 
       integer num_prt
+      integer itmp, jtmp, ktmp
+      logical header
+      integer ludbg
+      logical debug
 c
 c initialize variables
-      thresh = 3.00001d00
-*      thresh = thresh + 0.01d00
-*00001 continue
-*      thresh = thresh - 0.01d00
+      ludbg = 69
+      debug = .false.
+      header = .false.
+      rscale = 1.1d00
       FF = .false.
       FT = .true.
       dij_okay = FF
@@ -2478,164 +2629,587 @@ c initialize variables
       dik_okay = FF
       num_prt = 0
       
-      if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('geom_print_angles: ',911)
-
-      num_pos = nat*(nat-1)*(nat-2)/6
-
-      if (nat.lt.3) return
-      write(luout,'(1x,a,f10.4)')
-     &    ' geom_print_angles: distance threshold :',thresh
+      geom_prt_angles = FF
+      if (nat.lt.3) then
+        geom_prt_angles = FT
+        return
+      endif
+      call ifill((max_net*nat),0,xnet,1)
+      call ifill(nat,0,xlist,1)
       do iat = 1,nat
-        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
-     &      ('geom_print_angles: ',911)
-        lmtag = inp_strlen(tagi)
-        do jat = 1,iat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+     &      ('geom_prt_angles: geom_cent_get:i',911)
+        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+        if ((symi.eq.'bq').and.
+     &      (.not.status_tagi))status_tagi = .true.
+        if (.not.status_tagi) call errquit
+     &      ('geom_prt_angles:geom_tag_to_element failed:i',911)
+        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911)
+        do jat = 1,nat
+          
           if (iat.ne.jat) then
-
-            if (.not.geom_cent_get(geom,jat,tagj,cj,chg))call errquit
-     &          ('geom_print_angles: ',911)
-
-            lmtag = max(lmtag,inp_strlen(tagj))
+            
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
+     &          ('geom_prt_angles:geom_cent_get:j ',911)
+            
+            status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+            if ((symj.eq.'bq').and.
+     &          (.not.status_tagj))status_tagj = .true.
+            if (.not.status_tagj) call errquit
+     &          ('geom_prt_angles:geom_tag_to_element failed:j',911)
+            if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
+     &          ('geom_prt_angles: geom_get_def_rcov failed atom j',
+     &          911)
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_print_angles: ',911)
-
-            dij_okay = dij.lt.thresh
-            if (dij_okay) then
-              do kat = 1,jat
-                if (kat.ne.jat.and.kat.ne.iat) then
-                  if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
-     &                call errquit
-     &                ('geom_print_angles: ',911)
-                  lmtag = max(lmtag,inp_strlen(tagk))
-                  
-                  if (.not.geom_calc_distance(ci,ck,dik)) call errquit
-     &                ('geom_print_angles: ',911)
-                  if (.not.geom_calc_distance(cj,ck,djk)) call errquit
-     &                ('geom_print_angles: ',911)
-                  dik_okay = dik.lt.thresh
-                  djk_okay = djk.lt.thresh
-                  ngood = 0
-                  if (dij_okay) ngood = ngood + 1
-                  if (dik_okay) ngood = ngood + 1
-                  if (djk_okay) ngood = ngood + 1
-*
-* ngood is 0 or 1 then atoms too far apart to be interesting
-*
-                  print_ijk = FF ! a(ijk) = a(kji)
-                  print_ikj = FF ! a(ikj) = a(jki)
-                  print_jik = FF ! a(jik) = a(kji)
-                  if (ngood.eq.2) then
-* ngood = 2 then only one interesting angle
-                    if     (dij_okay.and.dik_okay) then
-                      print_jik = FT ! then angle should be j, i, k
-                    elseif (dij_okay.and.djk_okay) then
-                      print_ijk = FT ! then angle should be i, j, k
-                    elseif (dik_okay.and.djk_okay) then
-                      print_ikj = FT ! then angle should be i, k, j
-                    else
-                      call errquit(' should not get here 1',911)
-                    endif
-                  elseif (ngood.eq.3) then
-                    
-* if isocoles print angle between equal sides
-                    if (dij.eq.djk) then
-                      print_ijk = FT
-                    else if (dij.eq.dik) then
-                      print_jik = FT
-                    else if (djk.eq.dik) then
-                      print_ikj = FT
-                      
-* print angle with largest value.
-                    else if (dij.gt.djk.and.dij.gt.dik) then
-                      print_ikj = FT
-                    else if (djk.gt.dij.and.djk.gt.dik) then
-                      print_jik = FT
-                    else if (dik.gt.dij.and.dik.gt.djk) then
-                      print_ijk = FT
-                    else
-                      call errquit(' should not get here 2',911)
-                    endif
-                  endif
-                  should_print = (ngood.eq.2.or.ngood.eq.3) .and.
-     &                (print_ijk.or.print_ikj.or.print_jik)
-                  if (print_ijk) then
-                    if (.not.should_print) stop 'error'
-                    if (.not.geom_calc_angle(ci,cj,ck,angle))
-     &                  call errquit
-     &                  (' error ',911)
-                    num_prt =num_prt + 1
-                    write(luout,10000)
-     &                  tagi(1:lmtag),iat,
-     &                  tagj(1:lmtag),jat,
-     &                  tagk(1:lmtag),kat,angle
-                  else if (print_ikj) then
-                    if (.not.should_print) stop 'error'
-                    if (.not.geom_calc_angle(ci,ck,cj,angle))
-     &                  call errquit
-     &                  (' error ',911)
-                    num_prt =num_prt + 1
-                    write(luout,10000)
-     &                  tagi(1:lmtag),iat,
-     &                  tagk(1:lmtag),kat,
-     &                  tagj(1:lmtag),jat,angle
-                  else if (print_jik) then
-                    if (.not.should_print) stop 'error'
-                    if (.not.geom_calc_angle(cj,ci,ck,angle))
-     &                  call errquit
-     &                  (' error ',911)
-                    num_prt =num_prt + 1
-                    write(luout,10000)
-     &                  tagj(1:lmtag),jat,
-     &                  tagi(1:lmtag),iat,
-     &                  tagk(1:lmtag),kat,angle
-                  endif
-                endif
-              enddo
+     &          ('geom_prt_angles:geom_calc_distance:ij ',911)
+            
+            if (dij.lt.(rscale*(i_rcov+j_rcov))) then
+              itmp = xlist(iat) + 1
+              if(itmp.gt.max_net) call errquit(
+     &            'geom_prt_angles:max_net is too small ',max_net)
+              xlist(iat) = itmp
+              xnet(itmp,iat) = jat
             endif
           endif
         enddo
       enddo
-10000 format(1x,'angle(',a,'|',i4,',',a,'|',i4,',',a,'|',i4,
-     &    ') =',f9.3)
-      write(luout,'(1x,a,i7)')
-     &    'possible angles to print:',num_pos
-      write(luout,'(1x,a,i7)')
-     &    '         angles  printed:',num_prt
-      geom_print_angles = FT
-*      write(69,'(1x,f12.6,i10)')thresh,num_prt
-*      if (num_prt.gt.0) goto 00001
+*rak:      write(6,*)' xlist: ', xlist
+*rak:      do iat = 1,nat
+*rak:        write(6,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
+*rak:      enddo
+*
+      do iat = 1,nat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+     &      ('geom_prt_angles: geom_cent_get:i',911)
+        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+        if ((symi.eq.'bq').and.
+     &      (.not.status_tagi))status_tagi = .true.
+        if (.not.status_tagi) call errquit
+     &      ('geom_prt_angles:geom_tag_to_element failed:i',911)
+        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911)
+        if (xlist(iat).gt.1) then
+          do jtmp = 1,xlist(iat)
+            jat = xnet(jtmp,iat)
+            if (iat.ne.jat) then
+              
+              if (.not.geom_cent_get(geom,jat,tagj,cj,chg))
+     &            call errquit
+     &            ('geom_prt_angles:geom_cent_get:j ',911)
+              
+              status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+              if ((symj.eq.'bq').and.
+     &            (.not.status_tagj))status_tagj = .true.
+              if (.not.status_tagj) call errquit
+     &            ('geom_prt_angles:geom_tag_to_element failed:j',
+     &            911)
+              if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
+     &            ('geom_prt_angles:geom_get_def_rcov fail atom j',
+     &            911)
+              if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+     &            ('geom_prt_angles:geom_calc_distance:ij ',911)
+              
+              dij_okay = dij.lt.(rscale*(i_rcov+j_rcov))
+              if (dij_okay.or.debug) then
+                do ktmp = jtmp+1,xlist(iat)
+                  kat = xnet(ktmp,iat)
+                  if (kat.ne.jat.and.kat.ne.iat) then
+                    if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
+     &                  call errquit
+     &                  ('geom_prt_angles:geom_cent_get:k ',911)
+                    status_tagk =
+     &                  geom_tag_to_element(tagk,symk,elek,katn)
+                    if ((symk.eq.'bq').and.
+     &                  (.not.status_tagk))status_tagk = .true.
+                    if (.not.status_tagk) then 
+                      emsg = 'geom_prt_angles: '//
+     &                    'geom_tag_to_element failed:k'
+                      call errquit(emsg,911)
+                    endif
+                    if (.not.geom_get_def_rcov(katn,k_rcov)) then
+                      emsg = 'geom_prt_angles: '//
+     &                    'geom_egt_def_rcov failed atom k'
+                      call errquit(emsg,911)
+                    endif
+                    lmtag = max(lmtag,inp_strlen(tagk))
+                    
+                    if (.not.geom_calc_distance(ci,ck,dik))
+     &                  call errquit
+     &                  ('geom_prt_angles:geom_calc_distance:ik ',
+     &                  911)
+                    if (.not.geom_calc_distance(cj,ck,djk))
+     &                  call errquit
+     &                  ('geom_prt_angles:geom_calc_distance:jk ',
+     &                  911)
+                    dik_okay = dik.lt.(rscale*(i_rcov+k_rcov))
+                    djk_okay = djk.lt.(rscale*(j_rcov+k_rcov))
+                    ngood = 0
+                    if (dij_okay) ngood = ngood + 1
+                    if (dik_okay) ngood = ngood + 1
+                    if (djk_okay) ngood = ngood + 1
+                    if (debug) then
+                      write(ludbg,*)'**************** iat,jat,kat',
+     &                    iat,jat,kat
+                      write(ludbg,*)' ngood   : ',ngood
+                      write(ludbg,*)' dij_okay: ',dij_okay
+                      write(ludbg,*)' dik_okay: ',dik_okay
+                      write(ludbg,*)' djk_okay: ',djk_okay
+                      write(ludbg,*)' dij     : ',dij
+                      write(ludbg,*)' dik     : ',dik
+                      write(ludbg,*)' djk     : ',djk
+                      write(ludbg,*)' rij     : ',
+     &                    rscale*(i_rcov+j_rcov)
+                      write(ludbg,*)' rik     : ',
+     &                    rscale*(i_rcov+k_rcov)
+                      write(ludbg,*)' rjk     : ',
+     &                    rscale*(j_rcov+k_rcov)
+                    endif
+*
+* ngood is 0 or 1 then atoms too far apart to be interesting
+*
+                    print_ijk = FF ! a(ijk) = a(kji)
+                    print_ikj = FF ! a(ikj) = a(jki)
+                    print_jik = FF ! a(jik) = a(kji)
+                    if (ngood.eq.2) then
+* ngood = 2 then only one interesting angle
+                      if     (dij_okay.and.dik_okay) then
+                        print_jik = FT ! then angle should be j, i, k
+                      elseif (dij_okay.and.djk_okay) then
+                        print_ijk = FT ! then angle should be i, j, k
+                      elseif (dik_okay.and.djk_okay) then
+                        print_ikj = FT ! then angle should be i, k, j
+                      else
+                        emsg = 'geom_prt_angles: '//
+     &                      'should not get here 1'
+                        call errquit(emsg,911)
+                      endif
+                    elseif (ngood.eq.3) then
+                      
+* if isocoles print angle between equal sides
+                      if (dij.eq.djk) then
+                        print_ijk = FT
+                      else if (dij.eq.dik) then
+                        print_jik = FT
+                      else if (djk.eq.dik) then
+                        print_ikj = FT
+                        
+* print angle with largest value.
+                      else if (dij.gt.djk.and.dij.gt.dik) then
+                        print_ikj = FT
+                      else if (djk.gt.dij.and.djk.gt.dik) then
+                        print_jik = FT
+                      else if (dik.gt.dij.and.dik.gt.djk) then
+                        print_ijk = FT
+                      else
+                        emsg = 'geom_prt_angles: '//
+     &                      'should not get here 2'
+                        call errquit(emsg,911)
+                      endif
+                    endif
+                    should_print = (ngood.eq.2.or.ngood.eq.3) .and.
+     &                  (print_ijk.or.print_ikj.or.print_jik)
+                    if (should_print.and.(.not.header)) then
+                      write(luout,10000)
+                      header = .true.
+                    endif
+                    if (print_ijk) then
+                      if (.not.should_print) call errquit(
+     &                    'geom_prt_angles "should_print" error',
+     &                    911)
+                      if (.not.geom_calc_angle(ci,cj,ck,angle))
+     &                    call errquit
+     &                    ('geom_prt_angles:geom_calc_angle failed',
+     &                    911)
+                      num_prt =num_prt + 1
+                      write(luout,10001)num_prt,
+     &                    iat, tagi,
+     &                    jat, tagj,
+     &                    kat, tagk,angle
+                    else if (print_ikj) then
+                      if (.not.should_print) call errquit(
+     &                    'geom_prt_angles "should_print" error',
+     &                    911)
+                      if (.not.geom_calc_angle(ci,ck,cj,angle))
+     &                    call errquit
+     &                    ('geom_prt_angles:geom_calc_angle failed',
+     &                    911)
+                      num_prt =num_prt + 1
+                      write(luout,10001)num_prt,
+     &                    iat, tagi,
+     &                    kat, tagk,
+     &                    jat, tagj,angle
+                    else if (print_jik) then
+                      if (.not.should_print) call errquit(
+     &                    'geom_prt_angles "should_print" error',
+     &                    911)
+                      if (.not.geom_calc_angle(cj,ci,ck,angle))
+     &                    call errquit
+     &                    ('geom_prt_angles:geom_calc_angle failed',
+     &                    911)
+                      num_prt =num_prt + 1
+                      write(luout,10001)num_prt,
+     &                    jat, tagj,
+     &                    iat, tagi,
+     &                    kat, tagk,angle
+                    endif
+                  endif
+                enddo
+              endif
+            endif
+          enddo
+        endif
+      enddo
+      if (header) write(luout,10002)
+10000 format(1x,86('='),/,
+     &    33x,'internuclear angles',/,1x,86('-'),/,
+     &    1x,'count |',
+     &    7x,'center 1',7x,'|',
+     &    7x,'center 2',7x,'|',
+     &    7x,'center 3',7x,'|',
+     &    '  degrees',
+     &    /,1x,86('-'))
+10001 format(1x,i5,1x,'|',
+     &    i4,1x,a16,1x,'|',
+     &    i4,1x,a16,1x,'|',
+     &    i4,1x,a16,1x,'|',
+     &    1x,f8.2)
+10002 format(1x,86('='),/,/)
+      geom_prt_angles = FT
       end
+*B4-xnet:      logical function geom_print_angles(geom)
+*B4-xnet:      implicit none
+*B4-xnet:#include "inp.fh"
+*B4-xnet:#include "stdio.fh"
+*B4-xnet:c::-functions
+*B4-xnet:      logical geom_calc_distance
+*B4-xnet:      external geom_calc_distance
+*B4-xnet:      logical geom_calc_angle
+*B4-xnet:      external geom_calc_angle
+*B4-xnet:      logical geom_get_def_rcov
+*B4-xnet:      external geom_get_def_rcov
+*B4-xnet:c::-passed      
+*B4-xnet:      integer geom ! [input] geometry handle
+*B4-xnet:c::-local
+*B4-xnet:      double precision rscale
+*B4-xnet:      integer nat ! number of atoms
+*B4-xnet:      integer iat ! ith atom
+*B4-xnet:      integer jat ! jth atom
+*B4-xnet:      integer kat ! kth atom
+*B4-xnet:      double precision chg   ! charge (ignored)
+*B4-xnet:      double precision ci(3) ! coords of atom i
+*B4-xnet:      character*16 tagi      ! tag of atom i
+*B4-xnet:      double precision cj(3) ! coords of atom j
+*B4-xnet:      character*16 tagj      ! tag of atom j
+*B4-xnet:      double precision ck(3) ! coords of atom k
+*B4-xnet:      character*16 tagk      ! tag of atom k
+*B4-xnet:      integer lmtag
+*B4-xnet:      double precision dij   ! distance between atoms i and j
+*B4-xnet:      double precision djk   ! distance between atoms j and k
+*B4-xnet:      double precision dik   ! distance between atoms i and k
+*B4-xnet:      double precision angle ! angle to be printed
+*B4-xnet:      logical FF, FT         ! fortran true and false
+*B4-xnet:      integer ngood          ! number of sides under threshold
+*B4-xnet:      logical dij_okay       ! dij under threshold
+*B4-xnet:      logical djk_okay       ! djk under threshold
+*B4-xnet:      logical dik_okay       ! dik under threshold
+*B4-xnet:      logical print_ijk      ! print angle i, j, k
+*B4-xnet:      logical print_ikj      ! print angle i, k, j
+*B4-xnet:      logical print_jik      ! print angle j, i, k
+*B4-xnet:      logical should_print   ! should something be printed?
+*B4-xnet:*. . . . . . . . . . . . . . ! return status of call to geom-2-element
+*B4-xnet:      logical status_tagi, status_tagj, status_tagk 
+*B4-xnet:      integer iatn, jatn, katn ! atomic numbers for atom i, j and k
+*B4-xnet:      character*2 symi, symj, symk ! atomic symbols for atom i, j and k
+*B4-xnet:      character*16 elei, elej, elek ! atomic names for atom i, j and k
+*B4-xnet:*. . . . . . . . . . . . . . . . . ! covalent radii for atom i, j and k
+*B4-xnet:      character*128 emsg
+*B4-xnet:      double precision i_rcov, j_rcov, k_rcov 
+*B4-xnet:      integer num_prt
+*B4-xnet:      logical header
+*B4-xnet:      integer ludbg
+*B4-xnet:      logical debug
+*B4-xnet:c
+*B4-xnet:c initialize variables
+*B4-xnet:      ludbg = 69
+*B4-xnet:      debug = .false.
+*B4-xnet:      header = .false.
+*B4-xnet:      rscale = 1.1d00
+*B4-xnet:      FF = .false.
+*B4-xnet:      FT = .true.
+*B4-xnet:      dij_okay = FF
+*B4-xnet:      djk_okay = FF
+*B4-xnet:      dik_okay = FF
+*B4-xnet:      num_prt = 0
+*B4-xnet:      
+*B4-xnet:      if (.not.geom_ncent(geom,nat)) call errquit
+*B4-xnet:     &    ('geom_print_angles: geom_ncent',911)
+*B4-xnet:
+*B4-xnet:      if (nat.lt.3) then
+*B4-xnet:        geom_print_angles = FT
+*B4-xnet:        return
+*B4-xnet:      endif
+*B4-xnet:      do iat = 1,nat
+*B4-xnet:        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+*B4-xnet:     &      ('geom_print_angles: geom_cent_get:i',911)
+*B4-xnet:        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+*B4-xnet:        if ((symi.eq.'bq').and.
+*B4-xnet:     &      (.not.status_tagi))status_tagi = .true.
+*B4-xnet:        if (.not.status_tagi) call errquit
+*B4-xnet:     &      ('geom_print_angles:geom_tag_to_element failed:i',911)
+*B4-xnet:        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+*B4-xnet:     &      ('geom_print_angles: geom_get_def_rcov failed atom i',911)
+*B4-xnet:
+*B4-xnet:        lmtag = inp_strlen(tagi)
+*B4-xnet:        do jat = 1,nat
+*B4-xnet:          if (iat.ne.jat) then
+*B4-xnet:
+*B4-xnet:            if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
+*B4-xnet:     &          ('geom_print_angles:geom_cent_get:j ',911)
+*B4-xnet:
+*B4-xnet:            status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+*B4-xnet:            if ((symj.eq.'bq').and.
+*B4-xnet:     &          (.not.status_tagj))status_tagj = .true.
+*B4-xnet:            if (.not.status_tagj) call errquit
+*B4-xnet:     &          ('geom_print_angles:geom_tag_to_element failed:j',911)
+*B4-xnet:            if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
+*B4-xnet:     &          ('geom_print_angles: geom_get_def_rcov failed atom j',
+*B4-xnet:     &          911)
+*B4-xnet:            lmtag = max(lmtag,inp_strlen(tagj))
+*B4-xnet:            if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+*B4-xnet:     &          ('geom_print_angles:geom_calc_distance:ij ',911)
+*B4-xnet:
+*B4-xnet:            dij_okay = dij.lt.(rscale*(i_rcov+j_rcov))
+*B4-xnet:            if (dij_okay.or.debug) then
+*B4-xnet:              do kat = 1,min(iat,jat)
+*B4-xnet:                if (kat.ne.jat.and.kat.ne.iat) then
+*B4-xnet:                  if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
+*B4-xnet:     &                call errquit
+*B4-xnet:     &                ('geom_print_angles:geom_cent_get:k ',911)
+*B4-xnet:                  status_tagk =
+*B4-xnet:     &                geom_tag_to_element(tagk,symk,elek,katn)
+*B4-xnet:                  if ((symk.eq.'bq').and.
+*B4-xnet:     &                (.not.status_tagk))status_tagk = .true.
+*B4-xnet:                  if (.not.status_tagk) then 
+*B4-xnet:                    emsg = 'geom_print_angles: '//
+*B4-xnet:     &                  'geom_tag_to_element failed:k'
+*B4-xnet:                    call errquit(emsg,911)
+*B4-xnet:                  endif
+*B4-xnet:                  if (.not.geom_get_def_rcov(katn,k_rcov)) then
+*B4-xnet:                    emsg = 'geom_print_angles: '//
+*B4-xnet:     &                  'geom_egt_def_rcov failed atom k'
+*B4-xnet:                    call errquit(emsg,911)
+*B4-xnet:                  endif
+*B4-xnet:                  lmtag = max(lmtag,inp_strlen(tagk))
+*B4-xnet:                  
+*B4-xnet:                  if (.not.geom_calc_distance(ci,ck,dik)) call errquit
+*B4-xnet:     &                ('geom_print_angles:geom_calc_distance:ik ',911)
+*B4-xnet:                  if (.not.geom_calc_distance(cj,ck,djk)) call errquit
+*B4-xnet:     &                ('geom_print_angles:geom_calc_distance:jk ',911)
+*B4-xnet:                  dik_okay = dik.lt.(rscale*(i_rcov+k_rcov))
+*B4-xnet:                  djk_okay = djk.lt.(rscale*(j_rcov+k_rcov))
+*B4-xnet:                  ngood = 0
+*B4-xnet:                  if (dij_okay) ngood = ngood + 1
+*B4-xnet:                  if (dik_okay) ngood = ngood + 1
+*B4-xnet:                  if (djk_okay) ngood = ngood + 1
+*B4-xnet:                  if (debug) then
+*B4-xnet:                    write(ludbg,*)'**************** iat,jat,kat',
+*B4-xnet:     &                  iat,jat,kat
+*B4-xnet:                    write(ludbg,*)' ngood   : ',ngood
+*B4-xnet:                    write(ludbg,*)' dij_okay: ',dij_okay
+*B4-xnet:                    write(ludbg,*)' dik_okay: ',dik_okay
+*B4-xnet:                    write(ludbg,*)' djk_okay: ',djk_okay
+*B4-xnet:                    write(ludbg,*)' dij     : ',dij
+*B4-xnet:                    write(ludbg,*)' dik     : ',dik
+*B4-xnet:                    write(ludbg,*)' djk     : ',djk
+*B4-xnet:                    write(ludbg,*)' rij     : ',rscale*(i_rcov+j_rcov)
+*B4-xnet:                    write(ludbg,*)' rik     : ',rscale*(i_rcov+k_rcov)
+*B4-xnet:                    write(ludbg,*)' rjk     : ',rscale*(j_rcov+k_rcov)
+*B4-xnet:                  endif
+*B4-xnet:*
+*B4-xnet:* ngood is 0 or 1 then atoms too far apart to be interesting
+*B4-xnet:*
+*B4-xnet:                  print_ijk = FF ! a(ijk) = a(kji)
+*B4-xnet:                  print_ikj = FF ! a(ikj) = a(jki)
+*B4-xnet:                  print_jik = FF ! a(jik) = a(kji)
+*B4-xnet:                  if (ngood.eq.2) then
+*B4-xnet:* ngood = 2 then only one interesting angle
+*B4-xnet:                    if     (dij_okay.and.dik_okay) then
+*B4-xnet:                      print_jik = FT ! then angle should be j, i, k
+*B4-xnet:                    elseif (dij_okay.and.djk_okay) then
+*B4-xnet:                      print_ijk = FT ! then angle should be i, j, k
+*B4-xnet:                    elseif (dik_okay.and.djk_okay) then
+*B4-xnet:                      print_ikj = FT ! then angle should be i, k, j
+*B4-xnet:                    else
+*B4-xnet:                      emsg = 'geom_print_angles: '//
+*B4-xnet:     &                    'should not get here 1'
+*B4-xnet:                      call errquit(emsg,911)
+*B4-xnet:                    endif
+*B4-xnet:                  elseif (ngood.eq.3) then
+*B4-xnet:                    
+*B4-xnet:* if isocoles print angle between equal sides
+*B4-xnet:                    if (dij.eq.djk) then
+*B4-xnet:                      print_ijk = FT
+*B4-xnet:                    else if (dij.eq.dik) then
+*B4-xnet:                      print_jik = FT
+*B4-xnet:                    else if (djk.eq.dik) then
+*B4-xnet:                      print_ikj = FT
+*B4-xnet:                      
+*B4-xnet:* print angle with largest value.
+*B4-xnet:                    else if (dij.gt.djk.and.dij.gt.dik) then
+*B4-xnet:                      print_ikj = FT
+*B4-xnet:                    else if (djk.gt.dij.and.djk.gt.dik) then
+*B4-xnet:                      print_jik = FT
+*B4-xnet:                    else if (dik.gt.dij.and.dik.gt.djk) then
+*B4-xnet:                      print_ijk = FT
+*B4-xnet:                    else
+*B4-xnet:                      emsg = 'geom_print_angles: '//
+*B4-xnet:     &                    'should not get here 2'
+*B4-xnet:                      call errquit(emsg,911)
+*B4-xnet:                    endif
+*B4-xnet:                  endif
+*B4-xnet:                  should_print = (ngood.eq.2.or.ngood.eq.3) .and.
+*B4-xnet:     &                (print_ijk.or.print_ikj.or.print_jik)
+*B4-xnet:                  if (should_print.and.(.not.header)) then
+*B4-xnet:                    write(luout,10000)
+*B4-xnet:                    header = .true.
+*B4-xnet:                  endif
+*B4-xnet:                  if (print_ijk) then
+*B4-xnet:                    if (.not.should_print) call errquit(
+*B4-xnet:     &                  'geom_print_angles "should_print" error',911)
+*B4-xnet:                    if (.not.geom_calc_angle(ci,cj,ck,angle))
+*B4-xnet:     &                  call errquit
+*B4-xnet:     &                  ('geom_print_angles:geom_calc_angle failed',
+*B4-xnet:     &                  911)
+*B4-xnet:                    num_prt =num_prt + 1
+*B4-xnet:                    write(luout,10001)num_prt,
+*B4-xnet:     &                  iat, tagi,
+*B4-xnet:     &                  jat, tagj,
+*B4-xnet:     &                  kat, tagk,angle
+*B4-xnet:                  else if (print_ikj) then
+*B4-xnet:                    if (.not.should_print) call errquit(
+*B4-xnet:     &                  'geom_print_angles "should_print" error',911)
+*B4-xnet:                    if (.not.geom_calc_angle(ci,ck,cj,angle))
+*B4-xnet:     &                  call errquit
+*B4-xnet:     &                  ('geom_print_angles:geom_calc_angle failed',
+*B4-xnet:     &                  911)
+*B4-xnet:                    num_prt =num_prt + 1
+*B4-xnet:                    write(luout,10001)num_prt,
+*B4-xnet:     &                  iat, tagi,
+*B4-xnet:     &                  kat, tagk,
+*B4-xnet:     &                  jat, tagj,angle
+*B4-xnet:                  else if (print_jik) then
+*B4-xnet:                    if (.not.should_print) call errquit(
+*B4-xnet:     &                  'geom_print_angles "should_print" error',911)
+*B4-xnet:                    if (.not.geom_calc_angle(cj,ci,ck,angle))
+*B4-xnet:     &                  call errquit
+*B4-xnet:     &                  ('geom_print_angles:geom_calc_angle failed',
+*B4-xnet:     &                  911)
+*B4-xnet:                    num_prt =num_prt + 1
+*B4-xnet:                    write(luout,10001)num_prt,
+*B4-xnet:     &                  jat, tagj,
+*B4-xnet:     &                  iat, tagi,
+*B4-xnet:     &                  kat, tagk,angle
+*B4-xnet:                  endif
+*B4-xnet:                endif
+*B4-xnet:              enddo
+*B4-xnet:            endif
+*B4-xnet:          endif
+*B4-xnet:        enddo
+*B4-xnet:      enddo
+*B4-xnet:      if (header) write(luout,10002)
+*B4-xnet:10000 format(1x,86('='),/,
+*B4-xnet:     &    33x,'internuclear angles',/,1x,86('-'),/,
+*B4-xnet:     &    1x,'count |',
+*B4-xnet:     &    7x,'center 1',7x,'|',
+*B4-xnet:     &    7x,'center 2',7x,'|',
+*B4-xnet:     &    7x,'center 3',7x,'|',
+*B4-xnet:     &    '  degrees',
+*B4-xnet:     &    /,1x,86('-'))
+*B4-xnet:10001 format(1x,i5,1x,'|',
+*B4-xnet:     &    i4,1x,a16,1x,'|',
+*B4-xnet:     &    i4,1x,a16,1x,'|',
+*B4-xnet:     &    i4,1x,a16,1x,'|',
+*B4-xnet:     &    1x,f8.2)
+*B4-xnet:10002 format(1x,86('='),/,/)
+*B4-xnet:      geom_print_angles = FT
+*B4-xnet:      end
       logical function geom_print_dihedrals(geom)
       implicit none
 #include "mafdecls.fh"
-#include "geom.fh"
+      logical geom_ncent
+      logical geom_prt_dihedrals
+      external geom_ncent
+      external geom_prt_dihedrals
+      integer geom
+      integer nat
+      integer max_netp, max_net
+      parameter (max_netp=12)
+      integer h_xnet, k_xnet, h_xlist, k_xlist
+*
+      if (.not.geom_ncent(geom,nat)) call errquit
+     &    ('geom_print_dihedrals: geom_ncent',911)
+
+      max_net = min(max_netp,nat)
+      if (.not.ma_push_get(mt_int,(max_net*nat),'p_xnet',
+     &    h_xnet,k_xnet)) call errquit(
+     &    'geom_print_dihedrals: ma get xnet failed',911)
+
+      if (.not.ma_push_get(mt_int,(nat),'p_xlist',
+     &    h_xlist,k_xlist)) call errquit(
+     &    'geom_print_dihedrals: ma get xlist failed',911)
+
+      geom_print_dihedrals =
+     &    geom_prt_dihedrals(geom,nat,max_net,
+     &    int_mb(k_xnet),int_mb(k_xlist))
+      geom_print_dihedrals = geom_print_dihedrals .and.
+     &    ma_pop_stack(h_xlist)
+      geom_print_dihedrals = geom_print_dihedrals .and.
+     &    ma_pop_stack(h_xnet)
+      end
+      logical function geom_prt_dihedrals(geom,nat,max_net,xnet,xlist)
+      implicit none
+#include "mafdecls.fh"
 #include "stdio.fh"
 #include "inp.fh"
 c::-functions
       logical geom_calc_distance
-      external geom_calc_distance
       logical geom_calc_dihedral
+      logical geom_get_def_rcov
+      logical geom_cent_get
+      logical geom_tag_to_element
+      external geom_calc_distance
       external geom_calc_dihedral
+      external geom_get_def_rcov
+      external geom_cent_get
+      external geom_tag_to_element
 c::-passed      
       integer geom ! [input] geometry handle
-c::-local
-      double precision thresh
       integer nat ! number of atoms
+      integer max_net
+      integer xlist(nat), xnet(max_net,nat)
+c::-local
+      double precision rscale, tscale
       integer iat ! ith atom
       integer jat ! jth atom
       integer kat ! kth atom
       integer lat ! lth atom
+      integer ipat,jpat,kpat,lpat
       double precision chg   ! charge (ignored)
-      double precision ci(3) ! coords of atom i
+      double precision ci(3),pci(3) ! coords of atom i
       character*16 tagi      ! tag of atom i
-      double precision cj(3) ! coords of atom j
+      character*8  ptagi     ! tag of atom i
+      double precision cj(3),pcj(3) ! coords of atom j
       character*16 tagj      ! tag of atom j
-      double precision ck(3) ! coords of atom k
+      character*8  ptagj     ! tag of atom j
+      double precision ck(3),pck(3) ! coords of atom k
       character*16 tagk      ! tag of atom k
-      double precision cl(3) ! coords of atom k
+      character*8  ptagk     ! tag of atom k
+      double precision cl(3),pcl(3) ! coords of atom k
       character*16 tagl      ! tag of atom k
-      integer lmtag
+      character*8  ptagl     ! tag of atom k
+*      double precision c_all(3,4) ! all coords
+*      double precision dall(6) ! all distances
       double precision dij   ! distance between atoms i and j
       double precision dik   ! distance between atoms i and k
       double precision dil   ! distance between atoms i and l
@@ -2650,224 +3224,715 @@ c::-local
       logical djk_okay       ! djk under threshold
       logical djl_okay       ! djl under threshold
       logical dkl_okay       ! dkl under threshold
-      logical should_print   ! should something be printed?
+*rak:      logical all_okay
+      logical switch_jk
 c
-      integer k_printed      ! ma index to printed dihedral angles
-      integer h_printed      ! ma handle to printed dihedral angles
-      integer dh_printed
-      integer nat_size
-      integer indx
-      integer ip
-      logical will_print
+      logical status_tagi, status_tagj, status_tagk, status_tagl
+      character*2 symi, symj, symk, syml
+      character*16 elei, elej, elek, elel
+      integer iatn, jatn, katn, latn
+      integer itmp, jtmp, ktmp, ltmp
+      double precision i_rcov, j_rcov, k_rcov, l_rcov
+c
+*      integer ngood
       integer num_pos
       integer num_prt
-      logical print4, print8, print12, print16
-c::-statement functions
-      integer si, sj, sk, sl
-      integer isym2m, isym2, isym4mm, isym4m, isym4
-      isym2m(si,sj)=max(si,sj)*((max(si,sj))-1)/2 + min(si,sj)
-      isym2(si,sj) = si*(si-1)/2 + sj
-      isym4mm(si,sj,sk,sl) =
-     &    max(isym2m(si,sj),isym2m(sk,sl)) *
-     &    (max(isym2m(si,sj),isym2m(sk,sl))-1)/2 +
-     &    min(isym2m(si,sj),isym2m(sk,sl))
-      isym4m(si,sj,sk,sl) = 
-     &    max(isym2(si,sj),isym2(sk,sl)) *
-     &    (max(isym2(si,sj),isym2(sk,sl))-1)/2 +
-     &    min(isym2(si,sj),isym2(sk,sl))
-      isym4(si,sj,sk,sl) = 
-     &    isym2(si,sj)*(isym2(si,sj)-1)/2 +
-     &    isym2(sk,sl)
-c
-      
-      if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('geom_print_dihedrals: ',911)
-
-      num_pos = nat*(nat-1)*(nat-2)*(nat-3)/24
-
+      logical header
+*      
       FF = .false.
       FT = .true.
-
-      if (nat.lt.4) return
-
-      thresh = 4.00001d00
-*      thresh = thresh+0.01d00
-*00001 continue
-*      thresh = thresh-0.01d00
-c initialize variables
-      dij_okay = .false.      ! dij under threshold
-      dik_okay = .false.      ! dik under threshold
-      dil_okay = .false.      ! dil under threshold
-      djk_okay = .false.      ! djk under threshold
-      djl_okay = .false.      ! djl under threshold
-      dkl_okay = .false.      ! dkl under threshold
-      num_prt = 0
-      write(luout,'(1x,a,f10.4)')
-     &    ' geom_print_dihedrals: distance threshold :',thresh
-c
-*.. get ma array for printed dihedrals
-      dh_printed = 0
-*      nat_size = isym4mm(nat,nat,nat,1)
-      nat_size = 1000
-      if (.not.ma_push_get(mt_int,nat_size,'print list for dihedrals',
-     &    h_printed, k_printed)) call errquit
-     &    ('geom_print_dihedrals: not enough stack inc. needed',
-     &    nat_size)
-c
-      lmtag = -1
-      do iat = 1,nat
-        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
-     &      ('geom_print_dihedrals: ',911)
-        lmtag = max(lmtag,inp_strlen(tagi))
-      enddo
-      print4  = FF
-      print8  = FF
-      print12 = FF
-      print16 = FF
-      if (lmtag.le.4) then
-        print4 = FT
-      elseif (lmtag.le.8) then
-        print8 = FT
-      elseif (lmtag.le.12) then
-        print12 = FT
-      else
-        print16 = FT
+      num_pos = nat*(nat-1)*(nat-2)*(nat-3)/24
+      geom_prt_dihedrals = FF
+      if (nat.lt.4) then
+        geom_prt_dihedrals = FT        
+        return
       endif
-      if (print4)  write(luout,10001)
-      if (print8)  write(luout,10003)
-      if (print12) write(luout,10005)
-      if (print16) write(luout,10007)
+c initialize variables
+      rscale = 1.1d00
+      tscale = 1.1d00
+      dij_okay = FF      ! dij under threshold
+      dik_okay = FF      ! dik under threshold
+      dil_okay = FF      ! dil under threshold
+      djk_okay = FF      ! djk under threshold
+      djl_okay = FF      ! djl under threshold
+      dkl_okay = FF      ! dkl under threshold
+      header = FF
+      num_prt = 0
+c
+      call ifill((max_net*nat),0,xnet,1)
+      call ifill(nat,0,xlist,1)
       do iat = 1,nat
-        if (.not.geom_cent_get(geom,iat,tagi,ci,chg))call errquit
-     &      ('geom_print_dihedrals: ',911)
-        do jat = 1,iat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+     &      ('geom_prt_angles: geom_cent_get:i',911)
+        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+        if ((symi.eq.'bq').and.
+     &      (.not.status_tagi))status_tagi = .true.
+        if (.not.status_tagi) call errquit
+     &      ('geom_prt_angles:geom_tag_to_element failed:i',911)
+        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911)
+        do jat = 1,nat
+          
           if (iat.ne.jat) then
             
-            dh_printed = 0
-            if (.not.geom_cent_get(geom,jat,tagj,cj,chg))call errquit
-     &          ('geom_print_dihedrals: ',911)
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
+     &          ('geom_prt_angles:geom_cent_get:j ',911)
+            
+            status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+            if ((symj.eq.'bq').and.
+     &          (.not.status_tagj))status_tagj = .true.
+            if (.not.status_tagj) call errquit
+     &          ('geom_prt_angles:geom_tag_to_element failed:j',911)
+            if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
+     &          ('geom_prt_angles: geom_get_def_rcov failed atom j',
+     &          911)
+            if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+     &          ('geom_prt_angles:geom_calc_distance:ij ',911)
+            
+            if (dij.lt.(rscale*(i_rcov+j_rcov))) then
+              itmp = xlist(iat) + 1
+              if(itmp.gt.max_net) call errquit(
+     &            'geom_prt_angles:max_net is too small ',max_net)
+              xlist(iat) = itmp
+              xnet(itmp,iat) = jat
+            endif
+          endif
+        enddo
+      enddo
+*rak:      write(6,*)' xlist: ', xlist
+*rak:      do iat = 1,nat
+*rak:        write(6,*)' xnet: ',iat,':',(xnet(jat,iat),jat=1,max_net)
+*rak:      enddo
+*rak:      write(6,*)'b4 dih loop'
+*rak:      itmp = 0
+*rak:      do iat = 1,nat
+*rak:        do jtmp = 1,xlist(iat)
+*rak:          jat = xnet(jtmp,iat)
+*rak:          if (iat.ne.jat) then
+*rak:            do ktmp = jtmp+1,xlist(iat)
+*rak:              kat = xnet(ktmp,iat)
+*rak:              if (kat.ne.jat.and.kat.ne.iat) then
+*rak:                do ltmp = ktmp + 1,xlist(iat)
+*rak:                  lat = xnet(ltmp,iat)
+*rak:                  if (lat.ne.kat.and.lat.ne.jat.and.lat.ne.iat) then
+*rak:                    itmp = itmp + 1
+*rak:                    write(6,*)'dihang:i:  ',itmp,':',iat,jat,kat,lat
+*rak:                  endif
+*rak:                enddo
+*rak:*rak:                do ltmp = 1,xlist(jat)
+*rak:*rak:                  lat = xnet(ltmp,jat)
+*rak:*rak:                  if (lat.ne.kat.and.lat.ne.jat.and.lat.ne.iat) then
+*rak:*rak:                    itmp = itmp + 1
+*rak:*rak:                    write(6,*)'dihang:j:  ',itmp,':',iat,jat,kat,lat
+*rak:*rak:                  endif
+*rak:*rak:                enddo
+*rak:                do ltmp = 1,xlist(kat)
+*rak:                  lat = xnet(ltmp,kat)
+*rak:                  if (lat.ne.kat.and.lat.ne.jat.and.lat.ne.iat) then
+*rak:                    itmp = itmp + 1
+*rak:                    write(6,*)'dihang:k:  ',itmp,':',iat,jat,kat,lat
+*rak:                  endif
+*rak:                enddo
+*rak:              endif
+*rak:            enddo
+*rak:          endif
+*rak:        enddo
+*rak:      enddo
+*rak:      write(6,*)'after dih loop'
+      do iat = 1,nat
+        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+     &      ('geom_prt_dihedrals:geom_cent_get:i ',911)
+        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+        if ((symi.eq.'bq').and.(.not.status_tagi))
+     &      status_tagi = FT
+        if (.not.status_tagi) call errquit
+     &      ('geom_prt_dihedrals:tag2element failed:i',911)
+        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+     &      ('geom_prt_dihedrals:defrcov failed:i',911)
+        do jtmp = 1,xlist(iat)
+          jat = xnet(jtmp,iat)
+          if (iat.ne.jat) then
+            if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
+     &          ('geom_prt_dihedrals:geom_cent_get:j ',911)
+            status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+            if ((symj.eq.'bq').and.(.not.status_tagj))
+     &          status_tagj = FT
+            if (.not.status_tagj) call errquit
+     &          ('geom_prt_dihedrals:tag2element failed:j',911)
+            if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
+     &          ('geom_prt_dihedrals:defrcov failed:j',911)
             
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_print_dihedrals: ',911)
+     &          ('geom_prt_dihedrals:geom_calc_distance:ij ',911)
             
-            dij_okay = dij.lt.thresh
+            dij_okay = dij.lt.(rscale*(i_rcov+j_rcov))
             if (dij_okay) then
-              do kat = 1,jat
+              do ktmp = jtmp+1,xlist(iat)
+                kat = xnet(ktmp,iat)
                 if (kat.ne.jat.and.kat.ne.iat) then
                   if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
      &                call errquit
-     &                ('geom_print_dihedrals: ',911)
+     &                ('geom_prt_dihedrals:geom_cent_get:k ',911)
+                  status_tagk =
+     &                geom_tag_to_element(tagk,symk,elek,katn)
+                  if ((symk.eq.'bq').and.(.not.status_tagk))
+     &                status_tagk = FT
+                  if (.not.status_tagk) call errquit
+     &                ('geom_prt_dihedrals:tag2element failed:k',
+     &                911)
+                  if (.not.geom_get_def_rcov(katn,k_rcov))
+     &                call errquit
+     &                ('geom_prt_dihedrals:defrcov failed:k',911)
                   
                   if (.not.geom_calc_distance(ci,ck,dik)) call errquit
-     &                ('geom_print_dihedrals: ',911)
+     &                ('geom_prt_dihedrals:geom_calc_distance:ik ',
+     &                911)
                   if (.not.geom_calc_distance(cj,ck,djk)) call errquit
-     &                ('geom_print_dihedrals: ',911)
-                  dik_okay = dik.lt.thresh
-                  djk_okay = djk.lt.thresh
-                  if (djk_okay) then
-                    do lat = 1,kat
-                      if(lat.ne.iat.and.lat.ne.jat.and.
-     &                    lat.ne.kat) then
-                        if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
-     &                      call errquit
-     &                      ('geom_print_dihedrals: ',911)
-                        
-                        if (.not.geom_calc_distance(ci,cl,dil))
-     &                      call errquit
-     &                      ('geom_print_dihedrals: ',911)
-                        if (.not.geom_calc_distance(cj,cl,djl))
-     &                      call errquit
-     &                      ('geom_print_dihedrals: ',911)
-                        if (.not.geom_calc_distance(ck,cl,dkl))
-     &                      call errquit
-     &                      ('geom_print_dihedrals: ',911)
-                        dil_okay = dil.lt.thresh
-                        djl_okay = djl.lt.thresh
-                        dkl_okay = dkl.lt.thresh
-                        should_print =
-     &                      dij_okay.and.djk_okay.and.dkl_okay
-*                        should_print = should_print.and.dik_okay
-*                        should_print = should_print.and.djl_okay
-                        if (should_print) then
-                          indx = isym4mm(iat,jat,kat,lat) 
-                          will_print = FT
-                          do ip = 0,(dh_printed-1)
-                            if (indx.eq.int_mb(k_printed+ip))
-     &                          will_print = FF
-                          enddo
-                          if (will_print) then
-                            int_mb(k_printed+dh_printed) = indx
-                            dh_printed = dh_printed + 1
-                            if ((dh_printed+1).gt.nat_size)
-     &                          stop ' error size'
-                            if (.not.geom_calc_dihedral
-     &                          (ci,cj,ck,cl,diangle))
-     &                          call errquit('dih error',911)
-                            num_prt = num_prt + 1
-                            if (print4) write(luout,10002)
-     &                          tagi(1:lmtag),iat,
-     &                          tagj(1:lmtag),jat,
-     &                          tagk(1:lmtag),kat,
-     &                          tagl(1:lmtag),lat,diangle
-                            if (print8) write(luout,10004)
-     &                          tagi(1:lmtag),iat,
-     &                          tagj(1:lmtag),jat,
-     &                          tagk(1:lmtag),kat,
-     &                          tagl(1:lmtag),lat,diangle
-                            if (print12) write(luout,10006)
-     &                          tagi(1:lmtag),iat,
-     &                          tagj(1:lmtag),jat,
-     &                          tagk(1:lmtag),kat,
-     &                          tagl(1:lmtag),lat,diangle
-                            if (print16) write(luout,10008)
-     &                          tagi(1:lmtag),iat,
-     &                          tagj(1:lmtag),jat,
-     &                          tagk(1:lmtag),kat,
-     &                          tagl(1:lmtag),lat,diangle
-*                        write(luout,10000)
-*     &                      tagi(1:lmtag),iat,
-*     &                      tagj(1:lmtag),jat,
-*     &                      tagk(1:lmtag),kat,
-*     &                      tagl(1:lmtag),lat,diangle
-                          endif
-                        endif
+     &                ('geom_prt_dihedrals:geom_calc_distance:jk ',
+     &                911)
+                  
+                  dik_okay = dik.lt.(rscale*(i_rcov+k_rcov))
+                  djk_okay = djk.lt.(rscale*(j_rcov+k_rcov))
+                  switch_jk = dik.lt.dij.and.dik_okay
+                  do ltmp = ktmp + 1,xlist(iat)
+                    lat = xnet(ltmp,iat)
+                    if (lat.ne.kat.and.
+     &                  lat.ne.jat.and.lat.ne.iat) then
+                      if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:geom_cent_get:l ',
+     &                    911)
+                      status_tagl =
+     &                    geom_tag_to_element(tagl,syml,elel,latn)
+                      if ((syml.eq.'bq').and.(.not.status_tagl))
+     &                    status_tagl = FT
+                      if (.not.status_tagl) call errquit
+     &                    ('geom_prt_dihedrals:tag2elmnt fail:l',
+     &                    911)
+                      if (.not.geom_get_def_rcov(latn,l_rcov))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:defrcov fail:l',
+     &                    911)
+                      
+                      if (.not.geom_calc_distance(ci,cl,dil))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:calc_distance:il',
+     &                    911)
+                      if (.not.geom_calc_distance(cj,cl,djl))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:calc_distance:jl',
+     &                    911)
+                      if (.not.geom_calc_distance(ck,cl,dkl))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:calc_distance:kl',
+     &                    911)
+                      dil_okay = dil.lt.(rscale*(i_rcov+l_rcov))
+                      djl_okay = djl.lt.
+     &                    (tscale*rscale*(j_rcov+l_rcov))
+                      dkl_okay = dkl.lt.
+     &                    (tscale*rscale*(k_rcov+l_rcov))
+                      num_prt = num_prt + 1
+                      ipat = lat
+                      jpat = iat
+                      call dcopy(3,cl,1,pci,1)
+                      call dcopy(3,ci,1,pcj,1)
+                      ptagi = tagl
+                      ptagj = tagi
+                      if (switch_jk) then
+                        kpat = kat
+                        lpat = jat
+                        call dcopy(3,ck,1,pck,1)
+                        call dcopy(3,cj,1,pcl,1)
+                        ptagk = tagk
+                        ptagl = tagj
+                      else
+                        kpat = jat
+                        lpat = kat
+                        call dcopy(3,cj,1,pck,1)
+                        call dcopy(3,ck,1,pcl,1)
+                        ptagk = tagj
+                        ptagl = tagk
                       endif
-                    enddo
-                  endif
+                      if (.not.geom_calc_dihedral
+     &                    (pci,pcj,pck,pcl,diangle)) call errquit
+     &                    ('geom_print_dih:geom_calc_dih death',
+     &                    911)
+                      if (.not.header) then
+                        write(luout,10000)
+                        header = FT
+                      endif ! .not.header
+                      write(luout,10001)num_prt,
+     &                    ipat,ptagi,jpat,ptagj,
+     &                    kpat,ptagk,lpat,ptagl,
+     &                    diangle
+*rak:                        write(6,*)'i',pci
+*rak:                        write(6,*)'j',pcj
+*rak:                        write(6,*)'k',pck
+*rak:                        write(6,*)'l',pcl
+*rak:                        write(6,*)'dihang::i::',num_prt,':',
+*rak:     &                      ipat,jpat,kpat,lpat,diangle
+                    endif
+                  enddo
+*rak:                  do ltmp = 1,xlist(jat)
+*rak:                    lat = xnet(ltmp,jat)
+*rak:                    if (lat.ne.kat.and.
+*rak:     &                  lat.ne.jat.and.lat.ne.iat) then
+*rak:                      if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
+*rak:     &                    call errquit
+*rak:     &                    ('geom_prt_dihedrals:geom_cent_get:l ',
+*rak:     &                    911)
+*rak:                      status_tagl =
+*rak:     &                    geom_tag_to_element(tagl,syml,elel,latn)
+*rak:                      if ((syml.eq.'bq').and.(.not.status_tagl))
+*rak:     &                    status_tagl = FT
+*rak:                      if (.not.status_tagl) call errquit
+*rak:     &                    ('geom_prt_dihedrals:tag2elmnt fail:l',
+*rak:     &                    911)
+*rak:                      if (.not.geom_get_def_rcov(latn,l_rcov))
+*rak:     &                    call errquit
+*rak:     &                    ('geom_prt_dihedrals:defrcov fail:l',
+*rak:     &                    911)
+*rak:                      
+*rak:                      if (.not.geom_calc_distance(ci,cl,dil))
+*rak:     &                    call errquit
+*rak:     &                    ('geom_prt_dihedrals:calc_distance:il',
+*rak:     &                    911)
+*rak:                      if (.not.geom_calc_distance(cj,cl,djl))
+*rak:     &                    call errquit
+*rak:     &                    ('geom_prt_dihedrals:calc_distance:jl',
+*rak:     &                    911)
+*rak:                      if (.not.geom_calc_distance(ck,cl,dkl))
+*rak:     &                    call errquit
+*rak:     &                    ('geom_prt_dihedrals:calc_distance:kl',
+*rak:     &                    911)
+*rak:                      dil_okay = dil.lt.(rscale*(i_rcov+l_rcov))
+*rak:                      djl_okay = djl.lt.
+*rak:     &                    (tscale*rscale*(j_rcov+l_rcov))
+*rak:                      dkl_okay = dkl.lt.
+*rak:     &                    (tscale*rscale*(k_rcov+l_rcov))
+*rak:                      num_prt = num_prt + 1
+*rak:                      ipat = iat
+*rak:                      call dcopy(3,ci,1,pci,1)
+*rak:                      ptagi = tagi
+*rak:                      if (switch_jk) then
+*rak:                        jpat = kat
+*rak:                        kpat = jat
+*rak:                        lpat = lat
+*rak:                        call dcopy(3,ck,1,pcj,1)
+*rak:                        call dcopy(3,cj,1,pck,1)
+*rak:                        call dcopy(3,cl,1,pcl,1)
+*rak:                        ptagj = tagk
+*rak:                        ptagk = tagj
+*rak:                        ptagl = tagl
+*rak:                      else
+*rak:                        jpat = jat
+*rak:                        call dcopy(3,cj,1,pcj,1)
+*rak:                        ptagj = tagj
+*rak:                        if (djk.gt.djl) then
+*rak:                          kpat = kat
+*rak:                          lpat = lat
+*rak:                          call dcopy(3,ck,1,pck,1)
+*rak:                          call dcopy(3,cl,1,pcl,1)
+*rak:                          ptagk = tagk
+*rak:                          ptagl = tagl
+*rak:                        else
+*rak:                          kpat = lat
+*rak:                          lpat = kat
+*rak:                          call dcopy(3,cl,1,pck,1)
+*rak:                          call dcopy(3,ck,1,pcl,1)
+*rak:                          ptagk = tagl
+*rak:                          ptagl = tagk
+*rak:                        endif
+*rak:                      endif
+*rak:                      if (.not.geom_calc_dihedral
+*rak:     &                    (pci,pcj,pck,pcl,diangle)) call errquit
+*rak:     &                    ('geom_print_dih:geom_calc_dih death',
+*rak:     &                    911)
+*rak:                      if (.not.header) then
+*rak:                        write(luout,10000)
+*rak:                        header = FT
+*rak:                      endif ! .not.header
+*rak:                      write(luout,10001)num_prt,
+*rak:     &                    ipat,ptagi,jpat,ptagj,
+*rak:     &                    kpat,ptagk,lpat,ptagl,
+*rak:     &                    diangle
+*rak:*rak:                      write(6,*)'i',pci
+*rak:*rak:                      write(6,*)'j',pcj
+*rak:*rak:                      write(6,*)'k',pck
+*rak:*rak:                      write(6,*)'l',pcl
+*rak:*rak:                      write(6,*)'dihang::j::',num_prt,':',
+*rak:*rak:     &                    ipat,jpat,kpat,lpat,diangle
+*rak:                    endif
+*rak:                  enddo
+                  do ltmp = 1,xlist(kat)
+                    lat = xnet(ltmp,kat)
+                    if (lat.ne.kat.and.
+     &                  lat.ne.jat.and.lat.ne.iat) then
+                      if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:geom_cent_get:l ',
+     &                    911)
+                      status_tagl =
+     &                    geom_tag_to_element(tagl,syml,elel,latn)
+                      if ((syml.eq.'bq').and.(.not.status_tagl))
+     &                    status_tagl = FT
+                      if (.not.status_tagl) call errquit
+     &                    ('geom_prt_dihedrals:tag2elmnt fail:l',
+     &                    911)
+                      if (.not.geom_get_def_rcov(latn,l_rcov))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:defrcov fail:l',
+     &                    911)
+                      
+                      if (.not.geom_calc_distance(ci,cl,dil))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:calc_distance:il',
+     &                    911)
+                      if (.not.geom_calc_distance(cj,cl,djl))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:calc_distance:jl',
+     &                    911)
+                      if (.not.geom_calc_distance(ck,cl,dkl))
+     &                    call errquit
+     &                    ('geom_prt_dihedrals:calc_distance:kl',
+     &                    911)
+                      dil_okay = dil.lt.(rscale*(i_rcov+l_rcov))
+                      djl_okay = djl.lt.
+     &                    (tscale*rscale*(j_rcov+l_rcov))
+                      dkl_okay = dkl.lt.
+     &                    (tscale*rscale*(k_rcov+l_rcov))
+                      num_prt = num_prt + 1
+                      ipat = iat
+                      call dcopy(3,ci,1,pci,1)
+                      ptagi = tagi
+                      if (switch_jk) then
+                        jpat = kat
+                        call dcopy(3,ck,1,pcj,1)
+                        ptagj = tagk
+                        if (djk.gt.djl) then
+                          kpat = jat
+                          lpat = lat
+                          call dcopy(3,cj,1,pck,1)
+                          call dcopy(3,cl,1,pcl,1)
+                          ptagk = tagj
+                          ptagl = tagl
+                        else
+                          kpat = lat
+                          lpat = jat
+                          call dcopy(3,cl,1,pck,1)
+                          call dcopy(3,cj,1,pcl,1)
+                          ptagk = tagl
+                          ptagl = tagj
+                        endif
+                      else
+                        jpat = jat
+                        kpat = kat
+                        lpat = lat
+                        call dcopy(3,cj,1,pcj,1)
+                        call dcopy(3,ck,1,pck,1)
+                        call dcopy(3,cl,1,pcl,1)
+                        ptagj = tagj
+                        ptagk = tagk
+                        ptagl = tagl
+                      endif
+                      if (.not.geom_calc_dihedral
+     &                    (pci,pcj,pck,pcl,diangle)) call errquit
+     &                    ('geom_print_dih:geom_calc_dih death',
+     &                    911)
+                      if (.not.header) then
+                        write(luout,10000)
+                        header = FT
+                      endif ! .not.header
+                      write(luout,10001)num_prt,
+     &                    ipat,ptagi,jpat,ptagj,
+     &                    kpat,ptagk,lpat,ptagl,
+     &                    diangle
+*rak:                      write(6,*)'i',pci
+*rak:                      write(6,*)'j',pcj
+*rak:                      write(6,*)'k',pck
+*rak:                      write(6,*)'l',pcl
+*rak:                      write(6,*)'dihang::k::',num_prt,':',
+*rak:     &                    ipat,jpat,kpat,lpat,diangle
+                    endif
+                  enddo
                 endif
               enddo
             endif
           endif
         enddo
       enddo
-10000 format(1x,'dihedral angle(',
-     &    a,'|',i5,',',a,'|',i5,',',a,'|',i5,',',a,'|',i5,
-     &    ') =',f9.3)
-10001 format(1x,33('-'),'dihedral angles',32('-'),/,
-     &    2x,4(1x,'tag  number  '),3x,'dihedral angle',/,
-     &    1x,80('-'),/)
-10002 format(2x,4(a4,3x,i4,3x),5x,f9.3)
-10003 format(1x,33('-'),'dihedral angles',32('-'),/,
-*                 123456789012345 
-     &    2x,4(1x,'  tag   number'),3x,' dihedral angle ',/,
-     &    1x,80('-'),/)
-10004 format(2x,4(a8,2x,i4,1x),6x,f9.3)
-10005 format(1x,25('-'),'dihedral angles',25('-'),/,
-     &    4(1x,'atom tag, number'),3x,' dihedral angle ',/,
-     &    80('-'),/)
-10007 format(1x,25('-'),'dihedral angles',25('-'),/,
-     &    4(1x,'atom tag, number'),3x,' dihedral angle ',/,
-     &    80('-'),/)
-10006 format(4(2x,a12,i4),f9.3)
-10008 format(4(2x,a16,i4),f9.3)
-      write(luout,'(1x,a,i10)')
-     &    'possible dihedral angles to print:',num_pos
-      write(luout,'(1x,a,i10)')
-     &    '          dihedral angles printed:',num_prt
-*      write(69,'(1x,f12.6,i10)')thresh,num_prt
-      geom_print_dihedrals = ma_pop_stack(h_printed)
-*      if (num_prt.gt.0) goto 00001
+      if (header) write(luout,10002)
+* old
+10000 format(1x,86('='),/,
+     &    29x,'internuclear dihedral angles',/,1x,86('-'),/,
+     &    1x,'count |',
+     &    3x,'center 1',3x,'|',
+     &    3x,'center 2',3x,'|',
+     &    3x,'center 3',3x,'|',
+     &    3x,'center 4',3x,'|',
+     &    '  degrees',
+     &    /,1x,86('-'))
+10001 format(1x,i5,1x,'|',
+     &    i4,1x,a8,1x,'|',
+     &    i4,1x,a8,1x,'|',
+     &    i4,1x,a8,1x,'|',
+     &    i4,1x,a8,1x,'|',
+     &    1x,f8.2)
+10002 format(1x,86('='),/,/)
+      geom_prt_dihedrals = .true.
       end
+*B4-xnet:      logical function geom_print_dihedrals(geom)
+*B4-xnet:      implicit none
+*B4-xnet:#include "mafdecls.fh"
+*B4-xnet:#include "stdio.fh"
+*B4-xnet:#include "inp.fh"
+*B4-xnet:c::-functions
+*B4-xnet:      logical geom_calc_distance
+*B4-xnet:      external geom_calc_distance
+*B4-xnet:      logical geom_calc_dihedral
+*B4-xnet:      external geom_calc_dihedral
+*B4-xnet:      logical geom_get_def_rcov
+*B4-xnet:      external geom_get_def_rcov
+*B4-xnet:c::-passed      
+*B4-xnet:      integer geom ! [input] geometry handle
+*B4-xnet:c::-local
+*B4-xnet:      double precision rscale, tscale
+*B4-xnet:      integer nat ! number of atoms
+*B4-xnet:      integer iat ! ith atom
+*B4-xnet:      integer jat ! jth atom
+*B4-xnet:      integer kat ! kth atom
+*B4-xnet:      integer lat ! lth atom
+*B4-xnet:      integer ipat,jpat,kpat,lpat
+*B4-xnet:      double precision chg   ! charge (ignored)
+*B4-xnet:      double precision ci(3) ! coords of atom i
+*B4-xnet:      character*16 tagi      ! tag of atom i
+*B4-xnet:      character*8  ptagi     ! tag of atom i
+*B4-xnet:      double precision cj(3) ! coords of atom j
+*B4-xnet:      character*16 tagj      ! tag of atom j
+*B4-xnet:      character*8  ptagj     ! tag of atom j
+*B4-xnet:      double precision ck(3) ! coords of atom k
+*B4-xnet:      character*16 tagk      ! tag of atom k
+*B4-xnet:      character*8  ptagk     ! tag of atom k
+*B4-xnet:      double precision cl(3) ! coords of atom k
+*B4-xnet:      character*16 tagl      ! tag of atom k
+*B4-xnet:      character*8  ptagl     ! tag of atom k
+*B4-xnet:*      double precision c_all(3,4) ! all coords
+*B4-xnet:*      double precision dall(6) ! all distances
+*B4-xnet:      double precision dij   ! distance between atoms i and j
+*B4-xnet:      double precision dik   ! distance between atoms i and k
+*B4-xnet:      double precision dil   ! distance between atoms i and l
+*B4-xnet:      double precision djk   ! distance between atoms j and k
+*B4-xnet:      double precision djl   ! distance between atoms j and l
+*B4-xnet:      double precision dkl   ! distance between atoms k and l
+*B4-xnet:      double precision diangle ! dihedral angle to be printed
+*B4-xnet:      logical FF, FT         ! fortran true and false
+*B4-xnet:      logical dij_okay       ! dij under threshold
+*B4-xnet:      logical dik_okay       ! dik under threshold
+*B4-xnet:      logical dil_okay       ! dil under threshold
+*B4-xnet:      logical djk_okay       ! djk under threshold
+*B4-xnet:      logical djl_okay       ! djl under threshold
+*B4-xnet:      logical dkl_okay       ! dkl under threshold
+*B4-xnet:      logical all_okay
+*B4-xnet:      logical switch_jk
+*B4-xnet:c
+*B4-xnet:      logical status_tagi, status_tagj, status_tagk, status_tagl
+*B4-xnet:      character*2 symi, symj, symk, syml
+*B4-xnet:      character*16 elei, elej, elek, elel
+*B4-xnet:      integer iatn, jatn, katn, latn
+*B4-xnet:      double precision i_rcov, j_rcov, k_rcov, l_rcov
+*B4-xnet:c
+*B4-xnet:*      integer ngood
+*B4-xnet:      integer num_pos
+*B4-xnet:      integer num_prt
+*B4-xnet:      logical header
+*B4-xnet:*      
+*B4-xnet:      if (.not.geom_ncent(geom,nat)) call errquit
+*B4-xnet:     &    ('geom_print_dihedrals: geom_ncent failed',911)
+*B4-xnet:
+*B4-xnet:      num_pos = nat*(nat-1)*(nat-2)*(nat-3)/24
+*B4-xnet:
+*B4-xnet:      FF = .false.
+*B4-xnet:      FT = .true.
+*B4-xnet:
+*B4-xnet:      geom_print_dihedrals = FF
+*B4-xnet:      if (nat.lt.4) then
+*B4-xnet:        geom_print_dihedrals = FT        
+*B4-xnet:        return
+*B4-xnet:      endif
+*B4-xnet:c initialize variables
+*B4-xnet:      rscale = 1.1d00
+*B4-xnet:      tscale = 1.1d00
+*B4-xnet:      header = FF
+*B4-xnet:      dij_okay = FF      ! dij under threshold
+*B4-xnet:      dik_okay = FF      ! dik under threshold
+*B4-xnet:      dil_okay = FF      ! dil under threshold
+*B4-xnet:      djk_okay = FF      ! djk under threshold
+*B4-xnet:      djl_okay = FF      ! djl under threshold
+*B4-xnet:      dkl_okay = FF      ! dkl under threshold
+*B4-xnet:      num_prt = 0
+*B4-xnet:c
+*B4-xnet:      do iat = 1,nat
+*B4-xnet:        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
+*B4-xnet:     &      ('geom_print_dihedrals:geom_cent_get:i ',911)
+*B4-xnet:        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
+*B4-xnet:        if ((symi.eq.'bq').and.(.not.status_tagi))
+*B4-xnet:     &      status_tagi = FT
+*B4-xnet:        if (.not.status_tagi) call errquit
+*B4-xnet:     &      ('geom_print_dihedrals:tag2element failed:i',911)
+*B4-xnet:        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
+*B4-xnet:     &      ('geom_print_dihedrals:defrcov failed:i',911)
+*B4-xnet:        do jat = 1,nat
+*B4-xnet:          if (iat.ne.jat) then
+*B4-xnet:            
+*B4-xnet:            if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
+*B4-xnet:     &          ('geom_print_dihedrals:geom_cent_get:j ',911)
+*B4-xnet:            status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
+*B4-xnet:            if ((symj.eq.'bq').and.(.not.status_tagj))
+*B4-xnet:     &          status_tagj = FT
+*B4-xnet:            if (.not.status_tagj) call errquit
+*B4-xnet:     &          ('geom_print_dihedrals:tag2element failed:j',911)
+*B4-xnet:            if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
+*B4-xnet:     &          ('geom_print_dihedrals:defrcov failed:j',911)
+*B4-xnet:            
+*B4-xnet:            if (.not.geom_calc_distance(ci,cj,dij)) call errquit
+*B4-xnet:     &          ('geom_print_dihedrals:geom_calc_distance:ij ',911)
+*B4-xnet:            
+*B4-xnet:            dij_okay = dij.lt.(rscale*(i_rcov+j_rcov))
+*B4-xnet:            if (dij_okay) then
+*B4-xnet:              do kat = 1,nat
+*B4-xnet:                if (kat.ne.jat.and.kat.ne.iat) then
+*B4-xnet:                  if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
+*B4-xnet:     &                call errquit
+*B4-xnet:     &                ('geom_print_dihedrals:geom_cent_get:k ',911)
+*B4-xnet:                  status_tagk =
+*B4-xnet:     &                geom_tag_to_element(tagk,symk,elek,katn)
+*B4-xnet:                  if ((symk.eq.'bq').and.(.not.status_tagk))
+*B4-xnet:     &                status_tagk = FT
+*B4-xnet:                  if (.not.status_tagk) call errquit
+*B4-xnet:     &                ('geom_print_dihedrals:tag2element failed:k',
+*B4-xnet:     &                911)
+*B4-xnet:                  if (.not.geom_get_def_rcov(katn,k_rcov))
+*B4-xnet:     &                call errquit
+*B4-xnet:     &                ('geom_print_dihedrals:defrcov failed:k',911)
+*B4-xnet:                  
+*B4-xnet:                  if (.not.geom_calc_distance(ci,ck,dik)) call errquit
+*B4-xnet:     &                ('geom_print_dihedrals:geom_calc_distance:ik ',
+*B4-xnet:     &                911)
+*B4-xnet:                  if (.not.geom_calc_distance(cj,ck,djk)) call errquit
+*B4-xnet:     &                ('geom_print_dihedrals:geom_calc_distance:jk ',
+*B4-xnet:     &                911)
+*B4-xnet:
+*B4-xnet:                  dik_okay = dik.lt.(rscale*(i_rcov+k_rcov))
+*B4-xnet:                  djk_okay = djk.lt.(rscale*(j_rcov+k_rcov))
+*B4-xnet:                  switch_jk = dik.lt.dij.and.dik_okay
+*B4-xnet:                  if (djk_okay)then
+*B4-xnet:                    do lat = 1,nat
+*B4-xnet:                      if(lat.ne.iat.and.lat.ne.jat.and.
+*B4-xnet:     &                    lat.ne.kat) then
+*B4-xnet:                        if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
+*B4-xnet:     &                      call errquit
+*B4-xnet:     &                      ('geom_print_dihedrals:geom_cent_get:l ',
+*B4-xnet:     &                      911)
+*B4-xnet:                        status_tagl =
+*B4-xnet:     &                      geom_tag_to_element(tagl,syml,elel,latn)
+*B4-xnet:                        if ((syml.eq.'bq').and.(.not.status_tagl))
+*B4-xnet:     &                      status_tagl = FT
+*B4-xnet:                        if (.not.status_tagl) call errquit
+*B4-xnet:     &                      ('geom_print_dihedrals:tag2elmnt fail:l',
+*B4-xnet:     &                      911)
+*B4-xnet:                        if (.not.geom_get_def_rcov(latn,l_rcov))
+*B4-xnet:     &                      call errquit
+*B4-xnet:     &                      ('geom_print_dihedrals:defrcov fail:l',
+*B4-xnet:     &                      911)
+*B4-xnet:
+*B4-xnet:                        if (.not.geom_calc_distance(ci,cl,dil))
+*B4-xnet:     &                      call errquit
+*B4-xnet:     &                      ('geom_print_dihedrals:calc_distance:il',
+*B4-xnet:     &                      911)
+*B4-xnet:                        if (.not.geom_calc_distance(cj,cl,djl))
+*B4-xnet:     &                      call errquit
+*B4-xnet:     &                      ('geom_print_dihedrals:calc_distance:jl',
+*B4-xnet:     &                      911)
+*B4-xnet:                        if (.not.geom_calc_distance(ck,cl,dkl))
+*B4-xnet:     &                      call errquit
+*B4-xnet:     &                      ('geom_print_dihedrals:calc_distance:kl',
+*B4-xnet:     &                      911)
+*B4-xnet:                        dil_okay = dil.lt.(rscale*(i_rcov+l_rcov))
+*B4-xnet:                        djl_okay = djl.lt.
+*B4-xnet:     &                      (tscale*rscale*(j_rcov+l_rcov))
+*B4-xnet:                        dkl_okay = dkl.lt.
+*B4-xnet:     &                      (tscale*rscale*(k_rcov+l_rcov))
+*B4-xnet:* collect info calculate dihedral angle
+*B4-xnet:                        ipat = iat
+*B4-xnet:                        ptagi = tagi
+*B4-xnet:                        lpat = lat
+*B4-xnet:                        ptagl = tagl
+*B4-xnet:                        if (switch_jk) then
+*B4-xnet:                          jpat = kat
+*B4-xnet:                          ptagj = tagk
+*B4-xnet:                          kpat = jat
+*B4-xnet:                          ptagk = tagk
+*B4-xnet:                          all_okay = dij_okay.and.djk_okay.and.
+*B4-xnet:     &                        djl_okay
+*B4-xnet:                          if (all_okay) then
+*B4-xnet:                            if (.not.geom_calc_dihedral
+*B4-xnet:     &                          (ci,ck,cj,cl,diangle)) call errquit
+*B4-xnet:     &                          ('geom_print_dih:geom_calc_dih death',
+*B4-xnet:     &                          911)
+*B4-xnet:                          endif
+*B4-xnet:                        else
+*B4-xnet:                          jpat = jat
+*B4-xnet:                          ptagj = tagj
+*B4-xnet:                          kpat = kat
+*B4-xnet:                          ptagk = tagk
+*B4-xnet:                          all_okay = dij_okay.and.djk_okay.and.
+*B4-xnet:     &                        dkl_okay
+*B4-xnet:                          if (all_okay) then
+*B4-xnet:                            if (.not.geom_calc_dihedral
+*B4-xnet:     &                          (ci,cj,ck,cl,diangle)) call errquit
+*B4-xnet:     &                          ('geom_print_dih:geom_calc_dih death',
+*B4-xnet:     &                          911)
+*B4-xnet:                          endif
+*B4-xnet:                        endif ! switch_jk
+*B4-xnet:                        if (all_okay) then
+*B4-xnet:                          num_prt = num_prt + 1
+*B4-xnet:                          if (.not.header) then
+*B4-xnet:                            write(luout,10000)
+*B4-xnet:                            header = FT
+*B4-xnet:                          endif ! .not.header
+*B4-xnet:                          write(luout,10001)num_prt,
+*B4-xnet:     &                        ipat,ptagi,jpat,ptagj,
+*B4-xnet:     &                        kpat,ptagk,lpat,ptagl,
+*B4-xnet:     &                        diangle
+*B4-xnet:                        endif ! all_okay
+*B4-xnet:                      endif ! lat != iat,jat,kat
+*B4-xnet:                    enddo   ! lat loop
+*B4-xnet:                  endif     ! djk_okay
+*B4-xnet:                endif       ! kat != iat,jat
+*B4-xnet:              enddo         ! kat loop
+*B4-xnet:            endif           ! dij_okay
+*B4-xnet:          endif             ! jat != iat
+*B4-xnet:        enddo               ! jat loop
+*B4-xnet:      enddo                 ! iat loop
+*B4-xnet:      if (header) write(luout,10002)
+*B4-xnet:10000 format(1x,86('='),/,
+*B4-xnet:     &    29x,'internuclear dihedral angles',/,1x,86('-'),/,
+*B4-xnet:     &    1x,'count |',
+*B4-xnet:     &    3x,'center 1',3x,'|',
+*B4-xnet:     &    3x,'center 2',3x,'|',
+*B4-xnet:     &    3x,'center 3',3x,'|',
+*B4-xnet:     &    3x,'center 4',3x,'|',
+*B4-xnet:     &    '  degrees',
+*B4-xnet:     &    /,1x,86('-'))
+*B4-xnet:10001 format(1x,i5,1x,'|',
+*B4-xnet:     &    i4,1x,a8,1x,'|',
+*B4-xnet:     &    i4,1x,a8,1x,'|',
+*B4-xnet:     &    i4,1x,a8,1x,'|',
+*B4-xnet:     &    i4,1x,a8,1x,'|',
+*B4-xnet:     &    1x,f8.2)
+*B4-xnet:10002 format(1x,86('='),/,/)
+*B4-xnet:      geom_print_dihedrals = .true.
+*B4-xnet:      end
       logical function geom_get_def_rcov(atn,rcoval)
       implicit none
 c
@@ -2932,13 +3997,8 @@ C data for 87-103 RA Kendall
      &     1.36d00, 1.34d00/
       geom_get_def_rcov = .false.
       if (atn.eq.0) then
-        rcoval = 0.0d00
+        rcoval = 2.0d00  ! dummy center sees lots of things?
       elseif (atn.gt.0.and.atn.le.nelements) then
-        if  (atn.gt.87) then
-          write(luout,*)'geom_get_def_rcov:',
-     &        ' default covalent radii not know for atomic number:',atn
-          write(luout,*)' using 0.0'
-        endif
         rcoval = def_rcov(atn)
       else
         write(luout,*)' geom_get_def_rcov: atomic number:',atn

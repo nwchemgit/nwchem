@@ -1,5 +1,5 @@
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad)
-c     $Id: stpr_output.F,v 1.8 1997-03-04 06:07:52 d3e129 Exp $
+c     $Id: stpr_output.F,v 1.9 1998-01-09 15:25:37 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "mafdecls.fh"
@@ -62,7 +62,7 @@ C       initial geometry
          WRITE(6,1005)SLNGTH
          WRITE(6,1014)E2NEW
       endif
-      if (util_print('old coords',print_default)) then
+      if (util_print('old coords',print_high)) then
 C     
 C     Write old coordinates.
 C     
@@ -72,7 +72,7 @@ C
             WRITE(6,1017)I,(COORD(J,I),J=1,3)
  5       CONTINUE
       endif
-      if (util_print('step', print_default)) then
+      if (util_print('step', print_high)) then
 C     
 C     Write step.
 C     

@@ -1,5 +1,5 @@
       logical function drv_opt(rtdb)
-C$Id: opt_drv.F,v 1.37 1997-11-13 23:48:43 d3g681 Exp $
+C$Id: opt_drv.F,v 1.38 1998-01-09 15:25:31 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -68,6 +68,7 @@ c
       parameter (mxcart=3*mxatom)
       parameter (mxzmat=1500)
       parameter (mxcoor=1500)
+      PARAMETER (MXBFN=3072)
 c                mxcoor=max(mxcart,mxzmat)
       common/hnd_iofile/ir,iw
       common/hnd_optmiz/x0(mxcoor),x(mxcoor),dx(mxcoor),
@@ -83,7 +84,8 @@ c                mxcoor=max(mxcart,mxzmat)
       common/hnd_zmtpar/nzmat,nzvar,nvar
       common/hnd_molxyz/c(mxcart),zan(mxatom),nat
       character*16 atmlab
-      common/hnd_mollab/atmlab(mxatom)
+      CHARACTER*8  BFLAB 
+      common/hnd_mollab/atmlab(mxatom),BFLAB(MXBFN)
       dimension t0(mxcoor)
       data zero   /0.0d+00/
       data pt5    /0.5d+00/
@@ -243,10 +245,18 @@ c
             write(iw,9998)
             if (.not. geom_print(geom)) call errquit
      $           ('hnd_opt_drv: geom_print?',0)
-            if (util_print('bonds',print_default))
-     $           call distan(nat,c)
-            if (util_print('angles',print_default))
-     $           call angle(nat,c)
+*rak:            if (util_print('bonds',print_default))
+*rak:     $           call distan(nat,c)
+*rak:            if (util_print('angles',print_default))
+*rak:     $           call angle(nat,c)
+            if (util_print('bonds',print_default)) then
+              if (.not.geom_print_distances(geom)) call errquit(
+     &            'hnd_opt_drv: geom_print_distances failed',911)
+            endif
+            if (util_print('angles',print_default)) then
+              if (.not.geom_print_angles(geom)) call errquit(
+     &            'hnd_opt_drv: geom_print_angles failed',911)
+            endif
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)
@@ -305,10 +315,18 @@ c
             write(iw,9998)
             if (.not. geom_print(geom)) call errquit
      $           ('hnd_opt_drv: geom_print?',0)
-            if (util_print('bonds',print_default))
-     $           call distan(nat,c)
-            if (util_print('angles',print_default))
-     $           call angle(nat,c)
+*rak:            if (util_print('bonds',print_default))
+*rak:     $           call distan(nat,c)
+*rak:            if (util_print('angles',print_default))
+*rak:     $           call angle(nat,c)
+            if (util_print('bonds',print_default)) then
+              if (.not.geom_print_distances(geom)) call errquit(
+     &            'hnd_opt_drv: geom_print_distances failed',911)
+            endif
+            if (util_print('angles',print_default)) then
+              if (.not.geom_print_angles(geom)) call errquit(
+     &            'hnd_opt_drv: geom_print_angles failed',911)
+            endif
          endif
          if (.not.geom_destroy(geom))
      &      call errquit('hnd_opt: geom_destroy?', 911)

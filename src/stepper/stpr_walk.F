@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.31 1997-12-28 10:43:36 d3e129 Exp $
+c     $Id: stpr_walk.F,v 1.32 1998-01-09 15:25:38 d3e129 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -14,8 +14,6 @@ c
 #include "util.fh"
 #include "stdio.fh"
 c
-*      logical geom_print_distance, geom_print_angles
-*      external geom_print_distance, geom_print_angles
 c     
       integer rtdb              ! [input] run-time-data-base handle
 c     
@@ -182,12 +180,27 @@ c
          if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &        call errquit
      &        ('stpr_walk: geom_rtdb_store (of copy) failed',911)
-         if (.not.geom_print(geom)) call errquit(
-     &       'stpr_walk: geom_print failed',911)
-*         if (.not.geom_print_distance(geom))call errquit(
-*     &       'stpr_walk: geom_print_distance failed',911)
-*         if (.not.geom_print_angles(geom))call errquit(
-*     &       'stpr_walk: geom_print_angles failed',911)
+         if (util_print('new coordinates',print_low)) then
+           if (lstpr_walk) then
+             write(luout,11001)
+           else
+             write(luout,11002)
+           endif
+           if (.not.geom_print(geom)) call errquit(
+     &         'stpr_walk: geom_print failed',911)
+         endif
+         if (util_print('distances',print_default)) then
+           if (.not.geom_print_distances(geom)) call errquit(
+     &         'stpr_walk: geom_print_distances failed',911)
+         endif
+         if (util_print('angles',print_default)) then
+           if (.not.geom_print_angles(geom)) call errquit(
+     &       'stpr_walk: geom_print_angles failed',911)
+         endif
+         if (util_print('dihedrals',print_default)) then
+           if (.not.geom_print_dihedrals(geom)) call errquit(
+     &         'stpr_walk: geom_print_angles failed',911)
+         endif
 c     
 C**** #define ECCE
 #if defined(ECCE)
@@ -265,6 +278,8 @@ c
       call util_print_pop
       call ga_sync()
 c     
+11001 format(/,/,/,'  ',16('-'),' Converged geometry ',16('-'))
+11002 format(/,/,/,'  ',19('-'),' New geometry ',19('-'))
       end
       subroutine stpr_walk_reset
       implicit none

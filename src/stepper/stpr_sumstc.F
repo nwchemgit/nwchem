@@ -1,5 +1,5 @@
       SUBROUTINE stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
-c     $Id: stpr_sumstc.F,v 1.4 1995-03-31 01:45:44 d3g681 Exp $
+c     $Id: stpr_sumstc.F,v 1.5 1998-01-09 15:25:38 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL CNVGRD
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -23,26 +23,26 @@ C
 C     
 C     Write new coordinates.
 C     
-      if (util_print('new coordinates',print_low)) then
-         IF(CNVGRD)THEN
-            WRITE(6,1003)
-         ELSE
-            WRITE(6,1000)
-         ENDIF
-         WRITE(6,1001)
-         DO 30 I = 1,NATOM
-            WRITE(6,1002)I,(COORD(J,I),J=1,3)
- 30      CONTINUE
-         write(6,*)
-      endif
-      if (util_print('distances',print_default)) then
-         CALL DISTAN(NATOM,COORD)
-         write(6,*)
-      endif
-      if (util_print('angles',print_default)) then
-         CALL ANGLE(NATOM,COORD)
-         write(6,*)
-      endif
+*rak:      if (util_print('new coordinates',print_low)) then
+*rak:         IF(CNVGRD)THEN
+*rak:            WRITE(6,1003)
+*rak:         ELSE
+*rak:            WRITE(6,1000)
+*rak:         ENDIF
+*rak:         WRITE(6,1001)
+*rak:         DO 30 I = 1,NATOM
+*rak:            WRITE(6,1002)I,(COORD(J,I),J=1,3)
+*rak: 30      CONTINUE
+*rak:         write(6,*)
+*rak:      endif
+*rak:      if (util_print('distances',print_default)) then
+*rak:         CALL DISTAN(NATOM,COORD)
+*rak:         write(6,*)
+*rak:      endif
+*rak:      if (util_print('angles',print_default)) then
+*rak:         CALL ANGLE(NATOM,COORD)
+*rak:         write(6,*)
+*rak:      endif
 C     
 C     Calculate the vector of center of mass and the inertia
 C     tensor for the new geometry.

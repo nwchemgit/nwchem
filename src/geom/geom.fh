@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.24 1997-10-20 20:28:06 d3g681 Exp $
+C$Id: geom.fh,v 1.25 1998-01-09 15:25:36 d3e129 Exp $
       logical geom_check_cent
       logical geom_rtdb_load
       logical geom_rtdb_store
@@ -67,6 +67,10 @@ c
 c
       logical geom_nuc_dipole
 c
+      logical geom_print_distances
+      logical geom_print_angles
+      logical geom_print_dihedrals
+c
       external geom_check_handle
       external geom_check_cent
       external geom_rtdb_load
@@ -131,6 +135,10 @@ c
       external geom_ecp_center_list
 c
       external geom_nuc_dipole
+c
+      external geom_print_distances
+      external geom_print_angles
+      external geom_print_dihedrals
 c
       external geom_get_user_scale
       external geom_get_user_units
