@@ -1,13 +1,15 @@
 /*
- $Id: globalp.c.h,v 1.3 1999-07-28 00:39:18 d3e129 Exp $
+ $Id: globalp.c.h,v 1.4 2000-02-28 21:56:02 d3g270 Exp $
 
  file globalp.c.h 
  */
 
 #ifdef  STD_INT
 typedef int    Integer;
+typedef unsigned int unInteger;
 #else
 typedef long   Integer;
+typedef unsigned long unInteger;
 #endif
 
 #ifdef  STD_DBL
