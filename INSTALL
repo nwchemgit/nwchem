@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.52 2003-02-19 18:19:22 fruechtl Exp $
+$Id: INSTALL,v 1.53 2003-03-26 01:58:52 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -503,11 +503,30 @@ OPTIMIZATION TIPS:
    (BLAS).  These are generally not as fast as vendor supplied BLAS
    or other fast BLAS libraries.  For instance, we have found the
    Automatically Tuned Linear Algebra Software (ATLAS) to be faster
-   on several platforms (http://www.netlib.org/atlas/).  To include
+   on several platforms (http://math-atlas.sf.net/).  To include
    faster BLAS routines, set the environment variable BLASOPT before
    building the code.  For example, with ATLAS
 
    % setenv BLASOPT "-L/usr/local/ATLAS -lf77blas -latlas"
+
+   Other good choices of optimized BLAS libraries on Intel hardware
+   include:
+    1) Goto/Flame
+       http://www.cs.utexas.edu/users/flame/goto/
+    2) Intel MKL
+       http://www.intel.com/software/products/mkl/mkl60/
+   
+   If you are using HP computers (either PA-RISC or IA-64), you might
+   want to try the MLIB library
+   http://www.hp.com/go/mlib
+
+   If you are using SGI computers (either MIPS or IA-64), you might
+   want to try the SCSL library
+   http://www.sgi.com/software/scsl.html
+
+   If you are using IBM RS6000 computers, you might
+   want to try the ESSL library
+   http://www-1.ibm.com/servers/eserver/pseries/library/sp_books/essl.html
 
    If you are interested in "tweaking" compile options, the 
    appropriate place to do this is the $NWCHEM_TOP/config/makefile.h
