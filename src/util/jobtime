@@ -1,13 +1,13 @@
 #!/bin/csh
 #
-# $Id: jobtime,v 1.2 1999-07-27 21:00:19 d3e129 Exp $
+# $Id: jobtime,v 1.3 2000-01-04 22:16:23 windus Exp $
 #
 #
 # CSH WRAPPER TO JOBTIME.PL FOR IBMSP TO HANDLE SEARCH FOR PERL PATH
 
 # Find the path to perl (need version 5)
 
-foreach perl (perl5 perl /usr/local/bin/perl /usr/local/perl)
+foreach perl (perl5 perl /usr/bin/perl /usr/lpp/ssp/perl5/bin/perl /usr/local/bin/perl /usr/local/perl)
   $perl << EOF >& /dev/null
 require 5
 EOF
