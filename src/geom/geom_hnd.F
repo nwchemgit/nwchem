@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.33 2000-07-18 17:08:13 edo Exp $
+* $Id: geom_hnd.F,v 1.34 2000-08-04 05:57:32 d3g681 Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -308,8 +308,20 @@ c
             e(i) = 0.0d0
          endif
       enddo
-      if (nindep .ne. nvar) call errquit
+      if (nindep .ne. nvar) then
+         if (ga_nodeid() .eq. 0) then
+            write(6,9990) nindep, nvar
+ 9990       format(' !! There are insufficient internal variables:',
+     $           ' expected ', i5, ' got ', i5,/,
+     $             ' !! Either AUTOZ failed or your geometry has',
+     $           ' changed so much that the',/,
+     $           ' !! coordinates should be regenerated.')
+            call util_flush(6)
+         end if
+         call ga_sync()
+         call errquit
      $     ('geom_binvr: #indep variables incorrect',100000*nindep+nvar)
+      endif
 c
 c     Form G- = VT (e^-1) V
 c
