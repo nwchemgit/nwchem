@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 1998-02-27 04:31:26 d3e129 Exp $
+# $Id: GNUmakefile,v 1.16 1998-04-29 22:57:35 d3e129 Exp $
 
       OBJ_OPTIMIZE = hf1d.o      hf2d.o     hfd2oi.o \
                      hfderi.o    hfdkei.o   hfdnai.o \
@@ -9,7 +9,7 @@
      LIBRARY = libnwints.a
 
 USES_BLAS = hf1PRtoAB.f hf1d.F hf2PRtoAB.f hf2QStoCD.f hf2d.F hf2d_2a.F hf2d_2a2b.F \
-            hf2d_2b.F hf2d_3a.F hf2d_3a2b.F hfd3oi.F
+            hf2d_2b.F hf2d_3a.F hf2d_3a2b.F hfd3oi.F hf2d_all.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
