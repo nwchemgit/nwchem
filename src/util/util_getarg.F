@@ -1,5 +1,5 @@
       subroutine util_getarg(iarg_in,arg)
-* $Id: util_getarg.F,v 1.3 2000-05-25 20:53:02 edo Exp $
+* $Id: util_getarg.F,v 1.4 2000-08-14 23:04:51 bjohnson Exp $
 *
 * The statement call util_getarg( k , arg ) gets the  kth  command-
 * line argument and puts it into the string arg.
@@ -11,6 +11,11 @@
       integer*4 iarg
 #else
       integer iarg
+#ifdef WIN32
+cDEC$ IF (_DF_VERSION_ .lt. 600)
+      integer idum
+cDEC$ ENDIF
+#endif
 #endif
 #if defined(CRAY)
       integer length,ierror
@@ -30,7 +35,15 @@ c
       if (ierror.ne.0)
      + call errquit('util_getarg:pxfgetarg fatal error',ierror)
 #else
+#ifdef WIN32
+cDEC$ IF (_DF_VERSION_ .lt. 600)
+      call getarg(iarg,arg,idum)
+cDEC$ ELSE
       call getarg(iarg,arg)
+cDEC$ ENDIF
+#else
+      call getarg(iarg,arg)
+#endif
 #endif
 *
       return
