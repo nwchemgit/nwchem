@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.79 1999-04-08 19:21:34 d3g681 Exp $
+C$Id: geom.F,v 1.80 1999-04-19 22:13:30 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2613,14 +2613,16 @@ c
       external geom_ncent
       integer geom
       integer nat
-      integer max_netp, max_net
-      parameter (max_netp=24)
+*     integer max_netp
+*     parameter (max_netp=24)
+      integer max_net
       integer h_xnet, k_xnet, h_xlist, k_xlist
 *
       if (.not.geom_ncent(geom,nat)) call errquit
      &    ('geom_print_angles: geom_ncent',911)
 
-      max_net = min(max_netp,nat)
+*24 seems to break      max_net = min(max_netp,nat)
+      max_net = nat
       if (.not.ma_push_get(mt_int,(max_net*nat),'p_xnet',
      &    h_xnet,k_xnet)) call errquit(
      &    'geom_print_angles: ma get xnet failed',911)
@@ -3234,14 +3236,16 @@ c initialize variables
       external geom_prt_dihedrals
       integer geom
       integer nat
-      integer max_netp, max_net
-      parameter (max_netp=24)
+**    integer max_netp
+**    parameter (max_netp=24)
+      integer max_net
       integer h_xnet, k_xnet, h_xlist, k_xlist
 *
       if (.not.geom_ncent(geom,nat)) call errquit
      &    ('geom_print_dihedrals: geom_ncent',911)
 
-      max_net = min(max_netp,nat)
+* 24 seems to break      max_net = min(max_netp,nat)
+      max_net = nat
       if (.not.ma_push_get(mt_int,(max_net*nat),'p_xnet',
      &    h_xnet,k_xnet)) call errquit(
      &    'geom_print_dihedrals: ma get xnet failed',911)
