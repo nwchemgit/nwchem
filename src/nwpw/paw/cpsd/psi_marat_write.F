@@ -1,5 +1,5 @@
 *
-* $Id: psi_marat_write.F,v 1.4 2003-02-14 19:59:52 d3j191 Exp $
+* $Id: psi_marat_write.F,v 1.5 2003-02-14 23:01:31 bylaska Exp $
 *
 
 *     ***********************************
@@ -103,7 +103,7 @@ c         filename = "marat.psi"
          call D3dB_r_SMul(1,scale,
      >                      dcpl_mb(tmp2(1)),
      >                      dcpl_mb(tmp2(1)))
-         call D3dB_r_FormatWrite(1,87,
+         call D3dB_r_FormatWrite_paw(1,87,
      >                           dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)))
   
@@ -117,7 +117,7 @@ c         filename = "marat.psi"
          call D3dB_r_SMul(1,scale,
      >                      dcpl_mb(tmp2(1)),
      >                      dcpl_mb(tmp2(1)))
-         call D3dB_r_FormatWrite(1,87,
+         call D3dB_r_FormatWrite_paw(1,87,
      >                           dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)))
       end do

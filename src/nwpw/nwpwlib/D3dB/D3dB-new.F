@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.11 2002-09-18 23:31:57 bylaska Exp $
+* $Id: D3dB-new.F,v 1.12 2003-02-14 22:59:39 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -20,7 +20,7 @@
 * data structure, denoted by "r", is a double precision array of
 * length (nx(nb)+2)*ny(nb)*nz.  The second data structure, denoted by "c", is
 * a double complex array of length of (nx(nb)/2+1)*ny(nb)*nz.  The third data
-* structure, denoted by "t", is a dobule precision array of length
+
 * (nx(nb)/2+1)*ny(nb)*nz.
 *
 *	The three data structures are distributed across threads, p, in
@@ -2314,6 +2314,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       return
       end
 
+
 *     *******************************************
 *     *						*
 *     *	       D3dB_r_FormatWrite_reverse	*	
@@ -2345,7 +2346,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
       integer MASTER,taskid
       parameter(MASTER=0)
       integer p_from, p_here,q
-      integer i,j,k,index,index2
+      integer i,j,k,index
       integer dest,source,status,msglen,idum
 
       call Parallel_taskid(taskid)
@@ -2410,6 +2411,114 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
 #endif
               end if
             end do
+
+         end do
+         end do
+      end if
+
+*     **** wait ****
+#ifdef MPI
+      call MPI_BARRIER(MPI_COMM_WORLD,mpierr)
+#endif
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	       D3dB_r_FormatWrite_paw	*	
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_r_FormatWrite_paw(nb,iunit,A,tmp)
+      implicit none 
+      integer nb
+      integer iunit
+      real*8     A(*)
+      real*8     tmp(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common	/ D3dB / nq,nx,ny,nz
+
+#ifdef MPI
+      include 'mpif.h'
+      integer mpierr
+      integer msgtype
+#endif
+#ifdef TCGMSG
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer rcv_len,rcv_proc
+#endif
+      
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer p_from, p_here,q
+      integer i,j,k,index
+      integer dest,source,status,msglen
+
+      call Parallel_taskid(taskid)
+
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            call D3dB_ktoqp(nb,j,q,p_from)
+
+            if (p_from.eq.MASTER) then
+
+                 index = (q-1)*(nx(nb)+2)*ny(nb) 
+     >                 + (k-1)*(nx(nb)+2) + 1
+                 call dcopy(nx(nb),A(index),1,tmp,1)
+
+            else
+
+               msglen  = (nx(nb))
+               status  = msglen
+               source  = p_from
+#ifdef MPI
+               msgtype = 33
+               call MPI_RECV(tmp,msglen,MPI_DOUBLE_PRECISION,
+     >                       source,msgtype,MPI_COMM_WORLD,
+     >                       status,mpierr)
+#endif
+#ifdef TCGMSG
+               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+     >                       source,rcv_proc,1)
+#endif
+            end if
+
+c           **** call dwrite(iunit,tmp,(nx(nb))) ****
+            write(iunit,'(3E26.14)') (tmp(i), i=1,nx(nb))
+
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+         
+            call D3dB_ktoqp(nb,j,q,p_here)
+            if (p_here.eq.taskid) then
+
+                  index = (q-1)*(nx(nb)+2)*ny(nb) 
+     >                  + (k-1)*(nx(nb)+2) + 1
+                  call dcopy(nx(nb),A(index),1,tmp,1)
+
+
+               msglen  = (nx(nb))
+               dest    = MASTER
+#ifdef MPI
+               msgtype = 33
+               call MPI_SEND(tmp,msglen,MPI_DOUBLE_PRECISION,
+     >                       dest,msgtype,MPI_COMM_WORLD,mpierr)
+#endif
+#ifdef TCGMSG
+               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+#endif
+            end if
 
          end do
          end do
@@ -3078,6 +3187,61 @@ c           **** call dwrite(iunit,tmp,(nx(nb))*ny(nb)) ****
          end if
       end do
       end do
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_r_ABS             *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_r_ABS(nb,A,C)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 C(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common    / D3dB / nq,nx,ny,nz
+
+
+      integer i,j,q,index
+
+      do q=1,nq(nb)
+      do j=1,ny(nb)
+      do i=1,nx(nb)
+         index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+         C(index) = dabs(A(index))
+      end do
+      end do
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          D3dB_r_ZeroNegative    *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_r_ZeroNegative(nb,A)
+      implicit none
+      integer nb
+      real*8 A(*)
+
+      integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)
+      common    / D3dB / nq,nx,ny,nz
+
+      integer i
+
+      do i=1,(nx(nb)+2)*ny(nb)+nq(nb)
+         if (A(i).lt.0.0d0) A(i) = 0.0d0
       end do
 
       return
