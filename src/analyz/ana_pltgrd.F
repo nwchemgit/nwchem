@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.9 2000-05-03 21:33:54 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.10 2000-05-04 15:45:48 d3j191 Exp $
 c
       implicit none
 c
@@ -15,7 +15,9 @@ c
       read(string(1:4),'(i4)') mgrd
       read(string(5:8),'(i4)') iesppb
       read(string(9:20),'(f12.6)') rcut
-      spac=rcut/dble(mgrd-1)
+      spac(1)=rcut/dble(mgrd-1)
+      spac(2)=rcut/dble(mgrd-1)
+      spac(3)=rcut/dble(mgrd-1)
       string=card(28:80)
       i=index(string,' ')
       filchg=string(1:i)
@@ -25,13 +27,6 @@ c
       ngrd(2)=mgrd
       ngrd(3)=mgrd
 c
-      write(*,2000) mgrd,rcut,
-     + filchg(1:index(filchg,' ')-1),
-     + filplt(1:index(filplt,' ')-1)
- 2000 format(' Electrostatic potential on ',i4,' cubed grid extending',
-     + f12.6,' nm',/,' Charges from ',a,' written to ',a)
-      if(iesppb.gt.0) write(*,2001)
- 2001 format(' Periodic boundary conditions')
 c
 c     open the charge file
 c
@@ -60,6 +55,15 @@ c
       ngy=ngrd(2)
       ngz=ngrd(3)
       mgrd=ngx*ngy*ngz
+c
+      write(*,2000) ngrd,rcut,
+     + filchg(1:index(filchg,' ')-1),
+     + filplt(1:index(filplt,' ')-1)
+ 2000 format(' Electrostatic potential on ',i5,'x',i5,'x',i5,
+     + ' grid extending',
+     + f12.6,' nm',/,' Charges from ',a,' written to ',a)
+      if(iesppb.gt.0) write(*,2001)
+ 2001 format(' Periodic boundary conditions')
 c
       if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid)) then
       call errquit('Failed to allocate memory for grid',me)
@@ -100,6 +104,7 @@ c
       character*2 t(nsa)
 c
       integer i,j
+      real*8 xd(3),xdmin
 c
       if(me.eq.0) then
 c
@@ -124,12 +129,26 @@ c
 c
       do 4 j=1,3
       if(iesppb.eq.0.or.(iesppb.lt.3.and.j.eq.3)) then
-      ngrd(j)=(xmax(j)-xmin(j)+2.0d0*rcut)/spac+1
+      xd(j)=xmax(j)-xmin(j)+2.0d0*rcut
       xmin(j)=xmin(j)-rcut
       else
-      ngrd(j)=(xmax(j)-xmin(j))/spac+1
+      xd(j)=box(j)
       endif
     4 continue
+c
+      xdmin=min(xd(1),xd(2),xd(3))
+c
+      do 5 j=1,3
+      spac(j)=1.0d0/(mgrd-1)
+    5 continue
+c
+      do 6 j=1,3
+      ngrd(j)=xd(j)/spac(j)+1
+    6 continue
+c
+      do 7 j=1,3
+      spac(j)=xd(j)/dble(ngrd(j))
+    7 continue
 c
       endif
 c
@@ -139,7 +158,10 @@ c
       call ga_brdcst(mag_d01,x,3*nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
       call ga_brdcst(mag_d02,xmin,3*ma_sizeof(mt_dbl,1,mt_byte),0)
       call ga_brdcst(mag_d03,ngrd,3*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mag_d04,spac,3*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
+c
+c      write(*,'(3i5,3f12.6)') ngrd,spac
 c
       return
       end
@@ -165,8 +187,8 @@ c
       real*8 dx,dy,dz
       real*8 boxh(3)
 c
-      write(*,3000) filplt(1:index(filplt,' ')-1)
- 3000 format(' filplt= ',a)
+c      write(*,3000) filplt(1:index(filplt,' ')-1)
+c 3000 format(' filplt= ',a)
 c      write(*,3001) filxyz(1:index(filxyz,' ')-1)
 c 3001 format(' filxyz= ',a)
 c
@@ -196,11 +218,11 @@ c
     1 continue
 c
       do 4 ix=nxfr,nxto
-      xg=dble(ix-1)*spac+xmin(1)
+      xg=dble(ix-1)*spac(1)+xmin(1)
       do 5 iy=1,ngy
-      yg=dble(iy-1)*spac+xmin(2)
+      yg=dble(iy-1)*spac(2)+xmin(2)
       do 6 iz=1,ngz
-      zg=dble(iz-1)*spac+xmin(3)
+      zg=dble(iz-1)*spac(3)+xmin(3)
 c      write(*,'(3e20.12)') xg,yg,zg
       do 7 i=1,nsa
       dx=xg-x(i,1)
@@ -257,9 +279,9 @@ c
       write(lfnplt,1001) ngz,ngy,ngx
  1001 format(3i7)
       write(lfnplt,1002)
-     + 10.0d0*xmin(3),10.0d0*(xmin(3)+dble(ngz-1)*spac),
-     + 10.0d0*xmin(2),10.0d0*(xmin(2)+dble(ngy-1)*spac),
-     + 10.0d0*xmin(1),10.0d0*(xmin(1)+dble(ngx-1)*spac)
+     + 10.0d0*xmin(3),10.0d0*(xmin(3)+dble(ngz-1)*spac(3)),
+     + 10.0d0*xmin(2),10.0d0*(xmin(2)+dble(ngy-1)*spac(2)),
+     + 10.0d0*xmin(1),10.0d0*(xmin(1)+dble(ngx-1)*spac(1))
  1002 format(6e12.5)
       write(lfnplt,1003) (((g(ix,iy,iz),ix=1,ngx),iy=1,ngy),iz=1,ngz)
  1003 format(2e20.12)

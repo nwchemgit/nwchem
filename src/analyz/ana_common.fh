@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.21 2000-05-02 18:51:08 d3j191 Exp $
+c $Id: ana_common.fh,v 1.22 2000-05-04 15:45:48 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -14,11 +14,11 @@ c
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
      + lfnvec
 c
-      real*8 time,timr,timoff,box(3),spac,rcut,xmax(3),xmin(3)
+      real*8 time,timr,timoff,box(3),spac(3),rcut,xmax(3),xmin(3)
       real*8 temp,pres
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
-      integer ngx,ngy,ngz,iesppb
+      integer ngx,ngy,ngz,iesppb,mgrd
       integer nbnds,ibnds(mxbnds,2,2)
       integer nangs,iangs(mxangs,3,2)
       integer ntors,itors(mxtors,4,2)
@@ -32,7 +32,7 @@ c
      + rbnds,rangs,rtors,rimps,valmin,valmax,
      + irmsd,lcop,lsup,ifrfr,ifrto,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
-     + ngrd,ngx,ngy,ngz,iesppb,
+     + ngrd,ngx,ngy,ngz,iesppb,mgrd,
      + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps
 c
       character*255 filnam,filana,filref,filtrj,filcop,filsup,
