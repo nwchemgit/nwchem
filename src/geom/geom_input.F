@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.129 2000-03-01 23:35:18 bert Exp $
+C     $Id: geom_input.F,v 1.130 2000-03-20 22:52:46 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -291,7 +291,7 @@ c
      &           911)
 c     
 c     New style input ... <tag> <x> <y> <z> [vx vy vz] \
-c                         [charge <q>] [mass <m>] [finite]
+c                         [charge <q>] [mass <m>] [nuc finite]
 c     
             call inp_set_field(1)
             status = .true.
@@ -332,8 +332,9 @@ c
                endif
             endif
             if (.not. status) call errquit
-     $           ('geom_input: <tag> <x> <y> <z> '//
-     $           ' [charge <q>] [mass <m>] [finite <model>]', ncenter+1)
+     $          ('geom_input: <tag> <x> <y> <z>  [charge <q>]'//
+     $          ' [mass <m>] [nuc[leus] point|pt|finite|fi]',
+     &          ncenter+1)
             ncenter = ncenter + 1
             if (oatomfinite) then
               if (.not. geom_mass_to_invnucexp (mass(ncenter), 
