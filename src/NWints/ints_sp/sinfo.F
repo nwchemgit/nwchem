@@ -4,7 +4,7 @@
      $     ksh, lk, ck, ek, ngk, xk,
      $     lsh, ll, cl, el, ngl, xl,
      $     jtype)
-c $Id: sinfo.F,v 1.2 1994-04-08 20:35:15 d3g681 Exp $
+c $Id: sinfo.F,v 1.3 1994-04-28 21:41:02 d3e129 Exp $
       implicit none
 c     
 c     Takes info about centers and shells, precomputes some axis
@@ -45,7 +45,7 @@ c
       integer i, j, k, l, ind
       integer ijatom, klatom, ijshel, klshel
       logical oijat, oklat
-      double precision q13, q21, qq, qqtest, qqqq, qqq, eab, gbeab
+      double precision qq, qqtest, qqqq, qqq, eab, gbeab
       double precision abx, aby, abz, cdx, cdy, cdz
       double precision ppq1, ppq2, ppq3, pmq1, pmq2, pmq3
       double precision p2, temp, p3333, sinp, p3131, csai, cpai

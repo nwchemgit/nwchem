@@ -1,5 +1,5 @@
       subroutine sp1111(gout)
-c $Id: sp1111.F,v 1.1 1994-04-06 23:52:12 d3e129 Exp $
+c $Id: sp1111.F,v 1.2 1994-04-28 21:41:09 d3e129 Exp $
       implicit none
       double precision g(256),h(256)
       double precision dzero, done
@@ -52,7 +52,7 @@ c
       double precision theta2, theta3, theta4
       double precision v77, v44, v45, v74, v47, v55, v57, v54, v
       double precision r13, r14, r33, r34, t1, t2, t3, u12
-      double precision f0, f1, f2, f3, g, gy, ggy, gtx
+      double precision f0, f1, f2, f3, gy, ggy, gtx
       double precision ecd, pqab2, pqab, p
       double precision p1, p2, p3, p4, p5, p6
       double precision q1, q2, q3, q4, q5, q6

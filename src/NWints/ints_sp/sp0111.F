@@ -1,5 +1,5 @@
       subroutine sp0111(gout)
-c $Id: sp0111.F,v 1.1 1994-04-06 23:52:11 d3e129 Exp $
+c $Id: sp0111.F,v 1.2 1994-04-28 21:41:08 d3e129 Exp $
 c        *****  special fast routine for -p- loop for 0111 *****
       implicit none
       double precision gout(*)
@@ -40,8 +40,8 @@ c
       double precision theta2, theta3, theta4
       double precision v77, v44, v45, v74, v47, v55, v57, v54, v
       double precision r13, r14, r33, r34, t1, t2, t3, u12
-      double precision f0, f1, f2, f3, g, gy, ggy, gtx
-      double precision a4, ecd, pqab2, pqab, p
+      double precision f0, f1, f2, f3, gy, ggy, gtx
+      double precision ecd, pqab2, pqab, p
       double precision p1, p2, p3, p4, p5, p6
       double precision q1, q2, q3, q4, q5, q6
       double precision r1, r2, r3, r4, r5, r6, r7, r8, r9

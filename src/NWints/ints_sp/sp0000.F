@@ -1,5 +1,5 @@
       subroutine sp0000(gout)
-c $Id: sp0000.F,v 1.1 1994-04-06 23:52:06 d3e129 Exp $
+c $Id: sp0000.F,v 1.2 1994-04-28 21:41:03 d3e129 Exp $
 c     *****  special fast routine for -p- loop for 0000 ****
       implicit none
 c     
@@ -25,7 +25,7 @@ c
       integer n
       double precision cq
       integer k, l, i
-      double precision g0000, q13, q21, csck, gcrcds, ecd
+      double precision g0000, csck, gcrcds, ecd
       double precision p, pp, ppp, qqtest, h0000, gdecd, f0
       double precision theta2, theta3, theta4, aqx, aqz,qperp2
 c     

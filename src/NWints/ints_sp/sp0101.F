@@ -1,5 +1,5 @@
       subroutine sp0101(gout)
-c $Id: sp0101.F,v 1.1 1994-04-06 23:52:10 d3e129 Exp $
+c $Id: sp0101.F,v 1.2 1994-04-28 21:41:07 d3e129 Exp $
 c        *****  special fast routine for -p- loop for 0101 *****
       implicit none
       double precision gout(*)
@@ -32,7 +32,7 @@ c
       integer k, l, i, loopkl, j
       integer ind, i1, i2, i3
       double precision dzero, done, sixty, tenm12
-      double precision q13, q21, qqq, qqtest, qperp, qperp2, q
+      double precision qqq, qqtest, qperp, qperp2, q
       double precision dq00, dq01, dq10, dq11
       double precision aqx, aqz, cosp, sinp
       double precision h0000, h0001, h0003, h0100, h0101, h0103, h0300
@@ -46,7 +46,7 @@ c
       double precision v
       double precision r14, r34, t1, t2, t3, u12
       double precision f0, f1, f2, g, gy, ggy, gtx
-      double precision a4, ecd, pqab2, pqab, p
+      double precision ecd, pqab2, pqab, p
 c
       data dzero/0.0d0/,done/1.0d0/
       data sixty,tenm12/60.0d0,1.0d-12/
