@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.10 2000-05-24 22:04:24 zzhang Exp $
+C$Id: xc_exso.F,v 1.11 2000-06-07 04:13:31 zzhang Exp $
 c
       implicit none
 c      
@@ -41,7 +41,6 @@ c
 c
       call ga_inquire(g_densso(1),type,nao,nao)
       nao=nao/2
-      if(ga_nodeid().eq.0)write(*,*)"nao", nao
       jantest=.false.
       if(jantest)then 
 c     
