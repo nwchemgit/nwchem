@@ -58,8 +58,8 @@ the DFT module are:
 
   XC [[acm] [b3lyp] [beckehandh] \
       [HFexch <real multiplicative_factor default 1.0>] \
-      [becke88 [local|nonlocal] <real multiplicative_factor default 1.0>] \
-      [lyp [local|nonlocal] <real multiplicative_factor default 1.0>] \
+      [becke88 [nonlocal] <real multiplicative_factor default 1.0>] \
+      [lyp <real multiplicative_factor default 1.0>] \
       [perdew81 <real multiplicative_factor default 1.0>] \
       [perdew86 [nonlocal] <real multiplicative_factor default 1.0>] \
       [perdew91 [nonlocal] <real multiplicative_factor default 1.0>] \
@@ -86,20 +86,21 @@ the DFT module are:
                [ncyds <integer ncyds default 30>] \
                [ncysh <integer ncysh default 30>] \
                [damp <integer ndamp default 70>] [nodamping] \
-               [diis [nfock <integer nfock default 30>]] \
+               [diis [nfock <integer nfock default 10>]] \
                [nodiis] [lshift <real lshift default 0.5>] \
                [nolevelshifting] \
                [hl_tol <real hl_tol default 0.1>]]
 
 
-  GRID [[delley|becke] [gausleg|(lebedev <integer iangquad default 4>)] \
+  GRID [[delley|becke] [gausleg|(lebedev <integer iangquad default 4> \
+                                         <integer radpts default 50>)] \
         [coarse|medium|fine|xfine|(user <integer nagrid default 10> \
-        <integer nradpts default 40>)] \
+                                        <integer nradpts default 40>)] \
         [store_wght] [nquad_task <integer nquad_task default 1>] \
         [rm <real rm default 2.0>]]
 
 
-  TOLERANCES [[tight] [tol_rho <real tol_rho default 1.0>] \
+  TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
               [accAOfunc <integer accAOfunc default 20>] \
               [accCoul <integer accCoul default 15>] \
               [accQrad <integer accQrad default 40>] \
@@ -183,8 +184,8 @@ optional, and usually not recommended
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] \
       [HFexch <real multiplicative_factor default 1.0>] \
-      [becke88 [local|nonlocal] <real multiplicative_factor default 1.0>] \
-      [lyp [local|nonlocal] <real multiplicative_factor default 1.0>] \
+      [becke88 [nonlocal] <real multiplicative_factor default 1.0>] \
+      [lyp <real multiplicative_factor default 1.0>] \
       [perdew81 <real multiplicative_factor default 1.0>] \
       [perdew86 [nonlocal] <real multiplicative_factor default 1.0>] \
       [perdew91 [nonlocal] <real multiplicative_factor default 1.0>] \
@@ -436,7 +437,7 @@ a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
                [ncyds <integer ncyds default 30>] \
                [ncysh <integer ncysh default 30>] \
                [damp <integer ndamp default 70>] [nodamping] \
-               [diis [nfock <integer nfock default 30>]] \
+               [diis [nfock <integer nfock default 10>]] \
                [nodiis] [lshift <real lshift default 0.5>] \
                [nolevelshifting] \
                [hl_tol <real hl_tol default 0.1>]]
@@ -522,192 +523,155 @@ the number of damping cycles (ncydp), the number of diis cycles
                [ncysh <integer ncysh default 0>]
 \end{verbatim}
 
-\begin{verbatim}
-JEFF STOPED HERE 2-19-97
-
-\end{verbatim}
-
-
-
-
-The damping to be imposed after \verb+itrscf+ iterations is specified
-as a percent of ***what?***, using the following keyword,
+The amount of damping, levelshifting, time at which levelshifting is
+automatically imposed, and Fock matrices used in the DIIS
+extrapolation can be modified by the following keywords
 
 \begin{verbatim}
-   damp <integer ndamp default 0>
+  CONVERGENCE  [damp <integer ndamp default 70>] \
+               [diis [nfock <integer nfock default 10>]] \
+               [lshift <real lshift default 0.5>] \
+               [hl_tol <real hl_tol default 0.1>]]
 \end{verbatim}
 
-% \item Use direct inversion of the iterative subspace (DIIS) optimization
-%   (P.~Pulay,  Chem.\ Phys.\ Lett.\ {\bf 73}, 393 (1980) and P.~Pulay,
-%   J.~Comp.~Chem.~{\bf 3}, 566 (1982)):
+Damping is defined to be the percentage of the previous iterations
+density mixed with the current iterations density.  So, for example 
 
 \begin{verbatim}
-   diis
-   nfock <integer nfock default 10>
+  CONVERGENCE damp 70
 \end{verbatim}
 
-The user also has the option of level-shifting\footnote {M.F.~Guest and 
-V.R.~Saunders, Mol.~Phys.~{\bf 28}, 819 (1974)} the Fock matrix by specifying
-the keyword \verb+lshift+.  The form of this directive is as follows,
+would mix 30% of the current iteration density with 70% of the
+previous iteration density.
+
+Levelshifting\footnote {M.F.~Guest and 
+V.R.~Saunders, Mol.~Phys.~{\bf 28}, 819 (1974)} is defined as the
+amount of shift applied to the diagonal elements of the unoccupied
+block of the Fock matrix.  The shift is specified by the
+keyword \verb+lshift+.  For example the directive,
 
 \begin{verbatim}
-   lshift <real lshift default 0> 
+  CONVERGENCE lshift 0.5
 \end{verbatim}
 
-Specifying this keyword causes the diagonal elements of the Fock matrix
-corresponding to the virtual orbitals to be shifted by \verb+lshift+.
-By default, this level-shifting procedure is switched off after 99 iterations.
-The user can specify the point at which it is switched off by defining
-the keyword {\tt ncyshft}.  The form of the input line is as follows,
+causes the diagonal elements of the Fock matrix
+corresponding to the virtual orbitals to be shifted by 0.5 au.
+By default, this levelshifting procedure is switched on whenever the
+HOMO-LUMO gap is small.  Small is defined by default to be 0.1 au but
+can be modified by the directive \verb+hl_tol+.  An example of
+changing the HOMO-LUMO gap tolerance to 0.01 would be,
 
 \begin{verbatim}
-  ncyshft <integer ncyshft default 99> 
+  CONVERGENCE hl_tol 0.01
 \end{verbatim}
 
-% \item Density matrix damping. Damp by {\tt ndamp} percent (default 0\%):
-% \begin{verbatim}
-%    damp <integer ndamp>  
-% \end{verbatim}
-% \item Fock matrix level shifting (M.F.~Guest and V.R.~Saunders,
-%   Mol.~Phys.~{\bf 28}, 819 (1974)). The diagonal elements of
-% the Fock matrix corresponding to virtual orbitals are shifted by 
-% {\tt  lshift} Hartree (default 0):
-% \begin{verbatim}
-%    lshift <real lshift> 
-% \end{verbatim}
-% The level shifting procedure may be switched off after {\tt ncyshft} cycles
-% (default 99):
-% \begin{verbatim}
-%   ncyshft <integer ncyshft> 
-% \end{verbatim}
-% \end{itemize}
-
-
-
-When the option for direct inversion of the iterative subspace is
-specified (by entering the keyword \verb+DIIS+; see Section \ref{opt}),
-the user can define the DIIS error norm convergence tolerance.  This
-is done by specifying an input line of the form,
+Direct inversion of the iterative subspace with extrapolation of upto
+10 Fock matrices is a default optimization procedure.  For large
+molecular systems the amount of available memory may preclude the ability to
+store this number of N**2 arrays in global memory.  The user may then
+specify the number of Fock matrices to be used in the extrapolation
+(must be greater than three (3) to be effective).  To set the number of
+Fock matrices stored and used in the extrapolation procedure to 3
+would take the form,
 
 \begin{verbatim}
-  idiisoff <integer idiisoff default 7>
+  CONVERGENCE diis nfock 3
 \end{verbatim}
 
-The error norm convergence tolerance is defined as $10^{-{\tt idiisoff}}$.
+Finally, the user has the ability to simply turn off any optimization
+procedures deemed undesirable with the obvious keywords,
+\begin{verbatim}
+  CONVERGENCE [nodamping] [nodiis] [nolevelshifting]
+\end{verbatim}
 
-% \begin{itemize}
-% \item Delta energy convergence tolerance $10^{-{\tt iscfcon}}$(default 7):
-% \begin{verbatim}
-%   scfcon <integer iscfcon>
-% \end{verbatim}
-% \item Delta density convergence tolerance $10^{-{\tt igcon}}$
-%   (default -1 [meaning ignore]):
-% \begin{verbatim}
-%   gcon <integer igcon>
-% \end{verbatim}
-% \item DIIS error norm convergence tolerance $10^{-{\tt idiisoff}}$ 
-%   (only used with DIIS, default 7):
-% \begin{verbatim}
-%   idiisoff <integer idiisoff>
-% \end{verbatim}
-% \end{itemize}
 
 \subsection{Control of the Numerical Integration (Grid Control) of the
   Exchange-Correlation Potential in the DFT Module}
 \begin{verbatim}
-  GRID [[delley|becke] [gausleg|(lebedev <integer iangquad default 4>)] \
+  GRID [[delley|becke] [gausleg|(lebedev <integer iangquad default 4> \
+                                         <integer radpts default 50>)] \
         [coarse|medium|fine|xfine|(user <integer nagrid default 10> \
-        <integer nradpts default 40>)] \
+                                        <integer nradpts default 50>)] \
         [store_wght] [nquad_task <integer nquad_task default 1>] \
         [rm <real rm default 2.0>]]
 
 
 \end{verbatim}
 
+A numerical integration is necessary for the evaluation of the
+exchange-correlation contribution to the density functional.  The
+default quadrature used for the numerical integration is an
+Euler-MacLaurin scheme for the radial components and a Gauss-Legendre
+scheme for the angular components (see C.W.~Murray, N.C.~Handy, and
+G.L.Laming, Mol.~Phys.~78, 997-1014, (1993)).  Within this numerical 
+integration procedure various levels of accuracy have been defined and
+are available to the user.  The user can specify the level of accuracy
+with the keywords; coarse, medium, fine, xfine, and user,
 
-% \begin{itemize}
-% \item 
-Two types of angular grid have been implemented in the DFT module.  These
-are the Gauss-Legendre grid, and the Lebedev grid\footnote{The subroutine 
-for the Lebedev grid was supplied by M.~Caus\`a of the University of Torino.}
-The default in the DFT calculation is to select the Gauss-Legendre grid,
-but the user can specify this input explicitly using the following input
-line,
-
-%  Gauss-Legendre (default):
 \begin{verbatim}
-   KEYWORD  <string grid_type default gausleg>  \
-     <string tag> <string radial_density default medium>  \
-                  <string ang_density default medium>     \
-   END
+  GRID [coarse|medium|fine|xfine|(user <integer nagrid default 10> \
+        <integer nradpts default 50>)] \
+
 \end{verbatim}
 
-By default, the string \verb+grid_type+ is set to \verb+gausleg+, for the
-Gauss-Legendre grid.  The Lebedev grid is specified with \verb+grid_type+
-entered as \verb+lebedev+.  The default grid density for every atom or
-center in the molecule is set to \verb+medium+ by default.  The user has the
-option of defining the radial and angular grid density for a given atom 
-or center of the molecule, within
-the range from coarse to extra-fine.  This is done by specifying the string 
-\verb+tag+ that identifies the atom or center in the basis set (see Section
-\ref{sec:basis}), and entering \verb+coarse+, \verb+medium+, \verb+fine+,
-or \verb+xfine+ for the strings \verb+radial_density+ and \verb+ang_density+.
+The definitions of these gridtypes are:\\
 
-% or Lebedev (routine supplied by M.~Caus\`a of the University of Torino):
-%  \begin{verbatim}
-%    lebedev
-% \end{verbatim}
-% \item Choices of grid density (default is {\tt medium}), range from 
-% \begin{verbatim}
-%    coarse
-% \end{verbatim}
-% to
-% \begin{verbatim}
-%    xfine
-% \end{verbatim}
-
-The effect of this input on the grid size for each atom or center is listed
-in the following table.
-
-% with the following definitions around each center:
 
   \begin{tabular}[right]{|l|r r r r|} \hline
 Keyword & {\tt coarse} & {\tt medium} & {\tt fine} & {\tt xfine} \\ \hline
-$N_{radial}$ & 30 & 40 & 60 & 90 \\
-$N_{angular}$ & 6 & 8 & 10 & 10 \\  \hline
-%$\Delta E/E$ $^a$  & & & &\\ 
-%$\Delta \nabla E/|\nabla E|$$^a$  & & & &\\
-%\multicolumn{5}{l}{$^a$ Based on calculations of 12-crown-6} \\
-%\multicolumn{5}{l}{   with a 6-31g$*$ basis} \\
+$N_{radial}$ & 35 & 50 & 75 & 105 \\
+$N_{theta}$ & 8 & 10 & 12 & 14 \\  \hline
+$N_{phi}$ & 16 & 20 & 24 & 28 \\  \hline
+$total unpruned per center$ & 4480 & 10000 & 21600 & 41160 \\  \hline
   \end{tabular}
 
-\Large
-***NOTE: I guessed at the proper form of the input for this feature, based
-on the input conventions defined earlier.  Someone needs to check this,
-and supply the correct names for the variables and keywords that I've made
-up.***
-\normalsize
-
-% \item  Grid cutoff: for a given center (i.e.~atom) $A$, points that lie
-% more than {\tt iRmax} bohr from center $A$ are neglected. (Default value: 40)
-
-The user also has the option of specifying the grid cut-off for the
-DFT calculation, using the keyword \verb+accQrad+.  The input line for
-this option is as follows,
+The user has the option of specifying a customed quadrature of this
+type with the keywords,
 
 \begin{verbatim}
-   accQrad <integer iRmax default 40>
+  GRID user <integer nagrid default 10> <integer nradpts default 50>
+        
 \end{verbatim}
-% \end{itemize}
 
-The value entered for \verb+iRmax+ is the cutoff distance, in bohr, for grid
-points around a given center or atom.  Grid points that lie more than 
-\verb+iRmax+ bohr from the center or atom are neglected. 
+In this type of grid, the number of phi points is twice the number of
+theta points. So, for example, a specification of,
 
+\begin{verbatim}
+  GRID user 20 80
+        
+\end{verbatim}
+
+would be interpreted as 80 radial points, 20 theta points, and 40
+phi points per center (or 64000 points per center before pruning).
+
+A second quadrature available for the numerical integration is an
+Euler-MacLaurin scheme for the radial components and a Lebedev
+scheme for the angular components\footnote{The subroutine 
+for the Lebedev grid was supplied by M.~Caus\`a of the University of
+Torino.}.  Within this numerical integration procedure various levels 
+of accuracy have also been defined and are available to the user.  
+The input for this type of grid takes the form,
+
+\begin{verbatim}
+  GRID lebedev <integer iangquad default 4> <integer radpts default 50>
+
+\end{verbatim}
+
+In this context the variable iangquad specifies a certain number of
+angular points as indicated by the table below.
+
+
+  \begin{tabular}[right]{|l|r r r r r r r|} \hline
+$IANGQUAD$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\ \hline
+$N_{angular}$ & 38 & 50 & 110 & 194 & 266 & 302 & 434 \\  \hline
+  \end{tabular}
+
+Therefor the user can specify any number of radial points along with
+the level of angular quadrature (1-7).
 
 \subsection{Control of Screening (Setting Tolerances) in the DFT Module}
 \begin{verbatim}
-  TOLERANCES [[tight] [tol_rho <real tol_rho default 1.0>] \
+  TOLERANCES [[tight] [tol_rho <real tol_rho default 1e-15>] \
               [accAOfunc <integer accAOfunc default 20>] \
               [accCoul <integer accCoul default 15>] \
               [accQrad <integer accQrad default 40>] \
@@ -729,73 +693,74 @@ Gaussian functions is specified with the keyword \verb+accAOfunc+, as
 follows,
 
 \begin{verbatim}
-   accAOfunc <integer iAOacc default 20>
+  TOLERANCES accAOfunc <integer accAOfunc default 20>
 \end{verbatim}
 
 A Gaussian orbital basis (AO) function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt iAOacc}$.
+$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt accAOfunc}$.
 
 The input to define a screening tolerance for evaluation of the exchange-
 correlation (XC) Gaussian fitting functions is specified with the
 keyword \verb+accXCfunc+, as follows,
  
 \begin{verbatim}
-   accXCfunc <integer iXCacc default 20>
+  TOLERANCES accXCfunc <integer accXCfunc default 20>
 \end{verbatim}
 
 An exchange-correlation (XC) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is 
 evaluated  at a point $r_i$ only if 
-$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt iXCacc}$.
+$\zeta\cdot r_i^2$ is greater than the value specified for ${\tt accXCfunc}$.
 
 The input to define a screening tolerance for evaluation of the
 charge-density (CD) Gaussian fitting functions is specified with the
 keyword \verb+accCoul+, as follows,
 
 \begin{verbatim}
-   accCoul <integer itol2e default 15>
+  TOLERANCES accCoul <integer accCoul default 15>
 \end{verbatim}
-% \end{itemize}
 
 A  charge-density (CD) fitting function with exponent $\zeta$
 and radial factor $e^{-\zeta\cdot r_i^2}$ is evaluated  at a 
-point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt itol2e}$
+point $r_i$ only if $\zeta\cdot r_i^2$ is greater than ${\tt accCoul}$
 In addition, the input
-parameter {\tt itol2e} is also used to define the tolerance  in Schwarz 
+parameter {\tt accCoul} is also used to define the tolerance  in Schwarz 
 screening for the Coulomb integrals.  Only integrals with estimated
-values greater than $10^{(-{\tt itol2e})}$ are evaluated.
+values greater than $10^{(-{\tt accCoul})}$ are evaluated.
 
-% \begin{itemize}
-% \item  A Gaussian orbital basis (AO) function with exponent $\zeta$
-% and radial factor $e^{-\zeta\cdot r_i^2}$ is 
-% evaluated  at a point $r_i$ only if 
-% $\zeta\cdot r_i^2 > {\tt iAOacc}$ (default {\tt iAOacc} value: 20)
-% \begin{verbatim}
-%    accAOfunc <integer iAOacc>
-% \end{verbatim}
-% \item Similarly, a XC fitting function with exponent $\zeta$
-% and radial factor $e^{-\zeta\cdot r_i^2}$ is 
-% evaluated  at a point $r_i$ only if 
-% $\zeta\cdot r_i^2 > {\tt iXCacc}$ (default {\tt iXCacc} value: 20)
-% \begin{verbatim}
-%    accXCfunc <integer iXCacc>
-% \end{verbatim}
-% \item As above, for the Coulomb fitting basis.  A  CD fitting function 
-% with exponent $\zeta$
-% and radial factor $e^{-\zeta\cdot r_i^2}$ is 
-% evaluated  at a point $r_i$ only if 
-% $\zeta\cdot r_i^2 > {\tt itol2e}$
-% In addition, the same
-% parameter {\tt itol2e} is used in Schwarz screening for the 
-%  Coulomb integrals: only integrals with estimated
-% values greater than $10^{(-{\tt itol2e})}$ are evaluated. (Default
-% {\tt itol2e} value: 15):
-% \begin{verbatim}
-%    accCoul <integer itol2e>
-% \end{verbatim}
-% \end{itemize}
+The user also has the option of specifying the radial quadrature 
+grid cut-off for the DFT calculation, using the keyword
+\verb+accQrad+.  The input line for this option is as follows,
+
+\begin{verbatim}
+  TOLERANCES accQrad <integer accQrad default 40>
+\end{verbatim}
+
+The value entered for \verb+accQrad+ is the cutoff distance, in bohr, for grid
+points around a given center or atom.  Grid points that lie more than 
+\verb+accQrad+ bohr from the center or atom are neglected. 
+
+Screening away needless computation of the XC functional (on the grid)
+due to negligible density is also possible with the use of,
+
+\begin{verbatim}
+  TOLERANCES tol_rho <real tol_rho default 1e-15>
+\end{verbatim}
+
+XC functional computation is bypassed if the corresponding density
+elements are less than \verb+tol_rho+.
+
+A screening parameter, \verb+radius+, used in the screening of the
+Becke or Delley spatial weights is also available as,
+
+\begin{verbatim}
+  TOLERANCES radius <real radius default 16.0>
+\end{verbatim}
+
+where radius is the cutoff value in bohr (or angstrom?).
+
 
 \subsection{Hardware Resource Control in the DFT Module}
 \begin{verbatim}
