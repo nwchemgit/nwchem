@@ -1,5 +1,5 @@
       logical function ga_iter_diag(n, nroot, maxiter, maxsub, tol,
-     $     precond, product, oprint, eval0, g_evec, eval, acc, iter)
+     $     precond, product, oprint, eval0, g_evec, eval, rnorm, iter)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -15,13 +15,13 @@
       double precision eval0    ! Estimate of lowest eval
       integer g_evec            ! n by nroot GA for guess and final
       double precision eval(nroot) ! Returns eigen values
-      double precision acc      ! Returns precision actually achieved
+      double precision rnorm(nroot) ! Returns norm of residual for each root
       integer iter              ! Returns actual no. of iterations used
 c     
 c     Solve the eigenvalue equation Ax = ex with x in GA and a routine
 c     (product) to form a matrix vector product to a required precision.
-c     Return true if converged, false otherwise. Acc returns the actual
-c     attained precision.
+c     Return true if converged, false otherwise. Rnorm returns the actual
+c     attained precision for each root.
 c     
 c     The block-Davidson-like algorithm solves for the best solution for
 c     each eigenroottor in the iterative subspace (x_i, i = 1, k) with
@@ -50,9 +50,7 @@ c
 c     The program cyles through the lowest nroot roots updating each that
 c     does not yet satisfy the convergence criterion which is
 c     
-c     acc = ||r|| / abs(initial guess eval) < tol 
-c     
-c     (if abs(initial guess eval) is zero then just use ||r||).
+c     rnorm(root) = ||r|| < tol 
 c     
 c     On input the global array x(n,nroot) should contain either an initial
 c     guess at the eigen vectors or zeroes.  If any vector is zero then
@@ -83,8 +81,7 @@ c
       integer maxdim
       parameter (maxdim = 105)   ! Maximum size of iterative subspace
       double precision aa(maxdim,maxdim), ss(maxdim,maxdim),
-     $     yy(maxdim,maxdim), ee(maxdim), fv1(maxdim), fv2(maxdim),
-     $     rnorm(maxdim)
+     $     yy(maxdim,maxdim), ee(maxdim), fv1(maxdim), fv2(maxdim)
       double precision xnorm
       integer i, j, nsub, info, cur_root, iroot
       logical odebug
@@ -123,12 +120,9 @@ c
          xnorm = sqrt(ga_ddot(g_v, g_v))
          if (xnorm .eq. 0.0d0) then
             call ga_ran_fill(g_v, 1, n, 1, 1)
-            call precond(g_v, eval0)
-            call precond(g_v, eval0)
-            call precond(g_v, eval0)
-            call precond(g_v, eval0)
-            call precond(g_v, eval0)
-            call precond(g_v, eval0)
+            do iter = 1,4
+               call precond(g_v, eval0) ! Eliminate high-energy modes
+            enddo
          endif
          call ga_orthog_vec(n, i-1, g_x, g_v, 1)
          xnorm = sqrt(ga_ddot(g_v, g_v))
@@ -153,7 +147,7 @@ c
          call util_flush(6)
       endif
 c     
-      test_tol = 0.1
+      test_tol = 0.5d0
       cur_root  = 0             ! Current vector being updated
       nsub = nroot              ! No. of vectors within subspace
       do iter = 1, maxiter
@@ -243,7 +237,7 @@ c
             if (test_tol .le. tol) then
                goto 1000
             else
-               test_tol = test_tol * 0.25d0
+               test_tol = max(test_tol * 0.25d0, tol)
                goto 20
             endif
          endif
@@ -296,10 +290,6 @@ c
      $     g_x, 1, n, 1, nroot, 
      $     g_evec, 1, n, 1, nroot)
       call dcopy(nroot, ee, 1, eval, 1)
-      acc = 0.0d0
-      do iroot = 1, nroot
-         acc = max(acc, rnorm(iroot))
-      enddo
 c     
       ga_iter_diag = converged
 c     

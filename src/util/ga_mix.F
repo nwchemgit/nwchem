@@ -18,8 +18,6 @@ c
       integer ilo, ihi, jlo, jhi
       integer i, j, idim, jdim
       integer l_c, k_c, l_a, k_a
-      double precision ddot
-      external ddot
 c
 c     Determine the distribution
 c
