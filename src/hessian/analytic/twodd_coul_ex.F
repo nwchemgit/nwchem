@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.10 2001-12-15 01:24:39 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.11 2001-12-20 01:31:56 windus Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -525,8 +525,8 @@ c
 c     
 c Silent scaling back to the "standard" values
 c
-      kfac(1) = kfac(1)/-2.0d0
-      if (ouhf)  kfac(2) = kfac(2)/-2.0d0
+      kfac(1) = kfac(1)/(-2.0d0)
+      if (ouhf)  kfac(2) = kfac(2)/(-2.0d0)
 c
       return
       end
