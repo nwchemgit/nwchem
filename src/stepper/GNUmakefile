@@ -1,6 +1,6 @@
-# $Id: GNUmakefile,v 1.33 1997-06-12 22:52:24 d3e129 Exp $
+# $Id: GNUmakefile,v 1.34 2000-08-28 23:26:59 edo Exp $
        HEADERS = 
-  OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
+  OBJ_OPTIMIZE = stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
                  stpr_cneed.o      stpr_cross.o      stpr_driver.o  \
                  stpr_fndmde.o     stpr_formup.o     stpr_gmass.o   \
