@@ -1,4 +1,4 @@
-/*$Id: context_f2c.c,v 1.6 1999-11-15 21:28:06 d3g681 Exp $*/
+/*$Id: context_f2c.c,v 1.7 2000-02-29 19:15:40 windus Exp $*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -108,7 +108,11 @@ logical context_set_(const char *string, int len)
     return FORTRAN_FALSE;
 }
 
-logical context_get_(char *string, int len)
+#if defined(CRAY) || defined(USE_FCD)
+logical FATR context_get_(_fcd string, int len)
+#else
+logical context_get_(const char *string, int len)
+#endif
 {
   char *tmp = context_get();
   int status = string_to_fortchar(string, len, tmp);
