@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.7 1999-07-13 21:27:50 edo Exp $
+c$Id: grid_acc_def.F,v 1.8 1999-07-22 01:21:18 edo Exp $
 c
       implicit none
 c      
@@ -27,7 +27,7 @@ c
       parameter (eps = 1.d-20)
       data gridtypes /'xcoarse', 'coarse', 'medium', 'fine', 'xfine', 
      &                'gausleg', 'lebedev'/
-      data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-8,1d-8/
+      data grid_acc /1d-4,1d-5,1d-6,1d-7,1d-8,1d-8,1d-4/
 c
       character*10 radgrids(5)
       data radgrids /'eumac','murakn','tarad','gausslag','gcinterv'/

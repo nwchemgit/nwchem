@@ -1,6 +1,6 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc)
 c
-C$Id: grid_quadv0.F,v 1.2 1999-06-25 22:04:15 edo Exp $
+C$Id: grid_quadv0.F,v 1.3 1999-07-22 01:21:19 edo Exp $
 c
       implicit none
 c
@@ -18,6 +18,7 @@ c
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "rtdb.fh"
 c
       double precision rho_n
       integer me, nproc, icount, nxyz, nctrs, 
@@ -33,8 +34,9 @@ c
       integer len_rho, len_delrho
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
-     &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat
-      double precision rho_int, ex, ec,dummy(3)
+     &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
+     ,     noc(2),nelec
+      double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 #ifdef SOLARIS
 c     needed for -stackvar option
@@ -227,6 +229,24 @@ c
          Exc(2) = Exc(2) + Ec
       endif
 c
+      if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
+     &   job_grid_acc))
+     &   call errquit('grid_acc_def: rtdb_put failed', 911)
+c
+c     get N electr
+c
+      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
+     &   call errquit('dft_scf: rtdb_get of noc failed', 0)
+      if(ipol.eq.1) then
+         nelec=2*noc(1)
+      else
+         nelec=noc(1)+noc(2)
+      endif
+         
+      rho_err=abs(rho_int-dble(nelec))/nelec
+      if(rho_err.gt.job_grid_acc.and.me.eq.0)
+     * write(LuOut,123) rho_err,job_grid_acc
+
       rho_n = rho_int
 c
       if (me.eq.0.and.oprint)then
@@ -246,5 +266,7 @@ c
       if (.not.MA_Free_Heap(lxyz))
      &   call errquit('grid_den: cannot free heap',0)
 c
+ 123  format(' WARNING: error on integrated density =',
+     , d10.2,/' greater than required accuracy of',d10.2)
       return
       end
