@@ -384,6 +384,19 @@ c$$$     $     sym_lo_vb,sym_hi_vb)
      $        dbl_mb(k_work),int_mb(k_map_a),int_mb(k_map_b),
      $        num_oa_sym,num_ob_sym,num_va_sym,num_vb_sym,
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
+
+
+
+
+
+
+
+
+
+
+
+
+
      $        sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $        g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
          if(.not.cphf(rtdb))call errquit('could not do cphf',1)
@@ -420,7 +433,11 @@ c$$$     $        g_vecs_a,g_vecs_b)
 c...
 c...call to Herbert's stuff
 c... 
-      call grad_force(rtdb,basis,geom,movecs)
+c$$$      call intd_init(rtdb,1,basis)
+c$$$      call schwarz_init(geom,basis)
+      call grad_force(rtdb,basis,geom,movecs) 
+c$$$      call schwarz_tidy()
+c$$$      call intd_terminate()
 c     
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ',e2
 c
@@ -429,11 +446,11 @@ c
       if(.not.rtdb_ma_get(rtdb,'mp2:scf+separable gradient',junk1,
      $     junk2,l_frc2))
      $     call errquit('could not get gradient from rtdb',1)
-      if (.not. ma_get_index(l_frc2, k_frc2)) call errquit('frc2?',0)
+      if(.not.ma_get_index(l_frc2,k_frc2))call errquit('frc2?',0)
       write(6,*) 'total force is '
       write (luout,1000) (-dbl_mb(k_frc+i)+dbl_mb(k_frc2+i),
      $     i=0,3*natoms-1)
-      if (.not. ma_free_heap(l_frc2)) call errquit('ma frc2',0)
+      if(.not.ma_free_heap(l_frc2))call errquit('ma frc2',0)
       if(.not.ga_destroy(g_rhs))call errquit(
      $     'could not destroy g_rhs',1)
       if(.not.ga_destroy(g_p_ij_a))call errquit(
