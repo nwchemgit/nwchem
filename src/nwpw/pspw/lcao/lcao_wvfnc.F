@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.14 2003-10-17 22:57:20 carlfahl Exp $
+* $Id: lcao_wvfnc.F,v 1.15 2004-02-10 04:27:25 edo Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -466,7 +466,7 @@ c     value = .false.
      &       '( ',I8,' waves ',I8,' per task)')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictacious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,

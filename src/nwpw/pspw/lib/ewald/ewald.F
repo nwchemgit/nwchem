@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.5 2003-10-17 22:57:30 carlfahl Exp $
+* $Id: ewald.F,v 1.6 2004-02-10 04:27:25 edo Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -308,7 +308,7 @@ c           sum = sum + yerfc/ea
       call mask_R(0,dbl_mb(vg(1)))
 
     
-*     **** set the Mandelung constant ****
+*     **** set the Madelung constant ****
       call mandelung_set(alpha)
 
       

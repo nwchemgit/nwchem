@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.27 2004-02-01 19:01:43 bylaska Exp $
+* $Id: band_minimizer.F,v 1.28 2004-02-10 04:27:25 edo Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -580,7 +580,7 @@
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
 
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f11.8)
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)

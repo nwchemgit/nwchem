@@ -1,6 +1,22 @@
 *
-* $Id: paw_cpmd.F,v 1.4 2003-10-21 02:05:15 marat Exp $
+* $Id: paw_cpmd.F,v 1.5 2004-02-10 04:27:25 edo Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.4  2003/10/21 02:05:15  marat
+* switched to new errquit by running global replace operation
+* see the script below (note it will not work on multiline errquit calls)
+* *********************************************************
+* #!/bin/sh
+*
+* e=`find . -name "*F" -print`
+*
+* for f in $e
+* do
+* cp $f $f.bak
+* sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+* #rm $f.bak
+* done
+* **********************************************************
+*
 * Revision 1.3  2003/09/26 16:31:16  bylaska
 * bug fix....EJB
 *
@@ -1254,7 +1270,7 @@ c    .   ' (',F6.3,' smooth)')
      &       '( ',I8,' waves ',I8,' per task)')
  1260 FORMAT(5X,' smooth compensation (ewald) summation: cut radius=',
      &       F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.24 2003-11-09 18:22:28 d3j191 Exp $
+* $Id: cpsdv5.F,v 1.25 2004-02-10 04:27:25 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -879,7 +879,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,

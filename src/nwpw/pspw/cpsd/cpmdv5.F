@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.32 2003-10-17 22:57:13 carlfahl Exp $
+* $Id: cpmdv5.F,v 1.33 2004-02-10 04:27:25 edo Exp $
 *
 
 ***********************************************************************
@@ -1096,7 +1096,7 @@ c    >              dbl_mb(lmd(1)),ierr)
      &       '( ',I8,' waves ',I8,' per task)')
   
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   mandelung=',f11.8)
+ 1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
