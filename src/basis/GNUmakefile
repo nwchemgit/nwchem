@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.39 1998-04-29 07:29:55 d3e129 Exp $
+#$Id: GNUmakefile,v 1.40 1999-11-13 02:12:50 bjohnson Exp $
 include ../config/makefile.h
 
        LIBRARY = libutil.a
@@ -22,7 +22,7 @@ ifeq ($(TARGET),DELTA)
    LIB_DEFINES = -DBASIS_LIBRARY="'library'"
 else
 ifdef NWCHEM_BASIS_LIBRARY_PATH
-   LIB_DEFINES = -DBASIS_LIBRARY=$(NWCHEM_BASIS_LIBRARY_PATH)
+   LIB_DEFINES = -DBASIS_LIBRARY="'$(NWCHEM_BASIS_LIBRARY_PATH)'"
 else
    LIB_DEFINES = -DBASIS_LIBRARY="'$(SRCDIR)/basis/library'"
 endif
