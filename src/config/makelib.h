@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.7 1994-08-22 03:04:35 d3g681 Exp $
+# $Id: makelib.h,v 1.8 1994-08-23 00:36:49 d3e129 Exp $
 
 #
 # A makefile for a library should
@@ -54,7 +54,7 @@
 
  LIBOBJ = $(patsubst %,$(LIBDIR)/$(LIBRARY)(%),$(OBJ))
 
-$(LIBDIR)/$(LIBRARY):   $(LIBOBJ) 
+$(LIBDIR)/$(LIBRARY):   $(LIBOBJ) $(OBJ)
 ifdef OBJ
 	$(AR) $(ARFLAGS) $@ $(OBJ)
 	$(RANLIB) $@
