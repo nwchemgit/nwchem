@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.60 2000-02-18 17:17:51 d3j191 Exp $
+c $Id: sp_init.F,v 1.61 2000-03-07 22:30:30 d3j191 Exp $
 c
       implicit none
 c
@@ -1156,12 +1156,12 @@ c
 c
       integer il,ih,jl,jh
 c
-      if(numsa.gt.0.and.npack.gt.0) then
+      if(numsa.gt.0) then
       call ga_distribution(ga_is,me,il,ih,jl,jh)
       call ga_put(ga_is,il,il+numsa-1,jl,jh,isl,msa)  
       endif
 c
-      if(numwm.gt.0.and.npackw.gt.0) then
+      if(numwm.gt.0) then
       call ga_distribution(ga_iw,me,il,ih,jl,jh)
       call ga_put(ga_iw,il,il+numwm-1,jl,jh,iwl,mwm)
       endif
