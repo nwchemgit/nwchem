@@ -8,9 +8,9 @@ cccc  subroutine test_cent4(num_bas_ij,num_bas_kl,l_blsize)
 c-----------------------------------
 c ordinary four center two-electron integrals
 c-----------------------------------
-      parameter (leri= 100 000) 
+      parameter (leri= 129 600) 
       parameter (nquart=10 000)
-      parameter(l_blsize=2 100 000)
+      parameter(l_blsize=3 000 000)
 c-----------------------------------
       common /multi_basis/ num_bas_1,num_bas_2,num_bas_3,
      *                     ncs_bas_1,ncs_bas_2,ncs_bas_3,
@@ -129,7 +129,7 @@ c>>>>       if(ijsh.ge.klsh) then
                   lcs(nqrt)=lsh
                   if(ijkl.eq.nquartets) then
                      ncalls=ncalls+1
-                     write(6,*)'* texas_hf called ',ncalls,' time *'
+ccccccccccccccc      write(6,*)'* texas_hf called ',ncalls,' time *'
   451                continue
                      call texas_hf2_m(ij_basis,ics,jcs,kl_basis,kcs,lcs,
 CCC  *                     nqrt,q4,use_q4,
@@ -151,7 +151,7 @@ ccc     call print_int1(ncalls,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
                   kcs(nqrt)=ksh
                   lcs(nqrt)=lsh
                      ncalls=ncalls+1
-                     write(6,*)'* texas_hf called ',ncalls,' time *'
+ccccccccccccccc      write(6,*)'* texas_hf called ',ncalls,' time *'
   452                continue
                      call texas_hf2_m(ij_basis,ics,jcs,kl_basis,kcs,lcs,
 CCC  *                     nqrt,q4,use_q4,

@@ -187,7 +187,7 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
       common /pnl_time/ time4texas_hf2_m,time4mul_quart
 c----------------------------------------------------------------
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
+      common /pnl_nqrt/ ncall_pnl,ncall_41,nqrts_pnl,npart_pnl,nsize_pnl
 c----------------------------------------------------------------
 cpnl  common /big/ bl(1)
       dimension bl(l_blscr), q4(nquart)
@@ -219,6 +219,7 @@ c
 c----------------------------------------------------------------
       ncall_pnl=ncall_pnl+1
       nqrts_pnl=nqrts_pnl+nquart
+      if(nquart.eq.1) ncall_41=ncall_41 + 1
 ctest
 c     write(6,*)
 c    * ' call no=',ncall_pnl,' nquart=',nquart,' nq_tot=',nqrts_pnl
@@ -248,7 +249,6 @@ c if(.not.labels) +1 call to getmem
 c----------------------------------------------------------------
 c if this pnl-request is too big (too many integrals at once) 
 c
-cccc  npart_pnl=npart_pnl+(isplit+1)
       if( isplit.gt.0 ) then
           more_int=.true.
           nsplit=0
@@ -259,13 +259,15 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
 c calculate two-electron integrals :
 c
+      npart_pnl=npart_pnl+1
+c
       if(.not.labels) then
          ispec=1
          integ_n0=0
 c
 c        calculate integrals without labels :
 c
-c     ncfunct is not used on this call
+c        ncfunct is not used on this call
          call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri,
      *        dbl_mb(ncfunct))
          integ_nx=integ_n0
@@ -487,7 +489,7 @@ c and available size of integral's buffer (leri):
 c (maximum sizes calculated in blksizer (spec_block.f) )
 c
       call memo1_int(nsupblk,isbl_part)
-      call supblks_split(bl,bl(mxsize),bl(mxpair),
+      call supblks_split(bl,nquart,bl(mxsize),bl(mxpair),
      *                   leri,inx, bl(nblock1),nbl2,
      *                   bl(isblqrts),bl(isblpoint),
      *        bl(ijpres2),bl(klpres2),bl(isblsize),bl(isbl_part))
@@ -940,7 +942,7 @@ c
 c
       end
 c=====================================================================
-      subroutine supblks_split(bl,maxsize,maxpair,
+      subroutine supblks_split(bl,nquart,maxsize,maxpair,
      *                         leri,inx, nblock1,nbl2,
      *                         isbl_q,isbl_point,
      *                         ijpres2,klpres2,isbl_s,isbl_part)
@@ -949,7 +951,9 @@ c this routine is called for every new PNL request i.e when
 c more_int=.false.
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
-      common /intlim/ limxmem,limblks,limpair
+cccc  common /intlim/ limxmem,limblks,limpair
+c
+      common /pnl_nqrt/ ncall_pnl,ncall_41,nqrts_pnl,npart_pnl,nsize_pnl
 c
 c output from uniq_pairs_1 call:
 c
@@ -974,6 +978,10 @@ c---------------------------------------------------------------------
       if(iforwhat.eq.3) n_times=12 ! gradient derivatives
       if(iforwhat.eq.4) n_times=78 ! hessian  derivatives
 c---------------------------------------------------------------------
+ctest
+c     write(6,*)'call=',ncall_pnl,' leri=',leri,' nquart=',nquart
+c---------------------------------------------------------------------
+         i_blks=0
          isupb=0
          do 10 ibl=1,nbl2
          call get_ics_jcs(nblock1,ibl,1,ics1,jcs1)
@@ -984,22 +992,24 @@ c---------------------------------------------------------------------
             isbl_part(isupb)=1
             isbl_size=isbl_s(isupb)
             if(isbl_size.gt.0) then
-               maxm_size=maxsize(isupb)
+c
                call get_ics_jcs(nblock1,kbl,1,kcs1,lcs1)
                icont_kl=(inx(4,kcs1)+1)*(inx(4,lcs1)+1)
                integ_kl=inx(3,kcs1)*inx(3,lcs1)*icont_kl
                integ1=integ_ij*integ_kl
 c
                integ1=integ1*n_times  ! derivatives
-               integ=integ1*maxm_size
 c
 c first re-define maximum size according to leri :
 c
-               if(integ.gt.leri) then
-                  nqrts=leri/integ1
-                  if(nqrts.eq.0) nqrts=1
-                  maxsize(isupb)=nqrts
+               maxm_size=maxsize(isupb)
+               leri_size=leri/integ1
+c
+               if(leri_size.eq.0) then
+                  call errquit('texas: supblks_split',1009)
                endif
+c
+               maxsize(isupb)=min(leri_size,maxm_size)
 c
 c split each super-block in parts if its current pnl-size is greater 
 c than maximum-size allowed or number of pairs exceeds allowed limit
@@ -1030,8 +1040,13 @@ c
                   isbl_part(isupb)=nparts
                   maxsize(isupb)=maxm_size
               endif
+c
+              i_blks=i_blks+isbl_part(isupb)
+c
             endif
    10    continue
+c---------------------------------------------------------
+      if(i_blks.gt.0) nsize_pnl=nsize_pnl+ nquart/i_blks
 c---------------------------------------------------------
       end
 c=====================================================================
@@ -1041,8 +1056,6 @@ c=====================================================================
 c--------------------------------------------------------------------
 c if a given pnl-request is too big then it is divided into parts:
 c--------------------------------------------------------------------
-      common /pnl003/ nqrtpnl,icstxs,jcstxs,kcstxs,lcstxs
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
       dimension inx(12,*)
       dimension isbl_s(*)               ! dimension nbl2*(nbl2+1)/2  
       dimension isbl_q(*)               ! dimension nquart
@@ -1060,11 +1073,6 @@ c---------------------------------------------------------------------
       if(iforwhat.eq.4) n_times=78 ! hessian  derivatives
 c---------------------------------------------------------------------
 c
-         itotal=0
-         itotal1=0
-         itotal2=0
-         itotal3=0
-         itotal4=0
          isplit=0
          integrals=0
          ipoint=0
@@ -1079,8 +1087,6 @@ c
 ctest
 ccc      write(6,*)'block=',isupb,' size=',isbl_size,' nparts=',nparts
 ctest
-c
-           itotal=itotal+1
 c
            iq1=isbl_q(ipoint+1)
            ijcs1=ijpres2(iq1)
@@ -1102,9 +1108,7 @@ c
                  isplit=isplit+1
                  integrals=integ
                  isbl_split(isplit)=isupb
-                 itotal1=itotal1+1
               else
-                 itotal2=itotal2+1
                  integrals=integrals+integ
               endif
            else 
@@ -1112,8 +1116,6 @@ c  splitting inside of one super-block : force splitting :
               integrals=leri
               isplit=isplit+1
               isbl_split(isplit)=isupb
-              itotal3=itotal3+1 
-              itotal4=itotal4+nparts
            endif
 c
            ipoint=ipoint+isbl_size
@@ -1122,15 +1124,6 @@ c
          isblast=nbl2*(nbl2+1)/2
          isbl_split(0)=1
          isbl_split(isplit+1)=isblast+1
-c
-c---------------------------------------------------------
-ccccc    write(8,*)'itot 1,2,3,4=',itotal1,itotal2,itotal3,itotal4
-         if(itotal2.eq.itotal) then    ! everything in one piece
-            npieces=1
-         else
-            npieces=itotal - itotal3 + itotal4
-         endif
-         npart_pnl=npart_pnl+npieces
 c---------------------------------------------------------
       end
 c=====================================================================
@@ -1433,7 +1426,7 @@ c=====================================================================
       character*11 scftype
       character*4 where
       common /runtype/ scftype,where
-cccc  common /memmax/ ispblx, maxme1,iforwhat
+      common /type_inited/ iforinit  ! use here & in texas_face.F
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c
       if(int_type.eq.'scfd_int') then 
@@ -1456,22 +1449,24 @@ c
 c check if the texas integral program has been initiated 
 c for up to this requested task :
 c
-      if(irequest.gt.iforwhat) then
+      if(irequest.gt.iforinit) then
+         if(iforinit.eq.1) type_i='ordinary 2-el.integrals    '
+         if(iforinit.eq.2) type_i='giao integral derivatives  '
+         if(iforinit.eq.3) type_i='first  geometry derivatives'
+         if(iforinit.eq.4) type_i='second geometry derivatives'
 c
-         if(iforwhat.eq.1) type_i='ordinary 2-el.integrals    '
-         if(iforwhat.eq.2) type_i='giao integral derivatives  '
-         if(iforwhat.eq.3) type_i='first  geometry derivatives'
-         if(iforwhat.eq.4) type_i='second geometry derivatives'
          if(irequest.eq.1) type_r='ordinary 2-el.integrals    '
          if(irequest.eq.2) type_r='giao integral derivatives  '
          if(irequest.eq.3) type_r='first  geometry derivatives'
          if(irequest.eq.4) type_r='second geometry derivatives'
 c
          write(6,66) type_i,type_r
-   66 format('                   Texas integral program '/
+   66    format('                   Texas integral program '/
      *       ' has been initialized only for :',a27/
      *       ' and can not be executed for   :',a27)
-      call errquit('texas program stopped in requested_task',0)
+         call errquit('texas program stopped in requested_task',0)
+      else
+         iforwhat=irequest
       endif
 c
       end

@@ -221,6 +221,8 @@ c
       minpar_4_mem=1 000 000
       minqrt_4_mem=1 000 000
 c
+      xblks_txs=0
+c
       nbl12=0      ! counter of super-blocks
       do 100 ibl=1,nbl2
          ijpar_all=npar(ibl)
@@ -303,6 +305,16 @@ c>>>>>>     maxsize=min(nquart_all,nquart_cache,nquart_inp)
 c
             maxsize=min(           nquart_cache,nquart_inp)
 c
+c-------------------------------------------------
+c for average texas-block-size :
+c
+            if(nquart_all.le.maxsize) then
+               xblks_txs=xblks_txs+1.d0
+            else
+               xpart=dble(nquart_all/maxsize)
+               if(mod(nquart_all,maxsize).gt.0) xpart=xpart+1.d0
+               xblks_txs=xblks_txs+xpart
+            endif
 c-------------------------------------------------
 c calculate memory needed for one ij-, one kl-pair 
 c and for one quartet in a given block :
@@ -486,12 +498,15 @@ c
 c
 c for memory,however, use min(nquart_all,nquart) & min(npairs_all,npairs)
 c
-      npairs_4_mem=min(npairs_all,npairs)
-      nquart_4_mem=min(nquart_all,nquart)
+CC    npairs_4_mem=min(npairs_all,npairs)
+CC    nquart_4_mem=min(nquart_all,nquart)
 c
-      memory=memor_const + npairs_4_mem*(memor2ij + memor2kl)
-     *                   + nquart_4_mem*memor4
+CC    memory=memor_const + npairs_4_mem*(memor2ij + memor2kl)
+CC   *                   + nquart_4_mem*memor4
 c
+c temprorarly :
+c
+      memory=memory_mem
 c-------------------------------------------------
       if(nquart.le.0) then
          write(6,*)'nonpositive  max_size=',nquart,' in block=',nbl12
@@ -548,7 +563,8 @@ c
       npairs=ncs*(ncs+1)/2
       pairs=dble(npairs)
       quart=pairs*(pairs+1)/2
-      write(8,497) nbl12,quart,
+      nsize_txs=int(  quart/xblks_txs  )
+      write(8,497) nbl12,quart,nsize_txs,
      *             maxqrt,
 c>>  *             minqrt,
      *             maxpar,
@@ -560,6 +576,8 @@ c>>  *             minpar_4_mem
 c
   497 format(/'  number of Blocks of Contracted Quartets =',i15/
      *        '  number of contracted shell quartets     =',f16.0/
+     *        '  average texas-block-size (with limits)  =',i15/
+c    *        '  ...........................................'/ 
 c    *        '  maximum quart/block=',i7,'  in S-block =',i6/ 
 c    *        '  minimum quart/block=',i7,'  in S-block =',i6/ 
 c    *        '  maximum pairs/block=',i7,'  in S-block =',i6/ 
@@ -610,6 +628,13 @@ c ifor=1   for ordinary two-el.integrals
 c ifor=2   for NMR GIAO integral derivatives
 c ifor=3   for gradient integral derivatives (first  derivatives)
 c ifor=4   for hessian  integral derivatives (second derivatives)
+c----------------------------------------------------------------------
+c
+      n_times=1
+      if(ifor.eq.2) n_times= 6 ! giao Ist derivatives
+      if(ifor.eq.3) n_times= 9 ! gradient derivatives
+      if(ifor.eq.4) n_times=45 ! hessian  derivatives
+c these above are different than those in texas_hf setup 
 c
       where='    '
       if(ifor.eq.2) where='shif'
@@ -728,8 +753,12 @@ c
       call in4b(nbls1,memamsh,where)
 c------------------------
 c
-      memasse=memasse+3   ! convert in assemble
-      memamsh=memamsh+6   ! convert in amshift 
+c convertion in erinteg_1 for assembling (iaax,ibbx,iccx) (deriv only)
+c
+      if(ifor.eq.3 .or. ifor.eq.4) memasse=memasse+3 
+c
+      memasse=memasse+3           ! convert in assemble
+      memamsh=memamsh+6*n_times   ! convert in amshift 
       if(ngcd.gt.1) then 
          memgenc=(ngcij+ngckl+ngcd*lnij*lnkl)
          memasse=memasse+memgenc
@@ -779,6 +808,12 @@ c----------------------------------------------------------------------
       common /logic2/ len(1)
       common /logic3/ lensm(1)
 c----------------------------------------------------------------------
+      n_times=1
+      if(ifor.eq.2) n_times= 6 ! giao Ist derivatives
+      if(ifor.eq.3) n_times= 9 ! gradient derivatives
+      if(ifor.eq.4) n_times=45 ! hessian  derivatives
+c these above are different than those in texas_hf setup 
+c
       where='    '
       if(ifor.eq.2) where='shif'
       if(ifor.eq.3) where='forc'
@@ -914,7 +949,11 @@ c
       call in4b(nbls1,memamsh,where)
 c------------------------
 c
-      memamsh=memamsh+6   ! convert in amshift 
+c convertion in erinteg_2 for assembling (iaax,ibbx,iccx) (deriv only)
+c
+      if(ifor.eq.3 .or. ifor.eq.4) memasse=memasse+3 
+c
+      memamsh=memamsh+6*n_times   ! convert in amshift 
       if(ngcd.gt.1) then 
          memgenc=(ngcij+ngckl+ngcd*lnij*lnkl)
          memasse=memasse+memgenc

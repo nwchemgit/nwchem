@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.40 1997-06-20 10:15:54 pg481 Exp $
+c $Id: texas_face.F,v 1.41 1997-06-23 21:37:05 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -23,7 +23,7 @@ c----------------------------------------------------------------
       common /pnl_time/ time4texas_hf2_m,time4mul_quart
       common /txs_time/ timprep2,timcalc2,timblok2
 c----------------------------------------------------------------
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
+      common /pnl_nqrt/ ncall_pnl,ncall_41,nqrts_pnl,npart_pnl,nsize_pnl
 c----------------------------------------------------------------
       common /pnl000/ xbluse,nbluse
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
@@ -33,13 +33,21 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
       common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
 c----------------------------------------------------------------
-c efficiency of using block's suructure :
 c
-      if (nbluse.eq.0) then
-        bleffiy = 0.0d00
-      else
-        ysmallbl=dble(nbluse)
-        bleffiy=(xbluse/ysmallbl)*100.d0
+      if(ncall_pnl.gt.0) then 
+c
+c        average block-size in texas calculations for pnl 
+c
+         nvect_pnl=nsize_pnl/ncall_pnl
+c
+c        efficiency of using block's suructure :
+c
+         if (nbluse.eq.0) then
+           bleffiy = 0.0d00
+         else
+           ysmallbl=dble(nbluse)
+           bleffiy=(xbluse/ysmallbl)*100.d0
+         endif
       endif
 c----------------------------------------------------------------
 c Information about integral's program performance :
@@ -50,13 +58,15 @@ c
       write(8,*)'------------------------------------------------------'
       write(8,*)'Texas-int2 program has been called ',ncall_pnl,' times'
       if(ncall_pnl.eq.0) goto 00001
-      if(cent2) write(8,*)'   for 2-center two-electron integrals '
-      if(cent3) write(8,*)'   for 3-center two-electron integrals '
-      if(cent4) write(8,*)'   for 4-center two-electron integrals '
-      write(8,*)'integrals have been calculated in  ',npart_pnl,' pices'
+      write(8,*)'(including one-quartet-at-the-time ',ncall_41,' times)'
+      write(8,*)'integrals have been calculated in  ',npart_pnl,' pass.'
       write(8,*)'number of processed shell quartets ',nqrts_pnl
+      write(8,*)'average block-size (vector length) ',nvect_pnl
       write(8,18) bleffiy
    18 format(' blocking utilities of Texas used in ',f6.2,' %')
+      if(cent2) write(8,*)'(type of integrals : 2-center two-electron)'
+      if(cent3) write(8,*)'(type of integrals : 3-center two-electron)'
+      if(cent4) write(8,*)'(type of integrals : 4-center two-electron)'
 c----------------------------------------------------------------
       write(8,*)'------------------------------------------------------'
       write(8,*)'Pre-calculations for contracted shell pairs have been'
@@ -782,8 +792,7 @@ c------------------------------------
       common /howmany/ ntotal,noijkl,nopres,nospec,nrimtot,nrimret
       common /ilepar/ lpar_exe,lpar_num
 c------------------------------------
-ccc   common /pnl_nqrt/ ncall_pnl, nqrts_pnl
-      common /pnl_nqrt/ ncall_pnl, nqrts_pnl, npart_pnl
+      common /pnl_nqrt/ ncall_pnl,ncall_41,nqrts_pnl,npart_pnl,nsize_pnl
       common /pnl008/ last_isupb,last_nparts
 c------------------------------------
       common /mem_pnl_scr/ nall_peak,mark_peak,mem_peak
@@ -806,9 +815,11 @@ c
       mark_peak=0
       mem_peak=0
 c------------------------------------
+      ncall_41 =0
       ncall_pnl=0
       nqrts_pnl=0
       npart_pnl=0
+      nsize_pnl=0
 c
       last_isupb=0
       last_nparts=0
@@ -1365,7 +1376,6 @@ c 3**4 * (pppp)=> 6561 or 1* ffff => 10000
 c----------------------------------------------------------------------
       common /cpu/ intsize,iacc,icache,memreal
       common /intlim/ limxmem,limblks,limpair
-cccc  common /memmax/ ispblx, maxmem1,iforwhat
       common /mem_max_min/ ispblx,maxmem1,max_111,iforwhat
       common /memor1b/ nbl2
 c transfered from blockin2 only to estimate memory here 
@@ -1759,8 +1769,8 @@ c==================================================================
       character*11 scftype
       character*4 where
       common /runtype/ scftype,where
-cccc  common /memmax/ ispblx, maxme1,iforwhat
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
+      common /type_inited/ iforinit  ! use here & in texas_hf.F
 c
       where='    '
       iforwhat=0
@@ -1787,14 +1797,14 @@ c
          write(6,*)'int_type is undefined'
          call errquit('texas integral program cannot be initialized',0)
       else
-c        write(6,*)'Texas integral program has been initialized'
-c        write(6,*)'for ',int_type,' integrals i.e. where=',where
 ctest
-c        where='hess'
-c        iforwhat=4
+c        where='forc'
+c        iforwhat=3
 c        write(6,*)'overwritten int_type=',int_type,
 c    *             ' where=',where,' iforwhat=',iforwhat
 ctest
+c
+         iforinit=iforwhat
       endif
 c
 c only variable WHERE is used later on in texas
@@ -1809,7 +1819,7 @@ c==================================================================
 ccc   common /memmax/ ispblx, maxme1,iforwhat
       common /mem_max_min/ ispblx,maxme1,max_111,iforwhat
 c-------------------------------------------------------------------
-c Memory estimation for prepint2 (blocin2) : 4 memory allocations :
+c Memory estimation for prepint2 (blocin2) : 5 memory allocations :
 c
 c allocated in blkpair :
 c

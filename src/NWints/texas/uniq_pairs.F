@@ -66,7 +66,8 @@ c===============================================================
       dimension isbl_q(*)  
       dimension ibl_uniqe(*)  ! input-output
 c
-      call getmem(isbl_size,ij_temp)
+cjun22call getmem(isbl_size,ij_temp)
+      call memo1_int(isbl_size,ij_temp)
 c
          call do_tmp1(isbl_size,isbl_q,ijpres2,bl(ij_temp),iqu )
          call do_uniq(iqu,bl(ij_temp),   ibl_uniqe ,ij_u)
