@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.67 2001-05-17 21:14:16 d3j191 Exp $
+c $Id: ana_task.F,v 1.68 2001-05-21 19:52:23 d3j191 Exp $
 c
       implicit none
 c
@@ -284,6 +284,7 @@ c
       if(card(1:5).eq.'rdsel') then
       filsel=card(8:80)
       call ana_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+      call ana_wcount(int_mb(i_wsel),int_mb(i_ndxw))
       goto 1
       endif
 c
