@@ -1,4 +1,4 @@
-C $Id: rel_pot.F,v 1.8 1999-10-26 23:12:44 mg201 Exp $
+C $Id: rel_pot.F,v 1.9 1999-11-02 21:11:50 bert Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -96,7 +96,8 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       np = 3*n_all_A*n_allp_B
       nm = 3*n_all_A*n_allm_B
       nab = n_all_A*n_all_B
-      if (nab .gt. nints) call errquit
+cKen  if (nab .gt. nints) call errquit
+      if ((nab .gt. nints).and.(.not.Dryrun)) call errquit
      &    ('Mismatch between nints and nab in rel_pot',99)
       nn = 9*nab
 *
