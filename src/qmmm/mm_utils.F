@@ -289,6 +289,23 @@ c        local variables
          
        end
 
+      function mm_link_bqzone(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_link_bqzone
+c        local variables
+         integer psdt,psz
+
+         call mm_get_psdt(psdt)
+         call mm_get_psz(psz)
+
+         mm_link_bqzone = iand(int_mb(psdt+i-1),lquant).eq.0
+         mm_link_bqzone = mm_link_bqzone .and. int_mb(psz+i-1).gt.0
+         
+       end
+
       function mm_element(i)
          implicit none
 #include "mafdecls.fh"

@@ -229,4 +229,14 @@ c     -------------------
 
       end 
 
+      function qmmm_h_link()
+      implicit none
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+
+      logical qmmm_h_link
+
+      qmmm_h_link=link_atom.eq.qmmm_hydrogen
+
+      end 
 

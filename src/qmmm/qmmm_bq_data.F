@@ -24,12 +24,16 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+      logical link
+
+      link = qmmm_h_link()
 
       call qmmm_bq_data_dealloc()
 c
       call mm_prune_bqzone()
 c 
-      call mm_get_tot_nbqs(nbqs)
+      call mm_get_tot_nbqs(nbqs,link)
       call mm_get_tot_nbqw(nbqw)
       nbq=nbqs+nbqw
 
@@ -38,8 +42,8 @@ c
       call qmmm_bq_data_alloc()
 
       if(nbqs.ne.0) then
-        call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
-        call mm_get_solute_geom_bq(nbqs,
+        call mm_get_solute_bq_ind(nbqs,link,int_mb(i_ibq))
+        call mm_get_solute_geom_bq(nbqs,link,
      >                       int_mb(i_ibq),
      >                       dbl_mb(i_cbq),
      >                       dbl_mb(i_qbq))

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.17 2004-09-13 22:30:44 marat Exp $
+c $Id: mm_interface.F,v 1.18 2004-09-14 17:17:36 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -146,28 +146,19 @@ c
 
       end
 
-      subroutine mm_get_tot_nbqs(nbq)
+      subroutine mm_get_tot_nbqs(nbq,link)
       implicit none
 c
 #include "mafdecls.fh"
 #include "mm_utils.fh"
 c
       integer nbq
+      logical link
+      if(link) then
+      call mm_get_solute_tot_na_gen(nbq,mm_link_bqzone)
+      else
       call mm_get_solute_tot_na_gen(nbq,mm_bqzone)
-      end
-
-      subroutine mm_get_nbqs(nbq)
-      implicit none
-c
-#include "mafdecls.fh"
-#include "qmmm_params.fh"
-#include "qmmm.fh"
-#include "mm_utils.fh"
-c
-      integer nbq
-c
-      call mm_get_solute_na_gen(nbq,mm_bqzone)
-
+      end if
       end
 
       subroutine mm_prune_bqzone()
@@ -206,7 +197,6 @@ c
       integer nt
       integer ind(nt)
       
-      write(*,*) "qmmm nqa mm_get_solute_quant_link_ind"
       call mm_get_solute_ind_gen(nt,mm_quant_link,ind)
       end
 
@@ -220,13 +210,11 @@ c
 #include "msgids.fh"
       integer nt
       integer ind(nt)
-
-      write(*,*) "qmmm nqa mm_get_solute_link_ind"
       
       call mm_get_solute_ind_gen(nt,mm_link,ind)
       end
 
-      subroutine mm_get_solute_bq_ind(nt,ind)
+      subroutine mm_get_solute_bq_ind(nt,link,ind)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -235,10 +223,15 @@ c
 #include "mm_utils.fh"
 #include "msgids.fh"
       integer nt
+      logical link
       integer ind(nt)
-
-      write(*,*) "qmmm nqa mm_get_solute_bq_ind"
+      
+      if(link) then
+      call mm_get_solute_ind_gen(nt,mm_link_bqzone,ind)
+      else
       call mm_get_solute_ind_gen(nt,mm_bqzone,ind)
+      end if
+
       end
 
       subroutine mm_get_solute_quant_ind(nt,ind)
@@ -252,7 +245,6 @@ c
       integer nt
       integer ind(nt)
       
-      write(*,*) "qmmm nqa mm_get_solute_quant_ind"
       call mm_get_solute_ind_gen(nt,mm_quant,ind)
       end
 
@@ -296,6 +288,7 @@ c
 c     accumulate offsets
 c     ------------------
       me = ga_nodeid()
+c      call mm_get_nqm(nqa)
       call mm_get_solute_na_gen(nqa,mm_type)
       do i=me+1,np
         int_mb(i_ioff+i-1)=nqa
@@ -458,6 +451,7 @@ c
       end
 
       subroutine mm_get_solute_geom_bq(nt,
+     >                       link,
      >                       ai,
      >                       c,
      >                       q)
@@ -473,6 +467,7 @@ c
 #include "mm_utils.fh"
 
       integer nt
+      logical link
       integer ai(nt)
       double precision c(3,nt)
       double precision q(nt)
@@ -488,7 +483,16 @@ c
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      nt, MA_ERR)
 
- 
+      if(link) then
+      call mm_get_solute_geom_gen(nt,
+     >                       mm_link_bqzone,
+     >                       ai,
+     >                       int_mb(i_num),
+     >                       byte_mb(i_t),
+     >                       c,
+     >                       q)
+
+      else
       call mm_get_solute_geom_gen(nt,
      >                       mm_bqzone,
      >                       ai,
@@ -496,6 +500,7 @@ c
      >                       byte_mb(i_t),
      >                       c,
      >                       q)
+      end if
 
       if(.not.ma_pop_stack(h_t))
      & call errquit('qmmm: Failed to deallocate stack h_t',nt,
@@ -748,7 +753,7 @@ c     mm local variables
 
       end
 
-      subroutine mm_get_solute_force_quant(nt,ai,g)
+      subroutine mm_get_solute_force_quant(nt,link,ai,g)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -760,8 +765,13 @@ c     mm local variables
       integer nt
       integer ai(nt)
       double precision  g(3,nt)
+      logical link
       
+      if(link) then
       call mm_get_solute_force_gen(nt,mm_quant_link,ai,g)
+      else
+      call mm_get_solute_force_gen(nt,mm_quant,ai,g)
+      end if
       end
 
       subroutine mm_get_solute_force_bq(nt,ai,g)
@@ -827,6 +837,7 @@ c     local variables
       end
 c
       subroutine mm_set_solute_coord_quant(nt,
+     >                       link,
      >                       ai,
      >                       c)
       implicit none
@@ -834,14 +845,24 @@ c
 #include "mm_utils.fh"
 
       integer nt
+      logical link
       integer ai(nt)
       double precision c(3,nt)
 
+      if(link) then
       call mm_set_solute_coord_gen(nt,
      >                       mm_quant_link,
      >                       ai,
      >                       c)
 
+      else
+      call mm_set_solute_coord_gen(nt,
+     >                       mm_quant,
+     >                       ai,
+     >                       c)
+
+
+      end if
       end
 
       subroutine mm_set_solute_coord_bq(nt,

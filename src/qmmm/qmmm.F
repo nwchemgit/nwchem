@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.17 2004-09-13 19:57:14 marat Exp $
+c $Id: qmmm.F,v 1.18 2004-09-14 17:17:36 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -170,10 +170,12 @@ c
       integer i_ai
       double precision eatoms
       integer nqm,nbq
+      logical link
       integer ntot
 c
       do_qm=.true.
       do_mm=.true.
+      link = .not.qmmm_h_link()
 
       if (.not. rtdb_get(rtdb,'qmmm:mm_only',mt_log,1,mm_only)) then
         mm_only=.false.
@@ -229,6 +231,7 @@ c     ----------------------------------
       i_ai = qmmm_get_i_ai()
 
       call mm_get_solute_force_quant(nqm,
+     &                   link,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_gmm))
  
@@ -286,15 +289,19 @@ c
 #include "qmmm.fh"
       integer irtdb
 c     local variables
+      logical link
       integer nqm
       integer i_ai
       integer i_c
+
+      link = .not.qmmm_h_link()
 
       nqm  = qmmm_get_nqm()
       i_ai = qmmm_get_i_ai()
       i_c = qmmm_get_i_c()
 
       call mm_set_solute_coord_quant(nqm,
+     &                   link,
      &                   int_mb(i_ai),
      &                   dbl_mb(i_c))
 

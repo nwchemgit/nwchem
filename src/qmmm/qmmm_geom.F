@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.14 2004-09-11 06:40:46 marat Exp $
+c $Id: qmmm_geom.F,v 1.15 2004-09-14 17:17:36 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -51,17 +51,25 @@ c     --------------------------
         int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
       end do
       if(nlink.gt.0) then
-       call qmmm_link_atoms(nlink,
-     >                      int_mb(i_num+(nqm-nlink)),
-     >                      dbl_mb(i_q+(nqm-nlink)),
-     >                      byte_mb(i_t+16*(nqm-nlink)),
-     >                      dbl_mb(i_c+3*(nqm-nlink)),
-     >                      dbl_mb(i_m+(nqm-nlink)))
-       do i=1,nlink
-          i1=qmmm_geom_heavy_neighbor(nqm-nlink+i,nqm,int_mb(i_num),
-     >                                dbl_mb(i_c))
-          write(*,*) "qmmm link",i1,int_mb(i_num+i1-1)
-       end do
+c       call qmmm_link_atoms(nlink,
+c     >                      int_mb(i_num+(nqm-nlink)),
+c     >                      dbl_mb(i_q+(nqm-nlink)),
+c     >                      byte_mb(i_t+16*(nqm-nlink)),
+c     >                      dbl_mb(i_c+3*(nqm-nlink)),
+c     >                      dbl_mb(i_m+(nqm-nlink)))
+       call qmmm_link_atoms1(nlink,
+     >                       nqm,
+     >                      int_mb(i_num),
+     >                      dbl_mb(i_q),
+     >                      byte_mb(i_t),
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_m))
+
+c       do i=1,nlink
+c          i1=qmmm_geom_heavy_neighbor(nqm-nlink+i,nqm,int_mb(i_num),
+c     >                                dbl_mb(i_c))
+c          write(*,*) "qmmm link",i1,int_mb(i_num+i1-1)
+c       end do
       end if
 
       if(.not.geom_create(igeom,'geometry'))
@@ -80,6 +88,10 @@ c     -------------
 c      call util_print_centered(6,"QM/MM geometry", 36, .true.)
 c      if(.not.geom_print(igeom))
 c     +    call errquit('qmmm: Failed to print geometry',0)
+
+      if(.not.geom_print_xyz(igeom,22))
+     +    call errquit('qmmm: Failed to print geometry',0)
+      call util_flush(22)
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -321,6 +333,9 @@ c    --------------------------------------
 
       if(.not.geom_print_xyzq(igeom,67))
      +    call errquit('qmmm: Failed to print geometry',0)
+
+      if(.not.geom_print_pdb(igeom,23))
+     +    call errquit('qmmm: Failed to print pdb geometry',0)
 
 c     print geometry
 c     -------------
@@ -604,6 +619,60 @@ c     ---------------
 
       end
 
+      subroutine qmmm_link_atoms1(nl,n,inum,q,t,c,m)
+      implicit none
+#include "geom.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+      integer nl
+      integer n
+      double precision inum(n)
+      double precision q(n)
+      double precision c(3,n)
+      character*16 t(n)
+      double precision m(n)
+
+c     local variables
+c     ---------------
+      integer i
+      integer i1
+      integer k
+      logical h_link
+      integer qmmm_geom_heavy_neighbor
+      external qmmm_geom_heavy_neighbor
+      double precision r1(3),r2(3)
+      double precision qmmm_geom_distance
+      external qmmm_geom_distance
+
+      h_link=qmmm_h_link()
+      if(h_link) then
+      do i=n-nl+1,n
+        i1=qmmm_geom_heavy_neighbor(i,n,inum,c)
+        do k=1,3
+         r1(k)=c(k,i)
+         r2(k)=c(k,i1)
+        end do
+        write(*,*) "qmmm link bond",t(i),t(i1),qmmm_geom_distance(r1,r2)
+        call qmmm_adjust_link(r1,r2)
+        do k=1,3
+         c(k,i) =r1(k)
+         c(k,i1)=r2(k)
+        end do
+        t(i)="H_L"
+        q(i)=1.0
+        write(*,*) "qmmm link bond",t(i),t(i1),qmmm_geom_distance(r1,r2)
+      end do
+      else
+      do i=n-nl+1,n
+        q(i)=9.0
+        t(i)="F_L"
+        if(.not.geom_tag_to_default_mass(t(i),m(i)))
+     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
+      end do
+      end if
+
+      end
+
       subroutine qmmm_geom_prepare(irtdb)
       implicit none
       integer irtdb
@@ -633,17 +702,20 @@ c     ---------------
       integer atn(ntot)
       integer qmmm_geom_heavy_neighbor
 c 
+      double precision qmmm_geom_distance
+      external qmmm_geom_distance
       integer i1,k,j
       double precision r,rmin
 
       rmin=1000.0d0
       do i1=1,ntot
         if(atn(i1).ne.1) then
-          r=0.0d0
-          do k=1,3
-            r=r+(c(k,i)-c(k,i1))*(c(k,i)-c(k,i1))
-          end do
-          r=sqrt(r)
+           r=qmmm_geom_distance(c(1,i),c(1,i1))
+c          r=0.0d0
+c          do k=1,3
+c            r=r+(c(k,i)-c(k,i1))*(c(k,i)-c(k,i1))
+c          end do
+c          r=sqrt(r)
           write(*,*) "qmmm nei r",r
           if(r.lt.rmin) then
            if(r.gt. 1.0e-2) then
@@ -655,6 +727,50 @@ c
         endif
       end do
       qmmm_geom_heavy_neighbor=j
+
+      end
+
+      function qmmm_geom_distance(r1,r2)
+
+      implicit none
+      double precision r1(3),r2(3)
+      double precision qmmm_geom_distance
+c 
+      integer k
+      double precision r
+
+      r=0.0d0
+      do k=1,3
+        r=r+(r1(k)-r2(k))*(r1(k)-r2(k))
+      end do
+      r=sqrt(r)
+
+      qmmm_geom_distance=r
+
+      end
+
+      subroutine qmmm_adjust_link(r1,r2)
+
+      implicit none
+      double precision r1(3),r2(3)
+      double precision qmmm_geom_distance
+      external  qmmm_geom_distance
+c 
+      integer k
+      double precision dr(3)
+      double precision r
+      double precision rb
+
+      r=qmmm_geom_distance(r1,r2)
+      rb=1.0d0/0.529
+      do k=1,3
+        dr(k)=r2(k)-r1(k)
+        dr(k)=dr(k)*(r-rb)/r
+      end do
+
+      do k=1,3
+        r1(k)=r1(k)+dr(k)
+      end do
 
       end
 
