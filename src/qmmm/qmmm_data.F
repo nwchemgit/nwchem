@@ -14,6 +14,7 @@ c
       character*32 pname
       character*32 optimization
       character*32 interface
+      character*32 link_ecp
       real*8 eatoms,qatoms
       logical xyz,xyzq,fixlinks,fixqm
       integer linkatm,bq_exclude
@@ -29,6 +30,7 @@ c
       bq_exclude=qmmm_hydrogen
       interface='qm'
       optimization = "qm"
+      link_ecp = "auto"
 c
 c     initialize rtdb parameters
       tag = "qmmm:uqmatm"
@@ -109,6 +111,20 @@ c     initialize rtdb parameters
      >       RTDB_ERR)
 
        end if
+
+      tag ="qmmm:link_ecp"
+      if (.not.rtdb_cget(irtdb,tag,1,link_ecp)) then
+        if (.not.rtdb_cput(irtdb,tag,1,link_ecp)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+
+       else if (link_ecp .ne. "auto" .and.
+     >          link_ecp .ne. "user" ) then
+            call errquit(pname//'unknown value'//tag,0,
+     >       RTDB_ERR)
+
+       end if
+
 
       call mm_get_tot_nqm(nqm)
       call mm_get_tot_nlink(nlink)
@@ -353,6 +369,17 @@ c     -------------------
       logical qmmm_h_link
 
       qmmm_h_link=link_atom.eq.qmmm_hydrogen
+
+      end 
+
+      function qmmm_halogen_link()
+      implicit none
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+
+      logical qmmm_halogen_link
+
+      qmmm_halogen_link=link_atom.eq.qmmm_halogen
 
       end 
 

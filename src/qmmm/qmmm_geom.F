@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.23 2004-10-07 06:51:49 marat Exp $
+c $Id: qmmm_geom.F,v 1.24 2004-10-15 18:35:32 marat Exp $
 c
 c
       subroutine qmmm_geom_init(irtdb)
@@ -11,6 +11,7 @@ c
 #include "qmmm.fh"
 #include "global.fh"
 #include "mm_utils.fh"
+#include "inp.fh"
       integer irtdb
 c     local variables
       integer i,i1
@@ -23,10 +24,13 @@ c     local variables
       integer i_num
       integer i_q
       character*255 basis_string,namespace
+      character*255 basis_name
+      character*255 link_ecp
       integer qmmm_geom_heavy_neighbor
       external qmmm_geom_heavy_neighbor
       integer tmp(2)
       logical fixlinks
+      integer nb
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
@@ -84,8 +88,21 @@ c     --------------------------
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
        
-      basis_string = 'ecp; F library "qmmm_zhang_6-31Gs_ecp"; end'
-      call nw_inp_from_character(irtdb, basis_string)
+c
+c     set link atoms ecp if any
+c     ------------------------
+      if (.not.rtdb_cget(irtdb,"qmmm:link_ecp",1,link_ecp)) 
+     >    call errquit('qmmm_geom: failed to get qmmm:link_ecp',
+     &       0,RTDB_ERR)
+c
+      if(link_ecp.eq."auto") then
+        if(qmmm_halogen_link()) then
+          basis_name = "qmmm_zhang_6-31Gs_ecp"
+          nb = inp_strlen(basis_name)
+          basis_string='ecp; F_L library "'//basis_name(1:nb)//'"; end'
+          call nw_inp_from_character(irtdb, basis_string)
+        end if
+      end if
 
       if (.not.rtdb_get(irtdb,'qmmm:fixlinks',mt_log,1,fixlinks))
      + call errquit('qmmm_geom: failed to get qmmm:fixlinks',
@@ -609,6 +626,7 @@ c     ---------------
       double precision r1(3),r2(3)
       double precision qmmm_geom_distance
       external qmmm_geom_distance
+      integer ns
 
       h_link=qmmm_h_link()
       if(h_link) then
@@ -618,7 +636,6 @@ c     ---------------
          r1(k)=c(k,i)
          r2(k)=c(k,i1)
         end do
-        write(*,*) "qmmm link bond",t(i),t(i1),qmmm_geom_distance(r1,r2)
         tmp(1)=i
         tmp(2)=i1
         call qmmm_adjust_link(r1,r2)
@@ -628,7 +645,6 @@ c     ---------------
         end do
         t(i)="H_L"
         q(i)=1.0
-        write(*,*) "qmmm link bond",t(i),t(i1),qmmm_geom_distance(r1,r2)
       end do
       else
       do i=n-nl+1,n
