@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.5 1999-04-13 15:55:48 d3j191 Exp $
+c $Id: util_md.F,v 1.6 1999-04-14 22:51:06 d3j191 Exp $
 c
       implicit none
 c
@@ -469,6 +469,20 @@ c
       a(l,j)=d(j)
    18 continue
   16  continue
+c
+      return
+      end
+      logical function frequency(istep,nstep)
+c
+      implicit none
+c
+      integer istep,nstep
+c
+      if(nstep.le.0) then
+      frequency=.false.
+      else
+      frequency=mod(istep,nstep).eq.0
+      endif
 c
       return
       end
