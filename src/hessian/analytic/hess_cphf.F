@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.51 2002-02-14 20:49:24 windus Exp $
+C $Id: hess_cphf.F,v 1.52 2003-04-03 01:21:06 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -18,7 +18,7 @@ c
 c
       integer rtdb 
       integer ind, index, index1, index2
-      integer nc, num
+      integer nc
       integer nbf2, ndns, ndip
       integer l_evals, k_evals, l_occ, k_occ
       integer g_vecs(2), g_modx, g_dip
@@ -56,7 +56,6 @@ c     ----- define parameters -----
 c
  
       nc   = n3xyz
-      num  = nbf
 c
 c may need to pick up hessian off of disk, but for now assuming it is 
 c in memory
@@ -83,10 +82,12 @@ c
       g_vecs(1) = ga_create_atom_blocked(geom, basis, 'mo vectors')
 c     eigenvalues
       if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
-     $     call errquit('hess_cphf: could not allocate l_evals',nbf)
+     $     call errquit('hess_cphf: could not allocate l_evals',nbf2)
 c     occupation numbers
       if (.not. ma_push_get(mt_dbl, nbf,'occ. numbers', l_occ, k_occ))
      $     call errquit('hess_cphf: could not allocate l_occ',nbf)
+c
+      call ga_zero(g_vecs(1))
 c
       if (.not. movecs_read (movecs,1,dbl_mb(k_occ),dbl_mb(k_evals), 
      $     g_vecs(1)))
@@ -111,13 +112,13 @@ c
      $       'alpha or beta dimension'
            write(LuOut,*) 'occupations, eigenvalues and vectors'
            write(LuOut,*) 'occupations are for the beta values'
-           call hnd_prsq(dbl_mb(k_occ),1,num,num)
+           call hnd_prsq(dbl_mb(k_occ),1,nmo,nbf)
            write(LuOut,*)
-           call hnd_prsq(dbl_mb(k_evals),1,num,num)
+           call hnd_prsq(dbl_mb(k_evals),1,nmo,nbf)
            write(LuOut,*)
            if (ouhf) then
              write(LuOut,*) 'Beta eigenvalues'
-             call hnd_prsq(dbl_mb(k_evals+num),1,num,num)
+             call hnd_prsq(dbl_mb(k_evals+nbf),1,nmo,nbf)
              write(LuOut,*)
            endif
          endif
@@ -158,23 +159,23 @@ c  scale by four, and populate g_aa and g_wax
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
       call ga_dscal(g_rhs,four)
       call ga_zero(g_wax)
       call ga_zero(g_aa)
       call hess_getaawax(g_rhs, g_aa, g_wax, nocc, nvirt,
-     $          ndens, n3xyz, num, ocphfprint)
+     $          ndens, n3xyz, nmo, ocphfprint)
 c
 c We are now done with the Fock derivatives.
 c Will reuse g_rhs for the ds/dx term.
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
-      call sx_read(g_rhs,nc*ndens,num,sx_dra_handle)
+      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -185,7 +186,7 @@ c
 c get contribution to wax
 c
       call hess_tuwax(g_rhs, g_wax, dbl_mb(k_evals), nocc, nvirt,
-     $          ocphfprint, ndens, n3xyz, num)
+     $          ocphfprint, ndens, n3xyz, nbf)
 c
 c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
@@ -194,7 +195,7 @@ c
       if (oprint) write(LuOut,*) 'HESS: Ta contribution to Hessian'
       do ndns = 1, ndens
        call hess_sxsy(dbl_mb(k_exy),
-     &    dbl_mb(k_evals+(ndns-1)*num),g_rhs,
+     &    dbl_mb(k_evals+(ndns-1)*nbf),g_rhs,
      &    log_mb(k_act),ncent,nocc(ndns),(ndns-1)*n3xyz,ouhf)
       enddo
 c
@@ -227,7 +228,7 @@ c
 c
       call hess_moootoao(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
       if (.not. ga_duplicate (g_rhs, g_tmp,'Temporary g_rhs')) then
         if (ga_nodeid().eq.0) then
           write(LuOut,*) 'Could not duplicate g_rhs'
@@ -237,13 +238,13 @@ c
       endif
       call hess_modfock(g_rhs, g_vecs, g_tmp, ndens, n3xyz,
      $                  tol2e, rtdb, geom, basis, jfac, kfac,
-     $                  num, ocphfprint)
+     $                  nbf, ocphfprint)
       if (.not.ga_destroy(g_tmp))
      $  call errquit('hess_cphf: cannot destroy g_tmp',555)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
 c
 c Now form the Wax and Aa contributions
 c
@@ -253,11 +254,11 @@ c
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
       if (ocphfprint) write(LuOut,*) 'Getting Ta again'
-      call sx_read(g_rhs,nc*ndens,num,sx_dra_handle)
+      call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
 c
 c Before doing the scaling, we will get the dipole integrals into 3
 c (or 6 for UHF) matrices (x, y, z), transform them into the MO 
@@ -265,7 +266,7 @@ c basis and then compute the overlap derivative times the dipole
 c integral contribution to the dipole derivative term.
 c
       dims(1) = ndens*3
-      dims(2) = num
+      dims(2) = nbf
       dims(3) = dims(2)
       chunk(1) = dims(1)
       chunk(2) = -1
@@ -274,12 +275,12 @@ c
      &     g_dip))
      &   call errquit('hess_cphf: could not allocate g_dip',555)
       call ga_zero(g_dip)
-      call hess_dipint(rtdb, geom, basis, g_dip, ndens, num)
+      call hess_dipint(rtdb, geom, basis, g_dip, ndens, nbf)
       ndip = 3
       call hess_aotomo(g_dip, g_vecs, g_modx, oprint,
-     $          ocphfprint, nocc, nvirt, ndens, ndip, num)
+     $          ocphfprint, nocc, nvirt, ndens, ndip, nbf)
       call hess_sxdip(g_rhs, dbl_mb(k_dder), g_dip, nocc, ndens, 
-     $   n3xyz, num)
+     $   n3xyz, nbf)
       if (ocphfprint.and.ga_nodeid().eq.0) then
         write(luout,*) 'after dipole times overlap derivative'
         write(tmpname,*) ' derivative dipole '
@@ -437,7 +438,7 @@ c
 c Now get the dipole derivative term
 c
       call hess_resdip(g_sol,dbl_mb(k_dder),g_dip,nocc,nvirt,
-     $  ndens, n3xyz, num)
+     $  ndens, n3xyz, nmo)
       if (ocphfprint.and.ga_nodeid().eq.0) then
         write(tmpname,*) ' derivative dipole '
         call stpr_print_ddipole(dbl_mb(k_dder),tmpname,ncent,-1.0d00)
@@ -470,7 +471,7 @@ c
 c
       subroutine hess_aotomo(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphf,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
 c
       implicit none
 c
@@ -479,10 +480,11 @@ c
 #include "stdio.fh"
 c
       logical oprint, ocphf
-      integer ndens, n3xyz, num, nocc(ndens), nvirt(ndens)
+      integer ndens, n3xyz, nbf, nocc(ndens), nvirt(ndens)
       integer g_rhs_x, g_vecs(ndens)
-      integer g_modx, ind, ndns, in
+      integer g_modx, ind, ndns, in, nmo
       integer alo(2), ahi(2), blo(3), bhi(3)
+      integer clo(3), chi(3), dlo(2), dhi(2)
 c
 c  Transform the current AO based Fock derivatives to the MO basis
 c
@@ -493,28 +495,39 @@ c
       endif
 c
       alo(1) = 1
-      ahi(1) = num
       alo(2) = 1
-      ahi(2) = num  ! g_vecs and g_modx dimensions
+      ahi(1) = nbf
+      dlo(1) = 1
+      dlo(2) = 1
+      dhi(2) = nbf
       blo(2) = 1
-      bhi(2) = num
       blo(3) = 1
-      bhi(3) = num
+      bhi(2) = nbf
+      bhi(3) = nbf
+      clo(2) = 1
+      clo(3) = 1
       ind = 0
       do ndns = 1, ndens
+        nmo = nocc(ndns) + nvirt(ndns)
+        ahi(2) = nmo  ! g_vecs and g_modx dimensions
+        dhi(1) = nmo
+        chi(2) = nmo
+        chi(3) = nmo
         do in = 1, n3xyz
           ind = ind + 1
           blo(1) = ind
           bhi(1) = ind
+          clo(1) = ind
+          chi(1) = ind
           call ga_zero(g_modx)
           call nga_matmul_patch ('t','n', 1.D0, 0.D0,
-     $                           g_vecs(ndns), alo, ahi,
+     $                           g_vecs(ndns), dlo, dhi,
      $                           g_rhs_x     , blo, bhi,
-     $                           g_modx      , alo, ahi)
+     $                           g_modx      , dlo, dhi)
           call nga_matmul_patch ('n','n', 1.D0, 0.D0,
-     $                           g_modx      , alo, ahi,
+     $                           g_modx      , dlo, dhi,
      $                           g_vecs(ndns), alo, ahi,
-     $                           g_rhs_x     , blo, bhi)
+     $                           g_rhs_x     , clo, chi)
 c
         enddo
       enddo
@@ -530,7 +543,7 @@ c
 c
       subroutine hess_moootoao(g_rhs_x, g_vecs, g_modx,
      $          oprint, ocphf,
-     $          nocc, nvirt, ndens, n3xyz, num)
+     $          nocc, nvirt, ndens, n3xyz, nbf)
 c
       implicit none
 c
@@ -539,7 +552,7 @@ c
 #include "stdio.fh"
 c
       logical oprint, ocphf
-      integer ndens, n3xyz, num, nocc(ndens), nvirt(ndens)
+      integer ndens, n3xyz, nbf, nocc(ndens), nvirt(ndens)
       integer g_rhs_x, g_vecs(ndens)
       integer g_modx, ind, ndns, in
       integer alo1(2), ahi1(2), blo1(3), bhi1(3)
@@ -554,17 +567,17 @@ c
 c  Set up some arrays
 c
       alo1(1) = 1
-      ahi1(1) = num
+      ahi1(1) = nbf
       alo1(2) = 1
       alo2(1) = 1
       alo2(2) = 1
-      ahi2(2) = num
+      ahi2(2) = nbf
       blo1(2) = 1
       blo1(3) = 1
       blo2(2) = 1
-      bhi2(2) = num
+      bhi2(2) = nbf
       blo2(3) = 1
-      bhi2(3) = num
+      bhi2(3) = nbf
 c
 c  Transform the current MO based matrices to the AO basis
 c
@@ -604,7 +617,7 @@ c
       end
 c
       subroutine hess_getaawax(g_rhs, g_aa, g_wax, nocc, nvirt,
-     $          ndens, n3xyz, num, ocphf)
+     $          ndens, n3xyz, nmo, ocphf)
 c
       implicit none
 c
@@ -613,7 +626,7 @@ c
 #include "stdio.fh"
 c
       logical ocphf
-      integer ndens, n3xyz, nocc(ndens), nvirt(ndens), num
+      integer ndens, n3xyz, nocc(ndens), nvirt(ndens), nmo
       integer g_rhs, g_aa, g_wax
       integer ind, ndns, in
       integer alo1(3), ahi1(3), alo2(3), ahi2(3)
@@ -624,7 +637,7 @@ c
        alo1(2) = 1
        ahi1(2) = nocc(ndns)
        alo1(3) = nocc(ndns) + 1
-       ahi1(3) = num
+       ahi1(3) = nmo
        blo(2)  = 1
        bhi(2)  = nocc(ndns)
        blo(3)  = 1
@@ -665,7 +678,7 @@ c
       end
 c
       subroutine hess_tuwax(g_rhs, g_wax, evals, nocc, nvirt,
-     $          ocphfprint, ndens, n3xyz, num)
+     $          ocphfprint, ndens, n3xyz, nbf)
 c
       implicit none
 c
@@ -674,7 +687,7 @@ c
 #include "stdio.fh"
 c
       logical ocphfprint
-      integer ndens, n3xyz, nocc(ndens), nvirt(ndens), num
+      integer ndens, n3xyz, nocc(ndens), nvirt(ndens), nbf
       integer g_rhs, g_wax
       integer ind, ndns, in, i
       integer alo(3), ahi(3), blo(3), bhi(3)
@@ -685,7 +698,7 @@ c
       ind = 0
       do ndns = 1, ndens
        alo(3) = nocc(ndns) + 1
-       ahi(3) = num
+       ahi(3) = nocc(ndns) + nvirt(ndns)
        blo(3) = 1
        bhi(3) = nvirt(ndns)
        do in =1,n3xyz
@@ -700,7 +713,7 @@ c
            blo(2) = i
            bhi(2) = i
            call nga_add_patch(one,g_wax,blo,bhi,
-     $       eight*evals((ndns-1)*num+i),g_rhs,alo,ahi,
+     $       eight*evals((ndns-1)*nbf+i),g_rhs,alo,ahi,
      $       g_wax,blo,bhi)
          enddo
        enddo
@@ -778,7 +791,7 @@ c
 c
       subroutine hess_modfock(g_rhs_x, g_vecs, g_tmp, ndens, n3xyz,
      $                        tol2e, rtdb, geom, basis, jfac, kfac,
-     $                        num, ocphfprint)
+     $                        nbf, ocphfprint)
 c
       implicit none
 c
@@ -787,7 +800,7 @@ c
 #include "rtdb.fh"
 #include "stdio.fh"
 c
-      integer ndens, n3xyz, rtdb, geom, basis, num
+      integer ndens, n3xyz, rtdb, geom, basis, nbf
       integer g_rhs_x, g_vecs(ndens), g_tmp
       integer ind, ndns, in, ndensity, nfock
       integer l_jfac, k_jfac, l_kfac, k_kfac, nfacs
@@ -853,7 +866,7 @@ c
       nfock = ndensity
       if (ndens.gt.1) call uhf_fock_setup(g_tmp, g_rhs_x,
      &            dbl_mb(k_jfac), dbl_mb(k_kfac), ndensity,
-     &            nfock, num, ocphfprint)
+     &            nfock, nbf, ocphfprint)
 c
       call shell_fock_build(geom,basis,0,ndensity,dbl_mb(k_jfac),
      &            dbl_mb(k_kfac),tol2e,
@@ -861,7 +874,7 @@ c
 c
       if (ndens.gt.1) call  uhf_fock_finish(g_tmp, g_rhs_x,
      &            dbl_mb(k_jfac), dbl_mb(k_kfac), ndensity,
-     &            nfock, num, ocphfprint)
+     &            nfock, nbf, ocphfprint)
 c
       call ga_dscal(g_rhs_x, multfac)
 c

@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.47 2003-03-28 17:12:40 bert Exp $
+C $Id: hess_init.F,v 1.48 2003-04-03 01:21:06 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -35,14 +35,16 @@ c     integer rtdb, mult, g_vecs(2)
       integer dims(3), chunk(3)
       character*256 sx_name
       character*256 fx_name
-      character*255 movecs_in
+      character*255 movecs_in, title_vecs, basis_vecs
+      character*20 scftype_vecs
+      integer nbf_vecs, nsets, nmos(2)
       double precision zero, one, onem
       double precision xfac(numfunc)
       parameter(zero = 0.0d0, one = 1.0d0, onem = -1.0d0)
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical int_normalize,int_norm_2c
-      external int_normalize,int_norm_2c
+      logical int_normalize,int_norm_2c, movecs_read_header
+      external int_normalize,int_norm_2c, movecs_read_header
 c
 c  print out follow information
 c
@@ -68,13 +70,13 @@ c
      &   call errquit('hess_init: bas_create?',102)
       cdfit=bas_rtdb_load(rtdb, geom, cd_basis, 'cd basis')
       if (cdfit)then
-         if (.not. bas_numbf(cd_basis, nbf_cd))
-     &        call errquit('hess_init: basis set error:', 86)
-         else
-            if (.not. bas_destroy(cd_basis))
-     &           call errquit('rdinput:not able to destroy CD_bas:',86)
-            cd_basis=0
-         endif
+         if (.not. bas_numbf(cd_basis, nbf_cd)) 
+     &      call errquit('hess_init: basis set error:', 86)
+      else
+        if (.not. bas_destroy(cd_basis))
+     &     call errquit('rdinput:not able to destroy CD_bas:',86)
+        cd_basis=0
+      endif
 c
 c  Get theory type
 c
@@ -135,8 +137,19 @@ c
       jfac(1) = 1.0d0
       kfac(1) = -0.5d0
       if (theory .eq. 'hf') then
-        if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
-     *    call errquit('hess_init: failed to get nmo', 555)
+c
+c   Read number of mo's off of the movecs file
+c
+        if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $    call errquit('hess_init: failed to get input vectors', 555)
+        if (.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
+     $    scftype_vecs, nbf_vecs,nsets,nmos,2))
+     $    call errquit('hess_init:problem with movecs_read_header',1)
+        if (nbf.ne.nbf_vecs) 
+     $    call errquit('hessint: nbf mismatch?',0)
+        nmo = nmos(1)
+c        if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
+c     *    call errquit('hess_init: failed to get nmo', 555)
         if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
      *     call errquit('hess_init: failed to get nclosed',0)
         nalpha = nclosed
@@ -180,8 +193,19 @@ c
 c  I don't like the way I am getting the number of mo's, but I can't find
 c  another way to get this from the DFT.
 c
-        if (.not. bas_numbf(basis, nmo))
-     *     call errquit('hess_init: error getting nmo:', 555)
+c
+c   Read number of mo's off of the movecs file
+c
+        if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+     $    call errquit('hess_init: failed to get input vectors', 555)
+        if (.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
+     $    scftype_vecs, nbf_vecs,nsets,nmos,2))
+     $    call errquit('hess_init:problem with movecs_read_header',1)
+        if (nbf.ne.nbf_vecs) 
+     $    call errquit('hessint: nbf mismatch?',0)
+        nmo = nmos(1)
+c        if (.not. bas_numbf(basis, nmo))
+c     *     call errquit('hess_init: error getting nmo:', 555)
         if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, dftnoc))
      *   call errquit('hess_init: rtdb_get of dftnoc failed', 555)
         if (bgj_restricted()) then

@@ -1,5 +1,5 @@
 C
-C  $Id: hess_dipder.F,v 1.5 2002-02-27 21:51:44 windus Exp $
+C  $Id: hess_dipder.F,v 1.6 2003-04-03 01:21:06 windus Exp $
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none
@@ -171,7 +171,7 @@ c
       end
 c
       subroutine hess_sxdip(g_sx, dder, g_dip, nocc, ndens, 
-     *        n3xyz, num)
+     *        n3xyz, nbf)
       implicit none
 c
 #include "global.fh"
@@ -185,7 +185,7 @@ c
       integer ndens          ! [input] no. of densities
       integer nocc(ndens)    ! [input] no. of occ.
       integer n3xyz          ! [input] 3 times the no. of atoms
-      integer num            ! [input] no. of basis functions
+      integer nbf            ! [input] no. of basis functions
       double precision dder(3, 3, *) ! [input/output] dipole der. tensor
 c
       integer ndns, offset1, offset2, ind, i, j, k, nxyz
@@ -230,7 +230,7 @@ c
       end
 c
       subroutine hess_resdip(g_res, dder, g_dip, nocc, nvirt, ndens,
-     *        n3xyz, num)
+     *        n3xyz, nmo)
       implicit none
 c
 #include "global.fh"
@@ -246,7 +246,7 @@ c
       integer nocc(ndens)    ! [input] no. of occ.
       integer nvirt(ndens)   ! [input] no. of virt.
       integer n3xyz          ! [input] 3 times the no. of atoms
-      integer num            ! [input] no. of basis functions
+      integer nmo            ! [input] no. of MOs (alpha or beta)
       double precision dder(3, 3, *) ! [input/output] dipole der. tensor
 c
       integer ndns, offset, ind, i, j, k, nxyz
@@ -267,7 +267,7 @@ c
         blo(2) = 1
         bhi(2) = nocc(ndns)
         blo(3) = nocc(ndns) + 1
-        bhi(3) = num
+        bhi(3) = nmo
         offset = (ndns - 1) * 3
         ind = 1
         do k = 1, nxyz
@@ -289,7 +289,7 @@ c
       return
       end
 c
-      subroutine hess_dipint(rtdb,geom,basis,g_dip,ndens,num)
+      subroutine hess_dipint(rtdb,geom,basis,g_dip,ndens,nbf)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -305,7 +305,7 @@ c
       integer basis           ! [input] basis handle
       integer g_dip           ! [output] dipole integrals
       integer ndens           ! [input] number of density matrices
-      integer num             ! [input] number of basis functions
+      integer nbf             ! [input] number of basis functions
 c
       integer nshell, nbf_max
       integer l_scr, k_scr, l_buf, k_buf
@@ -395,15 +395,15 @@ c
         lo(1) = 1
         hi(1) = 3
         lo(2) = 1
-        hi(2) = num
+        hi(2) = nbf
         lo(3) = 1
-        hi(3) = num
+        hi(3) = nbf
         blo(1) = 4
         bhi(1) = 6
         blo(2) = 1
-        bhi(2) = num
+        bhi(2) = nbf
         blo(3) = 1
-        bhi(3) = num
+        bhi(3) = nbf
         call nga_copy_patch('N', g_dip, lo, hi,
      *      g_dip, blo, bhi)
       endif
