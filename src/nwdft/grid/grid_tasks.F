@@ -1,11 +1,11 @@
       subroutine grid_tasks(rtdb, coord, qsh, nqlen,
-     &                      aqbuf, npts_per_ang)
+     &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.7 1999-06-14 22:58:51 d3h449 Exp $
+c$Id: grid_tasks.F,v 1.8 1999-06-15 20:16:26 edo Exp $
 c
       implicit none
 c
-      integer rtdb, qsh, nqlen, npts_per_ang
+      integer rtdb, qsh, nqlen, npts_per_ang, nq_tot
       integer lrij, irij, lrq, irq, lp, ip, lexpo, iexpo
       integer ndbl
       double precision coord, aqbuf, rad
@@ -70,7 +70,7 @@ c
      $        call errquit('grid_tasks: opening gridpts?', 0)
       endif
 c
-      owritefile= grid_test_mem (rtdb, geom)
+      owritefile= grid_test_mem (rtdb, geom, nq_tot)
 c
       leb = .false.
       if (iangquad.ne.0) leb = .true.

@@ -1,6 +1,6 @@
       block data cgridfdata
 *
-* $Id: grid_file.F,v 1.6 1999-06-14 22:39:20 d3h449 Exp $
+* $Id: grid_file.F,v 1.7 1999-06-15 20:16:25 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -483,7 +483,7 @@ c
       n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it even
 c
       end
-      logical function grid_test_mem(rtdb, geom)
+      logical function grid_test_mem(rtdb, geom, nq_tot)
       implicit none
 #include "util.fh"
 #include "bas.fh"
@@ -496,6 +496,7 @@ c
 c
       integer rtdb              ! [input]
       integer geom              ! [input]
+      integer nq_tot  ! [input]
 c      integer basis             ! [input]
 c     
 c     By default memsize=filesize=0 implying if the calculation fits into
@@ -506,7 +507,7 @@ c     If either is size is positive then it has been user set.
 c     
       logical grid_file_open
       external grid_file_open
-      integer nbf, avail, localmemsize, nops
+      integer avail, localmemsize, nops
       integer filesize, memsize
       character*255 gridfilename
       double precision nq
@@ -526,8 +527,6 @@ c     Determine if we should automatically run an in-core calculation
 c
       oinfo  = util_print('gridinfo', print_default) .and.
      $     ga_nodeid().eq.0
-c      if (.not. bas_numbf(basis, nbf))
-c     $     call errquit('grid: bad bas',0)
       nops = sym_number_ops(geom) + 1
 c
       rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
@@ -556,6 +555,7 @@ c     Also, assume that the grid_pts will be evenly distributed
 c     apart from a 10% fluctuation
 c     
 c         nq = 0.125d0 * dble(nbf+1)**4 
+         nq=nq_tot
 *      write(6,*) ' nq 1 ', nq
          if (nops .ne. 1) nq = (1.3 * nq) / nops ! 1.3 empircal from C6H6
 *      write(6,*) ' nq 1 ', nq

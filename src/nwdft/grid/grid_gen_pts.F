@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.5 1999-06-15 00:35:44 d3h449 Exp $
+c$Id: grid_gen_pts.F,v 1.6 1999-06-15 20:16:25 edo Exp $
 c
       implicit none
 c      
@@ -20,7 +20,7 @@ c
       integer lcoord, icoord, lcharge, icharge, ltags, itags
       integer mxnrad, nqlen, lqs, iqs
       integer laqbuf, iaqbuf
-      integer ang_quad_buf_size
+      integer ang_quad_buf_size, nq_tot
 c
 c     Need coordinates of all atoms.     
 c
@@ -54,7 +54,7 @@ c
       if (.not.MA_Push_get(MT_int,3*nqlen,'shell list',
      &                     lqs,iqs))
      &   call errquit('grid_gen: cannot allocate shell list',0)
-      call grid_list(rtdb, int_mb(iqs), nqlen)
+      call grid_list(rtdb, int_mb(iqs), nqlen, nq_tot)
 c
 c     The points (rotationally invariant if desired) are generated and written to disk
 c     with fixed number of points (buffer size).
@@ -73,7 +73,8 @@ c
       endif
       if (grid_on_file)then
          call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
-     &                   dbl_mb(iaqbuf), ang_quad_buf_size)
+     &                   dbl_mb(iaqbuf), ang_quad_buf_size,
+     ,        nq_tot)
 c
 c        try to balance the number of tasks on each node
 c

@@ -1,6 +1,6 @@
-      Subroutine grid_list(rtdb, qsh, nqlen)
+      Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.3 1999-06-14 22:39:22 d3h449 Exp $
+c$Id: grid_list.F,v 1.4 1999-06-15 20:16:26 edo Exp $
 c
       implicit none
 c      
@@ -177,12 +177,13 @@ c
 c              determine nqmax
 c
                if (leb)then
-                  nqmax = nang_leb_pts
+                  nqmax = max(nqmax,nang_leb_pts)
+                  nq_ctr_tot = nq_ctr_tot + nang_leb_pts
                else
+                  nq_ctr_tot = nq_ctr_tot + ntheta(iang)*nphi(iang)
                   nqmax = max(nqmax,ntheta(iang)*nphi(iang))
                endif
 c
-            nq_ctr_tot = nq_ctr_tot + ntheta(iang)*nphi(iang)
 c
   410    continue
 c
