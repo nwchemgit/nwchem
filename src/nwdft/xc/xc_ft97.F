@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F,v 1.4 2003-02-16 00:14:48 edo Exp $
+c$Id: xc_ft97.F,v 1.5 2003-02-16 00:43:15 edo Exp $
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
      .      cfac, lcfac, nlcfac,
@@ -213,16 +213,18 @@ c
       double precision r13,tol_rho
       parameter (r13=1.0d0/3.0d0)
 c
-      rhoa13 = ra**r13
-      rhob13 = rb**r13
+      rhoa13=0d0
+      if(ra.gt.tol_rho**2) rhoa13 = ra**r13
+      rhob13=0d0
+      if(rb.gt.tol_rho**2) rhob13 = rb**r13
       call FT97_ECFUN(ra,rb,rhoa13,rhob13,gaa,gbb,
      +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
       call FT97_EXFUN(ra,rb,rhoa13,rhob13,
      +           gaa,gbb,fx,.true.,.false.,tol_rho)
-      call FT97_EXGRAD(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
-      if(rb.gt.tol_rho**2) then
-      call FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
-      endif
+      if(ra.gt.tol_rho**2) 
+     +     call FT97_EXGRAD(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
+      if(rb.gt.tol_rho**2) 
+     +     call FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
       end
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
