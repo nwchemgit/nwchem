@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,pot,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.4 1997-10-09 15:51:42 d3j191 Exp $
+c $Id: esp_esp.F,v 1.5 1998-01-13 19:38:09 d3j191 Exp $
 c
       implicit none
 c
@@ -38,10 +38,10 @@ c
      + call errquit('eps: movecs_read failed',me)
 c
       nocc=0
-      do 1 i=0,nbf-1
-      if(occ(i).gt.small) nocc=nocc+1
+      charge=chgnuc
+      do 1 i=1,nbf
+      if(occ(i).gt.small) charge=charge-occ(i)
     1 continue
-      charge=chgnuc-two*nocc
 c
 c     get AO density matrix
 c
