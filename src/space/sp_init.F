@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct)
 c
 c
-c $Id: sp_init.F,v 1.59 2000-02-18 06:01:03 d3j191 Exp $
+c $Id: sp_init.F,v 1.60 2000-02-18 17:17:51 d3j191 Exp $
 c
       implicit none
 c
@@ -1140,6 +1140,33 @@ c
  8000 format('ipl',/,(2i5))
       call util_flush(lfndbg)
       endif
+c
+      return
+      end
+      subroutine sp_update_i(numsa,isl,numwm,iwl)
+c
+      implicit none
+c
+#include "sp_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer numsa,isl(msa,mis2)
+      integer numwm,iwl(mwm,miw2)
+c
+      integer il,ih,jl,jh
+c
+      if(numsa.gt.0.and.npack.gt.0) then
+      call ga_distribution(ga_is,me,il,ih,jl,jh)
+      call ga_put(ga_is,il,il+numsa-1,jl,jh,isl,msa)  
+      endif
+c
+      if(numwm.gt.0.and.npackw.gt.0) then
+      call ga_distribution(ga_iw,me,il,ih,jl,jh)
+      call ga_put(ga_iw,il,il+numwm-1,jl,jh,iwl,mwm)
+      endif
+c
+      call ga_sync()
 c
       return
       end

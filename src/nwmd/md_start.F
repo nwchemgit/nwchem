@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.46 2000-01-28 23:16:50 d3j191 Exp $
+c $Id: md_start.F,v 1.47 2000-02-18 17:18:02 d3j191 Exp $
 c
       implicit none
 c
@@ -152,6 +152,7 @@ c     ------------
 c
       call cf_fix(ifix,iunfix,int_mb(i_iw+(lwdyn-1)*mwm),nwmloc,
      + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsdyn-1)*msa),nsaloc)
+      call sp_update_i(nsaloc,int_mb(i_is),nwmloc,int_mb(i_iw))
 c
 c     spacial decomposition
 c     ---------------------
