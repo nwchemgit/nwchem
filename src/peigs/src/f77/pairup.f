@@ -29,7 +29,6 @@
 *
 *======================================================================
       subroutine pairup(n, me, iter, ipair)
-      implicit none
       integer n, me, iter, ipair
 c
 c

@@ -29,11 +29,10 @@
 *
 *======================================================================
       SUBROUTINE XSTOP( INFO )
-	implicit none
 *
 *  Stop program execution and print value of info.
 *
-      INTEGER  MXMYND, info
+      INTEGER  MXMYND
 
       EXTERNAL MXPEND, MXMYND
 

@@ -32,7 +32,6 @@
 c
 c     returns the max of the absolute values.
 
-	implicit none
       double precision dx(*),dtemp
       integer i,incx,n,nincx
 c

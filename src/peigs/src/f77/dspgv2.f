@@ -30,7 +30,6 @@
 *======================================================================
       SUBROUTINE DSPGV2( ITYPE, JOBZ, UPLO, N, AP, BP, W, Z, LDZ, WORK,
      $                  IWORK, INFO )
-    	 implicit none
 *
 *  -- Modification of LAPACK driver routine (version 2.0) --
 *     Note addition of IWORK to call 

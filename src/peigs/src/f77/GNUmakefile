@@ -5,10 +5,21 @@ ifeq ($(peigs_CODEOBJ),DBLE)
 FOBJ = damax.o \
        dlaebz2.o \
        dstebz3.o \
-       dspgv2.o \
-       dspevx2.o \
        heapsort.o \
-       neblw2.o
+       neblw2.o\
+       dspevx2.o \
+	dgetavec.o \
+	dgetavec2.o \
+	dgetavec3.o \
+	dlarnv.o \
+	dlasq1.o \
+	dlasrt.o \
+	dlasq2.o \
+	dlasq3.o \
+	dlasq4.o \
+	dlasrt.o \
+	dlaebz.o
+
 endif
 
 ifeq ($(peigs_CODEOBJ),SINGLE)
@@ -16,7 +27,20 @@ FOBJ = samax.o \
        slaebz2.o \
        sstebz3.o \
        sheapsort.o \
-       sneblw2.o
+       sneblw2.o \
+       dspevx2.o \
+	dgetavec.o \
+	dgetavec2.o \
+	dgetavec3.o \
+	dlarnv.o \
+	dlasq1.o \
+	dlasrt.o \
+	dlasq2.o \
+	dlasq3.o \
+	dlasq4.o \
+	dlasrt.o \
+	dlaebz.o
+
 endif
 
 
@@ -31,39 +55,42 @@ all:		$(FOBJ) $(EOBJ)
 
 clean:
 		-rm -f *.o
+		-rm -f dgetavec.f dlasq1.f dspevx2.f dstebz3.f \
+			 neblw2.f sneblw2.f sstebz3.f
 
 realclean:
 		clean
 
-dstebz1.o:	dstebz1.f
-		$(peigs_FC) -c $(peigs_FOPT) dstebz1.f  
+dgetavec.o:	dgetavec.F
+		$(peigs_CPP) < dgetavec.F >  dgetavec.f
+		$(peigs_FC) -c $(F77NFLAGS) dgetavec.f
 
-pairup.o:	pairup.f
-		$(peigs_FC) -c $(peigs_FOPT) pairup.f  
+dlasq1.o:	dlasq1.F
+		$(peigs_CPP) < dlasq1.F >  dlasq1.f
+		$(peigs_FC) -c $(F77NFLAGS) dlasq1.f
 
-neblw1.o:	neblw1.f
-		$(peigs_FC) -c $(peigs_FOPT) neblw1.f  
+dspevx2.o:	dspevx2.F
+		$(peigs_CPP) < dspevx2.F >  dspevx2.f
+		$(peigs_FC) -c $(F77NFLAGS) dspevx2.f
 
-dlaebz1.o:	dlaebz1.f
-		$(peigs_FC) -c $(peigs_FOPT) dlaebz1.f  
+dstebz3.o:	dstebz3.F
+		$(peigs_CPP) < dstebz3.F >  dstebz3.f
+		$(peigs_FC) -c $(F77NFLAGS) dstebz3.f
 
-ilaenv1.o:	ilaenv1.f
-		$(peigs_FC) -c ilaenv1.f  
+neblw2.o:	neblw2.F
+		$(peigs_CPP) < neblw2.F >  neblw2.f
+		$(peigs_FC) -c $(F77NFLAGS) neblw2.f
 
-heapsort.o:	heapsort.f
-		$(peigs_FC) -c heapsort.f  
+sneblw2.o:	sneblw2.F
+		$(peigs_CPP) < sneblw2.F >  sneblw2.f
+		$(peigs_FC) -c $(F77NFLAGS) sneblw2.f
 
-menode.o:	menode.f
-		$(peigs_FC) -c menode.f  
-
-xerbl2.o:	xerbl2.f
-		$(peigs_FC) -c $(peigs_FOPT) xerbl2.f  
-
-unif.o:		unif.f
-		$(peigs_FC) -c $(peigs_FOPT) unif.f  
+sstebz3.o:	sstebz3.F
+		$(peigs_CPP) < sstebz3.F >  sstebz3.f
+		$(peigs_FC) -c $(F77NFLAGS) sstebz3.f
 
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
-.f.o:;	$(peigs_FC) $(FOPT) -c $<
-
+.f.o:;	$(peigs_FC) $(OPT) -c $<
+.F.o:;	$(peigs_FC) $(OPT) -c $<
 

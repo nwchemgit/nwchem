@@ -1,0 +1,4 @@
+#! /bin/csh
+perl -pi.bak -e 's/\bDLAMCH( 'U' )\b/DLAMCHU/g' *.c
+
+
