@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.12 2000-08-14 20:27:00 windus Exp $
+C $Id: hess_init.F,v 1.13 2000-08-14 21:35:10 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -186,66 +186,63 @@ c
          g_rhs(j) = ga_create_atom_blocked
      &        (geom, basis, 'CPKS RHS test a x')
          call ga_zero(g_rhs(j))
-         if (scftype .eq. 'UHF') then
-            j = j + 1
-            g_rhs(j) = ga_create_atom_blocked
-     &           (geom, basis, 'CPKS RHS test b x')
-            call ga_zero(g_rhs(j))
-         endif
          j = j + 1
          g_rhs(j) = ga_create_atom_blocked
      &        (geom, basis, 'CPKS RHS test a y')
          call ga_zero(g_rhs(j))
-         if (scftype .eq. 'UHF') then
-            j = j + 1
-            g_rhs(j) = ga_create_atom_blocked
-     &           (geom, basis, 'CPKS RHS test b y')
-            call ga_zero(g_rhs(j))
-         endif
          j = j + 1
          g_rhs(j) = ga_create_atom_blocked
      &        (geom, basis, 'CPKS RHS test a z')
          call ga_zero(g_rhs(j))
-         if (scftype .eq. 'UHF') then
-            j = j + 1
-            g_rhs(j) = ga_create_atom_blocked
-     &           (geom, basis, 'CPKS RHS test b z')
-            call ga_zero(g_rhs(j))
-         endif
       enddo
+      if (scftype.eq.'UHF') then
+      do i = 1, ncent
+         j = j + 1
+         g_rhs(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b x')
+         call ga_zero(g_rhs(j))
+         j = j + 1
+         g_rhs(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b y')
+         call ga_zero(g_rhs(j))
+         j = j + 1
+         g_rhs(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b z')
+         call ga_zero(g_rhs(j))
+      enddo
+      endif
+c
       j = 0
       do i = 1, ncent
          j = j + 1
          g_rhs_xc(j) = ga_create_atom_blocked
      &        (geom, basis, 'CPKS RHS test a x')
          call ga_zero(g_rhs_xc(j))
-         if (scftype .eq. 'UHF') then
-            j = j + 1
-            g_rhs_xc(j) = ga_create_atom_blocked
-     &           (geom, basis, 'CPKS RHS test b x')
-            call ga_zero(g_rhs_xc(j))
-         endif
          j = j + 1
          g_rhs_xc(j) = ga_create_atom_blocked
      &        (geom, basis, 'CPKS RHS test a y')
          call ga_zero(g_rhs_xc(j))
-         if (scftype .eq. 'UHF') then
-            j = j + 1
-            g_rhs_xc(j) = ga_create_atom_blocked
-     &           (geom, basis, 'CPKS RHS test b y')
-            call ga_zero(g_rhs_xc(j))
-         endif
          j = j + 1
          g_rhs_xc(j) = ga_create_atom_blocked
      &        (geom, basis, 'CPKS RHS test a z')
          call ga_zero(g_rhs_xc(j))
-         if (scftype .eq. 'UHF') then
-            j = j + 1
-            g_rhs_xc(j) = ga_create_atom_blocked
-     &           (geom, basis, 'CPKS RHS test b z')
-            call ga_zero(g_rhs_xc(j))
-         endif
       enddo
+      if (scftype.eq.'UHF') then
+      do i = 1, ncent
+         j = j + 1                                          
+         g_rhs_xc(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b x')
+         call ga_zero(g_rhs_xc(j))
+         j = j + 1
+         g_rhs_xc(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b y')
+         call ga_zero(g_rhs_xc(j))
+         j = j + 1
+         g_rhs_xc(j) = ga_create_atom_blocked
+     &        (geom, basis, 'CPKS RHS test b z')
+         call ga_zero(g_rhs_xc(j))
+      enddo
+      endif
 c
 c  Initialize the Disk Resident Array (DRA) interface which will be needed
 c  to hold the overlap derivatives.
