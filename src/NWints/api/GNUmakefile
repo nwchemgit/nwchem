@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.36 1996-01-23 00:26:17 d3e129 Exp $
+# $Id: GNUmakefile,v 1.37 1996-05-08 23:47:43 og845 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -29,7 +29,7 @@ endif
 
  USES_BLAS = intd_1eh1.F   intd_2e2c.F    intb_2e4c.F \
              int_hf1sp.F   int_lgen1e.F   intd_2e2c.F \
-             intp_txyz.F
+             intp_txyz.F intd_2e4c.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
