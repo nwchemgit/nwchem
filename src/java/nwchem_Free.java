@@ -15,7 +15,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
     double lambda;
     double dlambda;
     double deriv[] = new double[24];
-    double free;
+    double free, freep, ep2, ep3, tmp;
     double dfree;
     Graph gibPlot = new Graph();
     Graph cnvPlot = new Graph();
@@ -92,6 +92,7 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 	    BufferedReader br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
 	    String card;
 	    free=0.0;
+            freep=0.0;
 	    boolean first=true;
             int j,ndata;
 	    double cnv[] = new double[10000];
@@ -111,7 +112,10 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		dlambda=Double.valueOf(card.substring(27,38)).doubleValue();
                 ndec=Integer.parseInt(card.substring(39,46).trim());
                 nsa=Integer.parseInt(card.substring(47,54).trim());
-		if(first){gibPlot.addData(0,lambda,free,!first,true);};
+		if(first){
+		    gibPlot.addData(0,lambda,free,!first,true);
+		    gibPlot.addData(1,lambda,freep,!first,true);
+		};
 		first=false;
 		for(int i=0; i<6; i++){
 		    card=br.readLine();
@@ -137,6 +141,11 @@ class nwchem_Free extends JFrame implements ActionListener, ChangeListener, Wind
 		lambda=lambda+dlambda;
 		gibPlot.addData(0,lambda,free,!first,false);
 		card=br.readLine();
+		tmp=Double.valueOf(card.substring(11,30)).doubleValue();
+		ep2=Double.valueOf(card.substring(31,50)).doubleValue();
+		ep3=Double.valueOf(card.substring(51,70)).doubleValue();
+		freep=freep+0.00831151*tmp*(Math.log(ep2)-Math.log(ep3));
+		gibPlot.addData(1,lambda,freep,!first,false);
 		for(int i=0; i<5*nsa; i=i+4){ card=br.readLine(); };
 	    };
 	    gibPlot.fillPlot();
