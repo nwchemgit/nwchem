@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.66 1997-11-07 11:41:35 d3e129 Exp $
+C     $Id: geom_input.F,v 1.67 1998-02-27 23:43:22 mdupuis Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -2066,7 +2066,8 @@ c
       return
  9999 format(' in -geom_zmt_autoz- ')
  9998 format(1x,i5,i5,3f10.6)
- 9997 format(' -auto_z- failed to create a z-matrix. stop ')
+ 9997 format(' -auto_z- has failed to create a good z-matrix.',/,
+     1       ' program will print the z-matrix, but will not use it.')
  9996 format(' $zmat izmat = ')
  9995 format(12(i5,','))
  9994 format(' $end ')
@@ -5030,8 +5031,9 @@ c
       PARAMETER (MXLINB= 8*MXATOM)
       PARAMETER (MXLNBA=10       )
       PARAMETER (MXSEG=64)
-      PARAMETER (CVFAC=1.1D+00)
+      PARAMETER (CVFAC=1.2D+00)
       LOGICAL SOME,OUT,DBUG
+      LOGICAL DBUG1
       LOGICAL BADZ
       LOGICAL NUBOND
       LOGICAL MODBND
@@ -5112,11 +5114,12 @@ C
      2                   (C(3,IAT)-C(3,JAT))**2) * TOANGS
       BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.103
 C
-      DBUG=.FALSE.
-      OUT =.FALSE. 
-      OUT =OUT.OR.DBUG
-      SOME=.TRUE.
-      SOME=SOME.OR.OUT
+      DBUG1=.FALSE.
+      DBUG =.FALSE.
+      OUT  =.FALSE. 
+      OUT  =OUT.OR.DBUG
+      SOME =.TRUE.
+      SOME =SOME.OR.OUT
       IF(SOME) THEN
          WRITE(IW,8888)
       ENDIF
@@ -5375,14 +5378,19 @@ C
                NUBOND=.FALSE.
                RIJ=DIST(IAT,JAT)
                RCV=(RCOV(IZ)+RCOV(JZ))
-               IF(DBUG) THEN
-                  WRITE(IW,9992) IAT,JAT,IZ,JZ,RIJ,RCV
-               ENDIF
                IF(RIJ.LE.RCV*CVFAC) THEN
+                  IF(MBNDS.EQ.MXBNDS) THEN
+                     WRITE(IW,*) 'TOO MANY BONDS FOUND',
+     1                           ' MBNDS, MXBNDS = ',MBNDS, MXBNDS
+                     CALL HND_HNDERR(3,ERRMSG)
+                  ENDIF
                   MBNDS=MBNDS+1
                   IJBNDS(1,MBNDS)=IAT
                   IJBNDS(2,MBNDS)=JAT
                   NUBOND=.TRUE.
+                  IF(DBUG1) THEN
+                     WRITE(IW,9992) IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS
+                  ENDIF
 C
 C     ----- CHECK FOR DUPLICATES AND ELIMINATE -----
 C
@@ -5415,7 +5423,7 @@ C
 C
 C     ----- DEBUG PRINTING OF CONNECTIVITY -----
 C
-      IF(DBUG) THEN
+      IF(DBUG1) THEN
          WRITE(IW,9998) NBNDS
          WRITE(IW,9997)
          DO IAT=1,NAT
@@ -5744,7 +5752,7 @@ C
  9994 FORMAT(6(1H(,I4,1H,,I4,1H)))
  9993 FORMAT(' NO COVALENT RADIUS SPECIFIED FOR ONE OF THESE ATOMS = ',
      1       2I5)
- 9992 FORMAT(' IAT,JAT,IZ,JZ,RIJ,RCV= ',2I4,2I4,2F10.3)
+ 9992 FORMAT(' IAT,JAT,IZ,JZ,RIJ,RCV,MBNDS= ',2I4,2I4,2F10.3,I5)
  9991 FORMAT(/,' PASS NUM. = ',I3,' OUT OF ',I3,' PASS(ES) ')
  9990 FORMAT(/,' SEARCHING FOR A SINGLE RING ...')
  9989 FORMAT(/,' ILLEGAL -MXCONN- HERE, -MXCONN- = ',I3,' . STOP.')
@@ -5788,8 +5796,14 @@ C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       PARAMETER (MXATOM=500)        
       PARAMETER (MXBNDS= 8*MXATOM)
+      PARAMETER (MXANGS= 8*MXATOM)
+      PARAMETER (MXTORS= 8*MXATOM)
+      PARAMETER (MXOOPA= 8*MXATOM)
+      PARAMETER (MXLINB= 8*MXATOM)
       LOGICAL     DBUG
+      LOGICAL     OUT
       LOGICAL     ZDONE
+      LOGICAL     DOOOPA
       LOGICAL     DOLINB
       CHARACTER*8 ERRMSG
       COMMON/HND_IOFILE/IR,IW
@@ -5804,6 +5818,8 @@ C
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTBLD-'/
 C
       DBUG=.FALSE.
+      OUT =.FALSE.
+      OUT =OUT.OR.DBUG
       IF(DBUG) THEN
          WRITE(IW,9999)
       ENDIF
@@ -5845,16 +5861,20 @@ C
          WRITE(IW,9993) NZVAR
       ENDIF
 C
+      DOOOPA=.FALSE.
+      IF(DOOOPA) THEN
+C
 C     ----- OUT-OF-PLANE BENDS -----
 C
-      CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
-     1                NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
+         CALL HND_ZMTYP4(NZVAR,NIZMAT,IZMAT,
+     1                   NAT,NBNDS,IJBNDS,IIBNDS,NIBNDS,IJKLOP,NUMOOP)
 C
-      IF(DBUG) THEN
-         WRITE(IW,9998)
-         WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
-         WRITE(IW,9996)
-         WRITE(IW,9992) NZVAR
+         IF(DBUG) THEN
+            WRITE(IW,9998)
+            WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
+            WRITE(IW,9996)
+            WRITE(IW,9992) NZVAR
+         ENDIF
       ENDIF
 C
 C     ----- LINEAR BENDS -----
@@ -5908,7 +5928,7 @@ C
       DIMENSION ERRMSG(3)        
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP1-'/
 C
-      DBUG=.FALSE. 
+      DBUG=.FALSE.
       IF(DBUG) THEN
          WRITE(IW,9999)
       ENDIF
@@ -5958,6 +5978,7 @@ C
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
+         WRITE(IW,*)    'NZVAR = ',NZVAR
       ENDIF
 C
       RETURN
@@ -5991,12 +6012,16 @@ C
       DIMENSION ERRMSG(3)        
       DATA ERRMSG /'PROGRAM ','STOP IN ','-ZMTYP2-'/
       DATA TOL    /1.0D-08/
+      DATA ZERO   /0.0D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
 C
       DISTSQ(IAT,JAT)=(C(1,IAT)-C(1,JAT))**2+
      1                (C(2,IAT)-C(2,JAT))**2+
      2                (C(3,IAT)-C(3,JAT))**2
+      DOTPRD(IAT,JAT,KAT)=(C(1,IAT)-C(1,JAT))*(C(1,KAT)-C(1,JAT))+
+     1                    (C(2,IAT)-C(2,JAT))*(C(2,KAT)-C(2,JAT))+
+     2                    (C(3,IAT)-C(3,JAT))*(C(3,KAT)-C(3,JAT))
 C
       DBUG=.FALSE.
       IF(DBUG) THEN
@@ -6037,6 +6062,11 @@ C
                   ENDIF
                   KAT=KCON
                   IF(KAT.NE.IAT) THEN
+                     IF(NANG.EQ.MXANGS) THEN
+                        WRITE(IW,*) 'TOO MANY BOND ANGLES',
+     1                              ' NANG,MXANG = ',NANG,MXANGS
+                        CALL HND_HNDERR(3,ERRMSG)
+                     ENDIF
                      NANG=NANG+1
                      IJKANG(1,NANG)=IAT
                      IJKANG(2,NANG)=JAT
@@ -6103,20 +6133,31 @@ C
             RJK  =SQRT(RJKSQ)                           
             RIKSQ=DISTSQ(IJKANG(1,IANG),IJKANG(3,IANG))
             COSB =(RIJSQ+RJKSQ-RIKSQ)/(TWO*RIJ*RJK)
-            DUM  =ONE-ABS(COSB)
-            IF(ABS(DUM).GT.TOL) THEN
-                IZMAT(NIZMAT+1)=ITWO
-                IZMAT(NIZMAT+2)=IJKANG(1,IANG)
-                IZMAT(NIZMAT+3)=IJKANG(2,IANG)
-                IZMAT(NIZMAT+4)=IJKANG(3,IANG)
-               NIZMAT=NIZMAT+4
-               NZVAR =NZVAR +1
-               NUMANG=NUMANG+1
-               LINBND=.FALSE.
+            DUM  =ABS(COSB)-ONE
+            IF(DUM.GT.ZERO) THEN
+               IF(DUM.LE.TOL) THEN
+                  LINBND=.TRUE.
+                  DOLINB=DOLINB.OR.LINBND
+               ELSE
+                  WRITE(IW,*) 'SOMETHING IS WRONG IN -ZMTYP2-'
+                  CALL HND_HNDERR(3,ERRMSG)
+               ENDIF
             ELSE
-               LINBND=.TRUE. 
-               DOLINB=DOLINB.OR.LINBND
+               DUM=-DUM
+               IF(DUM.LE.TOL) THEN
+                   LINBND=.TRUE.
+                   DOLINB=DOLINB.OR.LINBND
+               ELSE
+                  LINBND=.FALSE.
+               ENDIF
             ENDIF
+             IZMAT(NIZMAT+1)=ITWO
+             IZMAT(NIZMAT+2)=IJKANG(1,IANG)
+             IZMAT(NIZMAT+3)=IJKANG(2,IANG)
+             IZMAT(NIZMAT+4)=IJKANG(3,IANG)
+            NIZMAT=NIZMAT+4
+            NZVAR =NZVAR +1
+            NUMANG=NUMANG+1
          ENDIF
          GO TO 100
   110 CONTINUE
@@ -6140,6 +6181,7 @@ C
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
+         WRITE(IW,*)    'NZVAR = ',NZVAR
       ENDIF
 C
       RETURN
@@ -6225,6 +6267,11 @@ C
                            ENDIF
                            LAT=LCON
                            IF(LAT.NE.JAT) THEN
+                              IF(NTOR.EQ.MXTORS) THEN
+                                 WRITE(IW,*) 'TOO MANY TORSIONS',
+     1                                       ' NTOR, MXTORS = ',NTOR,MXTORS
+                                 CALL HND_HNDERR(3,ERRMSG)
+                              ENDIF
                               NTOR=NTOR+1
                               IJKLTO(1,NTOR)=IAT
                               IJKLTO(2,NTOR)=JAT
@@ -6326,6 +6373,7 @@ C
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
+         WRITE(IW,*)    'NZVAR = ',NZVAR
       ENDIF
 C
       RETURN
@@ -6413,6 +6461,11 @@ C
                            NLCON=NIBOND(LAT)
                            IF((NKCON.EQ.1.AND.NLCON.EQ.1).OR.
      1                        (NKCON.GT.1.AND.NLCON.GT.1)    ) THEN
+                              IF(NOOP.EQ.MXOOPA) THEN
+                              WRITE(IW,*) 'TOO MANY OUT-OF-PLANE BENDS',
+     1                                    ' NOOP, MXOOPA = ',NOOP,MXOOPA
+                                 CALL HND_HNDERR(3,ERRMSG)
+                              ENDIF
                               NOOP=NOOP+1
                               IJKLOP(1,NOOP)=IAT
                               IJKLOP(2,NOOP)=JAT
@@ -6508,6 +6561,7 @@ C
          WRITE(IW,9998)
          WRITE(IW,9997) (IZMAT(I),I=1,NIZMAT)
          WRITE(IW,9996)
+         WRITE(IW,*)    'NZVAR = ',NZVAR
       ENDIF
 C
       RETURN
