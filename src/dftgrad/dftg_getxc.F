@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.31 2000-08-25 20:05:11 edo Exp $
+* $Id: dftg_getxc.F,v 1.32 2000-08-25 20:49:20 edo Exp $
 *
       implicit none
 c      
@@ -40,10 +40,16 @@ c
       logical status,grid_on_file,xc_gotxc
       external xc_gotxc
 c
+      character*4 scftype
+c
       integer nproc,i
       logical grid_reopen
       external grid_reopen
 c
+c     hack for hessian
+c
+      scftype="RHF "
+      if(ipol.eq.2) scftype="UHF "
       nproc = ga_nnodes()
 c
 c     Exact exchange is now computed by grad_force
@@ -92,7 +98,9 @@ c
             call dfill(9*natom*natom, 0.0d0, dbl_mb(k_hess), 1)
             if (bgj_print() .gt. 0)
      &           write(LuOut,*)'*** In dftg_getxc: calling xc_hessian'
-            call xc_hessian(iga_dens, oactive, nactive, dbl_mb(k_hess))
+            call xc_hessian(geom,rtdb,nbf_ao,ao_bas_han,
+     .           iga_dens, oactive, nactive, dbl_mb(k_hess),
+     .           scftype)
             status = MA_pop_stack(l_hess)
             if (.not.status) call
      &         errquit('dftg_get_xc: could not pop stack for hessian',
@@ -151,7 +159,9 @@ c
 
             if (bgj_print() .gt. 0)
      &           write(LuOut,*)'*** In dftg_getxc: calling xc_cpks_rhs'
-            call xc_cpks_rhs(iga_dens, oactive, nactive, g_rhs)
+            call xc_cpks_rhs(geom,rtdb,nbf_ao,ao_bas_han,
+     .           iga_dens, oactive, nactive, g_rhs,
+     .           scftype)
 
             do i = 1, natom
               if (oactive(i)) then
