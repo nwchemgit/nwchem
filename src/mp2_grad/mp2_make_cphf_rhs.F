@@ -1,17 +1,26 @@
       subroutine mp2_make_cphf_rhs(transform,basis,nmo,nbf,
-     $     noa,nva,nob,nvb,g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
+     $     noa,nva,nob,nvb,irs_a,irs_b,work,map_a,map_b,
+     $     num_oa,num_ob,num_va,num_vb,
+     $     sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
+     $     sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
+     $     g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
       logical transform
+      integer irs_a(*),irs_b(*),work(*),map_a(*),map_b(*)
+      integer sym_lo_oa(0:7),sym_hi_oa(0:7)
+      integer sym_lo_va(0:7),sym_hi_va(0:7)
+      integer sym_lo_ob(0:7),sym_hi_ob(0:7)
+      integer sym_lo_vb(0:7),sym_hi_vb(0:7)
+      integer num_oa(0:*),num_va(0:*)
+      integer num_ob(0:*),num_vb(0:*)
       integer nmo,nbf,noa,nva,nob,nvb
       integer basis
       character*256 cphf_rhs
       integer cphf_rhs_u
       parameter(cphf_rhs_u=17)
       integer g_vecs_a,g_vecs_b,g_lai_a,g_lai_b
-      integer g_x_a,g_x_b,g_y_a,g_y_b,g_z_a,g_z_b,g_scratch
-      integer g_falpha,g_fbeta
       integer g_rhs
       integer ierr
       logical file_write_ga

@@ -64,10 +64,7 @@ c
          endif
       endif
       call int_normalize(basis)
-      call int_init(rtdb,1,basis)
       call util_file_name('movecs', .false.,.false.,movecs_in)
-c      call int_init(rtdb,1,basis)
-      call schwarz_init(geom,basis)
       call mp2_energy(rtdb,geom,basis,movecs_in,task)
 c      if(.not.cphf(rtdb))call errquit('could not do cphf',1)
 c      call schwarz_tidy()
@@ -75,7 +72,6 @@ c      call schwarz_tidy()
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit
      $    ('mp2_grad:error destroying geom and basis handles',0)
-c      call int_terminate()
       call util_print_pop
       end
 

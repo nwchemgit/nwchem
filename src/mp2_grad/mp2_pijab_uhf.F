@@ -17,18 +17,18 @@
       integer sym_lo_ob(0:*),sym_hi_ob(0:*)
       integer sym_lo_vb(0:*),sym_hi_vb(0:*)
       integer num_ob(0:*),num_vb(0:*)
-      integer noa,nva,nob,nvb,counter
+      integer noa,nva,nob,nvb
       integer a_a,tunita,tunitb
       integer oseg_lo,oseg_hi
       integer nir
       double precision zero,one,minusone,half,mhalf
       integer syma,symi,symb,symj,symia
       integer irs_a(*),irs_b(*),b,j
-      integer nva_lo_local,nva_hi_local,jb
+      integer nva_lo_local,nva_hi_local
       double precision p_ij_a(*),p_ab_a(*),p_ij_b(*),p_ab_b(*)
-      double precision t_a(*),t_b(*),te
-      double precision denom,epsilon
-      integer tunitptra,tunitptrb,counta,countb,ierr,length
+      double precision t_a(*),t_b(*)
+      double precision denom
+      integer tunitptra,tunitptrb,counta,countb,ierr
       integer g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b
       integer msg_p_ij_a_sum,msg_p_ij_b_sum
       integer msg_p_ab_a_sum,msg_p_ab_b_sum
@@ -37,12 +37,12 @@
       parameter(msg_p_ab_a_sum=9998)
       parameter(msg_p_ab_b_sum=9997)
       double precision eval_a(*),eval_b(*)
-      double precision eaa,eab
+c$$$      double precision eaa,eab
       integer tcounta,tcountb
       integer pijacnt,pijbcnt,pabacnt,pabbcnt
 c     
-      eaa=0.0d0
-      eab=0.0d0
+c$$$      eaa=0.0d0
+c$$$      eab=0.0d0
       zero=0.0d0
       one=1.0d0
       half=0.5d0
@@ -74,12 +74,12 @@ c
                   if(ierr.ne.0)call errquit(
      $                 'problem reading t_a back in',ierr)
                   tunitptra=tunitptra+counta
-                  do j=sym_lo_oa(symj),sym_hi_oa(symj)
-                     denom=eval_a(a_a)+eval_a(b)
-     $                    -eval_a(i)-eval_a(j)
-                     eaa=eaa+t_a(tcounta+j-sym_lo_oa(symj))
-     $                    *t_a(tcounta+j-sym_lo_oa(symj))*denom
-                  enddo
+c$$$                  do j=sym_lo_oa(symj),sym_hi_oa(symj)
+c$$$                     denom=eval_a(a_a)+eval_a(b)
+c$$$     $                    -eval_a(i)-eval_a(j)
+c$$$                     eaa=eaa+t_a(tcounta+j-sym_lo_oa(symj))
+c$$$     $                    *t_a(tcounta+j-sym_lo_oa(symj))*denom
+c$$$                  enddo
                   tcounta=tcounta+counta
                endif
             enddo
@@ -95,12 +95,12 @@ c
                   if(ierr.ne.0)call errquit(
      $                 'problem reading t_b back in',ierr)
                   tunitptrb=tunitptrb+countb
-                  do j=sym_lo_ob(symj),sym_hi_ob(symj)
-                     denom=eval_a(a_a)+eval_b(b)
-     $                    -eval_a(i)-eval_b(j)
-                     eab=eab+t_b(tcountb+j-sym_lo_ob(symj))
-     $                    *t_b(tcountb+j-sym_lo_ob(symj))*denom
-                  enddo
+c$$$                  do j=sym_lo_ob(symj),sym_hi_ob(symj)
+c$$$                     denom=eval_a(a_a)+eval_b(b)
+c$$$     $                    -eval_a(i)-eval_b(j)
+c$$$                     eab=eab+t_b(tcountb+j-sym_lo_ob(symj))
+c$$$     $                    *t_b(tcountb+j-sym_lo_ob(symj))*denom
+c$$$                  enddo
                   tcountb=tcountb+countb
                endif
             enddo
@@ -145,8 +145,8 @@ c
             enddo
          enddo
       enddo
-      call ga_dgop(1,eaa,1,'+')
-      call ga_dgop(1,eab,1,'+')
+c$$$      call ga_dgop(1,eaa,1,'+')
+c$$$      call ga_dgop(1,eab,1,'+')
       call ga_dgop(msg_p_ij_a_sum,p_ij_a,noa*noa,'+')
       call ga_dgop(msg_p_ab_a_sum,p_ab_a,nva*nva,'+')
       call ga_dgop(msg_p_ij_b_sum,p_ij_b,nob*nob,'+')

@@ -12,7 +12,6 @@
       double precision dipx,dipx_a,dipx_b
       double precision dipy,dipy_a,dipy_b
       double precision dipz,dipz_a,dipz_b
-      double precision dens_dot,dips_dot
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs ',
      $     1,1,g_x_a)) call errquit('ga',0)
