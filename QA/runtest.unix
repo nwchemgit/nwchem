@@ -164,6 +164,7 @@ foreach TEST ($args_2_use)
   set TESTFILE     = $STUB.tst
   set RESTARTFILE  = $STUB.rst
   set RDFINPUTFILE = $STUB.rdi
+  set MRINPUTFILE  = $STUB.mri
   set TOPOLOGYFILE = (`echo $STUB.top | sed 's/_.*\././'`)
 #
   set md_test_run = 0
@@ -195,6 +196,7 @@ foreach TEST ($args_2_use)
     cp $TESTDIR/$RESTARTFILE $SCRATCHDIR
     cp $TESTDIR/$TESTFILE $TESTOUTPUTS/$STUB.ok.tst
     if(-f $TESTDIR/$RDFINPUTFILE) cp $TESTDIR/$RDFINPUTFILE $SCRATCHDIR
+    if(-f $TESTDIR/$MRINPUTFILE) cp $TESTDIR/$MRINPUTFILE $SCRATCHDIR
   endif
 #
 
