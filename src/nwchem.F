@@ -16,7 +16,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.50 1995-03-31 01:31:13 d3g681 Exp $
+c     $Id: nwchem.F,v 1.51 1995-05-17 16:36:56 mg650 Exp $
 c
       character*255 input_filename
 c
@@ -209,7 +209,7 @@ c
       logical status 
       logical scf
       external scf
-      parameter (ntasks = 17)
+      parameter (ntasks = 18)
       character*10 task_list(ntasks)
       data task_list /'rjhtest',
      $                'raktest',
@@ -227,7 +227,8 @@ c
      $                'dftgrad',
      $                'optdft',
      $                'direct_mp2',
-     $                'mjdtest'
+     $                'mjdtest',
+     $                'ccsd'
      $               /
 c     
       if (.not. rtdb_cget(rtdb, 'task', 1, task_name)) then
@@ -239,7 +240,7 @@ c
 c     
       if (inp_match(ntasks, .false., task_name, task_list, ind)) then
          goto (10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130,
-     &         140, 150, 160, 170)
+     &         140, 150, 160, 170, 180)
      $   ind
 c
          write(6,*) ' Unimplemented task ', 
@@ -335,6 +336,11 @@ c
 c     Miles' test 
 c
   170    call mjdtest(rtdb)
+         goto 1000
+c
+c     CCSD
+c
+  180    call ccsd(rtdb)
          goto 1000
 
       else
