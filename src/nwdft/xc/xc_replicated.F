@@ -6,7 +6,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.19 2004-11-03 00:25:43 edo Exp $
+C$Id: xc_replicated.F,v 1.20 2004-11-24 22:52:40 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -114,6 +114,7 @@ c
      .                 'replicated DM GA',
      .                 gnblock,plist, g_repdm(ii))) goto 1984
                endif
+                    call ga_mask_sync(.true.,.false.)
                call ga_copy(g_dens(ii),g_repdm(ii))
             endif
          enddo
@@ -149,7 +150,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.19 2004-11-03 00:25:43 edo Exp $
+C$Id: xc_replicated.F,v 1.20 2004-11-24 22:52:40 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -174,9 +175,11 @@ c
             if(.not.dograd) then
                if(dorepxc) then
       if (odftps) call pstat_on(ps_xmrge)
+                    call ga_mask_sync(.true.,.false.)
                   call ga_merge_mirrored(k_repxc(i))
       if (odftps) call pstat_off(ps_xmrge)
       if (odftps) call pstat_on(ps_xcopy)
+                    call ga_mask_sync(.true.,.false.)
                   call ga_copy(k_repxc(i),g_vxc(i))
       if (odftps) call pstat_off(ps_xcopy)
                   if (.not.ga_destroy(k_repxc(i)))
