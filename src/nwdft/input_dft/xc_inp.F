@@ -43,12 +43,13 @@ c     xpkzb99 => 3600
 c     cpkzb99 => 3650
 c     xtpss03 => 4100
 c     ctpss03 => 4150
+c     xctpssh => 4175
 
 
 
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 50,numfunc=30)
+      parameter (num_dirs = 51,numfunc=30)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -74,7 +75,7 @@ c
      ,     'optx','optc','becke97-2','mpw91',
      ,     'ft97','xft97','cft97',
      &     'xpkzb99','mpw1k','cpkzb99','hcth407p','xtpss03',
-     &     'ctpss03'/
+     &     'ctpss03', 'xctpssh' /
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -105,7 +106,7 @@ c
      ,      2100,2200,2300, 2400, 
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
-     &  3600,4000, 3650, 3110,4100,4150,
+     &  3600,4000, 3650, 3110,4100,4150,4175,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -1246,7 +1247,23 @@ c
 
 
 
-
+c     
+c TPSSH      hybrid meta GGA
+c            A*EXX + (1-a)TPSSX + TPSSC
+c            A=0.10               
+c             
+4175  xccomb(18) = .true.
+         xfac(21)= 0.90d0
+        lxfac(21)=.true.
+       nlxfac(21)=.true.
+        cfac(27) = 1.0d0
+       lcfac(27) = .true.
+      nlcfac(27) = .true.
+        xfac(1) = 0.10d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+      goto 10
 
 
 
@@ -1449,7 +1466,8 @@ c
      &       /,' [cpkzb99]',
      &       /,' [hcth407p]',
      &       /,' [xtpss03]',
-     &       /,' [ctpss03]')
+     &       /,' [ctpss03]',
+     &       /,' [xctpssh]')
  
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0, INPUT_ERR)
