@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.45 2003-02-24 20:11:25 bert Exp $
+C $Id: hess_init.F,v 1.46 2003-02-24 20:18:01 bert Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -501,7 +501,7 @@ c
       integer rtdb      ! [input] rtdb handle
 c
       integer geom1, basis1
-      integer ecp_handle, ipol
+      integer ecp_handle, ipol, mult
       logical cdfit, ecp, dmd_rel, dk_rel
 c
       hess_check = .false.
