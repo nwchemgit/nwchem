@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.112 1999-06-17 00:00:29 windus Exp $
+C     $Id: geom_input.F,v 1.113 1999-06-21 21:30:22 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
@@ -87,7 +87,7 @@ c
       oprint_sym = .false.
       include_bqbq = .false.
       ocenter = .true.
-      threquiv = 1d-3
+      threquiv = 1d-2
 c     
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
@@ -340,21 +340,6 @@ c
             write(6,*) ' autosym detected uknown group ', groupname
             call errquit('geom_input: autosym: invalid group',0)
          endif
-c
-c  symmetrize the coordinates
-c
-c        write(6,*) 'before symmetrization'
-c        do i=1,ncenter
-c              write(6,*) coords(1,i),coords(2,i),coords(3,i)
-c        enddo
-c        call sym_grad_symmetrize(geom,coords)
-c        write(6,*) 'after symmetrization'
-c        do i=1,ncenter
-c              write(6,*) coords(1,i),coords(2,i),coords(3,i)
-c        enddo
-c        if (.not.geom_cart_set(geom, ncenter, tags, coords, charge))
-c    $        call errquit('geom_input: geom_cart_set failed', 0)
-c        threquiv = 1d-3    ! Set back to default
       endif
 c
 c     Apply system and symmetry info to the list of
@@ -3328,19 +3313,42 @@ C
       GOTX=.FALSE.
       GOTY=.FALSE.
       GOTZ=.FALSE.
+      ethresh = 100.d+0 * threquiv
       DO IORDR=1,MXORDR
-         IF((XMAG(IORDR).GT.TENM01).AND.(.NOT.GOTX)) THEN
+c        IF((XMAG(IORDR).GT.TENM01).AND.(.NOT.GOTX)) THEN
+         IF((XMAG(IORDR).GT.ethresh).AND.(.NOT.GOTX)) THEN
             AXORDR(1)=IORDR
             GOTX=.TRUE.
          ENDIF
-         IF((YMAG(IORDR).GT.TENM01).AND.(.NOT.GOTY)) THEN
+c        IF((YMAG(IORDR).GT.TENM01).AND.(.NOT.GOTY)) THEN
+         IF((YMAG(IORDR).GT.ethresh).AND.(.NOT.GOTY)) THEN
             AXORDR(2)=IORDR
             GOTY=.TRUE.
          ENDIF
-         IF((ZMAG(IORDR).GT.TENM01).AND.(.NOT.GOTZ)) THEN
+c        IF((ZMAG(IORDR).GT.TENM01).AND.(.NOT.GOTZ)) THEN
+         IF((ZMAG(IORDR).GT.ethresh).AND.(.NOT.GOTZ)) THEN
             AXORDR(3)=IORDR
             GOTZ=.TRUE.
          ENDIF
+c
+c     correct for linear molecules with an infinite order axis.
+c     it will be made a four fold axis
+c
+         if ((linear).and.(iordr.eq.mxordr)) then
+           write(IW,*) 'ORDER OF PRIMARY AXIS IS BEING SET TO 4'
+           if((xmag(iordr).le.ethresh).and.(.not.gotx)) then
+             axordr(1)=4
+             gotx=.true.
+           endif
+           if((ymag(iordr).le.ethresh).and.(.not.goty)) then
+             axordr(2)=4
+             goty=.true.
+           endif
+           if((zmag(iordr).le.ethresh).and.(.not.gotz)) then
+             axordr(3)=4
+             gotz=.true.
+           endif
+         endif
       ENDDO
       IF(OUT) THEN
          WRITE(IW,9997) (AXORDR(I),I=1,3)
@@ -4054,11 +4062,8 @@ C
 C
 C     ----- S2N GROUPS -----
 C
-               NAXIS=NAXIS/2
                GROUP(1:1)=S
                write(GROUP(2:2),'(i1)') NAXIS
-c              GROUP(2:2)=I2
-c              GROUP(3:3)=N
             ENDIF
         ENDIF
       ENDIF
@@ -4068,6 +4073,13 @@ C
          write(groupname,'(a1,i1,a6)') group(1:1),naxis,group(3:8)
       else
          groupname = group
+      endif
+c
+c   This is an ugly cludge to get the ci point group which also shows
+c   up with a S2!
+c
+      if (groupname(1:2).eq.'S2') then
+         groupname(1:2)=CI
       endif
 c
       IF(SOME) THEN
@@ -5377,24 +5389,6 @@ c
 c
       some = .false.
       dbug = .false.
-c
-c     do jat = 1, nat
-c       do iat = 1, 3
-c         c2(iat,jat) = c3(iat,jat)
-c       enddo
-c     enddo
-c
-c     write(6,*) 'New coordinates before theta'
-c     do jat = 1, nat
-c       write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
-c     enddo
-c
-c     call rot_theta_z (thetaz,c2,nat)
-c
-c     write(6,*) 'New coordinates after theta'
-c     do jat = 1, nat
-c       write(6,*) c2(1,jat), c2(2,jat), c2(3,jat)
-c     enddo
 c
       PI=4.d+0*ATAN(1.d+0)
       THETA=PI
