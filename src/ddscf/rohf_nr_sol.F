@@ -1,5 +1,5 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.18 1997-11-14 00:19:23 d3g681 Exp $
+c     $Id: rohf_nr_sol.F,v 1.19 1998-03-13 01:57:20 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -129,6 +129,11 @@ c
       converged = .false.
 c
  10   if (.not. converged) then
+c
+c     If running disk resident, and especially if semi-direct
+c     then variable accuracy hinders things
+c
+         if (oreadfile) tol2e = tol2e_save
 c
          call ga_pcg_minim(crohf_vlen, iter, energy, g_grad, g_work,
      $        g_search, step, ls_tol, ls_max, eprec, oconjugacy, 
