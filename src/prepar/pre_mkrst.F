@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain)
 c
-c $Id: pre_mkrst.F,v 1.22 1998-09-17 22:05:18 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.23 1998-09-24 17:04:42 d3j191 Exp $
 c
       implicit none
 c
@@ -309,6 +309,11 @@ c
       read(lfncmd,1101,end=9,err=9997) card
  1101 format(a)
 c
+      if(util_print('where',print_high)) then
+      write(lfnout,1099) card
+ 1099 format('command card ',a)
+      endif
+c
 c     read distance restraints
 c     ========================
 c
@@ -399,7 +404,8 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
+     + chain))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
@@ -564,7 +570,8 @@ c
      + byte_mb(i_csa),int_mb(i_sar),int_mb(i_sgm),int_mb(i_sfnd),
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,nmis,msm,nsm,
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
-     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam))
+     + byte_mb(i_cwa),mwmc,mwa,nwmc,nwa,slvnam,iwater,altloc,
+     + chain))
      + call errquit('pre_rdpdb failed',9999)
       if(util_print('where',print_default)) then
       write(lfnout,1011) filpdb(1:index(filpdb,' ')-1),nmis,nsa

@@ -100,3 +100,4 @@ Sep 22 1998      Fix incorrect format in pre_wrtpdb
 Sep 23 1998      Allow non-AA atom naming from PDB
 		 Write solvent number on i6 (deviates from PDB convention)
 		 Fix use of fraction in sequence file
+Sep 24 1998	 Fix bug in read pdb file commands

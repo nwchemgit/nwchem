@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.20 1998-09-17 16:38:42 d3j191 Exp $
+c $Id: pre_input.F,v 1.21 1998-09-24 17:04:41 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
       real*8 rfix
       character*1 altloc,chain
 c
-      logical ltouch,lrdcoo,lslvnt,needwt
+      logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
 c      if(ga_nodeid().eq.0) then
 c      if(util_print('prepare',print_medium)) then
@@ -70,6 +70,7 @@ c
 c
       ltouch=.false.
       lrdcoo=.false.
+      lwrcoo=.false.
       lslvnt=.false.
       needwt=.false.
 c
@@ -84,6 +85,9 @@ c
       open(unit=68,file=commnd(1:index(commnd,' ')-1),
      + form='formatted',status='unknown',err=9999)
       rewind(unit=68)
+      write(68,7801)
+ 7801 format('rdcoor ',/,'center',/,'boxsiz')
+      lrdcoo=.true.
       numcmd=0
 c
 c     read the prepare input block
@@ -98,6 +102,15 @@ c
       if(.not.inp_a(item)) goto 1
 c
     3 continue
+c
+c     end
+c     ---
+c
+      if(inp_compare(.false.,'end',item)) then
+      goto 9
+      endif
+c
+      lwrcoo=.false.
 c
 c     print & noprint
 c     ---------------
@@ -544,7 +557,7 @@ c     ------
 c
       if(inp_compare(.false.,'center',item)) then
       write(68,6818)
- 6818 format('center ')
+ 6818 format('center ',/,'boxsiz')
       numcmd=numcmd+1
       goto 2
       endif
@@ -554,7 +567,7 @@ c     ------
 c
       if(inp_compare(.false.,'orient',item)) then
       write(68,6819)
- 6819 format('orient ')
+ 6819 format('orient ',/,'boxsiz')
       numcmd=numcmd+1
       goto 2
       endif
@@ -584,6 +597,7 @@ c
       write(68,6805) xpndw
  6805 format('period ',/,'solvat cube ',/,
      + 'expand with ',f12.6,/,'wr_rst')
+      lwrcoo=.true.
       numcmd=numcmd+1
       goto 1
       else
@@ -653,6 +667,7 @@ c
       else
       write(68,6808) item(1:index(item,' ')-1)
  6808 format('wr_rst ',a)
+      lwrcoo=.true.
       endif
       endif
       needwt=.false.
@@ -670,11 +685,13 @@ c
       else
       if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      if(numcmd.eq.0) rewind(68)
       write(68,6809) item(1:index(item,' ')-1)
  6809 format('rd_pdb ',a)
       lrdcoo=.true.
       elseif(inp_compare(.false.,'rst',item)) then
       if(.not.inp_a(item)) call errquit('pre_input: read',9999)
+      if(numcmd.eq.0) rewind(68)
       write(68,6810) item(1:index(item,' ')-1)
  6810 format('rd_rst ',a)
       lrdcoo=.true.
@@ -684,19 +701,19 @@ c
       goto 2
       endif
 c
-c     end
-c     ---
-c
-      if(.not.inp_compare(.false.,'end',item)) then
       write(6,1000) item
  1000 format('pre_input: unknown field ',a)
       call errquit('pre_input: error reading input file',0)
-      endif
+c
+c     end
+c     ---
+c
+    9 continue
 c
       if(needwt) then
       write(68,7808)
  7808 format('wr_rst')
-      numcmd=numcmd+1
+      lwrcoo=.true.
       endif
 c
       len=index(dir_s,' ')-1
@@ -796,6 +813,10 @@ c
       endif
 c
       if(numcmd.gt.0) then
+      if(.not.lwrcoo) then
+      write(68,7809)
+ 7809 format('wr_rst')
+      endif
       close(unit=68)
       else
       close(unit=68,status='delete')

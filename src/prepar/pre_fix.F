@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: pre_fix.F,v 1.1 1998-07-09 20:20:57 d3j191 Exp $
+c $Id: pre_fix.F,v 1.2 1998-09-24 17:04:41 d3j191 Exp $
 c
       implicit none
 c
@@ -41,65 +41,109 @@ c
       if(ndy.gt.5) call errquit('pre_modify: atom name problem',9999)
       aname(1:ndy-1)=cfix(1:ndy-1)
       endif
-      if(aname(1:1).eq.'_') aname(1:1)=' '
+      do 1 i=1,index(aname,' ')-1
+      if(aname(i:i).eq.'_') aname(i:i)=' '
+    1 continue
 c
       if(util_print('where',print_high)) then
       write(lfnout,1000) ifix,jfix,rfix,isgmnt,aname
  1000 format('FIX ',2i5,f12.6,1x,i5,':',a)
       endif
 c
+c     determine iatom : atom number of specified atom
+c               ifrst : number first atom of the segment
+c               ilast : number last atom of the segment
+c
       iatom=0
       ifrst=0
       ilast=0
-      do 1 i=1,nsa
+      do 2 i=1,nsa
       if(isgm(i).eq.isgmnt) then
       if(csa(i)(11:16).eq.aname) iatom=i
       if(ifrst.eq.0) ifrst=i
       ilast=i
       endif
-    1 continue
+    2 continue
       if(iatom.eq.0.or.ifrst.eq.0.or.ilast.eq.0)
      + call errquit('pre_fix: center not found',9999)
 c
-      jsgmnt=isgm(1)
-      jfrst=1
-      jlast=1
-      lsin=.false.
-      do 3 j=1,nsa
-      if(jsgmnt.ne.isgm(j).or.j.eq.nsa) then
-      if((ifix.gt.0.and..not.lsin).or.(ifix.lt.0.and.lsin)) then
-      do 5 i=jfrst,jlast
-      isar(i)=1
-    5 continue
-      endif
-      jsgmnt=isgm(j)
-      jfrst=j
-      lsin=.false.
-      else
-      jlast=j
-      endif
-      if(.not.lsin) then
-      do 6 i=ifrst,ilast
-      dx=abs(xs(1,i)-xs(1,j))
-      if(dx.le.rfix) then
-      lsin=.true.
-      else
-      dy=abs(xs(1,i)-xs(1,j))
-      if(dx.le.rfix) then
-      lsin=.true.
-      else
-      dz=abs(xs(1,i)-xs(1,j))
-      if(dx.le.rfix) then
-      lsin=.true.
-      else
+c     fix solvent molecules
+c     ---------------------
+c
+      do 3 i=1,nwm
+      do 4 j=1,nwa
+      dx=abs(xw(1,j,i)-xs(1,iatom))
+      dy=abs(xw(2,j,i)-xs(2,iatom))
+      dz=abs(xw(3,j,i)-xs(3,iatom))
       d2=dx*dx+dy*dy+dz*dz
-      if(d2.le.rfix2) lsin=.true.
+      if(ifix.eq.1) then
+      if(d2.ge.rfix2) iwmr(i)=1
+      else
+      if(d2.lt.rfix2) iwmr(i)=1
       endif
-      endif
+    4 continue
+    3 continue
+      do 5 i=1,nwmc
+      do 6 j=1,nwa
+      dx=abs(xwc(1,j,i)-xs(1,iatom))
+      dy=abs(xwc(2,j,i)-xs(2,iatom))
+      dz=abs(xwc(3,j,i)-xs(3,iatom))
+      d2=dx*dx+dy*dy+dz*dz
+      if(ifix.eq.1) then
+      if(d2.ge.rfix2) iwmrc(i)=1
+      else
+      if(d2.lt.rfix2) iwmrc(i)=1
       endif
     6 continue
+    5 continue
+c
+c     fix atoms
+c     ---------
+c
+      if(jfix.eq.1) then
+      do 7 i=1,nsa
+      dx=abs(xs(1,i)-xs(1,iatom))
+      dy=abs(xs(2,i)-xs(2,iatom))
+      dz=abs(xs(3,i)-xs(3,iatom))
+      d2=dx*dx+dy*dy+dz*dz
+      if(ifix.eq.1) then
+      if(d2.ge.rfix2) isar(i)=1
+      else
+      if(d2.lt.rfix2) isar(i)=1
       endif
-    3 continue
+    7 continue
+      else
+c
+c     fix segments
+c     ------------
+c
+      jfrst=1
+      do 8 i=1,nsa
+      if(i.eq.nsa) then
+      jsgmnt=0
+      else
+      jsgmnt=isgm(i+1)
+      endif
+c
+      if(jsgmnt.ne.isgm(i)) then
+      lsin=.false.
+      do 9 j=jfrst,i
+      dx=abs(xs(1,j)-xs(1,iatom))
+      dy=abs(xs(2,j)-xs(2,iatom))
+      dz=abs(xs(3,j)-xs(3,iatom))
+      d2=dx*dx+dy*dy+dz*dz
+      if(d2.lt.rfix2) lsin=.true.
+    9 continue
+      if((lsin.and.ifix.eq.-1).or.(.not.lsin.and.ifix.eq.1)) then
+      do 10 j=jfrst,i
+      isar(j)=1
+   10 continue
+      endif
+      jfrst=i+1
+      endif
+    8 continue
+c
+      endif
 c
       pre_fix=.true.
       return
