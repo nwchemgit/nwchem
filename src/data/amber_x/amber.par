@@ -12,8 +12,9 @@ Bonds
 OWS  -HWS     0.10000 0.46275E+06             tps000929 Berendsen et al., JPC 91, 6269-6271 (1987)
 HWS  -HWS     0.16667 0.46275E+06             tps000929 Berendsen et al., JPC 91, 6269-6271 (1987) 
 Angles
+HWS  -OWS  -HWS     1.91061 8.36800E+02
 Proper dihedrals
 Improper dihedrals
 Atom types
-
+End
 
