@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.17 2004-03-02 00:10:21 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.18 2005-02-09 02:39:05 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -168,11 +168,15 @@
          write(6,1121) control_boundry(),control_version()
          if (ispin.eq.1) write(6,1130) 'restricted'
          if (ispin.eq.2) write(6,1130) 'unrestricted'
+      
          IF (control_gga().eq.0) THEN
             write(6,1131) 'Vosko et al parameterization'
          ELSE IF (control_gga().eq.1) THEN
             write(6,1131)
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.2) THEN
+            write(6,1131)
+     >      'BLYP (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)

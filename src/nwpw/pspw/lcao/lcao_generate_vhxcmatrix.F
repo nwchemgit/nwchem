@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.4 2004-11-08 23:37:42 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.5 2005-02-09 02:39:05 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2)
@@ -16,7 +16,7 @@
 
 *     **** local variables ****
       logical value
-      integer ms,i,j,nbasis,npack1,nfft3d
+      integer ms,i,j,nbasis,npack1,nfft3d,gga
       integer nx,ny,nz
       real*8  sum,scal1,scal2,dv
       integer xcp(2),tmp1(2),tmp2(2),vpsi,vall,xvc,rho
@@ -53,13 +53,14 @@
 *     *************************************************
 *     **** generate exchange-correlation potential ****
 *     *************************************************
-      if (control_gga().eq.0) then
+      gga = control_gga()
+      if (gga.eq.0) then
         call vxc(n2ft3d,ispin,dn,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)),
      >                    dbl_mb(tmp2(1)))
       else
-        call v_bwexc(n2ft3d,ispin,dn,
+        call v_bwexc(gga,n2ft3d,ispin,dn,
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)))
