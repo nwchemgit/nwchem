@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.145 2003-08-07 20:14:32 d3j191 Exp $
+c $Id: md_start.F,v 1.146 2003-08-08 15:11:38 d3j191 Exp $
 c
       implicit none
 c
@@ -47,7 +47,7 @@ c
      + 0,temp,tempw,temps,compr,ntype,iset,isetp1,isetp2,
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
-     + nseq,i_lseq,nfhop,rhop,lfnhop,filhop,ndums)
+     + nseq,i_lseq,nfhop,rhop,lfnhop,filhop,ndums,ipbtyp)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
      + call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
@@ -825,6 +825,8 @@ c
      + call errquit('md_rtdbin: rtdb_get failed',64)
       if(.not.rtdb_get(irtdb,'md:ifidi',mt_int,1,ifidi))
      + call errquit('md_rtdbin: rtdb_get failed',64)
+      if(.not.rtdb_get(irtdb,'md:ipbtyp',mt_int,1,ipbtyp))
+     + call errquit('md_rtdbin: rtdb_get ipbtyp failed',64)
       if(.not.rtdb_get(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_rtdbin: rtdb_get failed',65)
       if(.not.rtdb_get(irtdb,'md:ifield',mt_int,1,ifield))

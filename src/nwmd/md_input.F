@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.73 2003-07-17 19:39:19 d3j191 Exp $
+c $Id: md_input.F,v 1.74 2003-08-08 15:11:38 d3j191 Exp $
 c
       implicit none
 c
@@ -32,7 +32,7 @@ c
       integer itload,ihess,latom,icomm,nfanal,iport,iguide,icentr
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
-      integer iprop,iprpmf,nfhop
+      integer iprop,iprpmf,nfhop,ipbtyp
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -188,6 +188,7 @@ c      iunfix=0
       nopack=0
       istart=0
       ncoll=0
+      ipbtyp=1
       fcoll=1.0d0
       rsgm=-1.0d0
 c
@@ -356,6 +357,20 @@ c
 c
       if(inp_compare(.false.,'numerical',item)) then
       ifidi=1
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'pbc',item)) then
+      if(.not.inp_a(item)) call errquit('md_input: error pbc',1)
+      if(inp_compare(.false.,'atom',item)) then
+      ipbtyp=1
+      elseif(inp_compare(.false.,'residue',item)) then
+      ipbtyp=2
+      elseif(inp_compare(.false.,'molecule',item)) then
+      ipbtyp=3
+      else
+      call errquit('md_input: error pbc',2)
+      endif
       goto 2
       endif
 c
@@ -1694,6 +1709,8 @@ c
       if(.not.rtdb_put(irtdb,'md:icntrl',mt_int,1,icntrl))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ifidi',mt_int,1,ifidi))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:ipbtyp',mt_int,1,ipbtyp))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ngl',mt_int,1,ngl))
      + call errquit('md_input: rtdb_put failed',0)
