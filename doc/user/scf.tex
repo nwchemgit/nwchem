@@ -740,64 +740,6 @@ The following sets the maximum number of SCF iterations to 50:
   maxiter 50
 \end{verbatim}
 
-\section{RI-SCF --- resolution of the identity approximation}
-\label{sec:riscf}
-
-The resolution of the identity (RI) approximation (using the
-V-approximation of Alml\"{o}f and Vahtras) is automatically invoked if
-a basis set named \verb+"riscf basis"+ is present in the database.
-This basis will be used as the fitting basis.  The RISCF method
-provides the most computational speedup with the least loss of
-accuracy when applied to relatively small molecules in large basis
-sets.  Calculations on large molecules in modest basis sets will not
-realize a significant performance gain from RISCF.
-
-The full RISCF approximation will be applied by default, and the
-\verb+RI-SCF+ directive serves to modify the extent of the approximation
-and the computational strategy.
-
-\begin{verbatim}
-   RI-SCF [<string (hessian || preconverge || full) default full>] \
-          [<string (disk || memory || auto) default auto>]
-\end{verbatim}
-
-The first three parameters determine the extent of the approximation:
-\begin{itemize} 
-\item \verb+FULL+ --- is the default and specifies that the RI
-  approximation will be used for all Fock builds in the calculation.
-  This is the fastest of the three options (perhaps 3--10 times faster
-  than direct SCF), but will result in only an approximate value for
-  the energy.
-
-\item \verb+HESSIAN+ --- only the orbital Hessian will be calculated
-  with an approximated Fock matrix.  This will yield an exact energy
-  and wavefunction and, using the quadratically convergent SCF
-  algorithm, should result in a 1.5--2-fold speedup over direct SCF.
-
-\item \verb+PRECONVERGE+ --- specifies a two-part calculation.  First,
-  the SCF calculation is performed with the full RI
-  approximation.  Then an ``exact'' direct SCF calculation is performed, 
-using the RI approximated Hessian (the same as the 
-  \verb+HESSIAN+ option above).  An exact energy and wavefunction will be
-  obtained.
-\end{itemize}
-
-The next three parameters determine the computational strategy:
-\begin{itemize}
-\item \verb+AUTO+ --- This is the default option, and allows the code
-  to make its own decision on where to store the 3-center integrals.
-  If there is enough memory available, it will use the in-core (memory) option;
-  otherwise, the disk-based algorithm will be used, if available.
-
-\item \verb+MEMORY+ --- This forces storage of the 3-center integrals
-  in memory.  If insufficient memory is available, an error results.
-
-\item \verb+DISK+ --- If the ''Disk Resident Array'' library is
-  implemented in the local installation of NWChem, the keyword
-  \verb+DISK+ can be used to specify that the 3-center integrals will
-  be stored on disk.  Otherwise, an error results.
-\end{itemize}
-
 \section{PROFILE --- performance profile}
 
 This directive allows the user to obtain timing and parallel
