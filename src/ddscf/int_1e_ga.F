@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.35 2003-10-17 22:54:33 carlfahl Exp $
+C$Id: int_1e_ga.F,v 1.36 2005-04-01 02:38:54 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -16,6 +16,7 @@ C$Id: int_1e_ga.F,v 1.35 2003-10-17 22:54:33 carlfahl Exp $
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "geom.fh"
 c     
 c     Compute the desired type of integrals (kinetic, potential, overlap)
 c     and ADD them into the given global array.
@@ -35,8 +36,18 @@ c
 c     local variables
 c
       integer type
+      logical dobq
+      character*255 integ_type1
 c
       call ga_sync()
+c
+      dobq = geom_extbq_on()
+      integ_type1 = integ_type
+c
+      if (inp_compare(.false., integ_type1, 'potential0')) then
+        integ_type1='potential'
+        dobq=.false.
+      end if
 c     
       if (oskel) then
          if (ibas.ne.jbas) call errquit
@@ -44,20 +55,21 @@ c
      &       BASIS_ERR)
       end if
 c     
-      if (inp_compare(.false., integ_type, 'kinetic')) then
+      if (inp_compare(.false., integ_type1, 'kinetic')) then
          type = 1
-      else if (inp_compare(.false., integ_type, 'potential')) then
+      else if (inp_compare(.false., integ_type1, 'potential')) then
+         write(*,*) "found potential"
          type = 2
-      else if (inp_compare(.false., integ_type, 'overlap')) then
+      else if (inp_compare(.false., integ_type1, 'overlap')) then
          type = 3
-      else if (inp_compare(.false., integ_type, 'pvp')) then
+      else if (inp_compare(.false., integ_type1, 'pvp')) then
          type = 4
-      else if (inp_compare(.false., integ_type, 'so'))then 
+      else if (inp_compare(.false., integ_type1, 'so'))then 
          type = 5 
-      else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
+      else if (inp_compare(.false., integ_type1, 'cos_chg_pot'))then 
          type = 6 
       else
-         write(6,*) ' integ_type = ', integ_type
+         write(6,*) ' integ_type1 = ', integ_type1
          call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
       end if
 c
@@ -85,7 +97,12 @@ c
          return
       endif
 c
-      call int_1e_oldga(ibas, jbas, g, integ_type, oskel)
+      call int_1e_oldga(ibas, jbas, g, integ_type1, oskel)
+      
+      if(inp_compare(.false., integ_type1, 'potential') 
+     >     .and. dobq) then
+        call int_1e_oldga(ibas, jbas, g, 'bq_pot', oskel)
+      end if
 c
       end
 c
@@ -172,6 +189,9 @@ c
          type = 5 
       else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
          type = 6 
+      else if (inp_compare(.false., integ_type, 'bq_pot'))then 
+         write(*,*) "integ_type",integ_type
+         type = 7 
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
@@ -179,7 +199,7 @@ c
 c
 c     ----- save ocache logical variable -----
 c
-      if(type.eq.6) then
+      if(type.eq.6 .or. type.eq.7 ) then
          ocache_save=ocache
          ocache     =.false.
       endif
@@ -284,6 +304,9 @@ c
                      endif
                      call int_1epot (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+                  else if (type .eq. 7) then 
+                     call int_1epot1 (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_1e_ga: invalid type?', type,
      &       GA_ERR)
@@ -311,7 +334,7 @@ cedo     $                    idim, q2)
                     endif
                      call ga_put(g_loc, ilo, ihi, jlo, jhi,
      ,             dbl_mb(k_buf),  idim) 
-                  end if
+                 end if
                end if
             endif
             ijshell = ijshell + 1
@@ -370,7 +393,7 @@ c
       call ga_zero(g_cache(2))
       call ga_zero(g_cache(3))
       call int_1e_ga(basis, basis, g_cache(1), 'kinetic', oskel)
-      call int_1e_ga(basis, basis, g_cache(2), 'potential', oskel)
+      call int_1e_ga(basis, basis, g_cache(2), 'potential0', oskel)
       call int_1e_ga(basis, basis, g_cache(3), 'overlap', .false.)
       bas1 = basis
       ocache = .true.
