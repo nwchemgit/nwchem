@@ -1180,7 +1180,16 @@ to be overwritten.
 record coord <integer nfcoor>
 \end{verbatim}
 specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
-of writing solvent coordinates to the trajectory file.
+of writing coordinates to the trajectory file.
+The default is not to record.
+
+\item
+\begin{verbatim}
+record coord <integer nfwcoo>
+\end{verbatim}
+specifies the frequency \verb+<nfcoor>+ in molecular dynamics steps
+of writing solvent coordinates to the trajectory file. This keyword
+takes precedent over \verb+nfcoor+.
 The default is not to record.
 
 \item
@@ -1188,7 +1197,8 @@ The default is not to record.
 record scoor <integer nfscoo>
 \end{verbatim}
 specifies the frequency \verb+<nfscoo>+ in molecular dynamics steps
-of writing solute coordinates to the trajectory file.
+of writing solute coordinates to the trajectory file. This keyword
+takes precedent over \verb+nfcoor+.
 The default is not to record.
 
 \item
@@ -1196,7 +1206,16 @@ The default is not to record.
 record veloc <integer nfvelo>
 \end{verbatim}
 specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
-of writing solvent velocitiesto the trajectory file.
+of writing velocitiesto the trajectory file.
+The default is not to record.
+
+\item
+\begin{verbatim}
+record veloc <integer nfwvel>
+\end{verbatim}
+specifies the frequency \verb+<nfvelo>+ in molecular dynamics steps
+of writing solvent velocitiesto the trajectory file. This keyword
+takes precedent over \verb+nfvelo+.
 The default is not to record.
 
 \item
@@ -1204,7 +1223,8 @@ The default is not to record.
 record svelo <integer nfsvel>
 \end{verbatim}
 specifies the frequency \verb+<nfsvel>+ in molecular dynamics steps
-of writing solute velocities to the trajectory file.
+of writing solute velocities to the trajectory file. This keyword
+takes precedent over \verb+nfvelo+.
 The default is not to record.
 
 \item
