@@ -1,0 +1,45 @@
+C$Id: cuccsdtps.fh,v 1.1 2000-11-28 00:22:58 d3h449 Exp $
+c
+c     pstat handles for the UCCSDT code
+c
+      integer 
+     $     ps_triples, ps_triples_super_blocking, 
+     $     ps_triples_sub_blocking, ps_triples_moints, 
+     $     ps_moints_shpair_one_index, ps_moints_second_index,
+     $     ps_mo_fin_1a, ps_mo_fin_1b, ps_mo_fin_2a,
+     $     ps_mo_fin_2b, ps_mo_fin_3a, ps_mo_fin_3b,
+     $     ps_mo_fin_4a, ps_mo_fin_4b, ps_mo_fin_5a,
+     $     ps_mo_fin_5b, ps_mo_fin_6, 
+     $     ps_mo_fin_7, ps_mo_fin_8, ps_mo_fin_9,
+     $     ps_mo_fin_10, ps_mo_fin_11, ps_mo_fin_12,
+     $     ps_mo_fin_13,
+     $     ps_moints_triples_final,
+     $     ps_final_ga_dist, ps_final_ga_get, 
+     $	   ps_final_dgemm1, ps_final_dgemm2, 
+     $     ps_final_u_trans,
+     $	   ps_final_dgemm3, ps_final_dgemm4, 
+     $     ps_final_ga_acc,
+     $     ps_triples_amplitudes, ps_triples_sub_blocked, 
+     $     ps_triples_sub_blocking_end, ps_total
+c
+      logical ouccsdtps            ! True if gathering stats
+      common /cuccsdtps/ ouccsdtps,
+     $     ps_triples, ps_triples_super_blocking, 
+     $     ps_triples_sub_blocking, ps_triples_moints, 
+     $     ps_moints_shpair_one_index, ps_moints_second_index,
+     $     ps_mo_fin_1a, ps_mo_fin_1b, ps_mo_fin_2a,
+     $     ps_mo_fin_2b, ps_mo_fin_3a, ps_mo_fin_3b,
+     $     ps_mo_fin_4a, ps_mo_fin_4b, ps_mo_fin_5a,
+     $     ps_mo_fin_5b, ps_mo_fin_6, 
+     $     ps_mo_fin_7, ps_mo_fin_8, ps_mo_fin_9,
+     $     ps_mo_fin_10, ps_mo_fin_11, ps_mo_fin_12,
+     $     ps_mo_fin_13,
+     $     ps_moints_triples_final,
+     $     ps_final_ga_dist, ps_final_ga_get, 
+     $	   ps_final_dgemm1, ps_final_dgemm2, 
+     $     ps_final_u_trans,
+     $	   ps_final_dgemm3, ps_final_dgemm4, 
+     $     ps_final_ga_acc,
+     $     ps_triples_amplitudes, ps_triples_sub_blocked, 
+     $     ps_triples_sub_blocking_end, ps_total 
+c
