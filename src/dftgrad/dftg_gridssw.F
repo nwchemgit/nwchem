@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.10 2003-10-17 22:54:42 carlfahl Exp $
+C$Id: dftg_gridssw.F,v 1.11 2004-03-26 01:39:51 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -74,7 +74,7 @@ c
       else
         ass=0d0
         alpha_erf=0d0
-        call errquit(' dftg_ssw: wrong family',0, UNKNOWN_ERR)
+        call errquit(' dftg_gridssw: wrong family',0, UNKNOWN_ERR)
       endif
       do  i = 1, nctrs_pruned
 

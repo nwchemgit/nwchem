@@ -3,7 +3,7 @@
      ,      whichfunc,
      ,     rad,expo)
 c
-C$Id: dftg_gridpart.F,v 1.4 2004-01-23 02:32:40 edo Exp $
+C$Id: dftg_gridpart.F,v 1.5 2004-03-26 01:39:51 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -65,12 +65,11 @@ c
 
       if(lssw) then
          ictr_scr=ictr
-!         if(.false.)
          if(trunc_neigh)
-     .        call grid_signf(AO_bas_han,   natoms_l, 
+     .        call dftg_signf(AO_bas_han,   natoms_l, 
      &        xyz,xyzm,ictr_scr,
-     &        rad, expo, iandex,iatype_pt_chg,
-     &        nqpts,qwght)
+     &        rad, expo, iandex,iatype_pt_chg)
+
          call dftg_gridssw(.true.,d_qwght,qwght, qxyz, xyzm, 
      .        dbl_mb(k_Rij),  rq, dbl_mb(ibp),
      &        dbl_mb(izeta), dbl_mb(idzeta),
