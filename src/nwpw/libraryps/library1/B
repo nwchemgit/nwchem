@@ -1,0 +1,19 @@
+Comment: B pseudopotential parameters...not tested
+[lmax] -1
+[locp] -1
+[rlocal] 1.0
+<atom>
+B
+5.0 11.0 1 2 
+1  0      2.0
+2  0      2.0
+2  1      1.0
+<end>
+<solver>      pauli <end>
+<pseudopotential> hamann        <end>
+<linear> 501 0.02 <end>
+<rcut> 0 0.910
+       1 0.910
+       2 0.910
+<end>
+
