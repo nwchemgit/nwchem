@@ -1,11 +1,11 @@
-# $Id: GNUmakefile,v 1.33 1999-08-20 18:45:46 d3e129 Exp $
+# $Id: GNUmakefile,v 1.34 2000-05-02 19:44:35 mg201 Exp $
 
     OBJ          = 
     OBJ_OPTIMIZE = hf3PEabc.o hf3mkr.o hf3pot.o \
                    defNxyz.o getNxyz.o matchNxyz.o hf1.o hf1mke3.o \
                    hf1mkr.o hf1set3.o hf2.o hf2mkr.o \
                    hf2oi.o hf3OIs.o hfabc.o hfctr3.o \
-                   hferi.o hfkei.o hfmke.o hfmkr.o \
+                   hferi.o hferi_gen.o hfkei.o hfmke.o hfmkr.o \
                    hfnai.o hfset.o igamma.o hf_print.o \
                    hfreord_pq.o hf1_tran.o hf1_er.o hfnai_er.o
 
