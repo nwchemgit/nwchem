@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.100 2000-05-02 22:31:54 mg201 Exp $
+c $Id: basis.F,v 1.101 2000-05-15 18:30:53 edo Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -376,6 +376,7 @@ c
       newmsg(1:17) = 'ecp_check_handle:'
       newmsg(18:) = msg 
       ecp_check_handle = bas_check_handle(ecpidin,newmsg)
+      if(.not.ecp_check_handle) return
       ecp_check_handle = ecp_check_handle .and.
      &    Is_ECP_in(ecpidin)
       return
@@ -405,6 +406,7 @@ c
       newmsg(1:17) = 'so_check_handle:'
       newmsg(18:) = msg 
       so_check_handle = bas_check_handle(soidin,newmsg)
+      if(.not.so_check_handle) return
       so_check_handle = so_check_handle .and.
      &    Is_SO_in(soidin)
       return
