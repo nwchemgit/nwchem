@@ -12,9 +12,6 @@ c
      &                 bbkp(*),bb(*),rms
       integer nocc,nvir,idiis,ndiis,mxvec,iprt,iter,g_t2,g_ht2
 c
-      integer nodes,iam,rsize,isize
-      common/para1/nodes,iam,rsize,isize
-c
       double precision sum(2),xmax,ddot,det
       integer i,j,av,bv,jlo,jhi,ilo,ihi,idp1,ndp1,ndp2,nvp1,oft2,
      &        oft2p1,it,offbb,ad1
@@ -22,6 +19,7 @@ c
       data zip/0.0d00/,one/1.0d00/,half/0.5d00/,two/2.0d00/
 C
 #include "msgids.fh"
+#include "para1.fh"
 c
       INTEGER INFO
       INTEGER ITMP(100)

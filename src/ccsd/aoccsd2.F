@@ -1,18 +1,15 @@
       subroutine aoccsd(basis,ncor,nocc,nvir,ndel,nbf,nact,maxit,
      &                  convi,iprt,cmo,eorb,blen,g_objv,
      &                  g_coul,g_exch,g_ncoul, g_nexch, RefEner,
-     $   CC_Theory, rtdb)
+     $   CC_Theory, rtdb, mxvec)
       implicit none
 c
       integer basis,ncor,nocc,nvir,ndel,nbf,nact,mxov,maxit,convi,iprt,
-     &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch
+     &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
       double precision cmo(nbf,nbf),eorb(nbf)
       Double Precision RefEner
       Character*(*) CC_Theory
       Integer RTDB
-c
-      integer nodes,iam,rsize,isize
-      common/para1/nodes,iam,rsize,isize
 c
       integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
       common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
@@ -25,10 +22,12 @@ c
 #include "inp.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+#include "util.fh"
+#include "para1.fh"
 c
 c ccsd
       logical stat
-      integer mxvec,nsh,maxbfsh,max2e,mem2
+      integer nsh,maxbfsh,max2e,mem2
       integer l_t1,l_t2,l_ht1,l_ht2,l_scra,l_scrb,
      &        l_hiu,l_hia,l_habe,l_giu,l_gabe,
      &        l_bbkp,l_bb
@@ -54,17 +53,14 @@ C
       double precision zip
       data zip/0.0d00/
       integer ii,jj
-      double precision rtc
-      external rtc
+c$$$      double precision rtc
+c$$$      external rtc
 c
       call ga_sync()
       call qenter('aoccsd',0)
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
-      rsize=8
-      isize=4
-      mxvec=2
       escf=zip
       stat=bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
@@ -92,11 +88,12 @@ c
      &          ' total functions    ',i5,/,
      &          ' number of shells   ',i5,/,
      &          ' basis label        ',i5,/)
-      write(*,6003) iprt,convi,maxit
+      write(*,6003) iprt,convi,maxit, mxvec
  6003 format(//,2x,' ***** ccsd parameters *****',
      &        /,2x,' iprt   = ',i5,
      &        /,2x,' convi  = ',i5,
-     &        /,2x,' maxit  = ',i5)
+     &        /,2x,' maxit  = ',i5,
+     $        /,2x,' mxvec  = ',i5)
       endif
 C
 C Initialize GA_TRACING
@@ -177,7 +174,9 @@ c
       call ga_sync()
       call qexit('aoccsd',0)
 c
-      If ( IAm .eq. 0) then
+      If ( GA_NodeID() .eq. 0 .AND.
+     $   ( Util_Print('byproduct energies', Print_Default)
+     $   .OR. Inp_Compare(.FALSE., 'ccsd', CC_Theory) ) ) then
          Call Banner(LuOut,
      $      'CCSD Energy', '-',
      $      .TRUE., .TRUE., .FALSE.)
@@ -217,7 +216,7 @@ c ----------------------------
 c
       mem_avail = ma_inquire_avail(MT_DBL)
       if(iam.eq.0)write(6,*)'memory',mem_avail
-      rx(1)=rtc()
+c$$$      rx(1)=rtc()
       call qenter('triples',0)
       if (iam.eq.0)write(6,293)
  293  format(//,'*********triples calculation*********',/)
@@ -327,20 +326,26 @@ c
      $      .TRUE., .TRUE., .FALSE.)
          Write (LuOut, '(1X, A, F30.15)') 'Reference energy:          ',
      $      RefEner
-         Write (LuOut, '(1X)')
-         Write (LuOut, '(1X, A, F30.15)') 'CCSD corr. energy:         ',
-     $      eccsd
-         Write (LuOut, '(1X, A, F30.15)') 'T(CCSD) corr. energy:      ',
-     $      empt(1)
-         write (LuOut, '(1X, A, F30.15)') 'Total CCSD+T(CCSD) energy: ',
-     $      RefEner + eccsd + empt(1)
-         Write (LuOut, '(1X)')
-         Write (LuOut, '(1X, A, F30.15)') 'CCSD corr. energy:         ',
-     $      eccsd
-         Write (LuOut, '(1X, A, F30.15)') '(T) corr. energy:          ',
-     $      eccsdt
-         Write (LuOut, '(1X, A, F30.15)') 'Total CCSD(T) energy:      ',
-     $      RefEner + eccsd + eccsdt
+         If ( Util_Print('byproduct energies', Print_Default)
+     $      .OR. Inp_Compare(.FALSE., 'ccsd+t(ccsd)', CC_Theory) ) then
+            Write (LuOut, '(1X)')
+            Write (LuOut, '(1X, A, F30.15)')
+     $         'CCSD corr. energy:         ', eccsd
+            Write (LuOut, '(1X, A, F30.15)')
+     $         'T(CCSD) corr. energy:      ', empt(1)
+            write (LuOut, '(1X, A, F30.15)')
+     $         'Total CCSD+T(CCSD) energy: ', RefEner + eccsd + empt(1)
+         EndIf
+         If ( Util_Print('byproduct energies', Print_Default)
+     $      .OR. Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory) ) then
+            Write (LuOut, '(1X)')
+            Write (LuOut, '(1X, A, F30.15)')
+     $         'CCSD corr. energy:         ', eccsd
+            Write (LuOut, '(1X, A, F30.15)')
+     $         '(T) corr. energy:          ', eccsdt
+            Write (LuOut, '(1X, A, F30.15)')
+     $         'Total CCSD(T) energy:      ', RefEner + eccsd + eccsdt
+         EndIf
       EndIf
 C
 C     Write our energy out to the database
@@ -400,9 +405,9 @@ c       call ga_summarize(.false.)
 c      endif
       call ga_sync()
       call qexit('triples',0)
-      rx(2)=rtc()
-      if (iam.eq.0)write(6,*)'Wall-clock time for triples ',
-     $                        (rx(2)-rx(1))*3.33e-09
+c$$$      rx(2)=rtc()
+c$$$      if (iam.eq.0)write(6,*)'Wall-clock time for triples ',
+c$$$     $                        (rx(2)-rx(1))*3.33e-09
   999 continue
       call qstat()
       return

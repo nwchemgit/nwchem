@@ -1,6 +1,28 @@
-Things to follow up on:
-
+Things to follow up on
+----------------------
 o /para1/ should be replaced with called to GA_NodeID() and
   GA_NNodes().  RSize and ISize have already been eliminated from the
   code. 
 o Frozen orbitals do not work for energies.
+o Common blocks should be in include files: /len/, /debug/ (/para1/ done)
+
+Wish list of additional features
+-------------------------------
+o Norms of amplitudes & related measures
+o Largest amplitudes
+o CCD (because its there)
+o Compression and/or GA storage of iterates for DIIS
+o Control to switch off DIIS entirely
+
+Notable changes to code
+-----------------------
+o Began user's guide documentation
+o PRINT input directive renamed to IPRT to make room for standard
+  NWChem PRINT controls
+o Starting to add NWChem-style print controls to objects
+o Made term debugging switches available via input deck (not sure if
+  this is really a good idea or not!)
+o Commented out calls to rtc (doesn't exist on Solaris, links, but
+  does not work as intended on IBM)
+o Converted /PARA1/ into include file & eliminated RSize & ISize
+o Made DIIS subspace size an input directive (DIISBAS)

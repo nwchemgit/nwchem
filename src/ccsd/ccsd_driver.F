@@ -41,6 +41,7 @@ c
        character*7 algo
        Integer Me
        Integer ALo, AHi, IJLo, IJHi, LD, Off
+       Integer MaxVec
 C
        Logical OUseSym, OBlk
        Integer MaxBfSh
@@ -336,7 +337,7 @@ C      Note that these are not strictly pair energies -- the diagonals
 C      are off by a factor of two.
 C
        If ( OExch ) then
-          If ( Util_Print('pair energies', Print_Debug) ) then
+          If ( Util_Print('guess pair energies', Print_Debug) ) then
              If ( Me .eq. 0 ) Call Banner( LuOut,
      $          'MP2 Pair Correlation Energies', '-',
      $          .TRUE., .TRUE., .FALSE.)
@@ -348,9 +349,7 @@ C
           Call GA_Distribution(G_EPair, GA_NodeID(),
      $       Alo, AHi, IJLo, IJHi)
           If ( ALo .ne. 1 .OR. AHi .ne. 1) Call ErrQuit(
-     $       'CCSD: Internal error: G_EPair has wrong shape', 0)
-          Write (LuOut, *) 'Epair sum distribution ', GA_NodeID(),
-     $       Alo, Ahi, IJLo, IJHi
+     $       'CCSD: Internal error: G_EPair has wrong shape', AHi-ALo+1)
 C
 C         GA_Access gets upset if there is nothing local
 C
@@ -365,36 +364,7 @@ C
           EndIf
           Call GA_DGOp(msg_cc_emp2, EMP2, 1, '+')
           Call GA_Sync
-          Write (LuOut, '(1X, A, F30.15)') 'MP2 Corr. energy: ',
-     $       EMP2
        EndIF
-C
-C
-C
-       if ((oexch).and. Me.eq.0) then
-         npairs = (nocc_correl*(nocc_correl+1))/2
-         status = ma_push_get(MT_DBL, npairs, 'Pair energies',
-     $                        l_epair, k_epair)
-         ii = 0
-         emp2 = zip
-         do i=occ_lo,nocc
-           do j=occ_lo,i
-             ij = ((i-occ_frozen)*(i-occ_frozen-1))/2 + j - occ_frozen
-             call ga_get(g_epair,1,1,ij,ij,e2pair,1)
-             dbl_mb(k_epair+ii) = e2pair
-             emp2 = emp2 + e2pair
-             ii = ii + 1
-           enddo
-         enddo
-c
-c Print out pair energies
-c 
-         write(6,997)
- 997     format(//,15x,'Pair Energies',/)
-         write(6,998) (dbl_mb(k_epair+ii),ii=0,npairs-1)
- 998     format(8f10.5)
-         status = ma_pop_stack(l_epair)
-      EndIf
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -409,7 +379,8 @@ C
 c
 c     Print out total correlation correction
 c
-      If ( Me .eq. 0) then
+      If ( Util_Print('byproduct energies', Print_Default)
+     $   .AND. Me .eq. 0) then
          Call Banner(LuOut,
      $      'MP2 Energy (coupled cluster initial guess)', '-',
      $      .TRUE., .TRUE., .FALSE.)
@@ -437,7 +408,7 @@ c
 c Start CCSD part here
 c
 c
-      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory)
+      call ccsd_get_param(rtdb,maxit,convi,iprt, CC_Theory, MaxVec)
       irstrt=0
       ncor=occ_frozen
       ndel=vir_frozen
@@ -461,7 +432,7 @@ c
      &            maxit,convi,iprt,
      &            dbl_mb(k_mo),dbl_mb(k_evals),
      &            blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, RefEner,
-     $   CC_Theory, RTDB)
+     $   CC_Theory, RTDB, MaxVec)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
      &    call errquit('ga_dest g_nexch fail',0)

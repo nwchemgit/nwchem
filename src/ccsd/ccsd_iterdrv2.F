@@ -15,10 +15,8 @@ c
      &                  hiu(*),hia(*),habe(*),giu(*),gabe(*),
      &                  bbkp(*),bb(*),eccsd
 c
-      integer nodes,iam,rsize,isize
-      common/para1/nodes,iam,rsize,isize
-      double precision rtc
-      external rtc
+c$$$      double precision rtc
+c$$$      external rtc
 c
       integer lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
       common/len/lnoo,lnov,lnvv,lnoov,lnooo,lnobj,lnovv
@@ -34,6 +32,7 @@ c
 C
 #include "msgids.fh"
 #include "tcgmsg.fh"
+#include "para1.fh"
 c
 c
       call ga_sync()
@@ -130,7 +129,7 @@ c ----------------------------------------------------------
       endif
       call ga_sync()
       tx(1)=tcgtime()
-      rx(1)=rtc()
+c$$$      rx(1)=rtc()
       call ccsd_pampt2(basis,idiis,ncor,nocc,nvir,ndel,nbf,nact,nsh,
      &                iprt,cmo,eorb,t1,t2,t2(lnoov+1),ht1,ht2,
      $                scra,scrb,hiu,hia,habe,giu,gabe,
@@ -138,7 +137,7 @@ c ----------------------------------------------------------
      &                max2e,mem2,g_ncoul,g_nexch,tklst)
       call ga_sync()
       tx(2)=tcgtime()
-      rx(2)=rtc()
+c$$$      rx(2)=rtc()
       tstart=tx(2)
       call ccsd_pdiis(nocc,nvir,idiis,ndiis,t1,ht1,scra,scrb,mxvec,
      &                 bbkp,bb,iprt,iter,rms,g_t2,g_ht2)
@@ -152,7 +151,7 @@ c ----------------------------------------------------------
       write(6,1235)iter,eccsd,deccsd,rms,tx(2)-tx(1),tx(4)-tx(3)-
      &                                       (tx(2)-tx(1))
  1235 format(i4,d24.14,2d12.4,2d12.4)
-      write(6,*)'Wall clock time',(rx(2)-rx(1))*3.33e-09
+c$$$      write(6,*)'Wall clock time',(rx(2)-rx(1))*3.33e-09
       endif
       goto 99
  999  continue
