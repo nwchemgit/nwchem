@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.5 1999-07-28 00:40:40 d3e129 Exp $
+* $Id: dft_utilmap.F,v 1.6 1999-09-02 23:14:32 edo Exp $
 *
       implicit none
       integer basis, natoms, nshells
@@ -34,6 +34,8 @@ c
      &                              scr, mxmap)
       implicit none
 c     
+#include "global.fh"
+#include "msgids.fh"
       integer n                         ! Original size [input]
       integer nr                        ! Reduced size  [input]
       integer map(2,nr)                 ! map(1,*)=lo, map(2,*)=hi [input]
@@ -50,49 +52,66 @@ c     where op is one of 'abssum', 'absmax', 'rms' (extend as necessary)
 c     
       integer ir, jr, i, j, k, ielems, jelems
       double precision sum
+      integer me,nproc,itask
 c     
+      me=ga_nodeid()
+      nproc=ga_nnodes()
+      itask=0
       do k = 1, n_a
 c
 c         write(6,*) ' util_mat_reduce: input matrix '
 c         call ga_print(g_a(k))
 c     
          do jr = 1, nr
-            do ir = 1, nr
-               sum = 0.0d0
-               ielems = map(2,ir) - map(1,ir) + 1
-               jelems = map(2,jr) - map(1,jr) + 1
-               if (ielems.gt.0 .and. jelems.gt.0) then
-                  call ga_get(g_a(k), map(1,ir), map(2,ir), map(1,jr), 
-     &                 map(2,jr), scr, mxmap)
-                  if (op .eq. 'abssum') then
-                     do j = 1, jelems
-                        do i = 1, ielems
-                           sum = sum + abs(scr(i,j))
+cedo            do ir = 1, nr
+            do ir = 1, jr
+               itask=itask+1
+               if(mod(itask,nproc).eq.me) then
+                  sum = 0.0d0
+                  ielems = map(2,ir) - map(1,ir) + 1
+                  jelems = map(2,jr) - map(1,jr) + 1
+                  if (ielems.gt.0 .and. jelems.gt.0) then
+                     call ga_get(g_a(k), map(1,ir), map(2,ir), 
+     .                    map(1,jr), map(2,jr), scr, mxmap)
+                     if (op .eq. 'abssum') then
+                        do j = 1, jelems
+                           do i = 1, ielems
+                              sum = sum + abs(scr(i,j))
+                           end do
                         end do
-                     end do
-                  else if (op .eq. 'absmax') then
-                     do j = 1, jelems
-                        do i = 1, ielems
-                           sum = max(sum, abs(scr(i,j)))
+                     else if (op .eq. 'absmax') then
+                        do j = 1, jelems
+                           do i = 1, ielems
+                              sum = max(sum, abs(scr(i,j)))
+                           end do
                         end do
-                     end do
-                  else if (op .eq. 'rms') then
-                     do j = 1, jelems
-                        do i = 1, ielems
-                           sum = sum + scr(i,j)*scr(i,j)
-                        end do
-                     enddo
-                     sum = sqrt(sum)
-                  else
-                     call errquit('util_ga_mat_reduce: unknown op', 0)
-                  end if
-                  r(ir,jr,k) = max(r(ir,jr,k),sum)
+                     else if (op .eq. 'rms') then
+                        do j = 1, jelems
+                           do i = 1, ielems
+                              sum = sum + scr(i,j)*scr(i,j)
+                           end do
+                        enddo
+                        sum = sqrt(sum)
+                     else
+                        call errquit('util_ga_mat_red: unknown op',0)
+                     end if
+                     r(ir,jr,k) = max(r(ir,jr,k),sum)
+c     
+c     copy upper triangle of r(ij) to upper triangle
+c     
+                     if(ir.ne.jr) r(jr,ir,k)=r(ir,jr,k)
+                  endif
                endif
             end do
          end do
 c         write(6,*) ' util_mat_reduce: reduced matrix '
 c         call output(r(1,1,k), 1, nr, 1, nr, nr, nr, 1)
       enddo
+c
+c     global sum
+c
+c      write(6,*) ' length ',nr*nr*n_a
+      call ga_dgop(msg_gop_rdens,r,nr*nr*n_a, '+')
 c     
       end
       subroutine util_irreg_mat_reduce(n_row, n_col, nr_row, nr_col, 
