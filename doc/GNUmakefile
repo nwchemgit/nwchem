@@ -43,7 +43,6 @@ clean:
 
 
 .dvi.ps:
-		latex \&psfont $*
 		dvips $(PSFLAGS) -o $@ $<
 
 
