@@ -8,9 +8,9 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: asc2mov.F,v 1.1 1995-06-02 04:16:30 gg502 Exp $
+C     $Id: asc2mov.F,v 1.2 1996-02-27 19:28:49 d3e129 Exp $
 C
-#include "mafdecls.h"
+#include "mafdecls.fh"
 c
 c     Temporary routine
 c
