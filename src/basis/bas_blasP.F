@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.5 1999-02-22 22:05:44 d3e129 Exp $
+* $Id: bas_blasP.F,v 1.6 1999-03-15 22:58:39 d3e129 Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
@@ -47,19 +47,19 @@ c
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
-      if (oIs_ecp.and.l_value.eq.(-1)) then
-        do i = 1,nprim
-          if (int(rex(i)).eq.0) then
-            write(luout,*)'This version of nwchem does not support ',
-     &          'local potentials with an r-exponent of 0'
-            call util_flush(luout)
-            write(luout,*)'This should be fixed in a future release',
-     &          ' of NWChem'
-            call util_flush(luout)
-            call errquit(' {ecp}bas_input fatal error ',911)
-          endif
-        enddo
-      endif
+*rak:      if (oIs_ecp.and.l_value.eq.(-1)) then
+*rak:        do i = 1,nprim
+*rak:          if (int(rex(i)).eq.0) then
+*rak:            write(luout,*)'This version of nwchem does not support ',
+*rak:     &          'local potentials with an r-exponent of 0'
+*rak:            call util_flush(luout)
+*rak:            write(luout,*)'This should be fixed in a future release',
+*rak:     &          ' of NWChem'
+*rak:            call util_flush(luout)
+*rak:            call errquit(' {ecp}bas_input fatal error ',911)
+*rak:          endif
+*rak:        enddo
+*rak:      endif
 c
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag
