@@ -8,7 +8,7 @@
      &                         qwght,ldew,func)     
 #endif
 c
-C$Id: xc_becke88.F,v 1.14 1999-01-04 19:53:30 edo Exp $
+C$Id: xc_becke88.F,v 1.15 1999-01-04 20:11:36 edo Exp $
 c
       implicit none
 c      
@@ -56,7 +56,6 @@ c
      &     dgdenom, t
 #ifdef SECOND_DERIV
       double precision rhom23, d2g, d2gdenom
-      double precision d2_ra_gaa, d2_gaa_gaa,d2_rb_gbb,d2_gbb_gbb  
 #endif
 c
       arcsinh(x)=log(x+dsqrt(1d0+x*x))
