@@ -2,7 +2,7 @@
      &                       Amat, Cmat, nq, ipol, Ec, qwght,
      ,     ldew, ffunc)
 c
-c$Id: xc_perdew86.F,v 1.15 1998-10-07 23:20:28 og845 Exp $
+c$Id: xc_perdew86.F,v 1.16 1999-01-29 01:04:42 edo Exp $
 c
       implicit none
 c
@@ -54,8 +54,8 @@ c
       double precision x
       dzeta(x) = 2.d0**ONETHIRD*dsqrt(((ONE + x)*.5d0)**FIVE3 + 
      &                                ((ONE - x)*.5d0)**FIVE3   )
-      dprime(x) = (2.d0**ONETHIRD*FIVE6)*(((ONE + x)*.5d0) *
-     &                               TWO3-((ONE - x)*.5d0)*TWO3 ) /
+      dprime(x) = (4.d0**(-ONETHIRD)*FIVE6)*(((ONE + x)*.5d0)**TWO3-
+     -              ((ONE - x)*.5d0)**TWO3 ) /
      &              dsqrt(((ONE + x)*.5d0)**FIVE3 +
      &                    ((ONE - x)*.5d0)**FIVE3)
 c
