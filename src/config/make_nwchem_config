@@ -13,7 +13,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.12 1995-03-01 18:18:12 rg240 Exp $
+# $Id: make_nwchem_config,v 1.13 1995-03-04 16:14:38 d3e129 Exp $
 #-----------------------------------------------------------------------------
 include makefile.h
 
@@ -27,7 +27,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmd
 
-EXP_all = $(filter-out ideaz dftgrad cphf,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out ideaz dftgrad scfaux cphf,$(KNOWN_MODULE_SUBDIRS) )
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 riscf \
 	stepper symmetry
 EXP_md  = ideaz
