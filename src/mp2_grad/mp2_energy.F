@@ -1,4 +1,4 @@
-      subroutine mp2_energy(rtdb,geom,basis,movecs,eval_e2,eval_grad)
+      subroutine mp2_energy(rtdb,geom,basis,movecs,task)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -9,6 +9,7 @@
 #include "util.fh"
 #include "stdio.fh"
 #include "sym.fh"
+      character*8 task
       integer num_oa_sym(0:7),num_va_sym(0:7)    
       integer num_ob_sym(0:7),num_vb_sym(0:7)
       integer sym_lo_oa(0:7)    ! [output] First MO in each sym
@@ -40,7 +41,6 @@
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
       external movecs_read,movecs_read_header
-      logical eval_e2,eval_grad
       character*255 movecs
       character*255 title_vecs,basis_vecs
       integer maxireps,maxops
@@ -51,6 +51,12 @@
       integer k_map_b,l_map_b
       intrinsic nint
       logical status,oblk
+      integer k_p_ij_a,k_p_ij_b
+      integer l_p_ij_a,l_p_ij_b
+      integer k_p_ab_a,k_p_ab_b
+      integer l_p_ab_a,l_p_ab_b
+      integer g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_lai_a,g_lai_b
+      integer g_p_ai_a,g_p_ai_b,g_dens_tot_a,g_dens_tot_b
 c     
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('scf:scftype wrong',1)
@@ -212,36 +218,105 @@ c
          call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
      $        num_oa_sym,num_va_sym,dbl_mb(k_eval_a),basis,geom,tol2e,
-     $        e2,nbf,eval_e2,eval_grad)
+     $        e2,nbf,task)
       endif
-c
-c...  now make the t's for the UHF case
 c     
-c...  first time through, form <aa||aa> and <ab||ab>
-c...  second time form <bb||bb> and <ba||ba>
+c... A note on notation: arrays for four index quantities of pure spin
+c... denoted with a _a on the end. Mixed spin case with a _b. On first
+c... call to grad_uhf _a arrays are all alpha,_b are <alpha beta||alpha beta>.
+c... On second call to grad_uhf vice versa is the case. 
+c... Two index quantities of alpha spin are denoted with a _a, 
+c... and beta spin with _b. With this in mind, naming of arrays is obvious
+c... when Chem. Phys. Letts. 166 (1990) 275 is consulted.
 c
+      if(.not.ma_push_get(mt_dbl,noa*noa,'p_ij_a',
+     $     l_p_ij_a,k_p_ij_a))call errquit(
+     $     'could not alloc p_ij_a',1)
+      if(.not.ma_push_get(mt_dbl,nva*nva,'p_ab_a',
+     $     l_p_ab_a,k_p_ab_a))call errquit(
+     $     'could not alloc p_ab_a',1)
+      if(.not.ma_push_get(mt_dbl,nob*nob,'p_ij_b',
+     $     l_p_ij_b,k_p_ij_b))call errquit(
+     $     'could not alloc p_ij_b',1)
+      if(.not.ma_push_get(mt_dbl,nvb*nvb,'p_ab_b',
+     $     l_p_ab_b,k_p_ab_b))call errquit(
+     $     'could not alloc p_ab_b',1)
+      if(.not.ga_create(mt_dbl,noa,noa,'g_p_ij_a',
+     $     noa,1,g_p_ij_a))call errquit(
+     $     'could not alloc g_p_ij_a',1)
+      if(.not.ga_create(mt_dbl,nob,nob,'g_p_ij_b',
+     $     nob,1,g_p_ij_b))call errquit(
+     $     'could not alloc g_p_ij_b',1)
+      if(.not.ga_create(mt_dbl,nva,nva,'g_p_ab_a',
+     $     nva,1,g_p_ab_a))call errquit(
+     $     'could not alloc g_p_ab_a',1)
+      if(.not.ga_create(mt_dbl,nvb,nvb,'g_p_ab_b',
+     $     noa,1,g_p_ab_b))call errquit(
+     $     'could not alloc g_p_ab_b',1)
+c$$$      if(.not.ga_create(mt_dbl,noa,nva,'pai_a',noa,1,g_p_ai_a))
+c$$$     $     call errquit('could not alloc ga for pai_a',1)
+c$$$      if(.not.ga_create(mt_dbl,nob,nvb,'pai_b',nob,1,g_p_ai_b))
+c$$$     $     call errquit('could not alloc ga for pai_b',1)
+c$$$      if(.not.ga_create(mt_dbl,nbf,nbf,'dens_tot_a',
+c$$$     $     nbf,1,g_dens_tot_a))
+c$$$     $     call errquit('could not alloc ga for dens_tot_a',1)
+c$$$      if(.not.ga_create(mt_dbl,nbf,nbf,'dens_tot_b',
+c$$$     $     nbf,1,g_dens_tot_b))
+c$$$     $     call errquit('could not alloc ga for dens_tot_b',1)
+      if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,1,g_lai_a))
+     $     call errquit('could not alloc ga for lai_a',1)
+      if(.not.ga_create(mt_dbl,nob,nvb,'lai_b',nob,1,g_lai_b))
+     $     call errquit('could not alloc ga for lai_b',1)
+c$$$      call ga_zero(g_p_ij_a)
+c$$$      call ga_zero(g_p_ab_a)
+c$$$      call ga_zero(g_p_ij_b)
+c$$$      call ga_zero(g_p_ab_b)
+c$$$      call ga_zero(g_lai_a)
+c$$$      call ga_zero(g_lai_b)
       if(scftype.eq.'UHF')then
          pass=1
          call mp2_grad_uhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
-     $        num_oa_sym,num_va_sym,
-     $        g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
-     $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
-     $        num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),dbl_mb(k_eval_b),
-     $        basis,geom,tol2e,e2,nbf,
-     $        eval_e2,eval_grad,pass,e2back,oblk)
+     $        num_oa_sym,num_va_sym,g_vecs_b,nob_lo,nob_hi,nvb_lo,
+     $        nvb_hi,int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,
+     $        sym_hi_vb,num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),
+     $        dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,task,
+     $        pass,e2back,oblk,
+     $        dbl_mb(k_p_ij_a),dbl_mb(k_p_ij_b),dbl_mb(k_p_ab_a),
+     $        dbl_mb(k_p_ab_b),g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
+     $        g_lai_a,g_lai_b)
          pass=2
          call mp2_grad_uhf(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
-     $        num_ob_sym,num_vb_sym,
-     $        g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
-     $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
-     $        num_oa_sym,num_va_sym,dbl_mb(k_eval_b),dbl_mb(k_eval_a),
-     $        basis,geom,tol2e,e2,nbf,
-     $        eval_e2,eval_grad,pass,e2back,oblk)
+     $        num_ob_sym,num_vb_sym,g_vecs_a,noa_lo,noa_hi,nva_lo,
+     $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
+     $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
+     $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,task,
+     $        pass,e2back,oblk,
+     $        dbl_mb(k_p_ij_b),dbl_mb(k_p_ij_a),dbl_mb(k_p_ab_b),
+     $        dbl_mb(k_p_ab_a),g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
+     $        g_lai_b,g_lai_a)
       endif
+c     
+c$$$      call mp2_lai_fock_uhf(geom,basis,g_p_ab_a,g_p_ab_b,g_p_ij_a,
+c$$$     $     g_p_ij_b,g_vecs_a,g_vecs_b,noa,nob,nva,nvb,g_lai_a,g_lai_b)
+c     
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ', e2
-      if(ga_nodeid().eq.0)write(6,*) 'E2 read back = ',e2back
+      if(ga_nodeid().eq.0.and.task.eq.'gradient')
+     $     write(6,*) 'E2 read back = ',e2back
+c     
+      if(.not.ga_destroy(g_p_ij_a))call errquit(
+     $     'could not destroy p_ij_a handle',1)
+      if(.not.ga_destroy(g_p_ij_b))call errquit(
+     $     'could not destroy p_ij_b handle',1)
+      if(.not.ga_destroy(g_p_ab_a))call errquit(
+     $     'could not destroy p_ab_a handle',1)
+      if(.not.ga_destroy(g_p_ab_b))call errquit(
+     $     'could not destroy p_ab_b handle',1)
+      if(.not.ga_destroy(g_lai_b))call errquit(
+     $     'could not destroy lai_b handle',1)
+      if(.not.ga_destroy(g_lai_a))call errquit(
+     $     'could not destroy lai_a handle',1)
 c     
       if(.not.ma_chop_stack(l_occ_a))call errquit(
      $     'could not chop stack in mp2_energy',1)

@@ -1,4 +1,4 @@
-      logical function mp2_grad(rtdb)
+      logical function semi_dir_mp2(rtdb)
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -14,15 +14,15 @@
       character*255 title
       character*255 movecs_in
       logical status,converged
-      logical eval_e2,eval_grad
+      character*8 task
       status=rtdb_parallel(.true.)
       if(.not.context_push('mp2_grad'))
      $     call errquit('mp2_grad: context push failed',0)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
-      eval_e2=.true.
-      eval_grad=.true.
       status=rtdb_get(rtdb,'scf:converged',mt_log,1,converged)
+      if(.not.rtdb_cget(rtdb,'sdmp2:task',1,task))
+     $     call errquit('could not determine task for semi_dir_mp2',1)
       if(.not.(status.and.converged))call errquit(
      $     'mp2_grad: no converged scf wavefunction available',0)
       if(.not.rtdb_cget(rtdb, 'title', 1, title))
@@ -66,7 +66,7 @@ c      call util_file_prefix('movecs',movecs_in)
       call int_normalize(basis)
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
-      call mp2_energy(rtdb,geom,basis,movecs_in,eval_e2,eval_grad)
+      call mp2_energy(rtdb,geom,basis,movecs_in,task)
       call schwarz_tidy()
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit
