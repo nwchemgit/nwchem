@@ -29,6 +29,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
   JLabel yLabel = new JLabel("y:                                   ");
   int xIndex=0, yIndex=0;
   Graph prp_plot = new Graph();
+  JLabel systemLabel = new JLabel();
   JLabel sizeLabel = new JLabel("Number of frames is       ");
   JButton plotButton = new JButton("plot");
   JButton plotpButton = new JButton("plot+");
@@ -42,6 +43,9 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
   double stpt;
   Graph synPlot = new Graph();
   Graph timPlot = new Graph();
+
+  double offstep = 0.0;
+  double offtime = 0.0;
 
   public nwchem_Property(){
 
@@ -110,6 +114,12 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     plotButton.addActionListener(this);
     plotpButton.addActionListener(this);
 
+    addButton.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){ 
+	chooser.showOpenDialog(dialogFrame);
+	appendData(chooser.getSelectedFile().toString());
+      }});
+
     /*  
     JButton doneButton = new JButton("Done");
     addComponent(header,doneButton,5,0,1,1,1,1,
@@ -153,6 +163,9 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     setSize(900,700);
     setVisible(true);
 
+    appendData(chooser.getSelectedFile().toString());
+
+    /*
     try{
       br = new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
       card=br.readLine();
@@ -167,12 +180,17 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 	  data[i]=Double.valueOf(card.substring(num*12+1,(num+1)*12)).doubleValue();
 	  num++;
 	};
+        data[0]=data[0]+offstep;
+        data[1]=data[1]+offstep;
 	frames.add(numframes,data);
 	//	frames.setElementAt(data,numframes);
 	numframes++;
       };
+      offstep=data[0];
+      offtime=data[1];
       sizeLabel.setText("Number of frames is "+frames.size());
     } catch(Exception e) {e.printStackTrace();};
+    */
 
     pList.setVisibleRowCount(15);
 
@@ -219,6 +237,37 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
     */
   }	
 
+  void appendData(String dataFile){
+
+    try{
+      systemLabel.setText(dataFile);
+      br = new BufferedReader(new FileReader(dataFile));
+      card=br.readLine();
+      numprop = Integer.parseInt(card.substring(1,7).trim());
+      for(int i=0; i<numprop; i++){ 
+	card=br.readLine(); 
+	if(numframes==0) propList.addElement(card); 
+      };
+      while((card=br.readLine()) != null){
+	int num=0;
+	data = new double[numprop];
+	for(int i=0; i<numprop; i++){
+	  if(num==4) { card=br.readLine(); num=0; };
+	  data[i]=Double.valueOf(card.substring(num*12+1,(num+1)*12)).doubleValue();
+	  num++;
+	};
+        data[0]=data[0]+offstep;
+        data[1]=data[1]+offtime;
+	frames.add(numframes,data);
+	//	frames.setElementAt(data,numframes);
+	numframes++;
+      };
+      offstep=data[0];
+      offtime=data[1];
+      sizeLabel.setText("Number of frames is "+frames.size());
+    } catch(Exception e) {e.printStackTrace();};
+  }
+
   void buildConstraints(GridBagConstraints gbc, int gx, int gy, int gw, int gh, 
 			int wx, int wy){
     
@@ -252,10 +301,11 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
   }
 
   public void actionPerformed(ActionEvent e) {
-    if(e.getSource()==plotButton||e.getSource()==plotpButton||
-       e.getSource()==addButton||e.getSource()==addpButton){
+    if(e.getSource()==plotButton||e.getSource()==plotpButton){
+      //     e.getSource()==addButton||e.getSource()==addpButton){
       boolean running = (e.getSource()==plotpButton||e.getSource()==addpButton);
-      boolean adddata = (e.getSource()==addButton||e.getSource()==addpButton);
+      //    boolean adddata = (e.getSource()==addButton||e.getSource()==addpButton);
+      boolean adddata=false;
       if(xIndex>0&&yIndex>0) {
 	int ix1 = propList.getElementAt(xIndex-1).toString().indexOf("    ");
 	int ix2 = propList.getElementAt(xIndex-1).toString().lastIndexOf("    ")+3;
