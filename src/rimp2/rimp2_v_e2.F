@@ -3,7 +3,7 @@ C NAME
 C     rimp2_v_e2 -- Evaluate MP2 energy using V-approximation 3 ctr ints.
 C
 C REVISION
-C     $Id: rimp2_v_e2.F,v 1.15 1995-04-10 01:39:30 gg502 Exp $
+C     $Id: rimp2_v_e2.F,v 1.16 1995-05-27 20:33:23 gg502 Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_V_E2(FNInt, TopSpin, NMO,
@@ -73,8 +73,7 @@ C
 C EXTERNAL ROUTINES
       Logical Open_3ci_File, Get_3cInts, Close_3cI_File,
      $  GA_Create_One_By_Shells
-      Double Precision DSum
-      External Open_3cI_File, Get_3cInts, Close_3cI_File, DSum,
+      External Open_3cI_File, Get_3cInts, Close_3cI_File,
      $  GA_Create_One_By_Shells
 C
       external Sum_Pairs
