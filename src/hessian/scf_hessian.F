@@ -1,4 +1,5 @@
       logical function scf_hessian(rtdb)
+* $Id: scf_hessian.F,v 1.3 1997-03-21 01:06:21 d3e129 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

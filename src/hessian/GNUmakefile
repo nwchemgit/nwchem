@@ -1,9 +1,9 @@
 
- OBJ = scf_hessian.o rhf_hessian.o 
+ OBJ = scf_hessian.o rhf_hessian.o hess_quad.o hess_blas.o
  
  OBJ_OPTIMIZE =  
 
-   USES_BLAS = rhf_hessian.F 
+   USES_BLAS = hess_blas.F 
 
    LIBRARY = libhessian.a
 
