@@ -2,10 +2,10 @@
      + num,amass,mat,
      + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
-     + xwc,vwc,mwmc,nwmc,slvnam,iropt,nxrep,nyrep,nzrep,drep,
-     + msb,nsb,idsb,rdist)
+     + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
+     + msb,nsb,idsb,rdist,nskip,iskip,lang)
 c
-c $Id: pre_wrtpdb.F,v 1.27 2001-01-04 23:57:00 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.28 2001-08-06 20:26:23 d3j191 Exp $
 c
       implicit none
 c
@@ -23,24 +23,34 @@ c
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
       real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
-      integer iropt,nxrep,nyrep,nzrep
+      integer iropt,irrand,nxrep,nyrep,nzrep,nskip
       real*8 rdist,drep(3)
       integer msb,nsb,nmols
-      integer idsb(2,msb)
+      integer idsb(2,msb),iskip(3,nskip),lang(*)
 c
       integer length
 c
       integer i,j,k,l,nats,nums,numslv,isoff,iaoff,natom,isegm,nsegm
       integer ixrep,iyrep,izrep
-      real*8 temp,dbx,dby,dbz,dist,dbz0
+      real*8 temp,dbx,dby,dbz,dist,dbz0,angle
+      real*8 o(3),p(3),x(3),y(3),v(3)
       character*3 sname
       character*1 charr
-      integer icharr
+      integer icharr,ilang
 c
       isoff=0
       iaoff=0
       charr=' '
       icharr=ichar(charr)
+      dbz0=0.0d0
+c
+      o(1)=0.0d0
+      o(2)=0.0d0
+      o(3)=0.0d0
+      p(1)=0.0d0
+      p(2)=0.0d0
+      p(3)=0.0d0
+      if(irrand.ge.1.and.irrand.le.3) p(irrand)=1.0d0
 c
 c     open PDB file
 c
@@ -124,6 +134,7 @@ c
      + 90.0,90.0,90.0
 c
       if(iropt.le.1) then
+      ilang=0
       do 4 izrep=1,iabs(nzrep)
       if(nzrep.gt.0) then
       dbz=(dble(izrep)-0.5d0*dble(nzrep+1))*drep(3)
@@ -134,6 +145,15 @@ c
       dby=(dble(iyrep)-0.5d0*dble(nyrep+1))*drep(2)
       do 6 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
+c
+      do 66 k=1,nskip
+      if(ixrep.eq.iskip(1,k).and.iyrep.eq.iskip(2,k).and.
+     + izrep.eq.iskip(3,k)) goto 6
+   66 continue
+c
+      angle=8.0d0*atan(1.0d0)*util_random(0)
+      ilang=ilang+1
+      lang(ilang)=angle
 c
       if(iropt.eq.0) then
       icharr=ichar(' ')
@@ -158,24 +178,33 @@ c
       nums=0
 c
       do 7 i=1,nsa
+c
+      x(1)=xs(1,i)
+      x(2)=xs(2,i)
+      x(3)=xs(3,i)
+      y(1)=xs(1,i)
+      y(2)=xs(2,i)
+      y(3)=xs(3,i)
+      if(irrand.ge.1.and.irrand.le.3) call rotate(o,p,angle,x,y)
+c
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
       if(nzrep.gt.0) then
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
-     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)+dbz),
+     + char(icharr),isgm(i)+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       if(izrep.eq.1) then
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
-     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)-dbz),
+     + char(icharr),isgm(i)+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,-1.0d1*(xs(1,i)+dbx),
-     + -1.0d1*(xs(2,i)+dby),-1.0d1*(xs(3,i)-dbz),
+     + char(icharr),isgm(i)+isoff,-1.0d1*(y(1)+dbx),
+     + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
       endif
       endif
@@ -194,6 +223,7 @@ c
       isegm=0
       isoff=0
       do 20 l=1,nmols
+      ilang=0
       do 14 izrep=1,iabs(nzrep)
       if(nzrep.gt.0) then
       dbz=(dble(izrep)-0.5d0*dble(nzrep+1))*drep(3)
@@ -204,6 +234,21 @@ c
       dby=(dble(iyrep)-0.5d0*dble(nyrep+1))*drep(2)
       do 16 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
+c
+      do 67 k=1,nskip
+      if(ixrep.eq.iskip(1,k).and.iyrep.eq.iskip(2,k).and.
+     + izrep.eq.iskip(3,k)) goto 16
+   67 continue
+c
+      ilang=ilang+1
+c
+      if(l.eq.1) then
+      angle=8.0d0*atan(1.0d0)*util_random(0)
+      lang(ilang)=angle
+      else
+      angle=lang(ilang)
+      endif
+c
       icharr=ichar(' ')
 c
       do 212 i=1,nsa
@@ -250,6 +295,15 @@ c
       nums=0
 c
       do 17 i=1,nsa
+c
+      x(1)=xs(1,i)
+      x(2)=xs(2,i)
+      x(3)=xs(3,i)
+      y(1)=xs(1,i)
+      y(2)=xs(2,i)
+      y(3)=xs(3,i)
+      if(irrand.ge.1.and.irrand.le.3) call rotate(o,p,angle,x,y)
+c
       if(iropt.eq.3) then
       if(ifra(i).eq.l) then
       temp=4.009103873d1*amass(isat(i))*
@@ -258,19 +312,19 @@ c
       natom=natom+1
       if(nzrep.gt.0) then
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
-     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)+dbz),
+     + char(icharr),isgm(i)+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       if(izrep.eq.1) then
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
-     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)-dbz),
+     + char(icharr),isgm(i)+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,-1.0d1*(xs(1,i)+dbx),
-     + -1.0d1*(xs(2,i)+dby),-1.0d1*(xs(3,i)-dbz),
+     + char(icharr),isgm(i)+isoff,-1.0d1*(y(1)+dbx),
+     + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
       endif
       endif
@@ -284,19 +338,19 @@ c
       natom=natom+1
       if(nzrep.gt.0) then
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
-     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)+dbz),
+     + char(icharr),isgm(i)+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       if(izrep.eq.1) then
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,1.0d1*(xs(1,i)+dbx),
-     + 1.0d1*(xs(2,i)+dby),1.0d1*(xs(3,i)-dbz),
+     + char(icharr),isgm(i)+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
       else
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
-     + char(icharr),isgm(i)+isoff,-1.0d1*(xs(1,i)+dbx),
-     + -1.0d1*(xs(2,i)+dby),-1.0d1*(xs(3,i)-dbz),
+     + char(icharr),isgm(i)+isoff,-1.0d1*(y(1)+dbx),
+     + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
       endif
       endif
@@ -347,6 +401,7 @@ c
       else
 c
       nats=nxrep*nyrep*iabs(nzrep)*nsa
+      ilang=0
       do 44 izrep=1,iabs(nzrep)
       if(nzrep.gt.0) then
       dbz=(dble(izrep)-0.5d0*dble(nzrep+1))*drep(3)
@@ -358,59 +413,59 @@ c
       do 46 ixrep=1,nxrep
       dbx=(dble(ixrep)-0.5d0*dble(nxrep+1))*drep(1)
 c
+      ilang=ilang+1
+      angle=lang(ilang)
+c
       nums=isoff
       do 47 i=1,numslv
       do 48 j=1,nwa
       nats=nats+1
-      if(nzrep.gt.0) then
+c
       if(i.le.nwmc) then
-      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
-     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
-      if(temp.gt.999.0) temp=999.989
-      write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,1.0d1*(xwc(1,j,i)+dbx),1.0d1*(xwc(2,j,i)+dby),
-     + 1.0d1*(xwc(3,j,i)+dbz),temp,pre_atnam(num(iwat(j)))
+      x(1)=xw(1,j,i)
+      x(2)=xw(2,j,i)
+      x(3)=xw(3,j,i)
+      y(1)=xw(1,j,i)
+      y(2)=xw(2,j,i)
+      y(3)=xw(3,j,i)
+      v(1)=vw(1,j,i)
+      v(2)=vw(2,j,i)
+      v(3)=vw(3,j,i)
       else
-      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
-     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
+      x(1)=xw(1,j,i-nwmc)
+      x(2)=xw(2,j,i-nwmc)
+      x(3)=xw(3,j,i-nwmc)
+      y(1)=xw(1,j,i-nwmc)
+      y(2)=xw(2,j,i-nwmc)
+      y(3)=xw(3,j,i-nwmc)
+      v(1)=vw(1,j,i-nwmc)
+      v(2)=vw(2,j,i-nwmc)
+      v(3)=vw(3,j,i-nwmc)
+      endif
+      if(irrand.ge.1.and.irrand.le.3) call rotate(o,p,angle,x,y)
+c
+      if(nzrep.gt.0) then
+      temp=4.009103873d1*amass(iwat(j))*(v(1)*v(1)+
+     + v(2)*v(2)+v(3)*v(3))
       if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,1.0d1*(xw(1,j,i-nwmc)+dbx),1.0d1*(xw(2,j,i-nwmc)+dby),
-     + 1.0d1*(xw(3,j,i-nwmc)+dbz),temp,pre_atnam(num(iwat(j)))
-      endif
+     + i+nums,1.0d1*(y(1)+dbx),1.0d1*(y(2)+dby),
+     + 1.0d1*(y(3)+dbz),temp,pre_atnam(num(iwat(j)))
       else
       if(izrep.eq.1) then
-      if(i.le.nwmc) then
-      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
-     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
+      temp=4.009103873d1*amass(iwat(j))*(v(1)*v(1)+
+     + v(2)*v(2)+v(3)*v(3))
       if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,1.0d1*(xwc(1,j,i)+dbx),1.0d1*(xwc(2,j,i)+dby),
-     + 1.0d1*(xwc(3,j,i)-dbz),temp,pre_atnam(num(iwat(j)))
+     + i+nums,1.0d1*(y(1)+dbx),1.0d1*(y(2)+dby),
+     + 1.0d1*(y(3)-dbz),temp,pre_atnam(num(iwat(j)))
       else
-      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
-     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
+      temp=4.009103873d1*amass(iwat(j))*(v(1)*v(1)+
+     + v(2)*v(2)+v(3)*v(3))
       if(temp.gt.999.0) temp=999.989
       write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,1.0d1*(xw(1,j,i-nwmc)+dbx),1.0d1*(xw(2,j,i-nwmc)+dby),
-     + 1.0d1*(xw(3,j,i-nwmc)-dbz),temp,pre_atnam(num(iwat(j)))
-      endif
-      else
-      if(i.le.nwmc) then
-      temp=4.009103873d1*amass(iwat(j))*(vwc(1,j,i)*vwc(1,j,i)+
-     + vwc(2,j,i)*vwc(2,j,i)+vwc(3,j,i)*vwc(3,j,i))
-      if(temp.gt.999.0) temp=999.989
-      write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,1.0d1*(xwc(1,j,i)+dbx),1.0d1*(xwc(2,j,i)+dby),
-     + 1.0d1*(xwc(3,j,i)-dbz),temp,pre_atnam(num(iwat(j)))
-      else
-      temp=4.009103873d1*amass(iwat(j))*(vw(1,j,i-nwmc)*vw(1,j,i-nwmc)+
-     + vw(2,j,i-nwmc)*vw(2,j,i-nwmc)+vw(3,j,i-nwmc)*vw(3,j,i-nwmc))
-      if(temp.gt.999.0) temp=999.989
-      write(lfnpdb,1003) nats,cwa(j)(11:14),slvnam,
-     + i+nums,-1.0d1*(xw(1,j,i-nwmc)+dbx),-1.0d1*(xw(2,j,i-nwmc)+dby),
-     + -1.0d1*(xw(3,j,i-nwmc)-dbz),temp,pre_atnam(num(iwat(j)))
-      endif
+     + i+nums,1.0d1*(y(1)+dbx),1.0d1*(y(2)+dby),
+     + 1.0d1*(y(3)-dbz),temp,pre_atnam(num(iwat(j)))
       endif
       endif
    48 continue

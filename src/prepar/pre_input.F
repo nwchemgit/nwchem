@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.80 2001-01-16 22:16:34 d3j191 Exp $
+c $Id: pre_input.F,v 1.81 2001-08-06 20:26:22 d3j191 Exp $
 c
       implicit none
 c
@@ -33,13 +33,14 @@ c
       real*8 rfix
       character*1 altloc,chain,his
       integer ires,jres,kres,i,j,k,ignore,igroup,jgroup,kgroup,lgroup
-      integer nxrep,nyrep,nzrep,itran,jtran,nkeepw
-      real*8 rrep,rdist,xtran(3)
+      integer nxrep,nyrep,nzrep,itran,jtran,nkeepw,irot,jrot
+      real*8 rrep,rdist,xtran(3),arot,xrot(3)
       real*8 value1,value2
       character*4 scount(mcount)
       real*8 xrmin,xrmax,yrmin,yrmax,zrmin,zrmax
       real*8 scale,cpk,rshell
-      integer irepeat,nrepeat,iopt
+      integer irepeat,nrepeat,iopt,irrand
+      integer iskip,jskip,kskip
 c
       logical ltouch,lrdcoo,lslvnt,needwt,lwrcoo
 c
@@ -987,11 +988,50 @@ c
       goto 2
       endif
 c
+c     rotate
+c     ------
+c
+      if(inp_compare(.false.,'rotate',item)) then
+      if(.not.inp_a(item)) call errquit('pre_input: rotate',9999)
+      if(inp_compare(.false.,'molecule',item)) then
+      if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_i(jrot)) jrot=irot
+      if(.not.inp_f(arot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
+      write(68,6872) irot,jrot,arot,xrot
+ 6872 format('rotmol ',2i5,4f12.6)
+      numcmd=numcmd+1
+      elseif(inp_compare(.false.,'segment',item)) then
+      if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_i(jrot)) jrot=irot
+      if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
+      write(68,6873) irot,jrot,arot,xrot
+ 6873 format('rotsgm ',2i5,4f12.6)
+      numcmd=numcmd+1
+      elseif(inp_compare(.false.,'atom',item)) then
+      if(.not.inp_i(irot)) call errquit('pre_input: rotate',9999)
+      if(.not.inp_i(jrot)) jrot=irot
+      if(.not.inp_f(xrot(1))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(2))) call errquit('pre_input: rotate',9999)
+      if(.not.inp_f(xrot(3))) call errquit('pre_input: rotate',9999)
+      write(68,6874) irot,jrot,arot,xrot
+ 6874 format('rotatm ',2i5,4f12.6)
+      numcmd=numcmd+1
+      else
+      call errquit('pre_input: rotate',9999)
+      endif
+      goto 2
+      endif
+c
 c     remove solvent
 c     --------------
 c
       if(inp_compare(.false.,'remove',item)) then
-      if(.not.inp_a(item)) call errquit('pre_input: translate',9999)
+      if(.not.inp_a(item)) call errquit('pre_input: remove',9999)
       if(inp_compare(.false.,'solvent',item)) then
       xrmin=0.0d0
       xrmax=0.0d0
@@ -999,11 +1039,11 @@ c
       yrmax=0.0d0
       zrmin=0.0d0
       zrmax=0.0d0
-      if(.not.inp_a(item)) call errquit('pre_input: translate',9999)
+      if(.not.inp_a(item)) call errquit('pre_input: remove',9999)
       j=-1
       if(inp_compare(.false.,'inside',item)) j=1
       if(inp_compare(.false.,'outside',item)) j=0
-      if(j.eq.-1) call errquit('pre_input: translate',9999)
+      if(j.eq.-1) call errquit('pre_input: remove',9999)
       do 6855 i=1,3
       if(inp_a(item)) then
       if(inp_compare(.false.,'x',item)) then
@@ -1318,8 +1358,26 @@ c     ------
 c
       if(inp_compare(.false.,'repeat',item)) then
       iopt=0
+      irrand=0
+ 6838 continue
       if(.not.inp_i(nxrep)) then
       if(.not.inp_a(item)) call errquit('pre_input: repeat 1',9999)
+      if(inp_compare(.false.,'random',item)) then
+      if(.not.inp_i(irrand)) call errquit('pre_input: repeat 8',9999)
+      goto 6838
+      endif
+      if(inp_compare(.false.,'randomx',item)) then
+      irrand=1
+      goto 6838
+      endif
+      if(inp_compare(.false.,'randomy',item)) then
+      irrand=2
+      goto 6838
+      endif
+      if(inp_compare(.false.,'randomz',item)) then
+      irrand=3
+      goto 6838
+      endif
       if(inp_compare(.false.,'chains',item)) iopt=1
       if(inp_compare(.false.,'molecules',item)) iopt=2
       if(inp_compare(.false.,'fractions',item)) iopt=3
@@ -1333,9 +1391,22 @@ c
       endif
       if(nxrep.lt.0) call errquit('pre_input: repeat 5',9999)
       if(nyrep.lt.0) call errquit('pre_input: repeat 6',9999)
-      if(nzrep.lt.-2) call errquit('pre_input: repea 7t',9999)
-      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist,iopt
- 6851 format('repeat ',3i5,2f12.6,i5)
+      if(nzrep.lt.-2) call errquit('pre_input: repeat 7',9999)
+      write(68,6851) nxrep,nyrep,nzrep,rrep,rdist,iopt,irrand
+ 6851 format('repeat ',3i5,2f12.6,2i5)
+      numcmd=numcmd+1
+      goto 1
+      endif
+c
+c     skip
+c     ----
+c
+      if(inp_compare(.false.,'skip',item)) then
+      if(.not.inp_i(iskip)) call errquit('pre_input: skip',9999)
+      if(.not.inp_i(jskip)) call errquit('pre_input: skip',9999)
+      if(.not.inp_i(kskip)) call errquit('pre_input: skip',9999)
+      write(68,6859) iskip,jskip,kskip
+ 6859 format('skip   ',3i5)
       numcmd=numcmd+1
       goto 1
       endif

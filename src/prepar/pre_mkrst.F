@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat)
 c
-c $Id: pre_mkrst.F,v 1.65 2001-07-06 03:45:13 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.66 2001-08-06 20:26:22 d3j191 Exp $
 c
       implicit none
 c
@@ -23,6 +23,8 @@ c
       external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
       logical pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
       external pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
+      logical pre_rot
+      external pre_rot
 c
       integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd,lfnmat
       integer lfnslv,model,mdold,lfnxyz,lfnqqq,lfnpov
@@ -36,7 +38,7 @@ c
 c
       integer nsa,nwa,nwm,nmis,npbtyp,nbxtyp,noe,nwms,nwas,mwmc,nwmc
       integer mat,msa,mwa,mwm,mnoe,msm,nsm,mwms,msb,nsb,mgrid,ngrid,iopt
-      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt
+      integer nnoe,ifix,jfix,nnwm,nnwa,nnsa,nnwmc,nqu,iropt,irrand
       real*8 box(3),boxs(3),touch,xmax(3),edge,rshell,gdist,rfix,drep(3)
       real*8 edgex,edgey,edgez
 c
@@ -48,13 +50,15 @@ c
       integer l_xslv,i_xslv,l_vslv,i_vslv,l_xwc,i_xwc,l_vwc,i_vwc
       integer l_wfnd,i_wfnd,l_wcmr,i_wcmr,l_qwa,i_qwa
       integer l_isb,i_isb,l_csb,i_csb,l_grid,i_grid
-      integer l_wat,i_wat
+      integer l_wat,i_wat,l_lang,i_lang
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater
-      integer nxrep,nyrep,nzrep,itran,jtran,i,j,k
-      real*8 xtran(3)
+      integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang
+      real*8 xtran(3),xrot(3),arot
       real*8 rdist,xr(3,2)
+c
+      integer iskip(3,100),nskip
 c
       if(util_print('restart',print_debug)) then
       write(lfnout,1000)
@@ -87,6 +91,9 @@ c
       nxrep=0
       nyrep=0
       nzrep=0
+      iropt=0
+      irrand=0
+      nskip=0
 c
 c     allocate memory
 c     ---------------
@@ -309,7 +316,8 @@ c     determine the boxsize
 c     ---------------------
 c
       if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
-     + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
+     + dbl_mb(i_xs),msa,nsa,box,0))
+     +  call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1007) box
  1007 format(/,' Boxsize determined to ',t40,3f12.6,/)
@@ -648,6 +656,16 @@ c
       length=index(filnam,' ')-1
       if(length.eq.0) filnam=filpdb
       len=index(filpdb,' ')-1
+      if(irrand.eq.3) then
+      if(.not.pre_boxsiz(dbl_mb(i_xwc),mwmc,mwa,nwmc,nwa,
+     + dbl_mb(i_xs),msa,nsa,box,irrand))
+     +  call errquit('pre_boxsiz failed',9999)
+      drep(1)=box(1)
+      drep(2)=box(2)
+      endif
+      mlang=nxrep*nyrep*iabs(nzrep)
+      if(.not.ma_push_get(mt_int,mlang,'lang',l_lang,i_lang))
+     + call errquit('ma_push_get failed for lang',9999)
       if(.not.pre_wrtpdb(lfnout,lfnpdb,filnam,iopt,box,
      + int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
@@ -655,8 +673,11 @@ c
      + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
-     + iropt,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist))
-     + call errquit('pre_wrtpdb failed',9999)
+     + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),rdist,
+     + nskip,iskip,int_mb(i_lang)))
+     +  call errquit('pre_wrtpdb failed',9999)
+      if(.not.ma_pop_stack(l_lang))
+     + call errquit('ma_pop_stack failed for lang',9999)
       endif
 c
 c     write pov file
@@ -779,7 +800,8 @@ c     determine the boxsize
 c     ---------------------
 c
       if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
+     + dbl_mb(i_xs),msa,nsa,box,0))
+     + call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1012) box
  1012 format(/,' Boxsize determined to ',t40,3f12.6,/)
@@ -901,6 +923,36 @@ c
       if(.not.pre_transl(itran,jtran,xtran,
      + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
      + call errquit('pre_transl failed',9999)
+      endif
+c
+c     rotate molecule
+c     ------------------
+c
+      if(card(1:6).eq.'rotmol') then
+      read(card(8:53),'(2i5,3f12.6)',err=9999) irot,jrot,xrot
+      if(.not.pre_rot(irot,jrot,arot,xrot,
+     + int_mb(i_sml),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_rot failed',9999)
+      endif
+c
+c     rotate segment
+c     -----------------
+c
+      if(card(1:6).eq.'trasgm') then
+      read(card(8:53),'(2i5,3f12.6)',err=9999) irot,jrot,xrot
+      if(.not.pre_rot(irot,jrot,arot,xrot,
+     + int_mb(i_sgm),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_rot failed',9999)
+      endif
+c
+c     rotate atom
+c     --------------
+c
+      if(card(1:6).eq.'traatm') then
+      read(card(8:53),'(2i5,3f12.6)',err=9999) irot,jrot,xrot
+      if(.not.pre_rot(irot,jrot,arot,xrot,
+     + int_mb(i_sat),dbl_mb(i_xs),msa,nsa))
+     + call errquit('pre_rot failed',9999)
       endif
 c
 c     remove solvent
@@ -1076,7 +1128,8 @@ c     --------------------
 c
       if(card(1:6).eq.'boxsiz') then
       if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
-     + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
+     + dbl_mb(i_xs),msa,nsa,box,0))
+     +  call errquit('pre_boxsiz failed',9999)
       if(util_print('restart',print_medium)) then
       write(lfnout,1033) box
  1033 format(/,' Boxsize determined to ',t40,3f12.6,/)
@@ -1186,6 +1239,7 @@ c
       read(card(18:22),'(i5)') nzrep
       read(card(35:46),'(f12.6)') rdist
       read(card(47:51),'(i5)') iropt
+      read(card(52:56),'(i5)') irrand
       write(*,1019) nxrep,nyrep,nzrep
  1019 format(/,' Repeating ',3i5,/)
       if(.not.pre_repeat(card,lfnout,drep,box,
@@ -1193,6 +1247,16 @@ c
      + dbl_mb(i_vs),msa,nsa,dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
      + call errquit('pre_repeat failed',9999)
+      nskip=0
+      endif
+c
+c     skip
+c     ====
+c
+      if(card(1:6).eq.'skip  ') then
+      nskip=nskip+1
+      if(nskip.gt.100) call errquit('Increase iskip dimension',nskip)
+      read(card(8:22),'(3i5)') (iskip(j,nskip),j=1,3)
       endif
 c
 c     end

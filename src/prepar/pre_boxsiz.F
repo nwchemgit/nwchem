@@ -1,10 +1,11 @@
-      logical function pre_boxsiz(xw,mwm,mwa,nwm,nwa,xs,msa,nsa,box)
+      logical function pre_boxsiz(xw,mwm,mwa,nwm,nwa,xs,msa,nsa,box,
+     + iopt)
 c
-c $Id: pre_boxsiz.F,v 1.3 1998-11-06 21:18:09 d3j191 Exp $
+c $Id: pre_boxsiz.F,v 1.4 2001-08-06 20:26:22 d3j191 Exp $
 c
       implicit none
 c
-      integer mwm,mwa,nwm,nwa,msa,nsa
+      integer mwm,mwa,nwm,nwa,msa,nsa,iopt
       real*8 xw(3,mwa,mwm),xs(3,msa),box(3)
 c
       integer i,j,k
@@ -28,6 +29,52 @@ c
       endif
       box(k)=s+s
     1 continue
+c
+      if(iopt.eq.1) then
+      s=0.0d0
+      do 5 i=1,nsa
+      s=max(s,xs(2,i)**2+xs(3,i)**2)
+    5 continue
+      if(nwm.gt.0) then
+      do 6 i=1,nwm
+      do 7 j=1,nwa
+      s=max(s,xw(2,j,i)**2+xw(3,j,i)**2)
+    7 continue
+    6 continue
+      endif
+      box(2)=2.0d0*sqrt(s)
+      box(3)=2.0d0*sqrt(s)
+      endif
+      if(iopt.eq.2) then
+      s=0.0d0
+      do 8 i=1,nsa
+      s=max(s,xs(1,i)**2+xs(3,i)**2)
+    8 continue
+      if(nwm.gt.0) then
+      do 9 i=1,nwm
+      do 10 j=1,nwa
+      s=max(s,xw(1,j,i)**2+xw(3,j,i)**2)
+   10 continue
+    9 continue
+      endif
+      box(1)=2.0d0*sqrt(s)
+      box(3)=2.0d0*sqrt(s)
+      endif
+      if(iopt.eq.3) then
+      s=0.0d0
+      do 11 i=1,nsa
+      s=max(s,xs(1,i)**2+xs(2,i)**2)
+   11 continue
+      if(nwm.gt.0) then
+      do 12 i=1,nwm
+      do 13 j=1,nwa
+      s=max(s,xw(1,j,i)**2+xw(2,j,i)**2)
+   13 continue
+   12 continue
+      endif
+      box(1)=2.0d0*sqrt(s)
+      box(2)=2.0d0*sqrt(s)
+      endif
 c
       pre_boxsiz=.true.
       return
