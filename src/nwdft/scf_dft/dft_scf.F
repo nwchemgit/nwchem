@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.191 2001-10-12 18:01:29 edo Exp $
+c     $Id: dft_scf.F,v 1.192 2001-10-17 18:04:05 edo Exp $
 c     
       implicit none
 c
@@ -433,6 +433,7 @@ c
      .     .or.fon) then
          vecs_or_dens='vectors'
          ldmix=.true.
+         ncanorg=1
       endif
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
@@ -511,7 +512,7 @@ c     May not want levelshifting initially until sure that the
 c     transformed Fock matrix will be diagonally dominant, or
 c     alternatively shift the piss out of it.
 c     
-      if (movecs_guess.eq.'restart')then
+      if (movecs_guess.eq.'restart'.or.ncanorg.eq.1)then
          levelshifting = .true.
       else
          levelshifting = .false.
