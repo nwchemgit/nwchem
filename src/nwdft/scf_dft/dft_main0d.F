@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.37 2000-04-10 21:21:55 windus Exp $
+c     $Id: dft_main0d.F,v 1.38 2000-04-11 02:28:28 zzhang Exp $
 c     
       implicit none
 c
@@ -38,9 +38,9 @@ c
       double precision toll_s
       logical dft_scf,l1ecache
       external dft_scf
-      logical dft_scf_so 
-      external dft_scf_so 
-      character*80 theory, key, prefix
+c      logical dft_scf_so 
+c      external dft_scf_so 
+c      character*80 theory, key, prefix
 c     
 #if defined(DFT_TIMER)
       call t_stat(11,-2)
@@ -394,18 +394,23 @@ c
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c     
 c     if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
+      dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
+     &     iter, g_dens, g_evecs, g_vxc, g_fock, 
+     &     g_svecs, isvals, g_xcinv, g_s)
 c     
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
-      if (theory .eq. 'dft') then
-         dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
-     &        iter, g_dens, g_evecs, g_vxc, g_fock,
-     &        g_svecs, isvals, g_xcinv, g_s)
-      else if (theory .eq. 'sodft') then
-         dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
-     &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 
-     &        g_svecs, isvals, g_xcinv)
-      endif 
+c     if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2'
+c     
+c      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+c     $     call errquit('task:energy: theory not specified',0)
+c      if (theory .eq. 'dft') then
+c         dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
+c     &        iter, g_dens, g_evecs, g_vxc, g_fock,
+c     &        g_svecs, isvals, g_xcinv, g_s)
+c      else if (theory .eq. 'sodft') then
+c         dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
+c     &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 
+c     &        g_svecs, isvals, g_xcinv)
+c      endif 
 cso 
 c     
 c     Clean up memory usage.
