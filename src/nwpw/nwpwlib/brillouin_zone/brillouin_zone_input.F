@@ -1,5 +1,5 @@
 c
-c $Id: brillouin_zone_input.F,v 1.5 2004-01-31 01:46:30 bylaska Exp $
+c $Id: brillouin_zone_input.F,v 1.6 2004-02-02 23:11:37 bylaska Exp $
 c
 
 *     *************************************************
@@ -159,7 +159,7 @@ c
 
       !**** local variables ****
       character*30 rtdb_name
-      integer i1,i2,i3,k,l,nx,ny,nz,num_kvectors
+      integer i1,i2,i3,k,l,num_kvectors
       integer kvs(2)
       real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz
 
