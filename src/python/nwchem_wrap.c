@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.19 2001-11-29 22:22:11 bert Exp $
+ $Id: nwchem_wrap.c,v 1.20 2002-05-06 22:38:25 windus Exp $
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>
@@ -27,6 +27,9 @@ static Integer rtdb_handle;            /* handle to the rtdb */
 #define task_optimize_ TASK_OPTIMIZE
 #define task_coulomb_ TASK_COULOMB
 #define task_coulomb_ref_ TASK_COULOMB_REF
+#define task_saddle_ TASK_SADDLE
+#define task_freq_ TASK_FREQ
+#define task_hessian_ TASK_HESSIAN
 #endif
 
 extern int nw_inp_from_string(int, const char *);
@@ -36,6 +39,9 @@ extern Integer FATR task_gradient_(const Integer *);
 extern Integer FATR task_optimize_(const Integer *);
 extern Integer FATR task_coulomb_(const Integer *);
 extern Integer FATR task_coulomb_ref_(const Integer *);
+extern Integer FATR task_saddle_(const Integer *);
+extern Integer FATR task_freq_(const Integer *);
+extern Integer FATR task_hessian_(const Integer *);
 
 static PyObject *nwwrap_integers(int n, Integer a[])
 {
@@ -678,6 +684,149 @@ static PyObject *wrap_task_optimize(PyObject *self, PyObject *args)
 }
 
 
+static PyObject *wrap_task_hessian(PyObject *self, PyObject *args)
+{
+    char *theory;
+
+    if (PyArg_Parse(args, "s", &theory)) {
+	if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+		      strlen(theory)+1, theory)) {
+	    PyErr_SetString(NwchemError, "task_hessian: putting theory failed");
+
+	    return NULL;
+	}
+	if (!task_hessian_(&rtdb_handle)){
+	    PyErr_SetString(NwchemError, "task_hessian: failed");
+	    return NULL;
+	}
+    }	
+    else {
+	PyErr_SetString(PyExc_TypeError, "Usage: task_hessian(theory)");
+	return NULL;
+    }
+
+    return NULL;
+}
+
+static PyObject *wrap_task_freq(PyObject *self, PyObject *args)
+{
+    char *theory;
+    double zpe, *frequencies, *intensities;
+    int ma_type, nelem, ma_handle;
+    PyObject *returnObj, *zpeObj, *freqObj, *intObj;
+
+
+    if (PyArg_Parse(args, "s", &theory)) {
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_freq: putting theory failed");
+	    
+	    return NULL;
+	}
+
+    if (!task_freq_(&rtdb_handle)) {
+            PyErr_SetString(NwchemError, "task_freq: failed");
+
+            return NULL;
+	}
+
+        if (!rtdb_get(rtdb_handle, "vib:zpe", MT_F_DBL, 1, &zpe)) {
+            PyErr_SetString(NwchemError, "task_freq: getting energy failed");
+
+            return NULL;
+        }
+    if (!rtdb_ma_get(rtdb_handle,"vib:projected frequencies",&ma_type,&nelem,&ma_handle)){
+
+            PyErr_SetString(NwchemError, "task_freq: getting frequencies failed");
+
+            return NULL;
+	}
+    if (!MA_get_pointer(ma_handle, &frequencies)) {
+            PyErr_SetString(NwchemError, "task_freq: ma_get_ptr failed");
+            return NULL;
+        }
+
+    if (!rtdb_ma_get(rtdb_handle,"vib:projected intensities",&ma_type,&nelem,&ma_handle)){
+
+            PyErr_SetString(NwchemError, "task_freq: getting frequencies failed");
+
+            return NULL;
+	}
+    if (!MA_get_pointer(ma_handle, &intensities)) {
+            PyErr_SetString(NwchemError, "task_freq: ma_get_ptr failed");
+            return NULL;
+        }
+    }
+
+    else {
+        PyErr_SetString(PyExc_TypeError, "Usage: task_freq(theory)");
+        return NULL;
+    }
+
+    zpeObj = Py_BuildValue("d",zpe);
+    freqObj = nwwrap_doubles(nelem, frequencies);
+    intObj = nwwrap_doubles(nelem, intensities);
+    returnObj = Py_BuildValue("OOO", zpeObj, freqObj, intObj);
+    Py_DECREF(zpeObj);
+    Py_DECREF(freqObj);
+    Py_DECREF(intObj);
+    (void) MA_free_heap(ma_handle);
+
+    return returnObj;
+}
+
+
+
+static PyObject *wrap_task_saddle(PyObject *self, PyObject *args)
+{
+    char *theory;
+    double energy, *gradient;
+    int ma_type, nelem, ma_handle;
+    PyObject *returnObj, *eObj, *gradObj;
+
+    if (PyArg_Parse(args, "s", &theory)) {
+        if (!rtdb_put(rtdb_handle, "task:theory", MT_CHAR, 
+                      strlen(theory)+1, theory)) {
+            PyErr_SetString(NwchemError, "task_saddle: putting theory failed");
+
+            return NULL;
+        }
+    if (!task_saddle_(&rtdb_handle)) {
+            PyErr_SetString(NwchemError, "task_saddle: failed");
+            return NULL;
+	}
+        if (!rtdb_get(rtdb_handle, "task:energy", MT_F_DBL, 1, &energy)) {
+            PyErr_SetString(NwchemError, "task_saddle: getting energy failed");
+
+            return NULL;
+        }
+        if (!rtdb_ma_get(rtdb_handle,"task:gradient",&ma_type,&nelem,&ma_handle)){
+
+            PyErr_SetString(NwchemError, "task_saddle: getting gradient failed");
+
+            return NULL;
+        }
+        if (!MA_get_pointer(ma_handle, &gradient)) {
+            PyErr_SetString(NwchemError, "task_saddle: ma_get_ptr failed");
+            return NULL;
+        }
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "Usage: task_saddle(theory)");
+        return NULL;
+    }
+    
+    eObj = Py_BuildValue("d",energy);
+    gradObj = nwwrap_doubles(nelem, gradient);
+    returnObj = Py_BuildValue("OO", eObj, gradObj);
+    Py_DECREF(eObj);
+    Py_DECREF(gradObj);
+    (void) MA_free_heap(ma_handle);
+
+    return returnObj;
+}
+
+
 static PyObject *wrap_ga_nodeid(PyObject *self, PyObject *args)
 {
     int nodeid = ga_nodeid_();
@@ -728,6 +877,9 @@ static struct PyMethodDef nwchem_methods[] = {
    {"task_energy",     wrap_task_energy, 0}, 
    {"task_gradient",   wrap_task_gradient, 0}, 
    {"task_optimize",   wrap_task_optimize, 0}, 
+   {"task_hessian",    wrap_task_hessian, 0},
+   {"task_saddle",     wrap_task_saddle, 0},
+   {"task_freq",       wrap_task_freq, 0},
    {"task_coulomb",    wrap_task_coulomb, 0}, 
    {"task_coulomb_ref",    wrap_task_coulomb_ref, 0}, 
    {"input_parse",     wrap_nw_inp_from_string, 0}, 
