@@ -1,5 +1,5 @@
 *
-* $Id: skew.F,v 1.1 2002-06-25 19:51:26 bylaska Exp $
+* $Id: skew.F,v 1.2 2002-07-03 22:06:29 bylaska Exp $
 *
 
 
@@ -133,7 +133,7 @@
 
 
 
-      SUBROUTINE TRIZD ( NA, N, A, E )                                  TRIZ0001
+      SUBROUTINE TRIZD ( NA, N, A, E )
 C
 C ****
 C
@@ -247,7 +247,7 @@ C
   230 E(1) = 0.0d0
       RETURN
       END
-      SUBROUTINE IMZD ( N, E, MATZ, SKEW, NZ, Z, IERR )                 IMZD0001
+      SUBROUTINE IMZD ( N, E, MATZ, SKEW, NZ, Z, IERR )
 C
 C ****
 C
@@ -526,7 +526,7 @@ C
 C
   370 RETURN
       END
-      SUBROUTINE TBAKZD ( NA, N, A, M, NZ, Z )                          TBAK0001
+      SUBROUTINE TBAKZD ( NA, N, A, M, NZ, Z )
 C
 C ****
 C
