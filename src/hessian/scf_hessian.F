@@ -5,7 +5,6 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-c#include "schwarz.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "cfock.fh"
@@ -24,7 +23,6 @@ c
       logical converged
       logical status
       character*255 title
-      double precision charge
 c
       if (.not. scf(rtdb))
      $     call errquit('scf_hessian: scf failed', 0)
@@ -52,12 +50,6 @@ c
      $     call errquit('hessian: no ao basis ', 0)
       if(.not. int_normalize(basis))
      $     call errquit('hessian: normalization failed',911)
-c
-c     Figure out the numer of electrons from the required total
-c     charge and the sum of nuclear charges
-c
-c     if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
-c    $     charge = 0.0d0
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then

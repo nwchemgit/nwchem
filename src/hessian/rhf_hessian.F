@@ -9916,6 +9916,7 @@ C     COMMON/HND_IOFILE/IR,IW
       DATA DNAM /4HE'X ,4HE'Y ,4HE'Z /
 C
       LOGICAL OUT
+      OUT = .FALSE.
 C
 C     ----- TRANSFER GRADIENT INTO -EG- -----
 C
@@ -15638,7 +15639,7 @@ C
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c$Id: rhf_hessian.F,v 1.2 1997-02-01 22:21:18 bmeng Exp $
+c$Id: rhf_hessian.F,v 1.3 1997-02-04 04:17:04 bmeng Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
@@ -17001,4 +17002,79 @@ c%%
  9148 FORMAT(I5,2X,A8,7F15.10)
  9228 FORMAT(15X,7(4X,A8,3X))
  9248 FORMAT(I5,2X,A8,7E15.8)
+      END
+      SUBROUTINE HND_PRSQL(V,M,N,NDIM)
+      IMPLICIT REAL*8 (A-H,O-Z)
+C
+C     ----- PRINT OUT A SQUARE MATRIX WITH LABELS
+C
+      PARAMETER (MXATOM=500)
+      PARAMETER (MXBFN=3072)
+      COMMON/HND_IOFILE/IR,IW,IP
+      COMMON/HND_LISTNG/LIST
+c%%
+C     COMMON/HND_MOLLAB/ANAM(MXATOM),BNAM(MXATOM),BFLAB(MXBFN)
+c%%
+      DIMENSION V(NDIM,1)
+      DIMENSION IC(5),CBF(5),C(5)
+      DATA VTOL  /1.5D-01/
+      DATA ICMAX /5/
+C
+      IF(LIST.EQ.0) MAX=10
+      IF(LIST.EQ.1) MAX=7
+      IF(LIST.EQ.2) MAX=7
+C
+      IF(LIST.EQ.0.AND.N.GT.0) GO TO 200
+C
+      IMAX = 0
+  100 IMIN = IMAX+1
+      IMAX = IMAX+MAX
+      IF (IMAX .GT. M) IMAX = M
+      WRITE (IW,9008)
+      IF(LIST.EQ.0) WRITE (IW,9028) (I,I = IMIN,IMAX)
+      IF(LIST.EQ.1) WRITE (IW,9128) (I,I = IMIN,IMAX)
+      IF(LIST.EQ.2) WRITE (IW,9228) (I,I = IMIN,IMAX)
+      WRITE (IW,9008)
+      DO 120 J = 1,N
+c%%
+C     IF(LIST.EQ.0) WRITE (IW,9048) J,BFLAB(J),(V(J,I),I = IMIN,IMAX)
+C     IF(LIST.EQ.1) WRITE (IW,9148) J,BFLAB(J),(V(J,I),I = IMIN,IMAX)
+C     IF(LIST.EQ.2) WRITE (IW,9248) J,BFLAB(J),(V(J,I),I = IMIN,IMAX)
+c%%
+  120 CONTINUE
+      IF (IMAX .LT. M) GO TO 100
+      RETURN
+C
+  200 CONTINUE
+C
+      DO 240 J=1,M
+      WRITE(IW,9328) J
+C
+      II=0
+      DO 220 I=1,N
+      IF( ABS(V(I,J)).LT.VTOL) GO TO 220
+      II=II+1
+      IC (II)=I
+c%%
+C     CBF(II)=BFLAB(I)
+c%%
+      C  (II)=V(I,J)
+      IF(II.LT.ICMAX) GO TO 220
+      WRITE(IW,9348) (IC(IDUM),CBF(IDUM),C(IDUM),IDUM=1,II)
+      II=0
+  220 CONTINUE
+      IF(II.EQ.0) GO TO 240
+      WRITE(IW,9348) (IC(IDUM),CBF(IDUM),C(IDUM),IDUM=1,II)
+  240 CONTINUE
+C
+      RETURN
+ 9008 FORMAT(/)
+ 9028 FORMAT(15X,10(3X,I4,4X))
+ 9048 FORMAT(I5,2X,A8,10F11.5)
+ 9128 FORMAT(15X,7(5X,I4,6X))
+ 9148 FORMAT(I5,2X,A8,7F15.10)
+ 9228 FORMAT(15X,7(5X,I4,6X))
+ 9248 FORMAT(I5,2X,A8,7E15.8)
+ 9328 FORMAT(/,' VEC =',I5,/,1X,10(1H-))
+ 9348 FORMAT(5(I5,1X,A8,F11.5))
       END
