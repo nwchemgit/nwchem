@@ -1,6 +1,6 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,esk,epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.19 1999-09-11 03:39:28 d3j191 Exp $
+c $Id: prp_main.F,v 1.20 1999-09-17 22:22:01 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,7 @@ c
       real*8 eww(mpe,2),esw(msf,mpe,2),ess(msf,msf,mpe,2),epme(3)
       real*8 epot,epotw,epotsw,epots,vol
       real*8 eq,el,ep,ek,et,ewp,uqmd,uqmmm
-      real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3
+      real*8 tempw,temps,stime,esk(msf),ewk,ep2,ep3,edrs,epmf
       integer nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits
 c
       integer i,j,k,it
@@ -94,13 +94,16 @@ c     if using cafe get properties from it
 c
       if(lcafe) then
       call cf_proper(volume,temp,tempw,temps,pres,tmpscl,tmsscl,prsscl,
-     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3)
+     + ewk,nwwl,nwws,nswl,nsws,nssl,nsss,nshitw,nshits,ep2,ep3,
+     + edrs,epmf)
       endif
 c
 c     if using space get properties from it
 c
       if(lspac) then
       endif
+c
+      if(me.eq.0) ep=ep+edrs+epmf
 c
       ep=ep+epme(iset)
       eq=eq+epme(iset)

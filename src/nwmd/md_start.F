@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.29 1999-09-11 03:39:28 d3j191 Exp $
+c $Id: md_start.F,v 1.30 1999-09-17 22:22:01 d3j191 Exp $
 c
       implicit none
 c
@@ -32,6 +32,7 @@ c     start the classical forces API
 c     ------------------------------
 c
       call cf_start(lfntop,filtop,
+     + ndistr,lfndrs,fildrs,npmf,lfnpmf,filpmf,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + mdalgo,npbtyp,nbxtyp,rshort,rlong,rqmmm,box,
      + ipme,morder,ngx,ngy,ngz,nodpme,pmetol,
@@ -203,6 +204,8 @@ c
       filinp=filnam(1:ibl)//'.inp'
       filrst=filnam(1:ibl)//'.rst'
       filtop=filnam(1:iun)//'.top'
+      fildrs=filnam(1:iun)//'.drs'
+      filpmf=filnam(1:iun)//'.pmf'
       filcoo=filnam(1:ibl)//'.trj'
       filprp=filnam(1:ibl)//'.prp'
       filvel=filnam(1:ibl)//'.vel'
@@ -250,10 +253,12 @@ c
       lfnprp=15
       lfnvel=16
       lfngib=17
+      lfndrs=18
       lfnrdf=19
       lfnppd=20
       lfnsco=21
       lfnsvl=22
+      lfnpmf=23
       lfndip=25
       lfndef=26
       lfnemt=27
@@ -745,6 +750,8 @@ c     + call errquit('md_rtdbin: rtdb_get failed',77)
       if(.not.rtdb_get(irtdb,'md:lbpair',mt_int,1,lbpair))
      + call errquit('md_rtdbin: rtdb_get failed',88)
       if(.not.rtdb_get(irtdb,'md:ndistr',mt_int,1,ndistr))
+     + call errquit('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:npmf',mt_int,1,npmf))
      + call errquit('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:ndaver',mt_int,1,ndaver))
      + call errquit('md_rtdbin: rtdb_get failed',90)

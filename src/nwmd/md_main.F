@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.36 1999-09-11 03:39:27 d3j191 Exp $
+c $Id: md_main.F,v 1.37 1999-09-17 22:22:01 d3j191 Exp $
 c
       implicit none
 c
@@ -1093,6 +1093,9 @@ c
 #include "msgids.fh"
 #include "global.fh"
 c
+      logical cf_shakep
+      external cf_shakep
+c
       real*8 xw(mwm,3,mwa),yw(mwm,3,mwa),xs(msa,3),ys(msa,3)
       integer iwl(mwm,miw2),isl(msa,mis2)
       real*8 dmax
@@ -1114,15 +1117,18 @@ c
 c
       if(nsaloc.gt.0) then
       call sp_nbbl(nbbl)
-      do 3 ibbl=1,nbbl
+    3 continue
+      do 4 ibbl=1,nbbl
       call sp_gethdl(ibbl,lhandl,lself,iwfr,iwto,isfr,isto)
       if(lself) call cf_shakes(lhandl,xs,ys,isl(1,lsgan),isl(1,lsatt),
      + isl(1,lsdyn),isfr,isto)
-    3 continue
-      do 4 i=1,nsaloc
+    4 continue
+      do 5 i=1,nsaloc
       dmax=max(dmax,(xs(i,1)-ys(i,1))**2+(xs(i,2)-ys(i,2))**2+
      + (xs(i,3)-ys(i,3))**2)
-    4 continue
+    5 continue
+      if(.not.cf_shakep(xs,ys,isl(1,lsgan),isl(1,lsatt),isl(1,lsdyn),
+     + nsaloc)) goto 3
       endif
 c
       dmax=sqrt(dmax)

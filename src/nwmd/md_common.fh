@@ -1,5 +1,5 @@
 c
-c $Id: md_common.fh,v 1.15 1999-09-11 03:39:27 d3j191 Exp $
+c $Id: md_common.fh,v 1.16 1999-09-17 22:22:01 d3j191 Exp $
 c
 c     parameters
 c
@@ -73,15 +73,15 @@ c
      + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
      + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
-     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
-     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,lfndrs,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,lfnpmf,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
       common/md_lfn/
      + lfninp,lfnout,lfntop,lfnrst,lfncoo,lfnprp,lfnvel,lfngib,lfnsur,
      + lfnrdf,lfnppd,lfnsco,lfnsvl,lfndip,lfndef,lfnemt,lfnfld,lfnsfl,
      + lfnqrs,lfnqco,lfnqpr,lfnhis,lfnhbo,lfnsys,lfnkrk,lfndbg,lfnqsc,
-     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,
-     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,
+     + lfnacf,lfncnv,lfnfet,lfnupi,lfnuse,lfnmsg,lfnday,lfnmri,lfndrs,
+     + lfnmro,lfnmrr,lfnmem,lfnarg,lfnsum,lfnlog,lfnind,lfnsin,lfnpmf,
      + lfntim,lfnsyn,lfnrdi,lfntst,ldarg,ldlog,lfsum,lfout6,iport
 c
 c     socket stuff
@@ -95,14 +95,14 @@ c     -------------------
 c
       character*80 filnam,fdarg,fdlog,fsum,server
       character*70 filday,filinp,filrst,filtop,filcoo,filprp,filfld,
-     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
-     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
+     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,fildrs,
+     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,filpmf,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst
       common/md_nam/
      + filnam,filday,filinp,filrst,filtop,filcoo,filprp,filfld,
-     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,
-     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,
+     + filvel,filgib,filppd,filsco,filsvl,filhis,filhbo,filsfl,fildrs,
+     + filmro,filmri,filemt,filout,filmem,fildef,filqpr,filqco,filpmf,
      + filqsc,filsur,filqrs,filrdf,filddf,filkrk,fildbg,filacf,filcnv,
      + filfet,filupi,filmrr,filind,filsin,filtim,filsyn,filrdi,filtst,
      + fdarg,fdlog,fsum,server
@@ -137,7 +137,7 @@ c
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
-     + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,
+     + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
      + irun,iequi,idacq,
      + inp_ptr
       common/md_inp/ptol,rshort,rlong,stime,tstep,elam,ddacq,edacq,
@@ -165,7 +165,7 @@ c
      + itest,msareq,mwmreq,imfft,isolvo,morder,memlim,nscb,nfsfld,
      + nfefld,maxpro,icomm,latom,ihess,itload,nfdrss,nftime,itime,
      + idevel,ndaver,npbtyp,nbxtyp,nflong,lstype,lendis,lenhis,numrdf,
-     + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,
+     + lwtype,ndistr,lbpair,noshak,iunfix,ifix,isdit,icgit,npmf,
      + irun,iequi,idacq,
      + inp_ptr
 c

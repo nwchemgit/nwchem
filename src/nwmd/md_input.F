@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.5 1999-09-11 03:39:27 d3j191 Exp $
+c $Id: md_input.F,v 1.6 1999-09-17 22:22:01 d3j191 Exp $
 c
       implicit none
 c
@@ -26,7 +26,7 @@ c
       integer ngx,ngy,ngz,ifix,iunfix,noshak,nfslow,nfefld,nfsfld
       integer ngl,isetp1,isetp2,ifield,iapprx,nacfl,npxpct,nfem,imfft
       integer ireact,itemp,nscb,idscb(10),memlim,morder,isolvo,lfout6
-      integer mwmreq,msareq,itest,nodpme,lbpair,ireset
+      integer mwmreq,msareq,itest,nodpme,lbpair,ireset,npmf
       integer ndistr,ndaver,idevel,itime(500),nftime,idtime,nfdrss
       integer itload,ihess,latom,icomm,maxpro,nfanal,iport
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
@@ -142,6 +142,7 @@ c
       nodpme=0
       lbpair=5
       ndistr=0
+      npmf=0
       ndaver=0
       idevel=0
       nftime=0
@@ -526,6 +527,18 @@ c
       goto 260
       endif
       goto 3
+      endif
+c
+c     pmf
+c
+      if(inp_compare(.false.,'pmf',item)) then
+      npmf=1
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'constraint',item)) then
+      npmf=2
+      if(.not.inp_a(item)) goto 1
+      endif
+      goto 2
       endif
 c
 c     distance restraints
@@ -1272,6 +1285,8 @@ c     + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:lbpair',mt_int,1,lbpair))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:ndistr',mt_int,1,ndistr))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:npmf',mt_int,1,npmf))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfdrss',mt_int,1,nfdrss))
      + call errquit('md_input: rtdb_put failed',0)
