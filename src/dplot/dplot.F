@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.20 2001-04-12 01:34:02 edo Exp $
+* $Id: dplot.F,v 1.21 2001-05-11 19:50:40 edo Exp $
 *
       Implicit None
 *     
@@ -102,11 +102,14 @@ c
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0)
       if (inp_compare(.false.,File_Vec,' ')) then
-        tag = 'scf:input vectors'
+        tag = 'scf:input  vectors'
+        write(0,*) ' trying scf '
         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
-           tag = 'dft:input vectors'
+        write(0,*) ' trying dft '
+           tag = 'dft:input  vectors'
            if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
-     &        File_Vec  = 'movecs'
+     .          call util_file_name('movecs',.false.,.false.,File_Vec)
+!     &        File_Vec  = 'movecs'
            write(0,*) ' File vec is ',File_Vec
         endif
       endif
