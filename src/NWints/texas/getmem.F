@@ -1,4 +1,4 @@
-c $Id: getmem.F,v 1.1 1997-09-17 23:10:47 d3g681 Exp $
+c $Id: getmem.F,v 1.2 2000-03-13 19:36:39 edo Exp $
 c
       subroutine getmem(amount,addr)
 c  this subroutine reserves amount space in the common block 
@@ -112,7 +112,7 @@ cc>> 1  ' memory overflow request no., amount needed',nreq,ixx)
      1  nreq,maxall)
       end if
 c
-#if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(DECOSF)
+#if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(DECOSF)||(defined(__linux__)&&defined(__alpha))
       call dfill(amount, 0.0d0, bl(addr), 1)
 #endif
 c
