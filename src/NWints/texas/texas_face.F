@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.21 1996-07-10 23:57:26 rg240 Exp $
+c $Id: texas_face.F,v 1.22 1996-07-12 18:20:14 pg481 Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -230,7 +230,7 @@ c     write(8,*) '===================================================='
       write(8,*) '===================================================='
       end
 c=================================================================
-      subroutine texas_init(rtdb,nbas,bases,l_blsize)
+      subroutine texas_init(rtdb,nbas,bases,nq_init,l_blsize)
 c---------------------------------------------------------------
 c l_blsize = size of the scratch array which will be used when
 c             texas_hf2_m is called
@@ -254,6 +254,7 @@ c::passed
       integer rtdb ! rtdb handle
       integer nbas ! number of basis sets 
       integer bases(nbas) ! basis set handles
+      integer nq_init ! [input] maximum number of quartets ever.
       integer l_blsize
 c::local
       integer geom, basis 
@@ -286,13 +287,9 @@ c----------------------------------------------------------------------
       integer rtdb_copy
       common /c_rtdb_copy/ rtdb_copy
       integer bas
-c
-c
 c----------------------------------------------------------------------
-c only for tests:
+      integer txs_static, txs_dynam
 c
-c     leri=614656
-c----------------------------------------------------------------------
 c
       rtdb_copy = rtdb
       if (nbas.gt.1 .and. ga_nodeid().eq.0) then
@@ -318,6 +315,14 @@ c total number of primitive shells
 c
       npshells = nprim_tot_gb(bas)
 c------------------------------------
+c basis set type (cartesian or spherical harmonics)
+c
+       if( bas_spherical(bas)) then 
+           write(6,*)' basis set=spherical'
+       else
+           write(6,*)' basis set=cartesian'
+       endif
+c------------------------------------
 c For 3- and 2-center(index) integrals add one 
 c uncontracted S-shell with exponent ZERO :
 c If these integrals are going to be calculated latter
@@ -328,9 +333,7 @@ c
 c
 c------------------------------------
 c Put Basis set and nuclear data into the PNL location
-c (remove it from bl() ) :
-c 5*natoms
-c 13*npshells
+c (remove it from bl() ) : 5*natoms + 13*npshells
 c
       size_from_ma = 5*nat + 13*npshells
 c
@@ -343,7 +346,6 @@ c
 c------------------------------------
 c make bl and inx arrays 
 c
-cOLD  call blinx(nat,nshells,npshells)
       call blinx(nat,nshells,npshells,inuc,ibas)
 c------------------------------------
 c make datnuc array
@@ -357,11 +359,10 @@ c finish inx array
 c
       call makeinx
 c------------------------------------
-c Re-arrange a basis set according to 
-c the Texas convention
+c Re-arrange a basis set according to the Texas convention
 c 1) normalize and 2) re-order
 c
-      call txsarrag(dbl_mb, l_blsize)
+      call txsarrag(dbl_mb, nq_init, l_blsize)
 c
 c... map texas memory to memory commons of the PNL/int API
 c
@@ -373,8 +374,11 @@ c
 *      mem_2e3c = max(mem_2e3c,l_blsize)
 *      mem_2e2c = max(mem_2e2c,l_blsize)
 c tmp fix for memory split
-      iszb_2e4c = isz_2e4c*100  ! 100 max quartet size
+      iszb_2e4c = isz_2e4c*100  ! 100* max single quartet size
       memb_2e4c = l_blsize
+      call texas_memory (txs_static,1,txs_dynam)
+      mem_2e4c = max(mem_2e4c,txs_static+txs_dynam)
+* add 2 center and 3 center changes later
 c
 c--------------------------------------------------
 c ONLY for TESTS : calculate two-electron integrals  
@@ -566,7 +570,7 @@ c
 c
       end
 c=================================================================
-      subroutine txsarrag(basnuc, l_blsize)
+      subroutine txsarrag(basnuc, nq_init, l_blsize)
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
       logical firstd
@@ -743,6 +747,12 @@ c
 c
       call texas_input
 c------------------------------------
+c return address for the case when LIMPAIR has been decreased
+c in the blockin2 set of routeins called by prepint :
+c
+  999 CONTINUE
+c
+c------------------------------------
 c estimate memory requested in texas-scratch bl() by prepint2
 c ( prepint2 calls BLOCKIN2 )
 c There are 10 mem. allocations :
@@ -804,14 +814,19 @@ cold-
 c
       call prepint2(dbl_mb(ntxs_bl_scr),
      *              eps,inuc,ibas,na,nbf,nsh,ncf,ncs,inx,lcore,nsym,
-     *              maxprice,scftype)
+     *              maxprice,scftype,iret_limit)
 c
-cccc  write(6,100) scftype
-c 100 format(
-c    */'------------------------------------------------------'/
-c    * '*  SCF will be performed in the ',a11,' fashion  *'/
-c    * '------------------------------------------------------'/)
 c
+      if(iret_limit.gt.0) then
+        if (.not.MA_free_heap(h_txs_prep2 ))
+     &        call errquit('texas_terminate: failed ?', 911)
+        h_txs_prep2  = -1
+        k_txs_prep2  =  0
+ctest
+         write(6,*)'from texas_face: iret_limit.NE.0 , memory freed'
+ctest
+        GO TO 999
+      endif
 c------------------------------------
 c Construct an array showing to which pair-block
 c a given pair of shells belongs:
@@ -837,18 +852,41 @@ c
       write(8,*)'-----------------------------------------------'
       ENDIF
 c------------------------------------
-c estimate memory requested in texas-scratch bl() by texas_hf2_m :
-c the size of the scratch bl_scr needed to call texas_hf2_m with :
+c release memory allocated for prepint2 (& pair_in2) 
+c and allocate it again according to "high water" :
 c
-      call txs_scratch_siz2(maxmem_scr,iprint)
+        if (.not.MA_free_heap(h_txs_prep2 ))
+     &        call errquit('texas_terminate: failed ?', 911)
+        h_txs_prep2  = -1
+        k_txs_prep2  =  0
 c
+c allocate memory again according to "high water" :
+c
+      if (.not. MA_alloc_get(MT_DBL,maxmem_bl    , 'for txs scratch ',
+     &                       h_txs_prep2 , k_txs_prep2 ))
+     &    call errquit('texas_init: alloc for for txs scratch failed',
+     &    911)
+c
+ctest
+c      write(6,*)' Release & allocate :'
+c      write(6,*)' address before=',ntxs_bl_scr,' after=',k_txs_prep2
+ctest
+      lcore=maxmem_bl
+c
+      ntxs_bl_scr=k_txs_prep2 
 c------------------------------------
-c estimate TOTAL memory as needed in texas-scratch bl()
+c MAXMEM_BL is memory needed for blocking procedure (& pair_in2).
+c To execute texas-integral program more memory is needed, for
+c pnl-txs interface (in texas_hf2_m) and some for intermedites.
+c The following call estimates this memory AND ADDS it to the
+c memory requested for blocking (MAXMEM_BL). On return,
+c              L_BLSIZE
+c the TOTAL memory needed to call the texas-integral program 
+c for NQUART_PNL number of shell quartets :
 c
-c               prepint2    needed when 
-c              high water  txs is called
+      nquart_pnl=nq_init ! max size of the PNL request (set in api/int_init)
 c
-      l_blsize= maxmem_bl + maxmem_scr
+      call txs_scratch_siz2(iprint,nquart_pnl,maxmem_bl,l_blsize)
 c
 c------------------------------------
       IF(IPRINT.gt.0) THEN
@@ -1118,9 +1156,9 @@ c
       iblock=0      ! option name is IBLO  not used
 c                   ! option name is LIMI (3 numbers)
 c...
-      limxmem=500 000 ! limit for memory/block
-      limblks=  5 000 ! limit for quartet-block-size
-      limpair=  1 000 ! limit for pair-block-size
+      limxmem=1 000 000 ! limit for memory/block
+      limblks=    5 000 ! limit for quartet-block-size
+      limpair=      500 ! limit for pair-block-size
 c
       if (rtdb_get(rtdb,'int:txs:limi',MT_INT,3,rtdblim)) then
         if (rtdblim(1).gt.0) then
@@ -1373,61 +1411,96 @@ c-------------------------------------------------------
 c-------------------------------------------------------
       end
 c===============================================================
-      subroutine txs_scratch_siz2(maxmem_scr,iprint)
-c
+      subroutine txs_scratch_siz2(iprint,nquarts,maxmem_bl,l_blsize)
+      implicit real*8 (a-h,o-z)
+c------------------------------------------------
 c estimate memory requested in texas-scratch bl() by texas_hf2_m
+c when it is called for NQUARTS shell quartets
+c------------------------------------------------
+c INPUT :
+c      iprint - print level
+c      nquarts - maximum number of quartets in the PNL request
+c      maxmem_bl - memory allocated already in blocking procedure
+c
+c OUTPUT: l_blsize - total memory needed for texas-integrals
+c                    maximum screatch size 
+c     
+c------------------------------------------------
 c
       common /memmax/ ispblx, maxmem1,iforwhat
       common /memor1b/ nbl2,nbloks
 c transfered from blockin2 only to estimate memory here 
       common /max_pairs/ maxpar    
+c
+c memory common for use in TEXAS_MEMORY(m_static,nquarts,m_dynam)
+c routines
+c
+      common /txs_memory/ mem_stat
 c------------------------------------------------
-c maxme0 - nbl4 as reserved in pair_in2 
 c maxme1 - max. memory needed for one block - calculated in blocin2
 c maxme2 - max. memory needed in texas_setup (without uniq_pairs)
 c maxme3 - max. memory needed in uniq_pairs
 c
-c May96 :
 c          4*nquartets_pnl + 2*nbl2 + 5*nbl4 + ngcd*size_ijkl
+c
 c the last term appears only for a request without labels, assume
 c 3**4 * (pppp)=> 6561 or 1* ffff => 10000
 c------------------------------------------------
-c assumption : nquarts_pnl <= 10 000          
-c
-      data nquarts /10 000/
-c------------------------------------------------
       nbl4=nbl2*(nbl2+1)/2
 c------------------------------------------------
-c in pair_in2 (after prepint2) one call to getmem(nbl4,..)
-c
-c     maxme0=nbl4
-c included in txs_scratch_siz1
-c-----------------
-c max. memory needed for one block - calculated in blocin2
+c max.memory needed for one block - calculated in blocin2
 c
       maxme1=maxmem1
-c-----------------
-c max. memory needed in texas_setup (except uniq_pairs):
+c------------------------------------------------
+c max.memory needed in texas_setup (except uniq_pairs):
 c
-c??   maxme2=4*nquarts + 2*nbl2 + 5*nbl4 + 10 000
       maxme2=4*nquarts + 2*nbl2 + 4*nbl4 + 10 000
 c
-c-----------------
+c dynamic memory :
+c
+      maxme2_dyna=4*nquarts
+c------------------------------------------------
 c memory reserved in uniq_pairs:
-c ncs_pairs - number of pairs in a request
-c Assuming 10000 quartets (PNL) :
-c they could be made out of 100(ij)+100(kl)=200 pairs,
-c 200 pairs may belong to maximum 200 pair-blocks which of them
-c can have maximum MAXPAR pairs ---> 200*maxpar
+c in a request with "nquarts" quartets the total number of
+c pairs can be NPAIRS=2*sqrt(nquarts) (ij-pairs + kl-pairs).
+c These pairs may belong to maximum NPAIRS pair-blocks.Each
+c of these pair-blocks can have maximum MAXPAR pairs. Hence,
+c memory needed for pair-blocks in uniq_pairs is
 c
-CNEW  maxme3=min(nbl2,200)*maxpar
-      maxme3=min(nbl2,200)*maxpar + nbl2
+      nbl2_max=2*sqrt(dble(nquarts))
 c
+      maxme3=min(nbl2,nbl2_max)*maxpar + nbl2
+c
+c dynamic memory :
+c
+      maxme3_dyna=min(nbl2,nbl2_max)*maxpar 
 c------------------------------------------------
 c final memory estimate :
 c
-cccc  maxmem_scr=maxme0+maxme1+maxme2+maxme3
+c here:
+c
       maxmem_scr=       maxme1+maxme2+maxme3
+c
+c total:
+c
+      maxmem_tot=maxmem_scr + maxmem_bl
+c
+      l_blsize=maxmem_tot
+c
+c------------------------------------------------
+c Separate memory indepent of the size of the PNL request
+c
+c dynamic (request dependent) :
+c
+      mem_dyna= maxme2_dyna + maxme3_dyna
+c
+c static (basis set dependent, request independent) :
+c
+      mem_stat=maxmem_tot - mem_dyna
+c
+c store MEM_STAT in a common block for latter use
+c when TEXAS_MEMORY(m_static,nquarts,m_dynam) is called
+c------------------------------------------------
 c
       if(iprint.gt.0) then
         write(8,*)' PREDICTIONS FOR TEXAS-INTEGRALS    :'
@@ -1437,7 +1510,156 @@ c
         write(8,*)' memory perdicted for txs_setup:',maxme2
         write(8,*)' memory perdicted for uniq_pair:',maxme3
         write(8,*)' MEMORY ESTIMATION FOR SCRATCH2:',maxmem_scr
+c       write(8,*)' memory static (basis set dep.):',mem_stat
+c       write(8,*)' memory dynamic(request depen.):',mem_dyna
         write(8,*)' '
       endif
 c------------------------------------------------
       end
+c===============================================================
+      subroutine texas_memory(m_static,nquarts,m_dynam)
+      implicit real*8 (a-h,o-z)
+      common /memor1b/ nbl2,nbloks
+      common /max_pairs/ maxpar    
+      common /txs_memory/ mem_stat
+c------------------------------------------------
+c INPUT : nquarts 
+c OUTPUT: m_static - memory independent of the request's size
+c OUTPUT: m_dynam  - memory dependent on the request's size
+c------------------------------------------------
+c dynamic memory :
+c
+      maxme2_dyna=4*nquarts
+c
+      nbl2_max=2*sqrt(dble(nquarts))
+      maxme3_dyna=min(nbl2,nbl2_max)*maxpar 
+c
+      mem_dyna= maxme2_dyna + maxme3_dyna
+c
+      m_dynam=mem_dyna
+c------------------------------------------------
+c static memory :
+c
+      m_static=mem_stat
+c------------------------------------------------
+      end
+c==================================================================
+      subroutine get_int_price(icspnl,jcspnl,kcspnl,lcspnl,price)
+c--------------------------------------------------------
+c This routine gives back a price (COST) of a integral 
+c in the PNL quartet of contracted shells
+c
+c Input  : icspnl,...,lcspnl 4 PNL shells
+c Output : price ( relative to the most expensive integral)
+c--------------------------------------------------------
+      implicit real*8 (a-h,o-z)
+#include "mafdecls.fh"
+c
+      common /bl_txs_add/ ntxs_bl_scr 
+      common /memor1a_R/ npard_R,ncost_R,nsupb_R, mxsize_R,nasize_R
+cccc  common /memor1a/ npard,ncost,nsupb, mxsize,nasize
+      common /pnl002/ ncshell,ncfunct,nblock2,integ_n0
+c--------------------------------------------------------
+      nquart=1
+c--------------------------------------------------------
+c find texas-shells corresponding to the given set of pnl-shells.
+c
+      call txs_pnl(nquart,dbl_mb(ncshell),
+     *             icstxs,jcstxs,kcstxs,lcstxs,
+     *             icspnl,jcspnl,kcspnl,lcspnl)
+c
+c on return TXS shells in icspnl... again
+c--------------------------------------------------------
+c find texas-superblock these shells belong to 
+c and price of ONE integral in this quartet :
+c
+      call txs_superbl(icspnl,jcspnl,kcspnl,lcspnl,
+     *        dbl_mb(nblock2),dbl_mb(ntxs_bl_scr-1+ncost_R),
+     *                 isupblk,price) 
+c--------------------------------------------------------
+      end
+c==================================================================
+      subroutine txs_superbl(icstxs,jcstxs,kcstxs,lcstxs,
+     *                       nblock2,ncost,
+     *                       isupblk,price)
+      dimension nblock2(*) ! dimension ncs*(ncs+1)/2
+      dimension ncost(*)   
+c-----------------------------------------------------------------
+c Input:
+c        icstxs,...,lcstxs -  four PNL shells with TXS numbers
+c        nblock2(*) array showing to which pair-block a given pair
+c                   belongs
+c        ncost(*) a price of 1 integral in a given txs-superblock
+c Output:
+c        isupblk= number of the super-block these shells belong to
+c-----------------------------------------------------------------
+        ics=icstxs
+        jcs=jcstxs
+        kcs=kcstxs
+        lcs=lcstxs
+c
+        if(ics.lt.jcs) then
+          ii=ics
+          ics=jcs
+          jcs=ii
+        endif
+        if(kcs.lt.lcs) then
+          kk=kcs
+          kcs=lcs
+          lcs=kk
+        endif
+c
+c now find ijcs and klcs pairs and find to which 
+c pair-blocks they belong :
+c
+        ijcs=ics*(ics-1)/2+jcs
+        klcs=kcs*(kcs-1)/2+lcs
+        ijblock1=nblock2(ijcs)
+        klblock1=nblock2(klcs)
+c
+        iswitch=0
+        if(ijblock1.lt.klblock1) iswitch=1
+        if(ijblock1.eq.klblock1 .and. ijcs.lt.klcs) iswitch=1
+c
+        if(   iswitch.eq.1     ) then
+           ii=ics
+           ics=kcs
+           kcs=ii
+           jj=jcs
+           jcs=lcs
+           lcs=jj
+           ij=ijcs
+           ijcs=klcs
+           klcs=ij
+             ijblk=ijblock1
+             ijblock1=klblock1
+             klblock1=ijblk
+        endif
+c
+c this quartet belongs to the Super-Block no :
+c
+        isupblk=ijblock1*(ijblock1-1)/2+klblock1
+c
+c price of ONE integral is :
+c
+        iprice=ncost(isupblk)
+c
+c relative price of ONE integral is :
+c
+        price=dble(iprice)/dble(ncost(1))
+c
+ctest:
+c        write(6,*)' shells:',ics,jcs,kcs,lcs,' block=',isupblk
+c        write(6,*)' iprice=',iprice,' relative price=',price
+c
+c        do ii=1,21
+c        iprice=ncost(ii)
+c        price=dble(iprice)/dble(ncost(1))
+c        write(6,*)
+c    *   'block=',ii,' iprice=',iprice,' relative price=',price
+c        enddo
+c
+ctest
+c---------------------------------------------------------
+      end
+c==================================================================
