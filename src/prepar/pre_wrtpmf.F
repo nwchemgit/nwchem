@@ -139,8 +139,8 @@ c
       if(ipmf(i,1).eq.1.or.ipmf(i,1).eq.9) then
       if(iopt(i,1).ne.2) then
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,3)
- 1001 format(3i5,2f12.6,2e12.5,4i5)
+     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,3),0,0,i
+ 1001 format(3i5,2f12.6,2e12.5,5i5)
       do 2 k=2,3
       if(lgroup(ipmf(i,k)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,k))
@@ -185,7 +185,7 @@ c
       if(natoms.le.0)
      + call errquit('No atoms selected in group',ipmf(i,3))
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),natoms,natomsj
+     + (rpmf(i,j),j=1,4),natoms,natomsj,0,0,i
       write(lfntop,1002) (itemp(im),im=1,natoms)
       write(lfntop,1002) (jtemp(im),im=1,natomsj)
       endif
@@ -195,7 +195,7 @@ c     angle pmf
 c
       if(ipmf(i,1).eq.2) then
       write(lfntop,1001) 2,iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,4)
+     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,4),0,i
       do 3 k=2,4
       if(lgroup(ipmf(i,k)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,k))
@@ -207,7 +207,7 @@ c     torsion pmf
 c
       if(ipmf(i,1).eq.3) then
       write(lfntop,1001) 3,iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5)
+     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5),i
       do 4 k=2,5
       if(lgroup(ipmf(i,k)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,k))
@@ -219,7 +219,7 @@ c     torsion pmf
 c
       if(ipmf(i,1).eq.4) then
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5)
+     + (rpmf(i,j),j=1,4),(lgroup(ipmf(i,j)),j=2,5),i
       do 13 k=2,5
       if(lgroup(ipmf(i,k)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,k))
@@ -242,7 +242,7 @@ c
       endif
       do 7 k=1,lgroup(ipmf(i,2))
       write(lfntop,1001) 5,iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2))
+     + (rpmf(i,j),j=1,4),1,lgroup(ipmf(i,2)),0,0,i
       write(lfntop,1002) igroup(ipmf(i,2),k)+io
       write(lfntop,1002) (igroup(ipmf(i,2),j)+io,j=1,lgroup(ipmf(i,2)))
     7 continue
@@ -258,7 +258,7 @@ c
       if(ipmf(i,1).eq.6.or.ipmf(i,1).eq.8.or.ipmf(i,1).eq.10) then
       if(iopt(i,1).ne.2) then
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),lgroup(ipmf(i,2))
+     + (rpmf(i,j),j=1,4),lgroup(ipmf(i,2)),0,0,0,i
       if(lgroup(ipmf(i,2)).le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
       write(lfntop,1002) (igroup(ipmf(i,2),j),j=1,lgroup(ipmf(i,2)))
@@ -282,7 +282,7 @@ c
       if(natoms.le.0)
      + call errquit('No atoms selected in group',ipmf(i,2))
       write(lfntop,1001) ipmf(i,1),iopt(i,2),iopt(i,3),
-     + (rpmf(i,j),j=1,4),natoms
+     + (rpmf(i,j),j=1,4),natoms,0,0,0,i
       write(lfntop,1002) (itemp(im),im=1,natoms)
       endif
       endif
@@ -297,7 +297,8 @@ c
       if((ibase.eq.1.and.jbase.eq.5).or.
      + (ibase.eq.2.and.jbase.eq.3)) then
 c
-      write(lfntop,1001) 1,iopt(i,2),iopt(i,3),(rpmf(i,j),j=1,4),1,1
+      write(lfntop,1001) 1,iopt(i,2),iopt(i,3),
+     + (rpmf(i,j),j=1,4),1,1,0,0,i
       write(target,'(i5,a)') ipmf(i,2),':_N1 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -306,7 +307,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,2),':_N3 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -321,7 +322,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,3),':_N1 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -338,7 +339,8 @@ c
       endif
       if((ibase.eq.5.and.jbase.eq.1).or.
      + (ibase.eq.3.and.jbase.eq.2)) then
-      write(lfntop,1001) 1,iopt(i,2),iopt(i,3),(rpmf(i,j),j=1,4),1,1
+      write(lfntop,1001) 1,iopt(i,2),iopt(i,3),
+     + (rpmf(i,j),j=1,4),1,1,0,0,i
       write(target,'(i5,a)') ipmf(i,2),':_N3 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -347,7 +349,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,2),':_N1 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
@@ -362,7 +364,7 @@ c
       write(lfntop,1002) idatom
 c
       write(lfntop,1001) 4,iopt(i,2),iopt(i,3),
-     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1
+     + 0.0d0,0.0d0,(rpmf(i,j),j=3,4),1,1,1,1,i
       write(target,'(i5,a)') ipmf(i,3),':_N3 '
       idatom=pre_atom_index(target,isegm,csa,msa,nsa)
       write(lfntop,1002) idatom
