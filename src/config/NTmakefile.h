@@ -5,7 +5,7 @@
 ##############################################################################
 
 #
-#	$Id: NTmakefile.h,v 1.4 2000-08-02 01:15:51 bjohnson Exp $
+#	$Id: NTmakefile.h,v 1.5 2000-08-08 23:33:55 bjohnson Exp $
 #
 
 #
@@ -26,10 +26,13 @@ NWCHEM_TOP_WIN32 = $(NWCHEM_TOP)
 
 TOPDIR = $(NWCHEM_TOP_WIN32)
 SRCDIR = $(TOPDIR)\src
+# Set LIB_DIR externally to override library dir name under $(TOPDIR)\lib
+!IFDEF LIB_DIR
+LIBDIR = $(TOPDIR)\lib\$(LIB_DIR)
+!ELSE
 LIBDIR = $(TOPDIR)\lib\win32
+!ENDIF
 # !!! This is called LIB_DISTRIB in prev NT makefiles
-# !!! Also, one can override LIB_DISTRIB if desired this way
-# !!! Should LIB_DISTRIB just be changed to LIBDIR?
 LIB_DISTRIB = $(LIBDIR)
 #BINDIR = $(TOPDIR)\bin\win32
 INCDIR = $(TOPDIR)\src\include
@@ -53,8 +56,8 @@ AR = lib -nologo
 ARFLAGS = /out:$(LIBRARY_PATH)
 
 CC = cl -nologo
-#COPT =   -Z7
-COPT =  -G5 -O2
+#COPT = -Z7
+COPT = -G5 -O2
 CFLAGS = -W3 $(COPT) $(INCLUDES) $(DEFINES) -Fo"$(OBJDIR)/" -c
 
 FC = fl32 -nologo
