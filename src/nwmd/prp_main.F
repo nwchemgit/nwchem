@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.101 2003-12-03 06:07:05 d3j191 Exp $
+c $Id: prp_main.F,v 1.102 2003-12-06 16:55:28 d3j191 Exp $
 c
       implicit none
 c
@@ -741,7 +741,7 @@ c
       integer ndec
 c
       call prp_mcti_r(rlambd,dlambd,ndec,dbl_mb(i_dfr),dbl_mb(i_dfrm),
-     + psumt(16),psumt(116),psumt(117),psumt(118),psumt(119),
+     + psumt(16),psumt(117),psumt(118),psumt(119),psumt(120),
      + psumt(51),psumt(41))
 c
       return
