@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.4 1998-04-27 23:45:08 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.5 1998-06-15 18:20:13 d3j191 Exp $
 c
       implicit none
 c
@@ -14,7 +14,6 @@ c
       logical int_normalize
       external int_normalize
 c
-      real*8 factor,probe
       integer i
 c
 c     get input from rtdb

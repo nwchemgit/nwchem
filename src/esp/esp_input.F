@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.4 1998-04-27 23:45:07 d3j191 Exp $
+c $Id: esp_input.F,v 1.5 1998-06-15 18:18:34 d3j191 Exp $
 c
       implicit none
 c
@@ -8,6 +8,7 @@ c
 #include "inp.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "util.fh"
 c
       integer irtdb
       character*255 item
@@ -19,13 +20,13 @@ c
       me=ga_nodeid()
       np=ga_nnodes()
 c
-      if(me.eq.0) then
-      write(6,*)
-      write(6,*)
-      call util_print_centered(6,'ESP Input Module',40,.true.)
-      write(6,*)
-      write(6,*)
-      endif
+c      if(me.eq.0) then
+c      write(6,*)
+c      write(6,*)
+c      call util_print_centered(6,'ESP Input Module',40,.true.)
+c      write(6,*)
+c      write(6,*)
+c      endif
 c
 c     set the defaults
 c
@@ -163,6 +164,15 @@ c
 c
     3 continue
 c
+c     print & noprint
+c     ---------------
+c
+      if(inp_compare(.false.,'print',item).or.
+     + inp_compare(.false.,'noprint',item)) then
+      call util_print_input(irtdb,'esp')
+      goto 1
+      endif
+c
       if(inp_compare(.false.,'range',item)) then
       if(.not.inp_f(rcut)) call errquit('esp_input: range error',0)
       goto 2
@@ -250,9 +260,9 @@ c
 c
       if(.not.inp_compare(.false.,'end',item)) then
       if(me.eq.0) write(6,9999) item
- 9999 format('arg_input: unknown field ',a)
+ 9999 format('esp_input: unknown field ',a)
       if(np.gt.1) call ga_sync()
-      call errquit('arg_input: error reading input file',0)
+      call errquit('esp_input: error reading input file',0)
       endif
 c
       if(factor.le.0.0d0) call errquit('illegal value for factor',0)
