@@ -1,5 +1,5 @@
 *
-* $Id: paw_nonlocal.F,v 1.1 2003-02-26 02:13:16 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.2 2003-02-26 02:47:55 bylaska Exp $
 *
 
 !**************************************************
@@ -110,6 +110,137 @@
 #include "mafdecls.fh"
 #include "paw_ma.fh" 
 #include "paw_nonlocal_data.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh" 
+#include "paw_geom.fh" 
+
+      !*** local variables ***
+      integer ii,ia,n,nion,nbasis,nlm,nlm1
+      integer i_nbasis,indx,indx1,indx_m
+      integer coeff_ptr
+
+
+      nion = ion_nion()
+      call paw_ovlp_coeff_ptr(coeff_ptr)
+      call dcopy(total_nbasis*neall,0.0d0,0,
+     >           dcpl_mb(paw_nl_coeff(1)),1)
+       
+      i_nbasis = 0
+      indx_m = 0
+      do ii=1,nion
+         ia = ion_katm(ii)
+         nbasis = paw_proj_nbasis(ia)
+
+         do nlm =1,nbasis
+         do nlm1=1,nbasis
+
+           !*** up spin ***
+           do n=1,ne_u
+             indx  = (i_nbasis+nlm-1) *neall + (n-1)
+             indx1 = (i_nbasis+nlm1-1)*neall + (n-1)
+
+             dcpl_mb(paw_nl_coeff(1)+indx) 
+     >           = dcpl_mb(paw_nl_coeff(1)+indx) 
+     >           + dcpl_mb(paw_Gop_u(1)+indx_m)
+     >            *dcpl_mb(coeff_ptr+indx1)
+           end do
+
+           !*** up spin ***
+           do n=ne_u+1,ne_u+ne_d
+             indx  = (i_nbasis+nlm-1) *neall + (n-1)
+             indx1 = (i_nbasis+nlm1-1)*neall + (n-1)
+
+             dcpl_mb(paw_nl_coeff(1)+indx) 
+     >           = dcpl_mb(paw_nl_coeff(1)+indx) 
+     >           + dcpl_mb(paw_Gop_d(1)+indx_m)
+     >            *dcpl_mb(coeff_ptr+indx1)
+           end do
+
+
+           indx_m = indx_m + 1
+         end do
+         end do
+      end do
 
       return
       end
+
+      
+
+!**************************************************
+!
+!       Name: paw_nonlocal
+!
+!       Purpose: 
+!
+!       Created: Wed Feb 12 15:18:24 PST 2003
+!**************************************************
+      subroutine paw_nonlocal(Hpsi,move,fion)
+      implicit none
+      complex*16 Hpsi(*)
+      logical    move
+      real*8     fion(3,*)
+
+#include "mafdecls.fh"
+#include "paw_nonlocal_data.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh" 
+#include "paw_geom.fh" 
+
+      !**** local variables ***
+      logical ok
+      integer ii,ia,n,nbasis,nion,prj,npack1
+      integer nlm,nlmii,indx_prj,indx_psi,indx_coeff
+      integer exi(2),p(2)
+
+      call Pack_npack(1,npack1)
+      nion  = ion_nion()
+
+
+
+
+      ok = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack1,'p',p(2),p(1))
+      if (.not. ok) call errquit('paw_nonlocal:out of stack memory',0)
+
+      nlmii = 0
+      do ii=1,ion_nion()
+        ia     = ion_katm(ii)
+        nbasis = paw_proj_nbasis(ia)
+        prj    = paw_proj_i_prj_atom(ia)
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+        do nlm=1,nbasis
+           nlmii = nlmii + 1
+           
+           indx_prj = (nlm-1)*npack1
+           call Pack_cc_Mul(1,
+     >                      dcpl_mb(exi(1)),
+     >                      dcpl_mb(prj+indx_prj),
+     >                      dcpl_mb(p(1)))
+
+           do n=1,neall
+             indx_psi   = (n-1)*npack1 + 1
+             indx_coeff = paw_nl_coeff(1) 
+     >                  + (nlmii-1)*neall 
+     >                  + (n-1) 
+             call Pack_cc_zaxpy(1,
+     >                          dcpl_mb(indx_coeff),
+     >                          dcpl_mb(p(1)),
+     >                          Hpsi(indx_psi))
+           end do
+
+        end do
+
+      end do
+      
+      ok =        MA_pop_stack(p(2))
+      ok = ok.and.MA_pop_stack(exi(2))
+      if (.not. ok) 
+     > call errquit('paw_nonlocal:error popping stack ',2)
+
+      return
+      end
+
+
