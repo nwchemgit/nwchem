@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.19 2000-03-07 02:02:31 edo Exp $
+c$Id: grid_acc_def.F,v 1.20 2000-03-07 02:09:07 edo Exp $
 c
       implicit none
 c      
@@ -33,7 +33,6 @@ c
 c
       double precision ictr_coord(3), ictr_chg
       integer itype, ictr, iaz, i_atomic_number,iangat
-      logical daul
 c
       integer mxnrad, mxnang
 c
