@@ -1,12 +1,11 @@
-      logical function pre_namiup(lfnout,lprint,
+      logical function pre_namiup(lfnout,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
-c $Id: pre_namiup.F,v 1.5 1998-04-29 18:35:19 d3j191 Exp $
+c $Id: pre_namiup.F,v 1.6 1998-06-08 23:29:35 d3j191 Exp $
 c
 c     function to comply with IUPAC atom naming
 c
 c     in  : lfnout    = output file logical file number
-c           lprint    = integer for print to output
 c           kse
 c           mseq      = dimension of the sequence list
 c           nseq      = length of the sequence list
@@ -19,6 +18,8 @@ c           nseq      = actual length of the sequence list
 c
       implicit none
 c
+#include "util.fh"
+c
       integer pre_atnum
       external pre_atnum
 c
@@ -28,12 +29,11 @@ c
       integer lseq(4,mseq),latm(5,matm)
       character*6 catm(3,matm)
       character*5 cseq(2,mseq)
-      integer lprint
 c
       integer i
       logical flag1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_namiup ')
       endif

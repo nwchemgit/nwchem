@@ -1,7 +1,7 @@
-      logical function pre_gensgm(lfnout,lprint,lfnfrg,lfnsgm,
+      logical function pre_gensgm(lfnout,lfnfrg,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_gensgm.F,v 1.5 1998-04-29 18:35:16 d3j191 Exp $
+c $Id: pre_gensgm.F,v 1.6 1998-06-08 23:29:31 d3j191 Exp $
 c
 c     function to generate segment files
 c
@@ -12,7 +12,6 @@ c           dir_x     = dbase directory name
 c           dir_u     = dbase directory name
 c           dir_t     = dbase directory name
 c           lfnout    = output file logical file number
-c           lprint    = integer for print to output
 c           mseq      = dimension of the sequence list
 c           lsgm(1,i) = number of segments of type i
 c           lsgm(2,i) = source: 0=not found; 1=s; 2=x; 3=u; 4=t;
@@ -21,12 +20,12 @@ c
       implicit none
 c
 #include "mafdecls.fh"
+#include "util.fh"
 c
       logical pre_mksgm
       external pre_mksgm
 c
       integer lfnout,lfnfrg,lfnsgm
-      integer lprint
       integer msgm,nsgm
       integer lsgm(3,msgm)
       character*5 csgm(msgm)
@@ -38,7 +37,7 @@ c
       integer len_s,len_x,len_u,len_t,length
       integer i
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_gensgm ')
       endif
@@ -76,7 +75,7 @@ c
       endif
       endif
 c
-      if(.not.pre_mksgm(lfnout,lprint,ffield,
+      if(.not.pre_mksgm(lfnout,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm))
      + call errquit('pre_mksgm failed',9999)
 c

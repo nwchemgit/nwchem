@@ -1,8 +1,8 @@
-      logical function pre_mktop(lfnout,lprint,ffield,
+      logical function pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t)
 c
-c $Id: pre_mktop.F,v 1.7 1998-04-28 23:10:49 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.8 1998-06-08 23:29:34 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -19,6 +19,7 @@ c
       implicit none
 c
 #include "mafdecls.fh"
+#include "util.fh"
 c
       logical pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
       external pre_seqsiz,pre_rdseq,pre_term,pre_dimens,pre_mklist
@@ -31,7 +32,6 @@ c
       character*80 ffield
       character*255 filseq,filtop,filpar
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer lprint
 c
       integer mseq,nseq
       integer l_lseq,i_lseq,l_cseq,i_cseq,i_lmat,l_lmat
@@ -71,17 +71,21 @@ c
 c
       real*8 releps,q14fac,wcorr(3)
 c
-      if(lprint.ge.5) write(lfnout,1000)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1000)
  1000 format('TOPOLOGY GENERATION')
+      endif
 c
-      if(.not.pre_seqsiz(lfnout,lprint,lfnseq,filseq,nseq,nlnk))
+      if(.not.pre_seqsiz(lfnout,lfnseq,filseq,nseq,nlnk))
      + call errquit('pre_seqsize failed',9999)
 c
       mseq=nseq+2
       mlnk=nlnk
 c
-      if(lprint.ge.5) write(lfnout,1001) nseq
+      if(util_print('where',print_debug)) then
+      write(lfnout,1001) nseq
  1001 format('sequence length is',i10)
+      endif
 c
 c     allocate memory for sequence
 c     ----------------------------
@@ -116,36 +120,41 @@ c
 c     read the sequence file
 c     ----------------------
 c
-      if(.not.pre_rdseq(lfnout,lprint,lfnseq,filseq,
+      if(.not.pre_rdseq(lfnout,lfnseq,filseq,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_rdseq failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1002)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1002)
  1002 format('sequence is read')
+      endif
 c
 c     determine termini
 c     -----------------
 c
-      if(.not.pre_term(lfnout,lprint,lfnsgm,dir_s,dir_x,dir_u,dir_t,
+      if(.not.pre_term(lfnout,lfnsgm,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_term failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1003)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1003)
  1003 format('termini are determined')
+      endif
 c
 c     determine array dimensions
 c     --------------------------
 c
-      if(.not.pre_dimens(lfnout,lprint,lfnsgm,dir_s,dir_x,dir_u,dir_t,
+      if(.not.pre_dimens(lfnout,lfnsgm,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + natm,nbnd,nang,ndih,nimp))
      + call errquit('pre_dimens failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1004)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1004)
  1004 format('list dimensions are determined')
-
+      endif
 c
 c     adjust dimension to account for links
 c     -------------------------------------
@@ -281,7 +290,7 @@ c
       if(.not.ma_push_get(mt_int,10*mseq,"lmat",l_lmat,i_lmat))
      + call errquit('Memory allocation failed for lmat',9999)
 c
-      if(.not.pre_mklist(lfnout,lprint,lfnsgm,
+      if(.not.pre_mklist(lfnout,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,
@@ -293,8 +302,10 @@ c
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr))
      + call errquit('pre_mklist failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1005)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1005)
  1005 format('lists are generated')
+      endif
 c
 c     deallocate memory for link matrix
 c     ---------------------------------
@@ -305,12 +316,14 @@ c
 c     get number of atom types
 c     ------------------------
 c
-      if(.not.pre_natyps(byte_mb(i_catm),matm,natmt,natt))
+      if(.not.pre_natyps(lfnout,byte_mb(i_catm),matm,natmt,natt))
      + call errquit('pre_natyps failed',9999)
       matt=natt
 c
-      if(lprint.ge.5) write(lfnout,1006) natt
+      if(util_print('where',print_debug)) then
+      write(lfnout,1006) natt
  1006 format('number of atom types is ',i10)
+      endif
 c
 c     allocate memory for atom type lists
 c     -----------------------------------
@@ -329,7 +342,7 @@ c
 c     substitute force field parameters
 c     ---------------------------------
 c
-      if(.not.pre_params(lfnpar,filpar,lfnout,lprint,
+      if(.not.pre_params(lfnpar,filpar,lfnout,
      + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,
      + int_mb(i_latm),byte_mb(i_catm),matm,natmt,
      + int_mb(i_lbnd),dbl_mb(i_rbnd),mbnd,nbndt,
@@ -340,8 +353,10 @@ c
      + dbl_mb(i_ratt),matt,natt,nats))
      + call errquit('pre_params failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1007)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1007)
  1007 format('force field parameters are substituted')
+      endif
 c
 c     allocate memory for third neighbor list
 c     ---------------------------------------
@@ -365,8 +380,10 @@ c
      + call errquit('pre_third failed',9999)
       endif
 c
-      if(lprint.ge.5) write(lfnout,1008) n3rd
+      if(util_print('where',print_debug)) then
+      write(lfnout,1008) n3rd
  1008 format('third neighbor list length is',i10)
+      endif
 c
 c     allocate memory for excluded pair list
 c     --------------------------------------
@@ -383,8 +400,10 @@ c
      + mbnd,nbnd,int_mb(i_lang),mang,nang,int_mb(i_lexc),mexc,nexc))
      + call errquit('pre_excl failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1009) nexc
+      if(util_print('where',print_debug)) then
+      write(lfnout,1009) nexc
  1009 format('excluded pair list length is',i10)
+      endif
 c
 c     allocate memory for solvent non-bonded list
 c     -------------------------------------------
@@ -403,8 +422,10 @@ c
      + int_mb(i_lnon),mnon,nnon))
      + call errquit('pre_nonbon failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1010) nnon
+      if(util_print('where',print_debug)) then
+      write(lfnout,1010) nnon
  1010 format('solvent non-bonded list length is',i10)
+      endif
 c
 c     write the topology file
 c     -----------------------
@@ -422,8 +443,10 @@ c
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr))
      + call errquit('pre_wrttop failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1011)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1011)
  1011 format('topology file is written')
+      endif
 c
 c     deallocate memory
 c     -----------------

@@ -1,8 +1,8 @@
-      logical function pre_links(lfnout,lprint,xatm,catm,latm,matm,
+      logical function pre_links(lfnout,xatm,catm,latm,matm,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_links.F,v 1.4 1998-04-29 18:35:17 d3j191 Exp $
+c $Id: pre_links.F,v 1.5 1998-06-08 23:29:32 d3j191 Exp $
 c
 c     function to scan database for link segments in sequence
 c
@@ -14,11 +14,12 @@ c     out   cseq(2,*) = sequence segment names
 c
       implicit none
 c
+#include "util.fh"
+c
       logical pre_short
       external pre_short
 c
       integer lfnout,matm,mseq,nseq,mlnk,nlnk
-      integer lprint
       real*8 xatm(3,matm)
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -31,7 +32,7 @@ c
       integer i,j,iu,k,l
       integer link1,link2,link3,mol
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_links ')
       endif

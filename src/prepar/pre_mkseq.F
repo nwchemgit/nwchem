@@ -1,9 +1,9 @@
-      logical function pre_mkseq(irtdb,lfnout,lprint,source,ffield,
+      logical function pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale)
 c
-c $Id: pre_mkseq.F,v 1.13 1998-06-03 14:36:37 d3j191 Exp $
+c $Id: pre_mkseq.F,v 1.14 1998-06-08 23:29:34 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -22,6 +22,7 @@ c
       implicit none
 c
 #include "mafdecls.fh"
+#include "util.fh"
 #include "geom.fh"
 c
       integer irtdb
@@ -34,7 +35,6 @@ c
 c
       integer matm,mseq,mssb,msgm,mbnd,mang,mdih,mimp,mlnk
       integer natm,nseq,nssb,nsgm,nlnk,maxscf
-      integer lprint
       integer l_lseq,i_lseq,l_cseq,i_cseq
       integer l_lsgm,i_lsgm,l_csgm,i_csgm
       integer l_lssb,i_lssb,l_llnk,i_llnk,l_clnk,i_clnk
@@ -53,11 +53,13 @@ c
       integer lfnpdb,lfnout,lfnfrg,lfnpar,lfnseq,lfnsgm,lfntmp
       integer igeom,numslv
 c
-      if(lprint.ge.5) write(lfnout,1000)
- 1000 format('SEQUENCE GENERATION')
+      if(util_print('sequence',print_high)) then
+      write(lfnout,1000)
+ 1000 format(' SEQUENCE GENERATION',/)
+      endif
 c
       if(source(1:3).eq.'pdb') then
-      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,0,
      + natm,nseq,nssb,nlnk,slvnam,numslv))
      + call errquit('pre_pdbsiz failed',9999)
       else
@@ -152,23 +154,31 @@ c     read the sequence and atom list from the pdb file
 c     -------------------------------------------------
 c
       if(source(1:3).eq.'pdb') then
-      if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,lprint,0,slvnam,
+      if(.not.pre_pdbseq(lfnpdb,filpdb,lfnout,0,slvnam,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm,
      + int_mb(i_lssb),mssb,nssb,
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk))
      + call errquit('pre_pdbseq failed',9999)
+      if(util_print('files',print_default)) then
+      write(lfnout,2000) filpdb(1:index(filpdb,' ')-1)
+ 2000 format(' PDB geometry',t40,a,/)
+      endif
       else
-      if(.not.pre_rtdbsq(irtdb,igeom,lfnout,lprint,
+      if(.not.pre_rtdbsq(irtdb,igeom,lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_xatm),matm,natm))
      + call errquit('pre_rtdbsq failed',9999)
+      if(util_print('files',print_default)) then
+      write(lfnout,2001)
+ 2001 format(' RTDB geometry',/)
+      endif
       endif
 c
 c     comply with iupac atom names
 c     ----------------------------
 c
-      if(.not.pre_namiup(lfnout,lprint,
+      if(.not.pre_namiup(lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
      + call errquit('pre_namiup failed',9999)
@@ -204,7 +214,7 @@ c
 c     check segment links
 c     -------------------
 c
-      if(.not.pre_links(lfnout,lprint,
+      if(.not.pre_links(lfnout,
      + dbl_mb(i_xatm),byte_mb(i_catm),int_mb(i_latm),
      + matm,int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,int_mb(i_llnk),
      + byte_mb(i_clnk),mlnk,nlnk))
@@ -213,7 +223,7 @@ c
 c     comply with force field segment names
 c     -------------------------------------
 c
-      if(.not.pre_rename(lfnout,lprint,ffield,
+      if(.not.pre_rename(lfnout,ffield,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_latm),byte_mb(i_catm),matm,natm))
      + call errquit('pre_rename failed',9999)
@@ -227,7 +237,7 @@ c
 c     get number of unique segments
 c     -----------------------------
 c
-      if(.not.pre_sgmnum(lfnout,lprint,
+      if(.not.pre_sgmnum(lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,nsgm))
      + call errquit('pre_sgmnum failed',9999)
 c
@@ -254,7 +264,7 @@ c
 c     scan the database directories for segment files
 c     -----------------------------------------------
 c
-      if(.not.pre_sgmndx(lfnfrg,dir_s,dir_x,dir_u,dir_t,lfnout,lprint,
+      if(.not.pre_sgmndx(lfnfrg,dir_s,dir_x,dir_u,dir_t,lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm)) then
 c
@@ -292,7 +302,7 @@ c
 c     generate fragment files for missing segments in dir_t
 c
       if(.not.pre_mkfrg(irtdb,source,lfnfrg,lfnpar,filpar,
-     + dir_s,dir_x,dir_u,dir_t,lfnout,lprint,
+     + dir_s,dir_x,dir_u,dir_t,lfnout,
      + int_mb(i_lseq),byte_mb(i_cseq),mseq,nseq,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm,int_mb(i_latm),
      + byte_mb(i_catm),dbl_mb(i_xatm),dbl_mb(i_qatm),matm,natm,
@@ -316,13 +326,15 @@ c
 c     generate segment files
 c     ----------------------
 c
-      if(.not.pre_gensgm(lfnout,lprint,lfnfrg,lfnsgm,
+      if(.not.pre_gensgm(lfnout,lfnfrg,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + int_mb(i_lsgm),byte_mb(i_csgm),msgm,nsgm))
      + call errquit('pre_gensgm failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1001)
- 1001 format('SEGMENTS FILES GENERATED')
+      if(util_print('where',print_debug)) then
+      write(lfnout,1001)
+ 1001 format(' Segment files generated',/)
+      endif
 c
 c     write the sequence file
 c     -----------------------
@@ -333,8 +345,10 @@ c
      + int_mb(i_llnk),byte_mb(i_clnk),mlnk,nlnk,slvmdl))
      + call errquit('pre_wrtseq failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,1002)
- 1002 format('SEQUENCE FILE GENERATEd')
+      if(util_print('where',print_debug)) then
+      write(lfnout,1002)
+ 1002 format(' Sequence file generated',/)
+      endif
 c
 c     deallocate memory
 c     -----------------

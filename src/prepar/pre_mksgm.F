@@ -1,18 +1,18 @@
-      logical function pre_mksgm(lfnout,lprint,ffield,
+      logical function pre_mksgm(lfnout,ffield,
      + lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.6 1998-04-30 06:06:23 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.7 1998-06-08 23:29:34 d3j191 Exp $
 c
 c     function to make segment file
 c
 c     in  : lfnfrg    = fragment file logical file number
 c           lfnsgm    = segment file logical file number
 c           lfnout    = output file logical file number
-c           lprint    = integer for print to output
 c
       implicit none
 c
 #include "mafdecls.fh"
+#include "util.fh"
 c
       logical pre_frgsiz,pre_frgrd,pre_ang,pre_dih,pre_imp
       logical pre_dihsel,pre_dihimp,pre_wrtsgm
@@ -20,7 +20,6 @@ c
       external pre_dihsel,pre_dihimp,pre_wrtsgm
 c
       integer lfnout,lfnfrg,lfnsgm
-      integer lprint
       character*80 ffield
       character*255 filfrg,filsgm
 c
@@ -33,12 +32,12 @@ c
 c
       length=index(filsgm,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000) filsgm(1:length)
  2000 format(//,'SEGMENT FILE ',a)
       endif
 c
-      if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,lprint,natm,nbnd))
+      if(.not.pre_frgsiz(lfnfrg,filfrg,lfnout,natm,nbnd))
      + call errquit('pre_frgsiz failed',9999)
 c
 c     allocate memory for bonds, angles, torsions and impropers
@@ -101,7 +100,7 @@ c
 c     read atom list and bond list from fragment file
 c     -----------------------------------------------
 c
-      if(.not.pre_frgrd(lfnfrg,filfrg,lfnout,lprint,
+      if(.not.pre_frgrd(lfnfrg,filfrg,lfnout,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd))
      + call errquit('pre_frgrd failed',9999)
@@ -143,7 +142,7 @@ c
 c     write segment file
 c     ------------------
 c
-      if(.not.pre_wrtsgm(lfnout,lprint,ffield,lfnsgm,filsgm,
+      if(.not.pre_wrtsgm(lfnout,ffield,lfnsgm,filsgm,
      + int_mb(i_latm),byte_mb(i_catm),dbl_mb(i_qatm),matm,natm,
      + int_mb(i_bnd),mbnd,nbnd,int_mb(i_ang),mang,nang,
      + int_mb(i_dih),mdih,ndih,int_mb(i_imp),mimp,nimp))

@@ -1,12 +1,14 @@
-      logical function pre_dimens(lfnout,lprint,lfnsgm,
+      logical function pre_dimens(lfnout,lfnsgm,
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp)
 c
-c $Id: pre_dimens.F,v 1.5 1998-04-29 18:35:14 d3j191 Exp $
+c $Id: pre_dimens.F,v 1.6 1998-06-08 23:29:30 d3j191 Exp $
 c
 c     function to determine total system array dimensions
 c
       implicit none
+c
+#include "util.fh"
 c
       logical pre_sgmfil,pre_sgmsiz
       external pre_sgmfil,pre_sgmsiz
@@ -15,7 +17,6 @@ c
       integer lseq(4,mseq)
       character*10 cseq(mseq)
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer lprint
 c
       character*255 filsgm
       integer i,nsatm,nsbnd,nsang,nsdih,nsimp
@@ -34,8 +35,10 @@ c
       do 1 i=1,nseq+1
       if(i.lt.nseq+1.or.cseq(i)(1:1).ne.' ') then
 c
-      if(lprint.ge.5) write(lfnout,1000) cseq(i)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1000) cseq(i)
  1000 format('SEARCHING FOR SEGMENT FILE FOR ',a10)
+      endif
 c
 c     find segment file
 c     -----------------
@@ -43,8 +46,10 @@ c
       if(pre_sgmfil(cseq(i),lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t)) then
 c
-      if(lprint.ge.5) write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1001) filsgm(1:index(filsgm,' ')-1)
  1001 format('FOUND SEGMENT FILE ',a)
+      endif
 c
 c     find segment dimensions
 c     -----------------------
@@ -59,8 +64,10 @@ c
       nimp=nimp+nsimp
 c
       else
-      if(lprint.ge.1) write(lfnout,1002) cseq(i)
+      if(util_print('topology',print_none)) then
+      write(lfnout,1002) cseq(i)
  1002 format('A SEGMENT FILE COULD NOT BE FOUND FOR ',a10)
+      endif
       pre_dimens=.false.
       endif
       endif

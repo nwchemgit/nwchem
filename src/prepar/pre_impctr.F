@@ -1,8 +1,8 @@
-      logical function pre_impctr(lfnout,lprint,xatm,latm,matm,
+      logical function pre_impctr(lfnout,xatm,latm,matm,
      + jlo,ilo,ihi,jhi,lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6)
 c
-c $Id: pre_impctr.F,v 1.3 1998-04-29 18:35:16 d3j191 Exp $
+c $Id: pre_impctr.F,v 1.4 1998-06-08 23:29:31 d3j191 Exp $
 c
 c     function to determine the center type
 c
@@ -29,11 +29,13 @@ c                             4 = aromatic ring
 c
       implicit none
 c
+#include "util.fh"
+c
       logical pre_torang
       external pre_torang
 c
       integer matm,ilo,ihi,jlo,jhi,mbnd,nbnd,mang,nang,mdih,ndih
-      integer lfnout,lprint
+      integer lfnout
       real*8 xatm(3,matm)
       integer latm(5,matm),lbnd(2,mbnd),lang(3,mang),ldih(4,mdih)
 c
@@ -81,7 +83,7 @@ c
       nring3=nring3-1
       goto 29
    33 continue
-      if(lprint.ge.4) then
+      if(util_print('connectivity',print_high)) then
       write(lfnout,1000) nring3,(lring(j,nring3),j=1,3)
  1000 format('Ring',i5,': atoms ',6i5)
       endif
@@ -120,7 +122,7 @@ c
       nring4=nring4-1
       goto 35
    39 continue
-      if(lprint.ge.4) then
+      if(util_print('connectivity',print_high)) then
       write(lfnout,1000) nring4,(lring(j,nring4),j=1,4)
       endif
       endif
@@ -158,7 +160,7 @@ c
       nring5=nring5-1
       goto 4
     9 continue
-      if(lprint.ge.4) then
+      if(util_print('connectivity',print_high)) then
       write(lfnout,1000) nring5,(lring(j,nring5),j=1,5)
       endif
       endif
@@ -197,7 +199,7 @@ c
       nring6=nring6-1
       goto 11
    16 continue
-      if(lprint.ge.4) then
+      if(util_print('connectivity',print_high)) then
       write(lfnout,1000) nring6,(lring(j,nring6),j=1,6)
       endif
       endif

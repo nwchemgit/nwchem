@@ -1,15 +1,22 @@
-      logical function pre_natyps(catm,matm,natm,natt)
+      logical function pre_natyps(lfnout,catm,matm,natm,natt)
 c
-c $Id: pre_natyps.F,v 1.3 1998-05-05 22:09:22 d3j191 Exp $
+c $Id: pre_natyps.F,v 1.4 1998-06-08 23:29:35 d3j191 Exp $
 c
       implicit none
 c
-      integer matm,natm,natt
+#include "util.fh"
+c
+      integer lfnout,matm,natm,natt
       character*6 catm(4,matm)
 c
       integer i,j,ii,jj,iii
 c
       natt=0
+c
+      if(util_print('topology',print_high)) then
+      write(lfnout,1000)
+ 1000 format(' Atom types',/)
+      endif
 c
       do 1 i=1,natm
       do 2 ii=1,3
@@ -22,9 +29,17 @@ c
       if(catm(ii+1,i).eq.catm(iii+1,i)) goto 2
     5 continue
       natt=natt+1
-      write(*,'(i4,3a6)') natt,catm(ii+1,i)
+      if(util_print('topology',print_high)) then
+      write(lfnout,1001) natt,catm(ii+1,i)
+ 1001 format(1x,i5,1x,a6)
+      endif
     2 continue
     1 continue
+c
+      if(util_print('topology',print_high)) then
+      write(lfnout,1002)
+ 1002 format(' ')
+      endif
 c
       pre_natyps=.true.
       return

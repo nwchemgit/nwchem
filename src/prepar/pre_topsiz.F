@@ -1,11 +1,11 @@
-      logical function pre_topsiz(lfntop,filtop,lfnout,lprint,
+      logical function pre_topsiz(lfntop,filtop,lfnout,
      + nat,nsa,nwa,nsb)
 c
-c $Id: pre_topsiz.F,v 1.3 1998-04-29 18:35:29 d3j191 Exp $
+c $Id: pre_topsiz.F,v 1.4 1998-06-08 23:29:40 d3j191 Exp $
 c
       implicit none
 c
-      integer lfntop,lfnout,lprint,nsa,nwa,nat
+      integer lfntop,lfnout,nsa,nwa,nat
       character*255 filtop
       character*1 cdummy
 c

@@ -1,26 +1,26 @@
-      logical function pre_frgrd(lfnfrg,filfrg,lfnout,lprint,
+      logical function pre_frgrd(lfnfrg,filfrg,lfnout,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd)
 c
-c $Id: pre_frgrd.F,v 1.4 1998-04-29 18:35:15 d3j191 Exp $
+c $Id: pre_frgrd.F,v 1.5 1998-06-08 23:29:31 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
 c     in  : lfnfrg = frg file logical file number
 c           filfrg = frg file name
 c           lfnout = output file logical file number
-c           lprint = integer for print to output
 c
 c     out : natm = number of atoms
 c           nbnd = number of bonds
 c
       implicit none
 c
+#include "util.fh"
+c
       integer lfnfrg,lfnout,matm,natm,mbnd,nbnd
       integer latm(5,matm),lbnd(2,mbnd)
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
       character*255 filfrg
-      integer lprint
 c
       character*80 card
       integer i,icon(16),j,l,length
@@ -30,16 +30,18 @@ c
 c
       length=index(filfrg,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000) filfrg(1:length)
- 2000 format(/,'pre_frgrd  ',a)
+ 2000 format(' Attempt reading fragment',t40,a,/)
       endif
 c
       open(unit=lfnfrg,file=filfrg(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.1) write(lfnout,2001) filfrg(1:length)
- 2001 format('FRAGMENT FILE ',a)
+      if(util_print('sequence',print_high)) then
+      write(lfnout,2001) filfrg(1:length)
+ 2001 format(' Reading fragment',t40,a,/)
+      endif
 c
     1 continue
 c
@@ -107,10 +109,10 @@ c
     8 continue
       endif
 c
-      if(lprint.ge.5) then
-      write(lfnout,2002) natm,nbnd,filfrg(1:length)
- 2002 format(i20,' atoms',/,i20,' bonds',//,
-     + 'FRG CLOSE ',a)
+      if(util_print('where',print_high)) then
+      write(lfnout,2002) natm,nbnd
+ 2002 format(' Number of atoms',t40,i8,/,
+     + ' Number of bonds',t40,i8,/)
       endif
 c
       pre_frgrd=.true.
@@ -118,9 +120,9 @@ c
 c
  9999 continue
 c
-      if(lprint.ge.1) then
+      if(util_print('sequence',print_none)) then
       write(lfnout,2003) filfrg(1:length)
- 2003 format('FRG ERROR ',a)
+ 2003 format(' Error reading fragment',t40,a,/)
       endif
 c
       pre_frgrd=.false.

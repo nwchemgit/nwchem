@@ -1,12 +1,14 @@
-      logical function pre_term(lfnout,lprint,lfnsgm,
+      logical function pre_term(lfnout,lfnsgm,
      + dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_term.F,v 1.5 1998-04-29 18:35:28 d3j191 Exp $
+c $Id: pre_term.F,v 1.6 1998-06-08 23:29:39 d3j191 Exp $
 c
 c     function to determine the terminal segments
 c
       implicit none
+c
+#include "util.fh"
 c
       logical pre_sgmfil,pre_atmscn
       external pre_sgmfil,pre_atmscn
@@ -16,7 +18,6 @@ c
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer lprint
 c
       character*255 filsgm
       integer i,isgm,iu,j,jsgm,num,link

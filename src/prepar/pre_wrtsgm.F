@@ -1,10 +1,12 @@
-      logical function pre_wrtsgm(lfnout,lprint,ffield,lfnsgm,filsgm,
+      logical function pre_wrtsgm(lfnout,ffield,lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_wrtsgm.F,v 1.7 1998-04-30 06:06:25 d3j191 Exp $
+c $Id: pre_wrtsgm.F,v 1.8 1998-06-08 23:29:40 d3j191 Exp $
 c
       implicit none
+c
+#include "util.fh"
 c
       integer lfnout,lfnsgm
       integer matm,natm,mbnd,nbnd,mang,nang,mdih,ndih,mimp,nimp
@@ -13,7 +15,6 @@ c
       character*6 catm(2,matm)
       real*8 qatm(2,matm)
       character*255 filsgm
-      integer lprint
       character*80 ffield
 c
       integer i,j,length
@@ -62,8 +63,10 @@ c
 c
       close(unit=lfnsgm)
 c
-      if(lprint.ge.1) write(lfnout,1000) filsgm(1:length)
- 1000 format('CREATED SEGMENT FILE ',a)
+      if(util_print('sequence',print_medium)) then
+      write(lfnout,1000) filsgm(1:length)
+ 1000 format(' Created segment',t40,a,/)
+      endif
 c
       pre_wrtsgm=.true.
       return

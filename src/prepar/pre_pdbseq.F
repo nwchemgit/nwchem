@@ -1,15 +1,14 @@
-      logical function pre_pdbseq(iunit,filnam,lfnout,lprint,
+      logical function pre_pdbseq(iunit,filnam,lfnout,
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_pdbseq.F,v 1.7 1998-05-01 16:10:20 d3j191 Exp $
+c $Id: pre_pdbseq.F,v 1.8 1998-06-08 23:29:36 d3j191 Exp $
 c
 c     function to read sequence from a pdb formatted file
 c
 c     in  : iunit       = pdb logical file number
 c           filnam      = pdb file name
 c           lfnout      = output file logical file number
-c           lprint      = integer for print to output
 c           model       = model number
 c           mseq        = dimension of the sequence list
 c           nseq        = expected length of the sequence list
@@ -23,6 +22,8 @@ c           xatm(1:3,*) = atomic coordinates
 c
       implicit none
 c
+#include "util.fh"
+c
       integer iunit,lfnout,model,mseq,nseq,matm,natm,mssb,nssb,mlnk,nlnk
       integer lseq(4,mseq),latm(5,matm),lssb(2,mssb),llnk(2,mlnk)
       character*6 catm(3,matm)
@@ -31,7 +32,6 @@ c
       character*3 namslv
       real*8 xatm(3,matm)
       character*255 filnam
-      integer lprint
 c
       character*80 card
       integer length,mdl,iseq,isgm,i,j,k,nchain,iatm
@@ -45,7 +45,7 @@ c
 c
       length=index(filnam,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2006) filnam(1:length)
  2006 format(/,'pre_pdbseq ',a)
       endif
@@ -75,9 +75,6 @@ c
       open(iunit,file=filnam(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.1) write(lfnout,2000) filnam(1:length)
- 2000 format('PDB file ',a)
-c
     1 continue
 c
       read(iunit,1000,end=999,err=9999) card
@@ -89,7 +86,7 @@ c
       if(card(1:6).eq.'MODEL ') then
       read(card(7:14),1002) mdl
  1002 format(i8)
-      if(model.eq.mdl.and.lprint.ge.5) then
+      if(model.eq.mdl.and.util_print('where',print_debug)) then
       write(lfnout,2005) model
  2005 format(10x,'MODEL ',i8)
       endif
@@ -105,7 +102,7 @@ c
 c     HEADER
 c
       if(card(1:6).eq.'HEADER') then
-      if(lprint.ge.5) write(lfnout,2001) card
+      if(util_print('where',print_debug)) write(lfnout,2001) card
  2001 format(10x,a)
       goto 1
       endif
@@ -208,7 +205,7 @@ c
 c
   999 continue
 c
-      if(lprint.ge.1) then
+      if(util_print('where',print_high)) then
       write(lfnout,2004)
  2004 format('PDB EOF encountered')
       endif
@@ -237,14 +234,14 @@ c
    12 continue
 c
       if(iseq.ne.nseq) then
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2008) iseq,nseq
  2008 format(10x,'number of segments read',i8,' while expecting ',i8)
       endif
       nseq=iseq
       endif
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2002) nseq,filnam(1:length)
  2002 format(i20,' segments',//,
      + 'PDB close ',a)
@@ -265,7 +262,7 @@ c
 c
  9999 continue
 c
-      if(lprint.ge.1) then
+      if(util_print('where',print_none)) then
       write(lfnout,2003) filnam(1:length)
  2003 format('PDB error ',a)
       endif

@@ -1,13 +1,15 @@
-      logical function pre_rdsgm(lfnout,lprint,ffield,imol,isgm,igrp,
+      logical function pre_rdsgm(lfnout,ffield,imol,isgm,igrp,
      + ipgrp,lfnsgm,filsgm,latm,catm,qatm,matm,natm,lbnd,rbnd,mbnd,nbnd,
      + lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + wcorr)
 c
-c $Id: pre_rdsgm.F,v 1.9 1998-04-30 14:50:43 d3j191 Exp $
+c $Id: pre_rdsgm.F,v 1.10 1998-06-08 23:29:37 d3j191 Exp $
 c
       implicit none
 c
-      integer lfnout,lprint,lfnsgm,imol,isgm,igrp,ipgrp
+#include "util.fh"
+c
+      integer lfnout,lfnsgm,imol,isgm,igrp,ipgrp
       character*255 filsgm
       character*80 ffield
       integer matm,natm
@@ -38,8 +40,10 @@ c
       open(unit=lfnsgm,file=filsgm(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.5) write(lfnout,1110) filsgm(1:length)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1110) filsgm(1:length)
  1110 format('READING SEGMENT FILE ',a)
+      endif
 c
     1 continue
       read(lfnsgm,1000) card
@@ -64,7 +68,7 @@ c
       read(lfnsgm,1003) (qatm(j,natm),j=1,6)
  1003 format(6f12.6)
 c
-      if(lprint.ge.50) then
+      if(util_print('connectivity',print_debug)) then
       write(lfnout,1002) (catm(j,natm),j=1,4),(latm(j,natm),j=1,4)
       write(lfnout,1003) (qatm(j,natm),j=1,6)
       endif
@@ -95,7 +99,7 @@ c
       read(lfnsgm,1005) (rbnd(j,nbnd),j=1,6)
  1005 format(3(f12.6,e12.5))
 c
-      if(lprint.ge.50) then
+      if(util_print('connectivity',print_debug)) then
       write(lfnout,1004) (lbnd(j,nbnd),j=1,4)
       write(lfnout,1005) (rbnd(j,nbnd),j=1,6) 
       endif
@@ -116,7 +120,7 @@ c
       lang(1,nang)=lang(1,nang)+na
       lang(2,nang)=lang(2,nang)+na
       lang(3,nang)=lang(3,nang)+na
-      if(lprint.ge.50) then
+      if(util_print('connectivity',print_debug)) then
       write(lfnout,1006) (lang(j,nang),j=1,5)
       write(lfnout,1007) (rang(j,nang),j=1,6)
       endif
@@ -131,7 +135,7 @@ c
       read(lfnsgm,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
  1009 format(3(i3,f10.6,e12.5))
 c
-      if(lprint.ge.50) then
+      if(util_print('connectivity',print_debug)) then
       write(lfnout,1008) (ld(j),j=1,6)
       write(lfnout,1009) (md(j),rd(2*j-1),rd(2*j),j=1,3)
       endif
@@ -181,7 +185,7 @@ c
      + rimp(2*j,nimp),j=1,3)
  1011 format(3(i3,f10.6,e12.5))
 c
-      if(lprint.ge.50) then
+      if(util_print('connectivity',print_debug)) then
       write(lfnout,1010) (limp(j,nimp),j=1,6)
       write(lfnout,1011) (limp(6+j,nimp),rimp(2*j-1,nimp),
      + rimp(2*j,nimp),j=1,3)

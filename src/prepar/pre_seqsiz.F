@@ -1,15 +1,16 @@
-      logical function pre_seqsiz(lfnout,lprint,lfnseq,filseq,nseq,nlnk)
+      logical function pre_seqsiz(lfnout,lfnseq,filseq,nseq,nlnk)
 c
-c $Id: pre_seqsiz.F,v 1.4 1998-04-29 18:35:24 d3j191 Exp $
+c $Id: pre_seqsiz.F,v 1.5 1998-06-08 23:29:38 d3j191 Exp $
 c
 c     function to scan the sequence file for the number of segments
 c
       implicit none
 c
+#include "util.fh"
+c
       integer lfnout,lfnseq,nseq,nlnk
       character*255 filseq
       character*80 card
-      integer lprint
       integer length,ival,ncrd,ncnt
 c
       length=index(filseq,' ')-1

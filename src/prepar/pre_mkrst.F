@@ -1,12 +1,13 @@
-      logical function pre_mkrst(irtdb,source,lfnout,lprint,
+      logical function pre_mkrst(irtdb,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe)
 c
-c $Id: pre_mkrst.F,v 1.8 1998-05-05 22:09:22 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.9 1998-06-08 23:29:33 d3j191 Exp $
 c
       implicit none
 c
 #include "mafdecls.fh"
+#include "util.fh"
 c
       logical pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
       external pre_topsiz,pre_toprd,pre_rdpdb,pre_wrtrst,pre_center
@@ -19,7 +20,7 @@ c
       logical util_nwchemrc_get
       external util_nwchemrc_get
 c
-      integer irtdb,lfnout,lprint,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
+      integer irtdb,lfnout,lfntop,lfnpdb,lfnrst,lfntmp,lfncmd
       integer lfnslv
       character*255 filtop,filpdb,filrst,filtmp,filcmd,filnam,filslv
       character*10 slvmdl
@@ -43,14 +44,22 @@ c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4
 c
-      if(lprint.ge.5) write(lfnout,1000)
- 1000 format('RESTART FILE GENERATION')
+      if(util_print('where',print_debug)) then
+      write(lfnout,1000)
+ 1000 format(' RESTART FILE GENERATION')
+      endif
 c
-      if(.not.pre_topsiz(lfntop,filtop,lfnout,lprint,mat,msa,mwa,msb))
+      if(.not.pre_topsiz(lfntop,filtop,lfnout,mat,msa,mwa,msb))
      + call errquit('pre_topsiz failed',9999)
 c
-      if(lprint.ge.5) write(lfnout,'(a,4i4)') 'topology sizes',
-     + mat,msa,mwa,msb
+      if(util_print('where',print_high)) then
+      write(lfnout,1001) filtop(1:index(filtop,' ')-1),mat,msa,mwa,msb
+ 1001 format(' Topology',t40,a,//,
+     + ' Number of atom types',t40,i8,/,
+     + ' Number of solute atoms',t40,i8,/,
+     + ' Number of solvent atoms',t40,i8,/,
+     + ' Number of solute bonds',t40,i8,/)
+      endif
       nwm=0
       nwmc=0
       nwms=0
@@ -146,19 +155,24 @@ c
       lsolva=.true.
       endif
 c
-      if(lprint.ge.5) write(lfnout,'(a)') 'Memory allocated'
+      if(util_print('where',print_debug)) then
+      write(lfnout,1002) 
+ 1002 format(' Memory allocated')
+      endif
 c
 c     read topology file
 c     ------------------
 c
-      if(.not.pre_toprd(lfntop,filtop,lfnout,lprint,
+      if(.not.pre_toprd(lfntop,filtop,lfnout,
      + int_mb(i_num),dbl_mb(i_mas),mat,
      + byte_mb(i_cwa),mwa,nwa,int_mb(i_sat),int_mb(i_sgm),
      + byte_mb(i_csa),dbl_mb(i_qsa),msa,nsa,nsm,int_mb(i_isb),
      + dbl_mb(i_csb),msb,nsb))
      + call errquit('pre_toprd failed',9999)
-      if(lprint.ge.5) write(lfnout,2000) filtop(1:index(filtop,' ')-1)
- 2000 format('Topology successfully read from ',a)
+      if(util_print('coordinates',print_default)) then
+      write(lfnout,1003) filtop(1:index(filtop,' ')-1)
+ 1003 format(' Topology',t40,a,/)
+      endif
 c
       msm=nsm
 c
@@ -173,18 +187,21 @@ c
 c     write restart when no command file is found
 c     ===========================================
 c
-      if(lprint.ge.5) then
-      write(lfnout,'(a,a)') 'No command file, source=',
-     + source(1:index(source,' ')-1)
+      if(util_print('where',print_debug)) then
+      write(lfnout,1004) source(1:index(source,' ')-1)
+ 1004 format(' No command file for',t40,a,/)
       endif
       if(source(1:8).eq.'geometry') then
       if(.not.pre_rdgeom(irtdb,byte_mb(i_csa),int_mb(i_sar),
      + int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),dbl_mb(i_vs),
      + msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdgeom failed',9999)
-      if(lprint.ge.5) write(lfnout,'(a)') 'Geometry read from rtdb'
+      if(util_print('where',print_debug)) then
+      write(lfnout,1005) 
+ 1005 format(' Geometry read from rtdb')
+      endif
       else
-      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,0,
      + idum1,idum2,idum3,idum4,slvnam,nwmc))
      + call errquit('pre_pdbsiz failed',9999)
 c
@@ -223,12 +240,14 @@ c
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
-      if(lprint.ge.5) write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
-      write(lfnout,2103) nmis,nsa
+      if(util_print('where',print_debug)) then
+      write(lfnout,1006) filpdb(1:index(filpdb,' ')-1)
+ 1006 format(' PDB file',t40,a,/)
+      endif
       if(nmis.gt.0) then
       if(.not.ma_push_get(mt_dbl,4*mgrid*mgrid*mgrid,"grid",l_grid,
      + i_grid)) call errquit('Memory allocation failed for grid',9999)
-      if(.not.pre_misfit(lfnout,lprint,int_mb(i_sfnd),dbl_mb(i_xs),
+      if(.not.pre_misfit(lfnout,int_mb(i_sfnd),dbl_mb(i_xs),
      + dbl_mb(i_qsa),msa,nsa,int_mb(i_isb),dbl_mb(i_csb),msb,nsb,
      + dbl_mb(i_grid),mgrid,ngrid,gdist))
      + call errquit('pre_misfit failed',9999)
@@ -256,12 +275,15 @@ c     ---------------------
 c
       if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
-      if(lprint.ge.5) write(lfnout,'(a,3f12.6)') 'boxsize=',box
+      if(util_print('where',print_debug)) then
+      write(lfnout,1007) box
+ 1007 format(' Boxsize',t40,3f12.6,/)
+      endif
 c
 c     write the restart file
 c     ----------------------
 c
-      if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,
+      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
@@ -274,8 +296,8 @@ c     =======================================
 c
     1 continue
 c
-      read(lfncmd,1001,end=9,err=9997) card
- 1001 format(a)
+      read(lfncmd,1101,end=9,err=9997) card
+ 1101 format(a)
 c
 c     read distance restraints
 c     ========================
@@ -307,9 +329,9 @@ c     -------------------------------------
 c
       if(.not.util_nwchemrc_get(slvmdl,filslv))
      + call errquit('util_nwchemrc_get failed on slvmdl',9999)
-      if(lprint.ge.5) then
-      write(lfnout,'(a,a)') 'solvent file=',
-     + filslv(1:index(filslv,' ')-1)
+      if(util_print('coordinates',print_high)) then
+      write(lfnout,1008) filslv(1:index(filslv,' ')-1)
+ 1008 format(' Solvent',t40,a,/)
       endif
 c
 c     check if solvent restart file exists
@@ -342,10 +364,11 @@ c
      + mwms,mwa,nwms,nwa,boxs))
      + call errquit('pre_slvrd failed',9999)
       lslvnt=.true.
-      if(lprint.ge.5) then
-      write(lfnout,'(a,i5,a,a)') 'SOLVENT:',nwms,
-     + ' molecules read from ',filslv(1:index(filslv,' ')-1)
-      write(lfnout,'(a,3f12.6)') 'slvbox=',boxs
+      if(util_print('where',print_debug)) then
+      write(lfnout,1009) filslv(1:index(filslv,' ')-1),nwms,boxs
+ 1009 format(' Solvent',t40,//,
+     + ' Number of solvent molecules',t40,i8,/,
+     + ' Solvent box size',t40,3f12.6)
       endif
       endif
 c
@@ -368,11 +391,11 @@ c
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
-      if(lprint.ge.5) then
-      write(lfnout,2003) filnam(1:index(filnam,' ')-1)
- 2003 format('PDB file successfully read from ',a)
-      write(lfnout,2103) nmis,nsa
- 2103 format('Missing',i5,' atoms out of',i5)
+      if(util_print('where',print_default)) then
+      write(lfnout,1010) filnam(1:index(filnam,' ')-1),nmis,nsa
+ 1010 format(' PDB file',t40,a,/,
+     + ' Number of missing coordinates',t40,i8,/,
+     + ' Total number of atoms',t40,i8,/)
       endif
       endif
 c
@@ -429,7 +452,6 @@ c
      + int_mb(i_sgm),int_mb(i_sfnd),dbl_mb(i_xs),dbl_mb(i_vs),
      + msa,nsa,nmis,msm,nsm))
      + call errquit('pre_rdgeom failed',9999)
-      if(lprint.ge.3) write(lfnout,2103) nmis,nsa
       else
 c
 c     free memory for crystal solvent if already allocated
@@ -450,7 +472,7 @@ c
 c     determine the dimensions on the pdb file
 c     ----------------------------------------
 c
-      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,lprint,0,
+      if(.not.pre_pdbsiz(lfnpdb,filpdb,lfnout,0,
      + idum1,idum2,idum3,idum4,slvnam,nwmc))
      + call errquit('pre_pdbsiz failed',9999)
 c
@@ -490,9 +512,11 @@ c
      + int_mb(i_wcmr),int_mb(i_wfnd),dbl_mb(i_xwc),dbl_mb(i_vwc),
      + mwmc,mwa,nwmc,nwa))
      + call errquit('pre_rdpdb failed',9999)
-      if(lprint.ge.5) then
-      write(lfnout,2003) filpdb(1:index(filpdb,' ')-1)
-      write(lfnout,2103) nmis,nsa
+      if(util_print('where',print_default)) then
+      write(lfnout,1011) filnam(1:index(filnam,' ')-1),nmis,nsa
+ 1011 format(' PDB file',t40,a,/,
+     + ' Number of missing coordinates',t40,i8,/,
+     + ' Total number of atoms',t40,i8,/)
       endif
       endif
 c
@@ -501,8 +525,9 @@ c     ---------------------
 c
       if(.not.pre_boxsiz(dbl_mb(i_xw),mwm,mwa,nwm,nwa,
      + dbl_mb(i_xs),msa,nsa,box)) call errquit('pre_boxsiz failed',9999)
-      if(lprint.ge.5) then
-      write(lfnout,'(a,3f12.6)') 'boxsize=',box
+      if(util_print('where',print_debug)) then
+      write(lfnout,1012) box
+ 1012 format(' boxsize',t40,3f12.6)
       endif
       endif
 c
@@ -510,7 +535,7 @@ c     write restart file
 c     ------------------
 c
       if(card(1:6).eq.'wr_rst') then
-      if(.not.pre_wrtrst(lfnrst,filrst,npbtyp,box,
+      if(.not.pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,box,
      + int_mb(i_iwmr),dbl_mb(i_xw),dbl_mb(i_vw),mwm,mwa,nwm,nwa,
      + int_mb(i_wcmr),dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,
      + int_mb(i_sar),dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,
@@ -586,8 +611,10 @@ c
       islv=2
       endif
       if(islv.eq.0) call errquit('Illegal solvation type',9999)
-      if(lprint.ge.5) then
-      write(lfnout,'(a,i5,a,3f12.6)') 'solv type',islv,' in box',box
+      if(util_print('where',print_debug)) then
+      write(lfnout,1013) islv,box
+ 1013 format(' Solvent type',t40,i8,/,
+     + ' Box size',t40,3f12.6,/)
       endif
 c
 c     free memory for system solvent if allocated previously
@@ -609,8 +636,9 @@ c
       if(.not.pre_slvnum(islv,boxs,nwms,box,mwm))
      + call errquit('pre_slvnum failed',9999)
       nwm=0
-      if(lprint.ge.5) then
-      write(lfnout,'(a,i5)') 'maximum solvent number is ',mwm
+      if(util_print('where',print_debug)) then
+      write(lfnout,1014) mwm
+ 1014 format(' Maximum number of solvent molecules',t40,i8,/)
       endif
 c
 c     allocate memory for system solvent
@@ -633,9 +661,9 @@ c
      + dbl_mb(i_xs),msa,nsa,
      + dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc))
      + call errquit('pre_solvat failed',9999)
-      if(lprint.ge.1) then
-      write(lfnout,'(a,i7,a)') 'System solvated in',nwm,
-     + ' solvent molecules'
+      if(util_print('where',print_low)) then
+      write(lfnout,1015) nwm
+ 1015 format(' Number of solvent molecules',t40,i8,/)
       endif
       endif
 c
@@ -703,8 +731,9 @@ c     ------------
 c
       if(card(1:5).eq.'touch') then
       read(card(7:19),'(f12.6)') touch
-      if(lprint.ge.5) then
-      write(lfnout,'(a,f12.6)') 'Envelope set to',touch
+      if(util_print('where',print_high)) then
+      write(lfnout,1016) touch
+ 1016 format(' Envelope',t40,f12.6,/)
       endif
       endif
 c
@@ -712,8 +741,6 @@ c     end
 c     ---
 c
       if(card(1:3).ne.'end') goto 1
-c
-c      if(.not.pre_wrtrst(lfnrst
 c
     9 continue
       close(unit=lfncmd)
@@ -785,14 +812,14 @@ c
       return
 c
  9997 continue
-      write(lfnout,'(a,a)') 'Error reading command file ',
-     + filcmd(1:index(filcmd,' ')-1)
+      write(lfnout,1017) filcmd(1:index(filcmd,' ')-1)
+ 1017 format(' Error reading commands',t40,a,/)
       pre_mkrst=.false.
       return
 c
  9998 continue
-      write(lfnout,'(a,a)') 'Error reading solvent file ',
-     + filslv(1:index(filslv,' ')-1)
+      write(lfnout,1018) filslv(1:index(filslv,' ')-1)
+ 1018 format(' Error reading solvent',t40,a,/)
       pre_mkrst=.false.
       return
 c
@@ -800,5 +827,3 @@ c
       pre_mkrst=.false.
       return
       end
-
-

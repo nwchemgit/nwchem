@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.17 1998-04-29 18:46:03 d3j191 Exp $
+c $Id: prepar.F,v 1.18 1998-06-08 23:29:41 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -46,7 +46,7 @@ c
       character*80 source
 c
       integer lfnpdb,lfnout,lfnfrg,lfnseq,lfnsgm,lfntop,lfnrst,lfnpar
-      integer len,lenc,lend,lprint,lfntmp,lfncmd,lfnslv
+      integer len,lenc,lend,lfntmp,lfncmd,lfnslv
       integer newtop,newseq,newrst,mgrid,mnoe,maxscf
       real*8 gdist,qscale
       logical lstate
@@ -55,12 +55,6 @@ c
 c
       call util_print_push
       call util_print_rtdb_load(irtdb,'prepar')
-      lprint=10
-      if(util_print('prepare',print_none)) lprint=0
-      if(util_print('prepare',print_low)) lprint=1
-      if(util_print('prepare',print_medium)) lprint=2
-      if(util_print('prepare',print_high)) lprint=4
-      if(util_print('prepare',print_debug)) lprint=5
 c
       lstate=rtdb_parallel(.false.)
 c
@@ -85,7 +79,7 @@ c
       prepar=.true.
       if(ga_nodeid().ne.0) then
   100 continue
-      if(.not.pre_task(irtdb,itask))
+      if(.not.pre_task(irtdb,itask,lfnout))
      + call errquit('pre_task failed',9999)
       if(itask.eq.0) then
       lstate=rtdb_parallel(.true.)
@@ -97,7 +91,7 @@ c
 c     header
 c     ------
 c
-      if(lprint.ge.3) then
+      if(util_print('information',print_low)) then
       call util_print_centered(lfnout,'Prepare Module',40,.true.)
       endif
       call ecce_print_module_entry('prepare')
@@ -113,12 +107,17 @@ c
 c     directories
 c     -----------
 c
-      if(lprint.ge.4) then
-      write(lfnout,'(a,a)') 'ffield=',ffield(1:index(ffield,' ')-1)
-      write(lfnout,'(a,a)') 'dir_s =',dir_s(1:index(dir_s,' ')-1)
-      write(lfnout,'(a,a)') 'dir_x =',dir_x(1:index(dir_x,' ')-1)
-      write(lfnout,'(a,a)') 'dir_u =',dir_u(1:index(dir_u,' ')-1)
-      write(lfnout,'(a,a)') 'dir_t =',dir_t(1:index(dir_t,' ')-1)
+      if(util_print('files',print_default)) then
+      write(lfnout,2000) ffield(1:index(ffield,' ')-1)
+      write(lfnout,2001) dir_s(1:index(dir_s,' ')-1)
+      write(lfnout,2002) dir_x(1:index(dir_x,' ')-1)
+      write(lfnout,2003) dir_u(1:index(dir_u,' ')-1)
+      write(lfnout,2004) dir_t(1:index(dir_t,' ')-1)
+ 2000 format(/,' Force field',t40,a,/)
+ 2001 format(' Directory standard files',t40,a)
+ 2002 format(' Directory extensions files',t40,a)
+ 2003 format(' Directory user preferences files',t40,a)
+ 2004 format(' Directory temporary files',t40,a,/)
       endif
 c
 c     construct file names
@@ -166,13 +165,17 @@ c
      + form='formatted',status='old',err=1)
       if(newtop.eq.0) then
       close(unit=lfntop)
-      write(lfnout,1001) filtop(1:index(filtop,' ')-1)
- 1001 format('Using existing topology file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2005) filtop(1:index(filtop,' ')-1)
+ 2005 format(' Using existing topology',t40,a)
+      endif
       goto 4
       else
       close(unit=lfntop,status='delete')
-      write(lfnout,1002) filtop(1:index(filtop,' ')-1)
- 1002 format('Deleted existing topology file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2006) filtop(1:index(filtop,' ')-1)
+ 2006 format(' Deleted existing topology',t40,a)
+      endif
       endif
 c
     1 continue
@@ -184,13 +187,17 @@ c
      + form='formatted',status='old',err=2)
       if(newseq.eq.0) then
       close(unit=lfnseq)
-      write(lfnout,1003) filseq(1:index(filseq,' ')-1)
- 1003 format('Using existing sequence file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2007) filseq(1:index(filseq,' ')-1)
+ 2007 format(' Using existing sequence',t40,a,/)
+      endif
       goto 3
       else
       close(unit=lfnseq,status='delete')
-      write(lfnout,1004) filseq(1:index(filseq,' ')-1)
- 1004 format('Deleted existing sequence file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2008) filseq(1:index(filseq,' ')-1)
+ 2008 format(' Deleted existing sequence',t40,a,/)
+      endif
       endif
 c
     2 continue
@@ -198,25 +205,29 @@ c
 c     generate sequence & segments from coordinates
 c     ---------------------------------------------
 c
-      if(.not.pre_mkseq(irtdb,lfnout,lprint,source,ffield,
+      if(.not.pre_mkseq(irtdb,lfnout,source,ffield,
      + lfnpdb,filpdb,lfnseq,filseq,lfnpar,filpar,lfnfrg,lfnsgm,
      + lfntmp,filtmp,dir_s,dir_x,dir_u,dir_t,slvnam,slvmdl,maxscf,
      + qscale))
      + call errquit('pre_mkseq failed',9999)
-      write(lfnout,1005) filseq(1:index(filseq,' ')-1)
- 1005 format('Created sequence file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2009) filseq(1:index(filseq,' ')-1)
+ 2009 format(' Created sequence',t40,a,/)
+      endif
 c
     3 continue
 c
 c     generate topology
 c     -----------------
 c
-      if(.not.pre_mktop(lfnout,lprint,ffield,
+      if(.not.pre_mktop(lfnout,ffield,
      + lfnseq,filseq,lfntop,filtop,lfnsgm,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_mktop failed',9999)
-      write(lfnout,1006) filtop(1:index(filtop,' ')-1)
- 1006 format('Created topology file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2010) filtop(1:index(filtop,' ')-1)
+ 2010 format(' Created topology',t40,a,/)
+      endif
       newrst=1
 c
     4 continue
@@ -237,13 +248,17 @@ c
      + form='formatted',status='old',err=5)
       if(newrst.eq.0) then
       close(unit=lfnrst)
-      write(lfnout,1007) filrst(1:index(filrst,' ')-1)
- 1007 format('Using existing restart file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2011) filrst(1:index(filrst,' ')-1)
+ 2011 format(' Using existing restart',t40,a,/)
+      endif
       goto 6
       else
       close(unit=lfnrst,status='delete')
-      write(lfnout,1008) filrst(1:index(filrst,' ')-1)
- 1008 format('Deleted existing restart file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,2012) filrst(1:index(filrst,' ')-1)
+ 2012 format(' Deleted existing restart',t40,a,/)
+      endif
       endif
 c
     5 continue
@@ -251,7 +266,7 @@ c
 c     generate restart file
 c     ---------------------
 c
-      if(.not.pre_mkrst(irtdb,source,lfnout,lprint,lfntop,filtop,
+      if(.not.pre_mkrst(irtdb,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe))
      + call errquit('pre_mkrst failed',9999)
@@ -279,7 +294,7 @@ c     signal other nodes to return
 c     ----------------------------
 c
       itask=0
-      if(.not.pre_task(irtdb,itask))
+      if(.not.pre_task(irtdb,itask,lfnout))
      + call errquit('pre_task failed',9999)
 c
       lstate=rtdb_parallel(.true.)

@@ -1,11 +1,13 @@
-      logical function pre_misfit(lfnout,lprint,isfnd,xs,qsa,msa,nsa,
+      logical function pre_misfit(lfnout,isfnd,xs,qsa,msa,nsa,
      + idsb,cdsb,msb,nsb,grid,mgrid,gdist)
 c
-c $Id: pre_misfit.F,v 1.2 1998-06-04 22:28:38 d3j191 Exp $
+c $Id: pre_misfit.F,v 1.3 1998-06-08 23:29:32 d3j191 Exp $
 c
       implicit none
 c
-      integer lfnout,lprint,msa,nsa,msb,nsb,mgrid
+#include "util.fh"
+c
+      integer lfnout,msa,nsa,msb,nsb,mgrid
       integer isfnd(msa),idsb(2,msb)
       real*8 cdsb(msb),xs(3,msa),qsa(msa)
 c
@@ -28,7 +30,9 @@ c     for each atom without coordinates
 c     ---------------------------------
 c
       if(isfnd(i).ne.1) then
-      if(lprint.ge.5) write(*,'(a,i7)') 'Not found: atom ',i
+      if(util_print('coordinates',print_debug)) then
+      write(*,'(a,i7)') 'Not found: atom ',i
+      endif
       nn=0
 c
 c     find all bonded atoms
@@ -327,8 +331,10 @@ c
       ngrid=ngrid-1
       else
       miss=miss+1
-      if(lprint.ge.1) write(lfnout,9998) i
+      if(util_print('coordinates',print_none)) then
+      write(lfnout,9998) i
  9998 format('Coordinates missing for atom ',i5)
+      endif
       endif
       endif
     8 continue

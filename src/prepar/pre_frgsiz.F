@@ -1,23 +1,23 @@
-      logical function pre_frgsiz(lfnfrg,filfrg,lfnout,lprint,
+      logical function pre_frgsiz(lfnfrg,filfrg,lfnout,
      + natm,nbnd)
 c
-c $Id: pre_frgsiz.F,v 1.4 1998-04-29 18:35:15 d3j191 Exp $
+c $Id: pre_frgsiz.F,v 1.5 1998-06-08 23:29:31 d3j191 Exp $
 c
 c     function to read dimensions from a frg file
 c
 c     in  : lfnfrg = frg file logical file number
 c           filfrg = frg file name
 c           lfnout = output file logical file number
-c           lprint = integer for print to output
 c
 c     out : natm = number of atoms
 c           nbnd = number of bonds
 c
       implicit none
 c
+#include "util.fh"
+c
       integer lfnfrg,lfnout,natm,nbnd
       character*255 filfrg
-      integer lprint
 c
       character*80 card
       integer i,icon(16),length
@@ -27,7 +27,7 @@ c
 c
       length=index(filfrg,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000) filfrg(1:length)
  2000 format(/,'pre_frgsiz  ',a)
       endif
@@ -35,8 +35,10 @@ c
       open(unit=lfnfrg,file=filfrg(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.5) write(lfnout,2001) filfrg(1:length)
+      if(util_print('where',print_debug)) then
+      write(lfnout,2001) filfrg(1:length)
  2001 format('FRG OPEN  ',a)
+      endif
 c
     1 continue
 c
@@ -67,7 +69,7 @@ c
 c
       close(lfnfrg)
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2002) natm,nbnd,filfrg(1:length)
  2002 format(i20,' atoms',/,i20,' bonds',//,
      + 'FRG CLOSE ',a)
@@ -78,7 +80,7 @@ c
 c
  9999 continue
 c
-      if(lprint.ge.1) then
+      if(util_print('where',print_none)) then
       write(lfnout,2003) filfrg(1:length)
  2003 format('FRG ERROR ',a)
       endif

@@ -1,14 +1,13 @@
-      logical function pre_pdbsiz(iunit,filnam,lfnout,lprint,
+      logical function pre_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv)
 c
-c $Id: pre_pdbsiz.F,v 1.5 1998-04-29 18:35:21 d3j191 Exp $
+c $Id: pre_pdbsiz.F,v 1.6 1998-06-08 23:29:36 d3j191 Exp $
 c
 c     function to read dimensions from a pdb formatted file
 c
 c     in  : iunit  = pdb file logical file number
 c           filnam = pdb file name
 c           lfnout = output file logical file number
-c           lprint = integer for print to output
 c           model  = model number
 c
 c     out : natm = number of atoms
@@ -23,9 +22,11 @@ c          .true.  : specified file read succesfully
 c
       implicit none
 c
+#include "util.fh"
+c
       integer iunit,lfnout,model,natm,nseq,nssb,nchain,nlnk
       character*255 filnam
-      integer lprint,numslv
+      integer numslv
       character*3 namslv
 c
       character*80 card
@@ -45,7 +46,7 @@ c
 c
       length=index(filnam,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2006) filnam(1:length)
  2006 format(/,'pdb_size  ',a)
       endif
@@ -53,8 +54,10 @@ c
       open(iunit,file=filnam(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.5) write(lfnout,2000) filnam(1:length)
- 2000 format('PDB OPEN  ',a)
+      if(util_print('where',print_debug)) then
+      write(lfnout,2000) filnam(1:length)
+ 2000 format(' PDB OPEN  ',a)
+      endif
 c
     1 continue
 c
@@ -67,7 +70,7 @@ c
       if(card(1:6).eq.'MODEL ') then
       read(card(7:14),1002) mdl
  1002 format(i8)
-      if(model.eq.mdl.and.lprint.ge.5) then
+      if(model.eq.mdl.and.util_print('where',print_debug)) then
       write(lfnout,2005) model
  2005 format(10x,'MODEL ',i8)
       endif
@@ -83,8 +86,10 @@ c
 c     HEADER
 c
       if(card(1:6).eq.'HEADER') then
-      if(lprint.ge.5) write(lfnout,2001) card
+      if(util_print('where',print_debug)) then
+      write(lfnout,2001) card
  2001 format(10x,a)
+      endif
       goto 1
       endif
 c
@@ -167,7 +172,7 @@ c
 c
   999 continue
 c
-      if(lprint.ge.1) then
+      if(util_print('where',print_high)) then
       write(lfnout,2004)
  2004 format('PDB EOF encountered')
       endif
@@ -178,16 +183,18 @@ c
 c
       if(nsgm.gt.nseq) then
       nseq=nsgm
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2008)
  2008 format(10x,'number of segments read from ATOM cards')
       endif
       endif
 c
-      if(lprint.ge.5) then
-      write(lfnout,2002) natm,nseq,nssb,filnam(1:length)
- 2002 format(i20,' atoms',/,i20,' segments',/,i20,' SS-bonds',//,
-     + 'PDB CLOSE ',a)
+      if(util_print('where',print_high)) then
+      write(lfnout,2002) filnam(1:length),natm,nseq,nssb
+ 2002 format(' PDB file',t40,a,/,
+     + ' Number of atoms',t40,i10,/,
+     + ' Number of segments',t40,i10,/,
+     + ' Number of SS-bonds',t40,i10,/)
       endif
 c
       pre_pdbsiz=.true.
@@ -195,7 +202,7 @@ c
 c
  9999 continue
 c
-      if(lprint.ge.1) then
+      if(util_print('where',print_none)) then
       write(lfnout,2003) filnam(1:length)
  2003 format('PDB ERROR ',a)
       endif

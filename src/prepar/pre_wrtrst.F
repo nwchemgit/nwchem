@@ -1,13 +1,16 @@
-      logical function pre_wrtrst(lfnrst,filrst,npbtyp,box,
+      logical function pre_wrtrst(lfnout,lfnrst,filrst,npbtyp,box,
      + iwmr,xw,vw,mwm,mwa,nwm,nwa,iwmrc,xwc,vwc,mwmc,nwmc,
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm)
 c
-c $Id: pre_wrtrst.F,v 1.3 1998-04-29 18:35:30 d3j191 Exp $
+c $Id: pre_wrtrst.F,v 1.4 1998-06-08 23:29:40 d3j191 Exp $
 c
       implicit none
 c
-      integer lfnrst,mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
+#include "util.fh"
+c
+      integer lfnout,lfnrst
+      integer mwm,mwa,nwm,nwa,msa,nsa,mnoe,noe,msm,nsm,mwmc,nwmc
       integer npbtyp
       character*255 filrst
       real*8 xw(3,mwa,mwm),xs(3,msa),vw(3,mwa,mwm),vs(3,msa),box(3)
@@ -116,6 +119,11 @@ c
       endif
 c
       close(unit=lfnrst)
+c
+      if(util_print('files',print_default)) then
+      write(lfnout,2000) filrst(1:length)
+ 2000 format(' Created restart',t40,a,/)
+      endif
 c
       pre_wrtrst=.true.
       return

@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.10 1998-06-03 14:36:36 d3j191 Exp $
+c $Id: pre_input.F,v 1.11 1998-06-08 23:29:32 d3j191 Exp $
 c
       implicit none
 c
@@ -83,7 +83,7 @@ c     ---------------
 c
       if(inp_compare(.false.,'print',item).or.
      + inp_compare(.false.,'noprint',item)) then
-      call util_print_input(irtdb,'prepare')
+      call util_print_input(irtdb,'prepar')
       goto 1
       endif
 c

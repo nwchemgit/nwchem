@@ -1,7 +1,7 @@
-      logical function pre_rdseq(lfnout,lprint,lfnseq,filseq,
+      logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.8 1998-05-05 22:09:22 d3j191 Exp $
+c $Id: pre_rdseq.F,v 1.9 1998-06-08 23:29:36 d3j191 Exp $
 c
 c     function to read the sequence file
 c
@@ -10,21 +10,24 @@ c                2       = terminal id
 c
       implicit none
 c
+#include "util.fh"
+c
       integer lfnout,lfnseq,mseq,nseq,mlnk,nlnk
       integer lseq(4,mseq),llnk(2,mlnk)
       character*10 cseq(mseq)
       character*4 clnk(2,mlnk)
       character*255 filseq
       character*80 card
-      integer lprint
       integer i,j,iseq,ilnk,length,imol
 c
       length=index(filseq,' ')-1
       open(unit=lfnseq,file=filseq(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.5) write(lfnout,2000) filseq(1:length)
+      if(util_print('where',print_debug)) then
+      write(lfnout,2000) filseq(1:length)
  2000 format('OPENED SEQUENCE FILE ',a)
+      endif
 c
       iseq=0
       ilnk=0
@@ -34,8 +37,10 @@ c
       read(lfnseq,1000,end=9999,err=9999) card
  1000 format(a)
 c
-      if(lprint.ge.5) write(lfnout,2001) card
+      if(util_print('where',print_debug)) then
+      write(lfnout,2001) card
  2001 format(a)
+      endif
 c
       if(card(1:5).eq.'break') then
       if(iseq.gt.0) lseq(2,iseq)=1
@@ -66,7 +71,9 @@ c
       endif
       if(card(1:7).eq.'solvent') then
       read(lfnseq,1000,end=9999,err=9999) card
-      if(lprint.ge.5) write(lfnout,2001) card
+      if(util_print('where',print_debug)) then
+      write(lfnout,2001) card
+      endif
       if(iseq+1.gt.mseq) call errquit('increase dimension mseq',9999)
       read(card,1001,err=9999) lseq(1,iseq+1),cseq(iseq+1)
       lseq(2,iseq+1)=-2

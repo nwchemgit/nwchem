@@ -1,15 +1,16 @@
-      logical function pre_ffield(idir,lfnpar,filpar,lfnout,lprint,
+      logical function pre_ffield(idir,lfnpar,filpar,lfnout,
      + q14fac,releps,ffield,
      + icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)
 c
-c $Id: pre_ffield.F,v 1.11 1998-06-04 22:28:38 d3j191 Exp $
+c $Id: pre_ffield.F,v 1.12 1998-06-08 23:29:30 d3j191 Exp $
 c
       implicit none
 c
+#include "util.fh"
+c
       integer idir,lfnpar,lfnout
-      integer lprint
       character*255 filpar
       real*8 q14fac,releps
       character*80 ffield
@@ -42,8 +43,10 @@ c
       open(unit=lfnpar,file=filpar(1:length),form='formatted',
      + status='old',err=9999)
 c
-      if(lprint.ge.1) write(lfnout,1111) filpar(1:length)
- 1111 format('Parameter file ',a)
+      if(util_print('files',print_default)) then
+      write(lfnout,1111) filpar(1:length)
+ 1111 format(' Parameter file',t40,a)
+      endif
 c
       icomb=0
 c

@@ -1,12 +1,14 @@
-      logical function pre_check(lfnout,lprint,ffield,
+      logical function pre_check(lfnout,ffield,
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: pre_check.F,v 1.8 1998-04-30 14:50:43 d3j191 Exp $
+c $Id: pre_check.F,v 1.9 1998-06-08 23:29:30 d3j191 Exp $
 c
       implicit none
 c
-      integer lfnout,lprint,matm,natm
+#include "util.fh"
+c
+      integer lfnout,matm,natm
       integer matt,natt,mbnd,nbnd,mang,nang,mdih,ndih,mimp,nimp
       integer latt(3,matt),lbnd(4,mbnd),lang(5,mang),ldih(9,mdih)
       integer limp(9,mimp)
@@ -27,7 +29,7 @@ c
       do 11 j=1,i-1
       if(latt(1,j).le.0.and.catt(1,i).eq.catt(1,j)) goto 1
    11 continue
-      if(lprint.ge.1) then
+      if(util_print('topology',print_none)) then
       if(pre_check) write(lfnout,1000)
       write(lfnout,1001) catt(1,i)
  1001 format('Parameters could not be found for atom type     ',
@@ -59,7 +61,7 @@ c
    13 continue
       endif
    12 continue
-      if(lprint.ge.1) then
+      if(util_print('topology',print_none)) then
       if(pre_check) write(lfnout,1000)
       write(lfnout,1002)
      + catm(1+j,lbnd(1,i)),catm(1+j,lbnd(2,i))
@@ -94,7 +96,7 @@ c
    15 continue
       endif
    14 continue
-      if(lprint.ge.1) then
+      if(util_print('topology',print_none)) then
       if(pre_check) write(lfnout,1000)
       write(lfnout,1003)
      + catm(1+j,lang(1,i)),catm(1+j,lang(2,i)),catm(1+j,lang(3,i))
@@ -132,7 +134,7 @@ c
    17 continue
       endif
    16 continue
-      if(lprint.ge.1) then
+      if(util_print('topology',print_none)) then
       if(pre_check) write(lfnout,1000)
       write(lfnout,1004) catm(1+j,ldih(1,i)),
      + catm(1+j,ldih(2,i)),catm(1+j,ldih(3,i)),catm(1+j,ldih(4,i))
@@ -181,7 +183,7 @@ c
    19 continue
       endif
    18 continue
-      if(lprint.ge.1) then
+      if(util_print('topology',print_none)) then
       if(pre_check) write(lfnout,1000)
       if(ffield(1:5).eq.'amber') then
       write(lfnout,1005) catm(1+j,limp(2,i)),

@@ -1,11 +1,13 @@
-      logical function pre_atype(lfnout,lprint,lfnpar,filpar,
+      logical function pre_atype(lfnout,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,ltyp,mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6)
 c
-c $Id: pre_atype.F,v 1.9 1998-06-04 22:28:37 d3j191 Exp $
+c $Id: pre_atype.F,v 1.10 1998-06-08 23:29:29 d3j191 Exp $
 c
       implicit none
+c
+#include "util.fh"
 c
 c     in  : lfnpar            = atom types file number
 c           filtyp            = atom types file name
@@ -33,7 +35,7 @@ c
       integer maty
       parameter (maty=1000)
 c
-      integer lfnpar,lfnout,lprint
+      integer lfnpar,lfnout
       character*255 filpar
       character*255 dir_s,dir_x,dir_u,dir_t
       character*255 filnam
@@ -211,8 +213,10 @@ c
    18 continue
       read(lfnpar,1000,end=17,err=9999) card
       if(card(1:10).ne.'Atom types') goto 18
-      if(lprint.ge.2)
-     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+ 2000 format(' Atom type definitions',t40,a)
+      endif
    16 continue
       read(lfnpar,1000,end=17,err=9999) card
  1000 format(a)
@@ -227,7 +231,9 @@ c
       goto 16
    17 continue
       close(unit=lfnpar)
-      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
 c
   901 continue
       lt=index(filpar,' ')-1
@@ -239,8 +245,9 @@ c
   118 continue
       read(lfnpar,1000,end=117,err=9999) card
       if(card(1:10).ne.'Atom types') goto 118
-      if(lprint.ge.2)
-     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+      endif
   116 continue
       read(lfnpar,1000,end=117,err=9999) card
       if(card(1:1).eq.'#') goto 116
@@ -252,7 +259,9 @@ c
       goto 116
   117 continue
       close(unit=lfnpar)
-      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
 c
   902 continue
       lt=index(filpar,' ')-1
@@ -264,8 +273,9 @@ c
   218 continue
       read(lfnpar,1000,end=217,err=9999) card
       if(card(1:10).ne.'Atom types') goto 218
-      if(lprint.ge.2)
-     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+      endif
   216 continue
       read(lfnpar,1000,end=217,err=9999) card
       if(card(1:1).eq.'#') goto 216
@@ -277,7 +287,9 @@ c
       goto 216
   217 continue
       close(unit=lfnpar)
-      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
 c
   903 continue
       lt=index(filpar,' ')-1
@@ -289,8 +301,9 @@ c
   318 continue
       read(lfnpar,1000,end=317,err=9999) card
       if(card(1:10).ne.'Atom types') goto 318
-      if(lprint.ge.2)
-     + write(lfnout,'(a,a)') 'SATISFYING ATOM TYPES USING ',filnam(1:l)
+      if(util_print('files',print_medium)) then
+      write(lfnout,2000) filnam(1:l)
+      endif
   316 continue
       read(lfnpar,1000,end=317,err=9999) card
       if(card(1:1).eq.'#') goto 316
@@ -302,19 +315,27 @@ c
       goto 316
   317 continue
       close(unit=lfnpar)
-      if(lprint.ge.5) write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      if(util_print('where',print_debug)) then
+      write(lfnout,'(a,a)') filnam(1:l),' closed' 
+      endif
   904 continue
+      if(util_print('files',print_medium)) then
+      write(lfnout,2001)
+ 2001 format(' ')
+      endif
 c
 c     determine the atom types
 c     ------------------------
 c
-      if(lprint.ge.5)
-     + write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(a4,5i5)') (catm(2,i),(ltyp(j,i),j=1,5),i=ilo,ihi)
+      endif
 c
       do 38 i=ilo,ihi
-      if(lprint.ge.5)
-     + write(lfnout,'(a,a4,6i5)') 'Atom ',catm(2,i),latm(2,i),
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(a,a4,6i5)') 'Atom ',catm(2,i),latm(2,i),
      + (ltyp(j,i),j=1,5)
+      endif
       if(latm(2,i).gt.0) then
       do 19 j=1,ntype
       iatnum=itype(1,j)
@@ -349,7 +370,7 @@ c           3    match aliphatic ring
 c           4    match aromatic ring
 c           5    match explicit number of neighbors
 c
-      if(lprint.ge.5) then
+      if(util_print('atomtypes',print_debug)) then
       write(lfnout,'(a,a4,6i5,1x,6l1)') 'Type ',atype(j)(1:4),iatnum,
      + itype(2,j),itype(3,j),itype(4,j),nhydr,itype(5,j),
      + iatnum.eq.latm(2,i),
@@ -373,8 +394,9 @@ c
      +   (itype(4,j).eq.1.and.ltyp(3,i).gt.0)).and.
      + (itype(5,j).eq.0.or.itype(5,j).eq.ltyp(5,i))) then
 c
-      if(lprint.ge.5)
-     + write(lfnout,'(10x,a)') 'try'
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(10x,a)') 'try'
+      endif
 c
 c     initialize skip vectors for neighbor atoms : skipa(1:neighbors)
 c     ----------------------- for atom type cond : skipt(1:3)
@@ -392,17 +414,19 @@ c     -------------------------------------------------------
 c
       do 24 l=1,3
       if(.not.skipt(l)) then
-      if(lprint.ge.5)
-     + write(lfnout,'(5x,a,i5)') 'neighbor condition ',itype(1+l*5,j)
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(5x,a,i5)') 'neighbor condition ',itype(1+l*5,j)
+      endif
 c
 c     loop over neighbor atoms for the current atom : k (1:neighbors)
 c     ---------------------------------------------
 c
       do 25 k=1,ltyp(5,i)
       if(.not.skipa(k).and..not.skipt(l)) then
-      if(lprint.ge.5)
-     + write(lfnout,'(5x,a,i5)') 'neighbor atom      ',
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(5x,a,i5)') 'neighbor atom      ',
      + latm(2,ltyp(5+k,i))
+      endif
       iatnum=itype(1+l*5,j)
       irng=0
       if(iatnum.ge.60000) then
@@ -465,9 +489,10 @@ c
       if(irng.ne.ltyp(3,ltyp(5+k,i))) goto 25
       endif
 c
-      if(lprint.ge.5)
-     + write(lfnout,'(5x,a,2i5)') 'neighbor accepted ',
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(5x,a,2i5)') 'neighbor accepted ',
      + itype(1+l*5,j),latm(2,ltyp(5+k,i))
+      endif
 c
 c     set skip vectors
 c     ----------------
@@ -484,18 +509,20 @@ c     ---------------------------------------------
 c
       do 30 ll=1,3
       if(.not.skiptt(ll)) then
-      if(lprint.ge.5)
-     + write(lfnout,'(10x,a,i5)') 'neighbor condition ',
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(10x,a,i5)') 'neighbor condition ',
      + itype(2+l*5+ll,j)
+      endif
 c
 c     loop over neighbor of neighbor atoms
 c     ------------------------------------
 c
       do 31 kk=1,ltyp(5,ltyp(5+k,i))
       if(.not.skipaa(kk).and..not.skiptt(ll)) then
-      if(lprint.ge.5)
-     + write(lfnout,'(10x,a,i5)') 'neighbor atom      ',
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(10x,a,i5)') 'neighbor atom      ',
      + latm(2,ltyp(5+kk,ltyp(5+k,i)))
+      endif
 c
       iatnum=itype(2+l*5+ll,j)
       irng=0
@@ -522,7 +549,7 @@ c
       endif
       if(nhydr.eq.4) nhydr=5
    33 continue
-      if(lprint.ge.5) then
+      if(util_print('atomtypes',print_debug)) then
       write(lfnout,'(30x,a,3i5)') 'condition ia nn nh ',
      + iatnum,nonh,nhydr
       write(lfnout,'(30x,a,3i5)') 'found     ia nn nh ',
@@ -563,9 +590,10 @@ c
       if(irng.ne.ltyp(3,ltyp(5+kk,ltyp(5+k,i)))) goto 31
       endif
 c
-      if(lprint.ge.5)
-     + write(lfnout,'(10x,a,4i5)') 'neighbor accepted ',
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(10x,a,4i5)') 'neighbor accepted ',
      + itype(2+l*5+ll,j),latm(2,ltyp(5+kk,ltyp(5+k,i))),kk,ll
+      endif
 c
 c     neighbor of neighbor condition satisfied
 c     ----------------------------------------
@@ -583,8 +611,9 @@ c
       do 34 ll=1,3
       if(.not.skiptt(ll)) goto 25
    34 continue
-      if(lprint.ge.5)
-     + write(lfnout,'(20x,a)') 'neighbors of neighbor accepted'
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(20x,a)') 'neighbors of neighbor accepted'
+      endif
 c
 c     neighbor condition satisfied
 c     ----------------------------
@@ -602,24 +631,20 @@ c
       do 35 l=1,3
       if(.not.skipt(l)) goto 19
    35 continue
-      if(lprint.ge.5)
-     + write(lfnout,'(30x,a)') 'neighbor accepted'
+      if(util_print('atomtypes',print_debug)) then
+      write(lfnout,'(30x,a)') 'neighbor accepted'
+      endif
 c
       catm(3,i)(1:4)=atype(j)
-      if(lprint.ge.2)
-     + write(lfnout,'(a,a,a,a)') 'Accepted for atom ',catm(1,i),
+      if(util_print('atomtypes',print_debug)) then
+       write(lfnout,'(a,a,a,a)') ' Accepted for atom ',catm(1,i),
      + ' type ',catm(3,i)
+      endif
 c
       endif
    19 continue
       endif
    38 continue
-c
-      if(lprint.ge.50) then
-      do 100 i=jlo,jhi
-      write(lfnout,'(16i5)') i,(ltyp(j,i),j=1,15)
-  100 continue
-      endif
 c
       pre_atype=.true.
       return

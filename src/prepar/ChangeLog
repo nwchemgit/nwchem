@@ -43,3 +43,4 @@ Jun 04 1998      Bug fix in atom typing (pre_atype)
 	         Rename residues (CYS,HIS) appropriately for force field
  	         Bug fix in index to array cseq (pre_rename)
 Jun 05 1998	 Bug fix in residue renaming (pre_rename)
+Jun 08 1998	 Compliance with util_print

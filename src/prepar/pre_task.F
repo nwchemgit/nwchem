@@ -1,6 +1,6 @@
-      logical function pre_task(irtdb,itask)
+      logical function pre_task(irtdb,itask,lfnout)
 c
-c $Id: pre_task.F,v 1.2 1998-04-29 18:35:27 d3j191 Exp $
+c $Id: pre_task.F,v 1.3 1998-06-08 23:29:39 d3j191 Exp $
 c
       implicit none
 c
@@ -8,11 +8,12 @@ c
 #include "global.fh"
 #include "msgids.fh"
 #include "mafdecls.fh"
+#include "util.fh"
 c
       logical scf,esp
       external scf,esp
 c
-      integer irtdb,itask
+      integer irtdb,itask,lfnout
       logical lstate
 c
       call ga_sync()
@@ -30,11 +31,19 @@ c      if(.not.rtdb_cput(irtdb,'scf:print',1,'none'))
 c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(scf(irtdb)) then
+      if(util_print('sequence',print_default)) then
+      write(lfnout,1000)
+ 1000 format(' SCF single point energy',/)
+      endif
 c
 c      if(.not.rtdb_cput(irtdb,'esp:print',1,'none'))
 c     + call errquit('pre_task1: rtdb_cput failed',9999)
 c
       if(esp(irtdb)) then
+      if(util_print('sequence',print_default)) then
+      write(lfnout,1001)
+ 1001 format(' ESP partial charges',/)
+      endif
       pre_task=.true.
       endif
       endif

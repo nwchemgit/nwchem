@@ -1,7 +1,7 @@
-      logical function pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
+      logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.12 1998-06-04 22:28:37 d3j191 Exp $
+c $Id: pre_charge.F,v 1.13 1998-06-08 23:29:29 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
 c     out : qatm(matm)        = guestimated atomic partial charges
 c
       character*80 source
-      integer irtdb,jlo,ilo,ihi,jhi
+      integer irtdb,lfnout,jlo,ilo,ihi,jhi
       integer matm,natm,maxscf
       integer latm(5,matm)
       character*6 catm(3,matm)
@@ -37,9 +37,9 @@ c
       integer mbnd,nbnd
       integer lbnd(2,mbnd)
 c
-      integer i,j,ia,ja,ka,it,jt,itmp,iab(20),nb,nox,nhx,itask
-      integer igeom2,nout,icon(100),ncon,nconst,irest
-      real*8 rcon
+      integer i,j,ia,ja,ka,it,jt,itmp,iab(20),nb,nox,nhx,itask,maxit
+      integer igeom2,nout,icon(100),ncon,nconst,irest,ihfree,idump
+      real*8 rcon,resa,resb,toler
       character*16 tag
       real*8 coord(3),chrge,qsum,charge
 c
@@ -176,12 +176,32 @@ c
       endif
   100 continue
       irest=2
+      resa=0.001d0
+      resb=0.1d0
+      ihfree=0
+      maxit=25
+      toler=1.0d-04
+      idump=0
       if(.not.rtdb_put(irtdb,'esp:irest',mt_int,1,irest))
      + call errquit('pre_charge: rtdb_put irest failed',0)
+      if(.not.rtdb_put(irtdb,'esp:resa',mt_dbl,1,resa))
+     + call errquit('pre_charge: rtdb_put resa failed',0)
+      if(.not.rtdb_put(irtdb,'esp:resb',mt_dbl,1,resb))
+     + call errquit('pre_charge: rtdb_put resb failed',0)
+      if(.not.rtdb_put(irtdb,'esp:hfree',mt_int,1,ihfree))
+     + call errquit('pre_charge: rtdb_put hfree failed',0)
+      if(.not.rtdb_put(irtdb,'esp:maxit',mt_int,1,maxit))
+     + call errquit('pre_charge: rtdb_put maxit failed',0)
+      if(.not.rtdb_put(irtdb,'esp:toler',mt_dbl,1,toler))
+     + call errquit('pre_charge: rtdb_put toler failed',0)
+      if(.not.rtdb_put(irtdb,'esp:dump',mt_int,1,idump))
+     + call errquit('pre_charge: rtdb_put dump failed',0)
+c
       itask=1
-      if(.not.pre_task(irtdb,itask))
+      if(.not.pre_task(irtdb,itask,lfnout))
      + call errquit('pre_task failed',9999)
-      if(.not.geom_create(igeom2,'resp:geometry'))
+c
+      if(.not.geom_create(igeom2,'pre:geometry'))
      + call errquit('pre_charge: geom_create failed',0)
       if(.not.geom_rtdb_load(irtdb,igeom2,'cresp:geometry')) then
       if(.not.geom_rtdb_load(irtdb,igeom2,'resp:geometry'))

@@ -5,7 +5,7 @@
      + limp,rimp,mimp,nimp,l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr)
 c
-c $Id: pre_wrttop.F,v 1.9 1998-04-29 18:35:31 d3j191 Exp $
+c $Id: pre_wrttop.F,v 1.10 1998-06-08 23:29:41 d3j191 Exp $
 c
       implicit none
 c
@@ -99,7 +99,7 @@ c
 c
       if(nbndt.gt.nbnd) then
       do 20 i=nbnd+1,nbndt
-      write(lfntop,1112) lbnd(1,i)-natm,lbnd(2,i)-natm,0,i-nbnd
+      write(lfntop,1112) lbnd(1,i)-natm,lbnd(2,i)-natm,lbnd(4,i),i-nbnd
  1112 format(4i7)
       write(lfntop,1113) (rbnd(j,i),j=1,6)
  1113 format(3(0pf12.6,1pe12.5))
@@ -108,8 +108,8 @@ c
 c
       if(nangt.gt.nang) then
       do 21 i=nang+1,nangt
-      write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(3,i)-natm,
-     + 0,i-nang
+      write(lfntop,1114) lang(1,i)-natm,lang(2,i)-natm,lang(5,i)-natm,
+     + lang(4,i),i-nang
  1114 format(5i7)
       write(lfntop,1115) (rang(j,i),j=1,6)
  1115 format(3(0pf10.6,1pe12.5))
@@ -120,7 +120,7 @@ c
       do 22 i=ndih+1,ndiht
       nd=max(ldih(7,i),ldih(8,i),ldih(9,i))
       do 23 k=1,nd
-      write(lfntop,1116) (ldih(j,i)-natm,j=1,4),0,i-ndih
+      write(lfntop,1116) (ldih(j,i)-natm,j=1,4),ldih(6,i),i-ndih
  1116 format(6i7)
       write(lfntop,1117)
      +  (kdih(k,j,i),rdih(k,2*j-1,i),rdih(k,2*j,i),j=1,3)
@@ -133,10 +133,10 @@ c
       do 24 i=nimp+1,nimpt
       if(ffield(1:5).eq.'amber') then
       write(lfntop,1118) limp(2,i)-natm,limp(3,i)-natm,limp(1,i)-natm,
-     + limp(4,i)-natm,0,i-nimp
+     + limp(4,i)-natm,limp(6,i),i-nimp
       write(lfntop,1119) (limp(6+j,i),rimp(2*j-1,i),rimp(2*j,i),j=1,3)
       else
-      write(lfntop,1118) (limp(j,i)-natm,j=1,4),0,i-nimp
+      write(lfntop,1118) (limp(j,i)-natm,j=1,4),limp(6,i),i-nimp
  1118 format(6i7)
       write(lfntop,1119) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
  1119 format(3(i3,0pf10.6,1pe12.5))
@@ -175,14 +175,14 @@ c
    10 continue
 c
       do 11 i=1,nbnd
-      write(lfntop,1012) lbnd(1,i),lbnd(2,i),0,i
+      write(lfntop,1012) lbnd(1,i),lbnd(2,i),lbnd(4,i),i
  1012 format(4i7)
       write(lfntop,1013) (rbnd(j,i),j=1,6)
  1013 format(3(0pf12.6,1pe12.5))
    11 continue
 c
       do 12 i=1,nang
-      write(lfntop,1014) lang(1,i),lang(2,i),lang(3,i),0,i
+      write(lfntop,1014) lang(1,i),lang(2,i),lang(3,i),lang(5,i),i
  1014 format(5i7)
       write(lfntop,1015) (rang(j,i),j=1,6)
  1015 format(3(0pf10.6,1pe12.5))
@@ -191,7 +191,7 @@ c
       do 13 i=1,ndih
       nd=max(ldih(7,i),ldih(8,i),ldih(9,i))
       do 14 k=1,nd
-      write(lfntop,1016) (ldih(j,i),j=1,4),0,i
+      write(lfntop,1016) (ldih(j,i),j=1,4),ldih(6,i),i
  1016 format(6i7)
       write(lfntop,1017)
      +  (kdih(k,j,i),rdih(k,2*j-1,i),rdih(k,2*j,i),j=1,3)
@@ -201,10 +201,11 @@ c
 c
       do 15 i=1,nimp
       if(ffield(1:5).eq.'amber') then
-      write(lfntop,1018) limp(2,i),limp(3,i),limp(1,i),limp(4,i),0,i
+      write(lfntop,1018) limp(2,i),limp(3,i),limp(1,i),limp(4,i),
+     + limp(6,i),i
       write(lfntop,1019) (limp(6+j,i),rimp(2*j-1,i),rimp(2*j,i),j=1,3)
       else
-      write(lfntop,1018) (limp(j,i),j=1,4),0,i
+      write(lfntop,1018) (limp(j,i),j=1,4),limp(6,i),i
  1018 format(6i7)
       write(lfntop,1019) (0,rimp(2*j-1,i),rimp(2*j,i),j=1,3)
  1019 format(3(i3,0pf10.6,1pe12.5))

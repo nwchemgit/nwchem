@@ -1,17 +1,16 @@
       logical function pre_mkfrg(irtdb,source,iunit,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,
-     + lfnout,lprint,
+     + lfnout,
      + lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,latm,catm,xatm,qatm,matm,
      + natm,lbnd,mbnd,lang,mang,ldih,mdih,limp,mimp,maxscf,qscale)
 c
-c $Id: pre_mkfrg.F,v 1.13 1998-06-03 14:36:36 d3j191 Exp $
+c $Id: pre_mkfrg.F,v 1.14 1998-06-08 23:29:33 d3j191 Exp $
 c
 c     function to prepare missing fragment definitions
 c
 c     in  : iunit     = dbase logical file number
 c           dir_t     = dbase directory name
 c           lfnout    = output file logical file number
-c           lprint    = integer for print to output
 c           mseq      = dimension of the sequence list
 c
 c     out : lseq(1,*) = segment numbers
@@ -25,6 +24,7 @@ c
       implicit none
 c
 #include "mafdecls.fh"
+#include "util.fh"
 c
       logical pre_hnames
       external pre_hnames
@@ -54,7 +54,6 @@ c
       integer lbnd(2,mbnd),lang(3,mang),ldih(4,mdih),limp(4,mimp)
       character*255 filpar,filnam
       character*255 dir_s,dir_x,dir_u,dir_t
-      integer lprint
 c
       integer len_t,length,len_f
 c
@@ -65,7 +64,7 @@ c
       integer ibnd,nbnd,nang,ndih,nconn
       logical found
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_mkfrg ')
       endif
@@ -159,7 +158,7 @@ c
 c     determine center types
 c     ----------------------
 c
-      if(.not.pre_impctr(lfnout,lprint,xatm,latm,matm,jlo,ilo,ihi,jhi,
+      if(.not.pre_impctr(lfnout,xatm,latm,matm,jlo,ilo,ihi,jhi,
      + lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6))
      + call errquit('pre_impctr failed',9999)
@@ -174,7 +173,7 @@ c
 c     determine atom types
 c     --------------------
 c
-      if(.not.pre_atype(lfnout,lprint,lfnpar,filpar,
+      if(.not.pre_atype(lfnout,lfnpar,filpar,
      + dir_s,dir_x,dir_u,dir_t,latm,catm,matm,lbnd,mbnd,nbnd,
      + jlo,ilo,ihi,jhi,int_mb(i_ltyp),mtyp,lring,aring,mring,
      + nring3,nring4,nring5,nring6))
@@ -210,7 +209,7 @@ c
 c     guestimate partial charges
 c     --------------------------
 c
-      if(.not.pre_charge(irtdb,source,jlo,ilo,ihi,jhi,
+      if(.not.pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale))
      + call errquit('pre_charge failed',9999)
 c
@@ -222,7 +221,7 @@ c
       filnam=dir_t(1:len_t)//csgm(i)(1:length)//'.frg '
       len_f=index(filnam,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,'(a,a)') 'Writing new fragment file ',
      + filnam(1:len_f)
       endif
@@ -238,16 +237,21 @@ c
       if(length.le.0) length=5
       write(iunit,2002) csgm(i)(1:length),ihi-ilo+1
  2002 format('$',a,/,i5)
+      if(util_print('sequence',print_medium)) then
       write(lfnout,3002) csgm(i)(1:length)
- 3002 format(/,'FRAGMENT ',a,/,
-     + '  num name type   link cntr  grp pgrp    charge     polarizab',
+ 3002 format(/,' Fragment ',t40,a,//,
+     + '  num name  type   link cntr  grp pgrp    charge     polarizab',
      + /)
+      endif
       found=.true.
       do 6 j=ilo,ihi
       if(latm(2,j).gt.0) then
 c
-      write(lfnout,2003) j+1-ilo,catm(2,j),catm(3,j),
+      if(util_print('sequence',print_medium)) then
+      write(lfnout,3003) j+1-ilo,catm(2,j),catm(3,j),
      + latm(5,j),latm(4,j),1,1,qatm(j),0.0
+ 3003 format(i5,1xa4,2x,a6,4i5,2f12.6)
+      endif
       write(iunit,2003) j+1-ilo,catm(2,j),catm(3,j),
      + latm(5,j),latm(4,j),1,1,qatm(j),0.0
  2003 format(i5,a4,2x,a6,4i5,2f12.6)
@@ -267,19 +271,25 @@ c
       endif
    15 continue
 c
-      if(nconn.gt.0) then
+      if(nconn.gt.0.and.util_print('sequence',print_medium)) then
       write(lfnout,3004) (lbnd(1,ibnd),lbnd(2,ibnd),ibnd=1,nconn)
- 3004 format(/,'CONNECTIVITY',/,(12(i3,'-',i3,2x)))
+ 3004 format(/,' Connectivity',//,(5x,10(i3,'-',i3,2x)))
       endif
 c
       close(unit=iunit)
+      if(util_print('sequence',print_medium)) then
+      write(lfnout,3005)
+ 3005 format(' ')
+      endif
 c
-      write(lfnout,3005) filnam(1:len_f)
- 3005 format(/,'CREATED FRAGMENT FILE ',a)
+      if(util_print('sequence',print_medium)) then
+      write(lfnout,3006) filnam(1:len_f)
+ 3006 format(' Created fragment',t40,a,/)
+      endif
 c
-      if(.not.found) then
-      write(lfnout,3006) csgm(i)(1:length)
- 3006 format(/,'ATOM TYPES COULD NOT BE DETERMINED FOR FRAGMENT ',a)
+      if(.not.found.and.util_print('sequence',print_none)) then
+      write(lfnout,3007) csgm(i)(1:length)
+ 3007 format(' Unresolved atom types in fragment',a,/)
       goto 9999
       endif
 c
@@ -289,7 +299,6 @@ c
     1 continue
 c
       pre_mkfrg=.true.
-      write(*,'(a,a)') 'SGM1=',cseq(1,1)
       return
 c
  9999 continue

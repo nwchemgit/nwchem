@@ -1,7 +1,7 @@
       logical function pre_sgmndx(iunit,dir_s,dir_x,dir_u,dir_t,
-     + lfnout,lprint,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm)
+     + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm)
 c
-c $Id: pre_sgmndx.F,v 1.6 1998-04-29 23:00:13 d3j191 Exp $
+c $Id: pre_sgmndx.F,v 1.7 1998-06-08 23:29:38 d3j191 Exp $
 c
 c     function to scan database directories for segments in sequence
 c
@@ -11,7 +11,6 @@ c           dir_x        = extensions dbase directory
 c           dir_u        = user preferences dbase directory
 c           dir_t        = temporary dbase directory
 c           lfnout       = output file logical file number
-c           lprint       = integer for print to output
 c           lseq(1,mseq) = segment number
 c           lseq(2,mseq) = index to segment list
 c           cseq(2,mseq) = segment name on topology
@@ -31,11 +30,12 @@ c                3       = number of atoms in segment
 c
       implicit none
 c
+#include "util.fh"
+c
       integer iunit,lfnout,mseq,nseq,msgm,nsgm
       integer lseq(4,mseq),lsgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*255 dir_s,dir_x,dir_u,dir_t,filnam
-      integer lprint
 c
       integer len_s,len_x,len_u,len_t,length
       integer i
@@ -45,10 +45,11 @@ c
       len_u=index(dir_u,' ')-1
       len_t=index(dir_t,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_sgmndx ')
       endif
+c
       pre_sgmndx=.true.
 c
 c     initialize  number of segments to zero
@@ -157,12 +158,13 @@ c
 c
    12 continue
 c
-c      length=index(filnam,' ')-1
       if(lsgm(2,i).eq.0) pre_sgmndx=.false.
-      if(lprint.ge.5) then
+c
+      if(util_print('where',print_debug)) then
       write(lfnout,1001) i,csgm(i),lsgm(1,i),lsgm(2,i)
  1001 format(i5,2x,a5,i5,2x,i5)
       endif
+c
     3 continue
 c
       return

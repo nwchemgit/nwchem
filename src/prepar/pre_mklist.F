@@ -1,4 +1,4 @@
-      logical function pre_mklist(lfnout,lprint,lfnsgm,
+      logical function pre_mklist(lfnout,lfnsgm,
      + ffield,dir_s,dir_x,dir_u,dir_t,
      + lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,
@@ -9,16 +9,17 @@
      + limp,rimp,mimp,nimp,lmat,
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr)
 c
-c $Id: pre_mklist.F,v 1.9 1998-04-30 06:06:23 d3j191 Exp $
+c $Id: pre_mklist.F,v 1.10 1998-06-08 23:29:33 d3j191 Exp $
 c
       implicit none
+c
+#include "util.fh"
 c
       logical pre_sgmfil,pre_rdsgm
       integer pre_atnum
       external pre_sgmfil,pre_rdsgm,pre_atnum
 c
       integer lfnout,lfnsgm
-      integer lprint
       character*80 ffield
       character*255 dir_s,dir_x,dir_u,dir_t
       integer mseq,nseq
@@ -67,7 +68,7 @@ c
 c     append the atom and bonded lists
 c     --------------------------------
 c
-      if(.not.pre_rdsgm(lfnout,lprint,ffield,lseq(4,i),i,igrp,ipgrp,
+      if(.not.pre_rdsgm(lfnout,ffield,lseq(4,i),i,igrp,ipgrp,
      + lfnsgm,filsgm,
      + latm,catm,qatm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
@@ -568,7 +569,7 @@ c
       if(.not.pre_sgmfil(cseq(nseq+1),lfnsgm,filsgm,
      + dir_s,dir_x,dir_u,dir_t))
      + call errquit('pre_sgmfil failed',9999)
-      if(.not.pre_rdsgm(lfnout,lprint,ffield,0,0,igrp,ipgrp,lfnsgm,
+      if(.not.pre_rdsgm(lfnout,ffield,0,0,igrp,ipgrp,lfnsgm,
      + filsgm,latm,catm,qatm,matm,natmt,
      + lbnd,rbnd,mbnd,nbndt,lang,rang,mang,nangt,
      + ldih,kdih,rdih,mdih,ndiht,limp,rimp,mimp,nimpt,wcorr))

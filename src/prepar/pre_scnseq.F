@@ -1,7 +1,7 @@
-      logical function pre_scnseq(iunit,dirnam,lfnout,lprint,
+      logical function pre_scnseq(iunit,dirnam,lfnout,
      + kseq,cseq,mseq,ksgm,csgm,msgm)
 c
-c $Id: pre_scnseq.F,v 1.4 1998-04-29 18:35:23 d3j191 Exp $
+c $Id: pre_scnseq.F,v 1.5 1998-06-08 23:29:37 d3j191 Exp $
 c
 c     function to scan database for segments in sequence
 c
@@ -12,7 +12,6 @@ c
 c     in  : iunit     = dbase logical file number
 c           filnam    = dbase file name
 c           lfnout    = output file logical file number
-c           lprint    = integer for print to output
 c           mseq      = dimension of the sequence list
 c     out : kseq(1,*) = segment numbers
 c           kseq(2,*) = number of atoms
@@ -21,11 +20,12 @@ c           cseq      = segment names
 c
       implicit none
 c
+#include "util.fh"
+c
       integer iunit,lfnout,mseq,msgm
       integer kseq(3,mseq),ksgm(3,msgm)
       character*5 cseq(2,mseq),csgm(msgm)
       character*255 dirnam,filnam
-      integer lprint
 c
       character*80 card
       integer length,lseq,isgm,i
@@ -35,7 +35,7 @@ c
 c
       length=index(dirnam,' ')-1
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2006) dirnam(1:length)
  2006 format(/,'pre_scnseq  ',a)
       endif

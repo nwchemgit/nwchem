@@ -1,12 +1,12 @@
-      logical function pre_toprd(lfntop,filtop,lfnout,lprint,
+      logical function pre_toprd(lfntop,filtop,lfnout,
      + num,amass,mat,cwa,mwa,nwa,isat,isgm,csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb)
 c
-c $Id: pre_toprd.F,v 1.5 1998-04-29 18:35:29 d3j191 Exp $
+c $Id: pre_toprd.F,v 1.6 1998-06-08 23:29:39 d3j191 Exp $
 c
       implicit none
 c
-      integer lfntop,lfnout,lprint,mwa,nwa,msa,nsa,nsm,msb,nsb,mat
+      integer lfntop,lfnout,mwa,nwa,msa,nsa,nsm,msb,nsb,mat
       character*16 cwa(mwa),csa(msa)
       integer num(mat),isat(msa),isgm(msa),idsb(2,msb)
       real*8 amass(mat),qsa(msa),cdsb(msb)

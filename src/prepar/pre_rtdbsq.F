@@ -1,15 +1,14 @@
-      logical function pre_rtdbsq(irtdb,igeom,lfnout,lprint,
+      logical function pre_rtdbsq(irtdb,igeom,lfnout,
      + lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rtdbsq.F,v 1.3 1998-04-29 18:35:23 d3j191 Exp $
+c $Id: pre_rtdbsq.F,v 1.4 1998-06-08 23:29:37 d3j191 Exp $
 c
 c     function to read sequence from the rtdb
 c
 c     in  : irtdb
 c           igeom
 c           lfnout      = output file logical file number
-c           lprint      = integer for print to output
 c           mseq        = dimension of the sequence list
 c           nseq        = expected length of the sequence list
 c
@@ -34,7 +33,6 @@ c
       character*5 cseq(2,mseq)
       character*4 clnk(2,mlnk)
       real*8 xatm(3,matm)
-      integer lprint
       real*8 c(3),q
       character*16 tag
       integer i,num,numh

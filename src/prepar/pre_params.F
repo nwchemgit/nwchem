@@ -1,19 +1,20 @@
-      logical function pre_params(lfnpar,filpar,lfnout,lprint,
+      logical function pre_params(lfnpar,filpar,lfnout,
      + dir_s,dir_x,dir_u,dir_t,ffield,releps,q14fac,
      + latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,
      + ldih,kdih,rdih,mdih,ndih,limp,rimp,mimp,nimp,
      + latt,lats,catt,patt,ratt,matt,natt,nats)
 c
-c $Id: pre_params.F,v 1.7 1998-04-30 14:50:43 d3j191 Exp $
+c $Id: pre_params.F,v 1.8 1998-06-08 23:29:35 d3j191 Exp $
 c
       implicit none
+c
+#include "util.fh"
 c
       logical pre_ffield,pre_parcnv,pre_check
       external pre_ffield,pre_parcnv,pre_check
 c
       integer lfnpar,lfnout
-      integer lprint
       character*255 filpar,dir_s,dir_x,dir_u,dir_t
       character*80 ffield
       integer matm,natm
@@ -83,7 +84,7 @@ c
       ld=index(dir_s,' ')-1
       if(ld.gt.0) then
       filnam=dir_s(1:ld)//filpar(1:lp)
-      if(.not.pre_ffield(1,lfnpar,filnam,lfnout,lprint,q14fac,releps,
+      if(.not.pre_ffield(1,lfnpar,filnam,lfnout,q14fac,releps,
      + ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
@@ -92,7 +93,7 @@ c
       ld=index(dir_x,' ')-1
       if(ld.gt.0) then
       filnam=dir_x(1:ld)//filpar(1:lp)
-      if(.not.pre_ffield(2,lfnpar,filnam,lfnout,lprint,q14fac,releps,
+      if(.not.pre_ffield(2,lfnpar,filnam,lfnout,q14fac,releps,
      +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
@@ -101,7 +102,7 @@ c
       ld=index(dir_u,' ')-1
       if(ld.gt.0) then
       filnam=dir_u(1:ld)//filpar(1:lp)
-      if(.not.pre_ffield(3,lfnpar,filnam,lfnout,lprint,q14fac,releps,
+      if(.not.pre_ffield(3,lfnpar,filnam,lfnout,q14fac,releps,
      +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
@@ -110,11 +111,16 @@ c
       ld=index(dir_t,' ')-1
       if(ld.gt.0) then
       filnam=dir_t(1:ld)//filpar(1:lp)
-      if(.not.pre_ffield(4,lfnpar,filnam,lfnout,lprint,q14fac,releps,
+      if(.not.pre_ffield(4,lfnpar,filnam,lfnout,q14fac,releps,
      +  ffield,icomb,latt,catt,patt,ratt,matt,natt,latm,catm,matm,natm,
      + lbnd,rbnd,mbnd,nbnd,lang,rang,mang,nang,ldih,kdih,rdih,mdih,ndih,
      + limp,rimp,mimp,nimp)) then
       endif
+      endif
+c
+      if(util_print('files',print_default)) then
+      write(lfnout,1000)
+ 1000 format(' ')
       endif
 c
 c     convert non-bonded parameters to C6 and C12
@@ -126,7 +132,7 @@ c
 c     check if all required parameters have been found
 c     ------------------------------------------------
 c
-      if(.not.pre_check(lfnout,lprint,ffield,
+      if(.not.pre_check(lfnout,ffield,
      + latt,catt,matt,natt,catm,matm,natm,lbnd,mbnd,nbnd,
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp))
      + call errquit('pre_check failed',9999)

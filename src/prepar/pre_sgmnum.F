@@ -1,13 +1,12 @@
-      logical function pre_sgmnum(lfnout,lprint,
+      logical function pre_sgmnum(lfnout,
      + lseq,cseq,mseq,nseq,nsgm)
 c
-c $Id: pre_sgmnum.F,v 1.4 1998-04-29 18:35:24 d3j191 Exp $
+c $Id: pre_sgmnum.F,v 1.5 1998-06-08 23:29:38 d3j191 Exp $
 c
 c     function to scan database for unique segments in sequence
 c
 c     in  : filnam    = dbase file name
 c           lfnout    = output file logical file number
-c           lprint    = integer for print to output
 c           lseq(1,*) = sequence segment numbers
 c           cseq(2,*) = sequence segment names
 c           mseq      = dimension of the sequence list
@@ -17,14 +16,15 @@ c     out : lseq(2,*) = index to segment list
 c
       implicit none
 c
+#include "util.fh"
+c
       integer lfnout,mseq,nseq,nsgm
       integer lseq(4,mseq)
       character*5 cseq(2,mseq)
-      integer lprint
 c
       integer i,j
 c
-      if(lprint.ge.5) then
+      if(util_print('where',print_debug)) then
       write(lfnout,2000)
  2000 format(/,'pre_sgmnum  ')
       endif
