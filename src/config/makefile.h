@@ -276,7 +276,7 @@ ifeq ($(TARGET),PARAGON)
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
  FOPTIMIZE = -O2 -Minline=1000
-FVECTORIZE = -O2 -Minline=1000 -Mvect
+FVECTORIZE = -O2 -Minline=1000 # -Mvect
  COPTIMIZE = -O2
 
 #
