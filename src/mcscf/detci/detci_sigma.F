@@ -435,6 +435,6 @@ c
       detci_abgath_etime  = detci_abgath_etime + tgath
       detci_abdotab_etime = detci_abdotab_etime + tdotab
       detci_abscat_etime  = detci_abscat_etime + tscat
-      detci_absync_etime  = detci_absync_etime + tsync
+*      detci_absync_etime  = detci_absync_etime + tsync
       return
       end
