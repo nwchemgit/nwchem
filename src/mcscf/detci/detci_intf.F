@@ -29,7 +29,7 @@ c
 c
 c
 c
-      real tx,t2(2)
+      double precision tx
       integer nexa, nexb
       integer nstra, nstrb
       integer nekla, neklb

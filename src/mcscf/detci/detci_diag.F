@@ -40,7 +40,7 @@ c
       double precision scr(nscr)
       double precision rnorm, rnormscal, xx, eold, totale
       integer info, iter, nz
-      REAL TX, TY
+      DOUBLE PRECISION TX, TY
 c
 c
       double precision dnrm2
