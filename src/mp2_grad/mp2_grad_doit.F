@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.34 1997-07-25 16:38:31 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.35 1997-08-13 16:57:33 rg240 Exp $
 *
       implicit none
 #include "global.fh"
@@ -64,7 +64,7 @@
       integer nva_lo_local,nva_hi_local
 *     parameter(kunit=11)  ! it becomes output argument if EAF is used
       integer tunita,tunitb
-      logical ocoul,oexch, oprint_mem, oprint_where
+      logical oprint_mem, oprint_where
       double precision tol2e,e2
       double precision eval_a(*),eval_b(*)
       integer oseg_lo,oseg_hi, noa_frozen, nob_frozen
@@ -93,13 +93,6 @@ c
 c...  for texas blocking in moints_semi
 c     
       logical oblk
-c     
-      if(task.eq.'gradient')then
-         ocoul=.false.
-      else
-         ocoul=.false.
-      end if
-      oexch=.true.
 c     
       if (scftype .eq. 'RHF') then
          info = ' for RHF alpha+beta'
@@ -211,7 +204,7 @@ c
          call pstat_on(ps_moints)
          call int_init(rtdb,1,basis)
          call schwarz_init(geom,basis)
-         call moints_semi(basis,tol2e,ocoul,oexch,oseg_lo,oseg_hi,
+         call moints_semi(basis,tol2e,oseg_lo,oseg_hi,
      $        noa_lo,noa_hi,nva_lo,nva_hi,g_vecs_a,oblk)
          call int_terminate()
          call schwarz_tidy()

@@ -197,10 +197,10 @@ c$$$      end
 
 
 c
-c  $Id: moints_semi.F,v 1.43 1997-08-11 17:24:21 rg240 Exp $
+c  $Id: moints_semi.F,v 1.44 1997-08-13 16:55:45 rg240 Exp $
 c
 c  Generates and writes out half-transformed 
-c  Coulomb and exchange integrals for some multipassed
+c  exchange integrals for some multipassed
 c  segment, (oseglo:oseghi)
 c
 c  Half-transformed integrals are transposed in GA memory 
@@ -225,9 +225,8 @@ c
 c
 c
 c
-       subroutine moints_semi( basis, tol2e, ocoul, oexch,
-     $                         oseglo, oseghi, olo, ohi,
-     $                         vlo, vhi, g_movecs, oblk )
+       subroutine moints_semi( basis, tol2e, oseglo, oseghi, 
+     $                         olo, ohi, vlo, vhi, g_movecs, oblk )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -237,8 +236,6 @@ c
 c
        integer basis                          ! [input]  Basis handle
        double precision tol2e                 ! [input]  Integral tolerance
-       logical ocoul                          ! [input]  Toggle Coulomb integrals
-       logical oexch                          ! [input]  Toggle exchange integrals
        integer oseglo, oseghi                 ! [input]  Occupied segment range
        integer olo, ohi                       ! [input]  Correlated occupied index range
        integer vlo, vhi                       ! [input]  Virtual index range
@@ -258,15 +255,14 @@ c
        integer polo, pohi
        integer myid, numnodes, rlo, rhi, clo, chi
        integer itmp, ierr, vtmp(100), mxrlen
-       integer lmemreq, g_dummy
+       integer lmemreq
        double precision gmem
        integer g_jbuf, g_kbuf
        logical status
        logical osym
-       character*256 fnameK, fnameJ
-       integer junit, kunit
+       character*256 fnameK
+       integer kunit
        logical oprint_mem
-*      parameter (junit=10,kunit=11)
 c
        integer moints_numgr
        integer moints_lmem
@@ -304,7 +300,7 @@ c
 c
 c  Memory arithmetic
 c
-       lmemreq = moints_lmem(basis, nocc, nvir, ocoul, oexch, blen)
+       lmemreq = moints_lmem(basis, nocc, nvir, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
      $   call errquit('moints_semi: cannot determine memory limit',0)
 c
@@ -336,15 +332,7 @@ c
           call util_flush(6)
        endif
 c
-       if (ocoul .and. oexch) then
-          itmp = nbf
-       else if (ocoul) then
-          itmp = nocc
-       else if (oexch) then
-          itmp = nvir
-       endif
-c
-       mxrlen = int(gmem/(nseg*itmp))
+       mxrlen = int(gmem/(nseg*nvir))
        mxrlen = min(
      $      mxrlen, 
      $      min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
@@ -377,57 +365,28 @@ c
      $     /,' Global Memory remaining: ',i10,' words per node',
      $     /,' IO Buffer length:        ',i10,' words')
 c
-c  Create GA coulomb buffer
-c
-       if (ocoul) then
-         itmp = (nocc/numnodes + min(mod(nocc,numnodes),1))*nseg
-**         itmp = ((nocc-1)/numnodes + 1)*nseg ! rjh
-         if (.not.(ga_create( MT_DBL, mxrlen, nseg*nocc, 'transp Jbuf',
-     $                        mxrlen, itmp, g_jbuf )))
-     $           call errquit('moints_semi: cannot allocate J buffer',0)
-         call ga_distribution(g_jbuf, myid, rlo, rhi, clo, chi )
-         if ((clo.eq.0).and.(chi.eq.-1)) then
-           polo = 0
-           pohi = -1
-         else
-           if ((nseg.ne.1).and.((mod(chi,nseg).ne.0).or.
-     $         (mod(clo,nseg).ne.1))) then
-             write(6,221) ga_nodeid(),clo,chi
- 221         format('ME:',i3,5x,' Range:',i3,'-',i3)
-             call errquit('moints_semi:wrong distrib. for J transp',0)
-           endif
-           polo = olo + (clo-1)/nseg
-           pohi = olo + (chi/nseg) - 1
-         endif
-c$$$         WRITE(6,882) 'COULOMB',GA_NODEID(),CLO,CHI,ITMP,POLO,POHI
-       endif
-c
 c  Create GA exchange buffer
 c
-       if (oexch) then
 c
-         itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
+      itmp = (nvir/numnodes + min(mod(nvir,numnodes),1))*nseg
 **          itmp = ((nvir-1)/numnodes+1)*nseg ! rjh
-         if (.not.(ga_create( MT_DBL, mxrlen, nseg*nvir, 'transp Kbuf',
-     $                        mxrlen, itmp, g_kbuf )))
-     $           call errquit('moints_semi: cannot allocate K buffer',0)
-         call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
-         if ((clo.eq.0).and.(chi.eq.-1)) then
-           pvlo = 0
-           pvhi = -1
-         else
-           if ((nseg.ne.1).and.((mod(chi,nseg).ne.0).or.
-     $         (mod(clo,nseg).ne.1))) then
-             write(6,221) ga_nodeid(),clo,chi
-             call errquit('moints_semi:wrong distrib. for K transp',0)
-           endif
-           pvlo = vlo + (clo-1)/nseg
-           pvhi = vlo + (chi/nseg) - 1
-         endif
-c$$$         WRITE(6,882) 'EXCHANGE',GA_NODEID(),CLO,CHI,ITMP,PVLO,PVHI
-c$$$ 882     FORMAT(A8,5X,'ME:',I5,'  CLO:CHI ',2I5,' YCHUNK:',i5,
-c$$$     $          ' VRANGE:',2I5)
-       endif
+      if (.not.(ga_create( MT_DBL, mxrlen, nseg*nvir, 'transp Kbuf',
+     $                     mxrlen, itmp, g_kbuf )))
+     $   call errquit('moints_semi: cannot allocate K buffer',0)
+      call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
+      if ((clo.eq.0).and.(chi.eq.-1)) then
+        pvlo = 0
+        pvhi = -1
+      else
+        if ((nseg.ne.1).and.((mod(chi,nseg).ne.0).or.
+     $       (mod(clo,nseg).ne.1))) then
+          write(6,221) ga_nodeid(),clo,chi
+ 221      format('ME:',i3,5x,' Range:',i3,'-',i3)
+          call errquit('moints_semi:wrong distrib. for K transp',0)
+        endif
+        pvlo = vlo + (clo-1)/nseg
+        pvhi = vlo + (chi/nseg) - 1
+      endif
 c
 c  Reorder shells by descending shell-length
 c  and group shells by blocksize
@@ -465,10 +424,8 @@ c
        itmp = itmp + mod(itmp,2)
        status = ma_push_get(MT_INT, itmp, 'rev loc', l_rloc, k_rloc )
        call ifill(itmp, 0, int_mb(k_rloc), 1 )
-       g_dummy = g_kbuf
-       if (.not.(oexch).and.(ocoul)) g_dummy = g_jbuf
        call moints_locmap( basis, nsh, nbf, tol2e, int_mb(k_shmap),
-     $                     g_dummy, int_mb(k_gloc), nnbf,
+     $                     g_kbuf, int_mb(k_gloc), nnbf,
      $                     int_mb(k_rloc), int_mb(k_iopass),
      $                     int_mb(k_rlen))
 c
@@ -481,28 +438,15 @@ c
      $      ma_sizeof(MT_INT,nnbf+mod(nnbf,2),MT_DBL)
 *       vtmp(1) = ma_sizeof(MT_INT,(10 + itmp),MT_DBL) + 1
        vtmp(2) = nnbf
-       if (oexch) then
-         call util_file_name('kh', .true.,.true., fnamek)
-         call waopen( kunit, fnamek, 10, 0, ierr )
-         vtmp(3) = pvlo
-         vtmp(4) = pvhi
-         call waput( kunit, vtmp, 1,
-     $               ma_sizeof(MT_INT, 10, MT_DBL), ierr )
-         call waput( kunit, int_mb(k_rloc),
-     $               ma_sizeof(MT_INT, 12, MT_DBL),
-     $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
-       endif
-       if (ocoul) then
-         call util_file_name('jh', .true., .true.,fnamej)
-         call waopen(junit, fnamej, 10, 0, ierr )
-         vtmp(3) = polo
-         vtmp(4) = pohi
-         call waput( junit, vtmp, 1,
-     $               ma_sizeof(MT_INT, 10, MT_DBL), ierr )
-         call waput( junit, int_mb(k_rloc),
-     $               ma_sizeof(MT_INT, 12, MT_DBL),
-     $               ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
-       endif
+       call util_file_name('kh', .true.,.true., fnamek)
+       call waopen( kunit, fnamek, 10, 0, ierr )
+       vtmp(3) = pvlo
+       vtmp(4) = pvhi
+       call waput( kunit, vtmp, 1,
+     $             ma_sizeof(MT_INT, 10, MT_DBL), ierr )
+       call waput( kunit, int_mb(k_rloc),
+     $             ma_sizeof(MT_INT, 12, MT_DBL),
+     $             ma_sizeof(MT_INT, itmp, MT_DBL), ierr )
        if (.not. ma_pop_stack(l_rloc))
      $     call errquit('moints: failed to pop', l_rloc)
 c
@@ -510,8 +454,8 @@ c  Call the real stuff
 c
        call moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                   oseglo, oseghi, olo, ohi, vlo, vhi,
-     $                   polo, pohi, pvlo, pvhi, ocoul, oexch,
-     $                   osym, oblk, kunit, junit, int_mb(k_shmap),
+     $                   polo, pohi, pvlo, pvhi, 
+     $                   osym, oblk, kunit, int_mb(k_shmap),
      $                   ngrp, int_mb(k_glo), int_mb(k_ghi),
      $                   int_mb(k_bfmap), int_mb(k_rbfmap),
      $                   blen, int_mb(k_gmap), int_mb(k_gloc), 
@@ -539,19 +483,10 @@ c
      $     call errquit('moints: failed to pop', l_glo)
        if (.not. ma_pop_stack(l_shmap))
      $     call errquit('moints: failed to pop', l_shmap)
-
-       if (ocoul) then
-         if (.not. ga_destroy(g_jbuf))
-     $     call errquit('moints: failed to destroy g_jbuf',g_jbuf)
-       endif
-
-       if (oexch) then
-         if (.not. ga_destroy(g_kbuf))
-     $     call errquit('moints: failed to destroy g_kbuf',g_kbuf)
-       endif
+       if (.not. ga_destroy(g_kbuf))
+     $      call errquit('moints: failed to destroy g_kbuf',g_kbuf)
 c
-       if (oexch) call waclose( kunit, ierr )
-       if (ocoul) call waclose( junit, ierr )
+       call waclose( kunit, ierr )
 
 c
        call ga_sync()
@@ -577,8 +512,8 @@ c
        subroutine moints_semi_a( basis, nbf, nsh, maxbfsh, tol2e,
      $                           oseglo, oseghi, olo, ohi, vlo, vhi,
      $                           polo, pohi, pvlo, pvhi,
-     $                           ocoul, oexch, osym, oblk,
-     $                           kunit, junit, shmap, 
+     $                           osym, oblk,
+     $                           kunit, shmap, 
      $                           ngrp, glo, ghi, bfmap, rbfmap,
      $                           blen, gmap, gloc, nnbf, iopass,
      $                           rlen, g_movecs, g_jbuf, g_kbuf )
@@ -606,11 +541,9 @@ c
        integer vlo, vhi                       ! [input] Virtual index range
        integer polo, pohi                     ! [input] Occupied index range for this processor
        integer pvlo, pvhi                     ! [input] Virtual index range for this processor
-       logical ocoul                          ! [input] Toggle Coulomb
-       logical oexch                          ! [input] Toggle exchange
        logical osym                           ! [input] Toggle symmetry
        logical oblk                           ! [input] Toggle AO integral blocking
-       integer junit, kunit                   ! [input] Unit numbers for IO
+       integer kunit                          ! [input] Unit numbers for IO
        integer shmap(nsh)                     ! [input] Map for shells
        integer ngrp                           ! [input] Number of groups of shells
        integer glo(*)                         ! [input] Group lower shell bound
@@ -657,8 +590,7 @@ c
        integer gr_len
        external gr_len
 c
-       if (ocoul) call ga_zero(g_jbuf)
-       if (oexch) call ga_zero(g_kbuf)
+       call ga_zero(g_kbuf)
        num_nodes = ga_nnodes()
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
@@ -757,20 +689,11 @@ c
                  mi_aggsynch = mi_aggsynch + t1
                  mi_nsynchs = mi_nsynchs + 1
                  ttmp = util_cpusec()
-                 if (ocoul) then
-                   nwrbytes = nwrbytes + nmo1*(pohi-polo+1)*rlen(jopass)
-	           call moints_wrbuf( junit, oseglo, oseghi,
-     $                                olo, polo, pohi, nnbf, iocnt,
-     $                                rlen(jopass), g_jbuf )
-                   call ga_zero(g_jbuf)
-                 endif
-                 if (oexch) then
-                   nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
-                   call moints_wrbuf( kunit, oseglo, oseghi,
-     $                                vlo, pvlo,  pvhi, nnbf, iocnt,
-     $                                rlen(jopass), g_kbuf )
-                   call ga_zero(g_kbuf)
-                 endif
+                 nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
+                 call moints_wrbuf( kunit, oseglo, oseghi,
+     $                              vlo, pvlo,  pvhi, nnbf, iocnt,
+     $                              rlen(jopass), g_kbuf )
+                 call ga_zero(g_kbuf)
                  tio = tio + util_cpusec() - ttmp
                  tpass = util_cpusec() - tpass
                  iocnt = iocnt + rlen(jopass)
@@ -857,33 +780,21 @@ c
                    mi_t1 = mi_t1 + util_cpusec() - t0
                   enddo
                enddo
-
-c ... is this ever called ?
-
-	       if (ocoul) write(6,*) ' moints_semi: coulomb is untested'
-               if (ocoul)
-     $           call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
-     $                              olo, ohi, ibflo, ibfhi, 
-     $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
-     $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                              dbl_mb(k_xmo), g_jbuf )
-               if (oexch) then
-                 t0 = util_cpusec()
+               t0 = util_cpusec()
 #ifdef NEW_SPARSE
-                 call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
-     $                              vlo, vhi, ibflo, ibfhi, 
-     $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
-     $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                              dbl_mb(k_xmo_t), g_kbuf )
+               call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
+     $                               vlo, vhi, ibflo, ibfhi, 
+     $                               jbflo, jbfhi, gloc, dbl_mb(k_ssni),
+     $                               dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                               dbl_mb(k_xmo_t), g_kbuf )
 #else
-                 call moints_trf2Ky(nbf, qlo, qhi, oseglo, oseghi, 
-     $                              vlo, vhi, ibflo, ibfhi, 
-     $                              jbflo, jbfhi, gloc, dbl_mb(k_ssni),
-     $                              dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                              dbl_mb(k_xmo), g_kbuf )
+               call moints_trf2Ky(nbf, qlo, qhi, oseglo, oseghi, 
+     $                            vlo, vhi, ibflo, ibfhi, 
+     $                            jbflo, jbfhi, gloc, dbl_mb(k_ssni),
+     $                            dbl_mb(k_hlp), dbl_mb(k_hlp2),
+     $                            dbl_mb(k_xmo), g_kbuf )
 #endif
-                 mi_t2k = mi_t2k + util_cpusec() - t0
-               endif
+               mi_t2k = mi_t2k + util_cpusec() - t0
 
                ttask = util_cpusec() - ttask
                mi_mintask = min(mi_mintask,ttask)
@@ -908,16 +819,9 @@ c
        mi_minsynch = min(mi_minsynch,t1)
        mi_maxsynch = max(mi_maxsynch,t1)
        ttmp = util_cpusec()
-       if (ocoul) then
-         nwrbytes = nwrbytes + nmo1*(pohi-polo+1)*rlen(jopass)
-         call moints_wrbuf( junit, oseglo, oseghi, olo, polo, pohi,
-     $                      nnbf, iocnt, rlen(jopass), g_jbuf )
-       endif
-       if (oexch) then
-         nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
-         call moints_wrbuf( kunit, oseglo, oseghi, vlo, pvlo, pvhi,
-     $                      nnbf, iocnt, rlen(jopass), g_kbuf )
-       endif
+       nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(jopass)
+       call moints_wrbuf( kunit, oseglo, oseghi, vlo, pvlo, pvhi,
+     $                    nnbf, iocnt, rlen(jopass), g_kbuf )
        tio = tio + util_cpusec() - ttmp
        tpass = util_cpusec() - tpass
        next = nxtval(-num_nodes)
@@ -1083,25 +987,6 @@ c     Note that sum is the sum of squares hence test against tol**2
       enddo
 
 
-c$$$      do o=oseglo,oseghi
-c$$$        do v=vlo,vhi
-c$$$          vo = (v-vlo)*(oseghi-oseglo+1) + o - oseglo + 1
-c$$$          call dgemm('t','n',ijlen,1,nbf,1.d0,ssni(1,jlo,ilo,o),
-c$$$     $                nbf,c(1,v),nbf,0.d0,h,ijlen)
-c$$$          if (ihi.ne.jhi) then
-c$$$            call ga_put(g_buf,glo,ghi,vo,vo,h,1)
-c$$$          else
-c$$$            ij = 0
-c$$$            do i=ilo,ihi
-c$$$              do j=ilo,i
-c$$$                ij =   ij + 1
-c$$$                h2(ij) = h(i,j) 
-c$$$              enddo
-c$$$            enddo
-c$$$            call ga_put(g_buf,glo,ghi,vo,vo,h2,1)
-c$$$          endif
-c$$$        enddo
-c$$$      enddo
       return
       end
 
@@ -1202,82 +1087,6 @@ c$$$ 901        FORMAT(' [O,P]:',2I4,5X,'ADDR:',I6)
       return
       end
           
-
-
-
-
-
-c
-c  Driver routine to illustrate how to read back
-c  half-transformed integrals from local node file.
-c
-      subroutine moints_readintJ( nbf, oseglo, oseghi, olo, ohi,
-     $                            vlo, vhi, c, orbe )
-      implicit none
-#include "mafdecls.fh"
-#include "global.fh"
-      integer nbf, oseglo, oseghi
-      integer olo, ohi, vlo, vhi
-      double precision c(nbf,nbf)
-      double precision orbe(nbf)
-c
-      integer nocc, nnbf, ioff, p, o, oo
-      integer pohi, polo, itmp
-      integer l_v, k_v, l_t, k_t, l_x, k_x
-      logical status
-      character*256 fname
-      integer junit
-*     parameter(junit=10)
-
-      call util_file_name('jh', .true.,.true.,fname)
-      call waopen(junit, fname, 10, 0, itmp )
-      nocc = ohi - olo + 1
-      call moints_vrange( junit, polo, pohi, nnbf, ioff )
-      status = ma_push_get(MT_INT,(nnbf+mod(nnbf,2)),'scatter',l_v,k_v)
-      call moints_getscattv( junit, nnbf, int_mb(k_v) )
-c
-c  Loop over occupied/virtual pairs
-c
-      itmp = max(nnbf,(nbf*nocc))
-      status = ma_push_get(MT_DBL,itmp,'read buff',l_t,k_t)
-      status = ma_push_get(MT_DBL,(nbf*nbf),'U half',l_x,k_x)
-      do o=oseglo,oseghi
-        oo = o - oseglo + 1
-        do p=polo,pohi
-          call dfill((nbf*nbf), 0.d0, dbl_mb(k_x), 1 )
-          call moints_rdhfint( junit, olo, ohi, oo, p, nnbf,
-     $                         ioff, dbl_mb(k_t))
-          call scatter( nnbf, dbl_mb(k_x), int_mb(k_v), dbl_mb(k_t) )
-          call upper2square( nbf, dbl_mb(k_x), dbl_mb(k_x) )
-
-c$$$          WRITE(6,900) O,P
-c$$$ 900      FORMAT(5X,' J READ [O,P]:',2I5)
-c$$$          CALL MOINTS_MATPRINT(NBF,NBF,DBL_MB(K_X))
-
-          call dgemm( 'n', 'n', nbf, nocc, nbf, 1.d0, dbl_mb(k_x), nbf,
-     $                c(1,olo), nbf, 0.d0, dbl_mb(k_t), nbf )
-          call dgemm( 't', 'n', nocc, nocc, nbf, 1.d0, c(1,olo), nbf,
-     $                dbl_mb(k_t), nbf, 0.d0, dbl_mb(k_x), nocc )
-        enddo
-      enddo
-c
-c  Clean up
-c
-      if (.not. ma_pop_stack(l_x))
-     $  call errquit('moints_readint: failed to pop', l_x)
-      if (.not. ma_pop_stack(l_t))
-     $  call errquit('moints_readint: failed to pop', l_t)
-      if (.not. ma_pop_stack(l_v))
-     $  call errquit('moints_readint: failed to pop', l_v)
-c
-      call waclose(junit, itmp )
-      return
-      end
-
-
-
-
-
 
 
 
@@ -1523,18 +1332,14 @@ c$$$ 771  FORMAT(16I4)
 
 c
 c  Units in bytes 
-c  Local memory requirements are independent of (ocoul, oexch)?
 c
-
-       integer function moints_lmem( basis, nocc, nvir,
-     $                               ocoul, oexch, blen )
+       integer function moints_lmem( basis, nocc, nvir, blen )
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "util.fh"
        integer basis, nocc, nvir, blen
-       logical ocoul, oexch
 c
        integer nsh, nbf, maxbfsh
        integer bsize, ngrp, imax2e, imem2, memi, memd
