@@ -1,4 +1,4 @@
-
+c     $Id: cpmd_properties.F,v 1.2 2001-10-26 20:13:25 edo Exp $
 *     *********************************
 *     *                               *
 *     *          cpmd_properties      *
