@@ -1,7 +1,7 @@
       subroutine grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.2 2000-03-29 01:59:12 edo Exp $
+c$Id: grid_sympts.F,v 1.3 2000-03-30 03:06:00 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -176,14 +176,16 @@ c     remove zeroes
 c
 c     check weight normaliz
 c
-         wsum=0d0
-         do k=1,nq_left
-            wsum=wsum+gridscr(4,k)
-         enddo
+         if(dosympts) then
+            wsum=0d0
+            do k=1,nq_left
+               wsum=wsum+gridscr(4,k)
+            enddo
 cedo         write(6,'(A,I4),A,1PE20.12)') '         final nq ',nq_left
-         wsum=wsum/dacos(-1d0)*.25d0
-         if(abs(wsum-1d0).gt.1d-6) call errquit(
-     '        'grid_sympts: lost weights normaliz ',111)
+            wsum=wsum/dacos(-1d0)*.25d0
+            if(abs(wsum-1d0).gt.1d-6) call errquit(
+     '           'grid_sympts: lost weights normaliz ',111)
+         endif
          iang_done=iang
       endif
 

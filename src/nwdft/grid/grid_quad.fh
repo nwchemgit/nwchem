@@ -24,5 +24,4 @@ c     rest of routine : n_per_rec, natoms
       integer iniz(natoms), ifin(natoms)
       double precision ccoef(ncoef_max), expo(nbf_ao_mxprim)
       double precision rq(n_per_rec, natoms)
-      integer max_elem_ang_scr, max_component
       double precision  rho_int

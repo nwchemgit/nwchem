@@ -11,7 +11,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadvw.F,v 1.3 2000-03-29 01:59:11 edo Exp $
+c$Id: grid_quadvw.F,v 1.4 2000-03-30 03:06:00 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -29,7 +29,6 @@ c
       double precision rij ! [scr] for ssw
       integer iqat(*) ! [scr]
       double precision rad
-      integer nq_tot
       integer ntot_cube,npts_per_ang
       logical oreadfile, owritefile
       integer filesize, memsize
@@ -126,7 +125,7 @@ c
       n1 = 0
       n2 = nxtask(nproc,icount)
 
-      call grid_sympts0(geom,nops,k_symops,l_symops,
+      if(dosympts) call grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,nqmax)
       do 111 i_a =1,ncenters
          iang_done=-1
@@ -177,12 +176,20 @@ c
 c     Generate all angular quadrature points for this radial shell
 c     and keep only those inside cube
 c     
-                     call grid_sympts(dosympts,
+                     if(dosympts) then
+                        call grid_sympts(dosympts,
      .                    rad_sh,xyz(1,ictr), ictr, 
      .                    irsh, iang, iang_done,nq_left,
      ,                    aqbuf, nq, nx,ny,nz,nxyz,
      ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
      .                    int_mb(k_iscr))
+                        else
+                           call grid_qpts(rad_sh,xyz(1,ictr), ictr, 
+     ,                          irsh, iang, 
+     .                          aqbuf, nq, 
+     *                          nx,ny,nz,nxyz)
+
+                        endif
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     
@@ -247,7 +254,7 @@ c
             endif
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
-      call grid_sympts2(l_symops,l_gridscr,l_iscr)
+      if(dosympts)call grid_sympts2(l_symops,l_gridscr,l_iscr)
       write(LuOut,*) ' me ',me,
      ,     ' NQTOTC NQ/cube',nqtotc,nqtotc/ncubenz
       call grid_buckend()

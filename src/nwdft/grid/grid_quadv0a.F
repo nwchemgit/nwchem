@@ -8,7 +8,7 @@
      ,     ibf_ao,rqbuf,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0a.F,v 1.15 2000-03-29 01:59:11 edo Exp $
+c$Id: grid_quadv0a.F,v 1.16 2000-03-30 03:05:59 edo Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c
       double precision rad
       integer iqsh
       integer nqpts, ictr_buf
-      integer ncube,istep,ntot_cube,cur_ctr
+      integer ncube,istep,ntot_cube
       logical grid_file_rewind
       external grid_file_rewind
       logical xc_chkgrad

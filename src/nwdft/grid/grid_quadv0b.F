@@ -10,7 +10,7 @@
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
 c
-c$Id: grid_quadv0b.F,v 1.2 2000-03-29 01:59:11 edo Exp $
+c$Id: grid_quadv0b.F,v 1.3 2000-03-30 03:06:00 edo Exp $
 c
       implicit none
 #include "cgridfile.fh"
@@ -26,8 +26,8 @@ c
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, nscr
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao, iscr, lscr
       integer ldmat,idmat,i, grid_nbfm,ntot_cube,iii
+      integer max_elem_ang_scr, max_component
       external grid_nbfm
-!       write(0,*) ' v0b nrc ',ntot_cube,' nqpt ',nqpts
 C
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)

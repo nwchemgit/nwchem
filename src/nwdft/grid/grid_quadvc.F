@@ -11,7 +11,7 @@
      &     cntobfr, cetobfr, 
      ,     ibf_ao,bp,rscr,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc)
-C$Id: grid_quadvc.F,v 1.1 2000-03-27 19:15:32 edo Exp $
+C$Id: grid_quadvc.F,v 1.2 2000-03-30 03:06:00 edo Exp $
       implicit none
 #include "cdft.fh"
 #include "cgridfile.fh"
@@ -37,7 +37,9 @@ c
  30   continue
       buffwrite=((n.eq.0).and.(nwrbuf+1.ge.n_per_rec-1)
      .     .and.(nq_out.ne.0)).or.
-     .   ((n.gt.0).and.(nwrbuf+1.eq.n_per_rec))
+     .   (n.eq.0).and.((n_in_rec+nq.gt.n_per_rec).and.
+     .     (n_in_rec.gt.n_per_rec*7/8)).or.
+     .     ((n.gt.0).and.(nwrbuf+1.eq.n_per_rec))
       if(buffwrite.or.cube_done) then
 !      write(6,11) ictr_buf,ntot_cube,nq_out,nwrbuf,cube_done,
 !     ,        buffwrite

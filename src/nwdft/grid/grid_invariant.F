@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.9 2000-03-29 01:59:10 edo Exp $
+c$Id: grid_invariant.F,v 1.10 2000-03-30 03:05:59 edo Exp $
 c
       implicit none
 c      
@@ -16,15 +16,24 @@ c
       double precision matalr(3,3),c(3,3)
       integer numgr3,n
       logical dogr3rot
-      parameter (numgr3=13)
+      parameter (numgr3=6)
       character*10 grrname,gr3name(numgr3)
       data gr3name/
-     1'C3        ','C6        ',
-     3'D3        ','D6        ',
-     5'C3v       ','C6v       ',
-     7'C3h       ','C6h       ',
-     9'D3h       ','D6h       ',
-     1'D3d       ','D6d       ',' S6       '/
+     1'C3        ',
+     3'D3        ',
+     5'C3v       ',
+     7'C3h       ',
+     9'D3h       ',
+     1'D3d       '/
+cedo      parameter (numgr3=13)
+cedo      character*10 grrname,gr3name(numgr3)
+cedo      data gr3name/
+cedo     1'C3        ','C6        ',
+cedo     3'D3        ','D6        ',
+cedo     5'C3v       ','C6v       ',
+cedo     7'C3h       ','C6h       ',
+cedo     9'D3h       ','D6h       ',
+cedo     1'D3d       ','D6d       ',' S6       '/
 c
 c     Set print options.
 c
@@ -78,13 +87,13 @@ c
 c     rotate by Ahlrichs prescription for groups with 3-fold axis
 c
       call sym_group_name(geom, grrname)
-      write(6,'("GRGR",A,"!")') grrname
+!      write(6,'("GRGR",A,"!")') grrname
       dogr3rot=.false.
       do n=1,numgr3
          if(grrname.eq.gr3name(n)) dogr3rot=.true.
       enddo
-      write(0,*) ' dogr ',dogr3rot
       if(dogr3rot) then
+      if(ga_nodeid().eq.0) write(6,*) ' Rotation of axis '
          matalr(1,1)= sqrt(6d0)/3d0
          matalr(2,1)=0d0
          matalr(3,1)= sqrt(3d0)/3d0
@@ -109,7 +118,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.9 2000-03-29 01:59:10 edo Exp $
+c$Id: grid_invariant.F,v 1.10 2000-03-30 03:05:59 edo Exp $
 c
       implicit none
 c
