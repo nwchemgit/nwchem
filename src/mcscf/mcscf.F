@@ -178,8 +178,8 @@ c
 c
 c  Initialize stuff
 c
-       call int_init(rtdb, 1, basis)
        call int_normalize(basis)
+       call int_init(rtdb, 1, basis)
        call schwarz_init(geom, basis)
        call scf_get_fock_param( rtdb, tol2e )
 c
@@ -458,6 +458,7 @@ c
      $     (ga_nodeid().eq.0)) write(6,674) etrace, gnorm
  674   format(//,20x,'Energy:',11x,f20.14,
      $         /,20x,'Gradient Norm:',4x,e20.4)
+
 #ifdef MCSCF_DEBUGGER
 c
 c  Debugging routine
