@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.18 1997-07-17 22:22:01 d3e129 Exp $
+* $Id: task_num_grad.F,v 1.19 1997-07-30 02:08:20 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -90,7 +90,8 @@ c
      $     call errquit('task_num_grad: store of geom failed',0)
 c
       if (oprint_info) then
-         call util_print_centered(6, 'NWChem Numerical Gradients', 
+         call util_print_centered(6, 
+     $        'NWChem Numerical Gradients Module', 
      $        40, .true.)
          write(6,*)
          write(6,*)

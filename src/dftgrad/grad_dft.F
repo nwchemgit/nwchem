@@ -91,7 +91,7 @@ c
             write(luout,*)
             write(luout,*)
             call util_print_centered(luout,
-     &          'NWCHEM DFTGRAD Module',40,.true.)
+     &          'NWChem DFT Gradient Module',40,.true.)
             write(luout,*)
             write(luout,*)
             if (title .ne. ' ')then

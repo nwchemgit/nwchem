@@ -2,7 +2,7 @@
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.32 1997-06-11 18:16:38 d3h449 Exp $
+C$Id: nwdft.F,v 1.33 1997-07-30 02:06:57 d3g681 Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -60,7 +60,7 @@ c     only process 0 will write to it
      &       title = ' '
         if(iproc.eq.0) then
           call util_print_centered(
-     &         LuOut, 'NWCHEM DFT Module', 40, .true.)
+     &         LuOut, 'NWChem DFT Module', 40, .true.)
           write(LuOut,*)
           write(LuOut,*)
           if (title .ne. ' ') then

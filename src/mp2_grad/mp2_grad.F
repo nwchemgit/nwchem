@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.21 1997-05-14 20:08:19 d3g681 Exp $
+* $Id: mp2_grad.F,v 1.22 1997-07-30 02:06:45 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -66,7 +66,7 @@ c
       if(ga_nodeid().eq.0)then
          if(util_print('information',print_low))then
             call util_print_centered(6,
-     $           'NWChem MP2 semi-direct energy/gradient module',
+     $           'NWChem MP2 Semi-direct Energy/Gradient Module',
      $           40,.true.)
             write(6,*)
             write(6,*)

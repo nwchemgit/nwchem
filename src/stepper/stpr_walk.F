@@ -1,5 +1,5 @@
       logical function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.26 1996-11-02 03:13:24 vg038 Exp $
+c     $Id: stpr_walk.F,v 1.27 1997-07-30 02:08:15 d3g681 Exp $
       implicit none
 c     
 #include "mafdecls.fh"
@@ -73,7 +73,7 @@ c
          if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $        title = ' '
          if (util_print('information',print_low)) then
-            call util_print_centered(6, 'NWCHEM STEPPER Module', 
+            call util_print_centered(6, 'NWChem STEPPER Module', 
      $           40, .true.)
             write(6,*)
             write(6,*)

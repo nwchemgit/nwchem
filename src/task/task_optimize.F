@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.10 1997-06-25 18:09:17 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.11 1997-07-30 02:08:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -54,7 +54,8 @@ c
      $     util_print('task_optimize', print_low)) then
          write(6,*)
          write(6,*)
-         call util_print_centered(6,'NWChem Geometry Optimization',
+         call util_print_centered(6,
+     $        'NWChem Geometry Optimization',
      $        40,.true.)
          write(6,*)
          write(6,*)
@@ -118,7 +119,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.10 1997-06-25 18:09:17 d3e129 Exp $
+c     $Id: task_optimize.F,v 1.11 1997-07-30 02:08:21 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -176,7 +177,8 @@ c
      $     util_print('task_saddle', print_low)) then
          write(6,*)
          write(6,*)
-         call util_print_centered(6,'NWChem Geometry Optimization',
+         call util_print_centered(6,
+     $        'NWChem Transition State Search',
      $        40,.true.)
          write(6,*)
          write(6,*)

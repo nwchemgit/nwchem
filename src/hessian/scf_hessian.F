@@ -1,5 +1,5 @@
       logical function scf_hessian(rtdb)
-* $Id: scf_hessian.F,v 1.3 1997-03-21 01:06:21 d3e129 Exp $
+* $Id: scf_hessian.F,v 1.4 1997-07-30 02:05:26 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -54,7 +54,7 @@ c
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
-            call util_print_centered(luout,'NWCHEM HESSIAN Module',
+            call util_print_centered(luout,'NWChem Hessian Module',
      $           40,.true.)
             write(luout,*)
             call util_flush(luout)

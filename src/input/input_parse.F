@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.36 1997-04-25 00:41:32 d3e129 Exp $
+C     $Id: input_parse.F,v 1.37 1997-07-30 02:05:37 d3g681 Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -27,7 +27,7 @@ c
 c     
          write(6,*)
          write(6,*)
-         call util_print_centered(6, 'NWCHEM Input Module', 40, .true.)
+         call util_print_centered(6, 'NWChem Input Module', 40, .true.)
          write(6,*)
          write(6,*)
 c     

@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.35 1997-04-01 03:43:33 gg502 Exp $
+C$Id: rimp2.F,v 1.36 1997-07-30 02:07:58 d3g681 Exp $
       Implicit NONE
       Integer RTDB
 C
@@ -303,7 +303,7 @@ C     **********************************************
 C
       If ( Me .eq. 0 .AND. PrInfo) then
 C
-         Call Util_Print_Centered(LuOut, 'NWCHEM RI-MP2 Energy', 40,
+         Call Util_Print_Centered(LuOut, 'NWChem RI-MP2 Module', 40,
      $   .TRUE.)
          If ( JobTitle .ne. ' ') Call Util_Print_Centered( LuOut,
      $      JobTitle, 40, .FALSE.)

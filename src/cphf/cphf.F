@@ -11,7 +11,7 @@ c
 c     
       if(util_print('information',print_default) .and.
      $     ga_nodeid().eq.0) then
-         call util_print_centered(6,'NWCHEM CPHF Module',40,.true.)
+         call util_print_centered(6,'NWChem CPHF Module',40,.true.)
          write(6,*)
          write(6,*) 
       endif
