@@ -15,7 +15,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.42 1995-02-03 00:28:14 d3g681 Exp $
+c     $Id: nwchem.F,v 1.43 1995-02-07 00:03:32 d3g681 Exp $
 c
       character*255 input_filename
 c
@@ -288,7 +288,11 @@ c
 c     
 c     Eventually this will be where the next task is identified
 c     
- 1000 if (util_print('rtdb', print_high)) then
+ 1000 continue
+      if (util_print('rtdbvalues', print_debug)) then
+         if (.not. rtdb_print(rtdb, .true.))
+     $     call errquit('control: rtdb_print failed', 0)
+      else if (util_print('rtdb', print_high)) then
          if (.not. rtdb_print(rtdb, .false.))
      $     call errquit('control: rtdb_print failed', 0)
       endif
