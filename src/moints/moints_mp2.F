@@ -15,7 +15,6 @@ c
        integer ilo,ihi,jlo,jhi,my_id
        integer g_epair
        double precision xx,denom
-       logical status
        double precision moint_epair_eval
 
        nnt = (nocc*(nocc+1))/2
