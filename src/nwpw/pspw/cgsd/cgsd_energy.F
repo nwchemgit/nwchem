@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.32 2002-08-26 23:45:24 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.33 2003-01-24 02:06:52 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -87,6 +87,7 @@ c#include "rtdb.fh"
       if (taskid.eq.MASTER) call util_flush(luout)
       if (newpsi) call sdminimize(15)
       if (minimizer.gt.1) call pspw_Grsm_list_start()
+      if (minimizer.eq.5) it_out = 1
    2  continue
          icount = icount + 1
          if (stalled) then
@@ -112,27 +113,24 @@ c#include "rtdb.fh"
            call bybminimize(E,deltae,deltac,bfgscount)
          end if
 
-c         if ((dabs(deltae).gt.dabs(deltae_old)).or.
-c     >       (dabs(deltae).gt.1.0d-2)) then
-c            stalled = .true.
-c         else
-c            stalled = .false.
-c         end if
-         if (dabs(deltae).gt.1.0d-2) then
-           stalled = .true.
+         if ((dabs(deltae).gt.dabs(deltae_old)).or.
+     >       (dabs(deltae).gt.1.0d-2)          .or.
+     >       (deltae.gt.0.0d0)) then
+            stalled = .true.
          else
-           stalled = .false.
+            stalled = .false.
          end if
-
-         if (taskid.eq.MASTER) then 
+        
+         if ((taskid.eq.MASTER).and.(minimizer.ne.5)) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
          if (deltae.gt.0.0d0) then
             if (taskid.eq.MASTER) 
      >       write(luout,*) 
-     >       ' *** energy going up. iteration terminated'
-            go to 3
+     >       ' *** energy going up. iteration not terminated'
+             stalled = .true.
+            !go to 3
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.tole).and.
@@ -146,6 +144,8 @@ c         end if
      >       write(luout,*) ' *** out of time. iteration terminated'
            go to 3
          end if
+
+         stalled = .false. !debug
       if (icount.lt.it_out) go to 2
       if (taskid.eq.MASTER) 
      > write(luout,*) '*** arived at the Maximum iteration.  terminated'
@@ -305,7 +305,7 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1306 FORMAT(10X,'============ Grassmann lmbfgs iteration ============')
  1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
  1308 FORMAT(10X,'======= Stiefel conjugate gradient iteration =======')
- 1309 FORMAT(10X,'==== band by band conjugate gradient iteration =====')
+ 1309 FORMAT(10X,'=========== band by band diis iteration ============')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')

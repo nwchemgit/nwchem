@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.2 2002-12-10 01:37:22 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.3 2003-01-24 02:06:52 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -16,37 +16,40 @@ c
       real*8     deltae,deltac
       integer    current_iteration
 
+
+#include "stdio.fh"
 #include "mafdecls.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
 
       real*8  deltat_min
       parameter (deltat_min=1.0d-3)
        
-      integer H0(2),G0(2),G1(2)
-      real*8  E0,dE0
+      integer vall_in(2),vall_out(2),vall_junk(2)
+      real*8  E0,dE0,deltae_old,Ein
 
 
       real*8     sum0,sum1,sum3,scale,tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
-      real*8     Enew,Eold,Estart
-      common / cgsd_block / Enew,Eold,Estart
+      real*8     Enew,Eold,alpha
+      common / cgsd_block / Enew,Eold,alpha
 
-      integer it,it_in,i
-      real*8 tmin,deltat
-      real*8 max_sigma
+      integer it,it_in,i,ispin
 
-      logical value,precondition
-      integer neall,npack1
-      real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      logical value,precondition,done
+      integer n2ft3d
+      real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       
 
 
 *     **** external functions ****
-      integer  control_it_in,psi_ne,control_version
-      real*8   control_tole,control_tolc
-      real*8   rho_error,psi_1energy
+      integer  control_ispin
+      integer  control_it_in,control_it_out,psi_ne,control_version
+      real*8   control_tole,control_tolc,control_ks_alpha
+      real*8   rho_error,psi_1energy,psi_error
       real*8   dng_1ehartree
       real*8   psi_1ke
       real*8   psi_1vl,psi_1v_field
@@ -55,11 +58,11 @@ c
       real*8   rho_1pxc
       real*8   ewald_e,ion_ion_e
       real*8   psi_1eorbit
-      real*8   linesearch
    
-      external control_it_in,psi_ne,control_version
-      external control_tole,control_tolc
-      external rho_error,psi_1energy
+      external control_ispin
+      external control_it_in,control_it_out,psi_ne,control_version
+      external control_tole,control_tolc,control_ks_alpha
+      external rho_error,psi_1energy,psi_error
       external dng_1ehartree
       external psi_1ke
       external psi_1vl,psi_1v_field
@@ -68,7 +71,6 @@ c
       external rho_1pxc
       external ewald_e,ion_ion_e
       external psi_1eorbit
-      external linesearch
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
@@ -94,38 +96,119 @@ c
       external pspw_charge_found,control_precondition
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
+      real*8   psi_1_noupdate_energy,psi_eigenvalue
+      external psi_1_noupdate_energy,psi_eigenvalue
+   
+      Ein = E(1)
+      call Parallel_taskid(taskid)
 
-      it_in = control_it_in()
-      Eold = E(1)
+      it_in = control_it_in()*control_it_out()
+      tole  = control_tole()
       precondition = control_precondition()
+      ispin = control_ispin()
+      call D3dB_n2ft3d(1,n2ft3d)
 
-*     **********************
-*     **** bybminimizer ****
-*     **********************
-      neall = psi_ne(1)+psi_ne(2)
+*     **** allocate rho_in and rho_out ****
+      value = MA_push_get(mt_dbl,2*n2ft3d,
+     >                     'vall_in',vall_in(2),vall_in(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >                     'vall_out',vall_out(2),vall_out(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >                   'vall_junk',vall_junk(2),vall_junk(1))
+      if (.not. value) 
+     >   call errquit('bybminimize:out of stack memory',0)
 
-      do it=1,it_in
-         call psi_1toelectron()
-         call electron_gen_vall() 
-         do i=neall,1,-1
-           call psi_1KS_update_orb(precondition,5,
-     >                             control_tole(),
-     >                             0.3d0,i)
-         end do
-      end do
-
-      Enew = psi_1energy() 
-      call psi_check()
-
-      deltac=0.0d0
-
-*     *****************************
-*     **** set return energies **** - This is duplicate code
-*     *****************************
+*     **** ion-ion energy ****
       eion = 0.0d0
       if (control_version().eq.3) eion = ewald_e()
       if (control_version().eq.4) eion = ion_ion_e()
 
+
+*     **********************
+*     **** bybminimizer ****
+*     **********************
+
+
+*     **** set the initial density ****
+      if (current_iteration.eq.1) then
+         Enew   = psi_1energy()
+         alpha = control_ks_alpha()
+         deltae = 9232323299.0d0
+         call electron_gen_vall()
+         call electron_get_vall(dbl_mb(vall_out(1))) !call psi_get_density(1,dbl_mb(vall_out(1)))
+         call psi_1gen_hml()
+         call psi_diagonalize_hml()
+         call psi_1rotate2()
+         call psi_2to1()
+      else
+         call electron_get_vall(dbl_mb(vall_out(1))) !call psi_get_density(1,dbl_mb(vall_out(1)))
+      end if
+  
+*     **** iniitialize DIIS ****    
+      call nwpw_diis_init(10,ispin*n2ft3d,dbl_mb(vall_out(1)))
+
+
+*     ***** diis loop ****
+      it   = 0
+ 2    it   = it + 1
+      
+*     **** diaganolize KS matrix ****
+      call psi_KS_update(1,precondition,tole)
+      Eold = Enew
+      Enew = psi_1energy()
+
+      deltae = Enew-Eold
+      if (deltae.gt.0.0d0) alpha = 0.5d0*alpha
+
+
+*     **** update vall ***
+      call electron_gen_vall()
+      call electron_get_vall(dbl_mb(vall_in(1))) !call psi_get_density(1,dbl_mb(vall_in(1)))
+
+      if (dabs(deltae).lt.1.0d-2) then
+        call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)))
+
+      else
+         !call nwpw_diis(dbl_mb(vall_in(1)),dbl_mb(vall_junk(1)))
+         call dscal(2*n2ft3d,(1.0d0-alpha),dbl_mb(vall_out(1)),1)
+         call daxpy(2*n2ft3d,alpha,dbl_mb(vall_in(1)),1,
+     >                              dbl_mb(vall_out(1)),1)
+      end if
+      call electron_set_vall(dbl_mb(vall_out(1))) !call psi_set_density(1,dbl_mb(vall_out(1)))      
+          
+*     **** tolerance checks ****
+      deltae = Enew-Eold   
+      deltac = 0.0d0
+      E(1)   = Enew+eion
+
+      if (taskid.eq.MASTER) then 
+        write(luout,1310) it,E(1),deltae,deltac
+        call util_flush(luout)
+      end if
+ 1310 FORMAT(I8,E20.10,3E15.5)
+
+
+      done = (dabs(deltae).lt.tole)
+     >       .or. (it.ge.it_in)
+      if (.not.done) go to 2
+
+*     **** free memory ****
+      call nwpw_list_end()
+      value =           MA_pop_stack(vall_junk(2))
+      value = value.and.MA_pop_stack(vall_out(2))
+      value = value.and.MA_pop_stack(vall_in(2))
+      if (.not. value) 
+     >  call errquit('bybminimize: popping stack',1)
+
+      call psi_check()
+
+*     *****************************
+*     **** set return energies **** - This is duplicate code
+*     *****************************
+
+      !Enew     = psi_1energy()
       eorbit   = psi_1eorbit()
       ehartree = dng_1ehartree()
       exc      = rho_1exc()
@@ -142,7 +225,6 @@ c
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       if (pspw_qmmm_found()) then
-
 *        **** get QM/MM  energies ****
          e_qmmm_e  = psi_1v_field()
          e_qmmm_q   = pspw_qmmm_Energy_QMMM_Q()
@@ -180,7 +262,7 @@ c
          E(1)   = E(1) + E(20) + E(21)
       end if
 
-      deltae = E(1)-Eold
+
       return
       end
  
