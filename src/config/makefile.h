@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.466 2004-05-19 04:36:57 edo Exp $
+# $Id: makefile.h,v 1.467 2004-05-20 01:11:35 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1417,6 +1417,18 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
 ifeq ($(NWCHEM_TARGET),LINUX64)
+   ifeq ($(FC),g77)
+      ifndef USE_INTEGER4
+      integer4:
+	@echo You must define USE_INTEGER4 to compile with g77 
+	@echo on 64-bit architectures.
+	@echo Please type
+	@echo 
+	@echo " make FC=g77 USE_INTEGER4=y"
+	@echo 
+	@exit 1
+      endif
+   endif
        ifdef USE_INTEGER4
          ifneq ($(FC),g77)
            FOPTIONS += -i4 
@@ -1517,15 +1529,21 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif # end of ia32 bit
     ifeq ($(_CPU),x86_64)
-# tested under RedHat gingin64 preview vs 8.0.95
-# MA problems (MMAP?) needed malloc replacement
-# with dmalloc or libhoard
-# PGI  under test
 # USE_INTEGER4=y need for g77
 # make FC=g77 CC=gcc USE_INTEGER4=y USE_GCC34=y
 #
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
+      ifeq ($(FC),f77)
+        defineFC: 
+	@echo 
+	@echo please set FC equal to g77, pathf90 or pgf90
+	@echo e.g. type
+	@echo 
+	@echo "    make FC=pathf90"
+	@echo 
+	@exit 1
+      endif
       FC=pgf90
       _FC=pgf90
       ifeq ($(FC),pgf77)
