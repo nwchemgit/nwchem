@@ -1,0 +1,303 @@
+C $Id: ecp_integral.F,v 1.1 1996-10-12 00:59:40 mg201 Exp $
+************************************************************************
+*                                                                      *
+      subroutine ecp_integral (
+     &    xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,l_A,
+     &    xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,l_B,
+     &    xyz_C,zeta_C,coef_C,n_prim_C,n_coef_C,ind_C,n_tot_C,n_zeta_C,
+     &    l_C,n_C,l_ecp_max,sphcart,
+     &    csco,lcsco,
+     &    ecp_ints,n_int,
+     &    DryRun,scr,lscr,ibug)
+*                                                                      *
+*   Calculate ecp integrals.                                           *
+*                                                                      *
+*   Argument (status) - description                                    *
+*                                                                      *
+*   xyz_A (inp) - coordinates of centre A                              *
+*   zeta_A (inp) - exponents of primitive gaussians on centre A        *
+*   coef_A (inp) - contraction coefficients on centre A                *
+*   l_A (inp) - angular momentum of functions on centre A              *
+*   n_prim_A (inp) - number of primitive gaussians on centre A         *
+*   n_cont_A (inp) - number of contracted functions on centre A        *
+*   xyz_B (inp) - coordinates of centre B                              *
+*   zeta_B (inp) - exponents of primitive gaussians on centre B        *
+*   coef_B (inp) - contraction coefficients on centre B                *
+*   l_B (inp) - angular momentum of functions on centre B              *
+*   n_prim_B (inp) - number of primitive gaussians on centre B         *
+*   n_cont_B (inp) - number of contracted functions on centre B        *
+*   xyz_C (inp) - coordinates of ECP centres C                         *
+*   zeta_C (inp) - array of exponents of primitive gaussians on all    *
+*                  centres C. These are stored in an array of single   *
+*                  dimension, i.e. packed.                             *
+*   coef_C (inp) - array of contraction coefficients on all centres C  *
+*   l_C (inp) - maximum angular momentum of projectors on centres C    *
+*   n_prim_C (inp) - array of number of primitive gaussians for each   *
+*                    power of r, l value and ECP centre. The highest   *
+*                    l value is for the local part, thus the second    *
+*                    dimension is l_ecp_max+2 (or 0:l_ecp_max+1)       *
+*   n_coef_C (inp) - array of number of coefficients for each l value  *
+*                    and ECP centre. This is n_prim_C summed over the  *
+*                    first dimension.                                  *
+*   ind_C (inp) - array of addresses of first coefficient/exponent for *
+*                 each l value and ECP centre. This is the progressive *
+*                 sum of n_coef_C                                      *
+*   n_tot_C (inp) - total number of coefficients for each ECP centre.  *
+*                   This is n_coef_C summed over the first dimension.  *
+*   n_zeta_C (inp) - total number of ECP exponents/coefficients. This  *
+*                    is n_tot_C summed over centres.                   *
+*   n_C (inp) - number of ECP centres C                                *
+*   l_ecp_max (inp) - maximum angular momentum of any projector on any *
+*                     ECP centre. N.B. This is a different use from in *
+*                     ecp_int0 and ecp_int1 where it is one of the     *
+*                     values of l_C                                    *
+*   sphcart - 0 for cartesian integrals, 1 for spherical integrals     *
+*   ecp_ints (out) - integrals over ECPs                               *
+*   n_int (inp) - number of ECP integrals. Should be equal to          *
+*                 NCA*NCB*[(La+1)*(La+2)/2]*[(Lb+1)*(Lb+2)/2]          *
+*   DryRun (inp) - logical for dry run. If true, routine only returns  *
+*                  maximum scratch space needed, if false, integrals   *
+*                  are returned.                                       *
+*   scr (scr) - scratch array for work space                           *
+*   lscr (i/o) - length of scratch array. Value returned if DryRun is  *
+*                true, used as dimension if false.                     *
+*   ibug - debug flag. 0 for no debug, 1 for address printing, 2 for   *
+*          array printing, 3 for both.                                 *
+*                                                                      *
+*   Written by K. G. Dyall                                             *
+*                                                                      *
+************************************************************************
+      implicit none
+#include "stdio.fh"
+      integer i,l,n,
+     &    n_prim_A,n_cont_A,l_A,n_prim_B,n_cont_B,l_B,n_zeta_C,n_C,
+     &    l_ecp_max,n_int,sphcart,lscr,ibug
+      integer n_prim_C(0:2,-1:l_ecp_max,n_C),
+     &    n_coef_C(-1:l_ecp_max,n_C),ind_C(-1:l_ecp_max,n_C),
+     &    n_tot_C(n_C),l_C(n_C)
+      integer i_scr,i_zeta,i_zeta0,i_zeta1,memscr,mem,max_loc,
+     &    max_type0,max_type1,max_type2,n_intt,n_all_a,n_all_b,
+     &    n_cart_a,n_cart_b,n_cart_ab,n_cont_ab,n_prim0,n_prim1
+      integer lcsco
+      logical DryRun,debug_gen,debug_addresses,debug_arrays
+      double precision 
+     &    xyz_A(3),zeta_A(n_prim_A),coef_A(n_prim_A,n_cont_A),
+     &    xyz_B(3),zeta_B(n_prim_B),coef_B(n_prim_B,n_cont_B),
+     &    xyz_C(3,n_C),zeta_C(n_zeta_C),coef_C(n_zeta_C),
+     &    scr(lscr),ecp_ints(n_int)
+      double precision 
+     &    X_AC,Y_AC,Z_AC,R_AC,X_BC,Y_BC,Z_BC,R_BC,
+     &    tiny,tol,zero,one
+      double precision csco(lcsco)
+      parameter (zero = 0.0d00, one = 1.0d00)
+      data tol/1.0d-16/
+      tiny = tol*100
+*
+      debug_gen = ibug .gt. 0
+      debug_addresses = mod(ibug,2) .eq. 1
+      debug_arrays = mod(ibug,10)/2 .eq. 1
+      if (debug_gen) write (LuOut,*) ibug
+*
+      if (debug_gen) write (LuOut,'(//A,/)') 'Entering ecp_integral ...'
+      if (debug_addresses) then
+        write(LuOut,*)' lscr in ecp_integral:',lscr
+        write (LuOut,*) 'n_prim_A,n_cont_A,l_A',n_prim_A,n_cont_A,l_A
+        write (LuOut,*) 'n_prim_B,n_cont_B,l_B',n_prim_B,n_cont_B,l_B
+        write (LuOut,*) 'l_ecp_max,n_c',l_ecp_max,n_c
+      end if
+      n_cart_a = (l_a+1)*(l_a+2)/2
+      n_cart_b = (l_b+1)*(l_b+2)/2
+      n_cart_ab = n_cart_a*n_cart_b
+      n_cont_ab = n_cont_a*n_cont_b
+      n_all_a = n_cart_a*n_cont_a
+      n_all_b = n_cart_b*n_cont_b
+      n_intt = n_cart_ab*n_cont_ab
+      if (debug_addresses) write (LuOut,*) 
+     &    'n_cart_a,n_cart_b,n_cart_ab,n_cont_ab',
+     &    n_cart_a,n_cart_b,n_cart_ab,n_cont_ab
+      if (n_int .lt. n_intt) call errquit (
+     &    'Mismatch of integral count in ecp_integrals',99)
+      if (sphcart .ne. 0) call errquit(
+     &    'Do your own spherical transformation, lazy bum!',99)
+      i_scr = n_intt+1
+      memscr = lscr-i_scr+1
+      if (DryRun) then
+        max_loc = 0
+        max_type0 = 0
+        max_type1 = 0
+        max_type2 = 0
+      else
+        call dcopy (n_intt,zero,0,ecp_ints,1)
+        if (memscr .lt. 0) call errquit (
+     &      'Insufficient scratch memory in ecp_integral',99)
+      end if
+      if (debug_addresses) write (LuOut,*) 'i_scr',i_scr
+      if (debug_arrays) then 
+        call ecp_matpr(xyz_A,1,3,1,1,1,3,1,1,'Centre A coordinates',
+     &      'E',78,4)
+        call ecp_matpr(xyz_B,1,3,1,1,1,3,1,1,'Centre B coordinates',
+     &      'E',78,4)
+        call ecp_matpr(xyz_C,1,3,1,n_C,1,3,1,n_C,'ECP coordinate array',
+     &      'E',78,4)
+        call ecp_matpr(zeta_A,1,n_prim_A,1,1,1,n_prim_A,1,1,
+     &      'A exponents','E',78,4)
+        call ecp_matpr(coef_A,1,n_prim_A,1,n_cont_A,1,n_prim_A,
+     &      1,n_cont_A,'A coefficients','E',78,4)
+        call ecp_matpr(zeta_B,1,n_prim_B,1,1,1,n_prim_B,1,1,
+     &      'B exponents','E',78,4)
+        call ecp_matpr(coef_B,1,n_prim_B,1,n_cont_B,1,n_prim_B,
+     &      1,n_cont_B,'B coefficients','E',78,4)
+        call ecp_matpr(zeta_C,1,n_zeta_C,1,1,1,n_zeta_C,1,1,
+     &      'ECP exponents','E',78,4)
+        call ecp_matpr(coef_C,1,n_zeta_C,1,1,1,n_zeta_C,1,1,
+     &      'ECP coefficients','E',78,4)
+      end if
+      if (debug_gen) write (LuOut,*) 'Number of ECP centers =',n_C
+*
+*   Loop over ECP centres
+*
+      do i = 1,n_C
+        n = n_tot_C(i)
+        l = l_C(i)
+        if (debug_gen) write (LuOut,*) 'ECP center',i
+        if (debug_gen) write (LuOut,*) '   Maximum angular momentum',l
+*
+*     Set up relative cartesian coordinates
+*
+        if (debug_gen) write (LuOut,*) '   Maximum angular momentum',l
+
+        X_AC = xyz_C(1,i)-xyz_A(1)
+        Y_AC = xyz_C(2,i)-xyz_A(2)
+        Z_AC = xyz_C(3,i)-xyz_A(3)
+        R_AC = sqrt(X_AC**2+Y_AC**2+Z_AC**2)
+        X_BC = xyz_C(1,i)-xyz_B(1)
+        Y_BC = xyz_C(2,i)-xyz_B(2)
+        Z_BC = xyz_C(3,i)-xyz_B(3)
+        R_BC = sqrt(X_BC**2+Y_BC**2+Z_BC**2)
+        if (debug_arrays) then
+          write (LuOut,'(3x,A,3F10.6)') 'Relative coords of center A:',
+     &        X_AC,Y_AC,Z_AC
+          write (LuOut,'(3x,A,3F10.6)') 'Relative coords of center B:',
+     &        X_BC,Y_BC,Z_BC
+          write (LuOut,'(3x,A,3F10.6)') 'Distance to centers A and B:',
+     &        R_AC,R_BC
+        end if
+*
+*     Evaluate integrals over local part
+*
+        i_zeta = ind_C(-1,i)
+        n_prim0 = n_prim_C(2,-1,i)
+        n_prim1 = n_prim_C(1,-1,i)
+        i_zeta1 = i_zeta+n_prim_C(0,-1,i)
+        i_zeta0 = i_zeta1+n_prim1
+        if (debug_addresses) write (LuOut,*) 'i_zeta,i_zeta0,i_zeta1',
+     &      i_zeta,i_zeta0,i_zeta1
+        call ecp_local (mem,DryRun,
+     &      xyz_A,zeta_A,coef_A,n_prim_A,n_cont_A,n_cart_A,l_A,
+     &      xyz_B,zeta_B,coef_B,n_prim_B,n_cont_B,n_cart_B,l_B,
+     &      xyz_C(1,i),zeta_C(i_zeta1),coef_C(i_zeta1),n_prim1,
+     &      zeta_C(i_zeta0),coef_C(i_zeta0),n_prim0,
+     &      scr,scr(i_scr),memscr,
+     &      ibug)
+        if (DryRun) then
+          max_loc = max(mem,max_loc)
+        else
+          call daxpy (n_intt,one,scr,1,ecp_ints,1)
+        end if
+*
+*     Evaluate and add integrals over non-local part
+*
+        if (debug_gen) write (LuOut,*) 'starting nonlocal part'
+C        if (debug_arrays) then
+C          write (LuOut,*) 'Parameters of ECP'
+C          write (LuOut,*) '   n_tot_C',n_tot_C(i)
+C          call ecp_matpi (n_prim_C,0,2,-1,l_ecp_max,0,2,0,l_C,
+C     &        'n_prim_C',81,15)
+C          call ecp_matpi (ind_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+C     &        'ind_C',81,15)
+C          call ecp_matpi (n_coef_C,-1,l_ecp_max,1,1,0,l_C,1,1,
+C     &        'n_coef_C',81,15)
+C          call ecp_matpr (zeta_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
+C     &        'zeta_C','E',81,5)
+C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
+C     &        'coef_C','E',81,5)
+C        end if
+        if (.not.DryRun) call dcopy (n_intt,zero,0,scr,1)
+        if ((R_AC .lt. tiny) .and. (R_BC .lt. tiny)) then
+*
+*       One-centre case, A = B = C
+*
+          if (debug_gen) write (LuOut,*) 'One-centre case'
+          call ecp_int0 (mem,DryRun,
+     &        l_B,n_prim_B,n_cont_B,coef_B,zeta_B,n_cart_b,
+     &        l_A,n_prim_A,n_cont_A,coef_A,zeta_A,n_cart_a,
+     &        l_C(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &        n_zeta_C,coef_C,zeta_C,0,2,
+     &        tol,sphcart,scr(i_scr),memscr,
+     &        csco,lcsco,
+     &        scr,ibug/10)
+          if (DryRun) max_type0 = max(mem,max_type0)
+        else if (R_AC .lt. tiny) then
+*
+*       Two-centre case with A = C
+*
+          if (debug_gen) write (LuOut,*) 'Two-centre case A=C'
+          call ecp_int1 (mem,DryRun,
+     &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
+     &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
+     &        l_C(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &        n_zeta_C,coef_C,zeta_C,0,2,
+     &        tol,sphcart,scr(i_scr),memscr,
+     &        csco,lcsco,
+     &        scr,n_intt,.false.,ibug/10)
+          if (DryRun) max_type1 = max(mem,max_type1)
+        else if (R_BC .lt. tiny) then
+*
+*       Two-centre case with B = C
+*
+          if (debug_gen) write (LuOut,*) 'Two-centre case B=C'
+          call ecp_int1 (mem,DryRun,
+     &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
+     &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
+     &        l_C(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &        n_zeta_C,coef_C,zeta_C,0,2,
+     &        tol,sphcart,scr(i_scr),memscr,
+     &        csco,lcsco,
+     &        scr,n_intt,.true.,ibug/10)
+          if (DryRun) max_type1 = max(mem,max_type1)
+        else
+*
+*     Three-centre case
+*
+          if (debug_gen) write (LuOut,*) 'Three-centre case'
+          call ecp_int2 (mem,DryRun,
+     &        R_BC,X_BC,Y_BC,Z_BC,l_B,n_prim_B,n_cont_B,coef_B,zeta_B,
+     &        R_AC,X_AC,Y_AC,Z_AC,l_A,n_prim_A,n_cont_A,coef_A,zeta_A,
+     &        l_c(i),n_prim_C(0,-1,i),n_coef_C(-1,i),ind_C(-1,i),
+     &        n_zeta_C,coef_C,zeta_C,0,2,
+     &        tol,sphcart,scr(i_scr),memscr,
+     &        csco,lcsco,
+     &        scr,n_intt,ibug/10)
+          if (DryRun) max_type2 = max(mem,max_type2)
+        end if
+*
+*     Add integrals from this centre to the total.
+*
+        if (.not.DryRun) call daxpy (n_intt,one,scr,1,ecp_ints,1)
+        if (debug_arrays) call ecp_matpr (scr,1,n_all_b,1,n_all_a,
+     &      1,n_all_b,1,n_all_a,'Non-local ECP integrals','E',78,4)
+      end do
+Cbug
+C      debug_arrays = .true.
+      do i = 1,n_intt
+        if (abs(ecp_ints(i)) .lt. tol*tol) ecp_ints(i) = zero
+      end do
+Cend
+      if (debug_arrays) call ecp_matpr (ecp_ints,1,n_all_b,1,n_all_a,
+     &    1,n_all_b,1,n_all_a,'Final ECP integrals','E',78,4)
+      if (DryRun) 
+     &    lscr = max(max_loc,max_type0,max_type1,max_type2)+n_intt
+      if (debug_gen) write (LuOut,*) 'Exiting ecp_integral'
+*
+      return
+      end
