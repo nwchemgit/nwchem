@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb, ratom)
 c
-c     $Id: dft_inpana.F,v 1.32 1997-10-24 23:53:35 d3h449 Exp $
+c     $Id: dft_inpana.F,v 1.33 1997-10-29 10:50:50 d3e129 Exp $
 c
 c*********************************************************************
 c     
@@ -10,6 +10,16 @@ c     Write pertinent information to user output.
 c     
 c*********************************************************************
       implicit none
+c
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "cdft.fh"
+#include "util.fh"
 c
       double precision AUTOANG, ANGTOAU
       Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
@@ -31,16 +41,6 @@ c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
       character*16 tag
-c     
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "global.fh"
-#include "tcgmsg.fh"
-#include "geom.fh"
-#include "bas.fh"
-#include "cdft.fh"
-#include "util.fh"
 c     
       me=ga_nodeid()
 c     
