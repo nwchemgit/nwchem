@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,wbx)
-c $Id: cf_main.F,v 1.45 2000-04-27 15:22:09 d3j191 Exp $
+c $Id: cf_main.F,v 1.46 2000-05-03 19:23:39 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2027,6 +2027,8 @@ c
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
 #include "bitops.fh"
 c
       integer cf_atonum
@@ -2035,7 +2037,8 @@ c
       integer ifix,iunfix,numw,nums
       integer iwdt(mwm),isatt(msa),isdt(msa)
 c
-      integer i
+      integer i,ndof(2)
+      real*8 fact(3)
 c
       if(numw.gt.0) then
       if(iand(ifix,1).eq.1) then
@@ -2092,9 +2095,38 @@ c
       if(cf_atonum(isatt(i),int_mb(i_num)).ne.1)
      + isdt(i)=iand(isdt(i),not(lfixed))
    10 continue
+      endif      
       endif
-      
-      endif
+c
+      ndof(1)=0
+      ndof(2)=0
+c
+      do 11 i=1,numw
+      if(iand(iwdt(i),lfixed).eq.lfixed) ndof(1)=ndof(1)+1
+   11 continue
+      do 12 i=1,nsa
+      if(iand(isdt(i),lfixed).eq.lfixed) ndof(2)=ndof(2)+1
+   12 continue
+c
+      call ga_igop(mrg_d46,ndof,2,'+')
+c
+      factmw=zero
+      factms=zero
+      factmp=zero
+      if(ndof(1)*(3*nwa-nwc)-3*islow.gt.0)
+     + factmw=two/(rgas*dble(ndof(1)*(3*nwa-nwc)-3*islow))
+      if(3*nsa-nsc-3*islow.gt.0)
+     + factms=two/(rgas*dble(3*ndof(2)-nsc-3*islow))
+      if(ndof(1)*(3*nwa-nwc)+3*ndof(2)-nsc-3*islow.gt.0)
+     + factmp=two/(rgas*dble(ndof(1)*(3*nwa-nwc)+3*ndof(2)-nsc-3*islow))
+c
+      fact(1)=factmw
+      fact(2)=factms
+      fact(3)=factmp
+      call ga_brdcst(mrg_d47,fact,3*ma_sizeof(mt_int,1,mt_byte),0)
+      factmw=fact(1)
+      factms=fact(2)
+      factmp=fact(3)
 c
       return
       end
