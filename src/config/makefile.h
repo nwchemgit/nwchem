@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.396 2003-02-11 22:18:41 edo Exp $
+# $Id: makefile.h,v 1.397 2003-02-14 23:28:13 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -608,6 +608,10 @@ endif
 
   DEFINES = -DSGI -DSGITFP -DEXT_INT -DPARALLEL_DIAG
   CORE_LIBS += -llapack $(BLASOPT) -lblas
+ifeq ($(BUILDING_PYTHON),python)
+#needed for python 2.2.2
+      EXTRA_LIBS += -lpthread
+endif
 endif
 
 
@@ -714,6 +718,10 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 
        CORE_LIBS += -llapack $(BLASOPT) -lblas 
+ifeq ($(BUILDING_PYTHON),python)
+#needed for python 2.2.2
+      EXTRA_LIBS += -lpthread
+endif
 endif
 
 ifeq ($(TARGET),HPUX)
@@ -1154,14 +1162,6 @@ endif
             EXTRA_LIBS = -laio 
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
-
-ifdef LARGE_FILES
-  LDOPTIONS  += $(shell getconf LFS_LDFLAGS)
-  EXTRA_LIBS += $(shell getconf LFS_LIBS)
-  DEFINES    += -DLARGE_FILES
-endif
-
-
 endif
 endif
 
@@ -1203,9 +1203,6 @@ ifeq ($(LINUXCPU),x86)
   _CPU = $(shell uname -m  )
 
 # FC  = g77
-  FOPTIONS   = -fno-second-underscore 
-  FOPTIMIZE  =  -O2  -malign-double -finline-functions 
-  COPTIONS   = -Wall -march=$(_CPU) -malign-double 
 
     ifeq ($(_CPU),i686)
      _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -1 | awk ' /sse2/  {print "Y"}')
@@ -1215,18 +1212,39 @@ ifeq ($(LINUXCPU),x86)
     endif
 
     ifeq ($(_CPU),i786)
-      COPTIONS   = -Wall -march=i686 -malign-double 
+      COPTIONS   =  -march=i686 
       ifdef USE_GCC31
-        COPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse
-        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse
+        FDEBUG=-O1 -g
+        COPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse 
+        COPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
+        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse 
+        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
       else
         FOPTIMIZE  +=  -march=i686
         COPTIONS   = -Wall -march=i686 -malign-double 
       endif
+    else
+      COPTIONS   +=  -march=$(_CPU)
+      FOPTIONS   +=  -march=$(_CPU)
     endif
+    ifeq ($(_CPU),k7)
+       FOPTIONS   = -fno-second-underscore  
+       COPTIONS   = -Wall -malign-double
+       ifdef  USE_GCC31
+        FOPTIONS += -march=athlon
+        COPTIONS += -march=athlon
+       else
+        FOPTIONS += -march=k6
+        COPTIONS += -march=k6
+       endif
+    endif
+  FOPTIONS   += -fno-second-underscore   
+  FOPTIONS   += -fno-f90 
+  FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
+  COPTIONS   += -Wall  -malign-double 
+  COPTIMIZE  += -g -O2
 # FOPTIMIZE  +=  -m486
 # COPTIONS   = -Wall -m486 -malign-double 
-  COPTIMIZE  = -g -O2
     FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -Wunused  -fno-silent
     FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
@@ -1310,7 +1328,7 @@ ifeq ($(LINUXCPU),x86)
     endif
   endif
 endif
-#EXTRA_LIBS +=-lefence ! link against Electricfence
+#EXTRA_LIBS +=-lefence # link against Electricfence
 ifeq ($(LINUXCPU),ppc)
   EXTRA_LIBS += -lm
 endif
