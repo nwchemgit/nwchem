@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.5 1999-12-30 22:02:44 mg201 Exp $
+* $Id: rel_input.F,v 1.6 2000-03-16 22:30:53 mg201 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -66,8 +66,6 @@ c
 c     End of while loop over the input
 c
       if (.not. inp_compare(.false.,'end', test)) goto 1
-c
-      call rel_init_con (rtdb)
 c
 c     User could have set both methods by accident. Check if this is the case 
 c     stop if both methods are set to true.
