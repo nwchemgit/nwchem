@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.103 2003-10-24 20:22:01 edo Exp $
+# $Id: DEFS,v 1.104 2003-11-17 01:31:51 edo Exp $
 #
 #======================================================================
 #
@@ -290,8 +290,8 @@ ifeq ($(peigs_TARGET),HPUX)
 peigs_CODEOBJ = DBLE
 peigs_COMM = TCGMSG
 peigs_CPU = HPPA
-peigs_CC += -DSTD_DBL -DSTD_INT -D$(peigs_CPU)
-peigs_FC += -DSTD_DBL -DSTD_INT  -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_CC += -O -DSTD_DBL -DSTD_INT -D$(peigs_CPU)
+peigs_FC += -O -DSTD_DBL -DSTD_INT  -D$(peigs_COMM) -D$(peigs_CPU)
 endif
 
 ifeq ($(peigs_TARGET),HPUX64)
@@ -301,8 +301,8 @@ ifeq ($(peigs_TARGET),HPUX64)
 peigs_CODEOBJ = DBLE
 peigs_COMM = TCGMSG
 peigs_CPU = HPPA
-peigs_CC += -DSTD_DBL  -D$(peigs_CPU)
-peigs_FC += -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
+peigs_CC += -O -DSTD_DBL  -D$(peigs_CPU)
+peigs_FC += -O -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
 ifdef USE_INTEGER4
      peigs_CPP += -DSTD_INT
      peigs_CC  += -DSTD_INT
