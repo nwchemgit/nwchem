@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_params.fh,v 1.4 2004-12-01 18:31:01 marat Exp $
+c $Id: qmmm_params.fh,v 1.5 2004-12-17 02:21:49 marat Exp $
 c
 c
 c     atom type parameters
@@ -35,4 +35,8 @@ c     -------------------
       parameter(cau2nm=5.29177249d-02)
       parameter(cau2kj=2.625499962d+03)
 
+c     other parameters
+c     ---------------
+      integer max_nb
+      parameter(max_nb=4)
 

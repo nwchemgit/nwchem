@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.35 2004-12-10 01:44:35 marat Exp $
+c $Id: mm_interface.F,v 1.36 2004-12-17 02:21:48 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -109,7 +109,7 @@ c
       pname = "mm_get_tot_nqm"
       if(qmmm_print_debug()) write(*,*) "in "//pname
 c
-      call mm_get_solute_tot_na_gen(nqm,mm_quant_link)
+      call mm_get_solute_tot_na_gen(nqm,mm_quant)
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
@@ -469,7 +469,7 @@ c     -----------------------------
      + call errquit('qmmm: Failed to deallocate memory for ioff',np,
      &       MA_ERR)
 
-      call mm_sort_ind(nt,ind)
+      call qmmm_sort(nt,ind)
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
@@ -1513,6 +1513,30 @@ c
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
+
+      subroutine mm_get_solute_coord_bq(nt,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "mm_utils.fh"
+#include "qmmm.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+      character*32 pname
+      pname = "mm_get_solute_coord_bq"
+
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_solute_coord_gen(nt,
+     >                       mm_bqzone,
+     >                       ai,
+     >                       c)
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
  
       subroutine mm_set_solute_coord_gen(nt,
      >                       mm_type,
@@ -1717,41 +1741,152 @@ c     local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-      subroutine mm_sort_ind(n,a)
+
+      subroutine mm_links(na,ai,nlinks,ilinks)
       implicit none
 #include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
 
-      integer n
-      integer a(n)
+      integer na
+      integer ai(na)
+      integer nlinks(na)
+      integer ilinks(na,max_nb+1)
 c
 c     local variables:
-      integer i
-      integer pass  
-      integer sorted 
-      integer temp
+      integer i,in
+      integer psb
+      integer msb
+      integer ind1,ind2,ind0
       character*32 pname
-      pname = "mm_sort_ind"
+      pname = "mm_links"
       if(qmmm_print_debug()) write(*,*) "in "//pname
-      
-      pass = 1
-      sorted = 0
-      do while(sorted .eq. 0) 
-        sorted = 1
-        do 2 i = 1,n-pass
-          if(a(i) .gt. a(i+1)) then
-            temp = a(i)
-            a(i) = a(i+1)
-            a(i+1) = temp
-            sorted = 0
-          endif
- 2      continue
-        pass = pass +1
+
+      call cf_get_msb(msb)
+      call cf_get_psb(psb)
+
+      do in=1,na
+       nlinks(in) = 0
       end do
-      do i=1,n-1
-       if(a(i).eq.a(i+1)) a(i)=-1 
+
+      do i=1,msb
+        ind1=int_mb(psb+i-1)
+        ind2=int_mb(psb+msb+i-1)
+        write(*,*) ind1,ind2
+        do in=1,na
+          ind0=ilinks(in,1)
+          if(ind0.eq.ind1) then
+             nlinks(in)=nlinks(in)+1
+             ilinks(in,nlinks(in)+1)=ind2
+          else if(ind0.eq.ind2) then
+             nlinks(in)=nlinks(in)+1
+             ilinks(in,nlinks(in)+1)=ind1
+          end if
+        end do
+      end do
+      write(*,*) "link atom list"
+
+      do in=1,na
+        write(*,*) nlinks(in), (ilinks(in,i),i=1,max_nb+1)
+      end do
+      
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+ 
+      end
+
+      subroutine mm_count_links(nl,h_lb,i_lb)
+      implicit none
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "mm_utils.fh"
+#include "errquit.fh"
+
+      integer nl
+      integer h_lb
+      integer i_lb
+c     local variables:
+      integer i,in
+      integer psb
+      integer msb
+      integer ind1,ind2,ind0
+      integer ind_qm,ind_l
+      integer iqm
+      integer nqm
+      integer h_qind,i_qind
+      integer il,nl0
+      integer h_lind,i_lind
+      integer h_link,i_link
+      character*32 pname
+      pname = "mm_count_links"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_tot_nqm(nqm)
+      if(.not.ma_push_get(mt_int,nqm,'tmp qind',h_qind,i_qind))
+     + call errquit(pname//'Failed to allocate stack',nqm,
+     &       MA_ERR)
+
+      call mm_get_solute_ind_gen(nqm,mm_quant,int_mb(i_qind))
+
+      call mm_get_tot_nlink(nl0)
+      if(.not.ma_push_get(mt_int,nl0,'tmp lind',h_lind,i_lind))
+     + call errquit(pname//'Failed to allocate stack',nl,
+     &       MA_ERR)
+
+
+      call mm_get_solute_ind_gen(nl0,mm_link,int_mb(i_lind))
+
+      if(.not.ma_push_get(mt_int,nl0*max_nb,'tmp links',h_link,i_link))
+     + call errquit(pname//'Failed to allocate stack',nl,
+     &       MA_ERR)
+      call ifill(nl0*max_nb,-1,int_mb(i_link),1)
+
+
+      call cf_get_msb(msb)
+      call cf_get_psb(psb)
+
+
+      nl = 0
+      do i=1,msb
+        ind1=int_mb(psb+i-1)
+        ind2=int_mb(psb+msb+i-1)
+        do il=1,nl0
+          ind_l = int_mb(i_lind+il-1)
+          if((ind_l.eq.ind1) .or. (ind_l.eq.ind2)) then
+            do iqm=1,nqm
+              ind_qm = int_mb(i_qind+iqm-1)
+              if((ind_qm.eq.ind1) .or. (ind_qm.eq.ind2)) then
+                nl = nl+1
+                int_mb(i_link+2*(nl-1))=ind_qm
+                int_mb(i_link+2*nl-1)=ind_l
+                write(*,*) pname,ind_qm,ind_l
+              end if
+            end do
+          end if 
+        end do
+      end do
+
+      if(.not.ma_alloc_get(mt_int,2*nl,'link bond index',h_lb,i_lb))
+     + call errquit(pname//'Failed to allocate heap',nl,
+     &       MA_ERR)
+
+      do i=1,nl
+        int_mb(i_lb+i-1) = int_mb(i_link+2*(i-1))
+        int_mb(i_lb+nl+i-1) = int_mb(i_link+2*i-1)
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
+
+      if(.not.ma_pop_stack(h_link))
+     + call errquit(pname//'Failed to pop stack',nqm,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_lind))
+     + call errquit(pname//'Failed to pop stack',nqm,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_qind))
+     + call errquit(pname//'Failed to pop stack',nqm,
+     &       MA_ERR)
       return
  
       end

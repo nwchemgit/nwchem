@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.42 2004-12-10 01:44:35 marat Exp $
+c $Id: qmmm_geom.F,v 1.43 2004-12-17 02:21:49 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -10,6 +10,7 @@ c
 #include "qmmm.fh"
 #include "global.fh"
 #include "mm_utils.fh"
+#include "qmmm_utils.fh"
 #include "inp.fh"
       integer irtdb
 c     local variables
@@ -21,9 +22,10 @@ c     local variables
       integer i_m
       integer i_ind
       integer i_act
-      integer i_lind
       integer i_num
       integer i_q
+      integer i_ai
+      integer i_lb
       character*255 basis_string,namespace
       character*255 basis_name
       character*255 link_ecp
@@ -32,17 +34,25 @@ c     local variables
       integer tmp(2)
       integer nb
       integer k
+      integer h_mqm,i_mqm
+      character*32 pname
+
+      pname = "qmmm_geom_init"
+
+      if(qmmm_print_debug())
+     >    write(*,*) "in",pname
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
       i_act = qmmm_get_i_act()
-      i_lind = qmmm_get_i_lai()
       i_num = qmmm_get_i_num()
       i_c   = qmmm_get_i_c()
       i_q   = qmmm_get_i_q()
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
+      i_ai  = qmmm_get_i_ai()
+      i_lb  = qmmm_get_i_lb()
 
 c
 c     activate all atoms by default
@@ -80,17 +90,6 @@ c     --------------------------
      >                      byte_mb(i_t),
      >                      dbl_mb(i_m))
 
-       call qmmm_link_index(nlink,
-     >                      nqm,
-     >                      int_mb(i_lind),
-     >                      int_mb(i_num),
-     >                      dbl_mb(i_c))
-
-       if(ga_nodeid().eq.0) then
-         write(*,*) "link bond list"
-         write(*,*) (int_mb(i_lind+i-1),i=1,2*nlink)
-       end if
-
       end if
       
       call qmmm_adjust_link_coord()
@@ -107,21 +106,36 @@ c     --------------------------
         end do
       end if
 
-      if(qmmm_fixlinks() .and. nlink.gt.0) then
-        do i=1,2*nlink
-          i1=int_mb(i_lind+i-1)
-          log_mb(i_act+i1-1)=.false.
-        end do
-      end if
-
 c 
 c     force inactivation of hydrogen links
 c     ------------------------------------
       if(qmmm_h_link() .and. nlink.gt.0) then
         do i=1,nlink
-          i1=int_mb(i_lind+2*(i-1))
+          i1=nqm-nlink+i
           log_mb(i_act+i1-1)=.false.
         end do
+      end if
+
+      if(qmmm_fixlinks() .and. nlink.gt.0) then
+
+        if(.not.ma_push_get(mt_int,nlink,'mqm',h_mqm,i_mqm))
+     +     call errquit( pname//'Failed to allocate memory for mqm',
+     +     nlink, MA_ERR)
+         if(.not.qmmm_map(nqm,int_mb(i_ai),
+     >                 nlink,int_mb(i_lb),
+     >                 int_mb(i_mqm)))  
+     >     call errquit( pname//'Failed to map', 0, 0)
+
+
+        do i=1,nlink
+          i1=int_mb(i_mqm+i-1)
+          log_mb(i_act+i1-1)=.false.
+        end do
+
+        if(.not.ma_pop_stack(h_mqm))
+     +   call errquit( pname//'Failed to deallocate memory for mqm',
+     +   nlink, MA_ERR)
+
       end if
 
 
@@ -164,6 +178,9 @@ c
      >                    byte_mb(i_t))
 
        call qmmm_bq_data_load()
+
+      if(qmmm_print_debug())
+     >    write(*,*) "out",pname
 
       end
 
@@ -702,15 +719,19 @@ c     ---------------
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "qmmm_utils.fh"
+#include "mm_utils.fh"
 c     local variables
       integer nqm
       integer nlink
       integer i,k
-      integer i_lp
       integer i_c
+      integer i_lb
       integer h_cl,i_cl
+      integer h_mqm,i_mqm
       integer i_ai
       integer il,iq,ih
+      integer ind_lb,ind_q
       double precision l_qh,l_ql
       double precision rh(3)
       double precision rq(3)
@@ -744,11 +765,15 @@ c     ----------------------------------------
      + call errquit( pname//'Failed to allocate memory for cl',
      + 3*nlink, MA_ERR)
 
+      if(.not.ma_push_get(mt_int,nlink,'mqm',h_mqm,i_mqm))
+     + call errquit( pname//'Failed to allocate memory for mqm',
+     + nlink, MA_ERR)
+
 
 c
 c     get pointer to index of link pairs
 c     ----------------------------------
-      i_lp = qmmm_get_i_lai()
+      i_lb = qmmm_get_i_lb()
 
 c
 c     get pointer to global index
@@ -761,31 +786,40 @@ c     --------------------------
 c
 c     get coordinates of mm link atoms
 c     -------------------------------
-      call mm_get_solute_coord_quant(nlink,
-     &                   .true.,
-     &                   int_mb(i_ai+nqm-nlink),
+      call mm_get_solute_coord_gen(nlink,
+     &                   mm_link,
+     &                   int_mb(i_lb+nlink),
      &                   dbl_mb(i_cl))
+
+      if(.not.qmmm_map(nqm,int_mb(i_ai),
+     >                 nlink,int_mb(i_lb),
+     >                 int_mb(i_mqm)))  
+     >     call errquit( pname//'Failed to map',
+     > 0, 0)
 
 c
 c     loop over link atom pairs
 c     -------------------------
       do i=1,nlink
-        ih = int_mb(i_lp+2*(i-1))
-        iq = int_mb(i_lp+2*(i-1)+1)
-        il = ih-nqm+nlink
+        iq = int_mb(i_mqm+i-1)
         do k=1,3
            rq(k)  = dbl_mb(i_c+(iq-1)*3+k-1)
-           rl(k)  = dbl_mb(i_cl+(il-1)*3+k-1)
+           rl(k)  = dbl_mb(i_cl+(i-1)*3+k-1)
            rql(k) = rq(k)-rl(k)
         end do
         l_ql=dnrm2(3,rql,1)
         a = 1.0d0/(l_ql*0.529)
+        ih = nqm-nlink+i
         do k=1,3
            rh(k) = rq(k) - rql(k)*a
            dbl_mb(i_c+(ih-1)*3+k-1) = rh(k)
         end do
       end do
-    
+
+      if(.not.ma_pop_stack(h_mqm))
+     + call errquit( pname//'Failed to deallocate memory for cq',
+     + 3*nlink, MA_ERR)
+ 
       if(.not.ma_pop_stack(h_cl))
      + call errquit( pname//'Failed to deallocate memory for cl',
      + 3*nlink, MA_ERR)
@@ -862,25 +896,6 @@ c
      > call errquit(pname//' failed to find  a link',0, 0)
 
       qmmm_geom_heavy_neighbor=j
-
-      end
-
-      function qmmm_geom_distance(r1,r2)
-
-      implicit none
-      double precision r1(3),r2(3)
-      double precision qmmm_geom_distance
-c 
-      integer k
-      double precision r
-
-      r=0.0d0
-      do k=1,3
-        r=r+(r1(k)-r2(k))*(r1(k)-r2(k))
-      end do
-      r=sqrt(r)
-
-      qmmm_geom_distance=r
 
       end
 

@@ -20,12 +20,18 @@ c
       logical fixqm
       integer linkatm,bq_exclude
       character*30 operation
+      integer i_list,h_list
+      integer i_nlist,h_nlist
+      integer i
 
 
       pname = "qmmm_data_init: "
 
       call mm_get_tot_nqm(nqm)
-      call mm_get_tot_nlink(nlink)
+c      call mm_get_tot_nlink(nlink)
+      call mm_count_links(nlink,h_lb,i_lb)
+      write(*,*) " number of links",nlink
+      nqm = nqm + nlink
 c
 c     allocate data arrays
 c     --------------------
@@ -38,6 +44,35 @@ c     ----------------------------------------------------
       call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
       if(nlink.gt.0) then
         call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
+
+c        if(.not.ma_push_get(MT_INT, (max_nb+1)*nlink, 'tmp link array',
+c     &        h_list, i_list) ) call errquit(
+c     &        'qmmm_data_alloc: unable to allocate stack space',
+c     &        nqm, MA_ERR)
+c        if(.not.ma_push_get(MT_INT, nlink, 'tmp link array',
+c     &        h_nlist, i_nlist) ) call errquit(
+c     &        'qmmm_data_alloc: unable to allocate stack space',
+c     &        nqm, MA_ERR)
+c        call ifill((max_nb+1)*nlink,0,int_mb(i_list),1)
+c
+c        do i=1,nlink
+c          int_mb(i_list+(max_nb+1)*(i-1)) = int_mb(i_ai+nqm-nlink+i-1)
+c        end do
+c        call mm_links(nlink,int_mb(i_ai+nqm-nlink),int_mb(i_nlist),
+c     >                int_mb(i_list))
+c
+c        if(.not.ma_pop_stack(h_nlist))
+c     &        call errquit(
+c     &        'qmmm_data_alloc: unable to pop stack space',
+c     &        nqm, MA_ERR)
+c
+c
+c        if(.not.ma_pop_stack(h_list))
+c     &        call errquit(
+c     &        'qmmm_data_alloc: unable to pop stack space',
+c     &        nqm, MA_ERR)
+
+
       end if
 
       if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
@@ -54,6 +89,7 @@ c     ----------------------------------------------------
 22    FORMAT(1X,A,T24,A,T46,A)
 23    FORMAT(1X,54("-"),//)
 
+c      call mm_print_system()
 
       end
 
@@ -211,7 +247,18 @@ c     initialize rtdb parameters
       if (master) 
      >  write(6,22) "operation",tag,operation
 c
-      if (inp_compare(.false., 'optimize', operation)) then
+      if (inp_compare(.false., 'energy', operation)) then
+        if (optimization.eq.'all') then
+           fixqm = .false.
+           interface = "mm"
+        else if (optimization.eq.'mm') then
+           fixqm = .true.
+           interface = "mm"
+        else if (optimization.eq.'qm') then
+           fixqm = .false.
+           interface = "qm"
+        endif
+      else if (inp_compare(.false., 'optimize', operation)) then
         if (optimization.eq.'all') then
            fixqm = .false.
            interface = "mm"
@@ -274,7 +321,7 @@ c     -------------
      &      h_ai, i_ai) ) call errquit(
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      nqm, MA_ERR)
-      call ifill(nqm,0,int_mb(i_ai),1)
+      call ifill(nqm,-1,int_mb(i_ai),1)
 c
 c     coordinqme array
 c     -------------
@@ -331,19 +378,6 @@ c     --------------------------
          log_mb(i_act+i-1) = .false.
        end do
     
-    
-c
-c     list atoms link bonds
-c     -------------------
-      if(nlink.ne.0) then
-        if(.not.ma_alloc_get(MT_INT, 2*nlink, 'qmmm link bond array',
-     &      h_lai, i_lai) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-        call ifill(2*nlink,-1,int_mb(i_lai),1)
-      end if
-    
-       
       end
 
       subroutine qmmm_data_release()
@@ -381,10 +415,10 @@ c     -------------------
      &       MA_ERR)
 
       if(nlink.ne.0) then
-        if(.not.ma_free_heap(h_lai))
+       if(.not.ma_free_heap(h_lb))
      &   call errquit('qmmm ai: Failed to deallocate heap',nqm,
      &       MA_ERR)
-      end if
+       end if
 
        return
       end
@@ -418,21 +452,21 @@ c     -------------------
 
       end 
 
+      function qmmm_get_i_lb()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_lb
+
+      qmmm_get_i_lb = i_lb
+
+      end 
+
       function qmmm_get_i_act()
       implicit none
 #include "qmmm_data.fh"
       integer qmmm_get_i_act
 
       qmmm_get_i_act = i_act
-
-      end 
-
-      function qmmm_get_i_lai()
-      implicit none
-#include "qmmm_data.fh"
-      integer qmmm_get_i_lai
-
-      qmmm_get_i_lai = i_lai
 
       end 
 

@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.8 2004-12-04 02:59:27 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.9 2004-12-17 02:21:49 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -71,7 +71,6 @@ c
       integer nqm,nbq
       logical link
       integer ntot
-      integer i
       logical ignore_mm
       logical ignore_qm
 
@@ -204,7 +203,6 @@ c     local variables
       integer i
       integer k
 
-      integer igeom
       integer i_c
       integer i_act
       integer i_gtmp,h_gtmp
@@ -317,17 +315,20 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "qmmm_utils.fh"
       integer nt
       double precision g(3,nt)
 c     local variables
       integer nqm
       integer nlink
       integer i,k
-      integer i_lp
+      integer i_lb
       integer i_c
       integer h_cl,i_cl
       integer i_ai
       integer il,iq,ih
+      integer i_mqm
+      integer h_mqm
       double precision l_qh,l_ql
       double precision rh(3)
       double precision rq(3)
@@ -370,17 +371,25 @@ c     ----------------------------------------
      + call errquit( pname//'Failed to allocate memory for cl',
      + 3*nlink, MA_ERR)
 
+      if(.not.ma_push_get(mt_int,nlink,'mqm',h_mqm,i_mqm))
+     + call errquit( pname//'Failed to allocate memory for mqm',
+     + nlink, MA_ERR)
 
 c
 c     get pointer to index of link pairs
 c     ----------------------------------
-      i_lp = qmmm_get_i_lai()
+      i_lb = qmmm_get_i_lb()
+      i_ai = qmmm_get_i_ai()
+c
+c     map to a local index
 
-c
-c     get pointer to global index
-c     ---------------------------
-      i_ai   = qmmm_get_i_ai()
-c
+      if(.not.qmmm_map(nqm,int_mb(i_ai),
+     >                 nlink,int_mb(i_lb),
+     >                 int_mb(i_mqm)))  
+     >     call errquit( pname//'Failed to map',
+     > 0, 0)
+
+
 c     get pointer to coord array
 c     --------------------------
       i_c   = qmmm_get_i_c()
@@ -389,16 +398,16 @@ c     get coordinates of mm link atoms
 c     -------------------------------
       call mm_get_solute_coord_quant(nlink,
      &                   .true.,
-     &                   int_mb(i_ai+nqm-nlink),
+     &                   int_mb(i_lb+nlink),
      &                   dbl_mb(i_cl))
 
 c
 c     loop over link atom pairs
 c     -------------------------
       do i=1,nlink
-        ih = int_mb(i_lp+2*(i-1))
-        iq = int_mb(i_lp+2*(i-1)+1)
-        il = ih-nqm+nlink
+        ih = nqm-nlink+i
+        iq = int_mb(i_mqm+i-1)
+        il = i
         do k=1,3
            fh(k)  = g(k,ih)
            rh(k)  = dbl_mb(i_c+(ih-1)*3+k-1)
@@ -415,38 +424,48 @@ c     -------------------------
           fq(k) = fh(k)*a + rql(k)*b
           g(k,iq) = g(k,iq) + fq(k)
         end do
-        write(*,*) "forces on link bond",iq,ih
-        write(*,*) (fq(k),k=1,3)
       end do
     
+      if(.not.ma_pop_stack(h_mqm))
+     + call errquit( pname//'Failed to deallocate memory for mqm',
+     + nlink, MA_ERR)
+
       if(.not.ma_pop_stack(h_cl))
      + call errquit( pname//'Failed to deallocate memory for cl',
      + 3*nlink, MA_ERR)
 
       end
-
-      subroutine qmmm_link_forces_mm(nt,nb,g,gbq)
+c
+      subroutine qmmm_link_forces_mm(nt,nb,g,ibq,gbq)
+c     nt      - number of quantum atoms
+c     nb      - number of bq atoms
+c     g(nt)    - forces on quantum atoms
+c     ibq(nb) - global index for bq atoms
+c     gbq(nb) - forces on quantum atoms 
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "geom.fh"
 #include "rtdb.fh"
 #include "qmmm.fh"
+#include "qmmm_utils.fh"
       integer nt
       integer nb
       double precision g(3,nt)
       double precision gbq(3,nb)
+      integer ibq(nb)
 c     local variables
       integer nqm
       integer nlink
       integer i,k
-      integer i_lp
+      integer i_lb
       integer i_c
       integer h_cl,i_cl
       integer i_ai
-      integer i_ibq
+      integer ib
       integer il,iq,ih
-      integer i_il,h_il
+      integer i_mqm,h_mqm
+      integer i_mbq,h_mbq
       double precision l_qh,l_ql
       double precision rh(3)
       double precision rq(3)
@@ -465,74 +484,93 @@ c     local variables
       external ddot
 
 
-      pname = "qmmm_link_forces"
+      pname = "qmmm_link_forces_mm"
 
       if(qmmm_print_debug())
      >   write(*,*) "in "//pname
-
+c
+c     number of link atoms
+c     -------------------
       nlink = qmmm_get_nlink()
-
 c
 c     nothing to do if no links
 c     -------------------------
       if(nlink.eq.0) return
-
+c
+c     number of quantum atoms
+c     -----------------------
       nqm = qmmm_get_nqm()
-
+c
+c     check for consistency
+c     ---------------------
+      if(nqm.ne.nt)
+     > call errquit( pname//'inconsistent number of atoms',
+     > 3*nlink, MA_ERR)
 c
 c     nothing to do if links are not hydrogens
 c     ----------------------------------------
       if(.not.qmmm_h_link()) return
-
-
+c
+c     coordinates for link atoms
+c     --------------------------
       if(.not.ma_push_get(mt_dbl,3*nlink,'cl',h_cl,i_cl))
      + call errquit( pname//'Failed to allocate memory for cl',
      + 3*nlink, MA_ERR)
-
-
-      if(.not.ma_push_get(mt_int,nlink,'il',h_il,i_il))
-     + call errquit( pname//'Failed to allocate memory for il',
+c
+c     mapping from global to local index for quantum atoms
+c     ----------------------------------------------------
+      if(.not.ma_push_get(mt_int,nlink,'mqm',h_mqm,i_mqm))
+     + call errquit( pname//'Failed to allocate memory for mqm',
      + nlink, MA_ERR)
-
-
+c
+c     mapping from global to local index for bq atoms
+c     ----------------------------------------------------
+      if(.not.ma_push_get(mt_int,nlink,'mbq',h_mbq,i_mbq))
+     + call errquit( pname//'Failed to allocate memory for mbq',
+     + nlink, MA_ERR)
 c
 c     get pointer to index of link pairs
 c     ----------------------------------
-      i_lp = qmmm_get_i_lai()
+      i_lb = qmmm_get_i_lb()
+c
+c     get pointer to global atom index for quantum atoms
+c     --------------------------------------------------
+      i_ai = qmmm_get_i_ai()
+c
+c     map to a local index for quantum atoms
+c     --------------------------------------
+      if(.not.qmmm_map(nqm,int_mb(i_ai),
+     >                 nlink,int_mb(i_lb),
+     >                 int_mb(i_mqm)))  
+     >     call errquit( pname//'Failed to map quantum atoms',0,0)
+c
+c     map to a local index for bq atoms
+c     ---------------------------------
+      if(.not.qmmm_map(nb,ibq,
+     >                 nlink,int_mb(i_lb+nlink),
+     >                 int_mb(i_mbq)))  
+     >     call errquit( pname//'Failed to map bq atoms',0,0)
 
-c
-c     get pointer to global index
-c     ---------------------------
-      i_ai   = qmmm_get_i_ai()
-      i_ibq  = qmmm_get_i_ibq()
-c
-c     get pointer to coord array
-c     --------------------------
+
+c     get pointer to quantum coords
+c     -----------------------------
       i_c   = qmmm_get_i_c()
 c
 c     get coordinates of mm link atoms
 c     -------------------------------
       call mm_get_solute_coord_quant(nlink,
      &                   .true.,
-     &                   int_mb(i_ai+nqm-nlink),
+     &                   int_mb(i_lb+nlink),
      &                   dbl_mb(i_cl))
 
-      do i=1,nt
-        do k=1,nlink
-          ih = int_mb(i_lp+2*(k-1))
-          if(int_mb(i_ibq+i-1).eq.int_mb(i_ai+ih-1)) then
-            int_mb(i_il+k-1)=i
-          end if
-        end do
-      end do
-
 c
-c     loop over link atom pairs
-c     -------------------------
+c     actually calculate link forces
+c     ------------------------------
       do i=1,nlink
-        ih = int_mb(i_lp+2*(i-1))
-        iq = int_mb(i_lp+2*(i-1)+1)
-        il = ih-nqm+nlink
+        ih = nqm-nlink+i
+        iq = int_mb(i_mqm+i-1)
+        ib = int_mb(i_mbq+i-1)
+        il = i
         do k=1,3
            fh(k)  = g(k,ih)
            rh(k)  = dbl_mb(i_c+(ih-1)*3+k-1)
@@ -545,16 +583,19 @@ c     -------------------------
         fh_rql = ddot(3,fh,1,rlq,1)
         a = l_qh/l_ql
         b = fh_rql*l_qh/l_ql**3
-        il = int_mb(i_il+k-1)
         do k=1,3
           fl(k) = fh(k)*a + rlq(k)*b
-          gbq(k,il) = gbq(k,il) + fl(k)
+          gbq(k,ib) = gbq(k,ib) + fl(k)
         end do
         write(*,*) "forces on link bond",iq,ih
         write(*,*) (fl(k),k=1,3)
       end do
 
-      if(.not.ma_pop_stack(h_il))
+      if(.not.ma_pop_stack(h_mbq))
+     + call errquit( pname//'Failed to deallocate memory for il',
+     + nlink, MA_ERR)
+
+       if(.not.ma_pop_stack(h_mqm))
      + call errquit( pname//'Failed to deallocate memory for il',
      + nlink, MA_ERR)
     

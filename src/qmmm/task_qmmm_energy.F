@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.1 2004-10-09 01:09:01 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.2 2004-12-17 02:21:49 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -28,6 +28,10 @@ c     local variables
 c
       task_qmmm_energy = .true.
       
+c      write(*,*) "WARNING, hack in task_qmmm_energy"
+c      interface = 'mm'
+c      write(*,*) "WARNING, hack in task_qmmm_energy"
+
       if (interface.eq.'mm') then
          call qmmm_get_qm_coord_qm(rtdb)
          call qmmm_push_qm_coord_mm(rtdb)

@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.23 2004-12-01 18:31:01 marat Exp $
+c $Id: qmmm_main.F,v 1.24 2004-12-17 02:21:49 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -45,6 +45,9 @@ c
       double precision norm
       integer nbqs, nbqw
 
+c      write(*,*) "WARNING, temporary hack"
+c      write(*,*) "WARNING, temporary hack"
+c      return
       pname = 'qmmm_forces'
       if(qmmm_print_debug()) 
      >  write(*,*) "in "//pname
@@ -155,6 +158,9 @@ c
       if(qmmm_print_debug())
      > write(*,*) "bqnorm",norm
 
+      call qmmm_link_forces_mm(nqm,nbq,dbl_mb(i_gqm),
+     >                         int_mb(i_ibq),
+     >                         dbl_mb(i_gbq))
 
       call mm_set_solute_force_quant(nqm,
      >                               .true.,

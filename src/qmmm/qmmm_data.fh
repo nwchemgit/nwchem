@@ -1,12 +1,12 @@
 c
-c $Id: qmmm_data.fh,v 1.15 2004-11-24 22:57:51 marat Exp $
+c $Id: qmmm_data.fh,v 1.16 2004-12-17 02:21:49 marat Exp $
 c
       logical master
       logical fixlinks
       double precision bqzone
+      integer nps
       integer nqm,nlink
       integer i_ai,h_ai
-      integer i_lai,h_lai
       integer i_act,h_act
       integer i_c,h_c
       integer i_q,h_q
@@ -15,6 +15,8 @@ c
       integer i_atn,h_atn
       integer i_num,h_num
       integer i_g,h_g
+      integer i_lb,h_lb
+      integer i_ips,h_ips
       integer i_gmm,h_gmm
       double precision qcharge
 
@@ -25,8 +27,8 @@ c
      &                 bqzone,
      &                 nqm,
      &                 nlink,
+     &                 nps,
      &                 i_ai,h_ai,
-     &                 i_lai,h_lai,
      &                 i_act,h_act,
      &                 i_atn,h_atn,
      &                 i_c,h_c,
@@ -35,6 +37,8 @@ c
      &                 i_q,h_q,
      &                 i_num,h_num,
      &                 i_g,h_g,
+     &                 i_lb,h_lb,
+     &                 i_ips,h_ips,
      &                 i_gmm,h_gmm,
      &                 link_atom,
      &                 fixlinks,
