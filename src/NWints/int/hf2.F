@@ -4,7 +4,7 @@
      &               Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,
      &               bERI,Nint,canAB,canCD,canPQ,
      &               DryRun,W0,maxW0)
-c $Id: hf2.F,v 1.7 1995-04-05 18:01:19 d3e129 Exp $
+c $Id: hf2.F,v 1.8 1995-04-05 23:59:10 d3e129 Exp $
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
@@ -12,6 +12,7 @@ c $Id: hf2.F,v 1.7 1995-04-05 18:01:19 d3e129 Exp $
 
       Logical GenCon,DryRun
 
+      Logical doit_PQ
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
       Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
@@ -149,6 +150,16 @@ c Assign pointers to scratch space.
 
       NPR = NPP*NPQ
 
+      if (NPR.eq.0) then
+c... one of the charge distribution either P or Q has no overlap
+c... therefore there are no integrals!!!!!!
+        lszp = (la+1)*(la+2)*(lb+1)*(lb+2)/4
+        lszq = (lc+1)*(lc+2)*(ld+1)*(ld+2)/4
+        ninti = lszp*lszq
+	call dfill(ninti,0.0d00,beri,1)
+        return
+      endif
+
       i_Ep   = i_IPAIRq + 2*(NPC*NPD)
       i_Eq   = i_Ep     + 3*NPP*(MXD+1)*((Lp+1)*(La+1)*(Lb+1))
       i_pf   = i_Eq     + 3*NPQ*(MXD+1)*((Lq+1)*(Lc+1)*(Ld+1))
@@ -231,16 +242,35 @@ c Assign pointers to scratch space.
 
       end if
 
+*rak:      doit_PQ = NPP.ge.NPQ
+
+      if (Lp.eq.Lq) then
+        doit_PQ = NPP.ge.NPQ
+      else if (abs((NPP-NPQ)).ge.4) then
+        doit_PQ = NPP.ge.NPQ
+      else if (Lp.lt.Lq) then
+        doit_PQ = .true.
+      else
+        doit_PQ = .false.
+      endif
+
       if( DryRun )then
 
        MaxMem = max( MaxMem, i_top )
 
       else
 
-        call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
-     &      W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
-     &      W0(i_ff),W0(i_Rj),
-     &      NPP,NPQ,Lr,Lr3)
+        if (doit_PQ) then
+          call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
+     &        W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
+     &        W0(i_ff),W0(i_Rj),
+     &        NPP,NPQ,Lr,Lr3)
+        else
+          call hf2mkr(Cxyz,Dxyz,Axyz,Bxyz,W0(i_ALPHAq),W0(i_ALPHAp),
+     &        W0(i_R0),W0(i_IJK),W0(i_Q),W0(i_P),W0(i_PQ),
+     &        W0(i_ff),W0(i_Rj),
+     &        NPQ,NPP,Lr,Lr3)
+        endif
 
       end if
 
@@ -250,11 +280,19 @@ c Assign pointers to scratch space.
 
       Lp3 = ((Lp+1)*(Lp+2)*(Lp+3))/6
       Lq3 = ((Lq+1)*(Lq+2)*(Lq+3))/6
+      Lpq3 = max(Lp3,Lq3)
 
       i_E3   = i_IJK + (Lr+1)**3
       i_sum  = i_E3  + max(NPP,NPQ)
-      i_top  = i_sum + NPR*Lq3 - 1
-
+      if (doit_PQ) then
+        i_top  = i_sum + NPR*Lpq3 - 1
+      else
+        lszp = (la+1)*(la+2)*(lb+1)*(lb+2)/4
+        lszq = (lc+1)*(lc+2)*(ld+1)*(ld+2)/4
+        ninti = lszp*lszq
+        i_beri = i_sum + NPR*Lpq3 
+        i_top  = i_beri + ninti
+      endif
       if( i_top.gt.maxW0 )then
 
        write(*,*) 'HF2:  Insufficient scratch space.'
@@ -282,10 +320,16 @@ c Assign pointers to scratch space.
 
       else
 
-       call hferi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),bERI,
-     &            W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,MXD,
-     &            canAB,canCD,canPQ)
-
+       if (doit_PQ) then
+         call hferi(W0(i_Ep),W0(i_Eq),W0(i_R0),W0(i_IJK),bERI,
+     &       W0(i_E3),W0(i_sum),NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,MXD,
+     &       canAB,canCD,canPQ)
+       else
+         call hferi(W0(i_Eq),W0(i_Ep),W0(i_R0),W0(i_IJK),W0(i_beri),
+     &       W0(i_E3),W0(i_sum),NPQ,NPP,Ninti,Lc,Ld,La,Lb,Lr,MXD,
+     &       canAB,canCD,canPQ)
+         call hfreord_pq(bERI,W0(i_beri),lszp,lszq)
+       endif
       end if
 
 c Return the maximum amount of scratch space required by a "dry run".
