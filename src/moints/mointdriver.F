@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.27 1995-04-19 00:43:32 rg240 Exp $
+C$Id: mointdriver.F,v 1.28 1995-04-19 22:41:43 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -42,7 +42,7 @@ c
 c
        data g_coul,g_exch/-1,-1/
        data oexch,ocoul/.true.,.true./
-       data ohalf/.false./
+       data ohalf/.true./
        data algo/'sixfold'/
        data charge/0.d0/
 c
@@ -339,6 +339,8 @@ c
        status = ga_destroy(g_vecs)
 c
 c
+c
+       call util_print_pop()
 c
        return
        end

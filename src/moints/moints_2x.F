@@ -1,6 +1,6 @@
 c
 c
-c  $Id: moints_2x.F,v 1.3 1995-04-19 00:43:33 rg240 Exp $
+c  $Id: moints_2x.F,v 1.4 1995-04-19 22:41:45 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -33,6 +33,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "util.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
 c
@@ -172,12 +173,12 @@ c
 c  4-fold shell loop
 c
        do ish0=1,nsh
-         ish = int_mb(k_shmap+ish0-1)
-         status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
-         ilen = ibfhi - ibflo + 1
          do jsh0=1,ish0
-           jsh = int_mb(k_shmap+jsh0-1)
+           ish = max(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
+           jsh = min(int_mb(k_shmap+ish0-1),int_mb(k_shmap+jsh0-1))
+           status = bas_cn2bfr(basis,ish,ibflo,ibfhi)
            status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
+           ilen = ibfhi - ibflo + 1
            jlen = jbfhi - jbflo + 1
            schw_ij = schwarz_shell(ish,jsh)
            scale = 1.d0
@@ -306,8 +307,9 @@ c Half transformed ints could be optionally dumped here
 c or go ahead and transform the last 2 indices
 c
 c
-c$$$          call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                             nmo2, g_exch)
+           if (util_print('exchange half integral',print_debug)) then
+             call moints_op_print(occ_start,mo1_lo,mo1_hi,nbf,g_exch)
+           endif
            call moints_Ktrf34( g_exch, .true., occ_start,
      $                         mo1_lo, mo1_hi, mo2_lo, mo2_hi,
      $                         nbf, dbl_mb(k_mo), dbl_mb(k_hlp) )
@@ -316,8 +318,9 @@ c$$$     $                             nmo2, g_exch)
      $                           mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                           dbl_mb(k_hlp) )
            t4kidx = t4kidx + tcgtime() - tz
-c$$$          call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                             nmo2, g_exch)
+         endif
+         if (util_print('exchange integral',print_debug)) then
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
          endif
        endif
 c
@@ -325,12 +328,17 @@ c
 c
        if (ocoul) then
          tz = tcgtime()
+         if (util_print('coulomb half integral',print_debug)) then
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
+         endif
          call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp) )
-c$$$         call moints_print_oper_z(occ_start, mo1_lo, mo1_hi,
-c$$$     $                            nmo2, g_coul)
+
          t34jidx = tcgtime() - tz
+         if (util_print('coulomb integral',print_debug)) then
+           call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
+         endif
        endif
        call ga_sync()
 c
