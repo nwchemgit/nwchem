@@ -1,4 +1,4 @@
-C $Id: ecp_init_con.F,v 1.2 1996-10-16 18:26:07 mg201 Exp $
+C $Id: ecp_init_con.F,v 1.3 2000-04-13 20:37:27 mg201 Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_init_con
@@ -18,6 +18,9 @@ C $Id: ecp_init_con.F,v 1.2 1996-10-16 18:26:07 mg201 Exp $
       four = 4.0d00
       pi = atan(one)*four
       qpirt = sqrt(pi)/four
+*
+      ln_thr_ecp = -50.0d0
+      thr_ecp = exp(ln_thr_ecp)
 *
       return
       end

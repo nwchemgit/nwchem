@@ -8,4 +8,9 @@
       double precision four        ! 4.0d00
 *
       common/ecp_consts/pi,qpirt,zero,half,one,two,four
-
+*
+      double precision thr_ecp     ! threshold for ints
+      double precision ln_thr_ecp  ! natural log of threshold for ints
+*
+      common/ecp_toler/thr_ecp,ln_thr_ecp
+*
