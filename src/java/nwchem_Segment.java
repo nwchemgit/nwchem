@@ -356,6 +356,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    found=false;
 		    for(int j=0; j<number; j++){
 			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
 		    };
 		    if(!found) number++;
 		};
@@ -367,6 +372,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    found=false;
 		    for(int j=0; j<number; j++){
 			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
 		    };
 		    if(!found) number++;
 		};
@@ -652,9 +662,9 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			jfound=-1;
 			for(int j=0; j<ToSgm.numTorsions; j++){
 			    if(idt[ToSgm.torsion[j].atomi]==ida[number][0] && idt[ToSgm.torsion[j].atomj]==ida[number][1]
-			       && idt[ToSgm.torsion[j].atomk]==ida[number][2]) jfound=j;
-			    if(idt[ToSgm.torsion[j].atomk]==ida[number][0] && idt[ToSgm.torsion[j].atomj]==ida[number][1]
-			       && idt[ToSgm.torsion[j].atomi]==ida[number][2]) jfound=j;
+			       && idt[ToSgm.torsion[j].atomk]==ida[number][2] && idt[ToSgm.torsion[j].atoml]==ida[number][3]) jfound=j;
+			    if(idt[ToSgm.torsion[j].atoml]==ida[number][0] && idt[ToSgm.torsion[j].atomk]==ida[number][1]
+			       && idt[ToSgm.torsion[j].atomj]==ida[number][2] && idt[ToSgm.torsion[j].atomi]==ida[number][3]) jfound=j;
 			};
 			if(jfound>=0) {
 			    sgmFile.printf("%3d",FrSgm.torsion[i].source);
@@ -750,6 +760,11 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		    found=false;
 		    for(int j=0; j<number; j++){
 			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][3]) found=true;
+			if(ida[j][0]==ida[number][0] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][0] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][1]) found=true;
+			if(ida[j][0]==ida[number][1] && ida[j][1]==ida[number][3] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
+			if(ida[j][0]==ida[number][3] && ida[j][1]==ida[number][1] && ida[j][2]==ida[number][2] && ida[j][3]==ida[number][0]) found=true;
 		    };
 		    if(!found) {
 			sgmFile.printf("%5d",number+1);
@@ -761,12 +776,22 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			jfound=-1;
 			for(int j=0; j<ToSgm.numImpropers; j++){
 			    if(idt[ToSgm.improper[j].atomi]==ida[number][0] && idt[ToSgm.improper[j].atomj]==ida[number][1]
-			       && idt[ToSgm.improper[j].atomk]==ida[number][2]) jfound=j;
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2] && idt[ToSgm.improper[j].atoml]==ida[number][3]) jfound=j;
+			    if(idt[ToSgm.improper[j].atomi]==ida[number][1] && idt[ToSgm.improper[j].atomj]==ida[number][0]
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2] && idt[ToSgm.improper[j].atoml]==ida[number][3]) jfound=j;
+			    if(idt[ToSgm.improper[j].atomi]==ida[number][0] && idt[ToSgm.improper[j].atomj]==ida[number][3]
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2] && idt[ToSgm.improper[j].atoml]==ida[number][1]) jfound=j;
+			    if(idt[ToSgm.improper[j].atomi]==ida[number][3] && idt[ToSgm.improper[j].atomj]==ida[number][0]
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2] && idt[ToSgm.improper[j].atoml]==ida[number][1]) jfound=j;
+			    if(idt[ToSgm.improper[j].atomi]==ida[number][1] && idt[ToSgm.improper[j].atomj]==ida[number][3]
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2] && idt[ToSgm.improper[j].atoml]==ida[number][0]) jfound=j;
+			    if(idt[ToSgm.improper[j].atomi]==ida[number][3] && idt[ToSgm.improper[j].atomj]==ida[number][1]
+			       && idt[ToSgm.improper[j].atomk]==ida[number][2] && idt[ToSgm.improper[j].atoml]==ida[number][0]) jfound=j;
 			};
 			if(jfound>=0) {
+			    sgmFile.printf("%3d",FrSgm.improper[i].source);
 			    sgmFile.printf("%1d",FrSgm.improper[i].source);
-			    sgmFile.printf("%1d",FrSgm.improper[i].source);
-			    sgmFile.printf("%3d",ToSgm.improper[jfound].source); sgmFile.println();
+			    sgmFile.printf("%1d",ToSgm.improper[jfound].source); sgmFile.println();
 			    sgmFile.printf("%3d",FrSgm.improper[i].multi1);
 			    sgmFile.printf("%10.6f",FrSgm.improper[i].improper1);
 			    sgmFile.printf("%12.5E",FrSgm.improper[i].force1);
@@ -1035,14 +1060,16 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 		} else {
 		    if(id[j][0]>=0 && id[j][1]>=0){
 			for(int k=atmNumber; k>j; k--){id[k][0]=id[k-1][0]; id[k][1]=id[k-1][1];};
-			if(ToSgm.atom[id[j+1][1]].Name.substring(4,4)==" "){
-			    ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(0,3)+"t";
+			if(ToSgm.atom[id[j+1][1]].Name.charAt(4)==' '){
+			    ToSgm.atom[id[j+1][1]].Name=ToSgm.atom[id[j+1][1]].Name.substring(0,4)+"t";
 			};
 			id[j][1]=-1; id[j+1][0]=-1;  atmNumber++;
 		    };
 		    if(selected>=0 && selected!=j){
 			if(id[j][0]==-1 && id[j][1]>=0 && id[selected][0]>=0 && id[selected][1]==-1){
 			    id[selected][1]=id[j][1];
+			    if(FrSgm.atom[id[selected][0]].Name.substring(0,4).equals(ToSgm.atom[id[selected][1]].Name.substring(0,4)) &&
+			       ToSgm.atom[id[selected][1]].Name.charAt(4)=='t') ToSgm.atom[id[selected][1]].Name=ToSgm.atom[id[selected][1]].Name.substring(0,4)+" ";
 			    atmNumber--;
 			    for(int k=j; k<atmNumber; k++){
 				id[k][0]=id[k+1][0];
@@ -1051,6 +1078,8 @@ class nwchem_Segment extends JFrame implements ActionListener, ChangeListener, W
 			};
 			if(id[j][0]>=0 && id[j][1]==-1 && id[selected][0]==-1 && id[selected][1]>=0){
 			    id[j][1]=id[selected][1];
+			    if(FrSgm.atom[id[j][0]].Name.substring(0,4).equals(ToSgm.atom[id[j][1]].Name.substring(0,4)) &&
+			       ToSgm.atom[id[j][1]].Name.charAt(4)=='t') ToSgm.atom[id[j][1]].Name=ToSgm.atom[id[j][1]].Name.substring(0,4)+" ";
 			    atmNumber--;
 			    for(int k=selected; k<atmNumber; k++){
 				id[k][0]=id[k+1][0];
