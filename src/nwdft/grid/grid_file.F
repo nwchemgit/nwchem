@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.36 2000-08-25 20:08:22 edo Exp $
+* $Id: grid_file.F,v 1.37 2000-08-25 23:26:08 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -617,6 +617,7 @@ c
       grid_test_mem = .false.
 c
       if (file_opened) return
+      oreopen=.false.
 !      write(LuOut,*)' file_opened: ', file_opened
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
