@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.25 2003-10-17 22:57:29 carlfahl Exp $
+* $Id: electron.F,v 1.26 2003-10-20 16:40:49 bylaska Exp $
 *
 
 
@@ -705,11 +705,8 @@ c      end
 
 
 *     ***** local variables ****
-      integer ms,n,n1(2),shift1,shift2
+      integer ms,n,shift1,shift2
      
-
-      n1(1) = 1
-      n1(2) = ne(1)+1
 
 
 *     **** no preconditioning ***
@@ -740,7 +737,60 @@ c    >                    THpsi_k)
      >           (-1.0d0),
      >           dcpl_mb(Hpsi_k(1)),1,
      >           THpsi_k,1)
-      
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	    electron_gen_Tangent 	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_gen_Tangent(psi_k,hml,THpsi_k)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     hml(*)
+      complex*16 THpsi_k(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+*     ***** local variables ****
+      integer ms,n,shift1,shift2
+     
+      do ms=1,ispin
+         shift1 = 1 + (ms-1)*ne(1)*npack1
+         shift2 = 1 + (ms-1)*ne(1)*ne(1)
+         n     = ne(ms)
+         call DGEMM('N','N',2*npack1,n,n,
+     >             (1.0d0),
+     >             psi_k(shift1),  2*npack1,
+     >             hml(shift2),    n,
+     >             (-1.0d0),
+     >             THpsi_k(shift1),2*npack1)
+      end do
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	    electron_get_Gradient 	*
+*     *					*
+*     ***********************************
+
+      subroutine electron_get_Gradient(THpsi_k)
+      implicit none
+      complex*16 THpsi_k(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+      call dcopy(2*npack1*(ne(1)+ne(2)),
+     >           dcpl_mb(Hpsi_k(1)),1,
+     >           THpsi_k,1)      
       return
       end
 
@@ -919,6 +969,39 @@ c    >                     hmlt(shift+1))
      >                     hmlt(shift+1))
       end do
 
+
+      return
+      end
+
+
+
+*     **************************************
+*     *				           *
+*     *	    electron_gen_psiTangenthml 	   *
+*     *				           *
+*     **************************************
+
+      subroutine electron_gen_psiTangenthml(psi_k,THpsi_k,hml)
+      implicit none
+      complex*16 psi_k(*)
+      complex*16 THpsi_k(*)
+      real*8     hml(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer ms,n,shift
+
+      do ms=1,ispin
+         shift = (ms-1)*ne(1)*ne(1)
+         n     = ne(ms)
+         call Pack_ccm_sym_dot(1,n,
+     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+     >                     THpsi_k(1+(ms-1)*ne(1)*npack1),
+     >                     hml(shift+1))
+      end do
 
       return
       end

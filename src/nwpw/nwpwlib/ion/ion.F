@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.28 2003-10-17 22:56:42 carlfahl Exp $
+* $Id: ion.F,v 1.29 2003-10-20 16:36:36 bylaska Exp $
 *
 
 *     ***************************
@@ -770,16 +770,27 @@ c         eki1=0.5d0*eki1
 
 *     **** local variables ****
       integer ia
-      real*8  icharge
+      real*8  icharge,zv
 
 *     **** external functions ****
       real*8   psp_zv,cpsp_zv
+      real*8   paw_basis_ion_charge,paw_basis_core_charge
       integer  ion_natm,ion_nkatm,control_code
       external psp_zv,cpsp_zv
+      external paw_basis_ion_charge,paw_basis_core_charge
       external ion_natm,ion_nkatm,control_code
 
+      !**** paw code ****
+      if (control_code().eq.6) then
+         icharge = 0.0d0
+         do ia=1,ion_nkatm()
+            zv = paw_basis_ion_charge(ia)
+     >         - paw_basis_core_charge(ia)
+            icharge = icharge + ion_natm(ia)*zv
+         end do
+
       !**** band structure code ****
-      if (control_code().eq.5) then
+      else if (control_code().eq.5) then
          icharge = 0.0d0
          do ia=1,ion_nkatm()
             icharge = icharge + ion_natm(ia)*cpsp_zv(ia)

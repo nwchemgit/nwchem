@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.7 2002-02-13 19:13:56 edo Exp $
+ $Id: pspsolve.c,v 1.8 2003-10-20 16:37:48 bylaska Exp $
 */
 #include <stdlib.h>
 #include <stdio.h>
@@ -500,6 +500,8 @@ Integer	*n2;
    free(pspl);
    free(rl);
    free(rhol);
+
+   fflush(stdout);
 
 
 } /* main */
