@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.30 1997-02-20 10:04:42 d3e129 Exp $
+C$Id: dft_rdinput.F,v 1.31 1997-02-21 20:44:51 gutowski Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -442,29 +442,29 @@ c
 c
 c     coarse grid;
 c
-      nagrid = 6
-      nradpts = 30
+      nagrid = 8
+      nradpts = 35
       goto 99
    20 continue
 c
 c     medium grid;
 c
-      nagrid = 8
-      nradpts = 40
+      nagrid = 10
+      nradpts = 50
       goto 99
    30 continue
 c
 c     fine grid;
 c
-      nagrid = 10
-      nradpts = 60
+      nagrid = 12
+      nradpts = 75
       goto 99
    40 continue
 c
 c     xfine grid;
 c
-      nagrid = 24
-      nradpts = 64
+      nagrid = 14
+      nradpts = 105
       goto 99
    50 continue
 c
