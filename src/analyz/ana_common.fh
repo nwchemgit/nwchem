@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.13 2000-03-20 18:14:02 nwchem Exp $
+c $Id: ana_common.fh,v 1.14 2000-03-20 20:57:17 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -14,7 +14,6 @@ c
 c
       real*8 time,timr,timoff,box(3),spac,rcut,xmax(3),xmin(3)
       real*8 temp,pres
-      logical lrms
       integer irmsd,lcop,lsup,ifrfr,ifrto,iscof,icopf,isupf
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz
@@ -28,7 +27,7 @@ c
       real*8 rimps(mxtors)
       common/ana_inp/time,timr,timoff,box,spac,rcut,xmax,xmin,temp,pres,
      + rbnds,rangs,rtors,rimps,
-     + irmsd,lcop,lsup,lrms,ifrfr,ifrto,
+     + irmsd,lcop,lsup,ifrfr,ifrto,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz,
      + nbnds,nangs,ntors,nimps,ibnds,iangs,itors,iimps
@@ -51,5 +50,5 @@ c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
       common/ana_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel
 c
-      logical lxw,lvw,lsx,lsv,lsel,lana
-      common/ana_log/lxw,lvw,lsx,lsv,lsel,lana
+      logical lxw,lvw,lsx,lsv,lsel,lana,lrms
+      common/ana_log/lxw,lvw,lsx,lsv,lsel,lana,lrms
