@@ -1,4 +1,4 @@
-c $Id: texas_hf.F,v 1.5 1995-12-23 00:07:11 pg481 Exp $
+c $Id: texas_hf.F,v 1.6 1995-12-23 02:15:11 pg481 Exp $
 c=================================================================
       subroutine texas_hf2_m(ij_basis,ish,jsh,kl_basis,ksh,lsh,nquart,
      *                       q4, use_q4,
@@ -121,8 +121,6 @@ c----------------------------------------------------------------
 c----------------------------------------------------------------
 c eri - PNL buffer for returning integrals 
 c----------------------------------------------------------------
-ctest call txs_test_print(nquart,icspnl,jcspnl,kcspnl,lcspnl,'PNL ')
-c----------------------------------------------------------------
       iforwhat=1
 c----------------------------------------------------------------
 c if use_r is true replace current coordinates by Ra-Rd
@@ -169,12 +167,9 @@ c
          integ_n0=0
 c
 c        calculate integrals without labels :
-c        write(82,*)'calculate integrals without labels '
 c
          call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri )
          integ_nx=integ_n0
-c
-c        call print_int_nol(eri,leri,integ_n0)
 c
       else
 c
@@ -182,7 +177,6 @@ c
          integ_n0=0
 c
 c        calculate integrals with labels :
-c        write(82,*)'calculate integrals with labels '
 c
          call calcint2(bl,inx, q4,use_q4, icf,jcf,kcf,lcf,eri )
          integ_nx=integ_n0
@@ -197,9 +191,6 @@ C@@@@@   call pnl_txs(bl(ncfunct),icf,jcf,kcf,lcf,integ_n0 )
 c
             call txs_second(tim_2pt)
             time_pt=time_pt+(tim_2pt - tim_1pt)
-c
-c        call print_int(ncall_pnl,eri,leri,icf,jcf,kcf,lcf,integ_n0 )
-c
       endif
 c
       if(nsplit.eq.isplit+1) more_int=.false.
@@ -386,7 +377,7 @@ c
 c       1 call to getmem
       endif
 c--------------------------------------------------------
-c calculte the size of the request and split it if needed
+c calculate the size of the request and split it if needed
 c
       call getmem(nsupblk+2,isbl_split)
       call request_split(leri,inx,bl(iisd),bl(jjsd),nbl2,
@@ -662,24 +653,6 @@ c                  ijkl->lkji
 c
       end
 c======================================================================
-      subroutine txs_test_print(nquart,icspnl,jcspnl,kcspnl,
-     &    lcspnl,text)
-      character*4 text
-      dimension icspnl(nquart),jcspnl(nquart),
-     *          kcspnl(nquart),lcspnl(nquart)
-c
-      write(82,*) text,' Set of Contracted Shells size=',nquart
-c
-      do iq=1,nquart
-      ics=icspnl(iq)
-      jcs=jcspnl(iq)
-      kcs=kcspnl(iq)
-      lcs=lcspnl(iq)
-      write(82,*)'iq=',iq,' shells =',ics,jcs,kcs,lcs
-      enddo
-c
-      end
-c======================================================================
       subroutine txs_pnl(nquart,ncshell, 
      *                   icstxs,jcstxs,kcstxs,lcstxs,
      *                   icspnl,jcspnl,kcspnl,lcspnl)
@@ -822,29 +795,6 @@ c 66  format(' isbl_split(ii)=',i3)
 c---------------------------------------------------------
       end
 c=====================================================================
-      subroutine print_int_nol( eri,leri,integ)
-      implicit real*8 (a-h,o-z)
-      dimension eri(leri) 
-c
-        write(82,*)' next call; ', integ,  ' all -    integrals ' 
-        do ii=1,integ
-        write(82,78) ii,  eri(ii)
-        enddo
-   78 format('         ', 15x,i6    ,f30.20 )
-      end
-c=====================================================================
-      subroutine print_int(ncall, eri,leri,icf,jcf,kcf,lcf,integ_n0 )
-      implicit real*8 (a-h,o-z)
-      dimension eri(leri) 
-      dimension icf(leri),jcf(leri),kcf(leri),lcf(leri)
-c
-        write(82,*)'call no=',ncall,' ; ',integ_n0,' non-zero integ.'
-        do ii=1,integ_n0
-        write(82,77) icf(ii),jcf(ii),kcf(ii),lcf(ii),eri(ii)
-        enddo
-   77 format('pnl_lab: ',4(i4,1x),1x,f30.20 )
-      end
-c=====================================================================
       subroutine switch_scr(bltxs, blscr,l_blscr)
       implicit real*8 (a-h,o-z)
 c
@@ -909,15 +859,6 @@ c
       call tfer_i(bltxs(ijshp_R), blscr(ijshp), ijshp_S )
 c
 c-------------------------------
-c     write(6,*) '  iisd_S,jjsd_S,ijbld_S '
-c     write(6,*)    iisd_S,jjsd_S,ijbld_S  
-c     write(6,*) ' npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S '
-c     write(6,*)   npard_S,ncost_S,nsupb_S, mxsize_S,nasize_S  
-c     write(6,*) ' ijshp_S '
-c     write(6,*)   ijshp_S  
-c
-c     call printi(bltxs(mxsize_R),blscr(mxsize), mxsize_S )
-c-------------------------------
       end
 c==========
       subroutine tfer_i(ia,ib,n)
@@ -928,11 +869,4 @@ c
    10 continue
 c
       end
-      subroutine printi(ia,ib,n)
-      dimension ia(n),ib(n)
-      write(6,*)' original and  copy '
-      do 10 ii=1,n
-      write(6,*) ia(ii),ib(ii)
-  10  continue
-c
-      end
+c=====================================================================
