@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.42 2000-03-29 20:54:50 d3j191 Exp $
+c $Id: pre_input.F,v 1.43 2000-04-10 20:29:19 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
 c
       integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset
       integer isgm,icyren,model,nxlnk
-      real*8 touch,xpndw,rgrid,edge,edges(3),dnoe(5),qscale,charge
+      real*8 touch,xpnd(3),rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
       character*11 cfix
       real*8 rfix
@@ -84,7 +84,9 @@ c
       rrep=0.25d0
 c
       touch=0.25d0
-      xpndw=0.00d0
+      xpnd(1)=0.00d0
+      xpnd(2)=0.00d0
+      xpnd(3)=0.00d0
       box(1)=0.0d0
       box(2)=0.0d0
       box(3)=0.0d0
@@ -738,7 +740,22 @@ c     expand with
 c     -----------
 c
       if(inp_compare(.false.,'expand',item)) then
-      if(.not.inp_f(xpndw)) call errquit('pre_input: xpndw',9999)
+      if(.not.inp_f(xpnd(1))) call errquit('pre_input: xpndw',9999)
+      if(.not.inp_f(xpnd(2))) xpnd(2)=xpnd(1)
+      if(.not.inp_f(xpnd(3))) xpnd(3)=xpnd(2)
+      write(68,6849) xpnd
+ 6849 format('expand with ',3f12.6)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     expand-set with
+c     ---------------
+c
+      if(inp_compare(.false.,'envelope',item)) then
+      if(.not.inp_f(xpnd(1))) call errquit('pre_input: xpndw',9999)
+      if(.not.inp_f(xpnd(2))) xpnd(2)=xpnd(1)
+      if(.not.inp_f(xpnd(3))) xpnd(3)=xpnd(2)
       goto 2
       endif
 c
@@ -756,9 +773,9 @@ c
  7805 format('solvnt ')
       lslvnt=.true.
       if(.not.inp_a(item)) then
-      write(68,6805) xpndw
+      write(68,6805) xpnd
  6805 format('period ',/,'solvat cube ',/,
-     + 'expand with ',f12.6,/,'wr_rst')
+     + 'expand with ',3f12.6,/,'wr_rst')
       lwrcoo=.true.
       numcmd=numcmd+1
       goto 1
@@ -767,34 +784,34 @@ c
       if(.not.inp_f(edge)) then
       write(68,6811)
  6811 format('period',/,'solvat cube')
-      write(68,7807) xpndw
- 7807 format('expand with ',f12.6)
+      write(68,7807) xpnd
+ 7807 format('expand with ',3f12.6)
       else
       write(68,6812) edge
  6812 format('period',/,'solvat cube',f12.6)
-      write(68,7807) xpndw
+      write(68,7807) xpnd
       endif
       elseif(inp_compare(.false.,'box',item)) then
       if(.not.inp_f(edges(1))) then
       write(68,6813)
  6813 format('period',/,'solvat box')
-      write(68,7807) xpndw
+      write(68,7807) xpnd
       else
       if(.not.inp_f(edges(2))) edges(2)=edges(1)
       if(.not.inp_f(edges(3))) edges(3)=edges(2)
       write(68,6814) edges
  6814 format('period',/,'solvat box',3f12.6)
-      write(68,7807) xpndw
+      write(68,7807) xpnd
       endif
       elseif(inp_compare(.false.,'troct',item)) then
       if(.not.inp_f(edge)) then
       write(68,6821)
  6821 format('period',/,'solvat troct')
-      write(68,7807) xpndw
+      write(68,7807) xpnd
       else
       write(68,6822) edge
  6822 format('period',/,'solvat troct',f12.6)
-      write(68,7807) xpndw
+      write(68,7807) xpnd
       endif
       elseif(inp_compare(.false.,'sphere',item)) then
       if(.not.inp_f(edge)) then

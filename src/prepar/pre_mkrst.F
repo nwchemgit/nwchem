@@ -3,7 +3,7 @@
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,gdist,mnoe,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq)
 c
-c $Id: pre_mkrst.F,v 1.45 2000-04-04 00:12:30 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.46 2000-04-10 20:29:19 d3j191 Exp $
 c
       implicit none
 c
@@ -912,7 +912,9 @@ c
       elseif(card(8:11).eq.'with') then
       read(card(13:24),'(f12.6)',end=9999,err=9999) edge
       box(1)=box(1)+edge
+      read(card(25:36),'(f12.6)',end=9999,err=9999) edge
       box(2)=box(2)+edge
+      read(card(37:48),'(f12.6)',end=9999,err=9999) edge
       box(3)=box(3)+edge
       endif
       endif
