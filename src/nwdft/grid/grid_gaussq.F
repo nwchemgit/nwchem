@@ -1,4 +1,4 @@
-        subroutine grid_gausslag(nn,x,realwt)
+        subroutine grid_gausslag(nn,x,realwt,idum)
 c
 c this subroutine calculates the Gauss-Laguerre points and weights for
 c  associated Laguerre polynomials using subroutines provided in
@@ -16,9 +16,16 @@ c               int(0,inf) exp(x)x**(2-alf)f(x) x**alf exp(-x) dx.
 c          The real weights are thus a(i)*exp(x)*x**(2-alf) where a(i)
 c          are the original Gauss-Laguerre weights.
 c
-C$Id: grid_gaussq.F,v 1.3 1999-08-24 22:55:15 edo Exp $
+C$Id: grid_gaussq.F,v 1.4 1999-11-13 02:37:42 bjohnson Exp $
       implicit none
 #include "cdft.fh"      
+c
+c     The following arg was added to match the calls to this routine,
+c     all of which have 4 arguments.  This is necessary to link under
+c     WIN32.  Someone should fix this so that all 4 args are properly
+c     used. BGJ (9/99)
+c
+      integer idum ! [input, !!!Dummy argument!!!]
       integer nn ! [input]
       double precision x(1),realwt(1)
 C
