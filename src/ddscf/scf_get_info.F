@@ -168,7 +168,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.8 1995-05-29 18:58:18 d3g681 Exp $
+C$Id: scf_get_info.F,v 1.9 1995-05-29 19:07:57 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -243,7 +243,7 @@ c
          if (.not. rtdb_cget(rtdb, 'int2e:filename', 1, filename)) 
      $        call util_file_prefix('aoints',filename)
          if (.not. int2e_file_open(filename, memsize, filesize,
-     $        tol2e*0.1d0))
+     $        tol2e*0.01d0))
      $        call errquit('get_fock_param: opening aoints?', 0)
       endif
 c
