@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.3 1999-07-10 01:06:08 edo Exp $
+c$Id: grid_setang.F,v 1.4 1999-08-10 22:58:30 edo Exp $
 c
       implicit none
 c      
@@ -45,7 +45,7 @@ c
 c
 c           Define the Gauss-Legendre points and weights for the theta integration.
 c
-            call gaussleg(ntheta(iang), costheta(1,iang), 
+            call grid_gaussleg(ntheta(iang), costheta(1,iang), 
      &                    awghts(1,iang))
 c
             do 200 n = 1, ntheta(iang)

@@ -1,6 +1,6 @@
       subroutine xc_tarad(znumber,r,w,nr,origin,which)
 
-C$Id: xc_tarad.F,v 1.2 1999-03-03 03:22:42 edo Exp $
+C$Id: xc_tarad.F,v 1.3 1999-08-10 22:58:01 edo Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -36,7 +36,7 @@ c***************************************************************************
 
       if(which.eq.'chebyshe') then
       do  i = 1,nr
-        call gausscheb(wi,xi,i,nr)
+        call grid_gausscheb(wi,xi,i,nr)
         ri = zeta/log(2.D0)*(1.d0+xi)**alpha*log(2d0/(1d0-xi))
         r(i) = ri+origin
         w(i)=wi*r(i)*r(i)*ri*(alpha/(1d0+xi)+
@@ -47,7 +47,7 @@ c        ri=(1d0+xi)/(1d0-xi)
 c        w(i) = wi*ri*ri/(1d0-xi)**2*2d0
       enddo
       elseif(which.eq.'legendre') then
-        call gaussleg(nr, rsc, 
+        call grid_gaussleg(nr, rsc, 
      &       wsc)
         do i=1,nr
           xi=rsc(nr-i+1)
@@ -84,13 +84,13 @@ c
       intercept=(rmin+rmax)*.5d0
       if(which.eq.'chebyshe') then
         do i=1,nr
-          call gausscheb(wi,xi,i,nr)
+          call grid_gausscheb(wi,xi,i,nr)
           ri = slope*xi + intercept
           r(i) = ri
           w(i) = wi*ri*ri*slope
         enddo
       elseif(which.eq.'legendre') then
-        call gaussleg(nr, rsc, 
+        call grid_gaussleg(nr, rsc, 
      &       wsc)
         do i=1,nr
           ri = slope*rsc(nr-i+1) + intercept
@@ -103,7 +103,7 @@ c
       return
       end
 
-      subroutine gausscheb(wi,xi,i_in,n)
+      subroutine grid_gausscheb(wi,xi,i_in,n)
       implicit none
       double precision wi,xi ! [output]
       integer i_in,n ! [input]

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.55 1999-08-10 21:21:13 jolguin Exp $
+# $Id: GNUmakefile,v 1.56 1999-08-10 22:57:50 edo Exp $
 ifeq ($(TARGET),SGITFP)
 	OBJ = xc_getv.o xc_quadv0.o xc_quadv0_a.o xc_quadv1.o xc_fitv.o xc_get2oi.o qpts.o gat_mat.o	xc_beckew.o setACmat.o xc_neighb.o xc_ssw.o xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o 
 	OBJ_OPTIMIZE = xc_tabcd.o  xc_rhogen.o\
@@ -6,7 +6,7 @@ ifeq ($(TARGET),SGITFP)
 	xc_dirac.o	xc_vwn_5.o	xc_lyp88.o			\
 	eumac.o	\
 	scat_mat.o	 \
-	qpts.o		gausquad.o			   \
+	qpts.o		   \
 	a_dist.o	qdist.o		 xc_delleyw.o xc_lebedev.o \
         xc_vwn_1_rpa.o xc_vwn_1.o xc_vwn_2.o xc_vwn_3.o xc_vwn_4.o \
 	xc_eval_fnl.o xc_pbe96.o xc_hcth.o xc_chkgrad.o xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o xc_signf.o xc_interp.o xc_gill96.o xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o 
@@ -20,7 +20,7 @@ else
 #	xc_becke88.o	xc_lyp88.o	xc_vwn_5.o \
 #	eumac.o	\
 #	xc_fitv.o			   xc_get2oi.o	\
-#	gausquad.o	xc_lebedev.o		   \
+#	xc_lebedev.o		   \
 #	qdist.o	\
 #	setACmat.o		xc_tabcd.o	\
 #	gat_mat.o		   scat_mat.o xc_delleyw.o \
@@ -31,7 +31,6 @@ else
 	a_dist.o \
 	eumac.o \
 	gat_mat.o \
-	gausquad.o \
 	qdist.o \
 	qpts.o \
 	scat_mat.o \

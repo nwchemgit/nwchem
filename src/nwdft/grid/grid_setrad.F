@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.3 1999-07-09 22:41:58 edo Exp $
+c$Id: grid_setrad.F,v 1.4 1999-08-10 22:58:31 edo Exp $
 c
       implicit none
 c      
@@ -90,7 +90,7 @@ c
             call xc_tarad(iatype(itype), rpts(1,itype), rwghts(1,itype), 
      &                 nrad(itype),0d0,'chebyshe')
           elseif(radgrid.eq.'gausslag') then
-           call gausslag(nrad(itype), rpts(1,itype), 
+           call grid_gausslag(nrad(itype), rpts(1,itype), 
      &            rwghts(1,itype),0d0)
           elseif(radgrid.eq.'gcinterv') then
 c gcgc
@@ -103,7 +103,7 @@ c           midpoint=bsrad_atom_type(itype)*2
      ,           rpts(1,itype), rwghts(1,itype),n1,'chebyshe')
             call xc_tarad(iatype(itype), rpts(n1+1,itype), 
      &       rwghts(n1+1,itype), ninf,midpoint,'chebyshe')
-c           call gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
+c           call grid_gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
 c     ,          midpoint)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(radgrid.eq.'leglag') then
@@ -112,8 +112,8 @@ c     ,          midpoint)
             ninf=nrad(itype)-n1
            call xc_interv(0d0,midpoint,
      ,           rpts(1,itype), rwghts(1,itype),n1,'legendre')
-           call gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
-     ,          midpoint)
+           call grid_gausslag(ninf,rpts(n1+1,itype),
+     ,          rwghts(n1+1,itype),midpoint)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(radgrid.eq.'gclag') then
             n1=nrad(itype)*ndivide/16
@@ -121,8 +121,8 @@ c     ,          midpoint)
             ninf=nrad(itype)-n1
            call xc_interv(0d0,midpoint,
      ,           rpts(1,itype), rwghts(1,itype),n1,'chebyshe')
-           call gausslag(ninf, rpts(n1+1,itype), rwghts(n1+1,itype),
-     ,          midpoint)
+           call grid_gausslag(ninf, rpts(n1+1,itype), 
+     ,          rwghts(n1+1,itype),midpoint)
             write(6,*) ' itype midpoint n1',itype,midpoint,n1
           elseif(radgrid.eq.'leggc') then
             n1=nrad(itype)*ndivide/16
