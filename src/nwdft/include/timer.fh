@@ -1,0 +1,15 @@
+      Character*10 subname, subsect(10), pgmname, pgmsect(10)
+
+      Common/sub_timer/t_sub(3,10),
+     &             ts1(3),ts2(3),ts3(3),ts4(3),ts5(3),
+     &             ts6(3),ts7(3),ts8(3),ts9(3),ts10(3),
+     &             subname,subsect
+
+      Common/pgm_timer/t_pgm(3,10),
+     &             tp1(3),tp2(3),tp3(3),tp4(3),tp5(3),
+     &             tp6(3),tp7(3),tp8(3),tp9(3),tp10(3),
+     &             pgmname,pgmsect
+
+      Common/kep_timer/t_tim(3,10),t_min(3,10),t_max(3,10),
+     &             t_tot(3),t_tot_min(3),t_tot_max(3),
+     &             itime,ltime

@@ -1,0 +1,63 @@
+Call Chain for XC Routines
+--------------------------
+
+getvxc.F (XC driver routine)
+
+  Case 1:     vx_exact.F
+
+  Case 2:     quadvxc0.F
+
+                              qpts.F
+
+                              qdist.F
+
+                              int_eval_gbsets (1)
+
+                              ibf_to_itri.F
+
+                              becke.F ( <-- a_dist.F )
+
+                              rho_gen.F
+
+                              dirac.F or becke88.F
+                              vwn.F or lyp88.F
+
+                              setACmat.F
+
+                              tabcd.F
+
+  Case 3:     quadvxc1.F
+
+                              qpts.F
+
+                              qdist.F
+
+                              int_eval_gbsets (1)
+
+                              ibf_to_itri.F
+
+                              becke.F ( <-- a_dist.F )
+
+                              rho_gen.F
+
+                              dirac.F or becke88.F
+                              vwn.F or lyp88.F
+
+                              setACmat.F
+
+                              int_eval_gbsets (1)
+
+                              tabcd.F
+
+              fitvxc.F
+
+Notes
+-----
+(1) int_eval_gbsets is an NWints routine.
+
+
+Additional Related Routines
+---------------------------
+  eumac.F
+  gausquad.F
+  get2oi.F
