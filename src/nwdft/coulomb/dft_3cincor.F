@@ -2,7 +2,7 @@
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd, 
      &                       cntoce, cntobfr, cetobfr, natoms)
 c 
-C$Id: dft_3cincor.F,v 1.15 1999-06-09 00:53:49 edo Exp $
+C$Id: dft_3cincor.F,v 1.16 1999-06-22 01:20:42 edo Exp $
 c
       implicit none
 c    
@@ -108,8 +108,8 @@ c
 c      
 c     Parallelize the loop over the products of AO shells.
 c      
-      icount = nshells_ao*(nshells_ao+1)/nproc/2
-c      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+c      icount = nshells_ao*(nshells_ao+1)/nproc/2
+      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
 c      
 c     check for zero ... must be at least 1
 c
@@ -433,7 +433,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.15 1999-06-09 00:53:49 edo Exp $
+C$Id: dft_3cincor.F,v 1.16 1999-06-22 01:20:42 edo Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

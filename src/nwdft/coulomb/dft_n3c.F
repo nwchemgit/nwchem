@@ -1,6 +1,6 @@
       double precision function dft_n3cdbl( AO_bas_han, CD_bas_han,
      &     itol2e)
-C$Id: dft_n3c.F,v 1.8 1999-06-09 00:53:50 edo Exp $
+C$Id: dft_n3c.F,v 1.9 1999-06-22 01:20:43 edo Exp $
       implicit none
 c****
 c**** nwchem handles
@@ -85,8 +85,8 @@ c
 c     Loops are parallelized over the products of AO shells
 c     (check for zero ... must be at least 1).
 c      
-c      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
-      icount = (nshells_ao*(nshells_ao+1))/(2*nproc)
+      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+c      icount = (nshells_ao*(nshells_ao+1))/(2*nproc)
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
@@ -104,7 +104,8 @@ c
 c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals per 
 c     processor and allow for some load-unbalance, e.g., 1.5
 c
-      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
+      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 4096.0d0
+c      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
 c
 c     cannot be smaller than mxsh*mxsh*nbf_cd*icount
 c
@@ -125,7 +126,7 @@ c
       end
       integer function dft_n3cint(AO_bas_han, CD_bas_han, 
      &      itol2e)
-C$Id: dft_n3c.F,v 1.8 1999-06-09 00:53:50 edo Exp $
+C$Id: dft_n3c.F,v 1.9 1999-06-22 01:20:43 edo Exp $
       implicit none
             
 c****
