@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.26 2004-03-31 00:40:35 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.27 2004-09-29 23:53:49 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -189,7 +189,7 @@ c
          if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,dbl_mb(irqbuf),nsubb)) goto 2001
          if(nqpts.gt.buffer_size) call
-     '        errquit(' buffersize exceed by qpts ',nqpts, UNKNOWN_ERR)
+     *        errquit(' buffersize exceed by qpts',nqpts,UNKNOWN_ERR)
         if(nqpts.eq.0) goto 200
         istep=0
         do 110 ncube=1,nsubb

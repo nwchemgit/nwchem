@@ -9,7 +9,7 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.21 2003-10-17 22:54:42 carlfahl Exp $
+* $Id: dftg_cdfit.F,v 1.22 2004-09-29 23:53:49 edo Exp $
 *
       integer  AO_bas_han, CD_bas_han
       integer nbf_cd, nat, max_sh_bf
@@ -391,15 +391,25 @@ c
                icount = 1
                do iat = 1, 2
                   if (idatom(iat).gt.0)then
-                     ist=1
-                     do icart = 1, 3
+c icart=1
                         call dgemv('n', nshbfq, nshbfp,
      &                             1.d0, buf(icount), nshbfq,
      &                             CD_coef(ifirstp), 1,
-     &                             0.d0, vec(ist), 1)
-                        ist = ist + nshbfq
+     &                             0.d0, vec, 1)
                         icount = icount + Nintegrals
-                     enddo
+c icart=2
+                        call dgemv('n', nshbfq, nshbfp,
+     &                             1.d0, buf(icount), nshbfq,
+     &                             CD_coef(ifirstp), 1,
+     &                             0.d0, vec(nshbfq+1), 1)
+                        icount = icount + Nintegrals
+c icart=3
+                        call dgemv('n', nshbfq, nshbfp,
+     &                             1.d0, buf(icount), nshbfq,
+     &                             CD_coef(ifirstp), 1,
+     &                             0.d0, vec(2*nshbfq+1), 1)
+                        icount = icount + Nintegrals
+
                      call dgemv('t', nshbfq, 3,
      &                          fac, vec, nshbfq,
      &                          CD_coef(ifirstq), 1,
