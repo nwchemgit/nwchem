@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.4 1997-10-23 01:03:49 d3e129 Exp $
+C$Id: sym_sym.F,v 1.5 1997-10-30 00:21:13 d3e129 Exp $
       implicit none
 #include "global.fh"
 #include "geom.fh"
@@ -41,11 +41,14 @@ c
      $     call errquit('sym_symmetrize: bas_high_angular', basis)
       status = bas_is_spherical(basis)
       if (status.and.(ang_max.gt.1)) then
-        write(6,*)' spherical basis set and symmetry ',
-     &      'are not allowed yet'
-        write(6,*)' you can use no symmetry and spherical basis sets '
-        write(6,*)'or'
-        write(6,*)' cartesian basis sets with symmetry'
+        if (ga_nodeid().eq.0) then
+          write(6,*)' spherical basis set and symmetry ',
+     &        'are not allowed yet'
+          write(6,*)
+     &        ' you can use no symmetry and spherical basis sets '
+          write(6,*)'or'
+          write(6,*)' cartesian basis sets with symmetry'
+        endif
         call errquit('sym_symmetrize: fatal error',911)
       endif
 *
