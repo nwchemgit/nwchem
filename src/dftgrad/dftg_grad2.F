@@ -11,7 +11,7 @@ c
 c     BGJ - 9/98
 c    
 *
-* $Id: dftg_grad2.F,v 1.9 1998-09-29 20:30:38 bjohnson Exp $
+* $Id: dftg_grad2.F,v 1.10 1999-01-06 01:21:23 d3h449 Exp $
 *
       implicit none
 c      
@@ -54,7 +54,7 @@ c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
 c    
 *
-* $Id: dftg_grad2.F,v 1.9 1998-09-29 20:30:38 bjohnson Exp $
+* $Id: dftg_grad2.F,v 1.10 1999-01-06 01:21:23 d3h449 Exp $
 *
       implicit none
 c      
@@ -83,7 +83,8 @@ c
       integer idatom(4)
       double precision d_ija(ldim,ldim), d_kla(ldim,ldim)
 c
-      integer iproc,iat3,iat1,iat2,iat4,ihi4,ijatom,next,
+c      integer iproc,iat3,iat1,iat2,iat4,ihi4,ijatom,next,
+      integer iproc,iat3,iat1,iat2,iat4,ihi4,ijklshell,next,
      &     iab1f,iab1l,iab2f,iab2l,iab3f,iab3l,iab4f,iab4l,
      &     iac2f,iac2l,iac3f,iac3l,iac4f,iac4l,
      &     ish1,ish2,ish3,ish4,iac1l,itop3,itop4,
@@ -115,7 +116,8 @@ c
       iproc = ga_nodeid()
       q4 = 1.0d0                ! If not using symmetry
 c
-      ijatom = -1
+c      ijatom = -1
+      ijklshell = -1
       next = nxtval(nproc)
 c
       do 95 iat3 = nat, 1, -1
@@ -188,9 +190,9 @@ c
                      if (.not.status)call errquit 
      &                  ('dftg_grad2: error with bas_ce2cnr',0)
 c
-                     ijatom = ijatom + 1
+c                     ijatom = ijatom + 1
 c
-                     if (next .eq. ijatom) then
+c                     if (next .eq. ijatom) then
 c
 c                       get density matrix blocks
 c               
@@ -241,6 +243,11 @@ c
                                        if (schwarz_shell(ish1,ish2)*
      &                                     schwarz_shell(ish3,ish4)*q4
      &                                     .ge. tol2e) then
+c
+                                          ijklshell = ijklshell + 1
+c
+                                          if (next .eq. ijklshell) then
+c
                                           status = bas_cn2bfr
      &                                             (basis,ish4,if4,il4)
                                           ig4 = if4
@@ -315,6 +322,10 @@ c
 c
       endif
 c
+      next = nxtval(nproc)
+c
+      endif     ! next
+c
 c---------------------------------------------------------------------
 c - indent - region pick back up
 c
@@ -325,9 +336,9 @@ c
    70                      continue            ! ish2
    75                   continue               ! ish1
 c
-                        next = nxtval(nproc)
+c                        next = nxtval(nproc)
 c
-                     endif                     ! next
+c                     endif                     ! next
 c
  1010                continue                  ! jump here for inactive/zero
 c
