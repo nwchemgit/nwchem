@@ -9,7 +9,7 @@ md
  leapfrog
  isotherm 298.16 trelax 0.1 0.1 
  isobar 1.025e5 trelax 0.4 compres 4.53e-10 
- print extra topol step 10 stat 100
+ print step 10 stat 100 extra topol
  update pairs 1 center 1 long 1 rdf 0
  record rest 0
  record prop 0 sync 0
