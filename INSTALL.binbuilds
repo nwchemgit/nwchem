@@ -1,7 +1,7 @@
 
 Guide to Installing NWChem Binary Builds
 ====================================================
-$Id: INSTALL.binbuilds,v 1.6 2001-12-17 21:22:16 bert Exp $
+$Id: INSTALL.binbuilds,v 1.7 2002-03-28 22:19:22 windus Exp $
 ----------------------------------------------------
 
 INSTALLING NWCHEM FOR GENERAL SITE USE: 
@@ -30,9 +30,11 @@ B) The ./bin directory contains the binaries used for the given build
 C) The ./classes directory has the Java class files for the NWChem
    support tool.  This is to be used by the designated point of
    contact at each site.  See the description below.
+
 D) The ./usr.local.lib.nwchem directory has the basis set libraries
    and the default amber and charmm parameter files used for 
    molecular dynamics simulations. 
+
 E) The ./etc directory has an executable c-shell script to generate a
    default ".nwchemrc" file that enables nwchem to find the 
    usr.local.lib.nwchem files.  Each user will need a .nwchemrc file 
@@ -45,6 +47,12 @@ E) The ./etc directory has an executable c-shell script to generate a
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
+
+F) Please note that the .nwchemrc does not handle the pseudopotential
+   libraries used in the planewave part of the code.  The user will
+   need to set an environment variable, NWCHEM_NWPW_LIBRARY, to the
+   appropriate location.  For example:
+   setenv NWCHEM_NWPW_LIBRARY /usr/local/lib/nwchem/libraryps/
 
 
 POINT OF CONTACT USERS:
