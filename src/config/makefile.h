@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.341 2000-11-04 02:55:17 edo Exp $
+# $Id: makefile.h,v 1.342 2000-11-08 00:25:07 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -42,23 +42,17 @@ endif
 #                  CRAY-T3E
 #                  CYGNUS       (Windows under Cygwin tools)
 #                  DECOSF
-#                  DELTA
 #                  IBM
-#                  KSR
 #                  LINUX        NWCHEM_TARGET_CPU :
 #                                                  nothing for X86 (e.g. do not set this)
 #                                                  ALPHA for AlphaLinux (broke)
 #                                                  POWERPC for MkLinux 
-#                  PARAGON
 #                  SGI
 #                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SGITFP       NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SOLARIS      NWCHEM_TARGET_CPU : not defined or ULTRA
-#                  SP           NWCHEM_TARGET_CPU : P2SC
-#                      (uses non-thread safe libraries and MPL)
-#                  LAPI      NWCHEM_TARGET_CPU : P2SC
+#                  LAPI         NWCHEM_TARGET_CPU : P2SC
 #                      (uses thread safe libraries and LAPI)
-#                  SUN
 #
 # Note that the preprocessor flags for CRAY-T3D and CRAY-T3E are CRAY_T3D and CRAY_T3E respectively
 #
@@ -67,14 +61,10 @@ ifndef NWCHEM_TARGET
 error2:
 	@echo You must define NWCHEM_TARGET in your environment to be the name
 	@echo of the machine you wish to build for ... for example
-	@echo     setenv NWCHEM_TARGET SUN
-	@echo Known targets are SUN, DELTA, ...
+	@echo     setenv NWCHEM_TARGET SOLARIS
+	@echo Known targets are SOLARIS, SGI_N32, ...
+	@echo See the INSTALL instructions for a complete list
 	@exit 1
-endif
-
-#JN SP1 name is obsolete 
-ifeq ($(NWCHEM_TARGET),SP1)
-    NWCHEM_TARGET = SP
 endif
 
      TARGET := $(NWCHEM_TARGET)
@@ -161,8 +151,6 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 #                                                        #
 ##########################################################
 
-# Only the SUN, SGI, KSR, PARAGON, DELTA and IBM versions are up to date
-
 # Each machine dependent section should define the following as necessary.
 # (defaults if any in parentheses)
 #
@@ -234,7 +222,6 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 # platforms:
 #
 #        NWCHEM_TARGET                NWCHEM_TARGET_CPU          
-#           SP                           P2SC
 #           LAPI                         P2SC
 #           SGITFP                       R10000/R8000
 #           SGI_N32                      R10000/R8000
@@ -262,30 +249,6 @@ endif
 #
 # Machine specific stuff
 #
-
-ifeq ($(TARGET),SUN)
-#
-# Sun running SunOS
-#
-
-       NICE = nice
-      SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
-         CC = gcc
-     RANLIB = ranlib
-  MAKEFLAGS = -j 1 --no-print-directory
-    INSTALL = @echo $@ is built
-
-   FOPTIONS = -Nl199 -fast -dalign
-   COPTIONS = -Wall
-# -O4 breaks at least inp_* and seems no faster than -O3
-  FOPTIMIZE = -O3
-  COPTIMIZE = -g -O2
-
-    DEFINES = -DSUN
-
-    CORE_LIBS +=   -llapack $(BLASOPT) -lblas
-endif
 
 ifeq ($(TARGET),SOLARIS)
       SHELL := $(NICE) /bin/sh
@@ -327,7 +290,7 @@ endif
   LDOPTIONS = -xildoff
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
   CORE_LIBS +=  -xlic_lib=sunperf -lmvec
-#-llapack -lblas
+#-llapack -$(BLASOPT) -lblas
 
       EXTRA_LIBS = -ldl 
 
@@ -524,100 +487,6 @@ endif
       FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
       EXPLICITF     = TRUE
 endif
-
-ifeq ($(TARGET),KSR)
-#
-# KSR running OSF
-#
-# JN 96/10/02:
-# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
-
-	CPP = /usr/lib/cpp -P -C
-    CORE_SUBDIRS_EXTRA = blas
-     RANLIB = echo
-  MAKEFLAGS = -j 10 --no-print-directory
-    INSTALL = @echo $@ is built
-
-   FOPTIONS = -r8
-   COPTIONS = 
-  FOPTIMIZE = -xfpu3 -O1
-  COPTIMIZE = -xfpu3 -O1
-
-    DEFINES = -DKSR -DPARALLEL_DIAG -DEXT_INT
-
-#       LIBPATH += -L/home/d3g681/TCGMSG_DISTRIB
-        LIBPATH += -L/home2/d3g270/peigs1.1.1 -L/home/d3g681/TCGMSG_DISTRIB
-       CORE_LIBS += -lksrlapk -lksrblas -llapack2 -lblas2  
-      EXTRA_LIBS = -para -lrpc
-endif
-
-ifeq ($(TARGET),PARAGON)
-#
-# Intel Paragon running OSF
-# (native build, or cross-compiled -- the latter is faster in most cases)
-#
-    CORE_SUBDIRS_EXTRA = lapack
-
-         FC = if77
-         CC = icc
-         AR = ar860
-     RANLIB = echo
-	CPP = /usr/lib/cpp -P -C
-
-  MAKEFLAGS = -j 4  --no-print-directory
-    INSTALL = @echo $@ is built
-
-  FOPTIONS = -Knoieee
-  COPTIONS = -Knoieee
- FOPTIMIZE = -O2 -Minline=1000
-FVECTORIZE = -O2 -Minline=1000 # -Mvect
- COPTIMIZE = -O2
-
-#
-# __PARAGON__ is defined by the PGI cpp, but NOT when it is invoked by
-# the f77 comiler!!!
-#
-# Do NOT define -DNX or -DIPSC for paragon -- they get into some code for
-# real iPSC and Delta that is not applicable to the paragon, which is more
-# unixy since it runs OSF/1.
-#
-    DEFINES = -D__PARAGON__ -DPARALLEL_DIAG
-    ARFLAGS = ru
-
-# CAUTION: PGI's linker thinks of -L as adding to the _beginning_ of the
-# search path -- contrary to usual unix usage!!!!!
-       LIBPATH  += -L/home/delilah11/gifann/lib
-       CORE_LIBS +=  -llapack $(LIBDIR)/liblapack.a -lkmath 
-      EXTRA_LIBS = -nx
-endif
-
-ifeq ($(TARGET),DELTA)
-#
-# DELTA/IPSC running NX
-#
-    CORE_SUBDIRS_EXTRA = lapack blas # -lkamth not reliable
-# blas
-        FC = if77
-        CC = icc
-       CPP = /usr/lib/cpp
-        AR = ar860
-    RANLIB = echo
-
-   INSTALL = "strip860 $(BINDIR)/nwchem; rcp $(BINDIR)/nwchem delta1:"
- MAKEFLAGS = -j 2  --no-print-directory
-
-  FOPTIONS = -Knoieee
-  COPTIONS = -Knoieee
- FOPTIMIZE = -O2 		# -Minline=1000 ## Inlining bombs for dtrtri.f
-FVECTORIZE = -O4 		# -Mvect corrupts lapack for large vectors
- COPTIMIZE = -O2
-
-   DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
-        LIBPATH += -L/home/delilah11/gifann/lib
-       CORE_LIBS += $(LIBDIR)/liblapack.a -llapack -lblas
-      EXTRA_LIBS = -node
-endif
-
 
 ifeq ($(TARGET),SGITFP)
 #
@@ -852,6 +721,7 @@ ifeq ($(TARGET),HPUX)
  DEFINES = -DHPUX -DEXTNAME -DPARALLEL_DIAG
 
 endif
+
 ifeq ($(TARGET),HPUX64)
 #
 # HPUX 11.0
@@ -1002,6 +872,7 @@ endif
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
+
 ifeq ($(TARGET),IBM64)
 # 
 # IBM AIX 64-bit
@@ -1033,115 +904,6 @@ ifeq ($(TARGET),IBM64)
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
-
-
-ifeq ($(TARGET),SP)
-#
-     OLD_GA = y 
-    CORE_SUBDIRS_EXTRA = lapack blas
-         FC = mpxlf -qnohpf
-# -F/u/d3g681/xlhpf.cfg:rjhxlf
-         CC = mpcc
-    ARFLAGS = urs
-     RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
-    INSTALL = @echo $@ is built
-        CPP = /usr/lib/cpp -P
-
-LARGE_FILES = YES
-
-  LDOPTIONS = -lc -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map
-ifeq ($(NWCHEM_TARGET_CPU),604)
-  LDOPTIONS = -lxlf90 -lm -qEXTNAME -qnosave -g -bmaxdata:0x20000000 -bloadmap:nwchem_map
-endif
-
-   LINK.f   = mpxlf -qnohpf $(LDFLAGS)
-   FOPTIONS = -qEXTNAME -qnosave -qalign=4k
-# -qinitauto=7F # note that grad_force breaks with this option
-   COPTIONS = 
-  FOPTIMIZE = -O3 -qstrict -qfloat=rsqrt:fltint -NQ40000 -NT80000
-  COPTIMIZE = -O
-ifeq ($(NWCHEM_TARGET_CPU),604)
-  FOPTIMIZE += -qarch=604
-  COPTIMIZE += -qarch=ppc
-endif
-
-ifeq ($(NWCHEM_TARGET_CPU),P2SC)
-# These from George from Kent Winchell
-  FOPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
-        -qcache=type=i:level=1:size=32:line=128
-  COPTIMIZE += -qcache=type=d:level=1:size=128:line=256:assoc=4:cost=14 \
-        -qcache=type=i:level=1:size=32:line=128
-endif
-
-    DEFINES = -DSP1 -DAIX -DEXTNAME -DPARALLEL_DIAG
-#
-# Prefix LIBPATH with -L/usr/lib for AIX 3.2.x
-#
-#  LIBPATH += -L/sphome/harrison/peigs2.0
-
-  CORE_LIBS += -llapack $(BLASOPT) -lblas
-
-
-#   USE_ESSL = YES
-#   USE_BLAS = YES
-ifdef USE_ESSL
-   DEFINES += -DESSL
-# renames not needed for 4.1.  Still are for 3.2.
-ifeq ($(NWCHEM_TARGET_CPU),P2SC)
- CORE_LIBS += -lesslp2 -lpesslp2 -lblacsp2
-else
-CORE_LIBS += -lessl -lpessl -lblacs
-endif
-
-#	      -brename:.daxpy_,.daxpy \
-#	      -brename:.dgesv_,.dgesv \
-#	      -brename:.dcopy_,.dcopy \
-#	      -brename:.ddot_,.ddot \
-#	      -brename:.dgemm_,.dgemm \
-#	      -brename:.dgemv_,.dgemv \
-#	      -brename:.dgetrf_,.dgetrf \
-#	      -brename:.dgetrs_,.dgetrs \
-#	      -brename:.dscal_,.dscal \
-#	      -brename:.dspsvx_,.dspsvx \
-#	      -brename:.dpotrf_,.dpotrf \
-#	      -brename:.dpotri_,.dpotri \
-#	      -brename:.idamax_,.idamax 
-ifdef USE_BLAS
- CORE_LIBS += -lblas -brename:.xerbla_,.xerbla -brename:.lsame_,.lsame
-endif
-
-else
-    CORE_SUBDIRS_EXTRA += blas
-             CORE_LIBS += -lblas
-endif
-
-
-# IMPORTANT:  These renames are necessary if you try to link against
-# a copy of PeIGS built for MPI instead of TCGMSG. (Not recommended, 
-# see INSTALL...this is because of possible incompatibilities of C and fortran
-# underscore symbols and seems to be a problem with older peigs versions... )
-# mpipriv is a common block used in MPICH's implementation of MPI.  It
-# is critical that this common block is renamed correctly because
-# the linker will not detect any problems (there will be separate
-# common blocks labeled mpipriv_ and mpipriv) but the program will not
-# operate correctly.
-#ifdef USE_MPI
-#   CORE_LIBS += -brename:.mpi_recv_,.mpi_recv \
-#		-brename:.mpi_initialized_,.mpi_initialized \
-#		-brename:.mpi_init_,.mpi_init \
-#		-brename:.mpi_comm_rank_,.mpi_comm_rank \
-#		-brename:.mpi_comm_size_,.mpi_comm_size \
-#		-brename:.mpi_finalize_,.mpi_finalize \
-#		-brename:.mpi_send_,.mpi_send \
-#		-brename:mpipriv_,mpipriv
-#endif
-
- EXPLICITF = TRUE
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-#
-endif
-
 
 ifeq ($(TARGET),LAPI)
 #
@@ -1395,6 +1157,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   FVECTORIZE = -fast -O5 -tune host -arch host
   CORE_LIBS = -llapack $(BLASOPT) -lblas
 endif
+
 ifeq ($(TARGET),FUJITSU_VPP)
 #
 # FUJITSU VX/VPP
