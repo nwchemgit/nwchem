@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.15 2001-03-24 01:04:54 edo Exp $
+C $Id: hess_init.F,v 1.16 2001-04-05 22:25:06 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -18,14 +18,16 @@ c
 #include "hess_info.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 #include "sym.fh"
+#include "util.fh"
 c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
       integer i, j, dftnoc(2), numfunc, nbsize
       parameter(numfunc = 30) ! took this from gradient code, may need to be
                               ! changed in the future
-      logical status
+      logical status, oprint
       character*256 sx_name
       character*256 fx_name
       double precision zero, one, onem
@@ -36,8 +38,14 @@ c     integer rtdb, mult, g_vecs(2)
       logical int_normalize
       external int_normalize
 c
+c  print out follow information
+c
+      oprint = util_print('hess_follow',print_high)
+      oprint = oprint .and. (ga_nodeid().eq.0)
+c
 c  get geometry and basis set handles and associated useful information
 c
+      if (oprint) write(LuOut,*) 'HESS: set up geometry and basis'
       if (.not. geom_create(geom, 'geometry'))
      *  call errquit('hess_init: geom_create problem', 555)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
@@ -54,17 +62,12 @@ c
 c  initialize the second derivative integrals
 c  making sure that the schwarz stuff is initialized
 c
-      write(6,*) 'before the call to intdd_init'
-      call flush(6)
+      if (oprint) write(LuOut,*) 'HESS: initializing integrals'
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom, basis)
       call int_terminate()
       call intdd_init(rtdb,1,basis)
-      write(6,*) 'after the call to intdd_init'
-      call flush(6)
       status = int_normalize(rtdb,basis)
-      write(6,*) 'after the call to int_normalize'
-      call flush(6)
 c
 c Are we using symmetry?
 c
@@ -74,6 +77,7 @@ c
 c
 c  get local memory for the nuclear hessian Exy
 c
+      if (oprint) write(LuOut,*) 'HESS: initializing hessian'
       n3xyz = 3 * ncent
       n3xyz2 = n3xyz * n3xyz
       if (.not.ma_push_get(MT_DBL,n3xyz2,'hessian: exy',l_exy,k_exy))
@@ -83,13 +87,12 @@ c
      *     k_hess_xc))
      *     call errquit('hessian_hess_xc: cannot allocate',555)
       call dfill(n3xyz2,zero,dbl_mb(k_hess_xc),1)
-      write(6,*) 'after the calls to hessian ma_push_get'
-      call flush(6)
 c
 c  Initialization for each of the different types of wavefunctions.
 c
 c    Need to fix jfac and kfac for UHF
 c
+      if (oprint) write(LuOut,*) 'HESS: getting wavefunction info'
       jfac(1) = 1.0d0   ! Only changed for DFT
       kfac(1) = 1.0d0
       if (theory .eq. 'hf') then
@@ -165,11 +168,10 @@ c
      &   l_act, k_act))
      &   call errquit('grad: could not allocate l_act',1)
       call grad_active_atoms(rtdb, ncent, log_mb(k_act), nactive)
-      write(6,*) 'after the call to grad_active_atoms'
-      call flush(6)
 c
 c  Get the density and global fock derivative matrices (Qs or RHS).
 c
+      if (oprint) write(LuOut,*) 'HESS: getting ga_memory'
       if (scftype .eq. 'UHF') then
         g_dens(1) = ga_create_atom_blocked
      *            (geom, basis, 'hessian:a dens')
@@ -249,6 +251,7 @@ c
 c  Initialize the Disk Resident Array (DRA) interface which will be needed
 c  to hold the overlap derivatives.
 c
+      if (oprint) write(LuOut,*) 'HESS: getting dra_handles'
       call util_file_name('sxmatrices',.true.,.false.,sx_name)
       call util_file_name('fxmatrices',.true.,.false.,fx_name)
       nbsize = ma_sizeof(mt_dbl,ncent*3*nbf*nbf,mt_byte)

@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.14 2000-08-31 05:33:03 windus Exp $
+C $Id: onedd_cont.F,v 1.15 2001-04-05 22:25:06 windus Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -14,6 +14,8 @@ c
 #include "hess_info.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
+#include "util.fh"
 c
       integer rtdb  ! [input] RTDB handle
 c
@@ -26,14 +28,23 @@ c
       integer k_pdm2, k_coeff
       integer nbf2, nocc
       logical doS, doT, doV, frac_occ, omp2
+      logical oprint, oneprint
 c
       character*255 movecs_in                                                   
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+c Set up print info
+c
+      oprint = util_print('hess_follow',print_high)
+      oprint = oprint .and. (ga_nodeid().eq.0)
+      oneprint = util_print('onedd_cont',print_debug)
+      oneprint = oneprint .and. (ga_nodeid().eq.0)
+c
 c Get memory for the integral buffers
 c
+      if (oprint) write(LuOut,*) 'HESS: getting memory'
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       if (.not. ma_push_get(mt_dbl,max1e,'intdd buffer',l_buf,k_buf))
      *  call errquit('onedd_cont:could not get intdd buffer',max1e)
@@ -80,6 +91,7 @@ c
 c
 c get density and weighted density
 c
+      if (oprint) write(LuOut,*) 'HESS: getting densities'
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag,
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2,
      $     nopen, nclosed, scftype, movecs_in, omp2,
@@ -94,14 +106,18 @@ C     free temporary arrays
       if (.not.ma_pop_stack(l_evals))
      $     call errquit('onedd_cont:ma free eval',1)                                  
 c
-      write(6,*) 'The weighted density is'
-      call ga_print(g_wdens)
-      write(6,*) 'The density is'
-      call ga_print(g_dens(1))
-      if (ndens.gt.1) then
-        write(6,*) 'the beta density is '
-        call flush(6)
-        call ga_print(g_dens(2))
+      if (oneprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'The weighted density is'
+        call ga_print(g_wdens)
+        write(LuOut,*)
+        write(LuOut,*) 'The density is'
+        call ga_print(g_dens(1))
+        if (ndens.gt.1) then
+          write(LuOut,*)
+          write(LuOut,*) 'the beta density is '
+          call ga_print(g_dens(2))
+        endif
       endif
 c
       if (.not. bas_nbf_ce_max(basis,matb))
@@ -114,21 +130,26 @@ c
      *     k_wdens)) call errquit
      *    ('onedd_cont:could not allocate l_wdens',lsqatom) 
 c
-c  Call the actual routine to add the S, V and T contributions
-c
-
 c  first print out the rhs values (should be all zeroes)!
-      write(6,*) 'g_rhs before going into onedd_calc'
-      do i = 1, ncent*3
-        call ga_print(g_rhs(i))
-      enddo
 c
-c     write(6,*) 'before onedd_calc'
-c     call flush(6)
+      if (oneprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'g_rhs before going into onedd_calc'
+        write(LuOut,*) 'These values should all be zero'
+        do i = 1, ncent*3
+          write(LuOut,*) 'ndisplacement ', i
+          call ga_print(g_rhs(i))
+          write(LuOut,*)
+        enddo
+      endif
+      if (oprint) write(LuOut,*) 'HESS: before the onedd_calc call'
 c
       doS = .true. 
       doV = .true.
       doT = .true.
+c
+c  Call the actual routine to add the S, V and T contributions
+c
       call onedd_calc(dbl_mb(k_exy),ncent*3,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,g_wdens,g_dens,geom,basis,ncent,ndens,
@@ -136,9 +157,13 @@ c
 c
 c should put the next line in when done with some testing
 c     call sym_hess_symmetrize(geom,dbl_mb(k_exy))
-      write(6,*) 'The Hessian after derivative S contributions:'
-      call flush(6)
-      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      if (oneprint) then
+        write(LuOut,*)
+        call util_flush(LuOut)
+        write(LuOut,*) 'The Hessian after onedd contributions:'
+        call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
+        write(LuOut,*)
+      endif
 c
 c Get rid of several temporary arrays
 c
@@ -149,7 +174,8 @@ c
 c
 c Now handle the Hx and Sx terms for the rhs
 c First handle Sx term
-
+c
+      if (oprint) write(LuOut,*) 'HESS: getting the Sx term'
       doS = .true.
       doV = .false.
       doT = .false.
@@ -157,10 +183,15 @@ c First handle Sx term
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,geom,basis,ncent)
 c
-      write(6,*) 'g_rhs for Sx term'
-      do i = 1, ncent*3
-        call ga_print(g_rhs(i))
-      enddo
+      if (oneprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'g_rhs for Sx term'
+        do i = 1, ncent*3
+          write(LuOut,*) 'ndisplacement ', i
+          call ga_print(g_rhs(i))
+          write(LuOut,*)
+        enddo
+      endif
 c
 c write out Sx terms to disk
 c
@@ -172,22 +203,23 @@ c
         call ga_zero(g_rhs(i))
       enddo
 c
+      if (oprint) write(LuOut,*) 'HESS: getting the Hx term'
       doS = .false.
       doV = .true.
       doT = .true.
-c  first print out the rhs values 
-      write(6,*) 'g_rhs before oned_calc'
-      do i = 1, ncent*3
-        call ga_print(g_rhs(i))
-      enddo
       call oned_calc(ncent*3,g_rhs,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,geom,basis,ncent)
 c  first print out the rhs values 
-      write(6,*) 'g_rhs after oned_calc'
-      do i = 1, ncent*3
-        call ga_print(g_rhs(i))
-      enddo
+      if (oneprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'g_rhs for Hx term'
+        do i = 1, ncent*3
+          write(LuOut,*) 'ndisplacement ', i
+          call ga_print(g_rhs(i))
+          write(LuOut,*)
+        enddo
+      endif
 c
 c  Get rid of the temporary buffers for the integrals
 c

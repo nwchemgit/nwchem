@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.1 2000-08-10 03:00:06 windus Exp $
+C $Id: hess_restart.F,v 1.2 2001-04-05 22:25:06 windus Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -23,11 +23,6 @@ c
                                 ! 1 = 1 e-; 2 = 2 e-
 c
       call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+')
-      if (ga_nodeid().eq.0) then
-        write(6,*) 'The Hessian after contributions: ',restr
-        call flush(6)
-        call hnd_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
-      endif                                                                     
 c
 c  Write hessian out to disk
 c

@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.20 2001-03-27 00:48:16 edo Exp $
+C $Id: hess_cphf.F,v 1.21 2001-04-05 22:25:06 windus Exp $
 C
       subroutine hess_cphf(rtdb)
 c
@@ -11,9 +11,10 @@ c
 #include "hess_info.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
-#include "util.fh"
 #include "nwc_const.fh"
 #include "msgids.fh"
+#include "stdio.fh"
+#include "util.fh"
 c
       integer rtdb 
       integer i, ij, jnd
@@ -26,7 +27,7 @@ c
       integer g_tmp, g_tmp2, g_sol
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
-      logical hf_job, dbug, out
+      logical hf_job, oprint, ocphfprint
       double precision jfact, kfact, tol2e, dmax
       double precision pt5, one, two, four, eight
       data pt5,one,two         /0.5d+00, 1.0d+00, 2.0d+00/
@@ -39,15 +40,14 @@ c
 c
       hf_job = theory .eq. 'hf'
 c
-      write(6,*) 'k_exy at entry ',k_exy
-      call flush(6)
-      dbug     = .false.
-      out      = .true.
-      out      = out.or.dbug
-      if(out) then
-         write(6,*) 'in hess_cphf'
-      endif
-
+c Set up printing
+c
+      oprint = util_print('hess_follow',print_high)
+      oprint = oprint .and. (ga_nodeid().eq.0)
+      ocphfprint = util_print('cphf_cont',print_debug)
+      ocphfprint = ocphfprint .and. (ga_nodeid().eq.0)
+      if (oprint) write(LuOut,*) 'HESS: setting up cphf'
+c
 c     ----- get nocc -----
 c 
 
@@ -114,12 +114,17 @@ c
 c print out some debug info, note that occ and evals are for the
 c beta orbitals if UHF
 c
-       if (out.and.ga_nodeid().eq.0) 
-     .     write(6,*) 'occupations, eigenvalues and vectors'
-       call hnd_prsq(dbl_mb(k_occ),1,num,num)
-       call hnd_prsq(dbl_mb(k_evals),1,num,num)
-       call ga_print(g_vecs(1))
-       if (scftype .eq. 'UHF') call ga_print(g_vecs(2))
+      if (ocphfprint) then
+         write(LuOut,*)
+         write(LuOut,*) 'occupations, eigenvalues and vectors'
+         call hnd_prsq(dbl_mb(k_occ),1,num,num)
+         write(LuOut,*)
+         call hnd_prsq(dbl_mb(k_evals),1,num,num)
+         write(LuOut,*)
+         call ga_print(g_vecs(1))
+         if (scftype .eq. 'UHF') call ga_print(g_vecs(2))
+         write(LuOut,*)
+      endif
 c
 c give back unnecessary memory
 c
@@ -130,12 +135,13 @@ c  Transform the current AO based Fock derivatives to the MO basis
 c
       g_modx =ga_create_atom_blocked ( geom, basis, 'mo df' )
 c
+      if (oprint) write(LuOut,*) 'HESS: setting up Wax and AA'
       ind = 0
       do ndns = 1, ndens
        do in =1,nc
         ind = ind + 1
-        if (out) then
-          write(6,*) 'RHS before MO transformation'
+        if (ocphfprint) then
+          write(LuOut,*) 'RHS before MO transformation', ind
           call ga_print(g_rhs(ind))
         endif
         call ga_zero(g_modx)
@@ -148,13 +154,13 @@ c
      $                         g_vecs(ndns), 1, num,  1, num,
      $                         g_rhs(ind),   1, num,  1, num )
 c
-        if (out) then
-          write(6,*) 'Transformed RHS before symmetrization'
+        if (ocphfprint) then
+          write(LuOut,*) 'Transformed RHS before symmetrization',ind
           call ga_print(g_rhs(ind))
         endif
         call ga_symmetrize(g_rhs(ind))
-        if (out) then
-          write(6,*) 'Transformed RHS after symmetrization'
+        if (ocphfprint) then
+          write(LuOut,*) 'Transformed RHS after symmetrization',ind
           call ga_print(g_rhs(ind))
         endif
 c
@@ -162,8 +168,8 @@ c
 c
 c  Pull out contributions to wax and aa, first getting memory for each.
 c
-        write(6,*) 'nocc and nvirt ',nocc(ndns),nvirt(ndns)
-        call flush(6)
+        if (ocphfprint) 
+     $    write(LuOut,*) 'nocc and nvirt ',nocc(ndns),nvirt(ndns)
         if(.not.ga_create(MT_DBL,nocc(ndns),nvirt(ndns),'g_wax',0,0,
      $     g_wax(ind)))
      $     call errquit('cphf_hess:could not alloc wax array',555) 
@@ -173,20 +179,14 @@ c
 c
 c Need to look up the exact calls, but should be something like
 c
-        write(6,*) 'before the wax copy_patch ',ind
-        call flush(6)
         call ga_copy_patch('N',g_rhs(ind),1,nocc(ndns),nocc(ndns)+1,
      $     num, g_wax(ind),1,nocc(ndns),1,nvirt(ndns))
-        write(6,*) 'before the aa copy_patch ',ind
-        call flush(6)
         call ga_copy_patch('N',g_rhs(ind),1,nocc(ndns),1,nocc(ndns),
      $     g_aa(ind),1,nocc(ndns),1,nocc(ndns))
-        write(6,*) 'after the aa copy_patch ',ind
-        call flush(6)
-        if (out) then
-          write(6,*) 'g_wax(ind) ',ind
+        if (ocphfprint) then
+          write(LuOut,*) 'g_wax(ind) ',ind
           call ga_print(g_wax(ind))
-          write(6,*) 'g_aa(ind) ',ind
+          write(LuOut,*) 'g_aa(ind) ',ind
           call ga_print(g_aa(ind))
         endif
         
@@ -204,6 +204,7 @@ c
 c This is not correct for UHF (need to figure out which orbitals to
 c use for this case)
 c
+      if (oprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       ind = 0
       do ndns = 1, ndens
        do in =1,nc
@@ -220,23 +221,29 @@ c
      $                         g_rhs(ind),   1, num,  1, num )
 
          call ga_symmetrize(g_rhs(ind))
-         write(6,*) 'Ta after transform'
-         call ga_print(g_rhs(ind))
+         if (ocphfprint) then
+           write(LuOut,*)
+           write(LuOut,*) 'Ta after transform',ind
+           call ga_print(g_rhs(ind))
+         endif
          call ga_dscal(g_rhs(ind),-pt5)
-         write(6,*) 'Ta after scaling'
-         call ga_print(g_rhs(ind))
+         if (ocphfprint) then
+           write(LuOut,*)
+           write(LuOut,*) 'Ta after scaling',ind
+           call ga_print(g_rhs(ind))
+         endif
 c
 c get contribution to wax, need to put into ga language 
 c try to do this a row at a time as a ga_add_patch
 c
          do i = 1, nocc(ndns)
-           write(6,*) 'index ',(ndns-1)*nbf+i
+c           write(6,*) 'index ',(ndns-1)*nbf+i
            call ga_add_patch(one,g_wax(ind),i,i,1,nvirt(ndns),
      $       eight*dbl_mb(k_evals+(ndns-1)*nbf+i-1),g_rhs(ind),i,i,
      $       nocc(ndns)+1, num,g_wax(ind),i,i,1,nvirt(ndns))
          enddo
-         if (out) then
-           write(6,*) 'g_wax after T addition'
+         if (ocphfprint) then
+           write(LuOut,*) 'g_wax after T addition',ind
            call ga_print(g_wax(ind))
          endif
 c
@@ -250,22 +257,24 @@ c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
 c dbl_mb(k_evals) and wxy is dbl_mb(k_exy)
 c
+      if (oprint) write(LuOut,*) 'HESS: Ta contribution to Hessian'
       do ndns = 1, ndens
-      write(6,*) 'nocc and ncent before hess_sxsy ',nocc(ndns),ncent
-      call flush(6)
+c      write(6,*) 'nocc and ncent before hess_sxsy ',nocc(ndns),ncent
       call hess_sxsy(dbl_mb(k_exy),dbl_mb(k_evals),g_rhs,
      &    log_mb(k_act),ncent,nocc(ndns),hf_job)
       enddo
 c
-c Print intermediate result
-c
-      write(6,*) 'Hessian after Ta*Tb contribution'
-      call flush(6)
-      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
-c
 c Do final summation of the hessian to get result
 c
       call ga_dgop(msg_hess_exy,dbl_mb(k_exy),n3xyz2,'+') 
+c
+c Print intermediate result
+c
+      if (ocphfprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'Hessian after Ta*Tb contribution'
+        call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      endif
 c
 c  Get rid of some memory
 c
@@ -277,9 +286,9 @@ c adds to g_aa and g_wax.  Ta needs to be transformed back into the AO
 c basis, combined with the integrals, and then transformed back into the
 c MO basis.
 c
-      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) then
-        tol2e = 1.0d-9
-      endif 
+      if (oprint) write(LuOut,*) 'HESS: Modified Fock builds'
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
+     $  tol2e = 1.0d-9
       g_tmp =ga_create_atom_blocked ( geom, basis, 'temp' )
       do ndns = 1, ndens
       do ind = 1, nc
@@ -306,11 +315,10 @@ c
         call ga_copy(g_rhs(ind),g_modx)  ! copy Ta to g_modx
         call ga_zero(g_rhs(ind))   ! zeroed to get the "new" fock matrices
 
-        if (out) then
-          write(6,*) 'Before the fock_2e call for ind ',ind
-          write(6,*) 'nfock, jfact, kfact ',nfock, jfact, kfact
-          write(6,*) 'density like matrix before fock_2e'
-          call flush(6)
+        if (ocphfprint) then
+          write(LuOut,*) 'Before the fock_2e call for ind ',ind
+          write(LuOut,*) 'nfock, jfact, kfact ',nfock, jfact, kfact
+          write(LuOut,*) 'density like matrix before fock_2e'
           call ga_print(g_modx)
         endif
         call int_init(rtdb,1,basis)
@@ -333,10 +341,12 @@ c     Activate XC contribution to OO derivative Fock matrix
         call int_terminate()
         call schwarz_tidy()
         if(skelsym) call 
-     .       sym_symmetrize(geom,basis,.false.,g_rhs(ind))
-       write(6,*) 'fock matrix after fock_2e'
-       call flush(6)
-       call ga_print(g_rhs(ind))
+     $       sym_symmetrize(geom,basis,.false.,g_rhs(ind))
+        if (ocphfprint) then
+          write(LuOut,*)
+          write(LuOut,*) 'fock matrix after fock_2e',ind
+          call ga_print(g_rhs(ind))
+        endif
         call ga_zero(g_modx) ! prepare for transformation
 
         call ga_matmul_patch ('t','n', 1.D0, 0.D0,
@@ -348,8 +358,8 @@ c     Activate XC contribution to OO derivative Fock matrix
      $                         g_modx,       1, num,    1, num,
      $                         g_vecs(1),    1, num,    1, num,
      $                         g_rhs(ind),   1, num,    1, num ) 
-        if (out) then
-          write(6,*) 'after transformation back to MO basis'
+        if (ocphfprint) then
+          write(LuOut,*) 'after transformation back to MO basis',ind
           call ga_print(g_rhs(ind))
         endif
 
@@ -373,28 +383,29 @@ c
 c
 c Print out intermediate results
 c
-      write(6,*) 'WAX after fock contribution'
-      call flush(6)
-      do ind = 1, nc
-        call ga_print(g_wax(ind))
-      enddo
-      write(6,*) 'AA after fock contribution'
-      call flush(6)
-      do ind = 1, nc
-        call ga_print(g_aa(ind))
-      enddo
-      write(6,*) 'g_rhs after fock contribution'
-      call flush(6)
-      do ind = 1, nc
-        call ga_print(g_rhs(ind))
-      enddo
+      if (ocphfprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'WAX after fock contribution'
+        do ind = 1, nc
+          call ga_print(g_wax(ind))
+        enddo
+        write(LuOut,*)
+        write(LuOut,*) 'AA after fock contribution'
+        do ind = 1, nc
+          call ga_print(g_aa(ind))
+        enddo
+        write(LuOut,*)
+        write(LuOut,*) 'g_rhs after fock contribution'
+        do ind = 1, nc
+          call ga_print(g_rhs(ind))
+        enddo
+      endif
 c
 c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
 c Ta([i-1]*nocc+j,y)*AA([i-1]*nocc+j,x)
 c This is the hondo equivalent of cpwab2
 c
-      write(6,*) 'k_exy at Ta*AA sum ',k_exy
-      call flush(6)
+      if (oprint) write(LuOut,*) 'HESS: Ta and AA contributions'
       do ndns = 1, ndens
       ij = 0
       do jnd = 1, nc
@@ -409,14 +420,14 @@ c
         enddo
       enddo
       enddo
-      write(6,*) 'k_exy after Ta*AA sum ',k_exy
-      call flush(6)
 c
 c Print intermediate result
 c
-      write(6,*) 'Hessian after Ta*AA contribution'
-      call flush(6)
-      call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      if (ocphfprint) then
+        write(LuOut,*)
+        write(LuOut,*) 'Hessian after Ta*AA contribution'
+        call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      endif
 c
 c get rid of some extra memory
 c
@@ -428,19 +439,14 @@ c
         if (.not.ga_destroy(g_rhs(ind))) call errquit
      $    ('cannot destroy g_rhs ',ind)
       enddo
-      write(6,*) 'k_exy after ga destroys ',k_exy
-      call flush(6)
-
 c
 c Now actually set up the CPHF matrices to run through solutions one at a
 c time.
 c
+      if (oprint) write(LuOut,*) 'HESS: CPHF contributions'
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
  
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
-
-      write(6,*) 'k_exy after getting file names ',k_exy
-      call flush(6)
 
       do ndns = 1, ndens
         if (.not.ga_create(MT_DBL,nvirt(ndns)*nocc(ndns),1,'cphf_tmp',
@@ -453,14 +459,13 @@ c
      $     0,0,g_sol))
      $     call errquit('hess_cphf:could not alloc sol array',555) 
       do ind = 1, nc
-        write(6,*) 'before the tmp copy_patch ',ind
-        call flush(6)
         call ga_copy_patch('T',g_wax(ind),1,nocc(ndns),1,nvirt(ndns),
      $    g_tmp,1,nvirt(ndns)*nocc(ndns),1,1)   ! put into format for current cphf
-
-        write(6,*) 'g_wax_tr ',ind
-        call flush(6)
-        call ga_print(g_tmp)
+        if (ocphfprint) then
+          write(LuOut,*)
+          write(LuOut,*) 'g_wax_tr ',ind
+          call ga_print(g_tmp)
+        endif
         call ga_maxelt(g_tmp,dmax)
         if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
         if(.not.file_write_ga(cphf_rhs,g_tmp)) call errquit
@@ -468,31 +473,32 @@ c
 c
 c Actually run the CPHF on one rhs
 c
-      write(6,*) 'k_exy before cphf ',k_exy,ind
-      call flush(6)
         if (.not.cphf(rtdb)) call errquit
      $    ('hess_cphf: failure in cphf for index ',ind)
-      write(6,*) 'k_exy after cphf ',k_exy,ind
-      call flush(6)
 c
 c Get the solution off of disk, put it into appropriate shape and then 
 c combine it with the wax matrices to get final contribution to hessian.
 c
         if(.not.file_read_ga(cphf_sol,g_tmp)) call errquit
      $    ('hess_cphf:could not read cphf_rhs',ind)
-        write(6,*) 'before the sol copy_patch ',ind
-        call flush(6)
-        call ga_print(g_tmp)
+        if (ocphfprint) then
+          write(LuOut,*)
+          write(LuOut,*) 'before the sol copy_patch ',ind
+          call ga_print(g_tmp)
+        endif
         call ga_copy_patch('N',g_tmp,1,nvirt(ndns)*nocc(ndns),1,1,
      $    g_tmp2,1,nvirt(ndns),1,nocc(ndns))
-      write(6,*) 'g_tmp2 ',ind
-      call flush(6)
-      call ga_print(g_tmp2)
+        if (ocphfprint) then
+          write(LuOut,*)
+          write(LuOut,*) 'g_tmp2 ',ind
+          call ga_print(g_tmp2)
+        endif
         call ga_transpose(g_tmp2,g_sol)
-      write(6,*) 'k_exy before hess_pxfy ',k_exy
-      write(6,*) 'g_sol after CPHF for ind ',ind
-      call flush(6)
-      call ga_print(g_sol)
+        if (ocphfprint) then
+          write(LuOut,*)
+          write(LuOut,*) 'g_sol after CPHF for ind ',ind
+          call ga_print(g_sol)
+        endif
         call hess_pxfy(dbl_mb(k_exy),g_sol,g_wax,log_mb(k_act),ncent,
      $    ind, hf_job)
         endif
@@ -507,10 +513,10 @@ c
 c
 c Print intermediate result
 c
-      if(ga_nodeid().eq.0) then
-         write(6,*) 'Hessian after CPHF contribution'
-         call flush(6)
-         call hnd_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      if(ocphfprint) then
+         write(LuOut,*)
+         write(LuOut,*) 'Hessian after CPHF contribution'
+         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
       endif
 c
 c Get rid of some extra memory

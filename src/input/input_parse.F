@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.60 2001-02-16 18:44:42 windus Exp $
+C     $Id: input_parse.F,v 1.61 2001-04-05 22:25:07 windus Exp $
       implicit none
       integer rtdb              ! [input]
 #include "inp.fh"
@@ -151,6 +151,8 @@ c
 * this reordered test will match freq and freq*
             else if (inp_compare(.false.,'freq',test)) then  
                call freq_vib_input(rtdb)
+            else if (inp_compare(.false.,test,'hessian')) then
+               call hess_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c
