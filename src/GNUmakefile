@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.32 1995-11-27 02:11:03 d3g681 Exp $
+# $Id: GNUmakefile,v 1.33 1995-11-27 03:05:52 d3g681 Exp $
 
 include config/makefile.h
 
@@ -16,7 +16,7 @@ include config/makefile.h
 .PHONY:	nwchem_config
 
 .PRECIOUS:	$(BINDIR)/nwchem nwchem
-$(BINDIR)/nwchem nwchem:	directories libraries
+all $(BINDIR)/nwchem nwchem:	directories libraries
 	$(MAKE) nwchem.o stubs.o
 	$(LINK.f) -o $(BINDIR)/nwchem nwchem.o stubs.o $(LIBS)
 	/bin/rm -f nwchem.o
@@ -41,7 +41,8 @@ test nwchem_test:	nwchem.o stubs.o
 # are updated before nwchem is compiled
 
 libraries:
-	for dir in $(SUBDIRS); do \
+	@for dir in $(SUBDIRS); do \
+		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir || exit 1 ;  \
 	done
 
@@ -50,14 +51,16 @@ showdir:
 
 clean:
 	-$(RM) nwchem core *.o *.a *.trace
-	for dir in $(SUBDIRS) ../tests; do \
+	@for dir in $(SUBDIRS) ../tests; do \
+		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir clean || exit 1 ;  \
 	done
 
 realclean:	
 	-$(RM) nwchem core *.o *.a *.trace makefile.bak
 	-$(RM) *~ \#*\#
-	for dir in $(SUBDIRS) ../tests; do \
+	@for dir in $(SUBDIRS) ../tests; do \
+		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir realclean || exit 1 ;  \
 	done
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
