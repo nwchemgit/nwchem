@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-02-17 05:28:19 marat Exp $
+# $Id: GNUmakefile,v 1.2 2003-02-17 22:07:19 marat Exp $
 #
 
-          OBJ =  paw_xc.o
+          OBJ =  paw_xc.o paw_vosko.o
 #          HEADERS = paw_comp_charge_data.fh
 
 
