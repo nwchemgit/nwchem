@@ -1,7 +1,6 @@
-#$Id: GNUmakefile,v 1.29 1995-04-19 00:43:31 rg240 Exp $
+#$Id: GNUmakefile,v 1.30 1995-05-17 16:30:35 mg650 Exp $
 
         OBJ = atwtest.o \
-              brdcst_vec.o \
 	      direct_mp2.o \
 	      ga_create_JKblocked.o \
 	      ga_check_JKblocked.o \
@@ -15,6 +14,7 @@
 OBJ_OPTIMIZE = \
 	      moints_2x.o \
               moints_6x.o \
+	      moints_ccsd.o \
               moints_aux2.o 
 
     LIBRARY = libmoints.a
@@ -22,6 +22,7 @@ OBJ_OPTIMIZE = \
   USES_BLAS = \
 	      moints_2x.F \
               moints_6x.F \
+	      moints_ccsd.F \
               moints_aux2.F 
 
 LIB_DEFINES =  -DDEBUG_PRINT

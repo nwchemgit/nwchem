@@ -2355,3 +2355,75 @@ c
        end
 
 #endif /* ! USEGEMM */
+c
+c
+c
+c Unused routines (may come in handy later)
+c
+c
+c
+c
+#if defined(MOINTS_PAR_STATS)
+
+c
+c Broadcast all nodes' value. Result are
+c returned in ordered vector
+c
+
+       subroutine brdcst_ivec( value, v )
+C$Id: graveyard,v 1.5 1995-05-17 16:30:33 mg650 Exp $
+       implicit none
+       integer intlen
+#ifdef KSR
+       parameter (intlen=8)
+#else
+       parameter (intlen=4)
+#endif
+#include "tcgmsg.fh"
+#include "global.fh"
+#include "msgids.fh"
+       integer value, v(*)
+       integer myid, numnodes, itmp, i
+
+       numnodes = ga_nnodes()
+       myid = ga_nodeid()
+       do i=0,numnodes-1
+         if (i.eq.myid) itmp = value
+         call ga_brdcst(Msg_BcstVec,itmp,intlen,i)
+         v(i+1) = itmp
+       enddo
+       return
+       end
+
+
+
+       subroutine brdcst_dvec( value, v, avg )
+       implicit none
+       integer msgtype,dbllen
+       parameter (msgtype=1973)
+       parameter (dbllen=8)
+#include "tcgmsg.fh"
+#include "global.fh"
+       double precision value, v(*), avg
+       integer myid, numnodes, i
+       double precision dtmp
+
+       avg = 0.d0
+       numnodes = ga_nnodes()
+       myid = ga_nodeid()
+       do i=0,numnodes-1
+         if (i.eq.myid) dtmp = value
+         call ga_brdcst(msgtype,dtmp,dbllen,i)
+         v(i+1) = dtmp
+         avg = avg + dtmp
+       enddo
+       avg = avg/numnodes
+       return
+       end
+#else
+       subroutine brdcst_ivec( value, v )
+       implicit none
+       integer value, v(*)
+       return
+       end
+#endif
