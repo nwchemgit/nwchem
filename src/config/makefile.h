@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.475 2004-09-02 17:00:29 edo Exp $
+# $Id: makefile.h,v 1.476 2004-09-06 22:14:02 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1298,8 +1298,8 @@ ifeq ($(LINUXCPU),x86)
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
-    _IFCV80= $(shell ifc -v  2>&1|egrep 8|awk ' /8.0/  {print "Y"}')
-    _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8./  {print "Y"}')
+    _IFCV80= $(shell ifc -v  2>&1|egrep 8|awk ' /8\.0/  {print "Y"}')
+    _IFCV8= $(shell ifc -v  2>&1|egrep 8|awk ' /8\./  {print "Y"}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
       ifeq ($(FC),ifc)
@@ -1469,8 +1469,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-       _IFCV81= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8.1/  {print "Y"}')
-       _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8./  {print "Y"}')
+       _IFCV81= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8\.1/  {print "Y"}')
+       _IFCV8= $(shell efc -V  2>&1|egrep -v Inte|egrep -v efc |egrep 8|awk ' /8\./  {print "Y"}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
          FOPTIONS += -quiet
