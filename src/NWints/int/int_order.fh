@@ -1,0 +1,6 @@
+c
+      integer num_types
+      parameter (num_types = 8)
+      character*2 shell_types(-1:(num_types-2))
+      common /c_int_order/shell_types
+c

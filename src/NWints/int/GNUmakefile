@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.25 1996-09-24 21:40:37 d3e129 Exp $
+# $Id: GNUmakefile,v 1.26 1996-09-30 18:59:21 d3e129 Exp $
 
     OBJ          = hf3PEabc.o hf3mkr.o hf3pot.o 
     OBJ_OPTIMIZE = \
@@ -28,7 +28,7 @@
 
   USES_BLAS = hf2oi.f hfkei.f hfnai.f
 
-  LIB_TARGETS = showxyz showxyz.o
+  LIB_TARGETS = showxyz showxyz.o int_order.o int_order
   LIBRARY = libnwints.a
 
 include ../../config/makefile.h
@@ -41,6 +41,9 @@ write:
 
 showxyz:	showxyz.o
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ showxyz.o $(LIBS)
+int_order:	int_order.o
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ int_order.o $(LIBS) -lutil
+int_order.o:	int_order.F	int_order.fh
 
 doc:	3ctrpot.tex
 	latex 3ctrpot
