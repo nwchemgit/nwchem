@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.26 1996-09-19 01:17:15 d3g681 Exp $
+c  $Id: mcscf_orb.F,v 1.27 1996-11-03 02:40:40 d3g681 Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -440,8 +440,9 @@ c
        call mcscf_save_vec( rtdb, geom, basis, nbf, orbe, g_newvecs )
 c
 c  Update Coulomb and Exchange operator
+c     rjh ... must do it if have canonicalized even if exact energy LS
 c
-       if ((oe2approx).or.(.not.(ocirelax))) then
+       if ((ocanon) .or. (oe2approx).or.(.not.(ocirelax))) then
          if (omcscfprof) call pstat_on(ps_4index)
          call moints_build_2x( basis, ohalf, oskel,
      $                         molo, molo, mohi, 1, nbf,
