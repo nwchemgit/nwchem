@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.6 2001-12-28 19:04:25 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.7 2001-12-28 20:23:57 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -157,8 +157,6 @@ c     dte = 1.0d0
      >                        psi_geodesic_denergy,
      >                        0.5d0,tmin,deltae,2)
          call psi_geodesic_final(tmin)
-c     write(*,*) "tmin:",tmin,tmin/max_sigma,max_sigma
-c     write(*,*) 
          deltac = rho_error()
 
 *        **** exit loop early ****
@@ -167,7 +165,7 @@ c     write(*,*)
          end if
      
 *        **** get the new gradient - also updates densities****
-         call psi_2get_Tgradient(dcpl_mb(G0(1)),E0)
+         call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
          call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
 
 
@@ -194,7 +192,6 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        0.5d0,tmin,deltae,2)
       call psi_geodesic_final(tmin)
       deltac = rho_error()
-c     write(*,*) "END,tmin:",tmin,tmin/max_sigma,max_sigma
 
 *     **** free memory ****
  30   value = MA_pop_stack(G0(2))

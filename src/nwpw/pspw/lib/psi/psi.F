@@ -711,8 +711,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     *		psi_2get_Tgradient	*
 *     *					*
 *     ***********************************
-      subroutine psi_2get_Tgradient(THpsi,Eout)
+      subroutine psi_2get_Tgradient(option,THpsi,Eout)
       implicit none
+      integer    option
       complex*16 THpsi(*)
       real*8     Eout
 
@@ -748,11 +749,12 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       if (.not. value) 
      >   call errquit('out of stack memory in psi_1get_Tradient',0)
 
-
-      call electron_run(dcpl_mb(psi2(1)),
-     >                   dbl_mb(rho2(1)),
-     >                  dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+      if (option.le.1) then
+        call electron_run(dcpl_mb(psi2(1)),
+     >                     dbl_mb(rho2(1)),
+     >                    dcpl_mb(dng2(1)),
+     >                     dbl_mb(rho2_all(1)))
+      end if
 
       Eout =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
