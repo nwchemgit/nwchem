@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.100 1999-06-09 23:56:50 d3e129 Exp $
+# $Id: make_nwchem_config,v 1.101 1999-06-22 22:42:16 d3e129 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver ideaz dftgrad scfaux cphf ccsd vib mcscf prepar \
         nwargos esp hessian plane_wave selci dplot mp2_grad oimp2 \
-        property gapss fft rimp2_grad nbo python analyz nwmd cafe space
+        property gapss pspw fft rimp2_grad nbo python analyz nwmd cafe space
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -28,7 +28,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
                     -lvib -lutil -lrimp2g -lrimp2 -lproperty -lnwints -lideaz \
-		    -lprepar -lnwargos -lnwmd -lcafe -lspace -lanalyze\
+		    -lprepar -lnwargos -lnwmd -lpspw -lcafe -lspace -lanalyze\
                     -lpfft -ldplot -loimp2 -lnbo -lpython
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -62,7 +62,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmm argos alldev pnnl pnnldev
 
-EXP_all = $(filter-out nbo python develop gapss oimp2 ideaz scfaux plane_wave rimp2_grad,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) nbo python 
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -139,6 +139,7 @@ MODULES := $(patsubst nwmd,nwmd cafe space fft ddscf,$(MODULES) )
 MODULES := $(patsubst develop,develop ddscf,$(MODULES) )
 
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
+MODULES := $(patsubst pspw,pspw fft,$(MODULES) )
 
 MODULES := $(patsubst ddscf,ddscf nwdft atomscf NWints,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
@@ -194,6 +195,7 @@ MOD_LIBS := $(patsubst dplot,-ldplot,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst property,-lproperty,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nbo,-lnbo,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst pspw,-lpspw,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
@@ -235,6 +237,7 @@ STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst pspw,pspw task_pspw pspw_input,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 

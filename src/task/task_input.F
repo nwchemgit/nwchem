@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.16 1998-04-24 16:40:54 mdupuis Exp $
+* $Id: task_input.F,v 1.17 1999-06-22 22:42:29 d3e129 Exp $
 *
       implicit none
 #include "stdio.fh"
@@ -20,7 +20,7 @@ c     task [qmmm] <string theory> [<string operation = energy>] [numerical || an
 c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
-      character*20 test, theory, operation
+      character*30 test, theory, operation
       character*128 err_string
 c
       theory    = ' '
@@ -65,6 +65,27 @@ c
             ignore = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
             oqmmm = .true.
+         else if (inp_compare(.false.,test,
+     >                        'steepest_descent')) then
+            operation='steepest_descent'
+         else if (inp_compare(.false.,test,
+     >                        'Car-Parrinello')) then
+            operation='Car-Parrinello'
+         else if (inp_compare(.false.,test,
+     >                        'wavefunction_initializer')) then
+            operation='wavefunction_initializer'
+         else if (inp_compare(.false.,test,
+     >                        'v_wavefunction_initializer')) then
+            operation='v_wavefunction_initializer'
+         else if (inp_compare(.false.,test,
+     >                        'wavefunction_expander')) then
+            operation='wavefunction_expander'
+         else if (inp_compare(.false.,test,
+     >                        'psp_formatter')) then
+            operation='psp_formatter'
+         else if (inp_compare(.false.,test,
+     >                        'psp_generator')) then
+            operation='psp_generator'
          else if (theory .eq. ' ') then
             theory = test
             call inp_lcase(theory)

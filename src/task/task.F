@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.33 1999-06-14 14:43:55 d3j191 Exp $
+* $Id: task.F,v 1.34 1999-06-22 22:42:28 d3e129 Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -24,7 +24,7 @@ c
 c     This needs extending to accomodate QM/MM and other mixed methods
 c     by having both MM and QM pieces specified (e.g., task md dft).
 c
-      character*20 theory, operation
+      character*30 theory, operation
       logical status, ignore
       character*80 errmsg
       double precision task_cpu, task_wall
@@ -37,6 +37,7 @@ c
       logical task_hessian, task_saddle, task_lst,task_dynamics
       logical task_qmmm, task_python, task_nbo,task_thermo
       logical task_version
+      logical task_pspw
 c
       external rjhtest, raktest, atwtest, task_check_sum, mdmain, cphf
       external nwargos, property, dplot, gapss, task_shell, moints_full
@@ -45,6 +46,7 @@ c
       external task_hessian, task_saddle, task_lst,task_dynamics
       external task_version, task_python, task_nbo,task_thermo
       external kgdtest
+      external task_pspw
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
@@ -67,7 +69,7 @@ c
       if (task_qmmm) then
         if (theory.eq.'nwmd'.or.theory.eq.'md'.or.theory.eq.'nwargos')
      + call errquit('task:theory must be a QM method for QMMM',911)
-c        status = nwargos(rtdb)
+*        status = nwargos(rtdb)
         status = nwmd(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
           errmsg = ' '
@@ -157,7 +159,10 @@ c
          goto 99999
       endif
 c
- 100  if (inp_compare(.false., 'energy', operation)) then
+c     *** task_pspw handles pspw specific "operations" ***
+ 100  if (inp_compare(.false.,'pspw',theory)) then
+        status = task_pspw(rtdb)
+      else if (inp_compare(.false., 'energy', operation)) then
          status = task_energy(rtdb)
       else if (inp_compare(.false., 'gradient', operation)) then
          status = task_gradient(rtdb)
