@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.102 2003-10-25 16:30:41 edo Exp $
+* $Id: opt_drv.F,v 1.103 2003-12-22 20:24:36 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1213,7 +1213,10 @@ c
 c     have already called bandbi but must ensure no cartesian
 c     constraints have been imposed since then cannot use internals
          if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type, 
-     $        nactive_atoms, l_actlist)) then
+     $        nactive_atoms, l_actlist) .or.
+     $        rtdb_ma_get(rtdb, 'geometry:inactlist', ma_type,
+     $        nactive_atoms, l_actlist)
+     $       ) then
             if (ga_nodeid() .eq. 0) then
                write(6,666)
  666           format(/,/,
@@ -2236,6 +2239,8 @@ c
       call geom_hnd_put_data('c', dbl_mb(k_pmat), ncart**2)
 c     
       if ( rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
+     $     nelem, date) .or.
+     $     rtdb_get_info(rtdb, 'geometry:inactlist', ma_type, 
      $     nelem, date) .or.
      $     isystype .ne. 0) then
 c     
