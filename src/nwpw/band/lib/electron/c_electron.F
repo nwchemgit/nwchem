@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.6 2002-01-11 18:25:59 bylaska Exp $
+* $Id: c_electron.F,v 1.7 2002-01-15 01:39:56 bylaska Exp $
 *
 
 *     ***********************************
@@ -497,8 +497,8 @@
       integer n,neall
 
        
-      neall = ne(1)+ne(2)
       n     = ne(1)
+      neall = ne(1)+ne(2)
 
 *     **** no preconditioning ***
       call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,

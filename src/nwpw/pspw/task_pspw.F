@@ -1,7 +1,8 @@
+*
+* $Id: task_pspw.F,v 1.2 2002-01-15 01:39:56 bylaska Exp $
+*
+
       logical function task_pspw(rtdb)
-c
-c $Id: task_pspw.F,v 1.1 2001-08-30 00:22:02 edo Exp $
-c
       implicit none
 #include "inp.fh"
 #include "global.fh"
