@@ -6,14 +6,12 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD )
-c $Id: stpr_driver.F,v 1.2 1994-10-16 06:19:40 d3e129 Exp $
+c $Id: stpr_driver.F,v 1.3 1994-10-26 22:22:50 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
       LOGICAL SECO, SWSEC, SWFIR
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
-      COMMON / STAPES / ITAP05, ITAP06, ITAP41,
-     &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / SWITCH / SECO, SWSEC, SWFIR
