@@ -1,5 +1,5 @@
 *
-* $Id: psi_new.F,v 1.7 2002-04-29 16:04:11 bylaska Exp $
+* $Id: psi_new.F,v 1.8 2002-04-30 18:29:45 bylaska Exp $
 *
 
 *     ***********************************
@@ -66,25 +66,26 @@
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
       t = icharge - tcharge       !** total number of electrons **
+      x = t
 
 *     **** reassign spin to agree with total number of electrons ****
-      if ((mod(t,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+      if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
          ispin = 2
          call control_ispin_set(ispin)
       end if
 
 *     **** reassign mult to agree with total number of electrons ****
-      if ((mod(t,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
+      if ((mod(x,2).ne.0) .and.(mod(mult,2).ne.0)) then !** odd number of electrons and mult odd **
          mult = mult - 1
-         do while (mult.gt.(t+1))
+         do while (mult.gt.(x+1))
             mult = mult - 2
          end do
          if (mult.lt.1) mult = 2
          call control_multiplicity_set(mult)
       end if
-      if ((mod(t,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
+      if ((mod(x,2).eq.0) .and.(mod(mult,2).eq.0)) then !** even number of electrons and mult even **
          mult = mult - 1
-         do while (mult.gt.(t+1))
+         do while (mult.gt.(x+1))
             mult = mult - 2
          end do
          if (mult.lt.1) mult = 1
