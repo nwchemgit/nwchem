@@ -2,7 +2,7 @@
      + lnams,csa,isar,isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm,iwmr,iwfnd,
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box)
 c
-c $Id: pre_rdpdb.F,v 1.20 2001-05-01 23:39:09 d3j191 Exp $
+c $Id: pre_rdpdb.F,v 1.21 2002-02-02 04:29:26 d3j191 Exp $
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
 c
       character*6 name1,name2
       character*80 card
-      integer i,last,nprv,num,iw,length,mdl,nump,ioff
+      integer i,last,nprv,num,iw,length,mdl,nump,ioff,lrgpdb
       real*8 x,y,z
       character*3 namr
       character*4 nama
@@ -37,6 +37,7 @@ c
       nump=0
       ioff=0
       pchain=' '
+      lrgpdb=0
 c
       length=index(filpdb,' ')-1
       if(util_print('where',print_debug)) then
@@ -102,6 +103,13 @@ c
       goto 100
       endif
 c
+c     lrgpdb option
+c
+      if(card(1:6).eq.'LRGPDB') then
+      lrgpdb=1
+      goto 100
+      endif
+c
 c     MODEL
 c
       if(model.ne.mdl) then
@@ -128,11 +136,22 @@ c
 c
       if(mdl.ne.model) goto 100
 c
+      if(lrgpdb.eq.0) then
       read(card,1002,end=9999,err=9999) hdr,nama,alocal,namr,achain,num,
      + x,y,z
+      else
+      read(card,2002,end=9999,err=9999) hdr,nama,alocal,namr,num,
+     + x,y,z
+      achain=' '
+      endif
  1002 format(a6,6x,a4,a1,a3,1x,a1,i4,4x,3f8.3)
+ 2002 format(a6,6x,a4,a1,a3,i6,4x,3f8.3)
       if(util_print('where',print_debug)) then
+      if(lrgpdb.eq.0) then
       write(lfnout,1002) hdr,nama,alocal,namr,achain,num,x,y,z
+      else
+      write(lfnout,2002) hdr,nama,alocal,namr,num,x,y,z
+      endif
       endif
       if(alocal.ne.' '.and.alocal.ne.altloc.and.altloc.ne.'*') goto 100
       if(achain.ne.' '.and.achain.ne.chain.and.chain.ne.'*') goto 100

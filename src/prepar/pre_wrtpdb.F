@@ -1,4 +1,4 @@
-      logical function pre_wrtpdb(lfnout,lfnpdb,filpdb,iopt,box,
+      logical function pre_wrtpdb(lfnout,lfnpdb,lrgpdb,filpdb,iopt,box,
      + num,amass,mat,
      + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert)
 c
-c $Id: pre_wrtpdb.F,v 1.38 2002-01-31 23:05:40 d3j191 Exp $
+c $Id: pre_wrtpdb.F,v 1.39 2002-02-02 04:29:26 d3j191 Exp $
 c
       implicit none
 c
@@ -19,7 +19,7 @@ c
       external pre_atnam,pre_atsiz,pre_merge
 c
       integer lfnout,lfnpdb,iopt,msa,nsa,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
-      integer lfnmrg
+      integer lfnmrg,lrgpdb
       character*255 filpdb,filmrg(100)
       integer num(mat),isat(msa),isgm(msa),imol(msa),ifra(msa),iwat(mwa)
       character*16 cwa(mwa),csa(msa)
@@ -75,6 +75,7 @@ c
 c
       if(nxrep.le.1.and.nyrep.le.1.and.iabs(nzrep).le.1) then
 c
+      if(lrgpdb.eq.0) then
       write(lfnpdb,1000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0
  1000 format(
      + 'HEADER',/,
@@ -83,6 +84,18 @@ c
      + 'TITLE    3',/,
      + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
      + 'CRYST1',3f9.3,3f7.2)
+      else
+      write(lfnpdb,2000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0
+ 2000 format(
+     + 'HEADER',/,
+     + 'TITLE     ',/,
+     + 'TITLE    2',/,
+     + 'TITLE    3',/,
+     + 'REMARK   4 YYYY DOES NOT COMPLY WITH FORMAT V. 2.1,',
+     + ' 25-OCT-1996',/,
+     + 'CRYST1',3f9.3,3f7.2,/,
+     + 'LRGPDB')
+      endif
 c
       ioff=0
 c      if(filmrg(1:1).ne.' ') then
@@ -120,9 +133,15 @@ c
       if(sname(1:1).eq.'_') sname(1:1)=' '
       if(sname(2:2).eq.'_') sname(2:2)=' '
       if(sname(3:3).eq.'_') sname(3:3)=' '
+      if(lrgpdb.eq.0) then
       write(lfnpdb,1001) i,csa(i)(11:14),sname,' ',
      + isgm(i)+ioff,(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
+      else
+      write(lfnpdb,2001) i,csa(i)(11:14),sname,
+     + isgm(i)+ioff,(1.0d1*xs(k,i),k=1,3),temp,pre_atnam(num(isat(i)))
+      endif
  1001 format('ATOM',i7,1x,a4,1x,a3,1x,a1,i4,4x,3f8.3,6x,f6.2,4x,a2)
+ 2001 format('ATOM',i7,1x,a4,1x,a3,i6,4x,3f8.3,6x,f6.2,4x,a2)
       if(isgm(i).gt.nums) nums=isgm(i)
     1 continue
       else
@@ -165,9 +184,15 @@ c
       endif
    34 continue
 c
+      if(lrgpdb.eq.0) then
       write(lfnpdb,1000) 1.0d1*dble(nxrep)*drep(1),
      + 1.0d1*dble(nyrep)*drep(2),1.0d1*dble(nzrep)*drep(3),
      + 90.0,90.0,90.0
+      else
+      write(lfnpdb,2000) 1.0d1*dble(nxrep)*drep(1),
+     + 1.0d1*dble(nyrep)*drep(2),1.0d1*dble(nzrep)*drep(3),
+     + 90.0,90.0,90.0
+      endif
 c
       ioff=0
       if(nmerge.gt.0) then
@@ -249,6 +274,7 @@ c
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
+      if(lrgpdb.eq.0) then
       if(nzrep.gt.0) then
       write(lfnpdb,1001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
      + char(icharr),isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
@@ -265,6 +291,27 @@ c
      + char(icharr),isgm(i)+ioff+isoff,-1.0d1*(y(1)+dbx),
      + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
+      endif
+      endif
+      else
+      if(char(icharr).ne.' ') call errquit('Error in LRGPDB ',icharr)
+      if(nzrep.gt.0) then
+      write(lfnpdb,2001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
+     + temp,pre_atnam(num(isat(i)))
+      else
+      if(izrep.eq.1) then
+      write(lfnpdb,2001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)-dbz),
+     + temp,pre_atnam(num(isat(i)))
+      else
+      write(lfnpdb,2001) i+iaoff,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,-1.0d1*(y(1)+dbx),
+     + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
+     + temp,pre_atnam(num(isat(i)))
+      endif
       endif
       endif
       if(isgm(i).gt.nums) nums=isgm(i)
@@ -380,6 +427,7 @@ c
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
       natom=natom+1
+      if(lrgpdb.eq.0) then
       if(nzrep.gt.0) then
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
      + char(icharr),isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
@@ -396,6 +444,27 @@ c
      + char(icharr),isgm(i)+ioff+isoff,-1.0d1*(y(1)+dbx),
      + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
+      endif
+      endif
+      else
+      if(char(icharr).ne.' ') call errquit('Error in LRGPDB ',icharr)
+      if(nzrep.gt.0) then
+      write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
+     + temp,pre_atnam(num(isat(i)))
+      else
+      if(izrep.eq.1) then
+      write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)-dbz),
+     + temp,pre_atnam(num(isat(i)))
+      else
+      write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,-1.0d1*(y(1)+dbx),
+     + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
+     + temp,pre_atnam(num(isat(i)))
+      endif
       endif
       endif
       nsegm=isgm(i)+isoff
@@ -406,6 +475,7 @@ c
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
       natom=natom+1
+      if(lrgpdb.eq.0) then
       if(nzrep.gt.0) then
       write(lfnpdb,1001) natom,csa(i)(11:14),csa(i)(1:3),
      + char(icharr),isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
@@ -422,6 +492,27 @@ c
      + char(icharr),isgm(i)+ioff+isoff,-1.0d1*(y(1)+dbx),
      + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
      + temp,pre_atnam(num(isat(i)))
+      endif
+      endif
+      else
+      if(char(icharr).ne.' ') call errquit('Error in LRGPDB ',icharr)
+      if(nzrep.gt.0) then
+      write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)+dbz),
+     + temp,pre_atnam(num(isat(i)))
+      else
+      if(izrep.eq.1) then
+      write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,1.0d1*(y(1)+dbx),
+     + 1.0d1*(y(2)+dby),1.0d1*(y(3)-dbz),
+     + temp,pre_atnam(num(isat(i)))
+      else
+      write(lfnpdb,2001) natom,csa(i)(11:14),csa(i)(1:3),
+     + isgm(i)+ioff+isoff,-1.0d1*(y(1)+dbx),
+     + -1.0d1*(y(2)+dby),-1.0d1*(y(3)-dbz),
+     + temp,pre_atnam(num(isat(i)))
+      endif
       endif
       endif
       nsegm=isgm(i)+isoff
@@ -567,8 +658,8 @@ c
       close(unit=lfnpdb)
 c
       if(util_print('files',print_default)) then
-      write(lfnout,2000) filpdb(1:length)
- 2000 format(' Created pdb',t40,a,/)
+      write(lfnout,3000) filpdb(1:length)
+ 3000 format(' Created pdb',t40,a,/)
       endif
 c
       pre_wrtpdb=.true.

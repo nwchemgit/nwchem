@@ -4,7 +4,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg)
 c
-c $Id: pre_mkrst.F,v 1.74 2002-01-30 21:08:26 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.75 2002-02-02 04:29:26 d3j191 Exp $
 c
       implicit none
 c
@@ -56,7 +56,7 @@ c
 c
       logical lslvnt,ldistr,lsolva,lcryst,lnames
       integer length,len,islv,idum1,idum2,idum3,idum4,iwater,irenum
-      integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang
+      integer nxrep,nyrep,nzrep,itran,jtran,i,j,k,irot,jrot,mlang,lrgpdb
       real*8 xtran(3),xrot(3),arot
       real*8 zdist,xr(3,2),boxmax
 c
@@ -651,13 +651,13 @@ c     write pdb file
 c     --------------
 c
       if(card(1:6).eq.'wr_pdb') then
-      read(card(7:7),'(i1)') irenum
-      if(card(8:13).eq.'solute') then
-      read(card(15:24),'(i10)') iopt
+      read(card(7:8),'(2i1)') irenum,lrgpdb
+      if(card(9:14).eq.'solute') then
+      read(card(16:25),'(i10)') iopt
       if(iopt.lt.0) iopt=nwmc
-      filnam=card(25:80)
+      filnam=card(26:80)
       else
-      filnam=card(8:80)
+      filnam=card(9:80)
       iopt=nwm+nwmc
       endif
       length=index(filnam,' ')-1
@@ -677,7 +677,7 @@ c
       mlang=nxrep*nyrep*iabs(nzrep)
       if(.not.ma_push_get(mt_int,mlang,'lang',l_lang,i_lang))
      + call errquit('ma_push_get failed for lang',9999)
-      if(.not.pre_wrtpdb(lfnout,lfnpdb,filnam,iopt,box,
+      if(.not.pre_wrtpdb(lfnout,lfnpdb,lrgpdb,filnam,iopt,box,
      + int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + int_mb(i_sfr),

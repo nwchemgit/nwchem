@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.94 2002-01-30 21:08:26 d3j191 Exp $
+c $Id: pre_input.F,v 1.95 2002-02-02 04:29:26 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       integer nfract,ifract(mfract)
 c
       integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset(2),nset
-      integer isgm,icyren,model,nxlnk,iconst,npmfr,isarep
+      integer isgm,icyren,model,nxlnk,iconst,npmfr,isarep,lrgpdb
       real*8 touch,xpnd(3),rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
       character*11 cfix
@@ -1246,7 +1246,12 @@ c     -----
 c
       if(inp_compare(.false.,'write',item)) then
       irenum=0
+      lrgpdb=0
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      if(inp_compare(.false.,'large',item)) then
+      lrgpdb=1
+      if(.not.inp_a(item)) call errquit('pre_input: write',9999)
+      endif
       if(inp_compare(.false.,'solute',item)) then
       if(.not.inp_i(nkeepw)) nkeepw=-1
       if(.not.inp_a(item)) call errquit('pre_input: write',9999)
@@ -1256,10 +1261,10 @@ c
       endif
       if(inp_compare(.false.,'pdb',item)) then
       if(.not.inp_a(item)) then
-      write(68,6806) irenum,nkeepw,' '
+      write(68,6806) irenum,lrgpdb,nkeepw,' '
       else
-      write(68,6806) irenum,nkeepw,item(1:index(item,' ')-1)
- 6806 format('wr_pdb',i1,'solute ',i10,a)
+      write(68,6806) irenum,lrgpdb,nkeepw,item(1:index(item,' ')-1)
+ 6806 format('wr_pdb',2i1,'solute ',i10,a)
       lwrcoo=.true.
       numcmd=numcmd+1
       endif
@@ -1273,7 +1278,7 @@ c
       numcmd=numcmd+1
       endif
       elseif(index(item,'.pdb').gt.0) then
-      write(68,6806) irenum,nkeepw,item(1:index(item,' ')-1)
+      write(68,6806) irenum,lrgpdb,nkeepw,item(1:index(item,' ')-1)
       elseif(index(item,'.xyz').gt.0) then
       write(68,6824) irenum,nkeepw,item(1:index(item,' ')-1)
       else
@@ -1282,12 +1287,12 @@ c
       elseif(inp_compare(.false.,'pdb',item)) then
  6839 continue
       if(.not.inp_a(item)) then
-      write(68,6807) irenum,' '
+      write(68,6807) irenum,lrgpdb,' '
       lwrcoo=.true.
       numcmd=numcmd+1
       else
-      write(68,6807) irenum,item(1:index(item,' ')-1)
- 6807 format('wr_pdb',i1,a)
+      write(68,6807) irenum,lrgpdb,item(1:index(item,' ')-1)
+ 6807 format('wr_pdb',2i1,a)
       lwrcoo=.true.
       numcmd=numcmd+1
       endif
@@ -1319,7 +1324,7 @@ c
       numcmd=numcmd+1
       endif
       elseif(index(item,'.pdb').gt.0) then
-      write(68,6807) irenum,item(1:index(item,' ')-1)
+      write(68,6807) irenum,lrgpdb,item(1:index(item,' ')-1)
       lwrcoo=.true.
       numcmd=numcmd+1
       elseif(index(item,'.rst').gt.0) then
