@@ -5,7 +5,7 @@
      $     irs_b,sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     num_ob,num_vb,
      $     eval_a,eval_b,
-     $     basis,geom,tol2e,e2,nbf)
+     $     basis,geom,tol2e,e2,nbf,scftype)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -24,13 +24,14 @@
       integer nbf
       integer num_i_perseg
       integer k_amos,k_bmos,l_amos,l_bmos
-c
+c     
       integer k_toff_a,k_toff_b
       integer l_toff_a,l_toff_b
-      integer noa,nva,nob,nvb,nir
+      integer noa,nva,nob,nvb
       integer maxireps, maxops
       parameter (maxireps=20, maxops=120)
       integer iclass_dim(maxireps)
+      character*4 scftype
       character*8 zir(maxireps), zclass(maxireps)
       double precision chars(maxireps*maxireps)
       character*8 group_name
@@ -38,7 +39,7 @@ c
       logical sym_char_table
       external sym_char_table
 
-c
+c     
       integer k_v,l_v
       integer k_temp,l_temp
       integer k_uv_ia,l_uv_ia
@@ -54,17 +55,17 @@ c
       integer oseg_lo,oseg_hi
       ocoul=.false.
       oexch=.true.
-c
+c     
       noa=noa_hi-noa_lo+1
       nva=nva_hi-nva_lo+1
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
-c
+c     
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars))
      $     call errquit('sym_print_char_table: no char table',0)
-c
+c     
       num_i_perseg=noa_hi
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
          oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
@@ -96,7 +97,20 @@ c
      $        call errquit('could not alloc jb_ia',1)
          if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
      $        call errquit('could not alloc temp',1)
-         call mp2_make_t(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
+         if(scftype.eq.'RHF')
+     $        call mp2_make_t(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
+     $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
+     $        noa_lo,noa_hi,nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
+     $        sym_lo_va,sym_hi_va,num_oa,num_va,oseg_lo,oseg_hi,
+     $        basis,irs_a,dbl_mb(k_amos),irs_a,dbl_mb(k_amos),
+     $        dbl_mb(k_uv_ia),dbl_mb(k_jb_ia),
+     $        eval_a,eval_a,
+     $        int_mb(k_toff_a),int_mb(k_toff_a),
+     $        nva,noa,nva,noa,nir,
+     $        dbl_mb(k_temp),ioff,nnbf,int_mb(k_v),
+     $        nva_lo_local,nva_hi_local,e2,scftype)
+         if(scftype.eq.'UHF')
+     $        call mp2_make_t(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $        nob_lo,nob_hi,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
      $        sym_lo_vb,sym_hi_vb,num_ob,num_vb,oseg_lo,oseg_hi,
@@ -106,7 +120,7 @@ c
      $        int_mb(k_toff_a),int_mb(k_toff_b),
      $        nva,noa,nvb,nob,nir,
      $        dbl_mb(k_temp),ioff,nnbf,int_mb(k_v),
-     $        nva_lo_local,nva_hi_local,e2)
+     $        nva_lo_local,nva_hi_local,e2,scftype)
          if(.not.ma_chop_stack(l_amos))call errquit(
      $        'chop stack problem',1)
       enddo

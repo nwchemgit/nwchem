@@ -12,7 +12,6 @@
       integer rtdb 
       integer geom, basis
       character*255 title
-      character*255 movecs_out
       character*255 movecs_in
       logical status,converged
       status=rtdb_parallel(.true.)
