@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.5 2001-01-31 21:42:07 windus Exp $
+C $Id: drdy_input.F,v 1.6 2001-02-01 01:01:50 windus Exp $
       subroutine drdy_input(rtdb)
       implicit none
 *: typical drdy input deck
@@ -120,6 +120,16 @@ c
             if (.not.rtdb_cput(rtdb,'drdy:theory',1,field))
      &            call errquit(
      &            'drdy_input: cput of theory failed',911)
+            if (.not.inp_a(field)) goto 00100  ! allow an input field
+            if (inp_compare(.false.,'input',field(1:5))) then
+               if (.not. inp_a(field)) call errquit
+     &              ('drdy_input: failed reading input [input]',0)
+               if (.not.rtdb_cput(rtdb,'drdy:input',1,field))
+     &            call errquit(
+     &            'drdy_input: cput of input failed',555)
+            else
+              call errquit('drdy: unknown keyword for theory',0)
+            end if
             goto 00100
           elseif(inp_compare(.false.,'sptheory',field(1:8))) then
             if (.not.inp_a(field)) call errquit(
@@ -190,6 +200,9 @@ c
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'sign',field(1:4))) then
+            call drdy_input_add_line(rtdb,count)  ! count incremented
+            goto 00100
+          elseif(inp_compare(.false.,'singlepoint',field(1:11))) then
             call drdy_input_add_line(rtdb,count)  ! count incremented
             goto 00100
           elseif(inp_compare(.false.,'integra',field(1:7))) then

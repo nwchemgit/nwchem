@@ -1,4 +1,4 @@
-C $Id: potsp.F,v 1.2 2001-01-31 21:42:08 windus Exp $
+C $Id: potsp.F,v 1.3 2001-02-01 01:01:50 windus Exp $
       Subroutine drdy_potsp (x,vsp,dx,amass,natom,ndim)
 C
       Implicit None
@@ -12,7 +12,7 @@ C
 C Transform to cartesian coordinates
       Call drdy_trans (2,ndim,amass,x,dx)
 C do single point calculation (is fourth dummy OK?)
-      Call nwc_gen (x,vsp,dummy,dummy,dummy,dummy,natom,ndim,1,1,
+      Call nwc_gen (x,vsp,dx,dummy,dummy,dummy,natom,ndim,1,1,
      &   DRDY_CODE_SPENERGY)
 C  Transform coordinates and gradient to mass-weight cartesians
       Call drdy_trans (1,ndim,amass,x,dx)

@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.1 2001-01-31 21:42:07 windus Exp $
+C $Id: nwc_gen.F,v 1.2 2001-02-01 01:01:50 windus Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -116,13 +116,9 @@ c
 c
 c Actually do the deed
 c
-      if (op.eq.DRDY_CODE_HESSIAN) then
-        call drdy_synch(DRDY_CODE_HESSIAN,'nwc_gen')
-      elseif (op.eq.DRDY_CODE_GRADIENT) then
-        call drdy_synch(DRDY_CODE_GRADIENT,'nwc_gen')
-      elseif ((op.eq.DRDY_CODE_SPENERGY).or.
-     &        (op.eq.DRDY_CODE_ENERGY)) then
-        call drdy_synch(DRDY_CODE_ENERGY,'nwc_gen')
+      if ((op.ge.DRDY_CODE_SPENERGY).and.
+     &    (op.le.DRDY_CODE_HESSIAN)) then
+        call drdy_synch(op,'nwc_gen')
       else
         write(luout,*) 'Trying to calculate an unknown op code'
         call errquit('nwc_gen: Unknown op code',op)
@@ -131,17 +127,20 @@ c
 c Get the appropriate values to hand back
 c
       call drdy_nwc_get_energy(my_rtdb,v)
-      call drdy_nwc_get_coords(my_rtdb,xs)
-      if (op.ge.DRDY_CODE_GRADIENT)
-     &   call drdy_nwc_get_gradient(my_rtdb,dx)
+      if (op.ge.DRDY_CODE_GRADIENT) then
+         call drdy_nwc_get_coords(my_rtdb,xs)
+         call drdy_nwc_get_gradient(my_rtdb,dx)
+      endif
       if (op.eq.DRDY_CODE_HESSIAN) 
      &   call drdy_nwc_get_hessian(my_rtdb,hess)
 *      
 C
 C  Get transformation matrix (rotation matrix amat) from the gaussian
 C     standard orientation (xs) to the original orientation (x)
-      call drdy_rotmat(x,xs,amat,rr,rrs,rri,natom,n3,ndima)
-      call drdy_rotg(dx,amat,rr,natom,n3,ndima)
+      if (op.ge.DRDY_CODE_GRADIENT) then
+        call drdy_rotmat(x,xs,amat,rr,rrs,rri,natom,n3,ndima)
+        call drdy_rotg(dx,amat,rr,natom,n3,ndima)
+      endif
 C
       if (op.eq.DRDY_CODE_HESSIAN) then
         jj = 0
