@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.189 2001-10-05 22:27:12 edo Exp $
+c     $Id: dft_scf.F,v 1.190 2001-10-09 02:04:34 edo Exp $
 c     
       implicit none
 c
@@ -739,6 +739,7 @@ c
      ,        homo,lumo,toll_s,
      ,        oprint_intermediate_fock,oprint_time,
      ,        oprint_conv_details)
+
 c        
 c        determine homo-lumo gap 
 c
@@ -1374,8 +1375,6 @@ c
       if (.not. ga_destroy(g_s12m)) call errquit
      &   ('dft_scf: could not destroy g_s12m', 0)
       endif
-      if (.not. ga_destroy(g_xij)) call errquit
-     &     ('dft_scf: could not destroy g_scr', 0)
      
 c
       call fock_2e_tidy(rtdb)

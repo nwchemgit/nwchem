@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.4 2001-10-05 22:27:12 edo Exp $
+c     $Id: dft_diagn.F,v 1.5 2001-10-09 02:04:34 edo Exp $
 c     
       implicit none
 #include "cdft.fh"
@@ -53,7 +53,8 @@ c     get xij through canonical orthog
 c
       if(ncanorg.eq.0) then
          call dft_canorg(nmo, svals, g_svecs, g_xij)
-         ncanorg=1
+      else
+         g_xij=g_movecs
        endif
 c
 c     F' = X+ * F * X
@@ -64,7 +65,7 @@ c
      &     g_xij, g_tmp, 0d0, g_fockt)
       
 
-      if (levelshifting)then
+      if (levelshifting.and.ncanorg.ne.0)then
 c     
 c     Build upper diagonal matrix. in MO basis
 c     
@@ -125,8 +126,6 @@ c     Keep orbital ordering according to principle
 c     of maximum overlap with previous iteration.
 c     
       if (lmaxov)then
-         if(nmo.ne.nbf_ao) call errquit(
-     '        ' mxovl not ready for lindep ',0)
          call dft_mxovl(ao_bas_han, evals,
      &        g_movecst, g_movecs, g_s, g_fock,
      ,        noc,oprint_conv_details,
@@ -140,6 +139,11 @@ c
      &        ('dft_scf: could not destroy g_scr', 0)
          if (.not. ga_destroy(g_movecst)) call errquit
      &        ('dft_scf: could not destroy g_scr', 0)
+         if(ncanorg.eq.0) then
+            ncanorg=1
+            if (.not. ga_destroy(g_xij)) call errquit
+     &           ('dft_scf: could not destroy g_scr', 0)
+         endif
       
       return
       end

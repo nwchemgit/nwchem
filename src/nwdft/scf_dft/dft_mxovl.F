@@ -2,7 +2,7 @@
      ,     g_evecs, g_oevecs, g_s,g_tmp,
      ,     noc,oprint,homo,lumo)
 
-C$Id: dft_mxovl.F,v 1.10 2000-04-14 01:51:26 edo Exp $
+C$Id: dft_mxovl.F,v 1.11 2001-10-09 02:04:34 edo Exp $
       Implicit none
 #include "bas.fh"
 #include "cdft.fh"
@@ -98,11 +98,7 @@ c
       if (.not. ga_destroy(g_s1)) call errquit
      &   ('dft_mxovl: could not destroy g_s1', 0)
 c
-      if(.not.MA_Pop_Stack(l_ord))
-     & call errquit('dft_mxovl: cannot pop stack',0)
-      if(.not.MA_Pop_Stack(l_scr))
-     & call errquit('dft_mxovl: cannot pop stack',0)
-      if(.not.MA_Pop_Stack(l_tmp))
+      if(.not.MA_chop_Stack(l_tmp))
      & call errquit('dft_mxovl: cannot pop stack',0)
 c
       call ga_dgop(Msg_mxovl_2,evals,nbf,'+')
