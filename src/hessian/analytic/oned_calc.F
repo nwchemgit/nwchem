@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.1 2000-04-25 22:17:37 windus Exp $
+c $Id: oned_calc.F,v 1.2 2000-04-26 21:49:16 windus Exp $
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)
@@ -41,7 +41,8 @@ c
       next = nxtask(nproc,task_size)
 c
       do 90 iat1 = 1, nat
-        do 80 iat2 = 1, iat1
+        do 80 iat2 = 1, nat
+c       do 80 iat2 = 1, iat1
 
           ijatom = ijatom + 1
           if ( ijatom .eq. next ) then
@@ -67,7 +68,7 @@ c
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
 
             do 70 ish1 = iac1f, iac1l
-              if ( iat1.eq.iat2 ) iac2l = ish1
+c             if ( iat1.eq.iat2 ) iac2l = ish1
               do 60 ish2 = iac2f, iac2l
 
 c
