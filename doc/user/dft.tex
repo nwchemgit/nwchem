@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.74 2003-04-10 23:24:11 pollack Exp $ 
+% $Id: dft.tex,v 1.75 2003-09-19 19:32:14 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -46,7 +46,8 @@ the DFT module are:
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
-      [h407] [becke97gga1] [mpw91] [mpw1k] [xft97] [cft97] [ft97] [xpkzb99] \
+      [h407] [becke97gga1]  [hcth407p]\
+      [mpw91] [mpw1k] [xft97] [cft97] [ft97] [xpkzb99] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -171,7 +172,8 @@ has the same effect.
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
      [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147] \
-      [hcth407] [becke97gga1] [optx] [hcthp14] [mpw91] [mpw1k] [xft97] [cft97] [ft97]\
+      [hcth407] [becke97gga1] [hcth407p] \
+      [optx] [hcthp14] [mpw91] [mpw1k] [xft97] [cft97] [ft97]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -629,6 +631,7 @@ hcth407    & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[19]\\
 becke97gga1 & $\star$ &   $\star$   &  $\star$  &   &       &  N   &[18]\\
 hcthp14    & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[21]\\
 ft97       & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[24,25]\\
+htch407p   & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[28]\\
 \hline                                                  
 xpkzb99    & $\star$  &             &           &$\star$&   &  N   &[27]\\
 \hline
@@ -700,6 +703,8 @@ J. Chem. Phys {\bf 114}, 3958 (2001).\\
 {\bf 104}, 4811(2000).\\
 \item  J.P.~Perdew, S.~Kurth, A.~Zupan and P.~Blaha, 
 Phys. Rev. Lett. {\bf 82}, 2544 (1999) \\
+\item A.~D.~Boese, A.~Chandra, J.~M.~L.~Martin and D.~Marx,
+  J. Chem. Phys. {\bf 119}, 5965 (2003).
 \end{enumerate}
 }
 %\end{table}
