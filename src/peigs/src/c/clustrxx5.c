@@ -528,7 +528,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     
       itype = 99;
 
-      if( recv_num > 0  &&  (( ime % 2 ) == 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) { 
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 
@@ -566,7 +566,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
   
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
 
-      if( recv_num > 0  &&  (( ime % 2 ) != 0 ) ) {
+      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) {
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
         xblksiz = schedule[4*recv_cl+3] - schedule[4*recv_cl+2] + 1;

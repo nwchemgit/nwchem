@@ -144,26 +144,6 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
 
   dscrat = scratch;
 
-#ifdef DEBUG5
-
-  if( me == mapZ[0] ){
-    fprintf(stderr, " nacluster = %d \n", *nacluster );
-    cn = -1;
-    for( j = 0; j < *nacluster; j++ ) {
-      c1 = cn + 1;
-      cn = icsplit[j];
-       if( cn > c1 ) 
-        fprintf( stderr, " cluster[%d] = %d to %d  owned by %d to %d \n",
-                 j,c1,cn, mapZ[c1], mapZ[cn] );
-    }
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " eval[%d] = %g \n", j, eval[j]);
-    for( j = 0; j < *n; j++ )
-      fprintf( stderr, " d[%d] = %g e[%d] = %g \n", j, d[j], j, e[j] );
-  }
-  mxsync_();
-  exit(-1);
-#endif
 #ifdef DEBUG1
   fprintf(stderr, " in clustrxx me = %d \n", me );
 
@@ -425,17 +405,18 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
     iseed[3] = 1;
     
     indx = 0;
-    /*    for (j = c1; j <= cn; j++ ){
-	  if ( mapZ[j] == me ) {
-	  i = indx + Zvec;
-	  
-	  mapvecZ[ i ] = j;
-	  fil_dbl_lst (*n, vecZ[i], 0.0e0);
-	  dlarnv_(&three, &iseed[0], &blksiz, &vecZ[i][bb1]);
-	  indx++;
-	  }
-	  }
-	  */
+    /*
+      for (j = c1; j <= cn; j++ ){
+      if ( mapZ[j] == me ) {
+      i = indx + Zvec;
+      
+      mapvecZ[ i ] = j;
+      fil_dbl_lst (*n, vecZ[i], 0.0e0);
+      dlarnv_(&three, &iseed[0], &blksiz, &vecZ[i][bb1]);
+      indx++;
+      }
+      }
+      */
     
 #ifdef DEBUG1
     fprintf(stderr, " just before inv_it and mgs of clustrxx me = %d c1 = %d cn = %d \n", me, c1, cn );
@@ -480,7 +461,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       
       itype = 999999;
       
-      if( recv_num > 0  &&  (( ime % 2 ) == 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) == 0 ) ) { 
 	xc1     = schedule[4*recv_cl];
 	xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 	
@@ -518,7 +499,7 @@ Integer clustrinv4_(n, d, e, dplus, lplus, ld, lld, eval, schedule, num_clustr, 
       
       ival = mxwrit_( dscrat, &isize, &send_to, &itype );
       
-      if( recv_num > 0  &&  (( ime % 2 ) != 0 ) ) { 
+      if( recv_num > 0  &&  (( myindx % 2 ) != 0 ) ) { 
         xc1     = schedule[4*recv_cl];
         xcsiz   = schedule[4*recv_cl+1] - xc1 + 1;
 	
