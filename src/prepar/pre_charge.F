@@ -1,7 +1,7 @@
       logical function pre_charge(irtdb,lfnout,source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.13 1998-06-08 23:29:29 d3j191 Exp $
+c $Id: pre_charge.F,v 1.14 1998-06-09 16:49:18 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       integer lbnd(2,mbnd)
 c
       integer i,j,ia,ja,ka,it,jt,itmp,iab(20),nb,nox,nhx,itask,maxit
-      integer igeom2,nout,icon(100),ncon,nconst,irest,ihfree,idump
+      integer igeom2,nout,icon(100),ncon,nconst,irest,ihfree,idump,n
       real*8 rcon,resa,resb,toler
       character*16 tag
       real*8 coord(3),chrge,qsum,charge
@@ -203,10 +203,20 @@ c
 c
       if(.not.geom_create(igeom2,'pre:geometry'))
      + call errquit('pre_charge: geom_create failed',0)
-      if(.not.geom_rtdb_load(irtdb,igeom2,'cresp:geometry')) then
+      if(rtdb_get(irtdb,'geometry:cresp:geometry:ncenter',mt_int,1,n))
+     + then
+      if(.not.geom_rtdb_load(irtdb,igeom2,'cresp:geometry'))
+     + call errquit('pre_charge: geom_rtdb_load failed',0) 
+      else
+      if(rtdb_get(irtdb,'geometry:resp:geometry:ncenter',mt_int,1,n))
+     + then
       if(.not.geom_rtdb_load(irtdb,igeom2,'resp:geometry'))
      + call errquit('pre_charge: geom_rtdb_load failed',0)
+      else
+      call errquit('pre_charge: esp geometry not found on rtdb',0)
       endif
+      endif
+c
       qsum=0.0d0
       do 9 i=1,nout
       if(.not.geom_cent_get(igeom2,i,tag,coord,chrge))
