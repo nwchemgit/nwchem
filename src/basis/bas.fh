@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.25 1999-12-30 21:58:17 mg201 Exp $
+c $Id: bas.fh,v 1.26 2000-01-25 19:23:19 mg201 Exp $
 c:bas.fh
 c
       logical bas_checksum
@@ -92,6 +92,7 @@ c
       logical basis_is_rel
       logical bas_get_ao_handle
       logical bas_any_rel_shells
+      logical bas_rel_high_ang
 c
       external bas_version        
       external bas_create         
@@ -185,3 +186,4 @@ c
       external basis_is_rel
       external bas_get_ao_handle
       external bas_any_rel_shells
+      external bas_rel_high_ang
