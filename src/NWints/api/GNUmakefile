@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.30 1995-11-19 19:39:43 d3g681 Exp $
+# $Id: GNUmakefile,v 1.31 1995-11-27 02:11:20 d3g681 Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -38,24 +38,24 @@ include ../../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(cando_sp.o):	 $(INCDIR)/geobasmapP.fh candoP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(exact_mem.o):	 $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(exactd_mem.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(int_1cg.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh apiP.fh 
+$(LIBRARY_PATH)(cando_sp.o):	 $(INCDIR)/geobasmapP.fh ./candoP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(exact_mem.o):	 $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(exactd_mem.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(int_1cg.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
 $(LIBRARY_PATH)(int_1e3ov.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_1eall.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_1eh1.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_1eke.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_1eov.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_1epe.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(int_2e2c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(int_2e3c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(int_2e4c.o):	 $(INCDIR)/pstat.fh int_tim.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(int_acc.o):	 apiP.fh 
-$(LIBRARY_PATH)(int_chk_init.o):	 apiP.fh 
+$(LIBRARY_PATH)(int_2e2c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(int_2e3c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(int_2e4c.o):	 $(INCDIR)/pstat.fh ./int_tim.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(int_acc.o):	 ./apiP.fh 
+$(LIBRARY_PATH)(int_chk_init.o):	 ./apiP.fh 
 $(LIBRARY_PATH)(int_chk_sh.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(int_hf1sp.o):	 $(INCDIR)/stdio.fh 
-$(LIBRARY_PATH)(int_init.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh int_tim.fh $(INCDIR)/global.fh candoP.fh $(INCDIR)/bas.fh apispP.fh apiP.fh 
+$(LIBRARY_PATH)(int_init.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/mafdecls.fh ./int_tim.fh $(INCDIR)/global.fh ./candoP.fh $(INCDIR)/bas.fh ./apispP.fh ./apiP.fh 
 $(LIBRARY_PATH)(int_l1e3ov.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_l1eall.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(int_l1eh1.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
@@ -66,25 +66,25 @@ $(LIBRARY_PATH)(int_l2e2c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCD
 $(LIBRARY_PATH)(int_l2e3c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(int_l2e4c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(int_lgen1e.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(int_mem.o):	 $(INCDIR)/stdio.fh apiP.fh 
-$(LIBRARY_PATH)(int_mpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh apiP.fh 
+$(LIBRARY_PATH)(int_mem.o):	 $(INCDIR)/stdio.fh ./apiP.fh 
+$(LIBRARY_PATH)(int_mpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
 $(LIBRARY_PATH)(int_nint.o):	 $(INCDIR)/bas.fh 
 $(LIBRARY_PATH)(int_pgen1e.o):	 $(INCDIR)/geobasmapP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(int_projpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh apiP.fh 
-$(LIBRARY_PATH)(int_terminate.o):	 $(INCDIR)/mafdecls.fh apispP.fh apiP.fh 
-$(LIBRARY_PATH)(intb_2e4c.o):	 $(INCDIR)/stdio.fh numb_qP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(intb_init4c.o):	 numb_qP.fh 
+$(LIBRARY_PATH)(int_projpole.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
+$(LIBRARY_PATH)(int_terminate.o):	 $(INCDIR)/mafdecls.fh ./apispP.fh ./apiP.fh 
+$(LIBRARY_PATH)(intb_2e4c.o):	 $(INCDIR)/stdio.fh ./numb_qP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
+$(LIBRARY_PATH)(intb_init4c.o):	 ./numb_qP.fh 
 $(LIBRARY_PATH)(intd_1eh1.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(intd_1eov.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(intd_2e2c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(intd_2e3c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(intd_2e4c.o):	 $(INCDIR)/pstat.fh int_tim.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(intd_init.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh apispP.fh apiP.fh 
-$(LIBRARY_PATH)(intp_1e1cpe.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh apiP.fh 
+$(LIBRARY_PATH)(intd_2e2c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(intd_2e3c.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(intd_2e4c.o):	 $(INCDIR)/pstat.fh ./int_tim.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(intd_init.o):	 $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh ./apispP.fh ./apiP.fh 
+$(LIBRARY_PATH)(intp_1e1cpe.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
 $(LIBRARY_PATH)(intp_1eke.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(intp_1eov.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
 $(LIBRARY_PATH)(intp_1epe.o):	 $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(intp_2e2c.o):	 $(INCDIR)/stdio.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(intp_2e3c.o):	 $(INCDIR)/stdio.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh apiP.fh 
-$(LIBRARY_PATH)(intp_mpole.o):	 $(INCDIR)/stdio.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh apiP.fh 
+$(LIBRARY_PATH)(intp_2e2c.o):	 $(INCDIR)/stdio.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(intp_2e3c.o):	 $(INCDIR)/stdio.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh $(INCDIR)/bas.fh ./apiP.fh 
+$(LIBRARY_PATH)(intp_mpole.o):	 $(INCDIR)/stdio.fh $(INCDIR)/geomP.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh ./apiP.fh 
 $(LIBRARY_PATH)(intp_txyz.o):	 $(INCDIR)/geomP.fh 

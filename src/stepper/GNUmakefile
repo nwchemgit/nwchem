@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.16 1995-11-19 19:43:28 d3g681 Exp $
+# $Id: GNUmakefile,v 1.17 1995-11-27 02:18:58 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = stpr_sjacobi.o stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \
@@ -30,20 +30,20 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(dft_optimize.o):	 stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(scf_optimize.o):	 stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
-$(LIBRARY_PATH)(stpr_cheker.o):	 chow.fh 
-$(LIBRARY_PATH)(stpr_driver.o):	 chow.fh 
-$(LIBRARY_PATH)(stpr_face.o):	 $(INCDIR)/util.fh stpr_inP.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh chow.fh 
-$(LIBRARY_PATH)(stpr_gen_apphess_at.o):	 $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(stpr_gen_aux.o):	 $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/context.fh 
-$(LIBRARY_PATH)(stpr_gen_hess_at.o):	 $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(stpr_hesupd.o):	 chow.fh 
-$(LIBRARY_PATH)(stpr_inihes.o):	 chow.fh 
-$(LIBRARY_PATH)(stpr_mkstep.o):	 $(INCDIR)/util.fh chow.fh 
+$(LIBRARY_PATH)(dft_optimize.o):	 ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(scf_optimize.o):	 ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(stpr_cheker.o):	 ./chow.fh 
+$(LIBRARY_PATH)(stpr_driver.o):	 ./chow.fh 
+$(LIBRARY_PATH)(stpr_face.o):	 $(INCDIR)/util.fh ./stpr_inP.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh ./chow.fh 
+$(LIBRARY_PATH)(stpr_gen_apphess_at.o):	 $(INCDIR)/tcgmsg.fh ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(stpr_gen_aux.o):	 $(INCDIR)/tcgmsg.fh ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/global.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(stpr_gen_hess_at.o):	 $(INCDIR)/tcgmsg.fh ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(stpr_hesupd.o):	 ./chow.fh 
+$(LIBRARY_PATH)(stpr_inihes.o):	 ./chow.fh 
+$(LIBRARY_PATH)(stpr_mkstep.o):	 $(INCDIR)/util.fh ./chow.fh 
 $(LIBRARY_PATH)(stpr_output.o):	 $(INCDIR)/util.fh 
-$(LIBRARY_PATH)(stpr_partit.o):	 $(INCDIR)/util.fh chow.fh 
+$(LIBRARY_PATH)(stpr_partit.o):	 $(INCDIR)/util.fh ./chow.fh 
 $(LIBRARY_PATH)(stpr_stepcor.o):	 $(INCDIR)/util.fh 
-$(LIBRARY_PATH)(stpr_sumstc.o):	 $(INCDIR)/util.fh chow.fh 
-$(LIBRARY_PATH)(stpr_walk.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh stpr_optimize.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh 
+$(LIBRARY_PATH)(stpr_sumstc.o):	 $(INCDIR)/util.fh ./chow.fh 
+$(LIBRARY_PATH)(stpr_walk.o):	 $(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh ./stpr_optimize.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/pstat.fh $(INCDIR)/msgtypesf.h $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geomP.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh 
 $(LIBRARY_PATH)(stpr_wlkchk.o):	 $(INCDIR)/util.fh 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.9 1995-11-19 19:40:09 d3g681 Exp $
+# $Id: GNUmakefile,v 1.10 1995-11-27 02:11:44 d3g681 Exp $
 
 
       OBJ_OPTIMIZE = genr70.o init70.o qout70.o \
@@ -19,12 +19,12 @@ $(OBJ):	auxvar.fh geom.fh maxc.fh  pgeom.fh qgeom.fh \
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(genr70.o):	 shllfo.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
-$(LIBRARY_PATH)(init70.o):	 picon.fh maxc.fh auxvar.fh 
-$(LIBRARY_PATH)(sinfo.o):	 shllfo.fh qgeom.fh picon.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh const.fh 
-$(LIBRARY_PATH)(sp0000.o):	 shllfo.fh qgeom.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh auxvar.fh 
-$(LIBRARY_PATH)(sp0001.o):	 shllfo.fh qgeom.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh auxvar.fh 
-$(LIBRARY_PATH)(sp0011.o):	 shllfo.fh qgeom.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh auxvar.fh 
-$(LIBRARY_PATH)(sp0101.o):	 shllfo.fh qgeom.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh const.fh auxvar.fh 
-$(LIBRARY_PATH)(sp0111.o):	 shllfo.fh qgeom.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh const.fh auxvar.fh 
-$(LIBRARY_PATH)(sp1111.o):	 shllfo.fh qgeom.fh pgeom.fh miscg.fh maxc.fh ginf.fh geom.fh const.fh auxvar.fh 
+$(LIBRARY_PATH)(genr70.o):	 ./shllfo.fh $(INCDIR)/geobasmapP.fh $(INCDIR)/basdeclsP.fh $(INCDIR)/basP.fh 
+$(LIBRARY_PATH)(init70.o):	 ./picon.fh ./maxc.fh ./auxvar.fh 
+$(LIBRARY_PATH)(sinfo.o):	 ./shllfo.fh ./qgeom.fh ./picon.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./const.fh 
+$(LIBRARY_PATH)(sp0000.o):	 ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./auxvar.fh 
+$(LIBRARY_PATH)(sp0001.o):	 ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./auxvar.fh 
+$(LIBRARY_PATH)(sp0011.o):	 ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./auxvar.fh 
+$(LIBRARY_PATH)(sp0101.o):	 ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./const.fh ./auxvar.fh 
+$(LIBRARY_PATH)(sp0111.o):	 ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./const.fh ./auxvar.fh 
+$(LIBRARY_PATH)(sp1111.o):	 ./shllfo.fh ./qgeom.fh ./pgeom.fh ./miscg.fh ./maxc.fh ./ginf.fh ./geom.fh ./const.fh ./auxvar.fh 

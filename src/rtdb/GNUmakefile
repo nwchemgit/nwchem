@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 1995-11-19 19:43:16 d3g681 Exp $
+# $Id: GNUmakefile,v 1.12 1995-11-27 02:18:46 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -52,14 +52,14 @@ context:	context.o $(LIBRARY)
 	$(CC) $(CFLAGS) -o $@ context.o $(TEST_LIBS)
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(cntx.o):	 rtdb.fh $(INCDIR)/mafdecls.fh context.fh 
-$(LIBRARY_PATH)(context.o):	 rtdb.h misc.h $(INCDIR)/macdecls.h 
-$(LIBRARY_PATH)(context_f2c.o):	 context.h 
-$(LIBRARY_PATH)(davetest.o):	 rtdb.fh $(INCDIR)/mafdecls.fh 
-$(LIBRARY_PATH)(interact.o):	 rtdb.h $(INCDIR)/macdecls.h 
-$(LIBRARY_PATH)(rtdb.o):	 $(INCDIR)/sndrcv.h rtdb.h $(INCDIR)/macdecls.h 
-$(LIBRARY_PATH)(rtdb.save.o):	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h 
-$(LIBRARY_PATH)(rtdb_f2c.o):	 rtdb.h $(INCDIR)/macdecls.h 
-$(LIBRARY_PATH)(rtdb_seq.o):	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h $(INCDIR)/hdbm.h 
-$(LIBRARY_PATH)(rtdbtest.o):	 $(INCDIR)/sndrcv.h rtdb.h misc.h $(INCDIR)/macdecls.h 
-$(LIBRARY_PATH)(test.o):	 rtdb.fh $(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(cntx.o):	 ./rtdb.fh $(INCDIR)/mafdecls.fh ./context.fh 
+$(LIBRARY_PATH)(context.o):	 ./rtdb.h ./misc.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(context_f2c.o):	 ./context.h 
+$(LIBRARY_PATH)(davetest.o):	 ./rtdb.fh $(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(interact.o):	 ./rtdb.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(rtdb.o):	 $(INCDIR)/sndrcv.h ./rtdb.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(rtdb.save.o):	 $(INCDIR)/sndrcv.h ./rtdb.h ./misc.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(rtdb_f2c.o):	 ./rtdb.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(rtdb_seq.o):	 $(INCDIR)/sndrcv.h ./rtdb.h ./misc.h $(INCDIR)/macdecls.h $(INCDIR)/hdbm.h 
+$(LIBRARY_PATH)(rtdbtest.o):	 $(INCDIR)/sndrcv.h ./rtdb.h ./misc.h $(INCDIR)/macdecls.h 
+$(LIBRARY_PATH)(test.o):	 ./rtdb.fh $(INCDIR)/mafdecls.fh 

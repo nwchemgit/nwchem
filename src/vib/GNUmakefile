@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 1995-11-15 00:53:38 d3g681 Exp $
+# $Id: GNUmakefile,v 1.6 1995-11-27 02:20:09 d3g681 Exp $
        HEADERS = 
   OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \
@@ -43,10 +43,10 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-vib_chkhess.o :	 $(INCDIR)/stdio.fh 
-vib_prdata.o :	 $(INCDIR)/stdio.fh 
-vib_rdinp.o :	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
-vib_tors.o :	 $(INCDIR)/util.fh 
-vib_vib.o :	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 
-vib_wmatrix.o :	 $(INCDIR)/stdio.fh 
-vib_wrtfreq.o :	 $(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(vib_chkhess.o):	 $(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(vib_prdata.o):	 $(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(vib_rdinp.o):	 $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/geom.fh 
+$(LIBRARY_PATH)(vib_tors.o):	 $(INCDIR)/util.fh 
+$(LIBRARY_PATH)(vib_vib.o):	 $(INCDIR)/stdio.fh $(INCDIR)/mafdecls.fh 
+$(LIBRARY_PATH)(vib_wmatrix.o):	 $(INCDIR)/stdio.fh 
+$(LIBRARY_PATH)(vib_wrtfreq.o):	 $(INCDIR)/stdio.fh 
