@@ -1,7 +1,11 @@
 *
-* $Id: paw_mult_interaction.F,v 1.8 2003-02-22 03:10:44 bylaska Exp $
+* $Id: paw_mult_interaction.F,v 1.9 2003-02-25 02:36:49 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2003/02/22 03:10:44  bylaska
+* debugging multipole coefficients...There is currently a bug in
+* find_comp_coeff...EJB
+*
 * Revision 1.7  2003/02/21 19:44:22  bylaska
 * Routines for computing the mult_energy_coeff have been added to paw_mult
 * ...EJB
@@ -360,7 +364,6 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       external   find_Y_lm
 
 
-      write(*,*) "HERA:",sigma_smooth,nshl3d
       twopi = 8.0d0*datan(1.0d0)
 
       call dcopy(2*(nion*mult_l_max)**2,0.0d0,0,mult_energy_coeff,1)
@@ -374,7 +377,6 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
        sigma2 = dsqrt((sigma_smooth**2+sigma_smooth**2)/2)
        sigma1 = dsqrt((sigma_a**2+sigma_a**2)/2)
 
-       write(*,*) "hera 1:",ii,mult_l,sigma4,sigma2,sigma1
 
         il = 1
         do l1=0,mult_l
@@ -394,7 +396,6 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
               if ((l1.eq.l2).and.(m1.eq.(-m2)) ) then
                 mult_energy_coeff(ii,il,ii,ilp) = f
 
-              write(*,*) "hera 2:",ii,il,ilp,f
               end if
 
               ilp = ilp+1
@@ -406,11 +407,8 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         end do !*l1*
 
       end do !*ii*
-      write(*,*)
-      write(*,*)
 
 
-      write(*,*) "HERB"
 
       do ii=1,nion
         ia   = ion_katm(ii)
@@ -487,14 +485,11 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
      >                   ) 
                 phase_factor = -phase_factor
 
-                write(*,*) "herb 1:",l,m,gaunt_coeff,
-     >           find_Y_lm(l,m,cos_theta,phi)
                 end do !*l*
                 
                 mult_energy_coeff(ii,il,jj,ilp) 
      >           = mult_energy_coeff(ii,il,jj,ilp) + f 
 
-                write(*,*) "herb 2:",ii,il,jj,ilp,f,R
 
                 ilp = ilp + 1
               end do !*m2*
@@ -510,7 +505,6 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         end do !*jj*
       end do !*ii*
 
-      write(*,*) "HERC"
 
       do ii=1,nion
       do jj=ii+1,nion
