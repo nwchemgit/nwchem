@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.101 1998-03-10 00:22:26 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.102 1998-03-12 03:34:57 d3g681 Exp $
 c     
       implicit none
 c
@@ -1582,31 +1582,33 @@ c
                sum = 0.0d0
                ielems = map(2,ir) - map(1,ir) + 1
                jelems = map(2,jr) - map(1,jr) + 1
-               call ga_get(g_a(k), map(1,ir), map(2,ir), map(1,jr), 
-     &                     map(2,jr), scr, mxmap)
-               if (op .eq. 'abssum') then
-                  do j = 1, jelems
-                     do i = 1, ielems
-                        sum = sum + abs(scr(i,j))
+               if (ielems.gt.0 .and. jelems.gt.0) then
+                  call ga_get(g_a(k), map(1,ir), map(2,ir), map(1,jr), 
+     &                 map(2,jr), scr, mxmap)
+                  if (op .eq. 'abssum') then
+                     do j = 1, jelems
+                        do i = 1, ielems
+                           sum = sum + abs(scr(i,j))
+                        end do
                      end do
-                  end do
-               else if (op .eq. 'absmax') then
-                  do j = 1, jelems
-                     do i = 1, ielems
-                        sum = max(sum, abs(scr(i,j)))
+                  else if (op .eq. 'absmax') then
+                     do j = 1, jelems
+                        do i = 1, ielems
+                           sum = max(sum, abs(scr(i,j)))
+                        end do
                      end do
-                  end do
-               else if (op .eq. 'rms') then
-                  do j = 1, jelems
-                     do i = 1, ielems
-                        sum = sum + scr(i,j)*scr(i,j)
-                     end do
-                  enddo
-                  sum = sqrt(sum)
-               else
-                  call errquit('util_ga_mat_reduce: unknown op', 0)
-               end if
-               r(ir,jr,k) = max(r(ir,jr,k),sum)
+                  else if (op .eq. 'rms') then
+                     do j = 1, jelems
+                        do i = 1, ielems
+                           sum = sum + scr(i,j)*scr(i,j)
+                        end do
+                     enddo
+                     sum = sqrt(sum)
+                  else
+                     call errquit('util_ga_mat_reduce: unknown op', 0)
+                  end if
+                  r(ir,jr,k) = max(r(ir,jr,k),sum)
+               endif
             end do
          end do
 c         write(6,*) ' util_mat_reduce: reduced matrix '
