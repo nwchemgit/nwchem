@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.23 1996-07-17 16:34:04 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.24 1996-07-26 16:32:31 d3g681 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -7,7 +7,6 @@ C$Id: direct_mp2.F,v 1.23 1996-07-17 16:34:04 d3g681 Exp $
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "sym.fh"
 #include "util.fh"
 c
@@ -55,8 +54,6 @@ c
 c
        direct_mp2 = .true.
 c
-       if (.not. context_push('direct_mp2'))
-     $      call errquit('direct_mp2: context_push failed',0)
        ttotal = tcgtime()
        status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -367,13 +364,7 @@ c
        if (.not.bas_destroy(basis))
      $   call errquit('cannot free basis handle',0)
 c
-c Pop context
-c
        call util_print_pop()
-       if (.not. context_pop('direct_mp2'))
-     $     call errquit('context_pop failed',0)
-c
-c
 c
        return
        end

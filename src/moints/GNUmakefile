@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.50 1996-07-22 06:04:18 d3e129 Exp $
+#$Id: GNUmakefile,v 1.51 1996-07-26 16:32:32 d3g681 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -43,3 +43,19 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
+$(LIBRARY_PATH)(moints_ccsd.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(direct_mp2.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_stats.o):	$(INCDIR)/msgids.fh ./moints_stats.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(moints_semi.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_mp2.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(moints_mem.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_gsh1.o):	$(INCDIR)/util.fh $(INCDIR)/schwarz.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_2x.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh ./moints_stats.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_dbg.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(moints_full.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bitops.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_aux2.o):	$(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bitops.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_6x.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/msgids.fh ./moints_stats.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(moints_1e.o):	$(INCDIR)/mafdecls.fh $(INCDIR)/global.fh 
+$(LIBRARY_PATH)(mointdriver.o):	$(INCDIR)/util.fh $(INCDIR)/tcgmsg.fh $(INCDIR)/sym.fh $(INCDIR)/schwarz.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(atwtest.o):	$(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh $(INCDIR)/context.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(get_JKelt.o):	$(INCDIR)/global.fh 

@@ -96,7 +96,7 @@ c
 
 
 c
-c  $Id: moints_semi.F,v 1.23 1996-07-25 18:44:25 rg240 Exp $
+c  $Id: moints_semi.F,v 1.24 1996-07-26 16:32:36 d3g681 Exp $
 c
 c  Generates and writes out half-transformed 
 c  Coulomb and exchange integrals for some multipassed
@@ -161,7 +161,7 @@ c
        integer g_jbuf, g_kbuf
        logical status
        logical osym
-       character*256 fnameK, fnameJ, tmpname
+       character*256 fnameK, fnameJ
        integer junit, kunit
        parameter (junit=10,kunit=11)
 c
@@ -841,7 +841,7 @@ c
       integer pohi, polo, itmp
       integer l_v, k_v, l_t, k_t, l_x, k_x
       logical status
-      character*256 fname, tmpname
+      character*256 fname
       integer junit
       parameter(junit=10)
 
@@ -920,7 +920,7 @@ c
       integer rlo, rhi, clo, chi
       integer g_exch
       double precision tmp2
-      character*256 fname, tmpname
+      character*256 fname
       integer kunit
       parameter (kunit=11)
       double precision xx, denom, e2
@@ -1071,7 +1071,7 @@ c
       integer j, jj, vv, vvlo, vvhi, k_local, ld, myid, nnvo
       integer rlo, rhi, clo, chi
       integer g_exch
-      character*256 fname, tmpname
+      character*256 fname
       double precision xx, denom, e2, sp1fact, sp2fact
       logical status
       double precision moints_epair_eval

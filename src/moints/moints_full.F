@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.10 1996-07-17 16:34:11 d3g681 Exp $
+C     $Id: moints_full.F,v 1.11 1996-07-26 16:32:34 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -8,7 +8,6 @@ C     $Id: moints_full.F,v 1.10 1996-07-17 16:34:11 d3g681 Exp $
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
-#include "context.fh"
 #include "sym.fh"
 #include "util.fh"
 #include "inp.fh"
@@ -304,6 +303,8 @@ c     repeat projection to be sure
          do i = 1, nmo(1)
             int_mb(k_irs+i-1) = int_mb(k_irs+i-1) - 1
          enddo
+      else
+         call ifill(nmo(1),0,int_mb(k_irs),1)
       endif
 c
 c     Keep track of where the MOs will end up
