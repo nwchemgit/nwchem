@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq_data.fh,v 1.1 2004-09-09 00:10:45 marat Exp $
+c $Id: qmmm_bq_data.fh,v 1.2 2005-03-09 00:19:29 marat Exp $
 c
       integer bq_exclude
       integer nbq
@@ -13,9 +13,11 @@ c
       integer i_qbq,h_qbq
       integer i_tbq,h_tbq
       integer i_ibq,h_ibq
+      logical readbq
 
 
       common/qmmm_bq_data/ bq_exclude,
+     &                     readbq,
      &                     nbq,
      &                     nbqs,
      &                     nbqw,

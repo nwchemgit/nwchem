@@ -15,6 +15,9 @@ c
      + call errquit('qmmm_data_init: qmmm:bq_exclude',bq_exclude,
      &       RTDB_ERR)
 
+      if (.not. rtdb_get(irtdb,'qmmm:readbq',mt_log,1,readbq)) then
+         readbq = .false.
+      end if
 
       end
 
@@ -44,15 +47,18 @@ c
 
       call qmmm_bq_data_dealloc()
 c
-c      if(bq_exclude.eq.qmmm_all_atoms) return
-
       call mm_prune_bqzone()
-
-      call mm_get_tot_nbqs(nbqs,link)
-      call mm_get_tot_nbqw(nbqw)
+c
+      if(readbq) then
+         call qmmm_read_nbq()
+      else
+         call mm_get_tot_nbqs(nbqs,link)
+         call mm_get_tot_nbqw(nbqw)
+      end if
+c
       nbq=nbqs+nbqw
       
-      if(qmmm_print_debug()) then
+      if(qmmm_master()) then
          write(*,*) "Total number of Bq charges",nbq
          write(*,*) "Number of solute Bq charges",nbqs
          write(*,*) "Number of solvent Bq charges",nbqw
@@ -62,8 +68,21 @@ c      if(bq_exclude.eq.qmmm_all_atoms) return
 
       call qmmm_bq_data_alloc()
 
+c     get global index
+      if(readbq) then
+        call qmmm_read_ibq()
+        call mm_reset_solute_bqzone(nbqs,int_mb(i_ibq))
+        call mm_reset_solvent_bqzone(nbqw,int_mb(i_ibq+nbqs))
+      else
+        if(nbqs.ne.0) then
+          call mm_get_solute_bq_ind(nbqs,link,int_mb(i_ibq))
+        end if
+        if(nbqw.ne.0) then
+          call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
+        end if
+      end if
+
       if(nbqs.ne.0) then
-        call mm_get_solute_bq_ind(nbqs,link,int_mb(i_ibq))
         call mm_get_solute_geom_bq(nbqs,link,
      >                       int_mb(i_ibq),
      >                       dbl_mb(i_cbq),
@@ -116,7 +135,6 @@ c
 c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
       if(nbqw.ne.0) then
-        call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
         call mm_get_solvent_geom(nbqw,int_mb(i_ibq+nbqs),
      >                       dbl_mb(i_cbq+3*nbqs),
      >                       dbl_mb(i_qbq+nbqs))
@@ -134,6 +152,9 @@ c     -------------------------------------------
      >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
         end do
       end if
+c     
+c     save bq indexes
+      call qmmm_save_bq_index()
 
       if(qmmm_print_debug()) 
      >       write(*,*) "out",pname
@@ -383,4 +404,103 @@ c
 
       end 
 
+      subroutine qmmm_read_ibq()
+      implicit none
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+#include "qmmm_bq_data.fh"
+
+c     local variables
+      integer nf
+      character*(nw_max_path_len) filename
+      character*30 pname
+
+      integer i
+      integer anbq,anbqs,anbqw
+
+      pname = "qmmm_read_ibq"
+
+      if(qmmm_master()) then
+        call util_file_name("bq.ind",.false.,.false., filename)
+        open(unit=46,status="old",form="formatted",file=filename)
+        read(46,*) anbqs,anbqw,anbq
+        do i=1,anbq
+          read(46,*) int_mb(i_ibq+i-1)
+        end do
+        close(46)
+      end if
+      call ga_brdcst(msg_qmmm_ind,int_mb(i_ibq),
+     >      nbq*ma_sizeof(mt_int,1,mt_byte),0)
+
+      call ga_sync()
+
+      end
+
+      subroutine qmmm_read_nbq()
+      implicit none
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+#include "qmmm_bq_data.fh"
+
+c     local variables
+      integer nf
+      character*(nw_max_path_len) filename
+
+      integer i
+
+      if(qmmm_master()) then
+        call util_file_name("bq.ind",.false.,.false., filename)
+        open(unit=46,status="old",form="formatted",file=filename)
+        read(46,*) nbqs,nbqw
+        close(46)
+      end if
+
+      call ga_brdcst(msg_qmmm_nbqs,nbqs,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(msg_qmmm_nbqw,nbqw,ma_sizeof(mt_int,1,mt_byte),0)
+
+
+      end
+
+      subroutine qmmm_save_bq_index()
+      implicit none
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "qmmm_bq_data.fh"
+#include "mafdecls.fh"
+
+c     local variables
+      integer nf
+      character*(nw_max_path_len) filename
+
+      integer i
+
+ 
+      if(.not.qmmm_master()) return
+
+      call util_file_name("bq.ind",.false.,.false., filename)
+
+      open(unit=46,status="unknown",form="formatted",file=filename)
+
+      write(46,*) nbqs,nbqw,nbq
+      do i=1,nbq
+       write(46,*) int_mb(i_ibq+i-1)
+      end do
+
+      call util_flush(46)
+      close(46)
+
+
+      end
 

@@ -161,6 +161,20 @@ c
         goto 2
       endif
 c
+      if(inp_compare(.false.,'load',token)) then
+        if (.not.inp_a(token))
+     +    call errquit("please provide an option for load",
+     +                0, INPUT_ERR)
+        if(inp_compare(.false.,'bq',token)) then
+          if(.not.rtdb_put(rtdb,"qmmm:readbq",mt_log,1,.true.))
+     >     call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+        else
+          call errquit('unknown option for load',0,INPUT_ERR)
+        end if
+        goto 2
+      end if
+c
       if(inp_compare(.false.,'bq_zone',token) .or.
      >   inp_compare(.false.,'bqzone',token)) then
         tag="qmmm:bqzone"

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.52 2005-03-04 01:16:25 marat Exp $
+c $Id: qmmm_geom.F,v 1.53 2005-03-09 00:19:29 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -300,11 +300,19 @@ c     ---------------------------
       call geom_compute_values(igeom)
 
       if(ga_nodeid().eq.0) then
-        call util_print_centered(6,"initial QMMM geometry",
+        call util_print_centered(6,
+     >      "initial QMMM geometry (active atoms only)",
      >              36, .true.)
         if(.not.geom_print_pdb(igeom,6))
      +    call errquit('qmmm: Failed to print pdb geometry',0)
-      end if
+        call util_print_centered(6,
+     >       "initial full QMMM geometry globally indexed",
+     >              36, .true.)
+        call qmmm_print_pdbi(nqm,int_mb(i_ind),
+     >                       dbl_mb(i_c),
+     >                       dbl_mb(i_q),
+     >                       byte_mb(i_t))
+       end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -632,6 +640,35 @@ c     -----------------------------
       call util_flush(46)
       close(46)
 
+
+      end
+
+      subroutine qmmm_print_pdbi(nt,ai,c,q,t)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+      double precision q(nt)
+      character*16 t(nt)
+
+      integer i
+      integer n
+      integer nf
+      integer ns
+
+      do i=1,nt
+       write(6,FMT=9000)
+     >           ai(i),t(i),c(1,i)*0.529177249d00,
+     >            c(2,i)*0.529177249d00,
+     >            c(3,i)*0.529177249d00, q(i)
+
+      end do
+9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
 
       end
 

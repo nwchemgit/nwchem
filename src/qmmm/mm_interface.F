@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.45 2005-02-17 01:57:07 marat Exp $
+c $Id: mm_interface.F,v 1.46 2005-03-09 00:19:29 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -2012,5 +2012,95 @@ c     local variables:
 
       return
  
+      end
+
+      subroutine mm_reset_solvent_bqzone(nt,
+     >                       ai)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+
+      integer i,j
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pwz
+      integer pwl
+      character*32 pname
+      pname = "mm_reset_solvent_bqzone"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pwz(pwz)
+      call mm_get_pwl(pwl)
+
+ 
+      do i=1,nwm
+        do j=1,nt/mwa
+          if(int_mb(pwl+i-1).eq.ai(j)) then
+             int_mb(pwz+i-1)=1
+          end if
+        end do
+      end do
+
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_reset_solute_bqzone(nt,
+     >                       ai)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+
+      integer i,j
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer psz
+      character*32 pname
+
+      pname = "mm_reset_solute_bqzone"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psz(psz)
+
+      do i=1,nsa
+        do j=1,nt
+          if(int_mb(psl+i-1).eq.ai(j)) then
+             int_mb(psz+i-1)=1
+          end if
+        end do
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
