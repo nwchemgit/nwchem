@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.13 1999-12-13 23:44:45 d3j191 Exp $
+c $Id: util_md.F,v 1.14 1999-12-14 17:30:01 d3j191 Exp $
 c
       implicit none
 c
@@ -549,7 +549,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       integer i
@@ -563,6 +563,8 @@ c
       ttime(i,1)=0.0d0
       ctime(i,2)=0.0d0
       ttime(i,2)=0.0d0
+      ctime(i,3)=1.0d9
+      ttime(i,3)=1.0d9
     1 continue
       elseif(itime.le.0.or.itime.gt.mtime) then
       call errquit('Timer index out of range',0)
@@ -572,12 +574,16 @@ c
       ttime(itime,1)=0.0d0
       ctime(itime,2)=0.0d0
       ttime(itime,2)=0.0d0
+      ctime(itime,3)=1.0d9
+      ttime(itime,3)=1.0d9
       elseif(iopt.eq.-1) then
       ncall(itime)=0
       ctime(itime,1)=-cputim
       ttime(itime,1)=-elaps
       ctime(itime,2)=-cputim
       ttime(itime,2)=-elaps
+      ctime(itime,3)=1.0d9
+      ttime(itime,3)=1.0d9
       elseif(iopt.eq.0) then
       ctime(itime,1)=ctime(itime,1)-cputim
       ttime(itime,1)=ttime(itime,1)-elaps
@@ -589,6 +595,8 @@ c
       ttime(itime,1)=ttime(itime,1)+elaps
       ctime(itime,2)=ctime(itime,2)+cputim
       ttime(itime,2)=ttime(itime,2)+elaps
+      ctime(itime,3)=min(ctime(itime,2),ctime(itime,3))
+      ttime(itime,3)=min(ttime(itime,2),ttime(itime,3))
       else
       call errquit('Unimplemented timer option',0)
       endif
@@ -604,7 +612,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -627,7 +635,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -648,13 +656,59 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
      + call errquit('Illegal timer index',0)
 c
       timer_calls=ncall(itime)
+c
+      return
+      end
+      real*8 function timer_cpu_minimum(itime)
+c
+      implicit none
+c
+      integer itime
+c
+      integer mtime
+      parameter(mtime=250)
+      integer ncall(250)
+      real*8 ttime(250,3),ctime(250,3)
+      common/tim/ncall,ttime,ctime
+c
+      if(itime.le.0.or.itime.gt.mtime)
+     + call errquit('Illegal timer index',0)
+c
+      if(ncall(itime).le.0) then
+      timer_cpu_minimum=0.0d0
+      else
+      timer_cpu_minimum=ctime(itime,3)
+      endif
+c
+      return
+      end
+      real*8 function timer_wall_minimum(itime)
+c
+      implicit none
+c
+      integer itime
+c
+      integer mtime
+      parameter(mtime=250)
+      integer ncall(250)
+      real*8 ttime(250,3),ctime(250,3)
+      common/tim/ncall,ttime,ctime
+c
+      if(itime.le.0.or.itime.gt.mtime)
+     + call errquit('Illegal timer index',0)
+c
+      if(ncall(itime).le.0) then
+      timer_wall_minimum=0.0d0
+      else
+      timer_wall_minimum=ttime(itime,3)
+      endif
 c
       return
       end
@@ -667,7 +721,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -690,7 +744,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -713,7 +767,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
@@ -736,7 +790,7 @@ c
       integer mtime
       parameter(mtime=250)
       integer ncall(250)
-      real*8 ttime(250,2),ctime(250,2)
+      real*8 ttime(250,3),ctime(250,3)
       common/tim/ncall,ttime,ctime
 c
       if(itime.le.0.or.itime.gt.mtime)
