@@ -28,21 +28,25 @@ of free energies, search for global minima, explicit simulation of
 solvated molecules, and simulations of complex vibrational modes that
 cannot be described within the harmonic  approximation.
 
-The NWPW module is a collection of two modules.
+The NWPW module is a collection of three modules.
 \begin{itemize}
    \item PSPW - (PSeudopotential Plane-Wave) A gamma point code for
      calculating molecules, liquids, crystals, and  surfaces.  
-   \item Band - A prototype band structure code for calculating
+   \item Band - A band structure code for calculating
      crystals and surfaces with small band gaps (e.g. semi-conductors
      and metals).
+   \item PAW - a prototype (gamma point) projector augmented plane-wave code
+     for calculating molecules, crystals, and surfaces 
 \end{itemize}
-Both of these modules can be used to compute the energy, optimize the
-geometry, find saddle points, compute numerical second derivatives.
-The PSPW module can also be used to perform Car-Parrinello molecular  dynamics.
+The PSPW, Band, and PAW modules can be used to compute the energy and  optimize the
+geometry.  Both the PSPW and Band modules can also be used to find saddle points, and 
+compute numerical second derivatives.  In addition the PSPW module can also be used 
+to perform Car-Parrinello molecular  dynamics.
 
 Section \ref{sec:pspw_tasks} describes the tasks contained within the
 PSPW module, section \ref{sec:band_tasks} describes the tasks
-contained within the Band module, and section \ref{sec:psp_library}
+contained within the Band module, section \ref{sec:paw_tasks} describes
+the tasks contained within the PAW module, and section \ref{sec:psp_library}
 describes the pseudopotential library included with NWChem.  The
 datafiles used by the PSPW module are described in section
 \ref{sec:pspw_data}.  Car-Parrinello output data files are described
@@ -50,13 +54,13 @@ in section \ref{sec:pspw_cp_data}, and the minimization and
 Car-Parrinello algorithms are described in sections
 \ref{sec:pspw_Minimize}-\ref{sec:pspw_Car-Parrinello}. Examples of how
 to setup and run a PSPW geometry optimization, a Car-Parrinello
-simulation, and a band structure minimization are presented in
-sections \ref{sec:pspw_sd}, \ref{sec:pspw_cp}, and
-\ref{sec:band_tutorial1}.  Finally in section \ref{sec:pspw_limits}
-the capabilities and limitations of the NWPW module are  discussed.
+simulation, a band structure minimization, and a PAW geometry
+optimization are presented in sections \ref{sec:pspw_sd}, \ref{sec:pspw_cp}, and
+\ref{sec:band_tutorial1}, and \ref{sec:paw_tutorial}.  
+Finally in section \ref{sec:pspw_limits} the capabilities and limitations of the NWPW module are  discussed.
 
 If you are a first time user of this module it is recommended that you skip the next five sections and proceed directly to the tutorials in sections 
-\ref{sec:pspw_sd}-\ref{sec:pspw_cp}.
+\ref{sec:pspw_sd}-\ref{sec:paw_tutorial}.
 
 \section{PSPW Tasks}
 \label{sec:pspw_tasks}
@@ -82,19 +86,19 @@ TASK pspw saddle
 TASK pspw freqencies       
 TASK pspw vib
 \end{verbatim}
-There are additional directives that are specific to the PSPW module, which are:
+there are additional directives that are specific to the PSPW module, which are:
 \begin{verbatim}
 TASK PSPW [Car-Parrinello             ||
            pspw_dplot                 ||
+           wannier                    ||
            psp_generator              ||
            steepest_descent           ||
-           conjugate_gradient         ||
            psp_formatter              ||
            wavefunction_initializer   ||
            v_wavefunction_initializer ||
            wavefunction_expander       ]
 \end{verbatim}
-The following subsections describe the input to these tasks.
+
 
 Once a user has specified a geometry, the PSPW module can be invoked
 with no input  directives (defaults invoked throughout).  However, the
@@ -123,14 +127,13 @@ PSPW
 
   SIMULATION_CELL            ... (see input description) END
   DPLOT                      ... (see input description) END
+  WANNIER                    ... (see input description) END
   CAR-PARRINELLO             ... (see input description) END
   PSP_GENERATOR              ... (see input description) END
-  PSP_FORMATTER              ... (see input description) END
   WAVEFUNCTION_INITIALIZER   ... (see input description) END
   V_WAVEFUNCTION_INITIATIZER ... (see input description) END
   WAVEFUNCTION_EXPANDER      ... (see input description) END
   STEEPEST_DESCENT           ... (see input description) END
-  CONJUGATE_GRADIENT         ... (see input description) END
 END 
 \end{verbatim}
 
@@ -138,9 +141,6 @@ The following list describes the keywords contained in the PSPW input block.
 \begin{itemize}
         \item $<$cell\_name$>$ - name that points to the
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$formatted\_name$>$ - name that points
-              to a formatted\_pseudopotential file.  A file must
-              be specified for each kind of ion in the simulation.
         \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
@@ -184,14 +184,13 @@ The following list describes the keywords contained in the PSPW input block.
 
         \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
         \item DPLOT (see section \ref{sec:pspw_dplot})
+	\item WANNER (see section \ref{sec:pspw_wannir})
         \item CAR-PARRINELLO(see section \ref{sec:pspw_CP})
         \item PSP\_GENERATOR (see section \ref{sec:pspw_psp_generator})
-        \item PSP\_FORMATTER (see section \ref{sec:pspw_psp_formatter})
         \item WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_wavefunction_initializer})
         \item V\_WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_v_wavefunction_initializer})
         \item WAVEFUNCTION\_EXPANDER (see section \ref{sec:pspw_wavefunction_expander}).
         \item STEEPEST\_DESCENT (see section \ref{sec:pspw_steepest_descent})
-        \item CONJUGATE\_GRADIENT (see section \ref{sec:pspw_conjugate_gradient})
 \end{itemize}
 
 A prototype limited memory BFGS (LMBFGS) minimizer can be used to minimize the energy.  To
@@ -283,6 +282,7 @@ PSPW
    DPLOT
      VECTORS <string input_wavefunctions  default input_movecs>  
      DENSITY [total||difference||alpha||beta||laplacian||potential default total] <string density_name no default>
+     ELF [restricted|alpha|beta] <string elf_name no default>
      ORBITAL <integer orbital_number no default> <string orbital_name no default>
    END
 ...
@@ -291,13 +291,54 @@ END
 The following list describes the input for the DPLOT
 sub-block.
 \begin{itemize}
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a wavefunction file.
-        \item $<$density\_name$>$ - name that will 
-              point to a generated Gaussian Cube file of the specified density.
-        \item $<$orbital\_name$>$ - name that will 
-              point to a generated Gaussian Cube file of the specified orbital.
+        \item $<$input\_wavefunctions$>$ - name of pspw wavefunction file.
+        \item $<$density\_name$>$ - filename containing Gaussian Cube file of
+                                    density plot.
+        \item $<$elf\_name$>$ - filename containing Gaussian Cube file of and
+                                ELF plot 
+        \item $<$orbital\_name$>$ - filename containing Gaussian Cube file of 
+                                    orbital plot.
 \end{itemize}
+
+\subsection{\tt Wannier}
+\label{sec:pspw_wannier}
+The pspw wannier task is generate maximally localized (Wannier) molecular orbitals.  The
+algorithm proposed by Silvestrelli et al is use to generate the Wannier orbitals.
+Input to the Wannier task is contained within the Wannier sub-block.
+\begin{verbatim}
+PSPW
+  ...
+  Wannier
+     ...
+  END
+  ...
+END
+\end{verbatim}
+To run a Wannier calculation the following directive 
+is used:
+\begin{verbatim}
+TASK PSPW Wannier
+\end{verbatim}
+Listed below is the format of a Wannier sub-block.
+\begin{verbatim}
+PSPW
+... 
+   Wannier
+     OLD_WAVEFUNCTION_FILENAME <string input_wavefunctions  default input_movecs>  
+     NEW_WAVEFUNCTION_FILENAME <string output_wavefunctions default input_movecs>
+   END
+...
+END
+\end{verbatim}
+The following list describes the input for the Wannier
+sub-block.
+\begin{itemize}
+        \item $<$input\_wavefunctions$>$ - name of pspw wavefunction file.
+        \item $<$output\_wavefunctions$>$ - name of pspw wavefunction file that
+              will contain the Wannier orbitals. 
+\end{itemize}
+
+
 
 
 \subsection{\tt Point Charge Analysis}
@@ -359,7 +400,7 @@ parameter input.  Listed below is the format of a Car-Parrinello sub-block.
 PSPW
 ...
    Car-Parrinello
-      CELL_NAME <string cell_name>
+      CELL_NAME <string cell_name default 'cell_default'>
       INPUT_WAVEFUNCTION_FILENAME    <string input_wavefunctions    default input_movecs>
       OUTPUT_WAVEFUNCTION_FILENAME   <string output_wavefunctions   default input_movecs>
       INPUT_V_WAVEFUNCTION_FILENAME  <string input_v_wavefunctions  default input_vmovecs>
@@ -371,10 +412,11 @@ PSPW
       ENERGY_CUTOFF       <real ecut default (see input description)>
       WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
       EWALD_NCUT <integer ncut default 1>
-      EWALD_RCUT: <real rcut    default (see input description)>
+      EWALD_RCUT <real rcut    default (see input description)>
       XC (Vosko || PBE96  default Vosko)
       [Nose-Hoover <real Period_electron Temperature_electrion Period_ion Temperature_ion 
                           default 100.0 298.15 100.0 298.15>]
+      [SA_decay <real sa_scale_c sa_scale_r default 1.0 1.0>]
       XYZ_FILENAME <string xyz_filename default XYZ>
       EMOTION_FILENAME <string emotion_filename default EMOTION>
       HMOTION_FILENAME <string hmotion_filename default HMOTION>
@@ -392,9 +434,6 @@ sub-block.
 \begin{itemize}
         \item $<$cell\_name$>$ - name that points to the
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$formatted\_name$>$ - name that points
-              to a formatted\_pseudopotential file.  A file must
-              be specified for each kind of ion in the simulation.
         \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
@@ -451,6 +490,19 @@ sub-block.
                              \item $<$Temperature\_ion$>$ $\equiv$ $T_{ion}$ 
                                     - temperature for ion motion
                          \end{itemize}
+        \item SA\_decay - optional subblock which if specified
+                         causes the simulation to run a simulated annealing simulation.
+                         For simulated annealing to work the Nose-Hoover subblock needs 
+                         to be specified.  The initial temperature are taken from the
+                         Nose-Hoover subblock.
+                         See section \ref{sec:pspw_nose} for a description of the parameters.
+                         \begin{itemize}
+                             \item $<$sa\_scale\_c$>$ $\equiv$ $\tau_{electron}$ 
+                                    - decay rate in atomic units for electronic temperature.
+                             \item $<$sa\_scale\_r$>$ $\equiv$ $\tau_{ionic}$ 
+                                    - decay rate in atomic units for the ionic temperature.
+                         \end{itemize}
+
         \item $<$xyz\_filename$>$ - name that points to the XYZ motion file
                                 generated
         \item $<$emotion\_filename$>$ - name that points to the emotion motion file
@@ -647,62 +699,6 @@ This expansion was suggested by Fuchs and Scheffler
 and is better behaved for taking derivatives (i.e. calculating ionic forces) than the expansion suggested 
 by Louie et al.
 
-
-\subsection{\tt PSP\_FORMATTER}
-\label{sec:pspw_psp_formatter}
-The functionality of this task is now performed automatically. For backwards 
-compatibility, we provide a description of the input to this task.
-
-The psp\_formatter task takes a non-separable pseudopotential defined in
-one-dimension real-space in a one-dimensional psp datafile and does two 
-things to it.  First it puts it into the semi-local form suggested by 
-Kleinman and Bylander and then it expands in in a periodic Fourier
-series defined by the simulation cell in the RTDB.  
-
-Input to the PSP\_FORMATTER task is contained
-within the PSP\_FORMATTER sub-block.
-\begin{verbatim}
-PSPW
-  ...
-  PSP_FORMATTER
-     ...
-  END
-  ...
-END
-\end{verbatim}
-To run a PSP\_FORMATTER calculation the following directive is used:
-\begin{verbatim}
-TASK PSPW PSP_FORMATTER
-\end{verbatim}
-Listed below is the format of a PSP\_FORMATTER sub-block.
-\begin{verbatim}
-PSPW
-... 
-   PSP_FORMATTER
-      CELL_NAME:          <string cell_name> 
-      PSP_FILENAME:       <string psp_name>
-      FORMATTED_FILENAME: <string formatted_name>
-      LOCP: (s||p||d||f||g default (see input description))
-      LMAX: (s||p||d||f||g default (see input description))
-   end
-...
-END
-\end{verbatim}
-The following list describes the input for the PSP\_FORMATTER
-sub-block.
-\begin{itemize}
-        \item $<$cell\_name$>$ - name that points 
-                to the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$psp\_name$>$ - name that points
-              to a one-dimensional pseudopotential datafile.
-        \item $<$formatted\_name$>$ -  
-              name that points to a formatted\_pseudopotential datafile.
-        \item LMAX (s$||$p$||$d$||$f$||$g) - used to specify the maximum number
-              of angular potentials to use. The default is set to the maximum
-              angular momentum in $<$psp\_name$>$.
-        \item LOCP (s$||$p$||$d$||$f$||$g) - used to specify which angular potential
-              is to used as the local potential.  The default is is set to LMAX.
-\end{itemize}
 
 
 
@@ -970,9 +966,6 @@ sub-block.
               the simulation\_cell named $<$cell\_name$>$. See section \ref{sec:pspw_cell}.
         \item GEOMETRY\_OPTIMIZE - optional keyword which if specified
               turns on geometry optimization.   
-        \item $<$formatted\_name$>$ - name that points
-              to a formatted\_pseudopotential file.  A file must
-              be specified for each kind of ion in the simulation.
         \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
@@ -1015,111 +1008,7 @@ sub-block.
                          the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
 \end{itemize}
 
-\subsection{\tt CONJUGATE\_GRADIENT} 
-\label{sec:pspw_conjugate_gradient}
-The functionality of this task is now performed automatically by the PSPW minimizer. 
-For backwards compatibility, we provide a description of the input to this task.
 
-The conjugate\_gradient task is used to optimize the one-electron orbitals
-with respect to the total energy.  This method should be used for finer
-optimization. It is better to use the steepest\_descent task when intitially 
-optimizing the one-electron orbitals.  A detailed description of the this method
-is described in section \ref{sec:pspw_cgmanifold}.
-
-
-Input to the conjugate\_gradient simulation is contained
-within the conjugate\_gradient sub-block.
-\begin{verbatim}
-PSPW
-  ...
-  CONJUGATE_GRADIENT
-     ...
-  END
-  ...
-END
-\end{verbatim}
-To run a conjugate\_gradient calculation the following directive is used:
-\begin{verbatim}
-TASK PSPW conjugate_gradient 
-\end{verbatim}
-The conjugate\_gradient sub-block contains a great deal
-of input, including pointers to data, as well as
-parameter input.  Listed below is the format of a conjugate\_gradient sub-block.
-\begin{verbatim}
-PSPW
-...
-   CONJUGATE_GRADIENT
-      CELL_NAME: <string cell_name>
-      (FORMATTED_FILENAME: <string formatted_name> \
-       ...)
-      INPUT_WAVEFUNCTION_FILENAME:  <string input_wavefunctions  default input_movecs>
-      OUTPUT_WAVEFUNCTION_FILENAME: <string output_wavefunctions default input_movecs>
-      [FAKE_MASS: <real fake_mass default 400000.0>]
-      [TIME_STEP: <real time_step default 5.8>]
-      LOOP: <integer inner_iteration outer_iteration default 10 1>
-      TOLERANCES: <real tole tolc default 1.0e-9 1.0e-9>
-      ENERGY_CUTOFF:       <real ecut default (see input description)>
-      WAVEFUNCTION_CUTOFF: <real wcut default (see input description)>
-      EWALD_NCUT: <integer ncut default 1>]
-      EWALD_RCUT: <real rcut default (see input description)>
-      EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
-      [MULLIKEN]
-
-   END
-...
-
-END
-\end{verbatim}
-The following list describes the input for the CONJUGATE\_GRADIENT
-sub-block.
-\begin{itemize}
-        \item $<$cell\_name$>$ - name that points to the
-              the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$formatted\_name$>$ - name that points
-              to a formatted\_pseudopotential file.  A file must
-              be specified for each kind of ion in the simulation.
-        \item $<$input\_wavefunctions$>$ - name that points
-              to a file containing one-electron orbitals
-        \item $<$output\_wavefunctions$>$ - name that will
-              point to file containing the one-electron orbitals at the
-              end of the run. 
-        \item $<$fake\_mass$>$ - value for the electronic
-              fake mass ($\mu$). This parameter is not presently used in a 
-              conjugate gradient simulation
-        \item $<$time\_step$>$ - value for the time step ($\Delta t$).  This
-              parameter is not presently used in a conjugate gradient simulation.
-        \item $<$inner\_iteration$>$ - number of iterations between the 
-              printing out of energies and tolerances
-        \item $<$outer\_iteration$>$ - number of outer iterations
-        \item $<$tole$>$ - value for the energy tolerance.
-        \item $<$tolc$>$ - value for the one-electron orbital tolerance.
-        \item $<$ecut$>$ - value for the cutoff energy used
-                           to define the density. Default is set
-                           to be the maximum value that will fit
-                           within the simulation\_cell $<$cell\_name$>$.
-        \item $<$wcut$>$ - value for the cutoff energy used
-                           to define the one-electron orbitals.
-                           Default is set to be the maximum value that 
-                           will fix within the simulation\_cell $<$cell\_name$>$.
-        \item $<$ncut$>$ - value for the number of unit cells
-                          to sum over (in each direction) for the real space
-                          part of the Ewald summation. Note Ewald summation
-                          is only used if the simulation\_cell is periodic.
-        \item $<$rcut$>$ - value for the cutoff radius used
-                          in the Ewald summation. Note Ewald summation
-                          is only used if the simulation\_cell is periodic. \\
-                           Default set to be
-                          $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
-        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
-                               parameterization or the Perdew, Burke, 
-                               and Erzherhoff GGA functional.
-        \item MULLIKEN - optional keyword which if specified
-                         causes a Mulliken anaysis to be performed at
-                         the end of the simulation.  For this option
-                         to work angular momentum weights for each kind
-                         of atom have to be entered into the RTDB using
-                         the PSPW ANALYSIS sub-block (see section \ref{sec:pspw_analysis}.
-\end{itemize}
 
 
 
@@ -1166,9 +1055,6 @@ The following list describes these keywords.
 \begin{itemize}
         \item $<$cell\_name$>$ - name that points to the
               the simulation\_cell named $<$cell\_name$>$.  See section \ref{sec:pspw_cell}.
-        \item $<$formatted\_name$>$ - name that points
-              to a formatted\_pseudopotential file.  A file must
-              be specified for each kind of ion in the simulation.
         \item $<$input\_wavefunctions$>$ - name that points
               to a file containing one-electron orbitals
         \item $<$output\_wavefunctions$>$ - name that will
@@ -2016,25 +1902,33 @@ where $P_{ion}$ and $P_{electron}$ are the periods of oscillation for the ionic 
 electronic thermostats.  
 
 
+In simulated annealing simulations the electronic and ionic Temperatures are scaled 
+according to an exponential cooling schedule,
+\begin{eqnarray}
+T_e(t) = T_e^0 \exp^{-\frac{t}{\tau_e}}\\
+T_{ionic}(t) = T_{ionic}^0 \exp^{-\frac{t}{\tau_{ionic}}}
+\end{eqnarray}
+where $T_e^0$ and $T_{ionic}^0$ are the intial temperatures, and $\tau_e$ and $\tau_{ionic}$
+are the cooling rates in atomic units.  
+
 
 
 \section{PSPW Tutorial 1: Minimizing the geometry for a C$_2$ molecule}
 \label{sec:pspw_sd}
 
 In this section we show how use the PSPW module to optimize the geometry 
-for a C$_2$ molecule at the LDA and PBE96 levels. 
+for a C$_2$ molecule at the PBE96 levels. 
 
 In the following example we show the input needed to optimize the geometry
 for a C$_2$ molecule at the LDA level.  In this example, default pseudopotentials
 from the pseudopotential library are used for C, the boundary condition is free-space, 
-the exchange correlation functional is LDA, The boundary condition is free-space, and 
+the exchange correlation functional is PBE96, The boundary condition is free-space, and 
 the simulation cell cell is aperiodic and cubic with a side length of 10.0 Angstroms and has
-40 grid points in each direction (cutoff energy is 44 Ry).  This example input 
-deck can be found in the nwchem source tree in the file: nwchem/examples/pspw/c2\_pspw\_lda.nw
+40 grid points in each direction (cutoff energy is 44 Ry).  
 \begin{verbatim}
          
-start c2_pspw_lda
-title "C2 restricted singlet dimer optimization - LDA/44Ry"
+start c2_pspw_pbe96
+title "C2 restricted singlet dimer optimization - PBE96/44Ry"
 
 geometry  
 C    -0.62 0.0 0.0
@@ -2044,62 +1938,7 @@ end
 pspw
    simulation_cell units angstroms
       boundary_conditions aperiodic
-      lattice
-        lat_a 10.00d0
-        lat_b 10.00d0
-        lat_c 10.00d0
-      end
-      ngrid 40 40 40
-   end
-end
-set nwpw:minimizer 2
-task pspw optimize
-\end{verbatim}
-
-In the next example we show the input needed to optimize the geometry
-for a C$_2$ molecule at the PBE96 level.  For the most part the input
-is exactly the same as above.  However additional input is needed to
-specify a GGA pseudopotential for carbon, since in the current release PBE96
-pseudopotentials are not included in the default pseudopotential library.
-
-\begin{verbatim}
-start c2_pspw_pbe96
-title "C2 restricted singlet dimer optimization - PBE96/44Ry"
-
-geometry  
-C    -0.62 0.0 0.0
-C     0.62 0.0 0.0
-end
-
-pspw
-
-   ###### Troullier and Martins PBE96 pseudopotential for carbon #####
-   psp_generator
-     pseudopotential_filename: C.psp
-     element: C
-     charge: 6.0
-     mass_number: 12.0
-     solver_type: pauli
-     pseudopotential_type: troullier-martins
-     exchange_type: pbe96
-     correlation_type: pbe96
-     maximum_angular_momentum: p   
-     atomic_filling: 1 2
-       1 s 2.0
-       2 s 2.0
-       2 p 2.0
-     cutoff: 2
-       s 1.50
-       p 1.54
-   end
-      
-   simulation_cell units angstroms
-      boundary_conditions aperiodic
-      lattice
-        lat_a 10.00d0
-        lat_b 10.00d0
-        lat_c 10.00d0
-      end
+      SC 10.0
       ngrid 40 40 40
    end
    xc pbe96
@@ -2107,6 +1946,7 @@ end
 set nwpw:minimizer 2
 task pspw optimize
 \end{verbatim}
+
 
 
 \normalsize
@@ -2129,7 +1969,6 @@ the exchange correlation functional is LDA, The boundary condition is free-space
 the simulation cell cell is aperiodic and cubic with a side length of 10.0 Angstroms and has
 40 grid points in each direction (cutoff energy is 44 Ry).  The time step and fake mass
 for the Car-Parrinello run are specified to be 5.0 au and 600.0 au, respectively.  
-This example input deck can be found in the nwchem source tree in the file: nwchem/examples/pspw/c2\_pspw\_lda\_md.nw
 
 \begin{verbatim}
          
