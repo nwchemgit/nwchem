@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.30 1997-04-25 00:40:52 d3e129 Exp $
+c $Id: int_init.F,v 1.31 1997-05-22 21:02:38 d3e129 Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsubsection{int\_init}
@@ -161,7 +161,7 @@ c
 c
 c... generate memory requirements and store in structures in apiP.fh
 c
-      call exact_mem(bases,nbas)
+      call exact_mem(rtdb,bases,nbas)
       call sp_init(nbas,bases)
       call init70               ! To generate tables etc.
       call int_acc_std()
