@@ -145,35 +145,11 @@ c
 c
 c     ----- frozen coordinates ? if so .... -----
 c
-      status = rtdb_parallel(.false.)
-      if(ga_nodeid().eq.0) then
-         if(.not.geom_zmt_get_nzfrz(geom,nzfrz)) then
-            if(dbug) then
-               write(iw,*) '-nzfrz- not found in -geomP- object'
-            endif
-            nzfrz=0
-         else
-            if(dbug) then
-               write(iw,*) '-nzfrz-     found in -geomP- object',nzfrz
-               write(iw,*) 'now read -izfrz-                   '
-            endif
-            if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) then
-               call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
-            endif
-            if(dbug) then
-               if(nzfrz.gt.0) then
-                  write(iw,*) 'izfrz = ',(izfrz(i),i=1,nzfrz)
-               endif
-            endif
-         endif
-         call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
-         call ga_brdcst(25+msgint,izfrz,mitob(mxcoor),0)
-      else
-         call ga_brdcst(24+msgint,nzfrz,mitob(1     ),0)
-         call ga_brdcst(25+msgint,izfrz,mitob(mxcoor),0)
+      nzfrz=0
+      if (geom_zmt_get_nzfrz(geom,nzfrz)) then
+         if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) 
+     $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
       endif
-      call ga_sync()
-      status = rtdb_parallel(.true.)
       if (ga_nodeid().eq.0.or.dbug)  then
          if(nzfrz.gt.0) then
             write(iw,9993) nzfrz
