@@ -75,10 +75,13 @@ c
                   shiftm(iatype(iat)) = shiftm_2g
                endif
                rad_cutoff(1,iatype(iat)) = nint(range_max) 
-c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
-               rad_cutoff(2,iatype(iat)) = atneigh
+               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
+c               rad_cutoff(2,iatype(iat)) = atneigh
             endif
          endif
+         else
+               rad_cutoff(1,iatype(iat)) = 0
+               rad_cutoff(2,iatype(iat)) = 0
          endif
       enddo
 c
@@ -232,7 +235,7 @@ c
                s_max=dabsmax(dimi*dimj,pmat)
             endif
             if(abs(s_max).gt.ov_trunc) then
-               write(0,*) ' atom ',iat,' - neighbor  & S ',jat,s_max
+cedo               write(0,*) ' atom ',iat,' - neighbor  & S ',jat,s_max
                range=grid_rnegl(l_iat+l(jat)+2,exp_iat+expo(jat),
      .              my_acc) 
 c
@@ -244,8 +247,6 @@ c
      .              (coord(3,iat)-coord(3,jat))**2)*exp_iat/
      /              (exp_iat+expo(jat))
                range=range+shift_2g
-cedo               write(0,*) ' expA expB shift_2g ',exp_iat,
-cedo     .              expo(jat),shift_2g
                if(range.gt.range_max) then
                   shiftm_2g=shift_2g
                   range_max =  range
@@ -255,9 +256,9 @@ cedo     .              expo(jat),shift_2g
                endif
             endif
          enddo
-         write(0,1234)' zmin = ',exp_iat+expo(iat_diff),
-     ,        ' lprod = ',l_iat+l(iat_diff),
-     ,        ' range = ',range_max, ' acc ',my_acc
+cedo         write(0,1234)' zmin = ',exp_iat+expo(iat_diff),
+cedo     ,        ' lprod = ',l_iat+l(iat_diff),
+cedo     ,        ' range = ',range_max, ' acc ',my_acc
          return
  1234          format(A,f15.9,A,I3,A,f12.2,A,d10.2)
          end
