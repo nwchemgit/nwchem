@@ -181,7 +181,7 @@ c************************************************************************
 c************************************************************************
 
       subroutine mysync
-      include 'msgtypesf.h'
+#include "msgtypesf.h"
       call synch(msgint)
       return
       end
