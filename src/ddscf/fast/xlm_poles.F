@@ -1,6 +1,6 @@
       subroutine xlm_norm(lmax, q, lq)
 *
-* $Id: xlm_poles.F,v 1.12 1999-07-29 00:53:58 d3e129 Exp $
+* $Id: xlm_poles.F,v 1.13 2000-03-13 19:54:16 edo Exp $
 *
       implicit none
 #include "xlm.fh"
@@ -1152,7 +1152,7 @@ c
          do m = -l,l
             sum = sum + abs(q(m,l))
          end do
-         if (sum .le. 1e-40) then
+         if (sum .le. 1d-40) then
 *            write(6,3) l
 * 3          format(' l = ',i2,' is zero')
 *            continue
