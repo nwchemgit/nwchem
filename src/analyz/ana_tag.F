@@ -1,6 +1,6 @@
       subroutine ana_tag(card,sgmnam,x)
 c
-c $Id: ana_tag.F,v 1.7 2000-08-17 22:14:00 d3j191 Exp $
+c $Id: ana_tag.F,v 1.8 2000-08-21 23:52:44 edo Exp $
 c
       implicit none
 c
@@ -70,9 +70,11 @@ c
 c
 c     broadcast to all nodes
 c
+#if !defined(WIN32)
       if(np.gt.1) then
       call ga_brdcst(mag_d06,byte_mb(i_tag),48*nsa,0)
       endif
+#endif
 c
       return
 c
