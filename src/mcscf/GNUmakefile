@@ -30,6 +30,7 @@
 		mcscf_ohvmo.F \
 		mcscf_orb.F \
 		mcscf_prcnd.F \
+		linesrch.F \
 		hmat.F
 
 
