@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.17 2004-03-02 00:10:21 bylaska Exp $
+c $Id: nwpw_input.F,v 1.18 2004-03-02 19:51:31 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 58)
+      parameter (num_dirs = 59)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -73,6 +73,7 @@ c
      >            'monkhorst-pack',
      >            'zone_name',
      >            'dos_filename',
+     >            'efield',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -121,7 +122,7 @@ c
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,
-     >       4100,
+     >       4100,4200,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -588,6 +589,15 @@ c
         if (.not.rtdb_cput(rtdb,'nwpw:dos:filename',1,zone_name(1:ind)))
      >  call errquit('nwpw_input: error writing to rtdb',4100,RTDB_ERR)
       end if
+
+      goto 10
+
+
+c
+c  EFIELD
+c
+ 4200 if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1,.true.))
+     >  call errquit('nwpw_input: error writing to rtdb',4200,RTDB_ERR)
 
       goto 10
 
