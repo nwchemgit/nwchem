@@ -139,6 +139,7 @@ class nwchem_Synch extends JFrame implements ActionListener, ChangeListener, Win
       int np = Integer.parseInt(card.substring(1,5).trim());
       boolean first=true;
       while((card=br.readLine()) != null){
+	  while(!card.startsWith("synchronization")){card=br.readLine();};
 	card=br.readLine();
 	type=Integer.parseInt(card.substring(1,5).trim());
 	time=Double.valueOf(card.substring(6,17)).doubleValue();
