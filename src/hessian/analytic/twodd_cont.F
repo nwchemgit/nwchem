@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.24 2001-10-02 21:52:34 windus Exp $
+C $Id: twodd_cont.F,v 1.25 2001-11-28 01:13:20 windus Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -49,6 +49,8 @@ c
      $     k_bfglo, k_bfghi, k_labels, k_list, k_q4, k_bftoat
       integer l_shbflo, l_shbfhi
       integer k_shbflo, k_shbfhi
+      integer g_dens2
+      integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
 c
 c dummy variable needed for grad2 call, but not used here
 c
@@ -183,8 +185,35 @@ c
         write(luout,*) 'jfac, kfac, dens ',jfac(i),kfac(i),i
       enddo
 C
+c This is temporary until I get the rest of the code working with multi-dimensional
+c GA for the density
+c
+      dims(1) = ndens*n3xyz
+      dims(2) = nbf
+      dims(3) = nbf
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS density',chunk,
+     &     g_dens2))
+     &   call errquit('twodd_cont: could not allocate g_dens2',555)
+      call ga_zero(g_dens2)
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = 1
+      bhi(1) = nbf
+      blo(2) = 1
+      bhi(2) = nbf
+      do i = 1, ndens
+         alo(1) = i
+         ahi(1) = i
+        call nga_copy_patch('N',g_dens(i),blo,bhi,g_dens2,alo,ahi)
+      enddo
+c
       call shell_fock_build (basis, 1, ndens, jfac, kfac,
-     *   tol2e, g_dens, g_rhs)
+     *   tol2e, g_dens2, g_rhs)
 c will eventually bring back - log_mb(k_act))
       if (otwoprint) then
          if(ga_nodeid().eq.0) then

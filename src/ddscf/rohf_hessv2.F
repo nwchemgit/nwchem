@@ -1,0 +1,489 @@
+      subroutine rohf_hessv2( acc, g_x, g_ax )
+      implicit none
+#include "crohf.fh"
+#include "cscf.fh"
+c     
+c     $Id: rohf_hessv2.F,v 1.1 2001-11-28 01:11:57 windus Exp $
+c
+      integer g_x, g_ax
+      double precision acc
+c     
+      integer gtype,grow,gcol,growp,gcolp
+c     
+c     Check
+c     
+      if (crohf_init_flag.ne.1)
+     $     call errquit('rohf_hessv: ROHF internal block invalid',0)
+      call ga_inquire(g_x,gtype,grow,gcol)
+      if (grow.ne.crohf_vlen)
+     $     call errquit('rohf_hessv: invalid vector length',0)
+      call ga_inquire(g_ax,gtype,growp,gcolp)
+      if (growp.ne.crohf_vlen)
+     $     call errquit('rohf_hessv: invalid vector length',0)
+      if (gcol.ne.gcolp)
+     $     call errquit('rohf_hessv: invalid no. of vectors',0)
+c     
+c     Call internal routine
+c     
+      call rohf_hessv_xx2( basis, geom, nbf, nmo,
+     $     nclosed, nopen,
+     $     pflg, g_movecs, oskel, 
+     $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
+     $     acc, lshift, g_x, g_ax )
+c
+c     Zap numbers much smaller than acc to ensure hard zeroes 
+c     remain unpolluted ... cannot use a threshold larger than the
+c     integral accuracy since can break symmetry in non-abelian groups
+c     Also must ensure that the threshold tends to zero to permit
+c     tight convergence.
+c
+*      call ga_screen(g_ax, acc*0.01d0)
+      call ga_screen(g_ax, min(acc*acc,acc*0.01d0,1d-12))
+c
+      end
+      subroutine rohf_hessv_xx2( basis, geom, nbf, nmo, nclosed, nopen, 
+     $     pflg,
+     $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
+     $     acc, lshift, g_x, g_ax )
+C     $Id: rohf_hessv2.F,v 1.1 2001-11-28 01:11:57 windus Exp $
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "bgj.fh"
+c     
+      integer basis, geom
+      integer nbf, nmo, nclosed, nopen
+      integer pflg
+      integer g_movecs
+      logical oskel
+      integer g_fcv, g_fpv, g_fcp
+      double precision acc
+      double precision lshift
+      integer g_x, g_ax, vlen, nvec, g_tmp, gtype
+      logical cphf_tddft 
+      cphf_tddft = .false.
+c
+c This is a bogus way of handling this!
+c
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
+         cphf_tddft = .false.
+      endif      
+      call ga_zero(g_ax)
+      if (pflg.gt.2 .or. pflg.le.0) then
+         call errquit('rohf_hessv_xx: pflg invalid ', pflg)
+      endif
+      if(cphf_tddft)then
+         call ga_inquire(g_ax,gtype,vlen,nvec)
+         if (vlen.ne.((nmo-nclosed)*nclosed))
+     $        call errquit('rohf_hxx: invalid vector length',0)
+         if (.not. ga_create(MT_DBL, vlen, nvec, 'tddft_precond: tmp',
+     $        1, 0, g_tmp)) call errquit('diag', 0)
+         call ga_copy(g_x, g_tmp)
+         call tddft_scale(g_tmp, g_tmp, .false.)
+         goto 200               ! skip 1e part
+      endif
+      if (pflg .gt. 0) then
+         call ga_dadd( lshift, g_x, 0.d0, g_ax, g_ax )
+         call rohf_hessv_1e( basis, geom, nmo, nclosed, nopen,
+     $        g_fcv, g_fpv, g_fcp,
+     $        g_x, g_ax )
+      endif
+ 200  continue
+      if (pflg .gt. 1) then
+         if(cphf_tddft)then
+            call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+     $           g_movecs, oskel, g_tmp, acc, ! was min(1d-6,acc)
+     $           g_ax ) 
+         else
+            call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+     $           g_movecs, oskel, g_x, acc, ! was min(1d-6,acc)
+     $           g_ax )
+         endif
+      endif
+c
+      if(cphf_tddft)then
+         call tddft_scale(g_tmp, g_ax, .true.)
+         if(.not.ga_destroy(g_tmp))
+     &        call errquit("uhf_hessv: destroy g_tmp?", 0)
+      endif
+c     
+      end
+      subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+     $     g_movec, oskel, g_x, acc, g_ax )
+C     $Id: rohf_hessv2.F,v 1.1 2001-11-28 01:11:57 windus Exp $
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "util.fh"
+#include "cscfps.fh"
+#include "bgj.fh"
+#include "rtdb.fh"
+c     
+c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
+c     
+ccccccccccccccc This code does NOT work for open shell!!!!!ccccccccccccccccc
+c
+c
+      integer basis, geom       ! basis & geom handle
+      integer nbf, nclosed, nopen ! Basis size and occupation
+      integer nmo               ! No. of linearly dependent MOs
+      integer g_movec           ! MO coefficients
+      logical oskel
+      integer g_x               ! Argument
+      double precision acc      ! Accuracy of "Fock" construction
+      integer g_ax              ! Hessian product
+c     
+      integer nvir, voff, xoff, xend
+      integer ooff, oend
+c     
+      integer nfock, ifock
+      integer g_tmp1, g_tmp2, g_tmp3
+c
+      integer ivec, nvec, gtype, vlen
+      integer nset, max_nvec
+      parameter(nset=3, max_nvec=300)
+      double precision jfac(nset*max_nvec),kfac(nset*max_nvec)
+c
+      integer g_dcv,  g_dcp,  g_dpv, g_dens, g_fock
+      double precision tol2e
+      logical odebug
+      logical cphf_tddft 
+c
+      integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+      double precision one, zero, mone, four, half, mhalf, two
+      double precision itol_floor, itol_ceil
+      parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
+      parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
+      parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0)
+*      data jfac / 1.0d0, 1.0d0, 0.0d0/
+*      data kfac /-0.5d0,-0.5d0, 0.5d0/
+      cphf_tddft = .false.
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_tddft', mt_log, 1, cphf_tddft)) then
+         cphf_tddft = .false.
+      endif      
+c     
+c     This get's cleaned up a lot when the Fock build accepts
+c     a single multiple dimension GA for its input.
+c
+c     Lots more to do on memory management.
+c
+      if (nopen.ne.0) call errquit
+     $     ('rohf_h2e2: does not work for open shells',nopen)
+c
+      call ga_inquire(g_x,gtype,vlen,nvec)
+      if (nvec .gt. max_nvec) call errquit
+     $     ('rohf_h2e: too many vectors',nvec)
+      odebug = util_print('rohf_hessv', print_debug)
+c     
+      tol2e = min(max(acc,itol_floor),itol_ceil)
+      nvir = nmo - nclosed - nopen
+      voff = nclosed + nopen + 1
+      ooff = nclosed + 1
+      oend = nclosed + nopen
+c     
+c     Allocate global for work space
+c     
+      g_tmp1 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp1')
+      g_tmp2 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp2')
+      if (nopen .gt. 0) then
+         g_tmp3 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp3')
+      endif
+c
+c     Allocate arrays and generate the AO densities
+c
+      dims(1) = nvec
+      dims(2) = nbf
+      dims(3) = nbf
+      chunk(1) = dims(1)
+      chunk(2) = -1
+      chunk(3) = -1
+      if (.not. nga_create (MT_DBL, 3, dims, 'CPKS dens',chunk,
+     &     g_dens))
+     &   call errquit('rohf_h2e: could not allocate g_dens',555)
+      call ga_zero(g_dens)
+      g_dcv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcv')
+      if (nopen .gt. 0) then
+         g_dcp = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcp')
+         g_dpv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dpv')
+      endif
+c
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = 1
+      bhi(1) = nbf
+      blo(2) = 1
+      bhi(2) = nbf
+      nfock = 0
+      do ivec = 1, nvec
+         nfock          = nfock + 1
+c         jfac(nfock)    =  1.0d0   ! CV
+c         kfac(nfock)    = -0.5d0   ! CV
+         jfac(nfock)    =  1.0d0   ! CV
+         kfac(nfock)    = 1.0d0   ! CV
+         if (nopen .gt. 0) then
+            nfock          = nfock + 1
+            jfac(nfock)    =  1.0d0 ! CP
+            kfac(nfock)    = -0.5d0 ! CP
+            nfock          = nfock + 1
+            jfac(nfock) =  0.0d0 ! PV
+            kfac(nfock) =  0.5d0 ! PV
+         endif
+c     
+c     Compute CV, PV & CP "densities" from argument vector
+c     
+         call ga_zero(g_tmp1)
+         call ga_zero(g_tmp2)
+         call ga_zero(g_dcv)
+         call ga_vec_to_mat(g_tmp1, 1, nvir, 1, nclosed,
+     $                      g_x, 1, ivec)
+         call ga_matmul_patch('n','t',one,zero,
+     $        g_tmp1, 1, nvir, 1, nclosed,
+     $        g_movec, 1, nclosed, 1, nbf,
+     $        g_tmp2, 1, nvir, 1, nbf )
+         call ga_matmul_patch('n','n',one,zero,
+     $        g_movec, 1, nbf, voff, nmo,
+     $        g_tmp2, 1, nvir, 1, nbf,
+     $        g_dcv, 1, nbf, 1, nbf)
+c
+         if (nopen .gt. 0) then
+c     
+c     PV density
+c     
+            xoff = nclosed*nvir + 1
+            xend = nclosed*nvir + nopen*nvir
+            call ga_zero(g_tmp1)
+            call ga_zero(g_tmp2)
+            call ga_zero(g_dpv)
+            call ga_copy_patch('n',
+     $           g_x, xoff, xend, ivec, ivec,
+     $           g_tmp1, 1, nvir, 1, nopen )
+            call ga_matmul_patch('n', 't', one, zero,
+     $           g_tmp1, 1, nvir, 1, nopen,
+     $           g_movec, ooff, oend, 1, nbf,
+     $           g_tmp2, 1, nvir, 1, nbf )
+            call ga_matmul_patch('n', 'n', one, zero,
+     $           g_movec, 1, nbf, voff, nmo,
+     $           g_tmp2, 1, nvir, 1, nbf,
+     $           g_dpv, 1, nbf, 1, nbf )
+c
+c     CP density
+c     
+            call ga_zero(g_tmp1)
+            call ga_zero(g_tmp2)
+            call ga_zero(g_dcp)
+            xoff = (nclosed+nopen)*nvir + 1
+            xend = (nclosed+nopen)*nvir + nclosed*nopen
+            call ga_copy_patch('n', g_x, xoff, xend, ivec, ivec,
+     $           g_tmp1, 1, nopen, 1, nclosed )
+            call ga_matmul_patch('n', 't', one, zero,
+     $           g_tmp1, 1, nopen, 1, nclosed,
+     $           g_movec, 1, nclosed, 1, nbf,
+     $           g_tmp2, 1, nopen, 1, nbf )
+            call ga_matmul_patch('n', 'n', one, zero,
+     $           g_movec, 1, nbf, ooff, oend,
+     $           g_tmp2, 1, nopen, 1, nbf,
+     $           g_dcp, 1, nbf, 1, nbf )
+c
+         endif
+c     
+c     We actually use dcp+dpv and dcp-dpv to build fock matrix
+c     
+         if (nopen .gt. 0) then
+            call ga_dadd(one, g_dcp, one, g_dpv, g_tmp1)
+            call ga_dadd(one, g_dcp,mone, g_dpv, g_tmp2)
+            call ga_copy(g_tmp1, g_dcp)
+            call ga_copy(g_tmp2, g_dpv)
+         endif
+c
+         call ga_symmetrize(g_dcv)
+         if (nopen .gt. 0) then
+            call ga_symmetrize(g_dpv)
+            call ga_symmetrize(g_dcp)
+         endif
+c
+         alo(1) = ivec
+         ahi(1) = ivec
+         write(6,*) 'before the first copy_patch'
+         call flush(6)
+         call nga_copy_patch('N',g_dcv,blo,bhi,g_dens,alo,ahi)
+         if (nopen .gt. 0) then
+c Note that this is NOT correct!
+            call nga_copy_patch('N',g_dpv,blo,bhi,g_dens,alo,ahi)
+            call nga_copy_patch('N',g_dcp,blo,bhi,g_dens,alo,ahi)
+         endif
+      enddo
+c
+      call ga_print(g_dens)
+      if (.not. ga_destroy(g_tmp1)) call errquit('rohf_h2e: GA?',0)
+      if (.not. ga_destroy(g_tmp2)) call errquit('rohf_h2e: GA?',0)
+      if (.not. ga_destroy(g_dcv)) call errquit('rohf_h2e: GA?',0)
+      if (nopen .gt. 0) then
+         if (.not. ga_destroy(g_tmp3)) call errquit('rohf_h2e: GA?',0)
+         if (.not. ga_destroy(g_dcp)) call errquit('rohf_h2e: GA?',0)
+         if (.not. ga_destroy(g_dpv)) call errquit('rohf_h2e: GA?',0)
+      endif
+c
+c     Fock build
+c     
+      if (.not. nga_create (MT_DBL, 3, dims, 'Fockv',chunk,
+     &     g_fock))
+     &   call errquit('rohf_h2e: could not allocate g_fock',555)
+      call ga_zero(g_fock)
+      write(6,*) 'after the zero of g_fock'
+      call flush(6)
+c
+      call shell_fock_build( basis, 0, nfock, jfac, kfac,
+     $     tol2e, g_dens, g_fock)
+      write(6,*) 'after the shell_fock_build'
+      call flush(6)
+c     
+      if (oskel) 
+     $   call errquit('rohf_h2e2: no way',0)
+c
+      g_tmp1 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp1')
+      g_tmp2 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp2')
+      if (nopen .gt. 0) then
+         g_tmp3 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp3')
+      endif
+c
+      ifock = 0
+      do ivec = 1, nvec
+         ifock = ifock + 1      ! History ... copy into tmp arrays
+         alo(1) = ivec
+         ahi(1) = ivec
+         write(6,*) 'before the second copy_patch'
+         call flush(6)
+         call nga_copy_patch('N',g_fock,alo,ahi,g_tmp1,blo,bhi)
+         call nga_copy_patch('N',g_dens,alo,ahi,g_dcv,blo,bhi)
+         if (nopen .gt. 0) then 
+            ifock = ifock + 1
+            alo(1) = ifock
+            ahi(1) = ifock
+            call nga_copy_patch('N',g_fock,alo,ahi,g_tmp2,blo,bhi)
+            call nga_copy_patch('N',g_dens,alo,ahi,g_dcp,blo,bhi)
+            ifock = ifock + 1
+            alo(1) = ifock
+            ahi(1) = ifock
+            call nga_copy_patch('N',g_fock,alo,ahi,g_tmp3,blo,bhi)
+            call nga_copy_patch('N',g_dens,alo,ahi,g_dpv,blo,bhi)
+         endif
+c     
+c     P      =  4(ij|kl) - (ik|jl) - (il|kj)
+c     ij,kl
+c     
+c     K      =  (ik|jl) + (il|kj)
+c     ij,kl
+c     
+c     cv         cv          pv   cp
+c     Z   =  2P.[D  ]  +  P.[D  + D  ]
+c     
+c     pv          cv           cp   pv
+c     Z   =  0.5d0*Z   + 0.5*K.[D  - D  ]
+c     
+c     cp          cv           cp   pv
+c     Z   =  0.5d0*Z   - 0.5*K.[D  - D  ]
+c     
+c     Add the Fock matrices together overwriting the density
+c     matrices to form the results above
+c     
+         call ga_copy(g_tmp1, g_dcv)
+         if(.not.cphf_tddft)call ga_dscal(g_dcv, two)
+         if (nopen .gt. 0) then
+            call ga_dadd(one,  g_dcv,  one, g_tmp2, g_dcv)
+            call ga_dadd(half, g_dcv, half, g_tmp3, g_dpv)
+            call ga_dadd(half, g_dcv,mhalf, g_tmp3, g_dcp)
+         endif
+c     
+c     Closed-Virtual bit
+c     
+         if(cphf_tddft)then
+            call ga_matmul_patch('n','n',one,zero,
+     $           g_dcv, 1, nbf, 1, nbf,
+     $           g_movec, 1, nbf, 1, nclosed,
+     $           g_tmp1, 1, nbf, 1, nclosed )
+            call ga_matmul_patch('t','n',one,zero,
+     $           g_movec, voff, nmo, 1, nbf, 
+     $           g_tmp1, 1, nbf, 1, nclosed,
+     $           g_tmp2, 1, nvir, 1, nclosed )
+         else
+           call ga_matmul_patch('n','n',two,zero,
+     $           g_dcv, 1, nbf, 1, nbf,
+     $           g_movec, 1, nbf, 1, nclosed,
+     $           g_tmp1, 1, nbf, 1, nclosed )
+            call ga_matmul_patch('t','n',one,zero,
+     $           g_movec, voff, nmo, 1, nbf, 
+     $           g_tmp1, 1, nbf, 1, nclosed,
+     $           g_tmp2, 1, nvir, 1, nclosed )
+         endif
+         xoff = 1
+         xend = nvir*nclosed
+         if(cphf_tddft)then
+            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
+     $       g_ax, xoff, ivec, one, '+')
+         else
+            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed,
+     $           g_ax, xoff, ivec, four, '+')
+         endif
+*         call ga_dadd_patch( four, g_tmp2, 1, nvir, 1, nclosed,
+*     $        one, g_ax, xoff, xend, ivec, ivec,
+*     $        g_ax, xoff, xend, ivec, ivec )
+c     
+         if (nopen .gt. 0) then
+c     
+c     Open-Virtual bit
+c     
+            call ga_matmul_patch('n','n',two,zero,
+     $           g_dpv, 1, nbf, 1, nbf,
+     $           g_movec, 1, nbf, ooff, oend,
+     $           g_tmp1, 1, nbf, 1, nopen )
+            call ga_matmul_patch('t','n',one,zero,
+     $           g_movec, voff, nmo, 1, nbf,
+     $           g_tmp1, 1, nbf, 1, nopen,
+     $           g_tmp2, 1, nvir, 1, nopen )
+            xoff = xend + 1
+            xend = xend + nvir*nopen
+            call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nopen,
+     $          g_ax, xoff, ivec, four, '+')
+*            call ga_dadd_patch( four, g_tmp2, 1, nvir, 1, nopen,
+*     $           one, g_ax, xoff, xend, ivec, ivec,
+*     $           g_ax, xoff, xend, ivec, ivec)
+c     
+c     Closed-Open bit
+c     
+            call ga_matmul_patch('n','n',two,zero,
+     $           g_dcp, 1, nbf, 1, nbf,
+     $           g_movec, 1, nbf, 1, nclosed,
+     $           g_tmp1, 1, nbf, 1, nclosed )
+            call ga_zero(g_tmp2)
+            call ga_matmul_patch('t','n',one,zero,
+     $           g_movec, ooff, oend, 1, nbf,
+     $           g_tmp1, 1, nbf, 1, nclosed,
+     $           g_tmp2, 1, nopen, 1, nclosed )
+            xoff = xend + 1
+            xend = xend + nopen*nclosed
+            call ga_mat_to_vec(g_tmp2, 1, nopen, 1, nclosed,
+     $          g_ax, xoff, ivec, four, '+')
+*            call ga_dadd_patch( four, g_tmp2, 1, nopen, 1, nclosed,
+*     $           one, g_ax, xoff, xend, ivec, ivec,
+*     $           g_ax, xoff, xend, ivec, ivec)
+         endif
+      enddo
+c
+      if (.not. ga_destroy(g_dens)) call errquit('rohf_h2e: GA?',0)
+      if (.not. ga_destroy(g_fock)) call errquit('rohf_h2e: GA?',0)
+c
+      if (.not. ga_destroy(g_tmp1)) call errquit('rohf:destroy?',0)
+      if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0)
+      if (nopen .gt. 0) then
+         if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0)
+      endif
+c     
+      end
+

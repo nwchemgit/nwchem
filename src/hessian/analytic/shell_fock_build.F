@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.11 2001-11-09 23:10:19 windus Exp $
+c $Id: shell_fock_build.F,v 1.12 2001-11-28 01:13:20 windus Exp $
 c
       subroutine shell_fock_build(basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock)
@@ -12,7 +12,7 @@ c
 #include "global.fh"
 #include "bas.fh"
       integer basis, nder, ndens, nfock 
-      integer g_dens(ndens), g_fock
+      integer g_dens, g_fock
       double precision jfac(*), kfac(*), tol2e
 c      logical oactive(*)        ! [input] T if atom is active
 c
@@ -46,7 +46,11 @@ c     write(6,*) 'inside of shell_fock_build'
 c
 c Get the dimensions of g_fock and eventually g_dens.
 c
+      write(6,*) 'before the inquire in shell_fock_build'
+      call flush(6)
       call nga_inquire(g_fock, ityp, ndim, dims)
+      write(6,*) 'after the inquire in shell_fock_build'
+      call flush(6)
       nfock = dims(1)
 c
       if (.not. bas_numbf(basis,nbf))
@@ -135,10 +139,12 @@ c
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
      $     call errquit('new_fock:could not allocate q4',maxq)
 c
-      do j = 1, ndens
-         call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
+c     do j = 1, ndens
+c        call ga_reorder(g_dens(j), .true., int_mb(k_rbfmap),
+c    $        .true., int_mb(k_rbfmap))
+c     enddo
+      call nga_reorder(g_dens, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
-      enddo
       call nga_reorder(g_fock, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
 c
@@ -159,10 +165,12 @@ c
 c     $     oactive,
      $     jfac, kfac)
 c
-      do j = 1, ndens
-         call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
-     $        .true., int_mb(k_bfmap))
-      enddo
+c     do j = 1, ndens
+c        call ga_reorder(g_dens(j), .true., int_mb(k_bfmap),
+c    $        .true., int_mb(k_bfmap))
+c     enddo
+      call nga_reorder(g_dens, .true., int_mb(k_bfmap),
+     $     .true., int_mb(k_bfmap))
       call nga_reorder(g_fock, .true., int_mb(k_bfmap),
      $     .true., int_mb(k_bfmap))
 c
@@ -268,7 +276,7 @@ c
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
-c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
+      write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks
 c     
@@ -535,19 +543,27 @@ c
       subroutine new_get_dens_block(
      $     g_dens, ndens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, fac)
       implicit none
-      integer  ndens, g_dens(ndens), blen, ibflo, ibfhi, jbflo, jbfhi
+      integer  ndens, g_dens, blen, ibflo, ibfhi, jbflo, jbfhi
       integer blen2
       double precision buf(*), fac(ndens)
 c
-c     integer lo(3), hi(3), ld(3)
+      integer lo(3), hi(3), ld(3)
       integer idens
 c
       blen2 = blen*blen
       call dfill(ndens*blen*blen,0d0,buf,1)
-***      call nga_get(g_dens, lo, hi, buf, ld) 
+      lo(1) = 1
+      hi(1) = ndens
+      lo(2) = ibflo
+      hi(2) = ibfhi
+      lo(3) = jbflo
+      hi(3) = jbfhi
+      ld(1) = ndens
+      ld(2) = blen
+      call nga_get(g_dens, lo, hi, buf, ld) 
       do idens = 1, ndens
-         call ga_get(g_dens(idens),ibflo,ibfhi,jbflo,jbfhi,
-     *     buf((idens-1)*blen2+1),blen)
+c        call ga_get(g_dens(idens),ibflo,ibfhi,jbflo,jbfhi,
+c    *     buf((idens-1)*blen2+1),blen)
          call dscal(blen2, fac(idens), buf((idens-1)*blen2+1), 1)
       end do
 c

@@ -1,6 +1,6 @@
       subroutine cphf_solve2(rtdb)
 *
-* $Id: cphf_solve2.F,v 1.1 2001-11-09 23:09:19 windus Exp $
+* $Id: cphf_solve2.F,v 1.2 2001-11-28 01:12:37 windus Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -27,7 +27,7 @@ c!!! BGJ
       logical oprint_solve
 c$$$  logical ga_it_ls_mrhs
 c$$$  external ga_it_ls_mrhs
-      external rohf_hessv_precond,rohf_hessv
+      external rohf_hessv_precond,rohf_hessv, rohf_hessv2
       external uhf_precond,uhf_hessv
       logical oprint, oprint_conv
 c     
@@ -237,7 +237,7 @@ c$$$     $        g_grad, g_work, precond_acc,precond_iter))
 c$$$     $        call errquit('cphf did not converge', precond_iter)
          call ga_copy(g_grad, g_work)
          call rohf_hessv_precond(g_work,0.0d0)
-         call ga_lkain(g_work, g_grad, rohf_hessv, rohf_hessv_precond,
+         call ga_lkain(g_work, g_grad, rohf_hessv2, rohf_hessv_precond,
      $        precond_tol, 10*nvec, 20, .false., oprint_solve)
       endif
 c !!! BGJ
