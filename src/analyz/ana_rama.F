@@ -1,6 +1,6 @@
       subroutine ana_rama(x,iram)
 c
-c $Id: ana_rama.F,v 1.1 2000-09-14 21:38:22 d3j191 Exp $
+c $Id: ana_rama.F,v 1.2 2000-09-14 22:37:52 d3j191 Exp $
 c
       implicit none
 c
@@ -21,8 +21,8 @@ c
       logical lphi,lpsi
 c
       if(me.eq.0) then
-      write(lfnram,1000) time
- 1000 format(f12.6)
+      write(lfnram,1000) time,nsgm
+ 1000 format(f12.6,i7)
       endif
 c
       rhb1=0.0d0
