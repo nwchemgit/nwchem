@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.9 2002-10-15 21:23:59 bylaska Exp $
+c $Id: nwpw_input.F,v 1.10 2003-03-19 01:00:21 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -12,7 +12,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 51)
+      parameter (num_dirs = 52)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -65,9 +65,10 @@ c
      >            'ewald_ncut',
      >            'exchange_correlation',
      >            'wannier',
+     >            'geometry_optimize',
      >            'end'/
 
-       logical      value
+       logical      value,move
        character*30 cell_name
        character*30 input_wavefunction_filename
        character*30 output_wavefunction_filename
@@ -107,7 +108,7 @@ c
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
      >       1900,2200,2300,2400,2500,2600,2700,2800,
-     >       2900,3000,3700,
+     >       2900,3000,3700,3800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind)
 
@@ -480,6 +481,17 @@ c wannier
 c
  3700 call pspw_wannier_input(rtdb) 
       goto 10
+
+c
+c  geometry_optimize
+c 
+ 3800 move = .true.
+      value = rtdb_put(rtdb,'cgsd:geometry_optimize',mt_log,1,move)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 3800)
+      goto 10
+
 ************************************************************************
 c
 c END/Finished
