@@ -97,10 +97,6 @@ void pdsptri_( ivector, irange, n, dd, ee, lb, ub, ilb, iub, abstol,
     extern void     mxinit_();
 
 
-#ifndef RIOS
-    extern char    *strcpy();
-#endif
-
 /*
  * Executable code
  * ---------------

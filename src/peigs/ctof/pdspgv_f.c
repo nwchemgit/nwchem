@@ -93,9 +93,6 @@ void pdspgv_(ifact, n, matrixA, mapA, matrixB, mapB, matZ, mapZ, eval,
     extern void     pdspgv();
     extern void     mxinit_();
 
-#ifndef RIOS
-    extern char    *strcpy();
-#endif
 
 /*
  * Executable code

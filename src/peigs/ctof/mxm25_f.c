@@ -70,7 +70,6 @@ void mxm25_( n1, n2, rowQ, mapQ, m, colW, mapW, colZ, iwork, work)
   
   
   me = mxmynd_();
-
   nvecsQ = count_list( me, mapQ, n1);
   nvecsW = count_list( me, mapW, m);
   nvecsZ = nvecsW;

@@ -92,10 +92,6 @@ void pdspev_(n, matrixA, mapA, matZ, mapZ, eval, iscratch, iscsize,
   extern void     pdspev();
   extern void     mxinit_();
 
-#ifndef RIOS  
-  extern char    *strcpy();
-#endif
-  
   /*
    * Executable code
    * ---------------

@@ -97,10 +97,6 @@ void pdspevx_( ivector, irange, n, matrixA, mapA, lb, ub, ilb, iub, abstol,
     extern void     mxinit_();
 
 
-#ifndef RIOS
-    extern char    *strcpy();
-#endif
-
 /*
  * Executable code
  * ---------------

@@ -27,5 +27,5 @@ all:		$(COBJ)
 clean:		
 		-rm -f *.o
 
-.c.o:	 ;	$(CC) $(OPTC) -c $<
+.c.o:	 ;	$(peigs_CC) -c $<
  

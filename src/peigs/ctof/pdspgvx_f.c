@@ -99,10 +99,6 @@ void pdspgvx_( ifact, ivector, irange, n, matrixA, mapA, matrixB, mapB,
     extern void     pdspgvx();
     extern void     mxinit_();
 
-#ifndef RIOS
-    extern char    *strcpy();
-#endif
-
 /*
  * Executable code
  * ---------------
