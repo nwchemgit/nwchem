@@ -124,6 +124,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   extern void dcopy_();
   extern void daxpy_();
   extern DoublePrecision dasum_();
+  extern void bbcast00();
 
   
   Integer csize, ncolumnsA, ncolumnsQ;
@@ -211,37 +212,36 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   iscrat += n_procs;
   
   ii = -1;
-  for ( i = 0; i <= cn; i++ ) {
-    if ( mapA[i] == me )
+  for ( i = 0; i < cn+1; i++ ) {
+    if ( mapA[i] == me ) {
       ii++;
-    if ( i >= c1 )
-      break;
+      if ( i >= c1 )
+	break;
+    }
   }
   
   /*
-    printf(" before me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
-    */
+     printf(" before me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+     */
   
-  return 0;
-
   if ( ii == -1 )
     return 0;
-
-/*  printf(" after me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
-*/
+  
+  /*  printf(" after me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
+   */
   
   
 #ifdef DEBUG7
   printf(" me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", me, c1, cn, b1, bn, n_procs);
   fflush(stdout);
 #endif
-
-/*
-   printf("n = %d  me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", *n, me, c1, cn, b1, bn, n_procs);
-   fflush(stdout);
-   */
   
-
+  /*
+     printf("n = %d  me %d c1 %d cn %d b1 %d bn %d nprocs %d \n", *n, me, c1, cn, b1, bn, n_procs);
+     fflush(stdout);
+     */
+  
+  
   column_indx = ii;
   csize = bn - b1 + 1 ;
   for (i=c1; i<= cn; i++) {
@@ -252,12 +252,11 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
       dscal_( &csize, &t, ptr, &IONE);
       dcopy_( &csize, &vecA[column_indx][b1], &IONE, work, &IONE);
       column_indx++;
-      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision),
-	       c1, mapA[i], n_procs, proclist);
     }
-    else
-      bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), c1, 
-	       mapA[i], n_procs, proclist);
+    
+    
+    bbcast00( (char * ) work, (csize)*sizeof(DoublePrecision), c1,
+	     mapA[i], n_procs, proclist);
     
     k = column_indx ;
     for ( j = i+1; j <= cn; j++ ){
@@ -269,13 +268,11 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
     }
   }
   
-
   if ( n_procs > 1 ) {
     syncco[0] = 0.0e0;
-    gsum00( (char *) syncco, 1, 5, 1, mapA[c1], n_procs, proclist, work);
+    gsum00( (char *) syncco, 1, 0, 1, mapA[c1], n_procs, proclist, work);
   }
-    
-    
+  
   return 0;
 }
 
