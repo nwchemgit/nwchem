@@ -4,7 +4,7 @@ C     sum_pairs -- Sum up a matrix of pair energies to give an MBPT(2)
 C     energy.
 C
 C REVISION
-C     $Id: sum_pairs.F,v 1.2 1995-10-17 08:55:56 d3g681 Exp $
+C     $Id: sum_pairs.F,v 1.3 2000-11-04 07:14:45 edo Exp $
 C
 C SYNOPSIS
       Double Precision Function Sum_Pairs( G_PairE, LowTri)
@@ -33,7 +33,7 @@ C INCLUDE FILES
 #include "msgids.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
-      Integer ILo, IHi, JLo, JHi, LD, I, J, I_Pair, Off
+      Integer ILo, IHi, JLo, JHi, LD,  I_Pair
 C
       Sum_Pairs = FP_Zero
 C
@@ -46,7 +46,33 @@ C
 C        For simplicity, we just loop over the whole patch and pick
 C        up the bits we need.
 C
-         Off = -1
+      call sum_pairs_0(G_PairE, ILo, IHi, JLo, JHi, 
+     ,dbl_mb(I_Pair), LD, Sum_Pairs, LowTri)
+         Call GA_Release(G_PairE, ILo, IHi, JLo, JHi)
+      EndIf
+C
+C     Collect up everyone's partial sums so we all return the right 
+C     answer.
+C
+      Call GA_DGOp(Msg_PrSum, Sum_Pairs, 1, '+')
+      Call GA_Sync
+
+C
+      Return
+      End
+      subroutine sum_pairs_0(G_PairE, ILo, IHi, JLo, JHi, 
+     ,Pair, LD, Sum_Pairs, LowTri)
+      implicit none
+#include "numerical_constants.fh"
+      integer G_PairE, ILo, IHi, JLo, JHi, LD
+      double precision Pair(*)
+      logical LowTri
+      double precision  Sum_Pairs
+c
+      integer Off,J,I
+c
+       
+         Off = 0
          Do J = JLo, JHi
             Do I = ILo, IHi
                Off = Off + 1
@@ -57,29 +83,20 @@ C              triangle with a factor of two.  Nothing comes from the
 C              upper triangle.
 C
                If ( LowTri .AND. I .eq. J) then
-                  Sum_Pairs = Sum_Pairs + Dbl_MB(I_Pair + Off)
+                  Sum_Pairs = Sum_Pairs + Pair(Off)
                ElseIf (LowTri .AND. I .gt. J) then
-                  Sum_Pairs = Sum_Pairs + FP_Two * Dbl_MB(I_Pair + Off)
+                  Sum_Pairs = Sum_Pairs + FP_Two * Pair(Off)
 C
 C                 If there is no permutational symmetry, everyone
 C                 contributes equally.
 C
                ElseIf ( .NOT. LowTri) then
-                  Sum_Pairs = Sum_Pairs + Dbl_MB(I_Pair + Off)
+                  Sum_Pairs = Sum_Pairs + Pair(Off)
                Endif
 C
             EndDo
             Off = Off + LD - (IHi-ILo+1)
          EndDo
 C
-         Call GA_Release(G_PairE, ILo, IHi, JLo, JHi)
-      EndIf
-C
-C     Collect up everyone's partial sums so we all return the right 
-C     answer.
-C
-      Call GA_DGOp(Msg_PrSum, Sum_Pairs, 1, '+')
-      Call GA_Sync
-C
-      Return
-      End
+        return
+	end
