@@ -1,13 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.2 2001-12-17 23:31:13 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2003-10-09 00:36:06 edo Exp $
 #
-# intf and aux break on IBM SP xlhpf with optimization ... why? 
 
- OBJ_OPTIMIZE = \
-            D3dB-new.o
+ OBJ_OPTIMIZE = D3dB-new.o
+ OBJ = 
 
-
-	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
@@ -18,5 +15,9 @@
 
 
 include ../../../config/makefile.h
+ifeq ($(FC),pgf90)
+ OBJ_OPTIMIZE = 
+ OBJ = D3dB-new.o
+endif
 include ../../../config/makelib.h
 
