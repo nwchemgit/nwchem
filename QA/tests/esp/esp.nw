@@ -1,0 +1,41 @@
+Start  ethanethiol
+
+echo
+
+geometry units angstrom
+ C                       -0.13679785    -0.00481189    -0.80451624
+ H                        0.62578531    -0.32160812    -1.51482880
+ H                       -1.10127411    -0.29207360    -1.22130351
+ H                       -0.24376144     1.99990092    -1.63329973
+ C                       -0.08716714     1.52944913    -0.66684011
+ H                        0.87650355     1.85170899    -0.28321287
+ H                       -0.85831843     1.88131524     0.01227783
+ S                        0.12188493    -0.79841229     0.79712325
+ H                        0.02330765    -2.04199613     0.33466897
+end
+
+ecce_print ecce.out
+
+basis "ao basis" cartesian print
+ H library 6-31g*
+ C library 6-31g*
+ S library 6-31g*
+end
+
+scf
+  RHF
+  nopen 0
+end
+
+driver
+end
+
+task scf energy   
+
+esp
+ restrain hyperbolic
+ constrain equal 2 3 4
+ constrain equal 6 7
+end
+
+task esp
