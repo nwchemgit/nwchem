@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.48 2002-07-23 21:38:54 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.49 2002-07-23 21:43:11 d3j191 Exp $
 c
       implicit none
 c
@@ -441,6 +441,11 @@ c
       endif
    13 continue
       do 15 l=1,nwb
+      rewind(44)
+      read(44,4401) nwa,nsa,nsb,nwb
+      do 17 i=1,nwa+nsa
+      read(44,4402) cdummy
+   17 continue
       read(44,6004) ib,jb
       write(*,'(2i7)') ib,jb
       do 16 i=1,nwm
