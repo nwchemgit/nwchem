@@ -4,6 +4,9 @@
 #
 # rak pnl/94
 #
+# $Id: update_look,v 1.2 1997-02-17 22:02:44 d3e129 Exp $
+#
+#
 if (! $?CVSROOT) then
   echo " CVSROOT not set "
   exit 1
