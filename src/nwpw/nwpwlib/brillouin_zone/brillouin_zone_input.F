@@ -1,5 +1,5 @@
 c
-c $Id: brillouin_zone_input.F,v 1.2 2001-12-13 03:49:52 bylaska Exp $
+c $Id: brillouin_zone_input.F,v 1.3 2002-01-14 17:33:00 bylaska Exp $
 c
       subroutine brillouin_zone_input(rtdb)
       implicit none
@@ -11,7 +11,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 3)
+      parameter (num_dirs = 5)
       character*22 dirs(num_dirs)
       character*255 test
 
@@ -21,8 +21,8 @@ c
       double precision kvector(4)
       integer kvs(2),kvs_new(2)
 
-      data dirs / 'zone_name:',
-     >            'kvector:',
+      data dirs / 'zone_name:','zone_name',
+     >            'kvector:','kvector',
      >            'end'/
 
 c     
@@ -42,7 +42,7 @@ c
      >           'brillouine_zone_input: unknown directive', 0)
 
 
-      goto ( 100,  200, 
+      goto ( 100,100,200,200, 
      >      9999) ind
       call errquit(
      >      'brillouine_zone_input: unimplemented directive', ind)
