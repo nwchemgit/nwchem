@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.143 2002-07-17 15:30:15 d3j191 Exp $
+c $Id: md_main.F,v 1.144 2002-07-17 22:32:52 d3j191 Exp $
 c
       implicit none
 c
@@ -1240,6 +1240,7 @@ c
      + irun,'.trj '
       open(unit=lfntrj,file=filrun(1:index(filrun,' ')-1),
      + form='formatted',status='unknown')
+      call cf_trjhdr(lfntrj)
       endif
       if(nfprop.gt.0) then
       write(filrun,'(a,a,i5.5,a)') filprp(1:index(filprp,'.prp')-1),'-',
@@ -2494,7 +2495,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.143 2002-07-17 15:30:15 d3j191 Exp $
+c $Id: md_main.F,v 1.144 2002-07-17 22:32:52 d3j191 Exp $
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.134 2002-07-17 15:30:15 d3j191 Exp $
+c $Id: md_start.F,v 1.135 2002-07-17 22:32:52 d3j191 Exp $
 c
       implicit none
 c
@@ -224,7 +224,7 @@ c
 c     write file headers
 c     ------------------
 c
-      if(me.eq.0) then
+      if(me.eq.0.and.ntype.ne.3) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0)
      + call cf_trjhdr(lfntrj)
       endif
