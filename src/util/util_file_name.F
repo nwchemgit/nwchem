@@ -236,7 +236,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.4 1996-10-21 19:15:50 d3e129 Exp $
+C$Id: util_file_name.F,v 1.5 1996-10-23 05:12:35 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -279,7 +279,7 @@ c     default is a startup with name extracted from that of the input
 c     file unless a database of that name is present in which case
 c     you get a restart.  Overriden by presenting start/restart.
 c
-      odirective = .false.      ! True if find a start/restart
+      odirective = .false.      ! True if find a start/restart/continue
       ostartup   = .true.
       ocontinue  = .false.
       echo       = .false.
@@ -345,6 +345,7 @@ c
 c     Broadcast start options to everyone else
 c
 10000 call ga_brdcst(Msg_StartUp, ostartup, mitob(1), 0)
+      call ga_brdcst(Msg_StartUp, ocontinue, mitob(1), 0)
       call util_char_ga_brdcst(Msg_startup, file_prefix)
       call util_char_ga_brdcst(Msg_startup, scratch_dir)
       call util_char_ga_brdcst(Msg_startup, permanent_dir)
