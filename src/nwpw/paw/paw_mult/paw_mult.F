@@ -1,8 +1,14 @@
 *
-* $Id: paw_mult.F,v 1.25 2003-10-28 19:50:51 edo Exp $
+* $Id: paw_mult.F,v 1.26 2005-02-23 21:40:18 edo Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.25.4.1  2005/02/23 21:39:50  edo
+* fixed x1 fpe caused by 0**0
+*
+* Revision 1.25  2003/10/28 19:50:51  edo
+* errquizzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+*
 * Revision 1.24  2003/10/21 02:05:17  marat
 * switched to new errquit by running global replace operation
 * see the script below (note it will not work on multiline errquit calls)
@@ -105,7 +111,7 @@
       integer Gx(2),Gy(2),Gz(2),Ylm(2)
       integer paw_pot_mult_size
       real*8  scal,gg,fourpi,omega,rs,w
-      complex*16 itol,cscal
+      complex*16 itol,cscalf
     
       !**** external functions ****
       integer  control_ncut,G_indx
@@ -238,7 +244,7 @@
       itol = dcmplx(1.0d0,0.0d0)
       do l=0,paw_basis_max_mult_l()
         k = 2*l+1
-        cscal = itol/double_factorial(k)
+        cscalf = itol/double_factorial(k)
         itol = itol*dcmplx(0.0d0,-1.0d0)
 
         do m = -l,l
@@ -251,16 +257,24 @@
      >                      dcpl_mb(Ylm(1)))
 
           !**** (-i)**l*Ylm(k)*|k|**l/(2l+1)!! ****
+          if(l.eq.0) then
+          do k=1,npack0
+            dcpl_mb(g_lm(1)+k-1+(jj)*npack0)
+     >            =cscalf
+     >            *dcpl_mb(Ylm(1)+k-1)
+          enddo
+          else
           do k=1,npack0
             gg = dbl_mb(Gx(1)+k-1)**2
      >         + dbl_mb(Gy(1)+k-1)**2
      >         + dbl_mb(Gz(1)+k-1)**2
             dcpl_mb(g_lm(1)+k-1+(jj)*npack0)
-     >            =cscal
+     >            =cscalf
      >            *dsqrt(gg)**l
      >            *dcpl_mb(Ylm(1)+k-1)
      >
           end do !*k*
+          endif
           jj = jj + 1
 
         end do !*m*
