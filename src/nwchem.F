@@ -22,7 +22,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.109 1998-07-31 23:48:10 d3e129 Exp $
+c     $Id: nwchem.F,v 1.110 1998-08-03 18:10:46 d3g681 Exp $
 *------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998     *
 *         Pacific Northwest National Laboratory, * 
@@ -197,6 +197,8 @@ c
       call util_set_rtdb_state(rtdb,ostartup,ocontinue,orestart)
 c
       call util_file_info_rtdb(rtdb) ! Save file info for restart
+c
+      call movecs_ecce_print_on()
 c
 c if continue then go right to task stored on rtdb do not further parse
 c input.  If input is required then user should have used restart
