@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.48 2003-04-03 01:21:06 windus Exp $
+C $Id: hess_init.F,v 1.49 2003-08-08 20:32:24 windus Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -419,7 +419,6 @@ c
         else
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
-           ithresh=min(ithresh,1d-8)
           if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
      $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
         endif
@@ -493,7 +492,7 @@ c
       if (.not.rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,e_conv))then
         e_conv=1d-7
       else
-         e_conv=min(e_conv,1d-7)
+        e_conv=min(e_conv,1d-7)
       endif
       if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
      &   call errquit('hess_init: rtdb_put failed', 100)
