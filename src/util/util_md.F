@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.18 2000-07-06 18:46:37 d3j191 Exp $
+c $Id: util_md.F,v 1.19 2000-07-06 19:52:56 d3j191 Exp $
 c
       implicit none
 c
@@ -228,6 +228,185 @@ c
      + 1.37, 1.36, 1.34, 1.30, 1.30 /
 c
       atom_radius=1.1d-01*radius(number)
+c
+      return
+      end
+      subroutine povinc(lfn,xmin,xmax,ymin,ymax,zmin,zmax)
+c
+      implicit none
+c
+      integer lfn
+      real*8 xmin,xmax,ymin,ymax,zmin,zmax
+c
+      open(unit=lfn,file='camera.inc',form='formatted',status='new',
+     + err=9)
+      write(lfn,1000)
+     + 0.0d0,0.0d0,2.0d0*zmax,
+     + 5.0d-1*(xmax+xmin),5.0d-1*(ymax+ymin),5.0d-1*(zmax+zmin),
+     + 0.0d0, 1.0d0, 5.0d-1,
+     + 1.0d0, 0.0d0, 0.0d0,
+     + 0.0d0, 0.0d0, 1.0d0,
+     + 0.0d0, 1.0d0, 0.0d0
+ 1000 format('camera {',/,
+     + ' location <',f12.6,',',f12.6,',',f12.6,'>',/,
+     + ' look_at <',f12.6,',',f12.6,',',f12.6,'>',/,
+     + ' up <',f12.6,',',f12.6,',',f12.6,'>',/,
+     + ' right <',f12.6,',',f12.6,',',f12.6,'>',/,
+     + ' direction <',f12.6,',',f12.6,',',f12.6,'>',/,
+     + ' sky <',f12.6,',',f12.6,',',f12.6,'>',/,'}')
+      write(lfn,1001) -1.0d-1, 1.0d-1,-1.0d0, 1.0d0,1.0d0,1.0d0
+      write(lfn,1001)  1.0d0,  2.0d0, -2.5d0, 1.0d0,1.0d0,1.0d0
+      write(lfn,1001)  1.0d0,  2.0d0,  5.0d-1,1.0d0,1.0d0,1.0d0
+ 1001 format('light_source { <',f12.6,',',f12.6,',',f12.6,
+     + '> color rgb <',f4.2,',',f4.2,',',f4.2,'> }')
+      write(lfn,1002) 0.0d0,0.0d0,0.0d0
+ 1002 format('background { color rgb <',f4.2,',',f4.2,',',f4.2,'> }')
+      close(unit=lfn)
+c
+    9 continue
+      open(unit=lfn,file='colors.inc',form='formatted',status='new',
+     + err=99)
+      write(lfn,2000)
+ 2000 format('#declare Colors_Inc_Temp = version',/,'#version 2.0')
+      write(lfn,2001) 'Gray05',0.05,0.05,0.05
+      write(lfn,2001) 'Gray05',0.05,0.05,0.05
+      write(lfn,2001) 'Gray10',0.10,0.10,0.10
+      write(lfn,2001) 'Gray15',0.15,0.15,0.15
+      write(lfn,2001) 'Gray20',0.20,0.20,0.20
+      write(lfn,2001) 'Gray25',0.25,0.25,0.25
+      write(lfn,2001) 'Gray30',0.30,0.30,0.30
+      write(lfn,2001) 'Gray35',0.35,0.35,0.35
+      write(lfn,2001) 'Gray40',0.40,0.40,0.40
+      write(lfn,2001) 'Gray45',0.45,0.45,0.45
+      write(lfn,2001) 'Gray50',0.50,0.50,0.50
+      write(lfn,2001) 'Gray55',0.55,0.55,0.55
+      write(lfn,2001) 'Gray60',0.60,0.60,0.60
+      write(lfn,2001) 'Gray65',0.65,0.65,0.65
+      write(lfn,2001) 'Gray70',0.70,0.70,0.70
+      write(lfn,2001) 'Gray75',0.75,0.75,0.75
+      write(lfn,2001) 'Gray80',0.80,0.80,0.80
+      write(lfn,2001) 'Gray85',0.85,0.85,0.85
+      write(lfn,2001) 'Gray90',0.90,0.90,0.90
+      write(lfn,2001) 'Gray95',0.95,0.95,0.95
+      write(lfn,2001) 'DimGray',0.329412,0.329412,0.329412
+      write(lfn,2001) 'DimGrey',0.329412,0.329412,0.329412
+      write(lfn,2001) 'Gray',0.752941,0.752941,0.752941
+      write(lfn,2001) 'Grey',0.752941,0.752941,0.752941
+      write(lfn,2001) 'LightGray',0.658824,0.658824,0.658824
+      write(lfn,2001) 'LightGrey',0.658824,0.658824,0.658824
+      write(lfn,2001) 'VLightGrey',0.80,0.80,0.80
+      write(lfn,2001) 'White',1.0,1.0,1.0
+      write(lfn,2001) 'Red',1.0,0.0,0.0
+      write(lfn,2001) 'Green',0.0,1.0,0.0
+      write(lfn,2001) 'Blue',0.0,0.0,1.0
+      write(lfn,2001) 'Yellow',1.0,1.0,0.0
+      write(lfn,2001) 'Cyan',0.0,1.0,1.0
+      write(lfn,2001) 'Magenta',1.0,0.0,1.0
+      write(lfn,2001) 'Black',0.0,0.0,0.0
+      write(lfn,2001) 'Aquamarine',0.439216,0.858824,0.576471
+      write(lfn,2001) 'BlueViolet',0.62352,0.372549,0.623529
+      write(lfn,2001) 'Brown',0.647059,0.164706,0.164706
+      write(lfn,2001) 'CadetBlue',0.372549,0.623529,0.623529
+      write(lfn,2001) 'Coral',1.0,0.498039,0.0
+      write(lfn,2001) 'CornflowerBlue',0.258824,0.258824,0.435294
+      write(lfn,2001) 'DarkGreen',0.184314,0.309804,0.184314
+      write(lfn,2001) 'DarkOliveGreen',0.309804,0.309804,0.184314
+      write(lfn,2001) 'DarkOrchid',0.6,0.196078,0.8
+      write(lfn,2001) 'DarkSlateBlue',0.419608,0.137255,0.556863
+      write(lfn,2001) 'DarkSlateGray',0.184314,0.309804,0.309804
+      write(lfn,2001) 'DarkSlateGrey',0.184314,0.309804,0.309804
+      write(lfn,2001) 'DarkTurquoise',0.439216,0.576471,0.858824
+      write(lfn,2001) 'Firebrick',0.556863,0.137255,0.137255
+      write(lfn,2001) 'ForestGreen',0.137255,0.556863,0.137255
+      write(lfn,2001) 'Gold',0.8,0.498039,0.196078
+      write(lfn,2001) 'Goldenrod',0.858824,0.858824,0.439216
+      write(lfn,2001) 'GreenYellow',0.576471,0.858824,0.439216
+      write(lfn,2001) 'IndianRed',0.309804,0.184314,0.184314
+      write(lfn,2001) 'Khaki',0.623529,0.623529,0.372549
+      write(lfn,2001) 'LightBlue',0.74902,0.847059,0.847059
+      write(lfn,2001) 'LightSteelBlue',0.560784,0.560784,0.737255
+      write(lfn,2001) 'LimeGreen',0.196078,0.8,0.196078
+      write(lfn,2001) 'Maroon',0.556863,0.137255,0.419608
+      write(lfn,2001) 'MediumAquamarine',0.196078,0.8,0.6
+      write(lfn,2001) 'MediumBlue',0.196078,0.196078,0.8
+      write(lfn,2001) 'MediumForestGreen',0.419608,0.556863,0.137255
+      write(lfn,2001) 'MediumGoldenrod',0.917647,0.917647,0.678431
+      write(lfn,2001) 'MediumOrchid',0.576471,0.439216,0.858824
+      write(lfn,2001) 'MediumSeaGreen',0.258824,0.435294,0.258824
+      write(lfn,2001) 'MediumSlateBlue',0.498039,1.0
+      write(lfn,2001) 'MediumSpringGreen',0.498039,1.0 
+      write(lfn,2001) 'MediumTurquoise',0.439216,0.858824,0.858824
+      write(lfn,2001) 'MediumVioletRed',0.858824,0.439216,0.576471
+      write(lfn,2001) 'MidnightBlue',0.184314,0.184314,0.309804
+      write(lfn,2001) 'Navy',0.137255,0.137255,0.556863
+      write(lfn,2001) 'NavyBlue',0.137255,0.137255,0.556863
+      write(lfn,2001) 'Orange',1,0.5,0.0
+      write(lfn,2001) 'OrangeRed',1.0,0.498039
+      write(lfn,2001) 'Orchid',0.858824,0.439216,0.858824
+      write(lfn,2001) 'PaleGreen',0.560784,0.737255,0.560784
+      write(lfn,2001) 'Pink',0.737255,0.560784,0.560784
+      write(lfn,2001) 'Plum',0.917647,0.678431,0.917647
+      write(lfn,2001) 'Salmon',0.435294,0.258824,0.258824
+      write(lfn,2001) 'SeaGreen',0.137255,0.556863,0.419608
+      write(lfn,2001) 'Sienna',0.556863,0.419608,0.137255
+      write(lfn,2001) 'SkyBlue',0.196078,0.6,0.8
+      write(lfn,2001) 'SlateBlue',0.0,0.498039,1.0
+      write(lfn,2001) 'SpringGreen',0.0,1.0,0.498039
+      write(lfn,2001) 'SteelBlue',0.137255,0.419608,0.556863
+      write(lfn,2001) 'Tan',0.858824,0.576471,0.439216
+      write(lfn,2001) 'Thistle',0.847059,0.74902,0.847059
+      write(lfn,2001) 'Turquoise',0.678431,0.917647,0.917647
+      write(lfn,2001) 'Violet',0.309804,0.184314,0.309804
+      write(lfn,2001) 'VioletRed',0.8,0.196078,0.6
+      write(lfn,2001) 'Wheat',0.847059,0.847059,0.74902
+      write(lfn,2001) 'YellowGreen',0.6,0.8,0.196078
+      write(lfn,2001) 'SummerSky',0.22,0.69,0.87
+      write(lfn,2001) 'RichBlue',0.35,0.35,0.67
+      write(lfn,2001) 'Brass',0.71,0.65,0.26
+      write(lfn,2001) 'Copper',0.72,0.45,0.20
+      write(lfn,2001) 'Bronze',0.55,0.47,0.14
+      write(lfn,2001) 'Bronze2',0.65,0.49,0.24
+      write(lfn,2001) 'Silver',0.90,0.91,0.98
+      write(lfn,2001) 'BrightGold',0.85,0.85,0.10
+      write(lfn,2001) 'OldGold',0.81,0.71,0.23
+      write(lfn,2001) 'Feldspar',0.82,0.57,0.46
+      write(lfn,2001) 'Quartz',0.85,0.85,0.95
+      write(lfn,2001) 'Mica',0.0,0.0,0.0
+      write(lfn,2001) 'NeonPink',1.00,0.43,0.78
+      write(lfn,2001) 'DarkPurple',0.53,0.12,0.47
+      write(lfn,2001) 'NeonBlue',0.30,0.30,1.00
+      write(lfn,2001) 'CoolCopper',0.85,0.53,0.10
+      write(lfn,2001) 'MandarinOrange',0.89,0.47,0.20
+      write(lfn,2001) 'LightWood',0.91,0.76,0.65
+      write(lfn,2001) 'MediumWood',0.65,0.50,0.39
+      write(lfn,2001) 'DarkWood',0.52,0.37,0.26
+      write(lfn,2001) 'SpicyPink',1.00,0.11,0.68
+      write(lfn,2001) 'SemiSweetChoc',0.42,0.26,0.15
+      write(lfn,2001) 'BakersChoc',0.36,0.20,0.09
+      write(lfn,2001) 'Flesh',0.96,0.80,0.69
+      write(lfn,2001) 'NewTan',0.92,0.78,0.62
+      write(lfn,2001) 'NewMidnightBlue',0.00,0.00,0.61
+      write(lfn,2001) 'VeryDarkBrown',0.35,0.16,0.14
+      write(lfn,2001) 'DarkBrown',0.36,0.25,0.20
+      write(lfn,2001) 'DarkTan',0.59,0.41,0.31
+      write(lfn,2001) 'GreenCopper',0.32,0.49,0.46
+      write(lfn,2001) 'DkGreenCopper',0.29,0.46,0.43
+      write(lfn,2001) 'DustyRose',0.52,0.39,0.39
+      write(lfn,2001) 'HuntersGreen',0.13,0.37,0.31
+      write(lfn,2001) 'Scarlet',0.55,0.09,0.09
+      write(lfn,2002) 'Clear',1.0,1.0,1.0,1.0
+ 2001 format('#declare ',a,' = color red ',f8.6,' green ',f8.6,
+     + ' blue ',f8.6)
+ 2002 format('#declare ',a,' = color red ',f8.6,' green ',f8.6,
+     + ' blue ',f8.6,' filter ',f8.6)
+      write(lfn,2003)
+ 2003 format('#declare Plane_Map = 0',/,'#declare Sphere_Map = 1',/,
+     + '#declare Cylinder_Map = 2',/,'#declare Torus_Map = 5',/,
+     + '#declare Bi   = 2 ',/,'#declare Norm = 4',/,
+     + '#version Colors_Inc_Temp')
+      close(unit=lfn)
+c
+   99 continue
 c
       return
       end
