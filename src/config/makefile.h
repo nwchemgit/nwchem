@@ -1,4 +1,4 @@
-# $Id: makefile.h,v 1.122 1995-11-03 20:41:43 d3g681 Exp $
+# $Id: makefile.h,v 1.123 1995-11-03 20:56:00 d3j191 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -6,7 +6,8 @@
 
 
 #
-# TOPDIR points to your top-level directory that contains # src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
+# TOPDIR points to your top-level directory that contains 
+# src, lib, config, ... (SRCDIR, etc., are derived from TOPDIR)
 # Do a setenv for NWCHEM_TOP to be the top level directory
 #
 
@@ -66,14 +67,14 @@ endif
 # specified below.
 
 NW_CORE_SUBDIRS = include basis geom global inp input \
-	ma pstat rtdb tcgmsg util $(CORE_SUBDIRS_EXTRA)
+	ma pstat rtdb tcgmsg symmetry util $(CORE_SUBDIRS_EXTRA)
 
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
 # directories.
 
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
-	rimp2 stepper symmetry ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos
+	rimp2 stepper ideaz dftgrad scfaux cphf ccsd vib mcscf nwargos
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -81,7 +82,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lmoints -lrimp2 \
                     -lstepper -ldftgrad -lnwdft -lgradients \
-                    -lcphf -lscfaux -lddscf -lguess -lsymmetry \
+                    -lcphf -lscfaux -lddscf -lguess \
                     -lvib -lutil -lnwints -lideaz -lnwargos
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
