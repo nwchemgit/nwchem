@@ -1,5 +1,5 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.3 1995-02-02 23:15:19 d3g681 Exp $
+C$Id: input_title.F,v 1.4 1996-07-17 16:32:18 d3g681 Exp $
       implicit none
 #include "rtdb.fh"
 #include "inp.fh"
@@ -10,6 +10,9 @@ c
       integer lent, i
       integer center
 c
+c     Detect extraneous input after title directive ... probable error
+c
+      if (inp_n_field() .gt. 1) goto 1000
       if (.not. inp_read()) goto 1000
       if (.not. inp_line(title)) goto 1000
 c

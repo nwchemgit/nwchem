@@ -1,9 +1,9 @@
-#$Id: GNUmakefile,v 1.28 1996-07-01 16:27:25 d3g681 Exp $
+#$Id: GNUmakefile,v 1.29 1996-07-17 16:32:19 d3g681 Exp $
 
  LIBRARY = libutil.a
 
      OBJ = input_parse.o input_mem.o memory_input.o input_set.o \
-           input_start.o input_title.o task_input.o scf_input.o \
+           input_title.o task_input.o scf_input.o \
            get_inp_file.o vectors_inp.o stepper_inp.o input_echo.o \
 	   dft_input.o md_input.o grad_inp.o memory_def.o \
 	   ccsd_input.o mcscf_input.o plnwv_input.o dplot_input.o \

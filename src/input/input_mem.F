@@ -1,6 +1,6 @@
       subroutine input_mem_size(stack_size, heap_size, global_size,
      $   overify)
-C$Id: input_mem.F,v 1.2 1996-05-20 22:51:20 d3h449 Exp $
+C$Id: input_mem.F,v 1.3 1996-07-17 16:32:15 d3g681 Exp $
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -28,7 +28,7 @@ C
       if (nodeid() .eq. 0) then ! tcgmsg not GA due to init. order
          rewind 5
          call inp_init(5,6)
-         if (inp_search(.false., 'memory')) then
+         if (inp_search(.false., 'memory', 1)) then
             call memory_input(-1, .false., stack_size, heap_size, 
      $           global_size, Total_Size, overify)
          Else
