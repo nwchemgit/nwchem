@@ -1,0 +1,8 @@
+c
+      integer MOINTS_AOUNIT
+      integer MOINTS_IOBUFLEN
+      integer MOINTS_NBLKINFO
+      parameter(MOINTS_AOUNIT=31)
+      parameter(MOINTS_IOBUFLEN=256)
+      parameter(MOINTS_NBLKINFO=5)
+c

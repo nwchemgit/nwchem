@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.54 1997-02-13 01:21:13 d3g681 Exp $
+C$Id: mointdriver.F,v 1.55 1997-03-25 01:33:46 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -37,7 +37,7 @@ c
        integer i, j, ij, ii, ipass
        integer lmemreq, gmem, mxrlen, nvir
        logical oexch, ocoul, osym, oprint, status, ohalf, omemprint
-       logical oblk
+       logical oblk, odisk
        double precision emp2, e2pair
        double precision tpass, tmp2
        double precision tol2e
@@ -86,6 +86,11 @@ c Get algorithm choice
 c
        if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
      $      algo = 'twofold'
+c
+c Check disk caching enabled
+c
+       if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
+     $                   1, odisk)) odisk = .false.
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -278,13 +283,13 @@ c
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
      $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk )
+     $                         blen, oblk, odisk )
        else
          call moints_build_2x( basis,  ohalf, osym, occ_lo,
      $                         oseg_lo, oseg_hi,
      $                         vir_lo, vir_hi, g_vecs,
      $                         g_coul, ocoul, g_exch, oexch,
-     $                         blen, oblk )
+     $                         blen, oblk, odisk )
        endif
 c
 c Evaluate and store pair energies

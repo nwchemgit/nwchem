@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.16 1996-10-22 08:42:31 d3g681 Exp $
+c  $Id: moints_6x.F,v 1.17 1997-03-25 01:33:48 rg240 Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -33,7 +33,7 @@ c
      $                            g_movecs,
      $                            g_coul, ocoul,
      $                            g_exch, oexch,
-     $                            blen, oblk )
+     $                            blen, oblk, odisk )
        implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -57,6 +57,7 @@ c
        logical ocoul,oexch                    ! Type selection
        integer blen                           ! Blocking length
        logical oblk                           ! Toggle AO blocking
+       logical odisk                          ! Toggle AO disk caching
 c
 c Local variables
 c
@@ -92,8 +93,8 @@ c
 c
 c
 c
-       integer moints_numgr, gr_len
-       external moints_numgr, gr_len
+       integer moints_numgr, gr_len, moints_nxttask
+       external moints_numgr, gr_len, moints_nxttask
 c
 c
 c
@@ -103,7 +104,7 @@ c
 c
 c  General basis info
 c
-       ttotal = tcgtime()
+       ttotal = util_cpusec()
        num_nodes = ga_nnodes()
        if (.not. bas_geom(basis, geom)) call errquit
      $      ('moints: cannot get geometry', 0)
@@ -134,6 +135,10 @@ c
  888        format(16i3)
           endif
        endif
+c
+c  Initialize AO disk caching
+c       
+       if (odisk) call moints_aodisk_init()
 c
 c  Local MO coefficients
 c
@@ -215,7 +220,7 @@ c
        ttaskmaxK = 0.d0
        ttaskminK = 1.d24
        ttaskaggK = 0.d0
-       thalf0 = tcgtime()
+       thalf0 = util_cpusec()
        ploop = 0
        next = -1
        if (ocoul) call ga_zero(g_coul)
@@ -226,7 +231,7 @@ c  Four fold shell loop
 c
 c
        if (oexch) then
-         if (next.lt.0) next = nxtval(num_nodes)
+         if (next.lt.0) next = moints_nxttask(num_nodes)
 
          do ii=1,nsh
            ish = int_mb(k_shmap+ii-1)
@@ -237,9 +242,10 @@ c
              status = bas_cn2bfr(basis,jsh,jbflo,jbfhi)
              jlen = jbfhi - jbflo + 1
              scale0 = 1.d0
+             schw_ij = schwarz_shell(ish,jsh)
              if (ish.eq.jsh) scale0 = 0.5d0
              if (next.eq.ploop) then
-               ttask = tcgtime()
+               ttask = util_cpusec()
                tottaskK = tottaskK + 1
                call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
                do kgr=1,ngrp
@@ -258,7 +264,7 @@ c
                    lbflo = int_mb(k_rbfmap+iz-1)
                    lbfhi = int_mb(k_rbfmap+jz-1)
                    lblen = lbfhi - lbflo + 1
-                   tz = tcgtime()
+                   tz = util_cpusec()
                    scale = 1.d0
                    if (kgr.eq.lgr) scale = 0.5d0
 
@@ -273,7 +279,7 @@ c$$$             jlen = jbfhi - jbflo + 1
 c$$$             scale0 = 1.d0
 c$$$             if (ish.eq.jsh) scale0 = 0.5d0
 c$$$             if (next.eq.ploop) then
-c$$$               ttask = tcgtime()
+c$$$               ttask = util_cpusec()
 c$$$               tottaskK = tottaskK + 1
 c$$$               call dfill(n_ssni,0.d0,dbl_mb(k_ssni),1)
 c$$$               do kb=1,nblk
@@ -282,7 +288,7 @@ c$$$                 kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
 c$$$                 do lb=1,kb
 c$$$                   call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
 c$$$                   lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-c$$$                   tz = tcgtime()
+c$$$                   tz = util_cpusec()
 c$$$                   scale = 1.d0
 c$$$                   if (kb.eq.lb) scale = 0.5d0
 
@@ -310,27 +316,27 @@ c$$$     $                                  dbl_mb(k_ssbbt), oblk )
 
 
 
-                   tint = tint + tcgtime() - tz
+                   tint = tint + util_cpusec() - tz
                    flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
-                   tz = tcgtime()
+                   tz = util_cpusec()
                    call moints6x_trf1K( nbf, occ_start, mo1_hi, ilen,
      $                                  jlen, kbflo, kbfhi, lbflo,
      $                                  lbfhi, scale, dbl_mb(k_ssbb),
      $                                  dbl_mb(k_ssbbt), dbl_mb(k_xmo),
      $                                  dbl_mb(k_ssni), dbl_mb(k_hlp))
-                   t1kidx = t1kidx + tcgtime() - tz
+                   t1kidx = t1kidx + util_cpusec() - tz
                  enddo
                enddo
-               tz = tcgtime()
+               tz = util_cpusec()
                call moints6x_trf2K( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
      $                              dbl_mb(k_hlp), dbl_mb(k_ssbb),
      $                              dbl_mb(k_xmo), g_exch )
-               t2kidx = t2kidx + tcgtime() - tz
-               next = nxtval(num_nodes)
-               ttask = tcgtime() - ttask
+               t2kidx = t2kidx + util_cpusec() - tz
+               next = moints_nxttask(num_nodes)
+               ttask = util_cpusec() - ttask
                ttaskmaxK = max(ttaskmaxK,ttask)
                ttaskminK = min(ttaskminK,ttask)
                ttaskaggK = ttaskaggK + ttask
@@ -350,7 +356,7 @@ c  Coulomb part
 c  4-fold shell loop
 c
        if (ocoul) then
-         if (next.lt.0) next = nxtval(num_nodes)
+         if (next.lt.0) next = moints_nxttask(num_nodes)
 
          do ii=1,nsh
            do jj=1,ii
@@ -386,7 +392,7 @@ c$$$             endif
 
              if (odoit) then
                if (next.eq.ploop) then
-                 ttask = tcgtime()
+                 ttask = util_cpusec()
                  tottaskJ = tottaskJ + 1
                  n_ijni = ilen*jlen*nbf*nmo1
                  call dfill(n_ijni,0.d0,dbl_mb(k_ssni),1)
@@ -408,7 +414,7 @@ c$$$             endif
                    lbflo = int_mb(k_rbfmap+iz-1)
                    lbfhi = int_mb(k_rbfmap+jz-1)
                    lblen = lbfhi - lbflo + 1
-                   tz = tcgtime()
+                   tz = util_cpusec()
 
 
 c$$$                 do kb=1,nblk
@@ -417,7 +423,7 @@ c$$$                   kblen = gr_len(nblk,int_mb(k_gmap),kb,kbflo,kbfhi)
 c$$$                   do lb=1,kb
 c$$$                     call gr_sh_idx(nblk,int_mb(k_gmap),lb,lshlo,lshhi)
 c$$$                     lblen = gr_len(nblk,int_mb(k_gmap),lb,lbflo,lbfhi)
-c$$$                     tz = tcgtime()
+c$$$                     tz = util_cpusec()
 c$$$                  call moints_gblk_old( basis, ish, jsh, kshlo, kshhi,
 c$$$     $                                 lshlo, lshhi, schw_ij, tol2e,
 c$$$     $                                 max2e, dbl_mb(k_eri),
@@ -437,10 +443,10 @@ c$$$     $                                 dbl_mb(k_ssbb), osym, oblk )
      $                               dbl_mb(k_ssbb) )
 
 
-                     tint = tint + tcgtime() - tz
+                     tint = tint + util_cpusec() - tz
                      flop1 = flop1 + 4*lblen*ilen*jlen*kblen*nmo1
                      if (lgr.ne.kgr) then
-                       tz = tcgtime()
+                       tz = util_cpusec()
                        call moints_blktr( ilen, jlen, kblen, lblen,
      $                                    dbl_mb(k_ssbb),
      $                                    dbl_mb(k_ssbbt))
@@ -453,7 +459,7 @@ c$$$     $                                 dbl_mb(k_ssbb), osym, oblk )
      $                                   dbl_mb(k_ssni),
      $                                   dbl_mb(k_hlp))
                      else
-                       tz = tcgtime()
+                       tz = util_cpusec()
                        call moints_trf1( nbf, mo1_lo, mo1_hi, ilen,
      $                                   jlen, kbflo, kbfhi, lbflo,
      $                                   lbfhi, 0.5d0, dbl_mb(k_ssbb),
@@ -462,7 +468,7 @@ c$$$     $                                 dbl_mb(k_ssbb), osym, oblk )
      $                                   dbl_mb(k_ssni),
      $                                   dbl_mb(k_hlp))
                      endif
-                     t1jidx = t1jidx + tcgtime() - tz
+                     t1jidx = t1jidx + util_cpusec() - tz
                    enddo
                  enddo
 c$$$                 PRINT*,' <<<<<<<<<<< ',ISH,JSH
@@ -470,15 +476,15 @@ c$$$                 CALL ROW_EXCH( NBF, (ILEN*JLEN*NMO1), INT_MB(K_BFMAP),
 c$$$     $                          DBL_MB(K_SSNI), CRAP )
 c$$$                 CALL MOINTS_MATPRINT( NBF, (ILEN*JLEN*NMO1), CRAP )
                  flop2j = flop2j+2*nbf*ilen*jlen*((nmo1*(nmo1+1))/2)
-                 tz = tcgtime()
+                 tz = util_cpusec()
                  call moints_trf2J( nbf, occ_start, mo1_lo, mo1_hi,
      $                              ibflo, ibfhi, jbflo, jbfhi,
      $                              dbl_mb(k_ssni), dbl_mb(k_hlp),
      $                              dbl_mb(k_ssbb), dbl_mb(k_xmo),
      $                              g_coul )
-                 t2jidx = t2jidx + tcgtime() - tz
-                 next = nxtval(num_nodes)
-                 ttask = tcgtime() - ttask
+                 t2jidx = t2jidx + util_cpusec() - tz
+                 next = moints_nxttask(num_nodes)
+                 ttask = util_cpusec() - ttask
                  ttaskmaxJ = max(ttaskmaxJ,ttask)
                  ttaskminJ = min(ttaskminJ,ttask)
                  ttaskaggJ = ttaskaggJ + ttask
@@ -497,10 +503,11 @@ c
 c
 c Synchronize
 c
-       tz = tcgtime()
-       next = nxtval(-num_nodes)
-       tsynch = tcgtime() - tz
-       thalf = tcgtime() - thalf0
+       tz = util_cpusec()
+       next = moints_nxttask(-num_nodes)
+       tsynch = util_cpusec() - tz
+       thalf = util_cpusec() - thalf0
+       if (odisk) call moints_aodisk_close()
 c
 c Clean-up
 c
@@ -538,11 +545,11 @@ c
 c  Exchange 3 & 4 qtr transformation
 c
        if (oexch) then
-         tz = tcgtime()
+         tz = util_cpusec()
          call moints_Ktrf34(g_exch, .false., occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
-         t34kidx = tcgtime() - tz
+         t34kidx = util_cpusec() - tz
          if (util_print('exchange integral',print_debug)) then
            call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_exch)
          endif
@@ -551,14 +558,14 @@ c
 c  Coulomb 3 & 4 qtr transformation
 c
        if (ocoul) then
-         tz = tcgtime()
+         tz = util_cpusec()
          call moints_Jtrf34( g_coul, occ_start, mo1_lo, mo1_hi,
      $                       mo2_lo, mo2_hi, nbf, dbl_mb(k_mo),
      $                       dbl_mb(k_hlp), osym, int_mb(k_sym) )
          if (util_print('coulomb integral',print_debug)) then
            call moints_op_print(occ_start,mo1_lo,mo1_hi,nmo2,g_coul)
          endif
-         t34jidx = tcgtime() - tz
+         t34jidx = util_cpusec() - tz
        endif
        call ga_sync()
 c
@@ -591,7 +598,7 @@ c
        flop1 = flop1*1.d-6
        flop2k = flop2k*1.d-6
        flop2j = flop2j*1.d-6
-       ttotal = tcgtime() - ttotal
+       ttotal = util_cpusec() - ttotal
        mi_npass = mi_npass + 1.d0
        mi_ttotal = mi_ttotal + ttotal
        mi_thalf = mi_thalf + thalf
@@ -1049,6 +1056,40 @@ c
       integer k_tmp, l_tmp
       integer k_iv, k_jv, k_kv, k_lv
       integer k_il, k_jl, k_kl, k_ll
+      integer blklen
+      logical status
+      integer blkid, blkidt
+c
+      logical moints_gblk_fromdisk, moints_gblk_todisk
+      external moints_gblk_fromdisk, moints_gblk_todisk
+c
+      blklen = (ibfhi-ibflo+1)*(jbfhi-jbflo+1)*
+     $         (kbhi-kblo+1)*(lbhi-lblo+1)
+c
+c  Check to see if we can retrieve from disk
+c  For diagonal blocks, we just need to copy since (ik|jl) = (jl|ik)
+c
+      blkid = kshlo*1000 + lshlo
+      blkidt = (kshlo*1000 + lshlo)*1000
+      if (moints_gblk_fromdisk( blkid, ish, jsh, kshlo, lshlo,
+     $                          ibflo, ibfhi, jbflo, jbfhi, 
+     $                          kblo, kbhi, lblo, lbhi,
+     $                          sbsb )) then
+        if (kshlo.ne.lshlo) then
+          status = moints_gblk_fromdisk( blkidt, ish, jsh, 
+     $                                   kshlo, lshlo, 
+     $                                   ibflo, ibfhi, jbflo, jbfhi, 
+     $                                   lblo, lbhi, kblo, kbhi,
+     $                                   sbst )
+          if (.not.(status)) call errquit(
+     $        'moints_6x_gblkk: inconsistent AO disk records',0)
+        else
+          call dcopy( blklen, sbsb, 1, sbst, 1 )
+        endif
+        return
+      endif
+c
+c  Otherwise compute directly
 c
       if (oblk) then
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
@@ -1087,6 +1128,22 @@ c
      $                          kblo, kbhi, lblo, lbhi,
      $                          sbsb, sbst )
       endif
+c
+c  Cache this block to disk if required
+c  Only one copy for diagonal blocks
+c     
+      status = moints_gblk_todisk( blkid, ish, jsh, kshlo, lshlo,
+     $                             ibflo, ibfhi, jbflo, jbfhi,
+     $                             kblo, kbhi, lblo, lbhi,
+     $                             sbsb )
+      if (kshlo.ne.lshlo) then
+        status = moints_gblk_todisk( blkidt, ish, jsh, kshlo, lshlo,
+     $                               ibflo, ibfhi, jbflo, jbfhi,
+     $                               lblo, lbhi, kblo, kbhi,
+     $                               sbst )
+      endif
+
+
       return
       end
 

@@ -1,5 +1,5 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.16 1997-02-13 01:21:14 d3g681 Exp $
+C     $Id: moints_full.F,v 1.17 1997-03-25 01:33:51 rg240 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -69,6 +69,7 @@ c
       integer noper, oseg_lo, oseg_hi, npass, blen, max_noper
       integer g_coul, nsym(8), sym_lo(8), sym_hi(8)
       logical osym, oprint,  ohalf, omemprint, osymblock, ocontam, oblk
+      logical odisk
       double precision tpass, efzc, eone, etwo
       double precision tol2e, tol_out, tol_sym
       character*7 algo
@@ -160,6 +161,7 @@ c
      $     blen)) blen = 10
       if (.not.rtdb_get(rtdb,'fourindex:aoblock',MT_LOG,1,
      $     oblk)) oblk = .false.
+      odisk = .false.
       if (.not. rtdb_get(rtdb,'fourindex:osym',MT_LOG,1,
      $     osym)) osym = (sym_number_ops(geom) .gt. 0) 
       if (.not. rtdb_get(rtdb,'fourindex:ignore contamination',MT_LOG,1,
@@ -456,12 +458,12 @@ c
          call moints_build_6x( basis, osym, lo,
      $        oseg_lo, oseg_hi,
      $        lo, hi, g_vecs,
-     $        g_coul, .true., -1, .false., blen, oblk )
+     $        g_coul, .true., -1, .false., blen, oblk, odisk )
       else
          call moints_build_2x( basis,  ohalf, osym, lo,
      $        oseg_lo, oseg_hi,
      $        lo, hi, g_vecs,
-     $        g_coul, .true., -1, .false., blen, oblk )
+     $        g_coul, .true., -1, .false., blen, oblk, odisk )
       endif
 c     
 c     Write the MO integrals to disk

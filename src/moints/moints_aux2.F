@@ -1,4 +1,8 @@
 c
+c      $Id: moints_aux2.F,v 1.25 1997-03-25 01:33:50 rg240 Exp $
+c
+c
+c
 c  General interface to block AO integral routine
 c  Branch on whether to use 
 c          - labels/shell blocking
@@ -217,7 +221,6 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -349,8 +352,24 @@ c
       integer k_iv, k_jv, k_kv, k_lv
       integer k_il, k_jl, k_kl, k_ll
       integer k_qv, l_qv
+      logical status
+      integer blkid
 c
+      logical moints_gblk_fromdisk, moints_gblk_todisk
+      external moints_gblk_fromdisk, moints_gblk_todisk
 c
+c  Check to see if we can retrieve from disk
+c
+      blkid = kshlo*1000 + lshlo
+      if (moints_gblk_fromdisk( blkid, ish, jsh, kshlo, lshlo, 
+     $                          ibflo, ibfhi, jbflo, jbfhi, 
+     $                          kblo, kbhi, lblo, lbhi,
+     $                          ssbb )) then
+        return
+      endif
+
+c
+c  Otherwise compute directly
 c
       if (oblk) then
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
@@ -391,6 +410,14 @@ c
      $                       kblo, kbhi, lblo, lbhi,
      $                       ssbb )
       endif
+c
+c  Cache this block to disk if required
+c
+      status = moints_gblk_todisk( blkid, ish, jsh, 
+     $                             kshlo, lshlo,
+     $                             ibflo, ibfhi, jbflo, jbfhi,
+     $                             kblo, kbhi, lblo, lbhi,
+     $                             ssbb )
 c
 c
 c
@@ -531,7 +558,6 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1096,7 +1122,6 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1140,7 +1165,6 @@ C$Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.24 1997-03-18 19:34:15 rg240 Exp $
 c$$$       implicit none
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"

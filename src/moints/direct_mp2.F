@@ -1,5 +1,5 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.31 1997-03-23 23:06:17 d3g681 Exp $
+C$Id: direct_mp2.F,v 1.32 1997-03-25 01:33:44 rg240 Exp $
        implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -35,7 +35,7 @@ c
        integer g_coul, g_exch, g_epair
        integer i, j, ij, ii
        logical oprint, osym, status, omemprint
-       logical ohalf, oblk
+       logical ohalf, oblk, odisk
        double precision emp2, e2pair
        double precision tpass, ttotal, scf_energy
        character*7 algo
@@ -109,6 +109,11 @@ c Get algorithm choice
 c
        if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))
      $      algo = 'twofold'
+c
+c Check disk caching enabled
+c
+       if (.not.rtdb_get(rtdb,'fourindex:aodisk', MT_LOG,
+     $                   1, odisk)) odisk = .false.
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
@@ -258,6 +263,10 @@ c
            write(6,882)
  882       format(10x,'Use quartet at a time')
          endif
+         if (odisk) then
+           write(6,971)
+ 971      format(10x,'AO integral disk caching enabled')
+         endif
          if (algo.eq.'sixfold') then
            write(6,975) 
  975       format(10x,'Sixfold algorithm used',/)
@@ -289,13 +298,13 @@ c
      $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,
-     $                        blen, oblk )
+     $                        blen, oblk, odisk )
        else
          call moints_build_2x(basis, ohalf, osym, occ_lo,
      $                        oseg_lo, oseg_hi,
      $                        vir_lo, vir_hi, g_vecs,
      $                        g_coul, .false., g_exch, .true.,
-     $                        blen, oblk )
+     $                        blen, oblk, odisk )
        endif
 c
 c Evaluate and store pair energies

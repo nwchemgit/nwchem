@@ -1,0 +1,43 @@
+#include "util.fh"      
+c
+c
+c     
+      integer moao_ipass                                ! count of passes
+      integer moao_lun                                  ! unit number
+      character*(nw_max_path_len) moao_fname            ! filename for this PE
+      integer moao_tasknum                              ! current task number
+      integer moao_reclen                               ! length of current record read
+      integer moao_issparse                             ! toggle sparse blocks
+      integer moao_blkid                                ! ksh,lsh ID of this block
+      integer moao_buflen                               ! buffer length in double words
+      integer moao_spreclen                             ! length of sparse record (labels + value)
+      integer moao_lbuf                                 ! buffer handle
+      integer moao_kbuf                                 ! buffer pointer
+      integer moao_kvalrec                              ! pointer to values
+      integer moao_klabrec                              ! pointer to labels
+      logical moao_touch                                ! flag buffer read
+      logical moao_eof                                  ! flag EOF
+      DOUBLE PRECISION MOAO_CUMUL
+      INTEGER MOAO_NREC
+c
+c
+c
+      common/moints_moao/moao_ipass,
+     $                   moao_lun,
+     $                   moao_tasknum,
+     $                   moao_reclen,
+     $                   moao_issparse,
+     $                   moao_blkid,
+     $                   moao_buflen,
+     $                   moao_spreclen,
+     $                   moao_lbuf, 
+     $                   moao_kbuf,
+     $                   moao_kvalrec,
+     $                   moao_klabrec,
+     $                   moao_touch,
+     $                   moao_eof,
+     $                   MOAO_CUMUL,
+     $                   MOAO_NREC,
+     $                   moao_fname
+      
+      

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.60 1997-03-23 23:06:18 d3g681 Exp $
+#$Id: GNUmakefile,v 1.61 1997-03-25 01:33:45 rg240 Exp $
 
         OBJ = atwtest.o \
 	      direct_mp2.o \
@@ -21,6 +21,7 @@ ifneq ($(TARGET),CRAY-T3D)
 endif
 
 OBJ_OPTIMIZE = \
+              moints_aodisk.o \
 	      moints_2x.o \
               moints_6x.o \
               moints_aux2.o 
