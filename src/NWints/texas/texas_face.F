@@ -6,7 +6,7 @@ c
       call setup_thresh(pnl_thresh1)
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.64 2001-12-27 22:54:17 windus Exp $
+c $Id: texas_face.F,v 1.65 2002-01-02 18:11:32 edo Exp $
       implicit real*8 (a-h,o-z)
 #include "mafdecls.fh"
 c----------------------------------------------------------------
@@ -505,7 +505,7 @@ c=================================================================
 c-----------------------------------------------------------------
 c the common block /big/ bl(lcx) has been repleaced by pnl scratch 
 c-----------------------------------------------------------------
-      parameter(mxsh= 50 000)
+      parameter(mxsh= 90 000)
 c------------------------------------
       common /ctxs_index/ maxsh,ifp,inx(mxsh)
       common /inde1/ inxx
