@@ -4,7 +4,7 @@
      $     oseg_lo,oseg_hi,irs_a,irs_b,nva_lo_local,nva_hi_local,
      $     noa_lo,noa_hi,nob_lo,nob_hi,t_a,t_b,
      $     tunita,tunitb,p_ij_a,p_ij_b,p_ab_a,p_ab_b,eval_a,eval_b,
-     $     e2back,g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
+     $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -37,8 +37,9 @@
       parameter(msg_p_ab_a_sum=9998)
       parameter(msg_p_ab_b_sum=9997)
       double precision eval_a(*),eval_b(*)
-      double precision eaa,eab,e2back
+      double precision eaa,eab
       integer tcounta,tcountb
+      integer pijacnt,pijbcnt,pabacnt,pabbcnt
 c     
       eaa=0.0d0
       eab=0.0d0
@@ -105,6 +106,8 @@ c
             enddo
             tcounta=1
             tcountb=1
+            pijacnt=1
+            pabacnt=1
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
@@ -112,60 +115,48 @@ c
      $                 num_oa(symj),num_va(symb),mhalf,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
-     $                 one,p_ij_a,num_oa(symj))
+     $                 one,p_ij_a(pijacnt),num_oa(symj))
+                  pijacnt=pijacnt+num_oa(symi)*num_oa(symj)
                   call dgemm('t','n',num_va(symb),
      $                 num_va(symb),num_oa(symj),half,
      $                 t_a(tcounta),num_oa(symj),
      $                 t_a(tcounta),num_oa(symj),
-     $                 one,p_ab_a,num_va(symb))
+     $                 one,p_ab_a(pabacnt),num_va(symb))
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
+                  pabacnt=pabacnt+num_va(syma)*num_va(symb)
                endif
+               pijbcnt=1
+               pabbcnt=1
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   call dgemm('n','t',num_ob(symj),
-     $                 num_ob(symj),num_vb(symb),mhalf,
+     $                 num_ob(symj),num_vb(symb),minusone,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
-     $                 one,p_ij_b,num_ob(symj))
+     $                 one,p_ij_b(pijbcnt),num_ob(symj))
+                  pijbcnt=pijbcnt+num_ob(symi)*num_ob(symj)
                   call dgemm('t','n',num_vb(symb),
-     $                 num_vb(symb),num_ob(symj),half,
+     $                 num_vb(symb),num_ob(symj),one,
      $                 t_b(tcountb),num_ob(symj),
      $                 t_b(tcountb),num_ob(symj),
-     $                 one,p_ab_b,num_vb(symb))
+     $                 one,p_ab_b(pabbcnt),num_vb(symb))
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)
+                  pabbcnt=pabbcnt+num_vb(syma)*num_vb(symb)
                endif
             enddo
          enddo
       enddo
       call ga_dgop(1,eaa,1,'+')
       call ga_dgop(1,eab,1,'+')
-      e2back=e2back-0.25d0*eaa-0.5d0*eab
-      if(ga_nodeid().eq.0)write(6,*) 'e2back',e2back
-      if(ga_nodeid().eq.0)then
-         write(6,*) 'in pijab'
-         write(6,*) 'eaa,eab',eaa,eab
-      endif
       call ga_dgop(msg_p_ij_a_sum,p_ij_a,noa*noa,'+')
       call ga_dgop(msg_p_ab_a_sum,p_ab_a,nva*nva,'+')
       call ga_dgop(msg_p_ij_b_sum,p_ij_b,nob*nob,'+')
       call ga_dgop(msg_p_ab_b_sum,p_ab_b,nvb*nvb,'+')
       call ga_sync()
-c$$$      write(6,*) 'p_ij_a'
-c$$$      call output(p_ij_a,1,noa,1,noa,noa,noa,1)
-c$$$      write(6,*) 'p_ij_b'
-c$$$      call output(p_ij_b,1,nob,1,nob,nob,nob,1)
-c$$$      write(6,*) 'p_ab_a'
-c$$$      call output(p_ab_a,1,nva,1,nva,nva,nva,1)
-c$$$      write(6,*) 'p_ab_b'
-c$$$      call output(p_ab_b,1,nvb,1,nvb,nvb,nvb,1)
       if(ga_nodeid().eq.0)then
-         call ga_put(g_p_ij_a,1,noa,1,noa,p_ij_a,noa)
-         call ga_put(g_p_ij_b,1,nob,1,nob,p_ij_b,nob)
-         call ga_put(g_p_ab_a,1,nva,1,nva,p_ab_a,nva)
-         call ga_put(g_p_ab_b,1,nvb,1,nvb,p_ab_b,nvb)
-c$$$      call ga_print(g_p_ij_a)
-c$$$      call ga_print(g_p_ij_b)
-c$$$      call ga_print(g_p_ab_a)
-c$$$      call ga_print(g_p_ab_b)
+         call ga_acc(g_p_ij_a,1,noa,1,noa,p_ij_a,noa,one)
+         call ga_acc(g_p_ij_b,1,nob,1,nob,p_ij_b,nob,one)
+         call ga_acc(g_p_ab_a,1,nva,1,nva,p_ab_a,nva,one)
+         call ga_acc(g_p_ab_b,1,nvb,1,nvb,p_ab_b,nvb,one)
       endif
       end
       

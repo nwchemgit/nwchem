@@ -6,7 +6,6 @@
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
-#include "context.fh"
 #include "schwarz.fh"
 #include "util.fh"
       integer rtdb 
@@ -15,9 +14,13 @@
       character*255 movecs_in
       logical status,converged
       character*8 task
+c
+      logical cphf
+      external cphf
+c
+      semi_dir_mp2 = .true.
+c
       status=rtdb_parallel(.true.)
-      if(.not.context_push('mp2_grad'))
-     $     call errquit('mp2_grad: context push failed',0)
       call util_print_push
       call util_print_rtdb_load(rtdb,'mp2_grad')
       status=rtdb_get(rtdb,'scf:converged',mt_log,1,converged)
@@ -60,21 +63,20 @@
             call util_flush(6)
          endif
       endif
-c      call util_file_prefix('movecs',movecs_in)
-      call int_init(rtdb,1,basis)
-      call util_file_name('movecs', .false.,.false.,movecs_in)
       call int_normalize(basis)
       call int_init(rtdb,1,basis)
+      call util_file_name('movecs', .false.,.false.,movecs_in)
+c      call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       call mp2_energy(rtdb,geom,basis,movecs_in,task)
-      call schwarz_tidy()
+c      if(.not.cphf(rtdb))call errquit('could not do cphf',1)
+c      call schwarz_tidy()
+*      call schwarz_tidy()
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit
      $    ('mp2_grad:error destroying geom and basis handles',0)
-      call int_terminate()
+c      call int_terminate()
       call util_print_pop
-      if(.not.context_pop('mp2_grad')) 
-     $     call errquit('context_pop failed',0)
       end
 
 

@@ -5,7 +5,7 @@
      $     nva_lo_local,nva_hi_local,noa_lo,noa_hi,
      $     nob_lo,nob_hi,t_a,t_b,t_eps_a,t_eps_b,tunita,tunitb,
      $     w_ij_a,w_ab_a,w_ij_b,w_ab_b,p_ij_a,p_ab_a,p_ij_b,
-     $     p_ab_b,eval_a,eval_b,trace)
+     $     p_ab_b,eval_a,eval_b)
       implicit none
       integer i,a_a
       integer noa_lo,noa_hi,nva_lo,nva_hi
@@ -22,7 +22,7 @@
       integer nir
       integer g_iajb_a,g_iajb_b
       integer tcounta,tcountb
-      double precision eval_a(*),eval_b(*),trace
+      double precision eval_a(*),eval_b(*)
       double precision eps_i_a,eps_a_a,eps_i_b,eps_a_b
       integer irs_a(*),irs_b(*)
       integer nva_lo_local,nva_hi_local
@@ -41,6 +41,7 @@
       parameter(msg_w_ij_b_sum=9995)
       parameter(msg_w_ab_a_sum=9994)
       parameter(msg_w_ab_b_sum=9993)
+      integer wijacnt,wijbcnt,wabacnt,wabbcnt
 c     
       zero=0.0d0
       one=1.0d0
@@ -53,10 +54,10 @@ c
       nvb=nvb_hi-nvb_lo+1
       tunitptra=1
       tunitptrb=1
-      call dfill((noa*noa),zero,w_ij_a,1)
-      call dfill((nva*nva),zero,w_ab_a,1)
-      call dfill((nob*nob),zero,w_ij_b,1)
-      call dfill((nvb*nvb),zero,w_ab_b,1)
+c$$$      call dfill((noa*noa),zero,w_ij_a,1)
+c$$$      call dfill((nva*nva),zero,w_ab_a,1)
+c$$$      call dfill((nob*nob),zero,w_ij_b,1)
+c$$$      call dfill((nvb*nvb),zero,w_ab_b,1)
       do i=oseg_lo,oseg_hi 
          symi=irs_a(i)
          do a_a=nva_lo_local,nva_hi_local
@@ -104,29 +105,37 @@ c
             enddo
             tcounta=1
             tcountb=1
+            wijacnt=1
+            wijbcnt=1
+            wabacnt=1
+            wabbcnt=1
             do symb=0,nir-1
                symj=ieor(symia,symb)
                if(num_oa(symj).gt.0.and.num_va(symb).gt.0)then
                   call dgemm('n','t',num_oa(symj),
-     $                 num_oa(symj),num_va(symb),one,
+     $                 num_oa(symj),num_va(symb),half,
      $                 t_a(tcounta),num_oa(symj),t_eps_a(tcounta),
-     $                 num_oa(symj),one,w_ij_a,num_oa(symj))
+     $                 num_oa(symj),one,w_ij_a(wijacnt),num_oa(symj))
+                  wijacnt=wijacnt+num_oa(symi)*num_oa(symj)
                   call dgemm('t','n',num_va(symb),
-     $                 num_va(symb),num_oa(symj),one,
+     $                 num_va(symb),num_oa(symj),half,
      $                 t_a(tcounta),num_oa(symj),t_eps_a(tcounta),
-     $                 num_oa(symj),one,w_ab_a,num_va(symb))
+     $                 num_oa(symj),one,w_ab_a(wabacnt),num_va(symb))
                   tcounta=tcounta+num_oa(symj)*num_va(symb)
+                  wabacnt=wabacnt+num_va(syma)*num_va(symb)
                endif
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   call dgemm('n','t',num_ob(symj),
      $                 num_ob(symj),num_vb(symb),one,
      $                 t_b(tcountb),num_ob(symj),t_eps_b(tcountb),
-     $                 num_ob(symj),one,w_ij_b,num_ob(symj))
+     $                 num_ob(symj),one,w_ij_b(wijbcnt),num_ob(symj))
+                  wijbcnt=wijbcnt+num_ob(symi)*num_ob(symj)
                   call dgemm('t','n',num_vb(symb),
      $                 num_vb(symb),num_ob(symj),one,
      $                 t_b(tcountb),num_ob(symj),t_eps_b(tcountb),
-     $                 num_ob(symj),one,w_ab_b,num_vb(symb))
+     $                 num_ob(symj),one,w_ab_b(wabbcnt),num_vb(symb))
                   tcountb=tcountb+num_ob(symj)*num_vb(symb)
+                  wabbcnt=wabbcnt+num_vb(syma)*num_vb(symb)
                endif
             enddo
          enddo
@@ -135,8 +144,6 @@ c
       call ga_dgop(msg_w_ab_a_sum,w_ab_a,nva*nva,'+')
       call ga_dgop(msg_w_ij_b_sum,w_ij_b,nob*nob,'+')
       call ga_dgop(msg_w_ab_b_sum,w_ab_b,nvb*nvb,'+')
-      trace=trace-0.25d0*dsum(noa,w_ij_a,noa+1)
-     $     -0.5d0*dsum(nob,w_ij_b,nob+1)
       call ga_sync()
       end
 

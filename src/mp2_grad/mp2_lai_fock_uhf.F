@@ -2,42 +2,53 @@
      $     g_pab_a, g_pab_b, g_pij_a, g_pij_b,
      $     g_vecs_a, g_vecs_b,
      $     no_a, no_b, nv_a, nv_b,
-     $     g_lai_a, g_lai_b)
+     $     g_lai_a, g_lai_b,rtdb,tol2e)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "geom.fh"
+#include "bas.fh"
       integer geom, basis        ! [input] 
+      integer rtdb
+      double precision tol2e
       integer g_pab_a, g_pab_b, g_pij_a, g_pij_b ! [input] GA densities
       integer g_vecs_a, g_vecs_b ! [input] MO vector handles
       integer no_a, no_b, nv_a, nv_b ! [input] occ/virt dimensions
       integer g_lai_a, g_lai_b  ! [output] Accumulate results into
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+
+c     g_lai += J[Paa] - K[Paa] + J[Pbb]
 c
-c     g_lai += Pbc [(ia|cb) - (ib|ca)] + Pjk [(kj|ia) - (ka|ij)]
-c
-c            = CubPbcCvc [(ia|uv) - (iu|av)] + CujPjkCvk [(ia|uv) - (iu|av)]
-c
-c            = J - K with density from symmetrized total AO density
-c
-      integer g_dens(2), g_fock(2), nfock, nmo, nbf, gtype
-      integer g_tmp1, g_tmp2
-      double precision jfac(2), kfac(2), tol2e
+      integer g_dens(4), g_fock(4), nfock, nmo, nbf, gtype
+      integer g_tmp1, g_tmp2, i
+      double precision jfac(4), kfac(4), one, zero
       logical oskel
 c
-      data nfock /2/
-      data jfac, kfac /1.0d0, 1.0d0, -1.0d0, -1.0d0/
-      data tol2e /1.0d-9/
+      data nfock /4/
+      data jfac / 1.0d0, 1.0d0, 1.0d0, 1.0d0/
+      data kfac /-1.0d0, 0.0d0,-1.0d0, 0.0d0/
       data oskel /.false./
+c
+c
+      one = 1.0d0
+      zero= 0.0d0
 c
 c     Allocate space for AO fock and density matrices
 c
-      call ga_create_atom_blocked(geom,basis,'mp2_grad: da',g_dens(1))
-      call ga_create_atom_blocked(geom,basis,'mp2_grad: db',g_dens(2))
-      call ga_create_atom_blocked(geom,basis,'mp2_grad: fa',g_fock(1))
-      call ga_create_atom_blocked(geom,basis,'mp2_grad: fb',g_fock(2))
-      call ga_zero(g_dens(1))
-      call ga_zero(g_dens(2))
-      call ga_zero(g_fock(1))
-      call ga_zero(g_fock(2))
+      g_dens(1)=ga_create_atom_blocked(geom,basis,'mp2_grad:da')
+      g_dens(2)=g_dens(1)
+      g_dens(3)=ga_create_atom_blocked(geom,basis,'mp2_grad:db')
+      g_dens(4)=g_dens(2)
+      g_fock(1)=ga_create_atom_blocked(geom,basis,'mp2_grad:fa')
+      g_fock(2)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
+      g_fock(3)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
+      g_fock(4)=ga_create_atom_blocked(geom,basis,'mp2_grad:fb')
+      do i = 1, 4
+         call ga_zero(g_dens(i))
+         call ga_zero(g_fock(i))
+      enddo
+      call scf_get_fock_param(rtdb,tol2e)
 c
 c     Workspace
 c
@@ -62,6 +73,7 @@ c
       call ga_dgemm('n', 't', nbf, nbf, nmo, 1.0d0, g_tmp2,
      $     g_vecs_a, 0.0d0, g_dens(1))
       call ga_symmetrize(g_dens(1))
+      call ga_dscal(g_dens(1),-1.0d0)
 c
       call ga_zero(g_tmp1)
       call ga_copy_patch('n',
@@ -71,8 +83,9 @@ c
       call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_vecs_b,
      $     g_tmp1, 0.0d0, g_tmp2)
       call ga_dgemm('n', 't', nbf, nbf, nmo, 1.0d0, g_tmp2,
-     $     g_vecs_b, 0.0d0, g_dens(2))
-      call ga_symmetrize(g_dens(2))
+     $     g_vecs_b, 0.0d0, g_dens(3))
+      call ga_symmetrize(g_dens(3))
+      call ga_dscal(g_dens(3),-1.0d0)
 c
       if (.not. ga_destroy(g_tmp1)) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0)
@@ -82,26 +95,39 @@ c
       call fock_2e(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, g_dens, g_fock)
 c
+      call ga_dadd(1.0d0, g_fock(1), 1.0d0, g_fock(4), g_fock(1))
+      call ga_dadd(1.0d0, g_fock(3), 1.0d0, g_fock(2), g_fock(3))
+c
 c     Transform back
 c
       g_tmp1 = g_dens(1)
 c
       call ga_zero(g_tmp1)
-      call ga_dgemm('n', 'n', nbf, no_a, nbf, 1.0d0, g_fock(1), 
-     $     g_vecs_a, 0.0d0, g_tmp1)
-      call ga_dgemm('t', 'n', nv_a, no_a, nbf, 1.0d0, g_vecs_a,
-     $     g_tmp1, 1.0d0, g_lai_a)
+      call ga_matmul_patch('n','n',1.0d0, 0.0d0, 
+     $     g_fock(1), 1, nbf, 1, nbf,
+     $     g_vecs_a, 1, nbf, no_a+1, nmo,
+     $     g_tmp1, 1, nbf, 1, nv_a)
+      call ga_matmul_patch('t','n', 1.0d0, 1.0d0,
+     $     g_vecs_a, 1, no_a, 1, nbf,
+     $     g_tmp1, 1, nbf, 1, nv_a,
+     $     g_lai_a, 1, no_a, 1, nv_a)
 c
       call ga_zero(g_tmp1)
-      call ga_dgemm('n', 'n', nbf, no_b, nbf, 1.0d0, g_fock(1), 
-     $     g_vecs_b, 0.0d0, g_tmp1)
-      call ga_dgemm('t', 'n', nv_b, no_b, nbf, 1.0d0, g_vecs_b,
-     $     g_tmp1, 1.0d0, g_lai_b)
+      call ga_matmul_patch('n','n',1.0d0, 0.0d0, 
+     $     g_fock(3), 1, nbf, 1, nbf,
+     $     g_vecs_b, 1, nbf, no_b+1, nmo,
+     $     g_tmp1, 1, nbf, 1, nv_b)
+      call ga_matmul_patch('t','n', 1.0d0, 1.0d0,
+     $     g_vecs_b, 1, no_b, 1, nbf,
+     $     g_tmp1, 1, nbf, 1, nv_b,
+     $     g_lai_b, 1, no_b, 1, nv_b)
 c
       if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_dens(2))) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
       if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
 *
       end
       subroutine mp2_wij_fock_uhf(geom, basis,
@@ -117,6 +143,8 @@ c
       integer g_ppq_a, g_ppq_b  ! [input] GA densities
       integer g_vecs_a, g_vecs_b ! [input] MO vector handles
       integer g_wij_a, g_wij_b  ! [output] Accumulate results into
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
 c     w_ij += Ppq [(ij|pq) - (ip|jq)] 
 c
@@ -136,8 +164,8 @@ c
 c
 c     Allocate space for AO fock and density matrices
 c
-      call ga_create_atom_blocked(geom,basis,'mp2_grad: da',g_dens(1))
-      call ga_create_atom_blocked(geom,basis,'mp2_grad: fa',g_fock(1))
+      g_dens(1)=ga_create_atom_blocked(geom,basis,'mp2_grad: da')
+      g_fock(1)=ga_create_atom_blocked(geom,basis,'mp2_grad: fa')
       call ga_zero(g_dens(1))
       call ga_zero(g_fock(1))
 c

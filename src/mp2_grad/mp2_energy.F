@@ -36,7 +36,7 @@
       integer pass
       integer noa,nob,nva,nvb
       integer noper_a,noper_b
-      double precision tol2e,e2,e2back,trace
+      double precision tol2e,e2
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical movecs_read,movecs_read_header
@@ -58,6 +58,19 @@
       integer g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_lai_a,g_lai_b
       integer g_p_ai_a,g_p_ai_b,g_dens_tot_a,g_dens_tot_b
 c     
+      integer g_rhs
+      integer grad_length
+      integer g_p_tot_a,g_p_tot_b
+      logical transform
+      logical cphf
+      external cphf
+      logical file_write_ga,file_read_ga
+      external file_write_ga,file_read_ga
+      character*256 cphf_sol
+      integer cphf_sol_u
+      parameter(cphf_sol_u=18)
+      integer g_x_a,g_x_b,g_y_a,g_y_b,g_z_a,g_z_b,g_scratch
+c
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
      $     call errquit('scf:scftype wrong',1)
       status=bas_numbf(basis,nbf)
@@ -174,7 +187,6 @@ c
          noper_b=nob_hi-nob_lo+1
       endif
 c     
-c     
       if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work))
      $     call errquit('could not alloc work',1)
       if(.not.ma_push_get(mt_int,nbf,'map_a',l_map_a,k_map_a))
@@ -213,8 +225,6 @@ c
       tol2e=1d-12
 c     
       e2=0.0d0
-      e2back=0.0d0
-      trace=0.0d0
       if(scftype.eq.'RHF')then
          call mp2_grad_rhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
      $        int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,
@@ -254,26 +264,16 @@ c
       if(.not.ga_create(mt_dbl,nvb,nvb,'g_p_ab_b',
      $     noa,1,g_p_ab_b))call errquit(
      $     'could not alloc g_p_ab_b',1)
-c$$$      if(.not.ga_create(mt_dbl,noa,nva,'pai_a',noa,1,g_p_ai_a))
-c$$$     $     call errquit('could not alloc ga for pai_a',1)
-c$$$      if(.not.ga_create(mt_dbl,nob,nvb,'pai_b',nob,1,g_p_ai_b))
-c$$$     $     call errquit('could not alloc ga for pai_b',1)
-c$$$      if(.not.ga_create(mt_dbl,nbf,nbf,'dens_tot_a',
-c$$$     $     nbf,1,g_dens_tot_a))
-c$$$     $     call errquit('could not alloc ga for dens_tot_a',1)
-c$$$      if(.not.ga_create(mt_dbl,nbf,nbf,'dens_tot_b',
-c$$$     $     nbf,1,g_dens_tot_b))
-c$$$     $     call errquit('could not alloc ga for dens_tot_b',1)
       if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,1,g_lai_a))
      $     call errquit('could not alloc ga for lai_a',1)
       if(.not.ga_create(mt_dbl,nob,nvb,'lai_b',nob,1,g_lai_b))
      $     call errquit('could not alloc ga for lai_b',1)
-c$$$      call ga_zero(g_p_ij_a)
-c$$$      call ga_zero(g_p_ab_a)
-c$$$      call ga_zero(g_p_ij_b)
-c$$$      call ga_zero(g_p_ab_b)
-c$$$      call ga_zero(g_lai_a)
-c$$$      call ga_zero(g_lai_b)
+      call ga_zero(g_p_ij_a)
+      call ga_zero(g_p_ab_a)
+      call ga_zero(g_p_ij_b)
+      call ga_zero(g_p_ab_b)
+      call ga_zero(g_lai_a)
+      call ga_zero(g_lai_b)
       if(scftype.eq.'UHF')then
          pass=1
          call mp2_grad_uhf(g_vecs_a,noa_lo,noa_hi,nva_lo,nva_hi,
@@ -282,10 +282,10 @@ c$$$      call ga_zero(g_lai_b)
      $        nvb_hi,int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,
      $        sym_hi_vb,num_ob_sym,num_vb_sym,dbl_mb(k_eval_a),
      $        dbl_mb(k_eval_b),basis,geom,tol2e,e2,nbf,task,
-     $        pass,e2back,oblk,
+     $        pass,oblk,
      $        dbl_mb(k_p_ij_a),dbl_mb(k_p_ij_b),dbl_mb(k_p_ab_a),
      $        dbl_mb(k_p_ab_b),g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
-     $        g_lai_a,g_lai_b,trace)
+     $        g_lai_a,g_lai_b)
          pass=2
          call mp2_grad_uhf(g_vecs_b,nob_lo,nob_hi,nvb_lo,nvb_hi,
      $        int_mb(k_irs_b),sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
@@ -293,23 +293,44 @@ c$$$      call ga_zero(g_lai_b)
      $        nva_hi,int_mb(k_irs_a),sym_lo_oa,sym_hi_oa,sym_lo_va,
      $        sym_hi_va,num_oa_sym,num_va_sym,dbl_mb(k_eval_b),
      $        dbl_mb(k_eval_a),basis,geom,tol2e,e2,nbf,task,
-     $        pass,e2back,oblk,
+     $        pass,oblk,
      $        dbl_mb(k_p_ij_b),dbl_mb(k_p_ij_a),dbl_mb(k_p_ab_b),
      $        dbl_mb(k_p_ab_a),g_p_ij_b,g_p_ij_a,g_p_ab_b,g_p_ab_a,
-     $        g_lai_b,g_lai_a,trace)
+     $        g_lai_b,g_lai_a)
       endif
+      if(.not.rtdb_put(rtdb,'semi_dir_mp2:energy',mt_dbl,1,e2))
+     $     call errquit('could not stash the energy',1)
 c     
-c$$$      call mp2_lai_fock_uhf(geom,basis,g_p_ab_a,g_p_ab_b,g_p_ij_a,
-c$$$     $     g_p_ij_b,g_vecs_a,g_vecs_b,noa,nob,nva,nvb,g_lai_a,g_lai_b)
+      if(task.eq.'gradient')call mp2_lai_fock_uhf(geom,basis,
+     $     g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,g_vecs_a,g_vecs_b,
+     $     noa,nob,nva,nvb,g_lai_a,g_lai_b,rtdb,tol2e)
+c
+      if(task.eq.'gradient')then
+         transform=.false.
+      grad_length=(noa*nva)+(nob*nvb)
+      if(.not.ga_create(mt_dbl,grad_length,1,'uhf_nr_solve: grad',
+     $     1,1,g_rhs))call errquit('mp2: ga_grad',0)
+         call mp2_make_cphf_rhs(transform,basis,nmo,nbf,
+     $        noa,nva,nob,nvb,g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
+      endif
+      if(.not.cphf(rtdb))call errquit('could not do cphf',1)
+      call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
+      if(.not.file_read_ga(cphf_sol,g_rhs))
+     $     call errquit('could not read cphf_rhs',1)
+      if(.not.ga_create(mt_dbl,nbf,nbf,'tot alpha dens',nbf,1,
+     $     g_p_tot_a))call errquit('mp2_energy: ga_create failed',0)
+      if(.not.ga_create(mt_dbl,nbf,nbf,'tot beta dens',nbf,1,
+     $     g_p_tot_b))call errquit('mp2_energy: ga_create failed',0)
+      call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
+     $     g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,
+     $     g_vecs_a,g_vecs_b,geom,basis,rtdb)
+      call mp2_make_dip_mom(g_p_tot_a,g_p_tot_b,basis,rtdb,nbf,
+     $     g_vecs_a,g_vecs_b)
 c     
       if(ga_nodeid().eq.0)write(6,*) 'MP2 Correction = ', e2
-      if(ga_nodeid().eq.0.and.task.eq.'gradient')
-     $     write(6,*) 'trace of weighted density = ',trace
 c     
-c$$$      call ga_print(g_p_ij_a)
-c$$$      call ga_print(g_p_ij_b)
-c$$$      call ga_print(g_p_ab_a)
-c$$$      call ga_print(g_p_ab_b)
+      if(.not.ga_destroy(g_rhs))call errquit(
+     $     'could not destroy g_rhs',1)
       if(.not.ga_destroy(g_p_ij_a))call errquit(
      $     'could not destroy p_ij_a handle',1)
       if(.not.ga_destroy(g_p_ij_b))call errquit(
@@ -318,6 +339,10 @@ c$$$      call ga_print(g_p_ab_b)
      $     'could not destroy p_ab_a handle',1)
       if(.not.ga_destroy(g_p_ab_b))call errquit(
      $     'could not destroy p_ab_b handle',1)
+      if(.not.ga_destroy(g_p_tot_a))call errquit(
+     $     'could not destroy p_tot_a handle',1)
+      if(.not.ga_destroy(g_p_tot_b))call errquit(
+     $     'could not destroy p_tot_b handle',1)
       if(.not.ga_destroy(g_lai_b))call errquit(
      $     'could not destroy lai_b handle',1)
       if(.not.ga_destroy(g_lai_a))call errquit(
@@ -332,9 +357,3 @@ c
      $        call errquit('could not destroy g_vecs_b',1)
       endif
       end
-
-
-
-
-
-
