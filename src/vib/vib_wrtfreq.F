@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.12 2002-12-31 02:55:33 edo Exp $
+* $Id: vib_wrtfreq.F,v 1.13 2003-03-25 21:58:28 bylaska Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
@@ -32,6 +32,7 @@ c
       double precision Strans,Srot,Svib
       integer sigma
       integer i,it,ntemp,h_actlist,l_actlist,ma_type
+      logical linear
 
 *     ****  conversions and constants ****
       double precision AUKCAL,c,h,kgas,Rgas,inertprod
@@ -99,7 +100,7 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
 
 *       *** define rotational constants ****
         call vib_geom_parameters_get(rtdb,M,
-     >     inertia_A,inertia_B,inertia_C,sigma)
+     >     inertia_A,inertia_B,inertia_C,sigma,linear)
         thetaA = inertia_A*(h*c/kgas)
         thetaB = inertia_B*(h*c/kgas)
         thetaC = inertia_C*(h*c/kgas)
@@ -165,10 +166,16 @@ c     &      temp = 298.15d0
         ezero    = ezero*Rgas
         ethermal = ethermal*Rgas
 
+        if (linear) then
+        ethermal = ethermal + 2.5d0*Rgas*temp ! add translational(3/2RT) and rotation(2/2RT) thermal corrections
+        else
         ethermal = ethermal + 3.0d0*Rgas*temp ! add translational(3/2RT) and rotation(3/2RT) thermal corrections
+        end if
+
         hthermal = ethermal + Rgas*temp       ! htermal = ethermal+pV=ethermal+RT, since pV=RT
        
         WRITE (6,10023) temp
+        if (linear) write(6,10027)
         WRITE (6,10024) ezero*AUKCAL,   ezero
         WRITE (6,10025) ethermal*AUKCAL,ethermal
         WRITE (6,10026) hthermal*AUKCAL,hthermal
@@ -179,6 +186,7 @@ c     &      temp = 298.15d0
      .     ' kcal/mol  (',f10.6,' au)')
 10026 FORMAT( 1X,'Thermal correction to Enthalpy   = ',f8.3, 
      .     ' kcal/mol  (',f10.6,' au)')
+10027 FORMAT(//1X,'Linear Molecule                   ')
 
 *     ********************************************************
 *     **** Write out Entropies                            ****
@@ -191,7 +199,13 @@ c     &      temp = 298.15d0
      >         - 2.3135d0/AUKCAL/1000.0d0
         inertprod=inertia_A*inertia_B*inertia_C
         if (abs(inertprod).lt.1d-9) then
-           srot=0d0
+           Srot=0.0d0
+           if (linear) then
+             Srot   = (Rgas)*(  log(temp) 
+     >                        - log(inertia_C) 
+     >                        - log(dble(sigma))) 
+     >              + 1.2639d0/AUKCAL/1000.0d0
+           end if
         else
            Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) -
      >          log(inertprod) -
@@ -246,11 +260,12 @@ C
 00096 RETURN                    ! go home
       END
 
-      subroutine vib_geom_parameters_get(rtdb,M,AA,BB,CC,sigma)
+      subroutine vib_geom_parameters_get(rtdb,M,AA,BB,CC,sigma,linear)
       implicit none
       integer rtdb
       double precision M,AA,BB,CC
       integer          sigma
+      logical          linear
 
 
 #include "mafdecls.fh"
@@ -335,19 +350,25 @@ C
      >  call errquit('vib_geom_parameters_set: pop stack',3)
       call DSYEV('N','U',3,mtensor,3,meig,work,lwork,ierr)
 
-      meig(1) = fconv*meig(1)  ! convert to cgs units
-      meig(2) = fconv*meig(2)
-      meig(3) = fconv*meig(3)
+      !meig(1) = fconv*meig(1)  ! convert to cgs units
+      !meig(2) = fconv*meig(2)
+      !meig(3) = fconv*meig(3)
 
       q = 4.0d0*datan(1.0d0)
       q = 8.0d0*q*q             ! 8*pi^2
       q = h/(q*c)               ! h/(8*pi^2*c) - there is an error in old McQuarrie
-      AA = 0d0
-      BB = 0d0
-      CC = 0d0
+
+      q = q/fconv               ! convert to cgs units
+
+      AA = 0.0d0
+      BB = 0.0d0
+      CC = 0.0d0
       if(abs(meig(1)).gt.eps) AA = q/meig(1)    ! in units of cm-1
       if(abs(meig(2)).gt.eps) BB = q/meig(2)
       if(abs(meig(3)).gt.eps) CC = q/meig(3)
+
+      linear = .false.
+      if ((AA.le.eps).and.((BB-CC).le.eps)) linear = .true.
 *
       if (.not.geom_destroy(geom)) call errquit
      &    ('vib_geom_parameters_get: geom_destroy failed',911)
