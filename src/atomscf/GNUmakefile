@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.11 1996-03-29 04:53:18 d3e129 Exp $
+# $Id: GNUmakefile,v 1.12 1996-05-14 00:19:45 d3g681 Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -40,14 +40,15 @@ include ../config/makelib.h
 
 
 # DO NOT EDIT BENEATH THIS LINE ... GENERATED AUTOMATICALLY
-$(LIBRARY_PATH)(atomd.o):	 $(INCDIR)/inp.fh ./cguess.fh 
-$(LIBRARY_PATH)(creded.o):	 $(INCDIR)/global.fh ./cguess.fh 
-$(LIBRARY_PATH)(datoms.o):	 $(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cguess.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(denat.o):	 $(INCDIR)/util.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cguess.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(guess_mem.o):	 ./cguess.fh 
-$(LIBRARY_PATH)(hamild.o):	 ./cguess.fh 
-$(LIBRARY_PATH)(oeigd.o):	 ./cguess.fh 
-$(LIBRARY_PATH)(osatod.o):	 $(INCDIR)/geom.fh ./cguess.fh $(INCDIR)/bas.fh 
-$(LIBRARY_PATH)(outpud.o):	 ./cguess.fh 
-$(LIBRARY_PATH)(printbasis.o):	 ./cguess.fh 
-$(LIBRARY_PATH)(teigd.o):	 ./cguess.fh 
+$(LIBRARY_PATH)(densid_z.o):	$(INCDIR)/inp.fh ./atomz.fh 
+$(LIBRARY_PATH)(creded.o):	$(INCDIR)/global.fh ./cguess.fh 
+$(LIBRARY_PATH)(datoms.o):	$(INCDIR)/msgids.fh $(INCDIR)/mafdecls.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cguess.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(atomd.o):	$(INCDIR)/inp.fh ./cguess.fh 
+$(LIBRARY_PATH)(teigd.o):	./cguess.fh 
+$(LIBRARY_PATH)(printbasis.o):	./cguess.fh 
+$(LIBRARY_PATH)(outpud.o):	./cguess.fh 
+$(LIBRARY_PATH)(osatod.o):	$(INCDIR)/geom.fh ./cguess.fh $(INCDIR)/bas.fh 
+$(LIBRARY_PATH)(oeigd.o):	./cguess.fh 
+$(LIBRARY_PATH)(hamild.o):	./cguess.fh 
+$(LIBRARY_PATH)(guess_mem.o):	./cguess.fh 
+$(LIBRARY_PATH)(denat.o):	$(INCDIR)/util.fh $(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/mafdecls.fh $(INCDIR)/inp.fh $(INCDIR)/global.fh $(INCDIR)/geom.fh ./cguess.fh $(INCDIR)/bas.fh ./atomz.fh 

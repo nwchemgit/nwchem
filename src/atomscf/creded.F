@@ -1,5 +1,5 @@
       subroutine creded(g_dens, dt, iiloc, nbb)
-C$Id: creded.F,v 1.7 1996-03-12 02:11:16 d3g681 Exp $
+C$Id: creded.F,v 1.8 1996-05-14 00:19:43 d3g681 Exp $
       implicit none
 #include "global.fh"
 #include "cguess.fh"
@@ -40,12 +40,12 @@ c
 
       data dmult/ 1.0d0, 3*0.0d0, 1.0d0, 3*0.0d0, 1.0d0,
 
-     $      third,   0d0,    0d0,  sixth,    0d0,   sixth,
-     $        0d0,   1d0,    0d0,    0d0,    0d0,     0d0,
-     $        0d0,   0d0,    1d0,    0d0,    0d0,     0d0,
-     $      sixth,   0d0,    0d0,  third,    0d0,   sixth,
-     $        0d0,   0d0,    0d0,    0d0,    1d0,     0d0,
-     $      sixth,   0d0,    0d0,  sixth,    0d0,   third,
+     $        1d0,   0d0,    0d0, -0.5d0,    0d0,  -0.5d0,
+     $        0d0,   3d0,    0d0,    0d0,    0d0,     0d0,
+     $        0d0,   0d0,    3d0,    0d0,    0d0,     0d0,
+     $     -0.5d0,   0d0,    0d0,    1d0,    0d0,  -0.5d0,
+     $        0d0,   0d0,    0d0,    0d0,    3d0,     0d0,
+     $     -0.5d0,   0d0,    0d0, -0.5d0,    0d0,     1d0,
 
      x  1.0d0,   4*0.0d0, -0.670820393d0, 0.0d0,-0.670820393d0, 2*0.0d0,
      x  0.0d0,1.0d0,0.0d0,-0.670820393d0, 4*0.0d0,-0.670820393d0, 0.0d0,
@@ -57,6 +57,15 @@ c
      x  -0.670820393d0,     4*0.0d0,    -0.3d0,  0.0d0,  1.2d0, 2*0.0d0,
      x   0.0d0, -0.670820393d0, 0.0d0, -0.3d0, 4*0.0d0,  1.2d0,   0.0d0,
      x 9*0.0d0,  1.0d0/
+
+* New broken NWChem d normalization
+*     $      third,   0d0,    0d0,  sixth,    0d0,   sixth,
+*     $        0d0,   1d0,    0d0,    0d0,    0d0,     0d0,
+*     $        0d0,   0d0,    1d0,    0d0,    0d0,     0d0,
+*     $      sixth,   0d0,    0d0,  third,    0d0,   sixth,
+*     $        0d0,   0d0,    0d0,    0d0,    1d0,     0d0,
+*     $      sixth,   0d0,    0d0,  sixth,    0d0,   third,
+
 
 * Old NWChem d normalization
 *     $        1d0,   0d0,    0d0, -0.5d0,    0d0,  -0.5d0,
@@ -116,7 +125,7 @@ c.......................................................................
             kpoint = kmone*(kmone+1)*(((6*kmone+24)*kmone+26)*kmone+4)
      +               /120
             factor = 1.d0/(k+k-1)
-            if (k .eq. 3) factor = factor / 3.0d0
+**            if (k .eq. 3) factor = factor / 3.0d0
             call pdfded(k,kdim,g_dens,dt,factor,dmult(kpoint),lm,nbci,
      +                  iiloc(1,k))
          end if

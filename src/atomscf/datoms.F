@@ -1,7 +1,7 @@
       subroutine datoms(geom, basis, hatom, g_dens, oprin,
      + pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      + cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener)
-C$Id: datoms.F,v 1.13 1996-01-22 21:49:40 d3e129 Exp $
+C$Id: datoms.F,v 1.14 1996-05-14 00:19:44 d3g681 Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -213,7 +213,8 @@ c...  get contraction coeffs as we are used to
                      if (ispdf.eq.2) then
                         fac = 0.5d0*fac/ee
                      else if (ispdf.eq.3) then
-                        fac = (1.0d0/3.0d0)  *  0.75d0*fac/(ee*ee)
+*                        fac = (1.0d0/3.0d0)  *  0.75d0*fac/(ee*ee)
+                        fac = 0.75d0*fac/(ee*ee)
                      else if (ispdf.eq.4) then
                         fac = 1.875d0*fac/(ee**3)
                      end if
