@@ -1,0 +1,6 @@
+c
+c $Id: ana_params.fh,v 1.1 1998-12-29 18:01:03 d3j191 Exp $
+c
+      real*8 zero,one
+      parameter(zero=0.0d0)
+      parameter(one=1.0d0)

@@ -1,0 +1,19 @@
+c
+c $Id: ana_common.fh,v 1.1 1998-12-29 18:01:01 d3j191 Exp $
+c
+      integer irtdb,me,np,lfnana
+      common/ana_rtdb/irtdb,me,np,lfnana
+c
+      real*8 time
+      integer irmsd
+      common/ana_inp/time,irmsd
+c
+      character*255 filnam,filana,rmsfil
+      common/ana_txt/filnam,filana,rmsfil
+c
+      integer i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt
+      common/ana_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt
+c
+      integer nsa,msa,ndata
+      common/ana_dim/nsa,msa,ndata
+c
