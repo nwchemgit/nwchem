@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.10 2000-12-03 03:36:19 edo Exp $
+ $Id: util_file_copy.c,v 1.11 2000-12-04 18:41:27 edo Exp $
  */
 
 #include <stdio.h>
@@ -26,7 +26,7 @@ void util_file_copy(const char *input, const char *output)
     FILE *fin  = fopen(input, "rb");
     FILE *fout = fopen(output, "w+b");
     char buf[8192];
-    Integer nread, ndone;
+    Integer nread;
 
     if (!fin) {
 	fprintf(stderr,"util_file_copy: unable to open %s\n", input);
@@ -37,9 +37,7 @@ void util_file_copy(const char *input, const char *output)
 	ga_error("util_file_copy",0);
     }
     while ((nread = fread(buf, 1, sizeof(buf), fin)) > 0)
-      /*      ndone=fwrite(buf, 1, nread, fout);*/
 	if (fwrite(buf, 1, nread, fout) != nread) {
-	    fprintf(stderr,"util_file_copy: ndone dd nread %d\n", nread);
 	    fprintf(stderr,"util_file_copy: failed writing %s\n", output);
 	    ga_error("util_file_copy",0);
 	}
