@@ -74,7 +74,7 @@ c
       end
       subroutine task_accy_a(rtdb,geom,basis,
      &    lgrad,lscr,llab,nshell,
-     &    diff, grad1, grad2, scr, labs)
+     &    grad1, grad2, scr, labs)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -90,7 +90,6 @@ c::functions
       double precision grad1(12,*)
       double precision grad2(12,*)
       double precision scr(lscr)
-      double precision diff(12,*)
       integer labs(4,*)
 c
       double precision q4
