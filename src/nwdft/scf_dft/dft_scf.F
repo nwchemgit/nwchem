@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv)
 c     
-c     $Id: dft_scf.F,v 1.136 1999-11-04 18:21:34 jolguin Exp $
+c     $Id: dft_scf.F,v 1.137 1999-11-05 19:37:37 jolguin Exp $
 c     
       implicit none
 c
@@ -52,7 +52,7 @@ c     Variables used to obtain the exact exchange-correlation potential
 c
       integer g_rho_exact(2), g_tmp_exact(2), g_addit_exact(2),
      &        g_movecs_aux(2)
-      integer incre, exact_pot
+      integer incre, exact_pot, split
       double precision lamda, p_lamda, dif_lamda, lamda_old,
      &                 Ecoul_aux(2)
 c
@@ -1569,7 +1569,7 @@ c
      &                               p_lamda, incre, g_tmp_exact,
      &                               g_addit_exact, g_movecs_aux,
      &                               g_movecs, iter, k_eval,
-     &                               Ecoul_aux, noc)
+     &                               Ecoul_aux, noc, split)
         if (lamda.le.900.0) go to 135
         call close_xc_exact_pot(g_rho_exact, g_tmp_exact,
      &                          g_addit_exact, g_movecs_aux)
