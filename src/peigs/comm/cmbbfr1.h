@@ -6,7 +6,8 @@ c
 #ifndef NCUBE_NODE
       parameter (bufsiz=10000)
 #else
-      parameter (bufsiz=512)
+c      parameter (bufsiz=512)
+      parameter (bufsiz=8*1024)
 #endif
 c     Place datbuf in common to force alignment.  The djunk variable
 c     is left over from experiments on how alignment changes

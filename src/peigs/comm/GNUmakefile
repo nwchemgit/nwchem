@@ -5,7 +5,8 @@ MXOBJ	=	mxbrod.o \
 		mxcombv1.o \
 		mxsubs.o \
 		sum.o \
-		maxx.o
+		maxx.o \
+		peigs_dgop.o
 
 all:		$(MXOBJ)
 
@@ -18,6 +19,7 @@ clean:
 		-rm -f mxbrod.f
 		-rm -f mxcombv1.f
 		-rm -f mxsubs.f
+		-rm -f sum.f
 
 realclean:
 		clean
