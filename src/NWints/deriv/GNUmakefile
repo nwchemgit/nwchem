@@ -1,9 +1,9 @@
-# $Id: GNUmakefile,v 1.14 1997-02-17 20:51:18 d3g681 Exp $
+# $Id: GNUmakefile,v 1.15 1998-02-27 04:31:26 d3e129 Exp $
 
       OBJ_OPTIMIZE = hf1d.o      hf2d.o     hfd2oi.o \
                      hfderi.o    hfdkei.o   hfdnai.o \
                      hfefi.o     hf2d_2a.o  hf2d_2b.o \
-                     hf2d_2a2b.o hf2d_3a.o  hf2d_3a2b.o \
+                     hf2d_2a2b.o hf2d_3a.o  hf2d_3a2b.o hf2d_all.o \
                      hf1PRtoAB.o hf2PRtoAB.o hf2QStoCD.o hfd3oi.o
 
      LIBRARY = libnwints.a

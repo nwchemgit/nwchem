@@ -6,7 +6,7 @@
      &    bERI,Nint,canAB,canCD,canPQ,dryrun,
      &    W0,maxW0)
       Implicit None
-C $Id: hf2d.F,v 1.11 1997-05-23 21:46:12 d3e129 Exp $
+C $Id: hf2d.F,v 1.12 1998-02-27 04:31:25 d3e129 Exp $
 #include "global.fh"
 #include "apiP.fh"
       Logical canAB,canCD,canPQ,dryrun
@@ -30,178 +30,94 @@ c--> Scratch Space
 c
       integer ithresh
       integer fa,fb,fc,fd,fall
-      integer npa_2a, npb_2b, npa_3a
-      integer fa_2a, fb_2b, fa_3a
-      integer fall_2a, fall_2b, fall_3a, fall_2a2b, fall_3a2b, fall_min
+      integer blocksz(4), index
 c
-      logical okay, okay_2
-      logical split2a, split2b, split3a, split2a2b, split3a2b
+      integer l2a,l2b,l2c,l2d,l2q
+c
+      logical okay
+      logical split_all, split_some
+      integer countsa, countss, countq, countok
+      integer fallmax
+      data fallmax /0/
+      data countq  /0/
+      data countss /0/
+      data countsa /0/
+      data countok /0/
+      save fallmax
+      save countq, countss, countsa, countok
 c
       ithresh = intd_memthresh
 *rak:      write(6,*)' ithresh = ',ithresh
 c
-      split2a   = .false.
-      split2b   = .false.
-      split3a   = .false.
-      split2a2b = .false.
-      split3a2b = .false.
-c
 c order of preference split2a>split2b>split3a>split2a2b>split3a2b
 c
-      fa   = npa*((La+1)*(La+2)/2)
-      fb   = npb*((Lb+1)*(Lb+2)/2)
-      fc   = npc*((Lc+1)*(Lc+2)/2)
-      fd   = npd*((Ld+1)*(Ld+2)/2)
+      l2a  = ((La+1)*(La+2)/2)
+      l2b  = ((Lb+1)*(Lb+2)/2)
+      l2c  = ((Lc+1)*(Lc+2)/2)
+      l2d  = ((Ld+1)*(Ld+2)/2)
+      l2q  = l2a*l2b*l2c*l2d
+      blocksz(1) = npa
+      blocksz(2) = npb
+      blocksz(3) = npc
+      blocksz(4) = npd
+      split_all  = .false.
+      split_some = .false.
+*rak:      write(6,10000)countq,countss,countsa,countok,
+*rak:     &    (countss+countsa+countok)
+      countq = countq + 1
+00001 continue
+      fa   = blocksz(1)*l2a
+      fb   = blocksz(2)*l2b
+      fc   = blocksz(3)*l2c
+      fd   = blocksz(4)*l2d
       fall = fa*fb*fc*fd
-*rak:      write(6,*)' fall(initial) = ',fall
+      fallmax = max(fallmax,fall)
       okay = fall.le.ithresh
-      numd_tot = numd_tot + 1
       if (.not.okay) then
-        if (npa.eq.1.and.npb.eq.1) then
-          write(6,'(a,a,i4,a)')
-     &        'hf2d: no way to split huge integral',
-     &        ' derivative block <node =', ga_nodeid(), '>'
+*rak:        write(6,*)'================================'
+*rak:        write(6,*)' fa      :',fa
+*rak:        write(6,*)' fb      :',fb
+*rak:        write(6,*)' fc      :',fc
+*rak:        write(6,*)' fd      :',fd
+*rak:        write(6,*)' fall    :',fall
+*rak:        write(6,*)' fallmax :',fallmax
+*rak:        write(6,*)' blocksz :',blocksz
+        call hf2d_getmax_index(blocksz,4,index)
+        blocksz(index) = (blocksz(index)+1)/2
+*rak:        write(6,*)' blocksz:',blocksz
+        split_some = .true.
+        if ((blocksz(1).eq.1).and.
+     &      (blocksz(2).eq.1).and.
+     &      (blocksz(3).eq.1).and.
+     &      (blocksz(4).eq.1)) then
+          split_all = .true.
+          goto 00002
+        else
           goto 00001
         endif
-        if (npa.ge.2) then
-          npa_2a = npa/2
-          if (mod(npa,2).eq.1) npa_2a = npa_2a+1
-          fa_2a = npa_2a*((La+1)*(La+2)/2)
-        else
-          fa_2a = fa
-        endif
-        if (npb.ge.2) then
-          npb_2b = npb/2
-          if (mod(npb,2).eq.1) npb_2b = npb_2b + 1
-          fb_2b =  npb_2b*((Lb+1)*(Lb+2)/2)
-        else
-          fb_2b = fb
-        endif
-        if (npa.ge.3) then
-          npa_3a = npa/3
-          if (mod(npa,3).ne.0) npa_3a = npa_3a + 1
-          fa_3a = npa_3a*((La+1)*(La+2)/2)
-        else
-          fa_3a = fa
-        endif
-        fall_2a   = fa_2a*fb*fc*fd
-        fall_2b   = fa*fb_2b*fc*fd
-        fall_3a   = fa_3a*fb*fc*fd
-        fall_2a2b = fa_2a*fb_2b*fc*fd
-        fall_3a2b = fa_3a*fb_2b*fc*fd
-        split2a   = fall_2a   .le. ithresh
-        split2b   = fall_2b   .le. ithresh
-        split3a   = fall_3a   .le. ithresh
-        split2a2b = fall_2a2b .le. ithresh
-        split3a2b = fall_3a2b .le. ithresh
-*rak:        write(6,*)' fall(2a)      = ',fall_2a,split2a
-*rak:        write(6,*)' fall(2b)      = ',fall_2b,split2b
-*rak:        write(6,*)' fall(3a)      = ',fall_3a,split3a
-*rak:        write(6,*)' fall(2a2b)    = ',fall_2a2b,split2a2b
-*rak:        write(6,*)' fall(3a2b)    = ',fall_3a2b,split3a2b
-        okay_2 = split2a.or.split2b.or.split3a
-        okay_2 = okay_2.or.split2a2b.or.split3a2b
-        if (.not.okay_2) then
-*rak:          write(6,*)' big memory coming up dude '
-          fall_min = min(fall_2a,fall_2b,fall_3a,fall_2a2b,fall_3a2b)
-          if (fall_min.eq.fall_2a)   split2a   = .true.
-          if (fall_min.eq.fall_2b)   split2b   = .true.
-          if (fall_min.eq.fall_3a)   split3a   = .true.
-          if (fall_min.eq.fall_2a2b) split2a2b = .true.
-          if (fall_min.eq.fall_3a2b) split3a2b = .true.
-*rak:          write(6,*)' fall(min)     = ',fall_min
-*rak:          write(6,*)' fall(2a)      = ',fall_2a,split2a
-*rak:          write(6,*)' fall(2b)      = ',fall_2b,split2b
-*rak:          write(6,*)' fall(3a)      = ',fall_3a,split3a
-*rak:          write(6,*)' fall(2a2b)    = ',fall_2a2b,split2a2b
-*rak:          write(6,*)' fall(3a2b)    = ',fall_3a2b,split3a2b
-        endif
       endif
-c
-00001 continue
-*rak:*debug 3a2b
-*rak:      okay = npa.ge.3.and.npb.ge.2
-*rak:*      okay = okay.and.(.not.dryrun)
-*rak:      if (okay) then
-*rak:        split3a2b = .true.
-*rak:        write(6,*) ' hf2d_3a2b being used '
-*rak:      endif
-*rak:*debug 2a2b
-*rak:      okay = npa.ge.2.and.npb.ge.2
-*rak:*      okay = okay.and.(.not.dryrun)
-*rak:      if (okay) then
-*rak:        split2a2b = .true.
-*rak:        write(6,*) ' hf2d_2a2b being used '
-*rak:      endif
-*rak:*debug 2a
-*rak:      okay = npa.ge.2
-*rak:      okay = okay.and.(.not.dryrun)
-*rak:      if (okay) then
-*rak:        split2a = .true.
-*rak:        write(6,*) ' hf2d_2a being used '
-*rak:      endif
-*rak:*debug 2b
-*rak:      okay = npb.ge.2
-*rak:*      okay = okay.and.(.not.dryrun)
-*rak:      if (okay) then
-*rak:        split2b = .true.
-*rak:        write(6,*) ' hf2d_2b being used '
-*rak:      endif
-*rak:*debug 3a
-*rak:      okay = npa.ge.3
-*rak:*      okay = okay.and.(.not.dryrun)
-*rak:      if (okay) then
-*rak:        split3a = .true.
-*rak:        write(6,*) ' hf2d_3a being used '
-*rak:      endif
-*
-      if (split2a) then
-        numd_red = numd_red + 1
-        call hf2d_2a(
+00002 continue
+      if (split_all) then
+        countsa = countsa + 1
+        call hf2d_split_all(
      &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
      &      Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
      &      Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &      bERI,Nint,canAB,canCD,canPQ,dryrun,
      &      W0,maxW0)
-      else if (split2b) then
-        numd_red = numd_red + 1
-        call hf2d_2b(
+      else if (split_some) then
+        countss = countss + 1
+        call hf2d_split_all(
      &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
      &      Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
      &      Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
      &      bERI,Nint,canAB,canCD,canPQ,dryrun,
-     &      W0,maxW0)
-
-      else if (split3a) then
-        numd_red = numd_red + 1
-        call hf2d_3a(
-     &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
-     &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
-     &      Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
-     &      Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
-     &      bERI,Nint,canAB,canCD,canPQ,dryrun,
-     &      W0,maxW0)
-      else if (split2a2b) then
-        numd_red = numd_red + 1
-        call hf2d_2a2b(
-     &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
-     &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
-     &      Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
-     &      Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
-     &      bERI,Nint,canAB,canCD,canPQ,dryrun,
-     &      W0,maxW0)
-      else if (split3a2b) then
-        numd_red = numd_red + 1
-        call hf2d_3a2b(
-     &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
-     &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
-     &      Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,ictrc,
-     &      Dxyz,Dprims,Dcoefs,NPD,NCD,Ld,ictrd,
-     &      bERI,Nint,canAB,canCD,canPQ,dryrun,
-     &      W0,maxW0)
+     &      W0,maxW0,
+     &      blocksz(1),blocksz(2),blocksz(3),blocksz(4))
       else
+        countok = countok + 1
         call hf2dold(
      &      Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrb,
@@ -210,7 +126,8 @@ c
      &      bERI,Nint,canAB,canCD,canPQ,dryrun,
      &      W0,maxW0)
       endif
-      numd_okay = numd_tot - numd_red
+10000 format(1x,'total=',i10,2x,'some=',i10,2x,'all=',i10,
+     &    2x,'ok=',i10,2x,'sum=',i10)
       end
       Subroutine hf2dold(
      &    Axyz,Aprims,Acoefs,NPA,NCA,La,ictra,
@@ -661,4 +578,21 @@ c
       if (dryrun) maxW0 = MaxMem
 c
 00099 continue
+      end
+      subroutine hf2d_getmax_index(b,nb,i)
+      implicit none
+      integer nb
+      integer b(nb)
+      integer i
+c
+      integer j, maxval
+c
+      i = 1
+      maxval = b(i)
+      do j = 2,nb
+        if (b(j) .gt. maxval) then
+          maxval = b(j)
+          i = j
+        endif
+      enddo
       end

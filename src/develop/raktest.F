@@ -1,6 +1,6 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.76 1998-01-09 15:25:28 d3e129 Exp $
+c $Id: raktest.F,v 1.77 1998-02-27 04:30:59 d3e129 Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1584,7 +1584,7 @@ c
 c
       logical status
 c
-      integer nbas, bases(6)
+      integer nbas, bases(6), mynbas
 c
       if (.not.bas_rtdb_in(rtdb))
      &    call errquit('raktest4: error loading known basis sets',911)
@@ -1600,17 +1600,21 @@ c
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
      &    call errquit('raktest4: geom_create failed',911)
 c
+      mynbas = 0
       do 00200 nbas = 1,nbasis_rtdb
-        if(.not.bas_create(bases(nbas),bs_names_rtdb(nbas)))
-     &      call errquit('raktest4: bas_create choked',911)
-        if(.not.
-     &      bas_rtdb_load
-     &      (rtdb,geom,bases(nbas),bs_names_rtdb(nbas)))
-     &      call errquit('raktest4: bas_rtdb_load choked',911)
-        status = bas_print(bases(nbas))
-        status = gbs_map_print(bases(nbas))
+        if (bs_names_rtdb(nbas).ne.'ecp basis') then
+          mynbas = mynbas + 1
+          if(.not.bas_create(bases(mynbas),bs_names_rtdb(mynbas)))
+     &        call errquit('raktest4: bas_create choked',911)
+          if(.not.
+     &        bas_rtdb_load
+     &        (rtdb,geom,bases(mynbas),bs_names_rtdb(mynbas)))
+     &        call errquit('raktest4: bas_rtdb_load choked',911)
+          status = bas_print(bases(mynbas))
+          status = gbs_map_print(bases(mynbas))
+        endif
 00200 continue
-      call intd_init(rtdb,nbasis_rtdb,bases)
+      call intd_init(rtdb,mynbas,bases)
 c
       call int_mem(mx1e, mxg, mxs1, mxs2)
       write(6,*)' one electron buffer size        :',mx1e
@@ -1620,7 +1624,7 @@ c
 c
       call int_mem_print()
 c
-      do nbas = 1,nbasis_rtdb
+      do nbas = 1,mynbas
         if (.not.bas_destroy(bases(nbas))) call errquit
      &        ('raktest_initd: bas_destroy failed',911)
       enddo
