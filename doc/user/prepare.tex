@@ -153,7 +153,7 @@ This entry specifies the default force field. Database files supplied with
 to AMBER95, and {\bf charmm}, referring to the academic CHARMM22 force field.
 
 \begin{verbatim}
-<string ffname>_(s || x || u || t) <string ffdir>
+<string ffname>_(s | x | u | t) <string ffdir>
 \end{verbatim}
 
 Entries of this type specify the directory \verb+ffdir+ in which force field 
@@ -328,7 +328,7 @@ existing sequence file will also be overwritten with a newly generated
 file.
 
 \begin{verbatim}
-amber || charmm
+amber | charmm
 \end{verbatim}
 
 The prepare module generates force field specific fragment, segment and 
@@ -362,9 +362,9 @@ commands are not stored on the run-time database and are, therefor,
 not persistent.
 
 \begin{verbatim}
-modify atom <string atomname> [set <integer mset>] \\
-	( type <string atomtyp> ||  charge <real atomcharge> ||  \\
-	  polar <real atompolar> || dummy || self || quantum )
+modify atom <string atomname> [set <integer mset> | initial | final] \\
+	( type <string atomtyp> |  charge <real atomcharge> |  \\
+	  polar <real atompolar> | dummy | self | quantum )
 \end{verbatim}
 
 These \verb+modify+ commands change the atom type, partial atomic charge,
@@ -387,20 +387,20 @@ With the following directives modifications can be made for entire
 segments.
 
 \begin{verbatim}
-modify segment <integer isgm> [set <integer mset>] \\
-	( dummy || self || quantum )
+modify segment <integer isgm> [set <integer mset> | initial | final] \\
+	( dummy | self | quantum )
 \end{verbatim}
 
 Modifications to bonded interaction parameters can be made with the
 following modify commands.
 
 \begin{verbatim}
-modify ( bond <string atomtyp> <string atomtyp> ||  \\
-	 angle <string atomtyp> <string atomtyp> <string atomtyp> ||    \\ 
- 	 torsion <string atomtyp> <string atomtyp> <string atomtyp>     \\
-		 <string atomtyp> [ multiplicity <integer multip> ] ||  \\
-	 plane <string atomtyp> <string atomtyp> <string atomtyp>       \\
-		 <string atomtyp> ) [set <integer mset>]                \\
+modify ( bond <string atomtyp> <string atomtyp> |  \\
+	 angle <string atomtyp> <string atomtyp> <string atomtyp> |        \\ 
+ 	 torsion <string atomtyp> <string atomtyp> <string atomtyp>        \\
+		 <string atomtyp> [ multiplicity <integer multip> ] |      \\
+	 plane <string atomtyp> <string atomtyp> <string atomtyp>          \\
+		 <string atomtyp> ) [set <integer mset> | initial | final] \\
 	 <real value> <real forcon>
 \end{verbatim}
 
