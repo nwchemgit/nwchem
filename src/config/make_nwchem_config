@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.124 2000-07-18 15:36:53 windus Exp $
+# $Id: make_nwchem_config,v 1.125 2000-07-25 18:05:34 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -63,7 +63,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md qmmm argos alldev pnnl pnnldev
 
-EXP_all = $(filter-out uccsdt nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad vscf,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out uccsdt nbo python develop gapss pspw oimp2 ideaz scfaux plane_wave rimp2_grad vscf nwargos,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) nbo python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -73,7 +73,7 @@ EXP_ver2 = prepar nwargos gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
 EXP_argos = prepar nwargos analyz
-EXP_md  = prepar nwargos nwmd analyz ddscf nwdft
+EXP_md  = prepar nwmd analyz ddscf nwdft
 EXP_qmmm = $(EXP_md) gradients dftgrad
 
 # Check each expansion
