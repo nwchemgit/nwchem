@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.4 2003-07-12 21:53:48 bylaska Exp $
+* $Id: dipole.F,v 1.5 2003-07-12 22:12:16 bylaska Exp $
 *
 
 *     ******************************
@@ -178,6 +178,7 @@
       cdy1 = cdy1*dv
       cdz1 = cdz1*dv
 
+
 *     *** check for ferromagnetic case ***
       if (ne(ispin).ne.0) then
         call D3dB_rr_dot(1,dbl_mb(rgx(1)),dn(1,ispin),cdx2)
@@ -195,17 +196,40 @@
       cdx3=cdx1+cdx2
       cdy3=cdy1+cdy2
       cdz3=cdz1+cdz2
-      cdx1=cdx1/ne(1)
-      cdy1=cdy1/ne(1)
-      cdz1=cdz1/ne(1)
+
+      call lattice_mask_sym(dbl_mb(rgrid(1)))
+      !cdx1=cdx1/ne(1)
+      !cdy1=cdy1/ne(1)
+      !cdz1=cdz1/ne(1)
+      call D3dB_rr_dot(1,dbl_mb(rgrid(1)),dn(1,1),rmax)
+      rmax = rmax*dv
+      cdx1=cdx1/rmax
+      cdy1=cdy1/rmax
+      cdz1=cdz1/rmax
       if (ne(ispin).ne.0) then
-        cdx2=cdx2/ne(ispin)
-        cdy2=cdy2/ne(ispin)
-        cdz2=cdz2/ne(ispin)
+        !cdx2=cdx2/ne(ispin)
+        !cdy2=cdy2/ne(ispin)
+        !cdz2=cdz2/ne(ispin)
+        call D3dB_rr_dot(1,dbl_mb(rgrid(1)),dn(1,ispin),rmax)
+        rmax = rmax*dv
+        cdx2=cdx2/rmax
+        cdy2=cdy2/rmax
+        cdz2=cdz2/rmax
+
       end if
-      cdx3=cdx3/dble(ne(1)+ne(ispin))
-      cdy3=cdy3/dble(ne(1)+ne(ispin))
-      cdz3=cdz3/dble(ne(1)+ne(ispin))
+      !cdx3=cdx3/dble(ne(1)+ne(ispin))
+      !cdy3=cdy3/dble(ne(1)+ne(ispin))
+      !cdz3=cdz3/dble(ne(1)+ne(ispin))
+      call D3dB_rr_Sum(1,dn(1,1),
+     >                   dn(1,ispin),
+     >                   dbl_mb(rgrid(1)+n2ft3d))
+      call D3dB_rr_dot(1,dbl_mb(rgrid(1)),
+     >                   dbl_mb(rgrid(1)+n2ft3d),
+     >                    rmax)
+      rmax = rmax*dv
+      cdx3=cdx3/rmax
+      cdy3=cdy3/rmax
+      cdz3=cdz3/rmax
 
       if (taskid.eq.MASTER) then
         WRITE(*,1200)
