@@ -1,6 +1,6 @@
-      subroutine int_l1eall(i_basis, j_basis, ish, jsh, zerotol,
+      subroutine int_l1eall(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, lstv, S, T, V, lscr, scr, numstv) 
-c $Id: int_l1eall.F,v 1.5 1994-04-26 19:46:01 d3g681 Exp $
+c $Id: int_l1eall.F,v 1.6 1994-05-05 17:21:18 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"

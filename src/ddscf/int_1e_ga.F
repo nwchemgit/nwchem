@@ -74,13 +74,13 @@ c
 c     Generate the integrals
 c
                if (type .eq. 1) then
-                  call int_1eke (ibas, jbas, ishell, jshell,
+                  call int_1eke (ibas, ishell, jbas, jshell,
      $                 mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                else if (type .eq. 2) then
-                  call int_1epe (ibas, jbas, ishell, jshell,
+                  call int_1epe (ibas, ishell, jbas, jshell,
      $                 mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                else if (type .eq. 3) then
-                  call int_1eov (ibas, jbas, ishell, jshell,
+                  call int_1eov (ibas, ishell, jbas, jshell,
      $                 mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                else
                   call errquit('int_1e_ga: invalid type?', type)

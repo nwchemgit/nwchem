@@ -1,6 +1,6 @@
-      subroutine int_lgen1e(i_basis, j_basis, ish, jsh, zerotol,
+      subroutine int_lgen1e(i_basis, ish, j_basis, jsh, zerotol,
      &       ilab, jlab, l1e, Gen1e, lscr, scr, numgen) 
-c $Id: int_lgen1e.F,v 1.5 1994-04-26 19:46:05 d3g681 Exp $
+c $Id: int_lgen1e.F,v 1.6 1994-05-05 17:21:19 d3e129 Exp $
       implicit none
 #include "basP.fh"
 #include "geobasmapP.fh"

@@ -1,6 +1,6 @@
-      subroutine int_pgen1e(msg, i_basis, j_basis, ish, jsh, 
+      subroutine int_pgen1e(msg, i_basis, ish, j_basis, jsh, 
      &       ilab, jlab, l1e, Gen1e, print_level)
-c $Id: int_pgen1e.F,v 1.3 1994-05-05 00:02:19 d3e129 Exp $
+c $Id: int_pgen1e.F,v 1.4 1994-05-05 17:21:20 d3e129 Exp $
       implicit none
 c
 c generic one electron printing routine

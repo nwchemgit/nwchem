@@ -47,7 +47,10 @@ c
       if (.not. bas_print(basis))
      $      call errquit('dointsum: basis print failed', 0)
 c
-      call int_chk_sum(basis)
+      write(6,*)' with integrals  printed '
+      call int_chk_sum(basis,.true.)
+      write(6,*)' without integrals  printed '
+      call int_chk_sum(basis,.false.)
       if (.not.(
      &       (bas_destroy(basis)).and.(geom_destroy(geom))
      &       ))
