@@ -2,7 +2,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, isvals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.146 2000-03-31 01:33:21 edo Exp $
+c     $Id: dft_scf.F,v 1.147 2000-03-31 18:46:47 jolguin Exp $
 c     
       implicit none
 c
@@ -14,7 +14,7 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, isvals, 
      &        g_xcinv,g_scr
-      double precision rho_n, rho_n_sic, toll_s
+      double precision rho_n, toll_s
 c     
 #include "bas.fh"
 #include "geom.fh"
@@ -809,7 +809,7 @@ c
             call localize_sic(g_movecs, noc)
          end if
          call xc_sic(rtdb, nExc,iVxc_opt,g_xcinv, g_dens, 
-     &               g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA, rho_n,
+     &               g_vxc, IOLGC, g_wght, g_xyz, g_nq, wght_GA,
      &               dbl_mb(irdens_atom), int_mb(icntoce), 
      &               int_mb(icntobfr), int_mb(icetobfr), natoms,
      &               g_movecs, noc, k_eval, totsic, i_degen)
@@ -1435,9 +1435,9 @@ c     Jorge Garza / Begin
          call localize_sic(g_movecs, noc)
          call xc_sic_pert(rtdb, nExc, iVxc_opt, g_xcinv,
      &                    g_dens, g_vxc, IOLGC, g_wght, g_xyz, g_nq,
-     &                    wght_GA, rho_n_sic,
-     &                    dbl_mb(irdens_atom), int_mb(icntoce),
-     &                    int_mb(icntobfr), int_mb(icetobfr), natoms,
+     &                    wght_GA, dbl_mb(irdens_atom),
+     &                    int_mb(icntoce), int_mb(icntobfr),
+     &                    int_mb(icetobfr), natoms,
      &                    g_movecs, noc, k_eval, totsic)
          if (me.eq.0.and.oprint_sic)then
             write(LuOut,*) ' SIC after localization',totsic
