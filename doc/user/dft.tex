@@ -524,7 +524,7 @@ keyword \verb+lshift+.  For example the directive,
 causes the diagonal elements of the Fock matrix
 corresponding to the virtual orbitals to be shifted by 0.5 au.
 By default, this level-shifting procedure is switched on whenever the
-HOMO-LUMO gap is small.  Small is defined by default to be 0.1 au but
+HOMO-LUMO gap is small.  Small is defined by default to be 0.05 au but
 can be modified by the directive \verb+hl_tol+.  An example of
 changing the HOMO-LUMO gap tolerance to 0.01 would be,
 \begin{verbatim}
@@ -540,7 +540,7 @@ specify the number of Fock matrices to be used in the extrapolation
 Fock matrices stored and used in the extrapolation procedure to 3
 would take the form,
 \begin{verbatim}
-  CONVERGENCE diis nfock 3
+  CONVERGENCE diis 3
 \end{verbatim}
 
 Finally, the user has the ability to simply turn off any optimization
