@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.74 1997-11-07 23:16:26 d3e129 Exp $
+c $Id: basis.F,v 1.75 1997-11-12 22:19:12 d3e129 Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -3465,3 +3465,40 @@ c
       write(luout,00001)
 00001 format(1x,80('='))
       end
+*.....................................................................
+      Logical function bas_ncontr_cn_max( basis_hand, ncontr_max )
+c    
+c     returns the largest number of contractions, i.e., columns of 
+c     contraction coefficients for a given contraction set, 
+c     in the basis input, for any contraction set in the basis
+c    
+      implicit none
+#include "bas.fh"
+c::args
+C$Id: basis.F,v 1.75 1997-11-12 22:19:12 d3e129 Exp $
+      integer basis_hand ! nwchem basis handle
+      integer ncontr_max  ! max no of contractions for any contraction set
+c::locals
+      logical LResult
+      integer itype, nprimo, isphcart
+      integer ncontr, icontset, numcontset
+c::exec
+      LResult = .true.
+      LResult = LResult .and. bas_numcont(basis_hand, numcontset)
+c    
+c     loop over contraction sets; find largest number of contractions
+c     (i.e., columns of contraction coefficients)
+c    
+      ncontr_max = 0
+      do icontset = 1,numcontset
+        LResult = LResult .and.
+     &       bas_continfo( basis_hand, icontset, itype, nprimo,
+     &                     ncontr, isphcart)
+
+      ncontr_max = max( ncontr_max, ncontr )
+      enddo 
+
+      bas_ncontr_cn_max = LResult
+
+      return 
+      end 
