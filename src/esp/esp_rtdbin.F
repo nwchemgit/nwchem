@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.12 2002-06-18 20:01:44 d3k958 Exp $
+c $Id: esp_rtdbin.F,v 1.13 2003-04-10 21:04:13 d3k958 Exp $
 c
       implicit none
 c
@@ -42,6 +42,9 @@ c
       if(.not.bas_numbf(ibasis,nbf))
      + call errquit('esp: bas_numbf failed',me)
 c     
+      if(bas_is_spherical(ibasis)) 
+     + call errquit('esp does not work with spherical basis ',me)
+c
 c     get cutoff radius and gridspacing
 c
       if(.not.rtdb_get(irtdb,'esp:probe',mt_dbl,1,probe)) probe=0.07d0
