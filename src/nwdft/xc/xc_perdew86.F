@@ -8,7 +8,7 @@
      ,     qwght, ldew, ffunc)
 #endif
 c
-c$Id: xc_perdew86.F,v 1.20 2001-08-22 00:48:27 edo Exp $
+c$Id: xc_perdew86.F,v 1.21 2002-04-05 21:37:07 sohirata Exp $
 c
       implicit none
 c
@@ -396,140 +396,95 @@ c
 c
       rsfact = (0.75d0/pi)**ONE3
 c
-      if (ipol.eq.1 )then
+c     ======> BOTH SPIN-RESTRICTED AND UNRESTRICTED <======
 c
-c        ======> SPIN-RESTRICTED <======
-c
-         do n = 1, nq
-            if (abs(rho(n,1)).gt.tol_rho)then
-               rhoval = rho(n,1)
-               rs = rsfact/abs(rhoval)**ONE3
-               d1rs = -ONE3*rs/rhoval
-#ifdef SECOND_DERIV
-               d2rs = -FOUR3*d1rs/rhoval
-#endif
-               if (rs.lt.1.d0)then
-                  alnrs = log(rs)
-                  e(1) = A(1)*alnrs+B(1)+C(1)*rs*alnrs+D(1)*rs
-                  d1e(1) = A(1)/rs+C(1)*(alnrs+1d0)+D(1)
-#ifdef SECOND_DERIV
-                  d2e(1) = (C(1)-A(1)/rs)/rs
-#endif
-               else
-                  sqrtrs = sqrt(rs)
-                  rden(1) = 1.d0/(1.d0+B1(1)*sqrtrs+B2(1)*rs)
-                  d1den(1) = B1(1)/(2.d0*sqrtrs)+B2(1)
-                  e(1) = G(1)*rden(1)
-                  d1e(1) = -G(1)*d1den(1)*rden(1)**2
-#ifdef SECOND_DERIV
-                  d2den(1) = -B1(1)/(4.d0*rs*sqrtrs)
-                  d2e(1) = G(1)*rden(1)**2
-     &                 *(2.d0*d1den(1)**2*rden(1)-d2den(1))
-#endif
-               endif
-               d1edrho(1) = d1e(1)*d1rs
-               Ec = Ec + e(1)*qwght(n)*rhoval*fac
-               if (ldew) func(n) = func(n) + e(1)*rhoval*fac
-               Amat(n,1) = Amat(n,1) + (e(1)+rhoval*d1edrho(1))*fac
-#ifdef SECOND_DERIV
-               d2edrho(1) = d2e(1)*d1rs*d1rs
-     &                    + d1e(1)*d2rs
-               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &              + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
-c     ab contribution is same as aa contribution for restricted
-c     since in that case this functional depends on total rho only -
-c     it's not that simple in general
-               Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
-     &              + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
-#endif
-            endif
-         enddo
-      else
-c
-c        ======> SPIN-UNRESTRICTED <======
-c
-         do n = 1, nq
-            if (abs(rho(n,1)).gt.tol_rho)then
-               rhoval = rho(n,1)
+      do n = 1, nq
+         if (abs(rho(n,1)).gt.tol_rho)then
+            rhoval = rho(n,1)
+            if (ipol.eq.1) then
+               zeta = 0.0d0
+            else
                zeta = (rho(n,2)-rho(n,3))/rhoval
-               rs = rsfact/abs(rhoval)**ONE3
-               d1rs = -ONE3*rs/rhoval
-               fz = fzeta(zeta)
-               d1fz = d1fzeta(zeta)
-               d1zeta(1) = (1.d0-zeta)/rhoval
-               d1zeta(2) =-(1.d0+zeta)/rhoval
-#ifdef SECOND_DERIV
-               d2rs = -FOUR3*d1rs/rhoval
-               d2fz = d2fzeta(zeta)
-               rrho2 = 2.d0/(rhoval*rhoval)
-c              1 = aa, 2 = ab, 3 = bb
-               d2zeta(1) =-rrho2*(1.d0-zeta)
-               d2zeta(2) = rrho2*zeta
-               d2zeta(3) = rrho2*(1.d0+zeta)
-#endif
-               if (rs.lt.1.d0)then
-                  alnrs = log(rs)
-                  do i = 1, 2
-                     e(i) = A(i)*alnrs+B(i)+C(i)*rs*alnrs+D(i)*rs
-                     d1e(i) = A(i)/rs+C(i)*(alnrs+1d0)+D(i)
-#ifdef SECOND_DERIV
-                     d2e(i) = (C(i)-A(i)/rs)/rs
-#endif
-                  enddo
-               else
-                  sqrtrs = sqrt(rs)
-                  do i = 1, 2
-                     rden(i) = 1.d0/(1.d0+B1(i)*sqrtrs+B2(i)*rs)
-                     d1den(i) = B1(i)/(2.d0*sqrtrs)+B2(i)
-                     e(i) = G(i)*rden(i)
-                     d1e(i) = -G(i)*d1den(i)*rden(i)**2
-#ifdef SECOND_DERIV
-                     d2den(i) = -B1(i)/(4.d0*rs*sqrtrs)
-                     d2e(i) = G(i)*rden(i)**2
-     &                    *(2.d0*d1den(i)**2*rden(i)-d2den(i))
-#endif
-                  enddo
-               endif
-               eps = e(1) + fz*(e(2)-e(1))
-               d1ersz(1) = d1e(1) + fz*(d1e(2)-d1e(1))
-               d1ersz(2) = d1fz*(e(2)-e(1))
-               d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
-               d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
-               Ec = Ec + eps*qwght(n)*rhoval*fac
-               if (ldew) func(n) = func(n) + eps*rhoval*fac
-               Amat(n,1) = Amat(n,1) + (eps + rhoval*d1edrho(1))*fac
-               Amat(n,2) = Amat(n,2) + (eps + rhoval*d1edrho(2))*fac
-#ifdef SECOND_DERIV
-c              1 = rsrs, 2 = rsz, 3 = zz
-               d2ersz(1) = d2e(1) + fz*(d2e(2)-d2e(1))
-               d2ersz(2) = d1fz*(d1e(2)-d1e(1))
-               d2ersz(3) = d2fz*(e(2)-e(1))
-c              1 = aa, 2 = ab, 3 = bb
-               d2edrho(1) = d2ersz(1)*d1rs*d1rs
-     &                    + d2ersz(2)*d1rs*d1zeta(1)*2.d0
-     &                    + d2ersz(3)*d1zeta(1)*d1zeta(1)
-     &                    + d1ersz(1)*d2rs
-     &                    + d1ersz(2)*d2zeta(1)
-               d2edrho(2) = d2ersz(1)*d1rs*d1rs
-     &                    + d2ersz(2)*d1rs*(d1zeta(1)+d1zeta(2))
-     &                    + d2ersz(3)*d1zeta(1)*d1zeta(2)
-     &                    + d1ersz(1)*d2rs
-     &                    + d1ersz(2)*d2zeta(2)
-               d2edrho(3) = d2ersz(1)*d1rs*d1rs
-     &                    + d2ersz(2)*d1rs*d1zeta(2)*2.d0
-     &                    + d2ersz(3)*d1zeta(2)*d1zeta(2)
-     &                    + d1ersz(1)*d2rs
-     &                    + d1ersz(2)*d2zeta(3)
-               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &              + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
-               Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
-     &              + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*fac
-               Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &              + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*fac
-#endif
             endif
-         enddo
-      endif
+            rs = rsfact/abs(rhoval)**ONE3
+            d1rs = -ONE3*rs/rhoval
+            fz = fzeta(zeta)
+            d1fz = d1fzeta(zeta)
+            d1zeta(1) = (1.d0-zeta)/rhoval
+            d1zeta(2) =-(1.d0+zeta)/rhoval
+#ifdef SECOND_DERIV
+            d2rs = -FOUR3*d1rs/rhoval
+            d2fz = d2fzeta(zeta)
+            rrho2 = 2.d0/(rhoval*rhoval)
+c           1 = aa, 2 = ab, 3 = bb
+            d2zeta(1) =-rrho2*(1.d0-zeta)
+            d2zeta(2) = rrho2*zeta
+            d2zeta(3) = rrho2*(1.d0+zeta)
+#endif
+            if (rs.lt.1.d0)then
+               alnrs = log(rs)
+               do i = 1, 2
+                  e(i) = A(i)*alnrs+B(i)+C(i)*rs*alnrs+D(i)*rs
+                  d1e(i) = A(i)/rs+C(i)*(alnrs+1d0)+D(i)
+#ifdef SECOND_DERIV
+                  d2e(i) = (C(i)-A(i)/rs)/rs
+#endif
+               enddo
+            else
+               sqrtrs = sqrt(rs)
+               do i = 1, 2
+                  rden(i) = 1.d0/(1.d0+B1(i)*sqrtrs+B2(i)*rs)
+                  d1den(i) = B1(i)/(2.d0*sqrtrs)+B2(i)
+                  e(i) = G(i)*rden(i)
+                  d1e(i) = -G(i)*d1den(i)*rden(i)**2
+#ifdef SECOND_DERIV
+                  d2den(i) = -B1(i)/(4.d0*rs*sqrtrs)
+                  d2e(i) = G(i)*rden(i)**2
+     &                 *(2.d0*d1den(i)**2*rden(i)-d2den(i))
+#endif
+               enddo
+            endif
+            eps = e(1) + fz*(e(2)-e(1))
+            d1ersz(1) = d1e(1) + fz*(d1e(2)-d1e(1))
+            d1ersz(2) = d1fz*(e(2)-e(1))
+            d1edrho(1) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(1)
+            d1edrho(2) = d1ersz(1)*d1rs + d1ersz(2)*d1zeta(2)
+            Ec = Ec + eps*qwght(n)*rhoval*fac
+            if (ldew) func(n) = func(n) + eps*rhoval*fac
+            Amat(n,1) = Amat(n,1) + (eps + rhoval*d1edrho(1))*fac
+            if (ipol.eq.2)
+     &      Amat(n,2) = Amat(n,2) + (eps + rhoval*d1edrho(2))*fac
+#ifdef SECOND_DERIV
+c           1 = rsrs, 2 = rsz, 3 = zz
+            d2ersz(1) = d2e(1) + fz*(d2e(2)-d2e(1))
+            d2ersz(2) = d1fz*(d1e(2)-d1e(1))
+            d2ersz(3) = d2fz*(e(2)-e(1))
+c           1 = aa, 2 = ab, 3 = bb
+            d2edrho(1) = d2ersz(1)*d1rs*d1rs
+     &                 + d2ersz(2)*d1rs*d1zeta(1)*2.d0
+     &                 + d2ersz(3)*d1zeta(1)*d1zeta(1)
+     &                 + d1ersz(1)*d2rs
+     &                 + d1ersz(2)*d2zeta(1)
+            d2edrho(2) = d2ersz(1)*d1rs*d1rs
+     &                 + d2ersz(2)*d1rs*(d1zeta(1)+d1zeta(2))
+     &                 + d2ersz(3)*d1zeta(1)*d1zeta(2)
+     &                 + d1ersz(1)*d2rs
+     &                 + d1ersz(2)*d2zeta(2)
+            d2edrho(3) = d2ersz(1)*d1rs*d1rs
+     &                 + d2ersz(2)*d1rs*d1zeta(2)*2.d0
+     &                 + d2ersz(3)*d1zeta(2)*d1zeta(2)
+     &                 + d1ersz(1)*d2rs
+     &                 + d1ersz(2)*d2zeta(3)
+            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &           + (2.d0*d1edrho(1) + rhoval*d2edrho(1))*fac
+            Amat2(n,D2_RA_RB) = Amat2(n,D2_RA_RB)
+     &           + (d1edrho(1) + d1edrho(2) + rhoval*d2edrho(2))*fac
+            if (ipol.eq.2)
+     &      Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+     &           + (2.d0*d1edrho(2) + rhoval*d2edrho(3))*fac
+#endif
+         endif
+      enddo
       return
       end
 c
