@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.120 2002-05-09 02:19:20 bert Exp $
+c $Id: basis.F,v 1.121 2002-05-09 16:01:04 bert Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -981,7 +981,6 @@ c translate "name" to current "context"
 c
       bs_name(basis) = name
       len_bs_name(basis) = inp_strlen(name)
-      print*,ga_nodeid(),name
       if (.not.context_rtdb_match(rtdb,name,bs_trans(basis)))
      &       bs_trans(basis) = name
       len_bs_trans(basis) = inp_strlen(bs_trans(basis))
