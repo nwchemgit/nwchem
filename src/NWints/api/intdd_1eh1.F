@@ -1,6 +1,6 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.8 2000-01-04 00:29:03 windus Exp $
+C $Id: intdd_1eh1.F,v 1.9 2000-08-16 19:49:09 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -73,8 +73,8 @@ c
       nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
 c
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
-      if (nint*3*3*nat*3.gt.lH1a) then
-        write(luout,*) 'nint*3*3*nat*3 = ',nint*3*3*nat*3
+      if (nint*3*3*(nat*3+3).gt.lH1a) then
+        write(luout,*) 'nint*3*3*(nat*3+3) = ',nint*3*3*(nat*3+3)
         write(luout,*) 'lH1a       = ',lH1a
         call errquit('intd_1eh1: nint>lH1a error',911)
       endif
@@ -82,7 +82,7 @@ c
       offset = nint*3*3*nat*3 + 1  ! T is held seperately in H1a
 c
       call intdd_1eh1P(i_basis,ish,j_basis,jsh,
-     &       lscr,scr(offset),nint,H1a,H1a(offset),nat)
+     &       lscr,scr,nint,H1a,H1a(offset),nat)
 c
       end
       subroutine intdd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
@@ -116,7 +116,7 @@ c::passed
       integer nint      ! [input] number of integrals in shells ish and jsh
 c                       ! NOTE: nint*3*3 integral derivatives returned per unique center
       double precision scr(lscr) ! [input] scratch array
-      double precision H1a(nint,3,3,*)    ! [output] derivative integrals (nint,3,3,n_atoms)
+      double precision H1a(nint,3,3,*)    ! [output] derivative integrals (nint,3,3,n_atoms,3)
       double precision Ta(nint,3,3,3)     ! [scratch] space for kinetic integrals
 c::local
       logical doT
