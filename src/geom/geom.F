@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.81 1999-05-24 23:39:54 d3g681 Exp $
+C$Id: geom.F,v 1.82 1999-05-27 15:07:18 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2387,6 +2387,8 @@ c
 c
 c computes the dihedral angle for the given 4 atom coordinates
 c
+c::-includes
+#include "stdio.fh"
 c::-functions
       logical geom_calc_angle
       external geom_calc_angle
@@ -2404,9 +2406,20 @@ c::-local
       double precision BAxBC(3), CBxCD(3) 
       double precision mbaxbc, mcbxcd
       double precision cosangle
+      double precision thresh
+      parameter (thresh=1.0d-6)
+      logical linear1
+      logical linear2
+c
+c::-statement function
+      logical is_it_close_to  
+      double precision value,test
+*---          is value close to test?
+      is_it_close_to(value,test) = (abs(value-test).lt.thresh)
 c
       pi = 2.0d00*acos(0.0d00)
       geom_calc_dihedral = .true.
+      dihedral = -565.6589d00
 * compute appropriate angles 
       geom_calc_dihedral = geom_calc_angle(ain,bin,cin,abc)
       geom_calc_dihedral = geom_calc_dihedral.and.
@@ -2417,22 +2430,23 @@ c
      &    geom_calc_angle(ain,cin,din,acd)
       if (.not.geom_calc_dihedral) call errquit
      &    ('geom_calc_dihedral: fatal angle error',1)
-
+*
 * check special cases  a,b,c or b,c,d are linear
-      if (abc.eq.0.0d00.or.abc.eq.180.0d00.or.
-     &    bcd.eq.0.0d00.or.bcd.eq.180.0d00) then
+      linear1 =            is_it_close_to(abc,0.0d00)
+      linear1 = linear1.or.is_it_close_to(abc,180.0d00)
+      linear1 = linear1.or.is_it_close_to(bcd,0.0d00)
+      linear1 = linear1.or.is_it_close_to(bcd,180.0d00)
+      if (linear1) then
         dihedral = 0.0d00 
         return
       endif
 * a,b,d or a,c,d are linear
-      if (abd.eq.0.0d00.or.acd.eq.0.0d00) then
+      linear2 =            is_it_close_to(abd,0.0d00)
+      linear2 = linear2.or.is_it_close_to(acd,0.0d00)
+      if (linear2) then
         dihedral = 180.0d00 
         return
       endif
-*rak:      write(6,*)'ain       :',ain
-*rak:      write(6,*)'bin       :',bin
-*rak:      write(6,*)'cin       :',cin
-*rak:      write(6,*)'din       :',din
 c
 *... abc (b center)
       call dcopy(3,ain,1,a,1)
@@ -2452,13 +2466,6 @@ c
 * find magnitude of BAxBC
       mbaxbc = BAxBC(1)*BAxBC(1) + BAxBC(2)*BAxBC(2) + BAxBC(3)*BAxBC(3)
       mbaxbc = sqrt(mbaxbc)
-*rak:      write(6,*)'a         :',a
-*rak:      write(6,*)'b         :',b
-*rak:      write(6,*)'c         :',c
-*rak:      write(6,*)'BA        :',BA
-*rak:      write(6,*)'BC        :',BC
-*rak:      write(6,*)'BAxBC     :',BAxBC
-*rak:      write(6,*)'mbaxbc    :',mbaxbc
 c
 *... bcd (c center)  ! right hand screw!!
       call dcopy(3,bin,1,b,1)
@@ -2479,28 +2486,30 @@ c
 * find magnitude of CBxCD      
       mcbxcd = CBxCD(1)*CBxCD(1) + CBxCD(2)*CBxCD(2) + CBxCD(3)*CBxCD(3)
       mcbxcd = sqrt(mcbxcd)
-*rak:      write(6,*)'b         :',b
-*rak:      write(6,*)'c         :',c
-*rak:      write(6,*)'d         :',d
-*rak:      write(6,*)'CB        :',CB
-*rak:      write(6,*)'CD        :',CD
-*rak:      write(6,*)'CBxCD     :',CBxCD
-*rak:      write(6,*)'mcbxcd    :',mcbxcd
 *
       cosangle = BAxBC(1)*CBxCD(1) + BAxBC(2)*CBxCD(2) +
      &    BAxBC(3)*CBxCD(3) 
-*rak:      write(6,*)' N1 . N2  :',cosangle
+      if (is_it_close_to(mbaxbc,0.0d00).or.
+     &    is_it_close_to(mcbxcd,0.0d00)) then
+        write(luout,*)' fatal error in geom_calc_dihedral '
+        write(luout,*)'a coordinates',ain
+        write(luout,*)'b coordinates',bin
+        write(luout,*)'c coordinates',cin
+        write(luout,*)'d coordinates',din
+        write(luout,*)' please report this data to:'
+        write(luout,*)'         nwchem-support@emsl.pnl.gov'
+        call util_flush(luout)
+        geom_calc_dihedral = .false.
+        return
+      endif
       cosangle = cosangle/mbaxbc/mcbxcd
-*rak:      write(6,*)' arccos  :',cosangle
       if (cosangle.gt.1.0d00) then
         abc = cosangle - 1.0d00
-*rak:        write(6,*)' cosangle .gt. 1.0 by',abc
-        if (abs(abc).lt.1.0d-6) cosangle = cosangle - abc
+        if (abs(abc).lt.thresh) cosangle = cosangle - abc
       endif
       if (cosangle.lt.-1.0d00) then
         abc = -1.0d00 - cosangle
-*rak:        write(6,*)' cosangle .lt. -1.0 by',abc
-        if (abs(abc).lt.1.0d-6) cosangle = cosangle + abc
+        if (abs(abc).lt.thresh) cosangle = cosangle + abc
       endif
       dihedral = acos(cosangle)
       dihedral = dihedral*180.0d00/pi
