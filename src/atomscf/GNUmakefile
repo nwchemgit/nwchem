@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 1997-03-26 00:49:50 d3e129 Exp $
+# $Id: GNUmakefile,v 1.24 2000-08-08 23:49:31 bjohnson Exp $
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.
@@ -6,13 +6,7 @@
 # well actually in large basis sets the atomic guess can take
 # a long time ... optimize except on the SGI for now.
 
-#ifeq ($(TARGET),SGITFP)
-  XXX = OBJ
-#else
-  XXX = OBJ_OPTIMIZE
-#endif
-
-       $(XXX) = orderd.o \
+ OBJ_OPTIMIZE = orderd.o \
                 atcond.o \
                 denat.o \
 		hamild.o \
@@ -40,13 +34,16 @@
                 atscf_ecp.o \
                 atscf_atscf.o
 
+# BEGIN_WIN32_IGNORE
+ifeq ($(TARGET),SGITFP)
+  OBJ := $(OBJ_OPTIMIZE)
+  OBJ_OPTIMIZE :=
+endif
+# END_WIN32_IGNORE
 
   USES_BLAS = atomd.F atscf_atscf.F atscf_ecp.F
 
   LIBRARY = libguess.a
 
-
 include ../config/makefile.h
 include ../config/makelib.h
-
-
