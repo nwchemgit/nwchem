@@ -3,7 +3,7 @@
      &                         g_svecs, isvals, g_cdinv, g_xcinv, 
      &                         g_2ceri)
 c     
-c     $Id: dft_scf.F,v 1.83 1997-07-15 19:58:12 d3h449 Exp $
+c     $Id: dft_scf.F,v 1.84 1997-07-21 20:23:19 d3h449 Exp $
 c     
       implicit none
 c
@@ -340,12 +340,8 @@ c
 c     
 c     SCF energy convergence criterion. 
 c     
-c      call gacrea(geom, ao_bas_han, nbf_ao, nbf_ao, 'ga temp', g_tmp, 
-c     &            'atom')
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
       if (ipol.gt.1)then
-c         call gacrea(geom, ao_bas_han, nbf_ao, nbf_ao, 'fock tr', 
-c     &               g_fockt, 'atom')
          g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
       endif
 c     
@@ -416,7 +412,7 @@ c      call dft_init_guess(rtdb, g_dens, g_movecs, g_fock)
 c
 c     allocate array for irreps
 c
-      if (.not.MA_Push_Get(mt_int, nbf_ao,'dft:irreps', l_ir, k_ir))
+      if (.not.MA_Push_Get(mt_int,ipol*nbf_ao,'dft:irreps',l_ir,k_ir))
      &   call errquit('dft_scf: cannot allocate irreps',0)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
@@ -458,7 +454,6 @@ c
 c     Call to Mulliken Pop Ananlysis for initial density
 c     
       if (mulliken)then
-c         call gacrea(geom,ao_bas_han,nbf_ao,nbf_ao,'ovl ',g_s,'atom')
          g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
          call ga_zero(g_s)
          call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
@@ -691,8 +686,6 @@ c
          call dft_second(tp3)
 #endif
 c
-c         call gacrea(geom, ao_bas_han, 
-c     &               nbf_ao, nbf_ao, 'ga scr', g_scr, 'atom')
          g_scr = ga_create_atom_blocked(geom, AO_bas_han, 'ga scr')
 c     
 c        Put s-1/2 in g_scr.
@@ -789,7 +782,6 @@ c        Back-transform eigenvectors with S^-1/2.
 c     
          call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, one, 
      &                 g_scr, g_tmp, zero, g_fock)
-c         call gadest(g_scr)
          if (.not. ga_destroy(g_scr)) call errquit
      &      ('dft_scf: could not destroy g_scr', 0)
 c     
@@ -1116,7 +1108,6 @@ c
 c     call to Mulliken Pop Ananlysis
 c     
       if (mulliken)then
-c         call gacrea(geom,ao_bas_han,nbf_ao,nbf_ao,'ovl ',g_s,'atom')
          g_s = ga_create_atom_blocked(geom, AO_bas_han, 'AO ovl')
          call ga_zero(g_s)
          call int_1e_ga(ao_bas_han,ao_bas_han,g_s,'overlap',.false.)
@@ -1135,7 +1126,6 @@ c
             call ga_dadd(one,g_dens(1),-1.d0,g_dens(2),g_dens(2))
             call ga_dscal(g_dens(2),0.5d0)
          endif
-c         call gadest(g_s)
          if (.not. ga_destroy(g_s)) call errquit
      &      ('dft_scf: could not destroy g_s', 0)
       endif
@@ -1176,10 +1166,8 @@ c
       endif
 c
       if (wght_GA)then
-c         call gadest(g_wght)
          if (.not. ga_destroy(g_wght)) call errquit
      &      ('dft_scf: could not destroy g_wght', 0)
-c         call gadest(g_xyz)
          if (.not. ga_destroy(g_xyz)) call errquit
      &      ('dft_scf: could not destroy g_xyz', 0)
       endif
@@ -1307,11 +1295,9 @@ c
      &   call errquit('dft_scf: cannot pop stack',0)
 c     
       if (ipol.gt.1)then
-c         call gadest(g_fockt)
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0)
       endif
-c      call gadest(g_tmp)
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0)
 c

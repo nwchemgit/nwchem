@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.26 1997-04-25 23:11:43 d3h449 Exp $
+# $Id: GNUmakefile,v 1.27 1997-07-21 20:23:17 d3h449 Exp $
 
       OBJ = \
 	dft_inpana.o \
@@ -12,8 +12,8 @@
 
      LIBRARY = libnwdft.a
 
- LIB_DEFINES = -DDFT_TIMER
-# LIB_DEFINES =
+# LIB_DEFINES = -DDFT_TIMER
+ LIB_DEFINES =
 
 LIB_INCLUDES = -I../include
 
