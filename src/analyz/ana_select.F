@@ -1,19 +1,6 @@
-      subroutine ana_select(sgmnam)
+      subroutine ana_select(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_select.F,v 1.3 1999-03-15 21:27:48 d3j191 Exp $
-c
-      implicit none
-c
-#include "ana_common.fh"
-#include "mafdecls.fh"
-c
-      character*16 sgmnam(nsa)
-c
-      call ana_isel(sgmnam,int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xref))
-c
-      return
-      end
-      subroutine ana_isel(sgmnam,isel,wt,x)
+c $Id: ana_select.F,v 1.4 1999-12-10 23:54:47 d3j191 Exp $
 c
       implicit none
 c
@@ -33,29 +20,14 @@ c
       integer is,js,it
       character*5 cs,ct
       real*8 rtag,rtag2,r2
+      character*80 card
 c
 c     do selection on node 0
 c
       if(me.eq.0) then
 c
-      do 1 i=1,nsa
-      isel(i)=1
-    1 continue
-c
-      if(.not.rtdb_cget(irtdb,'file_prefix',1,fpref))
-     + call errquit('rtdb_cget failed on file_prefix',9999)
-      select=fpref(1:index(fpref,' ')-1)//'.sel '
-      open(unit=69,file=select(1:index(select,' ')-1),
-     + form='formatted',status='old',err=9999)
-      rewind(unit=69)
-c
-      do 2 i=1,nsa
-      isel(i)=0
-    2 continue
-c
-  100 continue
-      read(69,6901,end=9998) is,js,rtag,cs
- 6901 format(2i7,f12.6,a5)
+      read(card(8:38),1000) is,js,rtag,cs
+ 1000 format(2i7,f12.6,a5)
       if(cs(1:1).eq.'_') cs(1:1)=' '
       do 3 i=1,nsa
       read(sgmnam(i),'(5x,a5,i6)') ct,it
@@ -74,15 +46,6 @@ c
       endif
       endif
     3 continue
-      goto 100
-c
- 9998 continue
-      close(unit=69)
-c
- 9999 continue
-      do 6 i=1,nsa
-      if(isel(i).eq.0) wt(i)=0.0d0
-    6 continue
 c
       endif
 c
@@ -90,8 +53,41 @@ c     broadcast to all nodes
 c
       if(np.gt.1) then
       call ga_brdcst(mag_d06,isel,nsa*ma_sizeof(mt_int,1,mt_byte),0)
-      call ga_brdcst(mag_d07,wt,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
+c
+      nsel=0
+      do 6 i=1,nsa
+      wt(i)=1.0d0
+      if(isel(i).eq.0) wt(i)=0.0d0
+      nsel=nsel+isel(i)
+    6 continue
+c
+      return
+      end
+      subroutine ana_all(isel,ival,wt)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "rtdb.fh"
+c
+      integer isel(nsa)
+      real*8 wt(nsa)
+      integer i,ival
+c
+      do 1 i=1,nsa
+      isel(i)=ival
+    1 continue
+c
+      nsel=0
+      do 2 i=1,nsa
+      wt(i)=1.0d0
+      if(isel(i).eq.0) wt(i)=0.0d0
+      nsel=nsel+isel(i)
+    2 continue
 c
       return
       end
