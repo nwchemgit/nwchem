@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.9 2000-05-11 00:04:06 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.10 2000-05-11 01:53:59 d3j191 Exp $
 c
       implicit none
 c
@@ -80,6 +80,9 @@ c
       if(card(1:10).ne.'atom_list:') goto 13
       do 14 i=1,nsa
       read(lfntrj,1005) (x(i,j),j=1,3)
+      x(i,1)=x(i,1)*1.0d-1
+      x(i,2)=x(i,2)*1.0d-1
+      x(i,3)=x(i,3)*1.0d-1
       ix(i)=i
    14 continue
       succes=.true.
