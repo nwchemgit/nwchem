@@ -1,5 +1,5 @@
       subroutine ga_inverse(g_a, g_s)
-C$Id: ga_inverse.F,v 1.6 1996-10-18 21:50:14 d3h449 Exp $
+C$Id: ga_inverse.F,v 1.7 2003-04-19 22:01:44 edo Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -69,6 +69,8 @@ c
          proc = min(8,ga_nnodes())
       else if (n .lt. 700) then
          proc = min(48,ga_nnodes())
+      else 
+         proc = min(256,ga_nnodes())
       endif
       oactive = myproc .lt. proc
       if (oactive) then

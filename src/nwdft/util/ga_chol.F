@@ -1,6 +1,6 @@
       subroutine ga_chol(g_a, g_s,info)
 c
-C$Id: ga_chol.F,v 1.9 1997-10-31 23:20:41 d3h449 Exp $
+C$Id: ga_chol.F,v 1.10 2003-04-19 22:01:44 edo Exp $
 c
       implicit none
 c
@@ -67,6 +67,8 @@ c
          proc = min(8, ga_nnodes())
       else if (n .lt. 700) then
          proc = min(48, ga_nnodes())
+      else
+         proc = min(256, ga_nnodes())
       endif
 c
       oactive = myproc .lt. proc
