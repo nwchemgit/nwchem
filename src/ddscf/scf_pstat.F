@@ -1,3 +1,8 @@
+      block data dscfps
+#include "cscfps.fh"
+      data oscfps /.false./     ! So that other codes don't break
+c
+      end
       subroutine scf_pstat_init(rtdb)
       implicit none
 #include "pstat.fh"
@@ -6,12 +11,6 @@
 #include "mafdecls.fh"
       integer rtdb
       double precision junk
-c      external dscfps
-c      block data dscfps
-c#include "cscfps.fh"
-      data oscfps /.false./     ! So that other codes don't break
-c
-c      end
 c
       if (.not. rtdb_get(rtdb, 'scf:pstat',
      $     MT_LOG, 1, oscfps)) oscfps = .false.
