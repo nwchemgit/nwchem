@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.6 2003-05-23 18:31:28 edo Exp $
+c $Id: tce_zero.F,v 1.7 2003-07-25 17:56:58 sohirata Exp $
 c
 c     Zero scratch a file
 c
@@ -25,7 +25,7 @@ c
         write(LuOut,9190) d_sf,size
         write(LuOut,9200) nblocks,blocksize
       endif
-      if(ioalg.eq.2) then
+      if (ioalg.eq.2) then
          call ga_zero(d_sf)
       else
       if (.not.ma_push_get(mt_dbl,blocksize,'temporary',

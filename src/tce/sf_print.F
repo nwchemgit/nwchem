@@ -1,6 +1,6 @@
       subroutine sf_print(sf_handle,size)
 c
-c $Id: sf_print.F,v 1.6 2002-11-11 18:25:54 sohirata Exp $
+c $Id: sf_print.F,v 1.7 2003-07-25 17:56:55 sohirata Exp $
 c
       implicit none
 #include "global.fh"
@@ -19,7 +19,13 @@ c
      1  call errquit('sf_print: MA problem',0)
       call get_block(sf_handle,dbl_mb(k_sf),size,0)
       write(LuOut,9000) ga_nodeid()
-      call ma_print(dbl_mb(k_sf),size,1,'Global file')
+c     call ma_print(dbl_mb(k_sf),size,1,'Global file')
+      write(LuOut,9020)
+      do i = 1,size
+        if (dabs(dbl_mb(k_sf+i-1)).gt.1.0d-10)
+     1  write(LuOut,9030) dbl_mb(k_sf+i-1)
+      enddo
+      write(LuOut,9020)
       checksum = 0.0d0
       do i = 1,size
         checksum = checksum + dbl_mb(k_sf+i-1)**2
@@ -29,5 +35,7 @@ c
      1  call errquit('sf_print: MA problem',0)
  9000 format(/,1x,'Node = ',i3)
  9010 format(1x,'Checksum = ',f15.10)
+ 9020 format(1x,'---------------')
+ 9030 format(1x,f15.10)
       return
       end

@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.26 2003-02-20 01:17:37 mhackler Exp $
+c $Id: tce_init.F,v 1.27 2003-07-25 17:56:56 sohirata Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -204,6 +204,31 @@ c
         diis = maxdiis
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
      1  call errquit('tce_init: failed to write diis',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:nroots',mt_int,1,nroots)) then
+        nroots = 0
+        if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
+     1  call errquit('tce_init: failed to write nroots',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:target',mt_int,1,target)) then
+         target=1
+        if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
+     1  call errquit('tce_init: failed to write target',0)
+      endif
+      if (.not.rtdb_cget(rtdb,'tce:targetsym',1,targetsym)) then
+        targetsym='none'
+        if (.not.rtdb_cput(rtdb,'tce:targetsym',1,targetsym))
+     1  call errquit('tce_init: failed to write targetsym',0)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:symmetry',mt_log,1,symmetry)) then
+        symmetry=.false.
+        if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
+     1  call errquit('tce_init: failed to write symmetry',0)
+      endif
+      if ((symmetry).and.(targetsym.eq.'none')) then
+        symmetry=.false.
+        if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
+     1    call errquit('tce_init: failed to write symmetry',0)
       endif
 c
 c     ----------------------
@@ -438,7 +463,7 @@ c
      1  (LuOut,'and TCE was supported by US Department of Energy,',
      2  40,.false.)
         call util_print_centered
-     1  (LuOut,'Office of Science, Division of Basic Energy Science.',
+     1  (LuOut,'Office of Science, Office of Basic Energy Science.',
      2  40,.false.)
         call util_print_centered
      1  (LuOut,'TCE is a product of Battelle and PNNL.',
@@ -527,6 +552,16 @@ c
         else
           write(LuOut,9160) 'Jacobi'
         endif
+        if (nroots .gt. 0) then
+          write(LuOut,9170) nroots
+          write(LuOut,9180) target
+          write(LuOut,9190) targetsym
+          if (symmetry) then
+            write(LuOut,9210) 'on '
+          else
+            write(LuOut,9210) 'off'
+          endif
+        endif
         if (ioalg.eq.0) then
           write(LuOut,9140) 'Fortran77 Direct Access'
         else if (ioalg.eq.1) then
@@ -566,6 +601,10 @@ c
  9140 format(3x,'             I/O scheme : ',a)
  9150 format(3x,'       Amplitude update : ',i2,a)
  9160 format(3x,'       Amplitude update : ',a)
+ 9170 format(3x,'  No. of excited states :',2x,i4)
+ 9180 format(3x,'            Target root :',2x,i4)
+ 9190 format(3x,'        Target symmetry :',1x,a4)
+ 9210 format(3x,'   Symmetry restriction :',1x,a3)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
  9500 format(/,2x,

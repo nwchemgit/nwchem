@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.13 2003-01-31 04:36:43 sohirata Exp $
+c $Id: tce_input.F,v 1.14 2003-07-25 17:56:56 sohirata Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -17,7 +17,11 @@ c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
 c        [IO (fortran||eaf||ga||sf||replicated) default ga]
-c        [DIIS <integer diis 5>]
+c        [DIIS <integer diis default 5>]
+c        [NROOTS <integer nroots default 0>]
+c        [TARGET <integer target default 1>]
+c        [TARGETSYM <character targetsym default 'none'>]
+c        [SYMMETRY]
 c     END
 c
 c     TASK TCE ENERGY
@@ -32,7 +36,11 @@ c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
 c        [IO (fortran||c||ga||sf||replicated) default ga]
-c        [DIIS <integer diis 5>]
+c        [DIIS <integer diis default 5>]
+c        [NROOTS <integer nroots default 0>]
+c        [TARGET <integer target default 1>]
+c        [TARGETSYM <character targetsym default 'none'>]
+c        [SYMMETRY]
 c     END
 c
 c     TASK UCCSDT ENERGY
@@ -54,6 +62,10 @@ c
       integer ioalg
       integer reference
       integer diis
+      integer nroots
+      integer target
+      character*4 targetsym
+      logical symmetry
 c
 c -------------------------------------
 c What input block are we dealing with?
@@ -108,6 +120,30 @@ c     DIIS (the vector space size in DIIS)
 c
       diis=5
       if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1  call errquit('tce_input: failed writing to rtdb',0)
+c
+c     NROOTS (the number of excited state roots)
+c
+      nroots=0
+      if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
+     1  call errquit('tce_input: failed writing to rtdb',0)
+c
+c     TARGET (the target excited state for, e.g., geometry optimization)
+c
+      target=1
+      if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
+     1  call errquit('tce_input: failed writing to rtdb',0)
+c
+c     TARGETSYM (the irrep of the target excited state)
+c
+      targetsym='none'
+      if (.not.rtdb_cput(rtdb,'tce:targetsym',1,targetsym))
+     1  call errquit('tce_input: failed writing to rtdb',0)
+c
+c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+c
+      symmetry=.false.
+      if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
      1  call errquit('tce_input: failed writing to rtdb',0)
 c
 c ----------
@@ -321,9 +357,51 @@ c
         if (.not.inp_i(diis)) then
           write(LuOut,*) 'tce_input: diis value not found; ',
      1      'default value of 5 will be used'
-          maxiter=5
+          diis=5
         endif
         if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+c
+c     NROOTS (the number of excited state root)
+c
+      else if (inp_compare(.false.,test,'nroots')) then
+        if (.not.inp_i(nroots)) then
+          write(LuOut,*) 'tce_input: nroots value not found; ',
+     1      'default value of 0 will be used'
+          nroots=0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+c
+c     TARGET (the target excited state for, e.g., geometry optimization)
+c
+      else if (inp_compare(.false.,test,'target')) then
+        if (.not.inp_i(target)) then
+          write(LuOut,*) 'tce_input: target value not found; ',
+     1      'default value of 1 will be used'
+          target=1
+        endif
+        if (target.gt.nroots) call errquit
+     1    ('tce_input: an illegal value for target',target)
+        if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+c
+c     TARGETSYM (the symmetry of the target excited state)
+c
+      else if (inp_compare(.false.,test,'targetsym')) then
+        if (.not.inp_a(targetsym)) then
+          write(LuOut,*) 'tce_input: targetsym value not found; ',
+     1      'no symmetry information will be used in specifying target'
+          targetsym='none'
+        endif
+        if (.not.rtdb_cput(rtdb,'tce:targetsym',1,targetsym))
+     1    call errquit('tce_input: failed writing to rtdb',0)
+c
+c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+c
+      else if (inp_compare(.false.,test,'symmetry')) then
+        symmetry=.true.
+        if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
      1    call errquit('tce_input: failed writing to rtdb',0)
 c
 c     PRINT

@@ -1,6 +1,6 @@
       subroutine daxpyfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxpyfile.F,v 1.1 2002-12-24 06:13:31 sohirata Exp $
+c $Id: daxpyfile.F,v 1.2 2003-07-25 17:56:53 sohirata Exp $
 c
 c     Vector inner product of two files of the same size
 c
@@ -23,47 +23,49 @@ c
       double precision coefficients(*)
 c
       nodezero = (ga_nodeid().eq.0)
-      nblocks = size/buffer_size + 1
-      blocksize = size/nblocks + 1
-      if (nodezero.and.util_print('daxpyfile',print_debug)) then
-        do l = 1,n
-          write(LuOut,9180) d_in(l),size,coefficients(l)
-        enddo
-        write(LuOut,9190) d_out,size
-        write(LuOut,9200) nblocks,blocksize
-      endif
-      if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
-     1  l_temp1,k_temp1))
-     2  call errquit('tce_zero: MA problem',0)
-      if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
-     1  l_temp2,k_temp2))
-     2  call errquit('tce_zero: MA problem',1)
-      do i = 1,nblocks
-        if (nodezero.and.util_print('daxpyfile',print_debug))
-     1    write(LuOut,9210) (i-1)*blocksize,
-     2                      min(size,i*blocksize)-(i-1)*blocksize
-        k = 0
-        do j = (i-1)*blocksize+1,min(size,i*blocksize)
-          k = k + 1
-          dbl_mb(k_temp1+k-1) = 0.0d0
-        enddo
-        do l = 1,n
-          call get_block(d_in(l),dbl_mb(k_temp2),
-     1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
+      if (nodezero) then
+        nblocks = size/buffer_size + 1
+        blocksize = size/nblocks + 1
+        if (util_print('daxpyfile',print_debug)) then
+          do l = 1,n
+            write(LuOut,9180) d_in(l),size,coefficients(l)
+          enddo
+          write(LuOut,9190) d_out,size
+          write(LuOut,9200) nblocks,blocksize
+        endif
+        if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
+     1    l_temp1,k_temp1))
+     2    call errquit('tce_zero: MA problem',0)
+        if (.not.ma_push_get(mt_dbl,blocksize,'temporary',
+     1    l_temp2,k_temp2))
+     2    call errquit('tce_zero: MA problem',1)
+        do i = 1,nblocks
+          if (util_print('daxpyfile',print_debug))
+     1      write(LuOut,9210) (i-1)*blocksize,
+     2                        min(size,i*blocksize)-(i-1)*blocksize
           k = 0
           do j = (i-1)*blocksize+1,min(size,i*blocksize)
             k = k + 1
-            dbl_mb(k_temp1+k-1) = dbl_mb(k_temp1+k-1) 
-     1      + coefficients(l) * dbl_mb(k_temp2+k-1)
+            dbl_mb(k_temp1+k-1) = 0.0d0
           enddo
+          do l = 1,n
+            call get_block(d_in(l),dbl_mb(k_temp2),
+     1        min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
+            k = 0
+            do j = (i-1)*blocksize+1,min(size,i*blocksize)
+              k = k + 1
+              dbl_mb(k_temp1+k-1) = dbl_mb(k_temp1+k-1) 
+     1        + coefficients(l) * dbl_mb(k_temp2+k-1)
+            enddo
+          enddo
+          call add_block(d_out,dbl_mb(k_temp1),
+     1      min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
         enddo
-        call put_block(d_out,dbl_mb(k_temp1),
-     1    min(size,i*blocksize)-(i-1)*blocksize,(i-1)*blocksize)
-      enddo
-      if (.not.ma_pop_stack(l_temp2))
-     1  call errquit('createfile: MA problem',2)
-      if (.not.ma_pop_stack(l_temp1))
-     1  call errquit('createfile: MA problem',3)
+        if (.not.ma_pop_stack(l_temp2))
+     1    call errquit('createfile: MA problem',2)
+        if (.not.ma_pop_stack(l_temp1))
+     1    call errquit('createfile: MA problem',3)
+      endif
       call ga_sync()
  9180 format(/,1x,'  input file handle:',i10,' size:',i10,
      1            ' coefficient:',f15.10)

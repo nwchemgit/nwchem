@@ -1,6 +1,6 @@
       subroutine tce_ao1e_shellfockbuild(rtdb,g_ao1e)
 c
-c $Id: tce_ao1e.F,v 1.4 2003-04-15 17:08:43 sohirata Exp $
+c $Id: tce_ao1e.F,v 1.5 2003-07-25 17:56:55 sohirata Exp $
 c
 c     Returns a GA handle for AO Fock matrix.
 c
@@ -18,7 +18,10 @@ c
       integer g_ao1e(2)          ! GA handle for AO Fock matrices
       integer g_dens(2)          ! GA handle for AO density matrices
       integer g_hcore            ! GA handle for AO hcore (T+V) matrices
-      logical symmetry           ! True if symmetry is used in integral evaluation
+c     logical symmetry           ! True if symmetry is used in integral evaluation
+c
+c 7/1/03 Remember that there is a global variable with the same name (tce.fh)
+c
       integer idim(3)            ! Dimension array for NGA create
       integer ichunk(3)          ! Chunk array for NGA create
       integer alo(2),ahi(2)      ! Regions for patch
@@ -33,7 +36,7 @@ c     ====================
 c     Initialize int_API's
 c     ====================
 c
-      symmetry=(sym_number_ops(geom).gt.0).and.sym_abelian_group(geom)
+c     symmetry=(sym_number_ops(geom).gt.0).and.sym_abelian_group(geom)
       call scf_get_fock_param(rtdb,tol2e)
 c
 c     ================================

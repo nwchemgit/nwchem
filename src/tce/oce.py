@@ -1,6 +1,6 @@
 # Operator Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: oce.py,v 1.6 2003-02-13 17:42:50 sohirata Exp $
+# $Id: oce.py,v 1.7 2003-07-25 17:56:55 sohirata Exp $
 
 import string
 
@@ -329,7 +329,7 @@ class Operator:
       show = string.join([self.type[0],"_{",repr(self.index),"}"], "")
       return show
 
-   def isgreaterthan(self,another,summation):
+   def isgreaterthan(self,another,operatorsequence):
       """Returns true if self should be to the right of another in the canonical order"""
 
       if ((self.type == 'hole') and (another.type == 'particle')):
@@ -345,20 +345,33 @@ class Operator:
       elif ((self.type == 'general') and (another.type == 'particle')):
          return 1
 
-      # at this point self.type = another.type
-      if (summation.hastheindex(self) and summation.hastheindex(another)):
+      # at this point, self.type = another.type
+      if ((not operatorsequence.summation.hastheindex(self)) and (not operatorsequence.summation.hastheindex(another))):
          if (self.index > another.index):
             return 1
          else:
             return 0
-      elif (summation.hastheindex(self) and (not summation.hastheindex(another))):
+      elif (operatorsequence.summation.hastheindex(self) and (not operatorsequence.summation.hastheindex(another))):
          return 0
-      elif ((not summation.hastheindex(self)) and summation.hastheindex(another)):
+      elif ((not operatorsequence.summation.hastheindex(self)) and operatorsequence.summation.hastheindex(another)):
          return 1
       else:
-         if (self.index > another.index):
+         # at this point, self.type = another.type and both are summed over
+         selfconnectivity = []
+         anotherconnectivity = []
+         for namplitude in range(len(operatorsequence.amplitudes)):
+            amplitude = operatorsequence.amplitudes[namplitude]
+            if (amplitude.hastheindex(self)):
+               selfconnectivity.append(namplitude)
+         for namplitude in range(len(operatorsequence.amplitudes)):
+            amplitude = operatorsequence.amplitudes[namplitude]
+            if (amplitude.hastheindex(another)):
+               anotherconnectivity.append(namplitude)
+         selfconnectivity.sort()
+         anotherconnectivity.sort()
+         if (selfconnectivity < anotherconnectivity):
             return 1
-         else:
+         elif (anotherconnectivity < selfconnectivity):
             return 0
 
       return 0
@@ -454,21 +467,6 @@ class Summation:
             has = 1
       return has
 
-   def canonicalize(self):
-      """Sort the indexes in the canonical order"""
-      another = self.duplicate()
-      for nindexa in range(len(another.indexes)):
-         indexa = another.indexes[nindexa]
-         for nindexb in range(len(another.indexes)):
-            indexb = another.indexes[nindexb]
-            if (nindexa <= nindexb):
-               continue
-            if (not indexa.isgreaterthan(indexb,another)):
-               swap = another.indexes[nindexa]
-               another.indexes[nindexa] = copy.deepcopy(another.indexes[nindexb])
-               another.indexes[nindexb] = copy.deepcopy(swap)
-      return another
-
 class Amplitude:
 
    def __init__(self,type="unknown",indexes=[],index=0,conjugate=0):
@@ -492,6 +490,14 @@ class Amplitude:
          show = string.join([show, index.showwithoutdagger()])
       show = string.join([show,")"])
       return show
+ 
+   def hastheindex(self,another):
+      """Returns true if the summation has the input index"""
+      has = 0
+      for index in self.indexes:
+         if (index.isidenticalto(another)):
+            has = 1
+      return has
 
    def tex(self):
       """Returns a LaTeX string of the content"""
@@ -587,18 +593,22 @@ class Amplitude:
          return 0
       elif (nself < nanother):
          return 1
+      # conjugate
       if (self.conjugate > another.conjugate):
          return 0
       elif (self.conjugate < another.conjugate):
          return 1
+      # type
       if (self.type > another.type):
          return 1
       elif (self.type < another.type):
          return 0
+      # number of indexes
       if (len(self.indexes) < len(another.indexes)):
          return 1
       elif (len(self.indexes) > len(another.indexes)):
          return 0
+      # number of external indexes
       nself = 0
       iself = 9999999999
       for operator in self.indexes:
@@ -617,14 +627,40 @@ class Amplitude:
          return 1
       elif (nself > nanother):
          return 0
-      if (nself > 0):
-         if (ianother > iself):
-            return 0
-         elif (ianother < iself):
-            return 1
+      # earliest external indexes
+#     if (nself > 0):
+#        if (ianother > iself):
+#           return 0
+#        elif (ianother < iself):
+#           return 1
+      # connectivity
+      selfconnectivity = []
+      anotherconnectivity = []
+      for operator in self.indexes:
+         if (operatorsequence.summation.hastheindex(operator)):
+            for amplitude in operatorsequence.amplitudes:
+               if (amplitude.hastheindex(operator)):
+                  amplitudesymbol = amplitude.type + repr(len(amplitude.indexes))
+                  if (amplitude.conjugate):
+                     amplitudesymbol = amplitudesymbol + "+"
+                  selfconnectivity.append(amplitudesymbol)
+      for operator in another.indexes:
+         if (operatorsequence.summation.hastheindex(operator)):
+            for amplitude in operatorsequence.amplitudes:
+               if (amplitude.hastheindex(operator)):
+                  amplitudesymbol = amplitude.type + repr(len(amplitude.indexes))
+                  if (amplitude.conjugate):
+                     amplitudesymbol = amplitudesymbol + "+"
+                  anotherconnectivity.append(amplitudesymbol)
+      selfconnectivity.sort()
+      anotherconnectivity.sort()
+      if (selfconnectivity < anotherconnectivity):
+         return 1
+      elif (anotherconnectivity < selfconnectivity):
+         return 0
       return 0
 
-   def canonicalize(self,summation):
+   def canonicalize(self,operatorsequence):
       """Reorder the indexes in the canonical order"""
 
       another = self.duplicate()
@@ -639,7 +675,7 @@ class Amplitude:
                   continue
                operatora = another.indexes[noperatora]
                operatorb = another.indexes[noperatorb]
-               if (operatora.isgreaterthan(operatorb,summation)):
+               if (operatora.isgreaterthan(operatorb,operatorsequence)):
                   another.indexes[noperatorb] = copy.deepcopy(operatora)
                   another.indexes[noperatora] = copy.deepcopy(operatorb)
                   parity = parity * (-1)
@@ -654,7 +690,7 @@ class Amplitude:
                   continue
                operatora = another.indexes[noperatora]
                operatorb = another.indexes[noperatorb]
-               if (operatora.isgreaterthan(operatorb,summation)):
+               if (operatora.isgreaterthan(operatorb,operatorsequence)):
                   another.indexes[noperatorb] = copy.deepcopy(operatora)
                   another.indexes[noperatora] = copy.deepcopy(operatorb)
                   parity = parity * (-1)
@@ -680,6 +716,14 @@ class Factor:
          coefficient = self.coefficients[n]
          # str() rounds a float after 12 digits, while repr() after 17,
          # so the former tends to give a more pleasant expression.
+#        num = rationaltofractional(coefficient)[0]
+#        den = rationaltofractional(coefficient)[1]
+#        if (num >= 0):
+#           show = string.join([show,"+",repr(num)])
+#        elif (num < 0):
+#           show = string.join([show,"-",repr(-num)])
+#        if (den != 1):
+#           show = string.join([show,"/",repr(den)],"")
          if (coefficient >= 0.0):
             show = string.join([show,"+",str(coefficient)])
          elif (coefficient < 0.0):
@@ -753,6 +797,10 @@ class Factor:
          done = 0
          for n in range(len(self.coefficients)):
             if (isidenticalto(self.permutations[n],another.permutations[m])):
+               if ((self.coefficients[n] < 0.0) and (another.coefficients[m] * factor > 0.0)):
+                  print " ! Warning ! cancellation of terms occurred "
+               if ((self.coefficients[n] > 0.0) and (another.coefficients[m] * factor < 0.0)):
+                  print " ! Warning ! cancellation of terms occurred "
                self.coefficients[n] = self.coefficients[n] + another.coefficients[m] * factor
                done = 1
          if (not done):
@@ -1505,7 +1553,7 @@ class OperatorSequence:
       # reorder indexes
       for namplitude in range(len(another.amplitudes)):
          amplitude = another.amplitudes[namplitude]
-         result = amplitude.canonicalize(another.summation)
+         result = amplitude.canonicalize(another)
          another.amplitudes[namplitude] = copy.deepcopy(result[0])
          parity = result[1]
          another.factor.multiply(parity)
@@ -1545,7 +1593,16 @@ class OperatorSequence:
                operator.index = newlabels[oldlabels.index(operator.index)]
 
       # reorder summation indexes
-      another.summation = another.summation.canonicalize()
+      for nindexa in range(len(another.summation.indexes)):
+         indexa = another.summation.indexes[nindexa]
+         for nindexb in range(len(another.summation.indexes)):
+            indexb = another.summation.indexes[nindexb]
+            if (nindexa <= nindexb):
+               continue
+            if (indexa.index < indexb.index):
+               swap = another.summation.indexes[nindexa]
+               another.summation.indexes[nindexa] = copy.deepcopy(another.summation.indexes[nindexb])
+               another.summation.indexes[nindexb] = copy.deepcopy(swap)
 
       return another
 
@@ -1566,6 +1623,95 @@ class OperatorSequence:
       else:
          return 0
 
+   def isdisconnected(self,withrespectto=[]):
+      """Returns 1 if disconnected; if (withrespectto) connectivity among the given amplitude types is tested"""
+
+      if (self.alreadycontracted()):
+ 
+         # make a connectedness table
+         connectedness = [0]*len(self.amplitudes)
+         connectedness[0] = 1
+         for iteration in range(len(self.amplitudes)):
+            for namplitudea in range(len(self.amplitudes)):
+               if (connectedness[namplitudea] == 1):
+                  amplitudea = self.amplitudes[namplitudea]
+                  if ((withrespectto) and (amplitudea.type not in withrespectto)):
+                     continue
+                  for namplitudeb in range(len(self.amplitudes)):
+                     if (connectedness[namplitudeb] == 0):
+                        amplitudeb = self.amplitudes[namplitudeb]
+                        if ((withrespectto) and (amplitudeb.type not in withrespectto)):
+                           continue
+
+                        # see if they have at least one common index
+                        exist = 0
+                        for indexa in amplitudea.indexes:
+                           for indexb in amplitudeb.indexes:
+                              if (indexa.isidenticalto(indexb)):
+                                 exist = 1
+                        if (exist):
+                           connectedness[namplitudeb] = 1
+
+         if (0 not in connectedness):
+            # connected!
+            return 0
+         else:
+            if (withrespectto):
+               for namplitudea in range(len(self.amplitudes)):
+                  amplitudea = self.amplitudes[namplitudea]
+                  if (amplitudea.type in withrespectto):
+                     if (connectedness[namplitudea] == 0):
+                        return 1
+               return 0
+               
+            else:
+               return 1
+ 
+      else:
+         return 0
+
+   def isunlinked(self):
+      """Returns 1 if unlinked"""
+
+      if (not self.isdisconnected()):
+         return 0
+
+      for seed in range(len(self.amplitudes)): 
+         # make a connectedness table
+         connectedness = [0]*len(self.amplitudes)
+         connectedness[seed] = 1
+         for iteration in range(len(self.amplitudes)):
+            for namplitudea in range(len(self.amplitudes)):
+               if (connectedness[namplitudea] == 1):
+                  amplitudea = self.amplitudes[namplitudea]
+                  for namplitudeb in range(len(self.amplitudes)):
+                     if (connectedness[namplitudeb] == 0):
+                        amplitudeb = self.amplitudes[namplitudeb]
+ 
+                        # see if they have at least one common index
+                        exist = 0
+                        for indexa in amplitudea.indexes:
+                           for indexb in amplitudeb.indexes:
+                              if (indexa.isidenticalto(indexb)):
+                                 exist = 1
+                        if (exist):
+                           connectedness[namplitudeb] = 1
+ 
+         if (0 in connectedness):
+            # disconnected
+            closed = 1
+            for namplitudeb in range(len(self.amplitudes)):
+               amplitudeb = self.amplitudes[namplitudeb]
+               if (connectedness[namplitudeb] == 1):
+                  for indexa in amplitudeb.indexes:
+                     if (not self.summation.hastheindex(indexa)):
+                        closed = 0
+            if (closed):
+               # disconnected & closed = unlinked
+               return 1
+
+      return 0
+ 
 class ListOperatorSequences:
 
    def __init__(self):
@@ -1649,7 +1795,7 @@ class ListOperatorSequences:
 
       return result
 
-   def simplifythreesub(self):
+   def simplifythreesub(self,verbose=0):
       """Simplify the list by consolidating operator sequences using permutation of operators"""
 
       if (len(self.list) == 1):
@@ -1657,6 +1803,8 @@ class ListOperatorSequences:
 
       # pick up a pair of operator sequences
       for nsequencea in range(len(self.list)):
+#        if (verbose):
+#           print 'processing ',nsequencea,' / ',range(len(self.list))
          sequencea = self.list[nsequencea]
          for nsequenceb in range(len(self.list)):
             sequenceb = self.list[nsequenceb]
@@ -1743,13 +1891,13 @@ class ListOperatorSequences:
 
       return self
 
-   def simplify(self):
+   def simplify(self,verbose=0):
       """Call simplyone through four"""
       #self.simplifyone(1)
       if (self.containscycliccontractions()):
-         print " ... a cyclic contraction is found"
-         self.simplifythree(0)
-      self.simplifytwo(0)
+         print " ! Warning! a cyclic contraction is found"
+#        self.simplifythree(verbose)
+      self.simplifytwo(verbose)
       # the followings do not seem to affect the result, yet it costs enormous memory & time
       # self.simplifyfour(1)
       return self
@@ -1844,8 +1992,10 @@ class ListOperatorSequences:
       originallength = len(self.list)
       while (not done):
          iteration = iteration + 1
+         if (verbose):
+            print 'iteration ',iteration,' number of terms ',len(self.list)
          beforesimplify = len(self.list)
-         self = self.simplifythreesub()
+         self = self.simplifythreesub(verbose)
          if (len(self.list) < beforesimplify):
             done = 0
          else:
@@ -2037,7 +2187,7 @@ class ListOperatorSequences:
          self.list[noperatorsequence] = operatorsequence.canonicalize()
       return self
 
-   def deletedisconnected(self):
+   def deletedisconnected(self,withrespectto=[]):
       """Deletes disconnected terms"""
 
       result = ListOperatorSequences()
@@ -2047,38 +2197,31 @@ class ListOperatorSequences:
       # for a fully contracted sequence ...
       for noperatorsequence in range(len(self.list)):
          operatorsequence = self.list[noperatorsequence]
-         if (operatorsequence.alreadycontracted()):
-
-            # make a connectedness table
-            connectedness = [0]*len(operatorsequence.amplitudes)
-            connectedness[0] = 1
-            for iteration in range(len(operatorsequence.amplitudes)):
-               for namplitudea in range(len(operatorsequence.amplitudes)):
-                  if (connectedness[namplitudea] == 1):
-                     amplitudea = operatorsequence.amplitudes[namplitudea]
-                     for namplitudeb in range(len(operatorsequence.amplitudes)):
-                        if (connectedness[namplitudeb] == 0):
-                           amplitudeb = operatorsequence.amplitudes[namplitudeb]
-
-                           # see if they have at least one common index
-                           exist = 0
-                           for indexa in amplitudea.indexes:
-                              for indexb in amplitudeb.indexes:
-                                 if (indexa.isidenticalto(indexb)):
-                                    exist = 1
-                           if (exist):
-                              connectedness[namplitudeb] = 1
-
-            if (0 not in connectedness):
-               # connected!
-               result.add(operatorsequence)
-
-         else:
+         if (not operatorsequence.isdisconnected(withrespectto)):
             result.add(operatorsequence)
 
       newlength = len(result.list)
 
       print " ... %d disconnected terms have been deleted" %(originallength - newlength)
+
+      return result
+
+   def deleteunlinked(self):
+      """Deletes unlinked terms"""
+
+      result = ListOperatorSequences()
+
+      originallength = len(self.list)
+
+      # for a fully contracted sequence ...
+      for noperatorsequence in range(len(self.list)):
+         operatorsequence = self.list[noperatorsequence]
+         if (not operatorsequence.isunlinked()):
+            result.add(operatorsequence)
+
+      newlength = len(result.list)
+
+      print " ... %d unlinked terms have been deleted" %(originallength - newlength)
 
       return result
 

@@ -1,6 +1,6 @@
 # Tensor Contraction Engine v.1.0
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: tce.py,v 1.14 2003-02-13 17:42:51 sohirata Exp $
+# $Id: tce.py,v 1.15 2003-07-25 17:56:55 sohirata Exp $
 
 import string
 import types
@@ -116,6 +116,35 @@ def readfromfile(filename):
                tensors.append(Tensor(tensortype,indexes,tensorlabel,tensorconj))
       newlist.list.append(TensorContraction(factor,summation,tensors))
 
+def rationaltofractional(x):
+   """Returns a fractional num/den that equals to a rational number x"""
+   fracx = x - int(x)
+   if (fracx < 0.0):
+      sign = -1
+   else:
+      sign = 1
+   xx = abs(fracx)
+   alwaystrue = 1
+   den = 1
+   num1 = 0
+   num2 = 1
+   while (alwaystrue):
+      newnum2 = -1
+      for num in range(num1,num2+1): 
+         y = float(num)/float(den)
+         if (abs(y-xx) < 0.0000001):
+            return [num*sign+int(x)*den,den]
+         elif (y < xx):
+            newnum1 = num
+         elif (y > xx and (newnum2 == -1)):
+            newnum2 = num
+      den = den + 1
+      num1 = max(0,newnum1)
+      num2 = min(den,newnum2+1)
+      if (den > 1000):
+         print x
+         raise RuntimeError, "irrational number"
+
 def factorial(n):
    """Returns a factorial of an integer n"""
    if (n == 0):
@@ -175,8 +204,11 @@ def restrictedpermutationwithparity(lista,listb,listc):
             if (nindexa < nindexb):
                indexa = newpermutation[nindexa]
                indexb = newpermutation[nindexb]
-               if (indexa.type != indexb.type):
+# DEEXCITATION EXTENSION FROM HERE ...
+#              if (indexa.type != indexb.type):
+               if (indexa.isparticle() and indexb.ishole()):
                   rejected = 1
+# ... TO HERE
                if (indexa.isin(lista) and indexb.isin(lista) and indexa.isgreaterthan(indexb)):
                   rejected = 1
                if (indexa.isin(listb) and indexb.isin(listb) and indexa.isgreaterthan(indexb)):
@@ -331,8 +363,12 @@ def sortindexes(self):
    while (alwaystrue):
       done = 1
       for nindexa in range(len(selfcopy)):
+         if (not done):
+            break
          indexa = selfcopy[nindexa]
          for nindexb in range(len(selfcopy)):
+            if (not done):
+               break
             if (nindexb <= nindexa):
                continue
             indexb = selfcopy[nindexb]
@@ -425,6 +461,68 @@ def createfactor(permutables,all):
       beforeandafter = before + after
       factor.add(Factor([float(parity)/float(factorial(len(permutation)))],[beforeandafter]))
    return factor
+
+def permutationsoffoursets(seedfactor,onesuper,twosuper,onesub,twosub,targetsuper,targetsub):
+   """Returns a set of permutations as a factor object that permutes indices all possible meaningful ways"""
+   # "meaningful" means excluding permutations of indices within given four sets.
+
+   newfactor = seedfactor.duplicate()
+   nswapsuper = min(len(onesuper),len(twosuper)) + 1
+   nswapsub = min(len(onesub),len(twosub)) + 1
+   for iswapsuper in range(nswapsuper):
+      swaponesuperlists = picknfromlist(iswapsuper,onesuper)
+      swaptwosuperlists = picknfromlist(iswapsuper,twosuper)
+      for swaponesuperlist in swaponesuperlists:
+         for swaptwosuperlist in swaptwosuperlists:
+            for iswapsub in range(nswapsub):
+               swaponesublists = picknfromlist(iswapsub,onesub)
+               swaptwosublists = picknfromlist(iswapsub,twosub)
+               for swaponesublist in swaponesublists:
+                  for swaptwosublist in swaptwosublists:
+                     permutation = []
+                     permutation = permutation + copy.deepcopy(targetsuper) + copy.deepcopy(targetsub)
+                     parity = 1.0
+                     for targetindex in targetsuper:
+                        swapped = 0
+                        for nindexone in range(len(swaponesuperlist)):
+                           indexone = swaponesuperlist[nindexone]
+                           if (targetindex.isidenticalto(indexone)):
+                              permutation.append(copy.deepcopy(swaptwosuperlist[nindexone]))
+                              swapped = 1
+                              parity = parity * (-1.0)
+                        for nindextwo in range(len(swaponesuperlist)):
+                           indextwo = swaptwosuperlist[nindextwo]
+                           if (targetindex.isidenticalto(indextwo)):
+                              permutation.append(copy.deepcopy(swaponesuperlist[nindextwo]))
+                              swapped = 1
+                        if (not swapped):
+                           permutation.append(targetindex)
+                     for targetindex in targetsub:
+                        swapped = 0
+                        for nindexone in range(len(swaponesublist)):
+                           indexone = swaponesublist[nindexone]
+                           if (targetindex.isidenticalto(indexone)):
+                              permutation.append(copy.deepcopy(swaptwosublist[nindexone]))
+                              swapped = 1
+                              parity = parity * (-1.0)
+                        for nindextwo in range(len(swaponesublist)):
+                           indextwo = swaptwosublist[nindextwo]
+                           if (targetindex.isidenticalto(indextwo)):
+                              permutation.append(copy.deepcopy(swaponesublist[nindextwo]))
+                              swapped = 1
+                        if (not swapped):
+                           permutation.append(targetindex)
+                     identity = 1
+                     for nindex in range(len(permutation)/2):
+                        if (not permutation[nindex].isidenticalto(permutation[nindex+len(permutation)/2])):
+                           identity = 0
+                     if (not identity):
+                        newfactor.add(Factor([parity*seedfactor.coefficients[0]],[permutation]))
+   newfactor = newfactor.canonicalize(onesuper)
+   newfactor = newfactor.canonicalize(onesub)
+   newfactor = newfactor.canonicalize(twosuper)
+   newfactor = newfactor.canonicalize(twosub)
+   return newfactor
  
 def writetofile(list,filename):
    """Writes a list to a given file"""
@@ -535,10 +633,14 @@ class Factor:
          show = "["
          for n in range(len(self.coefficients)):
             coefficient = self.coefficients[n]
-            if (coefficient >= 0.0):
-               show = string.join([show,"+",repr(coefficient)])
-            elif (coefficient < 0.0):
-               show = string.join([show,"-",repr(-coefficient)])
+            num = rationaltofractional(coefficient)[0]
+            den = rationaltofractional(coefficient)[1]
+            if (num >= 0):
+               show = string.join([show,"+",repr(num)])
+            elif (num < 0):
+               show = string.join([show,"-",repr(-num)])
+            if (den != 1):
+               show = string.join([show,"/",repr(den)],"")
             if (self.permutations[n]):
                show = string.join([show,"* P("])
                for nindex in range(len(self.permutations[n])/2):
@@ -551,7 +653,11 @@ class Factor:
                show = string.join([show,")"])
          show = string.join([show,"]"])
       else:
-         show = repr(self.coefficients[0])
+         num = rationaltofractional(self.coefficients[0])[0]
+         den = rationaltofractional(self.coefficients[0])[1]
+         show = repr(num)
+         if (den != 1):
+            show = string.join([show,"/",repr(den)],"")
          if (len(self.coefficients) > 1):
             show = string.join([show,"* P(",repr(len(self.coefficients)),")"])
       return show
@@ -780,6 +886,15 @@ class Factor:
                factorobjectiscreated = 1
       return product
 
+   def normalize(self):
+      """Make the absolute values of coefficients sum to unity"""
+      another = self.duplicate()
+      nterms = len(another.coefficients)
+      if (nterms == 0):
+         raise RuntimeError, "unable to normalize a factor"
+      another.multiply(1.0/nterms)
+      return another 
+
 class Summation:
 
    def __init__(self,indexes=[]):
@@ -842,12 +957,16 @@ class Summation:
 
 class Tensor:
 
-   def __init__(self,type="unknown",indexes=[],label=0,conjugate=0):
+   def __init__(self,type="unknown",indexes=[],label=0,conjugate=0,irrep=[]):
       """Creates an integral/amplitude"""
       self.type = type
       self.indexes = indexes
       self.label = label
       self.conjugate = conjugate
+      if ((type == "i") or (type == "j")):
+         self.irrep = irrep
+      else:
+         self.irrep = [self.type]
 
    def __str__(self):
       """Prints the content"""
@@ -863,7 +982,9 @@ class Tensor:
       show = string.join([show, "("])
       for index in self.indexes:
          show = string.join([show, index.show()])
-      show = string.join([show,")"])
+      show = string.join([show,")_"])
+      for each in self.irrep:
+         show = string.join([show, each],"")
       return show
  
    def tex(self):
@@ -924,6 +1045,7 @@ class Tensor:
       duplicate.indexes = copy.deepcopy(self.indexes)
       duplicate.label = self.label
       duplicate.conjugate = self.conjugate
+      duplicate.irrep = copy.deepcopy(self.irrep)
       return duplicate
  
    def usesindexlabel(self,label):
@@ -1067,6 +1189,8 @@ class Tensor:
          indexes = self.indexes[len(self.indexes)/2:]  + another.indexes[len(another.indexes)/2:] \
                  + self.indexes[0:len(self.indexes)/2] + another.indexes[0:len(another.indexes)/2]
 
+      product = self.irrep + another.irrep
+
       # Eliminate any common indexes between super/subindexes
       alwaystrue = 1
       while (alwaystrue):
@@ -1084,7 +1208,7 @@ class Tensor:
             # reorder the super and sub indexes individually
             # (I think that the order of indexes of intermediates is immaterial, so we can decide for our convenience.
             #  However, do not mix up super and sub indexes, since otherwise contraction will be screwed up.)
-            intermediate = Tensor("i",indexes,label)
+            intermediate = Tensor("i",indexes,label,0,product)
             parity = intermediate.sortindexes()
             return intermediate
          else:
@@ -1169,10 +1293,10 @@ class Tensor:
       pythoncode = string.join([pythoncode,"]"],"")
       return pythoncode
 
-   def fortran90(self,permutation=[],reverse=0,suffix=""):
+   def fortran90(self,types,permutation=[],reverse=0,suffix=""):
       """Returns a character expression in Fortran90 syntax"""
       f90code = self.type
-      if (self.type == "i"):
+      if (self.type in types[3]):
          f90code = string.join([f90code,repr(self.label),suffix],"")
       else:
          f90code = string.join([f90code,repr(len(self.indexes)/2),suffix],"")
@@ -1205,7 +1329,7 @@ class Tensor:
       f90code = string.join([f90code,")"],"")
       return f90code
 
-   def fortran90x(self):
+   def fortran90x(self,types):
       """Anti-symmetrizer"""
 
       newcode = Code("Fortran90","")
@@ -1232,15 +1356,15 @@ class Tensor:
                newindexes.append(self.indexes[permutations[terma][nindexa]-1])
             for nindexb in range(1,nindexes+1):
                newindexes.append(self.indexes[nindexes+permutations[termb][nindexb]-1])
-            newtensor = Tensor(self.type,newindexes,self.label)
+            newtensor = Tensor(self.type,newindexes,self.label,self.irrep)
             if (permutations[terma][0]*permutations[termb][0] == 1):
                parity = "+"
             else:
                parity = "-"
-            newline = string.join(["TMP = TMP",parity,newtensor.fortran90()])
+            newline = string.join(["TMP = TMP",parity,newtensor.fortran90(types)])
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
-      newline = string.join([self.fortran90()," = TMP / ",repr(npermutations**2),".0d0"],"")
+      newline = string.join([self.fortran90(types)," = TMP / ",repr(npermutations**2),".0d0"],"")
       newcode.statements.insert(newcode.pointer,newline)
       newcode.pointer = len(newcode.statements)
 
@@ -1337,7 +1461,7 @@ class Tensor:
       newcode.pointer = newcode.getamark(1) + 1
  
       # symmetry of output tensor
-      newcode.inserttiledifsymmetry(super,sub)
+      newcode.inserttiledifsymmetry(super,sub,self.irrep)
 
       # allocate for original and antisymmetrized tensors
       newcode.add("integers","dim0")
@@ -1506,7 +1630,7 @@ class Tensor:
       newcode.pointer = newcode.pointer + 1
       return newcode
 
-   def fortran77y(self,globaltargetindexes,subroutinename="NONAME"):
+   def fortran77y(self,globaltargetindexes,types,subroutinename="NONAME"):
       """Precompute offsets and size"""
 
       errquit = 0
@@ -1592,7 +1716,7 @@ class Tensor:
       newcode.inserttileddoloops(localsuper)
       newcode.inserttileddoloops(globalsub)
       newcode.inserttileddoloops(localsub)
-      newcode.inserttiledifsymmetry(super,sub)
+      newcode.inserttiledifsymmetry(super,sub,self.irrep)
       newcode.inserttiledifrestricted(super+sub)
 
       # offsets and size (offset first!)
@@ -1709,7 +1833,7 @@ class Tensor:
       newcode.inserttileddoloops(localsuper)
       newcode.inserttileddoloops(globalsub)
       newcode.inserttileddoloops(localsub)
-      newcode.inserttiledifsymmetry(super,sub,relativistic)
+      newcode.inserttiledifsymmetry(super,sub,self.irrep,relativistic)
       if (not relativistic):
          newcode.inserttiledifrestricted(super+sub)
 
@@ -1794,7 +1918,7 @@ class TensorContraction:
       duplicate = TensorContraction(copy.deepcopy(self.factor),copy.deepcopy(self.summation),copy.deepcopy(self.tensors))
       return duplicate
 
-   def findthebestbreakdown(self,verbose=0):
+   def findthebestbreakdown(self,excitation=[],verbose=0):
       """Returns the best breakdown in terms of flop costs and then memory costs"""
       ntensors = len(self.tensors)
       nbreakdowns = factorial(ntensors)
@@ -1810,12 +1934,58 @@ class TensorContraction:
          minaggoperationcost = [99999,99999,99999]
          minaggmemorycost = [99999,99999,99999]
          ibest = 0
+         discouraged = 0
+         for itensor in range(ntensors):
+            if ((itensor != 0) and (itensor != ntensors-1) and \
+                (self.tensors[breakdowns[ibest][itensor]-1].type not in excitation)):
+               discouraged = 1
+#        if ((len(breakdowns[ibest]) >= 3) and (self.tensors[breakdowns[ibest][0]-1].type in excitation) \
+#                                          and (self.tensors[breakdowns[ibest][1]-1].type in excitation)):
+#           discouraged = 1
+#        if ((len(breakdowns[ibest]) >= 3) and (self.tensors[breakdowns[ibest][0]-1].type not in excitation) \
+#                                          and (self.tensors[breakdowns[ibest][1]-1].type not in excitation)):
+#           discouraged = 1
          for ibreakdown in range(0,nbreakdowns):
-            if (verbose):
-               print " ... ", ibreakdown + 1, breakdowns[ibreakdown]
+            newdiscouraged = 0
+#           if ((len(breakdowns[ibreakdown]) >= 3) and (self.tensors[breakdowns[ibreakdown][0]-1].type in excitation) \
+#                                             and (self.tensors[breakdowns[ibreakdown][1]-1].type in excitation)):
+#              newdiscouraged = 1
+#           if ((len(breakdowns[ibreakdown]) >= 3) and (self.tensors[breakdowns[ibreakdown][0]-1].type not in excitation) \
+#                                             and (self.tensors[breakdowns[ibreakdown][1]-1].type not in excitation)):
+#              newdiscouraged = 1
+            for itensor in range(ntensors):
+               if ((itensor != 0) and (itensor != ntensors-1) and \
+                   (self.tensors[breakdowns[ibreakdown][itensor]-1].type not in excitation)):
+                  newdiscouraged = 1
             tensorone = self.tensors[breakdowns[ibreakdown][0]-1]
-            if ((tensorone.type != 'f') and (tensorone.type != 'v')):
-               continue
+#           if ((tensorone.type != 'f') and (tensorone.type != 'v')):
+#              continue
+#
+# 6/18/03 The above two lines are commented out for EOM-CC left hand side,
+#         wherein (L*T)*V can be the cheapest by many orders.  I hope that
+#         the above is still a natural outcome for CC.
+#
+#           if (tensorone.type in excitation):
+#              continue
+#
+# 6/24/03 In the above, we restrict the first tensor to be
+#         either an integral tensor (V or F) or a deexcitation tensor (L).
+#
+            if (verbose):
+               stringbreakdowna = ""
+               stringbreakdownb = ""
+               for itensor in range(ntensors): 
+                  if (itensor == 0):
+                     stringbreakdownb = stringbreakdownb + self.tensors[breakdowns[ibreakdown][itensor]-1].type \
+                                      + repr(len(self.tensors[breakdowns[ibreakdown][itensor]-1].indexes)/2)
+                  elif (itensor == 1):
+                     stringbreakdownb = stringbreakdownb + "*" + self.tensors[breakdowns[ibreakdown][itensor]-1].type \
+                                      + repr(len(self.tensors[breakdowns[ibreakdown][itensor]-1].indexes)/2)
+                  else:
+                     stringbreakdowna = stringbreakdowna + "("
+                     stringbreakdownb = stringbreakdownb + ")*" + self.tensors[breakdowns[ibreakdown][itensor]-1].type \
+                                      + repr(len(self.tensors[breakdowns[ibreakdown][itensor]-1].indexes)/2)
+               print " ... ", ibreakdown + 1, breakdowns[ibreakdown], stringbreakdowna + stringbreakdownb
             # The triplets are the exponents of N, O, V
             maxoperationcost = [0,0,0]
             maxmemorycost = [0,0,0]
@@ -1870,90 +2040,121 @@ class TensorContraction:
                      if (memorycost[2] > maxmemorycost[2]):
                         maxmemorycost = memorycost
             if (verbose):
-               print " ...... ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost
+               if (newdiscouraged):
+                  print " ...... this breakdown: ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost," (discouraged)"
+               else:
+                  print " ...... this breakdown: ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost
             if (maxoperationcost[0]+maxoperationcost[1]+maxoperationcost[2] < minoperationcost[0]+minoperationcost[1]+minoperationcost[2]):
                minoperationcost = maxoperationcost
                minmemorycost = maxmemorycost
                minaggoperationcost = aggoperationcost
                minaggmemorycost = aggmemorycost
                ibest = ibreakdown
+               discouraged = newdiscouraged
             elif (maxoperationcost[0]+maxoperationcost[1]+maxoperationcost[2] == minoperationcost[0]+minoperationcost[1]+minoperationcost[2]):
-               if (maxoperationcost[0] < minoperationcost[0]):
+               if (newdiscouraged < discouraged):
                   minoperationcost = maxoperationcost
                   minmemorycost = maxmemorycost
                   minaggoperationcost = aggoperationcost
                   minaggmemorycost = aggmemorycost
                   ibest = ibreakdown
-               elif (maxoperationcost[0] == minoperationcost[0]):
-                  if (maxoperationcost[2] < minoperationcost[2]):
+                  discouraged = newdiscouraged
+               elif (newdiscouraged == discouraged):
+                  if (maxoperationcost[0] < minoperationcost[0]):
                      minoperationcost = maxoperationcost
                      minmemorycost = maxmemorycost
                      minaggoperationcost = aggoperationcost
                      minaggmemorycost = aggmemorycost
                      ibest = ibreakdown
-                  elif (maxoperationcost[2] == minoperationcost[2]):
-                     if (maxmemorycost[0]+maxmemorycost[1]+maxmemorycost[2] < minmemorycost[0]+minmemorycost[1]+minmemorycost[2]):
+                     discouraged = newdiscouraged
+                  elif (maxoperationcost[0] == minoperationcost[0]):
+                     if (maxoperationcost[2] < minoperationcost[2]):
                         minoperationcost = maxoperationcost
                         minmemorycost = maxmemorycost
                         minaggoperationcost = aggoperationcost
                         minaggmemorycost = aggmemorycost
                         ibest = ibreakdown
-                     elif (maxmemorycost[0]+maxmemorycost[1]+maxmemorycost[2] == minmemorycost[0]+minmemorycost[1]+minmemorycost[2]):
-                        if (maxmemorycost[0] < minmemorycost[0]):
+                        discouraged = newdiscouraged
+                     elif (maxoperationcost[2] == minoperationcost[2]):
+                        if (maxmemorycost[0]+maxmemorycost[1]+maxmemorycost[2] < minmemorycost[0]+minmemorycost[1]+minmemorycost[2]):
                            minoperationcost = maxoperationcost
                            minmemorycost = maxmemorycost
                            minaggoperationcost = aggoperationcost
                            minaggmemorycost = aggmemorycost
                            ibest = ibreakdown
-                        elif (maxmemorycost[0] == minmemorycost[0]):
-                           if (maxmemorycost[2] < minmemorycost[2]):
+                           discouraged = newdiscouraged
+                        elif (maxmemorycost[0]+maxmemorycost[1]+maxmemorycost[2] == minmemorycost[0]+minmemorycost[1]+minmemorycost[2]):
+                           if (maxmemorycost[0] < minmemorycost[0]):
                               minoperationcost = maxoperationcost
                               minmemorycost = maxmemorycost
                               minaggoperationcost = aggoperationcost
                               minaggmemorycost = aggmemorycost
                               ibest = ibreakdown
-                           elif (aggoperationcost[0]+aggoperationcost[1]+aggoperationcost[2] < minaggoperationcost[0]+minaggoperationcost[1]+minaggoperationcost[2]):
-                              minaggoperationcost = aggoperationcost
-                              minaggmemorycost = aggmemorycost
-                              ibest = ibreakdown
-                           elif (aggoperationcost[0]+aggoperationcost[1]+aggoperationcost[2] == minaggoperationcost[0]+minaggoperationcost[1]+minaggoperationcost[2]):
-                              if (aggoperationcost[0] < minaggoperationcost[0]):
+                              discouraged = newdiscouraged
+                           elif (maxmemorycost[0] == minmemorycost[0]):
+                              if (maxmemorycost[2] < minmemorycost[2]):
+                                 minoperationcost = maxoperationcost
+                                 minmemorycost = maxmemorycost
                                  minaggoperationcost = aggoperationcost
                                  minaggmemorycost = aggmemorycost
                                  ibest = ibreakdown
-                              elif (aggoperationcost[0] == minaggoperationcost[0]):
-                                 if (aggoperationcost[2] < minaggoperationcost[2]):
+                                 discouraged = newdiscouraged
+                              elif (aggoperationcost[0]+aggoperationcost[1]+aggoperationcost[2] < minaggoperationcost[0]+minaggoperationcost[1]+minaggoperationcost[2]):
+                                 minaggoperationcost = aggoperationcost
+                                 minaggmemorycost = aggmemorycost
+                                 ibest = ibreakdown
+                                 discouraged = newdiscouraged
+                              elif (aggoperationcost[0]+aggoperationcost[1]+aggoperationcost[2] == minaggoperationcost[0]+minaggoperationcost[1]+minaggoperationcost[2]):
+                                 if (aggoperationcost[0] < minaggoperationcost[0]):
                                     minaggoperationcost = aggoperationcost
                                     minaggmemorycost = aggmemorycost
                                     ibest = ibreakdown
-                                 elif (aggoperationcost[2] == minaggoperationcost[2]):
-                                    if (aggmemorycost[0]+aggmemorycost[1]+aggmemorycost[2] < minaggmemorycost[0]+minaggmemorycost[1]+minaggmemorycost[2]):
+                                    discouraged = newdiscouraged
+                                 elif (aggoperationcost[0] == minaggoperationcost[0]):
+                                    if (aggoperationcost[2] < minaggoperationcost[2]):
                                        minaggoperationcost = aggoperationcost
                                        minaggmemorycost = aggmemorycost
                                        ibest = ibreakdown
-                                    elif (aggmemorycost[0]+aggmemorycost[1]+aggmemorycost[2] == minaggmemorycost[0]+minaggmemorycost[1]+minaggmemorycost[2]):
-                                       if (aggmemorycost[0] < minaggmemorycost[0]):
+                                       discouraged = newdiscouraged
+                                    elif (aggoperationcost[2] == minaggoperationcost[2]):
+                                       if (aggmemorycost[0]+aggmemorycost[1]+aggmemorycost[2] < minaggmemorycost[0]+minaggmemorycost[1]+minaggmemorycost[2]):
                                           minaggoperationcost = aggoperationcost
                                           minaggmemorycost = aggmemorycost
                                           ibest = ibreakdown
-                                       elif (aggmemorycost[0] == minaggmemorycost[0]):
-                                          if (aggmemorycost[2] < minaggmemorycost[2]):
+                                          discouraged = newdiscouraged
+                                       elif (aggmemorycost[0]+aggmemorycost[1]+aggmemorycost[2] == minaggmemorycost[0]+minaggmemorycost[1]+minaggmemorycost[2]):
+                                          if (aggmemorycost[0] < minaggmemorycost[0]):
                                              minaggoperationcost = aggoperationcost
                                              minaggmemorycost = aggmemorycost
                                              ibest = ibreakdown
+                                             discouraged = newdiscouraged
+                                          elif (aggmemorycost[0] == minaggmemorycost[0]):
+                                             if (aggmemorycost[2] < minaggmemorycost[2]):
+                                                minaggoperationcost = aggoperationcost
+                                                minaggmemorycost = aggmemorycost
+                                                ibest = ibreakdown
+                                                discouraged = newdiscouraged
             if (verbose):
-               print " ...... ", minoperationcost, minmemorycost, minaggoperationcost, minaggmemorycost
+               print " ...... current best:   ", minoperationcost, minmemorycost, minaggoperationcost, minaggmemorycost
 
       print " ... the best breakdown is %s with operationcost=N%d O%d V%d, memorycost=N%d O%d V%d " % (breakdowns[ibest], \
       minoperationcost[0], minoperationcost[1], minoperationcost[2], minmemorycost[0], minmemorycost[1], minmemorycost[2])
 
+      if ((len(breakdowns[ibest]) >= 3) and (self.tensors[breakdowns[ibest][0]-1].type in excitation) \
+                                        and (self.tensors[breakdowns[ibest][1]-1].type in excitation)):
+         raise RuntimeError, "null contraction appeared"
+
+      if ((len(breakdowns[ibest]) >= 3) and (self.tensors[breakdowns[ibest][0]-1].type not in excitation) \
+                                        and (self.tensors[breakdowns[ibest][1]-1].type not in excitation)):
+         raise RuntimeError, "illegal contraction order has been selected"
+
       return breakdowns[ibest]
 
-   def breakdown(self,label=-1):
+   def breakdown(self,label=-1,excitation=[],verbose=0):
       """Breaks down the tensor contraction into elementary tensor contractions according to a given order"""
       another = self.canonicalize(1)
       another = another.symmetrize(0)
-      order = another.findthebestbreakdown()
+      order = another.findthebestbreakdown(excitation,verbose)
       if (label < 0):
          if (len(order) == 1):
             label = 0
@@ -2040,62 +2241,63 @@ class TensorContraction:
                newfactor = Factor([another.factor.coefficients[0]],[[]])
             else:
                newfactor = Factor([1.0],[[]])
-            for iswapsuper in range(nswapsuper):
-               swaponesuperlists = picknfromlist(iswapsuper,onesuper)
-               swaptwosuperlists = picknfromlist(iswapsuper,twosuper)
-               for swaponesuperlist in swaponesuperlists:
-                  for swaptwosuperlist in swaptwosuperlists:
-                     for iswapsub in range(nswapsub):
-                        swaponesublists = picknfromlist(iswapsub,onesub)
-                        swaptwosublists = picknfromlist(iswapsub,twosub)
-                        for swaponesublist in swaponesublists:
-                           for swaptwosublist in swaptwosublists:
-                              permutation = []
-                              permutation = permutation + copy.deepcopy(targetsuper) + copy.deepcopy(targetsub)
-                              parity = 1.0
-                              for targetindex in targetsuper:
-                                 swapped = 0
-                                 for nindexone in range(len(swaponesuperlist)):
-                                    indexone = swaponesuperlist[nindexone]
-                                    if (targetindex.isidenticalto(indexone)):
-                                       permutation.append(copy.deepcopy(swaptwosuperlist[nindexone]))
-                                       swapped = 1
-                                       parity = parity * (-1.0)
-                                 for nindextwo in range(len(swaponesuperlist)):
-                                    indextwo = swaptwosuperlist[nindextwo]
-                                    if (targetindex.isidenticalto(indextwo)):
-                                       permutation.append(copy.deepcopy(swaponesuperlist[nindextwo]))
-                                       swapped = 1
-                                 if (not swapped):
-                                    permutation.append(targetindex)
-                              for targetindex in targetsub:
-                                 swapped = 0
-                                 for nindexone in range(len(swaponesublist)):
-                                    indexone = swaponesublist[nindexone]
-                                    if (targetindex.isidenticalto(indexone)):
-                                       permutation.append(copy.deepcopy(swaptwosublist[nindexone]))
-                                       swapped = 1
-                                       parity = parity * (-1.0)
-                                 for nindextwo in range(len(swaponesublist)):
-                                    indextwo = swaptwosublist[nindextwo]
-                                    if (targetindex.isidenticalto(indextwo)):
-                                       permutation.append(copy.deepcopy(swaponesublist[nindextwo]))
-                                       swapped = 1
-                                 if (not swapped):
-                                    permutation.append(targetindex)
-                              identity = 1
-                              for nindex in range(len(permutation)/2):
-                                 if (not permutation[nindex].isidenticalto(permutation[nindex+len(permutation)/2])):
-                                    identity = 0
-                              if (not identity):
-                                 if (contraction == len(order)-2):
-                                    newfactor.add(Factor([parity*another.factor.coefficients[0]],[permutation]))
-                                 else:
-                                    newfactor.add(Factor([parity],[permutation]))
-            newfactor = newfactor.canonicalize(onesuper)
-            newfactor = newfactor.canonicalize(onesub)
-            newfactor = newfactor.canonicalize(twosuper)
-            newfactor = newfactor.canonicalize(twosub)
+            newfactor = permutationsoffoursets(newfactor,onesuper,twosuper,onesub,twosub,targetsuper,targetsub)
+#           for iswapsuper in range(nswapsuper):
+#              swaponesuperlists = picknfromlist(iswapsuper,onesuper)
+#              swaptwosuperlists = picknfromlist(iswapsuper,twosuper)
+#              for swaponesuperlist in swaponesuperlists:
+#                 for swaptwosuperlist in swaptwosuperlists:
+#                    for iswapsub in range(nswapsub):
+#                       swaponesublists = picknfromlist(iswapsub,onesub)
+#                       swaptwosublists = picknfromlist(iswapsub,twosub)
+#                       for swaponesublist in swaponesublists:
+#                          for swaptwosublist in swaptwosublists:
+#                             permutation = []
+#                             permutation = permutation + copy.deepcopy(targetsuper) + copy.deepcopy(targetsub)
+#                             parity = 1.0
+#                             for targetindex in targetsuper:
+#                                swapped = 0
+#                                for nindexone in range(len(swaponesuperlist)):
+#                                   indexone = swaponesuperlist[nindexone]
+#                                   if (targetindex.isidenticalto(indexone)):
+#                                      permutation.append(copy.deepcopy(swaptwosuperlist[nindexone]))
+#                                      swapped = 1
+#                                      parity = parity * (-1.0)
+#                                for nindextwo in range(len(swaponesuperlist)):
+#                                   indextwo = swaptwosuperlist[nindextwo]
+#                                   if (targetindex.isidenticalto(indextwo)):
+#                                      permutation.append(copy.deepcopy(swaponesuperlist[nindextwo]))
+#                                      swapped = 1
+#                                if (not swapped):
+#                                   permutation.append(targetindex)
+#                             for targetindex in targetsub:
+#                                swapped = 0
+#                                for nindexone in range(len(swaponesublist)):
+#                                   indexone = swaponesublist[nindexone]
+#                                   if (targetindex.isidenticalto(indexone)):
+#                                      permutation.append(copy.deepcopy(swaptwosublist[nindexone]))
+#                                      swapped = 1
+#                                      parity = parity * (-1.0)
+#                                for nindextwo in range(len(swaponesublist)):
+#                                   indextwo = swaptwosublist[nindextwo]
+#                                   if (targetindex.isidenticalto(indextwo)):
+#                                      permutation.append(copy.deepcopy(swaponesublist[nindextwo]))
+#                                      swapped = 1
+#                                if (not swapped):
+#                                   permutation.append(targetindex)
+#                             identity = 1
+#                             for nindex in range(len(permutation)/2):
+#                                if (not permutation[nindex].isidenticalto(permutation[nindex+len(permutation)/2])):
+#                                   identity = 0
+#                             if (not identity):
+#                                if (contraction == len(order)-2):
+#                                   newfactor.add(Factor([parity*another.factor.coefficients[0]],[permutation]))
+#                                else:
+#                                   newfactor.add(Factor([parity],[permutation]))
+#           newfactor = newfactor.canonicalize(onesuper)
+#           newfactor = newfactor.canonicalize(onesub)
+#           newfactor = newfactor.canonicalize(twosuper)
+#           newfactor = newfactor.canonicalize(twosub)
             suggestedfactors.append(newfactor)
             factorproduct = factorproduct.product(newfactor)
             tensorthree = tensorone.contracts(tensortwo,label)
@@ -2337,13 +2539,46 @@ class ListTensorContractions:
             show.append(string.join(["&&",tensorcontraction.tex(verbose),"\\nonumber\\\\"],""))
       return show
 
+   def excitationtensortypes(self,de=0):
+      """Returns a list of tensor types that are de/excitation"""
+      alltypes = []
+      for tensorcontraction in self.list:
+         for tensor in tensorcontraction.tensors:
+            if (tensor.type not in alltypes):
+               alltypes.append(tensor.type)
+      excitationtypes = []
+      for type in alltypes:
+         excitation = 1
+         deexcitation = 1
+         for tensorcontraction in self.list:
+            for tensor in tensorcontraction.tensors:
+               if (tensor.type == type):
+                  for nindex in range(len(tensor.indexes)/2):
+                     if (tensor.indexes[nindex].ishole()):
+                        excitation = 0
+                  for nindex in range(len(tensor.indexes)/2,len(tensor.indexes)):
+                     if (tensor.indexes[nindex].isparticle()):
+                        excitation = 0
+                  for nindex in range(len(tensor.indexes)/2):
+                     if (tensor.indexes[nindex].isparticle()):
+                        deexcitation = 0
+                  for nindex in range(len(tensor.indexes)/2,len(tensor.indexes)):
+                     if (tensor.indexes[nindex].ishole()):
+                        deexcitation = 0
+         if ((not de) and (excitation)):
+            excitationtypes.append(type)
+         if ((de) and (deexcitation)):
+            excitationtypes.append(type)
+         
+      return excitationtypes
+
    def findthebestbreakdown(self,verbose=0):
       """Iteratively calls findthebestbreakdown() for all tensor contractions"""
       for tensorcontraction in self.list:
          print tensorcontraction.show()
-         tensorcontraction.findthebestbreakdown(verbose)
+         tensorcontraction.findthebestbreakdown(self.excitationtensortypes(),verbose)
 
-   def breakdown(self):
+   def breakdown(self,verbose=0):
       """Iteratively calls breakdown() for all tensor contractions"""
       children = []
       for tensorcontraction in self.list:
@@ -2351,7 +2586,7 @@ class ListTensorContractions:
             label = 0
          else:
             label = len(tensorcontraction.tensors) - 2
-         newchild = tensorcontraction.breakdown(label)
+         newchild = tensorcontraction.breakdown(label,self.excitationtensortypes(),verbose)
          children.append(newchild)
       result = OperationTree(NoOperation(),[],children)
       return result
@@ -2680,6 +2915,8 @@ class ElementaryTensorContraction:
                   if (minimum.label > targetindex.label):
                      minimum = copy.deepcopy(targetindex)
          if (minimum == "empty"):
+            print self
+            printindexes(globaltargetindexes) 
             raise RuntimeError, "unable to canonicalize"
          indexesintheneworder.append(minimum)
 
@@ -2933,8 +3170,15 @@ class ElementaryTensorContraction:
          print " ... essentially the same"
       return selfcopy.factor.isthesameas(anothercopy.factor)
 
-   def fortran77(self,globaltargetindexes,subroutinename="NONAME"):
+   def fortran77(self,globaltargetindexes,types,subroutinename="NONAME"):
       """Suggests an implementation in Fortran77 for an elementary tensor contraction C = A * B"""
+
+      verbose = 0
+
+      if (verbose):
+         print self
+         print "globaltargetindexes"
+         printindexes(globaltargetindexes)
 
       if (len(self.tensors) == 3):
          three = 1
@@ -3008,6 +3252,15 @@ class ElementaryTensorContraction:
             subglobalzero.append(index)
          else:
             sublocalzero.append(index)
+      if (verbose):
+         print "Tensor 0 superglobal"
+         printindexes(superglobalzero)
+         print "Tensor 0 subglobal"
+         printindexes(subglobalzero)
+         print "Tensor 0 superlocal"
+         printindexes(superlocalzero)
+         print "Tensor 0 sublocal"
+         printindexes(sublocalzero)
 
       # Tensor 1
       superglobalone = []
@@ -3044,6 +3297,19 @@ class ElementaryTensorContraction:
                sublocalone.append(index)
          else:
             sublocalone.append(index)
+      if (verbose):
+         print "Tensor 1 superglobal"
+         printindexes(superglobalone)
+         print "Tensor 1 subglobal"
+         printindexes(subglobalone)
+         print "Tensor 1 superlocal"
+         printindexes(superlocalone)
+         print "Tensor 1 sublocal"
+         printindexes(sublocalone)
+         print "Tensor 1 supercommon"
+         printindexes(supercommonone)
+         print "Tensor 1 subcommon"
+         printindexes(subcommonone)
 
       # Tensor 2
       superglobaltwo = []
@@ -3081,6 +3347,19 @@ class ElementaryTensorContraction:
                   sublocaltwo.append(index)
             else:
                sublocaltwo.append(index)
+         if (verbose):
+            print "Tensor 2 superglobal"
+            printindexes(superglobaltwo)
+            print "Tensor 2 subglobal"
+            printindexes(subglobaltwo)
+            print "Tensor 2 superlocal"
+            printindexes(superlocaltwo)
+            print "Tensor 2 sublocal"
+            printindexes(sublocaltwo)
+            print "Tensor 2 supercommon"
+            printindexes(supercommontwo)
+            print "Tensor 2 subcommon"
+            printindexes(subcommontwo)
       if (len(supercommonone) > len(subcommontwo)):
          supercommon = supercommonone
       else:
@@ -3136,7 +3415,7 @@ class ElementaryTensorContraction:
       # symmetry of output tensor
       super = superglobalzero + superlocalzero
       sub = subglobalzero + sublocalzero
-      newcode.inserttiledifsymmetry(super,sub)
+      newcode.inserttiledifsymmetry(super,sub,self.tensors[0].irrep)
 
       # loop over summation indexes
       newcode.inserttileddoloops(supercommon)
@@ -3146,7 +3425,7 @@ class ElementaryTensorContraction:
       if (three):
          super = superglobalone + superlocalone + supercommonone
          sub = subglobalone + sublocalone + subcommonone
-         newcode.inserttiledifsymmetry(super,sub)
+         newcode.inserttiledifsymmetry(super,sub,self.tensors[1].irrep)
 
       # spin restriction on input tensor one
       indexesone = superglobalone + superlocalone + supercommonone + subglobalone + sublocalone + subcommonone
@@ -3283,11 +3562,11 @@ class ElementaryTensorContraction:
       errquit = errquit + 1
 
       # mapping to a permutation symmetry unique block
-      if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+      if (self.tensors[1].type in types[3]):
          superpermutations = restrictedpermutationwithparity(superlocalone,supercommonone,[])
       else:
          superpermutations = restrictedpermutationwithparity(superglobalone,superlocalone,supercommonone)
-      if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+      if (self.tensors[1].type in types[3]):
          subpermutations = restrictedpermutationwithparity(sublocalone,subcommonone,[])
       else:
          subpermutations = restrictedpermutationwithparity(subglobalone,sublocalone,subcommonone)
@@ -3297,7 +3576,7 @@ class ElementaryTensorContraction:
       ifblock = 0
       for superpermutation in superpermutations:
          superline = ""
-         if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+         if (self.tensors[1].type in types[3]):
             if (superpermutation[1] == "empty"):
                superpermutedindexes = superglobalone + sortindexes(superlocalone + supercommonone)
                superfactor = 1
@@ -3317,7 +3596,7 @@ class ElementaryTensorContraction:
             for nindex in range(len(superpermutedindexes)-1):
                indexa = superpermutedindexes[nindex]
                indexb = superpermutedindexes[nindex+1]
-               if (((self.tensors[1].type == "i") or (self.tensors[1].type == "j")) and (indexa.isin(superglobalone) or indexb.isin(superglobalone))):
+               if ((self.tensors[1].type in types[3]) and (indexa.isin(superglobalone) or indexb.isin(superglobalone))):
                   continue
                if (indexa.isin(superglobalone) and indexb.isin(superglobalone)):
                   continue
@@ -3335,7 +3614,7 @@ class ElementaryTensorContraction:
                   superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
          for subpermutation in subpermutations:
             subline = superline
-            if ((self.tensors[1].type == "i") or (self.tensors[1].type == "j")):
+            if (self.tensors[1].type in types[3]):
                if (subpermutation[1] == "empty"):
                   subpermutedindexes = subglobalone + sortindexes(sublocalone + subcommonone)
                   subfactor = 1
@@ -3355,7 +3634,7 @@ class ElementaryTensorContraction:
                for nindex in range(len(subpermutedindexes)-1):
                   indexa = subpermutedindexes[nindex]
                   indexb = subpermutedindexes[nindex+1]
-                  if (((self.tensors[1].type == "i") or (self.tensors[1].type == "j")) and (indexa.isin(subglobalone) or indexb.isin(subglobalone))):
+                  if ((self.tensors[1].type in types[3]) and (indexa.isin(subglobalone) or indexb.isin(subglobalone))):
                      continue
                   if (indexa.isin(subglobalone) and indexb.isin(subglobalone)):
                      continue
@@ -3390,14 +3669,14 @@ class ElementaryTensorContraction:
                if (permutedindexes[nindex].type == "hole"):
                   boffset = "b_1 - 1"
                else:
-                  if ((self.tensors[1].type == "f") or (self.tensors[1].type == "v")):
+                  if (self.tensors[1].type in types[4]):
                      boffset = "b_1 - 1"
                   else:
                      boffset = "b_1 - noab - 1"
                if (arguments == ""):
                   arguments = string.join(["d_a,dbl_mb(k_a),dima,int_mb(k_a_offset + ",permutedindexes[nindex].show(),boffset],"")
                else:
-                  if ((self.tensors[1].type == "f") or (self.tensors[1].type == "v")):
+                  if (self.tensors[1].type in types[4]):
                      arguments = string.join([arguments," + (noab+nvab) * (",permutedindexes[nindex].show(),boffset],"")
                   else:
                      if (permutedindexes[nindex+1].type == "hole"):
@@ -3491,11 +3770,11 @@ class ElementaryTensorContraction:
          errquit = errquit + 1
    
          # mapping to a permutation symmetry unique block
-         if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+         if (self.tensors[2].type in types[3]):
             superpermutations = restrictedpermutationwithparity(superlocaltwo,supercommontwo,[])
          else:
             superpermutations = restrictedpermutationwithparity(superglobaltwo,superlocaltwo,supercommontwo)
-         if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+         if (self.tensors[2].type in types[3]):
             subpermutations = restrictedpermutationwithparity(sublocaltwo,subcommontwo,[])
          else:
             subpermutations = restrictedpermutationwithparity(subglobaltwo,sublocaltwo,subcommontwo)
@@ -3505,7 +3784,7 @@ class ElementaryTensorContraction:
          ifblock = 0
          for superpermutation in superpermutations:
             superline = ""
-            if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+            if (self.tensors[2].type in types[3]):
                if (superpermutation[1] == "empty"):
                   superpermutedindexes = superglobaltwo + sortindexes(superlocaltwo + supercommontwo)
                   superfactor = 1
@@ -3525,7 +3804,7 @@ class ElementaryTensorContraction:
                for nindex in range(len(superpermutedindexes)-1):
                   indexa = superpermutedindexes[nindex]
                   indexb = superpermutedindexes[nindex+1]
-                  if (((self.tensors[2].type == "i") or (self.tensors[2].type == "j")) and (indexa.isin(superglobaltwo) or indexb.isin(superglobaltwo))):
+                  if ((self.tensors[2].type in types[3]) and (indexa.isin(superglobaltwo) or indexb.isin(superglobaltwo))):
                      continue
                   if (indexa.isin(superglobaltwo) and indexb.isin(superglobaltwo)):
                      continue
@@ -3543,7 +3822,7 @@ class ElementaryTensorContraction:
                      superline = string.join([superline,"IF ((",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
             for subpermutation in subpermutations:
                subline = superline
-               if ((self.tensors[2].type == "i") or (self.tensors[2].type == "j")):
+               if (self.tensors[2].type in types[3]):
                   if (subpermutation[1] == "empty"):
                      subpermutedindexes = subglobaltwo + sortindexes(sublocaltwo + subcommontwo)
                      subfactor = 1
@@ -3563,7 +3842,7 @@ class ElementaryTensorContraction:
                   for nindex in range(len(subpermutedindexes)-1):
                      indexa = subpermutedindexes[nindex]
                      indexb = subpermutedindexes[nindex+1]
-                     if (((self.tensors[2].type == "i") or (self.tensors[2].type == "j")) and (indexa.isin(subglobaltwo) or indexb.isin(subglobaltwo))):
+                     if ((self.tensors[2].type in types[3]) and (indexa.isin(subglobaltwo) or indexb.isin(subglobaltwo))):
                         continue
                      if (indexa.isin(subglobaltwo) and indexb.isin(subglobaltwo)):
                         continue
@@ -3598,14 +3877,14 @@ class ElementaryTensorContraction:
                   if (permutedindexes[nindex].type == "hole"):
                      boffset = "b_2 - 1"
                   else:
-                     if ((self.tensors[2].type == "f") or (self.tensors[2].type == "v")):
+                     if (self.tensors[2].type in types[4]):
                         boffset = "b_2 - 1"
                      else:
                         boffset = "b_2 - noab - 1"
                   if (arguments == ""):
                      arguments = string.join(["d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset + ",permutedindexes[nindex].show(),boffset],"")
                   else:
-                     if ((self.tensors[2].type == "f") or (self.tensors[2].type == "v")):
+                     if (self.tensors[2].type in types[4]):
                         arguments = string.join([arguments," + (noab+nvab) * (",permutedindexes[nindex].show(),boffset],"")
                      else:
                         if (permutedindexes[nindex+1].type == "hole"):
@@ -3683,49 +3962,209 @@ class ElementaryTensorContraction:
          errquit = errquit + 1
 
          # factor
-         factorialforsuper = 0
-         if (len(supercommon) > 1):
-            factorialforsuper = 1
-            newint = "nsuper"
+# DEEXCITATION EXTENSION FROM HERE ...
+         supercommonhole = []
+         supercommonparticle = []
+         for index in supercommon:
+            if (index.ishole()):
+               supercommonhole.append(index)
+            elif (index.isparticle()):
+               supercommonparticle.append(index)
+            else:
+               raise RuntimeError, "a general summation index appeared"
+         subcommonhole = []
+         subcommonparticle = []
+         for index in subcommon:
+            if (index.ishole()):
+               subcommonhole.append(index)
+            elif (index.isparticle()):
+               subcommonparticle.append(index)
+            else:
+               raise RuntimeError, "a general summation index appeared"
+         factorialforsuperhole = 0
+         if (len(supercommonhole) > 1):
+            factorialforsuperhole = 1
+            newint = "nsuperh("+repr(len(supercommonhole))+")"
             newcode.add("integers",newint)
-            newline = "nsuper = 1"
-            newcode.statements.insert(newcode.pointer,newline)
-            newcode.pointer = newcode.pointer + 1
-            for nindex in range(len(supercommon)-1):
-               newline = string.join(["IF (",supercommon[nindex].show(),"b .ne. ",supercommon[nindex+1].show(),\
-                                      "b) nsuper = nsuper + 1"],"")
+            newint = "isuperh"
+            newcode.add("integers",newint)
+            for isuperh in range(len(supercommonhole)):
+               newline = "nsuperh("+repr(isuperh+1)+") = 1"
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
-         factorialforsub = 0
-         if (len(subcommon) > 1):
-            factorialforsub = 1
-            newint = "nsub"
-            newcode.add("integers",newint)
-            newline = "nsub = 1"
+            newline = "isuperh = 1"
             newcode.statements.insert(newcode.pointer,newline)
             newcode.pointer = newcode.pointer + 1
-            for nindex in range(len(subcommon)-1):
-               newline = string.join(["IF (",subcommon[nindex].show(),"b .ne. ",subcommon[nindex+1].show(),\
-                                      "b) nsub = nsub + 1"],"")
+            for nindex in range(len(supercommonhole)-1):
+               newline = string.join(["IF (",supercommonhole[nindex].show(),"b .eq. ",supercommonhole[nindex+1].show(),"b) THEN"],"")
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
-         if (factorialforsuper and factorialforsub):
+               newline = "nsuperh(isuperh) = nsuperh(isuperh) + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "ELSE"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "isuperh = isuperh + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "END IF"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+         factorialforsuperparticle = 0
+         if (len(supercommonparticle) > 1):
+            factorialforsuperparticle = 1
+            newint = "nsuperp("+repr(len(supercommonparticle))+")"
+            newcode.add("integers",newint)
+            newint = "isuperp"
+            newcode.add("integers",newint)
+            for isuperp in range(len(supercommonparticle)):
+               newline = "nsuperp("+repr(isuperp+1)+") = 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "isuperp = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for nindex in range(len(supercommonparticle)-1):
+               newline = string.join(["IF (",supercommonparticle[nindex].show(),"b .eq. ",supercommonparticle[nindex+1].show(),"b) THEN"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "nsuperp(isuperp) = nsuperp(isuperp) + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "ELSE"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "isuperp = isuperp + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "END IF"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+         factorialforsubhole = 0
+         if (len(subcommonhole) > 1):
+            factorialforsubhole = 1
+            newint = "nsubh("+repr(len(subcommonhole))+")"
+            newcode.add("integers",newint)
+            newint = "isubh"
+            newcode.add("integers",newint)
+            for isubh in range(len(subcommonhole)):
+               newline = "nsubh("+repr(isubh+1)+") = 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "isubh = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for nindex in range(len(subcommonhole)-1):
+               newline = string.join(["IF (",subcommonhole[nindex].show(),"b .eq. ",subcommonhole[nindex+1].show(),"b) THEN"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "nsubh(isubh) = nsubh(isubh) + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "ELSE"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "isubh = isubh + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "END IF"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+         factorialforsubparticle = 0
+         if (len(subcommonparticle) > 1):
+            factorialforsubparticle = 1
+            newint = "nsubp("+repr(len(subcommonparticle))+")"
+            newcode.add("integers",newint)
+            newint = "isubp"
+            newcode.add("integers",newint)
+            for isubp in range(len(subcommonparticle)):
+               newline = "nsubp("+repr(isubp+1)+") = 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+            newline = "isubp = 1"
+            newcode.statements.insert(newcode.pointer,newline)
+            newcode.pointer = newcode.pointer + 1
+            for nindex in range(len(subcommonparticle)-1):
+               newline = string.join(["IF (",subcommonparticle[nindex].show(),"b .eq. ",subcommonparticle[nindex+1].show(),"b) THEN"],"")
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "nsubp(isubp) = nsubp(isubp) + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "ELSE"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "isubp = isubp + 1"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+               newline = "END IF"
+               newcode.statements.insert(newcode.pointer,newline)
+               newcode.pointer = newcode.pointer + 1
+         if (factorialforsuperhole or factorialforsuperparticle or factorialforsubhole or factorialforsubparticle):
             newdbl = "FACTORIAL"
             newcode.add("doubles",newdbl)
             newcode.add("externals",newdbl)
-            factor = "FACTORIAL(nsuper)*FACTORIAL(nsub)"
-         elif (factorialforsuper):
-            newdbl = "FACTORIAL"
-            newcode.add("doubles",newdbl)
-            newcode.add("externals",newdbl)
-            factor = "FACTORIAL(nsuper)"
-         elif (factorialforsub):
-            newdbl = "FACTORIAL"
-            newcode.add("doubles",newdbl)
-            newcode.add("externals",newdbl)
-            factor = "FACTORIAL(nsub)"
+            factor = repr(factorial(len(supercommonparticle))*factorial(len(supercommonhole))* \
+                          factorial(len(subcommonparticle))*factorial(len(subcommonhole)))+".0d0"
+            if (factorialforsuperhole):
+               for isuperh in range(len(supercommonhole)):
+                  factor = factor + "/FACTORIAL(nsuperh("+repr(isuperh+1)+"))"
+            if (factorialforsuperparticle):
+               for isuperp in range(len(supercommonparticle)):
+                  factor = factor + "/FACTORIAL(nsuperp("+repr(isuperp+1)+"))"
+            if (factorialforsubhole):
+               for isubh in range(len(subcommonhole)):
+                  factor = factor + "/FACTORIAL(nsubh("+repr(isubh+1)+"))"
+            if (factorialforsubparticle):
+               for isubp in range(len(subcommonparticle)):
+                  factor = factor + "/FACTORIAL(nsubp("+repr(isubp+1)+"))"
          else:
             factor = "1.0d0"
+# ... TO HERE
+#        factorialforsuper = 0
+#        if (len(supercommon) > 1):
+#           factorialforsuper = 1
+#           newint = "nsuper"
+#           newcode.add("integers",newint)
+#           newline = "nsuper = 1"
+#           newcode.statements.insert(newcode.pointer,newline)
+#           newcode.pointer = newcode.pointer + 1
+#           for nindex in range(len(supercommon)-1):
+#              newline = string.join(["IF (",supercommon[nindex].show(),"b .ne. ",supercommon[nindex+1].show(),\
+#                                     "b) nsuper = nsuper + 1"],"")
+#              newcode.statements.insert(newcode.pointer,newline)
+#              newcode.pointer = newcode.pointer + 1
+#        factorialforsub = 0
+#        if (len(subcommon) > 1):
+#           factorialforsub = 1
+#           newint = "nsub"
+#           newcode.add("integers",newint)
+#           newline = "nsub = 1"
+#           newcode.statements.insert(newcode.pointer,newline)
+#           newcode.pointer = newcode.pointer + 1
+#           for nindex in range(len(subcommon)-1):
+#              newline = string.join(["IF (",subcommon[nindex].show(),"b .ne. ",subcommon[nindex+1].show(),\
+#                                     "b) nsub = nsub + 1"],"")
+#              newcode.statements.insert(newcode.pointer,newline)
+#              newcode.pointer = newcode.pointer + 1
+#        if (factorialforsuper and factorialforsub):
+#           newdbl = "FACTORIAL"
+#           newcode.add("doubles",newdbl)
+#           newcode.add("externals",newdbl)
+#           factor = "FACTORIAL(nsuper)*FACTORIAL(nsub)"
+#        elif (factorialforsuper):
+#           newdbl = "FACTORIAL"
+#           newcode.add("doubles",newdbl)
+#           newcode.add("externals",newdbl)
+#           factor = "FACTORIAL(nsuper)"
+#        elif (factorialforsub):
+#           newdbl = "FACTORIAL"
+#           newcode.add("doubles",newdbl)
+#           newcode.add("externals",newdbl)
+#           factor = "FACTORIAL(nsub)"
+#        else:
+#           factor = "1.0d0"
    
          # perform contraction and store the result
          newcode.add("integers","l_c_sort")
@@ -3758,12 +4197,48 @@ class ElementaryTensorContraction:
       errquit = errquit + 1
          
       # mapping to a permutation symmetry unique block
+# DEEXCITATION EXTENSION FROM HERE ...
+      superlocalparticleone  = []
+      superlocalparticletwo  = []
+      for index in superlocalone:
+         if (index.isparticle()):
+            superlocalparticleone.append(index)
+      for index in superlocaltwo:
+         if (index.isparticle()):
+            superlocalparticletwo.append(index)
+      superlocalparticlezero = sortindexes( superlocalparticleone + superlocalparticletwo )
+      sublocalholeone  = []
+      sublocalholetwo  = []
+      for index in sublocalone:
+         if (index.ishole()):
+            sublocalholeone.append(index)
+      for index in sublocaltwo:
+         if (index.ishole()):
+            sublocalholetwo.append(index)
+      sublocalholezero = sortindexes( sublocalholeone + sublocalholetwo )
+      deexcitationfactor = Factor([1.0],[[]])
+      if ((superlocalparticleone and superlocalparticletwo) or \
+          (sublocalholeone and sublocalholetwo)):
+         deexcitationfactor = permutationsoffoursets(deexcitationfactor,superlocalparticleone, superlocalparticletwo, \
+                                                                        sublocalholeone,       sublocalholetwo, \
+                                                                        superlocalparticlezero,sublocalholezero)
+         deexcitationfactor = deexcitationfactor.normalize()
+# ... TO HERE
       newcode.pointer = newcode.pointer - 1
       newcode.setamark(3)
       newcode.pointer = newcode.pointer + 1
       ifblock = 0
-      for npermutation in range(len(self.factor.permutations)):
-         permutation = self.factor.permutations[npermutation]
+# DEEXCITATION EXTENSION FROM HERE ...
+      if ((len(deexcitationfactor.permutations) > 1) and (len(self.factor.permutations) > 1)):
+         raise RuntimeError, "A logical error in code generator regarding deexcitation operator"
+      if (len(deexcitationfactor.permutations) > 1):
+         deexcitationfactor.multiply(self.factor.coefficients[0])
+         currentfactor = deexcitationfactor.duplicate()
+      else:
+         currentfactor = self.factor.duplicate()
+      for npermutation in range(len(currentfactor.permutations)):
+         permutation = currentfactor.permutations[npermutation]
+# ... TO HERE
          indexesintheoriginalorder = copy.deepcopy(superglobalzero + superlocalzero + subglobalzero + sublocalzero)
          permutedindexes = performpermutation(indexesintheoriginalorder,permutation,1)
          newline = ""
@@ -3789,8 +4264,42 @@ class ElementaryTensorContraction:
                continue
             if (indexa.isin(sublocaltwo) and indexb.isin(sublocaltwo)):
                continue
+            if (indexa.isin(superglobalone) and indexb.isin(superlocalone)):
+               continue
+            if (indexa.isin(superglobalone) and indexb.isin(superlocaltwo)):
+               continue
+            if (indexa.isin(superglobaltwo) and indexb.isin(superlocalone)):
+               continue
+            if (indexa.isin(superglobaltwo) and indexb.isin(superlocaltwo)):
+               continue
+            if (indexa.isin(superlocalone) and indexb.isin(superglobalone)):
+               continue
+            if (indexa.isin(superlocalone) and indexb.isin(superglobaltwo)):
+               continue
+            if (indexa.isin(superlocaltwo) and indexb.isin(superglobalone)):
+               continue
+            if (indexa.isin(superlocaltwo) and indexb.isin(superglobaltwo)):
+               continue
+            if (indexa.isin(subglobalone) and indexb.isin(sublocalone)):
+               continue
+            if (indexa.isin(subglobalone) and indexb.isin(sublocaltwo)):
+               continue
+            if (indexa.isin(subglobaltwo) and indexb.isin(sublocalone)):
+               continue
+            if (indexa.isin(subglobaltwo) and indexb.isin(sublocaltwo)):
+               continue
+            if (indexa.isin(sublocalone) and indexb.isin(subglobalone)):
+               continue
+            if (indexa.isin(sublocalone) and indexb.isin(subglobaltwo)):
+               continue
+            if (indexa.isin(sublocaltwo) and indexb.isin(subglobalone)):
+               continue
+            if (indexa.isin(sublocaltwo) and indexb.isin(subglobaltwo)):
+               continue
             if (indexa.type != indexb.type):
                continue
+            if (verbose):
+               print indexa, " .le. ",indexb
             inequality = " .le. "
             if (newline):
                newline = string.join([newline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
@@ -3864,21 +4373,27 @@ class ElementaryTensorContraction:
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
          if (three):
-            if (self.factor.coefficients[npermutation] == 1.0):
+# DEEXCITATION EXTENSION FROM HERE ...
+            if (currentfactor.coefficients[npermutation] == 1.0):
                newline = "dbl_mb(k_c + idimc - 1) = dbl_mb(k_c_sort + idimc_sort - 1)"
-            elif (self.factor.coefficients[npermutation] == - 1.0):
+            elif (currentfactor.coefficients[npermutation] == - 1.0):
                newline = "dbl_mb(k_c + idimc - 1) = - dbl_mb(k_c_sort + idimc_sort - 1)"
             else:
-               newline = string.join(["dbl_mb(k_c + idimc - 1) = ",repr(self.factor.coefficients[npermutation]),\
-                                      "d0 * dbl_mb(k_c_sort + idimc_sort - 1)"],"")
+               newline = string.join(["dbl_mb(k_c + idimc - 1) = ",\
+                                      repr(rationaltofractional(currentfactor.coefficients[npermutation])[0]),".0d0/",\
+                                      repr(rationaltofractional(currentfactor.coefficients[npermutation])[1]),\
+                                      ".0d0 * dbl_mb(k_c_sort + idimc_sort - 1)"],"")
          else:
-            if (self.factor.coefficients[npermutation] == 1.0):
+            if (currentfactor.coefficients[npermutation] == 1.0):
                newline = "dbl_mb(k_c + idimc - 1) = dbl_mb(k_a_sort + idima_sort - 1)"
-            elif (self.factor.coefficients[npermutation] == - 1.0):
+            elif (currentfactor.coefficients[npermutation] == - 1.0):
                newline = "dbl_mb(k_c + idimc - 1) = - dbl_mb(k_a_sort + idima_sort - 1)"
             else:
-               newline = string.join(["dbl_mb(k_c + idimc - 1) = ",repr(self.factor.coefficients[npermutation]),\
-                                      "d0 * dbl_mb(k_a_sort + idima_sort - 1)"],"")
+               newline = string.join(["dbl_mb(k_c + idimc - 1) = ",\
+                                      repr(rationaltofractional(currentfactor.coefficients[npermutation])[0]),".0d0/",\
+                                      repr(rationaltofractional(currentfactor.coefficients[npermutation])[1]),\
+                                      ".0d0 * dbl_mb(k_a_sort + idima_sort - 1)"],"")
+# ... TO HERE
          newcode.statements.insert(newcode.pointer,newline)
          newcode.pointer = newcode.pointer + 1
 
@@ -4171,7 +4686,7 @@ class ElementaryTensorContraction:
       # symmetry of output tensor
       super = superglobalzero + superlocalzero
       sub = subglobalzero + sublocalzero
-      newcode.inserttiledifsymmetry(super,sub,relativistic)
+      newcode.inserttiledifsymmetry(super,sub,self.tensors[0].irrep,relativistic)
 
       # loop over summation indexes
       newcode.inserttileddoloops(supercommon)
@@ -4181,7 +4696,7 @@ class ElementaryTensorContraction:
       if (three):
          super = superglobalone + superlocalone + supercommonone
          sub = subglobalone + sublocalone + subcommonone
-         newcode.inserttiledifsymmetry(super,sub,relativistic)
+         newcode.inserttiledifsymmetry(super,sub,self.tensors[1].irrep,relativistic)
 
       # spin restriction on input tensor one
       indexesone = superglobalone + superlocalone + supercommonone + subglobalone + sublocalone + subcommonone
@@ -4860,6 +5375,38 @@ class ElementaryTensorContraction:
             if (indexa.isin(sublocalone) and indexb.isin(sublocalone)):
                continue
             if (indexa.isin(sublocaltwo) and indexb.isin(sublocaltwo)):
+               continue
+            if (indexa.isin(superglobalone) and indexb.isin(superlocalone)):
+               continue
+            if (indexa.isin(superglobalone) and indexb.isin(superlocaltwo)):
+               continue
+            if (indexa.isin(superglobaltwo) and indexb.isin(superlocalone)):
+               continue
+            if (indexa.isin(superglobaltwo) and indexb.isin(superlocaltwo)):
+               continue
+            if (indexa.isin(superlocalone) and indexb.isin(superglobalone)):
+               continue
+            if (indexa.isin(superlocalone) and indexb.isin(superglobaltwo)):
+               continue
+            if (indexa.isin(superlocaltwo) and indexb.isin(superglobalone)):
+               continue
+            if (indexa.isin(superlocaltwo) and indexb.isin(superglobaltwo)):
+               continue
+            if (indexa.isin(subglobalone) and indexb.isin(sublocalone)):
+               continue
+            if (indexa.isin(subglobalone) and indexb.isin(sublocaltwo)):
+               continue
+            if (indexa.isin(subglobaltwo) and indexb.isin(sublocalone)):
+               continue
+            if (indexa.isin(subglobaltwo) and indexb.isin(sublocaltwo)):
+               continue
+            if (indexa.isin(sublocalone) and indexb.isin(subglobalone)):
+               continue
+            if (indexa.isin(sublocalone) and indexb.isin(subglobaltwo)):
+               continue
+            if (indexa.isin(sublocaltwo) and indexb.isin(subglobalone)):
+               continue
+            if (indexa.isin(sublocaltwo) and indexb.isin(subglobaltwo)):
                continue
             if (indexa.type != indexb.type):
                continue
@@ -5577,9 +6124,120 @@ class OperationTree:
             intermediatesunique.append(intermediatesreused[icontraction])
 
       return intermediatesunique
+ 
+   def tensortypes(self,types=[[],[],[],[],[]]):
+      """Returns a list of tensor types classified according to excitation, deexcitation, and general"""
+      alltypes = []
+      excitationtypes = []
+      deexcitationtypes = []
+      intermediatetypes = []
+      generaltypes = []
+      for child in self.children:
+         result = child.tensortypes()
+         for type in result[0]:
+            if (type not in alltypes):
+               alltypes.append(type)
+         for type in result[1]:
+            if (type not in excitationtypes):
+               excitationtypes.append(type)
+         for type in result[2]:
+            if (type not in deexcitationtypes):
+               deexcitationtypes.append(type)
+         for type in result[3]:
+            if (type not in intermediatetypes):
+               intermediatetypes.append(type)
+         for type in result[4]:
+            if (type not in generaltypes):
+               generaltypes.append(type)
+      if (self.contraction.isoperation()):
+         for tensor in self.contraction.tensors:
+            if (tensor.type not in alltypes):
+               alltypes.append(tensor.type)
+            excitation = 1
+            for nindex in range(len(tensor.indexes)/2):
+               if (tensor.indexes[nindex].ishole()):
+                  excitation = 0
+            for nindex in range(len(tensor.indexes)/2,len(tensor.indexes)):
+               if (tensor.indexes[nindex].isparticle()):
+                  excitation = 0
+            deexcitation = 1
+            for nindex in range(len(tensor.indexes)/2):
+               if (tensor.indexes[nindex].isparticle()):
+                  deexcitation = 0
+            for nindex in range(len(tensor.indexes)/2,len(tensor.indexes)):
+               if (tensor.indexes[nindex].ishole()):
+                  deexcitation = 0
+            if ((tensor.type == "i") or (tensor.type == "j")):
+               if (tensor.type not in intermediatetypes):
+                  intermediatetypes.append(tensor.type)
+            elif (excitation):
+               if (tensor.type not in excitationtypes):
+                  excitationtypes.append(tensor.type)
+            elif (deexcitation):
+               if (tensor.type not in deexcitationtypes):
+                  deexcitationtypes.append(tensor.type)
+            else:
+               if (tensor.type not in generaltypes):
+                  generaltypes.append(tensor.type)
+      for sister in self.sisters:
+         if (sister.isoperation()):
+            for tensor in sister.tensors:
+               if (tensor.type not in alltypes):
+                  alltypes.append(tensor.type)
+               excitation = 1
+               for nindex in range(len(tensor.indexes)/2):
+                  if (tensor.indexes[nindex].ishole()):
+                     excitation = 0
+               for nindex in range(len(tensor.indexes)/2,len(tensor.indexes)):
+                  if (tensor.indexes[nindex].isparticle()):
+                     excitation = 0
+               deexcitation = 1
+               for nindex in range(len(tensor.indexes)/2):
+                  if (tensor.indexes[nindex].isparticle()):
+                     deexcitation = 0
+               for nindex in range(len(tensor.indexes)/2,len(tensor.indexes)):
+                  if (tensor.indexes[nindex].ishole()):
+                     deexcitation = 0
+               if ((tensor.type == "i") or (tensor.type == "j")):
+                  if (tensor.type not in intermediatetypes):
+                     intermediatetypes.append(tensor.type)
+               elif (excitation):
+                  if (tensor.type not in excitationtypes):
+                     excitationtypes.append(tensor.type)
+               elif (deexcitation):
+                  if (tensor.type not in deexcitationtypes):
+                     deexcitationtypes.append(tensor.type)
+               else:
+                  if (tensor.type not in generaltypes):
+                     generaltypes.append(tensor.type)
+      newexcitationtypes = []
+      for type in excitationtypes:
+         if (type not in generaltypes):
+            newexcitationtypes.append(type)
+      newdeexcitationtypes = []
+      for type in deexcitationtypes:
+         if (type not in generaltypes):
+            newdeexcitationtypes.append(type)
+    
+      return [alltypes,newexcitationtypes,newdeexcitationtypes,intermediatetypes,generaltypes]
 
    def fortran77(self,filename="NONAME"):
       """Suggests an implementation in Fortran77 for the whole operation tree"""
+
+      print " ... generating a Fortran77 code"
+      print " "
+      for type in self.tensortypes()[0]:
+         if (type in self.tensortypes()[1]):
+            print " '"+type+"' is an excitaion tensor"
+         elif (type in self.tensortypes()[2]):
+            print " '"+type+"' is a de-excitaion tensor"
+         elif (type in self.tensortypes()[3]):
+            print " '"+type+"' is an intermediate tensor"
+         elif (type in self.tensortypes()[4]):
+            print " '"+type+"' is a general tensor"
+         else:
+            raise RuntimeError, "unknown tensor type"
+      print " "
 
       newlistofcodes = ListofCodes()
 
@@ -5596,6 +6254,9 @@ class OperationTree:
       # target indexes
       if (selfcopy.children[0].contraction.isoperation()):
          globaltargetindexes = copy.deepcopy(selfcopy.children[0].contraction.tensors[0].indexes)
+         print "Target indices"
+         printindexes(globaltargetindexes)
+         print " "
       else:
          return "The tree top must be an addition"
 
@@ -5617,7 +6278,7 @@ class OperationTree:
       newcode.add("headers",newline)
       
       # loop over the tree
-      newcode.join(selfcopy.fortran77a(filename,globaltargetindexes,callees).expand())
+      newcode.join(selfcopy.fortran77a(filename,globaltargetindexes,self.tensortypes(),callees).expand())
 
       # antisymmetrizer
       newcode.pointer = len(newcode.statements)
@@ -5647,7 +6308,7 @@ class OperationTree:
       newlistofcodes.list[0].sortarguments()
       return newlistofcodes
 
-   def fortran77a(self,subroutinename,globaltargetindexes,callees):
+   def fortran77a(self,subroutinename,globaltargetindexes,types,callees):
       """Returns a part of program that is generated by recursively interpreting the tree"""
 
       newcode = Code("Fortran77",subroutinename)
@@ -5699,7 +6360,7 @@ class OperationTree:
             newcode.add("integers",size_c)
  
             # generate the contraction callee
-            callee = sister.fortran77(globaltargetindexes,name)
+            callee = sister.fortran77(globaltargetindexes,types,name)
             callees.add(callee)
 
             # Tensor 2
@@ -5730,7 +6391,7 @@ class OperationTree:
             newcode.statements.insert(0,newline)
             newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
             newcode.statements.insert(0,newline)
-            callee = sister.tensors[0].fortran77y(globaltargetindexes,name)
+            callee = sister.tensors[0].fortran77y(globaltargetindexes,types,name)
             callees.add(callee)
             argument = string.join([d_a,",",k_a_offset],"")
             argument = string.join([argument,",",d_b,",",k_b_offset],"")
@@ -5788,7 +6449,7 @@ class OperationTree:
                   sublocalzero.append(index)
 
             # generate the contraction callee
-            callee = child.contraction.fortran77(globaltargetindexes,name)
+            callee = child.contraction.fortran77(globaltargetindexes,types,name)
             callees.add(callee)
 
             if (child.contraction.tensors[1].type == "i"):
@@ -5852,10 +6513,10 @@ class OperationTree:
                newcode.statements.insert(0,newline)
                newline = string.join(["CALL CREATEFILE(filename,",d_c,",",size_c,")"],"")
                newcode.statements.insert(0,newline)
-               callee = child.contraction.tensors[0].fortran77y(globaltargetindexes,name)
+               callee = child.contraction.tensors[0].fortran77y(globaltargetindexes,types,name)
                callees.add(callee)
                createfile = 0
-            newcode.statements.insert(0,child.fortran77a(name,globaltargetindexes,callees))
+            newcode.statements.insert(0,child.fortran77a(name,globaltargetindexes,types,callees))
             if (child.contraction.tensors[1].type == "i"):
                newline = string.join(["CALL RECONCILEFILE(",d_a,",",size_a,")"],"")
                newcode.statements.insert(0,newline)
@@ -6433,6 +7094,21 @@ class OperationTree:
       # Mode = "nopermutation" : writes a code without index permutation considered
       # Mode = "analysis"      : stdouts a plan of implementation with index permutation
 
+      print " ... generating a Fortran90 code"
+      print " "
+      for type in self.tensortypes()[0]:
+         if (type in self.tensortypes()[1]):
+            print " '"+type+"' is an excitaion tensor"
+         elif (type in self.tensortypes()[2]):
+            print " '"+type+"' is a de-excitaion tensor"
+         elif (type in self.tensortypes()[3]):
+            print " '"+type+"' is an intermediate tensor"
+         elif (type in self.tensortypes()[4]):
+            print " '"+type+"' is a general tensor"
+         else:
+            raise RuntimeError, "unknown tensor type"
+      print " "
+
       f90code = Code("Fortran90",filename)
       newline = "IMPLICIT NONE"
       f90code.add("headers",newline)
@@ -6456,11 +7132,11 @@ class OperationTree:
          print ""
  
       # loop over the tree
-      f90code.statements.insert(f90code.pointer,selfcopy.fortran90a(globaltargetindexes,mode))
+      f90code.statements.insert(f90code.pointer,selfcopy.fortran90a(globaltargetindexes,self.tensortypes(),mode))
       
       # add an antisymmetrizer (only for the target intermediate)
       if (mode == "nopermutation"):
-         f90code.statements.append(selfcopy.children[0].contraction.tensors[0].fortran90x())
+         f90code.statements.append(selfcopy.children[0].contraction.tensors[0].fortran90x(self.tensortypes()))
       
       # close the subroutine
       newline = "RETURN"
@@ -6491,7 +7167,7 @@ class OperationTree:
       else:
          return f90code
 
-   def fortran90a(self,globaltargetindexes,mode="nopermutation"):
+   def fortran90a(self,globaltargetindexes,types,mode="nopermutation"):
       """Recursive subprogram called by fortran90"""
 
       newcode = Code("Fortran90","")
@@ -6513,7 +7189,7 @@ class OperationTree:
          if (child.contraction.isoperation()):
 
             # recursive fortran90a() call
-            newcode.statements.insert(newcode.pointer,child.fortran90a(globaltargetindexes,mode))
+            newcode.statements.insert(newcode.pointer,child.fortran90a(globaltargetindexes,types,mode))
             newcode.pointer = len(newcode.statements)
             
             # Tensor 1
@@ -6602,6 +7278,86 @@ class OperationTree:
                subcommon = subcommonone
             else:
                subcommon = supercommontwo
+# DEEXCITATION EXTENTION FROM HERE ...
+            superlocalparticleone  = []
+            superlocalparticletwo  = []
+            superlocalholeone  = []
+            superlocalholetwo  = []
+            supercommonparticleone  = []
+            supercommonparticletwo  = []
+            supercommonholeone  = []
+            supercommonholetwo  = []
+            for index in superlocalone:
+               if (index.isparticle()):
+                  superlocalparticleone.append(index)
+               elif (index.ishole()):
+                  superlocalholeone.append(index)
+            for index in superlocaltwo:
+               if (index.isparticle()):
+                  superlocalparticletwo.append(index)
+               elif (index.ishole()):
+                  superlocalholetwo.append(index)
+            for index in supercommonone:
+               if (index.isparticle()):
+                  supercommonparticleone.append(index)
+               elif (index.ishole()):
+                  supercommonholeone.append(index)
+            for index in supercommontwo:
+               if (index.isparticle()):
+                  supercommonparticletwo.append(index)
+               elif (index.ishole()):
+                  supercommonholetwo.append(index)
+            superlocalparticlezero = sortindexes( superlocalparticleone + superlocalparticletwo )
+            superlocalholezero = sortindexes( superlocalholeone + superlocalholetwo )
+            sublocalparticleone  = []
+            sublocalparticletwo  = []
+            sublocalholeone  = []
+            sublocalholetwo  = []
+            subcommonparticleone  = []
+            subcommonparticletwo  = []
+            subcommonholeone  = []
+            subcommonholetwo  = []
+            for index in sublocalone:
+               if (index.isparticle()):
+                  sublocalparticleone.append(index)
+               elif (index.ishole()):
+                  sublocalholeone.append(index)
+            for index in sublocaltwo:
+               if (index.isparticle()):
+                  sublocalparticletwo.append(index)
+               elif (index.ishole()):
+                  sublocalholetwo.append(index)
+            for index in subcommonone:
+               if (index.isparticle()):
+                  subcommonparticleone.append(index)
+               elif (index.ishole()):
+                  subcommonholeone.append(index)
+            for index in subcommontwo:
+               if (index.isparticle()):
+                  subcommonparticletwo.append(index)
+               elif (index.ishole()):
+                  subcommonholetwo.append(index)
+            sublocalparticlezero = sortindexes( sublocalparticleone + sublocalparticletwo )
+            sublocalholezero = sortindexes( sublocalholeone + sublocalholetwo )
+            supercommonhole = []
+            supercommonparticle = []
+            subcommonhole = []
+            subcommonparticle = []
+            for index in supercommon:
+               if (index.ishole()):
+                  supercommonhole.append(index)
+               elif (index.isparticle()):
+                  supercommonparticle.append(index)
+               else:
+                  raise RuntimeError, "a general common index appeared"
+            for index in subcommon:
+               if (index.ishole()):
+                  subcommonhole.append(index)
+               elif (index.isparticle()):
+                  subcommonparticle.append(index)
+               else:
+                  raise RuntimeError, "a general common index appeared"
+# ... TO HERE
 
             if (mode == "analysis"):
 
@@ -6680,7 +7436,7 @@ class OperationTree:
                # Structure of tensor 2
                tensoroneexpanded = 0
                show = "Storage of tensor 2:"
-               if (child.contraction.tensors[1].type == 'i'):
+               if (child.contraction.tensors[1].type in types[3]):
                   if (superglobalone):
                      show = string.join([show,"["])
                      for nindex in range(len(superglobalone)):
@@ -6697,7 +7453,7 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-               if (child.contraction.tensors[1].type == 'i'):
+               if (child.contraction.tensors[1].type in types[3]):
                   superremainderone = sortindexes(superlocalone + supercommonone)
                else:
                   superremainderone = sortindexes(superglobalone + superlocalone + supercommonone)
@@ -6709,7 +7465,7 @@ class OperationTree:
                         show = string.join([show,"<"])
                      show = string.join([show,index.show()])
                   show = string.join([show,"]"])
-               if (child.contraction.tensors[1].type == 'i'):
+               if (child.contraction.tensors[1].type in types[3]):
                   subremainderone = sublocalone + subcommonone
                else:
                   subremainderone = subglobalone + sublocalone + subcommonone
@@ -6721,25 +7477,40 @@ class OperationTree:
                         show = string.join([show,"<"])
                      show = string.join([show,index.show()])
                   show = string.join([show,"]"])
-               if ((child.contraction.tensors[1].type == 'i') and (superlocalone) and (supercommonone)):
-                  tensoroneexpanded = 1
-                  show = string.join([show,"Expand ["])
-                  for nindex in range(len(superlocalone)):
-                     index = superlocalone[nindex]
-                     if (nindex > 0):
-                        show = string.join([show,"<"])
-                     show = string.join([show,index.show()])
-                  show = string.join([show,"] ["])
-                  for nindex in range(len(supercommonone)):
-                     index = supercommonone[nindex]
-                     if (nindex > 0):
-                        show = string.join([show,"<"])
-                     show = string.join([show,index.show()])
-                  show = string.join([show,"]"])
-               if ((child.contraction.tensors[1].type != 'i') and \
-                  (((superglobalone) and (superlocalone)) or \
-                  ((superlocalone) and (supercommonone)) or \
-                  ((supercommonone) and (superglobalone)))):
+               if (child.contraction.tensors[1].type in types[3]):
+                  if (superlocalparticleone and supercommonparticleone):
+                     tensoroneexpanded = 1
+                     show = string.join([show,"Expand ["])
+                     for nindex in range(len(superlocalparticleone)):
+                        index = superlocalparticleone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"] ["])
+                     for nindex in range(len(supercommonparticleone)):
+                        index = supercommonparticleone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]"])
+                  if (superlocalholeone and supercommonholeone):
+                     tensoroneexpanded = 1
+                     show = string.join([show,"Expand ["])
+                     for nindex in range(len(superlocalholeone)):
+                        index = superlocalholeone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"] ["])
+                     for nindex in range(len(supercommonholeone)):
+                        index = supercommonholeone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]"])
+               elif ((superglobalone and superlocalone) or \
+                     (superlocalone  and supercommonone) or \
+                     (supercommonone and superglobalone)):
                   tensoroneexpanded = 1
                   show = string.join([show,"Expand"])
                   if (superglobalone):
@@ -6766,25 +7537,40 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-               if ((child.contraction.tensors[1].type == 'i') and (sublocalone) and (subcommonone)):
-                  tensoroneexpanded = 1
-                  show = string.join([show,"Expand ["])
-                  for nindex in range(len(sublocalone)):
-                     index = sublocalone[nindex]
-                     if (nindex > 0):
-                        show = string.join([show,"<"])
-                     show = string.join([show,index.show()])
-                  show = string.join([show,"] ["])
-                  for nindex in range(len(subcommonone)):
-                     index = subcommonone[nindex]
-                     if (nindex > 0):
-                        show = string.join([show,"<"])
-                     show = string.join([show,index.show()])
-                  show = string.join([show,"]"])
-               if ((child.contraction.tensors[1].type != 'i') and \
-                  (((subglobalone) and (sublocalone)) or \
-                  ((sublocalone) and (subcommonone)) or \
-                  ((subcommonone) and (subglobalone)))):
+               if (child.contraction.tensors[1].type in types[3]):
+                  if ((sublocalparticleone) and (subcommonparticleone)):
+                     tensoroneexpanded = 1
+                     show = string.join([show,"Expand ["])
+                     for nindex in range(len(sublocalparticleone)):
+                        index = sublocalparticleone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"] ["])
+                     for nindex in range(len(subcommonparticleone)):
+                        index = subcommonparticleone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]"])
+                  if ((sublocalholeone) and (subcommonholeone)):
+                     tensoroneexpanded = 1
+                     show = string.join([show,"Expand ["])
+                     for nindex in range(len(sublocalholeone)):
+                        index = sublocalholeone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"] ["])
+                     for nindex in range(len(subcommonholeone)):
+                        index = subcommonholeone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]"])
+               elif ((subglobalone and sublocalone) or \
+                     (sublocalone  and subcommonone) or \
+                     (subcommonone and subglobalone)):
                   tensoroneexpanded = 1
                   show = string.join([show,"Expand"])
                   if (subglobalone):
@@ -6813,11 +7599,11 @@ class OperationTree:
                      show = string.join([show,"]"])
                print show
 
-               # Structure of tensor 2
+               # Structure of tensor 3
                if (len(child.contraction.tensors) > 2):
                   tensortwoexpanded = 0
                   show = "Storage of tensor 3:"
-                  if (child.contraction.tensors[2].type == 'i'):
+                  if (child.contraction.tensors[2].type in types[3]):
                      if (superglobaltwo):
                         show = string.join([show,"["])
                         for nindex in range(len(superglobaltwo)):
@@ -6834,7 +7620,7 @@ class OperationTree:
                               show = string.join([show,"<"])
                            show = string.join([show,index.show()])
                         show = string.join([show,"]"])
-                  if (child.contraction.tensors[2].type == 'i'):
+                  if (child.contraction.tensors[2].type in types[3]):
                      superremaindertwo = sortindexes(superlocaltwo + supercommontwo)
                   else:
                      superremaindertwo = sortindexes(superglobaltwo + superlocaltwo + supercommontwo)
@@ -6846,7 +7632,7 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-                  if (child.contraction.tensors[2].type == 'i'):
+                  if (child.contraction.tensors[2].type in types[3]):
                      subremaindertwo = sublocaltwo + subcommontwo
                   else:
                      subremaindertwo = subglobaltwo + sublocaltwo + subcommontwo
@@ -6858,25 +7644,40 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-                  if ((child.contraction.tensors[2].type == 'i') and (superlocaltwo) and (supercommontwo)):
-                     tensortwoexpanded = 1
-                     show = string.join([show,"Expand ["])
-                     for nindex in range(len(superlocaltwo)):
-                        index = superlocaltwo[nindex]
-                        if (nindex > 0):
-                           show = string.join([show,"<"])
-                        show = string.join([show,index.show()])
-                     show = string.join([show,"] ["])
-                     for nindex in range(len(supercommontwo)):
-                        index = supercommontwo[nindex]
-                        if (nindex > 0):
-                           show = string.join([show,"<"])
-                        show = string.join([show,index.show()])
-                     show = string.join([show,"]"])
-                  if ((child.contraction.tensors[2].type != 'i') and \
-                     (((superglobaltwo) and (superlocaltwo)) or \
-                     ((superlocaltwo) and (supercommontwo)) or \
-                     ((supercommontwo) and (superglobaltwo)))):
+                  if (child.contraction.tensors[2].type in types[3]):
+                     if (superlocalparticletwo and supercommonparticletwo):
+                        tensortwoexpanded = 1
+                        show = string.join([show,"Expand ["])
+                        for nindex in range(len(superlocalparticletwo)):
+                           index = superlocalparticletwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"] ["])
+                        for nindex in range(len(supercommonparticletwo)):
+                           index = supercommonparticletwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"]"])
+                     if (superlocalholetwo and supercommonholetwo):
+                        tensortwoexpanded = 1
+                        show = string.join([show,"Expand ["])
+                        for nindex in range(len(superlocalholetwo)):
+                           index = superlocalholetwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"] ["])
+                        for nindex in range(len(supercommonholetwo)):
+                           index = supercommonholetwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"]"])
+                  elif ((superglobaltwo and superlocaltwo) or \
+                        (superlocaltwo  and supercommontwo) or \
+                        (supercommontwo and superglobaltwo)):
                      tensortwoexpanded = 1
                      show = string.join([show,"Expand"])
                      if (superglobaltwo):
@@ -6903,25 +7704,40 @@ class OperationTree:
                               show = string.join([show,"<"])
                            show = string.join([show,index.show()])
                         show = string.join([show,"]"])
-                  if ((child.contraction.tensors[2].type == 'i') and (sublocaltwo) and (subcommontwo)):
-                     tensortwoexpanded = 1
-                     show = string.join([show,"Expand ["])
-                     for nindex in range(len(sublocaltwo)):
-                        index = sublocaltwo[nindex]
-                        if (nindex > 0):
-                           show = string.join([show,"<"])
-                        show = string.join([show,index.show()])
-                     show = string.join([show,"] ["])
-                     for nindex in range(len(subcommontwo)):
-                        index = subcommontwo[nindex]
-                        if (nindex > 0):
-                           show = string.join([show,"<"])
-                        show = string.join([show,index.show()])
-                     show = string.join([show,"]"])
-                  if ((child.contraction.tensors[2].type != 'i') and \
-                     (((subglobaltwo) and (sublocaltwo)) or \
-                     ((sublocaltwo) and (subcommontwo)) or \
-                     ((subcommontwo) and (subglobaltwo)))):
+                  if (child.contraction.tensors[2].type in types[3]):
+                     if (sublocalparticletwo and subcommonparticletwo):
+                        tensortwoexpanded = 1
+                        show = string.join([show,"Expand ["])
+                        for nindex in range(len(sublocalparticletwo)):
+                           index = sublocalparticletwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"] ["])
+                        for nindex in range(len(subcommonparticletwo)):
+                           index = subcommonparticletwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"]"])
+                     if (sublocalholetwo and subcommonholetwo):
+                        tensortwoexpanded = 1
+                        show = string.join([show,"Expand ["])
+                        for nindex in range(len(sublocalholetwo)):
+                           index = sublocalholetwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"] ["])
+                        for nindex in range(len(subcommonholetwo)):
+                           index = subcommonholetwo[nindex]
+                           if (nindex > 0):
+                              show = string.join([show,"<"])
+                           show = string.join([show,index.show()])
+                        show = string.join([show,"]"])
+                  elif ((subglobaltwo and sublocaltwo) or \
+                        (sublocaltwo  and subcommontwo) or \
+                        (subcommontwo and subglobaltwo)):
                      tensortwoexpanded = 1
                      show = string.join([show,"Expand"])
                      if (subglobaltwo):
@@ -6949,21 +7765,89 @@ class OperationTree:
                            show = string.join([show,index.show()])
                         show = string.join([show,"]"])
                   print show
+# DEEXCITATION EXTENSION FROM HERE ...
+                  if (superlocalparticleone and superlocalparticletwo):
+                     show = "["
+                     for nindex in range(len(superlocalparticleone)):
+                        index = superlocalparticleone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]["])
+                     for nindex in range(len(superlocalparticletwo)):
+                        index = superlocalparticletwo[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"] Compress ["])
+                     for nindex in range(len(superlocalparticlezero)):
+                        index = superlocalparticlezero[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]"])
+                     print show
+                  if (sublocalholeone and sublocalholetwo):
+                     show = "["
+                     for nindex in range(len(sublocalholeone)):
+                        index = sublocalholeone[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]["])
+                     for nindex in range(len(sublocalholetwo)):
+                        index = sublocalholetwo[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"] Compress ["])
+                     for nindex in range(len(sublocalholezero)):
+                        index = sublocalholezero[nindex]
+                        if (nindex > 0):
+                           show = string.join([show,"<"])
+                        show = string.join([show,index.show()])
+                     show = string.join([show,"]"])
+                     print show
+                  if ((superlocalparticleone and superlocalparticletwo) or \
+                      (sublocalholeone and sublocalholetwo)):
+                     newfactor = Factor([1.0],[[]])
+                     newfactor = permutationsoffoursets(newfactor,superlocalparticleone, superlocalparticletwo, \
+                                                                  sublocalholeone,       sublocalholetwo, \
+                                                                  superlocalparticlezero,sublocalholezero)
+                     newfactor = newfactor.normalize()
+                     print newfactor
+# ... TO HERE
 
                # Summation indexes
                show = "Summation composite indexes:"
-               if (supercommon):
+               if (supercommonhole):
                   show = string.join([show,"["])
-                  for nindex in range(len(supercommon)):
-                     index = supercommon[nindex]
+                  for nindex in range(len(supercommonhole)):
+                     index = supercommonhole[nindex]
                      if (nindex > 0):
                         show = string.join([show,"<"])
                      show = string.join([show,index.show()])
                   show = string.join([show,"]"])
-               if (subcommon):
+               if (supercommonparticle):
                   show = string.join([show,"["])
-                  for nindex in range(len(subcommon)):
-                     index = subcommon[nindex]
+                  for nindex in range(len(supercommonparticle)):
+                     index = supercommonparticle[nindex]
+                     if (nindex > 0):
+                        show = string.join([show,"<"])
+                     show = string.join([show,index.show()])
+                  show = string.join([show,"]"])
+               if (subcommonhole):
+                  show = string.join([show,"["])
+                  for nindex in range(len(subcommonhole)):
+                     index = subcommonhole[nindex]
+                     if (nindex > 0):
+                        show = string.join([show,"<"])
+                     show = string.join([show,index.show()])
+                  show = string.join([show,"]"])
+               if (subcommonparticle):
+                  show = string.join([show,"["])
+                  for nindex in range(len(subcommonparticle)):
+                     index = subcommonparticle[nindex]
                      if (nindex > 0):
                         show = string.join([show,"<"])
                      show = string.join([show,index.show()])
@@ -6971,7 +7855,8 @@ class OperationTree:
                if ((not supercommon) and (not subcommon)):
                   show = string.join([show,"none"])
                else:
-                  factor = factorial(len(supercommon)) * factorial(len(subcommon))
+                  factor = factorial(len(supercommonhole)) * factorial(len(supercommonparticle)) \
+                         * factorial(len(subcommonhole)) * factorial(len(subcommonparticle))
                   show = string.join([show,"with a factor of",repr(factor)])
                print show
 
@@ -7049,7 +7934,7 @@ class OperationTree:
             if ((zeroscratch) and (mode == "nopermutation")):
                for index in child.contraction.tensors[0].indexes:
                   newcode.insertdoloop(index)
-               newdbl = child.contraction.tensors[0].fortran90()
+               newdbl = child.contraction.tensors[0].fortran90(types)
                newline = string.join([newdbl,"=0.0d0"],"")
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = len(newcode.statements)
@@ -7058,7 +7943,7 @@ class OperationTree:
             expanded = [0,0,0]
             # expand index ranges of tensor 1
             if (mode == "permutation"):
-               if (child.contraction.tensors[1].type == "i"):
+               if (child.contraction.tensors[1].type in types[3]):
                   if ((superlocalone and supercommonone) or (sublocalone and subcommonone)):
                      expanded[1] = 1
                      super = sortindexes(superlocalone + supercommonone)
@@ -7162,29 +8047,23 @@ class OperationTree:
                                           rejected = 1
                            else:
                               permutation = permutation + sub
-                           for nindexa in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
-                              for nindexb in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
+                           for nindexa in range(len(permutation)/2,len(permutation)):
+                              for nindexb in range(len(permutation)/2,len(permutation)):
                                  if (nindexa >= nindexb):
                                     continue
                                  indexa = permutation[nindexa]
                                  indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(super)) and (indexb.isin(super)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
-                           for nindexa in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                              for nindexb in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                                 if (nindexa >= nindexb):
-                                    continue
-                                 indexa = permutation[nindexa]
-                                 indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(sub)) and (indexb.isin(sub)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
                            if (not rejected):
                               if (parity == 1):
                                  sign = " + "
                               else:
                                  sign = " - "
-                              newdbl = child.contraction.tensors[1].fortran90(permutation,0,"e")
-                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[1].fortran90()],"")
+                              newdbl = child.contraction.tensors[1].fortran90(types,permutation,0,"e")
+                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[1].fortran90(types)],"")
                               newcode.statements.insert(newcode.pointer,newline)
                               newcode.pointer = newcode.pointer + 1
                      newcode.pointer = len(newcode.statements)
@@ -7325,36 +8204,30 @@ class OperationTree:
                                           rejected = 1
                            else:
                               permutation = permutation + sub
-                           for nindexa in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
-                              for nindexb in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
+                           for nindexa in range(len(permutation)/2,len(permutation)):
+                              for nindexb in range(len(permutation)/2,len(permutation)):
                                  if (nindexa >= nindexb):
                                     continue
                                  indexa = permutation[nindexa]
                                  indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(super)) and (indexb.isin(super)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
-                           for nindexa in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                              for nindexb in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                                 if (nindexa >= nindexb):
-                                    continue
-                                 indexa = permutation[nindexa]
-                                 indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(sub)) and (indexb.isin(sub)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
                            if (not rejected):
                               if (parity == 1):
                                  sign = " + "
                               else:
                                  sign = " - "
-                              newdbl = child.contraction.tensors[1].fortran90(permutation,0,"e")
-                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[1].fortran90()],"")
+                              newdbl = child.contraction.tensors[1].fortran90(types,permutation,0,"e")
+                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[1].fortran90(types)],"")
                               newcode.statements.insert(newcode.pointer,newline)
                               newcode.pointer = newcode.pointer + 1
                      newcode.pointer = len(newcode.statements)
 
             # expand index ranges of tensor 2
             if ((mode == "permutation") and (len(child.contraction.tensors) > 2)):
-               if (child.contraction.tensors[2].type == "i"):
+               if (child.contraction.tensors[2].type in types[3]):
                   if ((superlocaltwo and supercommontwo) or (sublocaltwo and subcommontwo)):
                      expanded[2] = 1
                      super = sortindexes(superlocaltwo + supercommontwo)
@@ -7458,29 +8331,23 @@ class OperationTree:
                                           rejected = 1
                            else:
                               permutation = permutation + sub
-                           for nindexa in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
-                              for nindexb in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
+                           for nindexa in range(len(permutation)/2,len(permutation)):
+                              for nindexb in range(len(permutation)/2,len(permutation)):
                                  if (nindexa >= nindexb):
                                     continue
                                  indexa = permutation[nindexa]
                                  indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(super)) and (indexb.isin(super)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
-                           for nindexa in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                              for nindexb in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                                 if (nindexa >= nindexb):
-                                    continue
-                                 indexa = permutation[nindexa]
-                                 indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(sub)) and (indexb.isin(sub)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
                            if (not rejected):
                               if (parity == 1):
                                  sign = " + "
                               else:
                                  sign = " - "
-                              newdbl = child.contraction.tensors[2].fortran90(permutation,0,"e")
-                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[2].fortran90()],"")
+                              newdbl = child.contraction.tensors[2].fortran90(types,permutation,0,"e")
+                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[2].fortran90(types)],"")
                               newcode.statements.insert(newcode.pointer,newline)
                               newcode.pointer = newcode.pointer + 1
                      newcode.pointer = len(newcode.statements)
@@ -7621,29 +8488,23 @@ class OperationTree:
                                           rejected = 1
                            else:
                               permutation = permutation + sub
-                           for nindexa in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
-                              for nindexb in range(len(permutation)/2,len(permutation)/2+len(permutation)/4):
+                           for nindexa in range(len(permutation)/2,len(permutation)):
+                              for nindexb in range(len(permutation)/2,len(permutation)):
                                  if (nindexa >= nindexb):
                                     continue
                                  indexa = permutation[nindexa]
                                  indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(super)) and (indexb.isin(super)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
-                           for nindexa in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                              for nindexb in range(len(permutation)/2+len(permutation)/4,len(permutation)):
-                                 if (nindexa >= nindexb):
-                                    continue
-                                 indexa = permutation[nindexa]
-                                 indexb = permutation[nindexb]
-                                 if ((indexa.type == "particle") and (indexb.type == "hole")):
+                                 if ((indexa.isin(sub)) and (indexb.isin(sub)) and (indexa.type == "particle") and (indexb.type == "hole")):
                                     rejected = 1
                            if (not rejected):
                               if (parity == 1):
                                  sign = " + "
                               else:
                                  sign = " - "
-                              newdbl = child.contraction.tensors[2].fortran90(permutation,0,"e")
-                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[2].fortran90()],"")
+                              newdbl = child.contraction.tensors[2].fortran90(types,permutation,0,"e")
+                              newline = string.join([newdbl,"=",sign,child.contraction.tensors[2].fortran90(types)],"")
                               newcode.statements.insert(newcode.pointer,newline)
                               newcode.pointer = newcode.pointer + 1
                      newcode.pointer = len(newcode.statements)
@@ -7658,7 +8519,7 @@ class OperationTree:
                pointersave = newcode.pointer
                for npermutation in range(len(child.contraction.factor.permutations)):
                   permutation = child.contraction.factor.permutations[npermutation]
-                  newdbl = child.contraction.tensors[0].fortran90(permutation,1)
+                  newdbl = child.contraction.tensors[0].fortran90(types,permutation,1)
                   newline = string.join([newdbl,"=",newdbl,"+",\
                      "(",repr(child.contraction.factor.coefficients[npermutation]),"d0)*TMP"],"")
                   newcode.statements.insert(newcode.pointer,newline)
@@ -7682,7 +8543,7 @@ class OperationTree:
                if (len(sublocalzero) > 1):
                   newcode.insertif(sublocalzero,1)
                if ((zeroscratch) and (len(child.contraction.tensors) > 2)):
-                  newdbl = child.contraction.tensors[0].fortran90()
+                  newdbl = child.contraction.tensors[0].fortran90(types)
                   newline = string.join([newdbl,"=0.0d0"],"")
                   newcode.statements.insert(newcode.pointer,newline)
                   newcode.pointer = newcode.pointer + 1
@@ -7696,10 +8557,10 @@ class OperationTree:
                newline = "TMP=TMP+"
                for ntensor in range(len(child.contraction.tensors)):
                   if (ntensor == 1):
-                     newdbl = child.contraction.tensors[ntensor].fortran90()
+                     newdbl = child.contraction.tensors[ntensor].fortran90(types)
                      newline = string.join([newline,newdbl],"")
                   elif (ntensor > 1):
-                     newdbl = child.contraction.tensors[ntensor].fortran90()
+                     newdbl = child.contraction.tensors[ntensor].fortran90(types)
                      newline = string.join([newline,"*",newdbl],"")
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
@@ -7708,35 +8569,109 @@ class OperationTree:
                factor = 1
                for index in supercommon:
                   newcode.insertdoloop(index)
-               if (len(supercommon) > 1):
-                  newcode.insertif(supercommon,1)
-                  factor = factor * factorial(len(supercommon))
+# DEEXCITATION EXTENSION FROM HERE ...
+#              if (len(supercommon) > 1):
+#                 newcode.insertif(supercommon,1)
+#                 factor = factor * factorial(len(supercommon))
+#              if (len(subcommon) > 1):
+#                 newcode.insertif(subcommon,1)
+#                 factor = factor * factorial(len(subcommon))
+# In the following, a multiplicative factor that compensates
+# the triangular summation index is determined.  In so doing,
+# we must distinguish hole and particle types when deexcitation
+# operator is present.
+               supercommonhole = []
+               supercommonparticle = []
+               for index in supercommon:
+                  if (index.ishole()):
+                     supercommonhole.append(index)
+                  elif (index.isparticle()):
+                     supercommonparticle.append(index)
+                  else:
+                     raise RuntimeError, "a general summation index appeared"
+               if (len(supercommonhole) > 1):
+                  newcode.insertif(supercommonhole,1)
+                  factor = factor * factorial(len(supercommonhole))
+               if (len(supercommonparticle) > 1):
+                  newcode.insertif(supercommonparticle,1)
+                  factor = factor * factorial(len(supercommonparticle))
                for index in subcommon:
                   newcode.insertdoloop(index)
-               if (len(subcommon) > 1):
-                  newcode.insertif(subcommon,1)
-                  factor = factor * factorial(len(subcommon))
-               newdbl = child.contraction.tensors[0].fortran90()
+               subcommonhole = []
+               subcommonparticle = []
+               for index in subcommon:
+                  if (index.ishole()):
+                     subcommonhole.append(index)
+                  elif (index.isparticle()):
+                     subcommonparticle.append(index)
+                  else:
+                     raise RuntimeError, "a general summation index appeared"
+               if (len(subcommonhole) > 1):
+                  newcode.insertif(subcommonhole,1)
+                  factor = factor * factorial(len(subcommonhole))
+               if (len(subcommonparticle) > 1):
+                  newcode.insertif(subcommonparticle,1)
+                  factor = factor * factorial(len(subcommonparticle))
+# In the following, permutation of local (internal) indices will be 
+# performed.  This occurs when there is a deexcitation and when and 
+# only when there is no permutation operation of target indices.
+# When these two exclusive permutation operations coexist, an error results.
+               superlocalparticleone  = []
+               superlocalparticletwo  = []
+               for index in superlocalone:
+                  if (index.isparticle()):
+                     superlocalparticleone.append(index)
+               for index in superlocaltwo:
+                  if (index.isparticle()):
+                     superlocalparticletwo.append(index)
+               superlocalparticlezero = sortindexes( superlocalparticleone + superlocalparticletwo )
+               sublocalholeone  = []
+               sublocalholetwo  = []
+               for index in sublocalone:
+                  if (index.ishole()):
+                     sublocalholeone.append(index)
+               for index in sublocaltwo:
+                  if (index.ishole()):
+                     sublocalholetwo.append(index)
+               sublocalholezero = sortindexes( sublocalholeone + sublocalholetwo )
+               deexcitationfactor = Factor([1.0],[[]])
+               if ((superlocalparticleone and superlocalparticletwo) or \
+                   (sublocalholeone and sublocalholetwo)):
+                  deexcitationfactor = permutationsoffoursets(deexcitationfactor,superlocalparticleone, superlocalparticletwo, \
+                                                                                 sublocalholeone,       sublocalholetwo, \
+                                                                                 superlocalparticlezero,sublocalholezero)
+                  deexcitationfactor = deexcitationfactor.normalize()
+# ... TO HERE
+               newdbl = child.contraction.tensors[0].fortran90(types)
                if ((zeroscratch) and (len(child.contraction.tensors) == 2)):
                   newline = string.join([newdbl,"="],"")
                   zeroscratch = 0
                else:
                   newline = string.join([newdbl,"=",newdbl,"+"],"")
-               for npermutation in range(len(child.contraction.factor.permutations)):
-                  permutation = child.contraction.factor.permutations[npermutation]
+# DEEXCITATION EXTENSION FROM HERE ...
+               if ((len(deexcitationfactor.permutations) > 1) and (len(child.contraction.factor.permutations) > 1)):
+                  raise RuntimeError, "A logical error in code generator regarding deexcitation operator"
+               if (len(deexcitationfactor.permutations) > 1):
+                  deexcitationfactor.multiply(child.contraction.factor.coefficients[0])
+                  currentfactor = deexcitationfactor.duplicate()
+               else:
+                  currentfactor = child.contraction.factor.duplicate()
+               for npermutation in range(len(currentfactor.permutations)):
+                  permutation = currentfactor.permutations[npermutation]
                   if (npermutation > 0):
                      newline = string.join([newline,"+"],"")
                   for ntensor in range(len(child.contraction.tensors)):
-                     newfactor = float(factor) * child.contraction.factor.coefficients[npermutation]
+                     newfactor = float(factor) * currentfactor.coefficients[npermutation]
+# ... TO HERE
                      if (expanded[ntensor]):
                         suffix = "e"
                      else:
                         suffix = ""
                      if (ntensor == 1):
-                        newdbl = child.contraction.tensors[ntensor].fortran90(permutation,0,suffix)
+                        newdbl = child.contraction.tensors[ntensor].fortran90(types,permutation,0,suffix)
                         newline = string.join([newline,"(",repr(newfactor),"d0)*",newdbl],"")
                      elif (ntensor > 1):
-                        newdbl = child.contraction.tensors[ntensor].fortran90(permutation,0,suffix)
+                        newdbl = child.contraction.tensors[ntensor].fortran90(types,permutation,0,suffix)
                         newline = string.join([newline,"*",newdbl],"")
                newcode.statements.insert(newcode.pointer,newline)
                newcode.pointer = newcode.pointer + 1
@@ -7785,7 +8720,7 @@ class Code:
          return "Unknown language"
 
       # Standard headers
-      newline = "!$Id: tce.py,v 1.14 2003-02-13 17:42:51 sohirata Exp $"
+      newline = "!$Id: tce.py,v 1.15 2003-07-25 17:56:55 sohirata Exp $"
       self.headers.append(newline)
       newline = "!This is a " + self.language + " program generated by Tensor Contraction Engine v.1.0"
       self.headers.append(newline)
@@ -8060,7 +8995,7 @@ class Code:
             while (not done):
                if (len(n) > 132):
                   show132.append(string.join([n[0:131],"&"],""))
-                  n = n[131:]
+                  n = "&"+n[131:]
                else:
                   done = 1
             show132.append(n)
@@ -8250,7 +9185,10 @@ class Code:
          indexb = list[nindex+1]
          if (holeisalwayslessthanparticle):
             if ((indexa.type == "hole") and (indexb.type == "particle")):
-               return
+# DEEXCITATION EXTENSION FROM HERE ...
+               continue
+#              return
+# ... TO HERE
             elif ((indexa.type == "particle") and (indexb.type == "hole")):
                raise ValueError, "A particle, hole sequence in a tensor"
          newline = string.join(["IF (",indexa.show(),">=",indexb.show(),") CYCLE"],"")
@@ -8317,16 +9255,21 @@ class Code:
       newline = "END IF"
       self.statements.insert(self.pointer,newline)
  
-   def inserttiledifsymmetry(self,super,sub,relativistic=0):
+   def inserttiledifsymmetry(self,super,sub,irrep,relativistic=0):
       """Inserts an IF-ENDIF pair for screening spin/spatial symmetry"""
 
-      if ((not super) and (not sub)):
-         return
+# SYMMETRY EXTENSION FROM HERE ...
+#     if ((not super) and (not sub)):
+#        return
+# ... TO HERE
       if ((super and (not sub)) or ((not super) and sub)):
          raise ValueError, "asymmetric IF encountered"
 
       # spin symmetry
-      if (not relativistic):
+# SYMMETRY EXTENSION FROM HERE ...
+      if ((super or sub) and (not relativistic)):
+#     if (not relativistic):
+# ... TO HERE
          newline = "IF ("
          conjugation = ""
          for index in super:
@@ -8354,29 +9297,46 @@ class Code:
          self.statements.insert(self.pointer,newline)
 
       # spatial symmetry
-      all = super + sub
-      newline = "IF ("
-      conjugation = ""
-      for nindex in range(len(all)-1):
-         index = all[nindex]
+# SYMMETRY EXTENSION FROM HERE ...
+      if ((not super) and (not sub)):
+         newline = "IF (0"
+      else:
+# ... TO HERE
+         all = super + sub
+         newline = "IF ("
+         conjugation = ""
+         for nindex in range(len(all)-1):
+            index = all[nindex]
+            newint = string.join([index.show(),"b"],"")
+            if (self.language == "Fortran77"):
+               newline = string.join([newline,conjugation,"ieor(int_mb(k_sym+",newint,"-1)"],"")
+            elif (self.language == "Fortran90"):
+               newline = string.join([newline,conjugation,"ieor(sym(",newint,")"],"")
+            conjugation = ","
+         index = all[len(all)-1]
          newint = string.join([index.show(),"b"],"")
          if (self.language == "Fortran77"):
-            newline = string.join([newline,conjugation,"ieor(int_mb(k_sym+",newint,"-1)"],"")
+            newline = string.join([newline,",int_mb(k_sym+",newint,"-1)"],"")
          elif (self.language == "Fortran90"):
-            newline = string.join([newline,conjugation,"ieor(sym(",newint,")"],"")
-         conjugation = ","
-      index = all[len(all)-1]
-      newint = string.join([index.show(),"b"],"")
+            newline = string.join([newline,",sym(",newint,")"],"")
+         for nindex in range(len(all)-1):
+            newline = string.join([newline,")"],"")
       if (self.language == "Fortran77"):
-         newline = string.join([newline,",int_mb(k_sym+",newint,"-1)"],"")
+         newline = string.join([newline," .eq. "],"")
       elif (self.language == "Fortran90"):
-         newline = string.join([newline,",sym(",newint,")"],"")
-      for nindex in range(len(all)-1):
-         newline = string.join([newline,")"],"")
-      if (self.language == "Fortran77"):
-         newline = string.join([newline," .eq. 0) THEN"],"")
-      elif (self.language == "Fortran90"):
-         newline = string.join([newline," == 0) THEN"],"")
+         newline = string.join([newline," == "],"")
+      if (len(irrep) == 1):
+         newline = string.join([newline,"irrep_",irrep[0],") THEN"],"")
+      else:
+         conjugation = ""
+         for neach in range(len(irrep)-1):
+            each = irrep[neach]
+            newline = string.join([newline,conjugation,"ieor(irrep_",each],"")
+            conjugation = ","
+         newline = string.join([newline,",irrep_",irrep[len(irrep)-1]],"")
+         for neach in range(len(irrep)-1):
+            newline = string.join([newline,")"],"")
+         newline = string.join([newline,") THEN"],"")
       self.statements.insert(self.pointer,newline)
       self.pointer = self.pointer + 1
       newline = "END IF"
@@ -8389,7 +9349,10 @@ class Code:
          indexb = list[nindex+1]
          if (holeisalwayslessthanparticle):
             if ((indexa.type == "hole") and (indexb.type == "particle")):
-               return
+# DEEXCITATION EXTENSION FROM HERE ...
+               continue
+#              return
+# ... TO HERE
             elif ((indexa.type == "particle") and (indexb.type == "hole")):
                raise ValueError, "A particle, hole sequence in a tensor"
          if (self.language == "Fortran77"):
