@@ -1,5 +1,5 @@
 *
-* $Id: gaussq_netlib.F,v 1.3 1999-07-28 00:42:13 d3e129 Exp $
+* $Id: gaussq_netlib.F,v 1.4 2000-07-27 16:02:28 bjohnson Exp $
 *
 * ======================================================================
 * NIST Guide to Available Math Software.
@@ -561,6 +561,9 @@ C     ON FIRST CALL, IF NO DATA UNCOMMENTED, TEST MACHINE TYPES.
  20               CRAY1(J+1) = CRAY1(J) + CRAY1(J)
                IF (CRAY1(38) .EQ. SMALL(1)) THEN
 *                  *** CRAY ***
+#ifdef WIN32
+                  call errquit('Should not have reached this line!',0)
+#else
                   SMALL(1) = 2332160919536140288.D0
                   SMALL(2) = 0
                   LARGE(1) = 6917247552664371199.D0
@@ -571,6 +574,7 @@ C     ON FIRST CALL, IF NO DATA UNCOMMENTED, TEST MACHINE TYPES.
                   DIVER(2) = 0
                   LOG10(1) = 4611574008272714703.D0
                   LOG10(2) = 272234615232940.D0
+#endif
                ELSE
                   WRITE(*,9000)
                   STOP 779
@@ -1851,6 +1855,9 @@ C
                IMACH(16) = 1023
                SANITY = 987
             ELSE
+#ifdef WIN32
+                  call errquit('Should not have reached this line!',1)
+#else
                CRAY1 = 4617762693716115456.D0
                IF (SMALL(1) .NE. CRAY1) THEN
                   WRITE(*,9020)
@@ -1875,6 +1882,7 @@ C
                IMACH(16) = 8190
                SANITY = 987
                GO TO 10
+#endif
                END IF
             END IF
          IMACH( 1) = 5
@@ -2096,6 +2104,9 @@ C
                DIVER(1) = 889192448
                LOG10(1) = 1067065499
             ELSE
+#ifdef WIN32
+                  call errquit('Should not have reached this line!',0)
+#else
                CRAY1 = 4617762693716115456.D0
                IF (SMALL(1) .NE. CRAY1) THEN
                   WRITE(*,9020)
@@ -2107,6 +2118,7 @@ C
                RIGHT(1) = 4598878906987053056.D0
                DIVER(1) = 4599160381963763712.D0
                LOG10(1) = 4611574008272714704.D0
+#endif
                END IF
             END IF
          SC = 987
