@@ -1,6 +1,6 @@
       logical function task_energy(rtdb)
 *
-* $Id: task_energy.F,v 1.16 2000-01-05 00:25:53 windus Exp $
+* $Id: task_energy.F,v 1.17 2000-03-22 03:04:02 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -63,6 +63,8 @@ c
          status = scf(rtdb)
       else if (theory .eq. 'dft') then
          status = nwdft(rtdb)
+c     cleanup any grid parameters
+         call grid_cleanup(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
       else if (theory .eq. 'rimp2_grad') then

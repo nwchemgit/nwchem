@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.19 2000-01-05 00:25:53 windus Exp $
+* $Id: task_gradient.F,v 1.20 2000-03-22 03:04:02 edo Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -84,6 +84,8 @@ c
       else if (theory .eq. 'dft') then
          status = nwdft(rtdb)
          if (status) status = grad_dft(rtdb)
+c     cleanup any grid parameters
+         call grid_cleanup(rtdb)
       else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
          prefix = 'mp2'
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
