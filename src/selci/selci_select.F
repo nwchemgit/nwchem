@@ -1,13 +1,14 @@
       subroutine selci_select(q, lword, nroot_arg, iwpt_arg, 
      $     thresh_arg, oupdate, energies)
 *
-* $Id: selci_select.F,v 1.1 2003-04-08 00:09:14 windus Exp $
+* $Id: selci_select.F,v 1.2 2005-01-31 21:25:17 edo Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
 #include "cselcifiles.fh"
 #include "global.fh"
+#include "stdio.fh"
       character*80 title
       integer nconmx
 c
@@ -178,7 +179,7 @@ c     .nonew file technique is not satisfactory ... need to
 c     have a separate history file
 c
       if (ncold.eq.noconf) then
-         write(6,81)
+         write(luout,81)
  81      format(//
      $        ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'/
      $        ' ! select: no new configurations found !'/
@@ -235,9 +236,9 @@ c
          close(iflcon,status='keep')
          junk = selci_mstats(0)
          call selci_gettim(endc, endw)
-         write(6,1) 'SELECT', endc-startc, endw-startw
+         write(luout,1) 'SELECT', endc-startc, endw-startw
  1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c     
       junk = selci_mfree(int12)

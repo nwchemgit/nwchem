@@ -1,6 +1,6 @@
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
-* $Id: davids.F,v 1.11 2003-10-17 22:58:17 carlfahl Exp $
+* $Id: davids.F,v 1.12 2005-01-31 21:25:17 edo Exp $
 *
 #include "implicit.fh"
 #include "errquit.fh"
@@ -8,6 +8,7 @@
 #include "mptr.fh"
 #include "cselcifiles.fh"
 #include "global.fh"
+#include "stdio.fh"
       parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 10)
 c
       dimension q(lword)
@@ -54,7 +55,7 @@ c
       call ga_brdcst(11, thresh, mdtob(1), 0)
 c
       if (me.eq.0) then
-        write(6,2) title, multi, nelec, issss+1, norbs, nci, noconf,
+        write(luout,2) title,multi,nelec,issss+1, norbs, nci, noconf,
      $       nroot, thresh
  2      format(//' Davidson CI diagonalisation '/
      &           ' ---------------------------'//
@@ -101,9 +102,9 @@ c
          close(iflciv,status='keep')
          junk = selci_mstats(0)
          call selci_gettim(endc, endw)
-         write(6,1) 'DAVIDS', endc-startc, endw-startw
+         write(luout,1) 'DAVIDS', endc-startc, endw-startw
  1       format(/1x,a,': Total cpu',f10.1,' : Total wall',f10.1)
-         call util_flush(6)
+         call util_flush(luout)
       endif
       call ga_sync()
 c
@@ -115,6 +116,7 @@ c
 #include "cbuff.fh"
 #include "mptr.fh"
 #include "global.fh"
+#include "stdio.fh"
       parameter (iflham = 1, iflhdg=2, iflcon=3, iflciv=4, maxvec = 10)
 c
       dimension work(*), roots(nroot), hd(nci), alpha(*), redh(*),
@@ -142,9 +144,9 @@ c
 *     $       norbs,nintpo,nbitpi,1)
         call selci_makges(nci,nroot,ci,hd,iflciv,roots)
         do 4 ir = 1,nroot
-           write(6,*)
-           write(6,*) ' Guess vector ',ir
-           write(6,*)
+           write(luout,*)
+           write(luout,*) ' Guess vector ',ir
+           write(luout,*)
            call selci_analci(ci(1,ir,1),indxci,ioconf,nci,noconf,
      $          norbs,nintpo,nbitpi,0)
  4      continue
@@ -156,7 +158,7 @@ c
       itermx = 150
       nvec = 1
  20   continue
-      call util_flush(6)
+      if(ga_nodeid().eq.0)call util_flush(luout)
       call ga_brdcst(101, ci(1,1,nvec), mdtob(nroot*nci), 0)
       call selci_sigma(iflham,nci,nroot,hd,ci(1,1,nvec),si(1,1,nvec))
 c      do 41 ir = 1,nroot
@@ -188,7 +190,7 @@ c
 c     analyse the eigenvectors
 c
         do 50 iroot = 1,nroot
-           write(6,7) iroot,roots(iroot)
+           write(luout,7) iroot,roots(iroot)
  7         format(//' Root ',i2,' final energy = ',f19.10/)
            call selci_analci(work((iroot-1)*nci+1),indxci,ioconf,
      $          nci,noconf, norbs,nintpo,nbitpi,0)
@@ -215,6 +217,7 @@ c
       subroutine selci_makges(nci, nroot, ci, hd, iflciv, roots)
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
+#include "stdio.fh"
       dimension ci(nci,nroot), hd(nci), temp(50), itemp(50),
      $     roots(nroot)
 c
@@ -227,10 +230,10 @@ c
       rewind iflciv
       read(iflciv,end=5) nnroot, nnci
       if (nnroot.ge.nroot .and. nnci.eq.nci) then
-         write(6,1)
+         write(luout,1)
  1       format(/' Using trial vectors from disk '/)
          call selci_sread(iflciv,roots,nroot)
-         write(6,2) (roots(i),i=1,nroot)
+         write(luout,2) (roots(i),i=1,nroot)
  2       format(' Eigenvalues from disk '//10(1x,5f19.8/))
          do 3 i = 1,nroot
             call selci_sread(iflciv, ci(1,i), nci)
@@ -259,6 +262,7 @@ c
      &     alpha,redh,work,roots,conv,de,oprint)
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
+#include "stdio.fh"
 c
 c     multi-root in-core davidson routine
 c
@@ -412,7 +416,7 @@ c
 c     can't othogonalise to other vectors ... linear dependance
 c     may be due to exhaustion of expansion space or error
 c     print out message, then resum and proceed from there
-                  write(6,81)
+                  write(luout,81)
  81               format(/' orthogonalisation failure ... if space',
      &                 ' exhausted then OK '/)
                   call selci_mxma(ci,1,n,alpha,1,nroot*nnvec,work,1,n,n,
@@ -436,10 +440,10 @@ c
 c
  100  continue
       if (oprint) then
-         write(6,1) iter,nnvec,(roots(i),de(i),conv(i),i=1,nroot)
+         write(luout,1) iter,nnvec,(roots(i),de(i),conv(i),i=1,nroot)
  1       format(' iter=',i2,'  nvec=',i2,
      &        10('  root=',f15.8,'  de=',f15.8,'  conv=',f13.8:/17x))
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c
       iter = iter + 1

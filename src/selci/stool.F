@@ -2,7 +2,7 @@
      &     nroot,irange,nrange,iwpt,
      &     noconfi,ioconf,nintpo,nconmx,ncold)
 *
-* $Id: stool.F,v 1.8 2003-10-17 22:58:17 carlfahl Exp $
+* $Id: stool.F,v 1.9 2005-01-31 21:25:17 edo Exp $
 *
       implicit real*8 (a-h,o-z), integer(i-n)
 #include "errquit.fh"
@@ -64,7 +64,6 @@ c     if a crash occurs then node 0 (master) will
 c     hold all results of previous work.  
 c     
       noconf = noconfi
-      call util_flush(istdo)
       isync = 1
       if (me.ne.master) then
          call snd(21, (noconf-ncold), mitob(1), node0, isync)
@@ -146,7 +145,7 @@ c
 c     close restart tape
 c     
          close(unit=irest,status='keep')
-         call util_flush(istdo)
+         if(me.eq.0)call util_flush(istdo)
 c     
 c     delete other restart tape
 c     

@@ -4,12 +4,14 @@
      $     vc, iocc, itemp, irange, ptnorm,
      $     ptnorm_mp,ept_mp,roots_mp)
 *
-* $Id: tester.F,v 1.6 2003-10-17 22:58:17 carlfahl Exp $
+* $Id: tester.F,v 1.7 2005-01-31 21:25:17 edo Exp $
 *
 #include "implicit.fh"
 #include "errquit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
+#include "global.fh"
+#include "stdio.fh"
 c
 c     argument declarations
 c
@@ -53,7 +55,7 @@ c
 c     Update energy and ptnorm ... the last correction computed
 c     is the one used for the selection process
 c
-      call util_flush(6)
+      if(ga_nodeid().eq.0)call util_flush(luout)
       if (iwpt.eq.0) then       ! EN only
          call selci_mkdele(numf, nroot, q(ide), vc, roots, q(iwork1),
      $        nfmax, q(idnorm))
@@ -102,7 +104,7 @@ c     memory and cpu consumption by coupling coefficients.
 c     Limit the max number of open shells in a reference to 8.
 c     
          if (ns .gt. 8) then
-            write(6,101) ns, test 
+            write(luout,101) ns, test 
  101        format(' rejecting new reference because 8 < ns =',i3,
      $           ' : tester = ', 1pd9.2)
          else

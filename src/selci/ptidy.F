@@ -1,11 +1,12 @@
       subroutine selci_ptidy(ioconf, nintpo, noconf, ncold, nconmx,
      $     nroot, ept, enew, irange, ptnorm, ptnorm_mp, ept_mp)
 *
-* $Id: ptidy.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
+* $Id: ptidy.F,v 1.6 2005-01-31 21:25:17 edo Exp $
 *
 #include "implicit.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "stdio.fh"
       dimension ioconf(nintpo,nconmx), ept(nroot), enew(nroot),
      &     ptnorm(nroot), irange(21)
       dimension ept_mp(nroot), ptnorm_mp(nroot)
@@ -37,7 +38,6 @@ c         write(6,*) nodeid(),enew
 c         write(6,*) nodeid(),irange
 c         write(6,*) nodeid(),ptnorm
 c         write(6,*) nodeid(),ptnorm_mp
-         call util_flush(6)
          call snd(21, noconf-ncold, mitob(1), node0, isync)
          call snd(22, ioconf(1,ncold+1),mitob(nintpo*(noconf-ncold)),
      $        node0, isync)

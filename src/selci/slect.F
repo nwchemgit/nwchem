@@ -2,12 +2,13 @@
      $     roots,ci,nconmx,ncold,thresh,ept,enew,irange, ptnorm,
      &     ptnorm_mp,ept_mp,roots_mp,min2c)
 *
-* $Id: slect.F,v 1.4 1997-10-31 23:42:27 d3e129 Exp $
+* $Id: slect.F,v 1.5 2005-01-31 21:25:17 edo Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
 #include "global.fh"
+#include "stdio.fh"
       dimension q(*)
       dimension h(nnorbs),g(numint),int12(nnorbs),int34(nnorbs),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1),
@@ -30,7 +31,6 @@ c     root is greater than the input threshold then add this to the
 c     list and add the incremental lowering to the prediction for the
 c     new ci energy.
 c     
-      call util_flush(6)
       ivc = selci_mptr(nfmax*nroot)
       call dfill(nroot,0.0d0,ept,1)
       call dfill(nroot,0.0d0,ept_mp,1)
@@ -46,7 +46,6 @@ c
       me     = ga_nodeid()
       master = 0
       icount = -1
-      call util_flush(6)
 c     
 c     If first pass through selci then kill all restart files
 c     
@@ -69,7 +68,7 @@ c
      &              noconf,ioconf,nintpo,nconmx,ncold)
             endif
          endif
-         call util_flush(6)
+         if(ga_nodeid().eq.0) call util_flush(luout)
 c
          call selci_upkcon(norbs, iocc, ioconf(1,iconf), nintpo, nbitpi)
 c     
