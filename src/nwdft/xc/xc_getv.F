@@ -3,7 +3,7 @@
      &                   wght_GA, rho_n, rdens_atom, cntoce,
      &                   cntobfr, cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.26 1999-06-17 18:24:17 edo Exp $
+C$Id: xc_getv.F,v 1.27 1999-06-25 21:23:27 edo Exp $
 c
       implicit none
 c      
@@ -192,20 +192,21 @@ c
 c           Option A:  Compute via direct numerical quadrature.
 c         
 c           compute the integrated density (numerical)
-c
+c 
             if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &         grid_on_file))then
                grid_on_file = .false.
             endif
             if (grid_on_file)then
-               call grid_den(rtdb, g_dens, rho_n)
-            endif
+               call grid_den(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc)
+            else
 c
             if (oprint_time)call dft_tstamp('Before call to xc_quadv0.')
             call xc_quadv0(rtdb, nExc, g_vxc,g_dens,g_wght,g_xyz,g_nq, 
      &                     wght_GA, Exc, rho_n, rdens_atom, cntoce,
      &                     cntobfr, cetobfr, natoms)
             if (oprint_time)call dft_tstamp(' After call to xc_quadv0.')
+            endif
 c      write(6,*)'from xc_getv; Exc(1), Exc(2): ',Exc(1), Exc(2)
 c
 c           Symmetrize Vxc?
