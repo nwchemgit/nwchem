@@ -1,4 +1,5 @@
       integer function util_time_remaining(rtdb)
+$Id: util_job.F,v 1.3 1999-04-01 21:53:48 d3e129 Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
