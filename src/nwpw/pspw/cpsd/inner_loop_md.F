@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.7 2002-01-18 23:23:41 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.8 2002-02-16 19:26:35 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -165,7 +165,8 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) 
+     > call errquit('inner_loop_md:pushing stack',0)
       call nwpw_timing_end(12)
      
       call D3dB_nx(1,nx)
@@ -629,25 +630,27 @@ c     real*8     fion(3,natmx)
       call nwpw_timing_start(12)
 
       value = MA_pop_stack(ftest(2))
-      value = MA_pop_stack(fion(2))
-      value = MA_pop_stack(dnall(2))
-      value = MA_pop_stack(xce(2))
-      value = MA_pop_stack(xcp(2))
-      value = MA_pop_stack(dng(2))
-      value = MA_pop_stack(rho(2))
-      value = MA_pop_stack(vl(2))
-      value = MA_pop_stack(v_field(2))
+      value = value.and.MA_pop_stack(fion(2))
+      value = value.and.MA_pop_stack(dnall(2))
+      value = value.and.MA_pop_stack(xce(2))
+      value = value.and.MA_pop_stack(xcp(2))
+      value = value.and.MA_pop_stack(dng(2))
+      value = value.and.MA_pop_stack(rho(2))
+      value = value.and.MA_pop_stack(vl(2))
+      value = value.and.MA_pop_stack(v_field(2))
 
       if ((control_version().eq.4).or.(field_exist)) 
-     >  value = MA_pop_stack(r_grid(2))
+     >  value = value.and.MA_pop_stack(r_grid(2))
 
       if (control_version().eq.4) 
-     >  value = MA_pop_stack(vlr_l(2))
+     >  value = value.and.MA_pop_stack(vlr_l(2))
 
-      value = MA_pop_stack(vc(2))
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
-      value = MA_pop_stack(tmp_L(2))
+      value = value.and.MA_pop_stack(vc(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(tmp_L(2))
+      if (.not.value) 
+     > call errquit('inner_loop_md:popping stack',1)
 
       call nwpw_timing_end(12)
 
