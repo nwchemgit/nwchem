@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.45 2002-03-19 21:21:10 mhackler Exp $
+$Id: INSTALL,v 1.46 2002-03-28 22:05:16 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -718,3 +718,16 @@ expect that we will be able to help you.
          the MAKEFILES line so that the number after -j is a "1".
 
          i.e. MAKEFLAGS = -j 1 --no-print-directory
+
+   7) I have a compile problem in $NWCHEM_TOP/src/nwpw/libraryps/nwpw_libfile.F
+      with a missing ' in the line.
+
+      This happens when the path that you are compiling in gets long.  We will
+      be fixing this in the next release.  But in the meantime, there
+      are at least two ways to fix this:
+
+      A) Compile in a directory with a short path.
+
+      B) Edit the $NWCHEM_TOP/src/nwpw/libraryps/GNUmakefile and change
+         $(SRCDIR) to a shorter path.  It is useful if this is where
+         you will be putting the pseudopotential libraries.
