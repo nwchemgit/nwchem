@@ -1,5 +1,5 @@
-      SUBROUTINE stpr_output(STEP,COORD,BCKSTP)
-c     $Id: stpr_output.F,v 1.3 1995-03-31 01:45:37 d3g681 Exp $
+      SUBROUTINE stpr_output(STEP,COORD,BCKSTP, grad_max)
+c     $Id: stpr_output.F,v 1.4 1995-04-04 04:52:45 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
       LOGICAL BCKSTP, oprint_info
@@ -38,6 +38,7 @@ c
             WRITE(6,1011)TRUSTO
          ENDIF
          WRITE(6,1001)NNEG
+         write(6,1032)grad_max
          WRITE(6,1002)GLNGTH
       endif
 #if defined(KSR) || defined(CRAY)
@@ -77,6 +78,7 @@ C
  1001 FORMAT('   Number of negative eigenvalues: ',I3)
  1002 FORMAT('                    Gradient norm: ',D20.12)
  1022 FORMAT('                RMS Gradient norm: ',D20.12)
+ 1032 FORMAT('   Max absolute value of Gradient: ',D20.12)
  1003 FORMAT('                  Value of lambda: ',D20.12)
  1004 FORMAT('          Value of scale factor A: ',D20.12)
  1005 FORMAT('  Largest component of step v-tor: ',D20.12)

@@ -6,7 +6,7 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD )
-c $Id: stpr_driver.F,v 1.4 1995-03-31 01:45:24 d3g681 Exp $
+c $Id: stpr_driver.F,v 1.5 1995-04-04 04:52:44 d3e129 Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"
@@ -77,7 +77,8 @@ C
        WRITE(6,*)'  ENERGY = ',ENERGY
       ENDIF
       IF (.NOT.CNVGRD) THEN
-        CALL stpr_output(STEP,COORD,BCKSTP)
+        grad_max = dabsmax(nat3,grad)
+        CALL stpr_output(STEP,COORD,BCKSTP, grad_max)
       ELSE
 c
 c     Write out useful hessian info:
