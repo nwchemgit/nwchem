@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.54 2003-08-12 11:33:53 d3j191 Exp $
+c $Id: prepar.F,v 1.55 2003-09-26 15:44:05 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -63,7 +63,7 @@ c
       integer lfnxyz,lfnqqq,lfnnoe,lfnpmf,lfnpov,lfnmat,lfnmrg
       integer len,lenc,lend,lfntmp,lfncmd,lfnslv,lfnmod,nxlnk,mdold
       integer lfnhdb,lfnhop
-      integer newtop,newseq,newrst,mgrid,mnoe,maxscf,icount(mcount)
+      integer newtop,newseq,newrst,mgrid,mnoe,mpmf,maxscf,icount(mcount)
       integer ncount,icyren,model,iconst,nmerge
       integer nrgrid,iogrid(5),rogrid(2,5)
       integer nfract,ifract(mfract)
@@ -148,7 +148,7 @@ c
      + source,
      + sysnam,calc,slvnam,slvmdl,newtop,newseq,newrst,mcount,ncount,
      + icount,mgrid,nrgrid,iogrid,rogrid,
-     + gdist,mnoe,maxscf,qscale,altloc,chain,icyren,iconst,
+     + gdist,mnoe,mpmf,maxscf,qscale,altloc,chain,icyren,iconst,
      + model,nxlnk,mdold,
      + ignore,scount,fcount,mfract,nfract,ifract,scale,cpk,his,itopol))
      + call errquit('pre_rtdbin failed',9999)
@@ -358,7 +358,7 @@ c
 c     handle other commands
 c     ---------------------
 c
-      if(mnoe.gt.0) then
+      if(mnoe.gt.0.or.mpmf.gt.0) then
       if(.not.pre_mknoe(lfnout,lfntop,filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam))
      + call errquit('re_mknoe failed',9999)

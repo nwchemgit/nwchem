@@ -1,6 +1,6 @@
       subroutine pre_input(irtdb)
 c
-c $Id: pre_input.F,v 1.110 2003-09-02 22:53:06 d3j191 Exp $
+c $Id: pre_input.F,v 1.111 2003-09-26 15:44:05 d3j191 Exp $
 c
       implicit none
 c
@@ -27,7 +27,7 @@ c
       integer newtop,newseq,newrst,icount(10),multip,ncount
       integer nfract,ifract(mfract)
 c
-      integer len,numcmd,nummod,mgrid,mnoe,maxscf,num,mset(2),nset
+      integer len,numcmd,nummod,mgrid,mnoe,mpmf,maxscf,num,mset(2),nset
       integer isgm,icyren,model,nxlnk,iconst,npmfr,isarep,lrgpdb
       real*8 touch,xpnd(3),rgrid,edge,edges(3),dnoe(5),qscale,charge
       real*8 polar,value,forcon,forc2,box(3)
@@ -88,6 +88,7 @@ c
       mgrid=24
       rgrid=0.4d0
       mnoe=0
+      mpmf=0
       maxscf=0
       qscale=-1.0d0
       ncount=0
@@ -416,40 +417,39 @@ c     --------------------------
 c
       if(inp_compare(.false.,'grid',item)) then
       if(.not.inp_i(mgrid)) call errquit('pre_input: grid',9999)
-      if(.not.inp_f(rgrid)) then
- 3321 continue
+      do 6865 i=1,3
+      if(inp_f(rgrid)) goto 6867
       if(.not.inp_a(item)) call errquit('pre_input: grid',9999)
       j=-1
       if(inp_compare(.false.,'inside',item)) j=0
       if(inp_compare(.false.,'outside',item)) j=1
       if(j.eq.-1) call errquit('pre_input: remove',9999)
       nrgrid=nrgrid+1
-      do 6865 i=1,3
       if(inp_a(item)) then
       if(inp_compare(.false.,'x',item)) then
-      if(.not.inp_f(xrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(xrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(xrmin)) call errquit('pre_input remove x',0)
+      if(.not.inp_f(xrmax)) call errquit('pre_input remove x',0)
       iogrid(nrgrid)=1+j
       rogrid(1,nrgrid)=xrmin
       rogrid(2,nrgrid)=xrmax
       endif
       if(inp_compare(.false.,'y',item)) then
-      if(.not.inp_f(yrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(yrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(yrmin)) call errquit('pre_input remove y',0)
+      if(.not.inp_f(yrmax)) call errquit('pre_input remove y',0)
       iogrid(nrgrid)=3+j
       rogrid(1,nrgrid)=yrmin
       rogrid(2,nrgrid)=yrmax
       endif
       if(inp_compare(.false.,'z',item)) then
-      if(.not.inp_f(zrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(zrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(zrmin)) call errquit('pre_input remove z',0)
+      if(.not.inp_f(zrmax)) call errquit('pre_input remove z',0)
       iogrid(nrgrid)=5+j
       rogrid(1,nrgrid)=zrmin
       rogrid(2,nrgrid)=zrmax
       endif
       if(inp_compare(.false.,'xy',item)) then
-      if(.not.inp_f(zrmin)) call errquit('pre_input remove',0)
-      if(.not.inp_f(zrmax)) call errquit('pre_input remove',0)
+      if(.not.inp_f(zrmin)) call errquit('pre_input remove xy',0)
+      if(.not.inp_f(zrmax)) call errquit('pre_input remove xy',0)
       iogrid(nrgrid)=7+j
       rogrid(1,nrgrid)=zrmin
       rogrid(2,nrgrid)=zrmax
@@ -459,8 +459,6 @@ c
       endif
  6865 continue
  6867 continue
-      if(.not.inp_f(rgrid)) call errquit('pre_input: grid',9999)
-      endif
       goto 2
       endif
 c
@@ -946,6 +944,7 @@ c     pmf
 c     ---
 c
       if(inp_compare(.false.,'pmf',item)) then
+      mpmf=mpmf+1
       iopt=0
       jopt=0
       kopt=0
@@ -1848,6 +1847,8 @@ c
      + call errquit('pre_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'prep:mnoe',mt_int,1,mnoe))
+     + call errquit('pre_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'prep:mpmf',mt_int,1,mpmf))
      + call errquit('pre_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'prep:nxlnk',mt_int,1,nxlnk))
      + call errquit('pre_input: rtdb_put failed',0)
