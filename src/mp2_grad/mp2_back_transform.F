@@ -632,13 +632,13 @@ c
                   xlo  = shlo(xsh)
                   ylo  = shlo(ysh)
 
-c     first the energy just to validate the 2pdm
                   if (odebug) then
+c     first the energy just to validate the 2pdm
                      call int_2e4c(basis, ush, vsh, basis, xsh, ysh,
      $                    lenscr, dbl_mb(k_scr), leng, dbl_mb(k_g))
                   endif
 
-c     overwrite the energy integrals with the value of the 2PDM
+c     reuse the energy integral buffer for the 2PDM
 
                   uvxy = k_g
                   psum = 0.0d0
@@ -672,7 +672,7 @@ c
                   end do
                   psum = sqrt(psum) 
 
-c     and then the gradient if it will be significant
+c     use density to screen evaluation of gradient integrals
 
                   if (schwarz_shell(xsh,ysh)*schwarz_shell(ush,vsh)*psum
      $                 .gt. tol2e) then

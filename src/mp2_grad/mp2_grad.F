@@ -46,7 +46,7 @@ c
       if(ga_nodeid().eq.0)then
          if(util_print('information',print_low))then
             call util_print_centered(6,
-     $           'NWCHEM MP2 semi-direct energy/gradient module',
+     $           'NWChem MP2 semi-direct energy/gradient module',
      $           40,.true.)
             write(6,*)
             write(6,*)
@@ -69,9 +69,13 @@ c
          endif
       endif
       call int_normalize(basis)
-      call util_file_name('movecs', .false.,.false.,movecs_in)
 c
-      call mp2_energy(rtdb,geom,basis,movecs_in,task)
+c     Make sure that we use the same vectors as the SCF
+c
+      if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+     $     call errquit('mp2_grad: no SCF MO vectors',0)
+c
+      call mp2_energy(rtdb, geom, basis, movecs_in, task)
 c
       if(.not.((bas_destroy(basis)).and.(geom_destroy(geom))))
      $    call errquit
