@@ -20,6 +20,7 @@ static int me;
 #define INACTIVE  -1
 #define SEQUENTIAL 0
 #define PARALLEL   1
+
 /* Mode in which DB was opended */
 static int par_mode[MAX_RTDB] = {INACTIVE,INACTIVE,INACTIVE,INACTIVE,INACTIVE};
 static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
@@ -38,6 +39,21 @@ int rtdb_parallel(const int mode)
     parallel_mode = SEQUENTIAL;
   
   return old;
+}
+
+static int verify_parallel_access()
+/*
+  Return true if access mode / processor values are sensible
+*/
+{
+  if ((parallel_mode == SEQUENTIAL) && (me != 0)) {
+    (void) fflush(stdout);
+    (void) fprintf(stderr,"rtdb: sequential access only possible for process 0\n");
+    (void) fflush(stderr);
+    return 0;
+  }
+  else
+    return 1;
 }
 
 static void rtdb_broadcast(const int msg_type, const int ma_type, 
@@ -59,6 +75,8 @@ int rtdb_open(const char *filename, const char *mode, int *handle)
   int status;
   me = NODEID_();
 
+  if (!verify_parallel_access()) return 0;
+
   if (parallel_mode == SEQUENTIAL || me == 0)
     status = rtdb_seq_open(filename, mode, handle);
 
@@ -77,6 +95,8 @@ int rtdb_close(const int handle, const char *mode)
 {
   int status;
   
+  if (!verify_parallel_access()) return 0;
+
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_close: handle out of range %d\n", handle);
     (void) fflush(stderr);
@@ -102,6 +122,8 @@ int rtdb_put(const int handle, const char *name, const int ma_type,
 	     const int nelem, const void *array)
 {
   int status;
+
+  if (!verify_parallel_access()) return 0;
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_put: handle out of range %d\n", handle);
@@ -129,6 +151,8 @@ int rtdb_get(const int handle, const char *name, const int ma_type,
 		 const int nelem, void *array)
 {
   int status;
+
+  if (!verify_parallel_access()) return 0;
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_get: handle out of range %d\n", handle);
@@ -165,6 +189,8 @@ int rtdb_get_info(const int handle,
 {
   int status;
 
+  if (!verify_parallel_access()) return 0;
+
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_get_info: handle out of range %d\n", handle);
     (void) fflush(stderr);
@@ -197,6 +223,8 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 		    int *nelem, int *ma_handle)
 {
   int status;
+
+  if (!verify_parallel_access()) return 0;
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_ma_put: handle out of range %d\n", handle);
@@ -253,6 +281,8 @@ int rtdb_first(const int handle, const int namelen, char *name)
 {
   int status;
 
+  if (!verify_parallel_access()) return 0;
+
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_first: handle out of range %d\n", handle);
     (void) fflush(stderr);
@@ -285,6 +315,8 @@ int rtdb_first(const int handle, const int namelen, char *name)
 int rtdb_next(const int handle, const int namelen, char *name)
 {
   int status;
+
+  if (!verify_parallel_access()) return 0;
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_next: handle out of range %d\n", handle);
@@ -320,6 +352,8 @@ int rtdb_print(const int handle, const int print_values)
 {
   int status;
 
+  if (!verify_parallel_access()) return 0;
+
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_print: handle out of range %d\n", handle);
     (void) fflush(stderr);
@@ -344,6 +378,8 @@ int rtdb_print(const int handle, const int print_values)
 int rtdb_delete(const int handle, const char *name)
 {
   int status;
+
+  if (!verify_parallel_access()) return 0;
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_delete: handle out of range %d\n", handle);
