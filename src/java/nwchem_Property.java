@@ -165,7 +165,7 @@ class nwchem_Property extends JFrame implements ActionListener, ChangeListener, 
 	if(numframes==0) propList.addElement(card); 
       };
       while((card=br.readLine()) != null){ 
-	  card=br.readLine();
+	  if(card.startsWith("frame")){card=br.readLine(); };
 	  int num=0;
 	  data = new double[numprop];
 	  for(int i=0; i<numprop; i++){
