@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.26 1996-10-23 05:49:08 d3g681 Exp $
+# $Id: GNUmakefile,v 1.27 1997-01-02 17:58:58 d3h449 Exp $
 
       OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
       OBJ_OPTIMIZE = \
@@ -9,7 +9,10 @@
 	dft_mxovl.o
 
      LIBRARY = libnwdft.a
- LIB_DEFINES = -DDFT_TIMER
+
+# LIB_DEFINES = -DDFT_TIMER
+ LIB_DEFINES =
+
 LIB_INCLUDES = -I../include
 
    USES_BLAS = diis_bld12.F diis_bsolve.F dft_mxovl.F dft_init_guess.F
