@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.9 1999-12-21 00:51:27 d3j191 Exp $
+c $Id: ana_input.F,v 1.10 2000-01-04 19:07:53 d3j191 Exp $
 c
       implicit none
 c
@@ -13,9 +13,9 @@ c
 c
       character*255 item,prefix,atom,tag
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      integer lfncmd,numcmd,len,ivec
+      integer lfncmd,numcmd,len,ivec,nspac
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,itag,iatag,jatag
-      real*8 timoff,rsel,rtag
+      real*8 timoff,rsel,rtag,rcut
       logical lref,lfil
 c
       if(ga_nodeid().eq.0) then
@@ -201,7 +201,7 @@ c
       endif
       if(.not.inp_a(atom)) atom=' '
     5 continue
-      write(lfncmd,1007) itag,tag,isel,jsel,rsel,
+      write(lfncmd,1007) itag,tag,iatag,jatag,rtag,
      + atom(1:index(atom,' ')-1)
  1007 format('label  ',i3,a24,2i7,f12.6,a)
       numcmd=numcmd+1
@@ -243,8 +243,26 @@ c
       goto 1
       endif
 c
-c     
+c     electrostatic potential
+c     -----------------------     
 c
+      if(inp_compare(.false.,'esp',item)) then
+      if(.not.inp_a(filchg)) call errquit('ana_input: filchg failed',0)
+      if(index(filchg,'.xyzq').le.0)
+     + filchg=filchg(1:index(filchg,' ')-1)//'.xyzq '
+      if(.not.inp_i(nspac)) nspac=10
+      if(.not.inp_f(rcut)) rcut=1.0d0
+      if(.not.inp_a(filplt)) then
+      filplt=filchg(1:index(filchg,'.xyzq'))
+      endif
+      if(index(filplt,'.plt').le.0)
+     + filplt=filchg(1:index(filchg,'.xyzq')-1)//'.plt '
+      write(lfncmd,1011) nspac,rcut,filchg(1:index(filchg,' ')-1),
+     + filplt(1:index(filplt,' ')-1)
+ 1011 format('espplt ',i4,f12.6,a,' ',a)
+      numcmd=numcmd+1
+      goto 1
+      endif
 c
 c      if(inp_compare(.false.,'charges',item)) then
 c      if(.not.inp_a(filchg)) call errquit('ana_input: filchg failed',0)

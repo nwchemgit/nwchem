@@ -1,17 +1,40 @@
-      subroutine ana_pltgrd
+      subroutine ana_pltgrd(card)
 c
-c $Id: ana_pltgrd.F,v 1.3 1999-07-16 17:08:30 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.4 2000-01-04 19:07:53 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
 c
-      integer mgrd
+      integer mgrd,i
+      character*80 card,string
+      real*8 rcut
+c
+      print*,card
+      string=card(8:80)
+c
+      read(string(1:4),'(i4)') mgrd
+      read(string(5:16),'(f12.6)') rcut
+      spac=rcut/dble(mgrd-1)
+      string=card(24:80)
+      i=index(string,' ')
+      filchg=string(1:i)
+      filplt=string(i+1:80)
+      print*,rcut,spac
+c
+      ngrd(1)=mgrd
+      ngrd(2)=mgrd
+      ngrd(3)=mgrd
+c
+      write(*,2000) mgrd,rcut,
+     + filchg(1:index(filchg,' ')-1),
+     + filplt(1:index(filplt,' ')-1)
+ 2000 format(' Electrostatic potential on ',i4,' cubed grid extending',
+     + f12.6,' nm for charges from ',a,' written to ',a)
 c
 c     open the charge file
 c
-c      write(*,'(2a)') 'filchg=',filchg(1:index(filchg,' ')-1)
       open(unit=lfnchg,file=filchg(1:index(filchg,' ')-1),
      + form='formatted',status='old',err=9999)
 c
@@ -132,6 +155,7 @@ c
       real*8 xg,yg,zg
 c
       mgrd=ngx*ngy*ngz
+      print*,ngx,ngy,ngz
 c
       if(np.eq.1) then
       nxfr=1

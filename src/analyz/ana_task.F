@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.5 1999-12-21 00:51:27 d3j191 Exp $
+c $Id: ana_task.F,v 1.6 2000-01-04 19:07:53 d3j191 Exp $
 c
       implicit none
 c
@@ -181,7 +181,7 @@ c
       nread=nread+1
       if(nframe.lt.ifrfr) goto 2
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-      call ana_wtfram(lfncop,fmtcop,dbl_mb(i_xdat),byte_mb(i_snam),
+      call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
      + dbl_mb(i_wdat))
       nwrit=nwrit+1
       endif
@@ -224,7 +224,7 @@ c
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_wt),dbl_mb(i_xrms),nsa,msa,.true.,
      + rms0,rms1)
-      call ana_wtfram(lfncop,fmtcop,dbl_mb(i_xdat),byte_mb(i_snam),
+      call ana_wtfram(lfncop,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
      + dbl_mb(i_wdat))
       nwrit=nwrit+1
       endif
@@ -385,6 +385,14 @@ c
       endif
 c
       close(unit=lfntrj)
+      endif
+c
+c     generate esp grid from an xyzq file
+c     -----------------------------------
+c
+      if(card(1:6).eq.'espplt') then
+      call ana_pltgrd(card)
+      goto 1
       endif
 c
       close(unit=lfncmd,status='delete')

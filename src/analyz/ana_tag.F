@@ -1,6 +1,6 @@
       subroutine ana_tag(card,sgmnam,x)
 c
-c $Id: ana_tag.F,v 1.2 1999-12-21 00:51:27 d3j191 Exp $
+c $Id: ana_tag.F,v 1.3 2000-01-04 19:07:53 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,11 @@ c
 c
       read(card,6901,end=9999) itag,ttag,is,js,rtag,cs
  6901 format(7x,i3,a24,2i7,f12.6,a5)
-      write(*,6901) itag,ttag,is,js,rtag,cs
+      write(*,6902) itag,ttag(1:index(ttag,' ')-1),
+     + cs(1:index(cs,' ')),is,js,rtag
+ 6902 format(' Label ',i2,' set to ',a,' for atomss ',a,
+     + ' in segments',
+     + i7,' through ',i7,' and atoms within ',f12.6, ' nm')
       if(cs(1:1).eq.'_') cs(1:1)=' '
       do 3 i=1,nsa
       read(sgmnam(i),'(5x,a5,i6)') ct,it
