@@ -315,15 +315,28 @@ preferences.
 \label{sec:set}
 
 \begin{verbatim}
-  SET <name> [<string type default "string">] <$type$ list_of_values>
+  SET <name> [<string type default automatic>] <$type$ data>
 \end{verbatim}
 
-This directive makes an entry in the database.  There are only two
-common circumstances where this directive is necessary.  The first is
-to provide indirection.  One example of this was encountered above
-(section \ref{sec:arch}).  Another example of indirection would be if
-you entered a couple of basis sets and wanted to change the one being
-used for the SCF calculation.  This input specifies two basis sets
+This directive makes an entry in the database with the given name.
+The data type may be explicitly specified as one of \verb+integer+,
+\verb+real+ (or \verb+double+), \verb+logical+, and \verb+string+.  If
+the type is not specified (i.e., either only three tokens are present
+on the line, or the third token is not recognizable as one of the
+standard types), then the data type is inferred from the {\em first}
+datum (which will be the third token).  For this to work reliably
+ensure that floating-point data include either an exponent or decimal
+point.
+
+Logical values may be entered as \verb+.true.+, \verb+true+, or
+\verb+t+, and \verb+.false.+, \verb+false+, or \verb+f+.
+
+There are only two common circumstances where this directive is
+necessary.  The first is to provide indirection.  One example of this
+was encountered above (section \ref{sec:arch}).  Another example of
+indirection would be if you entered a couple of basis sets and wanted
+to change the one being used for the SCF calculation.  This input
+specifies two basis sets
 \begin{verbatim}
   basis "trial basis"
     o library sto-3g
@@ -351,9 +364,6 @@ integral evaluation routines may be adjusted in this fashion
 \begin{verbatim}
   set int:cando_sp logical false
 \end{verbatim}
-
-Logical values may be entered as \verb+.true.+, \verb+true+, or
-\verb+t+, and \verb+.false.+, \verb+false+, or \verb+f+.
 
 \subsection{UNSET}
 \label{sec:unset}
