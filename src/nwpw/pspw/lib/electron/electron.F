@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.7 2002-01-16 22:28:24 bylaska Exp $
+* $Id: electron.F,v 1.8 2002-01-28 19:38:00 bylaska Exp $
 *
 
 
@@ -1067,6 +1067,10 @@ c      end do
             call v_lr_local(dbl_mb(r_grid(1)),
      >                      dbl_mb(vl_lr(1)))
          end if
+
+*        **** zero out v_field ****
+         call dcopy(2*nfft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+
 
 *        **** generate QM/MM potential ****
          if (pspw_qmmm_found()) then
