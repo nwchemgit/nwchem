@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.131 2002-06-26 20:43:57 d3j191 Exp $
+c $Id: md_start.F,v 1.132 2002-07-11 03:43:19 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c     -----------------------------------
 c
       if(.not.lqmd) then
       call sp_start(lfntop,filtop,lfnrst,filrst,lfnsyn,filsyn,
-     + nfsync,rshort,rlong,zero,
+     + nfsync,rshort,rlong,zero,rsgm,
      + npx,npy,npz,nbx,nby,nbz,
      + npbtyp,nbxtyp,box,vlat,lpbc,
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
@@ -996,6 +996,8 @@ c
       if(.not.rtdb_get(irtdb,'md:ealpha',mt_dbl,1,ealpha))
      + call errquit('md_rtdbin: rtdb_get failed',133)
       if(.not.rtdb_get(irtdb,'md:rbox',mt_dbl,1,rbox))
+     + call errquit('md_rtdbin: rtdb_get failed',134)
+      if(.not.rtdb_get(irtdb,'md:rsgm',mt_dbl,1,rsgm))
      + call errquit('md_rtdbin: rtdb_get failed',134)
       if(.not.rtdb_get(irtdb,'md:disrlx',mt_dbl,1,disrlx))
      + call errquit('md_rtdbin: rtdb_get failed',135)

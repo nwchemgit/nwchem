@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.66 2002-06-26 21:01:01 d3j191 Exp $
+c $Id: md_input.F,v 1.67 2002-07-11 03:43:19 d3j191 Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
       real*8 rrdf,xfield,xfvect(3),xffreq,weight,rqmmm,dielec,ealpha
       real*8 frgaus,rbox,disrlx,drsscl,eqm,tguide,fguide,rfix,fcoll
-      real*8 tmpext2,tann1,tann2,scaleq
+      real*8 tmpext2,tann1,tann2,scaleq,rsgm
       character*12 afix
 c
       integer i,mtimes,len
@@ -186,6 +186,7 @@ c      iunfix=0
       istart=0
       ncoll=0
       fcoll=1.0d0
+      rsgm=-1.0d0
 c
       server=' '
 c
@@ -285,6 +286,11 @@ c
 c
       if(inp_compare(.false.,'boxmin',item)) then
       if(.not.inp_f(rbox)) call errquit('md_input: error minbox',0)
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'segmentsize',item)) then
+      if(.not.inp_f(rsgm)) call errquit('md_input: error segmentsize',0)
       goto 2
       endif
 c
@@ -1833,6 +1839,8 @@ c
       if(.not.rtdb_put(irtdb,'md:ealpha',mt_dbl,1,ealpha))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:rbox',mt_dbl,1,rbox))
+     + call errquit('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:rsgm',mt_dbl,1,rsgm))
      + call errquit('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:disrlx',mt_dbl,1,disrlx))
      + call errquit('md_input: rtdb_put failed',0)

@@ -1,6 +1,6 @@
       subroutine sp_start(lfntop,filtop,lfnrst,filrst,
      + lsyn,filsyn,nsyn,
-     + rsht,rlng,rinp,
+     + rsht,rlng,rinp,rsgmi,
      + npxi,npyi,npzi,nbxi,nbyi,nbzi,
      + npbt,nbxt,boxt,vlatt,lpbc,
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
@@ -8,7 +8,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl)
 c
 c
-c $Id: sp_init.F,v 1.107 2002-07-09 10:27:38 d3j191 Exp $
+c $Id: sp_init.F,v 1.108 2002-07-11 03:43:22 d3j191 Exp $
 c
       implicit none
 c
@@ -23,7 +23,7 @@ c
       integer lfntop,lfnrst,lsyn,nsyn,ldbg,idbg
       character*255 filtop,filrst,filsyn
       real*8 rsht,rlng,rinp,boxt(3),vlatt(3,3),rtemp(3)
-      real*8 temp,tempw,temps,fld
+      real*8 temp,tempw,temps,fld,rsgmi
       integer itemp(2)
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
@@ -87,6 +87,8 @@ c
 c
       npack=0
       npackw=0
+c
+      rsgm=rsgmi
 c
       call sp_nrnode()
 c
@@ -250,7 +252,7 @@ c
 c
       character*1 cdum
       integer i,j,jdum,ibx,iby,ibz,itemp(10)
-      real*8 rtemp(5)
+      real*8 rtemp(5),rsgmr
 c
       mbbl=0
 c
@@ -270,8 +272,9 @@ c
       read(lfnrst,1007) hist(i)
  1007 format(a80)
     6 continue
-      read(lfnrst,1002) npbtyp,nbxtyp,rsgm
+      read(lfnrst,1002) npbtyp,nbxtyp,rsgmr
  1002 format(2i5,f12.6)
+      if(rsgm.lt.0.0d0) rsgm=rsgmr
       read(lfnrst,1004) ((vlat(i,j),j=1,3),i=1,3)
  1004 format(3f12.6)
       box(1)=vlat(1,1)

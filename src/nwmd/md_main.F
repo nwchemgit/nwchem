@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.139 2002-06-26 21:01:01 d3j191 Exp $
+c $Id: md_main.F,v 1.140 2002-07-11 03:43:19 d3j191 Exp $
 c
       implicit none
 c
@@ -512,8 +512,8 @@ c
 c
       cqrs=' '
       if(frequency(isdit,nfqrs).or.(ldone.and.eqrs.gt.epot)) then
-      write(projct,4000) isdit,0,filnam(1:59)
- 4000 format('em ',i7,' + ',i7,' ',a)
+      write(projct,4000) nserie,isdit,0,filnam(1:56)
+ 4000 format(i2,' em ',i7,' + ',i7,' ',a)
       call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
       eqrs=epot
@@ -1015,8 +1015,8 @@ c
 c
       cqrs=' '
       if(frequency(icgit,nfqrs).or.(ldone.and.eqrs.gt.epot)) then
-      write(projct,4000) msdit,icgit,filnam(1:59)
- 4000 format('em ',i7,' + ',i7,' ',a)
+      write(projct,4000) nserie,msdit,icgit,filnam(1:56)
+ 4000 format(i2,' em ',i7,' + ',i7,' ',a)
       call md_wrtrst(lfnqrs,filqrs,.false.)
       cqrs='*'
       eqrs=ecg1
@@ -1132,8 +1132,9 @@ c
       call timer_start(62)
       mdt=' '
       if(iguide.gt.0) mdt='g'
-      write(projct,4000) mdt,mequi,idacq,tmpext,prsext,filnam(1:41)
- 4000 format('md',a1,i7,' + ',i7,' @',f7.2,e9.2,' ',a)
+      write(projct,4000) nserie,mdt,mequi,idacq,tmpext,prsext,
+     + filnam(1:38)
+ 4000 format(i2,' md',a1,i7,' + ',i7,' @',f7.2,e9.2,' ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       call timer_stop(62)
       if(frequency(mdstep,nftime)) call md_wrtime
@@ -1352,8 +1353,9 @@ c
       endif
       endif
 c
-      write(projct,4000) irun,mrun,mequi,idacq,tmpext,filnam(1:35)
- 4000 format('ti ',i5,'/',i5,' :',i7,'+ ',i7,' @ ',f7.2,' K ',a)
+      write(projct,4000) nserie,irun,mrun,mequi,idacq,tmpext,
+     + filnam(1:32)
+ 4000 format(i2,' ti ',i5,'/',i5,' :',i7,'+ ',i7,' @ ',f7.2,' K ',a)
       if(frequency(mdstep,nfrest)) call md_wrtrst(lfnrst,filrst,.true.)
       if(frequency(mdstep,nftime)) call md_wrtime
 c
@@ -2470,7 +2472,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.139 2002-06-26 21:01:01 d3j191 Exp $
+c $Id: md_main.F,v 1.140 2002-07-11 03:43:19 d3j191 Exp $
 c
       implicit none
 c
