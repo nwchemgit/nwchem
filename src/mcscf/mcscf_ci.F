@@ -41,7 +41,9 @@ c
       integer nela, nelb, nactel, multip, symstate
       integer actsym(detci_maxorb), actmap(detci_maxorb)
       integer actrmap(detci_maxorb)
-      integer guess_cfg(12)
+      integer guess_cfg(detci_maxelec_tot)
+      integer itmp(detci_maxelec_tot)
+      integer nguesscfg
       double precision guess_coeff(6)
       double precision ciener, citol
       double precision acteps(detci_maxorb)
@@ -110,7 +112,7 @@ c
         enddo
       enddo
 c
-c$$$      MAXITER = 1                      ! The following removes 
+C      MAXITER = 2                      ! The following removes 
 c$$$      SYMSTATE = 1                     ! symmetry mapping
 c$$$      NSYM = 1
 c$$$      DO I=1,NACT
@@ -120,13 +122,6 @@ c$$$        ACTRMAP(I) = I
 c$$$        ACTEPS(I) = EPS(NCLOSED+I)
 c$$$      ENDDO
 c
-c
-c$$$      if (ga_nodeid().eq.0) then
-c$$$        write(6,771) 'Orb map',(actmap(i),i=1,nact)
-c$$$        write(6,771) 'Orb rev map',(actrmap(i),i=1,nact)
-c$$$        write(6,771) 'Orb symm',(actsym(i),i=1,nact)
-c$$$ 771    format(a20,5x,10i3)
-c$$$      endif
 c
 c
       call detci_ijmap( nact, nsym, actsym, mul, ntij, ijmap )
@@ -166,16 +161,27 @@ c
 c   Guess CI vector for first time thru
 c   Can manually set the guess config. in the database
 c   otherwise generate guess via Aufbau rules with correct
-c   symmetry
+c   symmetry. Automatic
 c
       inquire(file=civec_in,exist=civec_saved)
       if ((hasprint.le.1).or.(.not.(civec_saved))) then
-        guess_coeff(1) = 1.d0
-        if (.not.rtdb_get(rtdb,'mcscf:guess',MT_INT,
-     $    (nela+nelb),guess_cfg))
-     $    call detci_guesscfg( nact, nsym, nela, nelb, actsym, mul,
+        if (rtdb_get(rtdb,'mcscf:guess',MT_INT,(nela+nelb),itmp)) then
+          do i=1,(nela+nelb)
+            guess_cfg(i) = actrmap(itmp(i))
+          enddo
+          call util_isort( nela, guess_cfg )
+          call util_isort( nelb, guess_cfg(nela+1) )
+        else
+          call detci_guesscfg( nact, nsym, nela, nelb, actsym, mul,
      $                         acteps, symstate, guess_cfg )
-        call detci_guess( 1, guess_cfg, guess_coeff, g_civec )
+        endif
+        nguesscfg = 1
+        guess_coeff(1) = 1.d0
+        call detci_guess( nguesscfg, guess_cfg, guess_coeff,
+     $                    g_civec, g_wvec(1) )
+        if (ga_nodeid().eq.0) write(6,222)
+ 222    format(/,'Spin-adapted guess vector')
+        call detci_print(g_civec,1.d-2)
       else
         if (.not.(file_read_ga(civec_in,g_civec)))
      $    call errquit('mcscf_ci: cannot read CI vector',0)

@@ -546,7 +546,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.6 1996-02-22 10:37:24 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.7 1996-03-01 01:53:59 rg240 Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -637,7 +637,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.6 1996-02-22 10:37:24 rg240 Exp $
+c  $Id: mcscf_aux.F,v 1.7 1996-03-01 01:53:59 rg240 Exp $
 c
 c Generate the High-spin ROHF 1-PDM & 2-PDM for 
 c partially occupied orbitals (trivially)
@@ -928,6 +928,34 @@ c
       do i=1,nsym
         do j=1,nsym
           mul(j,i) = table(j,i)
+        enddo
+      enddo
+      return
+      end
+
+
+
+
+
+
+
+
+c
+c  Sort integer array
+c
+      subroutine util_isort( n, iv )
+      implicit none
+      integer n
+      integer iv(n)
+      integer i, j, itmp
+
+      do i=1,n
+        do j=1,n-1
+          if (iv(j).gt.iv(j+1)) then
+            itmp    = iv(j)
+            iv(j)   = iv(j+1)
+            iv(j+1) = itmp
+          endif
         enddo
       enddo
       return

@@ -631,6 +631,7 @@ c
 c
        integer nactel
        integer nelec
+       character*255 stsym
        double precision charge
        double precision nuclear_charge
 c
@@ -669,10 +670,16 @@ c  **** Have to correctly determine number of active from MCSCF input ****
 c
        if (.not. rtdb_get(rtdb, 'mcscf:nact', MT_INT, 1, nact))
      $    call errquit('mcscf:no active orbitals',0)
-       if (nact .gt. nelec) call errquit('mcscf: nact>nelec ', nact)
        if (.not. rtdb_get(rtdb, 'mcscf:nactelec', MT_INT, 1, nactel))
      $    call errquit('mcscf:no active electrons',0)
+       if (nactel.gt.(2*nact))
+     $    call errquit('mcscf: actel > 2*actorb',nactel)
        nclosed = (nelec-nactel) / 2
+c
+c  Reconcile symmetry info
+c
+       if (.not.rtdb_cget(rtdb, 'mcscf:statesymmlabel', 1, stsym))
+     $   stsym = 'a'
 
        return
        end

@@ -46,17 +46,16 @@ c
 c
 c  Now loop over all spin quantum numbers, T.ne.S
 c 
-C$$$      CALL DETCI_PRINT(CIVEC,1.D-2)
       do tt=ssmax,0,-2
         if (tt.ne.ss) then
           call detci_lowdinproj( norb, nsym, nela, nelb, nstra, nstrb,
      $                         mul, osym, ataba, atabb, nexa, nexb,
      $                         exa, exb, ss, tt, g_civec, g_pvec )
-c$$$          call dcopy((nstra*nstrb),pvec,1,civec,1)
           call ga_copy(g_pvec,g_civec)
+c$$$          PRINT*,' TT = ',TT
+c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
         endif
       enddo
-C$$$      CALL DETCI_PRINT(CIVEC,1.D-2)
       return
       end
 
@@ -164,8 +163,6 @@ c
           jstra = eij(iib,jjb)
           xx = -xxci*pij(iib,jjb)*exb(4,iex,istrb)
           call ga_acc(g_pvec,jstrb,jstrb,jstra,jstra,xx,1,1.d0)
-c$$$          pvec(jstrb,jstra) = pvec(jstrb,jstra) -
-c$$$     $                civec(istrb,istra)*pij(iib,jjb)*exb(4,iex,istrb)
         endif
       enddo
 c
@@ -180,7 +177,6 @@ c  Trivial components  -(n  - n )  +  -(n - n ) - s(s + 1)
 c                      4  a    b      2  a   b
 c
       fac = 0.25d0*(nela - nelb)**2 + 0.5d0*(nela + nelb) - s*(s+1)
-c$$$      call daxpy((nstra*nstrb),fac,civec,1,pvec,1)
       call ga_dadd( fac, g_civec, 1.d0, g_pvec, g_pvec )
 c
 c  Denominator         1
@@ -188,7 +184,6 @@ c               ---------------
 c               k(k+1) - s(s+1)
 c
       fac = 1.d0/(k*(k+1) - s*(s+1))
-c$$$      call dscal((nstra*nstrb),fac,pvec,1)
       call ga_dscal(g_pvec,fac)
 c
 c

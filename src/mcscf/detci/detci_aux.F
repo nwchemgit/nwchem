@@ -1,4 +1,5 @@
 
+
 c
 c
 c   Generates vertex and arc tables for 
@@ -772,7 +773,6 @@ c
 c
 c Loop over pairs of alpha,beta strings = CI index
 c
-
       if (ga_nodeid().eq.0) write(6,909)
  909  format(/3x,'Index',11x,'Coefficient',10x,'Config. Occupation')
       do i=1,nela
@@ -789,7 +789,7 @@ c
       jstr = detci_elv2str( norb, nelb, nsym, osym, mul, atabb, elvb )
       ici = (istr-1)*nstrb + jstr
       call ga_get(g_x,jstr,jstr,istr,istr,xx,1)
-      if (abs(xx).ge.thresh) then
+      if (abs(xx).ge.thresh) then 
         if (ga_nodeid().eq.0) write(6,901) ici,xx,(elva(i),i=1,nela),
      $                                            (elvb(i),i=1,nelb)
 c$$$      if (abs(c(jstr,istr)).ge.thresh)
@@ -937,9 +937,9 @@ c  for given symmetry
 c
       subroutine detci_guesscfg( norb, nsym, nela, nelb,
      $                           osym, mul, eps, symstate, cfg )
+      implicit none
 #include "detci.fh"
 #include "detciP.fh"
-      implicit none
       integer norb
       integer nsym
       integer nela, nelb
@@ -971,7 +971,6 @@ c
       enddo
 c
 c  Doubly occupy lowest nelb orbitals 
-c  -- indices must be in ascending order
 c
       call ifill((nela+nelb),0,cfg,1)
       jj = 0
@@ -1016,25 +1015,8 @@ c
 c
 c  Sort config by ascending indices
 c
-      jj = 0
-      do i=1,nela
-        jx(i) = norb+1
-        do j=1,nela
-          if ((cfg(j).lt.jx(i)).and.(cfg(j).gt.jj)) jx(i) = cfg(j)
-        enddo
-        jj = jx(i)
-      enddo
-      call icopy(nela,jx,1,cfg,1)
-      call icopy(nelb,cfg(nela+1),1,kx,1)
-      jj = 0
-      do i=1,nelb
-        jx(i) = norb+1
-        do j=1,nelb
-          if ((kx(j).lt.jx(i)).and.(kx(j).gt.jj)) jx(i) = kx(j)
-        enddo
-        jj = jx(i)
-      enddo
-      call icopy(nelb,jx,1,cfg(nela+1),1)
+      call util_isort(nela,cfg)
+      call util_isort(nelb,cfg(nela+1))
 
       return
       end
@@ -1069,16 +1051,12 @@ c
       integer cfggs((nela+nelb),ngs)          ! [input] Configurations
       double precision cgs(ngs)               ! [input] Coefficients
       integer g_civec                         ! [output] GA CI-vector
-C      double precision civec(nstrb,nstra)     ! [output] GA CI-vector
-c
-c
 c
       integer astr, bstr, i, j
       integer elva(detci_maxelec), elvb(detci_maxelec)
       double precision xx
       double precision dnrm2
       external dnrm2
-c
 c
 c
       call ga_zero(g_civec)

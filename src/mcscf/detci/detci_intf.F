@@ -91,7 +91,7 @@ c  Toggle spin-adaption
 c  Need some way of automatically turning this on and off 
 c  depending requested spin-state
 c
-      cdetci_spinadapt = .false.
+      cdetci_spinadapt = .true.
       cdetci_squant = (nela - nelb)/2.d0
 c     
 c  Info print
@@ -356,7 +356,7 @@ c
 
 
 
-      subroutine detci_guess( ngs, cfggs, cgs, g_civec )
+      subroutine detci_guess( ngs, cfggs, cgs, g_civec, g_workvec )
       implicit none
 c
 #include "detciP.fh"
@@ -367,9 +367,11 @@ c
       integer cfggs(*)
       double precision cgs(ngs)
       integer g_civec
+      integer g_workvec
 c
       integer nstra
       integer nstrb
+      double precision mxcnt
 c
 c
 c     
@@ -384,6 +386,24 @@ c
      $                    cdetci_nelb, nstra, nstrb, cdetci_osym,
      $                    cdetci_mul, cdetci_ataba, cdetci_atabb,
      $                    ngs, cfggs, cgs, g_civec )
+c
+c
+c
+      if (cdetci_spinadapt) then
+        call detci_spinadapt( g_civec, g_workvec )
+      endif
+c
+c
+c
+      if (cdetci_nsym.gt.1) then
+        call detci_symmproject( cdetci_norb, cdetci_nsym,
+     $                          cdetci_nela, cdetci_nelb, nstra,
+     $                          nstrb, cdetci_osym, cdetci_mul,
+     $                          cdetci_ataba, cdetci_atabb,
+     $                          cdetci_symstate, .true.,
+     $                          mxcnt, g_civec )
+      endif
+
 c
 c
 c
@@ -501,6 +521,7 @@ c
       ty = util_cpusec()
       detci_sab_etime = detci_sab_etime + ty - tz
       detci_sigma_etime = detci_sigma_etime + ty - tx
+
       return
       end
 
@@ -535,17 +556,6 @@ c
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
 c
-c  First spin-adapt the vector
-c
-      if (cdetci_spinadapt) then
-C        CALL DETCI_RANDOM_ERROR( G_CIVEC )       ! INTRODUCE CONTAMINATION TO DEBUG
-        xx = sqrt( ga_ddot( g_civec, g_civec ) )
-        call detci_spinadapt( g_civec, g_workvec )
-        yy = sqrt( ga_ddot( g_civec, g_civec ) )
-c$$$        WRITE(6,988) (1.d0 - YY/XX)
-c$$$ 988    FORMAT('Spin contamination:',E12.3)
-      endif
-c
 c  Apply preconditioning using orbital 
 c  energies (Moller-Plesset denominators)
 c
@@ -554,8 +564,27 @@ c
      $                      cdetci_mul, cdetci_ataba, cdetci_atabb,
      $                      cdetci_eref, cdetci_eps, g_civec )
 c
+c  Spin-adapt the vector
+c
+      if (cdetci_spinadapt) then
+c$$$        PRINT*,'=== ENTRY VECTOR ==='
+c$$$        CALL DETCI_PRINT(G_CIVEC,1.D-3)
+CCCCC        CALL DETCI_RANDOM_ERROR( G_CIVEC )       ! INTRODUCE CONTAMINATION TO DEBUG
+c$$$        XX = SQRT( GA_DDOT( G_CIVEC, G_CIVEC ) )
+
+        call detci_spinadapt( g_civec, g_workvec )
+
+c$$$        YY = SQRT( GA_DDOT( G_CIVEC, G_CIVEC ) )
+c$$$        WRITE(6,988) (1.d0 - YY/XX)
+c$$$ 988    FORMAT('Spin contamination:',E12.3)
+c$$$        PRINT*,'=== AFTER SPIN ADAPT ==='
+c$$$        CALL DETCI_PRINT(G_CIVEC,1.D-3)
+      endif
+c
 c  Ensure vector is symmetry-adapted
 c
+c$$$      PRINT*,'=== AFTER PRECON ==='
+c$$$      CALL DETCI_PRINT(G_CIVEC,1.D-3)
       if (cdetci_nsym.gt.1) then
         call detci_symmproject( cdetci_norb, cdetci_nsym,
      $                          cdetci_nela, cdetci_nelb, nstra,
@@ -564,6 +593,9 @@ c
      $                          cdetci_symstate, .true.,
      $                          mxcnt, g_civec )
       endif
+
+c$$$      PRINT*,'=== AFTER SYMMPROJ ==='
+c$$$      CALL DETCI_PRINT(G_CIVEC,1.D-3)
 
       return
       end
@@ -726,7 +758,7 @@ c
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
 c
-c  
+c
 c
       call detci_spadpt( cdetci_norb, cdetci_nsym, cdetci_nela,
      $                   cdetci_nelb, nstra, nstrb, cdetci_mul,
