@@ -1,6 +1,8 @@
 #!/bin/csh 
 # 
-# $Id: Fixinclude,v 1.1 1995-05-06 00:25:43 d3e129 Exp $
+# $Id: Fixinclude,v 1.2 1995-12-09 00:25:30 d3g681 Exp $
+#
+# ! RJH ... this utility should no longer be necessary (10/95)
 #
 # this utility should safley find all files with 
 # a particular include file and set things up for 
