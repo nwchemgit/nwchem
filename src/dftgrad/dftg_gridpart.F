@@ -3,7 +3,7 @@
      ,      whichfunc,
      ,     rad,expo)
 c
-C$Id: dftg_gridpart.F,v 1.3 2003-10-17 22:54:42 carlfahl Exp $
+C$Id: dftg_gridpart.F,v 1.4 2004-01-23 02:32:40 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -69,7 +69,8 @@ c
          if(trunc_neigh)
      .        call grid_signf(AO_bas_han,   natoms_l, 
      &        xyz,xyzm,ictr_scr,
-     &        rad, expo, iandex,iatype_pt_chg)
+     &        rad, expo, iandex,iatype_pt_chg,
+     &        nqpts,qwght)
          call dftg_gridssw(.true.,d_qwght,qwght, qxyz, xyzm, 
      .        dbl_mb(k_Rij),  rq, dbl_mb(ibp),
      &        dbl_mb(izeta), dbl_mb(idzeta),

@@ -1,7 +1,7 @@
       subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad)
 c
-c$Id: grid_setspac.F,v 1.14 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_setspac.F,v 1.15 2004-01-23 02:32:38 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -65,8 +65,8 @@ c
          if(trunc_neigh)
      .        call grid_signf(AO_bas_han,  ncenters_scr, 
      &        xyz,dbl_mb(ixyzm),ictr_scr,
-     &        rad, expo, int_mb(k_indx),iatype_pt_chg)
-!     &        rad, expo, int_mb(iscr),iatype_pt_chg,int_mb(k_indx))
+     &        rad, expo, int_mb(k_indx),iatype_pt_chg,
+     &        nq,xyzw)
        if(whichssw.eq.'erf1') then
          call grid_ssw(xyzw, dbl_mb(ixyzm), rij,rq, 
      &        p, ictr_scr, ncenters_scr, nq,

@@ -1,8 +1,9 @@
       subroutine grid_signf(basis,  mcenters, 
      &                      xyz,xyzm,ctr_quad, rad_quad,
-     &                       zprim, iandex,iatype_pt_chg)
+     &                       zprim, iandex,iatype_pt_chg,
+     &     nq,xyzw)
 c
-C$Id: grid_signf.F,v 1.6 2003-10-17 22:55:37 carlfahl Exp $
+C$Id: grid_signf.F,v 1.7 2004-01-23 02:32:38 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -15,6 +16,8 @@ c
       double precision rad_quad ! [input]
       logical iatype_pt_chg(*) ! [input]
       integer iandex(*) ! [scratch]
+      double precision xyzw(4,*)
+      integer nq
     
 c
 #include "bas.fh"
@@ -28,7 +31,10 @@ c
       integer mcenters_scr,ctr_out
       integer ic1,ic2,dum
       integer n,l
-      double precision alpha,logeps
+c
+      logical qpts_in
+c
+      double precision alpha,logeps,bfspread
       double precision gaussian_range
       gaussian_range(n,logeps,alpha) = 
      $     (n*log(-logeps) - n*log(alpha) - 4.0d0*logeps) /
@@ -63,23 +69,22 @@ c
         z = xyz(3,ctr_quad) - xyz(3,ictr)
         r2 = sqrt(x*x + y*y + z*z)
         r_arg=0d0
-c        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)**2
         if (rad_quad.lt.r2) r_arg = (r2-rad_quad)
         do icset = ic1,ic2
 c         
 c       get info about current contraction set
 c       
         if (.not. bas_cn2bfr(basis, icset, ifirst, ilast))
-     &       call errquit('Exiting in xc_signf.',4, BASIS_ERR)
+     &       call errquit('Exiting in grid_signf.',4, BASIS_ERR)
             if (.not. bas_continfo(basis, icset,  l ,nprim,
      &                             dum, dum))
-     &       call errquit('Exiting in xc_signf.',4, BASIS_ERR)
+     &       call errquit('Exiting in grid_signf.',4, BASIS_ERR)
 c       
 c       
 c       get exponents and contraction coefficients for this contraction set
 c       
         if (.not.bas_get_exponent(basis, icset, zprim))
-     &       call errquit('Exiting in xc_signf.',7, BASIS_ERR)
+     &       call errquit('Exiting in grid_signf.',7, BASIS_ERR)
 c       
 c       Determine the minimum Gaussian exponent.
 c       
@@ -92,12 +97,22 @@ c
 c       Only include those basis functions that are "non-zero" for at least 
 c       one  point in the sampling set.
 c       
-c        if (zmin*r_arg.lt.acc_sigf) then
-        if (r_arg.lt.gaussian_range(l,acc_sigf,zmin)) then
-          mcenters_scr=mcenters_scr+1
-          iandex(mcenters_scr)=ictr
-          goto 2001
-        else
+           bfspread=gaussian_range(l,acc_sigf,zmin)
+        if (r_arg.lt.bfspread) then
+c
+c     check if all grid pts are really in the bf spread
+c
+           do iprimo=1,nq
+              x = xyzw(1,iprimo) - xyz(1,ictr)
+              y = xyzw(2,iprimo) - xyz(2,ictr)
+              z = xyzw(3,iprimo) - xyz(3,ictr)
+              r2 = sqrt(x*x + y*y + z*z)
+              if (r2.lt.gaussian_range(l,acc_sigf,zmin)) then
+                 mcenters_scr=mcenters_scr+1
+                 iandex(mcenters_scr)=ictr
+                 goto 2001
+              endif
+           enddo
         endif
 
       enddo
