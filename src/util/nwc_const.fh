@@ -1,5 +1,5 @@
 *
-* $Id: nwc_const.fh,v 1.5 2000-06-08 23:20:20 d3g681 Exp $
+* $Id: nwc_const.fh,v 1.6 2003-01-30 01:18:47 bert Exp $
 *
 * These constants are used to control some fixed dimensions within nwchem
 * Developers should strive to dynamically allocate memory for arrays and 
@@ -26,7 +26,7 @@
 * Maximum number of geometry objects
 *
       integer nw_max_geoms
-      parameter (nw_max_geoms = 4)
+      parameter (nw_max_geoms = 5)
 *------------------------------------------------------------------------------
 * Maximum number of QM atoms
 *
