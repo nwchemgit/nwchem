@@ -1,0 +1,215 @@
+<HTML>
+  
+<HEAD>
+<TITLE>Notes on running NWChem on workstations and clusters</TITLE>
+  </HEAD>
+  
+<BODY BGCOLOR="FAEBD7">
+<P><IMG SRC="/msrc/home/d3g681/html/nwchem/nwchem_logo.gif" ALT="NWChem - computational chemistry on parallel computers"> 
+ </P>
+	<HR>
+	  
+<H1>Notes on running NWChem on workstations and clusters</H1>
+
+ <P>Since these notes are generic to most workstations, it is impossible
+to be completely specific about the locations of files, etc.  You will
+want to know where the nwchem and parallel executables reside.  You
+may want to add this location to your shell's executable search path.
+
+ <P>You may need to be aware of where the code expects to find the
+standard basis set library.  The location is fixed at compile time and
+should have been set to something appropriate for your site.  Without
+any special configuration, NWChem will look for the standard library
+in the source directory tree.  This means that moving the source tree
+may confuse an existing executable.  For most installations, however,
+we are configuring the library to live in the same directory as the
+nwchem and parallel executables.  Should you run into problems in
+which NWChem cannot locate the standard basis library, you can easily
+work around it by using the "<TT>file</TT>" option on the basis set
+entry for each library basis set you need.
+
+ <P>Since workstations vary widely in how much memory is available, the
+defaults may not be appropriate to your situation.  It is advisable to
+check the defaults given in the manual and if necessary adjust them in
+the input deck.  Remember that the memory specification is per
+process, so if you set the limit to 32 MB and run four processes on
+the machine, you'll use 128 MB in total.
+
+<H2>Single process</H2>
+
+ <P>Single process execution is easy -- just invoke nwchem with the name
+of the input file as an argument: "<TT>nwchem input.nw</TT>".
+
+<H2>The "<TT>parallel</TT>" command for multiprocess execution</H2>
+
+ <P>The "<TT>parallel</TT>" command is part of the TCGMSG (message
+passing) package, which NWChem uses to run jobs in parallel. The
+following description is largely cribbed from the TCGMSG README file
+(which can be found in the NWChem source tree).  Explanations specific
+to NWChem follow it.
+
+ <P> An auxiliary "process group" (aka PROCGRP) file controls the
+parallel execution.  It is usually named with a "<TT>.p</TT>" suffix.
+The PROCGRP file can contain multiple lines, and comments are denoted
+by a "#" sign.  Non-comment lines consist of the following fields,
+separated by white space:
+<PRE>
+      <userid>  <hostname>  <nslave>  <executable>  <workdir>
+
+  userid     The username on the machine that will be executing the
+             process. 
+
+  hostname   The hostname of the machine to execute this process.
+             If it is the same machine on which parallel was invoked
+             the name must match the value returned by the command 
+             hostname. If a remote machine it must allow remote execution
+             from this machine (see man pages for rlogin, rsh).
+
+  nslave     The total number of copies of this process to be executing
+             on the specified machine. Only 'clusters' of identical processes
+             specified in this fashion can use shared memory to communicate.
+             If no shared memory is supported on machine <hostname> then
+             only the value one (1) is valid (e.g. on the Cray).
+
+  executable Full path name on the host <hostname> of the image to execute.
+             If <hostname> is the local machine then a local path will
+             suffice.
+
+  workdir    Full path name on the host <hostname> of the directory to
+             work in. Processes execute a chdir() to this directory before
+             returning from pbegin(). If specified as a '.' then remote
+             processes will use the login directory on that machine and local
+             processes (relative to where parallel was invoked) will use
+             the current directory of parallel.
+
+</PRE>
+  e.g.
+<PRE>
+  harrison boys      3  /home/harrison/c/ipc/testf.x  /tmp      # my sun 4
+  harrison dirac     3  /home/harrison/c/ipc/testf.x  /tmp      # ron's sun4
+  harrison eyring    8  /usr5/harrison/c/ipc/testf.x  /scratch  # alliant fx/8
+</PRE>
+
+ <P> The above PROCGRP file would put processes 0-2 on boys (executing
+<TT>testf.x</TT> in <TT>/tmp</TT>), 3-5 on dirac (executing
+<TT>testf.x</TT> in <TT>/tmp</TT>) and 6-13 on eyring (executing
+<TT>testf.x</TT> in <TT>/scratch</TT>). Processes on each machine use
+shared memory to communicate with each other, sockets otherwise.
+
+ <P>To run NWChem using the parallel command, the comand line is
+"<TT>parallel procgrp input.nw</TT>". The first argument of
+<TT>parallel</TT> is the name of the PROCGRP file.  <TT>Parallel</TT>
+automatically adds a "<TT>.p</TT>" to the end, so in this case it
+would look for a file named "<TT>procgrp.p</TT>".  A common convention
+is to name the PROCGRP file "<TT>nwchem.p</TT>", but remember the
+actual executable to be invoked is specified within the PROCGRP file,
+not on the parallel command line.  Remaining arguments to
+<TT>parallel</TT> are passed to the program being invoked, so we give
+then NWChem input deck "<TT>input.nw</TT>".
+
+ <P>Execution on remote workstations is initiated using
+<TT>rsh/rexec</TT> protocol. Users must have remote execution
+privileges enabled for <TT>parallel</TT> to work, this requires that
+the master workstation hostname appears in the slave's <TT>.rhosts</TT> files
+(see the man page, <TT>rsh(1)</TT>).
+
+<H3>Multiple processes -- single machine</H3>
+
+ <P>If you have a multiprocessor workstation, you can run multiple
+processes using the shared memory regions.  In this case, your PROCGRP
+file would have a single (non-comment) line with <TT><nslave></TT> indicating
+the number of processes you want to run.  For example
+<PRE>
+  gg502	bohr	12	/disk1/gg502/hpcci/nwchem .
+</PRE>
+which would run twelve processes of nwchem working in the current
+directory ("<TT>.</TT>" in Unix shorthand).
+
+<H3>Clustered workstations</H3>
+
+ <P>In this case, your PROCGRP file will have multiple lines,
+generally one for each machine in your cluster.  You must be able to
+<TT>rsh</TT> to each username/host you specify.  Processes on
+different lines communicate via TCP/IP sockets.  It is also possible
+to run multiple processes on individual nodes in a cluster.  In this
+case, processes sharing a single host communicate internally by shared
+memmory and with processes on other machines via sockets.
+
+ <P>The Global Array Toolkit sets up a process on each node in the
+cluster to act as a data server to facilitate answering off-processor
+requests for data.  Consequently, the number of <TT><nslave></TT>
+specified on each line must be ONE MORE than the number of compute
+processes you want.  For example,
+<PRE>
+  gg502	bohr	8	/disk1/gg502/hpcci/nwchem /disk1/gg502/wrk
+  gg502	coho	4	/scr/gg502/hpcci/nwchem /scr/gg502/wrk
+</PRE>
+would start 7 compute processes on bohr and 3 on coho, along with one
+data server on each for a total of twelve processes.
+
+<H2>Common problems</H2>
+
+ <P>When running in parallel on workstations, NWChem uses shared memory
+and may use semaphores.  If the run terminates abnormally (errors not
+trapped by the code itself, interrupted by the user, etc.) it may not
+release these resources back to the system.  These are global
+resources, and it is possible for you and/or other users to exhaust
+them.
+
+ <P>To see if you have any of these resources allocated, use the command
+"<TT>ipcs</TT>".  You will see a table subdivieded into "Message Queues",
+"Shared Memory" and "Semaphores".  The second column lists an id
+number which you can use to remove your claim on them with the "ipcrm"
+command.  For example user gg502 would deallocate his resources described
+by the output of the <TT>ipcs</TT> command
+<PRE>
+IPC status from fermi as of Wed Aug  9 15:50:32 1995
+T     ID     KEY        MODE       OWNER    GROUP
+Message Queues:
+Shared Memory:
+m    600 0x00000000 --rw-rw-rw-   d3g681      101
+m   1302 0x00000000 --rw-------    gg502      101
+m    903 0x00000000 --rw-------    gg502      101
+m   1104 0x00000000 --rw-------    gg502      101
+m    306 0x00000000 --rw-------    gg502      101
+m    107 0x00000000 --rw-------    gg502      101
+m      9 0x00000000 --rw-------    gg502      101
+Semaphores:
+s    131 0x00000000 --ra-------    gg502      101
+s     92 0x00000000 --ra-------    gg502      101
+s    113 0x00000000 --ra-------    gg502      101
+s     35 0x00000000 --ra-------    gg502      101
+</PRE>
+by using the command 
+<PRE>
+"ipcrm -m 1302 -m 903 -m 1104 -m 306 -m 107 -m 9 -s 131 -s 92 -s 113 -s 35"
+</PRE>
+A script (<TT>ipcreset</TT>) to simplify this procedure is provided by TCGMSG (see its README file).
+
+ <P> You will not be able to remove someoneelse's resources unless you
+have sufficient privilige (i.e. root access).
+
+<H2>Caveats</H2>
+
+ <P>Note that running multiple processes on a single processor machine is
+only useful for debugging purposes.  You'll get faster turn around
+with production jobs by running them as a single process if you have
+only one processor available.
+
+ <P>Running multiple processes on a single machine via a multi-line
+PROCGRP file (forcing them to communicate over sockets) is likewise
+less efficient than using the shared memory facilities with a one-line
+PROCGRP file specifying the desired number of <TT><nslave></TT>s.
+
+ <P>Heterogeneous clusters (where all nodes are not the same type of
+hardware) are not generally supported by the current release of the
+Global Array Toolkit, and consequently by NWChem.  If all machines
+involved use the same representation for data (big vs little endian,
+IEEE or other floating point, etc.) it will probably work, but
+otherwise it will not.
+
+<HR>
+
+<ADDRESS>Prepared by RJ Harrison: Email: nwchem-support@emsl.pnl.gov.</ADDRESS>
+
+</BODY></HTML>
