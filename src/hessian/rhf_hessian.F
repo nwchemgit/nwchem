@@ -1,6 +1,6 @@
 c**********************************************************************
 c     sunbroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.14 1997-08-15 04:49:05 mdupuis Exp $
+c $Id: rhf_hessian.F,v 1.15 1998-06-05 16:55:22 d3j191 Exp $
 c**********************************************************************
       subroutine hnd_der_init(geom,basis)
       implicit double precision (a-h,o-z)
@@ -2752,6 +2752,7 @@ C
       DATA PT5    /0.5D+00/
       DATA ONE    /1.0D+00/
       DATA TWO    /2.0D+00/
+#include "global.fh"
 C
       OUT =.FALSE.
       SOME=.FALSE.
