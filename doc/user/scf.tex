@@ -1236,6 +1236,30 @@ The default options correspond to
   level pcg 20 0.5 0 nr 0 0 0
 \end{verbatim}
 
+\section{Orbtial Localization}
+
+The SCF module includes an {\em experimental} implementation of
+orbital localization, including Foster-Boys and Pipek-Mezey which only
+works for closed-shell (RHF) wavefunctions. There is currently no
+input in the SCF block to control this so the \verb+SET+ directive
+(Section \ref{sec:set}) must be used.
+
+The directive
+\begin{verbatim}
+  set scf:localize t
+\end{verbatim}
+will separately localize the core, valence, and virtual orbital spaces
+using the Pipek-Mezey algorithm.  If the additional directive
+\begin{verbatim}
+  set scf:loctype FB
+\end{verbatim}
+is included, then the Foster-boys algorithm is used.  The partitioning
+of core-orbitals is performed using the atomic information described
+in Section \ref{mp2:core}.
+
+In the next release, this functionality will be extended to included all
+wavefunctions using molecular orbitals.
+
 
 \section{Printing Information from the SCF Module}
 \label{sec:scfprint}
