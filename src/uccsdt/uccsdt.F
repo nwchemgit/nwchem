@@ -544,7 +544,8 @@ c     $     int_bcik(5000),
 c     $     int_acik(5000)
 c     
 c      double precision int_buf(5000), t_buf(5000), w(100000)
-      double precision tmpr(20*20*20*20)
+      double precision tmpr(50*20*20)
+      double precision tmpx(20*20*20*20)
       integer btop, ctop, ktop, vlo, vhi, olo, ohi,
      $        vlo_ck, vhi_ck, olo_ck, ohi_ck
       integer lentbuf, l_tbuf, k_tbuf
@@ -619,6 +620,11 @@ c
       nproc = ga_nnodes()
       next = nxtval(nproc)
       count = 0
+c
+c     temp dfill
+c
+c      call dfill(50*20*20, 1.0d0, tmpr, 1)
+c      call dfill(20*20*20*20, 1.0d0, tmpx, 1)
 c     
       if (oprint) write(6,*)'TSB:spin, spinck: ', spin, spinck
       do ablk = nablock, 1, -1
@@ -711,14 +717,13 @@ c
                                  call uccsdt_triples_get_list(1, 1, 
      $                                kblk, ablk, bblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_ecji_int_ekab
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf),
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zcji_zkab
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               endif
 c     
                               spine = spin
@@ -734,14 +739,13 @@ c
                                  call uccsdt_triples_get_list(1, 1,
      $                                iblk, ablk, bblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_ecjk_int_eiab
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zcjk_ziab
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spine = spin
@@ -757,14 +761,13 @@ c
                                  call uccsdt_triples_get_list(1, 1,
      $                                jblk, ablk, bblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_ecik_int_ejab
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zcik_zjab
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spine = spin
@@ -780,14 +783,13 @@ c
                                  call uccsdt_triples_get_list(3, 1,
      $                                kblk, bblk, cblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_eaji_int_ekbc
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zaji_zkbc
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spine = spin
@@ -803,14 +805,13 @@ c
                                  call uccsdt_triples_get_list(2, 1,
      $                                kblk, ablk, cblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_ebji_int_ekac
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zbji_zkac
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spine = spinck
@@ -826,14 +827,13 @@ c
                                  call uccsdt_triples_get_list(5, 1,
      $                                iblk, cblk, bblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_eakj_int_eicb
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck, tmpr)
+                                 call w_zakj_zicb
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spine = spinck
@@ -849,14 +849,13 @@ c
                                  call uccsdt_triples_get_list(4, 1,
      $                                iblk, cblk, ablk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_ebkj_int_eica
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zbkj_zica
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spine = spinck
@@ -872,14 +871,13 @@ c
                                  call uccsdt_triples_get_list(5, 1,
      $                                jblk, cblk, bblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_eaki_int_ejcb
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zaki_zjcb
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spine = spinck
@@ -895,14 +893,13 @@ c
                                  call uccsdt_triples_get_list(4, 1,
      $                                jblk, cblk, ablk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_ebki_int_ejca
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi, elo, ehi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi,
-     $                                spin, spinck)
+                                 call w_zbki_zjca
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_tbuf), dbl_mb(k_ibuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                elo, ehi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spinm = spin
@@ -919,14 +916,13 @@ c
                                  call uccsdt_triples_get_list(6, 1,
      $                                cblk, jblk, iblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mkab_int_mcji
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zcji_zkab
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spinm = spin
@@ -942,14 +938,13 @@ c
                                  call uccsdt_triples_get_list(6, 1,
      $                                cblk, jblk, kblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_miab_int_mcjk
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zcjk_ziab
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spinm = spin
@@ -965,14 +960,13 @@ c
                                  call uccsdt_triples_get_list(6, 1,
      $                                cblk, iblk, kblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mjab_int_mcik
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zcik_zjab
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spinm = spin
@@ -988,14 +982,13 @@ c
                                  call uccsdt_triples_get_list(7, 1,
      $                                ablk, jblk, iblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mkbc_int_maji
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zaji_zkbc
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spinm = spin
@@ -1011,14 +1004,13 @@ c
                                  call uccsdt_triples_get_list(8, 1,
      $                                bblk, jblk, iblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mkac_int_mbji
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zbji_zkac
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spinm = spinck
@@ -1034,14 +1026,13 @@ c
                                  call uccsdt_triples_get_list(9, 1,
      $                                ablk, kblk, jblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_micb_int_makj
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zakj_zicb
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               spinm = spinck
@@ -1057,14 +1048,13 @@ c
                                  call uccsdt_triples_get_list(10, 1,
      $                                bblk, kblk, jblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mica_int_mbkj
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zbkj_zica
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spinm = spinck
@@ -1080,14 +1070,13 @@ c
                                  call uccsdt_triples_get_list(9, 1,
      $                                ablk, kblk, iblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mjcb_int_maki
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zaki_zjcb
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, -1.0d0)
                               end if
 c     
                               spinm = spinck
@@ -1103,14 +1092,13 @@ c
                                  call uccsdt_triples_get_list(10, 1,
      $                                bblk, kblk, iblk, dbl_mb(k_ibuf), 
      $                                lenibuf)
-                                 call w_t2_mjca_int_mbki
-     $                                (dbl_mb(k_wbuf), dbl_mb(k_tbuf), 
-     $                                dbl_mb(k_ibuf), 
-     $                                alo, ahi, blo, bhi, 
-     $                                clo, chi,
-     $                                ilo, ihi, jlo, jhi, 
-     $                                klo, khi, mlo, mhi,
-     $                                spin, spinck)
+                                 call w_zbki_zjca
+     $                                (dbl_mb(k_wbuf), 
+     $                                dbl_mb(k_ibuf), dbl_mb(k_tbuf), 
+     $                                alo, ahi, blo, bhi, clo, chi,
+     $                                ilo, ihi, jlo, jhi, klo, khi, 
+     $                                mlo, mhi, 
+     $                                spin, spinck, tmpr, tmpx, 1.0d0)
                               end if
 c     
                               int_sym = sym4(syma, symb, symi, symj)
@@ -1229,7 +1217,7 @@ c                              write(6,*)' for spinck: ',spinck
 c              write(6,*)' vlo_ck, vhi_ck, olo_ck, ohi_ck, k_t_ck: ',
 c     &                    vlo_ck, vhi_ck, olo_ck, ohi_ck, k_t_ck
 c
-                              call uccsdt_w_t1_int_energy
+                              call w_energy
      $                             (dbl_mb(k_wbuf), dbl_mb(k_t),
      $                             dbl_mb(k_t_ck), eps, energy,
      $                             dbl_mb(k_ibuf_abij),
@@ -1272,104 +1260,6 @@ c
 c     
       uccsdt_triples_sub_blocked = energy
 c     
-      end
-      subroutine uccsdt_w_t1_int_energy
-     $  (w, t1, t1_ck, eps, energy,
-     $   int_abij, int_abjk, int_abik, int_bcij,
-     $   int_acij, int_bcjk, int_acjk, int_bcik,
-     $   int_acik,
-     $   alo, ahi, blo, bhi, clo, chi,
-     $   ilo, ihi, jlo, jhi, klo, khi,
-     $   vlo, vhi, olo, ohi, 
-     $   vlo_ck, vhi_ck, olo_ck, ohi_ck, 
-     $   spin, spinck, nmo)
-c
-      implicit none
-      integer alo, ahi, blo, bhi, clo, chi,
-     $        ilo, ihi, jlo, jhi, klo, khi,
-     $        vlo, vhi, olo, ohi, 
-     $        vlo_ck, vhi_ck, olo_ck, ohi_ck, 
-     $        spin, spinck, nmo
-c
-      double precision t1(vlo:vhi,olo:ohi)
-      double precision t1_ck(vlo_ck:vhi_ck,olo_ck:ohi_ck)
-      double precision w(klo:khi,jlo:jhi,ilo:ihi,
-     $                   clo:chi,blo:bhi,alo:ahi)
-      double precision int_abij(alo:ahi,blo:bhi,ilo:ihi,jlo:jhi)
-      double precision int_abjk(alo:ahi,blo:bhi,jlo:jhi,klo:khi)
-      double precision int_abik(alo:ahi,blo:bhi,ilo:ihi,klo:khi)
-      double precision int_bcij(blo:bhi,clo:chi,ilo:ihi,jlo:jhi)
-      double precision int_acij(alo:ahi,clo:chi,ilo:ihi,jlo:jhi)
-      double precision int_bcjk(blo:bhi,clo:chi,jlo:jhi,klo:khi)
-      double precision int_acjk(alo:ahi,clo:chi,jlo:jhi,klo:khi)
-      double precision int_bcik(blo:bhi,clo:chi,ilo:ihi,klo:khi)
-      double precision int_acik(alo:ahi,clo:chi,ilo:ihi,klo:khi)
-      double precision eps(nmo,2), energy, v, d
-      integer i, j, k, a, b, c, ctop, ktop
-c      integer vt, ot
-c
-c      call output(eps, 1, nmo, 1, 2, nmo, 2, 1)
-c      vt = vhi-vlo+1
-c      ot = ohi-olo+1
-c      write(6,*)' t1 - vt, ot:', vt, ot
-c      call output(t1, 1, vt, 1, ot, vt, ot, 1)
-c      vt = vhi_ck-vlo_ck+1
-c      ot = ohi_ck-olo_ck+1
-c      write(6,*)' t1_ck - vt, ot:', vt, ot
-c      call output(t1_ck, 1, vt, 1, ot, vt, ot, 1)
-      do a = alo, ahi
-         do b = blo, min(bhi,a-1)
-           ctop = chi
-           if (spin.eq.spinck) ctop = min(chi,b-1)
-            do c = clo, ctop
-               do i = ilo, ihi
-                  do j = jlo, min(jhi,i-1)
-                    ktop = khi
-                    if (spin.eq.spinck) ktop = min(khi,j-1)
-                     do k = klo, ktop
-c
-                        v = w(k,j,i,c,b,a)
-     $                        + t1_ck(c,k)*
-     $                          int_abij(a,b,i,j)
-     $                        + t1(a,i)*
-     $                          int_bcjk(b,c,j,k)
-     $                        - t1(b,i)*
-     $                          int_acjk(a,c,j,k)
-     $                        - t1(a,j)*
-     $                          int_bcik(b,c,i,k)
-     $                        + t1(b,j)*
-     $                          int_acik(a,c,i,k)
-c
-                        if (spin .eq. spinck) then
-                          v = v 
-     $                        + t1(c,i)*
-     $                          int_abjk(a,b,j,k)
-     $                        - t1(c,j)*
-     $                          int_abik(a,b,i,k)
-     $                        + t1(a,k)*
-     $                          int_bcij(b,c,i,j)
-     $                        - t1(b,k)*
-     $                          int_acij(a,c,i,j)
-                        end if
-c
-                        d = eps(a,spin)+
-     $                      eps(b,spin)+
-     $                      eps(c,spinck)-
-     $                      eps(i,spin)-
-     $                      eps(j,spin)-
-     $                      eps(k,spinck)
-c
-                        energy = energy - 
-     $                           v*w(k,j,i,c,b,a)/d
-c                        write(6,*)' a,b,c,i,j,k,v,d,energy: ',
-c     &                              a,b,c,i,j,k,v,d,energy
-                     end do
-                  end do
-               end do
-            end do
-         end do
-      end do
-c
       end
       subroutine uccsdt_triples_super_blocking(spina,spinc,
      $     max_nsuper_block, nasuper, ncsuper, a_super_block,
@@ -1718,7 +1608,11 @@ c
 c     For debug set them to something sensible and then
 c     recompute their actual values.
 c
-      oblock_max = 20
+c      oblock_max = 20
+c
+c tmp set oblock to 4 for testing multiple blocks.
+c
+      oblock_max = 4
       vblock_max = 20
 c
 c     Sub-block the 'a' super-block ... sub-blocks will be restricted
