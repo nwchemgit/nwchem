@@ -9,10 +9,13 @@ C            right.  The intrinsic function LEN returns the dimension
 C            of the character object, not the length of the contents.
 C            
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Header: /tmp/mss/nwchem/src/rimp2/lnblnk.f,v 1.1 1994-06-14 21:54:19 gg502 Exp $
+C $Header: /tmp/mss/nwchem/src/rimp2/lnblnk.f,v 1.2 1994-09-01 21:07:41 d3e129 Exp $
 C
 C    Revision 0.0  87/07/24  bernholdt (VAX)
 C $Log: not supported by cvs2svn $
+c Revision 1.1  1994/06/14  21:54:19  gg502
+c First cut at RIMP2.
+c
 c Revision 1.1  91/08/26  23:11:19  bernhold
 c Initial revision
 c 
@@ -27,10 +30,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        INTEGER I
        CHARACTER*(*) STRING
        CHARACTER*1 BLANK, NULL
-       PARAMETER (BLANK = ' ', NULL=CHAR(0) )
+       PARAMETER (BLANK = ' ')
 C
 C      Start at the end and work backwards
 C
+       NULL=CHAR(0)
        DO 100 I = LEN(STRING), 1, -1
 C         Look for first non-whitespace character
           IF (STRING(I:I) .NE. BLANK .AND. String(I:I) .ne. NULL) THEN
