@@ -2,14 +2,14 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.16 2001-11-09 02:18:02 edo Exp $
+c$Id: grid_sympts.F,v 1.17 2001-12-14 19:33:50 edo Exp $
 c
       implicit none
 #include "mafdecls.fh"
       integer geom
       integer nops ! [out]
       integer mxang ! [in] max no. angular pts
-      integer k_symops,l_symops ! [out]  symops handles
+      integer k_symops(2),l_symops(2) ! [out]  symops handles
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
 c      
@@ -19,12 +19,15 @@ c
       nops = sym_number_ops(geom)
       if(nops.ne.0) then
          if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symops',
-     ,        l_symops,k_symops)) call errquit(
+     ,        l_symops(1),k_symops(1))) call errquit(
      '        '     grid_sympt: mpush get failed',1)
-         call sym_ops_get(geom,nops,dbl_mb(k_symops))
-         call grid_c5trash(nops,dbl_mb(k_symops))
+         if (.not.MA_push_Get(MT_Dbl,nops*3*3,'symops',
+     ,        l_symops(2),k_symops(2))) call errquit(
+     '        '     grid_sympt: mpush get failed',1)
+         call sym_ops_get(geom,nops,dbl_mb(k_symops(1)))
+         call grid_c5trash(nops,dbl_mb(k_symops(1)))
       else
-         l_symops=-999
+         l_symops(1)=-999
       endif
       if (.not.MA_push_Get(MT_Dbl,mxang*4,'gridscr',
      ,     l_gridscr,k_gridscr)) call errquit(
@@ -37,14 +40,14 @@ c
       subroutine grid_sympts2(l_symops,l_gridscr)
       implicit none
 #include "mafdecls.fh"
-      integer l_symops ! [in]  symops handle
+      integer l_symops(2) ! [in]  symops handle
       integer l_gridscr ! [in]  grid handle
 c      
 c     
       if (.not.MA_chop_stack(l_gridscr)) call errquit(
      '     '     grid_sympt: free stack failed',1)
-      if(l_symops.ne.-999) then
-      if (.not.MA_pop_stack(l_symops)) call errquit(
+      if(l_symops(1).ne.-999) then
+      if (.not.MA_pop_stack(l_symops(1))) call errquit(
      '     '     grid_sympt: free stack failed',2)
       endif
       return
@@ -52,7 +55,7 @@ c
       Subroutine grid_sympts(dosympts,r,xyz, ictr, irsh, 
      ,     iang, iang_done,nq_left,
      ,     aqbuf, nq, fnxyz,nxyz,
-     ,     gridscr,nops,ops,iscr)
+     ,     gridscr,nops,ops,gops,iscr)
       implicit none
 #include "cdft.fh"
 #include "util.fh"
@@ -67,7 +70,7 @@ c
 c      
       double precision gridscr(4,*)
       integer nops
-      double precision ops(3,nops,4),gops(3,48,3)
+      double precision ops(3,nops,4),gops(3,nops,*)
       double precision xyz(3) ! [input] quadr center
       logical  oprint_grid
       double precision aqbuf(4,*) ! quadr pts and wght
@@ -274,7 +277,7 @@ c     keeps only symm. operations that lie on the center
 c
       double precision x(3)
       integer nops_out,nops
-      double precision ops(3,nops,4),gops(3,nops,4)
+      double precision ops(3,nops,4),gops(3,nops,*)
 c
       integer nops_in,h
       double precision x1,y1,z1

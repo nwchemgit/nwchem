@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.35 2000-07-27 22:24:19 edo Exp $
+c$Id: grid_tasks.F,v 1.36 2001-12-14 19:33:50 edo Exp $
 c
       implicit none
 c
@@ -38,7 +38,7 @@ c
       external nxtask
       integer iang_done
       integer nops ! [out]
-      integer k_symops,l_symops ! [out]  symops handles
+      integer k_symops(2),l_symops(2) ! [out]  symops handles
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
       integer nq_left	
@@ -176,11 +176,8 @@ c
      .                    rad_sh,xyz(1,ictr), ictr, 
      .                    irsh, iang, iang_done,nq_left,
      ,                    aqbuf, nq, fnxyz,nxyz,
-     ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops),
-     .                    int_mb(k_iscr))
-cedo                     call grid_qpts(rad_sh,xyz(1,ictr), ictr, 
-cedo     ,                    irsh, iang, 
-cedo     ,                    aqbuf, nq,  nx,ny,nz)
+     ,                    dbl_mb(k_gridscr),nops,dbl_mb(k_symops(1)),
+     .                    dbl_mb(k_symops(2)),int_mb(k_iscr))
 c     
 c     modify the weight to include the spatial weight (and symmetry factor)
 c     

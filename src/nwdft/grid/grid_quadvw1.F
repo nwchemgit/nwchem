@@ -2,7 +2,7 @@
      ,     fnxyz,nxyz,nops,grad,
      ,     nq_cube,nqtotc,rad_write,symfact,
      ,     iang_done,nwrbuf,
-     ,     gridscr,iscr_loc,symops,
+     ,     gridscr,iscr_loc,symops,gops,
      ,     qsh, aqbuf,rij, 
      ,     g_dens, ncoef_max, natoms, 
      &     rho_int, nqtot, 
@@ -16,7 +16,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     donewbf,l3d)
 c
-c$Id: grid_quadvw1.F,v 1.9 2001-11-16 02:12:41 edo Exp $
+c$Id: grid_quadvw1.F,v 1.10 2001-12-14 19:33:50 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -35,7 +35,7 @@ c
       double precision  gridscr(*)
       integer iscr_loc(*)
       integer nxyz , fnxyz ![in]
-      double precision symops(*)
+      double precision symops(*),gops(*)
       integer qsh(3,*)! [in]
       double precision aqbuf(4,*) ! [scr]
       integer nops              ! [in]
@@ -69,7 +69,7 @@ c
      .        rad_sh,xyz(1,ictr), ictr, 
      .        irsh, iang, iang_done,nq_left,
      ,        aqbuf, nq, fnxyz,nxyz,
-     ,        gridscr,nops,symops,
+     ,        gridscr,nops,symops,gops,
      .        iscr_loc)
       else
          call grid_qpts(rad_sh,xyz(1,ictr), ictr, 

@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,donewbf,
      .     l3d)
 c
-c$Id: grid_quadvw.F,v 1.28 2001-11-16 02:12:41 edo Exp $
+c$Id: grid_quadvw.F,v 1.29 2001-12-14 19:33:50 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -55,7 +55,7 @@ c
       integer nq_out,nwrbuf
       integer iang_done
       integer nops ! [out]
-      integer k_symops,l_symops ! [out]  symops handles
+      integer k_symops(2),l_symops(2) ! [out]  symops handles
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
       logical dosympts
@@ -175,7 +175,8 @@ c
      ,                    nq_cube,nqtotc,rad_write,symfact,
      ,                    iang_done,nwrbuf,
      ,                    dbl_mb(k_gridscr),
-     .                    int_mb(k_iscr),dbl_mb(k_symops),
+     .                    int_mb(k_iscr),dbl_mb(k_symops(1)),
+     .                    dbl_mb(k_symops(2)),
      ,                    qsh, aqbuf,rij, 
      ,                    g_dens, ncoef_max, natoms, 
      &                    rho_int, nqtot, 
