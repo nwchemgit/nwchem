@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.9 2000-11-24 05:25:03 edo Exp $
+C     $Id: corr_mk_ref.F,v 1.10 2001-01-09 20:28:24 edo Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -188,7 +188,7 @@ C
          If ( PrInfo ) Write (LuOut, 8920) Routine
          If ( .NOT. SCF( RTDB ) ) Then
             Corr_Mk_Ref = .FALSE.
-            Call Util_Flush(LuOut)
+            if(Prinfo) Call Util_Flush(LuOut)
             Return
          EndIf
       EndIf
