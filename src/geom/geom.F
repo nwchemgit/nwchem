@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.77 1999-01-19 00:53:52 d3e129 Exp $
+C$Id: geom.F,v 1.78 1999-03-11 08:15:26 d3e129 Exp $
       implicit none
 #include "geomP.fh"
 c     
@@ -2561,7 +2561,7 @@ c
       integer geom
       integer nat
       integer max_netp, max_net
-      parameter (max_netp=12)
+      parameter (max_netp=24)
       integer h_xnet, k_xnet, h_xlist, k_xlist
 *
       if (.not.geom_ncent(geom,nat)) call errquit
@@ -3182,7 +3182,7 @@ c initialize variables
       integer geom
       integer nat
       integer max_netp, max_net
-      parameter (max_netp=12)
+      parameter (max_netp=24)
       integer h_xnet, k_xnet, h_xlist, k_xlist
 *
       if (.not.geom_ncent(geom,nat)) call errquit
