@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.81 1994-11-16 22:31:09 gg502 Exp $
+# $Id: makefile.h,v 1.82 1994-11-17 01:27:17 gg502 Exp $
 
 # Common definitions for all makefiles ... these can be overridden
 # either in each makefile by putting additional definitions below the
@@ -288,8 +288,8 @@ ifeq ($(TARGET),DELTA)
 
   FOPTIONS = -Knoieee
   COPTIONS = -Knoieee
- FOPTIMIZE = -O2 -Minline=1000
-FVECTORIZE = -O2 -Miniline=1000 -Mvect
+ FOPTIMIZE = -O2 		# -Minline=1000 ## Inlining bombs for dtrtri.f
+FVECTORIZE = -O2 -Mvect		# -Minline=1000 ## Inlining bombs for dtrtri.f
  COPTIMIZE = -O2
 
    DEFINES = -DNX -DDELTA -DIPSC -DNO_BCOPY  -D__IPSC__ -DPARALLEL_DIAG
