@@ -1,13 +1,13 @@
-      subroutine orderd(amat,nrow,ncol,imemb,nblock,ind,vec,iflag)
-C$Id: orderd.F,v 1.2 1995-02-02 23:09:04 d3g681 Exp $
+      subroutine orderd(amat,nrow,ncol,ind,vec)
+C$Id: orderd.F,v 1.3 2004-03-15 22:26:49 edo Exp $
       implicit none
 c.......................................................................
 c     this routine sorts a set of column vectors in amat(*,*) according
 c     to increasing values in vec(*). care is taken that the output orde
 c     of the vectors is as close to the input order as possible.
 c.......................................................................
-      integer nrow, ncol, nblock, iflag
-      integer ind(*), imemb(*)
+      integer nrow, ncol
+      integer ind(*)
       real *8  amat(nrow,ncol), vec(*)
 c.......................................................................
 c     set tolerance for test, then determine for each element how
@@ -15,7 +15,7 @@ c     many smaller elements vec(*) contains.
 c.......................................................................
       real *8 tol, test, scra
       integer i, j
-      integer icount, indi, itest, im1, ilow, index
+      integer indi, itest, im1, ilow, iindx
 c
       tol = 1.0d-10
       do i = 1 , ncol
@@ -26,28 +26,6 @@ c
          enddo
          ind(i) = indi
       enddo
-c.......................................................................
-c
-c     if desired,scan ind(*) to determine the number of different values
-c     in vec(*) and the number of elements of each value.
-c.......................................................................
-      if (iflag.le.99) then
-         do i = 1 , ncol
-            imemb(i) = 0
-         enddo
-         do i = 1 , ncol
-            indi = ind(i)
-            imemb(indi) = imemb(indi) + 1
-         enddo
-         icount = 0
-         do i = 1 , ncol
-            if (imemb(i).ne.0) then
-               icount = icount + 1
-               imemb(icount) = imemb(i)
-            end if
-         enddo
-         nblock = icount
-      end if
 c.......................................................................
 c
 c     establish order in degeneracies of the ordering vector.
@@ -74,17 +52,17 @@ c.......................................................................
 c
 c     input order wrong. swap present vector into correct col.
 c.......................................................................
- 110  index = ind(i)
+ 110  iindx = ind(i)
       do j = 1 , nrow
          scra = amat(j,i)
-         amat(j,i) = amat(j,index)
-         amat(j,index) = scra
+         amat(j,i) = amat(j,iindx)
+         amat(j,iindx) = scra
       enddo
       scra = vec(i)
-      vec(i) = vec(index)
-      vec(index) = scra
-      ind(i) = ind(index)
-      ind(index) = index
+      vec(i) = vec(iindx)
+      vec(iindx) = scra
+      ind(i) = ind(iindx)
+      ind(iindx) = iindx
       if (ind(i).ne.i) go to 110
 c.......................................................................
 c

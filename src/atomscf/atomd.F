@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.11 2003-10-17 22:54:15 carlfahl Exp $
+C$Id: atomd.F,v 1.12 2004-03-15 22:26:48 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -32,7 +32,7 @@ c
       integer i, j, l, m
       integer nbcdim, jcount, k, iant, ksum
       integer noff, nbci, ll, mm, ndim, nsqt, ns, maxitr, lm
-      integer nstep1, nstep2, knteps, nbc1, nbc2, nbc3, icount, idum
+      integer nstep1, nstep2, knteps, nbc1, nbc2, nbc3, icount
       real *8 znsave, tlarge
 c
 c     nsht      = total number of shells
@@ -230,9 +230,9 @@ c.......................................................................
                dos(j) = fo(icount)
                icount = icount + 1 + j
             enddo
-            call orderd(cc(nstep2),nbc1,nbc1,idum,idum,dt,dc,100)
+            call orderd(cc(nstep2),nbc1,nbc1,dt,dc)
             if (nosh(i).gt.0) then
-               call orderd(copn(nstep2),nbc1,nbc1,idum,idum,dt,dos,100)
+               call orderd(copn(nstep2),nbc1,nbc1,dt,dos)
                call cmergd(cc(nstep2),copn(nstep2),ncsh(i),nbc1,nosh(i))
             end if
             nstep1 = nstep1 + nbc1*(nbc1+1)/2
