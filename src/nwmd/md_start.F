@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.65 2000-05-25 20:39:57 d3j191 Exp $
+c $Id: md_start.F,v 1.66 2000-05-25 20:52:52 d3j191 Exp $
 c
       implicit none
 c
@@ -61,7 +61,7 @@ c
      + .true.,.true.,ltwin,ipolt.ne.0,ipme.ne.0,
      + npstep.ne.0,npener.ne.0,
      + nwm,msf,nsf,mpe,mdacq,mrun,iset,isetp1,isetp2,tstep,msm,nsm,
-     + ddacq,edacq)
+     + ddacq,edacq,iprof)
 c
 c     allocate memory for coordinates, velocities, etc.
 c     -------------------------------------------------
