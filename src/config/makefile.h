@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.476 2004-09-06 22:14:02 edo Exp $
+# $Id: makefile.h,v 1.477 2004-09-10 02:32:56 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1548,12 +1548,34 @@ endif # end of ia32 bit
       ifeq ($(FC),pgf77)
         _FC=pgf90
       endif
+      _FC=noifc
+      ifeq ($(FC),ifc)
+       _FC=ifc
+      endif
+      ifeq ($(FC),ifort)
+       _FC=ifc
+      endif
+      ifeq ($(_FC),ifc)
+# to get EM64T
+# Intel 8.1 is required
+        FOPTIONS +=  -align    -mp1 -w -g -vec_report3
+        ifdef  USE_GPROF
+          FOPTIONS += -qp
+        endif
+        DEFINES+= -DIFCV8 -DIFCLINUX
+        FOPTIONS += -quiet
+        FOPTIMIZE = -O3 -prefetch  -unroll 
+        FOPTIMIZE +=  -tpp7 -xW    
+        LDOPTIONS += -g  -static
+      endif	
+
       
       USE_LIB64 = y #for python linking
 
       ifeq ($(_FC),pgf90)
         FOPTIONS   +=    -Mrecursive -Mdalign -Mllalign -Kieee 
         FOPTIONS   +=    -tp k8-64  
+#        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   =  -fast -fastsse  -O3   -Mipa=fast
         DEFINES  +=   -DCHKUNDFLW
         FVECTORIZE   = -fast  -fastsse  -O4   -Mipa=fast
