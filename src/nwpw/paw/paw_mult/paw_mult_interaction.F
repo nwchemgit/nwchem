@@ -1,4 +1,4 @@
-c $Id: paw_mult_interaction.F,v 1.3 2003-02-20 18:32:30 edo Exp $
+c $Id: paw_mult_interaction.F,v 1.4 2003-02-20 18:34:44 edo Exp $
 !*************************************************
 !
 !   Name    :  gaussian_mult_interaction
@@ -31,7 +31,6 @@ c $Id: paw_mult_interaction.F,v 1.3 2003-02-20 18:32:30 edo Exp $
         double precision    sigma2
         double precision    R1(3)
         double precision    R2(3)
-        complex*16  paw_mult_interaction
         complex*16  f
 
 #include "paw_gaunt.fh"
@@ -245,7 +244,6 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       implicit none
 
         INTEGER  l1,l2,l
-        double precision  paw_get_mult_coeff
 #include "paw_gamma_function.fh"
 
         double precision  c,pi
