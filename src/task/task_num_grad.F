@@ -1,6 +1,6 @@
       logical function task_num_grad(rtdb)
 *
-* $Id: task_num_grad.F,v 1.13 1997-04-04 21:26:50 d3g681 Exp $
+* $Id: task_num_grad.F,v 1.14 1997-04-06 20:59:52 d3g681 Exp $
 *
       implicit none
 #include "geom.fh"
@@ -17,10 +17,6 @@ c     Compute derivatives of task_energy() w.r.t. nuclear displacements
 c     using numerical finite difference.
 c
 c     Uses symmetry and projects out rotations/translations. 
-c
-c     Does not yet freeze atoms but this can be easily added
-c     A few hard dimensions need fixing to use more than 100 atoms
-c     (presumably not necessary until most of them are frozen)
 c
       integer geom
       integer nvec, ivec, i, j
@@ -339,8 +335,9 @@ c
       if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms)
 c
 c     Get list of active atoms.  If there are ANY frozen atoms then
-c     we cannot use symmetry, or translational, or rotational invariance
+c     we cannot use or translational, or rotational invariance
 c     and we will just use the cartesian coordinates of the active atoms
+c     plus symmetry (assuming that the frozen atoms presever symmetry)
 c
       call grad_active_atoms(rtdb, natoms, oactive, nactive)
       if (nactive .ne. natoms) then
@@ -354,89 +351,93 @@ c
                nvec = nvec+3
             endif
          enddo
-         return
+      else
+         call dfill(natoms3*natoms3,0.0d0,vectors, 1)
+         call dfill(natoms3,1.0d0,vectors,natoms3+1)
+         nvec = natoms3
       endif
 c
-c     Make linearly indep. vectors, project totally symmetric component
+c     Project totally symmetric component
 c
-      call dfill(natoms3*natoms3,0.0d0,vectors, 1)
-      call dfill(natoms3,1.0d0,vectors,natoms3+1)
-      do i = 1, natoms3
+      do i = 1, nvec
          call sym_grad_symmetrize(geom, vectors(1,i))
       enddo
+c
+      if (nactive .ne. natoms) then
 c     
 c     Construct vectors corresponding to translations and rotations
 c
-      call dfill(3, 0.0d0, centroid, 1)
-      do i = 1, natoms
-         do k = 1, 3
-            centroid(k) = centroid(k) + coords(k,i)/natoms
-         enddo
-      enddo
-c
-      do k = 1, 3               ! x, y, z translations
-         call dfill(natoms3, 0.0d0, work(1,k), 1)
-         call dfill(natoms, sqrt(1.0d0/natoms), work(k,k), 3)
-      enddo
-      do k = 4, 6               ! x, y, z rotations
+         call dfill(3, 0.0d0, centroid, 1)
          do i = 1, natoms
-            x = coords(1,i) - centroid(1)
-            y = coords(2,i) - centroid(2)
-            z = coords(3,i) - centroid(3)
-            if (k .eq. 4) then
-               xx = 0.0d0
-               yy = -z
-               zz =  y
-            else if (k .eq. 5) then
-               xx =  z
-               yy =  0.0d0
-               zz = -x
-            else if (k .eq. 6) then
-               xx = -y
-               yy =  x
-               zz =  0.0d0
-            endif
-            i3 = (i-1)*3
-            work(i3+1,k) = xx
-            work(i3+2,k) = yy
-            work(i3+3,k) = zz
+            do k = 1, 3
+               centroid(k) = centroid(k) + coords(k,i)/natoms
+            enddo
          enddo
-         do j = 1, k-1
-            fx = ddot(natoms3, work(1,j), 1, work(1,k), 1)
-            call daxpy(natoms3, -fx, work(1,j), 1, work(1,k), 1)
-         enddo
-         fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
-         if (fx . gt. 1d-6) then
-            call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
-         else
-            call dfill(natoms3, 0.0d0, work(1,k), 1)
-         endif
-      enddo
 c     
-      do k = 1, 6
-         call sym_grad_symmetrize(geom, work(1,k))
-         fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
-         if (fx . gt. 1d-6) then
-            call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
-         else
+         do k = 1, 3            ! x, y, z translations
             call dfill(natoms3, 0.0d0, work(1,k), 1)
-         endif
-      enddo
-c
-*      if (oprint) then
-*         write(6,*) ' symmetrized translation and rotation vectors'
-*         call output(work, 1, natoms3, 1, 6, 3*maxat, 6, 1)
-*         write(6,*)
-*      endif
-c
-c     Project trans/rotn from the symmetrized vectors
-c
-      do k = 1, 6
-         do i = 1, natoms3
-            fx = ddot(natoms3, work(1,k), 1, vectors(1,i), 1)
-            call daxpy(natoms3, -fx, work(1,k), 1, vectors(1,i), 1)
+            call dfill(natoms, sqrt(1.0d0/natoms), work(k,k), 3)
          enddo
-      enddo
+         do k = 4, 6            ! x, y, z rotations
+            do i = 1, natoms
+               x = coords(1,i) - centroid(1)
+               y = coords(2,i) - centroid(2)
+               z = coords(3,i) - centroid(3)
+               if (k .eq. 4) then
+                  xx = 0.0d0
+                  yy = -z
+                  zz =  y
+               else if (k .eq. 5) then
+                  xx =  z
+                  yy =  0.0d0
+                  zz = -x
+               else if (k .eq. 6) then
+                  xx = -y
+                  yy =  x
+                  zz =  0.0d0
+               endif
+               i3 = (i-1)*3
+               work(i3+1,k) = xx
+               work(i3+2,k) = yy
+               work(i3+3,k) = zz
+            enddo
+            do j = 1, k-1
+               fx = ddot(natoms3, work(1,j), 1, work(1,k), 1)
+               call daxpy(natoms3, -fx, work(1,j), 1, work(1,k), 1)
+            enddo
+            fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
+            if (fx . gt. 1d-6) then
+               call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
+            else
+               call dfill(natoms3, 0.0d0, work(1,k), 1)
+            endif
+         enddo
+c     
+         do k = 1, 6
+            call sym_grad_symmetrize(geom, work(1,k))
+            fx = sqrt(ddot(natoms3, work(1,k), 1, work(1,k), 1))
+            if (fx . gt. 1d-6) then
+               call dscal(natoms3, 1.0d0/fx, work(1,k), 1)
+            else
+               call dfill(natoms3, 0.0d0, work(1,k), 1)
+            endif
+         enddo
+c     
+*     if (oprint) then
+*     write(6,*) ' symmetrized translation and rotation vectors'
+*     call output(work, 1, natoms3, 1, 6, 3*maxat, 6, 1)
+*     write(6,*)
+*     endif
+c     
+c     Project trans/rotn from the symmetrized vectors
+c     
+         do k = 1, 6
+            do i = 1, natoms3
+               fx = ddot(natoms3, work(1,k), 1, vectors(1,i), 1)
+               call daxpy(natoms3, -fx, work(1,k), 1, vectors(1,i), 1)
+            enddo
+         enddo
+      endif
 c
 c     Get rid of the zero vectors and orthonormalize the rest
 c     by diagonalizing the metric
