@@ -7,7 +7,7 @@
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset)
 c
 c
-c $Id: sp_init.F,v 1.95 2001-11-18 05:21:13 d3j191 Exp $
+c $Id: sp_init.F,v 1.96 2001-11-18 06:32:57 d3j191 Exp $
 c
       implicit none
 c
@@ -297,10 +297,6 @@ c
       nby=max(1,nby,npy)
       nbz=max(1,nbz,npz)
 c
-      bxmin=bsize/dble(int((dble(nbx)*bsize)/box(1))+1)
-      bymin=bsize/dble(int((dble(nby)*bsize)/box(2))+1)
-      bzmin=bsize/dble(int((dble(nbz)*bsize)/box(3))+1)
-c
 c      if(nbx.eq.0) nbx=1
 c      if(nby.eq.0) nby=1
 c      if(nbz.eq.0) nbz=1
@@ -353,6 +349,10 @@ c
  2002 format(' Reduced number of sub-boxes in z-dimension')
       endif
       endif
+c
+      bxmin=bsize/dble(int((dble(nbx)*bsize)/box(1))+1)
+      bymin=bsize/dble(int((dble(nby)*bsize)/box(2))+1)
+      bzmin=bsize/dble(int((dble(nbz)*bsize)/box(3))+1)
 c
       endif
 c
