@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: get-tools,v 1.7 2000-10-23 23:37:51 windus Exp $
+# $Id: get-tools,v 1.8 2000-12-30 00:04:14 windus Exp $
 #
 # We need to rename CVS associated with nwchem repository while
 # checking out tools for the first time
@@ -16,6 +16,10 @@ if ( -d $repos ) then
 else
     if ( $?EMSL_USER ) then
 	setenv CVSROOT :ext:${EMSL_USER}@corsair.emsl.pnl.gov:${repos}
+    else if ($?USER) then
+        setenv CVSROOT :ext:${USER}@corsair.emsl.pnl.gov:${repos}
+        echo "${0}: Using $USER to set CVSROOT, if you want to override"
+        echo "${0}: this choice set the EMSL_USER environment variable."
     else
 	echo "${0}: I can't figure out how to set CVSROOT for you."
 	echo "${0}: Try setting the EMSL_USER environment variable"
