@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.16 2004-01-02 21:58:02 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.17 2004-01-19 23:16:41 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -87,6 +87,7 @@ static long file_size(const char *filename)
 */
 {
   FILE *file = fopen(filename, "r+");
+  
   long length;
 
   if (!file)
@@ -376,7 +377,11 @@ int rtdb_seq_open(const char *filename, const char *mode, int *handle)
 #endif
 
 #if USE_HDBM
+#ifdef DB_INMEM
+  if (!hdbm_open(filename, 0, &rtdb[new].db)) {
+#else
   if (!hdbm_open(filename, 1, &rtdb[new].db)) {
+#endif
     (void) fprintf(stderr, "rtdb_seq_open: hdbm failed to open file %s\n",
 		   filename);
     return 0;
@@ -969,7 +974,9 @@ int rtdb_seq_put(const int handle, const char *name, const int ma_type,
   status = (db->sync(db, (u_int) 0) == 0);
 #endif
 #ifdef USE_HDBM
+#ifndef DB_INMEM
   status = hdbm_file_flush(db);  
+#endif
 #endif
 
   if (!status) {
