@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
+C$Id: uhf.F,v 1.60 2001-06-27 18:48:15 zzhang Exp $
       implicit none
 #include "global.fh"
 #include "rtdb.fh"
@@ -210,7 +210,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
+C     $Id: uhf.F,v 1.60 2001-06-27 18:48:15 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -511,7 +511,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
+C$Id: uhf.F,v 1.60 2001-06-27 18:48:15 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -601,8 +601,10 @@ c
 #include "cscf.fh"
 #include "util.fh"
 #include "cscfps.fh"
+#include "rtdb.fh"
+#include "bgj.fh"
 c     
-c     $Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
+c     $Id: uhf.F,v 1.60 2001-06-27 18:48:15 zzhang Exp $
 c
       integer g_vecs(2)
       double precision energy
@@ -610,7 +612,7 @@ c
 c     
       double precision eone, etwo, enrep
       integer gtype, grow, gcol
-      integer d(4), f(6)
+      integer d(4), f(6), nfock
       integer g_a_dens, g_a_coul, g_a_exch, g_a_xc
       integer g_b_dens, g_b_coul, g_b_exch, g_b_xc
       integer g_hcore
@@ -622,6 +624,7 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       logical odebug
+      logical cphf_uhf
       data jfac / 1.0d0, 0.0d0, 1.0d0, 0.0d0/
       data kfac / 0.0d0, 1.0d0, 0.0d0, 1.0d0/
 *      data jfac / 2.0d0, 0.0d0, 2.0d0, 0.0d0/
@@ -635,6 +638,11 @@ c
       call ga_inquire(g_grad, gtype, grow, gcol)
       if ((grow.ne.cuhf_vlen).or.(gcol.ne.1))
      $     call errquit('uhf_energy: invalid vector length',0)
+      cphf_uhf = .false.
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'cphf_solve:cphf_uhf', mt_log, 1, cphf_uhf)) then
+         cphf_uhf = .false.
+      endif
 c     
 c     Arrays for AO density, coulomb and exchange matrices
 c
@@ -642,8 +650,10 @@ c
       g_b_coul = ga_create_atom_blocked(geom, basis, 'uhf:b coul')
       g_a_exch = ga_create_atom_blocked(geom, basis, 'uhf:a exch')
       g_b_exch = ga_create_atom_blocked(geom, basis, 'uhf:b exch')
-      g_a_xc   = ga_create_atom_blocked(geom, basis, 'uhf:a xc')
-      g_b_xc   = ga_create_atom_blocked(geom, basis, 'uhf:b xc')
+      if(cphf_uhf)then
+         g_a_xc   = ga_create_atom_blocked(geom, basis, 'uhf:a xc')
+         g_b_xc   = ga_create_atom_blocked(geom, basis, 'uhf:b xc')
+      endif
       g_a_dens = ga_create_atom_blocked(geom, basis, 'uhf:a dens')
       g_b_dens = ga_create_atom_blocked(geom, basis, 'uhf:b dens')
       call ga_zero(g_a_dens)
@@ -704,8 +714,10 @@ c
       call ga_zero(g_b_coul)
       call ga_zero(g_a_exch)
       call ga_zero(g_b_exch)
-      call ga_zero(g_a_xc)
-      call ga_zero(g_b_xc)
+      if(cphf_uhf)then
+         call ga_zero(g_a_xc)
+         call ga_zero(g_b_xc)
+      endif
       d(1) = g_a_dens
       d(2) = g_a_dens
       d(3) = g_b_dens
@@ -714,14 +726,21 @@ c
       f(2) = g_a_exch
       f(3) = g_b_coul
       f(4) = g_b_exch
-      f(5) = g_a_xc
-      f(6) = g_b_xc
+      if(cphf_uhf)then
+         f(5) = g_a_xc
+         f(6) = g_b_xc
+      endif
 c
 czz   two extra ga's are passed to fock_2e to get the xc matrix
 c
 c
+      if(cphf_uhf)then
+         nfock = 6
+      else
+         nfock = 4
+      endif
       call do_riscf (.false.)
-      call fock_2e(geom, basis, 6, jfac, kfac, tol2e,
+      call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
       call do_riscf (.true.)
 c
@@ -729,12 +748,14 @@ c
      $     (ga_ddot(g_a_dens,g_a_coul) + ga_ddot(g_a_dens,g_b_coul))
       e_b_coul = 0.5d0*
      $     (ga_ddot(g_b_dens,g_a_coul) + ga_ddot(g_b_dens,g_b_coul))
-      e_a_xc = ga_ddot(g_a_dens,g_a_xc)
-      e_b_xc = ga_ddot(g_b_dens,g_b_xc)
       e_a_exch = 0.5d0*ga_ddot(g_a_dens,g_a_exch)
       e_b_exch = 0.5d0*ga_ddot(g_b_dens,g_b_exch)
-      etwo = e_a_coul + e_b_coul - e_a_exch - e_b_exch + 
-     &     e_a_xc + e_b_xc
+      etwo = e_a_coul + e_b_coul - e_a_exch - e_b_exch 
+      if(cphf_uhf)then
+         e_a_xc = ga_ddot(g_a_dens,g_a_xc)
+         e_b_xc = ga_ddot(g_b_dens,g_b_xc)
+         etwo = etwo + e_a_xc + e_b_xc        
+      endif
 c
       if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' coulomb energies', e_a_coul, e_b_coul
@@ -760,8 +781,10 @@ c
       call ga_copy(g_a_coul, g_b_coul)
       call ga_dadd(one, g_a_coul, mone, g_a_exch, g_a_coul)
       call ga_dadd(one, g_b_coul, mone, g_b_exch, g_b_coul)
-      call ga_dadd(one, g_a_coul, one, g_a_xc, g_a_coul)
-      call ga_dadd(one, g_b_coul, one, g_b_xc, g_b_coul)
+      if(cphf_uhf)then
+         call ga_dadd(one, g_a_coul, one, g_a_xc, g_a_coul)
+         call ga_dadd(one, g_b_coul, one, g_b_xc, g_b_coul)
+      endif
 c
 c     reuse g_a_exch to hold the 1-e integrals
 c
@@ -804,6 +827,10 @@ c     Free up dead global arrays
 c
       if (.not. ga_destroy(g_a_dens)) call errquit('uhf_e: destroy',0)
       if (.not. ga_destroy(g_b_dens)) call errquit('uhf_e: destroy',0)
+      if(cphf_uhf)then
+         if (.not. ga_destroy(g_a_xc)) call errquit('uhf_e: destroy',0)
+         if (.not. ga_destroy(g_b_xc)) call errquit('uhf_e: destroy',0)
+      endif
       if (.not. ga_destroy(g_a_exch)) call errquit('uhf_e: destroy',0)
       if (.not. ga_destroy(g_b_exch)) call errquit('uhf_e: destroy',0)
       if (.not. ga_destroy(g_a_coul)) call errquit('uhf_e: destroy',0)
@@ -819,10 +846,10 @@ c
      $     call errquit('uhf_energy: no repulsion energy?', 0)
       energy = eone + etwo + enrep
 c
-c      if (odebug .and. ga_nodeid().eq.0) then
+      if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' eone, etwo, enrep, energy ',
      $        eone, etwo, enrep, energy
-c      endif
+      endif
 c
       end
       subroutine uhf_get_grad(g_grad)
@@ -1103,7 +1130,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.59 2001-06-21 19:03:55 zzhang Exp $
+C$Id: uhf.F,v 1.60 2001-06-27 18:48:15 zzhang Exp $
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
