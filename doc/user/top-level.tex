@@ -216,10 +216,10 @@ given list of directories:
 This is a start-up directive that allows the user to specify the
 amount of memory that NWChem can use for the job.  If this directive
 is not specified, memory is allocated according to
-installation-dependent defaults.  {\em These defaults should generally
+installation-dependent defaults.  {\em The defaults should generally
   suffice for most calculations, since the defaults usually correspond
   to the total amount of memory available on the machine.  It should
-usually be unncessary to provide a memory directive.} 
+usually be unnecessary to provide a memory directive!!!} 
 
 The general form of the directive is as follows:
 
@@ -233,10 +233,7 @@ The general form of the directive is as follows:
          [(nohardfail||hardfail)] \
 \end{verbatim}
 
-There are three distinct regions of memory: stack, heap, and global.
-Stack and heap are node-private, while the union of the global region
-on all processors is used to provide globally-shared memory.  NWChem
-recognizes the following memory units:
+NWChem recognizes the following memory units:
 \begin{itemize}
 \item \verb+real+ and \verb+double+ (synonyms)
 \item \verb+integer+
@@ -246,9 +243,25 @@ recognizes the following memory units:
 \item \verb+mw+ (megawords, 64-bit word)
 \end{itemize}
 
-In most cases, the user need specify only the total memory limit,
-allowing the limits on each category to be determined from a default
-partitioning (currently 25\% heap, 25\% stack, and 50\% global).
+In most cases, the user need specify only the total memory limit to 
+adjust the amount of memory used by NWChem. The following specifications 
+all provide for eight megabytes of total
+memory (assuming 64-bit floating point numbers), which will be
+distributed according to the default partitioning:
+\begin{verbatim}
+  memory 1048576
+  memory 1048576 real
+  memory 1 mw
+  memory 8 mb
+  memory total 8 mb
+  memory total 1048576
+\end{verbatim}
+
+In NWChem there are three distinct regions of memory: stack, heap, 
+and global. Stack and heap are node-private, while the union of the 
+global region on all processors is used to provide globally-shared memory.  
+The allowed limits on each category are determined from a default 
+partitioning (currently 25% heap, 25% stack, and 50% global).
 Alternatively, the keywords \verb+stack+, \verb+heap+, and
 \verb+global+ can be used to define specific allocations for each of
 these categories.  If the user sets only one of the stack, heap, or
@@ -262,16 +275,6 @@ all three category limits are specified, they determine the total
 memory allocated.  However, if the total memory is also specified, it
 must be larger than the sum of all three categories.  The code will
 abort if it detects an inconsistent memory specification.
-
-The following specifications all provide for eight megabytes of total
-memory (assuming 64-bit floating point numbers), which will be
-distributed according to the default partitioning:
-\begin{verbatim}
-  memory 1048576
-  memory 1048576 real
-  memory 1 mw
-  memory 8 mb
-\end{verbatim}
 
 The following memory directives also allocate 8 megabytes, but specify
 a complete partitioning as well:
