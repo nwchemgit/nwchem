@@ -12,7 +12,7 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.17 1997-04-26 21:57:54 d3g681 Exp $
+* $Id: mp2_back_transform.F,v 1.18 1997-05-09 18:37:09 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -186,8 +186,8 @@ c
      $        call errquit('mp2:backt basis?',0)
          do ish = ishlo,ishhi
             log_mb(k_actsh+ish-1) = log_mb(k_act+i-1)
-         enddo
-      enddo
+         end do
+      end do
 c      
       call ga_sync()
       call pstat_on(ps_nonsep)
@@ -209,9 +209,9 @@ c
          if (.not. log_mb(k_act+i-1)) then
             do j = 1, 3
                grad(j,i) = 0.0d0
-            enddo
-         endif
-      enddo
+            end do
+         end if
+      end do
 c
       call schwarz_tidy()
 c
@@ -515,22 +515,22 @@ c
                            owner = mod(nshpair,nproc)
                            map(owner) = map(owner) + 1
                            nshpair = nshpair + 1
-                        endif
+                        end if
 c     
-                     endif
-                  enddo
-               enddo
+                     end if
+                  end do
+               end do
                npairmin = npairmax
-            enddo
+            end do
             logmax = logmin
-         enddo
+         end do
          count = 1
          do u = 0, nproc-1
             tmp = map(u)
             map(u) = count
             count = count + tmp
          end do
-      endif
+      end if
 c     
 c     Make list of all shell pairs ordered by their assigned processor,
 c     the list of local shell pairs, and also count the other information.
@@ -584,13 +584,13 @@ c
                            map(owner) = map(owner) + 1
                         end if
                      end if
-                  endif
+                  end if
                end do
             end do
             npairmin = npairmax
-         enddo
+         end do
          logmax = logmin
-      enddo
+      end do
 c     
 c     Now replace map with the map creating the global array for transposing
 c     
@@ -604,7 +604,7 @@ c
                u = shpairs(1,ishpair)
                v = shpairs(2,ishpair)
                count = count + shdim(u)*shdim(v)
-            enddo
+            end do
             first = last + 1
          end do
       end if
@@ -755,7 +755,7 @@ c
 c     first the energy just to validate the 2pdm
                      call int_2e4c(basis, ush, vsh, basis, xsh, ysh,
      $                    lenscr, dbl_mb(k_scr), leng, dbl_mb(k_g))
-                  endif
+                  end if
 
 c     reuse the energy integral buffer for the 2PDM
 
@@ -781,7 +781,7 @@ c
                               if (odebug) then
                                  g = dbl_mb(uvxy)
                                  energy = energy + p * g
-                              endif
+                              end if
                               dbl_mb(uvxy) = p
 c
                               uvxy = uvxy + 1
@@ -814,7 +814,7 @@ c     use density to screen evaluation of gradient integrals
                            duvxy = duvxy + 3*udim*vdim*xdim*ydim
                         end if  ! idatom
                      end do     ! iat
-                  endif         ! Density * Schwarz screening
+                  end if         ! Density * Schwarz screening
                end if           ! Schwarz screening
             end do
          end do
@@ -823,7 +823,7 @@ c
       if (odebug) then
          call ga_dgop(1,energy,1,'+')
          write(6,*) ' The energy from the two PDM is ', energy
-      endif
+      end if
 c
       if (.not. ma_pop_stack(l_gd))
      $     call errquit('mp2:test: ma pop failed', 0)

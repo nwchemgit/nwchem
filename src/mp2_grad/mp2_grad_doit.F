@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.30 1997-04-26 21:57:54 d3g681 Exp $
+* $Id: mp2_grad_doit.F,v 1.31 1997-05-09 18:37:10 d3g681 Exp $
 *
       implicit none
 #include "global.fh"
@@ -137,7 +137,7 @@ c
 c     
       oprint_mem = util_print('multipass',print_default) .and. 
      $     ga_nodeid().eq.0
-      oprint_where = util_print('where',print_high) .and. 
+      oprint_where = util_print('where',print_default) .and. 
      $     ga_nodeid().eq.0
 c     
       if (oprint_mem) then
@@ -186,8 +186,9 @@ c
          npass=npass+1
          if(ga_nodeid().eq.0 .and. 
      $        util_print('passes',print_default)) then
-            write(6,1101) npass, npasses,info
- 1101       format(' Semi-direct pass number', i4, ' of',i4,1x,a)
+            write(6,1101) npass, npasses,info,util_wallsec()
+ 1101       format(' Semi-direct pass number', i4, ' of',i4,1x,a,
+     $           ' at ',f10.1,'s')
             call util_flush(6)
          end if
          oseg_hi=min((oseg_lo+num_i_perseg-1),noa_hi)
@@ -206,7 +207,8 @@ c
          call pstat_off(ps_moints)
 c     
          if (oprint_where) then
-            write(6,*) ' Done moints_semi'
+            write(6,111) 'moints_semi', util_wallsec()
+ 111        format(' Done ',a,' at ', f10.1,'s')
             call util_flush(6)
          end if
 c     
@@ -260,7 +262,7 @@ c
          call pstat_off(ps_maket)
 c     
          if (oprint_where) then
-            write(6,*) ' Done maket'
+            write(6,111) 'maket',util_wallsec()
             call util_flush(6)
          end if
 c     
@@ -291,7 +293,7 @@ c
             call pstat_off(ps_pijab)
 c     
             if (oprint_where) then
-               write(6,*) ' Done pijab'
+               write(6,111) 'pijab', util_wallsec()
                call util_flush(6)
             end if
 c     
@@ -309,7 +311,7 @@ c
             call pstat_off(ps_wijab)
 c     
             if (oprint_where) then
-               write(6,*) ' Done wijab'
+               write(6,111) 'wijab', util_wallsec()
                call util_flush(6)
             end if
 c     
@@ -378,7 +380,7 @@ c
             call pstat_off(ps_lai)
 c     
             if (oprint_where) then
-               write(6,*) ' Done lai'
+               write(6,111) 'lai', util_wallsec()
                call util_flush(6)
             end if
 c     
@@ -406,7 +408,7 @@ c
      $           tunita, tunitb, grad)
 c     
             if (oprint_where) then
-               write(6,*) ' Done nonsep'
+               write(6,111) 'nonsep', util_wallsec()
                call util_flush(6)
             end if
 c     
@@ -435,7 +437,7 @@ c
 c     
 c     
       if (oprint_where) then
-         write(6,*) ' Done multipass loop'
+         write(6,111) 'multipass loop', util_wallsec()
          call util_flush(6)
       end if
 c     
