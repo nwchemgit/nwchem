@@ -1,60 +1,60 @@
 Time             =     0.001
-Temperature      =   278.86
+Temperature      =   278.83
 Volume           =     0.33
-Pressure         =     8.71E+08
-Energy           =   -9.530E+01
+Pressure         =     8.78E+08
+Energy           =   -5.929E+01
 
 Time             =     0.002
-Temperature      =   308.78
+Temperature      =   308.65
 Volume           =    11.77
-Pressure         =     7.45E+08
-Energy           =   -6.486E+03
+Pressure         =     7.52E+08
+Energy           =   -6.527E+03
 
 Time             =     0.003
-Temperature      =   347.02
+Temperature      =   346.78
 Volume           =    11.77
-Pressure         =     5.99E+08
-Energy           =   -6.500E+03
+Pressure         =     6.06E+08
+Energy           =   -6.541E+03
 
 Time             =     0.004
-Temperature      =   378.24
+Temperature      =   377.91
 Volume           =    11.77
-Pressure         =     4.90E+08
-Energy           =   -6.503E+03
+Pressure         =     4.97E+08
+Energy           =   -6.545E+03
 
 Time             =     0.005
-Temperature      =   401.54
+Temperature      =   401.15
 Volume           =    11.77
-Pressure         =     4.17E+08
-Energy           =   -6.505E+03
+Pressure         =     4.23E+08
+Energy           =   -6.538E+03
 
 Time             =     0.006
-Temperature      =   419.45
+Temperature      =   419.03
 Volume           =    11.77
-Pressure         =     3.66E+08
-Energy           =   -6.507E+03
+Pressure         =     3.72E+08
+Energy           =   -6.540E+03
 
 Time             =     0.007
-Temperature      =   433.66
+Temperature      =   433.21
 Volume           =    11.77
-Pressure         =     3.31E+08
-Energy           =   -6.515E+03
+Pressure         =     3.37E+08
+Energy           =   -6.548E+03
 
 Time             =     0.008
-Temperature      =   444.90
+Temperature      =   444.43
 Volume           =    11.77
-Pressure         =     3.05E+08
-Energy           =   -6.523E+03
+Pressure         =     3.11E+08
+Energy           =   -6.555E+03
 
 Time             =     0.009
-Temperature      =   453.43
+Temperature      =   452.94
 Volume           =    11.77
-Pressure         =     2.89E+08
-Energy           =   -6.535E+03
+Pressure         =     2.94E+08
+Energy           =   -6.566E+03
 
 Time             =     0.010
-Temperature      =   459.41
+Temperature      =   458.89
 Volume           =    11.77
-Pressure         =     2.79E+08
-Energy           =   -6.547E+03
+Pressure         =     2.83E+08
+Energy           =   -6.578E+03
 
