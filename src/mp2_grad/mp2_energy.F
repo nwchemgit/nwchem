@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.43 1997-10-15 19:20:23 d3g681 Exp $
+* $Id: mp2_energy.F,v 1.44 1998-07-13 23:42:39 d3g681 Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -301,7 +301,7 @@ c
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e', mt_dbl, 1, tol2e))
      $     tol2e = 1d-9  ! For screening integrals
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e fock', mt_dbl, 1, tol2e))
-     $     tol2e_fock = 1d-7 ! For overall accuracy of Fock builds
+     $     tol2e_fock = 1d-9 ! For overall accuracy of Fock builds
 c
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
          write(6,123) nbf, nmo, noa_frozen, nva_frozen, 
