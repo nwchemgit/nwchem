@@ -1,4 +1,4 @@
-C $Id: rel_SSLL.F,v 1.4 2000-02-03 20:30:19 mg201 Exp $
+C $Id: rel_SSLL.F,v 1.5 2000-05-27 18:36:52 mg201 Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSLL}
 c:tex-This routine generates the SSLL-type two-electron integrals for
@@ -208,7 +208,12 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &    Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &    scr(i_pp),n_intpp,canAB,canCD,canPQ,
      &    DryRun,scr(i_scr),memscr)
-      if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+      if (DryRun) then
+        max_mem = max(max_mem,i_scr+memscr-1)
+      else if (debug_arrays) then
+        call ecp_matpr(scr(i_pp),1,n_intpp,1,1,
+     &      1,n_intpp,1,1,'++ ints','E',120,6)
+      end if
 *
 *         Calculate integrals for l_A-1, l_B+1
 *
@@ -221,7 +226,12 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &      Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &      scr(i_pm),n_intpm,canAB,canCD,canPQ,
      &      DryRun,scr(i_scr),memscr)
-        if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+        if (DryRun) then
+          max_mem = max(max_mem,i_scr+memscr-1)
+        else if (debug_arrays) then
+          call ecp_matpr(scr(i_pm),1,n_intpm,1,1,
+     &        1,n_intpm,1,1,'+- ints','E',120,6)
+        end if
       end if
 *
 *         Calculate integrals for l_A+1, l_B-1
@@ -235,7 +245,12 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &      Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &      scr(i_mp),n_intmp,canAB,canCD,canPQ,
      &      DryRun,scr(i_scr),memscr)
-        if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+        if (DryRun) then
+          max_mem = max(max_mem,i_scr+memscr-1)
+        else if (debug_arrays) then
+          call ecp_matpr(scr(i_mp),1,n_intmp,1,1,
+     &        1,n_intmp,1,1,'-+ ints','E',120,6)
+        end if
 *
 *         Calculate integrals for l_A-1, l_B-1
 *
@@ -248,7 +263,12 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
      &        Dxyz,zeta_D,coef_D,NPD,NCD,l_D,
      &        scr(i_mm),n_intmm,canAB,canCD,canPQ,
      &        DryRun,scr(i_scr),memscr)
-          if (DryRun) max_mem = max(max_mem,i_scr+memscr-1)
+          if (DryRun) then
+            max_mem = max(max_mem,i_scr+memscr-1)
+          else if (debug_arrays) then
+            call ecp_matpr(scr(i_mm),1,n_intmm,1,1,
+     &          1,n_intmm,1,1,'-- ints','E',120,6)
+          end if
         end if
       end if
 *
