@@ -65,9 +65,6 @@ c
 c
       call sp_numbb(int_mb(i_iown),dbl_mb(i_boxs))
 c
-      if(.not.ma_push_get(mt_int,6*maxbox,'rng',l_rng,i_rng))
-     + call errquit('Failed to allocate rng',me)
-c
       if(sp_diffbb(dbl_mb(i_boxs),int_mb(i_rng)))
      + call sp_listbb(int_mb(i_iown),dbl_mb(i_boxs),int_mb(i_bb))
 c
@@ -122,8 +119,6 @@ c
      + call errquit('Failed to deallocate v',0)
       if(.not.ma_pop_stack(l_x))
      + call errquit('Failed to deallocate x',0)
-      if(.not.ma_pop_stack(l_rng))
-     + call errquit('Failed to deallocate rng',0)
 c
       nwmi=nwm
       nwai=nwa
@@ -327,6 +322,8 @@ c
      + call errquit('Failed to allocate bxsiz',0)
       if(.not.ma_push_get(mt_int,6*maxbox,'ibxrg',l_boxr,i_boxr))
      + call errquit('Failed to allocate ibxrg',0)
+      if(.not.ma_push_get(mt_int,6*maxbox,'rng',l_rng,i_rng))
+     + call errquit('Failed to allocate rng',me)
 c
       if(.not.ma_push_get(mt_int,mip2*mbox,'ipl',l_ipl,i_ipl))
      + call errquit('Failed to allocate ipl',0)
@@ -375,6 +372,8 @@ c
      + call errquit('Failed to deallocate jpl',0)
       if(.not.ma_pop_stack(l_ipl))
      + call errquit('Failed to deallocate ipl',0)
+      if(.not.ma_pop_stack(l_rng))
+     + call errquit('Failed to deallocate rng',0)
       if(.not.ma_pop_stack(l_boxr))
      + call errquit('Failed to deallocate boxr',0)
       if(.not.ma_pop_stack(l_boxs))
