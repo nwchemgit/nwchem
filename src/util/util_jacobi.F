@@ -1,6 +1,6 @@
       subroutine util_jacobi(n, a, lda, e)
 *
-* $Id: util_jacobi.F,v 1.3 2003-01-18 03:58:31 edo Exp $
+* $Id: util_jacobi.F,v 1.4 2003-08-06 16:58:15 edo Exp $
 *
       implicit none
       integer n, lda
@@ -11,7 +11,7 @@
       end
       subroutine util_jacobinosort(n, a, lda, e)
 *
-* $Id: util_jacobi.F,v 1.3 2003-01-18 03:58:31 edo Exp $
+* $Id: util_jacobi.F,v 1.4 2003-08-06 16:58:15 edo Exp $
 *
       implicit none
       integer n, lda
@@ -34,6 +34,13 @@ c     the eigenvectors and returning in e the eigenvalues
 c
       integer l_v, k_v, i, j, ij, ierr
 c
+c     trivial 1x1 case
+c
+      if(n.eq.1) then
+         e(1)=a(1,1)
+         a(1,1)=1d0
+         return
+      endif
       if (.not. ma_push_get(mt_dbl, n*(n+1)/2 ,'v',l_v, k_v))
      $     call errquit('util_jacobi: v', n*(n+1)/2)
 c

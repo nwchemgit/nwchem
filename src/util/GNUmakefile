@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.164 2003-06-30 23:46:31 edo Exp $
+# $Id: GNUmakefile,v 1.165 2003-08-06 16:58:15 edo Exp $
 
 include ../config/makefile.h
 
@@ -69,7 +69,7 @@ endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGWIN CYGNUS))
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DINTEGER_1='integer*1' -DBYTE_SHORT_PACKING  
   ifeq ($(FC),ifc)
     EXTRA_OBJ += erfc.o
   endif
@@ -100,13 +100,12 @@ ifeq ($(FC),fort)
   EXTRA_OBJ += dec_fpe.o
 endif
 endif
+  LIB_DEFINES += -DINTEGER_1='integer*1' -DBYTE_SHORT_PACKING  
 ifeq ($(_CPU),ia64)
   EXTRA_OBJ = win32_cpu.o linux_shift.o linux_random.o  linux_setfpucw.o erfc.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 ifeq ($(_CPU),x86_64)
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o
-  LIB_DEFINES += -DINTEGER_1=byte -DBYTE_SHORT_PACKING  
 endif
 endif                                                                           
 
