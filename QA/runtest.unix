@@ -175,6 +175,9 @@ foreach TEST ($args_2_use)
   if( -f $TESTDIR/$PDBFILE) then
     set md_test_run = 1
   endif
+  if( -f $TESTDIR/$TESTFILE) then
+    set md_test_run = 1
+  endif
 #
   
   if (! -f $TESTDIR/$INPUTFILE) then
