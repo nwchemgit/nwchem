@@ -4,7 +4,7 @@
 #
 # rak pnl/94
 #
-# $Id: update_look,v 1.2 1997-02-17 22:02:44 d3e129 Exp $
+# $Id: update_look,v 1.3 1997-05-29 01:29:00 d3e129 Exp $
 #
 #
 if (! $?CVSROOT) then
@@ -17,7 +17,7 @@ find . -name update.ls -print -exec rm -f "{}" ";"
 find . -name .tmp.update.ls -exec rm -f "{}" ";"
 echo " making update.ls "
 cvs -n update -d >& .tmp.update.ls 
-grep 'M ' .tmp.update.ls >  update.ls
+grep 'M ' .tmp.update.ls > update.ls
 grep 'C ' .tmp.update.ls >> update.ls
 grep 'U ' .tmp.update.ls >> update.ls
 grep 'A ' .tmp.update.ls >> update.ls
@@ -30,7 +30,8 @@ mv update.ls .tmp.update.ls
 cat .tmp.update.ls | grep -v "include/" > update.ls
 # sort makefile info to top of file
 mv update.ls .tmp.update.ls
-echo " **** makefile specific changes ****" > update.ls
+date > update.ls
+echo " **** makefile specific changes ****" >> update.ls
 cat .tmp.update.ls | grep -i makefile >> update.ls
 echo " " >> update.ls
 echo " **** source specific changes ****" >> update.ls
