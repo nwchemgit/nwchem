@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.65 1999-12-29 18:28:54 d3g270 Exp $
+# $Id: DEFS,v 1.66 2000-03-09 20:46:16 d3j191 Exp $
 #
 #======================================================================
 #
@@ -39,7 +39,11 @@ peigs_TARGET		= $(NWCHEM_TARGET)
 peigs_CPU_TYPE          = $(NWCHEM_TARGET_CPU)
 
 peigs_DIR	= $(peigs_SRC)/peigs
+ifndef NWCHEM_TARGET_CPU
 peigs_LIB	= $(TOPDIR)/lib/$(NWCHEM_TARGET)/libpeigs.a
+else
+peigs_LIB	= $(TOPDIR)/lib/$(NWCHEM_TARGET)_$(NWCHEM_TARGET_CPU)/libpeigs.a
+endif
 
 SHELL		= /bin/sh
 
