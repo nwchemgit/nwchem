@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.102 2002-12-04 19:36:22 d3k958 Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.103 2003-02-15 01:18:49 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -554,8 +554,7 @@ c
       xcname(12)='           HCTH407  Method XC Functional'
       xcname(13)='          HCTHP1/4  Method XC Functional'
       xcname(14)='         Becke 97-2 Method XC Functional'
-      xcname(15)='vLeeuwen-Baerends94 Method XC Functional'
-      xcname(16)=' Casida AC Correct. Method XC Functional'
+      xcname(15)=' Filatov Thiel 1997 Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
