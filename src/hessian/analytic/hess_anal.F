@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.18 2002-10-01 00:46:57 edo Exp $
+C $Id: hess_anal.F,v 1.19 2002-10-01 18:45:25 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -34,6 +34,7 @@ C
       logical bgj_get_scf_method, hess_check
       external task_energy
       external bgj_get_scf_method, hess_check
+      double precision t0
 c
       hess_anal = .false.
 c
@@ -125,6 +126,7 @@ c
       if (restr.lt.1) then
         if (oprint) write(LuOut,*) 'HESS: before the onedd_cont call'
         if (ohessprof) call pstat_on(ps_onedd)
+        t0=util_wallsec()
         call onedd_cont(rtdb)
         if (ohessprof) call pstat_off(ps_onedd)
 c
@@ -135,7 +137,8 @@ c
         call nucdd_cont(rtdb)
         if (ohessprof) call pstat_off(ps_nucdd)
         call hess_restart(rtdb,1)
-        if (oprintsome) write(LuOut,11) util_wallsec()   
+        
+        if (oprintsome) write(LuOut,11) util_wallsec()-t0
  11     format(/' HESSIAN: the one electron ',
      $    'contributions are done in ',f9.1,'s'/)
       else 
@@ -147,10 +150,11 @@ c
       if (restr.lt.2) then
         if (oprint) write(LuOut,*) 'HESS: before the twodd_cont call'
         if (ohessprof) call pstat_on(ps_twodd)
+        t0=util_wallsec()
         call twodd_cont(rtdb)
         if (ohessprof) call pstat_off(ps_twodd)
         call hess_restart(rtdb,2)
-        if (oprintsome) write(LuOut,12) util_wallsec()   
+        if (oprintsome) write(LuOut,12) util_wallsec()-t0
  12     format(/' HESSIAN: the two electron ',
      $    'contributions are done in ',f9.1,'s'/)
       endif

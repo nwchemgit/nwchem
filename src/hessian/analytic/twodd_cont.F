@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.36 2002-09-25 23:46:58 windus Exp $
+C $Id: twodd_cont.F,v 1.37 2002-10-01 18:45:25 edo Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -63,9 +63,9 @@ c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer k_pdm2, k_pdm2a, k_pdm2b, k_pdm2c, k_pdm2d ! MCSCF 2-pdm
       integer k_coeff  ! MCSCF local copy of Active space MOs
 c
-      logical omp2, oprint, otwoprint
+      logical omp2, oprint, otwoprint,oprintsome
 c
-      double precision tol2e
+      double precision tol2e,t0
       double precision one, mone
       parameter ( mone = -1.D0 )
       parameter ( one  =  1.D0 )
@@ -74,6 +74,8 @@ c Set up printing
 c
       oprint = util_print('hess_follow',print_high)
       otwoprint = util_print('twodd_cont',print_debug)
+      oprintsome = util_print('hess-follow',print_low)
+      oprintsome = oprintsome .and. (ga_nodeid().eq.0)
 c
 c Need to do a bit of cleanup so DFT and SCF work OK
 c
@@ -185,6 +187,8 @@ c
       call schwarz_init(geom, basis)
       call int_terminate()
       call intd_init(rtdb, nbasis, basis_list)
+      t0=util_wallsec()
+      
 c
 c For now I am not dealing with the active atom stuff, just setting every
 c atom to active.
@@ -239,6 +243,10 @@ c
       if (scftype .eq. 'UHF') call uhf_fock_finish(g_dens2,g_rhs,
      *   jfac,kfac,ndens,nfock,nbf,otwoprint)
       call intd_terminate()
+      if(oprintsome) write(LuOut,12) util_wallsec()-t0
+ 12     format(/' HESSIAN: 2-el 1st deriv.',
+     $    ' term done in ',14x,f9.1,'s'/)
+      t0=util_wallsec()
       call intdd_init(rtdb, nbasis, basis_list)
 c will eventually bring back - log_mb(k_act))
 c
@@ -494,6 +502,9 @@ c call terminate since cphf will call it's own integral initialization
 c
       call schwarz_tidy()    ! need to get rid of temp buffers
       call intdd_terminate()
+      if(oprintsome) write(LuOut,13) util_wallsec()-t0
+ 13   format(/' HESSIAN: 2-el 2nd deriv.',
+     $    ' term done in ',14x,f9.1,'s'/)
 c
       return
       end
