@@ -7,6 +7,11 @@ ifeq ($(TARGET),CRAY-T3D)
   DEPENDCFLAGS = -Tcray-ymp 
 endif
 
+ifeq ($(TARGET),SP1)
+# Must use plain cc not mpcc
+  CC = cc
+endif
+
 depend.x:	depend.c
 	$(CC) $(DEPENDCFLAGS) -g -o $@ $^
 
