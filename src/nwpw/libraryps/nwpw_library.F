@@ -1,9 +1,10 @@
 
 c
-c $Id: nwpw_library.F,v 1.7 2004-05-24 13:47:07 bylaska Exp $
+c $Id: nwpw_library.F,v 1.8 2004-10-14 22:57:56 bylaska Exp $
 c
-	subroutine nwpw_libgeninp(element,filename)
+	subroutine nwpw_libgeninp(iopt,element,filename)
 	implicit none
+        integer iopt
 	character*(*) element ! [in]
 	character*(*) filename
 
@@ -17,7 +18,7 @@ c
 	integer lef,unitrc
 	logical isopen
 c
-	call nwpw_libfile(1,elem_fname,element)
+	call nwpw_libfile(iopt,elem_fname,element)
 	lef=inp_strlen(elem_fname)
 c
 c       open the library file

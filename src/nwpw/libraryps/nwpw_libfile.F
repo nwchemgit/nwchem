@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.11 2004-03-15 22:04:17 edo Exp $
+* $Id: nwpw_libfile.F,v 1.12 2004-10-14 22:57:56 bylaska Exp $
 *
 
 *
@@ -92,9 +92,11 @@ c
         library = library_name(1:ind)//'/'
         ind = index(library,' ')  -1
 
+c        filename=
+c     >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
+c     >   //'_basis'
         filename=
      >   libname(1:inp_strlen(libname))//library(1:ind)//element(1:l)
-     >   //'_basis'
 
         if (hprint) then
         write(luout,*)
