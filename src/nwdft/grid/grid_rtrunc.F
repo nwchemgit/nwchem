@@ -38,8 +38,8 @@ c
       call grid_rtinit(rtdb,l_minexp, k_minexp,k_coord,l_coord,
      .     l_ldiff, k_ldiff,ipmat, lpmat, l_ics,k_ics,g_s)
       call ifill(2*ntypes, 0, rad_cutoff, 1)
-      call ifill(ncenters, 0, ll, 1)
-      call dfill(ncenters, 0d0, exex, 1)
+      call ifill(ntypes, 0, ll, 1)
+      call dfill(ntypes, 0d0, exex, 1)
 c
 c     get desired grid accuracy
 c
